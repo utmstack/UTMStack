@@ -2148,5 +2148,36 @@
     "matches": [
       "fortiweb_xss_detection"
     ]
+  },
+  {
+    "name": "syslog header without priority",
+    "raw": "Aug  3 12:00:00 fortiweb-lab date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert_Deny severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request blocked\" http_url=/login?q=a=b http_host=app.example:443",
+    "expected": {
+      "origin.ip": "198.51.100.8",
+      "target.ip": "192.0.2.7",
+      "log.action": "Alert_Deny",
+      "actionResult": "denied",
+      "log.subtype": "SQL Injection"
+    },
+    "absent": [],
+    "matches": [
+      "fortiweb_sqli_detection"
+    ]
+  },
+  {
+    "name": "empty value stays unset",
+    "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.9 src_port=51001 dst=192.0.2.8 dst_port=443 proto=tcp action=Alert_Deny severity_level=High main_type=\"Signature Detection\" sub_type= attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request blocked\" http_url=/login http_host=app.example:443",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.8",
+      "actionResult": "denied",
+      "log.attacktype": "SQL Injection"
+    },
+    "absent": [
+      "log.subtype"
+    ],
+    "matches": [
+      "fortiweb_sqli_detection"
+    ]
   }
 ]

@@ -1,9 +1,10 @@
 package main
 
 // Offline Sophos Central JSON extraction model, not the closed EventProcessor.
-// Explicit YAML JSON, grok, rename, add and delete steps are
-// modeled. CEL, Event serialization, placeholder expansion, query creation and
-// history thresholds use SDK v1.1.31. External geolocation is not executed.
+// Explicit YAML JSON, grok, rename, add and delete steps are modeled; JSON,
+// grok and rename follow the EventProcessor steps. CEL, Event serialization,
+// placeholder expansion, query creation and history thresholds use the go.mod
+// SDK. External geolocation is not executed.
 import (
 	"bytes"
 	"encoding/json"
@@ -72,21 +73,19 @@ func sophosCentralConfig(t *testing.T) *plugins.Config {
 	}
 	return c
 }
-func sophosCentralRegex(t *testing.T, g *plugins.Grok, cfg *plugins.Config) *regexp.Regexp {
+
+var sophosCentralRegexCache = map[string]*regexp.Regexp{}
+
+func sophosCentralRegex(t *testing.T, pattern string, cfg *plugins.Config) *regexp.Regexp {
 	t.Helper()
-	var pattern strings.Builder
-	for i, p := range g.Patterns {
-		if p.FieldName != "" {
-			fmt.Fprintf(&pattern, "(?P<f%d>%s)", i, p.Pattern)
-		} else {
-			pattern.WriteString("(?:" + p.Pattern + ")")
-		}
+	if r, ok := sophosCentralRegexCache[pattern]; ok {
+		return r
 	}
 	pats := map[string]string{"greedy": ".*", "data": ".*?", "word": "[A-Za-z0-9_-]+", "space": "\\s+"}
 	for k, v := range cfg.Patterns {
 		pats[k] = v
 	}
-	tmpl, e := template.New("grok").Option("missingkey=error").Parse(pattern.String())
+	tmpl, e := template.New("grok").Option("missingkey=error").Parse(pattern)
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -98,7 +97,43 @@ func sophosCentralRegex(t *testing.T, g *plugins.Grok, cfg *plugins.Config) *reg
 	if e != nil {
 		t.Fatal(e)
 	}
+	sophosCentralRegexCache[pattern] = r
 	return r
+}
+
+// sophosCentralGrok follows the EventProcessor grok step: it trims the text
+// before each pattern, requires a non-empty match at the start, consumes that
+// match, and writes fields only when every pattern matched.
+func sophosCentralGrok(t *testing.T, g *plugins.Grok, str string, cfg *plugins.Config) ([][2]string, bool) {
+	t.Helper()
+	var found [][2]string
+	matched := 0
+	for _, p := range g.Patterns {
+		str = strings.TrimSpace(str)
+		if str == "" {
+			break
+		}
+		m := sophosCentralRegex(t, p.Pattern, cfg).FindString(str)
+		if m == "" || !strings.HasPrefix(str, m) {
+			break
+		}
+		matched++
+		if p.FieldName != "" {
+			found = append(found, [2]string{p.FieldName, strings.TrimSpace(m)})
+		}
+		str = strings.TrimPrefix(str, m)
+	}
+	return found, matched == len(g.Patterns)
+}
+
+// sophosCentralRaw returns the gjson result for a path, as the parser plugins
+// read it from the draft.
+func sophosCentralRaw(m map[string]any, p string) gjson.Result {
+	b, err := json.Marshal(m)
+	if err != nil {
+		return gjson.Result{}
+	}
+	return gjson.GetBytes(b, p)
 }
 func sophosCentralParse(t *testing.T, cfg *plugins.Config, raw string, dataSource string, cache *plugins.CELCache) string {
 	t.Helper()
@@ -151,23 +186,27 @@ func sophosCentralParse(t *testing.T, cfg *plugins.Config, raw string, dataSourc
 					if !ok {
 						t.Fatalf("non-string grok source %s", src)
 					}
-					r := sophosCentralRegex(t, g, cfg)
-					m := r.FindStringSubmatch(str)
-					if m == nil {
+					found, ok := sophosCentralGrok(t, g, str, cfg)
+					if !ok {
 						continue
 					}
-					for i, p := range g.Patterns {
-						if p.FieldName != "" {
-							sophosCentralPut(draft, p.FieldName, m[r.SubexpIndex(fmt.Sprintf("f%d", i))], false)
-						}
+					for _, f := range found {
+						sophosCentralPut(draft, f[0], f[1], false)
 					}
 				case "rename":
+					// The rename step walks every source, so the last one found
+					// wins. It copies the value with utils.GetValueOf, which returns
+					// an object or list as its JSON text and null as "", so paths
+					// under a renamed object no longer resolve.
+					to := s.Rename.To
+					utils.SanitizeField(&to)
 					for _, p := range s.Rename.From {
-						if v, ok := sophosCentralGet(draft, p); ok {
-							sophosCentralPut(draft, s.Rename.To, v, false)
-							sophosCentralPut(draft, p, nil, true)
-							break
+						v := sophosCentralRaw(draft, p)
+						if !v.Exists() {
+							continue
 						}
+						sophosCentralPut(draft, to, utils.GetValueOf(v), false)
+						sophosCentralPut(draft, p, nil, true)
 					}
 				case "trim":
 					for _, p := range s.Trim.Fields {
@@ -316,13 +355,12 @@ func sophosCentralRules(t *testing.T) map[string]*plugins.Rule {
 	return out
 }
 
+// sophosCentralSanitizeJSON cleans top-level keys only, as the JSON step does;
+// nested keys keep their characters.
 func sophosCentralSanitizeJSON(input map[string]any) map[string]any {
 	out := map[string]any{}
 	for key, value := range input {
 		utils.SanitizeField(&key)
-		if nested, ok := value.(map[string]any); ok {
-			value = sophosCentralSanitizeJSON(nested)
-		}
 		out[key] = value
 	}
 	return out

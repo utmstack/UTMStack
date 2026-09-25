@@ -49,7 +49,7 @@ correlation:
   - field: log.azureActor
     operator: filter_term
     value: '{{.log.azureActor}}'
-  - field: log.correlationCandidate.app_registration_abuse
+  - field: log.correlationCandidate.appRegistrationAbuse
     operator: filter_term
     value: 'true'
   within: 1h

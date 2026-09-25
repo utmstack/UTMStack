@@ -1,4 +1,4 @@
-# Windows_Agent filter, version 3.1.2
+# Windows_Agent filter, version 3.2.0
 # Based on winlogbeat fields, reference [8.15]
 # See https://www.elastic.co/guide/en/beats/winlogbeat/current/exported-fields-winlog.html
 
@@ -12,7 +12,7 @@ pipeline:
       # Native agent and Winlogbeat aliases. The event-producing computer is the
       # target host; it must not overwrite the remote WorkstationName origin.
       - rename:
-          from: [log.computer, log.computername, log.computer_name]
+          from: [log.computer, log.computer_name, log.computername]
           to: target.host
       - rename:
           from: [log.timestamp, log.timeCreated]
@@ -144,6 +144,61 @@ pipeline:
             - log.data.IpAddress
           to: origin.ip
           where: (inCIDR("log.data.IpAddress", "0.0.0.0/0") || inCIDR("log.data.IpAddress", "::/0")) && !inCIDR("log.data.IpAddress", "0.0.0.0/32") && !inCIDR("log.data.IpAddress", "::/128")
+
+      # WFP 5156 records an allowed connection; 5152/5157 record a blocked
+      # packet/connection. Preserve the vendor addresses before promoting the
+      # validated endpoints. A bind/listen event is not an allowed connection.
+      - rename:
+          from: [log.data.SourceAddress]
+          to: log.eventDataSourceAddress
+      - rename:
+          from: [log.data.DestAddress]
+          to: log.eventDataDestAddress
+      - rename:
+          from: [log.data.SourcePort]
+          to: log.eventDataSourcePort
+      - rename:
+          from: [log.data.DestPort]
+          to: log.eventDataDestPort
+      - rename:
+          from: [log.data.Direction]
+          to: log.eventDataDirection
+      - rename:
+          from: [log.data.Protocol]
+          to: log.eventDataProtocol
+      - rename:
+          from: [log.data.Application]
+          to: log.eventDataApplication
+
+      # In 5152, 5156 and 5157 the Source fields hold the side that sent or
+      # started the traffic and the Destination fields the side that received
+      # it, in both directions. Production records confirm this for inbound
+      # traffic: remote senders appear in SourceAddress with ephemeral ports,
+      # and local service ports (22, 443, 445, 7680, 10050) in DestPort, even
+      # though Microsoft's 5152/5157 field text calls SourceAddress local.
+      # Blocked records need a known direction before their endpoints are used.
+      - grok:
+          source: log.eventDataSourceAddress
+          patterns:
+          - fieldName: origin.ip
+            pattern: (?s)^.+$
+          where: >-
+            (equals("log.eventCode",5156) ||
+             (oneOf("log.eventCode",[5152,5157]) && oneOf("log.eventDataDirection",["%%14592","%%14593"]))) &&
+            (inCIDR("log.eventDataSourceAddress","0.0.0.0/0") || inCIDR("log.eventDataSourceAddress","::/0")) &&
+            !inCIDR("log.eventDataSourceAddress","0.0.0.0/32") && !inCIDR("log.eventDataSourceAddress","::/128") &&
+            !exists("origin.ip")
+      - grok:
+          source: log.eventDataDestAddress
+          patterns:
+          - fieldName: target.ip
+            pattern: (?s)^.+$
+          where: >-
+            (equals("log.eventCode",5156) ||
+             (oneOf("log.eventCode",[5152,5157]) && oneOf("log.eventDataDirection",["%%14592","%%14593"]))) &&
+            (inCIDR("log.eventDataDestAddress","0.0.0.0/0") || inCIDR("log.eventDataDestAddress","::/0")) &&
+            !inCIDR("log.eventDataDestAddress","0.0.0.0/32") && !inCIDR("log.eventDataDestAddress","::/128") &&
+            !exists("target.ip")
 
       - rename:
           from:
@@ -303,6 +358,7 @@ pipeline:
       - rename:
           from:
             - log.record_id
+            - log.recordid
           to: log.recordId
 
       - rename:
@@ -3041,18 +3097,26 @@ pipeline:
           where: equals("log.eventDataStatus", "61") && equals("log.eventCode", 4771)
 
       # Adding action result
+      - delete:
+          fields: [actionResult]
       - add:
           function: 'string'
           params:
             key: actionResult
             value: "success"
-          where: 'oneOf("log.eventCode", [4624, 4648, 4672, 4720, 4722, 4728, 4732, 4756, 4767])'
+          where: 'oneOf("log.eventCode", [4624, 4672, 4720, 4722, 4728, 4732, 4756, 4767])'
       - add:
           function: string
           params:
             key: actionResult
             value: success
-          where: oneOf("log.eventCode", [4725, 4726, 4740])
+          where: oneOf("log.eventCode", [4725, 4726, 5156])
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: oneOf("log.eventCode", [5150, 5151, 5152, 5153, 5155, 5157, 5159])
       - add:
           function: string
           params:

@@ -1,9 +1,10 @@
 package main
 
 // Offline FortiGate extraction model, not the closed EventProcessor.
-// Explicit YAML grok/rename/cast/trim/add/delete and observed KV splitting are
-// modeled. CEL, Event serialization, placeholder expansion, query creation and
-// history thresholds use SDK v1.1.31. External geolocation is not executed.
+// Explicit YAML grok/rename/cast/trim/add/delete and KV steps are modeled; grok
+// and KV follow the EventProcessor steps. CEL, Event serialization, placeholder
+// expansion, query creation and history thresholds use the go.mod SDK.
+// External geolocation is not executed.
 import (
 	"bytes"
 	"encoding/json"
@@ -77,21 +78,19 @@ func fortiConfig(t *testing.T) *plugins.Config {
 	}
 	return c
 }
-func fortiRegex(t *testing.T, g *plugins.Grok, cfg *plugins.Config) *regexp.Regexp {
+
+var fortiRegexCache = map[string]*regexp.Regexp{}
+
+func fortiRegex(t *testing.T, pattern string, cfg *plugins.Config) *regexp.Regexp {
 	t.Helper()
-	var pattern strings.Builder
-	for i, p := range g.Patterns {
-		if p.FieldName != "" {
-			fmt.Fprintf(&pattern, "(?P<f%d>%s)", i, p.Pattern)
-		} else {
-			pattern.WriteString("(?:" + p.Pattern + ")")
-		}
+	if r, ok := fortiRegexCache[pattern]; ok {
+		return r
 	}
 	pats := map[string]string{"greedy": ".*", "data": ".*?", "word": "[A-Za-z0-9_-]+", "space": "\\s+"}
 	for k, v := range cfg.Patterns {
 		pats[k] = v
 	}
-	tmpl, e := template.New("grok").Option("missingkey=error").Parse(pattern.String())
+	tmpl, e := template.New("grok").Option("missingkey=error").Parse(pattern)
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -103,7 +102,33 @@ func fortiRegex(t *testing.T, g *plugins.Grok, cfg *plugins.Config) *regexp.Rege
 	if e != nil {
 		t.Fatal(e)
 	}
+	fortiRegexCache[pattern] = r
 	return r
+}
+
+// fortiGrok follows the EventProcessor grok step: it trims the text before
+// each pattern, requires a non-empty match at the start, consumes that match,
+// and writes fields only when every pattern matched.
+func fortiGrok(t *testing.T, g *plugins.Grok, str string, cfg *plugins.Config) ([][2]string, bool) {
+	t.Helper()
+	var found [][2]string
+	matched := 0
+	for _, p := range g.Patterns {
+		str = strings.TrimSpace(str)
+		if str == "" {
+			break
+		}
+		m := fortiRegex(t, p.Pattern, cfg).FindString(str)
+		if m == "" || !strings.HasPrefix(str, m) {
+			break
+		}
+		matched++
+		if p.FieldName != "" {
+			found = append(found, [2]string{p.FieldName, strings.TrimSpace(m)})
+		}
+		str = strings.TrimPrefix(str, m)
+	}
+	return found, matched == len(g.Patterns)
 }
 func fortiParse(t *testing.T, cfg *plugins.Config, raw string, dataSource string, cache *plugins.CELCache) string {
 	t.Helper()
@@ -156,15 +181,12 @@ func fortiParse(t *testing.T, cfg *plugins.Config, raw string, dataSource string
 					if !ok {
 						t.Fatalf("non-string grok source %s", src)
 					}
-					r := fortiRegex(t, g, cfg)
-					m := r.FindStringSubmatch(str)
-					if m == nil {
+					found, ok := fortiGrok(t, g, str, cfg)
+					if !ok {
 						continue
 					}
-					for i, p := range g.Patterns {
-						if p.FieldName != "" {
-							fortiPut(draft, p.FieldName, m[r.SubexpIndex(fmt.Sprintf("f%d", i))], false)
-						}
+					for _, f := range found {
+						fortiPut(draft, f[0], f[1], false)
 					}
 				case "rename":
 					for _, p := range s.Rename.From {
@@ -206,17 +228,16 @@ func fortiParse(t *testing.T, cfg *plugins.Config, raw string, dataSource string
 					if !ok {
 						continue
 					}
-					// Observed KV output splits quoted multiword values.
+					// The KV step splits quoted multiword values and trims each value.
 					// Explicit YAML grok steps rebuild consumed fields afterward.
-					for _, item := range strings.Split(v.(string), s.Kv.FieldSplit) {
-						pair := strings.SplitN(item, s.Kv.ValueSplit, 2)
-						if len(pair) != 2 {
+					for _, item := range strings.Split(strings.TrimSpace(v.(string)), s.Kv.FieldSplit) {
+						key, value, found := strings.Cut(item, s.Kv.ValueSplit)
+						if !found {
 							continue
 						}
-						key := pair[0]
 						utils.SanitizeField(&key)
 						if key != "" {
-							fortiPut(draft, "log."+key, pair[1], false)
+							fortiPut(draft, "log."+key, strings.TrimSpace(value), false)
 						}
 					}
 				case "dynamic":

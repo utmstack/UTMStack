@@ -134,6 +134,16 @@ subtype and match the intended predicates, but this does not establish coverage
 for other rules that require tail-only evidence. Keep the original raw event for
 investigation; complete recovery of malformed vendor tails is not claimed.
 
+Follow-up (2026-09-24): the EventProcessor grok step matches each pattern alone
+against the trimmed remaining text, rejects an empty match and writes fields only
+when every pattern matched. The extractors' trailing `(?:\s|$)` pattern, the URL
+recovery's leading `\s+` patterns and the optional envelope prefix therefore never
+matched, and no authoritative field was extracted. Each extractor now checks the
+boundary within its value pattern, so a malformed quoted value is still rejected.
+The envelope step requires a priority or syslog header, and a second step reads a
+line that starts with its first key. The recovery captures the URL block through
+the final native `http_host` key, and a second step removes that key.
+
 The new fixtures explicitly cover Medium Generic Attacks(Extended) with `Alert`,
 `Alert_Deny` and case variants, each using the actual SDK history executor below
 and at the three-event threshold and outside the 15-minute window. The Generic
@@ -183,8 +193,9 @@ addresses, hosts, payloads and identifiers.
   and corrected raw-authoritative source identities. `git diff --check` passes. SDK history tests
   use localhost only; no customer endpoint is contacted by the test suite.
 
-The raw harness is an explicit offline model of documented grok concatenation,
-Go RE2, observed KV splitting and filter transforms. It does not run the closed
+The raw harness is an explicit offline model of in-order grok consumption as the
+EventProcessor grok step performs it, Go RE2, KV splitting and filter transforms.
+It does not run the closed
 EventProcessor, external enrichment, live OpenSearch, deduplication or alert
 publication. Actual history windows use a processing-time lower bound on
 `@timestamp`, not strict event-time sequencing. Classification markers on older

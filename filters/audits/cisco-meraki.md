@@ -48,8 +48,8 @@ Legacy body handlers remain for event families outside the bounded new handlers;
 legacy header/control-field rewrites cannot overwrite a recognized native header.
 Representative DHCP, VPN connectivity, cellular status, STP, disassociation and
 URL formats have regression fixtures. Not every historical vendor variant has
-been exercised, and the model's built-in legacy regex aliases are approximations
-of the closed executor's patterns. New native patterns are explicit in YAML.
+been exercised. The model uses the template values the v11 config plugin exports
+(see the follow-up below). New native patterns are explicit in YAML.
 
 Three review controls reproduced false fields before correction: a quoted VPN
 fragment produced a peer IP and success, quoted disassociation field names
@@ -79,6 +79,20 @@ epoch values remain vendor time metadata; a verified conversion into `deviceTime
 was not established here. Auxiliary geolocation field names and new consumer
 aliases require review of saved queries during staging; private dashboards were
 not enumerated.
+
+Follow-up (2026-09-24): the EventProcessor grok step matches each pattern alone
+against the trimmed remaining text, rejects an empty match and writes fields
+only when every pattern matched. The native envelope steps separated fields with
+`\s+` patterns and began with an optional priority, the key-value extractors
+ended with `(?:\s|$)`, several steps ended with a lone `$`, the AnyConnect peer
+address used a lazy pattern bounded only by the next pattern, and legacy address
+alternations kept their colon only on the host-name branch. None of these match
+in the executor, so native Meraki events got no header fields, addresses or
+outcome. The separators and anchors are removed, each value checks its own end,
+the priority variants have their own steps, the peer address is read up to the
+literal `Peer port` label, and address alternations are grouped. The raw
+contract test now consumes grok patterns in order with the exported template
+values, as the executor does, instead of approximated aliases.
 
 ## Consumers and identities
 

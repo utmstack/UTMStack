@@ -1,9 +1,10 @@
 package main
 
 // Offline Meraki extraction model, not the closed EventProcessor.
-// Explicit YAML grok/rename/cast/trim/add/delete and observed KV splitting are
-// modeled. CEL, Event serialization, placeholder expansion, query creation and
-// history thresholds use SDK v1.1.31. External geolocation is not executed.
+// Explicit YAML grok/rename/cast/trim/add/delete and KV steps are modeled; grok
+// and KV follow the EventProcessor steps. CEL, Event serialization, placeholder
+// expansion, query creation and history thresholds use the go.mod SDK.
+// External geolocation is not executed.
 import (
 	"bytes"
 	"encoding/json"
@@ -79,27 +80,39 @@ func merakiConfig(t *testing.T) *plugins.Config {
 	}
 	return c
 }
-func merakiRegex(t *testing.T, g *plugins.Grok, cfg *plugins.Config) *regexp.Regexp {
+
+var merakiRegexCache = map[string]*regexp.Regexp{}
+
+// merakiTemplates are the shared grok templates as the v11 config plugin exports
+// them to pipeline/patterns.yaml; the filter's own patterns override them.
+var merakiTemplates = map[string]string{
+	"data":      `(.*?)`,
+	"greedy":    `.*`,
+	"hostname":  `(\b(?:[0-9A-Za-z][0-9A-Za-z-]{0,62})(?:\.(?:[0-9A-Za-z][0-9A-Za-z-]{0,62}))*(\.?|\b))`,
+	"integer":   `(?:[+-]?(?:[0-9]+))`,
+	"ipv4":      `(((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.)){3}((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)))`,
+	"ipv6":      `([0-9a-fA-F]{1,4}(:[0-9a-fA-F]{0,4}){1,7}|::[0-1]?)`,
+	"monthDay":  `(?:(?:0[1-9])|(?:[12][0-9])|(?:3[01])|[1-9])`,
+	"monthName": `\b(?:[Jj]an(?:uary|uar)?|[Ff]eb(?:ruary|ruar)?|[Mm](?:a|ä)?r(?:ch|z)?|[Aa]pr(?:il)?|[Mm]a(?:y|i)?|[Jj]un(?:e|i)?|[Jj]ul(?:y|i)?|[Aa]ug(?:ust)?|[Ss]ep(?:tember)?|[Oo](?:c|k)?t(?:ober)?|[Nn]ov(?:ember)?|[Dd]e(?:c|z)(?:ember)?)\b`,
+	"time":      `((([01][0-9])|2[0-4]):(?:[0-5][0-9])(?::(?:(?:[0-5]?[0-9]|60)(?:[:.,][0-9]+)?)))`,
+	"word":      `\b\w+\b`,
+	"year":      `(([1-9])[0-9]{1,3})`,
+	"space":     `\s+`,
+}
+
+func merakiRegex(t *testing.T, pattern string, cfg *plugins.Config) *regexp.Regexp {
 	t.Helper()
-	var pattern strings.Builder
-	for i, p := range g.Patterns {
-		if p.FieldName != "" {
-			fmt.Fprintf(&pattern, "(?P<f%d>%s)", i, p.Pattern)
-		} else {
-			pattern.WriteString("(?:" + p.Pattern + ")")
-		}
+	if r, ok := merakiRegexCache[pattern]; ok {
+		return r
 	}
-	// Built-in legacy aliases are approximations, not the closed executor's code.
-	// New native patterns are explicit in YAML; evidence claims concern that path.
-	pats := map[string]string{"greedy": ".*", "data": ".*?", "word": "[A-Za-z0-9_-]+", "space": `\s+`,
-		"integer": `[+-]?[0-9]+`, "ipv4": `(?:[0-9]{1,3}\.){3}[0-9]{1,3}`,
-		"ipv6": `[0-9A-Fa-f]*:[0-9A-Fa-f:.]+`, "hostname": `[A-Za-z0-9][A-Za-z0-9.-]*`,
-		"monthName": `[A-Za-z]+`, "monthDay": `[0-9]{1,2}`, "year": `[0-9]{4}`, "time": `[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\.[0-9]+)?`,
+	pats := map[string]string{}
+	for k, v := range merakiTemplates {
+		pats[k] = v
 	}
 	for k, v := range cfg.Patterns {
 		pats[k] = v
 	}
-	tmpl, e := template.New("grok").Option("missingkey=error").Parse(pattern.String())
+	tmpl, e := template.New("grok").Option("missingkey=error").Parse(pattern)
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -111,8 +124,35 @@ func merakiRegex(t *testing.T, g *plugins.Grok, cfg *plugins.Config) *regexp.Reg
 	if e != nil {
 		t.Fatal(e)
 	}
+	merakiRegexCache[pattern] = r
 	return r
 }
+
+// merakiGrok follows the EventProcessor grok step: it trims the text before
+// each pattern, requires a non-empty match at the start, consumes that match,
+// and writes fields only when every pattern matched.
+func merakiGrok(t *testing.T, g *plugins.Grok, str string, cfg *plugins.Config) ([][2]string, bool) {
+	t.Helper()
+	var found [][2]string
+	matched := 0
+	for _, p := range g.Patterns {
+		str = strings.TrimSpace(str)
+		if str == "" {
+			break
+		}
+		m := merakiRegex(t, p.Pattern, cfg).FindString(str)
+		if m == "" || !strings.HasPrefix(str, m) {
+			break
+		}
+		matched++
+		if p.FieldName != "" {
+			found = append(found, [2]string{p.FieldName, strings.TrimSpace(m)})
+		}
+		str = strings.TrimPrefix(str, m)
+	}
+	return found, matched == len(g.Patterns)
+}
+
 func merakiParse(t *testing.T, cfg *plugins.Config, raw string, dataSource string, cache *plugins.CELCache) string {
 	return merakiParseEvent(t, cfg, raw, dataSource, "synthetic-ingress-event", cache)
 }
@@ -170,15 +210,12 @@ func merakiParseEvent(t *testing.T, cfg *plugins.Config, raw, dataSource, id str
 					if !ok {
 						t.Fatalf("non-string grok source %s", src)
 					}
-					r := merakiRegex(t, g, cfg)
-					m := r.FindStringSubmatch(str)
-					if m == nil {
+					found, ok := merakiGrok(t, g, str, cfg)
+					if !ok {
 						continue
 					}
-					for i, p := range g.Patterns {
-						if p.FieldName != "" {
-							merakiPut(draft, p.FieldName, m[r.SubexpIndex(fmt.Sprintf("f%d", i))], false)
-						}
+					for _, f := range found {
+						merakiPut(draft, f[0], f[1], false)
 					}
 				case "rename":
 					for _, p := range s.Rename.From {
@@ -220,17 +257,16 @@ func merakiParseEvent(t *testing.T, cfg *plugins.Config, raw, dataSource, id str
 					if !ok {
 						continue
 					}
-					// Observed KV output splits quoted multiword values.
+					// The KV step splits quoted multiword values and trims each value.
 					// Explicit YAML grok steps rebuild consumed fields afterward.
-					for _, item := range strings.Split(v.(string), s.Kv.FieldSplit) {
-						pair := strings.SplitN(item, s.Kv.ValueSplit, 2)
-						if len(pair) != 2 {
+					for _, item := range strings.Split(strings.TrimSpace(v.(string)), s.Kv.FieldSplit) {
+						key, value, found := strings.Cut(item, s.Kv.ValueSplit)
+						if !found {
 							continue
 						}
-						key := pair[0]
 						utils.SanitizeField(&key)
 						if key != "" {
-							merakiPut(draft, "log."+key, pair[1], false)
+							merakiPut(draft, "log."+key, strings.TrimSpace(value), false)
 						}
 					}
 				case "dynamic":

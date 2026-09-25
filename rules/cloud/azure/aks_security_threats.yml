@@ -49,7 +49,7 @@ correlation:
   - field: log.azureActor
     operator: filter_term
     value: '{{.log.azureActor}}'
-  - field: log.correlationCandidate.aks_security_threats
+  - field: log.correlationCandidate.aksSecurityThreats
     operator: filter_term
     value: 'true'
   within: 30m

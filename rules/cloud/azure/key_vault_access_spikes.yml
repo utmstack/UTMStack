@@ -49,7 +49,7 @@ correlation:
   - field: log.azureActor
     operator: filter_term
     value: '{{.log.azureActor}}'
-  - field: log.correlationCandidate.key_vault_access_spikes
+  - field: log.correlationCandidate.keyVaultAccessSpikes
     operator: filter_term
     value: 'true'
   within: 10m

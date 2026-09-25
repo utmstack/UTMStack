@@ -34,7 +34,7 @@
           "format": "cef",
           "endpointKey": "forged",
           "correlationCandidate": {
-            "kaspersky_ransomware_behavior": "match"
+            "kasperskyRansomwareBehavior": "match"
           }
         }
       },

@@ -37,7 +37,10 @@ func TestKasperskySDKHistory(t *testing.T) {
 	paths := []string{"dataSource", "log.endpointKeyType", "log.endpointKey", "origin.ip", "target.ip", "log.cat"}
 	for name, r := range rules {
 		if len(r.Correlation) > 0 {
-			paths = append(paths, "log.correlationCandidate."+name)
+			if kasperskyHistoryMarkers[name] == "" {
+				t.Fatalf("history rule %s has no correlation marker", name)
+			}
+			paths = append(paths, "log.correlationCandidate."+kasperskyHistoryMarkers[name])
 		}
 	}
 	for _, path := range paths {
@@ -195,7 +198,8 @@ func TestKasperskySDKHistory(t *testing.T) {
 			if ok, e := cache.Eval(r.Where, out); e != nil || !ok {
 				t.Fatalf("raw trigger failed: %v %v", ok, e)
 			}
-			marker := "log.correlationCandidate." + tc.rule
+			// The filter stores this marker and the rule counts it under the same name.
+			marker := "log.correlationCandidate." + kasperskyHistoryMarkers[tc.rule]
 			terms = map[string]string{"dataSource": "collector-test", "log.endpointKeyType": "ip", marker: "match"}
 			notTerms = map[string]string{}
 			if tc.cross {

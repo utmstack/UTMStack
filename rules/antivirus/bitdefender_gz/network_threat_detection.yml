@@ -1,4 +1,4 @@
-# Rule version v3.0.0
+# Rule version v3.0.1
 
 dataTypes:
 - antivirus-bitdefender-gz
@@ -19,13 +19,13 @@ description: 'At least five high-severity firewall or Network Attack Defense rec
   activity, not a successful connection or confirmed compromise. Investigate repeated targeting and the protection outcome.
 
   '
-where: equals("log.correlationCandidate.network_threat_detection","match")
+where: equals("log.correlationCandidate.networkThreatDetection","match")
 correlation:
 - indexPattern: v11-log-antivirus-bitdefender-gz-*
   within: 2h
   count: 5
   with:
-  - field: log.correlationCandidate.network_threat_detection
+  - field: log.correlationCandidate.networkThreatDetection
     operator: filter_term
     value: match
   - field: dataSource

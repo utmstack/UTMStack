@@ -1,0 +1,36 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - wineventlog
+name: "Windows: Built-in Administrator or Guest Account Enabled"
+impact:
+  confidentiality: 2
+  integrity: 2
+  availability: 0
+category: Administrative Awareness
+technique: Built-in account enabled
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4722
+  - https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-security-identifiers
+  - https://learn.microsoft.com/en-us/windows-server/identity/laps/laps-concepts-account-management-modes
+description: |
+  The built-in Administrator account or the built-in Guest account was enabled on a computer or in a domain (event 4722). Every computer and every domain has these two accounts, with fixed identifiers ending in 500 and 501, which makes them well-known targets. Microsoft's Windows LAPS guidance recommends leaving the built-in Administrator account unused and disabled. The account is recognized by its identifier, so renamed or translated account names still match.
+
+  Enabling the same account again by the same account on the same computer is grouped under one alert.
+
+  Requires the "Audit User Account Management" success audit.
+
+  Next Steps:
+  1. Confirm who enabled the account (log.eventDataSubjectUserName) and why.
+  2. If it was not expected, disable the account again, change its password and review its recent sign-ins.
+  3. Check whether a policy, script or management tool keeps enabling it.
+where: |
+  equals("log.eventCode", 4722) &&
+  equals("log.channel", "Security") &&
+  equals("log.providerName", "Microsoft-Windows-Security-Auditing") &&
+  regexMatch("log.eventDataTargetSid", "^S-1-5-21-[0-9]+-[0-9]+-[0-9]+-50[01]$")
+groupBy:
+  - dataSource
+  - lastEvent.log.eventDataSubjectUserSid
+  - lastEvent.log.eventDataTargetSid

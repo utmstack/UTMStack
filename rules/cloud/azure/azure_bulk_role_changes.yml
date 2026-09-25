@@ -68,7 +68,7 @@ correlation:
   - field: log.azureActor
     operator: filter_term
     value: '{{.log.azureActor}}'
-  - field: log.correlationCandidate.azure_bulk_role_changes
+  - field: log.correlationCandidate.azureBulkRoleChanges
     operator: filter_term
     value: 'true'
   within: 30m

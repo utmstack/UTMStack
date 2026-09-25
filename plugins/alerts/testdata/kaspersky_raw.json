@@ -717,11 +717,10 @@
     "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test act=quarantine",
     "dataSource": "collector-test",
     "expected": {
-      "action": "quarantine"
+      "action": "quarantine",
+      "actionResult": "denied"
     },
-    "absent": [
-      "actionResult"
-    ],
+    "absent": [],
     "matches": []
   },
   {

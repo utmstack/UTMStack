@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.0.1
 
 dataTypes:
   - firewall-cisco-asa
@@ -30,7 +30,7 @@ where: |
    equals("log.messageId", "611102")) && 
   exists("origin.ip") &&
   (regexMatch("log.reason", "(?i)(invalid|failed|rejected|authentication)") ||
-   regexMatch("log.message", "(?i)(authentication.*failed|invalid.*password)"))
+   regexMatch("log.msg", "(?i)(authentication.*failed|invalid.*password)"))
 afterEvents:
   - indexPattern: v11-log-firewall-cisco-asa-*
     with:
