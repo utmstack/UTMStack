@@ -1,0 +1,4 @@
+geoname_id,locale_code,continent_code,continent_name,country_iso_code,country_name,subdivision_1_iso_code,subdivision_1_name,subdivision_2_iso_code,subdivision_2_name,city_name,metro_code,time_zone,is_in_european_union
+9900001,en,XX,Fabricated,XA,Fabricated Country A,,,,,Fabricated City A,,Etc/UTC,0
+9900002,en,XX,Fabricated,XB,Fabricated Country B,,,,,Fabricated City B,,Etc/UTC,0
+9900003,en,XX,Fabricated,XC,Fabricated Country C,,,,,Fabricated City C,,Etc/UTC,0
