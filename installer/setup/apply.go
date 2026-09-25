@@ -254,6 +254,16 @@ func Apply(version string, updating bool) (string, error) {
 			return "", err
 		}
 		fmt.Println(" [OK]")
+	}else if utils.GetLock(20260926001, stack.LocksDir) {
+		fmt.Print("Updating OpenSearch.")
+		if err := services.UpdateOpenSearch(); err != nil {
+			return "", err
+		}
+
+		if err := utils.SetLock(20260926001, stack.LocksDir); err != nil {
+			return "", err
+		}
+		fmt.Println(" [OK]")
 	}
 
 	if !updating {
