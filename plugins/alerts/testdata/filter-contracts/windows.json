@@ -80,10 +80,8 @@
           "eventCode": 4740
         }
       },
-      "expected": {
-        "actionResult": "success"
-      },
-      "absent": [],
+      "expected": {},
+      "absent": ["actionResult"],
       "rules": {}
     },
     {

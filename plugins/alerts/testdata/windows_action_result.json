@@ -1,0 +1,224 @@
+[
+  {
+    "name": "wfp-allowed-outbound",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"eventCode\":5156,\"data\":{\"SourceAddress\":\"192.0.2.10\",\"DestAddress\":\"203.0.113.20\",\"Direction\":\"%%14593\",\"SourcePort\":\"50000\",\"DestPort\":\"443\",\"Protocol\":\"6\",\"Application\":\"\\\\device\\\\harddiskvolume1\\\\app.exe\"}}",
+    "result": "success",
+    "dataSource": "synthetic-windows",
+    "expected": {
+      "origin.ip": "192.0.2.10",
+      "target.ip": "203.0.113.20",
+      "log.eventDataSourceAddress": "192.0.2.10",
+      "log.eventDataDestAddress": "203.0.113.20"
+    }
+  },
+  {
+    "name": "wfp-allowed-inbound",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"eventCode\":5156,\"data\":{\"SourceAddress\":\"203.0.113.20\",\"DestAddress\":\"192.0.2.10\",\"Direction\":\"%%14592\",\"SourcePort\":\"50000\",\"DestPort\":\"443\",\"Protocol\":\"6\",\"Application\":\"\\\\device\\\\harddiskvolume1\\\\app.exe\"}}",
+    "result": "success",
+    "dataSource": "synthetic-windows",
+    "expected": {
+      "origin.ip": "203.0.113.20",
+      "target.ip": "192.0.2.10"
+    }
+  },
+  {
+    "name": "wfp-blocked-inbound",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"eventCode\":5157,\"data\":{\"SourceAddress\":\"203.0.113.20\",\"DestAddress\":\"192.0.2.10\",\"Direction\":\"%%14592\",\"SourcePort\":\"50000\",\"DestPort\":\"443\",\"Protocol\":\"6\",\"Application\":\"\\\\device\\\\harddiskvolume1\\\\app.exe\"}}",
+    "result": "denied",
+    "dataSource": "synthetic-windows",
+    "expected": {
+      "origin.ip": "203.0.113.20",
+      "target.ip": "192.0.2.10"
+    }
+  },
+  {
+    "name": "wfp-blocked-outbound",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"eventCode\":5157,\"data\":{\"SourceAddress\":\"192.0.2.10\",\"DestAddress\":\"203.0.113.20\",\"Direction\":\"%%14593\",\"SourcePort\":\"50000\",\"DestPort\":\"443\",\"Protocol\":\"6\",\"Application\":\"\\\\device\\\\harddiskvolume1\\\\app.exe\"}}",
+    "result": "denied",
+    "dataSource": "synthetic-windows",
+    "expected": {
+      "origin.ip": "192.0.2.10",
+      "target.ip": "203.0.113.20"
+    }
+  },
+  {
+    "name": "wfp-blocked-packet-ipv6",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"eventCode\":5152,\"data\":{\"SourceAddress\":\"2001:db8::2\",\"DestAddress\":\"2001:db8::1\",\"Direction\":\"%%14592\",\"SourcePort\":\"50000\",\"DestPort\":\"443\",\"Protocol\":\"6\",\"Application\":\"\\\\device\\\\harddiskvolume1\\\\app.exe\"}}",
+    "result": "denied",
+    "dataSource": "synthetic-windows",
+    "expected": {
+      "origin.ip": "2001:db8::2",
+      "target.ip": "2001:db8::1"
+    }
+  },
+  {
+    "name": "wfp-restrictive-filter-blocked-packet",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"eventCode\":5153,\"data\":{\"SourceAddress\":\"192.0.2.10\",\"SourcePort\":\"50000\"}}",
+    "result": "denied",
+    "dataSource": "synthetic-windows",
+    "absent": [
+      "origin.ip",
+      "target.ip"
+    ]
+  },
+  {
+    "name": "wfp-mac-filter-blocked-packet",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"eventCode\":5150,\"data\":{\"SourceAddress\":\"00-11-22-33-44-55\",\"DestAddress\":\"66-77-88-99-AA-BB\"}}",
+    "result": "denied",
+    "dataSource": "synthetic-windows",
+    "absent": [
+      "origin.ip",
+      "target.ip"
+    ]
+  },
+  {
+    "name": "wfp-restrictive-mac-filter-blocked-packet",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"eventCode\":5151,\"data\":{\"SourceAddress\":\"00-11-22-33-44-55\",\"DestAddress\":\"66-77-88-99-AA-BB\"}}",
+    "result": "denied",
+    "dataSource": "synthetic-windows",
+    "absent": [
+      "origin.ip",
+      "target.ip"
+    ]
+  },
+  {
+    "name": "wfp-blocked-packet-invalid-ip",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"eventCode\":5152,\"data\":{\"SourceAddress\":\"-\",\"DestAddress\":\"not-an-ip\",\"Direction\":\"%%14592\",\"SourcePort\":\"50000\",\"DestPort\":\"443\",\"Protocol\":\"6\",\"Application\":\"\\\\device\\\\harddiskvolume1\\\\app.exe\"}}",
+    "result": "denied",
+    "dataSource": "synthetic-windows",
+    "absent": [
+      "origin.ip",
+      "target.ip"
+    ]
+  },
+  {
+    "name": "wfp-allowed-unspecified-ip",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"eventCode\":5156,\"data\":{\"SourceAddress\":\"0.0.0.0\",\"DestAddress\":\"::\",\"Direction\":\"%%14593\",\"SourcePort\":\"50000\",\"DestPort\":\"443\",\"Protocol\":\"6\",\"Application\":\"\\\\device\\\\harddiskvolume1\\\\app.exe\"}}",
+    "result": "success",
+    "dataSource": "synthetic-windows",
+    "absent": [
+      "origin.ip",
+      "target.ip"
+    ]
+  },
+  {
+    "name": "wfp-blocked-unknown-direction",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"eventCode\":5157,\"data\":{\"SourceAddress\":\"192.0.2.10\",\"DestAddress\":\"203.0.113.20\",\"Direction\":\"unknown\",\"SourcePort\":\"50000\",\"DestPort\":\"443\",\"Protocol\":\"6\",\"Application\":\"\\\\device\\\\harddiskvolume1\\\\app.exe\"}}",
+    "result": "denied",
+    "dataSource": "synthetic-windows",
+    "absent": [
+      "origin.ip",
+      "target.ip"
+    ]
+  },
+  {
+    "name": "wfp-bind-permitted-not-connected",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"eventCode\":5158,\"data\":{\"SourceAddress\":\"192.0.2.10\",\"SourcePort\":\"443\"}}",
+    "result": "",
+    "dataSource": "synthetic-windows",
+    "absent": [
+      "origin.ip",
+      "target.ip"
+    ]
+  },
+  {
+    "name": "wfp-listen-permitted-not-connected",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"eventCode\":5154,\"data\":{\"SourceAddress\":\"192.0.2.10\",\"SourcePort\":\"443\"}}",
+    "result": "",
+    "dataSource": "synthetic-windows",
+    "absent": [
+      "origin.ip",
+      "target.ip"
+    ]
+  },
+  {
+    "name": "wfp-bind-blocked",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"eventCode\":5159,\"data\":{\"SourceAddress\":\"192.0.2.10\",\"SourcePort\":\"443\"}}",
+    "result": "denied",
+    "dataSource": "synthetic-windows",
+    "absent": [
+      "origin.ip",
+      "target.ip"
+    ]
+  },
+  {
+    "name": "wfp-listen-blocked",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"eventCode\":5155,\"data\":{\"SourceAddress\":\"192.0.2.10\",\"SourcePort\":\"443\"}}",
+    "result": "denied",
+    "dataSource": "synthetic-windows",
+    "absent": [
+      "origin.ip",
+      "target.ip"
+    ]
+  },
+  {
+    "name": "explicit-credentials-are-attempt",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"eventCode\":4648,\"data\":{\"IpAddress\":\"203.0.113.20\",\"TargetUserName\":\"admin\"}}",
+    "result": "",
+    "dataSource": "synthetic-windows",
+    "expected": {
+      "origin.ip": "203.0.113.20"
+    }
+  },
+  {
+    "name": "lockout-is-not-login-success",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"eventCode\":4740,\"data\":{\"TargetUserName\":\"user\"},\"actionResult\":\"success\"}",
+    "result": "",
+    "dataSource": "synthetic-windows",
+    "absent": [
+      "origin.ip"
+    ]
+  },
+  {
+    "name": "final-logon-success",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"eventCode\":4624,\"data\":{\"IpAddress\":\"203.0.113.20\",\"TargetUserName\":\"user\"}}",
+    "result": "success",
+    "dataSource": "synthetic-windows",
+    "expected": {
+      "origin.ip": "203.0.113.20"
+    }
+  },
+  {
+    "name": "final-logon-failure",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"eventCode\":4625,\"data\":{\"IpAddress\":\"203.0.113.20\",\"TargetUserName\":\"user\"}}",
+    "result": "failure",
+    "dataSource": "synthetic-windows",
+    "expected": {
+      "origin.ip": "203.0.113.20"
+    }
+  },
+  {
+    "name": "credential-validation-success",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"eventCode\":4776,\"data\":{\"Status\":\"0x0\",\"TargetUserName\":\"user\"}}",
+    "result": "success",
+    "dataSource": "synthetic-windows"
+  },
+  {
+    "name": "credential-validation-failure",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"eventCode\":4776,\"data\":{\"Status\":\"0xC000006A\",\"TargetUserName\":\"user\"}}",
+    "result": "failure",
+    "dataSource": "synthetic-windows"
+  },
+  {
+    "name": "credential-validation-unknown",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"eventCode\":4776,\"data\":{\"TargetUserName\":\"user\"}}",
+    "result": "",
+    "dataSource": "synthetic-windows"
+  },
+  {
+    "name": "audit-cleared-rule-positive",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"eventCode\":1102,\"data\":{}}",
+    "result": "",
+    "dataSource": "synthetic-windows",
+    "rule": "windows/audit_log_was_cleared.yml",
+    "match": true
+  },
+  {
+    "name": "audit-other-rule-negative",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"eventCode\":1103,\"data\":{}}",
+    "result": "",
+    "dataSource": "synthetic-windows",
+    "rule": "windows/audit_log_was_cleared.yml",
+    "match": false
+  }
+]
