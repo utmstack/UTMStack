@@ -1,0 +1,489 @@
+[
+  {
+    "name": "selinux-enforcing-shadow-read",
+    "rule": "linux/rhel_family/selinux_policy_violations.yml",
+    "raw": "{\"@timestamp\":\"2026-09-24T10:00:00.000Z\",\"type\":\"auditd\",\"category\":\"SYSCALL\",\"sequence\":1001,\"arch\":\"x86_64\",\"syscall\":\"openat\",\"result\":\"fail\",\"exit\":\"EACCES\",\"comm\":\"httpd\",\"exe\":\"/usr/sbin/httpd\",\"uid\":\"48\",\"auid\":\"1000\",\"ses\":\"3\",\"tty\":\"(none)\",\"proctitle\":\"/usr/sbin/httpd -DFOREGROUND\",\"cwd\":\"/root\",\"avc\":{\"seresult\":\"denied\",\"pid\":\"4242\",\"permissive\":\"0\",\"seperms\":\"read\",\"comm\":\"httpd\",\"name\":\"shadow\",\"tclass\":\"file\",\"scontext\":\"system_u:system_r:httpd_t:s0\",\"tcontext\":\"system_u:object_r:shadow_t:s0\"}}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "lastEvent.log.avc.scontext",
+      "lastEvent.log.avc.tcontext",
+      "lastEvent.log.avc.tclass"
+    ]
+  },
+  {
+    "name": "selinux-permissive-sys-module-still-matches",
+    "rule": "linux/rhel_family/selinux_policy_violations.yml",
+    "raw": "{\"@timestamp\":\"2026-09-24T10:00:00.000Z\",\"type\":\"auditd\",\"category\":\"SYSCALL\",\"sequence\":1001,\"arch\":\"x86_64\",\"syscall\":\"openat\",\"result\":\"fail\",\"exit\":\"EACCES\",\"comm\":\"insmod\",\"exe\":\"/usr/sbin/httpd\",\"uid\":\"48\",\"auid\":\"1000\",\"ses\":\"3\",\"tty\":\"(none)\",\"proctitle\":\"/usr/sbin/httpd -DFOREGROUND\",\"cwd\":\"/root\",\"avc\":{\"seresult\":\"denied\",\"pid\":\"4242\",\"permissive\":\"1\",\"seperms\":\"sys_module\",\"capability\":\"16\",\"tclass\":\"capability\",\"comm\":\"insmod\",\"scontext\":\"system_u:system_r:httpd_t:s0\",\"tcontext\":\"system_u:system_r:httpd_t:s0\"}}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "lastEvent.log.avc.scontext",
+      "lastEvent.log.avc.tcontext",
+      "lastEvent.log.avc.tclass"
+    ]
+  },
+  {
+    "name": "selinux-security-setenforce-from-confined-domain",
+    "rule": "linux/rhel_family/selinux_policy_violations.yml",
+    "raw": "{\"@timestamp\":\"2026-09-24T10:00:00.000Z\",\"type\":\"auditd\",\"category\":\"SYSCALL\",\"sequence\":1001,\"arch\":\"x86_64\",\"syscall\":\"openat\",\"result\":\"fail\",\"exit\":\"EACCES\",\"comm\":\"httpd\",\"exe\":\"/usr/sbin/httpd\",\"uid\":\"48\",\"auid\":\"1000\",\"ses\":\"3\",\"tty\":\"(none)\",\"proctitle\":\"/usr/sbin/httpd -DFOREGROUND\",\"cwd\":\"/root\",\"avc\":{\"seresult\":\"denied\",\"pid\":\"4242\",\"permissive\":\"0\",\"seperms\":\"setenforce\",\"tclass\":\"security\",\"comm\":\"httpd\",\"scontext\":\"system_u:system_r:httpd_t:s0\",\"tcontext\":\"system_u:object_r:security_t:s0\"}}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "lastEvent.log.avc.scontext",
+      "lastEvent.log.avc.tcontext",
+      "lastEvent.log.avc.tclass"
+    ]
+  },
+  {
+    "name": "selinux-etc-dir-write-joined-permissions",
+    "rule": "linux/rhel_family/selinux_policy_violations.yml",
+    "raw": "{\"@timestamp\":\"2026-09-24T10:00:00.000Z\",\"type\":\"auditd\",\"category\":\"SYSCALL\",\"sequence\":1001,\"arch\":\"x86_64\",\"syscall\":\"openat\",\"result\":\"fail\",\"exit\":\"EACCES\",\"comm\":\"httpd\",\"exe\":\"/usr/sbin/httpd\",\"uid\":\"48\",\"auid\":\"1000\",\"ses\":\"3\",\"tty\":\"(none)\",\"proctitle\":\"/usr/sbin/httpd -DFOREGROUND\",\"cwd\":\"/root\",\"avc\":{\"seresult\":\"denied\",\"pid\":\"4242\",\"permissive\":\"0\",\"seperms\":\"write,add_name\",\"tclass\":\"dir\",\"comm\":\"httpd\",\"name\":\"cron.d\",\"scontext\":\"system_u:system_r:httpd_t:s0\",\"tcontext\":\"system_u:object_r:etc_t:s0\"}}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "lastEvent.log.avc.scontext",
+      "lastEvent.log.avc.tcontext",
+      "lastEvent.log.avc.tclass"
+    ]
+  },
+  {
+    "name": "selinux-permissive-web-read-default-file",
+    "rule": "linux/rhel_family/selinux_policy_violations.yml",
+    "raw": "{\"@timestamp\":\"2026-09-24T10:00:00.000Z\",\"type\":\"auditd\",\"category\":\"SYSCALL\",\"sequence\":1001,\"arch\":\"x86_64\",\"syscall\":\"openat\",\"result\":\"fail\",\"exit\":\"EACCES\",\"comm\":\"php-fpm\",\"exe\":\"/usr/sbin/httpd\",\"uid\":\"48\",\"auid\":\"1000\",\"ses\":\"3\",\"tty\":\"(none)\",\"proctitle\":\"/usr/sbin/httpd -DFOREGROUND\",\"cwd\":\"/root\",\"avc\":{\"seresult\":\"denied\",\"pid\":\"4242\",\"permissive\":\"1\",\"seperms\":\"read\",\"tclass\":\"file\",\"comm\":\"php-fpm\",\"scontext\":\"system_u:system_r:httpd_t:s0\",\"tcontext\":\"system_u:object_r:default_t:s0\"}}",
+    "match": false
+  },
+  {
+    "name": "selinux-permissive-agent-getattr",
+    "rule": "linux/rhel_family/selinux_policy_violations.yml",
+    "raw": "{\"@timestamp\":\"2026-09-24T10:00:00.000Z\",\"type\":\"auditd\",\"category\":\"SYSCALL\",\"sequence\":1001,\"arch\":\"x86_64\",\"syscall\":\"openat\",\"result\":\"fail\",\"exit\":\"EACCES\",\"comm\":\"sha256sum\",\"exe\":\"/usr/sbin/httpd\",\"uid\":\"48\",\"auid\":\"1000\",\"ses\":\"3\",\"tty\":\"(none)\",\"proctitle\":\"/usr/sbin/httpd -DFOREGROUND\",\"cwd\":\"/root\",\"avc\":{\"seresult\":\"denied\",\"pid\":\"4242\",\"permissive\":\"1\",\"seperms\":\"getattr\",\"tclass\":\"file\",\"comm\":\"sha256sum\",\"scontext\":\"system_u:system_r:snmpd_t:s0\",\"tcontext\":\"system_u:object_r:snmpd_var_lib_t:s0\"}}",
+    "match": false
+  },
+  {
+    "name": "selinux-enforcing-symlink-getattr",
+    "rule": "linux/rhel_family/selinux_policy_violations.yml",
+    "raw": "{\"@timestamp\":\"2026-09-24T10:00:00.000Z\",\"type\":\"auditd\",\"category\":\"SYSCALL\",\"sequence\":1001,\"arch\":\"x86_64\",\"syscall\":\"openat\",\"result\":\"fail\",\"exit\":\"EACCES\",\"comm\":\"agent\",\"exe\":\"/usr/sbin/httpd\",\"uid\":\"48\",\"auid\":\"1000\",\"ses\":\"3\",\"tty\":\"(none)\",\"proctitle\":\"/usr/sbin/httpd -DFOREGROUND\",\"cwd\":\"/root\",\"avc\":{\"seresult\":\"denied\",\"pid\":\"4242\",\"permissive\":\"0\",\"seperms\":\"getattr\",\"tclass\":\"lnk_file\",\"comm\":\"agent\",\"scontext\":\"system_u:system_r:init_t:s0\",\"tcontext\":\"system_u:object_r:var_run_t:s0\"}}",
+    "match": false
+  },
+  {
+    "name": "selinux-apparmor-avc-is-not-selinux",
+    "rule": "linux/rhel_family/selinux_policy_violations.yml",
+    "raw": "{\"@timestamp\":\"2026-09-24T10:00:00.000Z\",\"type\":\"auditd\",\"category\":\"SYSCALL\",\"sequence\":1001,\"arch\":\"x86_64\",\"syscall\":\"connect\",\"result\":\"fail\",\"exit\":\"EINPROGRESS\",\"comm\":\"app\",\"exe\":\"/opt/example/app\",\"uid\":\"1000\",\"auid\":\"1000\",\"ses\":\"3\",\"tty\":\"(none)\",\"proctitle\":\"/opt/example/app\",\"cwd\":\"/root\",\"avc\":{\"apparmor\":\"ALLOWED\",\"operation\":\"connect\",\"profile\":\"/opt/example/app\",\"denied\":\"connect\",\"class\":\"net\"}}",
+    "match": false
+  },
+  {
+    "name": "selinux-mac-status-to-permissive",
+    "rule": "linux/rhel_family/selinux_policy_violations.yml",
+    "raw": "{\"@timestamp\":\"2026-09-24T10:00:00.000Z\",\"type\":\"auditd\",\"category\":\"SYSCALL\",\"sequence\":1001,\"arch\":\"x86_64\",\"syscall\":\"write\",\"result\":\"success\",\"exit\":\"1\",\"comm\":\"setenforce\",\"exe\":\"/usr/sbin/setenforce\",\"uid\":\"0\",\"auid\":\"1000\",\"ses\":\"3\",\"tty\":\"(none)\",\"proctitle\":\"setenforce 0\",\"cwd\":\"/root\",\"macstatus\":{\"enforcing\":\"0\",\"old_enforcing\":\"1\",\"auid\":\"1000\",\"ses\":\"3\",\"enabled\":\"1\",\"old-enabled\":\"1\",\"lsm\":\"selinux\",\"result\":\"success\"}}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "lastEvent.log.macstatus.enforcing"
+    ]
+  },
+  {
+    "name": "selinux-mac-status-to-enforcing",
+    "rule": "linux/rhel_family/selinux_policy_violations.yml",
+    "raw": "{\"@timestamp\":\"2026-09-24T10:00:00.000Z\",\"type\":\"auditd\",\"category\":\"SYSCALL\",\"sequence\":1001,\"arch\":\"x86_64\",\"syscall\":\"write\",\"result\":\"success\",\"exit\":\"1\",\"comm\":\"setenforce\",\"exe\":\"/usr/sbin/setenforce\",\"uid\":\"0\",\"auid\":\"1000\",\"ses\":\"3\",\"tty\":\"(none)\",\"proctitle\":\"setenforce 1\",\"cwd\":\"/root\",\"macstatus\":{\"enforcing\":\"1\",\"old_enforcing\":\"0\",\"auid\":\"1000\",\"ses\":\"3\",\"enabled\":\"1\",\"old-enabled\":\"1\",\"lsm\":\"selinux\",\"result\":\"success\"}}",
+    "match": false
+  },
+  {
+    "name": "selinux-journal-audit-mac-status",
+    "rule": "linux/rhel_family/selinux_policy_violations.yml",
+    "raw": "{\"_HOSTNAME\":\"rhel-test\",\"_TRANSPORT\":\"audit\",\"SYSLOG_IDENTIFIER\":\"audit\",\"PRIORITY\":\"6\",\"MESSAGE\":\"MAC_STATUS enforcing=0 old_enforcing=1 auid=1000 ses=3 enabled=1 old-enabled=1 lsm=selinux res=1\",\"_BOOT_ID\":\"00000000000000000000000000000001\",\"_AUDIT_TYPE\":\"1404\",\"_AUDIT_TYPE_NAME\":\"MAC_STATUS\"}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "lastEvent.log.message"
+    ]
+  },
+  {
+    "name": "selinux-sudo-setenforce-0",
+    "rule": "linux/rhel_family/selinux_policy_violations.yml",
+    "raw": "{\"_HOSTNAME\":\"rhel-test\",\"_TRANSPORT\":\"syslog\",\"SYSLOG_IDENTIFIER\":\"sudo\",\"PRIORITY\":\"6\",\"MESSAGE\":\"   admin : TTY=pts/0 ; PWD=/home/admin ; USER=root ; COMMAND=/usr/sbin/setenforce 0\",\"_BOOT_ID\":\"00000000000000000000000000000001\",\"_COMM\":\"sudo\",\"_CMDLINE\":\"sudo /usr/sbin/setenforce 0\"}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "lastEvent.log.message"
+    ]
+  },
+  {
+    "name": "selinux-sudo-setenforce-1",
+    "rule": "linux/rhel_family/selinux_policy_violations.yml",
+    "raw": "{\"_HOSTNAME\":\"rhel-test\",\"_TRANSPORT\":\"syslog\",\"SYSLOG_IDENTIFIER\":\"sudo\",\"PRIORITY\":\"6\",\"MESSAGE\":\"   admin : TTY=pts/0 ; PWD=/home/admin ; USER=root ; COMMAND=/usr/sbin/setenforce 1\",\"_BOOT_ID\":\"00000000000000000000000000000001\",\"_COMM\":\"sudo\",\"_CMDLINE\":\"sudo /usr/sbin/setenforce 1\"}",
+    "match": false
+  },
+  {
+    "name": "selinux-setroubleshoot-summary",
+    "rule": "linux/rhel_family/selinux_policy_violations.yml",
+    "raw": "{\"_HOSTNAME\":\"rhel-test\",\"_TRANSPORT\":\"syslog\",\"SYSLOG_IDENTIFIER\":\"setroubleshoot\",\"PRIORITY\":\"6\",\"MESSAGE\":\"SELinux is preventing /usr/sbin/sshd from append access on the file /var/lib/example/agent.log. For complete SELinux messages run: sealert -l 00000000-0000-0000-0000-000000000000\",\"_BOOT_ID\":\"00000000000000000000000000000001\",\"_COMM\":\"setroubleshootd\"}",
+    "match": false
+  },
+  {
+    "name": "secure-boot-module-key-rejected",
+    "rule": "linux/rhel_family/secure_boot_violations.yml",
+    "raw": "{\"_HOSTNAME\":\"rhel-test\",\"_TRANSPORT\":\"kernel\",\"SYSLOG_IDENTIFIER\":\"kernel\",\"PRIORITY\":\"6\",\"MESSAGE\":\"Loading of module with unavailable key is rejected\",\"_BOOT_ID\":\"00000000000000000000000000000001\"}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "lastEvent.log.message"
+    ]
+  },
+  {
+    "name": "secure-boot-unsigned-module-tainted",
+    "rule": "linux/rhel_family/secure_boot_violations.yml",
+    "raw": "{\"_HOSTNAME\":\"rhel-test\",\"_TRANSPORT\":\"kernel\",\"SYSLOG_IDENTIFIER\":\"kernel\",\"PRIORITY\":\"6\",\"MESSAGE\":\"examplemod: module verification failed: signature and/or required key missing - tainting kernel\",\"_BOOT_ID\":\"00000000000000000000000000000001\"}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "lastEvent.log.message"
+    ]
+  },
+  {
+    "name": "secure-boot-lockdown-unsigned-module",
+    "rule": "linux/rhel_family/secure_boot_violations.yml",
+    "raw": "{\"_HOSTNAME\":\"rhel-test\",\"_TRANSPORT\":\"kernel\",\"SYSLOG_IDENTIFIER\":\"kernel\",\"PRIORITY\":\"6\",\"MESSAGE\":\"Lockdown: modprobe: unsigned module loading is restricted; see man kernel_lockdown.7\",\"_BOOT_ID\":\"00000000000000000000000000000001\"}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "lastEvent.log.message"
+    ]
+  },
+  {
+    "name": "secure-boot-lockdown-hibernation",
+    "rule": "linux/rhel_family/secure_boot_violations.yml",
+    "raw": "{\"_HOSTNAME\":\"rhel-test\",\"_TRANSPORT\":\"kernel\",\"SYSLOG_IDENTIFIER\":\"kernel\",\"PRIORITY\":\"6\",\"MESSAGE\":\"Lockdown: systemd-logind: hibernation is restricted; see man kernel_lockdown.7\",\"_BOOT_ID\":\"00000000000000000000000000000001\"}",
+    "match": false
+  },
+  {
+    "name": "secure-boot-lockdown-debugfs",
+    "rule": "linux/rhel_family/secure_boot_violations.yml",
+    "raw": "{\"_HOSTNAME\":\"rhel-test\",\"_TRANSPORT\":\"kernel\",\"SYSLOG_IDENTIFIER\":\"kernel\",\"PRIORITY\":\"6\",\"MESSAGE\":\"Lockdown: monitor-agent: debugfs access is restricted; see man kernel_lockdown.7\",\"_BOOT_ID\":\"00000000000000000000000000000001\"}",
+    "match": false
+  },
+  {
+    "name": "secure-boot-state-at-boot",
+    "rule": "linux/rhel_family/secure_boot_violations.yml",
+    "raw": "{\"_HOSTNAME\":\"rhel-test\",\"_TRANSPORT\":\"kernel\",\"SYSLOG_IDENTIFIER\":\"kernel\",\"PRIORITY\":\"6\",\"MESSAGE\":\"secureboot: Secure boot enabled\",\"_BOOT_ID\":\"00000000000000000000000000000001\"}",
+    "match": false
+  },
+  {
+    "name": "secure-boot-audit-module-key-rejected",
+    "rule": "linux/rhel_family/secure_boot_violations.yml",
+    "raw": "{\"@timestamp\":\"2026-09-24T10:00:00.000Z\",\"type\":\"auditd\",\"category\":\"SYSCALL\",\"sequence\":1001,\"arch\":\"x86_64\",\"syscall\":\"finit_module\",\"result\":\"fail\",\"exit\":\"EKEYREJECTED\",\"comm\":\"modprobe\",\"exe\":\"/usr/bin/kmod\",\"uid\":\"0\",\"auid\":\"1000\",\"ses\":\"3\",\"tty\":\"(none)\",\"proctitle\":\"modprobe examplemod\",\"cwd\":\"/root\"}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "lastEvent.origin.command"
+    ]
+  },
+  {
+    "name": "secure-boot-audit-module-loaded",
+    "rule": "linux/rhel_family/secure_boot_violations.yml",
+    "raw": "{\"@timestamp\":\"2026-09-24T10:00:00.000Z\",\"type\":\"auditd\",\"category\":\"SYSCALL\",\"sequence\":1001,\"arch\":\"x86_64\",\"syscall\":\"finit_module\",\"result\":\"success\",\"exit\":\"0\",\"comm\":\"modprobe\",\"exe\":\"/usr/bin/kmod\",\"uid\":\"0\",\"auid\":\"1000\",\"ses\":\"3\",\"tty\":\"(none)\",\"proctitle\":\"modprobe -q -- nft-expr-redir\",\"cwd\":\"/root\",\"kernmodule\":{\"name\":\"nft_redir\"}}",
+    "match": false
+  },
+  {
+    "name": "secure-boot-audit-module-missing",
+    "rule": "linux/rhel_family/secure_boot_violations.yml",
+    "raw": "{\"@timestamp\":\"2026-09-24T10:00:00.000Z\",\"type\":\"auditd\",\"category\":\"SYSCALL\",\"sequence\":1001,\"arch\":\"x86_64\",\"syscall\":\"finit_module\",\"result\":\"fail\",\"exit\":\"ENOENT\",\"comm\":\"modprobe\",\"exe\":\"/usr/bin/kmod\",\"uid\":\"0\",\"auid\":\"1000\",\"ses\":\"3\",\"tty\":\"(none)\",\"proctitle\":\"modprobe missingmod\",\"cwd\":\"/root\"}",
+    "match": false
+  },
+  {
+    "name": "secure-boot-mokutil-disable-validation",
+    "rule": "linux/rhel_family/secure_boot_violations.yml",
+    "raw": "{\"@timestamp\":\"2026-09-24T10:00:00.000Z\",\"type\":\"auditd\",\"category\":\"SYSCALL\",\"sequence\":1001,\"arch\":\"x86_64\",\"syscall\":\"execve\",\"result\":\"success\",\"exit\":\"0\",\"comm\":\"mokutil\",\"exe\":\"/usr/bin/mokutil\",\"uid\":\"0\",\"auid\":\"1000\",\"ses\":\"3\",\"tty\":\"(none)\",\"proctitle\":\"mokutil --disable-validation\",\"cwd\":\"/root\",\"execve\":{\"argc\":\"2\",\"a0\":\"mokutil\",\"a1\":\"--disable-validation\"}}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "lastEvent.origin.command"
+    ]
+  },
+  {
+    "name": "secure-boot-mokutil-import-key",
+    "rule": "linux/rhel_family/secure_boot_violations.yml",
+    "raw": "{\"@timestamp\":\"2026-09-24T10:00:00.000Z\",\"type\":\"auditd\",\"category\":\"SYSCALL\",\"sequence\":1001,\"arch\":\"x86_64\",\"syscall\":\"execve\",\"result\":\"success\",\"exit\":\"0\",\"comm\":\"mokutil\",\"exe\":\"/usr/bin/mokutil\",\"uid\":\"0\",\"auid\":\"1000\",\"ses\":\"3\",\"tty\":\"(none)\",\"proctitle\":\"mokutil --import /root/signing_key.der\",\"cwd\":\"/root\",\"execve\":{\"argc\":\"3\",\"a0\":\"mokutil\",\"a1\":\"--import\",\"a2\":\"/root/signing_key.der\"}}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "lastEvent.origin.command"
+    ]
+  },
+  {
+    "name": "secure-boot-mokutil-test-key",
+    "rule": "linux/rhel_family/secure_boot_violations.yml",
+    "raw": "{\"@timestamp\":\"2026-09-24T10:00:00.000Z\",\"type\":\"auditd\",\"category\":\"SYSCALL\",\"sequence\":1001,\"arch\":\"x86_64\",\"syscall\":\"execve\",\"result\":\"success\",\"exit\":\"0\",\"comm\":\"mokutil\",\"exe\":\"/usr/bin/mokutil\",\"uid\":\"0\",\"auid\":\"1000\",\"ses\":\"3\",\"tty\":\"(none)\",\"proctitle\":\"mokutil --test-key /opt/vendor/agent.der\",\"cwd\":\"/root\",\"execve\":{\"argc\":\"3\",\"a0\":\"mokutil\",\"a1\":\"--test-key\",\"a2\":\"/opt/vendor/agent.der\"}}",
+    "match": false
+  },
+  {
+    "name": "secure-boot-mokutil-sb-state",
+    "rule": "linux/rhel_family/secure_boot_violations.yml",
+    "raw": "{\"@timestamp\":\"2026-09-24T10:00:00.000Z\",\"type\":\"auditd\",\"category\":\"SYSCALL\",\"sequence\":1001,\"arch\":\"x86_64\",\"syscall\":\"execve\",\"result\":\"success\",\"exit\":\"0\",\"comm\":\"mokutil\",\"exe\":\"/usr/bin/mokutil\",\"uid\":\"0\",\"auid\":\"1000\",\"ses\":\"3\",\"tty\":\"(none)\",\"proctitle\":\"/bin/mokutil --sb-state\",\"cwd\":\"/root\",\"execve\":{\"argc\":\"2\",\"a0\":\"/bin/mokutil\",\"a1\":\"--sb-state\"}}",
+    "match": false
+  },
+  {
+    "name": "secure-boot-shell-wrapper-is-not-mokutil",
+    "rule": "linux/rhel_family/secure_boot_violations.yml",
+    "raw": "{\"@timestamp\":\"2026-09-24T10:00:00.000Z\",\"type\":\"auditd\",\"category\":\"SYSCALL\",\"sequence\":1001,\"arch\":\"x86_64\",\"syscall\":\"execve\",\"result\":\"success\",\"exit\":\"0\",\"comm\":\"sh\",\"exe\":\"/usr/bin/bash\",\"uid\":\"0\",\"auid\":\"1000\",\"ses\":\"3\",\"tty\":\"(none)\",\"proctitle\":\"sh -c mokutil --import /root/key.der\",\"cwd\":\"/root\",\"execve\":{\"argc\":\"3\",\"a0\":\"sh\",\"a1\":\"-c\",\"a2\":\"mokutil --import /root/key.der\"}}",
+    "match": false
+  },
+  {
+    "name": "secure-boot-sudo-mokutil-import",
+    "rule": "linux/rhel_family/secure_boot_violations.yml",
+    "raw": "{\"_HOSTNAME\":\"rhel-test\",\"_TRANSPORT\":\"syslog\",\"SYSLOG_IDENTIFIER\":\"sudo\",\"PRIORITY\":\"6\",\"MESSAGE\":\"   admin : TTY=pts/0 ; PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/mokutil --import /root/signing_key.der\",\"_BOOT_ID\":\"00000000000000000000000000000001\",\"_COMM\":\"sudo\",\"_CMDLINE\":\"sudo /usr/bin/mokutil --import /root/signing_key.der\"}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "lastEvent.log.message",
+      "lastEvent.origin.command"
+    ]
+  },
+  {
+    "name": "secure-boot-sudo-mokutil-list",
+    "rule": "linux/rhel_family/secure_boot_violations.yml",
+    "raw": "{\"_HOSTNAME\":\"rhel-test\",\"_TRANSPORT\":\"syslog\",\"SYSLOG_IDENTIFIER\":\"sudo\",\"PRIORITY\":\"6\",\"MESSAGE\":\"   admin : TTY=pts/0 ; PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/mokutil --list-enrolled\",\"_BOOT_ID\":\"00000000000000000000000000000001\",\"_COMM\":\"sudo\",\"_CMDLINE\":\"sudo /usr/bin/mokutil --list-enrolled\"}",
+    "match": false
+  },
+  {
+    "name": "rpm-db-deleted-by-rm",
+    "rule": "linux/rhel_family/rpm_database_tampering.yml",
+    "raw": "{\"@timestamp\":\"2026-09-24T10:00:00.000Z\",\"type\":\"auditd\",\"category\":\"SYSCALL\",\"sequence\":1001,\"arch\":\"x86_64\",\"syscall\":\"unlinkat\",\"result\":\"success\",\"exit\":\"0\",\"comm\":\"rm\",\"exe\":\"/usr/bin/rm\",\"uid\":\"0\",\"auid\":\"1000\",\"ses\":\"3\",\"tty\":\"(none)\",\"proctitle\":\"rm -f /var/lib/rpm/rpmdb.sqlite\",\"cwd\":\"/root\",\"paths\":[{\"item\":\"0\",\"name\":\"/var/lib/rpm/\",\"nametype\":\"PARENT\",\"inode\":\"100\",\"mode\":\"040755\"},{\"item\":\"1\",\"name\":\"/var/lib/rpm/rpmdb.sqlite\",\"nametype\":\"DELETE\",\"inode\":\"101\",\"mode\":\"0100644\"}]}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "lastEvent.log.comm",
+      "lastEvent.origin.command"
+    ]
+  },
+  {
+    "name": "rpm-db-file-created-by-script",
+    "rule": "linux/rhel_family/rpm_database_tampering.yml",
+    "raw": "{\"@timestamp\":\"2026-09-24T10:00:00.000Z\",\"type\":\"auditd\",\"category\":\"SYSCALL\",\"sequence\":1001,\"arch\":\"x86_64\",\"syscall\":\"openat\",\"result\":\"success\",\"exit\":\"3\",\"comm\":\"python3\",\"exe\":\"/usr/bin/python3.9\",\"uid\":\"0\",\"auid\":\"1000\",\"ses\":\"3\",\"tty\":\"(none)\",\"proctitle\":\"python3 /tmp/x.py\",\"cwd\":\"/root\",\"paths\":[{\"item\":\"0\",\"name\":\"/var/lib/rpm/\",\"nametype\":\"PARENT\",\"inode\":\"100\",\"mode\":\"040755\"},{\"item\":\"1\",\"name\":\"/var/lib/rpm/rpmdb.sqlite-shm\",\"nametype\":\"CREATE\",\"inode\":\"102\",\"mode\":\"0100644\"}]}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "lastEvent.log.comm",
+      "lastEvent.origin.command"
+    ]
+  },
+  {
+    "name": "rpm-db-written-by-dnf",
+    "rule": "linux/rhel_family/rpm_database_tampering.yml",
+    "raw": "{\"@timestamp\":\"2026-09-24T10:00:00.000Z\",\"type\":\"auditd\",\"category\":\"SYSCALL\",\"sequence\":1001,\"arch\":\"x86_64\",\"syscall\":\"openat\",\"result\":\"success\",\"exit\":\"3\",\"comm\":\"dnf\",\"exe\":\"/usr/bin/python3.9\",\"uid\":\"0\",\"auid\":\"1000\",\"ses\":\"3\",\"tty\":\"(none)\",\"proctitle\":\"/usr/bin/python3 /usr/bin/dnf install -y example\",\"cwd\":\"/root\",\"paths\":[{\"item\":\"0\",\"name\":\"/var/lib/rpm/\",\"nametype\":\"PARENT\",\"inode\":\"100\",\"mode\":\"040755\"},{\"item\":\"1\",\"name\":\"/var/lib/rpm/rpmdb.sqlite-shm\",\"nametype\":\"CREATE\",\"inode\":\"102\",\"mode\":\"0100644\"}]}",
+    "match": false
+  },
+  {
+    "name": "rpm-state-directory-is-not-the-database",
+    "rule": "linux/rhel_family/rpm_database_tampering.yml",
+    "raw": "{\"@timestamp\":\"2026-09-24T10:00:00.000Z\",\"type\":\"auditd\",\"category\":\"SYSCALL\",\"sequence\":1001,\"arch\":\"x86_64\",\"syscall\":\"openat\",\"result\":\"success\",\"exit\":\"3\",\"comm\":\"touch\",\"exe\":\"/usr/bin/touch\",\"uid\":\"0\",\"auid\":\"1000\",\"ses\":\"3\",\"tty\":\"(none)\",\"proctitle\":\"touch /var/lib/rpm-state/systemd/needs-reload\",\"cwd\":\"/root\",\"paths\":[{\"item\":\"0\",\"name\":\"/var/lib/rpm-state/systemd/\",\"nametype\":\"PARENT\",\"inode\":\"200\",\"mode\":\"040755\"},{\"item\":\"1\",\"name\":\"/var/lib/rpm-state/systemd/needs-reload\",\"nametype\":\"CREATE\",\"inode\":\"201\",\"mode\":\"0100644\"}]}",
+    "match": false
+  },
+  {
+    "name": "rpm-rebuilddb-by-regular-user",
+    "rule": "linux/rhel_family/rpm_database_tampering.yml",
+    "raw": "{\"@timestamp\":\"2026-09-24T10:00:00.000Z\",\"type\":\"auditd\",\"category\":\"SYSCALL\",\"sequence\":1001,\"arch\":\"x86_64\",\"syscall\":\"execve\",\"result\":\"success\",\"exit\":\"0\",\"comm\":\"rpm\",\"exe\":\"/usr/bin/rpm\",\"uid\":\"1000\",\"auid\":\"1000\",\"ses\":\"3\",\"tty\":\"(none)\",\"proctitle\":\"rpm --rebuilddb\",\"cwd\":\"/root\"}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "lastEvent.log.comm",
+      "lastEvent.origin.command"
+    ]
+  },
+  {
+    "name": "rpm-rebuilddb-by-root",
+    "rule": "linux/rhel_family/rpm_database_tampering.yml",
+    "raw": "{\"@timestamp\":\"2026-09-24T10:00:00.000Z\",\"type\":\"auditd\",\"category\":\"SYSCALL\",\"sequence\":1001,\"arch\":\"x86_64\",\"syscall\":\"execve\",\"result\":\"success\",\"exit\":\"0\",\"comm\":\"rpm\",\"exe\":\"/usr/bin/rpm\",\"uid\":\"0\",\"auid\":\"1000\",\"ses\":\"3\",\"tty\":\"(none)\",\"proctitle\":\"rpm --rebuilddb\",\"cwd\":\"/root\"}",
+    "match": false
+  },
+  {
+    "name": "rpm-db-damaged-header",
+    "rule": "linux/rhel_family/rpm_database_tampering.yml",
+    "raw": "{\"_HOSTNAME\":\"rhel-test\",\"_TRANSPORT\":\"syslog\",\"SYSLOG_IDENTIFIER\":\"dnf\",\"PRIORITY\":\"6\",\"MESSAGE\":\"error: rpmdb: damaged header #1234 retrieved -- skipping.\",\"_BOOT_ID\":\"00000000000000000000000000000001\",\"_COMM\":\"dnf\",\"_CMDLINE\":\"/usr/bin/python3 /usr/bin/dnf check-update\"}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "lastEvent.origin.command",
+      "lastEvent.log.message"
+    ]
+  },
+  {
+    "name": "rpm-install-message",
+    "rule": "linux/rhel_family/rpm_database_tampering.yml",
+    "raw": "{\"_HOSTNAME\":\"rhel-test\",\"_TRANSPORT\":\"syslog\",\"SYSLOG_IDENTIFIER\":\"dnf\",\"PRIORITY\":\"6\",\"MESSAGE\":\"Installed: example-1.0-1.el9.x86_64\",\"_BOOT_ID\":\"00000000000000000000000000000001\",\"_COMM\":\"dnf\",\"_CMDLINE\":\"/usr/bin/python3 /usr/bin/dnf install -y example\"}",
+    "match": false
+  },
+  {
+    "name": "dnf-repo-metadata-bad-signature",
+    "rule": "linux/rhel_family/yum_dnf_repository_attacks.yml",
+    "raw": "{\"_HOSTNAME\":\"rhel-test\",\"_TRANSPORT\":\"syslog\",\"SYSLOG_IDENTIFIER\":\"dnf\",\"PRIORITY\":\"6\",\"MESSAGE\":\"Error: Failed to download metadata for repo 'example': repomd.xml GPG signature verification error: Bad GPG signature\",\"_BOOT_ID\":\"00000000000000000000000000000001\",\"_COMM\":\"dnf\",\"_CMDLINE\":\"/usr/bin/python3 /usr/bin/dnf makecache --timer\"}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "lastEvent.log.message",
+      "lastEvent.origin.command"
+    ]
+  },
+  {
+    "name": "dnf-package-key-not-installed",
+    "rule": "linux/rhel_family/yum_dnf_repository_attacks.yml",
+    "raw": "{\"_HOSTNAME\":\"rhel-test\",\"_TRANSPORT\":\"syslog\",\"SYSLOG_IDENTIFIER\":\"dnf\",\"PRIORITY\":\"6\",\"MESSAGE\":\"Public key for example-1.0-1.el9.x86_64.rpm is not installed. Failing package is: example-1.0-1.el9.x86_64\",\"_BOOT_ID\":\"00000000000000000000000000000001\",\"_COMM\":\"dnf\",\"_CMDLINE\":\"/usr/bin/python3 /usr/bin/dnf install -y example\"}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "lastEvent.log.message",
+      "lastEvent.origin.command"
+    ]
+  },
+  {
+    "name": "dnf-key-imported",
+    "rule": "linux/rhel_family/yum_dnf_repository_attacks.yml",
+    "raw": "{\"_HOSTNAME\":\"rhel-test\",\"_TRANSPORT\":\"syslog\",\"SYSLOG_IDENTIFIER\":\"dnf\",\"PRIORITY\":\"6\",\"MESSAGE\":\"Key imported successfully\",\"_BOOT_ID\":\"00000000000000000000000000000001\",\"_COMM\":\"dnf\",\"_CMDLINE\":\"/usr/bin/python3 /usr/bin/dnf install -y example\"}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "lastEvent.log.message",
+      "lastEvent.origin.command"
+    ]
+  },
+  {
+    "name": "dnf-key-import-attempt-only",
+    "rule": "linux/rhel_family/yum_dnf_repository_attacks.yml",
+    "raw": "{\"_HOSTNAME\":\"rhel-test\",\"_TRANSPORT\":\"syslog\",\"SYSLOG_IDENTIFIER\":\"dnf\",\"PRIORITY\":\"6\",\"MESSAGE\":\"Importing GPG key 0x0000ABCD:\",\"_BOOT_ID\":\"00000000000000000000000000000001\",\"_COMM\":\"dnf\",\"_CMDLINE\":\"/usr/bin/python3 /usr/bin/dnf makecache --timer\"}",
+    "match": false
+  },
+  {
+    "name": "dnf-metadata-refresh",
+    "rule": "linux/rhel_family/yum_dnf_repository_attacks.yml",
+    "raw": "{\"_HOSTNAME\":\"rhel-test\",\"_TRANSPORT\":\"syslog\",\"SYSLOG_IDENTIFIER\":\"dnf\",\"PRIORITY\":\"6\",\"MESSAGE\":\"Metadata cache created.\",\"_BOOT_ID\":\"00000000000000000000000000000001\",\"_COMM\":\"dnf\",\"_CMDLINE\":\"/usr/bin/python3 /usr/bin/dnf makecache --timer\"}",
+    "match": false
+  },
+  {
+    "name": "dnf-install-without-signature-check",
+    "rule": "linux/rhel_family/yum_dnf_repository_attacks.yml",
+    "raw": "{\"@timestamp\":\"2026-09-24T10:00:00.000Z\",\"type\":\"auditd\",\"category\":\"SYSCALL\",\"sequence\":1001,\"arch\":\"x86_64\",\"syscall\":\"execve\",\"result\":\"success\",\"exit\":\"0\",\"comm\":\"dnf\",\"exe\":\"/usr/bin/python3.9\",\"uid\":\"0\",\"auid\":\"1000\",\"ses\":\"3\",\"tty\":\"(none)\",\"proctitle\":\"/usr/bin/python3 /usr/bin/dnf install -y --nogpgcheck example\",\"cwd\":\"/root\"}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "lastEvent.origin.command"
+    ]
+  },
+  {
+    "name": "dnf-add-repository",
+    "rule": "linux/rhel_family/yum_dnf_repository_attacks.yml",
+    "raw": "{\"@timestamp\":\"2026-09-24T10:00:00.000Z\",\"type\":\"auditd\",\"category\":\"SYSCALL\",\"sequence\":1001,\"arch\":\"x86_64\",\"syscall\":\"execve\",\"result\":\"success\",\"exit\":\"0\",\"comm\":\"dnf\",\"exe\":\"/usr/libexec/platform-python3.6\",\"uid\":\"0\",\"auid\":\"1000\",\"ses\":\"3\",\"tty\":\"(none)\",\"proctitle\":\"/usr/libexec/platform-python /usr/bin/dnf config-manager --add-repo https://repo.example.test/example.repo\",\"cwd\":\"/root\"}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "lastEvent.origin.command"
+    ]
+  },
+  {
+    "name": "dnf-enable-existing-repository",
+    "rule": "linux/rhel_family/yum_dnf_repository_attacks.yml",
+    "raw": "{\"@timestamp\":\"2026-09-24T10:00:00.000Z\",\"type\":\"auditd\",\"category\":\"SYSCALL\",\"sequence\":1001,\"arch\":\"x86_64\",\"syscall\":\"execve\",\"result\":\"success\",\"exit\":\"0\",\"comm\":\"dnf\",\"exe\":\"/usr/libexec/platform-python3.6\",\"uid\":\"0\",\"auid\":\"1000\",\"ses\":\"3\",\"tty\":\"(none)\",\"proctitle\":\"/usr/libexec/platform-python /usr/bin/dnf config-manager --set-enabled example\",\"cwd\":\"/root\"}",
+    "match": false
+  },
+  {
+    "name": "rpm-import-key-setgid-record",
+    "rule": "linux/rhel_family/yum_dnf_repository_attacks.yml",
+    "raw": "{\"@timestamp\":\"2026-09-24T10:00:00.000Z\",\"type\":\"auditd\",\"category\":\"SYSCALL\",\"sequence\":1001,\"arch\":\"x86_64\",\"syscall\":\"setgid\",\"result\":\"success\",\"exit\":\"0\",\"comm\":\"rpm\",\"exe\":\"/usr/bin/rpm\",\"uid\":\"0\",\"auid\":\"1000\",\"ses\":\"3\",\"tty\":\"(none)\",\"proctitle\":\"rpm --import https://repo.example.test/RPM-GPG-KEY-example\",\"cwd\":\"/root\"}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "lastEvent.origin.command"
+    ]
+  },
+  {
+    "name": "rpm-query-all",
+    "rule": "linux/rhel_family/yum_dnf_repository_attacks.yml",
+    "raw": "{\"@timestamp\":\"2026-09-24T10:00:00.000Z\",\"type\":\"auditd\",\"category\":\"SYSCALL\",\"sequence\":1001,\"arch\":\"x86_64\",\"syscall\":\"execve\",\"result\":\"success\",\"exit\":\"0\",\"comm\":\"rpm\",\"exe\":\"/usr/bin/rpm\",\"uid\":\"0\",\"auid\":\"1000\",\"ses\":\"3\",\"tty\":\"(none)\",\"proctitle\":\"rpm -qa\",\"cwd\":\"/root\"}",
+    "match": false
+  },
+  {
+    "name": "sudo-dnf-install-without-signature-check",
+    "rule": "linux/rhel_family/yum_dnf_repository_attacks.yml",
+    "raw": "{\"_HOSTNAME\":\"rhel-test\",\"_TRANSPORT\":\"syslog\",\"SYSLOG_IDENTIFIER\":\"sudo\",\"PRIORITY\":\"6\",\"MESSAGE\":\"   admin : TTY=pts/0 ; PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/dnf install --nogpgcheck ./example.rpm\",\"_BOOT_ID\":\"00000000000000000000000000000001\",\"_COMM\":\"sudo\",\"_CMDLINE\":\"sudo /usr/bin/dnf install --nogpgcheck ./example.rpm\"}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "lastEvent.log.message",
+      "lastEvent.origin.command"
+    ]
+  },
+  {
+    "name": "sudo-dnf-update",
+    "rule": "linux/rhel_family/yum_dnf_repository_attacks.yml",
+    "raw": "{\"_HOSTNAME\":\"rhel-test\",\"_TRANSPORT\":\"syslog\",\"SYSLOG_IDENTIFIER\":\"sudo\",\"PRIORITY\":\"6\",\"MESSAGE\":\"   admin : TTY=pts/0 ; PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/dnf update\",\"_BOOT_ID\":\"00000000000000000000000000000001\",\"_COMM\":\"sudo\",\"_CMDLINE\":\"sudo /usr/bin/dnf update\"}",
+    "match": false
+  },
+  {
+    "name": "k8s-pod-security-rejection",
+    "rule": "linux/rhel_family/openshift_security_violations.yml",
+    "raw": "{\"_HOSTNAME\":\"rhel-test\",\"_TRANSPORT\":\"syslog\",\"SYSLOG_IDENTIFIER\":\"k3s\",\"PRIORITY\":\"6\",\"MESSAGE\":\"E0924 10:00:00.000000    1234 replica_set.go:560] \\\"Unhandled Error\\\" err=\\\"pods \\\\\\\"web-5d8f\\\\\\\" is forbidden: violates PodSecurity \\\\\\\"restricted:latest\\\\\\\": privileged (container \\\\\\\"app\\\\\\\" must not set securityContext.privileged=true)\\\"\",\"_BOOT_ID\":\"00000000000000000000000000000001\",\"_COMM\":\"k3s-server\"}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "lastEvent.log.syslogIdentifier"
+    ]
+  },
+  {
+    "name": "k8s-service-account-forbidden",
+    "rule": "linux/rhel_family/openshift_security_violations.yml",
+    "raw": "{\"_HOSTNAME\":\"rhel-test\",\"_TRANSPORT\":\"syslog\",\"SYSLOG_IDENTIFIER\":\"microk8s.daemon-kubelite\",\"PRIORITY\":\"6\",\"MESSAGE\":\"E0924 10:00:00.000000 1234 reflector.go:158] \\\"Unhandled Error\\\" err=\\\"failed to list *v1.Secret: secrets is forbidden: User \\\\\\\"system:serviceaccount:default:example\\\\\\\" cannot list resource \\\\\\\"secrets\\\\\\\" in API group \\\\\\\"\\\\\\\" at the cluster scope\\\"\",\"_BOOT_ID\":\"00000000000000000000000000000001\",\"_COMM\":\"kubelite\"}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "lastEvent.log.syslogIdentifier"
+    ]
+  },
+  {
+    "name": "openshift-scc-rejection",
+    "rule": "linux/rhel_family/openshift_security_violations.yml",
+    "raw": "{\"_HOSTNAME\":\"rhel-test\",\"_TRANSPORT\":\"syslog\",\"SYSLOG_IDENTIFIER\":\"atomic-openshift-master-controllers\",\"PRIORITY\":\"6\",\"MESSAGE\":\"E0924 10:00:00.000000 1234 replica_set.go:450] Sync \\\"demo/web-1\\\" failed with pods \\\"web-1-\\\" is forbidden: unable to validate against any security context constraint: [spec.containers[0].securityContext.privileged: Invalid value: true: Privileged containers are not allowed]\",\"_BOOT_ID\":\"00000000000000000000000000000001\",\"_COMM\":\"openshift\"}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "lastEvent.log.syslogIdentifier"
+    ]
+  },
+  {
+    "name": "k8s-admission-webhook-denial",
+    "rule": "linux/rhel_family/openshift_security_violations.yml",
+    "raw": "{\"_HOSTNAME\":\"rhel-test\",\"_TRANSPORT\":\"syslog\",\"SYSLOG_IDENTIFIER\":\"k3s\",\"PRIORITY\":\"6\",\"MESSAGE\":\"E0924 10:00:00.000000 1234 replica_set.go:560] \\\"Unhandled Error\\\" err=\\\"admission webhook \\\\\\\"validate.example.test\\\\\\\" denied the request: image registry is not allowed\\\"\",\"_BOOT_ID\":\"00000000000000000000000000000001\",\"_COMM\":\"k3s-server\"}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "lastEvent.log.syslogIdentifier"
+    ]
+  },
+  {
+    "name": "k8s-admission-plugins-loaded",
+    "rule": "linux/rhel_family/openshift_security_violations.yml",
+    "raw": "{\"_HOSTNAME\":\"rhel-test\",\"_TRANSPORT\":\"syslog\",\"SYSLOG_IDENTIFIER\":\"microk8s.daemon-kubelite\",\"PRIORITY\":\"6\",\"MESSAGE\":\"I0924 10:00:00.000000 1234 plugins.go:161] Loaded 14 validating admission controller(s) successfully in the following order: LimitRanger,ServiceAccount,PodSecurity,Priority,ValidatingAdmissionWebhook,ResourceQuota.\",\"_BOOT_ID\":\"00000000000000000000000000000001\",\"_COMM\":\"kubelite\"}",
+    "match": false
+  },
+  {
+    "name": "k8s-apiserver-arguments",
+    "rule": "linux/rhel_family/openshift_security_violations.yml",
+    "raw": "{\"_HOSTNAME\":\"rhel-test\",\"_TRANSPORT\":\"syslog\",\"SYSLOG_IDENTIFIER\":\"rke2\",\"PRIORITY\":\"6\",\"MESSAGE\":\"time=\\\"2026-09-24T10:00:00-05:00\\\" level=info msg=\\\"Running kube-apiserver --allow-privileged=true --authorization-mode=Node,RBAC --enable-admission-plugins=NodeRestriction\\\"\",\"_BOOT_ID\":\"00000000000000000000000000000001\",\"_COMM\":\"rke2\"}",
+    "match": false
+  },
+  {
+    "name": "k8s-node-authorizer-race",
+    "rule": "linux/rhel_family/openshift_security_violations.yml",
+    "raw": "{\"_HOSTNAME\":\"rhel-test\",\"_TRANSPORT\":\"syslog\",\"SYSLOG_IDENTIFIER\":\"kubelet\",\"PRIORITY\":\"6\",\"MESSAGE\":\"E0924 10:00:00.000000 1234 reflector.go:158] failed to list *v1.ConfigMap: configmaps \\\"kube-root-ca.crt\\\" is forbidden: User \\\"system:node:worker-1\\\" cannot list resource \\\"configmaps\\\" in API group \\\"\\\" in the namespace \\\"demo\\\": no relationship found between node 'worker-1' and this object\",\"_BOOT_ID\":\"00000000000000000000000000000001\",\"_COMM\":\"kubelet\"}",
+    "match": false
+  },
+  {
+    "name": "k8s-scheduler-startup-forbidden",
+    "rule": "linux/rhel_family/openshift_security_violations.yml",
+    "raw": "{\"_HOSTNAME\":\"rhel-test\",\"_TRANSPORT\":\"syslog\",\"SYSLOG_IDENTIFIER\":\"k3s\",\"PRIORITY\":\"6\",\"MESSAGE\":\"E0924 10:00:00.000000 1234 reflector.go:158] failed to list *v1.Pod: pods is forbidden: User \\\"system:kube-scheduler\\\" cannot list resource \\\"pods\\\" in API group \\\"\\\" at the cluster scope\",\"_BOOT_ID\":\"00000000000000000000000000000001\",\"_COMM\":\"k3s-server\"}",
+    "match": false
+  },
+  {
+    "name": "non-kubernetes-service-forbidden-text",
+    "rule": "linux/rhel_family/openshift_security_violations.yml",
+    "raw": "{\"_HOSTNAME\":\"rhel-test\",\"_TRANSPORT\":\"syslog\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"PRIORITY\":\"6\",\"MESSAGE\":\"example is forbidden: User \\\"admin\\\" cannot log in\",\"_BOOT_ID\":\"00000000000000000000000000000001\",\"_COMM\":\"sshd\"}",
+    "match": false
+  }
+]
