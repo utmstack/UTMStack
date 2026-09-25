@@ -37,7 +37,7 @@
           "act": "reportOnly",
           "endpointKey": "forged",
           "correlationCandidate": {
-            "network_threat_detection": "match"
+            "networkThreatDetection": "match"
           }
         }
       },

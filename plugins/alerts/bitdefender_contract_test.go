@@ -1,8 +1,11 @@
 package main
 
 // Offline Bitdefender extraction model, not the closed EventProcessor.
-// Explicit YAML grok/rename/cast/trim/add/delete and observed KV splitting are
-// modeled. CEL, Event serialization, placeholder expansion, query creation and
+// Explicit YAML grok/rename/cast/trim/add/delete and KV splitting are modeled
+// after the EventProcessor 497bf53 parser plugins: grok matches its patterns one
+// after another and writes nothing unless all match, and every written field
+// name passes through utils.SanitizeField (letters, digits and dots only).
+// CEL, Event serialization, placeholder expansion, query creation and
 // history thresholds use SDK v1.1.31. External geolocation is not executed.
 import (
 	"bytes"
@@ -77,21 +80,13 @@ func bitdefConfig(t *testing.T) *plugins.Config {
 	}
 	return c
 }
-func bitdefRegex(t *testing.T, g *plugins.Grok, cfg *plugins.Config) *regexp.Regexp {
+func bitdefRegex(t *testing.T, pattern string, cfg *plugins.Config) *regexp.Regexp {
 	t.Helper()
-	var pattern strings.Builder
-	for i, p := range g.Patterns {
-		if p.FieldName != "" {
-			fmt.Fprintf(&pattern, "(?P<f%d>%s)", i, p.Pattern)
-		} else {
-			pattern.WriteString("(?:" + p.Pattern + ")")
-		}
-	}
 	pats := map[string]string{"greedy": ".*", "data": ".*?", "word": "[A-Za-z0-9_-]+", "space": "\\s+"}
 	for k, v := range cfg.Patterns {
 		pats[k] = v
 	}
-	tmpl, e := template.New("grok").Option("missingkey=error").Parse(pattern.String())
+	tmpl, e := template.New("grok").Option("missingkey=error").Parse(pattern)
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -104,6 +99,33 @@ func bitdefRegex(t *testing.T, g *plugins.Grok, cfg *plugins.Config) *regexp.Reg
 		t.Fatal(e)
 	}
 	return r
+}
+
+// bitdefGrok follows EventProcessor plugins/grok (commit 497bf53): patterns
+// run one after another on what is left of the trimmed text; each must match
+// a nonempty start of it; stored values are trimmed; field names pass through
+// utils.SanitizeField; nothing is written unless every pattern matched.
+func bitdefGrok(t *testing.T, g *plugins.Grok, cfg *plugins.Config, value string) map[string]string {
+	t.Helper()
+	rest := value
+	out := map[string]string{}
+	for _, p := range g.Patterns {
+		rest = strings.TrimSpace(rest)
+		if rest == "" {
+			return nil
+		}
+		match := bitdefRegex(t, p.Pattern, cfg).FindString(rest)
+		if match == "" || !strings.HasPrefix(rest, match) {
+			return nil
+		}
+		name := p.FieldName
+		utils.SanitizeField(&name)
+		if name != "" {
+			out[name] = strings.TrimSpace(match)
+		}
+		rest = strings.TrimPrefix(rest, match)
+	}
+	return out
 }
 func bitdefParse(t *testing.T, cfg *plugins.Config, raw string, dataSource string, cache *plugins.CELCache) string {
 	t.Helper()
@@ -156,22 +178,18 @@ func bitdefParse(t *testing.T, cfg *plugins.Config, raw string, dataSource strin
 					if !ok {
 						t.Fatalf("non-string grok source %s", src)
 					}
-					r := bitdefRegex(t, g, cfg)
-					m := r.FindStringSubmatch(str)
-					if m == nil {
-						continue
-					}
-					for i, p := range g.Patterns {
-						if p.FieldName != "" {
-							bitdefPut(draft, p.FieldName, m[r.SubexpIndex(fmt.Sprintf("f%d", i))], false)
-						}
+					for name, value := range bitdefGrok(t, g, cfg, str) {
+						bitdefPut(draft, name, value, false)
 					}
 				case "rename":
+					// plugins/rename: every existing source is moved in turn, so
+					// the last one present wins; the target name is sanitized.
+					to := s.Rename.To
+					utils.SanitizeField(&to)
 					for _, p := range s.Rename.From {
 						if v, ok := bitdefGet(draft, p); ok {
-							bitdefPut(draft, s.Rename.To, v, false)
+							bitdefPut(draft, to, v, false)
 							bitdefPut(draft, p, nil, true)
-							break
 						}
 					}
 				case "trim":
@@ -196,7 +214,9 @@ func bitdefParse(t *testing.T, cfg *plugins.Config, raw string, dataSource strin
 					if s.Add.Function != "string" {
 						t.Fatalf("unsupported add function %s", s.Add.Function)
 					}
-					bitdefPut(draft, s.Add.Params["key"].GetStringValue(), s.Add.Params["value"].AsInterface(), false)
+					key := s.Add.Params["key"].GetStringValue()
+					utils.SanitizeField(&key) // plugins/add stores the sanitized name
+					bitdefPut(draft, key, s.Add.Params["value"].AsInterface(), false)
 				case "delete":
 					for _, p := range s.Delete.Fields {
 						bitdefPut(draft, p, nil, true)
@@ -206,17 +226,16 @@ func bitdefParse(t *testing.T, cfg *plugins.Config, raw string, dataSource strin
 					if !ok {
 						continue
 					}
-					// Observed KV output splits quoted multiword values.
-					// Explicit YAML grok steps rebuild consumed fields afterward.
-					for _, item := range strings.Split(v.(string), s.Kv.FieldSplit) {
-						pair := strings.SplitN(item, s.Kv.ValueSplit, 2)
-						if len(pair) != 2 {
+					// plugins/kv splits on every separator, so multiword values
+					// are cut; explicit YAML grok steps rebuild known keys afterward.
+					for _, item := range strings.Split(strings.TrimSpace(v.(string)), s.Kv.FieldSplit) {
+						key, value, found := strings.Cut(item, s.Kv.ValueSplit)
+						if !found {
 							continue
 						}
-						key := pair[0]
 						utils.SanitizeField(&key)
 						if key != "" {
-							bitdefPut(draft, "log."+key, pair[1], false)
+							bitdefPut(draft, "log."+key, strings.TrimSpace(value), false)
 						}
 					}
 				case "dynamic":
