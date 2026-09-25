@@ -607,4 +607,6 @@
 
   <include file="/config/liquibase/changelog/20260910001_cleanup_threatwinds_params.xml" relativeToChangelogFile="false"/>
 
+  <include file="/config/liquibase/changelog/20260915001_grant_admin_to_federation_user.xml" relativeToChangelogFile="false"/>
+
 </databaseChangeLog>

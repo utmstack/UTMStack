@@ -25,8 +25,8 @@ description: |
   6. Run a boot-time scan if available
 where: |
   (equals("log.eventType", "Threat_Event") && equals("actionResult", "failure") &&
-  regexMatch("log.actionerror", "(?s).+") &&
-  (regexMatch("action", "(?i)(quarantin|clean)") || regexMatch("log.actionerror", "(?i)(quarantin|clean)"))) &&
+  regexMatch("log.action_error", "(?s).+") &&
+  (regexMatch("action", "(?i)(quarantin|clean)") || regexMatch("log.action_error", "(?i)(quarantin|clean)"))) &&
   exists("dataSource") && !oneOf("dataSource", ["", "unknown", "-"]) &&
   oneOf("log.endpointKeyType", ["uuid", "host", "ip"]) &&
   exists("log.endpointKey") && !equals("log.endpointKey", "")
