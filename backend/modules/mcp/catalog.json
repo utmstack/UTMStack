@@ -674,7 +674,7 @@
               "description":"parameter set only for notification node",
               "properties": {
                 "message": { "type": "string" },
-                "type": { "type": "string", "oneOf":["INFO", "WARNING", "ERROR"] }
+                "type": { "type": "string","enum": ["INFO", "WARNING", "ERROR"]}
               },
               "required": ["type", "message"]
             },
