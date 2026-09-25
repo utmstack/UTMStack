@@ -71,7 +71,7 @@ MDR/alerts API. Sanitized key spelling and existing camel-case aliases are prese
 
 ## Tests and deployment limits
 
-Committed tests use **160 fabricated raw fixtures** (73 XG, 87 Central), positive/negative
+Committed tests use **161 fabricated raw fixtures** (73 XG, 88 Central), positive/negative
 assertions for all **29 rules**, strict final Event decoding, Alert-side checks and **nine SDK
 history-query tests** with loopback mocks. History tests exercise threshold boundaries,
 expiration, wrong/missing identities, unmarked records, unrelated events and MTR severity.
@@ -87,7 +87,8 @@ Follow-up (2026-09-24): the EventProcessor rename step copies a value with go-sd
 the remedy path, file and count were never produced. The remedy object now keeps its native
 name and is read in place. Existing indices map `log.coreremedyItems` as text, so the object is
 not written under that name. The Central model now follows the executor's JSON, grok and rename
-steps, and a fixture covers the usual empty (`null`) remedy value.
+steps, and fixtures cover the usual empty (`null`) remedy value and a file at the drive root,
+whose path is the root itself.
 
 Shared alerts draft #2627 supplies the indexed `lastEvent.*` grouping implementation. Its
 rollout is separate. New candidate histories require up to one hour of warm-up; historical

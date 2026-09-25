@@ -1474,5 +1474,20 @@
       "actionResult"
     ],
     "matches": []
+  },
+  {
+    "name": "root-level-windows-remedy",
+    "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"low\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::CoreClean\", \"core_remedy_items\": {\"items\": [{\"type\": \"file\", \"descriptor\": \"C:\\\\test.exe\", \"result\": \"SUCCESS\"}], \"totalItems\": 1}}",
+    "dataSource": "fixture-collector",
+    "expected": {
+      "target.path": "C:\\",
+      "target.file": "test.exe",
+      "log.core_remedy_items.totalItems": 1,
+      "log.core_remedy_items.items.0.type": "file"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
   }
 ]

@@ -190,12 +190,12 @@ pipeline:
       where: '!exists("actionResult") && oneOf("log.type",["Event::ZTNA::ZTNAAuthenticationFailure","Event::Endpoint::AuthenticationFailure"])'
   # The rename step copies an object or list as its JSON text, so nested paths
   # under a renamed object never resolve. The remedy object keeps its native name
-  # and its values are read in place.
+  # and its values are read in place. A file at the root keeps the root as path.
   - grok:
       source: log.core_remedy_items.items.0.descriptor
       patterns:
       - fieldName: target.path
-        pattern: ^(?:[A-Za-z]:[\\/]|/|\\\\)[^<>:"|?*\r\n]*[\\/]
+        pattern: ^(?:[A-Za-z]:[\\/]|/|\\\\)(?:[^<>:"|?*\r\n]*[\\/])?
       - fieldName: target.file
         pattern: '[^\\/<>:"|?*\r\n]+$'
       where: equals("log.core_remedy_items.totalItems",1) && equals("log.core_remedy_items.items.#",1) && equals("log.core_remedy_items.items.0.type","file")
