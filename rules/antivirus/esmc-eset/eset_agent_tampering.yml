@@ -2,7 +2,7 @@
 
 dataTypes:
   - antivirus-esmc-eset
-name: ESET Agent Disabled or Tampered
+name: ESET Security Agent Tampering Detection
 impact:
   confidentiality: 3
   integrity: 3
@@ -11,24 +11,28 @@ category: Defense Evasion
 technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
 adversary: origin
 references:
-  - https://help.eset.com/ees/8/en-US/idh_config_era_agent.html
+  - https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html
   - https://attack.mitre.org/techniques/T1562/001/
 description: |
-  Detects when the ESET security agent is disabled, uninstalled, or tampered with. This is a critical defense evasion indicator as attackers commonly disable endpoint protection before executing their payload.
+  Detects a blocked HIPS self-defense or agent-tampering rule, or an ESET Inspect alert explicitly naming security-agent tampering. A blocked attempt does not establish that the agent was disabled. Routine audit policy changes and generic agent status text are not tampering evidence.
 
   Next Steps:
   1. Immediately investigate the affected endpoint
-  2. Determine who or what process disabled the agent
+  2. Verify whether protection was disabled and identify the responsible process or account
   3. Check for concurrent malicious activity on the endpoint
-  4. Reinstall and re-enable the ESET agent
+  4. Restore or reinstall ESET protection only if it was affected
   5. Review the endpoint for malware or unauthorized software
   6. Check if similar tampering occurred on other endpoints
 where: |
-  (regexMatch("log.message", "(?i)(eset|ekrn|egui|agent)") &&
-   regexMatch("log.message", "(?i)(disabled|stopped|uninstalled|removed|tampered|terminated)")) ||
-  (contains("log.message", "protection status") && contains("log.message", "disabled")) ||
-  (contains("log.message", "agent") && contains("log.message", "not responding")) ||
-  (equals("log.eventType", "AGENT_EVENT") && contains("log.message", "removed"))
+  (((oneOf("log.eventType", ["HipsAggregated_Event", "HIPSAggregated_Event"]) && equals("actionResult", "denied")) || equals("log.eventType", "EnterpriseInspectorAlert_Event")) &&
+  regexMatch("log.rulename", "(?i)(eset|ekrn|egui|self[- ]defen[sc]e)") &&
+  regexMatch("log.rulename", "(?i)(tamper|self[- ]defen[sc]e|disable|stopp?ed|terminat)")) &&
+  exists("dataSource") && !oneOf("dataSource", ["", "unknown", "-"]) &&
+  oneOf("log.endpointKeyType", ["uuid", "host", "ip"]) &&
+  exists("log.endpointKey") && !equals("log.endpointKey", "")
 groupBy:
-  - lastEvent.log.eventType
-  - target.host
+  - lastEvent.dataSource
+  - lastEvent.log.endpointKeyType
+  - lastEvent.log.endpointKey
+  - lastEvent.log.rulename
+  - lastEvent.log.ruleid

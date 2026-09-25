@@ -1,36 +1,33 @@
-# Rule version v1.0.0
-
+# Azure rule contract review v2.1.0
 dataTypes:
-  - azure
-name: Storage Account Public Access Enabled
+- azure
+name: Azure Storage Public Access Configuration Written
 impact:
   confidentiality: 3
   integrity: 2
   availability: 1
 category: Collection
-technique: "T1530 - Data from Cloud Storage Object"
+technique: ''
 adversary: origin
 references:
-  - https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log-schema
-  - https://attack.mitre.org/techniques/T1530/
-description: |
-  Detects when public access is enabled on Azure Storage Accounts which could lead to unauthorized data exposure. 
-  This configuration change creates a significant security risk as it allows anonymous access to stored data.
+- https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema
+- https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log-schema
+- https://attack.mitre.org/techniques/T1530/
+description: 'A successful storage-account write explicitly allows blob public access, or a container write specifies Blob/Container
+  public access. The request body must be present. An account-level permission alone does not make every blob public, and a written
+  value does not prove it changed.
 
-  Next Steps:
-  1. Immediately review the affected storage account configuration
-  2. Verify if public access was intentionally enabled and properly authorized
-  3. Check if any sensitive data is stored in the account
-  4. Review access logs for any unauthorized access attempts
-  5. Consider disabling public access if not required for business operations
-  6. Implement network restrictions and access policies if public access is necessary
-  7. Monitor for any data exfiltration activities
-where: |
-  contains("log.operationName", "Microsoft.Storage/storageAccounts") &&
-  (contains("log.operationName", "/write") || contains("log.operationName", "/blobServices/write")) &&
-  equals("log.category", "Administrative") &&
-  equals("log.actionResult", "accepted") &&
-  (contains("log.properties", "allowBlobPublicAccess") || contains("log.properties", "publicAccess"))
+  '
+where: '(equalsIgnoreCase("log.azureKind","activity") || equalsIgnoreCase("log.azureKind","eventgrid")) && equalsIgnoreCase("actionResult","success")
+  && ((equalsIgnoreCase("log.azureOperation","Microsoft.Storage/storageAccounts/write") && equals("log.azureRequestBody.properties.allowBlobPublicAccess","true"))
+  || (equalsIgnoreCase("log.azureOperation","Microsoft.Storage/storageAccounts/blobServices/containers/write") && oneOf("log.azureRequestBody.properties.publicAccess",["Blob",
+  "Container"])))
+
+  '
 groupBy:
-  - lastEvent.log.aadObjectId
-  - lastEvent.log.resourceId
+- lastEvent.dataSource
+- lastEvent.log.azureScopeType
+- lastEvent.log.azureScope
+- lastEvent.log.azureOperation
+- adversary.user
+- adversary.ip

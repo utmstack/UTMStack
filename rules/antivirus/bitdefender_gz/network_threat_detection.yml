@@ -1,51 +1,51 @@
-# Rule version v2.0.0
+# Rule version v3.0.1
 
 dataTypes:
-  - antivirus-bitdefender-gz
+- antivirus-bitdefender-gz
 name: Bitdefender GravityZone Network Attack Blocked
 impact:
   confidentiality: 3
   integrity: 2
   availability: 2
 category: Command and Control
-technique: "T1071 - Application Layer Protocol"
+technique: T1071 - Application Layer Protocol
 adversary: origin
 references:
-  - https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
-  - https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html
-  - https://attack.mitre.org/techniques/T1071/
-description: |
-  Detects network-layer attacks that Bitdefender blocked at the endpoint, from either Network Attack Defense (exploit attempts, brute force, credential-stealing traffic) or the endpoint Firewall (port scans and blocked connections).
+- https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+- https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html
+- https://attack.mitre.org/techniques/T1071/
+description: 'At least five high-severity firewall or Network Attack Defense records explicitly report blocking from the same source
+  address to the same managed endpoint within two hours. Unrelated activity and report-only events do not count. This is blocked attack
+  activity, not a successful connection or confirmed compromise. Investigate repeated targeting and the protection outcome.
 
-  The rule fires on a single high-severity event, and the correlation step raises it when the same source keeps coming back: five or more events from the same origin.ip within two hours is a persistent adversary rather than a stray packet.
-
-  origin.ip is the attacker and target.ip is the endpoint being attacked. target.port tells you what was targeted, which is often the fastest way to read intent - 88 is Kerberos, 445 is SMB, 3389 is RDP.
-
-  Next Steps:
-  1. Read the two sides: origin.ip is the source, target.host and target.ip are what it reached
-  2. Decide whether the source is internal or external:
-     - An external origin.ip means perimeter exposure - check why that traffic reached the endpoint at all
-     - An internal origin.ip means an already-compromised host is attacking laterally, which is more urgent
-  3. Read the intent from the detection:
-     - log.BitdefenderGZDetectionName names the attack, for example Attack.Bruteforce.KERBEROS
-     - log.BitdefenderGZDetectionAttackTechnique gives the MITRE-aligned phase, such as credentialAccess
-     - target.port identifies the targeted service
-  4. For credential access, assume the credentials are at risk:
-     - Force a reset on the targeted accounts and review authentication logs from origin.ip for any success
-     - If the target is a domain controller, treat it as a domain-wide incident
-  5. Check whether the same origin.ip reached other endpoints - the correlation step groups by source for exactly this reason
-  6. Block the source at the perimeter, and only then close the alert. A blocked attempt means this attack failed, not that the attacker stopped
-where: |
-  oneOf("log.BitdefenderGZModule", ["network-monitor", "fw"]) &&
-  greaterOrEqual("severity", 8)
+  '
+where: equals("log.correlationCandidate.networkThreatDetection","match")
 correlation:
-  - indexPattern: v11-log-antivirus-bitdefender-gz-*
-    within: 2h
-    count: 5
-    with:
-      - field: origin.ip
-        operator: filter_term
-        value: "{{.origin.ip}}"
+- indexPattern: v11-log-antivirus-bitdefender-gz-*
+  within: 2h
+  count: 5
+  with:
+  - field: log.correlationCandidate.networkThreatDetection
+    operator: filter_term
+    value: match
+  - field: dataSource
+    operator: filter_term
+    value: '{{.dataSource}}'
+  - field: log.BitdefenderGZCompanyId
+    operator: filter_term
+    value: '{{.log.BitdefenderGZCompanyId}}'
+  - field: log.endpointKeyType
+    operator: filter_term
+    value: '{{.log.endpointKeyType}}'
+  - field: log.endpointKey
+    operator: filter_term
+    value: '{{.log.endpointKey}}'
+  - field: origin.ip
+    operator: filter_term
+    value: '{{.origin.ip}}'
 groupBy:
-  - target.host
-  - adversary.ip
+- lastEvent.dataSource
+- lastEvent.log.BitdefenderGZCompanyId
+- lastEvent.log.endpointKeyType
+- lastEvent.log.endpointKey
+- adversary.ip

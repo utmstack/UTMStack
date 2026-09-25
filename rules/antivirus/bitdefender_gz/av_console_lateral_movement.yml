@@ -1,44 +1,55 @@
-# Rule version v2.0.0
+# Rule version v3.0.1
 
 dataTypes:
-  - antivirus-bitdefender-gz
-name: Bitdefender GravityZone Task Burst Across Endpoints
+- antivirus-bitdefender-gz
+name: Bitdefender GravityZone Sensitive Task Activity Across Endpoints
 impact:
-  confidentiality: 3
-  integrity: 3
-  availability: 3
+  confidentiality: 1
+  integrity: 2
+  availability: 1
 category: Lateral Movement
-technique: "T1072 - Software Deployment Tools"
+technique: T1072 - Software Deployment Tools
 adversary: origin
 references:
-  - https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
-  - https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html
-  - https://attack.mitre.org/techniques/T1072/
-description: |
-  Detects a burst of Bitdefender GravityZone task deployments across many endpoints in a short window, which is the observable trace of a compromised admin console being used to push activity to managed machines. Bitdefender's own management console is a first-class software deployment tool by MITRE's definition, so its abuse is T1072.
+- https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+- https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html
+- https://attack.mitre.org/techniques/T1072/
+description: 'A successful task with a name indicating uninstall, quarantine restoration, script execution or command execution is accompanied
+  by at least three similarly classified records of the same task type and creator on other endpoints within one hour. This is an event
+  count, not three distinct endpoints. Normal scan/update status events do not count. Task labels and bursts alone do not prove console
+  compromise or lateral movement. Check the creator, actual task operation and approved change record before containment.
 
-  A single task event is normal operational activity. Three or more distinct endpoints receiving tasks from the same admin identity within an hour is the shape of console-driven lateral movement.
-
-  Next Steps:
-  1. Identify the admin identity via log.BitdefenderGZUserName or the user object in the task. Correlate with authentication-audit events from the same identity for logon location and browser.
-  2. Read log.BitdefenderGZTaskName and log.BitdefenderGZTaskType. Scan and update tasks are routine; script execution, arbitrary install, and uninstall tasks deserve scrutiny.
-  3. List every target.host that received a task in this window and treat the set as the potentially-affected estate, not each host individually.
-  4. Cross-check against the change control system. A legitimate task burst normally has a ticket; an ad-hoc burst outside a change window is the strongest indicator.
-  5. Suspend the admin account and rotate its credentials before deciding whether it was compromised or misused. Then audit every endpoint that received a task for signs of the tasks having succeeded.
-  6. Review Control Center authentication logs for the source IP behind the admin session. External or unusual geographies for the admin login argue for an account compromise rather than an insider.
-where: |
-  equals("log.BitdefenderGZModule", "task-status")
+  '
+where: equals("log.correlationCandidate.avConsoleLateralMovement","match")
 correlation:
-  - indexPattern: v11-log-antivirus-bitdefender-gz-*
-    within: 1h
-    count: 3
-    with:
-      - field: log.BitdefenderGZModule
-        operator: filter_term
-        value: "task-status"
-      - field: target.host
-        operator: must_not_term
-        value: "{{.target.host}}"
+- indexPattern: v11-log-antivirus-bitdefender-gz-*
+  within: 1h
+  count: 3
+  with:
+  - field: log.correlationCandidate.avConsoleLateralMovement
+    operator: filter_term
+    value: match
+  - field: dataSource
+    operator: filter_term
+    value: '{{.dataSource}}'
+  - field: log.BitdefenderGZCompanyId
+    operator: filter_term
+    value: '{{.log.BitdefenderGZCompanyId}}'
+  - field: log.endpointKeyType
+    operator: filter_term
+    value: '{{.log.endpointKeyType}}'
+  - field: log.endpointKey
+    operator: must_not_term
+    value: '{{.log.endpointKey}}'
+  - field: log.suid
+    operator: filter_term
+    value: '{{.log.suid}}'
+  - field: log.BitdefenderGZTaskType
+    operator: filter_term
+    value: '{{.log.BitdefenderGZTaskType}}'
 groupBy:
-  - target.host
-  - lastEvent.log.BitdefenderGZTaskName
+- lastEvent.dataSource
+- lastEvent.log.BitdefenderGZCompanyId
+- lastEvent.log.endpointKeyType
+- lastEvent.log.endpointKey
+- lastEvent.log.BitdefenderGZTaskName

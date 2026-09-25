@@ -1,10 +1,11 @@
-# Mikrotik firewall module filter, version 3.0.1
+# Mikrotik firewall module filter, version 3.1.0
 # Based in docs and samples provided
 # 
 # Documentations
 # 1- https://wiki.mikrotik.com/wiki/Manual:System/Log 
 # 2- https://wiki.mikrotik.com/wiki/Manual:Routing_Table_Matcher 
 # 3- https://datatracker.ietf.org/doc/html/rfc3164 
+# 4- https://help.mikrotik.com/docs/spaces/ROS/pages/48660574/Filter (log action fields)
 # 
 # Implementation
 # 1. Parsing the RAW field containing the Mikrotik
@@ -13,8 +14,11 @@ pipeline:
       - firewall-mikrotik
     steps:
 
-      # Using grok to parse header of the message
-      # First if message begins with time format
+      # The EventProcessor grok step matches each pattern alone against the
+      # trimmed remaining text, rejects an empty match and writes fields only
+      # when every pattern matched, so each optional part has its own step.
+
+      # Header with a timestamp: <pri>Mon DD HH:MM:SS [host ]topics message
       - grok:
           patterns:
             - fieldName: log.priority
@@ -23,112 +27,159 @@ pipeline:
               pattern: '{{.monthName}}{{.space}}{{.monthDay}}{{.space}}{{.time}}'
             - fieldName: log.restData
               pattern: '{{.greedy}}'
-
-      # Using grok to parse rest of the message        
+      # Header without a timestamp: <pri>topics message
       - grok:
           patterns:
-            - fieldName: log.topics
-              pattern: '{{.word}}'
-            - fieldName: log.chain
-              pattern: '\,{{.data}}\s'
-            - fieldName: log.kvMessage
-              pattern: '{{.data}}\,'
+            - fieldName: log.priority
+              pattern: '^<[0-9]{1,3}>'
             - fieldName: log.restData
               pattern: '{{.greedy}}'
+          where: '!exists("log.restData") && regexMatch("raw", "^<[0-9]{1,3}>[a-z]+(,[a-z]+)+\\s")'
+      # A host name before the topics; a host name has no comma, topics do
+      - grok:
           source: log.restData
+          patterns:
+            - fieldName: log.deviceHost
+              pattern: '^[^\s,]+'
+            - fieldName: log.restData
+              pattern: '(?s:.+)'
+          where: regexMatch("log.restData", "^[^\\s,]+\\s+[a-z]+(,[a-z]+)+\\s")
+      # Topics (for example firewall,info or system,error,critical), then the message
+      - grok:
+          source: log.restData
+          patterns:
+            - fieldName: log.topics
+              pattern: '^[a-z]+(?:,[a-z]+)*'
+            - fieldName: log.message
+              pattern: '(?s:.+)'
+          where: regexMatch("log.restData", "^[a-z]+(,[a-z]+)*\\s")
 
-      # Using kv to parse message
+      # Firewall log action: [prefix ]chain: in:IF out:IF, [src-mac MAC, ]
+      # proto P[ (flags)], SRC[:PORT]->DST[:PORT], [NAT ...,] len N
+      - grok:
+          source: log.message
+          patterns:
+            - fieldName: log.chainHeader
+              pattern: '^.*?: in:'
+          where: contains("log.topics", "firewall")
+      - trim:
+          function: suffix
+          substring: ': in:'
+          fields:
+            - log.chainHeader
+      - grok:
+          source: log.chainHeader
+          patterns:
+            - fieldName: log.logPrefix
+              pattern: '^.*\s'
+            - fieldName: log.chain
+              pattern: '^\S+$'
+          where: contains("log.chainHeader", " ")
+      - grok:
+          source: log.chainHeader
+          patterns:
+            - fieldName: log.chain
+              pattern: '^\S+$'
+          where: exists("log.chainHeader") && !contains("log.chainHeader", " ")
+      # A log prefix written as key:value (for example action:drop) becomes fields
       - kv:
-          source: log.kvMessage
+          source: log.logPrefix
           fieldSplit: " "
           valueSplit: ":"
-
-      # Removing unused fields
-      - delete:
-          fields:
-            - log.kvMessage
-      
-      # Using grok to parse rest of the message with IP and Port  
-      # Example 192.168.1.2:8080->10.5.5.1:3000 
+          where: exists("log.logPrefix") && contains("log.logPrefix", ":")
       - grok:
+          source: log.message
           patterns:
-            - fieldName: log.trash
-              pattern: '{{.word}}(-){{.word}}'
+            - fieldName: ''
+              pattern: '^.*?: in:'
+            - fieldName: log.inInterface
+              pattern: '^(?:\([^)]*\)|[^\s,]+)'
+            - fieldName: ''
+              pattern: '^out:'
+            - fieldName: log.outInterface
+              pattern: '^(?:\([^)]*\)|[^\s,]+)'
+          where: contains("log.topics", "firewall") && exists("log.chain")
+      - grok:
+          source: log.message
+          patterns:
+            - fieldName: ''
+              pattern: '^.*?\bsrc-mac\s+'
             - fieldName: log.srcMac
-              pattern: '{{.commonMacAddr}}'
-            - fieldName: log.trash2
-              pattern: '\,{{.space}}{{.word}}'
+              pattern: '^(?:{{.commonMacAddr}})'
+          where: contains("log.topics", "firewall") && contains("log.message", "src-mac ")
+      - grok:
+          source: log.message
+          patterns:
+            - fieldName: ''
+              pattern: '^.*?\bproto\s+'
             - fieldName: log.proto
-              pattern: '{{.word}}|{{.integer}}'
-            - fieldName: log.trash3
-              pattern: '{{.data}}\)'
+              pattern: '^[A-Za-z0-9-]+'
+          where: contains("log.topics", "firewall") && contains("log.message", "proto ")
+      # Addresses with ports, for example 192.168.1.2:8080->10.5.5.1:3000
+      - grok:
+          source: log.message
+          patterns:
+            - fieldName: ''
+              pattern: '^.*?\bproto\s+[A-Za-z0-9-]+(?:\s*\([^)]*\))?,'
             - fieldName: log.srcIp
-              pattern: '\,{{.space}}{{.ipv4}}'
+              pattern: '^{{.ipv4}}'
             - fieldName: log.srcPort
-              pattern: '\:{{.integer}}'
-            - fieldName: log.trash4
-              pattern: '(->)'
+              pattern: '^:[0-9]+'
+            - fieldName: ''
+              pattern: '^->'
             - fieldName: log.dstIp
-              pattern: '{{.ipv4}}'
+              pattern: '^{{.ipv4}}'
             - fieldName: log.dstPort
-              pattern: '\:{{.integer}}'
-            - fieldName: log.trash5
-              pattern: '\,{{.space}}{{.word}}'
-            - fieldName: log.len
-              pattern: '{{.greedy}}'
-          source: log.restData
-
-      # Using grok to parse rest of the message with IP without Port  
-      # Example 192.168.1.2->10.5.5.1
+              pattern: '^:[0-9]+'
+          where: contains("log.topics", "firewall") && regexMatch("log.message", "[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+:[0-9]+->[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+:[0-9]+")
+      # Addresses without ports, for example ICMP: 192.168.1.2->10.5.5.1
       - grok:
+          source: log.message
           patterns:
-            - fieldName: log.trash
-              pattern: '{{.word}}(-){{.word}}'
-            - fieldName: log.srcMac
-              pattern: '{{.commonMacAddr}}'
-            - fieldName: log.trash2
-              pattern: '\,{{.space}}{{.word}}'
-            - fieldName: log.proto
-              pattern: '{{.word}}|{{.integer}}'
+            - fieldName: ''
+              pattern: '^.*?\bproto\s+[A-Za-z0-9-]+(?:\s*\([^)]*\))?,'
             - fieldName: log.srcIp
-              pattern: '\,{{.space}}{{.ipv4}}'
-            - fieldName: log.trash4
-              pattern: '(->)'
+              pattern: '^{{.ipv4}}'
+            - fieldName: ''
+              pattern: '^->'
             - fieldName: log.dstIp
-              pattern: '{{.ipv4}}'
-            - fieldName: log.trash5
-              pattern: '\,{{.space}}{{.word}}'
-            - fieldName: log.len
-              pattern: '{{.greedy}}'
-          source: log.restData
-
-      # Using grok to parse rest of the message with IP without Port  
-      # Example 192.168.1.2->10.5.5.1:8080
+              pattern: '^{{.ipv4}}'
+          where: contains("log.topics", "firewall") && !exists("log.srcIp") && regexMatch("log.message", "[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+->[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+")
       - grok:
+          source: log.message
           patterns:
-            - fieldName: log.trash
-              pattern: '{{.word}}(-){{.word}}'
-            - fieldName: log.srcMac
-              pattern: '{{.commonMacAddr}}'
-            - fieldName: log.trash2
-              pattern: '\,{{.space}}{{.word}}'
-            - fieldName: log.proto
-              pattern: '{{.word}}|{{.integer}}'
-            - fieldName: log.trash3
-              pattern: '{{.data}}\)'
-            - fieldName: log.srcIp
-              pattern: '\,{{.space}}{{.ipv4}}'
-            - fieldName: log.trash4
-              pattern: '(->)'
-            - fieldName: log.dstIp
-              pattern: '{{.ipv4}}'
-            - fieldName: log.dstPort
-              pattern: '\:{{.integer}}'
-            - fieldName: log.trash5
-              pattern: '\,{{.space}}{{.word}}'
+            - fieldName: ''
+              pattern: '^.*,\s*len\s+'
             - fieldName: log.len
-              pattern: '{{.greedy}}'
-          source: log.restData
+              pattern: '^[0-9]+'
+          where: contains("log.topics", "firewall") && contains("log.message", " len ")
+
+      # Documented failed login: "login failure for user root from 10.0.0.1 via telnet"
+      - grok:
+          source: log.message
+          patterns:
+            - fieldName: ''
+              pattern: '^login failure for user'
+            - fieldName: log.loginUser
+              pattern: '^\S+'
+            - fieldName: ''
+              pattern: '^from'
+            - fieldName: log.loginSource
+              pattern: '^\S+'
+            - fieldName: ''
+              pattern: '^via'
+            - fieldName: log.service
+              pattern: '^\S+'
+          where: contains("log.topics", "system") && startsWith("log.message", "login failure for user ")
+      - rename:
+          from:
+            - log.loginUser
+          to: origin.user
+      - rename:
+          from:
+            - log.loginSource
+          to: origin.ip
+          where: (inCIDR("log.loginSource", "0.0.0.0/0") || inCIDR("log.loginSource", "::/0")) && !inCIDR("log.loginSource", "0.0.0.0/32") && !inCIDR("log.loginSource", "::/128")
 
       # Rename filds
       - rename:
@@ -205,13 +256,20 @@ pipeline:
             destination: target.geolocation
           where: exists("target.ip")
 
-      # Adding action result
+      # Adding action result. RouterOS firewall logs do not record the rule
+      # action; only a log prefix such as action:drop provides it.
       - add:
           function: string
           params:
             key: actionResult
-            value: "blocked"
-          where: 'exists("log.action") && equals("log.action", "drop")'
+            value: denied
+          where: 'exists("log.action") && oneOf("log.action", ["drop", "reject"])'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failure
+          where: 'contains("log.topics", "system") && startsWith("log.message", "login failure for user ")'
 
       # Removing unused fields
       - delete:
@@ -222,3 +280,4 @@ pipeline:
             - log.trash4
             - log.trash5
             - log.restData
+            - log.chainHeader

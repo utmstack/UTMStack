@@ -1,42 +1,46 @@
-# Rule version v1.0.0
-
+# Sophos source-contract review; thresholds and impact ratings preserved.
 dataTypes:
-  - firewall-sophos-xg
-name: Sophos XG IPS Alert Detection
+- firewall-sophos-xg
+name: Repeated Sophos IPS Priority 1 or 2 Detections
 impact:
   confidentiality: 3
   integrity: 3
   availability: 2
 category: Intrusion Detection
-technique: "T1190 - Exploit Public-Facing Application"
+technique: T1190 - Exploit Public-Facing Application
 adversary: origin
 references:
-  - https://docs.sophos.com/nsg/sophos-firewall/20.0/Help/en-us/webhelp/onlinehelp/AdministratorHelp/IPS/index.html
-  - https://attack.mitre.org/techniques/T1190/
-description: |
-  Detects IPS alert triggers on Sophos XG Firewall indicating active exploitation attempts, vulnerability scanning, or known attack signatures targeting protected hosts.
-
-  Next Steps:
-  1. Review the IPS signature details and severity level
-  2. Investigate the source IP for additional malicious activity
-  3. Check if the attack was blocked or only logged
-  4. Verify the target system is patched against the detected vulnerability
-  5. Scan the target for signs of compromise if the attack may have succeeded
-  6. Update IPS signatures and security policies
-where: |
-  equals("log.type", "IPS") &&
-  (oneOf("log.severity", ["Critical", "High"]) ||
-   contains("log.priority", ["1", "2"])) &&
-  exists("origin.ip") &&
-  exists("target.ip")
-afterEvents:
-  - indexPattern: v11-log-firewall-sophos-xg-*
-    with:
-      - field: origin.ip
-        operator: filter_term
-        value: '{{.origin.ip}}'
-    within: 15m
-    count: 3
+- https://docs.sophos.com/nsg/sophos-firewall/20.0/syslog/index.html
+- https://attack.mitre.org/techniques/T1190/
+description: Repeated IDP signature/anomaly detections carrying rule priority 1 or 2 (or explicit High/Critical
+  severity), from the same source to the same destination on the same firewall. A Drop remains denied; a Detect
+  does not prove exploitation succeeded.
+where: (equals("log.type","IDP") && oneOf("log.component",["Signatures","Anomaly"]) && oneOf("log.subType",["Detect","Drop"])
+  && (oneOf("log.rulepriority",["1","2"]) || oneOf("log.severity",["Critical","High"])) && exists("origin.ip") &&
+  exists("target.ip")) && exists("origin.ip") && exists("dataSource") && !equals("dataSource","") && exists("log.sophosScope")
+  && !equals("log.sophosScope","")
 groupBy:
-  - adversary.ip
-  - target.ip
+- lastEvent.dataSource
+- lastEvent.log.sophosScope
+- adversary.ip
+- target.ip
+correlation:
+- indexPattern: v11-log-firewall-sophos-xg-*
+  within: 15m
+  count: 3
+  with:
+  - field: dataSource
+    operator: filter_term
+    value: '{{.dataSource}}'
+  - field: log.sophosScope
+    operator: filter_term
+    value: '{{.log.sophosScope}}'
+  - field: origin.ip
+    operator: filter_term
+    value: '{{.origin.ip}}'
+  - field: target.ip
+    operator: filter_term
+    value: '{{.target.ip}}'
+  - field: log.correlationCandidate.sophosXG.ips
+    operator: filter_term
+    value: match

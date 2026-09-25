@@ -1,4 +1,4 @@
-# Deceptive Bytes filter, version 3.0.3
+# Deceptive Bytes filter, version 3.0.4
 # Based on previous version of the same filter
 
 pipeline:
@@ -184,7 +184,7 @@ pipeline:
               pattern: '\,{{.data}}\,'
             - fieldName: origin.path
               pattern: '{{.greedy}}\,'
-            - fieldName: command
+            - fieldName: origin.command
               pattern: '{{.greedy}}'
           source: log.restMessage
 
@@ -302,6 +302,7 @@ pipeline:
           fieldSplit: " "
           valueSplit: "="
           source: log.restMessageToKv
+          where: exists("log.restMessageToKv")
 
       # Using grok to analyze the rest of the data
       - grok:
@@ -412,13 +413,13 @@ pipeline:
           function: prefix
           substring: '"'
           fields:
-            - command
+            - origin.command
 
       - trim:
           function: suffix
           substring: '"'
           fields:
-            - command
+            - origin.command
 
       - trim:
           function: prefix
@@ -443,19 +444,21 @@ pipeline:
           fieldSplit: " "
           valueSplit: "="
           source: log.restData
+          where: exists("log.restData")
 
       # Using the kv filter with other config, usefull in key-value logs
       - kv:
           fieldSplit: ", "
           valueSplit: "="
           source: log.pidStatusToKv
+          where: exists("log.pidStatusToKv")
 
       # Adding action result
       - add:
           function: string
           params:
             key: actionResult
-            value: "blocked"
+            value: "denied"
           where: 'exists("log.action") && oneOf("log.action", ["blocked", "prevented"])'
 
       # Adding severity based on log.severityLabelCharacter

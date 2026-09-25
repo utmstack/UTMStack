@@ -1,1129 +1,1086 @@
-# KAV module filter, version 3.0.1
-# Based in docs and samples log provided
-# Support Syslog CEF format
-# 
-# Documentations
-# 1- https://docs.centrify.com/Content/IntegrationContent/SIEM/arcsight-cef/arcsight-cef-format.htm 
-# 2- https://docs.devo.com/confluence/ndt/latest/devo-parsers/technologies-supported-in-cef-syslog-format/cef0-kaspersky 
-# 3- https://support.kaspersky.com/KLMS/8.2/en-US/151504.htm
-# 4- https://support.kaspersky.com/ScanEngine/1.0/en-US/186767.htm
-# 
-# Implementation
-# 1. Parsing the RAW field containing the KAV
-
+# Kaspersky filter v3.2.0; native KSC structured syslog and CEF.
+# The grok plugin trims input before each pattern and rejects empty matches;
+# separator spaces therefore belong to nonempty captures, not their own steps.
 pipeline:
-  - dataTypes:
-      - antivirus-kaspersky
-    steps:
-
-      # .......................................................................#
-      # Using grok to parse syslogHeader of the message
-      # .......................................................................#
-      - grok:
-          patterns:
-            - fieldName: log.priority
-              pattern: '\<{{.data}}\>'
-            - fieldName: log.cefMsgAll
-              pattern: '{{.greedy}}'
-
-      - grok:
-          patterns:
-            - fieldName: log.priority
-              pattern: '\<{{.data}}\>'
-            - fieldName: log.syslogVersion
-              pattern: '{{.integer}}'
-            - fieldName: log.deviceTime
-              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}{{.space}}{{.time}}'
-            - fieldName: log.syslogHost
-              pattern: '{{.data}}\='
-            - fieldName: log.syslogIpHost
-              pattern: '{{.ipv4}}'
-            - fieldName: log.notDefined
-              pattern: '{{.integer}}'
-            - fieldName: log.cefMsgAll
-              pattern: '{{.greedy}}'
-
-      # .......................................................................#
-      # Removing unnecessary characters of the syslogHeader
-      # .......................................................................#
-      - trim:
-          function: prefix
-          substring: '<'
-          fields:
-            - log.priority
-      - trim:
-          function: suffix
-          substring: '>'
-          fields:
-            - log.priority
-
-      - trim:
-          function: suffix
-          substring: '='
-          fields:
-            - log.syslogHost
-
-      # .......................................................................#
-      # Using grok to parse components of the cefMessage        
-      # .......................................................................#
-      - grok:
-          patterns:
-            - fieldName: log.cef
-              pattern: '(CEF:)'
-            - fieldName: log.cefVersion
-              pattern: '{{.integer}}'
-            - fieldName: log.embDeviceVendor
-              pattern: '\|{{.data}}\|'
-            - fieldName: log.embDeviceProduct
-              pattern: '{{.data}}\|'
-            - fieldName: log.deviceVersion
-              pattern: '{{.data}}\|'
-            - fieldName: log.signatureID
-              pattern: '{{.data}}\|'
-            - fieldName: log.descMsg
-              pattern: '{{.data}}\|'
-            - fieldName: log.cefDeviceSeverity
-              pattern: '{{.data}}\|'
-            - fieldName: log.cefMsg
-              pattern: '{{.greedy}}'
-          source: log.cefMsgAll
-
-      # .......................................................................#
-      # Removing unnecessary characters of the cefMessage
-      # .......................................................................#
-      - trim:
-          function: prefix
-          substring: '|'
-          fields:
-            - log.embDeviceVendor
-      - trim:
-          function: suffix
-          substring: '|'
-          fields:
-            - log.embDeviceVendor
-            - log.embDeviceProduct
-            - log.deviceVersion
-            - log.signatureID
-            - log.descMsg
-            - log.cefDeviceSeverity
-
-      # .......................................................................#
-      # Using the kv filter for cefMsg
-      # .......................................................................#
-      - kv:
-          source: log.cefMsg
-          fieldSplit: " "
-          valueSplit: "="
-
-      # .......................................................................#
-      # Remove fields that have issues with kv filter
-      # .......................................................................#
-      - delete:
-          fields:
-            - log.destinationZoneURI
-            - log.msg
-            - log.customerURI
-            - log.destinationZoneExternalID
-            - log.cs1
-            - log.cs2
-            - log.cs3
-            - log.cs4
-            - log.cs5
-            - log.cs6
-            - log.cs7
-            - log.cs8
-            - log.cs9
-            - log.cs10
-            - log.originalAgentZoneURI
-            - log.flexString1
-            - log.cat
-            - log.cs1Label
-            - log.cs2Label
-            - log.cs3Label
-            - log.cs4Label
-            - log.cs5Label
-            - log.cs6Label
-            - log.cs7Label
-            - log.cs8Label
-            - log.cs9Label
-            - log.cs10Label
-            - log.cn1
-            - log.cn2
-            - log.cn3
-            - log.cn4
-            - log.cn5
-            - log.cn6
-            - log.cn7
-            - log.cn8
-            - log.cn9
-            - log.cn10
-            - log.cn1Label
-            - log.cn2Label
-            - log.cn3Label
-            - log.cn4Label
-            - log.cn5Label
-            - log.cn6Label
-            - log.cn7Label
-            - log.cn8Label
-            - log.cn9Label
-            - log.cn10Label
-
-      # .......................................................................#
-      # Using grok to parse kv issued fields
-      # .......................................................................#
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(msg=)'
-            - fieldName: log.msg
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-          
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(customerURI=)'
-            - fieldName: log.customerURI
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(destinationZoneURI=)'
-            - fieldName: log.destinationZoneURI
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(destinationZoneExternalID=)'
-            - fieldName: log.destinationZoneExternalID
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cs1=)'
-            - fieldName: log.cs1
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cs2=)'
-            - fieldName: log.cs2
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cs3=)'
-            - fieldName: log.cs3
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cs4=)'
-            - fieldName: log.cs4
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cs5=)'
-            - fieldName: log.cs5
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cs6=)'
-            - fieldName: log.cs6
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cs7=)'
-            - fieldName: log.cs7
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cs8=)'
-            - fieldName: log.cs8
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cs9=)'
-            - fieldName: log.cs9
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cs10=)'
-            - fieldName: log.cs10
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cn1=)'
-            - fieldName: log.cn1
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cn2=)'
-            - fieldName: log.cn2
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cn3=)'
-            - fieldName: log.cn3
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cn4=)'
-            - fieldName: log.cn4
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cn5=)'
-            - fieldName: log.cn5
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cn6=)'
-            - fieldName: log.cn6
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cn7=)'
-            - fieldName: log.cn7
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cn8=)'
-            - fieldName: log.cn8
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cn9=)'
-            - fieldName: log.cn9
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cn10=)'
-            - fieldName: log.cn10
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(originalAgentZoneURI=)'
-            - fieldName: log.originalAgentZoneURI
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(flexString1=)'
-            - fieldName: log.flexString1
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cat=)'
-            - fieldName: log.cat
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cs1Label=)'
-            - fieldName: log.cs1Label
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cs2Label=)'
-            - fieldName: log.cs2Label
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cs3Label=)'
-            - fieldName: log.cs3Label
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cs4Label=)'
-            - fieldName: log.cs4Label
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cs5Label=)'
-            - fieldName: log.cs5Label
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cs6Label=)'
-            - fieldName: log.cs6Label
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cs7Label=)'
-            - fieldName: log.cs7Label
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cs8Label=)'
-            - fieldName: log.cs8Label
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cs9Label=)'
-            - fieldName: log.cs9Label
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cs10Label=)'
-            - fieldName: log.cs10Label
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cn1Label=)'
-            - fieldName: log.cn1Label
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cn2Label=)'
-            - fieldName: log.cn2Label
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cn3Label=)'
-            - fieldName: log.cn3Label
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cn4Label=)'
-            - fieldName: log.cn4Label
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cn5Label=)'
-            - fieldName: log.cn5Label
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cn6Label=)'
-            - fieldName: log.cn6Label
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cn7Label=)'
-            - fieldName: log.cn7Label
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cn8Label=)'
-            - fieldName: log.cn8Label
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cn9Label=)'
-            - fieldName: log.cn9Label
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      - grok:
-          patterns:
-            - fieldName: log.irrelevant
-              pattern: '{{.data}}(cn10Label=)'
-            - fieldName: log.cn10Label
-              pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.cefMsg
-
-      # .................................................#
-      # Applying grok to remove unnecessary data
-      # .................................................#
-      - grok:
-          patterns:
-            - fieldName: log.destinationZoneURI
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.destinationZoneURI
-
-      - grok:
-          patterns:
-            - fieldName: log.msg
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.msg
-
-      - grok:
-          patterns:
-            - fieldName: log.customerURI
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.customerURI
-
-      - grok:
-          patterns:
-            - fieldName: log.destinationZoneExternalID
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.destinationZoneExternalID
-
-      - grok:
-          patterns:
-            - fieldName: log.cs1
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cs1
-
-      - grok:
-          patterns:
-            - fieldName: log.cs2
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cs2
-
-      - grok:
-          patterns:
-            - fieldName: log.cs3
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cs3
-
-      - grok:
-          patterns:
-            - fieldName: log.cs4
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cs4
-
-      - grok:
-          patterns:
-            - fieldName: log.cs5
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cs5
-
-      - grok:
-          patterns:
-            - fieldName: log.cs6
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cs6
-
-      - grok:
-          patterns:
-            - fieldName: log.cs7
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cs7
-
-      - grok:
-          patterns:
-            - fieldName: log.cs8
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cs8
-
-      - grok:
-          patterns:
-            - fieldName: log.cs9
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cs9
-
-      - grok:
-          patterns:
-            - fieldName: log.cs10
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cs10
-
-      - grok:
-          patterns:
-            - fieldName: log.cn1
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cn1
-
-      - grok:
-          patterns:
-            - fieldName: log.cn2
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cn2
-
-      - grok:
-          patterns:
-            - fieldName: log.cn3
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cn3
-
-      - grok:
-          patterns:
-            - fieldName: log.cn4
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cn4
-
-      - grok:
-          patterns:
-            - fieldName: log.cn5
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cn5
-
-      - grok:
-          patterns:
-            - fieldName: log.cn6
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cn6
-
-      - grok:
-          patterns:
-            - fieldName: log.cn7
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cn7
-
-      - grok:
-          patterns:
-            - fieldName: log.cn8
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cn8
-
-      - grok:
-          patterns:
-            - fieldName: log.cn9
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cn9
-
-      - grok:
-          patterns:
-            - fieldName: log.cn10
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cn10
-
-      - grok:
-          patterns:
-            - fieldName: log.originalAgentZoneURI
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.originalAgentZoneURI
-
-      - grok:
-          patterns:
-            - fieldName: log.flexString1
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.flexString1
-
-      - grok:
-          patterns:
-            - fieldName: log.cat
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cat
-
-      - grok:
-          patterns:
-            - fieldName: log.cs1Label
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cs1Label
-
-      - grok:
-          patterns:
-            - fieldName: log.cs2Label
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cs2Label
-
-      - grok:
-          patterns:
-            - fieldName: log.cs3Label
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cs3Label
-
-      - grok:
-          patterns:
-            - fieldName: log.cs4Label
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cs4Label
-
-      - grok:
-          patterns:
-            - fieldName: log.cs5Label
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cs5Label
-
-      - grok:
-          patterns:
-            - fieldName: log.cs6Label
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cs6Label
-
-      - grok:
-          patterns:
-            - fieldName: log.cs7Label
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cs7Label
-
-      - grok:
-          patterns:
-            - fieldName: log.cs8Label
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cs8Label
-
-      - grok:
-          patterns:
-            - fieldName: log.cs9Label
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cs9Label
-
-      - grok:
-          patterns:
-            - fieldName: log.cs10Label
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cs10Label
-
-      - grok:
-          patterns:
-            - fieldName: log.cn1Label
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cn1Label
-
-      - grok:
-          patterns:
-            - fieldName: log.cn2Label
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cn2Label
-
-      - grok:
-          patterns:
-            - fieldName: log.cn3Label
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cn3Label
-
-      - grok:
-          patterns:
-            - fieldName: log.cn4Label
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cn4Label
-
-      - grok:
-          patterns:
-            - fieldName: log.cn5Label
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cn5Label
-
-      - grok:
-          patterns:
-            - fieldName: log.cn6Label
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cn6Label
-
-      - grok:
-          patterns:
-            - fieldName: log.cn7Label
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cn7Label
-
-      - grok:
-          patterns:
-            - fieldName: log.cn8Label
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cn8Label
-
-      - grok:
-          patterns:
-            - fieldName: log.cn9Label
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cn9Label
-
-      - grok:
-          patterns:
-            - fieldName: log.cn10Label
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.word}}(=)'
-          source: log.cn10Label
-      
-      # .......................................................................#
-      # Rename fields
-      # .......................................................................#
-      - rename:
-          from:
-            - log.src
-          to: origin.ip
-          
-      - rename:
-          from:
-            - log.dst
-          to: target.ip
-
-      - rename:
-          from:
-            - log.act
-          to: action
-
-      - rename:
-          from:
-            - log.agt
-          to: origin.ip
-
-      - rename:
-          from:
-            - log.ahost
-          to: target.host
-
-      - rename:
-          from:
-            - log.amac
-          to: origin.mac
-
-      - rename:
-          from:
-            - log.dhost
-          to: target.host
-
-      - rename:
-          from:
-            - log.originalAgentAddress
-          to: origin.ip
-
-      - rename:
-          from:
-            - log.syslogHost
-          to: origin.host
-
-      - rename:
-          from:
-            - log.syslogIpHost
-          to: origin.ip
-
-      # .......................................................................#
-      # Removing unnecessary characters of the restData
-      # .......................................................................#
-      - trim:
-          function: suffix
-          substring: '||=||='
-          fields:
-            - log.adarcSightEventPath
-            - log.aid
-            - log.customerID
-            - log.destinationZoneID
-            - log.originalAgentId
-
-      # Adding geolocation to origin.ip
-      - dynamic:
-          plugin: com.utmstack.geolocation
-          params:
-            source: origin.ip
-            destination: origin.geolocation
-          where: exists("origin.ip")
-      
-      # Adding geolocation to target.ip
-      - dynamic:
-          plugin: com.utmstack.geolocation
-          params:
-            source: target.ip
-            destination: target.geolocation
-          where: exists("target.ip")
-
-      # Adding action result
-      - add:
-          function: string
-          params:
-            key: actionResult
-            value: "Allow"
-          where: 'oneOf("action", ["Allow", "Allowed"])'
-
-      - add:
-          function: string
-          params:
-            key: actionResult
-            value: "blocked"
-          where: 'oneOf("action", ["Block", "Blocked", "blocked", "Redirect", "terminate", "delete", "quarantine"])'
-
-      # .......................................................................#
-      # Removing unused fields
-      # .......................................................................#
-      - delete:
-          fields:
-            - log.cef
-            - log.cefMsgAll
-            - log.cefMsg
-            - log.irrelevant
-            - log.notDefined
+- dataTypes:
+  - antivirus-kaspersky
+  steps:
+  - delete:
+      fields:
+      - log.format
+      - log.cefExtension
+      - log.ksc
+      - log.eventType
+      - log.endpointKey
+      - log.endpointKeyType
+      - log.correlationCandidate
+  - grok:
+      source: raw
+      patterns:
+      - fieldName: ''
+        pattern: '^(?:(?:<[0-9]{1,3}>)?[A-Za-z]{3}\s+[0-9]{1,2}\s+[0-9]{2}:[0-9]{2}:[0-9]{2}\s+\S+\s+(?:[^\s:\"]+(?:\[[0-9]+\])?:\s*)?|<[0-9]{1,3}>[1-9][0-9]*\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+-\s+|<[0-9]{1,3}>)?CEF:'
+      - fieldName: log.cefVersion
+        pattern: '[0-9]+'
+      - fieldName: ''
+        pattern: \|
+      - fieldName: log.embDeviceVendor
+        pattern: (?:\\.|[^\\|\r\n])+
+      - fieldName: ''
+        pattern: \|
+      - fieldName: log.embDeviceProduct
+        pattern: (?:\\.|[^\\|\r\n])*
+      - fieldName: ''
+        pattern: \|
+      - fieldName: log.deviceVersion
+        pattern: (?:\\.|[^\\|\r\n])*
+      - fieldName: ''
+        pattern: \|
+      - fieldName: log.signatureID
+        pattern: (?:\\.|[^\\|\r\n])*
+      - fieldName: ''
+        pattern: \|
+      - fieldName: log.descMsg
+        pattern: (?:\\.|[^\\|\r\n])*
+      - fieldName: ''
+        pattern: \|
+      - fieldName: log.cefDeviceSeverity
+        pattern: (?:\\.|[^\\|\r\n])*
+      - fieldName: ''
+        pattern: \|
+      - fieldName: log.cefExtension
+        pattern: (?s:.*)$
+  - kv:
+      source: log.cefExtension
+      fieldSplit: ' '
+      valueSplit: '='
+      where: exists("log.cefExtension")
+  - delete:
+      fields:
+      - log.act
+      - log.agt
+      - log.ahost
+      - log.amac
+      - log.cat
+      - log.cn1
+      - log.cn10
+      - log.cn10Label
+      - log.cn1Label
+      - log.cn2
+      - log.cn2Label
+      - log.cn3
+      - log.cn3Label
+      - log.cn4
+      - log.cn4Label
+      - log.cn5
+      - log.cn5Label
+      - log.cn6
+      - log.cn6Label
+      - log.cn7
+      - log.cn7Label
+      - log.cn8
+      - log.cn8Label
+      - log.cn9
+      - log.cn9Label
+      - log.cs1
+      - log.cs10
+      - log.cs10Label
+      - log.cs1Label
+      - log.cs2
+      - log.cs2Label
+      - log.cs3
+      - log.cs3Label
+      - log.cs4
+      - log.cs4Label
+      - log.cs5
+      - log.cs5Label
+      - log.cs6
+      - log.cs6Label
+      - log.cs7
+      - log.cs7Label
+      - log.cs8
+      - log.cs8Label
+      - log.cs9
+      - log.cs9Label
+      - log.customerURI
+      - log.destinationZoneExternalID
+      - log.destinationZoneURI
+      - log.dhost
+      - log.dmac
+      - log.dpt
+      - log.dst
+      - log.duser
+      - log.flexString1
+      - log.fname
+      - log.msg
+      - log.originalAgentZoneURI
+      - log.proto
+      - log.shost
+      - log.smac
+      - log.spt
+      - log.src
+      - log.suser
+      - log.cefVersion
+      - log.embDeviceVendor
+      - log.embDeviceProduct
+      - log.deviceVersion
+      - log.signatureID
+      - log.descMsg
+      - log.cefDeviceSeverity
+      - log.format
+      - log.cefExtension
+      - log.ksc
+      - log.eventType
+      - log.endpointKey
+      - log.endpointKeyType
+      - log.correlationCandidate
+  - grok:
+      source: raw
+      patterns:
+      - fieldName: ''
+        pattern: '^(?:(?:<[0-9]{1,3}>)?[A-Za-z]{3}\s+[0-9]{1,2}\s+[0-9]{2}:[0-9]{2}:[0-9]{2}\s+\S+\s+(?:[^\s:\"]+(?:\[[0-9]+\])?:\s*)?|<[0-9]{1,3}>[1-9][0-9]*\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+-\s+|<[0-9]{1,3}>)?CEF:'
+      - fieldName: log.cefVersion
+        pattern: '[0-9]+'
+      - fieldName: ''
+        pattern: \|
+      - fieldName: log.embDeviceVendor
+        pattern: (?:\\.|[^\\|\r\n])+
+      - fieldName: ''
+        pattern: \|
+      - fieldName: log.embDeviceProduct
+        pattern: (?:\\.|[^\\|\r\n])*
+      - fieldName: ''
+        pattern: \|
+      - fieldName: log.deviceVersion
+        pattern: (?:\\.|[^\\|\r\n])*
+      - fieldName: ''
+        pattern: \|
+      - fieldName: log.signatureID
+        pattern: (?:\\.|[^\\|\r\n])*
+      - fieldName: ''
+        pattern: \|
+      - fieldName: log.descMsg
+        pattern: (?:\\.|[^\\|\r\n])*
+      - fieldName: ''
+        pattern: \|
+      - fieldName: log.cefDeviceSeverity
+        pattern: (?:\\.|[^\\|\r\n])*
+      - fieldName: ''
+        pattern: \|
+      - fieldName: log.cefExtension
+        pattern: (?s:.*)$
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:.*[ \t])?act=
+      - fieldName: log.act
+        pattern: '[^ \t=]+'
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:.*[ \t])?agt=
+      - fieldName: log.agt
+        pattern: '[^ \t=]+'
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:.*[ \t])?ahost=
+      - fieldName: log.ahost
+        pattern: '[^ \t=]+'
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:.*[ \t])?amac=
+      - fieldName: log.amac
+        pattern: '[^ \t=]+'
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:.*[ \t])?cat=
+      - fieldName: log.cat
+        pattern: '[^ \t=]+'
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:.*[ \t])?cn1=
+      - fieldName: log.cn1
+        pattern: '[^ \t=]+'
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:.*[ \t])?cn10=
+      - fieldName: log.cn10
+        pattern: '[^ \t=]+'
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cn10Label=
+      - fieldName: log.cn10Label
+        pattern: (?:\\.|[^\\=\r\n])*?
+      - fieldName: ''
+        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cn1Label=
+      - fieldName: log.cn1Label
+        pattern: (?:\\.|[^\\=\r\n])*?
+      - fieldName: ''
+        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:.*[ \t])?cn2=
+      - fieldName: log.cn2
+        pattern: '[^ \t=]+'
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cn2Label=
+      - fieldName: log.cn2Label
+        pattern: (?:\\.|[^\\=\r\n])*?
+      - fieldName: ''
+        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:.*[ \t])?cn3=
+      - fieldName: log.cn3
+        pattern: '[^ \t=]+'
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cn3Label=
+      - fieldName: log.cn3Label
+        pattern: (?:\\.|[^\\=\r\n])*?
+      - fieldName: ''
+        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:.*[ \t])?cn4=
+      - fieldName: log.cn4
+        pattern: '[^ \t=]+'
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cn4Label=
+      - fieldName: log.cn4Label
+        pattern: (?:\\.|[^\\=\r\n])*?
+      - fieldName: ''
+        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:.*[ \t])?cn5=
+      - fieldName: log.cn5
+        pattern: '[^ \t=]+'
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cn5Label=
+      - fieldName: log.cn5Label
+        pattern: (?:\\.|[^\\=\r\n])*?
+      - fieldName: ''
+        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:.*[ \t])?cn6=
+      - fieldName: log.cn6
+        pattern: '[^ \t=]+'
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cn6Label=
+      - fieldName: log.cn6Label
+        pattern: (?:\\.|[^\\=\r\n])*?
+      - fieldName: ''
+        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:.*[ \t])?cn7=
+      - fieldName: log.cn7
+        pattern: '[^ \t=]+'
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cn7Label=
+      - fieldName: log.cn7Label
+        pattern: (?:\\.|[^\\=\r\n])*?
+      - fieldName: ''
+        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:.*[ \t])?cn8=
+      - fieldName: log.cn8
+        pattern: '[^ \t=]+'
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cn8Label=
+      - fieldName: log.cn8Label
+        pattern: (?:\\.|[^\\=\r\n])*?
+      - fieldName: ''
+        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:.*[ \t])?cn9=
+      - fieldName: log.cn9
+        pattern: '[^ \t=]+'
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cn9Label=
+      - fieldName: log.cn9Label
+        pattern: (?:\\.|[^\\=\r\n])*?
+      - fieldName: ''
+        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:.*[ \t])?cs1=
+      - fieldName: log.cs1
+        pattern: '[^ \t=]+'
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs10=
+      - fieldName: log.cs10
+        pattern: (?:\\.|[^\\=\r\n])*?
+      - fieldName: ''
+        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs10Label=
+      - fieldName: log.cs10Label
+        pattern: (?:\\.|[^\\=\r\n])*?
+      - fieldName: ''
+        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs1Label=
+      - fieldName: log.cs1Label
+        pattern: (?:\\.|[^\\=\r\n])*?
+      - fieldName: ''
+        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs2=
+      - fieldName: log.cs2
+        pattern: (?:\\.|[^\\=\r\n])*?
+      - fieldName: ''
+        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs2Label=
+      - fieldName: log.cs2Label
+        pattern: (?:\\.|[^\\=\r\n])*?
+      - fieldName: ''
+        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs3=
+      - fieldName: log.cs3
+        pattern: (?:\\.|[^\\=\r\n])*?
+      - fieldName: ''
+        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs3Label=
+      - fieldName: log.cs3Label
+        pattern: (?:\\.|[^\\=\r\n])*?
+      - fieldName: ''
+        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs4=
+      - fieldName: log.cs4
+        pattern: (?:\\.|[^\\=\r\n])*?
+      - fieldName: ''
+        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs4Label=
+      - fieldName: log.cs4Label
+        pattern: (?:\\.|[^\\=\r\n])*?
+      - fieldName: ''
+        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs5=
+      - fieldName: log.cs5
+        pattern: (?:\\.|[^\\=\r\n])*?
+      - fieldName: ''
+        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs5Label=
+      - fieldName: log.cs5Label
+        pattern: (?:\\.|[^\\=\r\n])*?
+      - fieldName: ''
+        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs6=
+      - fieldName: log.cs6
+        pattern: (?:\\.|[^\\=\r\n])*?
+      - fieldName: ''
+        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs6Label=
+      - fieldName: log.cs6Label
+        pattern: (?:\\.|[^\\=\r\n])*?
+      - fieldName: ''
+        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs7=
+      - fieldName: log.cs7
+        pattern: (?:\\.|[^\\=\r\n])*?
+      - fieldName: ''
+        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs7Label=
+      - fieldName: log.cs7Label
+        pattern: (?:\\.|[^\\=\r\n])*?
+      - fieldName: ''
+        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs8=
+      - fieldName: log.cs8
+        pattern: (?:\\.|[^\\=\r\n])*?
+      - fieldName: ''
+        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs8Label=
+      - fieldName: log.cs8Label
+        pattern: (?:\\.|[^\\=\r\n])*?
+      - fieldName: ''
+        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs9=
+      - fieldName: log.cs9
+        pattern: (?:\\.|[^\\=\r\n])*?
+      - fieldName: ''
+        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs9Label=
+      - fieldName: log.cs9Label
+        pattern: (?:\\.|[^\\=\r\n])*?
+      - fieldName: ''
+        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:.*[ \t])?customerURI=
+      - fieldName: log.customerURI
+        pattern: '[^ \t=]+'
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:.*[ \t])?destinationZoneExternalID=
+      - fieldName: log.destinationZoneExternalID
+        pattern: '[^ \t=]+'
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:.*[ \t])?destinationZoneURI=
+      - fieldName: log.destinationZoneURI
+        pattern: '[^ \t=]+'
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:.*[ \t])?dhost=
+      - fieldName: log.dhost
+        pattern: '[^ \t=]+'
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:.*[ \t])?dmac=
+      - fieldName: log.dmac
+        pattern: '[^ \t=]+'
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:.*[ \t])?dpt=
+      - fieldName: log.dpt
+        pattern: '[^ \t=]+'
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:.*[ \t])?dst=
+      - fieldName: log.dst
+        pattern: '[^ \t=]+'
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:.*[ \t])?duser=
+      - fieldName: log.duser
+        pattern: '[^ \t=]+'
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*flexString1=
+      - fieldName: log.flexString1
+        pattern: (?:\\.|[^\\=\r\n])*?
+      - fieldName: ''
+        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*fname=
+      - fieldName: log.fname
+        pattern: (?:\\.|[^\\=\r\n])*?
+      - fieldName: ''
+        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:.*[ \t])?msg=
+      - fieldName: log.msg
+        pattern: (?s:.+)$
+      where: regexMatch("log.cefExtension","(?:^|[ \t])msg=[^ \t=]")
+  # CEF escapes '=' inside values. Stop before the next unescaped key, then
+  # remove its name when the message is followed by a destination field.
+  - grok:
+      source: log.msg
+      patterns:
+      - fieldName: log.msg
+        pattern: '^(?:\\.|[^=])+'
+      where: equals("log.format","cef") || exists("log.cefExtension")
+  - trim:
+      function: suffix
+      substring: ' dst'
+      fields: [log.msg]
+      where: endsWith("log.msg"," dst")
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:.*[ \t])?originalAgentZoneURI=
+      - fieldName: log.originalAgentZoneURI
+        pattern: '[^ \t=]+'
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:.*[ \t])?proto=
+      - fieldName: log.proto
+        pattern: '[^ \t=]+'
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:.*[ \t])?shost=
+      - fieldName: log.shost
+        pattern: '[^ \t=]+'
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:.*[ \t])?smac=
+      - fieldName: log.smac
+        pattern: '[^ \t=]+'
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:.*[ \t])?spt=
+      - fieldName: log.spt
+        pattern: '[^ \t=]+'
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:.*[ \t])?src=
+      - fieldName: log.src
+        pattern: '[^ \t=]+'
+  - grok:
+      source: log.cefExtension
+      patterns:
+      - fieldName: ''
+        pattern: ^(?:.*[ \t])?suser=
+      - fieldName: log.suser
+        pattern: '[^ \t=]+'
+  - add:
+      function: string
+      params:
+        key: log.format
+        value: cef
+      where: exists("log.cefExtension")
+  - grok:
+      source: log.src
+      patterns:
+      - fieldName: origin.ip
+        pattern: (?s)^.+$
+      where: (inCIDR("log.src","0.0.0.0/0") || inCIDR("log.src","::/0")) && !inCIDR("log.src","0.0.0.0/32") && !inCIDR("log.src","::/128")
+  - grok:
+      source: log.dst
+      patterns:
+      - fieldName: target.ip
+        pattern: (?s)^.+$
+      where: (inCIDR("log.dst","0.0.0.0/0") || inCIDR("log.dst","::/0")) && !inCIDR("log.dst","0.0.0.0/32") && !inCIDR("log.dst","::/128")
+  - grok:
+      source: log.shost
+      patterns:
+      - fieldName: origin.host
+        pattern: (?s)^.+$
+      where: exists("log.shost") && !oneOf("log.shost",["","-"]) && !contains("log.shost","\\")
+  - grok:
+      source: log.dhost
+      patterns:
+      - fieldName: target.host
+        pattern: (?s)^.+$
+      where: exists("log.dhost") && !oneOf("log.dhost",["","-"]) && !contains("log.dhost","\\")
+  - grok:
+      source: log.suser
+      patterns:
+      - fieldName: origin.user
+        pattern: (?s)^.+$
+      where: exists("log.suser") && !oneOf("log.suser",["","-"]) && !contains("log.suser","\\")
+  - grok:
+      source: log.duser
+      patterns:
+      - fieldName: target.user
+        pattern: (?s)^.+$
+      where: exists("log.duser") && !oneOf("log.duser",["","-"]) && !contains("log.duser","\\")
+  - grok:
+      source: log.smac
+      patterns:
+      - fieldName: origin.mac
+        pattern: (?s)^.+$
+      where: exists("log.smac") && !oneOf("log.smac",["","-"]) && !contains("log.smac","\\")
+  - grok:
+      source: log.dmac
+      patterns:
+      - fieldName: target.mac
+        pattern: (?s)^.+$
+      where: exists("log.dmac") && !oneOf("log.dmac",["","-"]) && !contains("log.dmac","\\")
+  - grok:
+      source: log.agt
+      patterns:
+      - fieldName: log.agentAddress
+        pattern: (?s)^.+$
+      where: exists("log.agt") && !oneOf("log.agt",["","-"])
+  - grok:
+      source: log.ahost
+      patterns:
+      - fieldName: log.agentHost
+        pattern: (?s)^.+$
+      where: exists("log.ahost") && !oneOf("log.ahost",["","-"])
+  - grok:
+      source: log.amac
+      patterns:
+      - fieldName: log.agentMac
+        pattern: (?s)^.+$
+      where: exists("log.amac") && !oneOf("log.amac",["","-"])
+  - grok:
+      source: log.spt
+      patterns:
+      - fieldName: origin.port
+        pattern: (?s)^.+$
+      where: regexMatch("log.spt","^[0-9]+$") && greaterThan("log.spt",0) && lessOrEqual("log.spt",65535)
+  - cast:
+      fields:
+      - origin.port
+      to: int
+      where: exists("origin.port")
+  - grok:
+      source: log.dpt
+      patterns:
+      - fieldName: target.port
+        pattern: (?s)^.+$
+      where: regexMatch("log.dpt","^[0-9]+$") && greaterThan("log.dpt",0) && lessOrEqual("log.dpt",65535)
+  - cast:
+      fields:
+      - target.port
+      to: int
+      where: exists("target.port")
+  - grok:
+      source: log.proto
+      patterns:
+      - fieldName: protocol
+        pattern: (?s)^.+$
+      where: exists("log.proto") && !oneOf("log.proto",["","-"])
+  - grok:
+      source: log.act
+      patterns:
+      - fieldName: action
+        pattern: (?s)^.+$
+      where: exists("log.act") && !oneOf("log.act",["","-"])
+  # A copied or extension-supplied result is not the final operation verdict.
+  - delete:
+      fields: [actionResult]
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: success
+      where: regexMatch("action","(?i)^(allow|allowed)$")
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: denied
+      where: regexMatch("action","(?i)^(block|blocked|deny|denied|drop|dropped|reject|rejected|quarantine|quarantined)$")
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: failure
+      where: regexMatch("action","(?i)^(fail|failed|failure)$")
+  - add:
+      function: string
+      params:
+        key: severity
+        value: info
+      where: (greaterOrEqual("log.cefDeviceSeverity",0) && lessOrEqual("log.cefDeviceSeverity",3)) || oneOf("log.cefDeviceSeverity",["Low","low","Unknown"])
+  - add:
+      function: string
+      params:
+        key: severity
+        value: warning
+      where: (greaterOrEqual("log.cefDeviceSeverity",4) && lessOrEqual("log.cefDeviceSeverity",6)) || oneOf("log.cefDeviceSeverity",["Medium","medium"])
+  - add:
+      function: string
+      params:
+        key: severity
+        value: error
+      where: (greaterOrEqual("log.cefDeviceSeverity",7) && lessOrEqual("log.cefDeviceSeverity",8)) || oneOf("log.cefDeviceSeverity",["High","high"])
+  - add:
+      function: string
+      params:
+        key: severity
+        value: critical
+      where: (greaterOrEqual("log.cefDeviceSeverity",9) && lessOrEqual("log.cefDeviceSeverity",10)) || oneOf("log.cefDeviceSeverity",["Very-High","Very
+        High","very-high"])
+  - delete:
+      fields:
+      - log.cefExtension
+  - grok:
+      source: raw
+      patterns:
+      - fieldName: ''
+        pattern: ^<
+      - fieldName: log.priority
+        pattern: '[0-9]{1,3}'
+      - fieldName: ''
+        pattern: '>'
+      - fieldName: log.ksc.syslogVersion
+        pattern: '[1-9][0-9]*[ \t]+'
+      - fieldName: log.ksc.time
+        pattern: \S+[ \t]+
+      - fieldName: log.ksc.reportingHost
+        pattern: \S+[ \t]+
+      - fieldName: log.ksc.appName
+        pattern: \S+[ \t]+
+      - fieldName: log.ksc.procId
+        pattern: \S+[ \t]+
+      - fieldName: log.ksc.messageId
+        pattern: \S+[ \t]+
+      - fieldName: ''
+        pattern: '\[event@23668'
+      - fieldName: log.ksc.params
+        pattern: '(?:[A-Za-z][A-Za-z0-9_]*="(?:\\[\"\\\]]|[^\"\\\]\r\n])*"[ \t]*)+'
+      - fieldName: ''
+        pattern: '\](?: )?'
+      - fieldName: log.msg
+        pattern: (?s:.*)$
+  - add:
+      function: string
+      params:
+        key: log.format
+        value: ksc-syslog
+      where: exists("log.ksc.params")
+  - grok:
+      source: log.ksc.params
+      patterns:
+      - fieldName: ''
+        pattern: '^(?:.*[ \t])?p1="'
+      - fieldName: log.ksc.p1
+        pattern: '(?:\\.|[^\"\\])+'
+      - fieldName: ''
+        pattern: '"'
+  - grok:
+      source: log.ksc.params
+      patterns:
+      - fieldName: ''
+        pattern: '^(?:.*[ \t])?et="'
+      - fieldName: log.ksc.et
+        pattern: '(?:\\.|[^\"\\])+'
+      - fieldName: ''
+        pattern: '"'
+  - grok:
+      source: log.ksc.params
+      patterns:
+      - fieldName: ''
+        pattern: '^(?:.*[ \t])?etdn="'
+      - fieldName: log.ksc.etdn
+        pattern: '(?:\\.|[^\"\\])+'
+      - fieldName: ''
+        pattern: '"'
+  - grok:
+      source: log.ksc.params
+      patterns:
+      - fieldName: ''
+        pattern: '^(?:.*[ \t])?hdn="'
+      - fieldName: log.ksc.hdn
+        pattern: '(?:\\.|[^\"\\])+'
+      - fieldName: ''
+        pattern: '"'
+  - grok:
+      source: log.ksc.params
+      patterns:
+      - fieldName: ''
+        pattern: '^(?:.*[ \t])?hip="'
+      - fieldName: log.ksc.hip
+        pattern: '(?:\\.|[^\"\\])+'
+      - fieldName: ''
+        pattern: '"'
+  - grok:
+      source: log.ksc.params
+      patterns:
+      - fieldName: ''
+        pattern: '^(?:.*[ \t])?gn="'
+      - fieldName: log.ksc.gn
+        pattern: '(?:\\.|[^\"\\])+'
+      - fieldName: ''
+        pattern: '"'
+  - grok:
+      source: log.ksc.params
+      patterns:
+      - fieldName: ''
+        pattern: '^(?:.*[ \t])?kscfqdn="'
+      - fieldName: log.ksc.kscfqdn
+        pattern: '(?:\\.|[^\"\\])+'
+      - fieldName: ''
+        pattern: '"'
+  - grok:
+      source: log.ksc.et
+      patterns:
+      - fieldName: log.eventType
+        pattern: (?s)^.+$
+      where: exists("log.ksc.et") && !oneOf("log.ksc.et",["","-"])
+  - grok:
+      source: log.ksc.messageId
+      patterns:
+      - fieldName: log.eventType
+        pattern: (?s)^.+$
+      where: '!exists("log.eventType")'
+  - grok:
+      source: log.ksc.hip
+      patterns:
+      - fieldName: target.ip
+        pattern: (?s)^.+$
+      where: (inCIDR("log.ksc.hip","0.0.0.0/0") || inCIDR("log.ksc.hip","::/0")) && !inCIDR("log.ksc.hip","0.0.0.0/32") && !inCIDR("log.ksc.hip","::/128")
+  - grok:
+      source: log.ksc.hdn
+      patterns:
+      - fieldName: target.host
+        pattern: (?s)^.+$
+      where: exists("log.ksc.hdn") && !oneOf("log.ksc.hdn",["","-"]) && !contains("log.ksc.hdn","\\")
+  - grok:
+      source: log.ksc.time
+      patterns:
+      - fieldName: deviceTime
+        pattern: (?s)^.+$
+      where: regexMatch("log.ksc.time","^[0-9]{4}-(0[1-9]|1[0-2])-([0-2][0-9]|3[01])T([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.[0-9]+)?(Z|[+-][0-2][0-9]:[0-5][0-9])$")
+  - add:
+      function: string
+      params:
+        key: severity
+        value: critical
+      where: equals("log.format","ksc-syslog") && oneOf("log.priority",["0","1","2","8","9","10","16","17","18","24","25","26","32","33","34","40","41","42","48","49","50","56","57","58","64","65","66","72","73","74","80","81","82","88","89","90","96","97","98","104","105","106","112","113","114","120","121","122","128","129","130","136","137","138","144","145","146","152","153","154","160","161","162","168","169","170","176","177","178","184","185","186"])
+  - add:
+      function: string
+      params:
+        key: severity
+        value: error
+      where: equals("log.format","ksc-syslog") && oneOf("log.priority",["3","11","19","27","35","43","51","59","67","75","83","91","99","107","115","123","131","139","147","155","163","171","179","187"])
+  - add:
+      function: string
+      params:
+        key: severity
+        value: warning
+      where: equals("log.format","ksc-syslog") && oneOf("log.priority",["4","12","20","28","36","44","52","60","68","76","84","92","100","108","116","124","132","140","148","156","164","172","180","188"])
+  - add:
+      function: string
+      params:
+        key: severity
+        value: info
+      where: equals("log.format","ksc-syslog") && oneOf("log.priority",["5","6","13","14","21","22","29","30","37","38","45","46","53","54","61","62","69","70","77","78","85","86","93","94","101","102","109","110","117","118","125","126","133","134","141","142","149","150","157","158","165","166","173","174","181","182","189","190"])
+  - add:
+      function: string
+      params:
+        key: severity
+        value: debug
+      where: equals("log.format","ksc-syslog") && oneOf("log.priority",["7","15","23","31","39","47","55","63","71","79","87","95","103","111","119","127","135","143","151","159","167","175","183","191"])
+  - dynamic:
+      plugin: com.utmstack.geolocation
+      params:
+        source: origin.ip
+        destination: origin.geolocation
+      where: exists("origin.ip")
+  - dynamic:
+      plugin: com.utmstack.geolocation
+      params:
+        source: target.ip
+        destination: target.geolocation
+      where: exists("target.ip")
+  - grok:
+      source: origin.ip
+      patterns:
+      - fieldName: log.endpointKey
+        pattern: (?s)^.+$
+      where: equals("log.format","cef") && exists("origin.ip") && !oneOf("origin.ip",["","-"]) && !exists("log.endpointKey")
+  - add:
+      function: string
+      params:
+        key: log.endpointKeyType
+        value: ip
+      where: exists("log.endpointKey") && !exists("log.endpointKeyType")
+  - grok:
+      source: origin.host
+      patterns:
+      - fieldName: log.endpointKey
+        pattern: (?s)^.+$
+      where: equals("log.format","cef") && exists("origin.host") && !oneOf("origin.host",["","-"]) && !exists("log.endpointKey")
+  - add:
+      function: string
+      params:
+        key: log.endpointKeyType
+        value: host
+      where: exists("log.endpointKey") && !exists("log.endpointKeyType")
+  - add:
+      function: string
+      params:
+        key: log.correlationCandidate.dataExfiltrationAttempts
+        value: match
+      where: |-
+        equals("log.format","cef") && ((equals("log.cat", "NetworkThreat") ||
+         regexMatch("log.cs2", "(?i).*(trojan|backdoor).*") ||
+         regexMatch("log.msg", "(?i).*(data.*transfer|exfiltrat|upload.*suspicious|unauthorized.*transfer).*") ||
+         regexMatch("log.msg", "(?i).*(data.*exfiltration|suspicious.*upload|unauthorized.*transfer).*")) &&
+        exists("target.ip") &&
+        greaterOrEqual("log.cefDeviceSeverity", "3") && exists("origin.ip")) && exists("log.endpointKey") && exists("log.endpointKeyType") && exists("dataSource")
+  - add:
+      function: string
+      params:
+        key: log.correlationCandidate.kasperskyRansomwareBehavior
+        value: match
+      where: |-
+        equals("log.format","cef") && (exists("log.signatureID") &&
+        (regexMatch("log.msg", "(?i)(ransomware|ransom|trojan-ransom|cryptolocker|locky|cerber|wannacry|ryuk|conti|lockbit|blackcat)") ||
+         contains("log.cs2", "Trojan-Ransom") || contains("log.cs4", "Trojan-Ransom") ||
+         (contains("log.msg", "encrypt") && contains("log.msg", "mass")) ||
+         (contains("log.msg", "System Watcher") && contains("log.msg", "rollback")))) && exists("log.endpointKey") && exists("log.endpointKeyType") && exists("dataSource")
+  - add:
+      function: string
+      params:
+        key: log.correlationCandidate.lateralMovementIndicators
+        value: match
+      where: |-
+        equals("log.format","cef") && ((equals("log.cn1", "3") || equals("log.cs1", "DETECT") || equals("actionResult", "denied")) &&
+        (contains("log.msg", ["psexec", "wmi", "rdp", "smb", "admin$", "ipc$", "c$",
+          "remote", "lateral", "pivot"]) ||
+         contains("log.cs4", ["exploit", "mimikatz", "bloodhound", "sharphound", "propagat"])) &&
+        exists("target.ip") &&
+        exists("origin.ip") &&
+        safe("origin.ip", "") != safe("target.ip", "")) && exists("log.endpointKey") && exists("log.endpointKeyType") && exists("dataSource")
+  - add:
+      function: string
+      params:
+        key: log.correlationCandidate.suspiciousNetworkActivity
+        value: match
+      where: |-
+        equals("log.format","cef") && (exists("log.signatureID") &&
+        (contains("log.msg", ["suspicious connection", "network attack", "port scan", "unusual traffic"]) ||
+         contains("log.msg", "network") ||
+         contains("log.cs1", "NETWORK") ||
+         contains("log.cs2", "Net-Worm") ||
+         contains("log.cs4", "Net-Worm") ||
+         (exists("target.ip") && exists("log.dpt"))) &&
+        equals("actionResult", "denied") && exists("origin.ip") && exists("target.ip")) && exists("log.endpointKey") && exists("log.endpointKeyType") && exists("dataSource")

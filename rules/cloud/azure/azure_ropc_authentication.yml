@@ -1,39 +1,55 @@
-# Rule version v1.0.0
-
+# Azure rule contract review v2.1.0
 dataTypes:
-  - azure
-name: Azure AD Resource Owner Password Credentials Flow Detected
+- azure
+name: Repeated Successful Entra ROPC Sign-ins
 impact:
   confidentiality: 2
   integrity: 2
   availability: 1
 category: Credential Access
-technique: "T1078 - Valid Accounts"
+technique: ''
 adversary: origin
 references:
-  - https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth-ropc
-  - https://attack.mitre.org/techniques/T1078/
-description: |
-  Detects use of the Resource Owner Password Credentials (ROPC) OAuth flow in Azure AD. ROPC sends plain-text credentials directly to the token endpoint, bypassing MFA and conditional access. It is commonly abused by attackers for credential stuffing and automated account compromise.
+- https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema
+- https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth-ropc
+- https://attack.mitre.org/techniques/T1078/
+description: 'At least five successful ROPC sign-ins by one actor in one directory and collector in one hour. Review legacy authentication
+  use; this does not itself prove a stolen password.
 
-  Next Steps:
-  1. Identify the application using ROPC flow and verify its legitimacy
-  2. Check if the application has a legitimate need for ROPC (legacy/headless apps)
-  3. Review the source IPs making ROPC requests for suspicious patterns
-  4. Check for high volumes of failed ROPC requests (credential stuffing)
-  5. Migrate the application to a modern auth flow (authorization code, device code)
-  6. If unauthorized, block the application and reset affected user passwords
-where: |
-  contains("log.properties", "urn:ietf:params:oauth:grant-type:password") ||
-  (contains("log.operationName", "Sign-in") && contains("log.properties", "ropc"))
-afterEvents:
-  - indexPattern: v11-log-azure-*
-    with:
-      - field: origin.ip
-        operator: filter_term
-        value: '{{.origin.ip}}'
-    within: 1h
-    count: 5
+  '
+where: '(equalsIgnoreCase("log.azureKind","signin") && equalsIgnoreCase("actionResult","success") && equalsIgnoreCase("log.properties.authenticationProtocol","ropc"))
+  && exists("dataSource") && !equals("dataSource","") && exists("log.azureScopeType") && !equals("log.azureScopeType","") && exists("log.azureScope")
+  && !equals("log.azureScope","") && exists("log.azureActorType") && !equals("log.azureActorType","") && exists("log.azureActor")
+  && !equals("log.azureActor","")
+
+  '
 groupBy:
-  - adversary.ip
-  - adversary.user
+- lastEvent.dataSource
+- lastEvent.log.azureScopeType
+- lastEvent.log.azureScope
+- lastEvent.log.azureOperation
+- adversary.user
+- adversary.ip
+correlation:
+- indexPattern: v11-log-azure-*
+  with:
+  - field: dataSource
+    operator: filter_term
+    value: '{{.dataSource}}'
+  - field: log.azureScopeType
+    operator: filter_term
+    value: '{{.log.azureScopeType}}'
+  - field: log.azureScope
+    operator: filter_term
+    value: '{{.log.azureScope}}'
+  - field: log.azureActorType
+    operator: filter_term
+    value: '{{.log.azureActorType}}'
+  - field: log.azureActor
+    operator: filter_term
+    value: '{{.log.azureActor}}'
+  - field: log.correlationCandidate.azureRopcAuthentication
+    operator: filter_term
+    value: 'true'
+  within: 1h
+  count: 5

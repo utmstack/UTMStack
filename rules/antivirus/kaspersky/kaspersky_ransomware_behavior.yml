@@ -1,18 +1,17 @@
-# Rule version v1.0.0
-
+# Rule version v1.1.1
 dataTypes:
-  - antivirus-kaspersky
+- antivirus-kaspersky
 name: Kaspersky Ransomware Behavior Detection
 impact:
   confidentiality: 3
   integrity: 3
   availability: 3
 category: Impact
-technique: "T1486 - Data Encrypted for Impact"
+technique: T1486 - Data Encrypted for Impact
 adversary: origin
 references:
-  - https://support.kaspersky.com/
-  - https://attack.mitre.org/techniques/T1486/
+- https://support.kaspersky.com/
+- https://attack.mitre.org/techniques/T1486/
 description: |
   Detects ransomware behavior patterns identified by Kaspersky including mass file encryption, ransom note creation, and ransomware-specific malware classifications.
 
@@ -24,17 +23,32 @@ description: |
   5. Engage incident response team
   6. Scan other systems for the same indicators
   7. Determine the initial infection vector
+
+  History counts only matching CEF candidates from the same collector and source identity.
 where: |
-  exists("log.signatureID") &&
+  equals("log.format","cef") && (exists("log.signatureID") &&
   (regexMatch("log.msg", "(?i)(ransomware|ransom|trojan-ransom|cryptolocker|locky|cerber|wannacry|ryuk|conti|lockbit|blackcat)") ||
    contains("log.cs2", "Trojan-Ransom") || contains("log.cs4", "Trojan-Ransom") ||
    (contains("log.msg", "encrypt") && contains("log.msg", "mass")) ||
-   (contains("log.msg", "System Watcher") && contains("log.msg", "rollback")))
-afterEvents:
-  - indexPattern: v11-log-antivirus-kaspersky-*
-    with:
-      - field: log.src
-        operator: filter_term
-        value: '{{.log.src}}'
-    within: 10m
-    count: 3
+   (contains("log.msg", "System Watcher") && contains("log.msg", "rollback")))) && exists("log.endpointKey") && exists("log.endpointKeyType") && exists("dataSource")
+correlation:
+- indexPattern: v11-log-antivirus-kaspersky-*
+  with:
+  - field: dataSource
+    operator: filter_term
+    value: '{{.dataSource}}'
+  - field: log.endpointKeyType
+    operator: filter_term
+    value: '{{.log.endpointKeyType}}'
+  - field: log.endpointKey
+    operator: filter_term
+    value: '{{.log.endpointKey}}'
+  - field: log.correlationCandidate.kasperskyRansomwareBehavior
+    operator: filter_term
+    value: match
+  within: 10m
+  count: 3
+groupBy:
+- lastEvent.log.endpointKeyType
+- lastEvent.log.endpointKey
+- lastEvent.log.cs4

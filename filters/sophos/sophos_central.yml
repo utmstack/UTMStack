@@ -1,87 +1,263 @@
-# Sophos_Central filter using "SF syslog file guide 20.0", version 1.0.0
-
-# See: https://docs.sophos.com/nsg/sophos-firewall/20.0/pdf/sf-syslog-guide-20.0.pdf
-# and https://docs.sophos.com/nsg/sophos-firewall/20.0/Help/en-us/webhelp/onlinehelp/AdministratorHelp/Logs/TroubleshootingLogs/LogFileDetails/index.html#https-ftp-waf
-
+# Sophos Central SIEM /siem/v1/events JSON, not Firewall syslog or the separate alerts API.
+# https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/
+# Native aliases remain compatible. Managed endpoint context is not remote-attacker identity.
+# Remedy paths require exactly one file and exclude archive-member locators.
 pipeline:
-  - dataTypes:
-      - sophos-central
-    steps:
-      - json:
-          source: raw
+- dataTypes:
+  - sophos-central
+  steps:
+  - json:
+      source: raw
+  - rename:
+      from:
+      - log.created_at
+      to: log.createdAt
+  - rename:
+      from:
+      - log.customer_id
+      to: log.customerId
+  - rename:
+      from:
+      - log.endpoint_id
+      to: log.endpointId
+  - rename:
+      from:
+      - log.endpoint_type
+      to: log.endpointType
+  - rename:
+      from:
+      - log.source_info.ip
+      to: log.ip
+  - rename:
+      from:
+      - log.userid
+      to: log.userId
+  - rename:
+      from:
+      - log.source_info
+      to: log.sourceInfo
+  - delete:
+      fields:
+      - log.sophosCentralScope
+      - log.correlationCandidate
+  - grok:
+      source: log.customerId
+      patterns:
+      - fieldName: log.sophosCentralScope
+        pattern: (?s)^.+$
+      where: (regexMatch("log.customerId","[^[:space:]]") && !oneOf("log.customerId",["-","n/a","N/A","unknown"]))
+        && (true)
+  - grok:
+      source: dataSource
+      patterns:
+      - fieldName: log.sophosCentralScope
+        pattern: (?s)^.+$
+      where: (regexMatch("dataSource","[^[:space:]]") && !oneOf("dataSource",["-","n/a","N/A","unknown"])) && (!exists("log.sophosCentralScope"))
+  - grok:
+      source: log.ip
+      patterns:
+      - fieldName: target.ip
+        pattern: (?s)^.+$
+      where: (regexMatch("log.ip","[^[:space:]]") && !oneOf("log.ip",["-","n/a","N/A","unknown"])) && ((regexMatch("log.endpointId","[^[:space:]]")
+        && !oneOf("log.endpointId",["-","n/a","N/A","unknown"])) && oneOf("log.endpointType",["computer","server"])
+        && !(equals("log.type","Event::Endpoint::HmpaCryptoGuardSMBOrigin")) && ((inCIDR("log.ip","0.0.0.0/0") ||
+        inCIDR("log.ip","::/0")) && !inCIDR("log.ip","0.0.0.0/32") && !inCIDR("log.ip","::/128")))
+  - grok:
+      source: log.location
+      patterns:
+      - fieldName: target.host
+        pattern: (?s)^.+$
+      where: (regexMatch("log.location","[^[:space:]]") && !oneOf("log.location",["-","n/a","N/A","unknown"])) &&
+        ((regexMatch("log.endpointId","[^[:space:]]") && !oneOf("log.endpointId",["-","n/a","N/A","unknown"])) &&
+        oneOf("log.endpointType",["computer","server"]) && !(equals("log.type","Event::Endpoint::HmpaCryptoGuardSMBOrigin")))
+  - grok:
+      source: log.source
+      patterns:
+      - fieldName: target.user
+        pattern: (?s)^.+$
+      where: (regexMatch("log.source","[^[:space:]]") && !oneOf("log.source",["-","n/a","N/A","unknown"])) && ((regexMatch("log.endpointId","[^[:space:]]")
+        && !oneOf("log.endpointId",["-","n/a","N/A","unknown"])) && oneOf("log.endpointType",["computer","server"])
+        && !(equals("log.type","Event::Endpoint::HmpaCryptoGuardSMBOrigin")))
+  - grok:
+      source: log.appSha256
+      patterns:
+      - fieldName: target.sha256
+        pattern: (?s)^.+$
+      where: (regexMatch("log.appSha256","[^[:space:]]") && !oneOf("log.appSha256",["-","n/a","N/A","unknown"]))
+        && ((regexMatch("log.endpointId","[^[:space:]]") && !oneOf("log.endpointId",["-","n/a","N/A","unknown"]))
+        && oneOf("log.endpointType",["computer","server"]) && !(equals("log.type","Event::Endpoint::HmpaCryptoGuardSMBOrigin"))
+        && regexMatch("log.appSha256","^[a-fA-F0-9]{64}$"))
+  - grok:
+      source: log.threat
+      patterns:
+      - fieldName: target.malware
+        pattern: (?s)^.+$
+      where: (regexMatch("log.threat","[^[:space:]]") && !oneOf("log.threat",["-","n/a","N/A","unknown"])) && ((regexMatch("log.endpointId","[^[:space:]]")
+        && !oneOf("log.endpointId",["-","n/a","N/A","unknown"])) && oneOf("log.endpointType",["computer","server"])
+        && !(equals("log.type","Event::Endpoint::HmpaCryptoGuardSMBOrigin")) && equals("log.group","MALWARE"))
+  - grok:
+      source: log.ip
+      patterns:
+      - fieldName: origin.ip
+        pattern: (?s)^.+$
+      where: (regexMatch("log.ip","[^[:space:]]") && !oneOf("log.ip",["-","n/a","N/A","unknown"])) && ((regexMatch("log.endpointId","[^[:space:]]")
+        && !oneOf("log.endpointId",["-","n/a","N/A","unknown"])) && oneOf("log.endpointType",["computer","server"])
+        && equals("log.type","Event::Endpoint::HmpaCryptoGuardSMBOrigin") && ((inCIDR("log.ip","0.0.0.0/0") || inCIDR("log.ip","::/0"))
+        && !inCIDR("log.ip","0.0.0.0/32") && !inCIDR("log.ip","::/128")))
+  - grok:
+      source: log.location
+      patterns:
+      - fieldName: origin.host
+        pattern: (?s)^.+$
+      where: (regexMatch("log.location","[^[:space:]]") && !oneOf("log.location",["-","n/a","N/A","unknown"])) &&
+        ((regexMatch("log.endpointId","[^[:space:]]") && !oneOf("log.endpointId",["-","n/a","N/A","unknown"])) &&
+        oneOf("log.endpointType",["computer","server"]) && equals("log.type","Event::Endpoint::HmpaCryptoGuardSMBOrigin"))
+  - grok:
+      source: log.source
+      patterns:
+      - fieldName: origin.user
+        pattern: (?s)^.+$
+      where: (regexMatch("log.source","[^[:space:]]") && !oneOf("log.source",["-","n/a","N/A","unknown"])) && ((regexMatch("log.endpointId","[^[:space:]]")
+        && !oneOf("log.endpointId",["-","n/a","N/A","unknown"])) && oneOf("log.endpointType",["computer","server"])
+        && equals("log.type","Event::Endpoint::HmpaCryptoGuardSMBOrigin"))
+  - grok:
+      source: log.appSha256
+      patterns:
+      - fieldName: origin.sha256
+        pattern: (?s)^.+$
+      where: (regexMatch("log.appSha256","[^[:space:]]") && !oneOf("log.appSha256",["-","n/a","N/A","unknown"]))
+        && ((regexMatch("log.endpointId","[^[:space:]]") && !oneOf("log.endpointId",["-","n/a","N/A","unknown"]))
+        && oneOf("log.endpointType",["computer","server"]) && equals("log.type","Event::Endpoint::HmpaCryptoGuardSMBOrigin")
+        && regexMatch("log.appSha256","^[a-fA-F0-9]{64}$"))
+  - grok:
+      source: log.threat
+      patterns:
+      - fieldName: origin.malware
+        pattern: (?s)^.+$
+      where: (regexMatch("log.threat","[^[:space:]]") && !oneOf("log.threat",["-","n/a","N/A","unknown"])) && ((regexMatch("log.endpointId","[^[:space:]]")
+        && !oneOf("log.endpointId",["-","n/a","N/A","unknown"])) && oneOf("log.endpointType",["computer","server"])
+        && equals("log.type","Event::Endpoint::HmpaCryptoGuardSMBOrigin") && equals("log.group","MALWARE"))
+  - grok:
+      source: log.type
+      patterns:
+      - fieldName: action
+        pattern: (?s)^.+$
+      where: (regexMatch("log.type","[^[:space:]]") && !oneOf("log.type",["-","n/a","N/A","unknown"])) && (true)
+  - grok:
+      source: log.when
+      patterns:
+      - fieldName: deviceTime
+        pattern: (?s)^.+$
+      where: (regexMatch("log.when","[^[:space:]]") && !oneOf("log.when",["-","n/a","N/A","unknown"])) && (regexMatch("log.when","^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}([.][0-9]+)?(Z|[+-][0-9]{2}:[0-9]{2})$"))
+  - add:
+      function: string
+      params:
+        key: severity
+        value: info
+      where: oneOf("log.severity",["low"])
+  - add:
+      function: string
+      params:
+        key: severity
+        value: warning
+      where: oneOf("log.severity",["medium"])
+  - add:
+      function: string
+      params:
+        key: severity
+        value: error
+      where: oneOf("log.severity",["high"])
+  - add:
+      function: string
+      params:
+        key: severity
+        value: critical
+      where: oneOf("log.severity",["critical"])
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: denied
+      where: equalsIgnoreCase("log.action","blocked") || oneOf("log.type",["Event::Endpoint::Device::Blocked", "Event::Endpoint::Application::Blocked",
+        "Event::Endpoint::WebFilteringBlocked", "Event::Endpoint::HmpaExploitPrevented", "Event::Endpoint::HmpaBehaviourPrevented",
+        "Event::Endpoint::HmpaApplicationHijacking", "Event::Endpoint::HmpaPrivGuard", "Event::Endpoint::Threat::ExploitPrevented",
+        "Event::Endpoint::Exploit::Prevented"])
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: failure
+      where: '!exists("actionResult") && oneOf("log.type",["Event::ZTNA::ZTNAAuthenticationFailure","Event::Endpoint::AuthenticationFailure"])'
+  # The rename step copies an object or list as its JSON text, so nested paths
+  # under a renamed object never resolve. The remedy object keeps its native name
+  # and its values are read in place. A file at the root keeps the root as path.
+  - grok:
+      source: log.core_remedy_items.items.0.descriptor
+      patterns:
+      - fieldName: target.path
+        pattern: ^(?:[A-Za-z]:[\\/]|/|\\\\)(?:[^<>:"|?*\r\n]*[\\/])?
+      - fieldName: target.file
+        pattern: '[^\\/<>:"|?*\r\n]+$'
+      where: equals("log.core_remedy_items.totalItems",1) && equals("log.core_remedy_items.items.#",1) && equals("log.core_remedy_items.items.0.type","file")
+        && !regexMatch("log.core_remedy_items.items.0.descriptor","(?i)[.](zip|cab|7z|rar|tar|gz|iso)[/\\\\]")
+  - dynamic:
+      plugin: com.utmstack.geolocation
+      params:
+        source: origin.ip
+        destination: origin.geolocation
+      where: exists("origin.ip")
+  - dynamic:
+      plugin: com.utmstack.geolocation
+      params:
+        source: target.ip
+        destination: target.geolocation
+      where: exists("target.ip")
+  - add:
+      function: string
+      params:
+        key: log.correlationCandidate.sophosCentral.behavior
+        value: match
+      where: '((oneOf("log.type", ["Event::Endpoint::Threat::BehavioralDetection", "Event::Endpoint::BehaviorDetected"])
+        ||
 
-      - rename:
-          from:
-            - log.coreremedyitems
-          to: log.coreremedyItems
+        (oneOf("log.detectionMethod", ["Behavioral", "HIPS"]) && oneOf("log.severity", ["medium", "high", "critical"]))
+        ||
 
-      - rename:
-          from:
-            - log.createdat
-          to: log.createdAt
+        (contains("log.name", "Behavioral") && oneOf("log.severity", ["high", "critical"]))) || equals("log.type","Event::Endpoint::CoreBehavioralDetection"))
+        && !regexMatch("log.type","(?i)(clean|cleanedup|resolved|dismissed|cancelled|success)$") && (regexMatch("log.endpointId","[^[:space:]]")
+        && !oneOf("log.endpointId",["-","n/a","N/A","unknown"])) && (regexMatch("dataSource","[^[:space:]]") &&
+        !oneOf("dataSource",["-","n/a","N/A","unknown"])) && (regexMatch("log.sophosCentralScope","[^[:space:]]")
+        && !oneOf("log.sophosCentralScope",["-","n/a","N/A","unknown"]))'
+  - add:
+      function: string
+      params:
+        key: log.correlationCandidate.sophosCentral.exploit
+        value: match
+      where: '(oneOf("log.type", ["Event::Endpoint::Threat::ExploitPrevented", "Event::Endpoint::Exploit::Prevented"])
+        ||
 
-      - rename:
-          from:
-            - log.customerid
-          to: log.customerId
+        (equals("log.name", "Exploit prevented") && oneOf("log.severity", ["high", "critical"]))) && !regexMatch("log.type","(?i)(clean|cleanedup|resolved|dismissed|cancelled|success)$")
+        && (regexMatch("log.endpointId","[^[:space:]]") && !oneOf("log.endpointId",["-","n/a","N/A","unknown"]))
+        && (regexMatch("dataSource","[^[:space:]]") && !oneOf("dataSource",["-","n/a","N/A","unknown"])) && (regexMatch("log.sophosCentralScope","[^[:space:]]")
+        && !oneOf("log.sophosCentralScope",["-","n/a","N/A","unknown"]))'
+  - add:
+      function: string
+      params:
+        key: log.correlationCandidate.sophosCentral.mtr
+        value: match
+      where: '(oneOf("log.type", ["mtr_alert", "threat_detection"]) &&
 
-      - rename:
-          from:
-            - log.endpointid
-          to: log.endpointId
-
-      - rename:
-          from:
-            - log.endpointtype
-          to: log.endpointType
-
-      - rename:
-          from:
-            - log.sourceinfo.ip
-          to: log.ip
-
-      - rename:
-          from:
-            - log.userid
-          to: log.userId
-
-      - rename:
-          from:
-            - log.sourceinfo
-          to: log.sourceInfo
-
-      # Adding action result
-      - add:
-          function: string
-          params:
-            key: actionResult
-            value: "blocked"
-          where: 'exists("log.action") && equals("log.action", "blocked")'
-
-      - add:
-          function: string
-          params:
-            key: actionResult
-            value: "blocked"
-          where: 'exists("log.type") && contains("log.type", "Prevented") && !exists("actionResult")'
-
-      - add:
-          function: string
-          params:
-            key: actionResult
-            value: "blocked"
-          where: 'exists("log.type") && oneOf("log.type", ["Event::Endpoint::HmpaApplicationHijacking", "Event::Endpoint::HmpaPrivGuard"]) && !exists("actionResult")'
-
-      - add:
-          function: string
-          params:
-            key: actionResult
-            value: "blocked"
-          where: 'exists("log.type") && contains("log.type", "HmpaCred") && !exists("actionResult")'
-
-      - add:
-          function: string
-          params:
-            key: actionResult
-            value: "failed"
-          where: 'exists("log.type") && contains("log.type", "AuthenticationFailure") && !exists("actionResult")'
+        oneOf("log.severity", ["critical", "high"])) && !regexMatch("log.type","(?i)(clean|cleanedup|resolved|dismissed|cancelled|success)$")
+        && (regexMatch("log.endpointId","[^[:space:]]") && !oneOf("log.endpointId",["-","n/a","N/A","unknown"]))
+        && (regexMatch("dataSource","[^[:space:]]") && !oneOf("dataSource",["-","n/a","N/A","unknown"])) && (regexMatch("log.sophosCentralScope","[^[:space:]]")
+        && !oneOf("log.sophosCentralScope",["-","n/a","N/A","unknown"])) && equals("log.severity","critical")'
+  - add:
+      function: string
+      params:
+        key: log.correlationCandidate.sophosCentral.ztnaFailure
+        value: match
+      where: (equals("log.type", "Event::ZTNA::ZTNAAuthenticationFailure")) && !regexMatch("log.type","(?i)(clean|cleanedup|resolved|dismissed|cancelled|success)$")
+        && (regexMatch("log.ip","[^[:space:]]") && !oneOf("log.ip",["-","n/a","N/A","unknown"])) && (regexMatch("dataSource","[^[:space:]]")
+        && !oneOf("dataSource",["-","n/a","N/A","unknown"])) && (regexMatch("log.sophosCentralScope","[^[:space:]]")
+        && !oneOf("log.sophosCentralScope",["-","n/a","N/A","unknown"])) && ((inCIDR("log.ip","0.0.0.0/0") || inCIDR("log.ip","::/0"))
+        && !inCIDR("log.ip","0.0.0.0/32") && !inCIDR("log.ip","::/128"))

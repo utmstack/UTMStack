@@ -1,4 +1,4 @@
-# GCP filter, version 2.2.0
+# GCP filter, version 2.3.0
 #
 # Documentations
 # 1- https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry
@@ -108,6 +108,11 @@ pipeline:
           from:
             - log.jsonPayload.enforcedEdgeSecurityPolicy.outcome
           to: log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome
+
+      - rename:
+          from:
+            - log.jsonPayload.enforcedSecurityPolicy.outcome
+          to: log.jsonPayloadEnforcedSecurityPolicyOutcome
 
       - rename:
           from:
@@ -383,22 +388,36 @@ pipeline:
           function: "string"
           params:
             key: severity
-            value: "low"
+            value: "debug"
+          where: equals("log.severity", "DEBUG")
+
+      - add:
+          function: "string"
+          params:
+            key: severity
+            value: "info"
           where: oneOf("log.severity", ["INFO", "NOTICE"])
 
       - add:
           function: "string"
           params:
             key: severity
-            value: "medium"
+            value: "warning"
           where: equals("log.severity", "WARNING")
 
       - add:
           function: "string"
           params:
             key: severity
-            value: "high"
+            value: "error"
           where: equals("log.severity", "ERROR")
+
+      - add:
+          function: "string"
+          params:
+            key: severity
+            value: "critical"
+          where: oneOf("log.severity", ["CRITICAL", "ALERT", "EMERGENCY"])
 
       # Adding action field based on log.httpRequestMethod
       - add:
@@ -443,93 +462,203 @@ pipeline:
             value: "delete"
           where: equals("log.httpRequestMethod", "DELETE")
 
-      # Adding actionResult field based on log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome
+      # A raw field must not become a trusted outcome. Derive the final result
+      # from the vendor's operation-specific status after extraction.
+      - delete:
+          fields:
+            - actionResult
+
+      # The first record of a long-running AuditLog operation is not its final
+      # result unless the same record is also marked last. Workspace sign-in
+      # records and OAuth access denials or requests have no status either,
+      # so their outcome is set from the documented method further below.
       - add:
           function: "string"
           params:
             key: actionResult
-            value: "accepted"
-          where: equals("log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome", "ACCEPT")
+            value: "success"
+          where: >-
+            exists("log.protoPayloadMethodName") &&
+            contains("log.logName","cloudaudit.googleapis.com") &&
+            !equals("log.protoPayloadServiceName","login.googleapis.com") &&
+            !oneOf("log.protoPayloadMethodName",["google.identity.oauth2.Deny","google.identity.oauth2.Request"]) &&
+            (!equals("log.operationFirst",true) || equals("log.operationLast",true)) &&
+            (!exists("log.protoPayloadStatusCode") || equals("log.protoPayloadStatusCode",0)) &&
+            !exists("log.protoPayloadStatusMessage") &&
+            (!exists("statusCode") || oneOf("statusCode",[200,201,203,204,205,206,208,226]))
 
       - add:
           function: "string"
           params:
             key: actionResult
             value: "denied"
-          where: equals("log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome", "DENY")
+          where: >-
+            exists("log.protoPayloadMethodName") &&
+            contains("log.logName","cloudaudit.googleapis.com") &&
+            (!equals("log.operationFirst",true) || equals("log.operationLast",true)) &&
+            oneOf("log.protoPayloadStatusCode",[7,16])
 
-      # Adding actionResult for Cloud Audit Logs (protoPayload):
-      # In GCP AuditLog, status.code follows google.rpc.Code — 0/absent = OK,
-      # any non-zero code = error. We only apply this when the event is an
-      # AuditLog (log.protoPayloadMethodName is always present in AuditLog;
-      # used as discriminator since log.protoPayload.@type can't be renamed
-      # due to the '@' character) so non-audit logs keep their existing
-      # actionResult derivation.
+      - add:
+          function: "string"
+          params:
+            key: actionResult
+            value: "failure"
+          where: >-
+            exists("log.protoPayloadMethodName") &&
+            contains("log.logName","cloudaudit.googleapis.com") &&
+            (!equals("log.operationFirst",true) || equals("log.operationLast",true)) &&
+            greaterThan("log.protoPayloadStatusCode",0) &&
+            !oneOf("log.protoPayloadStatusCode",[7,16])
+
+      # Google Workspace Login and SAML audit records (login.googleapis.com)
+      # carry their result in the method: a failed or blocked sign-in has no
+      # status. Only documented final results set an outcome. Sign-in
+      # challenges, verifications, logouts, account warnings, sensitive actions
+      # that were only allowed to be attempted, and undocumented methods keep
+      # none. An explicit error status set above is not replaced by success.
       - add:
           function: "string"
           params:
             key: actionResult
             value: "success"
-          where: 'exists("log.protoPayloadMethodName") && !exists("log.protoPayloadStatusCode")'
+          where: >-
+            !exists("actionResult") &&
+            contains("log.logName","cloudaudit.googleapis.com") &&
+            equals("log.protoPayloadServiceName","login.googleapis.com") &&
+            oneOf("log.protoPayloadMethodName",["google.login.LoginService.loginSuccess",
+            "google.login.LoginService.2svDisable","google.login.LoginService.2svEnroll",
+            "google.login.LoginService.passwordEdit","google.login.LoginService.recoveryEmailEdit",
+            "google.login.LoginService.recoveryPhoneEdit","google.login.LoginService.recoverySecretQaEdit",
+            "google.login.LoginService.passkeyEnrolled","google.login.LoginService.passkeyRemoved",
+            "google.login.LoginService.titaniumEnroll","google.login.LoginService.titaniumUnenroll",
+            "google.login.LoginService.emailForwardingOutOfDomain"])
 
+      - add:
+          function: "string"
+          params:
+            key: actionResult
+            value: "failure"
+          where: >-
+            contains("log.logName","cloudaudit.googleapis.com") &&
+            equals("log.protoPayloadServiceName","login.googleapis.com") &&
+            oneOf("log.protoPayloadMethodName",["google.login.LoginService.loginFailure",
+            "google.apps.login.v1.SamlLoginFailed"])
+
+      # Google blocked these sign-ins and sensitive actions. An OAuth Deny
+      # record means an application's access request was denied.
+      - add:
+          function: "string"
+          params:
+            key: actionResult
+            value: "denied"
+          where: >-
+            contains("log.logName","cloudaudit.googleapis.com") &&
+            ((equals("log.protoPayloadServiceName","login.googleapis.com") &&
+              oneOf("log.protoPayloadMethodName",["google.login.LoginService.suspiciousLogin",
+              "google.login.LoginService.suspiciousLoginLessSecureApp",
+              "google.login.LoginService.suspiciousProgrammaticLogin",
+              "google.login.LoginService.riskySensitiveActionBlocked"])) ||
+             (equals("log.protoPayloadServiceName","oauth2.googleapis.com") &&
+              equals("log.protoPayloadMethodName","google.identity.oauth2.Deny")))
+
+      # Cloud DNS documents numeric DNS RCODEs; preserve named values for
+      # compatible producers. A response code alone is not a DNS discriminator.
       - add:
           function: "string"
           params:
             key: actionResult
             value: "success"
-          where: 'exists("log.protoPayloadMethodName") && equals("log.protoPayloadStatusCode", 0)'
-
-      - add:
-          function: "string"
-          params:
-            key: actionResult
-            value: "failed"
-          where: 'exists("log.protoPayloadMethodName") && greaterThan("log.protoPayloadStatusCode", 0)'
-
-      # Adding actionResult for Cloud DNS query logs (dns.googleapis.com).
-      - add:
-          function: "string"
-          params:
-            key: actionResult
-            value: "success"
-          where: '!exists("actionResult") && equals("log.jsonPayloadResponseCode", "NOERROR")'
+          where: >-
+            !exists("actionResult") && !exists("log.protoPayloadMethodName") && !exists("statusCode") &&
+            exists("log.jsonPayload.queryName") &&
+            (equals("log.jsonPayloadResponseCode",0) || equals("log.jsonPayloadResponseCode","NOERROR"))
 
       - add:
           function: "string"
           params:
             key: actionResult
             value: "denied"
-          where: '!exists("actionResult") && equals("log.jsonPayloadResponseCode", "REFUSED")'
+          where: >-
+            !exists("actionResult") && !exists("log.protoPayloadMethodName") && !exists("statusCode") &&
+            exists("log.jsonPayload.queryName") &&
+            (equals("log.jsonPayloadResponseCode",5) || equals("log.jsonPayloadResponseCode","REFUSED"))
 
       - add:
           function: "string"
           params:
             key: actionResult
-            value: "failed"
-          where: '!exists("actionResult") && exists("log.jsonPayloadResponseCode")'
+            value: "failure"
+          where: >-
+            !exists("actionResult") && !exists("log.protoPayloadMethodName") && !exists("statusCode") &&
+            exists("log.jsonPayload.queryName") &&
+            ((greaterThan("log.jsonPayloadResponseCode",0) && !equals("log.jsonPayloadResponseCode",5)) ||
+            oneOf("log.jsonPayloadResponseCode",["FORMERR","SERVFAIL","NXDOMAIN","NOTIMP"]))
 
-      # Adding actionResult for plain HTTP request logs (Cloud Run, Load
-      # Balancer, Cloud Functions, App Engine, etc.).
+      # HTTP 202, 207, and redirects do not establish a completed successful
+      # request. Other final 2xx codes do; explicit denials/failures follow.
       - add:
           function: "string"
           params:
             key: actionResult
             value: "success"
-          where: 'exists("statusCode") && !exists("actionResult") && lessThan("statusCode", 400)'
+          where: >-
+            !exists("actionResult") && !exists("log.protoPayloadMethodName") &&
+            oneOf("statusCode",[200,201,203,204,205,206,208,226])
 
       - add:
           function: "string"
           params:
             key: actionResult
             value: "denied"
-          where: 'exists("statusCode") && !exists("actionResult") && oneOf("statusCode", [401, 403])'
+          where: >-
+            !exists("actionResult") && !exists("log.protoPayloadMethodName") &&
+            oneOf("statusCode",[401,403])
 
       - add:
           function: "string"
           params:
             key: actionResult
-            value: "failed"
-          where: 'exists("statusCode") && !exists("actionResult") && greaterOrEqual("statusCode", 400)'
+            value: "failure"
+          where: >-
+            !exists("actionResult") && !exists("log.protoPayloadMethodName") &&
+            greaterOrEqual("statusCode",400) && lessThan("statusCode",600)
+
+      # Edge and backend Cloud Armor policies are both enforced. An ACCEPT
+      # cannot override an HTTP denial or an opposing policy outcome.
+      - delete:
+          fields:
+            - actionResult
+          where: >-
+            equals("actionResult","success") &&
+            ((exists("log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome") &&
+              !oneOf("log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome",["ACCEPT","DENY"])) ||
+             (exists("log.jsonPayloadEnforcedSecurityPolicyOutcome") &&
+              !oneOf("log.jsonPayloadEnforcedSecurityPolicyOutcome",["ACCEPT","DENY"])))
+
+      - add:
+          function: "string"
+          params:
+            key: actionResult
+            value: "success"
+          where: >-
+            !exists("actionResult") && !exists("statusCode") && !exists("log.protoPayloadMethodName") &&
+            (equals("log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome","ACCEPT") ||
+             equals("log.jsonPayloadEnforcedSecurityPolicyOutcome","ACCEPT")) &&
+            (!exists("log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome") ||
+             equals("log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome","ACCEPT")) &&
+            (!exists("log.jsonPayloadEnforcedSecurityPolicyOutcome") ||
+             equals("log.jsonPayloadEnforcedSecurityPolicyOutcome","ACCEPT")) &&
+            !equals("log.jsonPayloadStatusDetails","denied_by_security_policy")
+
+      - add:
+          function: "string"
+          params:
+            key: actionResult
+            value: "denied"
+          where: >-
+            equals("log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome","DENY") ||
+            equals("log.jsonPayloadEnforcedSecurityPolicyOutcome","DENY") ||
+            equals("log.jsonPayloadStatusDetails","denied_by_security_policy")
 
       # Adding geolocation to origin.ip
       - dynamic:
@@ -554,6 +683,4 @@ pipeline:
             - log.jsonPayload
             - log.resource
             - log.httpRequestMethod
-            - log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome
-            - log.severity
             - log.jsonPayloadStructuredRdata

@@ -12,9 +12,8 @@ impact:
   integrity: 2
   availability: 0
 where: >
-  equals("log.event_simpleName", "ProcessRollup2") && 
   exists("log.eventCommandLine") && 
   regexMatch("log.eventCommandLine", "(?i).*(certutil.*-urlcache|bitsadmin.*-transfer|curl.*http|wget.*http).*")
 groupBy: 
-  - origin.host
+  - adversary.host
   - lastEvent.log.eventCommandLine

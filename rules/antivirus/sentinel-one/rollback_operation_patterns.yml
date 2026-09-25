@@ -26,4 +26,4 @@ description: |
 where: regexMatch("log.eventDescription", ".*[Rr]ollback.*") && (equals("log.activityType", "rollback") || exists("log.rollbackStatus") || equals("log.cat", "SystemEvent"))
 groupBy:
   - lastEvent.log.endpointDeviceName
-  - lastEvent.log.syslogHost
+  - target.host

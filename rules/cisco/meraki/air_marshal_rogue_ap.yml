@@ -11,6 +11,7 @@ category: Initial Access
 technique: "T1200 - Hardware Additions"
 adversary: origin
 references:
+  - https://documentation.meraki.com/General_Administration/Monitoring_and_Reporting/Syslog_Event_Types_and_Log_Samples
   - https://documentation.meraki.com/MR/Monitoring_and_Reporting/Air_Marshal
   - https://attack.mitre.org/techniques/T1200/
 description: |
@@ -30,4 +31,6 @@ where: |
   exists("log.bssid") &&
   greaterOrEqual("log.rssi", -50)
 groupBy:
-  - adversary.host
+  - lastEvent.dataSource
+  - lastEvent.log.merakiType
+  - lastEvent.log.bssid

@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.1.0
 
 dataTypes:
   - firewall-mikrotik
@@ -31,10 +31,10 @@ afterEvents:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'
-      - field: log.message
-        operator: filter_match
-        value: 'login failure'
+      - field: actionResult
+        operator: filter_term
+        value: failure
     within: 15m
     count: 10
-groupBy:
+deduplicateBy:
   - adversary.ip

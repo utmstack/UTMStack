@@ -1,4 +1,4 @@
-# Windows_Agent filter, version 3.1.1
+# Windows_Agent filter, version 3.2.0
 # Based on winlogbeat fields, reference [8.15]
 # See https://www.elastic.co/guide/en/beats/winlogbeat/current/exported-fields-winlog.html
 
@@ -9,10 +9,19 @@ pipeline:
       - json:
           source: raw
 
+      # Native agent and Winlogbeat aliases. The event-producing computer is the
+      # target host; it must not overwrite the remote WorkstationName origin.
+      - rename:
+          from: [log.computer, log.computer_name, log.computername]
+          to: target.host
+      - rename:
+          from: [log.timestamp, log.timeCreated]
+          to: deviceTime
+
       # Renaming useful fields
       - rename:
           from:
-            - log.providerguid
+            - log.provider_guid
           to: log.providerGuid
 
       - rename:
@@ -134,6 +143,62 @@ pipeline:
           from:
             - log.data.IpAddress
           to: origin.ip
+          where: (inCIDR("log.data.IpAddress", "0.0.0.0/0") || inCIDR("log.data.IpAddress", "::/0")) && !inCIDR("log.data.IpAddress", "0.0.0.0/32") && !inCIDR("log.data.IpAddress", "::/128")
+
+      # WFP 5156 records an allowed connection; 5152/5157 record a blocked
+      # packet/connection. Preserve the vendor addresses before promoting the
+      # validated endpoints. A bind/listen event is not an allowed connection.
+      - rename:
+          from: [log.data.SourceAddress]
+          to: log.eventDataSourceAddress
+      - rename:
+          from: [log.data.DestAddress]
+          to: log.eventDataDestAddress
+      - rename:
+          from: [log.data.SourcePort]
+          to: log.eventDataSourcePort
+      - rename:
+          from: [log.data.DestPort]
+          to: log.eventDataDestPort
+      - rename:
+          from: [log.data.Direction]
+          to: log.eventDataDirection
+      - rename:
+          from: [log.data.Protocol]
+          to: log.eventDataProtocol
+      - rename:
+          from: [log.data.Application]
+          to: log.eventDataApplication
+
+      # In 5152, 5156 and 5157 the Source fields hold the side that sent or
+      # started the traffic and the Destination fields the side that received
+      # it, in both directions. Production records confirm this for inbound
+      # traffic: remote senders appear in SourceAddress with ephemeral ports,
+      # and local service ports (22, 443, 445, 7680, 10050) in DestPort, even
+      # though Microsoft's 5152/5157 field text calls SourceAddress local.
+      # Blocked records need a known direction before their endpoints are used.
+      - grok:
+          source: log.eventDataSourceAddress
+          patterns:
+          - fieldName: origin.ip
+            pattern: (?s)^.+$
+          where: >-
+            (equals("log.eventCode",5156) ||
+             (oneOf("log.eventCode",[5152,5157]) && oneOf("log.eventDataDirection",["%%14592","%%14593"]))) &&
+            (inCIDR("log.eventDataSourceAddress","0.0.0.0/0") || inCIDR("log.eventDataSourceAddress","::/0")) &&
+            !inCIDR("log.eventDataSourceAddress","0.0.0.0/32") && !inCIDR("log.eventDataSourceAddress","::/128") &&
+            !exists("origin.ip")
+      - grok:
+          source: log.eventDataDestAddress
+          patterns:
+          - fieldName: target.ip
+            pattern: (?s)^.+$
+          where: >-
+            (equals("log.eventCode",5156) ||
+             (oneOf("log.eventCode",[5152,5157]) && oneOf("log.eventDataDirection",["%%14592","%%14593"]))) &&
+            (inCIDR("log.eventDataDestAddress","0.0.0.0/0") || inCIDR("log.eventDataDestAddress","::/0")) &&
+            !inCIDR("log.eventDataDestAddress","0.0.0.0/32") && !inCIDR("log.eventDataDestAddress","::/128") &&
+            !exists("target.ip")
 
       - rename:
           from:
@@ -252,6 +317,7 @@ pipeline:
       - rename:
           from:
             - log.data.WorkstationName
+            - log.data.Workstation
           to: origin.host
 
       - rename:
@@ -286,12 +352,13 @@ pipeline:
 
       - rename:
           from:
-            - log.providername
+            - log.provider_name
           to: log.providerName
 
       - rename:
           from:
             - log.record_id
+            - log.recordid
           to: log.recordId
 
       - rename:
@@ -3030,36 +3097,44 @@ pipeline:
           where: equals("log.eventDataStatus", "61") && equals("log.eventCode", 4771)
 
       # Adding action result
+      - delete:
+          fields: [actionResult]
       - add:
           function: 'string'
           params:
             key: actionResult
             value: "success"
-          where: 'oneOf("log.eventCode", [4624, 4648, 4672, 4720, 4722, 4728, 4732, 4756, 4767])'
+          where: 'oneOf("log.eventCode", [4624, 4672, 4720, 4722, 4728, 4732, 4756, 4767])'
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: "blocked"
-          where: 'oneOf("log.eventCode", [4725, 4726, 4740])'
+            value: success
+          where: oneOf("log.eventCode", [4725, 4726, 5156])
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: "failed"
-          where: 'oneOf("log.eventCode", [4625, 4771])'
+            value: denied
+          where: oneOf("log.eventCode", [5150, 5151, 5152, 5153, 5155, 5157, 5159])
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: "success"
-          where: 'equals("log.eventCode", 4776) && equals("log.eventDataStatus", "0")'
+            value: failure
+          where: oneOf("log.eventCode", [4625, 4771])
       - add:
-          function: 'string'
+          function: string
           params:
             key: actionResult
-            value: "failed"
-          where: 'equals("log.eventCode", 4776) && exists("log.eventDataStatus") && !equals("log.eventDataStatus", "0")'
+            value: success
+          where: equals("log.eventCode", 4776) && (equals("log.eventDataStatus", 0) || regexMatch("log.eventDataStatus", "(?i)^(0|0x0+)$"))
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failure
+          where: equals("log.eventCode", 4776) && exists("log.eventDataStatus") && !(equals("log.eventDataStatus", 0) || regexMatch("log.eventDataStatus", "(?i)^(0|0x0+)$"))
 
       - delete:
           fields:
@@ -3071,3 +3146,265 @@ pipeline:
             - log.event
             - log.ecs
             - log.log
+
+      # Promote standard fields while retaining vendor fields used by rules.
+      - grok:
+          source: log.eventDataSubjectUserName
+          patterns:
+          - fieldName: origin.user
+            pattern: '{{.greedy}}'
+          where: exists("log.eventDataSubjectUserName") && !oneOf("log.eventDataSubjectUserName",["-",""])
+      - grok:
+          source: target.user
+          patterns:
+          - fieldName: origin.user
+            pattern: '{{.greedy}}'
+          where: oneOf("log.eventCode",[4624,4625,4634,4647,4768,4769,4770,4771,4776]) && exists("target.user") && !oneOf("target.user",["-",""])
+
+      # Normalize source fields to the standard event schema.
+      - delete:
+          fields:
+          - origin.user
+          where: oneOf("origin.user",["-",""])
+      - delete:
+          fields:
+          - target.user
+          where: oneOf("target.user",["-",""])
+      - delete:
+          fields:
+          - origin.host
+          where: oneOf("origin.host",["-",""])
+      - delete:
+          fields:
+          - target.host
+          where: oneOf("target.host",["-",""])
+      - delete:
+          fields:
+          - origin.domain
+          where: oneOf("origin.domain",["-",""])
+      - delete:
+          fields:
+          - target.domain
+          where: oneOf("target.domain",["-",""])
+
+      # Preserve the actor's domain and process path in standard fields too.
+      # Logon/Kerberos TargetUserName is the authenticated account; its domain
+      # must not be taken from an unrelated SubjectUserName service account.
+      - grok:
+          source: log.eventDataSubjectDomainName
+          patterns:
+            - fieldName: origin.domain
+              pattern: '{{.greedy}}'
+          where: exists("log.eventDataSubjectDomainName") && !oneOf("log.eventDataSubjectDomainName", ["-", ""]) && (!oneOf("log.eventCode", [4624,4625,4634,4647,4768,4769,4770,4771,4776]) || !exists("target.user"))
+      - grok:
+          source: target.domain
+          patterns:
+            - fieldName: origin.domain
+              pattern: '{{.greedy}}'
+          where: oneOf("log.eventCode", [4624,4625,4634,4647,4768,4769,4770,4771,4776]) && exists("target.user") && exists("target.domain")
+      - grok:
+          source: log.eventDataProcessName
+          patterns:
+            - fieldName: origin.path
+              pattern: '{{.greedy}}'
+          where: exists("log.eventDataProcessName") && !oneOf("log.eventDataProcessName", ["-", ""])
+
+      # IpPort is the remote authentication port, not an event status code.
+      # Keep the vendor alias for existing searches and only promote real ports.
+      - cast:
+          fields: [log.eventDataIpPort]
+          to: string
+      - grok:
+          source: log.eventDataIpPort
+          patterns:
+            - fieldName: origin.port
+              pattern: '{{.greedy}}'
+          where: regexMatch("log.eventDataIpPort", "^[0-9]+$") && greaterThan("log.eventDataIpPort", 0) && lessOrEqual("log.eventDataIpPort", 65535)
+      - cast:
+          fields: [origin.port]
+          to: int
+
+      # Correlation requires a real identity, never the shared '-' placeholder.
+      # Prefer the network source, then workstation, then authenticated account.
+      # Rules also scope this derived value by its kind and by dataSource.
+      - delete:
+          fields: [log.authenticationSource, log.authenticationSourceType, log.authenticationSourceDomain, log.authenticationCandidate]
+      - grok:
+          source: origin.ip
+          patterns:
+            - fieldName: log.authenticationSource
+              pattern: '{{.greedy}}'
+          where: exists("origin.ip")
+      - add:
+          function: string
+          params:
+            key: log.authenticationSourceType
+            value: ip
+          where: exists("log.authenticationSource")
+      - grok:
+          source: origin.host
+          patterns:
+            - fieldName: log.authenticationSource
+              pattern: '{{.greedy}}'
+          where: >-
+            !exists("log.authenticationSource") && exists("origin.host")
+      - add:
+          function: string
+          params:
+            key: log.authenticationSourceType
+            value: host
+          where: exists("log.authenticationSource") && !exists("log.authenticationSourceType")
+      - grok:
+          source: origin.user
+          patterns:
+            - fieldName: log.authenticationSource
+              pattern: '{{.greedy}}'
+          where: >-
+            !exists("log.authenticationSource") && exists("origin.user") && (exists("origin.domain") || regexMatch("origin.user", "^[^@]+@[^@]+$"))
+      - add:
+          function: string
+          params:
+            key: log.authenticationSourceType
+            value: user
+          where: exists("log.authenticationSource") && !exists("log.authenticationSourceType")
+
+      # User-only identities require a domain or an already qualified UPN. The
+      # explicit scope prevents equal usernames from different domains joining.
+      - grok:
+          source: origin.domain
+          patterns:
+            - fieldName: log.authenticationSourceDomain
+              pattern: '{{.greedy}}'
+          where: equals("log.authenticationSourceType", "user") && exists("origin.domain")
+      - add:
+          function: string
+          params:
+            key: log.authenticationSourceDomain
+            value: qualified-upn
+          where: equals("log.authenticationSourceType", "user") && !exists("log.authenticationSourceDomain")
+      - add:
+          function: string
+          params:
+            key: log.authenticationSourceDomain
+            value: network-source
+          where: oneOf("log.authenticationSourceType", ["ip", "host"])
+
+      # Historical searches support exact terms, not a CEL predicate. Mark the
+      # same candidates tested by these authentication rules so routine events
+      # with the same event ID cannot fill an attack threshold. Keep predicates
+      # and markers together; the raw/CEL regression checks assert their parity.
+      - add:
+          function: string
+          params:
+            key: log.authenticationCandidate.kerberoastingDetection
+            value: match
+          where: |
+            !oneOf("dataSource", ["", "unknown"]) &&
+            exists("log.authenticationSource") && exists("log.authenticationSourceType") && exists("log.authenticationSourceDomain") &&
+            (
+            equals("log.eventCode", "4769") &&
+            equals("log.channel", "Security") &&
+            equals("log.eventDataTicketEncryptionType", "23") &&
+            !regexMatch("log.eventDataServiceName", "(?i)\\$$") &&
+            !equals("log.eventDataServiceName", "krbtgt") &&
+            !oneOf("log.eventDataTicketOptions", ["1082195968", "1082130432", "1082130432"]) &&
+            exists("log.eventDataServiceName")
+            )
+      - add:
+          function: string
+          params:
+            key: log.authenticationCandidate.asrepRoastingDetection
+            value: match
+          where: |
+            !oneOf("dataSource", ["", "unknown"]) &&
+            exists("log.authenticationSource") && exists("log.authenticationSourceType") && exists("log.authenticationSourceDomain") &&
+            (
+            equals("log.eventCode", "4768") &&
+            equals("log.channel", "Security") &&
+            equals("log.eventDataTicketEncryptionType", "23") &&
+            equals("log.eventDataPreAuthType", "0") &&
+            !regexMatch("target.user", "(?i)\\$$") &&
+            exists("target.user")
+            )
+      - add:
+          function: string
+          params:
+            key: log.authenticationCandidate.silverTicketDetection
+            value: match
+          where: |
+            !oneOf("dataSource", ["", "unknown"]) &&
+            exists("log.authenticationSource") && exists("log.authenticationSourceType") && exists("log.authenticationSourceDomain") &&
+            (
+            equals("log.eventCode", "4769") &&
+            equals("log.channel", "Security") &&
+            (
+              equals("log.eventDataTicketEncryptionType", "23") &&
+              !regexMatch("log.eventDataServiceName", "(?i)(krbtgt|\\$$)") &&
+              !oneOf("log.eventDataStatus", ["0", "6"]) &&
+              exists("log.authenticationSource")
+            )
+            )
+      - add:
+          function: string
+          params:
+            key: log.authenticationCandidate.goldenTicketDetection
+            value: match
+          where: |
+            !oneOf("dataSource", ["", "unknown"]) &&
+            exists("log.authenticationSource") && exists("log.authenticationSourceType") && exists("log.authenticationSourceDomain") &&
+            (
+            (
+              equals("log.eventCode", "4769") &&
+              equals("log.channel", "Security") &&
+              equals("log.eventDataServiceName", "krbtgt") &&
+              !equals("log.eventDataStatus", "0") &&
+              exists("log.authenticationSource")
+            ) ||
+            (
+              equals("log.eventCode", "4768") &&
+              equals("log.channel", "Security") &&
+              !oneOf("log.eventDataTicketEncryptionType", ["18", "17"]) &&
+              exists("target.user") &&
+              !regexMatch("target.user", "(?i)\\$$")
+            ) ||
+            (
+              equals("log.eventCode", "4672") &&
+              equals("log.channel", "Security") &&
+              contains("log.eventDataPrivilegeList", "SeTcbPrivilege") &&
+              !regexMatch("log.eventDataSubjectUserName", "(?i)^(SYSTEM|LOCAL SERVICE|NETWORK SERVICE)$") &&
+              !regexMatch("log.eventDataSubjectUserName", "(?i)\\$$")
+            )
+            )
+      - add:
+          function: string
+          params:
+            key: log.authenticationCandidate.adfsAuthenticationAnomalies
+            value: match
+          where: |
+            !oneOf("dataSource", ["", "unknown"]) &&
+            exists("log.authenticationSource") && exists("log.authenticationSourceType") && exists("log.authenticationSourceDomain") &&
+            (
+            equals("log.providerName", "AD FS") && (equals("log.eventCode", "342") || equals("log.eventCode", "516")) && contains("log.message", "token validation failed")
+            )
+      - add:
+          function: string
+          params:
+            key: log.authenticationCandidate.bruteforceAttack
+            value: match
+          where: |
+            !oneOf("dataSource", ["", "unknown"]) &&
+            exists("log.authenticationSource") && exists("log.authenticationSourceType") && exists("log.authenticationSourceDomain") && exists("target.user") &&
+            (
+            equals("log.eventCode", 4625)
+            )
+      - add:
+          function: string
+          params:
+            key: log.authenticationCandidate.bruteforceMultipleLogonFailureFollowedBySuccess
+            value: match
+          where: |
+            !oneOf("dataSource", ["", "unknown"]) &&
+            exists("log.authenticationSource") && exists("log.authenticationSourceType") && exists("log.authenticationSourceDomain") && exists("target.user") &&
+            (
+            equals("log.eventCode", 4624)
+            )

@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v2.0.0
 
 dataTypes:
   - linux
@@ -16,6 +16,8 @@ references:
 description: |
   Detects potential attacks on YUM/DNF repositories including unauthorized repository additions, GPG key modifications, or suspicious package installations that could indicate supply chain compromise. This rule identifies attempts to manipulate package management systems to install malicious software or bypass security controls.
 
+  The rule reads signature failures and successful key imports that dnf, yum or PackageKit write to the journal, and package-manager commands, from the audit collector or from sudo, that disable signature checks, add a repository or import a signing key.
+
   **Next Steps:**
   1. **Immediate Response**: Isolate the affected system to prevent further compromise
   2. **Investigate Repository Changes**: Review all recent repository configuration changes and verify legitimacy
@@ -29,24 +31,31 @@ description: |
   10. **Documentation**: Document all findings and remediation steps for incident response records
 where: |
   (
-    oneOf("log.comm", ["yum", "dnf", "rpm"]) &&
-    oneOf("log.exe", ["/usr/bin/yum", "/usr/bin/dnf", "/usr/bin/rpm"]) &&
+    oneOf("log.syslogIdentifier", ["dnf", "yum", "dnf-automatic", "yum-cron", "packagekitd", "PackageKit", "microdnf"]) &&
     (
-      (contains("log.path", ".repo") && oneOf("log.syscall", ["2", "257"])) ||
-      (contains("log.path", "gpgkey") && equals("log.operation", "write")) ||
-      (contains("log.args", "install") && contains("log.args", "--nogpgcheck")) ||
-      (contains("log.message", "Repository") && contains("log.message", "added")) ||
-      (contains("log.message", "GPG key") && contains("log.message", "imported"))
+      contains("log.message", "GPG signature verification error") ||
+      contains("log.message", "GPG check FAILED") ||
+      contains("log.message", "Bad GPG signature") ||
+      (contains("log.message", "Public key for ") && contains("log.message", " is not installed")) ||
+      (contains("log.message", "The GPG keys listed for the ") && contains("log.message", " are not correct")) ||
+      contains("log.message", "Key imported successfully")
     )
   ) ||
   (
-    equals("log.eventType", "PACKAGE_INSTALLED") &&
+    oneOf("log.comm", ["dnf", "dnf-3", "dnf5", "yum", "microdnf", "rpm", "rpmkeys", "yum-config-mana"]) &&
     (
-      equals("log.package_source", "unknown") ||
-      equals("log.gpg_verification", "failed") ||
-      !oneOf("log.repository", ["rhel-8-baseos-rpms", "rhel-8-appstream-rpms", "rhel-9-baseos-rpms", "rhel-9-appstream-rpms"])
+      contains("origin.command", "--nogpgcheck") ||
+      contains("origin.command", "--nosignature") ||
+      contains("origin.command", "--add-repo") ||
+      contains("origin.command", "config-manager addrepo") ||
+      contains("origin.command", "--import")
     )
+  ) ||
+  (
+    equals("log.syslogIdentifier", "sudo") &&
+    regexMatch("log.message", "COMMAND=\\S*(dnf|yum|microdnf|rpm|rpmkeys|yum-config-manager)\\s.*(--nogpgcheck|--nosignature|--add-repo|--import)")
   )
-groupBy:
-  - lastEvent.log.comm
-  - origin.host
+deduplicateBy:
+  - dataSource
+  - lastEvent.log.message
+  - lastEvent.origin.command

@@ -1,40 +1,41 @@
-# Rule version v1.0.0
-
+# Sophos source-contract review; thresholds and impact ratings preserved.
 dataTypes:
-  - firewall-sophos-xg
-name: Sophos XG Advanced Threat Protection Alert
+- firewall-sophos-xg
+name: Repeated Sophos Advanced Threat Protection Detections
 impact:
   confidentiality: 3
   integrity: 3
   availability: 2
 category: Malware
-technique: "T1204 - User Execution"
+technique: T1204 - User Execution
 adversary: origin
 references:
-  - https://docs.sophos.com/nsg/sophos-firewall/20.0/Help/en-us/webhelp/onlinehelp/AdministratorHelp/AdvancedProtection/index.html
-  - https://attack.mitre.org/techniques/T1204/
-description: |
-  Detects when Sophos XG Firewall's Advanced Threat Protection (ATP) identifies malicious activity, including sandboxing results, malware detection, and zero-day threats. This rule triggers on ATP events indicating threat detection, malware identification, or virus findings.
-
-  Next Steps:
-  1. Immediately isolate the affected host from the network
-  2. Review the ATP threat details and sandbox analysis results
-  3. Check for any file transfers or downloads from the source IP
-  4. Scan the internal network for indicators of compromise
-  5. Update threat intelligence feeds and firewall signatures
-  6. Review user activity from the affected source
-  7. Consider reimaging the affected system if malware is confirmed
-where: |
-  equals("log.type", "ATP") && equals("log.component", "Threat Protection") &&
-  (oneOf("log.subType", ["Malware", "Threat"]) || exists("log.virus"))
-afterEvents:
-  - indexPattern: v11-log-firewall-sophos-xg-*
-    with:
-      - field: origin.ip
-        operator: filter_term
-        value: '{{.origin.ip}}'
-    within: 30m
-    count: 2
+- https://docs.sophos.com/nsg/sophos-firewall/20.0/syslog/index.html
+- https://attack.mitre.org/techniques/T1204/
+description: Repeated ATP Alert or Drop records from the same source address and firewall. ATP signature detection
+  does not establish a successful connection or endpoint compromise.
+where: (equals("log.type","ATP") && oneOf("log.component",["Firewall","DNS","IPS","Web"]) && oneOf("log.subType",["Alert","Drop"])
+  && ((exists("log.malware") && !equals("log.malware","")) || (exists("log.threatname") && !equals("log.threatname",""))))
+  && exists("origin.ip") && exists("dataSource") && !equals("dataSource","") && exists("log.sophosScope") && !equals("log.sophosScope","")
 groupBy:
-  - adversary.ip
-  - target.ip
+- lastEvent.dataSource
+- lastEvent.log.sophosScope
+- adversary.ip
+- target.ip
+correlation:
+- indexPattern: v11-log-firewall-sophos-xg-*
+  within: 30m
+  count: 2
+  with:
+  - field: dataSource
+    operator: filter_term
+    value: '{{.dataSource}}'
+  - field: log.sophosScope
+    operator: filter_term
+    value: '{{.log.sophosScope}}'
+  - field: origin.ip
+    operator: filter_term
+    value: '{{.origin.ip}}'
+  - field: log.correlationCandidate.sophosXG.atp
+    operator: filter_term
+    value: match

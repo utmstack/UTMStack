@@ -1,133 +1,309 @@
-# Microsoft 365 filter, version 1.0.5
-
-# Based on Official documentation
-# See https://learn.microsoft.com/en-us/compliance/assurance/assurance-microsoft-365-audit-log-collection
-# https://learn.microsoft.com/es-es/office/office-365-management-api/aip-unified-audit-logs-best-practices
-# https://learn.microsoft.com/en-us/purview/audit-log-activities
+# Microsoft 365 filter, version 1.4.1
 
 pipeline:
-  - dataTypes:
-      - o365
-    steps:
-      - json:
-          source: raw
-
-      # Normalized event time.
-      - rename:
-          from:
-            - log.CreationTime
-          to: deviceTime
-
-      - rename:  
-          from:
-            - log.AppAccessContext.AADSessionId
-          to: log.appAccessContextAADSessionId
-
-      - rename:  
-          from:
-            - log.AppAccessContext.APIId
-          to: log.appAccessContextAPIId
-
-      - rename:  
-          from:
-            - log.AppAccessContext.ClientAppId
-          to: log.appAccessContextClientAppId
-
-      - rename:  
-          from:
-            - log.AppAccessContext.CorrelationId
-          to: log.appAccessContextCorrelationId
-
-      - rename:  
-          from:
-            - log.AppAccessContext.IssuedAtTime
-          to: log.appAccessContextIssuedAtTime
-
-      - rename:  
-          from:
-            - log.AppAccessContext.UniqueTokenId
-          to: log.appAccessContextUniqueTokenId
-
-      - rename:  
-          from:
-            - log.ClientIPAddress
-          to: origin.ip
-
-      - rename:  
-          from:
-            - log.Operation
-          to: action
-
-      - rename:  
-          from:
-            - log.Version
-          to: log.version
-
-      - rename:  
-          from:
-            - log.ClientIP
-          to: origin.ip
-
-      - rename:  
-          from:
-            - log.UserId
-          to: origin.user
-
-      - rename:  
-          from:
-            - log.Folder.Path
-          to: log.folderPath
-
-      - rename:  
-          from:
-            - log.Folder.Id
-          to: log.folderId
-
-      - rename:  
-          from:
-            - log.DestFolder.Id
-          to: log.destFolderId
-
-      - rename:  
-          from:
-            - log.DestFolder.Path
-          to: log.destFolderPath
-
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'success'
-          where: oneOf("log.ResultStatus", ["Succeeded", "Success", "Successful", "PartiallySucceeded", "True"])
-
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'failed'
-          where: oneOf("log.ResultStatus", ["Failure", "Failed", "False"])
-
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'blocked'
-          where: equals("log.ResultStatus", "Blocked")
-
-      # Adding geolocation to origin ip
-      - dynamic:
-          plugin: com.utmstack.geolocation
-          params:
-            source: origin.ip
-            destination: origin.geolocation
-          where: exists("origin.ip")
-
-      # Drop unnecessary events
-      - drop:
-          where: oneOf("action", ['SupervisionRuleMatch', 'SupervisoryReviewTag', 'ComplianceManagerAutomationChange', 'LabelContentExplorerAccessedItem', 'CreateCopilotPlugin', 'CreateCopilotPromptBook', 'DeleteCopilotPlugin', 'DeleteCopilotPromptBook', 'DisableCopilotPlugin', 'DisableCopilotPromptBook', 'EnableCopilotPlugin', 'EnableCopilotPromptBook', 'CopilotInteraction', 'UpdateCopilotPlugin', 'UpdateCopilotPromptBook', 'UpdateCopilotSettings', 'ApproveDisposal', 'ExtendRetention', 'RelabelItem', 'SearchUpdated', 'CaseUpdated', 'SearchPermissionUpdated', 'HoldUpdated', 'PreviewItemDownloaded', 'PreviewItemListed', 'SearchCreated', 'CaseAdded', 'HoldCreated', 'SearchRemoved', 'HoldRemoved', 'SearchExportDownloaded', 'SearchPreviewed', 'SearchResultsPurged', 'RemovedSearchResultsSentToZoom', 'RemovedSearchExported', 'RemovedSearchPreviewed', 'RemovedSearchResultsPurged', 'SearchReportRemoved', 'SearchResultsSentToZoom', 'SearchStarted', 'SearchExported', 'SearchReport', 'SearchStopped', 'SearchViewed', 'ViewedSearchExported', 'ViewedSearchPreviewed', 'AddRemediatedData', 'BurnJob', 'CreateWorkingSet', 'CreateWorkingSetSearch', 'CreateTag', 'DeleteWorkingSetSearch', 'DeleteTag', 'DownloadDocument', 'UpdateTag', 'ExportJob', 'UpdateWorkingSetSearch', 'PreviewWorkingSetSearch', 'ErrorRemediationJob', 'TagFiles', 'TagJob', 'ViewDocument', 'Copy', 'Create', 'ApplyRecordLabel', 'HardDelete', 'Send', 'Update', 'FileAccessed', 'FileAccessedExtended', 'ComplianceSettingChanged', 'LockRecord', 'UnlockRecord', 'FileCheckedIn', 'FileCheckedOut', 'FileCopied', 'FileDeletedFirstStageRecycleBin', 'FileDeletedSecondStageRecycleBin', 'RecordDelete', 'DocumentSensitivityMismatchDetected', 'FileCheckOutDiscarded', 'FileDownloaded', 'FileModifiedExtended', 'FilePreviewed', 'SearchQueryPerformed', 'FileRecycled', 'FolderRecycled', 'FileVersionsAllMinorsRecycled', 'FileVersionsAllRecycled', 'FileVersionRecycled', 'FileRestored', 'FileUploaded', 'PageViewed', 'PageViewedExtended', 'ClientViewSignaled', 'PagePrefetched', 'FolderCopied', 'FolderCreated', 'FolderDeletedFirstStageRecycleBin', 'FolderDeletedSecondStageRecycleBin', 'FolderRestored', 'InformationBarriersInsightsReportCompleted', 'InformationBarriersInsightsReportOneDriveSectionQueried', 'InformationBarriersInsightsReportSchedule', 'InformationBarriersInsightsReportSharePointSectionQueried', 'updateddeviceconfiguration', 'UpdatedPolicyConfigPriority', 'BackupPolicyActivated', 'RestoreTaskActivated', 'BackupItemAdded', 'BackupItemRemoved', 'RestoreTaskCompleted', 'DraftRestoreTaskCreated', 'NewBackupPolicyCreated', 'DraftRestoreTaskDeleted', 'DraftRestoreTaskEdited', 'BackupPolicyPaused', 'GetBackupItem', 'ViewBackupPolicyDetails', 'GetRestoreTaskDetails', 'ListAllBackupPolicies', 'ListAllBackupItemsInPolicies', 'ListAllBackupItemsInTenant', 'ListAllBackupItemsInWorkload', 'GetAllRestoreArtifactsInTask', 'ListAllRestorePoints', 'ListAllRestoreTasks', 'BackupItemRestoreCompleted', 'BackupItemRestoreTriggered', 'SetAdvancedFeatures', 'RunAntiVirusScan', 'LogsCollection', 'TaggingConfigurationUpdated', 'AlertExcelDownloaded', 'RemediationActionAdded', 'RemediationActionUpdated', 'SensorCreated', 'SensorDeploymentAccessKeyReceived', 'SensorDeploymentAccessKeyUpdated', 'SensorActivationMethodConfigurationUpdated', 'DomainControllerCoverageExcelDownloaded', 'MonitoringAlertUpdated', 'ReportDownloaded', 'AlertNotificationsRecipientAdded', 'MonitoringAlertNotificationRecipientAdded', 'WorkspaceCreated', 'AddCommentToIncident.', 'AssignUserToIncident', 'UpdateIncidentStatus', 'AddTagsToIncident', 'RemoveTagsFromIncident', 'CreateComment', 'CreateForm', 'MoveForm', 'ViewForm', 'PreviewForm', 'ExportForm', 'AllowShareFormForCopy', 'DisallowShareFormForCopy', 'AddFormCoauthor', 'RemoveFormCoauthor', 'ViewRuntimeForm', 'CreateResponse', 'UpdateResponse', 'ViewResponses', 'ViewResponse', 'GetSummaryLink', 'DeleteSummaryLink', 'ProInvitation', 'ListForms', 'SubmitResponse', 'ConnectToExcelWorkbook', 'CollectionCreated', 'CollectionUpdated', 'CollectionHardDeleted', 'CollectionSoftDeleted', 'CollectionRenamed', 'MovedFormIntoCollection', 'MovedFormOutofCollection', 'PlanCopied', 'TaskAssigned', 'TaskCompleted', 'PlanListRead', 'TaskListRead', 'ProjectCreated', 'RoadmapCreated', 'RoadmapItemCreated', 'TaskCreated', 'ProjectListAccessed', 'RoadmapAccessed', 'RoadmapItemAccessed', 'TaskAccessed', 'AuditSearchCreated', 'AuditSearchCompleted', 'AuditSearchCancelled', 'AuditSearchExportJobCreated', 'AuditSearchExportJobCompleted', 'AuditSearchExportResultsDownloaded', 'EntityCreated', 'ClassificationAdded', 'ClassificationDefinitionCreated', 'GlossaryTermAssigned', 'GlossaryTermCreated', 'BotAddedToTeam', 'ChannelAdded', 'ConnectorAdded', 'MeetingDetail', 'MeetingParticipantDetail', 'MemberAdded', 'TabAdded', 'SensitivityLabelApplied', 'SensitivityLabelChanged', 'ChatCreated', 'TeamCreated', 'MessageDeleted', 'MessageEditedHasLink', 'MessagesExported', 'RecordingExported', 'TranscriptsExported', 'FailedValidation', 'ChatRetrieved', 'MessageHostedContentsListed', 'PerformedCardAction', 'MessageSent', 'AINotesUpdate', 'LiveNotesUpdate', 'AppPublishedToCatalog', 'MessageRead', 'InviteeResponded', 'ChannelOwnerResponded', 'MessagesListed', 'MessageCreatedHasLink', 'MessageCreatedNotification', 'MessageDeletedNotification', 'MessageUpdatedNotification', 'InviteSent', 'SubscribedToMessages', 'AppUpdatedInCatalog', 'ChatUpdated', 'MessageUpdated', 'TabUpdated', 'AppUpgraded', 'MessageSent', 'ScheduleGroupAdded', 'ShiftAdded', 'TimeOffAdded', 'OpenShiftAdded', 'ScheduleShared', 'ClockedIn', 'ClockedOut', 'BreakEnded', 'TimeClockEntryAdded', 'RequestAdded', 'RequestRespondedTo', 'WorkforceIntegrationAdded', 'OffShiftDialogAccepted', 'CreateUpdateRequest', 'EditUpdateRequest', 'SubmitUpdate', 'ViewUpdate', 'AcceptedSharingLinkOnFolder', 'FolderSharingLinkShared', 'LinkedEntityCreated', 'SubTaskCreated', 'TaskCreated', 'TaskRead', 'TaskListCreated', 'TaskListRead', 'AccessedOdataLink', 'CanceledQuery', 'DeletedResult', 'DownloadedReport', 'ExecutedQuery', 'UploadedOrgData', 'ViewedExplore', 'QuarantineReleaseRequestDeny', 'QuarantinePreview', 'QuarantineReleaseRequest', 'QuarantineViewHeader', 'UpdateUsageReportsPrivacySetting', 'NewAdaptiveScope', 'NewComplianceTag', 'NewRetentionCompliancePolicy', 'RemoveAdaptiveScope', 'RemoveComplianceTag', 'SetRestrictiveRetentionUI', 'ExchangeDataProactivelyPreserved', 'SharePointDataProactivelyPreserved', 'ListCreated', 'ListColumnCreated', 'ListContentTypeCreated', 'ListItemCreated', 'SiteColumnCreated', 'SiteContentTypeCreated', 'ListContentTypeDeleted', 'SiteColumnDeleted', 'SiteContentTypeDeleted', 'ListItemRecycled', 'ListItemRestored', 'ListColumnUpdated', 'ListContentTypeUpdated', 'SiteColumnUpdated', 'SiteContentTypeUpdated', 'SharingInvitationCreated', 'AccessRequestUpdated', 'SharingInvitationUpdated', 'SharingInvitationRevoked', 'AllowedDataLocationAdded', 'SiteGeoMoveCancelled', 'MigrationJobCompleted', 'SiteGeoMoveCompleted', 'SiteCollectionCreated', 'HubSiteOrphanHubDeleted', 'PreviewModeEnabledSet', 'LegacyWorkflowEnabledSet', 'OfficeOnDemandSet', 'PeopleResultsScopeSet', 'NewsFeedEnabledSet', 'HubSiteJoined', 'SiteCollectionQuotaModified', 'HubSiteRegistered', 'SiteGeoMoveScheduled', 'GeoQuotaAllocated', 'SiteAdminChangeRequest', 'ManagedSyncClientAllowed', 'FileSyncDownloadedFull', 'FileSyncUploadedFull', 'DataShareCreated', 'DataShareDeleted', 'GenerateCopyOfLakeData', 'DownloadCopyOfLakeData', 'SoftDeleteSettingsUpdated', 'CloseConversation', 'OpenConversation', 'MessageCreation', 'MessageDeleted', 'FileDownloaded', 'DataExport', 'ThreadAccessFailure', 'MarkedMessageChanged', 'RemoveCuratedTopic', 'UsagePolicyAcceptance', 'AdminThreadMuted', 'AdminThreadUnmuted', 'FileUpdateDescription', 'MessageUpdated', 'FileVisited', 'ThreadViewed', 'PulseSubmit', 'PulseCreate', 'PulseExtendDeadline', 'PulseInvite', 'PulseCancel', 'PulseShareResults', 'PulseCreateDraft', 'PulseDeleteDraft'])
-      
-      # Removing unused fields
-      - delete:
-          fields:
-            - log.AppAccessContext
+- dataTypes:
+  - o365
+  steps:
+  - json:
+      source: raw
+  - drop:
+      where: oneOf("log.Operation", ['AINotesUpdate', 'AcceptedSharingLinkOnFolder', 'AccessRequestUpdated', 'AccessedOdataLink', 'AddCommentToIncident.', 'AddFormCoauthor', 'AddRemediatedData', 'AddTagsToIncident', 'AdminThreadMuted', 'AdminThreadUnmuted', 'AlertExcelDownloaded', 'AlertNotificationsRecipientAdded', 'AllowShareFormForCopy', 'AppPublishedToCatalog', 'AppUpdatedInCatalog', 'AppUpgraded', 'ApplyRecordLabel', 'ApproveDisposal', 'AssignUserToIncident', 'AuditSearchCancelled', 'AuditSearchCompleted', 'AuditSearchCreated', 'AuditSearchExportJobCompleted', 'AuditSearchExportJobCreated', 'AuditSearchExportResultsDownloaded', 'BackupItemAdded', 'BackupItemRemoved', 'BackupItemRestoreCompleted', 'BackupItemRestoreTriggered', 'BackupPolicyActivated', 'BackupPolicyPaused', 'BotAddedToTeam', 'BreakEnded', 'BurnJob', 'CanceledQuery', 'CaseUpdated', 'ChannelAdded', 'ChannelOwnerResponded', 'ChatRetrieved', 'ChatUpdated', 'ClassificationAdded', 'ClassificationDefinitionCreated', 'ClientViewSignaled', 'ClockedIn', 'ClockedOut', 'CloseConversation', 'CollectionCreated', 'CollectionHardDeleted', 'CollectionRenamed', 'CollectionSoftDeleted', 'CollectionUpdated', 'ComplianceManagerAutomationChange', 'ComplianceSettingChanged', 'ConnectToExcelWorkbook', 'ConnectorAdded', 'CopilotInteraction', 'Copy', 'Create', 'CreateComment', 'CreateCopilotPlugin', 'CreateCopilotPromptBook', 'CreateForm', 'CreateResponse', 'CreateTag', 'CreateUpdateRequest', 'CreateWorkingSet', 'CreateWorkingSetSearch', 'DataExport', 'DataShareCreated', 'DataShareDeleted', 'DeleteCopilotPlugin', 'DeleteCopilotPromptBook', 'DeleteSummaryLink', 'DeleteTag', 'DeleteWorkingSetSearch', 'DeletedResult', 'DisableCopilotPlugin', 'DisableCopilotPromptBook', 'DisallowShareFormForCopy', 'DocumentSensitivityMismatchDetected', 'DomainControllerCoverageExcelDownloaded', 'DownloadCopyOfLakeData', 'DownloadDocument', 'DownloadedReport', 'DraftRestoreTaskCreated', 'DraftRestoreTaskDeleted', 'DraftRestoreTaskEdited', 'EditUpdateRequest', 'EnableCopilotPlugin', 'EnableCopilotPromptBook', 'EntityCreated', 'ErrorRemediationJob', 'ExchangeDataProactivelyPreserved', 'ExecutedQuery', 'ExportForm', 'ExportJob', 'ExtendRetention', 'FailedValidation', 'FileCheckOutDiscarded', 'FileCheckedIn', 'FileCheckedOut', 'FileCopied', 'FileDeletedFirstStageRecycleBin', 'FileDeletedSecondStageRecycleBin', 'FileModifiedExtended', 'FileRecycled', 'FileRestored', 'FileSyncDownloadedFull', 'FileSyncUploadedFull', 'FileUpdateDescription', 'FileUploaded', 'FileVersionRecycled', 'FileVersionsAllMinorsRecycled', 'FileVersionsAllRecycled', 'FileVisited', 'FolderCopied', 'FolderCreated', 'FolderDeletedFirstStageRecycleBin', 'FolderDeletedSecondStageRecycleBin', 'FolderRecycled', 'FolderRestored', 'FolderSharingLinkShared', 'GenerateCopyOfLakeData', 'GetAllRestoreArtifactsInTask', 'GetBackupItem', 'GetRestoreTaskDetails', 'GetSummaryLink', 'GlossaryTermAssigned', 'GlossaryTermCreated', 'HoldRemoved', 'HoldUpdated', 'HubSiteJoined', 'HubSiteOrphanHubDeleted', 'HubSiteRegistered', 'InformationBarriersInsightsReportCompleted', 'InformationBarriersInsightsReportOneDriveSectionQueried', 'InformationBarriersInsightsReportSchedule', 'InformationBarriersInsightsReportSharePointSectionQueried', 'InviteSent', 'InviteeResponded', 'LabelContentExplorerAccessedItem', 'LegacyWorkflowEnabledSet', 'LinkedEntityCreated', 'ListAllBackupItemsInPolicies', 'ListAllBackupItemsInTenant', 'ListAllBackupItemsInWorkload', 'ListAllBackupPolicies', 'ListAllRestorePoints', 'ListAllRestoreTasks', 'ListColumnCreated', 'ListColumnUpdated', 'ListContentTypeCreated', 'ListContentTypeDeleted', 'ListContentTypeUpdated', 'ListCreated', 'ListForms', 'ListItemCreated', 'ListItemRecycled', 'ListItemRestored', 'LiveNotesUpdate', 'LockRecord', 'LogsCollection', 'ManagedSyncClientAllowed', 'MarkedMessageChanged', 'MeetingDetail', 'MeetingParticipantDetail', 'MessageCreatedHasLink', 'MessageCreatedNotification', 'MessageCreation', 'MessageDeleted', 'MessageDeletedNotification', 'MessageEditedHasLink', 'MessageHostedContentsListed', 'MessageRead', 'MessageUpdated', 'MessageUpdatedNotification', 'MonitoringAlertNotificationRecipientAdded', 'MonitoringAlertUpdated', 'MoveForm', 'MovedFormIntoCollection', 'MovedFormOutofCollection', 'NewAdaptiveScope', 'NewBackupPolicyCreated', 'NewComplianceTag', 'NewRetentionCompliancePolicy', 'NewsFeedEnabledSet', 'OffShiftDialogAccepted', 'OfficeOnDemandSet', 'OpenConversation', 'OpenShiftAdded', 'PagePrefetched', 'PageViewed', 'PageViewedExtended', 'PeopleResultsScopeSet', 'PerformedCardAction', 'PlanCopied', 'PlanListRead', 'PreviewForm', 'PreviewItemDownloaded', 'PreviewItemListed', 'PreviewModeEnabledSet', 'PreviewWorkingSetSearch', 'ProInvitation', 'ProjectCreated', 'ProjectListAccessed', 'PulseCancel', 'PulseCreate', 'PulseCreateDraft', 'PulseDeleteDraft', 'PulseExtendDeadline', 'PulseInvite', 'PulseShareResults', 'PulseSubmit', 'QuarantinePreview', 'QuarantineReleaseRequest', 'QuarantineReleaseRequestDeny', 'QuarantineViewHeader', 'RecordDelete', 'RelabelItem', 'RemediationActionAdded', 'RemediationActionUpdated', 'RemoveAdaptiveScope', 'RemoveComplianceTag', 'RemoveCuratedTopic', 'RemoveFormCoauthor', 'RemoveTagsFromIncident', 'RemovedSearchExported', 'RemovedSearchPreviewed', 'RemovedSearchResultsPurged', 'RemovedSearchResultsSentToZoom', 'ReportDownloaded', 'RequestAdded', 'RequestRespondedTo', 'RestoreTaskActivated', 'RestoreTaskCompleted', 'RoadmapAccessed', 'RoadmapCreated', 'RoadmapItemAccessed', 'RoadmapItemCreated', 'RunAntiVirusScan', 'ScheduleGroupAdded', 'ScheduleShared', 'SearchPermissionUpdated', 'SearchQueryPerformed', 'SearchRemoved', 'SearchReport', 'SearchReportRemoved', 'SearchResultsSentToZoom', 'SearchStopped', 'SearchUpdated', 'SearchViewed', 'Send', 'SensitivityLabelApplied', 'SensitivityLabelChanged', 'SensorActivationMethodConfigurationUpdated', 'SensorCreated', 'SensorDeploymentAccessKeyReceived', 'SensorDeploymentAccessKeyUpdated', 'SetAdvancedFeatures', 'SetRestrictiveRetentionUI', 'SharePointDataProactivelyPreserved', 'SharingInvitationRevoked', 'SharingInvitationUpdated', 'ShiftAdded', 'SiteAdminChangeRequest', 'SiteCollectionCreated', 'SiteCollectionQuotaModified', 'SiteColumnCreated', 'SiteColumnDeleted', 'SiteColumnUpdated', 'SiteContentTypeCreated', 'SiteContentTypeDeleted', 'SiteContentTypeUpdated', 'SoftDeleteSettingsUpdated', 'SubTaskCreated', 'SubmitResponse', 'SubmitUpdate', 'SubscribedToMessages', 'SupervisionRuleMatch', 'SupervisoryReviewTag', 'TabAdded', 'TabUpdated', 'TagFiles', 'TagJob', 'TaggingConfigurationUpdated', 'TaskAccessed', 'TaskAssigned', 'TaskCompleted', 'TaskCreated', 'TaskListCreated', 'TaskListRead', 'TaskRead', 'TeamCreated', 'ThreadAccessFailure', 'ThreadViewed', 'TimeClockEntryAdded', 'TimeOffAdded', 'UnlockRecord', 'Update', 'UpdateCopilotPlugin', 'UpdateCopilotPromptBook', 'UpdateCopilotSettings', 'UpdateIncidentStatus', 'UpdateResponse', 'UpdateTag', 'UpdateUsageReportsPrivacySetting', 'UpdateWorkingSetSearch', 'UpdatedPolicyConfigPriority', 'UploadedOrgData', 'UsagePolicyAcceptance', 'ViewBackupPolicyDetails', 'ViewDocument', 'ViewForm', 'ViewResponse', 'ViewResponses', 'ViewRuntimeForm', 'ViewUpdate', 'ViewedExplore', 'ViewedSearchExported', 'ViewedSearchPreviewed', 'WorkforceIntegrationAdded', 'WorkspaceCreated', 'updateddeviceconfiguration'])
+  # Capture documented Name/Value parameter identities before the legacy string
+  # cast loses their structure. The inbox rule and send-on-behalf flags mean a
+  # setting was supplied, including clearing it. The mailbox flag needs a non-empty
+  # forwarding address: Exchange records a cleared address as an empty value, and
+  # DeliverToMailboxAndForward alone sets no destination. No flag establishes an
+  # external recipient. Never trust markers supplied by the input record.
+  - delete:
+      fields:
+      - log.o365InboxForwardingChange
+      - log.o365MailboxForwardingSet
+      - log.o365SendOnBehalfChange
+  - add:
+      function: string
+      params:
+        key: log.o365InboxForwardingChange
+        value: "true"
+      where: >-
+        equals("log.Workload", "Exchange") &&
+        oneOf("log.Operation", ["New-InboxRule", "Set-InboxRule"]) &&
+        (exists("log.Parameters.#(Name==ForwardTo).Name") ||
+         exists("log.Parameters.#(Name==ForwardAsAttachmentTo).Name") ||
+         exists("log.Parameters.#(Name==RedirectTo).Name"))
+  - add:
+      function: string
+      params:
+        key: log.o365MailboxForwardingSet
+        value: "true"
+      where: >-
+        equals("log.Workload", "Exchange") && equals("log.Operation", "Set-Mailbox") &&
+        (regexMatch("log.Parameters.#(Name==ForwardingAddress).Value", "(?s)^.+$") ||
+         regexMatch("log.Parameters.#(Name==ForwardingSmtpAddress).Value", "(?s)^.+$"))
+  - add:
+      function: string
+      params:
+        key: log.o365SendOnBehalfChange
+        value: "true"
+      where: >-
+        equals("log.Workload", "Exchange") && equals("log.Operation", "Set-Mailbox") &&
+        exists("log.Parameters.#(Name==GrantSendOnBehalfTo).Name")
+  - cast:
+      fields:
+      - log.Parameters
+      - log.Members
+      to: string
+  - rename:
+      from:
+      - log.AppAccessContext.AADSessionId
+      to: log.appAccessContextAADSessionId
+  - rename:
+      from:
+      - log.AppAccessContext.APIId
+      to: log.appAccessContextAPIId
+  - rename:
+      from:
+      - log.AppAccessContext.ClientAppId
+      to: log.appAccessContextClientAppId
+  - rename:
+      from:
+      - log.AppAccessContext.CorrelationId
+      to: log.appAccessContextCorrelationId
+  - rename:
+      from:
+      - log.CreationTime
+      to: deviceTime
+  - rename:
+      from:
+      - log.AppAccessContext.UniqueTokenId
+      to: log.appAccessContextUniqueTokenId
+  - rename:
+      from:
+      - log.ClientIPAddress
+      to: origin.ip
+  - rename:
+      from:
+      - log.Operation
+      to: action
+  - rename:
+      from:
+      - log.Version
+      to: log.version
+  - rename:
+      from:
+      - log.ClientIP
+      to: origin.ip
+  - rename:
+      from:
+      - log.UserId
+      to: origin.user
+  - rename:
+      from:
+      - log.Folder.Path
+      to: log.folderPath
+  - rename:
+      from:
+      - log.Folder.Id
+      to: log.folderId
+  - rename:
+      from:
+      - log.DestFolder.Id
+      to: log.destFolderId
+  - rename:
+      from:
+      - log.DestFolder.Path
+      to: log.destFolderPath
+  # ResultStatus is workload-specific. Preserve it and derive only established
+  # operation outcomes; partial, pending and unknown results remain unset.
+  - delete:
+      fields:
+      - actionResult
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: success
+      where: >-
+        !oneOf("log.RecordType", [1, 15, 41, 188, 189, 190, 191, 192, 193, 194, 231, 386, 387, 401, 402]) &&
+        oneOf("log.ResultStatus", ["Succeeded", "Success", "Successful"]) &&
+        !equals("action", "UserLoginFailed")
+  # ExchangeAdmin uses string True/False; these are not universal outcome codes.
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: success
+      where: equals("log.RecordType", 1) && equals("log.ResultStatus", "True")
+  # STS HTTP success and UserLoggedIn alone do not prove completed authentication.
+  # Require an explicit zero result code and reject contradictory/unknown errors.
+  # ErrorNumber is the corresponding field in observed STS audit records.
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: success
+      where: >-
+        equals("log.RecordType", 15) &&
+        (equals("log.ErrorCode", 0) || equals("log.ErrorNumber", 0)) &&
+        (!exists("log.ErrorCode") || equals("log.ErrorCode", 0)) &&
+        (!exists("log.ErrorNumber") || equals("log.ErrorNumber", 0)) &&
+        (!exists("log.LogonError") || regexMatch("log.LogonError", "^$")) &&
+        (!exists("log.ResultStatus") || oneOf("log.ResultStatus", ["Succeeded", "Success", "Successful"])) &&
+        !equals("action", "UserLoginFailed")
+  # Planner defines its own result enum. Audit records also emit its member names.
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: success
+      where: >-
+        oneOf("log.RecordType", [188, 189, 190, 191, 192, 193, 194, 231, 386, 387, 401, 402]) &&
+        (equals("log.ResultStatus", 1) || equals("log.ResultStatus", "Success"))
+  # Safe Links reports the navigation decision separately from event processing.
+  # Values 4/5 mean the user overrode the page and navigated; 3 remains pending.
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: success
+      where: equals("log.RecordType", 41) && oneOf("log.URLClickAction", [4, 5])
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: failure
+      where: >-
+        !oneOf("log.RecordType", [41, 188, 189, 190, 191, 192, 193, 194, 231, 386, 387, 401, 402]) &&
+        (oneOf("log.ResultStatus", ["Failure", "Failed"]) ||
+         (equals("log.RecordType", 1) && equals("log.ResultStatus", "False")))
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: failure
+      where: >-
+        equals("log.RecordType", 15) &&
+        (greaterThan("log.ErrorCode", 0) || regexMatch("log.LogonError", "(?s)^.+$"))
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: failure
+      where: >-
+        oneOf("log.RecordType", [188, 189, 190, 191, 192, 193, 194, 231, 386, 387, 401, 402]) &&
+        (equals("log.ResultStatus", 2) || equals("log.ResultStatus", "Failure"))
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: denied
+      where: >-
+        !oneOf("log.RecordType", [41, 188, 189, 190, 191, 192, 193, 194, 231, 386, 387, 401, 402]) &&
+        equals("log.ResultStatus", "Blocked")
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: denied
+      where: >-
+        oneOf("log.RecordType", [188, 189, 190, 191, 192, 193, 194, 231, 386, 387, 401, 402]) &&
+        (equals("log.ResultStatus", 3) || equals("log.ResultStatus", "AuthorizationFailure"))
+  # These exact operation names describe prevented user access, not successful
+  # administrative changes to a blocking policy.
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: denied
+      where: >-
+        oneOf("action", ["SharingInvitationBlocked", "UnmanagedSyncClientBlocked", "URLNavigationBlocked", "AccessRequestDenied"]) ||
+        (equals("log.RecordType", 41) && equals("log.URLClickAction", 2))
+  # KmsiInterrupt is the expected "Keep me signed in" prompt, not a final result.
+  - delete:
+      fields:
+      - actionResult
+      where: >-
+        equals("log.RecordType", 15) &&
+        (equals("log.ErrorCode", 50140) || equals("log.ErrorNumber", 50140))
+  # A failed login wins even when its HTTP request or audit operation succeeded.
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: failure
+      where: equals("action", "UserLoginFailed")
+  - dynamic:
+      plugin: com.utmstack.geolocation
+      params:
+        source: origin.ip
+        destination: origin.geolocation
+      where: exists("origin.ip")
+  - rename:
+      from:
+      - log.ActorIpAddress
+      to: origin.ip
+      where: equals("log.Workload", "AzureActiveDirectory")
+  - rename:
+      from:
+      - log.Target.4.ID
+      to: target.user
+      where: equals("log.Workload", "AzureActiveDirectory") && equals("log.Target.2.ID", "User") && equals("log.Target.4.Type", 5)
+  - rename:
+      from:
+      - log.MailboxOwnerUPN
+      to: target.user
+      where: exists("log.MailboxOwnerUPN")
+  - rename:
+      from:
+      - log.ClientProcessName
+      to: origin.process
+      where: exists("log.ClientProcessName")
+  - rename:
+      from:
+      - log.SiteUrl
+      to: target.url
+      where: exists("log.SiteUrl")
+  - rename:
+      from:
+      - log.SourceRelativeUrl
+      to: target.path
+      where: exists("log.SourceRelativeUrl")
+  - rename:
+      from:
+      - log.DestinationRelativeUrl
+      to: target.path
+      where: exists("log.DestinationRelativeUrl")
+  - rename:
+      from:
+      - log.SourceFileName
+      to: target.filename
+      where: exists("log.SourceFileName")
+  - rename:
+      from:
+      - log.DestinationFileName
+      to: target.filename
+      where: exists("log.DestinationFileName")
+  - rename:
+      from:
+      - log.ItemName
+      to: target.filename
+      where: equals("log.Workload", "OneDrive") || equals("log.Workload", "SharePoint")
+  # Safe Links supplies the clicking user's IP and destination URL under its own
+  # documented fields. Copy them so vendor-specific queries retain the originals.
+  - grok:
+      source: log.UserIp
+      patterns:
+      - fieldName: origin.ip
+        pattern: (?s:.*)
+      where: >-
+        equals("log.RecordType", 41) &&
+        (inCIDR("log.UserIp", "0.0.0.0/0") || inCIDR("log.UserIp", "::/0")) &&
+        !inCIDR("log.UserIp", "0.0.0.0/32") && !inCIDR("log.UserIp", "::/128")
+  - grok:
+      source: log.URL
+      patterns:
+      - fieldName: target.url
+        pattern: (?s:.*)
+      where: equals("log.RecordType", 41) && regexMatch("log.URL", "(?s)^.+$")
+  - delete:
+      fields:
+      - log.AppAccessContext

@@ -19,7 +19,7 @@ references:
   - "https://attack.mitre.org/software/S0183/"
   - "https://attack.mitre.org/software/"
 where: |
-  contains("log.siteUrl", ".onion")
+  contains("target.url", ".onion")
 groupBy:
   - target.ip
   - target.user

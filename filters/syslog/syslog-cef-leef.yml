@@ -1,0 +1,630 @@
+# Generic CEF / LEEF syslog filter, version 1.0.0
+#
+# Parses CEF (Common Event Format) and LEEF (Log Event and Evidence Format)
+# syslog messages from any vendor that does not have a dedicated UTMStack
+# filter. These are the two de-facto structured-syslog standards used by
+# security devices (F5 ASM, Check Point, Trend Micro, Fortinet, Forcepoint,
+# OSSEC, ArcSight connectors, ...), so this file is the catch-all for
+# "structured security syslog from a vendor we do not cover".
+#
+# It complements syslog-generic.yml (plain RFC5424/RFC3164). The two files
+# share dataTypes: [syslog] and run in file order: this file (CEF stage,
+# then LEEF stage) -> syslog-generic (plain stage). The log.dataType tag
+# (cef/leef/plain) lets rules discriminate the wire format; each structured
+# stage is guarded so a message is claimed by at most one of them.
+#
+# CEF wire format:
+#   [syslog envelope] CEF:<version>|<vendor>|<product>|<deviceVersion>|<signatureId>|<name>|<severity>|<extension>
+# LEEF wire format:
+#   [syslog envelope] LEEF:<version>|<vendor>|<product>|<deviceVersion>|<signatureId>|<name>|<severity>|^<extKey>^<extValue>^...
+#
+# Authoritative references:
+#   - ArcSight CEF Implementation Standard (Micro Focus)
+#   - IBM QRadar LEEF format documentation
+#   - https://github.com/threatwinds/go-sdk/wiki/Filter-Steps-Reference
+#
+# Mapping policy:
+#   - Keys the shipped CEF rules read under log.* are KEPT there:
+#     log.deviceVendor, log.deviceProduct, log.cs1-cs6, log.cs1Label-cs6Label,
+#     log.fileHash, log.oldFileHash, log.requestClientApplication,
+#     log.requestContext, log.dataType, log.msg, log.rt.
+#   - Keys with an unambiguous standard home are promoted: origin.ip (src;
+#     dvc/dvcaddr when src absent), target.ip (dst), ports, users, protocol
+#     (proto, app), action (act), actionResult, severity, target.url
+#     (request), target.sha256, bytes (bytesIn/bytesOut, in/out),
+#     dvchost -> origin.host.
+#   - src/dst/dvc are promoted to IP fields only when the value parses as an
+#     address; a hostname stays under log.* (origin.host is for names).
+#
+# Known limitations (by design of the engine's step vocabulary):
+#   - The extension `kv` step splits on whitespace and cuts each pair at the
+#     FIRST separator; it does not un-escape. A value containing a literal
+#     space or an escaped \=/\^ is truncated at that point. Single-token
+#     fields (IPs, ports, users, act, proto, header fields, short csN) parse
+#     correctly; long free-text fields (msg, full_request) may lose their
+#     tail.
+#   - An extension containing an unescaped pipe fragments the header split;
+#     such a message keeps its header fields and falls back to the plain
+#     stage's log.message = raw behavior for the body.
+#   - Multi-line extension values collapse to the first line.
+
+pipeline:
+- dataTypes:
+  - syslog
+  steps:
+  - add:
+      function: string
+      params:
+        key: log.dataType
+        value: cef
+      where: contains("raw", "CEF:") && !exists("log.dataType")
+  - grok:
+      source: raw
+      where: contains("raw", "CEF:") && !regexMatch("raw", "CEF:[0-9.]+\\|[^|]*\\|[^|]*\\|[^|]*\\|[^|]*\\|\\^\\|")
+      patterns:
+      - fieldName: ''
+        pattern: '{{.data}}CEF:'
+      - fieldName: log.cefVersion
+        pattern: '[0-9.]+\|'
+      - fieldName: log.deviceVendor
+        pattern: '{{.data}}\|'
+      - fieldName: log.deviceProduct
+        pattern: '{{.data}}\|'
+      - fieldName: log.deviceVersion
+        pattern: '{{.data}}\|'
+      - fieldName: log.deviceEventClassId
+        pattern: '{{.data}}\|'
+      - fieldName: log.cefName
+        pattern: '{{.data}}\|'
+      - fieldName: log.cefSeverity
+        pattern: '{{.data}}\|'
+  - grok:
+      source: raw
+      where: contains("raw", "CEF:") && !regexMatch("raw", "CEF:[0-9.]+\\|[^|]*\\|[^|]*\\|[^|]*\\|[^|]*\\|\\^\\|")
+      patterns:
+      - fieldName: ''
+        pattern: '{{.data}}CEF:'
+      - fieldName: ''
+        pattern: '[0-9.]+\|'
+      - fieldName: ''
+        pattern: '{{.data}}\|'
+      - fieldName: ''
+        pattern: '{{.data}}\|'
+      - fieldName: ''
+        pattern: '{{.data}}\|'
+      - fieldName: ''
+        pattern: '{{.data}}\|'
+      - fieldName: ''
+        pattern: '{{.data}}\|'
+      - fieldName: ''
+        pattern: '{{.data}}\|'
+      - fieldName: log.cefExtension
+        pattern: '{{.greedy}}'
+  - trim:
+      function: suffix
+      substring: '|'
+      fields:
+      - log.deviceVendor
+      - log.deviceProduct
+      - log.deviceVersion
+      - log.deviceEventClassId
+      - log.cefName
+      - log.cefVersion
+      - log.cefSeverity
+  - trim:
+      function: prefix
+      substring: 'CEF:'
+      fields:
+      - log.cefVersion
+  - delete:
+      fields:
+      - log.cefExtension
+      where: exists("log.cefExtension") && contains("log.cefExtension", "|")
+  - kv:
+      source: log.cefExtension
+      fieldSplit: ' '
+      valueSplit: '='
+      where: exists("log.cefExtension") && equals("log.dataType", "cef")
+  - rename:
+      from:
+      - log.src
+      to: origin.ip
+      where: exists("log.src") && equals("log.dataType", "cef") && !equals("log.src", "0.0.0.0") && !equals("log.src", "::") && !equals("log.src", "-") && (inCIDR("log.src",
+        "0.0.0.0/0") || inCIDR("log.src", "::/0"))
+  - rename:
+      from:
+      - log.dst
+      to: target.ip
+      where: exists("log.dst") && equals("log.dataType", "cef") && !equals("log.dst", "0.0.0.0") && !equals("log.dst", "::") && !equals("log.dst", "-") && (inCIDR("log.dst",
+        "0.0.0.0/0") || inCIDR("log.dst", "::/0"))
+  - rename:
+      from:
+      - log.dvc
+      to: origin.ip
+      where: exists("log.dvc") && equals("log.dataType", "cef") && !equals("log.dvc", "0.0.0.0") && !equals("log.dvc", "::") && !equals("log.dvc", "-") && (inCIDR("log.dvc",
+        "0.0.0.0/0") || inCIDR("log.dvc", "::/0")) && !exists("origin.ip")
+  - rename:
+      from:
+      - log.dvcaddr
+      to: origin.ip
+      where: exists("log.dvcaddr") && equals("log.dataType", "cef") && !equals("log.dvcaddr", "0.0.0.0") && !equals("log.dvcaddr", "::") && !equals("log.dvcaddr",
+        "-") && (inCIDR("log.dvcaddr", "0.0.0.0/0") || inCIDR("log.dvcaddr", "::/0")) && !exists("origin.ip")
+  - rename:
+      from:
+      - log.spt
+      to: origin.port
+      where: exists("log.spt") && equals("log.dataType", "cef")
+  - rename:
+      from:
+      - log.dpt
+      to: target.port
+      where: exists("log.dpt") && equals("log.dataType", "cef")
+  - rename:
+      from:
+      - log.suser
+      to: origin.user
+      where: exists("log.suser") && equals("log.dataType", "cef")
+  - rename:
+      from:
+      - log.duser
+      to: target.user
+      where: exists("log.duser") && equals("log.dataType", "cef")
+  - rename:
+      from:
+      - log.shost
+      to: origin.host
+      where: exists("log.shost") && equals("log.dataType", "cef")
+  - rename:
+      from:
+      - log.dhost
+      to: target.host
+      where: exists("log.dhost") && equals("log.dataType", "cef")
+  - rename:
+      from:
+      - log.proto
+      to: protocol
+      where: exists("log.proto") && equals("log.dataType", "cef") && !equals("log.proto", "0")
+  - rename:
+      from:
+      - log.app
+      to: protocol
+      where: '!exists("protocol") && exists("log.app") && equals("log.dataType", "cef") && !equals("log.app", "0")'
+  - rename:
+      from:
+      - log.bytesIn
+      to: origin.bytesReceived
+      where: exists("log.bytesIn") && equals("log.dataType", "cef")
+  - rename:
+      from:
+      - log.bytesOut
+      to: origin.bytesSent
+      where: exists("log.bytesOut") && equals("log.dataType", "cef")
+  - rename:
+      from:
+      - log.in
+      to: origin.bytesReceived
+      where: '!exists("origin.bytesReceived") && exists("log.in") && equals("log.dataType", "cef")'
+  - rename:
+      from:
+      - log.out
+      to: origin.bytesSent
+      where: '!exists("origin.bytesSent") && exists("log.out") && equals("log.dataType", "cef")'
+  - rename:
+      from:
+      - log.request
+      to: target.url
+      where: exists("log.request") && equals("log.dataType", "cef")
+  - rename:
+      from:
+      - log.sha256
+      to: target.sha256
+      where: exists("log.sha256") && equals("log.dataType", "cef")
+  - rename:
+      from:
+      - log.filePath
+      to: target.path
+      where: exists("log.filePath") && equals("log.dataType", "cef")
+  - rename:
+      from:
+      - log.filename
+      to: target.filename
+      where: exists("log.filename") && equals("log.dataType", "cef")
+  - rename:
+      from:
+      - log.file
+      to: target.file
+      where: exists("log.file") && equals("log.dataType", "cef")
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: success
+      where: oneOf("log.act", ["allow", "pass", "accept", "permit", "ok", "success", "allowed", "passed", "accepted", "start", "started", "open", "opened", "login",
+        "logon", "connect", "session start", "signed in", "signedin", "Allow", "Pass", "Accept", "Permit", "OK", "Success", "Allowed", "Open", "Opened", "Login",
+        "Logon", "Connect", "Alerted", "alerted", "detected", "Detected"]) && equals("log.dataType", "cef")
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: denied
+      where: oneOf("log.act", ["block", "deny", "drop", "reject", "blocked", "denied", "dropped", "rejected", "quarantine", "teardown", "closed", "terminated", "invalid",
+        "failed auth", "authentication failed", "Block", "Deny", "Drop", "Reject", "Blocked", "Denied", "Dropped", "Rejected", "Closed", "Terminated", "Quarantined",
+        "failed", "Failed"]) && equals("log.dataType", "cef")
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: failure
+      where: oneOf("log.act", ["error", "fail", "timeout", "Error", "Fail", "Timeout"]) && equals("log.dataType", "cef")
+  - rename:
+      from:
+      - log.act
+      to: action
+      where: exists("log.act") && equals("log.dataType", "cef")
+  - rename:
+      from:
+      - log.dvchost
+      to: origin.host
+      where: '!exists("origin.host") && exists("log.dvchost") && equals("log.dataType", "cef")'
+  - add:
+      function: string
+      params:
+        key: severity
+        value: info
+      where: oneOf("log.cefSeverity", ["0", "1", "2", "3", "low", "Low", "LOW", "informational", "Informational", "none", "None", "debug", "Debug"]) && equals("log.dataType",
+        "cef")
+  - add:
+      function: string
+      params:
+        key: severity
+        value: warning
+      where: oneOf("log.cefSeverity", ["4", "5", "6", "medium", "Medium", "MEDIUM", "warning", "Warning"]) && equals("log.dataType", "cef")
+  - add:
+      function: string
+      params:
+        key: severity
+        value: error
+      where: oneOf("log.cefSeverity", ["7", "8", "high", "High", "HIGH", "error", "Error", "alert", "Alert"]) && equals("log.dataType", "cef")
+  - add:
+      function: string
+      params:
+        key: severity
+        value: critical
+      where: oneOf("log.cefSeverity", ["9", "10", "very high", "Very High", "veryhigh", "critical", "Critical", "emergency", "Emergency", "fatal", "Fatal"]) && equals("log.dataType",
+        "cef")
+  - cast:
+      fields:
+      - origin.port
+      - target.port
+      to: int
+      where: exists("origin.port") || exists("target.port")
+  - cast:
+      fields:
+      - origin.bytesSent
+      - origin.bytesReceived
+      to: int
+      where: exists("origin.bytesSent") || exists("origin.bytesReceived")
+  - dynamic:
+      plugin: com.utmstack.geolocation
+      params:
+        source: origin.ip
+        destination: origin.geolocation
+      where: exists("origin.ip")
+  - dynamic:
+      plugin: com.utmstack.geolocation
+      params:
+        source: target.ip
+        destination: target.geolocation
+      where: exists("target.ip")
+  - delete:
+      fields:
+      - log.cefExtension
+      where: exists("log.cefExtension")
+  - grok:
+      source: raw
+      where: exists("raw") && equals("log.dataType", "cef")
+      patterns:
+      - fieldName: log.message
+        pattern: .*
+- dataTypes:
+  - syslog
+  steps:
+  - add:
+      function: string
+      params:
+        key: log.dataType
+        value: leef
+      where: contains("raw", "LEEF:") && !exists("log.dataType")
+  - grok:
+      source: raw
+      where: contains("raw", "LEEF:") && !regexMatch("raw", "LEEF:[0-9.]+\\|[^|]*\\|[^|]*\\|[^|]*\\|[^|]*\\|\\^\\|")
+      patterns:
+      - fieldName: ''
+        pattern: '{{.data}}LEEF:'
+      - fieldName: log.leefVersion
+        pattern: '[0-9.]+\|'
+      - fieldName: log.deviceVendor
+        pattern: '{{.data}}\|'
+      - fieldName: log.deviceProduct
+        pattern: '{{.data}}\|'
+      - fieldName: log.deviceVersion
+        pattern: '{{.data}}\|'
+      - fieldName: log.deviceEventClassId
+        pattern: '{{.data}}\|'
+      - fieldName: log.leefName
+        pattern: '{{.data}}\|'
+      - fieldName: log.leefSeverity
+        pattern: '{{.data}}\|'
+  - grok:
+      source: raw
+      where: contains("raw", "LEEF:") && !regexMatch("raw", "LEEF:[0-9.]+\\|[^|]*\\|[^|]*\\|[^|]*\\|[^|]*\\|\\^\\|")
+      patterns:
+      - fieldName: ''
+        pattern: '{{.data}}LEEF:'
+      - fieldName: ''
+        pattern: '[0-9.]+\|'
+      - fieldName: ''
+        pattern: '{{.data}}\|'
+      - fieldName: ''
+        pattern: '{{.data}}\|'
+      - fieldName: ''
+        pattern: '{{.data}}\|'
+      - fieldName: ''
+        pattern: '{{.data}}\|'
+      - fieldName: ''
+        pattern: '{{.data}}\|'
+      - fieldName: ''
+        pattern: '{{.data}}\|'
+      - fieldName: log.leefExtension
+        pattern: '{{.greedy}}'
+  - grok:
+      source: raw
+      where: regexMatch("raw", "LEEF:[0-9.]+\\|[^|]*\\|[^|]*\\|[^|]*\\|[^|]*\\|\\^\\|")
+      patterns:
+      - fieldName: ''
+        pattern: '{{.data}}LEEF:'
+      - fieldName: log.leefVersion
+        pattern: '[0-9.]+\|'
+      - fieldName: log.deviceVendor
+        pattern: '{{.data}}\|'
+      - fieldName: log.deviceProduct
+        pattern: '{{.data}}\|'
+      - fieldName: log.deviceVersion
+        pattern: '{{.data}}\|'
+      - fieldName: log.deviceEventClassId
+        pattern: '{{.data}}\|'
+      - fieldName: ''
+        pattern: \^\|
+      - fieldName: log.leefExtension
+        pattern: '{{.greedy}}'
+  - trim:
+      function: suffix
+      substring: '|'
+      fields:
+      - log.deviceVendor
+      - log.deviceProduct
+      - log.deviceVersion
+      - log.deviceEventClassId
+      - log.leefName
+      - log.leefVersion
+      - log.leefSeverity
+  - trim:
+      function: prefix
+      substring: 'LEEF:'
+      fields:
+      - log.leefVersion
+  - delete:
+      fields:
+      - log.leefExtension
+      where: exists("log.leefExtension") && contains("log.leefExtension", "|")
+  - kv:
+      source: log.leefExtension
+      fieldSplit: ^
+      valueSplit: '='
+      where: exists("log.leefExtension") && equals("log.dataType", "leef") && contains("log.leefExtension", "^")
+  - kv:
+      source: log.leefExtension
+      fieldSplit: ' '
+      valueSplit: '='
+      where: exists("log.leefExtension") && equals("log.dataType", "leef") && !contains("log.leefExtension", "^")
+  - rename:
+      from:
+      - log.src
+      to: origin.ip
+      where: exists("log.src") && equals("log.dataType", "leef") && !equals("log.src", "0.0.0.0") && !equals("log.src", "::") && !equals("log.src", "-") && (inCIDR("log.src",
+        "0.0.0.0/0") || inCIDR("log.src", "::/0"))
+  - rename:
+      from:
+      - log.dst
+      to: target.ip
+      where: exists("log.dst") && equals("log.dataType", "leef") && !equals("log.dst", "0.0.0.0") && !equals("log.dst", "::") && !equals("log.dst", "-") && (inCIDR("log.dst",
+        "0.0.0.0/0") || inCIDR("log.dst", "::/0"))
+  - rename:
+      from:
+      - log.dvc
+      to: origin.ip
+      where: exists("log.dvc") && equals("log.dataType", "leef") && !equals("log.dvc", "0.0.0.0") && !equals("log.dvc", "::") && !equals("log.dvc", "-") && (inCIDR("log.dvc",
+        "0.0.0.0/0") || inCIDR("log.dvc", "::/0")) && !exists("origin.ip")
+  - rename:
+      from:
+      - log.dvcaddr
+      to: origin.ip
+      where: exists("log.dvcaddr") && equals("log.dataType", "leef") && !equals("log.dvcaddr", "0.0.0.0") && !equals("log.dvcaddr", "::") && !equals("log.dvcaddr",
+        "-") && (inCIDR("log.dvcaddr", "0.0.0.0/0") || inCIDR("log.dvcaddr", "::/0")) && !exists("origin.ip")
+  - rename:
+      from:
+      - log.spt
+      to: origin.port
+      where: exists("log.spt") && equals("log.dataType", "leef")
+  - rename:
+      from:
+      - log.dpt
+      to: target.port
+      where: exists("log.dpt") && equals("log.dataType", "leef")
+  - rename:
+      from:
+      - log.suser
+      to: origin.user
+      where: exists("log.suser") && equals("log.dataType", "leef")
+  - rename:
+      from:
+      - log.duser
+      to: target.user
+      where: exists("log.duser") && equals("log.dataType", "leef")
+  - rename:
+      from:
+      - log.shost
+      to: origin.host
+      where: exists("log.shost") && equals("log.dataType", "leef")
+  - rename:
+      from:
+      - log.dhost
+      to: target.host
+      where: exists("log.dhost") && equals("log.dataType", "leef")
+  - rename:
+      from:
+      - log.proto
+      to: protocol
+      where: exists("log.proto") && equals("log.dataType", "leef") && !equals("log.proto", "0")
+  - rename:
+      from:
+      - log.app
+      to: protocol
+      where: '!exists("protocol") && exists("log.app") && equals("log.dataType", "leef") && !equals("log.app", "0")'
+  - rename:
+      from:
+      - log.bytesIn
+      to: origin.bytesReceived
+      where: exists("log.bytesIn") && equals("log.dataType", "leef")
+  - rename:
+      from:
+      - log.bytesOut
+      to: origin.bytesSent
+      where: exists("log.bytesOut") && equals("log.dataType", "leef")
+  - rename:
+      from:
+      - log.in
+      to: origin.bytesReceived
+      where: '!exists("origin.bytesReceived") && exists("log.in") && equals("log.dataType", "leef")'
+  - rename:
+      from:
+      - log.out
+      to: origin.bytesSent
+      where: '!exists("origin.bytesSent") && exists("log.out") && equals("log.dataType", "leef")'
+  - rename:
+      from:
+      - log.request
+      to: target.url
+      where: exists("log.request") && equals("log.dataType", "leef")
+  - rename:
+      from:
+      - log.sha256
+      to: target.sha256
+      where: exists("log.sha256") && equals("log.dataType", "leef")
+  - rename:
+      from:
+      - log.filePath
+      to: target.path
+      where: exists("log.filePath") && equals("log.dataType", "leef")
+  - rename:
+      from:
+      - log.filename
+      to: target.filename
+      where: exists("log.filename") && equals("log.dataType", "leef")
+  - rename:
+      from:
+      - log.file
+      to: target.file
+      where: exists("log.file") && equals("log.dataType", "leef")
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: success
+      where: oneOf("log.act", ["allow", "pass", "accept", "permit", "ok", "success", "allowed", "passed", "accepted", "start", "started", "open", "opened", "login",
+        "logon", "connect", "session start", "signed in", "signedin", "Allow", "Pass", "Accept", "Permit", "OK", "Success", "Allowed", "Open", "Opened", "Login",
+        "Logon", "Connect", "Alerted", "alerted", "detected", "Detected"]) && equals("log.dataType", "leef")
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: denied
+      where: oneOf("log.act", ["block", "deny", "drop", "reject", "blocked", "denied", "dropped", "rejected", "quarantine", "teardown", "closed", "terminated", "invalid",
+        "failed auth", "authentication failed", "Block", "Deny", "Drop", "Reject", "Blocked", "Denied", "Dropped", "Rejected", "Closed", "Terminated", "Quarantined",
+        "failed", "Failed"]) && equals("log.dataType", "leef")
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: failure
+      where: oneOf("log.act", ["error", "fail", "timeout", "Error", "Fail", "Timeout"]) && equals("log.dataType", "leef")
+  - rename:
+      from:
+      - log.act
+      to: action
+      where: exists("log.act") && equals("log.dataType", "leef")
+  - rename:
+      from:
+      - log.dvchost
+      to: origin.host
+      where: '!exists("origin.host") && exists("log.dvchost") && equals("log.dataType", "leef")'
+  - add:
+      function: string
+      params:
+        key: severity
+        value: info
+      where: oneOf("log.leefSeverity", ["0", "1", "2", "3", "low", "Low", "LOW", "informational", "Informational", "none", "None", "debug", "Debug"]) && equals("log.dataType",
+        "leef")
+  - add:
+      function: string
+      params:
+        key: severity
+        value: warning
+      where: oneOf("log.leefSeverity", ["4", "5", "6", "medium", "Medium", "MEDIUM", "warning", "Warning"]) && equals("log.dataType", "leef")
+  - add:
+      function: string
+      params:
+        key: severity
+        value: error
+      where: oneOf("log.leefSeverity", ["7", "8", "high", "High", "HIGH", "error", "Error", "alert", "Alert"]) && equals("log.dataType", "leef")
+  - add:
+      function: string
+      params:
+        key: severity
+        value: critical
+      where: oneOf("log.leefSeverity", ["9", "10", "very high", "Very High", "veryhigh", "critical", "Critical", "emergency", "Emergency", "fatal", "Fatal"]) && equals("log.dataType",
+        "leef")
+  - cast:
+      fields:
+      - origin.port
+      - target.port
+      to: int
+      where: exists("origin.port") || exists("target.port")
+  - cast:
+      fields:
+      - origin.bytesSent
+      - origin.bytesReceived
+      to: int
+      where: exists("origin.bytesSent") || exists("origin.bytesReceived")
+  - dynamic:
+      plugin: com.utmstack.geolocation
+      params:
+        source: origin.ip
+        destination: origin.geolocation
+      where: exists("origin.ip")
+  - dynamic:
+      plugin: com.utmstack.geolocation
+      params:
+        source: target.ip
+        destination: target.geolocation
+      where: exists("target.ip")
+  - delete:
+      fields:
+      - log.leefExtension
+      where: exists("log.leefExtension")
+  - grok:
+      source: raw
+      where: exists("raw") && equals("log.dataType", "leef")
+      patterns:
+      - fieldName: log.message
+        pattern: .*

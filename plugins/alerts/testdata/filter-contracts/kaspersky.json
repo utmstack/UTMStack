@@ -1,0 +1,70 @@
+{
+  "technology": "Kaspersky",
+  "filters": [
+    "filters/antivirus/kaspersky.yml"
+  ],
+  "rules": [
+    "rules/antivirus/kaspersky/code_injection_attempts.yml",
+    "rules/antivirus/kaspersky/command_and_control_communication.yml",
+    "rules/antivirus/kaspersky/critical_object_detected.yml",
+    "rules/antivirus/kaspersky/data_exfiltration_attempts.yml",
+    "rules/antivirus/kaspersky/kaspersky_agent_tampering.yml",
+    "rules/antivirus/kaspersky/kaspersky_ransomware_behavior.yml",
+    "rules/antivirus/kaspersky/kaspersky_rootkit_detection.yml",
+    "rules/antivirus/kaspersky/lateral_movement_indicators.yml",
+    "rules/antivirus/kaspersky/lolbins_abuse.yml",
+    "rules/antivirus/kaspersky/privilege_escalation_attempts.yml",
+    "rules/antivirus/kaspersky/process_hollowing_detection.yml",
+    "rules/antivirus/kaspersky/sandbox_evasion_attempts.yml",
+    "rules/antivirus/kaspersky/suspicious_network_activity.yml",
+    "rules/antivirus/kaspersky/suspicious_packed_executables.yml",
+    "rules/antivirus/kaspersky/suspicious_scheduled_tasks.yml",
+    "rules/antivirus/kaspersky/suspicious_service_installation.yml",
+    "rules/antivirus/kaspersky/system_file_tampering_detection.yml",
+    "rules/antivirus/kaspersky/trusted_application_compromise.yml",
+    "rules/antivirus/kaspersky/wmi_abuse_detection.yml"
+  ],
+  "fixtures": [
+    {
+      "name": "Kaspersky derived format and history cannot be supplied by input",
+      "filter": "antivirus/kaspersky.yml",
+      "input": {
+        "dataType": "antivirus-kaspersky",
+        "log": {
+          "format": "cef",
+          "endpointKey": "forged",
+          "correlationCandidate": {
+            "kasperskyRansomwareBehavior": "match"
+          }
+        }
+      },
+      "expected": {},
+      "absent": [
+        "log.format",
+        "log.endpointKey",
+        "log.correlationCandidate"
+      ],
+      "rules": {
+        "rules/antivirus/kaspersky/code_injection_attempts.yml": false,
+        "rules/antivirus/kaspersky/command_and_control_communication.yml": false,
+        "rules/antivirus/kaspersky/critical_object_detected.yml": false,
+        "rules/antivirus/kaspersky/data_exfiltration_attempts.yml": false,
+        "rules/antivirus/kaspersky/kaspersky_agent_tampering.yml": false,
+        "rules/antivirus/kaspersky/kaspersky_ransomware_behavior.yml": false,
+        "rules/antivirus/kaspersky/kaspersky_rootkit_detection.yml": false,
+        "rules/antivirus/kaspersky/lateral_movement_indicators.yml": false,
+        "rules/antivirus/kaspersky/lolbins_abuse.yml": false,
+        "rules/antivirus/kaspersky/privilege_escalation_attempts.yml": false,
+        "rules/antivirus/kaspersky/process_hollowing_detection.yml": false,
+        "rules/antivirus/kaspersky/sandbox_evasion_attempts.yml": false,
+        "rules/antivirus/kaspersky/suspicious_network_activity.yml": false,
+        "rules/antivirus/kaspersky/suspicious_packed_executables.yml": false,
+        "rules/antivirus/kaspersky/suspicious_scheduled_tasks.yml": false,
+        "rules/antivirus/kaspersky/suspicious_service_installation.yml": false,
+        "rules/antivirus/kaspersky/system_file_tampering_detection.yml": false,
+        "rules/antivirus/kaspersky/trusted_application_compromise.yml": false,
+        "rules/antivirus/kaspersky/wmi_abuse_detection.yml": false
+      }
+    }
+  ]
+}

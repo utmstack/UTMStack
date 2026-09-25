@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.0.1
 
 dataTypes:
   - firewall-cisco-asa
@@ -25,10 +25,11 @@ description: |
   6. Verify that IPS signatures are up-to-date
   7. Document the incident and any actions taken
 where: |
-  equals("log.messageId", "108003")
-  || (contains("log.message", "malicious pattern") && contains("log.message", ["detected", "terminated", "blocked"]))
-  || (contains("log.message", "IPS") && contains("log.message", "signature") && contains("log.message", ["matched", "triggered", "detected"]))
-  || oneOf("log.action", ["ips_alert", "ids_alert", "threat_detected"])
+  exists("origin.ip") && (
+    equals("log.messageId", "108003")
+    || (contains("log.message", "malicious pattern") && contains("log.message", ["detected", "terminated", "blocked"]))
+    || (contains("log.message", "IPS") && contains("log.message", "signature") && contains("log.message", ["matched", "triggered", "detected"]))
+  )
 afterEvents:
   - indexPattern: v11-log-firewall-cisco-asa-*
     with:

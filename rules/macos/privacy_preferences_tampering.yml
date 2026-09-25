@@ -24,13 +24,13 @@ description: |
   5. Verify the integrity of system privacy settings and restore from backup if necessary
   6. Consider implementing additional monitoring for TCC database access
 where: |
-  (contains("log.eventMessage", "Update Access Record:") && equals("log.subsystem", "com.apple.TCC")) ||
-  (equals("log.process", "sqlite3") && contains("log.eventMessage", "TCC.db")) ||
-  (equals("log.process", "tccutil") && contains("log.eventMessage", "reset")) ||
-  (contains("log.eventMessage", "TCC") && contains("log.eventMessage", "INSERT")) ||
-  (contains("log.eventMessage", "TCC") && contains("log.eventMessage", "UPDATE")) ||
-  (contains("log.eventMessage", "TCC") && contains("log.eventMessage", "DELETE")) ||
-  (equals("log.subsystem", "com.apple.TCC") && equals("log.category", "access") && contains("log.eventMessage", "modification"))
+  (contains("log.message", "Update Access Record:") && equals("log.subsystem", "com.apple.TCC")) ||
+  (equals("origin.process", "sqlite3") && contains("log.message", "TCC.db")) ||
+  (equals("origin.process", "tccutil") && contains("log.message", "reset")) ||
+  (contains("log.message", "TCC") && contains("log.message", "INSERT")) ||
+  (contains("log.message", "TCC") && contains("log.message", "UPDATE")) ||
+  (contains("log.message", "TCC") && contains("log.message", "DELETE")) ||
+  (equals("log.subsystem", "com.apple.TCC") && equals("log.category", "access") && contains("log.message", "modification"))
 groupBy:
   - adversary.host
   - adversary.user
