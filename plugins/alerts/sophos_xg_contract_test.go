@@ -2,7 +2,9 @@ package main
 
 // Offline Sophos XG extraction model, not the closed EventProcessor.
 // Explicit YAML grok/rename/cast/trim/add/delete and observed KV splitting are
-// modeled. CEL, Event serialization, placeholder expansion, query creation and
+// modeled. Grok patterns are consumed in order, with whitespace trimmed before
+// each non-empty prefix match, and write nothing unless every pattern matches,
+// as the EventProcessor grok plugin does. CEL, Event serialization, placeholder expansion, query creation and
 // history thresholds use SDK v1.1.31. External geolocation is not executed.
 import (
 	"bytes"
@@ -78,21 +80,13 @@ func sophosXGConfig(t *testing.T) *plugins.Config {
 	}
 	return c
 }
-func sophosXGRegex(t *testing.T, g *plugins.Grok, cfg *plugins.Config) *regexp.Regexp {
+func sophosXGRegex(t *testing.T, pattern string, cfg *plugins.Config) *regexp.Regexp {
 	t.Helper()
-	var pattern strings.Builder
-	for i, p := range g.Patterns {
-		if p.FieldName != "" {
-			fmt.Fprintf(&pattern, "(?P<f%d>%s)", i, p.Pattern)
-		} else {
-			pattern.WriteString("(?:" + p.Pattern + ")")
-		}
-	}
 	pats := map[string]string{"greedy": ".*", "data": ".*?", "word": "[A-Za-z0-9_-]+", "space": "\\s+"}
 	for k, v := range cfg.Patterns {
 		pats[k] = v
 	}
-	tmpl, e := template.New("grok").Option("missingkey=error").Parse(pattern.String())
+	tmpl, e := template.New("grok").Option("missingkey=error").Parse(pattern)
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -157,15 +151,27 @@ func sophosXGParse(t *testing.T, cfg *plugins.Config, raw string, dataSource str
 					if !ok {
 						t.Fatalf("non-string grok source %s", src)
 					}
-					r := sophosXGRegex(t, g, cfg)
-					m := r.FindStringSubmatch(str)
-					if m == nil {
+					found, matched := map[string]string{}, 0
+					for _, p := range g.Patterns {
+						str = strings.TrimSpace(str)
+						if str == "" {
+							break
+						}
+						m := sophosXGRegex(t, p.Pattern, cfg).FindString(str)
+						if m == "" || !strings.HasPrefix(str, m) {
+							break
+						}
+						matched++
+						if p.FieldName != "" {
+							found[p.FieldName] = strings.TrimSpace(m)
+						}
+						str = strings.TrimPrefix(str, m)
+					}
+					if matched != len(g.Patterns) {
 						continue
 					}
-					for i, p := range g.Patterns {
-						if p.FieldName != "" {
-							sophosXGPut(draft, p.FieldName, m[r.SubexpIndex(fmt.Sprintf("f%d", i))], false)
-						}
+					for field, value := range found {
+						sophosXGPut(draft, field, value, false)
 					}
 				case "rename":
 					for _, p := range s.Rename.From {
