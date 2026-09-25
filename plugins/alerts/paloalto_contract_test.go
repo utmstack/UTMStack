@@ -630,6 +630,41 @@ func TestPaloAltoModelFollowsPlugins(t *testing.T) {
 	}
 }
 
+// The grok plugin trims the remaining text before each pattern and treats an empty match as no
+// match, which drops the whole step. So no pattern may prefer empty text at the start of a
+// non-empty text: each pattern is tried alone on texts that start with every printable ASCII
+// character and with one non-ASCII letter.
+func TestPaloAltoGrokPatternsNeverMatchEmpty(t *testing.T) {
+	cfg := paloaltoConfig(t)
+	probes := []string{"é x"}
+	for c := '!'; c <= '~'; c++ {
+		probes = append(probes, string(c)+" x")
+	}
+	checked := 0
+	for i, s := range cfg.Pipeline[0].Steps {
+		if s.Grok == nil {
+			continue
+		}
+		for j, p := range s.Grok.Patterns {
+			re, err := paloaltoCompile(cfg, p.Pattern)
+			if err != nil {
+				t.Fatalf("step %d pattern %d: %v", i, j, err)
+			}
+			checked++
+			for _, probe := range probes {
+				if loc := re.FindStringIndex(probe); loc != nil && loc[1] == 0 {
+					t.Errorf("step %d pattern %d (%s) %q matches empty text at the start of %q",
+						i, j, p.FieldName, p.Pattern, probe)
+					break
+				}
+			}
+		}
+	}
+	if checked == 0 {
+		t.Fatal("no grok pattern checked")
+	}
+}
+
 // Each longer CSV tier must run only when the line has that many columns, counted as the
 // csv plugin counts them, quoted commas included; otherwise the plugin fails the step.
 func TestPaloAltoCSVTierCondition(t *testing.T) {

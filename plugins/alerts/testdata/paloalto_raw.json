@@ -1339,6 +1339,83 @@
     }
   },
   {
+    "name": "cef-header-empty-version",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw CEF:0|Palo Alto Networks|PAN-OS||auth|SYSTEM|3|deviceExternalId=SYNTH-FW cs3Label=Virtual System cs3=vsys1 cat=auth-fail msg=failed authentication for user 'testuser'.  Reason: invalid. From: 192.0.2.25. dvchost=synthetic-fw",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "origin.user": "testuser",
+      "target.host": "synthetic-fw",
+      "actionResult": "failure",
+      "log.paType": "SYSTEM",
+      "log.paSenderSwVersion": "",
+      "log.paSubtype": "auth",
+      "log.severityLabel": "3"
+    },
+    "matches": [
+      "panos_admin_brute_force"
+    ],
+    "absent": [],
+    "alertSides": {
+      "panos_admin_brute_force": [
+        "192.0.2.25",
+        ""
+      ]
+    }
+  },
+  {
+    "name": "cef-header-empty-signature",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw CEF:0|Palo Alto Networks|PAN-OS|10.0||SYSTEM|3|deviceExternalId=SYNTH-FW cs3Label=Virtual System cs3=vsys1 cat=auth-fail msg=failed authentication for user 'testuser'.  Reason: invalid. From: 192.0.2.25. dvchost=synthetic-fw",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "origin.user": "testuser",
+      "target.host": "synthetic-fw",
+      "actionResult": "failure",
+      "log.paType": "SYSTEM",
+      "log.paSenderSwVersion": "10.0",
+      "log.paCefSignature": "",
+      "log.severityLabel": "3"
+    },
+    "matches": [
+      "panos_admin_brute_force"
+    ],
+    "absent": [
+      "log.paSubtype"
+    ],
+    "alertSides": {
+      "panos_admin_brute_force": [
+        "192.0.2.25",
+        ""
+      ]
+    }
+  },
+  {
+    "name": "cef-header-empty-severity",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw CEF:0|Palo Alto Networks|PAN-OS|10.0|auth|SYSTEM||deviceExternalId=SYNTH-FW cs3Label=Virtual System cs3=vsys1 cat=auth-fail msg=failed authentication for user 'testuser'.  Reason: invalid. From: 192.0.2.25. dvchost=synthetic-fw",
+    "expected": {
+      "origin.ip": "192.0.2.25",
+      "origin.user": "testuser",
+      "target.host": "synthetic-fw",
+      "actionResult": "failure",
+      "log.paType": "SYSTEM",
+      "log.paSenderSwVersion": "10.0",
+      "log.paSubtype": "auth",
+      "log.severityLabel": ""
+    },
+    "matches": [
+      "panos_admin_brute_force"
+    ],
+    "absent": [],
+    "alertSides": {
+      "panos_admin_brute_force": [
+        "192.0.2.25",
+        ""
+      ]
+    }
+  },
+  {
     "name": "cef-config-admin-is-origin",
     "dataSource": "synthetic-collector",
     "raw": "CEF:0|Palo Alto Networks|PAN-OS|10.0|Succeeded|CONFIG|1|deviceExternalId=SYNTH-FW cs3Label=Virtual System cs3=vsys1 shost=192.0.2.25 act=commit duser=testadmin dvchost=synthetic-fw msg=/config/devices/entry",

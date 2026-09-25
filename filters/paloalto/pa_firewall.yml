@@ -1,4 +1,4 @@
-# Palo Alto Firewall, version 3.1.1
+# Palo Alto Firewall, version 3.1.2
 # Palo Alto PAN-OS CSV and documented PAN-OS 10.0 CEF templates.
 # Checked with the public EventProcessor 8a3ade7 parser plugins; exercise real export profiles before rollout.
 # The prior seven-field LEEF-labelled compatibility dialect is retained.
@@ -81,23 +81,25 @@ pipeline:
       - fieldName: log.paCefPrefix
         pattern: ^(?:CEF|LEEF):[0-9]+\|Palo Alto Networks\|PAN-OS\|
       - fieldName: log.paSenderSwVersion
-        pattern: (?:\\.|[^|\\])*
-      - fieldName: log.paSep1
-        pattern: \|
+        pattern: (?:\\.|[^|\\])*\|
       - fieldName: log.paCefSignature
-        pattern: (?:\\.|[^|\\])*
-      - fieldName: log.paSep2
-        pattern: \|
+        pattern: (?:\\.|[^|\\])*\|
       - fieldName: log.paType
         pattern: '[A-Z][A-Z0-9-]*'
       - fieldName: log.paSep3
         pattern: \|
       - fieldName: log.severityLabel
-        pattern: '[^|]*'
-      - fieldName: log.paSep4
-        pattern: \|
+        pattern: '[^|]*\|'
       - fieldName: log.paCefExtensions
         pattern: .*$
+      where: oneOf("log.paFormat", ["CEF", "LEEF-legacy"])
+  - trim:
+      function: suffix
+      substring: '|'
+      fields:
+      - log.paSenderSwVersion
+      - log.paCefSignature
+      - log.severityLabel
       where: oneOf("log.paFormat", ["CEF", "LEEF-legacy"])
   - grok:
       source: log.paCefExtensions
@@ -9276,10 +9278,7 @@ pipeline:
       - log.paEnvelope
       - log.paPayload
       - log.paCefPrefix
-      - log.paSep1
-      - log.paSep2
       - log.paSep3
-      - log.paSep4
       - log.paCefExtensions
       - log.paIgnored
       - log.paSuffix
