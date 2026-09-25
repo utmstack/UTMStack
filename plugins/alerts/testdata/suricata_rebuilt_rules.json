@@ -1,0 +1,225 @@
+[
+  {
+    "name": "dns-v2-null-query",
+    "rule": "nids/suricata/dns_tunneling_detection.yml",
+    "raw": "{\"timestamp\":\"2026-09-24T10:00:00.000000+0000\",\"flow_id\":1234567890123,\"in_iface\":\"eth0\",\"event_type\":\"dns\",\"src_ip\":\"192.0.2.10\",\"dest_ip\":\"198.51.100.53\",\"proto\":\"UDP\",\"src_port\":53000,\"dest_port\":53,\"app_proto\":\"dns\",\"dns\":{\"type\":\"query\",\"id\":4242,\"rrname\":\"0abc.t.tunnel.example.test\",\"rrtype\":\"NULL\",\"tx_id\":0}}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "adversary.ip"
+    ]
+  },
+  {
+    "name": "dns-v2-long-name-query",
+    "rule": "nids/suricata/dns_tunneling_detection.yml",
+    "raw": "{\"timestamp\":\"2026-09-24T10:00:00.000000+0000\",\"flow_id\":1234567890123,\"in_iface\":\"eth0\",\"event_type\":\"dns\",\"src_ip\":\"192.0.2.10\",\"dest_ip\":\"198.51.100.53\",\"proto\":\"UDP\",\"src_port\":53000,\"dest_port\":53,\"app_proto\":\"dns\",\"dns\":{\"type\":\"query\",\"id\":4242,\"rrname\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa0123456789abcdef0123456789abcd.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa0123456789abcdef0123456789abcd.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa0123456789abcdef0123456789abcd.t.tunnel.example.test\",\"rrtype\":\"A\",\"tx_id\":0}}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "adversary.ip"
+    ]
+  },
+  {
+    "name": "dns-v3-long-name-request",
+    "rule": "nids/suricata/dns_tunneling_detection.yml",
+    "raw": "{\"timestamp\":\"2026-09-24T10:00:00.000000+0000\",\"flow_id\":1234567890123,\"in_iface\":\"eth0\",\"event_type\":\"dns\",\"src_ip\":\"192.0.2.10\",\"dest_ip\":\"198.51.100.53\",\"proto\":\"UDP\",\"src_port\":53000,\"dest_port\":53,\"app_proto\":\"dns\",\"dns\":{\"version\":3,\"type\":\"request\",\"id\":4242,\"queries\":[{\"rrname\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa0123456789abcdef0123456789abcd.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa0123456789abcdef0123456789abcd.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa0123456789abcdef0123456789abcd.t.tunnel.example.test\",\"rrtype\":\"TXT\"}]}}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "adversary.ip"
+    ]
+  },
+  {
+    "name": "dns-v3-null-request",
+    "rule": "nids/suricata/dns_tunneling_detection.yml",
+    "raw": "{\"timestamp\":\"2026-09-24T10:00:00.000000+0000\",\"flow_id\":1234567890123,\"in_iface\":\"eth0\",\"event_type\":\"dns\",\"src_ip\":\"192.0.2.10\",\"dest_ip\":\"198.51.100.53\",\"proto\":\"UDP\",\"src_port\":53000,\"dest_port\":53,\"app_proto\":\"dns\",\"dns\":{\"version\":3,\"type\":\"request\",\"id\":4242,\"queries\":[{\"rrname\":\"0abc.t.tunnel.example.test\",\"rrtype\":\"NULL\"}]}}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "adversary.ip"
+    ]
+  },
+  {
+    "name": "dns-v2-normal-query",
+    "rule": "nids/suricata/dns_tunneling_detection.yml",
+    "raw": "{\"timestamp\":\"2026-09-24T10:00:00.000000+0000\",\"flow_id\":1234567890123,\"in_iface\":\"eth0\",\"event_type\":\"dns\",\"src_ip\":\"192.0.2.10\",\"dest_ip\":\"198.51.100.53\",\"proto\":\"UDP\",\"src_port\":53000,\"dest_port\":53,\"app_proto\":\"dns\",\"dns\":{\"type\":\"query\",\"id\":4242,\"rrname\":\"www.example.test\",\"rrtype\":\"A\",\"tx_id\":0}}",
+    "match": false
+  },
+  {
+    "name": "dns-v2-short-txt-lookup",
+    "rule": "nids/suricata/dns_tunneling_detection.yml",
+    "raw": "{\"timestamp\":\"2026-09-24T10:00:00.000000+0000\",\"flow_id\":1234567890123,\"in_iface\":\"eth0\",\"event_type\":\"dns\",\"src_ip\":\"192.0.2.10\",\"dest_ip\":\"198.51.100.53\",\"proto\":\"UDP\",\"src_port\":53000,\"dest_port\":53,\"app_proto\":\"dns\",\"dns\":{\"type\":\"query\",\"id\":4242,\"rrname\":\"example.test\",\"rrtype\":\"TXT\",\"tx_id\":0}}",
+    "match": false
+  },
+  {
+    "name": "dns-v2-hashed-reputation-lookup",
+    "rule": "nids/suricata/dns_tunneling_detection.yml",
+    "raw": "{\"timestamp\":\"2026-09-24T10:00:00.000000+0000\",\"flow_id\":1234567890123,\"in_iface\":\"eth0\",\"event_type\":\"dns\",\"src_ip\":\"192.0.2.10\",\"dest_ip\":\"198.51.100.53\",\"proto\":\"UDP\",\"src_port\":53000,\"dest_port\":53,\"app_proto\":\"dns\",\"dns\":{\"type\":\"query\",\"id\":4242,\"rrname\":\"0123456789abcdef0123456789abcdef.sxl.av-vendor.example.test\",\"rrtype\":\"A\",\"tx_id\":0}}",
+    "match": false
+  },
+  {
+    "name": "dns-v2-long-label-short-name",
+    "rule": "nids/suricata/dns_tunneling_detection.yml",
+    "raw": "{\"timestamp\":\"2026-09-24T10:00:00.000000+0000\",\"flow_id\":1234567890123,\"in_iface\":\"eth0\",\"event_type\":\"dns\",\"src_ip\":\"192.0.2.10\",\"dest_ip\":\"198.51.100.53\",\"proto\":\"UDP\",\"src_port\":53000,\"dest_port\":53,\"app_proto\":\"dns\",\"dns\":{\"type\":\"query\",\"id\":4242,\"rrname\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.example.test\",\"rrtype\":\"A\",\"tx_id\":0}}",
+    "match": false
+  },
+  {
+    "name": "dns-v2-answer-is-not-a-request",
+    "rule": "nids/suricata/dns_tunneling_detection.yml",
+    "raw": "{\"timestamp\":\"2026-09-24T10:00:00.000000+0000\",\"flow_id\":1234567890123,\"in_iface\":\"eth0\",\"event_type\":\"dns\",\"src_ip\":\"192.0.2.10\",\"dest_ip\":\"198.51.100.53\",\"proto\":\"UDP\",\"src_port\":53000,\"dest_port\":53,\"app_proto\":\"dns\",\"dns\":{\"type\":\"answer\",\"id\":4242,\"rrname\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa0123456789abcdef0123456789abcd.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa0123456789abcdef0123456789abcd.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa0123456789abcdef0123456789abcd.t.tunnel.example.test\",\"rrtype\":\"A\",\"tx_id\":0}}",
+    "match": false
+  },
+  {
+    "name": "dns-v3-response-is-not-a-request",
+    "rule": "nids/suricata/dns_tunneling_detection.yml",
+    "raw": "{\"timestamp\":\"2026-09-24T10:00:00.000000+0000\",\"flow_id\":1234567890123,\"in_iface\":\"eth0\",\"event_type\":\"dns\",\"src_ip\":\"192.0.2.10\",\"dest_ip\":\"198.51.100.53\",\"proto\":\"UDP\",\"src_port\":53000,\"dest_port\":53,\"app_proto\":\"dns\",\"dns\":{\"version\":3,\"type\":\"response\",\"id\":4242,\"queries\":[{\"rrname\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa0123456789abcdef0123456789abcd.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa0123456789abcdef0123456789abcd.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa0123456789abcdef0123456789abcd.t.tunnel.example.test\",\"rrtype\":\"A\"}]}}",
+    "match": false
+  },
+  {
+    "name": "dns-object-inside-alert-record",
+    "rule": "nids/suricata/dns_tunneling_detection.yml",
+    "raw": "{\"timestamp\":\"2026-09-24T10:00:00.000000+0000\",\"flow_id\":1234567890123,\"in_iface\":\"eth0\",\"event_type\":\"alert\",\"src_ip\":\"192.0.2.10\",\"dest_ip\":\"198.51.100.53\",\"proto\":\"UDP\",\"src_port\":53000,\"dest_port\":53,\"app_proto\":\"dns\",\"dns\":{\"type\":\"query\",\"id\":4242,\"rrname\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa0123456789abcdef0123456789abcd.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa0123456789abcdef0123456789abcd.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa0123456789abcdef0123456789abcd.t.tunnel.example.test\",\"rrtype\":\"A\",\"tx_id\":0}}",
+    "match": false
+  },
+  {
+    "name": "icmp-echo-large-both-ways",
+    "rule": "nids/suricata/icmp_tunneling_detection.yml",
+    "raw": "{\"timestamp\":\"2026-09-24T10:00:00.000000+0000\",\"flow_id\":1234567890123,\"in_iface\":\"eth0\",\"event_type\":\"flow\",\"src_ip\":\"192.0.2.10\",\"dest_ip\":\"203.0.113.7\",\"proto\":\"ICMP\",\"icmp_type\":8,\"icmp_code\":0,\"flow\":{\"pkts_toserver\":50,\"pkts_toclient\":50,\"bytes_toserver\":52100,\"bytes_toclient\":52100,\"start\":\"2026-09-24T10:00:00.000000+0000\",\"end\":\"2026-09-24T10:00:00.000000+0000\",\"age\":60,\"state\":\"established\",\"reason\":\"timeout\",\"alerted\":false},\"response_icmp_type\":0,\"response_icmp_code\":0}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "adversary.ip",
+      "target.ip"
+    ]
+  },
+  {
+    "name": "icmp-echo-large-replies-only",
+    "rule": "nids/suricata/icmp_tunneling_detection.yml",
+    "raw": "{\"timestamp\":\"2026-09-24T10:00:00.000000+0000\",\"flow_id\":1234567890123,\"in_iface\":\"eth0\",\"event_type\":\"flow\",\"src_ip\":\"192.0.2.10\",\"dest_ip\":\"203.0.113.7\",\"proto\":\"ICMP\",\"icmp_type\":8,\"icmp_code\":0,\"flow\":{\"pkts_toserver\":20,\"pkts_toclient\":20,\"bytes_toserver\":1960,\"bytes_toclient\":20000,\"start\":\"2026-09-24T10:00:00.000000+0000\",\"end\":\"2026-09-24T10:00:00.000000+0000\",\"age\":60,\"state\":\"established\",\"reason\":\"timeout\",\"alerted\":false},\"response_icmp_type\":0,\"response_icmp_code\":0}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "adversary.ip",
+      "target.ip"
+    ]
+  },
+  {
+    "name": "icmpv6-echo-large",
+    "rule": "nids/suricata/icmp_tunneling_detection.yml",
+    "raw": "{\"timestamp\":\"2026-09-24T10:00:00.000000+0000\",\"flow_id\":1234567890123,\"in_iface\":\"eth0\",\"event_type\":\"flow\",\"src_ip\":\"192.0.2.10\",\"dest_ip\":\"203.0.113.7\",\"proto\":\"IPv6-ICMP\",\"icmp_type\":128,\"icmp_code\":0,\"flow\":{\"pkts_toserver\":30,\"pkts_toclient\":30,\"bytes_toserver\":36000,\"bytes_toclient\":36000,\"start\":\"2026-09-24T10:00:00.000000+0000\",\"end\":\"2026-09-24T10:00:00.000000+0000\",\"age\":60,\"state\":\"established\",\"reason\":\"timeout\",\"alerted\":false},\"response_icmp_type\":129,\"response_icmp_code\":0}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "adversary.ip",
+      "target.ip"
+    ]
+  },
+  {
+    "name": "icmp-short-ping",
+    "rule": "nids/suricata/icmp_tunneling_detection.yml",
+    "raw": "{\"timestamp\":\"2026-09-24T10:00:00.000000+0000\",\"flow_id\":1234567890123,\"in_iface\":\"eth0\",\"event_type\":\"flow\",\"src_ip\":\"192.0.2.10\",\"dest_ip\":\"203.0.113.7\",\"proto\":\"ICMP\",\"icmp_type\":8,\"icmp_code\":0,\"flow\":{\"pkts_toserver\":4,\"pkts_toclient\":4,\"bytes_toserver\":392,\"bytes_toclient\":392,\"start\":\"2026-09-24T10:00:00.000000+0000\",\"end\":\"2026-09-24T10:00:00.000000+0000\",\"age\":60,\"state\":\"established\",\"reason\":\"timeout\",\"alerted\":false},\"response_icmp_type\":0,\"response_icmp_code\":0}",
+    "match": false
+  },
+  {
+    "name": "icmp-long-normal-ping",
+    "rule": "nids/suricata/icmp_tunneling_detection.yml",
+    "raw": "{\"timestamp\":\"2026-09-24T10:00:00.000000+0000\",\"flow_id\":1234567890123,\"in_iface\":\"eth0\",\"event_type\":\"flow\",\"src_ip\":\"192.0.2.10\",\"dest_ip\":\"203.0.113.7\",\"proto\":\"ICMP\",\"icmp_type\":8,\"icmp_code\":0,\"flow\":{\"pkts_toserver\":100,\"pkts_toclient\":100,\"bytes_toserver\":9800,\"bytes_toclient\":9800,\"start\":\"2026-09-24T10:00:00.000000+0000\",\"end\":\"2026-09-24T10:00:00.000000+0000\",\"age\":60,\"state\":\"established\",\"reason\":\"timeout\",\"alerted\":false},\"response_icmp_type\":0,\"response_icmp_code\":0}",
+    "match": false
+  },
+  {
+    "name": "icmp-unreachable-with-quoted-packets",
+    "rule": "nids/suricata/icmp_tunneling_detection.yml",
+    "raw": "{\"timestamp\":\"2026-09-24T10:00:00.000000+0000\",\"flow_id\":1234567890123,\"in_iface\":\"eth0\",\"event_type\":\"flow\",\"src_ip\":\"192.0.2.10\",\"dest_ip\":\"203.0.113.7\",\"proto\":\"ICMP\",\"icmp_type\":3,\"icmp_code\":0,\"flow\":{\"pkts_toserver\":20,\"pkts_toclient\":0,\"bytes_toserver\":12000,\"bytes_toclient\":0,\"start\":\"2026-09-24T10:00:00.000000+0000\",\"end\":\"2026-09-24T10:00:00.000000+0000\",\"age\":60,\"state\":\"established\",\"reason\":\"timeout\",\"alerted\":false}}",
+    "match": false
+  },
+  {
+    "name": "icmp-echo-no-replies-small",
+    "rule": "nids/suricata/icmp_tunneling_detection.yml",
+    "raw": "{\"timestamp\":\"2026-09-24T10:00:00.000000+0000\",\"flow_id\":1234567890123,\"in_iface\":\"eth0\",\"event_type\":\"flow\",\"src_ip\":\"192.0.2.10\",\"dest_ip\":\"203.0.113.7\",\"proto\":\"ICMP\",\"icmp_type\":8,\"icmp_code\":0,\"flow\":{\"pkts_toserver\":10,\"pkts_toclient\":0,\"bytes_toserver\":980,\"bytes_toclient\":0,\"start\":\"2026-09-24T10:00:00.000000+0000\",\"end\":\"2026-09-24T10:00:00.000000+0000\",\"age\":60,\"state\":\"established\",\"reason\":\"timeout\",\"alerted\":false},\"response_icmp_type\":0,\"response_icmp_code\":0}",
+    "match": false
+  },
+  {
+    "name": "icmp-large-counters-on-alert-record",
+    "rule": "nids/suricata/icmp_tunneling_detection.yml",
+    "raw": "{\"timestamp\":\"2026-09-24T10:00:00.000000+0000\",\"flow_id\":1234567890123,\"in_iface\":\"eth0\",\"event_type\":\"alert\",\"src_ip\":\"192.0.2.10\",\"dest_ip\":\"203.0.113.7\",\"proto\":\"ICMP\",\"icmp_type\":8,\"icmp_code\":0,\"flow\":{\"pkts_toserver\":50,\"pkts_toclient\":50,\"bytes_toserver\":52100,\"bytes_toclient\":52100,\"start\":\"2026-09-24T10:00:00.000000+0000\",\"end\":\"2026-09-24T10:00:00.000000+0000\",\"age\":60,\"state\":\"established\",\"reason\":\"timeout\",\"alerted\":false},\"response_icmp_type\":0,\"response_icmp_code\":0}",
+    "match": false
+  },
+  {
+    "name": "tcp-flow-large",
+    "rule": "nids/suricata/icmp_tunneling_detection.yml",
+    "raw": "{\"timestamp\":\"2026-09-24T10:00:00.000000+0000\",\"flow_id\":1234567890123,\"in_iface\":\"eth0\",\"event_type\":\"flow\",\"src_ip\":\"192.0.2.10\",\"dest_ip\":\"203.0.113.7\",\"proto\":\"TCP\",\"src_port\":50000,\"dest_port\":443,\"flow\":{\"pkts_toserver\":50,\"pkts_toclient\":50,\"bytes_toserver\":60000,\"bytes_toclient\":60000}}",
+    "match": false
+  },
+  {
+    "name": "ti-cins-reply-to-internal-host",
+    "rule": "nids/suricata/threat_intelligence_iocs.yml",
+    "raw": "{\"timestamp\":\"2026-09-24T10:00:00.000000+0000\",\"flow_id\":1234567890123,\"in_iface\":\"eth0\",\"event_type\":\"alert\",\"src_ip\":\"203.0.113.66\",\"dest_ip\":\"192.0.2.10\",\"proto\":\"TCP\",\"src_port\":443,\"dest_port\":51000,\"alert\":{\"action\":\"allowed\",\"gid\":1,\"signature_id\":2403300,\"rev\":1,\"signature\":\"ET CINS Active Threat Intelligence Poor Reputation IP group 1\",\"category\":\"Misc Attack\",\"severity\":2},\"flow\":{\"pkts_toserver\":3,\"pkts_toclient\":2,\"bytes_toserver\":300,\"bytes_toclient\":200,\"start\":\"2026-09-24T10:00:00.000000+0000\",\"src_ip\":\"192.0.2.10\",\"dest_ip\":\"203.0.113.66\"},\"direction\":\"to_client\"}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "adversary.ip",
+      "target.ip",
+      "lastEvent.log.alert.signature_id"
+    ]
+  },
+  {
+    "name": "ti-cins-inbound-scan",
+    "rule": "nids/suricata/threat_intelligence_iocs.yml",
+    "raw": "{\"timestamp\":\"2026-09-24T10:00:00.000000+0000\",\"flow_id\":1234567890123,\"in_iface\":\"eth0\",\"event_type\":\"alert\",\"src_ip\":\"203.0.113.66\",\"dest_ip\":\"192.0.2.10\",\"proto\":\"TCP\",\"src_port\":51000,\"dest_port\":22,\"alert\":{\"action\":\"allowed\",\"gid\":1,\"signature_id\":2403300,\"rev\":1,\"signature\":\"ET CINS Active Threat Intelligence Poor Reputation IP group 1\",\"category\":\"Misc Attack\",\"severity\":2},\"flow\":{\"pkts_toserver\":3,\"pkts_toclient\":2,\"bytes_toserver\":300,\"bytes_toclient\":200,\"start\":\"2026-09-24T10:00:00.000000+0000\",\"src_ip\":\"203.0.113.66\",\"dest_ip\":\"192.0.2.10\"},\"direction\":\"to_server\"}",
+    "match": false
+  },
+  {
+    "name": "ti-drop-reply-to-internal-host",
+    "rule": "nids/suricata/threat_intelligence_iocs.yml",
+    "raw": "{\"timestamp\":\"2026-09-24T10:00:00.000000+0000\",\"flow_id\":1234567890123,\"in_iface\":\"eth0\",\"event_type\":\"alert\",\"src_ip\":\"203.0.113.66\",\"dest_ip\":\"192.0.2.10\",\"proto\":\"TCP\",\"src_port\":443,\"dest_port\":51000,\"alert\":{\"action\":\"allowed\",\"gid\":1,\"signature_id\":2400011,\"rev\":1,\"signature\":\"ET DROP Spamhaus DROP Listed Traffic Inbound group 12\",\"category\":\"Misc Attack\",\"severity\":2},\"flow\":{\"pkts_toserver\":3,\"pkts_toclient\":2,\"bytes_toserver\":300,\"bytes_toclient\":200,\"start\":\"2026-09-24T10:00:00.000000+0000\",\"src_ip\":\"192.0.2.10\",\"dest_ip\":\"203.0.113.66\"},\"direction\":\"to_client\"}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "adversary.ip",
+      "target.ip",
+      "lastEvent.log.alert.signature_id"
+    ]
+  },
+  {
+    "name": "ti-compromised-inbound",
+    "rule": "nids/suricata/threat_intelligence_iocs.yml",
+    "raw": "{\"timestamp\":\"2026-09-24T10:00:00.000000+0000\",\"flow_id\":1234567890123,\"in_iface\":\"eth0\",\"event_type\":\"alert\",\"src_ip\":\"203.0.113.66\",\"dest_ip\":\"192.0.2.10\",\"proto\":\"TCP\",\"src_port\":51000,\"dest_port\":3389,\"alert\":{\"action\":\"allowed\",\"gid\":1,\"signature_id\":2500012,\"rev\":1,\"signature\":\"ET COMPROMISED Known Compromised or Hostile Host Traffic group 7\",\"category\":\"Misc Attack\",\"severity\":2},\"flow\":{\"pkts_toserver\":3,\"pkts_toclient\":2,\"bytes_toserver\":300,\"bytes_toclient\":200,\"start\":\"2026-09-24T10:00:00.000000+0000\",\"src_ip\":\"203.0.113.66\",\"dest_ip\":\"192.0.2.10\"},\"direction\":\"to_server\"}",
+    "match": false
+  },
+  {
+    "name": "ti-3coresec-reply-blocked",
+    "rule": "nids/suricata/threat_intelligence_iocs.yml",
+    "raw": "{\"timestamp\":\"2026-09-24T10:00:00.000000+0000\",\"flow_id\":1234567890123,\"in_iface\":\"eth0\",\"event_type\":\"alert\",\"src_ip\":\"203.0.113.66\",\"dest_ip\":\"192.0.2.10\",\"proto\":\"TCP\",\"src_port\":443,\"dest_port\":51000,\"alert\":{\"action\":\"blocked\",\"gid\":1,\"signature_id\":2525002,\"rev\":1,\"signature\":\"ET 3CORESec Poor Reputation IP TCP group 3\",\"category\":\"Misc Attack\",\"severity\":2},\"flow\":{\"pkts_toserver\":3,\"pkts_toclient\":2,\"bytes_toserver\":300,\"bytes_toclient\":200,\"start\":\"2026-09-24T10:00:00.000000+0000\",\"src_ip\":\"192.0.2.10\",\"dest_ip\":\"203.0.113.66\"},\"direction\":\"to_client\"}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "adversary.ip",
+      "target.ip",
+      "lastEvent.log.alert.signature_id"
+    ]
+  },
+  {
+    "name": "ti-c2-domain-lookup",
+    "rule": "nids/suricata/threat_intelligence_iocs.yml",
+    "raw": "{\"timestamp\":\"2026-09-24T10:00:00.000000+0000\",\"flow_id\":1234567890123,\"in_iface\":\"eth0\",\"event_type\":\"alert\",\"src_ip\":\"192.0.2.10\",\"dest_ip\":\"198.51.100.53\",\"proto\":\"TCP\",\"src_port\":53000,\"dest_port\":53,\"alert\":{\"action\":\"allowed\",\"gid\":1,\"signature_id\":2999001,\"rev\":1,\"signature\":\"ET MALWARE Observed DNS Query to Known Malicious Domain (bad.example.test)\",\"category\":\"Domain Observed Used for C2 Detected\",\"severity\":1},\"flow\":{\"pkts_toserver\":3,\"pkts_toclient\":2,\"bytes_toserver\":300,\"bytes_toclient\":200,\"start\":\"2026-09-24T10:00:00.000000+0000\",\"src_ip\":\"192.0.2.10\",\"dest_ip\":\"198.51.100.53\"},\"direction\":\"to_server\"}",
+    "match": true,
+    "deduplicateKeys": [
+      "dataSource",
+      "adversary.ip",
+      "target.ip",
+      "lastEvent.log.alert.signature_id"
+    ]
+  },
+  {
+    "name": "ti-generic-trojan-alert",
+    "rule": "nids/suricata/threat_intelligence_iocs.yml",
+    "raw": "{\"timestamp\":\"2026-09-24T10:00:00.000000+0000\",\"flow_id\":1234567890123,\"in_iface\":\"eth0\",\"event_type\":\"alert\",\"src_ip\":\"192.0.2.10\",\"dest_ip\":\"203.0.113.9\",\"proto\":\"TCP\",\"src_port\":51000,\"dest_port\":80,\"alert\":{\"action\":\"allowed\",\"gid\":1,\"signature_id\":2999002,\"rev\":1,\"signature\":\"ET MALWARE Example Trojan Checkin\",\"category\":\"A Network Trojan was detected\",\"severity\":1},\"flow\":{\"pkts_toserver\":3,\"pkts_toclient\":2,\"bytes_toserver\":300,\"bytes_toclient\":200,\"start\":\"2026-09-24T10:00:00.000000+0000\",\"src_ip\":\"192.0.2.10\",\"dest_ip\":\"203.0.113.9\"},\"direction\":\"to_server\"}",
+    "match": false
+  },
+  {
+    "name": "ti-reputation-without-direction",
+    "rule": "nids/suricata/threat_intelligence_iocs.yml",
+    "raw": "{\"timestamp\":\"2026-09-24T10:00:00.000000+0000\",\"flow_id\":1234567890123,\"in_iface\":\"eth0\",\"event_type\":\"alert\",\"src_ip\":\"203.0.113.66\",\"dest_ip\":\"192.0.2.10\",\"proto\":\"TCP\",\"src_port\":443,\"dest_port\":51000,\"alert\":{\"action\":\"allowed\",\"gid\":1,\"signature_id\":2403300,\"rev\":1,\"signature\":\"ET CINS Active Threat Intelligence Poor Reputation IP group 1\",\"category\":\"Misc Attack\",\"severity\":2},\"flow\":{\"pkts_toserver\":3,\"pkts_toclient\":2,\"bytes_toserver\":300,\"bytes_toclient\":200,\"start\":\"2026-09-24T10:00:00.000000+0000\",\"src_ip\":\"203.0.113.66\",\"dest_ip\":\"192.0.2.10\"}}",
+    "match": false
+  }
+]

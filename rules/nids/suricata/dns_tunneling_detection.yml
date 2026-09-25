@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v2.0.0
 
 dataTypes:
   - suricata
@@ -13,9 +13,12 @@ adversary: origin
 references:
   - https://attack.mitre.org/techniques/T1071/004/
   - https://www.sans.org/reading-room/whitepapers/dns/detecting-dns-tunneling-34152
+  - https://docs.suricata.io/en/latest/output/eve/eve-json-format.html
 description: |
-  Detects potential DNS tunneling activity based on abnormal DNS query patterns, including unusually long domain names, high frequency of DNS requests, or suspicious TXT record queries. DNS tunneling is a technique used by attackers to exfiltrate data or establish command and control channels by encoding data within DNS queries and responses.
-  
+  Detects potential DNS tunneling activity based on abnormal DNS query patterns: NULL-type queries and unusually long query names built from long labels. DNS tunneling is a technique used by attackers to exfiltrate data or establish command and control channels by encoding data within DNS queries and responses.
+
+  The rule reads Suricata DNS request records, both the version 2 format (dns.type "query", with dns.rrname and dns.rrtype) and the version 3 format of Suricata 8 (dns.type "request", with a dns.queries list). Tunnelling tools such as iodine send NULL queries, which normal software almost never does, and fill names close to the 253-character limit. A name matches when it has at least 100 characters and a label of at least 40; shorter hashed names, such as antivirus reputation lookups, stay below that.
+
   Next Steps:
   1. Analyze the DNS queries to identify the specific domains and query types involved
   2. Check the frequency and volume of DNS requests from the source IP
@@ -24,23 +27,15 @@ description: |
   5. Block suspicious domains at the DNS level if confirmed malicious
   6. Monitor the source host for other indicators of compromise
 where: |
-  equals("log.protocol", "DNS") && (
-    greaterThan("log.query_length", 50) ||
-    equals("log.query_type", "TXT") ||
-    greaterThan("log.subdomain_levels", 4) ||
-    greaterThan("log.entropy", 4.5)
+  equals("log.eventType", "dns") &&
+  (
+    (equals("log.dns.type", "query") &&
+     (equals("log.dns.rrtype", "NULL") ||
+      (regexMatch("log.dns.rrname", "^.{100,}$") && regexMatch("log.dns.rrname", "[^.]{40,}")))) ||
+    (equals("log.dns.type", "request") &&
+     (equals("log.dns.queries.0.rrtype", "NULL") ||
+      (regexMatch("log.dns.queries.0.rrname", "^.{100,}$") && regexMatch("log.dns.queries.0.rrname", "[^.]{40,}"))))
   )
-afterEvents:
-  - indexPattern: v11-log-suricata-*
-    with:
-      - field: origin.ip
-        operator: filter_term
-        value: '{{.origin.ip}}'
-      - field: log.protocol
-        operator: filter_term
-        value: 'DNS'
-    within: 5m
-    count: 50
-groupBy:
+deduplicateBy:
+  - dataSource
   - adversary.ip
-  - target.domain

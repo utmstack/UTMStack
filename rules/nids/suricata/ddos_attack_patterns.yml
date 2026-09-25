@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.0.1
 
 dataTypes:
   - suricata
@@ -42,7 +42,7 @@ where: |
      greaterThan("log.flow.pkts_toserver", 500) &&
      lessThan("log.flow.duration", 5)) ||
     (equals("target.port", 123) &&
-     safe("log.flow.bytes_toclient", 0) > safe("log.flow.bytes_toserver", 0) * 10)
+     safe("log.flow.bytes_toclient", 0.0) > safe("log.flow.bytes_toserver", 0.0) * 10.0)
   )
 afterEvents:
   - indexPattern: v11-log-suricata-*
