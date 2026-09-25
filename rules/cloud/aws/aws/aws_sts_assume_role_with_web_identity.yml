@@ -1,0 +1,25 @@
+# Rule contract revision 2026-09-25; SDK v1.1.36 (gap-fill set).
+dataTypes:
+- aws
+name: AWS AssumeRole With Web Identity (CI or Kubernetes Token)
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Credential Access
+technique: T1550.001 - Use Application Access Token
+adversary: origin
+description: Identifies AssumeRoleWithWebIdentity, a technique where a forged or leaked Kubernetes service-account or CI OIDC token is used to assume an IAM role.
+references:
+- https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRoleWithWebIdentity.html
+where: |
+  equals("log.awsRecordType","cloudtrail") &&
+  (equals("log.eventSource", "sts.amazonaws.com") &&
+  equals("log.eventName", "AssumeRoleWithWebIdentity") &&
+  equals("actionResult","success"))
+groupBy:
+- lastEvent.dataSource
+- lastEvent.log.awsAccountKeyType
+- lastEvent.log.awsAccountKey
+- adversary.ip
+- adversary.user

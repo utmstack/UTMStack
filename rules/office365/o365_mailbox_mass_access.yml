@@ -1,0 +1,27 @@
+# Rule version v1.0.0 (gap-fill set, 2026-09-25)
+
+dataTypes:
+  - o365
+name: Microsoft 365 Mailbox Mass Item Access
+impact:
+  confidentiality: 3
+  integrity: 1
+  availability: 1
+category: Collection
+technique: "T1114.003 - Email Collection from Remote System"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/microsoft-365/compliance/audit-logs-in-the-purview-compliance-portal
+description: |
+  Detects high-volume MailItemsAccessed records, which Microsoft only logs at elevated volume. A spike indicates automated mailbox scraping for bulk collection or exfiltration.
+
+  Next Steps:
+  1. Identify the accessing identity and application
+  2. Correlate with MailboxLogin and sign-in location
+  3. Review for subsequent export or sharing
+  4. Block the access and reset credentials if compromise is confirmed
+where: |
+  equals("action", "MailItemsAccessed") && equals("actionResult", "success")
+groupBy:
+  - adversary.user
+  - lastEvent.log.Parameters

@@ -352,7 +352,7 @@ func TestAWSRawContracts(t *testing.T) {
 	cfg, rules, cache := awsConfig(t), awsRules(t), plugins.NewCELCache("aws-raw")
 	positive := map[string]int{}
 	negative := map[string]int{}
-	if len(rules) != 73 {
+	if len(rules) != 82 {
 		t.Fatalf("rules: %d", len(rules))
 	}
 	for _, f := range awsFixtures(t) {
