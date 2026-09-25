@@ -764,6 +764,16 @@ var fpChangeCases = []struct {
 	{"F-A8 near miss", "113009-without-equals", "origin.user", "alice"},
 	{"F-W2", "109201-uauth", "origin.user", "alice"},
 	{"F-W2", "109201-uauth", "log.session", "0x1a2b"},
+	{"F-G1", "302003-hostname", "origin.ip", "host-b.example.com"},
+	{"F-G1", "302003-hostname", "target.ip", "198.51.100.7"},
+	{"F-G1", "302003-hostname", "log.localAddress", "host-b.example.com"},
+	{"F-G1 near miss", "302003-ip", "log.localAddress", "192.0.2.10"},
+	{"F-G1 near miss", "302004-to", "log.localAddress", "192.0.2.10"},
+	{"F-G2", "302024-mapped-no-port", "log.mappedIpFrom", "198.51.100.7"},
+	{"F-G2", "302024-mapped-no-port", "log.mappedIpTo", "203.0.113.5"},
+	{"F-G2", "302024-mapped-no-port", "log.mappedPortFrom", nil},
+	{"F-G2 near miss", "302022-mapped-port", "log.mappedIpFrom", "198.51.100.7"},
+	{"F-G2 near miss", "302022-mapped-port", "log.mappedPortFrom", "443"},
 }
 
 // Every fabricated line through the model: the named change cases, no where errors, and every
@@ -817,6 +827,38 @@ func TestCiscoFirepowerExtractionModel(t *testing.T) {
 				t.Errorf("%s: %s = %v (present %t), want %v (present %t)", name, k, g, gok, w, wok)
 			}
 		}
+	}
+}
+
+// The grok plugin trims the remaining text before each pattern and treats an empty match as no
+// match, which drops the whole step. So no pattern may prefer empty text at the start of a
+// non-empty text: each pattern, expanded as the engine does, is tried alone on texts that start
+// with every printable ASCII character and with one non-ASCII letter.
+func TestCiscoFirepowerGrokPatternsNeverMatchEmpty(t *testing.T) {
+	m := fpNewModel(t)
+	probes := []string{"é x"}
+	for c := '!'; c <= '~'; c++ {
+		probes = append(probes, string(c)+" x")
+	}
+	checked := 0
+	for i, step := range m.steps {
+		if step.Grok == nil {
+			continue
+		}
+		for j, p := range step.Grok.Patterns {
+			re := m.compile(t, p.Pattern)
+			checked++
+			for _, probe := range probes {
+				if loc := re.FindStringIndex(probe); loc != nil && loc[1] == 0 {
+					t.Errorf("step %d pattern %d (%s) %q matches empty text at the start of %q",
+						i, j, p.FieldName, p.Pattern, probe)
+					break
+				}
+			}
+		}
+	}
+	if checked == 0 {
+		t.Fatal("no grok pattern checked")
 	}
 }
 
