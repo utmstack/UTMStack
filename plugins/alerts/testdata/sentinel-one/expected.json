@@ -1,0 +1,2101 @@
+{
+  "envelopeTimestamp": "2026-09-21T17:40:00Z",
+  "cases": {
+    "admin-user-added": {
+      "logKeys": [
+        "accName",
+        "accountId",
+        "activityID",
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "ruleTime",
+        "siteId",
+        "siteName",
+        "sourceUser",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "23",
+        "cefSeverity": "1",
+        "eventDescription": "Administrative information - New user 'Example User (example.user@example.com)' added",
+        "sourceUser": "Example Admin",
+        "cat": "SystemEvent",
+        "ruleTime": "Mon, 21 Sep 2026, 13:47:01 UTC",
+        "activityID": "1000000000000000001",
+        "activityType": "23",
+        "siteId": "1000000000000000002",
+        "siteName": "Example Site Alpha",
+        "accountId": "1000000000000000003",
+        "accName": "Example Account",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "origin.user": "Example Admin",
+        "deviceTime": "2026-09-21T13:47:01Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse"
+      ],
+      "alerts": []
+    },
+    "admin-user-deleted": {
+      "logKeys": [
+        "accName",
+        "accountId",
+        "activityID",
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "ruleTime",
+        "siteId",
+        "siteName",
+        "sourceUser",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "25",
+        "cefSeverity": "1",
+        "eventDescription": "Administrative information - User 'Example User (example.user@example.com_del_0123456789abcdef0123456789abcdef)' Deleted",
+        "sourceUser": "Example Admin",
+        "cat": "SystemEvent",
+        "ruleTime": "Mon, 21 Sep 2026, 14:32:27 UTC",
+        "activityID": "1000000000000000004",
+        "activityType": "25",
+        "siteId": "1000000000000000002",
+        "siteName": "Example Site Alpha",
+        "accountId": "1000000000000000003",
+        "accName": "Example Account",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "origin.user": "Example Admin",
+        "deviceTime": "2026-09-21T14:32:27Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse"
+      ],
+      "alerts": []
+    },
+    "admin-role-assigned": {
+      "logKeys": [
+        "accName",
+        "accountId",
+        "activityID",
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "ruleTime",
+        "siteId",
+        "siteName",
+        "sourceUser",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "37",
+        "cefSeverity": "1",
+        "eventDescription": "Example Admin assigned role \"Viewer\" to user Example User (example.user@example.com)",
+        "sourceUser": "Example Admin",
+        "cat": "SystemEvent",
+        "ruleTime": "Mon, 21 Sep 2026, 17:04:41 UTC",
+        "activityID": "1000000000000000005",
+        "activityType": "37",
+        "siteId": "1000000000000000002",
+        "siteName": "Example Site Alpha",
+        "accountId": "1000000000000000003",
+        "accName": "Example Account",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "origin.user": "Example Admin",
+        "deviceTime": "2026-09-21T17:04:41Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse"
+      ],
+      "alerts": []
+    },
+    "header-bsd": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "ruleTime",
+        "sourceUser"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "23",
+        "cefSeverity": "1",
+        "eventDescription": "Administrative information - New user added",
+        "sourceUser": "Example Admin",
+        "cat": "SystemEvent",
+        "ruleTime": "Mon, 21 Sep 2026, 17:34:42 UTC",
+        "activityType": "23",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "origin.user": "Example Admin",
+        "deviceTime": "2026-09-21T17:34:42Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse"
+      ],
+      "alerts": []
+    },
+    "header-none": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "sourceUser"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "23",
+        "cefSeverity": "1",
+        "eventDescription": "Administrative information - New user added",
+        "sourceUser": "Example Admin",
+        "cat": "SystemEvent",
+        "activityType": "23",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "origin.user": "Example Admin",
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse"
+      ],
+      "alerts": []
+    },
+    "header-rfc5424": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "ruleTime",
+        "sourceUser",
+        "syslogDeviceTime",
+        "syslogPriority",
+        "syslogVersion"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "23",
+        "cefSeverity": "1",
+        "eventDescription": "Administrative information - New user added",
+        "sourceUser": "Example Admin",
+        "cat": "SystemEvent",
+        "ruleTime": "Mon, 21 Sep 2026, 17:34:42 UTC",
+        "activityType": "23",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "origin.user": "Example Admin",
+        "deviceTime": "2026-09-21T17:34:42Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse"
+      ],
+      "alerts": []
+    },
+    "header-ipv4-version": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "sourceUser",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "192.0.2.50",
+        "cefSignatureId": "23",
+        "cefSeverity": "1",
+        "eventDescription": "Administrative information - New user added",
+        "sourceUser": "Example Admin",
+        "cat": "SystemEvent",
+        "activityType": "23",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "origin.user": "Example Admin",
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse"
+      ],
+      "alerts": []
+    },
+    "header-word-int-version": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "sourceUser",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "build 23",
+        "cefSignatureId": "23",
+        "cefSeverity": "1",
+        "eventDescription": "Administrative information - New user added",
+        "sourceUser": "Example Admin",
+        "cat": "SystemEvent",
+        "activityType": "23",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "origin.user": "Example Admin",
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse"
+      ],
+      "alerts": []
+    },
+    "header-escaped-pipe": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "sourceUser",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "23",
+        "cefSeverity": "1",
+        "eventDescription": "Administrative information - Group 'A\\|B' updated",
+        "sourceUser": "Example Admin",
+        "cat": "SystemEvent",
+        "activityType": "23",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "origin.user": "Example Admin",
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse"
+      ],
+      "alerts": []
+    },
+    "rt-first-key": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "ruleTime",
+        "sourceUser",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "23",
+        "cefSeverity": "1",
+        "eventDescription": "Administrative information - New user added",
+        "ruleTime": "Mon, 21 Sep 2026, 13:47:01 UTC",
+        "sourceUser": "Example Admin",
+        "cat": "SystemEvent",
+        "activityType": "23",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "origin.user": "Example Admin",
+        "deviceTime": "2026-09-21T13:47:01Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse"
+      ],
+      "alerts": []
+    },
+    "rt-epoch": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "ruleTime",
+        "sourceUser",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "23",
+        "cefSeverity": "1",
+        "eventDescription": "Example activity",
+        "sourceUser": "Example Admin",
+        "ruleTime": "1790012082000",
+        "cat": "SystemEvent",
+        "activityType": "23",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "origin.user": "Example Admin",
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse"
+      ],
+      "alerts": []
+    },
+    "rt-single-digit-day": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "ruleTime",
+        "sourceUser",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "23",
+        "cefSeverity": "1",
+        "eventDescription": "Example activity",
+        "sourceUser": "Example Admin",
+        "cat": "SystemEvent",
+        "ruleTime": "Thu, 1 Oct 2026, 09:05:07 UTC",
+        "activityType": "23",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "origin.user": "Example Admin",
+        "deviceTime": "2026-10-01T09:05:07Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse"
+      ],
+      "alerts": []
+    },
+    "rt-padded-day-last": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "ruleTime",
+        "sourceUser",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "23",
+        "cefSeverity": "1",
+        "eventDescription": "Example activity",
+        "sourceUser": "Example Admin",
+        "cat": "SystemEvent",
+        "activityType": "23",
+        "notificationScope": "SITE",
+        "ruleTime": "Thu, 01 Oct 2026, 09:05:07 UTC"
+      },
+      "fields": {
+        "origin.user": "Example Admin",
+        "deviceTime": "2026-10-01T09:05:07Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse"
+      ],
+      "alerts": []
+    },
+    "rt-non-utc": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "ruleTime",
+        "sourceUser",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "23",
+        "cefSeverity": "1",
+        "eventDescription": "Example activity",
+        "sourceUser": "Example Admin",
+        "cat": "SystemEvent",
+        "ruleTime": "Mon, 21 Sep 2026, 13:47:01 EST",
+        "activityType": "23",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "origin.user": "Example Admin",
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse"
+      ],
+      "alerts": []
+    },
+    "multiword-all-keys": {
+      "logKeys": [
+        "accName",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "destinationUser",
+        "endpointDeviceName",
+        "eventDescription",
+        "notificationScope",
+        "sourceGpName",
+        "sourceIps",
+        "sourceMacs",
+        "sourceUser",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "5020",
+        "cefSeverity": "1",
+        "eventDescription": "Example description text",
+        "sourceUser": "Example Admin",
+        "destinationUser": "Other Example User",
+        "endpointDeviceName": "USB Mass Storage",
+        "sourceGpName": "Default Group",
+        "sourceIps": "192.0.2.10,192.0.2.11",
+        "sourceMacs": "00:00:5e:00:53:01",
+        "accName": "Example Account",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse",
+        "origin.user"
+      ],
+      "alerts": []
+    },
+    "multiword-accountname-last": {
+      "logKeys": [
+        "accName",
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "siteName",
+        "sourceUser",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "5020",
+        "cefSeverity": "1",
+        "eventDescription": "Example activity",
+        "sourceUser": "Example Admin",
+        "cat": "SystemEvent",
+        "activityType": "5020",
+        "siteName": "Example Site Beta",
+        "notificationScope": "SITE",
+        "accName": "Example Account Two"
+      },
+      "fields": {
+        "origin.user": "Example Admin",
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse"
+      ],
+      "alerts": []
+    },
+    "multiword-sourceips-last": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "sourceIps",
+        "sourceMacs",
+        "sourceUser",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "5020",
+        "cefSeverity": "1",
+        "eventDescription": "Example activity",
+        "sourceUser": "Example Admin",
+        "cat": "SystemEvent",
+        "activityType": "5020",
+        "sourceMacs": "00:00:5e:00:53:01",
+        "sourceIps": "192.0.2.10,192.0.2.11"
+      },
+      "fields": {
+        "origin.user": "Example Admin",
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse"
+      ],
+      "alerts": []
+    },
+    "multiword-suser-last": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "sourceUser",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "23",
+        "cefSeverity": "1",
+        "eventDescription": "Administrative information - New user added",
+        "cat": "SystemEvent",
+        "activityType": "23",
+        "notificationScope": "SITE",
+        "sourceUser": "Example Admin"
+      },
+      "fields": {
+        "origin.user": "Example Admin",
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse"
+      ],
+      "alerts": []
+    },
+    "multiword-empty-suser": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "23",
+        "cefSeverity": "1",
+        "eventDescription": "Administrative information - New user added",
+        "cat": "SystemEvent",
+        "activityType": "23",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse",
+        "origin.user"
+      ],
+      "alerts": []
+    },
+    "identity-threat-class": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "sourceUser",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "3608",
+        "cefSeverity": "5",
+        "eventDescription": "Example threat activity",
+        "sourceUser": "Other Example User",
+        "cat": "ThreatEvent",
+        "activityType": "3608",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse",
+        "origin.user"
+      ],
+      "alerts": []
+    },
+    "r1-memory-injection": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "3608",
+        "cefSeverity": "8",
+        "eventDescription": "Memory injection detected in example.exe",
+        "cat": "ThreatEvent",
+        "activityType": "3608",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse",
+        "origin.user"
+      ],
+      "alerts": [
+        "memory_injection_detection"
+      ]
+    },
+    "r1-process-injection-eventdesc": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "3608",
+        "cefSeverity": "8",
+        "eventDescription": "Process injection detected in example.exe",
+        "cat": "ThreatEvent",
+        "activityType": "3608",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse",
+        "origin.user"
+      ],
+      "alerts": [
+        "memory_injection_detection"
+      ]
+    },
+    "r1-memory-scan": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "3608",
+        "cefSeverity": "3",
+        "eventDescription": "Memory scan completed on example.exe",
+        "cat": "ThreatEvent",
+        "activityType": "3608",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse",
+        "origin.user"
+      ],
+      "alerts": [],
+      "note": "near miss for memory_injection_detection"
+    },
+    "r3-policy-downgrade": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "sourceUser",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "5020",
+        "cefSeverity": "1",
+        "eventDescription": "Site policy mode changed from Protect to Detect for Example Site Alpha",
+        "sourceUser": "Example Admin",
+        "cat": "SystemEvent",
+        "activityType": "5020",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "origin.user": "Example Admin",
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse"
+      ],
+      "alerts": [
+        "s1_policy_downgrade"
+      ]
+    },
+    "r3-policy-pair-downgrade": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "sourceUser",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "5020",
+        "cefSeverity": "1",
+        "eventDescription": "Site policy changed from Protect/Detect to Detect/Detect",
+        "sourceUser": "Example Admin",
+        "cat": "SystemEvent",
+        "activityType": "5020",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "origin.user": "Example Admin",
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse"
+      ],
+      "alerts": [
+        "s1_policy_downgrade"
+      ]
+    },
+    "r3-policy-upgrade": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "sourceUser",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "5020",
+        "cefSeverity": "1",
+        "eventDescription": "Site policy mode changed from Detect to Protect for Example Site Alpha",
+        "sourceUser": "Example Admin",
+        "cat": "SystemEvent",
+        "activityType": "5020",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "origin.user": "Example Admin",
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse"
+      ],
+      "alerts": [],
+      "note": "near miss: upgrade must not fire s1_policy_downgrade"
+    },
+    "r3-policy-pair-upgrade": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "sourceUser",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "5020",
+        "cefSeverity": "1",
+        "eventDescription": "Site policy changed from Detect/Detect to Protect/Detect",
+        "sourceUser": "Example Admin",
+        "cat": "SystemEvent",
+        "activityType": "5020",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "origin.user": "Example Admin",
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse"
+      ],
+      "alerts": [],
+      "note": "near miss: paired upgrade"
+    },
+    "r3-admin-role-protect-detect": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "sourceUser",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "37",
+        "cefSeverity": "1",
+        "eventDescription": "Example Admin assigned role \"Protect and Detect Reviewers\" to user Policy Team (policy.team@example.com)",
+        "sourceUser": "Example Admin",
+        "cat": "SystemEvent",
+        "activityType": "37",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "origin.user": "Example Admin",
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse"
+      ],
+      "alerts": [],
+      "note": "benign console text naming both modes"
+    },
+    "r6-exclusion-added": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "sourceUser",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "5020",
+        "cefSeverity": "1",
+        "eventDescription": "Path exclusion added for /opt/example/tool",
+        "sourceUser": "Example Admin",
+        "cat": "SystemEvent",
+        "activityType": "5020",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "origin.user": "Example Admin",
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse"
+      ],
+      "alerts": [
+        "s1_exclusion_abuse"
+      ]
+    },
+    "r6-exclusion-removed": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "sourceUser",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "5020",
+        "cefSeverity": "1",
+        "eventDescription": "Path exclusion removed for /opt/example/tool",
+        "sourceUser": "Example Admin",
+        "cat": "SystemEvent",
+        "activityType": "5020",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "origin.user": "Example Admin",
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse"
+      ],
+      "alerts": [],
+      "note": "near miss for s1_exclusion_abuse"
+    },
+    "r4-agent-disabled": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "sourceUser",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "5020",
+        "cefSeverity": "1",
+        "eventDescription": "Example Admin disabled the agent on endpoint-01",
+        "sourceUser": "Example Admin",
+        "cat": "SystemEvent",
+        "activityType": "5020",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "origin.user": "Example Admin",
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse"
+      ],
+      "alerts": [
+        "agent_tampering_attempts"
+      ]
+    },
+    "r4-admin-nonstop-agentur": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "sourceUser",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "23",
+        "cefSeverity": "1",
+        "eventDescription": "Administrative information - New user 'Nonstop Example (nonstop.example@agentur.example.com)' added",
+        "sourceUser": "Example Admin",
+        "cat": "SystemEvent",
+        "activityType": "23",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "origin.user": "Example Admin",
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse"
+      ],
+      "alerts": [],
+      "note": "in-word 'stop' and 'agent' must not fire agent_tampering_attempts"
+    },
+    "r4-mitigation-failed": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "3608",
+        "cefSeverity": "8",
+        "eventDescription": "Threat mitigation failed on endpoint-01",
+        "cat": "ThreatEvent",
+        "activityType": "3608",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse",
+        "origin.user"
+      ],
+      "alerts": [
+        "threat_mitigation_failures"
+      ]
+    },
+    "r4-admin-mitigation-failover": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "sourceUser",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "25",
+        "cefSeverity": "1",
+        "eventDescription": "Administrative information - User 'Mitigation Failover (mitigation.failover@example.com_del_0123456789abcdef0123456789abcdef)' Deleted",
+        "sourceUser": "Example Admin",
+        "cat": "SystemEvent",
+        "activityType": "25",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "origin.user": "Example Admin",
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse"
+      ],
+      "alerts": [],
+      "note": "'failover' is not a failure word"
+    },
+    "r4-iot-firmware": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "endpointDeviceName",
+        "eventDescription",
+        "notificationScope",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "3608",
+        "cefSeverity": "8",
+        "eventDescription": "Malicious firmware backdoor detected on example camera",
+        "cat": "ThreatEvent",
+        "endpointDeviceName": "Example Camera 01",
+        "activityType": "3608",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse",
+        "origin.user"
+      ],
+      "alerts": [
+        "iot_device_compromise_indicators"
+      ]
+    },
+    "r4-iot-analytics": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "endpointDeviceName",
+        "eventDescription",
+        "notificationScope",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "3608",
+        "cefSeverity": "8",
+        "eventDescription": "Example backdoor file detected in analytics service",
+        "cat": "ThreatEvent",
+        "endpointDeviceName": "Example Server 01",
+        "activityType": "3608",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse",
+        "origin.user"
+      ],
+      "alerts": [],
+      "note": "'ics' inside 'analytics' must not fire iot_device_compromise_indicators"
+    },
+    "r5-admin-reputation-desk": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "sourceUser",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "23",
+        "cefSeverity": "1",
+        "eventDescription": "Administrative information - New user 'Reputation Desk (reputation.desk@example.com)' added",
+        "sourceUser": "Example Admin",
+        "cat": "SystemEvent",
+        "activityType": "23",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "origin.user": "Example Admin",
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse"
+      ],
+      "alerts": [],
+      "note": "console text must not fire the reputation branch"
+    },
+    "r5-admin-kernel-team": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "sourceUser",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "23",
+        "cefSeverity": "1",
+        "eventDescription": "Administrative information - New user 'Kernel Team (kernel.team@detect.example.com)' added",
+        "sourceUser": "Example Admin",
+        "cat": "SystemEvent",
+        "activityType": "23",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "origin.user": "Example Admin",
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse"
+      ],
+      "alerts": [],
+      "note": "console text must not fire kernel_level_threat"
+    },
+    "r7-confidence-malicious": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "confidencelevel",
+        "eventDescription",
+        "filecontenthash",
+        "notificationScope",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "3608",
+        "cefSeverity": "8",
+        "eventDescription": "Example file flagged",
+        "cat": "ThreatEvent",
+        "filecontenthash": "0123456789abcdef0123456789abcdef01234567",
+        "confidencelevel": "MALICIOUS",
+        "activityType": "3608",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse",
+        "origin.user"
+      ],
+      "alerts": [
+        "threat_intelligence_matches"
+      ]
+    },
+    "r7-confidence-suspicious": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "confidencelevel",
+        "eventDescription",
+        "filecontenthash",
+        "notificationScope",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "3608",
+        "cefSeverity": "8",
+        "eventDescription": "Example file flagged",
+        "cat": "ThreatEvent",
+        "filecontenthash": "0123456789abcdef0123456789abcdef01234567",
+        "confidencelevel": "SUSPICIOUS",
+        "activityType": "3608",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse",
+        "origin.user"
+      ],
+      "alerts": [],
+      "note": "near miss: lower vendor confidence"
+    },
+    "r7-confidence-numeric": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "confidencelevel",
+        "eventDescription",
+        "filecontenthash",
+        "notificationScope",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "3608",
+        "cefSeverity": "8",
+        "eventDescription": "Example file flagged",
+        "cat": "ThreatEvent",
+        "filecontenthash": "0123456789abcdef0123456789abcdef01234567",
+        "confidencelevel": "95",
+        "activityType": "3608",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse",
+        "origin.user"
+      ],
+      "alerts": [],
+      "note": "a 0-100 score is not the vendor scale"
+    },
+    "rollback-status": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "rollbackStatus",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "3608",
+        "cefSeverity": "3",
+        "eventDescription": "Rollback completed for example.exe",
+        "cat": "ThreatEvent",
+        "rollbackStatus": "completed",
+        "activityType": "3608",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse",
+        "origin.user"
+      ],
+      "alerts": [
+        "rollback_operation_patterns"
+      ]
+    },
+    "rollback-text-only": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "3608",
+        "cefSeverity": "3",
+        "eventDescription": "Rollback completed for example.exe",
+        "cat": "ThreatEvent",
+        "activityType": "3608",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse",
+        "origin.user"
+      ],
+      "alerts": [],
+      "note": "near miss for rollback_operation_patterns"
+    },
+    "r2-behavioral": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "3608",
+        "cefSeverity": "8",
+        "eventDescription": "Behavioral anomaly detected in example.exe",
+        "cat": "ThreatEvent",
+        "activityType": "3608",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse",
+        "origin.user"
+      ],
+      "alerts": [],
+      "endpointHarnessAlerts": [
+        "behavioral_threat_detection"
+      ]
+    },
+    "r2-custom-rule": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "3608",
+        "cefSeverity": "8",
+        "eventDescription": "STAR custom rule Example Watchlist triggered on example.exe",
+        "cat": "ThreatEvent",
+        "activityType": "3608",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse",
+        "origin.user"
+      ],
+      "alerts": [],
+      "endpointHarnessAlerts": [
+        "custom_detection_rule_triggers"
+      ]
+    },
+    "r2-deep-visibility": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "3608",
+        "cefSeverity": "8",
+        "eventDescription": "Threat alert: ransomware detected in example.exe",
+        "cat": "ThreatEvent",
+        "activityType": "3608",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse",
+        "origin.user"
+      ],
+      "alerts": [],
+      "endpointHarnessAlerts": [
+        "deep_visibility_threat_indicators"
+      ]
+    },
+    "r2-edr": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "3608",
+        "cefSeverity": "8",
+        "eventDescription": "EDR alert: critical endpoint threat on example.exe",
+        "cat": "ThreatEvent",
+        "activityType": "3608",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse",
+        "origin.user"
+      ],
+      "alerts": [],
+      "endpointHarnessAlerts": [
+        "endpoint_detection_response_alerts"
+      ]
+    },
+    "r2-process-tree": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "3608",
+        "cefSeverity": "8",
+        "eventDescription": "Suspicious process chain started by example.exe",
+        "cat": "ThreatEvent",
+        "activityType": "3608",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse",
+        "origin.user"
+      ],
+      "alerts": [],
+      "endpointHarnessAlerts": [
+        "suspicious_process_tree"
+      ]
+    },
+    "r5-kernel": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "3608",
+        "cefSeverity": "8",
+        "eventDescription": "Kernel exploit blocked on example.exe",
+        "cat": "ThreatEvent",
+        "activityType": "3608",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse",
+        "origin.user"
+      ],
+      "alerts": [],
+      "endpointHarnessAlerts": [
+        "kernel_level_threat"
+      ]
+    },
+    "r5-reputation": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "S-99.0.0#1",
+        "cefSignatureId": "3608",
+        "cefSeverity": "8",
+        "eventDescription": "File reputation lookup flagged example.exe",
+        "cat": "ThreatEvent",
+        "activityType": "3608",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse",
+        "origin.user"
+      ],
+      "alerts": [],
+      "endpointHarnessAlerts": [
+        "threat_intelligence_matches"
+      ]
+    },
+    "r2-behavioral-ipv4-version": {
+      "logKeys": [
+        "activityType",
+        "cat",
+        "cefDeviceProduct",
+        "cefDeviceVendor",
+        "cefDeviceVersion",
+        "cefSeverity",
+        "cefSignatureId",
+        "eventDescription",
+        "notificationScope",
+        "syslogDeviceTime",
+        "syslogPriority"
+      ],
+      "log": {
+        "cefDeviceVendor": "SentinelOne",
+        "cefDeviceProduct": "Mgmt",
+        "cefDeviceVersion": "192.0.2.50",
+        "cefSignatureId": "3608",
+        "cefSeverity": "8",
+        "eventDescription": "Behavioral anomaly detected in example.exe",
+        "cat": "ThreatEvent",
+        "activityType": "3608",
+        "notificationScope": "SITE"
+      },
+      "fields": {
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "severity",
+        "log.syslogHost",
+        "log.restData",
+        "log.eventDescToParse",
+        "origin.user"
+      ],
+      "alerts": [],
+      "note": "the version slot is not a host"
+    },
+    "non-cef-line": {
+      "logKeys": [],
+      "log": {},
+      "fields": {
+        "deviceTime": "2026-09-21T17:40:00Z"
+      },
+      "absent": [
+        "origin.user",
+        "severity",
+        "log"
+      ],
+      "alerts": []
+    }
+  }
+}
