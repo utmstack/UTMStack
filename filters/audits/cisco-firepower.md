@@ -9,7 +9,9 @@ five Firepower rules can use, and none of those rules could fire. It also shared
 the misplaced geolocation results and the direct `log.*` comparisons with the Cisco ASA filter.
 This revision parses the observed security events, fixes the engine-visible defects, and
 corrects two rule conditions. The schema is ThreatWinds go-sdk **v1.1.36**, as pinned by
-`plugins/alerts/go.mod`.
+`plugins/alerts/go.mod`. A later check of every grok pattern found three LINA steps that could
+never write on the engine; version 3.1.1 fixes them, see
+[Empty-match correction](#empty-match-correction-version-311).
 
 ## Evidence basis
 
@@ -98,6 +100,39 @@ internal scanner. Non-standard-port rule: 122 to 188 alert documents under 7 to 
 alerts, mostly SSL to outside hosts on port 9001. The second figure is a model of the history
 threshold over the device's records, not an executed search.
 
+## Empty-match correction (version 3.1.1)
+
+The grok plugin of EventProcessor `8a3ade7` reads a step's patterns in order. Before each
+pattern it trims the text that is left, and it counts an empty match as no match. If any
+pattern fails, the step writes nothing
+([grok plugin](https://github.com/utmstack/EventProcessor/blob/8a3ade72bd9d12db21f6b273200588fb49540f14/plugins/grok/main.go)).
+So a pattern that can match empty text at the start of the remaining text stops its whole
+step. All 1,074 grok patterns of version 3.1.0 were expanded with `patterns.yaml` and tried
+on their own. Three of them, in LINA steps shared with the Cisco ASA filter, had this problem:
+
+| Change | Why | Basis | Proof on the engine |
+|---|---|---|---|
+| F-G1: 302003/302004, first variant: read the optional `to` together with the local address, `(?:to\s+)?(...)`, and remove it with a new `trim` step right after. | The optional `to` was its own pattern, `(to\s)?`. On a 302003 line, which has no `to`, it matched empty text and the step failed. The second variant accepts only an IP address, so a 302003 line whose local side is a host name was parsed by neither. | Filter patterns and engine | `302003-hostname` kept only `actionResult`; now it has `action`, both addresses and both ports. `302003-ip` and `302004-to` are unchanged. |
+| F-G2: 302022/302024/302026: the two steps for a mapped address without a port read it with `[^/()]+` instead of `{{.data}}`. | `{{.data}}` is a lazy "any text" pattern. On its own it always matches empty text, so these two steps never wrote. The new pattern stops at `/`, so it applies only when no port follows and cannot replace what the steps for an address with a port wrote. | Filter patterns and engine | `302024-mapped-no-port` had no mapped address; now it has `log.mappedIpFrom` and `log.mappedIpTo`, and no port. `302022-mapped-port` is unchanged. |
+
+The other 140 patterns that can match empty text are a `{{.greedy}}` ("any text") at the end
+of a step. The plugin never tries a pattern once no text is left, and on any other text these
+match at least one character, so they cannot cause this.
+
+After the fix, a host name in the local address reaches `origin.ip` on 302003 lines, as it
+already did on 302004 lines and on the foreign side of both; which LINA values belong in the
+address fields is part of D09. No genuine record reviewed here is one of these messages, so the
+fix rests on fabricated lines. The Cisco ASA filter gets the same fix in its own review.
+
+| Check | Result |
+|---|---|
+| Five new fabricated lines on EventProcessor 8a3ade7, versions 3.1.0 and 3.1.1 | As in the table above. No line has an error with either version. |
+| `replay.py` on EventProcessor 8a3ade7, now 63 lines | 63 events without errors, every stored field as in `expected.json`; the 58 earlier lines are unchanged. 10 alerts, each from its intended rule with the event's origin as adversary; no Circuit Breaker alert and no history search. An earlier run wrote the same events and alerts, but the playground then never finished shutting down and the script stopped it at its 15-minute limit; the next run passed. |
+| The 148 private lines | None is a 302003, 302004, 302022, 302024 or 302026 message, so the fix cannot change them. |
+| go-sdk v1.1.36 rule replay over the 63 events | The intrusion and non-standard-port rules each match exactly the five events whose recorded alerts name them, and the other three rules match nothing; no error and no unresolved placeholder (21 of 21 checks). |
+| Full `plugins/alerts` suite | 51 tests pass, 11 skip, none fail (2,280 passing results with subtests). |
+| New Go checks, on versions 3.1.0 and 3.1.1 | `TestCiscoFirepowerGrokPatternsNeverMatchEmpty` tries each grok pattern alone on texts that start with every printable character, and fails when one matches empty text at the start. The model test now also covers the five new lines (F-G1, F-G2). On 3.1.0 both fail, naming the three patterns and the missing fields; on 3.1.1 both pass. |
+
 ## Validation
 
 **Engine and versions.** EventProcessor `8a3ade72bd9d12db21f6b273200588fb49540f14`: every
@@ -124,30 +159,32 @@ same 148 lines: the 83 genuine records above and 65 fabricated lines.
 In a separate 30-day count on the instance, all 32 genuine intrusion events carry `Priority` 1
 and `Attempted User Privilege Gain`, so the corrected intrusion condition matches all of them.
 
-**Fabricated regression, committed.** `plugins/alerts/testdata/cisco-firepower/` holds 58
-invented raw lines (`raw.json`), their expected fields and alerts (`expected.json`), the 13
-shared grok definitions this filter uses (`patterns.yaml`, copied from the repository changelog
+**Fabricated regression, committed.** `plugins/alerts/testdata/cisco-firepower/` holds 63
+invented raw lines (`raw.json`; five were added with the empty-match correction), their
+expected fields and alerts (`expected.json`), the 13 shared grok definitions this filter uses
+(`patterns.yaml`, copied from the repository changelog
 `20250616001_insert_utm_regex_pattern.xml`), invented geolocation data (`geolocation-data/`)
-and `replay.py`. Addresses are RFC 5737 and RFC 3849 documentation addresses, except the
-RFC 1918 and RFC 4193 private addresses of the private-destination near misses; device, user,
-zone, rule and policy names are examples and the device UUID is made up. `replay.py` stages the
-non-standard-port rule as a condition-only test copy because no OpenSearch runs; it passed: 58
+and `replay.py`. Addresses are RFC 5737 and RFC 3849 documentation addresses, except the RFC
+1918 and RFC 4193 private addresses of the private-destination near misses; device, user, zone,
+rule and policy names are examples and the device UUID is made up. `replay.py` stages the
+non-standard-port rule as a condition-only test copy because no OpenSearch runs; it passed: 63
 events without errors, every stored field as recorded, 10 alerts, each from its intended rule
 with the event's origin as adversary, and no history search.
 
-**Go tests.** `cisco_firepower_filter_test.go` has seven tests. They check that no `where`
+**Go tests.** `cisco_firepower_filter_test.go` has eight tests. They check that no `where`
 clause compares `log.*` directly, that every clause runs without a `log` object and that each
 helper clause keeps the direct comparison's results; that no geolocation destination lies under
-a field that holds a value; that a model of the engine's step plugins, with every `where` clause
-evaluated by go-sdk v1.1.36, gives the playground's result for every stored field of the 58
-lines except the geolocation ones, including a positive and a near-miss line for each change; the
-new, reordered and guarded `where` clauses in filter order; the rules' names, metadata, impact,
-grouping, MITRE labels and history search; 27 synthetic rule cases plus the rule results on all
-58 lines; and that whenever the rule with a history search matches, its placeholders resolve.
-Six of the seven fail against the original filter and rules; the placeholder test passes on both,
+a field that holds a value; that no grok pattern matches empty text at the start of a text;
+that a model of the engine's step plugins, with every `where` clause evaluated by go-sdk
+v1.1.36, gives the playground's result for every stored field of the 63 lines except the
+geolocation ones, including a positive and a near-miss line for each change; the new, reordered
+and guarded `where` clauses in filter order; the rules' names, metadata, impact, grouping,
+MITRE labels and history search; 27 synthetic rule cases plus the rule results on all 63 lines;
+and that whenever the rule with a history search matches, its placeholders resolve. Seven of
+the eight fail against the original filter and rules; the placeholder test passes on both,
 because the original condition also required both addresses. The full `plugins/alerts` suite
-passes: 50 tests pass and the same 11 tests that need other technologies' private evidence skip,
-as they do on the base commit (43 pass, 11 skip).
+passes: 51 tests pass and the same 11 tests that need other technologies' private evidence
+skip, as they do on the base commit (43 pass, 11 skip).
 
 ## Deferred
 
@@ -198,7 +235,7 @@ corrections apply to its records.
 - The playground's alert writer only records alerts. Indexing, grouping, deduplication,
   notifications and production alerts were not tested.
 - The Go extraction test is a model of the engine's step plugins; it agreed with the playground
-  on every non-geolocation field of the 58 lines, but `replay.py` is the check that runs the
+  on every non-geolocation field of the 63 lines, but `replay.py` is the check that runs the
   engine.
 - The separate action-result correction edits the same filter. This change moves the two
   106102/106103 `actionResult` blocks without changing their values; combining the two needs a
