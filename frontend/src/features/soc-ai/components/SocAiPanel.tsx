@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   ArrowUp,
@@ -47,6 +48,7 @@ export function SocAiPanel() {
   const [draft, setDraft] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
+  const navigate = useNavigate();
 
   // Auto-grow the input, capped at 7 lines (max-h-[140px]) so long prompts
   // scroll internally instead of eating the message area.
@@ -120,9 +122,18 @@ export function SocAiPanel() {
               </p>
             )}
             {activeScope === "soar-edit" && soarEditTarget && (
-              <p className="mt-0.5 truncate pl-[26px] text-xs text-muted-foreground">
+              <button
+                type="button"
+                onClick={() =>
+                  navigate("/soar/flows", {
+                    state: { selectFlowId: soarEditTarget.relPath },
+                  })
+                }
+                className="mt-0.5 block w-full truncate pl-[26px] text-left text-xs text-muted-foreground hover:text-foreground"
+                title={soarEditTarget.relPath}
+              >
                 {t("socAi.chat.editingFlow", { name: soarEditTarget.name })}
-              </p>
+              </button>
             )}
           </div>
           <div className="flex items-center gap-0.5">
