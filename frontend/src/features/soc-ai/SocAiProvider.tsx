@@ -159,7 +159,15 @@ export function SocAiProvider({ children }: { children: ReactNode }) {
   const clear = useCallback((scope: SocAiScope) => {
     abortRef.current?.abort()
     setters[scope]([])
-  }, [])
+    // A cleared dashboard thread has nothing left to be scoped by — drop the edit
+    // target and go back to the general panel so a leftover "Editing: <dashboard>"
+    // title can't outlive its history. Only when NOT on a dashboard page — there
+    // the scope is still live.
+    if ((scope === 'dashboard-edit' || scope === 'dashboard-create') && !location.pathname.startsWith('/dashboards')) {
+      setDashboardEditTarget(null)
+      setActiveScope('panel')
+    }
+  }, [location.pathname])
 
   const patchMsg = useCallback((scope: SocAiScope, id: number, fn: (m: SocAiMessage) => SocAiMessage) => {
     setters[scope]((list) => list.map((m) => (m.id === id ? fn(m) : m)))
