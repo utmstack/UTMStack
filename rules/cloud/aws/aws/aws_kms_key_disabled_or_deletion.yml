@@ -1,0 +1,25 @@
+# Rule contract revision 2026-09-25; SDK v1.1.36 (gap-fill set).
+dataTypes:
+- aws
+name: AWS KMS Key Disabled or Deletion Scheduled
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Impact
+technique: T1486 - Data Encrypted for Impact
+adversary: origin
+description: Identifies DisableKey or ScheduleKeyDeletion, rendering a customer master key unusable so protected data becomes unreadable, a destructive or ransomware hallmark.
+references:
+- https://docs.aws.amazon.com/kms/latest/APIReference/API_DisableKey.html
+where: |
+  equals("log.awsRecordType","cloudtrail") &&
+  (equals("log.eventSource", "kms.amazonaws.com") &&
+  oneOf("log.eventName",["DisableKey", "ScheduleKeyDeletion"]) &&
+  equals("actionResult","success"))
+groupBy:
+- lastEvent.dataSource
+- lastEvent.log.awsAccountKeyType
+- lastEvent.log.awsAccountKey
+- adversary.ip
+- adversary.user

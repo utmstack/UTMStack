@@ -1,0 +1,25 @@
+# Rule contract revision 2026-09-25; SDK v1.1.36 (gap-fill set).
+dataTypes:
+- aws
+name: AWS Account Closure Requested
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Impact
+technique: T1485 - Data Destruction
+adversary: origin
+description: Identifies a CloseAccount request, the irreversible end-state of account compromise or destructive misuse.
+references:
+- https://docs.aws.amazon.com/accounts/latest/reference/close-account.html
+where: |
+  equals("log.awsRecordType","cloudtrail") &&
+  (equals("log.eventSource", "account.amazonaws.com") &&
+  equals("log.eventName", "CloseAccount") &&
+  equals("actionResult","success"))
+groupBy:
+- lastEvent.dataSource
+- lastEvent.log.awsAccountKeyType
+- lastEvent.log.awsAccountKey
+- adversary.ip
+- adversary.user

@@ -1,0 +1,27 @@
+# Rule version v1.0.0 (gap-fill set, 2026-09-25)
+
+dataTypes:
+  - o365
+name: Microsoft 365 Security Alert Added
+impact:
+  confidentiality: 2
+  integrity: 1
+  availability: 1
+category: Impact
+technique: "T1566 - Phishing"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/defender-for-identity/identity-threat-protection-alert-types
+description: |
+  Detects AlertAdded events surfacing a new Defender security alert for the tenant, providing a direct triage signal for identity and email threats.
+
+  Next Steps:
+  1. Review the alert type and affected target
+  2. Assess the severity and recommended action
+  3. Triage and remediate per the alert guidance
+  4. Document the incident and containment
+where: |
+  equals("action", "AlertAdded")
+groupBy:
+  - lastEvent.log.Parameters
+  - adversary.user

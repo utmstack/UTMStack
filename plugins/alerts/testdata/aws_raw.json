@@ -2482,5 +2482,149 @@
       "origin.bytesReceived"
     ],
     "matches": []
+  },
+  {
+    "name": "aws-cloudtrail-CreateTrail",
+    "dataSource": "collector-test",
+    "raw": "{\"eventVersion\": \"1.09\", \"eventTime\": \"2026-09-25T10:00:00Z\", \"eventSource\": \"cloudtrail.amazonaws.com\", \"eventName\": \"CreateTrail\", \"eventType\": \"AwsApiCall\", \"awsRegion\": \"us-east-1\", \"sourceIPAddress\": \"198.51.100.20\", \"recipientAccountId\": \"123456789012\", \"userIdentity\": {\"type\": \"IAMUser\", \"accountId\": \"123456789012\", \"arn\": \"arn:aws:iam::123456789012:user/reviewer\", \"principalId\": \"TESTPRINCIPAL\", \"sessionContext\": {\"attributes\": {\"mfaAuthenticated\": \"true\"}}}, \"requestParameters\": {}, \"responseElements\": null}",
+    "expected": {
+      "action": "CreateTrail",
+      "origin.ip": "198.51.100.20",
+      "origin.user": "arn:aws:iam::123456789012:user/reviewer",
+      "actionResult": "success",
+      "log.awsRecordType": "cloudtrail"
+    },
+    "absent": [],
+    "matches": [
+      "aws_cloudtrail_trail_created"
+    ]
+  },
+  {
+    "name": "aws-guardduty-UpdateDetector-disable",
+    "dataSource": "collector-test",
+    "raw": "{\"eventVersion\": \"1.09\", \"eventTime\": \"2026-09-25T10:00:00Z\", \"eventSource\": \"guardduty.amazonaws.com\", \"eventName\": \"UpdateDetector\", \"eventType\": \"AwsApiCall\", \"awsRegion\": \"us-east-1\", \"sourceIPAddress\": \"198.51.100.20\", \"recipientAccountId\": \"123456789012\", \"userIdentity\": {\"type\": \"IAMUser\", \"accountId\": \"123456789012\", \"arn\": \"arn:aws:iam::123456789012:user/reviewer\", \"principalId\": \"TESTPRINCIPAL\", \"sessionContext\": {\"attributes\": {\"mfaAuthenticated\": \"true\"}}}, \"requestParameters\": {\"detectorId\": \"abc\", \"enable\": false}, \"responseElements\": null}",
+    "expected": {
+      "action": "UpdateDetector",
+      "origin.ip": "198.51.100.20",
+      "origin.user": "arn:aws:iam::123456789012:user/reviewer",
+      "actionResult": "success",
+      "log.awsRecordType": "cloudtrail"
+    },
+    "absent": [],
+    "matches": [
+      "aws_guardduty_detector_updated"
+    ]
+  },
+  {
+    "name": "aws-guardduty-PutFilters",
+    "dataSource": "collector-test",
+    "raw": "{\"eventVersion\": \"1.09\", \"eventTime\": \"2026-09-25T10:00:00Z\", \"eventSource\": \"guardduty.amazonaws.com\", \"eventName\": \"PutFilters\", \"eventType\": \"AwsApiCall\", \"awsRegion\": \"us-east-1\", \"sourceIPAddress\": \"198.51.100.20\", \"recipientAccountId\": \"123456789012\", \"userIdentity\": {\"type\": \"IAMUser\", \"accountId\": \"123456789012\", \"arn\": \"arn:aws:iam::123456789012:user/reviewer\", \"principalId\": \"TESTPRINCIPAL\", \"sessionContext\": {\"attributes\": {\"mfaAuthenticated\": \"true\"}}}, \"requestParameters\": {\"detectorId\": \"abc\", \"filterList\": [{\"name\": \"f\"}]}, \"responseElements\": null}",
+    "expected": {
+      "action": "PutFilters",
+      "origin.ip": "198.51.100.20",
+      "origin.user": "arn:aws:iam::123456789012:user/reviewer",
+      "actionResult": "success",
+      "log.awsRecordType": "cloudtrail"
+    },
+    "absent": [],
+    "matches": [
+      "aws_guardduty_finding_filter"
+    ]
+  },
+  {
+    "name": "aws-securityhub-DisableSecurityHub",
+    "dataSource": "collector-test",
+    "raw": "{\"eventVersion\": \"1.09\", \"eventTime\": \"2026-09-25T10:00:00Z\", \"eventSource\": \"securityhub.amazonaws.com\", \"eventName\": \"DisableSecurityHub\", \"eventType\": \"AwsApiCall\", \"awsRegion\": \"us-east-1\", \"sourceIPAddress\": \"198.51.100.20\", \"recipientAccountId\": \"123456789012\", \"userIdentity\": {\"type\": \"IAMUser\", \"accountId\": \"123456789012\", \"arn\": \"arn:aws:iam::123456789012:user/reviewer\", \"principalId\": \"TESTPRINCIPAL\", \"sessionContext\": {\"attributes\": {\"mfaAuthenticated\": \"true\"}}}, \"requestParameters\": {}, \"responseElements\": null}",
+    "expected": {
+      "action": "DisableSecurityHub",
+      "origin.ip": "198.51.100.20",
+      "origin.user": "arn:aws:iam::123456789012:user/reviewer",
+      "actionResult": "success",
+      "log.awsRecordType": "cloudtrail"
+    },
+    "absent": [],
+    "matches": [
+      "aws_securityhub_disabled"
+    ]
+  },
+  {
+    "name": "aws-s3-PutBucketLogging-empty",
+    "dataSource": "collector-test",
+    "raw": "{\"eventVersion\": \"1.09\", \"eventTime\": \"2026-09-25T10:00:00Z\", \"eventSource\": \"s3.amazonaws.com\", \"eventName\": \"PutBucketLogging\", \"eventType\": \"AwsApiCall\", \"awsRegion\": \"us-east-1\", \"sourceIPAddress\": \"198.51.100.20\", \"recipientAccountId\": \"123456789012\", \"userIdentity\": {\"type\": \"IAMUser\", \"accountId\": \"123456789012\", \"arn\": \"arn:aws:iam::123456789012:user/reviewer\", \"principalId\": \"TESTPRINCIPAL\", \"sessionContext\": {\"attributes\": {\"mfaAuthenticated\": \"true\"}}}, \"requestParameters\": {\"bucket\": \"b\", \"TargetBucket\": null}, \"responseElements\": null}",
+    "expected": {
+      "action": "PutBucketLogging",
+      "origin.ip": "198.51.100.20",
+      "origin.user": "arn:aws:iam::123456789012:user/reviewer",
+      "actionResult": "success",
+      "log.awsRecordType": "cloudtrail"
+    },
+    "absent": [],
+    "matches": [
+      "aws_s3_bucket_logging_disabled"
+    ]
+  },
+  {
+    "name": "aws-rds-ModifyDBInstance-deldisable",
+    "dataSource": "collector-test",
+    "raw": "{\"eventVersion\": \"1.09\", \"eventTime\": \"2026-09-25T10:00:00Z\", \"eventSource\": \"rds.amazonaws.com\", \"eventName\": \"ModifyDBInstance\", \"eventType\": \"AwsApiCall\", \"awsRegion\": \"us-east-1\", \"sourceIPAddress\": \"198.51.100.20\", \"recipientAccountId\": \"123456789012\", \"userIdentity\": {\"type\": \"IAMUser\", \"accountId\": \"123456789012\", \"arn\": \"arn:aws:iam::123456789012:user/reviewer\", \"principalId\": \"TESTPRINCIPAL\", \"sessionContext\": {\"attributes\": {\"mfaAuthenticated\": \"true\"}}}, \"requestParameters\": {\"DBInstanceIdentifier\": \"db1\", \"DeletionProtection\": false}, \"responseElements\": null}",
+    "expected": {
+      "action": "ModifyDBInstance",
+      "origin.ip": "198.51.100.20",
+      "origin.user": "arn:aws:iam::123456789012:user/reviewer",
+      "actionResult": "success",
+      "log.awsRecordType": "cloudtrail"
+    },
+    "absent": [],
+    "matches": [
+      "aws_rds_deletion_protection_or_password_changed"
+    ]
+  },
+  {
+    "name": "aws-kms-ScheduleKeyDeletion",
+    "dataSource": "collector-test",
+    "raw": "{\"eventVersion\": \"1.09\", \"eventTime\": \"2026-09-25T10:00:00Z\", \"eventSource\": \"kms.amazonaws.com\", \"eventName\": \"ScheduleKeyDeletion\", \"eventType\": \"AwsApiCall\", \"awsRegion\": \"us-east-1\", \"sourceIPAddress\": \"198.51.100.20\", \"recipientAccountId\": \"123456789012\", \"userIdentity\": {\"type\": \"IAMUser\", \"accountId\": \"123456789012\", \"arn\": \"arn:aws:iam::123456789012:user/reviewer\", \"principalId\": \"TESTPRINCIPAL\", \"sessionContext\": {\"attributes\": {\"mfaAuthenticated\": \"true\"}}}, \"requestParameters\": {\"KeyId\": \"k1\"}, \"responseElements\": null}",
+    "expected": {
+      "action": "ScheduleKeyDeletion",
+      "origin.ip": "198.51.100.20",
+      "origin.user": "arn:aws:iam::123456789012:user/reviewer",
+      "actionResult": "success",
+      "log.awsRecordType": "cloudtrail"
+    },
+    "absent": [],
+    "matches": [
+      "aws_kms_key_disabled_or_deletion"
+    ]
+  },
+  {
+    "name": "aws-account-CloseAccount",
+    "dataSource": "collector-test",
+    "raw": "{\"eventVersion\": \"1.09\", \"eventTime\": \"2026-09-25T10:00:00Z\", \"eventSource\": \"account.amazonaws.com\", \"eventName\": \"CloseAccount\", \"eventType\": \"AwsApiCall\", \"awsRegion\": \"us-east-1\", \"sourceIPAddress\": \"198.51.100.20\", \"recipientAccountId\": \"123456789012\", \"userIdentity\": {\"type\": \"IAMUser\", \"accountId\": \"123456789012\", \"arn\": \"arn:aws:iam::123456789012:user/reviewer\", \"principalId\": \"TESTPRINCIPAL\", \"sessionContext\": {\"attributes\": {\"mfaAuthenticated\": \"true\"}}}, \"requestParameters\": {}, \"responseElements\": null}",
+    "expected": {
+      "action": "CloseAccount",
+      "origin.ip": "198.51.100.20",
+      "origin.user": "arn:aws:iam::123456789012:user/reviewer",
+      "actionResult": "success",
+      "log.awsRecordType": "cloudtrail"
+    },
+    "absent": [],
+    "matches": [
+      "aws_account_closed"
+    ]
+  },
+  {
+    "name": "aws-sts-AssumeRoleWithWebIdentity",
+    "dataSource": "collector-test",
+    "raw": "{\"eventVersion\": \"1.09\", \"eventTime\": \"2026-09-25T10:00:00Z\", \"eventSource\": \"sts.amazonaws.com\", \"eventName\": \"AssumeRoleWithWebIdentity\", \"eventType\": \"AwsApiCall\", \"awsRegion\": \"us-east-1\", \"sourceIPAddress\": \"198.51.100.20\", \"recipientAccountId\": \"123456789012\", \"userIdentity\": {\"type\": \"IAMUser\", \"accountId\": \"123456789012\", \"arn\": \"arn:aws:iam::123456789012:user/reviewer\", \"principalId\": \"TESTPRINCIPAL\", \"sessionContext\": {\"attributes\": {\"mfaAuthenticated\": \"true\"}}}, \"requestParameters\": {\"RoleArn\": \"arn:aws:iam::123456789012:role/ci\", \"WebIdentityToken\": \"tok\"}, \"responseElements\": null}",
+    "expected": {
+      "action": "AssumeRoleWithWebIdentity",
+      "origin.ip": "198.51.100.20",
+      "origin.user": "arn:aws:iam::123456789012:user/reviewer",
+      "actionResult": "success",
+      "log.awsRecordType": "cloudtrail"
+    },
+    "absent": [],
+    "matches": [
+      "aws_sts_assume_role_with_web_identity"
+    ]
   }
 ]
