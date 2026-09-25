@@ -41,6 +41,11 @@
     "vpn-113015-alice": "<166>Sep 23 2026 10:00:00 asa01.example.com : %ASA-6-113015: AAA user authentication Rejected : reason = Invalid password : local database : user = alice : user IP = 198.51.100.7",
     "vpn-113015-bob": "<166>Sep 23 2026 10:00:00 asa01.example.com : %ASA-6-113015: AAA user authentication Rejected : reason = Invalid password : local database : user = bob : user IP = 198.51.100.8",
     "vpn-109034-text": "<166>Sep 23 2026 10:00:00 asa01.example.com : %ASA-3-109034: Authentication failed for network user alice from 198.51.100.7/51234 to 192.0.2.10/443",
-    "vpn-611102-text": "<166>Sep 23 2026 10:00:00 asa01.example.com : %ASA-6-611102: User authentication failed: IP address: 198.51.100.7, Uname: alice"
+    "vpn-611102-text": "<166>Sep 23 2026 10:00:00 asa01.example.com : %ASA-6-611102: User authentication failed: IP address: 198.51.100.7, Uname: alice",
+    "302003-ip": "<166>Sep 23 2026 10:00:00 asa01.example.com : %ASA-6-302003: Built H245 connection for 198.51.100.7 198.51.100.7/1720 192.0.2.10 192.0.2.10/5678",
+    "302003-hostname": "<166>Sep 23 2026 10:00:00 asa01.example.com : %ASA-6-302003: Built H245 connection for 198.51.100.7 198.51.100.7/1720 host-b.example.com host-b.example.com/5678",
+    "302004-to": "<166>Sep 23 2026 10:00:00 asa01.example.com : %ASA-6-302004: Pre-allocate H323 UDP backconnection for 198.51.100.7 198.51.100.7/1720 to 192.0.2.10 192.0.2.10/5678",
+    "302022-mapped-port": "<166>Sep 23 2026 10:00:00 asa01.example.com : %ASA-6-302022: Built backup stub TCP connection for outside:198.51.100.7/443 (198.51.100.7/443) to inside:192.0.2.10/51234 (203.0.113.5/51234)",
+    "302024-mapped-no-port": "<166>Sep 23 2026 10:00:00 asa01.example.com : %ASA-6-302024: Built backup stub UDP connection for outside:198.51.100.7/53 (198.51.100.7) to inside:192.0.2.10/40000 (203.0.113.5)"
   }
 }

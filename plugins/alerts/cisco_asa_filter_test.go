@@ -26,7 +26,7 @@ import (
 // documentation site refused automated access and no Cisco ASA record was available, so the
 // lines follow the filter's own patterns, use RFC 5737 and RFC 3849 documentation addresses
 // and example names, and none is claimed to be a documented Cisco format. These tests use
-// the pinned go-sdk v1.1.33 for YAML decoding, CEL and Event conversion. They do not run the
+// the pinned go-sdk (v1.1.36) for YAML decoding, CEL and Event conversion. They do not run the
 // EventProcessor: asaModel mirrors its step plugins, and testdata/cisco-asa/replay.py runs
 // the same lines through the public playground. See filters/audits/cisco-asa.md.
 
@@ -674,6 +674,16 @@ var asaChangeCases = []struct {
 	{"F-C8", "113011-with-equals", "origin.user", "alice"},
 	{"F-C8", "113011-with-equals", "log.policy", "GP1"},
 	{"F-C8 near miss", "113009-without-equals", "origin.user", "alice"},
+	{"F-C9", "302003-hostname", "origin.ip", "host-b.example.com"},
+	{"F-C9", "302003-hostname", "target.ip", "198.51.100.7"},
+	{"F-C9", "302003-hostname", "log.localAddress", "host-b.example.com"},
+	{"F-C9 near miss", "302003-ip", "log.localAddress", "192.0.2.10"},
+	{"F-C9 near miss", "302004-to", "log.localAddress", "192.0.2.10"},
+	{"F-C10", "302024-mapped-no-port", "log.mappedIpFrom", "198.51.100.7"},
+	{"F-C10", "302024-mapped-no-port", "log.mappedIpTo", "203.0.113.5"},
+	{"F-C10", "302024-mapped-no-port", "log.mappedPortFrom", nil},
+	{"F-C10 near miss", "302022-mapped-port", "log.mappedIpFrom", "198.51.100.7"},
+	{"F-C10 near miss", "302022-mapped-port", "log.mappedPortFrom", "443"},
 }
 
 // Every fabricated line through the model: the named change cases, no where errors, and every
@@ -719,6 +729,38 @@ func TestCiscoASAExtractionModel(t *testing.T) {
 				t.Errorf("%s: %s = %v (present %t), want %v (present %t)", name, k, g, gok, w, wok)
 			}
 		}
+	}
+}
+
+// The grok plugin trims the remaining text before each pattern and treats an empty match as no
+// match, which drops the whole step. So no pattern may prefer empty text at the start of a
+// non-empty text: each pattern, expanded as the engine does, is tried alone on texts that start
+// with every printable ASCII character and with one non-ASCII letter.
+func TestCiscoASAGrokPatternsNeverMatchEmpty(t *testing.T) {
+	m := asaNewModel(t)
+	probes := []string{"é x"}
+	for c := '!'; c <= '~'; c++ {
+		probes = append(probes, string(c)+" x")
+	}
+	checked := 0
+	for i, step := range m.steps {
+		if step.Grok == nil {
+			continue
+		}
+		for j, p := range step.Grok.Patterns {
+			re := m.compile(t, p.Pattern)
+			checked++
+			for _, probe := range probes {
+				if loc := re.FindStringIndex(probe); loc != nil && loc[1] == 0 {
+					t.Errorf("step %d pattern %d (%s) %q matches empty text at the start of %q",
+						i, j, p.FieldName, p.Pattern, probe)
+					break
+				}
+			}
+		}
+	}
+	if checked == 0 {
+		t.Fatal("no grok pattern checked")
 	}
 }
 
@@ -909,7 +951,7 @@ var asaRuleCases = []struct {
 	{"botnet_traffic_detection", "unlisted 338003", `"log":{"messageId":338003}`, false},
 }
 
-// SDK v1.1.33 CEL on synthetic normalized events for the changed rule conditions.
+// SDK CEL (v1.1.36) on synthetic normalized events for the changed rule conditions.
 func TestCiscoASARulePredicates(t *testing.T) {
 	rules := asaLoadRules(t)
 	cache := plugins.NewCELCache("cisco-asa-rules")

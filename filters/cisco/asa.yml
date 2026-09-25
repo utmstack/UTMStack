@@ -1,4 +1,4 @@
-# CISCO ASA filter, version 3.1.0
+# CISCO ASA filter, version 3.1.1
 # Based on examples provided and https://www.cisco.com/c/en/us/td/docs/security/asa/syslog/b_syslog.html
 # Filter Input requirements -> Syslog
 #
@@ -1315,13 +1315,18 @@ pipeline:
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.tmpToip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})((\s)?/(\s)?{{.integer}}|(\s)?/)?'
-            - fieldName: log.irrelevant
-              pattern: '(to\s)?'
             - fieldName: log.localAddress
-              pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
+              pattern: '(?:to\s+)?({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
             - fieldName: log.tmpFromip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})((\s)?/(\s)?{{.integer}}|(\s)?/)?'
           source: log.msg
+          where: equals("log.messageId", 302003) || equals("log.messageId", 302004)
+      # The optional "to" is read with the local address above; keep only the address.
+      - trim:
+          function: regex
+          substring: '^to\s+'
+          fields:
+            - log.localAddress
           where: equals("log.messageId", 302003) || equals("log.messageId", 302004)
       # Second variant
       - grok:
@@ -2481,7 +2486,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '\('
             - fieldName: log.mappedIpFrom
-              pattern: '{{.data}}'
+              pattern: '[^/()]+'
             - fieldName: log.irrelevant
               pattern: '\)'
           source: log.tmpMappedIpPortFrom
@@ -2506,7 +2511,7 @@ pipeline:
             - fieldName: log.irrelevant
               pattern: '\('
             - fieldName: log.mappedIpTo
-              pattern: '{{.data}}'
+              pattern: '[^/()]+'
             - fieldName: log.irrelevant
               pattern: '\)'
           source: log.tmpMappedIpPortTo
