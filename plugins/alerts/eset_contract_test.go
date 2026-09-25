@@ -1,8 +1,10 @@
 package main
 
 // Offline ESET extraction model, not the closed EventProcessor.
-// Explicit YAML grok/JSON/rename/cast/add/reformat/delete are modeled. JSON
-// key sanitization uses SDK utilities; malformed JSON is an explicit model error.
+// Explicit YAML grok/JSON/rename/cast/add/reformat/delete are modeled. Grok
+// patterns are consumed in order, with whitespace trimmed before each non-empty
+// prefix match, as the EventProcessor grok plugin does. JSON key sanitization
+// uses SDK utilities; malformed JSON is an explicit model error.
 // CEL and Event serialization use SDK v1.1.31. Separate history tests exercise
 // actual SDK query behavior. External geolocation and the closed executor are not run.
 import (
@@ -82,22 +84,14 @@ func esetConfig(t *testing.T) *plugins.Config {
 	}
 	return c
 }
-func esetRegex(t *testing.T, g *plugins.Grok, cfg *plugins.Config) *regexp.Regexp {
+func esetRegex(t *testing.T, pattern string, cfg *plugins.Config) *regexp.Regexp {
 	t.Helper()
-	var pattern strings.Builder
-	for i, p := range g.Patterns {
-		if p.FieldName != "" {
-			fmt.Fprintf(&pattern, "(?P<f%d>%s)", i, p.Pattern)
-		} else {
-			pattern.WriteString("(?:" + p.Pattern + ")")
-		}
-	}
 	// ESET uses explicit YAML expressions, with no approximated built-in grok aliases.
 	pats := map[string]string{}
 	for k, v := range cfg.Patterns {
 		pats[k] = v
 	}
-	tmpl, e := template.New("grok").Option("missingkey=error").Parse(pattern.String())
+	tmpl, e := template.New("grok").Option("missingkey=error").Parse(pattern)
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -174,15 +168,27 @@ func esetParseInput(t *testing.T, cfg *plugins.Config, raw, dataSource, id strin
 					if !ok {
 						t.Fatalf("non-string grok source %s", src)
 					}
-					r := esetRegex(t, g, cfg)
-					m := r.FindStringSubmatch(str)
-					if m == nil {
+					found, matched := map[string]string{}, 0
+					for _, p := range g.Patterns {
+						str = strings.TrimSpace(str)
+						if str == "" {
+							break
+						}
+						m := esetRegex(t, p.Pattern, cfg).FindString(str)
+						if m == "" || !strings.HasPrefix(str, m) {
+							break
+						}
+						matched++
+						if p.FieldName != "" {
+							found[p.FieldName] = strings.TrimSpace(m)
+						}
+						str = strings.TrimPrefix(str, m)
+					}
+					if matched != len(g.Patterns) {
 						continue
 					}
-					for i, p := range g.Patterns {
-						if p.FieldName != "" {
-							esetPut(draft, p.FieldName, m[r.SubexpIndex(fmt.Sprintf("f%d", i))], false)
-						}
+					for field, value := range found {
+						esetPut(draft, field, value, false)
 					}
 				case "rename":
 					for _, p := range s.Rename.From {
