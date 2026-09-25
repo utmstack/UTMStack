@@ -1,0 +1,156 @@
+# UTMStack EDR filter, version 1.0.0
+#
+# Parses utmstack_edr events and normalizes them to the UTMStack event schema.
+# Source of truth for the field list: agent/edr/event/event.go (Event struct).
+#
+pipeline:
+  - dataTypes: [utmstack_edr]
+    order: 35  # global pipeline order -- unique across all filters, customer-adjustable
+    steps:
+      - json:
+          source: raw
+      - rename:
+          from:
+            - log.timestamp
+          to: deviceTime
+      - rename:
+          from:
+            - log.os
+          to: origin.operatingSystem
+      - rename:
+          from:
+            - log.action
+          to: action
+      - rename:
+          from:
+            - log.severity
+          to: severity
+          where: 'exists("log.severity")'
+      - rename:
+          from:
+            - log.objectpath
+          to: target.file
+          where: 'exists("log.objectpath")'
+      - rename:
+          from:
+            - log.filehash
+          to: target.sha256
+          where: 'exists("log.filehash")'
+      - rename:
+          from:
+            - log.process.image
+          to: origin.process
+          where: 'exists("log.process.image")'
+      - rename:
+          from:
+            - log.process.command_line
+          to: origin.command
+          where: 'exists("log.process.command_line")'
+      - rename:
+          from:
+            - log.process.user
+          to: origin.user
+          where: 'exists("log.process.user")'
+      - rename:
+          from:
+            - log.process.pid
+          to: log.processPid
+          where: 'exists("log.process.pid")'
+      - rename:
+          from:
+            - log.process.ppid
+          to: log.processPpid
+          where: 'exists("log.process.ppid")'
+      - rename:
+          from:
+            - log.process.session
+          to: log.processSession
+          where: 'exists("log.process.session")'
+      - rename:
+          from:
+            - log.remoteip
+          to: origin.ip
+          where: 'exists("log.remoteip") && equals("log.direction", "inbound")'
+      - rename:
+          from:
+            - log.remoteport
+          to: origin.port
+          where: 'exists("log.remoteport") && equals("log.direction", "inbound")'
+      - rename:
+          from:
+            - log.domain
+          to: origin.domain
+          where: 'exists("log.domain") && equals("log.direction", "inbound")'
+      - rename:
+          from:
+            - log.remoteip
+          to: target.ip
+          where: 'exists("log.remoteip")'
+      - rename:
+          from:
+            - log.remoteport
+          to: target.port
+          where: 'exists("log.remoteport")'
+      - rename:
+          from:
+            - log.domain
+          to: target.domain
+          where: 'exists("log.domain")'
+
+      # Adding action result
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "blocked"
+          where: 'oneOf("action", ["blocked", "script_block", "quarantined", "killed", "ransomware_contained", "contained"])'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "detected"
+          where: 'oneOf("action", ["detected", "ransomware_suspected"])'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "failed"
+          where: 'equals("action", "contain_failed")'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "allowed"
+          where: 'equals("action", "allowed")'
+
+      - cast:
+          fields:
+            - log.processPid
+            - log.processPpid
+            - log.processSession
+          to: int
+      - cast:
+          fields:
+            - origin.port
+            - target.port
+          to: int
+
+      # Adding geolocation to origin.ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where: exists("origin.ip")
+      # Adding geolocation to target.ip
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: target.ip
+            destination: target.geolocation
+          where: exists("target.ip")
+
+      # Removing unused fields
+      - delete:
+          fields:
+            - log.hostid
