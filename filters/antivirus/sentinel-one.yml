@@ -1,4 +1,4 @@
-# SentinelOne filter, version 3.0.1
+# SentinelOne filter, version 3.2.0
 # Supports CEF Syslog format and [something@number something="xxxx"] format
 # Based on https://docs.centrify.com/Content/IntegrationContent/SIEM/arcsight-cef/arcsight-cef-format.htm
 # and https://docs.fortinet.com/document/fortisiem/6.1.0/external-systems-configuration-guide/298395/sentinelone
@@ -362,25 +362,22 @@ pipeline:
             - log.rt
           to: log.ruleTime
 
-      # Adding action result
+      # Adding action result. Only an explicit failed mitigation or operation
+      # status is a final outcome: exact values, not substrings, and
+      # contradictory statuses stay unknown. A successful remediation is not an
+      # allowed connection, and console events have no final result, so
+      # neither sets one.
       - add:
           function: string
           params:
             key: actionResult
-            value: "failed"
-          where: 'equals("log.threatStatus", "mitigation_failed")'
-      - add:
-          function: string
-          params:
-            key: actionResult
-            value: "failed"
-          where: 'equals("log.status", "failed") && !exists("actionResult")'
-      - add:
-          function: string
-          params:
-            key: actionResult
-            value: "failed"
-          where: 'contains("log.mitigationStatus", "fail") && !exists("actionResult")'
+            value: "failure"
+          where: >-
+            (equalsIgnoreCase("log.threatStatus", "mitigation_failed") ||
+             equalsIgnoreCase("log.status", "failed") ||
+             regexMatch("log.mitigationStatus", "(?i)^(failed|failure|mitigation_failed)$")) &&
+            !regexMatch("log.mitigationStatus", "(?i)^(success|succeeded|mitigated)$") &&
+            !regexMatch("log.status", "(?i)^(success|succeeded)$")
 
       # Removing unused fields
       - delete:
