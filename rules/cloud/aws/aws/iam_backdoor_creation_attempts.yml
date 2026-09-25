@@ -50,7 +50,7 @@ afterEvents:
   - field: origin.ip
     operator: filter_term
     value: '{{.origin.ip}}'
-  - field: log.correlationCandidate.iam_backdoor_creation_attempts
+  - field: log.correlationCandidate.iamBackdoorCreationAttempts
     operator: filter_term
     value: match
   within: 30m

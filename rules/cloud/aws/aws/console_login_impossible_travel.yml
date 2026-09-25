@@ -48,7 +48,7 @@ afterEvents:
   - field: log.awsActorKey
     operator: filter_term
     value: '{{.log.awsActorKey}}'
-  - field: log.correlationCandidate.console_login_impossible_travel
+  - field: log.correlationCandidate.consoleLoginImpossibleTravel
     operator: filter_term
     value: match
   - field: origin.geolocation.countryCode

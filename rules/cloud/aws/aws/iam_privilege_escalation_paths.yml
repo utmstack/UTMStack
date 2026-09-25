@@ -58,7 +58,7 @@ afterEvents:
   - field: log.awsActorKey
     operator: filter_term
     value: '{{.log.awsActorKey}}'
-  - field: log.correlationCandidate.iam_privilege_escalation_paths
+  - field: log.correlationCandidate.iamPrivilegeEscalationPaths
     operator: filter_term
     value: match
   within: 30m

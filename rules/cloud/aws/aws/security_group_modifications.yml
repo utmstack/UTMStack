@@ -55,7 +55,7 @@ afterEvents:
   - field: origin.ip
     operator: filter_term
     value: '{{.origin.ip}}'
-  - field: log.correlationCandidate.security_group_modifications
+  - field: log.correlationCandidate.securityGroupModifications
     operator: filter_term
     value: match
   within: 30m

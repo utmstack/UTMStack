@@ -1,4 +1,4 @@
-# AWS filter v1.1.0: CloudTrail JSON and identified GuardDuty EventBridge findings.
+# AWS filter v1.1.1: CloudTrail JSON and identified GuardDuty EventBridge findings.
 # Original vendor objects and legacy aliases are retained. API success is request success.
 # Correlation candidates are generated here, never trusted from input.
 pipeline:
@@ -282,13 +282,14 @@ pipeline:
       params:
         key: actionResult
         value: success
+      # CheckMfa only checks whether MFA is required; it does not finish a sign-in.
+      # Preserve its vendor response without promoting the intermediate success.
       where: equals("log.awsRecordType","cloudtrail") && !((exists("log.errorCode") && !equals("log.errorCode","")) || (exists("log.errorMessage")
         && !equals("log.errorMessage","")) || (exists("log.responseElements.errorCode") && !equals("log.responseElements.errorCode",""))
         || (exists("log.responseElements.errorMessage") && !equals("log.responseElements.errorMessage","")) || equalsIgnoreCase("log.responseElements.ConsoleLogin","Failure")
         || equalsIgnoreCase("log.responseElements.GetSigninToken","Failure") || equalsIgnoreCase("log.responseElements.CheckMfa","Failure"))
         && (equals("log.eventType","AwsApiCall") || (equals("log.eventName","ConsoleLogin") && equals("log.responseElements.ConsoleLogin","Success"))
-        || (equals("log.eventName","GetSigninToken") && equals("log.responseElements.GetSigninToken","Success")) || (equals("log.eventName","CheckMfa")
-        && equals("log.responseElements.CheckMfa","Success")))
+        || (equals("log.eventName","GetSigninToken") && equals("log.responseElements.GetSigninToken","Success")))
   - grok:
       source: log.recipientAccountId
       patterns:
@@ -387,7 +388,7 @@ pipeline:
   - add:
       function: string
       params:
-        key: log.correlationCandidate.aws_ecs_credential_theft
+        key: log.correlationCandidate.awsEcsCredentialTheft
         value: match
       where: |-
         equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource", "ecs.amazonaws.com") &&
@@ -398,14 +399,14 @@ pipeline:
   - add:
       function: string
       params:
-        key: log.correlationCandidate.saml_provider_change
+        key: log.correlationCandidate.samlProviderChange
         value: match
       where: equals("log.awsRecordType","cloudtrail") && equals("log.eventSource","iam.amazonaws.com") && oneOf("log.eventName",["CreateSAMLProvider",
         "UpdateSAMLProvider"]) && equals("actionResult","success")
   - add:
       function: string
       params:
-        key: log.correlationCandidate.aws_securityhub_finding_evasion
+        key: log.correlationCandidate.awsSecurityhubFindingEvasion
         value: match
       where: |-
         equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource", "securityhub.amazonaws.com") &&
@@ -415,7 +416,7 @@ pipeline:
   - add:
       function: string
       params:
-        key: log.correlationCandidate.aws_ssm_sendcommand_abuse
+        key: log.correlationCandidate.awsSsmSendcommandAbuse
         value: match
       where: |-
         equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource", "ssm.amazonaws.com") &&
@@ -424,28 +425,28 @@ pipeline:
   - add:
       function: string
       params:
-        key: log.correlationCandidate.aws_sso_suspicious_activities
+        key: log.correlationCandidate.awsSsoSuspiciousActivities
         value: match
       where: equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource","sso.amazonaws.com") && oneOf("log.eventName",["CreatePermissionSet",
         "AttachManagedPolicyToPermissionSet", "DeletePermissionSet", "PutInlinePolicyToPermissionSet"]) && equals("actionResult","success"))
   - add:
       function: string
       params:
-        key: log.correlationCandidate.cloudformation_stack_deletion
+        key: log.correlationCandidate.cloudformationStackDeletion
         value: match
       where: equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource", "cloudformation.amazonaws.com") && equals("log.eventName",
         "DeleteStack") && equals("actionResult","success"))
   - add:
       function: string
       params:
-        key: log.correlationCandidate.console_login_impossible_travel
+        key: log.correlationCandidate.consoleLoginImpossibleTravel
         value: match
       where: equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource","signin.amazonaws.com") && oneOf("log.eventName",["ConsoleLogin"])
         && equals("actionResult","success") && regexMatch("origin.geolocation.countryCode","^[A-Z]{2}$"))
   - add:
       function: string
       params:
-        key: log.correlationCandidate.cross_account_access_anomalies
+        key: log.correlationCandidate.crossAccountAccessAnomalies
         value: match
       where: equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource","sts.amazonaws.com") && oneOf("log.eventName",["AssumeRole"])
         && equals("actionResult","success") && regexMatch("log.userIdentity.accountId","^[0-9]{12}$") && regexMatch("log.responseElements.assumedRoleUser.arn","^arn:[^:]+:sts::[0-9]{12}:assumed-role/.+$")
@@ -453,14 +454,14 @@ pipeline:
   - add:
       function: string
       params:
-        key: log.correlationCandidate.iam_backdoor_creation_attempts
+        key: log.correlationCandidate.iamBackdoorCreationAttempts
         value: match
       where: equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource", "iam.amazonaws.com") && oneOf("log.eventName", ["CreateUser",
         "CreateAccessKey", "AttachUserPolicy", "PutUserPolicy", "CreateLoginProfile"]) && equals("actionResult","success"))
   - add:
       function: string
       params:
-        key: log.correlationCandidate.iam_privilege_escalation_paths
+        key: log.correlationCandidate.iamPrivilegeEscalationPaths
         value: match
       where: |-
         equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource", "iam.amazonaws.com") &&
@@ -469,28 +470,28 @@ pipeline:
   - add:
       function: string
       params:
-        key: log.correlationCandidate.lambda_privilege_escalation
+        key: log.correlationCandidate.lambdaPrivilegeEscalation
         value: match
       where: equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource","iam.amazonaws.com") && oneOf("log.eventName",["AttachRolePolicy",
         "AttachUserPolicy"]) && equals("actionResult","success") && regexMatch("log.requestParameters.policyArn","^arn:(aws|aws-cn|aws-us-gov):iam::aws:policy/(AdministratorAccess|IAMFullAccess)$"))
   - add:
       function: string
       params:
-        key: log.correlationCandidate.mass_resource_deletion
+        key: log.correlationCandidate.massResourceDeletion
         value: match
       where: equals("log.awsRecordType","cloudtrail") && (regexMatch("log.eventName","^(Delete|Terminate|Remove)[A-Z]") && equals("actionResult","success")
         && !equals("log.eventSource","s3.amazonaws.com"))
   - add:
       function: string
       params:
-        key: log.correlationCandidate.route53_dns_hijacking
+        key: log.correlationCandidate.route53DnsHijacking
         value: match
       where: equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource", "route53.amazonaws.com") && equals("log.eventName",
         "ChangeResourceRecordSets") && equals("actionResult","success"))
   - add:
       function: string
       params:
-        key: log.correlationCandidate.s3_bulk_data_exfiltration
+        key: log.correlationCandidate.s3BulkDataExfiltration
         value: match
       where: |-
         equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource", "s3.amazonaws.com") &&
@@ -499,14 +500,14 @@ pipeline:
   - add:
       function: string
       params:
-        key: log.correlationCandidate.secrets_manager_suspicious_access
+        key: log.correlationCandidate.secretsManagerSuspiciousAccess
         value: match
       where: equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource", "secretsmanager.amazonaws.com") && (equals("log.eventName",
         "GetSecretValue") || equals("log.eventName", "BatchGetSecretValue")) && equals("actionResult","success"))
   - add:
       function: string
       params:
-        key: log.correlationCandidate.security_group_modifications
+        key: log.correlationCandidate.securityGroupModifications
         value: match
       where: equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource","ec2.amazonaws.com") && oneOf("log.eventName",["AuthorizeSecurityGroupIngress",
         "AuthorizeSecurityGroupEgress", "ModifySecurityGroupRules"]) && equals("actionResult","success") && (exists('log.requestParameters.ipPermissions.items.#(ipRanges.items.#(cidrIp=="0.0.0.0/0"))')
@@ -515,7 +516,7 @@ pipeline:
   - add:
       function: string
       params:
-        key: log.correlationCandidate.ssm_session_abuse
+        key: log.correlationCandidate.ssmSessionAbuse
         value: match
       where: |-
         equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource", "ssm.amazonaws.com") &&
@@ -524,7 +525,7 @@ pipeline:
   - add:
       function: string
       params:
-        key: log.correlationCandidate.sts_token_abuse
+        key: log.correlationCandidate.stsTokenAbuse
         value: match
       where: |-
         equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource", "sts.amazonaws.com") &&
@@ -537,7 +538,7 @@ pipeline:
   - add:
       function: string
       params:
-        key: log.correlationCandidate.unusual_api_call_patterns
+        key: log.correlationCandidate.unusualApiCallPatterns
         value: match
       where: "equals(\"log.awsRecordType\",\"cloudtrail\") && (exists(\"log.eventSource\") && \nexists(\"log.sourceIPAddress\") &&\n\
         exists(\"log.eventName\") &&\n(\n  oneOf(\"log.eventName\", [\"DescribeSecurityGroups\", \"DescribeNetworkAcls\", \"DescribeVpcs\"\
@@ -548,21 +549,21 @@ pipeline:
   - add:
       function: string
       params:
-        key: log.correlationCandidate.vpc_flow_log_anomalies
+        key: log.correlationCandidate.vpcFlowLogAnomalies
         value: match
       where: equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource","ec2.amazonaws.com") && oneOf("log.eventName",["DeleteFlowLogs"])
         && equals("actionResult","success"))
   - add:
       function: string
       params:
-        key: log.correlationCandidate.credential_access_aws_iam_assume_role_brute_force
+        key: log.correlationCandidate.credentialAccessAwsIamAssumeRoleBruteForce
         value: match
       where: equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource","iam.amazonaws.com") && oneOf("log.eventName",["UpdateAssumeRolePolicy"])
         && oneOf("log.errorCode",["MalformedPolicyDocument", "MalformedPolicyDocumentException"]) && equals("actionResult","failure"))
   - add:
       function: string
       params:
-        key: log.correlationCandidate.credential_access_root_console_failure_brute_force
+        key: log.correlationCandidate.credentialAccessRootConsoleFailureBruteForce
         value: match
       where: equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource","signin.amazonaws.com") && oneOf("log.eventName",["ConsoleLogin"])
         && equals("log.userIdentity.type","Root") && oneOf("actionResult",["failure", "denied"]))

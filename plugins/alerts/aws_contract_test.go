@@ -106,6 +106,14 @@ func awsRegex(t *testing.T, g *plugins.Grok, cfg *plugins.Config) *regexp.Regexp
 	}
 	return r
 }
+
+// awsStoredName is the name the parser plugins store for a grok, rename or add target:
+// utils.SanitizeField keeps only letters, digits and dots.
+func awsStoredName(name string) string {
+	utils.SanitizeField(&name)
+	return name
+}
+
 func awsParse(t *testing.T, cfg *plugins.Config, raw string, dataSource string, cache *plugins.CELCache, enrichment ...map[string]any) string {
 	return awsParseMode(t, cfg, raw, dataSource, cache, false, enrichment...)
 }
@@ -169,13 +177,13 @@ func awsParseMode(t *testing.T, cfg *plugins.Config, raw string, dataSource stri
 					}
 					for i, p := range g.Patterns {
 						if p.FieldName != "" {
-							awsPut(draft, p.FieldName, m[r.SubexpIndex(fmt.Sprintf("f%d", i))], false)
+							awsPut(draft, awsStoredName(p.FieldName), m[r.SubexpIndex(fmt.Sprintf("f%d", i))], false)
 						}
 					}
 				case "rename":
 					for _, p := range s.Rename.From {
 						if v, ok := awsGet(draft, p); ok {
-							awsPut(draft, s.Rename.To, v, false)
+							awsPut(draft, awsStoredName(s.Rename.To), v, false)
 							awsPut(draft, p, nil, true)
 							break
 						}
@@ -184,7 +192,7 @@ func awsParseMode(t *testing.T, cfg *plugins.Config, raw string, dataSource stri
 					if s.Add.Function != "string" {
 						t.Fatalf("unsupported add function %s", s.Add.Function)
 					}
-					awsPut(draft, s.Add.Params["key"].GetStringValue(), s.Add.Params["value"].AsInterface(), false)
+					awsPut(draft, awsStoredName(s.Add.Params["key"].GetStringValue()), s.Add.Params["value"].AsInterface(), false)
 				case "delete":
 					for _, p := range s.Delete.Fields {
 						awsPut(draft, p, nil, true)

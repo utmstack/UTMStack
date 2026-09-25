@@ -57,7 +57,7 @@ afterEvents:
   - field: log.awsActorKey
     operator: filter_term
     value: '{{.log.awsActorKey}}'
-  - field: log.correlationCandidate.route53_dns_hijacking
+  - field: log.correlationCandidate.route53DnsHijacking
     operator: filter_term
     value: match
   within: 30m

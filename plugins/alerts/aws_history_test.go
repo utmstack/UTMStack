@@ -35,10 +35,13 @@ func TestAWSSDKHistory(t *testing.T) {
 	queries := 0
 	mapping := map[string]any{"properties": map[string]any{}}
 	props := mapping["properties"].(map[string]any)
-	paths := []string{"dataSource", "log.awsAccountKeyType", "log.awsAccountKey", "log.awsActorKeyType", "log.awsActorKey", "origin.ip", "origin.geolocation.countryCode", "log.eventName", "log.correlationCandidate.saml_provider_change"}
+	paths := []string{"dataSource", "log.awsAccountKeyType", "log.awsAccountKey", "log.awsActorKeyType", "log.awsActorKey", "origin.ip", "origin.geolocation.countryCode", "log.eventName"}
 	for name, r := range rules {
 		if len(r.Correlation) > 0 {
-			paths = append(paths, "log.correlationCandidate."+name)
+			if awsHistoryMarkers[name] == "" {
+				t.Fatalf("history rule %s has no correlation marker", name)
+			}
+			paths = append(paths, "log.correlationCandidate."+awsHistoryMarkers[name])
 		}
 	}
 	for _, path := range paths {
@@ -225,10 +228,8 @@ func TestAWSSDKHistory(t *testing.T) {
 			if yes, e := cache.Eval(r.Where, out); e != nil || !yes {
 				t.Fatalf("raw trigger failed: %v %v", yes, e)
 			}
-			marker := "log.correlationCandidate." + tc.rule
-			if tc.rule == "aws_golden_saml_attack" {
-				marker = "log.correlationCandidate.saml_provider_change"
-			}
+			// The filter stores this marker and the rule counts it under the same name.
+			marker := "log.correlationCandidate." + awsHistoryMarkers[tc.rule]
 			terms = map[string]string{"dataSource": "collector-test", "log.awsAccountKeyType": "recipient", "log.awsAccountKey": "123456789012", marker: "match"}
 			notTerms = map[string]string{}
 			if tc.mode == "ip" {
