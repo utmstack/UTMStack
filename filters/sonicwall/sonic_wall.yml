@@ -1,4 +1,4 @@
-# SonicWall Firewall — version 4.0.0
+# SonicWall Firewall — version 4.1.0
 #
 # Formats supported
 #   - SonicOS syslog KV:  <pri>  id=firewall sn=... time="..." fw=... msg="..." src=IP:PORT:IF ...
@@ -35,6 +35,8 @@ pipeline:
 
       # -------------------------------------------------------------------
       # CEF header (only when the log line contains "CEF:")
+      # The grok step matches each pattern alone and rejects an empty match,
+      # so header fields use a non-empty pattern instead of a lazy one.
       # -------------------------------------------------------------------
       - grok:
           source: raw
@@ -46,27 +48,27 @@ pipeline:
             - fieldName: ""
               pattern: '\|'
             - fieldName: log.deviceVendor
-              pattern: '{{.data}}'
+              pattern: '(?:[^|\\]|\\.)+'
             - fieldName: ""
               pattern: '\|'
             - fieldName: log.deviceProduct
-              pattern: '{{.data}}'
+              pattern: '(?:[^|\\]|\\.)+'
             - fieldName: ""
               pattern: '\|'
             - fieldName: log.deviceVersion
-              pattern: '{{.data}}'
+              pattern: '(?:[^|\\]|\\.)+'
             - fieldName: ""
               pattern: '\|'
             - fieldName: log.eventCode
-              pattern: '{{.data}}'
+              pattern: '(?:[^|\\]|\\.)+'
             - fieldName: ""
               pattern: '\|'
             - fieldName: log.eventName
-              pattern: '{{.data}}'
+              pattern: '(?:[^|\\]|\\.)+'
             - fieldName: ""
               pattern: '\|'
             - fieldName: log.cefSeverity
-              pattern: '{{.data}}'
+              pattern: '(?:[^|\\]|\\.)+'
             - fieldName: ""
               pattern: '\|'
           where: contains("raw", "CEF:")
@@ -202,10 +204,6 @@ pipeline:
               pattern: '{{.greedy}}'
           where: contains("raw", "uuid=\"")
 
-      - delete:
-          fields:
-            - log.fwaction
-          where: contains("raw", "fw_action=\"")
       - grok:
           source: raw
           patterns:
@@ -351,8 +349,10 @@ pipeline:
           where: exists("log.deviceTimeRaw")
 
       # -------------------------------------------------------------------
-      # Split src / dst  =>  ip[:port[:iface]]
+      # Split src / dst  =>  ip[:port[:iface]], ip:port or ip::iface.
+      # Each shape has its own step: a step writes only when all its patterns match.
       # -------------------------------------------------------------------
+      # ip:port:interface
       - grok:
           source: log.src
           patterns:
@@ -366,18 +366,43 @@ pipeline:
               pattern: ':'
             - fieldName: log.sourceInterface
               pattern: '{{.word}}'
-          where: contains("log.src", ":")
+          where: regexMatch("log.src", "^[0-9.]+:[0-9]+:.")
+      # ip:port, used by VPN negotiation events
+      - grok:
+          source: log.src
+          patterns:
+            - fieldName: origin.ip
+              pattern: '{{.ipv4}}'
+            - fieldName: ""
+              pattern: ':'
+            - fieldName: origin.port
+              pattern: '{{.integer}}'
+          where: regexMatch("log.src", "^[0-9.]+:[0-9]+$")
+      # ip::interface, used by user login events
+      - grok:
+          source: log.src
+          patterns:
+            - fieldName: origin.ip
+              pattern: '{{.ipv4}}'
+            - fieldName: ""
+              pattern: '::'
+            - fieldName: log.sourceInterface
+              pattern: '{{.word}}'
+          where: regexMatch("log.src", "^[0-9.]+::.")
 
       - delete:
           fields:
             - log.src
-          where: contains("log.src", ":")
+          where: exists("origin.ip")
 
+      # A bare address; any other value stays under its vendor key.
       - rename:
           from:
             - log.src
           to: origin.ip
+          where: inCIDR("log.src", "0.0.0.0/0")
 
+      # ip:port:interface
       - grok:
           source: log.dst
           patterns:
@@ -391,17 +416,41 @@ pipeline:
               pattern: ':'
             - fieldName: log.targetInterface
               pattern: '{{.word}}'
-          where: contains("log.dst", ":")
+          where: regexMatch("log.dst", "^[0-9.]+:[0-9]+:.")
+      # ip:port, used by VPN negotiation events
+      - grok:
+          source: log.dst
+          patterns:
+            - fieldName: target.ip
+              pattern: '{{.ipv4}}'
+            - fieldName: ""
+              pattern: ':'
+            - fieldName: target.port
+              pattern: '{{.integer}}'
+          where: regexMatch("log.dst", "^[0-9.]+:[0-9]+$")
+      # ip::interface, used by user login events
+      - grok:
+          source: log.dst
+          patterns:
+            - fieldName: target.ip
+              pattern: '{{.ipv4}}'
+            - fieldName: ""
+              pattern: '::'
+            - fieldName: log.targetInterface
+              pattern: '{{.word}}'
+          where: regexMatch("log.dst", "^[0-9.]+::.")
 
       - delete:
           fields:
             - log.dst
-          where: contains("log.dst", ":")
+          where: exists("target.ip")
 
+      # A bare address; any other value stays under its vendor key.
       - rename:
           from:
             - log.dst
           to: target.ip
+          where: inCIDR("log.dst", "0.0.0.0/0")
 
       - grok:
           source: log.natSrc
@@ -587,6 +636,15 @@ pipeline:
             - log.cs6
           to: log.threatContext
 
+      # fw_action is often the last key, which the rescue above cannot bound.
+      # Fall back to the KV value; go-sdk v1.1.35 and later keep the underscore.
+      - rename:
+          from:
+            - log.fw_action
+            - log.fwaction
+          to: log.actionRaw
+          where: '!exists("log.actionRaw")'
+
       # -------------------------------------------------------------------
       # Strip residual quotes / apostrophes from rescued values.
       # -------------------------------------------------------------------
@@ -638,11 +696,6 @@ pipeline:
             - log.userRaw
           to: origin.user
 
-      - rename:
-          from:
-            - log.fwaction
-          to: action
-
       # -------------------------------------------------------------------
       # Type casts
       # -------------------------------------------------------------------
@@ -685,6 +738,42 @@ pipeline:
             key: actionResult
             value: denied
           where: oneOf("action", ["drop", "dropped", "deny", "denied", "block", "blocked"])
+      # Events without a firewall decision, by the meaning of their message:
+      # 29, 31, 236, 237, 238 and 1080 "... login allowed"; 942 "IKEv2
+      # Authentication successful"; 978 "IKEv2 negotiation complete".
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: '!exists("actionResult") && oneOf("log.eventCode", ["29", "31", "236", "237", "238", "1080", "942", "978"])'
+      # 537 "Connection Closed" follows an allowed connection; only one that
+      # received data back completed. Without received bytes it keeps no outcome.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: '!exists("actionResult") && equals("log.eventCode", "537") && greaterThan("origin.bytesReceived", 0)'
+      # 32, 33 and 200 "... login denied due to bad credentials"; 34 "Pending
+      # login timed out"; 140 "XAUTH Failed ... Authentication failure"; 243, 244,
+      # 746 and 747 RADIUS or LDAP failures; 1035 "password expired"; 1117 "SSO
+      # probe failed"; 402, 658, 953, 967 and 1305 failed IKE negotiations; and
+      # any other "... denied due to bad credentials" message.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failure
+          where: '!exists("actionResult") && (oneOf("log.eventCode", ["32", "33", "34", "140", "200", "243", "244", "746", "747", "1035", "1117", "402", "658", "953", "967", "1305"]) || contains("log.message", "denied due to bad credentials"))'
+      # 986 "User login denied - not allowed by Policy rule"; 1079 "SSLVPN
+      # service is not allowed on <zone>".
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: '!exists("actionResult") && oneOf("log.eventCode", ["986", "1079"])'
 
       # -------------------------------------------------------------------
       # Group category human label from log.groupCategoryId (1..17)
@@ -851,4 +940,5 @@ pipeline:
             - log.syslogPri
             - log.cefVersion
             - log.fwaction
+            - log.fw_action
             - log.grokTrash
