@@ -20,6 +20,8 @@ var (
 	dbInitErr  error
 )
 
+const deleteBatchSize = 500
+
 type Database struct {
 	db     *gorm.DB
 	locker sync.RWMutex
@@ -81,35 +83,54 @@ func (d *Database) Close() error {
 	return sqlDB.Close()
 }
 
-func (d *Database) DeleteOld(data interface{}, retentionMegabytes int) (int, error) {
+const HardCapMultiplier = 5
+
+func (d *Database) DeleteOld(data interface{}, retentionMegabytes int) (processedDeleted int, unprocessedDeleted int, err error) {
 	d.locker.Lock()
 	defer d.locker.Unlock()
 	currentSize, err := GetDatabaseSizeInMB()
 	if err != nil {
-		return 0, fmt.Errorf("error getting database size: %v", err)
+		return 0, 0, fmt.Errorf("error getting database size: %v", err)
 	}
 
-	var rowsAffected int
 	for currentSize > retentionMegabytes {
-		result := d.db.Where("1 = 1").Order("created_at ASC").Limit(500).Delete(data)
-		if result.Error != nil {
+		result := d.deleteOldestBatch(data, "processed = ?", true)
+		if result.Error != nil || result.RowsAffected == 0 {
 			break
 		}
-		rowsAffected += int(result.RowsAffected)
-		if result.RowsAffected == 0 {
-			break
-		}
+		processedDeleted += int(result.RowsAffected)
 		currentSize, err = GetDatabaseSizeInMB()
 		if err != nil {
 			break
 		}
 	}
 
-	if rowsAffected > 0 {
+	hardCap := retentionMegabytes * HardCapMultiplier
+	for currentSize > hardCap {
+		result := d.deleteOldestBatch(data, "processed = ?", false)
+		if result.Error != nil || result.RowsAffected == 0 {
+			break
+		}
+		unprocessedDeleted += int(result.RowsAffected)
+		currentSize, err = GetDatabaseSizeInMB()
+		if err != nil {
+			break
+		}
+	}
+
+	if processedDeleted+unprocessedDeleted > 0 {
 		d.db.Exec("VACUUM;")
 	}
 
-	return rowsAffected, nil
+	return processedDeleted, unprocessedDeleted, nil
+}
+
+func (d *Database) deleteOldestBatch(data interface{}, cond string, condArgs ...interface{}) *gorm.DB {
+	subquery := d.db.Model(data).Select("id").
+		Where(cond, condArgs...).
+		Order("created_at ASC").
+		Limit(deleteBatchSize)
+	return d.db.Where("id IN (?)", subquery).Delete(data)
 }
 
 func GetDB() (*Database, error) {

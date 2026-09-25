@@ -178,9 +178,13 @@ func (l *LogProcessor) CleanCountedLogs() {
 				continue
 			}
 		}
-		_, err = l.db.DeleteOld(&models.Log{}, dataRetention)
+		_, unprocessedDeleted, err := l.db.DeleteOld(&models.Log{}, dataRetention)
 		if err != nil {
 			utils.Logger.ErrorF("error deleting old logs: %s", err)
+		}
+		if unprocessedDeleted > 0 {
+			utils.Logger.ErrorF("dropped %d undelivered logs to stay under the hard disk cap (%dx retention of %d MB); backend has likely been unreachable for a long time",
+				unprocessedDeleted, database.HardCapMultiplier, dataRetention)
 		}
 
 		unprocessed := make([]models.Log, 0, 10)
