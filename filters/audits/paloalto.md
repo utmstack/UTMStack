@@ -165,9 +165,47 @@ counts as a rule error; this says nothing about the rules. Their history queries
 the SDK history tests against loopback mocks. The rules without a history search raised 16 local
 alerts, each on a line that expects it.
 
+## Empty CEF header values (filter 3.1.2)
+
+A later check tried every `grok` pattern of the filter on its own, the way the `8a3ade7`
+plugin runs it: the text that is left is trimmed before each pattern, an empty match counts as
+no match, and then the step writes nothing. Three patterns of the CEF/LEEF header step could
+match empty text: the sender software version and the signature (`(?:\\.|[^|\\])*`) and the
+severity (`[^|]*`). When one of these header values was empty, for example `|PAN-OS||auth|`,
+the header step failed, so the event lost its type, its extension text and every field taken
+from them.
+
+What changed:
+
+- Each of the three values is read together with the `|` that ends it, and one `trim` step
+  removes that `|`. The separator fields this replaces (`log.paSep1`, `log.paSep2` and
+  `log.paSep4`) are no longer written, and the final cleanup no longer lists them.
+- An empty header value is stored as empty text, as the `csv` plugin already stores empty
+  columns. The later steps that read the signature already skip `""`, `-` and `N/A`, so an
+  empty signature sets no `log.paSubtype`.
+- Three fixtures copy `cef-system-auth` with one empty header value each
+  (`cef-header-empty-version`, `cef-header-empty-signature`, `cef-header-empty-severity`) and
+  expect its user, address, result and authentication rule match.
+- `TestPaloAltoGrokPatternsNeverMatchEmpty` tries every pattern alone on texts that start with
+  each printable character, and fails when one matches empty text at the start.
+
+The other patterns that can match empty text never do so at the start of a non-empty text: the
+613 extension value patterns end at ` next=` or at the end of the text, and the header's last
+pattern, `.*$`, takes the rest of the line. They are unchanged.
+
+| Check, filter 3.1.2 | Result |
+|---|---|
+| The three new lines, a TRAFFIC line with an empty signature and two unchanged controls, EventProcessor `8a3ade7`, filters 3.1.1 and 3.1.2 | With 3.1.1 the four lines with an empty header value kept only the envelope, without an error. With 3.1.2 each has every field of its unchanged control except the empty value. The controls are identical under both filters. |
+| Full `plugins/alerts` suite, go-sdk v1.1.36 | 49 tests pass, 12 skip, none fail (2,389 passing results with subtests). With the 34 private records: 50 pass, 11 skip, none fail (2,424). |
+| The 125 committed lines through the `8a3ade7` playground, filter and eleven rules as committed | 125 events, no parser error, every expected field and every required absence on all 125. The same 16 local alerts and the same two history rules' Circuit Breaker alerts as before. A first run wrote the same events and alerts but did not shut down and was stopped after 10 minutes; a second run finished normally with identical events. |
+| go-sdk v1.1.36 rule replay over those events | Exactly the 41 expected rule matches (the 38 before and the three new lines), no other match, every history placeholder resolved. |
+| The 34 private real records through the same playground | 34 events, no parser error, every expected field, each event identical to the filter 3.1.1 run. The authentication rule matches exactly the 9 real failed logins. |
+| Go model against the playground | Identical events for all 125 committed lines (fields, types and errors). |
+| The new checks on filter 3.1.1 | `TestPaloAltoGrokPatternsNeverMatchEmpty` names the three header patterns, and `TestPaloAltoRawContracts` fails on the three new lines. Both pass on 3.1.2. |
+
 ## Validation and rollout limits
 
-The committed suite has **122 fabricated raw fixtures**, positive/negative assertions for all
+The committed suite has **125 fabricated raw fixtures**, positive/negative assertions for all
 **eleven rules**, strict final Event decoding, independent alert-side expectations, and **five
 real SDK history-request tests** against loopback mocks. History tests cover below/at threshold,
 expiration, irrelevant/unmarked events, wrong identities and unresolved required placeholders.
@@ -194,7 +232,7 @@ only; neither it nor standard LEEF has vendor-semantic validation here. Ambiguou
 counters/severity remain unpromoted.
 
 Raw extraction in the Go suite uses an offline model of the EventProcessor `8a3ade7` parser
-plugins; it gives the same events as the real playground for all 122 committed lines. It does
+plugins; it gives the same events as the real playground for all 125 committed lines. It does
 not run the geolocation service or create alerts. Native replay and deployment
 identity evidence are maintained separately; no customer records or identifying metadata are
 committed. No production alert-volume result is asserted.
