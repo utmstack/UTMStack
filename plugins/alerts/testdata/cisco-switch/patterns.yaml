@@ -1,0 +1,11 @@
+# The shared grok definitions this filter uses, copied from
+# backend/src/main/resources/config/liquibase/changelog/20250616001_insert_utm_regex_pattern.xml.
+patterns:
+  ciscoMacAddr: '(?:(?:[A-Fa-f0-9]{4}\.){2}[A-Fa-f0-9]{4})'
+  data: '(.*?)'
+  greedy: '.*'
+  integer: '(?:[+-]?(?:[0-9]+))'
+  ipv4: '(((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.)){3}((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)))'
+  monthName: '\b(?:[Jj]an(?:uary|uar)?|[Ff]eb(?:ruary|ruar)?|[Mm](?:a|ä)?r(?:ch|z)?|[Aa]pr(?:il)?|[Mm]a(?:y|i)?|[Jj]un(?:e|i)?|[Jj]ul(?:y|i)?|[Aa]ug(?:ust)?|[Ss]ep(?:tember)?|[Oo](?:c|k)?t(?:ober)?|[Nn]ov(?:ember)?|[Dd]e(?:c|z)(?:ember)?)\b'
+  notSpace: '\S+'
+  word: '\b\w+\b'

@@ -1,4 +1,4 @@
-# CISCO Switch filter, version 3.0.2
+# CISCO Switch filter, version 3.1.0
 # Based on https://www.cisco.com/c/en/us/support/ios-nx-os-software/index.html
 # and https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/17_xe/syslogs/17-15-x/b-system-message-guide-17-15-x.html
 # Support CISCO IOS from 15 SY to IOS XE v17
@@ -203,13 +203,103 @@ pipeline:
           params:
             key: severity
             value: 'medium'
-          where: log.severity=="4"
+          where: equals("log.severity", "4")
       - add:
           function: 'string'
           params:
             key: severity
             value: 'low'
           where: oneOf("log.severity", ["5", "6", "7"])
+      #......................................................................#
+      # Addresses carried by the message text (shapes observed in real switch records)
+      # %SW_MATM-4-MACFLAP_NOTIF: Host <mac> in vlan <n> is flapping between port <if> and port <if>
+      # Interface names are text, so they stay under log.*; origin.port holds numbers only.
+      # The two ports are kept in the order the message gives them (log.firstPort, log.secondPort);
+      # which of them is the previous port is not established, so the names do not claim a direction.
+      - grok:
+          source: log.ciscoMsg
+          patterns:
+            - fieldName: ""
+              pattern: 'Host'
+            - fieldName: origin.mac
+              pattern: '{{.ciscoMacAddr}}'
+            - fieldName: ""
+              pattern: 'in vlan'
+            - fieldName: log.vlan
+              pattern: '{{.integer}}'
+            - fieldName: ""
+              pattern: 'is flapping between port'
+            - fieldName: log.firstPort
+              pattern: '{{.notSpace}}'
+            - fieldName: ""
+              pattern: 'and port'
+            - fieldName: log.secondPort
+              pattern: '{{.notSpace}}'
+          where: equals("log.facility", "SW_MATM") && equals("log.facilityMnemonic", "MACFLAP_NOTIF")
+      # %SISF-4-EXCESS_ARP_ACTIVITY: ... Excessive ARP activity detected for the client <mac>. client is brought down ...
+      - grok:
+          source: log.ciscoMsg
+          patterns:
+            - fieldName: ""
+              pattern: '{{.data}}Excessive ARP activity detected for the client'
+            - fieldName: origin.mac
+              pattern: '{{.ciscoMacAddr}}'
+            - fieldName: ""
+              pattern: '\. client is brought down'
+          where: equals("log.facility", "SISF") && equals("log.facilityMnemonic", "EXCESS_ARP_ACTIVITY")
+      # %SSH-4-SSH2_UNEXPECTED_MSG: Unexpected message type has arrived. Terminating the connection from <ip>
+      - grok:
+          source: log.ciscoMsg
+          patterns:
+            - fieldName: ""
+              pattern: 'Unexpected message type has arrived\. Terminating the connection from'
+            - fieldName: origin.ip
+              pattern: '{{.ipv4}}$'
+          where: equals("log.facility", "SSH") && equals("log.facilityMnemonic", "SSH2_UNEXPECTED_MSG")
+      # %SSH-5-SSH_CLOSE: SSH Session from <ip> (tty = <n>) for user '<user>' using crypto cipher '<cipher>' closed
+      - grok:
+          source: log.ciscoMsg
+          patterns:
+            - fieldName: ""
+              pattern: 'SSH Session from'
+            - fieldName: origin.ip
+              pattern: '{{.ipv4}}'
+            - fieldName: ""
+              pattern: '\(tty'
+          where: equals("log.facility", "SSH") && equals("log.facilityMnemonic", "SSH_CLOSE")
+      # %DHCPD-4-PING_CONFLICT: DHCP address conflict:  server pinged <ip>.
+      - grok:
+          source: log.ciscoMsg
+          patterns:
+            - fieldName: ""
+              pattern: 'DHCP address conflict:'
+            - fieldName: ""
+              pattern: 'server pinged'
+            - fieldName: target.ip
+              pattern: '{{.ipv4}}'
+            - fieldName: ""
+              pattern: '\.$'
+          where: equals("log.facility", "DHCPD") && equals("log.facilityMnemonic", "PING_CONFLICT")
+      # %SYS-3-LOGGINGHOST_FAIL / %SYS-6-LOGGINGHOST_STARTSTOP: Logging to host <ip> port <n> failed|started ...
+      - grok:
+          source: log.ciscoMsg
+          patterns:
+            - fieldName: ""
+              pattern: 'Logging to host'
+            - fieldName: target.ip
+              pattern: '{{.ipv4}}'
+            - fieldName: ""
+              pattern: 'port'
+            - fieldName: target.port
+              pattern: '[0-9]{1,5}'
+            - fieldName: ""
+              pattern: '(failed|started)'
+          where: equals("log.facility", "SYS") && oneOf("log.facilityMnemonic", ["LOGGINGHOST_FAIL", "LOGGINGHOST_STARTSTOP"])
+      - cast:
+          fields:
+            - target.port
+          to: int
+          where: equals("log.facility", "SYS") && oneOf("log.facilityMnemonic", ["LOGGINGHOST_FAIL", "LOGGINGHOST_STARTSTOP"]) && exists("target.port")
       #......................................................................#
       # Removing unused fields
       - delete:

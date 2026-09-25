@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.0.1
 
 dataTypes:
   - cisco-switch
@@ -26,10 +26,12 @@ description: |
   7. Update switch security configurations (enable port security, DHCP snooping, DAI if not already enabled)
   8. Consider implementing additional network segmentation to limit attack impact
 where: |
-  (equals("log.facility", "SW_DAI") && oneOf("log.facilityMnemonic", ["INVALID_ARP", "DHCP_SNOOPING_DENY", "ACL_DENY"]))
-  || (equals("log.facility", "IP") && oneOf("log.facilityMnemonic", ["DUPADDR", "SOURCEGUARD"]))
-  || contains("log.message", ["invalid arp", "arp inspection drop", "dhcp snooping deny", "gratuitous arp", "arp reply not request", "duplicate ip address", "IP source guard deny", "arp packet validation failed"])
-  || (lessOrEqual("log.severity", 3) && contains("log.message", ["arp spoofing", "arp poison", "man in the middle"]))
+  exists("origin.ip") && (
+    (equals("log.facility", "SW_DAI") && oneOf("log.facilityMnemonic", ["INVALID_ARP", "DHCP_SNOOPING_DENY", "ACL_DENY"]))
+    || (equals("log.facility", "IP") && oneOf("log.facilityMnemonic", ["DUPADDR", "SOURCEGUARD"]))
+    || contains("log.msg", ["invalid arp", "arp inspection drop", "dhcp snooping deny", "gratuitous arp", "arp reply not request", "duplicate ip address", "IP source guard deny", "arp packet validation failed"])
+    || (lessOrEqual("log.severity", 3) && contains("log.msg", ["arp spoofing", "arp poison", "man in the middle"]))
+  )
 afterEvents:
   - indexPattern: v11-log-cisco-switch-*
     with:
