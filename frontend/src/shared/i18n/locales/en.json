@@ -4168,7 +4168,9 @@
       "errorUnreachable": "Failed to reach the assistant.",
       "compacting": "Compacting context…",
       "dashboardEditTitle": "Dashboard editor",
-      "editingDashboard": "Editing: {{name}}"
+      "editingDashboard": "Editing: {{name}}",
+      "soarEditTitle": "SOAR flow editor",
+      "editingFlow": "Editing flow: {{name}}"
     },
     "focus": {
       "alert": "Alert",

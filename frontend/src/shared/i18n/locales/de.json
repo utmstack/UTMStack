@@ -5307,7 +5307,9 @@
       "errorUnreachable": "Der Assistent konnte nicht erreicht werden.",
       "compacting": "Kontext wird komprimiert…",
       "dashboardEditTitle": "Dashboard-Editor",
-      "editingDashboard": "Bearbeite: {{name}}"
+      "editingDashboard": "Bearbeite: {{name}}",
+      "soarEditTitle": "SOAR-Flow-Editor",
+      "editingFlow": "Bearbeite Flow: {{name}}"
     },
     "focus": {
       "alert": "Warnung",

@@ -4029,7 +4029,9 @@
       "errorUnreachable": "Não foi possível contatar o assistente.",
       "compacting": "Compactando contexto…",
       "dashboardEditTitle": "Editor de painéis",
-      "editingDashboard": "Editando: {{name}}"
+      "editingDashboard": "Editando: {{name}}",
+      "soarEditTitle": "Editor de fluxos SOAR",
+      "editingFlow": "Editando fluxo: {{name}}"
     },
     "focus": {
       "alert": "Alerta",

@@ -16,12 +16,13 @@ import { MessageRow } from "./MessageRow";
 // Panel-visible scopes only — 'home' has its own inline transcript and never
 // shows here, so it needs no title/empty-state copy in this map.
 const SCOPE_TITLE_KEY: Record<
-  "panel" | "dashboard-create" | "dashboard-edit",
+  "panel" | "dashboard-create" | "dashboard-edit" | "soar-edit",
   string
 > = {
   panel: "socAi.chat.title",
   "dashboard-create": "socAi.chat.dashboardCreateTitle",
   "dashboard-edit": "socAi.chat.dashboardEditTitle",
+  "soar-edit": "socAi.chat.soarEditTitle",
 };
 
 export function SocAiPanel() {
@@ -33,7 +34,9 @@ export function SocAiPanel() {
     messages,
     dashboardCreateMessages,
     dashboardEditMessages,
+    soarEditMessages,
     dashboardEditTarget,
+    soarEditTarget,
     focus,
     detachFocus,
     closePanel,
@@ -59,7 +62,9 @@ export function SocAiPanel() {
       ? dashboardCreateMessages
       : activeScope === "dashboard-edit"
         ? dashboardEditMessages
-        : messages;
+        : activeScope === "soar-edit"
+          ? soarEditMessages
+          : messages;
   // 'home' never opens this panel (see the comment above), so it has no
   // entry here — fall back to the general panel title if it ever does.
   const titleKey =
@@ -112,6 +117,11 @@ export function SocAiPanel() {
                 {t("socAi.chat.editingDashboard", {
                   name: dashboardEditTarget.name,
                 })}
+              </p>
+            )}
+            {activeScope === "soar-edit" && soarEditTarget && (
+              <p className="mt-0.5 truncate pl-[26px] text-xs text-muted-foreground">
+                {t("socAi.chat.editingFlow", { name: soarEditTarget.name })}
               </p>
             )}
           </div>

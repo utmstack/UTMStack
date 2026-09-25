@@ -5315,7 +5315,9 @@
       "errorUnreachable": "Impossibile raggiungere l'assistente.",
       "compacting": "Compattazione del contesto…",
       "dashboardEditTitle": "Editor dashboard",
-      "editingDashboard": "Modifica di: {{name}}"
+      "editingDashboard": "Modifica di: {{name}}",
+      "soarEditTitle": "Editor di flussi SOAR",
+      "editingFlow": "Modifica del flusso: {{name}}"
     },
     "focus": {
       "alert": "Avviso",

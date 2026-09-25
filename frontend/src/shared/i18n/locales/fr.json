@@ -5315,7 +5315,9 @@
       "errorUnreachable": "Impossible de joindre l'assistant.",
       "compacting": "Compactage du contexte…",
       "dashboardEditTitle": "Éditeur de tableau de bord",
-      "editingDashboard": "Modification : {{name}}"
+      "editingDashboard": "Modification : {{name}}",
+      "soarEditTitle": "Éditeur de flux SOAR",
+      "editingFlow": "Modification du flux : {{name}}"
     },
     "focus": {
       "alert": "Alerte",
