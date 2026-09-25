@@ -1,0 +1,33 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - wineventlog
+name: "Windows: New User Account Created"
+impact:
+  confidentiality: 1
+  integrity: 1
+  availability: 0
+category: Administrative Awareness
+technique: User account creation
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4720
+  - https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/audit-user-account-management
+  - https://learn.microsoft.com/en-us/windows-server/identity/laps/laps-concepts-account-management-modes
+description: |
+  A new local or domain user account was created (event 4720). A local account is recorded by the computer where it was created; a domain account is recorded by the domain controller that processed the request. This is an awareness alert: creating accounts is often routine, but an unexpected account is a common way to keep access to a system.
+
+  Accounts created by the same account on the same computer or domain controller are grouped under one alert. Bulk provisioning and Windows LAPS automatic account management therefore produce one alert per computer, with later accounts as child alerts.
+
+  Requires the "Audit User Account Management" success audit.
+
+  Next Steps:
+  1. Confirm the new account (target.user and log.eventDataTargetSid) and the account that created it (log.eventDataSubjectUserName) match an approved request or a known provisioning tool.
+  2. If it was not expected, disable the account and review sign-ins and group changes involving it.
+where: |
+  equals("log.eventCode", 4720) &&
+  equals("log.channel", "Security") &&
+  equals("log.providerName", "Microsoft-Windows-Security-Auditing")
+groupBy:
+  - dataSource
+  - lastEvent.log.eventDataSubjectUserSid
