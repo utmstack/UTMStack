@@ -48,7 +48,7 @@ correlation:
   - field: log.azureActor
     operator: filter_term
     value: '{{.log.azureActor}}'
-  - field: log.correlationCandidate.azure_ropc_authentication
+  - field: log.correlationCandidate.azureRopcAuthentication
     operator: filter_term
     value: 'true'
   within: 1h

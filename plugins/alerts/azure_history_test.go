@@ -37,7 +37,10 @@ func TestAzureSDKHistory(t *testing.T) {
 	paths := []string{"dataSource", "log.azureScopeType", "log.azureScope", "log.azureActorType", "log.azureActor", "origin.ip"}
 	for name, r := range rules {
 		if len(r.Correlation) > 0 {
-			paths = append(paths, "log.correlationCandidate."+name)
+			if azureHistoryMarkers[name] == "" {
+				t.Fatalf("history rule %s has no correlation marker", name)
+			}
+			paths = append(paths, "log.correlationCandidate."+azureHistoryMarkers[name])
 		}
 	}
 	for _, path := range paths {
@@ -206,7 +209,8 @@ func TestAzureSDKHistory(t *testing.T) {
 			if yes, e := cache.Eval(r.Where, out); e != nil || !yes {
 				t.Fatalf("raw trigger failed: %v %v", yes, e)
 			}
-			marker := "log.correlationCandidate." + tc.rule
+			// The filter stores this marker and the rule counts it under the same name.
+			marker := "log.correlationCandidate." + azureHistoryMarkers[tc.rule]
 			terms = map[string]string{"dataSource": "collector-test", "log.azureScopeType": "directory", "log.azureScope": "directory-test", marker: "true"}
 			notTerms = map[string]string{}
 			if tc.rule == "azure_kubernetes_secret_access" || tc.rule == "application_gateway_waf_alerts" {
@@ -272,7 +276,7 @@ func TestAzureSDKHistory(t *testing.T) {
 			if e := json.Unmarshal([]byte(f.Raw), &raw); e != nil {
 				t.Fatal(e)
 			}
-			raw["correlationCandidate"] = map[string]any{tc.rule: "true"}
+			raw["correlationCandidate"] = map[string]any{azureHistoryMarkers[tc.rule]: "true"}
 			raw["category"] = "AppServiceConsoleLogs"
 			raw["operationName"] = "Microsoft.Web/sites/log"
 			delete(raw, "properties")
