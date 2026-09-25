@@ -636,9 +636,112 @@
         "platform": {"type": "string", "enum": ["windows", "linux", "macos"]},
         "agent": {"type": "string", "description": "Target hostname; empty = auto-resolve from alert source"},
         "excludedAgents": {"type": "array", "items": {"type": "string"}},
-        "params": {"type": "object", "description": "Executor-specific JSON params (shape per executor type)"},
-        "onSuccess": {"type": "array", "items": {"type": "string"}, "description": "Child node ids run when this node succeeds"},
-        "onError": {"type": "array", "items": {"type": "string"}, "description": "Child node ids run when this node fails"}
+        "params": {
+          "description": "Executor-specific JSON params (shape per executor type)",
+          "oneOf": [
+            {
+              "type": "object",
+              "description":"only usable for http node",
+              "properties": {
+                "method": { "type": "string" },
+                "url": { "type": "string" },
+                "headers": {
+                  "type": "object",
+                  "properties": {
+                    "Content-Type": { "type": "string" },
+                    "Accept": { "type": "string" },
+                    "Accept-Encoding": { "type": "string" },
+                    "Connection": { "type": "string" }
+                  },
+                  "required": ["Content-Type", "Accept", "Accept-Encoding", "Connection"]
+                },
+                "body": {
+                  "type": "object"
+                }
+              },
+              "required": [ "method", "url", "headers"]
+            },
+            {
+              "type": "object",
+              "description":"parameter set only for llm enrichment",
+              "properties": {
+                "prompt": { "type": "string" }
+              },
+              "required": ["prompt"]
+            },
+            {
+              "type": "object",
+              "description":"parameter set only for notification node",
+              "properties": {
+                "message": { "type": "string" },
+                "type": { "type": "string", "oneOf":["INFO", "WARNING", "ERROR"] }
+              },
+              "required": ["type", "message"]
+            },
+            {
+              "type": "object",
+              "description":"parameter set only for incident node",
+              "properties": {
+                "type": { "const": "incident" },
+                "description": { "type": "string" }
+              },
+              "required": [ "name", "description"]
+            },
+            {
+              "type": "object",
+              "description":"parameter set only for email node",
+              "properties": {
+                "to": { "type": "string" },
+                "cc": { "type": "string" },
+                "subject": { "type": "string" },
+                "body": { "type": "string" }
+              },
+              "required": [ "to", "cc", "subject", "body"]
+            },
+            {
+              "type": "object",
+              "description":"parameter set only for conditional node",
+              "properties": {
+                "conditions": {
+                        "type": ["array", "null"],
+                        "minItems": 1,
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "operator": {
+                              "type": ["string", "null"],
+                              "enum": [
+                                "IS",
+                                "IS_NOT",
+                                "CONTAINS",
+                                "NOT_CONTAINS",
+                                "EXISTS",
+                                "NOT_EXISTS",
+                                "START_WITH",
+                                "NOT_START_WITH",
+                                "ENDS_WITH",
+                                "NOT_ENDS_WITH",
+                                "IS_ONE_OF",
+                                "IS_NOT_ONE_OF"
+                              ],
+                              "description": "Operator"
+                            },
+                            "field": {
+                              "type": ["string", "null"],
+                              "description": "gjson path into context bag — e.g. alert.name, <enrichmentNodeId>.result"
+                            },
+                            "value": {
+                              "description": "string; string[] for IS_ONE_OF / IS_NOT_ONE_OF; ignored by EXISTS/NOT_EXISTS"
+                            }
+                          },
+                          "required": ["operator", "field"]
+                        }
+                }
+              },
+              "required": ["conditions"]
+            }
+          ]
+        }
       },
       "required": ["kind", "executor"]
     },
