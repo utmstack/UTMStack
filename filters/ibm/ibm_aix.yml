@@ -1,4 +1,4 @@
-# IBM AIX filter, version 3.0.1
+# IBM AIX filter, version 3.1.0
 # Based on docs and samples log provided
 # Support 
 #
@@ -539,6 +539,8 @@ pipeline:
             - log.osUserID
 
       # Adding action result
+      # An Oracle audit RETURNCODE of 0 is a completed operation; any other
+      # code is the error that stopped it. Other messages keep no outcome.
       - add:
           function: string
           params:
@@ -549,7 +551,7 @@ pipeline:
           function: string
           params:
             key: actionResult
-            value: "failed"
+            value: "failure"
           where: 'exists("log.returnCode") && !equals("log.returnCode", "0")'
 
       # Adding geolocation to origin.ip
