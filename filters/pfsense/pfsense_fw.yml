@@ -1,4 +1,4 @@
-# PfSense Firewall filter, version 3.0.1
+# PfSense Firewall filter, version 3.1.0
 # Based on docs and samples log provided
 # Support CSV format  format
 #
@@ -25,7 +25,7 @@ pipeline:
             - fieldName: log.syslogVersion
               pattern: '{{.integer}}'
             - fieldName: log.deviceTime
-              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}{{.space}}{{.time}}{{.iso8601Timezone}}'
+              pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}(?:T|{{.space}}){{.time}}{{.iso8601Timezone}}'
             - fieldName: log.syslogHost
               pattern: '{{.hostname}}'
             - fieldName: log.msgAll
@@ -85,7 +85,7 @@ pipeline:
             - fieldName: log.eventType
               pattern: '{{.word}}'
             - fieldName: log.pid
-              pattern: '(\[)?({{.integer}}?)(\])?(- -|:)'
+              pattern: '(\[)?({{.integer}}?)(\])?\s*(- -|:)'
             - fieldName: log.csvMsg
               pattern: '{{.greedy}}'
           source: log.msgAll
@@ -101,6 +101,11 @@ pipeline:
       - trim:
           function: suffix
           substring: "]:"
+          fields:
+            - log.pid
+      - trim:
+          function: suffix
+          substring: " - -"
           fields:
             - log.pid
 
@@ -147,7 +152,7 @@ pipeline:
             - log.tcpWindow
             - log.urg
             - log.tcpOptions
-          where: regexMatch("log.csvMsg", "(.+),(\\s)?(match|\\w+),(block|pass),(in|out),4,(.+)(tcp|TCP|Tcp)")
+          where: regexMatch("log.csvMsg", "^(?:[^,]*,){8}4,(?:[^,]*,){7}(?i:tcp),(?:[^,]*,){11}")
 
       # .......................................................................#
       - csv:
@@ -177,7 +182,7 @@ pipeline:
             - log.srcPort
             - log.dstPort
             - log.dataLength
-          where: regexMatch("log.csvMsg", "(.+),(\\s)?(match|\\w+),(block|pass),(in|out),4,(.+)(udp|UDP|Udp)")
+          where: regexMatch("log.csvMsg", "^(?:[^,]*,){8}4,(?:[^,]*,){7}(?i:udp),(?:[^,]*,){5}")
 
       #......................................................................#
       - csv:
@@ -206,11 +211,7 @@ pipeline:
             - log.dstIp
             - log.icmpType
             - log.icmpData1
-            - log.icmpData2
-            - log.icmpData3
-            - log.icmpData4
-            - log.icmpData5
-          where: regexMatch("log.csvMsg", "(.+),(\\s)?(match|\\w+),(block|pass),(in|out),4,(.+)(icmp|ICMP|Icmp)")
+          where: regexMatch("log.csvMsg", "^(?:[^,]*,){8}4,(?:[^,]*,){7}(?i:icmp),(?:[^,]*,){4}")
 
       #......................................................................#
       - csv:
@@ -243,7 +244,7 @@ pipeline:
             - log.tcpWindow
             - log.urg
             - log.tcpOptions
-          where: regexMatch("log.csvMsg", "(.+),(\\s)?(match|\\w+),(block|pass),(in|out),6,(.+)(tcp|TCP|Tcp)")
+          where: regexMatch("log.csvMsg", "^(?:[^,]*,){8}6,(?:[^,]*,){3}(?i:tcp),(?:[^,]*,){12}")
       
       #......................................................................#
       - csv:
@@ -270,7 +271,7 @@ pipeline:
             - log.srcPort
             - log.dstPort
             - log.dataLength
-          where: regexMatch("log.csvMsg", "(.+),(\\s)?(match|\\w+),(block|pass),(in|out),6,(.+)(udp|UDP|Udp)")
+          where: regexMatch("log.csvMsg", "^(?:[^,]*,){8}6,(?:[^,]*,){3}(?i:udp),(?:[^,]*,){6}")
 
       #......................................................................#
       - csv:
@@ -295,13 +296,58 @@ pipeline:
             - log.srcIp
             - log.dstIp
             - log.icmpType
-            - log.icmpData1
-            - log.icmpData2
-            - log.icmpData3
-            - log.icmpData4
-            - log.icmpData5
-          where: regexMatch("log.csvMsg", "(.+),(\\s)?(match|\\w+),(block|pass),(in|out),6,(.+)(icmp|ICMP|Icmp)")
+          where: regexMatch("log.csvMsg", "^(?:[^,]*,){8}6,(?:[^,]*,){3}(?i:icmp6|icmpv6|ipv6-icmp|icmp),(?:[^,]*,){4}")
 
+      # The CSV step fails when a line has fewer columns than headers, so each
+      # step above also requires its column count. For any other protocol, or a
+      # shorter line, read the common columns and the addresses.
+      - csv:
+          source: log.csvMsg
+          separator: ","
+          headers:
+            - log.ruleNumber
+            - log.subRuleNumber
+            - log.anchor
+            - log.tracker
+            - log.realInterface
+            - log.reason
+            - log.action
+            - log.direction
+            - log.ipVersion
+            - log.ipv4Tos
+            - log.ipv4Ecn
+            - log.ipv4Ttl
+            - log.ipv4Id
+            - log.ipv4Offset
+            - log.ipv4Flags
+            - log.ipv4ProtocolId
+            - log.proto
+            - log.ipLength
+            - log.srcIp
+            - log.dstIp
+          where: 'regexMatch("log.csvMsg", "^(?:[^,]*,){8}4,(?:[^,]*,){10}") && !exists("log.action")'
+      - csv:
+          source: log.csvMsg
+          separator: ","
+          headers:
+            - log.ruleNumber
+            - log.subRuleNumber
+            - log.anchor
+            - log.tracker
+            - log.realInterface
+            - log.reason
+            - log.action
+            - log.direction
+            - log.ipVersion
+            - log.ipv6Class
+            - log.ipv6FlowLabel
+            - log.ipv6HopLimit
+            - log.proto
+            - log.ipv6ProtocolId
+            - log.ipLength
+            - log.srcIp
+            - log.dstIp
+          where: 'regexMatch("log.csvMsg", "^(?:[^,]*,){8}6,(?:[^,]*,){7}") && !exists("log.action")'
       # ................................................#
       # Rename fields
       # ................................................#
@@ -342,13 +388,13 @@ pipeline:
           function: string
           params:
             key: actionResult
-            value: "pass"
+            value: success
           where: 'equalsIgnoreCase("action", "pass")'
       - add:
           function: string
           params:
             key: actionResult
-            value: "blocked"
+            value: denied
           where: 'equalsIgnoreCase("action", "block")'
 
       # ................................................#
