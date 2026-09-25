@@ -1,4 +1,4 @@
-# Rule version v1.1.0
+# Rule version v1.1.1
 dataTypes:
 - antivirus-kaspersky
 name: Kaspersky Suspicious Network Activity Detection
@@ -52,7 +52,7 @@ correlation:
   - field: log.endpointKey
     operator: filter_term
     value: '{{.log.endpointKey}}'
-  - field: log.correlationCandidate.suspicious_network_activity
+  - field: log.correlationCandidate.suspiciousNetworkActivity
     operator: filter_term
     value: match
   - field: target.ip

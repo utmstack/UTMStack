@@ -1,4 +1,4 @@
-# Rule version v1.1.0
+# Rule version v1.1.1
 dataTypes:
 - antivirus-kaspersky
 name: Lateral Movement Indicators Detection
@@ -40,7 +40,7 @@ correlation:
   - field: log.endpointKey
     operator: filter_term
     value: '{{.log.endpointKey}}'
-  - field: log.correlationCandidate.lateral_movement_indicators
+  - field: log.correlationCandidate.lateralMovementIndicators
     operator: filter_term
     value: match
   within: 2h

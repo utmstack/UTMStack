@@ -1,4 +1,6 @@
-# Kaspersky filter v3.1.0; native KSC structured syslog and CEF.
+# Kaspersky filter v3.2.0; native KSC structured syslog and CEF.
+# The grok plugin trims input before each pattern and rejects empty matches;
+# separator spaces therefore belong to nonempty captures, not their own steps.
 pipeline:
 - dataTypes:
   - antivirus-kaspersky
@@ -170,65 +172,51 @@ pipeline:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*act=
+        pattern: ^(?:.*[ \t])?act=
       - fieldName: log.act
-        pattern: (?:\\.|[^\\=\r\n])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '[^ \t=]+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*agt=
+        pattern: ^(?:.*[ \t])?agt=
       - fieldName: log.agt
-        pattern: (?:\\.|[^\\=\r\n])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '[^ \t=]+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*ahost=
+        pattern: ^(?:.*[ \t])?ahost=
       - fieldName: log.ahost
-        pattern: (?:\\.|[^\\=\r\n])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '[^ \t=]+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*amac=
+        pattern: ^(?:.*[ \t])?amac=
       - fieldName: log.amac
-        pattern: (?:\\.|[^\\=\r\n])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '[^ \t=]+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cat=
+        pattern: ^(?:.*[ \t])?cat=
       - fieldName: log.cat
-        pattern: (?:\\.|[^\\=\r\n])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '[^ \t=]+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cn1=
+        pattern: ^(?:.*[ \t])?cn1=
       - fieldName: log.cn1
-        pattern: (?:\\.|[^\\=\r\n])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '[^ \t=]+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cn10=
+        pattern: ^(?:.*[ \t])?cn10=
       - fieldName: log.cn10
-        pattern: (?:\\.|[^\\=\r\n])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '[^ \t=]+'
   - grok:
       source: log.cefExtension
       patterns:
@@ -251,11 +239,9 @@ pipeline:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cn2=
+        pattern: ^(?:.*[ \t])?cn2=
       - fieldName: log.cn2
-        pattern: (?:\\.|[^\\=\r\n])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '[^ \t=]+'
   - grok:
       source: log.cefExtension
       patterns:
@@ -269,11 +255,9 @@ pipeline:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cn3=
+        pattern: ^(?:.*[ \t])?cn3=
       - fieldName: log.cn3
-        pattern: (?:\\.|[^\\=\r\n])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '[^ \t=]+'
   - grok:
       source: log.cefExtension
       patterns:
@@ -287,11 +271,9 @@ pipeline:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cn4=
+        pattern: ^(?:.*[ \t])?cn4=
       - fieldName: log.cn4
-        pattern: (?:\\.|[^\\=\r\n])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '[^ \t=]+'
   - grok:
       source: log.cefExtension
       patterns:
@@ -305,11 +287,9 @@ pipeline:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cn5=
+        pattern: ^(?:.*[ \t])?cn5=
       - fieldName: log.cn5
-        pattern: (?:\\.|[^\\=\r\n])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '[^ \t=]+'
   - grok:
       source: log.cefExtension
       patterns:
@@ -323,11 +303,9 @@ pipeline:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cn6=
+        pattern: ^(?:.*[ \t])?cn6=
       - fieldName: log.cn6
-        pattern: (?:\\.|[^\\=\r\n])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '[^ \t=]+'
   - grok:
       source: log.cefExtension
       patterns:
@@ -341,11 +319,9 @@ pipeline:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cn7=
+        pattern: ^(?:.*[ \t])?cn7=
       - fieldName: log.cn7
-        pattern: (?:\\.|[^\\=\r\n])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '[^ \t=]+'
   - grok:
       source: log.cefExtension
       patterns:
@@ -359,11 +335,9 @@ pipeline:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cn8=
+        pattern: ^(?:.*[ \t])?cn8=
       - fieldName: log.cn8
-        pattern: (?:\\.|[^\\=\r\n])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '[^ \t=]+'
   - grok:
       source: log.cefExtension
       patterns:
@@ -377,11 +351,9 @@ pipeline:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cn9=
+        pattern: ^(?:.*[ \t])?cn9=
       - fieldName: log.cn9
-        pattern: (?:\\.|[^\\=\r\n])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '[^ \t=]+'
   - grok:
       source: log.cefExtension
       patterns:
@@ -395,11 +367,9 @@ pipeline:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs1=
+        pattern: ^(?:.*[ \t])?cs1=
       - fieldName: log.cs1
-        pattern: (?:\\.|[^\\=\r\n])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '[^ \t=]+'
   - grok:
       source: log.cefExtension
       patterns:
@@ -575,74 +545,58 @@ pipeline:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*customerURI=
+        pattern: ^(?:.*[ \t])?customerURI=
       - fieldName: log.customerURI
-        pattern: (?:\\.|[^\\=\r\n])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '[^ \t=]+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*destinationZoneExternalID=
+        pattern: ^(?:.*[ \t])?destinationZoneExternalID=
       - fieldName: log.destinationZoneExternalID
-        pattern: (?:\\.|[^\\=\r\n])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '[^ \t=]+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*destinationZoneURI=
+        pattern: ^(?:.*[ \t])?destinationZoneURI=
       - fieldName: log.destinationZoneURI
-        pattern: (?:\\.|[^\\=\r\n])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '[^ \t=]+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*dhost=
+        pattern: ^(?:.*[ \t])?dhost=
       - fieldName: log.dhost
-        pattern: (?:\\.|[^\\=\r\n])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '[^ \t=]+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*dmac=
+        pattern: ^(?:.*[ \t])?dmac=
       - fieldName: log.dmac
-        pattern: (?:\\.|[^\\=\r\n])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '[^ \t=]+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*dpt=
+        pattern: ^(?:.*[ \t])?dpt=
       - fieldName: log.dpt
-        pattern: (?:\\.|[^\\=\r\n])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '[^ \t=]+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*dst=
+        pattern: ^(?:.*[ \t])?dst=
       - fieldName: log.dst
-        pattern: (?:\\.|[^\\=\r\n])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '[^ \t=]+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*duser=
+        pattern: ^(?:.*[ \t])?duser=
       - fieldName: log.duser
-        pattern: (?:\\.|[^\\=\r\n])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '[^ \t=]+'
   - grok:
       source: log.cefExtension
       patterns:
@@ -665,74 +619,72 @@ pipeline:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*msg=
+        pattern: ^(?:.*[ \t])?msg=
       - fieldName: log.msg
-        pattern: (?:\\.|[^\\=\r\n])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: (?s:.+)$
+      where: regexMatch("log.cefExtension","(?:^|[ \t])msg=[^ \t=]")
+  # CEF escapes '=' inside values. Stop before the next unescaped key, then
+  # remove its name when the message is followed by a destination field.
+  - grok:
+      source: log.msg
+      patterns:
+      - fieldName: log.msg
+        pattern: '^(?:\\.|[^=])+'
+      where: equals("log.format","cef") || exists("log.cefExtension")
+  - trim:
+      function: suffix
+      substring: ' dst'
+      fields: [log.msg]
+      where: endsWith("log.msg"," dst")
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*originalAgentZoneURI=
+        pattern: ^(?:.*[ \t])?originalAgentZoneURI=
       - fieldName: log.originalAgentZoneURI
-        pattern: (?:\\.|[^\\=\r\n])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '[^ \t=]+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*proto=
+        pattern: ^(?:.*[ \t])?proto=
       - fieldName: log.proto
-        pattern: (?:\\.|[^\\=\r\n])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '[^ \t=]+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*shost=
+        pattern: ^(?:.*[ \t])?shost=
       - fieldName: log.shost
-        pattern: (?:\\.|[^\\=\r\n])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '[^ \t=]+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*smac=
+        pattern: ^(?:.*[ \t])?smac=
       - fieldName: log.smac
-        pattern: (?:\\.|[^\\=\r\n])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '[^ \t=]+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*spt=
+        pattern: ^(?:.*[ \t])?spt=
       - fieldName: log.spt
-        pattern: (?:\\.|[^\\=\r\n])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '[^ \t=]+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*src=
+        pattern: ^(?:.*[ \t])?src=
       - fieldName: log.src
-        pattern: (?:\\.|[^\\=\r\n])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '[^ \t=]+'
   - grok:
       source: log.cefExtension
       patterns:
       - fieldName: ''
-        pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*suser=
+        pattern: ^(?:.*[ \t])?suser=
       - fieldName: log.suser
-        pattern: (?:\\.|[^\\=\r\n])*?
-      - fieldName: ''
-        pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
+        pattern: '[^ \t=]+'
   - add:
       function: string
       params:
@@ -839,6 +791,9 @@ pipeline:
       - fieldName: action
         pattern: (?s)^.+$
       where: exists("log.act") && !oneOf("log.act",["","-"])
+  # A copied or extension-supplied result is not the final operation verdict.
+  - delete:
+      fields: [actionResult]
   - add:
       function: string
       params:
@@ -850,7 +805,13 @@ pipeline:
       params:
         key: actionResult
         value: denied
-      where: regexMatch("action","(?i)^(block|blocked)$")
+      where: regexMatch("action","(?i)^(block|blocked|deny|denied|drop|dropped|reject|rejected|quarantine|quarantined)$")
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: failure
+      where: regexMatch("action","(?i)^(fail|failed|failure)$")
   - add:
       function: string
       params:
@@ -889,31 +850,21 @@ pipeline:
       - fieldName: ''
         pattern: '>'
       - fieldName: log.ksc.syslogVersion
-        pattern: '[1-9][0-9]*'
-      - fieldName: ''
-        pattern: ' '
+        pattern: '[1-9][0-9]*[ \t]+'
       - fieldName: log.ksc.time
-        pattern: \S+
-      - fieldName: ''
-        pattern: ' '
+        pattern: \S+[ \t]+
       - fieldName: log.ksc.reportingHost
-        pattern: \S+
-      - fieldName: ''
-        pattern: ' '
+        pattern: \S+[ \t]+
       - fieldName: log.ksc.appName
-        pattern: \S+
-      - fieldName: ''
-        pattern: ' '
+        pattern: \S+[ \t]+
       - fieldName: log.ksc.procId
-        pattern: \S+
-      - fieldName: ''
-        pattern: ' '
+        pattern: \S+[ \t]+
       - fieldName: log.ksc.messageId
-        pattern: \S+
+        pattern: \S+[ \t]+
       - fieldName: ''
-        pattern: ' \[event@23668'
+        pattern: '\[event@23668'
       - fieldName: log.ksc.params
-        pattern: '(?: [A-Za-z][A-Za-z0-9_]*="(?:\\[\"\\\]]|[^\"\\\]\r\n])*")*'
+        pattern: '(?:[A-Za-z][A-Za-z0-9_]*="(?:\\[\"\\\]]|[^\"\\\]\r\n])*"[ \t]*)+'
       - fieldName: ''
         pattern: '\](?: )?'
       - fieldName: log.msg
@@ -928,65 +879,65 @@ pipeline:
       source: log.ksc.params
       patterns:
       - fieldName: ''
-        pattern: '^(?: [A-Za-z][A-Za-z0-9_]*="(?:\\[\"\\\]]|[^\"\\\]\r\n])*")* p1="'
+        pattern: '^(?:.*[ \t])?p1="'
       - fieldName: log.ksc.p1
-        pattern: (?:\\[\"\\\]]|[^\"\\\]\r\n])*
+        pattern: '(?:\\.|[^\"\\])+'
       - fieldName: ''
-        pattern: '"(?: |$)'
+        pattern: '"'
   - grok:
       source: log.ksc.params
       patterns:
       - fieldName: ''
-        pattern: '^(?: [A-Za-z][A-Za-z0-9_]*="(?:\\[\"\\\]]|[^\"\\\]\r\n])*")* et="'
+        pattern: '^(?:.*[ \t])?et="'
       - fieldName: log.ksc.et
-        pattern: (?:\\[\"\\\]]|[^\"\\\]\r\n])*
+        pattern: '(?:\\.|[^\"\\])+'
       - fieldName: ''
-        pattern: '"(?: |$)'
+        pattern: '"'
   - grok:
       source: log.ksc.params
       patterns:
       - fieldName: ''
-        pattern: '^(?: [A-Za-z][A-Za-z0-9_]*="(?:\\[\"\\\]]|[^\"\\\]\r\n])*")* etdn="'
+        pattern: '^(?:.*[ \t])?etdn="'
       - fieldName: log.ksc.etdn
-        pattern: (?:\\[\"\\\]]|[^\"\\\]\r\n])*
+        pattern: '(?:\\.|[^\"\\])+'
       - fieldName: ''
-        pattern: '"(?: |$)'
+        pattern: '"'
   - grok:
       source: log.ksc.params
       patterns:
       - fieldName: ''
-        pattern: '^(?: [A-Za-z][A-Za-z0-9_]*="(?:\\[\"\\\]]|[^\"\\\]\r\n])*")* hdn="'
+        pattern: '^(?:.*[ \t])?hdn="'
       - fieldName: log.ksc.hdn
-        pattern: (?:\\[\"\\\]]|[^\"\\\]\r\n])*
+        pattern: '(?:\\.|[^\"\\])+'
       - fieldName: ''
-        pattern: '"(?: |$)'
+        pattern: '"'
   - grok:
       source: log.ksc.params
       patterns:
       - fieldName: ''
-        pattern: '^(?: [A-Za-z][A-Za-z0-9_]*="(?:\\[\"\\\]]|[^\"\\\]\r\n])*")* hip="'
+        pattern: '^(?:.*[ \t])?hip="'
       - fieldName: log.ksc.hip
-        pattern: (?:\\[\"\\\]]|[^\"\\\]\r\n])*
+        pattern: '(?:\\.|[^\"\\])+'
       - fieldName: ''
-        pattern: '"(?: |$)'
+        pattern: '"'
   - grok:
       source: log.ksc.params
       patterns:
       - fieldName: ''
-        pattern: '^(?: [A-Za-z][A-Za-z0-9_]*="(?:\\[\"\\\]]|[^\"\\\]\r\n])*")* gn="'
+        pattern: '^(?:.*[ \t])?gn="'
       - fieldName: log.ksc.gn
-        pattern: (?:\\[\"\\\]]|[^\"\\\]\r\n])*
+        pattern: '(?:\\.|[^\"\\])+'
       - fieldName: ''
-        pattern: '"(?: |$)'
+        pattern: '"'
   - grok:
       source: log.ksc.params
       patterns:
       - fieldName: ''
-        pattern: '^(?: [A-Za-z][A-Za-z0-9_]*="(?:\\[\"\\\]]|[^\"\\\]\r\n])*")* kscfqdn="'
+        pattern: '^(?:.*[ \t])?kscfqdn="'
       - fieldName: log.ksc.kscfqdn
-        pattern: (?:\\[\"\\\]]|[^\"\\\]\r\n])*
+        pattern: '(?:\\.|[^\"\\])+'
       - fieldName: ''
-        pattern: '"(?: |$)'
+        pattern: '"'
   - grok:
       source: log.ksc.et
       patterns:
@@ -1086,7 +1037,7 @@ pipeline:
   - add:
       function: string
       params:
-        key: log.correlationCandidate.data_exfiltration_attempts
+        key: log.correlationCandidate.dataExfiltrationAttempts
         value: match
       where: |-
         equals("log.format","cef") && ((equals("log.cat", "NetworkThreat") ||
@@ -1098,7 +1049,7 @@ pipeline:
   - add:
       function: string
       params:
-        key: log.correlationCandidate.kaspersky_ransomware_behavior
+        key: log.correlationCandidate.kasperskyRansomwareBehavior
         value: match
       where: |-
         equals("log.format","cef") && (exists("log.signatureID") &&
@@ -1109,7 +1060,7 @@ pipeline:
   - add:
       function: string
       params:
-        key: log.correlationCandidate.lateral_movement_indicators
+        key: log.correlationCandidate.lateralMovementIndicators
         value: match
       where: |-
         equals("log.format","cef") && ((equals("log.cn1", "3") || equals("log.cs1", "DETECT") || equals("actionResult", "denied")) &&
@@ -1122,7 +1073,7 @@ pipeline:
   - add:
       function: string
       params:
-        key: log.correlationCandidate.suspicious_network_activity
+        key: log.correlationCandidate.suspiciousNetworkActivity
         value: match
       where: |-
         equals("log.format","cef") && (exists("log.signatureID") &&

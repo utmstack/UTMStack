@@ -1,9 +1,8 @@
 package main
 
 // Offline Kaspersky extraction model, not the closed EventProcessor.
-// Explicit YAML grok/rename/cast/trim/add/delete and documented KV splitting are
-// modeled. CEL, Event serialization, placeholder expansion, query creation and
-// history thresholds use SDK v1.1.31. External geolocation is not executed.
+// Grok patterns are consumed in order, with whitespace trimmed before each
+// match, as the EventProcessor grok plugin does. External geolocation is not run.
 import (
 	"bytes"
 	"encoding/json"
@@ -77,21 +76,13 @@ func kaspConfig(t *testing.T) *plugins.Config {
 	}
 	return c
 }
-func kaspRegex(t *testing.T, g *plugins.Grok, cfg *plugins.Config) *regexp.Regexp {
+func kaspRegex(t *testing.T, pattern string, cfg *plugins.Config) *regexp.Regexp {
 	t.Helper()
-	var pattern strings.Builder
-	for i, p := range g.Patterns {
-		if p.FieldName != "" {
-			fmt.Fprintf(&pattern, "(?P<f%d>%s)", i, p.Pattern)
-		} else {
-			pattern.WriteString("(?:" + p.Pattern + ")")
-		}
-	}
 	pats := map[string]string{"greedy": ".*", "data": ".*?", "word": "[A-Za-z0-9_-]+", "space": "\\s+"}
 	for k, v := range cfg.Patterns {
 		pats[k] = v
 	}
-	tmpl, e := template.New("grok").Option("missingkey=error").Parse(pattern.String())
+	tmpl, e := template.New("grok").Option("missingkey=error").Parse(pattern)
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -105,9 +96,25 @@ func kaspRegex(t *testing.T, g *plugins.Grok, cfg *plugins.Config) *regexp.Regex
 	}
 	return r
 }
-func kaspParse(t *testing.T, cfg *plugins.Config, raw string, dataSource string, cache *plugins.CELCache) string {
+
+// kaspStoredName is the name the parser plugins store for a grok, rename or add target:
+// utils.SanitizeField keeps only letters, digits and dots.
+func kaspStoredName(name string) string {
+	utils.SanitizeField(&name)
+	return name
+}
+
+func kaspParse(t *testing.T, cfg *plugins.Config, raw string, dataSource string, cache *plugins.CELCache, initial ...map[string]any) string {
 	t.Helper()
 	draft := map[string]any{"raw": raw, "dataType": "antivirus-kaspersky", "dataSource": dataSource, "log": map[string]any{}}
+	if len(initial) > 0 {
+		for key, value := range initial[0] {
+			if key != "action" && key != "actionResult" {
+				t.Fatalf("unexpected seeded field %s", key)
+			}
+			draft[key] = value
+		}
+	}
 	for _, stage := range cfg.Pipeline {
 		matched := false
 		for _, dataType := range stage.DataTypes {
@@ -156,20 +163,34 @@ func kaspParse(t *testing.T, cfg *plugins.Config, raw string, dataSource string,
 					if !ok {
 						t.Fatalf("non-string grok source %s", src)
 					}
-					r := kaspRegex(t, g, cfg)
-					m := r.FindStringSubmatch(str)
-					if m == nil {
-						continue
-					}
-					for i, p := range g.Patterns {
+					fields := make(map[string]string)
+					matched := 0
+					for _, p := range g.Patterns {
+						str = strings.TrimSpace(str)
+						if str == "" {
+							break
+						}
+						r := kaspRegex(t, p.Pattern, cfg)
+						loc := r.FindStringIndex(str)
+						if loc == nil || loc[0] != 0 || loc[1] == 0 {
+							break
+						}
+						value := str[:loc[1]]
 						if p.FieldName != "" {
-							kaspPut(draft, p.FieldName, m[r.SubexpIndex(fmt.Sprintf("f%d", i))], false)
+							fields[p.FieldName] = strings.TrimSpace(value)
+						}
+						str = str[loc[1]:]
+						matched++
+					}
+					if matched == len(g.Patterns) {
+						for field, value := range fields {
+							kaspPut(draft, kaspStoredName(field), value, false)
 						}
 					}
 				case "rename":
 					for _, p := range s.Rename.From {
 						if v, ok := kaspGet(draft, p); ok {
-							kaspPut(draft, s.Rename.To, v, false)
+							kaspPut(draft, kaspStoredName(s.Rename.To), v, false)
 							kaspPut(draft, p, nil, true)
 							break
 						}
@@ -196,7 +217,7 @@ func kaspParse(t *testing.T, cfg *plugins.Config, raw string, dataSource string,
 					if s.Add.Function != "string" {
 						t.Fatalf("unsupported add function %s", s.Add.Function)
 					}
-					kaspPut(draft, s.Add.Params["key"].GetStringValue(), s.Add.Params["value"].AsInterface(), false)
+					kaspPut(draft, kaspStoredName(s.Add.Params["key"].GetStringValue()), s.Add.Params["value"].AsInterface(), false)
 				case "delete":
 					for _, p := range s.Delete.Fields {
 						kaspPut(draft, p, nil, true)
