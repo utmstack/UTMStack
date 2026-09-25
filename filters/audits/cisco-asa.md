@@ -12,6 +12,8 @@ ThreatWinds go-sdk **v1.1.36**, as pinned by `plugins/alerts/go.mod` since offic
 (`d2479c1a`) was merged into this branch. The review itself used v1.1.33, whose
 `plugins.proto`, `plugins/cel.go` and `plugins/rules.go` are identical. The draft was checked
 again on the latest versions; see [Re-validation on the latest versions](#re-validation-on-the-latest-versions).
+A later check of every grok pattern found three more steps that could never write on the
+engine; version 3.1.1 fixes them, see [Empty-match correction](#empty-match-correction-version-311).
 
 ## Evidence basis
 
@@ -120,13 +122,48 @@ and `password` settings. `replay.py` still gives one URL, so the client gets an 
 and connects to port 443 on the test computer, where nothing listened. Any history search
 therefore still fails and is reported; none was attempted with the corrected rules.
 
+## Empty-match correction (version 3.1.1)
+
+The grok plugin of EventProcessor `8a3ade7` reads a step's patterns in order. Before each
+pattern it trims the text that is left, and it counts an empty match as no match. If any
+pattern fails, the step writes nothing
+([grok plugin](https://github.com/utmstack/EventProcessor/blob/8a3ade72bd9d12db21f6b273200588fb49540f14/plugins/grok/main.go)).
+So a pattern that can match empty text at the start of the remaining text stops its whole
+step. All 1,214 grok patterns of version 3.1.0 were expanded with `patterns.yaml` and tried
+on their own. Three of them, in three steps, had this problem:
+
+| Change | Why | Proof on the engine |
+|---|---|---|
+| 302003/302004, first variant: read the optional `to` together with the local address, `(?:to\s+)?(...)`, and remove it with a new `trim` step right after. | The optional `to` was its own pattern, `(to\s)?`. On a 302003 line, which has no `to`, it matched empty text and the step failed. The second variant accepts only an IP address, so a 302003 line whose local side is a host name was parsed by neither. | `302003-hostname` kept only `actionResult`; now it has `action`, both addresses and both ports. `302003-ip` and `302004-to` are unchanged. |
+| 302022/302024/302026: the two steps for a mapped address without a port read it with `[^/()]+` instead of `{{.data}}`. | `{{.data}}` is a lazy "any text" pattern. On its own it always matches empty text, so these two steps never wrote. The new pattern stops at `/`, so it applies only when no port follows and cannot replace what the steps for an address with a port wrote. | `302024-mapped-no-port` had no mapped address; now it has `log.mappedIpFrom` and `log.mappedIpTo`, and no port. `302022-mapped-port` is unchanged. |
+
+The other 164 patterns that can match empty text are a `{{.greedy}}` ("any text") at the end
+of a step. The plugin never tries a pattern once no text is left, and on any other text these
+match at least one character, so they cannot cause this. A step whose text runs out before
+its last pattern still fails, for that reason; the known case, 302014 without a reason, is D06.
+
+After the fix, a host name in the local address reaches `origin.ip` on 302003 lines, as it
+already did on 302004 lines and on the foreign side of both. Address-only patterns stay
+deferred (D14). `filters/cisco/firepower.yml` has the same three steps and gets the same fix in
+its own review.
+
+| Check | Result |
+|---|---|
+| Five new fabricated lines on EventProcessor 8a3ade7, versions 3.1.0 and 3.1.1 | As in the table above. No line has an error with either version. |
+| `replay.py` on EventProcessor 8a3ade7, now 46 lines | 46 events without errors, every stored field as in `expected.json`; the 41 earlier lines are unchanged. Two alerts, both from the botnet rule, on 338001 and 338002; no Circuit Breaker alert and no history search attempted. |
+| The 80 private fabricated lines, version 3.1.1 | 80 events, each identical to the version 3.1.0 run on the same engine, including the two 302004 lines. |
+| go-sdk v1.1.36 rule replay | Over the 46 events, the botnet rule matches the two botnet lines and nothing else, and the other two rules match nothing; no error and no unresolved placeholder (13 of 13 checks). The earlier predicate checks, repeated with the new events: 90 of 90 and 65 of 65. |
+| Full `plugins/alerts` suite | 51 tests pass, 11 skip, none fail (2,267 passing results with subtests). |
+| New Go checks, on versions 3.1.0 and 3.1.1 | `TestCiscoASAGrokPatternsNeverMatchEmpty` tries each grok pattern alone on texts that start with every printable character, and fails when one matches empty text at the start. The model test now also covers the five new lines (F-C9, F-C10). On 3.1.0 both fail, naming the three patterns and the missing fields; on 3.1.1 both pass. |
+
 ## Validation
 
 These are the original review's results, on EventProcessor `497bf53` and go-sdk v1.1.33.
 The section above repeats them on the latest versions.
 
-**Fabricated regression, committed.** `plugins/alerts/testdata/cisco-asa/` holds 41 invented
-raw lines (`raw.json`), their expected fields and alerts (`expected.json`), the 13 shared
+**Fabricated regression, committed.** `plugins/alerts/testdata/cisco-asa/` holds 46 invented
+raw lines (`raw.json`; five were added with the empty-match correction), their expected fields
+and alerts (`expected.json`), the 13 shared
 grok definitions this filter uses (`patterns.yaml`, copied from the repository changelog
 `20250616001_insert_utm_regex_pattern.xml`), invented geolocation data (`geolocation-data/`)
 and `replay.py`. The lines follow the filter's own patterns; they are not claimed to be Cisco's
@@ -176,7 +213,8 @@ in filter order; the rules' names, metadata, impact, grouping and history search
 synthetic rule cases; and that whenever a rule with a history search matches any event, its
 placeholders resolve. All seven fail against the original filter and rules and pass against
 this revision. The full `plugins/alerts` suite passes: 50 tests pass, and the same 11 tests
-that need other technologies' private evidence skip, as they do on the base commit.
+that need other technologies' private evidence skip, as they do on the base commit. The
+empty-match correction later added an eighth test; see that section.
 
 ## Deferred
 
@@ -221,7 +259,7 @@ so no label changes.
   because this filter cannot give their messages an `origin.ip` yet (D01, D02). Their positive
   cases are the SDK predicate checks and the earlier local history test.
 - The Go extraction test is a model of the engine's step plugins. It agreed with the
-  playground on every non-geolocation field of the 41 lines, but `replay.py` is the check
+  playground on every non-geolocation field of the 46 lines, but `replay.py` is the check
   that runs the engine.
 - `equals("log.severity", "4")` compares numbers, like the neighbouring `oneOf` severity
   clauses, so severity text such as `04` or `+4` now counts as 4; the old clause accepted only
