@@ -65,7 +65,8 @@ malicious sandbox result was observed in this bounded sample.
   connection/admin/SSL authentication classes map to `failure`. Bare `dns` or
   `ip-conn` action text is insufficient evidence of failure. The observed
   traffic `dns` records carry failed-connection log ID 11, which independently
-  justifies their failure result. Close/reset/timeout describe a closed
+  justifies their failure result. A normal `close` ends an allowed, established
+  session and maps to `success`; resets and timeouts describe a closed
   connection without manufacturing a successful action.
 - Preserve existing numeric protocol conversions: SDK v1.1.31 supports numeric
   comparisons against the parsed numeric strings. Map vendor logging levels to
@@ -141,6 +142,18 @@ example; arbitrary CEF escaping and unobserved vendor variants remain unverified
 The recovery adds gated scans for 129 consumed/mapped keys and aliases, not every
 vendor field. Its CPU cost and actual parser behaviour require staging validation
 at realistic message sizes and event rates.
+
+Follow-up (2026-09-24): the EventProcessor grok step trims the text before each
+pattern, rejects an empty match and writes fields only when every pattern
+matched. The recovery extractors' trailing boundary pattern therefore never
+matched, and none of the 129 wrote a field. Each extractor now reads a quoted
+value, or unquoted words up to the next `key=`, and checks the boundary within
+the same pattern. An empty value, or a quoted value followed directly by text,
+is left unset instead of taking the next pair. The raw contract test
+consumes grok patterns in order, as the executor does. Fortinet defines every
+traffic action other than `deny` as allowed by policy. On two deployments, every
+`close` record that carried a received-packet count had at least one received
+packet, so `close` now maps to `success`.
 
 `lastEvent.*` grouping requires the separate alert-foundation correction that
 resolves indexed event aliases against the event carried by the Alert. This
