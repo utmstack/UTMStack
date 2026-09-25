@@ -21,7 +21,7 @@ pipeline:
       # Renaming useful fields
       - rename:
           from:
-            - log.providerguid
+            - log.provider_guid
           to: log.providerGuid
 
       - rename:
@@ -297,7 +297,7 @@ pipeline:
 
       - rename:
           from:
-            - log.providername
+            - log.provider_name
           to: log.providerName
 
       - rename:
