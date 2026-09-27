@@ -26,7 +26,7 @@
   {
     "name": "failed-Failure",
     "raw": "{\"Operation\":\"FileDownloaded\",\"Workload\":\"SharePoint\",\"RecordType\":6,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Failure\"}",
-    "result": "failure",
+    "result": "failed",
     "preserve": {
       "log.ResultStatus": "Failure"
     }
@@ -34,7 +34,7 @@
   {
     "name": "failed-Failed",
     "raw": "{\"Operation\":\"FileDownloaded\",\"Workload\":\"SharePoint\",\"RecordType\":6,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Failed\"}",
-    "result": "failure",
+    "result": "failed",
     "preserve": {
       "log.ResultStatus": "Failed"
     }
@@ -96,9 +96,9 @@
     }
   },
   {
-    "name": "missing-outcome",
+    "name": "sharepoint-completed-without-status",
     "raw": "{\"Operation\":\"FileDownloaded\",\"Workload\":\"SharePoint\",\"RecordType\":6,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\"}",
-    "result": "",
+    "result": "success",
     "preserve": {}
   },
   {
@@ -128,7 +128,7 @@
   {
     "name": "exchange-false",
     "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"False\"}",
-    "result": "failure",
+    "result": "failed",
     "preserve": {
       "log.ResultStatus": "False"
     }
@@ -136,7 +136,7 @@
   {
     "name": "failed-login-HTTP-success",
     "raw": "{\"Operation\":\"UserLoginFailed\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Success\",\"ErrorCode\":\"50126\",\"LogonError\":\"InvalidUserNameOrPassword\"}",
-    "result": "failure",
+    "result": "failed",
     "preserve": {
       "log.ResultStatus": "Success",
       "log.ErrorCode": "50126",
@@ -146,7 +146,7 @@
   {
     "name": "failed-login-contradictory-zero",
     "raw": "{\"Operation\":\"UserLoginFailed\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Success\",\"ErrorCode\":\"0\"}",
-    "result": "failure",
+    "result": "failed",
     "preserve": {
       "log.ResultStatus": "Success",
       "log.ErrorCode": "0"
@@ -163,7 +163,7 @@
   {
     "name": "sts-nonzero-error",
     "raw": "{\"Operation\":\"PasswordLogonInitialAuthUsingPassword\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Succeeded\",\"ErrorCode\":\"50076\"}",
-    "result": "failure",
+    "result": "failed",
     "preserve": {
       "log.ResultStatus": "Succeeded",
       "log.ErrorCode": "50076"
@@ -172,7 +172,7 @@
   {
     "name": "sts-logon-error",
     "raw": "{\"Operation\":\"UserLoggedIn\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Succeeded\",\"LogonError\":\"AuthenticationFailed\"}",
-    "result": "failure",
+    "result": "failed",
     "preserve": {
       "log.ResultStatus": "Succeeded",
       "log.LogonError": "AuthenticationFailed"
@@ -310,7 +310,7 @@
   {
     "name": "planner-2",
     "raw": "{\"Operation\":\"TaskModified\",\"Workload\":\"MicrosoftPlanner\",\"RecordType\":188,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":2}",
-    "result": "failure",
+    "result": "failed",
     "preserve": {
       "log.ResultStatus": 2
     }
@@ -467,7 +467,7 @@
   {
     "name": "sts-logon-error-with-zero-number",
     "raw": "{\"Operation\":\"UserLoggedIn\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Success\",\"ErrorNumber\":\"0\",\"LogonError\":\"FlowTokenExpired\"}",
-    "result": "failure",
+    "result": "failed",
     "preserve": {
       "log.ErrorNumber": "0",
       "log.LogonError": "FlowTokenExpired",
@@ -494,7 +494,7 @@
   {
     "name": "planner-string-enum-Failure",
     "raw": "{\"Operation\":\"PlanRead\",\"Workload\":\"Planner\",\"RecordType\":188,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Failure\"}",
-    "result": "failure",
+    "result": "failed",
     "preserve": {
       "log.ResultStatus": "Failure"
     }
@@ -590,6 +590,307 @@
     "result": "",
     "preserve": {
       "log.ResultStatus": "Success"
+    }
+  },
+  {
+    "name": "missing-outcome-other-workload",
+    "raw": "{\"Operation\":\"FileCreated\",\"Workload\":\"Endpoint\",\"RecordType\":63,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "",
+    "preserve": {}
+  },
+  {
+    "name": "onedrive-completed-without-status",
+    "raw": "{\"Operation\":\"AnonymousLinkUsed\",\"Workload\":\"OneDrive\",\"RecordType\":14,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "success",
+    "preserve": {}
+  },
+  {
+    "name": "sharepoint-null-status",
+    "raw": "{\"Operation\":\"FileModified\",\"Workload\":\"SharePoint\",\"RecordType\":6,\"ResultStatus\":null,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "",
+    "preserve": {
+      "log.ResultStatus": null
+    }
+  },
+  {
+    "name": "sharepoint-dlp-rule-match",
+    "raw": "{\"Operation\":\"DLPRuleMatch\",\"Workload\":\"SharePoint\",\"RecordType\":11,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "",
+    "preserve": {}
+  },
+  {
+    "name": "onedrive-dlp-rule-undo",
+    "raw": "{\"Operation\":\"DLPRuleUndo\",\"Workload\":\"OneDrive\",\"RecordType\":11,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "",
+    "preserve": {}
+  },
+  {
+    "name": "sharepoint-malware-detection",
+    "raw": "{\"Operation\":\"FileMalwareDetected\",\"Workload\":\"SharePoint\",\"RecordType\":6,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "",
+    "preserve": {}
+  },
+  {
+    "name": "sharepoint-baseline-report",
+    "raw": "{\"Operation\":\"BaselineSecurityModeThirdPartyAppHPA\",\"Workload\":\"SharePoint\",\"RecordType\":4,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "",
+    "preserve": {}
+  },
+  {
+    "name": "sharepoint-csp-violation",
+    "raw": "{\"Operation\":\"ContentSecurityPolicyViolated\",\"Workload\":\"SharePoint\",\"RecordType\":336,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "",
+    "preserve": {}
+  },
+  {
+    "name": "onedrive-partial-upload",
+    "raw": "{\"Operation\":\"FileUploadedPartial\",\"Workload\":\"OneDrive\",\"RecordType\":6,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "",
+    "preserve": {}
+  },
+  {
+    "name": "sharepoint-sharing-blocked-without-status",
+    "raw": "{\"Operation\":\"SharingInvitationBlocked\",\"Workload\":\"OneDrive\",\"RecordType\":4,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "denied",
+    "preserve": {}
+  },
+  {
+    "name": "teams-session-started",
+    "raw": "{\"Operation\":\"TeamsSessionStarted\",\"Workload\":\"MicrosoftTeams\",\"RecordType\":25,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "success",
+    "preserve": {}
+  },
+  {
+    "name": "teams-other-without-status",
+    "raw": "{\"Operation\":\"MemberAdded\",\"Workload\":\"MicrosoftTeams\",\"RecordType\":25,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "",
+    "preserve": {}
+  },
+  {
+    "name": "powerbi-is-success-true",
+    "raw": "{\"Operation\":\"ExportArtifact\",\"Workload\":\"PowerBI\",\"RecordType\":20,\"IsSuccess\":true,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "success",
+    "preserve": {
+      "log.IsSuccess": true
+    }
+  },
+  {
+    "name": "powerbi-is-success-false",
+    "raw": "{\"Operation\":\"ExportArtifact\",\"Workload\":\"PowerBI\",\"RecordType\":20,\"IsSuccess\":false,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "failed",
+    "preserve": {
+      "log.IsSuccess": false
+    }
+  },
+  {
+    "name": "powerbi-without-is-success",
+    "raw": "{\"Operation\":\"ExportArtifact\",\"Workload\":\"PowerBI\",\"RecordType\":20,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "",
+    "preserve": {}
+  },
+  {
+    "name": "safe-links-observed-spelling-4",
+    "raw": "{\"Operation\":\"TIUrlClickData\",\"Workload\":\"ThreatIntelligence\",\"RecordType\":41,\"UserIp\":\"192.0.2.20\",\"Url\":\"https://example.invalid/path\",\"UrlClickAction\":4,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "success",
+    "preserve": {
+      "log.UrlClickAction": 4
+    }
+  },
+  {
+    "name": "safe-links-observed-spelling-2",
+    "raw": "{\"Operation\":\"TIUrlClickData\",\"Workload\":\"ThreatIntelligence\",\"RecordType\":41,\"UserIp\":\"192.0.2.20\",\"Url\":\"https://example.invalid/path\",\"UrlClickAction\":2,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "denied",
+    "preserve": {
+      "log.UrlClickAction": 2
+    }
+  },
+  {
+    "name": "safe-links-observed-spelling-3",
+    "raw": "{\"Operation\":\"TIUrlClickData\",\"Workload\":\"ThreatIntelligence\",\"RecordType\":41,\"UserIp\":\"192.0.2.20\",\"Url\":\"https://example.invalid/path\",\"UrlClickAction\":3,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "",
+    "preserve": {
+      "log.UrlClickAction": 3
+    }
+  },
+  {
+    "name": "mail-threat-blocked",
+    "raw": "{\"Operation\":\"TIMailData\",\"Workload\":\"ThreatIntelligence\",\"RecordType\":28,\"DeliveryAction\":\"Blocked\",\"SenderIp\":\"198.51.100.25\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "denied",
+    "preserve": {
+      "log.DeliveryAction": "Blocked",
+      "log.SenderIp": "198.51.100.25"
+    },
+    "absent": [
+      "origin.ip"
+    ],
+    "ipEligible": false
+  },
+  {
+    "name": "mail-threat-delivered",
+    "raw": "{\"Operation\":\"TIMailData\",\"Workload\":\"ThreatIntelligence\",\"RecordType\":28,\"DeliveryAction\":\"Delivered\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "",
+    "preserve": {
+      "log.DeliveryAction": "Delivered"
+    },
+    "absent": [
+      "origin.ip"
+    ],
+    "ipEligible": false
+  },
+  {
+    "name": "mail-threat-delivered-as-spam",
+    "raw": "{\"Operation\":\"TIMailData\",\"Workload\":\"ThreatIntelligence\",\"RecordType\":28,\"DeliveryAction\":\"DeliveredAsSpam\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "",
+    "preserve": {
+      "log.DeliveryAction": "DeliveredAsSpam"
+    },
+    "absent": [
+      "origin.ip"
+    ],
+    "ipEligible": false
+  },
+  {
+    "name": "yammer-TRUE",
+    "raw": "{\"Operation\":\"O365SyncAdminUserPromotion\",\"Workload\":\"Yammer\",\"RecordType\":22,\"ResultStatus\":\"TRUE\",\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "success",
+    "preserve": {
+      "log.ResultStatus": "TRUE"
+    }
+  },
+  {
+    "name": "compliance-cmdlet-Error",
+    "raw": "{\"Operation\":\"Get-ComplianceCaseMember\",\"Workload\":\"SecurityComplianceCenter\",\"RecordType\":18,\"ResultStatus\":\"Error\",\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "failed",
+    "preserve": {
+      "log.ResultStatus": "Error"
+    }
+  },
+  {
+    "name": "non-compliance-Error",
+    "raw": "{\"Operation\":\"FileDownloaded\",\"Workload\":\"SharePoint\",\"RecordType\":6,\"ResultStatus\":\"Error\",\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "",
+    "preserve": {
+      "log.ResultStatus": "Error"
+    }
+  },
+  {
+    "name": "compliance-alert-triggered",
+    "raw": "{\"Operation\":\"AlertTriggered\",\"Workload\":\"SecurityComplianceCenter\",\"RecordType\":40,\"ResultStatus\":\"Succeeded\",\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "",
+    "preserve": {
+      "log.ResultStatus": "Succeeded"
+    }
+  },
+  {
+    "name": "compliance-alert-entity-generated",
+    "raw": "{\"Operation\":\"AlertEntityGenerated\",\"Workload\":\"SecurityComplianceCenter\",\"RecordType\":40,\"ResultStatus\":\"Succeeded\",\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "",
+    "preserve": {
+      "log.ResultStatus": "Succeeded"
+    }
+  },
+  {
+    "name": "compliance-alert-updated",
+    "raw": "{\"Operation\":\"AlertUpdated\",\"Workload\":\"SecurityComplianceCenter\",\"RecordType\":40,\"ResultStatus\":\"Succeeded\",\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "success",
+    "preserve": {
+      "log.ResultStatus": "Succeeded"
+    }
+  },
+  {
+    "name": "conditional-access-53000",
+    "raw": "{\"Operation\":\"UserLoginFailed\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ResultStatus\":\"Success\",\"ErrorNumber\":\"53000\",\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "denied",
+    "preserve": {
+      "log.ErrorNumber": "53000"
+    }
+  },
+  {
+    "name": "conditional-access-53001",
+    "raw": "{\"Operation\":\"UserLoginFailed\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ResultStatus\":\"Success\",\"ErrorNumber\":\"53001\",\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "denied",
+    "preserve": {
+      "log.ErrorNumber": "53001"
+    }
+  },
+  {
+    "name": "conditional-access-53002",
+    "raw": "{\"Operation\":\"UserLoginFailed\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ResultStatus\":\"Success\",\"ErrorNumber\":\"53002\",\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "denied",
+    "preserve": {
+      "log.ErrorNumber": "53002"
+    }
+  },
+  {
+    "name": "conditional-access-53003",
+    "raw": "{\"Operation\":\"UserLoginFailed\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ResultStatus\":\"Success\",\"ErrorNumber\":\"53003\",\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "denied",
+    "preserve": {
+      "log.ErrorNumber": "53003"
+    }
+  },
+  {
+    "name": "conditional-access-530032",
+    "raw": "{\"Operation\":\"UserLoginFailed\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ResultStatus\":\"Success\",\"ErrorNumber\":\"530032\",\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "denied",
+    "preserve": {
+      "log.ErrorNumber": "530032"
+    }
+  },
+  {
+    "name": "conditional-access-530034",
+    "raw": "{\"Operation\":\"UserLoginFailed\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ResultStatus\":\"Success\",\"ErrorNumber\":\"530034\",\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "denied",
+    "preserve": {
+      "log.ErrorNumber": "530034"
+    }
+  },
+  {
+    "name": "conditional-access-530035",
+    "raw": "{\"Operation\":\"UserLoginFailed\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ResultStatus\":\"Success\",\"ErrorNumber\":\"530035\",\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "denied",
+    "preserve": {
+      "log.ErrorNumber": "530035"
+    }
+  },
+  {
+    "name": "conditional-access-error-code-field",
+    "raw": "{\"Operation\":\"UserLoginFailed\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ResultStatus\":\"Failed\",\"ErrorCode\":\"53003\",\"LogonError\":\"BlockedByConditionalAccess\",\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "denied",
+    "preserve": {
+      "log.ErrorCode": "53003"
+    }
+  },
+  {
+    "name": "wrong-password-stays-failed",
+    "raw": "{\"Operation\":\"UserLoginFailed\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ResultStatus\":\"Success\",\"ErrorNumber\":\"50126\",\"LogonError\":\"InvalidUserNameOrPassword\",\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "failed",
+    "preserve": {
+      "log.ErrorNumber": "50126"
+    }
+  },
+  {
+    "name": "locked-account-stays-failed",
+    "raw": "{\"Operation\":\"UserLoginFailed\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ResultStatus\":\"Failed\",\"ErrorNumber\":\"50053\",\"LogonError\":\"IdsLocked\",\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "failed",
+    "preserve": {
+      "log.ErrorNumber": "50053"
+    }
+  },
+  {
+    "name": "mfa-interrupt-stays-failed",
+    "raw": "{\"Operation\":\"UserLoginFailed\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ResultStatus\":\"Success\",\"ErrorNumber\":\"50074\",\"LogonError\":\"UserStrongAuthClientAuthNRequiredInterrupt\",\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "failed",
+    "preserve": {
+      "log.ErrorNumber": "50074"
+    }
+  },
+  {
+    "name": "conditional-access-session-expiry-stays-failed",
+    "raw": "{\"Operation\":\"UserLoginFailed\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ResultStatus\":\"Success\",\"ErrorNumber\":\"70044\",\"LogonError\":\"SsoArtifactExpiredDueToConditionalAccess\",\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\"}",
+    "result": "failed",
+    "preserve": {
+      "log.ErrorNumber": "70044"
     }
   }
 ]

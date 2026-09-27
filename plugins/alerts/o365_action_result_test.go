@@ -83,7 +83,7 @@ func TestO365ActionResult(t *testing.T) {
 			if got.String() != tc.Result || (tc.Result == "" && got.Exists()) {
 				t.Fatalf("actionResult = %s, want %q", got.Raw, tc.Result)
 			}
-			for _, result := range []string{"success", "failure", "denied"} {
+			for _, result := range []string{"success", "failed", "denied"} {
 				match, err := cache.Eval(`equals("actionResult","`+result+`") && inCIDR("origin.ip","0.0.0.0/0")`, out)
 				want := tc.Result == result && (tc.IP == nil || *tc.IP)
 				if err != nil || match != want {
