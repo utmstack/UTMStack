@@ -166,7 +166,7 @@
       "origin.ip": "198.51.100.8",
       "origin.port": 8748,
       "log.type": "anyconnect_vpn_auth_failure",
-      "actionResult": "failure",
+      "actionResult": "failed",
       "log.vpnAuthenticationFailure": "match"
     },
     "absent": [],
@@ -912,10 +912,11 @@
     "raw": "1720051237.124589040 LAB-MX events Cellular connection up",
     "dataSource": "synthetic-relay",
     "expected": {
-      "log.connectionState": "up",
-      "actionResult": "success"
+      "log.connectionState": "up"
     },
-    "absent": [],
+    "absent": [
+      "actionResult"
+    ],
     "matches": []
   },
   {
@@ -1036,6 +1037,266 @@
       "actionResult": "success"
     },
     "absent": [],
+    "matches": []
+  },
+  {
+    "name": "VPN RADIUS authentication failure positive",
+    "raw": "1720051237.124589040 LAB-MX events type=anyconnect_vpn_auth_failure msg= 'RADIUS[373] Server IP=192.0.2.20 Server port=1812 Peer IP=198.51.100.8 Peer port=56735: Authentication request rejected. '",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "origin.ip": "198.51.100.8",
+      "origin.port": 56735,
+      "log.type": "anyconnect_vpn_auth_failure",
+      "actionResult": "failed",
+      "log.vpnAuthenticationFailure": "match"
+    },
+    "absent": [],
+    "matches": [
+      "meraki_vpn_brute_force"
+    ]
+  },
+  {
+    "name": "VPN RADIUS authentication success",
+    "raw": "1720051237.124589040 LAB-MX events type=anyconnect_vpn_auth_success msg= 'RADIUS[374] Server IP=192.0.2.20 Server port=1812 Peer IP=198.51.100.8 Peer port=56735 User=synthetic.user: Authentication request accepted. '",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "origin.ip": "198.51.100.8",
+      "origin.port": 56735,
+      "actionResult": "success"
+    },
+    "absent": [
+      "log.vpnAuthenticationFailure"
+    ],
+    "matches": []
+  },
+  {
+    "name": "AnyConnect connect success",
+    "raw": "1720051237.124589040 LAB-MX events anyconnect_vpn_connect user id 'synthetic@example.invalid' local ip 192.0.2.44 connected from 198.51.100.8",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "origin.ip": "198.51.100.8",
+      "origin.user": "synthetic@example.invalid",
+      "log.vpnLocalIp": "192.0.2.44",
+      "actionResult": "success"
+    },
+    "absent": [
+      "target.ip",
+      "log.vpnAuthenticationFailure"
+    ],
+    "matches": []
+  },
+  {
+    "name": "client VPN reconnect success",
+    "raw": "1720051237.124589040 LAB-MX events client_vpn_connect user id 'synthetic@example.invalid' local ip 192.0.2.45 reconnected from 198.51.100.9",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "origin.user": "synthetic@example.invalid",
+      "log.vpnLocalIp": "192.0.2.45",
+      "actionResult": "success"
+    },
+    "absent": [
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "AnyConnect disconnect has no outcome",
+    "raw": "1720051237.124589040 LAB-MX events anyconnect_vpn_disconnect user id 'synthetic@example.invalid' local ip 192.0.2.44 connected from 198.51.100.8",
+    "dataSource": "synthetic-relay",
+    "expected": {},
+    "absent": [
+      "origin.ip",
+      "origin.user",
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "AnyConnect connection record without outcome",
+    "raw": "1720051237.124589040 LAB-MX events type=anyconnect_vpn_connection_success msg= 'Server IP=192.0.2.20 Server port=443 Prot[TCP] Peer IP=198.51.100.8 Peer port=55760 conn_id[55356] Connection closed. '",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "log.type": "anyconnect_vpn_connection_success"
+    },
+    "absent": [
+      "origin.ip",
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "flows numeric inbound deny",
+    "raw": "1720051237.124589040 LAB-MX flows src=198.51.100.9 dst=192.0.2.8 protocol=udp sport=13943 dport=16329 pattern: 1 all",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.8",
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "firewall numeric allow",
+    "raw": "1720051237.124589040 LAB-MX firewall src=192.0.2.8 dst=198.51.100.9 protocol=tcp sport=39247 dport=443 pattern: 0 (tcp || udp) && dst port 443",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "origin.ip": "192.0.2.8",
+      "target.ip": "198.51.100.9",
+      "actionResult": "success"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "legacy header numeric inbound deny",
+    "raw": "Sep 17 2026 12:00:00192.0.2.44:1720051237.124589040LAB-MX flowssrc=198.51.100.9dst=192.0.2.8protocol=udp sport=13943dport=16329pattern:1 all",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "origin.ip": "198.51.100.9",
+      "target.ip": "192.0.2.8",
+      "log.eventType": "flows",
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "bridge AnyConnect firewall allow",
+    "raw": "1720051237.124589040 LAB-MX bridge_anyconnect_client_vpn_firewall src=192.0.2.8 dst=198.51.100.9 mac=02:00:00:00:00:08 protocol=udp sport=9562 dport=53 pattern: allow all",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "origin.ip": "192.0.2.8",
+      "target.ip": "198.51.100.9",
+      "origin.port": 9562,
+      "target.port": 53,
+      "log.eventType": "bridge_anyconnect_client_vpn_firewall",
+      "actionResult": "success"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "IP flow start forwarded",
+    "raw": "1720051237.124589040 LAB-MX ip_flow_start src=192.0.2.8 dst=198.51.100.9 protocol=tcp sport=34294 dport=80 translated_src_ip=203.0.113.4 translated_port=34294",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "origin.ip": "192.0.2.8",
+      "target.ip": "198.51.100.9",
+      "origin.port": 34294,
+      "target.port": 80,
+      "log.eventType": "ip_flow_start",
+      "actionResult": "success"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "IP flow end has no outcome",
+    "raw": "1720051237.124589040 LAB-MX ip_flow_end src=192.0.2.8 dst=198.51.100.9 protocol=tcp sport=36498 dport=80 translated_src_ip=203.0.113.4 translated_port=36498",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "origin.ip": "192.0.2.8",
+      "target.ip": "198.51.100.9",
+      "log.eventType": "ip_flow_end"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "site-to-site negotiation failure",
+    "raw": "1720051237.124589040 LAB-MX events Site-to-site VPN: phase2 negotiation failed due to time up waiting for phase1. ESP 192.0.2.10[0]->198.51.100.6[0]",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "origin.ip": "192.0.2.10",
+      "target.ip": "198.51.100.6",
+      "actionResult": "failed"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "site-to-site failed to get sainfo",
+    "raw": "1720051237.124589040 LAB-MX events Site-to-site VPN: failed to get sainfo",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "actionResult": "failed"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "site-to-site established",
+    "raw": "1720051237.124589040 LAB-MX events Site-to-site VPN: IPsec-SA established: ESP/Tunnel 192.0.2.6[4500]->198.51.100.10[4500] spi=241280704(0xe61a6c0)",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "origin.ip": "192.0.2.6",
+      "target.ip": "198.51.100.10",
+      "actionResult": "success"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "8021x EAP failure",
+    "raw": "1720051237.124589040 LAB-MX events type=8021x_eap_failure radio='0' vap='3' identity='synthetic@example.invalid' aid='1701992265'",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "origin.user": "synthetic@example.invalid",
+      "actionResult": "failed"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "8021x EAP success",
+    "raw": "1720051237.124589040 LAB-MX events type=8021x_eap_success port='3' identity='synthetic@example.invalid'",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "origin.user": "synthetic@example.invalid",
+      "actionResult": "success"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "content filtering block",
+    "raw": "1720051237.124589040 LAB-MX events content_filtering_block url='https://blocked.example.invalid/' category0='User-defined Blacklist' server='198.51.100.9:443' client_mac='02:00:00:00:00:08'",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [
+      "origin.ip",
+      "target.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "switch blocked ARP packet",
+    "raw": "1720051237.124589040 LAB-MX events Blocked ARP Packet from 02:00:00:00:00:08 with IP 192.0.2.8 on VLAN 123",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "switch blocked RA packet",
+    "raw": "1720051237.124589040 LAB-MX events Blocked RA Packet from 02-00-00-00-00-08 (2001:db8::1) on VLAN 201 by default",
+    "dataSource": "synthetic-relay",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [
+      "origin.ip"
+    ],
     "matches": []
   }
 ]
