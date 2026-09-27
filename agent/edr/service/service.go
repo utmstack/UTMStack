@@ -350,6 +350,12 @@ func (p *program) startPipeline(ctx context.Context, cfg config.EDRConfig, c *ca
 	}
 	if cfg.Sensors.FileWatcherOn() {
 		w := watcher.New(vols, sinkAdapter{orch}, c, ex.Excluded)
+		// Linux fanotify mode: "" / "notify" (default) detects after the fact;
+		// "permission" blocks an open/exec before it runs when the scanner
+		// answers in time (fail-open otherwise). SetMode + SetPermDecider are
+		// no-ops off Linux (the USN watcher ignores them).
+		w.SetMode(cfg.Sensors.FileWatcherMode)
+		w.SetPermDecider(scannerDecider{sc})
 		goSafe("watcher", func() { w.Run(ctx) })
 	} else {
 		logger.Info("UTMStack EDR: file_watcher sensor disabled by config")
@@ -560,6 +566,18 @@ func (s sinkAdapter) Enqueue(path, op string) {
 	if !s.o.Enqueue(orchestrator.FileEvent{Path: path, Op: op}) {
 		logger.Debug(100, "UTMStack EDR: scan queue full, dropped %s", path)
 	}
+}
+
+// scannerDecider adapts the shared scanner to the watcher's PermDecider
+// interface. It is only invoked in Linux permission mode, where the watcher
+// blocks the calling process on this call (bounded by its 1500ms deadline,
+// failing open on timeout/error). The scanner quarantines on its own verdict
+// path, so the permission path relies on that happening inside the window.
+type scannerDecider struct{ sc *scanner.Scanner }
+
+func (s scannerDecider) Scan(path string) (bool, error) {
+	verdict, _, err := s.sc.ScanFile(path, event.SourceFileWatcher)
+	return verdict == cache.VerdictMalicious, err
 }
 
 func RunService() {

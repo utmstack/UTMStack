@@ -75,6 +75,12 @@ type Sensors struct {
 	ProcessGuard *bool `json:"process_guard,omitempty"`
 	AMSI         *bool `json:"amsi,omitempty"`
 	Behavioral   *bool `json:"behavioral,omitempty"`
+
+	// FileWatcherMode selects fanotify behavior on Linux: "" or "notify"
+	// (default) detects after the fact, matching Windows; "permission" blocks
+	// a file open/exec before it runs when the scan engine answers in time
+	// (fail-open otherwise). Ignored on Windows.
+	FileWatcherMode string `json:"file_watcher_mode,omitempty"`
 }
 
 func sensorOn(p *bool) bool { return p == nil || *p }
