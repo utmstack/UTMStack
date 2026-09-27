@@ -3,6 +3,7 @@ package event
 import (
 	"encoding/json"
 	"os"
+	"runtime"
 	"time"
 )
 
@@ -152,7 +153,7 @@ func (e Event) ToJSON() (string, error) {
 		e.Engine = Product
 	}
 	if e.OS == "" {
-		e.OS = "windows"
+		e.OS = runtime.GOOS
 	}
 	if e.Timestamp == "" {
 		e.Timestamp = time.Now().UTC().Format(time.RFC3339Nano)
