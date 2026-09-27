@@ -147,7 +147,7 @@
         }
       },
       "expected": {
-        "actionResult": "failure"
+        "actionResult": "failed"
       },
       "absent": [],
       "rules": {}

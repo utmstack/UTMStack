@@ -1182,7 +1182,7 @@
       "origin.user": "alice",
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "actionResult": "failure",
+      "actionResult": "failed",
       "log.authenticationSource": "CLIENT01",
       "log.authenticationSourceType": "host",
       "log.authenticationSourceDomain": "network-source"
