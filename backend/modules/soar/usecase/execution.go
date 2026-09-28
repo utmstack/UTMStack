@@ -94,6 +94,10 @@ func (u *executionUsecase) HandleMatch(ctx context.Context, req dto.MatchRequest
 			continue
 		}
 
+		masked_command,cerr := u.vars.MaskSecrets(ctx,command)
+		if cerr != nil {
+			_ = catcher.Error("soar: command variable masking failed", cerr,map[string]any{"rule": req.RulePath, "root": rootID})
+		}
 
 
 		exec := &domain.SoarExecution{
@@ -108,7 +112,7 @@ func (u *executionUsecase) HandleMatch(ctx context.Context, req dto.MatchRequest
 			Executor:  node.Executor,
 			Params:    params,
 			Context:   json.RawMessage(bag),
-			Command:   command,
+			Command:   masked_command,
 			Shell:     node.Shell,
 			Agent:     agent,
 			Status:    domain.ExecutionStatusPending,
