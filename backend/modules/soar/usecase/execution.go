@@ -93,6 +93,13 @@ func (u *executionUsecase) HandleMatch(ctx context.Context, req dto.MatchRequest
 			_ = catcher.Error("soar: command interpolation failed", ierr, map[string]any{"rule": req.RulePath, "root": rootID})
 			continue
 		}
+
+		save_command,cerr := u.vars.MaskSecrets(ctx,command)
+		if cerr != nil {
+			_ = catcher.Error("soar: command variable masking failed", ierr, map[string]any{"rule": req.RulePath, "root": rootID})
+			continue
+		}
+
 		exec := &domain.SoarExecution{
 			TenantID:  tenantUUID,
 			Origin:    domain.ExecutionOriginFlow,
@@ -105,7 +112,7 @@ func (u *executionUsecase) HandleMatch(ctx context.Context, req dto.MatchRequest
 			Executor:  node.Executor,
 			Params:    params,
 			Context:   json.RawMessage(bag),
-			Command:   command,
+			Command:   save_command,
 			Shell:     node.Shell,
 			Agent:     agent,
 			Status:    domain.ExecutionStatusPending,
