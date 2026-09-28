@@ -97,3 +97,7 @@ func suspendResume(pid int, proc *windows.LazyProc) error {
 	}
 	return nil
 }
+
+// ReleaseAllFreezes is a no-op on Windows — there is no cgroup freezer; NtSuspend
+// is per-handle and already cleaned up by process termination.
+func ReleaseAllFreezes() {}

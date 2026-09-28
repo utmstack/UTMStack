@@ -57,6 +57,9 @@ type program struct {
 func (p *program) Start(s service.Service) error { go p.run(); return nil }
 
 func (p *program) Stop(s service.Service) error {
+	// Best-effort: release any cgroup v2 freezes so a stopped EDR never leaves
+	// a process suspended. Fail-open — the result is ignored.
+	responder.ReleaseAllFreezes()
 	if p.cancel != nil {
 		p.cancel()
 	}
@@ -274,6 +277,9 @@ func sigDBVersion(raw string) string {
 // USN watcher → orchestrator → scanner (quarantine-wired) → spool, plus the
 // signature feed. Runs only when the module is enabled.
 func (p *program) startPipeline(ctx context.Context, cfg config.EDRConfig, c *cache.Cache) {
+	// Clear stale freezes left by a previous crashed run before the pipeline
+	// (and its process suspends) starts. Best-effort, fail-open.
+	responder.ReleaseAllFreezes()
 	sp, err := event.OpenSpool(config.SpoolFile, 8<<20)
 	if err != nil {
 		logger.Error("UTMStack EDR: spool open: %v", err)
