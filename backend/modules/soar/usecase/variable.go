@@ -181,7 +181,7 @@ func (u *variableUsecase) MaskSecrets(ctx context.Context, output string) (strin
 		if decErr != nil || plain == "" {
 			continue
 		}
-		output = strings.ReplaceAll(output, plain, strings.Repeat("*", len(plain)))
+		output = strings.ReplaceAll(output, plain, strings.Repeat("*", 4))
 	}
 	return output, nil
 }
