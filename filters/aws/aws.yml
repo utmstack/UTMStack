@@ -1,5 +1,6 @@
-# AWS filter v1.1.1: CloudTrail JSON and identified GuardDuty EventBridge findings.
+# AWS filter v1.1.2: CloudTrail JSON and identified GuardDuty EventBridge findings.
 # Original vendor objects and legacy aliases are retained. API success is request success.
+# actionResult is only success, failed or denied, or absent when the record states no outcome.
 # Correlation candidates are generated here, never trusted from input.
 pipeline:
 - dataTypes:
@@ -197,7 +198,10 @@ pipeline:
       params:
         key: log.awsRecordType
         value: cloudtrail
-      where: regexMatch("log.eventName","^[A-Za-z][A-Za-z0-9]*$") && regexMatch("log.eventVersion","^[0-9]+\\.[0-9]+$") && regexMatch("log.eventSource","^[A-Za-z0-9.-]+\\.amazonaws\\.com(\\.cn)?$")
+      # Amazon Managed Grafana workspace events use punctuated names (login-auth.sso) and state
+      # their outcome in result.statusType, so they are recognised too.
+      where: (regexMatch("log.eventName","^[A-Za-z][A-Za-z0-9]*$") || (endsWith("log.eventSource","grafana.amazonaws.com")
+        && regexMatch("log.eventName","^[A-Za-z][A-Za-z0-9._:-]*$"))) && regexMatch("log.eventVersion","^[0-9]+\\.[0-9]+$") && regexMatch("log.eventSource","^[A-Za-z0-9.-]+\\.amazonaws\\.com(\\.cn)?$")
   - add:
       function: string
       params:
@@ -265,11 +269,17 @@ pipeline:
       function: string
       params:
         key: actionResult
-        value: failure
-      where: equals("log.awsRecordType","cloudtrail") && ((exists("log.errorCode") && !equals("log.errorCode","")) || (exists("log.errorMessage")
-        && !equals("log.errorMessage","")) || (exists("log.responseElements.errorCode") && !equals("log.responseElements.errorCode",""))
+        value: failed
+      # Amazon Managed Grafana puts the HTTP status in errorCode ("200" on success), so a 2xx
+      # errorCode is not an error; Grafana's own result.statusType decides. IAM Identity Center
+      # states its sign-in outcome in serviceEventDetails (a failed credential check ends the attempt).
+      where: equals("log.awsRecordType","cloudtrail") && ((exists("log.errorCode") && !equals("log.errorCode","") && !regexMatch("log.errorCode","^2[0-9][0-9]$"))
+        || (exists("log.errorMessage") && !equals("log.errorMessage","")) || (exists("log.responseElements.errorCode") && !equals("log.responseElements.errorCode",""))
         || (exists("log.responseElements.errorMessage") && !equals("log.responseElements.errorMessage","")) || equalsIgnoreCase("log.responseElements.ConsoleLogin","Failure")
-        || equalsIgnoreCase("log.responseElements.GetSigninToken","Failure") || equalsIgnoreCase("log.responseElements.CheckMfa","Failure"))
+        || equalsIgnoreCase("log.responseElements.GetSigninToken","Failure") || equalsIgnoreCase("log.responseElements.CheckMfa","Failure")
+        || equalsIgnoreCase("log.responseElements.SwitchRole","Failure")
+        || (endsWith("log.eventSource","grafana.amazonaws.com") && (equals("log.serviceEventDetails.result.statusType","failure") || equals("log.additionalEventData.result.statusType","failure")))
+        || (equals("log.eventSource","signin.amazonaws.com") && (equals("log.serviceEventDetails.CredentialVerification","Failure") || equals("log.serviceEventDetails.UserAuthentication","Failure"))))
   - add:
       function: string
       params:
@@ -284,12 +294,20 @@ pipeline:
         value: success
       # CheckMfa only checks whether MFA is required; it does not finish a sign-in.
       # Preserve its vendor response without promoting the intermediate success.
-      where: equals("log.awsRecordType","cloudtrail") && !((exists("log.errorCode") && !equals("log.errorCode","")) || (exists("log.errorMessage")
-        && !equals("log.errorMessage","")) || (exists("log.responseElements.errorCode") && !equals("log.responseElements.errorCode",""))
+      # IAM Identity Center logs UserAuthentication Success only after every challenge passed;
+      # CredentialChallenge and CredentialVerification Success are intermediate steps.
+      where: equals("log.awsRecordType","cloudtrail") && !((exists("log.errorCode") && !equals("log.errorCode","") && !regexMatch("log.errorCode","^2[0-9][0-9]$"))
+        || (exists("log.errorMessage") && !equals("log.errorMessage","")) || (exists("log.responseElements.errorCode") && !equals("log.responseElements.errorCode",""))
         || (exists("log.responseElements.errorMessage") && !equals("log.responseElements.errorMessage","")) || equalsIgnoreCase("log.responseElements.ConsoleLogin","Failure")
-        || equalsIgnoreCase("log.responseElements.GetSigninToken","Failure") || equalsIgnoreCase("log.responseElements.CheckMfa","Failure"))
+        || equalsIgnoreCase("log.responseElements.GetSigninToken","Failure") || equalsIgnoreCase("log.responseElements.CheckMfa","Failure")
+        || equalsIgnoreCase("log.responseElements.SwitchRole","Failure")
+        || (endsWith("log.eventSource","grafana.amazonaws.com") && (equals("log.serviceEventDetails.result.statusType","failure") || equals("log.additionalEventData.result.statusType","failure")))
+        || (equals("log.eventSource","signin.amazonaws.com") && (equals("log.serviceEventDetails.CredentialVerification","Failure") || equals("log.serviceEventDetails.UserAuthentication","Failure"))))
         && (equals("log.eventType","AwsApiCall") || (equals("log.eventName","ConsoleLogin") && equals("log.responseElements.ConsoleLogin","Success"))
-        || (equals("log.eventName","GetSigninToken") && equals("log.responseElements.GetSigninToken","Success")))
+        || (equals("log.eventName","GetSigninToken") && equals("log.responseElements.GetSigninToken","Success"))
+        || (equals("log.eventName","SwitchRole") && equals("log.responseElements.SwitchRole","Success"))
+        || (endsWith("log.eventSource","grafana.amazonaws.com") && (equals("log.serviceEventDetails.result.statusType","success") || equals("log.additionalEventData.result.statusType","success")))
+        || (equals("log.eventSource","signin.amazonaws.com") && equals("log.eventName","UserAuthentication") && equals("log.serviceEventDetails.UserAuthentication","Success")))
   - grok:
       source: log.recipientAccountId
       patterns:
@@ -559,11 +577,11 @@ pipeline:
         key: log.correlationCandidate.credentialAccessAwsIamAssumeRoleBruteForce
         value: match
       where: equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource","iam.amazonaws.com") && oneOf("log.eventName",["UpdateAssumeRolePolicy"])
-        && oneOf("log.errorCode",["MalformedPolicyDocument", "MalformedPolicyDocumentException"]) && equals("actionResult","failure"))
+        && oneOf("log.errorCode",["MalformedPolicyDocument", "MalformedPolicyDocumentException"]) && equals("actionResult","failed"))
   - add:
       function: string
       params:
         key: log.correlationCandidate.credentialAccessRootConsoleFailureBruteForce
         value: match
       where: equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource","signin.amazonaws.com") && oneOf("log.eventName",["ConsoleLogin"])
-        && equals("log.userIdentity.type","Root") && oneOf("actionResult",["failure", "denied"]))
+        && equals("log.userIdentity.type","Root") && oneOf("actionResult",["failed", "denied"]))
