@@ -45,6 +45,7 @@ func (u *visualizationUsecase) Update(ctx context.Context, v *domain.Visualizati
 	if v.ID == uuid.Nil {
 		return nil, domain.ErrIDRequired
 	}
+
 	existing, err := u.repo.FindByID(ctx, v.ID)
 	if err != nil {
 		return nil, err
@@ -60,6 +61,8 @@ func (u *visualizationUsecase) Update(ctx context.Context, v *domain.Visualizati
 	}
 	v.CreatedDate = existing.CreatedDate
 	v.SystemOwner = existing.SystemOwner
+	// A visualization can't move to a different tenant — it's not reusable.
+	v.TenantID = existing.TenantID
 	// A visualization can't move to a different dashboard — it's not reusable.
 	v.DashboardID = existing.DashboardID
 	v.ModifiedDate = time.Now().UTC()
