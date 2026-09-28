@@ -1,4 +1,4 @@
-# Rule version v1.1.0
+# Rule version v1.1.1
 dataTypes:
 - antivirus-kaspersky
 name: Living Off the Land Binaries (LOLBins) Abuse Detection
@@ -29,7 +29,7 @@ where: |
   (regexMatch("log.msg", "(?i).*(rundll32|regsvr32|mshta|certutil|bitsadmin|powershell|wmic|cscript|wscript|msiexec|installutil|regasm|regsvcs).*") ||
    contains("log.cs4", ["fileless", "LOLBin", "LOLBas"])) &&
   (contains("log.msg", ["download", "execute", "bypass", "encoded", "obfuscat", "hidden", "malicious"]) ||
-   oneOf("actionResult",["denied","failure"])))
+   oneOf("actionResult",["denied","failed"])))
 groupBy:
 - lastEvent.log.cs4
 - adversary.host

@@ -1,4 +1,4 @@
-# Kaspersky filter v3.2.0; native KSC structured syslog and CEF.
+# Kaspersky filter v3.2.1; native KSC structured syslog and CEF.
 # The grok plugin trims input before each pattern and rejects empty matches;
 # separator spaces therefore belong to nonempty captures, not their own steps.
 pipeline:
@@ -810,7 +810,7 @@ pipeline:
       function: string
       params:
         key: actionResult
-        value: failure
+        value: failed
       where: regexMatch("action","(?i)^(fail|failed|failure)$")
   - add:
       function: string
@@ -968,6 +968,16 @@ pipeline:
       - fieldName: deviceTime
         pattern: (?s)^.+$
       where: regexMatch("log.ksc.time","^[0-9]{4}-(0[1-9]|1[0-2])-([0-2][0-9]|3[01])T([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.[0-9]+)?(Z|[+-][0-2][0-9]:[0-5][0-9])$")
+  # Kaspersky Security Center states a block in the event type, not in CEF act:
+  # object blocked, object found and blocked, application launch denied. The
+  # native syslog message id is cut to 32 characters when et is missing.
+  # Detection-only, task and health events state no final outcome.
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: denied
+      where: oneOf("log.eventType",["GNRL_EV_OBJECT_BLOCKED","GNRL_EV_VIRUS_FOUND_AND_BLOCKED","GNRL_EV_APPLICATION_LAUNCH_DENIED","GNRL_EV_APPLICATION_LAUNCH_DENIE"]) || (equals("log.embDeviceVendor","KasperskyLab") && oneOf("log.signatureID",["GNRL_EV_OBJECT_BLOCKED","GNRL_EV_VIRUS_FOUND_AND_BLOCKED","GNRL_EV_APPLICATION_LAUNCH_DENIED"]))
   - add:
       function: string
       params:
