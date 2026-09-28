@@ -1408,5 +1408,245 @@
       "origin.process"
     ],
     "matches": []
+  },
+  {
+    "name": "action_result kernel-sandbox-deny",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-27T10:00:00Z\",\"process\":\"kernel\",\"process_identifier\":0,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"error\",\"message\":\"Sandbox: exampled(123) deny(1) file-read-data /private/etc/example.conf\",\"store_category\":\"undefined\",\"sender\":\"Sandbox\"}",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "action_result kernel-sandbox-duplicate-reports",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-27T10:00:00Z\",\"process\":\"kernel\",\"process_identifier\":0,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"error\",\"message\":\"3 duplicate reports for Sandbox: exampled(123) deny(1) system-info vfs.disk-space\",\"store_category\":\"undefined\",\"sender\":\"Sandbox\"}",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "action_result kernel-system-policy-duplicate-report",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-27T10:00:00Z\",\"process\":\"kernel\",\"process_identifier\":0,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"error\",\"message\":\"1 duplicate report for System Policy: exampled(123) deny(1) file-read-metadata /private/var/folders/example\",\"store_category\":\"undefined\",\"sender\":\"Sandbox\",\"subsystem\":\"com.apple.sandbox.reporting\",\"category\":\"violation\"}",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "action_result sandboxd-reporting-deny",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-27T10:00:00Z\",\"process\":\"sandboxd\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"error\",\"message\":\"Sandbox: ExampleApp(456) deny(1) mach-lookup com.example.service\\nViolation:       deny(1) mach-lookup com.example.service\\nProcess:         ExampleApp [456]\",\"store_category\":\"undefined\",\"sender\":\"sandboxd\",\"subsystem\":\"com.apple.sandbox.reporting\",\"category\":\"violation\"}",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "action_result sandboxd-reporting-fragment-control",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-27T10:00:00Z\",\"process\":\"sandboxd\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"error\",\"message\":\"       0x100000000 -        0x100001fff  libexample.dylib <00000000-0000-4000-8000-000000000011> /usr/lib/libexample.dylib\",\"store_category\":\"undefined\",\"sender\":\"sandboxd\",\"subsystem\":\"com.apple.sandbox.reporting\",\"category\":\"violation\"}",
+    "expected": {},
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "action_result kernel-sandbox-allow-control",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-27T10:00:00Z\",\"process\":\"kernel\",\"process_identifier\":0,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"error\",\"message\":\"Sandbox: exampled(123) allow(1) file-read-data /private/etc/example.conf\",\"store_category\":\"undefined\",\"sender\":\"Sandbox\"}",
+    "expected": {},
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "action_result kernel-rejected-approval",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-27T10:00:00Z\",\"process\":\"kernel\",\"process_identifier\":0,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"info\",\"message\":\"sandboxd rejected approval request from exampled for kTCCServiceSystemPolicyAllFiles (/private/var/example): denied\",\"store_category\":\"undefined\",\"sender\":\"Sandbox\"}",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "action_result launchd-denied-lookup",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-27T10:00:00Z\",\"process\":\"launchd\",\"process_identifier\":1,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"denied lookup: name = com.example.service, flags = 0x1, requestor = exampled[789], error = 159: Sandbox restriction\",\"store_category\":\"undefined\",\"sender\":\"launchd\",\"subsystem\":\"gui/501 [100001]\",\"category\":\"\"}",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "action_result non-launchd-denied-lookup-control",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-27T10:00:00Z\",\"process\":\"exampled\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"denied lookup: name = com.example.service, requestor = exampled[789], error = 159: Sandbox restriction\",\"store_category\":\"undefined\",\"sender\":\"exampled\"}",
+    "expected": {},
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "action_result opendirectoryd-auth-failed",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-27T10:00:00Z\",\"process\":\"opendirectoryd\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"error\",\"message\":\"Authentication failed for <private> (00000000-0000-4000-8000-0000000000AA): ODErrorCredentialsInvalid\",\"store_category\":\"undefined\",\"sender\":\"PlistFile\",\"subsystem\":\"com.apple.opendirectoryd\",\"category\":\"auth\"}",
+    "expected": {
+      "actionResult": "failed"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "action_result opendirectoryd-securetoken-failed",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-27T10:00:00Z\",\"process\":\"opendirectoryd\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"error\",\"message\":\"Failed SecureToken authentication for 00000000-0000-4000-8000-0000000000AA other domain: invalid credentials\",\"store_category\":\"undefined\",\"sender\":\"opendirectoryd\",\"subsystem\":\"com.apple.opendirectoryd\",\"category\":\"auth\"}",
+    "expected": {
+      "actionResult": "failed"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "action_result opendirectoryd-getpwnam-control",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-27T10:00:00Z\",\"process\":\"opendirectoryd\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"getpwnam failed with result Not Found\",\"store_category\":\"undefined\",\"sender\":\"opendirectoryd\",\"subsystem\":\"com.apple.opendirectoryd\",\"category\":\"default\"}",
+    "expected": {},
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "action_result authd-succeeded",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-27T10:00:00Z\",\"process\":\"authd\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Succeeded authorizing right 'system.preferences' by client '/usr/libexec/exampletool' [100] for authorization created by '/usr/libexec/exampletool' [100] (2,0) (engine 90)\",\"store_category\":\"undefined\",\"sender\":\"authd\",\"subsystem\":\"com.apple.Authorization\",\"category\":\"authd\"}",
+    "expected": {
+      "actionResult": "success"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "action_result authd-failed-denied",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-27T10:00:00Z\",\"process\":\"authd\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Failed to authorize right 'system.privilege.admin' by client '/usr/libexec/exampletool' [100] for authorization created by '/usr/libexec/exampletool' [100] (3,0) (-60005) (engine 91)\",\"store_category\":\"undefined\",\"sender\":\"authd\",\"subsystem\":\"com.apple.Authorization\",\"category\":\"authd\"}",
+    "expected": {
+      "actionResult": "failed"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "action_result tcc-authvalue-2",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-27T10:00:00Z\",\"process\":\"tccd\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"AUTHREQ_RESULT: msgID=100.1, authValue=2, authReason=4, authVersion=1, desired_auth=0, error=(null),\",\"store_category\":\"undefined\",\"sender\":\"tccd\",\"subsystem\":\"com.apple.TCC\",\"category\":\"access\"}",
+    "expected": {
+      "actionResult": "success"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "action_result tcc-authvalue-0",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-27T10:00:00Z\",\"process\":\"tccd\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"AUTHREQ_RESULT: msgID=100.2, authValue=0, authReason=5, authVersion=1, desired_auth=0, error=(null),\",\"store_category\":\"undefined\",\"sender\":\"tccd\",\"subsystem\":\"com.apple.TCC\",\"category\":\"access\"}",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "action_result tcc-authvalue-3-control",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-27T10:00:00Z\",\"process\":\"tccd\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"AUTHREQ_RESULT: msgID=100.3, authValue=3, authReason=2, authVersion=1, desired_auth=0, error=(null),\",\"store_category\":\"undefined\",\"sender\":\"tccd\",\"subsystem\":\"com.apple.TCC\",\"category\":\"access\"}",
+    "expected": {},
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "action_result tcc-returning-denied",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-27T10:00:00Z\",\"process\":\"tccd\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Service kTCCServiceExample does not allow prompting; returning denied.\",\"store_category\":\"undefined\",\"sender\":\"tccd\",\"subsystem\":\"com.apple.TCC\",\"category\":\"access\"}",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "action_result loginwindow-incorrect-password",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-27T10:00:00Z\",\"process\":\"loginwindow\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"-[LWDefaultScreenLockUI authFailWithMessage:] | enter. INCORRECT password\",\"store_category\":\"undefined\",\"sender\":\"loginwindow\",\"subsystem\":\"com.apple.loginwindow.logging\",\"category\":\"Standard\"}",
+    "expected": {
+      "actionResult": "failed"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "action_result loginwindow-authfail-followup-control",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-27T10:00:00Z\",\"process\":\"loginwindow\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"-[LWDefaultScreenLockUI authFailWithMessage:] |      setEnabled:YES\",\"store_category\":\"undefined\",\"sender\":\"loginwindow\",\"subsystem\":\"com.apple.loginwindow.logging\",\"category\":\"Standard\"}",
+    "expected": {},
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "action_result xprotect-detection-control",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-27T10:00:00Z\",\"process\":\"syspolicyd\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Forwarding detection succeeded!\",\"store_category\":\"undefined\",\"sender\":\"syspolicyd\",\"subsystem\":\"com.apple.xprotect\",\"category\":\"xprotect\"}",
+    "expected": {},
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "action_result legacy-kernel-sandbox-deny",
+    "dataSource": "mac-lab",
+    "raw": "{\"traceID\":444,\"eventMessage\":\"Sandbox: exampled(613) deny(1) file-read-data /private/etc/example.conf\",\"eventType\":\"logEvent\",\"source\":null,\"formatString\":\"%s\",\"activityIdentifier\":0,\"subsystem\":\"\",\"category\":\"\",\"threadID\":4822,\"senderImageUUID\":\"00000000-0000-4000-8000-000000000010\",\"bootUUID\":\"\",\"processImagePath\":\"/kernel\",\"timestamp\":\"2026-09-27 10:00:00.000000+0000\",\"senderImagePath\":\"/System/Library/Extensions/Sandbox.kext/Contents/MacOS/Sandbox\",\"machTimestamp\":181818181818,\"messageType\":\"Error\",\"processID\":0,\"senderProgramCounter\":0,\"parentActivityIdentifier\":0,\"timezoneName\":\"\"}",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "action_result wrapper-launchd-denied-lookup",
+    "dataSource": "mac-lab",
+    "raw": "[utm_stack_agent_ds=mac-lab]-{\"timestamp\":\"2026-09-27T10:00:00Z\",\"process\":\"launchd\",\"process_identifier\":1,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"denied lookup: name = com.example.service, requestor = exampled[789], error = 159: Sandbox restriction\",\"store_category\":\"undefined\",\"sender\":\"launchd\",\"subsystem\":\"gui/501 [100001]\"}",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "action_result user-process-sandbox-text-control",
+    "dataSource": "mac-lab",
+    "raw": "{\"timestamp\":\"2026-09-27T10:00:00Z\",\"process\":\"Terminal\",\"process_identifier\":123,\"thread_identifier\":456,\"activity_identifier\":0,\"class_name\":\"OSLogEntryLog\",\"level\":\"notice\",\"message\":\"Sandbox: exampled(123) deny(1) file-read-data /private/etc/example.conf\",\"store_category\":\"undefined\",\"sender\":\"Terminal\"}",
+    "expected": {},
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
   }
 ]
