@@ -1,4 +1,4 @@
-# Rule version v1.1.0
+# Rule version v1.1.1
 
 dataTypes:
   - firewall-mikrotik
@@ -33,7 +33,7 @@ afterEvents:
         value: '{{.origin.ip}}'
       - field: actionResult
         operator: filter_term
-        value: failure
+        value: failed
     within: 15m
     count: 10
 deduplicateBy:
