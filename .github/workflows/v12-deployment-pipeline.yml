@@ -641,8 +641,19 @@ jobs:
           echo "🔍 Version: $TAG"
           echo "🔍 CM URL: $CM_URL"
 
-          if ! echo "$SCHEDULE_INSTANCES" | jq empty > /dev/null 2>&1; then
-            echo "❌ SCHEDULE_INSTANCES is not valid JSON: $SCHEDULE_INSTANCES"
+          if [ -z "$(echo "$SCHEDULE_INSTANCES" | tr -d '[:space:]')" ]; then
+            echo "❌ SCHEDULE_INSTANCES is not set for this environment"
+            exit 1
+          fi
+
+          if ! echo "$SCHEDULE_INSTANCES" | jq -e 'type == "object"' > /dev/null 2>&1; then
+            echo "❌ SCHEDULE_INSTANCES is not a valid JSON object: $SCHEDULE_INSTANCES"
+            exit 1
+          fi
+
+          product_count=$(echo "$SCHEDULE_INSTANCES" | jq 'keys | length')
+          if [ "$product_count" -eq 0 ]; then
+            echo "❌ SCHEDULE_INSTANCES has no products configured for this environment"
             exit 1
           fi
 
@@ -656,6 +667,12 @@ jobs:
 
           scheduled=0
           for product_id in $(echo "$SCHEDULE_INSTANCES" | jq -r 'keys[]'); do
+            instance_count=$(echo "$SCHEDULE_INSTANCES" | jq --arg p "$product_id" '.[$p] | length')
+            if [ "$instance_count" -eq 0 ]; then
+              echo "ℹ️ No instances configured for product $product_id — skipping"
+              continue
+            fi
+
             for instance_id in $(echo "$SCHEDULE_INSTANCES" | jq -r --arg p "$product_id" '.[$p][]'); do
               echo "📅 Scheduling release for instance: $instance_id (product: $product_id)"
 
@@ -679,9 +696,4 @@ jobs:
             done
           done
 
-          if [ "$scheduled" -eq 0 ]; then
-            echo "❌ No instances were scheduled — check SCHEDULE_INSTANCES for this environment"
-            exit 1
-          fi
-
-          echo "✅ Scheduled release for all $scheduled instance(s) with version $TAG"
+          echo "✅ Done — scheduled $scheduled instance(s) out of $product_count configured product(s) with version $TAG"
