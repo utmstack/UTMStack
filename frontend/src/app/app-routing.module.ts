@@ -178,6 +178,7 @@ const routes: Routes = [
   {path: '', component: LoginComponent},
   {path: 'totp', component: TotpComponent},
   {path: 'enroll-tfa', component: TfaSetupComponent},
+  {path: 'auth/login', component: PasswordResetFinishComponent},
   {path: 'reset/finish', component: PasswordResetFinishComponent},
   {path: 'page-not-found', component: NotFoundComponent},
   {path: 'confirm-identity/:id', component: ConfirmIdentityComponent},
