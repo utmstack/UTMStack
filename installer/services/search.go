@@ -63,7 +63,7 @@ func InitOpenSearch() error {
 		return err
 	}
 
-	logTemplateData := `{"index_patterns":["v11-log-*"],"template":{"settings":{"index.max_shards":30000}}}`
+	logTemplateData := `{"index_patterns":["v11-log-*","v11-alert-*"],"template":{"settings":{"index.max_shards":30000}}}`
 	if err := execCurl(containerID, "PUT", "https://localhost:9200/_index_template/utmstack_log_indexes", logTemplateData); err != nil {
 		return err
 	}
@@ -85,7 +85,7 @@ func UpdateOpenSearch() error{
 		return err
 	}
 	// updated already existing index (update case)
-	if err := execCurl(containerID, "PUT", "https://localhost:9200/v11-log-*/_settings?allow_no_indices=true", `{"index.max_shards":30000}`); err != nil {
+	if err := execCurl(containerID, "PUT", "https://localhost:9200/v11-log-*,v11-alert-*/_settings?allow_no_indices=true", `{"index.max_shards":30000}`); err != nil {
 		return err
 	}
 
