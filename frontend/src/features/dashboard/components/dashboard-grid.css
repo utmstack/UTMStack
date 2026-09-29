@@ -1,0 +1,5 @@
+ .react-grid-placeholder {
+  transition: none !important;
+  will-change: auto;
+  pointer-events: none;
+}
