@@ -11,7 +11,7 @@ import {
 
 @Injectable({providedIn: 'root'})
 export class FederationTeamService {
-  private readonly endpoint = SERVER_API_URL + 'api/v1/users';
+  private readonly endpoint = SERVER_API_URL + 'api/users';
 
   constructor(private http: HttpClient) {}
 
@@ -42,7 +42,7 @@ export class FederationTeamService {
   }
 
   deactivate(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.endpoint}/${id}`);
+    return this.http.delete<void>(`${SERVER_API_URL + 'api/v1/users'}/${id}`);
   }
 
   resendInvite(id: number): Observable<void> {
