@@ -1,4 +1,4 @@
-# IBM AIX filter, version 3.1.0
+# IBM AIX filter, version 3.2.0
 # Based on docs and samples log provided
 # Support 
 #
@@ -318,19 +318,18 @@ pipeline:
 
       # ......................................................................#
       # If "RETURNCODE:" in [msg]
+      # The return code is read wherever it sits, so optional keys that come
+      # before it (TERMINAL, COMMENT$TEXT) no longer hide the outcome. It does
+      # not consume log.msg, which is deleted below anyway.
       # ......................................................................#
       - grok:
           patterns:
             - fieldName: log.irrelevant
-              pattern: '(RETURNCODE:)'
-            - fieldName: log.irrelevant
-              pattern: '\[{{.data}}\]'
+              pattern: '(.*?\s)?RETURNCODE:\[[0-9]+\]'
             - fieldName: log.returnCode
-              pattern: '\"{{.data}}\"'
-            - fieldName: log.msg
-              pattern: '{{.greedy}}'
+              pattern: '"[^"]*"'
           source: log.msg
-          where: contains("log.msg", "LENGTH:") || contains("log.msg", "SESSIONID:") || contains("log.msg", "ENTRYID:") || contains("log.msg", "STATEMENT:") || contains("log.msg", "USERID:") || contains("log.msg", "USERHOST:") || contains("log.msg", "ACTION:") || contains("log.msg", "RETURNCODE:") || contains("log.msg", "OBJ$CREATOR:") || contains("log.msg", "OBJ$NAME:") || contains("log.msg", "OS$USERID:")
+          where: contains("log.msg", "RETURNCODE:")
 
       # ......................................................................#
       # If "OBJ$CREATOR:" in [msg]
@@ -538,21 +537,61 @@ pipeline:
             - log.objName
             - log.osUserID
 
-      # Adding action result
-      # An Oracle audit RETURNCODE of 0 is a completed operation; any other
-      # code is the error that stopped it. Other messages keep no outcome.
+      # ......................................................................#
+      # sshd sign-in result, method and account:
+      # "sshd[<pid>]: Accepted|Failed <method> for [invalid user ]<user> from <ip> port <n>"
+      # The "Accepted key ... found at" line is an intermediate step and is not matched.
+      # ......................................................................#
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: '[^\s\[]+\[[0-9]+\]:'
+            - fieldName: log.authResult
+              pattern: '(Accepted|Failed)'
+            - fieldName: log.authMethod
+              pattern: '[^\s]+'
+            - fieldName: log.irrelevant
+              pattern: 'for(\s+invalid\s+user)?'
+            - fieldName: origin.user
+              pattern: '[^\s]+'
+            - fieldName: log.irrelevant
+              pattern: 'from'
+          source: log.msgAll
+          where: 'regexMatch("log.msgAll", "^sshd[^\\[ ]*\\[[0-9]+\\]: (Accepted|Failed) [^ ]+ for ")'
+
+      # ......................................................................#
+      # Adding action result: only success, failed or denied, or nothing when
+      # the record states no final outcome. add overwrites, so the steps run
+      # success, then failed, then denied.
+      # success: Oracle audit RETURNCODE 0 (the operation completed), sshd
+      #   Accepted, su "from <user> to <user>", and sudo lines that go straight
+      #   to TTY= or PWD= (the command was allowed and run).
+      # failed: any other Oracle RETURNCODE (for example 1017 wrong password,
+      #   28000 account locked), sshd Failed, AIX "ssh: failed login attempt",
+      #   su "BAD SU", sudo "incorrect password attempts" and AIX 3004-303
+      #   "Login restricted" (account locked after too many failed logins).
+      # denied: Oracle privilege refusals (1031 insufficient privileges, 1035
+      #   restricted session, 1045 no CREATE SESSION privilege) and sudoers
+      #   refusals (NOT in sudoers, NOT authorized on host, command not allowed).
+      # ......................................................................#
       - add:
           function: string
           params:
             key: actionResult
             value: "success"
-          where: 'exists("log.returnCode") && equals("log.returnCode", "0")'
+          where: '(exists("log.returnCode") && equals("log.returnCode", "0")) || equals("log.authResult", "Accepted") || regexMatch("log.msgAll", "^su: from [^ ]+ to ") || regexMatch("log.msgAll", "^sudo:\\s+[^ ]+ : (TTY|PWD)=")'
       - add:
           function: string
           params:
             key: actionResult
-            value: "failure"
-          where: 'exists("log.returnCode") && !equals("log.returnCode", "0")'
+            value: "failed"
+          where: '(exists("log.returnCode") && !equals("log.returnCode", "0")) || equals("log.authResult", "Failed") || startsWith("log.msgAll", "syslog: ssh: failed login attempt for ") || startsWith("log.msgAll", "su: BAD SU from ") || regexMatch("log.msgAll", "^sudo:\\s+[^ ]+ : [0-9]+ incorrect password attempts? ; ") || regexMatch("log.msgAll", "^[^ ]+\\[[0-9]+\\]: Login restricted for [^ ]+: 3004-303 ")'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "denied"
+          where: '(exists("log.returnCode") && oneOf("log.returnCode", ["1031", "1035", "1045"])) || regexMatch("log.msgAll", "^sudo:\\s+[^ ]+ : (user NOT in sudoers|user NOT authorized on host|command not allowed) ; ")'
 
       # Adding geolocation to origin.ip
       - dynamic:

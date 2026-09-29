@@ -150,7 +150,7 @@
     "dataSource": "firewall-lab",
     "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"traffic\" logid=\"0000000011\" action=\"dns\"",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []
@@ -160,7 +160,7 @@
     "dataSource": "firewall-lab",
     "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"traffic\" logid=\"0000000011\" action=\"ip-conn\"",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []
@@ -459,7 +459,7 @@
     "dataSource": "firewall-lab",
     "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"event\" subtype=\"system\" logid=\"0100032002\" logdesc=\"Admin login failed\" user=\"admin-lab\" srcip=203.0.113.10 action=\"login\" status=\"failed\"",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []
@@ -532,7 +532,7 @@
     "expected": {
       "origin.ip": "203.0.113.10",
       "origin.user": "vpn-user",
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": [
@@ -866,6 +866,135 @@
     },
     "absent": [
       "log.msg"
+    ],
+    "matches": []
+  },
+  {
+    "name": "reset after reply completed",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"traffic\" subtype=\"forward\" action=\"client-rst\" srcip=192.0.2.10 dstip=198.51.100.20 sentpkt=\"4\" rcvdpkt=\"3\"",
+    "expected": {
+      "connectionStatus": "closed",
+      "actionResult": "success"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "timeout after reply completed",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"traffic\" subtype=\"forward\" action=\"timeout\" srcip=192.0.2.10 dstip=198.51.100.20 sentpkt=\"2\" rcvdpkt=\"1\"",
+    "expected": {
+      "connectionStatus": "closed",
+      "actionResult": "success"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "timeout without reply keeps no outcome",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"traffic\" subtype=\"forward\" action=\"timeout\" srcip=192.0.2.10 dstip=198.51.100.20 sentpkt=\"3\" rcvdpkt=\"0\"",
+    "expected": {
+      "connectionStatus": "closed"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "profile block in an answered reset session is denied",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"traffic\" subtype=\"forward\" action=\"server-rst\" srcip=192.0.2.10 dstip=198.51.100.20 sentpkt=\"4\" rcvdpkt=\"4\" utmaction=\"block\"",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "application control pass is success",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"utm\" subtype=\"app-ctrl\" eventtype=\"signature\" action=\"pass\" srcip=192.0.2.10 dstip=198.51.100.20 app=\"HTTPS.BROWSER\"",
+    "expected": {
+      "actionResult": "success"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "web filter passthrough is success",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"utm\" subtype=\"webfilter\" eventtype=\"ftgd_allow\" action=\"passthrough\" srcip=192.0.2.10 dstip=198.51.100.20 hostname=\"www.example.com\"",
+    "expected": {
+      "actionResult": "success"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "VoIP permit is success",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"utm\" subtype=\"voip\" eventtype=\"voip\" action=\"permit\" srcip=192.0.2.10 dstip=198.51.100.20",
+    "expected": {
+      "actionResult": "success"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "DNS filter redirect is denied",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"utm\" subtype=\"dns\" eventtype=\"dns-response\" action=\"redirect\" srcip=192.0.2.10 dstip=198.51.100.53 qname=\"blocked.example\" msg=\"Domain was blocked due to its category\"",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "IPS reset critical positive",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"utm\" subtype=\"ips\" eventtype=\"signature\" severity=\"critical\" action=\"reset_client\" srcip=203.0.113.10 dstip=192.0.2.20 msg=\"attack signature detected\"",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": [
+      "ips_critical_severity_events"
+    ]
+  },
+  {
+    "name": "DoS sensor cleared session is denied",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"utm\" subtype=\"anomaly\" eventtype=\"anomaly\" severity=\"critical\" action=\"clear_session\" srcip=203.0.113.10 dstip=192.0.2.20 msg=\"anomaly: icmp_flood, 51 > threshold 50\"",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "SSL VPN tunnel up is a completed sign-in",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"event\" subtype=\"vpn\" logid=\"0101039947\" action=\"tunnel-up\" logdesc=\"SSL VPN tunnel up\" tunneltype=\"ssl-tunnel\" remip=203.0.113.10 user=\"vpn-user\" group=\"Remote Users\" msg=\"SSL tunnel established\"",
+    "expected": {
+      "origin.ip": "203.0.113.10",
+      "origin.user": "vpn-user",
+      "actionResult": "success"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "IPsec tunnel up keeps peer and outcome unset",
+    "dataSource": "firewall-lab",
+    "raw": "<189>date=2026-09-17 time=12:34:56 devid=\"FGT-LAB\" vd=\"root\" type=\"event\" subtype=\"vpn\" logid=\"0101037138\" action=\"tunnel-up\" tunneltype=\"ipsec\" remip=203.0.113.10 msg=\"IPsec connection status change\"",
+    "expected": {},
+    "absent": [
+      "origin.ip",
+      "actionResult"
     ],
     "matches": []
   }

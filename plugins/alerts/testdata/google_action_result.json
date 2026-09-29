@@ -22,12 +22,12 @@
   {
     "name": "audit-cancelled",
     "raw": "{\"logName\":\"projects/example/logs/cloudaudit.googleapis.com%2Factivity\",\"protoPayload\":{\"methodName\":\"compute.instances.insert\",\"serviceName\":\"compute.googleapis.com\",\"status\":{\"code\":1}}}",
-    "result": "failure"
+    "result": "failed"
   },
   {
     "name": "audit-internal",
     "raw": "{\"logName\":\"projects/example/logs/cloudaudit.googleapis.com%2Factivity\",\"protoPayload\":{\"methodName\":\"compute.instances.insert\",\"serviceName\":\"compute.googleapis.com\",\"status\":{\"code\":13}}}",
-    "result": "failure"
+    "result": "failed"
   },
   {
     "name": "audit-first-is-pending",
@@ -82,17 +82,17 @@
   {
     "name": "dns-server-error",
     "raw": "{\"logName\":\"projects/example/logs/dns.googleapis.com%2Fdns_queries\",\"jsonPayload\":{\"responseCode\":2,\"queryName\":\"example.invalid.\"}}",
-    "result": "failure"
+    "result": "failed"
   },
   {
     "name": "dns-SERVFAIL",
     "raw": "{\"logName\":\"projects/example/logs/dns.googleapis.com%2Fdns_queries\",\"jsonPayload\":{\"responseCode\":\"SERVFAIL\",\"queryName\":\"example.invalid.\"}}",
-    "result": "failure"
+    "result": "failed"
   },
   {
     "name": "dns-name-error",
     "raw": "{\"logName\":\"projects/example/logs/dns.googleapis.com%2Fdns_queries\",\"jsonPayload\":{\"responseCode\":3,\"queryName\":\"example.invalid.\"}}",
-    "result": "failure"
+    "result": "failed"
   },
   {
     "name": "dns-UNKNOWN",
@@ -142,12 +142,12 @@
   {
     "name": "http-429",
     "raw": "{\"logName\":\"projects/example/logs/requests\",\"httpRequest\":{\"status\":429}}",
-    "result": "failure"
+    "result": "failed"
   },
   {
     "name": "http-500",
     "raw": "{\"logName\":\"projects/example/logs/requests\",\"httpRequest\":{\"status\":500}}",
-    "result": "failure"
+    "result": "failed"
   },
   {
     "name": "http-700",
@@ -235,7 +235,7 @@
   {
     "name": "severity-CRITICAL",
     "raw": "{\"logName\":\"projects/example/logs/requests\",\"httpRequest\":{\"status\":500},\"severity\":\"CRITICAL\"}",
-    "result": "failure",
+    "result": "failed",
     "expected": {
       "severity": "critical",
       "log.severity": "CRITICAL"
@@ -299,7 +299,7 @@
   {
     "name": "workspace-login-failure",
     "raw": "{\"protoPayload\":{\"@type\":\"type.googleapis.com/google.cloud.audit.AuditLog\",\"authenticationInfo\":{\"principalEmail\":\"test-user@example.net\"},\"requestMetadata\":{\"callerIp\":\"2001:db8::10\",\"requestAttributes\":{},\"destinationAttributes\":{}},\"serviceName\":\"login.googleapis.com\",\"methodName\":\"google.login.LoginService.loginFailure\",\"resourceName\":\"organizations/123\",\"metadata\":{\"event\":[{\"eventName\":\"login_failure\",\"eventType\":\"login\",\"parameter\":[{\"value\":\"google_password\",\"type\":\"TYPE_STRING\",\"name\":\"login_type\"}]}],\"@type\":\"type.googleapis.com/ccc_hosted_reporting.ActivityProto\"}},\"insertId\":\"synthetic-workspace\",\"resource\":{\"type\":\"audited_resource\",\"labels\":{\"method\":\"google.login.LoginService.loginFailure\",\"service\":\"login.googleapis.com\"}},\"timestamp\":\"2026-09-24T12:00:00Z\",\"severity\":\"NOTICE\",\"logName\":\"organizations/123/logs/cloudaudit.googleapis.com%2Fdata_access\",\"receiveTimestamp\":\"2026-09-24T12:00:01Z\"}",
-    "result": "failure",
+    "result": "failed",
     "expected": {
       "origin.ip": "2001:db8::10",
       "origin.user": "test-user@example.net"
@@ -308,7 +308,7 @@
   {
     "name": "workspace-saml-login-failed",
     "raw": "{\"protoPayload\":{\"@type\":\"type.googleapis.com/google.cloud.audit.AuditLog\",\"authenticationInfo\":{\"principalEmail\":\"test-user@example.net\"},\"requestMetadata\":{\"callerIp\":\"2001:db8::10\",\"requestAttributes\":{},\"destinationAttributes\":{}},\"serviceName\":\"login.googleapis.com\",\"methodName\":\"google.apps.login.v1.SamlLoginFailed\",\"resourceName\":\"organizations/123\",\"metadata\":{\"event\":[{\"eventName\":\"login_failure\",\"eventType\":\"login\",\"parameter\":[{\"value\":\"google_password\",\"type\":\"TYPE_STRING\",\"name\":\"login_type\"}]}],\"@type\":\"type.googleapis.com/ccc_hosted_reporting.ActivityProto\"}},\"insertId\":\"synthetic-workspace\",\"resource\":{\"type\":\"audited_resource\",\"labels\":{\"method\":\"google.apps.login.v1.SamlLoginFailed\",\"service\":\"login.googleapis.com\"}},\"timestamp\":\"2026-09-24T12:00:00Z\",\"severity\":\"NOTICE\",\"logName\":\"organizations/123/logs/cloudaudit.googleapis.com%2Fdata_access\",\"receiveTimestamp\":\"2026-09-24T12:00:01Z\"}",
-    "result": "failure",
+    "result": "failed",
     "expected": {
       "origin.ip": "2001:db8::10"
     }
@@ -413,7 +413,7 @@
   {
     "name": "workspace-login-failure-suspicious-rule-negative",
     "raw": "{\"protoPayload\":{\"@type\":\"type.googleapis.com/google.cloud.audit.AuditLog\",\"authenticationInfo\":{\"principalEmail\":\"test-user@example.net\"},\"requestMetadata\":{\"callerIp\":\"2001:db8::10\",\"requestAttributes\":{},\"destinationAttributes\":{}},\"serviceName\":\"login.googleapis.com\",\"methodName\":\"google.login.LoginService.loginFailure\",\"resourceName\":\"organizations/123\",\"metadata\":{\"event\":[{\"eventName\":\"login_failure\",\"eventType\":\"login\",\"parameter\":[{\"value\":\"google_password\",\"type\":\"TYPE_STRING\",\"name\":\"login_type\"}]}],\"@type\":\"type.googleapis.com/ccc_hosted_reporting.ActivityProto\"}},\"insertId\":\"synthetic-workspace\",\"resource\":{\"type\":\"audited_resource\",\"labels\":{\"method\":\"google.login.LoginService.loginFailure\",\"service\":\"login.googleapis.com\"}},\"timestamp\":\"2026-09-24T12:00:00Z\",\"severity\":\"NOTICE\",\"logName\":\"organizations/123/logs/cloudaudit.googleapis.com%2Fdata_access\",\"receiveTimestamp\":\"2026-09-24T12:00:01Z\"}",
-    "result": "failure",
+    "result": "failed",
     "rule": "cloud/google/gcp_suspicious_login_blocked.yml",
     "match": false
   },
@@ -430,5 +430,57 @@
     "result": "success",
     "rule": "cloud/google/gcp_two_step_verification_disabled.yml",
     "match": false
+  },
+  {
+    "name": "firewall-denied-ingress",
+    "raw": "{\"insertId\":\"synthetic-firewall\",\"jsonPayload\":{\"connection\":{\"src_ip\":\"203.0.113.10\",\"src_port\":51515,\"dest_ip\":\"10.128.0.16\",\"dest_port\":22,\"protocol\":6},\"disposition\":\"DENIED\",\"instance\":{\"project_id\":\"example-project\",\"region\":\"us-central1\",\"vm_name\":\"example-vm\",\"zone\":\"us-central1-a\"},\"rule_details\":{\"reference\":\"network:default/firewall:deny-ssh\",\"priority\":1000,\"action\":\"DENY\",\"source_range\":[\"0.0.0.0/0\"],\"direction\":\"INGRESS\",\"ip_port_info\":[{\"ip_protocol\":\"TCP\"}]},\"vpc\":{\"project_id\":\"example-project\",\"vpc_name\":\"default\",\"subnetwork_name\":\"default\"}},\"logName\":\"projects/example-project/logs/compute.googleapis.com%2Ffirewall\",\"resource\":{\"type\":\"gce_subnetwork\",\"labels\":{\"project_id\":\"example-project\",\"location\":\"us-central1-a\",\"subnetwork_name\":\"default\"}},\"timestamp\":\"2026-09-24T12:00:00Z\"}",
+    "result": "denied",
+    "expected": {
+      "origin.ip": "203.0.113.10",
+      "origin.port": "51515",
+      "target.ip": "10.128.0.16",
+      "target.port": "22",
+      "protocol": "tcp",
+      "log.jsonPayloadDisposition": "DENIED",
+      "log.jsonPayloadRuleDirection": "INGRESS",
+      "log.jsonPayloadRuleReference": "network:default/firewall:deny-ssh"
+    }
+  },
+  {
+    "name": "firewall-allowed-ingress",
+    "raw": "{\"insertId\":\"synthetic-firewall\",\"jsonPayload\":{\"connection\":{\"src_ip\":\"198.51.100.20\",\"src_port\":40000,\"dest_ip\":\"10.128.0.16\",\"dest_port\":443,\"protocol\":6},\"disposition\":\"ALLOWED\",\"instance\":{\"project_id\":\"example-project\",\"region\":\"us-central1\",\"vm_name\":\"example-vm\",\"zone\":\"us-central1-a\"},\"rule_details\":{\"reference\":\"network:default/firewall:allow-https\",\"priority\":1000,\"action\":\"ALLOW\",\"source_range\":[\"0.0.0.0/0\"],\"direction\":\"INGRESS\",\"ip_port_info\":[{\"ip_protocol\":\"TCP\"}]},\"vpc\":{\"project_id\":\"example-project\",\"vpc_name\":\"default\",\"subnetwork_name\":\"default\"}},\"logName\":\"projects/example-project/logs/compute.googleapis.com%2Ffirewall\",\"resource\":{\"type\":\"gce_subnetwork\",\"labels\":{\"project_id\":\"example-project\",\"location\":\"us-central1-a\",\"subnetwork_name\":\"default\"}},\"timestamp\":\"2026-09-24T12:00:00Z\"}",
+    "result": "success",
+    "expected": {
+      "origin.ip": "198.51.100.20",
+      "target.ip": "10.128.0.16",
+      "target.port": "443",
+      "protocol": "tcp",
+      "log.jsonPayloadDisposition": "ALLOWED"
+    }
+  },
+  {
+    "name": "firewall-denied-egress-udp",
+    "raw": "{\"insertId\":\"synthetic-firewall\",\"jsonPayload\":{\"connection\":{\"src_ip\":\"10.128.0.16\",\"src_port\":60094,\"dest_ip\":\"203.0.113.53\",\"dest_port\":53,\"protocol\":17},\"disposition\":\"DENIED\",\"instance\":{\"project_id\":\"example-project\",\"region\":\"us-central1\",\"vm_name\":\"example-vm\",\"zone\":\"us-central1-a\"},\"rule_details\":{\"reference\":\"network:default/firewall:deny-dns-out\",\"priority\":1000,\"action\":\"DENY\",\"source_range\":[\"0.0.0.0/0\"],\"direction\":\"EGRESS\",\"ip_port_info\":[{\"ip_protocol\":\"UDP\"}]},\"vpc\":{\"project_id\":\"example-project\",\"vpc_name\":\"default\",\"subnetwork_name\":\"default\"}},\"logName\":\"projects/example-project/logs/compute.googleapis.com%2Ffirewall\",\"resource\":{\"type\":\"gce_subnetwork\",\"labels\":{\"project_id\":\"example-project\",\"location\":\"us-central1-a\",\"subnetwork_name\":\"default\"}},\"timestamp\":\"2026-09-24T12:00:00Z\"}",
+    "result": "denied",
+    "expected": {
+      "origin.ip": "10.128.0.16",
+      "target.ip": "203.0.113.53",
+      "target.port": "53",
+      "protocol": "udp",
+      "log.jsonPayloadRuleDirection": "EGRESS"
+    }
+  },
+  {
+    "name": "vpc-flow-no-outcome-no-address",
+    "raw": "{\"insertId\":\"synthetic-flow\",\"jsonPayload\":{\"bytes_sent\":\"1024\",\"packets_sent\":\"4\",\"reporter\":\"DEST\",\"connection\":{\"src_ip\":\"198.51.100.30\",\"src_port\":443,\"dest_ip\":\"10.128.0.16\",\"dest_port\":51000,\"protocol\":6},\"start_time\":\"2026-09-24T11:59:00Z\",\"end_time\":\"2026-09-24T12:00:00Z\"},\"logName\":\"projects/example-project/logs/compute.googleapis.com%2Fvpc_flows\",\"resource\":{\"type\":\"gce_subnetwork\",\"labels\":{\"project_id\":\"example-project\",\"location\":\"us-central1-a\",\"subnetwork_name\":\"default\"}},\"timestamp\":\"2026-09-24T12:00:00Z\"}",
+    "result": "",
+    "absent": [
+      "origin.ip",
+      "target.ip",
+      "origin.port",
+      "target.port",
+      "protocol",
+      "log.jsonPayloadDisposition"
+    ]
   }
 ]

@@ -584,12 +584,86 @@ var cswChangeCases = []struct {
 	{"F-6 near miss", "logginghost-port-text", "target.ip", nil},
 	{"F-6 near miss", "logginghost-port-text", "target.port", nil},
 	{"F-6 near miss", "logginghost-port-eleven-digits", "target.port", nil},
-	{"unchanged", "dai-invalid-arp", "actionResult", "blocked"},
+	{"AR", "dai-invalid-arp", "actionResult", "denied"},
 	{"unchanged", "dai-invalid-arp", "origin.mac", nil},
 	{"unchanged", "dai-invalid-arp", "origin.ip", nil},
-	{"unchanged", "dai-dhcp-snooping-deny", "actionResult", "blocked"},
+	{"AR", "dai-dhcp-snooping-deny", "actionResult", "denied"},
 	{"unchanged", "ip-dupaddr", "origin.ip", nil},
 	{"unchanged", "mac-duplicate-text", "origin.mac", nil},
+	// Action-result revision: every outcome is success, failed or denied, and records that state no
+	// final outcome get none.
+	{"AR", "ssh2-unexpected", "actionResult", "failed"},
+	{"AR", "ssh2-unexpected-ipv6", "actionResult", "failed"},
+	{"AR", "ar-ssh-close-empty-user", "actionResult", "failed"},
+	{"AR", "ar-ssh-close-empty-user", "origin.ip", "198.51.100.24"},
+	{"AR", "ar-ssh2-close-empty-user", "actionResult", "failed"},
+	{"AR near miss", "ar-ssh2-close-named-user", "actionResult", nil},
+	{"AR near miss", "ssh-close", "actionResult", nil},
+	{"AR", "ar-ssh2-userauth-succeeded", "actionResult", "success"},
+	{"AR", "ar-ssh2-userauth-failed", "actionResult", "failed"},
+	{"AR", "ar-ssh2-session-succeeded", "actionResult", "success"},
+	{"AR", "ar-ssh2-session-failed", "actionResult", "failed"},
+	{"AR", "ar-login-success", "actionResult", "success"},
+	{"AR", "ar-login-failed", "actionResult", "failed"},
+	{"AR", "ar-login-quiet-mode", "actionResult", "denied"},
+	{"AR", "ar-priv-auth-fail", "actionResult", "failed"},
+	{"AR", "ar-priv-auth-pass", "actionResult", "success"},
+	{"AR", "ar-dmi-auth-failed", "actionResult", "failed"},
+	{"AR", "ar-dmi-auth-passed", "actionResult", "success"},
+	{"AR", "ar-mab-fail", "actionResult", "failed"},
+	{"AR", "ar-mab-success", "actionResult", "success"},
+	{"AR", "ar-authmgr-fail", "actionResult", "failed"},
+	{"AR", "ar-authmgr-success", "actionResult", "success"},
+	{"AR near miss", "ar-authmgr-start", "actionResult", nil},
+	{"AR", "ar-dot1x-fail", "actionResult", "failed"},
+	{"AR", "ar-dot1x-success", "actionResult", "success"},
+	{"AR", "ar-dhcp-snooping-drop", "actionResult", "denied"},
+	{"AR near miss", "ar-dhcp-snooping-agent", "actionResult", nil},
+	{"AR", "ar-psecure-violation", "actionResult", "denied"},
+	{"AR", "ar-psecure-violation-vlan", "actionResult", "denied"},
+	{"AR", "ar-bpduguard", "actionResult", "denied"},
+	{"AR", "ar-tcp-badauth", "actionResult", "failed"},
+	{"AR", "ar-acl-classic-permitted", "actionResult", "success"},
+	{"AR", "ar-acl-classic-denied", "actionResult", "denied"},
+	{"AR", "ar-acl-standard-denied", "actionResult", "denied"},
+	{"AR", "ar-acl-fmanfp-permitted", "actionResult", "success"},
+	{"AR", "ar-acl-fmanfp-denied", "actionResult", "denied"},
+	{"AR", "ar-acl-iosxr-deny", "actionResult", "denied"},
+	{"AR", "ar-acl-iosxr-permit", "actionResult", "success"},
+	{"AR near miss", "ar-acl-rate-limited", "actionResult", nil},
+	{"AR near miss", "severity-3-link", "actionResult", nil},
+}
+
+// The filter writes only success, failed or denied to actionResult: in every add step and on every
+// fabricated line. The threat-intelligence stage skips indicator lookups for failed and denied.
+func TestCiscoSwitchActionResultWords(t *testing.T) {
+	allowed := map[string]bool{"success": true, "failed": true, "denied": true}
+	steps := 0
+	for i, step := range cswPipeline(t).Steps {
+		if a := step.Add; a != nil && a.Params["key"].GetStringValue() == "actionResult" {
+			steps++
+			if v := a.Params["value"].GetStringValue(); !allowed[v] {
+				t.Errorf("step %d writes actionResult %q", i, v)
+			}
+		}
+	}
+	if steps == 0 {
+		t.Fatal("no actionResult step")
+	}
+	_, stored, _ := cswModelEvents(t)
+	counts := map[string]int{}
+	for name, e := range stored {
+		if v, ok := cswGet(e, "actionResult"); ok {
+			s, _ := v.(string)
+			if !allowed[s] {
+				t.Errorf("%s: actionResult %v", name, v)
+			}
+			counts[s]++
+		}
+	}
+	if counts["success"] == 0 || counts["failed"] == 0 || counts["denied"] == 0 {
+		t.Errorf("fabricated lines cover %v, want each of success, failed and denied", counts)
+	}
 }
 
 // Every fabricated line through the model: the named change cases, no where errors, and every
@@ -817,7 +891,7 @@ const (
 	cswFlapBody = `"log":{"facility":"SW_MATM","facilityMnemonic":"MACFLAP_NOTIF","severity":"4",` +
 		`"msg":"SW_MATM-4-MACFLAP_NOTIF: ` + cswFlapText + `","ciscoMsg":"` + cswFlapText + `",` +
 		`"vlan":"910","firstPort":"Gi9/0/41","secondPort":"Gi9/0/42"},"origin":{"mac":"0200.0000.0101"}`
-	cswDaiBody = `"log":{"facility":"SW_DAI","facilityMnemonic":"INVALID_ARP","severity":"4","msg":"SW_DAI-4-INVALID_ARP: 1 Invalid ARPs (Req) on Gi9/0/44, vlan 910."},"actionResult":"blocked"`
+	cswDaiBody = `"log":{"facility":"SW_DAI","facilityMnemonic":"INVALID_ARP","severity":"4","msg":"SW_DAI-4-INVALID_ARP: 1 Invalid ARPs (Req) on Gi9/0/44, vlan 910."},"actionResult":"denied"`
 )
 
 // Synthetic normalized events. The wording of every text that is not a flap, SISF or SSH message is

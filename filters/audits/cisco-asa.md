@@ -156,6 +156,36 @@ its own review.
 | Full `plugins/alerts` suite | 51 tests pass, 11 skip, none fail (2,267 passing results with subtests). |
 | New Go checks, on versions 3.1.0 and 3.1.1 | `TestCiscoASAGrokPatternsNeverMatchEmpty` tries each grok pattern alone on texts that start with every printable character, and fails when one matches empty text at the start. The model test now also covers the five new lines (F-C9, F-C10). On 3.1.0 both fail, naming the three patterns and the missing fields; on 3.1.1 both pass. |
 
+## Action-result correction (version 3.2.0)
+
+`actionResult` now holds only `success`, `failed` or `denied`, or nothing when the message states
+no final outcome. The EventProcessor threat-intelligence check skips its lookup only for
+`failed`, `denied` and the older `blocked`. So `accepted`, which version 3.1.1 wrote in 51
+steps, and an empty value on a firewall drop both led to lookups of addresses whose traffic was
+refused. Each message id is mapped on its meaning in Cisco's ASA syslog guide. Renaming every
+`accepted` to `success` would have marked packet drops, detections and failed sign-ins as
+completed actions.
+
+| Value | Messages |
+|---|---|
+| `success` | Completed sign-ins and sessions: 113004, 113008, 113012, 113039 (AnyConnect session started), 716001 (WebVPN session started), 716038, 719020, 719022, 611310 (XAUTH succeeded), 713253 (tunnel created); 109201-109213 when the text says `Succeeded`. |
+| `failed` | Rejected sign-ins: 113005 `authentication Rejected`, 113015, 113016, 113017, 605004, 716039, 719023, 719024, 611311. Operations that could not complete: 109102, 109103 (CoA), 109201-109213 when the text says `Failed`, 113035, 113038, 716007, 302034, 316002. The sign-ins were `denied` before; both words are skipped by the lookup. |
+| `denied` | Added: 106001 (inbound connection denied), 106017 (land attack), 113042 (redirect filter), 733102 (host added to the shun list). Changed from `accepted`: 402114-402120 (IPsec packets dropped), 209003 (fragments dropped), 716006 (WebVPN not allowed for the user). Unchanged: 106018, 106020, 106021, 106102/106103 denied hits, 113005 `authorization Rejected`, 113031-113033, 316001, 710003, 713252, 716004, 716009, 719019 (authorization refused by the ACL). |
+| none | 106102/106103 permitted hits (the verb the grok writes is deleted); every Built and teardown record (302003, 302013-302027, 302035, 302036, 302303-302306); the H.323 pre-allocation notices 302004, 302012 and 302033; the notices 109101, 113009, 113019, 201003, 603109, 609002, 611307, 611309, 611314, 611315, 617100, 716002 and 733101; 733103 (host removed from the shun list). |
+
+A Built record is the start of a session, not its outcome. A teardown carries the outcome
+(byte count and reason), but its duration pattern fails on a one-digit hour (D06), so that
+waits for the parsing fix. 113031/113032 keep `denied` although an ACL that was not applied is
+not a refusal: with no value they would be looked up. Address sides (D01, D07) are unchanged.
+
+| Check | Result |
+|---|---|
+| 616 public sample lines and 241 public verification lines on EventProcessor 8a3ade7, versions 3.1.1 and 3.2.0 | Only `actionResult` changes, and on every line it is the mapped value. 616 lines: 185 `accepted` become none, 16 become `success`, 27 `denied` become `failed`, 5 lines without a value become `denied`. 241 lines: 94 `accepted` become none. No line has an error with either version. |
+| 91 fabricated lines in Cisco's documented formats, covering every changed step | Every line gives the expected value with both versions; no other field changes. |
+| `replay.py`, 46 lines | 46 events without errors, every stored field as in `expected.json` (25 `actionResult` values updated); the same two botnet alerts. |
+| New Go check `TestCiscoASAActionResultMapping` | Runs every `actionResult` step in filter order on 63 message texts and rejects any other word. It fails on version 3.1.1 and passes on 3.2.0. |
+| Full `plugins/alerts` suite | 119 tests pass, 12 skip. `TestBitdefenderActionResultRaw` fails as it does on the base commit (go-sdk v1.1.36 keeps underscores in field names). |
+
 ## Validation
 
 These are the original review's results, on EventProcessor `497bf53` and go-sdk v1.1.33.
@@ -230,7 +260,7 @@ unchanged here.
 | D05 | Header forms the filter rejects: no timestamp, no device-id, no year, RFC 3339/5424 time, a space-padded day, `%FTD-`, an empty body. They are no longer stored with 519 errors. | Cisco's documentation of the timestamp, device-id and RFC 5424 logging options and their defaults, or real records. |
 | D06 | Format variants that make a whole message pattern fail: one-digit or over-24-hour durations, 302014 without a reason, 106001 with several TCP flags, hexadecimal sequence numbers in 402114-402120, an IPv6 AAA server in 113004/113005/113016, the 302003/302004 port form, the `(user= name)` label in 402116/402118/402119, the 302305 trailing user, 113009/113011 without `=`. | Cisco's message formats or real records of each. |
 | D07 | Which address is `origin` and which is `target` (connection messages, 109101-109103, 611307-611315, the 305010-305012 mapped address, trailing users) and identity values left under `log`. All three rules report the `origin` side as the adversary. | Cisco's field definitions, or real records from a device with a known layout. |
-| D08 | `actionResult` values: 109102/109103 store `accepted` although the filter's own text says they failed; `accepted` on events that are not successes; `failure` is never written. Owned by the separate action-result correction, which must not map 109102/109103 to success. | Cisco's meaning of each message's outcome. |
+| D08 | Done in version 3.2.0, see [Action-result correction](#action-result-correction-version-320). Still open: `success` on answered teardowns once their durations parse (D06). | Cisco's meaning of each teardown reason. |
 | D09 | Byte counters: the teardown byte count in `origin.bytesSent`, 113019 `Bytes xmt`/`Bytes rcv`, fragment sizes of 106020 and 402118. | Cisco's definition of each counter. |
 | D10 | `deviceTime` from the header time (`log.ciscoTime`). | The time zone of the header timestamp, from Cisco's documentation or a device with a known zone. |
 | D11 | Standard values: `severity` high/medium/low and no case for level 0, `protocol` `NAT` for 611301/611303/611304 and mixed protocol case, the `action` wording. | A platform decision with a review of dashboards, saved searches and rules, and Cisco's level definitions. |

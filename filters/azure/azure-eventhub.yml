@@ -1,4 +1,4 @@
-# Azure Event Hub filter v2.2.0
+# Azure Event Hub filter v2.3.0
 # Vendor aliases and originals are retained; derived history markers are cleared before recomputation.
 # JSON extraction into temporary log namespaces models the documented step contract.
 pipeline:
@@ -1232,7 +1232,7 @@ pipeline:
       params:
         key: log.azureKind
         value: signin
-      where: oneOf("log.category",["SignInLogs","SigninLogs","NonInteractiveUserSignInLogs","ServicePrincipalSignInLogs","ManagedIdentitySignInLogs"])
+      where: oneOf("log.category",["SignInLogs","SigninLogs","NonInteractiveUserSignInLogs","ServicePrincipalSignInLogs","ManagedIdentitySignInLogs","MicrosoftServicePrincipalSignInLogs"])
   - add:
       function: string
       params:
@@ -1307,6 +1307,43 @@ pipeline:
         key: log.azureKind
         value: endpoint-event
       where: equalsIgnoreCase("log.category","AdvancedHunting-DeviceEvents")
+  # Record classes whose outcome and client address are mapped below (filter v2.3.0).
+  - add:
+      function: string
+      params:
+        key: log.azureKind
+        value: endpoint-logon
+      where: equalsIgnoreCase("log.category","AdvancedHunting-DeviceLogonEvents")
+  - add:
+      function: string
+      params:
+        key: log.azureKind
+        value: endpoint-network
+      where: equalsIgnoreCase("log.category","AdvancedHunting-DeviceNetworkEvents")
+  - add:
+      function: string
+      params:
+        key: log.azureKind
+        value: cloud-kubernetes
+      where: equalsIgnoreCase("log.category","AdvancedHunting-CloudAuditEvents") && equals("log.properties.RawEventData.ApiVersion","audit.k8s.io/v1")
+  - add:
+      function: string
+      params:
+        key: log.azureKind
+        value: frontdoor
+      where: equalsIgnoreCase("log.category","FrontDoorAccessLog")
+  - add:
+      function: string
+      params:
+        key: log.azureKind
+        value: frontdoor-waf
+      where: equalsIgnoreCase("log.category","FrontDoorWebApplicationFirewallLog")
+  - add:
+      function: string
+      params:
+        key: log.azureKind
+        value: appservice-ipsec
+      where: equalsIgnoreCase("log.category","AppServiceIPSecAuditLogs") || equalsIgnoreCase("log.Category","AppServiceIPSecAuditLogs")
   - add:
       function: string
       params:
@@ -1421,6 +1458,113 @@ pipeline:
       where: regexMatch("log.azureKubernetes.sourceIp","(?s)^.+$") && !oneOf("log.azureKubernetes.sourceIp",["-","unknown"])
         && ((equalsIgnoreCase("log.azureKind","kubernetes")) && (inCIDR("log.azureKubernetes.sourceIp","0.0.0.0/0") || inCIDR("log.azureKubernetes.sourceIp","::/0"))
         && !inCIDR("log.azureKubernetes.sourceIp","0.0.0.0/32") && !inCIDR("log.azureKubernetes.sourceIp","::/128")) && !exists("origin.ip")
+  # The Defender, Front Door WAF and access-restriction classes below get an address only on
+  # records that also get an outcome, so no address reaches threat intelligence without it.
+  # Defender DeviceLogonEvents: the remote side of a logon is the client that logged on.
+  - grok:
+      source: log.properties.RemoteIP
+      patterns:
+      - fieldName: origin.ip
+        pattern: (?s)^.+$
+      where: equalsIgnoreCase("log.azureKind","endpoint-logon") && oneOf("log.properties.ActionType",["LogonSuccess","LogonFailed"])
+        && (inCIDR("log.properties.RemoteIP","0.0.0.0/0") || inCIDR("log.properties.RemoteIP","::/0")) && !inCIDR("log.properties.RemoteIP","0.0.0.0/32") && !inCIDR("log.properties.RemoteIP","::/128") && !exists("origin.ip")
+  # Defender DeviceNetworkEvents: ConnectionSuccess and ConnectionFailed are connections the device
+  # opened (device on the origin side); InboundConnectionAccepted is a connection it accepted.
+  - grok:
+      source: log.properties.LocalIP
+      patterns:
+      - fieldName: origin.ip
+        pattern: (?s)^.+$
+      where: equalsIgnoreCase("log.azureKind","endpoint-network") && oneOf("log.properties.ActionType",["ConnectionSuccess","ConnectionFailed"])
+        && (inCIDR("log.properties.LocalIP","0.0.0.0/0") || inCIDR("log.properties.LocalIP","::/0")) && !inCIDR("log.properties.LocalIP","0.0.0.0/32") && !inCIDR("log.properties.LocalIP","::/128") && !exists("origin.ip")
+  - grok:
+      source: log.properties.RemoteIP
+      patterns:
+      - fieldName: target.ip
+        pattern: (?s)^.+$
+      where: equalsIgnoreCase("log.azureKind","endpoint-network") && oneOf("log.properties.ActionType",["ConnectionSuccess","ConnectionFailed"])
+        && (inCIDR("log.properties.RemoteIP","0.0.0.0/0") || inCIDR("log.properties.RemoteIP","::/0")) && !inCIDR("log.properties.RemoteIP","0.0.0.0/32") && !inCIDR("log.properties.RemoteIP","::/128") && !exists("target.ip")
+  - grok:
+      source: log.properties.RemoteIP
+      patterns:
+      - fieldName: origin.ip
+        pattern: (?s)^.+$
+      where: equalsIgnoreCase("log.azureKind","endpoint-network") && equals("log.properties.ActionType","InboundConnectionAccepted")
+        && (inCIDR("log.properties.RemoteIP","0.0.0.0/0") || inCIDR("log.properties.RemoteIP","::/0")) && !inCIDR("log.properties.RemoteIP","0.0.0.0/32") && !inCIDR("log.properties.RemoteIP","::/128") && !exists("origin.ip")
+  - grok:
+      source: log.properties.LocalIP
+      patterns:
+      - fieldName: target.ip
+        pattern: (?s)^.+$
+      where: equalsIgnoreCase("log.azureKind","endpoint-network") && equals("log.properties.ActionType","InboundConnectionAccepted")
+        && (inCIDR("log.properties.LocalIP","0.0.0.0/0") || inCIDR("log.properties.LocalIP","::/0")) && !inCIDR("log.properties.LocalIP","0.0.0.0/32") && !inCIDR("log.properties.LocalIP","::/128") && !exists("target.ip")
+  # Front Door access log: the client of the request. Like the Application Gateway access log,
+  # the HTTP status gives the outcome (2xx success, 401/403 denied, other 4xx/5xx failed, 3xx none).
+  - grok:
+      source: log.properties.clientIp
+      patterns:
+      - fieldName: origin.ip
+        pattern: (?s)^.+$
+      where: equalsIgnoreCase("log.azureKind","frontdoor") && (inCIDR("log.properties.clientIp","0.0.0.0/0") || inCIDR("log.properties.clientIp","::/0")) && !inCIDR("log.properties.clientIp","0.0.0.0/32") && !inCIDR("log.properties.clientIp","::/128") && !exists("origin.ip")
+  # Front Door WAF log: only a block in prevention mode is a final outcome (denied). Log,
+  # AnomalyScoring, Allow and JSChallenge rows state no final outcome and keep no address.
+  - grok:
+      source: log.properties.clientIP
+      patterns:
+      - fieldName: origin.ip
+        pattern: (?s)^.+$
+      where: equalsIgnoreCase("log.azureKind","frontdoor-waf") && oneOf("log.properties.action",["Block","JSChallengeBlock"])
+        && !equalsIgnoreCase("log.properties.policyMode","detection") && (inCIDR("log.properties.clientIP","0.0.0.0/0") || inCIDR("log.properties.clientIP","::/0")) && !inCIDR("log.properties.clientIP","0.0.0.0/32") && !inCIDR("log.properties.clientIP","::/128") && !exists("origin.ip")
+  # App Service access restrictions: CIp is "address:port" or "[address]:port". Only Denied records
+  # get the address (and denied below). An Allowed record states no answer; the AppServiceHTTPLogs
+  # record of the same request carries the outcome.
+  - delete:
+      fields:
+      - log.azureIpsecClientIp
+  - grok:
+      source: log.Properties.CIp
+      patterns:
+      - fieldName: log.azureIpsecClientIp
+        pattern: '[0-9]{1,3}(?:\.[0-9]{1,3}){3}'
+      - fieldName: ''
+        pattern: ':[0-9]{1,5}$'
+      where: equalsIgnoreCase("log.azureKind","appservice-ipsec") && equals("log.Properties.Result","Denied") && regexMatch("log.Properties.CIp","^[0-9]{1,3}(\\.[0-9]{1,3}){3}:[0-9]{1,5}$")
+  - grok:
+      source: log.properties.CIp
+      patterns:
+      - fieldName: log.azureIpsecClientIp
+        pattern: '[0-9]{1,3}(?:\.[0-9]{1,3}){3}'
+      - fieldName: ''
+        pattern: ':[0-9]{1,5}$'
+      where: equalsIgnoreCase("log.azureKind","appservice-ipsec") && equals("log.properties.Result","Denied") && regexMatch("log.properties.CIp","^[0-9]{1,3}(\\.[0-9]{1,3}){3}:[0-9]{1,5}$")
+  - grok:
+      source: log.Properties.CIp
+      patterns:
+      - fieldName: ''
+        pattern: '\['
+      - fieldName: log.azureIpsecClientIp
+        pattern: '[0-9A-Fa-f:.]+'
+      - fieldName: ''
+        pattern: '\]:[0-9]{1,5}$'
+      where: equalsIgnoreCase("log.azureKind","appservice-ipsec") && equals("log.Properties.Result","Denied") && regexMatch("log.Properties.CIp","^\\[[0-9A-Fa-f:.]+\\]:[0-9]{1,5}$")
+  - grok:
+      source: log.properties.CIp
+      patterns:
+      - fieldName: ''
+        pattern: '\['
+      - fieldName: log.azureIpsecClientIp
+        pattern: '[0-9A-Fa-f:.]+'
+      - fieldName: ''
+        pattern: '\]:[0-9]{1,5}$'
+      where: equalsIgnoreCase("log.azureKind","appservice-ipsec") && equals("log.properties.Result","Denied") && regexMatch("log.properties.CIp","^\\[[0-9A-Fa-f:.]+\\]:[0-9]{1,5}$")
+  - rename:
+      from:
+      - log.azureIpsecClientIp
+      to: origin.ip
+      where: equalsIgnoreCase("log.azureKind","appservice-ipsec") && exists("log.azureIpsecClientIp") && (inCIDR("log.azureIpsecClientIp","0.0.0.0/0") || inCIDR("log.azureIpsecClientIp","::/0")) && !inCIDR("log.azureIpsecClientIp","0.0.0.0/32") && !inCIDR("log.azureIpsecClientIp","::/128") && !exists("origin.ip")
+  - delete:
+      fields:
+      - log.azureIpsecClientIp
   - grok:
       source: log.callerIpAddress
       patterns:
@@ -1935,13 +2079,14 @@ pipeline:
       fields:
       - log.properties.httpStatusCode
       to: string
-      where: exists("log.properties.httpStatusCode") && (equalsIgnoreCase("log.azureKind","keyvault") || equalsIgnoreCase("log.azureKind","gateway"))
+      where: exists("log.properties.httpStatusCode") && (equalsIgnoreCase("log.azureKind","keyvault") || equalsIgnoreCase("log.azureKind","gateway")
+        || equalsIgnoreCase("log.azureKind","frontdoor"))
   - rename:
       from:
       - log.properties.httpStatusCode
       to: statusCode
-      where: (equalsIgnoreCase("log.azureKind","keyvault") || equalsIgnoreCase("log.azureKind","gateway")) && !exists("statusCode")
-        && greaterOrEqual("log.properties.httpStatusCode",0) && lessOrEqual("log.properties.httpStatusCode",4294967295) && regexMatch("log.properties.httpStatusCode","^[0-9]+$")
+      where: (equalsIgnoreCase("log.azureKind","keyvault") || equalsIgnoreCase("log.azureKind","gateway") || equalsIgnoreCase("log.azureKind","frontdoor"))
+        && !exists("statusCode") && greaterOrEqual("log.properties.httpStatusCode",0) && lessOrEqual("log.properties.httpStatusCode",4294967295) && regexMatch("log.properties.httpStatusCode","^[0-9]+$")
   - cast:
       fields:
       - statusCode
@@ -2006,6 +2151,23 @@ pipeline:
       to: statusCode
       where: (equalsIgnoreCase("log.azureKind","kubernetes")) && !exists("statusCode") && greaterOrEqual("log.azureKubernetes.responseStatus.code",0)
         && lessOrEqual("log.azureKubernetes.responseStatus.code",4294967295) && regexMatch("log.azureKubernetes.responseStatus.code","^[0-9]+$")
+  - cast:
+      fields:
+      - statusCode
+      to: int
+      where: exists("statusCode") && (true)
+  # Defender CloudAuditEvents carrying a Kubernetes audit event: route its response code.
+  - cast:
+      fields:
+      - log.properties.RawEventData.ResponseStatus.code
+      to: string
+      where: exists("log.properties.RawEventData.ResponseStatus.code") && equalsIgnoreCase("log.azureKind","cloud-kubernetes")
+  - rename:
+      from:
+      - log.properties.RawEventData.ResponseStatus.code
+      to: statusCode
+      where: equalsIgnoreCase("log.azureKind","cloud-kubernetes") && !exists("statusCode") && greaterOrEqual("log.properties.RawEventData.ResponseStatus.code",0)
+        && lessOrEqual("log.properties.RawEventData.ResponseStatus.code",4294967295) && regexMatch("log.properties.RawEventData.ResponseStatus.code","^[0-9]+$")
   - cast:
       fields:
       - statusCode
@@ -2628,7 +2790,7 @@ pipeline:
       params:
         key: log.azureKind
         value: signin
-      where: oneOf("log.category",["SignInLogs","SigninLogs","NonInteractiveUserSignInLogs","ServicePrincipalSignInLogs","ManagedIdentitySignInLogs"])
+      where: oneOf("log.category",["SignInLogs","SigninLogs","NonInteractiveUserSignInLogs","ServicePrincipalSignInLogs","ManagedIdentitySignInLogs","MicrosoftServicePrincipalSignInLogs"])
   - add:
       function: string
       params:
@@ -2703,6 +2865,43 @@ pipeline:
         key: log.azureKind
         value: endpoint-event
       where: equalsIgnoreCase("log.category","AdvancedHunting-DeviceEvents")
+  # Record classes whose outcome and client address are mapped below (filter v2.3.0).
+  - add:
+      function: string
+      params:
+        key: log.azureKind
+        value: endpoint-logon
+      where: equalsIgnoreCase("log.category","AdvancedHunting-DeviceLogonEvents")
+  - add:
+      function: string
+      params:
+        key: log.azureKind
+        value: endpoint-network
+      where: equalsIgnoreCase("log.category","AdvancedHunting-DeviceNetworkEvents")
+  - add:
+      function: string
+      params:
+        key: log.azureKind
+        value: cloud-kubernetes
+      where: equalsIgnoreCase("log.category","AdvancedHunting-CloudAuditEvents") && equals("log.properties.RawEventData.ApiVersion","audit.k8s.io/v1")
+  - add:
+      function: string
+      params:
+        key: log.azureKind
+        value: frontdoor
+      where: equalsIgnoreCase("log.category","FrontDoorAccessLog")
+  - add:
+      function: string
+      params:
+        key: log.azureKind
+        value: frontdoor-waf
+      where: equalsIgnoreCase("log.category","FrontDoorWebApplicationFirewallLog")
+  - add:
+      function: string
+      params:
+        key: log.azureKind
+        value: appservice-ipsec
+      where: equalsIgnoreCase("log.category","AppServiceIPSecAuditLogs") || equalsIgnoreCase("log.Category","AppServiceIPSecAuditLogs")
   - add:
       function: string
       params:
@@ -2735,7 +2934,7 @@ pipeline:
         pattern: (?s)^.+$
       where: regexMatch("log.operationName","(?s)^.+$") && !oneOf("log.operationName",["-","unknown"]) && (true) && !exists("log.azureOperation")
   # Final outcome only. Positive evidence must be final and all present aliases must agree.
-  # Denial overrides failure; failure overrides a success signal.
+  # Only success, failed or denied. Denial overrides failed; failed overrides a success signal.
   - delete:
       fields:
       - actionResult
@@ -2804,12 +3003,17 @@ pipeline:
         oneOf("log.azureProperties.ScStatus",[200,201,203,204,205,206,208,226])) && (!exists("log.azureKubernetes.responseStatus.code") ||
         oneOf("log.azureKubernetes.responseStatus.code",[200,201,203,204,205,206,208,226])) && (!exists("log.resultType") ||
         regexMatch("log.resultType","(?i)^(success|succeeded|successful|ok)$")))) ||
-        (equalsIgnoreCase("log.azureKind","waf") && oneOf("log.properties.action",["Allowed","Detected"]))
+        (equalsIgnoreCase("log.azureKind","waf") && oneOf("log.properties.action",["Allowed"])) ||
+        (equalsIgnoreCase("log.azureKind","frontdoor") && oneOf("statusCode",[200,201,203,204,205,206,208,226])) ||
+        (equalsIgnoreCase("log.azureKind","cloud-kubernetes") && equals("log.properties.RawEventData.Stage","ResponseComplete") &&
+        oneOf("statusCode",[200,201,203,204,205,206,208,226])) ||
+        (equalsIgnoreCase("log.azureKind","endpoint-logon") && equals("log.properties.ActionType","LogonSuccess")) ||
+        (equalsIgnoreCase("log.azureKind","endpoint-network") && oneOf("log.properties.ActionType",["ConnectionSuccess","InboundConnectionAccepted"]))
   - add:
       function: string
       params:
         key: actionResult
-        value: failure
+        value: failed
       where: >-
         (equalsIgnoreCase("log.azureKind","audit") && (regexMatch("log.resultType","(?i)^(failure|failed|error|timeout|canceled|cancelled)$"))) ||
         (equalsIgnoreCase("log.azureKind","activity") && (regexMatch("log.resultType","(?i)^(failure|failed|error|timeout|canceled|cancelled)$"))) ||
@@ -2835,7 +3039,11 @@ pipeline:
         (greaterOrEqual("log.properties.httpStatus",400) && lessThan("log.properties.httpStatus",600)) ||
         (greaterOrEqual("log.properties.responseStatusCode",400) && lessThan("log.properties.responseStatusCode",600)) ||
         (greaterOrEqual("log.azureProperties.ScStatus",400) && lessThan("log.azureProperties.ScStatus",600)) ||
-        (greaterOrEqual("log.azureKubernetes.responseStatus.code",400) && lessThan("log.azureKubernetes.responseStatus.code",600))))
+        (greaterOrEqual("log.azureKubernetes.responseStatus.code",400) && lessThan("log.azureKubernetes.responseStatus.code",600)))) ||
+        ((equalsIgnoreCase("log.azureKind","frontdoor") || (equalsIgnoreCase("log.azureKind","cloud-kubernetes") &&
+        equals("log.properties.RawEventData.Stage","ResponseComplete"))) && greaterOrEqual("statusCode",400) && lessThan("statusCode",600)) ||
+        (equalsIgnoreCase("log.azureKind","endpoint-logon") && equals("log.properties.ActionType","LogonFailed")) ||
+        (equalsIgnoreCase("log.azureKind","endpoint-network") && equals("log.properties.ActionType","ConnectionFailed"))
   - add:
       function: string
       params:
@@ -2851,8 +3059,8 @@ pipeline:
         (equalsIgnoreCase("log.azureKind","audit") && regexMatch("log.properties.result","(?i)^(denied|blocked|forbidden|unauthorized)$")) ||
         (equalsIgnoreCase("log.azureKind","activity") && regexMatch("log.status.value","(?i)^(denied|blocked|forbidden|unauthorized)$")) ||
         (equalsIgnoreCase("log.azureKind","eventgrid") && regexMatch("log.data.status","(?i)^(denied|blocked|forbidden|unauthorized)$")) ||
-        (equalsIgnoreCase("log.azureKind","signin") && (oneOf("log.resultType",[53003,530032,530034,530035]) ||
-        oneOf("log.properties.status.errorCode",[53003,530032,530034,530035]))) ||
+        (equalsIgnoreCase("log.azureKind","signin") && (oneOf("log.resultType",[53000,53001,53002,53003,530032,530034,530035]) ||
+        oneOf("log.properties.status.errorCode",[53000,53001,53002,53003,530032,530034,530035]))) ||
         (oneOf("log.azureKind",["http","gateway","keyvault","kubernetes"]) && (oneOf("statusCode",[401,403]) ||
         oneOf("log.StatusCode",[401,403]) ||
         oneOf("log.ResponseCode",[401,403]) ||
@@ -2862,7 +3070,11 @@ pipeline:
         oneOf("log.azureProperties.ScStatus",[401,403]) ||
         oneOf("log.azureKubernetes.responseStatus.code",[401,403]))) ||
         (equalsIgnoreCase("log.azureKind","keyvault") && regexMatch("log.resultSignature","(?i)^(Unauthorized|Forbidden|AccessDenied)$")) ||
-        (equalsIgnoreCase("log.azureKind","waf") && oneOf("log.properties.action",["Blocked","JSChallengeBlock"]))
+        (equalsIgnoreCase("log.azureKind","waf") && oneOf("log.properties.action",["Blocked","JSChallengeBlock"])) ||
+        (oneOf("log.azureKind",["frontdoor","cloud-kubernetes"]) && oneOf("statusCode",[401,403])) ||
+        (equalsIgnoreCase("log.azureKind","frontdoor-waf") && oneOf("log.properties.action",["Block","JSChallengeBlock"]) &&
+        !equalsIgnoreCase("log.properties.policyMode","detection")) ||
+        (equalsIgnoreCase("log.azureKind","appservice-ipsec") && (equals("log.Properties.Result","Denied") || equals("log.properties.Result","Denied")))
   - add:
       function: string
       params:
@@ -3108,7 +3320,7 @@ pipeline:
       params:
         key: log.correlationCandidate.azureAdPasswordSpray
         value: 'true'
-      where: '(equalsIgnoreCase("log.azureKind","signin") && equalsIgnoreCase("actionResult","failure") && equals("log.properties.status.errorCode",50126))
+      where: '(equalsIgnoreCase("log.azureKind","signin") && equalsIgnoreCase("actionResult","failed") && equals("log.properties.status.errorCode",50126))
         && exists("dataSource") && !equals("dataSource","") && exists("log.azureScopeType") && !equals("log.azureScopeType","")
         && exists("log.azureScope") && !equals("log.azureScope","") && exists("origin.ip") && !equals("origin.ip","")
 

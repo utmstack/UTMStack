@@ -181,7 +181,7 @@
   {
     "name": "final-logon-failure",
     "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"eventCode\":4625,\"data\":{\"IpAddress\":\"203.0.113.20\",\"TargetUserName\":\"user\"}}",
-    "result": "failure",
+    "result": "failed",
     "dataSource": "synthetic-windows",
     "expected": {
       "origin.ip": "203.0.113.20"
@@ -196,7 +196,7 @@
   {
     "name": "credential-validation-failure",
     "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"eventCode\":4776,\"data\":{\"Status\":\"0xC000006A\",\"TargetUserName\":\"user\"}}",
-    "result": "failure",
+    "result": "failed",
     "dataSource": "synthetic-windows"
   },
   {
@@ -220,5 +220,152 @@
     "dataSource": "synthetic-windows",
     "rule": "windows/audit_log_was_cleared.yml",
     "match": false
+  },
+  {
+    "name": "logon-failure-audit-failure",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"keywords\":\"0x8010000000000000\",\"eventCode\":4625,\"data\":{\"IpAddress\":\"203.0.113.20\",\"TargetUserName\":\"user\",\"Status\":\"0xC000006D\"}}",
+    "result": "failed",
+    "dataSource": "synthetic-windows",
+    "expected": {
+      "origin.ip": "203.0.113.20"
+    }
+  },
+  {
+    "name": "kerberos-preauth-failure",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"keywords\":\"0x8010000000000000\",\"eventCode\":4771,\"data\":{\"IpAddress\":\"::ffff:203.0.113.21\",\"TargetUserName\":\"user\",\"Status\":\"0x18\"}}",
+    "result": "failed",
+    "dataSource": "synthetic-windows"
+  },
+  {
+    "name": "kerberos-tgt-issued",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"keywords\":\"0x8020000000000000\",\"eventCode\":4768,\"data\":{\"IpAddress\":\"::ffff:203.0.113.22\",\"TargetUserName\":\"user\",\"Status\":\"0x0\"}}",
+    "result": "success",
+    "dataSource": "synthetic-windows"
+  },
+  {
+    "name": "kerberos-tgt-issued-numeric",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"keywords\":\"0x8020000000000000\",\"eventCode\":4768,\"data\":{\"IpAddress\":\"::ffff:203.0.113.22\",\"TargetUserName\":\"user\",\"Status\":0}}",
+    "result": "success",
+    "dataSource": "synthetic-windows"
+  },
+  {
+    "name": "kerberos-tgt-refused",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"keywords\":\"0x8010000000000000\",\"eventCode\":4768,\"data\":{\"IpAddress\":\"::ffff:203.0.113.23\",\"TargetUserName\":\"user\",\"Status\":\"0x6\"}}",
+    "result": "failed",
+    "dataSource": "synthetic-windows"
+  },
+  {
+    "name": "kerberos-tgt-refused-numeric",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"keywords\":\"0x8010000000000000\",\"eventCode\":4768,\"data\":{\"IpAddress\":\"::ffff:203.0.113.23\",\"TargetUserName\":\"user\",\"Status\":6}}",
+    "result": "failed",
+    "dataSource": "synthetic-windows"
+  },
+  {
+    "name": "kerberos-service-ticket-issued",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"keywords\":\"0x8020000000000000\",\"eventCode\":4769,\"data\":{\"IpAddress\":\"::ffff:203.0.113.24\",\"TargetUserName\":\"user@EXAMPLE.TEST\",\"ServiceName\":\"host01$\",\"Status\":\"0x0\"}}",
+    "result": "success",
+    "dataSource": "synthetic-windows"
+  },
+  {
+    "name": "kerberos-service-ticket-refused",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"keywords\":\"0x8010000000000000\",\"eventCode\":4769,\"data\":{\"IpAddress\":\"::ffff:203.0.113.24\",\"TargetUserName\":\"user@EXAMPLE.TEST\",\"ServiceName\":\"host01$\",\"Status\":\"0x20\"}}",
+    "result": "failed",
+    "dataSource": "synthetic-windows"
+  },
+  {
+    "name": "kerberos-service-ticket-renewed",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"keywords\":\"0x8020000000000000\",\"eventCode\":4770,\"data\":{\"IpAddress\":\"::ffff:203.0.113.25\",\"TargetUserName\":\"user@EXAMPLE.TEST\",\"ServiceName\":\"krbtgt\"}}",
+    "result": "success",
+    "dataSource": "synthetic-windows"
+  },
+  {
+    "name": "sql-login-succeeded",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"MSSQLSERVER\",\"recordId\":1234,\"channel\":\"Application\",\"computer\":\"host.example.test\",\"keywords\":\"0x80000000000000\",\"eventCode\":18453,\"data\":{\"param1\":\"EXAMPLE\\\\user\"}}",
+    "result": "success",
+    "dataSource": "synthetic-windows"
+  },
+  {
+    "name": "sql-login-named-instance-succeeded",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"MSSQL$EXAMPLE\",\"recordId\":1234,\"channel\":\"Application\",\"computer\":\"host.example.test\",\"keywords\":\"0x80000000000000\",\"eventCode\":18454,\"data\":{\"param1\":\"user\"}}",
+    "result": "success",
+    "dataSource": "synthetic-windows"
+  },
+  {
+    "name": "sql-login-failed",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"MSSQLSERVER\",\"recordId\":1234,\"channel\":\"Application\",\"computer\":\"host.example.test\",\"keywords\":\"0x90000000000000\",\"eventCode\":18456,\"data\":{\"param1\":\"sa\",\"param2\":\"Reason: Password did not match that for the login provided.\"}}",
+    "result": "failed",
+    "dataSource": "synthetic-windows"
+  },
+  {
+    "name": "sql-code-from-other-provider",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"ExampleApp\",\"recordId\":1234,\"channel\":\"Application\",\"computer\":\"host.example.test\",\"keywords\":\"0x80000000000000\",\"eventCode\":18456,\"data\":{}}",
+    "result": "",
+    "dataSource": "synthetic-windows"
+  },
+  {
+    "name": "defender-asr-block",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Windows Defender\",\"recordId\":1234,\"channel\":\"Microsoft-Windows-Windows Defender/Operational\",\"computer\":\"host.example.test\",\"keywords\":\"0x8000000000000000\",\"eventCode\":1121,\"data\":{\"ID\":\"d4f940ab-401b-4efc-aadc-ad5f3c50688a\"}}",
+    "result": "denied",
+    "dataSource": "synthetic-windows"
+  },
+  {
+    "name": "defender-detection-has-no-outcome",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Windows Defender\",\"recordId\":1234,\"channel\":\"Microsoft-Windows-Windows Defender/Operational\",\"computer\":\"host.example.test\",\"keywords\":\"0x8000000000000000\",\"eventCode\":1116,\"data\":{}}",
+    "result": "",
+    "dataSource": "synthetic-windows"
+  },
+  {
+    "name": "object-access-refused",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"keywords\":\"0x8010000000000000\",\"eventCode\":4656,\"data\":{\"ObjectName\":\"C:\\\\\\\\example.txt\"}}",
+    "result": "denied",
+    "dataSource": "synthetic-windows"
+  },
+  {
+    "name": "privileged-service-refused",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"keywords\":\"0x8010000000000000\",\"eventCode\":4673,\"data\":{\"PrivilegeList\":\"SeTcbPrivilege\"}}",
+    "result": "denied",
+    "dataSource": "synthetic-windows"
+  },
+  {
+    "name": "firewall-app-listen-blocked",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"keywords\":\"0x8010000000000000\",\"eventCode\":5031,\"data\":{\"Profiles\":\"Domain\",\"Application\":\"C:\\\\Program Files\\\\Example\\\\app.exe\"}}",
+    "result": "denied",
+    "dataSource": "synthetic-windows"
+  },
+  {
+    "name": "password-change-failed",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"keywords\":\"0x8010000000000000\",\"eventCode\":4723,\"data\":{\"TargetUserName\":\"user\"}}",
+    "result": "failed",
+    "dataSource": "synthetic-windows"
+  },
+  {
+    "name": "firewall-block-keeps-denied",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"keywords\":\"0x8010000000000000\",\"eventCode\":5157,\"data\":{\"SourceAddress\":\"203.0.113.27\",\"DestAddress\":\"192.0.2.10\",\"Direction\":\"%%14592\",\"SourcePort\":\"50000\",\"DestPort\":\"445\",\"Protocol\":\"6\"}}",
+    "result": "denied",
+    "dataSource": "synthetic-windows"
+  },
+  {
+    "name": "account-change-completed",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"keywords\":\"0x8020000000000000\",\"eventCode\":4738,\"data\":{\"TargetUserName\":\"user\"}}",
+    "result": "success",
+    "dataSource": "synthetic-windows"
+  },
+  {
+    "name": "group-member-removed",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"keywords\":\"0x8020000000000000\",\"eventCode\":4733,\"data\":{\"TargetUserName\":\"Administrators\",\"MemberSid\":\"S-1-5-21-1-2-3-1001\"}}",
+    "result": "success",
+    "dataSource": "synthetic-windows"
+  },
+  {
+    "name": "account-change-without-audit-keyword",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"keywords\":\"\",\"eventCode\":4738,\"data\":{\"TargetUserName\":\"user\"}}",
+    "result": "",
+    "dataSource": "synthetic-windows"
+  },
+  {
+    "name": "explicit-credentials-audit-success-stay-empty",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"host.example.test\",\"keywords\":\"0x8020000000000000\",\"eventCode\":4648,\"data\":{\"IpAddress\":\"203.0.113.28\",\"TargetUserName\":\"admin\"}}",
+    "result": "",
+    "dataSource": "synthetic-windows"
   }
 ]

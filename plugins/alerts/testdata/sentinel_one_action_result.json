@@ -2,7 +2,7 @@
   {
     "name": "mitigation-status-failed",
     "raw": "<14>2026-09-23 12:34:56,000   testhost -  CEF:0|SentinelOne|Mgmt|S-99.1.1#10|9999|Synthetic mitigation failed|1|suser=analyst@example.com cat=Threat rt=#arcsightDate(Wed, 23 Sep 2026, 12:34:56 UTC) mitigationStatus=failed",
-    "result": "failure",
+    "result": "failed",
     "expected": {
       "log.mitigationStatus": "failed",
       "log.cat": "Threat"
@@ -11,7 +11,7 @@
   {
     "name": "threat-status-mitigation-failed",
     "raw": "<14>2026-09-23 12:34:56,000   testhost -  CEF:0|SentinelOne|Mgmt|S-99.1.1#10|9999|Synthetic mitigation failed|1|suser=analyst@example.com cat=Threat rt=#arcsightDate(Wed, 23 Sep 2026, 12:34:56 UTC) threatStatus=mitigation_failed",
-    "result": "failure",
+    "result": "failed",
     "expected": {
       "log.threatStatus": "mitigation_failed",
       "log.cat": "Threat"
@@ -20,7 +20,7 @@
   {
     "name": "operation-status-failed",
     "raw": "<14>2026-09-23 12:34:56,000   testhost -  CEF:0|SentinelOne|Mgmt|S-99.1.1#10|9999|Synthetic operation failed|1|suser=analyst@example.com cat=Threat rt=#arcsightDate(Wed, 23 Sep 2026, 12:34:56 UTC) status=failed",
-    "result": "failure",
+    "result": "failed",
     "expected": {
       "log.status": "failed",
       "log.cat": "Threat"
@@ -29,7 +29,7 @@
   {
     "name": "mitigation-status-failure-uppercase",
     "raw": "<14>2026-09-23 12:34:56,000   testhost -  CEF:0|SentinelOne|Mgmt|S-99.1.1#10|9999|Synthetic mitigation failed|1|suser=analyst@example.com cat=Threat rt=#arcsightDate(Wed, 23 Sep 2026, 12:34:56 UTC) mitigationStatus=FAILURE",
-    "result": "failure",
+    "result": "failed",
     "expected": {
       "log.mitigationStatus": "FAILURE",
       "log.cat": "Threat"
@@ -71,15 +71,14 @@
     ]
   },
   {
-    "name": "administrative-event-has-no-outcome",
+    "name": "role-assigned-console-change-completed",
     "raw": "<14>2026-09-23 12:34:56,000   testhost -  CEF:0|SentinelOne|Mgmt|S-99.1.1#10|37|Synthetic role assigned|1|suser=admin@example.com cat=SystemEvent rt=#arcsightDate(Wed, 23 Sep 2026, 12:34:56 UTC) activityID=100000000000000001 activityType=37 siteId=100000000000000002 siteName=Example Site accountId=100000000000000003 accountName=Example notificationScope=SITE",
-    "result": "",
+    "result": "success",
     "expected": {
       "log.activityType": "37",
       "log.cat": "SystemEvent"
     },
     "absent": [
-      "actionResult",
       "origin.ip",
       "target.ip"
     ]
@@ -106,6 +105,109 @@
     "expected": {
       "log.seq": "1",
       "log.syslogPriority": "134"
+    },
+    "absent": [
+      "actionResult",
+      "origin.ip",
+      "target.ip"
+    ]
+  },
+  {
+    "name": "mitigation-name-quarantine-failed",
+    "raw": "<14>2026-09-23 12:34:56,000   testhost -  CEF:0|SentinelOne|Mgmt|S-99.1.1#10|2009|Quarantine failed|1|suser=ENDPOINT-01 cat=SystemEvent activityID=100000000000000011 activityType=2009 fileHash=3395856ce81f2b7382dee72602f798b642f14140 rt=#arcsightDate(Wed, 23 Sep 2026, 12:34:56 UTC)",
+    "result": "failed",
+    "expected": {
+      "log.fileHash": "3395856ce81f2b7382dee72602f798b642f14140",
+      "log.eventDescription": "Quarantine failed",
+      "log.activityType": "2009"
+    }
+  },
+  {
+    "name": "mitigation-name-kill-completed",
+    "raw": "<14>2026-09-23 12:34:56,000   testhost -  CEF:0|SentinelOne|Mgmt|S-99.1.1#10|2001|Kill performed successfully|1|suser=ENDPOINT-01 cat=SystemEvent activityID=100000000000000011 activityType=2001 fileHash=3395856ce81f2b7382dee72602f798b642f14140 rt=#arcsightDate(Wed, 23 Sep 2026, 12:34:56 UTC)",
+    "result": "denied",
+    "expected": {
+      "log.fileHash": "3395856ce81f2b7382dee72602f798b642f14140",
+      "log.eventDescription": "Kill performed successfully",
+      "log.activityType": "2001"
+    }
+  },
+  {
+    "name": "mitigation-name-quarantine-completed",
+    "raw": "<14>2026-09-23 12:34:56,000   testhost -  CEF:0|SentinelOne|Mgmt|S-99.1.1#10|2004|Quarantine performed successfully|1|suser=ENDPOINT-01 cat=SystemEvent activityID=100000000000000011 activityType=2004 fileHash=3395856ce81f2b7382dee72602f798b642f14140 rt=#arcsightDate(Wed, 23 Sep 2026, 12:34:56 UTC)",
+    "result": "denied",
+    "expected": {
+      "log.fileHash": "3395856ce81f2b7382dee72602f798b642f14140",
+      "log.eventDescription": "Quarantine performed successfully",
+      "log.activityType": "2004"
+    }
+  },
+  {
+    "name": "mitigation-name-kill-pending-has-no-outcome",
+    "raw": "<14>2026-09-23 12:34:56,000   testhost -  CEF:0|SentinelOne|Mgmt|S-99.1.1#10|2031|Kill pending to reboot|1|suser=ENDPOINT-01 cat=SystemEvent activityID=100000000000000011 activityType=2031 fileHash=3395856ce81f2b7382dee72602f798b642f14140 rt=#arcsightDate(Wed, 23 Sep 2026, 12:34:56 UTC)",
+    "result": "",
+    "expected": {
+      "log.fileHash": "3395856ce81f2b7382dee72602f798b642f14140",
+      "log.eventDescription": "Kill pending to reboot",
+      "log.activityType": "2031"
+    },
+    "absent": [
+      "actionResult",
+      "origin.ip",
+      "target.ip"
+    ]
+  },
+  {
+    "name": "threat-detection-has-no-outcome",
+    "raw": "<14>2026-09-23 12:34:56,000   testhost -  CEF:0|SentinelOne|Mgmt|S-99.1.1#10|19|New active threat - machine ENDPOINT-01|1|suser=ENDPOINT-01 cat=SystemEvent activityID=100000000000000011 activityType=19 fileHash=3395856ce81f2b7382dee72602f798b642f14140 rt=#arcsightDate(Wed, 23 Sep 2026, 12:34:56 UTC)",
+    "result": "",
+    "expected": {
+      "log.fileHash": "3395856ce81f2b7382dee72602f798b642f14140",
+      "log.eventDescription": "New active threat - machine ENDPOINT-01",
+      "log.activityType": "19"
+    },
+    "absent": [
+      "actionResult",
+      "origin.ip",
+      "target.ip"
+    ]
+  },
+  {
+    "name": "user-added-console-change-completed",
+    "raw": "<14>2026-09-23 12:34:56,000   testhost -  CEF:0|SentinelOne|Mgmt|S-99.1.1#10|23|Administrative information - New user 'Example User (example.user@example.com)' added|1|suser=admin@example.com cat=SystemEvent rt=#arcsightDate(Wed, 23 Sep 2026, 12:34:56 UTC) activityID=100000000000000021 activityType=23 siteId=100000000000000002 siteName=Example Site accountId=100000000000000003 accountName=Example notificationScope=SITE",
+    "result": "success",
+    "expected": {
+      "log.activityType": "23",
+      "log.cat": "SystemEvent",
+      "log.eventDescription": "Administrative information - New user 'Example User (example.user@example.com)' added"
+    },
+    "absent": [
+      "origin.ip",
+      "target.ip"
+    ]
+  },
+  {
+    "name": "user-deleted-console-change-completed",
+    "raw": "<14>2026-09-23 12:34:56,000   testhost -  CEF:0|SentinelOne|Mgmt|S-99.1.1#10|25|Administrative information - User 'Example User (example.user@example.com)' Deleted|1|suser=admin@example.com cat=SystemEvent rt=#arcsightDate(Wed, 23 Sep 2026, 12:34:56 UTC) activityID=100000000000000021 activityType=25 siteId=100000000000000002 siteName=Example Site accountId=100000000000000003 accountName=Example notificationScope=SITE",
+    "result": "success",
+    "expected": {
+      "log.activityType": "25",
+      "log.cat": "SystemEvent",
+      "log.eventDescription": "Administrative information - User 'Example User (example.user@example.com)' Deleted"
+    },
+    "absent": [
+      "origin.ip",
+      "target.ip"
+    ]
+  },
+  {
+    "name": "console-failed-name-without-file-hash-has-no-outcome",
+    "raw": "<14>2026-09-23 12:34:56,000   testhost -  CEF:0|SentinelOne|Mgmt|S-99.1.1#10|5020|Example policy update failed|1|suser=admin@example.com cat=SystemEvent rt=#arcsightDate(Wed, 23 Sep 2026, 12:34:56 UTC) activityID=100000000000000021 activityType=5020 siteId=100000000000000002 siteName=Example Site accountId=100000000000000003 accountName=Example notificationScope=SITE",
+    "result": "",
+    "expected": {
+      "log.activityType": "5020",
+      "log.cat": "SystemEvent",
+      "log.eventDescription": "Example policy update failed"
     },
     "absent": [
       "actionResult",

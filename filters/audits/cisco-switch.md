@@ -247,7 +247,7 @@ here.
 | D-7 | `deviceTime` from the header time: no sender includes a time zone, one writes local time. | Cisco timestamp options; a sender that sends year and zone. |
 | D-8 | Header variants and subfacilities that contain digits. | Cisco documentation or real records. |
 | D-9 | Severity words `high`/`medium`/`low` instead of the SDK wiki's values. | Owner decision after a dashboard and saved-search review. |
-| D-10 | `actionResult` values `failed` and `blocked`. | The separate action-result correction. |
+| D-10 | `actionResult` values `failed` and `blocked`. | Done in filter 3.2.0 (action-result correction): the filter writes only `success`, `failed` or `denied`; `blocked` became `denied`, and sign-in, SSH, 802.1X/MAB, access-list, port-security, BPDU-guard, DHCP-snooping and TCP MD5 outcomes were added. |
 | D-11 | Interface and state of link messages. | A consumer that needs them. |
 | D-12 | ATT&CK v19 tactic names (Defense Evasion is now Stealth; T1599 moved to Defense Impairment). | A repository-wide owner decision. |
 

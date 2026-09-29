@@ -1,4 +1,4 @@
-# Palo Alto Firewall, version 3.1.2
+# Palo Alto Firewall, version 3.1.3
 # Palo Alto PAN-OS CSV and documented PAN-OS 10.0 CEF templates.
 # Checked with the public EventProcessor 8a3ade7 parser plugins; exercise real export profiles before rollout.
 # The prior seven-field LEEF-labelled compatibility dialect is retained.
@@ -8832,6 +8832,19 @@ pipeline:
         && equals("log.paType", "HIP-MATCH") && !((inCIDR("log.src", "0.0.0.0/0") || inCIDR("log.src", "::/0"))
         && !inCIDR("log.src", "0.0.0.0/32") && !inCIDR("log.src", "::/128"))
   - grok:
+      source: log.object
+      patterns:
+      - fieldName: log.src
+        pattern: ^[0-9A-Fa-f:.]*[0-9A-Fa-f]
+      - fieldName: log.paIgnored
+        pattern: \[
+      - fieldName: log.paPeerPort
+        pattern: '[0-9]{1,5}'
+      - fieldName: log.paSuffix
+        pattern: \]$
+      where: equals("log.paType", "SYSTEM") && equals("log.paSubtype", "vpn") && regexMatch("log.eventid", "^ike(?:v2)?-.*-fail(?:-|$)")
+        && !exists("log.src") && regexMatch("log.object", "^[0-9A-Fa-f:.]+\\[[0-9]{1,5}\\]$")
+  - grok:
       source: log.src
       patterns:
       - fieldName: origin.ip
@@ -9075,7 +9088,8 @@ pipeline:
         value: denied
       where: oneOf("log.paType", ["TRAFFIC", "THREAT", "DECRYPTION", "SCTP", "GTP", "TUNNEL", "START", "END"])
         && oneOf("action", ["deny", "drop", "drop-all-packets", "reset-client", "reset-server", "reset-both", "block-url",
-        "block-ip", "random-drop", "sinkhole", "block-continue", "block-override", "override-lockout"])
+        "block-ip", "random-drop", "sinkhole", "block-continue", "block-override", "override-lockout", "drop-packet",
+        "drop-icmp"])
   - add:
       function: string
       params:
@@ -9093,7 +9107,7 @@ pipeline:
       function: string
       params:
         key: actionResult
-        value: failure
+        value: failed
       where: equals("log.paType", "CONFIG") && equals("log.result", "Failed")
   - add:
       function: string
@@ -9105,7 +9119,7 @@ pipeline:
       function: string
       params:
         key: actionResult
-        value: failure
+        value: failed
       where: equals("log.paType", "SYSTEM") && equals("log.eventid", "auth-fail")
   - add:
       function: string
@@ -9117,13 +9131,20 @@ pipeline:
       function: string
       params:
         key: actionResult
-        value: success
-      where: equals("log.paType", "GLOBALPROTECT") && equals("log.status", "success")
+        value: failed
+      where: equals("log.paType", "SYSTEM") && equals("log.paSubtype", "vpn") && regexMatch("log.eventid", "^ike(?:v2)?-.*-fail(?:-|$)")
   - add:
       function: string
       params:
         key: actionResult
-        value: failure
+        value: success
+      where: equals("log.paType", "GLOBALPROTECT") && equals("log.status", "success") && !oneOf("log.eventid", ["portal-prelogin",
+        "gateway-prelogin", "gateway-tunnel-latency", "gateway-agent-msg", "gateway-tunnel-notify"])
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: failed
       where: equals("log.paType", "GLOBALPROTECT") && equals("log.status", "failure")
   - add:
       function: string
@@ -9259,7 +9280,7 @@ pipeline:
       function: string
       params:
         key: actionResult
-        value: failure
+        value: failed
       where: equals("log.paType", "TRAFFIC") && equals("log.sessionEndReason", "resources-unavailable")
   - dynamic:
       plugin: com.utmstack.geolocation
@@ -9290,7 +9311,7 @@ pipeline:
       params:
         key: log.correlationCandidate.paloalto.authFailure
         value: match
-      where: equals("log.paType", "SYSTEM") && equals("log.eventid", "auth-fail") && equals("actionResult", "failure")
+      where: equals("log.paType", "SYSTEM") && equals("log.eventid", "auth-fail") && equals("actionResult", "failed")
         && exists("origin.ip") && exists("dataSource") && !equals("dataSource", "") && exists("log.paScope") &&
         exists("log.paVsys")
   - add:

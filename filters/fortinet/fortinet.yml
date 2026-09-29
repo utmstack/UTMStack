@@ -1,4 +1,4 @@
-# Fortinet firewall module filter, version 3.3.0
+# Fortinet firewall module filter, version 3.4.0
 # Based in docs and samples provided
 # 
 # Documentations
@@ -1527,7 +1527,7 @@ pipeline:
       - rename:
           from: [log.remip]
           to: origin.ip
-          where: '!exists("origin.ip") && equals("log.type", "event") && equals("log.subtype", "vpn") && (oneOf("action", ["ssl-login-fail", "ssl-login-succ"]) || equals("log.logid", "0101039426")) && (inCIDR("log.remip", "0.0.0.0/0") || inCIDR("log.remip", "::/0")) && !inCIDR("log.remip", "0.0.0.0/32") && !inCIDR("log.remip", "::/128")'
+          where: '!exists("origin.ip") && equals("log.type", "event") && equals("log.subtype", "vpn") && (oneOf("action", ["ssl-login-fail", "ssl-login-succ"]) || equals("log.logid", "0101039426") || (equals("action", "tunnel-up") && contains("log.tunneltype", "ssl"))) && (inCIDR("log.remip", "0.0.0.0/0") || inCIDR("log.remip", "::/0")) && !inCIDR("log.remip", "0.0.0.0/32") && !inCIDR("log.remip", "::/128")'
       - add:
           function: string
           params:
@@ -2451,21 +2451,46 @@ pipeline:
             - log.kvMessage
             - log.proto
 
-      # Normalize explicit outcomes; an unknown outcome remains unset.
-      # LOG_ID_TRAFFIC_FAIL_CONN (11) denotes failure; action=dns alone does not.
-      # A normal close ends an allowed, established session. A reset or timeout
-      # can end an attempt that got no usable reply, so it keeps no outcome.
+      # Normalize explicit outcomes to success, failed or denied; an unknown
+      # outcome remains unset. A later step overwrites an earlier one, so success
+      # steps come first, failed steps next and the denied step last.
+      # LOG_ID_TRAFFIC_FAIL_CONN (11) denotes a failed connection; action=dns alone does not.
+      # A normal close ends an allowed, established session.
       - add:
           function: string
           params:
             key: actionResult
             value: success
           where: equalsIgnoreCase("action", "accept") || equals("action", "close")
+      # A session allowed by policy that ended by reset or timeout completed when
+      # the other side answered (received packets). Without a reply it keeps no outcome.
       - add:
           function: string
           params:
             key: actionResult
-            value: failure
+            value: success
+          where: equals("log.type", "traffic") && oneOf("action", ["client-rst", "server-rst", "timeout"]) && greaterThan("origin.packagesReceived", 0)
+      # Security profiles that let the traffic through (application control pass,
+      # web filter passthrough, DNS filter pass, VoIP permit). Detections and
+      # inspection notes (detected, monitored, analytics, info, bypass) keep no outcome.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: equals("log.type", "utm") && oneOf("action", ["pass", "passthrough", "permit"])
+      # An SSL VPN tunnel that came up is a completed SSL VPN sign-in.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: equals("log.type", "event") && equals("log.subtype", "vpn") && equals("action", "tunnel-up") && contains("log.tunneltype", "ssl")
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failed
           where: equals("log.type", "traffic") && equals("log.logid", "0000000011")
       - add:
           function: string
@@ -2477,14 +2502,17 @@ pipeline:
           function: string
           params:
             key: actionResult
-            value: failure
+            value: failed
           where: equals("log.type", "event") && (equals("log.subtype", "system") && equals("log.logid", "0100032002") || equals("log.subtype", "vpn") && (equals("log.logid", "0101039426") || equals("action", "ssl-login-fail")))
+      # A control refused the traffic: policy deny, a security-profile block, an IPS
+      # or DoS sensor reset, drop or cleared session, or a DNS filter redirect to the
+      # block portal. Keep this step last so a block wins over any earlier value.
       - add:
           function: string
           params:
             key: actionResult
             value: denied
-          where: regexMatch("action", "(?i)^(deny|denied|drop|dropped|block|blocked)$") || regexMatch("log.utmaction", "(?i)^(deny|denied|drop|dropped|block|blocked)$") || regexMatch("log.FTNTFGTutmaction", "(?i)^(deny|denied|drop|dropped|block|blocked)$")
+          where: regexMatch("action", "(?i)^(deny|denied|drop|dropped|block|blocked)$") || regexMatch("log.utmaction", "(?i)^(deny|denied|drop|dropped|block|blocked)$") || regexMatch("log.FTNTFGTutmaction", "(?i)^(deny|denied|drop|dropped|block|blocked)$") || (equals("log.type", "utm") && oneOf("log.subtype", ["ips", "anomaly"]) && oneOf("action", ["reset", "reset_client", "reset_server", "drop_session", "clear_session"])) || (equals("log.type", "utm") && equals("log.subtype", "dns") && equals("action", "redirect"))
       - add:
           function: string
           params:

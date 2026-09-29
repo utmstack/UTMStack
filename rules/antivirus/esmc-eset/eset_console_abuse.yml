@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.0.1
 
 dataTypes:
   - antivirus-esmc-eset
@@ -25,7 +25,7 @@ description: |
 where: |
   (equals("log.eventType", "Audit_Event") &&
   equalsIgnoreCase("log.domain", "Native user") &&
-  equalsIgnoreCase("action", "Login attempt") && oneOf("actionResult", ["failure", "denied"]) &&
+  equalsIgnoreCase("action", "Login attempt") && oneOf("actionResult", ["failed", "denied"]) &&
   exists("target.user") && !oneOf("target.user", ["", "unknown", "-"])) &&
   exists("dataSource") && !oneOf("dataSource", ["", "unknown", "-"]) &&
   oneOf("log.endpointKeyType", ["uuid", "host", "ip"]) &&

@@ -1,4 +1,4 @@
-# Bitdefender GravityZone CEF filter, version 3.3.0
+# Bitdefender GravityZone CEF filter, version 3.3.1
 # CEF-encoded originals remain under log; no unsupported decoder is assumed.
 # Re-read the protected raw header after generic KV so extension text cannot overwrite it.
 # The grok plugin matches each pattern in turn against what is left of the text,
@@ -1256,7 +1256,9 @@ pipeline:
         pattern: (?s)^.+$
       where: '!exists("action") && exists("log.BitdefenderGZAction") && !oneOf("log.BitdefenderGZAction",["","-","unknown"])'
   # Derive the final result here; earlier stages and vendor extension keys
-  # must not leave a conflicting top-level outcome.
+  # must not leave a conflicting top-level outcome. Only success, failed or
+  # denied is written. A control that blocked, quarantined, killed, deleted or
+  # disinfected the threat is denied; a threat left in place is failed.
   - delete:
       fields: [actionResult]
   - add:
@@ -1265,20 +1267,38 @@ pipeline:
         key: actionResult
         value: denied
       where: >-
-        regexMatch("action","(?i)^(?:block|blocked|deny|denied|drop|dropped|reject|rejected|quarantined|[a-z0-9_-]+[_-]blocked)$") ||
-        regexMatch("log.BitdefenderGZStatus","(?i)^(?:block|blocked|deny|denied|drop|dropped|reject|rejected|quarantined|[a-z0-9_-]+[_-]blocked)$") ||
-        regexMatch("log.BitdefenderGZDetectionAction","(?i)^(?:block|blocked|deny|denied|drop|dropped|reject|rejected|quarantined|[a-z0-9_-]+[_-]blocked)$")
+        regexMatch("action","(?i)^(?:block|blocked|deny|denied|drop|dropped|reject|rejected|quarantined|kill|killed|[a-z0-9_-]+[_-]blocked)$") ||
+        regexMatch("log.BitdefenderGZStatus","(?i)^(?:block|blocked|deny|denied|drop|dropped|reject|rejected|quarantined|kill|killed|[a-z0-9_-]+[_-]blocked)$") ||
+        regexMatch("log.BitdefenderGZDetectionAction","(?i)^(?:block|blocked|deny|denied|drop|dropped|reject|rejected|quarantined|kill|killed|[a-z0-9_-]+[_-]blocked)$")
+  # Exchange malware: the actions taken sit in the msg JSON array, one object
+  # per detection. Denied only when every detection was quarantined or
+  # disinfected; an array with any other action (for example ignore) states
+  # no single outcome.
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: denied
+      where: equals("log.BitdefenderGZModule","exchange-malware") && regexMatch("log.msg","^\\[\\s*\\{[^{}]*\"actionTaken\"\\s*:\\s*\"(?:quarantine|disinfect)\"[^{}]*\\}(?:\\s*,\\s*\\{[^{}]*\"actionTaken\"\\s*:\\s*\"(?:quarantine|disinfect)\"[^{}]*\\})*\\s*\\]$")
+  # Antimalware and Advanced Threat Control: the product deleted or disinfected
+  # the threat. A control removed it, like quarantined: denied.
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: denied
+      where: oneOf("log.BitdefenderGZModule",["av","avc"]) && regexMatch("action","(?i)^(?:deleted|disinfected)$")
   - add:
       function: string
       params:
         key: actionResult
         value: success
-      where: oneOf("log.BitdefenderGZModule",["av","avc"]) && regexMatch("action","(?i)^(deleted|disinfected|restored)$") && !equals("actionResult","denied")
+      where: oneOf("log.BitdefenderGZModule",["av","avc"]) && regexMatch("action","(?i)^restored$") && !equals("actionResult","denied")
   - add:
       function: string
       params:
         key: actionResult
-        value: failure
+        value: failed
       where: oneOf("log.BitdefenderGZModule",["av","avc"]) && equalsIgnoreCase("action","still present") && !equals("actionResult","denied")
   - add:
       function: string
@@ -1294,7 +1314,7 @@ pipeline:
       function: string
       params:
         key: actionResult
-        value: failure
+        value: failed
       where: >-
         equals("log.BitdefenderGZModule","task-status") &&
         !equals("actionResult","denied") &&

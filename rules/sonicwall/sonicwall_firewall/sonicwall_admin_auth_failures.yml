@@ -1,4 +1,4 @@
-# Rule version v2.2.0
+# Rule version v2.2.1
 
 dataTypes:
   - firewall-sonicwall
@@ -31,7 +31,7 @@ where: |
   (
     oneOf("log.eventCode", ["32", "33", "200"]) ||
     contains("log.message", "denied due to bad credentials")
-  ) && equals("actionResult", "failure") && exists("origin.ip")
+  ) && equals("actionResult", "failed") && exists("origin.ip")
 afterEvents:
   - indexPattern: v11-log-firewall-sonicwall-*
     with:
@@ -40,7 +40,7 @@ afterEvents:
         value: '{{.origin.ip}}'
       - field: actionResult
         operator: filter_term
-        value: failure
+        value: failed
     within: 15m
     count: 5
 deduplicateBy:

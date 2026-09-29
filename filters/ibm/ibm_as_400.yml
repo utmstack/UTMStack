@@ -1,4 +1,4 @@
-# IBM AS 400 filter version 4.1.0
+# IBM AS 400 filter version 4.1.1
 # Support for JT400 Java Collector with full field mapping
 
 pipeline:
@@ -18,13 +18,31 @@ pipeline:
           source: raw
           where: 'startsWith("raw", "{")'
 
+      # The collector sometimes writes digits before the JSON object
+      # (observed: 48{...}); parse the JSON text after them the same way
+      - grok:
+          source: raw
+          patterns:
+            - pattern: '[0-9]+'
+            - fieldName: log.jsonText
+              pattern: '\{(?s:.*)\}'
+          where: 'regexMatch("raw", "^[0-9]+\\{")'
+
+      - json:
+          source: log.jsonText
+          where: 'exists("log.jsonText")'
+
       # Fallback: Parse non-JSON logs (raw syslog format)
       - grok:
           source: raw
           patterns:
             - fieldName: log.message
               pattern: '{{.greedy}}'
-          where: '!startsWith("raw", "{")'
+          where: '!startsWith("raw", "{") && !exists("log.jsonText")'
+
+      - delete:
+          fields:
+            - log.jsonText
 
       # ========================================
       # PHASE 2: NORMALIZATION (Standard Schema)
@@ -75,9 +93,10 @@ pipeline:
           to: origin.file
           where: exists("log.file")
 
-      # Map outcome and client address
+      # Map outcome and client address (actionResult: success, failed or none)
       # CPIAD09 reports that a user from a client address connected to a host
-      # server job; its text is localized and names the address after the word
+      # server job, and CPIAD02 that a user from a client connected to a host
+      # server; their text is localized and names the address after the word
       # client (cliente in Spanish). CPF2234 reports a password that is not
       # correct. Other messages, such as CPIAD0B, carry no final result.
       - grok:
@@ -86,7 +105,7 @@ pipeline:
             - pattern: '(?i)^.*?\bclient\w*\s+'
             - fieldName: log.clientAddress
               pattern: '(?:[0-9]{1,3}\.){3}[0-9]{1,3}|[0-9A-Fa-f]{0,4}:[0-9A-Fa-f:.]*'
-          where: equals("log.messageId", "CPIAD09") && !exists("origin.ip")
+          where: oneOf("log.messageId", ["CPIAD09", "CPIAD02"]) && !exists("origin.ip")
 
       - rename:
           from:
@@ -103,13 +122,13 @@ pipeline:
           params:
             key: actionResult
             value: success
-          where: equals("log.messageId", "CPIAD09")
+          where: oneOf("log.messageId", ["CPIAD09", "CPIAD02"])
 
       - add:
           function: string
           params:
             key: actionResult
-            value: failure
+            value: failed
           where: equals("log.messageId", "CPF2234")
 
       # ========================================

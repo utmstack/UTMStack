@@ -80,6 +80,13 @@ pipeline:
         log.trandstport, log.transactionid, log.transrcip, log.transrcport, log.type, log.uploadfilename, log.uploadfiletype,
         log.url, log.usedquota, log.user, log.useragent, log.usergp, log.usergroup, log.usergroupname, log.username,
         log.vconnid, log.vlanid, log.wsprotocol]
+  # KV also splits quoted text such as a user agent or mail subject, so "statusCode=200" inside a
+  # quoted value lands in log.statusCode. Remove the names this filter builds itself; only the
+  # steps below may set them, from the vendor keys.
+  - delete:
+      fields: [log.Id, log.clientHostName, log.component, log.contentType, log.deviceId, log.domainName, log.fileSize,
+        log.messageId, log.sophosClock, log.sophosISO, log.statusCode, log.subType, log.timesTamp, log.userGroup,
+        log.userGroupName]
   - grok:
       source: log.sophosBody
       patterns:
@@ -2090,6 +2097,10 @@ pipeline:
       from: [log.sophosClock]
       to: deviceTime
       where: regexMatch("log.sophosClock","^[0-9]{4}-[0-9]{2}-[0-9]{2}T") && !exists("deviceTime")
+  # actionResult is exactly success, failed or denied, or absent when the record states no final
+  # outcome. The first value wins: every later step is guarded by !exists("actionResult").
+  # A WAF record names its block reason (for example "WAF Anomaly", "Static URL Hardening",
+  # "Antivirus"); a request passed to the web server carries reason "-".
   - add:
       function: string
       params:
@@ -2097,13 +2108,30 @@ pipeline:
         value: denied
       where: regexMatch("log.subType","(?i)^(deny|denied|block|blocked|drop|dropped)$") || regexMatch("log.status","(?i)^(deny|denied|block|blocked|drop|dropped|reject|rejected)$")
         || regexMatch("log.spamaction","(?i)^(drop|reject|rejected|tmpreject|quarantine|sandstorm block)$") || (equals("log.type","WAF")
-        && oneOf("log.reason",["waf","cookie","url hardening","form hardening","av","geoip","dnsrbl"]))
+        && exists("log.reason") && !oneOf("log.reason",["","-"])) || (equals("log.type","Content Filtering")
+        && regexMatch("log.action","(?i)^(deny|denied|block|blocked|drop)$"))
   - add:
       function: string
       params:
         key: actionResult
-        value: failure
+        value: failed
       where: '!exists("actionResult") && regexMatch("log.status","(?i)^(failed|failure|error)$")'
+  # Web filtering of the users' own requests: the firewall's decision wins over the website's
+  # answer. An allowed request reached the site, whatever HTTP status the site returned.
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: success
+      where: '!exists("actionResult") && equals("log.type","Content Filtering") && regexMatch("log.subType","(?i)^allowed$")'
+  # SSL inspection error: the server did not complete the TLS handshake.
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: failed
+      where: '!exists("actionResult") && equals("log.type","Content Filtering") && equals("log.component","SSL") && equalsIgnoreCase("log.subType","Error")'
+  # Requests from outside clients to published web servers (WAF): the server's answer decides.
   - add:
       function: string
       params:
@@ -2114,7 +2142,7 @@ pipeline:
       function: string
       params:
         key: actionResult
-        value: failure
+        value: failed
       where: '!exists("actionResult") && greaterOrEqual("statusCode",400) && lessThan("statusCode",600)'
   - add:
       function: string
@@ -2216,7 +2244,7 @@ pipeline:
         key: log.correlationCandidate.sophosXG.adminFailure
         value: match
       where: (equals("log.type","Event") && (oneOf("log.component",["GUI","CLI","API"]) && equals("log.subType","Admin")
-        && equals("log.messageId","17507") && equals("actionResult","failure"))) && exists("origin.ip") && exists("dataSource")
+        && equals("log.messageId","17507") && equals("actionResult","failed"))) && exists("origin.ip") && exists("dataSource")
         && !equals("dataSource","") && exists("log.sophosScope") && !equals("log.sophosScope","")
   - add:
       function: string
@@ -2233,6 +2261,6 @@ pipeline:
         key: log.correlationCandidate.sophosXG.vpnFailure
         value: match
       where: (equals("log.type","Event") && equals("log.subType","Authentication") && oneOf("log.component",["SSL
-        VPN Authentication","VPN Authentication","VPN Portal Authentication"]) && equals("actionResult","failure"))
+        VPN Authentication","VPN Authentication","VPN Portal Authentication"]) && equals("actionResult","failed"))
         && exists("origin.ip") && exists("dataSource") && !equals("dataSource","") && exists("log.sophosScope")
         && !equals("log.sophosScope","")

@@ -664,10 +664,13 @@ pipeline:
             - log.sender.user_view_type
           to: log.senderUserViewType
 
-      # Adding action result
-      # A completed run's conclusion is its final result: action_required
-      # waits for approval, and cancelled, neutral, skipped and stale are
-      # neither success nor failure, so they set no outcome.
+      # Adding action result (only success, failed or denied)
+      # The conclusion of a workflow run, workflow job, check run or check suite
+      # is its final result, stated by the "completed" delivery; requested,
+      # rerequested and in_progress deliveries can carry an earlier conclusion
+      # and set no outcome. action_required waits for approval, and cancelled,
+      # neutral, skipped and stale are neither success nor failure, so they set
+      # no outcome either.
       - rename:
           from:
             - log.workflow_run.conclusion
@@ -677,13 +680,30 @@ pipeline:
           params:
             key: actionResult
             value: "success"
-          where: 'equals("log.conclusion", "success")'
+          where: 'equals("log.action", "completed") && (equals("log.conclusion", "success") || equals("log.workflow_job.conclusion", "success") || equals("log.check_run.conclusion", "success") || equals("log.check_suite.conclusion", "success"))'
       - add:
           function: string
           params:
             key: actionResult
-            value: "failure"
-          where: 'oneOf("log.conclusion", ["failure", "timed_out", "startup_failure"])'
+            value: "failed"
+          where: 'equals("log.action", "completed") && (oneOf("log.conclusion", ["failure", "timed_out", "startup_failure"]) || oneOf("log.workflow_job.conclusion", ["failure", "timed_out", "startup_failure"]) || oneOf("log.check_run.conclusion", ["failure", "timed_out", "startup_failure"]) || oneOf("log.check_suite.conclusion", ["failure", "timed_out", "startup_failure"]))'
+
+      # Deployment status and commit status (status event: top-level state,
+      # context and sha): success is a finished deployment or check, failure
+      # and error are failed ones; pending, queued, in_progress and inactive
+      # state no final result.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "success"
+          where: 'equals("log.deployment_status.state", "success") || (equals("log.state", "success") && exists("log.context") && exists("log.sha"))'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "failed"
+          where: 'oneOf("log.deployment_status.state", ["failure", "error"]) || (oneOf("log.state", ["failure", "error"]) && exists("log.context") && exists("log.sha"))'
 
       # Removing unused fields
       - delete:

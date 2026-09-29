@@ -44,7 +44,7 @@
     "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|AntiMalware|3|BitdefenderGZModule=av BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test act=Disinfected BitdefenderGZMalwareName=Generic.Test",
     "expected": {
       "action": "Disinfected",
-      "actionResult": "success"
+      "actionResult": "denied"
     },
     "absent": [],
     "matches": []
@@ -55,7 +55,7 @@
     "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|AntiMalware|3|BitdefenderGZModule=av BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test act=deleted BitdefenderGZMalwareName=Generic.Test",
     "expected": {
       "action": "deleted",
-      "actionResult": "success"
+      "actionResult": "denied"
     },
     "absent": [],
     "matches": []
@@ -88,7 +88,7 @@
     "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|AntiMalware|3|BitdefenderGZModule=av BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test act=still present BitdefenderGZMalwareName=Generic.Test",
     "expected": {
       "action": "still present",
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": [
@@ -416,7 +416,8 @@
     "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|av|3|BitdefenderGZModule=av BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test BitdefenderGZMalwareName=Generic Multi Word Name act=deleted",
     "expected": {
       "target.malware": "Generic Multi Word Name",
-      "actionResult": "success"
+      "action": "deleted",
+      "actionResult": "denied"
     },
     "absent": [],
     "matches": []
@@ -692,7 +693,7 @@
     "dataSource": "collector-test",
     "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|task-status|3|BitdefenderGZModule=task-status BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test msg=Update exclusion list BitdefenderGZTaskSuccessful=0 BitdefenderGZErrorCode=5",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []

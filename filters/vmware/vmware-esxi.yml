@@ -1,4 +1,4 @@
-# VMWare-ESXi, version 3.1.0
+# VMWare-ESXi, version 3.2.0
 # 
 # Based on docs and real logs provided
 # Support VMWare-ESXi log
@@ -162,19 +162,116 @@ pipeline:
           to: origin.ip
           where: '(inCIDR("log.loginAddress", "0.0.0.0/0") || inCIDR("log.loginAddress", "::/0")) && !inCIDR("log.loginAddress", "0.0.0.0/32") && !inCIDR("log.loginAddress", "::/128")'
 
-      # Adding action result
+      # A refused vSphere sign-in is recorded as
+      # "Event <n> : Cannot login [user ]<user>@<address>[: <reason>]" (sometimes just
+      # "Event <n> : Cannot login"). It is the event for the attempt; the paired
+      # "Rejected password for user ..." line is the password check and keeps no result,
+      # like "Accepted password" does for a completed session.
+      - grok:
+          patterns:
+            - fieldName: log.failEvent
+              pattern: 'Event [0-9]+ : Cannot login( user\s)?'
+            - fieldName: log.failUser
+              pattern: '\S+@'
+            - fieldName: log.failAddress
+              pattern: '[0-9A-Fa-f:.]*[0-9A-Fa-f]'
+          source: log.message
+          where: 'regexMatch("log.message", "^Event [0-9]+ : Cannot login ")'
+      - trim:
+          function: suffix
+          substring: '@'
+          fields:
+            - log.failUser
+      - rename:
+          from:
+            - log.failUser
+          to: origin.user
+      - rename:
+          from:
+            - log.failAddress
+          to: origin.ip
+          where: '(inCIDR("log.failAddress", "0.0.0.0/0") || inCIDR("log.failAddress", "::/0")) && !inCIDR("log.failAddress", "0.0.0.0/32") && !inCIDR("log.failAddress", "::/128")'
+
+      # SSH sign-ins, one sshd line per attempt:
+      # "Accepted <method> for <user> from <address> port <n> ..." for a completed sign-in and
+      # "error: PAM: Authentication failure for [illegal user ]<user> from <address>" for a
+      # refused password (ESXi signs in through keyboard-interactive/PAM). The other lines of
+      # the same attempt (pam_unix, "SSH session was opened", "SSH login has failed") keep no
+      # result and no address, so each attempt is counted once.
+      - grok:
+          patterns:
+            - fieldName: log.authResult
+              pattern: 'Accepted'
+            - fieldName: log.authMethod
+              pattern: '\S+'
+            - fieldName: log.irrelevant
+              pattern: 'for'
+            - fieldName: log.sshUser
+              pattern: '\S+'
+            - fieldName: log.irrelevant
+              pattern: 'from'
+            - fieldName: log.sshAddress
+              pattern: '[0-9A-Fa-f:.]*[0-9A-Fa-f]'
+            - fieldName: log.irrelevant
+              pattern: 'port'
+          source: log.message
+          where: 'equals("log.process", "sshd") && regexMatch("log.message", "^Accepted \\S+ for \\S+ from \\S+ port [0-9]+")'
+      - grok:
+          patterns:
+            - fieldName: log.irrelevant
+              pattern: 'error: PAM: Authentication failure for( illegal user\s)?'
+            - fieldName: log.sshUser
+              pattern: '\S+'
+            - fieldName: log.irrelevant
+              pattern: 'from'
+            - fieldName: log.sshAddress
+              pattern: '\S+'
+          source: log.message
+          where: 'equals("log.process", "sshd") && regexMatch("log.message", "^error: PAM: Authentication failure for \\S+( \\S+ \\S+)? from \\S+$")'
+      - rename:
+          from:
+            - log.sshUser
+          to: origin.user
+      - rename:
+          from:
+            - log.sshAddress
+          to: origin.ip
+          where: '(inCIDR("log.sshAddress", "0.0.0.0/0") || inCIDR("log.sshAddress", "::/0")) && !inCIDR("log.sshAddress", "0.0.0.0/32") && !inCIDR("log.sshAddress", "::/128")'
+
+      # Adding action result: only success, failed or denied, or nothing when the record
+      # states no final outcome. The first value wins (each later step checks
+      # !exists("actionResult")), so failed and denied run before the success steps.
       - add:
           function: string
           params:
             key: actionResult
-            value: "failure"
+            value: "failed"
           where: 'exists("log.message") && contains("log.message", "authentication failed")'
       - add:
           function: string
           params:
             key: actionResult
-            value: "failure"
+            value: "failed"
           where: 'exists("log.message") && contains("log.message", "authentication of user") && contains("log.message", "failed") && !exists("actionResult")'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "failed"
+          where: 'exists("log.message") && (regexMatch("log.message", "^Event [0-9]+ : Cannot login( |$)") && !regexMatch("log.message", ": no permission$")) && !exists("actionResult")'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "failed"
+          where: 'equals("log.process", "sshd") && exists("log.message") && startsWith("log.message", "error: PAM: Authentication failure for ") && !exists("actionResult")'
+      # The account signed in but holds no permission on the host: a permission refusal.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "denied"
+          where: 'exists("log.message") && regexMatch("log.message", "^Event [0-9]+ : Cannot login .*: no permission$") && !exists("actionResult")'
       - add:
           function: string
           params:
@@ -190,6 +287,12 @@ pipeline:
             key: actionResult
             value: "success"
           where: 'exists("log.loginClient") && !exists("actionResult")'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "success"
+          where: 'equals("log.authResult", "Accepted") && !exists("actionResult")'
 
       # Removing unused fields
       - delete:
@@ -200,3 +303,8 @@ pipeline:
             - log.loginUser
             - log.loginAddress
             - log.loginClient
+            - log.failEvent
+            - log.failUser
+            - log.failAddress
+            - log.sshUser
+            - log.sshAddress
