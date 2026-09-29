@@ -271,7 +271,7 @@ func TestO365ActionResultSDKHistory(t *testing.T) {
 		terms        map[string]string
 	}{
 		{"possible_succesfull_password_guessing_o365", "1m", 10, map[string]string{"action": "UserLoginFailed", "origin.user": "reviewer@example.test", "origin.ip": "198.51.100.10"}},
-		{"credential_access_microsoft_365_potential_password_spraying_attack", "60s", 5, map[string]string{"origin.ip": "198.51.100.10"}},
+		{"credential_access_microsoft_365_potential_password_spraying_attack", "10m", 50, map[string]string{"action": "UserLoginFailed", "origin.ip": "198.51.100.10"}},
 		{"safe_links_click_patterns", "30m", 5, map[string]string{"origin.user": "reviewer@example.test", "action": "ClickedSafeLink"}},
 		{"information_barriers_violations", "12h", 3, map[string]string{"origin.user": "reviewer@example.test", "log.PolicyType": "InformationBarrier"}},
 	} {
