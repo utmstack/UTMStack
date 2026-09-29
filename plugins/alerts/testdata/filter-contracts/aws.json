@@ -28,7 +28,6 @@
     "rules/cloud/aws/aws/aws_ssm_sendcommand_abuse.yml",
     "rules/cloud/aws/aws/aws_sso_idp_change.yml",
     "rules/cloud/aws/aws/aws_sso_suspicious_activities.yml",
-    "rules/cloud/aws/aws/aws_sts_assume_role_with_web_identity.yml",
     "rules/cloud/aws/aws/aws_trufflehog_scanning.yml",
     "rules/cloud/aws/aws/cloudformation_stack_deletion.yml",
     "rules/cloud/aws/aws/cloudtrail_event_selector_manipulation.yml",
