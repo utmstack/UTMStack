@@ -1,11 +1,14 @@
-# FortiWeb filter, version 2.3.0
+# FortiWeb filter, version 2.4.0
 # https://docs.fortinet.com/document/fortiweb/7.2.2/log-message-reference/578387/header-body-fields
 # https://docs.fortinet.com/document/fortiweb/7.2.2/log-message-reference/445549/attack
 # KV retains other vendor fields. Authoritative fields are re-extracted with quote-aware
 # token boundaries: spaces, escaped quotes and embedded key=value text must survive.
 # Retain the existing sanitized log.* names so saved searches remain compatible.
-# Alert means detection/logging, not successful exploitation. Only explicit blocking
-# decisions set actionResult=denied. Raw decisions remain in log.action.
+# actionResult is only success, failed or denied, or absent.
+# Attack logs: Alert means detection/logging, not successful exploitation. Only explicit
+# blocking decisions set actionResult=denied. Raw decisions remain in log.action.
+# Traffic logs: the HTTP return code decides (2xx success, 401/403 denied, other 4xx/5xx
+# failed, 3xx and anything else absent). Administrator event logs: status decides.
 # HTTP_url is a request path; HTTP_host is an untrusted header, retained in log.httphost.
 # Severity policy: Low -> info, Medium -> warning, High -> error; preserve severitylevel.
 patterns:
@@ -347,12 +350,66 @@ pipeline:
         key: action
         value: http_request
       where: equalsIgnoreCase("log.type", "attack") || equalsIgnoreCase("log.type", "traffic")
+  # Traffic logs: the answer FortiWeb returned to the client (http_retcode, spelled
+  # HTTP_retcode by older firmware; KV may keep the quotes). Older engines remove "_".
+  # The add step overwrites, so the order is success, failed, denied.
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: success
+      where: equalsIgnoreCase("log.type", "traffic") && (regexMatch("log.http_retcode", "^\"?2[0-9]{2}\"?$") || regexMatch("log.HTTP_retcode", "^\"?2[0-9]{2}\"?$") || regexMatch("log.httpretcode", "^\"?2[0-9]{2}\"?$") || regexMatch("log.HTTPretcode", "^\"?2[0-9]{2}\"?$"))
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: failed
+      where: equalsIgnoreCase("log.type", "traffic") && (regexMatch("log.http_retcode", "^\"?[45][0-9]{2}\"?$") || regexMatch("log.HTTP_retcode", "^\"?[45][0-9]{2}\"?$") || regexMatch("log.httpretcode", "^\"?[45][0-9]{2}\"?$") || regexMatch("log.HTTPretcode", "^\"?[45][0-9]{2}\"?$"))
   - add:
       function: string
       params:
         key: actionResult
         value: denied
-      where: regexMatch("log.action", "(?i)^(deny|denied|alert_deny|block|blocked|period_block)$")
+      where: equalsIgnoreCase("log.type", "traffic") && (regexMatch("log.http_retcode", "^\"?40[13]\"?$") || regexMatch("log.HTTP_retcode", "^\"?40[13]\"?$") || regexMatch("log.httpretcode", "^\"?40[13]\"?$") || regexMatch("log.HTTPretcode", "^\"?40[13]\"?$"))
+  # Event logs: status is "the result of the action" and user is the administrator or
+  # daemon that performed it. Daemon and system notices get no outcome.
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: success
+      where: equalsIgnoreCase("log.type", "event") && exists("log.user") && !regexMatch("log.user", "(?i)^\"?(system|daemon)?\"?$") && regexMatch("log.status", "(?i)^\"?success\"?$")
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: failed
+      where: equalsIgnoreCase("log.type", "event") && exists("log.user") && !regexMatch("log.user", "(?i)^\"?(system|daemon)?\"?$") && regexMatch("log.status", "(?i)^\"?(failure|failed)\"?$")
+  # Blocking decisions win over every value above.
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: denied
+      where: regexMatch("log.action", "(?i)^(deny|denied|alert_deny|block|blocked|period_block|return_403_error)$")
+  # The administrator's client address is only in msg: "... from GUI(<ip>)" or
+  # "... from GUI->HTTPS(<ip>)". Take the last such block (a failed login's user name is
+  # client-controlled and comes first), and only on records that carry an outcome.
+  - grok:
+      source: log.msg
+      patterns:
+      - fieldName: ''
+        pattern: '.*\bfrom [A-Za-z]+(?:->[A-Za-z]+)?\('
+      - fieldName: log.adminSrcIp
+        pattern: '[0-9A-Fa-f:.]+'
+      - fieldName: ''
+        pattern: '\).*'
+      where: equalsIgnoreCase("log.type", "event") && exists("actionResult") && exists("log.msg")
+  - rename:
+      from:
+      - log.adminSrcIp
+      to: origin.ip
+      where: exists("log.adminSrcIp") && !exists("origin.ip") && (inCIDR("log.adminSrcIp", "0.0.0.0/0") || inCIDR("log.adminSrcIp", "::/0")) && !inCIDR("log.adminSrcIp", "0.0.0.0/32") && !inCIDR("log.adminSrcIp", "::/128")
   - add:
       function: string
       params:
@@ -442,3 +499,4 @@ pipeline:
       fields:
       - log.kvMessage
       - log.httpUrlBlock
+      - log.adminSrcIp

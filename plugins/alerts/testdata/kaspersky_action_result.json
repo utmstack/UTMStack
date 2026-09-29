@@ -133,7 +133,7 @@
     "name": "cef-explicit-failed-operation",
     "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test act=Failed",
     "dataSource": "synthetic-kaspersky",
-    "result": "failure",
+    "result": "failed",
     "expected": {
       "origin.ip": "198.51.100.9",
       "target.ip": "192.0.2.8",
@@ -212,6 +212,120 @@
     },
     "absent": [
       "origin.ip",
+      "actionResult"
+    ]
+  },
+  {
+    "name": "native-object-blocked-denied",
+    "raw": "<14>1 2026-09-27T10:00:00Z endpoint.example.test KES|11.0.0.0 - GNRL_EV_OBJECT_BLOCKED [event@23668 p1=\"Synthetic object\" p5=\"EICAR-Test-File\" p7=\"EXAMPLE\\\\user\" et=\"GNRL_EV_OBJECT_BLOCKED\" etdn=\"Object blocked\" hdn=\"endpoint-test\" hip=\"192.0.2.8\" gn=\"Managed endpoints\" kscfqdn=\"manager.example.test\"] Object blocked.",
+    "dataSource": "synthetic-kaspersky",
+    "result": "denied",
+    "expected": {
+      "log.eventType": "GNRL_EV_OBJECT_BLOCKED",
+      "log.format": "ksc-syslog",
+      "target.ip": "192.0.2.8"
+    },
+    "absent": [
+      "origin.ip"
+    ]
+  },
+  {
+    "name": "native-application-launch-denied",
+    "raw": "<14>1 2026-09-27T10:00:00Z endpoint.example.test KES|11.0.0.0 - GNRL_EV_APPLICATION_LAUNCH_DENIE [event@23668 p1=\"Synthetic object\" p5=\"EICAR-Test-File\" p7=\"EXAMPLE\\\\user\" et=\"GNRL_EV_APPLICATION_LAUNCH_DENIED\" etdn=\"Application startup prohibited\" hdn=\"endpoint-test\" hip=\"192.0.2.8\" gn=\"Managed endpoints\" kscfqdn=\"manager.example.test\"] Application startup prohibited.",
+    "dataSource": "synthetic-kaspersky",
+    "result": "denied",
+    "expected": {
+      "log.eventType": "GNRL_EV_APPLICATION_LAUNCH_DENIED",
+      "log.format": "ksc-syslog"
+    }
+  },
+  {
+    "name": "native-application-launch-denied-cut-message-id",
+    "raw": "<14>1 2026-09-27T10:00:00Z endpoint.example.test KES|11.0.0.0 - GNRL_EV_APPLICATION_LAUNCH_DENIE [event@23668 p1=\"Synthetic object\" p5=\"EICAR-Test-File\" p7=\"EXAMPLE\\\\user\" etdn=\"Application startup prohibited\" hdn=\"endpoint-test\" hip=\"192.0.2.8\" gn=\"Managed endpoints\" kscfqdn=\"manager.example.test\"] Application startup prohibited.",
+    "dataSource": "synthetic-kaspersky",
+    "result": "denied",
+    "expected": {
+      "log.eventType": "GNRL_EV_APPLICATION_LAUNCH_DENIE",
+      "log.format": "ksc-syslog"
+    }
+  },
+  {
+    "name": "native-virus-found-detection-only",
+    "raw": "<14>1 2026-09-27T10:00:00Z endpoint.example.test KES|11.0.0.0 - GNRL_EV_VIRUS_FOUND [event@23668 p1=\"Synthetic object\" p5=\"EICAR-Test-File\" p7=\"EXAMPLE\\\\user\" et=\"GNRL_EV_VIRUS_FOUND\" etdn=\"Malicious object detected\" hdn=\"endpoint-test\" hip=\"192.0.2.8\" gn=\"Managed endpoints\" kscfqdn=\"manager.example.test\"] Malicious object detected.",
+    "dataSource": "synthetic-kaspersky",
+    "result": "",
+    "expected": {
+      "log.eventType": "GNRL_EV_VIRUS_FOUND"
+    },
+    "absent": [
+      "actionResult"
+    ]
+  },
+  {
+    "name": "native-blocked-clears-stale-success",
+    "raw": "<14>1 2026-09-27T10:00:00Z endpoint.example.test KES|11.0.0.0 - GNRL_EV_OBJECT_BLOCKED [event@23668 p1=\"Synthetic object\" p5=\"EICAR-Test-File\" p7=\"EXAMPLE\\\\user\" et=\"GNRL_EV_OBJECT_BLOCKED\" etdn=\"Object blocked\" hdn=\"endpoint-test\" hip=\"192.0.2.8\" gn=\"Managed endpoints\" kscfqdn=\"manager.example.test\"] Object blocked.",
+    "dataSource": "synthetic-kaspersky",
+    "result": "denied",
+    "initial": {
+      "actionResult": "success"
+    },
+    "expected": {
+      "log.eventType": "GNRL_EV_OBJECT_BLOCKED"
+    }
+  },
+  {
+    "name": "cef-ksc-virus-found-and-blocked-denied",
+    "raw": "CEF:0|KasperskyLab|SecurityCenter|15.1.0.20748|GNRL_EV_VIRUS_FOUND_AND_BLOCKED|Dangerous link blocked|4|msg=Event type: Dangerous link blocked rt=1790503200000 dhost=endpoint-test dst=192.0.2.8 cs2=KES cs2Label=ProductName",
+    "dataSource": "synthetic-kaspersky",
+    "result": "denied",
+    "expected": {
+      "log.signatureID": "GNRL_EV_VIRUS_FOUND_AND_BLOCKED",
+      "log.format": "cef",
+      "target.ip": "192.0.2.8"
+    }
+  },
+  {
+    "name": "cef-ksc-object-blocked-denied",
+    "raw": "CEF:0|KasperskyLab|SecurityCenter|15.1.0.20748|GNRL_EV_OBJECT_BLOCKED|Object blocked|4|msg=Event type: Object blocked rt=1790503200000 dhost=endpoint-test dst=192.0.2.8 cs2=KES cs2Label=ProductName",
+    "dataSource": "synthetic-kaspersky",
+    "result": "denied",
+    "expected": {
+      "log.signatureID": "GNRL_EV_OBJECT_BLOCKED"
+    }
+  },
+  {
+    "name": "cef-ksc-virus-found-detection-only",
+    "raw": "CEF:0|KasperskyLab|SecurityCenter|15.1.0.20748|GNRL_EV_VIRUS_FOUND|Malicious object detected|4|msg=Event type: Malicious object detected rt=1790503200000 dhost=endpoint-test dst=192.0.2.8 cs2=KES cs2Label=ProductName",
+    "dataSource": "synthetic-kaspersky",
+    "result": "",
+    "expected": {
+      "log.signatureID": "GNRL_EV_VIRUS_FOUND"
+    },
+    "absent": [
+      "actionResult"
+    ]
+  },
+  {
+    "name": "cef-ksc-task-state-no-outcome",
+    "raw": "CEF:0|KasperskyLab|SecurityCenter|15.1.0.20748|KLPRCI_TaskState|Completed successfully|4|msg=Event type: Completed successfully rt=1790503200000 dhost=endpoint-test dst=192.0.2.8 cs2=KES cs2Label=ProductName",
+    "dataSource": "synthetic-kaspersky",
+    "result": "",
+    "expected": {
+      "log.signatureID": "KLPRCI_TaskState"
+    },
+    "absent": [
+      "actionResult"
+    ]
+  },
+  {
+    "name": "cef-other-vendor-blocked-signature-no-outcome",
+    "raw": "CEF:0|ExampleVendor|ExampleProduct|15.1.0.20748|GNRL_EV_OBJECT_BLOCKED|Object blocked|4|msg=Event type: Object blocked rt=1790503200000 dhost=endpoint-test dst=192.0.2.8 cs2=KES cs2Label=ProductName",
+    "dataSource": "synthetic-kaspersky",
+    "result": "",
+    "expected": {
+      "log.signatureID": "GNRL_EV_OBJECT_BLOCKED"
+    },
+    "absent": [
       "actionResult"
     ]
   }

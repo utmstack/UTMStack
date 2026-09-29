@@ -1,8 +1,9 @@
-# ESET filter version 3.2.0
+# ESET filter version 3.2.1
 # JSON export contract: https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html
 # Original vendor keys are sanitized by JSON extraction (event_type -> log.event_type).
 # Header host identifies the management server, never the managed endpoint.
-# Only explicit decisions set actionResult; remediation and event classes do not.
+# actionResult is only success, failed or denied, from explicit results, block words, completed
+# removals or quarantines (denied) and stated action errors (failed); pure detections stay empty.
 pipeline:
   - dataTypes:
       - antivirus-esmc-eset
@@ -600,26 +601,43 @@ pipeline:
           function: string
           params:
             key: actionResult
-            value: failure
+            value: failed
           where: equals("log.eventType","Audit_Event") && regexMatch("log.result", "(?i)^(failure|failed|fail|error|invalid|timeout)$")
       - add:
           function: string
           params:
             key: actionResult
             value: denied
-          where: equals("log.eventType","Audit_Event") && regexMatch("log.result", "(?i)^(denied|deny|blocked|block|rejected|reject|unauthorized)$")
+          where: equals("log.eventType","Audit_Event") && regexMatch("log.result", "(?i)^(denied|deny|blocked|block|rejected|reject|unauthorized|access denied)$")
+      # A console login refused with "Access denied" is a failed logon, not a policy refusal.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failed
+          where: equals("log.eventType","Audit_Event") && equalsIgnoreCase("action","Login attempt") && regexMatch("log.result", "(?i)^access denied$")
       - add:
           function: string
           params:
             key: actionResult
             value: denied
           where: (oneOf("log.eventType", ["Threat_Event","HipsAggregated_Event","HIPSAggregated_Event","BlockedFiles_Event","FilteredWebsites_Event"])
-            || equals("log.eventType","FirewallAggregated_Event")) && regexMatch("action", "(?i)^(deny|denied|block|blocked|prevented)$")
+            || equals("log.eventType","FirewallAggregated_Event")) && regexMatch("action", "(?i)^(deny|denied|block|blocked|blocked url|blocked and cleaned|prevented)$")
+      # The HTTP filter cut the download, or the product removed or quarantined the
+      # detected object: the threat was stopped, so denied. "Retained" and detections
+      # without an action stay empty; a stated action_error (next step) wins with failed.
       - add:
           function: string
           params:
             key: actionResult
-            value: failure
+            value: denied
+          where: equals("log.eventType","Threat_Event") && !equals("log.threat_handled", false)
+            && regexMatch("action", "(?i)^(connection terminated|cleaned|cleaned by deleting|deleted|quarantined|contained infected files)$")
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failed
           where: oneOf("log.eventType", ["Threat_Event","HipsAggregated_Event","HIPSAggregated_Event","BlockedFiles_Event","FilteredWebsites_Event"])
             && regexMatch("log.action_error", "(?s)^.+$")
       - add:
@@ -655,7 +673,7 @@ pipeline:
 
             equalsIgnoreCase("log.domain", "Native user") &&
 
-            equalsIgnoreCase("action", "Login attempt") && oneOf("actionResult", ["failure", "denied"]) &&
+            equalsIgnoreCase("action", "Login attempt") && oneOf("actionResult", ["failed", "denied"]) &&
 
             exists("target.user") && !oneOf("target.user", ["", "unknown", "-"])) &&
 
@@ -671,7 +689,7 @@ pipeline:
           params:
             key: log.correlationCandidate.quarantineFailure
             value: match
-          where: '(equals("log.eventType", "Threat_Event") && equals("actionResult", "failure") &&
+          where: '(equals("log.eventType", "Threat_Event") && equals("actionResult", "failed") &&
 
             regexMatch("log.action_error", "(?s).+") &&
 

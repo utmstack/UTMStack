@@ -29,6 +29,7 @@ import {AppConfigDeleteConfirmComponent} from '../app-config-delete-confirm/app-
 export class AppConfigSectionsComponent implements OnInit, OnDestroy {
 
   @Input() section: SectionConfigType;
+  @Input() params?: SectionConfigParamType[];
   @Output() validConfigSection = new EventEmitter<boolean>();
   @Input() allowDeleteSection = false;
   @Output() changesApplied = new EventEmitter<boolean>();
@@ -66,7 +67,12 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
 
 
   ngOnInit() {
-    this.getConfigurations();
+    if (this.params) {
+      this.applyConfigs(this.params);
+      this.loading = false;
+    } else {
+      this.getConfigurations();
+    }
     this.changesApplied.emit(true);
 
     this.networkService.isOnline$
@@ -89,24 +95,26 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
     })
       .subscribe(response => {
         this.loading = false;
-        this.configs = response.body;
-
-        this.configs = this.configs.map(conf => {
-          if(conf.confParamDatatype === ConfigDataTypeEnum.Cron) {
-            conf.confParamValue = JSON.parse(conf.confParamValue);
-          }
-          return conf;
-        });
-
-        const countryList = this.configs.find(conf => conf.confParamDatatype === ConfigDataTypeEnum.CountryList);
-        if (countryList) {
-          this.loadSelectOptions(this.getName(countryList.confParamShort));
-        }
-        this.configToSave=this.configs
-        this.validConfigSection.emit(this.checkConfigValid());
+        this.applyConfigs(response.body);
       }, error => {
         this.toastService.showError('Error', 'Error getting application configurations');
       });
+  }
+
+  private applyConfigs(params: SectionConfigParamType[]) {
+    this.configs = params.map(conf => {
+      if (conf.confParamDatatype === ConfigDataTypeEnum.Cron) {
+        conf.confParamValue = JSON.parse(conf.confParamValue);
+      }
+      return conf;
+    });
+
+    const countryList = this.configs.find(conf => conf.confParamDatatype === ConfigDataTypeEnum.CountryList);
+    if (countryList) {
+      this.loadSelectOptions(this.getName(countryList.confParamShort));
+    }
+    this.configToSave = this.configs;
+    this.validConfigSection.emit(this.checkConfigValid());
   }
 
   saveConfig() {
@@ -145,12 +153,20 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
     }
   }
 
+  get saveDisabled(): boolean {
+    return !this.checkConfigValid() || this.saving || this.configToSave.length === 0
+      || (this.section.shortName === this.sectionType[this.sectionType.EMAIL] && !this.isCheckedEmailConfig)
+      || (this.section.shortName === this.sectionType[this.sectionType.TFA] && !this.isCheckedTFAConfig);
+  }
+
   detectRequiredRestart(): boolean {
     return this.configToSave.findIndex(value => value.confParamRestartRequired === true) > -1;
   }
 
   saveSectionConfig(value: any, conf: SectionConfigParamType) {
     conf.confParamValue = value;
+    this.isCheckedEmailConfig = false;
+    this.isCheckedTFAConfig = false;
     const indexConfig = this.configToSave.findIndex(val => val.id === conf.id);
     if (indexConfig !== -1) {
       this.configToSave[indexConfig] = conf;

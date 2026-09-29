@@ -3096,7 +3096,10 @@ pipeline:
             value: 'Field is too long for this implementation'
           where: equals("log.eventDataStatus", "61") && equals("log.eventCode", 4771)
 
-      # Adding action result
+      # Adding action result: the final outcome of the action the record
+      # describes, written as exactly success, failed or denied. Records that
+      # state no final outcome (4648 explicit credentials, 4740 lockout,
+      # detections, notices) keep no value.
       - delete:
           fields: [actionResult]
       - add:
@@ -3111,6 +3114,13 @@ pipeline:
             key: actionResult
             value: success
           where: oneOf("log.eventCode", [4725, 4726, 5156])
+      # Completed account and group changes, when logged as Audit Success.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: oneOf("log.eventCode", [4729, 4731, 4733, 4735, 4737, 4738, 4741, 4742, 4743, 4781]) && equals("log.keywords", "0x8020000000000000")
       - add:
           function: string
           params:
@@ -3121,7 +3131,7 @@ pipeline:
           function: string
           params:
             key: actionResult
-            value: failure
+            value: failed
           where: oneOf("log.eventCode", [4625, 4771])
       - add:
           function: string
@@ -3133,8 +3143,64 @@ pipeline:
           function: string
           params:
             key: actionResult
-            value: failure
+            value: failed
           where: equals("log.eventCode", 4776) && exists("log.eventDataStatus") && !(equals("log.eventDataStatus", 0) || regexMatch("log.eventDataStatus", "(?i)^(0|0x0+)$"))
+      # Kerberos ticket requests (4768 TGT, 4769 service ticket) carry their
+      # result code in Status: 0 means the ticket was issued.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: oneOf("log.eventCode", [4768, 4769]) && (equals("log.eventDataStatus", 0) || regexMatch("log.eventDataStatus", "(?i)^(0|0x0+)$"))
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failed
+          where: oneOf("log.eventCode", [4768, 4769]) && exists("log.eventDataStatus") && !(equals("log.eventDataStatus", 0) || regexMatch("log.eventDataStatus", "(?i)^(0|0x0+)$"))
+      # 4770 is written only when a Kerberos service ticket was renewed.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: equals("log.eventCode", 4770)
+      # SQL Server logins (Application log, provider MSSQLSERVER or MSSQL$<instance>):
+      # 18453 and 18454 are completed logins, 18456 is a failed login.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: oneOf("log.eventCode", [18453, 18454]) && regexMatch("log.providerName", "^MSSQL")
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failed
+          where: equals("log.eventCode", 18456) && regexMatch("log.providerName", "^MSSQL")
+      # Microsoft Defender attack surface reduction blocked an operation.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: equals("log.eventCode", 1121) && contains("log.providerName", "Windows Defender")
+      # Security records marked Audit Failure that no step above classified:
+      # access, privilege or firewall refusals are denied, anything else failed.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: equals("log.channel", "Security") && equals("log.keywords", "0x8010000000000000") && !exists("actionResult") && oneOf("log.eventCode", [4656, 4661, 4663, 4673, 4674, 4675, 4888, 5031])
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failed
+          where: equals("log.channel", "Security") && equals("log.keywords", "0x8010000000000000") && !exists("actionResult")
 
       - delete:
           fields:

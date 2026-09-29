@@ -1433,7 +1433,7 @@
       "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
       "log.ObjectId": "mailbox@example.invalid",
       "log.ResultStatus": "False",
-      "actionResult": "failure",
+      "actionResult": "failed",
       "log.Parameters": "[map[Name:Name Value:Administrative rule]]"
     },
     "absent": [
@@ -1511,7 +1511,7 @@
       "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
       "log.ObjectId": "mailbox@example.invalid",
       "log.ResultStatus": "False",
-      "actionResult": "failure",
+      "actionResult": "failed",
       "log.Parameters": "[map[Name:ForwardTo Value:delegate@example.invalid]]",
       "log.o365InboxForwardingChange": "true"
     },
@@ -1589,7 +1589,7 @@
       "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
       "log.ObjectId": "mailbox@example.invalid",
       "log.ResultStatus": "False",
-      "actionResult": "failure",
+      "actionResult": "failed",
       "log.Parameters": "[map[Name:ForwardingAddress Value:recipient@example.invalid]]",
       "log.o365MailboxForwardingSet": "true"
     },
@@ -1667,7 +1667,7 @@
       "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
       "log.ObjectId": "mailbox@example.invalid",
       "log.ResultStatus": "False",
-      "actionResult": "failure",
+      "actionResult": "failed",
       "log.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
     },
     "absent": [
@@ -1745,7 +1745,7 @@
       "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
       "log.ObjectId": "mailbox@example.invalid",
       "log.ResultStatus": "False",
-      "actionResult": "failure",
+      "actionResult": "failed",
       "log.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
     },
     "absent": [
@@ -1824,7 +1824,7 @@
       "log.ObjectId": "mailbox@example.invalid",
       "target.user": "mailbox@example.invalid",
       "log.ResultStatus": "Failed",
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [
       "log.Operation",
@@ -1903,7 +1903,7 @@
       "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
       "log.ObjectId": "mailbox@example.invalid",
       "log.ResultStatus": "False",
-      "actionResult": "failure",
+      "actionResult": "failed",
       "log.Parameters": "[map[Name:Identity Value:Administrative connector]]"
     },
     "absent": [
@@ -1981,7 +1981,7 @@
       "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
       "log.ObjectId": "mailbox@example.invalid",
       "log.ResultStatus": "False",
-      "actionResult": "failure",
+      "actionResult": "failed",
       "log.Parameters": "[map[Name:Identity Value:administrative-fixture]]"
     },
     "absent": [

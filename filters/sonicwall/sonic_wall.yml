@@ -1,4 +1,4 @@
-# SonicWall Firewall — version 4.1.0
+# SonicWall Firewall — version 4.2.0
 #
 # Formats supported
 #   - SonicOS syslog KV:  <pri>  id=firewall sn=... time="..." fw=... msg="..." src=IP:PORT:IF ...
@@ -724,29 +724,30 @@ pipeline:
           to: string
 
       # -------------------------------------------------------------------
-      # actionResult (canonical vocabulary)
+      # actionResult: only success, failed or denied, or no value when the
+      # record states no final outcome. The steps run success, then failed,
+      # then denied. The failed and denied steps are not guarded, so a stated
+      # failure or block always overwrites a broad success.
       # -------------------------------------------------------------------
+      # The firewall let the traffic or the management request through.
       - add:
           function: string
           params:
             key: actionResult
             value: success
-          where: equals("action", "forward")
-      - add:
-          function: string
-          params:
-            key: actionResult
-            value: denied
-          where: oneOf("action", ["drop", "dropped", "deny", "denied", "block", "blocked"])
+          where: oneOf("action", ["forward", "mgmt"])
       # Events without a firewall decision, by the meaning of their message:
       # 29, 31, 236, 237, 238 and 1080 "... login allowed"; 942 "IKEv2
-      # Authentication successful"; 978 "IKEv2 negotiation complete".
+      # Authentication successful"; 978 "IKEv2 negotiation complete"; 89 "IKE
+      # negotiation complete. Adding IPsec SA. (Phase 2)"; 139 "XAUTH Succeeded
+      # with VPN client"; 357 "Main Mode complete (Phase 1)"; 1794 "Allowed a
+      # login attempt by a user whose password ... compromised".
       - add:
           function: string
           params:
             key: actionResult
             value: success
-          where: '!exists("actionResult") && oneOf("log.eventCode", ["29", "31", "236", "237", "238", "1080", "942", "978"])'
+          where: oneOf("log.eventCode", ["29", "31", "236", "237", "238", "1080", "942", "978", "89", "139", "357", "1794"])
       # 537 "Connection Closed" follows an allowed connection; only one that
       # received data back completed. Without received bytes it keeps no outcome.
       - add:
@@ -755,25 +756,38 @@ pipeline:
             key: actionResult
             value: success
           where: '!exists("actionResult") && equals("log.eventCode", "537") && greaterThan("origin.bytesReceived", 0)'
-      # 32, 33 and 200 "... login denied due to bad credentials"; 34 "Pending
-      # login timed out"; 140 "XAUTH Failed ... Authentication failure"; 243, 244,
-      # 746 and 747 RADIUS or LDAP failures; 1035 "password expired"; 1117 "SSO
-      # probe failed"; 402, 658, 953, 967 and 1305 failed IKE negotiations; and
-      # any other "... denied due to bad credentials" message.
+      # Attempted and not completed. 32, 33 and 200 "... login denied due to bad
+      # credentials"; 34 "Pending login timed out"; 140 "XAUTH Failed ...
+      # Authentication failure"; 243, 244, 746 and 747 RADIUS or LDAP failures;
+      # 1035 "password expired"; 1117 "SSO probe failed"; failed IKE negotiations
+      # 401 NO_PROPOSAL_CHOSEN, 402 and 981 proposal mismatch, 403 and 971
+      # negotiation aborted (timeout, peer not responding), 405 and 616 payload
+      # validation or processing failed, 414 INVALID_COOKIES, 545 tunnel end
+      # point mismatch, 658 IKE ID mismatch, 914, 916 and 919 Phase 1 algorithm
+      # or DH group mismatch, 953 IKEv2 payload error, 967 and 1305 VPN policy
+      # not found, 983 IKEv2 notify error; 1222 "Invalid SNMPv3 User"; 1226
+      # "HTTPS Handshake" alert; and any other "... denied due to bad
+      # credentials" message. Retransmit notices (931, 972) keep no outcome.
       - add:
           function: string
           params:
             key: actionResult
-            value: failure
-          where: '!exists("actionResult") && (oneOf("log.eventCode", ["32", "33", "34", "140", "200", "243", "244", "746", "747", "1035", "1117", "402", "658", "953", "967", "1305"]) || contains("log.message", "denied due to bad credentials"))'
-      # 986 "User login denied - not allowed by Policy rule"; 1079 "SSLVPN
-      # service is not allowed on <zone>".
+            value: failed
+          where: oneOf("log.eventCode", ["32", "33", "34", "140", "200", "243", "244", "746", "747", "1035", "1117", "401", "402", "403", "405", "414", "545", "616", "658", "914", "916", "919", "953", "967", "971", "981", "983", "1305", "1222", "1226"]) || contains("log.message", "denied due to bad credentials")
+      # Refused by a control; runs last so a firewall decision or a stated
+      # block wins. fw_action drop or deny; 986 "User login denied - not allowed
+      # by Policy rule"; 1079 "SSLVPN service is not allowed on <zone>"; 27
+      # "Land attack dropped"; 267 "TCP Xmas Tree dropped"; 1475 "Responder from
+      # country blocked"; 809 Gateway Anti-Virus alerts that end "blocked.";
+      # scan detections whose note starts "Pkt is dropped" (82, 83, 177); and
+      # older SonicOS lines without fw_action for 14 "Web site access denied"
+      # and 38 "ICMP packet dropped".
       - add:
           function: string
           params:
             key: actionResult
             value: denied
-          where: '!exists("actionResult") && oneOf("log.eventCode", ["986", "1079"])'
+          where: oneOf("action", ["drop", "dropped", "deny", "denied", "block", "blocked"]) || oneOf("log.eventCode", ["986", "1079", "27", "267", "1475"]) || (equals("log.eventCode", "809") && endsWith("log.message", "blocked.")) || startsWith("log.note", "Pkt is dropped") || (!exists("action") && oneOf("log.eventCode", ["14", "38"]))
 
       # -------------------------------------------------------------------
       # Group category human label from log.groupCategoryId (1..17)

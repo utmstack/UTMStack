@@ -1,0 +1,77 @@
+@import "src/assets/styles/theme";
+@import "src/assets/styles/var";
+
+.federation-sidebar {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  overflow: visible;
+}
+
+.federation-sidebar-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.federation-sidebar-footer {
+  margin-left: auto;
+}
+
+.federation-sidebar-item {
+  padding: 0 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+
+    ::ng-deep svg {
+      fill: #ffffff !important;
+    }
+  }
+
+  &.active {
+    background-color: rgba(255, 255, 255, 0.12);
+
+    ::ng-deep svg {
+      fill: $active !important;
+    }
+  }
+}
+
+.federation-sidebar-link {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  padding: 8px 10px;
+
+  &:hover,
+  &:focus {
+    text-decoration: none;
+    outline: none;
+  }
+
+  ::ng-deep svg {
+    fill: #ffffff !important;
+  }
+}
+
+.federation-sidebar-fa {
+  color: #ffffff;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.federation-sidebar-divider {
+  width: 1px;
+  height: 24px;
+  margin: 0 8px;
+  background-color: rgba(255, 255, 255, 0.12);
+  list-style: none;
+}

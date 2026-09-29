@@ -1,4 +1,4 @@
-# Rule version v3.0.0
+# Rule version v3.0.1
 
 dataTypes:
 - antivirus-bitdefender-gz
@@ -15,8 +15,9 @@ references:
 - https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html
 - https://attack.mitre.org/techniques/T1204/002/
 description: 'GravityZone reports an antimalware, behavioral or HyperDetect event with CEF severity at least 8. This is the vendor event
-  priority, not proof of compromise. actionResult=denied means the recorded action explicitly blocked or quarantined; success is qualified
-  remediation, and failure means the vendor reports the threat still present. An absent result is unknown. Review target.malware, hashes,
+  priority, not proof of compromise. actionResult=denied means the product blocked, quarantined, killed, deleted or disinfected the
+  threat; success means the file was restored; failed means the vendor reports the threat still present. An absent
+  result is unknown. Review target.malware, hashes,
   log.filePath and log.BitdefenderGZMalwareType; the latter describes the infected-object category, not the SDK malware type.
 
   '

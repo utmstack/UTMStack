@@ -1,4 +1,4 @@
-# System Linux filter version 5.1.0
+# System Linux filter version 5.2.0
 # Support for:
 #   - systemd/journald JSON format (SCREAMINGSNAKECASE fields)
 #   - Native auditd collector JSON format (type: "auditd")
@@ -475,7 +475,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'failure'
+            value: 'failed'
           where: >-
             !equals("log.type", "auditd") &&
             (oneOf("log.JOBRESULT", ["failed", "timeout", "dependency"]) ||
@@ -498,7 +498,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'failure'
+            value: 'failed'
           where: >-
             equals("log.type", "auditd") && equals("log.category", "SYSCALL") &&
             equals("log.result", "fail") &&
@@ -529,10 +529,81 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'failure'
+            value: 'failed'
           where: >-
             equals("log.type", "auditd") && equals("action", "USER_LOGIN") &&
             equals("log.userlogin.result", "fail") && !exists("log.result")
+
+      # USER_AUTH is PAM's authentication decision (a wrong password is res=failed) and
+      # USER_ACCT its account check (a refusal, for example by pam_access or an expired
+      # account, is res=failed). Each states the final result of its own step.
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'success'
+          where: >-
+            equals("log.type", "auditd") && oneOf("action", ["USER_AUTH", "USER_ACCT"]) &&
+            (equals("log.userauth.result", "success") || equals("log.useracct.result", "success")) &&
+            !exists("log.result")
+
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'failed'
+          where: >-
+            equals("log.type", "auditd") && equals("action", "USER_AUTH") &&
+            equals("log.userauth.result", "fail") && !exists("log.result")
+
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where: >-
+            equals("log.type", "auditd") && equals("action", "USER_ACCT") &&
+            equals("log.useracct.result", "fail") && !exists("log.result")
+
+      # Account and group management records state the result of the change they describe.
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'success'
+          where: >-
+            equals("log.type", "auditd") && !exists("log.result") &&
+            (equals("log.adduser.result", "success") || equals("log.deluser.result", "success") ||
+             equals("log.addgroup.result", "success") || equals("log.delgroup.result", "success") ||
+             equals("log.usermgmt.result", "success") || equals("log.grpmgmt.result", "success") ||
+             equals("log.userchauthtok.result", "success") || equals("log.acctlock.result", "success") ||
+             equals("log.acctunlock.result", "success"))
+
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'failed'
+          where: >-
+            equals("log.type", "auditd") && !exists("log.result") &&
+            (equals("log.adduser.result", "fail") || equals("log.deluser.result", "fail") ||
+             equals("log.addgroup.result", "fail") || equals("log.delgroup.result", "fail") ||
+             equals("log.usermgmt.result", "fail") || equals("log.grpmgmt.result", "fail") ||
+             equals("log.userchauthtok.result", "fail") || equals("log.acctlock.result", "fail") ||
+             equals("log.acctunlock.result", "fail"))
+
+      # A standalone AVC record is an enforced refusal only for AppArmor DENIED or SELinux
+      # denied with permissive=0. AppArmor STATUS, AUDIT and ALLOWED, SELinux permissive=1
+      # and a missing permissive flag refused nothing, so they stay empty.
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where: >-
+            equals("log.type", "auditd") && equals("action", "AVC") &&
+            (equals("log.avc.apparmor", "DENIED") ||
+             (equals("log.avc.seresult", "denied") && equals("log.avc.permissive", "0")))
 
       # USER_LOGIN addr is the user's network address. Preserve the original,
       # and expose only a valid, non-unspecified peer address to correlation.
@@ -545,6 +616,392 @@ pipeline:
             equals("log.type", "auditd") && equals("action", "USER_LOGIN") &&
             (inCIDR("log.userlogin.addr", "0.0.0.0/0") || inCIDR("log.userlogin.addr", "::/0")) &&
             !inCIDR("log.userlogin.addr", "0.0.0.0/32") && !inCIDR("log.userlogin.addr", "::/128")
+
+      # The USER_AUTH and USER_ACCT peer address, with the same guard, only on records that
+      # carry an outcome.
+      - grok:
+          source: log.userauth.addr
+          patterns:
+            - fieldName: origin.ip
+              pattern: (?s:.*)
+          where: >-
+            equals("log.type", "auditd") && equals("action", "USER_AUTH") && exists("actionResult") &&
+            (inCIDR("log.userauth.addr", "0.0.0.0/0") || inCIDR("log.userauth.addr", "::/0")) &&
+            !inCIDR("log.userauth.addr", "0.0.0.0/32") && !inCIDR("log.userauth.addr", "::/128")
+
+      - grok:
+          source: log.useracct.addr
+          patterns:
+            - fieldName: origin.ip
+              pattern: (?s:.*)
+          where: >-
+            equals("log.type", "auditd") && equals("action", "USER_ACCT") && exists("actionResult") &&
+            (inCIDR("log.useracct.addr", "0.0.0.0/0") || inCIDR("log.useracct.addr", "::/0")) &&
+            !inCIDR("log.useracct.addr", "0.0.0.0/32") && !inCIDR("log.useracct.addr", "::/128")
+
+      # Journald copies of audit records (_TRANSPORT=audit) get the outcomes of the native
+      # records above. Parsers on go-sdk v1.1.35 or later keep "_" in these keys
+      # (_AUDIT_TYPE_NAME, AUDIT_FIELD_RES); older ones remove it (AUDITTYPENAME, AUDITFIELDRES).
+      # No address is promoted from these copies.
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'success'
+          where: >-
+            equals("log.transport", "audit") &&
+            (oneOf("log._AUDIT_TYPE_NAME", ["USER_LOGIN", "USER_AUTH", "USER_ACCT", "ADD_USER", "DEL_USER", "ADD_GROUP", "DEL_GROUP", "USER_MGMT", "GRP_MGMT", "USER_CHAUTHTOK", "ACCT_LOCK", "ACCT_UNLOCK"]) ||
+             oneOf("log.AUDITTYPENAME", ["USER_LOGIN", "USER_AUTH", "USER_ACCT", "ADD_USER", "DEL_USER", "ADD_GROUP", "DEL_GROUP", "USER_MGMT", "GRP_MGMT", "USER_CHAUTHTOK", "ACCT_LOCK", "ACCT_UNLOCK"])) &&
+            (equals("log.AUDIT_FIELD_RES", "success") || equals("log.AUDITFIELDRES", "success"))
+
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'failed'
+          where: >-
+            equals("log.transport", "audit") &&
+            (oneOf("log._AUDIT_TYPE_NAME", ["USER_LOGIN", "USER_AUTH", "ADD_USER", "DEL_USER", "ADD_GROUP", "DEL_GROUP", "USER_MGMT", "GRP_MGMT", "USER_CHAUTHTOK", "ACCT_LOCK", "ACCT_UNLOCK"]) ||
+             oneOf("log.AUDITTYPENAME", ["USER_LOGIN", "USER_AUTH", "ADD_USER", "DEL_USER", "ADD_GROUP", "DEL_GROUP", "USER_MGMT", "GRP_MGMT", "USER_CHAUTHTOK", "ACCT_LOCK", "ACCT_UNLOCK"])) &&
+            (equals("log.AUDIT_FIELD_RES", "failed") || equals("log.AUDITFIELDRES", "failed"))
+
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where: >-
+            equals("log.transport", "audit") &&
+            (equals("log._AUDIT_TYPE_NAME", "USER_ACCT") || equals("log.AUDITTYPENAME", "USER_ACCT")) &&
+            (equals("log.AUDIT_FIELD_RES", "failed") || equals("log.AUDITFIELDRES", "failed"))
+
+      # Journald SYSCALL copies carry success=yes|no and a signed decimal exit, but only the
+      # syscall number. A would-block or in-progress exit (-115, -114, -11) stays empty for
+      # every syscall, because the number alone does not reliably name connect.
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'success'
+          where: >-
+            equals("log.transport", "audit") &&
+            (equals("log._AUDIT_TYPE_NAME", "SYSCALL") || equals("log.AUDITTYPENAME", "SYSCALL")) &&
+            (equals("log._AUDIT_FIELD_SUCCESS", "yes") || equals("log.AUDITFIELDSUCCESS", "yes")) &&
+            (regexMatch("log._AUDIT_FIELD_EXIT", "^[0-9]+$") || regexMatch("log.AUDITFIELDEXIT", "^[0-9]+$") ||
+             (!exists("log._AUDIT_FIELD_EXIT") && !exists("log.AUDITFIELDEXIT")))
+
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'failed'
+          where: >-
+            equals("log.transport", "audit") &&
+            (equals("log._AUDIT_TYPE_NAME", "SYSCALL") || equals("log.AUDITTYPENAME", "SYSCALL")) &&
+            (equals("log._AUDIT_FIELD_SUCCESS", "no") || equals("log.AUDITFIELDSUCCESS", "no")) &&
+            !oneOf("log._AUDIT_FIELD_EXIT", ["-115", "-114", "-11"]) && !oneOf("log.AUDITFIELDEXIT", ["-115", "-114", "-11"])
+
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where: >-
+            equals("log.transport", "audit") &&
+            (equals("log._AUDIT_TYPE_NAME", "SYSCALL") || equals("log.AUDITTYPENAME", "SYSCALL")) &&
+            (equals("log._AUDIT_FIELD_SUCCESS", "no") || equals("log.AUDITFIELDSUCCESS", "no")) &&
+            (oneOf("log._AUDIT_FIELD_EXIT", ["-13", "-1"]) || oneOf("log.AUDITFIELDEXIT", ["-13", "-1"]))
+
+      # Journald keeps the quotes of the kernel's apparmor="DENIED".
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where: >-
+            equals("log.transport", "audit") &&
+            (equals("log._AUDIT_TYPE_NAME", "AVC") || equals("log.AUDITTYPENAME", "AVC")) &&
+            (oneOf("log._AUDIT_FIELD_APPARMOR", ["DENIED", "\"DENIED\""]) || oneOf("log.AUDITFIELDAPPARMOR", ["DENIED", "\"DENIED\""]))
+
+      # Kernel netfilter LOG lines (UFW, CSF, firewalld, custom iptables or nftables prefixes)
+      # carry SRC, DST, PROTO, SPT and DPT as key=value text. Only a prefix that names a
+      # refusal (drop, reject, block, deny, invalid) states an outcome; UFW AUDIT and ALLOW
+      # lines and prefixes with an unknown verdict stay empty and keep their addresses in the
+      # message.
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where: >-
+            equals("log.transport", "kernel") &&
+            contains("log.message", " SRC=") && contains("log.message", " DST=") &&
+            regexMatch("log.message", "^[^=]*(?i:drop|reject|block|deny|invalid)[^=]*IN=") &&
+            !regexMatch("log.message", "^[^=]*(?i:audit|allow|accept)[^=]*IN=")
+
+      - kv:
+          source: log.message
+          fieldSplit: " "
+          valueSplit: "="
+          where: >-
+            equals("log.transport", "kernel") && equals("actionResult", "denied") &&
+            contains("log.message", " SRC=") && contains("log.message", " DST=")
+
+      - grok:
+          source: log.SRC
+          patterns:
+            - fieldName: origin.ip
+              pattern: (?s:.*)
+          where: >-
+            equals("log.transport", "kernel") && equals("actionResult", "denied") &&
+            (inCIDR("log.SRC", "0.0.0.0/0") || inCIDR("log.SRC", "::/0")) &&
+            !inCIDR("log.SRC", "0.0.0.0/32") && !inCIDR("log.SRC", "::/128")
+
+      - grok:
+          source: log.DST
+          patterns:
+            - fieldName: target.ip
+              pattern: (?s:.*)
+          where: >-
+            equals("log.transport", "kernel") && equals("actionResult", "denied") &&
+            (inCIDR("log.DST", "0.0.0.0/0") || inCIDR("log.DST", "::/0")) &&
+            !inCIDR("log.DST", "0.0.0.0/32") && !inCIDR("log.DST", "::/128")
+
+      - grok:
+          source: log.SPT
+          patterns:
+            - fieldName: origin.port
+              pattern: (?s:.*)
+          where: >-
+            equals("log.transport", "kernel") && equals("actionResult", "denied") &&
+            exists("origin.ip") && regexMatch("log.SPT", "^[0-9]{1,5}$")
+
+      - grok:
+          source: log.DPT
+          patterns:
+            - fieldName: target.port
+              pattern: (?s:.*)
+          where: >-
+            equals("log.transport", "kernel") && equals("actionResult", "denied") &&
+            exists("target.ip") && regexMatch("log.DPT", "^[0-9]{1,5}$")
+
+      - add:
+          function: 'string'
+          params:
+            key: protocol
+            value: 'tcp'
+          where: 'equals("log.transport", "kernel") && equals("actionResult", "denied") && equals("log.PROTO", "TCP")'
+
+      - add:
+          function: 'string'
+          params:
+            key: protocol
+            value: 'udp'
+          where: 'equals("log.transport", "kernel") && equals("actionResult", "denied") && equals("log.PROTO", "UDP")'
+
+      # OpenSSH, PAM, unix_chkpwd and sudo lines from journald. Each sshd form has its own
+      # step, guarded by a regex over the whole form, because the grok step matches each
+      # pattern alone. The peer lands in log.sshRemoteIp; it becomes origin.ip below only on
+      # lines that state an outcome. log.message is kept.
+
+      # "Failed|Accepted <method> for invalid user <name> from <ip> port <n> ..."
+      - grok:
+          source: log.message
+          patterns:
+            - pattern: '(?:Failed|Accepted)'
+            - fieldName: log.sshMethod
+              pattern: '\S+'
+            - pattern: 'for\s+invalid\s+user'
+            - pattern: '\S+'
+            - pattern: 'from'
+            - fieldName: log.sshRemoteIp
+              pattern: '\S+'
+            - pattern: 'port'
+            - fieldName: log.sshRemotePort
+              pattern: '[0-9]{1,5}'
+          where: >-
+            oneOf("log.syslogIdentifier", ["sshd", "sshd-session"]) &&
+            regexMatch("log.message", "^(?:Failed|Accepted) \\S+ for invalid user \\S+ from \\S+ port [0-9]{1,5}(?: |$)")
+
+      # "Failed|Accepted <method> for <name> from <ip> port <n> ..." (exactly one name token)
+      - grok:
+          source: log.message
+          patterns:
+            - pattern: '(?:Failed|Accepted)'
+            - fieldName: log.sshMethod
+              pattern: '\S+'
+            - pattern: 'for'
+            - pattern: '\S+'
+            - pattern: 'from'
+            - fieldName: log.sshRemoteIp
+              pattern: '\S+'
+            - pattern: 'port'
+            - fieldName: log.sshRemotePort
+              pattern: '[0-9]{1,5}'
+          where: >-
+            oneOf("log.syslogIdentifier", ["sshd", "sshd-session"]) &&
+            regexMatch("log.message", "^(?:Failed|Accepted) \\S+ for \\S+ from \\S+ port [0-9]{1,5}(?: |$)")
+
+      # "Invalid user <name> from <ip> port <n>"
+      - grok:
+          source: log.message
+          patterns:
+            - pattern: 'Invalid\s+user'
+            - pattern: '\S+'
+            - pattern: 'from'
+            - fieldName: log.sshRemoteIp
+              pattern: '\S+'
+            - pattern: 'port'
+            - fieldName: log.sshRemotePort
+              pattern: '[0-9]{1,5}'
+          where: >-
+            oneOf("log.syslogIdentifier", ["sshd", "sshd-session"]) &&
+            regexMatch("log.message", "^Invalid user \\S+ from \\S+ port [0-9]{1,5}(?: |$)")
+
+      # "Disconnected from|Connection closed by (invalid|authenticating) user <name> <ip> port <n>"
+      - grok:
+          source: log.message
+          patterns:
+            - pattern: '(?:Disconnected\s+from|Connection\s+closed\s+by)\s+(?:invalid\s+user|authenticating\s+user|user)'
+            - pattern: '\S+'
+            - fieldName: log.sshRemoteIp
+              pattern: '\S+'
+            - pattern: 'port'
+            - fieldName: log.sshRemotePort
+              pattern: '[0-9]{1,5}'
+          where: >-
+            oneOf("log.syslogIdentifier", ["sshd", "sshd-session"]) &&
+            regexMatch("log.message", "^(?:Disconnected from|Connection closed by) (?:invalid user|authenticating user|user) \\S+ \\S+ port [0-9]{1,5}(?:[ :]|$)")
+
+      # Connection-level lines that name only the peer
+      - grok:
+          source: log.message
+          patterns:
+            - pattern: '(?:Received\s+disconnect\s+from|Connection\s+closed\s+by|Disconnected\s+from|Unable\s+to\s+negotiate\s+with|Did\s+not\s+receive\s+identification\s+string\s+from|Connection\s+reset\s+by|Timeout\s+before\s+authentication\s+for|banner\s+exchange:\s+Connection\s+from)'
+            - fieldName: log.sshRemoteIp
+              pattern: '\S+'
+            - pattern: 'port'
+            - fieldName: log.sshRemotePort
+              pattern: '[0-9]{1,5}'
+          where: >-
+            oneOf("log.syslogIdentifier", ["sshd", "sshd-session"]) &&
+            regexMatch("log.message", "^(?:Received disconnect from|Connection closed by|Disconnected from|Unable to negotiate with|Did not receive identification string from|Connection reset by|Timeout before authentication for|banner exchange: Connection from) \\S+ port [0-9]{1,5}(?:[ :]|$)")
+
+      # PAM "pam_unix(<service>:auth): authentication failure; ... rhost=<peer> ..."
+      - grok:
+          source: log.message
+          patterns:
+            - pattern: 'pam_unix\([^:()\s]+:auth\):\s+authentication\s+failure;.*?\srhost='
+            - fieldName: log.pamRhost
+              pattern: '[^\s=]+'
+          where: >-
+            regexMatch("log.message", "^pam_unix\\([^:()\\s]+:auth\\): authentication failure;.* rhost=[^\\s=]+(?: |$)")
+
+      - grok:
+          source: log.pamRhost
+          patterns:
+            - fieldName: log.sshRemoteIp
+              pattern: (?s:.*)
+          where: >-
+            exists("log.pamRhost") && !exists("log.sshRemoteIp") &&
+            (inCIDR("log.pamRhost", "0.0.0.0/0") || inCIDR("log.pamRhost", "::/0"))
+
+      # Final outcomes: an accepted or failed authentication, a PAM or unix_chkpwd password
+      # failure, and sudo's decision. Session notices and session ends get none.
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'success'
+          where: >-
+            oneOf("log.syslogIdentifier", ["sshd", "sshd-session"]) &&
+            regexMatch("log.message", "^Accepted \\S+ for ")
+
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'failed'
+          where: >-
+            oneOf("log.syslogIdentifier", ["sshd", "sshd-session"]) &&
+            regexMatch("log.message", "^Failed \\S+ for ")
+
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'failed'
+          where: >-
+            regexMatch("log.message", "^pam_unix\\([^:()\\s]+:auth\\): authentication failure;") ||
+            (equals("log.syslogIdentifier", "unix_chkpwd") && regexMatch("log.message", "^password check failed for user "))
+
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'success'
+          where: >-
+            equals("log.syslogIdentifier", "sudo") &&
+            regexMatch("log.message", "^\\s*[^\\s:;]+ : (?:TTY|PWD)=[^;]* ; (?:[^;]*; )*USER=[^\\s;]+ ; COMMAND=\\S")
+
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'failed'
+          where: >-
+            equals("log.syslogIdentifier", "sudo") &&
+            regexMatch("log.message", "^\\s*[^\\s:;]+ : (?:[0-9]+ incorrect password attempts?|a password is required) ; ")
+
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where: >-
+            equals("log.syslogIdentifier", "sudo") &&
+            regexMatch("log.message", "^\\s*[^\\s:;]+ : (?:command not allowed|user NOT in sudoers|user NOT authorized on host) ; ")
+
+      # An SSH connection that ended before any user signed in (sshd marks these "[preauth]",
+      # or names an invalid user or a failed handshake) is a failed attempt. "Postponed" is a
+      # step inside a public-key sign-in, and session ends after a sign-in, stay empty.
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'failed'
+          where: >-
+            oneOf("log.syslogIdentifier", ["sshd", "sshd-session"]) && !exists("actionResult") &&
+            !regexMatch("log.message", "^Postponed ") &&
+            (regexMatch("log.message", "\\[preauth\\]\\s*$") ||
+             regexMatch("log.message", "^(?:Invalid user \\S+ from |Did not receive identification string from |Unable to negotiate with |banner exchange: Connection from |Timeout before authentication for |Connection closed by (?:invalid|authenticating) user |Disconnected from (?:invalid|authenticating) user )"))
+
+      # The SSH or PAM peer becomes origin.ip only when it is a valid, specified IP and the
+      # line states an outcome.
+      - rename:
+          from:
+            - log.sshRemoteIp
+          to: origin.ip
+          where: >-
+            exists("log.sshRemoteIp") && exists("actionResult") && !exists("origin.ip") &&
+            (inCIDR("log.sshRemoteIp", "0.0.0.0/0") || inCIDR("log.sshRemoteIp", "::/0")) &&
+            !inCIDR("log.sshRemoteIp", "0.0.0.0/32") && !inCIDR("log.sshRemoteIp", "::/128")
+
+      - rename:
+          from:
+            - log.sshRemotePort
+          to: origin.port
+          where: 'exists("log.sshRemotePort") && exists("origin.ip") && !exists("log.sshRemoteIp") && !exists("origin.port")'
+
+      - cast:
+          fields: [origin.port]
+          to: int
+          where: 'exists("origin.port")'
+
+      - cast:
+          fields: [target.port]
+          to: int
+          where: 'exists("target.port")'
 
       # Map exe to origin.process (full path to executable)
       # Only if journald's COMM didn't already set origin.process

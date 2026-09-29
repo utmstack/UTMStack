@@ -23,7 +23,7 @@
     "name": "api-request-404-despite-success-flag",
     "raw": "{\"metadata\":{\"customerIDString\":\"0123456789abcdef0123456789abcdef\",\"offset\":1404,\"eventType\":\"APIActivityAuditEvent\",\"eventCreationTime\":1790000000000,\"version\":\"1.0\"},\"event\":{\"UserId\":\"\",\"UserIp\":\"203.0.113.10\",\"OperationName\":\"logged\",\"ServiceName\":\"api_request\",\"Success\":true,\"UTCTimestamp\":1790000000,\"Attributes\":{\"APIClientID\":\"00000000000000000000000000000001\",\"request_method\":\"POST\",\"request_path\":\"/example/entities/v1\",\"status_code\":\"404\",\"sub_component_1\":\"logged\",\"trace_id\":\"00000000-0000-4000-8000-000000000404\",\"user_ip\":\"203.0.113.10\"},\"Message\":\"\",\"Source\":\"api_request\",\"SourceIp\":\"203.0.113.10\"}}",
     "dataSource": "synthetic-crowdstrike",
-    "result": "failure",
+    "result": "failed",
     "expected": {
       "origin.ip": "203.0.113.10",
       "statusCode": 404
@@ -33,7 +33,7 @@
     "name": "api-request-503",
     "raw": "{\"metadata\":{\"customerIDString\":\"0123456789abcdef0123456789abcdef\",\"offset\":1503,\"eventType\":\"APIActivityAuditEvent\",\"eventCreationTime\":1790000000000,\"version\":\"1.0\"},\"event\":{\"UserId\":\"\",\"UserIp\":\"203.0.113.10\",\"OperationName\":\"logged\",\"ServiceName\":\"api_request\",\"Success\":true,\"UTCTimestamp\":1790000000,\"Attributes\":{\"APIClientID\":\"00000000000000000000000000000001\",\"request_method\":\"POST\",\"request_path\":\"/example/entities/v1\",\"status_code\":\"503\",\"sub_component_1\":\"logged\",\"trace_id\":\"00000000-0000-4000-8000-000000000503\",\"user_ip\":\"203.0.113.10\"},\"Message\":\"\",\"Source\":\"api_request\",\"SourceIp\":\"203.0.113.10\"}}",
     "dataSource": "synthetic-crowdstrike",
-    "result": "failure",
+    "result": "failed",
     "expected": {
       "origin.ip": "203.0.113.10",
       "statusCode": 503
@@ -56,7 +56,7 @@
     "name": "api-success-false-overrides-200",
     "raw": "{\"metadata\":{\"customerIDString\":\"0123456789abcdef0123456789abcdef\",\"offset\":1200,\"eventType\":\"APIActivityAuditEvent\",\"eventCreationTime\":1790000000000,\"version\":\"1.0\"},\"event\":{\"UserId\":\"\",\"UserIp\":\"203.0.113.10\",\"OperationName\":\"logged\",\"ServiceName\":\"api_request\",\"Success\":false,\"UTCTimestamp\":1790000000,\"Attributes\":{\"APIClientID\":\"00000000000000000000000000000001\",\"request_method\":\"POST\",\"request_path\":\"/example/entities/v1\",\"status_code\":\"200\",\"sub_component_1\":\"logged\",\"trace_id\":\"00000000-0000-4000-8000-000000000200\",\"user_ip\":\"203.0.113.10\"},\"Message\":\"\",\"Source\":\"api_request\",\"SourceIp\":\"203.0.113.10\"}}",
     "dataSource": "synthetic-crowdstrike",
-    "result": "failure",
+    "result": "failed",
     "expected": {
       "origin.ip": "203.0.113.10",
       "statusCode": 200
@@ -77,7 +77,7 @@
     "name": "sign-in-failure-maps-client",
     "raw": "{\"metadata\":{\"customerIDString\":\"0123456789abcdef0123456789abcdef\",\"offset\":2000,\"eventType\":\"AuthActivityAuditEvent\",\"eventCreationTime\":1790000000000,\"version\":\"1.0\"},\"event\":{\"UserId\":\"analyst@example.com\",\"UserIp\":\"198.51.100.21\",\"OperationName\":\"userAuthenticate\",\"ServiceName\":\"CrowdStrike Authentication\",\"Success\":false,\"UTCTimestamp\":1790000000000,\"Attributes\":{\"success\":\"FAILURE\",\"target_name\":\"analyst@example.com\"}}}",
     "dataSource": "synthetic-crowdstrike",
-    "result": "failure",
+    "result": "failed",
     "expected": {
       "origin.ip": "198.51.100.21",
       "log.eventSuccess": false
@@ -98,7 +98,7 @@
     "name": "sign-in-failure-empty-address",
     "raw": "{\"metadata\":{\"customerIDString\":\"0123456789abcdef0123456789abcdef\",\"offset\":2000,\"eventType\":\"AuthActivityAuditEvent\",\"eventCreationTime\":1790000000000,\"version\":\"1.0\"},\"event\":{\"UserId\":\"analyst@example.com\",\"UserIp\":\"\",\"OperationName\":\"userAuthenticate\",\"ServiceName\":\"CrowdStrike Authentication\",\"Success\":false,\"UTCTimestamp\":1790000000000,\"Attributes\":{\"success\":\"FAILURE\",\"target_name\":\"analyst@example.com\"}}}",
     "dataSource": "synthetic-crowdstrike",
-    "result": "failure",
+    "result": "failed",
     "expected": {
       "log.eventSuccess": false
     },
@@ -111,7 +111,7 @@
     "name": "sign-in-failure-invalid-address",
     "raw": "{\"metadata\":{\"customerIDString\":\"0123456789abcdef0123456789abcdef\",\"offset\":2000,\"eventType\":\"AuthActivityAuditEvent\",\"eventCreationTime\":1790000000000,\"version\":\"1.0\"},\"event\":{\"UserId\":\"analyst@example.com\",\"UserIp\":\"not-an-address\",\"OperationName\":\"userAuthenticate\",\"ServiceName\":\"CrowdStrike Authentication\",\"Success\":false,\"UTCTimestamp\":1790000000000,\"Attributes\":{\"success\":\"FAILURE\",\"target_name\":\"analyst@example.com\"}}}",
     "dataSource": "synthetic-crowdstrike",
-    "result": "failure",
+    "result": "failed",
     "expected": {
       "log.eventSuccess": false
     },
@@ -154,6 +154,111 @@
   {
     "name": "detection-keeps-sensor-address",
     "raw": "{\"metadata\":{\"customerIDString\":\"0123456789abcdef0123456789abcdef\",\"offset\":5000,\"eventType\":\"DetectionSummaryEvent\",\"eventCreationTime\":1790000000000,\"version\":\"1.0\"},\"event\":{\"ComputerName\":\"host-01\",\"LocalIP\":\"10.0.0.5\",\"UserName\":\"analyst\",\"SeverityName\":\"High\",\"Tactic\":\"Execution\"}}",
+    "dataSource": "synthetic-crowdstrike",
+    "result": "",
+    "expected": {
+      "origin.ip": "10.0.0.5"
+    },
+    "absent": [
+      "actionResult"
+    ]
+  },
+  {
+    "name": "api-request-401-denied",
+    "raw": "{\"metadata\":{\"customerIDString\":\"0123456789abcdef0123456789abcdef\",\"offset\":1401,\"eventType\":\"APIActivityAuditEvent\",\"eventCreationTime\":1790000000000,\"version\":\"1.0\"},\"event\":{\"UserId\":\"\",\"UserIp\":\"203.0.113.10\",\"OperationName\":\"logged\",\"ServiceName\":\"api_request\",\"Success\":true,\"UTCTimestamp\":1790000000,\"Attributes\":{\"APIClientID\":\"00000000000000000000000000000001\",\"request_method\":\"GET\",\"request_path\":\"/example/entities/v1\",\"status_code\":\"401\",\"sub_component_1\":\"logged\",\"trace_id\":\"00000000-0000-4000-8000-000000000401\",\"user_ip\":\"203.0.113.10\"},\"Message\":\"\",\"Source\":\"api_request\",\"SourceIp\":\"203.0.113.10\"}}",
+    "dataSource": "synthetic-crowdstrike",
+    "result": "denied",
+    "expected": {
+      "origin.ip": "203.0.113.10",
+      "statusCode": 401
+    }
+  },
+  {
+    "name": "api-request-403-denied",
+    "raw": "{\"metadata\":{\"customerIDString\":\"0123456789abcdef0123456789abcdef\",\"offset\":1403,\"eventType\":\"APIActivityAuditEvent\",\"eventCreationTime\":1790000000000,\"version\":\"1.0\"},\"event\":{\"UserId\":\"\",\"UserIp\":\"203.0.113.10\",\"OperationName\":\"logged\",\"ServiceName\":\"api_request\",\"Success\":true,\"UTCTimestamp\":1790000000,\"Attributes\":{\"APIClientID\":\"00000000000000000000000000000001\",\"request_method\":\"GET\",\"request_path\":\"/example/entities/v1\",\"status_code\":\"403\",\"sub_component_1\":\"logged\",\"trace_id\":\"00000000-0000-4000-8000-000000000403\",\"user_ip\":\"203.0.113.10\"},\"Message\":\"\",\"Source\":\"api_request\",\"SourceIp\":\"203.0.113.10\"}}",
+    "dataSource": "synthetic-crowdstrike",
+    "result": "denied",
+    "expected": {
+      "origin.ip": "203.0.113.10",
+      "statusCode": 403
+    }
+  },
+  {
+    "name": "api-success-false-403-denied",
+    "raw": "{\"metadata\":{\"customerIDString\":\"0123456789abcdef0123456789abcdef\",\"offset\":1413,\"eventType\":\"APIActivityAuditEvent\",\"eventCreationTime\":1790000000000,\"version\":\"1.0\"},\"event\":{\"UserId\":\"\",\"UserIp\":\"203.0.113.10\",\"OperationName\":\"logged\",\"ServiceName\":\"api_request\",\"Success\":false,\"UTCTimestamp\":1790000000,\"Attributes\":{\"APIClientID\":\"00000000000000000000000000000001\",\"request_method\":\"GET\",\"request_path\":\"/example/entities/v1\",\"status_code\":\"403\",\"sub_component_1\":\"logged\",\"trace_id\":\"00000000-0000-4000-8000-000000000403\",\"user_ip\":\"203.0.113.10\"},\"Message\":\"\",\"Source\":\"api_request\",\"SourceIp\":\"203.0.113.10\"}}",
+    "dataSource": "synthetic-crowdstrike",
+    "result": "denied",
+    "expected": {
+      "origin.ip": "203.0.113.10",
+      "statusCode": 403
+    }
+  },
+  {
+    "name": "prevention-process-blocked",
+    "raw": "{\"metadata\":{\"customerIDString\":\"0123456789abcdef0123456789abcdef\",\"offset\":5001,\"eventType\":\"DetectionSummaryEvent\",\"eventCreationTime\":1790000000000,\"version\":\"1.0\"},\"event\":{\"ComputerName\":\"host-01\",\"LocalIP\":\"10.0.0.5\",\"UserName\":\"analyst\",\"SeverityName\":\"High\",\"Tactic\":\"Execution\",\"PatternDispositionDescription\":\"Prevention, process was blocked from execution.\",\"PatternDispositionFlags\":{\"Detect\":false,\"KillProcess\":false,\"PolicyDisabled\":false,\"ProcessBlocked\":true,\"QuarantineFile\":false,\"OperationBlocked\":false,\"KillActionFailed\":false}}}",
+    "dataSource": "synthetic-crowdstrike",
+    "result": "denied",
+    "expected": {
+      "origin.ip": "10.0.0.5"
+    }
+  },
+  {
+    "name": "epp-prevention-process-killed",
+    "raw": "{\"metadata\":{\"customerIDString\":\"0123456789abcdef0123456789abcdef\",\"offset\":5002,\"eventType\":\"EppDetectionSummaryEvent\",\"eventCreationTime\":1790000000000,\"version\":\"1.0\"},\"event\":{\"LocalIP\":\"10.0.0.5\",\"UserName\":\"analyst\",\"SeverityName\":\"High\",\"Tactic\":\"Execution\",\"PatternDispositionDescription\":\"Prevention, process killed.\",\"PatternDispositionFlags\":{\"Detect\":false,\"KillProcess\":true,\"PolicyDisabled\":false,\"ProcessBlocked\":false,\"QuarantineFile\":false,\"OperationBlocked\":false,\"KillActionFailed\":false},\"Hostname\":\"host-01\"}}",
+    "dataSource": "synthetic-crowdstrike",
+    "result": "denied",
+    "expected": {
+      "origin.ip": "10.0.0.5"
+    }
+  },
+  {
+    "name": "prevention-quarantine",
+    "raw": "{\"metadata\":{\"customerIDString\":\"0123456789abcdef0123456789abcdef\",\"offset\":5003,\"eventType\":\"DetectionSummaryEvent\",\"eventCreationTime\":1790000000000,\"version\":\"1.0\"},\"event\":{\"ComputerName\":\"host-01\",\"LocalIP\":\"10.0.0.5\",\"UserName\":\"analyst\",\"SeverityName\":\"High\",\"Tactic\":\"Execution\",\"PatternDispositionDescription\":\"Prevention/Quarantine, process was blocked from execution and quarantine was attempted.\",\"PatternDispositionFlags\":{\"Detect\":false,\"KillProcess\":false,\"PolicyDisabled\":false,\"ProcessBlocked\":true,\"QuarantineFile\":true,\"OperationBlocked\":false,\"KillActionFailed\":false}}}",
+    "dataSource": "synthetic-crowdstrike",
+    "result": "denied",
+    "expected": {
+      "origin.ip": "10.0.0.5"
+    }
+  },
+  {
+    "name": "would-have-been-blocked-policy-disabled",
+    "raw": "{\"metadata\":{\"customerIDString\":\"0123456789abcdef0123456789abcdef\",\"offset\":5004,\"eventType\":\"EppDetectionSummaryEvent\",\"eventCreationTime\":1790000000000,\"version\":\"1.0\"},\"event\":{\"LocalIP\":\"10.0.0.5\",\"UserName\":\"analyst\",\"SeverityName\":\"High\",\"Tactic\":\"Execution\",\"PatternDispositionDescription\":\"Detection, process would have been blocked if related prevention policy setting was enabled.\",\"PatternDispositionFlags\":{\"Detect\":false,\"KillProcess\":false,\"PolicyDisabled\":true,\"ProcessBlocked\":true,\"QuarantineFile\":false,\"OperationBlocked\":false,\"KillActionFailed\":false},\"Hostname\":\"host-01\"}}",
+    "dataSource": "synthetic-crowdstrike",
+    "result": "",
+    "expected": {
+      "origin.ip": "10.0.0.5"
+    },
+    "absent": [
+      "actionResult"
+    ]
+  },
+  {
+    "name": "prevention-kill-action-failed",
+    "raw": "{\"metadata\":{\"customerIDString\":\"0123456789abcdef0123456789abcdef\",\"offset\":5005,\"eventType\":\"DetectionSummaryEvent\",\"eventCreationTime\":1790000000000,\"version\":\"1.0\"},\"event\":{\"ComputerName\":\"host-01\",\"LocalIP\":\"10.0.0.5\",\"UserName\":\"analyst\",\"SeverityName\":\"High\",\"Tactic\":\"Execution\",\"PatternDispositionDescription\":\"Prevention, process killed.\",\"PatternDispositionFlags\":{\"Detect\":false,\"KillProcess\":true,\"PolicyDisabled\":false,\"ProcessBlocked\":false,\"QuarantineFile\":false,\"OperationBlocked\":false,\"KillActionFailed\":true}}}",
+    "dataSource": "synthetic-crowdstrike",
+    "result": "",
+    "expected": {
+      "origin.ip": "10.0.0.5"
+    },
+    "absent": [
+      "actionResult"
+    ]
+  },
+  {
+    "name": "prevention-description-without-block-flag",
+    "raw": "{\"metadata\":{\"customerIDString\":\"0123456789abcdef0123456789abcdef\",\"offset\":5006,\"eventType\":\"DetectionSummaryEvent\",\"eventCreationTime\":1790000000000,\"version\":\"1.0\"},\"event\":{\"ComputerName\":\"host-01\",\"LocalIP\":\"10.0.0.5\",\"UserName\":\"analyst\",\"SeverityName\":\"High\",\"Tactic\":\"Execution\",\"PatternDispositionDescription\":\"Prevention, process was blocked from execution.\",\"PatternDispositionFlags\":{\"Detect\":true,\"KillProcess\":false,\"PolicyDisabled\":false,\"ProcessBlocked\":false,\"QuarantineFile\":false,\"OperationBlocked\":false,\"KillActionFailed\":false}}}",
+    "dataSource": "synthetic-crowdstrike",
+    "result": "",
+    "expected": {
+      "origin.ip": "10.0.0.5"
+    },
+    "absent": [
+      "actionResult"
+    ]
+  },
+  {
+    "name": "standard-detection-with-flags",
+    "raw": "{\"metadata\":{\"customerIDString\":\"0123456789abcdef0123456789abcdef\",\"offset\":5007,\"eventType\":\"EppDetectionSummaryEvent\",\"eventCreationTime\":1790000000000,\"version\":\"1.0\"},\"event\":{\"LocalIP\":\"10.0.0.5\",\"UserName\":\"analyst\",\"SeverityName\":\"High\",\"Tactic\":\"Execution\",\"PatternDispositionDescription\":\"Detection, standard detection.\",\"PatternDispositionFlags\":{\"Detect\":true,\"KillProcess\":false,\"PolicyDisabled\":false,\"ProcessBlocked\":false,\"QuarantineFile\":false,\"OperationBlocked\":false,\"KillActionFailed\":false},\"Hostname\":\"host-01\"}}",
     "dataSource": "synthetic-crowdstrike",
     "result": "",
     "expected": {

@@ -11,14 +11,18 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
-// Fabricated webhook payloads follow GitHub's documented workflow_run and push
+// Fabricated webhook payloads follow GitHub's documented workflow_run,
+// workflow_job, check_run, check_suite, deployment_status, status and push
 // shapes and pass through the ordered filter model; the outcome is evaluated with
-// the SDK's CEL. Alert payloads follow the documented secret scanning, code
-// scanning and Dependabot alert objects; they check the secret scanning rule's
-// condition and the flattened repository fields. The EventProcessor json step
-// cleans top-level keys with utils.SanitizeField, which since go-sdk v1.1.35
-// keeps letters, digits, dots and underscores, and the shared raw model does not
-// clean them, so each payload's top-level keys are cleaned the same way first.
+// the SDK's CEL. The filter writes only success, failed or nothing: a completed
+// delivery's conclusion and a deployment or commit status state are final
+// results, and every other delivery states none. Alert payloads follow the
+// documented secret scanning, code scanning and Dependabot alert objects; they
+// check the secret scanning rule's condition and the flattened repository
+// fields. The EventProcessor json step cleans top-level keys with
+// utils.SanitizeField, which since go-sdk v1.1.35 keeps letters, digits, dots
+// and underscores, and the shared raw model does not clean them, so each
+// payload's top-level keys are cleaned the same way first.
 // The isolated parser is replayed separately; this model alone does not prove
 // deployed behavior.
 func TestGitHubActionResultRaw(t *testing.T) {
@@ -42,6 +46,11 @@ func TestGitHubActionResultRaw(t *testing.T) {
 	secretScanning := githubRuleWhere(t, "../../rules/github/secret_scanning_alerts.yml")
 	for _, tc := range cases {
 		t.Run(tc.Name, func(t *testing.T) {
+			switch tc.Result {
+			case "", "success", "failed", "denied":
+			default:
+				t.Fatalf("case expects %q; filters write only success, failed or denied", tc.Result)
+			}
 			raw := sanitizedTopLevelKeys(t, tc.Raw)
 			fixture := Fixture{Filter: "github/github.yml", Raw: &raw, DataType: "github", DataSource: "fabricated-collector"}
 			out, issues, err := normalize("../..", fixture, cache)

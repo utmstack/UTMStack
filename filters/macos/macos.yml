@@ -1,4 +1,4 @@
-# macOS native JSON and forwarding-wrapper filter, version 3.1.0
+# macOS native JSON and forwarding-wrapper filter, version 3.2.0
 pipeline:
   - dataTypes: [macos]
     steps:
@@ -130,6 +130,70 @@ pipeline:
             key: severity
             value: critical
           where: equals("log.level", "fault")
+
+      # actionResult only where the message text states a final outcome, and only
+      # success, failed or denied. A log level is not an outcome. The classes below
+      # do not overlap; the order is still success, failed, denied.
+      # authd granted an authorization right; TCC allowed access (authValue=2).
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: 'equals("log.subsystem", "com.apple.Authorization") && startsWith("log.message", "Succeeded authorizing right ")'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: 'equals("log.subsystem", "com.apple.TCC") && startsWith("log.message", "AUTHREQ_RESULT: ") && contains("log.message", " authValue=2,")'
+      # Wrong credentials, a refused or cancelled authorization, a rejected
+      # screen-lock password.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failed
+          where: 'equals("log.subsystem", "com.apple.opendirectoryd") && (startsWith("log.message", "Authentication failed for ") || startsWith("log.message", "Failed SecureToken authentication for "))'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failed
+          where: 'equals("log.subsystem", "com.apple.Authorization") && startsWith("log.message", "Failed to authorize right ")'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failed
+          where: 'equals("origin.process", "loginwindow") && startsWith("log.message", "-[LWDefaultScreenLockUI authFailWithMessage:]") && contains("log.message", "INCORRECT password")'
+      # Refused by a control: TCC denial, sandbox and System Policy deny reports
+      # (kernel, or sandboxd under com.apple.sandbox.reporting), rejected sandbox
+      # approval requests, and launchd lookups denied by the sandbox.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: 'equals("log.subsystem", "com.apple.TCC") && ((startsWith("log.message", "AUTHREQ_RESULT: ") && contains("log.message", " authValue=0,")) || endsWith("log.message", "; returning denied."))'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: '(equals("origin.process", "kernel") || equals("origin.path", "/kernel") || equals("log.subsystem", "com.apple.sandbox.reporting")) && regexMatch("log.message", "^(\\d+ duplicate reports? for )?(Sandbox|System Policy): (.+\\) )?deny\\(\\d+\\) ")'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: '(equals("origin.process", "kernel") || equals("origin.path", "/kernel")) && startsWith("log.message", "sandboxd rejected approval request from ")'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: 'equals("origin.process", "launchd") && startsWith("log.message", "denied lookup: ")'
 
       # Only matching security candidates may satisfy historical thresholds.
       # The raw contract tests check parity against the two rule predicates.

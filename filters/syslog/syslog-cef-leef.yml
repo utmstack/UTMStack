@@ -1,4 +1,4 @@
-# Generic CEF / LEEF syslog filter, version 1.0.0
+# Generic CEF / LEEF syslog filter, version 1.1.0
 #
 # Parses CEF (Common Event Format) and LEEF (Log Event and Evidence Format)
 # syslog messages from any vendor that does not have a dedicated UTMStack
@@ -234,28 +234,69 @@ pipeline:
       - log.file
       to: target.file
       where: exists("log.file") && equals("log.dataType", "cef")
+  # actionResult is only success, failed or denied, or absent when the record states no
+  # final outcome. success: the action completed (allowed). failed: attempted and did not
+  # complete. denied: a control refused it. Attempt and detection words (login, logon,
+  # connect, start, open, Alerted, Detected) and session ends (closed, teardown,
+  # terminated) get no value. invalid (a dropped invalid packet) stays denied. The lists
+  # do not overlap; the CEF outcome key is read last so it wins over act.
   - add:
       function: string
       params:
         key: actionResult
         value: success
-      where: oneOf("log.act", ["allow", "pass", "accept", "permit", "ok", "success", "allowed", "passed", "accepted", "start", "started", "open", "opened", "login",
-        "logon", "connect", "session start", "signed in", "signedin", "Allow", "Pass", "Accept", "Permit", "OK", "Success", "Allowed", "Open", "Opened", "Login",
-        "Logon", "Connect", "Alerted", "alerted", "detected", "Detected"]) && equals("log.dataType", "cef")
+      where: oneOf("log.act", ["allow", "allowed", "accept", "accepted", "permit", "permitted", "pass", "passed", "success", "ok", "Allow", "Allowed", "Accept",
+        "Accepted", "Permit", "Permitted", "Pass", "Passed", "Success", "OK"]) && equals("log.dataType", "cef")
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: failed
+      where: oneOf("log.act", ["error", "fail", "failed", "failure", "timeout", "failed auth", "authentication failed", "Error", "Fail", "Failed", "Failure",
+        "Timeout"]) && equals("log.dataType", "cef")
   - add:
       function: string
       params:
         key: actionResult
         value: denied
-      where: oneOf("log.act", ["block", "deny", "drop", "reject", "blocked", "denied", "dropped", "rejected", "quarantine", "teardown", "closed", "terminated", "invalid",
-        "failed auth", "authentication failed", "Block", "Deny", "Drop", "Reject", "Blocked", "Denied", "Dropped", "Rejected", "Closed", "Terminated", "Quarantined",
-        "failed", "Failed"]) && equals("log.dataType", "cef")
+      where: oneOf("log.act", ["block", "blocked", "deny", "denied", "drop", "dropped", "reject", "rejected", "refuse", "refused", "reset", "reset-both", "reset-client",
+        "reset-server", "IDS:Reset", "clear_session", "prevent", "prevented", "quarantine", "quarantined", "invalid", "Block", "Blocked", "Deny", "Denied", "Drop",
+        "Dropped", "Reject", "Rejected", "Refuse", "Refused", "Reset", "Prevent", "Prevented", "Quarantine", "Quarantined"]) && equals("log.dataType", "cef")
+  # Trend Vision One writes act as list text, for example ['Quarantine'].
   - add:
       function: string
       params:
         key: actionResult
-        value: failure
-      where: oneOf("log.act", ["error", "fail", "timeout", "Error", "Fail", "Timeout"]) && equals("log.dataType", "cef")
+        value: denied
+      where: contains("log.deviceProduct", "Vision One") && regexMatch("log.act", "^\\[.*'(Quarantine|Quarantined|Block|Blocked)'") && equals("log.dataType",
+        "cef")
+  # Trend Vision One Account Audit Log (900003): cn1 labelled Result, 1 = Success, 0 = Fail.
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: success
+      where: equals("log.deviceEventClassId", "900003") && contains("log.deviceProduct", "Vision One") && equals("log.cn1Label", "Result") && equals("log.cn1",
+        "1") && equals("log.dataType", "cef")
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: failed
+      where: equals("log.deviceEventClassId", "900003") && contains("log.deviceProduct", "Vision One") && equals("log.cn1Label", "Result") && equals("log.cn1",
+        "0") && equals("log.dataType", "cef")
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: success
+      where: oneOf("log.outcome", ["success", "Success", "succeeded", "/Success"]) && equals("log.dataType", "cef")
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: failed
+      where: oneOf("log.outcome", ["failure", "Failure", "failed", "Failed", "fail", "/Failure"]) && equals("log.dataType", "cef")
   - rename:
       from:
       - log.act
@@ -536,28 +577,41 @@ pipeline:
       - log.file
       to: target.file
       where: exists("log.file") && equals("log.dataType", "leef")
+  # actionResult: same words and order as the CEF stage; the outcome key is read last.
   - add:
       function: string
       params:
         key: actionResult
         value: success
-      where: oneOf("log.act", ["allow", "pass", "accept", "permit", "ok", "success", "allowed", "passed", "accepted", "start", "started", "open", "opened", "login",
-        "logon", "connect", "session start", "signed in", "signedin", "Allow", "Pass", "Accept", "Permit", "OK", "Success", "Allowed", "Open", "Opened", "Login",
-        "Logon", "Connect", "Alerted", "alerted", "detected", "Detected"]) && equals("log.dataType", "leef")
+      where: oneOf("log.act", ["allow", "allowed", "accept", "accepted", "permit", "permitted", "pass", "passed", "success", "ok", "Allow", "Allowed", "Accept",
+        "Accepted", "Permit", "Permitted", "Pass", "Passed", "Success", "OK"]) && equals("log.dataType", "leef")
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: failed
+      where: oneOf("log.act", ["error", "fail", "failed", "failure", "timeout", "failed auth", "authentication failed", "Error", "Fail", "Failed", "Failure",
+        "Timeout"]) && equals("log.dataType", "leef")
   - add:
       function: string
       params:
         key: actionResult
         value: denied
-      where: oneOf("log.act", ["block", "deny", "drop", "reject", "blocked", "denied", "dropped", "rejected", "quarantine", "teardown", "closed", "terminated", "invalid",
-        "failed auth", "authentication failed", "Block", "Deny", "Drop", "Reject", "Blocked", "Denied", "Dropped", "Rejected", "Closed", "Terminated", "Quarantined",
-        "failed", "Failed"]) && equals("log.dataType", "leef")
+      where: oneOf("log.act", ["block", "blocked", "deny", "denied", "drop", "dropped", "reject", "rejected", "refuse", "refused", "reset", "reset-both", "reset-client",
+        "reset-server", "IDS:Reset", "clear_session", "prevent", "prevented", "quarantine", "quarantined", "invalid", "Block", "Blocked", "Deny", "Denied", "Drop",
+        "Dropped", "Reject", "Rejected", "Refuse", "Refused", "Reset", "Prevent", "Prevented", "Quarantine", "Quarantined"]) && equals("log.dataType", "leef")
   - add:
       function: string
       params:
         key: actionResult
-        value: failure
-      where: oneOf("log.act", ["error", "fail", "timeout", "Error", "Fail", "Timeout"]) && equals("log.dataType", "leef")
+        value: success
+      where: oneOf("log.outcome", ["success", "Success", "succeeded", "/Success"]) && equals("log.dataType", "leef")
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: failed
+      where: oneOf("log.outcome", ["failure", "Failure", "failed", "Failed", "fail", "/Failure"]) && equals("log.dataType", "leef")
   - rename:
       from:
       - log.act

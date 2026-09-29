@@ -1600,7 +1600,7 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"signin.amazonaws.com\",\"eventName\":\"ConsoleLogin\",\"eventType\":\"AwsConsoleSignIn\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"Root\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:root\",\"principalId\":\"TESTPRINCIPAL\"},\"requestParameters\":{},\"responseElements\":{\"ConsoleLogin\":\"Failure\"},\"additionalEventData\":{\"MFAUsed\":\"Yes\"},\"errorMessage\":\"Failed authentication\"}",
     "expected": {
-      "actionResult": "failure",
+      "actionResult": "failed",
       "log.userIdentity.type": "Root"
     },
     "absent": [],
@@ -1613,7 +1613,7 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"signin.amazonaws.com\",\"eventName\":\"ConsoleLogin\",\"eventType\":\"AwsConsoleSignIn\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"Root\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:root\",\"principalId\":\"TESTPRINCIPAL\"},\"requestParameters\":{},\"responseElements\":{\"ConsoleLogin\":\"Failure\"},\"additionalEventData\":{\"MFAUsed\":\"No\"},\"errorMessage\":\"Failed authentication\"}",
     "expected": {
-      "actionResult": "failure",
+      "actionResult": "failed",
       "log.userIdentity.type": "Root"
     },
     "absent": [],
@@ -1626,7 +1626,7 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"signin.amazonaws.com\",\"eventName\":\"ConsoleLogin\",\"eventType\":\"AwsConsoleSignIn\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"Root\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:root\",\"principalId\":\"TESTPRINCIPAL\"},\"requestParameters\":{},\"responseElements\":{\"ConsoleLogin\":\"Failure\"},\"errorMessage\":\"Failed authentication\"}",
     "expected": {
-      "actionResult": "failure",
+      "actionResult": "failed",
       "log.userIdentity.type": "Root"
     },
     "absent": [],
@@ -1666,7 +1666,7 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"signin.amazonaws.com\",\"eventName\":\"GetSigninToken\",\"eventType\":\"AwsConsoleSignIn\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":{\"GetSigninToken\":\"Failure\"}}",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []
@@ -1689,7 +1689,7 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"signin.amazonaws.com\",\"eventName\":\"CheckMfa\",\"eventType\":\"AwsConsoleSignIn\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":{\"CheckMfa\":\"Failure\"}}",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []
@@ -1709,7 +1709,7 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"iam.amazonaws.com\",\"eventName\":\"UpdateAssumeRolePolicy\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null,\"errorCode\":\"MalformedPolicyDocument\"}",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": [
@@ -2006,7 +2006,7 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"ec2.amazonaws.com\",\"eventName\":\"DescribeTags\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null,\"errorMessage\":\"API failed\"}",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []
@@ -2026,7 +2026,7 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"ec2.amazonaws.com\",\"eventName\":\"DescribeTags\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":{\"errorMessage\":\"Rejected\"}}",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []
@@ -2612,19 +2612,17 @@
     ]
   },
   {
-    "name": "aws-sts-AssumeRoleWithWebIdentity",
+    "name": "aws-sts-AssumeRoleWithWebIdentity-eks-service-account",
     "dataSource": "collector-test",
-    "raw": "{\"eventVersion\": \"1.09\", \"eventTime\": \"2026-09-25T10:00:00Z\", \"eventSource\": \"sts.amazonaws.com\", \"eventName\": \"AssumeRoleWithWebIdentity\", \"eventType\": \"AwsApiCall\", \"awsRegion\": \"us-east-1\", \"sourceIPAddress\": \"198.51.100.20\", \"recipientAccountId\": \"123456789012\", \"userIdentity\": {\"type\": \"IAMUser\", \"accountId\": \"123456789012\", \"arn\": \"arn:aws:iam::123456789012:user/reviewer\", \"principalId\": \"TESTPRINCIPAL\", \"sessionContext\": {\"attributes\": {\"mfaAuthenticated\": \"true\"}}}, \"requestParameters\": {\"RoleArn\": \"arn:aws:iam::123456789012:role/ci\", \"WebIdentityToken\": \"tok\"}, \"responseElements\": null}",
+    "raw": "{\"eventVersion\": \"1.08\", \"userIdentity\": {\"type\": \"WebIdentityUser\", \"principalId\": \"arn:aws:iam::123456789012:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE:sts.amazonaws.com:system:serviceaccount:payments:api\", \"userName\": \"system:serviceaccount:payments:api\", \"identityProvider\": \"arn:aws:iam::123456789012:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE\"}, \"eventTime\": \"2026-09-25T10:00:00Z\", \"eventSource\": \"sts.amazonaws.com\", \"eventName\": \"AssumeRoleWithWebIdentity\", \"awsRegion\": \"us-east-1\", \"sourceIPAddress\": \"198.51.100.20\", \"userAgent\": \"aws-sdk-go-v2/1.30.0 os/linux lang/go#1.22.5 api/sts#1.30.0\", \"requestParameters\": {\"roleArn\": \"arn:aws:iam::123456789012:role/payments-api\", \"roleSessionName\": \"1727258400000000000\", \"durationSeconds\": 3600}, \"responseElements\": {\"subjectFromWebIdentityToken\": \"system:serviceaccount:payments:api\", \"assumedRoleUser\": {\"arn\": \"arn:aws:sts::123456789012:assumed-role/payments-api/1727258400000000000\"}, \"provider\": \"arn:aws:iam::123456789012:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE\", \"audience\": \"sts.amazonaws.com\"}, \"additionalEventData\": {\"identityProviderConnectionVerificationMethod\": \"IAMTrustStore\"}, \"requestID\": \"aEXAMPLE-0b26-40df-8973-c7012EXAMPLE\", \"eventID\": \"aEXAMPLE-ee29-4ac0-a0ed-3f5c5EXAMPLE\", \"readOnly\": true, \"resources\": [{\"accountId\": \"123456789012\", \"type\": \"AWS::IAM::Role\", \"ARN\": \"arn:aws:iam::123456789012:role/payments-api\"}], \"eventType\": \"AwsApiCall\", \"managementEvent\": true, \"recipientAccountId\": \"123456789012\", \"eventCategory\": \"Management\"}",
     "expected": {
       "action": "AssumeRoleWithWebIdentity",
       "origin.ip": "198.51.100.20",
-      "origin.user": "arn:aws:iam::123456789012:user/reviewer",
+      "origin.user": "system:serviceaccount:payments:api",
       "actionResult": "success",
       "log.awsRecordType": "cloudtrail"
     },
     "absent": [],
-    "matches": [
-      "aws_sts_assume_role_with_web_identity"
-    ]
+    "matches": []
   }
 ]

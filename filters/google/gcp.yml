@@ -1,4 +1,4 @@
-# GCP filter, version 2.3.0
+# GCP filter, version 2.3.1
 #
 # Documentations
 # 1- https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry
@@ -502,7 +502,7 @@ pipeline:
           function: "string"
           params:
             key: actionResult
-            value: "failure"
+            value: "failed"
           where: >-
             exists("log.protoPayloadMethodName") &&
             contains("log.logName","cloudaudit.googleapis.com") &&
@@ -537,7 +537,7 @@ pipeline:
           function: "string"
           params:
             key: actionResult
-            value: "failure"
+            value: "failed"
           where: >-
             contains("log.logName","cloudaudit.googleapis.com") &&
             equals("log.protoPayloadServiceName","login.googleapis.com") &&
@@ -587,7 +587,7 @@ pipeline:
           function: "string"
           params:
             key: actionResult
-            value: "failure"
+            value: "failed"
           where: >-
             !exists("actionResult") && !exists("log.protoPayloadMethodName") && !exists("statusCode") &&
             exists("log.jsonPayload.queryName") &&
@@ -618,7 +618,7 @@ pipeline:
           function: "string"
           params:
             key: actionResult
-            value: "failure"
+            value: "failed"
           where: >-
             !exists("actionResult") && !exists("log.protoPayloadMethodName") &&
             greaterOrEqual("statusCode",400) && lessThan("statusCode",600)
@@ -659,6 +659,107 @@ pipeline:
             equals("log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome","DENY") ||
             equals("log.jsonPayloadEnforcedSecurityPolicyOutcome","DENY") ||
             equals("log.jsonPayloadStatusDetails","denied_by_security_policy")
+
+      # Firewall Rules Logging (compute.googleapis.com/firewall) writes one
+      # record per connection with the rule's disposition, ALLOWED or DENIED.
+      # Its connection endpoints are kept only on records that also get an
+      # outcome below. VPC Flow Logs use the same connection object but state
+      # no outcome, so they are left as they were.
+      - rename:
+          from:
+            - log.jsonPayload.connection.src_ip
+          to: origin.ip
+          where: oneOf("log.jsonPayload.disposition",["ALLOWED","DENIED"])
+
+      - rename:
+          from:
+            - log.jsonPayload.connection.dest_ip
+          to: target.ip
+          where: oneOf("log.jsonPayload.disposition",["ALLOWED","DENIED"])
+
+      - rename:
+          from:
+            - log.jsonPayload.connection.src_port
+          to: origin.port
+          where: oneOf("log.jsonPayload.disposition",["ALLOWED","DENIED"])
+
+      - rename:
+          from:
+            - log.jsonPayload.connection.dest_port
+          to: target.port
+          where: oneOf("log.jsonPayload.disposition",["ALLOWED","DENIED"])
+
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "tcp"
+          where: >-
+            oneOf("log.jsonPayload.disposition",["ALLOWED","DENIED"]) &&
+            equals("log.jsonPayload.connection.protocol",6)
+
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "udp"
+          where: >-
+            oneOf("log.jsonPayload.disposition",["ALLOWED","DENIED"]) &&
+            equals("log.jsonPayload.connection.protocol",17)
+
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "icmp"
+          where: >-
+            oneOf("log.jsonPayload.disposition",["ALLOWED","DENIED"]) &&
+            equals("log.jsonPayload.connection.protocol",1)
+
+      - add:
+          function: "string"
+          params:
+            key: protocol
+            value: "icmpv6"
+          where: >-
+            oneOf("log.jsonPayload.disposition",["ALLOWED","DENIED"]) &&
+            equals("log.jsonPayload.connection.protocol",58)
+
+      - rename:
+          from:
+            - log.jsonPayload.rule_details.reference
+          to: log.jsonPayloadRuleReference
+          where: oneOf("log.jsonPayload.disposition",["ALLOWED","DENIED"])
+
+      - rename:
+          from:
+            - log.jsonPayload.rule_details.direction
+          to: log.jsonPayloadRuleDirection
+          where: oneOf("log.jsonPayload.disposition",["ALLOWED","DENIED"])
+
+      # Firewall Rules Logging writes nothing after the allow decision (no
+      # closing record and no reply count), so the allow record is the only
+      # outcome the source gives: success is the fallback here.
+      - add:
+          function: "string"
+          params:
+            key: actionResult
+            value: "success"
+          where: equals("log.jsonPayload.disposition","ALLOWED")
+
+      # A firewall rule refused the connection.
+      - add:
+          function: "string"
+          params:
+            key: actionResult
+            value: "denied"
+          where: equals("log.jsonPayload.disposition","DENIED")
+
+      - rename:
+          from:
+            - log.jsonPayload.disposition
+          to: log.jsonPayloadDisposition
+          where: oneOf("log.jsonPayload.disposition",["ALLOWED","DENIED"])
 
       # Adding geolocation to origin.ip
       - dynamic:
