@@ -23,6 +23,7 @@ import {AppComponent} from './app.component';
 import {AuthExpiredInterceptor} from './blocks/interceptor/auth-expired.interceptor';
 import {AuthInterceptor} from './blocks/interceptor/auth.interceptor';
 import {ErrorHandlerInterceptor} from './blocks/interceptor/errorhandler.interceptor';
+import {FederationInstanceInterceptor} from './blocks/interceptor/federation-instance.interceptor';
 import {ManageHttpInterceptor} from './blocks/interceptor/managehttp.interceptor';
 import {NotificationInterceptor} from './blocks/interceptor/notification.interceptor';
 import {HttpCancelService} from './blocks/service/httpcancel.service';
@@ -36,6 +37,8 @@ import {AlertIncidentStatusChangeBehavior} from './shared/behaviors/alert-incide
 import {GettingStartedBehavior} from './shared/behaviors/getting-started.behavior';
 import {NavBehavior} from './shared/behaviors/nav.behavior';
 import {NewAlertBehavior} from './shared/behaviors/new-alert.behavior';
+import {initFederationMode} from './federation/hooks/federation-bootstrap';
+import {FederationModeService} from './federation/services/federation-mode.service';
 import {TimezoneFormatService} from './shared/services/utm-timezone.service';
 import {AppVersionService} from './shared/services/version/app-version.service';
 import {UtmSharedModule} from './shared/utm-shared.module';
@@ -111,6 +114,11 @@ export function initTimezoneFormat(apiChecker: ApiServiceCheckerService,
     },
     {
       provide: HTTP_INTERCEPTORS,
+      useClass: FederationInstanceInterceptor,
+      multi: true
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
       useClass: AuthExpiredInterceptor,
       deps: [AuthServerProvider, HttpCancelService, AccountService],
       multi: true
@@ -131,6 +139,12 @@ export function initTimezoneFormat(apiChecker: ApiServiceCheckerService,
       provide: HTTP_INTERCEPTORS,
       useClass: ManageHttpInterceptor,
       multi: true,
+    },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initFederationMode,
+      deps: [FederationModeService],
+      multi: true
     },
     {
       provide: APP_INITIALIZER,

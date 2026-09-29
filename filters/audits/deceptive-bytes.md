@@ -10,7 +10,9 @@ step now runs only when its source exists. Present-source separators and outputs
 are unchanged. The filter's explicit `log.action=blocked` or `prevented` case
 now yields the documented `actionResult=denied` value. It retains the vendor
 action in `log.action`, and no shipped Deceptive Bytes rule reads root
-`actionResult`.
+`actionResult`. CEF records carry the action in `act`, which is read the same way
+(blocked, block, prevented, denied or deny, in any letter case), and their `src`
+becomes `origin.ip` only when the record also carries its action.
 
 The following raw inputs are **fabricated parser fixtures**, not captured Deceptive
 Bytes records:
@@ -66,7 +68,7 @@ comparisons. Literal event labels, thresholds and source-IP requirements are
 unchanged. Six source rules needed neither field nor boolean changes.
 
 Three rules run a history search on `{{.origin.ip}}` (and `{{.log.tacticName}}` or
-`{{.log.processName}}`), but this filter never writes `origin.ip`. A missing
+`{{.log.processName}}`), but this filter writes `origin.ip` only from CEF `src`. A missing
 placeholder makes the search fail, and five failures switch a rule off with a
 Circuit Breaker alert, so the data theft, advanced threat tactic and zero-day
 conditions now also require those fields, as the other seven `origin.ip` rules of

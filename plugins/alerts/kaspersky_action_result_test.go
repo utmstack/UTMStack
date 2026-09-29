@@ -9,8 +9,11 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-// Synthetic CEF and KSC records cover final decisions and IP roles. The
-// isolated EventProcessor parser is replayed separately on the same inputs.
+// Synthetic CEF and KSC records cover final decisions and IP roles. The filter
+// writes only success, failed or denied: CEF act words, and the Security Center
+// event types that state a block (object blocked, found and blocked, launch
+// denied) in native syslog or KasperskyLab CEF. The isolated EventProcessor
+// parser is replayed separately on the same inputs.
 func TestKasperskyActionResultRaw(t *testing.T) {
 	var cases []struct {
 		Name       string            `json:"name"`
@@ -28,7 +31,7 @@ func TestKasperskyActionResultRaw(t *testing.T) {
 	if err := json.Unmarshal(data, &cases); err != nil {
 		t.Fatal(err)
 	}
-	if len(cases) < 17 {
+	if len(cases) < 27 {
 		t.Fatal("outcome and parser regression classes are missing")
 	}
 	config := kaspConfig(t)
@@ -50,7 +53,7 @@ func TestKasperskyActionResultRaw(t *testing.T) {
 					t.Errorf("unexpected %s", path)
 				}
 			}
-			for _, result := range []string{"success", "failure", "denied"} {
+			for _, result := range []string{"success", "failed", "denied", "failure", "blocked"} {
 				matched, err := cache.Eval(`equals("actionResult","`+result+`")`, out)
 				if err != nil || matched != (tc.Result == result) {
 					t.Errorf("outcome predicate %s = %v (%v)", result, matched, err)

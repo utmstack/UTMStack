@@ -1,4 +1,4 @@
-# CISCO ASA filter, version 3.1.1
+# CISCO ASA filter, version 3.2.0
 # Based on examples provided and https://www.cisco.com/c/en/us/td/docs/security/asa/syslog/b_syslog.html
 # Filter Input requirements -> Syslog
 #
@@ -106,6 +106,13 @@ pipeline:
             - origin.port
             - target.port
           where: equals("log.messageId", 106001)
+      # The security policy denied the inbound TCP connection.
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where: equals("log.messageId", 106001)
 
       #......................................................................#
       #ASA-2-106017
@@ -130,6 +137,13 @@ pipeline:
           substring: 'from'
           fields:
             - action
+          where: equals("log.messageId", 106017)
+      # The firewall dropped the land-attack packet.
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
           where: equals("log.messageId", 106017)
       #......................................................................#
       # ASA-1-106021
@@ -315,12 +329,10 @@ pipeline:
             key: actionResult
             value: 'denied'
           where: exists("actionResult") && (equals("log.messageId", 106102) || equals("log.messageId", 106103)) && !equalsIgnoreCase("actionResult", "Permitted")
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
+      # A permitted access-list hit states no final outcome: drop the verb the grok wrote.
+      - delete:
+          fields:
+            - actionResult
           where: exists("actionResult") && (equals("log.messageId", 106102) || equals("log.messageId", 106103)) && equalsIgnoreCase("actionResult", "Permitted")
       #......................................................................#
       # ASA-4-109017
@@ -387,12 +399,7 @@ pipeline:
           fields:
             - origin.user
           where: equals("log.messageId", 109101)
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("log.messageId", 109101)
+      # No actionResult: an informational notice with no final outcome.
       #......................................................................#
       # ASA-4-109102
       - grok:
@@ -422,7 +429,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
+            value: 'failed'
           where: equals("log.messageId", 109102)
       #......................................................................#
       # ASA-3-109103
@@ -463,7 +470,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
+            value: 'failed'
           where: equals("log.messageId", 109103)
       #......................................................................#
       # ASA-109201 to 109213
@@ -494,13 +501,19 @@ pipeline:
             - log.session
             - origin.user
           where: greaterOrEqual("log.messageId", 109201) && lessOrEqual("log.messageId", 109213)
-      # Adding action result
+      # UAUTH entries: the text says Succeeded or Failed; other texts (for example stale-entry removal) get no value.
       - add:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
-          where: greaterOrEqual("log.messageId", 109201) && lessOrEqual("log.messageId", 109213)
+            value: 'success'
+          where: greaterOrEqual("log.messageId", 109201) && lessOrEqual("log.messageId", 109213) && contains("log.msg", "Succeeded")
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'failed'
+          where: greaterOrEqual("log.messageId", 109201) && lessOrEqual("log.messageId", 109213) && contains("log.msg", "Failed")
       #......................................................................#
       # ASA-6-113004
       - grok:
@@ -544,7 +557,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
+            value: 'success'
           where: equals("log.messageId", 113004)
       #......................................................................#
       # ASA-6-113005
@@ -587,12 +600,19 @@ pipeline:
             - target.ip
             - origin.user
           where: equals("log.messageId", 113005)
+      # Rejected authentication is a failed sign-in; rejected authorization stays denied.
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'failed'
+          where: equals("log.messageId", 113005) && contains("log.msg", "authentication Rejected")
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'denied'
-          where: equals("log.messageId", 113005)
+          where: equals("log.messageId", 113005) && !contains("log.msg", "authentication Rejected")
       #......................................................................#
       # ASA-6-113008
       - grok:
@@ -610,7 +630,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
+            value: 'success'
           where: equals("log.messageId", 113008)
       #......................................................................#
       # ASA-6-113009
@@ -658,13 +678,7 @@ pipeline:
           fields:
             - log.policy
           where: equals("log.messageId", 113009)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("log.messageId", 113009)
+      # No actionResult: an informational notice with no final outcome.
       #......................................................................#
       # ASA-6-113010
       - grok:
@@ -754,7 +768,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
+            value: 'success'
           where: equals("log.messageId", 113012)
       #......................................................................#
       # ASA-6-113013
@@ -834,7 +848,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'denied'
+            value: 'failed'
           where: equals("log.messageId", 113015) || equals("log.messageId", 113017)
       #......................................................................#
       # ASA-6-113016
@@ -881,7 +895,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'denied'
+            value: 'failed'
           where: equals("log.messageId", 113016)
       #......................................................................#
       # ASA-4-113019
@@ -941,13 +955,7 @@ pipeline:
             - origin.bytesReceived
           to: int
           where: equals("log.messageId", 113019)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("log.messageId", 113019)
+      # No actionResult: an informational notice with no final outcome.
       #......................................................................#
       # ASA-113031,113032,113033
       # Common fields
@@ -1059,14 +1067,14 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
+            value: 'success'
           where: equals("log.messageId", 113039)
       # Adding action result
       - add:
           function: 'string'
           params:
             key: actionResult
-            value: 'denied'
+            value: 'failed'
           where: equals("log.messageId", 113035) || equals("log.messageId", 113038)
       #......................................................................#
       # ASA-4-113042
@@ -1126,6 +1134,13 @@ pipeline:
           fields:
             - log.remoteUser
           where: equals("log.messageId", 113042)
+      # The redirect filter denied the non-HTTP connection.
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where: equals("log.messageId", 113042)
       #......................................................................#
       # ASA-2-201003
       - grok:
@@ -1172,13 +1187,7 @@ pipeline:
           fields:
             - log.globalIp
           where: equals("log.messageId", 201003)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("log.messageId", 201003)
+      # No actionResult: an informational notice with no final outcome.
       #......................................................................#
       # ASA-4-209003
       - grok:
@@ -1223,7 +1232,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
+            value: 'denied'
           where: equals("log.messageId", 209003)
       #......................................................................#
       # ASA-3-316001
@@ -1300,7 +1309,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'denied'
+            value: 'failed'
           where: equals("log.messageId", 316002)
       #......................................................................#
       # ASA-302003,302004
@@ -1387,13 +1396,7 @@ pipeline:
             - log.tmpFromip
             - log.tmpToip
           where: equals("log.messageId", 302003) || equals("log.messageId", 302004)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("log.messageId", 302003) || equals("log.messageId", 302004)
+      # No actionResult: a Built record is the session start, not its outcome. 302004 is a pre-allocation notice.
       #......................................................................#
       # ASA-6-302012
       - grok:
@@ -1418,13 +1421,7 @@ pipeline:
           fields:
             - origin.port
           where: equals("log.messageId", 302012)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("log.messageId", 302012)
+      # No actionResult: a pre-allocation notice states no outcome.
       #......................................................................#
       # ASA-6-302013
       - grok:
@@ -1552,13 +1549,7 @@ pipeline:
           fields:
             - log.connectionId
           where: equals("log.messageId", 302013)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("log.messageId", 302013)
+      # No actionResult: a Built record is the session start, not its outcome.
       #......................................................................#
       # ASA-6-302014
       - grok:
@@ -1665,13 +1656,7 @@ pipeline:
           fields:
             - log.connectionId
           where: equals("log.messageId", 302014)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("log.messageId", 302014)
+      # No actionResult: a teardown states no decision, and its outcome is not derived yet.
       #......................................................................#
       # ASA-6-302015
       - grok:
@@ -1801,13 +1786,7 @@ pipeline:
           fields:
             - log.connectionId
           where: equals("log.messageId", 302015)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("log.messageId", 302015)
+      # No actionResult: a Built record is the session start, not its outcome.
       #......................................................................#
       # ASA-6-302016
       - grok:
@@ -1923,13 +1902,7 @@ pipeline:
           fields:
             - log.connectionId
           where: equals("log.messageId", 302016)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("log.messageId", 302016)
+      # No actionResult: a teardown states no decision, and its outcome is not derived yet.
       #......................................................................#
       # ASA-6-302017
       - grok:
@@ -2067,13 +2040,7 @@ pipeline:
           fields:
             - log.connectionId
           where: equals("log.messageId", 302017)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("log.messageId", 302017)
+      # No actionResult: a Built record is the session start, not its outcome.
       #......................................................................#
       # ASA-6-302018
       - grok:
@@ -2199,13 +2166,7 @@ pipeline:
           fields:
             - log.connectionId
           where: equals("log.messageId", 302018)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("log.messageId", 302018)
+      # No actionResult: a teardown states no decision, and its outcome is not derived yet.
       #......................................................................#
       # ASA-6-302020, 302021
       # 302020
@@ -2427,13 +2388,7 @@ pipeline:
             - log.tmpGaddrAndFwUser
             - log.tmpLaddrAndFwUser
           where: equals("log.messageId", 302020) || equals("log.messageId", 302021)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("log.messageId", 302020) || equals("log.messageId", 302021)
+      # No actionResult: a Built record is the session start, not its outcome. 302021 is its teardown.
       #......................................................................#
       # ASA-6-302022, 302024, 302026
       - grok:
@@ -2545,13 +2500,7 @@ pipeline:
             - log.tmpMappedIpPortFrom
             - log.tmpMappedIpPortTo
           where: equals("log.messageId", 302022) || equals("log.messageId", 302024) || equals("log.messageId", 302026)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("log.messageId", 302022) || equals("log.messageId", 302024) || equals("log.messageId", 302026)
+      # No actionResult: a Built record is the session start, not its outcome.
       #......................................................................#
       # ASA-6-302023, 302025, 302027
       - grok:
@@ -2603,13 +2552,7 @@ pipeline:
             - origin.ip
             - target.ip
           where: equals("log.messageId", 302023) || equals("log.messageId", 302025) || equals("log.messageId", 302027)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("log.messageId", 302023) || equals("log.messageId", 302025) || equals("log.messageId", 302027)
+      # No actionResult: a teardown states no decision, and its outcome is not derived yet.
       #......................................................................#
       # ASA-302033,302034
       - grok:
@@ -2674,18 +2617,12 @@ pipeline:
             - log.tmpPortFrom
             - log.tmpIpPortTo
           where: equals("log.messageId", 302033) || equals("log.messageId", 302034)
-      # Adding action result
+      # No actionResult: a pre-allocation notice states no outcome.
       - add:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
-          where: equals("log.messageId", 302033)
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'denied'
+            value: 'failed'
           where: equals("log.messageId", 302034)
       #......................................................................#
       #ASA-6-302035
@@ -2858,13 +2795,7 @@ pipeline:
             - log.firewallUserFrom
             - log.firewallUserTo
           where: equals("log.messageId", 302035)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("log.messageId", 302035)
+      # No actionResult: a Built record is the session start, not its outcome.
       #......................................................................#
       # ASA-6-302036
       - grok:
@@ -3008,13 +2939,7 @@ pipeline:
             - log.firewallUserFrom
             - log.firewallUserTo
           where: equals("log.messageId", 302036)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("log.messageId", 302036)
+      # No actionResult: a teardown states no decision, and its outcome is not derived yet.
       #......................................................................#
       # ASA-6-302303
       - grok:
@@ -3089,13 +3014,7 @@ pipeline:
           fields:
             - log.connectionId
           where: equals("log.messageId", 302303)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("log.messageId", 302303)
+      # No actionResult: a Built record is the session start, not its outcome.
       #......................................................................#
       # ASA-6-302304
       - grok:
@@ -3162,13 +3081,7 @@ pipeline:
           fields:
             - log.connectionId
           where: equals("log.messageId", 302304)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("log.messageId", 302304)
+      # No actionResult: a teardown states no decision, and its outcome is not derived yet.
       #......................................................................#
       # ASA-6-302305
       - grok:
@@ -3323,13 +3236,7 @@ pipeline:
             - log.firewallUserFrom
             - log.firewallUserTo
           where: equals("log.messageId", 302305)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("log.messageId", 302305)
+      # No actionResult: a Built record is the session start, not its outcome.
       #......................................................................#
       # ASA-6-302306
       - grok:
@@ -3457,13 +3364,7 @@ pipeline:
             - log.firewallUserFrom
             - log.firewallUserTo
           where: equals("log.messageId", 302306)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("log.messageId", 302306)
+      # No actionResult: a teardown states no decision, and its outcome is not derived yet.
       #......................................................................#
       # ASA-6-305009
       - grok:
@@ -4045,7 +3946,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
+            value: 'denied'
           where: equals("log.messageId", 402114)
       #......................................................................#
       # ASA-4-402115
@@ -4080,7 +3981,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
+            value: 'denied'
           where: equals("log.messageId", 402115)
       #......................................................................#
       # ASA-4-402116
@@ -4199,7 +4100,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
+            value: 'denied'
           where: equals("log.messageId", 402116)
       #......................................................................#
       # ASA-4-402117
@@ -4235,7 +4136,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
+            value: 'denied'
           where: equals("log.messageId", 402117)
       #......................................................................#
       # ASA-4-402118
@@ -4305,7 +4206,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
+            value: 'denied'
           where: equals("log.messageId", 402118)
       #......................................................................#
       # ASA-4-402119, 402120
@@ -4369,7 +4270,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
+            value: 'denied'
           where: equals("log.messageId", 402119) || equals("log.messageId", 402120)
       #......................................................................#
       # ASA-5-402128
@@ -4641,13 +4542,7 @@ pipeline:
             - log.srcInterface
             - log.tunnelId
           where: equals("log.messageId", 603109)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("log.messageId", 603109)
+      # No actionResult: an informational notice with no final outcome.
       #......................................................................#
       # ASA-6-605004
       - grok:
@@ -4687,7 +4582,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'denied'
+            value: 'failed'
           where: equals("log.messageId", 605004)
       # Cleaning fields
       - trim:
@@ -4744,13 +4639,7 @@ pipeline:
               pattern: '{{.greedy}}'
           source: log.msg
           where: equals("log.messageId", 617100)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("log.messageId", 617100)
+      # No actionResult: an informational notice with no final outcome.
       #......................................................................#
       # ASA-2-106018
       - grok:
@@ -4950,13 +4839,7 @@ pipeline:
             key: action
             value: 'The VPN client is connected to the specified headend'
           where: equals("log.messageId", 611307)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("log.messageId", 611307)
+      # No actionResult: an informational notice with no final outcome.
       #......................................................................#
       # ASA-6-611309
       - grok:
@@ -4971,13 +4854,7 @@ pipeline:
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
           source: log.msg
           where: equals("log.messageId", 611309)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("log.messageId", 611309)
+      # No actionResult: an informational notice with no final outcome.
       #......................................................................#
       # ASA-6-611310,611311
       - grok:
@@ -4999,13 +4876,13 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
+            value: 'success'
           where: equals("log.messageId", 611310)
       - add:
           function: 'string'
           params:
             key: actionResult
-            value: 'denied'
+            value: 'failed'
           where: equals("log.messageId", 611311)
       #......................................................................#
       # ASA-6-611314
@@ -5028,13 +4905,7 @@ pipeline:
             key: action
             value: 'Load Balancing Cluster redirected the Secure Firewall'
           where: equals("log.messageId", 611314)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("log.messageId", 611314)
+      # No actionResult: an informational notice with no final outcome.
       #......................................................................#
       # ASA-6-611315
       - grok:
@@ -5052,13 +4923,7 @@ pipeline:
             key: action
             value: 'Disconnecting from Load Balancing Cluster'
           where: equals("log.messageId", 611315)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("log.messageId", 611315)
+      # No actionResult: an informational notice with no final outcome.
       #......................................................................#
       # ASA-6-611318
       - grok:
@@ -5191,7 +5056,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
+            value: 'success'
           where: equals("log.messageId", 713253)
       #......................................................................#
       # ASA-6-716001,716002,716003
@@ -5250,13 +5115,13 @@ pipeline:
           fields:
             - origin.user
           where: equals("log.messageId", 716001) || equals("log.messageId", 716002) || equals("log.messageId", 716003)
-      # Adding action result
+      # A WebVPN session that started is a completed sign-in; 716002 (session ended) gets no value.
       - add:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
-          where: equals("log.messageId", 716001) || equals("log.messageId", 716002)
+            value: 'success'
+          where: equals("log.messageId", 716001)
       #......................................................................#
       # ASA-6-716004,716005,716006,716007,716009
       - grok:
@@ -5309,13 +5174,19 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'denied'
-          where: equals("log.messageId", 716004) || equals("log.messageId", 716007) || equals("log.messageId", 716009)
+            value: 'failed'
+          where: equals("log.messageId", 716007)
       - add:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
+            value: 'denied'
+          where: equals("log.messageId", 716004) || equals("log.messageId", 716009)
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
           where: equals("log.messageId", 716006)
       #......................................................................#
       # ASA-6-716038
@@ -5340,7 +5211,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
+            value: 'success'
           where: equals("log.messageId", 716038)
       # Cleaning fields
       - trim:
@@ -5412,7 +5283,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'denied'
+            value: 'failed'
           where: equals("log.messageId", 716039)
       # Cleaning fields
       - trim:
@@ -5441,18 +5312,24 @@ pipeline:
           source: log.msg
           where: equals("log.messageId", 719017) || (greaterOrEqual("log.messageId", 719019) && lessOrEqual("log.messageId", 719023))
       # Adding log.ciscoResult and modifying some actions
-      # Adding action result
+      # 719023 is a failed authentication; 719019 is an authorization refusal and stays denied.
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'failed'
+          where: equals("log.messageId", 719023)
       - add:
           function: 'string'
           params:
             key: actionResult
             value: 'denied'
-          where: equals("log.messageId", 719019) || equals("log.messageId", 719023)
+          where: equals("log.messageId", 719019)
       - add:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
+            value: 'success'
           where: equals("log.messageId", 719020) || equals("log.messageId", 719022)
       - add:
           function: 'string'
@@ -5552,7 +5429,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'denied'
+            value: 'failed'
           where: equals("log.messageId", 719024)
       #......................................................................#
       # ASA-7-609002
@@ -5579,13 +5456,7 @@ pipeline:
           fields:
             - log.zoneName
           where: equals("log.messageId", 609002)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("log.messageId", 609002)
+      # No actionResult: an informational notice with no final outcome.
       #......................................................................#
       # ASA-6-611305
       - grok:
@@ -5736,13 +5607,7 @@ pipeline:
             - log.tmpIp
           to: target.ip
           where: equals("log.messageId", 733101) && contains("action", "targeted")
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("log.messageId", 733101)
+      # No actionResult: a threat-detection rate notice is a detection, not an outcome.
       #......................................................................#
       # ASA-4-733102, 733103
       - grok:
@@ -5768,6 +5633,13 @@ pipeline:
             key: action
             value: 'Threat-detection removes host to shun list'
           where: (equals("log.messageId", 733102) || equals("log.messageId", 733103)) && contains("log.msg", "removes")
+      # A host added to the shun list is blocked; 733103 (removed) gets no value.
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where: equals("log.messageId", 733102)
       #......................................................................#
       # Decoding severity
       - add:

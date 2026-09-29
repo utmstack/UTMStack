@@ -122,6 +122,15 @@ func TestO365ActionResultRuleCompatibility(t *testing.T) {
 				t.Fatal(gaps)
 			}
 			failureRule := strings.Contains(name, "password_")
+			if failureRule {
+				// A conditional-access refusal (AADSTS53003) normalizes to denied and still counts.
+				refused := o365OutcomeSet(t, o365OutcomeRaw(t, name), "ErrorNumber", "53003")
+				refusedEvent := o365ActionResultNormalize(t, refused)
+				if got := gjson.Get(refusedEvent, "actionResult").String(); got != "denied" {
+					t.Fatalf("conditional-access refusal actionResult = %q, want denied", got)
+				}
+				o365OutcomeAssert(t, cache, r, refusedEvent, true)
+			}
 			// Exercise extraction and normalization for a negative record as well
 			// as the positive raw fixture before testing legacy stored outcomes.
 			negativeRaw := o365OutcomeSet(t, o365OutcomeRaw(t, name), "ResultStatus", "Succeeded")
@@ -133,13 +142,16 @@ func TestO365ActionResultRuleCompatibility(t *testing.T) {
 				negativeRaw = o365OutcomeSet(t, negativeRaw, "ResultStatus", "Failed")
 			}
 			o365OutcomeAssert(t, cache, r, o365ActionResultNormalize(t, negativeRaw), false)
+			// Filters write only success, failed or denied. The legacy words failure and
+			// blocked stay in the list as negative cases: the rules read one word per outcome.
 			for _, outcome := range []string{"success", "failure", "failed", "denied", "blocked", "unknown", ""} {
-				want := outcome == "denied" || outcome == "blocked"
+				want := outcome == "denied"
 				if failureRule {
-					want = outcome == "failure" || outcome == "failed"
+					// Conditional-access refusals of a sign-in are denied, other sign-in failures failed.
+					want = outcome == "failed" || outcome == "denied"
 				}
 				if name == "dlp_policy_violations" {
-					want = outcome != "failure" && outcome != "failed"
+					want = outcome != "failed"
 				}
 				t.Run(outcome, func(t *testing.T) {
 					o365OutcomeAssert(t, cache, r, o365OutcomeSet(t, event, "actionResult", outcome), want)
@@ -168,7 +180,7 @@ func TestO365ActionResultPreservesIndependentBranches(t *testing.T) {
 		name, event string
 		want        bool
 	}{
-		{"insider_risk_indicators", `{"action":"InsiderRiskAlert","actionResult":"failure"}`, true},
+		{"insider_risk_indicators", `{"action":"InsiderRiskAlert","actionResult":"failed"}`, true},
 		{"insider_risk_indicators", `{"log":{"RiskLevel":"High","AlertSource":"InsiderRiskManagement"}}`, true},
 		{"insider_risk_indicators", `{"log":{"RiskLevel":"Low","AlertSource":"InsiderRiskManagement"}}`, false},
 		{"information_barriers_violations", `{"action":"InformationBarrierPolicyViolation","origin":{"user":"reviewer@example.test"}}`, true},

@@ -1600,7 +1600,7 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"signin.amazonaws.com\",\"eventName\":\"ConsoleLogin\",\"eventType\":\"AwsConsoleSignIn\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"Root\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:root\",\"principalId\":\"TESTPRINCIPAL\"},\"requestParameters\":{},\"responseElements\":{\"ConsoleLogin\":\"Failure\"},\"additionalEventData\":{\"MFAUsed\":\"Yes\"},\"errorMessage\":\"Failed authentication\"}",
     "expected": {
-      "actionResult": "failure",
+      "actionResult": "failed",
       "log.userIdentity.type": "Root"
     },
     "absent": [],
@@ -1613,7 +1613,7 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"signin.amazonaws.com\",\"eventName\":\"ConsoleLogin\",\"eventType\":\"AwsConsoleSignIn\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"Root\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:root\",\"principalId\":\"TESTPRINCIPAL\"},\"requestParameters\":{},\"responseElements\":{\"ConsoleLogin\":\"Failure\"},\"additionalEventData\":{\"MFAUsed\":\"No\"},\"errorMessage\":\"Failed authentication\"}",
     "expected": {
-      "actionResult": "failure",
+      "actionResult": "failed",
       "log.userIdentity.type": "Root"
     },
     "absent": [],
@@ -1626,7 +1626,7 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"signin.amazonaws.com\",\"eventName\":\"ConsoleLogin\",\"eventType\":\"AwsConsoleSignIn\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"Root\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:root\",\"principalId\":\"TESTPRINCIPAL\"},\"requestParameters\":{},\"responseElements\":{\"ConsoleLogin\":\"Failure\"},\"errorMessage\":\"Failed authentication\"}",
     "expected": {
-      "actionResult": "failure",
+      "actionResult": "failed",
       "log.userIdentity.type": "Root"
     },
     "absent": [],
@@ -1666,7 +1666,7 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"signin.amazonaws.com\",\"eventName\":\"GetSigninToken\",\"eventType\":\"AwsConsoleSignIn\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":{\"GetSigninToken\":\"Failure\"}}",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []
@@ -1689,7 +1689,7 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"signin.amazonaws.com\",\"eventName\":\"CheckMfa\",\"eventType\":\"AwsConsoleSignIn\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":{\"CheckMfa\":\"Failure\"}}",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []
@@ -1709,7 +1709,7 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"iam.amazonaws.com\",\"eventName\":\"UpdateAssumeRolePolicy\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null,\"errorCode\":\"MalformedPolicyDocument\"}",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": [
@@ -2006,7 +2006,7 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"ec2.amazonaws.com\",\"eventName\":\"DescribeTags\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null,\"errorMessage\":\"API failed\"}",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []
@@ -2026,7 +2026,7 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"ec2.amazonaws.com\",\"eventName\":\"DescribeTags\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":{\"errorMessage\":\"Rejected\"}}",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []

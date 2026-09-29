@@ -230,3 +230,66 @@ func TestDeceptiveBytesExistingRulePredicate(t *testing.T) {
 		})
 	}
 }
+
+// The outcome step and the CEF source-address step, evaluated with the linked
+// SDK CEL. An address is mapped only on CEF records that also carry their
+// action, so it never reaches threat intelligence without its outcome.
+func TestDeceptiveBytesOutcomeAndSourceAddress(t *testing.T) {
+	encoded, err := utils.ReadPbYaml(filepath.Join("..", "..", "filters", "antivirus", "deceptive-bytes.yml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	config := new(plugins.Config)
+	if err := protojson.Unmarshal(encoded, config); err != nil {
+		t.Fatal(err)
+	}
+	var outcome, source string
+	for _, step := range config.Pipeline[0].Steps {
+		if add := step.Add; add != nil && add.Params["key"].GetStringValue() == "actionResult" {
+			outcome = add.Where
+		}
+		if r := step.Rename; r != nil && r.To == "origin.ip" && len(r.From) == 1 && r.From[0] == "log.src" {
+			source = r.Where
+		}
+	}
+	if outcome == "" || source == "" {
+		t.Fatalf("steps not found: outcome=%t source=%t", outcome != "", source != "")
+	}
+	cache := plugins.NewCELCache("deceptive-bytes-outcome")
+	const cef = `"raw":"<14>CEF:0|Deceptive Bytes|Deceptive Bytes|6.0|1001|Malware prevented|8|"`
+	for _, tc := range []struct {
+		name, input          string
+		wantDenied, wantSide bool
+	}{
+		{"cef act blocked", `{` + cef + `,"log":{"act":"blocked","src":"203.0.113.20"}}`, true, true},
+		{"cef act prevented", `{` + cef + `,"log":{"act":"prevented","src":"192.0.2.30"}}`, true, true},
+		{"cef act capitalized", `{` + cef + `,"log":{"act":"Prevented","src":"192.0.2.30"}}`, true, true},
+		{"cef act deny", `{` + cef + `,"log":{"act":"DENY","src":"2001:db8::20"}}`, true, true},
+		{"cef act detected", `{` + cef + `,"log":{"act":"detected","src":"192.0.2.30"}}`, false, true},
+		{"cef act phrase", `{` + cef + `,"log":{"act":"not blocked","src":"192.0.2.30"}}`, false, true},
+		{"cef source without action", `{` + cef + `,"log":{"src":"192.0.2.31"}}`, false, false},
+		{"cef unusable source", `{` + cef + `,"log":{"act":"blocked","src":"0.0.0.0"}}`, true, false},
+		{"cef unspecified v6 source", `{` + cef + `,"log":{"act":"blocked","src":"::"}}`, true, false},
+		{"cef non-address source", `{` + cef + `,"log":{"act":"blocked","src":"dbmgmt.example.com"}}`, true, false},
+		{"key=value action blocked", `{"raw":"<14>1 2026-09-27T12:00:00Z host 2 foo:1 action=blocked","log":{"action":"blocked","src":"192.0.2.33"}}`, true, false},
+		{"key=value action capitalized", `{"raw":"<14>1 2026-09-27T12:00:00Z host 2 foo:1 action=Blocked","log":{"action":"Blocked"}}`, true, false},
+		{"key=value other action", `{"raw":"<14>1 2026-09-27T12:00:00Z host 2 foo:1 action=file_copy","log":{"action":"file_copy"}}`, false, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			denied, err := cache.Eval(outcome, tc.input)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if denied != tc.wantDenied {
+				t.Errorf("denied = %t, want %t", denied, tc.wantDenied)
+			}
+			side, err := cache.Eval(source, tc.input)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if side != tc.wantSide {
+				t.Errorf("origin.ip mapped = %t, want %t", side, tc.wantSide)
+			}
+		})
+	}
+}

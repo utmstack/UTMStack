@@ -1,5 +1,5 @@
 {
-  "provenance": "Expected results for the FABRICATED lines in raw.json, recorded from the public EventProcessor playground (commit 497bf53dbd1ae096f7b2dbc7bce77a6bf9f22ce1) with this filter, the three rules and patterns.yaml, after the declared per-change expectations were checked. fields excludes the envelope keys, deviceTime and tenantName.",
+  "provenance": "Expected results for the FABRICATED lines in raw.json, recorded from the public EventProcessor playground (commit 497bf53dbd1ae096f7b2dbc7bce77a6bf9f22ce1) with this filter, the three rules and patterns.yaml, after the declared per-change expectations were checked. fields excludes the envelope keys, deviceTime and tenantName. For the action-result revision (filter 3.2.0) every case was re-recorded with EventProcessor 8a3ade72bd9d12db21f6b273200588fb49540f14 (go-sdk v1.1.36): the only differences on the earlier cases are actionResult blocked to denied on the two SW_DAI lines and failed added on the four SSH2_UNEXPECTED_MSG lines.",
   "envelopeTimestamp": "2026-09-24T14:00:00Z",
   "cases": {
     "dai-dhcp-snooping-deny": {
@@ -11,7 +11,7 @@
         "log.facilityMnemonic": "DHCP_SNOOPING_DENY",
         "log.msg": "SW_DAI-4-DHCP_SNOOPING_DENY: 1 Invalid ARPs (Res) on Gi9/0/44, vlan 910.([0200.0000.0302/192.0.2.52/0200.0000.0303/192.0.2.53/13:11:01 UTC Thu Sep 24 2026])",
         "log.severity": "4",
-        "actionResult": "blocked",
+        "actionResult": "denied",
         "severity": "medium"
       },
       "alerts": []
@@ -25,7 +25,7 @@
         "log.facilityMnemonic": "INVALID_ARP",
         "log.msg": "SW_DAI-4-INVALID_ARP: 1 Invalid ARPs (Req) on Gi9/0/44, vlan 910.([0200.0000.0301/192.0.2.51/0000.0000.0000/192.0.2.1/13:11:00 UTC Thu Sep 24 2026])",
         "log.severity": "4",
-        "actionResult": "blocked",
+        "actionResult": "denied",
         "severity": "medium"
       },
       "alerts": []
@@ -511,6 +511,7 @@
         "log.msg": "SSH-4-SSH2_UNEXPECTED_MSG: Unexpected message type has arrived. Terminating the connection from 198.51.100.21",
         "log.severity": "4",
         "origin.ip": "198.51.100.21",
+        "actionResult": "failed",
         "severity": "medium"
       },
       "alerts": []
@@ -524,6 +525,7 @@
         "log.facilityMnemonic": "SSH2_UNEXPECTED_MSG",
         "log.msg": "SSH-4-SSH2_UNEXPECTED_MSG: Unexpected message type has arrived. Terminating the connection from 198.51.100.256",
         "log.severity": "4",
+        "actionResult": "failed",
         "severity": "medium"
       },
       "alerts": []
@@ -537,6 +539,7 @@
         "log.facilityMnemonic": "SSH2_UNEXPECTED_MSG",
         "log.msg": "SSH-4-SSH2_UNEXPECTED_MSG: Unexpected message type has arrived. Terminating the connection from 2001:db8::21",
         "log.severity": "4",
+        "actionResult": "failed",
         "severity": "medium"
       },
       "alerts": []
@@ -550,6 +553,7 @@
         "log.facilityMnemonic": "SSH2_UNEXPECTED_MSG",
         "log.msg": "SSH-4-SSH2_UNEXPECTED_MSG: Unexpected message type has arrived. Terminating the connection from 198.51.100.22 port 22",
         "log.severity": "4",
+        "actionResult": "failed",
         "severity": "medium"
       },
       "alerts": []
@@ -605,6 +609,491 @@
         "log.facility": "SW_VLAN",
         "log.facilityMnemonic": "VTPMODECHANGE",
         "log.msg": "SW_VLAN-6-VTPMODECHANGE: VLAN manager changing device mode from SERVER to TRANSPARENT.",
+        "log.severity": "6",
+        "severity": "low"
+      },
+      "alerts": []
+    },
+    "ar-ssh-close-empty-user": {
+      "logObject": true,
+      "fields": {
+        "log.ciscoMsg": "SSH Session from 198.51.100.24 (tty = 0) for user '' using crypto cipher '' closed",
+        "log.ciscoTime": "Sep 24 13:12:00.100",
+        "log.facility": "SSH",
+        "log.facilityMnemonic": "SSH_CLOSE",
+        "log.msg": "SSH-5-SSH_CLOSE: SSH Session from 198.51.100.24 (tty = 0) for user '' using crypto cipher '' closed",
+        "log.severity": "5",
+        "origin.ip": "198.51.100.24",
+        "actionResult": "failed",
+        "severity": "low"
+      },
+      "alerts": []
+    },
+    "ar-ssh2-close-empty-user": {
+      "logObject": true,
+      "fields": {
+        "log.ciscoMsg": "SSH2 Session from 198.51.100.25 (tty = 0) for user '' using crypto cipher 'aes256-ctr', hmac 'hmac-sha2-256' closed",
+        "log.ciscoTime": "Sep 24 13:12:01.100",
+        "log.facility": "SSH",
+        "log.facilityMnemonic": "SSH2_CLOSE",
+        "log.msg": "SSH-5-SSH2_CLOSE: SSH2 Session from 198.51.100.25 (tty = 0) for user '' using crypto cipher 'aes256-ctr', hmac 'hmac-sha2-256' closed",
+        "log.severity": "5",
+        "actionResult": "failed",
+        "severity": "low"
+      },
+      "alerts": []
+    },
+    "ar-ssh2-close-named-user": {
+      "logObject": true,
+      "fields": {
+        "log.ciscoMsg": "SSH2 Session from 198.51.100.26 (tty = 0) for user 'alice' using crypto cipher 'aes256-ctr', hmac 'hmac-sha2-256' closed",
+        "log.ciscoTime": "Sep 24 13:12:02.100",
+        "log.facility": "SSH",
+        "log.facilityMnemonic": "SSH2_CLOSE",
+        "log.msg": "SSH-5-SSH2_CLOSE: SSH2 Session from 198.51.100.26 (tty = 0) for user 'alice' using crypto cipher 'aes256-ctr', hmac 'hmac-sha2-256' closed",
+        "log.severity": "5",
+        "severity": "low"
+      },
+      "alerts": []
+    },
+    "ar-ssh2-userauth-succeeded": {
+      "logObject": true,
+      "fields": {
+        "log.ciscoMsg": "User 'alice' authentication for SSH2 Session from 198.51.100.27 (tty = 0) using crypto cipher 'aes128-ctr', hmac 'hmac-sha2-256' Succeeded",
+        "log.ciscoTime": "Sep 24 13:12:03.100",
+        "log.facility": "SSH",
+        "log.facilityMnemonic": "SSH2_USERAUTH",
+        "log.msg": "SSH-5-SSH2_USERAUTH: User 'alice' authentication for SSH2 Session from 198.51.100.27 (tty = 0) using crypto cipher 'aes128-ctr', hmac 'hmac-sha2-256' Succeeded",
+        "log.severity": "5",
+        "actionResult": "success",
+        "severity": "low"
+      },
+      "alerts": []
+    },
+    "ar-ssh2-userauth-failed": {
+      "logObject": true,
+      "fields": {
+        "log.ciscoMsg": "User 'alice' authentication for SSH2 Session from 198.51.100.27 (tty = 0) using crypto cipher 'aes128-ctr', hmac 'hmac-sha2-256' Failed",
+        "log.ciscoTime": "Sep 24 13:12:04.100",
+        "log.facility": "SSH",
+        "log.facilityMnemonic": "SSH2_USERAUTH",
+        "log.msg": "SSH-5-SSH2_USERAUTH: User 'alice' authentication for SSH2 Session from 198.51.100.27 (tty = 0) using crypto cipher 'aes128-ctr', hmac 'hmac-sha2-256' Failed",
+        "log.severity": "5",
+        "actionResult": "failed",
+        "severity": "low"
+      },
+      "alerts": []
+    },
+    "ar-ssh2-session-succeeded": {
+      "logObject": true,
+      "fields": {
+        "log.ciscoMsg": "SSH2 Session request from 198.51.100.28 (tty = 0) using crypto cipher 'aes256-ctr', hmac 'hmac-sha2-256' Succeeded",
+        "log.ciscoTime": "Sep 24 13:12:05.100",
+        "log.facility": "SSH",
+        "log.facilityMnemonic": "SSH2_SESSION",
+        "log.msg": "SSH-5-SSH2_SESSION: SSH2 Session request from 198.51.100.28 (tty = 0) using crypto cipher 'aes256-ctr', hmac 'hmac-sha2-256' Succeeded",
+        "log.severity": "5",
+        "actionResult": "success",
+        "severity": "low"
+      },
+      "alerts": []
+    },
+    "ar-ssh2-session-failed": {
+      "logObject": true,
+      "fields": {
+        "log.ciscoMsg": "SSH2 Session request from 198.51.100.28 (tty = 0) using crypto cipher 'aes256-ctr', hmac 'hmac-sha2-256' Failed",
+        "log.ciscoTime": "Sep 24 13:12:06.100",
+        "log.facility": "SSH",
+        "log.facilityMnemonic": "SSH2_SESSION",
+        "log.msg": "SSH-5-SSH2_SESSION: SSH2 Session request from 198.51.100.28 (tty = 0) using crypto cipher 'aes256-ctr', hmac 'hmac-sha2-256' Failed",
+        "log.severity": "5",
+        "actionResult": "failed",
+        "severity": "low"
+      },
+      "alerts": []
+    },
+    "ar-login-success": {
+      "logObject": true,
+      "fields": {
+        "log.ciscoMsg": "Login Success [user: alice] [Source: 198.51.100.29] [localport: 22] at 13:12:07 UTC Thu Sep 24 2026",
+        "log.ciscoTime": "Sep 24 13:12:07.100",
+        "log.facility": "SEC_LOGIN",
+        "log.facilityMnemonic": "LOGIN_SUCCESS",
+        "log.msg": "SEC_LOGIN-5-LOGIN_SUCCESS: Login Success [user: alice] [Source: 198.51.100.29] [localport: 22] at 13:12:07 UTC Thu Sep 24 2026",
+        "log.severity": "5",
+        "actionResult": "success",
+        "severity": "low"
+      },
+      "alerts": []
+    },
+    "ar-login-failed": {
+      "logObject": true,
+      "fields": {
+        "log.ciscoMsg": "Login failed [user: ] [Source: 198.51.100.30] [localport: 22] [Reason: Login Authentication Failed] at 13:12:08 UTC Thu Sep 24 2026",
+        "log.ciscoTime": "Sep 24 13:12:08.100",
+        "log.facility": "SEC_LOGIN",
+        "log.facilityMnemonic": "LOGIN_FAILED",
+        "log.msg": "SEC_LOGIN-4-LOGIN_FAILED: Login failed [user: ] [Source: 198.51.100.30] [localport: 22] [Reason: Login Authentication Failed] at 13:12:08 UTC Thu Sep 24 2026",
+        "log.severity": "4",
+        "actionResult": "failed",
+        "severity": "medium"
+      },
+      "alerts": []
+    },
+    "ar-login-quiet-mode": {
+      "logObject": true,
+      "fields": {
+        "log.ciscoMsg": "Still timeleft for watching failures is 24 secs, [user: alice] [Source: 198.51.100.31] [localport: 22] [Reason: Login Authentication Failed] [ACL: sl_def_acl] at 13:12:09 UTC Thu Sep 24 2026",
+        "log.ciscoTime": "Sep 24 13:12:09.100",
+        "log.facility": "SEC_LOGIN",
+        "log.facilityMnemonic": "QUIET_MODE_ON",
+        "log.msg": "SEC_LOGIN-1-QUIET_MODE_ON: Still timeleft for watching failures is 24 secs, [user: alice] [Source: 198.51.100.31] [localport: 22] [Reason: Login Authentication Failed] [ACL: sl_def_acl] at 13:12:09 UTC Thu Sep 24 2026",
+        "log.severity": "1",
+        "actionResult": "denied",
+        "severity": "high"
+      },
+      "alerts": []
+    },
+    "ar-priv-auth-fail": {
+      "logObject": true,
+      "fields": {
+        "log.ciscoMsg": "Authentication to privilege level 15 failed by alice on vty0 (198.51.100.32)",
+        "log.ciscoTime": "Sep 24 13:12:10.100",
+        "log.facility": "SYS",
+        "log.facilityMnemonic": "PRIV_AUTH_FAIL",
+        "log.msg": "SYS-5-PRIV_AUTH_FAIL: Authentication to privilege level 15 failed by alice on vty0 (198.51.100.32)",
+        "log.severity": "5",
+        "actionResult": "failed",
+        "severity": "low"
+      },
+      "alerts": []
+    },
+    "ar-priv-auth-pass": {
+      "logObject": true,
+      "fields": {
+        "log.ciscoMsg": "Privilege level set to 15 by alice on vty0 (198.51.100.32)",
+        "log.ciscoTime": "Sep 24 13:12:11.100",
+        "log.facility": "SYS",
+        "log.facilityMnemonic": "PRIV_AUTH_PASS",
+        "log.msg": "SYS-5-PRIV_AUTH_PASS: Privilege level set to 15 by alice on vty0 (198.51.100.32)",
+        "log.severity": "5",
+        "actionResult": "success",
+        "severity": "low"
+      },
+      "alerts": []
+    },
+    "ar-dmi-auth-failed": {
+      "logObject": true,
+      "fields": {
+        "log.ciscoMsg": "Switch 1 R0/0: dmiauthd: Authentication failure from 198.51.100.33:51679 for netconf over ssh.",
+        "log.ciscoTime": "Sep 24 13:12:12.100",
+        "log.facility": "DMI",
+        "log.facilityMnemonic": "AUTHENTICATION_FAILED",
+        "log.msg": "DMI-5-AUTHENTICATION_FAILED: Switch 1 R0/0: dmiauthd: Authentication failure from 198.51.100.33:51679 for netconf over ssh.",
+        "log.severity": "5",
+        "actionResult": "failed",
+        "severity": "low"
+      },
+      "alerts": []
+    },
+    "ar-dmi-auth-passed": {
+      "logObject": true,
+      "fields": {
+        "log.ciscoMsg": "Switch 1 R0/0: dmiauthd: User 'alice' authenticated successfully from 198.51.100.33:38066 and was authorized for netconf over ssh. External groups: PRIV15",
+        "log.ciscoTime": "Sep 24 13:12:13.100",
+        "log.facility": "DMI",
+        "log.facilityMnemonic": "AUTH_PASSED",
+        "log.msg": "DMI-5-AUTH_PASSED: Switch 1 R0/0: dmiauthd: User 'alice' authenticated successfully from 198.51.100.33:38066 and was authorized for netconf over ssh. External groups: PRIV15",
+        "log.severity": "5",
+        "actionResult": "success",
+        "severity": "low"
+      },
+      "alerts": []
+    },
+    "ar-mab-fail": {
+      "logObject": true,
+      "fields": {
+        "log.ciscoMsg": "Authentication failed for client (0200.0000.0501) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A1",
+        "log.ciscoTime": "Sep 24 13:12:14.100",
+        "log.facility": "MAB",
+        "log.facilityMnemonic": "FAIL",
+        "log.msg": "MAB-5-FAIL: Authentication failed for client (0200.0000.0501) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A1",
+        "log.severity": "5",
+        "actionResult": "failed",
+        "severity": "low"
+      },
+      "alerts": []
+    },
+    "ar-mab-success": {
+      "logObject": true,
+      "fields": {
+        "log.ciscoMsg": "Authentication successful for client (0200.0000.0502) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A2",
+        "log.ciscoTime": "Sep 24 13:12:15.100",
+        "log.facility": "MAB",
+        "log.facilityMnemonic": "SUCCESS",
+        "log.msg": "MAB-5-SUCCESS: Authentication successful for client (0200.0000.0502) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A2",
+        "log.severity": "5",
+        "actionResult": "success",
+        "severity": "low"
+      },
+      "alerts": []
+    },
+    "ar-authmgr-fail": {
+      "logObject": true,
+      "fields": {
+        "log.ciscoMsg": "Authorization failed or unapplied for client (0200.0000.0503) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A3",
+        "log.ciscoTime": "Sep 24 13:12:16.100",
+        "log.facility": "AUTHMGR",
+        "log.facilityMnemonic": "FAIL",
+        "log.msg": "AUTHMGR-5-FAIL: Authorization failed or unapplied for client (0200.0000.0503) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A3",
+        "log.severity": "5",
+        "actionResult": "failed",
+        "severity": "low"
+      },
+      "alerts": []
+    },
+    "ar-authmgr-success": {
+      "logObject": true,
+      "fields": {
+        "log.ciscoMsg": "Authorization succeeded for client (0200.0000.0504) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A4",
+        "log.ciscoTime": "Sep 24 13:12:17.100",
+        "log.facility": "AUTHMGR",
+        "log.facilityMnemonic": "SUCCESS",
+        "log.msg": "AUTHMGR-5-SUCCESS: Authorization succeeded for client (0200.0000.0504) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A4",
+        "log.severity": "5",
+        "actionResult": "success",
+        "severity": "low"
+      },
+      "alerts": []
+    },
+    "ar-authmgr-start": {
+      "logObject": true,
+      "fields": {
+        "log.ciscoMsg": "Starting 'mab' for client (0200.0000.0505) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A5",
+        "log.ciscoTime": "Sep 24 13:12:18.100",
+        "log.facility": "AUTHMGR",
+        "log.facilityMnemonic": "START",
+        "log.msg": "AUTHMGR-5-START: Starting 'mab' for client (0200.0000.0505) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A5",
+        "log.severity": "5",
+        "severity": "low"
+      },
+      "alerts": []
+    },
+    "ar-dot1x-fail": {
+      "logObject": true,
+      "fields": {
+        "log.ciscoMsg": "Authentication failed for client (0200.0000.0506) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A6",
+        "log.ciscoTime": "Sep 24 13:12:19.100",
+        "log.facility": "DOT1X",
+        "log.facilityMnemonic": "FAIL",
+        "log.msg": "DOT1X-5-FAIL: Authentication failed for client (0200.0000.0506) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A6",
+        "log.severity": "5",
+        "actionResult": "failed",
+        "severity": "low"
+      },
+      "alerts": []
+    },
+    "ar-dot1x-success": {
+      "logObject": true,
+      "fields": {
+        "log.ciscoMsg": "Authentication successful for client (0200.0000.0507) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A7",
+        "log.ciscoTime": "Sep 24 13:12:20.100",
+        "log.facility": "DOT1X",
+        "log.facilityMnemonic": "SUCCESS",
+        "log.msg": "DOT1X-5-SUCCESS: Authentication successful for client (0200.0000.0507) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A7",
+        "log.severity": "5",
+        "actionResult": "success",
+        "severity": "low"
+      },
+      "alerts": []
+    },
+    "ar-dhcp-snooping-drop": {
+      "logObject": true,
+      "fields": {
+        "log.ciscoMsg": "DHCP_SNOOPING drop message on untrusted port, message type: DHCPACK, MAC sa: 0200.0000.0508",
+        "log.ciscoTime": "Sep 24 13:12:21.100",
+        "log.facility": "DHCP_SNOOPING",
+        "log.facilityMnemonic": "DHCP_SNOOPING_UNTRUSTED_PORT",
+        "log.msg": "DHCP_SNOOPING-5-DHCP_SNOOPING_UNTRUSTED_PORT: DHCP_SNOOPING drop message on untrusted port, message type: DHCPACK, MAC sa: 0200.0000.0508",
+        "log.severity": "5",
+        "actionResult": "denied",
+        "severity": "low"
+      },
+      "alerts": []
+    },
+    "ar-dhcp-snooping-agent": {
+      "logObject": true,
+      "fields": {
+        "log.ciscoMsg": "DHCP snooping binding transfer failed. Unable to access URL",
+        "log.ciscoTime": "Sep 24 13:12:22.100",
+        "log.facility": "DHCP_SNOOPING",
+        "log.facilityMnemonic": "AGENT_OPERATION_FAILED",
+        "log.msg": "DHCP_SNOOPING-4-AGENT_OPERATION_FAILED: DHCP snooping binding transfer failed. Unable to access URL",
+        "log.severity": "4",
+        "severity": "medium"
+      },
+      "alerts": []
+    },
+    "ar-psecure-violation": {
+      "logObject": true,
+      "fields": {
+        "log.ciscoMsg": "Security violation occurred, caused by MAC address 0200.0000.0509 on port GigabitEthernet9/0/48.",
+        "log.ciscoTime": "Sep 24 13:12:23.100",
+        "log.facility": "PORT_SECURITY",
+        "log.facilityMnemonic": "PSECURE_VIOLATION",
+        "log.msg": "PORT_SECURITY-2-PSECURE_VIOLATION: Security violation occurred, caused by MAC address 0200.0000.0509 on port GigabitEthernet9/0/48.",
+        "log.severity": "2",
+        "actionResult": "denied",
+        "severity": "high"
+      },
+      "alerts": []
+    },
+    "ar-psecure-violation-vlan": {
+      "logObject": true,
+      "fields": {
+        "log.ciscoMsg": "Security violation on port GigabitEthernet9/0/48 due to MAC address 0200.0000.0510 on VLAN 910",
+        "log.ciscoTime": "Sep 24 13:12:24.100",
+        "log.facility": "PORT_SECURITY",
+        "log.facilityMnemonic": "PSECURE_VIOLATION_VLAN",
+        "log.msg": "PORT_SECURITY-2-PSECURE_VIOLATION_VLAN: Security violation on port GigabitEthernet9/0/48 due to MAC address 0200.0000.0510 on VLAN 910",
+        "log.severity": "2",
+        "actionResult": "denied",
+        "severity": "high"
+      },
+      "alerts": []
+    },
+    "ar-bpduguard": {
+      "logObject": true,
+      "fields": {
+        "log.ciscoMsg": "Received BPDU on port Gi9/0/48 with BPDU Guard enabled. Disabling port.",
+        "log.ciscoTime": "Sep 24 13:12:25.100",
+        "log.facility": "SPANTREE",
+        "log.facilityMnemonic": "BLOCK_BPDUGUARD",
+        "log.msg": "SPANTREE-2-BLOCK_BPDUGUARD: Received BPDU on port Gi9/0/48 with BPDU Guard enabled. Disabling port.",
+        "log.severity": "2",
+        "actionResult": "denied",
+        "severity": "high"
+      },
+      "alerts": []
+    },
+    "ar-tcp-badauth": {
+      "logObject": true,
+      "fields": {
+        "log.ciscoMsg": "Invalid MD5 digest from 192.0.2.61(179) to 192.0.2.62(11000) tableid - 0",
+        "log.ciscoTime": "Sep 24 13:12:26.100",
+        "log.facility": "TCP",
+        "log.facilityMnemonic": "BADAUTH",
+        "log.msg": "TCP-6-BADAUTH: Invalid MD5 digest from 192.0.2.61(179) to 192.0.2.62(11000) tableid - 0",
+        "log.severity": "6",
+        "actionResult": "failed",
+        "severity": "low"
+      },
+      "alerts": []
+    },
+    "ar-acl-classic-permitted": {
+      "logObject": true,
+      "fields": {
+        "log.ciscoMsg": "list 101 permitted tcp 203.0.113.14(51001) -> 192.0.2.73(22), 1 packet",
+        "log.ciscoTime": "Sep 24 13:12:27.100",
+        "log.facility": "SEC",
+        "log.facilityMnemonic": "IPACCESSLOGP",
+        "log.msg": "SEC-6-IPACCESSLOGP: list 101 permitted tcp 203.0.113.14(51001) -> 192.0.2.73(22), 1 packet",
+        "log.severity": "6",
+        "actionResult": "success",
+        "severity": "low"
+      },
+      "alerts": []
+    },
+    "ar-acl-classic-denied": {
+      "logObject": true,
+      "fields": {
+        "log.ciscoMsg": "list 101 denied tcp 203.0.113.15(51002) -> 192.0.2.74(23), 1 packet",
+        "log.ciscoTime": "Sep 24 13:12:28.100",
+        "log.facility": "SEC",
+        "log.facilityMnemonic": "IPACCESSLOGP",
+        "log.msg": "SEC-6-IPACCESSLOGP: list 101 denied tcp 203.0.113.15(51002) -> 192.0.2.74(23), 1 packet",
+        "log.severity": "6",
+        "actionResult": "denied",
+        "severity": "low"
+      },
+      "alerts": []
+    },
+    "ar-acl-standard-denied": {
+      "logObject": true,
+      "fields": {
+        "log.ciscoMsg": "list 10 denied 203.0.113.11 5 packets",
+        "log.ciscoTime": "Sep 24 13:12:29.100",
+        "log.facility": "SEC",
+        "log.facilityMnemonic": "IPACCESSLOGS",
+        "log.msg": "SEC-6-IPACCESSLOGS: list 10 denied 203.0.113.11 5 packets",
+        "log.severity": "6",
+        "actionResult": "denied",
+        "severity": "low"
+      },
+      "alerts": []
+    },
+    "ar-acl-fmanfp-permitted": {
+      "logObject": true,
+      "fields": {
+        "log.ciscoMsg": "R0/0: fman_fp_image: list EXAMPLE-IN permitted tcp 203.0.113.12(51000) -> 192.0.2.71(443), 3 packets",
+        "log.ciscoTime": "Sep 24 13:12:30.100",
+        "log.facility": "FMANFP",
+        "log.facilityMnemonic": "IPACCESSLOGP",
+        "log.msg": "FMANFP-6-IPACCESSLOGP: R0/0: fman_fp_image: list EXAMPLE-IN permitted tcp 203.0.113.12(51000) -> 192.0.2.71(443), 3 packets",
+        "log.severity": "6",
+        "actionResult": "success",
+        "severity": "low"
+      },
+      "alerts": []
+    },
+    "ar-acl-fmanfp-denied": {
+      "logObject": true,
+      "fields": {
+        "log.ciscoMsg": "F0: fman_fp_image:  list EXAMPLE-IN denied icmp 203.0.113.13 -> 192.0.2.72 (8/0), 1 packet",
+        "log.ciscoTime": "Sep 24 13:12:31.100",
+        "log.facility": "FMANFP",
+        "log.facilityMnemonic": "IPACCESSLOGDP",
+        "log.msg": "FMANFP-6-IPACCESSLOGDP: F0: fman_fp_image:  list EXAMPLE-IN denied icmp 203.0.113.13 -> 192.0.2.72 (8/0), 1 packet",
+        "log.severity": "6",
+        "actionResult": "denied",
+        "severity": "low"
+      },
+      "alerts": []
+    },
+    "ar-acl-iosxr-deny": {
+      "logObject": true,
+      "fields": {
+        "log.ciscoMsg": "access-list EXAMPLE-EDGE (10) deny tcp 203.0.113.16(51003) -> 192.0.2.75(23), 1 packet",
+        "log.ciscoTime": "Sep 24 13:12:32 edge01 RP/0/RP0/CPU0:Sep 24 13:12:32.100 UTC: ipv4_acl_mgr[310]",
+        "log.facility": "ACL",
+        "log.facilityMnemonic": "_ACL-6-IPACCESSLOGP",
+        "log.msg": "ACL-IPV4_ACL-6-IPACCESSLOGP : access-list EXAMPLE-EDGE (10) deny tcp 203.0.113.16(51003) -> 192.0.2.75(23), 1 packet",
+        "log.severity": "IPV4",
+        "actionResult": "denied"
+      },
+      "alerts": []
+    },
+    "ar-acl-iosxr-permit": {
+      "logObject": true,
+      "fields": {
+        "log.ciscoMsg": "access-list EXAMPLE-EDGE permit tcp 203.0.113.17(51004) -> 192.0.2.76(443), 1 packet",
+        "log.ciscoTime": "Sep 24 13:12:33 edge01 RP/0/RP0/CPU0:Sep 24 13:12:33.100 UTC: ipv4_acl_mgr[310]",
+        "log.facility": "ACL",
+        "log.facilityMnemonic": "_ACL-6-IPACCESSLOGP",
+        "log.msg": "ACL-IPV4_ACL-6-IPACCESSLOGP : access-list EXAMPLE-EDGE permit tcp 203.0.113.17(51004) -> 192.0.2.76(443), 1 packet",
+        "log.severity": "IPV4",
+        "actionResult": "success"
+      },
+      "alerts": []
+    },
+    "ar-acl-rate-limited": {
+      "logObject": true,
+      "fields": {
+        "log.ciscoMsg": "access-list logging rate-limited or missed 18 packets",
+        "log.ciscoTime": "Sep 24 13:12:34.100",
+        "log.facility": "SEC",
+        "log.facilityMnemonic": "IPACCESSLOGRL",
+        "log.msg": "SEC-6-IPACCESSLOGRL: access-list logging rate-limited or missed 18 packets",
         "log.severity": "6",
         "severity": "low"
       },

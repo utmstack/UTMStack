@@ -1088,5 +1088,58 @@
     "expected": {},
     "absent": [],
     "matches": []
+  },
+  {
+    "name": "lolbins failed outcome",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test cs1=DETECT act=Failed msg=certutil",
+    "dataSource": "collector-test",
+    "expected": {
+      "action": "Failed",
+      "actionResult": "failed"
+    },
+    "absent": [],
+    "matches": [
+      "lolbins_abuse"
+    ]
+  },
+  {
+    "name": "lolbins no outcome and no keyword",
+    "raw": "CEF:0|Kaspersky|Security Center|14|3|Synthetic event|3|src=198.51.100.9 dst=192.0.2.8 shost=source-test dhost=target-test cs1=DETECT msg=certutil",
+    "dataSource": "collector-test",
+    "expected": {
+      "log.format": "cef"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "KSC CEF found and blocked event type",
+    "raw": "CEF:0|KasperskyLab|SecurityCenter|15.1.0.20748|GNRL_EV_VIRUS_FOUND_AND_BLOCKED|Dangerous link blocked|4|msg=Event type: Dangerous link blocked rt=1790503200000 dhost=target-test dst=192.0.2.8 cs2=KES cs2Label=ProductName",
+    "dataSource": "collector-test",
+    "expected": {
+      "log.signatureID": "GNRL_EV_VIRUS_FOUND_AND_BLOCKED",
+      "target.ip": "192.0.2.8",
+      "actionResult": "denied"
+    },
+    "absent": [
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "KSC native object blocked event type",
+    "raw": "<14>1 2026-09-27T10:00:00Z endpoint.example.test KES|11.0.0.0 - GNRL_EV_OBJECT_BLOCKED [event@23668 p1=\"Synthetic object\" p5=\"EICAR-Test-File\" et=\"GNRL_EV_OBJECT_BLOCKED\" etdn=\"Object blocked\" hdn=\"endpoint-test\" hip=\"192.0.2.8\" gn=\"Managed endpoints\"] Object blocked.",
+    "dataSource": "collector-test",
+    "expected": {
+      "log.eventType": "GNRL_EV_OBJECT_BLOCKED",
+      "log.format": "ksc-syslog",
+      "actionResult": "denied"
+    },
+    "absent": [
+      "origin.ip"
+    ],
+    "matches": []
   }
 ]
