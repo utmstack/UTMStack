@@ -134,6 +134,17 @@ func registerSOARRules(m *Module) {
 		})
 
 	Add(m, &mcp.Tool{
+		Name: "soar.node_types", Title: "List SOAR flow node types",
+		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
+	}, Gate{Permission: "soar.read"},
+		func(ctx context.Context, _ *authz.Actor, _ struct{}) (any, error) {
+			return map[string]any{
+				"kinds":          []string{"executor", "enrichment"},
+				"executor_types": m.deps.SOAR.GetExecutorTypes(),
+			}, nil
+		})
+
+	Add(m, &mcp.Tool{
 		Name: "soar.rule.resolve_filter_values", Title: "Suggest filter values for rule editor",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, Gate{Permission: "soar.read"},

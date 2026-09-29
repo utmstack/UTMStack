@@ -4029,7 +4029,9 @@
       "errorUnreachable": "Não foi possível contatar o assistente.",
       "compacting": "Compactando contexto…",
       "dashboardEditTitle": "Editor de painéis",
-      "editingDashboard": "Editando: {{name}}"
+      "editingDashboard": "Editando: {{name}}",
+      "soarEditTitle": "Editor de fluxos SOAR",
+      "editingFlow": "Editando fluxo: {{name}}"
     },
     "focus": {
       "alert": "Alerta",
@@ -5054,7 +5056,20 @@
       "runs24h": "Execuções (24h)",
       "failed24h": "Falhas (24h)"
     },
-    "neverRun": "nunca"
+    "neverRun": "nunca",
+    "create": {
+      "title": "Novo fluxo",
+      "modeManual": "Criar manualmente",
+      "modeAi": "Com IA",
+      "aiLocked": "Ative o SOC-AI e configure-o para usar isto.",
+      "name": "Nome do fluxo",
+      "namePlaceholder": "ex.: Bloquear IP em falhas repetidas",
+      "aiDescriptionLabel": "O que este fluxo deve fazer?",
+      "aiDescriptionPlaceholder": "ex.: Em um alerta crítico, pesquisar o IP de origem na inteligência de ameaças e bloqueá-lo no firewall",
+      "aiCreate": "Criar com IA",
+      "manualContinue": "Continuar",
+      "aiOpener": "Crie um fluxo SOAR chamado \"{{name}}\" que faz: {{description}}"
+    }
   },
   "compliance": {
     "title": "Compliance",

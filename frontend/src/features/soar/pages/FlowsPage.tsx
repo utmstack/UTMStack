@@ -26,6 +26,8 @@ import {
 import { soarFlowsService } from "../services/soar-flows.service";
 import { soarExecutionsService } from "../services/soar-executions.service";
 import { FlowEditor } from "../components/FlowEditor";
+import { SoarCreateDialog } from "../components/SoarCreateDialog";
+import { useSocAi } from "@/features/soc-ai/SocAiProvider";
 import { StartFromModal } from "@/shared/components/StartFromModal";
 import { copyOfFlow } from "../lib/duplicate";
 import type { Flow } from "../types/soar.types";
@@ -77,7 +79,8 @@ export function FlowsPage() {
     creating: boolean;
   } | null>(null);
   const [starting, setStarting] = useState(false);
-
+  const [createOpen, setCreateOpen] = useState(false);
+  const { soarEditVersion } = useSocAi();
   useEffect(() => {
     const relPath = (location.state as { selectFlowId?: string } | null)
       ?.selectFlowId;
@@ -154,6 +157,11 @@ export function FlowsPage() {
   useEffect(() => {
     load();
   }, [load]);
+
+  // A soc-ai run that touched flows (create or edit) settled — refetch the list.
+  useEffect(() => {
+    if (soarEditVersion > 0) load();
+  }, [soarEditVersion, load]);
 
   // Aggregate recent executions into per-flow stats (last run / runs / failures).
   // Capped at the most recent 500 executions; refreshed alongside the flows list.
@@ -321,12 +329,21 @@ export function FlowsPage() {
           options={copyable.map((f) => ({ id: f.relPath, name: f.name }))}
           onScratch={() => {
             setStarting(false);
-            setEditing({ creating: true });
+            setCreateOpen(true);
           }}
           onCopy={startFromFlow}
           onClose={() => setStarting(false)}
         />
       )}
+
+      <SoarCreateDialog
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        onManual={() => {
+          setCreateOpen(false);
+          setEditing({ creating: true });
+        }}
+      />
     </div>
   );
 }

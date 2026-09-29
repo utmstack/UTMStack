@@ -1,11 +1,13 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Code2, LayoutList, Loader2, Lock, Pencil, Trash2, X } from 'lucide-react'
+import { Code2, LayoutList, Loader2, Lock, Pencil, Sparkles, Trash2, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { YamlCodeEditor } from '@/shared/components/YamlCodeEditor'
 import { PlatformBroadcastButton, broadcast, BULK_PATHS } from '@/features/platform-broadcast'
+import { useSocAi } from '@/features/soc-ai/SocAiProvider'
+import { useSocAiConfigured } from '@/features/soc-ai/lib/useSocAiConfig'
 import { soarFlowsService, SoarHttpError } from '../services/soar-flows.service'
 import { flowToForm, formToInput, flowFormToYaml, yamlToFlowForm, type FlowFormState } from '../lib/flow-yaml'
 import { clearHttpBodyErrors, firstHttpBodyError, isValidHttpUrl } from '../lib/http-node-validity'
@@ -33,8 +35,19 @@ export function FlowEditor({
   const [busy, setBusy] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [identityOpen, setIdentityOpen] = useState(false)
+  const dirtyRef = useRef(false)
+  const {
+    setSoarEditTarget,
+    openPanel,
+    soarEditTarget,
+    soarEditVersion,
+  } = useSocAi()
+  const aiConfigured = useSocAiConfigured()
 
-  const set = <K extends keyof FlowFormState>(k: K, v: FlowFormState[K]) => setForm((f) => ({ ...f, [k]: v }))
+  const set = <K extends keyof FlowFormState>(k: K, v: FlowFormState[K]) => {
+    dirtyRef.current = true
+    setForm((f) => ({ ...f, [k]: v }))
+  }
 
   useEffect(() => {
     clearHttpBodyErrors()
@@ -51,9 +64,22 @@ export function FlowEditor({
       toast.error(t('soar.editor.yamlError', { error: r.error }))
       return
     }
+    dirtyRef.current = true
     setForm({ ...r.form, active: form.active })
     setMode('visual')
   }
+
+  useEffect(() => {
+    if (creating || !flow || !soarEditTarget || soarEditVersion === 0) return
+    if (dirtyRef.current) return
+    let cancelled = false
+    soarFlowsService.get(flow.relPath).then((f) => {
+      if (cancelled || dirtyRef.current) return
+      setForm(flowToForm(f))
+      if (mode === 'code') setYaml(flowFormToYaml(flowToForm(f)))
+    }).catch(() => {})
+    return () => { cancelled = true }
+  }, [soarEditVersion])
 
   const save = async () => {
     if (busy) return
@@ -202,6 +228,19 @@ export function FlowEditor({
           {!creating && <p className="mt-0.5 truncate font-mono text-[11px] text-muted-foreground">{flow?.relPath}</p>}
         </div>
         <div className="flex shrink-0 items-center gap-2">
+          {!creating && !readOnly && aiConfigured && (
+            <button
+              type="button"
+              onClick={() => {
+                setSoarEditTarget({ relPath: flow!.relPath, name: form.name.trim() || flow!.name })
+                openPanel('soar-edit')
+              }}
+              className="inline-flex h-8 items-center gap-1.5 rounded-md border border-primary/30 bg-primary/5 px-3 text-xs font-medium text-primary transition-colors hover:bg-primary/10"
+            >
+              <Sparkles size={13} />
+              {t('dashboards.actions.editWithAi')}
+            </button>
+          )}
           <div className="inline-flex rounded-md border border-border p-0.5">
             <button
               type="button"
@@ -226,7 +265,14 @@ export function FlowEditor({
 
       {mode === 'code' ? (
         <div className="flex min-h-0 flex-1 flex-col p-6">
-          <YamlCodeEditor value={yaml} onChange={setYaml} readOnly={readOnly} />
+          <YamlCodeEditor
+            value={yaml}
+            onChange={(v) => {
+              dirtyRef.current = true
+              setYaml(v)
+            }}
+            readOnly={readOnly}
+          />
         </div>
       ) : (
         <div className="min-h-0 flex-1 overflow-hidden bg-muted/10 p-4">
@@ -235,7 +281,10 @@ export function FlowEditor({
             nodes={form.nodes}
             conditions={form.conditions}
             readOnly={readOnly}
-            onChange={(patch) => setForm((f) => ({ ...f, roots: patch.roots, nodes: patch.nodes }))}
+            onChange={(patch) => {
+              dirtyRef.current = true
+              setForm((f) => ({ ...f, roots: patch.roots, nodes: patch.nodes }))
+            }}
             onConditionsChange={(c) => set('conditions', c)}
           />
         </div>
@@ -247,7 +296,10 @@ export function FlowEditor({
           description={form.description}
           maxDepth={form.maxDepth}
           readOnly={readOnly}
-          onChange={(patch) => setForm((f) => ({ ...f, ...patch }))}
+          onChange={(patch) => {
+            dirtyRef.current = true
+            setForm((f) => ({ ...f, ...patch }))
+          }}
           onClose={() => setIdentityOpen(false)}
         />
       )}

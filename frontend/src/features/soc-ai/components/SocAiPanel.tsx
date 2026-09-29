@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   ArrowUp,
@@ -16,12 +17,14 @@ import { MessageRow } from "./MessageRow";
 // Panel-visible scopes only — 'home' has its own inline transcript and never
 // shows here, so it needs no title/empty-state copy in this map.
 const SCOPE_TITLE_KEY: Record<
-  "panel" | "dashboard-create" | "dashboard-edit",
+  "panel" | "dashboard-create" | "dashboard-edit" | "soar-edit" | "soar-create",
   string
 > = {
   panel: "socAi.chat.title",
   "dashboard-create": "socAi.chat.dashboardCreateTitle",
   "dashboard-edit": "socAi.chat.dashboardEditTitle",
+  "soar-edit": "socAi.chat.soarEditTitle",
+  "soar-create": "socAi.chat.soarCreateTitle",
 };
 
 export function SocAiPanel() {
@@ -33,7 +36,10 @@ export function SocAiPanel() {
     messages,
     dashboardCreateMessages,
     dashboardEditMessages,
+    soarEditMessages,
+    soarCreateMessages,
     dashboardEditTarget,
+    soarEditTarget,
     focus,
     detachFocus,
     closePanel,
@@ -44,6 +50,7 @@ export function SocAiPanel() {
   const [draft, setDraft] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
+  const navigate = useNavigate();
 
   // Auto-grow the input, capped at 7 lines (max-h-[140px]) so long prompts
   // scroll internally instead of eating the message area.
@@ -59,7 +66,11 @@ export function SocAiPanel() {
       ? dashboardCreateMessages
       : activeScope === "dashboard-edit"
         ? dashboardEditMessages
-        : messages;
+        : activeScope === "soar-edit"
+          ? soarEditMessages
+          : activeScope === "soar-create"
+            ? soarCreateMessages
+            : messages;
   // 'home' never opens this panel (see the comment above), so it has no
   // entry here — fall back to the general panel title if it ever does.
   const titleKey =
@@ -113,6 +124,20 @@ export function SocAiPanel() {
                   name: dashboardEditTarget.name,
                 })}
               </p>
+            )}
+            {activeScope === "soar-edit" && soarEditTarget && (
+              <button
+                type="button"
+                onClick={() =>
+                  navigate("/soar/flows", {
+                    state: { selectFlowId: soarEditTarget.relPath },
+                  })
+                }
+                className="mt-0.5 block w-full truncate pl-[26px] text-left text-xs text-muted-foreground hover:text-foreground"
+                title={soarEditTarget.relPath}
+              >
+                {t("socAi.chat.editingFlow", { name: soarEditTarget.name })}
+              </button>
             )}
           </div>
           <div className="flex items-center gap-0.5">
