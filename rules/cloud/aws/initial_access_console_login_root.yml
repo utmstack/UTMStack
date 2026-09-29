@@ -1,24 +1,34 @@
-# Rule version v1.0.0
-
+# Rule contract revision 2026-09-17; SDK v1.1.31.
 dataTypes:
-  - aws
-name: "AWS Management Console Root Login"
+- aws
+name: AWS Management Console Root Login
 impact:
   confidentiality: 3
   integrity: 3
   availability: 3
-category: "Initial Access"
-technique: "T1078 - Valid Accounts"
+category: Initial Access
+technique: T1078 - Valid Accounts
 adversary: origin
-description: "Identifies a successful login to the AWS Management Console by the Root user.<br>Adversaries may obtain and abuse credentials of a cloud account as a means of gaining Initial Access, Persistence, Privilege Escalation, or Defense Evasion.<br>Compromised credentials for cloud accounts can be used to harvest sensitive data from online storage accounts and databases.<br><strong>Potential false positives</strong><br>It’s strongly recommended that the root user is not used for everyday tasks, including the administrative ones. Verify whether the IP address, location, and/or hostname should be logging in as root in your environment. Unfamiliar root logins should be investigated immediately. If known behavior is causing false positives, it can be exempted from the rule."
+description: "Identifies a successful login to the AWS Management Console by the Root user.<br>Adversaries may obtain and\
+  \ abuse credentials of a cloud account as a means of gaining Initial Access, Persistence, Privilege Escalation, or Defense\
+  \ Evasion.<br>Compromised credentials for cloud accounts can be used to harvest sensitive data from online storage accounts\
+  \ and databases.<br><strong>Potential false positives</strong><br>It\u2019s strongly recommended that the root user is not\
+  \ used for everyday tasks, including the administrative ones. Verify whether the IP address, location, and/or hostname should\
+  \ be logging in as root in your environment. Unfamiliar root logins should be investigated immediately. If known behavior\
+  \ is causing false positives, it can be exempted from the rule."
 references:
-  - "https://attack.mitre.org/tactics/TA0001/"
-  - "https://attack.mitre.org/techniques/T1078/"
-  - "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-user.html"
+- https://attack.mitre.org/tactics/TA0001/
+- https://attack.mitre.org/techniques/T1078/
+- https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-user.html
 where: |
-  equals("log.eventSource", "signin.amazonaws.com") &&
+  equals("log.awsRecordType","cloudtrail") &&
+  (equals("log.eventSource", "signin.amazonaws.com") &&
   equals("log.eventName", "ConsoleLogin") &&
-  equals("log.userIdentityType", "root")
+  equals("log.userIdentity.type", "Root") &&
+  equals("actionResult","success"))
 groupBy:
-  - adversary.ip
-  - adversary.user
+- lastEvent.dataSource
+- lastEvent.log.awsAccountKeyType
+- lastEvent.log.awsAccountKey
+- adversary.ip
+- adversary.user

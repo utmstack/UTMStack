@@ -3,6 +3,7 @@ package agent
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/utmstack/UTMStack/agent/config"
 	"github.com/utmstack/UTMStack/agent/models"
@@ -21,6 +22,17 @@ func RegisterAgent(cnf *config.Config, UTMKey string) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	ctx = metadata.AppendToOutgoingContext(ctx, "connection-key", UTMKey)
 	defer cancel()
+
+	// A host that is being re-installed already has an agent record on the
+	// manager. Present the credentials of that record so the manager can hand
+	// the same key back; without this proof it refuses to re-issue the key of an
+	// existing (hostname, mac), which is what stops one endpoint from claiming
+	// another endpoint's command channel.
+	if prev, err := config.GetCurrentConfig(); err == nil && prev.AgentID != 0 && prev.AgentKey != "" {
+		ctx = metadata.AppendToOutgoingContext(ctx,
+			"agent-id", strconv.FormatUint(uint64(prev.AgentID), 10),
+			"agent-key", prev.AgentKey)
+	}
 
 	ip, err := utils.GetIPAddress()
 	if err != nil {

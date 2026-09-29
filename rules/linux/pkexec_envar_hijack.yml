@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.0.1
 
 dataTypes:
   - linux
@@ -15,7 +15,7 @@ description: "Identifies an attempt to exploit a local privilege escalation in p
 references:
   - "https://attack.mitre.org/tactics/TA0004/"
   - "https://attack.mitre.org/techniques/T1068/"
-where: contains("log.message", "pkexec") && (contains("log.message", "SHELL variable") || contains("log.message", "PATH variable") || contains("log.message", "XAUTHORITY") || regexMatch("log.message", "The value for the SHELL variable was not found"))
-groupBy:
-  - origin.ip
-  - origin.user
+where: |
+  contains("log.message", "with NULL argv") || contains("log.message", "The value for the SHELL variable was not found") || ((contains("origin.process", "pkexec") || contains("log.syslogIdentifier", "pkexec")) && (contains("log.message", "SHELL variable") || contains("log.message", "PATH variable") || contains("log.message", "XAUTHORITY")))
+deduplicateBy:
+  - dataSource

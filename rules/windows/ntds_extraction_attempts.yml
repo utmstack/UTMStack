@@ -27,23 +27,18 @@ description: |
   8. Check backup systems and shadow copies for unauthorized access
   9. Coordinate with incident response team for full forensic analysis
 where: |
-  oneOf("log.eventCode", ["4663", "4656"]) && 
-  equals("log.channel", "Security") &&
-  (
-    endsWith("log.eventDataObjectName", "\\ntds.dit") ||
-    contains("log.eventDataObjectName", "\\NTDS\\") ||
-    endsWith("log.eventDataProcessName", "\\ntdsutil.exe") ||
-    endsWith("log.eventDataProcessName", "\\vssadmin.exe")
-  ) &&
-  !equals("log.eventDataAccessMask", "0")
+  oneOf("log.eventCode", ["4663","4656"]) && (contains("log.eventDataObjectName", "ntds.dit") || endsWith("log.eventDataProcessName", "ntdsutil.exe")) && !equals("log.eventDataAccessMask", "0")
 afterEvents:
   - indexPattern: v11-log-wineventlog-*
     with:
-      - field: origin.host
+      - field: log.eventCode
         operator: filter_term
-        value: '{{.origin.host}}'
+        value: '4663'
+      - field: dataSource.keyword
+        operator: filter_term
+        value: '{{.dataSource}}'
     within: 30m
     count: 2
 groupBy:
-  - origin.host
-  - target.user
+  - dataSource
+deduplicateBy: []

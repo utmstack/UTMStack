@@ -1,35 +1,31 @@
-# Rule version v1.0.0
-
+# Azure rule contract review v2.1.0
 dataTypes:
-  - azure
-name: Azure Subscription Ownership Transfer Detected
+- azure
+name: Azure Subscription Owner Role Assigned
 impact:
   confidentiality: 3
   integrity: 3
   availability: 2
 category: Identity and Access Management
-technique: "T1078 - Valid Accounts"
+technique: ''
 adversary: origin
 references:
-  - https://learn.microsoft.com/en-us/azure/role-based-access-control/change-history-report
-  - https://attack.mitre.org/techniques/T1078/
-description: |
-  Detects when ownership of an Azure subscription is transferred by monitoring role assignment changes at the subscription level. This could indicate unauthorized access or insider threat activity.
-  
-  Next Steps:
-  1. Verify the legitimacy of the ownership transfer with the subscription administrator
-  2. Check if the user performing the transfer is authorized for this action
-  3. Review the timing and context of the transfer (business hours, planned change)
-  4. Examine other recent activities by the same user or from the same source IP
-  5. Validate that proper change management procedures were followed
-  6. Check for any unusual activity following the ownership transfer
-  7. If unauthorized, immediately revoke the new owner's access and escalate to security team
-where: |
-  equals("log.operationName", "Microsoft.Authorization/roleAssignments/write") &&
-  contains("log.properties", "Owner") &&
-  equals("log.category", "Administrative") &&
-  contains("log.resourceId", "/subscriptions/") &&
-  !contains("log.resourceId", "/resourceGroups/")
+- https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema
+- https://learn.microsoft.com/en-us/azure/role-based-access-control/change-history-report
+- https://attack.mitre.org/techniques/T1078/
+description: 'A successful role assignment at subscription scope explicitly targets the built-in Owner role in the request body.
+  The actor authorization role is not used as the granted role; a role assignment does not prove billing ownership transfer.
+
+  '
+where: '(equalsIgnoreCase("log.azureKind","activity") || equalsIgnoreCase("log.azureKind","eventgrid")) && equalsIgnoreCase("actionResult","success")
+  && equalsIgnoreCase("log.azureOperation","Microsoft.Authorization/roleAssignments/write") && regexMatch("log.resourceId","(?i)^/subscriptions/[^/]+/providers/Microsoft\\.Authorization/roleAssignments/[^/]+$")
+  && regexMatch("log.azureRequestBody.properties.roleDefinitionId","(?i)/providers/Microsoft\\.Authorization/roleDefinitions/8e3af657-a8ff-443c-a75c-2fe8c4bcb635$")
+
+  '
 groupBy:
-  - lastEvent.log.correlationId
-  - adversary.ip
+- lastEvent.dataSource
+- lastEvent.log.azureScopeType
+- lastEvent.log.azureScope
+- lastEvent.log.azureOperation
+- adversary.user
+- adversary.ip

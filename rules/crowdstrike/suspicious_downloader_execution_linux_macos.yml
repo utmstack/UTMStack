@@ -17,5 +17,5 @@ where: >
   exists("log.eventCommandLine") && 
   regexMatch("log.eventCommandLine", "(?i).*(curl|wget).*http.*")
 groupBy: 
-  - origin.host
+  - adversary.host
   - lastEvent.log.eventCommandLine

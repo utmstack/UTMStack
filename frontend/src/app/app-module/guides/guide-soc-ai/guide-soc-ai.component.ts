@@ -92,10 +92,10 @@ export class GuideSocAiComponent implements OnInit {
       fields: [
         {key: 'apiKey', label: 'API Key', type: 'password', required: true, placeholder: 'sk-ant-...'},
         {key: 'model', label: 'Model', type: 'select', required: true, options: [
-          {value: 'claude-sonnet-4-20250514', label: 'claude-sonnet-4-20250514'},
-          {value: 'claude-haiku-4-20250414', label: 'claude-haiku-4-20250414'},
-          {value: 'claude-opus-4-20250514', label: 'claude-opus-4-20250514'},
-          {value: '__custom__', label: 'Custom model...'},
+          {value: 'claude-opus-4-8',   label: 'claude-opus-4-8 (most capable)'},
+          {value: 'claude-sonnet-5',   label: 'claude-sonnet-5 (balanced)'},
+          {value: 'claude-haiku-4-5',  label: 'claude-haiku-4-5 (fastest)'},
+          {value: '__custom__',        label: 'Custom model...'},
         ]},
         {key: 'maxTokens', label: 'Max Tokens', type: 'number', required: true, placeholder: '4096', tooltip: 'Required for Anthropic'},
         {key: 'autoAnalyze', label: 'Auto-analyze alerts', type: 'toggle'},

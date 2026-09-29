@@ -1,0 +1,14 @@
+# Common regex definitions needed by these fabricated parser cases.
+patterns:
+  data: (.*?)
+  greedy: .*
+  hour: (([01][0-9])|2[0-4])
+  integer: (?:[+-]?(?:[0-9]+))
+  minute: (?:[0-5][0-9])
+  monthDay: (?:(?:0[1-9])|(?:[12][0-9])|(?:3[01])|[1-9])
+  monthNumber: (?:0[1-9]|1[0-2])
+  seconds: (?:(?:[0-5]?[0-9]|60)(?:[:.,][0-9]+)?)
+  space: \s+
+  time: ((([01][0-9])|2[0-4]):(?:[0-5][0-9])(?::(?:(?:[0-5]?[0-9]|60)(?:[:.,][0-9]+)?)))
+  word: \b\w+\b
+  year: (([1-9])[0-9]{1,3})

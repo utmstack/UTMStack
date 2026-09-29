@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.0.1
 
 dataTypes:
   - linux
@@ -24,14 +24,6 @@ description: |
   5. If unauthorized, terminate the SSH session and block the connection
   6. Review SSH configuration to restrict port forwarding if not needed
 where: |
-  contains("log.process", "sshd") &&
-  (regexMatch("log.message", "(?i)ssh\\s+.*-[LRD]\\s+") ||
-   contains("log.message", "port forwarding") ||
-   contains("log.message", "Local forwarding") ||
-   contains("log.message", "Remote forwarding") ||
-   contains("log.message", "Dynamic forwarding") ||
-   contains("log.message", "tunnel") ||
-   regexMatch("log.message", "(?i)open forward.*port"))
-groupBy:
-  - origin.host
-  - origin.ip
+  regexMatch("origin.command", "ssh .*-[LRD] ")
+deduplicateBy:
+  - dataSource

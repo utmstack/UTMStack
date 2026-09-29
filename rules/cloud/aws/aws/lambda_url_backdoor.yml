@@ -1,18 +1,17 @@
-# Rule version v1.0.0
-
+# Rule contract revision 2026-09-17; SDK v1.1.31.
 dataTypes:
-  - aws
+- aws
 name: AWS Lambda Function URL Backdoor Creation
 impact:
   confidentiality: 3
   integrity: 3
   availability: 1
 category: Persistence
-technique: "T1059 - Command and Scripting Interpreter"
+technique: T1059 - Command and Scripting Interpreter
 adversary: origin
 references:
-  - https://docs.aws.amazon.com/lambda/latest/dg/lambda-urls.html
-  - https://attack.mitre.org/techniques/T1059/
+- https://docs.aws.amazon.com/lambda/latest/dg/lambda-urls.html
+- https://attack.mitre.org/techniques/T1059/
 description: |
   Detects creation of Lambda function URLs which provide direct HTTPS endpoints to Lambda functions. Attackers may create function URL configurations as backdoor endpoints for persistent access, command execution, or data exfiltration without requiring API Gateway.
 
@@ -26,10 +25,14 @@ description: |
   7. Review CloudTrail logs for the function's invocation history
   8. Implement SCPs to restrict Lambda function URL creation to authorized roles
 where: |
-  equals("log.eventSource", "lambda.amazonaws.com") &&
-  oneOf("log.eventName", ["CreateFunctionUrlConfig", "UpdateFunctionUrlConfig"]) &&
-  equals("log.errorCode", "") &&
-  contains("log.requestParameters", "\"authType\":\"NONE\"")
+  equals("log.awsRecordType","cloudtrail") &&
+  (equals("log.eventSource","lambda.amazonaws.com") &&
+  oneOf("log.eventName",["CreateFunctionUrlConfig", "UpdateFunctionUrlConfig"]) &&
+  equals("actionResult","success") &&
+  equals("log.requestParameters.authType","NONE"))
 groupBy:
-  - adversary.user
-  - lastEvent.log.requestParameters.functionName
+- lastEvent.dataSource
+- lastEvent.log.awsAccountKeyType
+- lastEvent.log.awsAccountKey
+- adversary.user
+- lastEvent.log.requestParameters.functionName

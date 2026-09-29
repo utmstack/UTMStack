@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.0.1
 
 dataTypes:
   - linux
@@ -16,7 +16,7 @@ description: "Identifies  suspicious usage of unshare to manipulate system names
 references:
   - "https://attack.mitre.org/tactics/TA0004/"
   - "https://attack.mitre.org/techniques/T1543/"
-where: contains("log.message", "unshare") && !contains("log.message", "/usr/bin/snap") && !regexMatch("log.message", "(\\/usr\\/bin\\/udevadm|\\/lib\\/systemd\\/systemd-udevd|\\/usr\\/bin\\/unshare)")
-groupBy:
-  - origin.ip
-  - origin.user
+where: |
+  contains("origin.command", "unshare") && !contains("origin.command", "/usr/bin/snap") && !regexMatch("origin.command", "(udevadm|systemd-udevd)")
+deduplicateBy:
+  - dataSource

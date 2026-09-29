@@ -1,4 +1,4 @@
-# Rule version v1.0.1
+# Rule version v1.0.2
 
 dataTypes:
   - "linux"
@@ -15,7 +15,7 @@ description: "Identifies the creation or modification of a K Desktop Environment
 references:
   - "https://attack.mitre.org/tactics/TA0003/"
   - "https://attack.mitre.org/techniques/T1547/"
-where: regexMatch("log.message", "sh,desktop") && regexMatch("log.message", "(/home/(.+)/.config/autostart/|/root/.config/autostart/|/home/(.+)/.kde/Autostart/|/root/.kde/Autostart/|/home/(.+)/.kde4/Autostart/|/root/.kde4/Autostart/|/home/(.+)/.kde/share/autostart/|/root/.kde/share/autostart/|/home/(.+)/.kde4/share/autostart/|/root/.kde4/share/autostart/|/home/(.+)/.local/share/autostart/|/root/.local/share/autostart/|/home/(.+)/.config/autostart-scripts/|/root/.config/autostart-scripts/|/etc/xdg/autostart/|/usr/share/autostart/)") && !regexMatch("log.message", "(yum|dpkg|install|dnf|teams|yum-cron|dnf-automatic)")
-groupBy:
-  - origin.ip
-  - origin.user
+where: |
+  regexMatch("origin.command", "(.config/autostart/|.local/share/autostart/|/etc/xdg/autostart/|.config/autostart-scripts/)") && !regexMatch("origin.command", "(dpkg|apt|dnf|yum)")
+deduplicateBy:
+  - dataSource

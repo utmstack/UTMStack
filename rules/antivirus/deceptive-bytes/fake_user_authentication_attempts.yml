@@ -25,7 +25,7 @@ description: |
   - Check for any legitimate user accounts that may have been compromised
   - Review authentication logs for attempts using real credentials from the same source
   - Notify the security team for potential active breach investigation
-where: equals("log.eventType", "authentication") && equals("log.isDecoyUser", true) && exists("log.authResult") && exists("origin.ip")
+where: equals("log.eventType", "authentication") && equals("log.isDecoyUser", "true") && exists("log.authResult") && exists("origin.ip")
 groupBy:
   - lastEvent.log.username
   - adversary.ip

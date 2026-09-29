@@ -15,9 +15,8 @@ description: "Adversaries may exploit remote services to gain unauthorized acces
               A common goal for post-compromise exploitation of remote services is for lateral movement to enable access to a remote system."
 references:
   - "https://attack.mitre.org/techniques/T1210/"
-where: equals("log.eventCode", 4663) &&
-       regexMatch("log.eventDataObjectName", "\\Windows\\System32\\spool\\drivers\\") &&
-       regexMatch("log.eventDataObjectName", "\\.(dll|exe)$") && !contains("log.eventDataProcessName", "spoolsv.exe")
+where: |
+  equals("log.eventCode", 4663) && regexMatch("log.eventDataObjectName", "[Ww]indows.System32.spool.drivers") && regexMatch("log.eventDataObjectName", "[.](dll|exe)$") && !contains("log.eventDataProcessName", "spoolsv.exe")
 groupBy:
-  - origin.ip
-  - target.user
+  - dataSource
+deduplicateBy: []

@@ -24,15 +24,33 @@ description: |
   5. Consider blocking the source IP at the perimeter if multiple critical attacks are detected
   6. Update IPS signatures and verify all systems are patched against the detected vulnerability
   7. Document the incident and notify the security team if this is part of a larger campaign
-where: contains("log.msg", "type=utm") && contains("log.msg", "subtype=ips") && (contains("log.msg", "severity=critical") || contains("log.msg", "severity=high")) && contains("log.msg", "action=blocked")
+where: |
+  exists("log.devid") && !equals("log.devid", "") && exists("log.vd") && !equals("log.vd", "") &&
+  (equals("log.type", "utm") && equals("log.subtype", "ips") &&
+  oneOf("log.severity", ["critical", "high"]) &&
+  equals("actionResult", "denied") && exists("origin.ip"))
 afterEvents:
-  - indexPattern: v11-log-firewall-fortigate-traffic-*
-    with:
-      - field: origin.ip
-        operator: filter_term
-        value: '{{.origin.ip}}'
-    within: 15m
-    count: 3
+- indexPattern: v11-log-firewall-fortigate-traffic-*
+  with:
+  - field: log.devid
+    operator: filter_term
+    value: '{{.log.devid}}'
+  - field: log.vd
+    operator: filter_term
+    value: '{{.log.vd}}'
+  - field: dataSource
+    operator: filter_term
+    value: '{{.dataSource}}'
+  - field: origin.ip
+    operator: filter_term
+    value: '{{.origin.ip}}'
+  - field: log.correlationCandidate.ipsCritical
+    operator: filter_term
+    value: match
+  within: 15m
+  count: 3
 groupBy:
-  - adversary.ip
-  - target.ip
+- adversary.ip
+- target.ip
+- lastEvent.log.devid
+- lastEvent.log.vd

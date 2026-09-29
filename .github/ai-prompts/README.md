@@ -10,7 +10,7 @@ changes needed.
 ```markdown
 ---
 name: short-name              # optional, defaults to filename without extension
-model: gemini-3-flash-lite    # optional, defaults to workflow's AI_REVIEW_MODEL
+model: silas-1.7-pro        # optional, defaults to workflow's AI_REVIEW_MODEL
 ---
 
 <instructions for the model>
@@ -87,8 +87,8 @@ rather hold for a human than let something pass without understanding it.
 
 ## Picking a model
 
-- `gemini-3-flash-lite` — fast/cheap, default for broad passes.
-- `gemini-3-pro` — better reasoning, for prompts needing deeper analysis
-  (architecture, complex logic).
-- `claude-sonnet-4-6` / `claude-opus-4-6` — top quality, higher latency
-  and cost.
+- `silas-1.7-pro` — the only model currently available on ThreatWinds.
+  Sampling params (temperature 1, top_p 0.95, top_k 20, min_p 0.0,
+  presence_penalty 0.0, repetition_penalty 1.0) are set in
+  `.github/scripts/ai-review.sh` to match the local OpenCode `threatwinds`
+  provider options. Pin it in frontmatter if you add prompts later.

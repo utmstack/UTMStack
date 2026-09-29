@@ -34,6 +34,20 @@ func ReadYAML(path string, data interface{}) error {
 }
 
 // WriteYAML marshals the data and writes it to a YAML file.
+// WriteSecretYAML is WriteYAML for files that hold credential material (agent
+// keys, installation uuids): the file is written 0600.
+func WriteSecretYAML(path string, data interface{}) error {
+	yamlData, err := yaml.Marshal(data)
+	if err != nil {
+		return fmt.Errorf("error marshaling YAML: %w", err)
+	}
+
+	if err = WriteSecretString(path, string(yamlData)); err != nil {
+		return fmt.Errorf("error writing YAML file: %w", err)
+	}
+	return nil
+}
+
 func WriteYAML(path string, data interface{}) error {
 	yamlData, err := yaml.Marshal(data)
 	if err != nil {

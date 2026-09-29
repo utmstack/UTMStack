@@ -25,8 +25,8 @@ description: |
   6. Review network connections from the affected host for command and control activity
   7. If tampering was successful, consider reimaging the system after forensic analysis
 where: |
-  regexMatch("log.eventDescription", ".*(tamper|disable|stop|uninstall|modify).*agent.*") ||
-  regexMatch("log.eventDescription", ".*agent.*(tamper|disable|stop|uninstall|modify).*") ||
+  regexMatch("log.eventDescription", "\\b(tamper(s|ed|ing)?|disabl(e|es|ed|ing)|stop(s|ped|ping)?|uninstall(s|ed|ing)?|modif(y|ies|ied|ying))\\b.*\\bagents?\\b") ||
+  regexMatch("log.eventDescription", "\\bagents?\\b.*\\b(tamper(s|ed|ing)?|disabl(e|es|ed|ing)|stop(s|ped|ping)?|uninstall(s|ed|ing)?|modif(y|ies|ied|ying))\\b") ||
   oneOf("log.activityType", ["agent_uninstall", "agent_disable", "agent_tamper"]) ||
   equals("log.eventType", "AgentTamperingAttempt") ||
   (regexMatch("log.processName", ".*(sentinelone|sentinel).*") &&

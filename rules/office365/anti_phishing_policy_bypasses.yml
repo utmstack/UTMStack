@@ -25,15 +25,15 @@ description: |
   6. Consider rolling back unauthorized changes and implementing additional approval workflows
   7. Monitor for any unusual email activity following the policy modifications
 where: |
-  oneOf("log.Operation", ["Set-AntiPhishPolicy", "Remove-AntiPhishPolicy", "New-AntiPhishPolicy", "Disable-AntiPhishRule"]) &&
-  equals("log.ResultStatus", "Success")
+  oneOf("action", ["Set-AntiPhishPolicy", "Remove-AntiPhishPolicy", "New-AntiPhishPolicy", "Disable-AntiPhishRule"]) &&
+  equals("actionResult", "success")
 afterEvents:
   - indexPattern: v11-log-o365-*
     with:
       - field: origin.user
         operator: filter_term
         value: '{{.origin.user}}'
-      - field: log.Operation
+      - field: action
         operator: filter_match
         value: 'AntiPhish'
     within: 4h

@@ -2,44 +2,56 @@
 
 dataTypes:
   - antivirus-esmc-eset
-name: ESET ERA/ESMC Console Suspicious Activity
+name: ESET Repeated Console Authentication Failures
 impact:
   confidentiality: 3
   integrity: 3
   availability: 2
-category: Lateral Movement
-technique: "T1072 - Software Deployment Tools"
+category: Credential Access
+technique: "T1110 - Brute Force"
 adversary: origin
 references:
-  - https://help.eset.com/esmc_admin/70/en-US/
-  - https://attack.mitre.org/techniques/T1072/
+  - https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html
+  - https://attack.mitre.org/techniques/T1110/
 description: |
-  Detects suspicious activity on the ESET ERA/ESMC management console including unauthorized policy changes, mass task deployments, or admin account modifications that could indicate console compromise.
+  Detects ten failed or explicitly denied native-user console login attempts in thirty minutes for the same managed console and attempted account. The account comes from the target of the structured Native user / Login attempt audit record. Successful policy changes, task deployments, and account administration do not by themselves establish console abuse.
 
   Next Steps:
-  1. Verify the admin account performing console operations
-  2. Review recent policy changes and task deployments
-  3. Check admin login history for unauthorized access
-  4. Verify the content of any pushed policies or tasks
-  5. Suspend suspicious admin accounts
-  6. Audit endpoints affected by recent console changes
+  1. Identify the attempted account and confirm whether its owner initiated the logins
+  2. Check for stale credentials in scripts, services, or automation
+  3. Review successful console logins around the failures and investigate unfamiliar access
+  4. Review console changes if account compromise is suspected
+  5. Reset credentials or restrict the account if unauthorized activity is confirmed
 where: |
-  (contains("log.message", "policy") &&
-   (contains("log.message", "modified") || contains("log.message", "assigned") ||
-    contains("log.message", "created"))) ||
-  (contains("log.message", "client task") &&
-   (contains("log.message", "executed") || contains("log.message", "deployed"))) ||
-  (contains("log.message", "administrator") &&
-   ((contains("log.message", "created") || contains("log.message", "modified")) ||
-    (contains("log.message", "login") && contains("log.message", "failed"))))
+  (equals("log.eventType", "Audit_Event") &&
+  equalsIgnoreCase("log.domain", "Native user") &&
+  equalsIgnoreCase("action", "Login attempt") && oneOf("actionResult", ["failure", "denied"]) &&
+  exists("target.user") && !oneOf("target.user", ["", "unknown", "-"])) &&
+  exists("dataSource") && !oneOf("dataSource", ["", "unknown", "-"]) &&
+  oneOf("log.endpointKeyType", ["uuid", "host", "ip"]) &&
+  exists("log.endpointKey") && !equals("log.endpointKey", "")
 afterEvents:
   - indexPattern: v11-log-antivirus-esmc-eset-*
     with:
-      - field: log.headHostname
+      - field: dataSource
         operator: filter_term
-        value: '{{.log.headHostname}}'
+        value: '{{.dataSource}}'
+      - field: log.endpointKeyType
+        operator: filter_term
+        value: '{{.log.endpointKeyType}}'
+      - field: log.endpointKey
+        operator: filter_term
+        value: '{{.log.endpointKey}}'
+      - field: target.user
+        operator: filter_term
+        value: '{{.target.user}}'
+      - field: log.correlationCandidate.consoleAuthenticationFailure
+        operator: filter_term
+        value: 'match'
     within: 30m
     count: 10
 groupBy:
-  - lastEvent.log.headHostname
-  - target.host
+  - lastEvent.dataSource
+  - lastEvent.log.endpointKeyType
+  - lastEvent.log.endpointKey
+  - target.user

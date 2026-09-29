@@ -27,7 +27,7 @@ where: |
   (contains("log.eventDescription", ["custom rule", "custom detection", "Custom Rules"]) ||
    equals("log.detectionSource", "CustomRule") ||
    equals("log.ruleType", "Custom")) &&
-  exists("log.syslogHost")
+  exists("target.host")
 groupBy:
   - lastEvent.log.eventDescription
-  - lastEvent.log.syslogHost
+  - target.host

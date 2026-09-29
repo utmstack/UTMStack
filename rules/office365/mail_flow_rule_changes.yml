@@ -26,7 +26,7 @@ description: |
   7. If unauthorized, disable the malicious rule immediately and investigate the compromised account
 where: |
   oneOf("action", ["New-TransportRule", "Set-TransportRule", "Remove-TransportRule", "Enable-TransportRule", "Disable-TransportRule"]) &&
-  equals("actionResult", "Success")
+  equals("actionResult", "success")
 afterEvents:
   - indexPattern: v11-log-o365-*
     with:

@@ -15,7 +15,8 @@ references:
   - "https://attack.mitre.org/techniques/T1127/"
 description: "Identifies network activity from unexpected system applications. This may indicate adversarial activity as these
               applications are often leveraged by adversaries to execute code and evade detection."
-where: regexMatch("log.eventDataProcessName", "(Microsoft.Workflow.Compiler.exe|bginfo.exe|cdb.exe|cmstp.exe|csi.exe|dnx.exe|fsi.exe|ieexec.exe|iexpress.exe|odbcconf.exe|rcsi.exe|xwizard.exe)")
+where: |
+  (equals("log.eventCode",4688) || equals("log.eventCode",1)) && regexMatch("log.data.NewProcessName", "(Microsoft.Workflow.Compiler.exe|bginfo.exe|cdb.exe|cmstp.exe|csi.exe|dnx.exe|fsi.exe|ieexec.exe|iexpress.exe|odbcconf.exe|rcsi.exe|xwizard.exe)")
 groupBy:
-  - origin.ip
-  - target.user
+  - dataSource
+deduplicateBy: []

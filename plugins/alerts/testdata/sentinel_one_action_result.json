@@ -1,0 +1,116 @@
+[
+  {
+    "name": "mitigation-status-failed",
+    "raw": "<14>2026-09-23 12:34:56,000   testhost -  CEF:0|SentinelOne|Mgmt|S-99.1.1#10|9999|Synthetic mitigation failed|1|suser=analyst@example.com cat=Threat rt=#arcsightDate(Wed, 23 Sep 2026, 12:34:56 UTC) mitigationStatus=failed",
+    "result": "failure",
+    "expected": {
+      "log.mitigationStatus": "failed",
+      "log.cat": "Threat"
+    }
+  },
+  {
+    "name": "threat-status-mitigation-failed",
+    "raw": "<14>2026-09-23 12:34:56,000   testhost -  CEF:0|SentinelOne|Mgmt|S-99.1.1#10|9999|Synthetic mitigation failed|1|suser=analyst@example.com cat=Threat rt=#arcsightDate(Wed, 23 Sep 2026, 12:34:56 UTC) threatStatus=mitigation_failed",
+    "result": "failure",
+    "expected": {
+      "log.threatStatus": "mitigation_failed",
+      "log.cat": "Threat"
+    }
+  },
+  {
+    "name": "operation-status-failed",
+    "raw": "<14>2026-09-23 12:34:56,000   testhost -  CEF:0|SentinelOne|Mgmt|S-99.1.1#10|9999|Synthetic operation failed|1|suser=analyst@example.com cat=Threat rt=#arcsightDate(Wed, 23 Sep 2026, 12:34:56 UTC) status=failed",
+    "result": "failure",
+    "expected": {
+      "log.status": "failed",
+      "log.cat": "Threat"
+    }
+  },
+  {
+    "name": "mitigation-status-failure-uppercase",
+    "raw": "<14>2026-09-23 12:34:56,000   testhost -  CEF:0|SentinelOne|Mgmt|S-99.1.1#10|9999|Synthetic mitigation failed|1|suser=analyst@example.com cat=Threat rt=#arcsightDate(Wed, 23 Sep 2026, 12:34:56 UTC) mitigationStatus=FAILURE",
+    "result": "failure",
+    "expected": {
+      "log.mitigationStatus": "FAILURE",
+      "log.cat": "Threat"
+    }
+  },
+  {
+    "name": "composite-status-not-a-verdict",
+    "raw": "<14>2026-09-23 12:34:56,000   testhost -  CEF:0|SentinelOne|Mgmt|S-99.1.1#10|9999|Synthetic status|1|suser=analyst@example.com cat=Threat rt=#arcsightDate(Wed, 23 Sep 2026, 12:34:56 UTC) mitigationStatus=not_failed",
+    "result": "",
+    "expected": {
+      "log.mitigationStatus": "not_failed"
+    },
+    "absent": [
+      "actionResult"
+    ]
+  },
+  {
+    "name": "conflicting-statuses-remain-unknown",
+    "raw": "<14>2026-09-23 12:34:56,000   testhost -  CEF:0|SentinelOne|Mgmt|S-99.1.1#10|9999|Synthetic conflict|1|suser=analyst@example.com cat=Threat rt=#arcsightDate(Wed, 23 Sep 2026, 12:34:56 UTC) threatStatus=mitigation_failed mitigationStatus=mitigated",
+    "result": "",
+    "expected": {
+      "log.threatStatus": "mitigation_failed",
+      "log.mitigationStatus": "mitigated"
+    },
+    "absent": [
+      "actionResult"
+    ]
+  },
+  {
+    "name": "successful-remediation-not-an-allowed-connection",
+    "raw": "<14>2026-09-23 12:34:56,000   testhost -  CEF:0|SentinelOne|Mgmt|S-99.1.1#10|9999|Synthetic remediation|1|suser=analyst@example.com cat=Threat rt=#arcsightDate(Wed, 23 Sep 2026, 12:34:56 UTC) status=success mitigationStatus=mitigated",
+    "result": "",
+    "expected": {
+      "log.status": "success",
+      "log.mitigationStatus": "mitigated"
+    },
+    "absent": [
+      "actionResult"
+    ]
+  },
+  {
+    "name": "administrative-event-has-no-outcome",
+    "raw": "<14>2026-09-23 12:34:56,000   testhost -  CEF:0|SentinelOne|Mgmt|S-99.1.1#10|37|Synthetic role assigned|1|suser=admin@example.com cat=SystemEvent rt=#arcsightDate(Wed, 23 Sep 2026, 12:34:56 UTC) activityID=100000000000000001 activityType=37 siteId=100000000000000002 siteName=Example Site accountId=100000000000000003 accountName=Example notificationScope=SITE",
+    "result": "",
+    "expected": {
+      "log.activityType": "37",
+      "log.cat": "SystemEvent"
+    },
+    "absent": [
+      "actionResult",
+      "origin.ip",
+      "target.ip"
+    ]
+  },
+  {
+    "name": "console-notification-address-not-a-peer",
+    "raw": "<14>2026-09-23 12:34:56,000   testhost -  CEF:0|SentinelOne|Mgmt|S-99.1.1#10|3660|Synthetic notification triggered|1|value=true issuer=console user_id=100000000000000004 username=Synthetic User online_agents=3 offline_agents=2 cat=SystemEvent deviceAddress=203.0.113.10 deviceHostFqdn=console.example.com deviceHostName=console.example.com notificationScope=SITE siteId=100000000000000002 siteName=Example Site accountId=100000000000000003 accountName=Example vendor=SentinelOne eventID=3660 eventDesc=Synthetic notification triggered eventSeverity=1 activityID=100000000000000005 activityType=3660",
+    "result": "",
+    "expected": {
+      "log.activityType": "3660",
+      "log.cat": "SystemEvent",
+      "log.deviceAddress": "203.0.113.10"
+    },
+    "absent": [
+      "actionResult",
+      "origin.ip",
+      "target.ip"
+    ]
+  },
+  {
+    "name": "transport-line-without-outcome",
+    "raw": "<134>1 2026-09-23T12:34:56-04:00 testhost synthetic-load - - - SYNTHETIC-0001 seq=1",
+    "result": "",
+    "expected": {
+      "log.seq": "1",
+      "log.syslogPriority": "134"
+    },
+    "absent": [
+      "actionResult",
+      "origin.ip",
+      "target.ip"
+    ]
+  }
+]

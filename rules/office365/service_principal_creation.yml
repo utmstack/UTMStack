@@ -1,0 +1,33 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365
+name: Microsoft 365 Service Principal Creation
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Persistence
+technique: "T1136.003 - Create Account: Cloud Account"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/entra/identity-platform/howto-create-service-principal-portal
+  - https://github.com/Azure/Azure-Sentinel/blob/master/Solutions/Microsoft%20365/Hunting%20Queries
+  - https://attack.mitre.org/techniques/T1136/003/
+description: |
+  Detects creation of a new service principal (application) in Microsoft Entra ID. Attackers frequently register a rogue service principal to establish persistent, credential-based access to the tenant that survives password resets and MFA.
+
+  Verified against live Unified Audit data: operation "Add service principal." (Workload AzureActiveDirectory, actionResult success).
+
+  Next Steps:
+  1. Identify who created the service principal and the target application name
+  2. Verify the registration was authorized by an application owner
+  3. Review the service principal's API permissions and role assignments
+  4. Check for secrets or certificates attached to the new principal
+  5. Look for subsequent activity from the new principal (OAuth tokens, API calls)
+  6. If unauthorized, delete the service principal and review its usage
+where: |
+  equals("action", "Add service principal.") && equals("actionResult", "success")
+groupBy:
+  - adversary.user
+  - origin.ip

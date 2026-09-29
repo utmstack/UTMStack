@@ -48,21 +48,21 @@
           <div *ngFor="let section of sections$ | async as sections; let index = index; trackBy: trackFn"
                [ngClass]="{'mt-3': index === 0}"
                class="d-flex flex-column mb-1 mx-2">
-            <!--<app-utm-cp-section [section]="section"
+            <app-utm-cp-section [section]="section"
                                 [action]="action"
                                 [loadFirst]="index === activeIndexSection"
                                 [index]="index"
                                 (isActive)="onChangeSectionActive($event, section, sections)"
                                 [expandable]="action==='reports'">
-            </app-utm-cp-section>-->
+            </app-utm-cp-section>
 
-            <app-utm-cp-section-config [section]="section"
+            <!--<app-utm-cp-section-config [section]="section"
                                 [action]="action"
                                 [loadFirst]="index === activeIndexSection"
                                 [index]="index"
                                 (isActive)="onChangeSectionActive($event, section, sections)"
                                 [expandable]="action ==='reports'">
-            </app-utm-cp-section-config>
+            </app-utm-cp-section-config>-->
           </div>
         </div>
       </div>
@@ -72,10 +72,10 @@
     <div class="col overflow-auto h-100">
       <div class="card m-0">
         <!-- Conditional rendering based on selected action -->
-        <app-compliance-latest-evaluations-view [section]="activeSection" (pageChange)="onPageChange($event)" *ngIf="action === 'compliance' && activeSection"></app-compliance-latest-evaluations-view>
-        <app-compliance-evaluation-history-view *ngIf="action === 'reports'"></app-compliance-evaluation-history-view>
-        <!--<app-compliance-reports-view [section]="activeSection" (pageChange)="onPageChange($event)" *ngIf="action === 'compliance' && activeSection"></app-compliance-reports-view>
-        <app-compliance-result-view *ngIf="action === 'reports'" [showExport]="false" [template]="'compliance'"></app-compliance-result-view>-->
+        <!--<app-compliance-latest-evaluations-view [section]="activeSection" (pageChange)="onPageChange($event)" *ngIf="action === 'compliance' && activeSection"></app-compliance-latest-evaluations-view>
+        <app-compliance-evaluation-history-view *ngIf="action === 'reports'"></app-compliance-evaluation-history-view>-->
+        <app-compliance-reports-view [section]="activeSection" (pageChange)="onPageChange($event)" *ngIf="action === 'compliance' && activeSection"></app-compliance-reports-view>
+        <app-compliance-result-view *ngIf="action === 'reports'" [showExport]="false" [template]="'compliance'"></app-compliance-result-view>
       </div>
     </div>
   </div>

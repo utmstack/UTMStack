@@ -157,8 +157,8 @@ export class ActionBuilderComponent implements OnInit, OnDestroy {
 
   }
 
-  updateAction(action: any, $event: { key: ActionConditionalEnum; value: string }) {
-    this.workflowActionsService.updateAction({
+  updateAction(action: any, index: number, $event: { key: ActionConditionalEnum; value: string }) {
+    this.workflowActionsService.updateAction(index, {
       ...action,
       conditional: $event
     });

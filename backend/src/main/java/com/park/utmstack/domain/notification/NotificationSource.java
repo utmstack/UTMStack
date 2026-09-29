@@ -10,5 +10,6 @@ public enum NotificationSource {
     SOPHOS,
     GOOGLE,
     EMAIL_SETTING,
-    ALERTS
+    ALERTS,
+    SYSTEM
 }

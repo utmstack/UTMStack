@@ -21,11 +21,15 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -77,10 +81,17 @@ public class UtmAssetGroupService {
 
     public Page<AssetGroupDTO> searchGroupsByFilter(AssetGroupFilter filter, Pageable pageable) {
 
-        String query = searchQueryBuilder(filter);
+        Map<String, Object> params = new HashMap<>();
+        String query = searchQueryBuilder(filter, params);
         String queryWithPaginationAndSort = paginateAndSort(query, pageable);
-        BigInteger count = (BigInteger) em.createNativeQuery(String.format("SELECT count(*) FROM (%1$s) AS total", query)).getSingleResult();
-        List<UtmAssetGroup> results = new ArrayList<>(em.createNativeQuery(queryWithPaginationAndSort, UtmAssetGroup.class).getResultList());
+
+        Query countQuery = em.createNativeQuery(String.format("SELECT count(*) FROM (%1$s) AS total", query));
+        setQueryParams(countQuery, params);
+        BigInteger count = (BigInteger) countQuery.getSingleResult();
+
+        Query dataQuery = em.createNativeQuery(queryWithPaginationAndSort, UtmAssetGroup.class);
+        setQueryParams(dataQuery, params);
+        List<UtmAssetGroup> results = new ArrayList<>(dataQuery.getResultList());
 
         if (!CollectionUtils.isEmpty(results)) {
             results.forEach(g -> {
@@ -120,79 +131,80 @@ public class UtmAssetGroupService {
         utmAssetGroupRepository.deleteById(id);
     }
 
-    private String searchQueryBuilder(AssetGroupFilter filters) {
+    private static final Set<String> ALLOWED_SORT_COLUMNS = Set.of(
+            "id", "group_name", "group_description", "created_date", "type"
+    );
+
+    private static void setQueryParams(Query query, Map<String, Object> params) {
+        params.forEach(query::setParameter);
+    }
+
+    private String searchQueryBuilder(AssetGroupFilter filters, Map<String, Object> params) {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("SELECT DISTINCT utm_asset_group.* FROM utm_asset_group LEFT JOIN utm_network_scan ON utm_asset_group.id = utm_network_scan.group_id where type =  '%s' \n", filters.getAssetType()));
+        sb.append("SELECT DISTINCT utm_asset_group.* FROM utm_asset_group LEFT JOIN utm_network_scan ON utm_asset_group.id = utm_network_scan.group_id");
 
         if (Objects.isNull(filters))
             return sb.toString();
 
-        boolean where = false;
+        List<String> conditions = new ArrayList<>();
 
         // id
         if (Objects.nonNull(filters.getId())) {
-            sb.append(String.format("WHERE utm_asset_group.id = %1$s\n", filters.getId()));
-            where = false;
+            conditions.add("utm_asset_group.id = :filterId");
+            params.put("filterId", filters.getId());
         }
 
         // groupName
         if (StringUtils.hasText(filters.getGroupName())) {
-            sb.append(where ? "WHERE " : "AND ")
-                    .append(String.format("lower(utm_asset_group.group_name) LIKE '%%%1$s%%'\n",
-                            filters.getGroupName().toLowerCase()));
-            where = false;
+            conditions.add("lower(utm_asset_group.group_name) LIKE :filterGroupName");
+            params.put("filterGroupName", "%" + filters.getGroupName().toLowerCase() + "%");
         }
 
         // createdDate
         if (Objects.nonNull(filters.getInitDate()) && Objects.nonNull(filters.getEndDate())) {
-            sb.append(where ? "WHERE " : "AND ")
-                    .append(String.format("(utm_asset_group.created_date BETWEEN '%1$s' AND '%2$s')\n",
-                            filters.getInitDate(), filters.getEndDate()));
-            where = false;
+            conditions.add("(utm_asset_group.created_date BETWEEN :filterInitDate AND :filterEndDate)");
+            params.put("filterInitDate", filters.getInitDate());
+            params.put("filterEndDate", filters.getEndDate());
         }
 
         // assetType
         if (!CollectionUtils.isEmpty(filters.getType())) {
-            String types = filters.getType().stream()
-                    .map(type -> String.format("'%1$s'", type)).collect(Collectors.joining(","));
-            sb.append(where ? "WHERE " : "AND ")
-                    .append(String.format("utm_network_scan.asset_type_id IN (SELECT utm_asset_types.id FROM utm_asset_types WHERE utm_asset_types.type_name IN (%1$s))\n", types));
-            where = false;
+            conditions.add("utm_network_scan.asset_type_id IN (SELECT utm_asset_types.id FROM utm_asset_types WHERE utm_asset_types.type_name IN (:filterTypes))");
+            params.put("filterTypes", filters.getType());
         }
 
         // serverName
         if (!CollectionUtils.isEmpty(filters.getProbe())) {
-            String probes = filters.getProbe().stream()
-                    .map(probe -> String.format("'%1$s'", probe)).collect(Collectors.joining(","));
-            sb.append(where ? "WHERE " : "AND ")
-                    .append(String.format("utm_network_scan.server_name IN (%1$s)\n", probes));
-            where = false;
+            conditions.add("utm_network_scan.server_name IN (:filterProbes)");
+            params.put("filterProbes", filters.getProbe());
         }
 
         // assetOs
         if (!CollectionUtils.isEmpty(filters.getOs())) {
-            String oss = filters.getOs().stream()
-                    .map(os -> String.format("'%1$s'", os)).collect(Collectors.joining(","));
-            sb.append(where ? "WHERE " : "AND ")
-                    .append(String.format("utm_network_scan.asset_os IN (%1$s)\n", oss));
-            where = false;
+            conditions.add("utm_network_scan.asset_os IN (:filterOs)");
+            params.put("filterOs", filters.getOs());
         }
 
         // assetIp
         if (!CollectionUtils.isEmpty(filters.getAssetIp())) {
-            String ips = filters.getAssetIp().stream()
-                    .map(ip -> String.format("'%1$s'", ip)).collect(Collectors.joining(","));
-            sb.append(where ? "WHERE " : "AND ")
-                    .append(String.format("utm_network_scan.asset_ip IN (%1$s)\n", ips));
-            where = false;
+            conditions.add("utm_network_scan.asset_ip IN (:filterAssetIps)");
+            params.put("filterAssetIps", filters.getAssetIp());
         }
 
         // assetName
         if (!CollectionUtils.isEmpty(filters.getAssetName())) {
-            String names = filters.getAssetName().stream()
-                    .map(name -> String.format("'%1$s'", name)).collect(Collectors.joining(","));
-            sb.append(where ? "WHERE " : "AND ")
-                    .append(String.format("utm_network_scan.asset_name IN (%1$s)\n", names));
+            conditions.add("utm_network_scan.asset_name IN (:filterAssetNames)");
+            params.put("filterAssetNames", filters.getAssetName());
+        }
+
+        // assetType (single value column)
+        if (StringUtils.hasText(filters.getAssetType())) {
+            conditions.add("type = :filterAssetType");
+            params.put("filterAssetType", filters.getAssetType());
+        }
+
+        if (!conditions.isEmpty()) {
+            sb.append(" WHERE ").append(String.join(" AND ", conditions));
         }
 
         return sb.toString();
@@ -212,6 +224,8 @@ public class UtmAssetGroupService {
                 List<Sort.Order> orders = sort.stream().collect(Collectors.toList());
 
                 for (Sort.Order order : orders) {
+                    if (!ALLOWED_SORT_COLUMNS.contains(order.getProperty()))
+                        throw new IllegalArgumentException(ctx + ": Invalid sort column: " + order.getProperty());
                     sb.append(String.format(firstProperty ? "%1$s %2$s" : ", %1$s %2$s", order.getProperty(), order.getDirection().name()));
                     firstProperty = false;
                 }

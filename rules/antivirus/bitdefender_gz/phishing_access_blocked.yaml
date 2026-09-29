@@ -1,0 +1,35 @@
+# Rule version v3.0.0
+
+dataTypes:
+- antivirus-bitdefender-gz
+name: Bitdefender GravityZone Phishing Detection in Report-Only Mode
+impact:
+  confidentiality: 3
+  integrity: 1
+  availability: 0
+category: Credential Access
+technique: 'T1566.002 - Phishing: Spearphishing Link'
+adversary: origin
+references:
+- https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+- https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html
+- https://attack.mitre.org/techniques/T1566/002/
+description: 'The antiphishing module reported a phishing, fraud or untrusted URL in report-only mode. This event does not establish
+  that a page loaded, that a user submitted credentials, or that an account was compromised. Blocked detections do not satisfy this
+  rule.
+
+
+  Review origin.domain, origin.url when complete, and the original log.request value, target.user and the managed endpoint. Confirm
+  the protection policy and investigate subsequent browser, authentication and malware activity. Escalate credential containment when
+  that investigation supports exposure.
+
+  '
+where: equals("log.BitdefenderGZModule", "aph") && equalsIgnoreCase("action", "reportOnly")
+groupBy:
+- lastEvent.dataSource
+- lastEvent.log.BitdefenderGZCompanyId
+- lastEvent.log.endpointKeyType
+- lastEvent.log.endpointKey
+- target.user
+- adversary.url
+- adversary.domain

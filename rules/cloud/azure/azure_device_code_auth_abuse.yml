@@ -1,32 +1,31 @@
-# Rule version v1.0.0
-
+# Azure rule contract review v2.1.0
 dataTypes:
-  - azure
-name: Azure AD Device Code Authentication Flow Detected
+- azure
+name: High Risk Device Code Sign-in
 impact:
   confidentiality: 3
   integrity: 2
   availability: 1
 category: Initial Access
-technique: "T1078 - Valid Accounts"
+technique: ''
 adversary: origin
 references:
-  - https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-device-code
-  - https://attack.mitre.org/techniques/T1078/
-description: |
-  Detects OAuth device code flow authentication in Azure AD. Device code phishing is a growing attack vector where attackers trick users into authenticating on a device the attacker controls, granting the attacker access tokens.
+- https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema
+- https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-device-code
+- https://attack.mitre.org/techniques/T1078/
+description: 'A successful device-code sign-in carries high or active risk. Routine device-code use without that risk signal is
+  excluded.
 
-  Next Steps:
-  1. Verify the device code authentication was initiated by the user on a legitimate device
-  2. Check the application requesting the device code for legitimacy
-  3. Review the source IP where the token was redeemed
-  4. Check for subsequent suspicious activities using the obtained token
-  5. If unauthorized, revoke the session and all refresh tokens
-  6. Consider blocking device code flow via conditional access policies
-  7. Educate users about device code phishing attacks
-where: |
-  (contains("log.properties", "deviceCode") && contains("log.operationName", "Sign-in")) ||
-  contains("log.properties", "urn:ietf:params:oauth:grant-type:device_code")
+  '
+where: 'equalsIgnoreCase("log.azureKind","signin") && equalsIgnoreCase("actionResult","success") && equalsIgnoreCase("log.properties.authenticationProtocol","deviceCode")
+  && (equalsIgnoreCase("log.properties.riskState","atRisk") || equalsIgnoreCase("log.properties.riskState","confirmedCompromised")
+  || equalsIgnoreCase("log.properties.riskLevelDuringSignIn","high"))
+
+  '
 groupBy:
-  - adversary.ip
-  - adversary.user
+- lastEvent.dataSource
+- lastEvent.log.azureScopeType
+- lastEvent.log.azureScope
+- lastEvent.log.azureOperation
+- adversary.user
+- adversary.ip

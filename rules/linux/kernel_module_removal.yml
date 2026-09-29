@@ -1,4 +1,4 @@
-# Rule version v1.0.1
+# Rule version v1.0.2
 
 dataTypes:
   - "linux"
@@ -15,7 +15,7 @@ description: "Kernel modules are pieces of code that can be loaded and unloaded 
 references:
   - "https://attack.mitre.org/tactics/TA0005/"
   - "https://attack.mitre.org/techniques/T1562/001/"
-where: regexMatch("log.message", "(modprobe(.+)sudo(.+)(-r|--remove)|modprobe(.+)(-r|--remove)(.+)sudo|sudo(.+)modprobe(.+)(-r|--remove)|sudo(.+)(-r|--remove)(.+)modprobe|(-r|--remove)modprobe(.+)sudo|(-r|--remove)(.+)sudo(.+)modprobe)")
-groupBy:
-  - origin.ip
-  - origin.user
+where: |
+  regexMatch("origin.command", "modprobe .*(-r|--remove)")
+deduplicateBy:
+  - dataSource

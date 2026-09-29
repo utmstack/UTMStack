@@ -2,7 +2,7 @@
 
 dataTypes:
   - antivirus-esmc-eset
-name: ESET Blocked Suspicious PowerShell Activity
+name: ESET Blocked PowerShell Activity
 impact:
   confidentiality: 3
   integrity: 3
@@ -11,11 +11,11 @@ category: Execution
 technique: "T1059.001 - Command and Scripting Interpreter: PowerShell"
 adversary: origin
 references:
-  - https://help.eset.com/ees/8/en-US/idh_hips_main.html
+  - https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html
   - https://attack.mitre.org/techniques/T1059/001/
 description: |
-  Detects when ESET blocks suspicious PowerShell commands or scripts that exhibit malicious behavior patterns, including obfuscated scripts, encoded commands, or attempts to bypass execution policies. This is a high-priority security event that indicates potential malicious activity was prevented.
-  
+  Detects an explicitly blocked HIPS or antivirus event associated with the PowerShell or pwsh executable. The process comes from the structured application/process field. Review the detector and operation to establish malicious behavior; a block alone does not prove a particular command-line technique.
+
   Next Steps:
   1. Review the blocked PowerShell command details in the log message
   2. Identify the user account and process that attempted to execute PowerShell
@@ -24,7 +24,14 @@ description: |
   5. Look for other suspicious activities from the same host or user
   6. Consider isolating the affected system if malicious intent is confirmed
   7. Review and update PowerShell execution policies if needed
-where: regexMatch("log.message", "(?i)(powershell|pwsh)") && equals("log.action", "blocked") && exists("log.headHostname")
+where: |
+  ((oneOf("log.eventType", ["HipsAggregated_Event", "HIPSAggregated_Event"]) || equals("log.eventType", "Threat_Event")) &&
+  equals("actionResult", "denied") && regexMatch("origin.process", "(?i)^(powershell|pwsh)([.]exe)?$")) &&
+  exists("dataSource") && !oneOf("dataSource", ["", "unknown", "-"]) &&
+  oneOf("log.endpointKeyType", ["uuid", "host", "ip"]) &&
+  exists("log.endpointKey") && !equals("log.endpointKey", "")
 groupBy:
-  - lastEvent.log.headHostname
-  - target.host
+  - lastEvent.dataSource
+  - lastEvent.log.endpointKeyType
+  - lastEvent.log.endpointKey
+  - adversary.process

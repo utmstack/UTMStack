@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.0.1
 
 dataTypes:
   - linux
@@ -25,14 +25,6 @@ description: |
   6. If unauthorized, isolate the system and perform forensic analysis
   7. Verify boot process integrity and consider restoring from known good backups
 where: |
-  (contains("log.file_path", "/boot/grub2/") && oneOf("log.action", ["modify", "write", "delete"])) ||
-  (equals("log.file_path", "/etc/default/grub") && oneOf("log.action", ["modify", "write"])) ||
-  (contains("log.command", "grub2-mkconfig")) ||
-  (contains("log.command", "grub2-install")) ||
-  (contains("log.file_path", "/boot/vmlinuz") && oneOf("log.action", ["modify", "replace"])) ||
-  (contains("log.file_path", "/boot/initramfs") && oneOf("log.action", ["modify", "replace"])) ||
-  (equals("log.event_type", "boot_loader_modification")) ||
-  (exists("log.module_name") && equals("log.action", "kernel_module_load") && contains("log.module_path", "/boot/"))
-groupBy:
-  - lastEvent.log.file_path
-  - origin.host
+  regexMatch("origin.command", "(grub-mkconfig|grub2-mkconfig|update-grub|grub-install|grub2-install)")
+deduplicateBy:
+  - dataSource

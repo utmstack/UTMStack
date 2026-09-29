@@ -19,10 +19,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
+import java.net.UnknownHostException;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -119,6 +122,12 @@ public class IdentityProviderService {
         return encryptionKey;
     }
 
+    /**
+     * Schemes accepted for SAML metadata endpoints. HTTP is only permitted for the
+     * documented in-lab default, see {@link #isMetadataUrlAllowed(URL)}.
+     */
+    private static final Set<String> ALLOWED_METADATA_SCHEMES = Set.of("http", "https");
+
     private void validateMetadataUrl(String metadataUrl) {
         if (metadataUrl == null || metadataUrl.trim().isEmpty()) {
             throw new SamlMetadataUrlInvalidException("Metadata URL is required");
@@ -127,10 +136,17 @@ public class IdentityProviderService {
         HttpURLConnection connection = null;
         try {
             URL url = new URL(metadataUrl);
+
+            if (!isMetadataUrlAllowed(url)) {
+                throw new SamlMetadataUrlInvalidException(
+                        "Metadata URL must use the http or https scheme and target a public hostname");
+            }
+
             connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             connection.setConnectTimeout(5000);
             connection.setReadTimeout(5000);
+            connection.setInstanceFollowRedirects(false);
 
             int responseCode = connection.getResponseCode();
             if (responseCode != 200) {
@@ -151,6 +167,37 @@ public class IdentityProviderService {
                 connection.disconnect();
             }
         }
+    }
+
+    /**
+     * Rejects metadata URLs that cannot be a legitimate SAML IdP endpoint:
+     * non-http(s) schemes, literal IP addresses (loopback, private, link-local such
+     * as 169.254.169.254), and hostnames that resolve to internal ranges.
+     */
+    private boolean isMetadataUrlAllowed(URL url) {
+        String scheme = url.getProtocol() == null ? "" : url.getProtocol().toLowerCase();
+        if (!ALLOWED_METADATA_SCHEMES.contains(scheme)) {
+            return false;
+        }
+
+        String host = url.getHost();
+        if (host == null || host.isEmpty()) {
+            return false;
+        }
+
+        InetAddress address;
+        try {
+            // Literal IP in the URL, or DNS resolution of the hostname.
+            address = InetAddress.getByName(host);
+        } catch (UnknownHostException e) {
+            return false;
+        }
+
+        return !address.isLoopbackAddress()
+                && !address.isSiteLocalAddress()
+                && !address.isLinkLocalAddress()
+                && !address.isAnyLocalAddress()
+                && !address.isMulticastAddress();
     }
 
 }

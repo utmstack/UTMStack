@@ -5,6 +5,7 @@ import com.park.utmstack.domain.UtmConfigurationParameter;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.tfa.TfaMethod;
 import com.park.utmstack.repository.UtmConfigurationParameterRepository;
+import com.park.utmstack.security.SecurityUtils;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.tfa.TfaService;
 import com.park.utmstack.util.CipherUtil;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -101,12 +103,22 @@ public class UtmConfigurationParameterService {
 
 
             Map<String, String> cfg = new HashMap<>();
+            List<UtmConfigurationParameter> toSave = new ArrayList<>();
+            Instant now = Instant.now();
+            String user = SecurityUtils.getCurrentUserLogin().orElse(Constants.SYSTEM_ACCOUNT);
             for (UtmConfigurationParameter p : params) {
+                boolean isPassword = Constants.CONF_TYPE_PASSWORD.equalsIgnoreCase(p.getConfParamDatatype());
+                if (isPassword && Constants.MASKED_VALUE.equals(p.getConfParamValue())) {
+                    continue;
+                }
                 cfg.put(p.getConfParamShort(), p.getConfParamValue());
-                if (StringUtils.hasText(p.getConfParamValue()) && p.getConfParamDatatype().equalsIgnoreCase("password"))
+                if (StringUtils.hasText(p.getConfParamValue()) && isPassword)
                     p.setConfParamValue(CipherUtil.encrypt(p.getConfParamValue(), System.getenv(Constants.ENV_ENCRYPTION_KEY)));
+                p.setModificationTime(now);
+                p.setModificationUser(user);
+                toSave.add(p);
             }
-            configParamRepository.saveAll(params);
+            configParamRepository.saveAll(toSave);
             Constants.CFG.putAll(cfg);
         } catch (UtmMailException e) {
             throw new UtmMailException(ctx + ": " + e.getMessage());

@@ -1,21 +1,20 @@
-# Rule version v1.0.0
-
+# Rule version v1.1.0
 dataTypes:
-  - antivirus-kaspersky
+- antivirus-kaspersky
 name: Process Hollowing Detection
 impact:
   confidentiality: 3
   integrity: 3
   availability: 2
 category: Defense Evasion, Privilege Escalation
-technique: "T1055.012 - Process Injection: Process Hollowing"
+technique: 'T1055.012 - Process Injection: Process Hollowing'
 adversary: origin
 references:
-  - https://attack.mitre.org/techniques/T1055/012/
-  - https://www.kaspersky.com/enterprise-security/wiki-section/products/behavior-based-protection
+- https://attack.mitre.org/techniques/T1055/012/
+- https://www.kaspersky.com/enterprise-security/wiki-section/products/behavior-based-protection
 description: |
   Detects process hollowing attempts where malware creates a new process in suspended state, unmaps its memory, and replaces it with malicious code. This advanced technique is used to evade detection by hiding malicious code within legitimate processes.
-  
+
   Next Steps:
   1. Immediately isolate the affected system to prevent lateral movement
   2. Identify the parent process that initiated the hollowing attempt
@@ -25,11 +24,11 @@ description: |
   6. Search for similar patterns across other endpoints
   7. Update endpoint protection policies to block the identified threat
 where: |
-  (equals("log.signatureID", "3") || equals("log.cs1", "DETECT")) &&
+  equals("log.format","cef") && ((equals("log.signatureID", "3") || equals("log.cs1", "DETECT")) &&
   (contains("log.msg", ["hollow", "RunPE", "suspend", "NtUnmapViewOfSection", "ZwUnmapViewOfSection"]) ||
    contains("log.cs4", ["hollow", "RunPE", "replace"]) ||
    contains("log.msg", ["hollow", "suspended", "unmap"])) &&
-  greaterOrEqual("log.cefDeviceSeverity", "3")
+  greaterOrEqual("log.cefDeviceSeverity", "3"))
 groupBy:
-  - log.cs5
-  - origin.host
+- lastEvent.log.cs5
+- adversary.host

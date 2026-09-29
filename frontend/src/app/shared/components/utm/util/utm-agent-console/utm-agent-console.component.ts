@@ -23,7 +23,7 @@ import {ITEMS_PER_PAGE} from '../../../../constants/pagination.constants';
 import {UtmAgentManagerService} from '../../../../services/agent/utm-agent-manager.service';
 import {AgentStatusEnum, AgentType} from '../../../../types/agent/agent.type';
 import {IncidentCommandType} from '../../../../types/incident/incident-command.type';
-import {replaceBreakLine} from '../../../../util/string-util';
+import {escapeAndBreakLine} from '../../../../util/string-util';
 
 @Component({
   selector: 'app-utm-agent-console',
@@ -177,7 +177,7 @@ export class UtmAgentConsoleComponent implements OnInit, OnChanges, AfterViewIni
     const subUrl = `/user/topic/${this.agent.hostname}`;
     this.stompClient.subscribe(subUrl, (message) => {
       this.commandInProgress = false;
-      this.messages.push(replaceBreakLine(message.body.toString()));
+      this.messages.push(escapeAndBreakLine(message.body.toString()));
       this.command = '';
       setTimeout(() => {
         this.scrollToBottom();

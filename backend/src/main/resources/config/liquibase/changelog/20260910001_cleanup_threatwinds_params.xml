@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260910001" author="Alex">
+
+        <delete tableName="utm_configuration_parameter">
+            <where>id IN (40, 41)</where>
+        </delete>
+
+        <update tableName="utm_configuration_section">
+            <column name="section" value="Threat Intelligence"/>
+            <column name="description" value="Threat Intelligence integration settings."/>
+            <column name="short_name" value="THREAT_INTELLIGENCE"/>
+            <where>id = 10</where>
+        </update>
+
+    </changeSet>
+</databaseChangeLog>

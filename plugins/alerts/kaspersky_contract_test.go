@@ -1,0 +1,487 @@
+package main
+
+// Offline Kaspersky extraction model, not the closed EventProcessor.
+// Grok patterns are consumed in order, with whitespace trimmed before each
+// match, as the EventProcessor grok plugin does. External geolocation is not run.
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"net"
+	"os"
+	"path/filepath"
+	"reflect"
+	"regexp"
+	"strings"
+	"testing"
+	"text/template"
+
+	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/threatwinds/go-sdk/utils"
+	"github.com/tidwall/gjson"
+	"google.golang.org/protobuf/encoding/protojson"
+)
+
+type kaspFixture struct {
+	Name       string         `json:"name"`
+	DataSource string         `json:"dataSource"`
+	Raw        string         `json:"raw"`
+	Expected   map[string]any `json:"expected"`
+	Absent     []string       `json:"absent"`
+	Matches    []string       `json:"matches"`
+}
+
+func kaspPut(m map[string]any, path string, value any, remove bool) {
+	p := strings.Split(path, ".")
+	for _, k := range p[:len(p)-1] {
+		n, ok := m[k].(map[string]any)
+		if !ok {
+			if remove {
+				return
+			}
+			n = map[string]any{}
+			m[k] = n
+		}
+		m = n
+	}
+	if remove {
+		delete(m, p[len(p)-1])
+	} else {
+		m[p[len(p)-1]] = value
+	}
+}
+func kaspGet(m map[string]any, p string) (any, bool) {
+	var v any = m
+	for _, k := range strings.Split(p, ".") {
+		n, ok := v.(map[string]any)
+		if !ok {
+			return nil, false
+		}
+		v, ok = n[k]
+		if !ok {
+			return nil, false
+		}
+	}
+	return v, true
+}
+func kaspConfig(t *testing.T) *plugins.Config {
+	t.Helper()
+	b, e := utils.ReadPbYaml("../../filters/antivirus/kaspersky.yml")
+	if e != nil {
+		t.Fatal(e)
+	}
+	c := new(plugins.Config)
+	if e = protojson.Unmarshal(b, c); e != nil {
+		t.Fatal(e)
+	}
+	return c
+}
+func kaspRegex(t *testing.T, pattern string, cfg *plugins.Config) *regexp.Regexp {
+	t.Helper()
+	pats := map[string]string{"greedy": ".*", "data": ".*?", "word": "[A-Za-z0-9_-]+", "space": "\\s+"}
+	for k, v := range cfg.Patterns {
+		pats[k] = v
+	}
+	tmpl, e := template.New("grok").Option("missingkey=error").Parse(pattern)
+	if e != nil {
+		t.Fatal(e)
+	}
+	var b bytes.Buffer
+	if e = tmpl.Execute(&b, pats); e != nil {
+		t.Fatal(e)
+	}
+	r, e := regexp.Compile(b.String())
+	if e != nil {
+		t.Fatal(e)
+	}
+	return r
+}
+
+// kaspStoredName is the name the parser plugins store for a grok, rename or add target:
+// utils.SanitizeField keeps only letters, digits and dots.
+func kaspStoredName(name string) string {
+	utils.SanitizeField(&name)
+	return name
+}
+
+func kaspParse(t *testing.T, cfg *plugins.Config, raw string, dataSource string, cache *plugins.CELCache, initial ...map[string]any) string {
+	t.Helper()
+	draft := map[string]any{"raw": raw, "dataType": "antivirus-kaspersky", "dataSource": dataSource, "log": map[string]any{}}
+	if len(initial) > 0 {
+		for key, value := range initial[0] {
+			if key != "action" && key != "actionResult" {
+				t.Fatalf("unexpected seeded field %s", key)
+			}
+			draft[key] = value
+		}
+	}
+	for _, stage := range cfg.Pipeline {
+		matched := false
+		for _, dataType := range stage.DataTypes {
+			if dataType == "antivirus-kaspersky" {
+				matched = true
+			}
+		}
+		if !matched {
+			continue
+		}
+		for _, s := range stage.Steps {
+			b, e := protojson.Marshal(s)
+			if e != nil {
+				t.Fatal(e)
+			}
+			var step map[string]map[string]any
+			if e = json.Unmarshal(b, &step); e != nil {
+				t.Fatal(e)
+			}
+			for kind, body := range step {
+				if w, ok := body["where"].(string); ok && w != "" {
+					snapshot, err := json.Marshal(draft)
+					if err != nil {
+						t.Fatal(err)
+					}
+					match, e := cache.Eval(w, string(snapshot))
+					if e != nil {
+						t.Fatal(e)
+					}
+					if !match {
+						continue
+					}
+				}
+				switch kind {
+				case "grok":
+					g := s.Grok
+					src := g.Source
+					if src == "" {
+						src = "raw"
+					}
+					v, ok := kaspGet(draft, src)
+					if !ok {
+						continue
+					}
+					str, ok := v.(string)
+					if !ok {
+						t.Fatalf("non-string grok source %s", src)
+					}
+					fields := make(map[string]string)
+					matched := 0
+					for _, p := range g.Patterns {
+						str = strings.TrimSpace(str)
+						if str == "" {
+							break
+						}
+						r := kaspRegex(t, p.Pattern, cfg)
+						loc := r.FindStringIndex(str)
+						if loc == nil || loc[0] != 0 || loc[1] == 0 {
+							break
+						}
+						value := str[:loc[1]]
+						if p.FieldName != "" {
+							fields[p.FieldName] = strings.TrimSpace(value)
+						}
+						str = str[loc[1]:]
+						matched++
+					}
+					if matched == len(g.Patterns) {
+						for field, value := range fields {
+							kaspPut(draft, kaspStoredName(field), value, false)
+						}
+					}
+				case "rename":
+					for _, p := range s.Rename.From {
+						if v, ok := kaspGet(draft, p); ok {
+							kaspPut(draft, kaspStoredName(s.Rename.To), v, false)
+							kaspPut(draft, p, nil, true)
+							break
+						}
+					}
+				case "trim":
+					for _, p := range s.Trim.Fields {
+						if v, ok := kaspGet(draft, p); ok {
+							str, ok := v.(string)
+							if !ok {
+								continue
+							}
+							switch s.Trim.Function {
+							case "prefix":
+								str = strings.TrimPrefix(str, s.Trim.Substring)
+							case "suffix":
+								str = strings.TrimSuffix(str, s.Trim.Substring)
+							default:
+								t.Fatalf("unsupported trim %s", s.Trim.Function)
+							}
+							kaspPut(draft, p, str, false)
+						}
+					}
+				case "add":
+					if s.Add.Function != "string" {
+						t.Fatalf("unsupported add function %s", s.Add.Function)
+					}
+					kaspPut(draft, kaspStoredName(s.Add.Params["key"].GetStringValue()), s.Add.Params["value"].AsInterface(), false)
+				case "delete":
+					for _, p := range s.Delete.Fields {
+						kaspPut(draft, p, nil, true)
+					}
+				case "kv":
+					v, ok := kaspGet(draft, s.Kv.Source)
+					if !ok {
+						continue
+					}
+					// The model splits KV on the configured separators. Live Kaspersky CEF was not sampled.
+					// Explicit YAML grok steps rebuild consumed fields afterward.
+					for _, item := range strings.Split(v.(string), s.Kv.FieldSplit) {
+						pair := strings.SplitN(item, s.Kv.ValueSplit, 2)
+						if len(pair) != 2 {
+							continue
+						}
+						key := pair[0]
+						utils.SanitizeField(&key)
+						if key != "" {
+							kaspPut(draft, "log."+key, pair[1], false)
+						}
+					}
+				case "dynamic":
+					if s.Dynamic.Plugin != "com.utmstack.geolocation" {
+						t.Fatalf("unsupported dynamic plugin %s", s.Dynamic.Plugin)
+					}
+					field := s.Dynamic.Params["source"].GetStringValue()
+					v, ok := kaspGet(draft, field)
+					if !ok {
+						t.Fatalf("missing dynamic source %s", field)
+					}
+					ip := net.ParseIP(fmt.Sprint(v))
+					if ip == nil || ip.IsUnspecified() {
+						t.Fatalf("invalid address reaches geolocation: %s", field)
+					}
+					// The external geolocation service is not executed.
+				case "json":
+					source, ok := kaspGet(draft, s.Json.Source)
+					if !ok {
+						continue
+					}
+					str, ok := source.(string)
+					if !ok {
+						t.Fatalf("JSON source is not a string")
+					}
+					var parsed map[string]any
+					if e := json.Unmarshal([]byte(str), &parsed); e != nil {
+						t.Fatal(e)
+					}
+					for key, value := range kaspSanitizeJSON(parsed) {
+						kaspPut(draft, "log."+key, value, false)
+					}
+				case "cast":
+					for _, field := range s.Cast.Fields {
+						if value, ok := kaspGet(draft, field); ok {
+							switch s.Cast.To {
+							case "string":
+								kaspPut(draft, field, utils.CastString(value), false)
+							case "int":
+								kaspPut(draft, field, utils.CastInt64(value), false)
+							default:
+								t.Fatalf("unsupported cast %s", s.Cast.To)
+							}
+						}
+					}
+				case "drop":
+					return ""
+				default:
+					t.Fatalf("unsupported filter step %s", kind)
+				}
+			}
+		}
+	}
+	b, e := json.Marshal(draft)
+	if e != nil {
+		t.Fatal(e)
+	}
+	in := string(b)
+	ev := new(plugins.Event)
+	if e = utils.StringToProtoMessage(&in, ev); e != nil {
+		t.Fatal(e)
+	}
+	out, e := utils.ProtoMessageToString(ev)
+	if e != nil {
+		t.Fatal(e)
+	}
+	return *out
+}
+func kaspRules(t *testing.T) map[string]*plugins.Rule {
+	t.Helper()
+	paths, e := filepath.Glob("../../rules/antivirus/kaspersky/*.y*ml")
+	if e != nil {
+		t.Fatal(e)
+	}
+	out := map[string]*plugins.Rule{}
+	for _, p := range paths {
+		b, e := utils.ReadPbYaml(p)
+		if e != nil {
+			t.Fatal(e)
+		}
+		r := new(plugins.Rule)
+		if e = protojson.Unmarshal(b, r); e != nil {
+			t.Fatal(e)
+		}
+		r.Normalize()
+		out[strings.TrimSuffix(filepath.Base(p), filepath.Ext(p))] = r
+	}
+	return out
+}
+
+func kaspSanitizeJSON(input map[string]any) map[string]any {
+	out := map[string]any{}
+	for key, value := range input {
+		utils.SanitizeField(&key)
+		if nested, ok := value.(map[string]any); ok {
+			value = kaspSanitizeJSON(nested)
+		}
+		out[key] = value
+	}
+	return out
+}
+
+func kaspFixtures(t *testing.T) []kaspFixture {
+	t.Helper()
+	b, e := os.ReadFile("testdata/kaspersky_raw.json")
+	if e != nil {
+		t.Fatal(e)
+	}
+	var cases []kaspFixture
+	if e = json.Unmarshal(b, &cases); e != nil {
+		t.Fatal(e)
+	}
+	return cases
+}
+
+func TestKasperskyRawContracts(t *testing.T) {
+	cfg, rules, cache := kaspConfig(t), kaspRules(t), plugins.NewCELCache("kaspersky-raw")
+	positive := map[string]int{}
+	negative := map[string]int{}
+	if len(rules) != 19 {
+		t.Fatalf("rules: %d", len(rules))
+	}
+	for _, f := range kaspFixtures(t) {
+		t.Run(f.Name, func(t *testing.T) {
+			out := kaspParse(t, cfg, f.Raw, f.DataSource, cache)
+			for field, want := range f.Expected {
+				got := gjson.Get(out, field)
+				if !got.Exists() || !reflect.DeepEqual(got.Value(), want) {
+					t.Errorf("%s got %v want %v", field, got.Value(), want)
+				}
+			}
+			for _, field := range f.Absent {
+				if gjson.Get(out, field).Exists() {
+					t.Errorf("unexpected %s", field)
+				}
+			}
+			if gjson.Get(out, "raw").String() != f.Raw {
+				t.Error("raw altered")
+			}
+			expected := map[string]bool{}
+			for _, n := range f.Matches {
+				expected[n] = true
+			}
+			for name, r := range rules {
+				yes, e := cache.Eval(r.Where, out)
+				if e != nil {
+					t.Fatalf("%s: %v", name, e)
+				}
+				if yes != expected[name] {
+					t.Errorf("%s matched %v want %v", name, yes, expected[name])
+				}
+				if yes {
+					positive[name]++
+				} else {
+					negative[name]++
+				}
+				if yes {
+					for _, search := range r.Correlation {
+						for _, term := range search.With {
+							value := term.Value.GetStringValue()
+							if strings.HasPrefix(value, "{{.") {
+								field := strings.TrimSuffix(strings.TrimPrefix(value, "{{."), "}}")
+								if !gjson.Get(out, field).Exists() {
+									t.Errorf("%s unresolved %s", name, field)
+								}
+							}
+						}
+					}
+				}
+				if yes {
+					ev := new(plugins.Event)
+					if e := utils.StringToProtoMessage(&out, ev); e != nil {
+						t.Fatal(e)
+					}
+					if r.Adversary != "origin" {
+						t.Errorf("unexpected actor direction %s", r.Adversary)
+					}
+					alert := &plugins.Alert{Adversary: ev.Origin, Target: ev.Target, Events: []*plugins.Event{ev}}
+					wire, e := utils.ProtoMessageToString(alert)
+					if e != nil {
+						t.Fatal(e)
+					}
+					if gjson.Get(out, "target.ip").String() != gjson.Get(*wire, "target.ip").String() {
+						t.Error("endpoint identity lost")
+					}
+					if gjson.Get(out, "origin.ip").String() != gjson.Get(*wire, "adversary.ip").String() {
+						t.Error("attacker identity lost")
+					}
+				}
+			}
+		})
+	}
+	for name := range rules {
+		if positive[name] == 0 || negative[name] == 0 {
+			t.Errorf("%s missing positive/negative coverage: %d/%d", name, positive[name], negative[name])
+		}
+	}
+}
+func TestKasperskyPrivateReplay(t *testing.T) {
+	p := os.Getenv("KASPERSKY_PRIVATE_DOCUMENTS")
+	if p == "" {
+		t.Skip("private live records supplied separately")
+	}
+	b, e := os.ReadFile(p)
+	if e != nil {
+		t.Fatal(e)
+	}
+	var docs []struct {
+		ID       string         `json:"id"`
+		Index    string         `json:"index"`
+		Instance string         `json:"instance"`
+		Source   map[string]any `json:"source"`
+	}
+	if e = json.Unmarshal(b, &docs); e != nil {
+		t.Fatal(e)
+	}
+	cfg, rules, cache := kaspConfig(t), kaspRules(t), plugins.NewCELCache("kaspersky-private")
+	results := []map[string]any{}
+	for _, d := range docs {
+		out := kaspParse(t, cfg, d.Source["raw"].(string), d.Source["dataSource"].(string), cache)
+		matches := []string{}
+		for name, r := range rules {
+			yes, e := cache.Eval(r.Where, out)
+			if e != nil {
+				t.Fatal(e)
+			}
+			if yes {
+				matches = append(matches, name)
+			}
+		}
+		var parsed map[string]any
+		if e = json.Unmarshal([]byte(out), &parsed); e != nil {
+			t.Fatal(e)
+		}
+		results = append(results, map[string]any{"id": d.ID, "index": d.Index, "instance": d.Instance, "parsed": parsed, "matches": matches})
+	}
+	if p := os.Getenv("KASPERSKY_PRIVATE_OUTPUT"); p != "" {
+		b, e := json.MarshalIndent(results, "", "  ")
+		if e != nil {
+			t.Fatal(e)
+		}
+		if e = os.WriteFile(p, b, 0600); e != nil {
+			t.Fatal(e)
+		}
+	}
+	t.Logf("replayed %d private records; predicate candidates are not observed alerts", len(docs))
+}

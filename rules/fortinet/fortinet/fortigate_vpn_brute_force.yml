@@ -14,7 +14,7 @@ references:
   - https://docs.fortinet.com/document/fortigate/7.4.1/fortios-log-message-reference/160372/list-of-log-types-and-subtypes
   - https://attack.mitre.org/techniques/T1133/
 description: |
-  Detects multiple SSL-VPN or IPsec VPN authentication failures from the same source IP on FortiGate, indicating brute force or credential stuffing attacks against remote access services.
+  Detects multiple SSL-VPN SSL-VPN authentication failures from the same source IP on FortiGate, indicating brute force or credential stuffing attacks against remote access services.
 
   Next Steps:
   1. Investigate the source IP and check threat intelligence databases
@@ -23,20 +23,35 @@ description: |
   4. Consider blocking the source IP or geo-restricting VPN access
   5. Enable MFA for VPN access if not already configured
   6. Check if the VPN portal is exposed to the internet unnecessarily
+
+  Generic IPsec negotiation errors and routine tunnel shutdowns are not authentication-failure evidence for this rule.
 where: |
-  equals("log.type", "event") &&
-  (equals("log.subtype", "vpn") || contains("log.msg", "vpn")) &&
-  (contains("log.msg", ["ssl-login-fail", "tunnel-down", "negotiation-error", "auth-fail"]) ||
-   contains("log.logdesc", ["SSL VPN login fail", "IPsec phase1 negotiation failed", "VPN tunnel down"])) &&
-  exists("origin.ip")
+  exists("log.devid") && !equals("log.devid", "") && exists("log.vd") && !equals("log.vd", "") &&
+  (equals("log.type", "event") && equals("log.subtype", "vpn") &&
+  (equals("action", "ssl-login-fail") || equals("log.logid", "0101039426")) &&
+  exists("origin.ip"))
 afterEvents:
-  - indexPattern: v11-log-firewall-fortigate-traffic-*
-    with:
-      - field: origin.ip
-        operator: filter_term
-        value: '{{.origin.ip}}'
-    within: 15m
-    count: 10
+- indexPattern: v11-log-firewall-fortigate-traffic-*
+  with:
+  - field: log.devid
+    operator: filter_term
+    value: '{{.log.devid}}'
+  - field: log.vd
+    operator: filter_term
+    value: '{{.log.vd}}'
+  - field: dataSource
+    operator: filter_term
+    value: '{{.dataSource}}'
+  - field: origin.ip
+    operator: filter_term
+    value: '{{.origin.ip}}'
+  - field: log.correlationCandidate.vpnAuthFailure
+    operator: filter_term
+    value: match
+  within: 15m
+  count: 10
 groupBy:
-  - adversary.ip
-  - adversary.user
+- adversary.ip
+- adversary.user
+- lastEvent.log.devid
+- lastEvent.log.vd

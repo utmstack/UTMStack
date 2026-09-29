@@ -15,8 +15,8 @@ description: "Identifies the creation or modification of a PowerShell profile. P
 references:
   - "https://attack.mitre.org/tactics/TA0003/"
   - "https://attack.mitre.org/techniques/T1098/002/"
-where: equals("log.eventCode", 4663) &&
-       regexMatch("log.eventDataObjectName", "(:\\Users\\.*\\Documents\\(WindowsPowerShell|PowerShell)\\.*profile\\.ps1$|:\\Windows\\System32\\WindowsPowerShell\\.*profile\\.ps1$)")
+where: |
+  equals("log.eventCode", 4663) && regexMatch("log.eventDataObjectName", "(Users.*Documents.(WindowsPowerShell|PowerShell).*profile[.]ps1$|Windows.System32.WindowsPowerShell.*profile[.]ps1$)")
 groupBy:
-  - origin.ip
-  - target.user
+  - dataSource
+deduplicateBy: []

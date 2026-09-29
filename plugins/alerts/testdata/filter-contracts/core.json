@@ -1,0 +1,36 @@
+{
+  "technology": "UTMStack shared contract runner",
+  "filters": [
+    "filters/utmstack/utmstack.yml"
+  ],
+  "rules": [],
+  "fixtures": [
+    {
+      "name": "core_unstructured_message",
+      "filter": "utmstack/utmstack.yml",
+      "input": {
+        "raw": "internal test event"
+      },
+      "expected": {
+        "raw": "internal test event",
+        "log.message": "internal test event"
+      }
+    },
+    {
+      "name": "core_raw_json_model",
+      "filter": "utmstack/utmstack.yml",
+      "raw": "{\"msg\":\"synthetic JSON event\",\"args\":{\"event-id\":17}}",
+      "dataType": "utmstack",
+      "dataSource": "synthetic-host",
+      "expected": {
+        "log.msg": "synthetic JSON event",
+        "log.args.eventid": 17,
+        "dataSource": "synthetic-host"
+      },
+      "absent": [
+        "log.message"
+      ],
+      "rules": {}
+    }
+  ]
+}

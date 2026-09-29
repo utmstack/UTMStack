@@ -15,8 +15,8 @@ description: "Identifies attempts to bypass User Account Control (UAC) via DLL s
 references:
   - "https://attack.mitre.org/tactics/TA0004/"
   - "https://attack.mitre.org/techniques/T1548/002/"
-where: regexMatch("log.eventDataFileName", "(wow64log.dll|comctl32.dll|DismCore.dll|OskSupport.dll|duser.dll|Accessibility.ni.dll)") &&
-       regexMatch("log.eventDataProcessName", "(dllhost.exe|eventvwr.exe|computerdefaults.exe|sdclt.exe|fodhelper.exe|wsreset.exe|slui.exe)") && !regexMatch("log.eventDataFileName", "(C:\\\\Windows\\\\SoftwareDistribution\\\\|C:\\\\Windows\\\\WinSxS\\\\)")
+where: |
+  equals("log.eventCode", 4663) && regexMatch("log.eventDataObjectName", "(wow64log.dll|comctl32.dll|DismCore.dll|OskSupport.dll|duser.dll|Accessibility.ni.dll)$") && regexMatch("log.eventDataProcessName", "(dllhost.exe|eventvwr.exe|computerdefaults.exe|sdclt.exe|fodhelper.exe|wsreset.exe|slui.exe)") && !regexMatch("log.eventDataObjectName", "(System32|SysWOW64|SoftwareDistribution|WinSxS)")
 groupBy:
-  - origin.ip
-  - target.user
+  - dataSource
+deduplicateBy: []

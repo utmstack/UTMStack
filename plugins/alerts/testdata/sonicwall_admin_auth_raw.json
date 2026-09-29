@@ -1,0 +1,67 @@
+[
+  {
+    "name": "event32-admin-login-denied-bad-credentials",
+    "dataSource": "firewall-sonicwall",
+    "raw": "<166>  id=103 sn=SWL-20260924-0001 time=\"Wed Sep 24 02:11:41 2026\" fw=\"SonicWall\" msg=\"Login denied due to bad credentials for admin account\" src=192.0.2.10:4455 usr=\"admin\" eventCode=32",
+    "expected": {
+      "origin.ip": "192.0.2.10",
+      "origin.port": 4455,
+      "log.eventCode": "32",
+      "actionResult": "failure"
+    },
+    "absent": ["log.src"],
+    "matchRule": "admin_auth_failures"
+  },
+  {
+    "name": "event200-vpn-login-denied",
+    "dataSource": "firewall-sonicwall",
+    "raw": "<166>  id=104 sn=SWL-20260924-0002 time=\"Wed Sep 24 03:22:09 2026\" fw=\"SonicWall\" msg=\"VPN login denied due to bad credentials\" src=203.0.113.44:1111 usr=\"svc_backup\" eventCode=200",
+    "expected": {
+      "origin.ip": "203.0.113.44",
+      "log.eventCode": "200",
+      "actionResult": "failure"
+    },
+    "matchRule": "admin_auth_failures"
+  },
+  {
+    "name": "event33-ssh-login-denied",
+    "dataSource": "firewall-sonicwall",
+    "raw": "<166>  id=105 sn=SWL-20260924-0003 time=\"Wed Sep 24 04:15:33 2026\" fw=\"SonicWall\" msg=\"CLI login denied due to bad credentials\" src=198.51.100.77:2222 usr=\"netops\" eventCode=33",
+    "expected": {
+      "origin.ip": "198.51.100.77",
+      "log.eventCode": "33",
+      "actionResult": "failure"
+    },
+    "matchRule": "admin_auth_failures"
+  },
+  {
+    "name": "event29-login-allowed-is-not-a-failure",
+    "dataSource": "firewall-sonicwall",
+    "raw": "<166>  id=101 sn=SWL-20260924-0004 time=\"Wed Sep 24 05:01:12 2026\" fw=\"SonicWall\" msg=\"Login allowed for user\" src=192.0.2.80:3333 usr=\"admin\" eventCode=29",
+    "expected": {
+      "origin.ip": "192.0.2.80",
+      "log.eventCode": "29",
+      "actionResult": "success"
+    }
+  },
+  {
+    "name": "event986-policy-denial-is-denied-not-failure",
+    "dataSource": "firewall-sonicwall",
+    "raw": "<166>  id=110 sn=SWL-20260924-0005 time=\"Wed Sep 24 05:44:00 2026\" fw=\"SonicWall\" msg=\"User login denied - not allowed by Policy rule\" src=192.0.2.81:4444 usr=\"guest\" eventCode=986",
+    "expected": {
+      "origin.ip": "192.0.2.81",
+      "log.eventCode": "986",
+      "actionResult": "denied"
+    }
+  },
+  {
+    "name": "no-source-address-stays-on-vendor-key",
+    "dataSource": "firewall-sonicwall",
+    "raw": "<166>  id=103 sn=SWL-20260924-0006 time=\"Wed Sep 24 06:10:27 2026\" fw=\"SonicWall\" msg=\"Login denied due to bad credentials\" src=local usr=\"admin\" eventCode=32",
+    "expected": {
+      "log.eventCode": "32",
+      "actionResult": "failure"
+    },
+    "absent": ["origin.ip"]
+  }
+]

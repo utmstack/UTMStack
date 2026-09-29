@@ -21,7 +21,9 @@ func DecryptConfigurationSection(section *config.ConfigurationSection, key strin
 	}
 
 	for _, group := range section.ModuleGroups {
-		decryptGroupConfigurations(section.ModuleName, group, key)
+		if err := decryptGroupConfigurations(section.ModuleName, group, key); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -32,13 +34,12 @@ func DecryptModuleGroup(moduleName string, group *config.ModuleGroup, key string
 		return nil
 	}
 
-	decryptGroupConfigurations(moduleName, group, key)
-	return nil
+	return decryptGroupConfigurations(moduleName, group, key)
 }
 
-func decryptGroupConfigurations(moduleName string, group *config.ModuleGroup, key string) {
+func decryptGroupConfigurations(moduleName string, group *config.ModuleGroup, key string) error {
 	if group == nil {
-		return
+		return nil
 	}
 
 	for _, cnf := range group.ModuleGroupConfigurations {
@@ -48,18 +49,20 @@ func decryptGroupConfigurations(moduleName string, group *config.ModuleGroup, ke
 
 		plain, err := safeAESDecrypt(cnf.ConfValue, key)
 		if err != nil {
-			_ = catcher.Error("failed to decrypt configuration value", err, map[string]any{
+			return catcher.Error("failed to decrypt configuration value", err, map[string]any{
 				"process":      "plugin_com.utmstack.modules-config",
 				"module":       moduleName,
 				"groupId":      group.Id,
 				"confKey":      cnf.ConfKey,
 				"confDataType": cnf.ConfDataType,
+				"cipherLen":    len(cnf.ConfValue),
 			})
-			continue
 		}
 
 		cnf.ConfValue = plain
 	}
+
+	return nil
 }
 
 func safeAESDecrypt(cipherText, key string) (plain string, err error) {

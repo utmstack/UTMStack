@@ -1,0 +1,75 @@
+{
+  "technology": "Sophos",
+  "filters": [
+    "filters/sophos/sophos_central.yml",
+    "filters/sophos/sophos_xg_firewall.yml"
+  ],
+  "rules": [
+    "rules/sophos/sophos_central/behavioral_analysis_alerts.yml",
+    "rules/sophos/sophos_central/endpoint_threat_detection.yml",
+    "rules/sophos/sophos_central/exploit_prevention_triggers.yml",
+    "rules/sophos/sophos_central/managed_threat_response_alerts.yml",
+    "rules/sophos/sophos_central/ransomware_detection.yml",
+    "rules/sophos/sophos_central/server_protection_alerts.yml",
+    "rules/sophos/sophos_central/sophos_central_app_hijacking_prevented.yml",
+    "rules/sophos/sophos_central/sophos_central_credential_theft_attack_detected.yml",
+    "rules/sophos/sophos_central/sophos_central_device_compromised.yml",
+    "rules/sophos/sophos_central/sophos_central_endpoint_protection_unavailable.yml",
+    "rules/sophos/sophos_central/sophos_central_exploit_detected.yml",
+    "rules/sophos/sophos_central/sophos_central_malware_detected.yml",
+    "rules/sophos/sophos_central/sophos_central_man_in_the_middle_attack_detected.yml",
+    "rules/sophos/sophos_central/sophos_central_possible_botnet_detected.yml",
+    "rules/sophos/sophos_central/sophos_central_possible_brute_force_attack.yml",
+    "rules/sophos/sophos_central/sophos_central_potential_password_spraying_attack.yml",
+    "rules/sophos/sophos_central/sophos_central_ransomware_detected.yml",
+    "rules/sophos/sophos_central/sophos_central_real_time_protection_disabled.yml",
+    "rules/sophos/sophos_central/sophos_central_unknown_threat_detected.yml",
+    "rules/sophos/sophos_central/tamper_protection_alerts.yml",
+    "rules/sophos/sophos_xg_firewall/advanced_threat_protection_alerts.yml",
+    "rules/sophos/sophos_xg_firewall/sophos_denial_of_service.yml",
+    "rules/sophos/sophos_xg_firewall/sophos_firewall_probable_malware_detected.yml",
+    "rules/sophos/sophos_xg_firewall/sophos_high_severity_alerts.yml",
+    "rules/sophos/sophos_xg_firewall/sophos_initial_access_by_guest_account.yml",
+    "rules/sophos/sophos_xg_firewall/sophos_ip_spoofing_attack.yml",
+    "rules/sophos/sophos_xg_firewall/sophos_password_guessing_on_administrator_account.yml",
+    "rules/sophos/sophos_xg_firewall/sophos_xg_ips_signatures.yml",
+    "rules/sophos/sophos_xg_firewall/sophos_xg_vpn_auth_failures.yml"
+  ],
+  "fixtures": [
+    {
+      "name": "sophos-central-peripheral-block-is-not-compromise",
+      "filter": "sophos/sophos_central.yml",
+      "input": {
+        "log": {
+          "type": "Event::Endpoint::Device::Blocked",
+          "group": "PERIPHERALS"
+        }
+      },
+      "expected": {
+        "actionResult": "denied"
+      },
+      "rules": {
+        "rules/sophos/sophos_central/sophos_central_device_compromised.yml": false
+      }
+    },
+    {
+      "name": "sophos-central-cleanup-is-not-fresh-malware",
+      "filter": "sophos/sophos_central.yml",
+      "input": {
+        "log": {
+          "type": "Event::Endpoint::CoreClean",
+          "severity": "low"
+        }
+      },
+      "expected": {
+        "severity": "info"
+      },
+      "absent": [
+        "actionResult"
+      ],
+      "rules": {
+        "rules/sophos/sophos_central/sophos_central_malware_detected.yml": false
+      }
+    }
+  ]
+}

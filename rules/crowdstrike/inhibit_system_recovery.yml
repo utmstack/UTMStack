@@ -12,9 +12,8 @@ impact:
   integrity: 3
   availability: 3
 where: >
-    equals("log.event_simpleName", "ProcessRollup2") && 
     exists("log.eventCommandLine") && 
     regexMatch("log.eventCommandLine", "(?i).*(vssadmin.*delete shadows|wmic.*shadowcopy.*delete|bcdedit.*recoveryenabled.*no).*")
 groupBy: 
-  - origin.host
-  - origin.user
+  - adversary.host
+  - adversary.user

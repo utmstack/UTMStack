@@ -1,21 +1,24 @@
-# Rule version v1.0.0
-
+# Sophos source-contract review; thresholds and impact ratings preserved.
 dataTypes:
-  - "firewall-sophos-xg"
-name: "Probable Sophos initial access vulnerability"
+- firewall-sophos-xg
+name: Sophos Appliance Event 17925
 impact:
   confidentiality: 2
   integrity: 2
   availability: 1
-category: "Initial Access"
-technique: "T1078.001 - Valid Accounts"
+category: System Administration
+technique: Vendor appliance event
 adversary: origin
-references: 
-  - "https://attack.mitre.org/tactics/TA0001/"
-  - "https://attack.mitre.org/techniques/T1078/001/"
-description: "Sophos firewall has detected the Guest account activation"
-where: |
-  equals("log.Id", "17925")
+references:
+- https://docs.sophos.com/nsg/sophos-firewall/20.0/syslog/index.html
+- https://attack.mitre.org/tactics/TA0001/
+- https://attack.mitre.org/techniques/T1078/001/
+description: Sophos reports appliance message ID 17925. Inspect the original vendor message and approved administration.
+  The available field guide lists this legacy identifier without a message body; this event alone does not establish
+  a vulnerability, account abuse or unauthorized access.
+where: equals("log.type","Event") && equals("log.messageId","17925")
 groupBy:
-  - adversary.ip
-  - adversary.user
+- lastEvent.dataSource
+- lastEvent.log.sophosScope
+- adversary.ip
+- adversary.user

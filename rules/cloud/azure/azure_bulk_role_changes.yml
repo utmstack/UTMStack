@@ -1,39 +1,75 @@
-# Rule version v1.0.0
-
+# Azure rule contract review v2.1.0
 dataTypes:
-  - azure
+- azure
 name: Azure AD Bulk Privileged Role Assignment Changes
 impact:
   confidentiality: 3
   integrity: 3
   availability: 2
 category: Privilege Escalation
-technique: "T1098 - Account Manipulation"
+technique: T1098 - Account Manipulation
 adversary: origin
 references:
-  - https://learn.microsoft.com/en-us/entra/id-governance/privileged-identity-management/pim-resource-roles-assign-roles
-  - https://attack.mitre.org/techniques/T1098/
-description: |
-  Detects mass privileged role assignment changes in Azure AD. Multiple role assignments in a short time window indicate an attacker rapidly escalating privileges across multiple accounts for persistence and lateral movement.
+- https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema
+- https://learn.microsoft.com/en-us/entra/id-governance/privileged-identity-management/pim-resource-roles-assign-roles
+- https://attack.mitre.org/techniques/T1098/
+description: 'Detects mass privileged role assignment changes in Azure AD. Multiple role assignments in a short time window indicate
+  an attacker rapidly escalating privileges across multiple accounts for persistence and lateral movement.
+
 
   Next Steps:
+
   1. Review all role assignments made in the burst
+
   2. Identify the admin account making the changes
+
   3. Check if these changes were part of an approved onboarding or migration
+
   4. Review the specific roles assigned (Global Admin, Exchange Admin, etc.)
+
   5. If unauthorized, revert all role assignments and investigate the admin account
+
   6. Enable Azure PIM for just-in-time role activation
-where: |
-  contains("log.operationName", "Add member to role") ||
-  contains("log.operationName", "Add eligible member to role")
-afterEvents:
-  - indexPattern: v11-log-azure-*
-    with:
-      - field: origin.ip
-        operator: filter_term
-        value: '{{.origin.ip}}'
-    within: 30m
-    count: 10
+
+  '
+where: '(equalsIgnoreCase("log.azureKind","audit") && equalsIgnoreCase("actionResult","success") && (equalsIgnoreCase("log.azureOperation","Add
+  member to role") || equalsIgnoreCase("log.azureOperation","Add eligible member to role") || equalsIgnoreCase("log.azureOperation","Add
+  member to role completed (PIM activation)") || equalsIgnoreCase("log.azureOperation","Add eligible member to role in PIM completed")
+  || equalsIgnoreCase("log.azureOperation","Add eligible member to role in PIM completed (permanent)") || equalsIgnoreCase("log.azureOperation","Add
+  eligible member to role in PIM completed (timebound)") || equalsIgnoreCase("log.azureOperation","Add member to role in PIM completed
+  (permanent)") || equalsIgnoreCase("log.azureOperation","Add member to role in PIM completed (timebound)"))) && exists("dataSource")
+  && !equals("dataSource","") && exists("log.azureScopeType") && !equals("log.azureScopeType","") && exists("log.azureScope") &&
+  !equals("log.azureScope","") && exists("log.azureActorType") && !equals("log.azureActorType","") && exists("log.azureActor")
+  && !equals("log.azureActor","")
+
+  '
 groupBy:
-  - adversary.ip
-  - adversary.user
+- lastEvent.dataSource
+- lastEvent.log.azureScopeType
+- lastEvent.log.azureScope
+- lastEvent.log.azureOperation
+- adversary.user
+- adversary.ip
+correlation:
+- indexPattern: v11-log-azure-*
+  with:
+  - field: dataSource
+    operator: filter_term
+    value: '{{.dataSource}}'
+  - field: log.azureScopeType
+    operator: filter_term
+    value: '{{.log.azureScopeType}}'
+  - field: log.azureScope
+    operator: filter_term
+    value: '{{.log.azureScope}}'
+  - field: log.azureActorType
+    operator: filter_term
+    value: '{{.log.azureActorType}}'
+  - field: log.azureActor
+    operator: filter_term
+    value: '{{.log.azureActor}}'
+  - field: log.correlationCandidate.azureBulkRoleChanges
+    operator: filter_term
+    value: 'true'
+  within: 30m
+  count: 10

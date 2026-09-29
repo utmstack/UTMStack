@@ -29,7 +29,7 @@ set -euo pipefail
 : "${THREATWINDS_API_KEY:?THREATWINDS_API_KEY is required}"
 : "${THREATWINDS_API_SECRET:?THREATWINDS_API_SECRET is required}"
 
-DEFAULT_MODEL="${AI_REVIEW_MODEL:-gemini-3-flash-lite}"
+DEFAULT_MODEL="${AI_REVIEW_MODEL:-silas-1.7-pro}"
 BASE_URL="${THREATWINDS_BASE_URL:-https://apis.threatwinds.com/api/ai/v1}"
 MAX_DIFF_BYTES="${MAX_DIFF_BYTES:-200000}"
 
@@ -115,13 +115,22 @@ printf '%s\n\n---\n\nPR diff to review:\n\n```diff\n%s\n```\n' \
     "$prompt_body" "$diff_content" > "$user_message_file"
 
 request_body_file=$(mktemp)
+# Sampling params mirror the local OpenCode silas-1.7-pro options (see
+# opencode.json provider "threatwinds"). temperature/top_p/top_k/min_p/
+# presence_penalty/repetition_penalty are accepted by the ThreatWinds
+# /chat/completions endpoint (verified 200).
 jq -n \
     --arg model "$MODEL" \
     --rawfile content "$user_message_file" \
     '{
         model: $model,
         messages: [{role: "user", content: $content}],
-        temperature: 0.2
+        temperature: 1,
+        top_p: 0.95,
+        top_k: 20,
+        min_p: 0.0,
+        presence_penalty: 0.0,
+        repetition_penalty: 1.0
     }' > "$request_body_file"
 
 # --- Call the API ------------------------------------------------------------

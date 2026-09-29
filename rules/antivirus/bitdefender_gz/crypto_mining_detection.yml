@@ -1,27 +1,31 @@
-# Rule version v1.0.0
+# Rule version v3.0.0
 
 dataTypes:
-  - antivirus-bitdefender-gz
-name: Crypto-Mining Detection
+- antivirus-bitdefender-gz
+name: Bitdefender GravityZone Mining-Related Threat Detection
 impact:
   confidentiality: 2
   integrity: 2
   availability: 3
 category: Impact
-technique: "T1496 - Resource Hijacking"
+technique: T1496 - Resource Hijacking
 adversary: origin
 references:
-  - https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
-  - https://attack.mitre.org/techniques/T1496/
-description: "Detects cryptocurrency mining activities including miners, coin miners, and cryptojacking attempts detected by Bitdefender GravityZone.\n\nNext Steps:\n- Review the affected endpoint details (hostname, IP) to identify the compromised system\n- Check CPU and memory usage patterns on the affected system for unusual spikes\n- Look for network connections to known mining pools or suspicious outbound traffic\n- Search for related processes running with names like xmrig, minerd, cgminer, or bfgminer\n- Review recent file downloads and installations on the affected system\n- Check for persistence mechanisms (scheduled tasks, startup items, services)\n- Isolate the affected system if active mining is confirmed\n- Run a full system scan with updated definitions\n- Consider reimaging the system if compromise is extensive"
-where: |
-  equals("log.productVendor", "Bitdefender") &&
-  equals("log.product", "GravityZone") &&
-  (
-    contains("log.eventType", ["miner", "coin", "crypto", "CoinMiner"]) ||
-    contains("log.requested", ["miner", "coin", "xmr", "monero", "bitcoin",
-      "ethereum", "xmrig", "minerd", "cgminer", "bfgminer", "coinhive"])
-  )
+- https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+- https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html
+- https://attack.mitre.org/techniques/T1496/
+description: 'An antimalware signature names mining software, or a Content Control URL matches a mining-related indicator. Detection
+  or blocking does not establish that a miner ran. Check authorization, the exact hostname or URL (a substring can be coincidental),
+  vendor action, process activity and resource usage before attributing cryptojacking.
+
+  '
+where: "oneOf(\"log.BitdefenderGZModule\", [\"av\", \"avc\", \"hd\"]) &&\n(regexMatch(\"log.BitdefenderGZDetectionName\", \"(?i)(coin.?miner|crypto.?miner|xmrig|monero|cryptonight|coinhive|jscoinminer|bitcoin.?miner)\"\
+  ) ||\n regexMatch(\"target.malware\", \"(?i)(coin.?miner|crypto.?miner|xmrig|monero|cryptonight|coinhive|jscoinminer|bitcoin.?miner)\"\
+  )) ||\n(equals(\"log.BitdefenderGZModule\", \"uc\") &&\n regexMatch(\"origin.domain\", \"(?i)(coinhive|xmrig|minepool|nicehash|monerohash|nanopool|supportxmr)\"\
+  ))\n"
 groupBy:
-  - adversary.host
-  - adversary.ip
+- lastEvent.dataSource
+- lastEvent.log.BitdefenderGZCompanyId
+- lastEvent.log.endpointKeyType
+- lastEvent.log.endpointKey
+- target.malware

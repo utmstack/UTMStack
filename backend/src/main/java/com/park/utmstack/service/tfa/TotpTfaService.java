@@ -66,6 +66,13 @@ public class TotpTfaService implements TfaMethodService {
 
         boolean expired = tfaSetupState.isExpired();
         boolean valid = !expired && authenticator.authorize(tfaSetupState.getSecret(), Integer.parseInt(code)) && !code.equals(tfaSetupState.getLastUsedCode());
+        if (valid) {
+            // Mark this setup as possession-verified so COMPLETE/persistConfiguration
+            // cannot proceed on an INIT-only state (prevents TFA enrollment bypass).
+            tfaSetupState.setVerified(true);
+            tfaSetupState.setLastUsedCode(code);
+            cache.storeState(user.getLogin(), TfaMethod.TOTP, tfaSetupState);
+        }
         return new TfaVerifyResponse(
                 valid,
                 expired,
@@ -77,9 +84,12 @@ public class TotpTfaService implements TfaMethodService {
 
     @Override
     public void persistConfiguration(User user) {
-        String secret = cache.getState(user.getLogin(), TfaMethod.TOTP)
-                .orElseThrow(() -> new IllegalStateException("No TFA setup found for user: " + user.getLogin()))
-                .getSecret();
+        TfaSetupState state = cache.getState(user.getLogin(), TfaMethod.TOTP)
+                .orElseThrow(() -> new IllegalStateException("No TFA setup found for user: " + user.getLogin()));
+        if (!state.isVerified() || state.isExpired()) {
+            throw new IllegalStateException("Cannot complete TFA setup without a verified code");
+        }
+        String secret = state.getSecret();
         userService.updateUserTfaSecret(user.getLogin(), secret, TfaMethod.TOTP.toString());
         cache.clear(user.getLogin(), TfaMethod.TOTP);
     }

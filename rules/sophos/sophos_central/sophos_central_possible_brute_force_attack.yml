@@ -1,33 +1,43 @@
-# Rule version v1.0.0
-
+# Sophos Central SIEM event review; impact ratings and history thresholds preserved.
 dataTypes:
-  - "sophos-central"
-name: "Possible Brute Force Attack detected in Sophos Central"
+- sophos-central
+name: Repeated Sophos Central ZTNA Authentication Failures
 impact:
   confidentiality: 3
   integrity: 3
   availability: 3
-category: "Credential Access"
-technique: "T1110 - Brute Force"
+category: Credential Access
+technique: T1110 - Brute Force
 adversary: origin
 references:
-  - "https://attack.mitre.org/tactics/TA0006/"
-  - "https://attack.mitre.org/techniques/T1110/"
-description: "Adversaries may use brute force techniques to gain access to accounts when passwords are unknown or when password hashes are obtained. 
-                Without knowledge of the password for an account or set of accounts, an adversary may systematically guess the password using a repetitive or iterative mechanism. 
-                Brute forcing passwords can take place via interaction with a service that will check the validity of those credentials or offline against previously acquired credential data, such as password hashes."
-where: equals("log.type", "Event::ZTNA::ZTNAAuthenticationFailure")
+- https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/EventTypes/
+- https://attack.mitre.org/tactics/TA0006/
+- https://attack.mitre.org/techniques/T1110/
+description: Ten ZTNA authentication failures for the same vendor-reported IP and Sophos account in five minutes.
+  Investigate failed sign-ins; the events do not establish successful access.
+where: (equals("log.type", "Event::ZTNA::ZTNAAuthenticationFailure")) && !regexMatch("log.type","(?i)(clean|cleanedup|resolved|dismissed|cancelled|success)$")
+  && (regexMatch("log.ip","[^[:space:]]") && !oneOf("log.ip",["-","n/a","N/A","unknown"])) && (regexMatch("dataSource","[^[:space:]]")
+  && !oneOf("dataSource",["-","n/a","N/A","unknown"])) && (regexMatch("log.sophosCentralScope","[^[:space:]]") &&
+  !oneOf("log.sophosCentralScope",["-","n/a","N/A","unknown"])) && ((inCIDR("log.ip","0.0.0.0/0") || inCIDR("log.ip","::/0"))
+  && !inCIDR("log.ip","0.0.0.0/32") && !inCIDR("log.ip","::/128"))
 afterEvents:
-    - indexPattern: v11-log-sophos-central-*
-      with:
-        - field: log.type
-          operator: filter_term
-          value: "Event::ZTNA::ZTNAAuthenticationFailure"
-        - field: log.ip
-          operator: filter_term
-          value: "{{.log.ip}}"
-      within: 5m
-      count: 10
+- indexPattern: v11-log-sophos-central-*
+  with:
+  - field: dataSource
+    operator: filter_term
+    value: '{{.dataSource}}'
+  - field: log.sophosCentralScope
+    operator: filter_term
+    value: '{{.log.sophosCentralScope}}'
+  - field: log.ip
+    operator: filter_term
+    value: '{{.log.ip}}'
+  - field: log.correlationCandidate.sophosCentral.ztnaFailure
+    operator: filter_term
+    value: match
+  within: 5m
+  count: 10
 groupBy:
-  - adversary.host
-  - adversary.ip
+- lastEvent.dataSource
+- lastEvent.log.sophosCentralScope
+- lastEvent.log.ip

@@ -11,11 +11,11 @@ category: Defense Evasion, Privilege Escalation
 technique: "T1055 - Process Injection"
 adversary: origin
 references:
-  - https://help.eset.com/ees/8/en-US/idh_hips_main.html
+  - https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html
   - https://attack.mitre.org/techniques/T1055/
 description: |
-  Detects when ESET's Host-based Intrusion Prevention System (HIPS) blocks suspicious behavior, including process manipulation, registry modifications, and file system changes that indicate potential malware activity. HIPS events indicate active attempts to compromise system integrity through various attack techniques.
-  
+  Detects warning-or-higher HIPS blocks whose operation or rule explicitly identifies suspicious or malicious behavior, injection, exploitation, tampering, or self-defense. Ordinary blocked operations from a restrictive policy are excluded from this generic security-behavior rule. The event class identifies HIPS; it is not an action result. A block records an attempted operation, not successful compromise.
+
   Next Steps:
   1. Review the blocked process or action details in the ESET console
   2. Identify the source application attempting the blocked behavior
@@ -25,7 +25,16 @@ description: |
   6. Update HIPS rules if necessary to prevent similar attacks
   7. Check for persistence mechanisms on the affected host
   8. Review network connections from the suspicious process if applicable
-where: equals("log.actionResult", "HIPS_Event") && equals("log.action", "blocked") && oneOf("log.severity", ["medium", "high"])
+where: |
+  (oneOf("log.eventType", ["HipsAggregated_Event", "HIPSAggregated_Event"]) && equals("actionResult", "denied") && oneOf("severity", ["warning", "error", "critical"]) &&
+  (regexMatch("log.operation", "(?i)(suspicious|malicious|injection|exploit|tamper|self[- ]defen[sc]e)") ||
+   regexMatch("log.rulename", "(?i)(suspicious|malicious|injection|exploit|tamper|self[- ]defen[sc]e)"))) &&
+  exists("dataSource") && !oneOf("dataSource", ["", "unknown", "-"]) &&
+  oneOf("log.endpointKeyType", ["uuid", "host", "ip"]) &&
+  exists("log.endpointKey") && !equals("log.endpointKey", "")
 groupBy:
-  - lastEvent.log.objectname
-  - target.host
+  - lastEvent.dataSource
+  - lastEvent.log.endpointKeyType
+  - lastEvent.log.endpointKey
+  - lastEvent.log.rulename
+  - lastEvent.log.ruleid

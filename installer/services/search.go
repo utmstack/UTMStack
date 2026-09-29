@@ -58,10 +58,16 @@ func InitOpenSearch() error {
 	}
 
 	// Create index template
-	templateData := `{"index_patterns":["v11-alert-","v11-log-",".utm-",".utmstack-"],"template":{"settings":{"index.number_of_shards":1,"index.number_of_replicas":0,"index.mapping.total_fields.limit":50000}}}`
+	templateData := `{"index_patterns":["v11-alert-*","v11-log-*",".utm-*",".utmstack-*"],"template":{"settings":{"index.number_of_shards":1,"index.number_of_replicas":0,"index.mapping.total_fields.limit":50000}}}`
 	if err := execCurl(containerID, "PUT", "https://localhost:9200/_index_template/utmstack_indexes", templateData); err != nil {
 		return err
 	}
+
+	logTemplateData := `{"index_patterns":["v11-log-*","v11-alert-*"],"template":{"settings":{"index.max_shards":30000}}}`
+	if err := execCurl(containerID, "PUT", "https://localhost:9200/_index_template/utmstack_log_indexes", logTemplateData); err != nil {
+		return err
+	}
+
 
 	// Restore geoip snapshot
 	restoreData := `{"indices":".utm-geoip","include_global_state":false}`
@@ -71,3 +77,22 @@ func InitOpenSearch() error {
 
 	return nil
 }
+
+func UpdateOpenSearch() error{
+
+	containerID, err := getOpenSearchContainerID()
+	if err != nil {
+		return err
+	}
+	// updated already existing index (update case)
+	if err := execCurl(containerID, "PUT", "https://localhost:9200/v11-log-*,v11-alert-*/_settings?allow_no_indices=true", `{"index.max_shards":30000}`); err != nil {
+		return err
+	}
+
+	if err := execCurl(containerID, "PUT", "https://localhost:9200/v11-alert-*,v11-log-*,.utm-*,.utmstack-*/_settings?allow_no_indices=true", `{"index.mapping.total_fields.limit":50000}`); err != nil {
+		return err
+	}
+	return nil
+
+}
+

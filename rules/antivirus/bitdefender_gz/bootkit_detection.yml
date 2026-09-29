@@ -1,39 +1,33 @@
-# Rule version v1.0.0
+# Rule version v3.0.0
 
 dataTypes:
-  - antivirus-bitdefender-gz
-name: Bootkit/UEFI Threat Detection
+- antivirus-bitdefender-gz
+name: Bitdefender GravityZone Boot-Related Malware Detection
 impact:
   confidentiality: 3
   integrity: 3
   availability: 3
-category: Defense Evasion, Persistence
-technique: "T1542.001 - Boot or Logon Autostart Execution: System Firmware"
+category: Defense Evasion
+technique: 'T1542.001 - Pre-OS Boot: System Firmware'
 adversary: origin
 references:
-  - https://attack.mitre.org/techniques/T1542/001/
-  - https://www.bitdefender.com/business/support/en/77209-135324-event-types.html
-description: |
-  Detects bootkit or UEFI-level threats that attempt to persist at the firmware level and compromise the boot process. These threats can survive system reinstalls and bypass traditional security measures by infecting the system firmware.
-  
-  Next Steps:
-  - Isolate the affected system immediately to prevent spread
-  - Review system boot logs and firmware settings for modifications
-  - Check for other malware detections on the same host in the past 24-48 hours
-  - Verify system integrity using offline scanning tools
-  - Consider reimaging the system and updating firmware/UEFI
-  - Enable Secure Boot if not already enabled
-  - Review user activity and recently installed software on the affected system
-  - Document the infection for incident response reporting
-  - Check if other systems with similar hardware/firmware versions are affected
-where: |
-  equals("log.eventType", "av") &&
-  greaterOrEqual("log.severity", 8) &&
-  (
-    contains("log.requested", ["boot", "uefi", "rootkit", "firmware"]) ||
-    contains("log.restData", ["boot", "uefi", "rootkit", "firmware",
-      "\\EFI\\", "/EFI/", "\\boot\\", "/boot/"])
-  )
+- https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+- https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html
+- https://attack.mitre.org/techniques/T1542/001/
+description: 'An antimalware detection identifies a boot object, a boot/rootkit-related signature, or an artifact in a boot-related
+  path. The signature or path does not establish successful persistence or firmware compromise. Review log.BitdefenderGZMalwareType
+  (the infected-object category), target.malware, log.filePath and the vendor action. Use trusted forensic methods if the evidence supports
+  boot-level compromise.
+
+  '
+where: "oneOf(\"log.BitdefenderGZModule\", [\"av\", \"avc\", \"hd\"]) &&\n(equals(\"log.BitdefenderGZMalwareType\", \"boot\") ||\n regexMatch(\"\
+  log.BitdefenderGZDetectionName\",\n   \"(?i)(bootkit|rootkit|uefi|tdss|alureon|zeroaccess|necurs|rustock|sinowal|trojan\\\\.boot|master.?boot)\"\
+  ) ||\n regexMatch(\"target.malware\",\n   \"(?i)(bootkit|rootkit|uefi|tdss|alureon|zeroaccess|necurs|rustock|sinowal|trojan\\\\.boot|master.?boot)\"\
+  ) ||\n regexMatch(\"log.filePath\",\n   \"(?i)(\\\\\\\\efi\\\\\\\\|/efi/|\\\\\\\\boot\\\\\\\\|/boot/|master\\\\.?boot\\\\.?record|mbr)\"\
+  ))\n"
 groupBy:
-  - lastEvent.log.hostId
-  - lastEvent.log.severity
+- lastEvent.dataSource
+- lastEvent.log.BitdefenderGZCompanyId
+- lastEvent.log.endpointKeyType
+- lastEvent.log.endpointKey
+- target.malware

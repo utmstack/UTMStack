@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20260915001" author="Alex">
+
+        <sql dbms="postgresql" splitStatements="false" stripComments="true">
+            INSERT INTO jhi_user_authority (user_id, authority_name)
+            SELECT u.id, 'ROLE_ADMIN'
+            FROM jhi_user u
+            WHERE u.login = 'fsclient'
+              AND fs_manager = TRUE
+              AND NOT EXISTS (SELECT 1 FROM jhi_user_authority ua WHERE ua.user_id = u.id AND ua.authority_name = 'ROLE_ADMIN')
+        </sql>
+
+    </changeSet>
+</databaseChangeLog>

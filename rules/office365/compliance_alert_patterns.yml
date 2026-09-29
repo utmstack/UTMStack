@@ -40,7 +40,7 @@ where: |
     equals("action", "Remove-ComplianceRule") ||
     equals("action", "Remove-ComplianceTag")
   ) &&
-  equals("actionResult", "Success")
+  equals("actionResult", "success")
 afterEvents:
   - indexPattern: v11-log-o365-*
     with:

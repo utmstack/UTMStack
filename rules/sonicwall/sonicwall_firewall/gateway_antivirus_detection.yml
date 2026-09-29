@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v2.1.0
 
 dataTypes:
   - firewall-sonicwall
@@ -14,23 +14,22 @@ references:
   - https://www.sonicwall.com/techdocs/pdf/sonicos-6-5-4-log-events-reference-guide.pdf
   - https://attack.mitre.org/techniques/T1105/
 description: |
-  Detects when SonicWall Gateway Anti-Virus (GAV) identifies and blocks malicious content. This indicates potential malware attempting to enter the network through web traffic, email attachments, or file downloads. The Gateway Anti-Virus service scans HTTP, HTTPS, FTP, and SMTP traffic in real-time to detect and prevent malware from entering the network perimeter.
+  Detects when SonicWall Gateway Anti-Virus (GAV) identifies and blocks
+  malicious content in HTTP/HTTPS/FTP/SMTP traffic. Signals a malware delivery
+  attempt at the network perimeter.
 
   Next Steps:
-  1. Review the specific malware signature or threat name in the log details
-  2. Investigate the source IP address and geolocation for suspicious patterns
-  3. Check if the same source has attempted other malicious activities
-  4. Verify that the anti-virus definitions are up to date
-  5. Consider implementing additional network segmentation if internal hosts are affected
-  6. Review firewall policies to ensure proper traffic filtering
-  7. Escalate to incident response team if part of a coordinated attack campaign
+  1. Review the malware name/signature carried in `log.message` / `log.note`.
+  2. Investigate the source IP and geolocation for correlated attempts.
+  3. Confirm the AV definitions are current on the firewall.
+  4. Escalate to incident response if the activity is part of a broader
+     campaign against the tenant.
 where: |
-  (contains("log.gcat", "Gateway Anti-Virus") || 
-   contains("log.message", "virus") || 
-   contains("log.message", "malware") ||
-   contains("log.eventName", "Anti-Virus") ||
-   contains("log.category", "Anti-Virus")) &&
-  equals("action", "blocked")
+  (
+    oneOf("log.eventCode", ["79", "608", "609", "1122"]) ||
+    (equals("log.groupCategory", "Security Services") && contains("log.message", ["virus", "malware", "Anti-Virus"])) ||
+    contains("log.contentCategory", "Anti-Virus")
+  ) && equals("actionResult", "denied")
 afterEvents:
   - indexPattern: v11-log-firewall-sonicwall-*
     with:

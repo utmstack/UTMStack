@@ -1,0 +1,19 @@
+# Rule version v1.2.0 (validated 2026-06-24)
+dataTypes:
+  - wineventlog
+name: 'Windows: Ransomware Recovery Inhibition (Shadow Copy / Backup Deletion)'
+impact:
+  confidentiality: 1
+  integrity: 3
+  availability: 3
+category: Impact
+technique: T1490 - Inhibit System Recovery
+adversary: origin
+description: Detects deletion of Volume Shadow Copies / backups and disabling of Windows recovery (vssadmin, wmic shadowcopy, wbadmin, bcdedit) - a near-universal ransomware precursor and almost never legitimate.
+references:
+  - https://attack.mitre.org/techniques/T1490/
+where: |
+  equals("log.eventCode", 4688) && regexMatch("log.data.CommandLine", "(?i)(vssadmin.*delete.*shadows|wmic.*shadowcopy.*delete|wbadmin.*delete.*(catalog|systemstatebackup|backup)|bcdedit.*(recoveryenabled.*no|bootstatuspolicy.*ignoreallfailures)|Delete-VolumeShadowCopy|win32_shadowcopy.*delete)")
+groupBy:
+  - dataSource
+deduplicateBy: []

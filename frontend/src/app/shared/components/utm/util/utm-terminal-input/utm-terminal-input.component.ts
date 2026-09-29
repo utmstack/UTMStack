@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {replaceBreakLine} from '../../../../util/string-util';
+import {escapeAndBreakLine} from '../../../../util/string-util';
 
 @Component({
   selector: 'app-utm-terminal-input',
@@ -23,7 +23,7 @@ export class UtmTerminalInputComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.param = replaceBreakLine(this.param);
+    this.param = escapeAndBreakLine(this.param);
   }
 
 }

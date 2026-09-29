@@ -1,0 +1,195 @@
+[
+  {
+    "name": "allowed-alert-is-not-final-verdict",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00.000000+0000\",\"event_type\":\"alert\",\"src_ip\":\"192.0.2.10\",\"src_port\":50000,\"dest_ip\":\"203.0.113.20\",\"dest_port\":443,\"proto\":\"TCP\",\"alert\":{\"action\":\"allowed\",\"severity\":1}}",
+    "dataSource": "synthetic-suricata",
+    "result": "",
+    "expected": {
+      "severity": "critical",
+      "origin.ip": "192.0.2.10",
+      "target.ip": "203.0.113.20",
+      "log.alert.action": "allowed"
+    },
+    "absent": [
+      "actionResult",
+      "action"
+    ]
+  },
+  {
+    "name": "allowed-alert-final-drop",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00.000000+0000\",\"event_type\":\"alert\",\"src_ip\":\"192.0.2.10\",\"src_port\":50000,\"dest_ip\":\"203.0.113.20\",\"dest_port\":443,\"proto\":\"TCP\",\"alert\":{\"action\":\"allowed\",\"severity\":2},\"verdict\":{\"action\":\"drop\"},\"flow\":{\"state\":\"established\",\"bytes_toserver\":120,\"bytes_toclient\":240,\"action\":\"pass\"}}",
+    "dataSource": "synthetic-suricata",
+    "result": "denied",
+    "expected": {
+      "severity": "warning"
+    },
+    "absent": [
+      "action"
+    ]
+  },
+  {
+    "name": "blocked-alert-no-verdict",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00.000000+0000\",\"event_type\":\"alert\",\"src_ip\":\"192.0.2.10\",\"src_port\":50000,\"dest_ip\":\"203.0.113.20\",\"dest_port\":443,\"proto\":\"TCP\",\"alert\":{\"action\":\"blocked\",\"severity\":3}}",
+    "dataSource": "synthetic-suricata",
+    "result": "denied",
+    "expected": {
+      "severity": "info"
+    },
+    "absent": [
+      "action"
+    ]
+  },
+  {
+    "name": "blocked-alert-final-pass-without-flow-proof",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00.000000+0000\",\"event_type\":\"alert\",\"src_ip\":\"192.0.2.10\",\"src_port\":50000,\"dest_ip\":\"203.0.113.20\",\"dest_port\":443,\"proto\":\"TCP\",\"alert\":{\"action\":\"blocked\",\"severity\":1},\"verdict\":{\"action\":\"pass\"}}",
+    "dataSource": "synthetic-suricata",
+    "result": "",
+    "absent": [
+      "actionResult",
+      "action"
+    ]
+  },
+  {
+    "name": "allowed-alert-final-pass-established-traffic",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00.000000+0000\",\"event_type\":\"alert\",\"src_ip\":\"192.0.2.10\",\"src_port\":50000,\"dest_ip\":\"203.0.113.20\",\"dest_port\":443,\"proto\":\"TCP\",\"alert\":{\"action\":\"allowed\",\"severity\":1},\"verdict\":{\"action\":\"pass\"},\"flow\":{\"state\":\"established\",\"bytes_toserver\":120,\"bytes_toclient\":240,\"action\":\"pass\"}}",
+    "dataSource": "synthetic-suricata",
+    "result": "success",
+    "expected": {
+      "severity": "critical"
+    },
+    "absent": [
+      "action"
+    ]
+  },
+  {
+    "name": "allowed-alert-final-pass-one-way-traffic",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00.000000+0000\",\"event_type\":\"alert\",\"src_ip\":\"192.0.2.10\",\"src_port\":50000,\"dest_ip\":\"203.0.113.20\",\"dest_port\":443,\"proto\":\"TCP\",\"alert\":{\"action\":\"allowed\",\"severity\":2},\"verdict\":{\"action\":\"pass\"},\"flow\":{\"state\":\"established\",\"bytes_toserver\":120,\"bytes_toclient\":0,\"action\":\"pass\"}}",
+    "dataSource": "synthetic-suricata",
+    "result": "",
+    "absent": [
+      "actionResult",
+      "action"
+    ]
+  },
+  {
+    "name": "alert-blocked-with-final-drop",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00.000000+0000\",\"event_type\":\"alert\",\"src_ip\":\"192.0.2.10\",\"src_port\":50000,\"dest_ip\":\"203.0.113.20\",\"dest_port\":443,\"proto\":\"TCP\",\"alert\":{\"action\":\"blocked\",\"severity\":3},\"verdict\":{\"action\":\"drop\"}}",
+    "dataSource": "synthetic-suricata",
+    "result": "denied",
+    "absent": [
+      "action"
+    ]
+  },
+  {
+    "name": "alert-final-drop-overrides-flow-pass",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00.000000+0000\",\"event_type\":\"alert\",\"src_ip\":\"192.0.2.10\",\"src_port\":50000,\"dest_ip\":\"203.0.113.20\",\"dest_port\":443,\"proto\":\"TCP\",\"alert\":{\"action\":\"allowed\",\"severity\":1},\"verdict\":{\"action\":\"drop\"},\"flow\":{\"state\":\"established\",\"bytes_toserver\":120,\"bytes_toclient\":240,\"action\":\"pass\"}}",
+    "dataSource": "synthetic-suricata",
+    "result": "denied",
+    "absent": [
+      "action"
+    ]
+  },
+  {
+    "name": "flow-established-pass-bidirectional",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00.000000+0000\",\"event_type\":\"flow\",\"src_ip\":\"192.0.2.10\",\"src_port\":50000,\"dest_ip\":\"203.0.113.20\",\"dest_port\":443,\"proto\":\"TCP\",\"flow\":{\"state\":\"established\",\"bytes_toserver\":120,\"bytes_toclient\":240,\"action\":\"pass\"}}",
+    "dataSource": "synthetic-suricata",
+    "result": "success",
+    "expected": {
+      "origin.ip": "192.0.2.10",
+      "target.ip": "203.0.113.20",
+      "log.flow.state": "established"
+    },
+    "absent": [
+      "action"
+    ]
+  },
+  {
+    "name": "flow-closed-without-action-bidirectional",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00.000000+0000\",\"event_type\":\"flow\",\"src_ip\":\"192.0.2.10\",\"src_port\":50000,\"dest_ip\":\"203.0.113.20\",\"dest_port\":443,\"proto\":\"TCP\",\"flow\":{\"state\":\"closed\",\"bytes_toserver\":120,\"bytes_toclient\":240}}",
+    "dataSource": "synthetic-suricata",
+    "result": "success",
+    "absent": [
+      "action"
+    ]
+  },
+  {
+    "name": "flow-bypassed-pass-bidirectional",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00.000000+0000\",\"event_type\":\"flow\",\"src_ip\":\"192.0.2.10\",\"src_port\":50000,\"dest_ip\":\"203.0.113.20\",\"dest_port\":443,\"proto\":\"TCP\",\"flow\":{\"state\":\"bypassed\",\"bytes_toserver\":120,\"bytes_toclient\":240,\"action\":\"pass\"}}",
+    "dataSource": "synthetic-suricata",
+    "result": "success",
+    "absent": [
+      "action"
+    ]
+  },
+  {
+    "name": "flow-new-pass-not-established",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00.000000+0000\",\"event_type\":\"flow\",\"src_ip\":\"192.0.2.10\",\"src_port\":50000,\"dest_ip\":\"203.0.113.20\",\"dest_port\":443,\"proto\":\"TCP\",\"flow\":{\"state\":\"new\",\"bytes_toserver\":120,\"bytes_toclient\":240,\"action\":\"pass\"}}",
+    "dataSource": "synthetic-suricata",
+    "result": "",
+    "absent": [
+      "actionResult",
+      "action"
+    ]
+  },
+  {
+    "name": "flow-established-one-way-not-proven",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00.000000+0000\",\"event_type\":\"flow\",\"src_ip\":\"192.0.2.10\",\"src_port\":50000,\"dest_ip\":\"203.0.113.20\",\"dest_port\":443,\"proto\":\"TCP\",\"flow\":{\"state\":\"established\",\"bytes_toserver\":120,\"bytes_toclient\":0,\"action\":\"pass\"}}",
+    "dataSource": "synthetic-suricata",
+    "result": "",
+    "absent": [
+      "actionResult",
+      "action"
+    ]
+  },
+  {
+    "name": "flow-drop-overrides-bidirectional-traffic",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00.000000+0000\",\"event_type\":\"flow\",\"src_ip\":\"192.0.2.10\",\"src_port\":50000,\"dest_ip\":\"203.0.113.20\",\"dest_port\":443,\"proto\":\"TCP\",\"flow\":{\"state\":\"established\",\"bytes_toserver\":120,\"bytes_toclient\":240,\"action\":\"drop\"}}",
+    "dataSource": "synthetic-suricata",
+    "result": "denied",
+    "absent": [
+      "action"
+    ]
+  },
+  {
+    "name": "flow-drop-before-establishment",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00.000000+0000\",\"event_type\":\"flow\",\"src_ip\":\"192.0.2.10\",\"src_port\":50000,\"dest_ip\":\"203.0.113.20\",\"dest_port\":443,\"proto\":\"TCP\",\"flow\":{\"state\":\"new\",\"bytes_toserver\":0,\"bytes_toclient\":0,\"action\":\"drop\"}}",
+    "dataSource": "synthetic-suricata",
+    "result": "denied",
+    "absent": [
+      "action"
+    ]
+  },
+  {
+    "name": "flow-unknown-action-not-allowed",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00.000000+0000\",\"event_type\":\"flow\",\"src_ip\":\"192.0.2.10\",\"src_port\":50000,\"dest_ip\":\"203.0.113.20\",\"dest_port\":443,\"proto\":\"TCP\",\"flow\":{\"state\":\"established\",\"bytes_toserver\":120,\"bytes_toclient\":240,\"action\":\"unknown\"}}",
+    "dataSource": "synthetic-suricata",
+    "result": "",
+    "absent": [
+      "actionResult",
+      "action"
+    ]
+  },
+  {
+    "name": "http-response-is-not-final-flow-decision",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00.000000+0000\",\"event_type\":\"http\",\"src_ip\":\"192.0.2.10\",\"src_port\":50000,\"dest_ip\":\"203.0.113.20\",\"dest_port\":443,\"proto\":\"TCP\",\"http\":{\"status\":200,\"hostname\":\"example.test\"}}",
+    "dataSource": "synthetic-suricata",
+    "result": "",
+    "absent": [
+      "actionResult",
+      "action"
+    ]
+  },
+  {
+    "name": "alert-priority-three-is-low",
+    "raw": "{\"timestamp\":\"2026-09-23T00:00:00.000000+0000\",\"event_type\":\"alert\",\"src_ip\":\"192.0.2.10\",\"src_port\":50000,\"dest_ip\":\"203.0.113.20\",\"dest_port\":443,\"proto\":\"TCP\",\"alert\":{\"action\":\"allowed\",\"severity\":3}}",
+    "dataSource": "synthetic-suricata",
+    "result": "",
+    "expected": {
+      "severity": "info"
+    },
+    "absent": [
+      "actionResult",
+      "action"
+    ]
+  }
+]

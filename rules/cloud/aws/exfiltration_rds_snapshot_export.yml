@@ -1,22 +1,27 @@
-# Rule version v1.0.0
-
+# Rule contract revision 2026-09-17; SDK v1.1.31.
 dataTypes:
-  - aws
-name: "AWS RDS Snapshot Export"
+- aws
+name: AWS RDS Snapshot Export Request Accepted
 impact:
   confidentiality: 3
   integrity: 2
   availability: 2
-category: "Exfiltration"
-technique: "T1537 - Transfer Data to Cloud Account"
+category: Exfiltration
+technique: T1537 - Transfer Data to Cloud Account
 adversary: origin
-description: "Identifies the export of an Amazon Relational Database Service (RDS) Aurora database snapshot"
+description: |
+  Identifies a successful StartExportTask API request. Review the export destination and task status; API acceptance does not establish that the export completed.
 references:
-  - "https://attack.mitre.org/tactics/TA0010/"
-  - "https://docs.aws.amazon.com/AmazonRDS/latest/APIReference/API_StartExportTask.html"
+- https://attack.mitre.org/tactics/TA0010/
+- https://docs.aws.amazon.com/AmazonRDS/latest/APIReference/API_StartExportTask.html
 where: |
-  equals("log.eventSource", "rds.amazonaws.com") &&
-  equals("log.eventName", "StartExportTask")
+  equals("log.awsRecordType","cloudtrail") &&
+  (equals("log.eventSource", "rds.amazonaws.com") &&
+  equals("log.eventName", "StartExportTask") &&
+  equals("actionResult","success"))
 groupBy:
-  - adversary.ip
-  - adversary.user
+- lastEvent.dataSource
+- lastEvent.log.awsAccountKeyType
+- lastEvent.log.awsAccountKey
+- adversary.ip
+- adversary.user

@@ -2,34 +2,40 @@
 
 dataTypes:
   - antivirus-esmc-eset
-name: ESET Botnet Communication Detection
+name: ESET Outbound Botnet Communication Detection
 impact:
   confidentiality: 3
   integrity: 3
   availability: 2
 category: Command and Control
 technique: "T1071 - Application Layer Protocol"
-adversary: origin
+adversary: target
 references:
-  - https://www.eset.com/us/botnet/
-  - https://support.eset.com/en/kb7487-resolve-the-incomingattackgeneric-or-botnetcncgeneric-network-protection-alert
+  - https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html
   - https://attack.mitre.org/techniques/T1071/
 description: |
-  Detects attempts to communicate with known botnet command and control servers. ESET identifies typical communication patterns when a computer is infected and a bot is attempting to communicate with malicious C2 infrastructure.
-  
+  Detects an outbound firewall detection whose event or detection name identifies botnet command-and-control activity. The managed endpoint is the network source and the remote destination is the alert adversary. A blocked attempt does not establish an active infection or successful communication; review the reported action and endpoint evidence. Records without a known direction cannot select a remote adversary side.
+
   Next Steps:
-  1. Immediately isolate the affected system from the network to prevent further C2 communication
-  2. Check the hostname (log.headHostname) to identify the affected system
-  3. Review the full log message content (log.jsonMessage) for additional threat details including target IPs and processes
-  4. Review process activity on the affected host to identify the malicious process
-  5. Scan the system with ESET for complete malware removal
+  1. Review the managed endpoint and the reported outcome before choosing containment
+  2. Use the managed endpoint identity and network origin to identify the affected system
+  3. Review the structured event, detection name, endpoint addresses, and process fields; use the protected raw event for additional context
+  4. Investigate relevant process activity on the affected host
+  5. Scan the system with ESET and assess any detections
   6. Check other systems in the network for similar C2 communication attempts
   7. Update firewall rules to block any identified C2 server IPs found in the logs
   8. Consider reimaging the system if the infection persists
   9. Review ESET logs for the time period around this detection to identify related malicious activity
 where: |
-  contains("log.jsonMessage", ["Botnet", "CnC.Generic", "botnet", "C&C", "command and control"]) &&
-  exists("log.headHostname")
+  (equals("log.eventType", "FirewallAggregated_Event") &&
+  (regexMatch("log.threat_name", "(?i)(botnet|cnc[.]generic|c&c|command and control)") || regexMatch("log.event", "(?i)(botnet|cnc[.]generic|c&c|command and control)")) &&
+  equals("log.inbound", false) && exists("target.ip")) &&
+  exists("dataSource") && !oneOf("dataSource", ["", "unknown", "-"]) &&
+  oneOf("log.endpointKeyType", ["uuid", "host", "ip"]) &&
+  exists("log.endpointKey") && !equals("log.endpointKey", "")
 groupBy:
-  - lastEvent.log.headHostname
-  - lastEvent.log.jsonMessage
+  - lastEvent.dataSource
+  - lastEvent.log.endpointKeyType
+  - lastEvent.log.endpointKey
+  - adversary.ip
+  - lastEvent.log.threat_name

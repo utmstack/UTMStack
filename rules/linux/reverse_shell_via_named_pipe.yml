@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.0.1
 
 dataTypes:
   - linux
@@ -18,7 +18,7 @@ description: "Identifies a reverse shell via the abuse of named pipes on Linux w
 references:
   - "https://attack.mitre.org/tactics/TA0002/"
   - "https://attack.mitre.org/techniques/T1059/004/"
-where: regexMatch("log.message", "((sh|bash|openssl) (-i|-connect))") && exists("log.host.id")
-groupBy:
-  - origin.ip
-  - origin.user
+where: |
+  regexMatch("origin.command", "(bash -i|sh -i|openssl.*-connect|mkfifo.*nc )")
+deduplicateBy:
+  - dataSource

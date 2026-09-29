@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v2.0.0
 
 dataTypes:
   - suricata
@@ -13,9 +13,12 @@ adversary: origin
 references:
   - https://attack.mitre.org/techniques/T1071/
   - https://www.snort.org/faq/what-is-snort
+  - https://docs.suricata.io/en/latest/output/eve/eve-json-format.html
 description: |
   Detects network traffic matching known malicious indicators from threat intelligence feeds including malicious IPs, domains, and URLs. This rule triggers when Suricata identifies traffic involving known threat actors, command and control servers, botnet infrastructure, or other malicious network indicators based on threat intelligence data.
-  
+
+  The rule reads Suricata alert records from indicator-based rule sets: Emerging Threats reputation groups (CINS, DROP, COMPROMISED and 3CORESec), and rules classified "Domain Observed Used for C2 Detected". For the reputation groups it requires the alert direction "to_client", which means a host on the protected network opened the connection to the listed address. Inbound scans from listed addresses ("to_server") are common on internet-facing sensors and are left to the Suricata severity rules. The direction field needs Suricata 7 or later.
+
   Next Steps:
   1. Immediately isolate the affected system from the network to prevent lateral movement
   2. Analyze the complete network session to understand the scope of communication
@@ -28,17 +31,20 @@ description: |
   9. Document the incident and update threat hunting queries to detect similar activity
   10. If confirmed malicious, initiate incident response procedures and consider threat hunting across the environment
 where: |
-  equals("log.alert_category", "threat_intel") &&
+  equals("log.eventType", "alert") &&
   exists("origin.ip") &&
-  oneOf("log.threat_type", ["malicious_ip", "c2_server", "known_malware", "botnet"])
-afterEvents:
-  - indexPattern: v11-log-suricata-*
-    with:
-      - field: origin.ip
-        operator: filter_term
-        value: '{{.origin.ip}}'
-    within: 30m
-    count: 3
-groupBy:
-  - lastEvent.log.threat_type
+  (
+    equals("log.alert.category", "Domain Observed Used for C2 Detected") ||
+    (
+      (startsWith("log.alert.signature", "ET CINS ") ||
+       startsWith("log.alert.signature", "ET DROP ") ||
+       startsWith("log.alert.signature", "ET COMPROMISED ") ||
+       startsWith("log.alert.signature", "ET 3CORESec ")) &&
+      equals("log.direction", "to_client")
+    )
+  )
+deduplicateBy:
+  - dataSource
   - adversary.ip
+  - target.ip
+  - lastEvent.log.alert.signature_id

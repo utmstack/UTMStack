@@ -11,10 +11,10 @@ category: Defense Evasion
 technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
 adversary: origin
 references:
-  - https://help.eset.com/ees/8/en-US/
+  - https://help.eset.com/protect_admin/13.1/en-US/events-exported-to-json-format.html
   - https://attack.mitre.org/techniques/T1562/001/
 description: |
-  Detects repeated quarantine failures in ESET, which may indicate malware actively resisting quarantine through file locks, permission manipulation, or rapid re-creation of malicious files.
+  Detects five antivirus quarantine or cleaning failures in one hour on the same managed endpoint. The action_error field must explicitly report an error for a relevant remediation operation; unrelated endpoint activity cannot satisfy the threshold.
 
   Next Steps:
   1. Identify the specific file or threat that cannot be quarantined
@@ -24,19 +24,30 @@ description: |
   5. Consider isolating the endpoint for manual remediation
   6. Run a boot-time scan if available
 where: |
-  (contains("log.message", "quarantine") &&
-   (contains("log.message", "failed") || contains("log.message", "error") ||
-    contains("log.message", "unable") || contains("log.message", "denied"))) ||
-  (contains("log.message", "clean") && contains("log.message", "failed") &&
-   contains("log.message", "threat"))
+  (equals("log.eventType", "Threat_Event") && equals("actionResult", "failure") &&
+  regexMatch("log.action_error", "(?s).+") &&
+  (regexMatch("action", "(?i)(quarantin|clean)") || regexMatch("log.action_error", "(?i)(quarantin|clean)"))) &&
+  exists("dataSource") && !oneOf("dataSource", ["", "unknown", "-"]) &&
+  oneOf("log.endpointKeyType", ["uuid", "host", "ip"]) &&
+  exists("log.endpointKey") && !equals("log.endpointKey", "")
 afterEvents:
   - indexPattern: v11-log-antivirus-esmc-eset-*
     with:
-      - field: log.headHostname
+      - field: dataSource
         operator: filter_term
-        value: '{{.log.headHostname}}'
+        value: '{{.dataSource}}'
+      - field: log.endpointKeyType
+        operator: filter_term
+        value: '{{.log.endpointKeyType}}'
+      - field: log.endpointKey
+        operator: filter_term
+        value: '{{.log.endpointKey}}'
+      - field: log.correlationCandidate.quarantineFailure
+        operator: filter_term
+        value: 'match'
     within: 1h
     count: 5
 groupBy:
-  - lastEvent.log.headHostname
-  - target.host
+  - lastEvent.dataSource
+  - lastEvent.log.endpointKeyType
+  - lastEvent.log.endpointKey

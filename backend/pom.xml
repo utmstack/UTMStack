@@ -8,7 +8,6 @@
     <groupId>com.atlasinside</groupId>
     <artifactId>utmstack</artifactId>
     <version>${revision}</version>
-   <!-- <version>4</version> -->
     <packaging>war</packaging>
     <name>UTMStack-API</name>
 
@@ -16,6 +15,7 @@
         <!-- Build properties -->
         <maven.version>3.3.9</maven.version>
         <java.version>17</java.version>
+        <snakeyaml.version>1.33</snakeyaml.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
@@ -84,6 +84,11 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>${snakeyaml.version}</version>
+            </dependency>
             <dependency>
                 <groupId>tech.jhipster</groupId>
                 <artifactId>jhipster-dependencies</artifactId>
@@ -380,8 +385,18 @@
             <groupId>commons-net</groupId>
             <artifactId>commons-net</artifactId>
             <version>3.9.0</version>
+            <exclusions>
+                    <exclusion>
+                        <groupId>commons-io</groupId>
+                        <artifactId>commons-io</artifactId>
+                    </exclusion>
+                </exclusions>
         </dependency>
-
+        <dependency>
+          <groupId>commons-io</groupId>
+          <artifactId>commons-io</artifactId>
+          <version>2.15.1</version>
+        </dependency>
     </dependencies>
 
     <build>

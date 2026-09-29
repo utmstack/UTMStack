@@ -36,11 +36,9 @@ where: |
     equals("action", "CompanyLinkCreated") ||
     equals("action", "AddedToSecureLink")
   ) &&
-  equals("actionResult", "Success") &&
+  equals("actionResult", "success") &&
   (
-    equals("log.TargetUserOrGroupType", "Guest") ||
-    contains("log.SiteUrl", "external") ||
-    contains("log.EventData", "AllowExternalSharing")
+    equals("log.TargetUserOrGroupType", "Guest")  
   )
 afterEvents:
   - indexPattern: v11-log-o365-*

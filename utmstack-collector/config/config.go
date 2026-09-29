@@ -125,7 +125,7 @@ func SaveConfig(cnf *Config) error {
 		SkipCertValidation: cnf.SkipCertValidation,
 	}
 
-	if err := utils.WriteYAML(ConfigurationFile, encryptConf); err != nil {
+	if err := utils.WriteSecretYAML(ConfigurationFile, encryptConf); err != nil {
 		return err
 	}
 	return nil
@@ -141,7 +141,7 @@ func GenerateNewUUID() (string, error) {
 		UUID: id.String(),
 	}
 
-	if err = utils.WriteYAML(UUIDFileName, InstallationUUID); err != nil {
+	if err = utils.WriteSecretYAML(UUIDFileName, InstallationUUID); err != nil {
 		return "", utils.Logger.ErrorF("error writing uuid file: %v", err)
 	}
 

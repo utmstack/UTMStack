@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.0.1
 
 dataTypes:
   - cisco-switch
@@ -14,22 +14,23 @@ references:
   - https://www.cisco.com/c/en/us/support/docs/switches/catalyst-3750-series-switches/72846-layer2-secftrs-catl3fixed.html
   - https://attack.mitre.org/techniques/T1200/
 description: |
-  Detects potential MAC address spoofing attempts by monitoring for MAC address flapping between ports, duplicate MAC addresses, or MAC addresses appearing on unexpected ports. This could indicate an attacker attempting to impersonate legitimate devices.
+  Detects potential MAC address spoofing attempts from switch messages that report a duplicate MAC address, a MAC address conflict or a dynamic ARP inspection denial and name the MAC address involved. This could indicate an attacker attempting to impersonate legitimate devices. MAC address flap notifications are not used, because a flap alone does not show that an address was copied.
 
   Next Steps:
-  1. Identify the affected MAC address and ports involved in the flapping
+  1. Identify the affected MAC address and the switch ports involved
   2. Check if the MAC address belongs to a legitimate device that may be moving between ports
   3. Review switch logs for any unauthorized configuration changes
   4. Verify if port security or dynamic ARP inspection is properly configured
   5. Investigate the source device and check for signs of ARP spoofing tools
   6. Consider implementing port security to limit MAC addresses per port
   7. Enable DHCP snooping and dynamic ARP inspection if not already configured
+# SW_MATM MACFLAP_NOTIF is excluded until its meaning as a spoofing signal is documented.
 where: |
-  (equals("log.facility", "SW_MATM") && equals("log.facilityMnemonic", "MACFLAP_NOTIF"))
-  || (equals("log.facility", "SW_DAI") && oneOf("log.facilityMnemonic", ["INVALID_ARP", "DHCP_SNOOPING_DENY"]))
-  || regexMatch("log.message", "(?i)(mac.*flap|duplicate.*mac|mac.*move.*between.*port)")
-  || regexMatch("log.message", "(?i)(Host [0-9a-fA-F:.]+.*is flapping between port)")
-  || (lessOrEqual("log.severity", 4) && regexMatch("log.message", "(?i)(mac.*address.*conflict|duplicate.*address.*detected)"))
+  exists("origin.mac") && !regexMatch("log.msg", "(?i)(mac.*flap|is flapping between port)") && (
+    (equals("log.facility", "SW_DAI") && oneOf("log.facilityMnemonic", ["INVALID_ARP", "DHCP_SNOOPING_DENY"]))
+    || regexMatch("log.msg", "(?i)(duplicate.*mac|mac.*move.*between.*port)")
+    || (lessOrEqual("log.severity", 4) && regexMatch("log.msg", "(?i)(mac.*address.*conflict|duplicate.*address.*detected)"))
+  )
 afterEvents:
   - indexPattern: v11-log-cisco-switch-*
     with:
@@ -38,5 +39,5 @@ afterEvents:
         value: '{{.origin.mac}}'
     within: 10m
     count: 3
-groupBy:
+deduplicateBy:
   - adversary.mac

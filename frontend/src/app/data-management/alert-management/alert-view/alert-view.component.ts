@@ -7,7 +7,7 @@ import {ResizeEvent} from 'angular-resizable-element';
 import {NgxSpinnerService} from 'ngx-spinner';
 import {LocalStorageService} from 'ngx-webstorage';
 import {Observable, Subject, throwError, timer, Subscription} from 'rxjs';
-import {concatMap, filter, retryWhen, takeUntil, tap, finalize} from 'rxjs/operators';
+import {concatMap, filter, retryWhen, takeUntil, tap, finalize,take,debounceTime} from 'rxjs/operators';
 import {UtmToastService} from '../../../shared/alert/utm-toast.service';
 import {
   ElasticFilterDefaultTime
@@ -31,7 +31,7 @@ import {
 } from '../../../shared/constants/alert/alert-field.constant';
 import {AUTOMATIC_REVIEW, IGNORED} from '../../../shared/constants/alert/alert-status.constant';
 import {ADMIN_ROLE, MAX_SEARCH_RESULTS} from '../../../shared/constants/global.constant';
-import {MAIN_INDEX_PATTERN} from '../../../shared/constants/main-index-pattern.constant';
+import {ALERT_INDEX_PATTERN} from '../../../shared/constants/main-index-pattern.constant';
 import {ITEMS_PER_PAGE} from '../../../shared/constants/pagination.constants';
 import {SortDirection} from '../../../shared/directives/sortable/type/sort-direction.type';
 import {SortEvent} from '../../../shared/directives/sortable/type/sort-event';
@@ -120,7 +120,7 @@ export class AlertViewComponent implements OnInit, OnDestroy {
   defaultStatus: number;
   dataNature = DataNatureTypeEnum.ALERT;
   sortEvent: SortEvent;
-  pattern = MAIN_INDEX_PATTERN;
+  pattern = ALERT_INDEX_PATTERN;
   //
   defaultTime: ElasticFilterDefaultTime;
   IGNORED = IGNORED;
@@ -131,6 +131,7 @@ export class AlertViewComponent implements OnInit, OnDestroy {
   eventDataTypeEnum = EventDataTypeEnum;
   refreshingAlert = false;
   firstLoad = true;
+  pendingEmitFilters = false;
   tags: AlertTags[];
   showRefresh = false;
   destroy$ = new Subject<void>();
@@ -208,6 +209,10 @@ export class AlertViewComponent implements OnInit, OnDestroy {
         filter(incident => !!incident),
         tap(() => this.refreshAlerts())
       ).subscribe();
+
+    this.alertActionRefreshService.refreshAlerts$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.refreshAlerts());
   }
 
   refreshAlerts() {
@@ -317,9 +322,8 @@ export class AlertViewComponent implements OnInit, OnDestroy {
       this.defaultTime = new ElasticFilterDefaultTime('now-7d', 'now');
     }
     this.getCurrentStatus();
+    this.pendingEmitFilters = true;
     this.getAlert('on set default params');
-    // this.updateStatusServiceBehavior.$updateStatus.next(true);
-    this.alertFiltersBehavior.$filters.next(this.filters);
   }
 
   /**
@@ -340,7 +344,7 @@ export class AlertViewComponent implements OnInit, OnDestroy {
     } else {
       this.filters[timeFilterIndex].value = [$event.timeFrom, $event.timeTo];
     }
-    this.alertFiltersBehavior.$filters.next(this.filters);
+    this.pendingEmitFilters = true;
     this.getAlert('on time filter change');
   }
 
@@ -349,32 +353,40 @@ export class AlertViewComponent implements OnInit, OnDestroy {
   }
 
   getAlert(calledFrom?: string, filtersParam?: ElasticFilterType[]) {
-    if(this.lastTimeout!=-1){
-      clearTimeout(this.lastTimeout)
+
       if(this.lastRequest){
         this.lastRequest.unsubscribe()
         this.lastRequest=null
       }
-    }
-    this.lastTimeout= setTimeout(()=>{
+
     this.lastRequest=this.elasticDataService.search(this.page, this.itemsPerPage,
       MAX_SEARCH_RESULTS, this.dataNature,
-      sanitizeFilters(this.filters), this.sortBy, true)
-        .pipe(finalize(()=>this.lastRequest=null))
+      sanitizeFilters(!!filtersParam? filtersParam : this.filters), this.sortBy, true)
+        .pipe(debounceTime(300),take(1),finalize(()=>{
+          this.loading = false;
+          this.flushPendingFilters();
+          this.lastRequest=null
+          this.refreshingAlert = false;
+         }))
         .subscribe(
       (res: HttpResponse<any>) => {
         this.totalItems = Number(res.headers.get('X-Total-Count'));
         this.alerts = res.body;
-        this.loading = false;
-        this.refreshingAlert = false;
       },
-      (res: HttpResponse<any>) => {
+      (_res: HttpResponse<any>) => {
         this.utmToastService.showError('Error', 'An error occurred while listing the alerts. Please try again later.');
         this.loading = false;
         this.refreshingAlert = false;
       }
     );
     },100)
+  }
+
+  private flushPendingFilters() {
+    if (this.pendingEmitFilters) {
+      this.pendingEmitFilters = false;
+      this.alertFiltersBehavior.$filters.next(this.filters);
+    }
   }
 
   saveReport() {
@@ -421,8 +433,8 @@ export class AlertViewComponent implements OnInit, OnDestroy {
       mergeParams(filterRow, this.filters).then(value => {
         this.filters = value;
         this.page = 1;
+        this.pendingEmitFilters = true;
         this.getAlert('on add row to filter');
-        this.alertFiltersBehavior.$filters.next(this.filters);
       });
     });
   }
@@ -444,7 +456,7 @@ export class AlertViewComponent implements OnInit, OnDestroy {
         }
       }
     }
-    this.alertFiltersBehavior.$filters.next(this.filters);
+    this.pendingEmitFilters = true;
     this.page = 1;
     this.getAlert('on status filter change');
   }
@@ -476,9 +488,8 @@ export class AlertViewComponent implements OnInit, OnDestroy {
     this.processFilters($event).then(filters => {
       this.filters = filters;
       this.page = 1;
+      this.pendingEmitFilters = true;
       this.getAlert('on generic filter change');
-      // this.updateStatusServiceBehavior.$updateStatus.next(true);
-      this.alertFiltersBehavior.$filters.next(this.filters);
     });
   }
 

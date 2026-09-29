@@ -28,7 +28,7 @@ description: |
 where: |
   oneOf("action", ["SearchStarted", "SearchExported", "SearchCreated", "CaseAdded", "HoldCreated", "SearchExportDownloaded", "SearchPreviewed", "SearchResultsPurged"]) &&
   exists("origin.user") &&
-  equals("actionResult", "Succeeded")
+  equals("actionResult", "success")
 afterEvents:
   - indexPattern: v11-log-o365-*
     with:

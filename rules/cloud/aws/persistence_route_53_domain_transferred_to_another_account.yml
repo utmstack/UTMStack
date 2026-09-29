@@ -1,24 +1,29 @@
-# Rule version v1.0.0
-
+# Rule contract revision 2026-09-17; SDK v1.1.31.
 dataTypes:
-  - aws
-name: "AWS Route 53 Domain Transferred to Another Account"
+- aws
+name: AWS Route 53 Domain Transfer Request Accepted
 impact:
   confidentiality: 3
   integrity: 3
   availability: 3
-category: "Persistence"
-technique: "T1098 - Account Manipulation"
+category: Persistence
+technique: T1098 - Account Manipulation
 adversary: origin
-description: "Identifies when a request has been made to transfer a Route 53 domain to another AWS account"
+description: |
+  Identifies an accepted Route 53 Domains request to transfer a domain to another AWS account. Check the destination account and transfer status; request acceptance does not establish that the transfer completed.
 references:
-  - "https://attack.mitre.org/tactics/TA0003/"
-  - "https://attack.mitre.org/techniques/T1098/"
-  - "https://attack.mitre.org/tactics/TA0006/"
-  - "https://docs.aws.amazon.com/Route53/latest/APIReference/API_Operations_Amazon_Route_53.html"
+- https://attack.mitre.org/tactics/TA0003/
+- https://attack.mitre.org/techniques/T1098/
+- https://attack.mitre.org/tactics/TA0006/
+- https://docs.aws.amazon.com/Route53/latest/APIReference/API_Operations_Amazon_Route_53.html
 where: |
-  equals("log.eventSource", "route53.amazonaws.com") &&
-  equals("log.eventName", "TransferDomainToAnotherAwsAccount")
+  equals("log.awsRecordType","cloudtrail") &&
+  (equals("log.eventSource", "route53domains.amazonaws.com") &&
+  equalsIgnoreCase("log.eventName", "TransferDomainToAnotherAwsAccount") &&
+  equals("actionResult","success"))
 groupBy:
-  - adversary.ip
-  - adversary.user
+- lastEvent.dataSource
+- lastEvent.log.awsAccountKeyType
+- lastEvent.log.awsAccountKey
+- adversary.ip
+- adversary.user

@@ -1,5 +1,5 @@
 <ng-container *ngIf="clusterHealth$ | async as clusterHealth">
-  <div *ngIf="(clusterHealth && clusterHealth.diskUsedPercent > 75) && show"
+  <div *ngIf="(clusterHealth && clusterHealth.diskUsedPercent > 80) && show"
        class="card alpha-danger border-danger card-health-warning shadow" style="opacity: 1; max-width: none;">
     <div class="card-body p-2">
       <div class="d-flex justify-content-between align-items-center">

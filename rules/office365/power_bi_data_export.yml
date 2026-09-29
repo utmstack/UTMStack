@@ -27,7 +27,7 @@ description: |
   8. Enable row-level security on sensitive datasets
 where: |
   oneOf("action", ["ExportReport", "ExportDataflow", "DownloadReport", "ExportArtifact"]) &&
-  equals("actionResult", "Success")
+  equals("actionResult", "success")
 afterEvents:
   - indexPattern: v11-log-o365-*
     with:

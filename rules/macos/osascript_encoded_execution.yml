@@ -22,15 +22,15 @@ description: |
   4. Review network connections initiated by the script
   5. Investigate the delivery mechanism of the malicious script
 where: |
-  (equals("log.process", "osascript") || contains("log.eventMessage", "osascript")) &&
-  (contains("log.eventMessage", "-e") &&
-   (contains("log.eventMessage", "do shell script") || contains("log.eventMessage", "curl") ||
-    contains("log.eventMessage", "wget") || contains("log.eventMessage", "base64") ||
-    contains("log.eventMessage", "chmod") || contains("log.eventMessage", "/bin/bash") ||
-    contains("log.eventMessage", "python") || contains("log.eventMessage", "openssl")) ||
-   contains("log.eventMessage", "osacompile") ||
-   (contains("log.eventMessage", "osascript") && contains("log.eventMessage", "<<<")) ||
-   regexMatch("log.eventMessage", "(?i)osascript.*-l\\s+JavaScript"))
+  (equals("origin.process", "osascript") || contains("log.message", "osascript")) &&
+  (contains("log.message", "-e") &&
+   (contains("log.message", "do shell script") || contains("log.message", "curl") ||
+    contains("log.message", "wget") || contains("log.message", "base64") ||
+    contains("log.message", "chmod") || contains("log.message", "/bin/bash") ||
+    contains("log.message", "python") || contains("log.message", "openssl")) ||
+   contains("log.message", "osacompile") ||
+   (contains("log.message", "osascript") && contains("log.message", "<<<")) ||
+   regexMatch("log.message", "(?i)osascript.*-l\\s+JavaScript"))
 groupBy:
   - adversary.host
   - adversary.user

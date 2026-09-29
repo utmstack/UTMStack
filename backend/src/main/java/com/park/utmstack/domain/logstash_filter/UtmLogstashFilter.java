@@ -51,7 +51,7 @@ public class UtmLogstashFilter implements Serializable, AuditableDTO {
     private UtmDataTypes datatype;
 
     @Column(name = "system_owner")
-    private Boolean systemOwner;
+    private Boolean systemOwner = false;
 
     @Column(name = "is_active")
     private Boolean isActive = true;

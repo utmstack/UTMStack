@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.0.1
 
 dataTypes:
   - linux
@@ -24,15 +24,6 @@ description: |
   5. Investigate for signs of process hiding or network traffic manipulation
   6. If malicious, reboot the system and perform forensic analysis
 where: |
-  (contains("log.message", "bpf(") || contains("log.message", "BPF") ||
-   contains("log.message", "ebpf") || contains("log.message", "bpftool")) &&
-  (contains("log.message", "PROG_LOAD") || contains("log.message", "prog_load") ||
-   contains("log.message", "BPF_PROG_TYPE_TRACING") ||
-   contains("log.message", "BPF_PROG_TYPE_KPROBE") ||
-   contains("log.message", "BPF_PROG_TYPE_XDP") ||
-   contains("log.message", "attached") || contains("log.message", "loaded")) &&
-  !(contains("log.process", "systemd") || contains("log.process", "cilium") ||
-    contains("log.process", "falco") || contains("log.process", "bpftrace"))
-groupBy:
-  - origin.host
-  - origin.user
+  regexMatch("origin.command", "bpftool .*(prog|map).*(load|loadall|attach)") && !regexMatch("origin.command", "(cilium|falco|bpftrace)")
+deduplicateBy:
+  - dataSource

@@ -25,13 +25,13 @@ description: |
   5. Examine the system for any persistence mechanisms installed by the payload
   6. Block the identified payload URL at the network level
 where: |
-  (equals("log.process", "osascript") || contains("log.eventMessage", "osascript")) &&
-  contains("log.eventMessage", ["-e", "-l JavaScript"]) &&
+  (equals("origin.process", "osascript") || contains("log.message", "osascript")) &&
+  contains("log.message", ["-e", "-l JavaScript"]) &&
   (
-    contains("log.eventMessage", "eval") ||
-    contains("log.eventMessage", "NSData.dataWithContentsOfURL") ||
-    contains("log.eventMessage", "ObjC.import") ||
-    (contains("log.eventMessage", "JavaScript") && contains("log.eventMessage", "dataWithContentsOfURL"))
+    contains("log.message", "eval") ||
+    contains("log.message", "NSData.dataWithContentsOfURL") ||
+    contains("log.message", "ObjC.import") ||
+    (contains("log.message", "JavaScript") && contains("log.message", "dataWithContentsOfURL"))
   )
 groupBy:
   - adversary.host

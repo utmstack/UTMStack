@@ -13,21 +13,60 @@ export class WorkflowActionsService {
   actions$ = this.actionsBehaviorSubject.asObservable();
 
   readonly command$: Observable<string> = this.actions$.pipe(
-    map(actions => {
-      if (actions.length === 1) {
-        return actions[0].command;
+    map(actions => this.buildCommand(actions))
+  );
+
+  buildCommand(actions: IncidentResponseActionTemplate[] = this.getActions()): string {
+    if (!actions || actions.length === 0) {
+      return '';
+    }
+
+    if (actions.length === 1) {
+      return actions[0].command;
+    }
+
+    return actions.map((action, index) => {
+      const operator = index === 0 ? ''
+        : action.conditional.key === ActionConditionalEnum.SUCCESS ? '&&'
+          : action.conditional.key === ActionConditionalEnum.FAILURE ? '||'
+            : ';';
+
+      return `${operator} ${action.command}`.trim();
+    }).join(' ').trim();
+  }
+
+  inferConditionals(command: string, actions: IncidentResponseActionTemplate[]): IncidentResponseActionTemplate[] {
+    if (!actions || actions.length === 0) {
+      return actions || [];
+    }
+
+    if (!command || actions.length === 1) {
+      return [{ ...actions[0], conditional: { key: ActionConditionalEnum.ALWAYS, value: ';' } }];
+    }
+
+    const result: IncidentResponseActionTemplate[] = [];
+    let cursor = 0;
+
+    actions.forEach((action, index) => {
+      const idx = command.indexOf(action.command, cursor);
+
+      if (index === 0 || idx === -1) {
+        result.push({ ...action, conditional: { key: ActionConditionalEnum.ALWAYS, value: ';' } });
+      } else {
+        const gap = command.slice(cursor, idx).trim();
+        const conditional = gap === '&&' ? { key: ActionConditionalEnum.SUCCESS, value: '&&' }
+          : gap === '||' ? { key: ActionConditionalEnum.FAILURE, value: '||' }
+            : { key: ActionConditionalEnum.ALWAYS, value: ';' };
+        result.push({ ...action, conditional });
       }
 
-      return actions.map((action, index) => {
-        const operator = index === 0 ? ''
-          : action.conditional.key === ActionConditionalEnum.SUCCESS ? '&&'
-            : action.conditional.key === ActionConditionalEnum.FAILURE ? '||'
-              : ';';
+      if (idx !== -1) {
+        cursor = idx + action.command.length;
+      }
+    });
 
-        return `${operator} ${action.command}`.trim();
-      }).join(' ').trim();
-    })
-  );
+    return result;
+  }
 
   addActions(action: any) {
     const actions = this.actionsBehaviorSubject.value ? this.actionsBehaviorSubject.value : [];
@@ -38,18 +77,16 @@ export class WorkflowActionsService {
     }]);
   }
 
-  updateAction(action: any) {
-    const actions = this.actionsBehaviorSubject.value ? this.actionsBehaviorSubject.value : [];
-
-    const index = actions.findIndex((act: any) => act.id === action.id);
+  updateAction(index: number, action: any) {
+    const actions = this.getActions();
+    if (index < 0 || index >= actions.length) {
+      return;
+    }
 
     const newActions = [...actions];
-    newActions[index] = {
-      ...action,
-    };
+    newActions[index] = { ...action };
 
     this.actionsBehaviorSubject.next(newActions);
-
   }
 
   deleteAction(action: any) {

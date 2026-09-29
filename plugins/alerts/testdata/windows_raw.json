@@ -1,0 +1,1356 @@
+[
+  {
+    "name": "kerberoasting_detection ipv4",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TicketEncryptionType\":23,\"TicketOptions\":0,\"ServiceName\":\"sql-service\",\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"IpAddress\":\"192.0.2.41\",\"WorkstationName\":\"client01\",\"IpPort\":\"49152\"},\"eventCode\":4769}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "ip",
+      "log.authenticationSource": "192.0.2.41",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "origin.ip": "192.0.2.41",
+      "log.authenticationSourceDomain": "network-source",
+      "log.authenticationCandidate.kerberoastingDetection": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "log.data.IpAddress"
+    ],
+    "matches": [
+      "kerberoasting_detection"
+    ]
+  },
+  {
+    "name": "kerberoasting_detection ipv6",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TicketEncryptionType\":23,\"TicketOptions\":0,\"ServiceName\":\"sql-service\",\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"IpAddress\":\"2001:db8::41\",\"WorkstationName\":\"client01\",\"IpPort\":\"49152\"},\"eventCode\":4769}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "ip",
+      "log.authenticationSource": "2001:db8::41",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "origin.ip": "2001:db8::41",
+      "log.authenticationSourceDomain": "network-source",
+      "log.authenticationCandidate.kerberoastingDetection": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "log.data.IpAddress"
+    ],
+    "matches": [
+      "kerberoasting_detection"
+    ]
+  },
+  {
+    "name": "kerberoasting_detection dash-with-host",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TicketEncryptionType\":23,\"TicketOptions\":0,\"ServiceName\":\"sql-service\",\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"IpAddress\":\"-\",\"WorkstationName\":\"client01\",\"IpPort\":\"49152\"},\"eventCode\":4769}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "host",
+      "log.authenticationSource": "client01",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "log.data.IpAddress": "-",
+      "log.authenticationSourceDomain": "network-source",
+      "log.authenticationCandidate.kerberoastingDetection": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "origin.ip"
+    ],
+    "matches": [
+      "kerberoasting_detection"
+    ]
+  },
+  {
+    "name": "kerberoasting_detection dash-with-account",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TicketEncryptionType\":23,\"TicketOptions\":0,\"ServiceName\":\"sql-service\",\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"IpAddress\":\"-\",\"IpPort\":\"49152\"},\"eventCode\":4769}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "user",
+      "log.authenticationSource": "alice",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "log.data.IpAddress": "-",
+      "log.authenticationSourceDomain": "EXAMPLE",
+      "log.authenticationCandidate.kerberoastingDetection": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "origin.ip"
+    ],
+    "matches": [
+      "kerberoasting_detection"
+    ]
+  },
+  {
+    "name": "kerberoasting_detection absent-with-account",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TicketEncryptionType\":23,\"TicketOptions\":0,\"ServiceName\":\"sql-service\",\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"IpPort\":\"49152\"},\"eventCode\":4769}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "user",
+      "log.authenticationSource": "alice",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "log.authenticationSourceDomain": "EXAMPLE",
+      "log.authenticationCandidate.kerberoastingDetection": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "origin.ip"
+    ],
+    "matches": [
+      "kerberoasting_detection"
+    ]
+  },
+  {
+    "name": "kerberoasting_detection unspecified-with-account",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TicketEncryptionType\":23,\"TicketOptions\":0,\"ServiceName\":\"sql-service\",\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"IpAddress\":\"0.0.0.0\",\"IpPort\":\"49152\"},\"eventCode\":4769}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "user",
+      "log.authenticationSource": "alice",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "log.data.IpAddress": "0.0.0.0",
+      "log.authenticationSourceDomain": "EXAMPLE",
+      "log.authenticationCandidate.kerberoastingDetection": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "origin.ip"
+    ],
+    "matches": [
+      "kerberoasting_detection"
+    ]
+  },
+  {
+    "name": "asrep_roasting_detection ipv4",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TicketEncryptionType\":23,\"PreAuthType\":\"0\",\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"IpAddress\":\"192.0.2.41\",\"WorkstationName\":\"client01\",\"IpPort\":\"49152\"},\"eventCode\":4768}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "ip",
+      "log.authenticationSource": "192.0.2.41",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "origin.ip": "192.0.2.41",
+      "log.authenticationSourceDomain": "network-source",
+      "log.authenticationCandidate.asrepRoastingDetection": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "log.data.IpAddress"
+    ],
+    "matches": [
+      "asrep_roasting_detection"
+    ]
+  },
+  {
+    "name": "asrep_roasting_detection ipv6",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TicketEncryptionType\":23,\"PreAuthType\":\"0\",\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"IpAddress\":\"2001:db8::41\",\"WorkstationName\":\"client01\",\"IpPort\":\"49152\"},\"eventCode\":4768}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "ip",
+      "log.authenticationSource": "2001:db8::41",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "origin.ip": "2001:db8::41",
+      "log.authenticationSourceDomain": "network-source",
+      "log.authenticationCandidate.asrepRoastingDetection": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "log.data.IpAddress"
+    ],
+    "matches": [
+      "asrep_roasting_detection"
+    ]
+  },
+  {
+    "name": "asrep_roasting_detection dash-with-host",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TicketEncryptionType\":23,\"PreAuthType\":\"0\",\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"IpAddress\":\"-\",\"WorkstationName\":\"client01\",\"IpPort\":\"49152\"},\"eventCode\":4768}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "host",
+      "log.authenticationSource": "client01",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "log.data.IpAddress": "-",
+      "log.authenticationSourceDomain": "network-source",
+      "log.authenticationCandidate.asrepRoastingDetection": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "origin.ip"
+    ],
+    "matches": [
+      "asrep_roasting_detection"
+    ]
+  },
+  {
+    "name": "asrep_roasting_detection dash-with-account",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TicketEncryptionType\":23,\"PreAuthType\":\"0\",\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"IpAddress\":\"-\",\"IpPort\":\"49152\"},\"eventCode\":4768}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "user",
+      "log.authenticationSource": "alice",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "log.data.IpAddress": "-",
+      "log.authenticationSourceDomain": "EXAMPLE",
+      "log.authenticationCandidate.asrepRoastingDetection": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "origin.ip"
+    ],
+    "matches": [
+      "asrep_roasting_detection"
+    ]
+  },
+  {
+    "name": "asrep_roasting_detection absent-with-account",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TicketEncryptionType\":23,\"PreAuthType\":\"0\",\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"IpPort\":\"49152\"},\"eventCode\":4768}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "user",
+      "log.authenticationSource": "alice",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "log.authenticationSourceDomain": "EXAMPLE",
+      "log.authenticationCandidate.asrepRoastingDetection": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "origin.ip"
+    ],
+    "matches": [
+      "asrep_roasting_detection"
+    ]
+  },
+  {
+    "name": "asrep_roasting_detection unspecified-with-account",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TicketEncryptionType\":23,\"PreAuthType\":\"0\",\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"IpAddress\":\"0.0.0.0\",\"IpPort\":\"49152\"},\"eventCode\":4768}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "user",
+      "log.authenticationSource": "alice",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "log.data.IpAddress": "0.0.0.0",
+      "log.authenticationSourceDomain": "EXAMPLE",
+      "log.authenticationCandidate.asrepRoastingDetection": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "origin.ip"
+    ],
+    "matches": [
+      "asrep_roasting_detection"
+    ]
+  },
+  {
+    "name": "silver_ticket_detection ipv4",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TicketEncryptionType\":23,\"Status\":\"7\",\"ServiceName\":\"sql-service\",\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"IpAddress\":\"192.0.2.41\",\"WorkstationName\":\"client01\",\"IpPort\":\"49152\"},\"eventCode\":4769}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "ip",
+      "log.authenticationSource": "192.0.2.41",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "origin.ip": "192.0.2.41",
+      "log.authenticationSourceDomain": "network-source",
+      "log.authenticationCandidate.silverTicketDetection": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "log.data.IpAddress"
+    ],
+    "matches": [
+      "silver_ticket_detection"
+    ]
+  },
+  {
+    "name": "silver_ticket_detection ipv6",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TicketEncryptionType\":23,\"Status\":\"7\",\"ServiceName\":\"sql-service\",\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"IpAddress\":\"2001:db8::41\",\"WorkstationName\":\"client01\",\"IpPort\":\"49152\"},\"eventCode\":4769}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "ip",
+      "log.authenticationSource": "2001:db8::41",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "origin.ip": "2001:db8::41",
+      "log.authenticationSourceDomain": "network-source",
+      "log.authenticationCandidate.silverTicketDetection": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "log.data.IpAddress"
+    ],
+    "matches": [
+      "silver_ticket_detection"
+    ]
+  },
+  {
+    "name": "silver_ticket_detection dash-with-host",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TicketEncryptionType\":23,\"Status\":\"7\",\"ServiceName\":\"sql-service\",\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"IpAddress\":\"-\",\"WorkstationName\":\"client01\",\"IpPort\":\"49152\"},\"eventCode\":4769}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "host",
+      "log.authenticationSource": "client01",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "log.data.IpAddress": "-",
+      "log.authenticationSourceDomain": "network-source",
+      "log.authenticationCandidate.silverTicketDetection": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "origin.ip"
+    ],
+    "matches": [
+      "silver_ticket_detection"
+    ]
+  },
+  {
+    "name": "silver_ticket_detection dash-with-account",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TicketEncryptionType\":23,\"Status\":\"7\",\"ServiceName\":\"sql-service\",\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"IpAddress\":\"-\",\"IpPort\":\"49152\"},\"eventCode\":4769}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "user",
+      "log.authenticationSource": "alice",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "log.data.IpAddress": "-",
+      "log.authenticationSourceDomain": "EXAMPLE",
+      "log.authenticationCandidate.silverTicketDetection": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "origin.ip"
+    ],
+    "matches": [
+      "silver_ticket_detection"
+    ]
+  },
+  {
+    "name": "silver_ticket_detection absent-with-account",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TicketEncryptionType\":23,\"Status\":\"7\",\"ServiceName\":\"sql-service\",\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"IpPort\":\"49152\"},\"eventCode\":4769}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "user",
+      "log.authenticationSource": "alice",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "log.authenticationSourceDomain": "EXAMPLE",
+      "log.authenticationCandidate.silverTicketDetection": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "origin.ip"
+    ],
+    "matches": [
+      "silver_ticket_detection"
+    ]
+  },
+  {
+    "name": "silver_ticket_detection unspecified-with-account",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TicketEncryptionType\":23,\"Status\":\"7\",\"ServiceName\":\"sql-service\",\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"IpAddress\":\"0.0.0.0\",\"IpPort\":\"49152\"},\"eventCode\":4769}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "user",
+      "log.authenticationSource": "alice",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "log.data.IpAddress": "0.0.0.0",
+      "log.authenticationSourceDomain": "EXAMPLE",
+      "log.authenticationCandidate.silverTicketDetection": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "origin.ip"
+    ],
+    "matches": [
+      "silver_ticket_detection"
+    ]
+  },
+  {
+    "name": "golden_ticket_detection ipv4",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"PrivilegeList\":\"SeTcbPrivilege\",\"SubjectUserName\":\"alice\",\"SubjectDomainName\":\"EXAMPLE\",\"IpAddress\":\"192.0.2.41\",\"WorkstationName\":\"client01\",\"IpPort\":\"49152\"},\"eventCode\":4672}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "ip",
+      "log.authenticationSource": "192.0.2.41",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "origin.ip": "192.0.2.41",
+      "log.authenticationSourceDomain": "network-source",
+      "log.authenticationCandidate.goldenTicketDetection": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "log.data.IpAddress"
+    ],
+    "matches": [
+      "golden_ticket_detection"
+    ]
+  },
+  {
+    "name": "golden_ticket_detection ipv6",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"PrivilegeList\":\"SeTcbPrivilege\",\"SubjectUserName\":\"alice\",\"SubjectDomainName\":\"EXAMPLE\",\"IpAddress\":\"2001:db8::41\",\"WorkstationName\":\"client01\",\"IpPort\":\"49152\"},\"eventCode\":4672}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "ip",
+      "log.authenticationSource": "2001:db8::41",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "origin.ip": "2001:db8::41",
+      "log.authenticationSourceDomain": "network-source",
+      "log.authenticationCandidate.goldenTicketDetection": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "log.data.IpAddress"
+    ],
+    "matches": [
+      "golden_ticket_detection"
+    ]
+  },
+  {
+    "name": "golden_ticket_detection dash-with-host",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"PrivilegeList\":\"SeTcbPrivilege\",\"SubjectUserName\":\"alice\",\"SubjectDomainName\":\"EXAMPLE\",\"IpAddress\":\"-\",\"WorkstationName\":\"client01\",\"IpPort\":\"49152\"},\"eventCode\":4672}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "host",
+      "log.authenticationSource": "client01",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "log.data.IpAddress": "-",
+      "log.authenticationSourceDomain": "network-source",
+      "log.authenticationCandidate.goldenTicketDetection": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "origin.ip"
+    ],
+    "matches": [
+      "golden_ticket_detection"
+    ]
+  },
+  {
+    "name": "golden_ticket_detection dash-with-account",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"PrivilegeList\":\"SeTcbPrivilege\",\"SubjectUserName\":\"alice\",\"SubjectDomainName\":\"EXAMPLE\",\"IpAddress\":\"-\",\"IpPort\":\"49152\"},\"eventCode\":4672}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "user",
+      "log.authenticationSource": "alice",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "log.data.IpAddress": "-",
+      "log.authenticationSourceDomain": "EXAMPLE",
+      "log.authenticationCandidate.goldenTicketDetection": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "origin.ip"
+    ],
+    "matches": [
+      "golden_ticket_detection"
+    ]
+  },
+  {
+    "name": "golden_ticket_detection absent-with-account",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"PrivilegeList\":\"SeTcbPrivilege\",\"SubjectUserName\":\"alice\",\"SubjectDomainName\":\"EXAMPLE\",\"IpPort\":\"49152\"},\"eventCode\":4672}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "user",
+      "log.authenticationSource": "alice",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "log.authenticationSourceDomain": "EXAMPLE",
+      "log.authenticationCandidate.goldenTicketDetection": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "origin.ip"
+    ],
+    "matches": [
+      "golden_ticket_detection"
+    ]
+  },
+  {
+    "name": "golden_ticket_detection unspecified-with-account",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"PrivilegeList\":\"SeTcbPrivilege\",\"SubjectUserName\":\"alice\",\"SubjectDomainName\":\"EXAMPLE\",\"IpAddress\":\"0.0.0.0\",\"IpPort\":\"49152\"},\"eventCode\":4672}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "user",
+      "log.authenticationSource": "alice",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "log.data.IpAddress": "0.0.0.0",
+      "log.authenticationSourceDomain": "EXAMPLE",
+      "log.authenticationCandidate.goldenTicketDetection": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "origin.ip"
+    ],
+    "matches": [
+      "golden_ticket_detection"
+    ]
+  },
+  {
+    "name": "bruteforce_attack ipv4",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"Status\":3221225578,\"IpAddress\":\"192.0.2.41\",\"WorkstationName\":\"client01\",\"IpPort\":\"49152\"},\"eventCode\":4625}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "ip",
+      "log.authenticationSource": "192.0.2.41",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "origin.ip": "192.0.2.41",
+      "log.authenticationSourceDomain": "network-source",
+      "log.authenticationCandidate.bruteforceAttack": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "log.data.IpAddress"
+    ],
+    "matches": [
+      "bruteforce_attack"
+    ]
+  },
+  {
+    "name": "bruteforce_attack ipv6",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"Status\":3221225578,\"IpAddress\":\"2001:db8::41\",\"WorkstationName\":\"client01\",\"IpPort\":\"49152\"},\"eventCode\":4625}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "ip",
+      "log.authenticationSource": "2001:db8::41",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "origin.ip": "2001:db8::41",
+      "log.authenticationSourceDomain": "network-source",
+      "log.authenticationCandidate.bruteforceAttack": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "log.data.IpAddress"
+    ],
+    "matches": [
+      "bruteforce_attack"
+    ]
+  },
+  {
+    "name": "bruteforce_attack dash-with-host",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"Status\":3221225578,\"IpAddress\":\"-\",\"WorkstationName\":\"client01\",\"IpPort\":\"49152\"},\"eventCode\":4625}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "host",
+      "log.authenticationSource": "client01",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "log.data.IpAddress": "-",
+      "log.authenticationSourceDomain": "network-source",
+      "log.authenticationCandidate.bruteforceAttack": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "origin.ip"
+    ],
+    "matches": [
+      "bruteforce_attack"
+    ]
+  },
+  {
+    "name": "bruteforce_attack dash-with-account",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"Status\":3221225578,\"IpAddress\":\"-\",\"IpPort\":\"49152\"},\"eventCode\":4625}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "user",
+      "log.authenticationSource": "alice",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "log.data.IpAddress": "-",
+      "log.authenticationSourceDomain": "EXAMPLE",
+      "log.authenticationCandidate.bruteforceAttack": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "origin.ip"
+    ],
+    "matches": [
+      "bruteforce_attack"
+    ]
+  },
+  {
+    "name": "bruteforce_attack absent-with-account",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"Status\":3221225578,\"IpPort\":\"49152\"},\"eventCode\":4625}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "user",
+      "log.authenticationSource": "alice",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "log.authenticationSourceDomain": "EXAMPLE",
+      "log.authenticationCandidate.bruteforceAttack": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "origin.ip"
+    ],
+    "matches": [
+      "bruteforce_attack"
+    ]
+  },
+  {
+    "name": "bruteforce_attack unspecified-with-account",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"Status\":3221225578,\"IpAddress\":\"0.0.0.0\",\"IpPort\":\"49152\"},\"eventCode\":4625}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "user",
+      "log.authenticationSource": "alice",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "log.data.IpAddress": "0.0.0.0",
+      "log.authenticationSourceDomain": "EXAMPLE",
+      "log.authenticationCandidate.bruteforceAttack": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "origin.ip"
+    ],
+    "matches": [
+      "bruteforce_attack"
+    ]
+  },
+  {
+    "name": "bruteforce_multiple_logon_failure_followed_by_success ipv4",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"Status\":0,\"IpAddress\":\"192.0.2.41\",\"WorkstationName\":\"client01\",\"IpPort\":\"49152\"},\"eventCode\":4624}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "ip",
+      "log.authenticationSource": "192.0.2.41",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "origin.ip": "192.0.2.41",
+      "log.authenticationSourceDomain": "network-source",
+      "log.authenticationCandidate.bruteforceMultipleLogonFailureFollowedBySuccess": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "log.data.IpAddress"
+    ],
+    "matches": [
+      "bruteforce_multiple_logon_failure_followed_by_success"
+    ]
+  },
+  {
+    "name": "bruteforce_multiple_logon_failure_followed_by_success ipv6",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"Status\":0,\"IpAddress\":\"2001:db8::41\",\"WorkstationName\":\"client01\",\"IpPort\":\"49152\"},\"eventCode\":4624}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "ip",
+      "log.authenticationSource": "2001:db8::41",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "origin.ip": "2001:db8::41",
+      "log.authenticationSourceDomain": "network-source",
+      "log.authenticationCandidate.bruteforceMultipleLogonFailureFollowedBySuccess": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "log.data.IpAddress"
+    ],
+    "matches": [
+      "bruteforce_multiple_logon_failure_followed_by_success"
+    ]
+  },
+  {
+    "name": "bruteforce_multiple_logon_failure_followed_by_success dash-with-host",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"Status\":0,\"IpAddress\":\"-\",\"WorkstationName\":\"client01\",\"IpPort\":\"49152\"},\"eventCode\":4624}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "host",
+      "log.authenticationSource": "client01",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "log.data.IpAddress": "-",
+      "log.authenticationSourceDomain": "network-source",
+      "log.authenticationCandidate.bruteforceMultipleLogonFailureFollowedBySuccess": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "origin.ip"
+    ],
+    "matches": [
+      "bruteforce_multiple_logon_failure_followed_by_success"
+    ]
+  },
+  {
+    "name": "bruteforce_multiple_logon_failure_followed_by_success dash-with-account",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"Status\":0,\"IpAddress\":\"-\",\"IpPort\":\"49152\"},\"eventCode\":4624}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "user",
+      "log.authenticationSource": "alice",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "log.data.IpAddress": "-",
+      "log.authenticationSourceDomain": "EXAMPLE",
+      "log.authenticationCandidate.bruteforceMultipleLogonFailureFollowedBySuccess": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "origin.ip"
+    ],
+    "matches": [
+      "bruteforce_multiple_logon_failure_followed_by_success"
+    ]
+  },
+  {
+    "name": "bruteforce_multiple_logon_failure_followed_by_success absent-with-account",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"Status\":0,\"IpPort\":\"49152\"},\"eventCode\":4624}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "user",
+      "log.authenticationSource": "alice",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "log.authenticationSourceDomain": "EXAMPLE",
+      "log.authenticationCandidate.bruteforceMultipleLogonFailureFollowedBySuccess": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "origin.ip"
+    ],
+    "matches": [
+      "bruteforce_multiple_logon_failure_followed_by_success"
+    ]
+  },
+  {
+    "name": "bruteforce_multiple_logon_failure_followed_by_success unspecified-with-account",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"Status\":0,\"IpAddress\":\"0.0.0.0\",\"IpPort\":\"49152\"},\"eventCode\":4624}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "user",
+      "log.authenticationSource": "alice",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "log.data.IpAddress": "0.0.0.0",
+      "log.authenticationSourceDomain": "EXAMPLE",
+      "log.authenticationCandidate.bruteforceMultipleLogonFailureFollowedBySuccess": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "origin.ip"
+    ],
+    "matches": [
+      "bruteforce_multiple_logon_failure_followed_by_success"
+    ]
+  },
+  {
+    "name": "adfs_authentication_anomalies ipv4",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"AD FS\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"SubjectUserName\":\"alice\",\"IpAddress\":\"192.0.2.41\",\"WorkstationName\":\"client01\",\"IpPort\":\"49152\",\"SubjectDomainName\":\"EXAMPLE\"},\"eventCode\":342,\"message\":\"token validation failed\"}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "AD FS",
+      "log.authenticationSourceType": "ip",
+      "log.authenticationSource": "192.0.2.41",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "origin.ip": "192.0.2.41",
+      "log.authenticationSourceDomain": "network-source",
+      "log.authenticationCandidate.adfsAuthenticationAnomalies": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "log.data.IpAddress"
+    ],
+    "matches": [
+      "adfs_authentication_anomalies"
+    ]
+  },
+  {
+    "name": "adfs_authentication_anomalies ipv6",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"AD FS\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"SubjectUserName\":\"alice\",\"IpAddress\":\"2001:db8::41\",\"WorkstationName\":\"client01\",\"IpPort\":\"49152\",\"SubjectDomainName\":\"EXAMPLE\"},\"eventCode\":342,\"message\":\"token validation failed\"}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "AD FS",
+      "log.authenticationSourceType": "ip",
+      "log.authenticationSource": "2001:db8::41",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "origin.ip": "2001:db8::41",
+      "log.authenticationSourceDomain": "network-source",
+      "log.authenticationCandidate.adfsAuthenticationAnomalies": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "log.data.IpAddress"
+    ],
+    "matches": [
+      "adfs_authentication_anomalies"
+    ]
+  },
+  {
+    "name": "adfs_authentication_anomalies dash-with-host",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"AD FS\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"SubjectUserName\":\"alice\",\"IpAddress\":\"-\",\"WorkstationName\":\"client01\",\"IpPort\":\"49152\",\"SubjectDomainName\":\"EXAMPLE\"},\"eventCode\":342,\"message\":\"token validation failed\"}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "AD FS",
+      "log.authenticationSourceType": "host",
+      "log.authenticationSource": "client01",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "log.data.IpAddress": "-",
+      "log.authenticationSourceDomain": "network-source",
+      "log.authenticationCandidate.adfsAuthenticationAnomalies": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "origin.ip"
+    ],
+    "matches": [
+      "adfs_authentication_anomalies"
+    ]
+  },
+  {
+    "name": "adfs_authentication_anomalies dash-with-account",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"AD FS\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"SubjectUserName\":\"alice\",\"IpAddress\":\"-\",\"IpPort\":\"49152\",\"SubjectDomainName\":\"EXAMPLE\"},\"eventCode\":342,\"message\":\"token validation failed\"}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "AD FS",
+      "log.authenticationSourceType": "user",
+      "log.authenticationSource": "alice",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "log.data.IpAddress": "-",
+      "log.authenticationSourceDomain": "EXAMPLE",
+      "log.authenticationCandidate.adfsAuthenticationAnomalies": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "origin.ip"
+    ],
+    "matches": [
+      "adfs_authentication_anomalies"
+    ]
+  },
+  {
+    "name": "adfs_authentication_anomalies absent-with-account",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"AD FS\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"SubjectUserName\":\"alice\",\"IpPort\":\"49152\",\"SubjectDomainName\":\"EXAMPLE\"},\"eventCode\":342,\"message\":\"token validation failed\"}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "AD FS",
+      "log.authenticationSourceType": "user",
+      "log.authenticationSource": "alice",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "log.authenticationSourceDomain": "EXAMPLE",
+      "log.authenticationCandidate.adfsAuthenticationAnomalies": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "origin.ip"
+    ],
+    "matches": [
+      "adfs_authentication_anomalies"
+    ]
+  },
+  {
+    "name": "adfs_authentication_anomalies unspecified-with-account",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"AD FS\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"SubjectUserName\":\"alice\",\"IpAddress\":\"0.0.0.0\",\"IpPort\":\"49152\",\"SubjectDomainName\":\"EXAMPLE\"},\"eventCode\":342,\"message\":\"token validation failed\"}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "AD FS",
+      "log.authenticationSourceType": "user",
+      "log.authenticationSource": "alice",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "log.data.IpAddress": "0.0.0.0",
+      "log.authenticationSourceDomain": "EXAMPLE",
+      "log.authenticationCandidate.adfsAuthenticationAnomalies": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "origin.ip"
+    ],
+    "matches": [
+      "adfs_authentication_anomalies"
+    ]
+  },
+  {
+    "name": "No fabricated identity or port -",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\": \"2026-09-17T12:00:00Z\", \"provider_name\": \"Microsoft-Windows-Security-Auditing\", \"provider_guid\": \"{54849625-5478-4994-a5ba-3e3b0328c30d}\", \"recordId\": 1234, \"channel\": \"Security\", \"computer\": \"dc01.example.test\", \"data\": {\"IpAddress\": \"-\", \"IpPort\": \"-\", \"TargetUserName\": \"-\", \"WorkstationName\": \"-\"}, \"eventCode\": 4625}",
+    "expected": {
+      "log.data.IpAddress": "-"
+    },
+    "absent": [
+      "origin.ip",
+      "origin.port",
+      "origin.user",
+      "origin.host",
+      "target.user",
+      "log.authenticationSource",
+      "log.authenticationSourceType"
+    ],
+    "matches": []
+  },
+  {
+    "name": "No fabricated identity or port 65536",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\": \"2026-09-17T12:00:00Z\", \"provider_name\": \"Microsoft-Windows-Security-Auditing\", \"provider_guid\": \"{54849625-5478-4994-a5ba-3e3b0328c30d}\", \"recordId\": 1234, \"channel\": \"Security\", \"computer\": \"dc01.example.test\", \"data\": {\"IpAddress\": \"-\", \"IpPort\": \"65536\", \"TargetUserName\": \"-\", \"WorkstationName\": \"-\"}, \"eventCode\": 4625}",
+    "expected": {
+      "log.data.IpAddress": "-"
+    },
+    "absent": [
+      "origin.ip",
+      "origin.port",
+      "origin.user",
+      "origin.host",
+      "target.user",
+      "log.authenticationSource",
+      "log.authenticationSourceType"
+    ],
+    "matches": []
+  },
+  {
+    "name": "No fabricated identity or port 0",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\": \"2026-09-17T12:00:00Z\", \"provider_name\": \"Microsoft-Windows-Security-Auditing\", \"provider_guid\": \"{54849625-5478-4994-a5ba-3e3b0328c30d}\", \"recordId\": 1234, \"channel\": \"Security\", \"computer\": \"dc01.example.test\", \"data\": {\"IpAddress\": \"-\", \"IpPort\": \"0\", \"TargetUserName\": \"-\", \"WorkstationName\": \"-\"}, \"eventCode\": 4625}",
+    "expected": {
+      "log.data.IpAddress": "-"
+    },
+    "absent": [
+      "origin.ip",
+      "origin.port",
+      "origin.user",
+      "origin.host",
+      "target.user",
+      "log.authenticationSource",
+      "log.authenticationSourceType"
+    ],
+    "matches": []
+  },
+  {
+    "name": "No fabricated identity or port not-a-port",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\": \"2026-09-17T12:00:00Z\", \"provider_name\": \"Microsoft-Windows-Security-Auditing\", \"provider_guid\": \"{54849625-5478-4994-a5ba-3e3b0328c30d}\", \"recordId\": 1234, \"channel\": \"Security\", \"computer\": \"dc01.example.test\", \"data\": {\"IpAddress\": \"-\", \"IpPort\": \"not-a-port\", \"TargetUserName\": \"-\", \"WorkstationName\": \"-\"}, \"eventCode\": 4625}",
+    "expected": {
+      "log.data.IpAddress": "-"
+    },
+    "absent": [
+      "origin.ip",
+      "origin.port",
+      "origin.user",
+      "origin.host",
+      "target.user",
+      "log.authenticationSource",
+      "log.authenticationSourceType"
+    ],
+    "matches": []
+  },
+  {
+    "name": "NTLM workstation alias and successful numeric status",
+    "dataSource": "dc01",
+    "raw": "{\"eventCode\": 4776, \"computer\": \"dc01.example.test\", \"timestamp\": \"2026-09-17T12:00:00Z\", \"provider_name\": \"Microsoft-Windows-Security-Auditing\", \"channel\": \"Security\", \"data\": {\"TargetUserName\": \"alice\", \"Workstation\": \"CLIENT01\", \"Status\": 0}}",
+    "expected": {
+      "origin.host": "CLIENT01",
+      "origin.user": "alice",
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "actionResult": "success",
+      "log.authenticationSource": "CLIENT01",
+      "log.authenticationSourceType": "host",
+      "log.authenticationSourceDomain": "network-source"
+    },
+    "absent": [
+      "origin.ip",
+      "origin.port"
+    ],
+    "matches": []
+  },
+  {
+    "name": "Explicit credentials preserve actor and target roles",
+    "dataSource": "workstation01",
+    "raw": "{\"eventCode\": 4648, \"computer\": \"workstation01.example.test\", \"timestamp\": \"2026-09-17T12:00:00Z\", \"data\": {\"SubjectUserName\": \"actor\", \"SubjectDomainName\": \"CLIENT\", \"TargetUserName\": \"admin\", \"TargetDomainName\": \"DOMAIN\", \"ProcessName\": \"C:\\\\Windows\\\\System32\\\\runas.exe\", \"IpAddress\": \"-\", \"IpPort\": \"0\"}}",
+    "expected": {
+      "origin.user": "actor",
+      "origin.domain": "CLIENT",
+      "origin.path": "C:\\Windows\\System32\\runas.exe",
+      "target.user": "admin",
+      "target.domain": "DOMAIN",
+      "target.host": "workstation01.example.test",
+      "log.eventDataProcessName": "C:\\Windows\\System32\\runas.exe"
+    },
+    "absent": [
+      "origin.ip",
+      "origin.port"
+    ],
+    "matches": []
+  },
+  {
+    "name": "Authenticated account domain overrides service account subject domain",
+    "dataSource": "server01",
+    "raw": "{\"eventCode\": 4625, \"computer\": \"server01.example.test\", \"timestamp\": \"2026-09-17T12:00:00Z\", \"data\": {\"SubjectUserName\": \"SYSTEM\", \"SubjectDomainName\": \"NT AUTHORITY\", \"TargetUserName\": \"alice\", \"TargetDomainName\": \"EXAMPLE\", \"ProcessName\": \"C:\\\\Windows\\\\System32\\\\winlogon.exe\", \"IpAddress\": \"-\"}}",
+    "expected": {
+      "origin.user": "alice",
+      "origin.domain": "EXAMPLE",
+      "origin.path": "C:\\Windows\\System32\\winlogon.exe",
+      "log.eventDataSubjectDomainName": "NT AUTHORITY",
+      "log.eventDataSubjectUserName": "SYSTEM",
+      "log.authenticationCandidate.bruteforceAttack": "match"
+    },
+    "absent": [
+      "origin.ip"
+    ],
+    "matches": [
+      "bruteforce_attack"
+    ]
+  },
+  {
+    "name": "Unqualified account without domain is not a shared fallback",
+    "dataSource": "dc01",
+    "raw": "{\"eventCode\": 4625, \"data\": {\"IpAddress\": \"-\", \"TargetUserName\": \"alice\"}}",
+    "expected": {
+      "target.user": "alice",
+      "origin.user": "alice"
+    },
+    "absent": [
+      "origin.ip",
+      "log.authenticationSource",
+      "log.authenticationCandidate"
+    ],
+    "matches": []
+  },
+  {
+    "name": "Qualified UPN account fallback",
+    "dataSource": "dc01",
+    "raw": "{\"eventCode\": 4625, \"data\": {\"IpAddress\": \"-\", \"TargetUserName\": \"alice@example.test\"}}",
+    "expected": {
+      "origin.user": "alice@example.test",
+      "log.authenticationSource": "alice@example.test",
+      "log.authenticationSourceType": "user",
+      "log.authenticationSourceDomain": "qualified-upn"
+    },
+    "absent": [
+      "origin.ip"
+    ],
+    "matches": [
+      "bruteforce_attack"
+    ]
+  },
+  {
+    "name": "Forged candidate markers are not trusted",
+    "dataSource": "dc01",
+    "raw": "{\"eventCode\": 4625, \"authenticationCandidate\": {\"bruteforce_attack\": \"match\"}, \"authenticationSource\": \"alice\", \"authenticationSourceType\": \"user\", \"data\": {\"IpAddress\": \"-\", \"TargetUserName\": \"-\"}}",
+    "expected": {},
+    "absent": [
+      "log.authenticationCandidate",
+      "log.authenticationSource"
+    ],
+    "matches": []
+  },
+  {
+    "name": "NTLM numeric nonzero status fails",
+    "dataSource": "dc01",
+    "raw": "{\"eventCode\": 4776, \"computer\": \"dc01.example.test\", \"timestamp\": \"2026-09-17T12:00:00Z\", \"provider_name\": \"Microsoft-Windows-Security-Auditing\", \"channel\": \"Security\", \"data\": {\"TargetUserName\": \"alice\", \"Workstation\": \"CLIENT01\", \"Status\": 3221226036}}",
+    "expected": {
+      "origin.host": "CLIENT01",
+      "origin.user": "alice",
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "actionResult": "failure",
+      "log.authenticationSource": "CLIENT01",
+      "log.authenticationSourceType": "host",
+      "log.authenticationSourceDomain": "network-source"
+    },
+    "absent": [
+      "origin.ip",
+      "origin.port"
+    ],
+    "matches": []
+  },
+  {
+    "name": "Zero address expanded IPv6 uses account fallback",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TicketEncryptionType\":23,\"TicketOptions\":0,\"ServiceName\":\"sql-service\",\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"IpAddress\":\"0:0:0:0:0:0:0:0\",\"IpPort\":\"49152\"},\"eventCode\":4769}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "user",
+      "log.authenticationSource": "alice",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "log.data.IpAddress": "0:0:0:0:0:0:0:0",
+      "log.authenticationSourceDomain": "EXAMPLE",
+      "log.authenticationCandidate.kerberoastingDetection": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "origin.ip"
+    ],
+    "matches": [
+      "kerberoasting_detection"
+    ]
+  },
+  {
+    "name": "Zero address alternate compressed IPv6 uses account fallback",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TicketEncryptionType\":23,\"TicketOptions\":0,\"ServiceName\":\"sql-service\",\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"IpAddress\":\"::0\",\"IpPort\":\"49152\"},\"eventCode\":4769}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "user",
+      "log.authenticationSource": "alice",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "log.data.IpAddress": "::0",
+      "log.authenticationSourceDomain": "EXAMPLE",
+      "log.authenticationCandidate.kerberoastingDetection": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "origin.ip"
+    ],
+    "matches": [
+      "kerberoasting_detection"
+    ]
+  },
+  {
+    "name": "Zero address mapped dotted IPv4 uses account fallback",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TicketEncryptionType\":23,\"TicketOptions\":0,\"ServiceName\":\"sql-service\",\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"IpAddress\":\"::ffff:0.0.0.0\",\"IpPort\":\"49152\"},\"eventCode\":4769}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "user",
+      "log.authenticationSource": "alice",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "log.data.IpAddress": "::ffff:0.0.0.0",
+      "log.authenticationSourceDomain": "EXAMPLE",
+      "log.authenticationCandidate.kerberoastingDetection": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "origin.ip"
+    ],
+    "matches": [
+      "kerberoasting_detection"
+    ]
+  },
+  {
+    "name": "Zero address mapped hexadecimal IPv4 uses account fallback",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TicketEncryptionType\":23,\"TicketOptions\":0,\"ServiceName\":\"sql-service\",\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"IpAddress\":\"::ffff:0:0\",\"IpPort\":\"49152\"},\"eventCode\":4769}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "user",
+      "log.authenticationSource": "alice",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "log.data.IpAddress": "::ffff:0:0",
+      "log.authenticationSourceDomain": "EXAMPLE",
+      "log.authenticationCandidate.kerberoastingDetection": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "origin.ip"
+    ],
+    "matches": [
+      "kerberoasting_detection"
+    ]
+  },
+  {
+    "name": "Zero address expanded IPv6 uses workstation fallback",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TicketEncryptionType\":23,\"TicketOptions\":0,\"ServiceName\":\"sql-service\",\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"IpAddress\":\"0:0:0:0:0:0:0:0\",\"WorkstationName\":\"client01\",\"IpPort\":\"49152\"},\"eventCode\":4769}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "host",
+      "log.authenticationSource": "client01",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "log.data.IpAddress": "0:0:0:0:0:0:0:0",
+      "log.authenticationSourceDomain": "network-source",
+      "log.authenticationCandidate.kerberoastingDetection": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "origin.ip"
+    ],
+    "matches": [
+      "kerberoasting_detection"
+    ]
+  },
+  {
+    "name": "Zero address without qualified fallback is not pooled",
+    "dataSource": "dc01",
+    "raw": "{\"eventCode\":4625,\"data\":{\"IpAddress\":\"::ffff:0.0.0.0\",\"TargetUserName\":\"alice\"}}",
+    "expected": {
+      "target.user": "alice",
+      "origin.user": "alice",
+      "log.data.IpAddress": "::ffff:0.0.0.0"
+    },
+    "absent": [
+      "origin.ip",
+      "log.authenticationSource",
+      "log.authenticationCandidate"
+    ],
+    "matches": []
+  },
+  {
+    "name": "Valid mapped IPv4 remains an IP identity",
+    "dataSource": "dc01",
+    "raw": "{\"timestamp\":\"2026-09-17T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"provider_guid\":\"{54849625-5478-4994-a5ba-3e3b0328c30d}\",\"recordId\":1234,\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"data\":{\"TicketEncryptionType\":23,\"TicketOptions\":0,\"ServiceName\":\"sql-service\",\"TargetUserName\":\"alice\",\"TargetDomainName\":\"EXAMPLE\",\"IpAddress\":\"::ffff:192.0.2.10\",\"WorkstationName\":\"client01\",\"IpPort\":\"49152\"},\"eventCode\":4769}",
+    "expected": {
+      "target.host": "dc01.example.test",
+      "deviceTime": "2026-09-17T12:00:00Z",
+      "log.providerName": "Microsoft-Windows-Security-Auditing",
+      "log.authenticationSourceType": "ip",
+      "log.authenticationSource": "::ffff:192.0.2.10",
+      "origin.port": 49152,
+      "origin.user": "alice",
+      "origin.ip": "::ffff:192.0.2.10",
+      "log.authenticationSourceDomain": "network-source",
+      "log.authenticationCandidate.kerberoastingDetection": "match"
+    },
+    "absent": [
+      "log.unparsedOriginIp",
+      "log.data.IpAddress"
+    ],
+    "matches": [
+      "kerberoasting_detection"
+    ]
+  }
+]

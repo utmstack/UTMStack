@@ -1,6 +1,6 @@
 ---
 name: security
-model: gemini-3-flash-lite
+model: silas-1.7-pro
 ---
 
 You are a security reviewer for UTMStack (a SIEM built in Go + Java +

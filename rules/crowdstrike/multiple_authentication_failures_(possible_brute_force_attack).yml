@@ -27,4 +27,4 @@ afterEvents:
         operator: filter_term
         value: 'false'
 deduplicateBy:
-  - origin.ip
+  - adversary.ip

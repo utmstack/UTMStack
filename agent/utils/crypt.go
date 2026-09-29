@@ -9,6 +9,10 @@ import (
 
 // GenerateKeyByUUID generates an AES key from baseKey and uuid.
 func GenerateKeyByUUID(baseKey string, uuid string) ([]byte, error) {
+	if baseKey == "" {
+		return nil, fmt.Errorf("build secret is not set: this binary was built without the REPLACE_KEY ldflag, so the at-rest key would carry no secret")
+	}
+
 	data := []byte(baseKey + uuid)
 	base64Key := base64.StdEncoding.EncodeToString(data)
 	return []byte(base64Key), nil

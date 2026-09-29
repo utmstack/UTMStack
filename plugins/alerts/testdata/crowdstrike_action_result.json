@@ -1,0 +1,166 @@
+[
+  {
+    "name": "api-request-200",
+    "raw": "{\"metadata\":{\"customerIDString\":\"0123456789abcdef0123456789abcdef\",\"offset\":1200,\"eventType\":\"APIActivityAuditEvent\",\"eventCreationTime\":1790000000000,\"version\":\"1.0\"},\"event\":{\"UserId\":\"\",\"UserIp\":\"203.0.113.10\",\"OperationName\":\"logged\",\"ServiceName\":\"api_request\",\"Success\":true,\"UTCTimestamp\":1790000000,\"Attributes\":{\"APIClientID\":\"00000000000000000000000000000001\",\"request_method\":\"POST\",\"request_path\":\"/example/entities/v1\",\"status_code\":\"200\",\"sub_component_1\":\"logged\",\"trace_id\":\"00000000-0000-4000-8000-000000000200\",\"user_ip\":\"203.0.113.10\"},\"Message\":\"\",\"Source\":\"api_request\",\"SourceIp\":\"203.0.113.10\"}}",
+    "dataSource": "synthetic-crowdstrike",
+    "result": "success",
+    "expected": {
+      "origin.ip": "203.0.113.10",
+      "statusCode": 200
+    }
+  },
+  {
+    "name": "api-request-201",
+    "raw": "{\"metadata\":{\"customerIDString\":\"0123456789abcdef0123456789abcdef\",\"offset\":1201,\"eventType\":\"APIActivityAuditEvent\",\"eventCreationTime\":1790000000000,\"version\":\"1.0\"},\"event\":{\"UserId\":\"\",\"UserIp\":\"203.0.113.10\",\"OperationName\":\"logged\",\"ServiceName\":\"api_request\",\"Success\":true,\"UTCTimestamp\":1790000000,\"Attributes\":{\"APIClientID\":\"00000000000000000000000000000001\",\"request_method\":\"POST\",\"request_path\":\"/example/entities/v1\",\"status_code\":\"201\",\"sub_component_1\":\"logged\",\"trace_id\":\"00000000-0000-4000-8000-000000000201\",\"user_ip\":\"203.0.113.10\"},\"Message\":\"\",\"Source\":\"api_request\",\"SourceIp\":\"203.0.113.10\"}}",
+    "dataSource": "synthetic-crowdstrike",
+    "result": "success",
+    "expected": {
+      "origin.ip": "203.0.113.10",
+      "statusCode": 201
+    }
+  },
+  {
+    "name": "api-request-404-despite-success-flag",
+    "raw": "{\"metadata\":{\"customerIDString\":\"0123456789abcdef0123456789abcdef\",\"offset\":1404,\"eventType\":\"APIActivityAuditEvent\",\"eventCreationTime\":1790000000000,\"version\":\"1.0\"},\"event\":{\"UserId\":\"\",\"UserIp\":\"203.0.113.10\",\"OperationName\":\"logged\",\"ServiceName\":\"api_request\",\"Success\":true,\"UTCTimestamp\":1790000000,\"Attributes\":{\"APIClientID\":\"00000000000000000000000000000001\",\"request_method\":\"POST\",\"request_path\":\"/example/entities/v1\",\"status_code\":\"404\",\"sub_component_1\":\"logged\",\"trace_id\":\"00000000-0000-4000-8000-000000000404\",\"user_ip\":\"203.0.113.10\"},\"Message\":\"\",\"Source\":\"api_request\",\"SourceIp\":\"203.0.113.10\"}}",
+    "dataSource": "synthetic-crowdstrike",
+    "result": "failure",
+    "expected": {
+      "origin.ip": "203.0.113.10",
+      "statusCode": 404
+    }
+  },
+  {
+    "name": "api-request-503",
+    "raw": "{\"metadata\":{\"customerIDString\":\"0123456789abcdef0123456789abcdef\",\"offset\":1503,\"eventType\":\"APIActivityAuditEvent\",\"eventCreationTime\":1790000000000,\"version\":\"1.0\"},\"event\":{\"UserId\":\"\",\"UserIp\":\"203.0.113.10\",\"OperationName\":\"logged\",\"ServiceName\":\"api_request\",\"Success\":true,\"UTCTimestamp\":1790000000,\"Attributes\":{\"APIClientID\":\"00000000000000000000000000000001\",\"request_method\":\"POST\",\"request_path\":\"/example/entities/v1\",\"status_code\":\"503\",\"sub_component_1\":\"logged\",\"trace_id\":\"00000000-0000-4000-8000-000000000503\",\"user_ip\":\"203.0.113.10\"},\"Message\":\"\",\"Source\":\"api_request\",\"SourceIp\":\"203.0.113.10\"}}",
+    "dataSource": "synthetic-crowdstrike",
+    "result": "failure",
+    "expected": {
+      "origin.ip": "203.0.113.10",
+      "statusCode": 503
+    }
+  },
+  {
+    "name": "api-request-redirect-not-final",
+    "raw": "{\"metadata\":{\"customerIDString\":\"0123456789abcdef0123456789abcdef\",\"offset\":1302,\"eventType\":\"APIActivityAuditEvent\",\"eventCreationTime\":1790000000000,\"version\":\"1.0\"},\"event\":{\"UserId\":\"\",\"UserIp\":\"203.0.113.10\",\"OperationName\":\"logged\",\"ServiceName\":\"api_request\",\"Success\":true,\"UTCTimestamp\":1790000000,\"Attributes\":{\"APIClientID\":\"00000000000000000000000000000001\",\"request_method\":\"POST\",\"request_path\":\"/example/entities/v1\",\"status_code\":\"302\",\"sub_component_1\":\"logged\",\"trace_id\":\"00000000-0000-4000-8000-000000000302\",\"user_ip\":\"203.0.113.10\"},\"Message\":\"\",\"Source\":\"api_request\",\"SourceIp\":\"203.0.113.10\"}}",
+    "dataSource": "synthetic-crowdstrike",
+    "result": "",
+    "expected": {
+      "origin.ip": "203.0.113.10",
+      "statusCode": 302
+    },
+    "absent": [
+      "actionResult"
+    ]
+  },
+  {
+    "name": "api-success-false-overrides-200",
+    "raw": "{\"metadata\":{\"customerIDString\":\"0123456789abcdef0123456789abcdef\",\"offset\":1200,\"eventType\":\"APIActivityAuditEvent\",\"eventCreationTime\":1790000000000,\"version\":\"1.0\"},\"event\":{\"UserId\":\"\",\"UserIp\":\"203.0.113.10\",\"OperationName\":\"logged\",\"ServiceName\":\"api_request\",\"Success\":false,\"UTCTimestamp\":1790000000,\"Attributes\":{\"APIClientID\":\"00000000000000000000000000000001\",\"request_method\":\"POST\",\"request_path\":\"/example/entities/v1\",\"status_code\":\"200\",\"sub_component_1\":\"logged\",\"trace_id\":\"00000000-0000-4000-8000-000000000200\",\"user_ip\":\"203.0.113.10\"},\"Message\":\"\",\"Source\":\"api_request\",\"SourceIp\":\"203.0.113.10\"}}",
+    "dataSource": "synthetic-crowdstrike",
+    "result": "failure",
+    "expected": {
+      "origin.ip": "203.0.113.10",
+      "statusCode": 200
+    }
+  },
+  {
+    "name": "sign-in-success-maps-client",
+    "raw": "{\"metadata\":{\"customerIDString\":\"0123456789abcdef0123456789abcdef\",\"offset\":2000,\"eventType\":\"AuthActivityAuditEvent\",\"eventCreationTime\":1790000000000,\"version\":\"1.0\"},\"event\":{\"UserId\":\"analyst@example.com\",\"UserIp\":\"198.51.100.20\",\"OperationName\":\"userAuthenticate\",\"ServiceName\":\"CrowdStrike Authentication\",\"Success\":true,\"UTCTimestamp\":1790000000000,\"Attributes\":{\"success\":\"SUCCESS\",\"target_name\":\"analyst@example.com\"}}}",
+    "dataSource": "synthetic-crowdstrike",
+    "result": "success",
+    "expected": {
+      "origin.ip": "198.51.100.20",
+      "log.eventSuccess": true
+    },
+    "bruteForce": false
+  },
+  {
+    "name": "sign-in-failure-maps-client",
+    "raw": "{\"metadata\":{\"customerIDString\":\"0123456789abcdef0123456789abcdef\",\"offset\":2000,\"eventType\":\"AuthActivityAuditEvent\",\"eventCreationTime\":1790000000000,\"version\":\"1.0\"},\"event\":{\"UserId\":\"analyst@example.com\",\"UserIp\":\"198.51.100.21\",\"OperationName\":\"userAuthenticate\",\"ServiceName\":\"CrowdStrike Authentication\",\"Success\":false,\"UTCTimestamp\":1790000000000,\"Attributes\":{\"success\":\"FAILURE\",\"target_name\":\"analyst@example.com\"}}}",
+    "dataSource": "synthetic-crowdstrike",
+    "result": "failure",
+    "expected": {
+      "origin.ip": "198.51.100.21",
+      "log.eventSuccess": false
+    },
+    "bruteForce": true
+  },
+  {
+    "name": "mfa-verify-success-maps-client",
+    "raw": "{\"metadata\":{\"customerIDString\":\"0123456789abcdef0123456789abcdef\",\"offset\":2000,\"eventType\":\"AuthActivityAuditEvent\",\"eventCreationTime\":1790000000000,\"version\":\"1.0\"},\"event\":{\"UserId\":\"analyst@example.com\",\"UserIp\":\"198.51.100.22\",\"OperationName\":\"webauthnFactorVerify\",\"ServiceName\":\"CrowdStrike Authentication\",\"Success\":true,\"UTCTimestamp\":1790000000000,\"Attributes\":{\"success\":\"SUCCESS\",\"target_name\":\"analyst@example.com\"}}}",
+    "dataSource": "synthetic-crowdstrike",
+    "result": "success",
+    "expected": {
+      "origin.ip": "198.51.100.22"
+    },
+    "bruteForce": false
+  },
+  {
+    "name": "sign-in-failure-empty-address",
+    "raw": "{\"metadata\":{\"customerIDString\":\"0123456789abcdef0123456789abcdef\",\"offset\":2000,\"eventType\":\"AuthActivityAuditEvent\",\"eventCreationTime\":1790000000000,\"version\":\"1.0\"},\"event\":{\"UserId\":\"analyst@example.com\",\"UserIp\":\"\",\"OperationName\":\"userAuthenticate\",\"ServiceName\":\"CrowdStrike Authentication\",\"Success\":false,\"UTCTimestamp\":1790000000000,\"Attributes\":{\"success\":\"FAILURE\",\"target_name\":\"analyst@example.com\"}}}",
+    "dataSource": "synthetic-crowdstrike",
+    "result": "failure",
+    "expected": {
+      "log.eventSuccess": false
+    },
+    "absent": [
+      "origin.ip"
+    ],
+    "bruteForce": false
+  },
+  {
+    "name": "sign-in-failure-invalid-address",
+    "raw": "{\"metadata\":{\"customerIDString\":\"0123456789abcdef0123456789abcdef\",\"offset\":2000,\"eventType\":\"AuthActivityAuditEvent\",\"eventCreationTime\":1790000000000,\"version\":\"1.0\"},\"event\":{\"UserId\":\"analyst@example.com\",\"UserIp\":\"not-an-address\",\"OperationName\":\"userAuthenticate\",\"ServiceName\":\"CrowdStrike Authentication\",\"Success\":false,\"UTCTimestamp\":1790000000000,\"Attributes\":{\"success\":\"FAILURE\",\"target_name\":\"analyst@example.com\"}}}",
+    "dataSource": "synthetic-crowdstrike",
+    "result": "failure",
+    "expected": {
+      "log.eventSuccess": false
+    },
+    "absent": [
+      "origin.ip"
+    ],
+    "bruteForce": false
+  },
+  {
+    "name": "stream-start-keeps-source-address",
+    "raw": "{\"metadata\":{\"customerIDString\":\"0123456789abcdef0123456789abcdef\",\"offset\":2000,\"eventType\":\"AuthActivityAuditEvent\",\"eventCreationTime\":1790000000000,\"version\":\"1.0\"},\"event\":{\"UserId\":\"analyst@example.com\",\"UserIp\":\"192.0.2.30\",\"OperationName\":\"streamStarted\",\"ServiceName\":\"Crowdstrike Streaming API\",\"Success\":true,\"UTCTimestamp\":1790000000000,\"Attributes\":{\"success\":\"SUCCESS\",\"target_name\":\"analyst@example.com\"},\"SourceIp\":\"192.0.2.30\"}}",
+    "dataSource": "synthetic-crowdstrike",
+    "result": "success",
+    "expected": {
+      "origin.ip": "192.0.2.30"
+    }
+  },
+  {
+    "name": "profile-change-without-outcome",
+    "raw": "{\"metadata\":{\"customerIDString\":\"0123456789abcdef0123456789abcdef\",\"offset\":3000,\"eventType\":\"UserActivityAuditEvent\",\"eventCreationTime\":1790000000000,\"version\":\"1.0\"},\"event\":{\"UserId\":\"\",\"UserIp\":\"\",\"OperationName\":\"entities_updated\",\"ServiceName\":\"customer_profile_entities\",\"UTCTimestamp\":1790000000,\"Attributes\":{\"target\":\"00000000000000000000000000000002\"}}}",
+    "dataSource": "synthetic-crowdstrike",
+    "result": "",
+    "expected": {},
+    "absent": [
+      "actionResult",
+      "origin.ip"
+    ]
+  },
+  {
+    "name": "audit-v3-copy-left-unparsed",
+    "raw": "{\"metadata\":{\"customerIDString\":\"0123456789abcdef0123456789abcdef\",\"offset\":4000,\"eventType\":\"AuditLogV3Event\",\"eventCreationTime\":1790000000000,\"version\":\"1.0\"},\"event\":{\"Category\":\"api_request\",\"Action\":\"logged\",\"ActorIP\":\"203.0.113.40\",\"TraceID\":\"00000000-0000-4000-8000-000000000404\",\"Extensions\":{\"status_code\":\"404\",\"success\":\"true\",\"user_ip\":\"203.0.113.40\"}}}",
+    "dataSource": "synthetic-crowdstrike",
+    "result": "",
+    "expected": {},
+    "absent": [
+      "actionResult",
+      "origin.ip"
+    ]
+  },
+  {
+    "name": "detection-keeps-sensor-address",
+    "raw": "{\"metadata\":{\"customerIDString\":\"0123456789abcdef0123456789abcdef\",\"offset\":5000,\"eventType\":\"DetectionSummaryEvent\",\"eventCreationTime\":1790000000000,\"version\":\"1.0\"},\"event\":{\"ComputerName\":\"host-01\",\"LocalIP\":\"10.0.0.5\",\"UserName\":\"analyst\",\"SeverityName\":\"High\",\"Tactic\":\"Execution\"}}",
+    "dataSource": "synthetic-crowdstrike",
+    "result": "",
+    "expected": {
+      "origin.ip": "10.0.0.5"
+    },
+    "absent": [
+      "actionResult"
+    ]
+  }
+]

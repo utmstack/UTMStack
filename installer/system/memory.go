@@ -32,8 +32,13 @@ func maxInt(a, b int) int {
 	return b
 }
 
+// Priority 1's weight is disproportionately higher than 2/3 on purpose: it's
+// only ever event-processor and opensearch, the two services with genuinely
+// continuous load, and the proportional round should favor them clearly
+// over the mixed bag of lighter/bursty services in the lower tiers instead
+// of splitting what's left roughly evenly.
 var priorityWeight = map[int]float64{
-	1: 4.0,
+	1: 8.0,
 	2: 3.0,
 	3: 2.0,
 }

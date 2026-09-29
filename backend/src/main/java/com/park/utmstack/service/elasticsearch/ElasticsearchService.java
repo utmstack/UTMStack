@@ -7,10 +7,13 @@ import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.domain.chart_builder.types.query.FilterType;
 import com.park.utmstack.domain.index_pattern.enums.SystemIndexPattern;
 import com.park.utmstack.repository.UserRepository;
+import com.park.utmstack.domain.notification.NotificationSource;
+import com.park.utmstack.domain.notification.NotificationType;
 import com.park.utmstack.service.MailService;
 import com.park.utmstack.service.UtmSpaceNotificationControlService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.index_policy.IndexPolicyService;
+import com.park.utmstack.service.notification.UtmNotificationService;
 import com.park.utmstack.service.dto.compliance.UtmComplianceControlEvaluationHistoryDto;
 import com.park.utmstack.service.mapper.compliance.UtmComplianceControlLatestEvaluationMapper;
 import com.park.utmstack.service.mapper.compliance.UtmComplianceControlEvaluationHistoryMapper;
@@ -63,18 +66,21 @@ public class ElasticsearchService {
     private final MailService mailService;
     private final UtmSpaceNotificationControlService spaceNotificationControlService;
     private final IndexPolicyService indexPolicyService;
+    private final UtmNotificationService notificationService;
     private final OpensearchClientBuilder client;
 
     public ElasticsearchService(ApplicationEventService eventService, UserRepository userRepository,
                                 MailService mailService,
                                 UtmSpaceNotificationControlService spaceNotificationControlService,
                                 IndexPolicyService indexPolicyService,
+                                UtmNotificationService notificationService,
                                 OpensearchClientBuilder client) {
         this.eventService = eventService;
         this.userRepository = userRepository;
         this.mailService = mailService;
         this.spaceNotificationControlService = spaceNotificationControlService;
         this.indexPolicyService = indexPolicyService;
+        this.notificationService = notificationService;
         this.client = client;
     }
 
@@ -241,12 +247,12 @@ public class ElasticsearchService {
 
             float diskPercent = clusterStatus.getResume().getDiskUsedPercent();
 
-            if (diskPercent < 70)
+            if (diskPercent < 80)
                 return;
 
             if (diskPercent >= 85) {
                 deleteOldestIndices();
-            } else if (diskPercent >= 70) {
+            } else if (diskPercent >= 80) {
                 List<User> admins = userRepository.findAllAdmins();
                 if (CollectionUtils.isEmpty(admins))
                     return;
@@ -261,6 +267,9 @@ public class ElasticsearchService {
                 if (Objects.isNull(notificationControl.getNextNotification()) ||
                         now.isAfter(notificationControl.getNextNotification())) {
                     mailService.sendLowSpaceEmail(admins, clusterStatus);
+                    notificationService.sendNotification(
+                            String.format("OpenSearch cluster disk usage at %.1f%%. Oldest log indices will be auto-deleted at 85%%.", diskPercent),
+                            NotificationSource.SYSTEM, NotificationType.WARNING);
                     notificationControl.setNextNotification(now.plus(24, ChronoUnit.HOURS));
                     spaceNotificationControlService.save(notificationControl);
                 }
@@ -278,14 +287,28 @@ public class ElasticsearchService {
     private void deleteOldestIndices() {
         final String ctx = CLASSNAME + ".deleteOldestIndices";
         try {
-            List<IndicesRecord> indices = client.getClient().getIndices(Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.LOGS), IndexSort.builder()
-                    .with(IndexSortableProperty.CreationDate, SortOrder.Asc).build());
+            List<String> patterns = Arrays.asList(
+                    Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.LOGS),
+                    "security-auditlog-*",
+                    "top_queries-*");
+            IndexSort sortAsc = IndexSort.builder()
+                    .with(IndexSortableProperty.CreationDate, SortOrder.Asc).build();
 
-            // If no index that match with log-* was found then te function is terminated
+            List<IndicesRecord> indices = new ArrayList<>();
+            for (String pattern : patterns) {
+                try {
+                    indices.addAll(client.getClient().getIndices(pattern, sortAsc));
+                } catch (Exception e) {
+                    log.warn("{}: pattern {} lookup failed: {}", ctx, pattern, e.getMessage());
+                }
+            }
+
+            indices.sort(Comparator.comparing(IndicesRecord::creationDateString, Comparator.nullsLast(String::compareTo)));
+
             if (CollectionUtils.isEmpty(indices))
                 return;
 
-            // Indices are returned from oldest to newest ordered by creation.date asc
+            // Indices are ordered from oldest to newest by creation.date asc
             for (IndicesRecord index : indices) {
                 Optional<ElasticCluster> opt = getClusterStatus();
 
@@ -324,11 +347,27 @@ public class ElasticsearchService {
      * @param indices : List of the names pf all indexes to be removed
      * @throws Exception In case of any error
      */
+    /**
+     * Index names that must never be handed to a delete request: OpenSearch's
+     * own dot-indices (security config, ISM state, dashboards) and the
+     * everything-matching patterns. Deleting any of them takes the platform
+     * down rather than removing SIEM data.
+     */
+    private static void rejectProtectedIndices(List<String> indices) {
+        for (String index : indices) {
+            String name = index == null ? "" : index.trim();
+            if (name.isEmpty() || name.equals("*") || name.equals("_all") || name.startsWith(".")) {
+                throw new IllegalArgumentException("Refusing to delete protected or wildcard index: " + index);
+            }
+        }
+    }
+
     public void deleteIndex(List<String> indices) throws Exception {
         final String ctx = CLASSNAME + ".deleteIndex";
         try {
             if (CollectionUtils.isEmpty(indices))
                 return;
+            rejectProtectedIndices(indices);
             client.getClient().deleteIndex(indices);
         } catch (Exception e) {
             throw new Exception(ctx + ": " + e.getMessage());
@@ -391,6 +430,56 @@ public class ElasticsearchService {
             SearchResponse<Map> response = search(request, Map.class);
             if (response.hits().hits().isEmpty()) return null;
             return response.hits().hits().get(0).source();
+        } catch (Exception e) {
+            throw new RuntimeException(ctx + ": " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Returns, in a single request, the echo count and latest echo document for each of the
+     * given parent ids. A parent with no children is simply absent from the returned map.
+     * Each entry is a Map with keys: hasChildren (boolean), echoes (long), last_echo (Map, only when >0).
+     */
+    public Map<String, Map<String, Object>> getEchoesByParentIds(List<String> parentIds, String indexPattern) {
+        final String ctx = CLASSNAME + ".getEchoesByParentIds";
+        try {
+            Map<String, Map<String, Object>> out = new HashMap<>();
+            if (CollectionUtils.isEmpty(parentIds)) return out;
+
+            SearchRequest request = new SearchRequest.Builder()
+                    .index(indexPattern)
+                    .query(q -> q.terms(t -> t
+                            .field("parentId")
+                            .terms(tf -> tf.value(parentIds.stream().map(FieldValue::of).collect(Collectors.toList())))))
+                    .size(0)
+                    .aggregations("by_parent", agg -> agg
+                            .terms(t -> t.field("parentId").size(parentIds.size()))
+                            .aggregations("latest", th -> th.topHits(t -> t
+                                    .size(1)
+                                    .sort(s -> s.field(f -> f.field("@timestamp").order(SortOrder.Desc))))))
+                    .build();
+
+            SearchResponse<Map> response = search(request, Map.class);
+            var aggs = response.aggregations();
+            if (aggs == null || !aggs.containsKey("by_parent")) return out;
+            var byParent = aggs.get("by_parent").sterms();
+            if (byParent == null) return out;
+
+            for (var bucket : byParent.buckets().array()) {
+                Map<String, Object> entry = new HashMap<>();
+                entry.put("hasChildren", bucket.docCount() > 0);
+                entry.put("echoes", bucket.docCount());
+                var latestAgg = bucket.aggregations().get("latest");
+                if (latestAgg != null) {
+                    var topHits = latestAgg.topHits();
+                    if (topHits != null && !topHits.hits().hits().isEmpty()) {
+                        var src = topHits.hits().hits().get(0).source();
+                        if (src != null) entry.put("last_echo", src.to(Map.class));
+                    }
+                }
+                out.put(bucket.key(), entry);
+            }
+            return out;
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getMessage(), e);
         }

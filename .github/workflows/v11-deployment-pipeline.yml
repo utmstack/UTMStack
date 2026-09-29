@@ -4,9 +4,8 @@ on:
   push:
     branches:
       - 'release/v11**'
-      - 'v11'
   release:
-    types: [ released ]
+    types: [published]
 
 jobs:
   setup_deployment:
@@ -17,6 +16,7 @@ jobs:
       environment: ${{ steps.set-env.outputs.environment }}
       cm_url: ${{ steps.set-env.outputs.cm_url }}
       event_processor_tag: ${{ steps.set-env.outputs.event_processor_tag }}
+      gh_environment: ${{ steps.set-env.outputs.gh_environment }}
     steps:
       - name: Determine Build Environment
         id: set-env
@@ -35,7 +35,7 @@ jobs:
             BRANCH_VERSION=$(echo "${{ github.ref }}" | sed 's|refs/heads/release/||')
             echo "Branch version: $BRANCH_VERSION"
 
-            RESPONSE=$(curl -s "${CM_URL}/api/v1/versions/latest")
+            RESPONSE=$(curl -s "${CM_URL}/api/v1/versions/latest?product=utmstack-v11-dev")
             LATEST_VERSION=$(echo "$RESPONSE" | jq -r '.version // empty')
             echo "Latest version from CM: $LATEST_VERSION"
 
@@ -59,105 +59,32 @@ jobs:
             echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
             echo "cm_url=$CM_URL" >> $GITHUB_OUTPUT
             echo "event_processor_tag=${{ vars.TW_EVENT_PROCESSOR_VERSION_DEV }}" >> $GITHUB_OUTPUT
+            echo "gh_environment=v11-dev" >> $GITHUB_OUTPUT
 
           # =====================================================================
-          # RC — push to v11
+          # PRODUCTION — release.published (prerelease or not)
           #
-          # Tag derivation walks two CMs to handle both the normal flow and
-          # the hotfix flow without divergent code paths:
-          #
-          #   1. CM DEV gives us the candidate BASE (strip `-dev.N`).
-          #   2. CM PROD gives us the latest version already in production.
-          #   3. If BASE > PROD → use BASE. Normal flow.
-          #      If BASE <= PROD → BASE is already released (hotfix scenario)
-          #      so bump the patch of PROD instead. Avoids overwriting an
-          #      already-shipped tag and matches the roll-forward policy.
+          # The tag is taken directly from the release event — no CM queries.
+          # Always runs a full build and deploys to our production instances.
           # =====================================================================
-          elif ${{ github.event_name == 'push' && github.ref == 'refs/heads/v11' }}; then
-            ENVIRONMENT="rc"
+          elif ${{ github.event_name == 'release' }}; then
             CM_URL="https://cm.utmstack.com"
-            CM_DEV_URL="https://cm.dev.utmstack.com"
-            echo "Environment: $ENVIRONMENT"
-            echo "CM URL (target): $CM_URL"
-            echo "CM URL (source for base): $CM_DEV_URL"
-
-            DEV_RESPONSE=$(curl -s "${CM_DEV_URL}/api/v1/versions/latest")
-            LATEST_DEV_VERSION=$(echo "$DEV_RESPONSE" | jq -r '.version // empty')
-            echo "Latest dev version from CM DEV: $LATEST_DEV_VERSION"
-
-            if [ -z "$LATEST_DEV_VERSION" ]; then
-              echo "❌ No dev version found in CM DEV — cannot derive RC base. Push a release/v11.x.x branch first."
-              exit 1
-            fi
-
-            BASE=$(echo "$LATEST_DEV_VERSION" | sed -E 's/-dev\.[0-9]+$//')
-            echo "BASE derived from CM DEV: $BASE"
-
-            if [[ ! "$BASE" =~ ^v11\. ]]; then
-              echo "❌ Derived BASE '$BASE' is not a v11 release."
-              exit 1
-            fi
-
-            # Double-check against production to detect the hotfix scenario.
-            PROD_RESPONSE=$(curl -s "${CM_URL}/api/v1/versions/latest")
-            PROD_LATEST=$(echo "$PROD_RESPONSE" | jq -r '.version // empty')
-            echo "Latest production version from CM PROD: ${PROD_LATEST:-<none>}"
-
-            if [ -n "$PROD_LATEST" ]; then
-              # sort -V puts the higher semver last.
-              HIGHER=$(printf '%s\n%s\n' "$BASE" "$PROD_LATEST" | sort -V | tail -1)
-              if [ "$HIGHER" = "$BASE" ] && [ "$BASE" != "$PROD_LATEST" ]; then
-                # BASE is strictly newer than PROD — use it as-is.
-                TAG="$BASE"
-                echo "BASE ($BASE) > PROD ($PROD_LATEST) — using BASE as RC tag."
-              else
-                # PROD is >= BASE → BASE was already released (hotfix case).
-                # Bump the patch of PROD.
-                MAJOR_MINOR=$(echo "$PROD_LATEST" | sed -E 's/^(v[0-9]+\.[0-9]+)\.[0-9]+.*$/\1/')
-                PATCH=$(echo "$PROD_LATEST" | sed -E 's/^v[0-9]+\.[0-9]+\.([0-9]+).*$/\1/')
-                NEW_PATCH=$((PATCH + 1))
-                TAG="${MAJOR_MINOR}.${NEW_PATCH}"
-                echo "BASE ($BASE) <= PROD ($PROD_LATEST) — hotfix scenario. Bumping patch: $TAG"
-              fi
-            else
-              # CM PROD has no versions yet — use BASE.
-              TAG="$BASE"
-              echo "CM PROD is empty — using BASE as RC tag."
-            fi
-
-            echo "RC tag: $TAG"
-
-            echo "tag=$TAG" >> $GITHUB_OUTPUT
-            echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
-            echo "cm_url=$CM_URL" >> $GITHUB_OUTPUT
-            echo "event_processor_tag=${{ vars.TW_EVENT_PROCESSOR_VERSION_PROD }}" >> $GITHUB_OUTPUT
-
-          # =====================================================================
-          # PRODUCTION — release.released (non-prerelease publish)
-          #
-          # Production does NOT rebuild anything. The images, installer, and
-          # changelog are all artifacts of the RC run. The production trigger
-          # only needs to tell CM "this version is now available to community
-          # instances" via a promote endpoint (TODO: define and wire up).
-          # =====================================================================
-          elif ${{ github.event_name == 'release' && github.event.action == 'released' }}; then
-            ENVIRONMENT="production"
-            CM_URL="https://cm.utmstack.com"
-            echo "Environment: $ENVIRONMENT"
-            echo "CM URL: $CM_URL"
-
             TAG="${{ github.event.release.tag_name }}"
-            echo "Tag from release: $TAG"
+            echo "Event: release, tag=$TAG"
 
             if [[ ! "$TAG" =~ ^v11\. ]]; then
               echo "⏭️ Skipping: tag '$TAG' is not a v11 release."
               exit 0
             fi
 
+            echo "Environment: production (our instances)"
+            echo "CM URL: $CM_URL"
+
             echo "tag=$TAG" >> $GITHUB_OUTPUT
-            echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
+            echo "environment=production" >> $GITHUB_OUTPUT
             echo "cm_url=$CM_URL" >> $GITHUB_OUTPUT
             echo "event_processor_tag=${{ vars.TW_EVENT_PROCESSOR_VERSION_PROD }}" >> $GITHUB_OUTPUT
+            echo "gh_environment=v11-prod" >> $GITHUB_OUTPUT
           fi
 
   build_agent:
@@ -451,7 +378,7 @@ jobs:
           cd ${{ github.workspace }}/plugins/soc-ai; go build -o com.utmstack.soc-ai.plugin -v .
           cd ${{ github.workspace }}/plugins/modules-config; go build -o com.utmstack.modules-config.plugin -v .
           cd ${{ github.workspace }}/plugins/crowdstrike; go build -o com.utmstack.crowdstrike.plugin -v .
-          cd ${{ github.workspace }}/plugins/feeds; go build -o com.utmstack.feeds.plugin -v .
+          cd ${{ github.workspace }}/plugins/rule-flood-guard; go build -o com.utmstack.rule-flood-guard.plugin -v .
 
       - name: Prepare Dependencies for Event Processor Image
         run: |
@@ -478,12 +405,12 @@ jobs:
           provenance: false
           tags: ghcr.io/utmstack/utmstack/eventprocessor:${{ needs.setup_deployment.outputs.tag }}
           build-args: |
-            BASE_IMAGE=ghcr.io/threatwinds/eventprocessor/base:${{ needs.setup_deployment.outputs.event_processor_tag }}
+            BASE_IMAGE=ghcr.io/utmstack/eventprocessor/base:${{ needs.setup_deployment.outputs.event_processor_tag }}
 
   build_backend:
     name: Build Backend Microservice
     needs: [setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.tag != '' && needs.setup_deployment.outputs.environment != 'production' }}
+    if: ${{ needs.setup_deployment.outputs.tag != '' }}
     uses: ./.github/workflows/reusable-java.yml
     with:
       image_name: backend
@@ -496,7 +423,7 @@ jobs:
   build_frontend:
     name: Build Frontend Microservice
     needs: [setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.tag != '' && needs.setup_deployment.outputs.environment != 'production' }}
+    if: ${{ needs.setup_deployment.outputs.tag != '' }}
     uses: ./.github/workflows/reusable-node.yml
     with:
       image_name: frontend
@@ -505,7 +432,7 @@ jobs:
   build_user_auditor:
     name: Build User-Auditor Microservice
     needs: [setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.tag != '' && needs.setup_deployment.outputs.environment != 'production' }}
+    if: ${{ needs.setup_deployment.outputs.tag != '' }}
     uses: ./.github/workflows/reusable-java.yml
     with:
       image_name: user-auditor
@@ -517,7 +444,7 @@ jobs:
   build_web_pdf:
     name: Build Web-PDF Microservice
     needs: [setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.tag != '' && needs.setup_deployment.outputs.environment != 'production' }}
+    if: ${{ needs.setup_deployment.outputs.tag != '' }}
     uses: ./.github/workflows/reusable-java.yml
     with:
       image_name: web-pdf
@@ -546,7 +473,7 @@ jobs:
   generate_changelog:
     name: Generate Changelog
     needs: [all_builds_complete, setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.tag != '' && needs.setup_deployment.outputs.environment == 'rc' }}
+    if: ${{ needs.setup_deployment.outputs.tag != '' && github.event_name == 'release' }}
     uses: ./.github/workflows/generate-changelog.yml
     with:
       current_tag: ${{ needs.setup_deployment.outputs.tag }}
@@ -554,20 +481,17 @@ jobs:
       THREATWINDS_API_KEY: ${{ secrets.THREATWINDS_API_KEY }}
       THREATWINDS_API_SECRET: ${{ secrets.THREATWINDS_API_SECRET }}
 
-  # Installer build runs only on RC. The resulting binary is uploaded to the
-  # GitHub Release as a prerelease asset. When the release is later promoted
-  # to non-prerelease (which triggers production), the installer is already
-  # there — no rebuild needed.
+  # Installer build runs on any GitHub release event (prerelease or not).
+  # The binary is uploaded to the release that triggered this pipeline.
   build_installer_release:
     name: Build & Upload Installer
     needs: [generate_changelog, setup_deployment]
-    if: ${{ needs.setup_deployment.outputs.tag != '' && needs.setup_deployment.outputs.environment == 'rc' }}
+    if: ${{ always() && needs.setup_deployment.result == 'success' && needs.setup_deployment.outputs.tag != '' && github.event_name == 'release' && needs.generate_changelog.result != 'cancelled' }}
     uses: ./.github/workflows/installer-release.yml
     with:
       version: ${{ needs.setup_deployment.outputs.tag }}
       version_major: v11
-      environment: rc
-      prerelease: true
+      environment: ${{ needs.setup_deployment.outputs.environment }}
       changelog: ${{ needs.generate_changelog.outputs.changelog }}
     secrets:
       API_SECRET: ${{ secrets.API_SECRET }}
@@ -593,7 +517,8 @@ jobs:
   publish_new_version:
     name: Publish New Version to Customer Manager
     needs: [all_builds_complete, generate_changelog, setup_deployment]
-    if: ${{ always() && needs.all_builds_complete.result == 'success' && needs.setup_deployment.outputs.tag != '' && needs.setup_deployment.outputs.environment != 'production' }}
+    if: ${{ always() && needs.all_builds_complete.result == 'success' && needs.setup_deployment.outputs.tag != '' }}
+    environment: ${{ needs.setup_deployment.outputs.gh_environment }}
     runs-on: ubuntu-24.04
     steps:
       - name: Check out code
@@ -605,8 +530,10 @@ jobs:
           ENVIRONMENT: ${{ needs.setup_deployment.outputs.environment }}
           TAG: ${{ needs.setup_deployment.outputs.tag }}
           CM_URL: ${{ needs.setup_deployment.outputs.cm_url }}
+          SCHEDULE_INSTANCES_DEV: ${{ vars.SCHEDULE_INSTANCES_DEV }}
+          SCHEDULE_INSTANCES_PROD: ${{ vars.SCHEDULE_INSTANCES_PROD }}
         run: |
-          # Use AI changelog for rc / production, generic for dev.
+          # Use AI changelog for production releases, generic for dev.
           if [ "$ENVIRONMENT" != "dev" ] && [ -n "$CHANGELOG_CONTENT" ]; then
             changelog="$CHANGELOG_CONTENT"
           else
@@ -617,29 +544,63 @@ jobs:
           echo "CM URL: $CM_URL"
           echo "Tag: $TAG"
 
-          # Select CM_SERVICE_ACCOUNT based on environment
           if [ "$ENVIRONMENT" = "dev" ]; then
-            cmAuth=$(echo '${{ secrets.CM_SERVICE_ACCOUNT_DEV }}' | jq -r '.')
+            cmAuth='${{ secrets.CM_SERVICE_ACCOUNT_DEV }}'
           else
-            cmAuth=$(echo '${{ secrets.CM_SERVICE_ACCOUNT_PROD }}' | jq -r '.')
+            cmAuth='${{ secrets.CM_SERVICE_ACCOUNT_PROD }}'
           fi
-
           id=$(echo "$cmAuth" | jq -r '.id')
           key=$(echo "$cmAuth" | jq -r '.key')
 
-          body=$(jq -n \
-            --arg version "$TAG" \
-            --arg changelog "$changelog" \
-            '{version: $version, changelog: $changelog}'
-          )
+          # Both CM-dev and CM-prod use the products schema. The register loop
+          # (dev) needs the per-product instance var to know which product
+          # UUIDs to register against; prod registers once without product_id
+          # and CM auto-assigns the owning product.
+          if [ "$ENVIRONMENT" = "dev" ]; then
+            SCHEDULE_INSTANCES="$SCHEDULE_INSTANCES_DEV"
+          else
+            SCHEDULE_INSTANCES="$SCHEDULE_INSTANCES_PROD"
+          fi
 
-          response=$(curl -s -X POST "${CM_URL}/api/v1/versions/register" \
-            -H "Content-Type: application/json" \
-            -H "id: $id" \
-            -H "key: $key" \
-            -d "$body")
+          if [ "$ENVIRONMENT" = "dev" ]; then
+            if ! echo "$SCHEDULE_INSTANCES" | jq empty > /dev/null 2>&1; then
+              echo "❌ SCHEDULE_INSTANCES is not valid JSON: $SCHEDULE_INSTANCES"
+              exit 1
+            fi
 
-          echo "Response: $response"
+            for product_id in $(echo "$SCHEDULE_INSTANCES" | jq -r 'keys[]'); do
+              echo "Registering $TAG for product: $product_id"
+
+              body=$(jq -n \
+                --arg version "$TAG" \
+                --arg changelog "$changelog" \
+                --arg product_id "$product_id" \
+                '{version: $version, changelog: $changelog, product_id: $product_id}'
+              )
+
+              response=$(curl -s -X POST "${CM_URL}/api/v1/versions/register" \
+                -H "Content-Type: application/json" \
+                -H "id: $id" \
+                -H "key: $key" \
+                -d "$body")
+
+              echo "Response: $response"
+            done
+          else
+            body=$(jq -n \
+              --arg version "$TAG" \
+              --arg changelog "$changelog" \
+              '{version: $version, changelog: $changelog}'
+            )
+
+            response=$(curl -s -X POST "${CM_URL}/api/v1/versions/register" \
+              -H "Content-Type: application/json" \
+              -H "id: $id" \
+              -H "key: $key" \
+              -d "$body")
+
+            echo "Response: $response"
+          fi
 
   # Schedule the freshly-published version. For dev, this targets the dev
   # instance list; for rc, the RC instance list. Production does NOT use this
@@ -647,12 +608,17 @@ jobs:
   schedule:
     name: Schedule release to our instances
     needs: [publish_new_version, setup_deployment]
-    if: ${{ always() && needs.publish_new_version.result == 'success' && needs.setup_deployment.outputs.tag != '' && needs.setup_deployment.outputs.environment != 'production' }}
+    if: ${{ always() && needs.publish_new_version.result == 'success' && needs.setup_deployment.outputs.tag != '' }}
+    environment: ${{ needs.setup_deployment.outputs.gh_environment }}
     runs-on: ubuntu-24.04
     env:
       ENVIRONMENT: ${{ needs.setup_deployment.outputs.environment }}
       TAG: ${{ needs.setup_deployment.outputs.tag }}
       CM_URL: ${{ needs.setup_deployment.outputs.cm_url }}
+      SCHEDULE_INSTANCES_DEV: ${{ vars.SCHEDULE_INSTANCES_DEV }}
+      SCHEDULE_INSTANCES_PROD: ${{ vars.SCHEDULE_INSTANCES_PROD }}
+      CM_AUTH_DEV: ${{ secrets.CM_SERVICE_ACCOUNT_DEV }}
+      CM_AUTH_PROD: ${{ secrets.CM_SERVICE_ACCOUNT_PROD }}
     steps:
       - name: Schedule updates
         run: |
@@ -660,48 +626,63 @@ jobs:
           echo "🔍 Version: $TAG"
           echo "🔍 CM URL: $CM_URL"
 
-          # Select instance IDs and auth based on environment
           if [ "$ENVIRONMENT" = "dev" ]; then
-            instance_ids="${{ vars.SCHEDULE_INSTANCES_DEV }}"
-            auth_json='${{ secrets.CM_SERVICE_ACCOUNT_DEV }}'
+            auth_json="$CM_AUTH_DEV"
           else
-            # rc uses prod variables
-            instance_ids="${{ vars.SCHEDULE_INSTANCES_PROD }}"
-            auth_json='${{ secrets.CM_SERVICE_ACCOUNT_PROD }}'
+            auth_json="$CM_AUTH_PROD"
           fi
-
-          # Extract id and key from auth JSON
           auth_id=$(echo "$auth_json" | jq -r '.id')
           auth_key=$(echo "$auth_json" | jq -r '.key')
 
-          # Parse IDs (handle single ID or comma-separated IDs)
-          IFS=',' read -ra ID_ARRAY <<< "$instance_ids"
+          scheduled=0
 
-          # Iterate over each instance ID
-          for instance_id in "${ID_ARRAY[@]}"; do
-            instance_id=$(echo "$instance_id" | xargs)
+          # Both CM-dev and CM-prod use the products schema, so both
+          # environments schedule per product. SCHEDULE_INSTANCES is a JSON
+          # object mapping product UUID -> list of instance UUIDs; select the
+          # env-specific variable.
+          if [ "$ENVIRONMENT" = "dev" ]; then
+            SCHEDULE_INSTANCES="$SCHEDULE_INSTANCES_DEV"
+          else
+            SCHEDULE_INSTANCES="$SCHEDULE_INSTANCES_PROD"
+          fi
 
-            echo "📅 Scheduling release for instance: $instance_id"
+          if ! echo "$SCHEDULE_INSTANCES" | jq empty > /dev/null 2>&1; then
+            echo "❌ SCHEDULE_INSTANCES is not valid JSON: $SCHEDULE_INSTANCES"
+            exit 1
+          fi
 
-            response=$(curl -s -w "\n%{http_code}" -X POST "${CM_URL}/api/v1/updates" \
-              -H "Content-Type: application/json" \
-              -H "id: $auth_id" \
-              -H "key: $auth_key" \
-              -d "{\"instances_ids\": [\"$instance_id\"], \"version\": \"$TAG\"}")
+          for product_id in $(echo "$SCHEDULE_INSTANCES" | jq -r 'keys[]'); do
+            for instance_id in $(echo "$SCHEDULE_INSTANCES" | jq -r --arg p "$product_id" '.[$p][]'); do
+              echo "📅 Scheduling release for instance: $instance_id (product: $product_id)"
 
-            http_code=$(echo "$response" | tail -n1)
-            body=$(echo "$response" | sed '$d')
+              response=$(curl -s -w "\n%{http_code}" -X POST "${CM_URL}/api/v1/updates" \
+                -H "Content-Type: application/json" \
+                -H "id: $auth_id" \
+                -H "key: $auth_key" \
+                -d "{\"instances_ids\": [\"$instance_id\"], \"version\": \"$TAG\", \"product_id\": \"$product_id\"}")
 
-            if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
-              echo "✅ Successfully scheduled for instance: $instance_id"
-            else
-              echo "❌ Failed to schedule for instance: $instance_id (HTTP $http_code)"
-              echo "Response: $body"
-              exit 1
-            fi
+              http_code=$(echo "$response" | tail -n1)
+              body=$(echo "$response" | sed '$d')
+
+              if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
+                echo "✅ Successfully scheduled for instance: $instance_id"
+                scheduled=$((scheduled + 1))
+              else
+                echo "❌ Failed to schedule for instance: $instance_id (HTTP $http_code)"
+                echo "Response: $body"
+                exit 1
+              fi
+            done
           done
 
-          echo "✅ Scheduled release for all instances with version $TAG"
+          if [ "$scheduled" -eq 0 ]; then
+            echo "❌ No instances were scheduled — check SCHEDULE_INSTANCES for this environment"
+            exit 1
+          fi
+
+          echo "✅ Scheduled release for all $scheduled instance(s) with version $TAG"
+
+
 
   promote_to_community:
     name: Promote to Community

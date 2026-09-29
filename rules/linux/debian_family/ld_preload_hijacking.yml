@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.0.1
 
 dataTypes:
   - linux
@@ -25,12 +25,6 @@ description: |
   6. Remove the malicious preload entry and the shared library
   7. Audit all running processes for injected libraries
 where: |
-  (contains("log.message", "ld.so.preload") ||
-   contains("log.message", "LD_PRELOAD") ||
-   contains("log.message", "ld.so.conf")) &&
-  (contains("log.message", "modified") || contains("log.message", "write") ||
-   contains("log.message", "opened") || contains("log.message", "export") ||
-   contains("log.message", "changed"))
-groupBy:
-  - origin.host
-  - origin.user
+  (contains("origin.command", "ld.so.preload") || contains("origin.command", "LD_PRELOAD") || contains("origin.command", "ld.so.conf")) && regexMatch("origin.command", "(>>|tee|echo|sed |cp |mv )")
+deduplicateBy:
+  - dataSource

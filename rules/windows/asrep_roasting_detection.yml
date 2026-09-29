@@ -28,20 +28,48 @@ description: |
   5. Audit Active Directory for accounts with DONT_REQUIRE_PREAUTH flag
   6. Monitor for subsequent credential usage from the requesting IP
 where: |
+  !oneOf("dataSource", ["", "unknown"]) &&
+  exists("log.authenticationSource") && exists("log.authenticationSourceType") && exists("log.authenticationSourceDomain") &&
+  (
   equals("log.eventCode", "4768") &&
   equals("log.channel", "Security") &&
   equals("log.eventDataTicketEncryptionType", "23") &&
   equals("log.eventDataPreAuthType", "0") &&
   !regexMatch("target.user", "(?i)\\$$") &&
   exists("target.user")
+  )
 afterEvents:
   - indexPattern: v11-log-wineventlog-*
     with:
-      - field: origin.ip.keyword
+      - field: dataSource.keyword
         operator: filter_term
-        value: '{{.origin.ip}}'
+        value: '{{.dataSource}}'
+      - field: log.authenticationSource.keyword
+        operator: filter_term
+        value: '{{.log.authenticationSource}}'
+      - field: log.authenticationSourceType.keyword
+        operator: filter_term
+        value: '{{.log.authenticationSourceType}}'
+      - field: log.authenticationSourceDomain.keyword
+        operator: filter_term
+        value: '{{.log.authenticationSourceDomain}}'
+      - field: log.authenticationCandidate.asrepRoastingDetection.keyword
+        operator: filter_term
+        value: match
+      - field: log.eventCode
+        operator: filter_term
+        value: '{{.log.eventCode}}'
+      - field: log.eventDataTicketEncryptionType
+        operator: filter_term
+        value: '{{.log.eventDataTicketEncryptionType}}'
+      - field: log.eventDataPreAuthType
+        operator: filter_term
+        value: '{{.log.eventDataPreAuthType}}'
     within: 15m
     count: 3
 groupBy:
-  - origin.ip
-  - origin.host
+  - dataSource
+  - lastEvent.log.authenticationSourceType
+  - lastEvent.log.authenticationSource
+  - lastEvent.log.authenticationSourceDomain
+  - target.user

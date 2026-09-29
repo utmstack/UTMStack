@@ -27,38 +27,38 @@ description: |
   7. Consider reimaging the affected system if unauthorized TCC manipulation is confirmed
 where: |
   (
-    equals("log.process", "tccd") &&
+    equals("origin.process", "tccd") &&
     (
-      regexMatch("log.eventMessage", ".*unauthorized.*access.*") ||
-      contains("log.eventMessage", "bypass") ||
-      contains("log.eventMessage", "CVE-2020-9934")
+      regexMatch("log.message", ".*unauthorized.*access.*") ||
+      contains("log.message", "bypass") ||
+      contains("log.message", "CVE-2020-9934")
     )
   ) ||
   (
-    regexMatch("log.processImagePath", ".*/Library/Application Support/com\\.apple\\.TCC/TCC\\.db.*") &&
-    regexMatch("log.eventMessage", ".*(write|modify|INSERT|UPDATE|DELETE).*") &&
-    !equals("log.process", "tccd")
+    regexMatch("origin.path", ".*/Library/Application Support/com\\.apple\\.TCC/TCC\\.db.*") &&
+    regexMatch("log.message", ".*(write|modify|INSERT|UPDATE|DELETE).*") &&
+    exists("origin.process") && !equals("origin.process", "tccd")
   ) ||
   (
-    contains("log.eventMessage", "TCC.db") &&
+    contains("log.message", "TCC.db") &&
     (
-      regexMatch("log.eventMessage", ".*(sqlite3|INSERT INTO|UPDATE|DELETE FROM).*") ||
-      regexMatch("log.eventMessage", ".*(kTCCServiceDeveloperTool|kTCCServiceScreenCapture|kTCCServiceAccessibility).*")
+      regexMatch("log.message", ".*(sqlite3|INSERT INTO|UPDATE|DELETE FROM).*") ||
+      regexMatch("log.message", ".*(kTCCServiceDeveloperTool|kTCCServiceScreenCapture|kTCCServiceAccessibility).*")
     )
   ) ||
   (
     equals("log.subsystem", "com.apple.TCC") &&
     (
-      contains("log.eventMessage", "Full Disk Access") ||
-      contains("log.eventMessage", "Screen Recording") ||
-      contains("log.eventMessage", "Accessibility")
+      contains("log.message", "Full Disk Access") ||
+      contains("log.message", "Screen Recording") ||
+      contains("log.message", "Accessibility")
     ) &&
-    regexMatch("log.eventMessage", ".*(grant|bypass|override).*")
+    regexMatch("log.message", ".*(grant|bypass|override).*")
   ) ||
   (
-    exists("log.process") &&
-    regexMatch("log.eventMessage", ".*com\\.apple\\.private\\.tcc\\.manager.*") &&
-    !equals("log.process", "tccd")
+    exists("origin.process") &&
+    regexMatch("log.message", ".*com\\.apple\\.private\\.tcc\\.manager.*") &&
+    !equals("origin.process", "tccd")
   )
 groupBy:
   - adversary.host

@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.0.1
 
 dataTypes:
   - linux
@@ -23,12 +23,6 @@ description: |
   5. Review all shell RC files for the affected user and system-wide profiles
   6. Remove malicious entries and investigate the compromise vector
 where: |
-  (contains("log.message", ".bashrc") || contains("log.message", ".bash_profile") ||
-   contains("log.message", ".profile") || contains("log.message", "/etc/profile.d/") ||
-   contains("log.message", ".zshrc") || contains("log.message", ".zprofile") ||
-   contains("log.message", "/etc/bash.bashrc") || contains("log.message", "/etc/profile")) &&
-  (contains("log.message", "modified") || contains("log.message", "opened for writing") ||
-   contains("log.message", "write") || contains("log.message", "changed"))
-groupBy:
-  - origin.host
-  - origin.user
+  regexMatch("origin.command", "(tee|>>|cp |sed |vi |vim |nano |echo).*(.bashrc|.bash_profile|.zshrc|.profile|/etc/profile)")
+deduplicateBy:
+  - dataSource

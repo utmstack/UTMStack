@@ -16,7 +16,7 @@ references:
   - https://www.crowdstrike.com/en-us/blog/how-to-leverage-apple-unified-log-for-incident-response/
 description: |
   Detects suspicious creation or modification of Launch Agents and Launch Daemons which are commonly used for persistence on macOS systems. Monitors for new plist files being created in LaunchAgents or LaunchDaemons directories.
-  
+
   Next Steps:
   1. Review the specific Launch Agent/Daemon plist file that was created or modified
   2. Examine the contents of the plist file for suspicious commands or executables
@@ -26,14 +26,14 @@ description: |
   6. Check for other persistence mechanisms on the affected system
   7. Consider isolating the system if malicious persistence is confirmed
 where: |
-  (equals("log.subsystem", "com.apple.launchd") || equals("log.process", "launchd")) &&
-  (contains("log.eventMessage", "LaunchAgent") || contains("log.eventMessage", "LaunchDaemon")) &&
-  (contains("log.eventMessage", "loaded") || contains("log.eventMessage", "started") || contains("log.eventMessage", "created")) &&
-  (contains("log.eventMessage", "/Library/LaunchAgents") || 
-   contains("log.eventMessage", "/Library/LaunchDaemons") ||
-   contains("log.eventMessage", "/System/Library/LaunchAgents") ||
-   contains("log.eventMessage", "/System/Library/LaunchDaemons") ||
-   contains("log.eventMessage", "~/Library/LaunchAgents"))
+  (equals("log.subsystem", "com.apple.launchd") || equals("origin.process", "launchd")) &&
+  (contains("log.message", "LaunchAgent") || contains("log.message", "LaunchDaemon")) &&
+  (contains("log.message", "loaded") || contains("log.message", "started") || contains("log.message", "created")) &&
+  (contains("log.message", "/Library/LaunchAgents") ||
+   contains("log.message", "/Library/LaunchDaemons") ||
+   contains("log.message", "/System/Library/LaunchAgents") ||
+   contains("log.message", "/System/Library/LaunchDaemons") ||
+   contains("log.message", "~/Library/LaunchAgents"))
 groupBy:
-  - lastEvent.log.eventMessage
+  - lastEvent.log.message
   - adversary.host

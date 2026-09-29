@@ -1,50 +1,51 @@
-# Rule version v1.0.0
+# Rule version v1.1.0
 
 dataTypes:
-  - firewall-fortiweb
+- firewall-fortiweb
 name: FortiWeb File Upload Security Violation Detected
 impact:
   confidentiality: 3
   integrity: 3
   availability: 2
 category: Resource Development
-technique: "T1608 - Stage Capabilities: Upload Malware"
+technique: 'T1608 - Stage Capabilities: Upload Malware'
 adversary: origin
 references:
-  - https://docs.fortinet.com/document/fortiweb/7.2.2/log-message-reference/252057/event
-  - https://attack.mitre.org/techniques/T1608/
-  - https://attack.mitre.org/techniques/T1505/003/
+- https://docs.fortinet.com/document/fortiweb/7.2.2/log-message-reference/252057/event
+- https://attack.mitre.org/techniques/T1608/
+- https://attack.mitre.org/techniques/T1505/003/
 description: |
-  Detects file upload security violations including malicious file uploads, oversized files, restricted file types, and potential web shell upload attempts on FortiWeb protected applications. These violations could indicate attempts to upload malicious files, web shells, or bypass upload restrictions.
+  Detects repeated file-upload or antivirus policy violations against the same application and attack subtype. A policy violation is not proof of a web shell or successful malware upload.
 
-  Next Steps:
-  1. Review the blocked file upload attempt details, including file name, type, and size
-  2. Check if the source IP has made multiple file upload attempts in a short period
-  3. Examine the web application logs for the specific URL path being targeted
-  4. Verify if the file upload restriction policy is appropriate for the application
-  5. If malicious activity is confirmed, consider blocking the source IP temporarily
-  6. Review other requests from the same source IP for reconnaissance patterns
-  7. Check if similar file upload attempts have been made to other applications
+  Both Alert (log-only) and explicit blocking decisions are covered. Check log.action and actionResult to distinguish detection from prevention; neither establishes successful exploitation. Review log.subtype, log.attacktype, log.signatureid and log.msg, then validate the request and outcome in application logs before escalating.
 where: |
-  exists("origin.ip") && 
-  (
-    contains("log.msg", "file upload") ||
-    contains("log.msg", "File upload") ||
-    contains("log.msg", "malicious file") ||
-    contains("log.msg", "file type") ||
-    contains("log.msg", "file size") ||
-    contains("log.msg", "anti-virus") ||
-    contains("log.msg", "upload violation") ||
-    contains("log.msg", "upload blocked")
-  )
+  exists("origin.ip") && exists("target.ip") && equalsIgnoreCase("log.type", "attack") &&
+  regexMatch("log.action", "(?i)^(alert|alert_deny|deny|denied|block|blocked|period_block)$") &&
+  equals("log.fileUploadViolation", "true") && exists("log.subtype")
 afterEvents:
-  - indexPattern: v11-log-firewall-fortiweb-*
-    with:
-      - field: origin.ip
-        operator: filter_term
-        value: '{{.origin.ip}}'
-    within: 30m
-    count: 3
-groupBy:
-  - adversary.ip
-  - target.ip
+- indexPattern: v11-log-firewall-fortiweb-*
+  with:
+  - field: origin.ip
+    operator: filter_term
+    value: '{{.origin.ip}}'
+  - field: target.ip
+    operator: filter_term
+    value: '{{.target.ip}}'
+  - field: log.type
+    operator: filter_term
+    value: '{{.log.type}}'
+  - field: log.subtype
+    operator: filter_term
+    value: '{{.log.subtype}}'
+  - field: log.action
+    operator: filter_term
+    value: '{{.log.action}}'
+  - field: log.fileUploadViolation
+    operator: filter_term
+    value: '{{.log.fileUploadViolation}}'
+  within: 30m
+  count: 3
+deduplicateBy:
+- adversary.ip
+- target.ip
+- lastEvent.log.subtype

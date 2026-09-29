@@ -124,7 +124,7 @@ public class UtmFilterResource {
             if (logstashFilter.getId() == null)
                 throw new Exception("Logstash filter id is null");
 
-            if (logstashFilter.getSystemOwner()) {
+            if (Boolean.TRUE.equals(logstashFilter.getSystemOwner())) {
                 throw new Exception("Cannot update system-owned filter");
             }
 

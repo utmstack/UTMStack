@@ -128,7 +128,8 @@ export class PlaybookBuilderComponent implements OnInit, OnDestroy {
         this.formRule.get('excludedAgents').setValue(this.rule.excludedAgents);
         this.formRule.get('agentType').setValue(this.rule.excludedAgents.length === 0 && this.rule.defaultAgent !== '');
         this.formRule.get('defaultAgent').setValue(this.rule.defaultAgent);
-        this.rule.actions.forEach(action => this.workflowService.addActions(action));
+        const actionsWithConditional = this.workflowService.inferConditionals(this.rule.command, this.rule.actions);
+        actionsWithConditional.forEach(action => this.workflowService.addActions(action));
 
       },
       error => {
@@ -203,9 +204,16 @@ export class PlaybookBuilderComponent implements OnInit, OnDestroy {
     }
   }
 
+  syncCommandFromActions() {
+    const actions = this.workflowService.getActions();
+    this.formRule.get('actions').setValue(actions);
+    this.formRule.get('command').setValue(this.workflowService.buildCommand(actions));
+  }
+
   saveRule() {
     const action = 'created';
     const actionError = 'creating';
+    this.syncCommandFromActions();
     this.incidentResponseRuleService.create(this.formRule.value)
       .subscribe(() => {
             this.utmToastService.showSuccessBottom('Flow ' + action + ' successfully');
@@ -216,7 +224,7 @@ export class PlaybookBuilderComponent implements OnInit, OnDestroy {
   editRule() {
     const action = 'edited';
     const actionError = 'editing';
-    this.formRule.get('command').setValue(this.command);
+    this.syncCommandFromActions();
     this.incidentResponseRuleService.update(this.formRule.value).subscribe(() => {
       this.utmToastService.showSuccessBottom('Flow ' + action + ' successfully');
       this.router.navigate(['soar/flows']);

@@ -16,7 +16,7 @@ references:
   - https://jumpcloud.com/support/understand-mac-keychain-access
 description: |
   Detects unauthorized or suspicious attempts to access macOS Keychain, including failed access attempts, unusual process access, and potential credential theft activities. This rule identifies security subsystem events related to keychain access failures, denials, or unauthorized attempts.
-  
+
   Next Steps:
   1. Investigate the process attempting keychain access and verify if it's legitimate
   2. Check for any recent malware infections or suspicious processes on the affected host
@@ -25,19 +25,19 @@ description: |
   5. Consider resetting credentials if unauthorized access is confirmed
   6. Monitor for additional credential access attempts from the same host or user
 where: |
-  (equals("log.subsystem", "com.apple.security") || 
+  (equals("log.subsystem", "com.apple.security") ||
    equals("log.subsystem", "com.apple.securityd") ||
-   equals("log.process", "securityd") ||
-   equals("log.process", "security")) &&
-  (contains("log.eventMessage", "keychain") || 
-   contains("log.eventMessage", "Keychain")) &&
-  (contains("log.eventMessage", "error") || 
-   contains("log.eventMessage", "failed") ||
-   contains("log.eventMessage", "denied") ||
-   contains("log.eventMessage", "unauthorized") ||
-   contains("log.eventMessage", "-25308") ||
-   contains("log.eventMessage", "accountsd wants to use")) &&
-  oneOf("log.messageType", ["error", "fault"])
+   equals("origin.process", "securityd") ||
+   equals("origin.process", "security")) &&
+  (contains("log.message", "keychain") ||
+   contains("log.message", "Keychain")) &&
+  (contains("log.message", "error") ||
+   contains("log.message", "failed") ||
+   contains("log.message", "denied") ||
+   contains("log.message", "unauthorized") ||
+   contains("log.message", "-25308") ||
+   contains("log.message", "accountsd wants to use")) &&
+  oneOf("log.level", ["error", "fault"])
 groupBy:
   - adversary.host
   - adversary.user

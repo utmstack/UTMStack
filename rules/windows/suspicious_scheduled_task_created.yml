@@ -1,0 +1,19 @@
+# Rule version v1.2.0 (validated 2026-06-24)
+dataTypes:
+  - wineventlog
+name: 'Windows: Suspicious Scheduled Task Created'
+impact:
+  confidentiality: 2
+  integrity: 2
+  availability: 1
+category: Persistence
+technique: 'T1053.005 - Scheduled Task/Job: Scheduled Task'
+adversary: origin
+description: Detects creation of a scheduled task whose action runs a script interpreter, encoded command, or a user/temp/remote path - a common persistence and lateral-execution technique.
+references:
+  - https://attack.mitre.org/techniques/T1053/005/
+where: |
+  equals("log.eventCode", 4688) && regexMatch("log.data.CommandLine", "(?i)(schtasks.*/create|Register-ScheduledTask|New-ScheduledTask)") && regexMatch("log.data.CommandLine", "(?i)(powershell|pwsh|mshta|wscript|cscript|rundll32|regsvr32|-enc|-encodedcommand|frombase64|appdata|http|downloadstring|bitsadmin|certutil| temp)")
+groupBy:
+  - dataSource
+deduplicateBy: []

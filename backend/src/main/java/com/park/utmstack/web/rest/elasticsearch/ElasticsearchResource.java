@@ -172,16 +172,20 @@ public class ElasticsearchResource {
                     .toList();
 
             if (includeChildren) {
+                List<String> parentIds = results.stream()
+                        .map(d -> d.get("id"))
+                        .filter(Objects::nonNull)
+                        .map(Object::toString)
+                        .distinct()
+                        .collect(Collectors.toList());
+                Map<String, Map<String, Object>> echoes = elasticsearchService.getEchoesByParentIds(parentIds, indexPattern);
                 results.forEach(d -> {
                     Object id = d.get("id");
                     if (id != null) {
-                        List<FilterType> echoFilter = List.of(new FilterType("parentId", OperatorType.IS, id.toString()));
-                        long countEchoes = elasticsearchService.count(echoFilter, indexPattern);
-                        d.put("hasChildren", countEchoes > 0);
-                        d.put("echoes", countEchoes);
-                        if (countEchoes > 0) {
-                            d.put("last_echo", elasticsearchService.getLatestDocument(echoFilter, indexPattern));
-                        }
+                        Map<String, Object> echo = echoes.getOrDefault(id.toString(), Map.of());
+                        d.put("hasChildren", echo.getOrDefault("hasChildren", false));
+                        d.put("echoes", echo.getOrDefault("echoes", 0L));
+                        if (echo.containsKey("last_echo")) d.put("last_echo", echo.get("last_echo"));
                     }
                 });
             }

@@ -120,20 +120,20 @@ public class ApiKeyFilter extends OncePerRequestFilter {
         Objects.requireNonNull(remoteIpAddress, "Remote IP address must not be null");
 
         if (!allowAccessToRemoteIp(apiKey.getAllowedIp(), remoteIpAddress)) {
-            log.warn("Access denied: IP [{}] not allowed for API key [{}]", remoteIpAddress, apiKey.getApiKey());
+            log.warn("Access denied: IP [{}] not allowed for API key id [{}]", remoteIpAddress, apiKey.getId());
             throw new ApiKeyInvalidAccessException(
                     "Invalid IP address: " + remoteIpAddress + ". If you recognize this IP, add it to allowed IP list."
             );
         }
 
         if (apiKey.getExpiresAt() != null && !apiKey.getExpiresAt().isAfter(Instant.now())) {
-            log.warn("Access denied: API key [{}] expired at {}", apiKey.getApiKey(), apiKey.getExpiresAt());
+            log.warn("Access denied: API key id [{}] expired at {}", apiKey.getId(), apiKey.getExpiresAt());
             throw new ApiKeyInvalidAccessException("API key expired at " + apiKey.getExpiresAt());
         }
 
         var userEntityOpt = userRepository.findById(apiKey.getUserId());
         if (userEntityOpt.isEmpty()) {
-            log.warn("Access denied: User [{}] not found for API key [{}]", apiKey.getUserId(), apiKey.getApiKey());
+            log.warn("Access denied: User [{}] not found for API key id [{}]", apiKey.getUserId(), apiKey.getId());
             throw new ApiKeyInvalidAccessException("User not found for API key");
         }
 

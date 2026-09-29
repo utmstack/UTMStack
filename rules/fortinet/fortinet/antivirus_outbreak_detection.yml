@@ -14,7 +14,7 @@ references:
   - https://docs.fortinet.com/document/fortigate/7.4.1/administration-guide/198726/antivirus
   - https://attack.mitre.org/techniques/T1566/
 description: |
-  Detects potential malware outbreak when multiple antivirus detections occur from the same source or targeting multiple destinations in a short time period. This could indicate a widespread infection attempt or a compromised system attempting to spread malware.
+  Detects potential malware outbreak when multiple antivirus detections occur from the same source IP on the same appliance and virtual domain in a short time period. This indicates repeated blocked infected-file transfers, not proof of an infected client or successful delivery.
 
   Next Steps:
   1. Identify the specific malware detected by reviewing the virus field in the alert details
@@ -26,24 +26,29 @@ description: |
   7. Consider blocking the source IP at the perimeter if it's external
   8. Document all affected systems and remediation actions taken
 where: |
-  equals("log.type", "utm") && 
-  equals("log.subtype", "virus") && 
-  equals("action", "blocked") &&
-  (exists("origin.ip") || exists("target.ip"))
+  exists("log.devid") && !equals("log.devid", "") && exists("log.vd") && !equals("log.vd", "") &&
+  (equals("log.type", "utm") && equals("log.subtype", "virus") &&
+  equals("log.eventtype", "infected") && equals("actionResult", "denied") &&
+  exists("origin.ip"))
 afterEvents:
-  - indexPattern: v11-log-firewall-fortigate-traffic-*
-    with:
-      - field: log.type
-        operator: filter_term
-        value: utm
-      - field: log.subtype
-        operator: filter_term
-        value: virus
-      - field: action
-        operator: filter_term
-        value: blocked
-    within: 1h
-    count: 5
+- indexPattern: v11-log-firewall-fortigate-traffic-*
+  with:
+  - field: log.devid
+    operator: filter_term
+    value: '{{.log.devid}}'
+  - field: log.vd
+    operator: filter_term
+    value: '{{.log.vd}}'
+  - field: origin.ip
+    operator: filter_term
+    value: '{{.origin.ip}}'
+  - field: log.correlationCandidate.virusOutbreak
+    operator: filter_term
+    value: match
+  within: 1h
+  count: 5
 groupBy:
-  - adversary.ip
-  - target.ip
+- adversary.ip
+- target.ip
+- lastEvent.log.devid
+- lastEvent.log.vd

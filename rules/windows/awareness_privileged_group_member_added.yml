@@ -1,0 +1,41 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - wineventlog
+name: "Windows: Account Added to a Privileged Group"
+impact:
+  confidentiality: 2
+  integrity: 2
+  availability: 0
+category: Administrative Awareness
+technique: Privileged group membership change
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4732
+  - https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/audit-security-group-management
+  - https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/appendix-c--protected-accounts-and-groups-in-active-directory
+  - https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-security-identifiers
+  - https://learn.microsoft.com/en-us/windows-server/identity/laps/laps-concepts-account-management-modes
+description: |
+  A user, computer or group was added to a Windows group that grants administrative control (events 4728, 4732 and 4756): the local or domain Administrators group, Domain Admins, Enterprise Admins, Schema Admins, Account Operators, Server Operators, Backup Operators, Print Operators, Replicator, Domain Controllers, Read-only Domain Controllers, Key Admins or Enterprise Key Admins. Groups are recognized by their fixed security identifier, so renamed or translated group names still match. This is an awareness alert for an administrative change; on its own it does not mean the system is compromised.
+
+  Additions made by the same account to the same group on the same computer are grouped under one alert. Windows LAPS automatic account management adds its managed account to the local Administrators group at every rotation, so a computer using it produces one alert and later rotations appear as child alerts.
+
+  Requires the "Audit Security Group Management" success audit on domain controllers and on computers whose local groups are monitored.
+
+  Next Steps:
+  1. Confirm the change matches an approved request: who made it (log.eventDataSubjectUserName), which account was added (log.data.MemberSid and log.data.MemberName) and which group (log.eventDataTargetSid).
+  2. If it was not expected, remove the member and review what the added account did afterwards.
+  3. Check how the account that made the change obtained permission to change this group.
+where: |
+  oneOf("log.eventCode", [4728, 4732, 4756]) &&
+  equals("log.channel", "Security") &&
+  equals("log.providerName", "Microsoft-Windows-Security-Auditing") &&
+  (
+    regexMatch("log.eventDataTargetSid", "^S-1-5-32-(544|548|549|550|551|552)$") ||
+    regexMatch("log.eventDataTargetSid", "^S-1-5-21-[0-9]+-[0-9]+-[0-9]+-(512|516|518|519|521|526|527)$")
+  )
+groupBy:
+  - dataSource
+  - lastEvent.log.eventDataSubjectUserSid
+  - lastEvent.log.eventDataTargetSid

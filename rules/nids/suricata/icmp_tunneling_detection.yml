@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v2.0.0
 
 dataTypes:
   - suricata
@@ -13,9 +13,12 @@ adversary: origin
 references:
   - https://attack.mitre.org/techniques/T1572/
   - https://www.sans.org/reading-room/whitepapers/covert/icmp-tunneling-is-is-secure-1857
+  - https://docs.suricata.io/en/latest/output/eve/eve-json-format.html
 description: |
-  Detects potential ICMP tunneling activity based on abnormal ICMP packet patterns, including oversized ICMP packets, unusual ICMP types, high payload entropy, or abnormal ICMP codes. ICMP tunneling is a covert channel technique used by attackers to bypass network security controls and establish command and control communications.
-  
+  Detects potential ICMP tunneling activity based on abnormal ICMP echo traffic: a long echo exchange whose packets are much larger than a normal ping. ICMP tunneling is a covert channel technique used by attackers to bypass network security controls and establish command and control communications.
+
+  The rule reads Suricata flow records for ICMP and ICMPv6 echo requests and replies. It matches a flow of at least 10 packets toward the server whose packets average at least 300 bytes in either direction. A normal ping sends packets of about 60 to 100 bytes; tunnels fill the echo payload with data.
+
   Next Steps:
   1. Investigate the source IP address for other suspicious network activities
   2. Analyze the ICMP packet payload for hidden data or commands
@@ -26,21 +29,16 @@ description: |
   7. Implement ICMP payload inspection rules to detect tunneling signatures
   8. Monitor for other covert channel techniques from the same source
 where: |
-  equals("log.protocol", "ICMP") &&
-  (greaterThan("log.packet_size", 128) ||
-   greaterThan("log.payload_entropy", 6.0) ||
-   greaterThan("log.icmp_code", 15))
-afterEvents:
-  - indexPattern: v11-log-suricata-*
-    with:
-      - field: origin.ip
-        operator: filter_term
-        value: '{{.origin.ip}}'
-      - field: log.protocol
-        operator: filter_term
-        value: 'ICMP'
-    within: 10m
-    count: 100
-groupBy:
+  equals("log.eventType", "flow") &&
+  oneOf("protocol", ["ICMP", "IPv6-ICMP"]) &&
+  oneOf("log.icmp_type", [0, 8, 128, 129]) &&
+  greaterOrEqual("log.flow.pkts_toserver", 10) &&
+  (
+    safe("log.flow.bytes_toserver", 0.0) >= 300.0 * safe("log.flow.pkts_toserver", 0.0) ||
+    (greaterThan("log.flow.pkts_toclient", 0) &&
+     safe("log.flow.bytes_toclient", 0.0) >= 300.0 * safe("log.flow.pkts_toclient", 0.0))
+  )
+deduplicateBy:
+  - dataSource
   - adversary.ip
   - target.ip

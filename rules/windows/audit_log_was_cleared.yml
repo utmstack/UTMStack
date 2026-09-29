@@ -14,5 +14,5 @@ references:
   - "https://attack.mitre.org/techniques/T1070/001/"
 where: equals("log.eventCode", 1102)
 groupBy:
-  - origin.ip
+  - adversary.ip
   - target.user

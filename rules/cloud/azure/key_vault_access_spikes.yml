@@ -1,42 +1,56 @@
-# Rule version v1.0.0
-
+# Azure rule contract review v2.1.0
 dataTypes:
-  - azure
-name: Azure Key Vault Excessive Access Detected
+- azure
+name: Repeated Successful Key Vault Secret or Key Reads
 impact:
   confidentiality: 3
   integrity: 2
   availability: 1
 category: Collection
-technique: "T1530 - Data from Cloud Storage Object"
+technique: ''
 adversary: origin
 references:
-  - https://learn.microsoft.com/en-us/azure/key-vault/general/logging
-  - https://attack.mitre.org/techniques/T1530/
-description: |
-  Detects unusual spikes in Azure Key Vault access patterns. Monitors for multiple secret retrieval operations from the same source, which could indicate credential harvesting or data exfiltration attempts.
-  
-  Next Steps:
-  1. Investigate the source IP address and verify if it's a legitimate system or user
-  2. Review the specific secrets/keys being accessed and their criticality
-  3. Check for any recent changes to Key Vault access policies
-  4. Correlate with user authentication logs to identify the account responsible
-  5. Verify if the access pattern aligns with normal business operations
-  6. Consider implementing additional access controls or monitoring if suspicious activity is confirmed
-where: |
-  equals("log.category", "AuditEvent") &&
-  oneOf("log.operationName", ["SecretGet", "SecretList", "KeyGet"])
-afterEvents:
-  - indexPattern: v11-log-azure-*
-    with:
-      - field: origin.ip
-        operator: filter_term
-        value: '{{.origin.ip}}'
-      - field: log.category
-        operator: filter_term
-        value: 'AuditEvent'
-    within: 10m
-    count: 20
+- https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema
+- https://learn.microsoft.com/en-us/azure/key-vault/general/logging
+- https://attack.mitre.org/techniques/T1530/
+description: 'At least 20 successful SecretGet, SecretList or KeyGet operations by one actor against one vault and collector in
+  ten minutes. Unrelated AuditEvent operations and denied access cannot satisfy the threshold.
+
+  '
+where: '(equalsIgnoreCase("log.azureKind","keyvault") && equalsIgnoreCase("actionResult","success") && (equalsIgnoreCase("log.azureOperation","SecretGet")
+  || equalsIgnoreCase("log.azureOperation","SecretList") || equalsIgnoreCase("log.azureOperation","KeyGet"))) && exists("dataSource")
+  && !equals("dataSource","") && exists("log.azureScopeType") && !equals("log.azureScopeType","") && exists("log.azureScope") &&
+  !equals("log.azureScope","") && exists("log.azureActorType") && !equals("log.azureActorType","") && exists("log.azureActor")
+  && !equals("log.azureActor","")
+
+  '
 groupBy:
-  - lastEvent.log.resourceId
-  - adversary.ip
+- lastEvent.dataSource
+- lastEvent.log.azureScopeType
+- lastEvent.log.azureScope
+- lastEvent.log.azureOperation
+- adversary.user
+- adversary.ip
+correlation:
+- indexPattern: v11-log-azure-*
+  with:
+  - field: dataSource
+    operator: filter_term
+    value: '{{.dataSource}}'
+  - field: log.azureScopeType
+    operator: filter_term
+    value: '{{.log.azureScopeType}}'
+  - field: log.azureScope
+    operator: filter_term
+    value: '{{.log.azureScope}}'
+  - field: log.azureActorType
+    operator: filter_term
+    value: '{{.log.azureActorType}}'
+  - field: log.azureActor
+    operator: filter_term
+    value: '{{.log.azureActor}}'
+  - field: log.correlationCandidate.keyVaultAccessSpikes
+    operator: filter_term
+    value: 'true'
+  within: 10m
+  count: 20

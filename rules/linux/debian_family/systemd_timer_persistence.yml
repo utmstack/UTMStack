@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.0.1
 
 dataTypes:
   - linux
@@ -24,11 +24,6 @@ description: |
   5. Compare against baseline of known legitimate timers
   6. If unauthorized, disable the timer and investigate
 where: |
-  (contains("log.process", "systemctl") || contains("log.process", "systemd")) &&
-  contains("log.message", ".timer") &&
-  (contains("log.message", "Created symlink") || contains("log.message", "enable") ||
-   contains("log.message", "started") || contains("log.message", "Reloading") ||
-   contains("log.message", "loaded"))
-groupBy:
-  - origin.host
-  - origin.user
+  contains("origin.command", "systemctl") && contains("origin.command", ".timer") && regexMatch("origin.command", "(enable|reenable|start|link)")
+deduplicateBy:
+  - dataSource

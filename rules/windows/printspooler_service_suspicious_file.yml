@@ -16,7 +16,8 @@ description: "Detects attempts to exploit privilege escalation vulnerabilities r
 references:
   - "https://attack.mitre.org/tactics/TA0004/"
   - "https://attack.mitre.org/techniques/T1068/"
-where: contains("log.eventDataProcessName", "spoolsv.exe") && !regexMatch("log.eventDataProcessPath", "^C:\\\\Windows\\\\System32\\\\spoolsv.exe$")
+where: |
+  (equals("log.eventCode",4688) || equals("log.eventCode",1)) && contains("log.data.NewProcessName", "spoolsv.exe") && !regexMatch("log.data.NewProcessName", "[Ss]ystem32.spoolsv[.]exe$")
 groupBy:
-  - origin.ip
-  - target.user
+  - dataSource
+deduplicateBy: []

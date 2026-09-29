@@ -25,8 +25,8 @@ description: |
   6. Review network traffic patterns between source and target systems for data exfiltration indicators
   7. Validate the legitimacy of any processes spawned through the WinRM session
   8. Consider implementing additional monitoring for WinRM usage if this represents unexpected activity
-where: equals("log.eventCode", "4624") && equals("log.eventDataLogonType", "3") && exists("log.eventDataProcessName") && (contains("log.eventDataProcessName", "wsmprovhost.exe") || contains("log.eventDataProcessName", "winrshost.exe") || contains("log.eventDataProcessName", "powershell.exe"))
+where: |
+  (equals("log.eventCode",4688) || equals("log.eventCode",1)) && regexMatch("log.data.ParentProcessName","(?i)(wsmprovhost|winrshost)[.]exe$") && regexMatch("log.data.NewProcessName","(?i)(cmd|powershell|pwsh|net1?|whoami|systeminfo|reg|sc|schtasks|wmic|bitsadmin|certutil|nltest|quser|tasklist|netstat|ipconfig|arp|route|psexec)[.]exe$")
 groupBy:
-  - target.user
-  - origin.host
-  - origin.ip
+  - dataSource
+deduplicateBy: []

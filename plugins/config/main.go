@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -14,6 +15,7 @@ import (
 	"github.com/threatwinds/go-sdk/utils"
 
 	_ "github.com/lib/pq"
+	"google.golang.org/protobuf/types/known/structpb"
 	"gopkg.in/yaml.v3"
 	k8syaml "sigs.k8s.io/yaml"
 )
@@ -82,6 +84,8 @@ type ConfigState struct {
 	FiltersCount       int
 	PatternsLastUpdate time.Time
 	PatternsCount      int
+	TwEnableLastUpdate time.Time
+	TwEnableCount      int
 }
 
 func (b *ExpressionBackend) ToExpression() Expression {
@@ -423,6 +427,20 @@ func main() {
 				return
 			}
 
+			enabled, err := getTwEnableConfig(db)
+			if err != nil {
+				_ = catcher.Error("failed to get feeds toggle", err, map[string]any{"process": "plugin_com.utmstack.config"})
+				time.Sleep(30 * time.Second)
+				return
+			}
+
+			err = writeFeedsConfig(enabled)
+			if err != nil {
+				_ = catcher.Error("failed to write feeds config", err, map[string]any{"process": "plugin_com.utmstack.config"})
+				time.Sleep(30 * time.Second)
+				return
+			}
+
 			*state = newState
 		}()
 
@@ -446,6 +464,7 @@ func hasChanges(db *sql.DB, state *ConfigState) (bool, ConfigState, error) {
 		{"SELECT MAX(rule_last_update) FROM utm_correlation_rules", "SELECT COUNT(*) FROM utm_correlation_rules WHERE rule_active = true", &newState.RulesLastUpdate, &newState.RulesCount, state.RulesLastUpdate, state.RulesCount},
 		{"SELECT MAX(updated_at) FROM utm_logstash_filter", "SELECT COUNT(*) FROM utm_logstash_filter WHERE is_active = true", &newState.FiltersLastUpdate, &newState.FiltersCount, state.FiltersLastUpdate, state.FiltersCount},
 		{"SELECT MAX(last_update) FROM utm_regex_pattern", "SELECT COUNT(*) FROM utm_regex_pattern", &newState.PatternsLastUpdate, &newState.PatternsCount, state.PatternsLastUpdate, state.PatternsCount},
+		{"SELECT MAX(modification_time) FROM utm_configuration_parameter WHERE conf_param_short = 'utmstack.tw.enable'", "SELECT COUNT(*) FROM utm_configuration_parameter WHERE conf_param_short = 'utmstack.tw.enable'", &newState.TwEnableLastUpdate, &newState.TwEnableCount, state.TwEnableLastUpdate, state.TwEnableCount},
 	}
 
 	for _, q := range queries {
@@ -910,6 +929,67 @@ func writePatterns(patterns map[string]string) error {
 
 	_, err = file.Write(bPatterns)
 	if err != nil {
+		return catcher.Error("failed to write to file", err, map[string]any{"process": "plugin_com.utmstack.config"})
+	}
+
+	return nil
+}
+
+func getTwEnableConfig(db *sql.DB) (bool, error) {
+	var value string
+	err := db.QueryRow(`SELECT conf_param_value FROM utm_configuration_parameter WHERE conf_param_short = 'utmstack.tw.enable' LIMIT 1`).Scan(&value)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return true, nil
+		}
+		return true, catcher.Error("failed to fetch utmstack.tw.enable", err, map[string]any{"process": "plugin_com.utmstack.config"})
+	}
+	enabled, parseErr := strconv.ParseBool(value)
+	if parseErr != nil {
+		catcher.Warn("failed to parse utmstack.tw.enable value; defaulting to enabled", map[string]any{
+			"value":   value,
+			"error":   parseErr.Error(),
+			"process": "plugin_com.utmstack.config",
+		})
+		return true, nil
+	}
+	return enabled, nil
+}
+
+func writeFeedsConfig(enabled bool) error {
+	filePath, err := utils.MkdirJoin(plugins.WorkDir, "pipeline")
+	if err != nil {
+		return catcher.Error("cannot create pipeline directory", err, nil)
+	}
+
+	file, err := os.Create(filePath.FileJoin("system_plugins_feeds.yaml"))
+	if err != nil {
+		return catcher.Error("failed to create file", err, map[string]any{"process": "plugin_com.utmstack.config"})
+	}
+
+	defer func() {
+		if err := file.Close(); err != nil {
+			_ = catcher.Error("failed to close file", err, map[string]any{"process": "plugin_com.utmstack.config"})
+		}
+	}()
+
+	feedsStruct, err := structpb.NewStruct(map[string]any{"enabled": enabled})
+	if err != nil {
+		return catcher.Error("failed to build feeds struct", err, map[string]any{"process": "plugin_com.utmstack.config"})
+	}
+
+	config := plugins.Config{
+		Plugins: map[string]*structpb.Value{
+			"feeds": structpb.NewStructValue(feedsStruct),
+		},
+	}
+
+	bytes, err := k8syaml.Marshal(config)
+	if err != nil {
+		return catcher.Error("failed to marshal feeds config", err, map[string]any{"process": "plugin_com.utmstack.config"})
+	}
+
+	if _, err := file.Write(bytes); err != nil {
 		return catcher.Error("failed to write to file", err, map[string]any{"process": "plugin_com.utmstack.config"})
 	}
 

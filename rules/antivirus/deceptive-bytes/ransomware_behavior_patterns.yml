@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.0.1
 
 dataTypes:
   - deceptive-bytes
@@ -29,7 +29,9 @@ description: |
   9. Review backup integrity and availability before any restoration attempts
 where: |
   equals("log.event_type", "ransomware_behavior") &&
-  oneOf("log.behavior_pattern", ["mass_encryption", "file_enumeration", "ransom_note_drop"])
+  oneOf("log.behavior_pattern", ["mass_encryption", "file_enumeration", "ransom_note_drop"]) &&
+  exists("log.process") &&
+  exists("log.source_ip")
 afterEvents:
   - indexPattern: v11-log-deceptive-bytes-*
     with:

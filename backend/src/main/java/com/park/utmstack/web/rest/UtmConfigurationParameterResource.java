@@ -1,5 +1,6 @@
 package com.park.utmstack.web.rest;
 
+import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.UtmConfigurationParameter;
 import com.park.utmstack.domain.application_events.enums.ApplicationEventType;
 import com.park.utmstack.service.UtmConfigurationParameterQueryService;
@@ -9,7 +10,6 @@ import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.dto.UtmConfigurationParameterCriteria;
 import com.park.utmstack.service.mail_config.MailConfigService;
 import com.park.utmstack.service.validators.email.EmailValidatorService;
-import com.park.utmstack.service.validators.tw_config.TwConfigValidatorService;
 import com.park.utmstack.util.ResponseUtil;
 import com.park.utmstack.util.exceptions.UtmMailException;
 import com.park.utmstack.web.rest.util.PaginationUtil;
@@ -51,7 +51,6 @@ public class UtmConfigurationParameterResource {
     private final EmailValidatorService emailValidatorService;
     private final MailConfigService mailConfigService;
     private final UtmStackService utmStackService;
-    private final TwConfigValidatorService twConfigValidatorService;
 
     /**
      * PUT  /utm-configuration-parameters : Updates an existing utmConfigurationParameter.
@@ -68,10 +67,6 @@ public class UtmConfigurationParameterResource {
             Assert.notEmpty(parameters, "There isn't any parameter to update");
             for (UtmConfigurationParameter parameter : parameters) {
                 Errors errors = new BeanPropertyBindingResult(parameter, "utmConfigurationParameter");
-
-                if(parameter.getConfParamShort().equals("utmstack.tw.enable")){
-                    twConfigValidatorService.validate(parameter, errors);
-                }
 
                 if(StringUtils.hasText(parameter.getConfParamRegexp())){
                     emailValidatorService.validate(parameter, errors);
@@ -117,6 +112,7 @@ public class UtmConfigurationParameterResource {
         log.debug("REST request to get UtmConfigurationParameters by criteria: {}", criteria);
         Page<UtmConfigurationParameter> page = utmConfigurationParameterQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/utm-configuration-parameters");
+        page.getContent().forEach(this::maskSensitive);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -130,7 +126,15 @@ public class UtmConfigurationParameterResource {
     public ResponseEntity<UtmConfigurationParameter> getUtmConfigurationParameter(@PathVariable Long id) {
         log.debug("REST request to get UtmConfigurationParameter : {}", id);
         Optional<UtmConfigurationParameter> utmConfigurationParameter = utmConfigurationParameterService.findOne(id);
+        utmConfigurationParameter.ifPresent(this::maskSensitive);
         return tech.jhipster.web.util.ResponseUtil.wrapOrNotFound(utmConfigurationParameter);
+    }
+
+    private void maskSensitive(UtmConfigurationParameter p) {
+        if (Constants.CONF_TYPE_PASSWORD.equalsIgnoreCase(p.getConfParamDatatype())
+                && StringUtils.hasText(p.getConfParamValue())) {
+            p.setConfParamValue(Constants.MASKED_VALUE);
+        }
     }
 
     @PostMapping ("/checkEmailConfiguration")

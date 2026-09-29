@@ -176,6 +176,9 @@ public class AgentManagerResource {
         final String ctx = CLASSNAME + ".updateAgentAttributes";
         try {
             AuthResponseDTO response = agentGrpcService.updateAgentAttributes(agentRequestVM);
+            // The agent key is a command-channel credential: never echo it back to
+            // the panel, the way the listing endpoints already redact it.
+            response.setKey("SECRET");
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();

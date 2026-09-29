@@ -8,7 +8,8 @@
         <div class="card-header p-2 w-100 d-flex justify-content-between">
           <div class="d-flex flex-grow-1">
 
-            <ng-select (change)="selectType($event)"
+            <ng-select [(ngModel)]="selectedOriginType"
+                       (change)="selectType($event)"
                        [clearable]="true"
                        [items]="appliedTypes"
                        [loadingText]="'Loading types....'"
@@ -19,9 +20,16 @@
                        [loading]="!appliedTypes">
             </ng-select>
 
-            <div class="w-25 ml-3">
+            <div class="w-25 ml-3" *ngIf="agentSelectVisible">
               <app-utm-agent-select (agentSelect)="onAgentSelect($event)" [onlyWithCommands]="true"></app-utm-agent-select>
             </div>
+
+            <button type="button"
+                    class="btn btn-sm btn-outline-secondary ml-3"
+                    [disabled]="!hasActiveFilters()"
+                    (click)="clearFilters()">
+              Clear filters
+            </button>
           </div>
         </div>
 

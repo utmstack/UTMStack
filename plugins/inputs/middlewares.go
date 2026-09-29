@@ -5,6 +5,7 @@ import (
 	"context"
 	"crypto/hmac"
 	"crypto/sha256"
+	"crypto/subtle"
 	"errors"
 	"fmt"
 	"io"
@@ -64,8 +65,14 @@ func (m *Middlewares) HttpAuth() gin.HandlerFunc {
 	}
 }
 
+// maxWebhookBody caps the unauthenticated webhook body that is buffered before
+// the signature is verified, so an anonymous caller cannot drive memory use with
+// a single large request.
+const maxWebhookBody = 25 << 20 // 25 MiB
+
 func (m *Middlewares) GitHubAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, maxWebhookBody)
 		body, err := io.ReadAll(c.Request.Body)
 		if err != nil {
 			e := catcher.Error("failed to read request body", err, map[string]any{"process": "plugin_com.utmstack.inputs"})
@@ -115,12 +122,12 @@ func (m *Middlewares) authFromContext(ctx context.Context) error {
 			return status.Error(codes.PermissionDenied, "invalid key")
 		}
 	} else if len(authConnectionKey) > 0 {
-		if !isConnectionKeyValid(authConnectionKey[0]) {
+		if !m.AuthService.IsConnectionKeyValid(authConnectionKey[0]) {
 			return status.Error(codes.PermissionDenied, "invalid connection key")
 		}
 	} else if len(authInternalKey) > 0 {
 		internalKey := plugins.PluginCfg("com.utmstack").Get("internalKey").String()
-		if internalKey != authInternalKey[0] {
+		if subtle.ConstantTimeCompare([]byte(internalKey), []byte(authInternalKey[0])) != 1 {
 			return status.Error(codes.PermissionDenied, "internal key does not match")
 		}
 	} else {
@@ -139,18 +146,11 @@ func verifySignature(payloadBody []byte, secretToken string, signatureHeader str
 	mac.Write(payloadBody)
 	expectedSignature := "sha256=" + fmt.Sprintf("%x", mac.Sum(nil))
 
-	if signatureHeader != expectedSignature {
+	// Constant-time: a byte-by-byte comparison leaks the expected signature one
+	// position at a time to a caller that can retry.
+	if !hmac.Equal([]byte(signatureHeader), []byte(expectedSignature)) {
 		return errors.New("request signatures didn't match")
 	}
 
 	return nil
-}
-
-func isConnectionKeyValid(token string) bool {
-	panelKey, e := GetConnectionKey()
-	if e != nil {
-		return false
-	}
-
-	return token == string(panelKey)
 }

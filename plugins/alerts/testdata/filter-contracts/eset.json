@@ -1,0 +1,98 @@
+{
+  "technology": "ESET",
+  "filters": [
+    "filters/antivirus/esmc-eset.yml"
+  ],
+  "rules": [
+    "rules/antivirus/esmc-eset/advanced_heuristic_detection_triggers.yml",
+    "rules/antivirus/esmc-eset/botnet_communication_attempts.yml",
+    "rules/antivirus/esmc-eset/botnet_inbound_communication_attempts.yml",
+    "rules/antivirus/esmc-eset/eset_agent_tampering.yml",
+    "rules/antivirus/esmc-eset/eset_console_abuse.yml",
+    "rules/antivirus/esmc-eset/eset_quarantine_failures.yml",
+    "rules/antivirus/esmc-eset/exploit_detection_events.yml",
+    "rules/antivirus/esmc-eset/host_intrusion_prevention_triggers.yml",
+    "rules/antivirus/esmc-eset/machine_learning_detection_anomalies.yml",
+    "rules/antivirus/esmc-eset/network_attack_detection.yml",
+    "rules/antivirus/esmc-eset/registry_modification_attempts_blocked.yml",
+    "rules/antivirus/esmc-eset/suspicious_encrypted_file_detection.yml",
+    "rules/antivirus/esmc-eset/suspicious_powershell_activity_blocked.yml",
+    "rules/antivirus/esmc-eset/suspicious_process_behavior.yml"
+  ],
+  "fixtures": [
+    {
+      "name": "ESET isolated empty-input normalization control (raw extraction tested separately)",
+      "filter": "antivirus/esmc-eset.yml",
+      "input": {
+        "dataType": "antivirus-esmc-eset",
+        "dataSource": "synthetic-relay",
+        "log": {}
+      },
+      "expected": {
+        "dataSource": "synthetic-relay"
+      },
+      "absent": [
+        "origin.ip",
+        "target.ip",
+        "actionResult",
+        "log.endpointKey"
+      ],
+      "rules": {
+        "rules/antivirus/esmc-eset/advanced_heuristic_detection_triggers.yml": false,
+        "rules/antivirus/esmc-eset/botnet_communication_attempts.yml": false,
+        "rules/antivirus/esmc-eset/botnet_inbound_communication_attempts.yml": false,
+        "rules/antivirus/esmc-eset/eset_agent_tampering.yml": false,
+        "rules/antivirus/esmc-eset/eset_console_abuse.yml": false,
+        "rules/antivirus/esmc-eset/eset_quarantine_failures.yml": false,
+        "rules/antivirus/esmc-eset/exploit_detection_events.yml": false,
+        "rules/antivirus/esmc-eset/host_intrusion_prevention_triggers.yml": false,
+        "rules/antivirus/esmc-eset/machine_learning_detection_anomalies.yml": false,
+        "rules/antivirus/esmc-eset/network_attack_detection.yml": false,
+        "rules/antivirus/esmc-eset/registry_modification_attempts_blocked.yml": false,
+        "rules/antivirus/esmc-eset/suspicious_encrypted_file_detection.yml": false,
+        "rules/antivirus/esmc-eset/suspicious_powershell_activity_blocked.yml": false,
+        "rules/antivirus/esmc-eset/suspicious_process_behavior.yml": false
+      }
+    },
+    {
+      "name": "ESET isolated unknown-class outcome control (does not prove class extraction)",
+      "filter": "antivirus/esmc-eset.yml",
+      "input": {
+        "dataType": "antivirus-esmc-eset",
+        "dataSource": "synthetic-relay",
+        "log": {
+          "result": "Success",
+          "severity": "Warning",
+          "event_type": "Unverified_Event"
+        }
+      },
+      "expected": {
+        "log.result": "Success",
+        "log.severity": "Warning",
+        "log.event_type": "Unverified_Event"
+      },
+      "absent": [
+        "actionResult",
+        "origin.ip",
+        "target.ip",
+        "log.endpointKey"
+      ],
+      "rules": {
+        "rules/antivirus/esmc-eset/advanced_heuristic_detection_triggers.yml": false,
+        "rules/antivirus/esmc-eset/botnet_communication_attempts.yml": false,
+        "rules/antivirus/esmc-eset/botnet_inbound_communication_attempts.yml": false,
+        "rules/antivirus/esmc-eset/eset_agent_tampering.yml": false,
+        "rules/antivirus/esmc-eset/eset_console_abuse.yml": false,
+        "rules/antivirus/esmc-eset/eset_quarantine_failures.yml": false,
+        "rules/antivirus/esmc-eset/exploit_detection_events.yml": false,
+        "rules/antivirus/esmc-eset/host_intrusion_prevention_triggers.yml": false,
+        "rules/antivirus/esmc-eset/machine_learning_detection_anomalies.yml": false,
+        "rules/antivirus/esmc-eset/network_attack_detection.yml": false,
+        "rules/antivirus/esmc-eset/registry_modification_attempts_blocked.yml": false,
+        "rules/antivirus/esmc-eset/suspicious_encrypted_file_detection.yml": false,
+        "rules/antivirus/esmc-eset/suspicious_powershell_activity_blocked.yml": false,
+        "rules/antivirus/esmc-eset/suspicious_process_behavior.yml": false
+      }
+    }
+  ]
+}

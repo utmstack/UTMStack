@@ -1,21 +1,20 @@
-# Rule version v1.0.0
-
+# Rule contract revision 2026-09-17; SDK v1.1.31.
 dataTypes:
-  - aws
+- aws
 name: AWS CloudTrail Logging Disabled
 impact:
   confidentiality: 3
   integrity: 3
   availability: 2
 category: Defense Evasion
-technique: "T1562.008 - Impair Defenses: Disable Cloud Logs"
+technique: 'T1562.008 - Impair Defenses: Disable Cloud Logs'
 adversary: origin
 references:
-  - https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-concepts.html
-  - https://attack.mitre.org/techniques/T1562/008/
+- https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-concepts.html
+- https://attack.mitre.org/techniques/T1562/008/
 description: |
   Detects attempts to disable CloudTrail logging which could be used to hide malicious activities and evade detection. CloudTrail provides audit logs of all AWS API calls and is critical for security monitoring and compliance.
-  
+
   Next Steps:
   1. Immediately verify if the CloudTrail modification was authorized
   2. Check the user identity ({{log.userIdentityArn}}) and source IP ({{log.sourceIPAddress}}) for legitimacy
@@ -28,9 +27,13 @@ description: |
   9. Review AWS Config rules for CloudTrail compliance
   10. Enable CloudTrail Insights for anomaly detection
 where: |
-  equals("log.eventSource", "cloudtrail.amazonaws.com") &&
+  equals("log.awsRecordType","cloudtrail") &&
+  (equals("log.eventSource", "cloudtrail.amazonaws.com") &&
   oneOf("log.eventName", ["StopLogging", "DeleteTrail"]) &&
-  equals("log.errorCode", "")
+  equals("actionResult","success"))
 groupBy:
-  - adversary.user
-  - lastEvent.log.requestParameters.name
+- lastEvent.dataSource
+- lastEvent.log.awsAccountKeyType
+- lastEvent.log.awsAccountKey
+- adversary.user
+- lastEvent.log.requestParameters.name

@@ -205,18 +205,28 @@ public class UtmNetworkScanService {
 
             if (StringUtils.hasText(value)) {
                 if (prop == PropertyFilter.PORTS)
-                    sb.append(" AND cast(port as string) LIKE '%%%3$s%%'");
-                else if(prop == PropertyFilter.ALIVE && !value.isEmpty()){
-                    sb.append(" AND %1$s = %3$s");
+                    sb.append(" AND cast(port as string) LIKE :value");
+                else if(prop == PropertyFilter.ALIVE){
+                    sb.append(" AND %1$s = :value");
                 }
                 else
-                    sb.append(" AND lower(%1$s) LIKE '%%%3$s%%'");
+                    sb.append(" AND lower(%1$s) LIKE :value");
             }
             sb.append(" GROUP BY %1$s");
 
             String query = String.format(sb.toString(), prop.getPropertyName(), prop.getFromTable(), StringUtils.hasText(value) ? value.toLowerCase() : null, prop.getJoinTable());
 
-            return em.createQuery(query).setFirstResult(UtilPagination.getFirstForNativeSql(pageable.getPageSize(), pageable.getPageNumber())).setMaxResults(
+            javax.persistence.Query q = em.createQuery(query);
+            if (StringUtils.hasText(value)) {
+                if (prop == PropertyFilter.ALIVE) {
+                    q.setParameter("value", Boolean.parseBoolean(value));
+                } else if (prop == PropertyFilter.PORTS) {
+                    q.setParameter("value", "%" + value.toLowerCase() + "%");
+                } else {
+                    q.setParameter("value", "%" + value.toLowerCase() + "%");
+                }
+            }
+            return q.setFirstResult(UtilPagination.getFirstForNativeSql(pageable.getPageSize(), pageable.getPageNumber())).setMaxResults(
                 pageable.getPageSize()).getResultList();
         } catch (Exception e) {
             throw new Exception(ctx + ": " + e.getMessage());

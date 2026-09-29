@@ -20,6 +20,7 @@ import com.park.utmstack.util.CipherUtil;
 import com.park.utmstack.util.ResponseUtil;
 import com.park.utmstack.util.exceptions.InvalidConnectionKeyException;
 import com.park.utmstack.web.rest.util.HeaderUtil;
+import com.park.utmstack.web.rest.vm.CheckCredentialsVM;
 import com.park.utmstack.web.rest.vm.LoginVM;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -129,18 +130,23 @@ public class UserJWTController {
     }
 
 
-    @GetMapping("/check-credentials")
-    public ResponseEntity<String> checkPassword(@Valid @RequestParam String password, @RequestParam String checkUUID) {
+    /**
+     * Re-checks the current user's password. POST with a body: as a GET the
+     * password ended up in nginx access logs, browser history and any proxy in
+     * between.
+     */
+    @PostMapping("/check-credentials")
+    public ResponseEntity<String> checkPassword(@Valid @RequestBody CheckCredentialsVM checkCredentials) {
         final String ctx = CLASSNAME + ".checkPassword";
         try {
             User user = userService.getCurrentUserLogin();
 
             UserDetails userDetails = userDetailsService.loadUserByUsername(user.getLogin());
 
-            if (passwordEncoder.matches(password, userDetails.getPassword())) {
-                return new ResponseEntity<>(checkUUID, HttpStatus.OK);
+            if (passwordEncoder.matches(checkCredentials.getPassword(), userDetails.getPassword())) {
+                return new ResponseEntity<>(checkCredentials.getCheckUUID(), HttpStatus.OK);
             } else {
-                return new ResponseEntity<>(checkUUID, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(checkCredentials.getCheckUUID(), HttpStatus.BAD_REQUEST);
             }
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
