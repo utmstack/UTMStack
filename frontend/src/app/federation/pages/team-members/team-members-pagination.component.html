@@ -1,0 +1,17 @@
+<div *ngIf="pageInfo && pageInfo.total_items > 0"
+     class="d-flex justify-content-between align-items-center mt-2">
+  <small class="text-muted">
+    Page {{ pageInfo.page }} of {{ pageInfo.total_pages }}
+    ({{ pageInfo.total_items }} total)
+  </small>
+  <div>
+    <button type="button" class="btn btn-sm utm-button utm-button-grey mr-2"
+            (click)="prev.emit()" [disabled]="!pageInfo.has_prev || loading">
+      Previous
+    </button>
+    <button type="button" class="btn btn-sm utm-button utm-button-grey"
+            (click)="next.emit()" [disabled]="!pageInfo.has_next || loading">
+      Next
+    </button>
+  </div>
+</div>

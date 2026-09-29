@@ -60,6 +60,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+
     this.initForm();
     this.apiServiceCheckerService.isOnlineApi$
       .pipe(

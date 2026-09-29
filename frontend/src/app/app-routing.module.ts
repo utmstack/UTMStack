@@ -1,6 +1,12 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
 import {UserRouteAccessService} from './core/auth/user-route-access-service';
+import {FederationDisabledGuard} from './federation/guards/federation-disabled.guard';
+import {
+  FederationEmailConfigPageComponent
+} from './federation/pages/email-config/federation-email-config.page.component';
+import {TeamMembersPageComponent} from './federation/pages/team-members/team-members.page.component';
+import {WelcomeComponent as FederationWelcomeComponent} from './federation/pages/welcome/welcome.component';
 import {ConfirmIdentityComponent} from './shared/components/auth/confirm-identity/confirm-identity.component';
 import {LoginComponent} from './shared/components/auth/login/login.component';
 import {
@@ -69,7 +75,8 @@ const routes: Routes = [
   {
     path: 'app-management',
     loadChildren: './app-management/app-management.module#AppManagementModule',
-    canActivate: [UserRouteAccessService],
+    canActivate: [UserRouteAccessService, FederationDisabledGuard],
+    canActivateChild: [FederationDisabledGuard],
     data: {authorities: [USER_ROLE, ADMIN_ROLE]}
   },
   {
@@ -152,9 +159,26 @@ const routes: Routes = [
     canActivate: [UserRouteAccessService],
     data: {authorities: [ADMIN_ROLE, USER_ROLE]}
   },
+  {
+    path: 'federation',
+    canActivate: [UserRouteAccessService],
+    data: {authorities: [ADMIN_ROLE, USER_ROLE]},
+    children: [
+      {path: '', redirectTo: 'welcome', pathMatch: 'full'},
+      {path: 'welcome', component: FederationWelcomeComponent},
+      {path: 'instances', component: FederationWelcomeComponent},
+      {path: 'team-members', component: TeamMembersPageComponent},
+      {
+        path: 'email-config',
+        component: FederationEmailConfigPageComponent,
+        data: {authorities: [ADMIN_ROLE]}
+      }
+    ]
+  },
   {path: '', component: LoginComponent},
   {path: 'totp', component: TotpComponent},
   {path: 'enroll-tfa', component: TfaSetupComponent},
+  {path: 'auth/login', component: PasswordResetFinishComponent},
   {path: 'reset/finish', component: PasswordResetFinishComponent},
   {path: 'page-not-found', component: NotFoundComponent},
   {path: 'confirm-identity/:id', component: ConfirmIdentityComponent},
