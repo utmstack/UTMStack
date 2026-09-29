@@ -1,4 +1,4 @@
-# Windows_Agent filter, version 3.2.0
+# Windows_Agent filter, version 3.2.1
 # Based on winlogbeat fields, reference [8.15]
 # See https://www.elastic.co/guide/en/beats/winlogbeat/current/exported-fields-winlog.html
 
@@ -3361,16 +3361,10 @@ pipeline:
               exists("log.authenticationSource")
             ) ||
             (
-              equals("log.eventCode", "4768") &&
-              equals("log.channel", "Security") &&
-              !oneOf("log.eventDataTicketEncryptionType", ["18", "17"]) &&
-              exists("target.user") &&
-              !regexMatch("target.user", "(?i)\\$$")
-            ) ||
-            (
               equals("log.eventCode", "4672") &&
               equals("log.channel", "Security") &&
               contains("log.eventDataPrivilegeList", "SeTcbPrivilege") &&
+              !oneOf("log.eventDataSubjectUserSid", ["S-1-5-18", "S-1-5-19", "S-1-5-20"]) &&
               !regexMatch("log.eventDataSubjectUserName", "(?i)^(SYSTEM|LOCAL SERVICE|NETWORK SERVICE)$") &&
               !regexMatch("log.eventDataSubjectUserName", "(?i)\\$$")
             )

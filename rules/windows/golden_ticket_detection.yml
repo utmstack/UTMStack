@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.1.0
 
 dataTypes:
   - wineventlog
@@ -19,6 +19,15 @@ description: |
   hash, granting unlimited domain access. The rule detects anomalous TGT usage patterns including
   TGS requests with unusual encryption types, tickets with abnormally long lifetimes, and Kerberos
   authentication from non-domain-controller sources for the KRBTGT service.
+
+  It alerts on failed TGS requests for the krbtgt service (4769) and on special logons that
+  hold SeTcbPrivilege (4672) for accounts other than the built-in SYSTEM, LOCAL SERVICE and
+  NETWORK SERVICE identities, which are recognised by SID so that translated names such as
+  SISTEMA or Système are excluded too. TGT requests (4768) are not used: a forged TGT is never
+  requested from the KDC, a failed request issues no ticket, and RC4 tickets are routinely
+  issued to accounts that still hold only RC4 keys. Three matching events from one source
+  within 30 minutes are required, and one alert is raised per domain controller and account;
+  repeats are suppressed for seven days.
 
   Next Steps:
   1. Immediately verify if the KRBTGT account password has been compromised
@@ -41,16 +50,10 @@ where: |
     exists("log.authenticationSource")
   ) ||
   (
-    equals("log.eventCode", "4768") &&
-    equals("log.channel", "Security") &&
-    !oneOf("log.eventDataTicketEncryptionType", ["18", "17"]) &&
-    exists("target.user") &&
-    !regexMatch("target.user", "(?i)\\$$")
-  ) ||
-  (
     equals("log.eventCode", "4672") &&
     equals("log.channel", "Security") &&
     contains("log.eventDataPrivilegeList", "SeTcbPrivilege") &&
+    !oneOf("log.eventDataSubjectUserSid", ["S-1-5-18", "S-1-5-19", "S-1-5-20"]) &&
     !regexMatch("log.eventDataSubjectUserName", "(?i)^(SYSTEM|LOCAL SERVICE|NETWORK SERVICE)$") &&
     !regexMatch("log.eventDataSubjectUserName", "(?i)\\$$")
   )
@@ -78,9 +81,6 @@ afterEvents:
         value: '{{.log.eventCode}}'
     within: 30m
     count: 3
-groupBy:
+deduplicateBy:
   - dataSource
-  - lastEvent.log.authenticationSourceType
-  - lastEvent.log.authenticationSource
-  - lastEvent.log.authenticationSourceDomain
-  - target.user
+  - adversary.user
