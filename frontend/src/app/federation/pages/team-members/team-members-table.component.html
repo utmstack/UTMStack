@@ -1,0 +1,62 @@
+<div class="table-responsive">
+  <table class="table table-sm federation-team-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Login</th>
+        <th>Email</th>
+        <th>Status</th>
+        <th>2FA</th>
+        <th class="text-right">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngIf="loading">
+        <td colspan="6" class="text-center text-muted py-3">Loading...</td>
+      </tr>
+      <tr *ngIf="!loading && users.length === 0">
+        <td colspan="6" class="text-center text-muted py-3">No team members found.</td>
+      </tr>
+      <tr *ngFor="let user of users; trackBy: trackById">
+        <td>{{ displayName(user) }}</td>
+        <td>{{ user.login }}</td>
+        <td>{{ user.email || '—' }}</td>
+        <td>
+          <span *ngIf="user.pending" class="badge badge-warning">Pending</span>
+          <span *ngIf="!user.pending && user.activated" class="badge badge-success">Active</span>
+          <span *ngIf="!user.pending && !user.activated" class="badge badge-secondary">Inactive</span>
+        </td>
+        <td>
+          <span *ngIf="user.tfa_enabled" class="badge badge-info">On</span>
+          <span *ngIf="!user.tfa_enabled" class="text-muted">—</span>
+        </td>
+        <td class="text-right federation-team-actions">
+          <button type="button" class="btn btn-sm btn-link p-1"
+                  title="Edit" (click)="editUser.emit(user)"
+                  [disabled]="pendingActionId === user.id">
+            <i class="icon-pencil"></i>
+          </button>
+          <button *ngIf="user.pending" type="button" class="btn btn-sm btn-link p-1"
+                  title="Resend invite" (click)="resendInvite.emit(user)"
+                  [disabled]="pendingActionId === user.id">
+            <i class="icon-envelop3"></i>
+          </button>
+          <button *ngIf="user.tfa_enabled" type="button" class="btn btn-sm btn-link p-1 text-warning"
+                  title="Disable 2FA" (click)="disableTfa.emit(user)"
+                  [disabled]="pendingActionId === user.id">
+            <i class="icon-shield-cross"></i>
+          </button>
+          <button type="button" class="btn btn-sm btn-link p-1"
+                  [class.text-danger]="user.activated"
+                  [class.text-success]="!user.activated"
+                  [title]="user.activated ? 'Deactivate' : 'Activate'"
+                  (click)="toggleActivation.emit(user)"
+                  [disabled]="pendingActionId === user.id">
+            <i [class.icon-cancel-circle2]="user.activated"
+               [class.icon-checkmark-circle]="!user.activated"></i>
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

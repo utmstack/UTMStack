@@ -2,15 +2,21 @@ import {Injectable, isDevMode} from '@angular/core';
 import {ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot} from '@angular/router';
 import {ModalService} from '../modal/modal.service';
 
+import {FederationInstanceStateService} from '../../federation/services/federation-instance-state.service';
+import {FederationModeService} from '../../federation/services/federation-mode.service';
 import {AccountService} from './account.service';
 import {StateStorageService} from './state-storage.service';
+
+const FEDERATION_WELCOME_URL = '/federation/welcome';
 
 @Injectable({providedIn: 'root'})
 export class UserRouteAccessService implements CanActivate {
   constructor(
     private router: Router,
     private accountService: AccountService,
-    private stateStorageService: StateStorageService
+    private stateStorageService: StateStorageService,
+    private federationModeService: FederationModeService,
+    private federationInstanceState: FederationInstanceStateService
   ) {
   }
 
@@ -28,6 +34,14 @@ export class UserRouteAccessService implements CanActivate {
       return false;
     }
     if (account) {
+      if (
+        this.federationModeService.isActive &&
+        this.federationInstanceState.instances.length === 0 &&
+        !url.startsWith(FEDERATION_WELCOME_URL)
+      ) {
+        this.router.navigate([FEDERATION_WELCOME_URL]);
+        return false;
+      }
       const hasAnyAuthority = this.accountService.hasAnyAuthority(authorities);
       if (hasAnyAuthority) {
         return true;
