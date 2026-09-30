@@ -135,6 +135,42 @@ export interface FilterType {
 // Persistent chip config stored on dashboard.filters (JSON blob). Describes a
 // single dropdown in the dashboard filter bar; the *value* the user picks is
 // session-only (not persisted).
+export type DashboardFilterType = 'multiple' | 'searchable'
+
+export interface DashboardFilter {
+  id: string
+  dashboardId: string
+  data_set: string
+  field: string
+  type: DashboardFilterType
+  label?: string
+  place_holder?: string
+  createdDate?: string
+  modifiedDate?: string
+}
+
+export interface DashboardFilterCreateInput {
+  dashboardId: string
+  data_set: string
+  field: string
+  type: DashboardFilterType
+  label?: string
+  place_holder?: string
+}
+
+export interface DashboardFilterUpdateInput extends DashboardFilterCreateInput {
+  id: string
+}
+
+export interface DashboardFilterListParams {
+  dashboardId?: string
+  page?: number
+  size?: number
+}
+
+// Persistent chip config stored on dashboard.filters (JSON blob). Describes a
+// single dropdown in the dashboard filter bar; the *value* the user picks is
+// session-only (not persisted).
 export interface DashboardFilterChip {
   id: string
   field: string

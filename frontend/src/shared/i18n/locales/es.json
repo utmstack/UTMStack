@@ -549,7 +549,13 @@
       "visualizationUpdated": "Widget actualizado.",
       "visualizationUpdateFailed": "No se pudo actualizar el widget.",
       "visualizationDeleted": "Widget eliminado.",
-      "visualizationDeleteFailed": "No se pudo eliminar el widget."
+      "visualizationDeleteFailed": "No se pudo eliminar el widget.",
+      "filterCreated": "Filtro creado.",
+      "filterUpdated": "Filtro actualizado.",
+      "filterDeleted": "Filtro eliminado.",
+      "filterCreateFailed": "No se pudo crear el filtro.",
+      "filterUpdateFailed": "No se pudo actualizar el filtro.",
+      "filterDeleteFailed": "No se pudo eliminar el filtro."
     },
     "newDashboard": {
       "title": "Nuevo panel",

@@ -549,7 +549,13 @@
       "visualizationUpdated": "Widget aktualisiert.",
       "visualizationUpdateFailed": "Widget konnte nicht aktualisiert werden.",
       "visualizationDeleted": "Widget gelöscht.",
-      "visualizationDeleteFailed": "Widget konnte nicht gelöscht werden."
+      "visualizationDeleteFailed": "Widget konnte nicht gelöscht werden.",
+      "filterCreated": "Filter erstellt.",
+      "filterUpdated": "Filter aktualisiert.",
+      "filterDeleted": "Filter gelöscht.",
+      "filterCreateFailed": "Filter konnte nicht erstellt werden.",
+      "filterUpdateFailed": "Filter konnte nicht aktualisiert werden.",
+      "filterDeleteFailed": "Filter konnte nicht gelöscht werden."
     },
     "newDashboard": {
       "title": "Neues Dashboard",

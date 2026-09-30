@@ -552,7 +552,13 @@
       "visualizationDeleted": "Widget deleted.",
       "visualizationDeleteFailed": "Could not delete widget.",
       "filtersSaved": "Filters saved.",
-      "filtersSaveFailed": "Could not save filters."
+      "filtersSaveFailed": "Could not save filters.",
+      "filterCreated": "Filter created.",
+      "filterUpdated": "Filter updated.",
+      "filterDeleted": "Filter deleted.",
+      "filterCreateFailed": "Could not create filter.",
+      "filterUpdateFailed": "Could not update filter.",
+      "filterDeleteFailed": "Could not delete filter."
     },
     "filters": {
       "chooseValue": "Choose…",

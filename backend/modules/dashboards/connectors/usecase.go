@@ -24,3 +24,12 @@ type VisualizationUsecase interface {
 	List(ctx context.Context, f dto.VisualizationFilter) ([]domain.Visualization, int64, error)
 	Delete(ctx context.Context, id uuid.UUID) error
 }
+
+
+type DashboardFilterUsecase interface {
+	Create(ctx context.Context, v *domain.DashboardFilter, user string) (*domain.DashboardFilter, error)
+	Update(ctx context.Context, v *domain.DashboardFilter, user string) (*domain.DashboardFilter, error)
+	List(ctx context.Context, f dto.DashboardFilterFilter) ([]domain.DashboardFilter, int64, error)
+	Delete(ctx context.Context, id uuid.UUID) error
+}
+

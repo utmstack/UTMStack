@@ -549,7 +549,13 @@
       "visualizationUpdated": "Widget atualizado.",
       "visualizationUpdateFailed": "Não foi possível atualizar o widget.",
       "visualizationDeleted": "Widget excluído.",
-      "visualizationDeleteFailed": "Não foi possível excluir o widget."
+      "visualizationDeleteFailed": "Não foi possível excluir o widget.",
+      "filterCreated": "Filtro criado.",
+      "filterUpdated": "Filtro atualizado.",
+      "filterDeleted": "Filtro excluído.",
+      "filterCreateFailed": "Não foi possível criar o filtro.",
+      "filterUpdateFailed": "Não foi possível atualizar o filtro.",
+      "filterDeleteFailed": "Não foi possível excluir o filtro."
     },
     "newDashboard": {
       "title": "Novo painel",
