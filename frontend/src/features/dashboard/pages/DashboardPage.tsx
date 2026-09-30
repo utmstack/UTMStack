@@ -341,20 +341,31 @@ export function DashboardPage() {
       const existingIds = new Set(existing.map((f) => f.id));
       const nextIds = new Set(next.map((c) => c.id));
 
+      let created = 0;
+      let updated = 0;
+      let deleted = 0;
+
       // Delete removed chips.
       for (const f of existing) {
-        if (!nextIds.has(f.id)) await deleteFilter.mutateAsync(f.id);
+        if (!nextIds.has(f.id)) {
+          await deleteFilter.mutateAsync(f.id);
+          deleted++;
+        }
       }
       // Create or update.
       for (const chip of next) {
         if (existingIds.has(chip.id)) {
           await updateFilter.mutateAsync({ id: chip.id, ...chipToFilterInput(chip, target.id) });
+          updated++;
         } else {
           await createFilter.mutateAsync(chipToFilterInput(chip, target.id));
+          created++;
         }
       }
 
-      toast.success(t("dashboards.toast.filtersSaved"));
+      if (created > 0) toast.success(t("dashboards.toast.filterCreated"));
+      if (updated > 0) toast.success(t("dashboards.toast.filterUpdated"));
+      if (deleted > 0) toast.success(t("dashboards.toast.filterDeleted"));
       // Drop any values whose chip was removed/renamed.
       setChipValues((prev) => {
         const out: ChipValueMap = {};

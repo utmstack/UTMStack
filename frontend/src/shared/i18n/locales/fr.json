@@ -549,7 +549,13 @@
       "visualizationUpdated": "Widget mis à jour.",
       "visualizationUpdateFailed": "Impossible de mettre à jour le widget.",
       "visualizationDeleted": "Widget supprimé.",
-      "visualizationDeleteFailed": "Impossible de supprimer le widget."
+      "visualizationDeleteFailed": "Impossible de supprimer le widget.",
+      "filterCreated": "Filtre créé.",
+      "filterUpdated": "Filtre mis à jour.",
+      "filterDeleted": "Filtre supprimé.",
+      "filterCreateFailed": "Echec de la creation du filtre.",
+      "filterUpdateFailed": "Echec de la mise a jour du filtre.",
+      "filterDeleteFailed": "Echec de la suppression du filtre."
     },
     "newDashboard": {
       "title": "Nouveau tableau de bord",

@@ -551,7 +551,13 @@
       "visualizationUpdated": "Виджет обновлён.",
       "visualizationUpdateFailed": "Не удалось обновить виджет.",
       "visualizationDeleted": "Виджет удалён.",
-      "visualizationDeleteFailed": "Не удалось удалить виджет."
+      "visualizationDeleteFailed": "Не удалось удалить виджет.",
+      "filterCreated": "Фильтр создан.",
+      "filterUpdated": "Фильтр обновлён.",
+      "filterDeleted": "Фильтр удалён.",
+      "filterCreateFailed": "Не удалось создать фильтр.",
+      "filterUpdateFailed": "Не удалось обновить фильтр.",
+      "filterDeleteFailed": "Не удалось удалить фильтр."
     },
     "newDashboard": {
       "title": "Новая панель",
