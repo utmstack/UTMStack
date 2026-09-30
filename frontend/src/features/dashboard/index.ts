@@ -1,3 +1,4 @@
+import './styles/dashboard.css'
 export { DashboardPage } from './pages/DashboardPage'
 export { NewVisualizationPage } from './pages/NewVisualizationPage'
 export { EditVisualizationPage } from './pages/EditVisualizationPage'

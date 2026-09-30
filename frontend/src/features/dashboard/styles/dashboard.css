@@ -1,0 +1,4 @@
+.react-grid-item.react-grid-placeholder {
+  transition: none !important;
+  pointer-events: none;
+}
