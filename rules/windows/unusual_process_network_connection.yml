@@ -1,4 +1,4 @@
-# Rule version v1.0.3
+# Rule version v1.0.4
 
 dataTypes:
   - "wineventlog"
@@ -16,7 +16,7 @@ references:
 description: "Identifies network activity from unexpected system applications. This may indicate adversarial activity as these
               applications are often leveraged by adversaries to execute code and evade detection."
 where: |
-  (equals("log.eventCode",4688) || equals("log.eventCode",1)) && regexMatch("log.data.NewProcessName", "(Microsoft.Workflow.Compiler.exe|bginfo.exe|cdb.exe|cmstp.exe|csi.exe|dnx.exe|fsi.exe|ieexec.exe|iexpress.exe|odbcconf.exe|rcsi.exe|xwizard.exe)")
+  equals("log.eventCode",4688) && regexMatch("log.data.NewProcessName", "(Microsoft.Workflow.Compiler.exe|bginfo.exe|cdb.exe|cmstp.exe|csi.exe|dnx.exe|fsi.exe|ieexec.exe|iexpress.exe|odbcconf.exe|rcsi.exe|xwizard.exe)")
 groupBy:
   - dataSource
 deduplicateBy: []
