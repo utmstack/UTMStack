@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.0.1
 
 dataTypes:
   - wineventlog
@@ -14,7 +14,7 @@ references:
   - https://jpcertcc.github.io/ToolAnalysisResultSheet/details/WinRM.htm
   - https://attack.mitre.org/techniques/T1021/006/
 description: |
-  Detects potential abuse of Windows Remote Management (WinRM) for lateral movement. Monitors for successful logon events (4624) with network logon type 3 combined with privilege escalation (4672) and WinRM-related process activity, indicating remote command execution via WinRM.
+  Detects potential abuse of Windows Remote Management (WinRM) for lateral movement: a shell or a discovery or administration tool started (4688) by the WinRM host processes (wsmprovhost.exe or winrshost.exe), indicating remote command execution via WinRM.
   
   Next Steps:
   1. Investigate the source IP address and verify if it's an authorized administrative workstation
@@ -26,7 +26,7 @@ description: |
   7. Validate the legitimacy of any processes spawned through the WinRM session
   8. Consider implementing additional monitoring for WinRM usage if this represents unexpected activity
 where: |
-  (equals("log.eventCode",4688) || equals("log.eventCode",1)) && regexMatch("log.data.ParentProcessName","(?i)(wsmprovhost|winrshost)[.]exe$") && regexMatch("log.data.NewProcessName","(?i)(cmd|powershell|pwsh|net1?|whoami|systeminfo|reg|sc|schtasks|wmic|bitsadmin|certutil|nltest|quser|tasklist|netstat|ipconfig|arp|route|psexec)[.]exe$")
+  equals("log.eventCode",4688) && regexMatch("log.data.ParentProcessName","(?i)(wsmprovhost|winrshost)[.]exe$") && regexMatch("log.data.NewProcessName","(?i)(cmd|powershell|pwsh|net1?|whoami|systeminfo|reg|sc|schtasks|wmic|bitsadmin|certutil|nltest|quser|tasklist|netstat|ipconfig|arp|route|psexec)[.]exe$")
 groupBy:
   - dataSource
 deduplicateBy: []

@@ -1,4 +1,4 @@
-# Windows_Agent filter, version 3.2.1
+# Windows_Agent filter, version 3.2.2
 # Based on winlogbeat fields, reference [8.15]
 # See https://www.elastic.co/guide/en/beats/winlogbeat/current/exported-fields-winlog.html
 
@@ -3291,22 +3291,16 @@ pipeline:
           to: int
 
       # Correlation requires a real identity, never the shared '-' placeholder.
-      # Prefer the network source, then workstation, then authenticated account.
-      # Rules also scope this derived value by its kind and by dataSource.
+      # Prefer the network source, then the workstation, then an account that a
+      # domain or UPN qualifies. Rules pair this value with dataSource.
       - delete:
-          fields: [log.authenticationSource, log.authenticationSourceType, log.authenticationSourceDomain, log.authenticationCandidate]
+          fields: [log.authenticationSource, log.authenticationCandidate]
       - grok:
           source: origin.ip
           patterns:
             - fieldName: log.authenticationSource
               pattern: '{{.greedy}}'
           where: exists("origin.ip")
-      - add:
-          function: string
-          params:
-            key: log.authenticationSourceType
-            value: ip
-          where: exists("log.authenticationSource")
       - grok:
           source: origin.host
           patterns:
@@ -3314,12 +3308,6 @@ pipeline:
               pattern: '{{.greedy}}'
           where: >-
             !exists("log.authenticationSource") && exists("origin.host")
-      - add:
-          function: string
-          params:
-            key: log.authenticationSourceType
-            value: host
-          where: exists("log.authenticationSource") && !exists("log.authenticationSourceType")
       - grok:
           source: origin.user
           patterns:
@@ -3327,38 +3315,12 @@ pipeline:
               pattern: '{{.greedy}}'
           where: >-
             !exists("log.authenticationSource") && exists("origin.user") && (exists("origin.domain") || regexMatch("origin.user", "^[^@]+@[^@]+$"))
-      - add:
-          function: string
-          params:
-            key: log.authenticationSourceType
-            value: user
-          where: exists("log.authenticationSource") && !exists("log.authenticationSourceType")
-
-      # User-only identities require a domain or an already qualified UPN. The
-      # explicit scope prevents equal usernames from different domains joining.
-      - grok:
-          source: origin.domain
-          patterns:
-            - fieldName: log.authenticationSourceDomain
-              pattern: '{{.greedy}}'
-          where: equals("log.authenticationSourceType", "user") && exists("origin.domain")
-      - add:
-          function: string
-          params:
-            key: log.authenticationSourceDomain
-            value: qualified-upn
-          where: equals("log.authenticationSourceType", "user") && !exists("log.authenticationSourceDomain")
-      - add:
-          function: string
-          params:
-            key: log.authenticationSourceDomain
-            value: network-source
-          where: oneOf("log.authenticationSourceType", ["ip", "host"])
 
       # Historical searches support exact terms, not a CEL predicate. Mark the
-      # same candidates tested by these authentication rules so routine events
-      # with the same event ID cannot fill an attack threshold. Keep predicates
-      # and markers together; the raw/CEL regression checks assert their parity.
+      # candidates of the authentication rules whose predicate a history search
+      # cannot repeat, so routine events with the same event ID cannot fill an
+      # attack threshold. Keep predicates and markers together; the raw/CEL
+      # regression checks assert their parity.
       - add:
           function: string
           params:
@@ -3366,16 +3328,14 @@ pipeline:
             value: match
           where: |
             !oneOf("dataSource", ["", "unknown"]) &&
-            exists("log.authenticationSource") && exists("log.authenticationSourceType") && exists("log.authenticationSourceDomain") &&
-            (
+            exists("log.authenticationSource") &&
             equals("log.eventCode", "4769") &&
             equals("log.channel", "Security") &&
             equals("log.eventDataTicketEncryptionType", "23") &&
             !regexMatch("log.eventDataServiceName", "(?i)\\$$") &&
             !equals("log.eventDataServiceName", "krbtgt") &&
-            !oneOf("log.eventDataTicketOptions", ["1082195968", "1082130432", "1082130432"]) &&
+            !oneOf("log.eventDataTicketOptions", ["1082195968", "1082130432"]) &&
             exists("log.eventDataServiceName")
-            )
       - add:
           function: string
           params:
@@ -3383,15 +3343,13 @@ pipeline:
             value: match
           where: |
             !oneOf("dataSource", ["", "unknown"]) &&
-            exists("log.authenticationSource") && exists("log.authenticationSourceType") && exists("log.authenticationSourceDomain") &&
-            (
+            exists("log.authenticationSource") &&
             equals("log.eventCode", "4768") &&
             equals("log.channel", "Security") &&
             equals("log.eventDataTicketEncryptionType", "23") &&
             equals("log.eventDataPreAuthType", "0") &&
             !regexMatch("target.user", "(?i)\\$$") &&
             exists("target.user")
-            )
       - add:
           function: string
           params:
@@ -3399,17 +3357,12 @@ pipeline:
             value: match
           where: |
             !oneOf("dataSource", ["", "unknown"]) &&
-            exists("log.authenticationSource") && exists("log.authenticationSourceType") && exists("log.authenticationSourceDomain") &&
-            (
+            exists("log.authenticationSource") &&
             equals("log.eventCode", "4769") &&
             equals("log.channel", "Security") &&
-            (
-              equals("log.eventDataTicketEncryptionType", "23") &&
-              !regexMatch("log.eventDataServiceName", "(?i)(krbtgt|\\$$)") &&
-              !oneOf("log.eventDataStatus", ["0", "6"]) &&
-              exists("log.authenticationSource")
-            )
-            )
+            equals("log.eventDataTicketEncryptionType", "23") &&
+            !regexMatch("log.eventDataServiceName", "(?i)(krbtgt|\\$$)") &&
+            !oneOf("log.eventDataStatus", ["0", "6"])
       - add:
           function: string
           params:
@@ -3417,14 +3370,13 @@ pipeline:
             value: match
           where: |
             !oneOf("dataSource", ["", "unknown"]) &&
-            exists("log.authenticationSource") && exists("log.authenticationSourceType") && exists("log.authenticationSourceDomain") &&
+            exists("log.authenticationSource") &&
             (
             (
               equals("log.eventCode", "4769") &&
               equals("log.channel", "Security") &&
               equals("log.eventDataServiceName", "krbtgt") &&
-              !equals("log.eventDataStatus", "0") &&
-              exists("log.authenticationSource")
+              !equals("log.eventDataStatus", "0")
             ) ||
             (
               equals("log.eventCode", "4768") &&
@@ -3448,29 +3400,5 @@ pipeline:
             value: match
           where: |
             !oneOf("dataSource", ["", "unknown"]) &&
-            exists("log.authenticationSource") && exists("log.authenticationSourceType") && exists("log.authenticationSourceDomain") &&
-            (
+            exists("log.authenticationSource") &&
             equals("log.providerName", "AD FS") && (equals("log.eventCode", "342") || equals("log.eventCode", "516")) && contains("log.message", "token validation failed")
-            )
-      - add:
-          function: string
-          params:
-            key: log.authenticationCandidate.bruteforceAttack
-            value: match
-          where: |
-            !oneOf("dataSource", ["", "unknown"]) &&
-            exists("log.authenticationSource") && exists("log.authenticationSourceType") && exists("log.authenticationSourceDomain") && exists("target.user") &&
-            (
-            equals("log.eventCode", 4625)
-            )
-      - add:
-          function: string
-          params:
-            key: log.authenticationCandidate.bruteforceMultipleLogonFailureFollowedBySuccess
-            value: match
-          where: |
-            !oneOf("dataSource", ["", "unknown"]) &&
-            exists("log.authenticationSource") && exists("log.authenticationSourceType") && exists("log.authenticationSourceDomain") && exists("target.user") &&
-            (
-            equals("log.eventCode", 4624)
-            )

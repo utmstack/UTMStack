@@ -1,4 +1,4 @@
-# Rule version v1.0.3
+# Rule version v1.0.4
 
 dataTypes:
   - "wineventlog"
@@ -17,7 +17,7 @@ references:
   - "https://attack.mitre.org/tactics/TA0004/"
   - "https://attack.mitre.org/techniques/T1068/"
 where: |
-  (equals("log.eventCode",4688) || equals("log.eventCode",1)) && contains("log.data.NewProcessName", "spoolsv.exe") && !regexMatch("log.data.NewProcessName", "[Ss]ystem32.spoolsv[.]exe$")
+  equals("log.eventCode",4688) && contains("log.data.NewProcessName", "spoolsv.exe") && !regexMatch("log.data.NewProcessName", "[Ss]ystem32.spoolsv[.]exe$")
 groupBy:
   - dataSource
 deduplicateBy: []

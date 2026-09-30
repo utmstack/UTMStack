@@ -1,4 +1,4 @@
-# Rule version v1.0.3
+# Rule version v1.1.0
 
 dataTypes:
   - "wineventlog"
@@ -13,11 +13,13 @@ adversary: origin
 description: "Detects potential ransomware activity by monitoring multiple file write/modification events (Event ID 4663) 
               with write access masks in user directories within a short timeframe. Modern ransomware typically 
               encrypts files in-place rather than deleting them, making write access monitoring more effective 
-              than deletion monitoring alone."
+              than deletion monitoring alone. Fifty accesses with the same write access mask by one account on one computer
+              within five minutes raise one alert per computer and account; repeats are suppressed for seven days."
 references:
   - "https://attack.mitre.org/tactics/TA0040/"
 where: |
-  equals("log.eventCode", 4663) && 
+  equals("log.eventCode", 4663) &&
+  exists("origin.user") &&
   oneOf("log.eventDataAccessMask", ["2", "4", "6"]) &&
   !(regexMatch("log.eventDataProcessName", "(?i).*(trustedinstaller|svchost|wuauclt|msiexec|windows10upgrade|setuphost|tiworker|dism).*")) &&
   regexMatch("log.eventDataObjectName", "(?i).*\\\\(users|documents|desktop|downloads|pictures|videos|music)\\\\.*") &&
@@ -30,11 +32,17 @@ afterEvents:
         - field: log.eventCode
           operator: filter_term
           value: "4663"
-        - field: target.user.keyword
+        - field: dataSource.keyword
           operator: filter_term
-          value: "{{.target.user}}"
+          value: "{{.dataSource}}"
+        - field: origin.user.keyword
+          operator: filter_term
+          value: "{{.origin.user}}"
+        - field: log.eventDataAccessMask
+          operator: filter_term
+          value: "{{.log.eventDataAccessMask}}"
       within: 5m
       count: 50
-groupBy:
-  - adversary.ip
-  - target.user
+deduplicateBy:
+  - dataSource
+  - adversary.user

@@ -20,12 +20,13 @@ are rejected while the exact original vendor value is preserved. Tests cover
 account and workstation fallback, no qualified fallback, and a valid mapped-IPv4
 control. These alternate-spelling regressions are synthetic; no additional
 customer occurrence is claimed. Authentication correlation chooses a real source IP,
-then workstation, then actor account, recorded in `log.authenticationSource`
-and `log.authenticationSourceType`. The account fallback identifies an account,
-not a network client. Every affected history search scopes that identity by
-its kind, domain scope, the agent's `dataSource`, and event code. Brute-force rules also
-require the target account; Kerberos searches constrain ticket encryption and,
-for AS-REP, preauthentication type. No shared placeholder is an identity. A username-only fallback requires its
+then workstation, then actor account, recorded in `log.authenticationSource`.
+The account fallback identifies an account, not a network client. Every affected
+history search pairs that identity with the agent's `dataSource`. The brute-force
+rule counts failures from one source whatever account they target; success after
+failures also requires the same account. Kerberos searches use their candidate
+marker, which already fixes the event code and ticket encryption. No shared
+placeholder is an identity. A username-only fallback requires its
 domain or an already qualified UPN; an unqualified username without a domain
 is not treated as a safe correlation identity.
 
@@ -38,12 +39,37 @@ correlation fields, so the updated history windows warm up after deployment.
 
 Golden Ticket's historical query previously depended on `origin.host`, not
 `origin.ip`; native Kerberos records can lack that workstation too. Its
-correlation now uses the same identity selection. Filter-derived `log.authenticationCandidate.*` markers repeat each exact
-trigger predicate so benign events with the same event code cannot satisfy the
-historical threshold. The tests assert marker/predicate parity. Success after
-failures searches the failed-logon marker. The update preserves each rule's
-existing count and time window. It does not claim that the existing
-Golden/Silver Ticket heuristics prove forged tickets.
+correlation now uses the same identity selection. Filter-derived `log.authenticationCandidate.*` markers repeat the
+trigger predicates that a history search cannot express (Kerberoasting, AS-REP
+roasting, Silver and Golden Ticket, AD FS), so benign events with the same event
+code cannot satisfy the historical threshold. The tests assert marker/predicate
+parity. The two logon rules need no marker: their exact terms (event 4625,
+`dataSource`, source and, for success, the account) already are the predicate.
+The update preserves each rule's existing count and time window. It does not
+claim that the existing Golden/Silver Ticket heuristics prove forged tickets.
+
+## Simplification after production use (2026-09-30)
+
+The first version also stored the kind of source (`log.authenticationSourceType`)
+and a domain scope (`log.authenticationSourceDomain`), and marked every failed
+and successful logon. Read-only counts on 27 v11.2.15 servers, which run this
+filter unchanged, showed that none of it changed which events were counted:
+
+- Across 26,418 source values seen in two days, no value ever appeared with two
+  kinds. The domain scope separated five values; four of them were one domain
+  written two ways (short and full name), so it split one account in two.
+- The failed-logon marker only repeated the event code and the presence of the
+  source and account, which the search terms already require. The success
+  marker was written on every successful logon (about three million a day) and
+  no rule read it.
+
+Both fields and both logon markers are removed. Counting failures per source
+instead of per source and account follows the rule's description and also
+catches password spraying. Replaying two days of production failures, the
+per-account version would have raised 100 alerts, up to 26 in one hour on one
+server; the per-source version raises 69, at most 5 in one hour. The success
+rule no longer searches history for computer accounts, which are 44% of
+successful logons and whose passwords are machine-generated.
 
 ## Standard field promotion
 
@@ -70,15 +96,18 @@ placeholder cleanup, and event-versus-alert grouping remain included.
 
 - `windows_contract_test.go` is standalone and runs with `go test ./...` in
   `plugins/alerts`, without the shared test-runner PR.
-- 60 sanitized raw JSON fixtures exercise valid IPv4/IPv6, missing/placeholder
-  addresses, host/account fallback, valid/invalid ports, host roles and time.
-- 50 positive predicate cases cover all seven changed correlation consumers.
-  Negative identity cases also compile/evaluate all 38 shipped Windows rules.
+- 77 sanitized raw JSON fixtures exercise valid IPv4/IPv6, missing/placeholder
+  addresses, host/account fallback, valid/invalid ports, host roles and time,
+  and the LSASS, certificate, AdminSDHolder, SMBv1, ransomware and loopback
+  Remote Desktop rules.
+- Positive predicate cases cover every changed correlation consumer. Negative
+  identity cases also compile/evaluate all 48 shipped Windows rules.
 - The real SDK executes historical requests against a local mock OpenSearch
   server, including mapping resolution, placeholder expansion, query creation,
-  time/count boundaries and separation of different sources, identity kinds,
-  collectors, account domains, event types and non-candidate history. The old missing-IP regression is reproduced with
-  the SDK, without a customer connection.
+  time/count boundaries and separation by every exact search term. A spray of
+  failures against different accounts fills the brute-force threshold but not
+  the success-after-failures threshold. The old missing-IP regression is
+  reproduced with the SDK, without a customer connection.
 - The shared manifest adds seven nonempty rule assertions to its normalization
   cases. Its runner is supplied by draft #2590.
 
