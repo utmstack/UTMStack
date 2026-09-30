@@ -110,6 +110,17 @@ func connect() store.BulkWriter {
 		TenantColumn:   "tenantId",
 		TimeColumn:     "@timestamp",
 		DataTypeColumn: "dataType",
+		// A row ClickHouse still refuses after BulkWriter's own retries and
+		// bisection is one this batch was never going to write — logged with
+		// its own content and the real error, instead of vanishing into the
+		// "rows: N" count a whole failed Flush used to be the only trace of.
+		OnReject: func(row []byte, err error) {
+			_ = catcher.Error("dropped a log ClickHouse will not accept", err, map[string]any{
+				"process": processName,
+				"id":      gjson.GetBytes(row, "id").String(),
+				"row":     string(row),
+			})
+		},
 	})
 	if err != nil {
 		_ = catcher.Error("cannot build the ClickHouse store", err, map[string]any{"process": processName})

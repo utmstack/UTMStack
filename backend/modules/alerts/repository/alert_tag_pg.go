@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"errors"
-	"fmt"
 	"strings"
 
 	"github.com/google/uuid"
@@ -142,21 +141,23 @@ func (r *pgAlertTagRuleRepository) List(ctx context.Context, f dto.AlertTagRuleF
 
 	where, args := buildTagRuleWhere(f)
 
-	table := domain.AlertTagRule{}.TableName()
+	// Chainable API, not Raw: Raw bypasses the tenancy plugin (it hooks
+	// Query/Row, but Raw+Scan already has its SQL built by the time that runs,
+	// so an added tenant clause never reaches the query text) — this used to
+	// list every tenant's tagging rules.
+	q := r.db.WithContext(ctx).Model(&domain.AlertTagRule{}).Where(where, args...)
 
-	countSQL := fmt.Sprintf(`SELECT COUNT(*) FROM %s WHERE %s`, table, where)
 	var total int64
-	if err := r.db.WithContext(ctx).Raw(countSQL, args...).Scan(&total).Error; err != nil {
+	if err := q.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	offset := (f.Page - 1) * f.Size
-	dataSQL := fmt.Sprintf(
-		`SELECT * FROM %s WHERE %s ORDER BY id ASC LIMIT %d OFFSET %d`,
-		table, where, f.Size, offset,
-	)
 	var rows []domain.AlertTagRule
-	if err := r.db.WithContext(ctx).Raw(dataSQL, args...).Scan(&rows).Error; err != nil {
+	if err := q.
+		Order("id ASC").
+		Offset((f.Page - 1) * f.Size).
+		Limit(f.Size).
+		Find(&rows).Error; err != nil {
 		return nil, 0, err
 	}
 	return rows, total, nil

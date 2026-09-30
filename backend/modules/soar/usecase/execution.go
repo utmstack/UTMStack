@@ -93,6 +93,13 @@ func (u *executionUsecase) HandleMatch(ctx context.Context, req dto.MatchRequest
 			_ = catcher.Error("soar: command interpolation failed", ierr, map[string]any{"rule": req.RulePath, "root": rootID})
 			continue
 		}
+
+		masked_command,cerr := u.vars.MaskSecrets(ctx,command)
+		if cerr != nil {
+			_ = catcher.Error("soar: command variable masking failed", cerr,map[string]any{"rule": req.RulePath, "root": rootID})
+		}
+
+
 		exec := &domain.SoarExecution{
 			TenantID:  tenantUUID,
 			Origin:    domain.ExecutionOriginFlow,
@@ -105,7 +112,7 @@ func (u *executionUsecase) HandleMatch(ctx context.Context, req dto.MatchRequest
 			Executor:  node.Executor,
 			Params:    params,
 			Context:   json.RawMessage(bag),
-			Command:   command,
+			Command:   masked_command,
 			Shell:     node.Shell,
 			Agent:     agent,
 			Status:    domain.ExecutionStatusPending,
@@ -164,6 +171,7 @@ func (u *executionUsecase) List(ctx context.Context, f dto.ExecutionFilters) (*d
 	items := make([]dto.ExecutionResponse, len(executions))
 	for i, e := range executions {
 		CommandSummary(ctx, u.vars, &e)
+
 		items[i] = dto.ExecutionResponse{
 			ID:                e.ID,
 			Origin:            e.Origin,
@@ -190,11 +198,17 @@ func (u *executionUsecase) List(ctx context.Context, f dto.ExecutionFilters) (*d
 }
 
 func (u *executionUsecase) StartManual(ctx context.Context, agent, command, triggeredBy string) (uuid.UUID, error) {
+
+	masked_command,cerr := u.vars.MaskSecrets(ctx,command)
+	if cerr != nil {
+		_ = catcher.Error("soar: command variable masking failed", cerr,map[string]any{})
+	}
+
 	e, err := u.repo.Create(ctx, &domain.SoarExecution{
 		Origin:      domain.ExecutionOriginManual,
 		TriggeredBy: triggeredBy,
 		Agent:       agent,
-		Command:     command,
+		Command:     masked_command,
 		Executor:    "shell",
 		Kind:        domain.NodeKindExecutor,
 		NodeID:      "manual",
