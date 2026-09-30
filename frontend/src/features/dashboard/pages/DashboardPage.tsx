@@ -20,6 +20,7 @@ import {
   useVisualizationMutations,
 } from "@/features/dashboard/hooks/useVisualizations";
 import { useDashboardEditor } from "@/features/dashboard/hooks/useDashboardEditor";
+import { useDashboardFilters } from "@/features/dashboard/hooks/useDashboardFilters";
 import { DashboardGrid } from "@/features/dashboard/components/DashboardGrid";
 import { DashboardEditorBar } from "@/features/dashboard/components/DashboardEditorBar";
 import { DashboardFormDialog } from "@/features/dashboard/components/DashboardFormDialog";
@@ -45,6 +46,8 @@ import {
 import type {
   Dashboard,
   DashboardFilterChip,
+  DashboardFilter,
+  DashboardFilterCreateInput,
   FilterType,
   GridLayoutItem,
 } from "@/features/dashboard/types";
@@ -126,9 +129,11 @@ export function DashboardPage() {
   const initialItems = useMemo(() => toGridItems(vizItems), [vizItems]);
   const editor = useDashboardEditor(initialItems);
 
+  const { list: filterList, createFilter, updateFilter, deleteFilter } = useDashboardFilters(selectedId);
+
   const chips = useMemo<DashboardFilterChip[]>(
-    () => parseChipConfig(selectedDashboard.data?.filters),
-    [selectedDashboard.data?.filters],
+    () => (filterList.data?.data ?? []).map(filterToChip),
+    [filterList.data],
   );
 
   // Reset chip *values* whenever the dashboard changes; chip *config* persists.
@@ -328,33 +333,38 @@ export function DashboardPage() {
     setSelectedId(id);
   };
 
-  const handleSaveFilters = (next: DashboardFilterChip[]) => {
+  const handleSaveFilters = async (next: DashboardFilterChip[]) => {
     const target = selectedDashboard.data;
     if (!target) return;
-    dashboards.updateDashboard.mutate(
-      {
-        id: target.id,
-        name: target.name,
-        description: target.description,
-        config: target.config,
-        filters: JSON.stringify(next),
-      },
-      {
-        onSuccess: () => {
-          toast.success(t("dashboards.toast.filtersSaved"));
-          // Drop any values whose chip was removed/renamed.
-          const validIds = new Set(next.map((c) => c.id));
-          setChipValues((prev) => {
-            const out: ChipValueMap = {};
-            for (const k of Object.keys(prev))
-              if (validIds.has(k)) out[k] = prev[k];
-            return out;
-          });
-        },
-        onError: (err) =>
-          toast.error(err.message ?? t("dashboards.toast.filtersSaveFailed")),
-      },
-    );
+    try {
+      const existing = filterList.data?.data ?? [];
+      const existingIds = new Set(existing.map((f) => f.id));
+      const nextIds = new Set(next.map((c) => c.id));
+
+      // Delete removed chips.
+      for (const f of existing) {
+        if (!nextIds.has(f.id)) await deleteFilter.mutateAsync(f.id);
+      }
+      // Create or update.
+      for (const chip of next) {
+        if (existingIds.has(chip.id)) {
+          await updateFilter.mutateAsync({ id: chip.id, ...chipToFilterInput(chip, target.id) });
+        } else {
+          await createFilter.mutateAsync(chipToFilterInput(chip, target.id));
+        }
+      }
+
+      toast.success(t("dashboards.toast.filtersSaved"));
+      // Drop any values whose chip was removed/renamed.
+      setChipValues((prev) => {
+        const out: ChipValueMap = {};
+        for (const k of Object.keys(prev))
+          if (nextIds.has(k)) out[k] = prev[k];
+        return out;
+      });
+    } catch (err) {
+      toast.error((err as Error).message ?? t("dashboards.toast.filtersSaveFailed"));
+    }
   };
 
   const backToList = () => {
@@ -454,7 +464,7 @@ export function DashboardPage() {
             values={chipValues}
             onChange={setChipValues}
             editable={editor.editing}
-            savingChips={dashboards.updateDashboard.isPending}
+            savingChips={createFilter.isPending || updateFilter.isPending || deleteFilter.isPending}
             onSaveChips={handleSaveFilters}
           />
         )}
@@ -554,16 +564,27 @@ export function DashboardPage() {
 
 export default DashboardPage;
 
-function parseChipConfig(
-  json: string | undefined | null,
-): DashboardFilterChip[] {
-  if (!json) return [];
-  try {
-    const parsed = JSON.parse(json);
-    return Array.isArray(parsed) ? (parsed as DashboardFilterChip[]) : [];
-  } catch {
-    return [];
-  }
+function filterToChip(f: DashboardFilter): DashboardFilterChip {
+  return {
+    id: f.id,
+    field: f.field,
+    label: f.label || f.field,
+    placeholder: f.place_holder || undefined,
+    dataset: f.data_set,
+    multiple: f.type === "multiple",
+    searchable: f.type === "searchable",
+  };
+}
+
+function chipToFilterInput(chip: DashboardFilterChip, dashboardId: string): DashboardFilterCreateInput {
+  return {
+    dashboardId,
+    data_set: chip.dataset,
+    field: chip.field,
+    type: chip.multiple ? "multiple" : "searchable",
+    label: chip.label,
+    place_holder: chip.placeholder || "",
+  };
 }
 
 function chipsToFilters(
