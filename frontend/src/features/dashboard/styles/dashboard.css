@@ -1,0 +1,14 @@
+/* Override de react-grid-layout (v2) para el placeholder de drop del dashboard.
+   El placeholder es un .react-grid-item aparte que hereda la transición de
+   transform/width/height. Cuando su celda va un frame por detrás del cursor
+   (o containerWidth se mide un frame obsoleto por el ResizeObserver rAF de
+   useContainerWidth, p. ej. al aparecer la scrollbar en el overflow-y-auto),
+   su ancho animado se vuelve una "columna" roja que corta el widget y deja un
+   rastro al soltar. Se anula la transición para que snapee a la celda.
+   Se usa !important porque este CSS se inyecta antes que el de la lib (el
+   barrel de la feature carga antes que DashboardGrid), y la regla de la lib
+   usa un selector de igual especificidad (.react-grid-item.react-grid-placeholder). */
+.react-grid-item.react-grid-placeholder {
+  transition: none !important;
+  pointer-events: none;
+}
