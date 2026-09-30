@@ -65,6 +65,7 @@ func Models() []any {
 		datasources_domain.Datasource{},
 		dashboards_domain.Dashboard{},
 		dashboards_domain.Visualization{},
+		dashboards_domain.DashboardFilter{},
 		loganalyzer_domain.SavedQuery{},
 		adaudit_domain.ADUser{},
 	}
