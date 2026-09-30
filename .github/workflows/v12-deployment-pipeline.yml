@@ -63,7 +63,7 @@ jobs:
             echo "tag=$TAG" >> $GITHUB_OUTPUT
             echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
             echo "cm_url=$CM_URL" >> $GITHUB_OUTPUT
-            echo "event_processor_tag=${{ vars.TW_EVENT_PROCESSOR_VERSION_DEV }}" >> $GITHUB_OUTPUT
+            echo "event_processor_tag=${{ vars.TW_EVENT_PROCESSOR_VERSION_V12_DEV }}" >> $GITHUB_OUTPUT
             echo "enterprise_version=${{ vars.ENTERPRISE_ARTIFACTS_VERSION_DEV }}" >> $GITHUB_OUTPUT
             echo "gh_environment=v12-dev" >> $GITHUB_OUTPUT
 
@@ -89,7 +89,7 @@ jobs:
             echo "tag=$TAG" >> $GITHUB_OUTPUT
             echo "environment=production" >> $GITHUB_OUTPUT
             echo "cm_url=$CM_URL" >> $GITHUB_OUTPUT
-            echo "event_processor_tag=${{ vars.TW_EVENT_PROCESSOR_VERSION_PROD }}" >> $GITHUB_OUTPUT
+            echo "event_processor_tag=${{ vars.TW_EVENT_PROCESSOR_VERSION_V12_PROD }}" >> $GITHUB_OUTPUT
             echo "enterprise_version=${{ vars.ENTERPRISE_ARTIFACTS_VERSION_PROD }}" >> $GITHUB_OUTPUT
             echo "gh_environment=v12-prod" >> $GITHUB_OUTPUT
           fi
