@@ -106,6 +106,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/authenticateFederationServiceManager").permitAll()
                 .antMatchers("/api/ping").permitAll()
                 .antMatchers("/api/date-format").permitAll()
+                .antMatchers("/api/v1/mode").permitAll()
                 .antMatchers("/api/healthcheck").permitAll()
                 .antMatchers("/api/releaseInfo").permitAll()
                 .antMatchers("/api/account/reset-password/init").permitAll()
