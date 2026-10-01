@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.1.0
 
 dataTypes:
   - o365
@@ -11,11 +11,11 @@ category: Data Reconnaissance
 technique: "T1530 - Data from Cloud Storage Object"
 adversary: origin
 references:
-  - https://o365reports.com/2024/01/30/audit-file-access-in-sharepoint-online-using-powershell/
+  - https://learn.microsoft.com/en-us/purview/audit-log-activities
   - https://attack.mitre.org/techniques/T1530/
 description: |
-  Detects when a user accesses an abnormally high number of files in OneDrive within a short time period (200+ files in 30 minutes), which could indicate automated data collection, reconnaissance, or preparation for data exfiltration. This behavior is often associated with insider threats, compromised accounts, or malicious scripts designed to harvest sensitive data from cloud storage.
-  
+  Detects when one identity accesses OneDrive files at a very high volume: 1,000 or more FileAccessed, FileAccessedExtended or FilePreviewed records within one hour, counted separately for each operation. Microsoft does not log FileAccessed again for the same user and file within five minutes, so 1,000 FileAccessed records in an hour means at least 84 different files, far beyond ordinary work. This volume can indicate automated data collection, reconnaissance, or preparation for data exfiltration by a compromised account, an insider or a malicious script. Security scanners, backup tools and anonymous sharing links can reach it too. One alert is raised per identity; repeats for the same identity are suppressed for seven days.
+
   Next Steps:
   1. Immediately verify the legitimacy of the user account and check for signs of compromise
   2. Review the specific files accessed to determine sensitivity and business impact
@@ -41,8 +41,8 @@ afterEvents:
       - field: log.Workload
         operator: filter_term
         value: 'OneDrive'
-    within: 30m
-    count: 67
+    within: 1h
+    count: 1000
     or:
       - indexPattern: v11-log-o365-*
         with:
@@ -55,8 +55,8 @@ afterEvents:
           - field: log.Workload
             operator: filter_term
             value: 'OneDrive'
-        within: 30m
-        count: 67
+        within: 1h
+        count: 1000
       - indexPattern: v11-log-o365-*
         with:
           - field: origin.user
@@ -68,8 +68,7 @@ afterEvents:
           - field: log.Workload
             operator: filter_term
             value: 'OneDrive'
-        within: 30m
-        count: 67
+        within: 1h
+        count: 1000
 deduplicateBy:
   - adversary.user
-  - adversary.ip

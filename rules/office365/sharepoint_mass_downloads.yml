@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.1.0
 
 dataTypes:
   - o365
@@ -11,11 +11,11 @@ category: Data Exfiltration
 technique: "T1213 - Data from Information Repositories"
 adversary: origin
 references:
-  - https://www.sharepointdiary.com/2020/10/how-to-track-document-downloads-using-audit-log-in-sharepoint-online.html
+  - https://learn.microsoft.com/en-us/purview/audit-log-activities
   - https://attack.mitre.org/techniques/T1213/
 description: |
-  Detects when a user downloads an unusually large number of files from SharePoint or OneDrive within a short time period, which could indicate data exfiltration or insider threat activity. This rule triggers when a user downloads 100 or more files within 30 minutes.
-  
+  Detects when a user downloads an unusually large number of files from SharePoint or OneDrive within a short time period, which could indicate data exfiltration or insider threat activity. This rule triggers when one identity writes 500 or more FileDownloaded records within one hour; downloading a folder as a ZIP file writes one record per file. One alert is raised per identity; repeats for the same identity are suppressed for seven days.
+
   **Next Steps:**
   1. Review the user's recent activity patterns and determine if the download volume is consistent with their role and responsibilities
   2. Check if the user has legitimate business justification for downloading large amounts of data
@@ -36,8 +36,7 @@ afterEvents:
       - field: action
         operator: filter_term
         value: 'FileDownloaded'
-    within: 30m
-    count: 100
-groupBy:
-  - adversary.ip
+    within: 1h
+    count: 500
+deduplicateBy:
   - adversary.user

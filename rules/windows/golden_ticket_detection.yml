@@ -40,14 +40,13 @@ description: |
   8. Implement Kerberos armoring and constrained delegation
 where: |
   !oneOf("dataSource", ["", "unknown"]) &&
-  exists("log.authenticationSource") && exists("log.authenticationSourceType") && exists("log.authenticationSourceDomain") &&
+  exists("log.authenticationSource") &&
   (
   (
     equals("log.eventCode", "4769") &&
     equals("log.channel", "Security") &&
     equals("log.eventDataServiceName", "krbtgt") &&
-    !equals("log.eventDataStatus", "0") &&
-    exists("log.authenticationSource")
+    !equals("log.eventDataStatus", "0")
   ) ||
   (
     equals("log.eventCode", "4672") &&
@@ -67,12 +66,6 @@ afterEvents:
       - field: log.authenticationSource.keyword
         operator: filter_term
         value: '{{.log.authenticationSource}}'
-      - field: log.authenticationSourceType.keyword
-        operator: filter_term
-        value: '{{.log.authenticationSourceType}}'
-      - field: log.authenticationSourceDomain.keyword
-        operator: filter_term
-        value: '{{.log.authenticationSourceDomain}}'
       - field: log.authenticationCandidate.goldenTicketDetection.keyword
         operator: filter_term
         value: match
