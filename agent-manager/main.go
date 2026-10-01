@@ -66,8 +66,8 @@ func main() {
 	// Publishing keys where the log input reads them is what makes a deletion
 	// take effect at once instead of when the input's own copy expires.
 	agent.AuthCache = authcache.New(
-		os.Getenv("REDIS_ADDR"),
-		os.Getenv("REDIS_PASSWORD"),
+		os.Getenv("VALKEY_ADDR"),
+		os.Getenv("VALKEY_PASSWORD"),
 		0,
 	)
 	defer func() { _ = agent.AuthCache.Close() }()

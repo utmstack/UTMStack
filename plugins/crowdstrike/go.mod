@@ -6,7 +6,7 @@ require (
 	github.com/crowdstrike/gofalcon v0.22.0
 	github.com/fsnotify/fsnotify v1.10.1
 	github.com/google/uuid v1.6.0
-	github.com/threatwinds/go-sdk v1.1.31
+	github.com/threatwinds/go-sdk v1.1.37-0.20261001164002-a596631a84c5
 	github.com/utmstack/UTMStack/plugins/shared v0.0.0-00010101000000-000000000000
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -68,7 +68,6 @@ require (
 	github.com/nats-io/nkeys v0.4.16 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
-	github.com/opensearch-project/opensearch-go/v4 v4.6.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.3.1 // indirect
 	github.com/quic-go/qpack v0.6.0 // indirect
 	github.com/quic-go/quic-go v0.59.1 // indirect

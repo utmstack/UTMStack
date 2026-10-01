@@ -23,7 +23,7 @@ type StackConfig struct {
 	ClickHouseConf      string
 	ClickHouseConfigD   string
 	NATSData            string
-	RedisData           string
+	ValkeyData          string
 	Cert                string
 	EventsEngineWorkdir string
 	LocksDir            string
@@ -67,7 +67,7 @@ func GetStackConfig() *StackConfig {
 		// the cold-storage declaration, which is why both mount it.
 		stackConfig.ClickHouseConfigD = utils.MakeDir(0777, cnf.DataDir, "clickhouse", "config.d")
 		stackConfig.NATSData = utils.MakeDir(0777, cnf.DataDir, "nats")
-		stackConfig.RedisData = utils.MakeDir(0777, cnf.DataDir, "redis")
+		stackConfig.ValkeyData = utils.MakeDir(0777, cnf.DataDir, "valkey")
 		stackConfig.LocksDir = utils.MakeDir(0777, cnf.DataDir, "locks")
 		stackConfig.ShmFolder = utils.MakeDir(0777, cnf.DataDir, "tmpfs")
 
@@ -76,7 +76,7 @@ func GetStackConfig() *StackConfig {
 			{Name: "clickhouse", Priority: 1, MinMemory: 5120, MaxMemory: 60 * 1024},
 			{Name: "log-input", Priority: 2, MinMemory: 256, MaxMemory: 1024},
 			{Name: "nats", Priority: 3, MinMemory: 256, MaxMemory: 2 * 1024},
-			{Name: "redis", Priority: 3, MinMemory: 128, MaxMemory: 1024},
+			{Name: "valkey", Priority: 3, MinMemory: 128, MaxMemory: 1024},
 			{Name: "backend", Priority: 3, MinMemory: 700, MaxMemory: 2 * 1024},
 			{Name: "postgres", Priority: 2, MinMemory: 500, MaxMemory: 2 * 1024},
 			{Name: "agentmanager", Priority: 3, MinMemory: 200, MaxMemory: 1024},

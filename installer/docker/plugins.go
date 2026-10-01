@@ -27,6 +27,12 @@ type PluginConfig struct {
 	AgentManager  string        `yaml:"agentManager,omitempty"`
 	Backend       string        `yaml:"backend,omitempty"`
 	CertsFolder   string        `yaml:"certsFolder,omitempty"`
+	Valkey        ValkeyConfig  `yaml:"valkey,omitempty"`
+}
+
+type ValkeyConfig struct {
+	Addr     string `yaml:"addr,omitempty"`
+	Password string `yaml:"password,omitempty"`
 }
 
 type ClickHouseConfig struct {
@@ -95,6 +101,10 @@ func SetPluginsConfigs(conf *config.Config, stack *StackConfig) error {
 		AgentManager:  "agentmanager:9000",
 		Backend:       "http://backend:8080",
 		CertsFolder:   "/cert",
+		Valkey: ValkeyConfig{
+			Addr:     "valkey:6379",
+			Password: conf.Password,
+		},
 	}
 
 	clickHousePipeline := ClickHousePluginsConfig{}
