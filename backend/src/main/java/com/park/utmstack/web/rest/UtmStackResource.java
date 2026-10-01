@@ -65,10 +65,10 @@ public class UtmStackResource {
 
 
     @GetMapping("/v1/mode")
-    public ResponseEntity<Map<String, String>> getMode() {
+    public ResponseEntity<Map<String, Object>> getMode() {
         final String ctx = CLASSNAME + ".mode";
         try {
-            return ResponseEntity.ok(Map.of(
+            return ResponseEntity.ok(Map.<String, Object>of(
               "federation", false,
               "version", "1.0.0"
           ));
