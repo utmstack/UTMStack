@@ -421,7 +421,7 @@ func TestFortiGateRawContracts(t *testing.T) {
 						t.Fatal(e)
 					}
 					// Indexed lastEvent aliases require the separate alert foundation.
-					for _, field := range r.GroupBy {
+					for _, field := range append(append([]string{}, r.GroupBy...), r.DeduplicateBy...) {
 						path := strings.Replace(field, "lastEvent.", "events.0.", 1)
 						if field == "adversary.ip" && ev.GetOrigin().GetIp() != "" && gjson.Get(*wire, path).String() != ev.GetOrigin().GetIp() {
 							t.Error("actor IP lost")
