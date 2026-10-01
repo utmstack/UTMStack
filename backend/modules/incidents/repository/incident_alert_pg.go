@@ -29,7 +29,7 @@ func (r *pgIncidentAlertRepository) Save(ctx context.Context, alert *domain.Inci
 func (r *pgIncidentAlertRepository) Update(ctx context.Context, alert *domain.IncidentAlert) error {
 	//add the tenat id if needed, so conflicts ensure new upserted values has it
 	tid := tenantFromCtx(ctx)
-	if tid != uuid.Nil {
+	if alert!=nil && tid != uuid.Nil {
     	alert.TenantID = tid
 	}
 	return scopeTenant(ctx, r.db.WithContext(ctx)).Save(alert).Error
