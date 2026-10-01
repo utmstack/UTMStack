@@ -196,7 +196,21 @@ func (s *PipelineStore) Create(relPath string, content []byte, tenantId string) 
 	return &cp, nil
 }
 
-func (s *PipelineStore) Update(relPath string, content []byte) (*domain.Pipeline, error) {
+func (s *PipelineStore) Update(relPath string, content []byte,tenantId string) (*domain.Pipeline, error) {
+	if tenantId != "" {
+		injected, err := withTenantID(content, tenantId)
+		if err != nil {
+			return nil, fmt.Errorf("invalid filter content: %w", err)
+		}
+		content = injected
+
+		base := filepath.Base(relPath)
+		ext := filepath.Ext(base)
+		name := strings.TrimSuffix(base, ext)
+		relPath = filepath.ToSlash(filepath.Join(tenantId, name+"-"+tenantId+ext))
+	}
+
+
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	existing, ok := s.filters[relPath]
