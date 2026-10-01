@@ -405,7 +405,7 @@ func (p *program) startPipeline(ctx context.Context, cfg config.EDRConfig, c *ca
 			rwGuard.OnProcStart(ps.PID, ps.PPID, ps.Image, ps.Cmdline, 0)
 		}
 		selfPID := os.Getpid()
-		fileFeed := ransomware.NewFeed()
+		fileFeed := ransomware.NewFeed(cfg.WatchVolumes...)
 		goSafe("ransomware", func() { _ = rwGuard.Run(ctx, fileFeed, selfPID, ex.Excluded) })
 	}
 

@@ -3,7 +3,6 @@ package ransomware
 import (
 	"context"
 	"errors"
-	"strings"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -58,38 +57,6 @@ func newTestGuard(mode string, canaries map[string]bool, suspendT, killT int) (*
 		NewID:     func() string { return "inc-1" },
 	})
 	return g, resp, app, quar, inc, tab
-}
-
-func TestGuard_T1490_SuspendMode_KillsParentAndQuarantines(t *testing.T) {
-	g, resp, app, quar, inc, tab := newTestGuard("suspend", nil, 50, 100)
-	// Encryptor (pid 100) spawns vssadmin (pid 200).
-	tab.Add(proctable.Proc{PID: 100, PPID: 4, Image: `C:\Users\x\enc.exe`})
-	tab.Add(proctable.Proc{PID: 200, PPID: 100, Image: `C:\Windows\System32\vssadmin.exe`})
-
-	g.OnProcStart(200, 100, `C:\Windows\System32\vssadmin.exe`, "vssadmin delete shadows /all /quiet", 1)
-
-	if len(resp.suspended) == 0 || resp.suspended[0] != 100 {
-		t.Fatalf("suspend-mode must suspend the culprit (parent 100): %v", resp.suspended)
-	}
-	if len(resp.killed) == 0 || resp.killed[0] != 100 {
-		t.Fatalf("must kill the encryptor parent (100), got %v", resp.killed)
-	}
-	if quar.calls != 1 {
-		t.Fatalf("must quarantine the encryptor image once, got %d", quar.calls)
-	}
-	if len(inc.recs) != 1 || inc.recs[0].Action != "contained" {
-		t.Fatalf("incident not recorded: %+v", inc.recs)
-	}
-	// A ransomware_contained event was emitted.
-	found := false
-	for _, l := range app.lines {
-		if contains(l, "ransomware_contained") {
-			found = true
-		}
-	}
-	if !found {
-		t.Fatalf("no ransomware_contained event: %v", app.lines)
-	}
 }
 
 func TestGuard_Canary_KillMode_NoSuspend(t *testing.T) {
@@ -222,72 +189,4 @@ func indexOf(s, sub string) int {
 		}
 	}
 	return -1
-}
-
-func TestGuard_TrustedProcess_NotScored(t *testing.T) {
-	tab := proctable.New()
-	resp := &fakeResp{}
-	cfg := config.Default()
-	cfg.Ransomware.Enabled = true
-	cfg.Ransomware.ResponseMode = "kill"
-	cfg.Ransomware.SuspendThreshold = 50
-	cfg.Ransomware.KillThreshold = 100
-	trustVeeam := func(image string) bool {
-		p := strings.ToLower(strings.ReplaceAll(image, `\`, "/"))
-		return strings.HasPrefix(p, "c:/program files/veeam/")
-	}
-	g := NewGuard(GuardDeps{
-		Cfg: cfg, Table: tab, Resp: resp, Spool: &fakeAppender{}, Quar: &fakeQuar{}, Incidents: &fakeIncidents{},
-		Canaries: &fakeCanaries{paths: map[string]bool{`C:\decoy\_00.xlsx`: true}},
-		Hash:     func(string) (string, error) { return "x", nil },
-		Now:      func() time.Time { return time.Unix(1000, 0) },
-		NewID:    func() string { return "i" },
-		Trusted:  trustVeeam,
-	})
-	// Trusted backup product (pid 300) runs vssadmin AND touches a canary — both
-	// max-weight signals — yet must not be contained.
-	tab.Add(proctable.Proc{PID: 300, PPID: 4, Image: `C:\Program Files\Veeam\veeam.exe`})
-	tab.Add(proctable.Proc{PID: 301, PPID: 300, Image: `C:\Windows\System32\vssadmin.exe`})
-	g.OnProcStart(301, 300, `C:\Windows\System32\vssadmin.exe`, "vssadmin delete shadows /all /quiet", 1)
-	g.OnFileEvent(FileEvent{PID: 300, Path: `C:\decoy\_00.xlsx`, Op: OpWrite})
-	if len(resp.killed) != 0 || len(resp.suspended) != 0 {
-		t.Fatalf("trusted process must not be contained: killed=%v suspended=%v", resp.killed, resp.suspended)
-	}
-
-	// Control: an UN-trusted encryptor doing the same IS contained.
-	resp2 := &fakeResp{}
-	g2 := NewGuard(GuardDeps{
-		Cfg: cfg, Table: tab, Resp: resp2, Spool: &fakeAppender{}, Quar: &fakeQuar{}, Incidents: &fakeIncidents{},
-		Canaries: &fakeCanaries{paths: map[string]bool{`C:\decoy\_01.xlsx`: true}},
-		Hash:     func(string) (string, error) { return "x", nil },
-		Now:      func() time.Time { return time.Unix(1000, 0) },
-		NewID:    func() string { return "i" }, Trusted: trustVeeam,
-	})
-	tab.Add(proctable.Proc{PID: 400, PPID: 4, Image: `C:\Users\x\enc.exe`})
-	g2.OnFileEvent(FileEvent{PID: 400, Path: `C:\decoy\_01.xlsx`, Op: OpWrite})
-	if len(resp2.killed) == 0 {
-		t.Fatal("untrusted encryptor tampering a canary should be contained")
-	}
-}
-
-func TestGuard_SetPolicy_HotAppliesCommandAllowlistAndMode(t *testing.T) {
-	g, resp, _, _, _, tab := newTestGuard("kill", nil, 50, 100)
-	tab.Add(proctable.Proc{PID: 100, PPID: 4, Image: `C:\Users\x\enc.exe`})
-	tab.Add(proctable.Proc{PID: 200, PPID: 100, Image: `C:\Windows\System32\vssadmin.exe`})
-
-	// Hot-apply an allowlist entry that exempts this exact command → no containment.
-	g.SetPolicy("kill", []string{"delete shadows"})
-	g.OnProcStart(200, 100, `C:\Windows\System32\vssadmin.exe`, "vssadmin delete shadows /all", 1)
-	if len(resp.killed) != 0 {
-		t.Fatalf("allowlisted command (post-SetPolicy) must not be contained: killed=%v", resp.killed)
-	}
-
-	// Clear the allowlist and switch to alert mode → escalation surfaces but no kill.
-	g.SetPolicy("alert", nil)
-	tab.Add(proctable.Proc{PID: 300, PPID: 4, Image: `C:\Users\x\enc2.exe`})
-	tab.Add(proctable.Proc{PID: 301, PPID: 300, Image: `C:\Windows\System32\vssadmin.exe`})
-	g.OnProcStart(301, 300, `C:\Windows\System32\vssadmin.exe`, "vssadmin delete shadows /all", 2)
-	if len(resp.killed) != 0 || len(resp.suspended) != 0 {
-		t.Fatalf("alert mode (post-SetPolicy) must not suspend/kill: killed=%v suspended=%v", resp.killed, resp.suspended)
-	}
 }

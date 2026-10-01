@@ -47,8 +47,10 @@ func opForEventID(id uint16) (FileOp, bool) {
 
 type etwFeed struct{}
 
-// NewFeed returns the Windows ETW file-activity feed.
-func NewFeed() FileActivityFeed { return &etwFeed{} }
+// NewFeed returns the Windows ETW file-activity feed. The volumes argument is
+// accepted for a platform-agnostic service call; ETW sees the whole system,
+// so it is ignored here.
+func NewFeed(vols ...string) FileActivityFeed { return &etwFeed{} }
 
 // Run opens a real-time ETW session on Microsoft-Windows-Kernel-File, forwards
 // each mutating file op to sink as a FileEvent, and blocks until ctx is

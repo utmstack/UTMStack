@@ -10,17 +10,9 @@ type t1490Rule struct {
 	tokens []string
 }
 
-var t1490Rules = []t1490Rule{
-	{"vssadmin_delete_shadows", []string{"vssadmin", "delete", "shadows"}},
-	{"vssadmin_resize_shadowstorage", []string{"vssadmin", "resize", "shadowstorage"}},
-	{"wmic_shadowcopy_delete", []string{"wmic", "shadowcopy", "delete"}},
-	{"wbadmin_delete_catalog", []string{"wbadmin", "delete", "catalog"}},
-	{"wbadmin_delete_backup", []string{"wbadmin", "delete", "backup"}},
-	{"bcdedit_recovery_disable", []string{"bcdedit", "recoveryenabled", "no"}},
-	{"bcdedit_ignore_failures", []string{"bcdedit", "bootstatuspolicy", "ignoreallfailures"}},
-	{"reagentc_disable", []string{"reagentc", "/disable"}},
-	{"diskshadow_delete", []string{"diskshadow", "delete"}},
-}
+// t1490Rules is defined per platform: rules_windows.go (vssadmin/wbadmin/
+// bcdedit/...), rules_linux.go (backup-tree/snapshot/journal tampering), and
+// rules_other.go (empty — no recovery-tampering sensor off those platforms).
 
 func normCmd(s string) string { return strings.Join(strings.Fields(strings.ToLower(s)), " ") }
 
