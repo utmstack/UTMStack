@@ -241,7 +241,7 @@ func (u *pipelineUsecase) Update(ctx context.Context, req dto.UpdatePipelineRequ
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", domain.ErrPipelineInvalidContent, err)
 	}
-	entry, err := u.store.Update(req.RelPath, []byte(content))
+	entry, err := u.store.Update(req.RelPath, []byte(content),authz.TenantIDFromContext(ctx))
 	if err != nil {
 		return nil, err
 	}
