@@ -416,10 +416,14 @@ func macCheckGrouping(t *testing.T, rule *plugins.Rule, eventJSON string) {
 		t.Fatal(e)
 	}
 	hasIdentity := false
-	for _, field := range rule.GroupBy {
+	for _, field := range append(append([]string{}, rule.GroupBy...), rule.DeduplicateBy...) {
 		path := strings.Replace(field, "lastEvent.", "events.0.", 1)
 		value := gjson.Get(*wire, path)
-		if field == "adversary.host" || field == "lastEvent.dataSource" {
+		if field == "dataSource" {
+			// The alert plugin copies the event's dataSource onto the alert.
+			value = gjson.Get(*wire, "events.0.dataSource")
+		}
+		if field == "adversary.host" || field == "lastEvent.dataSource" || field == "dataSource" {
 			if value.String() != event.DataSource || value.String() == "" || value.String() == "unknown" {
 				t.Errorf("%s has no usable grouping identity %s", rule.Name, field)
 			}

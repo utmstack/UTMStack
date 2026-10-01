@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.0.1
 
 dataTypes:
   - wineventlog
@@ -32,16 +32,14 @@ description: |
   8. Monitor for follow-up lateral movement using obtained credentials
 where: |
   !oneOf("dataSource", ["", "unknown"]) &&
-  exists("log.authenticationSource") && exists("log.authenticationSourceType") && exists("log.authenticationSourceDomain") &&
-  (
+  exists("log.authenticationSource") &&
   equals("log.eventCode", "4769") &&
   equals("log.channel", "Security") &&
   equals("log.eventDataTicketEncryptionType", "23") &&
   !regexMatch("log.eventDataServiceName", "(?i)\\$$") &&
   !equals("log.eventDataServiceName", "krbtgt") &&
-  !oneOf("log.eventDataTicketOptions", ["1082195968", "1082130432", "1082130432"]) &&
+  !oneOf("log.eventDataTicketOptions", ["1082195968", "1082130432"]) &&
   exists("log.eventDataServiceName")
-  )
 afterEvents:
   - indexPattern: v11-log-wineventlog-*
     with:
@@ -51,26 +49,12 @@ afterEvents:
       - field: log.authenticationSource.keyword
         operator: filter_term
         value: '{{.log.authenticationSource}}'
-      - field: log.authenticationSourceType.keyword
-        operator: filter_term
-        value: '{{.log.authenticationSourceType}}'
-      - field: log.authenticationSourceDomain.keyword
-        operator: filter_term
-        value: '{{.log.authenticationSourceDomain}}'
       - field: log.authenticationCandidate.kerberoastingDetection.keyword
         operator: filter_term
         value: match
-      - field: log.eventCode
-        operator: filter_term
-        value: '{{.log.eventCode}}'
-      - field: log.eventDataTicketEncryptionType
-        operator: filter_term
-        value: '{{.log.eventDataTicketEncryptionType}}'
     within: 15m
     count: 3
 groupBy:
   - dataSource
-  - lastEvent.log.authenticationSourceType
   - lastEvent.log.authenticationSource
-  - lastEvent.log.authenticationSourceDomain
   - target.user

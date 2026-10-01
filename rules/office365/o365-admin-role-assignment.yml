@@ -1,14 +1,12 @@
-# Rule version v1.0.0
+# Rule version v1.1.0
 
 name: O365 Admin Role Assignment
 description: |
-  Detects when an administrator assigns privileged roles, adds members to admin groups,
-  or grants delegated/app role permissions in Azure Active Directory. This activity can
-  indicate account compromise or insider threat where an attacker escalates privileges
-  to maintain persistence within the tenant.
+  Detects when an administrator assigns a directory role (Add member to role.) in Azure Active Directory. This activity can indicate account compromise or insider threat where an attacker escalates privileges to maintain persistence within the tenant. Ordinary group membership changes and user consent grants are not role assignments and do not trigger this rule. One alert is raised per actor and assigned account; repeats of the same assignment are suppressed for seven days.
 category: "Persistence"
 technique: "T1136 - Create Account"
 references:
+  - "https://learn.microsoft.com/en-us/purview/audit-log-activities"
   - "https://attack.mitre.org/techniques/T1136/"
 dataTypes:
   - o365
@@ -17,7 +15,7 @@ impact:
   confidentiality: 2
   integrity: 3
   availability: 0
-where: equals("log.Workload", "AzureActiveDirectory") && oneOf("action", ["Add member to group.", "Add delegated permission grant.", "Add member to role."]) && equals("actionResult", "success")
-groupBy:
+where: equals("log.Workload", "AzureActiveDirectory") && equals("action", "Add member to role.") && equals("actionResult", "success")
+deduplicateBy:
   - adversary.user
   - lastEvent.log.ObjectId
