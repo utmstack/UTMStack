@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.1.0
 
 dataTypes:
   - wineventlog
@@ -20,6 +20,11 @@ description: |
   and explorer.exe should only run from C:\Windows. Malware commonly uses legitimate process
   names to avoid detection by analysts and automated tools.
 
+  Paths are compared without regard to letter case (C:\WINDOWS\System32 is the same folder as
+  C:\Windows\System32), the protected name must be the whole file name (gamingservices.exe is
+  not services.exe), and the 32-bit Explorer in C:\Windows\SysWOW64 is expected. One alert is
+  raised per computer and process path; repeats are suppressed for seven days.
+
   Next Steps:
   1. Identify the actual file path of the masquerading process
   2. Compare the file hash against known good versions of the legitimate binary
@@ -29,7 +34,7 @@ description: |
   6. Kill the suspicious process and quarantine the file
   7. Search for other instances of the same file across the environment
 where: |
-  (equals("log.eventCode","4688") || equals("log.eventCode","1")) && ((regexMatch("log.data.NewProcessName","svchost[.]exe$") && !regexMatch("log.data.NewProcessName","[Ww]indows.(System32|SysWOW64).svchost[.]exe$")) || (regexMatch("log.data.NewProcessName","lsass[.]exe$") && !regexMatch("log.data.NewProcessName","[Ww]indows.System32.lsass[.]exe$")) || (regexMatch("log.data.NewProcessName","services[.]exe$") && !regexMatch("log.data.NewProcessName","[Ww]indows.System32.services[.]exe$")) || (regexMatch("log.data.NewProcessName","csrss[.]exe$") && !regexMatch("log.data.NewProcessName","[Ww]indows.(System32|SysWOW64).csrss[.]exe$")) || (regexMatch("log.data.NewProcessName","explorer[.]exe$") && !regexMatch("log.data.NewProcessName","[Ww]indows.explorer[.]exe$")))
-groupBy:
+  (equals("log.eventCode","4688") || equals("log.eventCode","1")) && ((regexMatch("log.data.NewProcessName","(?i)(^|[\\\\/])svchost[.]exe$") && !regexMatch("log.data.NewProcessName","(?i)windows.(system32|syswow64).svchost[.]exe$")) || (regexMatch("log.data.NewProcessName","(?i)(^|[\\\\/])lsass[.]exe$") && !regexMatch("log.data.NewProcessName","(?i)windows.system32.lsass[.]exe$")) || (regexMatch("log.data.NewProcessName","(?i)(^|[\\\\/])services[.]exe$") && !regexMatch("log.data.NewProcessName","(?i)windows.system32.services[.]exe$")) || (regexMatch("log.data.NewProcessName","(?i)(^|[\\\\/])csrss[.]exe$") && !regexMatch("log.data.NewProcessName","(?i)windows.(system32|syswow64).csrss[.]exe$")) || (regexMatch("log.data.NewProcessName","(?i)(^|[\\\\/])explorer[.]exe$") && !regexMatch("log.data.NewProcessName","(?i)windows.(syswow64.)?explorer[.]exe$")))
+deduplicateBy:
   - dataSource
-deduplicateBy: []
+  - lastEvent.log.data.NewProcessName
