@@ -5,9 +5,10 @@ import { load, dump } from 'js-yaml'
  * (windows-events -> "Windows Events", cs_switch -> "Cs Switch"). */
 export function displayName(relPath: string): string {
   const base = (relPath.split('/').pop() ?? relPath).replace(/\.ya?ml$/i, '')
+
   return base
+    .split('-')[0]
     .split(/[-_]+/)
-    .filter(Boolean)
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
     .join(' ')
 }
