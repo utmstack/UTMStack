@@ -12,163 +12,163 @@ pipeline:
       # Native agent and Winlogbeat aliases. The event-producing computer is the
       # target host; it must not overwrite the remote WorkstationName origin.
       - rename:
-          from: [log.computer, log.computer_name, log.computername]
+          from: [event.computer, event.computer_name, event.computername]
           to: target.host
       - rename:
-          from: [log.timestamp, log.timeCreated]
+          from: [event.timestamp, event.timeCreated]
           to: deviceTime
 
       # Renaming useful fields
       - rename:
           from:
-            - log.provider_guid
-          to: log.providerGuid
+            - event.provider_guid
+          to: event.providerGuid
 
       - rename:
           from:
-            - log.data.PrivilegeList
-          to: log.eventDataPrivilegeList
+            - event.data.PrivilegeList
+          to: event.eventDataPrivilegeList
 
       - rename:
           from:
-            - log.data.ServiceName
-          to: log.eventDataServiceName
+            - event.data.ServiceName
+          to: event.eventDataServiceName
 
       - rename:
           from:
-            - log.data.SubjectDomainName
-          to: log.eventDataSubjectDomainName
+            - event.data.SubjectDomainName
+          to: event.eventDataSubjectDomainName
 
       - rename:
           from:
-            - log.data.SubjectLogonId
-          to: log.eventDataSubjectLogonId
+            - event.data.SubjectLogonId
+          to: event.eventDataSubjectLogonId
 
       - rename:
           from:
-            - log.data.SubjectUserName
-          to: log.eventDataSubjectUserName
+            - event.data.SubjectUserName
+          to: event.eventDataSubjectUserName
 
       - rename:
           from:
-            - log.data.SubjectUserSid
-          to: log.eventDataSubjectUserSid
+            - event.data.SubjectUserSid
+          to: event.eventDataSubjectUserSid
 
       - rename:
           from:
-            - log.data.SubStatus
-          to: log.eventDataSubStatus
+            - event.data.SubStatus
+          to: event.eventDataSubStatus
 
       - rename:
           from:
-            - log.data.PrivilegeList
-          to: log.eventDataPrivilegeList
+            - event.data.PrivilegeList
+          to: event.eventDataPrivilegeList
 
       - rename:
           from:
-            - log.data.ClientProcessId
-          to: log.eventDataClientProcessId
+            - event.data.ClientProcessId
+          to: event.eventDataClientProcessId
 
       - rename:
           from:
-            - log.data.Flags
-          to: log.eventDataFlags
+            - event.data.Flags
+          to: event.eventDataFlags
 
       - rename:
           from:
-            - log.data.Identity
-          to: log.eventDataIdentity
+            - event.data.Identity
+          to: event.eventDataIdentity
 
       - rename:
           from:
-            - log.data.ProcessCreationTime
-          to: log.eventDataProcessCreationTime
+            - event.data.ProcessCreationTime
+          to: event.eventDataProcessCreationTime
 
       - rename:
           from:
-            - log.id
-          to: log.eventId
+            - event.id
+          to: event.eventId
 
       - rename:
           from:
-            - log.data.Resource
-          to: log.eventDataResource
+            - event.data.Resource
+          to: event.eventDataResource
 
       - rename:
           from:
-            - log.data.ReturnCode
-          to: log.eventDataReturnCode
+            - event.data.ReturnCode
+          to: event.eventDataReturnCode
 
       - rename:
           from:
-            - log.data.Resource
-          to: log.eventDataResource
+            - event.data.Resource
+          to: event.eventDataResource
 
       - rename:
           from:
-            - log.data.Schema
-          to: log.eventDataSchema
+            - event.data.Schema
+          to: event.eventDataSchema
 
       - rename:
           from:
-            - log.data.SchemaFriendlyName
-          to: log.eventDataSchemaFriendlyName
+            - event.data.SchemaFriendlyName
+          to: event.eventDataSchemaFriendlyName
 
       - rename:
           from:
-            - log.data.Resource
-          to: log.eventDataResource
+            - event.data.Resource
+          to: event.eventDataResource
 
       - rename:
           from:
-            - log.data.AuthenticationPackageName
-          to: log.eventDataAuthenticationPackageName
+            - event.data.AuthenticationPackageName
+          to: event.eventDataAuthenticationPackageName
 
       - rename:
           from:
-            - log.data.ElevatedToken
-          to: log.eventDataElevatedToken
+            - event.data.ElevatedToken
+          to: event.eventDataElevatedToken
 
       - rename:
           from:
-            - log.data.ImpersonationLevel
-          to: log.eventDataImpersonationLevel
+            - event.data.ImpersonationLevel
+          to: event.eventDataImpersonationLevel
 
       - rename:
           from:
-            - log.wineventlog.data.FailureReason
-          to: log.eventDataFailureReason
+            - event.wineventlog.data.FailureReason
+          to: event.eventDataFailureReason
 
       - rename:
           from:
-            - log.data.IpAddress
+            - event.data.IpAddress
           to: origin.ip
-          where: (inCIDR("log.data.IpAddress", "0.0.0.0/0") || inCIDR("log.data.IpAddress", "::/0")) && !inCIDR("log.data.IpAddress", "0.0.0.0/32") && !inCIDR("log.data.IpAddress", "::/128")
+          where: (inCIDR("event.data.IpAddress", "0.0.0.0/0") || inCIDR("event.data.IpAddress", "::/0")) && !inCIDR("event.data.IpAddress", "0.0.0.0/32") && !inCIDR("event.data.IpAddress", "::/128")
 
       # WFP 5156 records an allowed connection; 5152/5157 record a blocked
       # packet/connection. Preserve the vendor addresses before promoting the
       # validated endpoints. A bind/listen event is not an allowed connection.
       - rename:
-          from: [log.data.SourceAddress]
-          to: log.eventDataSourceAddress
+          from: [event.data.SourceAddress]
+          to: event.eventDataSourceAddress
       - rename:
-          from: [log.data.DestAddress]
-          to: log.eventDataDestAddress
+          from: [event.data.DestAddress]
+          to: event.eventDataDestAddress
       - rename:
-          from: [log.data.SourcePort]
-          to: log.eventDataSourcePort
+          from: [event.data.SourcePort]
+          to: event.eventDataSourcePort
       - rename:
-          from: [log.data.DestPort]
-          to: log.eventDataDestPort
+          from: [event.data.DestPort]
+          to: event.eventDataDestPort
       - rename:
-          from: [log.data.Direction]
-          to: log.eventDataDirection
+          from: [event.data.Direction]
+          to: event.eventDataDirection
       - rename:
-          from: [log.data.Protocol]
-          to: log.eventDataProtocol
+          from: [event.data.Protocol]
+          to: event.eventDataProtocol
       - rename:
-          from: [log.data.Application]
-          to: log.eventDataApplication
+          from: [event.data.Application]
+          to: event.eventDataApplication
 
       # In 5152, 5156 and 5157 the Source fields hold the side that sent or
       # started the traffic and the Destination fields the side that received
@@ -178,2923 +178,2923 @@ pipeline:
       # though Microsoft's 5152/5157 field text calls SourceAddress local.
       # Blocked records need a known direction before their endpoints are used.
       - grok:
-          source: log.eventDataSourceAddress
+          source: event.eventDataSourceAddress
           patterns:
           - fieldName: origin.ip
             pattern: (?s)^.+$
           where: >-
-            (equals("log.eventCode",5156) ||
-             (oneOf("log.eventCode",[5152,5157]) && oneOf("log.eventDataDirection",["%%14592","%%14593"]))) &&
-            (inCIDR("log.eventDataSourceAddress","0.0.0.0/0") || inCIDR("log.eventDataSourceAddress","::/0")) &&
-            !inCIDR("log.eventDataSourceAddress","0.0.0.0/32") && !inCIDR("log.eventDataSourceAddress","::/128") &&
+            (equals("event.eventCode",5156) ||
+             (oneOf("event.eventCode",[5152,5157]) && oneOf("event.eventDataDirection",["%%14592","%%14593"]))) &&
+            (inCIDR("event.eventDataSourceAddress","0.0.0.0/0") || inCIDR("event.eventDataSourceAddress","::/0")) &&
+            !inCIDR("event.eventDataSourceAddress","0.0.0.0/32") && !inCIDR("event.eventDataSourceAddress","::/128") &&
             !exists("origin.ip")
       - grok:
-          source: log.eventDataDestAddress
+          source: event.eventDataDestAddress
           patterns:
           - fieldName: target.ip
             pattern: (?s)^.+$
           where: >-
-            (equals("log.eventCode",5156) ||
-             (oneOf("log.eventCode",[5152,5157]) && oneOf("log.eventDataDirection",["%%14592","%%14593"]))) &&
-            (inCIDR("log.eventDataDestAddress","0.0.0.0/0") || inCIDR("log.eventDataDestAddress","::/0")) &&
-            !inCIDR("log.eventDataDestAddress","0.0.0.0/32") && !inCIDR("log.eventDataDestAddress","::/128") &&
+            (equals("event.eventCode",5156) ||
+             (oneOf("event.eventCode",[5152,5157]) && oneOf("event.eventDataDirection",["%%14592","%%14593"]))) &&
+            (inCIDR("event.eventDataDestAddress","0.0.0.0/0") || inCIDR("event.eventDataDestAddress","::/0")) &&
+            !inCIDR("event.eventDataDestAddress","0.0.0.0/32") && !inCIDR("event.eventDataDestAddress","::/128") &&
             !exists("target.ip")
 
       - rename:
           from:
-            - log.data.IpPort
-          to: log.eventDataIpPort
+            - event.data.IpPort
+          to: event.eventDataIpPort
 
       - rename:
           from:
-            - log.data.Resource
-          to: log.eventDataResource
+            - event.data.Resource
+          to: event.eventDataResource
 
       - rename:
           from:
-            - log.data.KeyLength
-          to: log.eventDataKeyLength
+            - event.data.KeyLength
+          to: event.eventDataKeyLength
 
       - rename:
           from:
-            - log.data.LmPackageName
-          to: log.eventDataLmPackageName
+            - event.data.LmPackageName
+          to: event.eventDataLmPackageName
 
       - rename:
           from:
-            - log.data.LogonProcessName
-          to: log.eventDataLogonProcessName
+            - event.data.LogonProcessName
+          to: event.eventDataLogonProcessName
 
       - rename:
           from:
-            - log.data.LogonType
-          to: log.eventDataLogonType
+            - event.data.LogonType
+          to: event.eventDataLogonType
       - rename:
           from:
-            - log.data.Resource
-          to: log.eventDataResource
+            - event.data.Resource
+          to: event.eventDataResource
 
       - rename:
           from:
-            - log.data.ProcessId
-          to: log.eventDataProcessId
+            - event.data.ProcessId
+          to: event.eventDataProcessId
 
       - rename:
           from:
-            - log.data.ProcessName
-          to: log.eventDataProcessName
+            - event.data.ProcessName
+          to: event.eventDataProcessName
 
       - rename:
           from:
-            - log.data.RestrictedAdminMode
-          to: log.eventDataRestrictedAdminMode
+            - event.data.RestrictedAdminMode
+          to: event.eventDataRestrictedAdminMode
 
       - rename:
           from:
-            - log.data.TargetDomainName
+            - event.data.TargetDomainName
           to: target.domain
 
       - rename:
           from:
-            - log.data.TargetLinkedLogonId
-          to: log.eventDataTargetLinkedLogonId
+            - event.data.TargetLinkedLogonId
+          to: event.eventDataTargetLinkedLogonId
 
       - rename:
           from:
-            - log.data.Resource
-          to: log.eventDataResource
+            - event.data.Resource
+          to: event.eventDataResource
 
       - rename:
           from:
-            - log.data.TargetLogonId
-          to: log.eventDataTargetLogonId
+            - event.data.TargetLogonId
+          to: event.eventDataTargetLogonId
 
       - rename:
           from:
-            - log.data.TargetOutboundDomainName
-          to: log.eventDataTargetOutboundDomainName
+            - event.data.TargetOutboundDomainName
+          to: event.eventDataTargetOutboundDomainName
 
       - rename:
           from:
-            - log.data.TargetOutboundUserName
-          to: log.eventDataTargetOutboundUserName
+            - event.data.TargetOutboundUserName
+          to: event.eventDataTargetOutboundUserName
 
       - rename:
           from:
-            - log.data.TargetUserName
+            - event.data.TargetUserName
           to: target.user
 
       - rename:
           from:
-            - log.data.TargetUserSid
-          to: log.eventDataTargetUserSid
+            - event.data.TargetUserSid
+          to: event.eventDataTargetUserSid
 
       - rename:
           from:
-            - log.data.TargetSid
-          to: log.eventDataTargetSid
+            - event.data.TargetSid
+          to: event.eventDataTargetSid
 
       - rename:
           from:
-            - log.data.CallerProcessId
-          to: log.eventDataCallerProcessId
+            - event.data.CallerProcessId
+          to: event.eventDataCallerProcessId
 
       - rename:
           from:
-            - log.data.CallerProcessName
-          to: log.eventDataCallerProcessName
+            - event.data.CallerProcessName
+          to: event.eventDataCallerProcessName
 
       - rename:
           from:
-            - log.data.TransmittedServices
-          to: log.eventDataTransmittedServices
+            - event.data.TransmittedServices
+          to: event.eventDataTransmittedServices
 
       - rename:
           from:
-            - log.data.VirtualAccount
-          to: log.eventDataVirtualAccount
+            - event.data.VirtualAccount
+          to: event.eventDataVirtualAccount
 
       - rename:
           from:
-            - log.data.WorkstationName
-            - log.data.Workstation
+            - event.data.WorkstationName
+            - event.data.Workstation
           to: origin.host
 
       - rename:
           from:
-            - log.data.FailureReason
-          to: log.eventDataFailureReason
+            - event.data.FailureReason
+          to: event.eventDataFailureReason
 
       - rename:
           from:
-            - log.data.AccessMask
-          to: log.eventDataAccessMask
+            - event.data.AccessMask
+          to: event.eventDataAccessMask
 
       - rename:
           from:
-            - log.data.Status
-          to: log.eventDataStatus
+            - event.data.Status
+          to: event.eventDataStatus
 
       - rename:
           from:
-            - log.process.thread
-          to: log.processThread
+            - event.process.thread
+          to: event.processThread
 
       - rename:
           from:
-            - log.execution.ThreadID
-          to: log.processThreadId
+            - event.execution.ThreadID
+          to: event.processThreadId
 
       - rename:
           from:
-            - log.process.pid
-          to: log.processPid
+            - event.process.pid
+          to: event.processPid
 
       - rename:
           from:
-            - log.provider_name
-          to: log.providerName
+            - event.provider_name
+          to: event.providerName
 
       - rename:
           from:
-            - log.record_id
-            - log.recordid
-          to: log.recordId
+            - event.record_id
+            - event.recordid
+          to: event.recordId
 
       - rename:
           from:
-            - log.task
-          to: log.task
+            - event.task
+          to: event.task
 
       - rename:
           from:
-            - log.event.code
-          to: log.eventCode
+            - event.event.code
+          to: event.eventCode
 
       - rename:
           from:
-            - log.event.kind
-          to: log.eventKind
+            - event.event.kind
+          to: event.eventKind
 
       - rename:
           from:
-            - log.event.provider
-          to: log.event.provider
+            - event.event.provider
+          to: event.event.provider
 
       - rename:
           from:
-            - log.level
-          to: log.severityLabel
+            - event.level
+          to: event.severityLabel
 
       - rename:
           from:
-            - log.api
-          to: log.api
+            - event.api
+          to: event.api
 
       - rename:
           from:
-            - log.ecs.version
-          to: log.ecsVersion
+            - event.ecs.version
+          to: event.ecsVersion
 
       - rename:
           from:
-            - log.correlation.ActivityID
-          to: log.activityId
+            - event.correlation.ActivityID
+          to: event.activityId
 
       - rename:
           from:
-            - log.data.LogonGuid
-          to: log.logonGuid
+            - event.data.LogonGuid
+          to: event.logonGuid
 
       - rename:
           from:
-            - log.execution.ProcessID
-          to: log.executionProcessID
+            - event.execution.ProcessID
+          to: event.executionProcessID
 
       - rename:
           from:
-            - log.data.ObjectType
-          to: log.eventDataObjectType
+            - event.data.ObjectType
+          to: event.eventDataObjectType
 
       - rename:
           from:
-            - log.data.OperationType
-          to: log.eventDataOperationType
+            - event.data.OperationType
+          to: event.eventDataOperationType
 
       - rename:
           from:
-            - log.data.TicketEncryptionType
-          to: log.eventDataTicketEncryptionType
+            - event.data.TicketEncryptionType
+          to: event.eventDataTicketEncryptionType
 
       - rename:
           from:
-            - log.data.PreAuthType
-          to: log.eventDataPreAuthType
+            - event.data.PreAuthType
+          to: event.eventDataPreAuthType
 
       - rename:
           from:
-            - log.data.TicketOptions
-          to: log.eventDataTicketOptions
+            - event.data.TicketOptions
+          to: event.eventDataTicketOptions
 
       - rename:
           from:
-            - log.data.ProcessPath
-          to: log.eventDataProcessPath
+            - event.data.ProcessPath
+          to: event.eventDataProcessPath
 
       - rename:
           from:
-            - log.data.ImagePath
-          to: log.eventDataImagePath
+            - event.data.ImagePath
+          to: event.eventDataImagePath
 
       - rename:
           from:
-            - log.data.ServiceType
-          to: log.eventDataServiceType
+            - event.data.ServiceType
+          to: event.eventDataServiceType
 
       - rename:
           from:
-            - log.data.StartType
-          to: log.eventDataStartType
+            - event.data.StartType
+          to: event.eventDataStartType
 
       - rename:
           from:
-            - log.data.FileName
-          to: log.eventDataFileName
+            - event.data.FileName
+          to: event.eventDataFileName
 
       - rename:
           from:
-            - log.data.LinkName
-          to: log.eventDataLinkName
+            - event.data.LinkName
+          to: event.eventDataLinkName
 
       - rename:
           from:
-            - log.data.AccessList
-          to: log.eventDataAccessList
+            - event.data.AccessList
+          to: event.eventDataAccessList
 
       - rename:
           from:
-            - log.data.HandleId
-          to: log.eventDataHandleId
+            - event.data.HandleId
+          to: event.eventDataHandleId
 
       - rename:
           from:
-            - log.data.ObjectName
-          to: log.eventDataObjectName
+            - event.data.ObjectName
+          to: event.eventDataObjectName
 
       - rename:
           from:
-            - log.data.ResourceAttributes
-          to: log.eventDataResourceAttributes
+            - event.data.ResourceAttributes
+          to: event.eventDataResourceAttributes
 
       - rename:
           from:
-            - log.data.OldSd
-          to: log.eventDataOldSd
+            - event.data.OldSd
+          to: event.eventDataOldSd
 
       - rename:
           from:
-            - log.data.NewSd
-          to: log.eventDataNewSd
+            - event.data.NewSd
+          to: event.eventDataNewSd
 
       - rename:
           from:
-            - log.data.ObjectServer
-          to: log.eventDataObjectServer
+            - event.data.ObjectServer
+          to: event.eventDataObjectServer
 
       - rename:
           from:
-            - log.data.TransactionId
-          to: log.eventDataTransactionId
+            - event.data.TransactionId
+          to: event.eventDataTransactionId
 
       - rename:
           from:
-            - log.data.ScriptBlockText
-          to: log.eventDataScriptBlockText
+            - event.data.ScriptBlockText
+          to: event.eventDataScriptBlockText
 
       - rename:
           from:
-            - log.data.MessageNumber
-          to: log.eventDataMessageNumber
+            - event.data.MessageNumber
+          to: event.eventDataMessageNumber
 
       - rename:
           from:
-            - log.data.MessageTotal
-          to: log.eventDataMessageTotal
+            - event.data.MessageTotal
+          to: event.eventDataMessageTotal
 
       - rename:
           from:
-            - log.data.ScriptBlockId
-          to: log.eventDataScriptBlockId
+            - event.data.ScriptBlockId
+          to: event.eventDataScriptBlockId
 
       - cast:
           to: "int"
           fields:
-            - log.eventCode
+            - event.eventCode
     
       - trim:
           function: prefix
           substring: '{'
           fields:
-            - log.providerGuid
-            - log.activityId
-            - log.logonGuid
-            - log.eventDataSchema
-            - log.processThread
-            - log.eventDataTransactionId
+            - event.providerGuid
+            - event.activityId
+            - event.logonGuid
+            - event.eventDataSchema
+            - event.processThread
+            - event.eventDataTransactionId
 
       - trim:
           function: suffix
           substring: '}'
           fields:
-            - log.providerGuid
-            - log.activityId
-            - log.logonGuid
-            - log.eventDataSchema
-            - log.processThread
-            - log.eventDataTransactionId
+            - event.providerGuid
+            - event.activityId
+            - event.logonGuid
+            - event.eventDataSchema
+            - event.processThread
+            - event.eventDataTransactionId
 
       # Drop unnecessary events
       - drop:
-          where: "oneOf('log.eventCode', [0, 1, 43, 44, 1040, 1042, 1105, 1500, 1501, 4608, 4609, 4614, 4615, 4616, 4626, 4627, 4650, 4651, 4652, 4653, 4654, 4655, 4659, 4665, 4666, 4667, 4668, 4689, 4696, 4709, 4710, 4711, 4712, 4778, 4779, 4826, 4864, 4866, 4898, 4899, 4902, 4904, 4905, 4906, 4909, 4910, 4911, 4928, 4929, 4930, 4931, 4932, 4933, 4934, 4935, 4936, 4937, 4944, 4945, 4951, 4952, 4953, 4957, 4958, 4965, 4979, 4980, 4981, 4982, 4983, 4984, 4985, 5024, 5027, 5028, 5029, 5033, 5034, 5035, 5038, 5039, 5051, 5056, 5057, 5058, 5059, 5060, 5061, 5062, 5063, 5064, 5065, 5066, 5067, 5068, 5069, 5070, 5071, 5120, 5121, 5122, 5123, 5125, 5126, 5127, 5137, 5138, 5139, 5141, 5145, 5168, 5169, 5170, 5376, 5377, 5378, 5379, 5380, 5381, 5440, 5441, 5442, 5443, 5444, 5446, 5450, 5451, 5452, 5456, 5457, 5458, 5459, 5460, 5461, 5462, 5463, 5464, 5465, 5466, 5467, 5468, 5471, 5472, 5473, 5474, 5477, 5478, 5712, 5888, 5889, 5890, 6145, 6274, 6275, 6281, 6400, 6401, 6402, 6403, 6405, 6406, 6407, 6408, 6409, 6410, 6417, 6418, 6423, 6424, 7040, 8191, 10000, 10010, 16384, 16394, 24578, 24579, 24581, 24582, 24583, 24584, 24586, 24588, 24592, 24593, 24594, 24595, 24621])"
+          where: "oneOf('event.eventCode', [0, 1, 43, 44, 1040, 1042, 1105, 1500, 1501, 4608, 4609, 4614, 4615, 4616, 4626, 4627, 4650, 4651, 4652, 4653, 4654, 4655, 4659, 4665, 4666, 4667, 4668, 4689, 4696, 4709, 4710, 4711, 4712, 4778, 4779, 4826, 4864, 4866, 4898, 4899, 4902, 4904, 4905, 4906, 4909, 4910, 4911, 4928, 4929, 4930, 4931, 4932, 4933, 4934, 4935, 4936, 4937, 4944, 4945, 4951, 4952, 4953, 4957, 4958, 4965, 4979, 4980, 4981, 4982, 4983, 4984, 4985, 5024, 5027, 5028, 5029, 5033, 5034, 5035, 5038, 5039, 5051, 5056, 5057, 5058, 5059, 5060, 5061, 5062, 5063, 5064, 5065, 5066, 5067, 5068, 5069, 5070, 5071, 5120, 5121, 5122, 5123, 5125, 5126, 5127, 5137, 5138, 5139, 5141, 5145, 5168, 5169, 5170, 5376, 5377, 5378, 5379, 5380, 5381, 5440, 5441, 5442, 5443, 5444, 5446, 5450, 5451, 5452, 5456, 5457, 5458, 5459, 5460, 5461, 5462, 5463, 5464, 5465, 5466, 5467, 5468, 5471, 5472, 5473, 5474, 5477, 5478, 5712, 5888, 5889, 5890, 6145, 6274, 6275, 6281, 6400, 6401, 6402, 6403, 6405, 6406, 6407, 6408, 6409, 6410, 6417, 6418, 6423, 6424, 7040, 8191, 10000, 10010, 16384, 16394, 24578, 24579, 24581, 24582, 24583, 24584, 24586, 24588, 24592, 24593, 24594, 24595, 24621])"
 
       # Decoding event code
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A product has been installed successfully'
-          where: equals("log.eventCode", 1033)
+          where: equals("event.eventCode", 1033)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'The event logging service has shut down'
-          where: equals("log.eventCode", 1100)
+          where: equals("event.eventCode", 1100)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Audit events have been dropped by the transport.'
-          where: equals("log.eventCode", 1101)
+          where: equals("event.eventCode", 1101)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'The audit log was cleared'
-          where: equals("log.eventCode", 1102)
+          where: equals("event.eventCode", 1102)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'The security Log is now full'
-          where: equals("log.eventCode", 1104)
+          where: equals("event.eventCode", 1104)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'The event logging service encountered an error'
-          where: equals("log.eventCode", 1108)
+          where: equals("event.eventCode", 1108)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A PowerShell script block has been executed and the script text has been logged to the event viewer.'
-          where: equals("log.eventCode", 4104)
+          where: equals("event.eventCode", 4104)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'An authentication package has been loaded by the Local Security Authority'
-          where: equals("log.eventCode", 4610)
+          where: equals("event.eventCode", 4610)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A trusted logon process has been registered with the Local Security Authority'
-          where: equals("log.eventCode", 4611)
+          where: equals("event.eventCode", 4611)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Internal resources allocated for the queuing of audit messages have been exhausted: leading to the loss of some audits.'
-          where: equals("log.eventCode", 4612)
+          where: equals("event.eventCode", 4612)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A monitored security event pattern has occurred'
-          where: equals("log.eventCode", 4618)
+          where: equals("event.eventCode", 4618)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Administrator recovered system from CrashOnAuditFail'
-          where: equals("log.eventCode", 4621)
+          where: equals("event.eventCode", 4621)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A security package has been loaded by the Local Security Authority.'
-          where: equals("log.eventCode", 4622)
+          where: equals("event.eventCode", 4622)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'An account was successfully logged on'
-          where: equals("log.eventCode", 4624)
+          where: equals("event.eventCode", 4624)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'An account failed to log on'
-          where: equals("log.eventCode", 4625)
+          where: equals("event.eventCode", 4625)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'An account was logged off'
-          where: equals("log.eventCode", 4634)
+          where: equals("event.eventCode", 4634)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'IKE DoS-prevention mode started'
-          where: equals("log.eventCode", 4646)
+          where: equals("event.eventCode", 4646)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'User initiated logoff'
-          where: equals("log.eventCode", 4647)
+          where: equals("event.eventCode", 4647)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A logon was attempted using explicit credentials'
-          where: equals("log.eventCode", 4648)
+          where: equals("event.eventCode", 4648)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A replay attack was detected'
-          where: equals("log.eventCode", 4649)
+          where: equals("event.eventCode", 4649)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A handle to an object was requested'
-          where: equals("log.eventCode", 4656)
+          where: equals("event.eventCode", 4656)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A registry value was modified'
-          where: equals("log.eventCode", 4657)
+          where: equals("event.eventCode", 4657)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'The handle to an object was closed'
-          where: equals("log.eventCode", 4658)
+          where: equals("event.eventCode", 4658)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'An object was deleted'
-          where: equals("log.eventCode", 4660)
+          where: equals("event.eventCode", 4660)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A handle to an object was requested'
-          where: equals("log.eventCode", 4661)
+          where: equals("event.eventCode", 4661)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'An operation was performed on an object'
-          where: equals("log.eventCode", 4662)
+          where: equals("event.eventCode", 4662)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'An attempt was made to access an object'
-          where: equals("log.eventCode", 4663)
+          where: equals("event.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'An attempt was made to create a hard link'
-          where: equals("log.eventCode", 4664)
+          where: equals("event.eventCode", 4664)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Permissions on an object were changed'
-          where: equals("log.eventCode", 4670)
+          where: equals("event.eventCode", 4670)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'An application attempted to access a blocked ordinal through the TBS'
-          where: equals("log.eventCode", 4671)
+          where: equals("event.eventCode", 4671)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Special privileges assigned to new logon'
-          where: equals("log.eventCode", 4672)
+          where: equals("event.eventCode", 4672)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A privileged service was called'
-          where: equals("log.eventCode", 4673)
+          where: equals("event.eventCode", 4673)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'An operation was attempted on a privileged object'
-          where: equals("log.eventCode", 4674)
+          where: equals("event.eventCode", 4674)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'SIDs were filtered'
-          where: equals("log.eventCode", 4675)
+          where: equals("event.eventCode", 4675)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'An attempt was made to duplicate a handle to an object'
-          where: equals("log.eventCode", 4690)
+          where: equals("event.eventCode", 4690)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Indirect access to an object was requested'
-          where: equals("log.eventCode", 4691)
+          where: equals("event.eventCode", 4691)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Backup of data protection master key was attempted'
-          where: equals("log.eventCode", 4692)
+          where: equals("event.eventCode", 4692)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Recovery of data protection master key was attempted'
-          where: equals("log.eventCode", 4693)
+          where: equals("event.eventCode", 4693)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Protection of auditable protected data was attempted'
-          where: equals("log.eventCode", 4694)
+          where: equals("event.eventCode", 4694)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Unprotection of auditable protected data was attempted'
-          where: equals("log.eventCode", 4695)
+          where: equals("event.eventCode", 4695)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A service was installed in the system'
-          where: equals("log.eventCode", 4697)
+          where: equals("event.eventCode", 4697)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A scheduled task was created'
-          where: equals("log.eventCode", 4698)
+          where: equals("event.eventCode", 4698)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A scheduled task was deleted'
-          where: equals("log.eventCode", 4699)
+          where: equals("event.eventCode", 4699)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A scheduled task was enabled'
-          where: equals("log.eventCode", 4700)
+          where: equals("event.eventCode", 4700)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A scheduled task was disabled'
-          where: equals("log.eventCode", 4701)
+          where: equals("event.eventCode", 4701)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A scheduled task was updated'
-          where: equals("log.eventCode", 4702)
+          where: equals("event.eventCode", 4702)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A token right was adjusted'
-          where: equals("log.eventCode", 4703)
+          where: equals("event.eventCode", 4703)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A user right was assigned'
-          where: equals("log.eventCode", 4704)
+          where: equals("event.eventCode", 4704)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A user right was removed'
-          where: equals("log.eventCode", 4705)
+          where: equals("event.eventCode", 4705)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A new trust was created to a domain'
-          where: equals("log.eventCode", 4706)
+          where: equals("event.eventCode", 4706)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A trust to a domain was removed'
-          where: equals("log.eventCode", 4707)
+          where: equals("event.eventCode", 4707)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Kerberos policy was changed'
-          where: equals("log.eventCode", 4713)
+          where: equals("event.eventCode", 4713)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Encrypted data recovery policy was changed'
-          where: equals("log.eventCode", 4714)
+          where: equals("event.eventCode", 4714)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'The audit policy (SACL) on an object was changed'
-          where: equals("log.eventCode", 4715)
+          where: equals("event.eventCode", 4715)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Trusted domain information was modified'
-          where: equals("log.eventCode", 4716)
+          where: equals("event.eventCode", 4716)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'System security access was granted to an account'
-          where: equals("log.eventCode", 4717)
+          where: equals("event.eventCode", 4717)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'System security access was removed from an account'
-          where: equals("log.eventCode", 4718)
+          where: equals("event.eventCode", 4718)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'System audit policy was changed'
-          where: equals("log.eventCode", 4719)
+          where: equals("event.eventCode", 4719)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A user account was created'
-          where: equals("log.eventCode", 4720)
+          where: equals("event.eventCode", 4720)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A user account was enabled'
-          where: equals("log.eventCode", 4722)
+          where: equals("event.eventCode", 4722)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'An attempt was made to change the password for an account'
-          where: equals("log.eventCode", 4723)
+          where: equals("event.eventCode", 4723)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'An attempt was made to reset an accounts password'
-          where: equals("log.eventCode", 4724)
+          where: equals("event.eventCode", 4724)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A user account was disabled'
-          where: equals("log.eventCode", 4725)
+          where: equals("event.eventCode", 4725)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A user account was deleted'
-          where: equals("log.eventCode", 4726)
+          where: equals("event.eventCode", 4726)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A security-enabled global group was created'
-          where: equals("log.eventCode", 4727)
+          where: equals("event.eventCode", 4727)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A member was added to a security-enabled global group'
-          where: equals("log.eventCode", 4728)
+          where: equals("event.eventCode", 4728)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A member was removed from a security-enabled global group'
-          where: equals("log.eventCode", 4729)
+          where: equals("event.eventCode", 4729)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A security-enabled global group was deleted'
-          where: equals("log.eventCode", 4730)
+          where: equals("event.eventCode", 4730)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A security-enabled local group was created'
-          where: equals("log.eventCode", 4731)
+          where: equals("event.eventCode", 4731)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A member was added to a security-enabled local group'
-          where: equals("log.eventCode", 4732)
+          where: equals("event.eventCode", 4732)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A member was removed from a security-enabled local group'
-          where: equals("log.eventCode", 4733)
+          where: equals("event.eventCode", 4733)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A security-enabled local group was deleted'
-          where: equals("log.eventCode", 4734)
+          where: equals("event.eventCode", 4734)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A security-enabled local group was changed'
-          where: equals("log.eventCode", 4735)
+          where: equals("event.eventCode", 4735)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A security-enabled global group was changed'
-          where: equals("log.eventCode", 4737)
+          where: equals("event.eventCode", 4737)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A user account was changed'
-          where: equals("log.eventCode", 4738)
+          where: equals("event.eventCode", 4738)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Domain Policy was changed'
-          where: equals("log.eventCode", 4739)
+          where: equals("event.eventCode", 4739)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A user account was locked out'
-          where: equals("log.eventCode", 4740)
+          where: equals("event.eventCode", 4740)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A computer account was created'
-          where: equals("log.eventCode", 4741)
+          where: equals("event.eventCode", 4741)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A computer account was changed'
-          where: equals("log.eventCode", 4742)
+          where: equals("event.eventCode", 4742)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A computer account was deleted'
-          where: equals("log.eventCode", 4743)
+          where: equals("event.eventCode", 4743)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A security-disabled local group was created'
-          where: equals("log.eventCode", 4744)
+          where: equals("event.eventCode", 4744)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A security-disabled local group was changed'
-          where: equals("log.eventCode", 4745)
+          where: equals("event.eventCode", 4745)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A member was added to a security-disabled local group'
-          where: equals("log.eventCode", 4746)
+          where: equals("event.eventCode", 4746)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A member was removed from a security-disabled local group'
-          where: equals("log.eventCode", 4747)
+          where: equals("event.eventCode", 4747)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A security-disabled local group was deleted'
-          where: equals("log.eventCode", 4748)
+          where: equals("event.eventCode", 4748)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A security-disabled global group was created'
-          where: equals("log.eventCode", 4749)
+          where: equals("event.eventCode", 4749)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A security-disabled global group was changed'
-          where: equals("log.eventCode", 4750)
+          where: equals("event.eventCode", 4750)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A member was added to a security-disabled global group'
-          where: equals("log.eventCode", 4751)
+          where: equals("event.eventCode", 4751)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A member was removed from a security-disabled global group'
-          where: equals("log.eventCode", 4752)
+          where: equals("event.eventCode", 4752)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A security-disabled global group was deleted'
-          where: equals("log.eventCode", 4753)
+          where: equals("event.eventCode", 4753)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A security-enabled universal group was created'
-          where: equals("log.eventCode", 4754)
+          where: equals("event.eventCode", 4754)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A security-enabled universal group was changed'
-          where: equals("log.eventCode", 4755)
+          where: equals("event.eventCode", 4755)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A member was added to a security-enabled universal group'
-          where: equals("log.eventCode", 4756)
+          where: equals("event.eventCode", 4756)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A member was removed from a security-enabled universal group'
-          where: equals("log.eventCode", 4757)
+          where: equals("event.eventCode", 4757)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A security-enabled universal group was deleted'
-          where: equals("log.eventCode", 4758)
+          where: equals("event.eventCode", 4758)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A security-disabled universal group was created'
-          where: equals("log.eventCode", 4759)
+          where: equals("event.eventCode", 4759)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A security-disabled universal group was changed'
-          where: equals("log.eventCode", 4760)
+          where: equals("event.eventCode", 4760)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A member was added to a security-disabled universal group'
-          where: equals("log.eventCode", 4761)
+          where: equals("event.eventCode", 4761)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A member was removed from a security-disabled universal group'
-          where: equals("log.eventCode", 4762)
+          where: equals("event.eventCode", 4762)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A security-disabled universal group was deleted'
-          where: equals("log.eventCode", 4763)
+          where: equals("event.eventCode", 4763)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A groups type was changed'
-          where: equals("log.eventCode", 4764)
+          where: equals("event.eventCode", 4764)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'SID History was added to an account'
-          where: equals("log.eventCode", 4765)
+          where: equals("event.eventCode", 4765)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'An attempt to add SID History to an account failed'
-          where: equals("log.eventCode", 4766)
+          where: equals("event.eventCode", 4766)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A user account was unlocked'
-          where: equals("log.eventCode", 4767)
+          where: equals("event.eventCode", 4767)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A Kerberos authentication ticket (TGT) was requested'
-          where: equals("log.eventCode", 4768)
+          where: equals("event.eventCode", 4768)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A Kerberos service ticket was requested'
-          where: equals("log.eventCode", 4769)
+          where: equals("event.eventCode", 4769)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A Kerberos service ticket was renewed'
-          where: equals("log.eventCode", 4770)
+          where: equals("event.eventCode", 4770)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Kerberos pre-authentication failed'
-          where: equals("log.eventCode", 4771)
+          where: equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A Kerberos authentication ticket request failed'
-          where: equals("log.eventCode", 4772)
+          where: equals("event.eventCode", 4772)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A Kerberos service ticket request failed'
-          where: equals("log.eventCode", 4773)
+          where: equals("event.eventCode", 4773)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'An account was mapped for logon'
-          where: equals("log.eventCode", 4774)
+          where: equals("event.eventCode", 4774)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'An account could not be mapped for logon'
-          where: equals("log.eventCode", 4775)
+          where: equals("event.eventCode", 4775)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'The domain controller attempted to validate the credentials for an account'
-          where: equals("log.eventCode", 4776)
+          where: equals("event.eventCode", 4776)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'The domain controller failed to validate the credentials for an account'
-          where: equals("log.eventCode", 4777)
+          where: equals("event.eventCode", 4777)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'The ACL was set on accounts which are members of administrators groups'
-          where: equals("log.eventCode", 4780)
+          where: equals("event.eventCode", 4780)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'The name of an account was changed'
-          where: equals("log.eventCode", 4781)
+          where: equals("event.eventCode", 4781)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'The password hash an account was accessed'
-          where: equals("log.eventCode", 4782)
+          where: equals("event.eventCode", 4782)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A basic application group was created'
-          where: equals("log.eventCode", 4783)
+          where: equals("event.eventCode", 4783)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A basic application group was changed'
-          where: equals("log.eventCode", 4784)
+          where: equals("event.eventCode", 4784)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A member was added to a basic application group'
-          where: equals("log.eventCode", 4785)
+          where: equals("event.eventCode", 4785)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A member was removed from a basic application group'
-          where: equals("log.eventCode", 4786)
+          where: equals("event.eventCode", 4786)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A non-member was added to a basic application group'
-          where: equals("log.eventCode", 4787)
+          where: equals("event.eventCode", 4787)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A non-member was removed from a basic application group.'
-          where: equals("log.eventCode", 4788)
+          where: equals("event.eventCode", 4788)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A basic application group was deleted'
-          where: equals("log.eventCode", 4789)
+          where: equals("event.eventCode", 4789)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'An LDAP query group was created'
-          where: equals("log.eventCode", 4790)
+          where: equals("event.eventCode", 4790)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A basic application group was changed'
-          where: equals("log.eventCode", 4791)
+          where: equals("event.eventCode", 4791)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'An LDAP query group was deleted'
-          where: equals("log.eventCode", 4792)
+          where: equals("event.eventCode", 4792)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'The Password Policy Checking API was called'
-          where: equals("log.eventCode", 4793)
+          where: equals("event.eventCode", 4793)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'An attempt was made to set the Directory Services Restore Mode administrator password'
-          where: equals("log.eventCode", 4794)
+          where: equals("event.eventCode", 4794)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'An attempt was made to query the existence of a blank password for an account'
-          where: equals("log.eventCode", 4797)
+          where: equals("event.eventCode", 4797)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A users local group membership was enumerated.'
-          where: equals("log.eventCode", 4798)
+          where: equals("event.eventCode", 4798)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A security-enabled local group membership was enumerated'
-          where: equals("log.eventCode", 4799)
+          where: equals("event.eventCode", 4799)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'The workstation was locked'
-          where: equals("log.eventCode", 4800)
+          where: equals("event.eventCode", 4800)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'The workstation was unlocked'
-          where: equals("log.eventCode", 4801)
+          where: equals("event.eventCode", 4801)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'The screen saver was invoked'
-          where: equals("log.eventCode", 4802)
+          where: equals("event.eventCode", 4802)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'The screen saver was dismissed'
-          where: equals("log.eventCode", 4803)
+          where: equals("event.eventCode", 4803)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'RPC detected an integrity violation while decrypting an incoming message'
-          where: equals("log.eventCode", 4816)
+          where: equals("event.eventCode", 4816)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Auditing settings on object were changed.'
-          where: equals("log.eventCode", 4817)
+          where: equals("event.eventCode", 4817)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Proposed Central Access Policy does not grant the same access permissions as the current Central Access Policy'
-          where: equals("log.eventCode", 4818)
+          where: equals("event.eventCode", 4818)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Central Access Policies on the machine have been changed'
-          where: equals("log.eventCode", 4819)
+          where: equals("event.eventCode", 4819)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A Kerberos Ticket-granting-ticket (TGT) was denied because the device does not meet the access control restrictions'
-          where: equals("log.eventCode", 4820)
+          where: equals("event.eventCode", 4820)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A Kerberos service ticket was denied because the user: device: or both does not meet the access control restrictions'
-          where: equals("log.eventCode", 4821)
+          where: equals("event.eventCode", 4821)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'NTLM authentication failed because the account was a member of the Protected User group'
-          where: equals("log.eventCode", 4822)
+          where: equals("event.eventCode", 4822)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'NTLM authentication failed because access control restrictions are required'
-          where: equals("log.eventCode", 4823)
+          where: equals("event.eventCode", 4823)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Kerberos preauthentication by using DES or RC4 failed because the account was a member of the Protected User group'
-          where: equals("log.eventCode", 4824)
+          where: equals("event.eventCode", 4824)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A user was denied the access to Remote Desktop. By default: users are allowed to connect only if they are members of the Remote Desktop Users group or Administrators group'
-          where: equals("log.eventCode", 4825)
+          where: equals("event.eventCode", 4825)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'SID History was removed from an account'
-          where: equals("log.eventCode", 4830)
+          where: equals("event.eventCode", 4830)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A trusted forest information entry was added'
-          where: equals("log.eventCode", 4865)
+          where: equals("event.eventCode", 4865)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A trusted forest information entry was modified'
-          where: equals("log.eventCode", 4867)
+          where: equals("event.eventCode", 4867)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'The certificate manager denied a pending certificate request'
-          where: equals("log.eventCode", 4868)
+          where: equals("event.eventCode", 4868)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Certificate Services received a resubmitted certificate request'
-          where: equals("log.eventCode", 4869)
+          where: equals("event.eventCode", 4869)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Certificate Services revoked a certificate'
-          where: equals("log.eventCode", 4870)
+          where: equals("event.eventCode", 4870)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Certificate Services received a request to publish the certificate revocation list (CRL)'
-          where: equals("log.eventCode", 4871)
+          where: equals("event.eventCode", 4871)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Certificate Services published the certificate revocation list (CRL)'
-          where: equals("log.eventCode", 4872)
+          where: equals("event.eventCode", 4872)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A certificate request extension changed'
-          where: equals("log.eventCode", 4873)
+          where: equals("event.eventCode", 4873)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'One or more certificate request attributes changed.'
-          where: equals("log.eventCode", 4874)
+          where: equals("event.eventCode", 4874)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Certificate Services received a request to shut down'
-          where: equals("log.eventCode", 4875)
+          where: equals("event.eventCode", 4875)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Certificate Services backup started'
-          where: equals("log.eventCode", 4876)
+          where: equals("event.eventCode", 4876)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Certificate Services backup completed'
-          where: equals("log.eventCode", 4877)
+          where: equals("event.eventCode", 4877)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Certificate Services restore started'
-          where: equals("log.eventCode", 4878)
+          where: equals("event.eventCode", 4878)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Certificate Services restore completed'
-          where: equals("log.eventCode", 4879)
+          where: equals("event.eventCode", 4879)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Certificate Services started'
-          where: equals("log.eventCode", 4880)
+          where: equals("event.eventCode", 4880)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Certificate Services stopped'
-          where: equals("log.eventCode", 4881)
+          where: equals("event.eventCode", 4881)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'The security permissions for Certificate Services changed'
-          where: equals("log.eventCode", 4882)
+          where: equals("event.eventCode", 4882)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Certificate Services retrieved an archived key'
-          where: equals("log.eventCode", 4883)
+          where: equals("event.eventCode", 4883)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Certificate Services imported a certificate into its database'
-          where: equals("log.eventCode", 4884)
+          where: equals("event.eventCode", 4884)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'The audit filter for Certificate Services changed'
-          where: equals("log.eventCode", 4885)
+          where: equals("event.eventCode", 4885)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Certificate Services received a certificate request'
-          where: equals("log.eventCode", 4886)
+          where: equals("event.eventCode", 4886)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Certificate Services approved a certificate request and issued a certificate'
-          where: equals("log.eventCode", 4887)
+          where: equals("event.eventCode", 4887)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Certificate Services denied a certificate request'
-          where: equals("log.eventCode", 4888)
+          where: equals("event.eventCode", 4888)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Certificate Services set the status of a certificate request to pending'
-          where: equals("log.eventCode", 4889)
+          where: equals("event.eventCode", 4889)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'The certificate manager settings for Certificate Services changed.'
-          where: equals("log.eventCode", 4890)
+          where: equals("event.eventCode", 4890)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A configuration entry changed in Certificate Services'
-          where: equals("log.eventCode", 4891)
+          where: equals("event.eventCode", 4891)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A property of Certificate Services changed'
-          where: equals("log.eventCode", 4892)
+          where: equals("event.eventCode", 4892)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Certificate Services archived a key'
-          where: equals("log.eventCode", 4893)
+          where: equals("event.eventCode", 4893)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Certificate Services imported and archived a key'
-          where: equals("log.eventCode", 4894)
+          where: equals("event.eventCode", 4894)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Certificate Services published the CA certificate to Active Directory Domain Services'
-          where: equals("log.eventCode", 4895)
+          where: equals("event.eventCode", 4895)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'One or more rows have been deleted from the certificate database'
-          where: equals("log.eventCode", 4896)
+          where: equals("event.eventCode", 4896)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Role separation enabled'
-          where: equals("log.eventCode", 4897)
+          where: equals("event.eventCode", 4897)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Certificate Services template security was updated'
-          where: equals("log.eventCode", 4900)
+          where: equals("event.eventCode", 4900)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Auditing settings on object were changed'
-          where: equals("log.eventCode", 4907)
+          where: equals("event.eventCode", 4907)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Special Groups Logon table modified'
-          where: equals("log.eventCode", 4908)
+          where: equals("event.eventCode", 4908)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Per User Audit Policy was changed'
-          where: equals("log.eventCode", 4912)
+          where: equals("event.eventCode", 4912)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Central Access Policy on the object was changed'
-          where: equals("log.eventCode", 4913)
+          where: equals("event.eventCode", 4913)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A change has been made to Windows Firewall exception list. A rule was added'
-          where: equals("log.eventCode", 4946)
+          where: equals("event.eventCode", 4946)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A change has been made to Windows Firewall exception list. A rule was modified'
-          where: equals("log.eventCode", 4947)
+          where: equals("event.eventCode", 4947)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A change has been made to Windows Firewall exception list. A rule was deleted'
-          where: equals("log.eventCode", 4948)
+          where: equals("event.eventCode", 4948)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Windows Firewall settings were restored to the default values'
-          where: equals("log.eventCode", 4949)
+          where: equals("event.eventCode", 4949)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A Windows Firewall setting has changed'
-          where: equals("log.eventCode", 4950)
+          where: equals("event.eventCode", 4950)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Windows Firewall Group Policy settings has changed. The new settings have been applied'
-          where: equals("log.eventCode", 4954)
+          where: equals("event.eventCode", 4954)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Windows Firewall has changed the active profile'
-          where: equals("log.eventCode", 4956)
+          where: equals("event.eventCode", 4956)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'IPsec dropped an inbound packet that failed an integrity check'
-          where: equals("log.eventCode", 4960)
+          where: equals("event.eventCode", 4960)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'IPsec dropped an inbound packet that failed a replay check'
-          where: equals("log.eventCode", 4961)
+          where: equals("event.eventCode", 4961)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'IPsec dropped an inbound packet that failed a replay check'
-          where: equals("log.eventCode", 4962)
+          where: equals("event.eventCode", 4962)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'IPsec dropped an inbound clear text packet that should have been secured'
-          where: equals("log.eventCode", 4963)
+          where: equals("event.eventCode", 4963)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Special groups have been assigned to a new logon'
-          where: equals("log.eventCode", 4964)
+          where: equals("event.eventCode", 4964)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'During Main Mode negotiation: IPsec received an invalid negotiation packet.'
-          where: equals("log.eventCode", 4976)
+          where: equals("event.eventCode", 4976)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'During Quick Mode negotiation: IPsec received an invalid negotiation packet.'
-          where: equals("log.eventCode", 4977)
+          where: equals("event.eventCode", 4977)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'During Extended Mode negotiation: IPsec received an invalid negotiation packet.'
-          where: equals("log.eventCode", 4978)
+          where: equals("event.eventCode", 4978)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Antimalware engine encountered an error and failed'
-          where: equals("log.eventCode", 5008)
+          where: equals("event.eventCode", 5008)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'The Windows Firewall Service has been stopped'
-          where: equals("log.eventCode", 5025)
+          where: equals("event.eventCode", 5025)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'The Windows Firewall Service failed to start'
-          where: equals("log.eventCode", 5030)
+          where: equals("event.eventCode", 5030)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'The Windows Firewall Service blocked an application from accepting incoming connections on the network.'
-          where: equals("log.eventCode", 5031)
+          where: equals("event.eventCode", 5031)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Windows Firewall was unable to notify the user that it blocked an application from accepting incoming connections on the network'
-          where: equals("log.eventCode", 5032)
+          where: equals("event.eventCode", 5032)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'The Windows Firewall Driver detected critical runtime error. Terminating'
-          where: equals("log.eventCode", 5037)
+          where: equals("event.eventCode", 5037)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A change has been made to IPsec settings. An Authentication Set was added.'
-          where: equals("log.eventCode", 5040)
+          where: equals("event.eventCode", 5040)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A change has been made to IPsec settings. An Authentication Set was modified'
-          where: equals("log.eventCode", 5041)
+          where: equals("event.eventCode", 5041)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A change has been made to IPsec settings. An Authentication Set was deleted'
-          where: equals("log.eventCode", 5042)
+          where: equals("event.eventCode", 5042)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A change has been made to IPsec settings. A Connection Security Rule was added'
-          where: equals("log.eventCode", 5043)
+          where: equals("event.eventCode", 5043)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A change has been made to IPsec settings. A Connection Security Rule was modified'
-          where: equals("log.eventCode", 5044)
+          where: equals("event.eventCode", 5044)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A change has been made to IPsec settings. A Connection Security Rule was deleted'
-          where: equals("log.eventCode", 5045)
+          where: equals("event.eventCode", 5045)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A change has been made to IPsec settings. A Crypto Set was added'
-          where: equals("log.eventCode", 5046)
+          where: equals("event.eventCode", 5046)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A change has been made to IPsec settings. A Crypto Set was modified'
-          where: equals("log.eventCode", 5047)
+          where: equals("event.eventCode", 5047)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A change has been made to IPsec settings. A Crypto Set was deleted'
-          where: equals("log.eventCode", 5048)
+          where: equals("event.eventCode", 5048)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'An IPsec Security Association was deleted'
-          where: equals("log.eventCode", 5049)
+          where: equals("event.eventCode", 5049)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'An attempt to programmatically disable the Windows Firewall using a call to INetFwProfile.FirewallEnabled(FALSE)'
-          where: equals("log.eventCode", 5050)
+          where: equals("event.eventCode", 5050)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A security setting was updated on OCSP Responder Service'
-          where: equals("log.eventCode", 5124)
+          where: equals("event.eventCode", 5124)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A directory service object was modified'
-          where: equals("log.eventCode", 5136)
+          where: equals("event.eventCode", 5136)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A network share object was accessed'
-          where: equals("log.eventCode", 5140)
+          where: equals("event.eventCode", 5140)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A network share object was added.'
-          where: equals("log.eventCode", 5142)
+          where: equals("event.eventCode", 5142)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A network share object was modified'
-          where: equals("log.eventCode", 5143)
+          where: equals("event.eventCode", 5143)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A network share object was deleted.'
-          where: equals("log.eventCode", 5144)
+          where: equals("event.eventCode", 5144)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'The Windows Filtering Platform has blocked a packet'
-          where: equals("log.eventCode", 5146)
+          where: equals("event.eventCode", 5146)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A more restrictive Windows Filtering Platform filter has blocked a packet'
-          where: equals("log.eventCode", 5147)
+          where: equals("event.eventCode", 5147)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'The Windows Filtering Platform has detected a DoS attack and entered a defensive mode; packets associated with this attack will be discarded.'
-          where: equals("log.eventCode", 5148)
+          where: equals("event.eventCode", 5148)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'The DoS attack has subsided and normal processing is being resumed.'
-          where: equals("log.eventCode", 5149)
+          where: equals("event.eventCode", 5149)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'The Windows Filtering Platform has blocked a packet.'
-          where: equals("log.eventCode", 5150)
+          where: equals("event.eventCode", 5150)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A more restrictive Windows Filtering Platform filter has blocked a packet.'
-          where: equals("log.eventCode", 5151)
+          where: equals("event.eventCode", 5151)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'The Windows Filtering Platform blocked a packet'
-          where: equals("log.eventCode", 5152)
+          where: equals("event.eventCode", 5152)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A more restrictive Windows Filtering Platform filter has blocked a packet'
-          where: equals("log.eventCode", 5153)
+          where: equals("event.eventCode", 5153)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'The Windows Filtering Platform has permitted an application or service to listen on a port for incoming connections'
-          where: equals("log.eventCode", 5154)
+          where: equals("event.eventCode", 5154)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'The Windows Filtering Platform has blocked an application or service from listening on a port for incoming connections'
-          where: equals("log.eventCode", 5155)
+          where: equals("event.eventCode", 5155)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'The Windows Filtering Platform has allowed a connection'
-          where: equals("log.eventCode", 5156)
+          where: equals("event.eventCode", 5156)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'The Windows Filtering Platform has blocked a connection'
-          where: equals("log.eventCode", 5157)
+          where: equals("event.eventCode", 5157)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'The Windows Filtering Platform has permitted a bind to a local port'
-          where: equals("log.eventCode", 5158)
+          where: equals("event.eventCode", 5158)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'The Windows Filtering Platform has blocked a bind to a local port'
-          where: equals("log.eventCode", 5159)
+          where: equals("event.eventCode", 5159)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A Windows Filtering Platform filter has been changed'
-          where: equals("log.eventCode", 5447)
+          where: equals("event.eventCode", 5447)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A Windows Filtering Platform provider has been changed'
-          where: equals("log.eventCode", 5448)
+          where: equals("event.eventCode", 5448)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A Windows Filtering Platform provider context has been changed'
-          where: equals("log.eventCode", 5449)
+          where: equals("event.eventCode", 5449)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'An IPsec negotiation with a remote computer failed because the IKE and AuthIP IPsec Keying Modules (IKEEXT) service is not started'
-          where: equals("log.eventCode", 5453)
+          where: equals("event.eventCode", 5453)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'IPsec Services has been shut down successfully'
-          where: equals("log.eventCode", 5479)
+          where: equals("event.eventCode", 5479)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'IPsec Services failed to get the complete list of network interfaces on the computer'
-          where: equals("log.eventCode", 5480)
+          where: equals("event.eventCode", 5480)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'IPsec Services failed to initialize RPC server. IPsec Services could not be started'
-          where: equals("log.eventCode", 5483)
+          where: equals("event.eventCode", 5483)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'IPsec Services has experienced a critical failure and has been shut down'
-          where: equals("log.eventCode", 5484)
+          where: equals("event.eventCode", 5484)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'IPsec Services failed to process some IPsec filters on a plug-and-play event for network interfaces'
-          where: equals("log.eventCode", 5485)
+          where: equals("event.eventCode", 5485)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A request was made to authenticate to a wireless network'
-          where: equals("log.eventCode", 5632)
+          where: equals("event.eventCode", 5632)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A request was made to authenticate to a wired network'
-          where: equals("log.eventCode", 5633)
+          where: equals("event.eventCode", 5633)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'The Netlogon service denied a vulnerable Netlogon secure channel connection from a machine account.'
-          where: equals("log.eventCode", 5827)
+          where: equals("event.eventCode", 5827)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'The Netlogon service denied a vulnerable Netlogon secure channel connection using a trust account.'
-          where: equals("log.eventCode", 5828)
+          where: equals("event.eventCode", 5828)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Security policy in the group policy objects has been applied successfully'
-          where: equals("log.eventCode", 6144)
+          where: equals("event.eventCode", 6144)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Network Policy Server granted access to a user'
-          where: equals("log.eventCode", 6272)
+          where: equals("event.eventCode", 6272)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Network Policy Server denied access to a user'
-          where: equals("log.eventCode", 6273)
+          where: equals("event.eventCode", 6273)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Network Policy Server quarantined a user'
-          where: equals("log.eventCode", 6276)
+          where: equals("event.eventCode", 6276)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Network Policy Server granted access to a user but put it on probation because the host did not meet the defined health policy'
-          where: equals("log.eventCode", 6277)
+          where: equals("event.eventCode", 6277)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Network Policy Server granted full access to a user because the host met the defined health policy'
-          where: equals("log.eventCode", 6278)
+          where: equals("event.eventCode", 6278)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Network Policy Server locked the user account due to repeated failed authentication attempts'
-          where: equals("log.eventCode", 6279)
+          where: equals("event.eventCode", 6279)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Network Policy Server unlocked the user account'
-          where: equals("log.eventCode", 6280)
+          where: equals("event.eventCode", 6280)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'BranchCache: Hosted cache could not be authenticated using the provisioned SSL certificate.'
-          where: equals("log.eventCode", 6404)
+          where: equals("event.eventCode", 6404)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A new external device was recognized by the system.'
-          where: equals("log.eventCode", 6416)
+          where: equals("event.eventCode", 6416)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A request was made to disable a device'
-          where: equals("log.eventCode", 6419)
+          where: equals("event.eventCode", 6419)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A device was disabled'
-          where: equals("log.eventCode", 6420)
+          where: equals("event.eventCode", 6420)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A request was made to enable a device'
-          where: equals("log.eventCode", 6421)
+          where: equals("event.eventCode", 6421)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'A device was enabled'
-          where: equals("log.eventCode", 6422)
+          where: equals("event.eventCode", 6422)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'An application or service has attempted to use DCOM without having the necessary permissions.'
-          where: equals("log.eventCode", 10016)
+          where: equals("event.eventCode", 10016)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Encryption of volume started.'
-          where: equals("log.eventCode", 24577)
+          where: equals("event.eventCode", 24577)
 
       - add:
           function: 'string'
           params:
-            key: log.eventName
+            key: event.eventName
             value: 'Decryption of volume started.'
-          where: equals("log.eventCode", 24580)
+          where: equals("event.eventCode", 24580)
 
       # Decoding the "failureReason" field when the event code is 4625 and adding the "failureReasonDescription" field
       - add:
           function: 'string'
           params:
-            key: log.failureReasonDescription
+            key: event.failureReasonDescription
             value: 'The specified user account has expired.'
-          where: equals("log.eventDataFailureReason", "2305") && equals("log.eventCode", 4625)
+          where: equals("event.eventDataFailureReason", "2305") && equals("event.eventCode", 4625)
 
       - add:
           function: 'string'
           params:
-            key: log.failureReasonDescription
+            key: event.failureReasonDescription
             value: 'The password for the specified account has expired'
-          where: equals("log.eventDataFailureReason", "2309") && equals("log.eventCode", 4625)
+          where: equals("event.eventDataFailureReason", "2309") && equals("event.eventCode", 4625)
 
       - add:
           function: 'string'
           params:
-            key: log.failureReasonDescription
+            key: event.failureReasonDescription
             value: 'Account currently disabled'
-          where: equals("log.eventDataFailureReason", "2310") && equals("log.eventCode", 4625)
+          where: equals("event.eventDataFailureReason", "2310") && equals("event.eventCode", 4625)
 
       - add:
           function: 'string'
           params:
-            key: log.failureReasonDescription
+            key: event.failureReasonDescription
             value: 'Account logon time restriction violation'
-          where: equals("log.eventDataFailureReason", "2311") && equals("log.eventCode", 4625)
+          where: equals("event.eventDataFailureReason", "2311") && equals("event.eventCode", 4625)
 
       - add:
           function: 'string'
           params:
-            key: log.failureReasonDescription
+            key: event.failureReasonDescription
             value: 'User not allowed to logon at this computer'
-          where: equals("log.eventDataFailureReason", "2312") && equals("log.eventCode", 4625)
+          where: equals("event.eventDataFailureReason", "2312") && equals("event.eventCode", 4625)
 
       - add:
           function: 'string'
           params:
-            key: log.failureReasonDescription
+            key: event.failureReasonDescription
             value: 'Unknown user name or bad password'
-          where: equals("log.eventDataFailureReason", "2313") && equals("log.eventCode", 4625)
+          where: equals("event.eventDataFailureReason", "2313") && equals("event.eventCode", 4625)
 
       - add:
           function: 'string'
           params:
-            key: log.failureReasonDescription
+            key: event.failureReasonDescription
             value: 'An Error occurred during Logon'
-          where: equals("log.eventDataFailureReason", "2304") && equals("log.eventCode", 4625)
+          where: equals("event.eventDataFailureReason", "2304") && equals("event.eventCode", 4625)
 
       # Decoding the "AccessMask" field when the event code is 4663 and adding the "accessType" and "accessDescription" field
       - add:
           function: 'string'
           params:
-            key: log.accessType
+            key: event.accessType
             value: 'read'
-          where: equals("log.eventDataAccessMask", "1") && equals("log.eventCode", 4663)
+          where: equals("event.eventDataAccessMask", "1") && equals("event.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
-            key: log.accessDescription
+            key: event.accessDescription
             value: 'For a file object, the right to read the corresponding file data. For a directory object, the right to read the corresponding directory data.\n For a directory, the right to list the contents of the directory.\n For registry objects, this is, Query key value.'
-          where: equals("log.eventDataAccessMask", "1") && equals("log.eventCode", 4663)
+          where: equals("event.eventDataAccessMask", "1") && equals("event.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
-            key: log.accessType
+            key: event.accessType
             value: 'write'
-          where: equals("log.eventDataAccessMask", "2") && equals("log.eventCode", 4663)
+          where: equals("event.eventDataAccessMask", "2") && equals("event.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
-            key: log.accessDescription
+            key: event.accessDescription
             value: 'For a file object, the right to write data to the file.\n For a directory object, the right to create a file in the directory.\n For registry objects, this is, Set key value.'
-          where: equals("log.eventDataAccessMask", "2") && equals("log.eventCode", 4663)
+          where: equals("event.eventDataAccessMask", "2") && equals("event.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
-            key: log.accessType
+            key: event.accessType
             value: 'append'
-          where: equals("log.eventDataAccessMask", "4") && equals("log.eventCode", 4663)
+          where: equals("event.eventDataAccessMask", "4") && equals("event.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
-            key: log.accessDescription
+            key: event.accessDescription
             value: 'For a file object, the right to append data to the file. (For local files, write operations will not overwrite existing data if this flag is specified without FILE_WRITE_DATA.)\n For a directory object, the right to create a subdirectory.\n For a named pipe, the right to create a pipe.'
-          where: equals("log.eventDataAccessMask", "4") && equals("log.eventCode", 4663)
+          where: equals("event.eventDataAccessMask", "4") && equals("event.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
-            key: log.accessType
+            key: event.accessType
             value: 'read_extended_attributes'
-          where: equals("log.eventDataAccessMask", "8") && equals("log.eventCode", 4663)
+          where: equals("event.eventDataAccessMask", "8") && equals("event.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
-            key: log.accessDescription
+            key: event.accessDescription
             value: 'The right to read extended file attributes.\n For registry objects, this is, Enumerate sub-keys.'
-          where: equals("log.eventDataAccessMask", "8") && equals("log.eventCode", 4663)
+          where: equals("event.eventDataAccessMask", "8") && equals("event.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
-            key: log.accessType
+            key: event.accessType
             value: 'write_extended_attributes'
-          where: equals("log.eventDataAccessMask", "16") && equals("log.eventCode", 4663)
+          where: equals("event.eventDataAccessMask", "16") && equals("event.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
-            key: log.accessDescription
+            key: event.accessDescription
             value: 'The right to write extended file attributes.'
-          where: equals("log.eventDataAccessMask", "16") && equals("log.eventCode", 4663)
+          where: equals("event.eventDataAccessMask", "16") && equals("event.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
-            key: log.accessType
+            key: event.accessType
             value: 'execute'
-          where: equals("log.eventDataAccessMask", "32") && equals("log.eventCode", 4663)
+          where: equals("event.eventDataAccessMask", "32") && equals("event.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
-            key: log.accessDescription
+            key: event.accessDescription
             value: 'For a native code file, the right to execute the file. This access right given to scripts may cause the script to be executable, depending on the script interpreter.\n For a directory, the right to traverse the directory. By default, users are assigned the BYPASS_TRAVERSE_CHECKING privilege, which ignores the FILE_TRAVERSE access right.'
-          where: equals("log.eventDataAccessMask", "32") && equals("log.eventCode", 4663)
+          where: equals("event.eventDataAccessMask", "32") && equals("event.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
-            key: log.accessType
+            key: event.accessType
             value: 'delete_child'
-          where: equals("log.eventDataAccessMask", "64") && equals("log.eventCode", 4663)
+          where: equals("event.eventDataAccessMask", "64") && equals("event.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
-            key: log.accessDescription
+            key: event.accessDescription
             value: 'For a directory, the right to delete a directory and all the files it contains, including read-only files.'
-          where: equals("log.eventDataAccessMask", "64") && equals("log.eventCode", 4663)
+          where: equals("event.eventDataAccessMask", "64") && equals("event.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
-            key: log.accessType
+            key: event.accessType
             value: 'read_attributes'
-          where: equals("log.eventDataAccessMask", "128") && equals("log.eventCode", 4663)
+          where: equals("event.eventDataAccessMask", "128") && equals("event.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
-            key: log.accessDescription
+            key: event.accessDescription
             value: 'The right to read file attributes.'
-          where: equals("log.eventDataAccessMask", "128") && equals("log.eventCode", 4663)
+          where: equals("event.eventDataAccessMask", "128") && equals("event.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
-            key: log.accessType
+            key: event.accessType
             value: 'write_attributes'
-          where: equals("log.eventDataAccessMask", "256") && equals("log.eventCode", 4663)
+          where: equals("event.eventDataAccessMask", "256") && equals("event.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
-            key: log.accessDescription
+            key: event.accessDescription
             value: 'The right to write file attributes.'
-          where: equals("log.eventDataAccessMask", "256") && equals("log.eventCode", 4663)
+          where: equals("event.eventDataAccessMask", "256") && equals("event.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
-            key: log.accessType
+            key: event.accessType
             value: 'delete'
-          where: equals("log.eventDataAccessMask", "65536") && equals("log.eventCode", 4663)
+          where: equals("event.eventDataAccessMask", "65536") && equals("event.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
-            key: log.accessDescription
+            key: event.accessDescription
             value: 'The right to delete the object.'
-          where: equals("log.eventDataAccessMask", "65536") && equals("log.eventCode", 4663)
+          where: equals("event.eventDataAccessMask", "65536") && equals("event.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
-            key: log.accessType
+            key: event.accessType
             value: 'read_control'
-          where: equals("log.eventDataAccessMask", "131072") && equals("log.eventCode", 4663)
+          where: equals("event.eventDataAccessMask", "131072") && equals("event.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
-            key: log.accessDescription
+            key: event.accessDescription
             value: 'The right to read information in the security descriptor object, without including the information in the system access control list (SACL).'
-          where: equals("log.eventDataAccessMask", "131072") && equals("log.eventCode", 4663)
+          where: equals("event.eventDataAccessMask", "131072") && equals("event.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
-            key: log.accessType
+            key: event.accessType
             value: 'write_dac'
-          where: equals("log.eventDataAccessMask", "262144") && equals("log.eventCode", 4663)
+          where: equals("event.eventDataAccessMask", "262144") && equals("event.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
-            key: log.accessDescription
+            key: event.accessDescription
             value: 'The right to modify the discretionary access control list (DACL) in the security descriptor object.'
-          where: equals("log.eventDataAccessMask", "262144") && equals("log.eventCode", 4663)
+          where: equals("event.eventDataAccessMask", "262144") && equals("event.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
-            key: log.accessType
+            key: event.accessType
             value: 'write_owner'
-          where: equals("log.eventDataAccessMask", "524288") && equals("log.eventCode", 4663)
+          where: equals("event.eventDataAccessMask", "524288") && equals("event.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
-            key: log.accessDescription
+            key: event.accessDescription
             value: 'The right to change the owner in the security descriptor object'
-          where: equals("log.eventDataAccessMask", "524288") && equals("log.eventCode", 4663)
+          where: equals("event.eventDataAccessMask", "524288") && equals("event.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
-            key: log.accessType
+            key: event.accessType
             value: 'synchronize'
-          where: equals("log.eventDataAccessMask", "1048576") && equals("log.eventCode", 4663)
+          where: equals("event.eventDataAccessMask", "1048576") && equals("event.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
-            key: log.accessDescription
+            key: event.accessDescription
             value: 'The right to use the object for synchronization. This enables a thread to wait until the object is in the signaled state. Some object types do not support this access right.'
-          where: equals("log.eventDataAccessMask", "1048576") && equals("log.eventCode", 4663)
+          where: equals("event.eventDataAccessMask", "1048576") && equals("event.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
-            key: log.accessType
+            key: event.accessType
             value: 'access_sys_sec'
-          where: equals("log.eventDataAccessMask", "16777216") && equals("log.eventCode", 4663)
+          where: equals("event.eventDataAccessMask", "16777216") && equals("event.eventCode", 4663)
 
       - add:
           function: 'string'
           params:
-            key: log.accessDescription
+            key: event.accessDescription
             value: 'The ACCESS_SYS_SEC access right controls the ability to get or set the SACL in an security descriptor object.'
-          where: equals("log.eventDataAccessMask", "16777216") && equals("log.eventCode", 4663)
+          where: equals("event.eventDataAccessMask", "16777216") && equals("event.eventCode", 4663)
 
       # Decoding the "eventStatus" field
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Account locked out'
-          where: equals("log.eventDataStatus", "3221226036")
+          where: equals("event.eventDataStatus", "3221226036")
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Account expired'
-          where: equals("log.eventDataStatus", "3221225875")
+          where: equals("event.eventDataStatus", "3221225875")
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Clocks out of sync'
-          where: equals("log.eventDataStatus", "3221225779")
+          where: equals("event.eventDataStatus", "3221225779")
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Password change required'
-          where: equals("log.eventDataStatus", "3221226020")
+          where: equals("event.eventDataStatus", "3221226020")
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'User does not have logon right'
-          where: equals("log.eventDataStatus", "3221225819")
+          where: equals("event.eventDataStatus", "3221225819")
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Logon failure'
-          where: equals("log.eventDataStatus", "3221225581")
+          where: equals("event.eventDataStatus", "3221225581")
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Account restriction'
-          where: equals("log.eventDataStatus", "3221225582")
+          where: equals("event.eventDataStatus", "3221225582")
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'An error occurred during logon'
-          where: equals("log.eventDataStatus", "3221226222")
+          where: equals("event.eventDataStatus", "3221226222")
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Password expired'
-          where: equals("log.eventDataStatus", "3221225585")
+          where: equals("event.eventDataStatus", "3221225585")
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Account disabled'
-          where: equals("log.eventDataStatus", "3221225586")
+          where: equals("event.eventDataStatus", "3221225586")
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Authentication firewall prohibits logon'
-          where: equals("log.eventDataStatus", "3221226515")
+          where: equals("event.eventDataStatus", "3221226515")
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Incorrect password'
-          where: equals("log.eventDataStatus", "3221225578")
+          where: equals("event.eventDataStatus", "3221225578")
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Account does not exist'
-          where: equals("log.eventDataStatus", "3221225572")
+          where: equals("event.eventDataStatus", "3221225572")
 
       # Decoding the "eventStatus" field when the event code is 4771 and adding the "statusDescription"
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Customer database entry has expired'
-          where: equals("log.eventDataStatus", "1") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "1") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'The server database entry has expired'
-          where: equals("log.eventDataStatus", "2") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "2") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Requested protocol version not supported'
-          where: equals("log.eventDataStatus", "3") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "3") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Customer key encrypted in old master key'
-          where: equals("log.eventDataStatus", "4") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "4") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Server key encrypted with old master key'
-          where: equals("log.eventDataStatus", "5") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "5") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Client not found in Kerberos database'
-          where: equals("log.eventDataStatus", "6") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "6") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Server not found in Kerberos database'
-          where: equals("log.eventDataStatus", "7") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "7") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Multiple principal entries in database'
-          where: equals("log.eventDataStatus", "8") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "8") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'The client or server has a null key'
-          where: equals("log.eventDataStatus", "9") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "9") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Ticket not eligible for postdating'
-          where: equals("log.eventDataStatus", "10") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "10") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Requested start time is later than end time'
-          where: equals("log.eventDataStatus", "11") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "11") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'KDC policy rejects request'
-          where: equals("log.eventDataStatus", "12") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "12") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'KDC cannot accommodate requested option'
-          where: equals("log.eventDataStatus", "13") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "13") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'KDC has no support for encryption type'
-          where: equals("log.eventDataStatus", "14") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "14") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'KDC has no support for checksum type'
-          where: equals("log.eventDataStatus", "15") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "15") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'KDC has no support for padata type'
-          where: equals("log.eventDataStatus", "16") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "16") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'KDC has no support for transited type'
-          where: equals("log.eventDataStatus", "17") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "17") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Clients credentials have been revoked'
-          where: equals("log.eventDataStatus", "18") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "18") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Credentials for server have been revoked'
-          where: equals("log.eventDataStatus", "19") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "19") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'TGT has been revoked'
-          where: equals("log.eventDataStatus", "20") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "20") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Client not yet valid - try again later'
-          where: equals("log.eventDataStatus", "21") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "21") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Server not yet valid - try again later'
-          where: equals("log.eventDataStatus", "22") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "22") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Password has expired'
-          where: equals("log.eventDataStatus", "23") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "23") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Pre-authentication information was invalid'
-          where: equals("log.eventDataStatus", "24") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "24") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Additional pre-authentication required'
-          where: equals("log.eventDataStatus", "25") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "25") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Integrity check on decrypted field failed'
-          where: equals("log.eventDataStatus", "31") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "31") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Ticket expired'
-          where: equals("log.eventDataStatus", "32") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "32") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Ticket not yet valid'
-          where: equals("log.eventDataStatus", "33") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "33") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Request is a replay'
-          where: equals("log.eventDataStatus", "34") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "34") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'The ticket is not for us'
-          where: equals("log.eventDataStatus", "35") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "35") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Ticket and authenticator is not match'
-          where: equals("log.eventDataStatus", "36") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "36") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Clock skew too great'
-          where: equals("log.eventDataStatus", "37") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "37") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Incorrect net address'
-          where: equals("log.eventDataStatus", "38") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "38") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Protocol version mismatch'
-          where: equals("log.eventDataStatus", "39") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "39") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Invalid msg type'
-          where: equals("log.eventDataStatus", "40") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "40") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Message stream modified'
-          where: equals("log.eventDataStatus", "41") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "41") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Message out of order'
-          where: equals("log.eventDataStatus", "42") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "42") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Specified version of key is not available'
-          where: equals("log.eventDataStatus", "44") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "44") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Service key not available'
-          where: equals("log.eventDataStatus", "45") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "45") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Mutual authentication failed'
-          where: equals("log.eventDataStatus", "46") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "46") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Incorrect message direction'
-          where: equals("log.eventDataStatus", "47") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "47") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Alternative authentication method required'
-          where: equals("log.eventDataStatus", "48") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "48") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Incorrect sequence number in message'
-          where: equals("log.eventDataStatus", "49") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "49") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Inappropriate type of checksum in message'
-          where: equals("log.eventDataStatus", "50") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "50") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Generic error (description in e-text)'
-          where: equals("log.eventDataStatus", "60") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "60") && equals("event.eventCode", 4771)
 
       - add:
           function: 'string'
           params:
-            key: log.statusDescription
+            key: event.statusDescription
             value: 'Field is too long for this implementation'
-          where: equals("log.eventDataStatus", "61") && equals("log.eventCode", 4771)
+          where: equals("event.eventDataStatus", "61") && equals("event.eventCode", 4771)
 
       # Adding action result
       - delete:
@@ -3104,62 +3104,62 @@ pipeline:
           params:
             key: actionResult
             value: "success"
-          where: 'oneOf("log.eventCode", [4624, 4672, 4720, 4722, 4728, 4732, 4756, 4767])'
+          where: 'oneOf("event.eventCode", [4624, 4672, 4720, 4722, 4728, 4732, 4756, 4767])'
       - add:
           function: string
           params:
             key: actionResult
             value: success
-          where: oneOf("log.eventCode", [4725, 4726, 5156])
+          where: oneOf("event.eventCode", [4725, 4726, 5156])
       - add:
           function: string
           params:
             key: actionResult
             value: denied
-          where: oneOf("log.eventCode", [5150, 5151, 5152, 5153, 5155, 5157, 5159])
+          where: oneOf("event.eventCode", [5150, 5151, 5152, 5153, 5155, 5157, 5159])
       - add:
           function: string
           params:
             key: actionResult
             value: failure
-          where: oneOf("log.eventCode", [4625, 4771])
+          where: oneOf("event.eventCode", [4625, 4771])
       - add:
           function: string
           params:
             key: actionResult
             value: success
-          where: equals("log.eventCode", 4776) && (equals("log.eventDataStatus", 0) || regexMatch("log.eventDataStatus", "(?i)^(0|0x0+)$"))
+          where: equals("event.eventCode", 4776) && (equals("event.eventDataStatus", 0) || regexMatch("event.eventDataStatus", "(?i)^(0|0x0+)$"))
       - add:
           function: string
           params:
             key: actionResult
             value: failure
-          where: equals("log.eventCode", 4776) && exists("log.eventDataStatus") && !(equals("log.eventDataStatus", 0) || regexMatch("log.eventDataStatus", "(?i)^(0|0x0+)$"))
+          where: equals("event.eventCode", 4776) && exists("event.eventDataStatus") && !(equals("event.eventDataStatus", 0) || regexMatch("event.eventDataStatus", "(?i)^(0|0x0+)$"))
 
       - delete:
           fields:
-            - log.agent
-            - log.host
-            - log.computer_name
-            - log.process
-            - log.metadata
-            - log.event
-            - log.ecs
-            - log.log
+            - event.agent
+            - event.host
+            - event.computer_name
+            - event.process
+            - event.metadata
+            - event.event
+            - event.ecs
+            - event.log
 
       # Promote standard fields while retaining vendor fields used by rules.
       - grok:
-          source: log.eventDataSubjectUserName
+          source: event.eventDataSubjectUserName
           patterns:
           - fieldName: origin.user
             pattern: '{{.greedy}}'
-          where: exists("log.eventDataSubjectUserName") && !oneOf("log.eventDataSubjectUserName",["-",""])
+          where: exists("event.eventDataSubjectUserName") && !oneOf("event.eventDataSubjectUserName",["-",""])
       - grok:
           source: target.user
           patterns:
           - fieldName: origin.user
             pattern: '{{.greedy}}'
-          where: oneOf("log.eventCode",[4624,4625,4634,4647,4768,4769,4770,4771,4776]) && exists("target.user") && !oneOf("target.user",["-",""])
+          where: oneOf("event.eventCode",[4624,4625,4634,4647,4768,4769,4770,4771,4776]) && exists("target.user") && !oneOf("target.user",["-",""])
 
       # Normalize source fields to the standard event schema.
       - delete:
@@ -3191,35 +3191,35 @@ pipeline:
       # Logon/Kerberos TargetUserName is the authenticated account; its domain
       # must not be taken from an unrelated SubjectUserName service account.
       - grok:
-          source: log.eventDataSubjectDomainName
+          source: event.eventDataSubjectDomainName
           patterns:
             - fieldName: origin.domain
               pattern: '{{.greedy}}'
-          where: exists("log.eventDataSubjectDomainName") && !oneOf("log.eventDataSubjectDomainName", ["-", ""]) && (!oneOf("log.eventCode", [4624,4625,4634,4647,4768,4769,4770,4771,4776]) || !exists("target.user"))
+          where: exists("event.eventDataSubjectDomainName") && !oneOf("event.eventDataSubjectDomainName", ["-", ""]) && (!oneOf("event.eventCode", [4624,4625,4634,4647,4768,4769,4770,4771,4776]) || !exists("target.user"))
       - grok:
           source: target.domain
           patterns:
             - fieldName: origin.domain
               pattern: '{{.greedy}}'
-          where: oneOf("log.eventCode", [4624,4625,4634,4647,4768,4769,4770,4771,4776]) && exists("target.user") && exists("target.domain")
+          where: oneOf("event.eventCode", [4624,4625,4634,4647,4768,4769,4770,4771,4776]) && exists("target.user") && exists("target.domain")
       - grok:
-          source: log.eventDataProcessName
+          source: event.eventDataProcessName
           patterns:
             - fieldName: origin.path
               pattern: '{{.greedy}}'
-          where: exists("log.eventDataProcessName") && !oneOf("log.eventDataProcessName", ["-", ""])
+          where: exists("event.eventDataProcessName") && !oneOf("event.eventDataProcessName", ["-", ""])
 
       # IpPort is the remote authentication port, not an event status code.
       # Keep the vendor alias for existing searches and only promote real ports.
       - cast:
-          fields: [log.eventDataIpPort]
+          fields: [event.eventDataIpPort]
           to: string
       - grok:
-          source: log.eventDataIpPort
+          source: event.eventDataIpPort
           patterns:
             - fieldName: origin.port
               pattern: '{{.greedy}}'
-          where: regexMatch("log.eventDataIpPort", "^[0-9]+$") && greaterThan("log.eventDataIpPort", 0) && lessOrEqual("log.eventDataIpPort", 65535)
+          where: regexMatch("event.eventDataIpPort", "^[0-9]+$") && greaterThan("event.eventDataIpPort", 0) && lessOrEqual("event.eventDataIpPort", 65535)
       - cast:
           fields: [origin.port]
           to: int
@@ -3228,66 +3228,66 @@ pipeline:
       # Prefer the network source, then workstation, then authenticated account.
       # Rules also scope this derived value by its kind and by dataSource.
       - delete:
-          fields: [log.authenticationSource, log.authenticationSourceType, log.authenticationSourceDomain, log.authenticationCandidate]
+          fields: [event.authenticationSource, event.authenticationSourceType, event.authenticationSourceDomain, event.authenticationCandidate]
       - grok:
           source: origin.ip
           patterns:
-            - fieldName: log.authenticationSource
+            - fieldName: event.authenticationSource
               pattern: '{{.greedy}}'
           where: exists("origin.ip")
       - add:
           function: string
           params:
-            key: log.authenticationSourceType
+            key: event.authenticationSourceType
             value: ip
-          where: exists("log.authenticationSource")
+          where: exists("event.authenticationSource")
       - grok:
           source: origin.host
           patterns:
-            - fieldName: log.authenticationSource
+            - fieldName: event.authenticationSource
               pattern: '{{.greedy}}'
           where: >-
-            !exists("log.authenticationSource") && exists("origin.host")
+            !exists("event.authenticationSource") && exists("origin.host")
       - add:
           function: string
           params:
-            key: log.authenticationSourceType
+            key: event.authenticationSourceType
             value: host
-          where: exists("log.authenticationSource") && !exists("log.authenticationSourceType")
+          where: exists("event.authenticationSource") && !exists("event.authenticationSourceType")
       - grok:
           source: origin.user
           patterns:
-            - fieldName: log.authenticationSource
+            - fieldName: event.authenticationSource
               pattern: '{{.greedy}}'
           where: >-
-            !exists("log.authenticationSource") && exists("origin.user") && (exists("origin.domain") || regexMatch("origin.user", "^[^@]+@[^@]+$"))
+            !exists("event.authenticationSource") && exists("origin.user") && (exists("origin.domain") || regexMatch("origin.user", "^[^@]+@[^@]+$"))
       - add:
           function: string
           params:
-            key: log.authenticationSourceType
+            key: event.authenticationSourceType
             value: user
-          where: exists("log.authenticationSource") && !exists("log.authenticationSourceType")
+          where: exists("event.authenticationSource") && !exists("event.authenticationSourceType")
 
       # User-only identities require a domain or an already qualified UPN. The
       # explicit scope prevents equal usernames from different domains joining.
       - grok:
           source: origin.domain
           patterns:
-            - fieldName: log.authenticationSourceDomain
+            - fieldName: event.authenticationSourceDomain
               pattern: '{{.greedy}}'
-          where: equals("log.authenticationSourceType", "user") && exists("origin.domain")
+          where: equals("event.authenticationSourceType", "user") && exists("origin.domain")
       - add:
           function: string
           params:
-            key: log.authenticationSourceDomain
+            key: event.authenticationSourceDomain
             value: qualified-upn
-          where: equals("log.authenticationSourceType", "user") && !exists("log.authenticationSourceDomain")
+          where: equals("event.authenticationSourceType", "user") && !exists("event.authenticationSourceDomain")
       - add:
           function: string
           params:
-            key: log.authenticationSourceDomain
+            key: event.authenticationSourceDomain
             value: network-source
-          where: oneOf("log.authenticationSourceType", ["ip", "host"])
+          where: oneOf("event.authenticationSourceType", ["ip", "host"])
 
       # Historical searches support exact terms, not a CEL predicate. Mark the
       # same candidates tested by these authentication rules so routine events
@@ -3296,115 +3296,115 @@ pipeline:
       - add:
           function: string
           params:
-            key: log.authenticationCandidate.kerberoastingDetection
+            key: event.authenticationCandidate.kerberoastingDetection
             value: match
           where: |
             !oneOf("dataSource", ["", "unknown"]) &&
-            exists("log.authenticationSource") && exists("log.authenticationSourceType") && exists("log.authenticationSourceDomain") &&
+            exists("event.authenticationSource") && exists("event.authenticationSourceType") && exists("event.authenticationSourceDomain") &&
             (
-            equals("log.eventCode", "4769") &&
-            equals("log.channel", "Security") &&
-            equals("log.eventDataTicketEncryptionType", "23") &&
-            !regexMatch("log.eventDataServiceName", "(?i)\\$$") &&
-            !equals("log.eventDataServiceName", "krbtgt") &&
-            !oneOf("log.eventDataTicketOptions", ["1082195968", "1082130432", "1082130432"]) &&
-            exists("log.eventDataServiceName")
+            equals("event.eventCode", "4769") &&
+            equals("event.channel", "Security") &&
+            equals("event.eventDataTicketEncryptionType", "23") &&
+            !regexMatch("event.eventDataServiceName", "(?i)\\$$") &&
+            !equals("event.eventDataServiceName", "krbtgt") &&
+            !oneOf("event.eventDataTicketOptions", ["1082195968", "1082130432", "1082130432"]) &&
+            exists("event.eventDataServiceName")
             )
       - add:
           function: string
           params:
-            key: log.authenticationCandidate.asrepRoastingDetection
+            key: event.authenticationCandidate.asrepRoastingDetection
             value: match
           where: |
             !oneOf("dataSource", ["", "unknown"]) &&
-            exists("log.authenticationSource") && exists("log.authenticationSourceType") && exists("log.authenticationSourceDomain") &&
+            exists("event.authenticationSource") && exists("event.authenticationSourceType") && exists("event.authenticationSourceDomain") &&
             (
-            equals("log.eventCode", "4768") &&
-            equals("log.channel", "Security") &&
-            equals("log.eventDataTicketEncryptionType", "23") &&
-            equals("log.eventDataPreAuthType", "0") &&
+            equals("event.eventCode", "4768") &&
+            equals("event.channel", "Security") &&
+            equals("event.eventDataTicketEncryptionType", "23") &&
+            equals("event.eventDataPreAuthType", "0") &&
             !regexMatch("target.user", "(?i)\\$$") &&
             exists("target.user")
             )
       - add:
           function: string
           params:
-            key: log.authenticationCandidate.silverTicketDetection
+            key: event.authenticationCandidate.silverTicketDetection
             value: match
           where: |
             !oneOf("dataSource", ["", "unknown"]) &&
-            exists("log.authenticationSource") && exists("log.authenticationSourceType") && exists("log.authenticationSourceDomain") &&
+            exists("event.authenticationSource") && exists("event.authenticationSourceType") && exists("event.authenticationSourceDomain") &&
             (
-            equals("log.eventCode", "4769") &&
-            equals("log.channel", "Security") &&
+            equals("event.eventCode", "4769") &&
+            equals("event.channel", "Security") &&
             (
-              equals("log.eventDataTicketEncryptionType", "23") &&
-              !regexMatch("log.eventDataServiceName", "(?i)(krbtgt|\\$$)") &&
-              !oneOf("log.eventDataStatus", ["0", "6"]) &&
-              exists("log.authenticationSource")
+              equals("event.eventDataTicketEncryptionType", "23") &&
+              !regexMatch("event.eventDataServiceName", "(?i)(krbtgt|\\$$)") &&
+              !oneOf("event.eventDataStatus", ["0", "6"]) &&
+              exists("event.authenticationSource")
             )
             )
       - add:
           function: string
           params:
-            key: log.authenticationCandidate.goldenTicketDetection
+            key: event.authenticationCandidate.goldenTicketDetection
             value: match
           where: |
             !oneOf("dataSource", ["", "unknown"]) &&
-            exists("log.authenticationSource") && exists("log.authenticationSourceType") && exists("log.authenticationSourceDomain") &&
+            exists("event.authenticationSource") && exists("event.authenticationSourceType") && exists("event.authenticationSourceDomain") &&
             (
             (
-              equals("log.eventCode", "4769") &&
-              equals("log.channel", "Security") &&
-              equals("log.eventDataServiceName", "krbtgt") &&
-              !equals("log.eventDataStatus", "0") &&
-              exists("log.authenticationSource")
+              equals("event.eventCode", "4769") &&
+              equals("event.channel", "Security") &&
+              equals("event.eventDataServiceName", "krbtgt") &&
+              !equals("event.eventDataStatus", "0") &&
+              exists("event.authenticationSource")
             ) ||
             (
-              equals("log.eventCode", "4768") &&
-              equals("log.channel", "Security") &&
-              !oneOf("log.eventDataTicketEncryptionType", ["18", "17"]) &&
+              equals("event.eventCode", "4768") &&
+              equals("event.channel", "Security") &&
+              !oneOf("event.eventDataTicketEncryptionType", ["18", "17"]) &&
               exists("target.user") &&
               !regexMatch("target.user", "(?i)\\$$")
             ) ||
             (
-              equals("log.eventCode", "4672") &&
-              equals("log.channel", "Security") &&
-              contains("log.eventDataPrivilegeList", "SeTcbPrivilege") &&
-              !regexMatch("log.eventDataSubjectUserName", "(?i)^(SYSTEM|LOCAL SERVICE|NETWORK SERVICE)$") &&
-              !regexMatch("log.eventDataSubjectUserName", "(?i)\\$$")
+              equals("event.eventCode", "4672") &&
+              equals("event.channel", "Security") &&
+              contains("event.eventDataPrivilegeList", "SeTcbPrivilege") &&
+              !regexMatch("event.eventDataSubjectUserName", "(?i)^(SYSTEM|LOCAL SERVICE|NETWORK SERVICE)$") &&
+              !regexMatch("event.eventDataSubjectUserName", "(?i)\\$$")
             )
             )
       - add:
           function: string
           params:
-            key: log.authenticationCandidate.adfsAuthenticationAnomalies
+            key: event.authenticationCandidate.adfsAuthenticationAnomalies
             value: match
           where: |
             !oneOf("dataSource", ["", "unknown"]) &&
-            exists("log.authenticationSource") && exists("log.authenticationSourceType") && exists("log.authenticationSourceDomain") &&
+            exists("event.authenticationSource") && exists("event.authenticationSourceType") && exists("event.authenticationSourceDomain") &&
             (
-            equals("log.providerName", "AD FS") && (equals("log.eventCode", "342") || equals("log.eventCode", "516")) && contains("log.message", "token validation failed")
+            equals("event.providerName", "AD FS") && (equals("event.eventCode", "342") || equals("event.eventCode", "516")) && contains("event.message", "token validation failed")
             )
       - add:
           function: string
           params:
-            key: log.authenticationCandidate.bruteforceAttack
+            key: event.authenticationCandidate.bruteforceAttack
             value: match
           where: |
             !oneOf("dataSource", ["", "unknown"]) &&
-            exists("log.authenticationSource") && exists("log.authenticationSourceType") && exists("log.authenticationSourceDomain") && exists("target.user") &&
+            exists("event.authenticationSource") && exists("event.authenticationSourceType") && exists("event.authenticationSourceDomain") && exists("target.user") &&
             (
-            equals("log.eventCode", 4625)
+            equals("event.eventCode", 4625)
             )
       - add:
           function: string
           params:
-            key: log.authenticationCandidate.bruteforceMultipleLogonFailureFollowedBySuccess
+            key: event.authenticationCandidate.bruteforceMultipleLogonFailureFollowedBySuccess
             value: match
           where: |
             !oneOf("dataSource", ["", "unknown"]) &&
-            exists("log.authenticationSource") && exists("log.authenticationSourceType") && exists("log.authenticationSourceDomain") && exists("target.user") &&
+            exists("event.authenticationSource") && exists("event.authenticationSourceType") && exists("event.authenticationSourceDomain") && exists("target.user") &&
             (
-            equals("log.eventCode", 4624)
+            equals("event.eventCode", 4624)
             )

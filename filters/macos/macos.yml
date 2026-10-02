@@ -9,73 +9,73 @@ pipeline:
           patterns:
             - fieldName: ''
               pattern: '^\[utm_stack_agent_ds='
-            - fieldName: log.datasourceoverride
+            - fieldName: event.datasourceoverride
               pattern: '[^\]\r\n]*'
             - fieldName: ''
               pattern: '\]-'
-            - fieldName: log.wrapperMessage
+            - fieldName: event.wrapperMessage
               pattern: '(?s:.*)'
-          where: startsWith("raw", "[utm_stack_agent_ds=") && !exists("log.message")
+          where: startsWith("raw", "[utm_stack_agent_ds=") && !exists("event.message")
       - json:
           source: raw
           where: regexMatch("raw", "^\\s*\\{")
       - json:
-          source: log.wrapperMessage
-          where: regexMatch("log.wrapperMessage", "^\\s*\\{")
+          source: event.wrapperMessage
+          where: regexMatch("event.wrapperMessage", "^\\s*\\{")
       - grok:
-          source: log.wrapperMessage
+          source: event.wrapperMessage
           patterns:
-            - fieldName: log.message
+            - fieldName: event.message
               pattern: '(?s:.*)'
-          where: exists("log.wrapperMessage") && !regexMatch("log.wrapperMessage", "^\\s*\\{")
+          where: exists("event.wrapperMessage") && !regexMatch("event.wrapperMessage", "^\\s*\\{")
       # Normalize the legacy level before applying the existing noise policy.
       - grok:
-          source: log.messageType
+          source: event.messageType
           patterns:
-            - fieldName: log.level
+            - fieldName: event.level
               pattern: '(?s:.*)'
-          where: '!exists("log.level")'
+          where: '!exists("event.level")'
       # All fields used by the drop predicate are now available.
       - drop:
-          where: equals("log.level", "notice") && contains("log.subsystem", "com.apple.cloudkit") || contains("log.subsystem", "com.apple.CoreDuet") || oneOf("log.subsystem", ["com.apple.apsd", "com.apple.bluetooth", "com.apple.SkyLight", "com.apple.mDNSResponder", "com.apple.homed", "com.apple.identityservicesd", "com.apple.powerlogd", "com.apple.analyticsd", "com.apple.UIKit", "com.apple.runningboard", "com.apple.WiFiManager", "com.apple.xpc", "com.apple.cache_delete", "com.apple.spotlightindex"])
+          where: equals("event.level", "notice") && contains("event.subsystem", "com.apple.cloudkit") || contains("event.subsystem", "com.apple.CoreDuet") || oneOf("event.subsystem", ["com.apple.apsd", "com.apple.bluetooth", "com.apple.SkyLight", "com.apple.mDNSResponder", "com.apple.homed", "com.apple.identityservicesd", "com.apple.powerlogd", "com.apple.analyticsd", "com.apple.UIKit", "com.apple.runningboard", "com.apple.WiFiManager", "com.apple.xpc", "com.apple.cache_delete", "com.apple.spotlightindex"])
 
       - rename:
-          from: [log.activity_identifier]
-          to: log.activityIdentifier
+          from: [event.activity_identifier]
+          to: event.activityIdentifier
       - rename:
-          from: [log.process_identifier]
-          to: log.processIdentifier
+          from: [event.process_identifier]
+          to: event.processIdentifier
       - rename:
-          from: [log.store_category]
-          to: log.storeCategory
+          from: [event.store_category]
+          to: event.storeCategory
       - rename:
-          from: [log.thread_identifier]
-          to: log.threadIdentifier
+          from: [event.thread_identifier]
+          to: event.threadIdentifier
       - grok:
-          source: log.class_name
+          source: event.class_name
           patterns:
-            - fieldName: log.className
+            - fieldName: event.className
               pattern: '(?s:.*)'
-          where: '!exists("log.className")'
+          where: '!exists("event.className")'
       - grok:
-          source: log.eventMessage
+          source: event.eventMessage
           patterns:
-            - fieldName: log.message
+            - fieldName: event.message
               pattern: '(?s:.*)'
-          where: '!exists("log.message")'
+          where: '!exists("event.message")'
 
       # Native JSON preserves the vendor key (datasource_override); the
       # forwarding-wrapper grok carrier is datasourceoverride. The native rename
       # runs first, the wrapper rename second, so the wrapper wins when a wrapped
       # payload carries both.
       - rename:
-          from: [log.datasource_override]
+          from: [event.datasource_override]
           to: dataSource
-          where: regexMatch("log.datasource_override", "^[^\\s]+$") && !equals("log.datasource_override", "unknown")
+          where: regexMatch("event.datasource_override", "^[^\\s]+$") && !equals("event.datasource_override", "unknown")
       - rename:
-          from: [log.datasourceoverride]
+          from: [event.datasourceoverride]
           to: dataSource
-          where: regexMatch("log.datasourceoverride", "^[^\\s]+$") && !equals("log.datasourceoverride", "unknown")
+          where: regexMatch("event.datasourceoverride", "^[^\\s]+$") && !equals("event.datasourceoverride", "unknown")
       - grok:
           source: dataSource
           patterns:
@@ -83,84 +83,84 @@ pipeline:
               pattern: '(?s:.*)'
           where: '!oneOf("dataSource", ["", "unknown"])'
       - grok:
-          source: log.process
+          source: event.process
           patterns:
             - fieldName: origin.process
               pattern: '(?s:.*)'
-          where: exists("log.process")
+          where: exists("event.process")
       - grok:
-          source: log.processImagePath
+          source: event.processImagePath
           patterns:
             - fieldName: origin.path
               pattern: '(?s:.*)'
-          where: exists("log.processImagePath")
+          where: exists("event.processImagePath")
       - grok:
-          source: log.timestamp
+          source: event.timestamp
           patterns:
             - fieldName: deviceTime
               pattern: '(?s:.*)'
-          where: regexMatch("log.timestamp", "^\\d{4}-\\d{2}-\\d{2}T")
+          where: regexMatch("event.timestamp", "^\\d{4}-\\d{2}-\\d{2}T")
       - add:
           function: string
           params:
             key: severity
             value: debug
-          where: equals("log.level", "debug")
+          where: equals("event.level", "debug")
       - add:
           function: string
           params:
             key: severity
             value: info
-          where: equals("log.level", "info")
+          where: equals("event.level", "info")
       - add:
           function: string
           params:
             key: severity
             value: info
-          where: equals("log.level", "notice")
+          where: equals("event.level", "notice")
       - add:
           function: string
           params:
             key: severity
             value: error
-          where: equals("log.level", "error")
+          where: equals("event.level", "error")
       - add:
           function: string
           params:
             key: severity
             value: critical
-          where: equals("log.level", "fault")
+          where: equals("event.level", "fault")
 
       # Only matching security candidates may satisfy historical thresholds.
       # The raw contract tests check parity against the two rule predicates.
       - delete:
-          fields: [log.correlationCandidate, log.wrapperMessage]
+          fields: [event.correlationCandidate, event.wrapperMessage]
       - add:
           function: string
           params:
-            key: log.correlationCandidate.endpointSecurity
+            key: event.correlationCandidate.endpointSecurity
             value: match
           where: |
             !oneOf("dataSource", ["", "unknown"]) &&
-            (equals("log.subsystem", "com.apple.endpointsecurity") ||
+            (equals("event.subsystem", "com.apple.endpointsecurity") ||
              contains("origin.process", "EndpointSecurity") ||
-             contains("log.message", "ES_EVENT_TYPE")) &&
-            (contains("log.message", "bypass") ||
-             contains("log.message", "failed authorization") ||
-             contains("log.message", "client disconnected") ||
-             contains("log.message", "authorization denied") ||
-             contains("log.message", "invalid client") ||
-             contains("log.message", "ES_RETURN_ERROR") ||
-             equals("log.level", "error") ||
-             contains("log.message", "memory leak detected"))
+             contains("event.message", "ES_EVENT_TYPE")) &&
+            (contains("event.message", "bypass") ||
+             contains("event.message", "failed authorization") ||
+             contains("event.message", "client disconnected") ||
+             contains("event.message", "authorization denied") ||
+             contains("event.message", "invalid client") ||
+             contains("event.message", "ES_RETURN_ERROR") ||
+             equals("event.level", "error") ||
+             contains("event.message", "memory leak detected"))
       - add:
           function: string
           params:
-            key: log.correlationCandidate.ransomware
+            key: event.correlationCandidate.ransomware
             value: match
           where: |
             !oneOf("dataSource", ["", "unknown"]) &&
-            (  (contains("log.message", ["encrypted", "encrypt", ".locked", ".crypto", ".crypt"]) ||
-             regexMatch("log.message", "(?i)\\.(locky|cerber|wannacry|ryuk|maze|conti|lockbit)$")) &&
-            (contains("log.message", "rename") || contains("log.message", "modified") ||
-             contains("log.message", "write")))
+            (  (contains("event.message", ["encrypted", "encrypt", ".locked", ".crypto", ".crypt"]) ||
+             regexMatch("event.message", "(?i)\\.(locky|cerber|wannacry|ryuk|maze|conti|lockbit)$")) &&
+            (contains("event.message", "rename") || contains("event.message", "modified") ||
+             contains("event.message", "write")))

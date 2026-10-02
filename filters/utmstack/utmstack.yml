@@ -13,6 +13,6 @@ pipeline:
       - grok:
           source: raw
           patterns:
-            - fieldName: log.message
+            - fieldName: event.message
               pattern: '{{.greedy}}'
           where: '!contains("raw", "\"msg\":") || !contains("raw", "\"args\":")'

@@ -16,317 +16,317 @@ pipeline:
       # .......................................................................#
       - rename:
           from:
-            - log.event.Attributes.APIClientID
-          to: log.eventAttributesAPIClientID
+            - event.event.Attributes.APIClientID
+          to: event.eventAttributesAPIClientID
           
       - rename:
           from:
-            - log.event.Attributes.actor_cid
-          to: log.eventAttributesActorCid
+            - event.event.Attributes.actor_cid
+          to: event.eventAttributesActorCid
           
       - rename:
           from:
-            - log.event.Attributes.actor_user
-          to: log.eventAttributesActorUser
+            - event.event.Attributes.actor_user
+          to: event.eventAttributesActorUser
           
       - rename:
           from:
-            - log.event.Attributes.actor_user_uuid
-          to: log.eventAttributesActorUserUUID
+            - event.event.Attributes.actor_user_uuid
+          to: event.eventAttributesActorUserUUID
           
       - rename:
           from:
-            - log.event.Attributes.name
-          to: log.eventAttributesName
+            - event.event.Attributes.name
+          to: event.eventAttributesName
           
       - rename:
           from:
-            - log.event.Attributes.trace_id
-          to: log.eventAttributesTraceID
+            - event.event.Attributes.trace_id
+          to: event.eventAttributesTraceID
           
       - rename:
           from:
-            - log.event.Attributes.cid
-          to: log.eventAttributesCid
+            - event.event.Attributes.cid
+          to: event.eventAttributesCid
           
       - rename:
           from:
-            - log.event.Attributes.consumes
-          to: log.eventAttributesConsumes
+            - event.event.Attributes.consumes
+          to: event.eventAttributesConsumes
           
       - rename:
           from:
-            - log.event.Attributes.elapsed_microseconds
-          to: log.eventAttributesElapsedMicroseconds
+            - event.event.Attributes.elapsed_microseconds
+          to: event.eventAttributesElapsedMicroseconds
           
       - rename:
           from:
-            - log.event.Attributes.elapsed_time
-          to: log.eventAttributesElapsedTime
+            - event.event.Attributes.elapsed_time
+          to: event.eventAttributesElapsedTime
           
       - rename:
           from:
-            - log.event.Attributes.produces
-          to: log.eventAttributesProduces
+            - event.event.Attributes.produces
+          to: event.eventAttributesProduces
           
       - rename:
           from:
-            - log.event.Attributes.received_time
-          to: log.eventAttributesReceivedTime
+            - event.event.Attributes.received_time
+          to: event.eventAttributesReceivedTime
           
       - rename:
           from:
-            - log.event.Attributes.request_content_type
-          to: log.eventAttributesRequestContentType
+            - event.event.Attributes.request_content_type
+          to: event.eventAttributesRequestContentType
           
       - rename:
           from:
-            - log.event.Attributes.request_method
-          to: log.eventAttributesRequestMethod
+            - event.event.Attributes.request_method
+          to: event.eventAttributesRequestMethod
           
       - rename:
           from:
-            - log.event.Attributes.request_uri_length
-          to: log.eventAttributesRequestURILength
+            - event.event.Attributes.request_uri_length
+          to: event.eventAttributesRequestURILength
           
       - rename:
           from:
-            - log.event.Attributes.status_code
-          to: log.statusCode
+            - event.event.Attributes.status_code
+          to: event.statusCode
           
       - rename:
           from:
-            - log.event.Attributes.sub_component_1
-          to: log.eventAttributesSubComponent1
+            - event.event.Attributes.sub_component_1
+          to: event.eventAttributesSubComponent1
           
       - rename:
           from:
-            - log.event.Attributes.sub_component_2
-          to: log.eventAttributesSubComponent2
+            - event.event.Attributes.sub_component_2
+          to: event.eventAttributesSubComponent2
           
       - rename:
           from:
-            - log.event.Attributes.sub_component_3
-          to: log.eventAttributesSubComponent3
+            - event.event.Attributes.sub_component_3
+          to: event.eventAttributesSubComponent3
           
       - rename:
           from:
-            - log.event.Attributes.user_agent
-          to: log.eventAttributesUserAgent
+            - event.event.Attributes.user_agent
+          to: event.eventAttributesUserAgent
           
       - rename:
           from:
-            - log.event.Attributes.eventType
-          to: log.eventAttributesEventType
+            - event.event.Attributes.eventType
+          to: event.eventAttributesEventType
           
       - rename:
           from:
-            - log.event.Attributes.offset
-          to: log.eventAttributesOffset
+            - event.event.Attributes.offset
+          to: event.eventAttributesOffset
           
       - rename:
           from:
-            - log.event.Attributes.partition
-          to: log.eventAttributesPartition
+            - event.event.Attributes.partition
+          to: event.eventAttributesPartition
           
       - rename:
           from:
-            - log.event.Attributes.request_accept
-          to: log.eventAttributesRequestAccept
+            - event.event.Attributes.request_accept
+          to: event.eventAttributesRequestAccept
           
       - rename:
           from:
-            - log.event.Attributes.request_path
-          to: log.eventAttributesRequestPath
+            - event.event.Attributes.request_path
+          to: event.eventAttributesRequestPath
           
       - rename:
           from:
-            - log.event.Attributes.request_query
-          to: log.eventAttributesRequestQuery
+            - event.event.Attributes.request_query
+          to: event.eventAttributesRequestQuery
           
       - rename:
           from:
-            - log.event.Attributes.scopes
-          to: log.eventAttributesScopes
+            - event.event.Attributes.scopes
+          to: event.eventAttributesScopes
           
       - rename:
           from:
-            - log.event.Attributes.target_name
-          to: log.eventAttributesTargetName
+            - event.event.Attributes.target_name
+          to: event.eventAttributesTargetName
           
       - rename:
           from:
-            - log.event.Attributes.success
-          to: log.eventAttributesSuccess
+            - event.event.Attributes.success
+          to: event.eventAttributesSuccess
           
       - rename:
           from:
-            - log.event.Attributes.target_cid
-          to: log.eventAttributesTargetCID
+            - event.event.Attributes.target_cid
+          to: event.eventAttributesTargetCID
           
       - rename:
           from:
-            - log.event.Attributes.target_uuid
-          to: log.eventAttributesTargetUUID
+            - event.event.Attributes.target_uuid
+          to: event.eventAttributesTargetUUID
           
       - rename:
           from:
-            - log.event.Attributes.id
-          to: log.eventAttributesID
+            - event.event.Attributes.id
+          to: event.eventAttributesID
           
       - rename:
           from:
-            - log.event.Attributes.scope(s)
-          to: log.eventAttributesScopes
+            - event.event.Attributes.scope(s)
+          to: event.eventAttributesScopes
           
       - rename:
           from:
-            - log.event.Attributes.appId
-          to: log.eventAttributesAppId
+            - event.event.Attributes.appId
+          to: event.eventAttributesAppId
           
       - rename:
           from:
-            - log.event.AuditKeyValues
-          to: log.eventAuditKeyValues
+            - event.event.AuditKeyValues
+          to: event.eventAuditKeyValues
           
       - rename:
           from:
-            - log.event.Message
-          to: log.eventMessage
+            - event.event.Message
+          to: event.eventMessage
           
       - rename:
           from:
-            - log.event.OperationName
-          to: log.eventOperationName
+            - event.event.OperationName
+          to: event.eventOperationName
           
       - rename:
           from:
-            - log.event.ServiceName
-          to: log.eventServiceName
+            - event.event.ServiceName
+          to: event.eventServiceName
           
       - rename:
           from:
-            - log.event.Source
-          to: log.eventSource
+            - event.event.Source
+          to: event.eventSource
           
       - rename:
           from:
-            - log.event.SourceIp
+            - event.event.SourceIp
           to: origin.ip
           
       - rename:
           from:
-            - log.event.Success
-          to: log.eventSuccess
+            - event.event.Success
+          to: event.eventSuccess
           
       - rename:
           from:
-            - log.event.UTCTimestamp
-          to: log.eventUTCTimestamp
+            - event.event.UTCTimestamp
+          to: event.eventUTCTimestamp
           
       - rename:
           from:
-            - log.event.UserId
-          to: log.eventUserId
+            - event.event.UserId
+          to: event.eventUserId
           
       - rename:
           from:
-            - log.metadata.customerIDString
-          to: log.metadataCustomerIDString
+            - event.metadata.customerIDString
+          to: event.metadataCustomerIDString
           
       - rename:
           from:
-            - log.metadata.eventCreationTime
-          to: log.metadataEventCreationTime
+            - event.metadata.eventCreationTime
+          to: event.metadataEventCreationTime
           
       - rename:
           from:
-            - log.metadata.eventType
-          to: log.metadataEventType
+            - event.metadata.eventType
+          to: event.metadataEventType
           
       - rename:
           from:
-            - log.metadata.offset
-          to: log.metadataOffset
+            - event.metadata.offset
+          to: event.metadataOffset
           
       - rename:
           from:
-            - log.metadata.version
-          to: log.metadataVersion
+            - event.metadata.version
+          to: event.metadataVersion
           
       - rename:
           from:
-            - log.event.AgentId
-          to: log.eventAgentId
+            - event.event.AgentId
+          to: event.eventAgentId
           
       - rename:
           from:
-            - log.event.AggregateId
-          to: log.eventAggregateId
+            - event.event.AggregateId
+          to: event.eventAggregateId
           
       - rename:
           from:
-            - log.event.CloudIndicator
-          to: log.eventCloudIndicator
+            - event.event.CloudIndicator
+          to: event.eventCloudIndicator
           
       - rename:
           from:
-            - log.event.CommandLine
-          to: log.eventCommandLine
+            - event.event.CommandLine
+          to: event.eventCommandLine
           
       - rename:
           from:
-            - log.event.CompositeId
-          to: log.eventCompositeId
+            - event.event.CompositeId
+          to: event.eventCompositeId
           
       - rename:
           from:
-            - log.event.DataDomains
-          to: log.eventDataDomains
+            - event.event.DataDomains
+          to: event.eventDataDomains
           
       - rename:
           from:
-            - log.event.Description
-          to: log.eventDescription
+            - event.event.Description
+          to: event.eventDescription
           
       - rename:
           from:
-            - log.event.FalconHostLink
-          to: log.eventFalconHostLink
+            - event.event.FalconHostLink
+          to: event.eventFalconHostLink
           
       - rename:
           from:
-            - log.event.FileName
+            - event.event.FileName
           to: origin.filename
           
       - rename:
           from:
-            - log.event.FilePath
+            - event.event.FilePath
           to: origin.path
           
       - rename:
           from:
-            - log.event.GrandParentCommandLine
-          to: log.eventGrandParentCommandLine
+            - event.event.GrandParentCommandLine
+          to: event.eventGrandParentCommandLine
           
       - rename:
           from:
-            - log.event.GrandParentImageFileName
-          to: log.eventGrandParentImageFileName
+            - event.event.GrandParentImageFileName
+          to: event.eventGrandParentImageFileName
           
       - rename:
           from:
-            - log.event.GrandParentImageFilePath
-          to: log.eventGrandParentImageFilePath
+            - event.event.GrandParentImageFilePath
+          to: event.eventGrandParentImageFilePath
           
       - rename:
           from:
-            - log.event.Hostname
+            - event.event.Hostname
           to: origin.host
           
       - rename:
           from:
-            - log.event.LocalIP
+            - event.event.LocalIP
           to: origin.ip
 
       # Console sign-in records (AuthActivityAuditEvent) carry the client address
@@ -334,279 +334,279 @@ pipeline:
       # which holds the same address, so an existing origin.ip is kept.
       - rename:
           from:
-            - log.event.UserIp
+            - event.event.UserIp
           to: origin.ip
-          where: '!exists("origin.ip") && (inCIDR("log.event.UserIp", "0.0.0.0/0") || inCIDR("log.event.UserIp", "::/0")) && !inCIDR("log.event.UserIp", "0.0.0.0/32") && !inCIDR("log.event.UserIp", "::/128")'
+          where: '!exists("origin.ip") && (inCIDR("event.event.UserIp", "0.0.0.0/0") || inCIDR("event.event.UserIp", "::/0")) && !inCIDR("event.event.UserIp", "0.0.0.0/32") && !inCIDR("event.event.UserIp", "::/128")'
           
       - rename:
           from:
-            - log.event.LocalIPv6
-          to: log.eventLocalIPv6
+            - event.event.LocalIPv6
+          to: event.eventLocalIPv6
           
       - rename:
           from:
-            - log.event.LogonDomain
-          to: log.eventLogonDomain
+            - event.event.LogonDomain
+          to: event.eventLogonDomain
           
       - rename:
           from:
-            - log.event.MACAddress
+            - event.event.MACAddress
           to: origin.mac
           
       - rename:
           from:
-            - log.event.MD5String
+            - event.event.MD5String
           to: origin.md5
           
       - rename:
           from:
-            - log.event.MitreAttack
-          to: log.eventMitreAttack
+            - event.event.MitreAttack
+          to: event.eventMitreAttack
           
       - rename:
           from:
-            - log.event.Name
-          to: log.eventName
+            - event.event.Name
+          to: event.eventName
           
       - rename:
           from:
-            - log.event.Objective
-          to: log.eventObjective
+            - event.event.Objective
+          to: event.eventObjective
           
       - rename:
           from:
-            - log.event.ParentCommandLine
-          to: log.eventParentCommandLine
+            - event.event.ParentCommandLine
+          to: event.eventParentCommandLine
           
       - rename:
           from:
-            - log.event.ParentImageFileName
-          to: log.eventParentImageFileName
+            - event.event.ParentImageFileName
+          to: event.eventParentImageFileName
           
       - rename:
           from:
-            - log.event.ParentImageFilePath
-          to: log.eventParentImageFilePath
+            - event.event.ParentImageFilePath
+          to: event.eventParentImageFilePath
           
       - rename:
           from:
-            - log.event.ParentProcessId
-          to: log.eventParentProcessId
+            - event.event.ParentProcessId
+          to: event.eventParentProcessId
           
       - rename:
           from:
-            - log.event.PatternDispositionDescription
-          to: log.eventPatternDispositionDescription
+            - event.event.PatternDispositionDescription
+          to: event.eventPatternDispositionDescription
           
       - rename:
           from:
-            - log.event.PatternDispositionFlags.BlockingUnsupportedOrDisabled
-          to: log.eventPatternDispositionFlagsBlockingUnsupportedOrDisabled
+            - event.event.PatternDispositionFlags.BlockingUnsupportedOrDisabled
+          to: event.eventPatternDispositionFlagsBlockingUnsupportedOrDisabled
           
       - rename:
           from:
-            - log.event.PatternDispositionFlags.BootupSafeguardEnabled
-          to: log.eventPatternDispositionFlagsBootupSafeguardEnabled
+            - event.event.PatternDispositionFlags.BootupSafeguardEnabled
+          to: event.eventPatternDispositionFlagsBootupSafeguardEnabled
           
       - rename:
           from:
-            - log.event.PatternDispositionFlags.ContainmentFileSystem
-          to: log.eventPatternDispositionFlagsContainmentFileSystem
+            - event.event.PatternDispositionFlags.ContainmentFileSystem
+          to: event.eventPatternDispositionFlagsContainmentFileSystem
           
       - rename:
           from:
-            - log.event.PatternDispositionFlags.CriticalProcessDisabled
-          to: log.eventPatternDispositionFlagsCriticalProcessDisabled
+            - event.event.PatternDispositionFlags.CriticalProcessDisabled
+          to: event.eventPatternDispositionFlagsCriticalProcessDisabled
           
       - rename:
           from:
-            - log.event.PatternDispositionFlags.Detect
-          to: log.eventPatternDispositionFlagsDetect
+            - event.event.PatternDispositionFlags.Detect
+          to: event.eventPatternDispositionFlagsDetect
           
       - rename:
           from:
-            - log.event.PatternDispositionFlags.FsOperationBlocked
-          to: log.eventPatternDispositionFlagsFsOperationBlocked
+            - event.event.PatternDispositionFlags.FsOperationBlocked
+          to: event.eventPatternDispositionFlagsFsOperationBlocked
           
       - rename:
           from:
-            - log.event.PatternDispositionFlags.HandleOperationDowngraded
-          to: log.eventPatternDispositionFlagsHandleOperationDowngraded
+            - event.event.PatternDispositionFlags.HandleOperationDowngraded
+          to: event.eventPatternDispositionFlagsHandleOperationDowngraded
           
       - rename:
           from:
-            - log.event.PatternDispositionFlags.InddetMask
-          to: log.eventPatternDispositionFlagsInddetMask
+            - event.event.PatternDispositionFlags.InddetMask
+          to: event.eventPatternDispositionFlagsInddetMask
           
       - rename:
           from:
-            - log.event.PatternDispositionFlags.Indicator
-          to: log.eventPatternDispositionFlagsIndicator
+            - event.event.PatternDispositionFlags.Indicator
+          to: event.eventPatternDispositionFlagsIndicator
           
       - rename:
           from:
-            - log.event.PatternDispositionFlags.KillActionFailed
-          to: log.eventPatternDispositionFlagsKillActionFailed
+            - event.event.PatternDispositionFlags.KillActionFailed
+          to: event.eventPatternDispositionFlagsKillActionFailed
           
       - rename:
           from:
-            - log.event.PatternDispositionFlags.KillParent
-          to: log.eventPatternDispositionFlagsKillParent
+            - event.event.PatternDispositionFlags.KillParent
+          to: event.eventPatternDispositionFlagsKillParent
           
       - rename:
           from:
-            - log.event.PatternDispositionFlags.KillProcess
-          to: log.eventPatternDispositionFlagsKillProcess
+            - event.event.PatternDispositionFlags.KillProcess
+          to: event.eventPatternDispositionFlagsKillProcess
           
       - rename:
           from:
-            - log.event.PatternDispositionFlags.KillSubProcess
-          to: log.eventPatternDispositionFlagsKillSubProcess
+            - event.event.PatternDispositionFlags.KillSubProcess
+          to: event.eventPatternDispositionFlagsKillSubProcess
           
       - rename:
           from:
-            - log.event.PatternDispositionFlags.OperationBlocked
-          to: log.eventPatternDispositionFlagsOperationBlocked
+            - event.event.PatternDispositionFlags.OperationBlocked
+          to: event.eventPatternDispositionFlagsOperationBlocked
           
       - rename:
           from:
-            - log.event.PatternDispositionFlags.PolicyDisabled
-          to: log.eventPatternDispositionFlagsPolicyDisabled
+            - event.event.PatternDispositionFlags.PolicyDisabled
+          to: event.eventPatternDispositionFlagsPolicyDisabled
           
       - rename:
           from:
-            - log.event.PatternDispositionFlags.ProcessBlocked
-          to: log.eventPatternDispositionFlagsProcessBlocked
+            - event.event.PatternDispositionFlags.ProcessBlocked
+          to: event.eventPatternDispositionFlagsProcessBlocked
           
       - rename:
           from:
-            - log.event.PatternDispositionFlags.QuarantineFile
-          to: log.eventPatternDispositionFlagsQuarantineFile
+            - event.event.PatternDispositionFlags.QuarantineFile
+          to: event.eventPatternDispositionFlagsQuarantineFile
           
       - rename:
           from:
-            - log.event.PatternDispositionFlags.QuarantineMachine
-          to: log.eventPatternDispositionFlagsQuarantineMachine
+            - event.event.PatternDispositionFlags.QuarantineMachine
+          to: event.eventPatternDispositionFlagsQuarantineMachine
           
       - rename:
           from:
-            - log.event.PatternDispositionFlags.RegistryOperationBlocked
-          to: log.eventPatternDispositionFlagsRegistryOperationBlocked
+            - event.event.PatternDispositionFlags.RegistryOperationBlocked
+          to: event.eventPatternDispositionFlagsRegistryOperationBlocked
           
       - rename:
           from:
-            - log.event.PatternDispositionFlags.Rooting
-          to: log.eventPatternDispositionFlagsRooting
+            - event.event.PatternDispositionFlags.Rooting
+          to: event.eventPatternDispositionFlagsRooting
           
       - rename:
           from:
-            - log.event.PatternDispositionFlags.SensorOnly
-          to: log.eventPatternDispositionFlagsSensorOnly
+            - event.event.PatternDispositionFlags.SensorOnly
+          to: event.eventPatternDispositionFlagsSensorOnly
           
       - rename:
           from:
-            - log.event.PatternDispositionFlags.SuspendParent
-          to: log.eventPatternDispositionFlagsSuspendParent
+            - event.event.PatternDispositionFlags.SuspendParent
+          to: event.eventPatternDispositionFlagsSuspendParent
           
       - rename:
           from:
-            - log.event.PatternDispositionFlags.SuspendProcess
-          to: log.eventPatternDispositionFlagsSuspendProcess
+            - event.event.PatternDispositionFlags.SuspendProcess
+          to: event.eventPatternDispositionFlagsSuspendProcess
           
       - rename:
           from:
-            - log.event.PatternDispositionValue
-          to: log.eventPatternDispositionValue
+            - event.event.PatternDispositionValue
+          to: event.eventPatternDispositionValue
           
       - rename:
           from:
-            - log.event.PatternId
-          to: log.eventPatternId
+            - event.event.PatternId
+          to: event.eventPatternId
           
       - rename:
           from:
-            - log.event.PlatformId
-          to: log.eventPlatformId
+            - event.event.PlatformId
+          to: event.eventPlatformId
           
       - rename:
           from:
-            - log.event.PlatformName
+            - event.event.PlatformName
           to: origin.operatingSystem
           
       - rename:
           from:
-            - log.event.ProcessEndTime
-          to: log.eventProcessEndTime
+            - event.event.ProcessEndTime
+          to: event.eventProcessEndTime
           
       - rename:
           from:
-            - log.event.ProcessId
-          to: log.eventProcessId
+            - event.event.ProcessId
+          to: event.eventProcessId
           
       - rename:
           from:
-            - log.event.ProcessStartTime
-          to: log.eventProcessStartTime
+            - event.event.ProcessStartTime
+          to: event.eventProcessStartTime
           
       - rename:
           from:
-            - log.event.RiskScore
-          to: log.eventRiskScore
+            - event.event.RiskScore
+          to: event.eventRiskScore
           
       - rename:
           from:
-            - log.event.SHA1String
+            - event.event.SHA1String
           to: origin.sha1
           
       - rename:
           from:
-            - log.event.SHA256String
+            - event.event.SHA256String
           to: origin.sha256
           
       - rename:
           from:
-            - log.event.Severity
-          to: log.eventSeverity
+            - event.event.Severity
+          to: event.eventSeverity
           
       - rename:
           from:
-            - log.event.SeverityName
-          to: log.eventSeverityName
+            - event.event.SeverityName
+          to: event.eventSeverityName
           
       - rename:
           from:
-            - log.event.SourceProducts
-          to: log.eventSourceProducts
+            - event.event.SourceProducts
+          to: event.eventSourceProducts
           
       - rename:
           from:
-            - log.event.SourceVendors
-          to: log.eventSourceVendors
+            - event.event.SourceVendors
+          to: event.eventSourceVendors
           
       - rename:
           from:
-            - log.event.Tactic
-          to: log.eventTactic
+            - event.event.Tactic
+          to: event.eventTactic
           
       - rename:
           from:
-            - log.event.Technique
-          to: log.eventTechnique
+            - event.event.Technique
+          to: event.eventTechnique
           
       - rename:
           from:
-            - log.event.Type
-          to: log.eventType
+            - event.event.Type
+          to: event.eventType
           
       - rename:
           from:
-            - log.event.UserName
+            - event.event.UserName
           to: origin.user
           
       - rename:
           from:
-            - log.event.FilesAccessed
-          to: log.eventFilesAccessed
+            - event.event.FilesAccessed
+          to: event.eventFilesAccessed
 
       # .......................................................................#
       # Remove inecesarie caracters
@@ -615,20 +615,20 @@ pipeline:
           function: prefix
           substring: '[{'
           fields:
-            - log.eventCommandLine
+            - event.eventCommandLine
 
       - trim:
           function: suffix
           substring: '}]'
           fields:
-            - log.eventCommandLine
+            - event.eventCommandLine
 
       # .......................................................................#
       # Reformat and field conversions
       # .......................................................................#
       - cast:
           fields:
-            - log.statusCode
+            - event.statusCode
           to: float
 
       # .......................................................................#
@@ -636,7 +636,7 @@ pipeline:
       # .......................................................................#
       - rename:
           from:
-            - log.statusCode
+            - event.statusCode
           to: statusCode
 
       # .......................................................................#
@@ -661,13 +661,13 @@ pipeline:
           params:
             key: actionResult
             value: "failure"
-          where: 'oneOf("log.eventSuccess", [false, "false"]) || greaterOrEqual("statusCode", 400)'
+          where: 'oneOf("event.eventSuccess", [false, "false"]) || greaterOrEqual("statusCode", 400)'
       - add:
           function: string
           params:
             key: actionResult
             value: "success"
-          where: '!exists("actionResult") && ((exists("statusCode") && greaterOrEqual("statusCode", 200) && lessOrEqual("statusCode", 299)) || (!exists("statusCode") && oneOf("log.eventSuccess", [true, "true"])))'
+          where: '!exists("actionResult") && ((exists("statusCode") && greaterOrEqual("statusCode", 200) && lessOrEqual("statusCode", 299)) || (!exists("statusCode") && oneOf("event.eventSuccess", [true, "true"])))'
 
       # .......................................................................#
       # Normalizing request method and renaming to action
@@ -677,42 +677,42 @@ pipeline:
           params:
             key: action
             value: 'get'
-          where: equals("log.eventAttributesRequestMethod", "GET")
+          where: equals("event.eventAttributesRequestMethod", "GET")
 
       - add:
           function: 'string'
           params:
             key: action
             value: 'post'
-          where: equals("log.eventAttributesRequestMethod", "POST")
+          where: equals("event.eventAttributesRequestMethod", "POST")
 
       - add:
           function: 'string'
           params:
             key: action
             value: 'put'
-          where: equals("log.eventAttributesRequestMethod", "PUT")
+          where: equals("event.eventAttributesRequestMethod", "PUT")
 
       - add:
           function: 'string'
           params:
             key: action
             value: 'delete'
-          where: equals("log.eventAttributesRequestMethod", "DELETE")
+          where: equals("event.eventAttributesRequestMethod", "DELETE")
 
       - add:
           function: 'string'
           params:
             key: action
             value: 'request'
-          where: equals("log.eventAttributesRequestMethod", "REQUEST")
+          where: equals("event.eventAttributesRequestMethod", "REQUEST")
 
       # .......................................................................#
       # Removing unused fields
       # .......................................................................#
       - delete:
           fields:
-            - log.statusCode
-            - log.event.UserIp
-            - log.event.Attributes.user_ip
-            - log.event.Attributes.action_target_name
+            - event.statusCode
+            - event.event.UserIp
+            - event.event.Attributes.user_ip
+            - event.event.Attributes.action_target_name

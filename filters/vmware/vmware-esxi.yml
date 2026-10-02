@@ -15,121 +15,121 @@ pipeline:
     steps:
       - grok:
           patterns:
-            - fieldName: log.priority
+            - fieldName: event.priority
               pattern: '\<{{.data}}\>'
-            - fieldName: log.deviceTime
+            - fieldName: event.deviceTime
               pattern: '{{.year}}(-){{.monthNumber}}(-){{.monthDay}}(T){{.time}}(Z)'
             - fieldName: origin.hostname
               pattern: '{{.hostname}}'
-            - fieldName: log.process
+            - fieldName: event.process
               pattern: '{{.hostname}}(\:)'
             - fieldName: severity
               pattern: '{{.word}}'
-            - fieldName: log.processName
+            - fieldName: event.processName
               pattern: '{{.hostname}}'
-            - fieldName: log.pid
+            - fieldName: event.pid
               pattern: '\[{{.data}}\]'
-            - fieldName: log.eventInfo
+            - fieldName: event.eventInfo
               pattern: '\[{{.data}}\]'
-            - fieldName: log.message
+            - fieldName: event.message
               pattern: '{{.greedy}}'
 
       - grok:
           patterns:
-            - fieldName: log.priority
+            - fieldName: event.priority
               pattern: '\<{{.data}}\>'
-            - fieldName: log.deviceTime
+            - fieldName: event.deviceTime
               pattern: '{{.year}}(-){{.monthNumber}}(-){{.monthDay}}(T){{.time}}(Z)'
             - fieldName: origin.hostname
               pattern: '{{.hostname}}'
-            - fieldName: log.process
+            - fieldName: event.process
               pattern: '{{.hostname}}'
-            - fieldName: log.pid
+            - fieldName: event.pid
               pattern: '\[{{.data}}\]:'
-            - fieldName: log.message
+            - fieldName: event.message
               pattern: '{{.greedy}}'
 
       - grok:
           patterns:
-            - fieldName: log.priority
+            - fieldName: event.priority
               pattern: '\<{{.data}}\>'
-            - fieldName: log.deviceTime
+            - fieldName: event.deviceTime
               pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}T{{.time}}Z'
             - fieldName: origin.hostname
               pattern: '{{.hostname}}'
-            - fieldName: log.process
+            - fieldName: event.process
               pattern: '{{.hostname}}'
-            - fieldName: log.pid
+            - fieldName: event.pid
               pattern: '\[{{.data}}\]:'
-            - fieldName: log.originIdComponent
+            - fieldName: event.originIdComponent
               pattern: '\[{{.data}}\]'
-            - fieldName: log.message
+            - fieldName: event.message
               pattern: '{{.greedy}}'
 
       - grok:
           patterns:
-            - fieldName: log.moduleIdentifier
+            - fieldName: event.moduleIdentifier
               pattern: '\[{{.data}}\@'
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: '{{.data}}\='
-            - fieldName: log.subModuleIdentifier
+            - fieldName: event.subModuleIdentifier
               pattern: '{{.word}}\]'
-          source: log.originIdComponent
+          source: event.originIdComponent
 
       - grok:
           patterns:
-            - fieldName: log.irrelevant2
+            - fieldName: event.irrelevant2
               pattern: '{{.data}}level{{.space}}='
-            - fieldName: log.level
+            - fieldName: event.level
               pattern: '{{.integer}}'
-          source: log.message
+          source: event.message
               
       # Removing unused caracters
       - trim:
           function: prefix
           substring: '<'
           fields:
-            - log.priority
+            - event.priority
       - trim:
           function: prefix
           substring: '['
           fields:
-            - log.pid
-            - log.eventInfo
-            - log.moduleIdentifier
+            - event.pid
+            - event.eventInfo
+            - event.moduleIdentifier
       - trim:
           function: prefix
           substring: '-'
           fields:
-            - log.message
+            - event.message
       - trim:
           function: suffix
           substring: '>'
           fields:
-            - log.priority
+            - event.priority
       - trim:
           function: suffix
           substring: ':'
           fields:
-            - log.pid
-            - log.process
+            - event.pid
+            - event.process
       - trim:
           function: suffix
           substring: ']'
           fields:
-            - log.pid
-            - log.eventInfo
-            - log.subModuleIdentifier
+            - event.pid
+            - event.eventInfo
+            - event.subModuleIdentifier
       - trim:
           function: suffix
           substring: '-'
           fields:
-            - log.message
+            - event.message
       - trim:
           function: suffix
           substring: '@'
           fields:
-            - log.moduleIdentifier
+            - event.moduleIdentifier
                     
       # ESXi records a completed vSphere session as
       # "Event <n> : User <user>@<address> logged in as <client>". The address is
@@ -137,30 +137,30 @@ pipeline:
       # so the user ends at the last @ before the address.
       - grok:
           patterns:
-            - fieldName: log.loginEvent
+            - fieldName: event.loginEvent
               pattern: 'Event [0-9]+ : User'
-            - fieldName: log.loginUser
+            - fieldName: event.loginUser
               pattern: '\S+@'
-            - fieldName: log.loginAddress
+            - fieldName: event.loginAddress
               pattern: '[0-9A-Fa-f:.]+'
-            - fieldName: log.loginClient
+            - fieldName: event.loginClient
               pattern: 'logged in as .+'
-          source: log.message
-          where: 'contains("log.message", " logged in as ")'
+          source: event.message
+          where: 'contains("event.message", " logged in as ")'
       - trim:
           function: suffix
           substring: '@'
           fields:
-            - log.loginUser
+            - event.loginUser
       - rename:
           from:
-            - log.loginUser
+            - event.loginUser
           to: origin.user
       - rename:
           from:
-            - log.loginAddress
+            - event.loginAddress
           to: origin.ip
-          where: '(inCIDR("log.loginAddress", "0.0.0.0/0") || inCIDR("log.loginAddress", "::/0")) && !inCIDR("log.loginAddress", "0.0.0.0/32") && !inCIDR("log.loginAddress", "::/128")'
+          where: '(inCIDR("event.loginAddress", "0.0.0.0/0") || inCIDR("event.loginAddress", "::/0")) && !inCIDR("event.loginAddress", "0.0.0.0/32") && !inCIDR("event.loginAddress", "::/128")'
 
       # Adding action result
       - add:
@@ -168,19 +168,19 @@ pipeline:
           params:
             key: actionResult
             value: "failure"
-          where: 'exists("log.message") && contains("log.message", "authentication failed")'
+          where: 'exists("event.message") && contains("event.message", "authentication failed")'
       - add:
           function: string
           params:
             key: actionResult
             value: "failure"
-          where: 'exists("log.message") && contains("log.message", "authentication of user") && contains("log.message", "failed") && !exists("actionResult")'
+          where: 'exists("event.message") && contains("event.message", "authentication of user") && contains("event.message", "failed") && !exists("actionResult")'
       - add:
           function: string
           params:
             key: actionResult
             value: "denied"
-          where: 'exists("log.message") && contains("log.message", "permission denied") && !exists("actionResult")'
+          where: 'exists("event.message") && contains("event.message", "permission denied") && !exists("actionResult")'
 
       # A completed session is a successful sign-in unless an explicit failure
       # or denial was already recorded. Logouts and password checks set no result.
@@ -189,14 +189,14 @@ pipeline:
           params:
             key: actionResult
             value: "success"
-          where: 'exists("log.loginClient") && !exists("actionResult")'
+          where: 'exists("event.loginClient") && !exists("actionResult")'
 
       # Removing unused fields
       - delete:
           fields:
-            - log.processName
-            - log.irrelevant
-            - log.loginEvent
-            - log.loginUser
-            - log.loginAddress
-            - log.loginClient
+            - event.processName
+            - event.irrelevant
+            - event.loginEvent
+            - event.loginUser
+            - event.loginAddress
+            - event.loginClient

@@ -25,207 +25,207 @@ pipeline:
       patterns:
       - fieldName: ''
         pattern: ^(?:<[0-9]+>(?:[A-Z][a-z]{2} +[0-9]{1,2} [0-9:]{8} [^ ]+ )?|[A-Z][a-z]{2} +[0-9]{1,2} [0-9:]{8} [^ ]+ )
-      - fieldName: log.kvMessage
+      - fieldName: event.kvMessage
         pattern: '[A-Za-z0-9_.-]+=.*'
   - grok:
       patterns:
-      - fieldName: log.kvMessage
+      - fieldName: event.kvMessage
         pattern: '^[A-Za-z0-9_.-]+=.*'
-      where: '!exists("log.kvMessage")'
+      where: '!exists("event.kvMessage")'
   - grok:
       patterns:
       - fieldName: ''
         pattern: ^<
-      - fieldName: log.priority
+      - fieldName: event.priority
         pattern: '[0-9]+'
       - fieldName: ''
         pattern: '>'
   - kv:
-      source: log.kvMessage
+      source: event.kvMessage
       fieldSplit: ' '
       valueSplit: '='
   - delete:
       fields:
-      - log.type
-      - log.subtype
-      - log.maintype
-      - log.attacktype
-      - log.signatureid
-      - log.signaturesubclass
-      - log.signaturecveid
-      - log.severitylevel
-      - log.msg
-      - log.action
-      - log.proto
-      - log.src
-      - log.dst
-      - log.srcport
-      - log.dstport
-      - log.httpurl
-      - log.httphost
-      - log.httpmethod
-      - log.httpagent
-      - log.owasptop10
-      - log.owaspapitop10
-      - log.triggerpolicy
-      - log.srcip
-      - log.dstip
-      - log.destip
-      - log.destport
-      - log.fileUploadViolation
+      - event.type
+      - event.subtype
+      - event.maintype
+      - event.attacktype
+      - event.signatureid
+      - event.signaturesubclass
+      - event.signaturecveid
+      - event.severitylevel
+      - event.msg
+      - event.action
+      - event.proto
+      - event.src
+      - event.dst
+      - event.srcport
+      - event.dstport
+      - event.httpurl
+      - event.httphost
+      - event.httpmethod
+      - event.httpagent
+      - event.owasptop10
+      - event.owaspapitop10
+      - event.triggerpolicy
+      - event.srcip
+      - event.dstip
+      - event.destip
+      - event.destport
+      - event.fileUploadViolation
   - grok:
-      source: log.kvMessage
+      source: event.kvMessage
       patterns:
       - fieldName: ''
         pattern: '{{.fortiwebKVPrefix}}(?:type)='
-      - fieldName: log.type
+      - fieldName: event.type
         pattern: '{{.fortiwebKVField}}'
   - grok:
-      source: log.kvMessage
+      source: event.kvMessage
       patterns:
       - fieldName: ''
         pattern: '{{.fortiwebKVPrefix}}(?:sub_type|subtype)='
-      - fieldName: log.subtype
+      - fieldName: event.subtype
         pattern: '{{.fortiwebKVField}}'
   - grok:
-      source: log.kvMessage
+      source: event.kvMessage
       patterns:
       - fieldName: ''
         pattern: '{{.fortiwebKVPrefix}}(?:main_type)='
-      - fieldName: log.maintype
+      - fieldName: event.maintype
         pattern: '{{.fortiwebKVField}}'
   - grok:
-      source: log.kvMessage
+      source: event.kvMessage
       patterns:
       - fieldName: ''
         pattern: '{{.fortiwebKVPrefix}}(?:attack_type)='
-      - fieldName: log.attacktype
+      - fieldName: event.attacktype
         pattern: '{{.fortiwebKVField}}'
   - grok:
-      source: log.kvMessage
+      source: event.kvMessage
       patterns:
       - fieldName: ''
         pattern: '{{.fortiwebKVPrefix}}(?:signature_id)='
-      - fieldName: log.signatureid
+      - fieldName: event.signatureid
         pattern: '{{.fortiwebKVField}}'
   - grok:
-      source: log.kvMessage
+      source: event.kvMessage
       patterns:
       - fieldName: ''
         pattern: '{{.fortiwebKVPrefix}}(?:signature_subclass)='
-      - fieldName: log.signaturesubclass
+      - fieldName: event.signaturesubclass
         pattern: '{{.fortiwebKVField}}'
   - grok:
-      source: log.kvMessage
+      source: event.kvMessage
       patterns:
       - fieldName: ''
         pattern: '{{.fortiwebKVPrefix}}(?:signature_cve_id)='
-      - fieldName: log.signaturecveid
+      - fieldName: event.signaturecveid
         pattern: '{{.fortiwebKVField}}'
   - grok:
-      source: log.kvMessage
+      source: event.kvMessage
       patterns:
       - fieldName: ''
         pattern: '{{.fortiwebKVPrefix}}(?:severity_level)='
-      - fieldName: log.severitylevel
+      - fieldName: event.severitylevel
         pattern: '{{.fortiwebKVField}}'
   - grok:
-      source: log.kvMessage
+      source: event.kvMessage
       patterns:
       - fieldName: ''
         pattern: '{{.fortiwebKVPrefix}}(?:msg)='
-      - fieldName: log.msg
+      - fieldName: event.msg
         pattern: '{{.fortiwebKVField}}'
   - grok:
-      source: log.kvMessage
+      source: event.kvMessage
       patterns:
       - fieldName: ''
         pattern: '{{.fortiwebKVPrefix}}(?:action)='
-      - fieldName: log.action
+      - fieldName: event.action
         pattern: '{{.fortiwebKVField}}'
   - grok:
-      source: log.kvMessage
+      source: event.kvMessage
       patterns:
       - fieldName: ''
         pattern: '{{.fortiwebKVPrefix}}(?:proto)='
-      - fieldName: log.proto
+      - fieldName: event.proto
         pattern: '{{.fortiwebKVField}}'
   - grok:
-      source: log.kvMessage
+      source: event.kvMessage
       patterns:
       - fieldName: ''
         pattern: '{{.fortiwebKVPrefix}}(?:src|src_ip)='
-      - fieldName: log.src
+      - fieldName: event.src
         pattern: '{{.fortiwebKVField}}'
   - grok:
-      source: log.kvMessage
+      source: event.kvMessage
       patterns:
       - fieldName: ''
         pattern: '{{.fortiwebKVPrefix}}(?:dst|dst_ip|dest_ip)='
-      - fieldName: log.dst
+      - fieldName: event.dst
         pattern: '{{.fortiwebKVField}}'
   - grok:
-      source: log.kvMessage
+      source: event.kvMessage
       patterns:
       - fieldName: ''
         pattern: '{{.fortiwebKVPrefix}}(?:src_port|srcport)='
-      - fieldName: log.srcport
+      - fieldName: event.srcport
         pattern: '{{.fortiwebKVField}}'
   - grok:
-      source: log.kvMessage
+      source: event.kvMessage
       patterns:
       - fieldName: ''
         pattern: '{{.fortiwebKVPrefix}}(?:dst_port|dest_port|dstport)='
-      - fieldName: log.dstport
+      - fieldName: event.dstport
         pattern: '{{.fortiwebKVField}}'
   - grok:
-      source: log.kvMessage
+      source: event.kvMessage
       patterns:
       - fieldName: ''
         pattern: '{{.fortiwebKVPrefix}}(?:(?i:http_url))='
-      - fieldName: log.httpurl
+      - fieldName: event.httpurl
         pattern: '{{.fortiwebKVField}}'
   - grok:
-      source: log.kvMessage
+      source: event.kvMessage
       patterns:
       - fieldName: ''
         pattern: '{{.fortiwebKVPrefix}}(?:(?i:http_host))='
-      - fieldName: log.httphost
+      - fieldName: event.httphost
         pattern: '{{.fortiwebKVField}}'
   - grok:
-      source: log.kvMessage
+      source: event.kvMessage
       patterns:
       - fieldName: ''
         pattern: '{{.fortiwebKVPrefix}}(?:(?i:http_method))='
-      - fieldName: log.httpmethod
+      - fieldName: event.httpmethod
         pattern: '{{.fortiwebKVField}}'
   - grok:
-      source: log.kvMessage
+      source: event.kvMessage
       patterns:
       - fieldName: ''
         pattern: '{{.fortiwebKVPrefix}}(?:owasp_top10)='
-      - fieldName: log.owasptop10
+      - fieldName: event.owasptop10
         pattern: '{{.fortiwebKVField}}'
   - grok:
-      source: log.kvMessage
+      source: event.kvMessage
       patterns:
       - fieldName: ''
         pattern: '{{.fortiwebKVPrefix}}(?:(?i:http_agent))='
-      - fieldName: log.httpagent
+      - fieldName: event.httpagent
         pattern: '{{.fortiwebKVField}}'
   - grok:
-      source: log.kvMessage
+      source: event.kvMessage
       patterns:
       - fieldName: ''
         pattern: '{{.fortiwebKVPrefix}}(?:owasp_api_top10)='
-      - fieldName: log.owaspapitop10
+      - fieldName: event.owaspapitop10
         pattern: '{{.fortiwebKVField}}'
   - grok:
-      source: log.kvMessage
+      source: event.kvMessage
       patterns:
       - fieldName: ''
         pattern: '{{.fortiwebKVPrefix}}(?:trigger_policy)='
-      - fieldName: log.triggerpolicy
+      - fieldName: event.triggerpolicy
         pattern: '{{.fortiwebKVField}}'
   # Some native attack URLs contain bare quotes or a terminal backslash.
   # Recover HTTP metadata only from the final complete native HTTP field block.
@@ -233,191 +233,191 @@ pipeline:
   # Each pattern is matched alone against the trimmed remainder, so the URL block
   # runs to the final native http_host key and a second step removes that key.
   - grok:
-      source: log.kvMessage
+      source: event.kvMessage
       patterns:
       - fieldName: ''
         pattern: '{{.fortiwebKVPrefix}}(?i:http_url)='
-      - fieldName: log.httpUrlBlock
+      - fieldName: event.httpUrlBlock
         pattern: '"[^\r\n]*"\s+(?i:http_host)='
-      - fieldName: log.httphost
+      - fieldName: event.httphost
         pattern: '{{.fortiwebKVValue}}'
       - fieldName: ''
         pattern: '^(?i:http_agent)='
-      - fieldName: log.httpagent
+      - fieldName: event.httpagent
         pattern: '{{.fortiwebKVValue}}'
       - fieldName: ''
         pattern: '^(?i:http_session_id)=(?:{{.fortiwebKVValue}})\s+msg=(?:{{.fortiwebKVValue}})(?:\s+[A-Za-z0-9_.-]+=(?:{{.fortiwebKVValue}}))*\s*$'
-      where: '!exists("log.httpagent")'
+      where: '!exists("event.httpagent")'
   - grok:
-      source: log.httpUrlBlock
+      source: event.httpUrlBlock
       patterns:
-      - fieldName: log.httpurl
+      - fieldName: event.httpurl
         pattern: '^"[^\r\n]*"'
       - fieldName: ''
         pattern: '^(?i:http_host)=$'
-      where: exists("log.httpUrlBlock")
+      where: exists("event.httpUrlBlock")
   - trim:
       function: prefix
       substring: '"'
       fields:
-      - log.type
-      - log.subtype
-      - log.maintype
-      - log.attacktype
-      - log.signatureid
-      - log.signaturesubclass
-      - log.signaturecveid
-      - log.severitylevel
-      - log.msg
-      - log.action
-      - log.proto
-      - log.src
-      - log.dst
-      - log.srcport
-      - log.dstport
-      - log.httpurl
-      - log.httphost
-      - log.httpmethod
-      - log.httpagent
-      - log.owasptop10
-      - log.owaspapitop10
-      - log.triggerpolicy
+      - event.type
+      - event.subtype
+      - event.maintype
+      - event.attacktype
+      - event.signatureid
+      - event.signaturesubclass
+      - event.signaturecveid
+      - event.severitylevel
+      - event.msg
+      - event.action
+      - event.proto
+      - event.src
+      - event.dst
+      - event.srcport
+      - event.dstport
+      - event.httpurl
+      - event.httphost
+      - event.httpmethod
+      - event.httpagent
+      - event.owasptop10
+      - event.owaspapitop10
+      - event.triggerpolicy
   - trim:
       function: suffix
       substring: '"'
       fields:
-      - log.type
-      - log.subtype
-      - log.maintype
-      - log.attacktype
-      - log.signatureid
-      - log.signaturesubclass
-      - log.signaturecveid
-      - log.severitylevel
-      - log.msg
-      - log.action
-      - log.proto
-      - log.src
-      - log.dst
-      - log.srcport
-      - log.dstport
-      - log.httpurl
-      - log.httphost
-      - log.httpmethod
-      - log.httpagent
-      - log.owasptop10
-      - log.owaspapitop10
-      - log.triggerpolicy
+      - event.type
+      - event.subtype
+      - event.maintype
+      - event.attacktype
+      - event.signatureid
+      - event.signaturesubclass
+      - event.signaturecveid
+      - event.severitylevel
+      - event.msg
+      - event.action
+      - event.proto
+      - event.src
+      - event.dst
+      - event.srcport
+      - event.dstport
+      - event.httpurl
+      - event.httphost
+      - event.httpmethod
+      - event.httpagent
+      - event.owasptop10
+      - event.owaspapitop10
+      - event.triggerpolicy
   # Keep repeated upload-policy correlation tied to classified violations.
   - add:
       function: string
       params:
-        key: log.fileUploadViolation
+        key: event.fileUploadViolation
         value: 'true'
       where: >-
-        ((regexMatch("log.subtype", "(?i)^(File Upload(?: Restrictions?)?|File Security|Anti.?Virus|AV Detection)$") || regexMatch("log.attacktype", "(?i)^(File Upload(?: Restrictions?)?|File Security|Anti.?Virus|AV Detection)$") || regexMatch("log.signaturesubclass", "(?i)^(File Upload(?: Restrictions?)?|File Security|Anti.?Virus|AV Detection)$")) || ((equalsIgnoreCase("log.maintype", "Signature Detection") || (!exists("log.subtype") && !exists("log.attacktype"))) && regexMatch("log.msg", "(?i)\\b(file upload (?:violation|blocked|restriction)|malicious file|anti-virus|antivirus)\\b")))
+        ((regexMatch("event.subtype", "(?i)^(File Upload(?: Restrictions?)?|File Security|Anti.?Virus|AV Detection)$") || regexMatch("event.attacktype", "(?i)^(File Upload(?: Restrictions?)?|File Security|Anti.?Virus|AV Detection)$") || regexMatch("event.signaturesubclass", "(?i)^(File Upload(?: Restrictions?)?|File Security|Anti.?Virus|AV Detection)$")) || ((equalsIgnoreCase("event.maintype", "Signature Detection") || (!exists("event.subtype") && !exists("event.attacktype"))) && regexMatch("event.msg", "(?i)\\b(file upload (?:violation|blocked|restriction)|malicious file|anti-virus|antivirus)\\b")))
   - rename:
       from:
-      - log.src
+      - event.src
       to: origin.ip
       # Retain an invalid selected alias in its canonical vendor field.
-      where: (inCIDR("log.src", "0.0.0.0/0") || inCIDR("log.src", "::/0")) && !inCIDR("log.src", "0.0.0.0/32") && !inCIDR("log.src", "::/128")
+      where: (inCIDR("event.src", "0.0.0.0/0") || inCIDR("event.src", "::/0")) && !inCIDR("event.src", "0.0.0.0/32") && !inCIDR("event.src", "::/128")
   - rename:
       from:
-      - log.dst
+      - event.dst
       to: target.ip
-      where: (inCIDR("log.dst", "0.0.0.0/0") || inCIDR("log.dst", "::/0")) && !inCIDR("log.dst", "0.0.0.0/32") && !inCIDR("log.dst", "::/128")
+      where: (inCIDR("event.dst", "0.0.0.0/0") || inCIDR("event.dst", "::/0")) && !inCIDR("event.dst", "0.0.0.0/32") && !inCIDR("event.dst", "::/128")
   - rename:
       from:
-      - log.srcport
+      - event.srcport
       to: origin.port
   - rename:
       from:
-      - log.dstport
+      - event.dstport
       to: target.port
   - grok:
-      source: log.action
+      source: event.action
       patterns:
       - fieldName: action
         pattern: '{{.greedy}}'
-      where: exists("log.action")
+      where: exists("event.action")
   - add:
       function: string
       params:
         key: action
         value: http_request
-      where: equalsIgnoreCase("log.type", "attack") || equalsIgnoreCase("log.type", "traffic")
+      where: equalsIgnoreCase("event.type", "attack") || equalsIgnoreCase("event.type", "traffic")
   - add:
       function: string
       params:
         key: actionResult
         value: denied
-      where: regexMatch("log.action", "(?i)^(deny|denied|alert_deny|block|blocked|period_block)$")
+      where: regexMatch("event.action", "(?i)^(deny|denied|alert_deny|block|blocked|period_block)$")
   - add:
       function: string
       params:
         key: protocol
         value: tcp
-      where: regexMatch("log.proto", "(?i)^(tcp|6)$")
+      where: regexMatch("event.proto", "(?i)^(tcp|6)$")
   - add:
       function: string
       params:
         key: protocol
         value: udp
-      where: regexMatch("log.proto", "(?i)^(udp|17)$")
+      where: regexMatch("event.proto", "(?i)^(udp|17)$")
   - add:
       function: string
       params:
         key: protocol
         value: icmp
-      where: regexMatch("log.proto", "(?i)^(icmp|1)$")
+      where: regexMatch("event.proto", "(?i)^(icmp|1)$")
   - add:
       function: string
       params:
         key: protocol
         value: icmpv6
-      where: regexMatch("log.proto", "(?i)^(icmpv6|ipv6-icmp|58)$")
+      where: regexMatch("event.proto", "(?i)^(icmpv6|ipv6-icmp|58)$")
   - add:
       function: string
       params:
         key: severity
         value: info
-      where: regexMatch("log.severitylevel", "(?i)^(low|information|informational|info)$")
+      where: regexMatch("event.severitylevel", "(?i)^(low|information|informational|info)$")
   - add:
       function: string
       params:
         key: severity
         value: warning
-      where: regexMatch("log.severitylevel", "(?i)^(medium|warning)$")
+      where: regexMatch("event.severitylevel", "(?i)^(medium|warning)$")
   - add:
       function: string
       params:
         key: severity
         value: error
-      where: regexMatch("log.severitylevel", "(?i)^(high|error)$")
+      where: regexMatch("event.severitylevel", "(?i)^(high|error)$")
   - add:
       function: string
       params:
         key: severity
         value: critical
-      where: regexMatch("log.severitylevel", "(?i)^(critical)$")
+      where: regexMatch("event.severitylevel", "(?i)^(critical)$")
   - add:
       function: string
       params:
         key: severity
         value: debug
-      where: regexMatch("log.severitylevel", "(?i)^(debug)$")
+      where: regexMatch("event.severitylevel", "(?i)^(debug)$")
   # Relative request paths stay in log.httpurl; SDK path is a file directory.
   - grok:
-      source: log.httpurl
+      source: event.httpurl
       patterns:
       - fieldName: target.url
         pattern: '{{.greedy}}'
-      where: regexMatch("log.httpurl", "(?i)^https?://")
+      where: regexMatch("event.httpurl", "(?i)^https?://")
   - rename:
       from:
       - origin.port
-      to: log.unparsedOriginPort
+      to: event.unparsedOriginPort
       where: exists("origin.port") && !(regexMatch("origin.port", "^[0-9]{1,5}$") && lessOrEqual("origin.port",
         65535))
   - dynamic:
@@ -429,7 +429,7 @@ pipeline:
   - rename:
       from:
       - target.port
-      to: log.unparsedTargetPort
+      to: event.unparsedTargetPort
       where: exists("target.port") && !(regexMatch("target.port", "^[0-9]{1,5}$") && lessOrEqual("target.port",
         65535))
   - dynamic:
@@ -440,5 +440,5 @@ pipeline:
       where: exists("target.ip")
   - delete:
       fields:
-      - log.kvMessage
-      - log.httpUrlBlock
+      - event.kvMessage
+      - event.httpUrlBlock

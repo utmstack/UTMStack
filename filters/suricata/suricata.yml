@@ -13,17 +13,17 @@ pipeline:
       # Parsing RAW field log
       - grok:
           patterns:
-            - fieldName: log.syslogPri
+            - fieldName: event.syslogPri
               pattern: '\<{{.integer}}\>'
-            - fieldName: log.syslogTimestamp
+            - fieldName: event.syslogTimestamp
               pattern: '{{.monthName}}(\s+){{.monthDay}}(\s+){{.time}}'
-            - fieldName: log.syslogHost
+            - fieldName: event.syslogHost
               pattern: '{{.hostname}}'
-            - fieldName: log.syslogProgram
+            - fieldName: event.syslogProgram
               pattern: '{{.word}}'
-            - fieldName: log.syslogPid
+            - fieldName: event.syslogPid
               pattern: '\[{{.integer}}\]: '
-            - fieldName: log.suricataJson
+            - fieldName: event.suricataJson
               pattern: '{{.greedy}}'
 
       # EVE's native format is JSON without a syslog envelope.
@@ -33,74 +33,74 @@ pipeline:
 
       # Parse Suricata JSON logs
       - json:
-          source: log.suricataJson
-          where: regexMatch("log.suricataJson", "^\\{.*\\}$")
+          source: event.suricataJson
+          where: regexMatch("event.suricataJson", "^\\{.*\\}$")
 
       # Rename fields to conversion v11 schema
       # Parsers on go-sdk v1.1.35 or later keep "_" in EVE keys (src_ip) and older ones remove it
       # (srcip), so these renames read both spellings.
       - rename:
           from:
-            - log.destip
-            - log.dest_ip
+            - event.destip
+            - event.dest_ip
           to: target.ip
 
       - rename:
           from:
-            - log.destport
-            - log.dest_port
+            - event.destport
+            - event.dest_port
           to: target.port
 
       - rename:
           from:
-            - log.flowid
-            - log.flow_id
-          to: log.flowId
+            - event.flowid
+            - event.flow_id
+          to: event.flowId
 
       - rename:
           from:
-            - log.host
+            - event.host
           to: target.host
 
       - rename:
           from:
-            - log.iniface
-            - log.in_iface
-          to: log.inFace
+            - event.iniface
+            - event.in_iface
+          to: event.inFace
 
       - rename:
           from:
-            - log.srcip
-            - log.src_ip
+            - event.srcip
+            - event.src_ip
           to: origin.ip
 
       - rename:
           from:
-            - log.srcport
-            - log.src_port
+            - event.srcport
+            - event.src_port
           to: origin.port
 
       - rename:
           from:
-            - log.txid
-            - log.tx_id
-          to: log.txId
+            - event.txid
+            - event.tx_id
+          to: event.txId
 
       - rename:
           from:
-            - log.eventtype
-            - log.event_type
-          to: log.eventType
+            - event.eventtype
+            - event.event_type
+          to: event.eventType
 
       - rename:
           from:
-            - log.appproto
-            - log.app_proto
-          to: log.appProto
+            - event.appproto
+            - event.app_proto
+          to: event.appProto
 
       - rename:
           from:
-            - log.proto
+            - event.proto
           to: protocol
 
     
@@ -110,33 +110,33 @@ pipeline:
           params:
             key: severity
             value: "critical"
-          where: equals("log.alert.severity", 1)
+          where: equals("event.alert.severity", 1)
 
       - add:
           function: "string"
           params:
             key: severity
             value: "warning"
-          where: equals("log.alert.severity", 2)
+          where: equals("event.alert.severity", 2)
 
       - add:
           function: "string"
           params:
             key: severity
             value: "info"
-          where: equals("log.alert.severity", 3)
+          where: equals("event.alert.severity", 3)
 
       #.......................................................................
       # Add new eventtypes to logx structure, detected in real logs, present in suricata 7.0.0
       - rename:
           from:
-            - log.ftpdata
-          to: log.ftpData
+            - event.ftpdata
+          to: event.ftpData
       
       - rename:
           from:
-            - log.fileinfo
-          to: log.fileInfo
+            - event.fileinfo
+          to: event.fileInfo
 
       # The alert's own action is not the final packet verdict: a second
       # signature or a flow drop can override an alert marked allowed.
@@ -150,23 +150,23 @@ pipeline:
             key: actionResult
             value: "denied"
           where: >-
-            equals("log.verdict.action", "drop") ||
-            equals("log.flow.action", "drop") ||
-            (equals("log.eventType", "alert") && equals("log.alert.action", "blocked") &&
-             !exists("log.verdict.action") && !exists("log.flow.action"))
+            equals("event.verdict.action", "drop") ||
+            equals("event.flow.action", "drop") ||
+            (equals("event.eventType", "alert") && equals("event.alert.action", "blocked") &&
+             !exists("event.verdict.action") && !exists("event.flow.action"))
       - add:
           function: string
           params:
             key: actionResult
             value: "success"
           where: >-
-            !equals("log.verdict.action", "drop") && !equals("log.flow.action", "drop") &&
-            (greaterThan("log.flow.bytes_toserver", 0) || greaterThan("log.flow.bytestoserver", 0)) &&
-            (greaterThan("log.flow.bytes_toclient", 0) || greaterThan("log.flow.bytestoclient", 0)) &&
-            ((equals("log.eventType", "flow") &&
-              oneOf("log.flow.state", ["established", "closed", "bypassed"]) &&
-              (equals("log.flow.action", "pass") || !exists("log.flow.action"))) ||
-             (equals("log.eventType", "alert") && equals("log.verdict.action", "pass")))
+            !equals("event.verdict.action", "drop") && !equals("event.flow.action", "drop") &&
+            (greaterThan("event.flow.bytes_toserver", 0) || greaterThan("event.flow.bytestoserver", 0)) &&
+            (greaterThan("event.flow.bytes_toclient", 0) || greaterThan("event.flow.bytestoclient", 0)) &&
+            ((equals("event.eventType", "flow") &&
+              oneOf("event.flow.state", ["established", "closed", "bypassed"]) &&
+              (equals("event.flow.action", "pass") || !exists("event.flow.action"))) ||
+             (equals("event.eventType", "alert") && equals("event.verdict.action", "pass")))
 
       # Adding geolocation to origin.ip
       - dynamic:
@@ -187,8 +187,8 @@ pipeline:
       # Removing unused fields
       - delete:
           fields:
-            - log.suricataJson
-            - log.syslogPri
-            - log.syslogTimestamp
-            - log.syslogProgram
-            - log.syslogPid
+            - event.suricataJson
+            - event.syslogPri
+            - event.syslogTimestamp
+            - event.syslogProgram
+            - event.syslogPid

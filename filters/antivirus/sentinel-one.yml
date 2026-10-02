@@ -10,128 +10,128 @@ pipeline:
       # Parsing the common fields
       - grok:
           patterns:
-            - fieldName: log.syslogPriority
+            - fieldName: event.syslogPriority
               pattern: '\<{{.data}}\>'
-            - fieldName: log.syslogVersion
+            - fieldName: event.syslogVersion
               pattern: '{{.integer}}'
-            - fieldName: log.syslogDeviceTime
+            - fieldName: event.syslogDeviceTime
               pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}{{.space}}{{.time}}'
-            - fieldName: log.0trash
+            - fieldName: event.0trash
               pattern: '{{.data}}\='
-            - fieldName: log.syslogHostIP
+            - fieldName: event.syslogHostIP
               pattern: '{{.ipv4}}'
-            - fieldName: log.1trash
+            - fieldName: event.1trash
               pattern: '{{.integer}}'
-            - fieldName: log.restData
+            - fieldName: event.restData
               pattern: '{{.greedy}}'
           source: raw
 
       - grok:
           patterns:
-            - fieldName: log.syslogPriority
+            - fieldName: event.syslogPriority
               pattern: '\<{{.data}}\>'
-            - fieldName: log.syslogVersion
+            - fieldName: event.syslogVersion
               pattern: '{{.integer}}'
-            - fieldName: log.syslogDeviceTime
+            - fieldName: event.syslogDeviceTime
               pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}{{.space}}{{.time}}'
-            - fieldName: log.restData
+            - fieldName: event.restData
               pattern: '{{.greedy}}'
           source: raw
 
       - grok:
           patterns:
-            - fieldName: log.syslogPriority
+            - fieldName: event.syslogPriority
               pattern: '\<{{.data}}\>'
-            - fieldName: log.syslogDeviceTime
+            - fieldName: event.syslogDeviceTime
               pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}{{.space}}{{.time}}'
-            - fieldName: log.restData
+            - fieldName: event.restData
               pattern: '{{.greedy}}'
           source: raw
 
       - grok:
           patterns:
-            - fieldName: log.syslogPriority
+            - fieldName: event.syslogPriority
               pattern: '\<{{.data}}\>'
-            - fieldName: log.syslogDeviceTime
+            - fieldName: event.syslogDeviceTime
               pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}{{.space}}{{.time}}'
-            - fieldName: log.0trash
+            - fieldName: event.0trash
               pattern: '{{.data}}Mgmt\|'
-            - fieldName: log.1trash
+            - fieldName: event.1trash
               pattern: '{{.integer}}'
-            - fieldName: log.eventDescription
+            - fieldName: event.eventDescription
               pattern: '\|{{.data}}\|'
-            - fieldName: log.2trash
+            - fieldName: event.2trash
               pattern: '{{.integer}}\|'
-            - fieldName: log.restData
+            - fieldName: event.restData
               pattern: '{{.greedy}}'
           source: raw
 
       - grok:
           patterns:
-            - fieldName: log.syslogPriority
+            - fieldName: event.syslogPriority
               pattern: '\<{{.data}}\>'
-            - fieldName: log.syslogDeviceTime
+            - fieldName: event.syslogDeviceTime
               pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}{{.space}}{{.time}}'
-            - fieldName: log.0trash
+            - fieldName: event.0trash
               pattern: '{{.data}}Mgmt\|'
-            - fieldName: log.restData
+            - fieldName: event.restData
               pattern: '{{.greedy}}'
           source: raw
 
       - grok:
           patterns:
-            - fieldName: log.syslogPriority
+            - fieldName: event.syslogPriority
               pattern: '\<{{.data}}\>'
-            - fieldName: log.syslogVersion
+            - fieldName: event.syslogVersion
               pattern: '{{.integer}}'
-            - fieldName: log.syslogDeviceTime
+            - fieldName: event.syslogDeviceTime
               pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}\w{{.time}}\w'
-            - fieldName: log.restData
+            - fieldName: event.restData
               pattern: '{{.greedy}}'
           source: raw
 
       - grok:
           patterns:
-            - fieldName: log.syslogPriority
+            - fieldName: event.syslogPriority
               pattern: '\<{{.data}}\>'
-            - fieldName: log.syslogDeviceTime
+            - fieldName: event.syslogDeviceTime
               pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}\w{{.time}}\w'
-            - fieldName: log.restData
+            - fieldName: event.restData
               pattern: '{{.greedy}}'
           source: raw
 
       - grok:
           patterns:
-            - fieldName: log.2trash
+            - fieldName: event.2trash
               pattern: '{{.data}}\|rt='
-            - fieldName: log.ruleTime
+            - fieldName: event.ruleTime
               pattern: '{{.monthName}}{{.space}}{{.monthDay}}{{.space}}{{.year}}{{.space}}{{.time}}'
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: '{{.greedy}}'
-          source: log.restData
+          source: event.restData
 
       - grok:
           patterns:
-            - fieldName: log.2trash
+            - fieldName: event.2trash
               pattern: '{{.data}}\|rt=#{{.word}}'
-            - fieldName: log.ruleTime
+            - fieldName: event.ruleTime
               pattern: '\({{.data}}\)'
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: '{{.greedy}}'
-          source: log.restData
+          source: event.restData
 
       # Parsing raw field for log when it has the format [something@number something="xxxx"]
       - grok:
           patterns:
-            - fieldName: log.syslogPriority
+            - fieldName: event.syslogPriority
               pattern: '\<{{.data}}\>'
-            - fieldName: log.syslogDeviceTime
+            - fieldName: event.syslogDeviceTime
               pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}\w{{.time}}\w'
-            - fieldName: log.syslogHostIP
+            - fieldName: event.syslogHostIP
               pattern: '{{.ipv4}}'
-            - fieldName: log.0trash
+            - fieldName: event.0trash
               pattern: '({{.word}}{{.space}})+'
-            - fieldName: log.restData
+            - fieldName: event.restData
               pattern: '{{.greedy}}'
           source: raw
 
@@ -142,33 +142,33 @@ pipeline:
       # not documented, so the standard severity field is not set here.
       - grok:
           patterns:
-            - fieldName: log.0trash
+            - fieldName: event.0trash
               pattern: '{{.data}}CEF:{{.integer}}\|'
-            - fieldName: log.cefDeviceVendor
+            - fieldName: event.cefDeviceVendor
               pattern: '(?:[^|\\]|\\.)+'
-            - fieldName: log.1trash
+            - fieldName: event.1trash
               pattern: '\|'
-            - fieldName: log.cefDeviceProduct
+            - fieldName: event.cefDeviceProduct
               pattern: '(?:[^|\\]|\\.)+'
-            - fieldName: log.1trash
+            - fieldName: event.1trash
               pattern: '\|'
-            - fieldName: log.cefDeviceVersion
+            - fieldName: event.cefDeviceVersion
               pattern: '(?:[^|\\]|\\.)+'
-            - fieldName: log.1trash
+            - fieldName: event.1trash
               pattern: '\|'
-            - fieldName: log.cefSignatureId
+            - fieldName: event.cefSignatureId
               pattern: '(?:[^|\\]|\\.)+'
-            - fieldName: log.1trash
+            - fieldName: event.1trash
               pattern: '\|'
-            - fieldName: log.eventDescription
+            - fieldName: event.eventDescription
               pattern: '(?:[^|\\]|\\.)+'
-            - fieldName: log.1trash
+            - fieldName: event.1trash
               pattern: '\|'
-            - fieldName: log.cefSeverity
+            - fieldName: event.cefSeverity
               pattern: '(?:[^|\\]|\\.)+'
-            - fieldName: log.1trash
+            - fieldName: event.1trash
               pattern: '\|'
-            - fieldName: log.restData
+            - fieldName: event.restData
               pattern: '{{.greedy}}'
           source: raw
           where: 'contains("raw", "CEF:")'
@@ -176,138 +176,138 @@ pipeline:
       - kv:
           fieldSplit: " "
           valueSplit: "="
-          source: log.restData
-          where: 'exists("log.restData")'
+          source: event.restData
+          where: 'exists("event.restData")'
 
       # CEF rt=#arcsightDate(<day>, <d> <Mon> <yyyy>, <hh:mm:ss> UTC) anywhere in the
       # extension. kv keeps only its first word, so the complete value is taken here.
       - grok:
           patterns:
-            - fieldName: log.3trash
+            - fieldName: event.3trash
               pattern: '{{.data}}(?:^|[\s|])rt=#arcsightDate\('
-            - fieldName: log.rt
+            - fieldName: event.rt
               pattern: '[^)]+'
-          source: log.restData
+          source: event.restData
 
       # The same value becomes deviceTime only when it has exactly the expected
       # UTC layout; any other rt format is left alone and deviceTime keeps its default.
       - grok:
           patterns:
-            - fieldName: log.3trash
+            - fieldName: event.3trash
               pattern: '{{.data}}(?:^|[\s|])rt=#arcsightDate\('
-            - fieldName: log.deviceTimeCandidate
+            - fieldName: event.deviceTimeCandidate
               pattern: '[^)]+'
-          source: log.restData
+          source: event.restData
       - reformat:
           fields:
-            - log.deviceTimeCandidate
+            - event.deviceTimeCandidate
           function: time
           fromFormat: 'Mon, 2 Jan 2006, 15:04:05 MST'
           toFormat: '2006-01-02T15:04:05Z07:00'
-          where: 'regexMatch("log.deviceTimeCandidate", "^[A-Z][a-z]{2}, [0-9]{1,2} [A-Z][a-z]{2} [0-9]{4}, [0-9]{2}:[0-9]{2}:[0-9]{2} UTC$")'
+          where: 'regexMatch("event.deviceTimeCandidate", "^[A-Z][a-z]{2}, [0-9]{1,2} [A-Z][a-z]{2} [0-9]{4}, [0-9]{2}:[0-9]{2}:[0-9]{2} UTC$")'
       - rename:
           from:
-            - log.deviceTimeCandidate
+            - event.deviceTimeCandidate
           to: deviceTime
-          where: 'regexMatch("log.deviceTimeCandidate", "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$")'
+          where: 'regexMatch("event.deviceTimeCandidate", "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$")'
 
       # Values that can contain spaces: take the text after "<key>=" up to the next
       # " <key>=", or to the end when the key is last, then strip that next key.
       # kv keeps only the first word of these values.
       - grok:
           patterns:
-            - fieldName: log.3trash
+            - fieldName: event.3trash
               pattern: '{{.data}}(?:^|[\s|])accountName='
-            - fieldName: log.accName
+            - fieldName: event.accName
               pattern: '(?:.*?\s[A-Za-z0-9_.]+=|.+)'
-          source: log.restData
-          where: 'regexMatch("log.restData", "(^|[\\s|])accountName=\\S")'
+          source: event.restData
+          where: 'regexMatch("event.restData", "(^|[\\s|])accountName=\\S")'
 
       - grok:
           patterns:
-            - fieldName: log.3trash
+            - fieldName: event.3trash
               pattern: '{{.data}}(?:^|[\s|])eventDesc='
-            - fieldName: log.eventDescription
+            - fieldName: event.eventDescription
               pattern: '(?:.*?\s[A-Za-z0-9_.]+=|.+)'
-          source: log.restData
-          where: 'regexMatch("log.restData", "(^|[\\s|])eventDesc=\\S")'
+          source: event.restData
+          where: 'regexMatch("event.restData", "(^|[\\s|])eventDesc=\\S")'
 
       - grok:
           patterns:
-            - fieldName: log.3trash
+            - fieldName: event.3trash
               pattern: '{{.data}}(?:^|[\s|])suser='
-            - fieldName: log.sourceUser
+            - fieldName: event.sourceUser
               pattern: '(?:.*?\s[A-Za-z0-9_.]+=|.+)'
-          source: log.restData
-          where: 'regexMatch("log.restData", "(^|[\\s|])suser=\\S")'
+          source: event.restData
+          where: 'regexMatch("event.restData", "(^|[\\s|])suser=\\S")'
 
       - grok:
           patterns:
-            - fieldName: log.3trash
+            - fieldName: event.3trash
               pattern: '{{.data}}(?:^|[\s|])duser='
-            - fieldName: log.destinationUser
+            - fieldName: event.destinationUser
               pattern: '(?:.*?\s[A-Za-z0-9_.]+=|.+)'
-          source: log.restData
-          where: 'regexMatch("log.restData", "(^|[\\s|])duser=\\S")'
+          source: event.restData
+          where: 'regexMatch("event.restData", "(^|[\\s|])duser=\\S")'
 
       - grok:
           patterns:
-            - fieldName: log.3trash
+            - fieldName: event.3trash
               pattern: '{{.data}}(?:^|[\s|])endpointDeviceControlDeviceName='
-            - fieldName: log.endpointDeviceName
+            - fieldName: event.endpointDeviceName
               pattern: '(?:.*?\s[A-Za-z0-9_.]+=|.+)'
-          source: log.restData
-          where: 'regexMatch("log.restData", "(^|[\\s|])endpointDeviceControlDeviceName=\\S")'
+          source: event.restData
+          where: 'regexMatch("event.restData", "(^|[\\s|])endpointDeviceControlDeviceName=\\S")'
 
       - grok:
           patterns:
-            - fieldName: log.3trash
+            - fieldName: event.3trash
               pattern: '{{.data}}(?:^|[\s|])sourceGroupName='
-            - fieldName: log.sourceGpName
+            - fieldName: event.sourceGpName
               pattern: '(?:.*?\s[A-Za-z0-9_.]+=|.+)'
-          source: log.restData
-          where: 'regexMatch("log.restData", "(^|[\\s|])sourceGroupName=\\S")'
+          source: event.restData
+          where: 'regexMatch("event.restData", "(^|[\\s|])sourceGroupName=\\S")'
 
       - grok:
           patterns:
-            - fieldName: log.3trash
+            - fieldName: event.3trash
               pattern: '{{.data}}(?:^|[\s|])sourceIpAddresses='
-            - fieldName: log.sourceIps
+            - fieldName: event.sourceIps
               pattern: '(?:.*?\s[A-Za-z0-9_.]+=|.+)'
-          source: log.restData
-          where: 'regexMatch("log.restData", "(^|[\\s|])sourceIpAddresses=\\S")'
+          source: event.restData
+          where: 'regexMatch("event.restData", "(^|[\\s|])sourceIpAddresses=\\S")'
 
       - grok:
           patterns:
-            - fieldName: log.3trash
+            - fieldName: event.3trash
               pattern: '{{.data}}(?:^|[\s|])sourceMacAddresses='
-            - fieldName: log.sourceMacs
+            - fieldName: event.sourceMacs
               pattern: '(?:.*?\s[A-Za-z0-9_.]+=|.+)'
-          source: log.restData
-          where: 'regexMatch("log.restData", "(^|[\\s|])sourceMacAddresses=\\S")'
+          source: event.restData
+          where: 'regexMatch("event.restData", "(^|[\\s|])sourceMacAddresses=\\S")'
 
       - grok:
           patterns:
-            - fieldName: log.3trash
+            - fieldName: event.3trash
               pattern: '{{.data}}(?:^|[\s|])siteName='
-            - fieldName: log.siteName
+            - fieldName: event.siteName
               pattern: '(?:.*?\s[A-Za-z0-9_.]+=|.+)'
-          source: log.restData
-          where: 'regexMatch("log.restData", "(^|[\\s|])siteName=\\S")'
+          source: event.restData
+          where: 'regexMatch("event.restData", "(^|[\\s|])siteName=\\S")'
 
       - trim:
           function: regex
           substring: '\s+[A-Za-z0-9_.]+=$'
           fields:
-            - log.accName
-            - log.eventDescription
-            - log.sourceUser
-            - log.destinationUser
-            - log.endpointDeviceName
-            - log.sourceGpName
-            - log.sourceIps
-            - log.sourceMacs
-            - log.siteName
+            - event.accName
+            - event.eventDescription
+            - event.sourceUser
+            - event.destinationUser
+            - event.endpointDeviceName
+            - event.sourceGpName
+            - event.sourceIps
+            - event.sourceMacs
+            - event.siteName
 
       # In SentinelOne management (console) events, suser is the console account
       # that made the change. Copy it to the standard actor field and keep the
@@ -316,51 +316,51 @@ pipeline:
           patterns:
             - fieldName: origin.user
               pattern: '(?s:.+)'
-          source: log.sourceUser
-          where: 'equals("log.cat", "SystemEvent") && exists("log.sourceUser") && !oneOf("log.sourceUser", ["", "-", "N/A", "unknown"])'
+          source: event.sourceUser
+          where: 'equals("event.cat", "SystemEvent") && exists("event.sourceUser") && !oneOf("event.sourceUser", ["", "-", "N/A", "unknown"])'
 
       # Removing unnecessary characters
       - trim:
           function: prefix
           substring: '<'
           fields:
-            - log.syslogPriority
+            - event.syslogPriority
 
       - trim:
           function: suffix
           substring: '>'
           fields:
-            - log.syslogPriority
+            - event.syslogPriority
 
       - trim:
           function: prefix
           substring: '|'
           fields:
-            - log.eventDescription
+            - event.eventDescription
 
       - trim:
           function: suffix
           substring: '|'
           fields:
-            - log.eventDescription
+            - event.eventDescription
 
       - trim:
           function: prefix
           substring: '('
           fields:
-            - log.syslogDeviceTime
+            - event.syslogDeviceTime
 
       - trim:
           function: suffix
           substring: ')'
           fields:
-            - log.syslogDeviceTime
+            - event.syslogDeviceTime
 
       # Renaming useful fields
       - rename:
           from:
-            - log.rt
-          to: log.ruleTime
+            - event.rt
+          to: event.ruleTime
 
       # Adding action result. Only an explicit failed mitigation or operation
       # status is a final outcome: exact values, not substrings, and
@@ -373,38 +373,38 @@ pipeline:
             key: actionResult
             value: "failure"
           where: >-
-            (equalsIgnoreCase("log.threatStatus", "mitigation_failed") ||
-             equalsIgnoreCase("log.status", "failed") ||
-             regexMatch("log.mitigationStatus", "(?i)^(failed|failure|mitigation_failed)$")) &&
-            !regexMatch("log.mitigationStatus", "(?i)^(success|succeeded|mitigated)$") &&
-            !regexMatch("log.status", "(?i)^(success|succeeded)$")
+            (equalsIgnoreCase("event.threatStatus", "mitigation_failed") ||
+             equalsIgnoreCase("event.status", "failed") ||
+             regexMatch("event.mitigationStatus", "(?i)^(failed|failure|mitigation_failed)$")) &&
+            !regexMatch("event.mitigationStatus", "(?i)^(success|succeeded|mitigated)$") &&
+            !regexMatch("event.status", "(?i)^(success|succeeded)$")
 
       # Removing unused fields
       - delete:
           fields:
-            - log.0trash
-            - log.1trash
-            - log.2trash
-            - log.3trash
-            - log.4trash
-            - log.restData
-            - log.1rt
-            - log.rt
-            - log.deviceTimeCandidate
-            - log.irrelevant
-            - log.accountNameToParse
-            - log.accountName
-            - log.eventDescToParse
-            - log.eventDesc
-            - log.suserToParse
-            - log.suser
-            - log.duserToParse
-            - log.duser
-            - log.endpointDeviceControlDeviceNameToParse
-            - log.endpointDeviceControlDeviceName
-            - log.sourceGroupNameToParse
-            - log.sourceGroupName
-            - log.sourceIpAddressesToParse
-            - log.sourceIpAddresses
-            - log.sourceMacAddressesToParse
-            - log.sourceMacAddresses
+            - event.0trash
+            - event.1trash
+            - event.2trash
+            - event.3trash
+            - event.4trash
+            - event.restData
+            - event.1rt
+            - event.rt
+            - event.deviceTimeCandidate
+            - event.irrelevant
+            - event.accountNameToParse
+            - event.accountName
+            - event.eventDescToParse
+            - event.eventDesc
+            - event.suserToParse
+            - event.suser
+            - event.duserToParse
+            - event.duser
+            - event.endpointDeviceControlDeviceNameToParse
+            - event.endpointDeviceControlDeviceName
+            - event.sourceGroupNameToParse
+            - event.sourceGroupName
+            - event.sourceIpAddressesToParse
+            - event.sourceIpAddresses
+            - event.sourceMacAddressesToParse
+            - event.sourceMacAddresses

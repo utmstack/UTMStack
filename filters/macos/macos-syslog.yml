@@ -9,21 +9,21 @@ pipeline:
           patterns:
             - fieldName: ''
               pattern: '^\[utm_stack_agent_ds='
-            - fieldName: log.datasourceoverride
+            - fieldName: event.datasourceoverride
               pattern: '[^\]\r\n]*'
             - fieldName: ''
               pattern: '\]-'
-            - fieldName: log.wrapperMessage
+            - fieldName: event.wrapperMessage
               pattern: '(?s:.*)'
-          where: startsWith("raw", "[utm_stack_agent_ds=") && !exists("log.message")
+          where: startsWith("raw", "[utm_stack_agent_ds=") && !exists("event.message")
       - json:
-          source: log.wrapperMessage
-          where: regexMatch("log.wrapperMessage", "^\\s*\\{") && !exists("log.message")
+          source: event.wrapperMessage
+          where: regexMatch("event.wrapperMessage", "^\\s*\\{") && !exists("event.message")
       - grok:
-          source: log.wrapperMessage
+          source: event.wrapperMessage
           patterns:
-            - fieldName: log.message
+            - fieldName: event.message
               pattern: '(?s:.*)'
-          where: exists("log.wrapperMessage") && !regexMatch("log.wrapperMessage", "^\\s*\\{") && !exists("log.message")
+          where: exists("event.wrapperMessage") && !regexMatch("event.wrapperMessage", "^\\s*\\{") && !exists("event.message")
       - delete:
-          fields: [log.wrapperMessage]
+          fields: [event.wrapperMessage]

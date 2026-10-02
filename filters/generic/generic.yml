@@ -6,9 +6,9 @@ pipeline:
     steps:
       - grok:
           patterns:
-            - fieldName: log.message
+            - fieldName: event.message
               pattern: '(.*)'
           source: raw
       - json:
-          source: log.message
-          where: 'startsWith("log.message", "{")'
+          source: event.message
+          where: 'startsWith("event.message", "{")'
