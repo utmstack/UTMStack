@@ -478,30 +478,40 @@ This is a very large diff (~19.7k lines) and one logical change. If the reviewer
 
 | Bag field (post-Task-6) | Canonical target | How | Why |
 |---|---|---|---|
-| `event.eventDataObjectName` | `target.path` | `rename` | accessed object's full path; `Side.path` exists |
-| `event.eventDataProcessName` | `origin.file` | `rename` | acting process; `Side.file` exists |
-| `event.eventName` | `action` | **grok-copy** (AWS idiom, `aws.yml:207-212`) | dashboard "Top events" charts on `action` (user decision); the copy — NOT a rename — keeps `event.eventName` for the file module's "Event name" column |
+| `event.eventDataObjectName` | `target.path` | **grok-copy** (source preserved) | accessed object's full path; `Side.path` exists. COPY, not rename: 13+ Windows rules (`lsass_memdump_handle_access`, `sam_database_access`, `ntds_extraction_attempts`, `ransom_*`, `printspooler_*`, `adminsdholder_abuse` CEL **and** its afterEvents `field:`, …) read `event.eventDataObjectName`; a destructive rename would silently kill them all |
+| `event.eventDataProcessName` | `origin.file` | **grok-copy** (source preserved) | acting process; `Side.file` exists; same rule dependency (`endsWith("event.eventDataProcessName","ntdsutil.exe")` etc.) |
+| `event.eventName` | `action` | **grok-copy** (AWS idiom, `aws.yml:207-212`) | dashboard "Top events" charts on `action`; copy keeps `event.eventName` for the file module's "Event name" column |
 | `event.eventCode`, `event.eventDataAccessMask`, `event.computer`, `event.host.os.*`, … | *(keep in bag)* | — | no `Side`/top-level slot; UI uses `event.*` dot-paths (Task 10 makes `term`/`terms` work) |
 
-**Note:** `action` and `target.path`/`origin.file` are top-level/canonical — the scripted rename (Task 6) never touches them, and the promotions must be inserted AFTER Task 6's rename so their sources are already `event.*`.
+**Note:** `action` and `target.path`/`origin.file` are top-level/canonical — the scripted rename (Task 6) never touches them, and the copies must run AFTER Task 6's rename so their sources are already `event.*`.
 
-- [ ] **Step 1: Add the two object-access promotions**
+- [ ] **Step 1: Add the two object-access promotions as grok-COPIES (source preserved)**
 
 In `filters/windows/windows-events.yml`, after the `event.eventDataProcessName` rename block (search for `to: event.eventDataProcessName`), insert:
 
 ```yaml
-      # Object-access fields promoted to canonical origin/target so the
+      # Object-access fields COPIED to canonical origin/target so the
       # file-management module can filter on typed (non-flattened) fields.
-      - rename:
-          from: [event.eventDataObjectName]
-          to: target.path
+      # COPIES, not renames: Windows rules read event.eventDataObjectName /
+      # event.eventDataProcessName directly (sam_database_access, ntds_extraction,
+      # ransom_*, lsass_memdump, printspooler_*, adminsdholder_abuse, etc.), so
+      # the bag keys must survive the promotion.
+      - grok:
+          source: event.eventDataObjectName
+          patterns:
+            - fieldName: target.path
+              pattern: '{{.greedy}}'
           where: exists("event.eventDataObjectName")
-      - rename:
-          from: [event.eventDataProcessName]
-          to: origin.file
+      - grok:
+          source: event.eventDataProcessName
+          patterns:
+            - fieldName: origin.file
+              pattern: '{{.greedy}}'
           where: exists("event.eventDataProcessName")
 ```
-(`rename` with `from`/`to` + `where` is the existing idiom in this file — e.g. the `origin.ip` promotion at ~line 142.)
+(`grok` with `source` + `patterns.fieldName` is the copy idiom — see `aws.yml:207-212` for `eventName`→`action`, and the existing Windows `origin.user` promotion at ~line 3152. `{{.greedy}}` copies the whole source value verbatim.)
+
+**Why copies, not `rename`:** the plan's original draft used `rename` here, which *removes* the source bag key. 13+ Windows rules read `event.eventDataObjectName`/`event.eventDataProcessName` from the bag (verified pre-rename as `log.eventDataObjectName`), and Task 8 renames those to `event.*` — a destructive promotion would orphan them. Copies keep both.
 
 - [ ] **Step 2: Promote `event.eventName` → `action` at the END of the pipeline**
 
@@ -525,12 +535,15 @@ Select-String -Path filters/windows/windows-events.yml -Pattern 'action' | Selec
 ```
 The only existing `action*` writes in the Windows pipeline are `actionResult` `add` steps (~lines 3100-3137, which run BEFORE the append point) — confirm none target bare `action` and none `delete` it after the insert. If any does, insert the grok-copy after the last `action`-touching step instead of the file end.
 
-- [ ] **Step 3: Verify the promotions landed**
+- [ ] **Step 3: Verify the promotions landed (and the bag sources survived)**
 
 ```powershell
-Select-String -Path filters/windows/windows-events.yml -Pattern "to: target\.path|to: origin\.file|fieldName: action$"
+Select-String -Path filters/windows/windows-events.yml -Pattern "fieldName: target\.path|fieldName: origin\.file|fieldName: action$"
 ```
-Expected: the two `to:` lines plus exactly one `fieldName: action` (the grok-copy; confirm it is the LAST step in the file).
+Expected: `fieldName: target.path`, `fieldName: origin.file`, and exactly one `fieldName: action` (the grok-copy at the end of the pipeline). Also confirm the bag keys were NOT consumed:
+```powershell
+(Select-String -Path filters/windows/windows-events.yml -Pattern "event\.eventDataObjectName").Count   # > 0 (source still referenced by rules/where)
+```
 
 - [ ] **Step 4: YAML validity**
 
