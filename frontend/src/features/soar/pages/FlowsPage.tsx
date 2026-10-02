@@ -77,6 +77,7 @@ export function FlowsPage() {
   const [editing, setEditing] = useState<{
     flow?: Flow;
     creating: boolean;
+    initialName?: string;
   } | null>(null);
   const [starting, setStarting] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
@@ -315,6 +316,7 @@ export function FlowsPage() {
         <FlowEditor
           flow={editing.flow}
           creating={editing.creating}
+          initialName={editing.initialName}
           onClose={() => setEditing(null)}
           onSaved={() => {
             setEditing(null);
@@ -339,9 +341,9 @@ export function FlowsPage() {
       <SoarCreateDialog
         open={createOpen}
         onClose={() => setCreateOpen(false)}
-        onManual={() => {
+        onManual={(name) => {
           setCreateOpen(false);
-          setEditing({ creating: true });
+          setEditing({ creating: true, initialName: name });
         }}
       />
     </div>

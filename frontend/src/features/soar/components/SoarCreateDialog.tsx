@@ -16,7 +16,7 @@ export function SoarCreateDialog({
 }: {
   open: boolean
   onClose: () => void
-  onManual: () => void
+  onManual: (name: string) => void
 }) {
   const { t } = useTranslation()
   const [name, setName] = useState('')
@@ -37,18 +37,24 @@ export function SoarCreateDialog({
 
   if (!open) return null
 
-  const valid = name.trim().length > 0 && (mode === 'manual' || description.trim().length > 0)
+  // AI mode needs no name upfront — the user's own instruction almost always
+  // already says what to create, so asking for a name too just gets glued in
+  // front of it redundantly. The assistant picks a name itself when it calls
+  // soar.rule.create. Manual mode still needs one: it opens the editor directly,
+  // with no AI step to name the flow for it.
+  const valid = mode === 'manual' ? name.trim().length > 0 : description.trim().length > 0
 
   const submit = () => {
     if (!valid) return
     if (mode === 'ai') {
-      setSoarCreateTarget({ name: name.trim(), description: description.trim() })
+      const task = description.trim()
+      setSoarCreateTarget({ description: task })
       onClose()
       openPanel('soar-create')
-      submitToAssistant(t('soar.create.aiOpener', { name: name.trim(), description: description.trim() }), { scope: 'soar-create' })
+      submitToAssistant(task, { scope: 'soar-create' })
       return
     }
-    onManual()
+    onManual(name.trim())
   }
 
   return (
@@ -88,14 +94,15 @@ export function SoarCreateDialog({
         </div>
 
         <div className="space-y-4 px-6 py-5">
-          <div>
-            <label className="mb-1.5 block text-xs font-medium text-foreground/80">{t('soar.create.name')}</label>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t('soar.create.namePlaceholder')} autoFocus />
-          </div>
-          {mode === 'ai' && (
+          {mode === 'manual' ? (
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-foreground/80">{t('soar.create.name')}</label>
+              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t('soar.create.namePlaceholder')} autoFocus />
+            </div>
+          ) : (
             <div>
               <label className="mb-1.5 block text-xs font-medium text-foreground/80">{t('soar.create.aiDescriptionLabel')}</label>
-              <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder={t('soar.create.aiDescriptionPlaceholder')} maxRows={8} />
+              <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder={t('soar.create.aiDescriptionPlaceholder')} maxRows={8} autoFocus />
             </div>
           )}
         </div>

@@ -4936,8 +4936,7 @@
       "aiDescriptionLabel": "Que doit faire ce flux ?",
       "aiDescriptionPlaceholder": "p. ex. En cas d'alerte critique, rechercher l'IP source dans les menaces et la bloquer sur le pare-feu",
       "aiCreate": "Créer avec l'IA",
-      "manualContinue": "Continuer",
-      "aiOpener": "Créez un flux SOAR nommé « {{name}} » qui fait : {{description}}"
+      "manualContinue": "Continuer"
     }
   },
   "compliance": {

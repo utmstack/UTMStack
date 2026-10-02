@@ -4722,8 +4722,7 @@
       "aiDescriptionLabel": "Что должен делать этот поток?",
       "aiDescriptionPlaceholder": "напр. При критическом оповещении найти исходный IP в разведданных и заблокировать его на файрволе",
       "aiCreate": "Создать с ИИ",
-      "manualContinue": "Продолжить",
-      "aiOpener": "Создайте поток SOAR с именем «{{name}}», который выполняет: {{description}}"
+      "manualContinue": "Продолжить"
     }
   },
   "compliance": {

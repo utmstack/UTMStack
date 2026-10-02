@@ -4936,8 +4936,7 @@
       "aiDescriptionLabel": "Cosa deve fare questo flusso?",
       "aiDescriptionPlaceholder": "es. In caso di alert critico, cerca l'IP di origine nell'intelligence sulle minacce e bloccalo sul firewall",
       "aiCreate": "Crea con IA",
-      "manualContinue": "Continua",
-      "aiOpener": "Crea un flusso SOAR chiamato \"{{name}}\" che fa: {{description}}"
+      "manualContinue": "Continua"
     }
   },
   "compliance": {

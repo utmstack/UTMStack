@@ -27,10 +27,13 @@ func (u *ruleUsecase) Create(ctx context.Context, req dto.CreateRuleRequest, cre
 	if err != nil {
 		return nil, mapStoreErr(err)
 	}
-	if req.Active != nil && !*req.Active {
-		_ = u.store.SetEnabled(tenantOf(ctx), sf.RelPath, false)
-		sf = u.store.Get(tenantOf(ctx), sf.RelPath)
-	}
+	// A new flow has no entry yet in the store's enabled set, which reads as
+	// disabled — so unlike Update, staying silent here isn't "leave it as
+	// it was", it's "leave it off". Write the enabled state explicitly,
+	// defaulting to on, so a create that doesn't say otherwise comes up active.
+	active := req.Active == nil || *req.Active
+	_ = u.store.SetEnabled(tenantOf(ctx), sf.RelPath, active)
+	sf = u.store.Get(tenantOf(ctx), sf.RelPath)
 	return storedFlowToResponse(sf), nil
 }
 

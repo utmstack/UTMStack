@@ -5045,8 +5045,7 @@
       "aiDescriptionLabel": "¿Qué debe hacer este flujo?",
       "aiDescriptionPlaceholder": "p. ej. Ante una alerta crítica, buscar la IP de origen en inteligencia de amenazas y bloquearla en el firewall",
       "aiCreate": "Crear con IA",
-      "manualContinue": "Continuar",
-      "aiOpener": "Crea un flujo SOAR llamado \"{{name}}\" que haga: {{description}}"
+      "manualContinue": "Continuar"
     }
   },
   "compliance": {
