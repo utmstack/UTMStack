@@ -22,7 +22,7 @@ const (
 	keyTTL = 30 * time.Minute
 
 	// Heals whatever the event-driven path missed: an eviction, a write that
-	// failed, a Redis that was restarted.
+	// failed, a Valkey that was restarted.
 	republishEvery = 5 * time.Minute
 
 	opTimeout = 3 * time.Second
@@ -32,8 +32,8 @@ type Publisher struct {
 	rdb *redis.Client
 }
 
-// New returns nil when no Redis is configured, and every method on a nil
-// Publisher is a no-op — an install without Redis keeps working.
+// New returns nil when no Valkey is configured, and every method on a nil
+// Publisher is a no-op — an install without Valkey keeps working.
 func New(addr, password string, db int) *Publisher {
 	if addr == "" {
 		return nil

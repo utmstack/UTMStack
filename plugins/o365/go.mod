@@ -5,7 +5,7 @@ go 1.26.0
 require (
 	github.com/fsnotify/fsnotify v1.10.1
 	github.com/google/uuid v1.6.0
-	github.com/threatwinds/go-sdk v1.1.28
+	github.com/threatwinds/go-sdk v1.1.37-0.20261001164002-a596631a84c5
 	github.com/utmstack/UTMStack/plugins/shared v0.0.0
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -39,7 +39,6 @@ require (
 	github.com/nats-io/nats.go v1.54.0 // indirect
 	github.com/nats-io/nkeys v0.4.16 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
-	github.com/opensearch-project/opensearch-go/v4 v4.6.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.3.1 // indirect
 	github.com/quic-go/qpack v0.6.0 // indirect
 	github.com/quic-go/quic-go v0.59.1 // indirect

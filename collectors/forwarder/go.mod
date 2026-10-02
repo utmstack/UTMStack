@@ -8,7 +8,7 @@ require (
 	github.com/fsnotify/fsnotify v1.10.1
 	github.com/google/uuid v1.6.0
 	github.com/kardianos/service v1.3.0
-	github.com/netsampler/goflow2 v1.3.7
+	github.com/netsampler/goflow2 v1.3.8
 	github.com/spf13/cobra v1.10.2
 	github.com/tehmaze/netflow v0.0.0-20240303214733-8c13bb004068
 	github.com/threatwinds/go-sdk v1.1.31

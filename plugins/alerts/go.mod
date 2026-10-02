@@ -3,7 +3,7 @@ module github.com/utmstack/UTMStack/plugins/alerts
 go 1.25.5
 
 require (
-	github.com/threatwinds/go-sdk v1.1.27-0.20260811073440-251cb9d842cd
+	github.com/threatwinds/go-sdk v1.1.37-0.20261001164002-a596631a84c5
 	github.com/tidwall/gjson v1.19.0
 	google.golang.org/protobuf v1.36.12
 )
@@ -44,6 +44,7 @@ require (
 	github.com/pierrec/lz4/v4 v4.1.27 // indirect
 	github.com/quic-go/qpack v0.6.0 // indirect
 	github.com/quic-go/quic-go v0.59.1 // indirect
+	github.com/redis/go-redis/v9 v9.22.0 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/tidwall/match v1.2.0 // indirect
@@ -53,6 +54,7 @@ require (
 	go.mongodb.org/mongo-driver/v2 v2.6.0 // indirect
 	go.opentelemetry.io/otel v1.44.0 // indirect
 	go.opentelemetry.io/otel/trace v1.44.0 // indirect
+	go.uber.org/atomic v1.11.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.4 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/arch v0.27.0 // indirect
