@@ -244,6 +244,23 @@ pipeline:
             - event.data.ProcessName
           to: event.eventDataProcessName
 
+      # Object-access fields COPIED to canonical origin/target so the
+      # file-management module can filter on typed (non-flattened) fields.
+      # Copies, not renames: Windows rules read event.eventDataObjectName /
+      # event.eventDataProcessName directly, so the bag keys must survive.
+      - grok:
+          source: event.eventDataObjectName
+          patterns:
+            - fieldName: target.path
+              pattern: (?s)^.+$
+          where: exists("event.eventDataObjectName")
+      - grok:
+          source: event.eventDataProcessName
+          patterns:
+            - fieldName: origin.file
+              pattern: (?s)^.+$
+          where: exists("event.eventDataProcessName")
+
       - rename:
           from:
             - event.data.RestrictedAdminMode
@@ -3408,3 +3425,14 @@ pipeline:
             (
             equals("event.eventCode", 4624)
             )
+
+      # Copy event.eventName to the canonical action field (AWS idiom:
+      # aws.yml grok-copy). The copy — not a rename — preserves
+      # event.eventName for the file-management module's "Event name" column.
+      # The dashboard "Top events" chart aggregates on action.
+      - grok:
+          source: event.eventName
+          patterns:
+            - fieldName: action
+              pattern: (?s)^.+$
+          where: exists("event.eventName")
