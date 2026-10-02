@@ -21,20 +21,21 @@ Each repo is its own module; the rename only works when they deploy together. Or
 | 1–2 | `threatwinds/go-sdk` | proto field 9 `log`→`event` + field 20 `controls`; regen `plugins.pb.go`; tests; push+tag | — |
 | 3–5 | `utmstack/EventProcessor` | bump go-sdk (16 modules); fix 3 hardcoded `log.%s` parsers; rebuild base image | 1–2 |
 | 6 | `utmstack/UTMStack` `filters/` | scripted `log.`→`event.` | 3–5 (for E2E) |
-| 7 | `utmstack/UTMStack` `filters/windows` | promote object-access → origin/target | 6 |
+| 7 | `utmstack/UTMStack` `filters/windows` | promote object-access → origin/target; `eventName`→`action` grok-copy | 6 |
 | 8 | `utmstack/UTMStack` `rules/` | scripted `log.`→`event.` | 6 |
 | 9 | `utmstack/UTMStack` `installer/` | template `event:flattened` + `controls:keyword` + typed top-levels | — |
-| 10 | `utmstack/UTMStack` `backend/` | `SearchUtil` flattened-aware | 6,8 |
-| 11 | `utmstack/UTMStack` `backend/`+`user-auditor/` | read `event`, drop `logx`, alert CSV; verify DB self-heal | 10 |
+| 10 | `utmstack/UTMStack` `backend/` | `SearchUtil` flattened-aware (incl. sort/range 400s) | 6,8 |
+| 11 | `utmstack/UTMStack` `backend/`+`user-auditor/` | `OverviewService` topWindowsEvents→event+action; drop `logx`; alert CSV + user-auditor read `event`; searchBySid `matchPhrase`→`term`; delete dead `LogType` | 10 |
 | 12–13 | `utmstack/UTMStack` `frontend/` | `flattened` type; operator handling; file-mgmt→origin/target; dashboard→`action`; AD `item.event.*`; cache-bust | 9,10 |
-| 14 | `utmstack/UTMStack` `plugins/alerts` | update contract-test fixtures `log`→`event` | 1 |
-| 15 | all | E2E verification, coordinated rollout, rollback | 1–14 |
+| 14 | `utmstack/UTMStack` `plugins/soc-ai` | `LastEvent.Log`→`.Event` struct access + go-sdk bump | 1 |
+| 15 | `utmstack/UTMStack` `plugins/alerts` | contract-test fixtures `log`→`event` + go-sdk bump | 1 |
+| 16 | all | E2E verification, coordinated rollout, rollback | 1–15 |
 
 **No liquibase rename is required.** `DefinitionSyncService` (a `CommandLineRunner` in the backend) resyncs Postgres from the `filters/`+`rules/` filesystem at every startup — it updates/creates filters and updates rules by `rule_name`, deleting orphans. Renaming the repo YAML therefore self-heals the DB on next backend boot. See Task 11 (verification only).
 
 **Deploy as one coordinated release.** go-sdk tag + EventProcessor base image + UTMStack (filters/rules/installer/backend/frontend) must ship together; deploying only some leaves mixed `log`/`event` docs.
 
-**Build-environment constraint:** this machine has Java 25 (Temurin) — the backend (Java 17 / JHipster) and user-auditor (Java 11) do NOT build here. Tasks 10–11 (Maven `compile`/`test`) must be run on a box with the matching JDK or in CI. Tasks 1–9, 12–15 (Go + Node 14) build fine locally.
+**Build-environment constraint:** this machine has Java 25 (Temurin) — the backend (Java 17 / JHipster) and user-auditor (Java 11) do NOT build here. Tasks 10–11 (Maven `compile`/`test`) must be run on a box with the matching JDK or in CI. Tasks 1–9, 12–16 (Go + Node 14) build fine locally.
 
 ---
 
@@ -473,20 +474,18 @@ This is a very large diff (~19.7k lines) and one logical change. If the reviewer
 
 **Background (your Q4 decision):** the file-management module must use canonical `origin.*`/`target.*` fields, not bag fields, because `flattened` can't range/sort/aggregate. The `Side` proto already has `file`/`path`/`filename`/`sizeInBytes` plus `host`/`ip`/`user`. The Windows filter already promotes `computer→target.host`, `WorkstationName→origin.host`, `IpAddress→origin.ip`, `SubjectUserName→target.user` — but NOT the object-access fields the file module filters on (`eventCode`, `eventName`, `accessMask`, `processName`, `objectName`). Promote the ones with a clean canonical slot; leave the rest in the flattened bag.
 
-**Promotion map (bag → canonical), applied AFTER the existing `event.eventData*` renames so the source keys exist (Task 6 already renamed them to `event.*`):**
+**Promotion map (bag → canonical), applied in this task:**
 
-| Bag field (post-Task-6) | Canonical target | Rationale |
-|---|---|---|
-| `event.eventDataObjectName` | `target.path` | the accessed object's full path |
-| `event.eventDataProcessName` | `origin.file` | the process that acted |
-| `event.eventCode` | *(keep in bag)* | no canonical slot; UI uses `event.eventCode` via dot-path term |
-| `event.eventDataAccessMask` | *(keep in bag)* | numeric mask; UI uses `event.eventDataAccessMask` |
-| `event.eventName` | *(keep in bag)* | human label; UI reads from `_source` |
-| `event.computer`, `event.cpuArchitecture`, `event.host.os.*`, `event.keywords`, `event.opcode`, `event.providerGuid`, `event.timestamp` | *(keep in bag)* | host/event metadata; no canonical slot |
+| Bag field (post-Task-6) | Canonical target | How | Why |
+|---|---|---|---|
+| `event.eventDataObjectName` | `target.path` | `rename` | accessed object's full path; `Side.path` exists |
+| `event.eventDataProcessName` | `origin.file` | `rename` | acting process; `Side.file` exists |
+| `event.eventName` | `action` | **grok-copy** (AWS idiom, `aws.yml:207-212`) | dashboard "Top events" charts on `action` (user decision); the copy — NOT a rename — keeps `event.eventName` for the file module's "Event name" column |
+| `event.eventCode`, `event.eventDataAccessMask`, `event.computer`, `event.host.os.*`, … | *(keep in bag)* | — | no `Side`/top-level slot; UI uses `event.*` dot-paths (Task 10 makes `term`/`terms` work) |
 
-**Do NOT promote `eventCode`/`accessMask`/`eventName`** to origin/target — they have no `Side` slot and forcing them would invent semantics. The file module filters them via the flattened `event.*` dot-path (Task 10 makes `term`/`terms` work there). Only `objectName→target.path` and `processName→origin.file` get canonical slots because `Side.path`/`Side.file` exist and are semantically correct.
+**Note:** `action` and `target.path`/`origin.file` are top-level/canonical — the scripted rename (Task 6) never touches them, and the promotions must be inserted AFTER Task 6's rename so their sources are already `event.*`.
 
-- [ ] **Step 1: Add the two promotion steps**
+- [ ] **Step 1: Add the two object-access promotions**
 
 In `filters/windows/windows-events.yml`, after the `event.eventDataProcessName` rename block (search for `to: event.eventDataProcessName`), insert:
 
@@ -502,27 +501,49 @@ In `filters/windows/windows-events.yml`, after the `event.eventDataProcessName` 
           to: origin.file
           where: exists("event.eventDataProcessName")
 ```
-(`rename` with `from`/`to` + `where` is the existing idiom in this file — e.g. the `origin.ip` promotion at ~line 142 uses exactly this shape.)
+(`rename` with `from`/`to` + `where` is the existing idiom in this file — e.g. the `origin.ip` promotion at ~line 142.)
 
-- [ ] **Step 2: Verify the promotions landed**
+- [ ] **Step 2: Promote `event.eventName` → `action` at the END of the pipeline**
+
+`event.eventName` is set by ~100 `add` steps scattered through the pipeline, so the promotion must run last to catch every computed value. Append at the very end of the `wineventlog` pipeline (after the final `log.authenticationCandidate.*` `add` block, ~line 3410):
+
+```yaml
+       # Copy event.eventName to the canonical action field (AWS idiom:
+       # aws.yml grok-copy). The copy — not a rename — preserves
+       # event.eventName for the file-management module's "Event name" column.
+       # The dashboard "Top events" chart aggregates on action.
+       - grok:
+           source: event.eventName
+           patterns:
+             - fieldName: action
+               pattern: '{{.greedy}}'
+           where: exists("event.eventName")
+```
+**Before appending, confirm nothing in this pipeline deletes or overwrites `action` after this point:**
+```powershell
+Select-String -Path filters/windows/windows-events.yml -Pattern 'action' | Select-Object -Last 8
+```
+The only existing `action*` writes in the Windows pipeline are `actionResult` `add` steps (~lines 3100-3137, which run BEFORE the append point) — confirm none target bare `action` and none `delete` it after the insert. If any does, insert the grok-copy after the last `action`-touching step instead of the file end.
+
+- [ ] **Step 3: Verify the promotions landed**
 
 ```powershell
-Select-String -Path filters/windows/windows-events.yml -Pattern "to: target\.path|to: origin\.file"
+Select-String -Path filters/windows/windows-events.yml -Pattern "to: target\.path|to: origin\.file|fieldName: action$"
 ```
-Expected: both lines present.
+Expected: the two `to:` lines plus exactly one `fieldName: action` (the grok-copy; confirm it is the LAST step in the file).
 
-- [ ] **Step 3: YAML validity**
+- [ ] **Step 4: YAML validity**
 
 ```powershell
 python -c "import yaml,sys; yaml.safe_load(open('filters/windows/windows-events.yml'))"
 ```
 Expected: no error.
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
 git add filters/windows/windows-events.yml
-git commit -m "feat(windows): promote object-access fields to origin.file/target.path"
+git commit -m "feat(windows): promote object-access to origin/target, eventName to action"
 ```
 
 ---
@@ -594,6 +615,7 @@ git commit -m "refactor(rules): rename log.* to event.* in CEL/afterEvents/group
 **Files:**
 - Modify: `installer/services/search.go`
 - Modify: `installer/setup/apply.go`
+- Modify: `installer/samples.go:93` (dormant `logx` emitter)
 - Test: `installer/services/search_test.go` (new)
 
 **Background:** The installer is the only code that creates the `v11-log-*` index template. Fresh installs run `InitOpenSearch()` (lock 7); upgrades run `UpdateOpenSearch()` (lock-gated). A composable template only affects **newly created** indices — existing indices need an explicit `_mapping` PUT (non-destructive: adding `event`/`controls`/typed top-levels doesn't touch the legacy dynamic `log` mapping, which old docs still use).
@@ -771,10 +793,22 @@ curl -sk -u admin:PASS https://localhost:9200/v11-log-testpin/_search -d '{"quer
 ```
 Expected: 1 hit (the first doc).
 
-- [ ] **Step 8: Commit**
+- [ ] **Step 8: Fix the dormant sample-doc emitter**
+
+`installer/samples.go:93` — its `Log` struct emits the bag under `logx` and `SendSampleData` is currently commented out at `apply.go:305`, but it would produce wrong-shaped docs if re-enabled:
+```go
+	Log        map[string]any `json:"logx"`
+```
+→
+```go
+	Event      map[string]any `json:"event"`
+```
+(update the `generateSample` body's `Log:` literal key to `Event:` in the same edit).
+
+- [ ] **Step 9: Commit**
 
 ```bash
-git add installer/services/search.go installer/services/search_test.go installer/setup/apply.go
+git add installer/services/search.go installer/services/search_test.go installer/setup/apply.go installer/samples.go
 git commit -m "feat(installer): pin v11-log-* event bag as flattened + controls keyword"
 ```
 
@@ -802,7 +836,8 @@ git commit -m "feat(installer): pin v11-log-* event bag as flattened + controls 
 | `NOT_ENDS_WITH` | `must_not wildcard *v` | `must_not wildcard` (unchanged) |
 | `CONTAIN` / `DOES_NOT_CONTAIN` | `query_string *v*` | `match` (analyzed-ish on keyword; acceptable) / `must_not match` |
 | `EXIST` / `DOES_NOT_EXIST` | `exists` | `exists` (unchanged, already works) |
-| `IS_BETWEEN` / `IS_GREATER_THAN` / `IS_LESS_THAN_OR_EQUALS` | `range` | `range` (works on flattened as lexical; UI won't offer for event.*, Task 13) |
+| `IS_BETWEEN` | `range` (no format) | unchanged — lexical range works on flattened |
+| `IS_GREATER_THAN` / `IS_LESS_THAN_OR_EQUALS` | `range` + `.format(date)` | **rejected with 400** — the date `format` clause is invalid on flattened keyword values; the UI never offers them on `event.*` (Task 12) |
 | `IS_IN_FIELDS` / `IS_NOT_IN_FIELDS` | `query_string defaultField:"*"` | unchanged (searches all fields incl. flattened subfields) |
 
 Detection is simple: the only flattened field we ship is named `event`, so any filter field starting with `event.` is flattened.
@@ -869,8 +904,37 @@ public class SearchUtilFlattenedTest {
         assertTrue(bool(q).must().stream().anyMatch(c -> c.wildcard() != null
             && c.wildcard().field().equals("event.message")));
     }
+
+    // --- sort guard (spec 4.6): sorting/aggregating on flattened must 400, not 500 ---
+
+    @Test
+    public void sortByFlattenedFieldThrowsApiExceptionBadRequest() {
+        var srb = new org.opensearch.client.opensearch.core.SearchRequest.Builder();
+        org.springframework.data.domain.Sort sort = org.springframework.data.domain.Sort.by(
+            org.springframework.data.domain.Sort.Order.asc("event.eventCode"));
+        var ex = assertThrows(com.park.utmstack.util.exceptions.ApiException.class,
+            () -> SearchUtil.applySort(srb, sort));
+        assertEquals(org.springframework.http.HttpStatus.BAD_REQUEST, ex.getStatus());
+    }
+
+    @Test
+    public void sortByNonFlattenedFieldDoesNotThrow() {
+        var srb = new org.opensearch.client.opensearch.core.SearchRequest.Builder();
+        org.springframework.data.domain.Sort sort = org.springframework.data.domain.Sort.by(
+            org.springframework.data.domain.Sort.Order.asc("action"));
+        assertDoesNotThrow(() -> SearchUtil.applySort(srb, sort));
+    }
+
+    @Test
+    public void dateFormattedRangeOnFlattenedFieldThrowsBadRequest() {
+        var ex = assertThrows(com.park.utmstack.util.exceptions.ApiException.class,
+            () -> SearchUtil.toQuery(List.of(f(OperatorType.IS_GREATER_THAN, "event.timestamp", "2026-01-01"))));
+        assertEquals(org.springframework.http.HttpStatus.BAD_REQUEST, ex.getStatus());
+    }
 }
 ```
+
+**`ApiException` import note:** `com.park.utmstack.util.exceptions.ApiException` (exists — see `backend/.../util/exceptions/ApiException.java`); it carries `getStatus()`, and `GlobalExceptionHandler.handleApiException` maps it to the carried status. `applySort` takes a Spring `Sort` (same type the resource passes in).
 
 - [ ] **Step 2: Run it and confirm it fails**
 
@@ -940,27 +1004,82 @@ Then add the flattened short-circuit at the top of each affected builder, after 
             return;
         }
 ```
+`buildIsGreaterThan` (line 366) and `buildIsLessThanOrEquals` (line 376) emit a `range` with a **date** `.format(Constants.INDEX_TIMESTAMP_FORMAT)` — invalid on flattened keyword values. Reject with a 400:
+```java
+        if (isFlattenedField(filter.getField())) {
+            throw new ApiException("Range comparison is not supported on flattened field [" + filter.getField()
+                + "]. Promote the field to a canonical typed field if you need numeric/date ranges.",
+                HttpStatus.BAD_REQUEST);
+        }
+```
+(Add the same two-line guard at the top of both methods — neither calls `filter.validate()`, so put the guard as the first statement.)
+
 `buildEndsWith` (line 309) / `buildNotEndsWith` (line 319): no change needed — `wildcard` is supported on flattened fields.
 
 `buildContainOperator` (line 142) / `buildDoesNotContainOperator` (line 194): no change needed — `query_string` is supported on flattened fields (it searches across the flattened sub-values).
 
 **`FieldValue` import:** `SearchUtil.java` already imports `org.opensearch.client.opensearch._types.FieldValue` (line 10). Use it unqualified.
 
-- [ ] **Step 4: Run the test**
+- [ ] **Step 4: Add the sort guard (spec §4.6)**
+
+`flattened` cannot be sorted or aggregated. Guard both sort entry points so an API caller sorting on `event.*` gets a clean **400**, not the current **500** (`RuntimeException` → `ElasticsearchResource` catch-all `INTERNAL_SERVER_ERROR`, which also logs a false application-error event).
+
+Add after the `isFlattenedField` helper:
+```java
+    private static void ensureNotFlattenedForSort(String field) {
+        if (isFlattenedField(field)) {
+            throw new ApiException("Sorting is not supported on flattened field [" + field
+                + "]. Promote the field to a canonical field (origin./target./top-level) if you need to sort by it.",
+                HttpStatus.BAD_REQUEST);
+        }
+    }
+```
+(`ApiException` = `com.park.utmstack.util.exceptions.ApiException`, imported at top; `HttpStatus` = `org.springframework.http.HttpStatus`.)
+
+In `applySort` (line 402), inside the `sort.forEach` lambda, call the guard before building the sort:
+```java
+            else
+                sort.forEach(order -> {
+                    ensureNotFlattenedForSort(order.getProperty());
+                    srb.sort(s -> s.field(f -> f.field(order.getProperty())
+                        .order(order.isAscending() ? SortOrder.Asc : SortOrder.Desc)));
+                });
+```
+In `applyPaginationAndSort` (line 424), same guard in its `sort.forEach` (line 441):
+```java
+            if (sort.isSorted()) {
+                sort.forEach(order -> {
+                    ensureNotFlattenedForSort(order.getProperty());
+                    srb.sort(s -> s.field(f -> f.field(order.getProperty())
+                        .order(order.isAscending() ? SortOrder.Asc : SortOrder.Desc)));
+                });
+            } else {
+```
+Keep each method's existing try/catch — `ApiException` is a `RuntimeException` and propagates out of the lambda, is caught, and must **not** be re-wrapped. Change **three** catch blocks (both sort methods AND `toQuery` at line 117) from `catch (Exception e) { throw new RuntimeException(...) }` to:
+```java
+        } catch (ApiException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException(ctx + ": " + e.getMessage());
+        }
+```
+The `toQuery` rethrow matters: the date-format range guards (Step 4) throw `ApiException` from inside `buildIsGreaterThan`/`buildIsLessThanOrEquals`, and without it `toQuery`'s catch-all would wrap it into a `RuntimeException` → 500 instead of the tested 400.
+
+- [ ] **Step 5: Run the tests**
 
 Run: `cd backend && mvn -s settings.xml -B test -Dtest=SearchUtilFlattenedTest`
-Expected: PASS.
+Expected: PASS (all 7 tests, including the two sort-guard tests).
 
-- [ ] **Step 5: Build the backend**
+- [ ] **Step 6: Build the backend**
 
 Run: `cd backend && mvn -s settings.xml -B compile`
 Expected: BUILD SUCCESS.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
 git add backend/src/main/java/com/park/utmstack/service/elasticsearch/
-git commit -m "feat(backend): SearchUtil emits term/terms/prefix for flattened event.* fields"
+git commit -m "feat(backend): SearchUtil flattened-aware queries + 400 on event.* sort"
 ```
 
 ---
@@ -969,23 +1088,73 @@ git commit -m "feat(backend): SearchUtil emits term/terms/prefix for flattened e
 
 **Repo:** `utmstack/UTMStack`
 **Files:**
+- Modify: `backend/src/main/java/com/park/utmstack/service/overview/OverviewService.java:265-276`
 - Modify: `backend/src/main/java/com/park/utmstack/config/Constants.java:72-73`
+- Delete: `backend/src/main/java/com/park/utmstack/domain/shared_types/LogType.java` (dead)
+- Modify: `backend/src/main/java/com/park/utmstack/service/impl/UtmAlertServiceImpl.java` (drop dead `getRelatedAlerts`)
 - Modify: `backend/src/main/java/com/park/utmstack/domain/shared_types/alert/Event.java:36,51-53`
+- Modify: `backend/src/main/java/com/park/utmstack/service/MailService.java:10,373,383`
 - Modify: `user-auditor/src/main/java/com/utmstack/userauditor/model/event/Event.java:21`
 - Modify: `user-auditor/src/main/java/com/utmstack/userauditor/service/UserService.java` (9 call sites)
 - Modify: `user-auditor/src/main/java/com/utmstack/userauditor/service/elasticsearch/Constants.java:14`
+- Modify: `user-auditor/src/main/java/com/utmstack/userauditor/service/Impl/ElasticsearchService.java:93`
 
-**Background:** Three separate consumers read the bag from OpenSearch docs: (1) the backend's alert related-logs CSV — `shared_types/alert/Event.java:36` maps `Map<String,Object> log` (used by `MailService.buildRelatedEventCsvAttachment` via `getLogxFlatted()`); (2) user-auditor's own `Event` model (`model/event/Event.java:21`), read in `UserService`; (3) the dead `logx` constants in `backend/.../config/Constants.java:72-73`. All move to `event` (user decision: read `event` only, no dual-read). Separately, `DefinitionSyncService` (a `CommandLineRunner`) resyncs Postgres from the `filters/`+`rules/` filesystem at every backend start — it updates/creates filters (matched by content hash) and updates rules (matched by `rule_name`), deleting orphans. So the repo YAML rename (Tasks 6/8) self-heals the DB on next backend boot; **no liquibase rename is needed.** The one caveat: a renamed filter no longer matches by content, so it's deleted + re-created with a **new ID** — we verify in Step 6 that nothing references filter IDs by value.
+**Background:** Five consumers read the bag from OpenSearch docs, all move to `event` (user decision: read `event` only, no dual-read):
+1. **`OverviewService.topWindowsEvents()`** (the "Top Windows Events" dashboard table) — filters on `logx.wineventlog.log_name.keyword` IS "Security" and terms-aggregates `logx.wineventlog.event_name.keyword` over `v11-log-wineventlog-*`. `logx` is dead v10 (new docs have no `logx` at all), so this table is **already empty for new data**; after the rename it must use `event`/`action`. A terms agg on the flattened `event` is impossible, so the dimension becomes `action.keyword` (populated by Task 7's `eventName→action` promotion) and the filter becomes `event.eventCode` IN the file-event set (flat-keyword `term`, supported on flattened — Task 10).
+2. The backend's alert related-logs CSV — `shared_types/alert/Event.java:36` maps `Map<String,Object> log` (used by `MailService.buildRelatedEventCsvAttachment` via `getLogxFlatted()`).
+3. `LogType` model (`shared_types/LogType.java:23` maps `logx`) — its only user, `UtmAlertServiceImpl.getRelatedAlerts` (line 137), is a private method with **no callers** (verified); `MailService` imports `LogType` but its CSV path uses the alert `Event` model. Both are dead — delete.
+4. user-auditor's `Event` model (`model/event/Event.java:21`), read in `UserService`.
+5. user-auditor `ElasticsearchService.searchBySid` (line 93) queries `LOG_WINLOG_EVENT_DATA_TARGET_USER_SID_KEYWORD` (= `log.winlogEventDataTargetUserSid.keyword`) with **`matchPhrase`** — invalid on flattened (no `match_phrase`, no `.keyword` subfield) → `term` on `event.winlogEventDataTargetUserSid`.
 
-- [ ] **Step 1: Remove the dead `logx` constants**
+Separately, `DefinitionSyncService` (a `CommandLineRunner`) resyncs Postgres from the `filters/`+`rules/` filesystem at every backend start — it updates/creates filters (matched by content hash) and updates rules (matched by `rule_name`), deleting orphans. So the repo YAML rename (Tasks 6/8) self-heals the DB on next backend boot; **no liquibase rename is needed.** The one caveat: a renamed filter no longer matches by content, so it's deleted + re-created with a **new ID** — we verify in Step 8 that nothing references filter IDs by value.
 
-First confirm nothing references them:
-```powershell
-Get-ChildItem backend,user-auditor -Recurse -Filter *.java | Select-String -Pattern "logxWineventlog" | Select-Object Path,Line
+- [ ] **Step 1: Fix `OverviewService.topWindowsEvents` (the live `logx` consumer)**
+
+`backend/.../service/overview/OverviewService.java`, in `topWindowsEvents` (~lines 265-276). The current body:
+```java
+        List<FilterType> filters = new ArrayList<>();
+        filters.add(new FilterType(Constants.timestamp, OperatorType.IS_BETWEEN, List.of(from, to)));
+        filters.add(new FilterType(Constants.logxWineventlogLogNameKeyword, OperatorType.IS, "Security"));
+
+        SearchRequest rq = SearchRequest.of(s -> s.size(0).query(SearchUtil.toQuery(filters))
+            .index(Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.LOGS_WINDOWS))
+            .aggregations(AGG_NAME, agg -> agg.terms(t -> t.field(Constants.logxWineventlogEventNameKeyword)
+                .size(top).order(List.of(Map.of("_count", SortOrder.Desc))))));
 ```
-Expected: only `Constants.java:72-73`. Delete those two lines.
+becomes (filter on the flattened `event.eventCode` for the file/Security object-access events — `term` via Task 10; aggregate on the typed `action.keyword`):
+```java
+        List<FilterType> filters = new ArrayList<>();
+        filters.add(new FilterType(Constants.timestamp, OperatorType.IS_BETWEEN, List.of(from, to)));
+        filters.add(new FilterType("event.eventCode", OperatorType.IS_ONE_OF_TERMS,
+            List.of("4656", "4658", "4659", "4660", "4661", "4662", "4663", "4664", "4670")));
 
-- [ ] **Step 2: Rename the backend alert Event model field**
+        SearchRequest rq = SearchRequest.of(s -> s.size(0).query(SearchUtil.toQuery(filters))
+            .index(Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.LOGS_WINDOWS))
+            .aggregations(AGG_NAME, agg -> agg.terms(t -> t.field("action.keyword")
+                .size(top).order(List.of(Map.of("_count", SortOrder.Desc))))));
+```
+The event-ID list (4656/4658-4664/4670) mirrors the file-management module's `ALL_FILE_EVENT_ID_NUMBER` (`file-field.constant.ts:794`) so the table shows object-access events, matching the old "log_name = Security" intent. `action.keyword` exists for wineventlog only after Task 7 ships — coordinate (this method returns an empty table if the index predates it; that's the pre-rename state anyway).
+
+- [ ] **Step 2: Remove the dead `logx` constants + dead `LogType`/`getRelatedAlerts`**
+
+First confirm the constant's only consumer is now gone:
+```powershell
+Get-ChildItem backend -Recurse -Filter *.java | Select-String -Pattern "logxWineventlog" | Select-Object Path,Line
+```
+Expected: only `Constants.java:72-73`. Delete those two lines in `backend/.../config/Constants.java`.
+
+Then delete the dead model + dead method:
+```bash
+rm backend/src/main/java/com/park/utmstack/domain/shared_types/LogType.java
+```
+In `backend/.../service/impl/UtmAlertServiceImpl.java`: delete the `getRelatedAlerts` method (lines 137-159) and its `import com.park.utmstack.domain.shared_types.LogType;` (line 13). In `backend/.../service/MailService.java`: delete `import com.park.utmstack.domain.shared_types.LogType;` (line 10).
+Verify no remaining references:
+```powershell
+Get-ChildItem backend -Recurse -Filter *.java | Select-String -Pattern "\bLogType\b|getRelatedAlerts" | Select-Object Path,Line
+```
+Expected: zero hits.
+
+- [ ] **Step 3: Rename the backend alert Event model field**
 
 `backend/.../domain/shared_types/alert/Event.java:36` — change:
 ```java
@@ -1003,7 +1172,7 @@ and the flatten helper at lines 51–53:
 ```
 (Lombok `@Data`/`@Getter` regenerates `getEvent()`/`setEvent(...)` automatically; keep the method name change.)
 
-- [ ] **Step 3: Update `MailService` callers of the flatten helper**
+- [ ] **Step 4: Update `MailService` callers of the flatten helper**
 
 `backend/.../service/MailService.java:373,383` — replace `getLogxFlatted()` with `getEventFlatted()`:
 ```java
@@ -1012,7 +1181,7 @@ and the flatten helper at lines 51–53:
                         cells[i] = value.getEventFlatted().computeIfPresent(headers.get(i), (kk, vv) -> vv);
 ```
 
-- [ ] **Step 4: Rename the user-auditor model field**
+- [ ] **Step 5: Rename the user-auditor model field**
 
 `user-auditor/.../model/event/Event.java:21` — change:
 ```java
@@ -1024,7 +1193,7 @@ to:
 ```
 (If the model has explicit getters/setters, rename `getLog()`/`setLog(...)` → `getEvent()`/`setEvent(...)`. Check the file for `@Data`/`@Getter`/`@Setter` first.)
 
-- [ ] **Step 5: Update `UserService` call sites + null-guard**
+- [ ] **Step 6: Update `UserService` call sites + null-guard**
 
 In `user-auditor/.../service/UserService.java`, replace every `eventLog.getLog()` / `e.getLog()` / `s.getLog()` with `getEvent()` (lines 113, 117, 118, 141, 145, 146, 153, 160, 164, 169). E.g. line 113:
 ```java
@@ -1037,20 +1206,38 @@ In `user-auditor/.../service/UserService.java`, replace every `eventLog.getLog()
         }
 ```
 
-- [ ] **Step 6: Update user-auditor OS constant + verify no filter-ID references**
+- [ ] **Step 7: Update user-auditor OS constant + its `matchPhrase` query + verify no filter-ID references**
 
 `user-auditor/.../service/elasticsearch/Constants.java:14`:
 ```java
     public static final String LOG_WINLOG_EVENT_DATA_TARGET_USER_SID_KEYWORD = "event.winlogEventDataTargetUserSid";
 ```
-(flattened has no `.keyword` subfield — drop the suffix. Confirm the query using this constant is a `term`/`filter_term`.)
+(flattened has no `.keyword` subfield — drop the suffix.)
 
+**The constant's only consumer uses `matchPhrase`, which flattened rejects** — `user-auditor/.../service/Impl/ElasticsearchService.java:93` (in `searchBySid`):
+```java
+    shouldList.should(f -> f.matchPhrase(m -> m.field(Constants.LOG_WINLOG_EVENT_DATA_TARGET_USER_SID_KEYWORD).query(St...
+```
+change to a `term` query (exact keyword match — the correct semantics for a SID):
+```java
+    shouldList.should(f -> f.term(t -> t.field(Constants.LOG_WINLOG_EVENT_DATA_TARGET_USER_SID_KEYWORD)
+        .value(org.opensearch.client.opensearch._types.FieldValue.of(St...
+```
+(match the existing value expression already passed to `.query(...)`; keep the rest of the lambda unchanged.)
+
+**Note:** user-auditor has its own `SearchUtil` (not the backend's Task 10 one) — it does NOT need the flattened translation because its bag queries all go through this `term` fix + the `UserService` `_source` reads; its other filters target `@timestamp`/`target.user.keyword` (typed). Verify no user-auditor query path builds a `match_phrase` on an `event.*` field:
+```powershell
+Get-ChildItem user-auditor/src -Recurse -Filter *.java | Select-String -Pattern 'event\.' | Select-Object Path,Line
+```
+Expected: only `Constants.java:14` and the new `UserService.getEvent()` reads.
+
+Verify no filter-ID-by-value references (the Task 6 rename re-creates filters with new IDs):
 ```powershell
 Get-ChildItem backend,user-auditor,frontend -Recurse -Include *.java,*.ts,*.sql,*.xml | Select-String -Pattern "utm_logstash_filter.*id\s*=\s*\d|filterId\s*=\s*\d" | Select-Object -First 10 Path,Line
 ```
 Expected: no hard-coded filter IDs (if found, note them — a re-created filter gets a new ID).
 
-- [ ] **Step 7: Build both**
+- [ ] **Step 8: Build both**
 
 ```powershell
 cd backend; mvn -s settings.xml -B compile
@@ -1074,6 +1261,13 @@ git commit -m "feat(backend,user-auditor): read event bag, drop dead logx"
 - Modify: `frontend/src/app/shared/enums/elastic-data-types.enum.ts`
 - Modify: `frontend/src/app/shared/components/utm/filters/utm-elastic-filter/shared/util/operator.service.ts`
 - Modify: `frontend/src/app/shared/components/utm/filters/utm-elastic-filter/elastic-filter-add/elastic-filter-add.component.ts`
+- Modify: `frontend/src/app/shared/components/utm/table/utm-table/dynamic-table/dynamic-table.component.ts`
+- Modify: `frontend/src/app/graphic-builder/chart-builder/chart-property-builder/shared/functions/util-field.ts`
+- Modify: `backend/.../service/overview/OverviewService.java` (topWindowsEvents)
+- Delete: `backend/.../domain/shared_types/LogType.java` (dead `logx` model)
+- Modify: `backend/.../service/impl/UtmAlertServiceImpl.java` (drop dead `getRelatedAlerts`)
+- Modify: `user-auditor/.../service/Impl/ElasticsearchService.java:93` (searchBySid query)
+- Modify: `plugins/soc-ai/internal/alert/transform.go` (direct `LastEvent.Log` struct access)
 
 **Background:** The connector returns OS field types as strings; a `flattened` field arrives as type `"flattened"`. The operator list is derived from the field type (`operator.service.ts`), and the value box is either an `ng-select` (multi-value operators, driven by `applySelectFilter()`) or a plain `<input>`. For a flattened field: add the type, restrict operators to the flattened-compatible set (the backend Task 10 translates `IS`/`IS_NOT`/`IS_ONE_OF`/`IS_NOT_ONE_OF`/`START_WITH`/`NOT_START_WITH`; `IS_ONE_OF_TERMS` already emits `terms` and needs no translation; everything else on `event.*` is unsupported), and force the plain input for single-value operators so the user types a dot-path value (e.g. `eventCode: 4624`).
 
@@ -1094,12 +1288,11 @@ git commit -m "feat(backend,user-auditor): read event bag, drop dead logx"
           value.operator === ElasticOperatorsEnum.IS_NOT ||
           value.operator === ElasticOperatorsEnum.IS_ONE_OF ||
           value.operator === ElasticOperatorsEnum.IS_NOT_ONE_OF ||
-          value.operator === ElasticOperatorsEnum.IS_ONE_OF_TERMS ||
           value.operator === ElasticOperatorsEnum.START_WITH ||
           value.operator === ElasticOperatorsEnum.NOT_START_WITH);
       }
 ```
-`IS_ONE_OF_TERMS` is included deliberately: the backend already emits `terms` for it (`SearchUtil.buildIsOneOfTermsOperator`, no translation needed) and Task 13 relies on it for numeric-id filters on flattened fields.
+**Do NOT include `IS_ONE_OF_TERMS` here**: it is only offered through the multi-value `selectableOperators` path in `applySelectFilter()` (Step 3). If it were available with the plain `<input>` (single string value), the backend's `buildIsOneOfTermsOperator` would cast the value to a `List` and throw a `ClassCastException` → 500. Programmatic filters (Task 13 file module) build `IS_ONE_OF_TERMS` with real array values directly — they don't go through this operator list, so they are unaffected.
 
 - [ ] **Step 3: Use the plain value input for flattened single-value ops**
 
@@ -1114,7 +1307,48 @@ git commit -m "feat(backend,user-auditor): read event bag, drop dead logx"
 ```
 This makes `IS`/`IS_NOT`/`START_WITH`/`NOT_START_WITH` (single-value) render the plain `<input>`, while `IS_ONE_OF`/`IS_NOT_ONE_OF` (in `selectableOperators`) render the tag-adding `ng-select` — both send the dot-path value the backend Task 10 turns into a `term`/`terms`.
 
-- [ ] **Step 4: Build the frontend**
+- [ ] **Step 4: Don't offer sorting on flattened columns (spec §4.6)**
+
+`frontend/.../utm-table/dynamic-table/dynamic-table.component.ts` — `isSortableColumn()` (line 150) returns `true` for every non-text column today, so a `flattened` column header would be clickable and a sort click would hit the backend 400 (Task 10) or, pre-fix, a 500. Make flattened columns non-sortable:
+
+```ts
+  isSortableColumn(column: UtmFieldType): boolean {
+    if (column.type === ElasticDataTypesEnum.FLATTENED) {
+      return false;
+    }
+    if (column.type === ElasticDataTypesEnum.TEXT || column.type === ElasticDataTypesEnum.STRING) {
+      return column.field.includes('.keyword');
+    } else {
+      return true;
+    }
+  }
+```
+(`dynamic-table.component.ts` already imports `ElasticDataTypesEnum` — confirm at the top of the file; the `FLATTENED` member comes from Step 1.)
+
+This is the UI-side gate; the backend 400 (Task 10) is defense-in-depth for direct API calls.
+
+- [ ] **Step 5: Exclude flattened columns from chart dimensions**
+
+`flattened` fields can't be aggregated, so they must not be offered as a chart-builder bucket/dimension. The single hook is `filterFieldAgg`, which feeds the bucket picker (`bucket-aggregation.component.ts:60`):
+
+`frontend/src/app/graphic-builder/chart-builder/chart-property-builder/shared/functions/util-field.ts` — change:
+```ts
+export function filterFieldAgg(fields: ElasticSearchFieldInfoType[]): ElasticSearchFieldInfoType[] {
+  return fields.filter(value => {
+    if (value.type === ElasticDataTypesEnum.FLATTENED) {
+      return false;
+    }
+    if (value.type !== ElasticDataTypesEnum.TEXT) {
+      return true;
+    } else {
+      return value.name.includes('.keyword');
+    }
+  });
+}
+```
+(The metric field picker is already numeric-only — `metric-aggregation.component.ts:137` filters to LONG/FLOAT — so `flattened` is already excluded there; no change needed.)
+
+- [ ] **Step 6: Build the frontend**
 
 ```powershell
 cd frontend
@@ -1122,11 +1356,11 @@ NODE_OPTIONS=--max_old_space_size=8192 npm run build
 ```
 Expected: build succeeds (Node 14.16.1 per AGENTS.md).
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
 git add frontend/
-git commit -m "feat(frontend): support flattened event field in filter UI"
+git commit -m "feat(frontend): flattened type, restricted operators, no sort on event.*"
 ```
 
 ---
@@ -1204,20 +1438,17 @@ Every filter in `setFiltersByFileType` that targets a flattened `event.*` field 
 ```
 Single scalar values become `[String(x)]`. The `@timestamp` `IS_BETWEEN` is unchanged (date field).
 
-- [ ] **Step 4: Migrate the dashboard "Top events" chart to `action`**
+- [ ] **Step 4: Fix the dashboard "Top events" click-through + stored chart**
 
-`frontend/.../dashboard-overview/dashboard-overview.component.ts` lines 61-69:
+Two things, because `paramsTopEvent`/`paramEvenTopCLick` (lines 61-69) are **not** the chart's dimension — they are the **click-through navigation params** (where clicking a chart bucket sends the user):
+
+(a) Update the click-through target in `dashboard-overview.component.ts`:
 ```ts
-  paramsTopEvent = {
-    '@timestamp': null,
-    'dataType.keyword': 'wineventlog',
-    'action.keyword': null,
-    patternId: IndexPatternSystemEnumID.LOG,
-    indexPattern: IndexPatternSystemEnumName.LOG
-  };
-  paramEvenTopCLick = 'action.keyword';
+  paramEvenTopCLick = 'action.keyword';   // was 'logx.wineventlog.event_name.keyword' (dead v10 field)
 ```
-**Known limitation (note in PR):** the Windows filter sets `actionResult`, not `action`, so wineventlog docs have empty `action` → this chart shows empty for that data type until the Windows filter promotes a value to `action`. If that's unacceptable, use `dataType.keyword` as the dimension instead (always populated).
+`paramsTopEvent` keeps its `dataType.keyword: 'wineventlog'` filter (still valid) and `action` is now populated by the Task 7 promotion.
+
+(b) The **chart dimension itself** lives in the stored visualization (the `utm_visualization` DB row rendered by `runList`/`visualizationRender`). The seeded chart references the dead `logx.wineventlog.event_name.keyword` and won't show data for new docs. During E2E (Task 15 Step 2, item 7), **re-save the "Top events" chart with dimension `action`** (keyword) via the graphic builder — or, if a seed for that visualization exists in liquibase, update it in the same commit. Note which in the PR.
 
 - [ ] **Step 5: AD raw-read fields `log`→`event`**
 
@@ -1248,36 +1479,108 @@ git commit -m "feat(frontend): file module uses origin/target+event, dashboard o
 
 ---
 
-## Task 14: UTMStack alerts plugin — update contract-test fixtures
+## Task 14: UTMStack plugins — soc-ai direct `.Log` struct access + go-sdk bump
 
 **Repo:** `utmstack/UTMStack`
-**Files:** `plugins/alerts/*_test.go` (any fixture building `Event{Log: ...}` or asserting a `log` JSON key)
+**Files:**
+- Modify: `plugins/soc-ai/internal/alert/transform.go:52,63`
+- Modify: `plugins/soc-ai/go.mod` (+ `go.sum`)
+
+**Background:** `soc-ai` accesses the bag **directly as a Go struct field** (`alert.LastEvent.Log`) — not via protojson — so the go-sdk regen (Task 1) alone doesn't rename it for this plugin: it won't compile against the new SDK until fixed. The sweep confirmed it is the ONLY plugin doing this (all other `.Log` hits in Go are the `plugins.Log` gRPC input message — do NOT touch those).
+
+- [ ] **Step 1: Bump go-sdk in `plugins/soc-ai/go.mod`**
+
+```powershell
+cd plugins/soc-ai
+(Get-Content go.mod -Raw).Replace('github.com/threatwinds/go-sdk v<OLD_TAG>', 'github.com/threatwinds/go-sdk <NEXT_TAG>') | Set-Content go.mod
+go mod tidy
+```
+(`<OLD_TAG>` = whatever it currently pins; `<NEXT_TAG>` = the Task 2 tag.)
+Expected: `go build ./...` FAILS at `transform.go` with `alert.LastEvent.Log undefined (type *plugins.Event has no field or method Log)` — this is the compile error that proves the dependency.
+
+- [ ] **Step 2: Fix the struct access**
+
+`plugins/soc-ai/internal/alert/transform.go` — change line 52:
+```go
+		if alert.LastEvent.Log != nil {
+			for key, val := range alert.LastEvent.Log {
+```
+to:
+```go
+		if alert.LastEvent.Event != nil {
+			for key, val := range alert.LastEvent.Event {
+```
+and line 63:
+```go
+						alert.LastEvent.Log[key] = structpb.NewStringValue(cleaned)
+```
+to:
+```go
+						alert.LastEvent.Event[key] = structpb.NewStringValue(cleaned)
+```
+Leave line 64 (`anonymized = append(anonymized, "lastEvent.log."+key)`) — it's an audit-report string, cosmetic only.
+
+- [ ] **Step 3: Build**
+
+```powershell
+cd plugins/soc-ai
+go build ./...
+```
+Expected: PASS.
+
+- [ ] **Step 4: Sweep every UTMStack plugin module for the same pattern (safety net)**
+
+```powershell
+cd plugins
+Get-ChildItem -Recurse -Filter *.go | Select-String -Pattern '\.LastEvent\.Log|\.Events\[\d+\]\.Log|Event\.Log\b' | Select-Object Path,LineNumber,Line
+```
+Expected: zero hits. If any appear, apply the same `.Log`→`.Event` fix within that module before proceeding.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add plugins/soc-ai/
+git commit -m "fix(soc-ai): access Event.Event bag after go-sdk rename"
+```
+
+---
+
+## Task 15: UTMStack alerts plugin — update contract-test fixtures
+
+**Repo:** `utmstack/UTMStack`
+**Files:** `plugins/alerts/*_test.go` (any fixture building `Event{Log: ...}` or asserting a `log` JSON key) + `plugins/alerts/go.mod`
 
 **Background:** The alerts plugin's contract tests build `plugins.Event` objects and assert on their JSON. After the go-sdk rename they must use `Event{Event: ...}` and assert `event.*`.
 
-- [ ] **Step 1: Find the affected fixtures**
+- [ ] **Step 1: Bump go-sdk in `plugins/alerts/go.mod`**
+
+```powershell
+cd plugins/alerts
+(Get-Content go.mod -Raw).Replace('github.com/threatwinds/go-sdk v<OLD_TAG>', 'github.com/threatwinds/go-sdk <NEXT_TAG>') | Set-Content go.mod
+go mod tidy
+```
+(`<OLD_TAG>` = whatever it currently pins; `<NEXT_TAG>` = the Task 2 tag.)
+
+- [ ] **Step 2: Find the affected fixtures**
 
 ```powershell
 cd plugins/alerts
 Get-ChildItem -Recurse -Filter *_test.go | Select-String -Pattern "Log:\s*map\[|Event\{Log:|\"log\"" | Select-Object Path,LineNumber
 ```
 
-- [ ] **Step 2: Rename `Event{Log:` → `Event{Event:` and `"log"` → `"event"` in fixtures**
+- [ ] **Step 3: Rename `Event{Log:` → `Event{Event:` and `"log"` → `"event"` in fixtures**
 
 Only where it refers to the Event bag (not the `plugins.Log` gRPC message, not logger calls). For each hit, change the struct literal and any JSON key assertion.
 
-- [ ] **Step 3: Bump go-sdk + run the suite**
+- [ ] **Step 4: Run the suite**
 
 ```powershell
 cd plugins/alerts
-(Get-Content go.mod -Raw).Replace('github.com/threatwinds/go-sdk v<OLD_TAG>', 'github.com/threatwinds/go-sdk <NEXT_TAG>') | Set-Content go.mod
-go mod tidy
 go test ./... -count=1
 ```
-(`<OLD_TAG>` = whatever `go.mod` currently pins; `<NEXT_TAG>` = the Task 2 tag.)
 Expected: PASS. Pre-existing v11 failures noted in repo memory (`TestWindowsAwarenessRules`, `TestBitdefenderActionResultRaw`, 3 O365 subtests) are NOT ours — confirm no NEW failures.
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
 git add plugins/alerts/
@@ -1286,13 +1589,13 @@ git commit -m "test(alerts): update fixtures to event bag rename"
 
 ---
 
-## Task 15: E2E verification + coordinated rollout + rollback
+## Task 16: E2E verification + coordinated rollout + rollback
 
 **No code** — verification + release coordination.
 
 - [ ] **Step 1: Coordinated RC deploy**
 
-Deploy together (one release): go-sdk `<NEXT_TAG>`, EventProcessor base `<NEW_BASE>` (Task 5), UTMStack filters/rules/installer/backend/frontend (Tasks 6–14). Set `TW_EVENT_PROCESSOR_VERSION_PROD` to `<NEW_BASE>` **only after** the UTMStack release with renamed filters/rules is cut (repo memory: engine + filters ship in separate pipelines and must be coordinated, or you ship new-engine/old-filters = silent breakage).
+Deploy together (one release): go-sdk `<NEXT_TAG>`, EventProcessor base `<NEW_BASE>` (Task 5), UTMStack filters/rules/installer/backend/frontend/plugins (Tasks 6–15). Set `TW_EVENT_PROCESSOR_VERSION_PROD` to `<NEW_BASE>` **only after** the UTMStack release with renamed filters/rules is cut (repo memory: engine + filters ship in separate pipelines and must be coordinated, or you ship new-engine/old-filters = silent breakage).
 
 - [ ] **Step 2: End-to-end test on the RC instance**
 
@@ -1305,12 +1608,18 @@ curl -sk -XPUT -u admin:PASS https://OS/v11-log-testconflict/_doc/2 -d '{"event"
 # 3) CEL rule fires on event.* (e.g. Windows ntds rule on event.eventCode/event.eventDataObjectName)
 # 4) correlation afterEvents on event.* finds prior event.* docs
 # 5) UI: Log Analyzer field picker lists "event" (flattened); filter event.eventCode=4624 returns rows
-# 6) UI: file-management columns render origin.file / target.path; event.* dot-path filter works
-# 7) UI: dashboard "Top events" chart renders (action buckets; empty for wineventlog — accepted)
+# 6) UI: file-management columns render origin.file / target.path (sortable); event.* dot-path filter works; event.* columns NOT sortable
+# 7) UI: dashboard "Top events" chart renders wineventlog buckets on action (populated by the Task 7 eventName->action promotion)
 # 8) user-auditor: /winlogbeat-info-by-filter returns rows (event.eventCode read)
 # 9) controls: index a doc with controls:["NIST-800-53-AC-3"]; term query on controls returns it
 # 10) confirm cel_analysis.sock exists in the worker (dead cel = no rules fire; repo memory)
+# 11) backend "Top Windows Events" table (OverviewService.topWindowsEvents): returns action buckets, not empty
+# 12) sort 400: API call sorting on a flattened field -> HTTP 400 (not 500)
+curl -sk -o /dev/null -w "%{http_code}`n" -u admin:PASS -XPOST "https://UTM/api/elasticsearch/search?top=10&indexPattern=v11-log-wineventlog-*&pageable.sort=event.eventCode,asc"
+# 13) typed sort still works: same call with sort=origin.port,desc -> 200
+curl -sk -o /dev/null -w "%{http_code}`n" -u admin:PASS -XPOST "https://UTM/api/elasticsearch/search?top=10&indexPattern=v11-log-*&pageable.sort=origin.port,desc"
 ```
+Expected: 1) `"event"` present, no `"log"` key; 2) both 201; 5-9) as described; 11) action buckets; 12) `400`; 13) `200`.
 
 - [ ] **Step 3: Confirm old-data behavior**
 
@@ -1333,4 +1642,4 @@ SELECT count(*) FROM utm_correlation_rules WHERE rule_definition_def LIKE '%log.
 
 - [ ] **Step 6: Close out**
 
-Mark this plan complete; record in `.opencode/MEMORY.md`: `logx` is dead v10; the event bag is `flattened` under `event` (new data only); `controls` is reserved for compliance; file-management uses `origin.file`/`target.path` + `event.*` dot-paths; backend `SearchUtil` is flattened-aware.
+Mark this plan complete; record in `.opencode/MEMORY.md`: `logx` is dead v10; the event bag is `flattened` under `event` (new data only); `controls` is reserved for compliance; file-management uses `origin.file`/`target.path` + `event.*` dot-paths; backend `SearchUtil` is flattened-aware (term/terms/prefix, 400 on sort/range). Missed-deps closed by the full sweep: `OverviewService.topWindowsEvents` (logx filter+agg → event.eventCode + action.keyword), user-auditor `searchBySid` (matchPhrase→term on event.winlogEventDataTargetUserSid), backend dead `LogType`/`getRelatedAlerts` deleted, `installer/samples.go` dormant `logx` emitter → `event`, `plugins/soc-ai` direct `LastEvent.Log` struct access → `.Event`.
