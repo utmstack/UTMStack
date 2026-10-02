@@ -244,16 +244,10 @@ pipeline:
             - event.data.ProcessName
           to: event.eventDataProcessName
 
-      # Object-access fields COPIED to canonical origin/target so the
+      # Object-access field COPIED to canonical origin so the
       # file-management module can filter on typed (non-flattened) fields.
-      # Copies, not renames: Windows rules read event.eventDataObjectName /
-      # event.eventDataProcessName directly, so the bag keys must survive.
-      - grok:
-          source: event.eventDataObjectName
-          patterns:
-            - fieldName: target.path
-              pattern: (?s)^.+$
-          where: exists("event.eventDataObjectName")
+      # Copy, not rename: Windows rules read event.eventDataProcessName
+      # directly, so the bag key must survive.
       - grok:
           source: event.eventDataProcessName
           patterns:
@@ -497,6 +491,17 @@ pipeline:
           from:
             - event.data.ObjectName
           to: event.eventDataObjectName
+
+      # Object-access field COPIED to canonical target so the
+      # file-management module can filter on typed (non-flattened) fields.
+      # Copy, not rename: Windows rules read event.eventDataObjectName
+      # directly, so the bag key must survive.
+      - grok:
+          source: event.eventDataObjectName
+          patterns:
+            - fieldName: target.path
+              pattern: (?s)^.+$
+          where: exists("event.eventDataObjectName")
 
       - rename:
           from:
