@@ -1187,7 +1187,21 @@
       "secret.ldap": "Bind password",
       "secretHintCreate": "Stored encrypted and never shown again.",
       "secretHintEdit": "Leave blank to keep the stored one.",
-      "secretUnchanged": "unchanged"
+      "secretUnchanged": "inchangé",
+      "errors": {
+        "required": "Ce champ est obligatoire.",
+        "url": "Doit être une URL http(s) valide.",
+        "httpsUrl": "Doit être une URL https valide.",
+        "hostname": "Saisissez un hôte ou une IP sans schéma (ex. ldap.exemple.fr).",
+        "port": "Le port doit être un nombre entier entre 1 et 65535.",
+        "pemCertificate": "Ne ressemble pas à un certificat PEM (-----BEGIN/END CERTIFICATE----- manquant).",
+        "pemKey": "Ne ressemble pas à une clé privée PEM (-----BEGIN/END PRIVATE KEY----- manquant).",
+        "userFilterPlaceholder": "Le filtre doit contenir %s, là où est placée l'adresse de connexion.",
+        "userFilterUnbalanced": "Parenthèses déséquilibrées — la recherche ne renverra rien.",
+        "nameFormat": "Utilisez lettres, chiffres, points, tirets ou tirets bas (64 max). Il apparaît dans l'URL SSO, sans espaces.",
+        "redirectUrl": "Doit être une URL https valide, ou une URL http de loopback (localhost / 127.0.0.1 / [::1]).",
+        "entityId": "Doit être une URI valide, ex. https://utmstack.example.com/sp."
+      }
     },
     "delete": {
       "title": "Supprimer le fournisseur d'identité",
