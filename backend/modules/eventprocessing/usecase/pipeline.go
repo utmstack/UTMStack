@@ -209,6 +209,7 @@ func visiblePipeline(p *domain.Pipeline, tenant string) bool {
 // one exists would tell a customer what another has written.
 func (u *pipelineUsecase) readable(ctx context.Context, relPath string) (*domain.Pipeline, error) {
 	p := u.store.GetByRelPath(relPath)
+
 	if p == nil || !visiblePipeline(p, authz.TenantIDFromContext(ctx)) {
 		return nil, domain.ErrPipelineNotFound
 	}
@@ -221,22 +222,32 @@ func (u *pipelineUsecase) writable(ctx context.Context, relPath string) error {
 	if err != nil {
 		return err
 	}
+
+
+
 	if p.System {
 		return domain.ErrPipelineSystemOwner
 	}
+
+
 	if tenant := authz.TenantIDFromContext(ctx); tenant != "" && p.TenantID != tenant {
+
 		return domain.ErrPipelineNotFound
 	}
 	return nil
 }
 
 func (u *pipelineUsecase) Update(ctx context.Context, req dto.UpdatePipelineRequest) (*dto.PipelineResponse, error) {
+
 	if err := validateFilterContent(req.Content); err != nil {
 		return nil, err
 	}
+
+
 	if err := u.writable(ctx, req.RelPath); err != nil {
 		return nil, err
 	}
+
 	content, err := normalizeFilterOrder(req.Content)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", domain.ErrPipelineInvalidContent, err)

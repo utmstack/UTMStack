@@ -70,6 +70,7 @@ func (s *PipelineStore) Load() error {
 		dir    string
 		system bool
 	}{{s.systemDir, true}, {s.userDir, false}} {
+
 		if _, err := os.Stat(root.dir); os.IsNotExist(err) {
 			continue
 		}
@@ -154,6 +155,7 @@ func (s *PipelineStore) GetByRelPath(relPath string) *domain.Pipeline {
 	if f == nil {
 		return nil
 	}
+
 	cp := *f
 	return &cp
 }
@@ -198,9 +200,18 @@ func (s *PipelineStore) Create(relPath string, content []byte, tenantId string) 
 
 func (s *PipelineStore) Update(relPath string, content []byte,tenantId string) (*domain.Pipeline, error) {
 
+	if tenantId != "" {
+		injected, err := withTenantID(content, tenantId)
+		if err != nil {
+			return nil, fmt.Errorf("invalid filter content: %w", err)
+		}
+		content = injected
+	}
+
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	existing, ok := s.filters[relPath]
+
 	if !ok {
 		return nil, domain.ErrPipelineNotFound
 	}
