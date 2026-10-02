@@ -8,6 +8,45 @@ import (
 	"github.com/utmstack/UTMStack/installer/utils"
 )
 
+// logIndexMappings pins the canonical fields for v11-log-* documents.
+// "event" is flattened: OpenSearch stores every sub-key as a keyword and never
+// infers types, so heterogeneous vendor values can no longer produce
+// mapper_parsing_exception conflicts. "controls" holds compliance control tags.
+// Top-level Event fields keep real types so the UI/SQL/sort work on them.
+const logIndexMappings = `
+{
+  "@timestamp": {"type":"date"},
+  "dataType": {"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}},
+  "dataSource": {"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}},
+  "action": {"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}},
+  "protocol": {"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}},
+  "actionResult": {"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}},
+  "severity": {"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}},
+  "connectionStatus": {"type":"keyword"},
+  "statusCode": {"type":"long"},
+  "origin": {"type":"object","dynamic":true,"properties":{
+    "ip": {"type":"ip"},
+    "port": {"type":"long"},
+    "user": {"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}},
+    "host": {"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}},
+    "file": {"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}},
+    "bytesSent": {"type":"double"},
+    "bytesReceived": {"type":"double"}
+  }},
+  "target": {"type":"object","dynamic":true,"properties":{
+    "ip": {"type":"ip"},
+    "port": {"type":"long"},
+    "user": {"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}},
+    "host": {"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}},
+    "path": {"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}},
+    "file": {"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}},
+    "bytesSent": {"type":"double"},
+    "bytesReceived": {"type":"double"}
+  }},
+  "event": {"type":"flattened"},
+  "controls": {"type":"keyword"}
+}`
+
 func getOpenSearchContainerID() (string, error) {
 	containerIDs, err := utils.RunCmdWithOutput("docker", "ps", "-q", "-f", "name=utmstack_node1")
 	if err != nil {
@@ -63,7 +102,7 @@ func InitOpenSearch() error {
 		return err
 	}
 
-	logTemplateData := `{"index_patterns":["v11-log-*"],"template":{"settings":{"index.max_shards":30000}}}`
+	logTemplateData := `{"index_patterns":["v11-log-*"],"template":{"settings":{"index.max_shards":30000},"mappings":{"properties":` + logIndexMappings + `}}}`
 	if err := execCurl(containerID, "PUT", "https://localhost:9200/_index_template/utmstack_log_indexes", logTemplateData); err != nil {
 		return err
 	}
@@ -84,6 +123,22 @@ func UpdateOpenSearch() error{
 	if err != nil {
 		return err
 	}
+
+	// (Re)create the log template with the pinned mappings (affects NEW indices).
+	logTemplateData := `{"index_patterns":["v11-log-*"],"template":{"settings":{"index.max_shards":30000},"mappings":{"properties":` + logIndexMappings + `}}}`
+	if err := execCurl(containerID, "PUT", "https://localhost:9200/_index_template/utmstack_log_indexes", logTemplateData); err != nil {
+		return err
+	}
+
+	// Add ONLY the new bag mappings to already-existing v11-log-* indices
+	// (non-destructive: event/controls are new keys — no type clash with the
+	// legacy dynamic log mapping). Typed top-levels are NOT retro-applied: they
+	// can conflict with existing dynamic mappings and would 400 the upgrade.
+	if err := execCurl(containerID, "PUT", "https://localhost:9200/v11-log-*/_mapping?allow_no_indices=true",
+		`{"properties":{"event":{"type":"flattened"},"controls":{"type":"keyword"}}}`); err != nil {
+		return err
+	}
+
 	// updated already existing index (update case)
 	if err := execCurl(containerID, "PUT", "https://localhost:9200/v11-log-*/_settings?allow_no_indices=true", `{"index.max_shards":30000}`); err != nil {
 		return err
