@@ -29,12 +29,12 @@ description: |
   6. Monitor for subsequent credential usage from the requesting IP
 where: |
   !oneOf("dataSource", ["", "unknown"]) &&
-  exists("log.authenticationSource") && exists("log.authenticationSourceType") && exists("log.authenticationSourceDomain") &&
+  exists("event.authenticationSource") && exists("event.authenticationSourceType") && exists("event.authenticationSourceDomain") &&
   (
-  equals("log.eventCode", "4768") &&
-  equals("log.channel", "Security") &&
-  equals("log.eventDataTicketEncryptionType", "23") &&
-  equals("log.eventDataPreAuthType", "0") &&
+  equals("event.eventCode", "4768") &&
+  equals("event.channel", "Security") &&
+  equals("event.eventDataTicketEncryptionType", "23") &&
+  equals("event.eventDataPreAuthType", "0") &&
   !regexMatch("target.user", "(?i)\\$$") &&
   exists("target.user")
   )
@@ -44,32 +44,32 @@ afterEvents:
       - field: dataSource.keyword
         operator: filter_term
         value: '{{.dataSource}}'
-      - field: log.authenticationSource.keyword
+      - field: event.authenticationSource.keyword
         operator: filter_term
-        value: '{{.log.authenticationSource}}'
-      - field: log.authenticationSourceType.keyword
+        value: '{{.event.authenticationSource}}'
+      - field: event.authenticationSourceType.keyword
         operator: filter_term
-        value: '{{.log.authenticationSourceType}}'
-      - field: log.authenticationSourceDomain.keyword
+        value: '{{.event.authenticationSourceType}}'
+      - field: event.authenticationSourceDomain.keyword
         operator: filter_term
-        value: '{{.log.authenticationSourceDomain}}'
-      - field: log.authenticationCandidate.asrepRoastingDetection.keyword
+        value: '{{.event.authenticationSourceDomain}}'
+      - field: event.authenticationCandidate.asrepRoastingDetection.keyword
         operator: filter_term
         value: match
-      - field: log.eventCode
+      - field: event.eventCode
         operator: filter_term
-        value: '{{.log.eventCode}}'
-      - field: log.eventDataTicketEncryptionType
+        value: '{{.event.eventCode}}'
+      - field: event.eventDataTicketEncryptionType
         operator: filter_term
-        value: '{{.log.eventDataTicketEncryptionType}}'
-      - field: log.eventDataPreAuthType
+        value: '{{.event.eventDataTicketEncryptionType}}'
+      - field: event.eventDataPreAuthType
         operator: filter_term
-        value: '{{.log.eventDataPreAuthType}}'
+        value: '{{.event.eventDataPreAuthType}}'
     within: 15m
     count: 3
 groupBy:
   - dataSource
-  - lastEvent.log.authenticationSourceType
-  - lastEvent.log.authenticationSource
-  - lastEvent.log.authenticationSourceDomain
+  - lastEvent.event.authenticationSourceType
+  - lastEvent.event.authenticationSource
+  - lastEvent.event.authenticationSourceDomain
   - target.user

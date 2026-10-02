@@ -29,10 +29,10 @@ description: |
     on the same source.
 where: |
   (
-    oneOf("log.eventCode", ["1157", "1158", "1159"]) ||
-    exists("log.spywareCategory") ||
-    contains("log.message", ["spyware", "Anti-Spyware"]) ||
-    contains("log.contentCategory", "Anti-Spyware")
+    oneOf("event.eventCode", ["1157", "1158", "1159"]) ||
+    exists("event.spywareCategory") ||
+    contains("event.message", ["spyware", "Anti-Spyware"]) ||
+    contains("event.contentCategory", "Anti-Spyware")
   ) && equals("actionResult", "denied")
 afterEvents:
   - indexPattern: v11-log-firewall-sonicwall-*

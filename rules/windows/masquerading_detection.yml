@@ -29,7 +29,7 @@ description: |
   6. Kill the suspicious process and quarantine the file
   7. Search for other instances of the same file across the environment
 where: |
-  (equals("log.eventCode","4688") || equals("log.eventCode","1")) && ((regexMatch("log.data.NewProcessName","svchost[.]exe$") && !regexMatch("log.data.NewProcessName","[Ww]indows.(System32|SysWOW64).svchost[.]exe$")) || (regexMatch("log.data.NewProcessName","lsass[.]exe$") && !regexMatch("log.data.NewProcessName","[Ww]indows.System32.lsass[.]exe$")) || (regexMatch("log.data.NewProcessName","services[.]exe$") && !regexMatch("log.data.NewProcessName","[Ww]indows.System32.services[.]exe$")) || (regexMatch("log.data.NewProcessName","csrss[.]exe$") && !regexMatch("log.data.NewProcessName","[Ww]indows.(System32|SysWOW64).csrss[.]exe$")) || (regexMatch("log.data.NewProcessName","explorer[.]exe$") && !regexMatch("log.data.NewProcessName","[Ww]indows.explorer[.]exe$")))
+  (equals("event.eventCode","4688") || equals("event.eventCode","1")) && ((regexMatch("event.data.NewProcessName","svchost[.]exe$") && !regexMatch("event.data.NewProcessName","[Ww]indows.(System32|SysWOW64).svchost[.]exe$")) || (regexMatch("event.data.NewProcessName","lsass[.]exe$") && !regexMatch("event.data.NewProcessName","[Ww]indows.System32.lsass[.]exe$")) || (regexMatch("event.data.NewProcessName","services[.]exe$") && !regexMatch("event.data.NewProcessName","[Ww]indows.System32.services[.]exe$")) || (regexMatch("event.data.NewProcessName","csrss[.]exe$") && !regexMatch("event.data.NewProcessName","[Ww]indows.(System32|SysWOW64).csrss[.]exe$")) || (regexMatch("event.data.NewProcessName","explorer[.]exe$") && !regexMatch("event.data.NewProcessName","[Ww]indows.explorer[.]exe$")))
 groupBy:
   - dataSource
 deduplicateBy: []

@@ -32,14 +32,14 @@ description: 'Detects deletion of Kubernetes events in Azure Kubernetes Service 
   6. Review RBAC policies to restrict event deletion permissions
 
   '
-where: 'equalsIgnoreCase("log.azureKind","kubernetes") && equalsIgnoreCase("log.azureKubernetes.stage","ResponseComplete") && equalsIgnoreCase("actionResult","success")
-  && equalsIgnoreCase("log.azureKubernetes.objectRef.resource","events") && oneOf("log.azureKubernetes.verb",["delete", "deletecollection"])
+where: 'equalsIgnoreCase("event.azureKind","kubernetes") && equalsIgnoreCase("event.azureKubernetes.stage","ResponseComplete") && equalsIgnoreCase("actionResult","success")
+  && equalsIgnoreCase("event.azureKubernetes.objectRef.resource","events") && oneOf("event.azureKubernetes.verb",["delete", "deletecollection"])
 
   '
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.azureScopeType
-- lastEvent.log.azureScope
-- lastEvent.log.azureOperation
+- lastEvent.event.azureScopeType
+- lastEvent.event.azureScope
+- lastEvent.event.azureOperation
 - adversary.user
 - adversary.ip

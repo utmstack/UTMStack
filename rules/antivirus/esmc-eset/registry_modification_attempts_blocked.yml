@@ -24,13 +24,13 @@ description: |
   5. If suspicious, isolate the affected system and perform a full malware scan
   6. Review system logs for any successful registry modifications before the block occurred
 where: |
-  (oneOf("log.eventType", ["HipsAggregated_Event", "HIPSAggregated_Event"]) && equals("actionResult", "denied") && oneOf("severity", ["warning", "error", "critical"]) &&
-  (regexMatch("log.operation", "(?i)registry") || regexMatch("log.target", "(?i)^(HKEY_|HKLM|HKCU|HKCR|HKU|HKCC)"))) &&
+  (oneOf("event.eventType", ["HipsAggregated_Event", "HIPSAggregated_Event"]) && equals("actionResult", "denied") && oneOf("severity", ["warning", "error", "critical"]) &&
+  (regexMatch("event.operation", "(?i)registry") || regexMatch("event.target", "(?i)^(HKEY_|HKLM|HKCU|HKCR|HKU|HKCC)"))) &&
   exists("dataSource") && !oneOf("dataSource", ["", "unknown", "-"]) &&
-  oneOf("log.endpointKeyType", ["uuid", "host", "ip"]) &&
-  exists("log.endpointKey") && !equals("log.endpointKey", "")
+  oneOf("event.endpointKeyType", ["uuid", "host", "ip"]) &&
+  exists("event.endpointKey") && !equals("event.endpointKey", "")
 groupBy:
   - lastEvent.dataSource
-  - lastEvent.log.endpointKeyType
-  - lastEvent.log.endpointKey
-  - lastEvent.log.target
+  - lastEvent.event.endpointKeyType
+  - lastEvent.event.endpointKey
+  - lastEvent.event.target

@@ -24,10 +24,10 @@ description: |
   5. Remove unauthorized admin group membership immediately
   6. Audit all admin group members across macOS endpoints
 where: |
-  contains("log.message", "dscl") &&
-  contains("log.message", "-append") &&
-  contains("log.message", "/Groups/admin") &&
-  contains("log.message", "GroupMembership")
+  contains("event.message", "dscl") &&
+  contains("event.message", "-append") &&
+  contains("event.message", "/Groups/admin") &&
+  contains("event.message", "GroupMembership")
 groupBy:
   - adversary.host
   - adversary.user

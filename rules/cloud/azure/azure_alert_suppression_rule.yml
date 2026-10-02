@@ -32,14 +32,14 @@ description: 'Detects creation of alert suppression rules in Azure Defender / Mi
   6. Check for other defense evasion activities from the same user
 
   '
-where: '(equalsIgnoreCase("log.azureKind","activity") || equalsIgnoreCase("log.azureKind","eventgrid")) && equalsIgnoreCase("actionResult","success")
-  && equalsIgnoreCase("log.azureOperation","Microsoft.Security/alertsSuppressionRules/write")
+where: '(equalsIgnoreCase("event.azureKind","activity") || equalsIgnoreCase("event.azureKind","eventgrid")) && equalsIgnoreCase("actionResult","success")
+  && equalsIgnoreCase("event.azureOperation","Microsoft.Security/alertsSuppressionRules/write")
 
   '
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.azureScopeType
-- lastEvent.log.azureScope
-- lastEvent.log.azureOperation
+- lastEvent.event.azureScopeType
+- lastEvent.event.azureScope
+- lastEvent.event.azureOperation
 - adversary.user
 - adversary.ip

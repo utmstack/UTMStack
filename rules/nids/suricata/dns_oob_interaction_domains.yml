@@ -26,35 +26,35 @@ description: |
   6. Check for successful exploitation indicators on the target systems
   7. Review WAF/IDS logs for correlated attack signatures
 where: |
-  equals("log.eventType", "dns") &&
-  exists("log.dns.query") &&
+  equals("event.eventType", "dns") &&
+  exists("event.dns.query") &&
   (
-    contains("log.dns.query", ".burpcollaborator.net") ||
-    contains("log.dns.query", ".oastify.com") ||
-    contains("log.dns.query", ".interact.sh") ||
-    contains("log.dns.query", ".interactsh.com") ||
-    contains("log.dns.query", ".canarytokens.com") ||
-    contains("log.dns.query", ".dnslog.cn") ||
-    contains("log.dns.query", ".ceye.io") ||
-    contains("log.dns.query", ".bxss.me") ||
-    contains("log.dns.query", ".xss.ht") ||
-    contains("log.dns.query", ".requestbin.net") ||
-    contains("log.dns.query", ".pipedream.net") ||
-    contains("log.dns.query", ".webhook.site") ||
-    contains("log.dns.query", ".r87.me") ||
-    contains("log.dns.query", ".dnsbin.zhack.ca") ||
-    contains("log.dns.query", ".pingb.in") ||
-    contains("log.dns.query", ".beeceptor.com") ||
-    contains("log.dns.query", ".requestrepo.com") ||
-    contains("log.dns.query", ".oast.fun") ||
-    contains("log.dns.query", ".oast.live") ||
-    contains("log.dns.query", ".oast.site") ||
-    contains("log.dns.query", ".oast.online") ||
-    contains("log.dns.query", ".oast.me") ||
-    contains("log.dns.query", ".requestcatcher.com") ||
-    contains("log.dns.query", ".canarytokens.org")
+    contains("event.dns.query", ".burpcollaborator.net") ||
+    contains("event.dns.query", ".oastify.com") ||
+    contains("event.dns.query", ".interact.sh") ||
+    contains("event.dns.query", ".interactsh.com") ||
+    contains("event.dns.query", ".canarytokens.com") ||
+    contains("event.dns.query", ".dnslog.cn") ||
+    contains("event.dns.query", ".ceye.io") ||
+    contains("event.dns.query", ".bxss.me") ||
+    contains("event.dns.query", ".xss.ht") ||
+    contains("event.dns.query", ".requestbin.net") ||
+    contains("event.dns.query", ".pipedream.net") ||
+    contains("event.dns.query", ".webhook.site") ||
+    contains("event.dns.query", ".r87.me") ||
+    contains("event.dns.query", ".dnsbin.zhack.ca") ||
+    contains("event.dns.query", ".pingb.in") ||
+    contains("event.dns.query", ".beeceptor.com") ||
+    contains("event.dns.query", ".requestrepo.com") ||
+    contains("event.dns.query", ".oast.fun") ||
+    contains("event.dns.query", ".oast.live") ||
+    contains("event.dns.query", ".oast.site") ||
+    contains("event.dns.query", ".oast.online") ||
+    contains("event.dns.query", ".oast.me") ||
+    contains("event.dns.query", ".requestcatcher.com") ||
+    contains("event.dns.query", ".canarytokens.org")
   ) &&
   exists("origin.ip")
 groupBy:
-  - lastEvent.log.dns.query
+  - lastEvent.event.dns.query
   - adversary.ip

@@ -26,10 +26,10 @@ description: |
   7. Implement Organization Policy constraints for project creation
   8. Enable alerts for projects created outside approved folders
 where: |
-  contains("log.protoPayloadServiceName", "cloudresourcemanager.googleapis.com") &&
-  (contains("log.protoPayloadMethodName", "CreateProject") ||
-   contains("log.protoPayloadMethodName", "DeleteProject") ||
-   contains("log.protoPayloadMethodName", "UndeleteProject"))
+  contains("event.protoPayloadServiceName", "cloudresourcemanager.googleapis.com") &&
+  (contains("event.protoPayloadMethodName", "CreateProject") ||
+   contains("event.protoPayloadMethodName", "DeleteProject") ||
+   contains("event.protoPayloadMethodName", "UndeleteProject"))
 groupBy:
-  - lastEvent.log.protoPayloadMethodName
+  - lastEvent.event.protoPayloadMethodName
   - adversary.user

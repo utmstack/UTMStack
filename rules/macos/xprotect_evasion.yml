@@ -27,35 +27,35 @@ description: |
   8. Document the incident and update security policies if necessary
 where: |
   (
-    equals("log.subsystem", "com.apple.XProtectFramework") &&
+    equals("event.subsystem", "com.apple.XProtectFramework") &&
     (
-      contains("log.message", "bypass") ||
-      contains("log.message", "evasion") ||
-      contains("log.message", "disable")
+      contains("event.message", "bypass") ||
+      contains("event.message", "evasion") ||
+      contains("event.message", "disable")
     )
   ) ||
   (
     regexMatch("origin.path", ".*/Library/Apple/System/Library/CoreServices/XProtect\\.bundle.*") &&
-    regexMatch("log.message", ".*(modify|write|delete).*")
+    regexMatch("event.message", ".*(modify|write|delete).*")
   ) ||
   (
-    regexMatch("log.message", ".*XProtect\\.(yara|meta\\.plist|bundle).*") &&
+    regexMatch("event.message", ".*XProtect\\.(yara|meta\\.plist|bundle).*") &&
     (
-      regexMatch("log.message", ".*(modify|tamper|delete).*") ||
+      regexMatch("event.message", ".*(modify|tamper|delete).*") ||
       (exists("origin.process") && !equals("origin.process", "XProtectService"))
     )
   ) ||
   (
     equals("origin.process", "MRT") &&
-    (contains("log.message", "kill") || contains("log.message", "terminate") || contains("log.message", "stop"))
+    (contains("event.message", "kill") || contains("event.message", "terminate") || contains("event.message", "stop"))
   ) ||
   (
-    regexMatch("log.message", ".*gk\\.db.*") &&
-    regexMatch("log.message", ".*(modify|delete|truncate).*")
+    regexMatch("event.message", ".*gk\\.db.*") &&
+    regexMatch("event.message", ".*(modify|delete|truncate).*")
   ) ||
   (
-    equals("log.subsystem", "com.apple.MRT") &&
-    (contains("log.message", "bypass") || contains("log.message", "disable") || contains("log.message", "fail"))
+    equals("event.subsystem", "com.apple.MRT") &&
+    (contains("event.message", "bypass") || contains("event.message", "disable") || contains("event.message", "fail"))
   )
 groupBy:
   - adversary.process

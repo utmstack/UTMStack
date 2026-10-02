@@ -40,15 +40,15 @@ description: 'Detects critical security alerts on servers protected by Sophos Ce
   10. Document the incident and update security procedures if necessary
 
   '
-where: '(oneOf("log.type", ["Event::Server::Threat::Detected", "Event::Server::Protection::Disabled", "Event::Server::Exploit::Prevented"])
+where: '(oneOf("event.type", ["Event::Server::Threat::Detected", "Event::Server::Protection::Disabled", "Event::Server::Exploit::Prevented"])
   ||
 
-  (equals("log.endpointType", "server") && oneOf("log.severity", ["high", "critical"]) && exists("log.threatName")))
-  && !regexMatch("log.type","(?i)(clean|cleanedup|resolved|dismissed|cancelled|success)$")'
+  (equals("event.endpointType", "server") && oneOf("event.severity", ["high", "critical"]) && exists("event.threatName")))
+  && !regexMatch("event.type","(?i)(clean|cleanedup|resolved|dismissed|cancelled|success)$")'
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.customerId
-- lastEvent.log.endpointId
-- lastEvent.log.type
+- lastEvent.event.customerId
+- lastEvent.event.endpointId
+- lastEvent.event.type
 - target.host
 - target.ip

@@ -27,10 +27,10 @@ description: |
   8. Consider implementing additional network segmentation to limit attack impact
 where: |
   exists("origin.ip") && (
-    (equals("log.facility", "SW_DAI") && oneOf("log.facilityMnemonic", ["INVALID_ARP", "DHCP_SNOOPING_DENY", "ACL_DENY"]))
-    || (equals("log.facility", "IP") && oneOf("log.facilityMnemonic", ["DUPADDR", "SOURCEGUARD"]))
-    || contains("log.msg", ["invalid arp", "arp inspection drop", "dhcp snooping deny", "gratuitous arp", "arp reply not request", "duplicate ip address", "IP source guard deny", "arp packet validation failed"])
-    || (lessOrEqual("log.severity", 3) && contains("log.msg", ["arp spoofing", "arp poison", "man in the middle"]))
+    (equals("event.facility", "SW_DAI") && oneOf("event.facilityMnemonic", ["INVALID_ARP", "DHCP_SNOOPING_DENY", "ACL_DENY"]))
+    || (equals("event.facility", "IP") && oneOf("event.facilityMnemonic", ["DUPADDR", "SOURCEGUARD"]))
+    || contains("event.msg", ["invalid arp", "arp inspection drop", "dhcp snooping deny", "gratuitous arp", "arp reply not request", "duplicate ip address", "IP source guard deny", "arp packet validation failed"])
+    || (lessOrEqual("event.severity", 3) && contains("event.msg", ["arp spoofing", "arp poison", "man in the middle"]))
   )
 afterEvents:
   - indexPattern: v11-log-cisco-switch-*

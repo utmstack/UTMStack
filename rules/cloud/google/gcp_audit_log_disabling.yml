@@ -26,15 +26,15 @@ description: |
   7. Implement Organization Policy to prevent log sink deletion
   8. Set up alerting on any changes to logging infrastructure
 where: |
-  (contains("log.protoPayloadMethodName", "DeleteSink") ||
-   contains("log.protoPayloadMethodName", "UpdateSink") ||
-   contains("log.protoPayloadMethodName", "CreateExclusion") ||
-   contains("log.protoPayloadMethodName", "UpdateExclusion") ||
-   contains("log.protoPayloadMethodName", "DeleteLog") ||
-   contains("log.protoPayloadMethodName", "SetIamPolicy")) &&
-  (contains("log.protoPayloadServiceName", "logging.googleapis.com") ||
-   contains("log.resource.type", "logging_sink") ||
-   contains("log.resource.type", "logging_exclusion"))
+  (contains("event.protoPayloadMethodName", "DeleteSink") ||
+   contains("event.protoPayloadMethodName", "UpdateSink") ||
+   contains("event.protoPayloadMethodName", "CreateExclusion") ||
+   contains("event.protoPayloadMethodName", "UpdateExclusion") ||
+   contains("event.protoPayloadMethodName", "DeleteLog") ||
+   contains("event.protoPayloadMethodName", "SetIamPolicy")) &&
+  (contains("event.protoPayloadServiceName", "logging.googleapis.com") ||
+   contains("event.resource.type", "logging_sink") ||
+   contains("event.resource.type", "logging_exclusion"))
 groupBy:
-  - lastEvent.log.protoPayloadMethodName
+  - lastEvent.event.protoPayloadMethodName
   - adversary.user

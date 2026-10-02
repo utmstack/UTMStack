@@ -29,10 +29,10 @@ where: |
   (oneOf("action", ["FormCreated", "FormUpdated", "FormShared"]) ||
    contains("action", "Sway")) &&
   equals("actionResult", "success") &&
-  (contains("log.Parameters", "password") ||
-   contains("log.Parameters", "credential") ||
-   contains("log.Parameters", "login") ||
-   contains("log.Parameters", "external"))
+  (contains("event.Parameters", "password") ||
+   contains("event.Parameters", "credential") ||
+   contains("event.Parameters", "login") ||
+   contains("event.Parameters", "external"))
 afterEvents:
   - indexPattern: v11-log-o365-*
     with:

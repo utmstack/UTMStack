@@ -25,14 +25,14 @@ description: |
   6. Review security policies for SAM database access permissions
   7. Check for presence of credential dumping tools or suspicious files
 where: |
-  equals("log.eventCode", "4663") && 
-  equals("log.channel", "Security") &&
+  equals("event.eventCode", "4663") && 
+  equals("event.channel", "Security") &&
   (
-    endsWith("log.eventDataObjectName", "\\SAM") ||
-    endsWith("log.eventDataObjectName", "\\SECURITY") ||
-    endsWith("log.eventDataObjectName", "\\SYSTEM")
+    endsWith("event.eventDataObjectName", "\\SAM") ||
+    endsWith("event.eventDataObjectName", "\\SECURITY") ||
+    endsWith("event.eventDataObjectName", "\\SYSTEM")
   ) &&
-  oneOf("log.eventDataAccessMask", ["131097", "2032127", "64", "32", "1"])
+  oneOf("event.eventDataAccessMask", ["131097", "2032127", "64", "32", "1"])
 groupBy:
   - adversary.host
   - target.user

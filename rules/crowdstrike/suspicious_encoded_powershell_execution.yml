@@ -12,8 +12,8 @@ impact:
   integrity: 2
   availability: 1
 where: >
-  exists("log.eventCommandLine") && 
-  regexMatch("log.eventCommandLine", "(?i).*(powershell|pwsh).*-(e|en|enc|encodedcommand|ec)\\s+.*")
+  exists("event.eventCommandLine") && 
+  regexMatch("event.eventCommandLine", "(?i).*(powershell|pwsh).*-(e|en|enc|encodedcommand|ec)\\s+.*")
 groupBy: 
   - adversary.host
-  - lastEvent.log.eventCommandLine
+  - lastEvent.event.eventCommandLine

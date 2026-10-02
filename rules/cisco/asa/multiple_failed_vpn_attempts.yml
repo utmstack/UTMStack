@@ -24,20 +24,20 @@ description: |
   - Review VPN access logs for any unusual patterns or other indicators
   - Contact the user if the IP is associated with a legitimate user to verify activity
 where: |
-  (equals("log.messageId", "113015") || 
-   equals("log.messageId", "113021") || 
-   equals("log.messageId", "109034") ||
-   equals("log.messageId", "611102")) && 
+  (equals("event.messageId", "113015") || 
+   equals("event.messageId", "113021") || 
+   equals("event.messageId", "109034") ||
+   equals("event.messageId", "611102")) && 
   exists("origin.ip") &&
-  (regexMatch("log.reason", "(?i)(invalid|failed|rejected|authentication)") ||
-   regexMatch("log.msg", "(?i)(authentication.*failed|invalid.*password)"))
+  (regexMatch("event.reason", "(?i)(invalid|failed|rejected|authentication)") ||
+   regexMatch("event.msg", "(?i)(authentication.*failed|invalid.*password)"))
 afterEvents:
   - indexPattern: v11-log-firewall-cisco-asa-*
     with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'
-      - field: log.messageId
+      - field: event.messageId
         operator: filter_term
         value: '113015'
     within: 15m
@@ -48,7 +48,7 @@ afterEvents:
           - field: origin.ip
             operator: filter_term
             value: '{{.origin.ip}}'
-          - field: log.messageId
+          - field: event.messageId
             operator: filter_term
             value: '113021'
         within: 15m
@@ -58,7 +58,7 @@ afterEvents:
           - field: origin.ip
             operator: filter_term
             value: '{{.origin.ip}}'
-          - field: log.messageId
+          - field: event.messageId
             operator: filter_term
             value: '109034'
         within: 15m
@@ -68,7 +68,7 @@ afterEvents:
           - field: origin.ip
             operator: filter_term
             value: '{{.origin.ip}}'
-          - field: log.messageId
+          - field: event.messageId
             operator: filter_term
             value: '611102'
         within: 15m

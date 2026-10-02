@@ -17,12 +17,12 @@ description: Detects ten SYSTEM auth-fail events from the same observed source, 
   system within fifteen minutes. The event can come from different authentication services; it does not by itself
   prove a management-plane login. Check the authentication profile, requested user and any subsequent successes
   before treating the sequence as an attack.
-where: equals("log.paType", "SYSTEM") && equals("log.eventid", "auth-fail") && equals("actionResult", "failure")
-  && exists("origin.ip") && exists("dataSource") && !equals("dataSource", "") && exists("log.paScope") && exists("log.paVsys")
+where: equals("event.paType", "SYSTEM") && equals("event.eventid", "auth-fail") && equals("actionResult", "failure")
+  && exists("origin.ip") && exists("dataSource") && !equals("dataSource", "") && exists("event.paScope") && exists("event.paVsys")
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.paScope
-- lastEvent.log.paVsys
+- lastEvent.event.paScope
+- lastEvent.event.paVsys
 - adversary.ip
 - target.ip
 - adversary.user
@@ -32,16 +32,16 @@ afterEvents:
   - field: dataSource
     operator: filter_term
     value: '{{.dataSource}}'
-  - field: log.paScope
+  - field: event.paScope
     operator: filter_term
-    value: '{{.log.paScope}}'
-  - field: log.paVsys
+    value: '{{.event.paScope}}'
+  - field: event.paVsys
     operator: filter_term
-    value: '{{.log.paVsys}}'
+    value: '{{.event.paVsys}}'
   - field: origin.ip
     operator: filter_term
     value: '{{.origin.ip}}'
-  - field: log.correlationCandidate.paloalto.authFailure
+  - field: event.correlationCandidate.paloalto.authFailure
     operator: filter_term
     value: match
   within: 15m

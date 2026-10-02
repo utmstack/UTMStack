@@ -23,13 +23,13 @@ description: |
   5. Check for other defense evasion techniques on the host
   6. Investigate the attack chain that led to disabling logging
 where: |
-  (contains("log.message", "systemctl") || contains("log.message", "service")) &&
-  (contains("log.message", "stop") || contains("log.message", "disable") ||
-   contains("log.message", "mask") || contains("log.message", "kill")) &&
-  (contains("log.message", "auditd") || contains("log.message", "rsyslog") ||
-   contains("log.message", "syslog-ng") || contains("log.message", "journald") ||
-   contains("log.message", "syslog")) &&
-  !(contains("log.message", "restart") || contains("log.message", "reload"))
+  (contains("event.message", "systemctl") || contains("event.message", "service")) &&
+  (contains("event.message", "stop") || contains("event.message", "disable") ||
+   contains("event.message", "mask") || contains("event.message", "kill")) &&
+  (contains("event.message", "auditd") || contains("event.message", "rsyslog") ||
+   contains("event.message", "syslog-ng") || contains("event.message", "journald") ||
+   contains("event.message", "syslog")) &&
+  !(contains("event.message", "restart") || contains("event.message", "reload"))
 groupBy:
   - origin.host
   - origin.user

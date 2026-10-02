@@ -26,12 +26,12 @@ description: |
   7. Enable additional cloud security monitoring and alerts if not already configured
   8. Document findings and update incident response procedures as needed
 where: |
-  exists("log.eventDescription") &&
-  contains("log.eventDescription", ["cloud", "aws", "azure", "gcp",
+  exists("event.eventDescription") &&
+  contains("event.eventDescription", ["cloud", "aws", "azure", "gcp",
     "lambda", "s3", "ec2", "workload"]) &&
-  contains("log.eventDescription", ["threat detected", "malicious", "compromise",
+  contains("event.eventDescription", ["threat detected", "malicious", "compromise",
     "breach", "attack detected", "unauthorized access"]) &&
-  (exists("log.threatId") || exists("log.endpointDeviceName"))
+  (exists("event.threatId") || exists("event.endpointDeviceName"))
 groupBy:
-  - lastEvent.log.accName
+  - lastEvent.event.accName
   - target.host

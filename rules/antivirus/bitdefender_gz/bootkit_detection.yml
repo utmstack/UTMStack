@@ -15,19 +15,19 @@ references:
 - https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html
 - https://attack.mitre.org/techniques/T1542/001/
 description: 'An antimalware detection identifies a boot object, a boot/rootkit-related signature, or an artifact in a boot-related
-  path. The signature or path does not establish successful persistence or firmware compromise. Review log.BitdefenderGZMalwareType
-  (the infected-object category), target.malware, log.filePath and the vendor action. Use trusted forensic methods if the evidence supports
+  path. The signature or path does not establish successful persistence or firmware compromise. Review event.BitdefenderGZMalwareType
+  (the infected-object category), target.malware, event.filePath and the vendor action. Use trusted forensic methods if the evidence supports
   boot-level compromise.
 
   '
-where: "oneOf(\"log.BitdefenderGZModule\", [\"av\", \"avc\", \"hd\"]) &&\n(equals(\"log.BitdefenderGZMalwareType\", \"boot\") ||\n regexMatch(\"\
-  log.BitdefenderGZDetectionName\",\n   \"(?i)(bootkit|rootkit|uefi|tdss|alureon|zeroaccess|necurs|rustock|sinowal|trojan\\\\.boot|master.?boot)\"\
+where: "oneOf(\"event.BitdefenderGZModule\", [\"av\", \"avc\", \"hd\"]) &&\n(equals(\"event.BitdefenderGZMalwareType\", \"boot\") ||\n regexMatch(\"\
+  event.BitdefenderGZDetectionName\",\n   \"(?i)(bootkit|rootkit|uefi|tdss|alureon|zeroaccess|necurs|rustock|sinowal|trojan\\\\.boot|master.?boot)\"\
   ) ||\n regexMatch(\"target.malware\",\n   \"(?i)(bootkit|rootkit|uefi|tdss|alureon|zeroaccess|necurs|rustock|sinowal|trojan\\\\.boot|master.?boot)\"\
-  ) ||\n regexMatch(\"log.filePath\",\n   \"(?i)(\\\\\\\\efi\\\\\\\\|/efi/|\\\\\\\\boot\\\\\\\\|/boot/|master\\\\.?boot\\\\.?record|mbr)\"\
+  ) ||\n regexMatch(\"event.filePath\",\n   \"(?i)(\\\\\\\\efi\\\\\\\\|/efi/|\\\\\\\\boot\\\\\\\\|/boot/|master\\\\.?boot\\\\.?record|mbr)\"\
   ))\n"
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.BitdefenderGZCompanyId
-- lastEvent.log.endpointKeyType
-- lastEvent.log.endpointKey
+- lastEvent.event.BitdefenderGZCompanyId
+- lastEvent.event.endpointKeyType
+- lastEvent.event.endpointKey
 - target.malware

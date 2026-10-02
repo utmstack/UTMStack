@@ -24,21 +24,21 @@ description: |
   5. Review HMC audit logs for additional suspicious activity
   6. Implement multi-factor authentication for HMC access
 where: |
-  exists("log.message") &&
+  exists("event.message") &&
   (
-    (contains("log.message", "HMC") && (
-      contains("log.message", "login") ||
-      contains("log.message", "authentication") ||
-      contains("log.message", "session")
+    (contains("event.message", "HMC") && (
+      contains("event.message", "login") ||
+      contains("event.message", "authentication") ||
+      contains("event.message", "session")
     )) ||
-    (contains("log.message", "hmcshutdown") || contains("log.message", "hmcrestart")) ||
-    contains("log.message", "chsyscfg") ||
-    (contains("log.message", "lpar") && (
-      contains("log.message", "activate") ||
-      contains("log.message", "shutdown") ||
-      contains("log.message", "migrate")
+    (contains("event.message", "hmcshutdown") || contains("event.message", "hmcrestart")) ||
+    contains("event.message", "chsyscfg") ||
+    (contains("event.message", "lpar") && (
+      contains("event.message", "activate") ||
+      contains("event.message", "shutdown") ||
+      contains("event.message", "migrate")
     )) ||
-    (contains("log.message", "Power Systems") && contains("log.message", "remote access"))
+    (contains("event.message", "Power Systems") && contains("event.message", "remote access"))
   )
 afterEvents:
   - indexPattern: v11-log-ibm-aix-*

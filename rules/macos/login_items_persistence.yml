@@ -24,11 +24,11 @@ description: |
   5. Check ~/Library/Application Support/com.apple.backgroundtaskmanagementagent/
   6. Remove unauthorized Login Items and investigate the source
 where: |
-  (contains("log.message", "Login Item") || contains("log.message", "loginitem") ||
-   contains("log.message", "BackgroundItems") || contains("log.message", "loginwindow")) &&
-  (contains("log.message", "added") || contains("log.message", "registered") ||
-   contains("log.message", "enabled") || contains("log.message", "modified") ||
-   contains("log.message", "SMLoginItemSetEnabled"))
+  (contains("event.message", "Login Item") || contains("event.message", "loginitem") ||
+   contains("event.message", "BackgroundItems") || contains("event.message", "loginwindow")) &&
+  (contains("event.message", "added") || contains("event.message", "registered") ||
+   contains("event.message", "enabled") || contains("event.message", "modified") ||
+   contains("event.message", "SMLoginItemSetEnabled"))
 groupBy:
-  - lastEvent.log.message
+  - lastEvent.event.message
   - adversary.host

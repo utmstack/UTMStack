@@ -23,35 +23,35 @@ description: |
   4. Review console changes if account compromise is suspected
   5. Reset credentials or restrict the account if unauthorized activity is confirmed
 where: |
-  (equals("log.eventType", "Audit_Event") &&
-  equalsIgnoreCase("log.domain", "Native user") &&
+  (equals("event.eventType", "Audit_Event") &&
+  equalsIgnoreCase("event.domain", "Native user") &&
   equalsIgnoreCase("action", "Login attempt") && oneOf("actionResult", ["failure", "denied"]) &&
   exists("target.user") && !oneOf("target.user", ["", "unknown", "-"])) &&
   exists("dataSource") && !oneOf("dataSource", ["", "unknown", "-"]) &&
-  oneOf("log.endpointKeyType", ["uuid", "host", "ip"]) &&
-  exists("log.endpointKey") && !equals("log.endpointKey", "")
+  oneOf("event.endpointKeyType", ["uuid", "host", "ip"]) &&
+  exists("event.endpointKey") && !equals("event.endpointKey", "")
 afterEvents:
   - indexPattern: v11-log-antivirus-esmc-eset-*
     with:
       - field: dataSource
         operator: filter_term
         value: '{{.dataSource}}'
-      - field: log.endpointKeyType
+      - field: event.endpointKeyType
         operator: filter_term
-        value: '{{.log.endpointKeyType}}'
-      - field: log.endpointKey
+        value: '{{.event.endpointKeyType}}'
+      - field: event.endpointKey
         operator: filter_term
-        value: '{{.log.endpointKey}}'
+        value: '{{.event.endpointKey}}'
       - field: target.user
         operator: filter_term
         value: '{{.target.user}}'
-      - field: log.correlationCandidate.consoleAuthenticationFailure
+      - field: event.correlationCandidate.consoleAuthenticationFailure
         operator: filter_term
         value: 'match'
     within: 30m
     count: 10
 groupBy:
   - lastEvent.dataSource
-  - lastEvent.log.endpointKeyType
-  - lastEvent.log.endpointKey
+  - lastEvent.event.endpointKeyType
+  - lastEvent.event.endpointKey
   - target.user

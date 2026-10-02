@@ -32,14 +32,14 @@ description: |
   11. Document all findings and coordinate with incident response team
   12. Consider threat hunting across the environment for related criminal group activities
 where: |
-  oneOf("log.eventType", ["threat_detected", "deception_triggered", "malicious_activity"]) &&
-  oneOf("log.threatType", ["criminal_group", "ransomware", "organized_crime"]) &&
-  (exists("log.signature") || exists("log.toolset") || exists("log.groupName")) &&
-  (oneOf("log.action", ["blocked", "detected", "prevented"]) ||
-   oneOf("log.severity", ["high", "critical"])) &&
-  (oneOf("log.indicatorType", ["ransomware", "financial_theft", "cryptomining", "data_exfiltration"]) ||
-   greaterOrEqual("log.threatScore", 70))
+  oneOf("event.eventType", ["threat_detected", "deception_triggered", "malicious_activity"]) &&
+  oneOf("event.threatType", ["criminal_group", "ransomware", "organized_crime"]) &&
+  (exists("event.signature") || exists("event.toolset") || exists("event.groupName")) &&
+  (oneOf("event.action", ["blocked", "detected", "prevented"]) ||
+   oneOf("event.severity", ["high", "critical"])) &&
+  (oneOf("event.indicatorType", ["ransomware", "financial_theft", "cryptomining", "data_exfiltration"]) ||
+   greaterOrEqual("event.threatScore", 70))
 groupBy:
-  - lastEvent.log.groupName
-  - lastEvent.log.signature
+  - lastEvent.event.groupName
+  - lastEvent.event.signature
   - adversary.host

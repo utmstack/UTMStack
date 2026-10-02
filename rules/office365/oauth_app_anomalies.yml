@@ -25,7 +25,7 @@ description: |
   - Review other users who may have consented to the same application
   - Implement conditional access policies to restrict high-risk OAuth consents
 where: |
-  equals("action", "Consent to application") && equals("actionResult", "success") && (contains("log.Scope", "Mail.") || contains("log.Scope", "Files.") || contains("log.Scope", "User.ReadWrite") || contains("log.Scope", ".All"))
+  equals("action", "Consent to application") && equals("actionResult", "success") && (contains("event.Scope", "Mail.") || contains("event.Scope", "Files.") || contains("event.Scope", "User.ReadWrite") || contains("event.Scope", ".All"))
 afterEvents:
   - indexPattern: v11-log-o365-*
     with:
@@ -38,5 +38,5 @@ afterEvents:
     within: 1h
     count: 5
 groupBy:
-  - lastEvent.log.appAccessContextClientAppId
+  - lastEvent.event.appAccessContextClientAppId
   - adversary.ip

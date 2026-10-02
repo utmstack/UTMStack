@@ -24,6 +24,6 @@ description: |
   5. Review other persistence mechanisms on the host
   6. If unauthorized, remove the cron entry and investigate the source of compromise
 where: |
-  contains("origin.process", "crontab") && (contains("log.message", "REPLACE") || contains("log.message", "INSTALL") || contains("log.message", "LIST") || contains("log.message", "EDIT"))
+  contains("origin.process", "crontab") && (contains("event.message", "REPLACE") || contains("event.message", "INSTALL") || contains("event.message", "LIST") || contains("event.message", "EDIT"))
 deduplicateBy:
   - dataSource

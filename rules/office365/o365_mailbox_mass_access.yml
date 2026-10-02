@@ -24,4 +24,4 @@ where: |
   equals("action", "MailItemsAccessed") && equals("actionResult", "success")
 groupBy:
   - adversary.user
-  - lastEvent.log.Parameters
+  - lastEvent.event.Parameters

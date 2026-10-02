@@ -25,20 +25,20 @@ description: |
   6. Consider implementing MFA requirements for sensitive role assumptions
   7. Review and potentially restrict the trust policy for the assumed role
 where: |
-  (equals("log.awsRecordType","cloudtrail") &&
-  (equals("log.eventSource", "sts.amazonaws.com") &&
-  equals("log.eventName", "AssumeRole") &&
+  (equals("event.awsRecordType","cloudtrail") &&
+  (equals("event.eventSource", "sts.amazonaws.com") &&
+  equals("event.eventName", "AssumeRole") &&
   equals("actionResult","success") &&
-  equals("log.userIdentity.sessionContext.attributes.mfaAuthenticated", "false") &&
-  !equals("log.userIdentity.type", "AWSService") &&
-  !contains("log.userAgent", "aws-sdk") &&
-  !contains("log.userAgent", "Botocore"))) &&
+  equals("event.userIdentity.sessionContext.attributes.mfaAuthenticated", "false") &&
+  !equals("event.userIdentity.type", "AWSService") &&
+  !contains("event.userAgent", "aws-sdk") &&
+  !contains("event.userAgent", "Botocore"))) &&
   exists("dataSource") &&
   !equals("dataSource","") &&
-  exists("log.awsAccountKeyType") &&
-  !equals("log.awsAccountKeyType","") &&
-  exists("log.awsAccountKey") &&
-  !equals("log.awsAccountKey","") &&
+  exists("event.awsAccountKeyType") &&
+  !equals("event.awsAccountKeyType","") &&
+  exists("event.awsAccountKey") &&
+  !equals("event.awsAccountKey","") &&
   exists("origin.ip") &&
   !equals("origin.ip","")
 afterEvents:
@@ -47,23 +47,23 @@ afterEvents:
   - field: dataSource
     operator: filter_term
     value: '{{.dataSource}}'
-  - field: log.awsAccountKeyType
+  - field: event.awsAccountKeyType
     operator: filter_term
-    value: '{{.log.awsAccountKeyType}}'
-  - field: log.awsAccountKey
+    value: '{{.event.awsAccountKeyType}}'
+  - field: event.awsAccountKey
     operator: filter_term
-    value: '{{.log.awsAccountKey}}'
+    value: '{{.event.awsAccountKey}}'
   - field: origin.ip
     operator: filter_term
     value: '{{.origin.ip}}'
-  - field: log.correlationCandidate.stsTokenAbuse
+  - field: event.correlationCandidate.stsTokenAbuse
     operator: filter_term
     value: match
   within: 15m
   count: 20
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
-- lastEvent.log.userIdentityArn
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
+- lastEvent.event.userIdentityArn
 - adversary.ip

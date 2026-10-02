@@ -24,30 +24,30 @@ description: |
   5. Consider isolating the endpoint for manual remediation
   6. Run a boot-time scan if available
 where: |
-  (equals("log.eventType", "Threat_Event") && equals("actionResult", "failure") &&
-  regexMatch("log.action_error", "(?s).+") &&
-  (regexMatch("action", "(?i)(quarantin|clean)") || regexMatch("log.action_error", "(?i)(quarantin|clean)"))) &&
+  (equals("event.eventType", "Threat_Event") && equals("actionResult", "failure") &&
+  regexMatch("event.action_error", "(?s).+") &&
+  (regexMatch("action", "(?i)(quarantin|clean)") || regexMatch("event.action_error", "(?i)(quarantin|clean)"))) &&
   exists("dataSource") && !oneOf("dataSource", ["", "unknown", "-"]) &&
-  oneOf("log.endpointKeyType", ["uuid", "host", "ip"]) &&
-  exists("log.endpointKey") && !equals("log.endpointKey", "")
+  oneOf("event.endpointKeyType", ["uuid", "host", "ip"]) &&
+  exists("event.endpointKey") && !equals("event.endpointKey", "")
 afterEvents:
   - indexPattern: v11-log-antivirus-esmc-eset-*
     with:
       - field: dataSource
         operator: filter_term
         value: '{{.dataSource}}'
-      - field: log.endpointKeyType
+      - field: event.endpointKeyType
         operator: filter_term
-        value: '{{.log.endpointKeyType}}'
-      - field: log.endpointKey
+        value: '{{.event.endpointKeyType}}'
+      - field: event.endpointKey
         operator: filter_term
-        value: '{{.log.endpointKey}}'
-      - field: log.correlationCandidate.quarantineFailure
+        value: '{{.event.endpointKey}}'
+      - field: event.correlationCandidate.quarantineFailure
         operator: filter_term
         value: 'match'
     within: 1h
     count: 5
 groupBy:
   - lastEvent.dataSource
-  - lastEvent.log.endpointKeyType
-  - lastEvent.log.endpointKey
+  - lastEvent.event.endpointKeyType
+  - lastEvent.event.endpointKey

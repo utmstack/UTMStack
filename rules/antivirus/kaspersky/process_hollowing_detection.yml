@@ -24,11 +24,11 @@ description: |
   6. Search for similar patterns across other endpoints
   7. Update endpoint protection policies to block the identified threat
 where: |
-  equals("log.format","cef") && ((equals("log.signatureID", "3") || equals("log.cs1", "DETECT")) &&
-  (contains("log.msg", ["hollow", "RunPE", "suspend", "NtUnmapViewOfSection", "ZwUnmapViewOfSection"]) ||
-   contains("log.cs4", ["hollow", "RunPE", "replace"]) ||
-   contains("log.msg", ["hollow", "suspended", "unmap"])) &&
-  greaterOrEqual("log.cefDeviceSeverity", "3"))
+  equals("event.format","cef") && ((equals("event.signatureID", "3") || equals("event.cs1", "DETECT")) &&
+  (contains("event.msg", ["hollow", "RunPE", "suspend", "NtUnmapViewOfSection", "ZwUnmapViewOfSection"]) ||
+   contains("event.cs4", ["hollow", "RunPE", "replace"]) ||
+   contains("event.msg", ["hollow", "suspended", "unmap"])) &&
+  greaterOrEqual("event.cefDeviceSeverity", "3"))
 groupBy:
-- lastEvent.log.cs5
+- lastEvent.event.cs5
 - adversary.host

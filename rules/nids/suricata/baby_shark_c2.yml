@@ -26,12 +26,12 @@ description: |
   6. Search for other Baby Shark/Kimsuky indicators across the environment
   7. Coordinate with relevant government agencies (CISA, FBI)
 where: |
-  equals("log.eventType", "http") &&
+  equals("event.eventType", "http") &&
   exists("origin.ip") &&
   (
-    contains("log.http.url", "momyshark?key=") ||
-    contains("log.http.url", "momyshark%3Fkey%3D") ||
-    (contains("log.http.url", "babyshark") && contains("log.http.url", "key="))
+    contains("event.http.url", "momyshark?key=") ||
+    contains("event.http.url", "momyshark%3Fkey%3D") ||
+    (contains("event.http.url", "babyshark") && contains("event.http.url", "key="))
   )
 groupBy:
   - adversary.ip

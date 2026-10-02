@@ -26,9 +26,9 @@ description: |
   7. Document the incident and any actions taken
 where: |
   exists("origin.ip") && (
-    equals("log.messageId", "108003")
-    || (contains("log.message", "malicious pattern") && contains("log.message", ["detected", "terminated", "blocked"]))
-    || (contains("log.message", "IPS") && contains("log.message", "signature") && contains("log.message", ["matched", "triggered", "detected"]))
+    equals("event.messageId", "108003")
+    || (contains("event.message", "malicious pattern") && contains("event.message", ["detected", "terminated", "blocked"]))
+    || (contains("event.message", "IPS") && contains("event.message", "signature") && contains("event.message", ["matched", "triggered", "detected"]))
   )
 afterEvents:
   - indexPattern: v11-log-firewall-cisco-asa-*

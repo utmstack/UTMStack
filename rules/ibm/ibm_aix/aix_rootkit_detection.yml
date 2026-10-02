@@ -24,16 +24,16 @@ description: |
   5. Initiate forensic investigation on the affected system
   6. Consider rebuilding the system from trusted media
 where: |
-  exists("log.message") &&
+  exists("event.message") &&
   (
-    (contains("log.message", "trustchk") && contains("log.message", "FAIL")) ||
-    (contains("log.message", "tcbck") && contains("log.message", "violation")) ||
-    (contains("log.message", "TCB") && contains("log.message", "integrity")) ||
-    (contains("log.message", "genkex") && contains("log.message", "unknown")) ||
-    (contains("log.message", "/dev/kmem") && !equals("origin.user", "root")) ||
-    (contains("log.message", "ld.so") && contains("log.message", "preload")) ||
-    (contains("log.message", "LIBPATH") && contains("log.message", "modified")) ||
-    contains("log.message", "LD_PRELOAD")
+    (contains("event.message", "trustchk") && contains("event.message", "FAIL")) ||
+    (contains("event.message", "tcbck") && contains("event.message", "violation")) ||
+    (contains("event.message", "TCB") && contains("event.message", "integrity")) ||
+    (contains("event.message", "genkex") && contains("event.message", "unknown")) ||
+    (contains("event.message", "/dev/kmem") && !equals("origin.user", "root")) ||
+    (contains("event.message", "ld.so") && contains("event.message", "preload")) ||
+    (contains("event.message", "LIBPATH") && contains("event.message", "modified")) ||
+    contains("event.message", "LD_PRELOAD")
   )
 groupBy:
   - adversary.host

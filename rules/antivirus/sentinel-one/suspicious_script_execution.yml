@@ -25,13 +25,13 @@ description: |
   6. Review network connections initiated by the script process
   7. If confirmed malicious, isolate the affected endpoint and perform threat hunting across the environment
 where: |
-  exists("log.eventDescription") &&
+  exists("event.eventDescription") &&
   (
-    contains("log.eventDescription", ["malicious script", "suspicious script", "fileless attack", "suspicious process"]) ||
-    (contains("log.eventDescription", ["powershell", "cmd.exe", "bash", "python", "wscript", "cscript"]) &&
-     contains("log.eventDescription", ["encoded", "obfuscated", "download", "bypass", "invoke", "hidden", "base64", "exploit"]))
+    contains("event.eventDescription", ["malicious script", "suspicious script", "fileless attack", "suspicious process"]) ||
+    (contains("event.eventDescription", ["powershell", "cmd.exe", "bash", "python", "wscript", "cscript"]) &&
+     contains("event.eventDescription", ["encoded", "obfuscated", "download", "bypass", "invoke", "hidden", "base64", "exploit"]))
   ) &&
-  exists("log.endpointDeviceName")
+  exists("event.endpointDeviceName")
 groupBy:
-  - lastEvent.log.endpointDeviceName
-  - lastEvent.log.eventDescription
+  - lastEvent.event.endpointDeviceName
+  - lastEvent.event.eventDescription

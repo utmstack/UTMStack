@@ -18,7 +18,7 @@ description: |
   
   Next Steps:
   1. Review the process tree details in the SentinelOne console to understand the parent-child relationships
-  2. Identify the affected host from log.syslogHost and the user account from log.destinationUser
+  2. Identify the affected host from event.syslogHost and the user account from event.destinationUser
   3. Check if the process chain is associated with legitimate software or administrative activity
   4. Look for indicators of process injection, hollowing, or other malicious techniques
   5. Investigate other recent process creation events on the same host
@@ -26,11 +26,11 @@ description: |
   7. Review the threat storyline in SentinelOne for full attack context
   8. Collect memory dumps if advanced analysis is required
 where: |
-  (contains("log.eventDescription", ["process tree", "parent", "process chain",
+  (contains("event.eventDescription", ["process tree", "parent", "process chain",
     "process spawn", "suspicious process", "abnormal process", "process anomaly"]) ||
-   contains("log.threatName", ["process", "injection", "hollow"]) ||
-   contains("log.mitigationMode", "process")) &&
+   contains("event.threatName", ["process", "injection", "hollow"]) ||
+   contains("event.mitigationMode", "process")) &&
   exists("target.host")
 groupBy:
   - target.host
-  - lastEvent.log.threatId
+  - lastEvent.event.threatId

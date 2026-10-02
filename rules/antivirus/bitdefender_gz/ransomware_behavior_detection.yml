@@ -20,18 +20,18 @@ description: 'The vendor attack classification, ransomware-mitigation module or 
   response plan.
 
   '
-where: 'regexMatch("log.BitdefenderGZAttackTypes", "(?i)Ransomware") ||
+where: 'regexMatch("event.BitdefenderGZAttackTypes", "(?i)Ransomware") ||
 
-  equals("log.BitdefenderGZModule", "ransomware-mitigation") ||
+  equals("event.BitdefenderGZModule", "ransomware-mitigation") ||
 
   contains("target.malware", "Ransom") ||
 
-  contains("log.BitdefenderGZDetectionName", "Ransom")
+  contains("event.BitdefenderGZDetectionName", "Ransom")
 
   '
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.BitdefenderGZCompanyId
-- lastEvent.log.endpointKeyType
-- lastEvent.log.endpointKey
-- lastEvent.log.BitdefenderGZIncidentId
+- lastEvent.event.BitdefenderGZCompanyId
+- lastEvent.event.endpointKeyType
+- lastEvent.event.endpointKey
+- lastEvent.event.BitdefenderGZIncidentId

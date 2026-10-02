@@ -31,16 +31,16 @@ description: |
   6. Monitor for any privilege escalation or lateral movement attempts from the scanning source
 where: |
   (
-    (equals("log.eventType", "alert") &&
-     contains("log.alert.signature", ["scan", "SCAN", "portscan"])) ||
+    (equals("event.eventType", "alert") &&
+     contains("event.alert.signature", ["scan", "SCAN", "portscan"])) ||
     (equals("protocol", "TCP") &&
-     equals("log.tcp.flags", "S") &&
-     equals("log.flow.state", "new") &&
-     lessThan("log.flow.duration", 1)) ||
+     equals("event.tcp.flags", "S") &&
+     equals("event.flow.state", "new") &&
+     lessThan("event.flow.duration", 1)) ||
     (equals("protocol", "TCP") &&
-     oneOf("log.tcp.flags", ["", "F", "FPU"])) ||
-    (equals("log.eventType", "anomaly") &&
-     contains("log.anomaly.event", "scan"))
+     oneOf("event.tcp.flags", ["", "F", "FPU"])) ||
+    (equals("event.eventType", "anomaly") &&
+     contains("event.anomaly.event", "scan"))
   )
 afterEvents:
   - indexPattern: v11-log-suricata-*

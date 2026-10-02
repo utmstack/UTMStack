@@ -32,14 +32,14 @@ description: 'Detects the MICROSOFT.AUTHORIZATION/ELEVATEACCESS/ACTION operation
   6. Enable Azure PIM (Privileged Identity Management) if not already in use
 
   '
-where: '(equalsIgnoreCase("log.azureKind","activity") || equalsIgnoreCase("log.azureKind","eventgrid")) && equalsIgnoreCase("actionResult","success")
-  && equalsIgnoreCase("log.azureOperation","Microsoft.Authorization/elevateAccess/action")
+where: '(equalsIgnoreCase("event.azureKind","activity") || equalsIgnoreCase("event.azureKind","eventgrid")) && equalsIgnoreCase("actionResult","success")
+  && equalsIgnoreCase("event.azureOperation","Microsoft.Authorization/elevateAccess/action")
 
   '
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.azureScopeType
-- lastEvent.log.azureScope
-- lastEvent.log.azureOperation
+- lastEvent.event.azureScopeType
+- lastEvent.event.azureScope
+- lastEvent.event.azureOperation
 - adversary.user
 - adversary.ip

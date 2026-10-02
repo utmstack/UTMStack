@@ -29,13 +29,13 @@ description: |
   9. Consider reimaging the affected system after thorough forensic analysis
   10. Implement additional monitoring for similar C2 patterns across the network
 where: |
-  (contains("log.alert.signature", ["command and control", "c&c", "c2", "beacon", "cobalt strike", "metasploit"]) ||
-   oneOf("log.alert.category", ["malware-cnc", "suspicious-traffic"]) ||
-   (equals("protocol", "DNS") && equals("log.dns.type", "TXT") && greaterThan("log.dns.response_length", 200)) ||
-   (regexMatch("log.http.uri", "^/[a-zA-Z0-9]{8,16}$") &&
-   equals("log.http.method", "GET")) ||
-   (greaterThan("log.flow.duration", 300) && lessThan("log.flow.packets", 100) && lessThan("log.flow.bytes", 10240)) ||
-   oneOf("log.ja3.hash", ["3b5074b1b5d032e5620f69f9f700ff0e", "6734f37431670b3ab4292b8f60f29984"])) &&
+  (contains("event.alert.signature", ["command and control", "c&c", "c2", "beacon", "cobalt strike", "metasploit"]) ||
+   oneOf("event.alert.category", ["malware-cnc", "suspicious-traffic"]) ||
+   (equals("protocol", "DNS") && equals("event.dns.type", "TXT") && greaterThan("event.dns.response_length", 200)) ||
+   (regexMatch("event.http.uri", "^/[a-zA-Z0-9]{8,16}$") &&
+   equals("event.http.method", "GET")) ||
+   (greaterThan("event.flow.duration", 300) && lessThan("event.flow.packets", 100) && lessThan("event.flow.bytes", 10240)) ||
+   oneOf("event.ja3.hash", ["3b5074b1b5d032e5620f69f9f700ff0e", "6734f37431670b3ab4292b8f60f29984"])) &&
   exists("origin.ip") &&
   exists("target.ip")
 afterEvents:

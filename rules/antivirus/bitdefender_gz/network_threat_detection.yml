@@ -19,33 +19,33 @@ description: 'At least five high-severity firewall or Network Attack Defense rec
   activity, not a successful connection or confirmed compromise. Investigate repeated targeting and the protection outcome.
 
   '
-where: equals("log.correlationCandidate.networkThreatDetection","match")
+where: equals("event.correlationCandidate.networkThreatDetection","match")
 correlation:
 - indexPattern: v11-log-antivirus-bitdefender-gz-*
   within: 2h
   count: 5
   with:
-  - field: log.correlationCandidate.networkThreatDetection
+  - field: event.correlationCandidate.networkThreatDetection
     operator: filter_term
     value: match
   - field: dataSource
     operator: filter_term
     value: '{{.dataSource}}'
-  - field: log.BitdefenderGZCompanyId
+  - field: event.BitdefenderGZCompanyId
     operator: filter_term
-    value: '{{.log.BitdefenderGZCompanyId}}'
-  - field: log.endpointKeyType
+    value: '{{.event.BitdefenderGZCompanyId}}'
+  - field: event.endpointKeyType
     operator: filter_term
-    value: '{{.log.endpointKeyType}}'
-  - field: log.endpointKey
+    value: '{{.event.endpointKeyType}}'
+  - field: event.endpointKey
     operator: filter_term
-    value: '{{.log.endpointKey}}'
+    value: '{{.event.endpointKey}}'
   - field: origin.ip
     operator: filter_term
     value: '{{.origin.ip}}'
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.BitdefenderGZCompanyId
-- lastEvent.log.endpointKeyType
-- lastEvent.log.endpointKey
+- lastEvent.event.BitdefenderGZCompanyId
+- lastEvent.event.endpointKeyType
+- lastEvent.event.endpointKey
 - adversary.ip

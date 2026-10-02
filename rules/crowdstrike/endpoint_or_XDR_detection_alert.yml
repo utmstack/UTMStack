@@ -12,7 +12,7 @@ impact:
   integrity: 3
   availability: 2
 where: >
-  exists("log.metadataEventType") && 
-  oneOf("log.metadataEventType", ["EppDetectionSummaryEvent", "XdrDetectionSummaryEvent"])
+  exists("event.metadataEventType") && 
+  oneOf("event.metadataEventType", ["EppDetectionSummaryEvent", "XdrDetectionSummaryEvent"])
 groupBy:
-  - lastEvent.log.metadataEventType
+  - lastEvent.event.metadataEventType

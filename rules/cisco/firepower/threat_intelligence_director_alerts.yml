@@ -28,12 +28,12 @@ description: |
   - Update firewall rules to ensure the indicator is blocked network-wide
   - Report the incident to the security team for further investigation
 where: |
-  equals("log.eventType", "TID_EVENT") && 
-  (equals("log.action", "BLOCK") || 
-   equals("log.action", "WOULD_BLOCK") ||
-   exists("log.tidIndicatorType")) &&
-  (exists("log.tidCategory") || 
-   greaterOrEqual("log.threatScore", 80))
+  equals("event.eventType", "TID_EVENT") && 
+  (equals("event.action", "BLOCK") || 
+   equals("event.action", "WOULD_BLOCK") ||
+   exists("event.tidIndicatorType")) &&
+  (exists("event.tidCategory") || 
+   greaterOrEqual("event.threatScore", 80))
 groupBy:
-  - lastEvent.log.tidIndicator
+  - lastEvent.event.tidIndicator
   - adversary.ip

@@ -31,15 +31,15 @@ description: |
   8. Enable Kerberos PAC validation on the targeted services
 where: |
   !oneOf("dataSource", ["", "unknown"]) &&
-  exists("log.authenticationSource") && exists("log.authenticationSourceType") && exists("log.authenticationSourceDomain") &&
+  exists("event.authenticationSource") && exists("event.authenticationSourceType") && exists("event.authenticationSourceDomain") &&
   (
-  equals("log.eventCode", "4769") &&
-  equals("log.channel", "Security") &&
+  equals("event.eventCode", "4769") &&
+  equals("event.channel", "Security") &&
   (
-    equals("log.eventDataTicketEncryptionType", "23") &&
-    !regexMatch("log.eventDataServiceName", "(?i)(krbtgt|\\$$)") &&
-    !oneOf("log.eventDataStatus", ["0", "6"]) &&
-    exists("log.authenticationSource")
+    equals("event.eventDataTicketEncryptionType", "23") &&
+    !regexMatch("event.eventDataServiceName", "(?i)(krbtgt|\\$$)") &&
+    !oneOf("event.eventDataStatus", ["0", "6"]) &&
+    exists("event.authenticationSource")
   )
   )
 afterEvents:
@@ -48,29 +48,29 @@ afterEvents:
       - field: dataSource.keyword
         operator: filter_term
         value: '{{.dataSource}}'
-      - field: log.authenticationSource.keyword
+      - field: event.authenticationSource.keyword
         operator: filter_term
-        value: '{{.log.authenticationSource}}'
-      - field: log.authenticationSourceType.keyword
+        value: '{{.event.authenticationSource}}'
+      - field: event.authenticationSourceType.keyword
         operator: filter_term
-        value: '{{.log.authenticationSourceType}}'
-      - field: log.authenticationSourceDomain.keyword
+        value: '{{.event.authenticationSourceType}}'
+      - field: event.authenticationSourceDomain.keyword
         operator: filter_term
-        value: '{{.log.authenticationSourceDomain}}'
-      - field: log.authenticationCandidate.silverTicketDetection.keyword
+        value: '{{.event.authenticationSourceDomain}}'
+      - field: event.authenticationCandidate.silverTicketDetection.keyword
         operator: filter_term
         value: match
-      - field: log.eventCode
+      - field: event.eventCode
         operator: filter_term
-        value: '{{.log.eventCode}}'
-      - field: log.eventDataTicketEncryptionType
+        value: '{{.event.eventCode}}'
+      - field: event.eventDataTicketEncryptionType
         operator: filter_term
-        value: '{{.log.eventDataTicketEncryptionType}}'
+        value: '{{.event.eventDataTicketEncryptionType}}'
     within: 15m
     count: 5
 groupBy:
   - dataSource
-  - lastEvent.log.authenticationSourceType
-  - lastEvent.log.authenticationSource
-  - lastEvent.log.authenticationSourceDomain
+  - lastEvent.event.authenticationSourceType
+  - lastEvent.event.authenticationSource
+  - lastEvent.event.authenticationSourceDomain
   - target.user

@@ -26,7 +26,7 @@ description: |
   7. Validate the legitimacy of any processes spawned through the WinRM session
   8. Consider implementing additional monitoring for WinRM usage if this represents unexpected activity
 where: |
-  (equals("log.eventCode",4688) || equals("log.eventCode",1)) && regexMatch("log.data.ParentProcessName","(?i)(wsmprovhost|winrshost)[.]exe$") && regexMatch("log.data.NewProcessName","(?i)(cmd|powershell|pwsh|net1?|whoami|systeminfo|reg|sc|schtasks|wmic|bitsadmin|certutil|nltest|quser|tasklist|netstat|ipconfig|arp|route|psexec)[.]exe$")
+  (equals("event.eventCode",4688) || equals("event.eventCode",1)) && regexMatch("event.data.ParentProcessName","(?i)(wsmprovhost|winrshost)[.]exe$") && regexMatch("event.data.NewProcessName","(?i)(cmd|powershell|pwsh|net1?|whoami|systeminfo|reg|sc|schtasks|wmic|bitsadmin|certutil|nltest|quser|tasklist|netstat|ipconfig|arp|route|psexec)[.]exe$")
 groupBy:
   - dataSource
 deduplicateBy: []

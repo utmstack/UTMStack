@@ -34,18 +34,18 @@ description: 'Detects Azure Identity Protection impossible travel alerts where a
   7. Check for other users with similar patterns from the same locations
 
   '
-where: '(equalsIgnoreCase("log.azureKind","risk") && oneOf("log.properties.riskEventType",["impossibleTravel", "unlikelyTravel"])
-  && !oneOf("log.properties.riskState",["dismissed", "remediated", "confirmedSafe"])) || (equalsIgnoreCase("log.azureKind","signin")
-  && (exists("log.properties.riskEventTypes_v2.#(==\"impossibleTravel\")") || exists("log.properties.riskEventTypes_v2.#(==\"unlikelyTravel\")")
-  || exists("log.properties.riskEventTypesv2.#(==\"impossibleTravel\")") || exists("log.properties.riskEventTypesv2.#(==\"unlikelyTravel\")")
-  || exists("log.properties.riskEventTypes.#(==\"impossibleTravel\")") || exists("log.properties.riskEventTypes.#(==\"unlikelyTravel\")"))
-  && !oneOf("log.properties.riskState",["dismissed", "remediated", "confirmedSafe"]))
+where: '(equalsIgnoreCase("event.azureKind","risk") && oneOf("event.properties.riskEventType",["impossibleTravel", "unlikelyTravel"])
+  && !oneOf("event.properties.riskState",["dismissed", "remediated", "confirmedSafe"])) || (equalsIgnoreCase("event.azureKind","signin")
+  && (exists("event.properties.riskEventTypes_v2.#(==\"impossibleTravel\")") || exists("event.properties.riskEventTypes_v2.#(==\"unlikelyTravel\")")
+  || exists("event.properties.riskEventTypesv2.#(==\"impossibleTravel\")") || exists("event.properties.riskEventTypesv2.#(==\"unlikelyTravel\")")
+  || exists("event.properties.riskEventTypes.#(==\"impossibleTravel\")") || exists("event.properties.riskEventTypes.#(==\"unlikelyTravel\")"))
+  && !oneOf("event.properties.riskState",["dismissed", "remediated", "confirmedSafe"]))
 
   '
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.azureScopeType
-- lastEvent.log.azureScope
-- lastEvent.log.azureOperation
+- lastEvent.event.azureScopeType
+- lastEvent.event.azureScope
+- lastEvent.event.azureOperation
 - adversary.user
 - adversary.ip

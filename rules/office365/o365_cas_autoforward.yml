@@ -21,7 +21,7 @@ description: |
   3. Review the acting administrator identity
   4. Remove the forwarding address and audit related mail
 where: |
-  equals("action", "Set-CASMailbox") && equals("actionResult", "success") && (contains("log.Parameters", "ForwardingAddress") || contains("log.Parameters", "ForwardingSmtpAddress"))
+  equals("action", "Set-CASMailbox") && equals("actionResult", "success") && (contains("event.Parameters", "ForwardingAddress") || contains("event.Parameters", "ForwardingSmtpAddress"))
 groupBy:
-  - lastEvent.log.Parameters
+  - lastEvent.event.Parameters
   - adversary.user

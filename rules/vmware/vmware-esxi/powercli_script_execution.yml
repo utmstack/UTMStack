@@ -24,10 +24,10 @@ description: |
   5. If unauthorized, immediately revoke access and investigate the scope of potential compromise
   6. Consider implementing stricter access controls and monitoring for PowerCLI usage
 where: |
-  regexMatch("log.message", "(?i)MS Web Services Client Protocol") ||
-  (regexMatch("log.message", "(?i)authentication of user") && regexMatch("log.message", "(?i)PowerCLI")) ||
-  (regexMatch("log.process", "(?i)vimsvc") && regexMatch("log.message", "(?i)Auth") && regexMatch("log.message", "(?i)User")) ||
-  (regexMatch("log.message", "(?i)Syslog\\.global\\.log") && regexMatch("log.message", "(?i)Set-VMHost")) ||
-  regexMatch("log.message", "(?i)Get-VMHostSysLogServer")
+  regexMatch("event.message", "(?i)MS Web Services Client Protocol") ||
+  (regexMatch("event.message", "(?i)authentication of user") && regexMatch("event.message", "(?i)PowerCLI")) ||
+  (regexMatch("event.process", "(?i)vimsvc") && regexMatch("event.message", "(?i)Auth") && regexMatch("event.message", "(?i)User")) ||
+  (regexMatch("event.message", "(?i)Syslog\\.global\\.log") && regexMatch("event.message", "(?i)Set-VMHost")) ||
+  regexMatch("event.message", "(?i)Get-VMHostSysLogServer")
 groupBy:
   - adversary.hostname

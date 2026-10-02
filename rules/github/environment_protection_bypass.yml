@@ -26,11 +26,11 @@ description: |
   7. Review deployment logs for unauthorized deployments during the protection gap
   8. Implement required reviewers for critical environment changes
 where: |
-  (equals("log.action", "environment.update_protection_rule") ||
-   equals("log.action", "environment.delete_protection_rule") ||
-   equals("log.action", "environment.update") ||
-   equals("log.action", "environment.delete")) &&
-  exists("log.senderLogin")
+  (equals("event.action", "environment.update_protection_rule") ||
+   equals("event.action", "environment.delete_protection_rule") ||
+   equals("event.action", "environment.update") ||
+   equals("event.action", "environment.delete")) &&
+  exists("event.senderLogin")
 groupBy:
-  - lastEvent.log.repositoryName
-  - lastEvent.log.senderLogin
+  - lastEvent.event.repositoryName
+  - lastEvent.event.senderLogin

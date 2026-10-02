@@ -16,7 +16,7 @@ references:
 description: |
   Detects critical SELinux policy violations that may indicate privilege escalation attempts, unauthorized access, or malicious activity bypassing mandatory access controls. This rule identifies AVC denials for sensitive capabilities and SELinux security operations, attempts to access shadow files, modifications to critical system directories, unconfined processes accessing executables, SELinux management commands run from a confined domain, and SELinux being switched from enforcing to permissive mode.
 
-  AVC denials come from the agent's audit collector (log.avc). A denial with log.avc.permissive "1" was logged but not blocked. Mode changes come from the MAC_STATUS audit record (log.macstatus), from the journal's audit transport, or from sudo running setenforce.
+  AVC denials come from the agent's audit collector (event.avc). A denial with event.avc.permissive "1" was logged but not blocked. Mode changes come from the MAC_STATUS audit record (event.macstatus), from the journal's audit transport, or from sudo running setenforce.
 
   Next Steps:
   1. Immediately review the specific SELinux violation details including source context (scontext), target context (tcontext), and attempted permission
@@ -30,41 +30,41 @@ description: |
   9. Monitor for additional violations from the same source
 where: |
   (
-    equals("log.avc.seresult", "denied") &&
+    equals("event.avc.seresult", "denied") &&
     (
-      (oneOf("log.avc.tclass", ["capability", "capability2"]) &&
-       regexMatch("log.avc.seperms", "(^|,)(sys_admin|sys_module|sys_ptrace|setuid|setgid|dac_override|dac_read_search)(,|$)")) ||
-      (equals("log.avc.tclass", "security") &&
-       regexMatch("log.avc.seperms", "(^|,)(load_policy|setenforce|setbool|setsecparam)(,|$)")) ||
-      (equals("log.avc.tclass", "file") &&
-       contains("log.avc.tcontext", ":shadow_t:") &&
-       regexMatch("log.avc.seperms", "(^|,)(read|write|append)(,|$)")) ||
-      (equals("log.avc.tclass", "dir") &&
-       (contains("log.avc.tcontext", ":etc_t:") || contains("log.avc.tcontext", ":boot_t:") || contains("log.avc.tcontext", ":lib_t:")) &&
-       regexMatch("log.avc.seperms", "(^|,)(write|add_name|remove_name)(,|$)")) ||
-      (contains("log.avc.scontext", ":unconfined_t:") &&
-       contains("log.avc.tcontext", "_exec_t:")) ||
-      (oneOf("log.avc.comm", ["setenforce", "semodule", "restorecon"]) &&
-       !contains("log.avc.scontext", ":unconfined_t:"))
+      (oneOf("event.avc.tclass", ["capability", "capability2"]) &&
+       regexMatch("event.avc.seperms", "(^|,)(sys_admin|sys_module|sys_ptrace|setuid|setgid|dac_override|dac_read_search)(,|$)")) ||
+      (equals("event.avc.tclass", "security") &&
+       regexMatch("event.avc.seperms", "(^|,)(load_policy|setenforce|setbool|setsecparam)(,|$)")) ||
+      (equals("event.avc.tclass", "file") &&
+       contains("event.avc.tcontext", ":shadow_t:") &&
+       regexMatch("event.avc.seperms", "(^|,)(read|write|append)(,|$)")) ||
+      (equals("event.avc.tclass", "dir") &&
+       (contains("event.avc.tcontext", ":etc_t:") || contains("event.avc.tcontext", ":boot_t:") || contains("event.avc.tcontext", ":lib_t:")) &&
+       regexMatch("event.avc.seperms", "(^|,)(write|add_name|remove_name)(,|$)")) ||
+      (contains("event.avc.scontext", ":unconfined_t:") &&
+       contains("event.avc.tcontext", "_exec_t:")) ||
+      (oneOf("event.avc.comm", ["setenforce", "semodule", "restorecon"]) &&
+       !contains("event.avc.scontext", ":unconfined_t:"))
     )
   ) ||
   (
-    equals("log.macstatus.enforcing", "0") &&
-    equals("log.macstatus.old_enforcing", "1")
+    equals("event.macstatus.enforcing", "0") &&
+    equals("event.macstatus.old_enforcing", "1")
   ) ||
   (
-    equals("log.syslogIdentifier", "audit") &&
-    startsWith("log.message", "MAC_STATUS ") &&
-    contains("log.message", " enforcing=0 old_enforcing=1 ")
+    equals("event.syslogIdentifier", "audit") &&
+    startsWith("event.message", "MAC_STATUS ") &&
+    contains("event.message", " enforcing=0 old_enforcing=1 ")
   ) ||
   (
-    equals("log.syslogIdentifier", "sudo") &&
-    regexMatch("log.message", "COMMAND=\\S*setenforce\\s+(0|[Pp]ermissive)(\\s|$)")
+    equals("event.syslogIdentifier", "sudo") &&
+    regexMatch("event.message", "COMMAND=\\S*setenforce\\s+(0|[Pp]ermissive)(\\s|$)")
   )
 deduplicateBy:
   - dataSource
-  - lastEvent.log.avc.scontext
-  - lastEvent.log.avc.tcontext
-  - lastEvent.log.avc.tclass
-  - lastEvent.log.macstatus.enforcing
-  - lastEvent.log.message
+  - lastEvent.event.avc.scontext
+  - lastEvent.event.avc.tcontext
+  - lastEvent.event.avc.tclass
+  - lastEvent.event.macstatus.enforcing
+  - lastEvent.event.message

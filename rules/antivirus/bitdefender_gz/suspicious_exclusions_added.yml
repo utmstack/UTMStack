@@ -16,12 +16,12 @@ references:
 - https://attack.mitre.org/techniques/T1562/001/
 description: 'GravityZone reports success for a task whose vendor-provided name mentions an exclusion or allowlist. Task names are labels,
   not a configuration diff; confirm what changed and whether it was authorized before attributing defense evasion. Generic policy, scan
-  and configuration tasks do not match. The full label is retained in log.taskName and log.msg.
+  and configuration tasks do not match. The full label is retained in event.taskName and event.msg.
 
   '
-where: equals("log.BitdefenderGZModule","task-status") && equals("actionResult","success") && regexMatch("log.taskName","(?i)(exclusion|exclude|whitelist|allowlist)")
+where: equals("event.BitdefenderGZModule","task-status") && equals("actionResult","success") && regexMatch("event.taskName","(?i)(exclusion|exclude|whitelist|allowlist)")
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.BitdefenderGZCompanyId
-- lastEvent.log.endpointKey
-- lastEvent.log.taskName
+- lastEvent.event.BitdefenderGZCompanyId
+- lastEvent.event.endpointKey
+- lastEvent.event.taskName

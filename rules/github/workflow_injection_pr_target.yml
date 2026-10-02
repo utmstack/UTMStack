@@ -26,11 +26,11 @@ description: |
   7. Implement branch protection requiring code review for workflow changes
   8. Use workflow_run instead of pull_request_target where possible
 where: |
-  (equals("log.action", "workflows.completed_workflow_run") ||
-   equals("log.action", "workflows.created_workflow_run")) &&
-  exists("log.senderLogin") &&
-  (contains("log.workflowFileName", "pull_request_target") ||
-   contains("log.event", "pull_request_target"))
+  (equals("event.action", "workflows.completed_workflow_run") ||
+   equals("event.action", "workflows.created_workflow_run")) &&
+  exists("event.senderLogin") &&
+  (contains("event.workflowFileName", "pull_request_target") ||
+   contains("event.event", "pull_request_target"))
 groupBy:
-  - lastEvent.log.repositoryName
-  - lastEvent.log.senderLogin
+  - lastEvent.event.repositoryName
+  - lastEvent.event.senderLogin

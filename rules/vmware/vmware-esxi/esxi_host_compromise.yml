@@ -29,19 +29,19 @@ description: |
   9. Assess the impact on running VMs and determine if immediate shutdown is necessary
   10. Contact incident response team and consider engaging VMware support for forensic analysis
 where: |
-  (contains("log.message", "encrypt.sh") ||
-   (contains("log.message", "encrypt") && !contains("log.message", "TLS") && !contains("log.message", "SSL")) ||
-   contains("log.message", "esxcli vm process list") ||
-   contains("log.message", "esxcli vm process kill") ||
-   contains("log.message", "Device I/O error") ||
-   contains("log.message", "Medium Error Detected") ||
-   contains("log.message", "Uncorrectable error in data") ||
-   contains("log.message", "Disk error detected") ||
-   contains("log.message", "Unable to read partition table") ||
-   contains("log.message", "logging service disabled") ||
-   contains("log.message", "log events removed") ||
-   (equals("log.process", "vmkernel") && contains("log.message", "SCSI sense")) ||
-   (contains("log.eventInfo", "ransom") || contains("log.eventInfo", "encrypt"))) &&
+  (contains("event.message", "encrypt.sh") ||
+   (contains("event.message", "encrypt") && !contains("event.message", "TLS") && !contains("event.message", "SSL")) ||
+   contains("event.message", "esxcli vm process list") ||
+   contains("event.message", "esxcli vm process kill") ||
+   contains("event.message", "Device I/O error") ||
+   contains("event.message", "Medium Error Detected") ||
+   contains("event.message", "Uncorrectable error in data") ||
+   contains("event.message", "Disk error detected") ||
+   contains("event.message", "Unable to read partition table") ||
+   contains("event.message", "logging service disabled") ||
+   contains("event.message", "log events removed") ||
+   (equals("event.process", "vmkernel") && contains("event.message", "SCSI sense")) ||
+   (contains("event.eventInfo", "ransom") || contains("event.eventInfo", "encrypt"))) &&
   exists("origin.hostname")
 groupBy:
   - adversary.hostname

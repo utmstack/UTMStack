@@ -26,14 +26,14 @@ description: |
   6. Perform memory forensics on the endpoint to identify the beacon configuration
   7. Review network logs for additional C2 channels (HTTP/HTTPS beacons)
 where: |
-  equals("log.eventType", "dns") &&
-  exists("log.dns.query") &&
+  equals("event.eventType", "dns") &&
+  exists("event.dns.query") &&
   (
-    regexMatch("log.dns.query", "(?i)^aaa\\.stage\\.") ||
-    regexMatch("log.dns.query", "(?i)^post\\.1") ||
-    (regexMatch("log.dns.query", "(?i)^cdn\\.") && regexMatch("log.dns.query", "(?i)\\.(stage|post)\\.")) ||
-    (regexMatch("log.dns.query", "(?i)^api\\.") && regexMatch("log.dns.query", "(?i)\\.(stage|post)\\.")) ||
-    (regexMatch("log.dns.query", "(?i)^www6\\.") && regexMatch("log.dns.query", "(?i)\\.(stage|post)\\."))
+    regexMatch("event.dns.query", "(?i)^aaa\\.stage\\.") ||
+    regexMatch("event.dns.query", "(?i)^post\\.1") ||
+    (regexMatch("event.dns.query", "(?i)^cdn\\.") && regexMatch("event.dns.query", "(?i)\\.(stage|post)\\.")) ||
+    (regexMatch("event.dns.query", "(?i)^api\\.") && regexMatch("event.dns.query", "(?i)\\.(stage|post)\\.")) ||
+    (regexMatch("event.dns.query", "(?i)^www6\\.") && regexMatch("event.dns.query", "(?i)\\.(stage|post)\\."))
   ) &&
   exists("origin.ip")
 afterEvents:
@@ -42,11 +42,11 @@ afterEvents:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'
-      - field: log.eventType
+      - field: event.eventType
         operator: filter_term
         value: 'dns'
     within: 15m
     count: 3
 groupBy:
-  - lastEvent.log.dns.query
+  - lastEvent.event.dns.query
   - adversary.ip

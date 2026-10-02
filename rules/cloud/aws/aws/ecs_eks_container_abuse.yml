@@ -25,19 +25,19 @@ description: |
   7. If unauthorized, deregister the task definition and terminate running tasks
   8. Implement OPA/Gatekeeper policies to prevent privileged containers
 where: |
-  equals("log.awsRecordType","cloudtrail") &&
-  (equals("log.eventSource","ecs.amazonaws.com") &&
-  oneOf("log.eventName",["RegisterTaskDefinition"]) &&
+  equals("event.awsRecordType","cloudtrail") &&
+  (equals("event.eventSource","ecs.amazonaws.com") &&
+  oneOf("event.eventName",["RegisterTaskDefinition"]) &&
   equals("actionResult","success") &&
-  (exists('log.requestParameters.containerDefinitions.#(privileged==true)') ||
-  equals("log.requestParameters.networkMode","host") ||
-  equals("log.requestParameters.pidMode","host") ||
-  exists('log.requestParameters.volumes.#(host.sourcePath=="/var/run/docker.sock")') ||
-  exists('log.requestParameters.volumes.#(host.sourcePath=="/etc/shadow")') ||
-  exists('log.requestParameters.volumes.#(host.sourcePath=="/root")')))
+  (exists('event.requestParameters.containerDefinitions.#(privileged==true)') ||
+  equals("event.requestParameters.networkMode","host") ||
+  equals("event.requestParameters.pidMode","host") ||
+  exists('event.requestParameters.volumes.#(host.sourcePath=="/var/run/docker.sock")') ||
+  exists('event.requestParameters.volumes.#(host.sourcePath=="/etc/shadow")') ||
+  exists('event.requestParameters.volumes.#(host.sourcePath=="/root")')))
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
 - adversary.user
-- lastEvent.log.eventName
+- lastEvent.event.eventName

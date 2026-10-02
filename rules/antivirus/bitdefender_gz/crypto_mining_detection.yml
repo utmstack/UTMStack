@@ -19,13 +19,13 @@ description: 'An antimalware signature names mining software, or a Content Contr
   vendor action, process activity and resource usage before attributing cryptojacking.
 
   '
-where: "oneOf(\"log.BitdefenderGZModule\", [\"av\", \"avc\", \"hd\"]) &&\n(regexMatch(\"log.BitdefenderGZDetectionName\", \"(?i)(coin.?miner|crypto.?miner|xmrig|monero|cryptonight|coinhive|jscoinminer|bitcoin.?miner)\"\
+where: "oneOf(\"event.BitdefenderGZModule\", [\"av\", \"avc\", \"hd\"]) &&\n(regexMatch(\"event.BitdefenderGZDetectionName\", \"(?i)(coin.?miner|crypto.?miner|xmrig|monero|cryptonight|coinhive|jscoinminer|bitcoin.?miner)\"\
   ) ||\n regexMatch(\"target.malware\", \"(?i)(coin.?miner|crypto.?miner|xmrig|monero|cryptonight|coinhive|jscoinminer|bitcoin.?miner)\"\
-  )) ||\n(equals(\"log.BitdefenderGZModule\", \"uc\") &&\n regexMatch(\"origin.domain\", \"(?i)(coinhive|xmrig|minepool|nicehash|monerohash|nanopool|supportxmr)\"\
+  )) ||\n(equals(\"event.BitdefenderGZModule\", \"uc\") &&\n regexMatch(\"origin.domain\", \"(?i)(coinhive|xmrig|minepool|nicehash|monerohash|nanopool|supportxmr)\"\
   ))\n"
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.BitdefenderGZCompanyId
-- lastEvent.log.endpointKeyType
-- lastEvent.log.endpointKey
+- lastEvent.event.BitdefenderGZCompanyId
+- lastEvent.event.endpointKeyType
+- lastEvent.event.endpointKey
 - target.malware

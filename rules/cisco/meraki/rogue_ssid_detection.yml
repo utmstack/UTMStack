@@ -25,9 +25,9 @@ description: |
   6. Update wireless intrusion detection policies if needed
   7. Notify security team and facilities management for potential physical security breach
 where: |
-  equals("log.eventType", "airmarshal_events") &&
-  equals("log.type", "rogue_ssid_detected")
+  equals("event.eventType", "airmarshal_events") &&
+  equals("event.type", "rogue_ssid_detected")
 groupBy:
   - lastEvent.dataSource
-  - lastEvent.log.merakiType
-  - lastEvent.log.bssid
+  - lastEvent.event.merakiType
+  - lastEvent.event.bssid

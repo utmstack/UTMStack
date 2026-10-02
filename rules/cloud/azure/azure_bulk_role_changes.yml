@@ -32,22 +32,22 @@ description: 'Detects mass privileged role assignment changes in Azure AD. Multi
   6. Enable Azure PIM for just-in-time role activation
 
   '
-where: '(equalsIgnoreCase("log.azureKind","audit") && equalsIgnoreCase("actionResult","success") && (equalsIgnoreCase("log.azureOperation","Add
-  member to role") || equalsIgnoreCase("log.azureOperation","Add eligible member to role") || equalsIgnoreCase("log.azureOperation","Add
-  member to role completed (PIM activation)") || equalsIgnoreCase("log.azureOperation","Add eligible member to role in PIM completed")
-  || equalsIgnoreCase("log.azureOperation","Add eligible member to role in PIM completed (permanent)") || equalsIgnoreCase("log.azureOperation","Add
-  eligible member to role in PIM completed (timebound)") || equalsIgnoreCase("log.azureOperation","Add member to role in PIM completed
-  (permanent)") || equalsIgnoreCase("log.azureOperation","Add member to role in PIM completed (timebound)"))) && exists("dataSource")
-  && !equals("dataSource","") && exists("log.azureScopeType") && !equals("log.azureScopeType","") && exists("log.azureScope") &&
-  !equals("log.azureScope","") && exists("log.azureActorType") && !equals("log.azureActorType","") && exists("log.azureActor")
-  && !equals("log.azureActor","")
+where: '(equalsIgnoreCase("event.azureKind","audit") && equalsIgnoreCase("actionResult","success") && (equalsIgnoreCase("event.azureOperation","Add
+  member to role") || equalsIgnoreCase("event.azureOperation","Add eligible member to role") || equalsIgnoreCase("event.azureOperation","Add
+  member to role completed (PIM activation)") || equalsIgnoreCase("event.azureOperation","Add eligible member to role in PIM completed")
+  || equalsIgnoreCase("event.azureOperation","Add eligible member to role in PIM completed (permanent)") || equalsIgnoreCase("event.azureOperation","Add
+  eligible member to role in PIM completed (timebound)") || equalsIgnoreCase("event.azureOperation","Add member to role in PIM completed
+  (permanent)") || equalsIgnoreCase("event.azureOperation","Add member to role in PIM completed (timebound)"))) && exists("dataSource")
+  && !equals("dataSource","") && exists("event.azureScopeType") && !equals("event.azureScopeType","") && exists("event.azureScope") &&
+  !equals("event.azureScope","") && exists("event.azureActorType") && !equals("event.azureActorType","") && exists("event.azureActor")
+  && !equals("event.azureActor","")
 
   '
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.azureScopeType
-- lastEvent.log.azureScope
-- lastEvent.log.azureOperation
+- lastEvent.event.azureScopeType
+- lastEvent.event.azureScope
+- lastEvent.event.azureOperation
 - adversary.user
 - adversary.ip
 correlation:
@@ -56,19 +56,19 @@ correlation:
   - field: dataSource
     operator: filter_term
     value: '{{.dataSource}}'
-  - field: log.azureScopeType
+  - field: event.azureScopeType
     operator: filter_term
-    value: '{{.log.azureScopeType}}'
-  - field: log.azureScope
+    value: '{{.event.azureScopeType}}'
+  - field: event.azureScope
     operator: filter_term
-    value: '{{.log.azureScope}}'
-  - field: log.azureActorType
+    value: '{{.event.azureScope}}'
+  - field: event.azureActorType
     operator: filter_term
-    value: '{{.log.azureActorType}}'
-  - field: log.azureActor
+    value: '{{.event.azureActorType}}'
+  - field: event.azureActor
     operator: filter_term
-    value: '{{.log.azureActor}}'
-  - field: log.correlationCandidate.azureBulkRoleChanges
+    value: '{{.event.azureActor}}'
+  - field: event.correlationCandidate.azureBulkRoleChanges
     operator: filter_term
     value: 'true'
   within: 30m

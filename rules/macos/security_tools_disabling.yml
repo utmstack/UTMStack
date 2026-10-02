@@ -25,24 +25,24 @@ description: |
   6. Investigate why the user had privileges to disable security tools
 where: |
   (
-    contains("log.message", "launchctl") &&
-    contains("log.message", "unload") &&
+    contains("event.message", "launchctl") &&
+    contains("event.message", "unload") &&
     (
-      contains("log.message", "LuLu") ||
-      contains("log.message", "BlockBlock") ||
-      contains("log.message", "Santa") ||
-      contains("log.message", "CarbonBlack") ||
-      contains("log.message", "com.carbonblack") ||
-      contains("log.message", "CrowdStrike") ||
-      contains("log.message", "com.crowdstrike") ||
-      contains("log.message", "osquery") ||
-      contains("log.message", "com.facebook.osqueryd") ||
-      contains("log.message", "com.objective-see")
+      contains("event.message", "LuLu") ||
+      contains("event.message", "BlockBlock") ||
+      contains("event.message", "Santa") ||
+      contains("event.message", "CarbonBlack") ||
+      contains("event.message", "com.carbonblack") ||
+      contains("event.message", "CrowdStrike") ||
+      contains("event.message", "com.crowdstrike") ||
+      contains("event.message", "osquery") ||
+      contains("event.message", "com.facebook.osqueryd") ||
+      contains("event.message", "com.objective-see")
     )
   ) ||
   (
-    contains("log.message", "spctl") &&
-    contains("log.message", "--master-disable")
+    contains("event.message", "spctl") &&
+    contains("event.message", "--master-disable")
   )
 groupBy:
   - adversary.host

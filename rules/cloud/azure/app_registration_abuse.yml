@@ -17,18 +17,18 @@ description: 'Repeated successful application/service-principal creation or cons
   provisioning and consent workflows.
 
   '
-where: '(equalsIgnoreCase("log.azureKind","audit") && equalsIgnoreCase("actionResult","success") && (equalsIgnoreCase("log.azureOperation","Add
-  application") || equalsIgnoreCase("log.azureOperation","Add service principal") || equalsIgnoreCase("log.azureOperation","Consent
-  to application"))) && exists("dataSource") && !equals("dataSource","") && exists("log.azureScopeType") && !equals("log.azureScopeType","")
-  && exists("log.azureScope") && !equals("log.azureScope","") && exists("log.azureActorType") && !equals("log.azureActorType","")
-  && exists("log.azureActor") && !equals("log.azureActor","")
+where: '(equalsIgnoreCase("event.azureKind","audit") && equalsIgnoreCase("actionResult","success") && (equalsIgnoreCase("event.azureOperation","Add
+  application") || equalsIgnoreCase("event.azureOperation","Add service principal") || equalsIgnoreCase("event.azureOperation","Consent
+  to application"))) && exists("dataSource") && !equals("dataSource","") && exists("event.azureScopeType") && !equals("event.azureScopeType","")
+  && exists("event.azureScope") && !equals("event.azureScope","") && exists("event.azureActorType") && !equals("event.azureActorType","")
+  && exists("event.azureActor") && !equals("event.azureActor","")
 
   '
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.azureScopeType
-- lastEvent.log.azureScope
-- lastEvent.log.azureOperation
+- lastEvent.event.azureScopeType
+- lastEvent.event.azureScope
+- lastEvent.event.azureOperation
 - adversary.user
 - adversary.ip
 correlation:
@@ -37,19 +37,19 @@ correlation:
   - field: dataSource
     operator: filter_term
     value: '{{.dataSource}}'
-  - field: log.azureScopeType
+  - field: event.azureScopeType
     operator: filter_term
-    value: '{{.log.azureScopeType}}'
-  - field: log.azureScope
+    value: '{{.event.azureScopeType}}'
+  - field: event.azureScope
     operator: filter_term
-    value: '{{.log.azureScope}}'
-  - field: log.azureActorType
+    value: '{{.event.azureScope}}'
+  - field: event.azureActorType
     operator: filter_term
-    value: '{{.log.azureActorType}}'
-  - field: log.azureActor
+    value: '{{.event.azureActorType}}'
+  - field: event.azureActor
     operator: filter_term
-    value: '{{.log.azureActor}}'
-  - field: log.correlationCandidate.appRegistrationAbuse
+    value: '{{.event.azureActor}}'
+  - field: event.correlationCandidate.appRegistrationAbuse
     operator: filter_term
     value: 'true'
   within: 1h

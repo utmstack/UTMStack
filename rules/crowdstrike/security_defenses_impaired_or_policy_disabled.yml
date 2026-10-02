@@ -12,8 +12,8 @@ impact:
   integrity: 3
   availability: 3
 where: >
-    equals("log.eventPatternDispositionFlagsPolicyDisabled", true) || 
-    oneOf("log.eventPatternDispositionValue", [8192, 8208, 8320, 8704, 9216, 10240, 12304, 73728, 73744])
+    equals("event.eventPatternDispositionFlagsPolicyDisabled", true) || 
+    oneOf("event.eventPatternDispositionValue", [8192, 8208, 8320, 8704, 9216, 10240, 12304, 73728, 73744])
 groupBy: 
   - adversary.host
-  - lastEvent.log.eventPatternDispositionDescription
+  - lastEvent.event.eventPatternDispositionDescription

@@ -13,13 +13,13 @@ description: Identifies a CloseAccount request, the irreversible end-state of ac
 references:
 - https://docs.aws.amazon.com/accounts/latest/reference/close-account.html
 where: |
-  equals("log.awsRecordType","cloudtrail") &&
-  (equals("log.eventSource", "account.amazonaws.com") &&
-  equals("log.eventName", "CloseAccount") &&
+  equals("event.awsRecordType","cloudtrail") &&
+  (equals("event.eventSource", "account.amazonaws.com") &&
+  equals("event.eventName", "CloseAccount") &&
   equals("actionResult","success"))
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
 - adversary.ip
 - adversary.user

@@ -23,7 +23,7 @@ description: |
   4. Check if legitimate DNS servers are responding with forged packets
   5. Consider implementing DNS response validation and DNSSEC if not already enabled
   6. Monitor for subsequent DNS queries to verify if cache poisoning was successful
-where: equals("log.eventType", "unbound") && contains("log.reason", "reply") && (!equals("log.rcode", "NOERROR") || contains("log.flags", "FORGED"))
+where: equals("event.eventType", "unbound") && contains("event.reason", "reply") && (!equals("event.rcode", "NOERROR") || contains("event.flags", "FORGED"))
 afterEvents:
   - indexPattern: v11-log-firewall-pfsense-*
     with:
@@ -33,5 +33,5 @@ afterEvents:
     within: 5m
     count: 10
 groupBy:
-  - lastEvent.log.query_name
+  - lastEvent.event.query_name
   - adversary.ip

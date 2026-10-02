@@ -24,13 +24,13 @@ description: |
   5. Remove unauthorized VIBs immediately
   6. Reset ESXi acceptance level to PartnerSupported or VMwareCertified
 where: |
-  exists("log.message") &&
+  exists("event.message") &&
   (
-    (contains("log.message", "esxcli software vib install") || contains("log.message", "esxcli software vib update")) ||
-    (contains("log.message", "VIB") && (contains("log.message", "installed") || contains("log.message", "Install"))) ||
-    (contains("log.message", "acceptance level") && contains("log.message", "CommunitySupported")) ||
-    contains("log.message", "--force --no-sig-check") ||
-    (contains("log.message", "esxcli software acceptance") && contains("log.message", "set"))
+    (contains("event.message", "esxcli software vib install") || contains("event.message", "esxcli software vib update")) ||
+    (contains("event.message", "VIB") && (contains("event.message", "installed") || contains("event.message", "Install"))) ||
+    (contains("event.message", "acceptance level") && contains("event.message", "CommunitySupported")) ||
+    contains("event.message", "--force --no-sig-check") ||
+    (contains("event.message", "esxcli software acceptance") && contains("event.message", "set"))
   )
 groupBy:
   - adversary.hostname

@@ -23,6 +23,6 @@ description: |
   5. If confirmed malicious, terminate the process and remove the binary
   6. Check for other masquerading processes on the system
 where: |
-  regexMatch("log.execve.a0", "^\\[(kworker|kthreadd|ksoftirqd|migration|rcu_|kswapd|watchdog|kdevtmpfs|kauditd|kcompactd|kintegrityd|khugepaged|kblockd|kthrotld)")
+  regexMatch("event.execve.a0", "^\\[(kworker|kthreadd|ksoftirqd|migration|rcu_|kswapd|watchdog|kdevtmpfs|kauditd|kcompactd|kintegrityd|khugepaged|kblockd|kthrotld)")
 deduplicateBy:
   - dataSource

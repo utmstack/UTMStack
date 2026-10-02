@@ -18,33 +18,33 @@ description: Detects five URL events in the configured malware, phishing, comman
   malware, and requesting a URL does not prove execution or compromise. The requested remote resource is the alert
   adversary; the requesting client is its target. Inspect the URL and action; a later continue/override is a separate
   event.
-where: equals("log.paType", "THREAT") && equals("log.paSubtype", "url") && oneOf("action", ["block-url", "block-page",
-  "block-continue", "block-override", "alert"]) && oneOf("log.category", ["malware", "phishing", "command-and-control",
-  "grayware", "hacking"]) && exists("origin.ip") && exists("dataSource") && !equals("dataSource", "") && exists("log.paScope")
-  && exists("log.paVsys")
+where: equals("event.paType", "THREAT") && equals("event.paSubtype", "url") && oneOf("action", ["block-url", "block-page",
+  "block-continue", "block-override", "alert"]) && oneOf("event.category", ["malware", "phishing", "command-and-control",
+  "grayware", "hacking"]) && exists("origin.ip") && exists("dataSource") && !equals("dataSource", "") && exists("event.paScope")
+  && exists("event.paVsys")
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.paScope
-- lastEvent.log.paVsys
+- lastEvent.event.paScope
+- lastEvent.event.paVsys
 - adversary.ip
 - target.ip
-- lastEvent.log.category
+- lastEvent.event.category
 afterEvents:
 - indexPattern: v11-log-firewall-paloalto-*
   with:
   - field: dataSource
     operator: filter_term
     value: '{{.dataSource}}'
-  - field: log.paScope
+  - field: event.paScope
     operator: filter_term
-    value: '{{.log.paScope}}'
-  - field: log.paVsys
+    value: '{{.event.paScope}}'
+  - field: event.paVsys
     operator: filter_term
-    value: '{{.log.paVsys}}'
+    value: '{{.event.paVsys}}'
   - field: origin.ip
     operator: filter_term
     value: '{{.origin.ip}}'
-  - field: log.correlationCandidate.paloalto.url
+  - field: event.correlationCandidate.paloalto.url
     operator: filter_term
     value: match
   within: 30m

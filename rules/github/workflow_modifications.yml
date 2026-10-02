@@ -28,16 +28,16 @@ description: |
   9. Verify the integrity of the repository and look for other suspicious activities
   10. Review access logs for the user account that made the modifications
 where: |
-  (equals("log.action", "workflows.updated") || 
-   equals("log.action", "workflows.created") || 
-   equals("log.action", "workflow_run.completed") ||
-   equals("log.action", "workflow_dispatch")) &&
-  exists("log.repositoryName") &&
-  exists("log.senderLogin") &&
-  (contains("log.headCommitModified", ".github/workflows/") ||
-   contains("log.headCommitAdded", ".github/workflows/") ||
-   contains("log.path", ".github/workflows/") ||
-   contains("log.filename", ".github/workflows/"))
+  (equals("event.action", "workflows.updated") || 
+   equals("event.action", "workflows.created") || 
+   equals("event.action", "workflow_run.completed") ||
+   equals("event.action", "workflow_dispatch")) &&
+  exists("event.repositoryName") &&
+  exists("event.senderLogin") &&
+  (contains("event.headCommitModified", ".github/workflows/") ||
+   contains("event.headCommitAdded", ".github/workflows/") ||
+   contains("event.path", ".github/workflows/") ||
+   contains("event.filename", ".github/workflows/"))
 groupBy:
-  - lastEvent.log.repositoryName
-  - lastEvent.log.senderLogin
+  - lastEvent.event.repositoryName
+  - lastEvent.event.senderLogin

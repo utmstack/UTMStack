@@ -17,17 +17,17 @@ description: "Detects potential ransomware activity by monitoring multiple file 
 references:
   - "https://attack.mitre.org/tactics/TA0040/"
 where: |
-  equals("log.eventCode", 4663) && 
-  oneOf("log.eventDataAccessMask", ["2", "4", "6"]) &&
-  !(regexMatch("log.eventDataProcessName", "(?i).*(trustedinstaller|svchost|wuauclt|msiexec|windows10upgrade|setuphost|tiworker|dism).*")) &&
-  regexMatch("log.eventDataObjectName", "(?i).*\\\\(users|documents|desktop|downloads|pictures|videos|music)\\\\.*") &&
-  !(regexMatch("log.eventDataObjectName", "(?i).*(\\\\windows\\\\|\\\\program files|\\\\programdata\\\\|\\\\temp\\\\|\\\\appdata\\\\local\\\\temp|\\\\softwaredistribution\\\\|\\\\winsxs\\\\|\\\\logs\\\\|\\\\prefetch\\\\).*")) &&
-  !(regexMatch("log.eventDataObjectName", "(?i).*\\.(tmp|log|etl|dmp|pf|evtx|cache|dat|bak)$")) &&
-  regexMatch("log.eventDataObjectName", "(?i).*\\.(doc[x]?|xls[x]?|ppt[x]?|pdf|txt|jpg|jpeg|png|gif|bmp|mp4|avi|mp3|zip|rar|7z)$")
+  equals("event.eventCode", 4663) && 
+  oneOf("event.eventDataAccessMask", ["2", "4", "6"]) &&
+  !(regexMatch("event.eventDataProcessName", "(?i).*(trustedinstaller|svchost|wuauclt|msiexec|windows10upgrade|setuphost|tiworker|dism).*")) &&
+  regexMatch("event.eventDataObjectName", "(?i).*\\\\(users|documents|desktop|downloads|pictures|videos|music)\\\\.*") &&
+  !(regexMatch("event.eventDataObjectName", "(?i).*(\\\\windows\\\\|\\\\program files|\\\\programdata\\\\|\\\\temp\\\\|\\\\appdata\\\\local\\\\temp|\\\\softwaredistribution\\\\|\\\\winsxs\\\\|\\\\logs\\\\|\\\\prefetch\\\\).*")) &&
+  !(regexMatch("event.eventDataObjectName", "(?i).*\\.(tmp|log|etl|dmp|pf|evtx|cache|dat|bak)$")) &&
+  regexMatch("event.eventDataObjectName", "(?i).*\\.(doc[x]?|xls[x]?|ppt[x]?|pdf|txt|jpg|jpeg|png|gif|bmp|mp4|avi|mp3|zip|rar|7z)$")
 afterEvents:
     - indexPattern: v11-log-wineventlog-*
       with:
-        - field: log.eventCode
+        - field: event.eventCode
           operator: filter_term
           value: "4663"
         - field: target.user.keyword

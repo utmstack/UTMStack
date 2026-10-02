@@ -16,13 +16,13 @@ references:
 description: 'A sign-in reports an AzureHound user agent. This string can be changed or spoofed and does not prove discovery completed.
 
   '
-where: 'equalsIgnoreCase("log.azureKind","signin") && regexMatch("log.properties.userAgent","(?i)(^|[^a-z])azurehound([^a-z]|$)")
+where: 'equalsIgnoreCase("event.azureKind","signin") && regexMatch("event.properties.userAgent","(?i)(^|[^a-z])azurehound([^a-z]|$)")
 
   '
 deduplicateBy:
 - lastEvent.dataSource
-- lastEvent.log.azureScopeType
-- lastEvent.log.azureScope
-- lastEvent.log.azureOperation
+- lastEvent.event.azureScopeType
+- lastEvent.event.azureScope
+- lastEvent.event.azureOperation
 - adversary.user
 - adversary.ip

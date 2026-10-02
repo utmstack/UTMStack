@@ -25,14 +25,14 @@ description: |
   7. Implement IAM policies to restrict WAF modification access
   8. Enable AWS Config rules to monitor WAF configuration compliance
 where: |
-  equals("log.awsRecordType","cloudtrail") &&
-  ((equals("log.eventSource", "wafv2.amazonaws.com") ||
-  equals("log.eventSource", "waf.amazonaws.com")) &&
-  oneOf("log.eventName", ["DeleteWebACL", "DeleteRule", "DeleteRuleGroup", "UpdateWebACL", "DeleteIPSet", "DeleteRegexPatternSet", "DisassociateWebACL"]) &&
+  equals("event.awsRecordType","cloudtrail") &&
+  ((equals("event.eventSource", "wafv2.amazonaws.com") ||
+  equals("event.eventSource", "waf.amazonaws.com")) &&
+  oneOf("event.eventName", ["DeleteWebACL", "DeleteRule", "DeleteRuleGroup", "UpdateWebACL", "DeleteIPSet", "DeleteRegexPatternSet", "DisassociateWebACL"]) &&
   equals("actionResult","success"))
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
 - adversary.user
-- lastEvent.log.eventName
+- lastEvent.event.eventName

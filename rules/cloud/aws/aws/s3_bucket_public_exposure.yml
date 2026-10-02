@@ -15,24 +15,24 @@ references:
 description: |
   Detects a successful public ACL change or removal/relaxation of bucket Public Access Block controls. Account-level and bucket policies can still prevent public access. Review the effective controls before concluding that data is exposed.
 where: |
-  equals("log.awsRecordType","cloudtrail") &&
+  equals("event.awsRecordType","cloudtrail") &&
   (equals("actionResult","success") &&
-  (equals("log.eventSource","s3.amazonaws.com") &&
-  oneOf("log.eventName",["PutBucketAcl", "PutObjectAcl"]) &&
-  ((oneOf("log.requestParameters.xamzacl",["public-read", "public-read-write"]) ||
-  oneOf("log.requestParameters.x-amz-acl",["public-read", "public-read-write"])) ||
-  exists('log.requestParameters.AccessControlPolicy.AccessControlList.Grant.#(Grantee.URI=="http://acs.amazonaws.com/groups/global/AllUsers")')) ||
-  equals("log.eventSource","s3.amazonaws.com") &&
-  oneOf("log.eventName",["DeleteBucketPublicAccessBlock"]) ||
-  (equals("log.eventSource","s3.amazonaws.com") &&
-  oneOf("log.eventName",["PutBucketPublicAccessBlock"]) &&
-  (equals("log.requestParameters.PublicAccessBlockConfiguration.BlockPublicAcls",false) ||
-  equals("log.requestParameters.PublicAccessBlockConfiguration.IgnorePublicAcls",false) ||
-  equals("log.requestParameters.PublicAccessBlockConfiguration.BlockPublicPolicy",false) ||
-  equals("log.requestParameters.PublicAccessBlockConfiguration.RestrictPublicBuckets",false)))))
+  (equals("event.eventSource","s3.amazonaws.com") &&
+  oneOf("event.eventName",["PutBucketAcl", "PutObjectAcl"]) &&
+  ((oneOf("event.requestParameters.xamzacl",["public-read", "public-read-write"]) ||
+  oneOf("event.requestParameters.x-amz-acl",["public-read", "public-read-write"])) ||
+  exists('event.requestParameters.AccessControlPolicy.AccessControlList.Grant.#(Grantee.URI=="http://acs.amazonaws.com/groups/global/AllUsers")')) ||
+  equals("event.eventSource","s3.amazonaws.com") &&
+  oneOf("event.eventName",["DeleteBucketPublicAccessBlock"]) ||
+  (equals("event.eventSource","s3.amazonaws.com") &&
+  oneOf("event.eventName",["PutBucketPublicAccessBlock"]) &&
+  (equals("event.requestParameters.PublicAccessBlockConfiguration.BlockPublicAcls",false) ||
+  equals("event.requestParameters.PublicAccessBlockConfiguration.IgnorePublicAcls",false) ||
+  equals("event.requestParameters.PublicAccessBlockConfiguration.BlockPublicPolicy",false) ||
+  equals("event.requestParameters.PublicAccessBlockConfiguration.RestrictPublicBuckets",false)))))
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
-- lastEvent.log.requestParameters.bucketName
-- lastEvent.log.userIdentity.accessKeyId
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
+- lastEvent.event.requestParameters.bucketName
+- lastEvent.event.userIdentity.accessKeyId

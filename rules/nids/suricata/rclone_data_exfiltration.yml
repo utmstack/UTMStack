@@ -26,12 +26,12 @@ description: |
   6. Search for ransomware deployment indicators on the same host
   7. Initiate incident response - this may indicate imminent ransomware deployment
 where: |
-  equals("log.eventType", "http") &&
-  exists("log.http.http_user_agent") &&
+  equals("event.eventType", "http") &&
+  exists("event.http.http_user_agent") &&
   exists("origin.ip") &&
   (
-    startsWith("log.http.http_user_agent", "rclone/") ||
-    contains("log.http.http_user_agent", "rclone/v")
+    startsWith("event.http.http_user_agent", "rclone/") ||
+    contains("event.http.http_user_agent", "rclone/v")
   )
 afterEvents:
   - indexPattern: v11-log-suricata-*
@@ -39,7 +39,7 @@ afterEvents:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'
-      - field: log.eventType
+      - field: event.eventType
         operator: filter_term
         value: 'http'
     within: 30m

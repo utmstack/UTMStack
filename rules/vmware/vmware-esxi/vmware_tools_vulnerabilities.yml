@@ -26,12 +26,12 @@ description: |
   7. Review network traffic to and from the affected system for indicators of compromise
   8. Check for lateral movement attempts from the compromised system
 where: |
-  (regexMatch("log.message", "(?i)vmware tools") && equals("severity", "error")) ||
-  (regexMatch("log.message", "(?i)authentication of user") && regexMatch("log.message", "(?i)failed")) ||
-  (regexMatch("log.message", "(?i)LW_ERROR_PASSWORD_MISMATCH")) ||
-  (regexMatch("log.message", "(?i)Cannot login") && regexMatch("log.process", "(?i)vmtoolsd")) ||
-  (regexMatch("log.message", "(?i)rejected password for user")) ||
-  (regexMatch("log.message", "(?i)vmtoolsd") && regexMatch("log.message", "(?i)exploit"))
+  (regexMatch("event.message", "(?i)vmware tools") && equals("severity", "error")) ||
+  (regexMatch("event.message", "(?i)authentication of user") && regexMatch("event.message", "(?i)failed")) ||
+  (regexMatch("event.message", "(?i)LW_ERROR_PASSWORD_MISMATCH")) ||
+  (regexMatch("event.message", "(?i)Cannot login") && regexMatch("event.process", "(?i)vmtoolsd")) ||
+  (regexMatch("event.message", "(?i)rejected password for user")) ||
+  (regexMatch("event.message", "(?i)vmtoolsd") && regexMatch("event.message", "(?i)exploit"))
 afterEvents:
   - indexPattern: v11-log-vmware-esxi-*
     with:

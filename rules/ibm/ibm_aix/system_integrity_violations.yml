@@ -27,7 +27,7 @@ description: |
   8. Examine command history and process execution logs
   9. Validate user permissions and access controls
   10. Check for presence of unauthorized tools or backdoors
-where: (contains("log.eventType", "AUD_") && equals("action", "FILE_Write")) || (contains("log.objName", "/etc/security/") && equals("action", "FILE_Write")) || (equals("log.commandType", "sudo") && contains("origin.command", "passwd")) || (contains("log.msg", "audit") && contains("log.msg", "disable")) || (equals("log.osUserID", "root") && !equals("origin.user", "root"))
+where: (contains("event.eventType", "AUD_") && equals("action", "FILE_Write")) || (contains("event.objName", "/etc/security/") && equals("action", "FILE_Write")) || (equals("event.commandType", "sudo") && contains("origin.command", "passwd")) || (contains("event.msg", "audit") && contains("event.msg", "disable")) || (equals("event.osUserID", "root") && !equals("origin.user", "root"))
 groupBy:
-  - lastEvent.log.objName
+  - lastEvent.event.objName
   - adversary.host

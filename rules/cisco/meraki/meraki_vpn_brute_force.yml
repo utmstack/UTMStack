@@ -25,10 +25,10 @@ description: |
   5. Review VPN authentication settings and ensure MFA is enabled
   6. Notify the targeted user if the account is legitimate
 where: |
-  equals("log.eventType", "events") &&
-  equals("log.type", "anyconnect_vpn_auth_failure") &&
+  equals("event.eventType", "events") &&
+  equals("event.type", "anyconnect_vpn_auth_failure") &&
   exists("origin.ip") &&
-  exists("log.merakiType") && !oneOf("log.merakiType", ["", "unknown", "-"]) &&
+  exists("event.merakiType") && !oneOf("event.merakiType", ["", "unknown", "-"]) &&
   exists("dataSource") && !oneOf("dataSource", ["", "unknown", "-"])
 afterEvents:
   - indexPattern: v11-log-firewall-meraki-*
@@ -36,18 +36,18 @@ afterEvents:
       - field: dataSource
         operator: filter_term
         value: '{{.dataSource}}'
-      - field: log.merakiType
+      - field: event.merakiType
         operator: filter_term
-        value: '{{.log.merakiType}}'
+        value: '{{.event.merakiType}}'
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'
-      - field: log.vpnAuthenticationFailure
+      - field: event.vpnAuthenticationFailure
         operator: filter_term
         value: 'match'
     within: 15m
     count: 10
 groupBy:
   - lastEvent.dataSource
-  - lastEvent.log.merakiType
+  - lastEvent.event.merakiType
   - adversary.ip

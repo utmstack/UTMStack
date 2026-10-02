@@ -24,7 +24,7 @@ description: |
   5. Review recent application deployments for security vulnerabilities
   6. Monitor for additional attack attempts from the same source
 where: |
-  (exists("log.__proto__") ||
+  (exists("event.__proto__") ||
    contains("raw", "__proto__") ||
    contains("raw", "constructor.prototype") ||
    contains("raw", "Object.prototype"))

@@ -25,26 +25,26 @@ description: |
   6. Update IPS signatures and verify all systems are patched against the detected vulnerability
   7. Document the incident and notify the security team if this is part of a larger campaign
 where: |
-  exists("log.devid") && !equals("log.devid", "") && exists("log.vd") && !equals("log.vd", "") &&
-  (equals("log.type", "utm") && equals("log.subtype", "ips") &&
-  oneOf("log.severity", ["critical", "high"]) &&
+  exists("event.devid") && !equals("event.devid", "") && exists("event.vd") && !equals("event.vd", "") &&
+  (equals("event.type", "utm") && equals("event.subtype", "ips") &&
+  oneOf("event.severity", ["critical", "high"]) &&
   equals("actionResult", "denied") && exists("origin.ip"))
 afterEvents:
 - indexPattern: v11-log-firewall-fortigate-traffic-*
   with:
-  - field: log.devid
+  - field: event.devid
     operator: filter_term
-    value: '{{.log.devid}}'
-  - field: log.vd
+    value: '{{.event.devid}}'
+  - field: event.vd
     operator: filter_term
-    value: '{{.log.vd}}'
+    value: '{{.event.vd}}'
   - field: dataSource
     operator: filter_term
     value: '{{.dataSource}}'
   - field: origin.ip
     operator: filter_term
     value: '{{.origin.ip}}'
-  - field: log.correlationCandidate.ipsCritical
+  - field: event.correlationCandidate.ipsCritical
     operator: filter_term
     value: match
   within: 15m
@@ -52,5 +52,5 @@ afterEvents:
 groupBy:
 - adversary.ip
 - target.ip
-- lastEvent.log.devid
-- lastEvent.log.vd
+- lastEvent.event.devid
+- lastEvent.event.vd

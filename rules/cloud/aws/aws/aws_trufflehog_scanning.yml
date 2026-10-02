@@ -23,12 +23,12 @@ description: |
   5. Check for any credentials that may have been discovered and exfiltrated
   6. Review IAM policies to limit enumeration permissions
 where: |
-  equals("log.awsRecordType","cloudtrail") &&
-  (contains("log.userAgent", "trufflehog") ||
-  contains("log.userAgent", "TruffleHog"))
+  equals("event.awsRecordType","cloudtrail") &&
+  (contains("event.userAgent", "trufflehog") ||
+  contains("event.userAgent", "TruffleHog"))
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
 - adversary.user
-- lastEvent.log.sourceIPAddress
+- lastEvent.event.sourceIPAddress

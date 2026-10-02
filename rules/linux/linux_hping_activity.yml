@@ -15,7 +15,7 @@ description: "Hping ran on a Linux host. Hping is a FOSS command-line packet ana
 references:
   - "https://attack.mitre.org/tactics/TA0007/"
   - "https://attack.mitre.org/techniques/T1082/"
-where: contains("log.message", "hping")
+where: contains("event.message", "hping")
 deduplicateBy:
   - origin.ip
   - origin.user

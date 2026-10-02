@@ -24,17 +24,17 @@ description: |
   5. Consider blocking the source IP if confirmed malicious
   6. Review and strengthen JSONP implementation security measures
 where: |
-  (exists("log.callback") &&
-   (contains("log.callback", "<") ||
-    contains("log.callback", ">") ||
-    contains("log.callback", "javascript:") ||
-    contains("log.callback", "alert(") ||
-    contains("log.callback", "eval(") ||
-    contains("log.callback", "Function(") ||
-    contains("log.callback", ".constructor("))) ||
-  (exists("log.url_query") &&
-   contains("log.url_query", "callback=") &&
-   contains("log.url_query", "<script"))
+  (exists("event.callback") &&
+   (contains("event.callback", "<") ||
+    contains("event.callback", ">") ||
+    contains("event.callback", "javascript:") ||
+    contains("event.callback", "alert(") ||
+    contains("event.callback", "eval(") ||
+    contains("event.callback", "Function(") ||
+    contains("event.callback", ".constructor("))) ||
+  (exists("event.url_query") &&
+   contains("event.url_query", "callback=") &&
+   contains("event.url_query", "<script"))
 groupBy:
-  - lastEvent.log.url_path
+  - lastEvent.event.url_path
   - adversary.ip

@@ -15,14 +15,14 @@ references:
 description: |
   Detects a successful RunInstances request for the listed GPU or large compute instance types. These types have legitimate uses; verify authorization, requested capacity and workload. The instance type does not establish cryptomining.
 where: |
-  equals("log.awsRecordType","cloudtrail") &&
-  (equals("log.eventSource","ec2.amazonaws.com") &&
-  oneOf("log.eventName",["RunInstances"]) &&
+  equals("event.awsRecordType","cloudtrail") &&
+  (equals("event.eventSource","ec2.amazonaws.com") &&
+  oneOf("event.eventName",["RunInstances"]) &&
   equals("actionResult","success") &&
-  regexMatch("log.requestParameters.instanceType", "^(p3|p4d|p4de|p5|g4dn|g4ad|g5|g5g)\\.[a-z0-9]+$|^(c5\\.(18|24)xlarge|c5a\\.24xlarge|c6i\\.32xlarge|c7g\\.16xlarge)$"))
+  regexMatch("event.requestParameters.instanceType", "^(p3|p4d|p4de|p5|g4dn|g4ad|g5|g5g)\\.[a-z0-9]+$|^(c5\\.(18|24)xlarge|c5a\\.24xlarge|c6i\\.32xlarge|c7g\\.16xlarge)$"))
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
 - adversary.user
-- lastEvent.log.requestParameters.instanceType
+- lastEvent.event.requestParameters.instanceType

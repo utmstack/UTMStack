@@ -13,12 +13,12 @@ references:
 - https://docs.sophos.com/nsg/sophos-firewall/20.0/syslog/index.html
 description: Sophos reports Emergency, Alert or Critical priority/severity. Review the vendor event details; this
   broad device signal alone does not establish exploitation.
-where: equals("severity","critical") && !regexMatch("log.application", "(Torrent|Proxy|EXE File Download|eMule P2P|Ares
+where: equals("severity","critical") && !regexMatch("event.application", "(Torrent|Proxy|EXE File Download|eMule P2P|Ares
   P2P|Avast Antivirus|NetFlix|McAfee Antivirus|AVG Antivirus|ISAKMP VPN|WeTransfer Base|Xbox LIVE|OSC_AMU)") &&
-  !regexMatch("log.applicationName", "(Torrent|Proxy|EXE File Download|eMule P2P|Ares P2P|Avast Antivirus|NetFlix|McAfee
+  !regexMatch("event.applicationName", "(Torrent|Proxy|EXE File Download|eMule P2P|Ares P2P|Avast Antivirus|NetFlix|McAfee
   Antivirus|AVG Antivirus|ISAKMP VPN|WeTransfer Base|Xbox LIVE|OSC_AMU)")
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.sophosScope
+- lastEvent.event.sophosScope
 - adversary.ip
 - target.ip

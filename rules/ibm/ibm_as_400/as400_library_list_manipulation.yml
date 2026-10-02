@@ -24,18 +24,18 @@ description: |
   5. Remove unauthorized library list entries
   6. Restrict CHGLIBL and ADDLIBLE authority
 where: |
-  exists("log.message") &&
+  exists("event.message") &&
   (
-    contains("log.message", "CHGLIBL") ||
-    contains("log.message", "ADDLIBLE") ||
-    contains("log.message", "CHGSYSLIBL") ||
-    contains("log.message", "RMVLIBLE") ||
-    (contains("log.message", "library list") && (
-      contains("log.message", "changed") ||
-      contains("log.message", "modified") ||
-      contains("log.message", "added")
+    contains("event.message", "CHGLIBL") ||
+    contains("event.message", "ADDLIBLE") ||
+    contains("event.message", "CHGSYSLIBL") ||
+    contains("event.message", "RMVLIBLE") ||
+    (contains("event.message", "library list") && (
+      contains("event.message", "changed") ||
+      contains("event.message", "modified") ||
+      contains("event.message", "added")
     )) ||
-    (contains("log.message", "EDTLIBL") && exists("origin.user"))
+    (contains("event.message", "EDTLIBL") && exists("origin.user"))
   )
 afterEvents:
   - indexPattern: v11-log-ibm-as400-*

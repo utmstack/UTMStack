@@ -19,7 +19,7 @@ impact:
   integrity: 3
   availability: 0
 where: equals("action", "Update user.") &&
-      equals("log.Workload", "AzureActiveDirectory") &&
-      contains("log.ModifiedProperties", "TargetId.UserType")
+      equals("event.Workload", "AzureActiveDirectory") &&
+      contains("event.ModifiedProperties", "TargetId.UserType")
 groupBy:
   - adversary.user

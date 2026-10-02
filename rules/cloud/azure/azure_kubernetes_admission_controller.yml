@@ -32,15 +32,15 @@ description: 'Detects creation or modification of MutatingAdmissionWebhook or Va
   6. Review cluster RBAC for excessive admission controller permissions
 
   '
-where: 'equalsIgnoreCase("log.azureKind","kubernetes") && equalsIgnoreCase("log.azureKubernetes.stage","ResponseComplete") && equalsIgnoreCase("actionResult","success")
-  && oneOf("log.azureKubernetes.objectRef.resource",["mutatingwebhookconfigurations", "validatingwebhookconfigurations"]) && oneOf("log.azureKubernetes.verb",["create",
+where: 'equalsIgnoreCase("event.azureKind","kubernetes") && equalsIgnoreCase("event.azureKubernetes.stage","ResponseComplete") && equalsIgnoreCase("actionResult","success")
+  && oneOf("event.azureKubernetes.objectRef.resource",["mutatingwebhookconfigurations", "validatingwebhookconfigurations"]) && oneOf("event.azureKubernetes.verb",["create",
   "update", "patch"])
 
   '
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.azureScopeType
-- lastEvent.log.azureScope
-- lastEvent.log.azureOperation
+- lastEvent.event.azureScopeType
+- lastEvent.event.azureScope
+- lastEvent.event.azureOperation
 - adversary.user
 - adversary.ip

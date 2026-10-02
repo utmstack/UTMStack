@@ -24,10 +24,10 @@ description: |
   5. Check if the certificate fingerprint matches known threat intelligence
   6. Block connections to destinations with suspicious certificates
 where: |
-  equals("log.eventType", "alert") &&
-  (contains("log.alert.signature", ["self-signed", "expired certificate", "certificate mismatch", "untrusted CA", "invalid certificate"]) ||
-   oneOf("log.alert.category", ["Not Suspicious Traffic", "Potential Corporate Privacy Violation"]) &&
-   contains("log.alert.signature", "certificate")) &&
+  equals("event.eventType", "alert") &&
+  (contains("event.alert.signature", ["self-signed", "expired certificate", "certificate mismatch", "untrusted CA", "invalid certificate"]) ||
+   oneOf("event.alert.category", ["Not Suspicious Traffic", "Potential Corporate Privacy Violation"]) &&
+   contains("event.alert.signature", "certificate")) &&
   exists("origin.ip") &&
   exists("target.ip")
 afterEvents:

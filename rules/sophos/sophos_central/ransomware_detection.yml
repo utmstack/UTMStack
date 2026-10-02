@@ -14,18 +14,18 @@ references:
 - https://attack.mitre.org/techniques/T1486/
 description: Sophos reports ransomware behavior or blocked encryption. Review vendor details and affected files;
   detection or prevention does not prove successful encryption.
-where: '(oneOf("log.type", ["Event::Endpoint::Threat::RansomwareDetected", "Event::Endpoint::CryptoGuard::FileEncryption"])
+where: '(oneOf("event.type", ["Event::Endpoint::Threat::RansomwareDetected", "Event::Endpoint::CryptoGuard::FileEncryption"])
   ||
 
-  (equals("log.name", "CryptoGuard") && equals("log.action", "blocked")) ||
+  (equals("event.name", "CryptoGuard") && equals("event.action", "blocked")) ||
 
-  (equals("log.name", "Ransomware detected") && equals("log.severity", "critical")) ||
+  (equals("event.name", "Ransomware detected") && equals("event.severity", "critical")) ||
 
-  (equals("log.type", "Event::Endpoint::Threat::Detected") && equals("log.threatType", "Ransomware"))) && !regexMatch("log.type","(?i)(clean|cleanedup|resolved|dismissed|cancelled|success)$")'
+  (equals("event.type", "Event::Endpoint::Threat::Detected") && equals("event.threatType", "Ransomware"))) && !regexMatch("event.type","(?i)(clean|cleanedup|resolved|dismissed|cancelled|success)$")'
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.customerId
-- lastEvent.log.endpointId
-- lastEvent.log.type
+- lastEvent.event.customerId
+- lastEvent.event.endpointId
+- lastEvent.event.type
 - target.host
 - target.ip

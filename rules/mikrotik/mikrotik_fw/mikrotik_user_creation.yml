@@ -24,10 +24,10 @@ description: |
   5. If unauthorized, immediately delete the account and change all admin passwords
   6. Check for other signs of compromise such as script modifications or scheduler tasks
 where: |
-  contains("log.topics", "system") &&
-  contains("log.topics", "info") &&
-  (contains("log.message", "user") && contains("log.message", ["added", "created", "changed group"])) &&
-  !contains("log.message", "logged in")
+  contains("event.topics", "system") &&
+  contains("event.topics", "info") &&
+  (contains("event.message", "user") && contains("event.message", ["added", "created", "changed group"])) &&
+  !contains("event.message", "logged in")
 groupBy:
   - adversary.ip
   - adversary.user

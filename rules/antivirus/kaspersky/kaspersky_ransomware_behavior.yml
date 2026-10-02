@@ -26,29 +26,29 @@ description: |
 
   History counts only matching CEF candidates from the same collector and source identity.
 where: |
-  equals("log.format","cef") && (exists("log.signatureID") &&
-  (regexMatch("log.msg", "(?i)(ransomware|ransom|trojan-ransom|cryptolocker|locky|cerber|wannacry|ryuk|conti|lockbit|blackcat)") ||
-   contains("log.cs2", "Trojan-Ransom") || contains("log.cs4", "Trojan-Ransom") ||
-   (contains("log.msg", "encrypt") && contains("log.msg", "mass")) ||
-   (contains("log.msg", "System Watcher") && contains("log.msg", "rollback")))) && exists("log.endpointKey") && exists("log.endpointKeyType") && exists("dataSource")
+  equals("event.format","cef") && (exists("event.signatureID") &&
+  (regexMatch("event.msg", "(?i)(ransomware|ransom|trojan-ransom|cryptolocker|locky|cerber|wannacry|ryuk|conti|lockbit|blackcat)") ||
+   contains("event.cs2", "Trojan-Ransom") || contains("event.cs4", "Trojan-Ransom") ||
+   (contains("event.msg", "encrypt") && contains("event.msg", "mass")) ||
+   (contains("event.msg", "System Watcher") && contains("event.msg", "rollback")))) && exists("event.endpointKey") && exists("event.endpointKeyType") && exists("dataSource")
 correlation:
 - indexPattern: v11-log-antivirus-kaspersky-*
   with:
   - field: dataSource
     operator: filter_term
     value: '{{.dataSource}}'
-  - field: log.endpointKeyType
+  - field: event.endpointKeyType
     operator: filter_term
-    value: '{{.log.endpointKeyType}}'
-  - field: log.endpointKey
+    value: '{{.event.endpointKeyType}}'
+  - field: event.endpointKey
     operator: filter_term
-    value: '{{.log.endpointKey}}'
-  - field: log.correlationCandidate.kasperskyRansomwareBehavior
+    value: '{{.event.endpointKey}}'
+  - field: event.correlationCandidate.kasperskyRansomwareBehavior
     operator: filter_term
     value: match
   within: 10m
   count: 3
 groupBy:
-- lastEvent.log.endpointKeyType
-- lastEvent.log.endpointKey
-- lastEvent.log.cs4
+- lastEvent.event.endpointKeyType
+- lastEvent.event.endpointKey
+- lastEvent.event.cs4

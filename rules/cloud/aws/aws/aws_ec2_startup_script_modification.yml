@@ -23,14 +23,14 @@ description: |
   5. Examine the instance for signs of compromise
   6. If unauthorized, remove the userData and investigate the instance
 where: |
-  equals("log.awsRecordType","cloudtrail") &&
-  (equals("log.eventSource","ec2.amazonaws.com") &&
-  oneOf("log.eventName",["ModifyInstanceAttribute"]) &&
+  equals("event.awsRecordType","cloudtrail") &&
+  (equals("event.eventSource","ec2.amazonaws.com") &&
+  oneOf("event.eventName",["ModifyInstanceAttribute"]) &&
   equals("actionResult","success") &&
-  exists("log.requestParameters.userData"))
+  exists("event.requestParameters.userData"))
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
 - adversary.user
-- lastEvent.log.requestParameters.instanceId
+- lastEvent.event.requestParameters.instanceId

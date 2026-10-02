@@ -24,17 +24,17 @@ description: |
   5. Implement monitoring for syslog service status
   6. Restrict access to syslog configuration
 where: |
-  exists("log.message") &&
+  exists("event.message") &&
   (
-    (contains("log.message", "esxcli system syslog") && (
-      contains("log.message", "config set") ||
-      contains("log.message", "reload") ||
-      contains("log.message", "--loghost")
+    (contains("event.message", "esxcli system syslog") && (
+      contains("event.message", "config set") ||
+      contains("event.message", "reload") ||
+      contains("event.message", "--loghost")
     )) ||
-    (contains("log.message", "syslog") && contains("log.message", "stopped")) ||
-    (contains("log.message", "vmsyslogd") && contains("log.message", "terminated")) ||
-    (contains("log.message", "syslog") && contains("log.message", "disabled")) ||
-    (contains("log.message", "Syslog.global.logHost") && contains("log.message", "changed"))
+    (contains("event.message", "syslog") && contains("event.message", "stopped")) ||
+    (contains("event.message", "vmsyslogd") && contains("event.message", "terminated")) ||
+    (contains("event.message", "syslog") && contains("event.message", "disabled")) ||
+    (contains("event.message", "Syslog.global.logHost") && contains("event.message", "changed"))
   )
 groupBy:
   - adversary.hostname

@@ -19,12 +19,12 @@ description: 'A protection-module status event reports a disabled behavioral, po
   or establish a malicious override. Real-time antimalware status has a separate rule.
 
   '
-where: equals("log.BitdefenderGZModule", "modules") && (oneOf("log.avcstatus",["0"]) || equals("log.BitdefenderGZAvcStatus","0") ||
-  equals("log.pustatus","0") || equals("log.BitdefenderGZPuStatus","0") || equals("log.dlpstatus","0") || equals("log.BitdefenderGZDlpStatus","0")
-  || equals("log.appcontrolstatus","0") || equals("log.BitdefenderGZAppControlStatus","0"))
+where: equals("event.BitdefenderGZModule", "modules") && (oneOf("event.avcstatus",["0"]) || equals("event.BitdefenderGZAvcStatus","0") ||
+  equals("event.pustatus","0") || equals("event.BitdefenderGZPuStatus","0") || equals("event.dlpstatus","0") || equals("event.BitdefenderGZDlpStatus","0")
+  || equals("event.appcontrolstatus","0") || equals("event.BitdefenderGZAppControlStatus","0"))
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.BitdefenderGZCompanyId
-- lastEvent.log.endpointKeyType
-- lastEvent.log.endpointKey
-- lastEvent.log.BitdefenderGZModule
+- lastEvent.event.BitdefenderGZCompanyId
+- lastEvent.event.endpointKeyType
+- lastEvent.event.endpointKey
+- lastEvent.event.BitdefenderGZModule

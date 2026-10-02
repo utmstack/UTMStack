@@ -29,8 +29,8 @@ description: |
   4. Restrict management access to specific IP ranges and enforce MFA.
 where: |
   (
-    oneOf("log.eventCode", ["32", "33", "200"]) ||
-    contains("log.message", "denied due to bad credentials")
+    oneOf("event.eventCode", ["32", "33", "200"]) ||
+    contains("event.message", "denied due to bad credentials")
   ) && equals("actionResult", "failure") && exists("origin.ip")
 afterEvents:
   - indexPattern: v11-log-firewall-sonicwall-*

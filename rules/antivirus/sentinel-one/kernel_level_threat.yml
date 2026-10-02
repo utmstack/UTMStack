@@ -25,10 +25,10 @@ description: |
   6. If rootkit is confirmed, consider reimaging the system after forensic data collection
   7. Update endpoint protection signatures and kernel protection modules
 where: |
-  regexMatch("log.eventDescription", "(?i)(kernel|rootkit|driver|ring.?0|system.?level)") &&
-  contains("log.eventDescription", ["threat", "malicious", "exploit", "compromise",
+  regexMatch("event.eventDescription", "(?i)(kernel|rootkit|driver|ring.?0|system.?level)") &&
+  contains("event.eventDescription", ["threat", "malicious", "exploit", "compromise",
     "detect", "block", "prevent", "isolate"]) &&
   exists("target.host")
 groupBy:
-  - lastEvent.log.eventDescription
+  - lastEvent.event.eventDescription
   - target.host

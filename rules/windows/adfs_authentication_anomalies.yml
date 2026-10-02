@@ -26,9 +26,9 @@ description: |
   7. Correlate with other authentication events across the domain
 where: |
   !oneOf("dataSource", ["", "unknown"]) &&
-  exists("log.authenticationSource") && exists("log.authenticationSourceType") && exists("log.authenticationSourceDomain") &&
+  exists("event.authenticationSource") && exists("event.authenticationSourceType") && exists("event.authenticationSourceDomain") &&
   (
-  equals("log.providerName", "AD FS") && (equals("log.eventCode", "342") || equals("log.eventCode", "516")) && contains("log.message", "token validation failed")
+  equals("event.providerName", "AD FS") && (equals("event.eventCode", "342") || equals("event.eventCode", "516")) && contains("event.message", "token validation failed")
   )
 afterEvents:
   - indexPattern: v11-log-wineventlog-*
@@ -36,26 +36,26 @@ afterEvents:
       - field: dataSource.keyword
         operator: filter_term
         value: '{{.dataSource}}'
-      - field: log.authenticationSource.keyword
+      - field: event.authenticationSource.keyword
         operator: filter_term
-        value: '{{.log.authenticationSource}}'
-      - field: log.authenticationSourceType.keyword
+        value: '{{.event.authenticationSource}}'
+      - field: event.authenticationSourceType.keyword
         operator: filter_term
-        value: '{{.log.authenticationSourceType}}'
-      - field: log.authenticationSourceDomain.keyword
+        value: '{{.event.authenticationSourceType}}'
+      - field: event.authenticationSourceDomain.keyword
         operator: filter_term
-        value: '{{.log.authenticationSourceDomain}}'
-      - field: log.authenticationCandidate.adfsAuthenticationAnomalies.keyword
+        value: '{{.event.authenticationSourceDomain}}'
+      - field: event.authenticationCandidate.adfsAuthenticationAnomalies.keyword
         operator: filter_term
         value: match
-      - field: log.eventCode
+      - field: event.eventCode
         operator: filter_term
-        value: '{{.log.eventCode}}'
+        value: '{{.event.eventCode}}'
     within: 10m
     count: 10
 groupBy:
   - dataSource
-  - lastEvent.log.authenticationSourceType
-  - lastEvent.log.authenticationSource
-  - lastEvent.log.authenticationSourceDomain
+  - lastEvent.event.authenticationSourceType
+  - lastEvent.event.authenticationSource
+  - lastEvent.event.authenticationSourceDomain
   - target.user

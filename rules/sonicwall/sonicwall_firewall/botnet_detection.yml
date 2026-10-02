@@ -25,10 +25,10 @@ description: |
   4. Update threat intel feeds and blocklists with the observed C2 endpoint.
 where: |
   (
-    oneOf("log.eventCode", ["1370", "1371"]) ||
-    equals("log.appFirewallService", "botnet") ||
-    contains("log.message", ["botnet", "Botnet", "infected", "C&C", "command and control"]) ||
-    contains("log.contentCategory", "Botnet")
+    oneOf("event.eventCode", ["1370", "1371"]) ||
+    equals("event.appFirewallService", "botnet") ||
+    contains("event.message", ["botnet", "Botnet", "infected", "C&C", "command and control"]) ||
+    contains("event.contentCategory", "Botnet")
   ) && equals("actionResult", "denied")
 afterEvents:
   - indexPattern: v11-log-firewall-sonicwall-*

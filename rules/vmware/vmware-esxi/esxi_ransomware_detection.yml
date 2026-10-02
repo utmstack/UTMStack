@@ -24,17 +24,17 @@ description: |
   5. Preserve forensic evidence before recovery attempts
   6. Contact incident response team immediately
 where: |
-  exists("log.message") &&
+  exists("event.message") &&
   (
-    (contains("log.message", "vim-cmd vmsvc/power.off") || contains("log.message", "esxcli vm process kill")) ||
-    (contains("log.message", "openssl") && contains("log.message", "enc")) ||
-    (contains("log.message", ".vmdk") && (contains("log.message", "encrypt") || contains("log.message", "openssl"))) ||
-    (contains("log.message", "encrypt.sh") || contains("log.message", "encrypt.py")) ||
-    (contains("log.message", "esxcli vm process list") && contains("log.message", "kill")) ||
-    (contains("log.message", "snapshot") && contains("log.message", "removeall")) ||
-    (contains("log.message", ".vmx") && contains("log.message", "removed")) ||
-    contains("log.message", "ransom") ||
-    (contains("log.message", "chmod") && contains("log.message", "+x") && contains("log.message", ".sh"))
+    (contains("event.message", "vim-cmd vmsvc/power.off") || contains("event.message", "esxcli vm process kill")) ||
+    (contains("event.message", "openssl") && contains("event.message", "enc")) ||
+    (contains("event.message", ".vmdk") && (contains("event.message", "encrypt") || contains("event.message", "openssl"))) ||
+    (contains("event.message", "encrypt.sh") || contains("event.message", "encrypt.py")) ||
+    (contains("event.message", "esxcli vm process list") && contains("event.message", "kill")) ||
+    (contains("event.message", "snapshot") && contains("event.message", "removeall")) ||
+    (contains("event.message", ".vmx") && contains("event.message", "removed")) ||
+    contains("event.message", "ransom") ||
+    (contains("event.message", "chmod") && contains("event.message", "+x") && contains("event.message", ".sh"))
   )
 groupBy:
   - adversary.hostname

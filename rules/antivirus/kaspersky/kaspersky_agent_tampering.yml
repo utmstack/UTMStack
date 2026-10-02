@@ -23,8 +23,8 @@ description: |
   5. Perform a full system scan
   6. Check for similar events on other endpoints
 where: |
-  equals("log.format","cef") && (exists("log.signatureID") &&
-  (regexMatch("log.msg", "(?i)(kaspersky|klnagent|kavfs|kesl).*( disabled| stopped| removed| tampered| uninstalled)") ||
-   regexMatch("log.msg", "(?i)(protection|self-defense).*(disabled|off|stopped)") ||
-   (contains("log.cs1", "PROTECTION") && contains("log.msg", "disabled")) ||
-   (contains("log.msg", "agent") && contains("log.msg", "not running"))))
+  equals("event.format","cef") && (exists("event.signatureID") &&
+  (regexMatch("event.msg", "(?i)(kaspersky|klnagent|kavfs|kesl).*( disabled| stopped| removed| tampered| uninstalled)") ||
+   regexMatch("event.msg", "(?i)(protection|self-defense).*(disabled|off|stopped)") ||
+   (contains("event.cs1", "PROTECTION") && contains("event.msg", "disabled")) ||
+   (contains("event.msg", "agent") && contains("event.msg", "not running"))))

@@ -26,7 +26,7 @@ description: |
 where: |
   exists("origin.ip") &&
   exists("target.ip") &&
-  greaterThan("log.duration", 86400) &&
+  greaterThan("event.duration", 86400) &&
   equals("protocol", "TCP") &&
   !inCIDR("target.ip", "10.0.0.0/8") &&
   !inCIDR("target.ip", "172.16.0.0/12") &&

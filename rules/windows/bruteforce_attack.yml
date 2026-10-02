@@ -15,9 +15,9 @@ references:
   - "https://attack.mitre.org/techniques/T1110/"
 where: |
   !oneOf("dataSource", ["", "unknown"]) &&
-  exists("log.authenticationSource") && exists("log.authenticationSourceType") && exists("log.authenticationSourceDomain") && exists("target.user") &&
+  exists("event.authenticationSource") && exists("event.authenticationSourceType") && exists("event.authenticationSourceDomain") && exists("target.user") &&
   (
-  equals("log.eventCode", 4625)
+  equals("event.eventCode", 4625)
   )
 afterEvents:
   - indexPattern: v11-log-wineventlog-*
@@ -25,21 +25,21 @@ afterEvents:
       - field: dataSource.keyword
         operator: filter_term
         value: '{{.dataSource}}'
-      - field: log.authenticationSource.keyword
+      - field: event.authenticationSource.keyword
         operator: filter_term
-        value: '{{.log.authenticationSource}}'
-      - field: log.authenticationSourceType.keyword
+        value: '{{.event.authenticationSource}}'
+      - field: event.authenticationSourceType.keyword
         operator: filter_term
-        value: '{{.log.authenticationSourceType}}'
-      - field: log.authenticationSourceDomain.keyword
+        value: '{{.event.authenticationSourceType}}'
+      - field: event.authenticationSourceDomain.keyword
         operator: filter_term
-        value: '{{.log.authenticationSourceDomain}}'
-      - field: log.authenticationCandidate.bruteforceAttack.keyword
+        value: '{{.event.authenticationSourceDomain}}'
+      - field: event.authenticationCandidate.bruteforceAttack.keyword
         operator: filter_term
         value: match
-      - field: log.eventCode
+      - field: event.eventCode
         operator: filter_term
-        value: '{{.log.eventCode}}'
+        value: '{{.event.eventCode}}'
       - field: target.user.keyword
         operator: filter_term
         value: '{{.target.user}}'
@@ -47,7 +47,7 @@ afterEvents:
     count: 10
 deduplicateBy:
   - dataSource
-  - lastEvent.log.authenticationSourceType
-  - lastEvent.log.authenticationSource
-  - lastEvent.log.authenticationSourceDomain
+  - lastEvent.event.authenticationSourceType
+  - lastEvent.event.authenticationSource
+  - lastEvent.event.authenticationSourceDomain
   - target.user

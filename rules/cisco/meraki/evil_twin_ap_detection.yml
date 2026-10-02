@@ -25,10 +25,10 @@ description: |
   5. Check if any clients have connected to the rogue AP
   6. Review network traffic from affected clients for signs of credential theft
 where: |
-  equals("log.eventType", "airmarshal_events") &&
-  equals("log.type", "ssid_spoofing_detected") &&
-  exists("log.bssid")
+  equals("event.eventType", "airmarshal_events") &&
+  equals("event.type", "ssid_spoofing_detected") &&
+  exists("event.bssid")
 groupBy:
   - lastEvent.dataSource
-  - lastEvent.log.merakiType
-  - lastEvent.log.bssid
+  - lastEvent.event.merakiType
+  - lastEvent.event.bssid

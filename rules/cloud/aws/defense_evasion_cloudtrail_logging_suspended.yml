@@ -17,13 +17,13 @@ references:
 - https://docs.aws.amazon.com/awscloudtrail/latest/APIReference/API_StopLogging.html
 - https://awscli.amazonaws.com/v2/documentation/api/latest/reference/cloudtrail/stop-logging.html
 where: |
-  equals("log.awsRecordType","cloudtrail") &&
-  (equals("log.eventSource", "cloudtrail.amazonaws.com") &&
-  equals("log.eventName", "StopLogging") &&
+  equals("event.awsRecordType","cloudtrail") &&
+  (equals("event.eventSource", "cloudtrail.amazonaws.com") &&
+  equals("event.eventName", "StopLogging") &&
   equals("actionResult","success"))
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
 - adversary.ip
 - adversary.user

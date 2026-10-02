@@ -21,13 +21,13 @@ references:
 - https://learn.microsoft.com/en-us/office/office-365-management-api/office-365-management-activity-api-schema
 - https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/add-mailboxfolderpermission?view=exchange-ps
 where: |
-  equals("log.Workload", "Exchange") && equals("actionResult", "success") && oneOf("action", ["Add-MailboxFolderPermission", "Set-MailboxFolderPermission", "Remove-MailboxFolderPermission", "AddFolderPermissions", "ModifyFolderPermissions", "RemoveFolderPermissions"]) &&
-  !equals("log.LogonType", 0) &&
+  equals("event.Workload", "Exchange") && equals("actionResult", "success") && oneOf("action", ["Add-MailboxFolderPermission", "Set-MailboxFolderPermission", "Remove-MailboxFolderPermission", "AddFolderPermissions", "ModifyFolderPermissions", "RemoveFolderPermissions"]) &&
+  !equals("event.LogonType", 0) &&
   (!exists("target.user") || safe("origin.user", "") != safe("target.user", "")) &&
-  !(equals("log.ExternalAccess", true) && startsWith("origin.user", "S-1-5-"))
+  !(equals("event.ExternalAccess", true) && startsWith("origin.user", "S-1-5-"))
 groupBy:
 - lastEvent.tenantId
-- lastEvent.log.OrganizationId
+- lastEvent.event.OrganizationId
 - dataSource
 - adversary.user
 - lastEvent.action

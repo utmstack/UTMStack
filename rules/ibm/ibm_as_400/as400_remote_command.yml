@@ -24,15 +24,15 @@ description: |
   5. Restrict remote command execution authority
   6. Implement IP allowlisting for remote connections
 where: |
-  exists("log.message") &&
+  exists("event.message") &&
   (
-    contains("log.message", "RUNRMTCMD") ||
-    contains("log.message", "RCMD") ||
-    contains("log.message", "RMTCMD") ||
-    (contains("log.message", "DDM") && contains("log.message", "command")) ||
-    (contains("log.message", "DRDA") && contains("log.message", "remote")) ||
-    (contains("log.message", "REXEC") && exists("origin.ip")) ||
-    (contains("log.message", "SBMRMTCMD") && exists("origin.user"))
+    contains("event.message", "RUNRMTCMD") ||
+    contains("event.message", "RCMD") ||
+    contains("event.message", "RMTCMD") ||
+    (contains("event.message", "DDM") && contains("event.message", "command")) ||
+    (contains("event.message", "DRDA") && contains("event.message", "remote")) ||
+    (contains("event.message", "REXEC") && exists("origin.ip")) ||
+    (contains("event.message", "SBMRMTCMD") && exists("origin.user"))
   )
 afterEvents:
   - indexPattern: v11-log-ibm-as400-*

@@ -23,21 +23,21 @@ description: |
   5. Restrict datastore access permissions
   6. Implement file integrity monitoring on datastores
 where: |
-  exists("log.message") &&
+  exists("event.message") &&
   (
-    (contains("log.message", ".vmdk") && (
-      contains("log.message", "download") ||
-      contains("log.message", "GET /folder/") ||
-      contains("log.message", "scp") ||
-      contains("log.message", "cp ")
+    (contains("event.message", ".vmdk") && (
+      contains("event.message", "download") ||
+      contains("event.message", "GET /folder/") ||
+      contains("event.message", "scp") ||
+      contains("event.message", "cp ")
     )) ||
-    (contains("log.message", "vmkfstools") && (
-      contains("log.message", "-i") ||
-      contains("log.message", "--clonevirtualdisk") ||
-      contains("log.message", "-X") ||
-      contains("log.message", "--exportvirtualdisk")
+    (contains("event.message", "vmkfstools") && (
+      contains("event.message", "-i") ||
+      contains("event.message", "--clonevirtualdisk") ||
+      contains("event.message", "-X") ||
+      contains("event.message", "--exportvirtualdisk")
     )) ||
-    (contains("log.message", "Datastore") && contains("log.message", "browse") && contains("log.message", ".vmdk"))
+    (contains("event.message", "Datastore") && contains("event.message", "browse") && contains("event.message", ".vmdk"))
   )
 groupBy:
   - adversary.hostname

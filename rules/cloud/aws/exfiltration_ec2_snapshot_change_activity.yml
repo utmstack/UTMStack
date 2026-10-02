@@ -18,12 +18,12 @@ references:
 - https://awscli.amazonaws.com/v2/documentation/api/latest/reference/ec2/modify-snapshot-attribute.html
 - https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_ModifySnapshotAttribute.html
 where: |
-  equals("log.awsRecordType","cloudtrail") &&
-  (equals("log.eventSource", "ec2.amazonaws.com") &&
-  equals("log.eventName", "ModifySnapshotAttribute"))
+  equals("event.awsRecordType","cloudtrail") &&
+  (equals("event.eventSource", "ec2.amazonaws.com") &&
+  equals("event.eventName", "ModifySnapshotAttribute"))
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
 - adversary.ip
 - adversary.user

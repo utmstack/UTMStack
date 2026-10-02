@@ -25,46 +25,46 @@ description: |
   7. Consider implementing AWS Config rules to monitor Route 53 changes
   8. Review and restrict IAM policies for Route 53 access
 where: |
-  (equals("log.awsRecordType","cloudtrail") &&
-  (equals("log.eventSource", "route53.amazonaws.com") &&
-  equals("log.eventName", "ChangeResourceRecordSets") &&
+  (equals("event.awsRecordType","cloudtrail") &&
+  (equals("event.eventSource", "route53.amazonaws.com") &&
+  equals("event.eventName", "ChangeResourceRecordSets") &&
   equals("actionResult","success"))) &&
   exists("dataSource") &&
   !equals("dataSource","") &&
-  exists("log.awsAccountKeyType") &&
-  !equals("log.awsAccountKeyType","") &&
-  exists("log.awsAccountKey") &&
-  !equals("log.awsAccountKey","") &&
-  exists("log.awsActorKeyType") &&
-  !equals("log.awsActorKeyType","") &&
-  exists("log.awsActorKey") &&
-  !equals("log.awsActorKey","")
+  exists("event.awsAccountKeyType") &&
+  !equals("event.awsAccountKeyType","") &&
+  exists("event.awsAccountKey") &&
+  !equals("event.awsAccountKey","") &&
+  exists("event.awsActorKeyType") &&
+  !equals("event.awsActorKeyType","") &&
+  exists("event.awsActorKey") &&
+  !equals("event.awsActorKey","")
 afterEvents:
 - indexPattern: v11-log-aws-*
   with:
   - field: dataSource
     operator: filter_term
     value: '{{.dataSource}}'
-  - field: log.awsAccountKeyType
+  - field: event.awsAccountKeyType
     operator: filter_term
-    value: '{{.log.awsAccountKeyType}}'
-  - field: log.awsAccountKey
+    value: '{{.event.awsAccountKeyType}}'
+  - field: event.awsAccountKey
     operator: filter_term
-    value: '{{.log.awsAccountKey}}'
-  - field: log.awsActorKeyType
+    value: '{{.event.awsAccountKey}}'
+  - field: event.awsActorKeyType
     operator: filter_term
-    value: '{{.log.awsActorKeyType}}'
-  - field: log.awsActorKey
+    value: '{{.event.awsActorKeyType}}'
+  - field: event.awsActorKey
     operator: filter_term
-    value: '{{.log.awsActorKey}}'
-  - field: log.correlationCandidate.route53DnsHijacking
+    value: '{{.event.awsActorKey}}'
+  - field: event.correlationCandidate.route53DnsHijacking
     operator: filter_term
     value: match
   within: 30m
   count: 10
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
-- lastEvent.log.sourceIPAddress
-- lastEvent.log.userIdentityArn
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
+- lastEvent.event.sourceIPAddress
+- lastEvent.event.userIdentityArn

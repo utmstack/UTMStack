@@ -26,8 +26,8 @@ description: |
   7. Consider implementing additional monitoring or access restrictions if suspicious activity is confirmed
   8. Escalate to security team and HR if malicious intent is suspected
 where: |
-  equals("action", "InsiderRiskAlert") || (contains("log.PolicyName", "InsiderRisk") && oneOf("actionResult", ["denied", "blocked"])) || (oneOf("log.RiskLevel", ["High", "Critical"]) && equals("log.AlertSource", "InsiderRiskManagement"))
+  equals("action", "InsiderRiskAlert") || (contains("event.PolicyName", "InsiderRisk") && oneOf("actionResult", ["denied", "blocked"])) || (oneOf("event.RiskLevel", ["High", "Critical"]) && equals("event.AlertSource", "InsiderRiskManagement"))
 groupBy:
-  - lastEvent.log.PolicyName
-  - lastEvent.log.RiskLevel
+  - lastEvent.event.PolicyName
+  - lastEvent.event.RiskLevel
   - adversary.user

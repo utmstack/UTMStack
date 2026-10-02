@@ -17,14 +17,14 @@ description: 'A successful application role assignment. Permission privilege and
   grant; consent has a separate rule.
 
   '
-where: 'equalsIgnoreCase("log.azureKind","audit") && equalsIgnoreCase("actionResult","success") && equalsIgnoreCase("log.azureOperation","Add
+where: 'equalsIgnoreCase("event.azureKind","audit") && equalsIgnoreCase("actionResult","success") && equalsIgnoreCase("event.azureOperation","Add
   app role assignment to service principal")
 
   '
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.azureScopeType
-- lastEvent.log.azureScope
-- lastEvent.log.azureOperation
+- lastEvent.event.azureScopeType
+- lastEvent.event.azureScope
+- lastEvent.event.azureOperation
 - adversary.user
 - adversary.ip
