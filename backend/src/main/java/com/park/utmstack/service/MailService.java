@@ -7,7 +7,6 @@ import com.park.utmstack.domain.incident.UtmIncident;
 import com.park.utmstack.domain.mail_sender.MailConfig;
 import com.park.utmstack.domain.shared_types.alert.Event;
 import com.park.utmstack.domain.shared_types.alert.UtmAlert;
-import com.park.utmstack.domain.shared_types.LogType;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.mail_sender.BaseMailSender;
 import com.park.utmstack.service.mail_sender.MailSenderStrategy;
@@ -370,7 +369,7 @@ public class MailService {
         evtTypes.forEach((k, v) -> {
             // Extracting headers
             Set<String> set = new LinkedHashSet<>();
-            v.forEach(value -> set.addAll(value.getLogxFlatted().keySet()));
+            v.forEach(value -> set.addAll(value.getEventFlatted().keySet()));
             List<String> headers = new ArrayList<>(set);
 
             StringBuilder sb = new StringBuilder();
@@ -380,7 +379,7 @@ public class MailService {
                     String[] cells = new String[headers.size()];
 
                     for (int i = 0; i < headers.size(); i++)
-                        cells[i] = value.getLogxFlatted().computeIfPresent(headers.get(i), (kk, vv) -> vv);
+                        cells[i] = value.getEventFlatted().computeIfPresent(headers.get(i), (kk, vv) -> vv);
 
                     try {
                         csvPrinter.printRecords((Object) cells);

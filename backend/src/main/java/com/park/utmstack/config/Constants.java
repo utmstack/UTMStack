@@ -67,12 +67,6 @@ public final class Constants {
 
 
     // ----------------------------------------------------------------------------------
-    // - Logs index common fields
-    // ----------------------------------------------------------------------------------
-    public static final String logxWineventlogLogNameKeyword = "logx.wineventlog.log_name.keyword";
-    public static final String logxWineventlogEventNameKeyword = "logx.wineventlog.event_name.keyword";
-
-    // ----------------------------------------------------------------------------------
     // - Alert index common fields
     // ----------------------------------------------------------------------------------
     public static final String alertIdKeyword = "id.keyword";
