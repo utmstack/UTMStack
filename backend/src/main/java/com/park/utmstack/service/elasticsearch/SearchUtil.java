@@ -30,6 +30,11 @@ public class SearchUtil {
 
     private static final String CLASSNAME = "SearchUtil";
 
+    private static final String MSG_SORT_FLATTENED =
+        "Sorting is not supported on flattened field [%s]. Sort by a top-level field such as origin.ip, action, or @timestamp instead.";
+    private static final String MSG_RANGE_FLATTENED =
+        "Range operators are not supported on flattened field [%s].";
+
     public static Query toQuery(List<FilterType> filters) {
         final String ctx = CLASSNAME + ".toQuery";
         try {
@@ -123,7 +128,7 @@ public class SearchUtil {
         }
     }
 
-    /** Flattened fields (event.*) only support term/terms/prefix/match/query_string/range/exists/wildcard. */
+    /** Matches the event-bag flattened field (any filter path under the "event." prefix). */
     private static boolean isFlattenedField(String field) {
         return field != null && field.startsWith("event.");
     }
@@ -434,7 +439,7 @@ public class SearchUtil {
         final String ctx = CLASSNAME + ".buildIsGreaterThan";
         try {
             if (isFlattenedField(filter.getField())) {
-                throw new ApiException("Range comparison with a date format is not supported on flattened field [" + filter.getField() + "]. Promote the field to a canonical typed field if you need it.", HttpStatus.BAD_REQUEST);
+                throw new ApiException(String.format(MSG_RANGE_FLATTENED, filter.getField()), HttpStatus.BAD_REQUEST);
             }
             bool.filter(f -> f.range(RangeQuery.of(r -> r.field(filter.getField())
                 .gt(JsonData.of(filter.getValue())).format(Constants.INDEX_TIMESTAMP_FORMAT))));
@@ -449,7 +454,7 @@ public class SearchUtil {
         final String ctx = CLASSNAME + ".buildIsLessThanOrEquals";
         try {
             if (isFlattenedField(filter.getField())) {
-                throw new ApiException("Range comparison with a date format is not supported on flattened field [" + filter.getField() + "]. Promote the field to a canonical typed field if you need it.", HttpStatus.BAD_REQUEST);
+                throw new ApiException(String.format(MSG_RANGE_FLATTENED, filter.getField()), HttpStatus.BAD_REQUEST);
             }
             bool.filter(f -> f.range(RangeQuery.of(r -> r.field(filter.getField())
                 .lte(JsonData.of(filter.getValue())).format(Constants.INDEX_TIMESTAMP_FORMAT))));
@@ -486,7 +491,7 @@ public class SearchUtil {
             else
                 sort.forEach(order -> {
                     if (isFlattenedField(order.getProperty())) {
-                        throw new ApiException("Sorting is not supported on flattened field [" + order.getProperty() + "]. Promote the field to a canonical field (origin./target./top-level) if you need to sort by it.", HttpStatus.BAD_REQUEST);
+                        throw new ApiException(String.format(MSG_SORT_FLATTENED, order.getProperty()), HttpStatus.BAD_REQUEST);
                     }
                     srb.sort(s -> s.field(f -> f.field(order.getProperty())
                         .order(order.isAscending() ? SortOrder.Asc : SortOrder.Desc)));
@@ -524,7 +529,7 @@ public class SearchUtil {
             if (sort.isSorted()) {
                 sort.forEach(order -> {
                     if (isFlattenedField(order.getProperty())) {
-                        throw new ApiException("Sorting is not supported on flattened field [" + order.getProperty() + "]. Promote the field to a canonical field (origin./target./top-level) if you need to sort by it.", HttpStatus.BAD_REQUEST);
+                        throw new ApiException(String.format(MSG_SORT_FLATTENED, order.getProperty()), HttpStatus.BAD_REQUEST);
                     }
                     srb.sort(s -> s.field(f -> f.field(order.getProperty())
                         .order(order.isAscending() ? SortOrder.Asc : SortOrder.Desc)));

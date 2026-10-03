@@ -44,7 +44,8 @@ public class SearchUtilFlattenedTest {
         Query q = SearchUtil.toQuery(List.of(f(OperatorType.IS, "event.eventCode", "4624")));
         BoolQuery b = bool(q);
         assertTrue(clauses(b).stream().anyMatch(c -> c.isTerm()
-            && c.term().field().equals("event.eventCode")));
+            && c.term().field().equals("event.eventCode")
+            && c.term().value().stringValue().equals("4624")));
         assertTrue(clauses(b).stream().noneMatch(c -> c.isMatchPhrase()));
     }
 
@@ -53,7 +54,8 @@ public class SearchUtilFlattenedTest {
         Query q = SearchUtil.toQuery(List.of(f(OperatorType.IS_ONE_OF, "event.eventCode", List.of("4624", "4670"))));
         BoolQuery b = bool(q);
         assertTrue(clauses(b).stream().anyMatch(c -> c.isTerms()
-            && c.terms().field().equals("event.eventCode")));
+            && c.terms().field().equals("event.eventCode")
+            && c.terms().terms().value().stream().anyMatch(v -> v.stringValue().equals("4624"))));
     }
 
     @Test
