@@ -47,6 +47,11 @@ const logIndexMappings = `
   "controls": {"type":"keyword"}
 }`
 
+// newBagMappings are the mappings added to EXISTING v11-log-* indices on
+// upgrade (event/controls are new keys — safe to add in-place; typed
+// top-levels are not, so they stay out of the retro PUT).
+const newBagMappings = `{"event":{"type":"flattened"},"controls":{"type":"keyword"}}`
+
 func getOpenSearchContainerID() (string, error) {
 	containerIDs, err := utils.RunCmdWithOutput("docker", "ps", "-q", "-f", "name=utmstack_node1")
 	if err != nil {
@@ -135,7 +140,7 @@ func UpdateOpenSearch() error{
 	// legacy dynamic log mapping). Typed top-levels are NOT retro-applied: they
 	// can conflict with existing dynamic mappings and would 400 the upgrade.
 	if err := execCurl(containerID, "PUT", "https://localhost:9200/v11-log-*/_mapping?allow_no_indices=true",
-		`{"properties":{"event":{"type":"flattened"},"controls":{"type":"keyword"}}}`); err != nil {
+		`{"properties":` + newBagMappings + `}`); err != nil {
 		return err
 	}
 
