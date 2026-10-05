@@ -36,6 +36,28 @@ func TestScorer_EscalationDoesNotRefire(t *testing.T) {
 	}
 }
 
+// TestAdoptGenWhenUnknown pins the Y2.5 fix: a first signal with Gen=0
+// (process table not yet populated) must not be reset when the next signal
+// carries the real generation. The old code treated 0→known as a recycled PID
+// and dropped the score, which is exactly what broke the live E2E (canary A
+// scored at gen=0, canary B reset it, T1490 never attributed).
+func TestAdoptGenWhenUnknown(t *testing.T) {
+	now := time.Unix(1000, 0)
+	clk := func() time.Time { return now }
+	s := NewScorer(250, 300, 10, clk)
+	_ = s.Add(Evidence{PID: 99, Gen: 0, Kind: KindCanary, Weight: 100, Detail: "a"})
+	_ = s.Add(Evidence{PID: 99, Gen: 12345, Kind: KindT1490, Weight: 100})
+	// Without adoption the state resets and this signal alone (100) would be
+	// the entire score; with adoption it is 300 raw * 1.25 diversity ≈ 375 ≥ 300 → kill.
+	d := s.Add(Evidence{PID: 99, Gen: 12345, Kind: KindCanary, Weight: 100, Detail: "b"})
+	if d.Score < 190 {
+		t.Fatalf("score %v < 190 — gen adoption did not preserve state", d.Score)
+	}
+	if d.Escalation != EscKill {
+		t.Fatalf("escalation %v, want kill", d.Escalation)
+	}
+}
+
 func TestScorer_DecayLowersScore(t *testing.T) {
 	base := time.Unix(1000, 0)
 	cur := base

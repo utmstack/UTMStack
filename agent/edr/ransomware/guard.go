@@ -168,7 +168,7 @@ func (g *Guard) genOf(pid int, gen int64) int64 {
 // culpritPID walks up past known shell/host interpreters so we blame the
 // encryptor, not the cmd.exe/powershell.exe it used to run vssadmin.
 func (g *Guard) culpritPID(pid int) int {
-	shells := map[string]bool{"cmd.exe": true, "powershell.exe": true, "pwsh.exe": true, "conhost.exe": true, "wscript.exe": true, "cscript.exe": true}
+	shells := map[string]bool{"cmd.exe": true, "powershell.exe": true, "pwsh.exe": true, "conhost.exe": true, "wscript.exe": true, "cscript.exe": true, "sh": true, "bash": true, "dash": true, "zsh": true, "ksh": true}
 	for hops := 0; hops < 4; hops++ {
 		p, ok := g.deps.Table.Get(pid)
 		if !ok {

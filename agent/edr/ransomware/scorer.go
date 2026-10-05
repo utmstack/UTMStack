@@ -65,9 +65,20 @@ func (s *Scorer) Add(ev Evidence) Decision {
 		t = s.now()
 	}
 	st := s.states[ev.PID]
-	if st == nil || (ev.Gen != 0 && st.gen != ev.Gen) {
+	if st == nil {
 		st = &pidState{gen: ev.Gen, lastUpdate: t, kinds: map[SignalKind]float64{}}
 		s.states[ev.PID] = st
+	} else if ev.Gen != 0 && st.gen != ev.Gen {
+		// A known generation that differs from the stored one means the PID
+		// was recycled — drop the stale state. An UNKNOWN stored generation
+		// (0) just gets adopted: the first evidence may arrive before the
+		// process table learns the PID's StartTS, and that is not a reset.
+		if st.gen != 0 {
+			st = &pidState{gen: ev.Gen, lastUpdate: t, kinds: map[SignalKind]float64{}}
+			s.states[ev.PID] = st
+		} else {
+			st.gen = ev.Gen
+		}
 	}
 	// Decay the existing score to `t`.
 	if s.halfLife > 0 {
