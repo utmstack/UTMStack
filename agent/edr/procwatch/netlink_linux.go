@@ -38,9 +38,11 @@ package procwatch
 import (
 	"context"
 	"encoding/binary"
+	"errors"
 	"os"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/utmstack/UTMStack/shared/logger"
@@ -137,6 +139,16 @@ func (w *Watcher) subscribe(ctx context.Context) error {
 		}
 		n, err := unix.Poll(pfd[:], 500)
 		if err != nil {
+			// EINTR (a signal landed while the syscall was in flight) is
+			// benign: the Go runtime delivers SIGCHLD/SIGPIPE etc. and an
+			// interrupted poll must be re-armed, NOT treated as a fatal socket
+			// error. Returning here tore the subscriber down every ~3s (Run's
+			// retry backoff), so the watcher never held a stable subscription
+			// and the process table stayed empty (image="", no T1490, gen=0).
+			// Only a genuine error ends the subscription.
+			if errors.Is(err, syscall.EINTR) {
+				continue
+			}
 			return err
 		}
 		if n == 0 {
@@ -144,7 +156,7 @@ func (w *Watcher) subscribe(ctx context.Context) error {
 		}
 		got, _, rerr := unix.Recvfrom(fd, rbuf, 0)
 		if rerr != nil {
-			if rerr == unix.EAGAIN || rerr == unix.EWOULDBLOCK {
+			if rerr == unix.EAGAIN || rerr == unix.EWOULDBLOCK || errors.Is(rerr, syscall.EINTR) {
 				continue
 			}
 			return rerr
