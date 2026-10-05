@@ -196,7 +196,7 @@ func TestO365ActionResultSDKHistory(t *testing.T) {
 	mapping := map[string]any{"properties": map[string]any{
 		"@timestamp": map[string]any{"type": "date"}, "action": map[string]any{"type": "keyword"},
 		"origin": map[string]any{"properties": map[string]any{"user": map[string]any{"type": "keyword"}, "ip": map[string]any{"type": "ip"}}},
-		"event":    map[string]any{"properties": map[string]any{"PolicyType": map[string]any{"type": "keyword"}}},
+		"event":  map[string]any{"properties": map[string]any{"PolicyType": map[string]any{"type": "keyword"}}},
 	}}
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")

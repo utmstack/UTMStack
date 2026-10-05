@@ -226,7 +226,7 @@ func TestCrowdStrikeBruteForceHistory(t *testing.T) {
 	queries := 0
 	mapping := map[string]any{"properties": map[string]any{
 		"origin":     map[string]any{"properties": map[string]any{"ip": map[string]any{"type": "text", "fields": map[string]any{"keyword": map[string]any{"type": "keyword"}}}}},
-		"event":        map[string]any{"properties": map[string]any{"eventSuccess": map[string]any{"type": "boolean"}}},
+		"event":      map[string]any{"properties": map[string]any{"eventSuccess": map[string]any{"type": "boolean"}}},
 		"@timestamp": map[string]any{"type": "date"},
 	}}
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
