@@ -136,7 +136,7 @@ func fwParse(t *testing.T, cfg *plugins.Config, raw string, cache *plugins.CELCa
 }
 func fwParseSource(t *testing.T, cfg *plugins.Config, raw, dataSource string, cache *plugins.CELCache) string {
 	t.Helper()
-	draft := map[string]any{"raw": raw, "dataType": "firewall-fortiweb", "dataSource": dataSource, "log": map[string]any{}}
+	draft := map[string]any{"raw": raw, "dataType": "firewall-fortiweb", "dataSource": dataSource, "event": map[string]any{}}
 	for _, stage := range cfg.Pipeline {
 		matched := false
 		for _, dataType := range stage.DataTypes {
@@ -235,7 +235,7 @@ func fwParseSource(t *testing.T, cfg *plugins.Config, raw, dataSource string, ca
 					for _, token := range strings.Split(strings.TrimSpace(value.(string)), " ") {
 						if key, val, found := strings.Cut(token, "="); found {
 							utils.SanitizeField(&key)
-							fwPut(draft, "log."+key, strings.TrimSpace(val), false)
+							fwPut(draft, "event."+key, strings.TrimSpace(val), false)
 						}
 					}
 				case "dynamic":
@@ -323,12 +323,12 @@ func TestFortiWebPrivateEvidence(t *testing.T) {
 			// truncation; field contents remain private even on a failure.
 			if match := regexp.MustCompile(`(?i)(?:^|\s)HTTP_agent=("(?:\\.|[^"\\])*"|[^\s]+)`).FindStringSubmatch(raw); len(match) > 1 {
 				want := strings.TrimSuffix(strings.TrimPrefix(match[1], `"`), `"`)
-				if gjson.Get(out, "log.httpagent").String() != want {
+				if gjson.Get(out, "event.httpagent").String() != want {
 					t.Error("private user-agent differs from complete raw value")
 				}
 				checkedAgent++
 			}
-			for _, field := range []string{"origin.ip", "target.ip", "actionResult", "protocol", "severity", "target.url", "target.path", "log.msg", "log.subtype", "log.httpagent", "log.fileUploadViolation"} {
+			for _, field := range []string{"origin.ip", "target.ip", "actionResult", "protocol", "severity", "target.url", "target.path", "event.msg", "event.subtype", "event.httpagent", "event.fileUploadViolation"} {
 				if gjson.Get(out, field).Exists() {
 					populated[field]++
 				}
@@ -452,7 +452,7 @@ func TestFortiWebRuleHistoryAndGrouping(t *testing.T) {
 				t.Error("grouping and deduplication are exclusive")
 			}
 			for _, p := range append(r.GroupBy, r.DeduplicateBy...) {
-				if p != "adversary.ip" && p != "target.ip" && p != "lastEvent.log.subtype" {
+				if p != "adversary.ip" && p != "target.ip" && p != "lastEvent.event.subtype" {
 					t.Errorf("unexpected alert path %s", p)
 				}
 			}
@@ -470,7 +470,7 @@ func TestFortiWebRuleHistoryAndGrouping(t *testing.T) {
 						t.Errorf("history value does not use trigger's %s", x.Field)
 					}
 				}
-				for _, p := range []string{"origin.ip", "target.ip", "log.type", "log.subtype", "log.action"} {
+				for _, p := range []string{"origin.ip", "target.ip", "event.type", "event.subtype", "event.action"} {
 					if !fields[p] {
 						t.Errorf("history missing %s", p)
 					}

@@ -40,7 +40,7 @@
       "name": "sophos-central-peripheral-block-is-not-compromise",
       "filter": "sophos/sophos_central.yml",
       "input": {
-        "log": {
+        "event": {
           "type": "Event::Endpoint::Device::Blocked",
           "group": "PERIPHERALS"
         }
@@ -56,7 +56,7 @@
       "name": "sophos-central-cleanup-is-not-fresh-malware",
       "filter": "sophos/sophos_central.yml",
       "input": {
-        "log": {
+        "event": {
           "type": "Event::Endpoint::CoreClean",
           "severity": "low"
         }

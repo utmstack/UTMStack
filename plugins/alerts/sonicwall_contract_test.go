@@ -144,7 +144,7 @@ func sonicGrokMatches(r *regexp.Regexp, s string, g *plugins.Grok) (map[int]stri
 
 func sonicParse(t *testing.T, cfg *plugins.Config, raw string, dataSource string, cache *plugins.CELCache) string {
 	t.Helper()
-	draft := map[string]any{"raw": raw, "dataType": sonicDataType, "dataSource": dataSource, "log": map[string]any{}}
+	draft := map[string]any{"raw": raw, "dataType": sonicDataType, "dataSource": dataSource, "event": map[string]any{}}
 	for _, stage := range cfg.Pipeline {
 		matched := false
 		for _, dt := range stage.DataTypes {
@@ -248,7 +248,7 @@ func sonicParse(t *testing.T, cfg *plugins.Config, raw string, dataSource string
 						key := pair[0]
 						utils.SanitizeField(&key)
 						if key != "" {
-							sonicPut(draft, "log."+key, pair[1], false)
+							sonicPut(draft, "event."+key, pair[1], false)
 						}
 					}
 				case "dynamic":

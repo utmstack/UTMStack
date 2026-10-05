@@ -52,15 +52,15 @@
       "expected": {
         "origin.host": "mac-lab",
         "origin.process": "dscl",
-        "log.processIdentifier": 123,
-        "log.className": "OSLogEntryLog",
-        "log.message": "dscl -append /Groups/admin GroupMembership audituser",
+        "event.processIdentifier": 123,
+        "event.className": "OSLogEntryLog",
+        "event.message": "dscl -append /Groups/admin GroupMembership audituser",
         "deviceTime": "2026-09-17T14:00:00Z",
         "severity": "info"
       },
       "absent": [
-        "log.eventMessage",
-        "log.eventType",
+        "event.eventMessage",
+        "event.eventType",
         "origin.pid"
       ],
       "rules": {
@@ -125,15 +125,15 @@
       "expected": {
         "origin.host": "mac-lab",
         "origin.process": "osascript",
-        "log.processIdentifier": 123,
-        "log.className": "OSLogEntryLog",
-        "log.message": "tell application System Events to do shell script",
+        "event.processIdentifier": 123,
+        "event.className": "OSLogEntryLog",
+        "event.message": "tell application System Events to do shell script",
         "deviceTime": "2026-09-17T14:00:00Z",
         "severity": "info"
       },
       "absent": [
-        "log.eventMessage",
-        "log.eventType",
+        "event.eventMessage",
+        "event.eventType",
         "origin.pid"
       ],
       "rules": {
@@ -198,15 +198,15 @@
       "expected": {
         "origin.host": "mac-lab",
         "origin.process": "Safari",
-        "log.processIdentifier": 123,
-        "log.className": "OSLogEntryLog",
-        "log.message": "/Applications/Safari.app spawned child process /bin/bash",
+        "event.processIdentifier": 123,
+        "event.className": "OSLogEntryLog",
+        "event.message": "/Applications/Safari.app spawned child process /bin/bash",
         "deviceTime": "2026-09-17T14:00:00Z",
         "severity": "info"
       },
       "absent": [
-        "log.eventMessage",
-        "log.eventType",
+        "event.eventMessage",
+        "event.eventType",
         "origin.pid"
       ],
       "rules": {
@@ -271,15 +271,15 @@
       "expected": {
         "origin.host": "mac-lab",
         "origin.process": "cron",
-        "log.processIdentifier": 123,
-        "log.className": "OSLogEntryLog",
-        "log.message": "crontab INSTALL",
+        "event.processIdentifier": 123,
+        "event.className": "OSLogEntryLog",
+        "event.message": "crontab INSTALL",
         "deviceTime": "2026-09-17T14:00:00Z",
         "severity": "info"
       },
       "absent": [
-        "log.eventMessage",
-        "log.eventType",
+        "event.eventMessage",
+        "event.eventType",
         "origin.pid"
       ],
       "rules": {
@@ -344,15 +344,15 @@
       "expected": {
         "origin.host": "mac-lab",
         "origin.process": "loader",
-        "log.processIdentifier": 123,
-        "log.className": "OSLogEntryLog",
-        "log.message": "suspicious unsigned dylib load failed",
+        "event.processIdentifier": 123,
+        "event.className": "OSLogEntryLog",
+        "event.message": "suspicious unsigned dylib load failed",
         "deviceTime": "2026-09-17T14:00:00Z",
         "severity": "info"
       },
       "absent": [
-        "log.eventMessage",
-        "log.eventType",
+        "event.eventMessage",
+        "event.eventType",
         "origin.pid"
       ],
       "rules": {
@@ -417,15 +417,15 @@
       "expected": {
         "origin.host": "mac-lab",
         "origin.process": "EndpointSecurity",
-        "log.processIdentifier": 123,
-        "log.className": "OSLogEntryLog",
-        "log.message": "ES_EVENT_TYPE: authorization denied",
+        "event.processIdentifier": 123,
+        "event.className": "OSLogEntryLog",
+        "event.message": "ES_EVENT_TYPE: authorization denied",
         "deviceTime": "2026-09-17T14:00:00Z",
         "severity": "info"
       },
       "absent": [
-        "log.eventMessage",
-        "log.eventType",
+        "event.eventMessage",
+        "event.eventType",
         "origin.pid"
       ],
       "rules": {
@@ -490,15 +490,15 @@
       "expected": {
         "origin.host": "mac-lab",
         "origin.process": "FolderActionsDispatcher",
-        "log.processIdentifier": 123,
-        "log.className": "OSLogEntryLog",
-        "log.message": "Folder Action script added",
+        "event.processIdentifier": 123,
+        "event.className": "OSLogEntryLog",
+        "event.message": "Folder Action script added",
         "deviceTime": "2026-09-17T14:00:00Z",
         "severity": "info"
       },
       "absent": [
-        "log.eventMessage",
-        "log.eventType",
+        "event.eventMessage",
+        "event.eventType",
         "origin.pid"
       ],
       "rules": {
@@ -563,15 +563,15 @@
       "expected": {
         "origin.host": "mac-lab",
         "origin.process": "syspolicyd",
-        "log.processIdentifier": 123,
-        "log.className": "OSLogEntryLog",
-        "log.message": "assessment bypass attempted",
+        "event.processIdentifier": 123,
+        "event.className": "OSLogEntryLog",
+        "event.message": "assessment bypass attempted",
         "deviceTime": "2026-09-17T14:00:00Z",
         "severity": "info"
       },
       "absent": [
-        "log.eventMessage",
-        "log.eventType",
+        "event.eventMessage",
+        "event.eventType",
         "origin.pid"
       ],
       "rules": {
@@ -636,15 +636,15 @@
       "expected": {
         "origin.host": "mac-lab",
         "origin.process": "xattr",
-        "log.processIdentifier": 123,
-        "log.className": "OSLogEntryLog",
-        "log.message": "xattr -d com.apple.quarantine sample.app",
+        "event.processIdentifier": 123,
+        "event.className": "OSLogEntryLog",
+        "event.message": "xattr -d com.apple.quarantine sample.app",
         "deviceTime": "2026-09-17T14:00:00Z",
         "severity": "info"
       },
       "absent": [
-        "log.eventMessage",
-        "log.eventType",
+        "event.eventMessage",
+        "event.eventType",
         "origin.pid"
       ],
       "rules": {
@@ -709,15 +709,15 @@
       "expected": {
         "origin.host": "mac-lab",
         "origin.process": "osascript",
-        "log.processIdentifier": 123,
-        "log.className": "OSLogEntryLog",
-        "log.message": "display dialog password with hidden answer",
+        "event.processIdentifier": 123,
+        "event.className": "OSLogEntryLog",
+        "event.message": "display dialog password with hidden answer",
         "deviceTime": "2026-09-17T14:00:00Z",
         "severity": "info"
       },
       "absent": [
-        "log.eventMessage",
-        "log.eventType",
+        "event.eventMessage",
+        "event.eventType",
         "origin.pid"
       ],
       "rules": {
@@ -782,15 +782,15 @@
       "expected": {
         "origin.host": "mac-lab",
         "origin.process": "dscl",
-        "log.processIdentifier": 123,
-        "log.className": "OSLogEntryLog",
-        "log.message": "dscl create /Users/hidden IsHidden 1",
+        "event.processIdentifier": 123,
+        "event.className": "OSLogEntryLog",
+        "event.message": "dscl create /Users/hidden IsHidden 1",
         "deviceTime": "2026-09-17T14:00:00Z",
         "severity": "info"
       },
       "absent": [
-        "log.eventMessage",
-        "log.eventType",
+        "event.eventMessage",
+        "event.eventType",
         "origin.pid"
       ],
       "rules": {
@@ -855,15 +855,15 @@
       "expected": {
         "origin.host": "mac-lab",
         "origin.process": "osascript",
-        "log.processIdentifier": 123,
-        "log.className": "OSLogEntryLog",
-        "log.message": "osascript -l JavaScript -e eval ObjC.import",
+        "event.processIdentifier": 123,
+        "event.className": "OSLogEntryLog",
+        "event.message": "osascript -l JavaScript -e eval ObjC.import",
         "deviceTime": "2026-09-17T14:00:00Z",
         "severity": "info"
       },
       "absent": [
-        "log.eventMessage",
-        "log.eventType",
+        "event.eventMessage",
+        "event.eventType",
         "origin.pid"
       ],
       "rules": {
@@ -928,15 +928,15 @@
       "expected": {
         "origin.host": "mac-lab",
         "origin.process": "kernel",
-        "log.processIdentifier": 123,
-        "log.className": "OSLogEntryLog",
-        "log.message": "kext unsigned third party load",
+        "event.processIdentifier": 123,
+        "event.className": "OSLogEntryLog",
+        "event.message": "kext unsigned third party load",
         "deviceTime": "2026-09-17T14:00:00Z",
         "severity": "info"
       },
       "absent": [
-        "log.eventMessage",
-        "log.eventType",
+        "event.eventMessage",
+        "event.eventType",
         "origin.pid"
       ],
       "rules": {
@@ -1001,15 +1001,15 @@
       "expected": {
         "origin.host": "mac-lab",
         "origin.process": "securityd",
-        "log.processIdentifier": 123,
-        "log.className": "OSLogEntryLog",
-        "log.message": "keychain access denied",
+        "event.processIdentifier": 123,
+        "event.className": "OSLogEntryLog",
+        "event.message": "keychain access denied",
         "deviceTime": "2026-09-17T14:00:00Z",
         "severity": "error"
       },
       "absent": [
-        "log.eventMessage",
-        "log.eventType",
+        "event.eventMessage",
+        "event.eventType",
         "origin.pid"
       ],
       "rules": {
@@ -1074,15 +1074,15 @@
       "expected": {
         "origin.host": "mac-lab",
         "origin.process": "security",
-        "log.processIdentifier": 123,
-        "log.className": "OSLogEntryLog",
-        "log.message": "dump-keychain",
+        "event.processIdentifier": 123,
+        "event.className": "OSLogEntryLog",
+        "event.message": "dump-keychain",
         "deviceTime": "2026-09-17T14:00:00Z",
         "severity": "info"
       },
       "absent": [
-        "log.eventMessage",
-        "log.eventType",
+        "event.eventMessage",
+        "event.eventType",
         "origin.pid"
       ],
       "rules": {
@@ -1147,15 +1147,15 @@
       "expected": {
         "origin.host": "mac-lab",
         "origin.process": "security",
-        "log.processIdentifier": 123,
-        "log.className": "OSLogEntryLog",
-        "log.message": "find-generic-password -w",
+        "event.processIdentifier": 123,
+        "event.className": "OSLogEntryLog",
+        "event.message": "find-generic-password -w",
         "deviceTime": "2026-09-17T14:00:00Z",
         "severity": "info"
       },
       "absent": [
-        "log.eventMessage",
-        "log.eventType",
+        "event.eventMessage",
+        "event.eventType",
         "origin.pid"
       ],
       "rules": {
@@ -1220,15 +1220,15 @@
       "expected": {
         "origin.host": "mac-lab",
         "origin.process": "launchd",
-        "log.processIdentifier": 123,
-        "log.className": "OSLogEntryLog",
-        "log.message": "LaunchAgent created /Library/LaunchAgents/example.plist",
+        "event.processIdentifier": 123,
+        "event.className": "OSLogEntryLog",
+        "event.message": "LaunchAgent created /Library/LaunchAgents/example.plist",
         "deviceTime": "2026-09-17T14:00:00Z",
         "severity": "info"
       },
       "absent": [
-        "log.eventMessage",
-        "log.eventType",
+        "event.eventMessage",
+        "event.eventType",
         "origin.pid"
       ],
       "rules": {
@@ -1293,15 +1293,15 @@
       "expected": {
         "origin.host": "mac-lab",
         "origin.process": "loginwindow",
-        "log.processIdentifier": 123,
-        "log.className": "OSLogEntryLog",
-        "log.message": "Login Item added",
+        "event.processIdentifier": 123,
+        "event.className": "OSLogEntryLog",
+        "event.message": "Login Item added",
         "deviceTime": "2026-09-17T14:00:00Z",
         "severity": "info"
       },
       "absent": [
-        "log.eventMessage",
-        "log.eventType",
+        "event.eventMessage",
+        "event.eventType",
         "origin.pid"
       ],
       "rules": {
@@ -1366,15 +1366,15 @@
       "expected": {
         "origin.host": "mac-lab",
         "origin.process": "filewriter",
-        "log.processIdentifier": 123,
-        "log.className": "OSLogEntryLog",
-        "log.message": "rename encrypted report.locked",
+        "event.processIdentifier": 123,
+        "event.className": "OSLogEntryLog",
+        "event.message": "rename encrypted report.locked",
         "deviceTime": "2026-09-17T14:00:00Z",
         "severity": "info"
       },
       "absent": [
-        "log.eventMessage",
-        "log.eventType",
+        "event.eventMessage",
+        "event.eventType",
         "origin.pid"
       ],
       "rules": {
@@ -1439,15 +1439,15 @@
       "expected": {
         "origin.host": "mac-lab",
         "origin.process": "xattr",
-        "log.processIdentifier": 123,
-        "log.className": "OSLogEntryLog",
-        "log.message": "-d com.apple.quarantine",
+        "event.processIdentifier": 123,
+        "event.className": "OSLogEntryLog",
+        "event.message": "-d com.apple.quarantine",
         "deviceTime": "2026-09-17T14:00:00Z",
         "severity": "info"
       },
       "absent": [
-        "log.eventMessage",
-        "log.eventType",
+        "event.eventMessage",
+        "event.eventType",
         "origin.pid"
       ],
       "rules": {
@@ -1512,15 +1512,15 @@
       "expected": {
         "origin.host": "mac-lab",
         "origin.process": "Word",
-        "log.processIdentifier": 123,
-        "log.className": "OSLogEntryLog",
-        "log.message": "Microsoft Word spawned child process bash",
+        "event.processIdentifier": 123,
+        "event.className": "OSLogEntryLog",
+        "event.message": "Microsoft Word spawned child process bash",
         "deviceTime": "2026-09-17T14:00:00Z",
         "severity": "info"
       },
       "absent": [
-        "log.eventMessage",
-        "log.eventType",
+        "event.eventMessage",
+        "event.eventType",
         "origin.pid"
       ],
       "rules": {
@@ -1585,15 +1585,15 @@
       "expected": {
         "origin.host": "mac-lab",
         "origin.process": "osascript",
-        "log.processIdentifier": 123,
-        "log.className": "OSLogEntryLog",
-        "log.message": "osascript -e do shell script /bin/bash",
+        "event.processIdentifier": 123,
+        "event.className": "OSLogEntryLog",
+        "event.message": "osascript -e do shell script /bin/bash",
         "deviceTime": "2026-09-17T14:00:00Z",
         "severity": "info"
       },
       "absent": [
-        "log.eventMessage",
-        "log.eventType",
+        "event.eventMessage",
+        "event.eventType",
         "origin.pid"
       ],
       "rules": {
@@ -1658,15 +1658,15 @@
       "expected": {
         "origin.host": "mac-lab",
         "origin.process": "PlistBuddy",
-        "log.processIdentifier": 123,
-        "log.className": "OSLogEntryLog",
-        "log.message": "PlistBuddy RunAtLoad /Library/LaunchAgents/example.plist",
+        "event.processIdentifier": 123,
+        "event.className": "OSLogEntryLog",
+        "event.message": "PlistBuddy RunAtLoad /Library/LaunchAgents/example.plist",
         "deviceTime": "2026-09-17T14:00:00Z",
         "severity": "info"
       },
       "absent": [
-        "log.eventMessage",
-        "log.eventType",
+        "event.eventMessage",
+        "event.eventType",
         "origin.pid"
       ],
       "rules": {
@@ -1731,15 +1731,15 @@
       "expected": {
         "origin.host": "mac-lab",
         "origin.process": "tccutil",
-        "log.processIdentifier": 123,
-        "log.className": "OSLogEntryLog",
-        "log.message": "reset",
+        "event.processIdentifier": 123,
+        "event.className": "OSLogEntryLog",
+        "event.message": "reset",
         "deviceTime": "2026-09-17T14:00:00Z",
         "severity": "info"
       },
       "absent": [
-        "log.eventMessage",
-        "log.eventType",
+        "event.eventMessage",
+        "event.eventType",
         "origin.pid"
       ],
       "rules": {
@@ -1804,15 +1804,15 @@
       "expected": {
         "origin.host": "mac-lab",
         "origin.process": "dsenableroot",
-        "log.processIdentifier": 123,
-        "log.className": "OSLogEntryLog",
-        "log.message": "dsenableroot enabled root",
+        "event.processIdentifier": 123,
+        "event.className": "OSLogEntryLog",
+        "event.message": "dsenableroot enabled root",
         "deviceTime": "2026-09-17T14:00:00Z",
         "severity": "info"
       },
       "absent": [
-        "log.eventMessage",
-        "log.eventType",
+        "event.eventMessage",
+        "event.eventType",
         "origin.pid"
       ],
       "rules": {
@@ -1877,15 +1877,15 @@
       "expected": {
         "origin.host": "mac-lab",
         "origin.process": "launchctl",
-        "log.processIdentifier": 123,
-        "log.className": "OSLogEntryLog",
-        "log.message": "launchctl unload com.crowdstrike.agent",
+        "event.processIdentifier": 123,
+        "event.className": "OSLogEntryLog",
+        "event.message": "launchctl unload com.crowdstrike.agent",
         "deviceTime": "2026-09-17T14:00:00Z",
         "severity": "info"
       },
       "absent": [
-        "log.eventMessage",
-        "log.eventType",
+        "event.eventMessage",
+        "event.eventType",
         "origin.pid"
       ],
       "rules": {
@@ -1950,15 +1950,15 @@
       "expected": {
         "origin.host": "mac-lab",
         "origin.process": "zsh",
-        "log.processIdentifier": 123,
-        "log.className": "OSLogEntryLog",
-        "log.message": ".zshrc modified",
+        "event.processIdentifier": 123,
+        "event.className": "OSLogEntryLog",
+        "event.message": ".zshrc modified",
         "deviceTime": "2026-09-17T14:00:00Z",
         "severity": "info"
       },
       "absent": [
-        "log.eventMessage",
-        "log.eventType",
+        "event.eventMessage",
+        "event.eventType",
         "origin.pid"
       ],
       "rules": {
@@ -2023,15 +2023,15 @@
       "expected": {
         "origin.host": "mac-lab",
         "origin.process": "cat",
-        "log.processIdentifier": 123,
-        "log.className": "OSLogEntryLog",
-        "log.message": "read .ssh/id_ed25519",
+        "event.processIdentifier": 123,
+        "event.className": "OSLogEntryLog",
+        "event.message": "read .ssh/id_ed25519",
         "deviceTime": "2026-09-17T14:00:00Z",
         "severity": "info"
       },
       "absent": [
-        "log.eventMessage",
-        "log.eventType",
+        "event.eventMessage",
+        "event.eventType",
         "origin.pid"
       ],
       "rules": {
@@ -2096,15 +2096,15 @@
       "expected": {
         "origin.host": "mac-lab",
         "origin.process": "sudo",
-        "log.processIdentifier": 123,
-        "log.className": "OSLogEntryLog",
-        "log.message": "sudoers timestamp_timeout modified",
+        "event.processIdentifier": 123,
+        "event.className": "OSLogEntryLog",
+        "event.message": "sudoers timestamp_timeout modified",
         "deviceTime": "2026-09-17T14:00:00Z",
         "severity": "info"
       },
       "absent": [
-        "log.eventMessage",
-        "log.eventType",
+        "event.eventMessage",
+        "event.eventType",
         "origin.pid"
       ],
       "rules": {
@@ -2169,15 +2169,15 @@
       "expected": {
         "origin.host": "mac-lab",
         "origin.process": "storagekitd",
-        "log.processIdentifier": 123,
-        "log.className": "OSLogEntryLog",
-        "log.message": "com.apple.rootless.install.heritable",
+        "event.processIdentifier": 123,
+        "event.className": "OSLogEntryLog",
+        "event.message": "com.apple.rootless.install.heritable",
         "deviceTime": "2026-09-17T14:00:00Z",
         "severity": "info"
       },
       "absent": [
-        "log.eventMessage",
-        "log.eventType",
+        "event.eventMessage",
+        "event.eventType",
         "origin.pid"
       ],
       "rules": {
@@ -2242,15 +2242,15 @@
       "expected": {
         "origin.host": "mac-lab",
         "origin.process": "log",
-        "log.processIdentifier": 123,
-        "log.className": "OSLogEntryLog",
-        "log.message": "log erase",
+        "event.processIdentifier": 123,
+        "event.className": "OSLogEntryLog",
+        "event.message": "log erase",
         "deviceTime": "2026-09-17T14:00:00Z",
         "severity": "info"
       },
       "absent": [
-        "log.eventMessage",
-        "log.eventType",
+        "event.eventMessage",
+        "event.eventType",
         "origin.pid"
       ],
       "rules": {
@@ -2315,15 +2315,15 @@
       "expected": {
         "origin.host": "mac-lab",
         "origin.process": "tccd",
-        "log.processIdentifier": 123,
-        "log.className": "OSLogEntryLog",
-        "log.message": "unauthorized access detected",
+        "event.processIdentifier": 123,
+        "event.className": "OSLogEntryLog",
+        "event.message": "unauthorized access detected",
         "deviceTime": "2026-09-17T14:00:00Z",
         "severity": "info"
       },
       "absent": [
-        "log.eventMessage",
-        "log.eventType",
+        "event.eventMessage",
+        "event.eventType",
         "origin.pid"
       ],
       "rules": {
@@ -2388,15 +2388,15 @@
       "expected": {
         "origin.host": "mac-lab",
         "origin.process": "tmutil",
-        "log.processIdentifier": 123,
-        "log.className": "OSLogEntryLog",
-        "log.message": "tmutil delete backup",
+        "event.processIdentifier": 123,
+        "event.className": "OSLogEntryLog",
+        "event.message": "tmutil delete backup",
         "deviceTime": "2026-09-17T14:00:00Z",
         "severity": "info"
       },
       "absent": [
-        "log.eventMessage",
-        "log.eventType",
+        "event.eventMessage",
+        "event.eventType",
         "origin.pid"
       ],
       "rules": {
@@ -2461,15 +2461,15 @@
       "expected": {
         "origin.host": "mac-lab",
         "origin.process": "installer",
-        "log.processIdentifier": 123,
-        "log.className": "OSLogEntryLog",
-        "log.message": "UpdateAgent launched",
+        "event.processIdentifier": 123,
+        "event.className": "OSLogEntryLog",
+        "event.message": "UpdateAgent launched",
         "deviceTime": "2026-09-17T14:00:00Z",
         "severity": "info"
       },
       "absent": [
-        "log.eventMessage",
-        "log.eventType",
+        "event.eventMessage",
+        "event.eventType",
         "origin.pid"
       ],
       "rules": {
@@ -2534,15 +2534,15 @@
       "expected": {
         "origin.host": "mac-lab",
         "origin.process": "curl",
-        "log.processIdentifier": 123,
-        "log.className": "OSLogEntryLog",
-        "log.message": "curl https://example.test/sys/log.php",
+        "event.processIdentifier": 123,
+        "event.className": "OSLogEntryLog",
+        "event.message": "curl https://example.test/sys/log.php",
         "deviceTime": "2026-09-17T14:00:00Z",
         "severity": "info"
       },
       "absent": [
-        "log.eventMessage",
-        "log.eventType",
+        "event.eventMessage",
+        "event.eventType",
         "origin.pid"
       ],
       "rules": {
@@ -2607,15 +2607,15 @@
       "expected": {
         "origin.host": "mac-lab",
         "origin.process": "MRT",
-        "log.processIdentifier": 123,
-        "log.className": "OSLogEntryLog",
-        "log.message": "terminate",
+        "event.processIdentifier": 123,
+        "event.className": "OSLogEntryLog",
+        "event.message": "terminate",
         "deviceTime": "2026-09-17T14:00:00Z",
         "severity": "info"
       },
       "absent": [
-        "log.eventMessage",
-        "log.eventType",
+        "event.eventMessage",
+        "event.eventType",
         "origin.pid"
       ],
       "rules": {
@@ -2810,14 +2810,14 @@
       "dataType": "macos",
       "dataSource": "relay",
       "expected": {
-        "log.eventMessage": "ES_EVENT_TYPE authorization denied",
-        "log.message": "ES_EVENT_TYPE authorization denied",
-        "log.level": "error",
-        "log.messageType": "error",
+        "event.eventMessage": "ES_EVENT_TYPE authorization denied",
+        "event.message": "ES_EVENT_TYPE authorization denied",
+        "event.level": "error",
+        "event.messageType": "error",
         "origin.path": "/usr/libexec/EndpointSecurity"
       },
       "absent": [
-        "log.wrapperMessage"
+        "event.wrapperMessage"
       ],
       "rules": {
         "rules/macos/endpoint_security_bypass.yml": true
@@ -3131,10 +3131,10 @@
       "dataType": "macos",
       "dataSource": "mac-lab",
       "expected": {
-        "log.message": "Routine operation completed",
-        "log.level": "notice",
-        "log.eventMessage": "ES_EVENT_TYPE authorization denied",
-        "log.messageType": "error"
+        "event.message": "Routine operation completed",
+        "event.level": "notice",
+        "event.eventMessage": "ES_EVENT_TYPE authorization denied",
+        "event.messageType": "error"
       },
       "absent": [],
       "rules": {
@@ -3184,9 +3184,9 @@
       "dataType": "macos",
       "dataSource": "mac-lab.example",
       "expected": {
-        "log.message": "first line\nsecond line",
-        "log.eventMessage": "first line\nsecond line",
-        "log.level": "notice",
+        "event.message": "first line\nsecond line",
+        "event.eventMessage": "first line\nsecond line",
+        "event.level": "notice",
         "severity": "info",
         "origin.process": "example"
       },

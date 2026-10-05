@@ -61,23 +61,23 @@ func TestGenericFilter(t *testing.T) {
 		if grok.Source != "raw" || len(grok.Patterns) != 1 {
 			t.Fatalf("grok step: %v", grok)
 		}
-		if p := grok.Patterns[0]; p.FieldName != "log.message" || p.Pattern != "(.*)" {
-			t.Fatalf("grok pattern after the SDK loader: fieldName %q, pattern %q; want log.message and (.*)",
+		if p := grok.Patterns[0]; p.FieldName != "event.message" || p.Pattern != "(.*)" {
+			t.Fatalf("grok pattern after the SDK loader: fieldName %q, pattern %q; want event.message and (.*)",
 				p.FieldName, p.Pattern)
 		}
 	})
 
 	t.Run("json step runs only on a JSON object", func(t *testing.T) {
 		step := steps[1].Json
-		if step.Source != "log.message" {
-			t.Fatalf("json source %q, want log.message", step.Source)
+		if step.Source != "event.message" {
+			t.Fatalf("json source %q, want event.message", step.Source)
 		}
 		if step.Where == "" {
 			t.Fatal("json step has no where clause, so every text line is stored with a parse error")
 		}
 		cache := plugins.NewCELCache("generic-filter-test")
 		// Each draft is the event as the json step sees it: grok has copied the
-		// trimmed first line of raw into log.message. An empty message means grok
+		// trimmed first line of raw into event.message. An empty message means grok
 		// wrote nothing, as it does for blank raw text.
 		for _, tc := range []struct {
 			name, raw, message string
@@ -93,12 +93,12 @@ func TestGenericFilter(t *testing.T) {
 			{"key=value text", `user=hank src=192.0.2.23 action=login`, `user=hank src=192.0.2.23 action=login`, false},
 			{"JSON array", `[{"a":1},{"b":2}]`, `[{"a":1},{"b":2}]`, false},
 			{"JSON number", `42`, `42`, false},
-			{"missing log.message", `   `, ``, false},
+			{"missing event.message", `   `, ``, false},
 		} {
 			draft := map[string]any{"id": "fabricated-" + tc.name, "dataType": "generic",
 				"dataSource": "fixture-generic", "raw": tc.raw}
 			if tc.message != "" {
-				draft["log"] = map[string]any{"message": tc.message}
+				draft["event"] = map[string]any{"message": tc.message}
 			}
 			b, err := json.Marshal(draft)
 			if err != nil {

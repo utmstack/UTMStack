@@ -41,7 +41,7 @@ func TestFortiGateSDKHistory(t *testing.T) {
 		if strings.HasSuffix(r.URL.Path, "/_mapping") {
 			// Text fields exercise the SDK's .keyword mapping resolution; IP and
 			// keyword fields exercise exact mappings without that suffix.
-			_, _ = io.WriteString(w, `{"v11-log-firewall-fortigate-traffic-test":{"mappings":{"properties":{"@timestamp":{"type":"date"},"dataSource":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"origin":{"properties":{"ip":{"type":"ip"},"user":{"type":"text","fields":{"keyword":{"type":"keyword"}}}}},"log":{"properties":{"devid":{"type":"keyword"},"vd":{"type":"keyword"},"type":{"type":"keyword"},"subtype":{"type":"keyword"},"logid":{"type":"keyword"},"correlationCandidate":{"properties":{"vpnAuthFailure":{"type":"keyword"},"ipsCritical":{"type":"keyword"},"dlp":{"type":"keyword"},"virusOutbreak":{"type":"keyword"}}}}}}}}}`)
+			_, _ = io.WriteString(w, `{"v11-log-firewall-fortigate-traffic-test":{"mappings":{"properties":{"@timestamp":{"type":"date"},"dataSource":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"origin":{"properties":{"ip":{"type":"ip"},"user":{"type":"text","fields":{"keyword":{"type":"keyword"}}}}},"event":{"properties":{"devid":{"type":"keyword"},"vd":{"type":"keyword"},"type":{"type":"keyword"},"subtype":{"type":"keyword"},"logid":{"type":"keyword"},"correlationCandidate":{"properties":{"vpnAuthFailure":{"type":"keyword"},"ipsCritical":{"type":"keyword"},"dlp":{"type":"keyword"},"virusOutbreak":{"type":"keyword"}}}}}}}}}`)
 			return
 		}
 		if r.URL.Path != "/v11-log-firewall-fortigate-traffic-*/_search" {
@@ -156,7 +156,7 @@ func TestFortiGateSDKHistory(t *testing.T) {
 				priorRaw = strings.NewReplacer("0100032001", "0100032002", "Admin login successful", "Admin login failed", `status="success"`, `status="failed"`).Replace(priorRaw)
 			}
 			prior := mutate(parse(priorRaw), "@timestamp", time.Now().Add(-time.Minute).UTC().Format(time.RFC3339Nano))
-			if marker := fortiMarkers[test.rule]; marker != "" && gjson.Get(prior, "log.correlationCandidate."+marker).String() != "match" {
+			if marker := fortiMarkers[test.rule]; marker != "" && gjson.Get(prior, "event.correlationCandidate."+marker).String() != "match" {
 				t.Fatal("matching raw history did not produce its candidate marker")
 			}
 			check := func(name, historical string, count uint64, want bool) {
@@ -180,7 +180,7 @@ func TestFortiGateSDKHistory(t *testing.T) {
 			check("inside_window", mutate(prior, "@timestamp", time.Now().Add(-duration+10*time.Second).UTC().Format(time.RFC3339Nano)), search.Count, true)
 			check("expired", mutate(prior, "@timestamp", time.Now().Add(-duration-10*time.Second).UTC().Format(time.RFC3339Nano)), search.Count, false)
 			for _, change := range []struct{ field, value string }{
-				{"origin.ip", "198.51.100.99"}, {"log.devid", "OTHER-FIREWALL"}, {"log.vd", "other-vdom"},
+				{"origin.ip", "198.51.100.99"}, {"event.devid", "OTHER-FIREWALL"}, {"event.vd", "other-vdom"},
 			} {
 				check("different_"+change.field, mutate(prior, change.field, change.value), search.Count, false)
 			}
@@ -192,10 +192,10 @@ func TestFortiGateSDKHistory(t *testing.T) {
 			if test.rule == "admin_account_compromise" {
 				check("different_account", mutate(prior, "origin.user", "other-user"), search.Count, false)
 				check("successful_login_is_not_failed_history", mutate(parse(fixture.Raw), "@timestamp", time.Now().Add(-time.Minute).UTC().Format(time.RFC3339Nano)), search.Count, false)
-				check("different_event_type", mutate(prior, "log.type", "traffic"), search.Count, false)
-				check("different_event_subtype", mutate(prior, "log.subtype", "vpn"), search.Count, false)
+				check("different_event_type", mutate(prior, "event.type", "traffic"), search.Count, false)
+				check("different_event_subtype", mutate(prior, "event.subtype", "vpn"), search.Count, false)
 			} else {
-				marker := "log.correlationCandidate." + fortiMarkers[test.rule]
+				marker := "event.correlationCandidate." + fortiMarkers[test.rule]
 				check("unmarked_history", mutate(prior, marker, nil), search.Count, false)
 				// Reparse benign raw events so the filter, rather than a test-only
 				// deletion, establishes why they cannot satisfy a candidate count.
@@ -224,7 +224,7 @@ func TestFortiGateSDKHistory(t *testing.T) {
 					check(fmt.Sprintf("non_candidate_raw_%d", i), mutate(benign, "@timestamp", time.Now().Add(-time.Minute).UTC().Format(time.RFC3339Nano)), search.Count, false)
 				}
 			}
-			identityFields := []string{"origin.ip", "log.devid", "log.vd"}
+			identityFields := []string{"origin.ip", "event.devid", "event.vd"}
 			if test.rule == "admin_account_compromise" {
 				identityFields = append(identityFields, "origin.user")
 			}

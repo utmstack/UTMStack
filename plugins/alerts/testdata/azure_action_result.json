@@ -600,8 +600,8 @@
       "origin.ip"
     ],
     "expected": {
-      "log.category": "AppServiceHTTPLogs",
-      "log.azureKind": "http"
+      "event.category": "AppServiceHTTPLogs",
+      "event.azureKind": "http"
     }
   },
   {

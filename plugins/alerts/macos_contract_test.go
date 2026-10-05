@@ -116,7 +116,7 @@ func macRegex(t *testing.T, g *plugins.Grok, cfg *plugins.Config) *regexp.Regexp
 }
 func macParse(t *testing.T, cfg *plugins.Config, raw string, dataSource string, cache *plugins.CELCache) string {
 	t.Helper()
-	draft := map[string]any{"raw": raw, "dataType": "macos", "dataSource": dataSource, "log": map[string]any{}}
+	draft := map[string]any{"raw": raw, "dataType": "macos", "dataSource": dataSource, "event": map[string]any{}}
 	for _, stage := range cfg.Pipeline {
 		for _, s := range stage.Steps {
 			b, e := protojson.Marshal(s)
@@ -212,7 +212,7 @@ func macParse(t *testing.T, cfg *plugins.Config, raw string, dataSource string, 
 						t.Fatal(e)
 					}
 					for key, value := range macSanitizeJSON(parsed) {
-						macPut(draft, "log."+key, value, false)
+						macPut(draft, "event."+key, value, false)
 					}
 				case "cast":
 					for _, field := range s.Cast.Fields {
@@ -318,10 +318,10 @@ func macCombined(t *testing.T, first string, second string) *plugins.Config {
 }
 func macMarker(name string) string {
 	if name == "endpoint_security_bypass" {
-		return "log.correlationCandidate.endpointSecurity"
+		return "event.correlationCandidate.endpointSecurity"
 	}
 	if name == "macos_ransomware_indicators" {
-		return "log.correlationCandidate.ransomware"
+		return "event.correlationCandidate.ransomware"
 	}
 	return ""
 }
@@ -428,7 +428,7 @@ func macCheckGrouping(t *testing.T, rule *plugins.Rule, eventJSON string) {
 		if field == "adversary.process" && event.GetOrigin().GetProcess() != "" && value.String() != event.GetOrigin().GetProcess() {
 			t.Errorf("%s process grouping lost its actor", rule.Name)
 		}
-		if field == "lastEvent.log.message" && value.String() != gjson.Get(eventJSON, "log.message").String() {
+		if field == "lastEvent.event.message" && value.String() != gjson.Get(eventJSON, "event.message").String() {
 			t.Errorf("%s message grouping lost its message", rule.Name)
 		}
 	}
@@ -454,7 +454,7 @@ func TestMacOSSDKHistory(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		if strings.HasSuffix(r.URL.Path, "/_mapping") {
-			_, _ = w.Write([]byte(`{"v11-log-macos-test":{"mappings":{"properties":{"@timestamp":{"type":"date"},"dataSource":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"log":{"properties":{"correlationCandidate":{"properties":{"endpointSecurity":{"type":"keyword"},"ransomware":{"type":"keyword"}}}}}}}}}`))
+			_, _ = w.Write([]byte(`{"v11-log-macos-test":{"mappings":{"properties":{"@timestamp":{"type":"date"},"dataSource":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"event":{"properties":{"correlationCandidate":{"properties":{"endpointSecurity":{"type":"keyword"},"ransomware":{"type":"keyword"}}}}}}}}}`))
 			return
 		}
 		if r.URL.Path != "/v11-log-macos-*/_search" {
@@ -605,7 +605,7 @@ func TestMacOSPrivateEvidence(t *testing.T) {
 						t.Fatal(e)
 					}
 					total++
-					for rawField, standard := range map[string]string{"timestamp": "deviceTime", "process": "origin.process", "message": "log.message"} {
+					for rawField, standard := range map[string]string{"timestamp": "deviceTime", "process": "origin.process", "message": "event.message"} {
 						want := gjson.Get(raw, rawField)
 						if !want.Exists() {
 							continue
@@ -623,8 +623,8 @@ func TestMacOSPrivateEvidence(t *testing.T) {
 					if !gjson.GetBytes(stored, "origin.host").Exists() {
 						missing["origin.host"]++
 					}
-					if !gjson.GetBytes(stored, "log.eventMessage").Exists() {
-						missing["log.eventMessage"]++
+					if !gjson.GetBytes(stored, "event.eventMessage").Exists() {
+						missing["event.eventMessage"]++
 					}
 					for name, r := range rules {
 						yes, e := cache.Eval(r.Where, out)

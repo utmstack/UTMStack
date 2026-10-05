@@ -41,7 +41,7 @@ func TestPaloAltoSDKHistory(t *testing.T) {
 		if strings.HasSuffix(r.URL.Path, "/_mapping") {
 			// Text fields exercise the SDK's .keyword mapping resolution; IP and
 			// keyword fields exercise exact mappings without that suffix.
-			_, _ = io.WriteString(w, `{"v11-log-firewall-paloalto-test":{"mappings":{"properties":{"@timestamp":{"type":"date"},"dataSource":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"origin":{"properties":{"ip":{"type":"ip"}}},"target":{"properties":{"ip":{"type":"ip"}}},"log":{"properties":{"paScope":{"type":"keyword"},"paVsys":{"type":"keyword"},"paDirection":{"type":"keyword"},"correlationCandidate":{"properties":{"paloalto":{"properties":{"authFailure":{"type":"keyword"},"dns":{"type":"keyword"},"url":{"type":"keyword"},"vulnerability":{"type":"keyword"}}}}}}}}}}}`)
+			_, _ = io.WriteString(w, `{"v11-log-firewall-paloalto-test":{"mappings":{"properties":{"@timestamp":{"type":"date"},"dataSource":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"origin":{"properties":{"ip":{"type":"ip"}}},"target":{"properties":{"ip":{"type":"ip"}}},"event":{"properties":{"paScope":{"type":"keyword"},"paVsys":{"type":"keyword"},"paDirection":{"type":"keyword"},"correlationCandidate":{"properties":{"paloalto":{"properties":{"authFailure":{"type":"keyword"},"dns":{"type":"keyword"},"url":{"type":"keyword"},"vulnerability":{"type":"keyword"}}}}}}}}}}}`)
 			return
 		}
 		if r.URL.Path != "/v11-log-firewall-paloalto-*/_search" {
@@ -146,7 +146,7 @@ func TestPaloAltoSDKHistory(t *testing.T) {
 			}
 			expectedClauses = len(search.With) + 1
 			out := paloaltoParse(t, cfg, fixture.Raw, fixture.DataSource, cache)
-			marker := "log.correlationCandidate.paloalto." + c.marker
+			marker := "event.correlationCandidate.paloalto." + c.marker
 			if match, e := cache.Eval(rule.Where, out); e != nil || !match || gjson.Get(out, marker).String() != "match" {
 				t.Fatal("positive predicate/marker mismatch")
 			}

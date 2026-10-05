@@ -220,7 +220,7 @@
     "result": "success",
     "expected": {
       "severity": "info",
-      "log.severity": "INFO"
+      "event.severity": "INFO"
     }
   },
   {
@@ -229,7 +229,7 @@
     "result": "denied",
     "expected": {
       "severity": "warning",
-      "log.severity": "WARNING"
+      "event.severity": "WARNING"
     }
   },
   {
@@ -238,7 +238,7 @@
     "result": "failure",
     "expected": {
       "severity": "critical",
-      "log.severity": "CRITICAL"
+      "event.severity": "CRITICAL"
     }
   },
   {
@@ -247,7 +247,7 @@
     "result": "success",
     "expected": {
       "severity": "debug",
-      "log.severity": "DEBUG"
+      "event.severity": "DEBUG"
     }
   },
   {

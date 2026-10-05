@@ -22,7 +22,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -46,9 +46,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse"
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse"
       ],
       "alerts": []
     },
@@ -73,7 +73,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -97,9 +97,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse"
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse"
       ],
       "alerts": []
     },
@@ -124,7 +124,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -148,9 +148,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse"
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse"
       ],
       "alerts": []
     },
@@ -168,7 +168,7 @@
         "ruleTime",
         "sourceUser"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -187,9 +187,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse"
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse"
       ],
       "alerts": []
     },
@@ -206,7 +206,7 @@
         "notificationScope",
         "sourceUser"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -224,9 +224,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse"
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse"
       ],
       "alerts": []
     },
@@ -247,7 +247,7 @@
         "syslogPriority",
         "syslogVersion"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -266,9 +266,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse"
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse"
       ],
       "alerts": []
     },
@@ -287,7 +287,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "192.0.2.50",
@@ -305,9 +305,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse"
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse"
       ],
       "alerts": []
     },
@@ -326,7 +326,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "build 23",
@@ -344,9 +344,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse"
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse"
       ],
       "alerts": []
     },
@@ -365,7 +365,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -383,9 +383,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse"
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse"
       ],
       "alerts": []
     },
@@ -405,7 +405,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -424,9 +424,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse"
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse"
       ],
       "alerts": []
     },
@@ -446,7 +446,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -465,9 +465,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse"
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse"
       ],
       "alerts": []
     },
@@ -487,7 +487,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -506,9 +506,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse"
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse"
       ],
       "alerts": []
     },
@@ -528,7 +528,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -547,9 +547,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse"
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse"
       ],
       "alerts": []
     },
@@ -569,7 +569,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -588,9 +588,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse"
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse"
       ],
       "alerts": []
     },
@@ -613,7 +613,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -634,9 +634,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse",
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse",
         "origin.user"
       ],
       "alerts": []
@@ -658,7 +658,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -678,9 +678,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse"
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse"
       ],
       "alerts": []
     },
@@ -700,7 +700,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -719,9 +719,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse"
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse"
       ],
       "alerts": []
     },
@@ -740,7 +740,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -758,9 +758,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse"
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse"
       ],
       "alerts": []
     },
@@ -778,7 +778,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -794,9 +794,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse",
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse",
         "origin.user"
       ],
       "alerts": []
@@ -816,7 +816,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -833,9 +833,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse",
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse",
         "origin.user"
       ],
       "alerts": []
@@ -854,7 +854,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -870,9 +870,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse",
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse",
         "origin.user"
       ],
       "alerts": [
@@ -893,7 +893,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -909,9 +909,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse",
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse",
         "origin.user"
       ],
       "alerts": [
@@ -932,7 +932,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -948,9 +948,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse",
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse",
         "origin.user"
       ],
       "alerts": [],
@@ -971,7 +971,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -989,9 +989,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse"
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse"
       ],
       "alerts": [
         "s1_policy_downgrade"
@@ -1012,7 +1012,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -1030,9 +1030,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse"
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse"
       ],
       "alerts": [
         "s1_policy_downgrade"
@@ -1053,7 +1053,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -1071,9 +1071,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse"
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse"
       ],
       "alerts": [],
       "note": "near miss: upgrade must not fire s1_policy_downgrade"
@@ -1093,7 +1093,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -1111,9 +1111,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse"
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse"
       ],
       "alerts": [],
       "note": "near miss: paired upgrade"
@@ -1133,7 +1133,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -1151,9 +1151,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse"
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse"
       ],
       "alerts": [],
       "note": "benign console text naming both modes"
@@ -1173,7 +1173,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -1191,9 +1191,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse"
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse"
       ],
       "alerts": [
         "s1_exclusion_abuse"
@@ -1214,7 +1214,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -1232,9 +1232,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse"
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse"
       ],
       "alerts": [],
       "note": "near miss for s1_exclusion_abuse"
@@ -1254,7 +1254,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -1272,9 +1272,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse"
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse"
       ],
       "alerts": [
         "agent_tampering_attempts"
@@ -1295,7 +1295,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -1313,9 +1313,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse"
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse"
       ],
       "alerts": [],
       "note": "in-word 'stop' and 'agent' must not fire agent_tampering_attempts"
@@ -1334,7 +1334,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -1350,9 +1350,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse",
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse",
         "origin.user"
       ],
       "alerts": [
@@ -1374,7 +1374,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -1392,9 +1392,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse"
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse"
       ],
       "alerts": [],
       "note": "'failover' is not a failure word"
@@ -1414,7 +1414,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -1431,9 +1431,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse",
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse",
         "origin.user"
       ],
       "alerts": [
@@ -1455,7 +1455,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -1472,9 +1472,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse",
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse",
         "origin.user"
       ],
       "alerts": [],
@@ -1495,7 +1495,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -1513,9 +1513,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse"
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse"
       ],
       "alerts": [],
       "note": "console text must not fire the reputation branch"
@@ -1535,7 +1535,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -1553,9 +1553,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse"
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse"
       ],
       "alerts": [],
       "note": "console text must not fire kernel_level_threat"
@@ -1576,7 +1576,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -1594,9 +1594,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse",
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse",
         "origin.user"
       ],
       "alerts": [
@@ -1619,7 +1619,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -1637,9 +1637,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse",
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse",
         "origin.user"
       ],
       "alerts": [],
@@ -1661,7 +1661,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -1679,9 +1679,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse",
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse",
         "origin.user"
       ],
       "alerts": [],
@@ -1702,7 +1702,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -1719,9 +1719,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse",
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse",
         "origin.user"
       ],
       "alerts": [
@@ -1742,7 +1742,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -1758,9 +1758,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse",
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse",
         "origin.user"
       ],
       "alerts": [],
@@ -1780,7 +1780,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -1796,9 +1796,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse",
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse",
         "origin.user"
       ],
       "alerts": [],
@@ -1820,7 +1820,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -1836,9 +1836,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse",
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse",
         "origin.user"
       ],
       "alerts": [],
@@ -1860,7 +1860,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -1876,9 +1876,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse",
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse",
         "origin.user"
       ],
       "alerts": [],
@@ -1900,7 +1900,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -1916,9 +1916,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse",
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse",
         "origin.user"
       ],
       "alerts": [],
@@ -1940,7 +1940,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -1956,9 +1956,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse",
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse",
         "origin.user"
       ],
       "alerts": [],
@@ -1980,7 +1980,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -1996,9 +1996,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse",
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse",
         "origin.user"
       ],
       "alerts": [],
@@ -2020,7 +2020,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "S-99.0.0#1",
@@ -2036,9 +2036,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse",
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse",
         "origin.user"
       ],
       "alerts": [],
@@ -2060,7 +2060,7 @@
         "syslogDeviceTime",
         "syslogPriority"
       ],
-      "log": {
+      "event": {
         "cefDeviceVendor": "SentinelOne",
         "cefDeviceProduct": "Mgmt",
         "cefDeviceVersion": "192.0.2.50",
@@ -2076,9 +2076,9 @@
       },
       "absent": [
         "severity",
-        "log.syslogHost",
-        "log.restData",
-        "log.eventDescToParse",
+        "event.syslogHost",
+        "event.restData",
+        "event.eventDescToParse",
         "origin.user"
       ],
       "alerts": [],
@@ -2086,7 +2086,7 @@
     },
     "non-cef-line": {
       "logKeys": [],
-      "log": {},
+      "event": {},
       "fields": {
         "deviceTime": "2026-09-21T17:40:00Z"
       },

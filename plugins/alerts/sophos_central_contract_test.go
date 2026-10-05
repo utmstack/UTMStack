@@ -137,7 +137,7 @@ func sophosCentralRaw(m map[string]any, p string) gjson.Result {
 }
 func sophosCentralParse(t *testing.T, cfg *plugins.Config, raw string, dataSource string, cache *plugins.CELCache) string {
 	t.Helper()
-	draft := map[string]any{"raw": raw, "dataType": "sophos-central", "dataSource": dataSource, "log": map[string]any{}}
+	draft := map[string]any{"raw": raw, "dataType": "sophos-central", "dataSource": dataSource, "event": map[string]any{}}
 	for _, stage := range cfg.Pipeline {
 		matched := false
 		for _, dataType := range stage.DataTypes {
@@ -250,7 +250,7 @@ func sophosCentralParse(t *testing.T, cfg *plugins.Config, raw string, dataSourc
 						key := pair[0]
 						utils.SanitizeField(&key)
 						if key != "" {
-							sophosCentralPut(draft, "log."+key, pair[1], false)
+							sophosCentralPut(draft, "event."+key, pair[1], false)
 						}
 					}
 				case "dynamic":
@@ -281,7 +281,7 @@ func sophosCentralParse(t *testing.T, cfg *plugins.Config, raw string, dataSourc
 						t.Fatal(e)
 					}
 					for key, value := range sophosCentralSanitizeJSON(parsed) {
-						sophosCentralPut(draft, "log."+key, value, false)
+						sophosCentralPut(draft, "event."+key, value, false)
 					}
 				case "reformat":
 					for _, field := range s.Reformat.Fields {

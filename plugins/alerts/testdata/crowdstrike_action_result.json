@@ -69,7 +69,7 @@
     "result": "success",
     "expected": {
       "origin.ip": "198.51.100.20",
-      "log.eventSuccess": true
+      "event.eventSuccess": true
     },
     "bruteForce": false
   },
@@ -80,7 +80,7 @@
     "result": "failure",
     "expected": {
       "origin.ip": "198.51.100.21",
-      "log.eventSuccess": false
+      "event.eventSuccess": false
     },
     "bruteForce": true
   },
@@ -100,7 +100,7 @@
     "dataSource": "synthetic-crowdstrike",
     "result": "failure",
     "expected": {
-      "log.eventSuccess": false
+      "event.eventSuccess": false
     },
     "absent": [
       "origin.ip"
@@ -113,7 +113,7 @@
     "dataSource": "synthetic-crowdstrike",
     "result": "failure",
     "expected": {
-      "log.eventSuccess": false
+      "event.eventSuccess": false
     },
     "absent": [
       "origin.ip"

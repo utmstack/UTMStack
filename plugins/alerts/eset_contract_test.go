@@ -113,7 +113,7 @@ func esetParseEvent(t *testing.T, cfg *plugins.Config, raw, dataSource, id strin
 }
 func esetParseInput(t *testing.T, cfg *plugins.Config, raw, dataSource, id string, ingress map[string]any, cache *plugins.CELCache) string {
 	t.Helper()
-	draft := map[string]any{"raw": raw, "dataType": "antivirus-esmc-eset", "dataSource": dataSource, "log": map[string]any{}}
+	draft := map[string]any{"raw": raw, "dataType": "antivirus-esmc-eset", "dataSource": dataSource, "event": map[string]any{}}
 	for key, value := range ingress {
 		draft[key] = value
 	}
@@ -253,7 +253,7 @@ func esetParseInput(t *testing.T, cfg *plugins.Config, raw, dataSource, id strin
 						return "MODEL_JSON_ERROR"
 					}
 					for key, value := range esetSanitizeJSON(parsed) {
-						esetPut(draft, "log."+key, value, false)
+						esetPut(draft, "event."+key, value, false)
 					}
 				case "reformat":
 					if s.Reformat.Function != "time" {
@@ -412,7 +412,7 @@ func TestESETRawContracts(t *testing.T) {
 					t.Errorf("%s match=%v want=%v", name, yes, expected[name])
 				}
 				marker := map[string]string{"advanced_heuristic_detection_triggers": "heuristicRemediation", "eset_console_abuse": "consoleAuthenticationFailure", "eset_quarantine_failures": "quarantineFailure"}[name]
-				if marker != "" && (gjson.Get(out, "log.correlationCandidate."+marker).String() == "match") != yes {
+				if marker != "" && (gjson.Get(out, "event.correlationCandidate."+marker).String() == "match") != yes {
 					t.Errorf("%s candidate mismatch", name)
 				}
 

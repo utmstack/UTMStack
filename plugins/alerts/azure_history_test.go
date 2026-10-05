@@ -34,13 +34,13 @@ func TestAzureSDKHistory(t *testing.T) {
 	queries := 0
 	mapping := map[string]any{"properties": map[string]any{}}
 	props := mapping["properties"].(map[string]any)
-	paths := []string{"dataSource", "log.azureScopeType", "log.azureScope", "log.azureActorType", "log.azureActor", "origin.ip"}
+	paths := []string{"dataSource", "event.azureScopeType", "event.azureScope", "event.azureActorType", "event.azureActor", "origin.ip"}
 	for name, r := range rules {
 		if len(r.Correlation) > 0 {
 			if azureHistoryMarkers[name] == "" {
 				t.Fatalf("history rule %s has no correlation marker", name)
 			}
-			paths = append(paths, "log.correlationCandidate."+azureHistoryMarkers[name])
+			paths = append(paths, "event.correlationCandidate."+azureHistoryMarkers[name])
 		}
 	}
 	for _, path := range paths {
@@ -210,30 +210,30 @@ func TestAzureSDKHistory(t *testing.T) {
 				t.Fatalf("raw trigger failed: %v %v", yes, e)
 			}
 			// The filter stores this marker and the rule counts it under the same name.
-			marker := "log.correlationCandidate." + azureHistoryMarkers[tc.rule]
-			terms = map[string]string{"dataSource": "collector-test", "log.azureScopeType": "directory", "log.azureScope": "directory-test", marker: "true"}
+			marker := "event.correlationCandidate." + azureHistoryMarkers[tc.rule]
+			terms = map[string]string{"dataSource": "collector-test", "event.azureScopeType": "directory", "event.azureScope": "directory-test", marker: "true"}
 			notTerms = map[string]string{}
 			if tc.rule == "azure_kubernetes_secret_access" || tc.rule == "application_gateway_waf_alerts" {
-				terms["log.azureScopeType"] = "resource"
-				terms["log.azureScope"] = "/subscriptions/sub-test/providers/Microsoft.Example/resources/test"
+				terms["event.azureScopeType"] = "resource"
+				terms["event.azureScope"] = "/subscriptions/sub-test/providers/Microsoft.Example/resources/test"
 			}
 			if tc.rule == "key_vault_access_spikes" {
-				terms["log.azureScopeType"] = "resource"
-				terms["log.azureScope"] = "/subscriptions/sub-test/providers/Microsoft.KeyVault/vaults/vault-test"
+				terms["event.azureScopeType"] = "resource"
+				terms["event.azureScope"] = "/subscriptions/sub-test/providers/Microsoft.KeyVault/vaults/vault-test"
 			}
 			if tc.ip {
 				terms["origin.ip"] = "198.51.100.4"
 			} else {
-				terms["log.azureActorType"] = "user"
-				terms["log.azureActor"] = "admin@example.test"
+				terms["event.azureActorType"] = "user"
+				terms["event.azureActor"] = "admin@example.test"
 				switch tc.rule {
 				case "aks_security_threats", "key_vault_access_spikes":
-					terms["log.azureActorType"] = "ip"
-					terms["log.azureActor"] = "198.51.100.4"
+					terms["event.azureActorType"] = "ip"
+					terms["event.azureActor"] = "198.51.100.4"
 				case "azure_kubernetes_secret_access":
-					terms["log.azureActor"] = "actor-test"
+					terms["event.azureActor"] = "actor-test"
 				case "azure_ropc_authentication":
-					terms["log.azureActor"] = "actor@example.test"
+					terms["event.azureActor"] = "actor@example.test"
 				}
 			}
 			prior := mutate(out, "@timestamp", time.Now().Add(-time.Minute).UTC().Format(time.RFC3339Nano))

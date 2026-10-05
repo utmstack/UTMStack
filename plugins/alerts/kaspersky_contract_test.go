@@ -106,7 +106,7 @@ func kaspStoredName(name string) string {
 
 func kaspParse(t *testing.T, cfg *plugins.Config, raw string, dataSource string, cache *plugins.CELCache, initial ...map[string]any) string {
 	t.Helper()
-	draft := map[string]any{"raw": raw, "dataType": "antivirus-kaspersky", "dataSource": dataSource, "log": map[string]any{}}
+	draft := map[string]any{"raw": raw, "dataType": "antivirus-kaspersky", "dataSource": dataSource, "event": map[string]any{}}
 	if len(initial) > 0 {
 		for key, value := range initial[0] {
 			if key != "action" && key != "actionResult" {
@@ -237,7 +237,7 @@ func kaspParse(t *testing.T, cfg *plugins.Config, raw string, dataSource string,
 						key := pair[0]
 						utils.SanitizeField(&key)
 						if key != "" {
-							kaspPut(draft, "log."+key, pair[1], false)
+							kaspPut(draft, "event."+key, pair[1], false)
 						}
 					}
 				case "dynamic":
@@ -268,7 +268,7 @@ func kaspParse(t *testing.T, cfg *plugins.Config, raw string, dataSource string,
 						t.Fatal(e)
 					}
 					for key, value := range kaspSanitizeJSON(parsed) {
-						kaspPut(draft, "log."+key, value, false)
+						kaspPut(draft, "event."+key, value, false)
 					}
 				case "cast":
 					for _, field := range s.Cast.Fields {

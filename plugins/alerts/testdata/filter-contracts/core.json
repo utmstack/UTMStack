@@ -13,7 +13,7 @@
       },
       "expected": {
         "raw": "internal test event",
-        "log.message": "internal test event"
+        "event.message": "internal test event"
       }
     },
     {
@@ -23,12 +23,12 @@
       "dataType": "utmstack",
       "dataSource": "synthetic-host",
       "expected": {
-        "log.msg": "synthetic JSON event",
-        "log.args.eventid": 17,
+        "event.msg": "synthetic JSON event",
+        "event.args.eventid": 17,
         "dataSource": "synthetic-host"
       },
       "absent": [
-        "log.message"
+        "event.message"
       ],
       "rules": {}
     }

@@ -130,8 +130,8 @@
     "dataSource": "collector-A",
     "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"WAF\" log_component=\"Web Application Firewall\" sourceip=\"198.51.100.20\" localip=\"192.0.2.20\" server=\"web.example.test\" url=\"/login\" httpstatus=\"200\" reason=\"-\" bytessent=\"900\" bytesrcv=\"100\" ws_protocol=\"HTTP/1.1\" method=\"POST\"",
     "expected": {
-      "log.type": "WAF",
-      "log.component": "Web Application Firewall",
+      "event.type": "WAF",
+      "event.component": "Web Application Firewall",
       "origin.ip": "198.51.100.20",
       "target.ip": "192.0.2.20",
       "target.host": "web.example.test",
@@ -444,15 +444,15 @@
     "dataSource": "collector-A",
     "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Event\" message=\"x src_ip=198.51.100.99 status=Allow log_type=ATP log_component=Firewall log_subtype=Drop threatname=evil\"",
     "expected": {
-      "log.type": "Event",
-      "log.logMessage": "x src_ip=198.51.100.99 status=Allow log_type=ATP log_component=Firewall log_subtype=Drop threatname=evil"
+      "event.type": "Event",
+      "event.logMessage": "x src_ip=198.51.100.99 status=Allow log_type=ATP log_component=Firewall log_subtype=Drop threatname=evil"
     },
     "absent": [
       "origin.ip",
       "actionResult",
-      "log.component",
-      "log.subType",
-      "log.threatname"
+      "event.component",
+      "event.subType",
+      "event.threatname"
     ],
     "matches": []
   },
@@ -461,7 +461,7 @@
     "dataSource": "collector-A",
     "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" status=\"Deny\" log_component=\"Invalid Traffic\" src_ip=\"2001:db8::1\" log_subtype=\"Denied\" log_type=\"Firewall\" dst_ip=\"2001:db8::2\"",
     "expected": {
-      "log.type": "Firewall",
+      "event.type": "Firewall",
       "origin.ip": "2001:db8::1",
       "target.ip": "2001:db8::2",
       "actionResult": "denied"
@@ -683,7 +683,7 @@
     "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Event\" correlationCandidate.sophosXG.vpnFailure=\"match\"",
     "expected": {},
     "absent": [
-      "log.correlationCandidate"
+      "event.correlationCandidate"
     ],
     "matches": []
   },
@@ -758,8 +758,8 @@
       "origin.user": "alice",
       "origin.group": "VPN Users",
       "origin.ip": "2001:db8::1",
-      "log.fwrulename": "Outbound business traffic",
-      "log.hbhealth": "No Heartbeat"
+      "event.fwrulename": "Outbound business traffic",
+      "event.hbhealth": "No Heartbeat"
     },
     "absent": [],
     "matches": []
@@ -791,7 +791,7 @@
     "dataSource": "collector-A",
     "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" messageid=\"17507\" log_type=\"Event\" log_component=\"GUI\" log_subtype=\"Admin\" status=\"Failed\" user=\"admin\" src_ip=\"198.51.100.4\"",
     "expected": {
-      "log.messageId": "17507",
+      "event.messageId": "17507",
       "origin.user": "admin"
     },
     "absent": [],
@@ -866,15 +866,15 @@
       "origin.ip": "198.51.100.14",
       "target.ip": "203.0.113.24",
       "target.mac": "00:11:22:33:44:55",
-      "log.etherType": "Unknown (0x0000)",
+      "event.etherType": "Unknown (0x0000)",
       "origin.port": 40000,
       "target.port": 443
     },
     "absent": [
       "origin.mac",
-      "log.srcmac",
-      "log.transrcip",
-      "log.trandstip"
+      "event.srcmac",
+      "event.transrcip",
+      "event.trandstip"
     ],
     "matches": []
   },
@@ -888,8 +888,8 @@
       "target.ip": "203.0.113.25"
     },
     "absent": [
-      "log.logMessage",
-      "log.message"
+      "event.logMessage",
+      "event.message"
     ],
     "matches": []
   }

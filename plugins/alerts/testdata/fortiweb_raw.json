@@ -7,15 +7,15 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.subtype": "SQL Injection",
-      "log.attacktype": "SQL Injection",
-      "log.action": "Alert",
+      "event.subtype": "SQL Injection",
+      "event.attacktype": "SQL Injection",
+      "event.action": "Alert",
       "action": "http_request",
       "protocol": "tcp",
       "severity": "error",
-      "log.msg": "[policy_name=example] : request matched",
-      "log.httphost": "app.example:443",
-      "log.httpurl": "/login?q=a=b"
+      "event.msg": "[policy_name=example] : request matched",
+      "event.httphost": "app.example:443",
+      "event.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
@@ -34,16 +34,16 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.subtype": "SQL Injection",
-      "log.attacktype": "SQL Injection",
-      "log.action": "Alert_Deny",
+      "event.subtype": "SQL Injection",
+      "event.attacktype": "SQL Injection",
+      "event.action": "Alert_Deny",
       "action": "http_request",
       "protocol": "tcp",
       "severity": "error",
-      "log.msg": "[policy_name=example] : request matched",
-      "log.httphost": "app.example:443",
+      "event.msg": "[policy_name=example] : request matched",
+      "event.httphost": "app.example:443",
       "actionResult": "denied",
-      "log.httpurl": "/login?q=a=b"
+      "event.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
@@ -61,15 +61,15 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.subtype": "SQL Injection(Extended)",
-      "log.attacktype": "SQL Injection(Extended)",
-      "log.action": "Alert",
+      "event.subtype": "SQL Injection(Extended)",
+      "event.attacktype": "SQL Injection(Extended)",
+      "event.action": "Alert",
       "action": "http_request",
       "protocol": "tcp",
       "severity": "error",
-      "log.msg": "[policy_name=example] : request matched",
-      "log.httphost": "app.example:443",
-      "log.httpurl": "/login?q=a=b"
+      "event.msg": "[policy_name=example] : request matched",
+      "event.httphost": "app.example:443",
+      "event.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
@@ -88,16 +88,16 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.subtype": "SQL Injection(Extended)",
-      "log.attacktype": "SQL Injection(Extended)",
-      "log.action": "Alert_Deny",
+      "event.subtype": "SQL Injection(Extended)",
+      "event.attacktype": "SQL Injection(Extended)",
+      "event.action": "Alert_Deny",
       "action": "http_request",
       "protocol": "tcp",
       "severity": "error",
-      "log.msg": "[policy_name=example] : request matched",
-      "log.httphost": "app.example:443",
+      "event.msg": "[policy_name=example] : request matched",
+      "event.httphost": "app.example:443",
       "actionResult": "denied",
-      "log.httpurl": "/login?q=a=b"
+      "event.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
@@ -115,15 +115,15 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.subtype": "Cross Site Scripting",
-      "log.attacktype": "Cross Site Scripting",
-      "log.action": "Alert",
+      "event.subtype": "Cross Site Scripting",
+      "event.attacktype": "Cross Site Scripting",
+      "event.action": "Alert",
       "action": "http_request",
       "protocol": "tcp",
       "severity": "error",
-      "log.msg": "[policy_name=example] : request matched",
-      "log.httphost": "app.example:443",
-      "log.httpurl": "/login?q=a=b"
+      "event.msg": "[policy_name=example] : request matched",
+      "event.httphost": "app.example:443",
+      "event.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
@@ -142,16 +142,16 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.subtype": "Cross Site Scripting",
-      "log.attacktype": "Cross Site Scripting",
-      "log.action": "Alert_Deny",
+      "event.subtype": "Cross Site Scripting",
+      "event.attacktype": "Cross Site Scripting",
+      "event.action": "Alert_Deny",
       "action": "http_request",
       "protocol": "tcp",
       "severity": "error",
-      "log.msg": "[policy_name=example] : request matched",
-      "log.httphost": "app.example:443",
+      "event.msg": "[policy_name=example] : request matched",
+      "event.httphost": "app.example:443",
       "actionResult": "denied",
-      "log.httpurl": "/login?q=a=b"
+      "event.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
@@ -169,15 +169,15 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.subtype": "Cross Site Scripting (Extended)",
-      "log.attacktype": "Cross Site Scripting (Extended)",
-      "log.action": "Alert",
+      "event.subtype": "Cross Site Scripting (Extended)",
+      "event.attacktype": "Cross Site Scripting (Extended)",
+      "event.action": "Alert",
       "action": "http_request",
       "protocol": "tcp",
       "severity": "error",
-      "log.msg": "[policy_name=example] : request matched",
-      "log.httphost": "app.example:443",
-      "log.httpurl": "/login?q=a=b"
+      "event.msg": "[policy_name=example] : request matched",
+      "event.httphost": "app.example:443",
+      "event.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
@@ -196,16 +196,16 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.subtype": "Cross Site Scripting (Extended)",
-      "log.attacktype": "Cross Site Scripting (Extended)",
-      "log.action": "Alert_Deny",
+      "event.subtype": "Cross Site Scripting (Extended)",
+      "event.attacktype": "Cross Site Scripting (Extended)",
+      "event.action": "Alert_Deny",
       "action": "http_request",
       "protocol": "tcp",
       "severity": "error",
-      "log.msg": "[policy_name=example] : request matched",
-      "log.httphost": "app.example:443",
+      "event.msg": "[policy_name=example] : request matched",
+      "event.httphost": "app.example:443",
       "actionResult": "denied",
-      "log.httpurl": "/login?q=a=b"
+      "event.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
@@ -223,15 +223,15 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.subtype": "Known Exploits",
-      "log.attacktype": "Known Exploits",
-      "log.action": "Alert",
+      "event.subtype": "Known Exploits",
+      "event.attacktype": "Known Exploits",
+      "event.action": "Alert",
       "action": "http_request",
       "protocol": "tcp",
       "severity": "error",
-      "log.msg": "[policy_name=example] : request matched",
-      "log.httphost": "app.example:443",
-      "log.httpurl": "/login?q=a=b"
+      "event.msg": "[policy_name=example] : request matched",
+      "event.httphost": "app.example:443",
+      "event.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
@@ -250,16 +250,16 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.subtype": "Known Exploits",
-      "log.attacktype": "Known Exploits",
-      "log.action": "Alert_Deny",
+      "event.subtype": "Known Exploits",
+      "event.attacktype": "Known Exploits",
+      "event.action": "Alert_Deny",
       "action": "http_request",
       "protocol": "tcp",
       "severity": "error",
-      "log.msg": "[policy_name=example] : request matched",
-      "log.httphost": "app.example:443",
+      "event.msg": "[policy_name=example] : request matched",
+      "event.httphost": "app.example:443",
       "actionResult": "denied",
-      "log.httpurl": "/login?q=a=b"
+      "event.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
@@ -277,15 +277,15 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.subtype": "Generic Attacks",
-      "log.attacktype": "Generic Attacks",
-      "log.action": "Alert",
+      "event.subtype": "Generic Attacks",
+      "event.attacktype": "Generic Attacks",
+      "event.action": "Alert",
       "action": "http_request",
       "protocol": "tcp",
       "severity": "error",
-      "log.msg": "[policy_name=example] : request matched",
-      "log.httphost": "app.example:443",
-      "log.httpurl": "/login?q=a=b"
+      "event.msg": "[policy_name=example] : request matched",
+      "event.httphost": "app.example:443",
+      "event.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
@@ -304,16 +304,16 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.subtype": "Generic Attacks",
-      "log.attacktype": "Generic Attacks",
-      "log.action": "Alert_Deny",
+      "event.subtype": "Generic Attacks",
+      "event.attacktype": "Generic Attacks",
+      "event.action": "Alert_Deny",
       "action": "http_request",
       "protocol": "tcp",
       "severity": "error",
-      "log.msg": "[policy_name=example] : request matched",
-      "log.httphost": "app.example:443",
+      "event.msg": "[policy_name=example] : request matched",
+      "event.httphost": "app.example:443",
       "actionResult": "denied",
-      "log.httpurl": "/login?q=a=b"
+      "event.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
@@ -331,15 +331,15 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.subtype": "Generic Attacks(Extended)",
-      "log.attacktype": "Generic Attacks(Extended)",
-      "log.action": "Alert",
+      "event.subtype": "Generic Attacks(Extended)",
+      "event.attacktype": "Generic Attacks(Extended)",
+      "event.action": "Alert",
       "action": "http_request",
       "protocol": "tcp",
       "severity": "error",
-      "log.msg": "[policy_name=example] : request matched",
-      "log.httphost": "app.example:443",
-      "log.httpurl": "/login?q=a=b"
+      "event.msg": "[policy_name=example] : request matched",
+      "event.httphost": "app.example:443",
+      "event.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
@@ -358,16 +358,16 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.subtype": "Generic Attacks(Extended)",
-      "log.attacktype": "Generic Attacks(Extended)",
-      "log.action": "Alert_Deny",
+      "event.subtype": "Generic Attacks(Extended)",
+      "event.attacktype": "Generic Attacks(Extended)",
+      "event.action": "Alert_Deny",
       "action": "http_request",
       "protocol": "tcp",
       "severity": "error",
-      "log.msg": "[policy_name=example] : request matched",
-      "log.httphost": "app.example:443",
+      "event.msg": "[policy_name=example] : request matched",
+      "event.httphost": "app.example:443",
       "actionResult": "denied",
-      "log.httpurl": "/login?q=a=b"
+      "event.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
@@ -385,15 +385,15 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.subtype": "Trojans",
-      "log.attacktype": "Trojans",
-      "log.action": "Alert",
+      "event.subtype": "Trojans",
+      "event.attacktype": "Trojans",
+      "event.action": "Alert",
       "action": "http_request",
       "protocol": "tcp",
       "severity": "error",
-      "log.msg": "[policy_name=example] : request matched",
-      "log.httphost": "app.example:443",
-      "log.httpurl": "/login?q=a=b"
+      "event.msg": "[policy_name=example] : request matched",
+      "event.httphost": "app.example:443",
+      "event.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
@@ -412,16 +412,16 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.subtype": "Trojans",
-      "log.attacktype": "Trojans",
-      "log.action": "Alert_Deny",
+      "event.subtype": "Trojans",
+      "event.attacktype": "Trojans",
+      "event.action": "Alert_Deny",
       "action": "http_request",
       "protocol": "tcp",
       "severity": "error",
-      "log.msg": "[policy_name=example] : request matched",
-      "log.httphost": "app.example:443",
+      "event.msg": "[policy_name=example] : request matched",
+      "event.httphost": "app.example:443",
       "actionResult": "denied",
-      "log.httpurl": "/login?q=a=b"
+      "event.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
@@ -436,7 +436,7 @@
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Deny severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
     "expected": {
       "actionResult": "denied",
-      "log.action": "Deny"
+      "event.action": "Deny"
     },
     "absent": [],
     "matches": [
@@ -448,7 +448,7 @@
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=deny severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
     "expected": {
       "actionResult": "denied",
-      "log.action": "deny"
+      "event.action": "deny"
     },
     "absent": [],
     "matches": [
@@ -460,7 +460,7 @@
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=DENY severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
     "expected": {
       "actionResult": "denied",
-      "log.action": "DENY"
+      "event.action": "DENY"
     },
     "absent": [],
     "matches": [
@@ -472,7 +472,7 @@
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Period_Block severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
     "expected": {
       "actionResult": "denied",
-      "log.action": "Period_Block"
+      "event.action": "Period_Block"
     },
     "absent": [],
     "matches": [
@@ -484,7 +484,7 @@
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Block severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
     "expected": {
       "actionResult": "denied",
-      "log.action": "Block"
+      "event.action": "Block"
     },
     "absent": [],
     "matches": [
@@ -496,7 +496,7 @@
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=blocked severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
     "expected": {
       "actionResult": "denied",
-      "log.action": "blocked"
+      "event.action": "blocked"
     },
     "absent": [],
     "matches": [
@@ -507,7 +507,7 @@
     "name": "unknown_outcome_Pass",
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Pass severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
     "expected": {
-      "log.action": "Pass"
+      "event.action": "Pass"
     },
     "absent": [
       "actionResult"
@@ -518,7 +518,7 @@
     "name": "unknown_outcome_Accept",
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Accept severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
     "expected": {
-      "log.action": "Accept"
+      "event.action": "Accept"
     },
     "absent": [
       "actionResult"
@@ -529,7 +529,7 @@
     "name": "unknown_outcome_Monitor",
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Monitor severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
     "expected": {
-      "log.action": "Monitor"
+      "event.action": "Monitor"
     },
     "absent": [
       "actionResult"
@@ -540,7 +540,7 @@
     "name": "unknown_outcome_unknown",
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=unknown severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
     "expected": {
-      "log.action": "unknown"
+      "event.action": "unknown"
     },
     "absent": [
       "actionResult"
@@ -551,7 +551,7 @@
     "name": "HTTP_Illegal URL Parameter Value",
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert severity_level=Medium main_type=\"HTTP Protocol Constraints\" sub_type=\"Illegal URL Parameter Value\" attack_type=\"HTTP Protocol Constraints\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=\"A05:2021-Security Misconfiguration\"",
     "expected": {
-      "log.subtype": "Illegal URL Parameter Value",
+      "event.subtype": "Illegal URL Parameter Value",
       "severity": "warning"
     },
     "absent": [
@@ -565,7 +565,7 @@
     "name": "HTTP_Illegal Character in URL",
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert severity_level=Medium main_type=\"HTTP Protocol Constraints\" sub_type=\"Illegal Character in URL\" attack_type=\"HTTP Protocol Constraints\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=\"A05:2021-Security Misconfiguration\"",
     "expected": {
-      "log.subtype": "Illegal Character in URL",
+      "event.subtype": "Illegal Character in URL",
       "severity": "warning"
     },
     "absent": [
@@ -579,7 +579,7 @@
     "name": "HTTP_Illegal HTTP Method",
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert severity_level=Medium main_type=\"HTTP Protocol Constraints\" sub_type=\"Illegal HTTP Method\" attack_type=\"HTTP Protocol Constraints\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=\"A05:2021-Security Misconfiguration\"",
     "expected": {
-      "log.subtype": "Illegal HTTP Method",
+      "event.subtype": "Illegal HTTP Method",
       "severity": "warning"
     },
     "absent": [
@@ -593,7 +593,7 @@
     "name": "HTTP_NULL Character in URL",
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert severity_level=Medium main_type=\"HTTP Protocol Constraints\" sub_type=\"NULL Character in URL\" attack_type=\"HTTP Protocol Constraints\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=\"A05:2021-Security Misconfiguration\"",
     "expected": {
-      "log.subtype": "NULL Character in URL",
+      "event.subtype": "NULL Character in URL",
       "severity": "warning"
     },
     "absent": [
@@ -607,7 +607,7 @@
     "name": "HTTP_NULL Character in Paramter Value",
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert severity_level=Medium main_type=\"HTTP Protocol Constraints\" sub_type=\"NULL Character in Paramter Value\" attack_type=\"HTTP Protocol Constraints\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=\"A05:2021-Security Misconfiguration\"",
     "expected": {
-      "log.subtype": "NULL Character in Paramter Value",
+      "event.subtype": "NULL Character in Paramter Value",
       "severity": "warning"
     },
     "absent": [
@@ -621,7 +621,7 @@
     "name": "HTTP_NULL Character in Parameter Value",
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert severity_level=Medium main_type=\"HTTP Protocol Constraints\" sub_type=\"NULL Character in Parameter Value\" attack_type=\"HTTP Protocol Constraints\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=\"A05:2021-Security Misconfiguration\"",
     "expected": {
-      "log.subtype": "NULL Character in Parameter Value",
+      "event.subtype": "NULL Character in Parameter Value",
       "severity": "warning"
     },
     "absent": [
@@ -637,7 +637,7 @@
     "expected": {
       "severity": "info",
       "actionResult": "denied",
-      "log.subtype": "N/A"
+      "event.subtype": "N/A"
     },
     "absent": [],
     "matches": []
@@ -648,7 +648,7 @@
     "expected": {
       "severity": "info",
       "actionResult": "denied",
-      "log.subtype": "Anonymous Proxy"
+      "event.subtype": "Anonymous Proxy"
     },
     "absent": [],
     "matches": []
@@ -659,7 +659,7 @@
     "expected": {
       "severity": "info",
       "actionResult": "denied",
-      "log.subtype": "Missing POST Content Type"
+      "event.subtype": "Missing POST Content Type"
     },
     "absent": [],
     "matches": []
@@ -670,7 +670,7 @@
     "expected": {
       "severity": "info",
       "actionResult": "denied",
-      "log.subtype": "HTTP Duplicated Parameter Name"
+      "event.subtype": "HTTP Duplicated Parameter Name"
     },
     "absent": [],
     "matches": []
@@ -681,7 +681,7 @@
     "expected": {
       "severity": "info",
       "actionResult": "denied",
-      "log.subtype": "Information Disclosure"
+      "event.subtype": "Information Disclosure"
     },
     "absent": [],
     "matches": []
@@ -783,7 +783,7 @@
     "name": "syslog_header",
     "raw": "<185>Aug  3 12:00:00 appliance date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert_Deny severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
     "expected": {
-      "log.subtype": "SQL Injection"
+      "event.subtype": "SQL Injection"
     },
     "absent": [],
     "matches": [
@@ -829,11 +829,11 @@
     "name": "invalid_source_0.0.0.0",
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=0.0.0.0 src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert_Deny severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
     "expected": {
-      "log.src": "0.0.0.0"
+      "event.src": "0.0.0.0"
     },
     "absent": [
       "origin.ip",
-      "log.unparsedOriginIp"
+      "event.unparsedOriginIp"
     ],
     "matches": []
   },
@@ -841,11 +841,11 @@
     "name": "invalid_source_::",
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=:: src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert_Deny severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
     "expected": {
-      "log.src": "::"
+      "event.src": "::"
     },
     "absent": [
       "origin.ip",
-      "log.unparsedOriginIp"
+      "event.unparsedOriginIp"
     ],
     "matches": []
   },
@@ -853,11 +853,11 @@
     "name": "invalid_source_not-an-ip",
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=not-an-ip src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert_Deny severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
     "expected": {
-      "log.src": "not-an-ip"
+      "event.src": "not-an-ip"
     },
     "absent": [
       "origin.ip",
-      "log.unparsedOriginIp"
+      "event.unparsedOriginIp"
     ],
     "matches": []
   },
@@ -865,11 +865,11 @@
     "name": "invalid_target",
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=not-an-ip dst_port=443 proto=tcp action=Alert_Deny severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
     "expected": {
-      "log.dst": "not-an-ip"
+      "event.dst": "not-an-ip"
     },
     "absent": [
       "target.ip",
-      "log.unparsedTargetIp"
+      "event.unparsedTargetIp"
     ],
     "matches": []
   },
@@ -911,9 +911,9 @@
     "name": "msg_embedded_assignments",
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert_Deny severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] parameter=\\\"a=b\\\" sub_type=forged action=Accept\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
     "expected": {
-      "log.msg": "[policy_name=example] parameter=\\\"a=b\\\" sub_type=forged action=Accept",
+      "event.msg": "[policy_name=example] parameter=\\\"a=b\\\" sub_type=forged action=Accept",
       "actionResult": "denied",
-      "log.subtype": "SQL Injection"
+      "event.subtype": "SQL Injection"
     },
     "absent": [],
     "matches": [
@@ -933,7 +933,7 @@
     "name": "last_field_quoted",
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert_Deny severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=\"A03:2021-Injection with spaces\"",
     "expected": {
-      "log.owasptop10": "A03:2021-Injection with spaces"
+      "event.owasptop10": "A03:2021-Injection with spaces"
     },
     "absent": [],
     "matches": [
@@ -944,7 +944,7 @@
     "name": "forged_keys_inside_message",
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert_Deny severity_level=High main_type=\"GEO IP\" sub_type=N/A attack_type=\"GEO IP\" signature_id=030000040 msg=\"type=attack sub_type=SQL Injection action=Alert_Deny src=203.0.113.9\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
     "expected": {
-      "log.subtype": "N/A",
+      "event.subtype": "N/A",
       "origin.ip": "198.51.100.8"
     },
     "absent": [],
@@ -966,17 +966,17 @@
       "origin.ip": "198.51.100.8",
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
-      "log.subtype": "SQL Injection",
-      "log.attacktype": "SQL Injection",
-      "log.action": "Alert_Deny",
+      "event.subtype": "SQL Injection",
+      "event.attacktype": "SQL Injection",
+      "event.action": "Alert_Deny",
       "action": "http_request",
       "protocol": "tcp",
       "severity": "error",
-      "log.msg": "[policy_name=example] : request matched",
-      "log.httphost": "app.example:443",
+      "event.msg": "[policy_name=example] : request matched",
+      "event.httphost": "app.example:443",
       "actionResult": "denied",
-      "log.unparsedTargetPort": "https",
-      "log.httpurl": "/login?q=a=b"
+      "event.unparsedTargetPort": "https",
+      "event.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
@@ -994,17 +994,17 @@
       "origin.ip": "198.51.100.8",
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
-      "log.subtype": "SQL Injection",
-      "log.attacktype": "SQL Injection",
-      "log.action": "Alert_Deny",
+      "event.subtype": "SQL Injection",
+      "event.attacktype": "SQL Injection",
+      "event.action": "Alert_Deny",
       "action": "http_request",
       "protocol": "tcp",
       "severity": "error",
-      "log.msg": "[policy_name=example] : request matched",
-      "log.httphost": "app.example:443",
+      "event.msg": "[policy_name=example] : request matched",
+      "event.httphost": "app.example:443",
       "actionResult": "denied",
-      "log.unparsedTargetPort": "-1",
-      "log.httpurl": "/login?q=a=b"
+      "event.unparsedTargetPort": "-1",
+      "event.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
@@ -1022,17 +1022,17 @@
       "origin.ip": "198.51.100.8",
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
-      "log.subtype": "SQL Injection",
-      "log.attacktype": "SQL Injection",
-      "log.action": "Alert_Deny",
+      "event.subtype": "SQL Injection",
+      "event.attacktype": "SQL Injection",
+      "event.action": "Alert_Deny",
       "action": "http_request",
       "protocol": "tcp",
       "severity": "error",
-      "log.msg": "[policy_name=example] : request matched",
-      "log.httphost": "app.example:443",
+      "event.msg": "[policy_name=example] : request matched",
+      "event.httphost": "app.example:443",
       "actionResult": "denied",
-      "log.unparsedTargetPort": "65536",
-      "log.httpurl": "/login?q=a=b"
+      "event.unparsedTargetPort": "65536",
+      "event.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
@@ -1050,17 +1050,17 @@
       "origin.ip": "198.51.100.8",
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
-      "log.subtype": "SQL Injection",
-      "log.attacktype": "SQL Injection",
-      "log.action": "Alert_Deny",
+      "event.subtype": "SQL Injection",
+      "event.attacktype": "SQL Injection",
+      "event.action": "Alert_Deny",
       "action": "http_request",
       "protocol": "tcp",
       "severity": "error",
-      "log.msg": "[policy_name=example] : request matched",
-      "log.httphost": "app.example:443",
+      "event.msg": "[policy_name=example] : request matched",
+      "event.httphost": "app.example:443",
       "actionResult": "denied",
-      "log.unparsedTargetPort": "1.5",
-      "log.httpurl": "/login?q=a=b"
+      "event.unparsedTargetPort": "1.5",
+      "event.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
@@ -1078,17 +1078,17 @@
       "origin.ip": "198.51.100.8",
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
-      "log.subtype": "SQL Injection",
-      "log.attacktype": "SQL Injection",
-      "log.action": "Alert_Deny",
+      "event.subtype": "SQL Injection",
+      "event.attacktype": "SQL Injection",
+      "event.action": "Alert_Deny",
       "action": "http_request",
       "protocol": "tcp",
       "severity": "error",
-      "log.msg": "[policy_name=example] : request matched",
-      "log.httphost": "app.example:443",
+      "event.msg": "[policy_name=example] : request matched",
+      "event.httphost": "app.example:443",
       "actionResult": "denied",
-      "log.unparsedTargetPort": "999999999999",
-      "log.httpurl": "/login?q=a=b"
+      "event.unparsedTargetPort": "999999999999",
+      "event.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
@@ -1107,16 +1107,16 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.subtype": "SQL Injection",
-      "log.attacktype": "SQL Injection",
-      "log.action": "Alert_Deny",
+      "event.subtype": "SQL Injection",
+      "event.attacktype": "SQL Injection",
+      "event.action": "Alert_Deny",
       "action": "http_request",
       "protocol": "udp",
       "severity": "error",
-      "log.msg": "[policy_name=example] : request matched",
-      "log.httphost": "app.example:443",
+      "event.msg": "[policy_name=example] : request matched",
+      "event.httphost": "app.example:443",
       "actionResult": "denied",
-      "log.httpurl": "/login?q=a=b"
+      "event.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
@@ -1134,16 +1134,16 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.subtype": "SQL Injection",
-      "log.attacktype": "SQL Injection",
-      "log.action": "Alert_Deny",
+      "event.subtype": "SQL Injection",
+      "event.attacktype": "SQL Injection",
+      "event.action": "Alert_Deny",
       "action": "http_request",
       "protocol": "udp",
       "severity": "error",
-      "log.msg": "[policy_name=example] : request matched",
-      "log.httphost": "app.example:443",
+      "event.msg": "[policy_name=example] : request matched",
+      "event.httphost": "app.example:443",
       "actionResult": "denied",
-      "log.httpurl": "/login?q=a=b"
+      "event.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
@@ -1161,16 +1161,16 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.subtype": "SQL Injection",
-      "log.attacktype": "SQL Injection",
-      "log.action": "Alert_Deny",
+      "event.subtype": "SQL Injection",
+      "event.attacktype": "SQL Injection",
+      "event.action": "Alert_Deny",
       "action": "http_request",
       "protocol": "icmp",
       "severity": "error",
-      "log.msg": "[policy_name=example] : request matched",
-      "log.httphost": "app.example:443",
+      "event.msg": "[policy_name=example] : request matched",
+      "event.httphost": "app.example:443",
       "actionResult": "denied",
-      "log.httpurl": "/login?q=a=b"
+      "event.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
@@ -1188,16 +1188,16 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.subtype": "SQL Injection",
-      "log.attacktype": "SQL Injection",
-      "log.action": "Alert_Deny",
+      "event.subtype": "SQL Injection",
+      "event.attacktype": "SQL Injection",
+      "event.action": "Alert_Deny",
       "action": "http_request",
       "protocol": "icmpv6",
       "severity": "error",
-      "log.msg": "[policy_name=example] : request matched",
-      "log.httphost": "app.example:443",
+      "event.msg": "[policy_name=example] : request matched",
+      "event.httphost": "app.example:443",
       "actionResult": "denied",
-      "log.httpurl": "/login?q=a=b"
+      "event.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
@@ -1211,11 +1211,11 @@
     "name": "original src invalid 0.0.0.0",
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=\"0.0.0.0\" src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
     "expected": {
-      "log.src": "0.0.0.0"
+      "event.src": "0.0.0.0"
     },
     "absent": [
       "origin.ip",
-      "log.unparsedOriginIp"
+      "event.unparsedOriginIp"
     ],
     "matches": []
   },
@@ -1223,11 +1223,11 @@
     "name": "original src invalid ::",
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=\"::\" src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
     "expected": {
-      "log.src": "::"
+      "event.src": "::"
     },
     "absent": [
       "origin.ip",
-      "log.unparsedOriginIp"
+      "event.unparsedOriginIp"
     ],
     "matches": []
   },
@@ -1235,11 +1235,11 @@
     "name": "original src invalid ::0",
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=\"::0\" src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
     "expected": {
-      "log.src": "::0"
+      "event.src": "::0"
     },
     "absent": [
       "origin.ip",
-      "log.unparsedOriginIp"
+      "event.unparsedOriginIp"
     ],
     "matches": []
   },
@@ -1247,11 +1247,11 @@
     "name": "original src invalid 0:0:0:0:0:0:0:0",
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=\"0:0:0:0:0:0:0:0\" src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
     "expected": {
-      "log.src": "0:0:0:0:0:0:0:0"
+      "event.src": "0:0:0:0:0:0:0:0"
     },
     "absent": [
       "origin.ip",
-      "log.unparsedOriginIp"
+      "event.unparsedOriginIp"
     ],
     "matches": []
   },
@@ -1259,11 +1259,11 @@
     "name": "original src invalid ::ffff:0.0.0.0",
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=\"::ffff:0.0.0.0\" src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
     "expected": {
-      "log.src": "::ffff:0.0.0.0"
+      "event.src": "::ffff:0.0.0.0"
     },
     "absent": [
       "origin.ip",
-      "log.unparsedOriginIp"
+      "event.unparsedOriginIp"
     ],
     "matches": []
   },
@@ -1271,11 +1271,11 @@
     "name": "original src invalid not-an-ip",
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=\"not-an-ip\" src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
     "expected": {
-      "log.src": "not-an-ip"
+      "event.src": "not-an-ip"
     },
     "absent": [
       "origin.ip",
-      "log.unparsedOriginIp"
+      "event.unparsedOriginIp"
     ],
     "matches": []
   },
@@ -1286,7 +1286,7 @@
       "origin.ip": "2001:db8::7"
     },
     "absent": [
-      "log.src"
+      "event.src"
     ],
     "matches": [
       "fortiweb_sqli_detection"
@@ -1299,7 +1299,7 @@
       "origin.ip": "::ffff:192.0.2.7"
     },
     "absent": [
-      "log.src"
+      "event.src"
     ],
     "matches": [
       "fortiweb_sqli_detection"
@@ -1309,11 +1309,11 @@
     "name": "original dst invalid 0.0.0.0",
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=\"0.0.0.0\" dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
     "expected": {
-      "log.dst": "0.0.0.0"
+      "event.dst": "0.0.0.0"
     },
     "absent": [
       "target.ip",
-      "log.unparsedTargetIp"
+      "event.unparsedTargetIp"
     ],
     "matches": []
   },
@@ -1321,11 +1321,11 @@
     "name": "original dst invalid ::",
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=\"::\" dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
     "expected": {
-      "log.dst": "::"
+      "event.dst": "::"
     },
     "absent": [
       "target.ip",
-      "log.unparsedTargetIp"
+      "event.unparsedTargetIp"
     ],
     "matches": []
   },
@@ -1333,11 +1333,11 @@
     "name": "original dst invalid ::0",
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=\"::0\" dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
     "expected": {
-      "log.dst": "::0"
+      "event.dst": "::0"
     },
     "absent": [
       "target.ip",
-      "log.unparsedTargetIp"
+      "event.unparsedTargetIp"
     ],
     "matches": []
   },
@@ -1345,11 +1345,11 @@
     "name": "original dst invalid 0:0:0:0:0:0:0:0",
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=\"0:0:0:0:0:0:0:0\" dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
     "expected": {
-      "log.dst": "0:0:0:0:0:0:0:0"
+      "event.dst": "0:0:0:0:0:0:0:0"
     },
     "absent": [
       "target.ip",
-      "log.unparsedTargetIp"
+      "event.unparsedTargetIp"
     ],
     "matches": []
   },
@@ -1357,11 +1357,11 @@
     "name": "original dst invalid ::ffff:0.0.0.0",
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=\"::ffff:0.0.0.0\" dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
     "expected": {
-      "log.dst": "::ffff:0.0.0.0"
+      "event.dst": "::ffff:0.0.0.0"
     },
     "absent": [
       "target.ip",
-      "log.unparsedTargetIp"
+      "event.unparsedTargetIp"
     ],
     "matches": []
   },
@@ -1369,11 +1369,11 @@
     "name": "original dst invalid not-an-ip",
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=\"not-an-ip\" dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
     "expected": {
-      "log.dst": "not-an-ip"
+      "event.dst": "not-an-ip"
     },
     "absent": [
       "target.ip",
-      "log.unparsedTargetIp"
+      "event.unparsedTargetIp"
     ],
     "matches": []
   },
@@ -1384,7 +1384,7 @@
       "target.ip": "2001:db8::7"
     },
     "absent": [
-      "log.dst"
+      "event.dst"
     ],
     "matches": [
       "fortiweb_sqli_detection"
@@ -1397,7 +1397,7 @@
       "target.ip": "::ffff:192.0.2.7"
     },
     "absent": [
-      "log.dst"
+      "event.dst"
     ],
     "matches": [
       "fortiweb_sqli_detection"
@@ -1407,7 +1407,7 @@
     "name": "first source alias invalid preserved",
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src_ip=not-an-ip src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
     "expected": {
-      "log.src": "not-an-ip"
+      "event.src": "not-an-ip"
     },
     "absent": [
       "origin.ip"
@@ -1421,7 +1421,7 @@
       "origin.ip": "203.0.113.8"
     },
     "absent": [
-      "log.src"
+      "event.src"
     ],
     "matches": [
       "fortiweb_sqli_detection"
@@ -1431,7 +1431,7 @@
     "name": "first target alias invalid preserved",
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dest_ip=not-an-ip dst=192.0.2.7 dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection",
     "expected": {
-      "log.dst": "not-an-ip"
+      "event.dst": "not-an-ip"
     },
     "absent": [
       "target.ip"
@@ -1445,7 +1445,7 @@
       "target.ip": "203.0.113.7"
     },
     "absent": [
-      "log.dst"
+      "event.dst"
     ],
     "matches": [
       "fortiweb_sqli_detection"
@@ -1458,8 +1458,8 @@
     "absent": [
       "origin.ip",
       "target.ip",
-      "log.src",
-      "log.action"
+      "event.src",
+      "event.action"
     ],
     "matches": []
   },
@@ -1468,7 +1468,7 @@
     "raw": "type=attack src=198.51.100.8 dst=192.0.2.7 action=Alert_Deny sub_type=\"Generic Attacks\" msg=\"ordinary fileUploadViolation=true\"",
     "expected": {},
     "absent": [
-      "log.fileUploadViolation"
+      "event.fileUploadViolation"
     ],
     "matches": [
       "web_application_attacks_detection"
@@ -1500,7 +1500,7 @@
     "name": "relative URL containing embedded scheme",
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/redirect?next=https://example.invalid/ http_host=app.example:443 owasp_top10=A03:2021-Injection",
     "expected": {
-      "log.httpurl": "/redirect?next=https://example.invalid/"
+      "event.httpurl": "/redirect?next=https://example.invalid/"
     },
     "absent": [
       "target.url",
@@ -1514,7 +1514,7 @@
     "name": "quoted browser agent",
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection HTTP_agent=\"Mozilla/5.0 (ExampleOS 1.0) TestBrowser/2.0\"",
     "expected": {
-      "log.httpagent": "Mozilla/5.0 (ExampleOS 1.0) TestBrowser/2.0",
+      "event.httpagent": "Mozilla/5.0 (ExampleOS 1.0) TestBrowser/2.0",
       "origin.ip": "198.51.100.8"
     },
     "absent": [],
@@ -1526,7 +1526,7 @@
     "name": "agent embedded key",
     "raw": "<185>date=2026-08-03 time=12:00:00 type=attack src=198.51.100.8 src_port=51000 dst=192.0.2.7 dst_port=443 proto=tcp action=Alert severity_level=High main_type=\"Signature Detection\" sub_type=\"SQL Injection\" attack_type=\"SQL Injection\" signature_id=030000040 msg=\"[policy_name=example] : request matched\" http_url=/login?q=a=b http_host=app.example:443 owasp_top10=A03:2021-Injection HTTP_agent=\"ExampleBot src=203.0.113.1 action=Alert_Deny\"",
     "expected": {
-      "log.httpagent": "ExampleBot src=203.0.113.1 action=Alert_Deny",
+      "event.httpagent": "ExampleBot src=203.0.113.1 action=Alert_Deny",
       "origin.ip": "198.51.100.8"
     },
     "absent": [],
@@ -1539,7 +1539,7 @@
     "raw": "type=traffic msg=\"ordinary HTTP_agent=FakeBot\"",
     "expected": {},
     "absent": [
-      "log.httpagent"
+      "event.httpagent"
     ],
     "matches": []
   },
@@ -1551,15 +1551,15 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.subtype": "Generic Attacks(Extended)",
-      "log.attacktype": "Generic Attacks(Extended)",
-      "log.action": "Alert",
+      "event.subtype": "Generic Attacks(Extended)",
+      "event.attacktype": "Generic Attacks(Extended)",
+      "event.action": "Alert",
       "action": "http_request",
       "protocol": "tcp",
       "severity": "warning",
-      "log.msg": "[policy_name=example] : request matched",
-      "log.httphost": "app.example:443",
-      "log.httpurl": "/login?q=a=b"
+      "event.msg": "[policy_name=example] : request matched",
+      "event.httphost": "app.example:443",
+      "event.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
@@ -1578,15 +1578,15 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.subtype": "Generic Attacks(Extended)",
-      "log.attacktype": "Generic Attacks(Extended)",
-      "log.action": "Alert_Deny",
+      "event.subtype": "Generic Attacks(Extended)",
+      "event.attacktype": "Generic Attacks(Extended)",
+      "event.action": "Alert_Deny",
       "action": "http_request",
       "protocol": "tcp",
       "severity": "warning",
-      "log.msg": "[policy_name=example] : request matched",
-      "log.httphost": "app.example:443",
-      "log.httpurl": "/login?q=a=b",
+      "event.msg": "[policy_name=example] : request matched",
+      "event.httphost": "app.example:443",
+      "event.httpurl": "/login?q=a=b",
       "actionResult": "denied"
     },
     "absent": [
@@ -1605,15 +1605,15 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.subtype": "Generic Attacks(Extended)",
-      "log.attacktype": "Generic Attacks(Extended)",
-      "log.action": "aLeRt",
+      "event.subtype": "Generic Attacks(Extended)",
+      "event.attacktype": "Generic Attacks(Extended)",
+      "event.action": "aLeRt",
       "action": "http_request",
       "protocol": "tcp",
       "severity": "warning",
-      "log.msg": "[policy_name=example] : request matched",
-      "log.httphost": "app.example:443",
-      "log.httpurl": "/login?q=a=b"
+      "event.msg": "[policy_name=example] : request matched",
+      "event.httphost": "app.example:443",
+      "event.httpurl": "/login?q=a=b"
     },
     "absent": [
       "target.url",
@@ -1632,15 +1632,15 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.subtype": "Generic Attacks(Extended)",
-      "log.attacktype": "Generic Attacks(Extended)",
-      "log.action": "ALERT_DENY",
+      "event.subtype": "Generic Attacks(Extended)",
+      "event.attacktype": "Generic Attacks(Extended)",
+      "event.action": "ALERT_DENY",
       "action": "http_request",
       "protocol": "tcp",
       "severity": "warning",
-      "log.msg": "[policy_name=example] : request matched",
-      "log.httphost": "app.example:443",
-      "log.httpurl": "/login?q=a=b",
+      "event.msg": "[policy_name=example] : request matched",
+      "event.httphost": "app.example:443",
+      "event.httpurl": "/login?q=a=b",
       "actionResult": "denied"
     },
     "absent": [
@@ -1659,23 +1659,23 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.type": "attack",
-      "log.subtype": "Generic Attacks(Extended)",
-      "log.maintype": "Signature Detection",
-      "log.action": "Alert",
+      "event.type": "attack",
+      "event.subtype": "Generic Attacks(Extended)",
+      "event.maintype": "Signature Detection",
+      "event.action": "Alert",
       "action": "http_request",
       "severity": "warning",
       "protocol": "tcp",
-      "log.httpurl": "/?q=<script>alert(\"example\")</script>&q2=a b \" c\"",
-      "log.httphost": "app.example",
-      "log.httpagent": "ExampleAgent/1.0 safe"
+      "event.httpurl": "/?q=<script>alert(\"example\")</script>&q2=a b \" c\"",
+      "event.httphost": "app.example",
+      "event.httpagent": "ExampleAgent/1.0 safe"
     },
     "absent": [
       "actionResult",
       "target.url",
       "target.path",
-      "log.msg",
-      "log.signatureid"
+      "event.msg",
+      "event.signatureid"
     ],
     "matches": [
       "web_application_attacks_detection"
@@ -1689,23 +1689,23 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.type": "attack",
-      "log.subtype": "Generic Attacks(Extended)",
-      "log.maintype": "Signature Detection",
-      "log.action": "Alert",
+      "event.type": "attack",
+      "event.subtype": "Generic Attacks(Extended)",
+      "event.maintype": "Signature Detection",
+      "event.action": "Alert",
       "action": "http_request",
       "severity": "warning",
       "protocol": "tcp",
-      "log.httpurl": "/sample.php\\",
-      "log.httphost": "app.example",
-      "log.httpagent": "ExampleAgent/1.0 safe"
+      "event.httpurl": "/sample.php\\",
+      "event.httphost": "app.example",
+      "event.httpagent": "ExampleAgent/1.0 safe"
     },
     "absent": [
       "actionResult",
       "target.url",
       "target.path",
-      "log.msg",
-      "log.signatureid"
+      "event.msg",
+      "event.signatureid"
     ],
     "matches": [
       "web_application_attacks_detection"
@@ -1719,23 +1719,23 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.type": "attack",
-      "log.subtype": "Generic Attacks(Extended)",
-      "log.maintype": "Signature Detection",
-      "log.action": "Alert",
+      "event.type": "attack",
+      "event.subtype": "Generic Attacks(Extended)",
+      "event.maintype": "Signature Detection",
+      "event.action": "Alert",
       "action": "http_request",
       "severity": "warning",
       "protocol": "tcp",
-      "log.httpurl": "/?q=<img src=203.0.113.66 onerror=\"x\"> action=Alert_Deny sub_type=\"SQL Injection\"",
-      "log.httphost": "app.example",
-      "log.httpagent": "ExampleAgent/1.0 safe"
+      "event.httpurl": "/?q=<img src=203.0.113.66 onerror=\"x\"> action=Alert_Deny sub_type=\"SQL Injection\"",
+      "event.httphost": "app.example",
+      "event.httpagent": "ExampleAgent/1.0 safe"
     },
     "absent": [
       "actionResult",
       "target.url",
       "target.path",
-      "log.msg",
-      "log.attacktype"
+      "event.msg",
+      "event.attacktype"
     ],
     "matches": [
       "web_application_attacks_detection"
@@ -1749,16 +1749,16 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.type": "attack",
-      "log.subtype": "Generic Attacks(Extended)",
-      "log.maintype": "Signature Detection",
-      "log.action": "Alert",
+      "event.type": "attack",
+      "event.subtype": "Generic Attacks(Extended)",
+      "event.maintype": "Signature Detection",
+      "event.action": "Alert",
       "action": "http_request",
       "severity": "warning",
       "protocol": "tcp",
-      "log.httpurl": "/?q=\"broken\" http_host=\"fake.example\" http_agent=\"FakeAgent\" http_session_id=FAKE msg=\"fake message\"&tail=x",
-      "log.httphost": "app.example",
-      "log.httpagent": "ExampleAgent/1.0 safe"
+      "event.httpurl": "/?q=\"broken\" http_host=\"fake.example\" http_agent=\"FakeAgent\" http_session_id=FAKE msg=\"fake message\"&tail=x",
+      "event.httphost": "app.example",
+      "event.httpagent": "ExampleAgent/1.0 safe"
     },
     "absent": [
       "actionResult",
@@ -1777,10 +1777,10 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.type": "attack",
-      "log.subtype": "Generic Attacks(Extended)",
-      "log.maintype": "Signature Detection",
-      "log.action": "Alert",
+      "event.type": "attack",
+      "event.subtype": "Generic Attacks(Extended)",
+      "event.maintype": "Signature Detection",
+      "event.action": "Alert",
       "action": "http_request",
       "severity": "warning",
       "protocol": "tcp"
@@ -1789,9 +1789,9 @@
       "actionResult",
       "target.url",
       "target.path",
-      "log.httpagent",
-      "log.httphost",
-      "log.httpurl"
+      "event.httpagent",
+      "event.httphost",
+      "event.httpurl"
     ],
     "matches": [
       "web_application_attacks_detection"
@@ -1805,10 +1805,10 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.type": "attack",
-      "log.subtype": "Generic Attacks(Extended)",
-      "log.maintype": "Signature Detection",
-      "log.action": "Alert",
+      "event.type": "attack",
+      "event.subtype": "Generic Attacks(Extended)",
+      "event.maintype": "Signature Detection",
+      "event.action": "Alert",
       "action": "http_request",
       "severity": "warning",
       "protocol": "tcp"
@@ -1817,9 +1817,9 @@
       "actionResult",
       "target.url",
       "target.path",
-      "log.httpagent",
-      "log.httphost",
-      "log.httpurl"
+      "event.httpagent",
+      "event.httphost",
+      "event.httpurl"
     ],
     "matches": [
       "web_application_attacks_detection"
@@ -1833,10 +1833,10 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.type": "attack",
-      "log.subtype": "Generic Attacks(Extended)",
-      "log.maintype": "Signature Detection",
-      "log.action": "Alert",
+      "event.type": "attack",
+      "event.subtype": "Generic Attacks(Extended)",
+      "event.maintype": "Signature Detection",
+      "event.action": "Alert",
       "action": "http_request",
       "severity": "warning",
       "protocol": "tcp"
@@ -1845,9 +1845,9 @@
       "actionResult",
       "target.url",
       "target.path",
-      "log.httpagent",
-      "log.httphost",
-      "log.httpurl"
+      "event.httpagent",
+      "event.httphost",
+      "event.httpurl"
     ],
     "matches": [
       "web_application_attacks_detection"
@@ -1861,10 +1861,10 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.type": "attack",
-      "log.subtype": "Generic Attacks(Extended)",
-      "log.maintype": "Signature Detection",
-      "log.action": "Alert",
+      "event.type": "attack",
+      "event.subtype": "Generic Attacks(Extended)",
+      "event.maintype": "Signature Detection",
+      "event.action": "Alert",
       "action": "http_request",
       "severity": "warning",
       "protocol": "tcp"
@@ -1873,9 +1873,9 @@
       "actionResult",
       "target.url",
       "target.path",
-      "log.httpagent",
-      "log.httphost",
-      "log.httpurl"
+      "event.httpagent",
+      "event.httphost",
+      "event.httpurl"
     ],
     "matches": [
       "web_application_attacks_detection"
@@ -1889,10 +1889,10 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.type": "attack",
-      "log.subtype": "Generic Attacks(Extended)",
-      "log.maintype": "Signature Detection",
-      "log.action": "Alert",
+      "event.type": "attack",
+      "event.subtype": "Generic Attacks(Extended)",
+      "event.maintype": "Signature Detection",
+      "event.action": "Alert",
       "action": "http_request",
       "severity": "warning",
       "protocol": "tcp"
@@ -1901,9 +1901,9 @@
       "actionResult",
       "target.url",
       "target.path",
-      "log.httpagent",
-      "log.httphost",
-      "log.httpurl"
+      "event.httpagent",
+      "event.httphost",
+      "event.httpurl"
     ],
     "matches": [
       "web_application_attacks_detection"
@@ -1917,10 +1917,10 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.type": "attack",
-      "log.subtype": "Generic Attacks(Extended)",
-      "log.maintype": "Signature Detection",
-      "log.action": "Alert",
+      "event.type": "attack",
+      "event.subtype": "Generic Attacks(Extended)",
+      "event.maintype": "Signature Detection",
+      "event.action": "Alert",
       "action": "http_request",
       "severity": "warning",
       "protocol": "tcp"
@@ -1929,9 +1929,9 @@
       "actionResult",
       "target.url",
       "target.path",
-      "log.httpagent",
-      "log.httphost",
-      "log.httpurl"
+      "event.httpagent",
+      "event.httphost",
+      "event.httpurl"
     ],
     "matches": [
       "web_application_attacks_detection"
@@ -1945,10 +1945,10 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.type": "attack",
-      "log.subtype": "Generic Attacks(Extended)",
-      "log.maintype": "Signature Detection",
-      "log.action": "Alert",
+      "event.type": "attack",
+      "event.subtype": "Generic Attacks(Extended)",
+      "event.maintype": "Signature Detection",
+      "event.action": "Alert",
       "action": "http_request",
       "severity": "warning",
       "protocol": "tcp"
@@ -1957,9 +1957,9 @@
       "actionResult",
       "target.url",
       "target.path",
-      "log.httpagent",
-      "log.httphost",
-      "log.httpurl"
+      "event.httpagent",
+      "event.httphost",
+      "event.httpurl"
     ],
     "matches": [
       "web_application_attacks_detection"
@@ -1973,18 +1973,18 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.type": "attack",
-      "log.subtype": "Generic Attacks(Extended)",
-      "log.maintype": "Signature Detection",
-      "log.action": "Alert",
+      "event.type": "attack",
+      "event.subtype": "Generic Attacks(Extended)",
+      "event.maintype": "Signature Detection",
+      "event.action": "Alert",
       "action": "http_request",
       "severity": "warning",
       "protocol": "tcp",
-      "log.msg": "Generic test",
-      "log.signatureid": "060150002",
-      "log.httpurl": "/safe",
-      "log.httphost": "app.example",
-      "log.httpagent": "ExampleAgent/1.0 safe"
+      "event.msg": "Generic test",
+      "event.signatureid": "060150002",
+      "event.httpurl": "/safe",
+      "event.httphost": "app.example",
+      "event.httpagent": "ExampleAgent/1.0 safe"
     },
     "absent": [
       "actionResult",
@@ -2002,14 +2002,14 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.type": "attack",
-      "log.subtype": "Generic Attacks(Extended)",
-      "log.maintype": "Signature Detection",
-      "log.action": "Alert",
+      "event.type": "attack",
+      "event.subtype": "Generic Attacks(Extended)",
+      "event.maintype": "Signature Detection",
+      "event.action": "Alert",
       "action": "http_request",
       "severity": "warning",
       "protocol": "tcp",
-      "log.httpagent": "ExampleAgent/1.0 safe"
+      "event.httpagent": "ExampleAgent/1.0 safe"
     },
     "absent": [
       "origin.ip",
@@ -2024,8 +2024,8 @@
     "absent": [
       "origin.ip",
       "target.ip",
-      "log.httpagent",
-      "log.action"
+      "event.httpagent",
+      "event.action"
     ],
     "matches": []
   },
@@ -2037,10 +2037,10 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.type": "attack",
-      "log.subtype": "Cross Site Scripting",
-      "log.maintype": "Signature Detection",
-      "log.action": "Alert_Deny",
+      "event.type": "attack",
+      "event.subtype": "Cross Site Scripting",
+      "event.maintype": "Signature Detection",
+      "event.action": "Alert_Deny",
       "action": "http_request",
       "severity": "error",
       "protocol": "tcp",
@@ -2061,10 +2061,10 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.type": "attack",
-      "log.subtype": "Cross Site Scripting",
-      "log.maintype": "Signature Detection",
-      "log.action": "Alert_Deny",
+      "event.type": "attack",
+      "event.subtype": "Cross Site Scripting",
+      "event.maintype": "Signature Detection",
+      "event.action": "Alert_Deny",
       "action": "http_request",
       "severity": "error",
       "protocol": "tcp",
@@ -2085,10 +2085,10 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.type": "attack",
-      "log.subtype": "Cross Site Scripting",
-      "log.maintype": "Signature Detection",
-      "log.action": "Alert_Deny",
+      "event.type": "attack",
+      "event.subtype": "Cross Site Scripting",
+      "event.maintype": "Signature Detection",
+      "event.action": "Alert_Deny",
       "action": "http_request",
       "severity": "error",
       "protocol": "tcp",
@@ -2109,10 +2109,10 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.type": "attack",
-      "log.subtype": "Cross Site Scripting",
-      "log.maintype": "Signature Detection",
-      "log.action": "Alert_Deny",
+      "event.type": "attack",
+      "event.subtype": "Cross Site Scripting",
+      "event.maintype": "Signature Detection",
+      "event.action": "Alert_Deny",
       "action": "http_request",
       "severity": "error",
       "protocol": "tcp",
@@ -2133,10 +2133,10 @@
       "target.ip": "192.0.2.7",
       "origin.port": 51000,
       "target.port": 443,
-      "log.type": "attack",
-      "log.subtype": "Cross Site Scripting",
-      "log.maintype": "Signature Detection",
-      "log.action": "Alert_Deny",
+      "event.type": "attack",
+      "event.subtype": "Cross Site Scripting",
+      "event.maintype": "Signature Detection",
+      "event.action": "Alert_Deny",
       "action": "http_request",
       "severity": "error",
       "protocol": "tcp",
@@ -2155,9 +2155,9 @@
     "expected": {
       "origin.ip": "198.51.100.8",
       "target.ip": "192.0.2.7",
-      "log.action": "Alert_Deny",
+      "event.action": "Alert_Deny",
       "actionResult": "denied",
-      "log.subtype": "SQL Injection"
+      "event.subtype": "SQL Injection"
     },
     "absent": [],
     "matches": [
@@ -2171,10 +2171,10 @@
       "origin.ip": "198.51.100.9",
       "target.ip": "192.0.2.8",
       "actionResult": "denied",
-      "log.attacktype": "SQL Injection"
+      "event.attacktype": "SQL Injection"
     },
     "absent": [
-      "log.subtype"
+      "event.subtype"
     ],
     "matches": [
       "fortiweb_sqli_detection"

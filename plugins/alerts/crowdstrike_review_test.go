@@ -233,7 +233,7 @@ func csReviewNormalize(cfg *plugins.Config, cache *plugins.CELCache, id, raw str
 				}
 				for key, value := range pairs {
 					utils.SanitizeField(&key)
-					csReviewSet(draft, "log."+key, value)
+					csReviewSet(draft, "event."+key, value)
 				}
 			case step.Rename != nil:
 				if !where(step.Rename.Where) {
@@ -445,7 +445,7 @@ func TestCrowdStrikeReviewNormalizedFields(t *testing.T) {
 				return
 			}
 			commandLines++
-			stored := gjson.Get(e.eventJSON, "log.eventCommandLine").String()
+			stored := gjson.Get(e.eventJSON, "event.eventCommandLine").String()
 			if want := strings.TrimSpace(sent.String()); stored != want {
 				t.Errorf("command line %q, sent as %q", stored, want)
 			}
@@ -478,7 +478,7 @@ func TestCrowdStrikeReviewRenamesNotRepeated(t *testing.T) {
 // Rule conditions on the normalized fixtures give exactly the listed rules. Every field a rule
 // reads, in its condition or its history search, must be one the filter writes: the CrowdStrike
 // plugin sends only the event-stream keys metadata and event, so a name such as
-// log.event_simpleName (Falcon Data Replicator) can never arrive.
+// event.event_simpleName (Falcon Data Replicator) can never arrive.
 func TestCrowdStrikeReviewRuleConditions(t *testing.T) {
 	cfg, rules := csReviewFilter(t), csReviewRules(t)
 	cache := plugins.NewCELCache("crowdstrike-review-rules")
@@ -557,7 +557,7 @@ func TestCrowdStrikeReviewAlertKeys(t *testing.T) {
 	alertPath := func(p string) bool {
 		p = groupingArrayIndex.ReplaceAllString(strings.TrimSuffix(p, ".keyword"), "$1")
 		if rest, ok := strings.CutPrefix(p, "lastEvent."); ok {
-			return eventPaths[rest] || strings.HasPrefix(rest, "log.")
+			return eventPaths[rest] || strings.HasPrefix(rest, "event.")
 		}
 		return alertPaths[p]
 	}

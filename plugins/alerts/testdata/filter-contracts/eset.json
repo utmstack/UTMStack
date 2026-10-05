@@ -26,7 +26,7 @@
       "input": {
         "dataType": "antivirus-esmc-eset",
         "dataSource": "synthetic-relay",
-        "log": {}
+        "event": {}
       },
       "expected": {
         "dataSource": "synthetic-relay"
@@ -35,7 +35,7 @@
         "origin.ip",
         "target.ip",
         "actionResult",
-        "log.endpointKey"
+        "event.endpointKey"
       ],
       "rules": {
         "rules/antivirus/esmc-eset/advanced_heuristic_detection_triggers.yml": false,
@@ -60,22 +60,22 @@
       "input": {
         "dataType": "antivirus-esmc-eset",
         "dataSource": "synthetic-relay",
-        "log": {
+        "event": {
           "result": "Success",
           "severity": "Warning",
           "event_type": "Unverified_Event"
         }
       },
       "expected": {
-        "log.result": "Success",
-        "log.severity": "Warning",
-        "log.event_type": "Unverified_Event"
+        "event.result": "Success",
+        "event.severity": "Warning",
+        "event.event_type": "Unverified_Event"
       },
       "absent": [
         "actionResult",
         "origin.ip",
         "target.ip",
-        "log.endpointKey"
+        "event.endpointKey"
       ],
       "rules": {
         "rules/antivirus/esmc-eset/advanced_heuristic_detection_triggers.yml": false,

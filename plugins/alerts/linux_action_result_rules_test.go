@@ -79,7 +79,7 @@ func TestLinuxActionResultRuleConsumers(t *testing.T) {
 				if history.With[0].Field != "dataSource.keyword" || history.With[0].Operator != "filter_term" || history.With[0].Value.GetStringValue() != "{{.dataSource}}" {
 					t.Fatal("collector identity changed")
 				}
-				if history.With[1].Field != "log.message" || history.With[1].Operator != "filter_match" || history.With[1].Value.GetStringValue() != "Failed password" {
+				if history.With[1].Field != "event.message" || history.With[1].Operator != "filter_match" || history.With[1].Value.GetStringValue() != "Failed password" {
 					t.Fatal("message history scope changed")
 				}
 			} else if len(rule.Correlation) != 0 {

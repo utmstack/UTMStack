@@ -21,7 +21,7 @@
       "name": "paloalto-reject-input-supplied-correlation-scope",
       "filter": "paloalto/pa_firewall.yml",
       "input": {
-        "log": {
+        "event": {
           "paScope": "forged",
           "paVsys": "forged",
           "paType": "SYSTEM",
@@ -37,12 +37,12 @@
         }
       },
       "expected": {
-        "log.paVsys": "none"
+        "event.paVsys": "none"
       },
       "absent": [
-        "log.paScope",
-        "log.paType",
-        "log.correlationCandidate.paloalto",
+        "event.paScope",
+        "event.paType",
+        "event.correlationCandidate.paloalto",
         "origin.ip",
         "target.ip",
         "actionResult"

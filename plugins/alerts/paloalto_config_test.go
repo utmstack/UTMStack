@@ -40,7 +40,7 @@ func TestPaloAltoFilterConfiguration(t *testing.T) {
 			}
 			if cast := step.Cast; cast != nil {
 				for _, field := range cast.Fields {
-					if !eventPaths[field] && !strings.HasPrefix(field, "log.") {
+					if !eventPaths[field] && !strings.HasPrefix(field, "event.") {
 						t.Errorf("stage %d step %d: cast targets unknown Event field %q", stageIndex, stepIndex, field)
 					}
 				}

@@ -79,7 +79,7 @@
     "raw": "{\"type\":\"auditd\",\"category\":\"SYSCALL\",\"syscall\":\"connect\",\"result\":\"success\"}",
     "result": "success",
     "preserve": {
-      "log.result": "success"
+      "event.result": "success"
     }
   },
   {
@@ -87,7 +87,7 @@
     "raw": "{\"type\":\"auditd\",\"category\":\"SYSCALL\",\"syscall\":\"connect\",\"result\":\"fail\"}",
     "result": "failure",
     "preserve": {
-      "log.result": "fail"
+      "event.result": "fail"
     }
   },
   {
@@ -95,7 +95,7 @@
     "raw": "{\"type\":\"auditd\",\"category\":\"SYSCALL\",\"syscall\":\"connect\",\"result\":\"failed\"}",
     "result": "",
     "preserve": {
-      "log.result": "failed"
+      "event.result": "failed"
     }
   },
   {
@@ -103,7 +103,7 @@
     "raw": "{\"type\":\"auditd\",\"category\":\"SYSCALL\",\"syscall\":\"connect\",\"result\":\"denied\"}",
     "result": "",
     "preserve": {
-      "log.result": "denied"
+      "event.result": "denied"
     }
   },
   {
@@ -111,7 +111,7 @@
     "raw": "{\"type\":\"auditd\",\"category\":\"SYSCALL\",\"syscall\":\"connect\",\"result\":\"blocked\"}",
     "result": "",
     "preserve": {
-      "log.result": "blocked"
+      "event.result": "blocked"
     }
   },
   {
@@ -119,7 +119,7 @@
     "raw": "{\"type\":\"auditd\",\"category\":\"SYSCALL\",\"syscall\":\"connect\",\"result\":\"unknown\"}",
     "result": "",
     "preserve": {
-      "log.result": "unknown"
+      "event.result": "unknown"
     }
   },
   {
@@ -127,7 +127,7 @@
     "raw": "{\"type\":\"auditd\",\"category\":\"SYSCALL\",\"syscall\":\"connect\",\"result\":\"pending\"}",
     "result": "",
     "preserve": {
-      "log.result": "pending"
+      "event.result": "pending"
     }
   },
   {
@@ -135,7 +135,7 @@
     "raw": "{\"type\":\"auditd\",\"category\":\"SYSCALL\",\"syscall\":\"connect\",\"result\":\"partial\"}",
     "result": "",
     "preserve": {
-      "log.result": "partial"
+      "event.result": "partial"
     }
   },
   {
@@ -143,7 +143,7 @@
     "raw": "{\"type\":\"auditd\",\"category\":\"SYSCALL\",\"syscall\":\"connect\",\"result\":\"\"}",
     "result": "",
     "preserve": {
-      "log.result": ""
+      "event.result": ""
     }
   },
   {
@@ -151,7 +151,7 @@
     "raw": "{\"type\":\"auditd\",\"category\":\"SYSCALL\",\"syscall\":\"connect\",\"result\":null}",
     "result": "",
     "preserve": {
-      "log.result": null
+      "event.result": null
     }
   },
   {
@@ -159,7 +159,7 @@
     "raw": "{\"type\":\"auditd\",\"category\":\"SYSCALL\",\"syscall\":\"connect\",\"result\":{}}",
     "result": "",
     "preserve": {
-      "log.result": {}
+      "event.result": {}
     }
   },
   {
@@ -167,7 +167,7 @@
     "raw": "{\"type\":\"auditd\",\"category\":\"SYSCALL\",\"syscall\":\"connect\",\"result\":[]}",
     "result": "",
     "preserve": {
-      "log.result": []
+      "event.result": []
     }
   },
   {
@@ -175,7 +175,7 @@
     "raw": "{\"type\":\"auditd\",\"category\":\"SYSCALL\",\"syscall\":\"connect\",\"result\":1}",
     "result": "",
     "preserve": {
-      "log.result": 1
+      "event.result": 1
     }
   },
   {
@@ -183,7 +183,7 @@
     "raw": "{\"type\":\"auditd\",\"category\":\"SYSCALL\",\"syscall\":\"connect\",\"result\":true}",
     "result": "",
     "preserve": {
-      "log.result": true
+      "event.result": true
     }
   },
   {
@@ -191,7 +191,7 @@
     "raw": "{\"type\":\"auditd\",\"category\":\"USER_LOGIN\",\"userlogin\":{\"result\":\"success\"}}",
     "result": "success",
     "preserve": {
-      "log.userlogin.result": "success"
+      "event.userlogin.result": "success"
     }
   },
   {
@@ -199,7 +199,7 @@
     "raw": "{\"type\":\"auditd\",\"category\":\"USER_LOGIN\",\"userlogin\":{\"result\":\"fail\"}}",
     "result": "failure",
     "preserve": {
-      "log.userlogin.result": "fail"
+      "event.userlogin.result": "fail"
     }
   },
   {
@@ -207,7 +207,7 @@
     "raw": "{\"type\":\"auditd\",\"category\":\"USER_LOGIN\",\"userlogin\":{\"result\":\"unknown\"}}",
     "result": "",
     "preserve": {
-      "log.userlogin.result": "unknown"
+      "event.userlogin.result": "unknown"
     }
   },
   {
@@ -215,7 +215,7 @@
     "raw": "{\"type\":\"auditd\",\"category\":\"USER_LOGIN\",\"userlogin\":{\"result\":\"\"}}",
     "result": "",
     "preserve": {
-      "log.userlogin.result": ""
+      "event.userlogin.result": ""
     }
   },
   {
@@ -223,7 +223,7 @@
     "raw": "{\"type\":\"auditd\",\"category\":\"USER_LOGIN\",\"userlogin\":{\"result\":null}}",
     "result": "",
     "preserve": {
-      "log.userlogin.result": null
+      "event.userlogin.result": null
     }
   },
   {
@@ -231,7 +231,7 @@
     "raw": "{\"type\":\"auditd\",\"category\":\"USER_LOGIN\",\"userlogin\":{\"result\":{}}}",
     "result": "",
     "preserve": {
-      "log.userlogin.result": {}
+      "event.userlogin.result": {}
     }
   },
   {
@@ -239,7 +239,7 @@
     "raw": "{\"type\":\"auditd\",\"category\":\"USER_LOGIN\",\"userlogin\":{\"result\":[]}}",
     "result": "",
     "preserve": {
-      "log.userlogin.result": []
+      "event.userlogin.result": []
     }
   },
   {
@@ -247,7 +247,7 @@
     "raw": "{\"type\":\"auditd\",\"category\":\"USER_LOGIN\",\"userlogin\":{\"result\":1}}",
     "result": "",
     "preserve": {
-      "log.userlogin.result": 1
+      "event.userlogin.result": 1
     }
   },
   {
@@ -255,7 +255,7 @@
     "raw": "{\"type\":\"auditd\",\"category\":\"USER_LOGIN\",\"userlogin\":{\"result\":true}}",
     "result": "",
     "preserve": {
-      "log.userlogin.result": true
+      "event.userlogin.result": true
     }
   },
   {
@@ -283,7 +283,7 @@
     "raw": "{\"type\":\"auditd\",\"category\":\"SYSCALL\",\"syscall\":\"connect\",\"result\":\"fail\",\"exit\":\"-111\"}",
     "result": "failure",
     "preserve": {
-      "log.exit": "-111"
+      "event.exit": "-111"
     },
     "absent": [
       "statusCode"
@@ -294,7 +294,7 @@
     "raw": "{\"type\":\"auditd\",\"category\":\"SYSCALL\",\"syscall\":\"connect\",\"result\":\"fail\",\"exit\":\"-13\"}",
     "result": "denied",
     "preserve": {
-      "log.exit": "-13"
+      "event.exit": "-13"
     },
     "absent": [
       "statusCode"
@@ -313,7 +313,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"SYSCALL\", \"syscall\": \"connect\", \"result\": \"fail\", \"exit\": \"EACCES\"}",
     "result": "denied",
     "preserve": {
-      "log.exit": "EACCES"
+      "event.exit": "EACCES"
     },
     "absent": [
       "statusCode"
@@ -324,7 +324,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"SYSCALL\", \"syscall\": \"connect\", \"result\": \"fail\", \"exit\": \"ECONNREFUSED\"}",
     "result": "failure",
     "preserve": {
-      "log.exit": "ECONNREFUSED"
+      "event.exit": "ECONNREFUSED"
     },
     "absent": [
       "statusCode"
@@ -343,7 +343,7 @@
       "statusCode": 4
     },
     "preserve": {
-      "log.exit": "4"
+      "event.exit": "4"
     }
   },
   {
@@ -354,7 +354,7 @@
       "statusCode"
     ],
     "preserve": {
-      "log.exit": "4294967296"
+      "event.exit": "4294967296"
     }
   },
   {
@@ -362,7 +362,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"SYSCALL\", \"syscall\": \"connect\", \"result\": \"fail\", \"exit\": \"EINPROGRESS\"}",
     "result": "",
     "preserve": {
-      "log.exit": "EINPROGRESS"
+      "event.exit": "EINPROGRESS"
     },
     "absent": [
       "statusCode"
@@ -373,7 +373,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"SYSCALL\", \"syscall\": \"read\", \"result\": \"fail\", \"exit\": \"EINPROGRESS\"}",
     "result": "failure",
     "preserve": {
-      "log.exit": "EINPROGRESS"
+      "event.exit": "EINPROGRESS"
     },
     "absent": [
       "statusCode"
@@ -384,7 +384,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"SYSCALL\", \"syscall\": \"connect\", \"result\": \"fail\", \"exit\": \"EALREADY\"}",
     "result": "",
     "preserve": {
-      "log.exit": "EALREADY"
+      "event.exit": "EALREADY"
     },
     "absent": [
       "statusCode"
@@ -395,7 +395,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"SYSCALL\", \"syscall\": \"read\", \"result\": \"fail\", \"exit\": \"EALREADY\"}",
     "result": "failure",
     "preserve": {
-      "log.exit": "EALREADY"
+      "event.exit": "EALREADY"
     },
     "absent": [
       "statusCode"
@@ -406,7 +406,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"SYSCALL\", \"syscall\": \"connect\", \"result\": \"fail\", \"exit\": \"EAGAIN\"}",
     "result": "",
     "preserve": {
-      "log.exit": "EAGAIN"
+      "event.exit": "EAGAIN"
     },
     "absent": [
       "statusCode"
@@ -417,7 +417,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"SYSCALL\", \"syscall\": \"read\", \"result\": \"fail\", \"exit\": \"EAGAIN\"}",
     "result": "failure",
     "preserve": {
-      "log.exit": "EAGAIN"
+      "event.exit": "EAGAIN"
     },
     "absent": [
       "statusCode"
@@ -428,7 +428,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"SYSCALL\", \"syscall\": \"connect\", \"result\": \"fail\", \"exit\": \"EWOULDBLOCK\"}",
     "result": "",
     "preserve": {
-      "log.exit": "EWOULDBLOCK"
+      "event.exit": "EWOULDBLOCK"
     },
     "absent": [
       "statusCode"
@@ -439,7 +439,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"SYSCALL\", \"syscall\": \"read\", \"result\": \"fail\", \"exit\": \"EWOULDBLOCK\"}",
     "result": "failure",
     "preserve": {
-      "log.exit": "EWOULDBLOCK"
+      "event.exit": "EWOULDBLOCK"
     },
     "absent": [
       "statusCode"
@@ -450,7 +450,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"SYSCALL\", \"syscall\": \"connect\", \"result\": \"fail\", \"exit\": \"-115\"}",
     "result": "",
     "preserve": {
-      "log.exit": "-115"
+      "event.exit": "-115"
     },
     "absent": [
       "statusCode"
@@ -461,7 +461,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"SYSCALL\", \"syscall\": \"read\", \"result\": \"fail\", \"exit\": \"-115\"}",
     "result": "failure",
     "preserve": {
-      "log.exit": "-115"
+      "event.exit": "-115"
     },
     "absent": [
       "statusCode"
@@ -472,7 +472,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"SYSCALL\", \"syscall\": \"connect\", \"result\": \"fail\", \"exit\": \"-114\"}",
     "result": "",
     "preserve": {
-      "log.exit": "-114"
+      "event.exit": "-114"
     },
     "absent": [
       "statusCode"
@@ -483,7 +483,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"SYSCALL\", \"syscall\": \"read\", \"result\": \"fail\", \"exit\": \"-114\"}",
     "result": "failure",
     "preserve": {
-      "log.exit": "-114"
+      "event.exit": "-114"
     },
     "absent": [
       "statusCode"
@@ -494,7 +494,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"SYSCALL\", \"syscall\": \"connect\", \"result\": \"fail\", \"exit\": \"-11\"}",
     "result": "",
     "preserve": {
-      "log.exit": "-11"
+      "event.exit": "-11"
     },
     "absent": [
       "statusCode"
@@ -505,7 +505,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"SYSCALL\", \"syscall\": \"read\", \"result\": \"fail\", \"exit\": \"-11\"}",
     "result": "failure",
     "preserve": {
-      "log.exit": "-11"
+      "event.exit": "-11"
     },
     "absent": [
       "statusCode"
@@ -516,7 +516,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"success\", \"addr\": \"198.51.100.23\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
     "result": "success",
     "preserve": {
-      "log.userlogin.addr": "198.51.100.23"
+      "event.userlogin.addr": "198.51.100.23"
     },
     "ipEligible": true,
     "expected": {
@@ -528,7 +528,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"success\", \"addr\": \"2001:db8::23\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
     "result": "success",
     "preserve": {
-      "log.userlogin.addr": "2001:db8::23"
+      "event.userlogin.addr": "2001:db8::23"
     },
     "ipEligible": true,
     "expected": {
@@ -540,7 +540,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"success\", \"addr\": \"0.0.0.0\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
     "result": "success",
     "preserve": {
-      "log.userlogin.addr": "0.0.0.0"
+      "event.userlogin.addr": "0.0.0.0"
     },
     "ipEligible": false,
     "absent": [
@@ -552,7 +552,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"success\", \"addr\": \"::\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
     "result": "success",
     "preserve": {
-      "log.userlogin.addr": "::"
+      "event.userlogin.addr": "::"
     },
     "ipEligible": false,
     "absent": [
@@ -564,7 +564,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"success\", \"addr\": \"?\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
     "result": "success",
     "preserve": {
-      "log.userlogin.addr": "?"
+      "event.userlogin.addr": "?"
     },
     "ipEligible": false,
     "absent": [
@@ -576,7 +576,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"success\", \"addr\": \"host.example.invalid\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
     "result": "success",
     "preserve": {
-      "log.userlogin.addr": "host.example.invalid"
+      "event.userlogin.addr": "host.example.invalid"
     },
     "ipEligible": false,
     "absent": [
@@ -588,7 +588,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"success\", \"addr\": \"\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
     "result": "success",
     "preserve": {
-      "log.userlogin.addr": ""
+      "event.userlogin.addr": ""
     },
     "ipEligible": false,
     "absent": [
@@ -600,7 +600,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"success\", \"addr\": null, \"op\": \"login\", \"terminal\": \"ssh\"}}",
     "result": "success",
     "preserve": {
-      "log.userlogin.addr": null
+      "event.userlogin.addr": null
     },
     "ipEligible": false,
     "absent": [
@@ -612,7 +612,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"success\", \"addr\": {}, \"op\": \"login\", \"terminal\": \"ssh\"}}",
     "result": "success",
     "preserve": {
-      "log.userlogin.addr": {}
+      "event.userlogin.addr": {}
     },
     "ipEligible": false,
     "absent": [
@@ -624,7 +624,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"fail\", \"addr\": \"198.51.100.23\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
     "result": "failure",
     "preserve": {
-      "log.userlogin.addr": "198.51.100.23"
+      "event.userlogin.addr": "198.51.100.23"
     },
     "ipEligible": true,
     "expected": {
@@ -636,7 +636,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"fail\", \"addr\": \"2001:db8::23\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
     "result": "failure",
     "preserve": {
-      "log.userlogin.addr": "2001:db8::23"
+      "event.userlogin.addr": "2001:db8::23"
     },
     "ipEligible": true,
     "expected": {
@@ -648,7 +648,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"fail\", \"addr\": \"0.0.0.0\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
     "result": "failure",
     "preserve": {
-      "log.userlogin.addr": "0.0.0.0"
+      "event.userlogin.addr": "0.0.0.0"
     },
     "ipEligible": false,
     "absent": [
@@ -660,7 +660,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"fail\", \"addr\": \"::\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
     "result": "failure",
     "preserve": {
-      "log.userlogin.addr": "::"
+      "event.userlogin.addr": "::"
     },
     "ipEligible": false,
     "absent": [
@@ -672,7 +672,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"fail\", \"addr\": \"?\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
     "result": "failure",
     "preserve": {
-      "log.userlogin.addr": "?"
+      "event.userlogin.addr": "?"
     },
     "ipEligible": false,
     "absent": [
@@ -684,7 +684,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"fail\", \"addr\": \"host.example.invalid\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
     "result": "failure",
     "preserve": {
-      "log.userlogin.addr": "host.example.invalid"
+      "event.userlogin.addr": "host.example.invalid"
     },
     "ipEligible": false,
     "absent": [
@@ -696,7 +696,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"fail\", \"addr\": \"\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
     "result": "failure",
     "preserve": {
-      "log.userlogin.addr": ""
+      "event.userlogin.addr": ""
     },
     "ipEligible": false,
     "absent": [
@@ -708,7 +708,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"fail\", \"addr\": null, \"op\": \"login\", \"terminal\": \"ssh\"}}",
     "result": "failure",
     "preserve": {
-      "log.userlogin.addr": null
+      "event.userlogin.addr": null
     },
     "ipEligible": false,
     "absent": [
@@ -720,7 +720,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"fail\", \"addr\": {}, \"op\": \"login\", \"terminal\": \"ssh\"}}",
     "result": "failure",
     "preserve": {
-      "log.userlogin.addr": {}
+      "event.userlogin.addr": {}
     },
     "ipEligible": false,
     "absent": [
@@ -732,7 +732,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"unknown\", \"addr\": \"198.51.100.23\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
     "result": "",
     "preserve": {
-      "log.userlogin.addr": "198.51.100.23"
+      "event.userlogin.addr": "198.51.100.23"
     },
     "ipEligible": true,
     "expected": {
@@ -744,7 +744,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"unknown\", \"addr\": \"2001:db8::23\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
     "result": "",
     "preserve": {
-      "log.userlogin.addr": "2001:db8::23"
+      "event.userlogin.addr": "2001:db8::23"
     },
     "ipEligible": true,
     "expected": {
@@ -756,7 +756,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"unknown\", \"addr\": \"0.0.0.0\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
     "result": "",
     "preserve": {
-      "log.userlogin.addr": "0.0.0.0"
+      "event.userlogin.addr": "0.0.0.0"
     },
     "ipEligible": false,
     "absent": [
@@ -768,7 +768,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"unknown\", \"addr\": \"::\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
     "result": "",
     "preserve": {
-      "log.userlogin.addr": "::"
+      "event.userlogin.addr": "::"
     },
     "ipEligible": false,
     "absent": [
@@ -780,7 +780,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"unknown\", \"addr\": \"?\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
     "result": "",
     "preserve": {
-      "log.userlogin.addr": "?"
+      "event.userlogin.addr": "?"
     },
     "ipEligible": false,
     "absent": [
@@ -792,7 +792,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"unknown\", \"addr\": \"host.example.invalid\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
     "result": "",
     "preserve": {
-      "log.userlogin.addr": "host.example.invalid"
+      "event.userlogin.addr": "host.example.invalid"
     },
     "ipEligible": false,
     "absent": [
@@ -804,7 +804,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"unknown\", \"addr\": \"\", \"op\": \"login\", \"terminal\": \"ssh\"}}",
     "result": "",
     "preserve": {
-      "log.userlogin.addr": ""
+      "event.userlogin.addr": ""
     },
     "ipEligible": false,
     "absent": [
@@ -816,7 +816,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"unknown\", \"addr\": null, \"op\": \"login\", \"terminal\": \"ssh\"}}",
     "result": "",
     "preserve": {
-      "log.userlogin.addr": null
+      "event.userlogin.addr": null
     },
     "ipEligible": false,
     "absent": [
@@ -828,7 +828,7 @@
     "raw": "{\"type\": \"auditd\", \"category\": \"USER_LOGIN\", \"userlogin\": {\"result\": \"unknown\", \"addr\": {}, \"op\": \"login\", \"terminal\": \"ssh\"}}",
     "result": "",
     "preserve": {
-      "log.userlogin.addr": {}
+      "event.userlogin.addr": {}
     },
     "ipEligible": false,
     "absent": [

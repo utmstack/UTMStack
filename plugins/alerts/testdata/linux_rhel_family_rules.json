@@ -6,9 +6,9 @@
     "match": true,
     "deduplicateKeys": [
       "dataSource",
-      "lastEvent.log.avc.scontext",
-      "lastEvent.log.avc.tcontext",
-      "lastEvent.log.avc.tclass"
+      "lastEvent.event.avc.scontext",
+      "lastEvent.event.avc.tcontext",
+      "lastEvent.event.avc.tclass"
     ]
   },
   {
@@ -18,9 +18,9 @@
     "match": true,
     "deduplicateKeys": [
       "dataSource",
-      "lastEvent.log.avc.scontext",
-      "lastEvent.log.avc.tcontext",
-      "lastEvent.log.avc.tclass"
+      "lastEvent.event.avc.scontext",
+      "lastEvent.event.avc.tcontext",
+      "lastEvent.event.avc.tclass"
     ]
   },
   {
@@ -30,9 +30,9 @@
     "match": true,
     "deduplicateKeys": [
       "dataSource",
-      "lastEvent.log.avc.scontext",
-      "lastEvent.log.avc.tcontext",
-      "lastEvent.log.avc.tclass"
+      "lastEvent.event.avc.scontext",
+      "lastEvent.event.avc.tcontext",
+      "lastEvent.event.avc.tclass"
     ]
   },
   {
@@ -42,9 +42,9 @@
     "match": true,
     "deduplicateKeys": [
       "dataSource",
-      "lastEvent.log.avc.scontext",
-      "lastEvent.log.avc.tcontext",
-      "lastEvent.log.avc.tclass"
+      "lastEvent.event.avc.scontext",
+      "lastEvent.event.avc.tcontext",
+      "lastEvent.event.avc.tclass"
     ]
   },
   {
@@ -78,7 +78,7 @@
     "match": true,
     "deduplicateKeys": [
       "dataSource",
-      "lastEvent.log.macstatus.enforcing"
+      "lastEvent.event.macstatus.enforcing"
     ]
   },
   {
@@ -94,7 +94,7 @@
     "match": true,
     "deduplicateKeys": [
       "dataSource",
-      "lastEvent.log.message"
+      "lastEvent.event.message"
     ]
   },
   {
@@ -104,7 +104,7 @@
     "match": true,
     "deduplicateKeys": [
       "dataSource",
-      "lastEvent.log.message"
+      "lastEvent.event.message"
     ]
   },
   {
@@ -126,7 +126,7 @@
     "match": true,
     "deduplicateKeys": [
       "dataSource",
-      "lastEvent.log.message"
+      "lastEvent.event.message"
     ]
   },
   {
@@ -136,7 +136,7 @@
     "match": true,
     "deduplicateKeys": [
       "dataSource",
-      "lastEvent.log.message"
+      "lastEvent.event.message"
     ]
   },
   {
@@ -146,7 +146,7 @@
     "match": true,
     "deduplicateKeys": [
       "dataSource",
-      "lastEvent.log.message"
+      "lastEvent.event.message"
     ]
   },
   {
@@ -234,7 +234,7 @@
     "match": true,
     "deduplicateKeys": [
       "dataSource",
-      "lastEvent.log.message",
+      "lastEvent.event.message",
       "lastEvent.origin.command"
     ]
   },
@@ -251,7 +251,7 @@
     "match": true,
     "deduplicateKeys": [
       "dataSource",
-      "lastEvent.log.comm",
+      "lastEvent.event.comm",
       "lastEvent.origin.command"
     ]
   },
@@ -262,7 +262,7 @@
     "match": true,
     "deduplicateKeys": [
       "dataSource",
-      "lastEvent.log.comm",
+      "lastEvent.event.comm",
       "lastEvent.origin.command"
     ]
   },
@@ -285,7 +285,7 @@
     "match": true,
     "deduplicateKeys": [
       "dataSource",
-      "lastEvent.log.comm",
+      "lastEvent.event.comm",
       "lastEvent.origin.command"
     ]
   },
@@ -303,7 +303,7 @@
     "deduplicateKeys": [
       "dataSource",
       "lastEvent.origin.command",
-      "lastEvent.log.message"
+      "lastEvent.event.message"
     ]
   },
   {
@@ -319,7 +319,7 @@
     "match": true,
     "deduplicateKeys": [
       "dataSource",
-      "lastEvent.log.message",
+      "lastEvent.event.message",
       "lastEvent.origin.command"
     ]
   },
@@ -330,7 +330,7 @@
     "match": true,
     "deduplicateKeys": [
       "dataSource",
-      "lastEvent.log.message",
+      "lastEvent.event.message",
       "lastEvent.origin.command"
     ]
   },
@@ -341,7 +341,7 @@
     "match": true,
     "deduplicateKeys": [
       "dataSource",
-      "lastEvent.log.message",
+      "lastEvent.event.message",
       "lastEvent.origin.command"
     ]
   },
@@ -406,7 +406,7 @@
     "match": true,
     "deduplicateKeys": [
       "dataSource",
-      "lastEvent.log.message",
+      "lastEvent.event.message",
       "lastEvent.origin.command"
     ]
   },
@@ -423,7 +423,7 @@
     "match": true,
     "deduplicateKeys": [
       "dataSource",
-      "lastEvent.log.syslogIdentifier"
+      "lastEvent.event.syslogIdentifier"
     ]
   },
   {
@@ -433,7 +433,7 @@
     "match": true,
     "deduplicateKeys": [
       "dataSource",
-      "lastEvent.log.syslogIdentifier"
+      "lastEvent.event.syslogIdentifier"
     ]
   },
   {
@@ -443,7 +443,7 @@
     "match": true,
     "deduplicateKeys": [
       "dataSource",
-      "lastEvent.log.syslogIdentifier"
+      "lastEvent.event.syslogIdentifier"
     ]
   },
   {
@@ -453,7 +453,7 @@
     "match": true,
     "deduplicateKeys": [
       "dataSource",
-      "lastEvent.log.syslogIdentifier"
+      "lastEvent.event.syslogIdentifier"
     ]
   },
   {

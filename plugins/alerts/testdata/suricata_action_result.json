@@ -8,7 +8,7 @@
       "severity": "critical",
       "origin.ip": "192.0.2.10",
       "target.ip": "203.0.113.20",
-      "log.alert.action": "allowed"
+      "event.alert.action": "allowed"
     },
     "absent": [
       "actionResult",
@@ -97,7 +97,7 @@
     "expected": {
       "origin.ip": "192.0.2.10",
       "target.ip": "203.0.113.20",
-      "log.flow.state": "established"
+      "event.flow.state": "established"
     },
     "absent": [
       "action"

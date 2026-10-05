@@ -32,7 +32,7 @@ func TestAWSAuthenticationOutcome(t *testing.T) {
 			if err != nil || eligible != (tc.result == "success") {
 				t.Fatalf("SDK success-and-IP predicate = %v, %v", eligible, err)
 			}
-			if tc.name == "MFA requirement check" && gjson.Get(out, "log.responseElements.CheckMfa").String() != "Success" {
+			if tc.name == "MFA requirement check" && gjson.Get(out, "event.responseElements.CheckMfa").String() != "Success" {
 				t.Fatal("vendor check result was lost")
 			}
 		})

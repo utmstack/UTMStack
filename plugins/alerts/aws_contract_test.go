@@ -121,7 +121,7 @@ func awsParse(t *testing.T, cfg *plugins.Config, raw string, dataSource string, 
 // Both modes model the unresolved nested-key behavior of the closed JSON step.
 func awsParseMode(t *testing.T, cfg *plugins.Config, raw string, dataSource string, cache *plugins.CELCache, preserveNested bool, enrichment ...map[string]any) string {
 	t.Helper()
-	draft := map[string]any{"raw": raw, "dataType": "aws", "dataSource": dataSource, "log": map[string]any{}}
+	draft := map[string]any{"raw": raw, "dataType": "aws", "dataSource": dataSource, "event": map[string]any{}}
 	for _, stage := range cfg.Pipeline {
 		matched := false
 		for _, dataType := range stage.DataTypes {
@@ -241,7 +241,7 @@ func awsParseMode(t *testing.T, cfg *plugins.Config, raw string, dataSource stri
 						}
 					}
 					for key, value := range normalized {
-						awsPut(draft, "log."+key, value, false)
+						awsPut(draft, "event."+key, value, false)
 					}
 				case "cast":
 					for _, field := range s.Cast.Fields {
@@ -518,7 +518,7 @@ func TestAWSNestedKeyCompatibility(t *testing.T) {
 	for _, preserved := range []bool{false, true} {
 		t.Run(fmt.Sprint(preserved), func(t *testing.T) {
 			out := awsParseMode(t, cfg, raw, "collector-test", cache, preserved)
-			expected := map[string]string{"log.requestParametersXAmzAcl": "public-read", "log.requestParametersXAmzServerSideEncryption": "AES256", "log.responseElementsXAmzExpiration": "expiry-test", "log.responseElementsXAmzServerSideEncryption": "AES256", "log.additionalEventDataXamzId2": "request-test"}
+			expected := map[string]string{"event.requestParametersXAmzAcl": "public-read", "event.requestParametersXAmzServerSideEncryption": "AES256", "event.responseElementsXAmzExpiration": "expiry-test", "event.responseElementsXAmzServerSideEncryption": "AES256", "event.additionalEventDataXamzId2": "request-test"}
 			for field, want := range expected {
 				if got := gjson.Get(out, field).String(); got != want {
 					t.Errorf("%s=%q want %q", field, got, want)
@@ -528,9 +528,9 @@ func TestAWSNestedKeyCompatibility(t *testing.T) {
 			if e != nil || !yes {
 				t.Fatalf("public ACL lost: %v %v", yes, e)
 			}
-			key := "log.requestParameters.xamzacl"
+			key := "event.requestParameters.xamzacl"
 			if preserved {
-				key = "log.requestParameters.x-amz-acl"
+				key = "event.requestParameters.x-amz-acl"
 			}
 			if gjson.Get(out, key).String() != "public-read" {
 				t.Error("original header lost")

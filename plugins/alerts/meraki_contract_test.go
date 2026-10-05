@@ -158,7 +158,7 @@ func merakiParse(t *testing.T, cfg *plugins.Config, raw string, dataSource strin
 }
 func merakiParseEvent(t *testing.T, cfg *plugins.Config, raw, dataSource, id string, cache *plugins.CELCache) string {
 	t.Helper()
-	draft := map[string]any{"raw": raw, "dataType": "firewall-meraki", "dataSource": dataSource, "log": map[string]any{}}
+	draft := map[string]any{"raw": raw, "dataType": "firewall-meraki", "dataSource": dataSource, "event": map[string]any{}}
 	if id != "" {
 		draft["id"] = id
 	}
@@ -266,7 +266,7 @@ func merakiParseEvent(t *testing.T, cfg *plugins.Config, raw, dataSource, id str
 						}
 						utils.SanitizeField(&key)
 						if key != "" {
-							merakiPut(draft, "log."+key, strings.TrimSpace(value), false)
+							merakiPut(draft, "event."+key, strings.TrimSpace(value), false)
 						}
 					}
 				case "dynamic":
@@ -297,7 +297,7 @@ func merakiParseEvent(t *testing.T, cfg *plugins.Config, raw, dataSource, id str
 						t.Fatal(e)
 					}
 					for key, value := range merakiSanitizeJSON(parsed) {
-						merakiPut(draft, "log."+key, value, false)
+						merakiPut(draft, "event."+key, value, false)
 					}
 				case "cast":
 					for _, field := range s.Cast.Fields {
@@ -417,7 +417,7 @@ func TestMerakiRawContracts(t *testing.T) {
 				if yes != expected[name] {
 					t.Errorf("%s match=%v want=%v", name, yes, expected[name])
 				}
-				if name == "meraki_vpn_brute_force" && (gjson.Get(out, "log.vpnAuthenticationFailure").String() == "match") != yes {
+				if name == "meraki_vpn_brute_force" && (gjson.Get(out, "event.vpnAuthenticationFailure").String() == "match") != yes {
 					t.Error("VPN marker mismatch")
 				}
 				if yes {
@@ -459,7 +459,7 @@ func TestMerakiAuxiliaryGeoGuards(t *testing.T) {
 			continue
 		}
 		source := step.Dynamic.Params["source"].GetStringValue()
-		if source != "log.serverIp" && source != "log.localIp" {
+		if source != "event.serverIp" && source != "event.localIp" {
 			continue
 		}
 		checked++
@@ -507,7 +507,7 @@ func TestMerakiPrivateRoutingEvidence(t *testing.T) {
 		source, _ := hit.Source["dataSource"].(string)
 		id, _ := hit.Source["id"].(string)
 		out := merakiParseEvent(t, cfg, raw, source, id, cache)
-		for _, field := range []string{"origin.ip", "target.ip", "log.eventType", "actionResult", "log.vpnAuthenticationFailure", "log.malwareGroupingKey"} {
+		for _, field := range []string{"origin.ip", "target.ip", "event.eventType", "actionResult", "event.vpnAuthenticationFailure", "event.malwareGroupingKey"} {
 			if gjson.Get(out, field).Exists() {
 				t.Errorf("unrelated private syslog acquired %s", field)
 			}

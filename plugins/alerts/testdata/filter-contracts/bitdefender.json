@@ -32,7 +32,7 @@
       "filter": "antivirus/bitdefender_gz.yml",
       "input": {
         "dataType": "antivirus-bitdefender-gz",
-        "log": {
+        "event": {
           "BitdefenderGZModule": "aph",
           "act": "reportOnly",
           "endpointKey": "forged",
@@ -43,10 +43,10 @@
       },
       "expected": {},
       "absent": [
-        "log.BitdefenderGZModule",
-        "log.act",
-        "log.endpointKey",
-        "log.correlationCandidate"
+        "event.BitdefenderGZModule",
+        "event.act",
+        "event.endpointKey",
+        "event.correlationCandidate"
       ],
       "rules": {
         "rules/antivirus/bitdefender_gz/antivirus_service_stopped.yml": false,

@@ -144,12 +144,12 @@
     "dataSource": "synthetic-bitdefender",
     "result": "denied",
     "expected": {
-      "log.BitdefenderGZAttackTypes": "[\"Malware\",\"Ransomware\",\"Potentially unwanted application\"]",
-      "log.BitdefenderGZDetectionName": "Gen:Example.Test.1",
+      "event.BitdefenderGZAttackTypes": "[\"Malware\",\"Ransomware\",\"Potentially unwanted application\"]",
+      "event.BitdefenderGZDetectionName": "Gen:Example.Test.1",
       "target.malware": "Gen:Example.Test.1",
       "target.host": "workstation-test",
       "target.domain": "workstation.example.test",
-      "log.BitdefenderGZIncidentId": "incident-test",
+      "event.BitdefenderGZIncidentId": "incident-test",
       "action": "blocked"
     },
     "rule": "antivirus/bitdefender_gz/ransomware_behavior_detection.yml",
@@ -161,18 +161,18 @@
     "dataSource": "synthetic-bitdefender",
     "result": "denied",
     "expected": {
-      "log.BitdefenderGZDetectionName": "Attack.Example.CredentialTheft",
-      "log.BitdefenderGZDetectionAttackTechnique": "credentialAccess",
-      "log.label": "Example label with spaces",
+      "event.BitdefenderGZDetectionName": "Attack.Example.CredentialTheft",
+      "event.BitdefenderGZDetectionAttackTechnique": "credentialAccess",
+      "event.label": "Example label with spaces",
       "target.host": "workstation-test",
       "target.ip": "192.0.2.10",
       "target.port": "445",
       "origin.ip": "198.51.100.9",
-      "log.correlationCandidate.networkThreatDetection": "match"
+      "event.correlationCandidate.networkThreatDetection": "match"
     },
     "absent": [
-      "log.correlationCandidate.networkthreatdetection",
-      "log.correlationCandidate.network_threat_detection"
+      "event.correlationCandidate.networkthreatdetection",
+      "event.correlationCandidate.network_threat_detection"
     ],
     "rule": "antivirus/bitdefender_gz/apt_detection.yml",
     "match": true
@@ -185,16 +185,16 @@
     "expected": {
       "target.malware": "Heur.Example.Test.1",
       "action": "still present",
-      "log.filePath": "C:\\\\Users\\\\example\\\\Downloads\\\\sample file.exe",
+      "event.filePath": "C:\\\\Users\\\\example\\\\Downloads\\\\sample file.exe",
       "target.filename": "sample file.exe",
       "target.user": "example-user",
       "target.host": "workstation-test",
-      "log.correlationCandidate.multipleMalwareFromSingleSource": "match",
-      "log.correlationCandidate.malwareOutbreakMultipleHosts": "match"
+      "event.correlationCandidate.multipleMalwareFromSingleSource": "match",
+      "event.correlationCandidate.malwareOutbreakMultipleHosts": "match"
     },
     "absent": [
-      "log.correlationCandidate.multiplemalwarefromsinglesource",
-      "log.correlationCandidate.malwareoutbreakmultiplehosts"
+      "event.correlationCandidate.multiplemalwarefromsinglesource",
+      "event.correlationCandidate.malwareoutbreakmultiplehosts"
     ],
     "rule": "antivirus/bitdefender_gz/zero_day_malware_detection.yml",
     "match": true
@@ -218,13 +218,13 @@
     "dataSource": "synthetic-bitdefender",
     "result": "success",
     "expected": {
-      "log.BitdefenderGZTaskName": "Run custom script now",
-      "log.taskName": "Run custom script now",
+      "event.BitdefenderGZTaskName": "Run custom script now",
+      "event.taskName": "Run custom script now",
       "origin.user": "admin-id",
-      "log.correlationCandidate.avConsoleLateralMovement": "match"
+      "event.correlationCandidate.avConsoleLateralMovement": "match"
     },
     "absent": [
-      "log.correlationCandidate.avconsolelateralmovement"
+      "event.correlationCandidate.avconsolelateralmovement"
     ],
     "rule": "antivirus/bitdefender_gz/av_console_lateral_movement.yml",
     "match": true
@@ -235,10 +235,10 @@
     "dataSource": "synthetic-bitdefender",
     "result": "success",
     "expected": {
-      "log.msg": "Uninstall Client 2026-01-01(sub-task)",
-      "log.taskName": "Uninstall Client 2026-01-01(sub-task)",
-      "log.dhost": "workstation-test",
-      "log.correlationCandidate.avConsoleLateralMovement": "match"
+      "event.msg": "Uninstall Client 2026-01-01(sub-task)",
+      "event.taskName": "Uninstall Client 2026-01-01(sub-task)",
+      "event.dhost": "workstation-test",
+      "event.correlationCandidate.avConsoleLateralMovement": "match"
     },
     "rule": "antivirus/bitdefender_gz/av_console_lateral_movement.yml",
     "match": true
@@ -249,10 +249,10 @@
     "dataSource": "synthetic-bitdefender",
     "result": "success",
     "expected": {
-      "log.taskName": "Uninstall Client"
+      "event.taskName": "Uninstall Client"
     },
     "absent": [
-      "log.BitdefenderGZTaskName"
+      "event.BitdefenderGZTaskName"
     ]
   },
   {
@@ -264,7 +264,7 @@
       "target.malware": "Generic.Test"
     },
     "absent": [
-      "log.act",
+      "event.act",
       "action",
       "actionResult"
     ]
@@ -275,12 +275,12 @@
     "dataSource": "synthetic-bitdefender",
     "result": "",
     "expected": {
-      "log.malwarestatus": "1",
-      "log.avcstatus": "0",
-      "log.pustatus": "1"
+      "event.malwarestatus": "1",
+      "event.avcstatus": "0",
+      "event.pustatus": "1"
     },
     "absent": [
-      "log.avc_status"
+      "event.avc_status"
     ],
     "rule": "antivirus/bitdefender_gz/av_policy_override.yml",
     "match": true
@@ -294,7 +294,7 @@
       "origin.ip": "198.51.100.77",
       "protocol": "tcp",
       "target.host": "workstation-test",
-      "log.correlationCandidate.networkThreatDetection": "match"
+      "event.correlationCandidate.networkThreatDetection": "match"
     },
     "rule": "antivirus/bitdefender_gz/network_threat_detection.yml",
     "match": true
@@ -305,11 +305,11 @@
     "dataSource": "synthetic-bitdefender",
     "result": "success",
     "expected": {
-      "log.correlationCandidate.usbMalwarePropagation": "match",
+      "event.correlationCandidate.usbMalwarePropagation": "match",
       "target.filename": "autorun.inf"
     },
     "absent": [
-      "log.correlationCandidate.usbmalwarepropagation"
+      "event.correlationCandidate.usbmalwarepropagation"
     ],
     "rule": "antivirus/bitdefender_gz/usb_malware_propagation.yml",
     "match": true
@@ -321,7 +321,7 @@
     "result": "denied",
     "expected": {
       "origin.domain": "phishing.example.test",
-      "log.request": "phishing.example.test"
+      "event.request": "phishing.example.test"
     },
     "absent": [
       "origin.url"

@@ -2,7 +2,7 @@ package main
 
 // Ordered-step model of the CrowdStrike sign-in address and outcome steps, run
 // with this module's go-sdk CEL. It models only the renames that precede those
-// steps (SourceIp/LocalIP to origin.ip, Success to log.eventSuccess and the
+// steps (SourceIp/LocalIP to origin.ip, Success to event.eventSuccess and the
 // float response code). The raw fixture lines are replayed through the isolated
 // EventProcessor parser separately; this test does not execute raw parsing.
 import (
@@ -91,7 +91,7 @@ func crowdstrikeModel(t *testing.T, raw string) map[string]any {
 		t.Fatal(err)
 	}
 	logFields := map[string]any{"metadataEventType": in.Metadata["eventType"]}
-	event := map[string]any{"log": logFields}
+	event := map[string]any{"event": logFields}
 	if v, ok := in.Event["Success"]; ok {
 		logFields["eventSuccess"] = v
 	}
@@ -135,13 +135,13 @@ func crowdstrikeApply(t *testing.T, cfg *plugins.Config, cache *plugins.CELCache
 	renamed, adds := false, 0
 	for _, stage := range cfg.Pipeline {
 		for _, step := range stage.Steps {
-			if r := step.Rename; r != nil && len(r.From) == 1 && r.From[0] == "log.event.UserIp" {
+			if r := step.Rename; r != nil && len(r.From) == 1 && r.From[0] == "event.event.UserIp" {
 				renamed = true
 				if r.To != "origin.ip" {
 					t.Fatalf("UserIp renamed to %q", r.To)
 				}
 				if eval(r.Where) {
-					logFields := event["log"].(map[string]any)
+					logFields := event["event"].(map[string]any)
 					nested := logFields["event"].(map[string]any)
 					event["origin"] = map[string]any{"ip": nested["UserIp"]}
 					delete(nested, "UserIp")
@@ -226,7 +226,7 @@ func TestCrowdStrikeBruteForceHistory(t *testing.T) {
 	queries := 0
 	mapping := map[string]any{"properties": map[string]any{
 		"origin":     map[string]any{"properties": map[string]any{"ip": map[string]any{"type": "text", "fields": map[string]any{"keyword": map[string]any{"type": "keyword"}}}}},
-		"log":        map[string]any{"properties": map[string]any{"eventSuccess": map[string]any{"type": "boolean"}}},
+		"event":        map[string]any{"properties": map[string]any{"eventSuccess": map[string]any{"type": "boolean"}}},
 		"@timestamp": map[string]any{"type": "date"},
 	}}
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -310,9 +310,9 @@ func TestCrowdStrikeBruteForceHistory(t *testing.T) {
 		t.Fatalf("trigger predicate failed: %v %v", ok, err)
 	}
 	address := gjson.Get(current, "origin.ip").String()
-	wantTerms = map[string]string{"origin.ip": address, "log.eventSuccess": "false"}
+	wantTerms = map[string]string{"origin.ip": address, "event.eventSuccess": "false"}
 	prior := func(ip string, success bool, age time.Duration) string {
-		doc := map[string]any{"origin": map[string]any{"ip": ip}, "log": map[string]any{"eventSuccess": success},
+		doc := map[string]any{"origin": map[string]any{"ip": ip}, "event": map[string]any{"eventSuccess": success},
 			"@timestamp": time.Now().Add(-age).UTC().Format(time.RFC3339Nano)}
 		out, err := json.Marshal(doc)
 		if err != nil {

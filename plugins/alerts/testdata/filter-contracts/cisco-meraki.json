@@ -17,7 +17,7 @@
       "name": "isolated outcome control: meraki_blocked",
       "filter": "cisco/meraki.yml",
       "input": {
-        "log": {
+        "event": {
           "merakiResult": "blocked"
         }
       },
@@ -39,7 +39,7 @@
       "name": "isolated outcome control: meraki_allowed",
       "filter": "cisco/meraki.yml",
       "input": {
-        "log": {
+        "event": {
           "merakiResult": "allowed"
         }
       },
@@ -63,14 +63,14 @@
       "input": {
         "dataType": "firewall-meraki",
         "dataSource": "synthetic-relay",
-        "log": {}
+        "event": {}
       },
       "expected": {},
       "absent": [
         "origin.ip",
         "target.ip",
         "actionResult",
-        "log.eventType"
+        "event.eventType"
       ],
       "rules": {
         "rules/cisco/meraki/advanced_malware_protection_alerts.yml": false,

@@ -4,7 +4,7 @@
     "raw": "{\"Operation\":\"FileDownloaded\",\"Workload\":\"SharePoint\",\"RecordType\":6,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Success\"}",
     "result": "success",
     "preserve": {
-      "log.ResultStatus": "Success"
+      "event.ResultStatus": "Success"
     }
   },
   {
@@ -12,7 +12,7 @@
     "raw": "{\"Operation\":\"FileDownloaded\",\"Workload\":\"SharePoint\",\"RecordType\":6,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Succeeded\"}",
     "result": "success",
     "preserve": {
-      "log.ResultStatus": "Succeeded"
+      "event.ResultStatus": "Succeeded"
     }
   },
   {
@@ -20,7 +20,7 @@
     "raw": "{\"Operation\":\"FileDownloaded\",\"Workload\":\"SharePoint\",\"RecordType\":6,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Successful\"}",
     "result": "success",
     "preserve": {
-      "log.ResultStatus": "Successful"
+      "event.ResultStatus": "Successful"
     }
   },
   {
@@ -28,7 +28,7 @@
     "raw": "{\"Operation\":\"FileDownloaded\",\"Workload\":\"SharePoint\",\"RecordType\":6,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Failure\"}",
     "result": "failure",
     "preserve": {
-      "log.ResultStatus": "Failure"
+      "event.ResultStatus": "Failure"
     }
   },
   {
@@ -36,7 +36,7 @@
     "raw": "{\"Operation\":\"FileDownloaded\",\"Workload\":\"SharePoint\",\"RecordType\":6,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Failed\"}",
     "result": "failure",
     "preserve": {
-      "log.ResultStatus": "Failed"
+      "event.ResultStatus": "Failed"
     }
   },
   {
@@ -44,7 +44,7 @@
     "raw": "{\"Operation\":\"FileDownloaded\",\"Workload\":\"SharePoint\",\"RecordType\":6,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Blocked\"}",
     "result": "denied",
     "preserve": {
-      "log.ResultStatus": "Blocked"
+      "event.ResultStatus": "Blocked"
     }
   },
   {
@@ -52,7 +52,7 @@
     "raw": "{\"Operation\":\"FileDownloaded\",\"Workload\":\"SharePoint\",\"RecordType\":6,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"PartiallySucceeded\"}",
     "result": "",
     "preserve": {
-      "log.ResultStatus": "PartiallySucceeded"
+      "event.ResultStatus": "PartiallySucceeded"
     }
   },
   {
@@ -60,7 +60,7 @@
     "raw": "{\"Operation\":\"FileDownloaded\",\"Workload\":\"SharePoint\",\"RecordType\":6,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Pending\"}",
     "result": "",
     "preserve": {
-      "log.ResultStatus": "Pending"
+      "event.ResultStatus": "Pending"
     }
   },
   {
@@ -68,7 +68,7 @@
     "raw": "{\"Operation\":\"FileDownloaded\",\"Workload\":\"SharePoint\",\"RecordType\":6,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"InProgress\"}",
     "result": "",
     "preserve": {
-      "log.ResultStatus": "InProgress"
+      "event.ResultStatus": "InProgress"
     }
   },
   {
@@ -76,7 +76,7 @@
     "raw": "{\"Operation\":\"FileDownloaded\",\"Workload\":\"SharePoint\",\"RecordType\":6,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"FutureVendorStatus\"}",
     "result": "",
     "preserve": {
-      "log.ResultStatus": "FutureVendorStatus"
+      "event.ResultStatus": "FutureVendorStatus"
     }
   },
   {
@@ -84,7 +84,7 @@
     "raw": "{\"Operation\":\"FileDownloaded\",\"Workload\":\"SharePoint\",\"RecordType\":6,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"\"}",
     "result": "",
     "preserve": {
-      "log.ResultStatus": ""
+      "event.ResultStatus": ""
     }
   },
   {
@@ -92,7 +92,7 @@
     "raw": "{\"Operation\":\"FileDownloaded\",\"Workload\":\"SharePoint\",\"RecordType\":6,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":null}",
     "result": "",
     "preserve": {
-      "log.ResultStatus": null
+      "event.ResultStatus": null
     }
   },
   {
@@ -106,7 +106,7 @@
     "raw": "{\"Operation\":\"FileDownloaded\",\"Workload\":\"SharePoint\",\"RecordType\":6,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"True\"}",
     "result": "",
     "preserve": {
-      "log.ResultStatus": "True"
+      "event.ResultStatus": "True"
     }
   },
   {
@@ -114,7 +114,7 @@
     "raw": "{\"Operation\":\"FileDownloaded\",\"Workload\":\"SharePoint\",\"RecordType\":6,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"False\"}",
     "result": "",
     "preserve": {
-      "log.ResultStatus": "False"
+      "event.ResultStatus": "False"
     }
   },
   {
@@ -122,7 +122,7 @@
     "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"True\"}",
     "result": "success",
     "preserve": {
-      "log.ResultStatus": "True"
+      "event.ResultStatus": "True"
     }
   },
   {
@@ -130,7 +130,7 @@
     "raw": "{\"Operation\":\"Set-Mailbox\",\"Workload\":\"Exchange\",\"RecordType\":1,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"False\"}",
     "result": "failure",
     "preserve": {
-      "log.ResultStatus": "False"
+      "event.ResultStatus": "False"
     }
   },
   {
@@ -138,9 +138,9 @@
     "raw": "{\"Operation\":\"UserLoginFailed\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Success\",\"ErrorCode\":\"50126\",\"LogonError\":\"InvalidUserNameOrPassword\"}",
     "result": "failure",
     "preserve": {
-      "log.ResultStatus": "Success",
-      "log.ErrorCode": "50126",
-      "log.LogonError": "InvalidUserNameOrPassword"
+      "event.ResultStatus": "Success",
+      "event.ErrorCode": "50126",
+      "event.LogonError": "InvalidUserNameOrPassword"
     }
   },
   {
@@ -148,8 +148,8 @@
     "raw": "{\"Operation\":\"UserLoginFailed\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Success\",\"ErrorCode\":\"0\"}",
     "result": "failure",
     "preserve": {
-      "log.ResultStatus": "Success",
-      "log.ErrorCode": "0"
+      "event.ResultStatus": "Success",
+      "event.ErrorCode": "0"
     }
   },
   {
@@ -157,7 +157,7 @@
     "raw": "{\"Operation\":\"PasswordLogonInitialAuthUsingPassword\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Succeeded\"}",
     "result": "",
     "preserve": {
-      "log.ResultStatus": "Succeeded"
+      "event.ResultStatus": "Succeeded"
     }
   },
   {
@@ -165,8 +165,8 @@
     "raw": "{\"Operation\":\"PasswordLogonInitialAuthUsingPassword\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Succeeded\",\"ErrorCode\":\"50076\"}",
     "result": "failure",
     "preserve": {
-      "log.ResultStatus": "Succeeded",
-      "log.ErrorCode": "50076"
+      "event.ResultStatus": "Succeeded",
+      "event.ErrorCode": "50076"
     }
   },
   {
@@ -174,8 +174,8 @@
     "raw": "{\"Operation\":\"UserLoggedIn\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Succeeded\",\"LogonError\":\"AuthenticationFailed\"}",
     "result": "failure",
     "preserve": {
-      "log.ResultStatus": "Succeeded",
-      "log.LogonError": "AuthenticationFailed"
+      "event.ResultStatus": "Succeeded",
+      "event.LogonError": "AuthenticationFailed"
     }
   },
   {
@@ -183,8 +183,8 @@
     "raw": "{\"Operation\":\"UserLoggedIn\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Success\",\"ErrorCode\":\"0\"}",
     "result": "success",
     "preserve": {
-      "log.ResultStatus": "Success",
-      "log.ErrorCode": "0"
+      "event.ResultStatus": "Success",
+      "event.ErrorCode": "0"
     }
   },
   {
@@ -192,8 +192,8 @@
     "raw": "{\"Operation\":\"PasswordLogonInitialAuthUsingPassword\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Succeeded\",\"ErrorCode\":\"0\"}",
     "result": "success",
     "preserve": {
-      "log.ResultStatus": "Succeeded",
-      "log.ErrorCode": "0"
+      "event.ResultStatus": "Succeeded",
+      "event.ErrorCode": "0"
     }
   },
   {
@@ -201,8 +201,8 @@
     "raw": "{\"Operation\":\"UserLoggedIn\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Success\",\"ErrorCode\":\"unrecognized\"}",
     "result": "",
     "preserve": {
-      "log.ResultStatus": "Success",
-      "log.ErrorCode": "unrecognized"
+      "event.ResultStatus": "Success",
+      "event.ErrorCode": "unrecognized"
     }
   },
   {
@@ -210,8 +210,8 @@
     "raw": "{\"Operation\":\"UserLoggedIn\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Success\",\"ErrorCode\":null}",
     "result": "",
     "preserve": {
-      "log.ResultStatus": "Success",
-      "log.ErrorCode": null
+      "event.ResultStatus": "Success",
+      "event.ErrorCode": null
     }
   },
   {
@@ -219,7 +219,7 @@
     "raw": "{\"Operation\":\"URLNavigationBlocked\",\"Workload\":\"SharePoint\",\"RecordType\":6,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Success\"}",
     "result": "denied",
     "preserve": {
-      "log.ResultStatus": "Success"
+      "event.ResultStatus": "Success"
     }
   },
   {
@@ -227,7 +227,7 @@
     "raw": "{\"Operation\":\"SharingInvitationBlocked\",\"Workload\":\"SharePoint\",\"RecordType\":6,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Success\"}",
     "result": "denied",
     "preserve": {
-      "log.ResultStatus": "Success"
+      "event.ResultStatus": "Success"
     }
   },
   {
@@ -235,7 +235,7 @@
     "raw": "{\"Operation\":\"UnmanagedSyncClientBlocked\",\"Workload\":\"SharePoint\",\"RecordType\":6,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Success\"}",
     "result": "denied",
     "preserve": {
-      "log.ResultStatus": "Success"
+      "event.ResultStatus": "Success"
     }
   },
   {
@@ -243,7 +243,7 @@
     "raw": "{\"Operation\":\"AccessRequestDenied\",\"Workload\":\"SharePoint\",\"RecordType\":6,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Success\"}",
     "result": "denied",
     "preserve": {
-      "log.ResultStatus": "Success"
+      "event.ResultStatus": "Success"
     }
   },
   {
@@ -251,8 +251,8 @@
     "raw": "{\"Operation\":\"ClickedSafeLink\",\"Workload\":\"ThreatIntelligence\",\"RecordType\":41,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Success\",\"URLClickAction\":2}",
     "result": "denied",
     "preserve": {
-      "log.ResultStatus": "Success",
-      "log.URLClickAction": 2
+      "event.ResultStatus": "Success",
+      "event.URLClickAction": 2
     }
   },
   {
@@ -260,8 +260,8 @@
     "raw": "{\"Operation\":\"ClickedSafeLink\",\"Workload\":\"ThreatIntelligence\",\"RecordType\":41,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Success\",\"URLClickAction\":3}",
     "result": "",
     "preserve": {
-      "log.ResultStatus": "Success",
-      "log.URLClickAction": 3
+      "event.ResultStatus": "Success",
+      "event.URLClickAction": 3
     }
   },
   {
@@ -269,8 +269,8 @@
     "raw": "{\"Operation\":\"ClickedSafeLink\",\"Workload\":\"ThreatIntelligence\",\"RecordType\":41,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Success\",\"URLClickAction\":4}",
     "result": "success",
     "preserve": {
-      "log.ResultStatus": "Success",
-      "log.URLClickAction": 4
+      "event.ResultStatus": "Success",
+      "event.URLClickAction": 4
     }
   },
   {
@@ -278,8 +278,8 @@
     "raw": "{\"Operation\":\"ClickedSafeLink\",\"Workload\":\"ThreatIntelligence\",\"RecordType\":41,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Success\",\"URLClickAction\":5}",
     "result": "success",
     "preserve": {
-      "log.ResultStatus": "Success",
-      "log.URLClickAction": 5
+      "event.ResultStatus": "Success",
+      "event.URLClickAction": 5
     }
   },
   {
@@ -287,8 +287,8 @@
     "raw": "{\"Operation\":\"ClickedSafeLink\",\"Workload\":\"ThreatIntelligence\",\"RecordType\":41,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Success\",\"URLClickAction\":999}",
     "result": "",
     "preserve": {
-      "log.ResultStatus": "Success",
-      "log.URLClickAction": 999
+      "event.ResultStatus": "Success",
+      "event.URLClickAction": 999
     }
   },
   {
@@ -296,7 +296,7 @@
     "raw": "{\"Operation\":\"ClickedSafeLink\",\"Workload\":\"SharePoint\",\"RecordType\":41,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Success\"}",
     "result": "",
     "preserve": {
-      "log.ResultStatus": "Success"
+      "event.ResultStatus": "Success"
     }
   },
   {
@@ -304,7 +304,7 @@
     "raw": "{\"Operation\":\"TaskModified\",\"Workload\":\"MicrosoftPlanner\",\"RecordType\":188,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":1}",
     "result": "success",
     "preserve": {
-      "log.ResultStatus": 1
+      "event.ResultStatus": 1
     }
   },
   {
@@ -312,7 +312,7 @@
     "raw": "{\"Operation\":\"TaskModified\",\"Workload\":\"MicrosoftPlanner\",\"RecordType\":188,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":2}",
     "result": "failure",
     "preserve": {
-      "log.ResultStatus": 2
+      "event.ResultStatus": 2
     }
   },
   {
@@ -320,7 +320,7 @@
     "raw": "{\"Operation\":\"TaskModified\",\"Workload\":\"MicrosoftPlanner\",\"RecordType\":188,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":3}",
     "result": "denied",
     "preserve": {
-      "log.ResultStatus": 3
+      "event.ResultStatus": 3
     }
   },
   {
@@ -328,7 +328,7 @@
     "raw": "{\"Operation\":\"TaskModified\",\"Workload\":\"MicrosoftPlanner\",\"RecordType\":188,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":0}",
     "result": "",
     "preserve": {
-      "log.ResultStatus": 0
+      "event.ResultStatus": 0
     }
   },
   {
@@ -336,7 +336,7 @@
     "raw": "{\"Operation\":\"TaskModified\",\"Workload\":\"MicrosoftPlanner\",\"RecordType\":188,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":4}",
     "result": "",
     "preserve": {
-      "log.ResultStatus": 4
+      "event.ResultStatus": 4
     }
   },
   {
@@ -344,7 +344,7 @@
     "raw": "{\"Operation\":\"FileDownloaded\",\"Workload\":\"SharePoint\",\"RecordType\":6,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":1}",
     "result": "",
     "preserve": {
-      "log.ResultStatus": 1
+      "event.ResultStatus": 1
     }
   },
   {
@@ -352,7 +352,7 @@
     "raw": "{\"Operation\":\"FileDownloaded\",\"Workload\":\"SharePoint\",\"RecordType\":6,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":2}",
     "result": "",
     "preserve": {
-      "log.ResultStatus": 2
+      "event.ResultStatus": 2
     }
   },
   {
@@ -360,7 +360,7 @@
     "raw": "{\"Operation\":\"FileDownloaded\",\"Workload\":\"SharePoint\",\"RecordType\":6,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":3}",
     "result": "",
     "preserve": {
-      "log.ResultStatus": 3
+      "event.ResultStatus": 3
     }
   },
   {
@@ -368,8 +368,8 @@
     "raw": "{\"Operation\":\"UserLoggedIn\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Pending\",\"ErrorCode\":\"0\"}",
     "result": "",
     "preserve": {
-      "log.ResultStatus": "Pending",
-      "log.ErrorCode": "0"
+      "event.ResultStatus": "Pending",
+      "event.ErrorCode": "0"
     }
   },
   {
@@ -377,8 +377,8 @@
     "raw": "{\"Operation\":\"UserLoggedIn\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"InProgress\",\"ErrorCode\":\"0\"}",
     "result": "",
     "preserve": {
-      "log.ResultStatus": "InProgress",
-      "log.ErrorCode": "0"
+      "event.ResultStatus": "InProgress",
+      "event.ErrorCode": "0"
     }
   },
   {
@@ -386,8 +386,8 @@
     "raw": "{\"Operation\":\"UserLoggedIn\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"FutureOutcome\",\"ErrorCode\":\"0\"}",
     "result": "",
     "preserve": {
-      "log.ResultStatus": "FutureOutcome",
-      "log.ErrorCode": "0"
+      "event.ResultStatus": "FutureOutcome",
+      "event.ErrorCode": "0"
     }
   },
   {
@@ -395,8 +395,8 @@
     "raw": "{\"Operation\":\"UserLoggedIn\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":null,\"ErrorCode\":\"0\"}",
     "result": "",
     "preserve": {
-      "log.ResultStatus": null,
-      "log.ErrorCode": "0"
+      "event.ResultStatus": null,
+      "event.ErrorCode": "0"
     }
   },
   {
@@ -404,8 +404,8 @@
     "raw": "{\"Operation\":\"UserLoggedIn\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Success\",\"ErrorNumber\":\"0\"}",
     "result": "success",
     "preserve": {
-      "log.ErrorNumber": "0",
-      "log.ResultStatus": "Success"
+      "event.ErrorNumber": "0",
+      "event.ResultStatus": "Success"
     }
   },
   {
@@ -413,8 +413,8 @@
     "raw": "{\"Operation\":\"UserLoggedIn\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Success\",\"ErrorNumber\":\"50140\",\"ExtendedProperties\":[{\"Name\":\"ResultStatusDetail\",\"Value\":\"Success\"},{\"Name\":\"RequestType\",\"Value\":\"Login:login\"}]}",
     "result": "",
     "preserve": {
-      "log.ErrorNumber": "50140",
-      "log.ExtendedProperties": [
+      "event.ErrorNumber": "50140",
+      "event.ExtendedProperties": [
         {
           "Name": "ResultStatusDetail",
           "Value": "Success"
@@ -424,7 +424,7 @@
           "Value": "Login:login"
         }
       ],
-      "log.ResultStatus": "Success"
+      "event.ResultStatus": "Success"
     }
   },
   {
@@ -432,8 +432,8 @@
     "raw": "{\"Operation\":\"UserLoggedIn\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Success\",\"ErrorCode\":\"50140\"}",
     "result": "",
     "preserve": {
-      "log.ErrorCode": "50140",
-      "log.ResultStatus": "Success"
+      "event.ErrorCode": "50140",
+      "event.ResultStatus": "Success"
     }
   },
   {
@@ -441,9 +441,9 @@
     "raw": "{\"Operation\":\"UserLoggedIn\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Success\",\"ErrorNumber\":\"50140\",\"ErrorCode\":\"0\"}",
     "result": "",
     "preserve": {
-      "log.ErrorNumber": "50140",
-      "log.ErrorCode": "0",
-      "log.ResultStatus": "Success"
+      "event.ErrorNumber": "50140",
+      "event.ErrorCode": "0",
+      "event.ResultStatus": "Success"
     }
   },
   {
@@ -451,8 +451,8 @@
     "raw": "{\"Operation\":\"UserLoggedIn\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Success\",\"ErrorNumber\":\"new-code\"}",
     "result": "",
     "preserve": {
-      "log.ErrorNumber": "new-code",
-      "log.ResultStatus": "Success"
+      "event.ErrorNumber": "new-code",
+      "event.ResultStatus": "Success"
     }
   },
   {
@@ -460,8 +460,8 @@
     "raw": "{\"Operation\":\"UserLoggedIn\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Success\",\"ErrorNumber\":null}",
     "result": "",
     "preserve": {
-      "log.ErrorNumber": null,
-      "log.ResultStatus": "Success"
+      "event.ErrorNumber": null,
+      "event.ResultStatus": "Success"
     }
   },
   {
@@ -469,9 +469,9 @@
     "raw": "{\"Operation\":\"UserLoggedIn\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Success\",\"ErrorNumber\":\"0\",\"LogonError\":\"FlowTokenExpired\"}",
     "result": "failure",
     "preserve": {
-      "log.ErrorNumber": "0",
-      "log.LogonError": "FlowTokenExpired",
-      "log.ResultStatus": "Success"
+      "event.ErrorNumber": "0",
+      "event.LogonError": "FlowTokenExpired",
+      "event.ResultStatus": "Success"
     }
   },
   {
@@ -479,8 +479,8 @@
     "raw": "{\"Operation\":\"UserLoggedIn\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Success\",\"ErrorNumber\":\"999999\"}",
     "result": "",
     "preserve": {
-      "log.ErrorNumber": "999999",
-      "log.ResultStatus": "Success"
+      "event.ErrorNumber": "999999",
+      "event.ResultStatus": "Success"
     }
   },
   {
@@ -488,7 +488,7 @@
     "raw": "{\"Operation\":\"PlanRead\",\"Workload\":\"Planner\",\"RecordType\":188,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Success\"}",
     "result": "success",
     "preserve": {
-      "log.ResultStatus": "Success"
+      "event.ResultStatus": "Success"
     }
   },
   {
@@ -496,7 +496,7 @@
     "raw": "{\"Operation\":\"PlanRead\",\"Workload\":\"Planner\",\"RecordType\":188,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Failure\"}",
     "result": "failure",
     "preserve": {
-      "log.ResultStatus": "Failure"
+      "event.ResultStatus": "Failure"
     }
   },
   {
@@ -504,7 +504,7 @@
     "raw": "{\"Operation\":\"PlanRead\",\"Workload\":\"Planner\",\"RecordType\":188,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"AuthorizationFailure\"}",
     "result": "denied",
     "preserve": {
-      "log.ResultStatus": "AuthorizationFailure"
+      "event.ResultStatus": "AuthorizationFailure"
     }
   },
   {
@@ -512,7 +512,7 @@
     "raw": "{\"Operation\":\"FileDownloaded\",\"Workload\":\"SharePoint\",\"RecordType\":6,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":[\"Success\"]}",
     "result": "",
     "preserve": {
-      "log.ResultStatus": [
+      "event.ResultStatus": [
         "Success"
       ]
     }
@@ -522,7 +522,7 @@
     "raw": "{\"Operation\":\"FileDownloaded\",\"Workload\":\"SharePoint\",\"RecordType\":6,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":{\"value\":\"Success\"}}",
     "result": "",
     "preserve": {
-      "log.ResultStatus": {
+      "event.ResultStatus": {
         "value": "Success"
       }
     }
@@ -532,7 +532,7 @@
     "raw": "{\"Operation\":\"FileDownloaded\",\"Workload\":\"SharePoint\",\"RecordType\":6,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":true}",
     "result": "",
     "preserve": {
-      "log.ResultStatus": true
+      "event.ResultStatus": true
     }
   },
   {
@@ -540,9 +540,9 @@
     "raw": "{\"Operation\":\"ClickedSafeLink\",\"RecordType\":41,\"UserId\":\"analyst@example.invalid\",\"UserIp\":\"192.0.2.20\",\"URL\":\"https://example.invalid/path\",\"URLClickAction\":4,\"ResultStatus\":\"Success\"}",
     "result": "success",
     "preserve": {
-      "log.UserIp": "192.0.2.20",
-      "log.URL": "https://example.invalid/path",
-      "log.URLClickAction": 4
+      "event.UserIp": "192.0.2.20",
+      "event.URL": "https://example.invalid/path",
+      "event.URLClickAction": 4
     },
     "expected": {
       "target.url": "https://example.invalid/path",
@@ -556,9 +556,9 @@
     "raw": "{\"Operation\":\"ClickedSafeLink\",\"RecordType\":41,\"UserId\":\"analyst@example.invalid\",\"UserIp\":\"192.0.2.20\",\"URL\":\"https://example.invalid/path\",\"URLClickAction\":2,\"ResultStatus\":\"Success\"}",
     "result": "denied",
     "preserve": {
-      "log.UserIp": "192.0.2.20",
-      "log.URL": "https://example.invalid/path",
-      "log.URLClickAction": 2
+      "event.UserIp": "192.0.2.20",
+      "event.URL": "https://example.invalid/path",
+      "event.URLClickAction": 2
     },
     "expected": {
       "target.url": "https://example.invalid/path",
@@ -572,9 +572,9 @@
     "raw": "{\"Operation\":\"ClickedSafeLink\",\"RecordType\":41,\"UserId\":\"analyst@example.invalid\",\"UserIp\":\"not-an-ip\",\"URL\":\"https://example.invalid/path\",\"URLClickAction\":4,\"ResultStatus\":\"Success\"}",
     "result": "success",
     "preserve": {
-      "log.UserIp": "not-an-ip",
-      "log.URL": "https://example.invalid/path",
-      "log.URLClickAction": 4
+      "event.UserIp": "not-an-ip",
+      "event.URL": "https://example.invalid/path",
+      "event.URLClickAction": 4
     },
     "expected": {
       "target.url": "https://example.invalid/path"
@@ -589,7 +589,7 @@
     "raw": "{\"Operation\":\"UserLoggedIn\",\"Workload\":\"AzureActiveDirectory\",\"RecordType\":15,\"ClientIP\":\"192.0.2.10\",\"UserId\":\"analyst@example.invalid\",\"ResultStatus\":\"Success\"}",
     "result": "",
     "preserve": {
-      "log.ResultStatus": "Success"
+      "event.ResultStatus": "Success"
     }
   }
 ]

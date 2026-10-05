@@ -6,18 +6,18 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "ip",
-      "log.authenticationSource": "192.0.2.41",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "ip",
+      "event.authenticationSource": "192.0.2.41",
       "origin.port": 49152,
       "origin.user": "alice",
       "origin.ip": "192.0.2.41",
-      "log.authenticationSourceDomain": "network-source",
-      "log.authenticationCandidate.kerberoastingDetection": "match"
+      "event.authenticationSourceDomain": "network-source",
+      "event.authenticationCandidate.kerberoastingDetection": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
-      "log.data.IpAddress"
+      "event.unparsedOriginIp",
+      "event.data.IpAddress"
     ],
     "matches": [
       "kerberoasting_detection"
@@ -30,18 +30,18 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "ip",
-      "log.authenticationSource": "2001:db8::41",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "ip",
+      "event.authenticationSource": "2001:db8::41",
       "origin.port": 49152,
       "origin.user": "alice",
       "origin.ip": "2001:db8::41",
-      "log.authenticationSourceDomain": "network-source",
-      "log.authenticationCandidate.kerberoastingDetection": "match"
+      "event.authenticationSourceDomain": "network-source",
+      "event.authenticationCandidate.kerberoastingDetection": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
-      "log.data.IpAddress"
+      "event.unparsedOriginIp",
+      "event.data.IpAddress"
     ],
     "matches": [
       "kerberoasting_detection"
@@ -54,17 +54,17 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "host",
-      "log.authenticationSource": "client01",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "host",
+      "event.authenticationSource": "client01",
       "origin.port": 49152,
       "origin.user": "alice",
-      "log.data.IpAddress": "-",
-      "log.authenticationSourceDomain": "network-source",
-      "log.authenticationCandidate.kerberoastingDetection": "match"
+      "event.data.IpAddress": "-",
+      "event.authenticationSourceDomain": "network-source",
+      "event.authenticationCandidate.kerberoastingDetection": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
+      "event.unparsedOriginIp",
       "origin.ip"
     ],
     "matches": [
@@ -78,17 +78,17 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "user",
-      "log.authenticationSource": "alice",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "user",
+      "event.authenticationSource": "alice",
       "origin.port": 49152,
       "origin.user": "alice",
-      "log.data.IpAddress": "-",
-      "log.authenticationSourceDomain": "EXAMPLE",
-      "log.authenticationCandidate.kerberoastingDetection": "match"
+      "event.data.IpAddress": "-",
+      "event.authenticationSourceDomain": "EXAMPLE",
+      "event.authenticationCandidate.kerberoastingDetection": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
+      "event.unparsedOriginIp",
       "origin.ip"
     ],
     "matches": [
@@ -102,16 +102,16 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "user",
-      "log.authenticationSource": "alice",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "user",
+      "event.authenticationSource": "alice",
       "origin.port": 49152,
       "origin.user": "alice",
-      "log.authenticationSourceDomain": "EXAMPLE",
-      "log.authenticationCandidate.kerberoastingDetection": "match"
+      "event.authenticationSourceDomain": "EXAMPLE",
+      "event.authenticationCandidate.kerberoastingDetection": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
+      "event.unparsedOriginIp",
       "origin.ip"
     ],
     "matches": [
@@ -125,17 +125,17 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "user",
-      "log.authenticationSource": "alice",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "user",
+      "event.authenticationSource": "alice",
       "origin.port": 49152,
       "origin.user": "alice",
-      "log.data.IpAddress": "0.0.0.0",
-      "log.authenticationSourceDomain": "EXAMPLE",
-      "log.authenticationCandidate.kerberoastingDetection": "match"
+      "event.data.IpAddress": "0.0.0.0",
+      "event.authenticationSourceDomain": "EXAMPLE",
+      "event.authenticationCandidate.kerberoastingDetection": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
+      "event.unparsedOriginIp",
       "origin.ip"
     ],
     "matches": [
@@ -149,18 +149,18 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "ip",
-      "log.authenticationSource": "192.0.2.41",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "ip",
+      "event.authenticationSource": "192.0.2.41",
       "origin.port": 49152,
       "origin.user": "alice",
       "origin.ip": "192.0.2.41",
-      "log.authenticationSourceDomain": "network-source",
-      "log.authenticationCandidate.asrepRoastingDetection": "match"
+      "event.authenticationSourceDomain": "network-source",
+      "event.authenticationCandidate.asrepRoastingDetection": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
-      "log.data.IpAddress"
+      "event.unparsedOriginIp",
+      "event.data.IpAddress"
     ],
     "matches": [
       "asrep_roasting_detection"
@@ -173,18 +173,18 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "ip",
-      "log.authenticationSource": "2001:db8::41",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "ip",
+      "event.authenticationSource": "2001:db8::41",
       "origin.port": 49152,
       "origin.user": "alice",
       "origin.ip": "2001:db8::41",
-      "log.authenticationSourceDomain": "network-source",
-      "log.authenticationCandidate.asrepRoastingDetection": "match"
+      "event.authenticationSourceDomain": "network-source",
+      "event.authenticationCandidate.asrepRoastingDetection": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
-      "log.data.IpAddress"
+      "event.unparsedOriginIp",
+      "event.data.IpAddress"
     ],
     "matches": [
       "asrep_roasting_detection"
@@ -197,17 +197,17 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "host",
-      "log.authenticationSource": "client01",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "host",
+      "event.authenticationSource": "client01",
       "origin.port": 49152,
       "origin.user": "alice",
-      "log.data.IpAddress": "-",
-      "log.authenticationSourceDomain": "network-source",
-      "log.authenticationCandidate.asrepRoastingDetection": "match"
+      "event.data.IpAddress": "-",
+      "event.authenticationSourceDomain": "network-source",
+      "event.authenticationCandidate.asrepRoastingDetection": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
+      "event.unparsedOriginIp",
       "origin.ip"
     ],
     "matches": [
@@ -221,17 +221,17 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "user",
-      "log.authenticationSource": "alice",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "user",
+      "event.authenticationSource": "alice",
       "origin.port": 49152,
       "origin.user": "alice",
-      "log.data.IpAddress": "-",
-      "log.authenticationSourceDomain": "EXAMPLE",
-      "log.authenticationCandidate.asrepRoastingDetection": "match"
+      "event.data.IpAddress": "-",
+      "event.authenticationSourceDomain": "EXAMPLE",
+      "event.authenticationCandidate.asrepRoastingDetection": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
+      "event.unparsedOriginIp",
       "origin.ip"
     ],
     "matches": [
@@ -245,16 +245,16 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "user",
-      "log.authenticationSource": "alice",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "user",
+      "event.authenticationSource": "alice",
       "origin.port": 49152,
       "origin.user": "alice",
-      "log.authenticationSourceDomain": "EXAMPLE",
-      "log.authenticationCandidate.asrepRoastingDetection": "match"
+      "event.authenticationSourceDomain": "EXAMPLE",
+      "event.authenticationCandidate.asrepRoastingDetection": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
+      "event.unparsedOriginIp",
       "origin.ip"
     ],
     "matches": [
@@ -268,17 +268,17 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "user",
-      "log.authenticationSource": "alice",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "user",
+      "event.authenticationSource": "alice",
       "origin.port": 49152,
       "origin.user": "alice",
-      "log.data.IpAddress": "0.0.0.0",
-      "log.authenticationSourceDomain": "EXAMPLE",
-      "log.authenticationCandidate.asrepRoastingDetection": "match"
+      "event.data.IpAddress": "0.0.0.0",
+      "event.authenticationSourceDomain": "EXAMPLE",
+      "event.authenticationCandidate.asrepRoastingDetection": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
+      "event.unparsedOriginIp",
       "origin.ip"
     ],
     "matches": [
@@ -292,18 +292,18 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "ip",
-      "log.authenticationSource": "192.0.2.41",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "ip",
+      "event.authenticationSource": "192.0.2.41",
       "origin.port": 49152,
       "origin.user": "alice",
       "origin.ip": "192.0.2.41",
-      "log.authenticationSourceDomain": "network-source",
-      "log.authenticationCandidate.silverTicketDetection": "match"
+      "event.authenticationSourceDomain": "network-source",
+      "event.authenticationCandidate.silverTicketDetection": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
-      "log.data.IpAddress"
+      "event.unparsedOriginIp",
+      "event.data.IpAddress"
     ],
     "matches": [
       "silver_ticket_detection"
@@ -316,18 +316,18 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "ip",
-      "log.authenticationSource": "2001:db8::41",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "ip",
+      "event.authenticationSource": "2001:db8::41",
       "origin.port": 49152,
       "origin.user": "alice",
       "origin.ip": "2001:db8::41",
-      "log.authenticationSourceDomain": "network-source",
-      "log.authenticationCandidate.silverTicketDetection": "match"
+      "event.authenticationSourceDomain": "network-source",
+      "event.authenticationCandidate.silverTicketDetection": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
-      "log.data.IpAddress"
+      "event.unparsedOriginIp",
+      "event.data.IpAddress"
     ],
     "matches": [
       "silver_ticket_detection"
@@ -340,17 +340,17 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "host",
-      "log.authenticationSource": "client01",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "host",
+      "event.authenticationSource": "client01",
       "origin.port": 49152,
       "origin.user": "alice",
-      "log.data.IpAddress": "-",
-      "log.authenticationSourceDomain": "network-source",
-      "log.authenticationCandidate.silverTicketDetection": "match"
+      "event.data.IpAddress": "-",
+      "event.authenticationSourceDomain": "network-source",
+      "event.authenticationCandidate.silverTicketDetection": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
+      "event.unparsedOriginIp",
       "origin.ip"
     ],
     "matches": [
@@ -364,17 +364,17 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "user",
-      "log.authenticationSource": "alice",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "user",
+      "event.authenticationSource": "alice",
       "origin.port": 49152,
       "origin.user": "alice",
-      "log.data.IpAddress": "-",
-      "log.authenticationSourceDomain": "EXAMPLE",
-      "log.authenticationCandidate.silverTicketDetection": "match"
+      "event.data.IpAddress": "-",
+      "event.authenticationSourceDomain": "EXAMPLE",
+      "event.authenticationCandidate.silverTicketDetection": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
+      "event.unparsedOriginIp",
       "origin.ip"
     ],
     "matches": [
@@ -388,16 +388,16 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "user",
-      "log.authenticationSource": "alice",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "user",
+      "event.authenticationSource": "alice",
       "origin.port": 49152,
       "origin.user": "alice",
-      "log.authenticationSourceDomain": "EXAMPLE",
-      "log.authenticationCandidate.silverTicketDetection": "match"
+      "event.authenticationSourceDomain": "EXAMPLE",
+      "event.authenticationCandidate.silverTicketDetection": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
+      "event.unparsedOriginIp",
       "origin.ip"
     ],
     "matches": [
@@ -411,17 +411,17 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "user",
-      "log.authenticationSource": "alice",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "user",
+      "event.authenticationSource": "alice",
       "origin.port": 49152,
       "origin.user": "alice",
-      "log.data.IpAddress": "0.0.0.0",
-      "log.authenticationSourceDomain": "EXAMPLE",
-      "log.authenticationCandidate.silverTicketDetection": "match"
+      "event.data.IpAddress": "0.0.0.0",
+      "event.authenticationSourceDomain": "EXAMPLE",
+      "event.authenticationCandidate.silverTicketDetection": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
+      "event.unparsedOriginIp",
       "origin.ip"
     ],
     "matches": [
@@ -435,18 +435,18 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "ip",
-      "log.authenticationSource": "192.0.2.41",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "ip",
+      "event.authenticationSource": "192.0.2.41",
       "origin.port": 49152,
       "origin.user": "alice",
       "origin.ip": "192.0.2.41",
-      "log.authenticationSourceDomain": "network-source",
-      "log.authenticationCandidate.goldenTicketDetection": "match"
+      "event.authenticationSourceDomain": "network-source",
+      "event.authenticationCandidate.goldenTicketDetection": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
-      "log.data.IpAddress"
+      "event.unparsedOriginIp",
+      "event.data.IpAddress"
     ],
     "matches": [
       "golden_ticket_detection"
@@ -459,18 +459,18 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "ip",
-      "log.authenticationSource": "2001:db8::41",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "ip",
+      "event.authenticationSource": "2001:db8::41",
       "origin.port": 49152,
       "origin.user": "alice",
       "origin.ip": "2001:db8::41",
-      "log.authenticationSourceDomain": "network-source",
-      "log.authenticationCandidate.goldenTicketDetection": "match"
+      "event.authenticationSourceDomain": "network-source",
+      "event.authenticationCandidate.goldenTicketDetection": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
-      "log.data.IpAddress"
+      "event.unparsedOriginIp",
+      "event.data.IpAddress"
     ],
     "matches": [
       "golden_ticket_detection"
@@ -483,17 +483,17 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "host",
-      "log.authenticationSource": "client01",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "host",
+      "event.authenticationSource": "client01",
       "origin.port": 49152,
       "origin.user": "alice",
-      "log.data.IpAddress": "-",
-      "log.authenticationSourceDomain": "network-source",
-      "log.authenticationCandidate.goldenTicketDetection": "match"
+      "event.data.IpAddress": "-",
+      "event.authenticationSourceDomain": "network-source",
+      "event.authenticationCandidate.goldenTicketDetection": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
+      "event.unparsedOriginIp",
       "origin.ip"
     ],
     "matches": [
@@ -507,17 +507,17 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "user",
-      "log.authenticationSource": "alice",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "user",
+      "event.authenticationSource": "alice",
       "origin.port": 49152,
       "origin.user": "alice",
-      "log.data.IpAddress": "-",
-      "log.authenticationSourceDomain": "EXAMPLE",
-      "log.authenticationCandidate.goldenTicketDetection": "match"
+      "event.data.IpAddress": "-",
+      "event.authenticationSourceDomain": "EXAMPLE",
+      "event.authenticationCandidate.goldenTicketDetection": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
+      "event.unparsedOriginIp",
       "origin.ip"
     ],
     "matches": [
@@ -531,16 +531,16 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "user",
-      "log.authenticationSource": "alice",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "user",
+      "event.authenticationSource": "alice",
       "origin.port": 49152,
       "origin.user": "alice",
-      "log.authenticationSourceDomain": "EXAMPLE",
-      "log.authenticationCandidate.goldenTicketDetection": "match"
+      "event.authenticationSourceDomain": "EXAMPLE",
+      "event.authenticationCandidate.goldenTicketDetection": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
+      "event.unparsedOriginIp",
       "origin.ip"
     ],
     "matches": [
@@ -554,17 +554,17 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "user",
-      "log.authenticationSource": "alice",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "user",
+      "event.authenticationSource": "alice",
       "origin.port": 49152,
       "origin.user": "alice",
-      "log.data.IpAddress": "0.0.0.0",
-      "log.authenticationSourceDomain": "EXAMPLE",
-      "log.authenticationCandidate.goldenTicketDetection": "match"
+      "event.data.IpAddress": "0.0.0.0",
+      "event.authenticationSourceDomain": "EXAMPLE",
+      "event.authenticationCandidate.goldenTicketDetection": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
+      "event.unparsedOriginIp",
       "origin.ip"
     ],
     "matches": [
@@ -578,18 +578,18 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "ip",
-      "log.authenticationSource": "192.0.2.41",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "ip",
+      "event.authenticationSource": "192.0.2.41",
       "origin.port": 49152,
       "origin.user": "alice",
       "origin.ip": "192.0.2.41",
-      "log.authenticationSourceDomain": "network-source",
-      "log.authenticationCandidate.bruteforceAttack": "match"
+      "event.authenticationSourceDomain": "network-source",
+      "event.authenticationCandidate.bruteforceAttack": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
-      "log.data.IpAddress"
+      "event.unparsedOriginIp",
+      "event.data.IpAddress"
     ],
     "matches": [
       "bruteforce_attack"
@@ -602,18 +602,18 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "ip",
-      "log.authenticationSource": "2001:db8::41",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "ip",
+      "event.authenticationSource": "2001:db8::41",
       "origin.port": 49152,
       "origin.user": "alice",
       "origin.ip": "2001:db8::41",
-      "log.authenticationSourceDomain": "network-source",
-      "log.authenticationCandidate.bruteforceAttack": "match"
+      "event.authenticationSourceDomain": "network-source",
+      "event.authenticationCandidate.bruteforceAttack": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
-      "log.data.IpAddress"
+      "event.unparsedOriginIp",
+      "event.data.IpAddress"
     ],
     "matches": [
       "bruteforce_attack"
@@ -626,17 +626,17 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "host",
-      "log.authenticationSource": "client01",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "host",
+      "event.authenticationSource": "client01",
       "origin.port": 49152,
       "origin.user": "alice",
-      "log.data.IpAddress": "-",
-      "log.authenticationSourceDomain": "network-source",
-      "log.authenticationCandidate.bruteforceAttack": "match"
+      "event.data.IpAddress": "-",
+      "event.authenticationSourceDomain": "network-source",
+      "event.authenticationCandidate.bruteforceAttack": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
+      "event.unparsedOriginIp",
       "origin.ip"
     ],
     "matches": [
@@ -650,17 +650,17 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "user",
-      "log.authenticationSource": "alice",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "user",
+      "event.authenticationSource": "alice",
       "origin.port": 49152,
       "origin.user": "alice",
-      "log.data.IpAddress": "-",
-      "log.authenticationSourceDomain": "EXAMPLE",
-      "log.authenticationCandidate.bruteforceAttack": "match"
+      "event.data.IpAddress": "-",
+      "event.authenticationSourceDomain": "EXAMPLE",
+      "event.authenticationCandidate.bruteforceAttack": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
+      "event.unparsedOriginIp",
       "origin.ip"
     ],
     "matches": [
@@ -674,16 +674,16 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "user",
-      "log.authenticationSource": "alice",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "user",
+      "event.authenticationSource": "alice",
       "origin.port": 49152,
       "origin.user": "alice",
-      "log.authenticationSourceDomain": "EXAMPLE",
-      "log.authenticationCandidate.bruteforceAttack": "match"
+      "event.authenticationSourceDomain": "EXAMPLE",
+      "event.authenticationCandidate.bruteforceAttack": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
+      "event.unparsedOriginIp",
       "origin.ip"
     ],
     "matches": [
@@ -697,17 +697,17 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "user",
-      "log.authenticationSource": "alice",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "user",
+      "event.authenticationSource": "alice",
       "origin.port": 49152,
       "origin.user": "alice",
-      "log.data.IpAddress": "0.0.0.0",
-      "log.authenticationSourceDomain": "EXAMPLE",
-      "log.authenticationCandidate.bruteforceAttack": "match"
+      "event.data.IpAddress": "0.0.0.0",
+      "event.authenticationSourceDomain": "EXAMPLE",
+      "event.authenticationCandidate.bruteforceAttack": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
+      "event.unparsedOriginIp",
       "origin.ip"
     ],
     "matches": [
@@ -721,18 +721,18 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "ip",
-      "log.authenticationSource": "192.0.2.41",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "ip",
+      "event.authenticationSource": "192.0.2.41",
       "origin.port": 49152,
       "origin.user": "alice",
       "origin.ip": "192.0.2.41",
-      "log.authenticationSourceDomain": "network-source",
-      "log.authenticationCandidate.bruteforceMultipleLogonFailureFollowedBySuccess": "match"
+      "event.authenticationSourceDomain": "network-source",
+      "event.authenticationCandidate.bruteforceMultipleLogonFailureFollowedBySuccess": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
-      "log.data.IpAddress"
+      "event.unparsedOriginIp",
+      "event.data.IpAddress"
     ],
     "matches": [
       "bruteforce_multiple_logon_failure_followed_by_success"
@@ -745,18 +745,18 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "ip",
-      "log.authenticationSource": "2001:db8::41",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "ip",
+      "event.authenticationSource": "2001:db8::41",
       "origin.port": 49152,
       "origin.user": "alice",
       "origin.ip": "2001:db8::41",
-      "log.authenticationSourceDomain": "network-source",
-      "log.authenticationCandidate.bruteforceMultipleLogonFailureFollowedBySuccess": "match"
+      "event.authenticationSourceDomain": "network-source",
+      "event.authenticationCandidate.bruteforceMultipleLogonFailureFollowedBySuccess": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
-      "log.data.IpAddress"
+      "event.unparsedOriginIp",
+      "event.data.IpAddress"
     ],
     "matches": [
       "bruteforce_multiple_logon_failure_followed_by_success"
@@ -769,17 +769,17 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "host",
-      "log.authenticationSource": "client01",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "host",
+      "event.authenticationSource": "client01",
       "origin.port": 49152,
       "origin.user": "alice",
-      "log.data.IpAddress": "-",
-      "log.authenticationSourceDomain": "network-source",
-      "log.authenticationCandidate.bruteforceMultipleLogonFailureFollowedBySuccess": "match"
+      "event.data.IpAddress": "-",
+      "event.authenticationSourceDomain": "network-source",
+      "event.authenticationCandidate.bruteforceMultipleLogonFailureFollowedBySuccess": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
+      "event.unparsedOriginIp",
       "origin.ip"
     ],
     "matches": [
@@ -793,17 +793,17 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "user",
-      "log.authenticationSource": "alice",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "user",
+      "event.authenticationSource": "alice",
       "origin.port": 49152,
       "origin.user": "alice",
-      "log.data.IpAddress": "-",
-      "log.authenticationSourceDomain": "EXAMPLE",
-      "log.authenticationCandidate.bruteforceMultipleLogonFailureFollowedBySuccess": "match"
+      "event.data.IpAddress": "-",
+      "event.authenticationSourceDomain": "EXAMPLE",
+      "event.authenticationCandidate.bruteforceMultipleLogonFailureFollowedBySuccess": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
+      "event.unparsedOriginIp",
       "origin.ip"
     ],
     "matches": [
@@ -817,16 +817,16 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "user",
-      "log.authenticationSource": "alice",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "user",
+      "event.authenticationSource": "alice",
       "origin.port": 49152,
       "origin.user": "alice",
-      "log.authenticationSourceDomain": "EXAMPLE",
-      "log.authenticationCandidate.bruteforceMultipleLogonFailureFollowedBySuccess": "match"
+      "event.authenticationSourceDomain": "EXAMPLE",
+      "event.authenticationCandidate.bruteforceMultipleLogonFailureFollowedBySuccess": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
+      "event.unparsedOriginIp",
       "origin.ip"
     ],
     "matches": [
@@ -840,17 +840,17 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "user",
-      "log.authenticationSource": "alice",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "user",
+      "event.authenticationSource": "alice",
       "origin.port": 49152,
       "origin.user": "alice",
-      "log.data.IpAddress": "0.0.0.0",
-      "log.authenticationSourceDomain": "EXAMPLE",
-      "log.authenticationCandidate.bruteforceMultipleLogonFailureFollowedBySuccess": "match"
+      "event.data.IpAddress": "0.0.0.0",
+      "event.authenticationSourceDomain": "EXAMPLE",
+      "event.authenticationCandidate.bruteforceMultipleLogonFailureFollowedBySuccess": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
+      "event.unparsedOriginIp",
       "origin.ip"
     ],
     "matches": [
@@ -864,18 +864,18 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "AD FS",
-      "log.authenticationSourceType": "ip",
-      "log.authenticationSource": "192.0.2.41",
+      "event.providerName": "AD FS",
+      "event.authenticationSourceType": "ip",
+      "event.authenticationSource": "192.0.2.41",
       "origin.port": 49152,
       "origin.user": "alice",
       "origin.ip": "192.0.2.41",
-      "log.authenticationSourceDomain": "network-source",
-      "log.authenticationCandidate.adfsAuthenticationAnomalies": "match"
+      "event.authenticationSourceDomain": "network-source",
+      "event.authenticationCandidate.adfsAuthenticationAnomalies": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
-      "log.data.IpAddress"
+      "event.unparsedOriginIp",
+      "event.data.IpAddress"
     ],
     "matches": [
       "adfs_authentication_anomalies"
@@ -888,18 +888,18 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "AD FS",
-      "log.authenticationSourceType": "ip",
-      "log.authenticationSource": "2001:db8::41",
+      "event.providerName": "AD FS",
+      "event.authenticationSourceType": "ip",
+      "event.authenticationSource": "2001:db8::41",
       "origin.port": 49152,
       "origin.user": "alice",
       "origin.ip": "2001:db8::41",
-      "log.authenticationSourceDomain": "network-source",
-      "log.authenticationCandidate.adfsAuthenticationAnomalies": "match"
+      "event.authenticationSourceDomain": "network-source",
+      "event.authenticationCandidate.adfsAuthenticationAnomalies": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
-      "log.data.IpAddress"
+      "event.unparsedOriginIp",
+      "event.data.IpAddress"
     ],
     "matches": [
       "adfs_authentication_anomalies"
@@ -912,17 +912,17 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "AD FS",
-      "log.authenticationSourceType": "host",
-      "log.authenticationSource": "client01",
+      "event.providerName": "AD FS",
+      "event.authenticationSourceType": "host",
+      "event.authenticationSource": "client01",
       "origin.port": 49152,
       "origin.user": "alice",
-      "log.data.IpAddress": "-",
-      "log.authenticationSourceDomain": "network-source",
-      "log.authenticationCandidate.adfsAuthenticationAnomalies": "match"
+      "event.data.IpAddress": "-",
+      "event.authenticationSourceDomain": "network-source",
+      "event.authenticationCandidate.adfsAuthenticationAnomalies": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
+      "event.unparsedOriginIp",
       "origin.ip"
     ],
     "matches": [
@@ -936,17 +936,17 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "AD FS",
-      "log.authenticationSourceType": "user",
-      "log.authenticationSource": "alice",
+      "event.providerName": "AD FS",
+      "event.authenticationSourceType": "user",
+      "event.authenticationSource": "alice",
       "origin.port": 49152,
       "origin.user": "alice",
-      "log.data.IpAddress": "-",
-      "log.authenticationSourceDomain": "EXAMPLE",
-      "log.authenticationCandidate.adfsAuthenticationAnomalies": "match"
+      "event.data.IpAddress": "-",
+      "event.authenticationSourceDomain": "EXAMPLE",
+      "event.authenticationCandidate.adfsAuthenticationAnomalies": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
+      "event.unparsedOriginIp",
       "origin.ip"
     ],
     "matches": [
@@ -960,16 +960,16 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "AD FS",
-      "log.authenticationSourceType": "user",
-      "log.authenticationSource": "alice",
+      "event.providerName": "AD FS",
+      "event.authenticationSourceType": "user",
+      "event.authenticationSource": "alice",
       "origin.port": 49152,
       "origin.user": "alice",
-      "log.authenticationSourceDomain": "EXAMPLE",
-      "log.authenticationCandidate.adfsAuthenticationAnomalies": "match"
+      "event.authenticationSourceDomain": "EXAMPLE",
+      "event.authenticationCandidate.adfsAuthenticationAnomalies": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
+      "event.unparsedOriginIp",
       "origin.ip"
     ],
     "matches": [
@@ -983,17 +983,17 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "AD FS",
-      "log.authenticationSourceType": "user",
-      "log.authenticationSource": "alice",
+      "event.providerName": "AD FS",
+      "event.authenticationSourceType": "user",
+      "event.authenticationSource": "alice",
       "origin.port": 49152,
       "origin.user": "alice",
-      "log.data.IpAddress": "0.0.0.0",
-      "log.authenticationSourceDomain": "EXAMPLE",
-      "log.authenticationCandidate.adfsAuthenticationAnomalies": "match"
+      "event.data.IpAddress": "0.0.0.0",
+      "event.authenticationSourceDomain": "EXAMPLE",
+      "event.authenticationCandidate.adfsAuthenticationAnomalies": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
+      "event.unparsedOriginIp",
       "origin.ip"
     ],
     "matches": [
@@ -1005,7 +1005,7 @@
     "dataSource": "dc01",
     "raw": "{\"timestamp\": \"2026-09-17T12:00:00Z\", \"provider_name\": \"Microsoft-Windows-Security-Auditing\", \"provider_guid\": \"{54849625-5478-4994-a5ba-3e3b0328c30d}\", \"recordId\": 1234, \"channel\": \"Security\", \"computer\": \"dc01.example.test\", \"data\": {\"IpAddress\": \"-\", \"IpPort\": \"-\", \"TargetUserName\": \"-\", \"WorkstationName\": \"-\"}, \"eventCode\": 4625}",
     "expected": {
-      "log.data.IpAddress": "-"
+      "event.data.IpAddress": "-"
     },
     "absent": [
       "origin.ip",
@@ -1013,8 +1013,8 @@
       "origin.user",
       "origin.host",
       "target.user",
-      "log.authenticationSource",
-      "log.authenticationSourceType"
+      "event.authenticationSource",
+      "event.authenticationSourceType"
     ],
     "matches": []
   },
@@ -1023,7 +1023,7 @@
     "dataSource": "dc01",
     "raw": "{\"timestamp\": \"2026-09-17T12:00:00Z\", \"provider_name\": \"Microsoft-Windows-Security-Auditing\", \"provider_guid\": \"{54849625-5478-4994-a5ba-3e3b0328c30d}\", \"recordId\": 1234, \"channel\": \"Security\", \"computer\": \"dc01.example.test\", \"data\": {\"IpAddress\": \"-\", \"IpPort\": \"65536\", \"TargetUserName\": \"-\", \"WorkstationName\": \"-\"}, \"eventCode\": 4625}",
     "expected": {
-      "log.data.IpAddress": "-"
+      "event.data.IpAddress": "-"
     },
     "absent": [
       "origin.ip",
@@ -1031,8 +1031,8 @@
       "origin.user",
       "origin.host",
       "target.user",
-      "log.authenticationSource",
-      "log.authenticationSourceType"
+      "event.authenticationSource",
+      "event.authenticationSourceType"
     ],
     "matches": []
   },
@@ -1041,7 +1041,7 @@
     "dataSource": "dc01",
     "raw": "{\"timestamp\": \"2026-09-17T12:00:00Z\", \"provider_name\": \"Microsoft-Windows-Security-Auditing\", \"provider_guid\": \"{54849625-5478-4994-a5ba-3e3b0328c30d}\", \"recordId\": 1234, \"channel\": \"Security\", \"computer\": \"dc01.example.test\", \"data\": {\"IpAddress\": \"-\", \"IpPort\": \"0\", \"TargetUserName\": \"-\", \"WorkstationName\": \"-\"}, \"eventCode\": 4625}",
     "expected": {
-      "log.data.IpAddress": "-"
+      "event.data.IpAddress": "-"
     },
     "absent": [
       "origin.ip",
@@ -1049,8 +1049,8 @@
       "origin.user",
       "origin.host",
       "target.user",
-      "log.authenticationSource",
-      "log.authenticationSourceType"
+      "event.authenticationSource",
+      "event.authenticationSourceType"
     ],
     "matches": []
   },
@@ -1059,7 +1059,7 @@
     "dataSource": "dc01",
     "raw": "{\"timestamp\": \"2026-09-17T12:00:00Z\", \"provider_name\": \"Microsoft-Windows-Security-Auditing\", \"provider_guid\": \"{54849625-5478-4994-a5ba-3e3b0328c30d}\", \"recordId\": 1234, \"channel\": \"Security\", \"computer\": \"dc01.example.test\", \"data\": {\"IpAddress\": \"-\", \"IpPort\": \"not-a-port\", \"TargetUserName\": \"-\", \"WorkstationName\": \"-\"}, \"eventCode\": 4625}",
     "expected": {
-      "log.data.IpAddress": "-"
+      "event.data.IpAddress": "-"
     },
     "absent": [
       "origin.ip",
@@ -1067,8 +1067,8 @@
       "origin.user",
       "origin.host",
       "target.user",
-      "log.authenticationSource",
-      "log.authenticationSourceType"
+      "event.authenticationSource",
+      "event.authenticationSourceType"
     ],
     "matches": []
   },
@@ -1082,9 +1082,9 @@
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
       "actionResult": "success",
-      "log.authenticationSource": "CLIENT01",
-      "log.authenticationSourceType": "host",
-      "log.authenticationSourceDomain": "network-source"
+      "event.authenticationSource": "CLIENT01",
+      "event.authenticationSourceType": "host",
+      "event.authenticationSourceDomain": "network-source"
     },
     "absent": [
       "origin.ip",
@@ -1103,7 +1103,7 @@
       "target.user": "admin",
       "target.domain": "DOMAIN",
       "target.host": "workstation01.example.test",
-      "log.eventDataProcessName": "C:\\Windows\\System32\\runas.exe"
+      "event.eventDataProcessName": "C:\\Windows\\System32\\runas.exe"
     },
     "absent": [
       "origin.ip",
@@ -1119,9 +1119,9 @@
       "origin.user": "alice",
       "origin.domain": "EXAMPLE",
       "origin.path": "C:\\Windows\\System32\\winlogon.exe",
-      "log.eventDataSubjectDomainName": "NT AUTHORITY",
-      "log.eventDataSubjectUserName": "SYSTEM",
-      "log.authenticationCandidate.bruteforceAttack": "match"
+      "event.eventDataSubjectDomainName": "NT AUTHORITY",
+      "event.eventDataSubjectUserName": "SYSTEM",
+      "event.authenticationCandidate.bruteforceAttack": "match"
     },
     "absent": [
       "origin.ip"
@@ -1140,8 +1140,8 @@
     },
     "absent": [
       "origin.ip",
-      "log.authenticationSource",
-      "log.authenticationCandidate"
+      "event.authenticationSource",
+      "event.authenticationCandidate"
     ],
     "matches": []
   },
@@ -1151,9 +1151,9 @@
     "raw": "{\"eventCode\": 4625, \"data\": {\"IpAddress\": \"-\", \"TargetUserName\": \"alice@example.test\"}}",
     "expected": {
       "origin.user": "alice@example.test",
-      "log.authenticationSource": "alice@example.test",
-      "log.authenticationSourceType": "user",
-      "log.authenticationSourceDomain": "qualified-upn"
+      "event.authenticationSource": "alice@example.test",
+      "event.authenticationSourceType": "user",
+      "event.authenticationSourceDomain": "qualified-upn"
     },
     "absent": [
       "origin.ip"
@@ -1168,8 +1168,8 @@
     "raw": "{\"eventCode\": 4625, \"authenticationCandidate\": {\"bruteforce_attack\": \"match\"}, \"authenticationSource\": \"alice\", \"authenticationSourceType\": \"user\", \"data\": {\"IpAddress\": \"-\", \"TargetUserName\": \"-\"}}",
     "expected": {},
     "absent": [
-      "log.authenticationCandidate",
-      "log.authenticationSource"
+      "event.authenticationCandidate",
+      "event.authenticationSource"
     ],
     "matches": []
   },
@@ -1183,9 +1183,9 @@
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
       "actionResult": "failure",
-      "log.authenticationSource": "CLIENT01",
-      "log.authenticationSourceType": "host",
-      "log.authenticationSourceDomain": "network-source"
+      "event.authenticationSource": "CLIENT01",
+      "event.authenticationSourceType": "host",
+      "event.authenticationSourceDomain": "network-source"
     },
     "absent": [
       "origin.ip",
@@ -1200,17 +1200,17 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "user",
-      "log.authenticationSource": "alice",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "user",
+      "event.authenticationSource": "alice",
       "origin.port": 49152,
       "origin.user": "alice",
-      "log.data.IpAddress": "0:0:0:0:0:0:0:0",
-      "log.authenticationSourceDomain": "EXAMPLE",
-      "log.authenticationCandidate.kerberoastingDetection": "match"
+      "event.data.IpAddress": "0:0:0:0:0:0:0:0",
+      "event.authenticationSourceDomain": "EXAMPLE",
+      "event.authenticationCandidate.kerberoastingDetection": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
+      "event.unparsedOriginIp",
       "origin.ip"
     ],
     "matches": [
@@ -1224,17 +1224,17 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "user",
-      "log.authenticationSource": "alice",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "user",
+      "event.authenticationSource": "alice",
       "origin.port": 49152,
       "origin.user": "alice",
-      "log.data.IpAddress": "::0",
-      "log.authenticationSourceDomain": "EXAMPLE",
-      "log.authenticationCandidate.kerberoastingDetection": "match"
+      "event.data.IpAddress": "::0",
+      "event.authenticationSourceDomain": "EXAMPLE",
+      "event.authenticationCandidate.kerberoastingDetection": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
+      "event.unparsedOriginIp",
       "origin.ip"
     ],
     "matches": [
@@ -1248,17 +1248,17 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "user",
-      "log.authenticationSource": "alice",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "user",
+      "event.authenticationSource": "alice",
       "origin.port": 49152,
       "origin.user": "alice",
-      "log.data.IpAddress": "::ffff:0.0.0.0",
-      "log.authenticationSourceDomain": "EXAMPLE",
-      "log.authenticationCandidate.kerberoastingDetection": "match"
+      "event.data.IpAddress": "::ffff:0.0.0.0",
+      "event.authenticationSourceDomain": "EXAMPLE",
+      "event.authenticationCandidate.kerberoastingDetection": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
+      "event.unparsedOriginIp",
       "origin.ip"
     ],
     "matches": [
@@ -1272,17 +1272,17 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "user",
-      "log.authenticationSource": "alice",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "user",
+      "event.authenticationSource": "alice",
       "origin.port": 49152,
       "origin.user": "alice",
-      "log.data.IpAddress": "::ffff:0:0",
-      "log.authenticationSourceDomain": "EXAMPLE",
-      "log.authenticationCandidate.kerberoastingDetection": "match"
+      "event.data.IpAddress": "::ffff:0:0",
+      "event.authenticationSourceDomain": "EXAMPLE",
+      "event.authenticationCandidate.kerberoastingDetection": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
+      "event.unparsedOriginIp",
       "origin.ip"
     ],
     "matches": [
@@ -1296,17 +1296,17 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "host",
-      "log.authenticationSource": "client01",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "host",
+      "event.authenticationSource": "client01",
       "origin.port": 49152,
       "origin.user": "alice",
-      "log.data.IpAddress": "0:0:0:0:0:0:0:0",
-      "log.authenticationSourceDomain": "network-source",
-      "log.authenticationCandidate.kerberoastingDetection": "match"
+      "event.data.IpAddress": "0:0:0:0:0:0:0:0",
+      "event.authenticationSourceDomain": "network-source",
+      "event.authenticationCandidate.kerberoastingDetection": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
+      "event.unparsedOriginIp",
       "origin.ip"
     ],
     "matches": [
@@ -1320,12 +1320,12 @@
     "expected": {
       "target.user": "alice",
       "origin.user": "alice",
-      "log.data.IpAddress": "::ffff:0.0.0.0"
+      "event.data.IpAddress": "::ffff:0.0.0.0"
     },
     "absent": [
       "origin.ip",
-      "log.authenticationSource",
-      "log.authenticationCandidate"
+      "event.authenticationSource",
+      "event.authenticationCandidate"
     ],
     "matches": []
   },
@@ -1336,18 +1336,18 @@
     "expected": {
       "target.host": "dc01.example.test",
       "deviceTime": "2026-09-17T12:00:00Z",
-      "log.providerName": "Microsoft-Windows-Security-Auditing",
-      "log.authenticationSourceType": "ip",
-      "log.authenticationSource": "::ffff:192.0.2.10",
+      "event.providerName": "Microsoft-Windows-Security-Auditing",
+      "event.authenticationSourceType": "ip",
+      "event.authenticationSource": "::ffff:192.0.2.10",
       "origin.port": 49152,
       "origin.user": "alice",
       "origin.ip": "::ffff:192.0.2.10",
-      "log.authenticationSourceDomain": "network-source",
-      "log.authenticationCandidate.kerberoastingDetection": "match"
+      "event.authenticationSourceDomain": "network-source",
+      "event.authenticationCandidate.kerberoastingDetection": "match"
     },
     "absent": [
-      "log.unparsedOriginIp",
-      "log.data.IpAddress"
+      "event.unparsedOriginIp",
+      "event.data.IpAddress"
     ],
     "matches": [
       "kerberoasting_detection"

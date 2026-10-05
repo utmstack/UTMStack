@@ -87,7 +87,7 @@ func TestSuricataSeverityHistory(t *testing.T) {
 				"@timestamp": stamp, "dataType": "suricata", "dataSource": "synthetic-suricata",
 				"origin":   map[string]any{"ip": "192.0.2.10"},
 				"target":   map[string]any{"ip": "203.0.113.20"},
-				"severity": tc.severity, "log": map[string]any{"eventType": "alert"},
+				"severity": tc.severity, "event": map[string]any{"eventType": "alert"},
 			})
 			if err != nil {
 				t.Fatal(err)

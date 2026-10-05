@@ -1520,7 +1520,7 @@
     "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"resourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"category\":\"AppServiceConsoleLogs\",\"azureKind\":\"signin\",\"azureScope\":\"forged\",\"azureActor\":\"forged\",\"correlationCandidate\":{\"azureAdPasswordSpray\":\"true\"}}",
     "expected": {},
     "absent": [
-      "log.correlationCandidate",
+      "event.correlationCandidate",
       "actionResult"
     ],
     "matches": []
@@ -1565,7 +1565,7 @@
     "dataSource": "collector-test",
     "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"resourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"category\":\"kube-audit-admin\",\"operationName\":\"Microsoft.ContainerService/managedClusters/diagnosticLogs/Read\",\"properties\":{\"log\":\"{\\\"kind\\\": \\\"Event\\\", \\\"apiVersion\\\": \\\"audit.k8s.io/v1\\\", \\\"stage\\\": \\\"ResponseComplete\\\", \\\"verb\\\": \\\"get\\\", \\\"user\\\": {\\\"username\\\": \\\"actor-test\\\"}, \\\"sourceIPs\\\": [\\\"198.51.100.4\\\"], \\\"responseStatus\\\": {\\\"code\\\": 200}, \\\"objectRef\\\": {\\\"resource\\\": \\\"pods\\\"}, \\\"requestURI\\\": \\\"/api/v1/pods\\\"}\"}}",
     "expected": {
-      "log.azureKubernetes.requestURI": "/api/v1/pods"
+      "event.azureKubernetes.requestURI": "/api/v1/pods"
     },
     "absent": [
       "target.url"
@@ -1578,8 +1578,8 @@
     "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"resourceId\":\"/subscriptions/sub-test/providers/Microsoft.KeyVault/vaults/vault-test\",\"category\":\"AuditEvent\",\"operationName\":\"SecretGet\",\"resultType\":\"Success\",\"identity\":{\"claim\":{\"http://schemas.microsoft.com/identity/claims/objectidentifier\":\"principal-test\"}},\"properties\":{\"httpStatusCode\":200}}",
     "expected": {
       "origin.user": "principal-test",
-      "log.azureScopeType": "resource",
-      "log.azureScope": "/subscriptions/sub-test/providers/Microsoft.KeyVault/vaults/vault-test"
+      "event.azureScopeType": "resource",
+      "event.azureScope": "/subscriptions/sub-test/providers/Microsoft.KeyVault/vaults/vault-test"
     },
     "absent": [
       "origin.ip"
@@ -1663,12 +1663,12 @@
     "dataSource": "collector-test",
     "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"resourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"category\":\"AppServiceHTTPLogs\",\"properties\":\"{\\\"CIp\\\": \\\"198.51.100.4\\\", \\\"CsHost\\\": \\\"app.example.test\\\", \\\"ComputerName\\\": \\\"worker-test\\\", \\\"SPort\\\": \\\"443\\\", \\\"CsMethod\\\": \\\"GET\\\", \\\"ScStatus\\\": 403, \\\"CsBytes\\\": 120, \\\"ScBytes\\\": 300, \\\"CsUriStem\\\": \\\"/login\\\", \\\"CsUriQuery\\\": \\\"next=home\\\", \\\"Protocol\\\": \\\"HTTP/1.1\\\", \\\"category\\\": \\\"SignInLogs\\\", \\\"operationName\\\": \\\"Sign-in activity\\\", \\\"azureEnvelope\\\": {\\\"category\\\": \\\"SignInLogs\\\"}, \\\"azureKind\\\": \\\"signin\\\", \\\"correlationCandidate\\\": {\\\"azureAdPasswordSpray\\\": \\\"true\\\"}}\"}",
     "expected": {
-      "log.category": "AppServiceHTTPLogs",
-      "log.azureKind": "http",
+      "event.category": "AppServiceHTTPLogs",
+      "event.azureKind": "http",
       "actionResult": "denied"
     },
     "absent": [
-      "log.correlationCandidate"
+      "event.correlationCandidate"
     ],
     "matches": []
   },

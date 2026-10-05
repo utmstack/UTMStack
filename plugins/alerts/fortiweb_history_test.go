@@ -42,7 +42,7 @@ func TestFortiWebSDKHistory(t *testing.T) {
 		if strings.HasSuffix(r.URL.Path, "/_mapping") {
 			// Text fields exercise the SDK's .keyword mapping resolution; IP
 			// fields exercise exact mappings without that suffix.
-			_, _ = io.WriteString(w, `{"v11-log-firewall-fortiweb-test":{"mappings":{"properties":{"@timestamp":{"type":"date"},"origin":{"properties":{"ip":{"type":"ip"}}},"target":{"properties":{"ip":{"type":"ip"}}},"log":{"properties":{"type":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"subtype":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"action":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"fileUploadViolation":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"maintype":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"severitylevel":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"owasptop10":{"type":"text","fields":{"keyword":{"type":"keyword"}}}}}}}}}`)
+			_, _ = io.WriteString(w, `{"v11-log-firewall-fortiweb-test":{"mappings":{"properties":{"@timestamp":{"type":"date"},"origin":{"properties":{"ip":{"type":"ip"}}},"target":{"properties":{"ip":{"type":"ip"}}},"event":{"properties":{"type":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"subtype":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"action":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"fileUploadViolation":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"maintype":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"severitylevel":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"owasptop10":{"type":"text","fields":{"keyword":{"type":"keyword"}}}}}}}}}`)
 			return
 		}
 		if r.URL.Path != "/v11-log-firewall-fortiweb-*/_search" {
@@ -187,13 +187,13 @@ func TestFortiWebSDKHistory(t *testing.T) {
 			check("expired", mutate(prior, "@timestamp", time.Now().Add(-duration-10*time.Second).UTC().Format(time.RFC3339Nano)), search.Count, false)
 			for _, change := range []struct{ field, value string }{
 				{"origin.ip", "198.51.100.99"}, {"target.ip", "192.0.2.99"},
-				{"log.type", "traffic"}, {"log.subtype", "unrelated-class"}, {"log.action", "Pass"},
+				{"event.type", "traffic"}, {"event.subtype", "unrelated-class"}, {"event.action", "Pass"},
 			} {
 				check("different_"+change.field, mutate(prior, change.field, change.value), search.Count, false)
 			}
 			if test.rule == "owasp_top10_violations" {
 				for _, change := range []struct{ field, value string }{
-					{"log.severitylevel", "Low"}, {"log.maintype", "unrelated-main-class"}, {"log.owasptop10", "unrelated-category"},
+					{"event.severitylevel", "Low"}, {"event.maintype", "unrelated-main-class"}, {"event.owasptop10", "unrelated-category"},
 				} {
 					check("different_"+change.field, mutate(prior, change.field, change.value), search.Count, false)
 				}
@@ -220,10 +220,10 @@ func TestFortiWebSDKHistory(t *testing.T) {
 				}
 			}
 			if test.rule == "file_upload_security_violations" {
-				if gjson.Get(benign, "log.fileUploadViolation").Exists() {
+				if gjson.Get(benign, "event.fileUploadViolation").Exists() {
 					t.Fatal("ordinary request acquired an upload violation marker")
 				}
-				for _, field := range []string{"log.type", "log.subtype", "log.action"} {
+				for _, field := range []string{"event.type", "event.subtype", "event.action"} {
 					if gjson.Get(benign, field).String() != gjson.Get(out, field).String() {
 						t.Fatalf("benign upload history changed %s, masking marker exclusion", field)
 					}

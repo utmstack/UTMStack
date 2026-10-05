@@ -46,7 +46,7 @@ func merakiGroupIdentity(t *testing.T, rule *plugins.Rule, out string) string {
 		if !value.Exists() || value.String() == "" {
 			// The documented standalone legacy Air Marshal envelope lacks the
 			// device header. Collector+BSSID still supplies an actual identity.
-			if field == "lastEvent.log.merakiType" {
+			if field == "lastEvent.event.merakiType" {
 				continue
 			}
 			t.Errorf("positive raw event cannot resolve alert identity field %s", field)
@@ -117,10 +117,10 @@ func TestMerakiAMPRecordIdentityFallback(t *testing.T) {
 	const secondID = "e0421218-60d1-4b97-bc7a-5d7cdca619b5"
 	first := merakiParseEvent(t, cfg, raw, source, firstID, cache)
 	second := merakiParseEvent(t, cfg, raw, source, secondID, cache)
-	if merakiGroupIdentity(t, rule, first) != merakiGroupIdentity(t, rule, second) || gjson.Get(first, "log.malwareGroupingType").String() != "hash" {
+	if merakiGroupIdentity(t, rule, first) != merakiGroupIdentity(t, rule, second) || gjson.Get(first, "event.malwareGroupingType").String() != "hash" {
 		t.Fatal("same valid file hash on the same collector/device must group independently of event ID")
 	}
-	hash := gjson.Get(first, "log.sha256").String()
+	hash := gjson.Get(first, "event.sha256").String()
 	if len(hash) != 64 || !strings.Contains(raw, "sha256="+hash) {
 		t.Fatal("retrospective fixture must carry its actual synthetic SHA256")
 	}
@@ -145,13 +145,13 @@ func TestMerakiAMPRecordIdentityFallback(t *testing.T) {
 			if yes, err := cache.Eval(rule.Where, event.out); err != nil || !yes {
 				t.Fatalf("explicit malicious disposition must remain eligible with actual event ID: %v %v", yes, err)
 			}
-			if gjson.Get(event.out, "log.malwareGroupingType").String() != "event" || gjson.Get(event.out, "log.malwareGroupingKey").String() != event.id {
+			if gjson.Get(event.out, "event.malwareGroupingType").String() != "event" || gjson.Get(event.out, "event.malwareGroupingKey").String() != event.id {
 				t.Fatal("hashless grouping must use the actual ingress record ID")
 			}
 			if gjson.Get(event.out, "origin.ip").Exists() || gjson.Get(event.out, "target.ip").Exists() {
 				t.Fatal("IP-less retrospective event must not acquire an endpoint")
 			}
-			if value != "" && gjson.Get(event.out, "log.sha256").String() != value {
+			if value != "" && gjson.Get(event.out, "event.sha256").String() != value {
 				t.Fatal("malformed vendor hash must remain available for investigation")
 			}
 		}
@@ -165,7 +165,7 @@ func TestMerakiAMPRecordIdentityFallback(t *testing.T) {
 			t.Fatal("file hash and record ID namespaces must remain distinct")
 		}
 		missing := merakiParseEvent(t, cfg, badRaw, source, "", cache)
-		if yes, err := cache.Eval(rule.Where, missing); err != nil || yes || gjson.Get(missing, "log.malwareGroupingKey").Exists() {
+		if yes, err := cache.Eval(rule.Where, missing); err != nil || yes || gjson.Get(missing, "event.malwareGroupingKey").Exists() {
 			t.Fatalf("without a valid hash or actual ingress ID no grouping identity may be invented: %v %v", yes, err)
 		}
 	}

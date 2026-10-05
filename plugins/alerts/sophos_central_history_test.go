@@ -41,7 +41,7 @@ func TestSophosCentralSDKHistory(t *testing.T) {
 		if strings.HasSuffix(r.URL.Path, "/_mapping") {
 			// Text fields exercise the SDK's .keyword mapping resolution; IP and
 			// keyword fields exercise exact mappings without that suffix.
-			_, _ = io.WriteString(w, `{"v11-log-sophos-central-test": {"mappings": {"properties": {"@timestamp": {"type": "date"}, "dataSource": {"type": "text", "fields": {"keyword": {"type": "keyword"}}}, "log": {"properties": {"sophosCentralScope": {"type": "keyword"}, "endpointId": {"type": "text", "fields": {"keyword": {"type": "keyword"}}}, "ip": {"type": "ip"}, "severity": {"type": "keyword"}, "correlationCandidate": {"properties": {"sophosCentral": {"properties": {"behavior": {"type": "keyword"}, "exploit": {"type": "keyword"}, "mtr": {"type": "keyword"}, "ztnaFailure": {"type": "keyword"}}}}}}}}}}}`)
+			_, _ = io.WriteString(w, `{"v11-log-sophos-central-test": {"mappings": {"properties": {"@timestamp": {"type": "date"}, "dataSource": {"type": "text", "fields": {"keyword": {"type": "keyword"}}}, "event": {"properties": {"sophosCentralScope": {"type": "keyword"}, "endpointId": {"type": "text", "fields": {"keyword": {"type": "keyword"}}}, "ip": {"type": "ip"}, "severity": {"type": "keyword"}, "correlationCandidate": {"properties": {"sophosCentral": {"properties": {"behavior": {"type": "keyword"}, "exploit": {"type": "keyword"}, "mtr": {"type": "keyword"}, "ztnaFailure": {"type": "keyword"}}}}}}}}}}}`)
 			return
 		}
 		if r.URL.Path != "/v11-log-sophos-central-*/_search" {
@@ -146,7 +146,7 @@ func TestSophosCentralSDKHistory(t *testing.T) {
 			}
 			expectedClauses = len(search.With) + 1
 			out := sophosCentralParse(t, cfg, fixture.Raw, fixture.DataSource, cache)
-			marker := "log.correlationCandidate.sophosCentral." + c.marker
+			marker := "event.correlationCandidate.sophosCentral." + c.marker
 			if match, e := cache.Eval(rule.Where, out); e != nil || !match || gjson.Get(out, marker).String() != "match" {
 				t.Fatal("positive predicate/marker mismatch")
 			}
@@ -192,9 +192,9 @@ func TestSophosCentralSDKHistory(t *testing.T) {
 				t.Fatal("missing noncandidate fixture")
 			}
 			normalized := sophosCentralParse(t, cfg, benign.Raw, fixture.DataSource, cache)
-			identity := "log.endpointId"
+			identity := "event.endpointId"
 			if c.marker == "ztnaFailure" {
-				identity = "log.ip"
+				identity = "event.ip"
 			}
 			if gjson.Get(normalized, identity).String() != gjson.Get(out, identity).String() {
 				t.Fatal("benign comparison must retain history identity")

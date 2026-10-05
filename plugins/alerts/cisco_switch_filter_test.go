@@ -73,21 +73,21 @@ func cswWhere(step *plugins.Step) string {
 	return where
 }
 
-// Before this revision the 'medium' severity step read log.severity=="4".
+// Before this revision the 'medium' severity step read event.severity=="4".
 var (
-	cswRawLog      = regexp.MustCompile(`(^|[^"\w.])log\.[A-Za-z0-9_.]+\s*(==|!=|>=|<=|<|>)`)
-	cswOldMedium   = `log.severity=="4"`
+	cswRawLog      = regexp.MustCompile(`(^|[^"\w.])event\.[A-Za-z0-9_.]+\s*(==|!=|>=|<=|<|>)`)
+	cswOldMedium   = `event.severity=="4"`
 	cswNoLog       = `{"id":"x","dataType":"cisco-switch","dataSource":"fixture-switch","tenantId":"` + cswTenant + `","raw":"x"}`
-	cswNoSeverity  = `{"id":"x","dataType":"cisco-switch","dataSource":"fixture-switch","tenantId":"` + cswTenant + `","raw":"x","log":{"msg":"on /var"}}`
+	cswNoSeverity  = `{"id":"x","dataType":"cisco-switch","dataSource":"fixture-switch","tenantId":"` + cswTenant + `","raw":"x","event":{"msg":"on /var"}}`
 	cswParsedDraft = `{"id":"x","dataType":"cisco-switch","dataSource":"fixture-switch","tenantId":"` + cswTenant + `","raw":"x",` +
-		`"log":{"msg":"SW_MATM-4-MACFLAP_NOTIF: Host 0200.0000.0101 in vlan 910 is flapping between port Gi9/0/41 and port Gi9/0/42",` +
+		`"event":{"msg":"SW_MATM-4-MACFLAP_NOTIF: Host 0200.0000.0101 in vlan 910 is flapping between port Gi9/0/41 and port Gi9/0/42",` +
 		`"facility":"SW_MATM","severity":"4","facilityMnemonic":"MACFLAP_NOTIF",` +
 		`"ciscoMsg":"Host 0200.0000.0101 in vlan 910 is flapping between port Gi9/0/41 and port Gi9/0/42"}}`
 )
 
-// No where clause compares a log.* field directly. Such a clause fails, and the engine stores the
+// No where clause compares a event.* field directly. Such a clause fails, and the engine stores the
 // error on the event, when the draft has no log object (a line without any '%') or no
-// log.severity (a '%' but no FACILITY-SEVERITY-MNEMONIC header). Every clause evaluates without
+// event.severity (a '%' but no FACILITY-SEVERITY-MNEMONIC header). Every clause evaluates without
 // an error on both kinds of draft and on a parsed one.
 func TestCiscoSwitchWhereClauses(t *testing.T) {
 	steps := cswPipeline(t).Steps
@@ -113,7 +113,7 @@ func TestCiscoSwitchWhereClauses(t *testing.T) {
 		}
 	}
 	if len(raw) > 0 {
-		t.Errorf("%d where clauses compare log.* directly and fail without a log object, for example %q", len(raw), raw[0])
+		t.Errorf("%d where clauses compare event.* directly and fail without a log object, for example %q", len(raw), raw[0])
 	}
 	if clauses < 23 {
 		t.Errorf("%d where clauses, want at least 23", clauses)
@@ -166,12 +166,12 @@ func cswSeverity(t *testing.T, cache *plugins.CELCache, adds []*plugins.Add, doc
 // before this revision such a level 4 got no severity. No sampled record has such a level.
 func TestCiscoSwitchSeverityClauses(t *testing.T) {
 	adds := cswSeveritySteps(t)
-	if got := adds[1].Where; got != `equals("log.severity", "4")` {
+	if got := adds[1].Where; got != `equals("event.severity", "4")` {
 		t.Fatalf("medium step: %q", got)
 	}
 	cache := plugins.NewCELCache("cisco-switch-severity")
 	doc := func(level string) string {
-		return fmt.Sprintf(`{"raw":"x","log":{"facility":"FAC","severity":%q,"facilityMnemonic":"MNEM"}}`, level)
+		return fmt.Sprintf(`{"raw":"x","event":{"facility":"FAC","severity":%q,"facilityMnemonic":"MNEM"}}`, level)
 	}
 	want := map[string]string{"0": "high", "1": "high", "2": "high", "3": "high", "4": "medium", "5": "low",
 		"6": "low", "7": "low", "8": cswAbsent, "SP": cswAbsent, "DFC4": cswAbsent, "": cswAbsent, "44": cswAbsent, "4 ": cswAbsent}
@@ -529,40 +529,40 @@ var cswChangeCases = []struct {
 	change, fixture, path string
 	want                  any
 }{
-	{"F-1", "unparsed-no-percent", "log", nil},
+	{"F-1", "unparsed-no-percent", "event", nil},
 	{"F-1", "unparsed-no-percent", "severity", nil},
-	{"F-1", "unparsed-percent-without-header", "log.msg", "on /var"},
-	{"F-1", "unparsed-percent-without-header", "log.severity", nil},
+	{"F-1", "unparsed-percent-without-header", "event.msg", "on /var"},
+	{"F-1", "unparsed-percent-without-header", "event.severity", nil},
 	{"F-1", "unparsed-percent-without-header", "severity", nil},
 	{"F-1", "header-seq-ms", "severity", "medium"},
 	{"F-1 control", "severity-3-link", "severity", "high"},
 	{"F-1 control", "severity-5-lineproto", "severity", "low"},
-	{"F-1 control", "severity-5-subfacility", "log.subFacility", "SP"},
+	{"F-1 control", "severity-5-subfacility", "event.subFacility", "SP"},
 	{"F-1 control", "severity-5-subfacility", "severity", "low"},
-	{"F-1 control", "misrouted-firepower-shape", "log.facility", "FTD"},
+	{"F-1 control", "misrouted-firepower-shape", "event.facility", "FTD"},
 	{"F-1 control", "misrouted-firepower-shape", "severity", "high"},
 	{"F-2", "header-seq-ms", "origin.mac", "0200.0000.0101"},
-	{"F-2", "header-seq-ms", "log.vlan", "910"},
-	{"F-2", "header-seq-ms", "log.firstPort", "Gi9/0/41"},
-	{"F-2", "header-seq-ms", "log.secondPort", "Gi9/0/42"},
+	{"F-2", "header-seq-ms", "event.vlan", "910"},
+	{"F-2", "header-seq-ms", "event.firstPort", "Gi9/0/41"},
+	{"F-2", "header-seq-ms", "event.secondPort", "Gi9/0/42"},
 	{"F-2", "header-star-year", "origin.mac", "0200.0000.0102"},
-	{"F-2", "header-star-year", "log.firstPort", "Te9/1/2"},
-	{"F-2", "header-star-year", "log.secondPort", "Te9/1/1"},
+	{"F-2", "header-star-year", "event.firstPort", "Te9/1/2"},
+	{"F-2", "header-star-year", "event.secondPort", "Te9/1/1"},
 	{"F-2", "header-dot", "origin.mac", "0200.0000.0103"},
 	{"F-2", "flap-upper-hex-port-channel", "origin.mac", "0200.00AB.CD01"},
-	{"F-2", "flap-upper-hex-port-channel", "log.vlan", "930"},
-	{"F-2", "flap-upper-hex-port-channel", "log.firstPort", "Po9"},
-	{"F-2", "flap-upper-hex-port-channel", "log.secondPort", "Gi9/0/43"},
-	{"F-2", "flap-trailing-text", "log.secondPort", "Gi9/0/42"},
+	{"F-2", "flap-upper-hex-port-channel", "event.vlan", "930"},
+	{"F-2", "flap-upper-hex-port-channel", "event.firstPort", "Po9"},
+	{"F-2", "flap-upper-hex-port-channel", "event.secondPort", "Gi9/0/43"},
+	{"F-2", "flap-trailing-text", "event.secondPort", "Gi9/0/42"},
 	{"F-2", "flap-slot-branch", "origin.mac", "0200.0000.0105"},
-	{"F-2", "flap-slot-branch", "log.slot", "SLOT3"},
+	{"F-2", "flap-slot-branch", "event.slot", "SLOT3"},
 	{"F-2 near miss", "flap-colon-mac", "origin.mac", nil},
-	{"F-2 near miss", "flap-colon-mac", "log.vlan", nil},
-	{"F-2 near miss", "flap-colon-mac", "log.firstPort", nil},
+	{"F-2 near miss", "flap-colon-mac", "event.vlan", nil},
+	{"F-2 near miss", "flap-colon-mac", "event.firstPort", nil},
 	{"F-2 near miss", "flap-thirteen-hex", "origin.mac", nil},
 	{"F-2 near miss", "flap-no-vlan", "origin.mac", nil},
 	{"F-2 near miss", "flap-truncated", "origin.mac", nil},
-	{"F-2 near miss", "flap-truncated", "log.firstPort", nil},
+	{"F-2 near miss", "flap-truncated", "event.firstPort", nil},
 	{"F-2 near miss", "flap-under-sw-vlan", "origin.mac", nil},
 	{"F-3", "sisf-excess-arp", "origin.mac", "0200.0000.0201"},
 	{"F-3", "sisf-no-prefix", "origin.mac", "0200.0000.0202"},
@@ -614,7 +614,7 @@ func TestCiscoSwitchExtractionModel(t *testing.T) {
 		if len(errs[name]) > 0 {
 			t.Errorf("%s: %d where errors, first: %.200s", name, len(errs[name]), errs[name][0])
 		}
-		if _, ok := stored[name]["log"]; ok != want.LogObject {
+		if _, ok := stored[name]["event"]; ok != want.LogObject {
 			t.Errorf("%s: log object present=%t", name, ok)
 		}
 		got := cswFields(stored[name])
@@ -637,7 +637,7 @@ func TestCiscoSwitchExtractionModel(t *testing.T) {
 
 // Interface names are text. origin.port and target.port are whole numbers (uint32) in the SDK
 // Event, and an interface name there fails the conversion of the whole event, so the flap
-// interfaces go to log.firstPort and log.secondPort. Only the logging-host step writes a port,
+// interfaces go to event.firstPort and event.secondPort. Only the logging-host step writes a port,
 // with a digits-only pattern, and a cast to int under the same condition follows it.
 func TestCiscoSwitchPortFields(t *testing.T) {
 	steps := cswPipeline(t).Steps
@@ -664,7 +664,7 @@ func TestCiscoSwitchPortFields(t *testing.T) {
 					next.Where != g.Where+` && exists("target.port")` {
 					t.Errorf("step %d: target.port is not cast to int under the same condition: %v", i, next)
 				}
-			case "log.firstPort", "log.secondPort":
+			case "event.firstPort", "event.secondPort":
 				if p.Pattern != "{{.notSpace}}" {
 					t.Errorf("step %d: %s from %q", i, p.FieldName, p.Pattern)
 				}
@@ -685,10 +685,10 @@ func TestCiscoSwitchPortFields(t *testing.T) {
 				t.Errorf("%s: target.port = %v (%T), want a number", name, v, v)
 			}
 		}
-		if _, ok := cswGet(e, "log.firstPort"); ok {
+		if _, ok := cswGet(e, "event.firstPort"); ok {
 			flaps++
-			if _, ok := cswGet(e, "log.secondPort"); !ok {
-				t.Errorf("%s: log.firstPort without log.secondPort", name)
+			if _, ok := cswGet(e, "event.secondPort"); !ok {
+				t.Errorf("%s: event.firstPort without event.secondPort", name)
 			}
 		}
 	}
@@ -753,10 +753,10 @@ func cswPlaceholders(searches []*plugins.SearchRequest, out map[string]bool) {
 }
 
 // The VLAN hopping condition of v11 4a000bc4, which this revision leaves as it is.
-const cswVlanWhere = `(equals("log.facility", "SW_VLAN") && oneOf("log.facilityMnemonic", ["VLAN_INCONSISTENCY", "MACFLAP_NOTIF", "TRUNK_MODE_CHANGE"]))
-|| (equals("log.facility", "DTP") && oneOf("log.facilityMnemonic", ["NONTRUNKPORTON", "DOMAINMISMATCH", "TRUNKPORTON"]))
-|| regexMatch("log.message", "(?i)(received 802.1Q BPDU on non trunk|native vlan mismatch|inconsistent vlan|double tag)")
-|| (lessOrEqual("log.severity", 4) && regexMatch("log.message", "(?i)(vlan.*tag.*tag|switch.*spoofing|dtp.*negotiation)"))`
+const cswVlanWhere = `(equals("event.facility", "SW_VLAN") && oneOf("event.facilityMnemonic", ["VLAN_INCONSISTENCY", "MACFLAP_NOTIF", "TRUNK_MODE_CHANGE"]))
+|| (equals("event.facility", "DTP") && oneOf("event.facilityMnemonic", ["NONTRUNKPORTON", "DOMAINMISMATCH", "TRUNKPORTON"]))
+|| regexMatch("event.message", "(?i)(received 802.1Q BPDU on non trunk|native vlan mismatch|inconsistent vlan|double tag)")
+|| (lessOrEqual("event.severity", 4) && regexMatch("event.message", "(?i)(vlan.*tag.*tag|switch.*spoofing|dtp.*negotiation)"))`
 
 // Names, metadata, impact, adversary side and history searches stay as they were. The MAC rule
 // deduplicates by adversary.mac instead of grouping by it; the VLAN rule is unchanged, condition
@@ -792,13 +792,13 @@ func TestCiscoSwitchRuleContract(t *testing.T) {
 		t.Errorf("VLAN hopping condition changed:\n%s", got)
 	}
 	mac := strings.TrimSpace(rules["mac_address_spoofing"].Where)
-	if !strings.HasPrefix(mac, `exists("origin.mac") && !regexMatch("log.msg", "(?i)(mac.*flap|is flapping between port)") && (`) ||
-		!strings.HasSuffix(mac, ")") || strings.Contains(mac, "log.message") || strings.Contains(mac, "SW_MATM") {
-		t.Errorf("MAC condition must require origin.mac, leave out flaps and read log.msg: %s", mac)
+	if !strings.HasPrefix(mac, `exists("origin.mac") && !regexMatch("event.msg", "(?i)(mac.*flap|is flapping between port)") && (`) ||
+		!strings.HasSuffix(mac, ")") || strings.Contains(mac, "event.message") || strings.Contains(mac, "SW_MATM") {
+		t.Errorf("MAC condition must require origin.mac, leave out flaps and read event.msg: %s", mac)
 	}
 	arp := strings.TrimSpace(rules["arp_poisoning_detection"].Where)
-	if !strings.HasPrefix(arp, `exists("origin.ip") && (`) || !strings.HasSuffix(arp, ")") || strings.Contains(arp, "log.message") {
-		t.Errorf("ARP condition must require origin.ip and read log.msg: %s", arp)
+	if !strings.HasPrefix(arp, `exists("origin.ip") && (`) || !strings.HasSuffix(arp, ")") || strings.Contains(arp, "event.message") {
+		t.Errorf("ARP condition must require origin.ip and read event.msg: %s", arp)
 	}
 }
 
@@ -814,10 +814,10 @@ func cswEvent(t *testing.T, body string) *plugins.Event {
 
 const (
 	cswFlapText = "Host 0200.0000.0101 in vlan 910 is flapping between port Gi9/0/41 and port Gi9/0/42"
-	cswFlapBody = `"log":{"facility":"SW_MATM","facilityMnemonic":"MACFLAP_NOTIF","severity":"4",` +
+	cswFlapBody = `"event":{"facility":"SW_MATM","facilityMnemonic":"MACFLAP_NOTIF","severity":"4",` +
 		`"msg":"SW_MATM-4-MACFLAP_NOTIF: ` + cswFlapText + `","ciscoMsg":"` + cswFlapText + `",` +
 		`"vlan":"910","firstPort":"Gi9/0/41","secondPort":"Gi9/0/42"},"origin":{"mac":"0200.0000.0101"}`
-	cswDaiBody = `"log":{"facility":"SW_DAI","facilityMnemonic":"INVALID_ARP","severity":"4","msg":"SW_DAI-4-INVALID_ARP: 1 Invalid ARPs (Req) on Gi9/0/44, vlan 910."},"actionResult":"blocked"`
+	cswDaiBody = `"event":{"facility":"SW_DAI","facilityMnemonic":"INVALID_ARP","severity":"4","msg":"SW_DAI-4-INVALID_ARP: 1 Invalid ARPs (Req) on Gi9/0/44, vlan 910."},"actionResult":"blocked"`
 )
 
 // Synthetic normalized events. The wording of every text that is not a flap, SISF or SSH message is
@@ -827,33 +827,33 @@ var cswRuleCases = []struct {
 	want             bool
 }{
 	{"mac_address_spoofing", "flap as this filter stores it", cswFlapBody, false},
-	{"mac_address_spoofing", "flap wording under another mnemonic, with an address", `"log":{"facility":"EXAMPLE","facilityMnemonic":"MAC_FLAP","severity":"2","msg":"EXAMPLE-2-MAC_FLAP: duplicate mac 0200.0000.0401 is flapping between port Gi9/0/41 and port Gi9/0/42"},"origin":{"mac":"0200.0000.0401"}`, false},
-	{"mac_address_spoofing", "duplicate MAC text with the address", `"log":{"facility":"EXAMPLE","facilityMnemonic":"DUP_MAC","severity":"4","msg":"EXAMPLE-4-DUP_MAC: Duplicate MAC address 0200.0000.0402 detected"},"origin":{"mac":"0200.0000.0402"}`, true},
-	{"mac_address_spoofing", "duplicate MAC text without an address", `"log":{"facility":"EXAMPLE","facilityMnemonic":"DUP_MAC","severity":"4","msg":"EXAMPLE-4-DUP_MAC: Duplicate MAC address 0200.0000.0402 detected"}`, false},
-	{"mac_address_spoofing", "duplicate MAC text only in log.message", `"log":{"facility":"EXAMPLE","facilityMnemonic":"DUP_MAC","severity":"4","message":"Duplicate MAC address 0200.0000.0402 detected"},"origin":{"mac":"0200.0000.0402"}`, false},
-	{"mac_address_spoofing", "MAC move text with the address", `"log":{"facility":"EXAMPLE","facilityMnemonic":"MAC_MOVE","severity":"5","msg":"EXAMPLE-5-MAC_MOVE: MAC 0200.0000.0403 moved between port Gi9/0/41 and port Gi9/0/42"},"origin":{"mac":"0200.0000.0403"}`, true},
-	{"mac_address_spoofing", "MAC conflict text at level 3 with the address", `"log":{"facility":"EXAMPLE","facilityMnemonic":"CONFLICT","severity":"3","msg":"EXAMPLE-3-CONFLICT: MAC address conflict for 0200.0000.0404"},"origin":{"mac":"0200.0000.0404"}`, true},
-	{"mac_address_spoofing", "MAC conflict text at level 5 with the address", `"log":{"facility":"EXAMPLE","facilityMnemonic":"CONFLICT","severity":"5","msg":"EXAMPLE-5-CONFLICT: MAC address conflict for 0200.0000.0404"},"origin":{"mac":"0200.0000.0404"}`, false},
+	{"mac_address_spoofing", "flap wording under another mnemonic, with an address", `"event":{"facility":"EXAMPLE","facilityMnemonic":"MAC_FLAP","severity":"2","msg":"EXAMPLE-2-MAC_FLAP: duplicate mac 0200.0000.0401 is flapping between port Gi9/0/41 and port Gi9/0/42"},"origin":{"mac":"0200.0000.0401"}`, false},
+	{"mac_address_spoofing", "duplicate MAC text with the address", `"event":{"facility":"EXAMPLE","facilityMnemonic":"DUP_MAC","severity":"4","msg":"EXAMPLE-4-DUP_MAC: Duplicate MAC address 0200.0000.0402 detected"},"origin":{"mac":"0200.0000.0402"}`, true},
+	{"mac_address_spoofing", "duplicate MAC text without an address", `"event":{"facility":"EXAMPLE","facilityMnemonic":"DUP_MAC","severity":"4","msg":"EXAMPLE-4-DUP_MAC: Duplicate MAC address 0200.0000.0402 detected"}`, false},
+	{"mac_address_spoofing", "duplicate MAC text only in event.message", `"event":{"facility":"EXAMPLE","facilityMnemonic":"DUP_MAC","severity":"4","message":"Duplicate MAC address 0200.0000.0402 detected"},"origin":{"mac":"0200.0000.0402"}`, false},
+	{"mac_address_spoofing", "MAC move text with the address", `"event":{"facility":"EXAMPLE","facilityMnemonic":"MAC_MOVE","severity":"5","msg":"EXAMPLE-5-MAC_MOVE: MAC 0200.0000.0403 moved between port Gi9/0/41 and port Gi9/0/42"},"origin":{"mac":"0200.0000.0403"}`, true},
+	{"mac_address_spoofing", "MAC conflict text at level 3 with the address", `"event":{"facility":"EXAMPLE","facilityMnemonic":"CONFLICT","severity":"3","msg":"EXAMPLE-3-CONFLICT: MAC address conflict for 0200.0000.0404"},"origin":{"mac":"0200.0000.0404"}`, true},
+	{"mac_address_spoofing", "MAC conflict text at level 5 with the address", `"event":{"facility":"EXAMPLE","facilityMnemonic":"CONFLICT","severity":"5","msg":"EXAMPLE-5-CONFLICT: MAC address conflict for 0200.0000.0404"},"origin":{"mac":"0200.0000.0404"}`, false},
 	{"mac_address_spoofing", "SW_DAI with an address (needs a future mapping, D-3)", cswDaiBody + `,"origin":{"mac":"0200.0000.0405"}`, true},
 	{"mac_address_spoofing", "SW_DAI as this filter stores it", cswDaiBody, false},
-	{"mac_address_spoofing", "SISF as this filter stores it", `"log":{"facility":"SISF","facilityMnemonic":"EXCESS_ARP_ACTIVITY","severity":"4","msg":"SISF-4-EXCESS_ARP_ACTIVITY: Excessive ARP activity detected for the client 0200.0000.0201. client is brought down and added to the exclusion list"},"origin":{"mac":"0200.0000.0201"}`, false},
+	{"mac_address_spoofing", "SISF as this filter stores it", `"event":{"facility":"SISF","facilityMnemonic":"EXCESS_ARP_ACTIVITY","severity":"4","msg":"SISF-4-EXCESS_ARP_ACTIVITY: Excessive ARP activity detected for the client 0200.0000.0201. client is brought down and added to the exclusion list"},"origin":{"mac":"0200.0000.0201"}`, false},
 	{"arp_poisoning_detection", "SW_DAI with a source address (needs a future mapping, D-3)", cswDaiBody + `,"origin":{"ip":"192.0.2.51"}`, true},
 	{"arp_poisoning_detection", "SW_DAI as this filter stores it", cswDaiBody, false},
-	{"arp_poisoning_detection", "IP DUPADDR with an address", `"log":{"facility":"IP","facilityMnemonic":"DUPADDR","severity":"4","msg":"IP-4-DUPADDR: Duplicate address 192.0.2.54 on Vlan910, sourced by 0200.0000.0304"},"origin":{"ip":"192.0.2.54"}`, true},
-	{"arp_poisoning_detection", "IP SOURCEGUARD as this filter stores it", `"log":{"facility":"IP","facilityMnemonic":"SOURCEGUARD","severity":"4","msg":"IP-4-SOURCEGUARD: IP source guard deny on Gi9/0/44 vlan 910 for 192.0.2.55"}`, false},
-	{"arp_poisoning_detection", "ARP phrase in log.msg with an address", `"log":{"facility":"EXAMPLE","facilityMnemonic":"ARP","severity":"4","msg":"EXAMPLE-4-ARP: gratuitous arp received from 192.0.2.56"},"origin":{"ip":"192.0.2.56"}`, true},
-	{"arp_poisoning_detection", "ARP phrase only in log.message", `"log":{"facility":"EXAMPLE","facilityMnemonic":"ARP","severity":"4","message":"gratuitous arp received from 192.0.2.56"},"origin":{"ip":"192.0.2.56"}`, false},
-	{"arp_poisoning_detection", "ARP phrase with capitals (contains is case-sensitive, D-3)", `"log":{"facility":"EXAMPLE","facilityMnemonic":"ARP","severity":"4","msg":"EXAMPLE-4-ARP: Gratuitous ARP received from 192.0.2.56"},"origin":{"ip":"192.0.2.56"}`, false},
-	{"arp_poisoning_detection", "spoofing phrase at level 3", `"log":{"facility":"EXAMPLE","facilityMnemonic":"ARP","severity":"3","msg":"EXAMPLE-3-ARP: possible arp spoofing from 192.0.2.57"},"origin":{"ip":"192.0.2.57"}`, true},
-	{"arp_poisoning_detection", "spoofing phrase at level 5", `"log":{"facility":"EXAMPLE","facilityMnemonic":"ARP","severity":"5","msg":"EXAMPLE-5-ARP: possible arp spoofing from 192.0.2.57"},"origin":{"ip":"192.0.2.57"}`, false},
-	{"arp_poisoning_detection", "SSH as this filter stores it", `"log":{"facility":"SSH","facilityMnemonic":"SSH2_UNEXPECTED_MSG","severity":"4","msg":"SSH-4-SSH2_UNEXPECTED_MSG: Unexpected message type has arrived. Terminating the connection from 198.51.100.21"},"origin":{"ip":"198.51.100.21"}`, false},
-	{"vlan_hopping_attempts", "SW_VLAN VLAN_INCONSISTENCY", `"log":{"facility":"SW_VLAN","facilityMnemonic":"VLAN_INCONSISTENCY","severity":"4"}`, true},
-	{"vlan_hopping_attempts", "DTP TRUNKPORTON", `"log":{"facility":"DTP","facilityMnemonic":"TRUNKPORTON","severity":"5"}`, true},
-	{"vlan_hopping_attempts", "flap text under SW_VLAN", `"log":{"facility":"SW_VLAN","facilityMnemonic":"MACFLAP_NOTIF","severity":"4"}`, true},
+	{"arp_poisoning_detection", "IP DUPADDR with an address", `"event":{"facility":"IP","facilityMnemonic":"DUPADDR","severity":"4","msg":"IP-4-DUPADDR: Duplicate address 192.0.2.54 on Vlan910, sourced by 0200.0000.0304"},"origin":{"ip":"192.0.2.54"}`, true},
+	{"arp_poisoning_detection", "IP SOURCEGUARD as this filter stores it", `"event":{"facility":"IP","facilityMnemonic":"SOURCEGUARD","severity":"4","msg":"IP-4-SOURCEGUARD: IP source guard deny on Gi9/0/44 vlan 910 for 192.0.2.55"}`, false},
+	{"arp_poisoning_detection", "ARP phrase in event.msg with an address", `"event":{"facility":"EXAMPLE","facilityMnemonic":"ARP","severity":"4","msg":"EXAMPLE-4-ARP: gratuitous arp received from 192.0.2.56"},"origin":{"ip":"192.0.2.56"}`, true},
+	{"arp_poisoning_detection", "ARP phrase only in event.message", `"event":{"facility":"EXAMPLE","facilityMnemonic":"ARP","severity":"4","message":"gratuitous arp received from 192.0.2.56"},"origin":{"ip":"192.0.2.56"}`, false},
+	{"arp_poisoning_detection", "ARP phrase with capitals (contains is case-sensitive, D-3)", `"event":{"facility":"EXAMPLE","facilityMnemonic":"ARP","severity":"4","msg":"EXAMPLE-4-ARP: Gratuitous ARP received from 192.0.2.56"},"origin":{"ip":"192.0.2.56"}`, false},
+	{"arp_poisoning_detection", "spoofing phrase at level 3", `"event":{"facility":"EXAMPLE","facilityMnemonic":"ARP","severity":"3","msg":"EXAMPLE-3-ARP: possible arp spoofing from 192.0.2.57"},"origin":{"ip":"192.0.2.57"}`, true},
+	{"arp_poisoning_detection", "spoofing phrase at level 5", `"event":{"facility":"EXAMPLE","facilityMnemonic":"ARP","severity":"5","msg":"EXAMPLE-5-ARP: possible arp spoofing from 192.0.2.57"},"origin":{"ip":"192.0.2.57"}`, false},
+	{"arp_poisoning_detection", "SSH as this filter stores it", `"event":{"facility":"SSH","facilityMnemonic":"SSH2_UNEXPECTED_MSG","severity":"4","msg":"SSH-4-SSH2_UNEXPECTED_MSG: Unexpected message type has arrived. Terminating the connection from 198.51.100.21"},"origin":{"ip":"198.51.100.21"}`, false},
+	{"vlan_hopping_attempts", "SW_VLAN VLAN_INCONSISTENCY", `"event":{"facility":"SW_VLAN","facilityMnemonic":"VLAN_INCONSISTENCY","severity":"4"}`, true},
+	{"vlan_hopping_attempts", "DTP TRUNKPORTON", `"event":{"facility":"DTP","facilityMnemonic":"TRUNKPORTON","severity":"5"}`, true},
+	{"vlan_hopping_attempts", "flap text under SW_VLAN", `"event":{"facility":"SW_VLAN","facilityMnemonic":"MACFLAP_NOTIF","severity":"4"}`, true},
 	{"vlan_hopping_attempts", "flap as this filter stores it", cswFlapBody, false},
-	{"vlan_hopping_attempts", "SW_VLAN mnemonic not listed", `"log":{"facility":"SW_VLAN","facilityMnemonic":"VTPMODECHANGE","severity":"6"}`, false},
-	{"vlan_hopping_attempts", "text branch in log.message (unchanged; nothing writes it, D-4)", `"log":{"facility":"CDP","facilityMnemonic":"NATIVE_VLAN_MISMATCH","severity":"4","message":"Native VLAN mismatch discovered"}`, true},
-	{"vlan_hopping_attempts", "same text in log.msg", `"log":{"facility":"CDP","facilityMnemonic":"NATIVE_VLAN_MISMATCH","severity":"4","msg":"CDP-4-NATIVE_VLAN_MISMATCH: Native VLAN mismatch discovered"}`, false},
+	{"vlan_hopping_attempts", "SW_VLAN mnemonic not listed", `"event":{"facility":"SW_VLAN","facilityMnemonic":"VTPMODECHANGE","severity":"6"}`, false},
+	{"vlan_hopping_attempts", "text branch in event.message (unchanged; nothing writes it, D-4)", `"event":{"facility":"CDP","facilityMnemonic":"NATIVE_VLAN_MISMATCH","severity":"4","message":"Native VLAN mismatch discovered"}`, true},
+	{"vlan_hopping_attempts", "same text in event.msg", `"event":{"facility":"CDP","facilityMnemonic":"NATIVE_VLAN_MISMATCH","severity":"4","msg":"CDP-4-NATIVE_VLAN_MISMATCH: Native VLAN mismatch discovered"}`, false},
 }
 
 // SDK v1.1.33 CEL on synthetic normalized events for the three rule conditions.

@@ -147,8 +147,8 @@
     "result": "",
     "expected": {
       "target.ip": "192.0.2.8",
-      "log.eventType": "KLSRV_HOST_STATUS_CRITICAL",
-      "log.format": "ksc-syslog"
+      "event.eventType": "KLSRV_HOST_STATUS_CRITICAL",
+      "event.format": "ksc-syslog"
     },
     "absent": [
       "actionResult",
@@ -162,8 +162,8 @@
     "result": "",
     "expected": {
       "target.ip": "192.0.2.8",
-      "log.eventType": "KLSRV_HOST_OUT_CONTROL",
-      "log.format": "ksc-syslog"
+      "event.eventType": "KLSRV_HOST_OUT_CONTROL",
+      "event.format": "ksc-syslog"
     },
     "absent": [
       "actionResult",
@@ -180,7 +180,7 @@
     },
     "expected": {
       "target.ip": "192.0.2.8",
-      "log.format": "ksc-syslog"
+      "event.format": "ksc-syslog"
     },
     "absent": [
       "actionResult",
@@ -195,7 +195,7 @@
     "expected": {
       "origin.ip": "198.51.100.9",
       "target.ip": "192.0.2.8",
-      "log.msg": "injection into lsass"
+      "event.msg": "injection into lsass"
     },
     "absent": [
       "actionResult"
@@ -207,7 +207,7 @@
     "dataSource": "synthetic-kaspersky",
     "result": "",
     "expected": {
-      "log.msg": "text src\\=198.51.100.99",
+      "event.msg": "text src\\=198.51.100.99",
       "target.ip": "192.0.2.8"
     },
     "absent": [

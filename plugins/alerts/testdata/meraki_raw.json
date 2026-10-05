@@ -8,9 +8,9 @@
       "target.ip": "198.51.100.9",
       "origin.port": 53150,
       "target.port": 80,
-      "log.eventType": "security_event",
-      "log.alertType": "security_filtering_file_scanned",
-      "log.disposition": "malicious",
+      "event.eventType": "security_event",
+      "event.alertType": "security_filtering_file_scanned",
+      "event.disposition": "malicious",
       "target.url": "https://files.example.invalid/test.bin",
       "actionResult": "denied",
       "target.sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
@@ -25,7 +25,7 @@
     "raw": "1720051237.124589040 LAB-MX security_event security_filtering_disposition_change name=Synthetic sha256=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa disposition=malicious action=allow",
     "dataSource": "synthetic-relay",
     "expected": {
-      "log.disposition": "malicious",
+      "event.disposition": "malicious",
       "target.sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
     },
     "absent": [
@@ -50,9 +50,9 @@
     "raw": "1720051237.124589040 LAB-MX security_event security_filtering_file_scanned url=https://files.example.invalid/test.bin src=192.0.2.8:53150 dst=198.51.100.9:80 mac=02:00:00:00:00:08 name='Synthetic test malware' sha256=invalid disposition=malicious action=block",
     "dataSource": "synthetic-relay",
     "expected": {
-      "log.sha256": "invalid",
-      "log.malwareGroupingKey": "event-invalid-hash",
-      "log.malwareGroupingType": "event"
+      "event.sha256": "invalid",
+      "event.malwareGroupingKey": "event-invalid-hash",
+      "event.malwareGroupingType": "event"
     },
     "absent": [],
     "matches": [
@@ -84,11 +84,11 @@
     "raw": "1720051237.124589040 LAB-MX security_event ids_alerted signature=1:28423:1 priority=1 timestamp=1720051237.1 dhost=02:00:00:00:00:08 direction=ingress protocol=tcp/ip src=198.51.100.9:80 dst=192.0.2.8:53023 decision=blocked action=rst message: Synthetic exploit detection",
     "dataSource": "synthetic-relay",
     "expected": {
-      "log.alertType": "ids_alerted",
+      "event.alertType": "ids_alerted",
       "origin.ip": "198.51.100.9",
       "target.ip": "192.0.2.8",
-      "log.priority": "1",
-      "log.dhost": "02:00:00:00:00:08",
+      "event.priority": "1",
+      "event.dhost": "02:00:00:00:00:08",
       "actionResult": "denied"
     },
     "absent": [
@@ -148,7 +148,7 @@
     "dataSource": "synthetic-relay",
     "expected": {
       "origin.ip": "192.0.2.8",
-      "log.alertType": "ids_alerted"
+      "event.alertType": "ids_alerted"
     },
     "absent": [
       "target.ip",
@@ -165,9 +165,9 @@
     "expected": {
       "origin.ip": "198.51.100.8",
       "origin.port": 8748,
-      "log.type": "anyconnect_vpn_auth_failure",
+      "event.type": "anyconnect_vpn_auth_failure",
       "actionResult": "failure",
-      "log.vpnAuthenticationFailure": "match"
+      "event.vpnAuthenticationFailure": "match"
     },
     "absent": [],
     "matches": [
@@ -183,7 +183,7 @@
       "origin.ip": "198.51.100.8"
     },
     "absent": [
-      "log.vpnAuthenticationFailure"
+      "event.vpnAuthenticationFailure"
     ],
     "matches": []
   },
@@ -194,7 +194,7 @@
     "expected": {},
     "absent": [
       "origin.ip",
-      "log.vpnAuthenticationFailure",
+      "event.vpnAuthenticationFailure",
       "actionResult"
     ],
     "matches": []
@@ -205,7 +205,7 @@
     "dataSource": "",
     "expected": {},
     "absent": [
-      "log.vpnAuthenticationFailure"
+      "event.vpnAuthenticationFailure"
     ],
     "matches": []
   },
@@ -215,7 +215,7 @@
     "dataSource": "unknown",
     "expected": {},
     "absent": [
-      "log.vpnAuthenticationFailure"
+      "event.vpnAuthenticationFailure"
     ],
     "matches": []
   },
@@ -225,7 +225,7 @@
     "dataSource": "-",
     "expected": {},
     "absent": [
-      "log.vpnAuthenticationFailure"
+      "event.vpnAuthenticationFailure"
     ],
     "matches": []
   },
@@ -234,11 +234,11 @@
     "raw": "1720051237.124589040 LAB-MX events type=anyconnect_vpn_auth_failure msg= 'Peer IP=0.0.0.0Peer port[8748] AAA[8]: AAA authenticate failed retval=7 - Authentication failure '",
     "dataSource": "synthetic-relay",
     "expected": {
-      "log.sourceIp": "0.0.0.0"
+      "event.sourceIp": "0.0.0.0"
     },
     "absent": [
       "origin.ip",
-      "log.vpnAuthenticationFailure"
+      "event.vpnAuthenticationFailure"
     ],
     "matches": []
   },
@@ -247,11 +247,11 @@
     "raw": "1720051237.124589040 LAB-MX events type=anyconnect_vpn_auth_failure msg= 'Peer IP=::Peer port[8748] AAA[8]: AAA authenticate failed retval=7 - Authentication failure '",
     "dataSource": "synthetic-relay",
     "expected": {
-      "log.sourceIp": "::"
+      "event.sourceIp": "::"
     },
     "absent": [
       "origin.ip",
-      "log.vpnAuthenticationFailure"
+      "event.vpnAuthenticationFailure"
     ],
     "matches": []
   },
@@ -260,11 +260,11 @@
     "raw": "1720051237.124589040 LAB-MX events type=anyconnect_vpn_auth_failure msg= 'Peer IP=::0Peer port[8748] AAA[8]: AAA authenticate failed retval=7 - Authentication failure '",
     "dataSource": "synthetic-relay",
     "expected": {
-      "log.sourceIp": "::0"
+      "event.sourceIp": "::0"
     },
     "absent": [
       "origin.ip",
-      "log.vpnAuthenticationFailure"
+      "event.vpnAuthenticationFailure"
     ],
     "matches": []
   },
@@ -273,11 +273,11 @@
     "raw": "1720051237.124589040 LAB-MX events type=anyconnect_vpn_auth_failure msg= 'Peer IP=0:0:0:0:0:0:0:0Peer port[8748] AAA[8]: AAA authenticate failed retval=7 - Authentication failure '",
     "dataSource": "synthetic-relay",
     "expected": {
-      "log.sourceIp": "0:0:0:0:0:0:0:0"
+      "event.sourceIp": "0:0:0:0:0:0:0:0"
     },
     "absent": [
       "origin.ip",
-      "log.vpnAuthenticationFailure"
+      "event.vpnAuthenticationFailure"
     ],
     "matches": []
   },
@@ -286,11 +286,11 @@
     "raw": "1720051237.124589040 LAB-MX events type=anyconnect_vpn_auth_failure msg= 'Peer IP=::ffff:0.0.0.0Peer port[8748] AAA[8]: AAA authenticate failed retval=7 - Authentication failure '",
     "dataSource": "synthetic-relay",
     "expected": {
-      "log.sourceIp": "::ffff:0.0.0.0"
+      "event.sourceIp": "::ffff:0.0.0.0"
     },
     "absent": [
       "origin.ip",
-      "log.vpnAuthenticationFailure"
+      "event.vpnAuthenticationFailure"
     ],
     "matches": []
   },
@@ -299,11 +299,11 @@
     "raw": "1720051237.124589040 LAB-MX events type=anyconnect_vpn_auth_failure msg= 'Peer IP=not-an-ipPeer port[8748] AAA[8]: AAA authenticate failed retval=7 - Authentication failure '",
     "dataSource": "synthetic-relay",
     "expected": {
-      "log.sourceIp": "not-an-ip"
+      "event.sourceIp": "not-an-ip"
     },
     "absent": [
       "origin.ip",
-      "log.vpnAuthenticationFailure"
+      "event.vpnAuthenticationFailure"
     ],
     "matches": []
   },
@@ -324,9 +324,9 @@
     "raw": "1720051237.124589040 LAB-MX events airmarshal_events type= rogue_ssid_detected ssid='Example Lab' bssid='02:00:00:00:00:01' src='02:00:00:00:00:01' dst='02:00:00:00:00:02' wired_mac='02:00:00:00:00:03' vlan_id='0' channel='157' rssi='21' fc_type='0' fc_subtype='5'",
     "dataSource": "synthetic-relay",
     "expected": {
-      "log.eventType": "airmarshal_events",
-      "log.merakiGroup": "events",
-      "log.type": "rogue_ssid_detected",
+      "event.eventType": "airmarshal_events",
+      "event.merakiGroup": "events",
+      "event.type": "rogue_ssid_detected",
       "origin.mac": "02:00:00:00:00:01"
     },
     "absent": [
@@ -384,8 +384,8 @@
     "dataSource": "synthetic-relay",
     "expected": {
       "origin.mac": "02:00:00:00:00:04",
-      "log.packet": "deauth",
-      "log.state": "start"
+      "event.packet": "deauth",
+      "event.state": "start"
     },
     "absent": [
       "origin.ip",
@@ -422,7 +422,7 @@
       "target.port": 53,
       "protocol": "udp",
       "actionResult": "success",
-      "log.eventType": "flows"
+      "event.eventType": "flows"
     },
     "absent": [],
     "matches": []
@@ -448,7 +448,7 @@
       "target.port": 53,
       "protocol": "udp",
       "actionResult": "success",
-      "log.eventType": "firewall"
+      "event.eventType": "firewall"
     },
     "absent": [],
     "matches": []
@@ -474,7 +474,7 @@
       "target.port": 53,
       "protocol": "udp",
       "actionResult": "success",
-      "log.eventType": "cellular_firewall"
+      "event.eventType": "cellular_firewall"
     },
     "absent": [],
     "matches": []
@@ -500,7 +500,7 @@
       "target.port": 53,
       "protocol": "udp",
       "actionResult": "success",
-      "log.eventType": "vpn_firewall"
+      "event.eventType": "vpn_firewall"
     },
     "absent": [],
     "matches": []
@@ -540,7 +540,7 @@
     "raw": "1720051237.124589040 LAB-MX flows src=not-an-ip dst=198.51.100.9 mac=02:00:00:00:00:08 protocol=udp sport=55719 dport=53 pattern: allow all",
     "dataSource": "synthetic-relay",
     "expected": {
-      "log.sourceIp": "not-an-ip"
+      "event.sourceIp": "not-an-ip"
     },
     "absent": [
       "origin.ip"
@@ -552,7 +552,7 @@
     "raw": "1720051237.124589040 LAB-MX flows src=0.0.0.0 dst=198.51.100.9 mac=02:00:00:00:00:08 protocol=udp sport=55719 dport=53 pattern: allow all",
     "dataSource": "synthetic-relay",
     "expected": {
-      "log.sourceIp": "0.0.0.0"
+      "event.sourceIp": "0.0.0.0"
     },
     "absent": [
       "origin.ip"
@@ -564,7 +564,7 @@
     "raw": "1720051237.124589040 LAB-MX flows src=::0 dst=198.51.100.9 mac=02:00:00:00:00:08 protocol=udp sport=55719 dport=53 pattern: allow all",
     "dataSource": "synthetic-relay",
     "expected": {
-      "log.sourceIp": "::0"
+      "event.sourceIp": "::0"
     },
     "absent": [
       "origin.ip"
@@ -576,7 +576,7 @@
     "raw": "1720051237.124589040 LAB-MX flows src=0:0:0:0:0:0:0:0 dst=198.51.100.9 mac=02:00:00:00:00:08 protocol=udp sport=55719 dport=53 pattern: allow all",
     "dataSource": "synthetic-relay",
     "expected": {
-      "log.sourceIp": "0:0:0:0:0:0:0:0"
+      "event.sourceIp": "0:0:0:0:0:0:0:0"
     },
     "absent": [
       "origin.ip"
@@ -588,7 +588,7 @@
     "raw": "1720051237.124589040 LAB-MX flows src=::ffff:0.0.0.0 dst=198.51.100.9 mac=02:00:00:00:00:08 protocol=udp sport=55719 dport=53 pattern: allow all",
     "dataSource": "synthetic-relay",
     "expected": {
-      "log.sourceIp": "::ffff:0.0.0.0"
+      "event.sourceIp": "::ffff:0.0.0.0"
     },
     "absent": [
       "origin.ip"
@@ -610,7 +610,7 @@
     "raw": "1720051237.124589040 LAB-MX flows src=192.0.2.8 dst=not-an-ip mac=02:00:00:00:00:08 protocol=udp sport=55719 dport=53 pattern: allow all",
     "dataSource": "synthetic-relay",
     "expected": {
-      "log.destinationIp": "not-an-ip"
+      "event.destinationIp": "not-an-ip"
     },
     "absent": [
       "target.ip"
@@ -622,7 +622,7 @@
     "raw": "1720051237.124589040 LAB-MX flows src=192.0.2.8 dst=0.0.0.0 mac=02:00:00:00:00:08 protocol=udp sport=55719 dport=53 pattern: allow all",
     "dataSource": "synthetic-relay",
     "expected": {
-      "log.destinationIp": "0.0.0.0"
+      "event.destinationIp": "0.0.0.0"
     },
     "absent": [
       "target.ip"
@@ -634,7 +634,7 @@
     "raw": "1720051237.124589040 LAB-MX flows src=192.0.2.8 dst=::0 mac=02:00:00:00:00:08 protocol=udp sport=55719 dport=53 pattern: allow all",
     "dataSource": "synthetic-relay",
     "expected": {
-      "log.destinationIp": "::0"
+      "event.destinationIp": "::0"
     },
     "absent": [
       "target.ip"
@@ -646,7 +646,7 @@
     "raw": "1720051237.124589040 LAB-MX flows src=192.0.2.8 dst=0:0:0:0:0:0:0:0 mac=02:00:00:00:00:08 protocol=udp sport=55719 dport=53 pattern: allow all",
     "dataSource": "synthetic-relay",
     "expected": {
-      "log.destinationIp": "0:0:0:0:0:0:0:0"
+      "event.destinationIp": "0:0:0:0:0:0:0:0"
     },
     "absent": [
       "target.ip"
@@ -658,7 +658,7 @@
     "raw": "1720051237.124589040 LAB-MX flows src=192.0.2.8 dst=::ffff:0.0.0.0 mac=02:00:00:00:00:08 protocol=udp sport=55719 dport=53 pattern: allow all",
     "dataSource": "synthetic-relay",
     "expected": {
-      "log.destinationIp": "::ffff:0.0.0.0"
+      "event.destinationIp": "::ffff:0.0.0.0"
     },
     "absent": [
       "target.ip"
@@ -680,7 +680,7 @@
     "raw": "1720051237.124589040 LAB-MX events type=8021x_auth port='3' identity='test@example.invalid'",
     "dataSource": "synthetic-relay",
     "expected": {
-      "log.switchPort": "3",
+      "event.switchPort": "3",
       "origin.user": "test@example.invalid"
     },
     "absent": [
@@ -695,7 +695,7 @@
     "raw": "1720051237.124589040 LAB-MX events type=disassociation ip_resp='1.597000' ip_src='192.0.2.8'",
     "dataSource": "synthetic-relay",
     "expected": {
-      "log.ipResp": "1.597000",
+      "event.ipResp": "1.597000",
       "origin.ip": "192.0.2.8"
     },
     "absent": [
@@ -741,7 +741,7 @@
     "absent": [
       "origin.ip",
       "target.ip",
-      "log.eventType",
+      "event.eventType",
       "actionResult"
     ],
     "matches": []
@@ -754,7 +754,7 @@
     "absent": [
       "origin.ip",
       "target.ip",
-      "log.vpnAuthenticationFailure"
+      "event.vpnAuthenticationFailure"
     ],
     "matches": []
   },
@@ -763,8 +763,8 @@
     "raw": "1720051237.124589040 LAB-MX security_event security_filtering_disposition_change name=Synthetic disposition=malicious action=allow",
     "dataSource": "synthetic-relay",
     "expected": {
-      "log.malwareGroupingKey": "event-one",
-      "log.malwareGroupingType": "event"
+      "event.malwareGroupingKey": "event-one",
+      "event.malwareGroupingType": "event"
     },
     "absent": [],
     "matches": [
@@ -777,8 +777,8 @@
     "raw": "1720051237.124589040 LAB-MX security_event security_filtering_disposition_change name=Synthetic disposition=malicious action=allow",
     "dataSource": "synthetic-relay",
     "expected": {
-      "log.malwareGroupingKey": "event-two",
-      "log.malwareGroupingType": "event"
+      "event.malwareGroupingKey": "event-two",
+      "event.malwareGroupingType": "event"
     },
     "absent": [],
     "matches": [
@@ -792,7 +792,7 @@
     "dataSource": "synthetic-relay",
     "expected": {},
     "absent": [
-      "log.malwareGroupingKey"
+      "event.malwareGroupingKey"
     ],
     "matches": [],
     "id": ""
@@ -802,8 +802,8 @@
     "raw": "1720051237.124589040 LAB-MX security_event security_filtering_disposition_change name=Synthetic sha256=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa disposition=malicious action=allow",
     "dataSource": "synthetic-relay",
     "expected": {
-      "log.malwareGroupingKey": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-      "log.malwareGroupingType": "hash",
+      "event.malwareGroupingKey": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "event.malwareGroupingType": "hash",
       "target.sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
     },
     "absent": [],
@@ -816,7 +816,7 @@
     "raw": "1720051237.124589040 LAB-MX security_event ids_alerted priority=3 name='text security_filtering_file_scanned disposition=malicious sha256=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa action=block'",
     "dataSource": "synthetic-relay",
     "expected": {
-      "log.alertType": "ids_alerted"
+      "event.alertType": "ids_alerted"
     },
     "absent": [],
     "matches": []
@@ -826,8 +826,8 @@
     "raw": "1720051237.124589040 LAB-MX events type=ordinary msg='text airmarshal_events type=rogue_ssid_detected bssid=02:00:00:00:00:01'",
     "dataSource": "synthetic-relay",
     "expected": {
-      "log.eventType": "events",
-      "log.type": "ordinary"
+      "event.eventType": "events",
+      "event.type": "ordinary"
     },
     "absent": [],
     "matches": []
@@ -851,7 +851,7 @@
       "origin.ip": "192.0.2.8",
       "target.ip": "198.51.100.9",
       "target.url": "https://app.example.invalid/a?q=b",
-      "log.method": "GET"
+      "event.method": "GET"
     },
     "absent": [
       "actionResult"
@@ -912,7 +912,7 @@
     "raw": "1720051237.124589040 LAB-MX events Cellular connection up",
     "dataSource": "synthetic-relay",
     "expected": {
-      "log.connectionState": "up",
+      "event.connectionState": "up",
       "actionResult": "success"
     },
     "absent": [],
@@ -923,7 +923,7 @@
     "raw": "1720051237.124589040 LAB-MX events Cellular connection down",
     "dataSource": "synthetic-relay",
     "expected": {
-      "log.connectionState": "down"
+      "event.connectionState": "down"
     },
     "absent": [
       "actionResult"
@@ -935,7 +935,7 @@
     "raw": "1720051237.124589040 LAB-MX events Port 5 received an STP BPDU from 02:00:00:00:00:09 so the port was blocked",
     "dataSource": "synthetic-relay",
     "expected": {
-      "log.switchPort": "5",
+      "event.switchPort": "5",
       "origin.mac": "02:00:00:00:00:09",
       "actionResult": "denied"
     },
@@ -950,10 +950,10 @@
     "dataSource": "synthetic-relay",
     "expected": {
       "origin.ip": "192.0.2.8",
-      "log.ipResp": "1.597000"
+      "event.ipResp": "1.597000"
     },
     "absent": [
-      "log.ipResp.geolocation"
+      "event.ipResp.geolocation"
     ],
     "matches": []
   },
@@ -976,8 +976,8 @@
     "absent": [
       "origin.ip",
       "actionResult",
-      "log.radio",
-      "log.channel"
+      "event.radio",
+      "event.channel"
     ],
     "matches": []
   },
@@ -987,12 +987,12 @@
     "dataSource": "synthetic-relay",
     "expected": {
       "origin.ip": "192.0.2.8",
-      "log.radio": "0",
-      "log.channel": "6",
-      "log.authNegDur": "24000",
-      "log.lastAuthAgo": "5.074000",
-      "log.ipResp": "1.597000",
-      "log.dnsServer": "192.0.2.53"
+      "event.radio": "0",
+      "event.channel": "6",
+      "event.authNegDur": "24000",
+      "event.lastAuthAgo": "5.074000",
+      "event.ipResp": "1.597000",
+      "event.dnsServer": "192.0.2.53"
     },
     "absent": [
       "actionResult"
@@ -1007,7 +1007,7 @@
     "absent": [
       "origin.ip",
       "target.ip",
-      "log.eventType",
+      "event.eventType",
       "actionResult"
     ],
     "matches": []
@@ -1019,7 +1019,7 @@
     "expected": {
       "origin.ip": "192.0.2.8",
       "target.ip": "198.51.100.9",
-      "log.eventType": "flows",
+      "event.eventType": "flows",
       "actionResult": "success"
     },
     "absent": [],
@@ -1032,7 +1032,7 @@
     "expected": {
       "origin.ip": "192.0.2.8",
       "target.ip": "198.51.100.9",
-      "log.eventType": "flows",
+      "event.eventType": "flows",
       "actionResult": "success"
     },
     "absent": [],

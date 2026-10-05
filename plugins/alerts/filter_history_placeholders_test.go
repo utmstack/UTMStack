@@ -48,14 +48,14 @@ func TestHistoryPlaceholderPreflightIncludesNestedOr(t *testing.T) {
 	requests := []*plugins.SearchRequest{{
 		With: []*plugins.Expression{with("origin.user")},
 		Or: []*plugins.SearchRequest{{Or: []*plugins.SearchRequest{{
-			With: []*plugins.Expression{with("origin.ip"), with("log.zero"), with("log.false")},
+			With: []*plugins.Expression{with("origin.ip"), with("event.zero"), with("event.false")},
 		}}}},
 	}}
-	issues := fixtureHistoryPlaceholders(requests, `{"origin":{"user":"synthetic"},"log":{"zero":0,"false":false}}`)
+	issues := fixtureHistoryPlaceholders(requests, `{"origin":{"user":"synthetic"},"event":{"zero":0,"false":false}}`)
 	if len(issues) != 1 || !strings.Contains(issues[0], "correlation[0].or[0].or[0].with[0]") || !strings.Contains(issues[0], "origin.ip") {
 		t.Fatalf("expected only nested missing IP, got %v", issues)
 	}
-	if issues := fixtureHistoryPlaceholders(requests, `{"origin":{"user":"synthetic","ip":"192.0.2.1"},"log":{"zero":0,"false":false}}`); len(issues) != 0 {
+	if issues := fixtureHistoryPlaceholders(requests, `{"origin":{"user":"synthetic","ip":"192.0.2.1"},"event":{"zero":0,"false":false}}`); len(issues) != 0 {
 		t.Fatal(issues)
 	}
 }
