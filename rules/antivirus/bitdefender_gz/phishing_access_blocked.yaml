@@ -19,17 +19,17 @@ description: 'The antiphishing module reported a phishing, fraud or untrusted UR
   rule.
 
 
-  Review origin.domain, origin.url when complete, and the original log.request value, target.user and the managed endpoint. Confirm
+  Review origin.domain, origin.url when complete, and the original event.request value, target.user and the managed endpoint. Confirm
   the protection policy and investigate subsequent browser, authentication and malware activity. Escalate credential containment when
   that investigation supports exposure.
 
   '
-where: equals("log.BitdefenderGZModule", "aph") && equalsIgnoreCase("action", "reportOnly")
+where: equals("event.BitdefenderGZModule", "aph") && equalsIgnoreCase("action", "reportOnly")
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.BitdefenderGZCompanyId
-- lastEvent.log.endpointKeyType
-- lastEvent.log.endpointKey
+- lastEvent.event.BitdefenderGZCompanyId
+- lastEvent.event.endpointKeyType
+- lastEvent.event.endpointKey
 - target.user
 - adversary.url
 - adversary.domain

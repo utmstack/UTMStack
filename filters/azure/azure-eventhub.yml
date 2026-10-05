@@ -795,7 +795,7 @@ pipeline:
       where: equals("azureHTTPDecodePending","yes") && exists("event.Protocol")
   - delete:
       fields:
-      - log
+      - event
       where: equals("azureHTTPDecodePending","yes")
   - json:
       source: raw
@@ -941,7 +941,7 @@ pipeline:
       where: equals("azureKubeDecodePending","yes") && regexMatch("event.sourceIPs.0","(?s)^.+$")
   - delete:
       fields:
-      - log
+      - event
       where: equals("azureKubeDecodePending","yes")
   - json:
       source: raw
@@ -1028,7 +1028,7 @@ pipeline:
       where: equals("azureRequestDecoded","variant0") && exists("event.properties.publicAccess")
   - delete:
       fields:
-      - log
+      - event
       where: equals("azureRequestDecoded","variant0")
   - json:
       source: raw
@@ -1085,7 +1085,7 @@ pipeline:
       where: equals("azureRequestDecoded","variant1") && exists("event.properties.publicAccess")
   - delete:
       fields:
-      - log
+      - event
       where: equals("azureRequestDecoded","variant1")
   - json:
       source: raw
@@ -1142,7 +1142,7 @@ pipeline:
       where: equals("azureRequestDecoded","variant2") && exists("event.properties.publicAccess")
   - delete:
       fields:
-      - log
+      - event
       where: equals("azureRequestDecoded","variant2")
   - json:
       source: raw
@@ -1199,7 +1199,7 @@ pipeline:
       where: equals("azureRequestDecoded","variant3") && exists("event.properties.publicAccess")
   - delete:
       fields:
-      - log
+      - event
       where: equals("azureRequestDecoded","variant3")
   - json:
       source: raw
@@ -2191,7 +2191,7 @@ pipeline:
       where: equals("azureHTTPDecodePending","yes") && exists("event.Protocol")
   - delete:
       fields:
-      - log
+      - event
       where: equals("azureHTTPDecodePending","yes")
   - json:
       source: raw
@@ -2337,7 +2337,7 @@ pipeline:
       where: equals("azureKubeDecodePending","yes") && regexMatch("event.sourceIPs.0","(?s)^.+$")
   - delete:
       fields:
-      - log
+      - event
       where: equals("azureKubeDecodePending","yes")
   - json:
       source: raw
@@ -2424,7 +2424,7 @@ pipeline:
       where: equals("azureRequestDecoded","variant0") && exists("event.properties.publicAccess")
   - delete:
       fields:
-      - log
+      - event
       where: equals("azureRequestDecoded","variant0")
   - json:
       source: raw
@@ -2481,7 +2481,7 @@ pipeline:
       where: equals("azureRequestDecoded","variant1") && exists("event.properties.publicAccess")
   - delete:
       fields:
-      - log
+      - event
       where: equals("azureRequestDecoded","variant1")
   - json:
       source: raw
@@ -2538,7 +2538,7 @@ pipeline:
       where: equals("azureRequestDecoded","variant2") && exists("event.properties.publicAccess")
   - delete:
       fields:
-      - log
+      - event
       where: equals("azureRequestDecoded","variant2")
   - json:
       source: raw
@@ -2595,7 +2595,7 @@ pipeline:
       where: equals("azureRequestDecoded","variant3") && exists("event.properties.publicAccess")
   - delete:
       fields:
-      - log
+      - event
       where: equals("azureRequestDecoded","variant3")
   - json:
       source: raw
