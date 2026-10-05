@@ -1,7 +1,7 @@
 export enum FileFieldEnum {
   FILE_TIMESTAMP_FIELD = '@timestamp',
-  FILE_OBJECT_NAME_FIELD = 'target.path',        // Task 7 grok-copy (typed text+keyword)
-  FILE_PROCESS_NAME_FIELD = 'origin.file',       // Task 7 grok-copy (typed text+keyword)
+  FILE_OBJECT_NAME_FIELD = 'target.path',        // promoted to a typed text+keyword field by the Windows filter (grok-copy, not rename)
+  FILE_PROCESS_NAME_FIELD = 'origin.file',       // promoted to a typed text+keyword field by the Windows filter (grok-copy, not rename)
   FILE_HOST_NAME_FIELD = 'origin.host',          // already canonical
   FILE_HOST_ID_FIELD = 'id',
   FILE_ACCESS_LIST_FIELD = 'event.eventDataAccessList',
