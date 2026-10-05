@@ -70,9 +70,12 @@ export class ElasticFilterAddComponent implements OnInit {
 
   ngOnInit() {
     this.initFormFilter();
+    // Flattened fields (event bag) are not generically filterable: the backend
+    // only translates event.<leaf> dot-paths, and the picker offers the bare field.
     this.fieldDataBehavior.getFields(this.pattern)
       .pipe(takeUntil(this.destroy$),
-        map(fields => fields.filter(f => !this.hiddenFields.includes(f.name))))
+        map(fields => fields.filter(f => !this.hiddenFields.includes(f.name) &&
+          f.type !== ElasticDataTypesEnum.FLATTENED)))
       .subscribe(field => {
         if (field) {
           this.fields = field;
