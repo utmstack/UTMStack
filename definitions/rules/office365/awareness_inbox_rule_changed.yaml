@@ -1,0 +1,36 @@
+# Rule version v1.1.2
+# Ported from v11 rules/office365/collection_microsoft_365_new_inbox_rule.yml under a new
+# filename: v12's definitions/rules/office365/collection_microsoft_365_new_inbox_rule.yaml
+# reused this filename for a narrower, differently-scoped rule ("Microsoft 365 New Inbox
+# Rule Created" -- New-InboxRule only, Collection/T1114) and dropped this rule's actual
+# technique (broad inbox rule enable/disable/remove/set tracking, excluding forwarding
+# rules which are covered separately). See reconciliation notes for details.
+
+dataTypes:
+- o365
+name: Office 365 Inbox Rule Changed
+description: |
+  A user or administrator created, changed, enabled, disabled or removed an inbox rule with an Exchange command, for example from Outlook on the web or PowerShell. Rules that move or delete mail can hide messages from the mailbox owner. New and modified rules with forwarding settings raise the separate forwarding alert instead.
+
+  Outlook desktop records its rule saves as UpdateInboxRules and writes them repeatedly for the same rules, usually without any rule change, so those records do not raise this alert.
+
+  Review the actor, affected object, change request and authorized owner. This alert reports an audited configuration change; it does not by itself establish compromise, an external recipient, or a currently enabled setting.
+category: Administrative Awareness
+technique: 'T1564.008 - Hide Artifacts: Email Hiding Rules'
+adversary: origin
+impact:
+  confidentiality: 1
+  integrity: 1
+  availability: 0
+references:
+- https://learn.microsoft.com/en-us/purview/audit-log-activities
+- https://learn.microsoft.com/en-us/office/office-365-management-api/office-365-management-activity-api-schema
+- https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/new-inboxrule?view=exchange-ps
+where: |
+  equals("log.Workload", "Exchange") && equals("actionResult", "success") && oneOf("action", ["New-InboxRule", "Set-InboxRule", "Enable-InboxRule", "Disable-InboxRule", "Remove-InboxRule"]) && !(oneOf("action", ["New-InboxRule", "Set-InboxRule"]) && (equals("log.o365InboxForwardingChange", "true") || exists("log.Parameters.#(Name==ForwardTo).Name") || exists("log.Parameters.#(Name==ForwardAsAttachmentTo).Name") || exists("log.Parameters.#(Name==RedirectTo).Name")))
+groupBy:
+- lastEvent.tenantId
+- lastEvent.log.OrganizationId
+- dataSource
+- adversary.user
+- lastEvent.action

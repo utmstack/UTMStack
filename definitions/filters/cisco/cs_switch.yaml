@@ -1,4 +1,4 @@
-# CISCO Switch filter, version 3.0.2
+# CISCO Switch filter, version 3.2.0
 # Based on https://www.cisco.com/c/en/us/support/ios-nx-os-software/index.html
 # and https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/17_xe/syslogs/17-15-x/b-system-message-guide-17-15-x.html
 # Support CISCO IOS from 15 SY to IOS XE v17
@@ -134,6 +134,7 @@ pipeline:
             - log.facilityMnemonic
       #......................................................................#
       # Extract ACL action word from log.ciscoMsg for ACL log events
+      # (%SEC-6-IPACCESSLOGS is the standard-list form: list <acl> permitted|denied <src> <n> packets)
       - grok:
           source: log.ciscoMsg
           patterns:
@@ -143,7 +144,7 @@ pipeline:
               pattern: '{{.notSpace}}'
             - fieldName: log.aclAction
               pattern: '{{.word}}'
-          where: oneOf("log.facilityMnemonic", ["IPACCESSLOGP", "IPACCESSLOGDP", "IPACCESSLOGRP", "IPACCESSLOGSP", "IPACCESSLOGNP", "ACCESSLOGP", "ACCESSLOGDP", "ACCESSLOGSP", "ACCESSLOGNP", "IPV6ACCESSLOGP"])
+          where: oneOf("log.facilityMnemonic", ["IPACCESSLOGP", "IPACCESSLOGDP", "IPACCESSLOGRP", "IPACCESSLOGSP", "IPACCESSLOGNP", "IPACCESSLOGS", "ACCESSLOGP", "ACCESSLOGDP", "ACCESSLOGSP", "ACCESSLOGNP", "IPV6ACCESSLOGP"])
       # Handle "access-list" prefix variant (some Cisco IOS variants emit "access-list" instead of "list")
       - grok:
           source: log.ciscoMsg
@@ -154,21 +155,51 @@ pipeline:
               pattern: '{{.notSpace}}'
             - fieldName: log.aclAction
               pattern: '{{.word}}'
-          where: 'oneOf("log.facilityMnemonic", ["IPACCESSLOGP", "IPACCESSLOGDP", "IPACCESSLOGRP", "IPACCESSLOGSP", "IPACCESSLOGNP", "ACCESSLOGP", "ACCESSLOGDP", "ACCESSLOGSP", "ACCESSLOGNP", "IPV6ACCESSLOGP"]) && !exists("log.aclAction")'
-      # Adding action result
+          where: 'oneOf("log.facilityMnemonic", ["IPACCESSLOGP", "IPACCESSLOGDP", "IPACCESSLOGRP", "IPACCESSLOGSP", "IPACCESSLOGNP", "IPACCESSLOGS", "ACCESSLOGP", "ACCESSLOGDP", "ACCESSLOGSP", "ACCESSLOGNP", "IPV6ACCESSLOGP"]) && !exists("log.aclAction")'
+      # IOS XE forwarding-plane copies (%FMANFP-6-IPACCESSLOG*) put "<location>: fman_fp_image:" before "list"
+      - grok:
+          source: log.ciscoMsg
+          patterns:
+            - fieldName: ""
+              pattern: '[A-Za-z0-9/]+:'
+            - fieldName: ""
+              pattern: 'fman_fp_image:'
+            - fieldName: ""
+              pattern: 'list'
+            - fieldName: log.aclName
+              pattern: '{{.notSpace}}'
+            - fieldName: log.aclAction
+              pattern: '{{.word}}'
+          where: 'equals("log.facility", "FMANFP") && oneOf("log.facilityMnemonic", ["IPACCESSLOGP", "IPACCESSLOGDP", "IPACCESSLOGRP", "IPACCESSLOGSP", "IPACCESSLOGNP", "IPACCESSLOGS", "IPV6ACCESSLOGP"]) && !exists("log.aclAction")'
+      # IOS XR: %ACL-IPV4_ACL-6-IPACCESSLOGP : access-list <acl> [(<seq>)] deny|permit ...
+      # The digit in IPV4_ACL/IPV6_ACL stops the header steps above from finding the mnemonic, so the
+      # class is recognized from log.msg. IOS XR writes the verb as deny or permit.
+      - grok:
+          source: log.ciscoMsg
+          patterns:
+            - fieldName: ""
+              pattern: 'access-list'
+            - fieldName: log.aclName
+              pattern: '\S+( \([0-9]+\))?'
+            - fieldName: log.aclAction
+              pattern: '(deny|permit)\b'
+          where: 'regexMatch("log.msg", "^ACL-IPV[46]_ACL-[0-7]-IPACCESSLOG[A-Z]* *: *access-list ") && !exists("log.aclAction")'
+      # Adding action result: only success, failed or denied
+      # An access-list permit is the last thing IOS reports about the packet (no reply or close record
+      # follows), so "permitted" is the final outcome and gives success.
       - add:
           function: string
           params:
             key: actionResult
             value: success
-          where: equals("log.aclAction", "permitted")
+          where: oneOf("log.aclAction", ["permitted", "permit"])
 
       - add:
           function: string
           params:
             key: actionResult
             value: denied
-          where: equals("log.aclAction", "denied")
+          where: oneOf("log.aclAction", ["denied", "deny"])
 
       - add:
           function: string
@@ -184,12 +215,121 @@ pipeline:
             value: success
           where: equals("log.facility", "DOT1X") && equals("log.facilityMnemonic", "SUCCESS")
 
+      # Dynamic ARP inspection dropped the packet
       - add:
           function: string
           params:
             key: actionResult
-            value: blocked
+            value: denied
           where: equals("log.facility", "SW_DAI") && oneOf("log.facilityMnemonic", ["DHCP_SNOOPING_DENY", "INVALID_ARP", "ACL_DENY"])
+
+      # MAC authentication bypass and the authentication manager: FAIL and SUCCESS are final results
+      # (AUTHMGR START and RESULT are intermediate steps and get no value)
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: oneOf("log.facility", ["MAB", "AUTHMGR"]) && equals("log.facilityMnemonic", "SUCCESS")
+
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failed
+          where: oneOf("log.facility", ["MAB", "AUTHMGR"]) && equals("log.facilityMnemonic", "FAIL")
+
+      # Privilege level (enable) and NETCONF/RESTCONF (DMI) authentication
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: (equals("log.facility", "SYS") && equals("log.facilityMnemonic", "PRIV_AUTH_PASS")) || (equals("log.facility", "DMI") && equals("log.facilityMnemonic", "AUTH_PASSED"))
+
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failed
+          where: (equals("log.facility", "SYS") && equals("log.facilityMnemonic", "PRIV_AUTH_FAIL")) || (equals("log.facility", "DMI") && equals("log.facilityMnemonic", "AUTHENTICATION_FAILED"))
+
+      # Console, vty and SSH sign-ins: Login Success / Login failed
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: oneOf("log.facility", ["SEC_LOGIN", "SECLOGIN"]) && equals("log.facilityMnemonic", "LOGIN_SUCCESS")
+
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failed
+          where: oneOf("log.facility", ["SEC_LOGIN", "SECLOGIN"]) && equals("log.facilityMnemonic", "LOGIN_FAILED")
+
+      # SSH session setup and user authentication end with the result word Succeeded or Failed
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: equals("log.facility", "SSH") && oneOf("log.facilityMnemonic", ["SSH2_SESSION", "SSH2_USERAUTH"]) && endsWith("log.ciscoMsg", "Succeeded")
+
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failed
+          where: equals("log.facility", "SSH") && oneOf("log.facilityMnemonic", ["SSH2_SESSION", "SSH2_USERAUTH"]) && endsWith("log.ciscoMsg", "Failed")
+
+      # SSH connections the switch terminated, or that closed before any user signed in (for user '').
+      # A close that names a user is a session end and gets no value.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failed
+          where: equals("log.facility", "SSH") && equals("log.facilityMnemonic", "SSH2_UNEXPECTED_MSG")
+
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failed
+          where: 'equals("log.facility", "SSH") && oneOf("log.facilityMnemonic", ["SSH_CLOSE", "SSH2_CLOSE"]) && contains("log.ciscoMsg", "for user ''''")'
+
+      # TCP segment without a valid MD5 digest (for example a BGP peer with a wrong password)
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failed
+          where: equals("log.facility", "TCP") && equals("log.facilityMnemonic", "BADAUTH")
+
+      # Enforcement the switch applied: DHCP snooping dropped the message, port security or BPDU guard
+      # blocked the port, or login quiet mode now blocks further sign-ins
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: equals("log.facility", "DHCP_SNOOPING") && startsWith("log.ciscoMsg", "DHCP_SNOOPING drop message")
+
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: equals("log.facility", "PORT_SECURITY") && startsWith("log.facilityMnemonic", "PSECURE_VIOLATION")
+
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: (equals("log.facility", "SPANTREE") && equals("log.facilityMnemonic", "BLOCK_BPDUGUARD")) || (oneOf("log.facility", ["SEC_LOGIN", "SECLOGIN"]) && equals("log.facilityMnemonic", "QUIET_MODE_ON"))
       #......................................................................#
       # Decoding severity
       - add:
@@ -203,13 +343,103 @@ pipeline:
           params:
             key: severity
             value: 'medium'
-          where: log.severity=="4"
+          where: equals("log.severity", "4")
       - add:
           function: 'string'
           params:
             key: severity
             value: 'low'
           where: oneOf("log.severity", ["5", "6", "7"])
+      #......................................................................#
+      # Addresses carried by the message text (shapes observed in real switch records)
+      # %SW_MATM-4-MACFLAP_NOTIF: Host <mac> in vlan <n> is flapping between port <if> and port <if>
+      # Interface names are text, so they stay under log.*; origin.port holds numbers only.
+      # The two ports are kept in the order the message gives them (log.firstPort, log.secondPort);
+      # which of them is the previous port is not established, so the names do not claim a direction.
+      - grok:
+          source: log.ciscoMsg
+          patterns:
+            - fieldName: ""
+              pattern: 'Host'
+            - fieldName: origin.mac
+              pattern: '{{.ciscoMacAddr}}'
+            - fieldName: ""
+              pattern: 'in vlan'
+            - fieldName: log.vlan
+              pattern: '{{.integer}}'
+            - fieldName: ""
+              pattern: 'is flapping between port'
+            - fieldName: log.firstPort
+              pattern: '{{.notSpace}}'
+            - fieldName: ""
+              pattern: 'and port'
+            - fieldName: log.secondPort
+              pattern: '{{.notSpace}}'
+          where: equals("log.facility", "SW_MATM") && equals("log.facilityMnemonic", "MACFLAP_NOTIF")
+      # %SISF-4-EXCESS_ARP_ACTIVITY: ... Excessive ARP activity detected for the client <mac>. client is brought down ...
+      - grok:
+          source: log.ciscoMsg
+          patterns:
+            - fieldName: ""
+              pattern: '{{.data}}Excessive ARP activity detected for the client'
+            - fieldName: origin.mac
+              pattern: '{{.ciscoMacAddr}}'
+            - fieldName: ""
+              pattern: '\. client is brought down'
+          where: equals("log.facility", "SISF") && equals("log.facilityMnemonic", "EXCESS_ARP_ACTIVITY")
+      # %SSH-4-SSH2_UNEXPECTED_MSG: Unexpected message type has arrived. Terminating the connection from <ip>
+      - grok:
+          source: log.ciscoMsg
+          patterns:
+            - fieldName: ""
+              pattern: 'Unexpected message type has arrived\. Terminating the connection from'
+            - fieldName: origin.ip
+              pattern: '{{.ipv4}}$'
+          where: equals("log.facility", "SSH") && equals("log.facilityMnemonic", "SSH2_UNEXPECTED_MSG")
+      # %SSH-5-SSH_CLOSE: SSH Session from <ip> (tty = <n>) for user '<user>' using crypto cipher '<cipher>' closed
+      - grok:
+          source: log.ciscoMsg
+          patterns:
+            - fieldName: ""
+              pattern: 'SSH Session from'
+            - fieldName: origin.ip
+              pattern: '{{.ipv4}}'
+            - fieldName: ""
+              pattern: '\(tty'
+          where: equals("log.facility", "SSH") && equals("log.facilityMnemonic", "SSH_CLOSE")
+      # %DHCPD-4-PING_CONFLICT: DHCP address conflict:  server pinged <ip>.
+      - grok:
+          source: log.ciscoMsg
+          patterns:
+            - fieldName: ""
+              pattern: 'DHCP address conflict:'
+            - fieldName: ""
+              pattern: 'server pinged'
+            - fieldName: target.ip
+              pattern: '{{.ipv4}}'
+            - fieldName: ""
+              pattern: '\.$'
+          where: equals("log.facility", "DHCPD") && equals("log.facilityMnemonic", "PING_CONFLICT")
+      # %SYS-3-LOGGINGHOST_FAIL / %SYS-6-LOGGINGHOST_STARTSTOP: Logging to host <ip> port <n> failed|started ...
+      - grok:
+          source: log.ciscoMsg
+          patterns:
+            - fieldName: ""
+              pattern: 'Logging to host'
+            - fieldName: target.ip
+              pattern: '{{.ipv4}}'
+            - fieldName: ""
+              pattern: 'port'
+            - fieldName: target.port
+              pattern: '[0-9]{1,5}'
+            - fieldName: ""
+              pattern: '(failed|started)'
+          where: equals("log.facility", "SYS") && oneOf("log.facilityMnemonic", ["LOGGINGHOST_FAIL", "LOGGINGHOST_STARTSTOP"])
+      - cast:
+          fields:
+            - target.port
+          to: int
+          where: equals("log.facility", "SYS") && oneOf("log.facilityMnemonic", ["LOGGINGHOST_FAIL", "LOGGINGHOST_STARTSTOP"]) && exists("target.port")
       #......................................................................#
       # Removing unused fields
       - delete:

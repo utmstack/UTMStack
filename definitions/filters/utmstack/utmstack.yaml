@@ -1,4 +1,4 @@
-# UTMStack filter, version 1.0.1
+# UTMStack filter, version 1.0.2
 
 pipeline:
   - dataTypes: [utmstack]
@@ -16,3 +16,26 @@ pipeline:
             - fieldName: log.message
               pattern: '{{.greedy}}'
           where: '!contains("raw", "\"msg\":") || !contains("raw", "\"args\":")'
+
+      # Panel sign-in results written by the backend (UserJWTController.authorize).
+      # actionResult is only success, failed or denied. args.remoteAddr is not promoted:
+      # behind the panel's own nginx it is the proxy's address, not the client's.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: 'startsWith("log.msg", "UserJWTController.authorize: Login successfully completed for user ")'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failed
+          where: 'equals("log.msg", "UserJWTController.authorize: Bad credentials")'
+      # On a completed sign-in args.username is the account that signed in; on a failed
+      # one it is "anonymous", so it is not mapped there.
+      - rename:
+          from:
+            - log.args.username
+          to: origin.user
+          where: 'equals("actionResult", "success") && exists("log.args.username") && !oneOf("log.args.username", ["", "anonymous"])'

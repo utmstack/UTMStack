@@ -1,18 +1,17 @@
-# Rule version v1.0.0
-
+# Rule contract revision 2026-09-17; SDK v1.1.31.
 dataTypes:
-  - aws
+- aws
 name: AWS IAM Login Profile Modified for Another User
 impact:
   confidentiality: 3
   integrity: 3
   availability: 1
 category: Persistence
-technique: "T1098 - Account Manipulation"
+technique: T1098 - Account Manipulation
 adversary: origin
 references:
-  - https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_passwords_admin-change-user.html
-  - https://attack.mitre.org/techniques/T1098/
+- https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_passwords_admin-change-user.html
+- https://attack.mitre.org/techniques/T1098/
 description: |
   Detects UpdateLoginProfile API calls where the modifier is potentially different from the target user. This can indicate an attacker changing another user's password to maintain access or enable console login for a compromised programmatic-only account.
 
@@ -24,9 +23,13 @@ description: |
   5. Check if the target user's MFA was also modified
   6. If unauthorized, reset the password and rotate all credentials for the target user
 where: |
-  equals("log.eventSource", "iam.amazonaws.com") &&
+  equals("log.awsRecordType","cloudtrail") &&
+  (equals("log.eventSource", "iam.amazonaws.com") &&
   equals("log.eventName", "UpdateLoginProfile") &&
-  equals("log.errorCode", "")
+  equals("actionResult","success"))
 groupBy:
-  - adversary.user
-  - lastEvent.log.requestParameters.userName
+- lastEvent.dataSource
+- lastEvent.log.awsAccountKeyType
+- lastEvent.log.awsAccountKey
+- adversary.user
+- lastEvent.log.requestParameters.userName

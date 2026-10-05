@@ -1,0 +1,34 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - wineventlog
+name: "Windows: Group Policy Object Changed"
+impact:
+  confidentiality: 1
+  integrity: 1
+  availability: 0
+category: Administrative Awareness
+technique: Group Policy change
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-5136
+description: |
+  A domain controller recorded a change to a Group Policy object in Active Directory (event 5136 on an object of class groupPolicyContainer): a new policy, a renamed policy, a permission change or a settings update. A Group Policy change reaches every computer and user the policy applies to.
+
+  Active Directory records each attribute update as a removal of the old value followed by the addition of the new one. Following Microsoft's advice, the rule uses only the "value added" record (%%14674). Changes by the same account to the same policy on the same domain controller are grouped under one alert. Deleted policies are not covered, because the Windows filter discards the deletion event (5141).
+
+  Requires the "Audit Directory Service Changes" success audit on domain controllers and an auditing entry that covers Group Policy objects.
+
+  Next Steps:
+  1. Identify the policy (log.data.ObjectDN) and the changed attribute (log.data.AttributeLDAPDisplayName), and confirm the change with the account that made it.
+  2. If it was not approved, review the policy settings and links, and restore the approved version.
+where: |
+  equals("log.eventCode", 5136) &&
+  equals("log.channel", "Security") &&
+  equals("log.providerName", "Microsoft-Windows-Security-Auditing") &&
+  equals("log.data.ObjectClass", "groupPolicyContainer") &&
+  equals("log.eventDataOperationType", "%%14674")
+groupBy:
+  - dataSource
+  - lastEvent.log.eventDataSubjectUserSid
+  - lastEvent.log.data.ObjectDN

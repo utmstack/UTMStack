@@ -1,25 +1,29 @@
-# Rule version v1.0.3
-
+# Rule contract revision 2026-09-17; SDK v1.1.31.
 dataTypes:
-  - "aws"
-name: "AWS EC2 VM Export Failure"
+- aws
+name: AWS EC2 VM Export Request
 impact:
   confidentiality: 3
   integrity: 2
   availability: 2
-category: "Exfiltration"
-technique: "T1537 - Transfer Data to Cloud Account"
+category: Exfiltration
+technique: T1537 - Transfer Data to Cloud Account
 adversary: origin
-description: "Identifies an attempt to export an AWS EC2 instance. A virtual machine (VM) export may indicate an attempt to extract or exfiltrate information"
+description: |
+  Identifies a CreateInstanceExportTask request, including rejected requests. Check actionResult and the vendor error fields to determine whether AWS accepted it. This event does not prove that an export completed or that data was exfiltrated.
 references:
-  - "https://attack.mitre.org/techniques/T1537/"
-  - "https://attack.mitre.org/tactics/TA0010/"
-  - "https://attack.mitre.org/tactics/TA0009/"
-  - "https://attack.mitre.org/techniques/T1005/"
-  - "https://docs.aws.amazon.com/vm-import/latest/userguide/vmexport.html#export-instance"
+- https://attack.mitre.org/techniques/T1537/
+- https://attack.mitre.org/tactics/TA0010/
+- https://attack.mitre.org/tactics/TA0009/
+- https://attack.mitre.org/techniques/T1005/
+- https://docs.aws.amazon.com/vm-import/latest/userguide/vmexport.html#export-instance
 where: |
-  equals("log.eventSource", "ec2.amazonaws.com") &&
-  equals("log.eventName", "CreateInstanceExportTask")
+  equals("log.awsRecordType","cloudtrail") &&
+  (equals("log.eventSource", "ec2.amazonaws.com") &&
+  equals("log.eventName", "CreateInstanceExportTask"))
 groupBy:
-  - adversary.ip
-  - adversary.user
+- lastEvent.dataSource
+- lastEvent.log.awsAccountKeyType
+- lastEvent.log.awsAccountKey
+- adversary.ip
+- adversary.user

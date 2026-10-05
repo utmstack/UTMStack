@@ -1,4 +1,4 @@
-# Rule version v1.2.0 (validated 2026-06-24 on v11, ported from there)
+# Rule version v1.2.0 (validated 2026-06-24)
 dataTypes:
   - wineventlog
 name: 'Windows: Suspicious Scheduled Task Created'
@@ -9,7 +9,7 @@ impact:
 category: Persistence
 technique: 'T1053.005 - Scheduled Task/Job: Scheduled Task'
 adversary: origin
-description: Detects creation of a scheduled task whose action runs a script interpreter, encoded command, or a user/temp/remote path - a common persistence and lateral-execution technique. Complements scheduled_task_suspicious_action.yaml (event 4698, TaskContent-based) - this one fires off the CommandLine of the schtasks/Register-ScheduledTask call itself, so it still catches the attempt even if 4698 "Other Object Access Events" auditing isn't enabled.
+description: Detects creation of a scheduled task whose action runs a script interpreter, encoded command, or a user/temp/remote path - a common persistence and lateral-execution technique.
 references:
   - https://attack.mitre.org/techniques/T1053/005/
 where: |

@@ -28,7 +28,7 @@ description: |
   9. Update security policies and user training based on attack vectors
   10. Report findings to incident response team and document lessons learned
 where: |
-  equals("action", "ThreatIntelligenceAlertTriggered") || (equals("log.AlertType", "ThreatIntelligence") && !equals("actionResult", "Success"))
+  equals("action", "ThreatIntelligenceAlertTriggered") || (equals("log.AlertType", "ThreatIntelligence") && !equals("actionResult", "success"))
 groupBy:
   - adversary.user
   - target.user

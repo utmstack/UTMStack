@@ -24,11 +24,11 @@ description: |
   5. Remove unauthorized Folder Action scripts
   6. Check com.apple.FolderActions.plist for modifications
 where: |
-  (contains("log.eventMessage", "Folder Action") || contains("log.eventMessage", "FolderActions") ||
-   contains("log.eventMessage", "com.apple.FolderActions")) &&
-  (contains("log.eventMessage", "attached") || contains("log.eventMessage", "enabled") ||
-   contains("log.eventMessage", "added") || contains("log.eventMessage", "script") ||
-   contains("log.eventMessage", "modified"))
+  (contains("log.message", "Folder Action") || contains("log.message", "FolderActions") ||
+   contains("log.message", "com.apple.FolderActions")) &&
+  (contains("log.message", "attached") || contains("log.message", "enabled") ||
+   contains("log.message", "added") || contains("log.message", "script") ||
+   contains("log.message", "modified"))
 groupBy:
   - adversary.host
   - adversary.user

@@ -25,8 +25,8 @@ description: |
   6. If persistent failures occur, engage incident response team for deep forensic analysis
   7. Document the threat indicators for future detection improvements
 where: |
-  (contains("log.eventDescription", "mitigation") && contains("log.eventDescription", "fail")) ||
-  (contains("log.eventDescription", "remediation") && contains("log.eventDescription", "fail")) ||
+  (regexMatch("log.eventDescription", "\\b(mitigation|remediation)s?\\b") &&
+   regexMatch("log.eventDescription", "\\bfail(s|ed|ing|ure|ures)?\\b")) ||
   contains("log.mitigationStatus", "fail") ||
   equals("log.threatStatus", "mitigation_failed") ||
   (equals("log.activityType", "mitigation") && equals("log.status", "failed"))

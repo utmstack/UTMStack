@@ -25,8 +25,8 @@ description: |
   5. Review the system for other privilege escalation or persistence mechanisms
   6. Audit sudo and su usage on the affected system
 where: |
-  contains("log.eventMessage", "dsenableroot") &&
-  !contains("log.eventMessage", "-d")
+  contains("log.message", "dsenableroot") &&
+  !contains("log.message", "-d")
 groupBy:
   - adversary.host
   - adversary.user

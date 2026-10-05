@@ -1,35 +1,27 @@
-# Rule version v2.0.0
+# Rule version v3.0.0
 
 dataTypes:
-  - antivirus-bitdefender-gz
-name: Bitdefender GravityZone Exclusion-Related Task Executed
+- antivirus-bitdefender-gz
+name: Bitdefender GravityZone Exclusion-Related Task Succeeded
 impact:
-  confidentiality: 3
-  integrity: 3
-  availability: 1
+  confidentiality: 1
+  integrity: 1
+  availability: 0
 category: Defense Evasion
-technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+technique: 'T1562.001 - Impair Defenses: Disable or Modify Tools'
 adversary: origin
 references:
-  - https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
-  - https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html
-  - https://attack.mitre.org/techniques/T1562/001/
-description: |
-  Detects a Bitdefender GravityZone task whose name or type identifies it as an exclusion-related administrative action. Attackers with admin console access add scan exclusions to blind the antivirus to their tools before running them.
+- https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+- https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html
+- https://attack.mitre.org/techniques/T1562/001/
+description: 'GravityZone reports success for a task whose vendor-provided name mentions an exclusion or allowlist. Task names are labels,
+  not a configuration diff; confirm what changed and whether it was authorized before attributing defense evasion. Generic policy, scan
+  and configuration tasks do not match. The full label is retained in log.taskName and log.msg.
 
-  Coverage is partial by design: fine-grained exclusion changes (a single path added without a task) live in the Control Center's audit log (getAuditLog API) rather than in syslog. This rule catches the exclusion-related tasks that reach the endpoint event stream. For complete coverage, ingest the audit log via the API.
-
-  Next Steps:
-  1. Identify who triggered the task via log.BitdefenderGZUserName / user object. Cross-check against change control - a legitimate exclusion change has a ticket.
-  2. Read what changed: log.BitdefenderGZTaskName and log.BitdefenderGZTaskType. Task types related to exclusion, scanning behaviour and policy application are the ones that matter.
-  3. Pull the current exclusion list from GravityZone Control Center and diff against your baseline. Any newly-excluded path is a candidate for containing attacker tools.
-  4. Scan the excluded paths from a machine with a policy that does NOT include the exclusion, to check for hidden artefacts.
-  5. If the admin identity or session looks anomalous (unusual source IP, off-hours, not a scheduled change window), rotate that admin's credentials before doing anything else.
-  6. Restore the previous exclusion policy if unauthorised. Then re-scan every endpoint that had the weakened policy applied.
-where: |
-  equals("log.BitdefenderGZModule", "task-status") &&
-  (regexMatch("log.BitdefenderGZTaskName", "(?i)(exclusion|exclude|policy|whitelist|allowlist|configuration)") ||
-   regexMatch("log.taskName", "(?i)(exclusion|exclude|policy|whitelist|allowlist|configuration)"))
+  '
+where: equals("log.BitdefenderGZModule","task-status") && equals("actionResult","success") && regexMatch("log.taskName","(?i)(exclusion|exclude|whitelist|allowlist)")
 groupBy:
-  - target.host
-  - lastEvent.log.BitdefenderGZTaskName
+- lastEvent.dataSource
+- lastEvent.log.BitdefenderGZCompanyId
+- lastEvent.log.endpointKey
+- lastEvent.log.taskName
