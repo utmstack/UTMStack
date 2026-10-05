@@ -11,7 +11,7 @@ public final class Constants {
     // - Indices common fields
     // ----------------------------------------------------------------------------------
 
-    public static final String LOG_WINLOG_EVENT_DATA_TARGET_USER_SID_KEYWORD = "event.winlogEventDataTargetUserSid";
+    public static final String EVENT_WINLOG_EVENT_DATA_TARGET_USER_SID = "event.winlogEventDataTargetUserSid";
 
     /**
      * Environment variables

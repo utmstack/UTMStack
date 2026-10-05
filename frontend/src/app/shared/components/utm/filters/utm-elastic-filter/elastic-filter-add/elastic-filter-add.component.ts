@@ -225,7 +225,10 @@ export class ElasticFilterAddComponent implements OnInit {
     // if field exist
     if (this.field) {
       if (this.field.type === ElasticDataTypesEnum.TEXT ||
-        this.field.type === ElasticDataTypesEnum.STRING) {
+        this.field.type === ElasticDataTypesEnum.STRING ||
+        /* flattened fields (the event bag): distinct values are unavailable by design
+        (terms aggs are not supported on flattened), so multi-value ops rely on addTag */
+        this.field.type === ElasticDataTypesEnum.FLATTENED) {
         /* if fields is type string or text determine if field is a keyword or not, if field is keyword return
         result of function operatorFieldSelectable() that return if current operator cant apply select or input
         */

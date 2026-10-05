@@ -3,6 +3,9 @@ import {ElasticSearchFieldInfoType} from '../../../../../shared/types/elasticsea
 
 export function filterFieldAgg(fields: ElasticSearchFieldInfoType[]): ElasticSearchFieldInfoType[] {
   return fields.filter(value => {
+    if (value.type === ElasticDataTypesEnum.FLATTENED) {
+      return false;
+    }
     if (value.type !== ElasticDataTypesEnum.TEXT) {
       return true;
     } else {

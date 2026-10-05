@@ -12,5 +12,6 @@ export enum ElasticDataTypesEnum {
   GEO = 'GEO',
   OBJECT = 'object',
   BOOLEAN = 'boolean',
-  KEYWORD = 'keyword'
+  KEYWORD = 'keyword',
+  FLATTENED = 'flattened'
 }
