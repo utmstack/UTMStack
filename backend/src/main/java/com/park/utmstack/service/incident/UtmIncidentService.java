@@ -18,6 +18,7 @@ import com.park.utmstack.service.dto.incident.NewIncidentDTO;
 import com.park.utmstack.service.dto.incident.RelatedIncidentAlertsDTO;
 import com.park.utmstack.service.incident.util.ResolveIncidentStatus;
 import com.park.utmstack.util.exceptions.IncidentAlertConflictException;
+import com.park.utmstack.util.exceptions.NoAlertsProvidedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -137,6 +138,7 @@ public class UtmIncidentService {
     public UtmIncident createIncident(NewIncidentDTO newIncidentDTO) {
         final String ctx = CLASSNAME + ".createIncident";
 
+        validateAlertsExistOnOpenSearch(newIncidentDTO.getAlertList(), ctx);
         validateAlertsNotAlreadyLinked(newIncidentDTO.getAlertList(), ctx);
 
         UtmIncident utmIncident = new UtmIncident();
@@ -175,6 +177,7 @@ public class UtmIncidentService {
 
         List<RelatedIncidentAlertsDTO> alertIds = addToIncidentDTO.getAlertList();
 
+
         String alertsIds = alertIds.stream().map(RelatedIncidentAlertsDTO::getAlertId).collect(Collectors.joining(","));
         Map<String, Object> extra = Map.of(
                 "alertIds", alertsIds,
@@ -183,6 +186,7 @@ public class UtmIncidentService {
         String attemptMsg = String.format("Attempt to add %d alerts to incident %d", addToIncidentDTO.getAlertList().size(), addToIncidentDTO.getIncidentId());
         eventService.createEvent(attemptMsg, ApplicationEventType.INCIDENT_ALERT_ADD_ATTEMPT, extra);
 
+        validateAlertsExistOnOpenSearch(addToIncidentDTO.getAlertList(), ctx);
         validateAlertsNotAlreadyLinked(addToIncidentDTO.getAlertList(), ctx);
         UtmIncident utmIncident = utmIncidentRepository.findById(addToIncidentDTO.getIncidentId()).orElseThrow(() -> new RuntimeException(ctx + ": Incident not found"));
         saveRelatedAlerts(addToIncidentDTO.getAlertList(), utmIncident.getId());
@@ -288,6 +292,33 @@ public class UtmIncidentService {
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             eventService.createEvent(msg, ApplicationEventType.ERROR);
+        }
+    }
+
+    private void validateAlertsExistOnOpenSearch(List<RelatedIncidentAlertsDTO> alertList, String ctx) {
+        final String ctx2 = ctx + ".validateAlertsExistOnOpenSearch";
+        try {
+            List<String> requestedIds = alertList.stream()
+                    .map(RelatedIncidentAlertsDTO::getAlertId)
+                    .collect(Collectors.toList());
+
+            Set<String> foundIds = utmAlertService.getAlertsByIds(requestedIds).stream()
+                    .map(UtmAlert::getId)
+                    .collect(Collectors.toSet());
+
+            List<String> missingIds = requestedIds.stream()
+                    .filter(id -> !foundIds.contains(id))
+                    .collect(Collectors.toList());
+
+            if (!missingIds.isEmpty()) {
+                throw new NoAlertsProvidedException(ctx2 + ": The following alert IDs were not found on OpenSearch: " + String.join(", ", missingIds));
+            }
+        } catch (NoAlertsProvidedException e) {
+            throw e;
+        } catch (Exception e) {
+            String msg = ctx2 + ": " + e.getMessage();
+            eventService.createEvent(msg, ApplicationEventType.ERROR);
+            throw new RuntimeException(msg);
         }
     }
 
