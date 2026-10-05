@@ -1,0 +1,27 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - utmstack_edr
+name: UTMStack EDR Malicious Process Tree Terminated
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 2
+category: Impact
+technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1562/001/
+description: |
+  Detects the process guard killing a malicious process tree with the responder confirming termination. This is an audit record of a successful defense - the primary value is confirming the kill actually held, because a tree that re-spawns is a live threat again.
+
+  Next Steps:
+  1. Review log.processPid and origin.command to confirm what was killed
+  2. Verify the parent (log.processPpid) was contained too - a surviving parent can re-launch the payload
+  3. Confirm no children re-spawned within minutes of the kill
+  4. Check the source file behind the process and make sure it is quarantined or removed
+  5. Correlate with quarantine and script-block events from the same host in the same window
+where: |
+  equals("log.source", "process_watcher") &&
+  equals("action", "killed") &&
+  equals("log.verdict", "malicious")

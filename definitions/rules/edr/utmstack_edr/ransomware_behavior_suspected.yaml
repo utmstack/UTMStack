@@ -1,0 +1,27 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - utmstack_edr
+name: UTMStack EDR Ransomware Behaviour Suspected
+impact:
+  confidentiality: 4
+  integrity: 4
+  availability: 5
+category: Impact
+technique: "T1486 - Data Encrypted for Impact"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1486/
+description: |
+  Detects the behavioral engine crossing the ransomware suspect threshold: the process is flagged but not yet frozen. This is an early-warning signal, not a resolution - the containment outcome (ransomware_contained or contain_failed) follows shortly after. severity is high or critical and signature names the top contributing detector (for example canary tampering or shadow-copy deletion, T1490).
+
+  Next Steps:
+  1. Isolate the host from the network now - the window between suspect and frozen is the window damage happens in
+  2. Review the top contributing signal in signature
+  3. Check the process tree via log.processPid and origin.command to understand what the suspect process is and where it came from
+  4. Verify shadow copies and backups are intact on the host and in scope
+  5. Prepare for the follow-up outcome: the contained or contain_failed event will land next - have the response branch ready for both
+  6. If it resolves to contain_failed, escalate immediately as an active incident
+where: |
+  equals("log.source", "behavioral") &&
+  equals("action", "ransomware_suspected")

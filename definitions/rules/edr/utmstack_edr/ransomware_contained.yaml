@@ -1,0 +1,27 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - utmstack_edr
+name: UTMStack EDR Ransomware Contained
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 4
+category: Impact
+technique: "T1486 - Data Encrypted for Impact"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1486/
+description: |
+  Detects the EDR killing the ransomware process tree and quarantining the image - a successful automated response. This is the resolution event for the earlier ransomware behavior suspected alert. The damage assessment still belongs to the window before containment, when the process was running.
+
+  Next Steps:
+  1. Confirm the kill: check origin.command and verify the process tree is gone and not re-spawning
+  2. Verify target.file is in quarantine and cannot be restored by a local user
+  3. Assess the damage in the pre-containment window: file rename and delete activity on the host between first suspect and contained
+  4. Check for exfiltration in the same window - some strains ship data before encrypting
+  5. If the process ran for a long time before containment, plan to re-image rather than clean
+  6. Close the paired suspected alert as contained and keep the incident open until the damage assessment is done
+where: |
+  equals("log.source", "behavioral") &&
+  equals("action", "ransomware_contained")

@@ -1,0 +1,26 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - utmstack_edr
+name: UTMStack EDR Malicious Script Blocked
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 3
+category: Execution, Defense Evasion
+technique: "T1059.001 - Command and Scripting Interpreter: PowerShell"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1059/001/
+description: |
+  Detects a script payload blocked before execution. Two sources feed this rule: AMSI blocking a malicious script (source "amsi", action "blocked", verdict "malicious", where signature carries the matched signature) and the behavioral engine blocking a script (source "behavioral", action "script_block", where signature carries the deobfuscated script text and no verdict is present). Either way the payload never ran - the value is in seeing what was attempted.
+
+  Next Steps:
+  1. Inspect origin.process to identify the script host (e.g. PowerShell, wscript, cscript)
+  2. Review signature in the event detail panel: a matched signature for AMSI, deobfuscated script text for the behavioral variant
+  3. Identify what triggered the script: a macro, a downloaded file, a scheduled task, user action
+  4. Correlate with file drops from the same host in the same window - a blocked script often follows a payload drop
+  5. Check for other blocked scripts from the same host or user in the recent window - repetition indicates an active attempt, not a stray file
+where: |
+  (equals("log.source", "amsi") && equals("action", "blocked") && equals("log.verdict", "malicious")) ||
+  (equals("log.source", "behavioral") && equals("action", "script_block"))

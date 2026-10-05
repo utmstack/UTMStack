@@ -1,0 +1,28 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - utmstack_edr
+name: UTMStack EDR Signature Database Stale
+impact:
+  confidentiality: 2
+  integrity: 2
+  availability: 3
+category: Defense Evasion
+technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1562/001/
+description: |
+  Detects the agent's signature feed missing its update window. This is a maintenance alert, not an attack alert: no malware was found, but detection coverage is degrading until the next successful update, and an attacker knows stale signatures widen the safe window.
+
+  Next Steps:
+  1. Check agent connectivity to the signature mirror: is the agent reaching it, and what are the errors
+  2. Verify the mirror itself is healthy - one stale agent may be a local issue, many is a mirror issue
+  3. Confirm the agent service is running and scheduled update tasks are firing
+  4. Look for a recent network policy change (proxy, firewall, DNS) that could block the mirror
+  5. Re-verify after the next successful update and confirm the health signal clears
+  6. While stale, lower confidence in clean scan results from this host and lean on behavioral detection
+where: |
+  equals("log.source", "edr_engine") &&
+  equals("action", "health") &&
+  equals("log.signature", "signature_updates_stale")

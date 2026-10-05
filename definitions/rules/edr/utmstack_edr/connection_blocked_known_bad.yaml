@@ -1,0 +1,28 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - utmstack_edr
+name: UTMStack EDR Connection to Known-Bad Address Blocked
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 3
+category: Command and Control
+technique: "T1071 - Application Layer Protocol"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1071/
+description: |
+  Detects a network connection to a blacklisted IP or domain that the network watcher blocked before it completed. indicator carries the matched blocklist entry, target.ip and target.domain carry the destination, and origin.process names the responsible application. One blocked connection is common; the question is always what tried to use it and whether a fallback path succeeded.
+
+  Next Steps:
+  1. Identify origin.process - a browser is one story, an office app or a system binary is another
+  2. Review the indicator value to confirm which blocklist entry matched and its confidence
+  3. Assess the destination: known C2, DGA, or a generic sinkhole - the classification changes the follow-up
+  4. Correlate other blocked connections from the same host in the recent window - repetition points at an active implant
+  5. Verify no fallback protocol succeeded: check outbound DNS and TLS from the same host around the same time
+  6. Isolate the host if the responsible process is suspicious or if the pattern repeats
+where: |
+  equals("log.source", "network_watcher") &&
+  equals("action", "blocked") &&
+  equals("log.verdict", "malicious")
