@@ -33,6 +33,38 @@ func TestExecTgid(t *testing.T) {
 	}
 }
 
+// TestBuildSubscribeMsg pins the CN_PROC subscription byte layout against
+// the kernel's struct cn_msg (cb_id{u16 idx; u16 val}, u32 seq, u32 ack,
+// u16 len, u16 flags, 4 pad, u32 mcast_op). A regression to u32 idx/val
+// makes the kernel see {1,0} instead of {1,1} and the subscription
+// silently delivers zero events — the exact Y2.5 bug this locks out.
+func TestBuildSubscribeMsg(t *testing.T) {
+	buf := buildSubscribeMsg()
+	if len(buf) != 40 {
+		t.Fatalf("len = %d, want 40", len(buf))
+	}
+	checks := []struct {
+		name string
+		got  uint32
+		want uint32
+	}{
+		{"nlmsg_len", binary.LittleEndian.Uint32(buf[0:]), 40},
+		{"id.idx u16", uint32(binary.LittleEndian.Uint16(buf[16:])), 1},
+		{"id.val u16", uint32(binary.LittleEndian.Uint16(buf[18:])), 1},
+		{"seq u32", binary.LittleEndian.Uint32(buf[20:]), 1},
+		{"ack u32", binary.LittleEndian.Uint32(buf[24:]), 0},
+		{"cn_msg.len u16", uint32(binary.LittleEndian.Uint16(buf[28:])), 4},
+		{"cn_msg.flags u16", uint32(binary.LittleEndian.Uint16(buf[30:])), 0},
+		{"pad u32", binary.LittleEndian.Uint32(buf[32:]), 0},
+		{"mcast_op u32", binary.LittleEndian.Uint32(buf[36:]), procCnMcastListen},
+	}
+	for _, c := range checks {
+		if c.got != c.want {
+			t.Errorf("%s = %d, want %d", c.name, c.got, c.want)
+		}
+	}
+}
+
 // TestProcEnrichmentGoneProcess covers the /proc race: the exec'd process
 // may have exited before we read it. Every helper must return the empty
 // value without panicking.
