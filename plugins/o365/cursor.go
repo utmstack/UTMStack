@@ -9,8 +9,7 @@ func o365CursorKey(group *ModuleGroup) string {
 	return cursorKeyPrefix + group.Key()
 }
 
-// Boundary of the last successfully ingested window. CursorStore treats
-// Cursor.Data as opaque bytes and never parses this.
 type cursorPayload struct {
-	WindowEnd time.Time `json:"windowEnd"`
+	WindowEnd       time.Time `json:"windowEnd"`
+	RiskLastUpdated time.Time `json:"riskLastUpdated"`
 }

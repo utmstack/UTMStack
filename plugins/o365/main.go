@@ -39,6 +39,8 @@ type CloudConfig struct {
 	LoginAuthority     string
 	ManagementEndpoint string
 	Scope              string
+	GraphEndpoint      string
+	GraphScope         string
 }
 
 func GetCloudConfig(env CloudEnvironment) CloudConfig {
@@ -47,28 +49,42 @@ func GetCloudConfig(env CloudEnvironment) CloudConfig {
 			LoginAuthority:     "https://login.microsoftonline.com/",
 			ManagementEndpoint: "https://manage.office.com/",
 			Scope:              "https://manage.office.com/.default",
+			GraphEndpoint:      "https://graph.microsoft.com/",
 		},
 		CloudGCC: {
 			LoginAuthority:     "https://login.microsoftonline.com/",
 			ManagementEndpoint: "https://manage-gcc.office.com/",
 			Scope:              "https://manage-gcc.office.com/.default",
+			// GCC is a commercial-cloud tenant with government data handling;
+			// it shares the commercial Graph host, unlike GCCHigh and DoD.
+			GraphEndpoint: "https://graph.microsoft.com/",
 		},
 		CloudGCCHigh: {
 			LoginAuthority:     "https://login.microsoftonline.us/",
 			ManagementEndpoint: "https://manage.office365.us/",
 			Scope:              "https://manage.office365.us/.default",
+			GraphEndpoint:      "https://graph.microsoft.us/",
 		},
 		CloudDoD: {
 			LoginAuthority:     "https://login.microsoftonline.us/",
 			ManagementEndpoint: "https://manage.protection.apps.mil/",
 			Scope:              "https://manage.protection.apps.mil/.default",
+			GraphEndpoint:      "https://dod-graph.microsoft.us/",
 		},
 	}
 
 	config, exists := configs[env]
 	if !exists {
-		return configs[CloudCommercial]
+		config = configs[CloudCommercial]
 	}
+
+	// Derived, not tabulated. Microsoft documents the ".default" suffix rule for
+	// client-credentials scopes but publishes no literal scope string for the
+	// sovereign clouds, so a hand-written GCCHigh/DoD entry would be an
+	// invention we could not cite. Deriving keeps the scope correct by
+	// construction and impossible to drift from the endpoint it authorises.
+	config.GraphScope = config.GraphEndpoint + ".default"
+
 	return config
 }
 
@@ -275,9 +291,8 @@ func pull(startTime time.Time, endTime time.Time, group *ModuleGroup) (int, erro
 }
 
 type OfficeProcessor struct {
-	Credentials MicrosoftLoginResponse
-	// TenantId is the customer's Microsoft Azure AD tenant, used to build API
-	// URLs. It is NOT UTMStack's platform tenant; that is UtmTenantId.
+	Credentials      MicrosoftLoginResponse
+	GraphCredentials MicrosoftLoginResponse
 	TenantId         string
 	UtmTenantId      string
 	ClientId         string

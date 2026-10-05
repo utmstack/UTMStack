@@ -12,9 +12,6 @@ const (
 	jobConsumedMsg       = "job consumed, cursor advanced"
 	coordinationReadyMsg = "coordination ready, consuming jobs"
 
-	// queuePlugin names the NATS stream, subjects, durable consumer and
-	// scheduler election key. Changing it orphans all of them on an existing
-	// deployment.
 	queuePlugin = "o365"
 )
 
@@ -26,9 +23,6 @@ func logCoordinationReady() {
 	})
 }
 
-// One job per group, never per tenant: a per-tenant job would collapse all of a
-// tenant's groups onto a single worker. Job.TenantID carries UtmTenantId, not
-// the Microsoft tenant id.
 func jobsForGroups(groups []*ModuleGroup, windowStart, windowEnd time.Time) []coordination.Job {
 	jobs := make([]coordination.Job, 0, len(groups))
 	for _, grp := range groups {
@@ -54,8 +48,6 @@ func publishTickJobs(ctx context.Context, scheduler coordination.Store, publishe
 		})
 }
 
-// The key must match what group.Key() produces. Every worker loads the same
-// pipeline config, so a configured group resolves here too, modulo propagation lag.
 func resolveGroup(tenantId, groupName string) (*ModuleGroup, bool) {
 	activeGroupsMu.RLock()
 	defer activeGroupsMu.RUnlock()
@@ -63,15 +55,13 @@ func resolveGroup(tenantId, groupName string) (*ModuleGroup, bool) {
 	return grp, ok
 }
 
-// Turns a delivered job into a pull() call and a persisted cursor. The
-// load-work-save-ack ordering belongs to coordination.ConsumeAndAdvanceCursor
-// and must not be hand-rolled here.
 func consumeJob(
 	ctx context.Context,
 	cursors coordination.CursorStore,
 	delivery coordination.JobDelivery,
 	group *ModuleGroup,
 	pullFn func(startTime, endTime time.Time, group *ModuleGroup) (int, error),
+	riskFn func(since time.Time, group *ModuleGroup) (int, time.Time),
 	encryptionKey string,
 ) error {
 	key := o365CursorKey(group)
@@ -79,7 +69,7 @@ func consumeJob(
 	// Captured by whichever callback runs, so the outcome can be logged only
 	// after the cursor is durable. ConsumeWork's signatures cannot return it.
 	var windowStart, windowEnd time.Time
-	var ingested int
+	var ingested, riskIngested int
 
 	work := coordination.ConsumeWork{
 		// First activation, no persisted cursor. job.WindowStart is seeded from
@@ -90,8 +80,9 @@ func consumeJob(
 			if err != nil {
 				return nil, err
 			}
-			windowStart, windowEnd, ingested = job.WindowStart, now, n
-			return coordination.MarshalCursorPayload(cursorPayload{WindowEnd: now}, encryptionKey)
+			rn, riskWatermark := riskFn(job.WindowStart, group)
+			windowStart, windowEnd, ingested, riskIngested = job.WindowStart, now, n+rn, rn
+			return coordination.MarshalCursorPayload(cursorPayload{WindowEnd: now, RiskLastUpdated: riskWatermark}, encryptionKey)
 		},
 		// The starting point is cur.Data, never job.WindowStart: a different
 		// worker may have handled the previous tick.
@@ -105,8 +96,13 @@ func consumeJob(
 			if err != nil {
 				return nil, err
 			}
-			windowStart, windowEnd, ingested = prev.WindowEnd, now, n
-			return coordination.MarshalCursorPayload(cursorPayload{WindowEnd: now}, encryptionKey)
+			riskSince := prev.RiskLastUpdated
+			if riskSince.IsZero() {
+				riskSince = job.WindowStart
+			}
+			rn, riskWatermark := riskFn(riskSince, group)
+			windowStart, windowEnd, ingested, riskIngested = prev.WindowEnd, now, n+rn, rn
+			return coordination.MarshalCursorPayload(cursorPayload{WindowEnd: now, RiskLastUpdated: riskWatermark}, encryptionKey)
 		},
 	}
 
@@ -120,6 +116,7 @@ func consumeJob(
 		"windowStart": windowStart.Format(time.RFC3339Nano),
 		"windowEnd":   windowEnd.Format(time.RFC3339Nano),
 		"records":     ingested,
+		"riskRecords": riskIngested,
 	})
 	return nil
 }
@@ -135,7 +132,7 @@ func runQueueConsumer(ctx context.Context, consumer coordination.JobConsumer, cu
 				// exhaustion drops the job if the group is gone everywhere.
 				return nil
 			}
-			return consumeJob(ctx, cursors, delivery, group, pull, encryptionKeyFn())
+			return consumeJob(ctx, cursors, delivery, group, pull, pullRiskDetections, encryptionKeyFn())
 		},
 		func(err error) {
 			_ = catcher.Error("error consuming job", err, map[string]any{"process": processName})
