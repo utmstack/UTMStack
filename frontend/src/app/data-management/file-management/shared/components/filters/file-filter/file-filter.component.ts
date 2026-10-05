@@ -32,7 +32,7 @@ export class FileFilterComponent implements OnInit {
 
   onFileSearch($event: string) {
     const filter: ElasticFilterType = {
-      field: 'logx.wineventlog.*',
+      field: '*',
       operator: ElasticOperatorsEnum.IS_IN_FIELD,
       value: $event
     };

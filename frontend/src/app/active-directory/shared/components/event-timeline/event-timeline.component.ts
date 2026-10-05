@@ -140,7 +140,7 @@ export class EventTimelineComponent implements OnInit, AfterViewInit {
   }
 
   getUniqueEventId(item: Event) {
-    const eventCode = item.log && item.log.eventCode;
+    const eventCode = item.event && item.event.eventCode;
     return item.id + '-' + eventCode + '-' + new Date(item.timestamp).getTime();
   }
 

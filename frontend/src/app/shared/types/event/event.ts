@@ -45,7 +45,7 @@ export interface Event {
   tenantId: string;
   tenantName: string;
   raw: string;
-  log: { [key: string]: any };
+  event: { [key: string]: any };
   target: Side;
   origin: Side;
   protocol: string;
