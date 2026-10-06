@@ -10,7 +10,12 @@
   - operator: IS
     field: name
     value: TODO-set-the-correlation-rule-that-triggers-this
-  commands:
-  - for interface in $(networksetup -listallnetworkservices | grep -v "aster"); do networksetup -setnetworkserviceenabled "$interface" off; done
-  shell: sh
-  agentPlatform: macos
+  roots:
+    - step_0
+  nodes:
+    step_0:
+        kind: executor
+        executor: shell
+        command: for interface in $(networksetup -listallnetworkservices | grep -v "aster"); do networksetup -setnetworkserviceenabled "$interface" off; done
+        shell: sh
+        platform: macos

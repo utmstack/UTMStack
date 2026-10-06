@@ -5,10 +5,22 @@
   - operator: IS
     field: name
     value: RDP Brute Force Attack
-  commands:
-  - netsh advfirewall firewall add rule name="Block-RDP-Brute-Force-$(adversary.ip)" dir=in action=block remoteip="$(adversary.ip)"
-    enable=yes
-  - netsh advfirewall firewall add rule name="Block-Brute-Force-$(adversary.ip)" dir=in action=block remoteip="$(adversary.ip)"
-    enable=yes
-  shell: powershell
-  agentPlatform: windows
+  roots:
+    - step_0
+  nodes:
+    step_0:
+        kind: executor
+        executor: shell
+        command: netsh advfirewall firewall add rule name="Block-RDP-Brute-Force-$(adversary.ip)" dir=in action=block remoteip="$(adversary.ip)" enable=yes
+        shell: powershell
+        platform: windows
+        onSuccess:
+          - step_1
+        onError:
+          - step_1
+    step_1:
+        kind: executor
+        executor: shell
+        command: netsh advfirewall firewall add rule name="Block-Brute-Force-$(adversary.ip)" dir=in action=block remoteip="$(adversary.ip)" enable=yes
+        shell: powershell
+        platform: windows

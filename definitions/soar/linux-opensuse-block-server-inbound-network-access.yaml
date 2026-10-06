@@ -10,7 +10,12 @@
   - operator: IS
     field: name
     value: TODO-set-the-correlation-rule-that-triggers-this
-  commands:
-  - firewall-cmd --zone=public --add-rich-rule='rule family="ipv4" source address="$(adversary.ip)" drop' --permanent && firewall-cmd --reload
-  shell: sh
-  agentPlatform: rhel
+  roots:
+    - step_0
+  nodes:
+    step_0:
+        kind: executor
+        executor: shell
+        command: firewall-cmd --zone=public --add-rich-rule='rule family="ipv4" source address="$(adversary.ip)" drop' --permanent && firewall-cmd --reload
+        shell: sh
+        platform: rhel

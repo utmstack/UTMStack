@@ -10,7 +10,12 @@
   - operator: IS
     field: name
     value: TODO-set-the-correlation-rule-that-triggers-this
-  commands:
-  - powershell Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name 'fDenyTSConnections' -Value 1 -Force; if ("$(lastEvent.log.message)" -match 'name=\"(.+?)\"') { Remove-NetFirewallRule -DisplayName $matches[1] -ErrorAction SilentlyContinue }
-  shell: powershell
-  agentPlatform: windows
+  roots:
+    - step_0
+  nodes:
+    step_0:
+        kind: executor
+        executor: shell
+        command: powershell Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name 'fDenyTSConnections' -Value 1 -Force; if ("$(lastEvent.log.message)" -match 'name=\"(.+?)\"') { Remove-NetFirewallRule -DisplayName $matches[1] -ErrorAction SilentlyContinue }
+        shell: powershell
+        platform: windows

@@ -12,8 +12,22 @@
   - operator: IS
     field: name
     value: TODO-set-the-correlation-rule-that-triggers-this
-  commands:
-  - net user "$(target.user)" /active:no
-  - net user $(adversary.user) /active:no
-  shell: powershell
-  agentPlatform: windows
+  roots:
+    - step_0
+  nodes:
+    step_0:
+        kind: executor
+        executor: shell
+        command: net user "$(target.user)" /active:no
+        shell: powershell
+        platform: windows
+        onSuccess:
+          - step_1
+        onError:
+          - step_1
+    step_1:
+        kind: executor
+        executor: shell
+        command: net user $(adversary.user) /active:no
+        shell: powershell
+        platform: windows
