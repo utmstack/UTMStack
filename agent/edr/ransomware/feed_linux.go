@@ -44,7 +44,9 @@ func NewFeed(vols ...string) FileActivityFeed { return fanotifyFeed{volumes: vol
 // Run starts the fanotify feed and blocks until ctx is cancelled.
 //
 // Setup:
-//  1. fanotify_init with FAN_CLOEXEC|FAN_REPORT_PIDFD (PID in metadata.pid).
+//  1. fanotify_init with FAN_CLOEXEC|FAN_REPORT_PIDFD|FAN_UNLIMITED_QUEUE.
+//     FAN_UNLIMITED_QUEUE stops the default 16-slot kernel queue from
+//     overflowing (and silently dropping events) on busy mounts.
 //     FAN_REPORT_DFID_NAME must NOT be combined with FAN_REPORT_PIDFD — the
 //     kernel returns ENOSYS. Path resolution is by readlink of the event fd.
 //  2. For each volume: statfs → skip network/virtual FS (same magic
@@ -63,7 +65,7 @@ func (f fanotifyFeed) Run(ctx context.Context, sink func(FileEvent)) error {
 		return ctx.Err()
 	}
 
-	fd, err := unix.FanotifyInit(unix.FAN_CLOEXEC|unix.FAN_REPORT_PIDFD, 0)
+	fd, err := unix.FanotifyInit(unix.FAN_CLOEXEC|unix.FAN_REPORT_PIDFD|unix.FAN_UNLIMITED_QUEUE, 0)
 	if err != nil {
 		return fmt.Errorf("fanotify_init: %w", err)
 	}
