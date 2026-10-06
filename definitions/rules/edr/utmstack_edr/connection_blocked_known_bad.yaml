@@ -4,9 +4,9 @@ dataTypes:
   - utmstack_edr
 name: UTMStack EDR Connection to Known-Bad Address Blocked
 impact:
-  confidentiality: 3
-  integrity: 3
-  availability: 3
+  confidentiality: 2
+  integrity: 1
+  availability: 0
 category: Command and Control
 technique: "T1071 - Application Layer Protocol"
 adversary: origin
