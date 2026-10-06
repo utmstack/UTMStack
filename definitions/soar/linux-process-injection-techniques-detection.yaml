@@ -10,8 +10,22 @@
   - operator: IS
     field: name
     value: TODO-set-the-correlation-rule-that-triggers-this
-  commands:
-  - sudo usermod --expiredate 1 $(target.user)
-  - usermod -s /sbin/nologin $(adversary.user)
-  shell: sh
-  agentPlatform: ubuntu
+  roots:
+    - step_0
+  nodes:
+    step_0:
+        kind: executor
+        executor: shell
+        command: sudo usermod --expiredate 1 $(target.user)
+        shell: sh
+        platform: ubuntu
+        onSuccess:
+          - step_1
+        onError:
+          - step_1
+    step_1:
+        kind: executor
+        executor: shell
+        command: usermod -s /sbin/nologin $(adversary.user)
+        shell: sh
+        platform: ubuntu

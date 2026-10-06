@@ -10,7 +10,12 @@
   - operator: IS
     field: name
     value: TODO-set-the-correlation-rule-that-triggers-this
-  commands:
-  - iptables -A OUTPUT -d $(adversary.ip) -j DROP
-  shell: sh
-  agentPlatform: linux
+  roots:
+    - step_0
+  nodes:
+    step_0:
+        kind: executor
+        executor: shell
+        command: iptables -A OUTPUT -d $(adversary.ip) -j DROP
+        shell: sh
+        platform: linux

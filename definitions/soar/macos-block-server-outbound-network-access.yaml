@@ -10,7 +10,12 @@
   - operator: IS
     field: name
     value: TODO-set-the-correlation-rule-that-triggers-this
-  commands:
-  - echo "block out from any to $(adversary.ip)" | pfctl -f -
-  shell: sh
-  agentPlatform: macos
+  roots:
+    - step_0
+  nodes:
+    step_0:
+        kind: executor
+        executor: shell
+        command: echo "block out from any to $(adversary.ip)" | pfctl -f -
+        shell: sh
+        platform: macos

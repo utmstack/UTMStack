@@ -7,10 +7,32 @@
   - operator: IS
     field: name
     value: PowerShell Empire Detection
-  commands:
-  - taskkill /F /IM "$(target.process)" ; Remove-Item -LiteralPath "$(target.file)" -Force -Recurse ; net user "$(target.user)"
-    /active:no
-  - Remove-Item -LiteralPath "$(adversary.path)" -Force -Recurse
-  - net user $(adversary.user) /active:no
-  shell: powershell
-  agentPlatform: windows
+  roots:
+    - step_0
+  nodes:
+    step_0:
+        kind: executor
+        executor: shell
+        command: taskkill /F /IM "$(target.process)" ; Remove-Item -LiteralPath "$(target.file)" -Force -Recurse ; net user "$(target.user)" /active:no
+        shell: powershell
+        platform: windows
+        onSuccess:
+          - step_1
+        onError:
+          - step_1
+    step_1:
+        kind: executor
+        executor: shell
+        command: Remove-Item -LiteralPath "$(adversary.path)" -Force -Recurse
+        shell: powershell
+        platform: windows
+        onSuccess:
+          - step_2
+        onError:
+          - step_2
+    step_2:
+        kind: executor
+        executor: shell
+        command: net user $(adversary.user) /active:no
+        shell: powershell
+        platform: windows
