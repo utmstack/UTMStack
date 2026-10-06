@@ -18,10 +18,20 @@ import (
 // unexpectedly. A package var so tests can shorten it.
 var feedRetryBackoff = 5 * time.Second
 
+// containedTTL is how long a successfully contained PID is remembered so a
+// straggling file event for the same process cannot re-escalate it into a
+// duplicate containment event (H3 defect 2: the scorer forgets the PID at
+// kill time, and fanotify events queued before the kill land right after).
+var containedTTL = 30 * time.Second
+
 type treeResponder interface {
 	KillTree(rootPID int, signature string) ([]int, error)
 	Suspend(pid int) error
 	Resume(pid int) error
+}
+
+type liveImager interface {
+	Image(pid int) (string, error)
 }
 type appender interface{ Append(string) error }
 type quarantiner interface {
@@ -47,6 +57,10 @@ type GuardDeps struct {
 	// true the guard emits no evidence for that process (canary touches and
 	// T1490 commands are ignored). nil = nothing trusted.
 	Trusted func(image string) bool
+	// LiveImage resolves a process image by PID straight from the OS (the live
+	// snapshot) when the process table has not caught up with the PID yet. nil
+	// = no live source; the table is the only source of truth.
+	LiveImage liveImager
 }
 
 // isTrusted resolves a PID's image via the process table and reports whether it
@@ -75,6 +89,11 @@ type Guard struct {
 	pmu          sync.RWMutex
 	responseMode string
 	commands     []string
+
+	// containedPIDs remembers successfully contained PIDs for containedTTL so
+	// a second escalation for the same process in the kill window is dropped.
+	containedMu sync.Mutex
+	containedPIDs map[int]time.Time
 }
 
 // SetPolicy hot-applies a changed response mode and command allowlist (called by
@@ -109,7 +128,31 @@ func NewGuard(deps GuardDeps) *Guard {
 		cfg: deps.Cfg, deps: deps, scorer: sc,
 		responseMode: rc.ResponseMode,
 		commands:     deps.Cfg.Allowlist.Commands,
+		containedPIDs: map[int]time.Time{},
 	}
+}
+
+// recentlyContained reports whether pid was successfully contained within the
+// suppression window and, while true, keeps it there (no expiry scan; entries
+// are bounded by containment volume and dropped on TTL lapse on read).
+func (g *Guard) recentlyContained(pid int) bool {
+	g.containedMu.Lock()
+	defer g.containedMu.Unlock()
+	ts, ok := g.containedPIDs[pid]
+	if !ok {
+		return false
+	}
+	if g.deps.Now().Sub(ts) > containedTTL {
+		delete(g.containedPIDs, pid)
+		return false
+	}
+	return true
+}
+
+func (g *Guard) rememberContained(pid int) {
+	g.containedMu.Lock()
+	defer g.containedMu.Unlock()
+	g.containedPIDs[pid] = g.deps.Now()
 }
 
 // OnProcStart runs the T1490 command-rule sensor for a new process. Attribution
@@ -191,7 +234,19 @@ func (g *Guard) handle(d Decision, pid int) {
 	if d.Escalation == EscNone {
 		return
 	}
-	p, _ := g.deps.Table.Get(pid)
+	// H3 defect 2: a straggling event for a process we just contained must not
+	// escalate it again (the scorer state was forgotten at kill time).
+	if g.recentlyContained(pid) {
+		return
+	}
+	p, ok := g.deps.Table.Get(pid)
+	if !ok && g.deps.LiveImage != nil {
+		// The process table has not caught up with this PID yet; resolve the
+		// image from the live snapshot so the event still names the process.
+		if img, err := g.deps.LiveImage.Image(pid); err == nil && img != "" {
+			p.Image = img
+		}
+	}
 	pinfo := event.ProcInfo{PID: pid, PPID: p.PPID, Image: p.Image, Cmdline: p.Cmdline}
 	mode := normalizeMode(g.responseModeLive())
 
@@ -256,6 +311,9 @@ func (g *Guard) handle(d Decision, pid int) {
 	g.emit(event.ActionRansomwareContained, pinfo, d, "critical")
 	g.record(action, pid, p, d, qid)
 	g.scorer.Forget(pid)
+	if action == "contained" {
+		g.rememberContained(pid)
+	}
 }
 
 // normalizeMode maps a configured response_mode to one of the three known modes,

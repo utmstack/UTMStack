@@ -403,7 +403,7 @@ func (p *program) startPipeline(ctx context.Context, cfg config.EDRConfig, c *ca
 		rwGuard = ransomware.NewGuard(ransomware.GuardDeps{
 			Cfg: cfg, Table: tab, Resp: resp, Spool: sp, Quar: store, Incidents: c,
 			Canaries: mgr, Hash: scanner.SHA256File, Now: time.Now, NewID: uuid.NewString,
-			Trusted: trusted.Excluded,
+			Trusted: trusted.Excluded, LiveImage: ransomware.LiveImager{},
 		})
 		p.rwGuard = rwGuard
 		onProc = func(ps procwatch.ProcStart) {

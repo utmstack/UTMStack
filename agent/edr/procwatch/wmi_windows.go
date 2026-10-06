@@ -4,6 +4,7 @@ package procwatch
 
 import (
 	"context"
+	"fmt"
 	"runtime"
 	"strconv"
 	"time"
@@ -30,6 +31,14 @@ func (w *Watcher) Run(ctx context.Context) {
 		}
 	}
 }
+
+// WMI asynchronous queries express the generation interval in 0.1-second
+// units; 5 = 0.5 s. WITHIN 1 (the previous value) was the real gap: a
+// process that starts and finishes inside one generation window could be
+// missed entirely. 0.5 s halves the window; it cannot go to zero because
+// WMI still samples on a timer, so sub-500 ms processes can in principle
+// slip through — that residual is documented on the issue (H3 defect 3).
+const wmiWithin100ms = 5
 
 func (w *Watcher) subscribe(ctx context.Context) error {
 	// COM is thread-affine: every call must run on the OS thread that called
@@ -62,7 +71,7 @@ func (w *Watcher) subscribe(ctx context.Context) error {
 	service := serviceRaw.ToIDispatch()
 	defer service.Release()
 
-	query := "SELECT * FROM __InstanceCreationEvent WITHIN 1 WHERE TargetInstance ISA 'Win32_Process'"
+	query := fmt.Sprintf("SELECT * FROM __InstanceCreationEvent WITHIN %d WHERE TargetInstance ISA 'Win32_Process'", wmiWithin100ms)
 	eventSourceRaw, err := oleutil.CallMethod(service, "ExecNotificationQuery", query)
 	if err != nil {
 		return err
