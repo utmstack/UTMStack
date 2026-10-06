@@ -4009,6 +4009,7 @@
       "dashboardEditTitle": "Editor de paneles",
       "editingDashboard": "Editando: {{name}}",
       "soarEditTitle": "Editor de flujos SOAR",
+      "soarCreateTitle": "Crear flujo SOAR",
       "editingFlow": "Editando flujo: {{name}}"
     },
     "focus": {
