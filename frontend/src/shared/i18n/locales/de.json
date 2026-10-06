@@ -5300,6 +5300,8 @@
       "dashboardEditTitle": "Dashboard-Editor",
       "editingDashboard": "Bearbeite: {{name}}",
       "soarEditTitle": "SOAR-Flow-Editor",
+      "soarCreateTitle": "SOAR-Flow erstellen",
+
       "editingFlow": "Bearbeite Flow: {{name}}"
     },
     "focus": {

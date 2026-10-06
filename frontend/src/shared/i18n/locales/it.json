@@ -5308,6 +5308,7 @@
       "dashboardEditTitle": "Editor dashboard",
       "editingDashboard": "Modifica di: {{name}}",
       "soarEditTitle": "Editor di flussi SOAR",
+      "soarCreateTitle": "Crea un flusso SOAR",
       "editingFlow": "Modifica del flusso: {{name}}"
     },
     "focus": {

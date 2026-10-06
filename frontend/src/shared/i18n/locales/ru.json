@@ -5326,6 +5326,7 @@
       "dashboardEditTitle": "Редактор панелей",
       "editingDashboard": "Редактирование: {{name}}",
       "soarEditTitle": "Редактор потоков SOAR",
+      "soarCreateTitle": "Создать поток SOAR",
       "editingFlow": "Редактирование потока: {{name}}"
     },
     "focus": {
