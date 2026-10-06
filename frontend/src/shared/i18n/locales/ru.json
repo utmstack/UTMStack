@@ -1199,7 +1199,21 @@
       "secret.ldap": "Bind password",
       "secretHintCreate": "Stored encrypted and never shown again.",
       "secretHintEdit": "Leave blank to keep the stored one.",
-      "secretUnchanged": "unchanged"
+      "secretUnchanged": "без изменений",
+      "errors": {
+        "required": "Это поле обязательно.",
+        "url": "Должно быть корректным URL http(s).",
+        "httpsUrl": "Должно быть корректным URL https.",
+        "hostname": "Введите хост или IP без схемы (например, ldap.example.com).",
+        "port": "Порт должен быть целым числом от 0 до 65535.",
+        "pemCertificate": "Не похоже на сертификат PEM (нет -----BEGIN/END CERTIFICATE-----).",
+        "pemKey": "Не похоже на закрытый ключ PEM (нет -----BEGIN/END PRIVATE KEY-----).",
+        "userFilterPlaceholder": "Фильтр должен содержать %s, куда подставляется адрес входа.",
+        "userFilterUnbalanced": "Круглые скобки не сбалансированы — поиск ничего не вернёт.",
+        "nameFormat": "Используйте буквы, цифры, точки, дефисы или подчёркивания (макс. 64). Это имя входит в URL SSO, пробелы недопустимы.",
+        "redirectUrl": "Должно быть корректным URL https либо http-loopback URL (localhost / 127.0.0.1 / [::1]).",
+        "entityId": "Должно быть корректным URI, например, https://utmstack.example.com/sp."
+      }
     },
     "delete": {
       "title": "Удалить поставщика удостоверений",
@@ -1252,7 +1266,17 @@
     },
     "searchPlaceholder": "Поиск по имени учётной записи или SID…",
     "allTenants": "Все арендаторы",
-    "filters": "Фильтры",
+    "filters": {
+      "add": "Добавить фильтр",
+      "clearAll": "Очистить всё",
+      "filterValues": "Фильтровать значения…",
+      "loadingValues": "Загрузка значений…",
+      "noValues": "Значения не найдены.",
+      "pickValue": "Выберите значение, чтобы добавить фильтр.",
+      "empty": "(пусто)",
+      "cancel": "Отмена",
+      "addBtn": "Добавить"
+    },
     "filterFields": {
       "status": "Статус жизненного цикла"
     },
