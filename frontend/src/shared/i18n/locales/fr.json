@@ -1240,7 +1240,17 @@
     },
     "searchPlaceholder": "Rechercher par nom de compte ou SID…",
     "allTenants": "Tous les locataires",
-    "filters": "Filtres",
+    "filters": {
+      "add": "Ajouter un filtre",
+      "clearAll": "Tout effacer",
+      "filterValues": "Filtrer les valeurs…",
+      "loadingValues": "Chargement des valeurs…",
+      "noValues": "Aucune valeur trouvée.",
+      "pickValue": "Choisissez une valeur pour ajouter le filtre.",
+      "empty": "(vide)",
+      "cancel": "Annuler",
+      "addBtn": "Ajouter"
+    },
     "filterFields": {
       "status": "Statut du cycle de vie"
     },

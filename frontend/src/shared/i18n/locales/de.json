@@ -1240,7 +1240,17 @@
     },
     "searchPlaceholder": "Nach Kontoname oder SID suchen…",
     "allTenants": "Alle Mandanten",
-    "filters": "Filter",
+    "filters": {
+      "add": "Filter hinzufügen",
+      "clearAll": "Alle löschen",
+      "filterValues": "Werte filtern…",
+      "loadingValues": "Werte werden geladen…",
+      "noValues": "Keine Werte gefunden.",
+      "pickValue": "Wähle einen Wert, um den Filter hinzuzufügen.",
+      "empty": "(leer)",
+      "cancel": "Abbrechen",
+      "addBtn": "Hinzufügen"
+    },
     "filterFields": {
       "status": "Lebenszyklus-Status"
     },
