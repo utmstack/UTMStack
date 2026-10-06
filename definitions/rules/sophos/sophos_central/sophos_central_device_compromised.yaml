@@ -1,19 +1,23 @@
-# Rule version v1.0.0
-
+# Sophos Central SIEM event review; impact ratings and history thresholds preserved.
 dataTypes:
-  - "sophos-central"
-name: "Potentially compromised or blocked device detected in Sophos Central"
+- sophos-central
+name: Sophos Central Potentially Compromised Device
 impact:
   confidentiality: 3
   integrity: 3
   availability: 3
-category: "Resource Development"
-technique: "T1584"
+category: Threat Detection
+technique: Vendor threat detection
 adversary: origin
-references: 
-  - "https://attack.mitre.org/techniques/T1584/"
-description: "Adversaries may compromise third-party infrastructure that can be used during targeting"
-where: oneOf("log.type", ['Event::Endpoint::Device::Blocked', 'Event::UAV::PotentiallyCompromisedDevice'])
+references:
+- https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/NetworkAccessEventTypes/
+description: Sophos reports a potentially compromised device. Investigate device health and network activity. Blocking
+  a peripheral is a separate policy event and does not establish device compromise.
+where: (equals("log.type","Event::UAV::PotentiallyCompromisedDevice")) && !regexMatch("log.type","(?i)(clean|cleanedup|resolved|dismissed|cancelled|success)$")
 groupBy:
-  - adversary.host
-  - adversary.ip
+- lastEvent.dataSource
+- lastEvent.log.customerId
+- lastEvent.log.endpointId
+- lastEvent.log.type
+- target.host
+- target.ip

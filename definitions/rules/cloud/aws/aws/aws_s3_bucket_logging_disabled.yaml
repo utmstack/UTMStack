@@ -1,0 +1,26 @@
+# Rule contract revision 2026-09-25; SDK v1.1.36 (gap-fill set).
+dataTypes:
+- aws
+name: AWS S3 Bucket Server Access Logging Disabled
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Defense Evasion
+technique: T1562.008 - Disable Cloud Logs
+adversary: origin
+description: Identifies PutBucketLogging with no target bucket, disabling server-access logging on a bucket and removing the per-object audit trail.
+references:
+- https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketLogging.html
+where: |
+  equals("log.awsRecordType","cloudtrail") &&
+  (equals("log.eventSource", "s3.amazonaws.com") &&
+  equals("log.eventName", "PutBucketLogging") &&
+  equals("actionResult","success") &&
+  !exists("log.requestParameters.LoggingEnabledTarget.Bucket"))
+groupBy:
+- lastEvent.dataSource
+- lastEvent.log.awsAccountKeyType
+- lastEvent.log.awsAccountKey
+- adversary.ip
+- adversary.user

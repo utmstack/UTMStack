@@ -1,46 +1,37 @@
-# Rule version v2.0.0
+# Rule version v3.0.0
 
 dataTypes:
-  - antivirus-bitdefender-gz
+- antivirus-bitdefender-gz
 name: Bitdefender GravityZone Ransomware Detected
 impact:
   confidentiality: 3
   integrity: 3
   availability: 3
 category: Impact
-technique: "T1486 - Data Encrypted for Impact"
+technique: T1486 - Data Encrypted for Impact
 adversary: origin
 references:
-  - https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
-  - https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html
-  - https://attack.mitre.org/techniques/T1486/
-description: |
-  Detects ransomware that Bitdefender classified as such, from any of three independent signals:
-  - An incident whose attack types include Ransomware, which is GravityZone's own classification of the attack chain.
-  - The Ransomware Mitigation module reporting activity, which is the vendor's dedicated anti-ransomware component.
-  - A threat or detection name containing Ransom, which covers signature-based identification.
+- https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+- https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html
+- https://attack.mitre.org/techniques/T1486/
+description: 'The vendor attack classification, ransomware-mitigation module or detection name identifies ransomware-related activity.
+  The finding may describe an attempt that was blocked or remediated; it does not establish that files were encrypted. Promptly review
+  the vendor action, affected files, processes and accessible shares, and contain supported active activity according to the incident
+  response plan.
 
-  There is no severity floor and no correlation threshold on purpose. These events arrive at CEF severity 3 because GravityZone assigns severity by event type, not by how dangerous the threat is, and a single confirmed ransomware classification already justifies the highest-impact response.
+  '
+where: 'regexMatch("log.BitdefenderGZAttackTypes", "(?i)Ransomware") ||
 
-  Next Steps:
-  1. Isolate the endpoint immediately - before triage, before collecting anything. Every minute of network access is more files encrypted, potentially on shares
-  2. Determine whether encryption already started:
-     - Check the file server and any shares the target.user could reach for recently modified files with unusual extensions
-     - log.BitdefenderGZAttackTypes and log.BitdefenderGZAttCkId show what stage GravityZone attributed
-     - actionResult tells you whether Bitdefender stopped it or only observed it
-  3. Identify the entry point, because ransomware is the last stage of an intrusion, not the first:
-     - origin.url and target.process show how it arrived and what executed it
-     - target.user is the account whose access the malware inherited
-     - Look for credential access or lateral movement on this host in the preceding days
-  4. Check whether Ransomware Mitigation restored anything - the module keeps copies of files it saw being encrypted
-  5. Assume the whole estate is in scope until proven otherwise: hunt target.sha256 and check every host the same account touched
-  6. Preserve evidence before reimaging - the ransom note, the sample and the memory image determine the family and whether a decryptor exists
-  7. Escalate to whoever owns incident response and legal notification. Do not close this alert on a clean scan
-where: |
-  regexMatch("log.BitdefenderGZAttackTypes", "(?i)Ransomware") ||
   equals("log.BitdefenderGZModule", "ransomware-mitigation") ||
+
   contains("target.malware", "Ransom") ||
+
   contains("log.BitdefenderGZDetectionName", "Ransom")
+
+  '
 groupBy:
-  - target.host
-  - lastEvent.log.BitdefenderGZIncidentId
+- lastEvent.dataSource
+- lastEvent.log.BitdefenderGZCompanyId
+- lastEvent.log.endpointKeyType
+- lastEvent.log.endpointKey
+- lastEvent.log.BitdefenderGZIncidentId

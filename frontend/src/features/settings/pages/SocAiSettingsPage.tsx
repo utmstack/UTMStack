@@ -147,21 +147,6 @@ function authKindFromConfig(authType: string, customHeaders: Record<string, stri
   return 'none'
 }
 
-/**
- * Capability groups the admin can grant the agent. IDs MUST match the plugin's
- * capability catalog (plugins/soc-ai/internal/agent/groups.go) and the backend
- * config. Read access is always on; these gate write/action tools per module.
- */
-const CAPABILITY_GROUPS: { id: string; danger?: boolean }[] = [
-  { id: 'alerts' },
-  { id: 'incidents' },
-  { id: 'dashboards' },
-  { id: 'compliance' },
-  { id: 'correlation' },
-  { id: 'datasources' },
-  { id: 'soar', danger: true },
-]
-
 interface HeaderRow {
   key: string
   value: string
@@ -178,12 +163,13 @@ interface Form {
   maxTokens: string
   maxToolIterations: string
   autoAnalyze: boolean
-  capabilities: string[] // enabled permission group ids
+  // Whether the AUTOMATIC triage queue may create/update incidents. Every
+  // other tool group is granted unconditionally once SOC-AI is configured —
+  // configuring it at all is the signal it's meant to be used — and the
+  // interactive chat always has every group, incidents included, since a
+  // person is already driving that conversation.
+  allowIncidents: boolean
 }
-
-// All groups on by default EXCEPT soar (can dispatch commands to agents —
-// opt-in), matching the backend's fresh-install default (usecase/config.go).
-const DEFAULT_CAPABILITIES = CAPABILITY_GROUPS.filter((g) => g.id !== 'soar').map((g) => g.id)
 
 function emptyForm(provider = 'threatwinds'): Form {
   const def = PROVIDERS[provider]
@@ -197,8 +183,8 @@ function emptyForm(provider = 'threatwinds'): Form {
     customHeadersList: [],
     maxTokens: '4096',
     maxToolIterations: '12',
-    autoAnalyze: true,
-    capabilities: DEFAULT_CAPABILITIES,
+    autoAnalyze: false,
+    allowIncidents: false,
   }
 }
 
@@ -238,8 +224,7 @@ export function SocAiSettingsPage() {
           maxTokens: String(cfg.maxTokens || 4096),
           maxToolIterations: String(cfg.maxToolIterations || 12),
           autoAnalyze: cfg.autoAnalyze,
-          // Respect an explicit [] ; only default when nothing was ever configured.
-          capabilities: cfg.configured ? (cfg.capabilities ?? []) : DEFAULT_CAPABILITIES,
+          allowIncidents: cfg.allowIncidents,
         }
         setForm(v)
         setInitial(v)
@@ -327,7 +312,7 @@ export function SocAiSettingsPage() {
         maxTokens: parseInt(form.maxTokens, 10) || 4096,
         maxToolIterations: parseInt(form.maxToolIterations, 10) || 12,
         autoAnalyze: form.autoAnalyze,
-        capabilities: form.capabilities,
+        allowIncidents: form.allowIncidents,
       })
       const next = { ...form, apiKey: '' }
       setInitial(next)
@@ -519,36 +504,29 @@ export function SocAiSettingsPage() {
             </Section>
           )}
 
-          {/* Triage on/off */}
+          {/* Automatic triage behavior. Everything else the agent can do
+              (dashboards, compliance, correlation, datasources, SOAR) is
+              granted unconditionally once SOC-AI is configured — configuring
+              it at all is the signal it's meant to be used — and the
+              interactive chat always has every group too, incidents
+              included, since a person is already driving that conversation.
+              These two toggles are the only real choices left: whether the
+              unattended queue runs at all, and whether it may act on
+              incidents when it does. */}
           <Section title={t('socAi.section.behavior')}>
-            <ToggleRow
-              label={t('socAi.autoAnalyze.label')}
-              hint={t('socAi.autoAnalyze.hint')}
-              checked={form.autoAnalyze}
-              onChange={(v) => patch({ autoAnalyze: v })}
-            />
-          </Section>
-
-          {/* Capabilities — what the agent is allowed to do (read is always on). */}
-          <Section title={t('socAi.section.capabilities')}>
-            <p className="-mt-2 mb-3 text-xs text-muted-foreground">{t('socAi.capsCaption')}</p>
             <div className="space-y-1">
-              {CAPABILITY_GROUPS.map((g) => (
-                <ToggleRow
-                  key={g.id}
-                  label={t(`socAi.cap.${g.id}.label`)}
-                  hint={t(`socAi.cap.${g.id}.hint`)}
-                  danger={g.danger}
-                  checked={form.capabilities.includes(g.id)}
-                  onChange={(v) =>
-                    patch({
-                      capabilities: v
-                        ? [...form.capabilities, g.id]
-                        : form.capabilities.filter((c) => c !== g.id),
-                    })
-                  }
-                />
-              ))}
+              <ToggleRow
+                label={t('socAi.autoAnalyze.label')}
+                hint={t('socAi.autoAnalyze.hint')}
+                checked={form.autoAnalyze}
+                onChange={(v) => patch({ autoAnalyze: v })}
+              />
+              <ToggleRow
+                label={t('socAi.allowIncidents.label')}
+                hint={t('socAi.allowIncidents.hint')}
+                checked={form.allowIncidents}
+                onChange={(v) => patch({ allowIncidents: v })}
+              />
             </div>
           </Section>
 

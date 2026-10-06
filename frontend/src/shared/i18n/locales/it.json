@@ -4937,8 +4937,7 @@
       "aiDescriptionLabel": "Cosa deve fare questo flusso?",
       "aiDescriptionPlaceholder": "es. In caso di alert critico, cerca l'IP di origine nell'intelligence sulle minacce e bloccalo sul firewall",
       "aiCreate": "Crea con IA",
-      "manualContinue": "Continua",
-      "aiOpener": "Crea un flusso SOAR chiamato \"{{name}}\" che fa: {{description}}"
+      "manualContinue": "Continua"
     }
   },
   "compliance": {
@@ -5190,8 +5189,7 @@
       "connection": "Modello e connessione",
       "auth": "Autenticazione",
       "behavior": "Comportamento del triage degli alert",
-      "advanced": "Avanzate",
-      "capabilities": "Capacità"
+      "advanced": "Avanzate"
     },
     "usage": {
       "title": "Utilizzo",
@@ -5257,6 +5255,10 @@
       "label": "Analisi automatica degli alert",
       "hint": "Esegui il triage degli alert in arrivo in tempo reale."
     },
+    "allowIncidents": {
+      "label": "Consenti la gestione degli incident",
+      "hint": "L'agente di triage può creare o aggiornare incident quando ritiene che un alert lo giustifichi."
+    },
     "changeAlertStatus": {
       "label": "Modifica stato degli alert",
       "hint": "Consenti all'agente di impostare lo stato di un alert durante il triage."
@@ -5279,42 +5281,11 @@
       "label": "Applica etichette",
       "hint": "Consenti all'agente di etichettare gli alert durante il triage."
     },
-    "capsCaption": "L'accesso in lettura è sempre attivo. Scegli cosa l'agente può modificare — durante il triage e in chat. Per qualsiasi opzione disattivata, l'agente rifiuterà e rimanderà l'utente a questa pagina.",
     "note": {
       "azure": "Incolla l'endpoint completo del tuo deployment Azure come URL; il modello è il nome del tuo deployment. L'autenticazione usa l'header api-key.",
       "ollama": "Punta l'URL al tuo host Ollama. Non è necessaria alcuna chiave API per un'istanza locale.",
       "custom": "Qualsiasi endpoint compatibile con OpenAI. Imposta l'URL, l'autenticazione e gli eventuali header aggiuntivi richiesti dal tuo gateway.",
       "threatwinds": "Usa automaticamente la tua licenza UTMStack — non serve una API key. Fatturato tramite il tuo abbonamento ThreatWinds."
-    },
-    "cap": {
-      "alerts": {
-        "label": "Gestisci alert",
-        "hint": "Modifica stato, applica etichette, aggiungi note, gestisci regole di etichettatura."
-      },
-      "incidents": {
-        "label": "Gestisci incident",
-        "hint": "Crea incident, aggiungi alert, modifica stato, aggiungi note."
-      },
-      "dashboards": {
-        "label": "Gestisci dashboard",
-        "hint": "Crea e modifica dashboard."
-      },
-      "compliance": {
-        "label": "Gestisci compliance",
-        "hint": "Gestisci i framework e genera report."
-      },
-      "correlation": {
-        "label": "Gestisci regole di correlazione e filtri",
-        "hint": "Crea e modifica regole di correlazione, filtri di elaborazione eventi, pattern regex e impostazioni delle regole per tenant."
-      },
-      "datasources": {
-        "label": "Gestisci sorgenti dati",
-        "hint": "Modifica gruppi ed etichette delle sorgenti dati."
-      },
-      "soar": {
-        "label": "Gestire flussi SOAR",
-        "hint": "Creare e modificare le regole SOAR (flussi di risposta)."
-      }
     },
     "chat": {
       "title": "Assistente SOC",

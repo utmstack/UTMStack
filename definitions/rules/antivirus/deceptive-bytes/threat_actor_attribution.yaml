@@ -29,11 +29,11 @@ where: |
   equals("log.eventType", "threat_attribution") &&
   greaterOrEqual("log.attributionConfidence", 70) &&
   exists("log.actorProfile") &&
-  equals("log.deceptionTriggered", true) &&
+  equals("log.deceptionTriggered", "true") &&
   (greaterOrEqual("log.ttpsMatched", 3) ||
-   equals("log.infrastructureMatch", true) ||
+   equals("log.infrastructureMatch", "true") ||
    exists("log.toolingFingerprint")) &&
-  equals("log.historicalCampaignMatch", true)
+  equals("log.historicalCampaignMatch", "true")
 groupBy:
   - lastEvent.log.actorProfile
   - lastEvent.log.campaignId

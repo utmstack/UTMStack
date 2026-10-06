@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.0.1
 
 dataTypes:
   - suricata
@@ -31,9 +31,11 @@ where: |
       !equals("target.port", 22))) ||
     (equals("log.appProto", "ssh") &&
      !equals("target.port", 22)) ||
-    (equals("protocol", "TCP") &&
+    (equals("log.eventType", "flow") &&
+     equals("protocol", "TCP") &&
      equals("target.port", 443) &&
-     !equals("log.appProto", "tls")) ||
+     exists("log.appProto") &&
+     !oneOf("log.appProto", ["tls", "failed"])) ||
     (equals("log.eventType", "alert") &&
      contains("log.alert.signature", "tunnel")) ||
     (equals("target.port", 53) &&

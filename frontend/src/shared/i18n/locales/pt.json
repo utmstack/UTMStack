@@ -3890,8 +3890,7 @@
       "connection": "Modelo e conexão",
       "auth": "Autenticação",
       "behavior": "Comportamento da triagem",
-      "advanced": "Avançado",
-      "capabilities": "Capacidades"
+      "advanced": "Avançado"
     },
     "usage": {
       "title": "Uso",
@@ -3957,6 +3956,10 @@
       "label": "Analisar alertas automaticamente",
       "hint": "Faz triagem dos alertas recebidos em tempo real."
     },
+    "allowIncidents": {
+      "label": "Permitir gerenciar incidentes",
+      "hint": "O agente de triagem pode criar ou atualizar incidentes quando decide que um alerta o justifica."
+    },
     "changeAlertStatus": {
       "label": "Alterar status do alerta",
       "hint": "Permite ao agente definir o status de um alerta na triagem."
@@ -3979,42 +3982,11 @@
       "label": "Aplicar tags",
       "hint": "Permite ao agente marcar alertas com tags durante a triagem."
     },
-    "capsCaption": "A leitura está sempre ativa. Escolha o que o agente pode alterar — na triagem e no chat. O que deixar desligado, o agente recusará e direcionará o usuário aqui.",
     "note": {
       "azure": "Cole o endpoint completo do seu deployment do Azure como URL; o modelo é o nome do deployment. A auth usa o cabeçalho api-key.",
       "ollama": "Aponte a URL para o seu host do Ollama. Não é necessária API key para uma instância local.",
       "custom": "Qualquer endpoint compatível com OpenAI. Defina a URL, a auth e os cabeçalhos extras que seu gateway precisar.",
       "threatwinds": "Usa sua licença UTMStack automaticamente — não precisa de API key. Cobrado através da sua assinatura ThreatWinds."
-    },
-    "cap": {
-      "alerts": {
-        "label": "Gerenciar alertas",
-        "hint": "Alterar status, aplicar tags, adicionar notas, regras de tags."
-      },
-      "incidents": {
-        "label": "Gerenciar incidentes",
-        "hint": "Criar incidentes, adicionar alertas, alterar status, notas."
-      },
-      "dashboards": {
-        "label": "Gerenciar dashboards",
-        "hint": "Criar e editar dashboards."
-      },
-      "compliance": {
-        "label": "Gerenciar compliance",
-        "hint": "Gerenciar frameworks e gerar relatórios."
-      },
-      "correlation": {
-        "label": "Gerenciar regras de correlação e filtros",
-        "hint": "Criar e editar regras de correlação, filtros de processamento de eventos, padrões regex e configurações de regras por tenant."
-      },
-      "datasources": {
-        "label": "Gerenciar fontes de dados",
-        "hint": "Editar grupos e labels das fontes de dados."
-      },
-      "soar": {
-        "label": "Gerenciar fluxos SOAR",
-        "hint": "Criar e editar regras SOAR (fluxos de resposta)."
-      }
     },
     "chat": {
       "title": "Assistente SOC",
@@ -5074,8 +5046,7 @@
       "aiDescriptionLabel": "O que este fluxo deve fazer?",
       "aiDescriptionPlaceholder": "ex.: Em um alerta crítico, pesquisar o IP de origem na inteligência de ameaças e bloqueá-lo no firewall",
       "aiCreate": "Criar com IA",
-      "manualContinue": "Continuar",
-      "aiOpener": "Crie um fluxo SOAR chamado \"{{name}}\" que faz: {{description}}"
+      "manualContinue": "Continuar"
     }
   },
   "compliance": {

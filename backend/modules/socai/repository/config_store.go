@@ -25,10 +25,7 @@ type FileConfig struct {
 	MaxTokens         int               `yaml:"max_tokens"`
 	MaxToolIterations int               `yaml:"max_tool_iterations"`
 	AutoAnalyze       bool              `yaml:"auto_analyze"`
-	// No omitempty: an explicit "everything off" must round-trip as [],
-	// distinct from "never configured" (key absent) -- otherwise it would
-	// keep reverting to the all-on default (usecase/config.go).
-	Capabilities []string `yaml:"capabilities"`
+	AllowIncidents    bool              `yaml:"allow_incidents"`
 }
 
 type socAIConfig struct {

@@ -32,7 +32,7 @@ where: |
     (contains("log.eventDescription", "threat") && oneOf("log.threatClassification", ["Malware", "Exploit", "Ransomware", "Trojan", "PUP"])) ||
     (contains("log.eventDescription", "malicious") && exists("log.threatId"))
   ) &&
-  exists("log.syslogHost")
+  exists("target.host")
 groupBy:
   - lastEvent.log.eventDescription
-  - lastEvent.log.syslogHost
+  - target.host

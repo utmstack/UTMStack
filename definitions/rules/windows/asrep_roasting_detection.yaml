@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.0.1
 
 dataTypes:
   - wineventlog
@@ -28,6 +28,8 @@ description: |
   5. Audit Active Directory for accounts with DONT_REQUIRE_PREAUTH flag
   6. Monitor for subsequent credential usage from the requesting IP
 where: |
+  !oneOf("dataSource", ["", "unknown"]) &&
+  exists("log.authenticationSource") &&
   equals("log.eventCode", "4768") &&
   equals("log.channel", "Security") &&
   equals("log.eventDataTicketEncryptionType", "23") &&
@@ -36,11 +38,18 @@ where: |
   exists("target.user")
 afterEvents:
   - with:
-      - field: origin.ip
+      - field: dataSource
         operator: filter_term
-        value: '{{.origin.ip}}'
+        value: '{{.dataSource}}'
+      - field: log.authenticationSource
+        operator: filter_term
+        value: '{{.log.authenticationSource}}'
+      - field: log.authenticationCandidate.asrepRoastingDetection
+        operator: filter_term
+        value: match
     within: 15m
     count: 3
 groupBy:
-  - adversary.ip
-  - adversary.host
+  - dataSource
+  - lastEvent.log.authenticationSource
+  - target.user

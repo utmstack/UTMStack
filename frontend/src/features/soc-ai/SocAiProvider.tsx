@@ -36,7 +36,6 @@ export interface SoarEditTarget {
 }
 
 export interface SoarCreateTarget {
-  name: string
   description: string
 }
 
@@ -243,7 +242,7 @@ export function SocAiProvider({ children }: { children: ReactNode }) {
           : scope === 'soar-edit' && soarEditTarget
             ? `SOAR flow editor — user is editing flow "${soarEditTarget.name}" at ${soarEditTarget.relPath}. Call soar.rule.get first, then soar.rule.update with the FULL rule JSON (Conditions + Nodes map); preserve all unrelated nodes.`
             : scope === 'soar-create' && soarCreateTarget
-              ? `SOAR flow creation — create a new SOAR flow named "${soarCreateTarget.name}" with soar.rule.create using FULL rule JSON (Conditions + Nodes map). What it should do: ${soarCreateTarget.description}`
+              ? `SOAR flow creation — create a new SOAR flow with soar.rule.create using FULL rule JSON (Conditions + Nodes map). Pick a clear, descriptive name yourself. What it should do: ${soarCreateTarget.description}`
               : scope === 'panel'
             ? composePage(pageContext(location.pathname), focusRef.current)
             : pageContext(location.pathname)

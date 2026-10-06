@@ -225,11 +225,12 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	dsUC := ns_usecase.NewDatasourceUsecase(dsRepo, eventProcessingMod.GetAssetProjectionUsecase())
 	// Discovery from ingestion needs the event store, not OpenSearch: the
 	// statistics it reads moved there with the rest of the pipeline.
+	statsReader := ns_repository.NewStatsReader(eventConn(events))
 	var dsReconciler *ns_usecase.StatsReconciler
-	if reader := ns_repository.NewStatsReader(eventConn(events)); reader != nil {
-		dsReconciler = ns_usecase.NewStatsReconciler(dsRepo, reader, joblease.New(db))
+	if statsReader != nil {
+		dsReconciler = ns_usecase.NewStatsReconciler(dsRepo, statsReader, joblease.New(db))
 	}
-	datasourcesMod := datasources.NewModule(dsUC, dsReconciler, agentClient)
+	datasourcesMod := datasources.NewModule(dsUC, dsReconciler, agentClient, statsReader)
 
 	iam_handler.AppBaseURL = env.String("APP_BASE_URL", "", false)
 

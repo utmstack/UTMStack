@@ -1,32 +1,30 @@
-# Rule version v1.0.0
-
+# Azure rule contract review v2.1.0
 dataTypes:
-  - azure
-name: Azure AD New Root Certificate Authority Added
+- azure
+name: Entra Certificate Authentication Configuration Created
 impact:
   confidentiality: 3
   integrity: 3
   availability: 2
 category: Persistence
-technique: "T1556 - Modify Authentication Process"
+technique: ''
 adversary: origin
 references:
-  - https://learn.microsoft.com/en-us/entra/identity/authentication/concept-certificate-based-authentication
-  - https://attack.mitre.org/techniques/T1556/
-description: |
-  Detects when a new root certificate authority is added to the TrustedCAsForPasswordlessAuth configuration in Azure AD. Adding a rogue root CA enables persistent passwordless authentication backdoor access.
+- https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema
+- https://learn.microsoft.com/en-us/entra/identity/authentication/concept-certificate-based-authentication
+- https://attack.mitre.org/techniques/T1556/
+description: 'A successful certificate authority entity or certificate-based authentication configuration creation. This may be
+  approved PKI administration and does not by itself identify a rogue root CA.
 
-  Next Steps:
-  1. Immediately verify the root CA addition was authorized
-  2. Review the certificate details and issuing authority
-  3. Check the user identity performing the change
-  4. Validate the CA against your organization's known PKI infrastructure
-  5. If unauthorized, remove the root CA immediately
-  6. Audit all certificate-based authentications since the CA was added
-  7. Review Azure AD authentication methods policies
-where: |
-  contains("log.operationName", "TrustedCAsForPasswordlessAuth") ||
-  (contains("log.operationName", "Update organization settings") && contains("log.properties", "certificateAuthorities"))
+  '
+where: 'equalsIgnoreCase("log.azureKind","audit") && equalsIgnoreCase("actionResult","success") && (equalsIgnoreCase("log.azureOperation","Create
+  CertificateAuthorityEntity") || equalsIgnoreCase("log.azureOperation","Add CertificateBasedAuthConfiguration"))
+
+  '
 groupBy:
-  - lastEvent.log.operationName
-  - adversary.user
+- lastEvent.dataSource
+- lastEvent.log.azureScopeType
+- lastEvent.log.azureScope
+- lastEvent.log.azureOperation
+- adversary.user
+- adversary.ip
