@@ -39,6 +39,7 @@ var dataTypeCriticality = map[string]int{
 	"antivirus-esmc-eset":        22,
 	"antivirus-bitdefender-gz":   22,
 	"sophos-central":             22,
+	"utmstack_edr":               22,
 	"macos":                      20,
 	"syslog":                     18,
 	"generic":                    15,
