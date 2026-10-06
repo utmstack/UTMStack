@@ -52,7 +52,7 @@ func TestWindowsActionResultRaw(t *testing.T) {
 					t.Errorf("unexpected %s", path)
 				}
 			}
-			for _, value := range []string{"success", "failure", "denied"} {
+			for _, value := range []string{"success", "failed", "denied"} {
 				got, err := cache.Eval(`equals("actionResult","`+value+`")`, out)
 				if err != nil || got != (tc.Result == value) {
 					t.Errorf("outcome predicate %s = %v (%v)", value, got, err)

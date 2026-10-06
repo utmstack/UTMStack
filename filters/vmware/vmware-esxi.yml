@@ -1,4 +1,4 @@
-# VMWare-ESXi, version 3.1.0
+# VMWare-ESXi, version 3.2.0
 # 
 # Based on docs and real logs provided
 # Support VMWare-ESXi log
@@ -162,19 +162,116 @@ pipeline:
           to: origin.ip
           where: '(inCIDR("event.loginAddress", "0.0.0.0/0") || inCIDR("event.loginAddress", "::/0")) && !inCIDR("event.loginAddress", "0.0.0.0/32") && !inCIDR("event.loginAddress", "::/128")'
 
-      # Adding action result
+      # A refused vSphere sign-in is recorded as
+      # "Event <n> : Cannot login [user ]<user>@<address>[: <reason>]" (sometimes just
+      # "Event <n> : Cannot login"). It is the event for the attempt; the paired
+      # "Rejected password for user ..." line is the password check and keeps no result,
+      # like "Accepted password" does for a completed session.
+      - grok:
+          patterns:
+            - fieldName: event.failEvent
+              pattern: 'Event [0-9]+ : Cannot login( user\s)?'
+            - fieldName: event.failUser
+              pattern: '\S+@'
+            - fieldName: event.failAddress
+              pattern: '[0-9A-Fa-f:.]*[0-9A-Fa-f]'
+          source: event.message
+          where: 'regexMatch("event.message", "^Event [0-9]+ : Cannot login ")'
+      - trim:
+          function: suffix
+          substring: '@'
+          fields:
+            - event.failUser
+      - rename:
+          from:
+            - event.failUser
+          to: origin.user
+      - rename:
+          from:
+            - event.failAddress
+          to: origin.ip
+          where: '(inCIDR("event.failAddress", "0.0.0.0/0") || inCIDR("event.failAddress", "::/0")) && !inCIDR("event.failAddress", "0.0.0.0/32") && !inCIDR("event.failAddress", "::/128")'
+
+      # SSH sign-ins, one sshd line per attempt:
+      # "Accepted <method> for <user> from <address> port <n> ..." for a completed sign-in and
+      # "error: PAM: Authentication failure for [illegal user ]<user> from <address>" for a
+      # refused password (ESXi signs in through keyboard-interactive/PAM). The other lines of
+      # the same attempt (pam_unix, "SSH session was opened", "SSH login has failed") keep no
+      # result and no address, so each attempt is counted once.
+      - grok:
+          patterns:
+            - fieldName: event.authResult
+              pattern: 'Accepted'
+            - fieldName: event.authMethod
+              pattern: '\S+'
+            - fieldName: event.irrelevant
+              pattern: 'for'
+            - fieldName: event.sshUser
+              pattern: '\S+'
+            - fieldName: event.irrelevant
+              pattern: 'from'
+            - fieldName: event.sshAddress
+              pattern: '[0-9A-Fa-f:.]*[0-9A-Fa-f]'
+            - fieldName: event.irrelevant
+              pattern: 'port'
+          source: event.message
+          where: 'equals("event.process", "sshd") && regexMatch("event.message", "^Accepted \\S+ for \\S+ from \\S+ port [0-9]+")'
+      - grok:
+          patterns:
+            - fieldName: event.irrelevant
+              pattern: 'error: PAM: Authentication failure for( illegal user\s)?'
+            - fieldName: event.sshUser
+              pattern: '\S+'
+            - fieldName: event.irrelevant
+              pattern: 'from'
+            - fieldName: event.sshAddress
+              pattern: '\S+'
+          source: event.message
+          where: 'equals("event.process", "sshd") && regexMatch("event.message", "^error: PAM: Authentication failure for \\S+( \\S+ \\S+)? from \\S+$")'
+      - rename:
+          from:
+            - event.sshUser
+          to: origin.user
+      - rename:
+          from:
+            - event.sshAddress
+          to: origin.ip
+          where: '(inCIDR("event.sshAddress", "0.0.0.0/0") || inCIDR("event.sshAddress", "::/0")) && !inCIDR("event.sshAddress", "0.0.0.0/32") && !inCIDR("event.sshAddress", "::/128")'
+
+      # Adding action result: only success, failed or denied, or nothing when the record
+      # states no final outcome. The first value wins (each later step checks
+      # !exists("actionResult")), so failed and denied run before the success steps.
       - add:
           function: string
           params:
             key: actionResult
-            value: "failure"
+            value: "failed"
           where: 'exists("event.message") && contains("event.message", "authentication failed")'
       - add:
           function: string
           params:
             key: actionResult
-            value: "failure"
+            value: "failed"
           where: 'exists("event.message") && contains("event.message", "authentication of user") && contains("event.message", "failed") && !exists("actionResult")'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "failed"
+          where: 'exists("event.message") && (regexMatch("event.message", "^Event [0-9]+ : Cannot login( |$)") && !regexMatch("event.message", ": no permission$")) && !exists("actionResult")'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "failed"
+          where: 'equals("event.process", "sshd") && exists("event.message") && startsWith("event.message", "error: PAM: Authentication failure for ") && !exists("actionResult")'
+      # The account signed in but holds no permission on the host: a permission refusal.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "denied"
+          where: 'exists("event.message") && regexMatch("event.message", "^Event [0-9]+ : Cannot login .*: no permission$") && !exists("actionResult")'
       - add:
           function: string
           params:
@@ -190,6 +287,12 @@ pipeline:
             key: actionResult
             value: "success"
           where: 'exists("event.loginClient") && !exists("actionResult")'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "success"
+          where: 'equals("event.authResult", "Accepted") && !exists("actionResult")'
 
       # Removing unused fields
       - delete:
@@ -200,3 +303,8 @@ pipeline:
             - event.loginUser
             - event.loginAddress
             - event.loginClient
+            - event.failEvent
+            - event.failUser
+            - event.failAddress
+            - event.sshUser
+            - event.sshAddress

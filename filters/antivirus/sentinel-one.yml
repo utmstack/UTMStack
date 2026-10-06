@@ -1,4 +1,4 @@
-# SentinelOne filter, version 3.2.0
+# SentinelOne filter, version 3.2.1
 # Supports CEF Syslog format and [something@number something="xxxx"] format
 # Based on https://docs.centrify.com/Content/IntegrationContent/SIEM/arcsight-cef/arcsight-cef-format.htm
 # and https://docs.fortinet.com/document/fortisiem/6.1.0/external-systems-configuration-guide/298395/sentinelone
@@ -362,22 +362,50 @@ pipeline:
             - event.rt
           to: event.ruleTime
 
-      # Adding action result. Only an explicit failed mitigation or operation
-      # status is a final outcome: exact values, not substrings, and
-      # contradictory statuses stay unknown. A successful remediation is not an
-      # allowed connection, and console events have no final result, so
-      # neither sets one.
+      # Adding action result: only success, failed or denied, or nothing when
+      # the record states no final outcome. add overwrites, so success comes
+      # first, then failed, then denied.
+      #
+      # Console account and role changes are logged once they are done:
+      # activityType 23 (user added), 25 (user deleted), 37 (role assigned).
       - add:
           function: string
           params:
             key: actionResult
-            value: "failure"
+            value: "success"
+          where: 'oneOf("event.activityType", ["23", "25", "37"])'
+
+      # An explicit failed mitigation or operation status: exact values, not
+      # substrings, and contradictory statuses stay unknown.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "failed"
           where: >-
             (equalsIgnoreCase("event.threatStatus", "mitigation_failed") ||
              equalsIgnoreCase("event.status", "failed") ||
              regexMatch("event.mitigationStatus", "(?i)^(failed|failure|mitigation_failed)$")) &&
             !regexMatch("event.mitigationStatus", "(?i)^(success|succeeded|mitigated)$") &&
             !regexMatch("event.status", "(?i)^(success|succeeded)$")
+
+      # CEF:0 mitigation records carry fileHash and state their result only in
+      # the event name. "Quarantine failed" and the like are failed mitigations.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "failed"
+          where: 'exists("event.fileHash") && regexMatch("event.eventDescription", "(?i)^[A-Za-z ]+ failed$")'
+
+      # A kill or quarantine that completed stopped the threat. Other names,
+      # such as "Kill pending to reboot" or a detection, stay empty.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "denied"
+          where: 'exists("event.fileHash") && regexMatch("event.eventDescription", "(?i)^(kill|quarantine) performed successfully$")'
 
       # Removing unused fields
       - delete:

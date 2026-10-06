@@ -1,4 +1,4 @@
-# Rule version v1.0.3
+# Rule version v1.1.0
 dataTypes:
   - wineventlog
 name: "Windows: LSASS Memory Dump Handle Access"
@@ -13,13 +13,17 @@ description: "Identifies handle requests for the Local Security Authority Subsys
                 specific access masks that many tools with a capability to dump memory to disk use (0x1fffff, 0x1010, 0x120089).
                 This rule is tool agnostic as it has been validated against a host of various LSASS dump tools such as SharpDump,
                 Procdump, Mimikatz, Comsvcs etc. It detects this behavior at a low level and does not depend on a specific tool or dump
-                file name."
+                file name. Programs under Program Files, Microsoft Defender and the listed Windows components are excluded. One alert
+                is raised per computer and requesting program; repeats are suppressed for seven days."
 references:
   - "https://attack.mitre.org/tactics/TA0006/"
   - "https://attack.mitre.org/techniques/T1003/"
   - "https://attack.mitre.org/techniques/T1003/001/"
-where: equals("event.eventCode", 4656) && regexMatch("event.eventDataObjectName", "(:\\Windows\\System32\\lsass.exe|\\Device\\HarddiskVolume[A-Za-z?:\\]([A-Za-z?])?\\Windows\\System32\\lsass.exe)") && !regexMatch("event.eventDataProcessName", "(:\\Program Files\\(.+).exe|:\\Program Files (x86)\\(.+).exe|:\\Windows\\system32\\wbem\\WmiPrvSE.exe|:\\Windows\\System32\\dllhost.exe|:\\Windows\\System32\\svchost.exe|:\\Windows\\System32\\msiexec.exe|:\\ProgramData\\Microsoft\\Windows Defender\\(.+).exe|:\\Windows\\explorer.exe)") &&
-      oneOf("event.eventDataAccessMask", ["2097151", "4112", "1040", "1180185", "2031615"])
-groupBy:
-  - adversary.ip
-  - target.user
+where: |
+  equals("event.eventCode", 4656) &&
+  regexMatch("event.eventDataObjectName", "(?i)(^[a-z]:|harddiskvolume[0-9]+).windows.system32.lsass[.]exe$") &&
+  oneOf("event.eventDataAccessMask", ["2097151", "4112", "1040", "1179785", "2031615"]) &&
+  !regexMatch("event.eventDataProcessName", "(?i)^[a-z]:.(program files( [(]x86[)])?.|programdata.microsoft.windows defender.|windows.(system32.(wbem.wmiprvse|dllhost|svchost|msiexec)|explorer)[.]exe$)")
+deduplicateBy:
+  - dataSource
+  - lastEvent.event.eventDataProcessName

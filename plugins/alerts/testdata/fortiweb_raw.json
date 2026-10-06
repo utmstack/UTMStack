@@ -2179,5 +2179,199 @@
     "matches": [
       "fortiweb_sqli_detection"
     ]
+  },
+  {
+    "name": "action_result_traffic_2xx_success",
+    "raw": "date=2026-09-27 time=10:00:00 log_id=30001000 msg_id=000000041654 device_id=FVVM08TM23001463 vd=\"root\" timezone=\"(GMT+0:00)UTC\" type=traffic subtype=\"https\" pri=notice proto=tcp service=https/tls1.2 status=success reason=none policy=POLICY_A original_src=198.51.100.20 src=198.51.100.20 src_port=51000 dst=192.0.2.10 dst_port=443 http_request_time=0 http_response_time=1 http_request_bytes=900 http_response_bytes=512 http_method=get http_url=\"/app\" http_agent=\"Mozilla/5.0\" http_retcode=200 msg=\"HTTPS get request from 198.51.100.20:51000 to 192.0.2.10:443\" srccountry=\"Reserved\" content_switch_name=\"none\" server_pool_name=\"POOL_A\" http_host=\"app.example.com\" user_name=\"Unknown\" http_refer=\"none\" http_version=\"1.x\"",
+    "expected": {
+      "actionResult": "success",
+      "origin.ip": "198.51.100.20"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "action_result_traffic_401_denied",
+    "raw": "date=2026-09-27 time=10:00:00 log_id=30001000 msg_id=000000041654 device_id=FVVM08TM23001463 vd=\"root\" timezone=\"(GMT+0:00)UTC\" type=traffic subtype=\"https\" pri=notice proto=tcp service=https/tls1.2 status=success reason=none policy=POLICY_A original_src=198.51.100.20 src=198.51.100.20 src_port=51000 dst=192.0.2.10 dst_port=443 http_request_time=0 http_response_time=1 http_request_bytes=900 http_response_bytes=512 http_method=get http_url=\"/app\" http_agent=\"Mozilla/5.0\" http_retcode=401 msg=\"HTTPS get request from 198.51.100.20:51000 to 192.0.2.10:443\" srccountry=\"Reserved\" content_switch_name=\"none\" server_pool_name=\"POOL_A\" http_host=\"app.example.com\" user_name=\"Unknown\" http_refer=\"none\" http_version=\"1.x\"",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "action_result_traffic_HTTP_retcode_403_denied",
+    "raw": "<189>date=2026-09-27 time=10:00:00 log_id=30000000 msg_id=000001351251 device_id=FV-1KD3A14800059 vd=\"root\" timezone=\"(GMT+0:00)UTC\" type=traffic subtype=\"HTTP\" pri=notice proto=tcp service=HTTP status=success reason=none policy=Auto-policy src=203.0.113.30 src_port=8142 dst=192.0.2.22 dst_port=80 HTTP_request_time=0 HTTP_response_time=0 HTTP_request_bytes=444 HTTP_response_bytes=401 HTTP_method=get HTTP_url=\"/\" HTTP_host=\"192.0.2.22\" HTTP_agent=\"Mozilla/4.0\" HTTP_retcode=403 msg=\"HTTP GET request from 203.0.113.30:8142 to 192.0.2.22:80\" srccountry=\"Reserved\"",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "action_result_traffic_404_failed",
+    "raw": "date=2026-09-27 time=10:00:00 log_id=30001000 msg_id=000000041654 device_id=FVVM08TM23001463 vd=\"root\" timezone=\"(GMT+0:00)UTC\" type=traffic subtype=\"https\" pri=notice proto=tcp service=https/tls1.2 status=success reason=none policy=POLICY_A original_src=198.51.100.20 src=198.51.100.20 src_port=51000 dst=192.0.2.10 dst_port=443 http_request_time=0 http_response_time=1 http_request_bytes=900 http_response_bytes=512 http_method=get http_url=\"/app\" http_agent=\"Mozilla/5.0\" http_retcode=404 msg=\"HTTPS get request from 198.51.100.20:51000 to 192.0.2.10:443\" srccountry=\"Reserved\" content_switch_name=\"none\" server_pool_name=\"POOL_A\" http_host=\"app.example.com\" user_name=\"Unknown\" http_refer=\"none\" http_version=\"1.x\"",
+    "expected": {
+      "actionResult": "failed"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "action_result_traffic_5xx_failed",
+    "raw": "date=2026-09-27 time=10:00:00 log_id=30001000 msg_id=000000041654 device_id=FVVM08TM23001463 vd=\"root\" timezone=\"(GMT+0:00)UTC\" type=traffic subtype=\"https\" pri=notice proto=tcp service=https/tls1.2 status=success reason=none policy=POLICY_A original_src=198.51.100.20 src=198.51.100.20 src_port=51000 dst=192.0.2.10 dst_port=443 http_request_time=0 http_response_time=1 http_request_bytes=900 http_response_bytes=512 http_method=get http_url=\"/app\" http_agent=\"Mozilla/5.0\" http_retcode=502 msg=\"HTTPS get request from 198.51.100.20:51000 to 192.0.2.10:443\" srccountry=\"Reserved\" content_switch_name=\"none\" server_pool_name=\"POOL_A\" http_host=\"app.example.com\" user_name=\"Unknown\" http_refer=\"none\" http_version=\"1.x\"",
+    "expected": {
+      "actionResult": "failed"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "action_result_traffic_3xx_absent",
+    "raw": "date=2026-09-27 time=10:00:00 log_id=30001000 msg_id=000000041654 device_id=FVVM08TM23001463 vd=\"root\" timezone=\"(GMT+0:00)UTC\" type=traffic subtype=\"https\" pri=notice proto=tcp service=https/tls1.2 status=success reason=none policy=POLICY_A original_src=198.51.100.20 src=198.51.100.20 src_port=51000 dst=192.0.2.10 dst_port=443 http_request_time=0 http_response_time=1 http_request_bytes=900 http_response_bytes=512 http_method=get http_url=\"/app\" http_agent=\"Mozilla/5.0\" http_retcode=302 msg=\"HTTPS get request from 198.51.100.20:51000 to 192.0.2.10:443\" srccountry=\"Reserved\" content_switch_name=\"none\" server_pool_name=\"POOL_A\" http_host=\"app.example.com\" user_name=\"Unknown\" http_refer=\"none\" http_version=\"1.x\"",
+    "expected": {
+      "origin.ip": "198.51.100.20"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "action_result_traffic_without_retcode_absent",
+    "raw": "date=2026-09-27 time=10:00:00 log_id=30001000 msg_id=000000041654 device_id=FVVM08TM23001463 vd=\"root\" timezone=\"(GMT+0:00)UTC\" type=traffic subtype=\"https\" pri=notice proto=tcp service=https/tls1.2 status=success reason=none policy=POLICY_A original_src=198.51.100.20 src=198.51.100.20 src_port=51000 dst=192.0.2.10 dst_port=443 http_request_time=0 http_response_time=1 http_request_bytes=900 http_response_bytes=512 http_method=get http_url=\"/app\" http_agent=\"Mozilla/5.0\" msg=\"HTTPS get request from 198.51.100.20:51000 to 192.0.2.10:443\" srccountry=\"Reserved\" content_switch_name=\"none\" server_pool_name=\"POOL_A\" http_host=\"app.example.com\" user_name=\"Unknown\" http_refer=\"none\" http_version=\"1.x\"",
+    "expected": {},
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "action_result_traffic_quoted_retcode_success",
+    "raw": "timestamp=1790503200 devname=\"FWB-LAB\" devid=\"FWBVMSTM25000384\" vd=\"root\" itime=1790503200 date=\"2026-09-27\" time=\"10:00:00\" log_id=\"30001000\" msg_id=\"000486302375\" device_id=\"FWBVMSTM25000384\" timezone=\"(GMT+0:00)UTC\" type=\"traffic\" subtype=\"https\" pri=\"notice\" proto=\"tcp\" service=\"https/tls1.3\" status=\"success\" reason=\"none\" policy=\"POLICY_B\" original_src=\"198.51.100.40\" src=\"198.51.100.40\" src_port=\"10161\" dst=\"192.0.2.3\" dst_port=\"443\" http_request_time=\"0\" http_response_time=\"2\" http_request_bytes=\"900\" http_response_bytes=\"512\" http_method=\"get\" http_url=\"/example.php\" http_agent=\"Mozilla/5.0\" http_retcode=\"200\" msg=\"HTTPS get request from 198.51.100.40:10161 to 192.0.2.3:443\" http_host=\"example.com\" user_name=\"Unknown\"",
+    "expected": {
+      "actionResult": "success"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "action_result_admin_login_failed_with_address",
+    "raw": "date=2026-09-27 time=10:00:00 log_id=10000017 msg_id=000004513309 device_id=FVVM02TM22001887 vd=\"root\" timezone=\"(GMT+0:00)UTC\" type=event subtype=\"system\" pri=alert trigger_policy=\"N/A\" user=admin ui=sshd action=login status=failure msg=\"User admin login failed from ssh(203.0.113.10)\"",
+    "expected": {
+      "actionResult": "failed",
+      "origin.ip": "203.0.113.10",
+      "action": "login"
+    },
+    "absent": [
+      "log.adminSrcIp"
+    ],
+    "matches": []
+  },
+  {
+    "name": "action_result_admin_login_failed_quoted_ipv6",
+    "raw": "<190>timestamp=1790503200 devname=\"FWB-LAB\" devid=\"FWBVMSTM25000384\" vd=\"root\" date=\"2026-09-27\" time=\"10:00:00\" log_id=\"10000017\" msg_id=\"000486302376\" device_id=\"FWBVMSTM25000384\" timezone=\"(GMT+0:00)UTC\" type=\"event\" subtype=\"system\" pri=\"alert\" trigger_policy=\"N/A\" user=\"admin\" ui=\"GUI\" action=\"login\" status=\"failure\" msg=\"User admin login failed from GUI->HTTPS(2001:db8::10)\"",
+    "expected": {
+      "actionResult": "failed",
+      "origin.ip": "2001:db8::10"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "action_result_admin_login_failed_last_address_wins",
+    "raw": "date=2026-09-27 time=10:00:00 log_id=10000017 msg_id=000004513309 device_id=FVVM02TM22001887 vd=\"root\" timezone=\"(GMT+0:00)UTC\" type=event subtype=\"system\" pri=alert trigger_policy=\"N/A\" user=evil ui=GUI action=login status=failure msg=\"User evil from GUI(192.0.2.99) login failed from GUI->HTTPS(203.0.113.11)\"",
+    "expected": {
+      "actionResult": "failed",
+      "origin.ip": "203.0.113.11"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "action_result_admin_login_failed_console_no_address",
+    "raw": "date=2026-09-27 time=10:00:00 log_id=10000017 msg_id=000004513309 device_id=FVVM02TM22001887 vd=\"root\" timezone=\"(GMT+0:00)UTC\" type=event subtype=\"system\" pri=alert trigger_policy=\"N/A\" user=admin ui=console action=login status=failure msg=\"User admin login failed from console\"",
+    "expected": {
+      "actionResult": "failed"
+    },
+    "absent": [
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "action_result_admin_login_success_with_address",
+    "raw": "date=2026-09-27 time=10:00:00 log_id=10000017 msg_id=000004513309 device_id=FVVM02TM22001887 vd=\"root\" timezone=\"(GMT+0:00)UTC\" type=event subtype=\"system\" pri=information trigger_policy=\"N/A\" user=admin ui=telnet action=login status=success msg=\"User admin logged in successfully from telnet(198.51.100.12)\"",
+    "expected": {
+      "actionResult": "success",
+      "origin.ip": "198.51.100.12"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "action_result_admin_invalid_address_not_promoted",
+    "raw": "date=2026-09-27 time=10:00:00 log_id=00001002 msg_id=000004513309 device_id=FVVM02TM22001887 vd=\"root\" timezone=\"(GMT+0:00)UTC\" type=event subtype=\"system\" pri=information trigger_policy=\"N/A\" user=admin ui=GUI action=edit status=success msg=\"User admin changed global from GUI(999.1.1.1)\"",
+    "expected": {
+      "actionResult": "success"
+    },
+    "absent": [
+      "origin.ip",
+      "log.adminSrcIp"
+    ],
+    "matches": []
+  },
+  {
+    "name": "action_result_daemon_event_absent",
+    "raw": "date=2026-09-27 time=10:00:00 log_id=11009002 msg_id=000004513309 device_id=FVVM02TM22001887 vd=\"root\" timezone=\"(GMT+0:00)UTC\" type=event subtype=\"system\" pri=information trigger_policy=\"N/A\" user=daemon ui=daemon action=update status=failure msg=\"Signature update failed from FortiGuard(198.51.100.13)\"",
+    "expected": {},
+    "absent": [
+      "actionResult",
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "action_result_system_event_absent",
+    "raw": "date=2026-09-27 time=10:00:00 log_id=10000009 msg_id=000004513309 device_id=FVVM02TM22001887 vd=\"root\" timezone=\"(GMT+0:00)UTC\" type=event subtype=\"system\" pri=information trigger_policy=\"N/A\" user=system ui=sys action=start status=success msg=\"FortiWeb started\"",
+    "expected": {},
+    "absent": [
+      "actionResult",
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "action_result_admin_unknown_status_no_address",
+    "raw": "date=2026-09-27 time=10:00:00 log_id=00001002 msg_id=000004513309 device_id=FVVM02TM22001887 vd=\"root\" timezone=\"(GMT+0:00)UTC\" type=event subtype=\"system\" pri=information trigger_policy=\"N/A\" user=admin ui=GUI action=edit status=none msg=\"User admin changed global from GUI(198.51.100.14)\"",
+    "expected": {},
+    "absent": [
+      "actionResult",
+      "origin.ip"
+    ],
+    "matches": []
+  },
+  {
+    "name": "action_result_return_403_error_denied",
+    "raw": "date=2026-09-27 time=10:00:00 log_id=20000042 msg_id=000000203639 device_id=FVVM08TM21000756 vd=\"root\" timezone=\"(GMT+0:00)UTC\" type=attack pri=alert main_type=\"CORS Check Security\" sub_type=\"Disallow Origin\" trigger_policy=\"N/A\" severity_level=Low proto=tcp service=https/tls1.2 backend_service=unknown action=return_403_error policy=\"POLICY_C\" src=203.0.113.50 src_port=55905 dst=192.0.2.50 dst_port=443 http_method=get http_url=\"/test.html\" http_host=\"app.example.com\" http_agent=\"python-requests\" http_session_id=none msg=\"[policy_name=P] : Origin http://origin.example is not allowed\" signature_subclass=\"N/A\" signature_id=\"N/A\" signature_cve_id=\"N/A\" srccountry=\"Reserved\" user_name=\"Unknown\"",
+    "expected": {
+      "actionResult": "denied",
+      "log.action": "return_403_error"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "action_result_attack_alert_ignores_retcode",
+    "raw": "date=2026-09-27 time=10:00:00 log_id=20000001 msg_id=000000203639 device_id=FVVM08TM21000756 vd=\"root\" timezone=\"(GMT+0:00)UTC\" type=attack pri=alert main_type=\"Signature Detection\" sub_type=\"SQL Injection\" trigger_policy=\"N/A\" severity_level=Low proto=tcp service=https/tls1.2 backend_service=unknown action=Alert policy=\"POLICY_C\" src=203.0.113.50 src_port=55905 dst=192.0.2.50 dst_port=443 http_method=get http_url=\"/test.html\" http_host=\"app.example.com\" http_agent=\"python-requests\" http_session_id=none http_retcode=200 msg=\"[policy_name=P] : SQL injection detected\" signature_subclass=\"N/A\" signature_id=\"N/A\" signature_cve_id=\"N/A\" srccountry=\"Reserved\" user_name=\"Unknown\"",
+    "expected": {
+      "log.action": "Alert"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "matches": [
+      "fortiweb_sqli_detection"
+    ]
   }
 ]

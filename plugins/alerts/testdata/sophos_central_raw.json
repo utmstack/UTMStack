@@ -714,11 +714,10 @@
       "event.type": "Event::Endpoint::CoreCleanFailed",
       "action": "Event::Endpoint::CoreCleanFailed",
       "event.origin": "SAV",
-      "event.group": "MALWARE"
+      "event.group": "MALWARE",
+      "actionResult": "failed"
     },
-    "absent": [
-      "actionResult"
-    ],
+    "absent": [],
     "matches": [
       "sophos_central_malware_detected"
     ]
@@ -1285,7 +1284,7 @@
       "event.origin": "SAV",
       "event.group": "MALWARE",
       "event.ip": "192.0.2.10",
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [
       "origin",
@@ -1305,7 +1304,7 @@
       "action": "Event::ZTNA::ZTNAAuthenticationFailure",
       "event.origin": "SAV",
       "event.group": "MALWARE",
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [
       "event.correlationCandidate.sophosCentral.ztnaFailure"
@@ -1484,6 +1483,122 @@
       "target.file": "test.exe",
       "event.core_remedy_items.totalItems": 1,
       "event.core_remedy_items.items.0.type": "file"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "outcome-AMSI-blocked-denied",
+    "dataSource": "fixture-collector",
+    "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"AMSI Protection blocked a threat: AMSI/Example-A at C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\", \"type\": \"Event::Endpoint::CoreAmsiBlocked\"}",
+    "expected": {
+      "event.type": "Event::Endpoint::CoreAmsiBlocked",
+      "action": "Event::Endpoint::CoreAmsiBlocked",
+      "actionResult": "denied",
+      "target.ip": "192.0.2.10"
+    },
+    "absent": [
+      "origin"
+    ],
+    "matches": [
+      "sophos_central_unknown_threat_detected"
+    ]
+  },
+  {
+    "name": "outcome-IPS-inbound-blocked-denied-with-sender",
+    "dataSource": "fixture-collector",
+    "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"low\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"RUNTIME_DETECTIONS\", \"origin\": \"SAV\", \"name\": \"Malicious inbound network traffic blocked from remote computer at 203.0.113.45 (Technical Support reference: 2026091701.00000001.1)\", \"type\": \"Event::Endpoint::Threat::IpsInboundDetection\", \"ips_threat_data\": {\"detectionType\": 0, \"executableName\": \"\", \"localPort\": \"445\", \"rawData\": \"Message       OS-WINDOWS Example SMB remote code execution attempt\\nPacket type   TCP\\nLocal IP:     192.0.2.10\\nLocal Port:   445\\nRemote IP:    203.0.113.45\\nRemote Port:  50123\", \"remoteIp\": \"203.0.113.45\", \"remotePort\": \"50123\", \"techSupportId\": \"2026091701.00000001.1\"}, \"threat\": \"IPS/Inbound/7777001\"}",
+    "expected": {
+      "event.type": "Event::Endpoint::Threat::IpsInboundDetection",
+      "action": "Event::Endpoint::Threat::IpsInboundDetection",
+      "actionResult": "denied",
+      "origin.ip": "203.0.113.45",
+      "target.ip": "192.0.2.10"
+    },
+    "absent": [],
+    "matches": [
+      "sophos_central_unknown_threat_detected"
+    ]
+  },
+  {
+    "name": "outcome-IPS-inbound-without-block-no-sender",
+    "dataSource": "fixture-collector",
+    "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"low\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"RUNTIME_DETECTIONS\", \"origin\": \"SAV\", \"name\": \"Synthetic inbound network traffic detected from remote computer at 203.0.113.45\", \"type\": \"Event::Endpoint::Threat::IpsInboundDetection\", \"ips_threat_data\": {\"detectionType\": 0, \"executableName\": \"\", \"localPort\": \"445\", \"rawData\": \"Message       OS-WINDOWS Example SMB remote code execution attempt\\nPacket type   TCP\\nLocal IP:     192.0.2.10\\nLocal Port:   445\\nRemote IP:    203.0.113.45\\nRemote Port:  50123\", \"remoteIp\": \"203.0.113.45\", \"remotePort\": \"50123\", \"techSupportId\": \"2026091701.00000001.1\"}, \"threat\": \"IPS/Inbound/7777001\"}",
+    "expected": {
+      "event.type": "Event::Endpoint::Threat::IpsInboundDetection",
+      "action": "Event::Endpoint::Threat::IpsInboundDetection",
+      "target.ip": "192.0.2.10"
+    },
+    "absent": [
+      "actionResult",
+      "origin"
+    ],
+    "matches": [
+      "sophos_central_unknown_threat_detected"
+    ]
+  },
+  {
+    "name": "outcome-IPS-inbound-blocked-invalid-sender",
+    "dataSource": "fixture-collector",
+    "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"low\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"RUNTIME_DETECTIONS\", \"origin\": \"SAV\", \"name\": \"Malicious inbound network traffic blocked from remote computer at 0.0.0.0 (Technical Support reference: 2026091701.00000001.2)\", \"type\": \"Event::Endpoint::Threat::IpsInboundDetection\", \"ips_threat_data\": {\"remoteIp\": \"0.0.0.0\", \"remotePort\": \"0\", \"localPort\": \"445\"}}",
+    "expected": {
+      "event.type": "Event::Endpoint::Threat::IpsInboundDetection",
+      "action": "Event::Endpoint::Threat::IpsInboundDetection",
+      "actionResult": "denied",
+      "target.ip": "192.0.2.10"
+    },
+    "absent": [
+      "origin"
+    ],
+    "matches": [
+      "sophos_central_unknown_threat_detected"
+    ]
+  },
+  {
+    "name": "outcome-update-failure-failed",
+    "dataSource": "fixture-collector",
+    "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"UPDATING\", \"origin\": \"SAV\", \"name\": \"Download of ExampleComponent failed from server https://update.example.test.\", \"type\": \"Event::Endpoint::UpdateFailure\"}",
+    "expected": {
+      "event.type": "Event::Endpoint::UpdateFailure",
+      "action": "Event::Endpoint::UpdateFailure",
+      "actionResult": "failed"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "outcome-restore-failure-failed",
+    "dataSource": "fixture-collector",
+    "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Restore failed: 'Example-A' and associated items\", \"type\": \"Event::Endpoint::CoreRestoreFailed\"}",
+    "expected": {
+      "event.type": "Event::Endpoint::CoreRestoreFailed",
+      "action": "Event::Endpoint::CoreRestoreFailed",
+      "actionResult": "failed"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "outcome-not-protected-failed",
+    "dataSource": "fixture-collector",
+    "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"PROTECTION\", \"origin\": \"SAV\", \"name\": \"Failed to protect computer: ENDPOINT-01\", \"type\": \"Event::Endpoint::NotProtected\"}",
+    "expected": {
+      "event.type": "Event::Endpoint::NotProtected",
+      "action": "Event::Endpoint::NotProtected",
+      "actionResult": "failed"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "outcome-web-control-block-left-for-site-mapping",
+    "dataSource": "fixture-collector",
+    "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"WEB\", \"origin\": \"SAV\", \"name\": \"'example.com' blocked due to category 'Example'\", \"type\": \"Event::Endpoint::WebControlViolation\"}",
+    "expected": {
+      "event.type": "Event::Endpoint::WebControlViolation",
+      "action": "Event::Endpoint::WebControlViolation"
     },
     "absent": [
       "actionResult"

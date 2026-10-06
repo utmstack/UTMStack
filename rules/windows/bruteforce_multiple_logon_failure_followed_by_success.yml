@@ -1,4 +1,4 @@
-# Rule version v1.0.3
+# Rule version v1.1.0
 dataTypes:
   - wineventlog
 name: "Windows: Multiple Logon Failure Followed by Logon Success"
@@ -9,37 +9,27 @@ impact:
 category: "Credential Access"
 technique: "T1110 - Brute Force"
 adversary: origin
-description: "This rule is triggered when a sequence of multiple failed login attempts followed immediately by a successful login from the same IP address or source is detected. This unusual sequence of events may indicate a possible unauthorized access attempt using a brute force or password guessing technique. The purpose of this rule is to identify suspicious patterns of login activity and alert you to potential unauthorized access attempts."
+description: "This rule is triggered when a sequence of multiple failed login attempts followed immediately by a successful login from the same IP address or source is detected. This unusual sequence of events may indicate a possible unauthorized access attempt using a brute force or password guessing technique. The purpose of this rule is to identify suspicious patterns of login activity and alert you to potential unauthorized access attempts. A successful logon (4624) alerts when the same computer recorded ten failed logons (4625) for the same account from the same source within the previous five minutes. Computer accounts (names ending in $) are skipped: their passwords are machine-generated and they make up almost half of all successful logons."
 references:
   - "https://attack.mitre.org/tactics/TA0006/"
   - "https://attack.mitre.org/techniques/T1110/"
 where: |
+  equals("event.eventCode", 4624) &&
   !oneOf("dataSource", ["", "unknown"]) &&
-  exists("event.authenticationSource") && exists("event.authenticationSourceType") && exists("event.authenticationSourceDomain") && exists("target.user") &&
-  (
-  equals("event.eventCode", 4624)
-  )
+  exists("event.authenticationSource") &&
+  exists("target.user") && !endsWith("target.user", "$")
 afterEvents:
   - indexPattern: v11-log-wineventlog-*
     with:
+      - field: event.eventCode
+        operator: filter_term
+        value: 4625
       - field: dataSource.keyword
         operator: filter_term
         value: '{{.dataSource}}'
       - field: event.authenticationSource.keyword
         operator: filter_term
         value: '{{.event.authenticationSource}}'
-      - field: event.authenticationSourceType.keyword
-        operator: filter_term
-        value: '{{.event.authenticationSourceType}}'
-      - field: event.authenticationSourceDomain.keyword
-        operator: filter_term
-        value: '{{.event.authenticationSourceDomain}}'
-      - field: event.authenticationCandidate.bruteforceAttack.keyword
-        operator: filter_term
-        value: match
-      - field: event.eventCode
-        operator: filter_term
-        value: 4625
       - field: target.user.keyword
         operator: filter_term
         value: '{{.target.user}}'
@@ -47,7 +37,5 @@ afterEvents:
     count: 10
 deduplicateBy:
   - dataSource
-  - lastEvent.event.authenticationSourceType
   - lastEvent.event.authenticationSource
-  - lastEvent.event.authenticationSourceDomain
   - target.user

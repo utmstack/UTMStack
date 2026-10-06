@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.1.0
 
 dataTypes:
   - o365
@@ -12,10 +12,11 @@ technique: "T1114 - Email Collection"
 adversary: origin
 references:
   - https://learn.microsoft.com/en-us/purview/audit-teams-audit-log-events
+  - https://learn.microsoft.com/en-us/purview/audit-log-activities
   - https://attack.mitre.org/techniques/T1114/
 description: |
-  Detects when Teams messages are exported or accessed in bulk through API calls, which could indicate an attempt to exfiltrate chat history and shared files from Microsoft Teams.
-  
+  Detects when Teams messages are exported or read in bulk through Microsoft Graph API calls, which could indicate an attempt to exfiltrate chat history and shared files from Microsoft Teams. Microsoft logs MessagesListed only when an application retrieves messages through the Graph API, never for the Teams client, and backup or compliance tools do this continuously. The rule triggers when the identity behind an export or listing operation has 100 or more Teams records within one hour. One alert is raised per identity and application; repeats are suppressed for seven days.
+
   Next Steps:
   1. Review the user's recent Teams activity and authentication events
   2. Check if the export activity was authorized or part of legitimate business operations
@@ -36,7 +37,7 @@ afterEvents:
         operator: filter_term
         value: 'MicrosoftTeams'
     within: 1h
-    count: 20
-groupBy:
-  - lastEvent.event.appAccessContextClientAppId
+    count: 100
+deduplicateBy:
   - adversary.user
+  - lastEvent.event.appAccessContextClientAppId

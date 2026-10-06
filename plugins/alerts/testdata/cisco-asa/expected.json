@@ -108,7 +108,6 @@
         "origin.geolocation.aso": "FABRICATED-AS-64500",
         "origin.geolocation.countryCode": "XA",
         "protocol": "tcp",
-        "actionResult": "accepted",
         "severity": "low"
       },
       "alerts": []
@@ -145,7 +144,6 @@
         "origin.geolocation.aso": "FABRICATED-AS-64500",
         "origin.geolocation.countryCode": "XA",
         "protocol": "tcp",
-        "actionResult": "accepted",
         "severity": "low"
       },
       "alerts": []
@@ -182,7 +180,6 @@
         "origin.geolocation.aso": "FABRICATED-AS-64500",
         "origin.geolocation.countryCode": "XA",
         "protocol": "udp",
-        "actionResult": "accepted",
         "severity": "low"
       },
       "alerts": []
@@ -197,7 +194,6 @@
         "event.policy": "DfltGrpPolicy",
         "event.severity": "6",
         "origin.user": "alice",
-        "actionResult": "accepted",
         "action": "AAA retrieved default group policy",
         "severity": "low"
       },
@@ -213,7 +209,6 @@
         "event.policy": "(DfltGrpPolicy)",
         "event.severity": "6",
         "origin.user": "alice",
-        "actionResult": "accepted",
         "action": "AAA retrieved default group policy",
         "severity": "low"
       },
@@ -277,7 +272,6 @@
         "origin.geolocation.aso": "FABRICATED-AS-64500",
         "origin.geolocation.countryCode": "XA",
         "protocol": "TCP",
-        "actionResult": "accepted",
         "severity": "low"
       },
       "alerts": []
@@ -325,7 +319,6 @@
         "origin.geolocation.aso": "FABRICATED-AS-64500",
         "origin.geolocation.countryCode": "XA",
         "protocol": "TCP",
-        "actionResult": "accepted",
         "severity": "low"
       },
       "alerts": []
@@ -373,7 +366,6 @@
         "origin.geolocation.aso": "FABRICATED-AS-64500",
         "origin.geolocation.countryCode": "XA",
         "protocol": "UDP",
-        "actionResult": "accepted",
         "severity": "low"
       },
       "alerts": []
@@ -421,7 +413,6 @@
         "origin.geolocation.asn": 64500,
         "origin.geolocation.aso": "FABRICATED-AS-64500",
         "origin.geolocation.countryCode": "XA",
-        "actionResult": "accepted",
         "severity": "low"
       },
       "alerts": []
@@ -470,7 +461,6 @@
         "origin.geolocation.asn": 64500,
         "origin.geolocation.aso": "FABRICATED-AS-64500",
         "origin.geolocation.countryCode": "XA",
-        "actionResult": "accepted",
         "action": "Teardown GRE connection",
         "severity": "low"
       },
@@ -524,7 +514,6 @@
         "origin.geolocation.aso": "FABRICATED-AS-64500",
         "origin.geolocation.countryCode": "XA",
         "protocol": "TCP",
-        "actionResult": "accepted",
         "action": "Built TCP state-bypass connection",
         "severity": "low"
       },
@@ -563,7 +552,6 @@
         "origin.geolocation.aso": "FABRICATED-AS-64500",
         "origin.geolocation.countryCode": "XA",
         "protocol": "TCP",
-        "actionResult": "accepted",
         "action": "Teardown TCP state-bypass connection",
         "severity": "low"
       },
@@ -700,6 +688,7 @@
         "origin.geolocation.aso": "FABRICATED-AS-64501",
         "origin.geolocation.countryCode": "XB",
         "action": "CoA: Non-HTTP connection",
+        "actionResult": "denied",
         "severity": "medium"
       },
       "alerts": []
@@ -735,7 +724,6 @@
         "origin.geolocation.aso": "FABRICATED-AS-64500",
         "origin.geolocation.countryCode": "XA",
         "protocol": "ICMP",
-        "actionResult": "accepted",
         "severity": "low"
       },
       "alerts": []
@@ -783,7 +771,6 @@
         "origin.geolocation.aso": "FABRICATED-AS-64500",
         "origin.geolocation.countryCode": "XA",
         "protocol": "TCP",
-        "actionResult": "accepted",
         "severity": "low"
       },
       "alerts": []
@@ -838,7 +825,6 @@
         "origin.geolocation.aso": "FABRICATED-AS-64500",
         "origin.geolocation.countryCode": "XA",
         "protocol": "TCP",
-        "actionResult": "accepted",
         "severity": "low"
       },
       "alerts": []
@@ -893,7 +879,6 @@
         "origin.geolocation.aso": "FABRICATED-AS-64500",
         "origin.geolocation.countryCode": "XA",
         "protocol": "TCP",
-        "actionResult": "accepted",
         "severity": "low"
       },
       "alerts": []
@@ -941,7 +926,6 @@
         "origin.geolocation.aso": "FABRICATED-AS-64500",
         "origin.geolocation.countryCode": "XA",
         "protocol": "TCP",
-        "actionResult": "accepted",
         "severity": "low"
       },
       "alerts": []
@@ -1074,7 +1058,7 @@
         "target.geolocation.aso": "FABRICATED-AS-64500",
         "target.geolocation.countryCode": "XA",
         "origin.user": "alice",
-        "actionResult": "denied",
+        "actionResult": "failed",
         "action": "AAA user authentication Rejected",
         "severity": "low"
       },
@@ -1099,7 +1083,7 @@
         "target.geolocation.aso": "FABRICATED-AS-64500",
         "target.geolocation.countryCode": "XA",
         "origin.user": "bob",
-        "actionResult": "denied",
+        "actionResult": "failed",
         "action": "AAA user authentication Rejected",
         "severity": "low"
       },
@@ -1138,7 +1122,6 @@
         "target.geolocation.countryCode": "XA",
         "origin.ip": "host-b.example.com",
         "origin.port": 5678,
-        "actionResult": "accepted",
         "action": "Built H245 connection",
         "severity": "low"
       },
@@ -1172,7 +1155,6 @@
         "origin.geolocation.asn": 64501,
         "origin.geolocation.aso": "FABRICATED-AS-64501",
         "origin.geolocation.countryCode": "XB",
-        "actionResult": "accepted",
         "action": "Built H245 connection",
         "severity": "low"
       },
@@ -1206,7 +1188,6 @@
         "origin.geolocation.asn": 64501,
         "origin.geolocation.aso": "FABRICATED-AS-64501",
         "origin.geolocation.countryCode": "XB",
-        "actionResult": "accepted",
         "action": "Pre-allocate H323 UDP backconnection",
         "severity": "low"
       },
@@ -1254,7 +1235,6 @@
         "origin.geolocation.aso": "FABRICATED-AS-64500",
         "origin.geolocation.countryCode": "XA",
         "protocol": "TCP",
-        "actionResult": "accepted",
         "severity": "low"
       },
       "alerts": []
@@ -1299,7 +1279,6 @@
         "origin.geolocation.aso": "FABRICATED-AS-64500",
         "origin.geolocation.countryCode": "XA",
         "protocol": "UDP",
-        "actionResult": "accepted",
         "severity": "low"
       },
       "alerts": []

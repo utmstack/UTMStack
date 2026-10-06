@@ -1,4 +1,4 @@
-# Rule version v1.0.1
+# Rule version v1.0.2
 
 dataTypes:
   - o365
@@ -41,7 +41,7 @@ where: |
     equals("event.Workload", "Teams") ||
     equals("event.Workload", "SecurityComplianceCenter")
   ) &&
-  !oneOf("actionResult", ["failure", "failed"])
+  !equals("actionResult", "failed")
 groupBy:
   - lastEvent.event.PolicyId
   - lastEvent.event.SensitiveInfoTypeData

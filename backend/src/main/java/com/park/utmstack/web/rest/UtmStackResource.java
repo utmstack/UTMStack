@@ -62,6 +62,24 @@ public class UtmStackResource {
         }
     }
 
+
+
+    @GetMapping("/v1/mode")
+    public ResponseEntity<Map<String, Object>> getMode() {
+        final String ctx = CLASSNAME + ".mode";
+        try {
+            return ResponseEntity.ok(Map.<String, Object>of(
+              "federation", false,
+              "version", "1.0.0"
+          ));
+        } catch (Exception e) {
+            String msg = ctx + ": " + e.getLocalizedMessage();
+            log.error(msg);
+            applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
+            return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+        }
+    }
+
     @GetMapping("/healthcheck")
     public ResponseEntity<HttpStatus> healthCheck() {
         final String ctx = CLASSNAME + ".healthCheck";

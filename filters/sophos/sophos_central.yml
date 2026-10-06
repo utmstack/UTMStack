@@ -173,6 +173,9 @@ pipeline:
         key: severity
         value: critical
       where: oneOf("event.severity",["critical"])
+  # actionResult is only success, failed or denied, or nothing when the event
+  # states no final outcome. The type (and for IPS the name) says whether the
+  # product blocked something.
   - add:
       function: string
       params:
@@ -181,13 +184,29 @@ pipeline:
       where: equalsIgnoreCase("event.action","blocked") || oneOf("event.type",["Event::Endpoint::Device::Blocked", "Event::Endpoint::Application::Blocked",
         "Event::Endpoint::WebFilteringBlocked", "Event::Endpoint::HmpaExploitPrevented", "Event::Endpoint::HmpaBehaviourPrevented",
         "Event::Endpoint::HmpaApplicationHijacking", "Event::Endpoint::HmpaPrivGuard", "Event::Endpoint::Threat::ExploitPrevented",
-        "Event::Endpoint::Exploit::Prevented"])
+        "Event::Endpoint::Exploit::Prevented", "Event::Endpoint::CoreAmsiBlocked"])
+  # "Malicious inbound network traffic blocked from remote computer at <ip> ..."
   - add:
       function: string
       params:
         key: actionResult
-        value: failure
+        value: denied
+      where: '!exists("actionResult") && equals("event.type","Event::Endpoint::Threat::IpsInboundDetection") && contains("event.name"," traffic blocked ")'
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: failed
       where: '!exists("actionResult") && oneOf("event.type",["Event::ZTNA::ZTNAAuthenticationFailure","Event::Endpoint::AuthenticationFailure"])'
+  # The named operation failed: update, malware cleanup ("Manual malware cleanup
+  # required"), restore, or protecting the device ("Failed to protect ...").
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: failed
+      where: '!exists("actionResult") && (oneOf("event.type",["Event::Endpoint::UpdateFailure","Event::Endpoint::CoreCleanFailed","Event::Endpoint::CoreRestoreFailed"])
+        || (equals("event.type","Event::Endpoint::NotProtected") && startsWith("event.name","Failed to protect")))'
   # The rename step copies an object or list as its JSON text, so nested paths
   # under a renamed object never resolve. The remedy object keeps its native name
   # and its values are read in place. A file at the root keeps the root as path.
@@ -200,6 +219,16 @@ pipeline:
         pattern: '[^\\/<>:"|?*\r\n]+$'
       where: equals("event.core_remedy_items.totalItems",1) && equals("event.core_remedy_items.items.#",1) && equals("event.core_remedy_items.items.0.type","file")
         && !regexMatch("event.core_remedy_items.items.0.descriptor","(?i)[.](zip|cab|7z|rar|tar|gz|iso)[/\\\\]")
+  # An IPS inbound block names the remote sender in ips_threat_data. Only records
+  # that state the traffic was blocked (denied above) get the address.
+  - grok:
+      source: event.ips_threat_data.remoteIp
+      patterns:
+      - fieldName: origin.ip
+        pattern: (?s)^.+$
+      where: equals("event.type","Event::Endpoint::Threat::IpsInboundDetection") && contains("event.name"," traffic blocked ")
+        && ((inCIDR("event.ips_threat_data.remoteIp","0.0.0.0/0") || inCIDR("event.ips_threat_data.remoteIp","::/0"))
+        && !inCIDR("event.ips_threat_data.remoteIp","0.0.0.0/32") && !inCIDR("event.ips_threat_data.remoteIp","::/128"))
   - dynamic:
       plugin: com.utmstack.geolocation
       params:

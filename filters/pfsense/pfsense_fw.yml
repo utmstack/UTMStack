@@ -1,4 +1,4 @@
-# PfSense Firewall filter, version 3.1.0
+# PfSense Firewall filter, version 3.2.0
 # Based on docs and samples log provided
 # Support CSV format  format
 #
@@ -89,6 +89,19 @@ pipeline:
             - fieldName: event.csvMsg
               pattern: '{{.greedy}}'
           source: event.msgAll
+
+      # webConfigurator sign-in lines come from php-fpm; the step above does not
+      # read a program name with a hyphen, so these lines get their own step
+      - grok:
+          patterns:
+            - fieldName: event.eventType
+              pattern: 'php-fpm'
+            - fieldName: event.pid
+              pattern: '(\[)?({{.integer}}?)(\])?\s*(- -|:)'
+            - fieldName: event.csvMsg
+              pattern: '{{.greedy}}'
+          source: event.msgAll
+          where: '!exists("event.eventType") && regexMatch("event.msgAll", "^php-fpm(\\[\\d+\\]:| \\d+ - -) \\S+: (Successful login|webConfigurator authentication error) for user ")'
 
       #......................................................................#
       # Removing unnecessary characters
@@ -382,7 +395,91 @@ pipeline:
           to: target.port
 
       # ................................................#
-      # Adding action result
+      # Sign-in outcomes outside filterlog. An address is read only together
+      # with the outcome the same line states.
+      # ................................................#
+      # webConfigurator: "/index.php: Successful login for user 'admin' from: 192.0.2.10 (Local Database)"
+      # and "/index.php: webConfigurator authentication error for user 'admin' from: 192.0.2.10"
+      - grok:
+          patterns:
+            - fieldName: ''
+              pattern: '[^\s:]+:'
+            - fieldName: event.authEvent
+              pattern: '(?:webConfigurator authentication error|Successful login)'
+            - fieldName: ''
+              pattern: 'for user'
+            - fieldName: origin.user
+              pattern: '''[^'']*'''
+            - fieldName: ''
+              pattern: 'from:'
+            - fieldName: origin.ip
+              pattern: '(?:{{.ipv4}}|{{.ipv6}})(?:\s|$)'
+          source: event.csvMsg
+          where: 'equals("event.eventType", "php-fpm") && regexMatch("event.csvMsg", "^\\S+: (webConfigurator authentication error|Successful login) for user ''")'
+      # sshd: "Failed password for [invalid user ]root from 192.0.2.10 port 2276 ssh2"
+      # and "Accepted publickey for admin from 192.0.2.10 port 50000 ssh2"
+      - grok:
+          patterns:
+            - fieldName: event.authEvent
+              pattern: '(?:Failed|Accepted)'
+            - fieldName: event.authMethod
+              pattern: '\S+'
+            - fieldName: ''
+              pattern: 'for(?: invalid user)?'
+            - fieldName: origin.user
+              pattern: '\S+'
+            - fieldName: ''
+              pattern: 'from'
+            - fieldName: origin.ip
+              pattern: '(?:{{.ipv4}}|{{.ipv6}})(?:\s|$)'
+            - fieldName: ''
+              pattern: 'port'
+            - fieldName: origin.port
+              pattern: '{{.integer}}(?:\s|$)'
+          source: event.csvMsg
+          where: 'equals("event.eventType", "sshd") && regexMatch("event.csvMsg", "^(Failed|Accepted) \\S+ for (invalid user )?\\S+ from \\S+ port \\d+")'
+      # sshguard block: 'Blocking "192.0.2.10/32" for 120 secs (3 attacks in 0 secs, ...)'.
+      # "Attack from" lines are detections without an outcome and get no address.
+      - grok:
+          patterns:
+            - fieldName: event.sshguardAction
+              pattern: 'Blocking'
+            - fieldName: ''
+              pattern: '"'
+            - fieldName: origin.ip
+              pattern: '(?:{{.ipv4}}|{{.ipv6}})'
+            - fieldName: ''
+              pattern: '(?:/\d+)?"'
+          source: event.csvMsg
+          where: 'equals("event.eventType", "sshguard") && regexMatch("event.csvMsg", "^Blocking \"[0-9A-Fa-f.:]+(/\\d+)?\" for ")'
+      # OpenVPN user authentication (the line names no address):
+      # "user 'bob' authenticated" and "user 'bob' could not authenticate."
+      - grok:
+          patterns:
+            - fieldName: ''
+              pattern: 'user'
+            - fieldName: origin.user
+              pattern: '''[^'']*'''
+            - fieldName: event.authEvent
+              pattern: '(?:authenticated|could not authenticate)'
+          source: event.csvMsg
+          where: 'equals("event.eventType", "openvpn") && regexMatch("event.csvMsg", "^user ''[^'']*'' (authenticated|could not authenticate)")'
+      - trim:
+          function: prefix
+          substring: "'"
+          fields:
+            - origin.user
+      - trim:
+          function: suffix
+          substring: "'"
+          fields:
+            - origin.user
+
+      # ................................................#
+      # Adding action result: only success, failed or denied, or nothing when
+      # the line states no outcome. The add step overwrites, so the order is
+      # success, failed, denied. filterlog logs nothing after a pass, so a pass
+      # gives success.
       # ................................................#
       - add:
           function: string
@@ -394,8 +491,26 @@ pipeline:
           function: string
           params:
             key: actionResult
+            value: success
+          where: 'oneOf("event.eventType", ["php-fpm", "sshd", "openvpn"]) && exists("event.authEvent") && oneOf("event.authEvent", ["Successful login", "Accepted", "authenticated"])'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failed
+          where: 'oneOf("event.eventType", ["php-fpm", "sshd", "openvpn"]) && exists("event.authEvent") && oneOf("event.authEvent", ["webConfigurator authentication error", "Failed", "could not authenticate"])'
+      - add:
+          function: string
+          params:
+            key: actionResult
             value: denied
           where: 'equalsIgnoreCase("action", "block")'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: 'equals("event.eventType", "sshguard") && equals("event.sshguardAction", "Blocking")'
 
       # ................................................#
       # Fileds conversions

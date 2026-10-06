@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.0.1
 
 dataTypes:
   - wineventlog
@@ -31,17 +31,12 @@ description: |
   8. Enable Kerberos PAC validation on the targeted services
 where: |
   !oneOf("dataSource", ["", "unknown"]) &&
-  exists("event.authenticationSource") && exists("event.authenticationSourceType") && exists("event.authenticationSourceDomain") &&
-  (
+  exists("event.authenticationSource") &&
   equals("event.eventCode", "4769") &&
   equals("event.channel", "Security") &&
-  (
-    equals("event.eventDataTicketEncryptionType", "23") &&
-    !regexMatch("event.eventDataServiceName", "(?i)(krbtgt|\\$$)") &&
-    !oneOf("event.eventDataStatus", ["0", "6"]) &&
-    exists("event.authenticationSource")
-  )
-  )
+  equals("event.eventDataTicketEncryptionType", "23") &&
+  !regexMatch("event.eventDataServiceName", "(?i)(krbtgt|\\$$)") &&
+  !oneOf("event.eventDataStatus", ["0", "6"])
 afterEvents:
   - indexPattern: v11-log-wineventlog-*
     with:
@@ -51,26 +46,12 @@ afterEvents:
       - field: event.authenticationSource.keyword
         operator: filter_term
         value: '{{.event.authenticationSource}}'
-      - field: event.authenticationSourceType.keyword
-        operator: filter_term
-        value: '{{.event.authenticationSourceType}}'
-      - field: event.authenticationSourceDomain.keyword
-        operator: filter_term
-        value: '{{.event.authenticationSourceDomain}}'
       - field: event.authenticationCandidate.silverTicketDetection.keyword
         operator: filter_term
         value: match
-      - field: event.eventCode
-        operator: filter_term
-        value: '{{.event.eventCode}}'
-      - field: event.eventDataTicketEncryptionType
-        operator: filter_term
-        value: '{{.event.eventDataTicketEncryptionType}}'
     within: 15m
     count: 5
 groupBy:
   - dataSource
-  - lastEvent.event.authenticationSourceType
   - lastEvent.event.authenticationSource
-  - lastEvent.event.authenticationSourceDomain
   - target.user

@@ -85,7 +85,7 @@ func TestSentinelOneActionResultContract(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			for _, result := range []string{"success", "failure", "denied"} {
+			for _, result := range []string{"success", "failed", "denied"} {
 				matched, err := cache.Eval(`equals("actionResult","`+result+`")`, string(state))
 				if err != nil || matched != (tc.Result == result) {
 					t.Errorf("%s predicate = %v (%v)", result, matched, err)

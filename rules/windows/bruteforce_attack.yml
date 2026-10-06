@@ -1,4 +1,4 @@
-# Rule version v1.0.3
+# Rule version v1.1.0
 dataTypes:
   - wineventlog
 name: "Windows: Possible Brute Force Attack"
@@ -9,45 +9,28 @@ impact:
 category: "Credential Access"
 technique: "T1110 - Brute Force"
 adversary: origin
-description: "This rule is triggered when a pattern of repeated and rapid login attempts from the same IP address or source is detected. These login attempts may target specific user accounts or services in an attempt to crack passwords through automated brute force. The purpose of this rule is to identify possible malicious unauthorized access attempts and prevent a brute force attack against the system."
+description: "This rule is triggered when a pattern of repeated and rapid login attempts from the same IP address or source is detected. These login attempts may target specific user accounts or services in an attempt to crack passwords through automated brute force. The purpose of this rule is to identify possible malicious unauthorized access attempts and prevent a brute force attack against the system. It counts failed logons (4625) on one computer from one source (the network address, else the workstation name, else the domain-qualified account), whichever accounts they target, so password spraying that tries each account only a few times is caught as well. Ten failures within five minutes raise one alert per computer and source; repeats are suppressed for seven days."
 references:
   - "https://attack.mitre.org/tactics/TA0006/"
   - "https://attack.mitre.org/techniques/T1110/"
 where: |
+  equals("event.eventCode", 4625) &&
   !oneOf("dataSource", ["", "unknown"]) &&
-  exists("event.authenticationSource") && exists("event.authenticationSourceType") && exists("event.authenticationSourceDomain") && exists("target.user") &&
-  (
-  equals("event.eventCode", 4625)
-  )
+  exists("event.authenticationSource")
 afterEvents:
   - indexPattern: v11-log-wineventlog-*
     with:
+      - field: event.eventCode
+        operator: filter_term
+        value: 4625
       - field: dataSource.keyword
         operator: filter_term
         value: '{{.dataSource}}'
       - field: event.authenticationSource.keyword
         operator: filter_term
         value: '{{.event.authenticationSource}}'
-      - field: event.authenticationSourceType.keyword
-        operator: filter_term
-        value: '{{.event.authenticationSourceType}}'
-      - field: event.authenticationSourceDomain.keyword
-        operator: filter_term
-        value: '{{.event.authenticationSourceDomain}}'
-      - field: event.authenticationCandidate.bruteforceAttack.keyword
-        operator: filter_term
-        value: match
-      - field: event.eventCode
-        operator: filter_term
-        value: '{{.event.eventCode}}'
-      - field: target.user.keyword
-        operator: filter_term
-        value: '{{.target.user}}'
     within: 5m
     count: 10
 deduplicateBy:
   - dataSource
-  - lastEvent.event.authenticationSourceType
   - lastEvent.event.authenticationSource
-  - lastEvent.event.authenticationSourceDomain
-  - target.user

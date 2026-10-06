@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.1.0
 
 dataTypes:
   - firewall-fortigate-traffic
@@ -25,6 +25,9 @@ description: |
   6. Check if the VPN portal is exposed to the internet unnecessarily
 
   Generic IPsec negotiation errors and routine tunnel shutdowns are not authentication-failure evidence for this rule.
+
+  One alert is raised per firewall, VDOM and source address, however many user names it tries; repeats are suppressed
+  for seven days.
 where: |
   exists("event.devid") && !equals("event.devid", "") && exists("event.vd") && !equals("event.vd", "") &&
   (equals("event.type", "event") && equals("event.subtype", "vpn") &&
@@ -50,8 +53,8 @@ afterEvents:
     value: match
   within: 15m
   count: 10
-groupBy:
-- adversary.ip
-- adversary.user
+deduplicateBy:
+- dataSource
 - lastEvent.event.devid
 - lastEvent.event.vd
+- adversary.ip

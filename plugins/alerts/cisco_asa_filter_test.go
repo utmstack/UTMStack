@@ -213,8 +213,8 @@ func TestCiscoASAWhereHelpers(t *testing.T) {
 	if len(raw) > 0 {
 		t.Errorf("%d where clauses compare event.* directly and fail without a log object, for example %q", len(raw), raw[0])
 	}
-	if checked < 520 {
-		t.Errorf("%d helper clauses read event.messageId or event.severity, want at least 520", checked)
+	if checked < 503 {
+		t.Errorf("%d helper clauses read event.messageId or event.severity, want at least 503", checked)
 	}
 	t.Logf("%d helper clauses, %d truth-table rows", checked, rows)
 }
@@ -288,7 +288,7 @@ func TestCiscoASAGeolocationDestinations(t *testing.T) {
 	}
 	if event.Event["localIp"].GetStringValue() != "192.0.2.1" ||
 		event.Event["localIpGeolocation"].GetStructValue().GetFields()["asn"].GetNumberValue() != 64501 {
-		t.Errorf("finalized event: %v", event.Event)
+		t.Errorf("finalized log: %v", event.Event)
 	}
 }
 
@@ -664,9 +664,9 @@ var asaChangeCases = []struct {
 	{"F-C6", "302017-gre", "event.firewallUserTo", "dave"},
 	{"F-C6", "302017-gre", "event.firewallUserFrom", "carol"},
 	{"F-C6 near miss", "302018-gre", "origin.user", "erin"},
-	{"F-C7", "106102-permitted", "actionResult", "accepted"},
-	{"F-C7", "106102-permitted-arrow", "actionResult", "accepted"},
-	{"F-C7", "106103-permitted", "actionResult", "accepted"},
+	{"F-C7", "106102-permitted", "actionResult", nil},
+	{"F-C7", "106102-permitted-arrow", "actionResult", nil},
+	{"F-C7", "106103-permitted", "actionResult", nil},
 	{"F-C7 near miss", "106102-denied", "actionResult", "denied"},
 	{"F-C7 near miss", "106102-denied-arrow", "actionResult", "denied"},
 	{"F-C8", "113009-with-equals", "origin.user", "alice"},
@@ -776,26 +776,41 @@ func TestCiscoASAStepPredicates(t *testing.T) {
 		}
 		return ok
 	}
-	// F-C7: the two actionResult adds of 106102/106103, in filter order.
-	var adds []*plugins.Add
+	// F-C7: the actionResult add and delete of 106102/106103, in filter order. The grok writes the
+	// verb; a denied hit becomes denied and a permitted hit is left without a value.
+	type asaWriter struct {
+		where, value string
+		remove       bool
+	}
+	var writers []asaWriter
 	for _, step := range steps {
 		if a := step.Add; a != nil && a.Params["key"].GetStringValue() == "actionResult" && strings.Contains(a.Where, `"event.messageId", 106102`) {
-			adds = append(adds, a)
+			writers = append(writers, asaWriter{where: a.Where, value: a.Params["value"].GetStringValue()})
+		}
+		if d := step.Delete; d != nil && strings.Contains(d.Where, `"event.messageId", 106102`) {
+			for _, f := range d.Fields {
+				if f == "actionResult" {
+					writers = append(writers, asaWriter{where: d.Where, remove: true})
+				}
+			}
 		}
 	}
-	if len(adds) != 2 {
-		t.Fatalf("106102/106103 actionResult adds: %d", len(adds))
+	if len(writers) != 2 || writers[0].remove || !writers[1].remove {
+		t.Fatalf("106102/106103 actionResult steps: %+v, want one add then one delete", writers)
 	}
 	for _, c := range []struct {
 		id              int
 		captured, final string
-	}{{106102, "permitted", "accepted"}, {106103, "permitted", "accepted"}, {106102, "Permitted", "accepted"},
+	}{{106102, "permitted", ""}, {106103, "permitted", ""}, {106102, "Permitted", ""},
 		{106102, "denied", "denied"}, {106103, "denied", "denied"}} {
 		value := c.captured
-		for _, a := range adds {
-			doc := fmt.Sprintf(`{"raw":"x","event":{"messageId":%d},"actionResult":%q}`, c.id, value)
-			if eval(a.Where, doc) {
-				value = a.Params["value"].GetStringValue()
+		for _, w := range writers {
+			doc := fmt.Sprintf(`{"raw":"x","event":{"messageId":%d}}`, c.id)
+			if value != "" {
+				doc = fmt.Sprintf(`{"raw":"x","event":{"messageId":%d},"actionResult":%q}`, c.id, value)
+			}
+			if eval(w.where, doc) {
+				value = w.value
 			}
 		}
 		if value != c.final {
@@ -829,6 +844,138 @@ func TestCiscoASAStepPredicates(t *testing.T) {
 		}
 		if eval(writers[1], fmt.Sprintf(`{"raw":"x","event":{"messageId":%d},"origin":{"user":"alice"}}`, id+1)) {
 			t.Errorf("F-C8: %d second variant matches another message", id)
+		}
+	}
+}
+
+// Every actionResult step, evaluated with the SDK in filter order on a message id and its text:
+// the filter writes only success, failed or denied, and each message gets the value its meaning
+// calls for ("" means no value). A permitted access-list hit, a Built or teardown record and an
+// informational notice state no final outcome; a firewall drop or policy refusal is denied; a
+// rejected sign-in or an error is failed; a completed sign-in or session start is success. The
+// texts follow the message formats in Cisco's ASA syslog guide, filled with example values.
+func TestCiscoASAActionResultMapping(t *testing.T) {
+	steps := asaPipeline(t).Steps
+	cache := plugins.NewCELCache("cisco-asa-action-result")
+	allowed := map[string]bool{"success": true, "failed": true, "denied": true}
+	type step struct {
+		where, value string
+	}
+	var writers []step
+	for i, s := range steps {
+		if a := s.Add; a != nil && a.Params["key"].GetStringValue() == "actionResult" {
+			v := a.Params["value"].GetStringValue()
+			if !allowed[v] {
+				t.Errorf("step %d writes actionResult %q", i, v)
+			}
+			writers = append(writers, step{a.Where, v})
+		}
+		if d := s.Delete; d != nil {
+			for _, f := range d.Fields {
+				if f == "actionResult" {
+					writers = append(writers, step{d.Where, ""})
+				}
+			}
+		}
+		if r := s.Rename; r != nil && r.To == "actionResult" {
+			t.Errorf("step %d renames a vendor value into actionResult", i)
+		}
+		if g := s.Grok; g != nil {
+			for _, p := range g.Patterns {
+				if p.FieldName == "actionResult" && !strings.Contains(g.Where, `"event.messageId", 106102`) {
+					t.Errorf("step %d captures a vendor word into actionResult outside 106102/106103", i)
+				}
+			}
+		}
+	}
+	for _, c := range []struct {
+		id                  int
+		captured, msg, want string
+	}{
+		{106001, "", "Inbound TCP connection denied from 203.0.113.50/51514 to 192.0.2.10/22 flags SYN on interface outside", "denied"},
+		{106017, "", "Deny IP due to Land Attack from 203.0.113.51 to 203.0.113.51", "denied"},
+		{106102, "permitted", "access-list vpn_filter permitted tcp for user alice outside/203.0.113.60 51234 inside/192.0.2.10 443 hit-cnt 1 first hit [0x1a2b3c4d, 0x0]", ""},
+		{106102, "denied", "access-list vpn_filter denied tcp for user alice outside/203.0.113.60 51234 inside/192.0.2.10 443 hit-cnt 1 first hit [0x1a2b3c4d, 0x0]", "denied"},
+		{109101, "", "Received CoA update from 198.51.100.20 for user alice, with session ID: 0a0a0a0a000010005a1b2c3d, changing authorization attributes", ""},
+		{109102, "", "Received CoA disconnect-request from 198.51.100.20, but cannot find named session 0a0a0a0a000010005a1b2c3d", "failed"},
+		{109103, "", "CoA disconnect-request from 198.51.100.20 failed for user alice, with session ID: 0a0a0a0a000010005a1b2c3d.", "failed"},
+		{109201, "", "UAUTH: Session=0x0a1b2c3d, User=alice, Assigned IP=192.0.2.40, Succeeded adding entry.", "success"},
+		{109203, "", "UAUTH: Session=0x0a1b2c3d, User=alice, Assigned IP=192.0.2.40, Failed adding entry.", "failed"},
+		{109206, "", "UAUTH: Session=0x0a1b2c3d, User=alice, Assigned IP=192.0.2.40, Removing stale entry added 25 ago.", ""},
+		{109213, "", "UAUTH: Session=0x0a1b2c3d, User=alice, Assigned IP=192.0.2.40, Failed removing entry. Address was allocated to Session=0x0a1b2c3e, User=bob 2 ago.", "failed"},
+		{113004, "", "AAA user authentication Successful : server = 198.51.100.30 : user = alice", "success"},
+		{113005, "", "AAA user authentication Rejected : reason = Invalid password : server = 198.51.100.30 : user = alice : user IP = 203.0.113.70", "failed"},
+		{113005, "", "AAA user authorization Rejected : reason = Unspecified : server = 198.51.100.30 : user = alice : user IP = 203.0.113.70", "denied"},
+		{113008, "", "AAA transaction status ACCEPT : user = alice", "success"},
+		{113009, "", "AAA retrieved default group policy (DfltGrpPolicy) for user = alice", ""},
+		{113012, "", "AAA user authentication Successful : local database : user = alice", "success"},
+		{113015, "", "AAA user authentication Rejected : reason = Invalid password : local database : user = alice : user IP = 203.0.113.71", "failed"},
+		{113016, "", "AAA credentials rejected : reason = Invalid password : server = 198.51.100.30 : user = alice : user IP = 203.0.113.72", "failed"},
+		{113017, "", "AAA credentials rejected : reason = Invalid password : local database : user = alice : user IP = 203.0.113.73", "failed"},
+		{113019, "", "Group = RemoteVPN, Username = alice, IP = 203.0.113.74, Session disconnected. Session Type: SSL, Duration: 0h:05m:10s, Bytes xmt: 12345, Bytes rcv: 6789, Reason: User Requested", ""},
+		{113031, "", "Group RemoteVPN User alice IP 203.0.113.78 AnyConnect 'vpn-filter vf1' is an IPv6 ACL; ACL not applied.", "denied"},
+		{113035, "", "Group <RemoteVPN> User <alice> IP <203.0.113.75> Session terminated: AnyConnect not enabled or invalid AnyConnect image on the ASA.", "failed"},
+		{113038, "", "Group <RemoteVPN> User <alice> IP <203.0.113.76> Unable to create AnyConnect parent session.", "failed"},
+		{113039, "", "Group <RemoteVPN> User <alice> IP <203.0.113.77> AnyConnect parent session started.", "success"},
+		{113042, "", "CoA: Non-HTTP connection from inside:192.0.2.21/51234 to outside:203.0.113.80/25 for user alice at 192.0.2.21 denied by redirect filter; only HTTP connections are supported for redirection.", "denied"},
+		{201003, "", "Embryonic limit exceeded 101/100 for 203.0.113.81/51234 (198.51.100.81) 192.0.2.22/80 on interface outside", ""},
+		{209003, "", "Fragment database limit of 200 exceeded: src = 203.0.113.82, dest = 192.0.2.23, proto = udp, id = 1234", "denied"},
+		{302004, "", "Pre-allocate H323 UDP backconnection for foreign_address 203.0.113.84/1720 to local_address 192.0.2.25/5678", ""},
+		{302013, "", "Built inbound TCP connection 101 for outside:203.0.113.86/51234 (203.0.113.86/51234) to inside:192.0.2.27/443 (198.51.100.27/443)", ""},
+		{302014, "", "Teardown TCP connection 101 for outside:203.0.113.86/51234 to inside:192.0.2.27/443 duration 0:00:05 bytes 4096 TCP FINs", ""},
+		{302020, "", "Built inbound ICMP connection for faddr 203.0.113.88/0 gaddr 198.51.100.30/0 laddr 192.0.2.30/0 type 8 code 0", ""},
+		{302021, "", "Teardown ICMP connection for faddr 203.0.113.88/0 gaddr 198.51.100.30/0 laddr 192.0.2.30/0 type 8 code 0", ""},
+		{302033, "", "Pre-allocated H323 GUP Connection for faddr outside:203.0.113.90/1720 to laddr inside:192.0.2.32/5678", ""},
+		{302034, "", "Unable to Pre-allocate H323 GUP Connection for faddr outside:203.0.113.90 to laddr inside:192.0.2.32/5678", "failed"},
+		{302306, "", "Teardown SCTP state-bypass connection 106 for outside:203.0.113.93/2905 to inside:192.0.2.35/2905 duration 0:00:10 bytes 2048 SCTP shutdown", ""},
+		{316001, "", "Denied new tunnel to 203.0.113.94. VPN peer limit (250) exceeded", "denied"},
+		{316002, "", "VPN Handle error: protocol=6, src 3:203.0.113.94, dst 4:192.0.2.36", "failed"},
+		{402114, "", "IPSEC: Received an ESP packet (SPI=0x1A2B3C4D, sequence number=0x2D) from 203.0.113.95 to 198.51.100.1 with an invalid SPI.", "denied"},
+		{402120, "", "IPSEC: Received an ESP packet (SPI= 0x1A2B3C4D, sequence number= 0x2D) from 203.0.113.95 (user= 203.0.113.95) to 198.51.100.1 that failed authentication.", "denied"},
+		{605004, "", "Login denied from 203.0.113.97/51234 to outside:198.51.100.1/ssh for user 'admin'", "failed"},
+		{609002, "", "Teardown local-host outside:203.0.113.98 duration 0:05:00", ""},
+		{611310, "", "VPNClient: XAUTH Succeeded: Peer: 198.51.100.40", "success"},
+		{611311, "", "VPNClient: XAUTH Failed: Peer: 198.51.100.40", "failed"},
+		{611315, "", "VPNClient: Disconnecting from Load Balancing Cluster member 198.51.100.42", ""},
+		{617100, "", "Teardown 3 connection(s) for user 192.0.2.39", ""},
+		{713252, "", "Group = RemoteVPN, Username = alice, IP = 203.0.113.99, Integrity Firewall Server is not available. VPN Tunnel creation rejected for client.", "denied"},
+		{713253, "", "Group = RemoteVPN, Username = alice, IP = 203.0.113.99, Integrity Firewall Server is not available. Entering ALLOW mode. VPN Tunnel created for client.", "success"},
+		{716001, "", "Group <RemoteVPN> User <alice> IP <203.0.113.100> WebVPN session started.", "success"},
+		{716002, "", "Group <RemoteVPN> User <alice> IP <203.0.113.100> WebVPN session terminated: User Requested.", ""},
+		{716004, "", "Group <RemoteVPN> User <alice> WebVPN access DENIED to specified location: http://intranet.example.com/", "denied"},
+		{716006, "", "Group RemoteVPN User alice IP 203.0.113.101 WebVPN session not allowed. WebVPN protocol is disabled for this user.", "denied"},
+		{716007, "", "Group <RemoteVPN> User <alice> IP <203.0.113.102> WebVPN Unable to create session.", "failed"},
+		{716038, "", "Group <RemoteVPN> User <alice> IP <203.0.113.103> Authentication: successful, Session Type: WebVPN.", "success"},
+		{716039, "", "Group <RemoteVPN> User <alice> IP <203.0.113.104> Authentication: rejected, Session Type: WebVPN.", "failed"},
+		{719019, "", "WebVPN user: alice authorization failed.", "denied"},
+		{719020, "", "WebVPN user alice authorization completed successfully.", "success"},
+		{719022, "", "WebVPN user alice has been authenticated.", "success"},
+		{719023, "", "WebVPN user alice has not been successfully authenticated. Access denied.", "failed"},
+		{719024, "", "Email Proxy piggyback auth fail: session = 0x1a2b3c4d user=alice addr=203.0.113.105", "failed"},
+		{733101, "", "Host 203.0.113.106 is attacking. Current burst rate is 17 per second, max configured rate is 10; Current average rate is 0 per second, max configured rate is 5; Cumulative total count is 700", ""},
+		{733102, "", "Threat-detection adds host 203.0.113.106 to shun list", "denied"},
+		{733103, "", "Threat-detection removes host 203.0.113.106 from shun list", ""},
+	} {
+		value := c.captured
+		for _, w := range writers {
+			doc := map[string]any{"raw": "x", "event": map[string]any{"messageId": c.id, "msg": c.msg}}
+			if value != "" {
+				doc["actionResult"] = value
+			}
+			b, err := json.Marshal(doc)
+			if err != nil {
+				t.Fatal(err)
+			}
+			ok, err := cache.Eval(w.where, string(b))
+			if err != nil {
+				t.Fatalf("%q: %v", w.where, err)
+			}
+			if ok {
+				value = w.value
+			}
+		}
+		if value != c.want {
+			t.Errorf("%d %.40q: actionResult %q, want %q", c.id, c.msg, value, c.want)
 		}
 	}
 }

@@ -1,4 +1,4 @@
-# Crowdstrike module filter, version 1.3.0
+# Crowdstrike module filter, version 1.3.1
 # Based in docs and samples provided
 # 
 # Documentations
@@ -650,17 +650,19 @@ pipeline:
           where: exists("origin.ip")
 
       # .......................................................................#
-      # Adding action result
+      # Adding action result: only success, failed or denied, or no value when the
+      # record states no final outcome.
       # An explicit Success=false or a 4xx/5xx response is a failed operation.
       # API records report Success=true even when the request failed, so a
       # response code decides success: only a final 2xx. Redirects and other
       # codes stay unset. Records without a response code use Success.
+      # The denied steps run last, so a refusal replaces failed.
       # .......................................................................#
       - add:
           function: string
           params:
             key: actionResult
-            value: "failure"
+            value: "failed"
           where: 'oneOf("event.eventSuccess", [false, "false"]) || greaterOrEqual("statusCode", 400)'
       - add:
           function: string
@@ -668,6 +670,33 @@ pipeline:
             key: actionResult
             value: "success"
           where: '!exists("actionResult") && ((exists("statusCode") && greaterOrEqual("statusCode", 200) && lessOrEqual("statusCode", 299)) || (!exists("statusCode") && oneOf("event.eventSuccess", [true, "true"])))'
+      # A request refused for missing or insufficient rights (401, 403) is denied.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "denied"
+          where: 'oneOf("statusCode", [401, 403])'
+      # A detection whose prevention action really ran (process blocked or killed,
+      # operation blocked, file quarantined) is denied. "Detection, ... would have
+      # been blocked" records carry PolicyDisabled: nothing ran, so no value.
+      # A failed kill (KillActionFailed) stopped nothing, so no value either.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "denied"
+          where: >-
+            oneOf("event.metadataEventType", ["DetectionSummaryEvent", "EppDetectionSummaryEvent"]) &&
+            regexMatch("event.eventPatternDispositionDescription", "^Prevention") &&
+            !oneOf("event.eventPatternDispositionFlagsPolicyDisabled", [true, "true"]) &&
+            !oneOf("event.eventPatternDispositionFlagsKillActionFailed", [true, "true"]) &&
+            (oneOf("event.eventPatternDispositionFlagsProcessBlocked", [true, "true"]) ||
+             oneOf("event.eventPatternDispositionFlagsKillProcess", [true, "true"]) ||
+             oneOf("event.eventPatternDispositionFlagsOperationBlocked", [true, "true"]) ||
+             oneOf("event.eventPatternDispositionFlagsQuarantineFile", [true, "true"]) ||
+             oneOf("event.eventPatternDispositionFlagsFsOperationBlocked", [true, "true"]) ||
+             oneOf("event.eventPatternDispositionFlagsRegistryOperationBlocked", [true, "true"]))
 
       # .......................................................................#
       # Normalizing request method and renaming to action

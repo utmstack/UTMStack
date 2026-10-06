@@ -18,7 +18,7 @@
     "dataSource": "collector-test",
     "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"resourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"category\":\"Administrative\",\"operationName\":\"Microsoft.ContainerService/managedClusters/write\",\"resultType\":\"Failed\",\"callerIpAddress\":\"198.51.100.4\"}",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []
@@ -62,7 +62,7 @@
     "dataSource": "collector-test",
     "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"resourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"category\":\"Administrative\",\"operationName\":\"Microsoft.Automation/automationAccounts/runbooks/write\",\"resultType\":\"Failed\",\"callerIpAddress\":\"198.51.100.4\"}",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []
@@ -106,7 +106,7 @@
     "dataSource": "collector-test",
     "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"resourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"category\":\"Administrative\",\"operationName\":\"Microsoft.Compute/disks/beginGetAccess/action\",\"resultType\":\"Failed\",\"callerIpAddress\":\"198.51.100.4\"}",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []
@@ -150,7 +150,7 @@
     "dataSource": "collector-test",
     "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"resourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"category\":\"Administrative\",\"operationName\":\"Microsoft.Authorization/elevateAccess/action\",\"resultType\":\"Failed\",\"callerIpAddress\":\"198.51.100.4\"}",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []
@@ -194,7 +194,7 @@
     "dataSource": "collector-test",
     "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"resourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"category\":\"Administrative\",\"operationName\":\"Microsoft.Security/alertsSuppressionRules/write\",\"resultType\":\"Failed\",\"callerIpAddress\":\"198.51.100.4\"}",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []
@@ -238,7 +238,7 @@
     "dataSource": "collector-test",
     "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"resourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"category\":\"Administrative\",\"operationName\":\"Microsoft.KeyVault/vaults/write\",\"resultType\":\"Failed\",\"callerIpAddress\":\"198.51.100.4\"}",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []
@@ -282,7 +282,7 @@
     "dataSource": "collector-test",
     "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"resourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"category\":\"Administrative\",\"operationName\":\"Microsoft.Insights/diagnosticSettings/delete\",\"resultType\":\"Failed\",\"callerIpAddress\":\"198.51.100.4\"}",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []
@@ -326,7 +326,7 @@
     "dataSource": "collector-test",
     "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"resourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"category\":\"Administrative\",\"operationName\":\"Microsoft.EventHub/namespaces/eventhubs/delete\",\"resultType\":\"Failed\",\"callerIpAddress\":\"198.51.100.4\"}",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []
@@ -372,7 +372,7 @@
     "dataSource": "collector-test",
     "raw": "{\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventType\":\"Microsoft.Resources.ResourceDeleteFailure\",\"data\":{\"operationName\":\"Microsoft.Insights/diagnosticSettings/delete\",\"status\":\"Failed\",\"tenantId\":\"directory-test\",\"resourceUri\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"httpRequest\":{\"clientIpAddress\":\"2001:db8::4\",\"url\":\"https://management.azure.com/resource-test\"},\"claims\":{\"http://schemas.microsoft.com/identity/claims/objectidentifier\":\"principal-test\"},\"authorization\":{\"evidence\":{\"role\":\"Owner\",\"principalId\":\"different-role-assignee\"}}}}",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []
@@ -382,7 +382,7 @@
     "dataSource": "collector-test",
     "raw": "{\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventType\":\"Microsoft.Resources.ResourceDeleteCancel\",\"data\":{\"operationName\":\"Microsoft.Insights/diagnosticSettings/delete\",\"status\":\"Canceled\",\"tenantId\":\"directory-test\",\"resourceUri\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"httpRequest\":{\"clientIpAddress\":\"2001:db8::4\",\"url\":\"https://management.azure.com/resource-test\"},\"claims\":{\"http://schemas.microsoft.com/identity/claims/objectidentifier\":\"principal-test\"},\"authorization\":{\"evidence\":{\"role\":\"Owner\",\"principalId\":\"different-role-assignee\"}}}}",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []
@@ -408,7 +408,7 @@
     "dataSource": "collector-test",
     "raw": "{\"type\":\"Microsoft.Resources.ResourceDeleteFailure\",\"data\":{\"operationName\":\"Microsoft.Insights/diagnosticSettings/delete\",\"status\":\"Failed\",\"tenantId\":\"directory-test\",\"resourceUri\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"httpRequest\":{\"clientIpAddress\":\"2001:db8::4\",\"url\":\"https://management.azure.com/resource-test\"},\"claims\":{\"http://schemas.microsoft.com/identity/claims/objectidentifier\":\"principal-test\"},\"authorization\":{\"evidence\":{\"role\":\"Owner\",\"principalId\":\"different-role-assignee\"}}},\"time\":\"2026-09-17T12:00:00Z\"}",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []
@@ -418,7 +418,7 @@
     "dataSource": "collector-test",
     "raw": "{\"type\":\"Microsoft.Resources.ResourceDeleteCancel\",\"data\":{\"operationName\":\"Microsoft.Insights/diagnosticSettings/delete\",\"status\":\"Canceled\",\"tenantId\":\"directory-test\",\"resourceUri\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"httpRequest\":{\"clientIpAddress\":\"2001:db8::4\",\"url\":\"https://management.azure.com/resource-test\"},\"claims\":{\"http://schemas.microsoft.com/identity/claims/objectidentifier\":\"principal-test\"},\"authorization\":{\"evidence\":{\"role\":\"Owner\",\"principalId\":\"different-role-assignee\"}}},\"time\":\"2026-09-17T12:00:00Z\"}",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []
@@ -441,7 +441,7 @@
     "dataSource": "collector-test",
     "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"resourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"category\":\"AuditLogs\",\"operationName\":\"Add application\",\"properties\":{\"result\":\"failure\",\"initiatedBy\":{\"user\":{\"userPrincipalName\":\"admin@example.test\",\"ipAddress\":\"198.51.100.4\"}},\"targetResources\":[{\"type\":\"User\",\"id\":\"target-test\",\"userPrincipalName\":\"target@example.test\",\"modifiedProperties\":[]}]}}",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []
@@ -464,7 +464,7 @@
     "dataSource": "collector-test",
     "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"resourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"category\":\"AuditLogs\",\"operationName\":\"Add service principal\",\"properties\":{\"result\":\"failure\",\"initiatedBy\":{\"user\":{\"userPrincipalName\":\"admin@example.test\",\"ipAddress\":\"198.51.100.4\"}},\"targetResources\":[{\"type\":\"User\",\"id\":\"target-test\",\"userPrincipalName\":\"target@example.test\",\"modifiedProperties\":[]}]}}",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []
@@ -488,7 +488,7 @@
     "dataSource": "collector-test",
     "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"resourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"category\":\"AuditLogs\",\"operationName\":\"Consent to application\",\"properties\":{\"result\":\"failure\",\"initiatedBy\":{\"user\":{\"userPrincipalName\":\"admin@example.test\",\"ipAddress\":\"198.51.100.4\"}},\"targetResources\":[{\"type\":\"User\",\"id\":\"target-test\",\"userPrincipalName\":\"target@example.test\",\"modifiedProperties\":[]}]}}",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []
@@ -511,7 +511,7 @@
     "dataSource": "collector-test",
     "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"resourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"category\":\"AuditLogs\",\"operationName\":\"Add service principal credentials\",\"properties\":{\"result\":\"failure\",\"initiatedBy\":{\"user\":{\"userPrincipalName\":\"admin@example.test\",\"ipAddress\":\"198.51.100.4\"}},\"targetResources\":[{\"type\":\"User\",\"id\":\"target-test\",\"userPrincipalName\":\"target@example.test\",\"modifiedProperties\":[]}]}}",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []
@@ -534,7 +534,7 @@
     "dataSource": "collector-test",
     "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"resourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"category\":\"AuditLogs\",\"operationName\":\"Update application - Certificates and secrets management\",\"properties\":{\"result\":\"failure\",\"initiatedBy\":{\"user\":{\"userPrincipalName\":\"admin@example.test\",\"ipAddress\":\"198.51.100.4\"}},\"targetResources\":[{\"type\":\"User\",\"id\":\"target-test\",\"userPrincipalName\":\"target@example.test\",\"modifiedProperties\":[]}]}}",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []
@@ -557,7 +557,7 @@
     "dataSource": "collector-test",
     "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"resourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"category\":\"AuditLogs\",\"operationName\":\"Add app role assignment to service principal\",\"properties\":{\"result\":\"failure\",\"initiatedBy\":{\"user\":{\"userPrincipalName\":\"admin@example.test\",\"ipAddress\":\"198.51.100.4\"}},\"targetResources\":[{\"type\":\"User\",\"id\":\"target-test\",\"userPrincipalName\":\"target@example.test\",\"modifiedProperties\":[]}]}}",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []
@@ -580,7 +580,7 @@
     "dataSource": "collector-test",
     "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"resourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"category\":\"AuditLogs\",\"operationName\":\"Set federation settings on domain\",\"properties\":{\"result\":\"failure\",\"initiatedBy\":{\"user\":{\"userPrincipalName\":\"admin@example.test\",\"ipAddress\":\"198.51.100.4\"}},\"targetResources\":[{\"type\":\"User\",\"id\":\"target-test\",\"userPrincipalName\":\"target@example.test\",\"modifiedProperties\":[]}]}}",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []
@@ -603,7 +603,7 @@
     "dataSource": "collector-test",
     "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"resourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"category\":\"AuditLogs\",\"operationName\":\"Add member to role\",\"properties\":{\"result\":\"failure\",\"initiatedBy\":{\"user\":{\"userPrincipalName\":\"admin@example.test\",\"ipAddress\":\"198.51.100.4\"}},\"targetResources\":[{\"type\":\"User\",\"id\":\"target-test\",\"userPrincipalName\":\"target@example.test\",\"modifiedProperties\":[]}]}}",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []
@@ -627,7 +627,7 @@
     "dataSource": "collector-test",
     "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"resourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"category\":\"AuditLogs\",\"operationName\":\"Add member to role\",\"properties\":{\"result\":\"failure\",\"initiatedBy\":{\"user\":{\"userPrincipalName\":\"admin@example.test\",\"ipAddress\":\"198.51.100.4\"}},\"targetResources\":[{\"type\":\"Role\",\"displayName\":\"Global Administrator\"}]}}",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []
@@ -651,7 +651,7 @@
     "dataSource": "collector-test",
     "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"resourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"category\":\"AuditLogs\",\"operationName\":\"Add member to role completed (PIM activation)\",\"properties\":{\"result\":\"failure\",\"initiatedBy\":{\"user\":{\"userPrincipalName\":\"admin@example.test\",\"ipAddress\":\"198.51.100.4\"}},\"targetResources\":[{\"type\":\"User\",\"id\":\"target-test\",\"userPrincipalName\":\"target@example.test\",\"modifiedProperties\":[]}]}}",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []
@@ -674,7 +674,7 @@
     "dataSource": "collector-test",
     "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"resourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"category\":\"AuditLogs\",\"operationName\":\"Recover device local administrator password\",\"properties\":{\"result\":\"failure\",\"initiatedBy\":{\"user\":{\"userPrincipalName\":\"admin@example.test\",\"ipAddress\":\"198.51.100.4\"}},\"targetResources\":[{\"type\":\"User\",\"id\":\"target-test\",\"userPrincipalName\":\"target@example.test\",\"modifiedProperties\":[]}]}}",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []
@@ -697,7 +697,7 @@
     "dataSource": "collector-test",
     "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"resourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"category\":\"AuditLogs\",\"operationName\":\"Disable Strong Authentication\",\"properties\":{\"result\":\"failure\",\"initiatedBy\":{\"user\":{\"userPrincipalName\":\"admin@example.test\",\"ipAddress\":\"198.51.100.4\"}},\"targetResources\":[{\"type\":\"User\",\"id\":\"target-test\",\"userPrincipalName\":\"target@example.test\",\"modifiedProperties\":[]}]}}",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []
@@ -789,7 +789,7 @@
     "dataSource": "collector-test",
     "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"resourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"category\":\"SignInLogs\",\"operationName\":\"Sign-in activity\",\"resultType\":\"50126\",\"properties\":{\"userPrincipalName\":\"actor@example.test\",\"userId\":\"user-test\",\"ipAddress\":\"198.51.100.4\",\"status\":{\"errorCode\":50126},\"riskState\":\"none\",\"riskLevelDuringSignIn\":\"none\",\"riskEventTypes_v2\":[]}}",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": [
@@ -801,7 +801,7 @@
     "dataSource": "collector-test",
     "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"resourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"category\":\"SignInLogs\",\"operationName\":\"Sign-in activity\",\"resultType\":\"50053\",\"properties\":{\"userPrincipalName\":\"actor@example.test\",\"userId\":\"user-test\",\"ipAddress\":\"198.51.100.4\",\"status\":{\"errorCode\":50053},\"riskState\":\"none\",\"riskLevelDuringSignIn\":\"none\",\"riskEventTypes_v2\":[]}}",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []
@@ -811,7 +811,7 @@
     "dataSource": "collector-test",
     "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"resourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"category\":\"SignInLogs\",\"operationName\":\"Sign-in activity\",\"resultType\":\"50057\",\"properties\":{\"userPrincipalName\":\"actor@example.test\",\"userId\":\"user-test\",\"ipAddress\":\"198.51.100.4\",\"status\":{\"errorCode\":50057},\"riskState\":\"none\",\"riskLevelDuringSignIn\":\"none\",\"riskEventTypes_v2\":[]}}",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []
@@ -831,7 +831,7 @@
     "dataSource": "collector-test",
     "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"resourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"category\":\"SignInLogs\",\"operationName\":\"Sign-in activity\",\"resultType\":\"0\",\"properties\":{\"userPrincipalName\":\"actor@example.test\",\"userId\":\"user-test\",\"ipAddress\":\"198.51.100.4\",\"status\":{\"errorCode\":50126},\"riskState\":\"none\",\"riskLevelDuringSignIn\":\"none\",\"riskEventTypes_v2\":[]}}",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": [
@@ -1314,10 +1314,10 @@
     "name": "waf-Detected",
     "dataSource": "collector-test",
     "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"resourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"category\":\"ApplicationGatewayFirewallLog\",\"operationName\":\"ApplicationGatewayFirewallLog\",\"resultType\":\"Success\",\"properties\":{\"clientIp\":\"198.51.100.4\",\"ruleId\":\"942100\",\"action\":\"Detected\"}}",
-    "expected": {
-      "actionResult": "success"
-    },
-    "absent": [],
+    "expected": {},
+    "absent": [
+      "actionResult"
+    ],
     "matches": []
   },
   {
@@ -1987,6 +1987,134 @@
     "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"resourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"category\":\"Administrative\",\"operationName\":\"Microsoft.ManagedIdentity/userAssignedIdentities/write\",\"resultType\":\"Succeeded\",\"callerIpAddress\":\"198.51.100.4\",\"categoryValue\":\"Administrative\",\"properties\":{\"message\":\"token configuration metadata\"}}",
     "expected": {},
     "absent": [],
+    "matches": []
+  },
+  {
+    "name": "appservice-ipsec-denied-capitalized",
+    "dataSource": "collector-test",
+    "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"Category\":\"AppServiceIPSecAuditLogs\",\"OperationName\":\"Authorization\",\"ResourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"Properties\":{\"Result\":\"Denied\",\"CIp\":\"203.0.113.81:23456\",\"CsHost\":\"app.example.test\",\"Details\":\"Denied by test rule.\"}}",
+    "expected": {
+      "origin.ip": "203.0.113.81",
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "appservice-ipsec-denied-ipv6",
+    "dataSource": "collector-test",
+    "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"resourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"category\":\"AppServiceIPSecAuditLogs\",\"operationName\":\"Authorization\",\"properties\":{\"Result\":\"Denied\",\"CIp\":\"[2001:db8::82]:34567\",\"CsHost\":\"app.example.test\",\"Details\":\"Denied by test rule.\"}}",
+    "expected": {
+      "origin.ip": "2001:db8::82",
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "appservice-ipsec-allowed-no-address",
+    "dataSource": "collector-test",
+    "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"Category\":\"AppServiceIPSecAuditLogs\",\"OperationName\":\"Authorization\",\"ResourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"Properties\":{\"Result\":\"Allowed\",\"CIp\":\"203.0.113.83:45678\",\"CsHost\":\"app.example.test\",\"Details\":\"Allowed by test rule.\"}}",
+    "expected": {},
+    "absent": [
+      "origin.ip",
+      "actionResult",
+      "log.azureIpsecClientIp"
+    ],
+    "matches": []
+  },
+  {
+    "name": "endpoint-network-outbound-sides",
+    "dataSource": "collector-test",
+    "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"category\":\"AdvancedHunting-DeviceNetworkEvents\",\"operationName\":\"Publish\",\"properties\":{\"DeviceName\":\"host-test\",\"ActionType\":\"ConnectionSuccess\",\"LocalIP\":\"192.0.2.10\",\"LocalPort\":50000,\"RemoteIP\":\"203.0.113.20\",\"RemotePort\":443,\"Protocol\":\"Tcp\"}}",
+    "expected": {
+      "origin.ip": "192.0.2.10",
+      "target.ip": "203.0.113.20",
+      "actionResult": "success"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "endpoint-network-inbound-sides",
+    "dataSource": "collector-test",
+    "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"category\":\"AdvancedHunting-DeviceNetworkEvents\",\"operationName\":\"Publish\",\"properties\":{\"DeviceName\":\"host-test\",\"ActionType\":\"InboundConnectionAccepted\",\"LocalIP\":\"192.0.2.12\",\"LocalPort\":50000,\"RemoteIP\":\"198.51.100.22\",\"RemotePort\":443,\"Protocol\":\"Tcp\"}}",
+    "expected": {
+      "origin.ip": "198.51.100.22",
+      "target.ip": "192.0.2.12",
+      "actionResult": "success"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "endpoint-network-request-no-address",
+    "dataSource": "collector-test",
+    "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"category\":\"AdvancedHunting-DeviceNetworkEvents\",\"operationName\":\"Publish\",\"properties\":{\"DeviceName\":\"host-test\",\"ActionType\":\"ConnectionRequest\",\"LocalIP\":\"192.0.2.13\",\"LocalPort\":50000,\"RemoteIP\":\"203.0.113.23\",\"RemotePort\":443,\"Protocol\":\"Tcp\"}}",
+    "expected": {},
+    "absent": [
+      "origin.ip",
+      "target.ip",
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "endpoint-logon-failed-address",
+    "dataSource": "collector-test",
+    "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"category\":\"AdvancedHunting-DeviceLogonEvents\",\"operationName\":\"Publish\",\"properties\":{\"DeviceName\":\"host-test\",\"ActionType\":\"LogonFailed\",\"AccountName\":\"user-test\",\"LogonType\":\"Network\",\"RemoteIP\":\"198.51.100.31\"}}",
+    "expected": {
+      "origin.ip": "198.51.100.31",
+      "actionResult": "failed"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "frontdoor-access-404",
+    "dataSource": "collector-test",
+    "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"resourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"category\":\"FrontDoorAccessLog\",\"operationName\":\"Microsoft.Cdn/Profiles/AccessLog/Write\",\"properties\":{\"clientIp\":\"203.0.113.60\",\"clientPort\":\"50100\",\"hostName\":\"app.example.test\",\"httpMethod\":\"GET\",\"httpStatusCode\":\"404\"}}",
+    "expected": {
+      "origin.ip": "203.0.113.60",
+      "statusCode": 404,
+      "actionResult": "failed"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "frontdoor-waf-block-address",
+    "dataSource": "collector-test",
+    "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"resourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"category\":\"FrontDoorWebApplicationFirewallLog\",\"operationName\":\"Microsoft.Cdn/Profiles/WebApplicationFirewallLog/Write\",\"properties\":{\"clientIP\":\"203.0.113.70\",\"clientPort\":\"50200\",\"ruleName\":\"Rule1\",\"policy\":\"policy\",\"action\":\"Block\",\"policyMode\":\"prevention\"}}",
+    "expected": {
+      "origin.ip": "203.0.113.70",
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "frontdoor-waf-anomalyscoring-no-address",
+    "dataSource": "collector-test",
+    "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"resourceId\":\"/subscriptions/sub-test/providers/Microsoft.Example/resources/test\",\"category\":\"FrontDoorWebApplicationFirewallLog\",\"operationName\":\"Microsoft.Cdn/Profiles/WebApplicationFirewallLog/Write\",\"properties\":{\"clientIP\":\"203.0.113.70\",\"clientPort\":\"50200\",\"ruleName\":\"Rule1\",\"policy\":\"policy\",\"action\":\"AnomalyScoring\",\"policyMode\":\"prevention\"}}",
+    "expected": {},
+    "absent": [
+      "origin.ip",
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "defender-kubernetes-403-status",
+    "dataSource": "collector-test",
+    "raw": "{\"time\":\"2026-09-17T12:00:00Z\",\"tenantId\":\"directory-test\",\"category\":\"AdvancedHunting-CloudAuditEvents\",\"operationName\":\"Publish\",\"properties\":{\"DeviceName\":\"host-test\",\"ActionType\":\"CloudAuditEventOther\",\"RawEventData\":{\"ApiVersion\":\"audit.k8s.io/v1\",\"Stage\":\"ResponseComplete\",\"Verb\":\"get\",\"SourceIPs\":[\"203.0.113.40\"],\"ResponseStatus\":{\"code\":403,\"metadata\":{}}}}}",
+    "expected": {
+      "statusCode": 403,
+      "actionResult": "denied"
+    },
+    "absent": [
+      "origin.ip"
+    ],
     "matches": []
   }
 ]

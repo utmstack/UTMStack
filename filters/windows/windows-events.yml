@@ -1,4 +1,4 @@
-# Windows_Agent filter, version 3.2.0
+# Windows_Agent filter, version 3.2.2
 # Based on winlogbeat fields, reference [8.15]
 # See https://www.elastic.co/guide/en/beats/winlogbeat/current/exported-fields-winlog.html
 
@@ -244,17 +244,12 @@ pipeline:
             - event.data.ProcessName
           to: event.eventDataProcessName
 
-      # Object-access field COPIED to canonical origin so the
-      # file-management module can filter on typed (non-flattened) fields.
-      # Copy, not rename: Windows rules read event.eventDataProcessName
-      # directly, so the bag key must survive.
       - grok:
           source: event.eventDataProcessName
           patterns:
             - fieldName: origin.file
               pattern: (?s)^.+$
           where: exists("event.eventDataProcessName")
-
       - rename:
           from:
             - event.data.RestrictedAdminMode
@@ -492,17 +487,12 @@ pipeline:
             - event.data.ObjectName
           to: event.eventDataObjectName
 
-      # Object-access field COPIED to canonical target so the
-      # file-management module can filter on typed (non-flattened) fields.
-      # Copy, not rename: Windows rules read event.eventDataObjectName
-      # directly, so the bag key must survive.
       - grok:
           source: event.eventDataObjectName
           patterns:
             - fieldName: target.path
               pattern: (?s)^.+$
           where: exists("event.eventDataObjectName")
-
       - rename:
           from:
             - event.data.ResourceAttributes
@@ -3118,7 +3108,10 @@ pipeline:
             value: 'Field is too long for this implementation'
           where: equals("event.eventDataStatus", "61") && equals("event.eventCode", 4771)
 
-      # Adding action result
+      # Adding action result: the final outcome of the action the record
+      # describes, written as exactly success, failed or denied. Records that
+      # state no final outcome (4648 explicit credentials, 4740 lockout,
+      # detections, notices) keep no value.
       - delete:
           fields: [actionResult]
       - add:
@@ -3133,6 +3126,13 @@ pipeline:
             key: actionResult
             value: success
           where: oneOf("event.eventCode", [4725, 4726, 5156])
+      # Completed account and group changes, when logged as Audit Success.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: oneOf("event.eventCode", [4729, 4731, 4733, 4735, 4737, 4738, 4741, 4742, 4743, 4781]) && equals("event.keywords", "0x8020000000000000")
       - add:
           function: string
           params:
@@ -3143,7 +3143,7 @@ pipeline:
           function: string
           params:
             key: actionResult
-            value: failure
+            value: failed
           where: oneOf("event.eventCode", [4625, 4771])
       - add:
           function: string
@@ -3155,8 +3155,64 @@ pipeline:
           function: string
           params:
             key: actionResult
-            value: failure
+            value: failed
           where: equals("event.eventCode", 4776) && exists("event.eventDataStatus") && !(equals("event.eventDataStatus", 0) || regexMatch("event.eventDataStatus", "(?i)^(0|0x0+)$"))
+      # Kerberos ticket requests (4768 TGT, 4769 service ticket) carry their
+      # result code in Status: 0 means the ticket was issued.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: oneOf("event.eventCode", [4768, 4769]) && (equals("event.eventDataStatus", 0) || regexMatch("event.eventDataStatus", "(?i)^(0|0x0+)$"))
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failed
+          where: oneOf("event.eventCode", [4768, 4769]) && exists("event.eventDataStatus") && !(equals("event.eventDataStatus", 0) || regexMatch("event.eventDataStatus", "(?i)^(0|0x0+)$"))
+      # 4770 is written only when a Kerberos service ticket was renewed.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: equals("event.eventCode", 4770)
+      # SQL Server logins (Application log, provider MSSQLSERVER or MSSQL$<instance>):
+      # 18453 and 18454 are completed logins, 18456 is a failed login.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: oneOf("event.eventCode", [18453, 18454]) && regexMatch("event.providerName", "^MSSQL")
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failed
+          where: equals("event.eventCode", 18456) && regexMatch("event.providerName", "^MSSQL")
+      # Microsoft Defender attack surface reduction blocked an operation.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: equals("event.eventCode", 1121) && contains("event.providerName", "Windows Defender")
+      # Security records marked Audit Failure that no step above classified:
+      # access, privilege or firewall refusals are denied, anything else failed.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: equals("event.channel", "Security") && equals("event.keywords", "0x8010000000000000") && !exists("actionResult") && oneOf("event.eventCode", [4656, 4661, 4663, 4673, 4674, 4675, 4888, 5031])
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failed
+          where: equals("event.channel", "Security") && equals("event.keywords", "0x8010000000000000") && !exists("actionResult")
 
       - delete:
           fields:
@@ -3247,22 +3303,16 @@ pipeline:
           to: int
 
       # Correlation requires a real identity, never the shared '-' placeholder.
-      # Prefer the network source, then workstation, then authenticated account.
-      # Rules also scope this derived value by its kind and by dataSource.
+      # Prefer the network source, then the workstation, then an account that a
+      # domain or UPN qualifies. Rules pair this value with dataSource.
       - delete:
-          fields: [event.authenticationSource, event.authenticationSourceType, event.authenticationSourceDomain, event.authenticationCandidate]
+          fields: [event.authenticationSource, event.authenticationCandidate]
       - grok:
           source: origin.ip
           patterns:
             - fieldName: event.authenticationSource
               pattern: '{{.greedy}}'
           where: exists("origin.ip")
-      - add:
-          function: string
-          params:
-            key: event.authenticationSourceType
-            value: ip
-          where: exists("event.authenticationSource")
       - grok:
           source: origin.host
           patterns:
@@ -3270,12 +3320,6 @@ pipeline:
               pattern: '{{.greedy}}'
           where: >-
             !exists("event.authenticationSource") && exists("origin.host")
-      - add:
-          function: string
-          params:
-            key: event.authenticationSourceType
-            value: host
-          where: exists("event.authenticationSource") && !exists("event.authenticationSourceType")
       - grok:
           source: origin.user
           patterns:
@@ -3283,38 +3327,12 @@ pipeline:
               pattern: '{{.greedy}}'
           where: >-
             !exists("event.authenticationSource") && exists("origin.user") && (exists("origin.domain") || regexMatch("origin.user", "^[^@]+@[^@]+$"))
-      - add:
-          function: string
-          params:
-            key: event.authenticationSourceType
-            value: user
-          where: exists("event.authenticationSource") && !exists("event.authenticationSourceType")
-
-      # User-only identities require a domain or an already qualified UPN. The
-      # explicit scope prevents equal usernames from different domains joining.
-      - grok:
-          source: origin.domain
-          patterns:
-            - fieldName: event.authenticationSourceDomain
-              pattern: '{{.greedy}}'
-          where: equals("event.authenticationSourceType", "user") && exists("origin.domain")
-      - add:
-          function: string
-          params:
-            key: event.authenticationSourceDomain
-            value: qualified-upn
-          where: equals("event.authenticationSourceType", "user") && !exists("event.authenticationSourceDomain")
-      - add:
-          function: string
-          params:
-            key: event.authenticationSourceDomain
-            value: network-source
-          where: oneOf("event.authenticationSourceType", ["ip", "host"])
 
       # Historical searches support exact terms, not a CEL predicate. Mark the
-      # same candidates tested by these authentication rules so routine events
-      # with the same event ID cannot fill an attack threshold. Keep predicates
-      # and markers together; the raw/CEL regression checks assert their parity.
+      # candidates of the authentication rules whose predicate a history search
+      # cannot repeat, so routine events with the same event ID cannot fill an
+      # attack threshold. Keep predicates and markers together; the raw/CEL
+      # regression checks assert their parity.
       - add:
           function: string
           params:
@@ -3322,16 +3340,14 @@ pipeline:
             value: match
           where: |
             !oneOf("dataSource", ["", "unknown"]) &&
-            exists("event.authenticationSource") && exists("event.authenticationSourceType") && exists("event.authenticationSourceDomain") &&
-            (
+            exists("event.authenticationSource") &&
             equals("event.eventCode", "4769") &&
             equals("event.channel", "Security") &&
             equals("event.eventDataTicketEncryptionType", "23") &&
             !regexMatch("event.eventDataServiceName", "(?i)\\$$") &&
             !equals("event.eventDataServiceName", "krbtgt") &&
-            !oneOf("event.eventDataTicketOptions", ["1082195968", "1082130432", "1082130432"]) &&
+            !oneOf("event.eventDataTicketOptions", ["1082195968", "1082130432"]) &&
             exists("event.eventDataServiceName")
-            )
       - add:
           function: string
           params:
@@ -3339,15 +3355,13 @@ pipeline:
             value: match
           where: |
             !oneOf("dataSource", ["", "unknown"]) &&
-            exists("event.authenticationSource") && exists("event.authenticationSourceType") && exists("event.authenticationSourceDomain") &&
-            (
+            exists("event.authenticationSource") &&
             equals("event.eventCode", "4768") &&
             equals("event.channel", "Security") &&
             equals("event.eventDataTicketEncryptionType", "23") &&
             equals("event.eventDataPreAuthType", "0") &&
             !regexMatch("target.user", "(?i)\\$$") &&
             exists("target.user")
-            )
       - add:
           function: string
           params:
@@ -3355,17 +3369,12 @@ pipeline:
             value: match
           where: |
             !oneOf("dataSource", ["", "unknown"]) &&
-            exists("event.authenticationSource") && exists("event.authenticationSourceType") && exists("event.authenticationSourceDomain") &&
-            (
+            exists("event.authenticationSource") &&
             equals("event.eventCode", "4769") &&
             equals("event.channel", "Security") &&
-            (
-              equals("event.eventDataTicketEncryptionType", "23") &&
-              !regexMatch("event.eventDataServiceName", "(?i)(krbtgt|\\$$)") &&
-              !oneOf("event.eventDataStatus", ["0", "6"]) &&
-              exists("event.authenticationSource")
-            )
-            )
+            equals("event.eventDataTicketEncryptionType", "23") &&
+            !regexMatch("event.eventDataServiceName", "(?i)(krbtgt|\\$$)") &&
+            !oneOf("event.eventDataStatus", ["0", "6"])
       - add:
           function: string
           params:
@@ -3373,14 +3382,13 @@ pipeline:
             value: match
           where: |
             !oneOf("dataSource", ["", "unknown"]) &&
-            exists("event.authenticationSource") && exists("event.authenticationSourceType") && exists("event.authenticationSourceDomain") &&
+            exists("event.authenticationSource") &&
             (
             (
               equals("event.eventCode", "4769") &&
               equals("event.channel", "Security") &&
               equals("event.eventDataServiceName", "krbtgt") &&
-              !equals("event.eventDataStatus", "0") &&
-              exists("event.authenticationSource")
+              !equals("event.eventDataStatus", "0")
             ) ||
             (
               equals("event.eventCode", "4768") &&
@@ -3404,37 +3412,11 @@ pipeline:
             value: match
           where: |
             !oneOf("dataSource", ["", "unknown"]) &&
-            exists("event.authenticationSource") && exists("event.authenticationSourceType") && exists("event.authenticationSourceDomain") &&
-            (
+            exists("event.authenticationSource") &&
             equals("event.providerName", "AD FS") && (equals("event.eventCode", "342") || equals("event.eventCode", "516")) && contains("event.message", "token validation failed")
-            )
-      - add:
-          function: string
-          params:
-            key: event.authenticationCandidate.bruteforceAttack
-            value: match
-          where: |
-            !oneOf("dataSource", ["", "unknown"]) &&
-            exists("event.authenticationSource") && exists("event.authenticationSourceType") && exists("event.authenticationSourceDomain") && exists("target.user") &&
-            (
-            equals("event.eventCode", 4625)
-            )
-      - add:
-          function: string
-          params:
-            key: event.authenticationCandidate.bruteforceMultipleLogonFailureFollowedBySuccess
-            value: match
-          where: |
-            !oneOf("dataSource", ["", "unknown"]) &&
-            exists("event.authenticationSource") && exists("event.authenticationSourceType") && exists("event.authenticationSourceDomain") && exists("target.user") &&
-            (
-            equals("event.eventCode", 4624)
-            )
-
-      # Copy event.eventName to the canonical action field (AWS idiom:
-      # aws.yml grok-copy). The copy — not a rename — preserves
-      # event.eventName for the file-management module's "Event name" column.
-      # The dashboard "Top events" chart aggregates on action.
+# Copy event.eventName to the canonical action field (AWS idiom: aws.yml).
+# COPIES, not renames: preserves event.eventName for the file-management
+# module's 'Event name' column. The dashboard 'Top events' chart uses action.
       - grok:
           source: event.eventName
           patterns:

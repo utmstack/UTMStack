@@ -1,6 +1,6 @@
 [
   {
-    "name": "documented threat deletion retains remediation distinction",
+    "name": "documented threat deletion is denied and keeps the vendor action",
     "dataSource": "synthetic-eset-collector",
     "raw": "Sep 17 12:30:05 manager.example.invalid ERAServer[5648]: {\"event_type\":\"Threat_Event\",\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"action_taken\":\"Deleted\",\"threat_handled\":true,\"threat_name\":\"Synthetic.TestThreat\",\"processname\":\"C:\\\\Program Files\\\\Example\\\\scanner.exe\",\"username\":\"LAB\\\\analyst\",\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"}",
     "expected": {
@@ -19,10 +19,10 @@
       "event.endpointKeyType": "uuid",
       "origin.path": "C:\\Program Files\\Example\\",
       "event.event_type": "Threat_Event",
-      "event.threat_handled": true
+      "event.threat_handled": true,
+      "actionResult": "denied"
     },
     "absent": [
-      "actionResult",
       "event.msgType",
       "event.jsonMessage"
     ],
@@ -844,7 +844,7 @@
     "expected": {
       "target.user": "Administrator",
       "origin.user": "operator",
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": [
@@ -1341,11 +1341,10 @@
     "dataSource": "synthetic-eset-collector",
     "raw": "{\"event_type\": \"Threat_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": \"synthetic-endpoint-1\", \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\", \"threat_name\": \"Synthetic.NewHeur\", \"action_taken\": \"Deleted\", \"threat_handled\": true}",
     "expected": {
-      "event.correlationCandidate.heuristicRemediation": "match"
+      "event.correlationCandidate.heuristicRemediation": "match",
+      "actionResult": "denied"
     },
-    "absent": [
-      "actionResult"
-    ],
+    "absent": [],
     "matches": [
       "advanced_heuristic_detection_triggers"
     ]
@@ -1490,7 +1489,7 @@
     "dataSource": "synthetic-eset-collector",
     "raw": "{\"event_type\": \"Threat_Event\", \"ipv4\": \"192.0.2.30\", \"hostname\": \"endpoint.example.invalid\", \"source_uuid\": \"synthetic-endpoint-1\", \"os_name\": \"Microsoft Windows 11 Pro\", \"severity\": \"Warning\", \"occurred\": \"17-Sep-2026 12:30:00\", \"action_taken\": \"Quarantine\", \"action_error\": \"Unable to quarantine file\"}",
     "expected": {
-      "actionResult": "failure",
+      "actionResult": "failed",
       "event.correlationCandidate.quarantineFailure": "match"
     },
     "absent": [],
@@ -1848,5 +1847,175 @@
     "matches": [
       "eset_console_abuse"
     ]
+  },
+  {
+    "name": "outcome Threat cleaned by deleting is denied",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"event_type\":\"Threat_Event\",\"threat_type\":\"Virus\",\"threat_name\":\"Synthetic.TestThreat\",\"scanner_id\":\"Real-time file system protection\",\"object_type\":\"file\",\"object_uri\":\"file:///C:/Users/analyst/Downloads/sample.bin\",\"action_taken\":\"cleaned by deleting\",\"threat_handled\":true}",
+    "expected": {
+      "action": "cleaned by deleting",
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "outcome Threat quarantined is denied",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"event_type\":\"Threat_Event\",\"threat_type\":\"Virus\",\"threat_name\":\"Synthetic.TestThreat\",\"scanner_id\":\"Real-time file system protection\",\"object_type\":\"file\",\"object_uri\":\"file:///C:/Users/analyst/Downloads/sample.bin\",\"action_taken\":\"Quarantined\",\"threat_handled\":true}",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "outcome Threat contained infected files is denied",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"event_type\":\"Threat_Event\",\"threat_type\":\"Virus\",\"threat_name\":\"Synthetic.TestThreat\",\"scanner_id\":\"Real-time file system protection\",\"object_type\":\"file\",\"object_uri\":\"file:///C:/Users/analyst/Downloads/sample.bin\",\"action_taken\":\"Contained infected files\",\"threat_handled\":true}",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "outcome Threat retained stays empty",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"event_type\":\"Threat_Event\",\"threat_type\":\"Virus\",\"threat_name\":\"Synthetic.TestThreat\",\"scanner_id\":\"Real-time file system protection\",\"object_type\":\"file\",\"object_uri\":\"file:///C:/Users/analyst/Downloads/sample.bin\",\"action_taken\":\"Retained\",\"threat_handled\":false}",
+    "expected": {
+      "action": "Retained"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "outcome Threat unhandled deletion stays empty",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"event_type\":\"Threat_Event\",\"threat_type\":\"Virus\",\"threat_name\":\"Synthetic.TestThreat\",\"scanner_id\":\"Real-time file system protection\",\"object_type\":\"file\",\"object_uri\":\"file:///C:/Users/analyst/Downloads/sample.bin\",\"action_taken\":\"Deleted\",\"threat_handled\":false}",
+    "expected": {
+      "action": "Deleted"
+    },
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "outcome Threat cleaning error is failed",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"event_type\":\"Threat_Event\",\"threat_type\":\"Virus\",\"threat_name\":\"Synthetic.TestThreat\",\"scanner_id\":\"Real-time file system protection\",\"object_type\":\"file\",\"object_uri\":\"file:///C:/Users/analyst/Downloads/sample.bin\",\"action_taken\":\"cleaned by deleting\",\"threat_handled\":true,\"action_error\":\"Unable to clean file\"}",
+    "expected": {
+      "actionResult": "failed",
+      "event.correlationCandidate.quarantineFailure": "match"
+    },
+    "absent": [],
+    "matches": [
+      "eset_quarantine_failures"
+    ]
+  },
+  {
+    "name": "outcome HTTP filter connection terminated is denied",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"event_type\":\"Threat_Event\",\"threat_type\":\"Trojan\",\"threat_name\":\"JS/Synthetic.Test\",\"scanner_id\":\"HTTP filter\",\"object_type\":\"file\",\"object_uri\":\"http://malware.example.invalid/payload.js\",\"action_taken\":\"connection terminated\",\"threat_handled\":true,\"processname\":\"C:\\\\Program Files\\\\Example\\\\browser.exe\"}",
+    "expected": {
+      "action": "connection terminated",
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "outcome HTTP filter unhandled termination stays empty",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"event_type\":\"Threat_Event\",\"threat_type\":\"Trojan\",\"threat_name\":\"JS/Synthetic.Test\",\"scanner_id\":\"HTTP filter\",\"object_type\":\"file\",\"object_uri\":\"http://malware.example.invalid/payload.js\",\"action_taken\":\"connection terminated\",\"threat_handled\":false}",
+    "expected": {},
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "outcome web filter Blocked URL is denied",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"event_type\":\"FilteredWebsites_Event\",\"action_taken\":\"Blocked URL\",\"handled\":true,\"object_uri\":\"https://blocked.example.invalid/\",\"target_address\":\"203.0.113.20\",\"target_address_type\":\"IPv4\",\"rule_id\":\"Blocked by URL list\",\"processname\":\"C:\\\\Program Files\\\\Example\\\\browser.exe\"}",
+    "expected": {
+      "action": "Blocked URL",
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "outcome BlockedFiles Blocked and cleaned is denied",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"event_type\":\"BlockedFiles_Event\",\"action\":\"Blocked and cleaned\",\"hash\":\"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\",\"object_uri\":\"file:///C:/Users/analyst/Downloads/sample.bin\"}",
+    "expected": {
+      "action": "Blocked and cleaned",
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "outcome console login Access denied is failed",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"event_type\":\"Audit_Event\",\"domain\":\"Native user\",\"action\":\"Login attempt\",\"target\":\"Administrator\",\"detail\":\"Authenticating native user 'Administrator'.\",\"user\":\"\",\"result\":\"Access denied\"}",
+    "expected": {
+      "target.user": "Administrator",
+      "actionResult": "failed",
+      "event.correlationCandidate.consoleAuthenticationFailure": "match"
+    },
+    "absent": [],
+    "matches": [
+      "eset_console_abuse"
+    ]
+  },
+  {
+    "name": "outcome PowerShell detection cleaned by deleting is blocked PowerShell",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"event_type\":\"Threat_Event\",\"threat_type\":\"Virus\",\"threat_name\":\"Synthetic.TestThreat\",\"scanner_id\":\"Real-time file system protection\",\"object_type\":\"file\",\"object_uri\":\"file:///C:/Users/analyst/Downloads/sample.bin\",\"action_taken\":\"cleaned by deleting\",\"threat_handled\":true,\"processname\":\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\"}",
+    "expected": {
+      "actionResult": "denied",
+      "origin.process": "powershell.exe"
+    },
+    "absent": [],
+    "matches": [
+      "suspicious_powershell_activity_blocked"
+    ]
+  },
+  {
+    "name": "outcome exploit detection cleaned by deleting is a blocked exploit",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"event_type\":\"Threat_Event\",\"threat_type\":\"Virus\",\"threat_name\":\"Synthetic.Exploit.Test\",\"scanner_id\":\"Real-time file system protection\",\"object_type\":\"file\",\"object_uri\":\"file:///C:/Users/analyst/Downloads/sample.bin\",\"action_taken\":\"Cleaned by deleting\",\"threat_handled\":true}",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": [
+      "exploit_detection_events"
+    ]
+  },
+  {
+    "name": "outcome exploit detection retained stays unmatched",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"event_type\":\"Threat_Event\",\"threat_type\":\"Virus\",\"threat_name\":\"Synthetic.Exploit.Test\",\"scanner_id\":\"Real-time file system protection\",\"object_type\":\"file\",\"object_uri\":\"file:///C:/Users/analyst/Downloads/sample.bin\",\"action_taken\":\"Retained\",\"threat_handled\":false}",
+    "expected": {},
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "outcome console nonlogin Access denied is denied",
+    "dataSource": "synthetic-eset-collector",
+    "raw": "{\"ipv4\":\"192.0.2.30\",\"hostname\":\"endpoint.example.invalid\",\"source_uuid\":\"synthetic-endpoint-1\",\"os_name\":\"Microsoft Windows 11 Pro\",\"severity\":\"Warning\",\"occurred\":\"17-Sep-2026 12:30:00\",\"event_type\":\"Audit_Event\",\"domain\":\"Policy\",\"action\":\"Modified\",\"target\":\"Policy A\",\"user\":\"operator\",\"result\":\"Access denied\"}",
+    "expected": {
+      "actionResult": "denied"
+    },
+    "absent": [],
+    "matches": []
   }
 ]

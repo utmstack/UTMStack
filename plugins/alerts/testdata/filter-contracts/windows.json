@@ -147,7 +147,7 @@
         }
       },
       "expected": {
-        "actionResult": "failure"
+        "actionResult": "failed"
       },
       "absent": [],
       "rules": {}
@@ -200,17 +200,17 @@
         "target.host": "dc01.example.test",
         "deviceTime": "2026-09-17T12:00:00Z",
         "event.providerName": "Microsoft-Windows-Security-Auditing",
-        "event.authenticationSourceType": "user",
         "event.authenticationSource": "alice",
         "origin.port": 49152,
         "origin.user": "alice",
         "event.data.IpAddress": "-",
-        "event.authenticationSourceDomain": "EXAMPLE",
         "event.authenticationCandidate.kerberoastingDetection": "match"
       },
       "absent": [
         "event.unparsedOriginIp",
-        "origin.ip"
+        "origin.ip",
+        "event.authenticationSourceType",
+        "event.authenticationSourceDomain"
       ],
       "rules": {
         "rules/windows/kerberoasting_detection.yml": true
@@ -244,17 +244,17 @@
         "target.host": "dc01.example.test",
         "deviceTime": "2026-09-17T12:00:00Z",
         "event.providerName": "Microsoft-Windows-Security-Auditing",
-        "event.authenticationSourceType": "user",
         "event.authenticationSource": "alice",
         "origin.port": 49152,
         "origin.user": "alice",
         "event.data.IpAddress": "-",
-        "event.authenticationSourceDomain": "EXAMPLE",
         "event.authenticationCandidate.asrepRoastingDetection": "match"
       },
       "absent": [
         "event.unparsedOriginIp",
-        "origin.ip"
+        "origin.ip",
+        "event.authenticationSourceType",
+        "event.authenticationSourceDomain"
       ],
       "rules": {
         "rules/windows/asrep_roasting_detection.yml": true
@@ -289,17 +289,17 @@
         "target.host": "dc01.example.test",
         "deviceTime": "2026-09-17T12:00:00Z",
         "event.providerName": "Microsoft-Windows-Security-Auditing",
-        "event.authenticationSourceType": "user",
         "event.authenticationSource": "alice",
         "origin.port": 49152,
         "origin.user": "alice",
         "event.data.IpAddress": "-",
-        "event.authenticationSourceDomain": "EXAMPLE",
         "event.authenticationCandidate.silverTicketDetection": "match"
       },
       "absent": [
         "event.unparsedOriginIp",
-        "origin.ip"
+        "origin.ip",
+        "event.authenticationSourceType",
+        "event.authenticationSourceDomain"
       ],
       "rules": {
         "rules/windows/silver_ticket_detection.yml": true
@@ -332,17 +332,17 @@
         "target.host": "dc01.example.test",
         "deviceTime": "2026-09-17T12:00:00Z",
         "event.providerName": "Microsoft-Windows-Security-Auditing",
-        "event.authenticationSourceType": "user",
         "event.authenticationSource": "alice",
         "origin.port": 49152,
         "origin.user": "alice",
         "event.data.IpAddress": "-",
-        "event.authenticationSourceDomain": "EXAMPLE",
         "event.authenticationCandidate.goldenTicketDetection": "match"
       },
       "absent": [
         "event.unparsedOriginIp",
-        "origin.ip"
+        "origin.ip",
+        "event.authenticationSourceType",
+        "event.authenticationSourceDomain"
       ],
       "rules": {
         "rules/windows/golden_ticket_detection.yml": true
@@ -375,17 +375,17 @@
         "target.host": "dc01.example.test",
         "deviceTime": "2026-09-17T12:00:00Z",
         "event.providerName": "Microsoft-Windows-Security-Auditing",
-        "event.authenticationSourceType": "user",
         "event.authenticationSource": "alice",
         "origin.port": 49152,
         "origin.user": "alice",
-        "event.data.IpAddress": "-",
-        "event.authenticationSourceDomain": "EXAMPLE",
-        "event.authenticationCandidate.bruteforceAttack": "match"
+        "event.data.IpAddress": "-"
       },
       "absent": [
         "event.unparsedOriginIp",
-        "origin.ip"
+        "origin.ip",
+        "event.authenticationSourceType",
+        "event.authenticationSourceDomain",
+        "event.authenticationCandidate"
       ],
       "rules": {
         "rules/windows/bruteforce_attack.yml": true
@@ -418,17 +418,17 @@
         "target.host": "dc01.example.test",
         "deviceTime": "2026-09-17T12:00:00Z",
         "event.providerName": "Microsoft-Windows-Security-Auditing",
-        "event.authenticationSourceType": "user",
         "event.authenticationSource": "alice",
         "origin.port": 49152,
         "origin.user": "alice",
-        "event.data.IpAddress": "-",
-        "event.authenticationSourceDomain": "EXAMPLE",
-        "event.authenticationCandidate.bruteforceMultipleLogonFailureFollowedBySuccess": "match"
+        "event.data.IpAddress": "-"
       },
       "absent": [
         "event.unparsedOriginIp",
-        "origin.ip"
+        "origin.ip",
+        "event.authenticationSourceType",
+        "event.authenticationSourceDomain",
+        "event.authenticationCandidate"
       ],
       "rules": {
         "rules/windows/bruteforce_multiple_logon_failure_followed_by_success.yml": true
@@ -461,17 +461,17 @@
         "target.host": "dc01.example.test",
         "deviceTime": "2026-09-17T12:00:00Z",
         "event.providerName": "AD FS",
-        "event.authenticationSourceType": "user",
         "event.authenticationSource": "alice",
         "origin.port": 49152,
         "origin.user": "alice",
         "event.data.IpAddress": "-",
-        "event.authenticationSourceDomain": "EXAMPLE",
         "event.authenticationCandidate.adfsAuthenticationAnomalies": "match"
       },
       "absent": [
         "event.unparsedOriginIp",
-        "origin.ip"
+        "origin.ip",
+        "event.authenticationSourceType",
+        "event.authenticationSourceDomain"
       ],
       "rules": {
         "rules/windows/adfs_authentication_anomalies.yml": true

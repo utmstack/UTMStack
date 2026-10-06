@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.0.1
 
 dataTypes:
   - wineventlog
@@ -26,10 +26,8 @@ description: |
   7. Correlate with other authentication events across the domain
 where: |
   !oneOf("dataSource", ["", "unknown"]) &&
-  exists("event.authenticationSource") && exists("event.authenticationSourceType") && exists("event.authenticationSourceDomain") &&
-  (
+  exists("event.authenticationSource") &&
   equals("event.providerName", "AD FS") && (equals("event.eventCode", "342") || equals("event.eventCode", "516")) && contains("event.message", "token validation failed")
-  )
 afterEvents:
   - indexPattern: v11-log-wineventlog-*
     with:
@@ -39,12 +37,6 @@ afterEvents:
       - field: event.authenticationSource.keyword
         operator: filter_term
         value: '{{.event.authenticationSource}}'
-      - field: event.authenticationSourceType.keyword
-        operator: filter_term
-        value: '{{.event.authenticationSourceType}}'
-      - field: event.authenticationSourceDomain.keyword
-        operator: filter_term
-        value: '{{.event.authenticationSourceDomain}}'
       - field: event.authenticationCandidate.adfsAuthenticationAnomalies.keyword
         operator: filter_term
         value: match
@@ -55,7 +47,5 @@ afterEvents:
     count: 10
 groupBy:
   - dataSource
-  - lastEvent.event.authenticationSourceType
   - lastEvent.event.authenticationSource
-  - lastEvent.event.authenticationSourceDomain
   - target.user

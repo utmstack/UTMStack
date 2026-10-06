@@ -1,4 +1,4 @@
-# Suricata filter version 1.1.0
+# Suricata filter version 1.1.1
 # Based on https://docs.suricata.io/en/latest/output/eve/eve-json-format.html
 # Support json format
 
@@ -126,34 +126,19 @@ pipeline:
             value: "info"
           where: equals("event.alert.severity", 3)
 
-      #.......................................................................
-      # Add new eventtypes to logx structure, detected in real logs, present in suricata 7.0.0
-      - rename:
-          from:
-            - event.ftpdata
-          to: event.ftpData
-      
-      - rename:
-          from:
-            - event.fileinfo
-          to: event.fileInfo
-
-      # The alert's own action is not the final packet verdict: a second
-      # signature or a flow drop can override an alert marked allowed.
-      # An observed bidirectional established flow is the connection proof;
-      # a permitted alert packet alone is not a successful connection.
+      # actionResult is success, failed or denied, or stays empty when the record states no
+      # final outcome (IDS alerts, flow "new", dns, anomaly). The steps run success, then
+      # failed, then denied, so the last match wins and a drop always ends as denied.
+      # The alert's own action is not the final packet verdict: a second signature or a flow
+      # drop can override an alert marked allowed, so a permitted alert packet alone is not a
+      # successful connection. These steps read log.fileinfo before it is renamed below.
       - delete:
           fields: [actionResult]
-      - add:
-          function: string
-          params:
-            key: actionResult
-            value: "denied"
-          where: >-
-            equals("event.verdict.action", "drop") ||
-            equals("event.flow.action", "drop") ||
-            (equals("event.eventType", "alert") && equals("event.alert.action", "blocked") &&
-             !exists("event.verdict.action") && !exists("event.flow.action"))
+
+      # success: a flow both sides used. A TCP flow also needs the server's SYN-ACK (SYN in
+      # tcp_flags_tc) and the client's ACK (0x10 in tcp_flags_ts); a SYN answered by a reset
+      # is not a completed connection. EVE writes the flags as hex text, and nested EVE keys
+      # keep their characters. Suricata 8 firewall mode writes "accept", which counts as "pass".
       - add:
           function: string
           params:
@@ -165,8 +150,79 @@ pipeline:
             (greaterThan("event.flow.bytes_toclient", 0) || greaterThan("event.flow.bytestoclient", 0)) &&
             ((equals("event.eventType", "flow") &&
               oneOf("event.flow.state", ["established", "closed", "bypassed"]) &&
-              (equals("event.flow.action", "pass") || !exists("event.flow.action"))) ||
-             (equals("event.eventType", "alert") && equals("event.verdict.action", "pass")))
+              (oneOf("event.flow.action", ["pass", "accept"]) || !exists("event.flow.action")) &&
+              (!equals("protocol", "TCP") ||
+               (regexMatch("event.tcp.tcp_flags_tc", "^[0-9a-fA-F]*[2367abefABEF]$") &&
+                regexMatch("event.tcp.tcp_flags_ts", "^[0-9a-fA-F]*[13579bdfBDF][0-9a-fA-F]$")))) ||
+             (equals("event.eventType", "alert") && oneOf("event.verdict.action", ["pass", "accept"])))
+
+      # success: application records that show the server answered. HTTP (and a file carried
+      # by HTTP) follows the response status: 2xx here, 4xx and 5xx below, 3xx stays empty.
+      # A file seen whole (state CLOSED) on another protocol, or a TLS record with a
+      # server-side value (certificate, JA3S, resumed session, negotiated version).
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "success"
+          where: >-
+            !equals("event.verdict.action", "drop") && !equals("event.flow.action", "drop") &&
+            ((oneOf("event.eventType", ["http", "fileinfo"]) &&
+              greaterOrEqual("event.http.status", 200) && lessThan("event.http.status", 300)) ||
+             (equals("event.eventType", "fileinfo") && !exists("event.http.status") &&
+              equals("event.fileinfo.state", "CLOSED")) ||
+             (equals("event.eventType", "tls") &&
+              (exists("event.tls.subject") || exists("event.tls.fingerprint") ||
+               exists("event.tls.serial") || exists("event.tls.ja3s.hash") ||
+               equals("event.tls.session_resumed", true) ||
+               (exists("event.tls.version") && !equals("event.tls.version", "UNDETERMINED")))))
+
+      # failed: a TCP connection the other side refused (client SYN without ACK, answered by
+      # a reset without SYN), and HTTP errors other than 401 and 403.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "failed"
+          where: >-
+            (equals("event.eventType", "flow") && equals("protocol", "TCP") &&
+             regexMatch("event.tcp.tcp_flags_ts", "^([0-9a-fA-F]*[02468aceACE])?[2367abefABEF]$") &&
+             regexMatch("event.tcp.tcp_flags_tc", "^[0-9a-fA-F]*[45cdCD]$")) ||
+            (oneOf("event.eventType", ["http", "fileinfo"]) &&
+             greaterOrEqual("event.http.status", 400) && lessThan("event.http.status", 600) &&
+             !oneOf("event.http.status", [401, 403]))
+
+      # denied: Suricata dropped the packet or flow (IPS drop record, drop verdict, flow drop),
+      # a reject rule reset the connection (the verdict lists the reject; up to Suricata 8 the
+      # key is reject-target, from 9 reject_target), a blocked alert without a final verdict,
+      # or the web server refused the request (401, 403).
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "denied"
+          where: >-
+            equals("event.eventType", "drop") ||
+            equals("event.verdict.action", "drop") ||
+            equals("event.flow.action", "drop") ||
+            exists("event.verdict.reject") ||
+            exists("event.verdict.reject-target") ||
+            exists("event.verdict.reject_target") ||
+            (equals("event.eventType", "alert") && equals("event.alert.action", "blocked") &&
+             !exists("event.verdict.action") && !exists("event.flow.action")) ||
+            (oneOf("event.eventType", ["http", "fileinfo"]) && oneOf("event.http.status", [401, 403]))
+
+      #.......................................................................
+      # Add new eventtypes to logx structure, detected in real logs, present in suricata 7.0.0
+      - rename:
+          from:
+            - event.ftpdata
+          to: event.ftpData
+      
+      - rename:
+          from:
+            - event.fileinfo
+          to: event.fileInfo
 
       # Adding geolocation to origin.ip
       - dynamic:

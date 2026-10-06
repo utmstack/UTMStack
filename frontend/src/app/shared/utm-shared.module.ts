@@ -18,6 +18,7 @@ import {AssetsGroupAddModule} from '../assets-discover/shared/components/asset-g
 import {AssetsApplyNoteModule} from '../assets-discover/shared/components/assets-apply-note/assets-apply-note.module';
 import {AssetsApplyTypeModule} from '../assets-discover/shared/components/assets-apply-type/assets-apply-type.module';
 import {AuthServerProvider} from '../core/auth/auth-jwt.service';
+import {FederationModule} from '../federation/federation.module';
 import {AlertEchoesTimelineComponent} from '../data-management/alert-management/shared/components/alert-echoes-timeline/alert-echoes-timeline.component';
 import {UtmToastService} from './alert/utm-toast.service';
 import {DashboardBehavior} from './behaviors/dashboard.behavior';
@@ -117,6 +118,9 @@ import {
 } from './components/utm/config/app-config-delete-confirm/app-config-delete-confirm.component';
 import {AppConfigParamsComponent} from './components/utm/config/app-config-params/app-config-params.component';
 import {AppConfigSectionsComponent} from './components/utm/config/app-config-sections/app-config-sections.component';
+import {
+  FederationEmailConfigPageComponent
+} from '../federation/pages/email-config/federation-email-config.page.component';
 import {
   AppModuleDisabledWarningComponent
 } from './components/utm/config/app-module-disabled-warning/app-module-disabled-warning.component';
@@ -269,7 +273,8 @@ import {ScheduleConfigComponent} from './components/schedule-config/schedule-con
     InfiniteScrollModule,
     NgxEchartsModule,
     ResizableModule,
-    MonacoEditorModule.forRoot()
+    MonacoEditorModule.forRoot(),
+    FederationModule
   ],
   declarations: [
     ElasticFilterComponent,
@@ -346,6 +351,7 @@ import {ScheduleConfigComponent} from './components/schedule-config/schedule-con
     GenericFilerSortComponent,
     AppConfigParamsComponent,
     AppConfigSectionsComponent,
+    FederationEmailConfigPageComponent,
     AppModuleDisabledWarningComponent,
     AppConfigDeleteConfirmComponent,
     UtmScrollTopComponent,
@@ -527,7 +533,8 @@ import {ScheduleConfigComponent} from './components/schedule-config/schedule-con
     ResizableFilterContainerComponent,
     CodeEditorComponent,
     IsEnterpriseModuleDirective,
-    ScheduleConfigComponent
+    ScheduleConfigComponent,
+    FederationModule
   ],
   entryComponents: [
     LoginComponent,

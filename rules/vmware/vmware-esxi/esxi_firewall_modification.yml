@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.1.0
 
 dataTypes:
   - vmware-esxi
@@ -14,7 +14,7 @@ references:
   - https://kb.vmware.com/s/article/2008226
   - https://attack.mitre.org/techniques/T1562/004/
 description: |
-  Detects modifications to ESXi firewall ruleset configurations using esxcli network firewall commands. Attackers modify firewall rules to enable outbound connections for C2 communication or to expose management interfaces.
+  Detects modifications to ESXi firewall ruleset configurations using esxcli network firewall commands. Attackers modify firewall rules to enable outbound connections for C2 communication or to expose management interfaces. One alert is raised per ESXi host; repeats are suppressed for seven days.
 
   Next Steps:
   1. Review the specific firewall rule changes
@@ -36,5 +36,5 @@ where: |
     )) ||
     (contains("event.message", "iptables") && exists("origin.hostname"))
   )
-groupBy:
-  - adversary.hostname
+deduplicateBy:
+  - dataSource

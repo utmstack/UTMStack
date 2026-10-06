@@ -13,6 +13,11 @@ import (
 // infers types, so heterogeneous vendor values can no longer produce
 // mapper_parsing_exception conflicts. "controls" holds compliance control tags.
 // Top-level Event fields keep real types so the UI/SQL/sort work on them.
+//
+// This mappings template is scoped to v11-log-* ONLY (NOT v11-alert-*): alert
+// documents carry e.g. severity as an integer, so they must not inherit these
+// log-side text mappings. It carries no settings — settings come from the
+// settings-only template (utmstack_log_indexes) that v11 applies to both.
 const logIndexMappings = `
 {
   "@timestamp": {"type":"date"},
@@ -107,8 +112,17 @@ func InitOpenSearch() error {
 		return err
 	}
 
-	logTemplateData := `{"index_patterns":["v11-log-*"],"template":{"settings":{"index.max_shards":30000},"mappings":{"properties":` + logIndexMappings + `}}}`
+	// v11 settings-only template (covers log + alert) — unchanged from v11.
+	logTemplateData := `{"index_patterns":["v11-log-*","v11-alert-*"],"template":{"settings":{"index.max_shards":30000}}}`
 	if err := execCurl(containerID, "PUT", "https://localhost:9200/_index_template/utmstack_log_indexes", logTemplateData); err != nil {
+		return err
+	}
+
+	// Event-bag mappings template: scoped to v11-log-* ONLY (alert docs carry
+	// severity as an integer — they must not inherit these log-side types).
+	// No settings here; settings come from utmstack_log_indexes above.
+	eventMappingsData := `{"index_patterns":["v11-log-*"],"template":{"mappings":{"properties":` + logIndexMappings + `}}}`
+	if err := execCurl(containerID, "PUT", "https://localhost:9200/_index_template/utmstack_log_event_mappings", eventMappingsData); err != nil {
 		return err
 	}
 
@@ -129,14 +143,20 @@ func UpdateOpenSearch() error{
 		return err
 	}
 
-	// (Re)create the log template with the pinned mappings (affects NEW indices).
-	logTemplateData := `{"index_patterns":["v11-log-*"],"template":{"settings":{"index.max_shards":30000},"mappings":{"properties":` + logIndexMappings + `}}}`
+	// (Re)create the v11 settings-only log template (covers log + alert).
+	logTemplateData := `{"index_patterns":["v11-log-*","v11-alert-*"],"template":{"settings":{"index.max_shards":30000}}}`
 	if err := execCurl(containerID, "PUT", "https://localhost:9200/_index_template/utmstack_log_indexes", logTemplateData); err != nil {
 		return err
 	}
 
+	// (Re)create the event-bag mappings template (v11-log-* only).
+	eventMappingsData := `{"index_patterns":["v11-log-*"],"template":{"mappings":{"properties":` + logIndexMappings + `}}}`
+	if err := execCurl(containerID, "PUT", "https://localhost:9200/_index_template/utmstack_log_event_mappings", eventMappingsData); err != nil {
+		return err
+	}
+
 	// Add ONLY the new bag mappings to already-existing v11-log-* indices
-	// (non-destructive: event/controls are new keys — no type clash with the
+	// (non-destructive: event/controls are new keys - no type clash with the
 	// legacy dynamic log mapping). Typed top-levels are NOT retro-applied: they
 	// can conflict with existing dynamic mappings and would 400 the upgrade.
 	if err := execCurl(containerID, "PUT", "https://localhost:9200/v11-log-*/_mapping?allow_no_indices=true",
@@ -145,7 +165,7 @@ func UpdateOpenSearch() error{
 	}
 
 	// updated already existing index (update case)
-	if err := execCurl(containerID, "PUT", "https://localhost:9200/v11-log-*/_settings?allow_no_indices=true", `{"index.max_shards":30000}`); err != nil {
+	if err := execCurl(containerID, "PUT", "https://localhost:9200/v11-log-*,v11-alert-*/_settings?allow_no_indices=true", `{"index.max_shards":30000}`); err != nil {
 		return err
 	}
 

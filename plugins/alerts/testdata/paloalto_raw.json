@@ -8,7 +8,7 @@
       "origin.user": "testuser",
       "target.host": "synthetic-fw",
       "action": "auth-fail",
-      "actionResult": "failure",
+      "actionResult": "failed",
       "severity": "info",
       "deviceTime": "2026-09-17T12:00:00.000-04:00"
     },
@@ -72,7 +72,7 @@
     "dataSource": "synthetic-collector",
     "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,SYSTEM,auth,2817,2026/09/17 12:00:00,vsys1,auth-fail,,,,general,informational,Authentication failed. Server address 192.0.2.25.,1001,,,,,,,synthetic-fw,,,2026-09-17T12:00:00.000-04:00",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "matches": [],
     "absent": [
@@ -87,7 +87,7 @@
     "raw": "1,2026/09/17 12:00:00,SYNTH-FW,SYSTEM,auth,2817,2026/09/17 12:00:00,vsys1,auth-fail,,,,general,informational,\"failed authentication for user 'testuser'.  Reason: User is not in allowlist. auth profile 'Local', vsys 'vsys1', From: 192.0.2.25.\",1001,,,,,,,synthetic-fw,,,2026-09-17T12:00:00.000-04:00",
     "expected": {
       "origin.ip": "192.0.2.25",
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "matches": [
       "panos_admin_brute_force"
@@ -106,7 +106,7 @@
     "raw": "<14>1,2026/09/17 12:00:00,SYNTH-FW,SYSTEM,auth,2817,2026/09/17 12:00:00,vsys1,auth-fail,,,,general,informational,\"failed authentication for user 'testuser'.  Reason: User is not in allowlist. auth profile 'Local', vsys 'vsys1', From: 192.0.2.25.\",1001,,,,,,,synthetic-fw,,,2026-09-17T12:00:00.000-04:00",
     "expected": {
       "origin.ip": "192.0.2.25",
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "matches": [
       "panos_admin_brute_force"
@@ -125,7 +125,7 @@
     "raw": "<14>1 2026-09-17T12:00:00Z synthetic-fw PAN-OS - - - 1,2026/09/17 12:00:00,SYNTH-FW,SYSTEM,auth,2817,2026/09/17 12:00:00,vsys1,auth-fail,,,,general,informational,\"failed authentication for user 'testuser'.  Reason: User is not in allowlist. auth profile 'Local', vsys 'vsys1', From: 192.0.2.25.\",1001,,,,,,,synthetic-fw,,,2026-09-17T12:00:00.000-04:00",
     "expected": {
       "origin.ip": "192.0.2.25",
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "matches": [
       "panos_admin_brute_force"
@@ -144,7 +144,7 @@
     "raw": "<14>1 2026-09-17T12:00:00Z synthetic-fw PAN-OS 123 ID47 [meta@123 source=\"test\"] 1,2026/09/17 12:00:00,SYNTH-FW,SYSTEM,auth,2817,2026/09/17 12:00:00,vsys1,auth-fail,,,,general,informational,\"failed authentication for user 'testuser'.  Reason: User is not in allowlist. auth profile 'Local', vsys 'vsys1', From: 192.0.2.25.\",1001,,,,,,,synthetic-fw,,,2026-09-17T12:00:00.000-04:00",
     "expected": {
       "origin.ip": "192.0.2.25",
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "matches": [
       "panos_admin_brute_force"
@@ -345,7 +345,7 @@
     "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,TRAFFIC,end,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,ssl,vsys1,,,,,,,,,45678,443,,,,tcp,allow,300,200,100,12,,,,,,,,,,8,4,resources-unavailable,11,22,33,44,virtual-system-name,synthetic-fw,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,2026-09-17T12:00:00.000-04:00",
     "expected": {
       "action": "allow",
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "matches": [],
     "absent": [
@@ -1065,7 +1065,7 @@
       "origin.host": "vpn-client",
       "origin.user": "testuser",
       "action": "gateway-auth",
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "matches": [],
     "absent": [],
@@ -1325,7 +1325,7 @@
       "origin.ip": "192.0.2.25",
       "origin.user": "testuser",
       "target.host": "synthetic-fw",
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "matches": [
       "panos_admin_brute_force"
@@ -1346,7 +1346,7 @@
       "origin.ip": "192.0.2.25",
       "origin.user": "testuser",
       "target.host": "synthetic-fw",
-      "actionResult": "failure",
+      "actionResult": "failed",
       "event.paType": "SYSTEM",
       "event.paSenderSwVersion": "",
       "event.paSubtype": "auth",
@@ -1371,7 +1371,7 @@
       "origin.ip": "192.0.2.25",
       "origin.user": "testuser",
       "target.host": "synthetic-fw",
-      "actionResult": "failure",
+      "actionResult": "failed",
       "event.paType": "SYSTEM",
       "event.paSenderSwVersion": "10.0",
       "event.paCefSignature": "",
@@ -1398,7 +1398,7 @@
       "origin.ip": "192.0.2.25",
       "origin.user": "testuser",
       "target.host": "synthetic-fw",
-      "actionResult": "failure",
+      "actionResult": "failed",
       "event.paType": "SYSTEM",
       "event.paSenderSwVersion": "10.0",
       "event.paSubtype": "auth",
@@ -1663,7 +1663,7 @@
       "origin.user": "testuser",
       "target.host": "synthetic-fw",
       "action": "auth-fail",
-      "actionResult": "failure",
+      "actionResult": "failed",
       "severity": "info",
       "deviceTime": "2026-09-17T12:00:00.000-04:00"
     },
@@ -1682,7 +1682,7 @@
       "origin.user": "testuser",
       "target.host": "synthetic-fw",
       "action": "auth-fail",
-      "actionResult": "failure",
+      "actionResult": "failed",
       "severity": "info",
       "deviceTime": "2026-09-17T12:00:00.000-04:00"
     },
@@ -2178,6 +2178,215 @@
       "statusCode",
       "actionResult",
       "target.url"
+    ]
+  },
+  {
+    "name": "globalprotect-portal-prelogin-success-states-no-sign-in-outcome",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,GLOBALPROTECT,,2817,2026/09/17 12:00:00,vsys1,portal-prelogin,,,,testuser,,vpn-client,203.0.113.60,,10.0.0.25,,,,,Windows,,,,,,success",
+    "expected": {
+      "origin.ip": "203.0.113.60",
+      "action": "portal-prelogin"
+    },
+    "matches": [],
+    "alertSides": {},
+    "absent": [
+      "actionResult"
+    ]
+  },
+  {
+    "name": "globalprotect-gateway-prelogin-success-states-no-sign-in-outcome",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,GLOBALPROTECT,,2817,2026/09/17 12:00:00,vsys1,gateway-prelogin,,,,testuser,,vpn-client,203.0.113.60,,10.0.0.25,,,,,Windows,,,,,,success",
+    "expected": {
+      "origin.ip": "203.0.113.60",
+      "action": "gateway-prelogin"
+    },
+    "matches": [],
+    "alertSides": {},
+    "absent": [
+      "actionResult"
+    ]
+  },
+  {
+    "name": "globalprotect-gateway-tunnel-latency-success-states-no-sign-in-outcome",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,GLOBALPROTECT,,2817,2026/09/17 12:00:00,vsys1,gateway-tunnel-latency,,,,testuser,,vpn-client,203.0.113.60,,10.0.0.25,,,,,Windows,,,,,,success",
+    "expected": {
+      "origin.ip": "203.0.113.60",
+      "action": "gateway-tunnel-latency"
+    },
+    "matches": [],
+    "alertSides": {},
+    "absent": [
+      "actionResult"
+    ]
+  },
+  {
+    "name": "globalprotect-gateway-agent-msg-success-states-no-sign-in-outcome",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,GLOBALPROTECT,,2817,2026/09/17 12:00:00,vsys1,gateway-agent-msg,,,,testuser,,vpn-client,203.0.113.60,,10.0.0.25,,,,,Windows,,,,,,success",
+    "expected": {
+      "origin.ip": "203.0.113.60",
+      "action": "gateway-agent-msg"
+    },
+    "matches": [],
+    "alertSides": {},
+    "absent": [
+      "actionResult"
+    ]
+  },
+  {
+    "name": "globalprotect-gateway-tunnel-notify-success-states-no-sign-in-outcome",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,GLOBALPROTECT,,2817,2026/09/17 12:00:00,vsys1,gateway-tunnel-notify,,,,testuser,,vpn-client,203.0.113.60,,10.0.0.25,,,,,Windows,,,,,,success",
+    "expected": {
+      "origin.ip": "203.0.113.60",
+      "action": "gateway-tunnel-notify"
+    },
+    "matches": [],
+    "alertSides": {},
+    "absent": [
+      "actionResult"
+    ]
+  },
+  {
+    "name": "globalprotect-portal-auth-success",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,GLOBALPROTECT,,2817,2026/09/17 12:00:00,vsys1,portal-auth,,,,testuser,,vpn-client,203.0.113.60,,10.0.0.25,,,,,Windows,,,,,,success",
+    "expected": {
+      "origin.ip": "203.0.113.60",
+      "action": "portal-auth",
+      "actionResult": "success"
+    },
+    "matches": [],
+    "alertSides": {},
+    "absent": []
+  },
+  {
+    "name": "globalprotect-portal-prelogin-failure",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,GLOBALPROTECT,,2817,2026/09/17 12:00:00,vsys1,portal-prelogin,,,,testuser,,vpn-client,203.0.113.60,,10.0.0.25,,,,,Windows,,,,,,failure",
+    "expected": {
+      "origin.ip": "203.0.113.60",
+      "action": "portal-prelogin",
+      "actionResult": "failed"
+    },
+    "matches": [],
+    "alertSides": {},
+    "absent": []
+  },
+  {
+    "name": "threat-dns-security-drop-packet-is-denied",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,spyware,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,web-browsing,vsys1,,,,,,,,,45678,443,,,,udp,drop-packet,example.test/download.exe,DNS signature,any,medium,client-to-server,,,,,,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,public-cloud,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,dns-c2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",
+    "expected": {
+      "action": "drop-packet",
+      "actionResult": "denied",
+      "origin.ip": "192.0.2.25"
+    },
+    "matches": [],
+    "alertSides": {},
+    "absent": []
+  },
+  {
+    "name": "threat-spyware-drop-packet-c2-is-denied",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,THREAT,spyware,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,web-browsing,vsys1,,,,,,,,,45678,443,,,,tcp,drop-packet,example.test/download.exe,DNS signature,any,medium,client-to-server,,,,,,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,public-cloud,,,,,,,,,,,,,,,synthetic-fw,,,,,,,,,,command-and-control,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",
+    "expected": {
+      "action": "drop-packet",
+      "actionResult": "denied",
+      "origin.ip": "192.0.2.25",
+      "target.ip": "198.51.100.40"
+    },
+    "matches": [
+      "ioc_threat_intel_match"
+    ],
+    "alertSides": {
+      "ioc_threat_intel_match": [
+        "192.0.2.25",
+        "198.51.100.40"
+      ]
+    },
+    "absent": []
+  },
+  {
+    "name": "traffic-drop-icmp-is-denied",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,TRAFFIC,end,2817,2026/09/17 12:00:00,192.0.2.25,198.51.100.40,203.0.113.25,203.0.113.40,test-rule,testuser,server-user,ssl,vsys1,,,,,,,,,45678,443,,,,icmp,drop-icmp,300,200,100,12,,,,,,,,,,8,4,tcp-fin,11,22,33,44,virtual-system-name,synthetic-fw,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,client.example,00:11:22:33:44:55,,,,,,,server.example,aa:bb:cc:dd:ee:ff,,,,,,,,,,,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "action": "drop-icmp",
+      "actionResult": "denied"
+    },
+    "matches": [],
+    "alertSides": {},
+    "absent": [
+      "connectionStatus"
+    ]
+  },
+  {
+    "name": "system-vpn-ike-p1-failure-names-peer",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,SYSTEM,vpn,2817,2026/09/17 12:00:00,,ike-nego-p1-fail-common,198.51.100.7[500],0,0,general,informational,\"IKE phase-1 negotiation is failed. Couldn't find configuration for IKE phase-1 request for peer IP 198.51.100.7[500].\",1001,0x0,0,0,0,0,,synthetic-fw,0,0,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "action": "ike-nego-p1-fail-common",
+      "actionResult": "failed",
+      "origin.ip": "198.51.100.7",
+      "event.paPeerPort": "500"
+    },
+    "matches": [],
+    "alertSides": {},
+    "absent": [
+      "event.paIgnored",
+      "event.paSuffix",
+      "event.correlationCandidate.paloalto.authFailure",
+      "target.ip"
+    ]
+  },
+  {
+    "name": "system-vpn-ike-failure-ipv6-peer",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,SYSTEM,vpn,2817,2026/09/17 12:00:00,,ike-nego-p1-fail,2001:db8::7[500],0,0,general,informational,\"IKE phase-1 negotiation is failed as responder, main mode. Due to timeout.\",1001,0x0,0,0,0,0,,synthetic-fw,0,0,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "action": "ike-nego-p1-fail",
+      "actionResult": "failed",
+      "origin.ip": "2001:db8::7",
+      "event.paPeerPort": "500"
+    },
+    "matches": [],
+    "alertSides": {},
+    "absent": [
+      "event.paIgnored",
+      "event.paSuffix"
+    ]
+  },
+  {
+    "name": "system-vpn-ikev2-child-failure-gateway-name",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,SYSTEM,vpn,2817,2026/09/17 12:00:00,,ikev2-nego-child-fail,GW-SYNTH,0,0,general,informational,\"IKEv2 child SA negotiation is failed as initiator, non-rekey. Due to timeout.\",1001,0x0,0,0,0,0,,synthetic-fw,0,0,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "action": "ikev2-nego-child-fail",
+      "actionResult": "failed"
+    },
+    "matches": [],
+    "alertSides": {},
+    "absent": [
+      "origin.ip",
+      "event.paPeerPort"
+    ]
+  },
+  {
+    "name": "system-vpn-ikev2-success-states-no-outcome",
+    "dataSource": "synthetic-collector",
+    "raw": "<14>Sep 17 12:00:00 synthetic-fw 1,2026/09/17 12:00:00,SYNTH-FW,SYSTEM,vpn,2817,2026/09/17 12:00:00,,ikev2-nego-ike-succ,GW-SYNTH,0,0,general,informational,\"IKEv2 IKE SA negotiation is succeeded as initiator, non-rekey.\",1001,0x0,0,0,0,0,,synthetic-fw,0,0,2026-09-17T12:00:00.000-04:00",
+    "expected": {
+      "action": "ikev2-nego-ike-succ"
+    },
+    "matches": [],
+    "alertSides": {},
+    "absent": [
+      "origin.ip",
+      "actionResult"
     ]
   }
 ]

@@ -1433,7 +1433,7 @@
       "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
       "event.ObjectId": "mailbox@example.invalid",
       "event.ResultStatus": "False",
-      "actionResult": "failure",
+      "actionResult": "failed",
       "event.Parameters": "[map[Name:Name Value:Administrative rule]]"
     },
     "absent": [
@@ -1511,7 +1511,7 @@
       "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
       "event.ObjectId": "mailbox@example.invalid",
       "event.ResultStatus": "False",
-      "actionResult": "failure",
+      "actionResult": "failed",
       "event.Parameters": "[map[Name:ForwardTo Value:delegate@example.invalid]]",
       "event.o365InboxForwardingChange": "true"
     },
@@ -1589,7 +1589,7 @@
       "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
       "event.ObjectId": "mailbox@example.invalid",
       "event.ResultStatus": "False",
-      "actionResult": "failure",
+      "actionResult": "failed",
       "event.Parameters": "[map[Name:ForwardingAddress Value:recipient@example.invalid]]",
       "event.o365MailboxForwardingSet": "true"
     },
@@ -1667,7 +1667,7 @@
       "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
       "event.ObjectId": "mailbox@example.invalid",
       "event.ResultStatus": "False",
-      "actionResult": "failure",
+      "actionResult": "failed",
       "event.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
     },
     "absent": [
@@ -1745,7 +1745,7 @@
       "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
       "event.ObjectId": "mailbox@example.invalid",
       "event.ResultStatus": "False",
-      "actionResult": "failure",
+      "actionResult": "failed",
       "event.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
     },
     "absent": [
@@ -1824,7 +1824,7 @@
       "event.ObjectId": "mailbox@example.invalid",
       "target.user": "mailbox@example.invalid",
       "event.ResultStatus": "Failed",
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [
       "event.Operation",
@@ -1903,7 +1903,7 @@
       "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
       "event.ObjectId": "mailbox@example.invalid",
       "event.ResultStatus": "False",
-      "actionResult": "failure",
+      "actionResult": "failed",
       "event.Parameters": "[map[Name:Identity Value:Administrative connector]]"
     },
     "absent": [
@@ -1981,7 +1981,7 @@
       "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
       "event.ObjectId": "mailbox@example.invalid",
       "event.ResultStatus": "False",
-      "actionResult": "failure",
+      "actionResult": "failed",
       "event.Parameters": "[map[Name:Identity Value:administrative-fixture]]"
     },
     "absent": [

@@ -234,8 +234,10 @@ func TestCiscoFirepowerWhereHelpers(t *testing.T) {
 	if observed != 14 {
 		t.Errorf("%d clauses restrict the key-value split to the observed IDs, want 14", observed)
 	}
-	if checked < 468 {
-		t.Errorf("%d helper clauses read event.messageId or event.severity, want at least 468", checked)
+	// 454 since the actionResult revision removed the adds of the Built, teardown and notice
+	// messages (their records state no final outcome).
+	if checked < 454 {
+		t.Errorf("%d helper clauses read event.messageId or event.severity, want at least 454", checked)
 	}
 	t.Logf("%d where clauses, %d helper clauses, %d truth-table rows", clauses, checked, rows)
 }
@@ -309,7 +311,7 @@ func TestCiscoFirepowerGeolocationDestinations(t *testing.T) {
 	}
 	if event.Event["localIp"].GetStringValue() != "192.0.2.1" ||
 		event.Event["localIpGeolocation"].GetStructValue().GetFields()["asn"].GetNumberValue() != 64501 {
-		t.Errorf("finalized event: %v", event.Event)
+		t.Errorf("finalized log: %v", event.Event)
 	}
 }
 
@@ -755,8 +757,47 @@ var fpChangeCases = []struct {
 	{"F-A6", "302017-gre", "target.user", "erin"},
 	{"F-A6", "302017-gre", "event.firewallUserTo", "dave"},
 	{"F-A6", "302017-gre", "event.firewallUserFrom", "carol"},
-	{"F-A7", "106102-permitted", "actionResult", "accepted"},
+	{"F-A7", "106102-permitted", "actionResult", nil},
 	{"F-A7 near miss", "106102-denied", "actionResult", "denied"},
+	// actionResult is only success, failed or denied, or absent when the record states no final
+	// outcome. AR-FP-01: a connection end (430003) of an allowed connection is success only when
+	// the responder answered; the connection start (430002) stays empty.
+	{"AR-FP-01", "430003-https", "actionResult", "success"},
+	{"AR-FP-01", "430003-allow-packets-only", "actionResult", "success"},
+	{"AR-FP-01", "430003-trust", "actionResult", "success"},
+	{"AR-FP-01", "430003-fastpath", "actionResult", "success"},
+	{"AR-FP-01 near miss", "430003-allow-no-answer", "actionResult", nil},
+	{"AR-FP-01 near miss", "430002-allow-start", "actionResult", nil},
+	{"AR-FP-01 near miss", "430003-monitor", "actionResult", nil},
+	{"AR-FP-01 near miss", "430007-elephant-inside", "actionResult", nil},
+	{"AR-FP-01 near miss", "glued-text", "actionResult", nil},
+	// FP-08: a block decision or an in-line block or drop of an intrusion event is denied.
+	{"FP-08", "430002-block", "actionResult", "denied"},
+	{"FP-08", "430003-near-intrusion-block", "actionResult", "denied"},
+	{"FP-08", "430002-interactive-block", "actionResult", "denied"},
+	{"FP-08", "430001-p1-webapp", "actionResult", "denied"},
+	{"FP-08", "430001-dropped", "actionResult", "denied"},
+	{"FP-08 near miss", "430001-would-have-dropped", "actionResult", nil},
+	{"FP-08 near miss", "430001-no-inline", "actionResult", nil},
+	// LINA: each former 'accepted' is mapped per message; failed sign-ins become failed.
+	{"AR-FP-03", "109201-uauth", "actionResult", "success"},
+	{"AR-FP-03", "109201-failed", "actionResult", "failed"},
+	{"AR-FP-03", "716001", "actionResult", "success"},
+	{"AR-FP-03 near miss", "716002", "actionResult", nil},
+	{"AR-FP-03", "106001", "actionResult", "denied"},
+	{"AR-FP-03", "733102", "actionResult", "denied"},
+	{"AR-FP-03 near miss", "113009-with-equals", "actionResult", nil},
+	{"V-01", "402119-hex", "actionResult", "denied"},
+	{"V-01", "402119-hex", "origin.ip", "198.51.100.7"},
+	{"V-01", "402119-hex", "target.ip", "192.0.2.1"},
+	{"V-01", "402119-hex", "event.seqNum", "0x598243"},
+	{"FP-05", "113004", "actionResult", "success"},
+	{"FP-05 near miss", "302013-real-header", "actionResult", nil},
+	{"FP-05 near miss", "302304-teardown", "actionResult", nil},
+	{"AR-FP-02", "113005-authentication", "actionResult", "failed"},
+	{"AR-FP-02 near miss", "113005-authorization", "actionResult", "denied"},
+	{"AR-FP-02", "719023", "actionResult", "failed"},
+	{"AR-FP-02 near miss", "719019", "actionResult", "denied"},
 	{"F-A8", "113009-with-equals", "origin.user", "alice"},
 	{"F-A8", "113009-with-equals", "event.policy", "DfltGrpPolicy"},
 	{"F-A8", "113011-with-equals", "origin.user", "alice"},
@@ -918,26 +959,40 @@ func TestCiscoFirepowerStepPredicates(t *testing.T) {
 			t.Errorf("F-K1: split must not run on %s", doc)
 		}
 	}
-	// F-A7: the two actionResult adds of 106102/106103, in filter order.
-	var adds []*plugins.Add
+	// F-A7: the grok of 106102/106103 writes the vendor verb into actionResult; the add and the
+	// delete that follow it, in filter order, leave only denied or no value.
+	type fpVerbStep struct {
+		where, value string
+		remove       bool
+	}
+	var verbSteps []fpVerbStep
 	for _, step := range steps {
 		if a := step.Add; a != nil && a.Params["key"].GetStringValue() == "actionResult" && strings.Contains(a.Where, `"event.messageId", 106102`) {
-			adds = append(adds, a)
+			verbSteps = append(verbSteps, fpVerbStep{where: a.Where, value: a.Params["value"].GetStringValue()})
+		}
+		if d := step.Delete; d != nil && len(d.Fields) == 1 && d.Fields[0] == "actionResult" && strings.Contains(d.Where, `"event.messageId", 106102`) {
+			verbSteps = append(verbSteps, fpVerbStep{where: d.Where, remove: true})
 		}
 	}
-	if len(adds) != 2 {
-		t.Fatalf("106102/106103 actionResult adds: %d", len(adds))
+	if len(verbSteps) != 2 || verbSteps[0].remove || verbSteps[0].value != "denied" || !verbSteps[1].remove {
+		t.Fatalf("106102/106103 actionResult steps: %+v, want the denied add, then the delete", verbSteps)
 	}
 	for _, c := range []struct {
 		id              int
 		captured, final string
-	}{{106102, "permitted", "accepted"}, {106103, "permitted", "accepted"}, {106102, "Permitted", "accepted"},
-		{106102, "denied", "denied"}, {106103, "denied", "denied"}} {
+	}{{106102, "permitted", fpAbsent}, {106103, "permitted", fpAbsent}, {106102, "Permitted", fpAbsent},
+		{106102, "denied", "denied"}, {106103, "denied", "denied"}, {106102, "Deny", "denied"}} {
 		value := c.captured
-		for _, a := range adds {
-			doc := fmt.Sprintf(`{"raw":"x","event":{"messageId":%d},"actionResult":%q}`, c.id, value)
-			if eval(a.Where, doc) {
-				value = a.Params["value"].GetStringValue()
+		for _, s := range verbSteps {
+			doc := fmt.Sprintf(`{"raw":"x","event":{"messageId":%d}}`, c.id)
+			if value != fpAbsent {
+				doc = fmt.Sprintf(`{"raw":"x","event":{"messageId":%d},"actionResult":%q}`, c.id, value)
+			}
+			if eval(s.where, doc) {
+				value = s.value
+				if s.remove {
+					value = fpAbsent
+				}
 			}
 		}
 		if value != c.final {
@@ -973,21 +1028,84 @@ func TestCiscoFirepowerStepPredicates(t *testing.T) {
 			t.Errorf("F-A8: %d second variant matches another message", id)
 		}
 	}
-	// F-W2: the 109201-109213 steps call declared functions and cover exactly that range.
+	// F-W2: the 109201-109213 steps call declared functions and cover exactly that range: the
+	// grok, the trim, and the two outcome adds, which also need the text the grok writes to
+	// action ('Succeeded ...' or 'Failed ...').
 	var uauth []string
 	for _, step := range steps {
 		if w := fpWhere(step); strings.Contains(w, "109201") {
 			uauth = append(uauth, w)
 		}
 	}
-	if len(uauth) != 3 {
-		t.Fatalf("F-W2: %d steps for 109201-109213, want 3", len(uauth))
+	if len(uauth) != 4 {
+		t.Fatalf("F-W2: %d steps for 109201-109213, want 4", len(uauth))
 	}
 	for _, w := range uauth {
 		for id, want := range map[int]bool{109200: false, 109201: true, 109207: true, 109213: true, 109214: false} {
-			if eval(w, fmt.Sprintf(`{"raw":"x","event":{"messageId":%d}}`, id)) != want {
+			got := false
+			for _, text := range []string{"Succeeded adding entry.", "Failed adding entry."} {
+				got = got || eval(w, fmt.Sprintf(`{"raw":"x","event":{"messageId":%d},"action":%q}`, id, text))
+			}
+			if got != want {
 				t.Errorf("F-W2: %q on %d, want %t", w, id, want)
 			}
+		}
+	}
+	// AR-FP-03: the UAUTH outcome follows the text; any other text gets no value.
+	for text, want := range map[string]string{"Succeeded adding entry.": "success", "Succeeded removing entry.": "success",
+		"Failed adding entry.": "failed", "Failed updating entry.": "failed", "Unknown entry.": fpAbsent, "": fpAbsent} {
+		value := fpAbsent
+		for _, step := range steps {
+			if a := step.Add; a != nil && a.Params["key"].GetStringValue() == "actionResult" && strings.Contains(a.Where, "109201") {
+				doc := `{"raw":"x","event":{"messageId":109205}}`
+				if text != "" {
+					doc = fmt.Sprintf(`{"raw":"x","event":{"messageId":109205},"action":%q}`, text)
+				}
+				if eval(a.Where, doc) {
+					value = a.Params["value"].GetStringValue()
+				}
+			}
+		}
+		if value != want {
+			t.Errorf("AR-FP-03: 109205 with action %q ends as %q, want %q", text, value, want)
+		}
+	}
+}
+
+// actionResult carries only success, failed or denied (the words the threat-intelligence gate
+// and the rules read), or is absent. Checked on every add and on every fabricated line.
+func TestCiscoFirepowerActionResultWords(t *testing.T) {
+	allowed := map[string]bool{"success": true, "failed": true, "denied": true}
+	values := map[string]int{}
+	for i, step := range fpPipeline(t).Steps {
+		if a := step.Add; a != nil && a.Params["key"].GetStringValue() == "actionResult" {
+			v := a.Params["value"].GetStringValue()
+			values[v]++
+			if !allowed[v] {
+				t.Errorf("step %d writes actionResult %q", i, v)
+			}
+		}
+	}
+	if values["success"] == 0 || values["failed"] == 0 || values["denied"] == 0 {
+		t.Errorf("actionResult adds by value: %v", values)
+	}
+	_, stored, _ := fpModelEvents(t)
+	seen := map[string]int{}
+	for name, doc := range stored {
+		v, ok := doc["actionResult"]
+		if !ok {
+			seen[fpAbsent]++
+			continue
+		}
+		s, _ := v.(string)
+		seen[s]++
+		if !allowed[s] {
+			t.Errorf("%s: actionResult %v", name, v)
+		}
+	}
+	for _, w := range []string{"success", "failed", "denied", fpAbsent} {
+		if seen[w] == 0 {
+			t.Errorf("no fabricated line ends with actionResult %s: %v", w, seen)
 		}
 	}
 }

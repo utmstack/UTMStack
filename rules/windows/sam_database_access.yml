@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.1.0
 
 dataTypes:
   - wineventlog
@@ -14,7 +14,7 @@ references:
   - https://attack.mitre.org/techniques/T1003/002/
   - https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4661
 description: |
-  Detects attempts to access the Security Account Manager (SAM) database, which contains local user account hashes. This activity may indicate credential dumping attempts by attackers trying to extract password hashes for offline cracking or lateral movement.
+  Detects attempts to access the Security Account Manager (SAM) database, which contains local user account hashes. This activity may indicate credential dumping attempts by attackers trying to extract password hashes for offline cracking or lateral movement. One alert is raised per computer and account; repeats are suppressed for seven days.
   
   Next Steps:
   1. Immediately investigate the user account and process that accessed the SAM database
@@ -33,6 +33,6 @@ where: |
     endsWith("event.eventDataObjectName", "\\SYSTEM")
   ) &&
   oneOf("event.eventDataAccessMask", ["131097", "2032127", "64", "32", "1"])
-groupBy:
-  - adversary.host
-  - target.user
+deduplicateBy:
+  - dataSource
+  - adversary.user

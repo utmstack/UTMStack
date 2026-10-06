@@ -1,0 +1,50 @@
+<div ngbDropdown
+     #dropdown="ngbDropdown"
+     placement="bottom-left bottom-right"
+     display="dynamic"
+     autoClose="outside"
+     class="federation-instance-selector">
+  <button type="button"
+          ngbDropdownToggle
+          class="federation-instance-selector__toggle">
+    <i class="federation-instance-selector__lead icon-cloud2"></i>
+    <span class="federation-instance-selector__label text-truncate">
+      {{ active ? active.name : 'Select instance' }}
+    </span>
+    <i class="federation-instance-selector__caret icon-arrow-down32"></i>
+  </button>
+
+  <div ngbDropdownMenu class="federation-instance-menu">
+    <h6 class="dropdown-header text-uppercase">Instances</h6>
+
+    <div *ngIf="errorMessage" class="px-3 py-2 small text-danger">{{ errorMessage }}</div>
+
+    <div *ngIf="instances.length === 0" class="px-3 py-2 small text-muted">
+      No instances connected.
+    </div>
+
+    <button *ngFor="let instance of instances; trackBy: trackById"
+            type="button"
+            class="federation-instance-row dropdown-item d-flex align-items-center"
+            [class.active]="active && instance.id === active.id"
+            (click)="select(instance, $event)">
+      <i class="federation-instance-row__check icon-check"
+         [class.invisible]="!active || instance.id !== active.id"></i>
+      <span class="federation-instance-row__name text-truncate flex-grow-1">
+        {{ instance.name }}
+      </span>
+      <span *ngIf="instance.version" class="federation-instance-row__version">
+        {{ instance.version || 'n/a' }}
+      </span>
+    </button>
+
+    <div class="dropdown-divider"></div>
+
+    <button type="button"
+            class="federation-instance-manage dropdown-item d-flex align-items-center"
+            (click)="manageInstances($event)">
+      <i class="federation-instance-manage__icon icon-cog5"></i>
+      <span class="federation-instance-manage__label">Manage instances</span>
+    </button>
+  </div>
+</div>

@@ -15,6 +15,8 @@ references:
 - https://attack.mitre.org/techniques/T1078/004/
 description: 'Detects creation or modification of MutatingAdmissionWebhook or ValidatingAdmissionWebhook configurations in Azure
   Kubernetes Service. Attackers use admission controllers to inject malicious containers or modify workload specifications.
+  The AKS control plane (aksService) patches its own webhooks every few minutes, so one alert is raised per cluster and
+  identity; repeats are suppressed for seven days.
 
 
   Next Steps:
@@ -37,10 +39,7 @@ where: 'equalsIgnoreCase("event.azureKind","kubernetes") && equalsIgnoreCase("ev
   "update", "patch"])
 
   '
-groupBy:
-- lastEvent.dataSource
-- lastEvent.event.azureScopeType
+deduplicateBy:
+- dataSource
 - lastEvent.event.azureScope
-- lastEvent.event.azureOperation
 - adversary.user
-- adversary.ip

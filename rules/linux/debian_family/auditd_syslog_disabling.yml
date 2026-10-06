@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.1.0
 
 dataTypes:
   - linux
@@ -13,7 +13,7 @@ adversary: origin
 references:
   - https://attack.mitre.org/techniques/T1562/001/
 description: |
-  Detects attempts to stop or disable audit and logging services (auditd, rsyslog, syslog-ng, journald) which attackers do to prevent their activities from being recorded.
+  Detects attempts to stop or disable audit and logging services (auditd, rsyslog, syslog-ng, journald) which attackers do to prevent their activities from being recorded. One alert is raised per host; repeats are suppressed for seven days.
 
   Next Steps:
   1. Immediately investigate the host where logging was disabled
@@ -30,6 +30,5 @@ where: |
    contains("event.message", "syslog-ng") || contains("event.message", "journald") ||
    contains("event.message", "syslog")) &&
   !(contains("event.message", "restart") || contains("event.message", "reload"))
-groupBy:
-  - origin.host
-  - origin.user
+deduplicateBy:
+  - dataSource

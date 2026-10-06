@@ -1,4 +1,4 @@
-# Mikrotik firewall module filter, version 3.1.0
+# Mikrotik firewall module filter, version 3.2.0
 # Based in docs and samples provided
 # 
 # Documentations
@@ -154,16 +154,28 @@ pipeline:
               pattern: '^[0-9]+'
           where: contains("event.topics", "firewall") && contains("event.message", " len ")
 
-      # Documented failed login: "login failure for user root from 10.0.0.1 via telnet"
+      # A /system logging rule prefix between the topics and a login message
+      # ("system,error,critical mk_R1: login failure for user ...") is split off,
+      # so the login steps below read the message itself
+      - grok:
+          source: event.message
+          patterns:
+            - fieldName: event.loggingPrefix
+              pattern: '^[^\s:]+'
+            - fieldName: ''
+              pattern: '^:'
+            - fieldName: event.message
+              pattern: '(?s:.+)'
+          where: 'contains("event.topics", "system") && regexMatch("event.message", "^[^\\s:]+: (login failure for user |user \\S.*\\slogged in from )")'
+
+      # Documented failed login: "login failure for user root from 10.0.0.1 via telnet".
+      # The address and service are read after the last " from ", so an empty user
+      # name ("for user  from") or one with spaces keeps them; the user is read apart.
       - grok:
           source: event.message
           patterns:
             - fieldName: ''
-              pattern: '^login failure for user'
-            - fieldName: event.loginUser
-              pattern: '^\S+'
-            - fieldName: ''
-              pattern: '^from'
+              pattern: '^login failure for user.*\sfrom'
             - fieldName: event.loginSource
               pattern: '^\S+'
             - fieldName: ''
@@ -171,6 +183,45 @@ pipeline:
             - fieldName: event.service
               pattern: '^\S+'
           where: contains("event.topics", "system") && startsWith("event.message", "login failure for user ")
+      - grok:
+          source: event.message
+          patterns:
+            - fieldName: ''
+              pattern: '^login failure for user'
+            - fieldName: event.loginUser
+              pattern: '^.*\S\s+from\s'
+          where: contains("event.topics", "system") && regexMatch("event.message", "^login failure for user \\S.*\\sfrom\\s")
+      # Documented successful login: "user admin logged in from 10.1.101.212 via winbox"
+      - grok:
+          source: event.message
+          patterns:
+            - fieldName: ''
+              pattern: '^user\s.*\slogged in from'
+            - fieldName: event.loginSource
+              pattern: '^\S+'
+            - fieldName: ''
+              pattern: '^via'
+            - fieldName: event.service
+              pattern: '^\S+'
+          where: contains("event.topics", "account") && regexMatch("event.message", "^user \\S.*\\slogged in from \\S+ via \\S+$")
+      - grok:
+          source: event.message
+          patterns:
+            - fieldName: ''
+              pattern: '^user'
+            - fieldName: event.loginUser
+              pattern: '^.*\S\s+logged in from\s'
+          where: contains("event.topics", "account") && regexMatch("event.message", "^user \\S.*\\slogged in from \\S+ via \\S+$")
+      - trim:
+          function: suffix
+          substring: ' from'
+          fields:
+            - event.loginUser
+      - trim:
+          function: suffix
+          substring: ' logged in'
+          fields:
+            - event.loginUser
       - rename:
           from:
             - event.loginUser
@@ -256,20 +307,38 @@ pipeline:
             destination: target.geolocation
           where: exists("target.ip")
 
-      # Adding action result. RouterOS firewall logs do not record the rule
-      # action; only a log prefix such as action:drop provides it.
+      # Adding action result: only success, failed or denied, or nothing when the
+      # line states no outcome. The add step overwrites, so the order is success,
+      # failed, denied. RouterOS firewall logs do not record the rule action; only
+      # the rule's log prefix states it (action:accept, action:drop, or a word such
+      # as Allow or Block). RouterOS logs nothing after an allowed packet, so an
+      # allow prefix is the only proof of the outcome and gives success. A firewall
+      # line without such a prefix keeps no value.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: 'contains("event.topics", "firewall") && ((exists("event.action") && oneOf("event.action", ["accept", "allow"])) || (exists("event.logPrefix") && regexMatch("event.logPrefix", "(?i)(^|[^a-z])(accept|accepted|allow|allowed|permit|permitted)([^a-z]|$)")))'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: 'contains("event.topics", "account") && regexMatch("event.message", "^user \\S.*\\slogged in from \\S+ via \\S+$")'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failed
+          where: 'contains("event.topics", "system") && startsWith("event.message", "login failure for user ")'
+      # A block word wins over an allow word in the same prefix
       - add:
           function: string
           params:
             key: actionResult
             value: denied
-          where: 'exists("event.action") && oneOf("event.action", ["drop", "reject"])'
-      - add:
-          function: string
-          params:
-            key: actionResult
-            value: failure
-          where: 'contains("event.topics", "system") && startsWith("event.message", "login failure for user ")'
+          where: '(exists("event.action") && oneOf("event.action", ["drop", "reject", "tarpit"])) || (contains("event.topics", "firewall") && exists("event.logPrefix") && regexMatch("event.logPrefix", "(?i)(^|[^a-z])(drop|dropped|deny|denied|block|blocked|reject|rejected|tarpit)([^a-z]|$)"))'
 
       # Removing unused fields
       - delete:

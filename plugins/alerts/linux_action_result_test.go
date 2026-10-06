@@ -47,7 +47,7 @@ func TestLinuxActionResult(t *testing.T) {
 			if got.String() != tc.Result || (tc.Result == "" && got.Exists()) {
 				t.Fatalf("actionResult = %s, want %q", got.Raw, tc.Result)
 			}
-			for _, result := range []string{"success", "failure", "denied"} {
+			for _, result := range []string{"success", "failed", "denied"} {
 				onlyResult, resultErr := cache.Eval(`equals("actionResult","`+result+`")`, out)
 				if resultErr != nil || onlyResult != (tc.Result == result) {
 					t.Errorf("SDK result predicate = %v, %v", onlyResult, resultErr)

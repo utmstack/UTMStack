@@ -15,7 +15,7 @@ references:
 description: Repeated failed SSL VPN, VPN or VPN portal authentication from the same source address and firewall.
   Successful authentication, tunnel termination and IKE parsing errors are excluded.
 where: (equals("event.type","Event") && equals("event.subType","Authentication") && oneOf("event.component",["SSL VPN
-  Authentication","VPN Authentication","VPN Portal Authentication"]) && equals("actionResult","failure")) && exists("origin.ip")
+  Authentication","VPN Authentication","VPN Portal Authentication"]) && equals("actionResult","failed")) && exists("origin.ip")
   && exists("dataSource") && !equals("dataSource","") && exists("event.sophosScope") && !equals("event.sophosScope","")
 groupBy:
 - lastEvent.dataSource

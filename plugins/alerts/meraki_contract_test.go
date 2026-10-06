@@ -451,6 +451,34 @@ func TestMerakiRawContracts(t *testing.T) {
 	}
 }
 
+// The threat-intelligence gate recognizes only success, failed and denied, so the
+// filter writes nothing else, and the vendor 'blocked' outcome is applied last so
+// that a block always wins over an earlier value.
+func TestMerakiActionResultVocabulary(t *testing.T) {
+	cfg := merakiConfig(t)
+	allowed := map[string]bool{"success": true, "failed": true, "denied": true}
+	last, count := "", 0
+	for _, stage := range cfg.Pipeline {
+		for _, step := range stage.Steps {
+			if step.Add == nil || step.Add.Params["key"].GetStringValue() != "actionResult" {
+				continue
+			}
+			count++
+			value := step.Add.Params["value"].GetStringValue()
+			if !allowed[value] {
+				t.Errorf("actionResult %q is not success, failed or denied (where %s)", value, step.Add.Where)
+			}
+			last = step.Add.Where
+		}
+	}
+	if count == 0 {
+		t.Fatal("no actionResult steps found")
+	}
+	if last != `equalsIgnoreCase("log.merakiResult","blocked")` {
+		t.Errorf("the vendor blocked outcome must be the last actionResult step, got %s", last)
+	}
+}
+
 func TestMerakiAuxiliaryGeoGuards(t *testing.T) {
 	cfg, cache := merakiConfig(t), plugins.NewCELCache("meraki-auxiliary-geo")
 	checked := 0

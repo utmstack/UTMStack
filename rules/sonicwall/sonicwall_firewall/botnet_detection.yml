@@ -1,4 +1,4 @@
-# Rule version v2.1.0
+# Rule version v2.2.0
 
 dataTypes:
   - firewall-sonicwall
@@ -15,29 +15,26 @@ references:
   - https://attack.mitre.org/techniques/T1071/
 description: |
   Detects potential botnet command and control (C2) communication identified
-  by the SonicWall Botnet Filter. Includes matches against SonicWall's Botnet
-  Filter signature codes and message text indicating known botnet endpoints.
+  by the SonicWall Botnet Filter: an internal host tried to reach an address
+  that SonicWall's botnet database or dynamic botnet list marks as a botnet
+  server, and the firewall blocked it (events 1201 and 1519, "Suspected Botnet
+  responder blocked"). Listed addresses blocked at the perimeter while trying
+  to connect in ("Suspected Botnet initiator blocked") and addresses on the
+  firewall's own custom botnet list are not alerted. One alert is raised per
+  firewall and listed address; repeats are suppressed for seven days.
 
   Next Steps:
   1. Investigate the source IP for other suspicious behavior (DNS, beaconing).
   2. Check endpoint logs on the internal host for signs of infection.
   3. Isolate the affected host if infection is confirmed.
   4. Update threat intel feeds and blocklists with the observed C2 endpoint.
+  5. Search the firewall logs for other internal hosts that contacted the same
+     address; they are not alerted again for seven days.
 where: |
   (
-    oneOf("event.eventCode", ["1370", "1371"]) ||
-    equals("event.appFirewallService", "botnet") ||
-    contains("event.message", ["botnet", "Botnet", "infected", "C&C", "command and control"]) ||
-    contains("event.contentCategory", "Botnet")
+    oneOf("event.eventCode", ["1201", "1519"]) ||
+    (contains("event.message", "Suspected Botnet responder blocked") && !contains("event.message", "Source: Custom List"))
   ) && equals("actionResult", "denied")
-afterEvents:
-  - indexPattern: v11-log-firewall-sonicwall-*
-    with:
-      - field: origin.ip
-        operator: filter_term
-        value: '{{.origin.ip}}'
-    within: 2h
-    count: 5
-groupBy:
-  - adversary.ip
+deduplicateBy:
+  - dataSource
   - target.ip

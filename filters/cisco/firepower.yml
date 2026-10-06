@@ -1,4 +1,4 @@
-# CISCO Firepower filter, version 3.1.1
+# CISCO Firepower filter, version 3.2.0
 # Based on examples provided and https://www.cisco.com/c/en/us/td/docs/security/firepower/Syslogs/b_fptd_syslog_guide.html
 # Filter Input requirements -> Syslog
 #
@@ -203,6 +203,33 @@ pipeline:
           fields:
             - event.Protocol
           where: 'oneOf("event.messageId", [430001, 430002, 430003, 430007]) && exists("protocol")'
+      # Outcome of the 4300xx security events. actionResult is only success, failed or denied,
+      # or absent when the record states no final outcome.
+      # 430003 (connection end) of an allowed connection (Allow, Trust, Fastpath) is success only
+      # when the responder answered: responder bytes or packets above zero. An unanswered one,
+      # and every 430002 (connection start, which the connection end follows) of an allowed
+      # connection, stays empty. Monitor, 430007 and an intrusion event without a block or drop
+      # (InlineResult absent, Pass or 'Would have dropped') state no final outcome either.
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'success'
+          where: 'equals("event.messageId", 430003) && oneOf("event.AccessControlRuleAction", ["Allow", "Trust", "Fastpath"]) && (greaterThan("event.ResponderBytes", 0) || greaterThan("event.ResponderPackets", 0))'
+      # A block decision of the access control policy, at connection start or end
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where: 'oneOf("event.messageId", [430002, 430003]) && oneOf("event.AccessControlRuleAction", ["Block", "Block with reset", "Interactive Block", "Interactive Block with reset"])'
+      # An intrusion event whose packet the device blocked or dropped in line
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where: 'equals("event.messageId", 430001) && oneOf("event.InlineResult", ["Block", "Blocked", "Dropped"])'
       # Begining specific message parsing
       #......................................................................#
       # FTD-2-106001
@@ -246,6 +273,12 @@ pipeline:
             - origin.port
             - target.port
           where: equals("event.messageId", 106001)
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where: equals("event.messageId", 106001)
       #......................................................................#
       # FTD-2-106017
       - grok:
@@ -269,6 +302,12 @@ pipeline:
           substring: 'from'
           fields:
             - action
+          where: equals("event.messageId", 106017)
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
           where: equals("event.messageId", 106017)
       #......................................................................#
       # FTD-1-106021
@@ -453,12 +492,10 @@ pipeline:
             key: actionResult
             value: 'denied'
           where: exists("actionResult") && (equals("event.messageId", 106102) || equals("event.messageId", 106103)) && !equalsIgnoreCase("actionResult", "Permitted")
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
+      # An access-list 'permitted' hit states no final outcome: remove the verb
+      - delete:
+          fields:
+            - actionResult
           where: exists("actionResult") && (equals("event.messageId", 106102) || equals("event.messageId", 106103)) && equalsIgnoreCase("actionResult", "Permitted")
       #......................................................................#
       # FTD-6-109101
@@ -497,12 +534,6 @@ pipeline:
           fields:
             - origin.user
           where: equals("event.messageId", 109101)
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("event.messageId", 109101)
       #......................................................................#
       # FTD-4-109102
       - grok:
@@ -532,7 +563,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
+            value: 'failed'
           where: equals("event.messageId", 109102)
       #......................................................................#
       # FTD-3-109103
@@ -573,7 +604,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
+            value: 'failed'
           where: equals("event.messageId", 109103)
       #......................................................................#
       # FTD-109201 to 109213
@@ -609,8 +640,14 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
-          where: greaterOrEqual("event.messageId", 109201) && lessOrEqual("event.messageId", 109213)
+            value: 'success'
+          where: 'greaterOrEqual("event.messageId", 109201) && lessOrEqual("event.messageId", 109213) && startsWith("action", "Succeeded")'
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'failed'
+          where: 'greaterOrEqual("event.messageId", 109201) && lessOrEqual("event.messageId", 109213) && startsWith("action", "Failed")'
       #......................................................................#
       # FTD-6-113004
       - grok:
@@ -654,7 +691,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
+            value: 'success'
           where: equals("event.messageId", 113004)
       #......................................................................#
       # FTD-6-113005
@@ -703,6 +740,13 @@ pipeline:
             key: actionResult
             value: 'denied'
           where: equals("event.messageId", 113005)
+      # A rejected authentication is a failed sign-in; a rejected authorization stays denied
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'failed'
+          where: 'equals("event.messageId", 113005) && contains("event.msg", "authentication Rejected")'
       #......................................................................#
       # FTD-6-113008
       - grok:
@@ -720,7 +764,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
+            value: 'success'
           where: equals("event.messageId", 113008)
       #......................................................................#
       # FTD-6-113009
@@ -767,13 +811,6 @@ pipeline:
           substring: 'for'
           fields:
             - event.policy
-          where: equals("event.messageId", 113009)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
           where: equals("event.messageId", 113009)
       #......................................................................#
       # FTD-6-113010
@@ -864,7 +901,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
+            value: 'success'
           where: equals("event.messageId", 113012)
       #......................................................................#
       # FTD-6-113013
@@ -944,7 +981,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'denied'
+            value: 'failed'
           where: equals("event.messageId", 113015) || equals("event.messageId", 113017)
       #......................................................................#
       # FTD-6-113016
@@ -991,7 +1028,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'denied'
+            value: 'failed'
           where: equals("event.messageId", 113016)
       #......................................................................#
       # FTD-4-113019
@@ -1050,13 +1087,6 @@ pipeline:
             - origin.bytesSent
             - origin.bytesReceived
           to: int
-          where: equals("event.messageId", 113019)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
           where: equals("event.messageId", 113019)
       #......................................................................#
       # FTD-113031,113032,113033
@@ -1169,7 +1199,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
+            value: 'success'
           where: equals("event.messageId", 113039)
       # Adding action result
       - add:
@@ -1236,6 +1266,12 @@ pipeline:
           fields:
             - event.remoteUser
           where: equals("event.messageId", 113042)
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where: equals("event.messageId", 113042)
       #......................................................................#
       # FTD-2-201003
       - grok:
@@ -1282,13 +1318,6 @@ pipeline:
           fields:
             - event.globalIp
           where: equals("event.messageId", 201003)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("event.messageId", 201003)
       #......................................................................#
       # FTD-4-209003
       - grok:
@@ -1333,7 +1362,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
+            value: 'denied'
           where: equals("event.messageId", 209003)
       #......................................................................#
       # FTD-3-316001
@@ -1497,13 +1526,6 @@ pipeline:
             - event.tmpFromip
             - event.tmpToip
           where: equals("event.messageId", 302003) || equals("event.messageId", 302004)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("event.messageId", 302003) || equals("event.messageId", 302004)
       #......................................................................#
       # FTD-6-302012
       - grok:
@@ -1527,13 +1549,6 @@ pipeline:
           substring: '/'
           fields:
             - origin.port
-          where: equals("event.messageId", 302012)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
           where: equals("event.messageId", 302012)
       #......................................................................#
       # FTD-6-302013
@@ -1662,13 +1677,6 @@ pipeline:
           fields:
             - event.connectionId
           where: equals("event.messageId", 302013)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("event.messageId", 302013)
       #......................................................................#
       # FTD-6-302014
       - grok:
@@ -1774,13 +1782,6 @@ pipeline:
           substring: 'for'
           fields:
             - event.connectionId
-          where: equals("event.messageId", 302014)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
           where: equals("event.messageId", 302014)
       #......................................................................#
       # FTD-6-302015
@@ -1911,13 +1912,6 @@ pipeline:
           fields:
             - event.connectionId
           where: equals("event.messageId", 302015)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("event.messageId", 302015)
       #......................................................................#
       # FTD-6-302016
       - grok:
@@ -2032,13 +2026,6 @@ pipeline:
           substring: 'for'
           fields:
             - event.connectionId
-          where: equals("event.messageId", 302016)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
           where: equals("event.messageId", 302016)
       #......................................................................#
       # FTD-6-302017
@@ -2177,13 +2164,6 @@ pipeline:
           fields:
             - event.connectionId
           where: equals("event.messageId", 302017)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("event.messageId", 302017)
       #......................................................................#
       # FTD-6-302018
       - grok:
@@ -2308,13 +2288,6 @@ pipeline:
           substring: 'from'
           fields:
             - event.connectionId
-          where: equals("event.messageId", 302018)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
           where: equals("event.messageId", 302018)
       #......................................................................#
       # FTD-6-302020, 302021
@@ -2537,13 +2510,6 @@ pipeline:
             - event.tmpGaddrAndFwUser
             - event.tmpLaddrAndFwUser
           where: equals("event.messageId", 302020) || equals("event.messageId", 302021)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("event.messageId", 302020) || equals("event.messageId", 302021)
       #......................................................................#
       # FTD-6-302022, 302024, 302026
       - grok:
@@ -2655,13 +2621,6 @@ pipeline:
             - event.tmpMappedIpPortFrom
             - event.tmpMappedIpPortTo
           where: equals("event.messageId", 302022) || equals("event.messageId", 302024) || equals("event.messageId", 302026)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("event.messageId", 302022) || equals("event.messageId", 302024) || equals("event.messageId", 302026)
       #......................................................................#
       # FTD-6-302023, 302025, 302027
       - grok:
@@ -2712,13 +2671,6 @@ pipeline:
           fields:
             - origin.ip
             - target.ip
-          where: equals("event.messageId", 302023) || equals("event.messageId", 302025) || equals("event.messageId", 302027)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
           where: equals("event.messageId", 302023) || equals("event.messageId", 302025) || equals("event.messageId", 302027)
       #......................................................................#
       # FTD-302033,302034
@@ -2785,12 +2737,6 @@ pipeline:
             - event.tmpIpPortTo
           where: equals("event.messageId", 302033) || equals("event.messageId", 302034)
       # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("event.messageId", 302033)
       - add:
           function: 'string'
           params:
@@ -2871,13 +2817,6 @@ pipeline:
           fields:
             - event.connectionId
           where: equals("event.messageId", 302303)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("event.messageId", 302303)
       #......................................................................#
       # FTD-6-302304
       - grok:
@@ -2943,13 +2882,6 @@ pipeline:
           substring: 'from'
           fields:
             - event.connectionId
-          where: equals("event.messageId", 302304)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
           where: equals("event.messageId", 302304)
       #......................................................................#
       # FTD-6-305009
@@ -3443,7 +3375,7 @@ pipeline:
             - fieldName: event.irrelevant
               pattern: '{{.data}}='
             - fieldName: event.seqNum
-              pattern: '{{.integer}}(\s)?\)'
+              pattern: '(0x[0-9A-Fa-f]+|[0-9]+)(\s)?\)'
             - fieldName: event.irrelevant
               pattern: 'from'
             - fieldName: origin.ip
@@ -3485,7 +3417,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
+            value: 'denied'
           where: equals("event.messageId", 402114)
       #......................................................................#
       # FTD-4-402115
@@ -3520,7 +3452,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
+            value: 'denied'
           where: equals("event.messageId", 402115)
       #......................................................................#
       # FTD-4-402116
@@ -3537,7 +3469,7 @@ pipeline:
             - fieldName: event.irrelevant
               pattern: '{{.data}}='
             - fieldName: event.seqNum
-              pattern: '{{.integer}}(\s)?\)'
+              pattern: '(0x[0-9A-Fa-f]+|[0-9]+)(\s)?\)'
             - fieldName: event.irrelevant
               pattern: 'from'
             - fieldName: origin.ip
@@ -3639,7 +3571,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
+            value: 'denied'
           where: equals("event.messageId", 402116)
       #......................................................................#
       # FTD-4-402117
@@ -3675,7 +3607,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
+            value: 'denied'
           where: equals("event.messageId", 402117)
       #......................................................................#
       # FTD-4-402118
@@ -3692,7 +3624,7 @@ pipeline:
             - fieldName: event.irrelevant
               pattern: '{{.data}}='
             - fieldName: event.seqNum
-              pattern: '{{.integer}}(\s)?\)'
+              pattern: '(0x[0-9A-Fa-f]+|[0-9]+)(\s)?\)'
             - fieldName: event.irrelevant
               pattern: 'from'
             - fieldName: origin.ip
@@ -3745,7 +3677,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
+            value: 'denied'
           where: equals("event.messageId", 402118)
       #......................................................................#
       # FTD-4-402119, 402120
@@ -3762,7 +3694,7 @@ pipeline:
             - fieldName: event.irrelevant
               pattern: '{{.data}}='
             - fieldName: event.seqNum
-              pattern: '{{.integer}}(\s)?\)'
+              pattern: '(0x[0-9A-Fa-f]+|[0-9]+)(\s)?\)'
             - fieldName: event.irrelevant
               pattern: 'from'
             - fieldName: origin.ip
@@ -3809,7 +3741,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
+            value: 'denied'
           where: equals("event.messageId", 402119) || equals("event.messageId", 402120)
       #......................................................................#
       # FTD-5-402128
@@ -4081,7 +4013,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'denied'
+            value: 'failed'
           where: equals("event.messageId", 605004)
       # Cleaning fields
       - trim:
@@ -4314,13 +4246,6 @@ pipeline:
             key: action
             value: 'The VPN client is connected to the specified headend'
           where: equals("event.messageId", 611307)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("event.messageId", 611307)
       #......................................................................#
       # FTD-6-611309
       - grok:
@@ -4334,13 +4259,6 @@ pipeline:
             - fieldName: origin.ip
               pattern: '({{.ipv4}}|{{.ipv6}}|{{.hostname}})'
           source: event.msg
-          where: equals("event.messageId", 611309)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
           where: equals("event.messageId", 611309)
       #......................................................................#
       # FTD-6-611310,611311
@@ -4363,13 +4281,13 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
+            value: 'success'
           where: equals("event.messageId", 611310)
       - add:
           function: 'string'
           params:
             key: actionResult
-            value: 'denied'
+            value: 'failed'
           where: equals("event.messageId", 611311)
       #......................................................................#
       # FTD-6-611314
@@ -4392,13 +4310,6 @@ pipeline:
             key: action
             value: 'Load Balancing Cluster redirected the Secure Firewall'
           where: equals("event.messageId", 611314)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("event.messageId", 611314)
       #......................................................................#
       # FTD-6-611315
       - grok:
@@ -4415,13 +4326,6 @@ pipeline:
           params:
             key: action
             value: 'Disconnecting from Load Balancing Cluster'
-          where: equals("event.messageId", 611315)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
           where: equals("event.messageId", 611315)
       #......................................................................#
       # FTD-6-611318
@@ -4555,7 +4459,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
+            value: 'success'
           where: equals("event.messageId", 713253)
       #......................................................................#
       # FTD-6-716001,716002,716003
@@ -4619,8 +4523,8 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
-          where: equals("event.messageId", 716001) || equals("event.messageId", 716002)
+            value: 'success'
+          where: equals("event.messageId", 716001)
       #......................................................................#
       # FTD-6-716004,716005,716006,716007,716009
       - grok:
@@ -4679,7 +4583,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
+            value: 'denied'
           where: equals("event.messageId", 716006)
       #......................................................................#
       # FTD-6-716038
@@ -4704,7 +4608,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
+            value: 'success'
           where: equals("event.messageId", 716038)
       # Cleaning fields
       - trim:
@@ -4776,7 +4680,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'denied'
+            value: 'failed'
           where: equals("event.messageId", 716039)
       # Cleaning fields
       - trim:
@@ -4811,12 +4715,18 @@ pipeline:
           params:
             key: actionResult
             value: 'denied'
-          where: equals("event.messageId", 719019) || equals("event.messageId", 719023)
+          where: equals("event.messageId", 719019)
       - add:
           function: 'string'
           params:
             key: actionResult
-            value: 'accepted'
+            value: 'failed'
+          where: equals("event.messageId", 719023)
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'success'
           where: equals("event.messageId", 719020) || equals("event.messageId", 719022)
       - add:
           function: 'string'
@@ -4916,7 +4826,7 @@ pipeline:
           function: 'string'
           params:
             key: actionResult
-            value: 'denied'
+            value: 'failed'
           where: equals("event.messageId", 719024)
       #......................................................................#
       # FTD-7-609002
@@ -4942,13 +4852,6 @@ pipeline:
           substring: '/'
           fields:
             - event.zoneName
-          where: equals("event.messageId", 609002)
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
           where: equals("event.messageId", 609002)
       #......................................................................#
       # FTD-6-611305
@@ -5100,13 +5003,6 @@ pipeline:
             - event.tmpIp
           to: target.ip
           where: equals("event.messageId", 733101) && contains("action", "targeted")
-      # Adding action result
-      - add:
-          function: 'string'
-          params:
-            key: actionResult
-            value: 'accepted'
-          where: equals("event.messageId", 733101)
       #......................................................................#
       # FTD-4-733102, 733103
       - grok:
@@ -5132,6 +5028,13 @@ pipeline:
             key: action
             value: 'Threat-detection removes host to shun list'
           where: (equals("event.messageId", 733102) || equals("event.messageId", 733103)) && contains("event.msg", "removes")
+      # A host added to the shun list is blocked
+      - add:
+          function: 'string'
+          params:
+            key: actionResult
+            value: 'denied'
+          where: equals("event.messageId", 733102)
       #......................................................................#
       # Decoding severity
       - add:

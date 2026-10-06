@@ -71,7 +71,6 @@
         "origin.geolocation.aso": "FABRICATED-AS-64500",
         "origin.geolocation.countryCode": "XA",
         "protocol": "tcp",
-        "actionResult": "accepted",
         "severity": "low"
       },
       "alerts": []
@@ -94,7 +93,7 @@
         "origin.geolocation.asn": 64501,
         "origin.geolocation.aso": "FABRICATED-AS-64501",
         "origin.geolocation.countryCode": "XB",
-        "actionResult": "accepted",
+        "actionResult": "success",
         "action": "Succeeded adding entry.",
         "severity": "low"
       },
@@ -110,7 +109,6 @@
         "event.policy": "DfltGrpPolicy",
         "event.severity": "6",
         "origin.user": "alice",
-        "actionResult": "accepted",
         "action": "AAA retrieved default group policy",
         "severity": "low"
       },
@@ -126,7 +124,6 @@
         "event.policy": "(DfltGrpPolicy)",
         "event.severity": "6",
         "origin.user": "alice",
-        "actionResult": "accepted",
         "action": "AAA retrieved default group policy",
         "severity": "low"
       },
@@ -190,7 +187,6 @@
         "origin.geolocation.aso": "FABRICATED-AS-64500",
         "origin.geolocation.countryCode": "XA",
         "protocol": "TCP",
-        "actionResult": "accepted",
         "severity": "low"
       },
       "alerts": []
@@ -245,7 +241,6 @@
         "origin.geolocation.aso": "FABRICATED-AS-64500",
         "origin.geolocation.countryCode": "XA",
         "protocol": "TCP",
-        "actionResult": "accepted",
         "severity": "low"
       },
       "alerts": []
@@ -293,7 +288,6 @@
         "origin.geolocation.aso": "FABRICATED-AS-64500",
         "origin.geolocation.countryCode": "XA",
         "protocol": "TCP",
-        "actionResult": "accepted",
         "severity": "low"
       },
       "alerts": []
@@ -341,7 +335,6 @@
         "origin.geolocation.aso": "FABRICATED-AS-64500",
         "origin.geolocation.countryCode": "XA",
         "protocol": "TCP",
-        "actionResult": "accepted",
         "severity": "low"
       },
       "alerts": []
@@ -387,7 +380,6 @@
         "origin.geolocation.aso": "FABRICATED-AS-64500",
         "origin.geolocation.countryCode": "XA",
         "protocol": "TCP",
-        "actionResult": "accepted",
         "severity": "low"
       },
       "alerts": []
@@ -435,7 +427,6 @@
         "origin.geolocation.asn": 64500,
         "origin.geolocation.aso": "FABRICATED-AS-64500",
         "origin.geolocation.countryCode": "XA",
-        "actionResult": "accepted",
         "severity": "low"
       },
       "alerts": []
@@ -477,7 +468,6 @@
         "origin.geolocation.aso": "FABRICATED-AS-64500",
         "origin.geolocation.countryCode": "XA",
         "protocol": "ICMP",
-        "actionResult": "accepted",
         "severity": "low"
       },
       "alerts": []
@@ -515,7 +505,6 @@
         "origin.geolocation.aso": "FABRICATED-AS-64500",
         "origin.geolocation.countryCode": "XA",
         "protocol": "TCP",
-        "actionResult": "accepted",
         "action": "Teardown TCP state-bypass connection",
         "severity": "low"
       },
@@ -620,7 +609,8 @@
         "origin.geolocation.aso": "FABRICATED-AS-64501",
         "origin.geolocation.countryCode": "XB",
         "protocol": "tcp",
-        "severity": "high"
+        "severity": "high",
+        "actionResult": "denied"
       },
       "alerts": [
         "intrusion_prevention_high_priority_events"
@@ -674,7 +664,8 @@
         "origin.geolocation.aso": "FABRICATED-AS-64500",
         "origin.geolocation.countryCode": "XA",
         "protocol": "tcp",
-        "severity": "high"
+        "severity": "high",
+        "actionResult": "denied"
       },
       "alerts": []
     },
@@ -726,7 +717,8 @@
         "origin.geolocation.aso": "FABRICATED-AS-64500",
         "origin.geolocation.countryCode": "XA",
         "protocol": "tcp",
-        "severity": "high"
+        "severity": "high",
+        "actionResult": "denied"
       },
       "alerts": []
     },
@@ -778,7 +770,8 @@
         "origin.geolocation.aso": "FABRICATED-AS-64500",
         "origin.geolocation.countryCode": "XA",
         "protocol": "tcp",
-        "severity": "high"
+        "severity": "high",
+        "actionResult": "denied"
       },
       "alerts": []
     },
@@ -830,7 +823,8 @@
         "origin.geolocation.aso": "FABRICATED-AS-64500",
         "origin.geolocation.countryCode": "XA",
         "protocol": "tcp",
-        "severity": "high"
+        "severity": "high",
+        "actionResult": "denied"
       },
       "alerts": [
         "intrusion_prevention_high_priority_events"
@@ -884,7 +878,8 @@
         "origin.geolocation.aso": "FABRICATED-AS-64500",
         "origin.geolocation.countryCode": "XA",
         "protocol": "tcp",
-        "severity": "high"
+        "severity": "high",
+        "actionResult": "denied"
       },
       "alerts": [
         "intrusion_prevention_high_priority_events"
@@ -938,7 +933,8 @@
         "origin.geolocation.aso": "FABRICATED-AS-64500",
         "origin.geolocation.countryCode": "XA",
         "protocol": "tcp",
-        "severity": "high"
+        "severity": "high",
+        "actionResult": "denied"
       },
       "alerts": [
         "intrusion_prevention_high_priority_events"
@@ -992,7 +988,8 @@
         "origin.geolocation.aso": "FABRICATED-AS-64500",
         "origin.geolocation.countryCode": "XA",
         "protocol": "tcp",
-        "severity": "high"
+        "severity": "high",
+        "actionResult": "denied"
       },
       "alerts": [
         "intrusion_prevention_high_priority_events"
@@ -1045,7 +1042,8 @@
         "origin.geolocation.aso": "FABRICATED-AS-64501",
         "origin.geolocation.countryCode": "XB",
         "protocol": "tcp",
-        "severity": "high"
+        "severity": "high",
+        "actionResult": "denied"
       },
       "alerts": []
     },
@@ -1090,7 +1088,8 @@
         "origin.geolocation.aso": "FABRICATED-AS-64501",
         "origin.geolocation.countryCode": "XB",
         "protocol": "tcp",
-        "severity": "high"
+        "severity": "high",
+        "actionResult": "denied"
       },
       "alerts": [
         "c2_nonstandard_port"
@@ -1136,7 +1135,8 @@
         "target.geolocation.countryCode": "XA",
         "origin.port": 51000,
         "protocol": "tcp",
-        "severity": "high"
+        "severity": "high",
+        "actionResult": "success"
       },
       "alerts": []
     },
@@ -1191,7 +1191,8 @@
         "origin.geolocation.aso": "FABRICATED-AS-64501",
         "origin.geolocation.countryCode": "XB",
         "protocol": "udp",
-        "severity": "high"
+        "severity": "high",
+        "actionResult": "success"
       },
       "alerts": []
     },
@@ -1236,7 +1237,8 @@
         "origin.geolocation.aso": "FABRICATED-AS-64501",
         "origin.geolocation.countryCode": "XB",
         "protocol": "tcp",
-        "severity": "high"
+        "severity": "high",
+        "actionResult": "success"
       },
       "alerts": [
         "c2_nonstandard_port"
@@ -1289,7 +1291,8 @@
         "origin.geolocation.aso": "FABRICATED-AS-64502",
         "origin.geolocation.countryCode": "XC",
         "protocol": "tcp",
-        "severity": "high"
+        "severity": "high",
+        "actionResult": "success"
       },
       "alerts": [
         "c2_nonstandard_port"
@@ -1342,7 +1345,8 @@
         "origin.geolocation.aso": "FABRICATED-AS-64501",
         "origin.geolocation.countryCode": "XB",
         "protocol": "tcp",
-        "severity": "high"
+        "severity": "high",
+        "actionResult": "success"
       },
       "alerts": []
     },
@@ -1393,7 +1397,8 @@
         "origin.geolocation.aso": "FABRICATED-AS-64501",
         "origin.geolocation.countryCode": "XB",
         "protocol": "icmp",
-        "severity": "high"
+        "severity": "high",
+        "actionResult": "success"
       },
       "alerts": []
     },
@@ -1444,7 +1449,8 @@
         "origin.geolocation.aso": "FABRICATED-AS-64502",
         "origin.geolocation.countryCode": "XC",
         "protocol": "tcp",
-        "severity": "high"
+        "severity": "high",
+        "actionResult": "success"
       },
       "alerts": []
     },
@@ -1488,7 +1494,8 @@
         "origin.geolocation.aso": "FABRICATED-AS-64501",
         "origin.geolocation.countryCode": "XB",
         "protocol": "tcp",
-        "severity": "high"
+        "severity": "high",
+        "actionResult": "success"
       },
       "alerts": []
     },
@@ -1532,7 +1539,8 @@
         "origin.geolocation.aso": "FABRICATED-AS-64501",
         "origin.geolocation.countryCode": "XB",
         "protocol": "tcp",
-        "severity": "high"
+        "severity": "high",
+        "actionResult": "success"
       },
       "alerts": []
     },
@@ -1577,7 +1585,8 @@
         "origin.geolocation.aso": "FABRICATED-AS-64501",
         "origin.geolocation.countryCode": "XB",
         "protocol": "tcp",
-        "severity": "high"
+        "severity": "high",
+        "actionResult": "success"
       },
       "alerts": []
     },
@@ -1622,7 +1631,8 @@
         "origin.geolocation.aso": "FABRICATED-AS-64502",
         "origin.geolocation.countryCode": "XC",
         "protocol": "tcp",
-        "severity": "high"
+        "severity": "high",
+        "actionResult": "success"
       },
       "alerts": []
     },
@@ -1674,7 +1684,8 @@
         "origin.geolocation.aso": "FABRICATED-AS-64501",
         "origin.geolocation.countryCode": "XB",
         "protocol": "tcp",
-        "severity": "high"
+        "severity": "high",
+        "actionResult": "denied"
       },
       "alerts": []
     },
@@ -1717,7 +1728,8 @@
         "origin.geolocation.aso": "FABRICATED-AS-64501",
         "origin.geolocation.countryCode": "XB",
         "protocol": "tcp",
-        "severity": "high"
+        "severity": "high",
+        "actionResult": "success"
       },
       "alerts": []
     },
@@ -1761,7 +1773,8 @@
         "origin.geolocation.aso": "FABRICATED-AS-64501",
         "origin.geolocation.countryCode": "XB",
         "protocol": "tcp",
-        "severity": "high"
+        "severity": "high",
+        "actionResult": "success"
       },
       "alerts": []
     },
@@ -1806,7 +1819,8 @@
         "origin.geolocation.aso": "FABRICATED-AS-64501",
         "origin.geolocation.countryCode": "XB",
         "protocol": "tcp",
-        "severity": "high"
+        "severity": "high",
+        "actionResult": "success"
       },
       "alerts": []
     },
@@ -1851,7 +1865,8 @@
         "origin.geolocation.aso": "FABRICATED-AS-64501",
         "origin.geolocation.countryCode": "XB",
         "protocol": "tcp",
-        "severity": "high"
+        "severity": "high",
+        "actionResult": "success"
       },
       "alerts": []
     },
@@ -1896,7 +1911,8 @@
         "origin.geolocation.aso": "FABRICATED-AS-64501",
         "origin.geolocation.countryCode": "XB",
         "protocol": "tcp",
-        "severity": "high"
+        "severity": "high",
+        "actionResult": "success"
       },
       "alerts": []
     },
@@ -1947,7 +1963,8 @@
         "origin.geolocation.aso": "FABRICATED-AS-64501",
         "origin.geolocation.countryCode": "XB",
         "protocol": "tcp",
-        "severity": "high"
+        "severity": "high",
+        "actionResult": "success"
       },
       "alerts": []
     },
@@ -1998,7 +2015,8 @@
         "origin.geolocation.aso": "FABRICATED-AS-64501",
         "origin.geolocation.countryCode": "XB",
         "protocol": "tcp",
-        "severity": "high"
+        "severity": "high",
+        "actionResult": "success"
       },
       "alerts": [
         "c2_nonstandard_port"
@@ -2053,7 +2071,8 @@
         "origin.geolocation.aso": "FABRICATED-AS-64501",
         "origin.geolocation.countryCode": "XB",
         "protocol": "tcp",
-        "severity": "high"
+        "severity": "high",
+        "actionResult": "success"
       },
       "alerts": []
     },
@@ -2105,7 +2124,8 @@
         "origin.geolocation.aso": "FABRICATED-AS-64501",
         "origin.geolocation.countryCode": "XB",
         "protocol": "tcp",
-        "severity": "high"
+        "severity": "high",
+        "actionResult": "success"
       },
       "alerts": []
     },
@@ -2288,7 +2308,6 @@
         "target.geolocation.countryCode": "XA",
         "origin.ip": "host-b.example.com",
         "origin.port": 5678,
-        "actionResult": "accepted",
         "action": "Built H245 connection",
         "severity": "low"
       },
@@ -2322,7 +2341,6 @@
         "origin.geolocation.asn": 64501,
         "origin.geolocation.aso": "FABRICATED-AS-64501",
         "origin.geolocation.countryCode": "XB",
-        "actionResult": "accepted",
         "action": "Built H245 connection",
         "severity": "low"
       },
@@ -2356,7 +2374,6 @@
         "origin.geolocation.asn": 64501,
         "origin.geolocation.aso": "FABRICATED-AS-64501",
         "origin.geolocation.countryCode": "XB",
-        "actionResult": "accepted",
         "action": "Pre-allocate H323 UDP backconnection",
         "severity": "low"
       },
@@ -2404,7 +2421,6 @@
         "origin.geolocation.aso": "FABRICATED-AS-64500",
         "origin.geolocation.countryCode": "XA",
         "protocol": "TCP",
-        "actionResult": "accepted",
         "severity": "low"
       },
       "alerts": []
@@ -2449,7 +2465,761 @@
         "origin.geolocation.aso": "FABRICATED-AS-64500",
         "origin.geolocation.countryCode": "XA",
         "protocol": "UDP",
-        "actionResult": "accepted",
+        "severity": "low"
+      },
+      "alerts": []
+    },
+    "430003-allow-no-answer": {
+      "logObject": true,
+      "fields": {
+        "log.ACPolicy": "policy-a",
+        "log.AccessControlRuleAction": "Allow",
+        "log.AccessControlRuleName": "rule-a",
+        "log.ApplicationProtocol": "HTTPS",
+        "log.Client": "SSL client",
+        "log.ConnectionDuration": "12",
+        "log.ConnectionID": "1001",
+        "log.DeviceUUID": "00000000-0000-4000-8000-00000000f7d1",
+        "log.EgressInterface": "out1",
+        "log.EgressZone": "zone-b",
+        "log.EventPriority": "Low",
+        "log.FirstPacketSecond": "2026-09-23T10:00:00Z",
+        "log.IngressInterface": "in1",
+        "log.IngressZone": "zone-a",
+        "log.InitiatorBytes": "1200",
+        "log.InitiatorPackets": "6",
+        "log.InstanceID": "1",
+        "log.NAPPolicy": "nap-a",
+        "log.PrefilterPolicy": "Example Prefilter Policy",
+        "log.ResponderBytes": "0",
+        "log.ResponderPackets": "0",
+        "log.User": "alice",
+        "log.messageId": 430003,
+        "log.msg": "EventPriority: Low, DeviceUUID: 00000000-0000-4000-8000-00000000f7d1, InstanceID: 1, FirstPacketSecond: 2026-09-23T10:00:00Z, ConnectionID: 1001, AccessControlRuleAction: Allow, SrcIP: 198.51.100.7, DstIP: 192.0.2.20, SrcPort: 51000, DstPort: 443, Protocol: tcp, IngressInterface: in1, EgressInterface: out1, IngressZone: zone-a, EgressZone: zone-b, ACPolicy: policy-a, AccessControlRuleName: rule-a, Prefilter Policy: Example Prefilter Policy, User: alice, Client: SSL client, ApplicationProtocol: HTTPS, ConnectionDuration: 12, InitiatorPackets: 6, ResponderPackets: 0, InitiatorBytes: 1200, ResponderBytes: 0, NAPPolicy: nap-a",
+        "log.severity": "1",
+        "origin.geolocation.asn": 64500,
+        "origin.geolocation.aso": "FABRICATED-AS-64500",
+        "origin.geolocation.city": "Fabricated City A",
+        "origin.geolocation.country": "Fabricated Country A",
+        "origin.geolocation.countryCode": "XA",
+        "origin.geolocation.latitude": 10.5,
+        "origin.geolocation.longitude": -20.25,
+        "origin.ip": "198.51.100.7",
+        "origin.port": 51000,
+        "protocol": "tcp",
+        "severity": "high",
+        "target.geolocation.asn": 64501,
+        "target.geolocation.aso": "FABRICATED-AS-64501",
+        "target.geolocation.city": "Fabricated City B",
+        "target.geolocation.country": "Fabricated Country B",
+        "target.geolocation.countryCode": "XB",
+        "target.geolocation.latitude": -30.125,
+        "target.geolocation.longitude": 40.75,
+        "target.ip": "192.0.2.20",
+        "target.port": 443
+      },
+      "alerts": []
+    },
+    "430003-allow-packets-only": {
+      "logObject": true,
+      "fields": {
+        "actionResult": "success",
+        "log.ACPolicy": "policy-a",
+        "log.AccessControlRuleAction": "Allow",
+        "log.AccessControlRuleName": "rule-a",
+        "log.ApplicationProtocol": "HTTPS",
+        "log.Client": "SSL client",
+        "log.ConnectionDuration": "12",
+        "log.ConnectionID": "1001",
+        "log.DeviceUUID": "00000000-0000-4000-8000-00000000f7d1",
+        "log.EgressInterface": "out1",
+        "log.EgressZone": "zone-b",
+        "log.EventPriority": "Low",
+        "log.FirstPacketSecond": "2026-09-23T10:00:00Z",
+        "log.IngressInterface": "in1",
+        "log.IngressZone": "zone-a",
+        "log.InitiatorBytes": "1200",
+        "log.InitiatorPackets": "6",
+        "log.InstanceID": "1",
+        "log.NAPPolicy": "nap-a",
+        "log.PrefilterPolicy": "Example Prefilter Policy",
+        "log.ResponderBytes": "0",
+        "log.ResponderPackets": "1",
+        "log.User": "alice",
+        "log.messageId": 430003,
+        "log.msg": "EventPriority: Low, DeviceUUID: 00000000-0000-4000-8000-00000000f7d1, InstanceID: 1, FirstPacketSecond: 2026-09-23T10:00:00Z, ConnectionID: 1001, AccessControlRuleAction: Allow, SrcIP: 198.51.100.7, DstIP: 192.0.2.20, SrcPort: 51000, DstPort: 443, Protocol: tcp, IngressInterface: in1, EgressInterface: out1, IngressZone: zone-a, EgressZone: zone-b, ACPolicy: policy-a, AccessControlRuleName: rule-a, Prefilter Policy: Example Prefilter Policy, User: alice, Client: SSL client, ApplicationProtocol: HTTPS, ConnectionDuration: 12, InitiatorPackets: 6, ResponderPackets: 1, InitiatorBytes: 1200, ResponderBytes: 0, NAPPolicy: nap-a",
+        "log.severity": "1",
+        "origin.geolocation.asn": 64500,
+        "origin.geolocation.aso": "FABRICATED-AS-64500",
+        "origin.geolocation.city": "Fabricated City A",
+        "origin.geolocation.country": "Fabricated Country A",
+        "origin.geolocation.countryCode": "XA",
+        "origin.geolocation.latitude": 10.5,
+        "origin.geolocation.longitude": -20.25,
+        "origin.ip": "198.51.100.7",
+        "origin.port": 51000,
+        "protocol": "tcp",
+        "severity": "high",
+        "target.geolocation.asn": 64501,
+        "target.geolocation.aso": "FABRICATED-AS-64501",
+        "target.geolocation.city": "Fabricated City B",
+        "target.geolocation.country": "Fabricated Country B",
+        "target.geolocation.countryCode": "XB",
+        "target.geolocation.latitude": -30.125,
+        "target.geolocation.longitude": 40.75,
+        "target.ip": "192.0.2.20",
+        "target.port": 443
+      },
+      "alerts": []
+    },
+    "430003-trust": {
+      "logObject": true,
+      "fields": {
+        "actionResult": "success",
+        "log.ACPolicy": "policy-a",
+        "log.AccessControlRuleAction": "Trust",
+        "log.AccessControlRuleName": "rule-a",
+        "log.ApplicationProtocol": "HTTPS",
+        "log.Client": "SSL client",
+        "log.ConnectionDuration": "12",
+        "log.ConnectionID": "1001",
+        "log.DeviceUUID": "00000000-0000-4000-8000-00000000f7d1",
+        "log.EgressInterface": "out1",
+        "log.EgressZone": "zone-b",
+        "log.EventPriority": "Low",
+        "log.FirstPacketSecond": "2026-09-23T10:00:00Z",
+        "log.IngressInterface": "in1",
+        "log.IngressZone": "zone-a",
+        "log.InitiatorBytes": "1200",
+        "log.InitiatorPackets": "6",
+        "log.InstanceID": "1",
+        "log.NAPPolicy": "nap-a",
+        "log.PrefilterPolicy": "Example Prefilter Policy",
+        "log.ResponderBytes": "5400",
+        "log.ResponderPackets": "12",
+        "log.User": "alice",
+        "log.messageId": 430003,
+        "log.msg": "EventPriority: Low, DeviceUUID: 00000000-0000-4000-8000-00000000f7d1, InstanceID: 1, FirstPacketSecond: 2026-09-23T10:00:00Z, ConnectionID: 1001, AccessControlRuleAction: Trust, SrcIP: 198.51.100.7, DstIP: 192.0.2.20, SrcPort: 51000, DstPort: 443, Protocol: tcp, IngressInterface: in1, EgressInterface: out1, IngressZone: zone-a, EgressZone: zone-b, ACPolicy: policy-a, AccessControlRuleName: rule-a, Prefilter Policy: Example Prefilter Policy, User: alice, Client: SSL client, ApplicationProtocol: HTTPS, ConnectionDuration: 12, InitiatorPackets: 6, ResponderPackets: 12, InitiatorBytes: 1200, ResponderBytes: 5400, NAPPolicy: nap-a",
+        "log.severity": "1",
+        "origin.geolocation.asn": 64500,
+        "origin.geolocation.aso": "FABRICATED-AS-64500",
+        "origin.geolocation.city": "Fabricated City A",
+        "origin.geolocation.country": "Fabricated Country A",
+        "origin.geolocation.countryCode": "XA",
+        "origin.geolocation.latitude": 10.5,
+        "origin.geolocation.longitude": -20.25,
+        "origin.ip": "198.51.100.7",
+        "origin.port": 51000,
+        "protocol": "tcp",
+        "severity": "high",
+        "target.geolocation.asn": 64501,
+        "target.geolocation.aso": "FABRICATED-AS-64501",
+        "target.geolocation.city": "Fabricated City B",
+        "target.geolocation.country": "Fabricated Country B",
+        "target.geolocation.countryCode": "XB",
+        "target.geolocation.latitude": -30.125,
+        "target.geolocation.longitude": 40.75,
+        "target.ip": "192.0.2.20",
+        "target.port": 443
+      },
+      "alerts": []
+    },
+    "430003-fastpath": {
+      "logObject": true,
+      "fields": {
+        "actionResult": "success",
+        "log.ACPolicy": "policy-a",
+        "log.AccessControlRuleAction": "Fastpath",
+        "log.AccessControlRuleName": "rule-a",
+        "log.ApplicationProtocol": "HTTPS",
+        "log.Client": "SSL client",
+        "log.ConnectionDuration": "12",
+        "log.ConnectionID": "1001",
+        "log.DeviceUUID": "00000000-0000-4000-8000-00000000f7d1",
+        "log.EgressInterface": "out1",
+        "log.EgressZone": "zone-b",
+        "log.EventPriority": "Low",
+        "log.FirstPacketSecond": "2026-09-23T10:00:00Z",
+        "log.IngressInterface": "in1",
+        "log.IngressZone": "zone-a",
+        "log.InitiatorBytes": "1200",
+        "log.InitiatorPackets": "6",
+        "log.InstanceID": "1",
+        "log.NAPPolicy": "nap-a",
+        "log.PrefilterPolicy": "Example Prefilter Policy",
+        "log.ResponderBytes": "5400",
+        "log.ResponderPackets": "12",
+        "log.User": "alice",
+        "log.messageId": 430003,
+        "log.msg": "EventPriority: Low, DeviceUUID: 00000000-0000-4000-8000-00000000f7d1, InstanceID: 1, FirstPacketSecond: 2026-09-23T10:00:00Z, ConnectionID: 1001, AccessControlRuleAction: Fastpath, SrcIP: 198.51.100.7, DstIP: 192.0.2.20, SrcPort: 51000, DstPort: 443, Protocol: tcp, IngressInterface: in1, EgressInterface: out1, IngressZone: zone-a, EgressZone: zone-b, ACPolicy: policy-a, AccessControlRuleName: rule-a, Prefilter Policy: Example Prefilter Policy, User: alice, Client: SSL client, ApplicationProtocol: HTTPS, ConnectionDuration: 12, InitiatorPackets: 6, ResponderPackets: 12, InitiatorBytes: 1200, ResponderBytes: 5400, NAPPolicy: nap-a",
+        "log.severity": "1",
+        "origin.geolocation.asn": 64500,
+        "origin.geolocation.aso": "FABRICATED-AS-64500",
+        "origin.geolocation.city": "Fabricated City A",
+        "origin.geolocation.country": "Fabricated Country A",
+        "origin.geolocation.countryCode": "XA",
+        "origin.geolocation.latitude": 10.5,
+        "origin.geolocation.longitude": -20.25,
+        "origin.ip": "198.51.100.7",
+        "origin.port": 51000,
+        "protocol": "tcp",
+        "severity": "high",
+        "target.geolocation.asn": 64501,
+        "target.geolocation.aso": "FABRICATED-AS-64501",
+        "target.geolocation.city": "Fabricated City B",
+        "target.geolocation.country": "Fabricated Country B",
+        "target.geolocation.countryCode": "XB",
+        "target.geolocation.latitude": -30.125,
+        "target.geolocation.longitude": 40.75,
+        "target.ip": "192.0.2.20",
+        "target.port": 443
+      },
+      "alerts": []
+    },
+    "430003-monitor": {
+      "logObject": true,
+      "fields": {
+        "log.ACPolicy": "policy-a",
+        "log.AccessControlRuleAction": "Monitor",
+        "log.AccessControlRuleName": "rule-a",
+        "log.ApplicationProtocol": "HTTPS",
+        "log.Client": "SSL client",
+        "log.ConnectionDuration": "12",
+        "log.ConnectionID": "1001",
+        "log.DeviceUUID": "00000000-0000-4000-8000-00000000f7d1",
+        "log.EgressInterface": "out1",
+        "log.EgressZone": "zone-b",
+        "log.EventPriority": "Low",
+        "log.FirstPacketSecond": "2026-09-23T10:00:00Z",
+        "log.IngressInterface": "in1",
+        "log.IngressZone": "zone-a",
+        "log.InitiatorBytes": "1200",
+        "log.InitiatorPackets": "6",
+        "log.InstanceID": "1",
+        "log.NAPPolicy": "nap-a",
+        "log.PrefilterPolicy": "Example Prefilter Policy",
+        "log.ResponderBytes": "5400",
+        "log.ResponderPackets": "12",
+        "log.User": "alice",
+        "log.messageId": 430003,
+        "log.msg": "EventPriority: Low, DeviceUUID: 00000000-0000-4000-8000-00000000f7d1, InstanceID: 1, FirstPacketSecond: 2026-09-23T10:00:00Z, ConnectionID: 1001, AccessControlRuleAction: Monitor, SrcIP: 198.51.100.7, DstIP: 192.0.2.20, SrcPort: 51000, DstPort: 443, Protocol: tcp, IngressInterface: in1, EgressInterface: out1, IngressZone: zone-a, EgressZone: zone-b, ACPolicy: policy-a, AccessControlRuleName: rule-a, Prefilter Policy: Example Prefilter Policy, User: alice, Client: SSL client, ApplicationProtocol: HTTPS, ConnectionDuration: 12, InitiatorPackets: 6, ResponderPackets: 12, InitiatorBytes: 1200, ResponderBytes: 5400, NAPPolicy: nap-a",
+        "log.severity": "1",
+        "origin.geolocation.asn": 64500,
+        "origin.geolocation.aso": "FABRICATED-AS-64500",
+        "origin.geolocation.city": "Fabricated City A",
+        "origin.geolocation.country": "Fabricated Country A",
+        "origin.geolocation.countryCode": "XA",
+        "origin.geolocation.latitude": 10.5,
+        "origin.geolocation.longitude": -20.25,
+        "origin.ip": "198.51.100.7",
+        "origin.port": 51000,
+        "protocol": "tcp",
+        "severity": "high",
+        "target.geolocation.asn": 64501,
+        "target.geolocation.aso": "FABRICATED-AS-64501",
+        "target.geolocation.city": "Fabricated City B",
+        "target.geolocation.country": "Fabricated Country B",
+        "target.geolocation.countryCode": "XB",
+        "target.geolocation.latitude": -30.125,
+        "target.geolocation.longitude": 40.75,
+        "target.ip": "192.0.2.20",
+        "target.port": 443
+      },
+      "alerts": []
+    },
+    "430002-allow-start": {
+      "logObject": true,
+      "fields": {
+        "log.ACPolicy": "policy-a",
+        "log.AccessControlRuleAction": "Allow",
+        "log.AccessControlRuleName": "rule-a",
+        "log.ApplicationProtocol": "HTTPS",
+        "log.Client": "SSL client",
+        "log.ConnectionDuration": "12",
+        "log.ConnectionID": "1001",
+        "log.DeviceUUID": "00000000-0000-4000-8000-00000000f7d1",
+        "log.EgressInterface": "out1",
+        "log.EgressZone": "zone-b",
+        "log.EventPriority": "Low",
+        "log.FirstPacketSecond": "2026-09-23T10:00:00Z",
+        "log.IngressInterface": "in1",
+        "log.IngressZone": "zone-a",
+        "log.InitiatorBytes": "1200",
+        "log.InitiatorPackets": "6",
+        "log.InstanceID": "1",
+        "log.NAPPolicy": "nap-a",
+        "log.PrefilterPolicy": "Example Prefilter Policy",
+        "log.ResponderBytes": "0",
+        "log.ResponderPackets": "0",
+        "log.User": "alice",
+        "log.messageId": 430002,
+        "log.msg": "EventPriority: Low, DeviceUUID: 00000000-0000-4000-8000-00000000f7d1, InstanceID: 1, FirstPacketSecond: 2026-09-23T10:00:00Z, ConnectionID: 1001, AccessControlRuleAction: Allow, SrcIP: 198.51.100.7, DstIP: 192.0.2.20, SrcPort: 51000, DstPort: 443, Protocol: tcp, IngressInterface: in1, EgressInterface: out1, IngressZone: zone-a, EgressZone: zone-b, ACPolicy: policy-a, AccessControlRuleName: rule-a, Prefilter Policy: Example Prefilter Policy, User: alice, Client: SSL client, ApplicationProtocol: HTTPS, ConnectionDuration: 12, InitiatorPackets: 6, ResponderPackets: 0, InitiatorBytes: 1200, ResponderBytes: 0, NAPPolicy: nap-a",
+        "log.severity": "1",
+        "origin.geolocation.asn": 64500,
+        "origin.geolocation.aso": "FABRICATED-AS-64500",
+        "origin.geolocation.city": "Fabricated City A",
+        "origin.geolocation.country": "Fabricated Country A",
+        "origin.geolocation.countryCode": "XA",
+        "origin.geolocation.latitude": 10.5,
+        "origin.geolocation.longitude": -20.25,
+        "origin.ip": "198.51.100.7",
+        "origin.port": 51000,
+        "protocol": "tcp",
+        "severity": "high",
+        "target.geolocation.asn": 64501,
+        "target.geolocation.aso": "FABRICATED-AS-64501",
+        "target.geolocation.city": "Fabricated City B",
+        "target.geolocation.country": "Fabricated Country B",
+        "target.geolocation.countryCode": "XB",
+        "target.geolocation.latitude": -30.125,
+        "target.geolocation.longitude": 40.75,
+        "target.ip": "192.0.2.20",
+        "target.port": 443
+      },
+      "alerts": []
+    },
+    "430002-interactive-block": {
+      "logObject": true,
+      "fields": {
+        "actionResult": "denied",
+        "log.ACPolicy": "policy-a",
+        "log.AccessControlRuleAction": "Interactive Block",
+        "log.AccessControlRuleName": "rule-a",
+        "log.ApplicationProtocol": "HTTPS",
+        "log.Client": "SSL client",
+        "log.ConnectionDuration": "12",
+        "log.ConnectionID": "1001",
+        "log.DeviceUUID": "00000000-0000-4000-8000-00000000f7d1",
+        "log.EgressInterface": "out1",
+        "log.EgressZone": "zone-b",
+        "log.EventPriority": "Low",
+        "log.FirstPacketSecond": "2026-09-23T10:00:00Z",
+        "log.IngressInterface": "in1",
+        "log.IngressZone": "zone-a",
+        "log.InitiatorBytes": "1200",
+        "log.InitiatorPackets": "6",
+        "log.InstanceID": "1",
+        "log.NAPPolicy": "nap-a",
+        "log.PrefilterPolicy": "Example Prefilter Policy",
+        "log.ResponderBytes": "0",
+        "log.ResponderPackets": "0",
+        "log.User": "alice",
+        "log.messageId": 430002,
+        "log.msg": "EventPriority: Low, DeviceUUID: 00000000-0000-4000-8000-00000000f7d1, InstanceID: 1, FirstPacketSecond: 2026-09-23T10:00:00Z, ConnectionID: 1001, AccessControlRuleAction: Interactive Block, SrcIP: 198.51.100.7, DstIP: 192.0.2.20, SrcPort: 51000, DstPort: 443, Protocol: tcp, IngressInterface: in1, EgressInterface: out1, IngressZone: zone-a, EgressZone: zone-b, ACPolicy: policy-a, AccessControlRuleName: rule-a, Prefilter Policy: Example Prefilter Policy, User: alice, Client: SSL client, ApplicationProtocol: HTTPS, ConnectionDuration: 12, InitiatorPackets: 6, ResponderPackets: 0, InitiatorBytes: 1200, ResponderBytes: 0, NAPPolicy: nap-a",
+        "log.severity": "1",
+        "origin.geolocation.asn": 64500,
+        "origin.geolocation.aso": "FABRICATED-AS-64500",
+        "origin.geolocation.city": "Fabricated City A",
+        "origin.geolocation.country": "Fabricated Country A",
+        "origin.geolocation.countryCode": "XA",
+        "origin.geolocation.latitude": 10.5,
+        "origin.geolocation.longitude": -20.25,
+        "origin.ip": "198.51.100.7",
+        "origin.port": 51000,
+        "protocol": "tcp",
+        "severity": "high",
+        "target.geolocation.asn": 64501,
+        "target.geolocation.aso": "FABRICATED-AS-64501",
+        "target.geolocation.city": "Fabricated City B",
+        "target.geolocation.country": "Fabricated Country B",
+        "target.geolocation.countryCode": "XB",
+        "target.geolocation.latitude": -30.125,
+        "target.geolocation.longitude": 40.75,
+        "target.ip": "192.0.2.20",
+        "target.port": 443
+      },
+      "alerts": []
+    },
+    "430001-dropped": {
+      "logObject": true,
+      "fields": {
+        "actionResult": "denied",
+        "log.ACPolicy": "policy-a",
+        "log.AccessControlRuleName": "rule-a",
+        "log.ApplicationProtocol": "HTTP",
+        "log.Classification": "Misc activity",
+        "log.Client": "Web browser",
+        "log.ConnectionID": "2001",
+        "log.DeviceUUID": "00000000-0000-4000-8000-00000000f7d1",
+        "log.EgressInterface": "out1",
+        "log.EgressZone": "zone-b",
+        "log.FirstPacketSecond": "2026-09-23T10:00:00Z",
+        "log.GID": "1",
+        "log.IngressInterface": "in1",
+        "log.IngressZone": "zone-a",
+        "log.InlineResult": "Dropped",
+        "log.InstanceID": "1",
+        "log.IntrusionPolicy": "policy-ips",
+        "log.Message": "fabricated example signature",
+        "log.NAPPolicy": "nap-a",
+        "log.Priority": "3",
+        "log.Revision": "1",
+        "log.SID": "1000001",
+        "log.SnortRuleGroups": "Example>Fabricated",
+        "log.messageId": 430001,
+        "log.msg": "DeviceUUID: 00000000-0000-4000-8000-00000000f7d1, InstanceID: 1, FirstPacketSecond: 2026-09-23T10:00:00Z, ConnectionID: 2001, SrcIP: 198.51.100.7, DstIP: 192.0.2.20, SrcPort: 51000, DstPort: 80, Protocol: tcp, IngressInterface: in1, EgressInterface: out1, IngressZone: zone-a, EgressZone: zone-b, Priority: 3, GID: 1, SID: 1000001, Revision: 1, Message: fabricated example signature, Classification: Misc activity, Client: Web browser, ApplicationProtocol: HTTP, IntrusionPolicy: policy-ips, ACPolicy: policy-a, AccessControlRuleName: rule-a, NAPPolicy: nap-a, InlineResult: Dropped, SnortRuleGroups: Example>Fabricated",
+        "log.severity": "1",
+        "origin.geolocation.asn": 64500,
+        "origin.geolocation.aso": "FABRICATED-AS-64500",
+        "origin.geolocation.city": "Fabricated City A",
+        "origin.geolocation.country": "Fabricated Country A",
+        "origin.geolocation.countryCode": "XA",
+        "origin.geolocation.latitude": 10.5,
+        "origin.geolocation.longitude": -20.25,
+        "origin.ip": "198.51.100.7",
+        "origin.port": 51000,
+        "protocol": "tcp",
+        "severity": "high",
+        "target.geolocation.asn": 64501,
+        "target.geolocation.aso": "FABRICATED-AS-64501",
+        "target.geolocation.city": "Fabricated City B",
+        "target.geolocation.country": "Fabricated Country B",
+        "target.geolocation.countryCode": "XB",
+        "target.geolocation.latitude": -30.125,
+        "target.geolocation.longitude": 40.75,
+        "target.ip": "192.0.2.20",
+        "target.port": 80
+      },
+      "alerts": []
+    },
+    "430001-would-have-dropped": {
+      "logObject": true,
+      "fields": {
+        "log.ACPolicy": "policy-a",
+        "log.AccessControlRuleName": "rule-a",
+        "log.ApplicationProtocol": "HTTP",
+        "log.Classification": "Misc activity",
+        "log.Client": "Web browser",
+        "log.ConnectionID": "2001",
+        "log.DeviceUUID": "00000000-0000-4000-8000-00000000f7d1",
+        "log.EgressInterface": "out1",
+        "log.EgressZone": "zone-b",
+        "log.FirstPacketSecond": "2026-09-23T10:00:00Z",
+        "log.GID": "1",
+        "log.IngressInterface": "in1",
+        "log.IngressZone": "zone-a",
+        "log.InlineResult": "Would have dropped",
+        "log.InstanceID": "1",
+        "log.IntrusionPolicy": "policy-ips",
+        "log.Message": "fabricated example signature",
+        "log.NAPPolicy": "nap-a",
+        "log.Priority": "3",
+        "log.Revision": "1",
+        "log.SID": "1000001",
+        "log.SnortRuleGroups": "Example>Fabricated",
+        "log.messageId": 430001,
+        "log.msg": "DeviceUUID: 00000000-0000-4000-8000-00000000f7d1, InstanceID: 1, FirstPacketSecond: 2026-09-23T10:00:00Z, ConnectionID: 2001, SrcIP: 198.51.100.7, DstIP: 192.0.2.20, SrcPort: 51000, DstPort: 80, Protocol: tcp, IngressInterface: in1, EgressInterface: out1, IngressZone: zone-a, EgressZone: zone-b, Priority: 3, GID: 1, SID: 1000001, Revision: 1, Message: fabricated example signature, Classification: Misc activity, Client: Web browser, ApplicationProtocol: HTTP, IntrusionPolicy: policy-ips, ACPolicy: policy-a, AccessControlRuleName: rule-a, NAPPolicy: nap-a, InlineResult: Would have dropped, SnortRuleGroups: Example>Fabricated",
+        "log.severity": "1",
+        "origin.geolocation.asn": 64500,
+        "origin.geolocation.aso": "FABRICATED-AS-64500",
+        "origin.geolocation.city": "Fabricated City A",
+        "origin.geolocation.country": "Fabricated Country A",
+        "origin.geolocation.countryCode": "XA",
+        "origin.geolocation.latitude": 10.5,
+        "origin.geolocation.longitude": -20.25,
+        "origin.ip": "198.51.100.7",
+        "origin.port": 51000,
+        "protocol": "tcp",
+        "severity": "high",
+        "target.geolocation.asn": 64501,
+        "target.geolocation.aso": "FABRICATED-AS-64501",
+        "target.geolocation.city": "Fabricated City B",
+        "target.geolocation.country": "Fabricated Country B",
+        "target.geolocation.countryCode": "XB",
+        "target.geolocation.latitude": -30.125,
+        "target.geolocation.longitude": 40.75,
+        "target.ip": "192.0.2.20",
+        "target.port": 80
+      },
+      "alerts": []
+    },
+    "430001-no-inline": {
+      "logObject": true,
+      "fields": {
+        "log.ACPolicy": "policy-a",
+        "log.AccessControlRuleName": "rule-a",
+        "log.ApplicationProtocol": "HTTP",
+        "log.Classification": "Misc activity",
+        "log.Client": "Web browser",
+        "log.ConnectionID": "2001",
+        "log.DeviceUUID": "00000000-0000-4000-8000-00000000f7d1",
+        "log.EgressInterface": "out1",
+        "log.EgressZone": "zone-b",
+        "log.FirstPacketSecond": "2026-09-23T10:00:00Z",
+        "log.GID": "1",
+        "log.IngressInterface": "in1",
+        "log.IngressZone": "zone-a",
+        "log.InstanceID": "1",
+        "log.IntrusionPolicy": "policy-ips",
+        "log.Message": "fabricated example signature",
+        "log.NAPPolicy": "nap-a",
+        "log.Priority": "3",
+        "log.Revision": "1",
+        "log.SID": "1000001",
+        "log.SnortRuleGroups": "Example>Fabricated",
+        "log.messageId": 430001,
+        "log.msg": "DeviceUUID: 00000000-0000-4000-8000-00000000f7d1, InstanceID: 1, FirstPacketSecond: 2026-09-23T10:00:00Z, ConnectionID: 2001, SrcIP: 198.51.100.7, DstIP: 192.0.2.20, SrcPort: 51000, DstPort: 80, Protocol: tcp, IngressInterface: in1, EgressInterface: out1, IngressZone: zone-a, EgressZone: zone-b, Priority: 3, GID: 1, SID: 1000001, Revision: 1, Message: fabricated example signature, Classification: Misc activity, Client: Web browser, ApplicationProtocol: HTTP, IntrusionPolicy: policy-ips, ACPolicy: policy-a, AccessControlRuleName: rule-a, NAPPolicy: nap-a, SnortRuleGroups: Example>Fabricated",
+        "log.severity": "1",
+        "origin.geolocation.asn": 64500,
+        "origin.geolocation.aso": "FABRICATED-AS-64500",
+        "origin.geolocation.city": "Fabricated City A",
+        "origin.geolocation.country": "Fabricated Country A",
+        "origin.geolocation.countryCode": "XA",
+        "origin.geolocation.latitude": 10.5,
+        "origin.geolocation.longitude": -20.25,
+        "origin.ip": "198.51.100.7",
+        "origin.port": 51000,
+        "protocol": "tcp",
+        "severity": "high",
+        "target.geolocation.asn": 64501,
+        "target.geolocation.aso": "FABRICATED-AS-64501",
+        "target.geolocation.city": "Fabricated City B",
+        "target.geolocation.country": "Fabricated Country B",
+        "target.geolocation.countryCode": "XB",
+        "target.geolocation.latitude": -30.125,
+        "target.geolocation.longitude": 40.75,
+        "target.ip": "192.0.2.20",
+        "target.port": 80
+      },
+      "alerts": []
+    },
+    "106001": {
+      "logObject": true,
+      "fields": {
+        "actionResult": "denied",
+        "log.ciscoResult": "denied",
+        "log.direction": "Inbound",
+        "log.flags": "SYN",
+        "log.messageId": 106001,
+        "log.msg": "Inbound TCP connection denied from 198.51.100.7/51234 to 192.0.2.20/22 flags SYN on interface outside",
+        "log.severity": "2",
+        "log.srcInterface": "outside",
+        "origin.geolocation.asn": 64500,
+        "origin.geolocation.aso": "FABRICATED-AS-64500",
+        "origin.geolocation.city": "Fabricated City A",
+        "origin.geolocation.country": "Fabricated Country A",
+        "origin.geolocation.countryCode": "XA",
+        "origin.geolocation.latitude": 10.5,
+        "origin.geolocation.longitude": -20.25,
+        "origin.ip": "198.51.100.7",
+        "origin.port": 51234,
+        "protocol": "TCP",
+        "severity": "high",
+        "target.geolocation.asn": 64501,
+        "target.geolocation.aso": "FABRICATED-AS-64501",
+        "target.geolocation.city": "Fabricated City B",
+        "target.geolocation.country": "Fabricated Country B",
+        "target.geolocation.countryCode": "XB",
+        "target.geolocation.latitude": -30.125,
+        "target.geolocation.longitude": 40.75,
+        "target.ip": "192.0.2.20",
+        "target.port": 22
+      },
+      "alerts": []
+    },
+    "733102": {
+      "logObject": true,
+      "fields": {
+        "action": "Threat-detection add host to shun list",
+        "actionResult": "denied",
+        "log.messageId": 733102,
+        "log.msg": "Threat-detection adds host 198.51.100.7 to shun list",
+        "log.severity": "4",
+        "origin.geolocation.asn": 64500,
+        "origin.geolocation.aso": "FABRICATED-AS-64500",
+        "origin.geolocation.city": "Fabricated City A",
+        "origin.geolocation.country": "Fabricated Country A",
+        "origin.geolocation.countryCode": "XA",
+        "origin.geolocation.latitude": 10.5,
+        "origin.geolocation.longitude": -20.25,
+        "origin.ip": "198.51.100.7",
+        "severity": "medium"
+      },
+      "alerts": []
+    },
+    "109201-failed": {
+      "logObject": true,
+      "fields": {
+        "action": "Failed adding entry.",
+        "actionResult": "failed",
+        "log.messageId": 109201,
+        "log.msg": "UAUTH: Session=0x1a2b, User=alice, Assigned IP=192.0.2.20, Failed adding entry.",
+        "log.session": "0x1a2b",
+        "log.severity": "5",
+        "origin.geolocation.asn": 64501,
+        "origin.geolocation.aso": "FABRICATED-AS-64501",
+        "origin.geolocation.city": "Fabricated City B",
+        "origin.geolocation.country": "Fabricated Country B",
+        "origin.geolocation.countryCode": "XB",
+        "origin.geolocation.latitude": -30.125,
+        "origin.geolocation.longitude": 40.75,
+        "origin.ip": "192.0.2.20",
+        "origin.user": "alice",
+        "severity": "low"
+      },
+      "alerts": []
+    },
+    "113004": {
+      "logObject": true,
+      "fields": {
+        "action": "AAA user authentication Successful",
+        "actionResult": "success",
+        "log.ciscoResult": "Successful",
+        "log.messageId": 113004,
+        "log.msg": "AAA user authentication Successful : server = 192.0.2.30 : user = alice",
+        "log.severity": "6",
+        "origin.user": "alice",
+        "severity": "low",
+        "target.geolocation.asn": 64501,
+        "target.geolocation.aso": "FABRICATED-AS-64501",
+        "target.geolocation.city": "Fabricated City B",
+        "target.geolocation.country": "Fabricated Country B",
+        "target.geolocation.countryCode": "XB",
+        "target.geolocation.latitude": -30.125,
+        "target.geolocation.longitude": 40.75,
+        "target.ip": "192.0.2.30"
+      },
+      "alerts": []
+    },
+    "113005-authentication": {
+      "logObject": true,
+      "fields": {
+        "action": "AAA user authentication Rejected",
+        "actionResult": "failed",
+        "log.ciscoResult": "Rejected",
+        "log.messageId": 113005,
+        "log.msg": "AAA user authentication Rejected : reason = Invalid password : server = 192.0.2.30 : user = alice : user IP = 198.51.100.7",
+        "log.reason": "Invalid password",
+        "log.severity": "6",
+        "origin.geolocation.asn": 64500,
+        "origin.geolocation.aso": "FABRICATED-AS-64500",
+        "origin.geolocation.city": "Fabricated City A",
+        "origin.geolocation.country": "Fabricated Country A",
+        "origin.geolocation.countryCode": "XA",
+        "origin.geolocation.latitude": 10.5,
+        "origin.geolocation.longitude": -20.25,
+        "origin.ip": "198.51.100.7",
+        "origin.user": "alice",
+        "severity": "low",
+        "target.geolocation.asn": 64501,
+        "target.geolocation.aso": "FABRICATED-AS-64501",
+        "target.geolocation.city": "Fabricated City B",
+        "target.geolocation.country": "Fabricated Country B",
+        "target.geolocation.countryCode": "XB",
+        "target.geolocation.latitude": -30.125,
+        "target.geolocation.longitude": 40.75,
+        "target.ip": "192.0.2.30"
+      },
+      "alerts": []
+    },
+    "113005-authorization": {
+      "logObject": true,
+      "fields": {
+        "actionResult": "denied",
+        "log.messageId": 113005,
+        "log.msg": "AAA user authorization Rejected : reason = AAA failure : server = 192.0.2.30 : user = alice : user IP = 198.51.100.7",
+        "log.severity": "6",
+        "severity": "low"
+      },
+      "alerts": []
+    },
+    "402119-hex": {
+      "logObject": true,
+      "fields": {
+        "action": "Received an ESP packet",
+        "actionResult": "denied",
+        "log.messageId": 402119,
+        "log.msg": "IPSEC: Received an ESP packet (SPI= 0x1A2B3C4D, sequence number= 0x598243) from 198.51.100.7 (user= 198.51.100.7) to 192.0.2.1 that failed anti-replay checking.",
+        "log.seqNum": "0x598243",
+        "log.severity": "4",
+        "log.spi": "0x1A2B3C4D",
+        "origin.geolocation.asn": 64500,
+        "origin.geolocation.aso": "FABRICATED-AS-64500",
+        "origin.geolocation.city": "Fabricated City A",
+        "origin.geolocation.country": "Fabricated Country A",
+        "origin.geolocation.countryCode": "XA",
+        "origin.geolocation.latitude": 10.5,
+        "origin.geolocation.longitude": -20.25,
+        "origin.ip": "198.51.100.7",
+        "origin.user": "user= 198.51.100.7",
+        "protocol": "ESP",
+        "severity": "medium",
+        "target.geolocation.asn": 64501,
+        "target.geolocation.aso": "FABRICATED-AS-64501",
+        "target.geolocation.city": "Fabricated City B",
+        "target.geolocation.country": "Fabricated Country B",
+        "target.geolocation.countryCode": "XB",
+        "target.geolocation.latitude": -30.125,
+        "target.geolocation.longitude": 40.75,
+        "target.ip": "192.0.2.1"
+      },
+      "alerts": []
+    },
+    "716001": {
+      "logObject": true,
+      "fields": {
+        "action": "WebVPN session started.",
+        "actionResult": "success",
+        "log.messageId": 716001,
+        "log.msg": "Group <GP1> User <alice> IP <198.51.100.7> WebVPN session started.",
+        "log.severity": "6",
+        "origin.geolocation.asn": 64500,
+        "origin.geolocation.aso": "FABRICATED-AS-64500",
+        "origin.geolocation.city": "Fabricated City A",
+        "origin.geolocation.country": "Fabricated Country A",
+        "origin.geolocation.countryCode": "XA",
+        "origin.geolocation.latitude": 10.5,
+        "origin.geolocation.longitude": -20.25,
+        "origin.group": "GP1",
+        "origin.ip": "198.51.100.7",
+        "origin.user": "alice",
+        "severity": "low"
+      },
+      "alerts": []
+    },
+    "716002": {
+      "logObject": true,
+      "fields": {
+        "action": "WebVPN session terminated: User Requested.",
+        "log.messageId": 716002,
+        "log.msg": "Group <GP1> User <alice> IP <198.51.100.7> WebVPN session terminated: User Requested.",
+        "log.severity": "6",
+        "origin.geolocation.asn": 64500,
+        "origin.geolocation.aso": "FABRICATED-AS-64500",
+        "origin.geolocation.city": "Fabricated City A",
+        "origin.geolocation.country": "Fabricated Country A",
+        "origin.geolocation.countryCode": "XA",
+        "origin.geolocation.latitude": 10.5,
+        "origin.geolocation.longitude": -20.25,
+        "origin.group": "GP1",
+        "origin.ip": "198.51.100.7",
+        "origin.user": "alice",
+        "severity": "low"
+      },
+      "alerts": []
+    },
+    "719019": {
+      "logObject": true,
+      "fields": {
+        "action": "authorization failed.",
+        "actionResult": "denied",
+        "log.messageId": 719019,
+        "log.msg": "WebVPN user: alice authorization failed.",
+        "log.severity": "6",
+        "origin.user": "alice",
+        "severity": "low"
+      },
+      "alerts": []
+    },
+    "719023": {
+      "logObject": true,
+      "fields": {
+        "action": "WebVPN user has not been authenticated",
+        "actionResult": "failed",
+        "log.messageId": 719023,
+        "log.msg": "WebVPN user alice has not been successfully authenticated. Access denied.",
+        "log.severity": "6",
+        "origin.user": "alice",
         "severity": "low"
       },
       "alerts": []

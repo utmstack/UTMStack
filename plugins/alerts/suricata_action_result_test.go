@@ -29,8 +29,8 @@ func TestSuricataActionResult(t *testing.T) {
 	if err := json.Unmarshal(data, &cases); err != nil {
 		t.Fatal(err)
 	}
-	if len(cases) < 18 {
-		t.Fatal("final verdict and flow state classes are missing")
+	if len(cases) < 43 {
+		t.Fatal("final verdict, flow state, TCP handshake and application answer classes are missing")
 	}
 	cache := plugins.NewCELCache("suricata-final-outcome")
 	rules := map[string]*plugins.Rule{}
@@ -72,7 +72,7 @@ func TestSuricataActionResult(t *testing.T) {
 					t.Errorf("unexpected %s", path)
 				}
 			}
-			for _, value := range []string{"success", "failure", "denied"} {
+			for _, value := range []string{"success", "failed", "denied"} {
 				got, err := cache.Eval(`equals("actionResult","`+value+`")`, out)
 				if err != nil || got != (tc.Result == value) {
 					t.Errorf("predicate %s = %v (%v)", value, got, err)

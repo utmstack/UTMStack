@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.0.1
 
 dataTypes:
   - wineventlog
@@ -31,14 +31,13 @@ description: |
   8. Implement Kerberos armoring and constrained delegation
 where: |
   !oneOf("dataSource", ["", "unknown"]) &&
-  exists("event.authenticationSource") && exists("event.authenticationSourceType") && exists("event.authenticationSourceDomain") &&
+  exists("event.authenticationSource") &&
   (
   (
     equals("event.eventCode", "4769") &&
     equals("event.channel", "Security") &&
     equals("event.eventDataServiceName", "krbtgt") &&
-    !equals("event.eventDataStatus", "0") &&
-    exists("event.authenticationSource")
+    !equals("event.eventDataStatus", "0")
   ) ||
   (
     equals("event.eventCode", "4768") &&
@@ -64,12 +63,6 @@ afterEvents:
       - field: event.authenticationSource.keyword
         operator: filter_term
         value: '{{.event.authenticationSource}}'
-      - field: event.authenticationSourceType.keyword
-        operator: filter_term
-        value: '{{.event.authenticationSourceType}}'
-      - field: event.authenticationSourceDomain.keyword
-        operator: filter_term
-        value: '{{.event.authenticationSourceDomain}}'
       - field: event.authenticationCandidate.goldenTicketDetection.keyword
         operator: filter_term
         value: match
@@ -80,7 +73,5 @@ afterEvents:
     count: 3
 groupBy:
   - dataSource
-  - lastEvent.event.authenticationSourceType
   - lastEvent.event.authenticationSource
-  - lastEvent.event.authenticationSourceDomain
   - target.user

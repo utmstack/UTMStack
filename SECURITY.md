@@ -17,4 +17,4 @@
 ❌ Unsupported
 ```
 
-Please report security vulnerabilities to support@utmstack.com
+Please report security vulnerabilities to development@utmstack.com

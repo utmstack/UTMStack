@@ -21,6 +21,7 @@ import (
 type esxiCase struct {
 	Name     string         `json:"name"`
 	Message  string         `json:"message"`
+	Process  string         `json:"process"`
 	Result   string         `json:"result"`
 	Expected map[string]any `json:"expected"`
 	Absent   []string       `json:"absent"`
@@ -62,11 +63,14 @@ func esxiGrok(t *testing.T, event map[string]any, g *plugins.Grok) {
 	}
 }
 
-func esxiRun(t *testing.T, cfg *plugins.Config, cache *plugins.CELCache, message string) string {
+func esxiRun(t *testing.T, cfg *plugins.Config, cache *plugins.CELCache, message, process string) string {
 	t.Helper()
 	event := map[string]any{"event": map[string]any{}}
 	if message != "" {
 		put(event, "event.message", message, false)
+	}
+	if process != "" {
+		put(event, "event.process", process, false)
 	}
 	state := func() string {
 		b, err := json.Marshal(event)
@@ -160,7 +164,7 @@ func TestVMwareESXiActionResultContract(t *testing.T) {
 	cache := plugins.NewCELCache("vmware-esxi-final-outcome")
 	for _, tc := range cases {
 		t.Run(tc.Name, func(t *testing.T) {
-			state := esxiRun(t, cfg, cache, tc.Message)
+			state := esxiRun(t, cfg, cache, tc.Message, tc.Process)
 			got := gjson.Get(state, "actionResult")
 			if tc.Result == "" && got.Exists() {
 				t.Fatalf("unexpected actionResult %s", got.Raw)
@@ -178,12 +182,13 @@ func TestVMwareESXiActionResultContract(t *testing.T) {
 					t.Fatalf("%s should be absent: %s", path, state)
 				}
 			}
-			for _, scratch := range []string{"event.loginEvent", "event.loginUser", "event.loginAddress", "event.loginClient"} {
+			for _, scratch := range []string{"event.loginEvent", "event.loginUser", "event.loginAddress", "event.loginClient",
+				"event.failEvent", "event.failUser", "event.failAddress", "event.sshUser", "event.sshAddress"} {
 				if gjson.Get(state, scratch).Exists() {
 					t.Fatalf("scratch field %s kept", scratch)
 				}
 			}
-			for _, result := range []string{"success", "failure", "denied"} {
+			for _, result := range []string{"success", "failed", "denied"} {
 				matched, err := cache.Eval(`equals("actionResult","`+result+`")`, state)
 				if err != nil || matched != (tc.Result == result) {
 					t.Errorf("%s predicate = %v (%v)", result, matched, err)

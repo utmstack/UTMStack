@@ -7,7 +7,7 @@
       "origin.ip": "192.0.2.10",
       "origin.port": 4455,
       "event.eventCode": "32",
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": ["event.src"],
     "matchRule": "admin_auth_failures"
@@ -19,7 +19,7 @@
     "expected": {
       "origin.ip": "203.0.113.44",
       "event.eventCode": "200",
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "matchRule": "admin_auth_failures"
   },
@@ -30,7 +30,7 @@
     "expected": {
       "origin.ip": "198.51.100.77",
       "event.eventCode": "33",
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "matchRule": "admin_auth_failures"
   },
@@ -60,8 +60,57 @@
     "raw": "<166>  id=103 sn=SWL-20260924-0006 time=\"Wed Sep 24 06:10:27 2026\" fw=\"SonicWall\" msg=\"Login denied due to bad credentials\" src=local usr=\"admin\" eventCode=32",
     "expected": {
       "event.eventCode": "32",
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": ["origin.ip"]
+  },
+  {
+    "name": "bad-credentials-with-forward-action-is-failed",
+    "dataSource": "firewall-sonicwall",
+    "raw": "<129>  id=firewall sn=SWL-20260927-0007 time=\"2026-09-27 10:01:00\" fw=203.0.113.1 pri=1 c=16 gcat=4 m=33 msg=\"User login denied due to bad credentials\" src=198.51.100.20:50111:X1 dst=203.0.113.1:443:X1 usr=\"admin\" sess=\"Web\" dur=0 n=1001 fw_action=\"forward\"",
+    "expected": {
+      "origin.ip": "198.51.100.20",
+      "event.eventCode": "33",
+      "action": "forward",
+      "actionResult": "failed"
+    },
+    "matchRule": "admin_auth_failures"
+  },
+  {
+    "name": "management-request-allowed-is-success",
+    "dataSource": "firewall-sonicwall",
+    "raw": "<134>  id=firewall sn=SWL-20260927-0008 time=\"2026-09-27 10:16:00\" fw=203.0.113.1 pri=6 c=16 gcat=6 m=526 msg=\"Web management request allowed\" src=198.51.100.34:39888:X1 dst=203.0.113.1:4443:X1 usr=\"admin\" rcvd=52 sess=\"Web\" note=\"policyCheck\" n=1016 fw_action=\"mgmt\"",
+    "expected": {
+      "event.eventCode": "526",
+      "action": "mgmt",
+      "actionResult": "success"
+    }
+  },
+  {
+    "name": "scan-with-dropped-packet-note-is-denied",
+    "dataSource": "firewall-sonicwall",
+    "raw": "<129>  id=firewall sn=SWL-20260927-0009 time=\"2026-09-27 10:11:00\" fw=203.0.113.1 pri=1 c=32 gcat=3 m=83 src=198.51.100.29:443:X1 dst=203.0.113.1:10417:X1 msg=\"Probable port scan detected\" note=\"Pkt is dropped. TCP scanned port list, 22, 23, 80\" n=1011 fw_action=\"NA\"",
+    "expected": {
+      "event.eventCode": "83",
+      "actionResult": "denied"
+    }
+  },
+  {
+    "name": "failed-ike-negotiation-is-failed",
+    "dataSource": "firewall-sonicwall",
+    "raw": "<132>  id=firewall sn=SWL-20260927-0010 time=\"2026-09-27 10:17:00\" fw=203.0.113.1 pri=4 c=16 gcat=5 m=401 src=198.51.100.35:500:X1 dst=203.0.113.1:500:X1 msg=\"Received notify. NO_PROPOSAL_CHOSEN\" n=1017 fw_action=\"NA\"",
+    "expected": {
+      "event.eventCode": "401",
+      "actionResult": "failed"
+    }
+  },
+  {
+    "name": "ike-retransmit-notice-has-no-outcome",
+    "dataSource": "firewall-sonicwall",
+    "raw": "<134>  id=firewall sn=SWL-20260927-0011 time=\"2026-09-27 10:15:00\" fw=203.0.113.1 pri=6 c=16 gcat=5 m=931 src=198.51.100.33:500:X1 dst=203.0.113.1:500:X1 msg=\"IKE Responder: Remote party Timeout - Retransmitting IKE request.\" n=1015 fw_action=\"NA\"",
+    "expected": {
+      "event.eventCode": "931"
+    },
+    "absent": ["actionResult"]
   }
 ]

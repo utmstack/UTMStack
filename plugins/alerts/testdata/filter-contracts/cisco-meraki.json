@@ -81,6 +81,172 @@
         "rules/cisco/meraki/rogue_ssid_detection.yml": false,
         "rules/cisco/meraki/wireless_intrusion_attempts.yml": false
       }
+    },
+    {
+      "name": "isolated outcome control: meraki_anyconnect_auth_failure",
+      "filter": "cisco/meraki.yml",
+      "input": {
+        "log": {
+          "nativeFormat": "true",
+          "merakiGroup": "events",
+          "type": "anyconnect_vpn_auth_failure"
+        }
+      },
+      "expected": {
+        "actionResult": "failed"
+      },
+      "absent": [],
+      "rules": {
+        "rules/cisco/meraki/advanced_malware_protection_alerts.yml": false,
+        "rules/cisco/meraki/air_marshal_rogue_ap.yml": false,
+        "rules/cisco/meraki/evil_twin_ap_detection.yml": false,
+        "rules/cisco/meraki/intrusion_detection_alerts.yml": false,
+        "rules/cisco/meraki/meraki_vpn_brute_force.yml": false,
+        "rules/cisco/meraki/rogue_ssid_detection.yml": false,
+        "rules/cisco/meraki/wireless_intrusion_attempts.yml": false
+      }
+    },
+    {
+      "name": "isolated outcome control: meraki_8021x_eap_failure",
+      "filter": "cisco/meraki.yml",
+      "input": {
+        "log": {
+          "nativeFormat": "true",
+          "merakiGroup": "events",
+          "type": "8021x_eap_failure"
+        }
+      },
+      "expected": {
+        "actionResult": "failed"
+      },
+      "absent": [],
+      "rules": {
+        "rules/cisco/meraki/advanced_malware_protection_alerts.yml": false,
+        "rules/cisco/meraki/air_marshal_rogue_ap.yml": false,
+        "rules/cisco/meraki/evil_twin_ap_detection.yml": false,
+        "rules/cisco/meraki/intrusion_detection_alerts.yml": false,
+        "rules/cisco/meraki/meraki_vpn_brute_force.yml": false,
+        "rules/cisco/meraki/rogue_ssid_detection.yml": false,
+        "rules/cisco/meraki/wireless_intrusion_attempts.yml": false
+      }
+    },
+    {
+      "name": "isolated outcome control: meraki_numeric_inbound_deny",
+      "filter": "cisco/meraki.yml",
+      "input": {
+        "log": {
+          "nativeFormat": "true",
+          "merakiGroup": "flows",
+          "pattern": "1 all"
+        }
+      },
+      "expected": {
+        "actionResult": "denied"
+      },
+      "absent": [],
+      "rules": {
+        "rules/cisco/meraki/advanced_malware_protection_alerts.yml": false,
+        "rules/cisco/meraki/air_marshal_rogue_ap.yml": false,
+        "rules/cisco/meraki/evil_twin_ap_detection.yml": false,
+        "rules/cisco/meraki/intrusion_detection_alerts.yml": false,
+        "rules/cisco/meraki/meraki_vpn_brute_force.yml": false,
+        "rules/cisco/meraki/rogue_ssid_detection.yml": false,
+        "rules/cisco/meraki/wireless_intrusion_attempts.yml": false
+      }
+    },
+    {
+      "name": "isolated outcome control: meraki_numeric_allow",
+      "filter": "cisco/meraki.yml",
+      "input": {
+        "log": {
+          "nativeFormat": "true",
+          "merakiGroup": "firewall",
+          "pattern": "0 (tcp || udp) && dst port 443"
+        }
+      },
+      "expected": {
+        "actionResult": "success"
+      },
+      "absent": [],
+      "rules": {
+        "rules/cisco/meraki/advanced_malware_protection_alerts.yml": false,
+        "rules/cisco/meraki/air_marshal_rogue_ap.yml": false,
+        "rules/cisco/meraki/evil_twin_ap_detection.yml": false,
+        "rules/cisco/meraki/intrusion_detection_alerts.yml": false,
+        "rules/cisco/meraki/meraki_vpn_brute_force.yml": false,
+        "rules/cisco/meraki/rogue_ssid_detection.yml": false,
+        "rules/cisco/meraki/wireless_intrusion_attempts.yml": false
+      }
+    },
+    {
+      "name": "isolated outcome control: meraki_ip_flow_start",
+      "filter": "cisco/meraki.yml",
+      "input": {
+        "log": {
+          "nativeFormat": "true",
+          "merakiGroup": "ip_flow_start"
+        }
+      },
+      "expected": {
+        "actionResult": "success"
+      },
+      "absent": [],
+      "rules": {
+        "rules/cisco/meraki/advanced_malware_protection_alerts.yml": false,
+        "rules/cisco/meraki/air_marshal_rogue_ap.yml": false,
+        "rules/cisco/meraki/evil_twin_ap_detection.yml": false,
+        "rules/cisco/meraki/intrusion_detection_alerts.yml": false,
+        "rules/cisco/meraki/meraki_vpn_brute_force.yml": false,
+        "rules/cisco/meraki/rogue_ssid_detection.yml": false,
+        "rules/cisco/meraki/wireless_intrusion_attempts.yml": false
+      }
+    },
+    {
+      "name": "isolated outcome control: meraki_ip_flow_end",
+      "filter": "cisco/meraki.yml",
+      "input": {
+        "log": {
+          "nativeFormat": "true",
+          "merakiGroup": "ip_flow_end"
+        }
+      },
+      "expected": {},
+      "absent": [
+        "actionResult"
+      ],
+      "rules": {
+        "rules/cisco/meraki/advanced_malware_protection_alerts.yml": false,
+        "rules/cisco/meraki/air_marshal_rogue_ap.yml": false,
+        "rules/cisco/meraki/evil_twin_ap_detection.yml": false,
+        "rules/cisco/meraki/intrusion_detection_alerts.yml": false,
+        "rules/cisco/meraki/meraki_vpn_brute_force.yml": false,
+        "rules/cisco/meraki/rogue_ssid_detection.yml": false,
+        "rules/cisco/meraki/wireless_intrusion_attempts.yml": false
+      }
+    },
+    {
+      "name": "isolated outcome control: meraki_cellular_up_notice",
+      "filter": "cisco/meraki.yml",
+      "input": {
+        "log": {
+          "nativeFormat": "true",
+          "merakiGroup": "events",
+          "connectionState": "up"
+        }
+      },
+      "expected": {},
+      "absent": [
+        "actionResult"
+      ],
+      "rules": {
+        "rules/cisco/meraki/advanced_malware_protection_alerts.yml": false,
+        "rules/cisco/meraki/air_marshal_rogue_ap.yml": false,
+        "rules/cisco/meraki/evil_twin_ap_detection.yml": false,
+        "rules/cisco/meraki/intrusion_detection_alerts.yml": false,
+        "rules/cisco/meraki/meraki_vpn_brute_force.yml": false,
+        "rules/cisco/meraki/rogue_ssid_detection.yml": false,
+        "rules/cisco/meraki/wireless_intrusion_attempts.yml": false
+      }
     }
   ]
 }

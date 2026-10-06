@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.1.0
 
 dataTypes:
   - wineventlog
@@ -28,17 +28,6 @@ description: |
   9. Coordinate with incident response team for full forensic analysis
 where: |
   oneOf("event.eventCode", ["4663","4656"]) && (contains("event.eventDataObjectName", "ntds.dit") || endsWith("event.eventDataProcessName", "ntdsutil.exe")) && !equals("event.eventDataAccessMask", "0")
-afterEvents:
-  - indexPattern: v11-log-wineventlog-*
-    with:
-      - field: event.eventCode
-        operator: filter_term
-        value: '4663'
-      - field: dataSource.keyword
-        operator: filter_term
-        value: '{{.dataSource}}'
-    within: 30m
-    count: 2
 groupBy:
   - dataSource
 deduplicateBy: []

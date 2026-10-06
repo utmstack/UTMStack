@@ -86,7 +86,7 @@
     "dataSource": "collector-A",
     "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Content Filtering\" log_component=\"HTTP\" log_subtype=\"Allowed\" status_code=\"401\"",
     "expected": {
-      "actionResult": "denied",
+      "actionResult": "success",
       "statusCode": 401
     },
     "absent": [],
@@ -97,7 +97,7 @@
     "dataSource": "collector-A",
     "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Content Filtering\" log_component=\"HTTP\" log_subtype=\"Allowed\" status_code=\"403\"",
     "expected": {
-      "actionResult": "denied",
+      "actionResult": "success",
       "statusCode": 403
     },
     "absent": [],
@@ -108,7 +108,7 @@
     "dataSource": "collector-A",
     "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Content Filtering\" log_component=\"HTTP\" log_subtype=\"Allowed\" status_code=\"404\"",
     "expected": {
-      "actionResult": "failure",
+      "actionResult": "success",
       "statusCode": 404
     },
     "absent": [],
@@ -119,7 +119,7 @@
     "dataSource": "collector-A",
     "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Content Filtering\" log_component=\"HTTP\" log_subtype=\"Allowed\" status_code=\"500\"",
     "expected": {
-      "actionResult": "failure",
+      "actionResult": "success",
       "statusCode": 500
     },
     "absent": [],
@@ -632,7 +632,7 @@
     "dataSource": "collector-A",
     "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Event\" log_component=\"IPSec\" log_subtype=\"System\" status=\"Failed\" src_ip=\"198.51.100.4\" message=\"Could not parse IKE header\"",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []
@@ -642,7 +642,7 @@
     "dataSource": "collector-A",
     "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Event\" log_component=\"GUI\" log_subtype=\"Admin\" log_id=\"062009517502\" status=\"Failed\" src_ip=\"198.51.100.4\" user_name=\"admin\"",
     "expected": {
-      "actionResult": "failure"
+      "actionResult": "failed"
     },
     "absent": [],
     "matches": []
@@ -890,6 +890,122 @@
     "absent": [
       "event.logMessage",
       "event.message"
+    ],
+    "matches": []
+  },
+  {
+    "name": "web-content-policy-deny",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_id=058420116010 log_type=\"Content Filtering\" log_component=\"Web Content Policy\" log_subtype=\"Alert\" user=\"alice\" src_ip=192.0.2.40 website=\"blocked.example.test\" action=\"Deny\"",
+    "expected": {
+      "actionResult": "denied",
+      "origin.ip": "192.0.2.40"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "web-content-policy-allow-has-no-outcome",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_id=058420116010 log_type=\"Content Filtering\" log_component=\"Web Content Policy\" log_subtype=\"Alert\" user=\"alice\" src_ip=192.0.2.40 website=\"allowed.example.test\" action=\"Allow\"",
+    "expected": {},
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "ssl-inspection-error-is-failed",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_id=058535619017 log_type=\"Content Filtering\" log_component=\"SSL\" log_subtype=\"Error\" src_ip=192.0.2.30 dst_ip=203.0.113.30 src_port=50000 dst_port=443 sni=\"site.example.test\" reason=\"Server did not respond to client hello\"",
+    "expected": {
+      "actionResult": "failed",
+      "target.ip": "203.0.113.30"
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "ssl-do-not-decrypt-has-no-outcome",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_id=058534619004 log_type=\"Content Filtering\" log_component=\"SSL\" log_subtype=\"Do not decrypt\" src_ip=192.0.2.30 dst_ip=203.0.113.30 src_port=50000 dst_port=443 sni=\"site.example.test\"",
+    "expected": {},
+    "absent": [
+      "actionResult"
+    ],
+    "matches": []
+  },
+  {
+    "name": "waf-block-reason-wins-over-status",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"WAF\" log_component=\"Web Application Firewall\" sourceip=\"198.51.100.21\" localip=\"192.0.2.21\" url=\"/admin\" httpstatus=\"500\" reason=\"Static URL Hardening\" method=\"GET\"",
+    "expected": {
+      "actionResult": "denied",
+      "statusCode": 500
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "waf-passed-request-server-401-is-denied",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"WAF\" log_component=\"Web Application Firewall\" sourceip=\"198.51.100.22\" localip=\"192.0.2.22\" url=\"/login\" httpstatus=\"401\" reason=\"-\" method=\"POST\"",
+    "expected": {
+      "actionResult": "denied",
+      "statusCode": 401
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "waf-passed-request-server-502-is-failed",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"WAF\" log_component=\"Web Application Firewall\" sourceip=\"198.51.100.23\" localip=\"192.0.2.23\" url=\"/app\" httpstatus=\"502\" reason=\"-\" method=\"GET\"",
+    "expected": {
+      "actionResult": "failed",
+      "statusCode": 502
+    },
+    "absent": [],
+    "matches": []
+  },
+  {
+    "name": "quoted-user-agent-cannot-set-outcome-or-host",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"WAF\" log_component=\"Web Application Firewall\" sourceip=\"198.51.100.24\" localip=\"192.0.2.24\" url=\"/\" httpstatus=\"403\" reason=\"-\" method=\"GET\" useragent=\"Mozilla/5.0 statusCode=200 clientHostName=forged.example.test\"",
+    "expected": {
+      "actionResult": "denied",
+      "statusCode": 403,
+      "log.userAgent": "Mozilla/5.0 statusCode=200 clientHostName=forged.example.test"
+    },
+    "absent": [
+      "origin.host"
+    ],
+    "matches": []
+  },
+  {
+    "name": "quoted-subject-cannot-set-domain-or-time",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"Anti-Spam\" log_component=\"SMTP\" log_subtype=\"Probable Spam\" spamaction=\"WARN\" from_email_address=\"sender@example.test\" to_email_address=\"recipient@example.test\" email_subject=\"Offer timesTamp=2001-01-01T00:00:00-0400 domainName=forged.example.test\"",
+    "expected": {
+      "target.emailSubject": "Offer timesTamp=2001-01-01T00:00:00-0400 domainName=forged.example.test",
+      "deviceTime": "2026-08-02T10:11:12-03:00"
+    },
+    "absent": [
+      "actionResult",
+      "target.domain"
+    ],
+    "matches": []
+  },
+  {
+    "name": "quoted-user-agent-cannot-set-subtype",
+    "dataSource": "collector-A",
+    "raw": "<30>device=\"SFW\" date=2026-08-02 time=10:11:12 timezone=\"-03\" device_name=\"XG-test\" device_id=\"lab-A\" log_type=\"WAF\" log_component=\"Web Application Firewall\" sourceip=\"198.51.100.25\" localip=\"192.0.2.25\" url=\"/\" httpstatus=\"200\" reason=\"-\" method=\"GET\" useragent=\"Mozilla/5.0 subType=Denied (compatible)\"",
+    "expected": {
+      "actionResult": "success",
+      "statusCode": 200
+    },
+    "absent": [
+      "log.subType"
     ],
     "matches": []
   }

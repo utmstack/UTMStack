@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.1.0
 
 dataTypes:
   - macos
@@ -14,7 +14,7 @@ references:
   - https://www.sentinelone.com/blog/macos-malware-researchers-how-to-bypass-xprotect-on-catalina/
   - https://attack.mitre.org/techniques/T1562/001/
 description: |
-  Detects attempts to evade or tamper with XProtect malware detection including modification of XProtect files, databases, or YARA rules. XProtect is Apple's built-in antimalware system, and attempts to bypass or disable it indicate potential malicious activity.
+  Detects attempts to evade or tamper with XProtect malware detection including modification of XProtect files, databases, or YARA rules. XProtect is Apple's built-in antimalware system, and attempts to bypass or disable it indicate potential malicious activity. XProtect's own service is recognised whatever the letter case of its name (macOS logs it as XprotectService). One alert is raised per Mac and process; repeats are suppressed for seven days.
 
   Next Steps:
   1. Immediately investigate the affected system and user account for signs of compromise
@@ -42,7 +42,7 @@ where: |
     regexMatch("event.message", ".*XProtect\\.(yara|meta\\.plist|bundle).*") &&
     (
       regexMatch("event.message", ".*(modify|tamper|delete).*") ||
-      (exists("origin.process") && !equals("origin.process", "XProtectService"))
+      (exists("origin.process") && !equalsIgnoreCase("origin.process", "XProtectService"))
     )
   ) ||
   (
@@ -57,6 +57,6 @@ where: |
     equals("event.subsystem", "com.apple.MRT") &&
     (contains("event.message", "bypass") || contains("event.message", "disable") || contains("event.message", "fail"))
   )
-groupBy:
+deduplicateBy:
+  - dataSource
   - adversary.process
-  - adversary.host

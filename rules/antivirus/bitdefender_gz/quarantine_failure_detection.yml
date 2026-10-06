@@ -1,4 +1,4 @@
-# Rule version v3.0.0
+# Rule version v3.0.1
 
 dataTypes:
 - antivirus-bitdefender-gz
@@ -16,11 +16,11 @@ references:
 - https://attack.mitre.org/techniques/T1562/001/
 description: 'An AntiMalware event reports failure to remediate (still present), or reports a positive present-malware counter while
   quarantine and cleaned counters are zero. This establishes a remediation concern, not that a process executed or the endpoint is compromised.
-  Ignored and report-only actions alone are not mapped to failure. Review the complete counters and vendor final action, object type,
+  Ignored and report-only actions alone are not mapped to failed. Review the complete counters and vendor final action, object type,
   file/process and endpoint state; prioritize containment if active compromise is confirmed or strongly supported.
 
   '
-where: "equals(\"event.eventType\", \"AntiMalware\") &&\n(\n  oneOf(\"actionResult\", [\"failure\", \"failed\"]) ||\n  (greaterOrEqual(\"\
+where: "equals(\"event.eventType\", \"AntiMalware\") &&\n(\n  equals(\"actionResult\", \"failed\") ||\n  (greaterOrEqual(\"\
   event.BitdefenderGZPresentMalwareCnt\", 1) &&\n   equals(\"event.BitdefenderGZQuarantinedMalwareCnt\", 0) &&\n   equals(\"event.BitdefenderGZCleanedMalwareCnt\"\
   , 0))\n)\n"
 groupBy:

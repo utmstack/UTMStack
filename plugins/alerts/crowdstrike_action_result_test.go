@@ -2,9 +2,11 @@ package main
 
 // Ordered-step model of the CrowdStrike sign-in address and outcome steps, run
 // with this module's go-sdk CEL. It models only the renames that precede those
-// steps (SourceIp/LocalIP to origin.ip, Success to event.eventSuccess and the
-// float response code). The raw fixture lines are replayed through the isolated
-// EventProcessor parser separately; this test does not execute raw parsing.
+// steps (SourceIp/LocalIP to origin.ip, Success to event.eventSuccess, the float
+// response code and the detection disposition description and flags). The raw
+// fixture lines are replayed through the isolated EventProcessor parser
+// separately; this test does not execute raw parsing. The filter writes only
+// success, failed or denied, or no value.
 import (
 	"encoding/json"
 	"fmt"
@@ -113,7 +115,36 @@ func crowdstrikeModel(t *testing.T, raw string) map[string]any {
 	if v, ok := in.Event["UserIp"]; ok {
 		logFields["event"] = map[string]any{"UserIp": v}
 	}
+	// Detection disposition: PatternDispositionDescription and each
+	// PatternDispositionFlags.<Name> are renamed to event.eventPatternDisposition*.
+	if v, ok := in.Event["PatternDispositionDescription"]; ok {
+		logFields["eventPatternDispositionDescription"] = v
+	}
+	if flags, ok := in.Event["PatternDispositionFlags"].(map[string]any); ok {
+		for name, v := range flags {
+			logFields["eventPatternDispositionFlags"+name] = v
+		}
+	}
 	return event
+}
+
+// crowdstrikeCheckModeledRenames fails when the model writes a disposition
+// field that no rename step of the filter produces.
+func crowdstrikeCheckModeledRenames(t *testing.T, cfg *plugins.Config, event map[string]any) {
+	t.Helper()
+	targets := map[string]bool{}
+	for _, stage := range cfg.Pipeline {
+		for _, step := range stage.Steps {
+			if r := step.Rename; r != nil {
+				targets[r.To] = true
+			}
+		}
+	}
+	for key := range event["event"].(map[string]any) {
+		if strings.HasPrefix(key, "eventPatternDisposition") && !targets["event."+key] {
+			t.Fatalf("model writes event.%s, which the filter never renames", key)
+		}
+	}
 }
 
 func crowdstrikeApply(t *testing.T, cfg *plugins.Config, cache *plugins.CELCache, event map[string]any) {
@@ -165,6 +196,7 @@ func TestCrowdStrikeActionResultContract(t *testing.T) {
 	for _, tc := range crowdstrikeCases(t) {
 		t.Run(tc.Name, func(t *testing.T) {
 			event := crowdstrikeModel(t, tc.Raw)
+			crowdstrikeCheckModeledRenames(t, cfg, event)
 			crowdstrikeApply(t, cfg, cache, event)
 			got, exists := event["actionResult"]
 			if tc.Result == "" && exists {
@@ -185,7 +217,10 @@ func TestCrowdStrikeActionResultContract(t *testing.T) {
 					t.Fatalf("%s should be absent", path)
 				}
 			}
-			for _, result := range []string{"success", "failure", "denied"} {
+			if exists && got != "success" && got != "failed" && got != "denied" {
+				t.Fatalf("actionResult %v is not success, failed or denied", got)
+			}
+			for _, result := range []string{"success", "failed", "denied"} {
 				matched, err := cache.Eval(`equals("actionResult","`+result+`")`, string(state))
 				if err != nil || matched != (tc.Result == result) {
 					t.Errorf("%s predicate = %v (%v)", result, matched, err)
@@ -226,7 +261,7 @@ func TestCrowdStrikeBruteForceHistory(t *testing.T) {
 	queries := 0
 	mapping := map[string]any{"properties": map[string]any{
 		"origin":     map[string]any{"properties": map[string]any{"ip": map[string]any{"type": "text", "fields": map[string]any{"keyword": map[string]any{"type": "keyword"}}}}},
-		"event":      map[string]any{"properties": map[string]any{"eventSuccess": map[string]any{"type": "boolean"}}},
+		"event":        map[string]any{"properties": map[string]any{"eventSuccess": map[string]any{"type": "boolean"}}},
 		"@timestamp": map[string]any{"type": "date"},
 	}}
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

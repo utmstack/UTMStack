@@ -1,4 +1,4 @@
-# Deceptive Bytes filter, version 3.0.4
+# Deceptive Bytes filter, version 3.0.5
 # Based on previous version of the same filter
 
 pipeline:
@@ -453,13 +453,24 @@ pipeline:
           source: event.pidStatusToKv
           where: exists("event.pidStatusToKv")
 
-      # Adding action result
+      # CEF src is the address the activity came from. It is mapped only when the
+      # record also carries its action (act or action), so a record whose action
+      # could not be read never gets an address without its outcome.
+      - rename:
+          from:
+            - event.src
+          to: origin.ip
+          where: 'contains("raw", "CEF:") && exists("event.src") && (exists("event.act") || exists("event.action")) && !equals("event.src", "0.0.0.0") && !equals("event.src", "::") && (inCIDR("event.src", "0.0.0.0/0") || inCIDR("event.src", "::/0"))'
+
+      # Adding action result: only success, failed or denied. CEF carries the
+      # device action in act; key=value lines use action. The vendor's letter
+      # case is not documented, so the words are matched without case.
       - add:
           function: string
           params:
             key: actionResult
             value: "denied"
-          where: 'exists("event.action") && oneOf("event.action", ["blocked", "prevented"])'
+          where: '(exists("event.act") && regexMatch("event.act", "(?i)^(blocked|block|prevented|denied|deny)$")) || (exists("event.action") && regexMatch("event.action", "(?i)^(blocked|block|prevented|denied|deny)$"))'
 
       # Adding severity based on log.severityLabelCharacter
       - add:

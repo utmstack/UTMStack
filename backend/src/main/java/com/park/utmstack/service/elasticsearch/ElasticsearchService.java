@@ -449,11 +449,11 @@ public class ElasticsearchService {
             SearchRequest request = new SearchRequest.Builder()
                     .index(indexPattern)
                     .query(q -> q.terms(t -> t
-                            .field("parentId")
+                            .field(Constants.alertParentIdKeyword)
                             .terms(tf -> tf.value(parentIds.stream().map(FieldValue::of).collect(Collectors.toList())))))
                     .size(0)
                     .aggregations("by_parent", agg -> agg
-                            .terms(t -> t.field("parentId").size(parentIds.size()))
+                            .terms(t -> t.field(Constants.alertParentIdKeyword).size(parentIds.size()))
                             .aggregations("latest", th -> th.topHits(t -> t
                                     .size(1)
                                     .sort(s -> s.field(f -> f.field("@timestamp").order(SortOrder.Desc))))))

@@ -315,7 +315,7 @@ func TestWindowsRawContracts(t *testing.T) {
 				t.Error("raw changed")
 			}
 			for name, r := range rules {
-				if len(r.Correlation) == 0 || !strings.Contains(r.Where, "event.authenticationSourceDomain") {
+				if !winUsesCandidateMarker(r) {
 					continue
 				}
 				matched, e := cache.Eval(r.Where, out)
@@ -367,7 +367,7 @@ func TestWindowsRawContracts(t *testing.T) {
 func winHistoryMatches(t *testing.T, query string, event string) bool {
 	t.Helper()
 	clauses := append(gjson.Get(query, "query.bool.filter").Array(), gjson.Get(query, "query.bool.must").Array()...)
-	if len(clauses) < 5 {
+	if len(clauses) < 4 {
 		t.Errorf("missing history constraints: %s", query)
 	}
 	for _, term := range clauses {
@@ -411,7 +411,7 @@ func TestWindowsSDKHistory(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		if strings.HasSuffix(r.URL.Path, "/_mapping") {
-			_, _ = w.Write([]byte(`{"v11-log-wineventlog-test":{"mappings":{"properties":{"@timestamp":{"type":"date"},"dataSource":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"event":{"properties":{"authenticationSource":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"authenticationSourceType":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"eventCode":{"type":"long"},"eventDataTicketEncryptionType":{"type":"long"},"eventDataPreAuthType":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"authenticationSourceDomain":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"authenticationCandidate":{"properties":{"kerberoastingDetection":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"asrepRoastingDetection":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"silverTicketDetection":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"goldenTicketDetection":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"adfsAuthenticationAnomalies":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"bruteforceAttack":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"bruteforceMultipleLogonFailureFollowedBySuccess":{"type":"text","fields":{"keyword":{"type":"keyword"}}}}}}},"target":{"properties":{"user":{"type":"text","fields":{"keyword":{"type":"keyword"}}}}}}}}}`))
+			_, _ = w.Write([]byte(`{"v11-log-wineventlog-test":{"mappings":{"properties":{"@timestamp":{"type":"date"},"dataSource":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"event":{"properties":{"authenticationSource":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"eventCode":{"type":"long"},"eventDataTicketEncryptionType":{"type":"long"},"eventDataPreAuthType":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"authenticationCandidate":{"properties":{"kerberoastingDetection":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"asrepRoastingDetection":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"silverTicketDetection":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"goldenTicketDetection":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"adfsAuthenticationAnomalies":{"type":"text","fields":{"keyword":{"type":"keyword"}}}}}}},"target":{"properties":{"user":{"type":"text","fields":{"keyword":{"type":"keyword"}}}}}}}}}`))
 			return
 		}
 		requests++
@@ -490,7 +490,10 @@ func TestWindowsSDKHistory(t *testing.T) {
 					if e != nil || !ok {
 						t.Fatalf("%s threshold result=%v error=%v", name, ok, e)
 					}
-					for _, field := range []string{"dataSource", "event.authenticationSource", "event.authenticationSourceType", "event.authenticationSourceDomain", "event.authenticationCandidate", "event.eventCode"} {
+					// Every exact term of the search must separate: history that
+					// differs in any one of them cannot fill the threshold.
+					for _, term := range search.With {
+						field := strings.TrimSuffix(term.Field, ".keyword")
 						history = nil
 						for i := uint64(0); i < search.Count; i++ {
 							history = append(history, mutate(previous, field, "different"))
@@ -509,16 +512,42 @@ func TestWindowsSDKHistory(t *testing.T) {
 						t.Fatalf("%s expired history result=%v error=%v", name, ok, e)
 					}
 				}
-				for _, field := range []string{"event.authenticationSource", "event.authenticationSourceType", "event.authenticationSourceDomain"} {
-					missing := mutate(trigger, field, nil)
+				if winSearchesField(r, "event.authenticationSource.keyword") {
+					missing := mutate(trigger, "event.authenticationSource", nil)
 					ok, e := cache.Eval(r.Where, missing)
 					if e != nil || ok {
-						t.Errorf("%s accepted missing %s", name, field)
+						t.Errorf("%s accepted missing event.authenticationSource", name)
 					}
 				}
 			}
 		})
 	}
+	// Password spraying: failures from one source against different accounts
+	// fill the brute-force threshold, while the success rule still needs the
+	// failures to belong to the account that finally logged on.
+	fixtures := map[string]winFixture{}
+	for _, f := range winFixtures(t) {
+		fixtures[f.Name] = f
+	}
+	failure := fixtures["bruteforce_attack ipv4"]
+	sprayTrigger := winParse(t, cfg, failure.Raw, failure.DataSource, cache)
+	brute := rules["bruteforce_attack"].Correlation[0]
+	history = nil
+	for i := uint64(0); i < brute.Count; i++ {
+		previous := mutate(sprayTrigger, "@timestamp", time.Now().Add(-time.Minute).UTC().Format(time.RFC3339Nano))
+		previous = mutate(previous, "target.user", fmt.Sprintf("user%d", i))
+		previous = mutate(previous, "origin.user", fmt.Sprintf("user%d", i))
+		history = append(history, previous)
+	}
+	if ok, _, e := brute.Execute(&sprayTrigger); e != nil || !ok {
+		t.Fatalf("spray from one source did not fill the brute-force threshold result=%v error=%v", ok, e)
+	}
+	logon := fixtures["bruteforce_multiple_logon_failure_followed_by_success ipv4"]
+	successTrigger := winParse(t, cfg, logon.Raw, logon.DataSource, cache)
+	if ok, _, e := rules["bruteforce_multiple_logon_failure_followed_by_success"].Correlation[0].Execute(&successTrigger); e != nil || ok {
+		t.Fatalf("success rule counted failures of other accounts result=%v error=%v", ok, e)
+	}
+
 	// Reproduce the original regression with the actual SDK. An `or` sibling
 	// cannot rescue this: Execute returns before it reaches Or on missing IP.
 	before := requests
@@ -609,6 +638,29 @@ func TestWindowsPrivateEvidence(t *testing.T) {
 		}
 	}
 	t.Logf("private unique raw samples=%d projected IP-less=%d standard field mismatches in stored output=%v projected CEL candidates=%v", samples, ipless, observed, matches)
+}
+
+// A rule relies on a filter marker when its history search requires one.
+func winUsesCandidateMarker(r *plugins.Rule) bool {
+	for _, search := range r.Correlation {
+		for _, term := range search.With {
+			if strings.HasPrefix(term.Field, "event.authenticationCandidate.") {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func winSearchesField(r *plugins.Rule, field string) bool {
+	for _, search := range r.Correlation {
+		for _, term := range search.With {
+			if term.Field == field {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func winCandidateField(ruleName string) string {

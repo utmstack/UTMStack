@@ -31,6 +31,107 @@
         "event.message"
       ],
       "rules": {}
+    },
+    {
+      "name": "utmstack_signin_authorize_attempt",
+      "filter": "utmstack/utmstack.yml",
+      "raw": "{\"timestamp\":\"2026-09-27T10:00:00.000Z\",\"severity\":\"INFO\",\"msg\":\"UserJWTController.authorize: Authentication attempt registered\",\"args\":{\"username\":\"anonymous\",\"method\":\"POST\",\"path\":\"/api/authenticate\",\"remoteAddr\":\"172.18.0.5\",\"context\":\"UserJWTController.authorize\",\"traceId\":\"00000000-0000-4000-8000-0000000000c1\",\"loginAttempt\":\"jane.doe\",\"layer\":\"CONTROLLER\"},\"containerName\":\"utmstack_backend\"}",
+      "dataType": "utmstack",
+      "dataSource": "utmstack-lab",
+      "expected": {},
+      "absent": [
+        "origin.ip",
+        "actionResult",
+        "origin.user"
+      ],
+      "rules": {}
+    },
+    {
+      "name": "utmstack_signin_authorize_bad_credentials",
+      "filter": "utmstack/utmstack.yml",
+      "raw": "{\"timestamp\":\"2026-09-27T10:00:00.000Z\",\"severity\":\"ERROR\",\"msg\":\"UserJWTController.authorize: Bad credentials\",\"args\":{\"username\":\"anonymous\",\"method\":\"POST\",\"path\":\"/api/authenticate\",\"remoteAddr\":\"172.18.0.5\",\"context\":\"UserJWTController.authorize\",\"traceId\":\"00000000-0000-4000-8000-0000000000c1\"},\"containerName\":\"utmstack_backend\"}",
+      "dataType": "utmstack",
+      "dataSource": "utmstack-lab",
+      "expected": {
+        "actionResult": "failed"
+      },
+      "absent": [
+        "origin.ip",
+        "origin.user"
+      ],
+      "rules": {}
+    },
+    {
+      "name": "utmstack_signin_authorize_login_success",
+      "filter": "utmstack/utmstack.yml",
+      "raw": "{\"timestamp\":\"2026-09-27T10:00:00.000Z\",\"severity\":\"INFO\",\"msg\":\"UserJWTController.authorize: Login successfully completed for user 'jane.doe'\",\"args\":{\"username\":\"jane.doe\",\"method\":\"POST\",\"path\":\"/api/authenticate\",\"remoteAddr\":\"172.18.0.5\",\"context\":\"UserJWTController.authorize\",\"traceId\":\"00000000-0000-4000-8000-0000000000c1\"},\"containerName\":\"utmstack_backend\"}",
+      "dataType": "utmstack",
+      "dataSource": "utmstack-lab",
+      "expected": {
+        "actionResult": "success",
+        "origin.user": "jane.doe"
+      },
+      "absent": [
+        "origin.ip"
+      ],
+      "rules": {}
+    },
+    {
+      "name": "utmstack_signin_authorize_login_success_anonymous_args",
+      "filter": "utmstack/utmstack.yml",
+      "raw": "{\"timestamp\":\"2026-09-27T10:00:00.000Z\",\"severity\":\"INFO\",\"msg\":\"UserJWTController.authorize: Login successfully completed for user 'svc.reader'\",\"args\":{\"username\":\"anonymous\",\"method\":\"POST\",\"path\":\"/api/authenticate\",\"remoteAddr\":\"172.18.0.5\",\"context\":\"UserJWTController.authorize\",\"traceId\":\"00000000-0000-4000-8000-0000000000c1\"},\"containerName\":\"utmstack_backend\"}",
+      "dataType": "utmstack",
+      "dataSource": "utmstack-lab",
+      "expected": {
+        "actionResult": "success"
+      },
+      "absent": [
+        "origin.ip",
+        "origin.user"
+      ],
+      "rules": {}
+    },
+    {
+      "name": "utmstack_signin_authorize_tfa_challenge",
+      "filter": "utmstack/utmstack.yml",
+      "raw": "{\"timestamp\":\"2026-09-27T10:00:00.000Z\",\"severity\":\"INFO\",\"msg\":\"UserJWTController.authorize: TFA challenge issued for user 'jane.doe' via method 'EMAIL'\",\"args\":{\"username\":\"jane.doe\",\"method\":\"POST\",\"path\":\"/api/authenticate\",\"remoteAddr\":\"172.18.0.5\",\"context\":\"UserJWTController.authorize\",\"traceId\":\"00000000-0000-4000-8000-0000000000c1\",\"tfaMethod\":\"EMAIL\"},\"containerName\":\"utmstack_backend\"}",
+      "dataType": "utmstack",
+      "dataSource": "utmstack-lab",
+      "expected": {},
+      "absent": [
+        "origin.ip",
+        "actionResult",
+        "origin.user"
+      ],
+      "rules": {}
+    },
+    {
+      "name": "utmstack_signin_other_context_bad_credentials",
+      "filter": "utmstack/utmstack.yml",
+      "raw": "{\"timestamp\":\"2026-09-27T10:00:00.000Z\",\"severity\":\"ERROR\",\"msg\":\"UserJWTController.checkPassword: Bad credentials\",\"args\":{\"username\":\"anonymous\",\"method\":\"POST\",\"path\":\"/api/check-credentials\",\"remoteAddr\":\"172.18.0.5\",\"context\":\"UserJWTController.checkPassword\",\"traceId\":\"00000000-0000-4000-8000-0000000000c1\"},\"containerName\":\"utmstack_backend\"}",
+      "dataType": "utmstack",
+      "dataSource": "utmstack-lab",
+      "expected": {},
+      "absent": [
+        "origin.ip",
+        "actionResult",
+        "origin.user"
+      ],
+      "rules": {}
+    },
+    {
+      "name": "utmstack_signin_embedded_success_text",
+      "filter": "utmstack/utmstack.yml",
+      "raw": "{\"timestamp\":\"2026-09-27T10:00:00.000Z\",\"severity\":\"ERROR\",\"msg\":\"ElasticsearchResource.search: query text UserJWTController.authorize: Login successfully completed for user 'x'\",\"args\":{\"username\":\"anonymous\",\"method\":\"POST\",\"path\":\"/api/authenticate\",\"remoteAddr\":\"172.18.0.5\",\"context\":\"UserJWTController.authorize\",\"traceId\":\"00000000-0000-4000-8000-0000000000c1\"},\"containerName\":\"utmstack_backend\"}",
+      "dataType": "utmstack",
+      "dataSource": "utmstack-lab",
+      "expected": {},
+      "absent": [
+        "origin.ip",
+        "actionResult",
+        "origin.user"
+      ],
+      "rules": {}
     }
   ]
 }

@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.1.0
 
 dataTypes:
   - vmware-esxi
@@ -14,7 +14,7 @@ references:
   - https://kb.vmware.com/s/article/2003322
   - https://attack.mitre.org/techniques/T1562/002/
 description: |
-  Detects attempts to disable or modify ESXi syslog forwarding to prevent security monitoring. Attackers disable syslog to operate without detection by the SIEM.
+  Detects attempts to disable or modify ESXi syslog forwarding to prevent security monitoring. Attackers disable syslog to operate without detection by the SIEM. ESXi also reports here when the remote log host becomes unreachable. One alert is raised per ESXi host; repeats are suppressed for seven days.
 
   Next Steps:
   1. Verify the syslog configuration change was authorized
@@ -36,5 +36,5 @@ where: |
     (contains("event.message", "syslog") && contains("event.message", "disabled")) ||
     (contains("event.message", "Syslog.global.logHost") && contains("event.message", "changed"))
   )
-groupBy:
-  - adversary.hostname
+deduplicateBy:
+  - dataSource

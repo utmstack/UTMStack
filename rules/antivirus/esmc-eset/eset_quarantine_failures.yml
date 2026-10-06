@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.0.1
 
 dataTypes:
   - antivirus-esmc-eset
@@ -24,7 +24,7 @@ description: |
   5. Consider isolating the endpoint for manual remediation
   6. Run a boot-time scan if available
 where: |
-  (equals("event.eventType", "Threat_Event") && equals("actionResult", "failure") &&
+  (equals("event.eventType", "Threat_Event") && equals("actionResult", "failed") &&
   regexMatch("event.action_error", "(?s).+") &&
   (regexMatch("action", "(?i)(quarantin|clean)") || regexMatch("event.action_error", "(?i)(quarantin|clean)"))) &&
   exists("dataSource") && !oneOf("dataSource", ["", "unknown", "-"]) &&
