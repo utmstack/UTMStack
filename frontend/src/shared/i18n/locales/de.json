@@ -3995,6 +3995,7 @@
       "impact_confidentiality": "Vertraulichkeit",
       "impact_integrity": "Integrität",
       "incidentDetail_incidentName": "Vorfallsname",
+      "incidentDetail_incidentId": "Vorfalls-ID",
       "isIncident": "Ist Vorfall",
       "name": "Alarmname",
       "notes": "Notizen",

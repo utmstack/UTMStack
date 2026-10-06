@@ -3995,6 +3995,7 @@
       "impact_confidentiality": "Riservatezza",
       "impact_integrity": "Integrità",
       "incidentDetail_incidentName": "Nome dell'incidente",
+      "incidentDetail_incidentId": "Id incidente",
       "isIncident": "È un incidente",
       "name": "Nome dell'avviso",
       "notes": "Note",
