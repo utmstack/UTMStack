@@ -6,9 +6,10 @@ package mcp
 const soarFlowGuideDoc = `# SOAR flow guide — building alert-response DAGs
 
 A SOAR rule ("flow") is a DAG of nodes that runs when an alert matches its
-trigger conditions. Build flows with soar.rule.create / soar.rule.update:
-pass conditions + roots + nodes in one call. Read an existing flow first
-with soar.rule.get (rel_path from soar.rule.list).
+trigger conditions. Create NEW flows with soar.rule.create (full flow in one
+call). MODIFY existing flows with soar.rule.update — it is PARTIAL: send only
+the fields that change, never resend the whole flow (see "Editing an existing
+flow" below).
 
 ## Node kinds — executor vs enrichment
 
@@ -93,20 +94,27 @@ and "failure path" subtrees.
 
 ## Editing an existing flow
 
-soar.rule.update is FULL REPLACE, not a patch — it overwrites conditions, roots
-and the entire nodes map. Always: soar.rule.get(rel_path) → modify the complete
-payload in memory → send everything back.
+soar.rule.update is a PARTIAL update, not a full replace:
+- omitted fields keep their current value (name, description, conditions,
+  roots, nodes, max_depth, active);
+- nodes is a MERGE by id: the ids you send are added or overwritten, every
+  other node stays as-is;
+- deleted_nodes removes ids, and the server scrubs each id from every
+  remaining node's onSuccess/onError and from roots. Never list the same id
+  in both nodes and deleted_nodes.
 
-1. **Add a node** — new id in nodes; wire it by appending that id to an
-   existing node's onSuccess or onError (or to roots if it starts at depth 0).
-2. **Change a node** — edit its entry in place; keep its id stable (other
-   nodes' edges and $(<nodeId>...) interpolations reference it).
-3. **Remove/replace a node** — delete its entry AND scrub its id from every
-   other node's onSuccess/onError and from roots. To replace, keep the id and
-   swap kind/executor/params, or delete + add under a new id and rewire edges.
-   The server does NOT validate edge consistency at write time — dangling refs
-   only surface at run time as dead branches, so you own referential integrity.
-4. **Enable/disable** — soar.rule.set_enabled(rel_path, enabled); no payload
+So: soar.rule.get(rel_path) once, then send only the delta. Typical edits:
+
+1. **Add a node** — send nodes: {"new_id": {...}}; if it wires off an
+   existing node, also send that existing node with new_id appended to its
+   onSuccess or onError. A new root: send roots: [current roots + new_id].
+2. **Change a node** — send nodes: {"same_id": {updated node}}. Keep the id
+   stable: other nodes' edges and $(<nodeId>...) interpolations reference it.
+3. **Remove a node** — send deleted_nodes: ["id"]. Edge scrubbing is done
+   for you; nothing else to send.
+4. **Change triggers** — conditions is a full replace of the small list, so
+   send the complete new conditions array.
+5. **Enable/disable** — soar.rule.set_enabled(rel_path, enabled); no payload
    needed. System-owned flows are read-only (update/delete rejected).
 
 ## Worked example — block brute-force source IP unless internal

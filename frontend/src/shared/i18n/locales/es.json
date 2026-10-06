@@ -1187,7 +1187,21 @@
       "secret.ldap": "Contraseña de conexión",
       "secretHintCreate": "Se guarda cifrada y no se vuelve a mostrar.",
       "secretHintEdit": "Déjalo en blanco para conservar la guardada.",
-      "secretUnchanged": "sin cambios"
+      "secretUnchanged": "sin cambios",
+      "errors": {
+        "required": "Este campo es obligatorio.",
+        "url": "Debe ser una URL http(s) válida.",
+        "httpsUrl": "Debe ser una URL https válida.",
+        "hostname": "Introduce un host o IP sin esquema (p. ej. ldap.ejemplo.com).",
+        "port": "El puerto debe ser un número entero entre 0 y 65535.",
+        "pemCertificate": "No parece un certificado PEM (faltan -----BEGIN/END CERTIFICATE-----).",
+        "pemKey": "No parece una clave privada PEM (faltan -----BEGIN/END PRIVATE KEY-----).",
+        "userFilterPlaceholder": "El filtro debe contener %s, donde se sustituye la dirección de inicio de sesión.",
+        "userFilterUnbalanced": "Hay paréntesis desequilibrados: la búsqueda no devolverá nada.",
+        "nameFormat": "Usa letras, números, puntos, guiones o guiones bajos (máx. 64). Aparece en la URL de SSO, por lo que no admite espacios.",
+        "redirectUrl": "Debe ser una URL https válida, o una URL http de loopback (localhost / 127.0.0.1 / [::1]).",
+        "entityId": "Debe ser una URI válida, p. ej. https://utmstack.example.com/sp."
+      }
     },
     "delete": {
       "title": "Eliminar proveedor de identidad",
@@ -1240,7 +1254,17 @@
     },
     "searchPlaceholder": "Buscar por nombre de cuenta o SID…",
     "allTenants": "Todos los tenants",
-    "filters": "Filtros",
+    "filters": {
+      "add": "Añadir filtro",
+      "clearAll": "Limpiar todo",
+      "filterValues": "Filtrar valores…",
+      "loadingValues": "Cargando valores…",
+      "noValues": "No se encontraron valores.",
+      "pickValue": "Elige un valor para añadir el filtro.",
+      "empty": "(vacío)",
+      "cancel": "Cancelar",
+      "addBtn": "Añadir"
+    },
     "filterFields": {
       "status": "Estado de ciclo de vida"
     },
