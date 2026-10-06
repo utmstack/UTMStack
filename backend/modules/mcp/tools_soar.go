@@ -19,6 +19,77 @@ func registerSOAR(m *Module) {
 	registerSOARPrompts(m)
 }
 
+func mergeFlowUpdate(cur *dto.RuleResponse, in soarRuleUpdateInput) (dto.UpdateRuleRequest, error) {
+	for _, id := range in.DeletedNodes {
+		if _, ok := in.Nodes[id]; ok {
+			return dto.UpdateRuleRequest{}, fmt.Errorf("node %q appears in both nodes and deleted_nodes", id)
+		}
+	}
+
+	nodes := make(map[string]dto.FlowNodeVM, len(cur.Nodes))
+	for id, n := range cur.Nodes {
+		if _, del := in.Nodes[id]; del || nodeInList(in.DeletedNodes, id) {
+			continue
+		}
+		n.OnSuccess = scrubEdges(n.OnSuccess, in.DeletedNodes)
+		n.OnError = scrubEdges(n.OnError, in.DeletedNodes)
+		nodes[id] = n
+	}
+	for id, n := range in.Nodes {
+		nodes[id] = n
+	}
+
+	roots := cur.Roots
+	if in.Roots != nil {
+		roots = *in.Roots
+	}
+	roots = scrubEdges(roots, in.DeletedNodes)
+
+	req := dto.UpdateRuleRequest{
+		Name:        cur.Name,
+		Description: cur.Description,
+		Conditions:  cur.Conditions,
+		Roots:       roots,
+		Nodes:       nodes,
+		MaxDepth:    cur.MaxDepth,
+	}
+	if in.Name != nil {
+		req.Name = *in.Name
+	}
+	if in.Description != nil {
+		req.Description = *in.Description
+	}
+	if in.Conditions != nil {
+		req.Conditions = *in.Conditions
+	}
+	if in.MaxDepth != nil {
+		req.MaxDepth = *in.MaxDepth
+	}
+	if in.Active != nil {
+		req.Active = in.Active
+	}
+	return req, nil
+}
+
+func nodeInList(ids []string, id string) bool {
+	for _, x := range ids {
+		if x == id {
+			return true
+		}
+	}
+	return false
+}
+
+func scrubEdges(edges []string, deleted []string) []string {
+	out := make([]string, 0, len(edges))
+	for _, e := range edges {
+		if !nodeInList(deleted, e) {
+			out = append(out, e)
+		}
+	}
+	return out
+}
+
 // ---- soar.rule.* -----------------------------------------------------------
 
 type soarRuleCreateInput struct {
@@ -32,15 +103,15 @@ type soarRuleCreateInput struct {
 }
 
 type soarRuleUpdateInput struct {
-	RelPath     string                    `json:"rel_path"`
-	ID          *int64                    `json:"id,omitempty"`
-	Name        string                    `json:"name"`
-	Description string                    `json:"description,omitempty"`
-	Conditions  []dto.FilterVM            `json:"conditions"`
-	Roots       []string                  `json:"roots"`
-	Nodes       map[string]dto.FlowNodeVM `json:"nodes"`
-	MaxDepth    int                       `json:"max_depth,omitempty"`
-	Active      bool                      `json:"active"`
+	RelPath      string                    `json:"rel_path"`
+	Name         *string                   `json:"name,omitempty" jsonschema:"New flow name; omit to keep current"`
+	Description  *string                   `json:"description,omitempty" jsonschema:"New flow description; omit to keep current"`
+	Conditions   *[]dto.FilterVM           `json:"conditions,omitempty" jsonschema:"New trigger conditions (full replace of the list); omit to keep current"`
+	Roots        *[]string                 `json:"roots,omitempty" jsonschema:"New root node ids; omit to keep current (deleted node ids are always pruned)"`
+	Nodes        map[string]dto.FlowNodeVM `json:"nodes,omitempty" jsonschema:"Nodes to add or overwrite, keyed by id; merged over the current nodes, not a replacement"`
+	DeletedNodes []string                  `json:"deleted_nodes,omitempty" jsonschema:"Node ids to remove; their edges are scrubbed automatically. Must not overlap nodes"`
+	MaxDepth     *int                      `json:"max_depth,omitempty" jsonschema:"New max depth; omit to keep current"`
+	Active       *bool                     `json:"active,omitempty" jsonschema:"New enabled state; omit to keep current (or use soar.rule.set_enabled)"`
 }
 
 type soarRuleRelPathInput struct {
@@ -66,6 +137,8 @@ func registerSOARRules(m *Module) {
 
 	Add(m, &mcp.Tool{
 		Name: "soar.rule.create", Title: "Create SOAR rule",
+		Description: "Creates a NEW flow; the full flow (conditions, roots, nodes) is required. " +
+			"To modify an existing flow use soar.rule.update (partial) instead.",
 	}, Gate{Permission: "soar.write"},
 		func(ctx context.Context, actor *authz.Actor, in soarRuleCreateInput) (any, error) {
 			if len(in.Conditions) == 0 || len(in.Roots) == 0 || len(in.Nodes) == 0 {
@@ -81,14 +154,19 @@ func registerSOARRules(m *Module) {
 
 	Add(m, &mcp.Tool{
 		Name: "soar.rule.update", Title: "Update SOAR rule",
+		Description: "PARTIAL update: send only what changes. Omitted fields keep their current value; nodes are merged by id; deleted_nodes removes nodes and scrubs their edges. " +
+			"Read the flow with soar.rule.get first, then send just the changed pieces. Never resend the whole flow.",
 	}, Gate{Permission: "soar.write"},
 		func(ctx context.Context, actor *authz.Actor, in soarRuleUpdateInput) (any, error) {
-			active := in.Active
-			return uc.Update(ctx, in.RelPath, dto.UpdateRuleRequest{
-				ID: in.ID, Name: in.Name, Description: in.Description,
-				Conditions: in.Conditions, Roots: in.Roots, Nodes: in.Nodes,
-				MaxDepth: in.MaxDepth, Active: &active,
-			}, actor.Email)
+			cur, err := uc.Get(ctx, in.RelPath)
+			if err != nil {
+				return nil, err
+			}
+			req, err := mergeFlowUpdate(cur, in)
+			if err != nil {
+				return nil, err
+			}
+			return uc.Update(ctx, in.RelPath, req, actor.Email)
 		})
 
 	Add(m, &mcp.Tool{
@@ -170,16 +248,21 @@ func registerSOARPrompts(m *Module) {
 		if goal == "" {
 			return nil, fmt.Errorf("argument 'goal' is required")
 		}
-		text := fmt.Sprintf(`Draft a SOAR rule for this goal: %s
+		text := fmt.Sprintf(`Draft or modify a SOAR rule for this goal: %s
 
 Follow these steps, showing results as you go:
 1. Call soar.rule.list to find existing flows that could be a starting point.
-2. Call soar.variable.list to see available incident variables.
-3. Call soar.rule.resolve_filter_values to suggest valid filter fields/values.
-4. Draft the rule (name, conditions, roots, nodes) and present it to the user.
-5. Only after explicit user confirmation, call soar.rule.create with active=false so the user can review before enabling.
+2. If you will modify an existing flow, call soar.rule.get(rel_path) to read it.
+3. Call soar.variable.list to see available incident variables.
+4. Call soar.rule.resolve_filter_values to suggest valid filter fields/values.
+5. Draft the change and present it to the user before touching anything.
+6. Only after explicit user confirmation, apply it:
+   - new flow → soar.rule.create with the full flow and active=false;
+   - existing flow → soar.rule.update with PARTIAL fields only: omit what does
+     not change, use nodes to add/overwrite by id and deleted_nodes to remove.
+     Never resend the whole flow in an update.
 
-Never enable a newly created rule without asking first.`, goal)
+Never enable a rule without asking first.`, goal)
 		msg := &mcp.PromptMessage{Role: "user", Content: &mcp.TextContent{Text: text}}
 		return &mcp.GetPromptResult{Messages: []*mcp.PromptMessage{msg}}, nil
 	})
@@ -293,38 +376,6 @@ func registerSOARVariables(m *Module) {
 			}
 			return map[string]any{"id": in.ID, "deleted": true}, nil
 		})
-}
-
-// ---- soar.action.* / soar.action_command.* / soar.job.* --------------------
-
-type soarActionCreateInput struct {
-	ActionCommand     *string `json:"action_command,omitempty"`
-	ActionDescription *string `json:"action_description,omitempty"`
-	ActionParams      *string `json:"action_params,omitempty"`
-	ActionType        *int    `json:"action_type,omitempty"`
-	ActionEditable    bool    `json:"action_editable,omitempty"`
-}
-
-type soarActionUpdateInput struct {
-	ID                int64   `json:"id"`
-	ActionCommand     *string `json:"action_command,omitempty"`
-	ActionDescription *string `json:"action_description,omitempty"`
-	ActionParams      *string `json:"action_params,omitempty"`
-	ActionType        *int    `json:"action_type,omitempty"`
-	ActionEditable    bool    `json:"action_editable,omitempty"`
-}
-
-type soarActionCommandCreateInput struct {
-	ActionID   int64   `json:"action_id"`
-	OsPlatform *string `json:"os_platform,omitempty"`
-	Command    *string `json:"command,omitempty"`
-}
-
-type soarActionCommandUpdateInput struct {
-	ID         int64   `json:"id"`
-	ActionID   int64   `json:"action_id"`
-	OsPlatform *string `json:"os_platform,omitempty"`
-	Command    *string `json:"command,omitempty"`
 }
 
 // ---- soar.agent.* ----------------------------------------------------------
