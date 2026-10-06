@@ -16,8 +16,6 @@ import (
 	"github.com/utmstack/utmstack/backend/pkg/tenancy"
 )
 
-const falsePositiveTag = "False positive"
-
 const (
 	patchLimit = 10000
 	patchChunk = 250
@@ -178,6 +176,9 @@ func withHistory(entries []connectors.HistoryEntry, mutate func(map[string]any) 
 		existing, _ := doc["history"].([]any)
 		for _, entry := range pending {
 			existing = append(existing, entry)
+			if tags,ok:=entry["tags"];ok  {
+				doc["tags"]=tags.([]string)
+			}
 		}
 		doc["history"] = existing
 		return true
@@ -186,12 +187,29 @@ func withHistory(entries []connectors.HistoryEntry, mutate func(map[string]any) 
 
 func (r *chAlertRepo) UpdateStatus(ctx context.Context, alertIDs []string, status domain.AlertStatus, observation string, addFalsePositiveTag bool, history []connectors.HistoryEntry) error {
 	return r.patchByIDOrParent(ctx, alertIDs, withHistory(history, func(doc map[string]any) bool {
+
+		old := doc["status"].(string)
+		tags := stringSlice(doc["tags"])
+
+
+		if domain.AlertStatus(old) == domain.AlertStatusCompleted &&
+		   status == domain.AlertStatusOpen &&
+		   contains(tags,domain.FalsePositiveTag) {
+			newTags:= make([]string,0)
+			for _,tag := range tags{
+				if tag != domain.FalsePositiveTag{
+					newTags= append(newTags,tag)
+				}
+			}
+			doc["tags"]=newTags
+		}
+
 		doc["status"] = string(status)
 		doc["statusObservation"] = observation
+
 		if addFalsePositiveTag {
-			tags := stringSlice(doc["tags"])
-			if !contains(tags, falsePositiveTag) {
-				doc["tags"] = append(tags, falsePositiveTag)
+			if !contains(tags, domain.FalsePositiveTag) {
+				doc["tags"] = append(tags, domain.FalsePositiveTag)
 			}
 		}
 		return true
@@ -262,7 +280,7 @@ func (r *chAlertRepo) CountOpenAlerts(ctx context.Context) (int64, error) {
 	filters := []store.Filter{
 		{Field: "status", Op: store.OpEq, Value: string(domain.AlertStatusOpen)},
 		{Field: "parentId", Op: store.OpEq, Value: ""},
-		{Field: "tags", Op: store.OpNotContains, Value: falsePositiveTag},
+		{Field: "tags", Op: store.OpNotContains, Value: domain.FalsePositiveTag},
 	}
 	scope, err := alertScope(ctx)
 	if err != nil {
