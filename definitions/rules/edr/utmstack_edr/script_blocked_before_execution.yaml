@@ -5,8 +5,8 @@ dataTypes:
 name: UTMStack EDR Malicious Script Blocked
 impact:
   confidentiality: 2
-  integrity: 3
-  availability: 3
+  integrity: 2
+  availability: 1
 category: Execution, Defense Evasion
 technique: "T1059.001 - Command and Scripting Interpreter: PowerShell"
 adversary: origin

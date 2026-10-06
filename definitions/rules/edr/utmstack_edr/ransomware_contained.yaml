@@ -4,9 +4,9 @@ dataTypes:
   - utmstack_edr
 name: UTMStack EDR Ransomware Contained
 impact:
-  confidentiality: 3
-  integrity: 3
-  availability: 4
+  confidentiality: 1
+  integrity: 2
+  availability: 2
 category: Impact
 technique: "T1486 - Data Encrypted for Impact"
 adversary: origin

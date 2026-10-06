@@ -4,16 +4,16 @@ dataTypes:
   - utmstack_edr
 name: UTMStack EDR Repeated Blocked Connections (Beaconing Shape)
 impact:
-  confidentiality: 4
-  integrity: 3
-  availability: 3
+  confidentiality: 3
+  integrity: 1
+  availability: 0
 category: Command and Control
 technique: "T1071.001 - Application Layer Protocol: Web Protocols"
 adversary: origin
 references:
   - https://attack.mitre.org/techniques/T1071/001/
 description: |
-  Detects an endpoint making three or more blocked connections to the same known-bad destination (same target.ip, or target.domain when present) within 30 minutes. A single blocked connection can be a stray browser click; the shape of repeated retries to the same destination is a beacon - an implant that phones home on a schedule and does not stop because the network watcher blocks it.
+  Detects an endpoint making three or more blocked connections to the same known-bad destination (same target.ip, or target.domain when present) within 30 minutes. The count is per endpoint (dataSource) and per destination, so one compromised host beaming to one C2 fires, while the same destination being hit once by three unrelated hosts does not. A single blocked connection can be a stray browser click; the shape of repeated retries from one host to the same destination is a beacon - an implant that phones home on a schedule and does not stop because the network watcher blocks it.
 
   Next Steps:
   1. Treat this as active C2, not a blocklist hit: isolate the host from the network
@@ -29,8 +29,12 @@ correlation:
     within: 30m
     count: 3
     with:
+      - field: dataSource
+        operator: filter_term
+        value: "{{.dataSource}}"
       - field: target.ip
         operator: filter_term
         value: "{{.target.ip}}"
 groupBy:
+  - dataSource
   - target.ip
