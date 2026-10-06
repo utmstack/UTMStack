@@ -117,3 +117,58 @@ func TestPurgeAndPurgeExpired(t *testing.T) {
 		t.Fatalf("PurgeExpired = %d, %v; want 1 purged", n, err)
 	}
 }
+
+// TestQuarantinePreservesMetadata: the stored copy keeps the source file's
+// mode, and Restore() puts the original mode back on the returned file.
+// (Ownership round-trip only works as root; this test asserts the mode path,
+// which is the one that silently failed before WU3.)
+func TestQuarantinePreservesMetadata(t *testing.T) {
+	dir := t.TempDir()
+	c, err := cache.Open(filepath.Join(dir, "edr.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+	store, err := New(filepath.Join(dir, "quarantine"), c)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	src := filepath.Join(dir, "victim.bin")
+	const payload = "preserve-me"
+	if err := os.WriteFile(src, []byte(payload), 0o640); err != nil {
+		t.Fatal(err)
+	}
+	// Re-apply explicitly: umask may have altered the created mode.
+	if err := os.Chmod(src, 0o640); err != nil {
+		t.Fatal(err)
+	}
+
+	id, err := store.Quarantine(src, "hash", "Test.Meta")
+	if err != nil {
+		t.Fatal(err)
+	}
+	stored := filepath.Join(dir, "quarantine", id+".quarantined")
+	st, err := os.Stat(stored)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := st.Mode().Perm(); got != 0o640 {
+		t.Fatalf("stored copy mode = %o, want 640 (original preserved, not forced to 600)", got)
+	}
+
+	if err := store.Restore(id); err != nil {
+		t.Fatal(err)
+	}
+	back, err := os.Stat(src)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := back.Mode().Perm(); got != 0o640 {
+		t.Fatalf("restored mode = %o, want 640", got)
+	}
+	data, err := os.ReadFile(src)
+	if err != nil || string(data) != payload {
+		t.Fatalf("restored content = %q (err %v), want %q", data, err, payload)
+	}
+}

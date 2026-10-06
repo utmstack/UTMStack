@@ -39,6 +39,12 @@ type QuarantineRecord struct {
 	// admin purge or retention sweep). The audit record is kept; the file is gone.
 	Purged   bool
 	PurgedAt time.Time
+	// File metadata captured at quarantine time so Restore() can re-apply it.
+	// Zero means "unknown / not captured" (e.g. records written by an older
+	// binary or a failed stat) and Restore() skips that attribute.
+	Mode uint32
+	UID  uint32
+	GID  uint32
 }
 
 type Cache struct {

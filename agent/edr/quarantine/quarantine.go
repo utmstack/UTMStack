@@ -24,16 +24,30 @@ func New(dir string, c *cache.Cache) (*Store, error) {
 }
 
 // Quarantine moves the file into the protected store and records it.
-// It never deletes the source on failure.
+// It never deletes the source on failure. The source's file metadata
+// (mode, owner) is captured in the record so Restore() can re-apply it;
+// the stored copy keeps its original permissions — the quarantine
+// directory itself (0o700, owned by the service) is the trust boundary,
+// so rewriting the stored file's mode gains nothing and would destroy
+// the metadata Restore needs.
 func (s *Store) Quarantine(originalPath, sha256, detection string) (string, error) {
 	id := uuid.NewString()
 	dest := filepath.Join(s.dir, id+".quarantined")
 
+	// Capture metadata before the move; a stat failure is not fatal (zero
+	// values mean "unknown" and Restore skips re-applying that attribute).
+	var mode uint32
+	var uid, gid int
+	if st, err := os.Stat(originalPath); err == nil {
+		mode = uint32(st.Mode())
+		if u, g, err := fileOwner(originalPath); err == nil {
+			uid, gid = u, g
+		}
+	}
+
 	if err := moveFile(originalPath, dest); err != nil {
 		return "", fmt.Errorf("quarantine move failed: %w", err)
 	}
-	// Best-effort: strip execute/normal attributes on the stored copy.
-	_ = os.Chmod(dest, 0o600)
 
 	rec := cache.QuarantineRecord{
 		QuarantineID:  id,
@@ -43,6 +57,9 @@ func (s *Store) Quarantine(originalPath, sha256, detection string) (string, erro
 		Engine:        "UTMStack EDR",
 		QuarantinedAt: time.Now().UTC(),
 		Restorable:    true,
+		Mode:          mode,
+		UID:           uint32(uid),
+		GID:           uint32(gid),
 	}
 	if err := s.cache.StoreQuarantine(rec); err != nil {
 		// Roll the file back so we never lose it silently.
@@ -52,6 +69,9 @@ func (s *Store) Quarantine(originalPath, sha256, detection string) (string, erro
 	return id, nil
 }
 
+// Restore puts a quarantined file back to its original path and re-applies
+// the metadata captured at quarantine time. Mode is re-applied whenever it was
+// captured; ownership is re-applied best-effort (it only succeeds as root).
 func (s *Store) Restore(id string) error {
 	rec, found, err := s.cache.GetQuarantine(id)
 	if err != nil {
@@ -66,6 +86,15 @@ func (s *Store) Restore(id string) error {
 	dest := filepath.Join(s.dir, id+".quarantined")
 	if err := moveFile(dest, rec.OriginalPath); err != nil {
 		return err
+	}
+	if rec.Mode != 0 {
+		if err := os.Chmod(rec.OriginalPath, os.FileMode(rec.Mode)); err != nil {
+			// Not fatal: the file is back, metadata may be partial.
+			_ = err
+		}
+	}
+	if rec.UID > 0 || rec.GID > 0 {
+		_ = os.Chown(rec.OriginalPath, int(rec.UID), int(rec.GID))
 	}
 	return s.cache.MarkRestored(id)
 }
@@ -116,7 +145,9 @@ func (s *Store) PurgeExpired(retentionDays int, now time.Time) (int, error) {
 	return purged, nil
 }
 
-// moveFile renames, falling back to copy+remove across volumes.
+// moveFile renames, falling back to copy+remove across volumes. The copy
+// preserves the source file mode and, when permitted, ownership, so a
+// cross-device move does not silently degrade metadata.
 func moveFile(src, dst string) error {
 	if err := os.MkdirAll(filepath.Dir(dst), 0o700); err != nil {
 		return err
@@ -124,11 +155,19 @@ func moveFile(src, dst string) error {
 	if err := os.Rename(src, dst); err == nil {
 		return nil
 	}
+	var mode os.FileMode = 0o644
+	var uid, gid int
+	if st, err := os.Stat(src); err == nil {
+		mode = st.Mode()
+		if u, g, err := fileOwner(src); err == nil {
+			uid, gid = u, g
+		}
+	}
 	in, err := os.Open(src)
 	if err != nil {
 		return err
 	}
-	out, err := os.Create(dst)
+	out, err := os.OpenFile(dst, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, mode)
 	if err != nil {
 		in.Close()
 		return err
@@ -141,6 +180,9 @@ func moveFile(src, dst string) error {
 	in.Close()
 	if err := out.Close(); err != nil {
 		return err
+	}
+	if uid > 0 || gid > 0 {
+		_ = os.Chown(dst, uid, gid) // best-effort: only succeeds as root
 	}
 	return os.Remove(src)
 }
