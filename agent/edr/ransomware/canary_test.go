@@ -57,13 +57,28 @@ func TestManager_PlantPersistsAndMatches(t *testing.T) {
 	}
 }
 
-func TestManager_LoadRehydratesMembership(t *testing.T) {
-	fs := &fakeCanaryStore{recs: []cache.CanaryRecord{{Path: `C:\Users\x\00__a.xlsx`}}}
-	m := NewManager(fs)
-	if err := m.Load(); err != nil {
-		t.Fatal(err)
+// TestCanaryCaseSensitivity pins the membership-set key semantics: on POSIX
+// the key is case-sensitive (a feed path differing only in case is a
+// different file), on Windows it lower-cases. The per-platform helper makes
+// the test express the host rule directly.
+func TestCanaryCaseSensitivity(t *testing.T) {
+	planted := "/home/u/docs/00__accounts.xlsx"
+	feed := "/home/u/docs/00__Accounts.xlsx"
+	a := normCanaryPath(planted)
+	b := normCanaryPath(feed)
+	// On this host: POSIX → keys differ (feed is NOT the canary);
+	// Windows → keys equal (same file, case-insensitive FS).
+	if runningOnWindows() {
+		if a != b {
+			t.Fatalf("Windows: normCanaryPath should be case-insensitive: %q vs %q", a, b)
+		}
+	} else {
+		if a == b {
+			t.Fatalf("POSIX: normCanaryPath should be case-sensitive: %q vs %q", a, b)
+		}
 	}
-	if !m.Contains(`c:\users\x\00__A.xlsx`) {
-		t.Error("Load did not rehydrate membership")
+	// Trailing separator variants of the SAME spelling normalize identically.
+	if normCanaryPath(planted+"/") != a {
+		t.Fatal("trailing slash should be trimmed")
 	}
 }

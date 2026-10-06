@@ -63,8 +63,12 @@ func NewManager(store canaryStore) *Manager {
 	return &Manager{store: store, set: map[string]bool{}}
 }
 
+// normCanaryPath converts a path to the canonical forward-slash form used as
+// the membership-set key. Case handling is platform-specific (canaryNorm):
+// Windows filesystems are case-insensitive, POSIX are case-sensitive — the
+// key must match how the OS itself identifies the planted file.
 func normCanaryPath(p string) string {
-	return strings.ToLower(filepath.ToSlash(strings.TrimRight(p, `/\`)))
+	return canaryNorm(filepath.ToSlash(strings.TrimRight(p, `/\`)))
 }
 
 // Load rehydrates the in-memory membership set from persisted records.
