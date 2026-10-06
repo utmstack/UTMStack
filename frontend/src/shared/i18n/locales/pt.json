@@ -1187,7 +1187,21 @@
       "secret.ldap": "Bind password",
       "secretHintCreate": "Stored encrypted and never shown again.",
       "secretHintEdit": "Leave blank to keep the stored one.",
-      "secretUnchanged": "unchanged"
+      "secretUnchanged": "inalterado",
+      "errors": {
+        "required": "Este campo é obrigatório.",
+        "url": "Deve ser uma URL http(s) válida.",
+        "httpsUrl": "Deve ser uma URL https válida.",
+        "hostname": "Insira um host ou IP sem esquema (ex.: ldap.exemplo.com).",
+        "port": "A porta deve ser um número inteiro entre 0 e 65535.",
+        "pemCertificate": "Não parece um certificado PEM (falta -----BEGIN/END CERTIFICATE-----).",
+        "pemKey": "Não parece uma chave privada PEM (falta -----BEGIN/END PRIVATE KEY-----).",
+        "userFilterPlaceholder": "O filtro deve conter %s, onde é colocado o endereço de login.",
+        "userFilterUnbalanced": "Parênteses desbalanceados — a busca não retornará nada.",
+        "nameFormat": "Use letras, dígitos, pontos, hífens ou underscores (máx. 64). Ele aparece na URL de SSO, sem espaços.",
+        "redirectUrl": "Deve ser uma URL https válida ou uma URL http de loopback (localhost / 127.0.0.1 / [::1]).",
+        "entityId": "Deve ser uma URI válida, ex.: https://utmstack.example.com/sp."
+      }
     },
     "delete": {
       "title": "Excluir provedor de identidade",

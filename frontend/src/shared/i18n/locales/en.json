@@ -1339,7 +1339,21 @@
       "secret.ldap": "Bind password",
       "secretHintCreate": "Stored encrypted and never shown again.",
       "secretHintEdit": "Leave blank to keep the stored one.",
-      "secretUnchanged": "unchanged"
+      "secretUnchanged": "unchanged",
+      "errors": {
+        "required": "This field is required.",
+        "url": "Must be a valid http(s) URL.",
+        "httpsUrl": "Must be a valid https URL.",
+        "hostname": "Enter a host or IP without a scheme (e.g. ldap.example.com).",
+        "port": "Port must be a whole number between 0 and 65535.",
+        "pemCertificate": "Does not look like a PEM certificate (missing -----BEGIN/END CERTIFICATE-----).",
+        "pemKey": "Does not look like a PEM private key (missing -----BEGIN/END PRIVATE KEY-----).",
+        "userFilterPlaceholder": "The filter must contain %s, where the login address is placed.",
+        "userFilterUnbalanced": "Parentheses are unbalanced — the search will return nothing.",
+        "nameFormat": "Use letters, digits, dots, dashes or underscores (max 64). It appears in the SSO URL, so no spaces.",
+        "redirectUrl": "Must be a valid https URL, or an http loopback URL (localhost / 127.0.0.1 / [::1]).",
+        "entityId": "Must be a valid URI, e.g. https://utmstack.example.com/sp."
+      }
     },
     "delete": {
       "title": "Delete identity provider",
