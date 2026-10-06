@@ -40,7 +40,7 @@ where: |
     equals("action", "Remove-ComplianceRule") ||
     equals("action", "Remove-ComplianceTag")
   ) &&
-  equals("actionResult", "Success")
+  equals("actionResult", "success")
 afterEvents:
   - with:
       - field: origin.user

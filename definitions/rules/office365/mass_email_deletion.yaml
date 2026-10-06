@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.1.0
 
 dataTypes:
   - o365
@@ -12,9 +12,10 @@ technique: "T1114 - Email Collection"
 adversary: origin
 references:
   - https://learn.microsoft.com/en-us/purview/audit-mailboxes
+  - https://learn.microsoft.com/en-us/purview/audit-log-activities
   - https://attack.mitre.org/techniques/T1114/
 description: |
-  Detects when a user performs mass deletion of emails which could indicate data destruction, covering tracks, or malicious insider activity. Monitors for multiple HardDelete or SoftDelete operations within a short time window.
+  Detects when a user performs mass deletion of emails which could indicate data destruction, covering tracks, or malicious insider activity. Triggers when one user writes 200 or more HardDelete records (messages purged from the Recoverable Items folder) or 5,000 or more SoftDelete records (messages permanently deleted or removed from Deleted Items) within one hour. Emptying a large Deleted Items folder in Outlook produces many SoftDelete records, so the SoftDelete threshold is set far above everyday cleanup. One alert is raised per user; repeats for the same user are suppressed for seven days.
 
   Next Steps:
   1. Verify the legitimacy of the user performing the deletions
@@ -34,8 +35,8 @@ afterEvents:
       - field: action
         operator: filter_term
         value: 'HardDelete'
-    within: 15m
-    count: 100
+    within: 1h
+    count: 200
     or:
       - with:
           - field: origin.user
@@ -44,7 +45,7 @@ afterEvents:
           - field: action
             operator: filter_term
             value: 'SoftDelete'
-        within: 15m
-        count: 100
-groupBy:
+        within: 1h
+        count: 5000
+deduplicateBy:
   - adversary.user

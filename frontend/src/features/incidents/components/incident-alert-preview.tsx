@@ -59,8 +59,11 @@ export function IncidentAlertPreview({ alertId }: { alertId: string }) {
         <Link
           to="/threat-management/alerts"
           state={{
+            // This alert, not the incident: the link opens the record the analyst
+            // just read. '30d' is a preset id; a token like 'now-30d' would fall
+            // back to 24h and hide alerts older than a day.
             socaiFilters: [{ field: 'id', operator: 'IS', value: alertId }],
-            socaiTime: 'now-30d',
+            socaiTime: '30d',
           }}
           className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground"
         >

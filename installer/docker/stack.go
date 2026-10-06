@@ -129,6 +129,13 @@ func loadPersistedMemoryAllocation() (map[string]*system.ServiceConfig, bool) {
 		return nil, false
 	}
 
+	for _, svc := range Services {
+		if rsrcs[svc.Name] == nil {
+			fmt.Printf("warning: persisted memory allocation is missing %q (service list changed since it was written), recalculating\n", svc.Name)
+			return nil, false
+		}
+	}
+
 	return rsrcs, true
 }
 

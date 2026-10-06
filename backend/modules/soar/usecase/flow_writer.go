@@ -12,6 +12,9 @@ import (
 )
 
 func writeFlowFile(path string, flow domain.Flow) error {
+	if err := validateFlow(flow); err != nil {
+		return err
+	}
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return err
 	}

@@ -1,0 +1,27 @@
+# Rule version v1.0.0 (gap-fill set, 2026-09-25)
+
+dataTypes:
+  - o365
+name: Microsoft 365 Mailbox Folder Permission Granted
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Privilege Escalation
+technique: "T1098 - Account Manipulation"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/powershell/module/exchange/add-mailboxfolderpermission
+description: |
+  Detects Add-MailboxFolderPermission granting folder-level mailbox access to another identity, enabling covert read or write of specific folders for data collection.
+
+  Next Steps:
+  1. Identify the granted identity and folder
+  2. Assess whether the permission is expected
+  3. Review the granting administrator
+  4. Remove the folder permission if unauthorized
+where: |
+  equals("action", "Add-MailboxFolderPermission") && equals("actionResult", "success")
+groupBy:
+  - lastEvent.log.Parameters
+  - adversary.user

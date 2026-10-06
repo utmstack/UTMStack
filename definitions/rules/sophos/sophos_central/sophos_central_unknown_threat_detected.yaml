@@ -1,26 +1,24 @@
-# Rule version v1.0.0
-
+# Sophos Central SIEM event review; impact ratings and history thresholds preserved.
 dataTypes:
-  - "sophos-central"
-name: "Unknown Threat detected in Sophos Central"
+- sophos-central
+name: Sophos Central Threat or Cleanup Failure
 impact:
   confidentiality: 3
   integrity: 3
   availability: 2
-category: "Execution"
-technique: "T1204 - User Execution"
+category: Threat Detection
+technique: Vendor threat detection
 adversary: origin
 references:
-  - "https://www.mcafee.com/en-us/antivirus/malware.html"
-description: "A computer virus is a piece of malicious code that is prepended or appended to existing files on your computer. 
-                Viruses are named after biological viruses because they use similar techniques to spread from one place to another. 
-                Virus is often misused to refer to any threat. This usage is gradually being replaced with a more accurate term, malware (malicious software).
-                Computer viruses primarly attack executable files and documents. In short, this is how a computer virus works: 
-                after running the infected file, the malicious code is called and executed prior to the execution of the original application. 
-                A virus can infect any files that the current user has write permissions for.
-                Computer viruses can range in purpose and severity. Some of them are extremely dangerous because of their ability to delete files purposely from the hard drive. 
-                On the other hand, some viruses do not cause any damage they only serve to annoy the user and demonstrate the technical skills of their authors."
-where: regexMatch("log.type", "Event::Endpoint::(CoreIps|HomeThreatRemnants|HmpaBehaviourPrevented|HmpaThreat|HmpaSafeBrowsing|CoreAmsi|CoreOutbreak)|Event::Endpoint::Threat::(CleanupFailed::|Ips|CommandAndControl)")
+- https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/EventTypes/
+description: Sophos reports a runtime, network, AMSI or outbreak detection, or failed cleanup. Review the exact
+  vendor type and remediation status; successful cleanup and resolved events are excluded.
+where: (regexMatch("log.type","^Event::Endpoint::(CoreIps|HomeThreatRemnants|HmpaBehaviourPrevented|HmpaThreat|HmpaSafeBrowsing|CoreAmsi|CoreOutbreak|Threat::(CleanupFailed::|Ips|CommandAndControl))"))
+  && !regexMatch("log.type","(?i)(clean|cleanedup|resolved|dismissed|cancelled|success)$")
 groupBy:
-  - adversary.host
-  - adversary.ip
+- lastEvent.dataSource
+- lastEvent.log.customerId
+- lastEvent.log.endpointId
+- lastEvent.log.type
+- target.host
+- target.ip

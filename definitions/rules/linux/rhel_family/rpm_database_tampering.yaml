@@ -14,18 +14,9 @@ references:
   - https://attack.mitre.org/techniques/T1070/
   - https://access.redhat.com/articles/3763
 description: |
-  Detects `rpm --rebuilddb` run by a non-root user, and journald text suggesting rpmdb corruption.
+  Detects potential tampering with the RPM database which could indicate an attacker attempting to hide malicious package installations or system modifications. This includes unauthorized access to RPM database files, non-privileged users attempting to rebuild the database, or corruption indicators in RPM logs.
 
-  Rewritten v2.0.0: the previous version's direct-file-tamper branch checked log.path/log.operation and
-  `oneOf("log.syscall", ["2","257","82","83","87"])` (raw syscall numbers) -- this filter renames log.syscall to
-  `action` and auparse resolves syscalls to their NAME (e.g. "openat"), not a number, so that check could never
-  match even before considering field names. It also assumed /var/lib/rpm/* is under a file-integrity watch
-  (log.eventType=="FILE_MODIFIED") and that install-time provenance is tracked (log.package_source,
-  log.gpg_verification) -- neither exists in this pipeline. This agent does not currently audit writes to
-  /var/lib/rpm/* at all (no `-w` rule for that path); doing so would need adding one to
-  agent/dependency/auditd_linux.go's auditRulesContent. Until then, direct tampering with the RPM database files
-  themselves (bypassing rpm/yum/dnf entirely) is an undetected gap, not something fixable by renaming fields.
-  RHEL/CentOS-only; cannot be live-fire verified on the Debian-family V11-DEV-18 test VM.
+  File activity comes from the agent's audit collector and needs an audit watch on /var/lib/rpm: a file in the database directory created, deleted, renamed or truncated by a process that is not a package manager. Rebuild attempts come from audited rpm commands, and corruption reports from the journal.
 
   Next Steps:
   1. Immediately investigate the source host and verify system integrity
@@ -38,19 +29,31 @@ description: |
   8. Consider rebuilding the system from known good backups if extensive tampering is detected
 where: |
   (
-    equals("action", "execve") &&
-    oneOf("origin.process", ["/usr/bin/rpm", "/usr/bin/rpmdb"]) &&
+    contains("log.paths", "/var/lib/rpm/") &&
+    (
+      oneOf("action", ["unlink", "unlinkat", "rename", "renameat", "renameat2", "truncate", "ftruncate"]) ||
+      contains("log.paths", "CREATE")
+    ) &&
+    !oneOf("log.comm", ["rpm", "rpmdb", "rpmkeys", "dnf", "yum", "microdnf", "dnf-automatic", "packagekitd", "rpm-ostree", "rpm-ostreed"])
+  ) ||
+  (
+    (endsWith("origin.process", "/rpm") || endsWith("origin.process", "/rpmdb")) &&
     contains("origin.command", "--rebuilddb") &&
+    exists("log.uid") &&
     !equals("log.uid", "0")
   ) ||
   (
     contains("log.message", "rpmdb") &&
     (
-      contains("log.message", "corrupted") ||
+      contains("log.message", "corrupt") ||
       contains("log.message", "checksum") ||
-      contains("log.message", "mismatch")
+      contains("log.message", "mismatch") ||
+      contains("log.message", "damaged header") ||
+      contains("log.message", "DB_RUNRECOVERY")
     )
   )
-groupBy:
-  - adversary.host
-  - adversary.user
+deduplicateBy:
+  - dataSource
+  - lastEvent.log.comm
+  - lastEvent.origin.command
+  - lastEvent.log.message

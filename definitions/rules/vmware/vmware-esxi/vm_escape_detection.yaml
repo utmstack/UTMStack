@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.1.0
 
 dataTypes:
   - vmware-esxi
@@ -15,7 +15,7 @@ references:
   - https://www.csoonline.com/article/3837874/vmware-esxi-gets-critical-patches-for-in-the-wild-virtual-machine-escape-attack.html
   - https://blogs.vmware.com/security/2022/09/esxi-targeting-ransomware-the-threats-that-are-after-your-virtual-machines-part-1.html
 description: |
-  Detects VM escape attempts through abnormal guest operations, suspicious VMware Tools activity, or attempts to access host resources from guest VMs. VM escape is a critical security event where an attacker breaks out of virtual machine containment to access the hypervisor or host system.
+  Detects VM escape attempts through abnormal guest operations, suspicious VMware Tools activity, or attempts to access host resources from guest VMs. VM escape is a critical security event where an attacker breaks out of virtual machine containment to access the hypervisor or host system. One alert is raised per ESXi host and process; repeats are suppressed for seven days.
 
   Next Steps:
   1. Immediately isolate the affected virtual machine from the network
@@ -32,6 +32,6 @@ where: |
   (regexMatch("log.message", "(?i)(vmdk|vswp)") && regexMatch("log.message", "(?i)(modify|rename|delete)") && !regexMatch("log.process", "(?i)(vmware|esxcli)")) ||
   (regexMatch("log.message", "(?i)vib.*install") && regexMatch("log.message", "(?i)(malicious|unsigned|failed)")) ||
   (regexMatch("log.eventInfo", "(?i)(vm.*escape|breakout|containment.*breach)"))
-groupBy:
+deduplicateBy:
+  - dataSource
   - lastEvent.log.process
-  - adversary.hostname

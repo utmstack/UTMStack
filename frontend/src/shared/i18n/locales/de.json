@@ -4009,6 +4009,7 @@
       "impact_confidentiality": "Vertraulichkeit",
       "impact_integrity": "Integrität",
       "incidentDetail_incidentName": "Vorfallsname",
+      "incidentDetail_incidentId": "Vorfalls-ID",
       "isIncident": "Ist Vorfall",
       "name": "Alarmname",
       "notes": "Notizen",
@@ -4942,8 +4943,7 @@
       "aiDescriptionLabel": "Was soll dieser Flow tun?",
       "aiDescriptionPlaceholder": "z. B. Bei einem kritischen Alarm die Quell-IP in der Bedrohungsanalyse prüfen und auf der Firewall blockieren",
       "aiCreate": "Mit KI erstellen",
-      "manualContinue": "Fortfahren",
-      "aiOpener": "Erstelle einen SOAR-Flow namens \"{{name}}\", der Folgendes tut: {{description}}"
+      "manualContinue": "Fortfahren"
     }
   },
   "compliance": {
@@ -5195,8 +5195,7 @@
       "connection": "Modell & Verbindung",
       "auth": "Authentifizierung",
       "behavior": "Verhalten der Alarm-Triage",
-      "advanced": "Erweitert",
-      "capabilities": "Fähigkeiten"
+      "advanced": "Erweitert"
     },
     "usage": {
       "title": "Nutzung",
@@ -5262,6 +5261,10 @@
       "label": "Alarme automatisch analysieren",
       "hint": "Eingehende Alarme in Echtzeit triagieren."
     },
+    "allowIncidents": {
+      "label": "Vorfälle verwalten erlauben",
+      "hint": "Der Triage-Agent darf Vorfälle erstellen oder aktualisieren, wenn er entscheidet, dass ein Alarm dies rechtfertigt."
+    },
     "changeAlertStatus": {
       "label": "Alarmstatus ändern",
       "hint": "Dem Agenten erlauben, den Status eines Alarms während der Triage zu setzen."
@@ -5284,42 +5287,11 @@
       "label": "Tags anwenden",
       "hint": "Dem Agenten erlauben, Alarme während der Triage zu taggen."
     },
-    "capsCaption": "Lesezugriff ist immer aktiv. Wählen Sie, was der Agent ändern darf — während der Triage und im Chat. Alles Deaktivierte lehnt der Agent ab und verweist den Benutzer hierher zurück.",
     "note": {
       "azure": "Fügen Sie Ihren vollständigen Azure-Deployment-Endpunkt als URL ein; das Modell ist Ihr Deployment-Name. Die Authentifizierung verwendet den api-key-Header.",
       "ollama": "Richten Sie die URL auf Ihren Ollama-Host. Für eine lokale Instanz ist kein API-Schlüssel erforderlich.",
       "custom": "Jeder OpenAI-kompatible Endpunkt. Legen Sie die URL, die Authentifizierung und alle zusätzlichen Header fest, die Ihr Gateway benötigt.",
       "threatwinds": "Nutzt automatisch Ihre UTMStack-Lizenz — kein API-Schlüssel nötig. Wird über Ihr ThreatWinds-Abonnement abgerechnet."
-    },
-    "cap": {
-      "alerts": {
-        "label": "Alarme verwalten",
-        "hint": "Status ändern, Tags anwenden, Notizen hinzufügen, Tag-Regeln verwalten."
-      },
-      "incidents": {
-        "label": "Vorfälle verwalten",
-        "hint": "Vorfälle erstellen, Alarme hinzufügen, Status ändern, Notizen hinzufügen."
-      },
-      "dashboards": {
-        "label": "Dashboards verwalten",
-        "hint": "Dashboards erstellen und bearbeiten."
-      },
-      "compliance": {
-        "label": "Compliance verwalten",
-        "hint": "Frameworks verwalten und Berichte erstellen."
-      },
-      "correlation": {
-        "label": "Korrelationsregeln und Filter verwalten",
-        "hint": "Korrelationsregeln, Ereignisverarbeitungsfilter, Regex-Muster und mandantenspezifische Regeleinstellungen erstellen und bearbeiten."
-      },
-      "datasources": {
-        "label": "Datenquellen verwalten",
-        "hint": "Datenquellengruppen und Labels bearbeiten."
-      },
-      "soar": {
-        "label": "SOAR-Flows verwalten",
-        "hint": "SOAR-Regeln (Reaktionsflows) erstellen und bearbeiten."
-      }
     },
     "chat": {
       "title": "SOC-Assistent",
@@ -5342,6 +5314,8 @@
       "dashboardEditTitle": "Dashboard-Editor",
       "editingDashboard": "Bearbeite: {{name}}",
       "soarEditTitle": "SOAR-Flow-Editor",
+      "soarCreateTitle": "SOAR-Flow erstellen",
+
       "editingFlow": "Bearbeite Flow: {{name}}"
     },
     "focus": {

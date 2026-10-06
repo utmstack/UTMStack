@@ -1,4 +1,4 @@
-# Netflow firewall module filter, version 3.1.1
+# Netflow firewall module filter, version 3.1.2
 # Based in docs and Netflow Generator (Solarwinds) for send log
 # 
 # Documentations
@@ -1131,7 +1131,37 @@ pipeline:
             key: protocol
             value: "BIT-EMU"
           where: equals("log.protocol", "147")
-                    
+
+      # actionResult from the cumulative TCP flags (decimal: FIN 1, SYN 2, RST 4, PSH 8, ACK 16,
+      # URG 32, ECE 64, CWR 128). success: the flags include ACK, so the handshake completed,
+      # except a flow whose only flags are SYN and ACK (with or without URG, ECE or CWR): that is
+      # a server's answer to a SYN, and a one-way record cannot show the client's ACK. failed:
+      # a reset without SYN, FIN or PSH, a refused connection. SYN-only flows, flows without TCP
+      # flags (UDP, ICMP) and NetFlow v5 (no protocol or flags parsed) keep no value.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "success"
+          where: >-
+            equals("protocol", "TCP") &&
+            oneOf("log.tcpFlgs", [
+            16, 17, 19, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 48, 49, 51, 53, 54,
+            55, 56, 57, 58, 59, 60, 61, 62, 63, 80, 81, 83, 85, 86, 87, 88, 89, 90, 91,
+            92, 93, 94, 95, 112, 113, 115, 117, 118, 119, 120, 121, 122, 123, 124, 125,
+            126, 127, 144, 145, 147, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158,
+            159, 176, 177, 179, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191,
+            208, 209, 211, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 240,
+            241, 243, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255])
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "failed"
+          where: >-
+            equals("protocol", "TCP") &&
+            oneOf("log.tcpFlgs", [4, 20, 36, 52, 68, 84, 100, 116, 132, 148, 164, 180, 196, 212, 228, 244])
+
       # Removing unused fields
       - delete:
           fields:

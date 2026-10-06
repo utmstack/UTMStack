@@ -24,9 +24,9 @@ description: |
   5. Scan the file with antimalware tools
   6. Review download history to determine the origin of the file
 where: |
-  contains("log.eventMessage", "xattr") &&
-  contains("log.eventMessage", "-d") &&
-  contains("log.eventMessage", "com.apple.quarantine")
+  contains("log.message", "xattr") &&
+  contains("log.message", "-d") &&
+  contains("log.message", "com.apple.quarantine")
 groupBy:
   - adversary.host
   - adversary.user

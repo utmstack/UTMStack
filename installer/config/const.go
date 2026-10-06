@@ -14,6 +14,7 @@ const (
 	SetUpdateSentEndpoint         = "/api/v1/updates/sent"
 	GetLicenseEndpoint            = "/api/v1/licenses"
 	HealthEndpoint                = "/api/v1/health"
+	UsageReportEndpoint           = "/api/v1/usage"
 
 	GitHubReleasesURL = "https://github.com/utmstack/UTMStack/releases/download/%s/installer"
 

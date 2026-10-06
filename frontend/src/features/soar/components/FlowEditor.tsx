@@ -19,17 +19,24 @@ import { FlowIdentityModal } from './FlowIdentityModal'
 export function FlowEditor({
   flow,
   creating,
+  initialName,
   onClose,
   onSaved,
 }: {
   flow?: Flow
   creating: boolean
+  /** Name typed in the "New flow" dialog before landing here — seeds the
+   *  form so a manually-created flow doesn't show up as "New flow" again. */
+  initialName?: string
   onClose: () => void
   onSaved: () => void
 }) {
   const { t } = useTranslation()
   const readOnly = !!flow?.systemOwner
-  const [form, setForm] = useState<FlowFormState>(() => flowToForm(flow))
+  const [form, setForm] = useState<FlowFormState>(() => {
+    const f = flowToForm(flow)
+    return initialName ? { ...f, name: initialName } : f
+  })
   const [mode, setMode] = useState<'visual' | 'code'>('visual')
   const [yaml, setYaml] = useState('')
   const [busy, setBusy] = useState(false)

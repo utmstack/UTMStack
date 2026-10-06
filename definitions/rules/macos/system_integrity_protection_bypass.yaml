@@ -27,20 +27,21 @@ description: |
   8. Consider reimaging the system if SIP has been successfully bypassed
 where: |
   (
-    equals("log.process", "storagekitd") && 
-    contains("log.eventMessage", "com.apple.rootless.install.heritable")
+    equals("origin.process", "storagekitd") &&
+    contains("log.message", "com.apple.rootless.install.heritable")
   ) ||
   (
-    regexMatch("log.eventMessage", ".*(csrutil|disable|rootless).*") &&
-    equals("log.eventType", "logEvent")
+    regexMatch("origin.path", ".*/System/Library/.*") &&
+    regexMatch("log.message", ".*(csrutil|disable|rootless).*") &&
+    (equals("log.eventType", "logEvent") || equals("log.className", "OSLogEntryLog"))
   ) ||
   (
     equals("log.subsystem", "com.apple.kernel") &&
-    regexMatch("log.eventMessage", ".*(SIP|rootless).*bypass.*")
+    regexMatch("log.message", ".*(SIP|rootless).*bypass.*")
   ) ||
   (
-    regexMatch("log.process", ".*kext.*") &&
-    contains("log.eventMessage", "rootless")
+    regexMatch("origin.process", ".*kext.*") &&
+    contains("log.message", "rootless")
   )
 groupBy:
   - adversary.host
