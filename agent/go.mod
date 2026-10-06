@@ -12,7 +12,7 @@ require (
 	github.com/spf13/cobra v1.10.2
 	github.com/threatwinds/go-sdk v1.1.28
 	github.com/threatwinds/logger v1.2.3
-	github.com/tidwall/gjson v1.19.0
+	github.com/tidwall/gjson v1.20.0
 	github.com/tidwall/sjson v1.2.5
 	github.com/utmstack/UTMStack/shared v0.0.0
 	golang.org/x/sys v0.48.0
