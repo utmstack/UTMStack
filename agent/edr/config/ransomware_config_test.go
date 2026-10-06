@@ -9,7 +9,7 @@ import (
 
 func TestRansomwareDefaults(t *testing.T) {
 	d := Default()
-	if !d.Ransomware.Enabled {
+	if !d.Ransomware.EnabledOn() {
 		t.Fatal("ransomware must default ON")
 	}
 	if d.Ransomware.ResponseMode != "suspend" {
@@ -30,7 +30,7 @@ func TestRansomwareOverlayRoundTrip(t *testing.T) {
 	defer func() { ConfigFile = old }()
 
 	on := Default()
-	on.Ransomware.Enabled = true
+	on.Ransomware.Enabled = boolPtr(true)
 	on.Ransomware.ResponseMode = "kill"
 	on.Ransomware.CanaryDirs = []string{`D:\shared`}
 	b, _ := json.Marshal(on)
@@ -41,7 +41,7 @@ func TestRansomwareOverlayRoundTrip(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !got.Ransomware.Enabled || got.Ransomware.ResponseMode != "kill" ||
+	if !got.Ransomware.EnabledOn() || got.Ransomware.ResponseMode != "kill" ||
 		len(got.Ransomware.CanaryDirs) != 1 || got.Ransomware.CanaryDirs[0] != `D:\shared` {
 		t.Fatalf("overlay lost ransomware block: %+v", got.Ransomware)
 	}

@@ -229,7 +229,7 @@ func writeStatus(cfg config.EDRConfig, eng *engine.Engine, canaries *ransomware.
 		EngineTier: string(tn.Tier), EngineResident: tn.ResidentViable,
 		EngineThreads: tn.MaxThreads, EngineMaxFileMB: tn.MaxFileSizeMB, EngineMaxScanMB: tn.MaxScanSizeMB,
 		EngineReload: tn.ConcurrentReload, EngineTuningNote: tn.Reason,
-		RansomwareEnabled: cfg.Ransomware.Enabled, RansomwareMode: cfg.Ransomware.ResponseMode,
+		RansomwareEnabled: cfg.Ransomware.EnabledOn(), RansomwareMode: cfg.Ransomware.ResponseMode,
 		CanaryCount:           cc,
 		RansomwareFeedHealthy: rwGuard != nil && rwGuard.FeedHealthy(),
 		SensorFileWatcher:     cfg.Sensors.FileWatcherOn(),
@@ -239,6 +239,11 @@ func writeStatus(cfg config.EDRConfig, eng *engine.Engine, canaries *ransomware.
 		AllowPaths:            len(cfg.Allowlist.Paths),
 		AllowProcesses:        len(cfg.Allowlist.Processes),
 		AllowCommands:         len(cfg.Allowlist.Commands),
+		// From the config; when the blocklist is off the netblock manager is
+		// nil and the Health() block below never runs, so without this the
+		// status would report false for a config-true blocklist.
+		BlocklistEnabled:      cfg.Blocklist.EnabledOn(),
+		BlocklistEnforce:      cfg.Blocklist.EnforceOn(),
 	}
 	doc.SignatureSource = feed.SignatureSource(cfg)
 	if sf != nil {
@@ -385,7 +390,7 @@ func (p *program) startPipeline(ctx context.Context, cfg config.EDRConfig, c *ca
 	// file-activity feed; T1490 attribution comes from the procwatch dispatch hook.
 	var rwGuard *ransomware.Guard
 	var onProc func(procwatch.ProcStart)
-	if cfg.Ransomware.Enabled {
+	if cfg.Ransomware.EnabledOn() {
 		mgr := ransomware.NewManager(c)
 		_ = mgr.Load()
 		canaryDirs := append(defaultCanaryDirs(), cfg.Ransomware.CanaryDirs...)
@@ -414,7 +419,7 @@ func (p *program) startPipeline(ctx context.Context, cfg config.EDRConfig, c *ca
 	// detect-only mode are governed by the blocklist config block. The never-block
 	// allowlist is seeded with host-derived system nets (server IPs, and on Windows
 	// resolvers/gateways) so we can never cut the host off from the platform.
-	if cfg.Blocklist.Enabled {
+	if cfg.Blocklist.EnabledOn() {
 		nb := netblock.NewManager(netblock.Deps{
 			Cfg:   cfg,
 			Cache: c,
@@ -433,7 +438,7 @@ func (p *program) startPipeline(ctx context.Context, cfg config.EDRConfig, c *ca
 	if behavioralOn {
 		telemetrySpool = sp // process-creation telemetry (§4.9) only when behavioral is on
 	}
-	if g != nil || cfg.Ransomware.Enabled || behavioralOn {
+	if g != nil || cfg.Ransomware.EnabledOn() || behavioralOn {
 		pw := procwatch.New(procwatch.NewDispatch(tab, g, telemetrySpool, procSkip, onProc))
 		goSafe("procwatch", func() { pw.Run(ctx) })
 	}

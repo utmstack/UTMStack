@@ -61,7 +61,7 @@ func TestGuard_TrustedProcess_NotScored(t *testing.T) {
 	tab := proctable.New()
 	resp := &fakeResp{}
 	cfg := config.Default()
-	cfg.Ransomware.Enabled = true
+	cfg.Ransomware.Enabled = config.BoolPtr(true)
 	cfg.Ransomware.ResponseMode = "kill"
 	cfg.Ransomware.SuspendThreshold = 50
 	cfg.Ransomware.KillThreshold = 100

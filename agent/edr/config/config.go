@@ -1,11 +1,13 @@
 package config
 
 import (
+	"fmt"
 	"path/filepath"
 	"runtime"
 	"strings"
 
 	"github.com/utmstack/UTMStack/shared/fs"
+	"github.com/utmstack/UTMStack/shared/logger"
 )
 
 const ServiceName = "UTMStackEDR"
@@ -85,6 +87,24 @@ type Sensors struct {
 
 func sensorOn(p *bool) bool { return p == nil || *p }
 
+// boolPtr is used by Default() for pointer-bool config fields.
+func boolPtr(b bool) *bool { return &b }
+
+// BoolPtr returns a pointer to b. Used by CLI and tests that need to assign
+// to pointer-bool config fields.
+func BoolPtr(b bool) *bool { return &b }
+
+func ptrOn(p *bool) bool { return p == nil || *p }
+
+// EnabledOn reports whether the ransomware guard is on (absent = default on).
+func (r RansomwareConfig) EnabledOn() bool { return ptrOn(r.Enabled) }
+
+// EnabledOn reports whether the blocklist is on (absent = default on).
+func (b BlocklistConfig) EnabledOn() bool { return ptrOn(b.Enabled) }
+
+// EnforceOn reports whether WFP enforcement is on (absent = default on).
+func (b BlocklistConfig) EnforceOn() bool { return ptrOn(b.Enforce) }
+
 func (s Sensors) FileWatcherOn() bool  { return sensorOn(s.FileWatcher) }
 func (s Sensors) ProcessGuardOn() bool { return sensorOn(s.ProcessGuard) }
 func (s Sensors) AMSIOn() bool         { return sensorOn(s.AMSI) }
@@ -92,7 +112,7 @@ func (s Sensors) BehavioralOn() bool   { return sensorOn(s.Behavioral) }
 
 // RansomwareConfig configures the behavioral ransomware guard (v1 core).
 type RansomwareConfig struct {
-	Enabled          bool     `json:"enabled"`
+	Enabled          *bool    `json:"enabled"` // default true; explicit false must be honoured
 	ResponseMode     string   `json:"response_mode"`      // "alert" | "suspend" | "kill"
 	CanaryDirs       []string `json:"canary_dirs"`        // extra subtrees to seed (beyond volume roots + profile)
 	CanaryPerDir     int      `json:"canary_per_dir"`     // decoys planted per directory
@@ -110,8 +130,8 @@ type RansomwareConfig struct {
 // mirror). Enabled+enforcing by default; safety rails (allowlist, private-range
 // exemption, fail-open) are mandatory because it can drop live traffic.
 type BlocklistConfig struct {
-	Enabled            bool     `json:"enabled"`              // default true
-	Enforce            bool     `json:"enforce"`              // default true (false = inert in Plan 1 (loads intel, no WFP filters, no telemetry); observation lands in Plan 2)
+	Enabled            *bool    `json:"enabled"`              // default true; explicit false must be honoured
+	Enforce            *bool    `json:"enforce"`              // default true (false = inert in Plan 1 (loads intel, no WFP filters, no telemetry); observation lands in Plan 2)
 	MirrorBaseURL      string   `json:"blocklist_mirror"`     // empty = derive from Server
 	Levels             []int    `json:"levels"`               // default [1]
 	IndicatorTypes     []string `json:"indicator_types"`      // default ["ip"] in Plan 1
@@ -229,7 +249,7 @@ func Default() EDRConfig {
 		},
 		// Sensors left zero: all *bool nil ⇒ every sensor ON by default.
 		Ransomware: RansomwareConfig{
-			Enabled:          true, // on by default; response_mode "suspend" is reversible
+			Enabled:          boolPtr(true), // on by default; response_mode "suspend" is reversible
 			ResponseMode:     "suspend",
 			CanaryPerDir:     1,
 			SuspendThreshold: 50,
@@ -238,8 +258,8 @@ func Default() EDRConfig {
 			UseETW:           true,
 		},
 		Blocklist: BlocklistConfig{
-			Enabled:            true,
-			Enforce:            true,
+			Enabled:            boolPtr(true),
+			Enforce:            boolPtr(true),
 			Levels:             []int{1},
 			IndicatorTypes:     []string{"ip", "domain", "hostname"},
 			Direction:          "both",
@@ -297,15 +317,25 @@ func Load() (EDRConfig, error) {
 	// RansomwareConfig has slice fields, so it is not comparable with != against a
 	// zero literal. Detect an on-disk block via a reliable non-zero scalar and copy
 	// the whole block; an absent block leaves the Default() nested values intact.
-	if onDisk.Ransomware.ResponseMode != "" || onDisk.Ransomware.Enabled || onDisk.Ransomware.KillThreshold != 0 {
+	if onDisk.Ransomware.ResponseMode != "" || onDisk.Ransomware.Enabled != nil || onDisk.Ransomware.KillThreshold != 0 {
 		c.Ransomware = onDisk.Ransomware
+		if c.Ransomware.Enabled == nil {
+			c.Ransomware.Enabled = Default().Ransomware.Enabled // absent → default (true)
+		}
 	}
 	// BlocklistConfig also has slice fields, so detect an on-disk block via a
 	// reliable non-zero signal and copy it wholesale, then backfill any missing
 	// required defaults. An absent block leaves the Default() nested values intact.
-	if onDisk.Blocklist.Enabled || onDisk.Blocklist.RefreshHours != 0 ||
+	if onDisk.Blocklist.Enabled != nil || onDisk.Blocklist.Enforce != nil ||
+		onDisk.Blocklist.RefreshHours != 0 ||
 		len(onDisk.Blocklist.Levels) != 0 || onDisk.Blocklist.Direction != "" {
 		c.Blocklist = onDisk.Blocklist
+		if c.Blocklist.Enabled == nil {
+			c.Blocklist.Enabled = Default().Blocklist.Enabled // absent → default (true)
+		}
+		if c.Blocklist.Enforce == nil {
+			c.Blocklist.Enforce = Default().Blocklist.Enforce // absent → default (true)
+		}
 		if len(c.Blocklist.Levels) == 0 {
 			c.Blocklist.Levels = []int{1}
 		}
@@ -349,7 +379,61 @@ func Load() (EDRConfig, error) {
 	c.TrustedProcesses = nil
 	c.Ransomware.CommandAllowlist = nil
 
+	// H5: make silently-ignored hand-edits impossible to miss — log every
+	// effective setting that differs from the default.
+	LogEffective(c)
+
 	return c, nil
+}
+
+// LogEffective reports every effective setting that differs from the
+// default, one log line each (H5: the silently-ignored trap — an admin who
+// hand-edited edr.json can see what the module actually believes). Returns
+// the number of differences.
+func LogEffective(c EDRConfig) int {
+	d := Default()
+	count := 0
+	log := func(name, got, def string) {
+		logger.Info("UTMStack EDR: config %s = %s (default %s)", name, got, def)
+		count++
+	}
+	if c.Enabled != d.Enabled {
+		log("enabled", fmt.Sprint(c.Enabled), fmt.Sprint(d.Enabled))
+	}
+	if c.FailMode != d.FailMode {
+		log("fail_mode", c.FailMode, d.FailMode)
+	}
+	if c.Sensors.FileWatcherOn() != d.Sensors.FileWatcherOn() {
+		log("sensors.file_watcher", fmt.Sprint(c.Sensors.FileWatcherOn()), fmt.Sprint(d.Sensors.FileWatcherOn()))
+	}
+	if c.Sensors.ProcessGuardOn() != d.Sensors.ProcessGuardOn() {
+		log("sensors.process_guard", fmt.Sprint(c.Sensors.ProcessGuardOn()), fmt.Sprint(d.Sensors.ProcessGuardOn()))
+	}
+	if c.Sensors.AMSIOn() != d.Sensors.AMSIOn() {
+		log("sensors.amsi", fmt.Sprint(c.Sensors.AMSIOn()), fmt.Sprint(d.Sensors.AMSIOn()))
+	}
+	if c.Sensors.BehavioralOn() != d.Sensors.BehavioralOn() {
+		log("sensors.behavioral", fmt.Sprint(c.Sensors.BehavioralOn()), fmt.Sprint(d.Sensors.BehavioralOn()))
+	}
+	if c.Sensors.FileWatcherMode != d.Sensors.FileWatcherMode {
+		log("sensors.file_watcher_mode", c.Sensors.FileWatcherMode, d.Sensors.FileWatcherMode)
+	}
+	if c.Ransomware.EnabledOn() != d.Ransomware.EnabledOn() {
+		log("ransomware.enabled", fmt.Sprint(c.Ransomware.EnabledOn()), fmt.Sprint(d.Ransomware.EnabledOn()))
+	}
+	if c.Blocklist.EnabledOn() != d.Blocklist.EnabledOn() {
+		log("blocklist.enabled", fmt.Sprint(c.Blocklist.EnabledOn()), fmt.Sprint(d.Blocklist.EnabledOn()))
+	}
+	if c.Blocklist.EnforceOn() != d.Blocklist.EnforceOn() {
+		log("blocklist.enforce", fmt.Sprint(c.Blocklist.EnforceOn()), fmt.Sprint(d.Blocklist.EnforceOn()))
+	}
+	if c.ScheduledScan.Enabled != d.ScheduledScan.Enabled {
+		log("scheduled_scan.enabled", fmt.Sprint(c.ScheduledScan.Enabled), fmt.Sprint(d.ScheduledScan.Enabled))
+	}
+	if c.SignatureFallback != d.SignatureFallback {
+		log("signature_fallback", c.SignatureFallback, d.SignatureFallback)
+	}
+	return count
 }
 
 func Save(c EDRConfig) error {

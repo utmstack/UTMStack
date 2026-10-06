@@ -12,7 +12,7 @@ func TestApplySetBlocklist(t *testing.T) {
 	if err := applySet(&c, "blocklist.enforce", "false"); err != nil {
 		t.Fatal(err)
 	}
-	if c.Blocklist.Enforce {
+	if c.Blocklist.EnforceOn() {
 		t.Fatal("enforce should be false")
 	}
 

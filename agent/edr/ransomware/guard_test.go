@@ -45,7 +45,7 @@ func newTestGuard(mode string, canaries map[string]bool, suspendT, killT int) (*
 	quar := &fakeQuar{}
 	inc := &fakeIncidents{}
 	cfg := config.Default()
-	cfg.Ransomware.Enabled = true
+	cfg.Ransomware.Enabled = config.BoolPtr(true)
 	cfg.Ransomware.ResponseMode = mode
 	cfg.Ransomware.SuspendThreshold = suspendT
 	cfg.Ransomware.KillThreshold = killT
@@ -93,7 +93,7 @@ func TestGuard_AlertMode_EmitsButNeverActs(t *testing.T) {
 
 func TestGuard_Disabled_NoOp(t *testing.T) {
 	g, resp, _, quar, inc, tab := newTestGuard("kill", map[string]bool{`C:\u\00__a.xlsx`: true}, 50, 100)
-	g.cfg.Ransomware.Enabled = false
+	g.cfg.Ransomware.Enabled = config.BoolPtr(false)
 	tab.Add(proctable.Proc{PID: 500, PPID: 4, Image: `C:\enc.exe`})
 	g.OnFileEvent(FileEvent{PID: 500, Path: `C:\u\00__a.xlsx`, Op: OpWrite})
 	if len(resp.killed) != 0 {

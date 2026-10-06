@@ -5,7 +5,7 @@ import "testing"
 func TestDefaultBlocklist(t *testing.T) {
 	d := Default()
 	b := d.Blocklist
-	if !b.Enabled || !b.Enforce {
+	if !b.EnabledOn() || !b.EnforceOn() {
 		t.Fatalf("blocklist should default enabled+enforcing, got %+v", b)
 	}
 	if !b.AllowPrivateRanges {

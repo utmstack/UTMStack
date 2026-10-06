@@ -253,7 +253,7 @@ func applySet(cfg *config.EDRConfig, key, val string) error {
 		if err != nil {
 			return err
 		}
-		cfg.Ransomware.Enabled = b
+		cfg.Ransomware.Enabled = config.BoolPtr(b)
 	case "ransomware.response_mode":
 		if val != "alert" && val != "suspend" && val != "kill" {
 			return fmt.Errorf("ransomware.response_mode must be alert|suspend|kill")
@@ -272,13 +272,13 @@ func applySet(cfg *config.EDRConfig, key, val string) error {
 		if err != nil {
 			return err
 		}
-		cfg.Blocklist.Enabled = b
+		cfg.Blocklist.Enabled = config.BoolPtr(b)
 	case "blocklist.enforce":
 		b, err := parseBool(val)
 		if err != nil {
 			return err
 		}
-		cfg.Blocklist.Enforce = b
+		cfg.Blocklist.Enforce = config.BoolPtr(b)
 	case "blocklist.allow_private_ranges":
 		b, err := parseBool(val)
 		if err != nil {

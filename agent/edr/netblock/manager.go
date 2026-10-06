@@ -91,7 +91,7 @@ func NewManager(d Deps) *Manager {
 	// expires but the feed has since adopted the addr, Sweep must hand off the shared
 	// filter to the enforcer instead of deleting it (which the enforcer won't re-add).
 	m.reactive.SetOnFeed(func(a netip.Addr) bool { _, ok := m.store.Match(a); return ok })
-	m.enforce.Store(d.Cfg.Blocklist.Enforce)
+	m.enforce.Store(d.Cfg.Blocklist.EnforceOn())
 	return m
 }
 
@@ -194,7 +194,7 @@ func (m *Manager) applyLocked(inds []Indicator) {
 		}
 	}
 	m.dropped.Store(int64(dropped))
-	if !m.cfg.Blocklist.Enforce {
+	if !m.cfg.Blocklist.EnforceOn() {
 		// Detect-only / enforce-off must hold no live filters — clear any that a
 		// prior enforce=true cycle applied before we stop reconciling. Clear resets
 		// both the exact-IP and prefix maps (and Reset removes prefix filters).
@@ -233,7 +233,7 @@ func (m *Manager) Reload(cfg config.EDRConfig, sys SystemNets) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.cfg = cfg
-	m.enforce.Store(cfg.Blocklist.Enforce)
+	m.enforce.Store(cfg.Blocklist.EnforceOn())
 	m.allow = BuildAllowlist(cfg, sys)
 	m.applyLocked(inds)
 }
@@ -321,8 +321,8 @@ func (m *Manager) Health() Health {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	return Health{
-		Enabled:    m.cfg.Blocklist.Enabled,
-		Enforce:    m.cfg.Blocklist.Enforce,
+		Enabled:    m.cfg.Blocklist.EnabledOn(),
+		Enforce:    m.cfg.Blocklist.EnforceOn(),
 		Indicators: m.store.Count(),
 		// Real OS filter count, not the intended count: on WFP-init failure the
 		// enforcer's no-op blocker reports 0, so status can't overstate protection.
@@ -331,6 +331,6 @@ func (m *Manager) Health() Health {
 		AllowlistedDropped:  int(m.dropped.Load()),
 		FeedAgeSec:          age,
 		FeedStale:           stale,
-		EnforcementDegraded: m.cfg.Blocklist.Enforce && !m.wfpOK,
+		EnforcementDegraded: m.cfg.Blocklist.EnforceOn() && !m.wfpOK,
 	}
 }

@@ -116,7 +116,7 @@ func NewGuard(deps GuardDeps) *Guard {
 // is to the culprit (the parent that spawned the recovery command, skipping
 // shell hosts), because vssadmin/wbadmin/etc. are the encryptor's children.
 func (g *Guard) OnProcStart(pid, ppid int, image, cmdline string, gen int64) {
-	if !g.cfg.Ransomware.Enabled {
+	if !g.cfg.Ransomware.EnabledOn() {
 		return
 	}
 	rule, ok := MatchT1490(image, cmdline, g.commandAllowlist())
@@ -136,7 +136,7 @@ func (g *Guard) OnProcStart(pid, ppid int, image, cmdline string, gen int64) {
 
 // OnFileEvent runs the canary sensor for a per-process file op.
 func (g *Guard) OnFileEvent(fe FileEvent) {
-	if !g.cfg.Ransomware.Enabled {
+	if !g.cfg.Ransomware.EnabledOn() {
 		return
 	}
 	if !g.deps.Canaries.Contains(fe.Path) {
