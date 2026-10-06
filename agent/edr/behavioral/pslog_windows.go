@@ -18,6 +18,11 @@ type PSLogReader struct {
 
 func NewPSLogReader(sp *event.Spool) *PSLogReader { return &PSLogReader{spool: sp} }
 
+// IsInterpreter is a no-op on Windows: script content arrives via the
+// PowerShell 4104 poller instead, so there is no per-execve shell_activity
+// event on this platform.
+func IsInterpreter(image string) (string, bool) { return "", false }
+
 func (r *PSLogReader) Run(ctx context.Context) {
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
