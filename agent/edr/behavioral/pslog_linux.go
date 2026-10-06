@@ -2,6 +2,22 @@
 
 package behavioral
 
+import (
+	"context"
+
+	"github.com/utmstack/UTMStack/agent/edr/event"
+)
+
+// PSLogReader is a no-op on Linux: there is no PowerShell script-block log
+// to poll. The behavioral shell_activity telemetry on this platform comes
+// from the procwatch dispatch (IsInterpreter + ShellActivityTelemetry), not
+// from a log poller. service.go starts it unconditionally across platforms,
+// so the type must exist here; it just blocks until context cancellation.
+type PSLogReader struct{}
+
+func NewPSLogReader(sp *event.Spool) *PSLogReader { return &PSLogReader{} }
+func (r *PSLogReader) Run(ctx context.Context)    { <-ctx.Done() }
+
 // interpreterNames is the basename set of shells and interpreters whose
 // execve we surface as shell_activity telemetry (the Linux counterpart of
 // the PowerShell 4104 script-block records). A process whose image basename
