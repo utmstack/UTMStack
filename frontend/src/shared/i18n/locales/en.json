@@ -1406,7 +1406,17 @@
     },
     "searchPlaceholder": "Search by account name or SID…",
     "allTenants": "All tenants",
-    "filters": "Filters",
+    "filters": {
+      "add": "Add filter",
+      "clearAll": "Clear all",
+      "filterValues": "Filter values…",
+      "loadingValues": "Loading values…",
+      "noValues": "No values found.",
+      "pickValue": "Pick a value to add the filter.",
+      "empty": "(empty)",
+      "cancel": "Cancel",
+      "addBtn": "Add"
+    },
     "filterFields": {
       "status": "Lifecycle status"
     },

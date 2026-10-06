@@ -1254,7 +1254,17 @@
     },
     "searchPlaceholder": "Buscar por nombre de cuenta o SID…",
     "allTenants": "Todos los tenants",
-    "filters": "Filtros",
+    "filters": {
+      "add": "Añadir filtro",
+      "clearAll": "Limpiar todo",
+      "filterValues": "Filtrar valores…",
+      "loadingValues": "Cargando valores…",
+      "noValues": "No se encontraron valores.",
+      "pickValue": "Elige un valor para añadir el filtro.",
+      "empty": "(vacío)",
+      "cancel": "Cancelar",
+      "addBtn": "Añadir"
+    },
     "filterFields": {
       "status": "Estado de ciclo de vida"
     },
