@@ -10,7 +10,12 @@
   - operator: IS
     field: name
     value: TODO-set-the-correlation-rule-that-triggers-this
-  commands:
-  - powershell netsh advfirewall firewall add rule name="Block-Outbound-$(adversary.ip)" dir=out action=block remoteip="$(adversary.ip)"
-  shell: powershell
-  agentPlatform: windows
+  roots:
+    - step_0
+  nodes:
+    step_0:
+        kind: executor
+        executor: shell
+        command: powershell netsh advfirewall firewall add rule name="Block-Outbound-$(adversary.ip)" dir=out action=block remoteip="$(adversary.ip)"
+        shell: powershell
+        platform: windows

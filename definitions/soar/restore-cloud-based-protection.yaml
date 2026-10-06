@@ -10,7 +10,12 @@
   - operator: IS
     field: name
     value: TODO-set-the-correlation-rule-that-triggers-this
-  commands:
-  - powershell Set-MpPreference -CloudProtection $(if ("$(lastEvent.log.message)" -match 'CloudProtection') { 1 } else { 0 })
-  shell: powershell
-  agentPlatform: windows
+  roots:
+    - step_0
+  nodes:
+    step_0:
+        kind: executor
+        executor: shell
+        command: powershell Set-MpPreference -CloudProtection $(if ("$(lastEvent.log.message)" -match 'CloudProtection') { 1 } else { 0 })
+        shell: powershell
+        platform: windows

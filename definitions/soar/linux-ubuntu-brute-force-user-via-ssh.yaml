@@ -6,11 +6,42 @@
   - operator: IS
     field: name
     value: SSH Brute Force Attempts
-  commands:
-  - sudo ufw insert 1 deny from $(adversary.ip) to any port 22 proto tcp ; sudo usermod --expiredate 1 $(target.user) ; sudo
-    shutdown -h now
-  - usermod -s /sbin/nologin $(adversary.user)
-  - shutdown -h now
-  - pkill -KILL -u $(target.user)
-  shell: sh
-  agentPlatform: ubuntu
+  roots:
+    - step_0
+  nodes:
+    step_0:
+        kind: executor
+        executor: shell
+        command: sudo ufw insert 1 deny from $(adversary.ip) to any port 22 proto tcp ; sudo usermod --expiredate 1 $(target.user) ; sudo shutdown -h now
+        shell: sh
+        platform: ubuntu
+        onSuccess:
+          - step_1
+        onError:
+          - step_1
+    step_1:
+        kind: executor
+        executor: shell
+        command: usermod -s /sbin/nologin $(adversary.user)
+        shell: sh
+        platform: ubuntu
+        onSuccess:
+          - step_2
+        onError:
+          - step_2
+    step_2:
+        kind: executor
+        executor: shell
+        command: shutdown -h now
+        shell: sh
+        platform: ubuntu
+        onSuccess:
+          - step_3
+        onError:
+          - step_3
+    step_3:
+        kind: executor
+        executor: shell
+        command: pkill -KILL -u $(target.user)
+        shell: sh
+        platform: ubuntu

@@ -6,11 +6,32 @@
   - operator: IS
     field: name
     value: 'Windows: Multiple Logon Failure Followed by Logon Success'
-  commands:
-  - netsh advfirewall firewall add rule name="Block-Brute-Force-Success-$(adversary.ip)" dir=in action=block remoteip="$(adversary.ip)"
-    enable=yes ; net user "$(target.user)" /active:no
-  - netsh advfirewall firewall add rule name="Block-Brute-Force-$(adversary.ip)" dir=in action=block remoteip="$(adversary.ip)"
-    enable=yes
-  - net user $(adversary.user) /active:no
-  shell: powershell
-  agentPlatform: windows
+  roots:
+    - step_0
+  nodes:
+    step_0:
+        kind: executor
+        executor: shell
+        command: netsh advfirewall firewall add rule name="Block-Brute-Force-Success-$(adversary.ip)" dir=in action=block remoteip="$(adversary.ip)" enable=yes ; net user "$(target.user)" /active:no
+        shell: powershell
+        platform: windows
+        onSuccess:
+          - step_1
+        onError:
+          - step_1
+    step_1:
+        kind: executor
+        executor: shell
+        command: netsh advfirewall firewall add rule name="Block-Brute-Force-$(adversary.ip)" dir=in action=block remoteip="$(adversary.ip)" enable=yes
+        shell: powershell
+        platform: windows
+        onSuccess:
+          - step_2
+        onError:
+          - step_2
+    step_2:
+        kind: executor
+        executor: shell
+        command: net user $(adversary.user) /active:no
+        shell: powershell
+        platform: windows

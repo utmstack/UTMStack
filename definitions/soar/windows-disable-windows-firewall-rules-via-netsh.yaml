@@ -12,8 +12,22 @@
   - operator: IS
     field: name
     value: TODO-set-the-correlation-rule-that-triggers-this
-  commands:
-  - netsh advfirewall set allprofiles state on
-  - netsh advfirewall firewall set rule name=all new enable=yes
-  shell: powershell
-  agentPlatform: windows
+  roots:
+    - step_0
+  nodes:
+    step_0:
+        kind: executor
+        executor: shell
+        command: netsh advfirewall set allprofiles state on
+        shell: powershell
+        platform: windows
+        onSuccess:
+          - step_1
+        onError:
+          - step_1
+    step_1:
+        kind: executor
+        executor: shell
+        command: netsh advfirewall firewall set rule name=all new enable=yes
+        shell: powershell
+        platform: windows
