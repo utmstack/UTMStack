@@ -23,11 +23,7 @@ const NAME_MAX = 64
 // The name goes into the SSO login URL, so a space would break it. Dots are
 // allowed (acme.entra) — they are legal path segments.
 const NAME_RE = /^[A-Za-z0-9][A-Za-z0-9._-]*$/
-// Host or hostname the LDAP dial builds into ldap://host:port — no scheme.
-// The IPv6 bracketed alternative is accepted by the form even though the
-// backend's idpHostRe still rejects it on save (parity note in the .md beside
-// this file): the dial would need net.JoinHostPort, which is a backend change.
-const HOST_RE = /^(?:(?!.*[\/\s])[A-Za-z0-9.-]+|\[[0-9A-Fa-f:]+\])$/
+const HOST_RE = /^(?:\[[0-9A-Fa-f:]+\]|(?!.*[\/\s])[A-Za-z0-9.-]+)$/
 // Port 1..65535 as a string, no leading zeros.
 const PORT_RE = /^(0|[1-9][0-9]*)$/
 

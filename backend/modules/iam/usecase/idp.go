@@ -155,6 +155,8 @@ func (u *identityProviderUsecase) prepareSettings(
 		if kept == "" {
 			return nil, domain.ErrIDPSettingsInvalid
 		}
+		s.BindPassword = kept
+
 		return json.Marshal(s)
 	}
 	return nil, domain.ErrIDPTypeUnsupported
@@ -245,9 +247,11 @@ func (u *identityProviderUsecase) build(
 	if strings.TrimSpace(req.Name) == "" {
 		return nil, domain.ErrIDPInvalidInput
 	}
-	// Name sits in /sso/<name>/login; on create it must be URL-safe. Edit leaves
-	// the input disabled, so a legacy name must not lock the form out of saving.
-	if previous == nil && (len(req.Name) > 64 || !idpNameRe.MatchString(req.Name)) {
+	if previous == nil {
+		if len(req.Name) > 64 || !idpNameRe.MatchString(req.Name) {
+			return nil, domain.ErrIDPInvalidInput
+		}
+	} else if req.Name != previous.Name && (len(req.Name) > 64 || !idpNameRe.MatchString(req.Name)) {
 		return nil, domain.ErrIDPInvalidInput
 	}
 	settings, err := u.prepareSettings(kind, req.Settings, previous)

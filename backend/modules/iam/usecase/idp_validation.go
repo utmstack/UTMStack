@@ -1,7 +1,7 @@
 package usecase
 
 import (
-	"encoding/json"
+	"net"
 	"net/url"
 	"regexp"
 	"strings"
@@ -15,35 +15,11 @@ var idpNameRe = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9._-]*$`)
 // idpHostRe matches a bare hostname or IP: no scheme, no path, no spaces.
 var idpHostRe = regexp.MustCompile(`^[A-Za-z0-9.-]+$`)
 
-// Presence + secrets are decided by prepareSettings; this only rejects malformed values.
-func validateIDPSettingsFormat(kind domain.ProviderType, raw json.RawMessage) error {
-	switch kind {
-	case domain.ProviderSAML:
-		var s domain.SAMLSettings
-		if err := json.Unmarshal(raw, &s); err != nil {
-			return domain.ErrIDPSettingsInvalid
-		}
-		return validateSAMLFormat(s)
-	case domain.ProviderOIDC:
-		var s domain.OIDCSettings
-		if err := json.Unmarshal(raw, &s); err != nil {
-			return domain.ErrIDPSettingsInvalid
-		}
-		return validateOIDCFormat(s)
-	case domain.ProviderLDAP:
-		var s domain.LDAPSettings
-		if err := json.Unmarshal(raw, &s); err != nil {
-			return domain.ErrIDPSettingsInvalid
-		}
-		return validateLDAPFormat(s)
-	default:
-		return domain.ErrIDPTypeUnsupported
-	}
-}
+var idpBracketedIPv6Re = regexp.MustCompile(`^\[[0-9A-Fa-f:.]+\]$`)
 
 func validateSAMLFormat(s domain.SAMLSettings) error {
-	 if !idpIsHTTPURL(s.MetadataURL) || !idpIsHTTPURL(s.SpACSURL) ||
-		 !idpIsURI(s.SpEntityID) ||
+	if !idpIsHTTPURL(s.MetadataURL) || !idpIsHTTPURL(s.SpACSURL) ||
+		!idpIsURI(s.SpEntityID) ||
 		!strings.Contains(s.SpCertificatePem, "-----BEGIN CERTIFICATE-----") ||
 		!strings.Contains(s.SpCertificatePem, "-----END CERTIFICATE-----") {
 		return domain.ErrIDPSettingsInvalid
@@ -61,8 +37,10 @@ func validateOIDCFormat(s domain.OIDCSettings) error {
 func validateLDAPFormat(s domain.LDAPSettings) error {
 	host := strings.TrimSpace(s.Host)
 	filter := strings.TrimSpace(s.UserFilter)
+	hostOK := idpHostRe.MatchString(host) ||
+		(idpBracketedIPv6Re.MatchString(host) && net.ParseIP(strings.Trim(host, "[]")) != nil)
 	if host == "" || s.Port < 0 || s.Port > 65535 ||
-		!idpHostRe.MatchString(host) ||
+		!hostOK ||
 		strings.Count(filter, "(") != strings.Count(filter, ")") {
 		return domain.ErrIDPSettingsInvalid
 	}
