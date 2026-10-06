@@ -3666,6 +3666,7 @@
       "impact_confidentiality": "Конфиденциальность",
       "impact_integrity": "Целостность",
       "incidentDetail_incidentName": "Название инцидента",
+      "incidentDetail_incidentId": "ID инцидента",
       "isIncident": "Инцидент",
       "name": "Название оповещения",
       "notes": "Заметки",

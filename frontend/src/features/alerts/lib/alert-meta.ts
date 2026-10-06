@@ -67,6 +67,7 @@ export const FILTER_FIELDS: { label: string; field: string }[] = [
   { label: 'Notes', field: 'notes' },
   { label: 'Is incident', field: 'isIncident' },
   { label: 'Incident name', field: 'incidentDetail.incidentName' },
+  { label: 'Incident id', field: 'incidentDetail.incidentId' },
 
   { label: 'Confidentiality', field: 'impact.confidentiality' },
   { label: 'Integrity', field: 'impact.integrity' },

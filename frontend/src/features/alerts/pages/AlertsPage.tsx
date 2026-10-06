@@ -42,16 +42,63 @@ import { taggingRulesHttpService } from '../services/tagging-rules-http.service'
 import type { TaggingRule } from '../types/tagging-rule.types'
 import type { AlertTag } from '../types/alert.types'
 
+/**
+ * What a navigation seeded on the router state, resolved to the page's own
+ * initial filter + time range. Read synchronously at mount (not in an effect)
+ * so the first fetch already carries the filters — an effect-based seed raced
+ * the initial unseeded request and its late response clobbered the result.
+ */
+function readSeed(location: ReturnType<typeof useLocation>): {
+  filters: CustomFilter[]
+  range: TimeRange
+} | null {
+  const state = location.state as {
+    socaiFilters?: (FilterType & { label?: string })[]
+    socaiTime?: string
+  } | null
+  if (!state?.socaiFilters?.length) return null
+
+  // @timestamp filters drive the dedicated time picker, not the custom filter bar.
+  const tsFilter = state.socaiFilters.find((f) => f.field === TS && Array.isArray(f.value))
+  const rest = tsFilter ? state.socaiFilters.filter((f) => f !== tsFilter) : state.socaiFilters
+  const filters: CustomFilter[] = rest.map((f) => ({
+    field: f.field,
+    label: f.label ?? f.field,
+    operator: f.operator,
+    value: Array.isArray(f.value) ? f.value.join(', ') : String(f.value ?? ''),
+  }))
+
+  let range: TimeRange | null = null
+  if (tsFilter) {
+    const [from, to] = tsFilter.value as [string, string]
+    const m = /^now-(\d+[mhdwM])$/.exec(from)
+    range = m && to === 'now' ? presetRange(m[1]) : { from, to, interval: 'day' }
+  } else if (state.socaiTime) {
+    range = presetRange(state.socaiTime)
+  }
+  if (!range) range = presetRange('7d')
+
+  return { filters, range }
+}
+
 export function AlertsPage() {
   const { t } = useTranslation()
+
+  // Read the router state synchronously (before any useState initializer) so the
+  // seeded filters drive the very first fetch. Applying them in a post-mount
+  // useEffect raced the initial (unseeded) request and its late response could
+  // overwrite the filtered one — the classic "seeded, then it shows everything".
+  const location = useLocation()
+  const seeded = readSeed(location)
+
   const [view, setView] = useState<AlertsView>('alerts')
   const [statusTab, setStatusTab] = useState<StatusTab>('all')
   const [severity, setSeverity] = useState<SeverityKey | 'all'>('all')
-  const [range, setRange] = useState<TimeRange>(() => presetRange('7d'))
+  const [range, setRange] = useState<TimeRange>(() => seeded?.range ?? presetRange('7d'))
   const [search, setSearch] = useState('')
   const [debounced, setDebounced] = useState('')
   const [tagFilter, setTagFilter] = useState<string[]>([])
-  const [customFilters, setCustomFilters] = useState<CustomFilter[]>([])
+  const [customFilters, setCustomFilters] = useState<CustomFilter[]>(() => seeded?.filters ?? [])
 
   const [page, setPage] = useState(0)
   const [pageSize] = useState(50)
@@ -78,12 +125,9 @@ export function AlertsPage() {
       return next
     })
 
-  // SOC-AI chat navigation: seed the filters + time window the agent emitted.
-  const location = useLocation()
   const navigate = useNavigate()
   const { id: routeAlertName } = useParams<{ id: string }>()
   const pendingOpenNameRef = useRef<string | null>(null)
-  const seededRef = useRef(false)
 
   // Deep-link (/threat-management/alerts/:alertName): seed as name filter + open drawer once loaded.
   useEffect(() => {
@@ -100,28 +144,11 @@ export function AlertsPage() {
     navigate('/threat-management/alerts', { replace: true })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [routeAlertName,navigate,location])
+  // Drop the router state after the first seed so a later navigation (or a
+  // refresh that somehow keeps it) doesn't re-apply it over the user's edits.
+  // The filters themselves are already applied synchronously at mount.
   useEffect(() => {
-    const state = location.state as { socaiFilters?: FilterType[]; socaiTime?: string } | null
-    if (!state?.socaiFilters?.length || seededRef.current) return
-    seededRef.current = true
-    // @timestamp filters drive the dedicated time picker, not the custom filter bar.
-    const tsFilter = state.socaiFilters.find((f) => f.field === TS && Array.isArray(f.value))
-    const rest = tsFilter ? state.socaiFilters.filter((f) => f !== tsFilter) : state.socaiFilters
-    setCustomFilters(
-      rest.map((f) => ({
-        field: f.field,
-        label: f.field,
-        operator: f.operator,
-        value: Array.isArray(f.value) ? f.value.join(', ') : String(f.value ?? ''),
-      })),
-    )
-    if (tsFilter) {
-      const [from, to] = tsFilter.value as [string, string]
-      const m = /^now-(\d+[mhdwM])$/.exec(from)
-      setRange(m && to === 'now' ? presetRange(m[1]) : { from, to, interval: 'day' })
-    } else if (state.socaiTime) setRange(presetRange(state.socaiTime))
-    setPage(0)
-    // Drop the router state so a refresh doesn't re-seed over the user's edits.
+    if (!seeded) return
     navigate(location.pathname, { replace: true })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

@@ -4132,6 +4132,7 @@
       "impact_confidentiality": "Confidencialidade",
       "impact_integrity": "Integridade",
       "incidentDetail_incidentName": "Nome do incidente",
+      "incidentDetail_incidentId": "Id do incidente",
       "isIncident": "É incidente",
       "name": "Nome do alerta",
       "notes": "Notas",
