@@ -32,3 +32,18 @@ func truncate(s string, n int) string {
 	}
 	return s
 }
+
+// ShellActivityTelemetry builds a behavioral event carrying what a shell or
+// interpreter was asked to run: its command line, attributed to the
+// interpreter name. This is the Linux counterpart of ScriptBlockTelemetry
+// (the PowerShell 4104 record) and feeds the same correlation rules. It is
+// platform-shared (a pure event builder); the IsInterpreter gate that decides
+// WHEN it fires is linux-only.
+func ShellActivityTelemetry(cmdline, interpreter string) event.Event {
+	return event.Event{
+		Source:     event.SourceBehavioral,
+		Action:     "shell_activity",
+		ObjectPath: interpreter,
+		Signature:  truncate(cmdline, 8192),
+	}
+}

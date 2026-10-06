@@ -6,7 +6,6 @@ import (
 	"strings"
 	"testing"
 )
-
 func TestIsInterpreter(t *testing.T) {
 	cases := map[string][2]string{
 		"/bin/bash":         {"bash", "true"},

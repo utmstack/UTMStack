@@ -41,10 +41,17 @@ func (d *Dispatch) OnProcStart(ps ProcStart) {
 	}
 
 	// Behavioral telemetry: forward the process-creation event (double duty with
-	// the responder — one watcher, two consumers).
+	// the responder — one watcher, two consumers). On Linux, additionally emit
+	// a shell_activity event when the image is a known interpreter — the
+	// counterpart of the Windows PowerShell 4104 script-block record.
 	if d.spool != nil {
 		if js, err := behavioral.ProcTelemetry(p).ToJSON(); err == nil {
 			_ = d.spool.Append(js)
+		}
+		if interp, ok := behavioral.IsInterpreter(p.Image); ok {
+			if js, err := behavioral.ShellActivityTelemetry(p.Cmdline, interp).ToJSON(); err == nil {
+				_ = d.spool.Append(js)
+			}
 		}
 	}
 

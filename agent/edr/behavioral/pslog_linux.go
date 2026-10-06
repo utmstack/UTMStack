@@ -2,8 +2,6 @@
 
 package behavioral
 
-import "github.com/utmstack/UTMStack/agent/edr/event"
-
 // interpreterNames is the basename set of shells and interpreters whose
 // execve we surface as shell_activity telemetry (the Linux counterpart of
 // the PowerShell 4104 script-block records). A process whose image basename
@@ -45,17 +43,4 @@ func basename(p string) string {
 		}
 	}
 	return p
-}
-
-// ShellActivityTelemetry builds the Linux behavioral event carrying what a
-// shell or interpreter was asked to run: its command line, attributed to the
-// interpreter name. This is the counterpart of ScriptBlockTelemetry (the
-// PowerShell 4104 record) and feeds the same correlation rules.
-func ShellActivityTelemetry(cmdline, interpreter string) event.Event {
-	return event.Event{
-		Source:     event.SourceBehavioral,
-		Action:     "shell_activity",
-		ObjectPath: interpreter,
-		Signature:  truncate(cmdline, 8192),
-	}
 }
