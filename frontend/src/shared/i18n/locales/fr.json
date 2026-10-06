@@ -1193,7 +1193,7 @@
         "url": "Doit être une URL http(s) valide.",
         "httpsUrl": "Doit être une URL https valide.",
         "hostname": "Saisissez un hôte ou une IP sans schéma (ex. ldap.exemple.fr).",
-        "port": "Le port doit être un nombre entier entre 1 et 65535.",
+        "port": "Le port doit être un nombre entier entre 0 et 65535.",
         "pemCertificate": "Ne ressemble pas à un certificat PEM (-----BEGIN/END CERTIFICATE----- manquant).",
         "pemKey": "Ne ressemble pas à une clé privée PEM (-----BEGIN/END PRIVATE KEY----- manquant).",
         "userFilterPlaceholder": "Le filtre doit contenir %s, là où est placée l'adresse de connexion.",

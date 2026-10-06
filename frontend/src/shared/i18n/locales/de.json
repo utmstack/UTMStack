@@ -1193,7 +1193,7 @@
         "url": "Muss eine gültige http(s)-URL sein.",
         "httpsUrl": "Muss eine gültige https-URL sein.",
         "hostname": "Geben Sie einen Host oder eine IP ohne Schema ein (z. B. ldap.beispiel.de).",
-        "port": "Der Port muss eine ganze Zahl zwischen 1 und 65535 sein.",
+        "port": "Der Port muss eine ganze Zahl zwischen 0 und 65535 sein.",
         "pemCertificate": "Sieht nicht wie ein PEM-Zertifikat aus (-----BEGIN/END CERTIFICATE----- fehlt).",
         "pemKey": "Sieht nicht wie ein PEM-Privatschlüssel aus (-----BEGIN/END PRIVATE KEY----- fehlt).",
         "userFilterPlaceholder": "Der Filter muss %s enthalten, wo die Anmeldeadresse eingesetzt wird.",

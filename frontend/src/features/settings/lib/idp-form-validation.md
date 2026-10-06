@@ -71,7 +71,7 @@ En edit, `providerType` también es inmutable (no validable por el usuario).
 
 | Campo | Tipo | Qué maneja | Validación | Error key |
 |---|---|---|---|---|
-| `host` | `string` | Host del servidor LDAP | Obligatorio. Hostname/IP **sin esquema** ni ruta: `^(?!.*[\/\s])[A-Za-z0-9.-]+$` | `required` / `idp.form.errors.hostname` |
+| `host` | `string` | Host del servidor LDAP | Obligatorio. Hostname o IP **sin esquema** ni ruta: `^(?:(?!.*[\/\s])[A-Za-z0-9.-]+|\[[0-9A-Fa-f:]+\])$`. Acepta IPv6 bracketed (`[::1]`) — ver "Paridad con el backend" | `required` / `idp.form.errors.hostname` |
 | `port` | `number` | Puerto de conexión | Opcional en formato. Si está, entero sin ceros a la izquierda y ≤ 65535. `0` es válido = default 389 (el backend diala `0` como `389`) | `idp.form.errors.port` |
 | `bindDn` | `string` | Servicio que busca en el directorio | Obligatorio (solo presencia; no se valida la sintaxis DN, sería brittle) | `idp.form.errors.required` |
 | `baseDn` | `string` | Raíz de la búsqueda | Obligatorio (solo presencia) | `idp.form.errors.required` |
@@ -97,6 +97,38 @@ toggle `startTls` **no** se validan: el backend los tolera vacíos / usa default
 - **`port = 0` es válido.** Borrar el campo produce `0`, que es el default, no un
   typo; no debe atrancar el form.
 
+## Paridad con el backend
+
+Las reglas de formato de esta lib son una primera línea; el backend las repite
+en el save (no solo en login) y es la última defensa:
+
+- `backend/modules/iam/usecase/idp.go` → `prepareSettings` (líneas 94, 118, 145)
+  llama a `validateSAMLFormat` / `validateOIDCFormat` / `validateLDAPFormat`
+  (definidos en `idp_validation.go`) **antes** de cifrar y guardar.
+- Reglas idénticas en ambos lados: `name` (mismo `^[A-Za-z0-9][A-Za-z0-9._-]*$`),
+  `metadataUrl`/`spAcsUrl` (http URL), `spEntityId` (URI, incluye `urn:`),
+  PEM armadura cert, `issuer` (https estricto), `redirectUrl` (https + loopback
+  `localhost`/`127.0.0.1`/`::1`), `host` (sin esquema), `port` (≤ 65535,
+  `0` aceptado), `userFilter` (placeholder + paréntesis balanceados).
+
+**Divergencia conocida — IPv6 brackets (frontend más permisivo):**
+
+- El frontend acepta `host = [::1]` (`HOST_RE` con la alternativa
+  `\[[0-9A-Fa-f:]+\]`).
+- El backend **no** lo acepta aún: `idpHostRe` es la misma regex sin brackets
+  (`idp_validation.go:16`) y el dial construye la URL con
+  `fmt.Sprintf("ldap://%s:%d", host, port)` (`idp.go:880`), que con un IPv6
+  necesitaría `net.JoinHostPort` para bracketear.
+- Consecuencia: un admin puede llenar el form con `[::1]` sin error local, pero
+  el save responde `ErrIDPSettingsInvalid` (mensaje genérico del backend).
+  Es un trade-off aceptado: la UX del form no bloquea hosts IPv6 y la
+  compatibilidad end-to-end queda pendiente de un cambio de backend (regex +
+  dial). Se documenta aquí y en el comentario sobre `HOST_RE` en el `.ts`.
+
+**Nota del backend (no se toca desde esta rama):** `validateIDPSettingsFormat`
+(`idp_validation.go:19`) no tiene caller — las funciones individuales son las
+que corren en `prepareSettings`.
+
 ## Fuentes de las reglas
 
 Las reglas de formato (URL, `https` estricto para `issuer`, loopback para
@@ -120,5 +152,5 @@ aditiva.
 
 ## Cubertura
 
-`src/features/settings/lib/idp-form-validation.test.ts` — 41 casos, uno por regla,
-corriendo con `npx vitest run`.
+`src/features/settings/lib/idp-form-validation.test.ts` — 45 casos, uno por
+regla, corriendo con `npx vitest run`.

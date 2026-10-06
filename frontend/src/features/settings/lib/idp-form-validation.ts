@@ -24,7 +24,10 @@ const NAME_MAX = 64
 // allowed (acme.entra) — they are legal path segments.
 const NAME_RE = /^[A-Za-z0-9][A-Za-z0-9._-]*$/
 // Host or hostname the LDAP dial builds into ldap://host:port — no scheme.
-const HOST_RE = /^(?!.*[\/\s])[A-Za-z0-9.-]+$/
+// The IPv6 bracketed alternative is accepted by the form even though the
+// backend's idpHostRe still rejects it on save (parity note in the .md beside
+// this file): the dial would need net.JoinHostPort, which is a backend change.
+const HOST_RE = /^(?:(?!.*[\/\s])[A-Za-z0-9.-]+|\[[0-9A-Fa-f:]+\])$/
 // Port 1..65535 as a string, no leading zeros.
 const PORT_RE = /^(0|[1-9][0-9]*)$/
 
@@ -127,8 +130,15 @@ function ldapErrors(input: IdpFormInput, errors: IdpFieldErrors): void {
     // A filter is a chain of (attr=value); it needs the placeholder and balanced
     // parens. Both are the common ways a search silently returns nothing.
     if (!userFilter.includes('%s')) errors.userFilter = 'idp.form.errors.userFilterPlaceholder'
-    else if ((userFilter.match(/\(/g)?.length ?? 0) !== (userFilter.match(/\)/g)?.length ?? 0)) {
-      errors.userFilter = 'idp.form.errors.userFilterUnbalanced'
+    // Each side resolves to a number on its own. The previous one-liner
+    // (a ?? 0) !== (b ?? 0) had the right-hand ?? bind at the wrong
+    // precedence (!== outranks ??), so it was dead code that read as if
+    // it guarded a zero-paren filter; extracting the sides makes the
+    // intent clear and removes the trap.
+    else {
+      const open = userFilter.match(/\(/g)?.length ?? 0
+      const close = userFilter.match(/\)/g)?.length ?? 0
+      if (open !== close) errors.userFilter = 'idp.form.errors.userFilterUnbalanced'
     }
   }
 }

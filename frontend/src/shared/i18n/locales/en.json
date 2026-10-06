@@ -1345,7 +1345,7 @@
         "url": "Must be a valid http(s) URL.",
         "httpsUrl": "Must be a valid https URL.",
         "hostname": "Enter a host or IP without a scheme (e.g. ldap.example.com).",
-        "port": "Port must be a whole number between 1 and 65535.",
+        "port": "Port must be a whole number between 0 and 65535.",
         "pemCertificate": "Does not look like a PEM certificate (missing -----BEGIN/END CERTIFICATE-----).",
         "pemKey": "Does not look like a PEM private key (missing -----BEGIN/END PRIVATE KEY-----).",
         "userFilterPlaceholder": "The filter must contain %s, where the login address is placed.",

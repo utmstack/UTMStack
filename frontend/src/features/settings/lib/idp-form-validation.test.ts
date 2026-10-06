@@ -186,6 +186,15 @@ describe('validateIdpForm — LDAP', () => {
     expect(validateIdpForm(ldapBase({}, { host: '10.0.0.5' })).host).toBeUndefined()
   })
 
+  it('accepts a bracketed IPv6 host', () => {
+    expect(validateIdpForm(ldapBase({}, { host: '[::1]' })).host).toBeUndefined()
+  })
+
+  it('rejects an unbracketed IPv6 host', () => {
+    // A bare ::1 would dial as ldap://::1:389, which is not a parseable URL.
+    expect(validateIdpForm(ldapBase({}, { host: '::1' })).host).toBe('idp.form.errors.hostname')
+  })
+
   it('flags a port above 65535', () => {
     expect(validateIdpForm(ldapBase({}, { port: 99999 })).port).toBe('idp.form.errors.port')
   })
@@ -206,6 +215,18 @@ describe('validateIdpForm — LDAP', () => {
     expect(validateIdpForm(ldapBase({}, { userFilter: '(&|(mail=%s)(userPrincipalName=%s)' })).userFilter).toBe(
       'idp.form.errors.userFilterUnbalanced',
     )
+  })
+
+  it('flags a filter with a single unclosed paren and the placeholder', () => {
+    expect(validateIdpForm(ldapBase({}, { userFilter: '(mail=%s' })).userFilter).toBe(
+      'idp.form.errors.userFilterUnbalanced',
+    )
+  })
+
+  it('accepts a filter with zero parentheses (placeholder only)', () => {
+    // A flat filter like mail=%s has no parens at all: 0 open and 0 close is
+    // balanced, so it must not be flagged as unbalanced.
+    expect(validateIdpForm(ldapBase({}, { userFilter: 'mail=%s' })).userFilter).toBeUndefined()
   })
 
   it('accepts a balanced filter with the placeholder', () => {
