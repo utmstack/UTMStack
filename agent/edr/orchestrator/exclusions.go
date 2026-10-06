@@ -15,11 +15,13 @@ type Excluder struct {
 	patterns []string
 }
 
-// normPath lower-cases and converts a Windows or POSIX path to a canonical
-// forward-slash form so matching is case- and separator-insensitive on any host
-// (the EDR handles Windows paths but its tests run on the dev host).
+// normPath converts a Windows or POSIX path to a canonical forward-slash form
+// so pattern matching is separator-insensitive on any host. Case handling is
+// platform-specific (see platformNormPath): Windows filesystems are
+// case-insensitive, so Windows normalisation lower-cases; POSIX is
+// case-sensitive, so POSIX keeps the original case.
 func normPath(s string) string {
-	return strings.TrimRight(strings.ReplaceAll(strings.ToLower(s), `\`, "/"), "/")
+	return platformNormPath(s)
 }
 
 func normPatterns(patterns []string) []string {

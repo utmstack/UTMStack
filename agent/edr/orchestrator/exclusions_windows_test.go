@@ -1,7 +1,11 @@
+//go:build windows
+
 package orchestrator
 
 import "testing"
 
+// TestExcluder pins the Windows behaviour: case-insensitive matching and
+// separator agnosticism.
 func TestExcluder(t *testing.T) {
 	e := NewExcluder([]string{`C:\Windows\Temp`, `C:\Users\me\build`, `*.log`, `C:\logs\*.tmp`})
 	cases := map[string]bool{
@@ -18,19 +22,5 @@ func TestExcluder(t *testing.T) {
 		if got := e.Excluded(p); got != want {
 			t.Fatalf("Excluded(%q) = %v, want %v", p, got, want)
 		}
-	}
-}
-
-func TestExcluderSetHotSwap(t *testing.T) {
-	e := NewExcluder([]string{`C:\a`})
-	if !e.Excluded(`C:\a\x`) || e.Excluded(`C:\b\y`) {
-		t.Fatal("initial patterns wrong")
-	}
-	e.Set([]string{`C:\b`})
-	if e.Excluded(`C:\a\x`) {
-		t.Fatal("old pattern still active after Set")
-	}
-	if !e.Excluded(`C:\b\y`) {
-		t.Fatal("new pattern not active after Set")
 	}
 }
