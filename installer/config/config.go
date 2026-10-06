@@ -19,6 +19,7 @@ type Config struct {
 	ServerType         string  `yaml:"server_type"`
 	ServerName         string  `yaml:"server_name"`
 	InternalKey        string  `yaml:"internal_key"`
+	SharedKey          string  `yaml:"shared_key"`
 	UpdatesFolder      string  `yaml:"updates_folder"`
 	MappingName        *string `yaml:"mapping_name,omitempty"`
 }
@@ -80,6 +81,10 @@ func GetConfig() *Config {
 
 		if config.InternalKey == "" {
 			config.InternalKey = utils.GenerateSecret(32)
+		}
+
+		if config.SharedKey == "" {
+			config.SharedKey = utils.GenerateSecret(32)
 		}
 
 		if config.OpenSearchPassword == "" {
