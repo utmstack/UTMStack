@@ -132,8 +132,8 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 			"DB_PORT=5432",
 			"DB_NAME=agentmanager",
 			"PANEL_SERV_NAME=http://backend:8080",
-			"REDIS_ADDR=redis:6379",
-			"REDIS_PASSWORD=" + conf.Password,
+			"VALKEY_ADDR=valkey:6379",
+			"VALKEY_PASSWORD=" + conf.Password,
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
@@ -146,7 +146,7 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		},
 		DependsOn: []string{
 			"postgres",
-			"redis",
+			"valkey",
 		},
 	}
 
@@ -398,16 +398,16 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		},
 	}
 
-	redisMem := stack.ServiceResources["redis"].AssignedMemory
-	c.Services["redis"] = Service{
-		Image: utils.PointerOf[string]("redis:7-alpine"),
+	valkeyMem := stack.ServiceResources["valkey"].AssignedMemory
+	c.Services["valkey"] = Service{
+		Image: utils.PointerOf[string]("valkey/valkey:9-alpine"),
 		Volumes: []string{
-			stack.RedisData + ":/data",
+			stack.ValkeyData + ":/data",
 		},
 		// Holds the shared auth cache, which is rebuildable, so eviction under
 		// pressure is preferable to refusing writes.
 		Command: []string{
-			"redis-server", "--requirepass", conf.Password,
+			"valkey-server", "--requirepass", conf.Password,
 			"--maxmemory-policy", "allkeys-lru",
 		},
 		Logging: &dLogging,
@@ -415,7 +415,7 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 			Placement: &pManager,
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", redisMem)),
+					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", valkeyMem)),
 				},
 			},
 		},
@@ -426,7 +426,7 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/log-input:${UTMSTACK_TAG}"),
 		DependsOn: []string{
 			"nats",
-			"redis",
+			"valkey",
 			"agentmanager",
 		},
 		Volumes: []string{
@@ -434,8 +434,8 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		},
 		Environment: []string{
 			"NATS_URL=nats://nats:4222",
-			"REDIS_ADDR=redis:6379",
-			"REDIS_PASSWORD=" + conf.Password,
+			"VALKEY_ADDR=valkey:6379",
+			"VALKEY_PASSWORD=" + conf.Password,
 			"AGENT_MANAGER=agentmanager:9000",
 			"BACKEND=http://backend:8080",
 			"INTERNAL_KEY=" + conf.InternalKey,

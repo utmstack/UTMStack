@@ -27,7 +27,7 @@ description: |
   8. Implement SharePoint access governance policies
 where: |
   oneOf("action", ["SiteCollectionAdminAdded", "SiteAdmin"]) &&
-  equals("actionResult", "Success")
+  equals("actionResult", "success")
 groupBy:
   - adversary.user
   - target.user

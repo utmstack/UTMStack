@@ -1,4 +1,4 @@
-# Crowdstrike module filter, version 1.2.0
+# Crowdstrike module filter, version 1.3.1
 # Based in docs and samples provided
 # 
 # Documentations
@@ -111,11 +111,6 @@ pipeline:
           
       - rename:
           from:
-            - log.event.Attributes.trace_id
-          to: log.eventAttributesTraceID
-          
-      - rename:
-          from:
             - log.event.Attributes.user_agent
           to: log.eventAttributesUserAgent
           
@@ -216,11 +211,6 @@ pipeline:
           
       - rename:
           from:
-            - log.event.ServiceName
-          to: log.eventServiceName
-          
-      - rename:
-          from:
             - log.event.SourceIp
           to: origin.ip
           
@@ -263,11 +253,6 @@ pipeline:
           from:
             - log.metadata.version
           to: log.metadataVersion
-          
-      - rename:
-          from:
-            - log.event.Message
-          to: log.eventMessage
           
       - rename:
           from:
@@ -343,6 +328,15 @@ pipeline:
           from:
             - log.event.LocalIP
           to: origin.ip
+
+      # Console sign-in records (AuthActivityAuditEvent) carry the client address
+      # only as UserIp. API and stream records already set origin.ip from SourceIp,
+      # which holds the same address, so an existing origin.ip is kept.
+      - rename:
+          from:
+            - log.event.UserIp
+          to: origin.ip
+          where: '!exists("origin.ip") && (inCIDR("log.event.UserIp", "0.0.0.0/0") || inCIDR("log.event.UserIp", "::/0")) && !inCIDR("log.event.UserIp", "0.0.0.0/32") && !inCIDR("log.event.UserIp", "::/128")'
           
       - rename:
           from:
@@ -619,18 +613,6 @@ pipeline:
       # .......................................................................#
       - trim:
           function: prefix
-          substring: '"'
-          fields:
-            - log.eventCommandLine
-
-      - trim:
-          function: suffix
-          substring: '"'
-          fields:
-            - log.eventCommandLine
-
-      - trim:
-          function: prefix
           substring: '[{'
           fields:
             - log.eventCommandLine
@@ -668,32 +650,53 @@ pipeline:
           where: exists("origin.ip")
 
       # .......................................................................#
-      # Adding action result
+      # Adding action result: only success, failed or denied, or no value when the
+      # record states no final outcome.
+      # An explicit Success=false or a 4xx/5xx response is a failed operation.
+      # API records report Success=true even when the request failed, so a
+      # response code decides success: only a final 2xx. Redirects and other
+      # codes stay unset. Records without a response code use Success.
+      # The denied steps run last, so a refusal replaces failed.
       # .......................................................................#
       - add:
           function: string
           params:
             key: actionResult
-            value: "success"
-          where: 'exists("log.eventSuccess") && oneOf("log.eventSuccess", [true, "true"])'
-      - add:
-          function: string
-          params:
-            key: actionResult
             value: "failed"
-          where: 'exists("log.eventSuccess") && oneOf("log.eventSuccess", [false, "false"])'
+          where: 'oneOf("log.eventSuccess", [false, "false"]) || greaterOrEqual("statusCode", 400)'
       - add:
           function: string
           params:
             key: actionResult
             value: "success"
-          where: 'exists("statusCode") && greaterOrEqual("statusCode", 200) && lessOrEqual("statusCode", 399)'
+          where: '!exists("actionResult") && ((exists("statusCode") && greaterOrEqual("statusCode", 200) && lessOrEqual("statusCode", 299)) || (!exists("statusCode") && oneOf("log.eventSuccess", [true, "true"])))'
+      # A request refused for missing or insufficient rights (401, 403) is denied.
       - add:
           function: string
           params:
             key: actionResult
-            value: "failed"
-          where: 'exists("statusCode") && greaterOrEqual("statusCode", 400)'
+            value: "denied"
+          where: 'oneOf("statusCode", [401, 403])'
+      # A detection whose prevention action really ran (process blocked or killed,
+      # operation blocked, file quarantined) is denied. "Detection, ... would have
+      # been blocked" records carry PolicyDisabled: nothing ran, so no value.
+      # A failed kill (KillActionFailed) stopped nothing, so no value either.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "denied"
+          where: >-
+            oneOf("log.metadataEventType", ["DetectionSummaryEvent", "EppDetectionSummaryEvent"]) &&
+            regexMatch("log.eventPatternDispositionDescription", "^Prevention") &&
+            !oneOf("log.eventPatternDispositionFlagsPolicyDisabled", [true, "true"]) &&
+            !oneOf("log.eventPatternDispositionFlagsKillActionFailed", [true, "true"]) &&
+            (oneOf("log.eventPatternDispositionFlagsProcessBlocked", [true, "true"]) ||
+             oneOf("log.eventPatternDispositionFlagsKillProcess", [true, "true"]) ||
+             oneOf("log.eventPatternDispositionFlagsOperationBlocked", [true, "true"]) ||
+             oneOf("log.eventPatternDispositionFlagsQuarantineFile", [true, "true"]) ||
+             oneOf("log.eventPatternDispositionFlagsFsOperationBlocked", [true, "true"]) ||
+             oneOf("log.eventPatternDispositionFlagsRegistryOperationBlocked", [true, "true"]))
 
       # .......................................................................#
       # Normalizing request method and renaming to action

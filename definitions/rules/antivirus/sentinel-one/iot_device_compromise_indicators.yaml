@@ -27,8 +27,7 @@ description: |
   8. Implement additional monitoring for IoT device communications
 where: |
   exists("log.eventDescription") &&
-  contains("log.eventDescription", ["iot", "embedded", "firmware",
-    "industrial", "scada", "ics", "plc"]) &&
+  regexMatch("log.eventDescription", "\\b(iot|embedded|firmware|industrial|scada|ics|plc)\\b") &&
   contains("log.eventDescription", ["compromise", "malicious",
     "backdoor", "botnet", "exploit", "infection"]) &&
   exists("log.endpointDeviceName")

@@ -1,0 +1,27 @@
+# Rule version v1.0.0 (gap-fill set, 2026-09-25)
+
+dataTypes:
+  - o365
+name: Microsoft 365 Mailbox Audit Bypass Associated
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Defense Evasion
+technique: "T1562.008 - Disable Cloud Logs"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/powershell/module/exchange/set-mailboxauditbypassassociation
+description: |
+  Detects Set-MailboxAuditBypassAssociation exempting an identity from mailbox auditing so its mailbox actions are not recorded, an anti-forensics step.
+
+  Next Steps:
+  1. Identify the bypassed identity
+  2. Assess whether the exemption is expected
+  3. Review the acting administrator
+  4. Remove the bypass association
+where: |
+  equals("action", "Set-MailboxAuditBypassAssociation") && equals("actionResult", "success")
+groupBy:
+  - lastEvent.log.Parameters
+  - adversary.user

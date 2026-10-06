@@ -22,3 +22,10 @@ type VisualizationRepository interface {
 	List(ctx context.Context, f dto.VisualizationFilter) ([]domain.Visualization, int64, error)
 	Delete(ctx context.Context, id uuid.UUID) error
 }
+
+type DashboardFilterRepository interface {
+	Save(ctx context.Context, v *domain.DashboardFilter) error
+	FindByID(ctx context.Context, id uuid.UUID) (*domain.DashboardFilter, error)
+	List(ctx context.Context, f dto.DashboardFilterFilter) ([]domain.DashboardFilter, int64, error)
+	Delete(ctx context.Context, id uuid.UUID) error
+}

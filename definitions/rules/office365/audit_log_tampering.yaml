@@ -28,7 +28,7 @@ where: |
   (equals("log.Workload", "Exchange") && contains("log.ObjectId", "AdminAuditLog")) ||
   (contains("log.Parameters", "UnifiedAuditLogIngestionEnabled") && contains("log.Parameters", "false"))) &&
   exists("origin.user") &&
-  equals("actionResult", "Succeeded")
+  equals("actionResult", "success")
 groupBy:
   - lastEvent.action
   - adversary.user

@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.0.1
 
 dataTypes:
   - firewall-cisco-firepower
@@ -26,14 +26,12 @@ description: |
   7. Consider blocking the source IP if it shows persistent malicious behavior
   8. Document the incident and update security controls based on findings
 where: |
-  equals("log.eventType", "IPS_EVENT") && 
-  (equals("log.priority", 1) || 
-   lessOrEqual("log.severity", 2) ||
-   equals("log.impact", "HIGH") ||
-   contains("log.classification", "attempted-admin") ||
-   contains("log.classification", "attempted-user") ||
-   contains("log.classification", "web-application-attack") ||
-   contains("log.classification", "exploit-kit"))
+  equals("log.messageId", 430001) &&
+  (equals("log.Priority", 1) ||
+   contains("log.Classification", "Attempted Administrator Privilege Gain") ||
+   contains("log.Classification", "Attempted User Privilege Gain") ||
+   contains("log.Classification", "Web Application Attack") ||
+   contains("log.Classification", "Exploit Kit Activity Detected"))
 groupBy:
   - adversary.ip
   - target.ip

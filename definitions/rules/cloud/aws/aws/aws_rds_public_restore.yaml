@@ -1,33 +1,26 @@
-# Rule version v1.0.0
-
+# Rule contract revision 2026-09-17; SDK v1.1.31.
 dataTypes:
-  - aws
-name: AWS RDS Database Restored as Publicly Accessible
+- aws
+name: AWS RDS Publicly Accessible Restore Requested
 impact:
   confidentiality: 3
   integrity: 2
   availability: 1
-category: Exfiltration
-technique: "T1020 - Automated Exfiltration"
+category: System Integrity
 adversary: origin
 references:
-  - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_RestoreFromSnapshot.html
-  - https://attack.mitre.org/techniques/T1020/
+- https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_RestoreFromSnapshot.html
 description: |
-  Detects RestoreDBInstanceFromDBSnapshot or RestoreDBClusterFromSnapshot API calls that may create publicly accessible database instances. Attackers use this to exfiltrate database contents by restoring a snapshot as a publicly accessible instance.
-
-  Next Steps:
-  1. Verify the database restore was authorized and part of an approved workflow
-  2. Check if the restored instance is publicly accessible
-  3. Review the security group and subnet configuration of the restored instance
-  4. Identify the source snapshot and its data sensitivity
-  5. If publicly accessible and unauthorized, immediately modify the instance to private
-  6. Check for any connections to the restored instance from external IPs
+  Identifies a successful database restore request explicitly setting publiclyAccessible to true. Verify the task status, subnet routing, security groups and approval. Request acceptance does not prove that the database is reachable from the internet or that any data was exfiltrated.
 where: |
-  equals("log.eventSource", "rds.amazonaws.com") &&
-  oneOf("log.eventName", ["RestoreDBInstanceFromDBSnapshot", "RestoreDBClusterFromSnapshot"]) &&
-  equals("log.errorCode", "") &&
-  contains("log.requestParameters", "publiclyAccessible")
+  equals("log.awsRecordType","cloudtrail") &&
+  (equals("log.eventSource","rds.amazonaws.com") &&
+  oneOf("log.eventName",["RestoreDBInstanceFromDBSnapshot", "RestoreDBClusterFromSnapshot"]) &&
+  equals("actionResult","success") &&
+  equals("log.requestParameters.publiclyAccessible",true))
 groupBy:
-  - adversary.user
-  - lastEvent.log.eventName
+- lastEvent.dataSource
+- lastEvent.log.awsAccountKeyType
+- lastEvent.log.awsAccountKey
+- adversary.user
+- lastEvent.log.eventName

@@ -1,0 +1,25 @@
+# Rule contract revision 2026-09-25; SDK v1.1.36 (gap-fill set).
+dataTypes:
+- aws
+name: AWS CloudTrail Trail Created
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Defense Evasion
+technique: T1562 - Impair Defenses
+adversary: origin
+description: Identifies creation of a new CloudTrail trail, which an attacker may use to restrict which events are recorded or to ship logs to an adversary-controlled bucket.
+references:
+- https://docs.aws.amazon.com/awscloudtrail/latest/APIReference/API_CreateTrail.html
+where: |
+  equals("log.awsRecordType","cloudtrail") &&
+  (equals("log.eventSource", "cloudtrail.amazonaws.com") &&
+  equals("log.eventName", "CreateTrail") &&
+  equals("actionResult","success"))
+groupBy:
+- lastEvent.dataSource
+- lastEvent.log.awsAccountKeyType
+- lastEvent.log.awsAccountKey
+- adversary.ip
+- adversary.user

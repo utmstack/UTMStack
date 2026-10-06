@@ -1,0 +1,26 @@
+# Rule contract revision 2026-09-25; SDK v1.1.36 (gap-fill set).
+dataTypes:
+- aws
+name: AWS GuardDuty Detector Updated or Disabled
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Defense Evasion
+technique: T1685 - Disable or Modify Cloud Logs
+adversary: origin
+description: Identifies an UpdateDetector call that disables a GuardDuty detector, stopping threat detection while avoiding a clean DeleteDetector signal.
+references:
+- https://docs.aws.amazon.com/guardduty/latest/APIReference/API_UpdateDetector.html
+where: |
+  equals("log.awsRecordType","cloudtrail") &&
+  (equals("log.eventSource", "guardduty.amazonaws.com") &&
+  equals("log.eventName", "UpdateDetector") &&
+  equals("actionResult","success") &&
+  equals("log.requestParameters.enable",false))
+groupBy:
+- lastEvent.dataSource
+- lastEvent.log.awsAccountKeyType
+- lastEvent.log.awsAccountKey
+- adversary.ip
+- adversary.user

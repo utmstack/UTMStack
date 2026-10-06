@@ -32,7 +32,10 @@ where: |
   !inCIDR("origin.ip", "10.0.0.0/8") &&
   !inCIDR("origin.ip", "172.16.0.0/12") &&
   !inCIDR("origin.ip", "192.168.0.0/16") &&
-  !inCIDR("origin.ip", "127.0.0.0/8")
+  !inCIDR("origin.ip", "127.0.0.0/8") &&
+  !inCIDR("origin.ip", "::1/128") &&
+  !inCIDR("origin.ip", "fc00::/7") &&
+  !inCIDR("origin.ip", "fe80::/10")
 groupBy:
-  - adversary.ip
-  - adversary.user
+- adversary.ip
+- adversary.user

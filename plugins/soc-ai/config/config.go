@@ -39,10 +39,32 @@ type Config struct {
 	// Agent behavior (from YAML)
 	MaxToolIterations int
 	AutoAnalyze       bool
-	Capabilities      []string
+	// AllowIncidents: whether the AUTOMATIC triage queue may create/update
+	// incidents when it decides an alert warrants one. Unrelated to the
+	// interactive chat — see Capabilities and TriageCapabilities.
+	AllowIncidents bool
+	// Capabilities: the interactive chat agent's tool groups. Always every
+	// group — including "incidents" — since a person is already driving
+	// that conversation; configuring SOC-AI at all is the signal it's meant
+	// to be used. Never gated by AllowIncidents.
+	Capabilities []string
 
 	// Derived: true when the plugin is configured enough to run.
 	ModuleActive bool
+}
+
+// TriageCapabilities is what the AUTOMATIC triage queue may use — distinct
+// from Capabilities (the chat's, always everything): the queue runs
+// unattended, so unlike the chat, whether it may touch incidents is a real
+// choice, gated by AllowIncidents. It has no business with dashboards,
+// compliance, correlation, datasources or SOAR either way; the triage
+// prompt never asks for them.
+func (c *Config) TriageCapabilities() []string {
+	caps := []string{"alerts"}
+	if c.AllowIncidents {
+		caps = append(caps, "incidents")
+	}
+	return caps
 }
 
 type fileConfig struct {
@@ -57,8 +79,15 @@ type fileConfig struct {
 	ContextWindow     int               `yaml:"context_window"`
 	MaxToolIterations int               `yaml:"max_tool_iterations"`
 	AutoAnalyze       bool              `yaml:"auto_analyze"`
-	Capabilities      []string          `yaml:"capabilities"`
+	AllowIncidents    bool              `yaml:"allow_incidents"`
 }
+
+// chatCapabilities is the interactive chat agent's fixed tool-group list —
+// every group, "incidents" included. A person is driving that conversation,
+// so none of this needs a switch; configuring SOC-AI at all is the signal
+// it's meant to be used. AllowIncidents only matters to TriageCapabilities,
+// the unattended path — never to this one.
+var chatCapabilities = []string{"alerts", "incidents", "dashboards", "compliance", "correlation", "datasources", "soar"}
 
 type socAIFile struct {
 	fileConfig `yaml:",inline"`
@@ -279,7 +308,8 @@ func build(fc fileConfig, cipher *Cipher, encKey, backend, internalKey string) *
 	c.ContextWindow = fc.ContextWindow
 	c.MaxToolIterations = maxIters
 	c.AutoAnalyze = fc.AutoAnalyze
-	c.Capabilities = fc.Capabilities
+	c.AllowIncidents = fc.AllowIncidents
+	c.Capabilities = chatCapabilities
 	c.ModuleActive = fc.Provider != "" && fc.Model != "" && url != ""
 
 	return c

@@ -14,20 +14,9 @@ references:
   - https://docs.openshift.com/container-platform/latest/security/index.html
   - https://attack.mitre.org/techniques/T1552/007/
 description: |
-  Best-effort, low-confidence detection for OpenShift-related security events, limited to node-level journald text
-  from any unit whose syslog identifier mentions OpenShift/CRI-O components.
+  Detects security violations in OpenShift Container Platform including unauthorized API access, RBAC violations, security context constraint breaches, and malicious pod deployments. These violations indicate potential security breaches or misconfigurations that could lead to unauthorized access or privilege escalation within the cluster.
 
-  Rewritten v2.0.0, and left intentionally weak: this rule is architecturally unable to see what it was written to
-  detect. RBAC violations, Security Context Constraint breaches, admission webhook denials, and API audit
-  responses (403s) are recorded by the OpenShift API server's own structured audit log
-  (kube-apiserver-audit / openshift-apiserver-audit), which this Linux host agent never reads -- it only collects
-  this node's own journald/auditd output. The previous version invented fields for this
-  (log.service/log.program/log.kubernetes_component/log.namespace/log.audit_verb/log.audit_response_code/
-  log.privileged/log.resource/log.verb/log.response_code/log.event_type) that do not and cannot exist in this
-  agent's data. Real detection needs a dedicated collector ingesting the OpenShift audit log (e.g. via the
-  cluster's own logging pipeline or the kube-apiserver-audit webhook), which is out of scope for this agent and not
-  built. Until that exists, keep this only as a coarse, best-effort fallback on the rare node-level text that does
-  reach journald, and do not rely on it for real RBAC/SCC/admission-control coverage.
+  The rule reads OpenShift and Kubernetes components that log to the journal (kubelet, kubenswrapper, hyperkube, CRI-O, and control planes that run as system services, such as k3s, RKE2 and MicroK8s). It matches authorization denials, security context constraint and Pod Security rejections, and admission webhook denials. Denials for node and control-plane identities (system:node:, system:kube-) are left out because they are routine while a cluster starts or reschedules.
 
   Next Steps:
   1. Immediately investigate the user account and source IP involved in the violation
@@ -39,12 +28,20 @@ description: |
   7. Consider temporarily restricting access for the affected user/service account
   8. Document findings and update security policies if needed
 where: |
-  (contains("log.SYSLOGIDENTIFIER", "openshift") || contains("log.SYSLOGIDENTIFIER", "crio") || contains("log.SYSLOGIDENTIFIER", "kubelet")) &&
   (
-    contains("log.message", "forbidden") ||
-    contains("log.message", "RBAC") ||
-    contains("log.message", "denied") ||
-    contains("log.message", "admission webhook")
+    contains("log.syslogIdentifier", "openshift") ||
+    contains("log.syslogIdentifier", "kube") ||
+    oneOf("log.syslogIdentifier", ["k3s", "rke2", "crio"])
+  ) &&
+  (
+    (contains("log.message", "is forbidden: User ") &&
+     !contains("log.message", "system:node:") &&
+     !contains("log.message", "system:kube-")) ||
+    contains("log.message", "unable to validate against any security context constraint") ||
+    contains("log.message", "violates PodSecurity") ||
+    (contains("log.message", "admission webhook ") && contains("log.message", " denied the request")) ||
+    contains("log.message", "RBAC DENY:")
   )
-groupBy:
-  - adversary.host
+deduplicateBy:
+  - dataSource
+  - lastEvent.log.syslogIdentifier

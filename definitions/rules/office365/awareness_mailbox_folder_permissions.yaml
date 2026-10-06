@@ -1,0 +1,33 @@
+# Rule version v1.1.2
+
+dataTypes:
+- o365
+name: Office 365 Mailbox Folder Permission Changed
+description: |
+  A folder permission on someone else's mailbox was added, modified or removed, either with an Exchange administrator cmdlet or through an audited mailbox client. This can grant or revoke access to the messages in that folder.
+
+  Changes owners make to their own mailbox, such as sharing a calendar, do not raise this alert; the audit record shows them with logon type Owner or with the mailbox owner as the actor. Neither do changes made by Microsoft service accounts, which the audit record marks with ExternalAccess set to true and a Windows security identifier (S-1-5-...) as the actor, for example when Microsoft 365 configures group mailboxes.
+
+  Review the actor, affected object, change request and authorized owner. This alert reports an audited configuration change; it does not by itself establish compromise, an external recipient, or a currently enabled setting.
+category: Administrative Awareness
+technique: 'T1098.002 - Account Manipulation: Additional Email Delegate Permissions'
+adversary: origin
+impact:
+  confidentiality: 1
+  integrity: 1
+  availability: 0
+references:
+- https://learn.microsoft.com/en-us/purview/audit-log-activities
+- https://learn.microsoft.com/en-us/office/office-365-management-api/office-365-management-activity-api-schema
+- https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/add-mailboxfolderpermission?view=exchange-ps
+where: |
+  equals("log.Workload", "Exchange") && equals("actionResult", "success") && oneOf("action", ["Add-MailboxFolderPermission", "Set-MailboxFolderPermission", "Remove-MailboxFolderPermission", "AddFolderPermissions", "ModifyFolderPermissions", "RemoveFolderPermissions"]) &&
+  !equals("log.LogonType", 0) &&
+  (!exists("target.user") || safe("origin.user", "") != safe("target.user", "")) &&
+  !(equals("log.ExternalAccess", true) && startsWith("origin.user", "S-1-5-"))
+groupBy:
+- lastEvent.tenantId
+- lastEvent.log.OrganizationId
+- dataSource
+- adversary.user
+- lastEvent.action

@@ -12,7 +12,6 @@ impact:
   integrity: 2
   availability: 1
 where: >
-  equals("log.event_simpleName", "ProcessRollup2") && 
   exists("log.eventCommandLine") && 
   regexMatch("log.eventCommandLine", "(?i).*(powershell|pwsh).*-(e|en|enc|encodedcommand|ec)\\s+.*")
 groupBy: 
