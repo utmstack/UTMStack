@@ -25,7 +25,11 @@ func defaultCanaryDirs() []string {
 		}
 		dirs = append(dirs, v)
 	}
-	if up := os.Getenv("USERPROFILE"); up != "" {
+	up := os.Getenv("USERPROFILE")
+	if up == "" {
+		up = os.Getenv("HOME") // POSIX: profile dirs live under $HOME
+	}
+	if up != "" {
 		for _, sub := range []string{"Desktop", "Documents", "Downloads", "Pictures"} {
 			dirs = append(dirs, filepath.Join(up, sub))
 		}
