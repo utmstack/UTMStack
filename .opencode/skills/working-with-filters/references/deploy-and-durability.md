@@ -50,7 +50,7 @@ Then `docker cp` the file into the backend reseed dir, then confirm the engine f
 ## Verifying the engine reloaded
 ```
 ssh: sudo docker exec <worker> sh -c "head -1 /workdir/pipeline/filters/<fid>.yaml"
-ssh: sudo docker exec <worker> sh -c "grep -c log.Members /workdir/pipeline/filters/<fid>.yaml"
+ssh: sudo docker exec <worker> sh -c "grep -c event.Members /workdir/pipeline/filters/<fid>.yaml"
 ```
 
 ## No-JWT query paths (read the index without a login token)

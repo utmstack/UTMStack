@@ -39,16 +39,16 @@ groupBy:                          # OR deduplicateBy, not both
 See `references/rule-schema.md` for every field, the `afterEvents` operators, and `{{.field}}` placeholder rules.
 
 ## Core workflow (always this order)
-1. **Ground it in live data.** Query `v11-log-<vendor>-*` for a real sample of the target `action`. Confirm: the op is **ingested** (not in the filter's drop list), the fields you reference **exist**, and their **values/types** match (`actionResult` present? `origin.user` populated? `target.filename` vs `log.SourceFileName`?).
+1. **Ground it in live data.** Query `v11-log-<vendor>-*` for a real sample of the target `action`. Confirm: the op is **ingested** (not in the filter's drop list), the fields you reference **exist**, and their **values/types** match (`actionResult` present? `origin.user` populated? `target.filename` vs `event.SourceFileName`?).
 2. **Write** the rule YAML.
 3. **Validate** with PyYAML (LSP is unreliable on these files).
 4. **Deploy** to Postgres (`utm_correlation_rules` + `utm_group_rules_data_type`) and the backend reseed dir. See `references/deploy-and-verify.md`.
 5. **Verify the engine** loaded it (`/workdir/rules/<vendor>/<id>.yaml`), then **generate the real event** and confirm an alert fires with correct attribution. A rule is only "done" when it has fired.
 
 ## Critical gotchas
-- **`actionResult` is filter-synthesized, not raw.** If the op emits no `log.ResultStatus`, `actionResult` is null → `equals("actionResult","success")` never matches. Check the live sample; drop the clause for such ops (TeamDeleted, MailboxLogin).
-- **`contains` needs a string** (scalar-only CEL). Array fields (`log.Parameters`, `log.Members`) require a filter `cast` to string first — otherwise dead. (See `working-with-filters` → `cel-semantics.md`.)
-- **Field name drift.** Rules reference the *normalized* field. If a rule says `log.clientIP` but the filter renamed it to `origin.ip`, it's dead. O365: `action` (not `log.Operation`), `origin.ip`, `origin.user`, `target.filename`.
+- **`actionResult` is filter-synthesized, not raw.** If the op emits no `event.ResultStatus`, `actionResult` is null → `equals("actionResult","success")` never matches. Check the live sample; drop the clause for such ops (TeamDeleted, MailboxLogin).
+- **`contains` needs a string** (scalar-only CEL). Array fields (`event.Parameters`, `event.Members`) require a filter `cast` to string first — otherwise dead. (See `working-with-filters` → `cel-semantics.md`.)
+- **Field name drift.** Rules reference the *normalized* field. If a rule says `event.clientIP` but the filter renamed it to `origin.ip`, it's dead. O365: `action` (not `event.Operation`), `origin.ip`, `origin.user`, `target.filename`.
 - **`{{.field}}` placeholder must be non-nil** or the whole afterEvents correlation is skipped silently (go-sdk `rules.go` nil-bails). Correlate on a field guaranteed populated (e.g. `origin.user`), not one that can be absent (e.g. `origin.ip` on IP-less events).
 - **`groupBy` vs `deduplicateBy` — set one, not both.**
 - **`adversary: origin`** attributes the alert to the acting user/IP; `target` to the affected asset. Wrong choice = alert points at the wrong entity.

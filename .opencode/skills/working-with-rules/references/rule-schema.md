@@ -17,7 +17,7 @@
 
 ## `where` CEL
 Evaluated against the normalized event (post-filter). Available functions and their scalar-only type rules are in `working-with-filters` → `references/cel-semantics.md`. The field you reference must be **populated by the filter** — if it's not in the ingested event, the clause is false (or the whole rule no-ops), with no error.
-- `oneOf("action", ["A","B"])`, `equals("action","A")`, `exists("origin.user")`, `contains("log.X","sub")` (string only), `inCIDR("origin.ip","10.0.0.0/8")`, `isWeekend("deviceTime")`.
+- `oneOf("action", ["A","B"])`, `equals("action","A")`, `exists("origin.user")`, `contains("event.X","sub")` (string only), `inCIDR("origin.ip","10.0.0.0/8")`, `isWeekend("deviceTime")`.
 
 ## `afterEvents` (correlation / threshold)
 Fires the rule when, in addition to the `where` trigger, **`count` more events** matching `with` occur from the same key within `within`.
@@ -39,7 +39,7 @@ afterEvents:
 - Multiple `afterEvents` entries are ANDed.
 
 ## `groupBy` / `deduplicateBy`
-- List of field paths, e.g. `[adversary.user, origin.ip]` or `[lastEvent.log.appAccessContextClientAppId]`.
+- List of field paths, e.g. `[adversary.user, origin.ip]` or `[lastEvent.event.appAccessContextClientAppId]`.
 - `lastEvent.*` reads the last event of the correlated set (the wire alert stores events as `events[]`; the alert plugin maps `lastEvent.<f>` → `events[<last>].<f>` — see known-mistakes #10, do NOT hand-edit rule files to use `events.`).
 - Setting **both** `groupBy` and `deduplicateBy` is invalid (proto asserts).
 

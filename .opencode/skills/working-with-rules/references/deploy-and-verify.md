@@ -52,7 +52,7 @@ You must actually produce the O365 action so it flows through the collector → 
 - **Service Principal** → register an app in Entra (fires `Add service principal.`); delete it after.
 - **Double-ext / reserved filename** → upload a file to OneDrive (fires `FileAccessed`/`FilePreviewed` on open, `FileDownloaded` on download). Windows reserved names (`NUL`,`CON`…) can't be created on a Windows client — platform block.
 - **Teams mass-delete** → create N Teams then delete (fires `TeamDeleted`, but that audit event lags 30–60+ min).
-- **Teams external phishing (846)** → message an `#EXT#` guest (fires `MessageSent`/`ChatCreated` with `log.Members[].UPN` containing `#EXT#`; needs the filter `cast log.Members to string`).
+- **Teams external phishing (846)** → message an `#EXT#` guest (fires `MessageSent`/`ChatCreated` with `event.Members[].UPN` containing `#EXT#`; needs the filter `cast event.Members to string`).
 - **MailboxLogin / PowerShell** → `Connect-ExchangeOnline` (device code) then a mailbox query. NOTE: modern EXO uses Graph auth; classic `MailboxLogin` audit op is often absent — verify the op exists in the index before relying on it.
 
 ## 4) Confirm the alert fired + attributed correctly

@@ -6,14 +6,14 @@ Distilled from the O365 validation campaign (62 rules, ~36 fixed this session) a
 
 ### 1. `actionResult` value that never occurs  (dead on arrival)
 - AAD **failed** logins are reported as `ResultStatus: Success` → filter maps them to `actionResult=success`, so `where: ...actionResult=failed` on `UserLoginFailed` is dead. Fix: filter force-overrides `UserLoginFailed → actionResult=failed` (append `add` after the generic mapping).
-- Ops that emit **no** `ResultStatus` at all → `actionResult` is null. `equals("actionResult","success")` on `TeamDeleted`, `MailboxLogin` is dead. Fix: drop the clause; key on `action` + `log.Workload` only. (This is exactly why 1465 didn't fire until the clause was removed.)
+- Ops that emit **no** `ResultStatus` at all → `actionResult` is null. `equals("actionResult","success")` on `TeamDeleted`, `MailboxLogin` is dead. Fix: drop the clause; key on `action` + `event.Workload` only. (This is exactly why 1465 didn't fire until the clause was removed.)
 - Capitalized values: ~35 O365 rules used `"Success"`/`"Blocked"` but the filter emits lowercase `success`/`blocked`. Engine is case-sensitive. Fix: lowercase.
 
 ### 2. Stale raw field name after a filter rename
-- Rule says `log.clientIP` / `log.Operation` / `log.siteUrl` but the filter renamed those to `origin.ip` / `action` / `target.url` (renames delete the source). Dead. Fix: reference the normalized name.
+- Rule says `event.clientIP` / `event.Operation` / `event.siteUrl` but the filter renamed those to `origin.ip` / `action` / `target.url` (renames delete the source). Dead. Fix: reference the normalized name.
 
 ### 3. `contains` on an array / field with the wrong JSON type
-- `log.Parameters`, `log.Members`, `Target`, `Folder.Path` are arrays/objects. `contains()` is scalar-only → always false. Fix: filter `cast: {fields:[...], to: string}` (O365 does this for `log.Parameters` + `log.Members`), or a gjson query `log.Parameters.#(Name=X).Value`.
+- `event.Parameters`, `event.Members`, `Target`, `Folder.Path` are arrays/objects. `contains()` is scalar-only → always false. Fix: filter `cast: {fields:[...], to: string}` (O365 does this for `event.Parameters` + `event.Members`), or a gjson query `event.Parameters.#(Name=X).Value`.
 
 ### 4. `{{.field}}` afterEvents placeholder that can be nil
 - go-sdk `plugins/rules.go` bails when the placeholder resolves to nil → the whole correlation silently never runs. Correlating on `{{.origin.ip}}` breaks for IP-less events (Kerberos). This is the **rvald26 Issue 1** amplifier: a filter IP-guard that empties `origin.ip` on `"-"`/hostname sources, combined with a rule correlating on `{{.origin.ip}}`, silently kills that rule. Fix: correlate on a guaranteed field (`origin.user`), or the filter must not empty `origin.ip`, or add an `or` branch for absent IP. **Per-vendor check: 135 rules repo-wide depend on `origin.ip`.**
@@ -24,7 +24,7 @@ Distilled from the O365 validation campaign (62 rules, ~36 fixed this session) a
 - The **foundation** bug (rvald26 #2590): grouping code read `lastEvent.<f>` from the *wire* alert, which only has `events[]` — so `lastEvent.*` groupBy/dedup was a no-op for **231 rules**. Fixed in the plugin helper (`lastEvent.<f>` → `events[<last>].<f>` for the value), NOT by editing rule files.
 
 ### 6. Referencing a field the filter deletes
-- netflow filter's `delete` removed `log.bytes`/`log.packets` that 4 rules read → dead (rvald26 #2612). Before adding to a filter `delete`/`drop`, grep every rule for the field.
+- netflow filter's `delete` removed `event.bytes`/`event.packets` that 4 rules read → dead (rvald26 #2612). Before adding to a filter `delete`/`drop`, grep every rule for the field.
 
 ### 7. Wrong action spelling / a dropped op
 - `NewInboxRule` vs the actual `New-InboxRule`; `actionResult` typos; keying on an op that's in the filter's **drop list** (O365 drops `TeamCreated`, `FileUploaded`, `AccessedOdataLink`, …) → the event never reaches the index, rule can't fire. Fix: confirm the op is in the keep-list AND present in the live index.
@@ -36,8 +36,8 @@ Distilled from the O365 validation campaign (62 rules, ~36 fixed this session) a
 - **Two streams editing the same files.** #2613 (O365) collided with the in-flight O365 campaign on the same 6 rules + filter. Reconcile into one change set; don't stack.
 
 ## The O365 field map (verified Sept 2026) — use to avoid guessing
-- `action` ← `log.Operation`; `origin.user` ← `log.UserId`; `origin.ip` ← `log.ClientIP`/`log.ClientIPAddress`; `target.filename` ← `log.ItemName` (file ops) — NOT `log.SourceFileName`; `log.SourceFileExtension` = real last ext.
+- `action` ← `event.Operation`; `origin.user` ← `event.UserId`; `origin.ip` ← `event.ClientIP`/`event.ClientIPAddress`; `target.filename` ← `event.ItemName` (file ops) — NOT `event.SourceFileName`; `event.SourceFileExtension` = real last ext.
 - `MailItemsAccessed`: has `MailboxOwnerSid`, `LogonType`(int), `ClientInfoString`, `Folders`(array); **no `MailboxOwnerUPN`**.
-- Teams `MemberAdded`/`ChatCreated`: `log.Members[].UPN` (cast to string to `contains "#EXT#"`), `log.ParticipantInfo`. `TeamDeleted`: `log.TeamName`, `log.TeamGuid`, no `actionResult`.
+- Teams `MemberAdded`/`ChatCreated`: `event.Members[].UPN` (cast to string to `contains "#EXT#"`), `event.ParticipantInfo`. `TeamDeleted`: `event.TeamName`, `event.TeamGuid`, no `actionResult`.
 - AAD admin ops (keep-list): `Add service principal.`, `Add member to role.`, `Remove member from role.`, `Update device.`.
-- Drop-list (never ingested): `TeamCreated`, `FileUploaded`, `AccessedOdataLink`, `ChatRetrieved`, `ChatUpdated`, `MessageDeleted`, `Copy`, `Create`, `Update`, `ViewDocument` (+ ~300 more in the filter's `oneOf("log.Operation",[...])`).
+- Drop-list (never ingested): `TeamCreated`, `FileUploaded`, `AccessedOdataLink`, `ChatRetrieved`, `ChatUpdated`, `MessageDeleted`, `Copy`, `Create`, `Update`, `ViewDocument` (+ ~300 more in the filter's `oneOf("event.Operation",[...])`).
