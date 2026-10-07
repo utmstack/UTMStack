@@ -16,14 +16,14 @@ references:
 description: 'A successful disk/snapshot access-export request. This grants access; it does not prove data exfiltration occurred.
 
   '
-where: '(equalsIgnoreCase("log.azureKind","activity") || equalsIgnoreCase("log.azureKind","eventgrid")) && equalsIgnoreCase("actionResult","success")
-  && regexMatch("log.azureOperation","(?i)^Microsoft\\.Compute/(snapshots|disks)/(beginGetAccess/action|export/action)$")
+where: '(equalsIgnoreCase("event.azureKind","activity") || equalsIgnoreCase("event.azureKind","eventgrid")) && equalsIgnoreCase("actionResult","success")
+  && regexMatch("event.azureOperation","(?i)^Microsoft\\.Compute/(snapshots|disks)/(beginGetAccess/action|export/action)$")
 
   '
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.azureScopeType
-- lastEvent.log.azureScope
-- lastEvent.log.azureOperation
+- lastEvent.event.azureScopeType
+- lastEvent.event.azureScope
+- lastEvent.event.azureOperation
 - adversary.user
 - adversary.ip

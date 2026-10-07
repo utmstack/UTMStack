@@ -5,12 +5,12 @@
     "dai-dhcp-snooping-deny": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "1 Invalid ARPs (Res) on Gi9/0/44, vlan 910.([0200.0000.0302/192.0.2.52/0200.0000.0303/192.0.2.53/13:11:01 UTC Thu Sep 24 2026])",
-        "log.ciscoTime": "Sep 24 13:11:01.500",
-        "log.facility": "SW_DAI",
-        "log.facilityMnemonic": "DHCP_SNOOPING_DENY",
-        "log.msg": "SW_DAI-4-DHCP_SNOOPING_DENY: 1 Invalid ARPs (Res) on Gi9/0/44, vlan 910.([0200.0000.0302/192.0.2.52/0200.0000.0303/192.0.2.53/13:11:01 UTC Thu Sep 24 2026])",
-        "log.severity": "4",
+        "event.ciscoMsg": "1 Invalid ARPs (Res) on Gi9/0/44, vlan 910.([0200.0000.0302/192.0.2.52/0200.0000.0303/192.0.2.53/13:11:01 UTC Thu Sep 24 2026])",
+        "event.ciscoTime": "Sep 24 13:11:01.500",
+        "event.facility": "SW_DAI",
+        "event.facilityMnemonic": "DHCP_SNOOPING_DENY",
+        "event.msg": "SW_DAI-4-DHCP_SNOOPING_DENY: 1 Invalid ARPs (Res) on Gi9/0/44, vlan 910.([0200.0000.0302/192.0.2.52/0200.0000.0303/192.0.2.53/13:11:01 UTC Thu Sep 24 2026])",
+        "event.severity": "4",
         "actionResult": "denied",
         "severity": "medium"
       },
@@ -19,12 +19,12 @@
     "dai-invalid-arp": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "1 Invalid ARPs (Req) on Gi9/0/44, vlan 910.([0200.0000.0301/192.0.2.51/0000.0000.0000/192.0.2.1/13:11:00 UTC Thu Sep 24 2026])",
-        "log.ciscoTime": "Sep 24 13:11:00.500",
-        "log.facility": "SW_DAI",
-        "log.facilityMnemonic": "INVALID_ARP",
-        "log.msg": "SW_DAI-4-INVALID_ARP: 1 Invalid ARPs (Req) on Gi9/0/44, vlan 910.([0200.0000.0301/192.0.2.51/0000.0000.0000/192.0.2.1/13:11:00 UTC Thu Sep 24 2026])",
-        "log.severity": "4",
+        "event.ciscoMsg": "1 Invalid ARPs (Req) on Gi9/0/44, vlan 910.([0200.0000.0301/192.0.2.51/0000.0000.0000/192.0.2.1/13:11:00 UTC Thu Sep 24 2026])",
+        "event.ciscoTime": "Sep 24 13:11:00.500",
+        "event.facility": "SW_DAI",
+        "event.facilityMnemonic": "INVALID_ARP",
+        "event.msg": "SW_DAI-4-INVALID_ARP: 1 Invalid ARPs (Req) on Gi9/0/44, vlan 910.([0200.0000.0301/192.0.2.51/0000.0000.0000/192.0.2.1/13:11:00 UTC Thu Sep 24 2026])",
+        "event.severity": "4",
         "actionResult": "denied",
         "severity": "medium"
       },
@@ -33,12 +33,12 @@
     "dhcpd-bad-octet": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "DHCP address conflict:  server pinged 192.0.2.300.",
-        "log.ciscoTime": "*Sep 24 2026 09:55:22",
-        "log.facility": "DHCPD",
-        "log.facilityMnemonic": "PING_CONFLICT",
-        "log.msg": "DHCPD-4-PING_CONFLICT: DHCP address conflict:  server pinged 192.0.2.300.",
-        "log.severity": "4",
+        "event.ciscoMsg": "DHCP address conflict:  server pinged 192.0.2.300.",
+        "event.ciscoTime": "*Sep 24 2026 09:55:22",
+        "event.facility": "DHCPD",
+        "event.facilityMnemonic": "PING_CONFLICT",
+        "event.msg": "DHCPD-4-PING_CONFLICT: DHCP address conflict:  server pinged 192.0.2.300.",
+        "event.severity": "4",
         "severity": "medium"
       },
       "alerts": []
@@ -46,12 +46,12 @@
     "dhcpd-no-period": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "DHCP address conflict:  server pinged 192.0.2.32",
-        "log.ciscoTime": "*Sep 24 2026 09:55:21",
-        "log.facility": "DHCPD",
-        "log.facilityMnemonic": "PING_CONFLICT",
-        "log.msg": "DHCPD-4-PING_CONFLICT: DHCP address conflict:  server pinged 192.0.2.32",
-        "log.severity": "4",
+        "event.ciscoMsg": "DHCP address conflict:  server pinged 192.0.2.32",
+        "event.ciscoTime": "*Sep 24 2026 09:55:21",
+        "event.facility": "DHCPD",
+        "event.facilityMnemonic": "PING_CONFLICT",
+        "event.msg": "DHCPD-4-PING_CONFLICT: DHCP address conflict:  server pinged 192.0.2.32",
+        "event.severity": "4",
         "severity": "medium"
       },
       "alerts": []
@@ -59,12 +59,12 @@
     "dhcpd-ping-conflict": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "DHCP address conflict:  server pinged 192.0.2.31.",
-        "log.ciscoTime": "*Sep 24 2026 09:55:20",
-        "log.facility": "DHCPD",
-        "log.facilityMnemonic": "PING_CONFLICT",
-        "log.msg": "DHCPD-4-PING_CONFLICT: DHCP address conflict:  server pinged 192.0.2.31.",
-        "log.severity": "4",
+        "event.ciscoMsg": "DHCP address conflict:  server pinged 192.0.2.31.",
+        "event.ciscoTime": "*Sep 24 2026 09:55:20",
+        "event.facility": "DHCPD",
+        "event.facilityMnemonic": "PING_CONFLICT",
+        "event.msg": "DHCPD-4-PING_CONFLICT: DHCP address conflict:  server pinged 192.0.2.31.",
+        "event.severity": "4",
         "target.ip": "192.0.2.31",
         "severity": "medium"
       },
@@ -73,12 +73,12 @@
     "dtp-domain-mismatch": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Unable to perform trunk negotiation on port Gi9/0/46 because of VTP domain mismatch.",
-        "log.ciscoTime": "Sep 24 13:11:14.600",
-        "log.facility": "DTP",
-        "log.facilityMnemonic": "DOMAINMISMATCH",
-        "log.msg": "DTP-5-DOMAINMISMATCH: Unable to perform trunk negotiation on port Gi9/0/46 because of VTP domain mismatch.",
-        "log.severity": "5",
+        "event.ciscoMsg": "Unable to perform trunk negotiation on port Gi9/0/46 because of VTP domain mismatch.",
+        "event.ciscoTime": "Sep 24 13:11:14.600",
+        "event.facility": "DTP",
+        "event.facilityMnemonic": "DOMAINMISMATCH",
+        "event.msg": "DTP-5-DOMAINMISMATCH: Unable to perform trunk negotiation on port Gi9/0/46 because of VTP domain mismatch.",
+        "event.severity": "5",
         "severity": "low"
       },
       "alerts": [
@@ -88,12 +88,12 @@
     "dtp-nontrunk": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Port Gi9/0/46 has become non-trunk",
-        "log.ciscoTime": "Sep 24 13:11:12.600",
-        "log.facility": "DTP",
-        "log.facilityMnemonic": "NONTRUNKPORTON",
-        "log.msg": "DTP-5-NONTRUNKPORTON: Port Gi9/0/46 has become non-trunk",
-        "log.severity": "5",
+        "event.ciscoMsg": "Port Gi9/0/46 has become non-trunk",
+        "event.ciscoTime": "Sep 24 13:11:12.600",
+        "event.facility": "DTP",
+        "event.facilityMnemonic": "NONTRUNKPORTON",
+        "event.msg": "DTP-5-NONTRUNKPORTON: Port Gi9/0/46 has become non-trunk",
+        "event.severity": "5",
         "severity": "low"
       },
       "alerts": [
@@ -103,12 +103,12 @@
     "dtp-trunk": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Port Gi9/0/46 has become dot1q trunk",
-        "log.ciscoTime": "Sep 24 13:11:13.600",
-        "log.facility": "DTP",
-        "log.facilityMnemonic": "TRUNKPORTON",
-        "log.msg": "DTP-5-TRUNKPORTON: Port Gi9/0/46 has become dot1q trunk",
-        "log.severity": "5",
+        "event.ciscoMsg": "Port Gi9/0/46 has become dot1q trunk",
+        "event.ciscoTime": "Sep 24 13:11:13.600",
+        "event.facility": "DTP",
+        "event.facilityMnemonic": "TRUNKPORTON",
+        "event.msg": "DTP-5-TRUNKPORTON: Port Gi9/0/46 has become dot1q trunk",
+        "event.severity": "5",
         "severity": "low"
       },
       "alerts": [
@@ -118,12 +118,12 @@
     "flap-colon-mac": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Host 02:00:00:00:01:06 in vlan 910 is flapping between port Gi9/0/41 and port Gi9/0/42",
-        "log.ciscoTime": "Sep 24 13:09:53.020",
-        "log.facility": "SW_MATM",
-        "log.facilityMnemonic": "MACFLAP_NOTIF",
-        "log.msg": "SW_MATM-4-MACFLAP_NOTIF: Host 02:00:00:00:01:06 in vlan 910 is flapping between port Gi9/0/41 and port Gi9/0/42",
-        "log.severity": "4",
+        "event.ciscoMsg": "Host 02:00:00:00:01:06 in vlan 910 is flapping between port Gi9/0/41 and port Gi9/0/42",
+        "event.ciscoTime": "Sep 24 13:09:53.020",
+        "event.facility": "SW_MATM",
+        "event.facilityMnemonic": "MACFLAP_NOTIF",
+        "event.msg": "SW_MATM-4-MACFLAP_NOTIF: Host 02:00:00:00:01:06 in vlan 910 is flapping between port Gi9/0/41 and port Gi9/0/42",
+        "event.severity": "4",
         "severity": "medium"
       },
       "alerts": []
@@ -131,12 +131,12 @@
     "flap-no-vlan": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Host 0200.0000.0108 is flapping between port Gi9/0/41 and port Gi9/0/42",
-        "log.ciscoTime": "Sep 24 13:09:55.020",
-        "log.facility": "SW_MATM",
-        "log.facilityMnemonic": "MACFLAP_NOTIF",
-        "log.msg": "SW_MATM-4-MACFLAP_NOTIF: Host 0200.0000.0108 is flapping between port Gi9/0/41 and port Gi9/0/42",
-        "log.severity": "4",
+        "event.ciscoMsg": "Host 0200.0000.0108 is flapping between port Gi9/0/41 and port Gi9/0/42",
+        "event.ciscoTime": "Sep 24 13:09:55.020",
+        "event.facility": "SW_MATM",
+        "event.facilityMnemonic": "MACFLAP_NOTIF",
+        "event.msg": "SW_MATM-4-MACFLAP_NOTIF: Host 0200.0000.0108 is flapping between port Gi9/0/41 and port Gi9/0/42",
+        "event.severity": "4",
         "severity": "medium"
       },
       "alerts": []
@@ -144,17 +144,17 @@
     "flap-slot-branch": {
       "logObject": true,
       "fields": {
-        "log.card": "LC",
-        "log.ciscoMsg": "Host 0200.0000.0105 in vlan 910 is flapping between port Gi9/0/41 and port Gi9/0/42",
-        "log.ciscoTime": "Sep 24 13:09:52.020",
-        "log.facility": "SW_MATM",
-        "log.facilityMnemonic": "MACFLAP_NOTIF",
-        "log.firstPort": "Gi9/0/41",
-        "log.msg": "LC-4-MSG:SLOT3 %SW_MATM-4-MACFLAP_NOTIF: Host 0200.0000.0105 in vlan 910 is flapping between port Gi9/0/41 and port Gi9/0/42",
-        "log.secondPort": "Gi9/0/42",
-        "log.severity": "4",
-        "log.slot": "SLOT3",
-        "log.vlan": "910",
+        "event.card": "LC",
+        "event.ciscoMsg": "Host 0200.0000.0105 in vlan 910 is flapping between port Gi9/0/41 and port Gi9/0/42",
+        "event.ciscoTime": "Sep 24 13:09:52.020",
+        "event.facility": "SW_MATM",
+        "event.facilityMnemonic": "MACFLAP_NOTIF",
+        "event.firstPort": "Gi9/0/41",
+        "event.msg": "LC-4-MSG:SLOT3 %SW_MATM-4-MACFLAP_NOTIF: Host 0200.0000.0105 in vlan 910 is flapping between port Gi9/0/41 and port Gi9/0/42",
+        "event.secondPort": "Gi9/0/42",
+        "event.severity": "4",
+        "event.slot": "SLOT3",
+        "event.vlan": "910",
         "origin.mac": "0200.0000.0105",
         "severity": "medium"
       },
@@ -163,12 +163,12 @@
     "flap-thirteen-hex": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Host 0200.0000.01077 in vlan 910 is flapping between port Gi9/0/41 and port Gi9/0/42",
-        "log.ciscoTime": "Sep 24 13:09:54.020",
-        "log.facility": "SW_MATM",
-        "log.facilityMnemonic": "MACFLAP_NOTIF",
-        "log.msg": "SW_MATM-4-MACFLAP_NOTIF: Host 0200.0000.01077 in vlan 910 is flapping between port Gi9/0/41 and port Gi9/0/42",
-        "log.severity": "4",
+        "event.ciscoMsg": "Host 0200.0000.01077 in vlan 910 is flapping between port Gi9/0/41 and port Gi9/0/42",
+        "event.ciscoTime": "Sep 24 13:09:54.020",
+        "event.facility": "SW_MATM",
+        "event.facilityMnemonic": "MACFLAP_NOTIF",
+        "event.msg": "SW_MATM-4-MACFLAP_NOTIF: Host 0200.0000.01077 in vlan 910 is flapping between port Gi9/0/41 and port Gi9/0/42",
+        "event.severity": "4",
         "severity": "medium"
       },
       "alerts": []
@@ -176,15 +176,15 @@
     "flap-trailing-text": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Host 0200.0000.0104 in vlan 910 is flapping between port Gi9/0/41 and port Gi9/0/42 (fabricated trailing text)",
-        "log.ciscoTime": "Sep 24 13:09:51.020",
-        "log.facility": "SW_MATM",
-        "log.facilityMnemonic": "MACFLAP_NOTIF",
-        "log.firstPort": "Gi9/0/41",
-        "log.msg": "SW_MATM-4-MACFLAP_NOTIF: Host 0200.0000.0104 in vlan 910 is flapping between port Gi9/0/41 and port Gi9/0/42 (fabricated trailing text)",
-        "log.secondPort": "Gi9/0/42",
-        "log.severity": "4",
-        "log.vlan": "910",
+        "event.ciscoMsg": "Host 0200.0000.0104 in vlan 910 is flapping between port Gi9/0/41 and port Gi9/0/42 (fabricated trailing text)",
+        "event.ciscoTime": "Sep 24 13:09:51.020",
+        "event.facility": "SW_MATM",
+        "event.facilityMnemonic": "MACFLAP_NOTIF",
+        "event.firstPort": "Gi9/0/41",
+        "event.msg": "SW_MATM-4-MACFLAP_NOTIF: Host 0200.0000.0104 in vlan 910 is flapping between port Gi9/0/41 and port Gi9/0/42 (fabricated trailing text)",
+        "event.secondPort": "Gi9/0/42",
+        "event.severity": "4",
+        "event.vlan": "910",
         "origin.mac": "0200.0000.0104",
         "severity": "medium"
       },
@@ -193,12 +193,12 @@
     "flap-truncated": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Host 0200.0000.0109 in vlan 910 is flapping between port Gi9/0/41 and port",
-        "log.ciscoTime": "Sep 24 13:09:56.020",
-        "log.facility": "SW_MATM",
-        "log.facilityMnemonic": "MACFLAP_NOTIF",
-        "log.msg": "SW_MATM-4-MACFLAP_NOTIF: Host 0200.0000.0109 in vlan 910 is flapping between port Gi9/0/41 and port",
-        "log.severity": "4",
+        "event.ciscoMsg": "Host 0200.0000.0109 in vlan 910 is flapping between port Gi9/0/41 and port",
+        "event.ciscoTime": "Sep 24 13:09:56.020",
+        "event.facility": "SW_MATM",
+        "event.facilityMnemonic": "MACFLAP_NOTIF",
+        "event.msg": "SW_MATM-4-MACFLAP_NOTIF: Host 0200.0000.0109 in vlan 910 is flapping between port Gi9/0/41 and port",
+        "event.severity": "4",
         "severity": "medium"
       },
       "alerts": []
@@ -206,12 +206,12 @@
     "flap-under-sw-vlan": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Host 0200.0000.0110 in vlan 910 is flapping between port Gi9/0/41 and port Gi9/0/42",
-        "log.ciscoTime": "Sep 24 13:09:57.020",
-        "log.facility": "SW_VLAN",
-        "log.facilityMnemonic": "MACFLAP_NOTIF",
-        "log.msg": "SW_VLAN-4-MACFLAP_NOTIF: Host 0200.0000.0110 in vlan 910 is flapping between port Gi9/0/41 and port Gi9/0/42",
-        "log.severity": "4",
+        "event.ciscoMsg": "Host 0200.0000.0110 in vlan 910 is flapping between port Gi9/0/41 and port Gi9/0/42",
+        "event.ciscoTime": "Sep 24 13:09:57.020",
+        "event.facility": "SW_VLAN",
+        "event.facilityMnemonic": "MACFLAP_NOTIF",
+        "event.msg": "SW_VLAN-4-MACFLAP_NOTIF: Host 0200.0000.0110 in vlan 910 is flapping between port Gi9/0/41 and port Gi9/0/42",
+        "event.severity": "4",
         "severity": "medium"
       },
       "alerts": [
@@ -221,15 +221,15 @@
     "flap-upper-hex-port-channel": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Host 0200.00AB.CD01 in vlan 930 is flapping between port Po9 and port Gi9/0/43",
-        "log.ciscoTime": "Sep 24 13:09:50.020",
-        "log.facility": "SW_MATM",
-        "log.facilityMnemonic": "MACFLAP_NOTIF",
-        "log.firstPort": "Po9",
-        "log.msg": "SW_MATM-4-MACFLAP_NOTIF: Host 0200.00AB.CD01 in vlan 930 is flapping between port Po9 and port Gi9/0/43",
-        "log.secondPort": "Gi9/0/43",
-        "log.severity": "4",
-        "log.vlan": "930",
+        "event.ciscoMsg": "Host 0200.00AB.CD01 in vlan 930 is flapping between port Po9 and port Gi9/0/43",
+        "event.ciscoTime": "Sep 24 13:09:50.020",
+        "event.facility": "SW_MATM",
+        "event.facilityMnemonic": "MACFLAP_NOTIF",
+        "event.firstPort": "Po9",
+        "event.msg": "SW_MATM-4-MACFLAP_NOTIF: Host 0200.00AB.CD01 in vlan 930 is flapping between port Po9 and port Gi9/0/43",
+        "event.secondPort": "Gi9/0/43",
+        "event.severity": "4",
+        "event.vlan": "930",
         "origin.mac": "0200.00AB.CD01",
         "severity": "medium"
       },
@@ -238,15 +238,15 @@
     "header-dot": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Host 0200.0000.0103 in vlan 910 is flapping between port Gi9/0/42 and port Gi9/0/41",
-        "log.ciscoTime": ".Sep 24 13:09:49.411",
-        "log.facility": "SW_MATM",
-        "log.facilityMnemonic": "MACFLAP_NOTIF",
-        "log.firstPort": "Gi9/0/42",
-        "log.msg": "SW_MATM-4-MACFLAP_NOTIF: Host 0200.0000.0103 in vlan 910 is flapping between port Gi9/0/42 and port Gi9/0/41",
-        "log.secondPort": "Gi9/0/41",
-        "log.severity": "4",
-        "log.vlan": "910",
+        "event.ciscoMsg": "Host 0200.0000.0103 in vlan 910 is flapping between port Gi9/0/42 and port Gi9/0/41",
+        "event.ciscoTime": ".Sep 24 13:09:49.411",
+        "event.facility": "SW_MATM",
+        "event.facilityMnemonic": "MACFLAP_NOTIF",
+        "event.firstPort": "Gi9/0/42",
+        "event.msg": "SW_MATM-4-MACFLAP_NOTIF: Host 0200.0000.0103 in vlan 910 is flapping between port Gi9/0/42 and port Gi9/0/41",
+        "event.secondPort": "Gi9/0/41",
+        "event.severity": "4",
+        "event.vlan": "910",
         "origin.mac": "0200.0000.0103",
         "severity": "medium"
       },
@@ -255,15 +255,15 @@
     "header-seq-ms": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Host 0200.0000.0101 in vlan 910 is flapping between port Gi9/0/41 and port Gi9/0/42",
-        "log.ciscoTime": "Sep 24 13:09:48.182",
-        "log.facility": "SW_MATM",
-        "log.facilityMnemonic": "MACFLAP_NOTIF",
-        "log.firstPort": "Gi9/0/41",
-        "log.msg": "SW_MATM-4-MACFLAP_NOTIF: Host 0200.0000.0101 in vlan 910 is flapping between port Gi9/0/41 and port Gi9/0/42",
-        "log.secondPort": "Gi9/0/42",
-        "log.severity": "4",
-        "log.vlan": "910",
+        "event.ciscoMsg": "Host 0200.0000.0101 in vlan 910 is flapping between port Gi9/0/41 and port Gi9/0/42",
+        "event.ciscoTime": "Sep 24 13:09:48.182",
+        "event.facility": "SW_MATM",
+        "event.facilityMnemonic": "MACFLAP_NOTIF",
+        "event.firstPort": "Gi9/0/41",
+        "event.msg": "SW_MATM-4-MACFLAP_NOTIF: Host 0200.0000.0101 in vlan 910 is flapping between port Gi9/0/41 and port Gi9/0/42",
+        "event.secondPort": "Gi9/0/42",
+        "event.severity": "4",
+        "event.vlan": "910",
         "origin.mac": "0200.0000.0101",
         "severity": "medium"
       },
@@ -272,15 +272,15 @@
     "header-star-year": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Host 0200.0000.0102 in vlan 920 is flapping between port Te9/1/2 and port Te9/1/1",
-        "log.ciscoTime": "*Sep 24 2026 09:54:02",
-        "log.facility": "SW_MATM",
-        "log.facilityMnemonic": "MACFLAP_NOTIF",
-        "log.firstPort": "Te9/1/2",
-        "log.msg": "SW_MATM-4-MACFLAP_NOTIF: Host 0200.0000.0102 in vlan 920 is flapping between port Te9/1/2 and port Te9/1/1",
-        "log.secondPort": "Te9/1/1",
-        "log.severity": "4",
-        "log.vlan": "920",
+        "event.ciscoMsg": "Host 0200.0000.0102 in vlan 920 is flapping between port Te9/1/2 and port Te9/1/1",
+        "event.ciscoTime": "*Sep 24 2026 09:54:02",
+        "event.facility": "SW_MATM",
+        "event.facilityMnemonic": "MACFLAP_NOTIF",
+        "event.firstPort": "Te9/1/2",
+        "event.msg": "SW_MATM-4-MACFLAP_NOTIF: Host 0200.0000.0102 in vlan 920 is flapping between port Te9/1/2 and port Te9/1/1",
+        "event.secondPort": "Te9/1/1",
+        "event.severity": "4",
+        "event.vlan": "920",
         "origin.mac": "0200.0000.0102",
         "severity": "medium"
       },
@@ -289,12 +289,12 @@
     "ip-dupaddr": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Duplicate address 192.0.2.54 on Vlan910, sourced by 0200.0000.0304",
-        "log.ciscoTime": "Sep 24 13:11:02.500",
-        "log.facility": "IP",
-        "log.facilityMnemonic": "DUPADDR",
-        "log.msg": "IP-4-DUPADDR: Duplicate address 192.0.2.54 on Vlan910, sourced by 0200.0000.0304",
-        "log.severity": "4",
+        "event.ciscoMsg": "Duplicate address 192.0.2.54 on Vlan910, sourced by 0200.0000.0304",
+        "event.ciscoTime": "Sep 24 13:11:02.500",
+        "event.facility": "IP",
+        "event.facilityMnemonic": "DUPADDR",
+        "event.msg": "IP-4-DUPADDR: Duplicate address 192.0.2.54 on Vlan910, sourced by 0200.0000.0304",
+        "event.severity": "4",
         "severity": "medium"
       },
       "alerts": []
@@ -302,12 +302,12 @@
     "logginghost-fail": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Logging to host 192.0.2.41 port 514 failed",
-        "log.ciscoTime": "Sep 24 13:10:30.300",
-        "log.facility": "SYS",
-        "log.facilityMnemonic": "LOGGINGHOST_FAIL",
-        "log.msg": "SYS-3-LOGGINGHOST_FAIL: Logging to host 192.0.2.41 port 514 failed",
-        "log.severity": "3",
+        "event.ciscoMsg": "Logging to host 192.0.2.41 port 514 failed",
+        "event.ciscoTime": "Sep 24 13:10:30.300",
+        "event.facility": "SYS",
+        "event.facilityMnemonic": "LOGGINGHOST_FAIL",
+        "event.msg": "SYS-3-LOGGINGHOST_FAIL: Logging to host 192.0.2.41 port 514 failed",
+        "event.severity": "3",
         "target.ip": "192.0.2.41",
         "target.port": 514,
         "severity": "high"
@@ -317,12 +317,12 @@
     "logginghost-host-name": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Logging to host logs.example.com port 514 failed",
-        "log.ciscoTime": "Sep 24 13:10:33.300",
-        "log.facility": "SYS",
-        "log.facilityMnemonic": "LOGGINGHOST_FAIL",
-        "log.msg": "SYS-3-LOGGINGHOST_FAIL: Logging to host logs.example.com port 514 failed",
-        "log.severity": "3",
+        "event.ciscoMsg": "Logging to host logs.example.com port 514 failed",
+        "event.ciscoTime": "Sep 24 13:10:33.300",
+        "event.facility": "SYS",
+        "event.facilityMnemonic": "LOGGINGHOST_FAIL",
+        "event.msg": "SYS-3-LOGGINGHOST_FAIL: Logging to host logs.example.com port 514 failed",
+        "event.severity": "3",
         "severity": "high"
       },
       "alerts": []
@@ -330,12 +330,12 @@
     "logginghost-port-eleven-digits": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Logging to host 192.0.2.45 port 12345678901 failed",
-        "log.ciscoTime": "Sep 24 13:10:35.300",
-        "log.facility": "SYS",
-        "log.facilityMnemonic": "LOGGINGHOST_FAIL",
-        "log.msg": "SYS-3-LOGGINGHOST_FAIL: Logging to host 192.0.2.45 port 12345678901 failed",
-        "log.severity": "3",
+        "event.ciscoMsg": "Logging to host 192.0.2.45 port 12345678901 failed",
+        "event.ciscoTime": "Sep 24 13:10:35.300",
+        "event.facility": "SYS",
+        "event.facilityMnemonic": "LOGGINGHOST_FAIL",
+        "event.msg": "SYS-3-LOGGINGHOST_FAIL: Logging to host 192.0.2.45 port 12345678901 failed",
+        "event.severity": "3",
         "severity": "high"
       },
       "alerts": []
@@ -343,12 +343,12 @@
     "logginghost-port-text": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Logging to host 192.0.2.44 port syslog failed",
-        "log.ciscoTime": "Sep 24 13:10:34.300",
-        "log.facility": "SYS",
-        "log.facilityMnemonic": "LOGGINGHOST_FAIL",
-        "log.msg": "SYS-3-LOGGINGHOST_FAIL: Logging to host 192.0.2.44 port syslog failed",
-        "log.severity": "3",
+        "event.ciscoMsg": "Logging to host 192.0.2.44 port syslog failed",
+        "event.ciscoTime": "Sep 24 13:10:34.300",
+        "event.facility": "SYS",
+        "event.facilityMnemonic": "LOGGINGHOST_FAIL",
+        "event.msg": "SYS-3-LOGGINGHOST_FAIL: Logging to host 192.0.2.44 port syslog failed",
+        "event.severity": "3",
         "severity": "high"
       },
       "alerts": []
@@ -356,12 +356,12 @@
     "logginghost-started": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Logging to host 192.0.2.42 port 6514 started - CLI initiated",
-        "log.ciscoTime": "Sep 24 13:10:31.300",
-        "log.facility": "SYS",
-        "log.facilityMnemonic": "LOGGINGHOST_STARTSTOP",
-        "log.msg": "SYS-6-LOGGINGHOST_STARTSTOP: Logging to host 192.0.2.42 port 6514 started - CLI initiated",
-        "log.severity": "6",
+        "event.ciscoMsg": "Logging to host 192.0.2.42 port 6514 started - CLI initiated",
+        "event.ciscoTime": "Sep 24 13:10:31.300",
+        "event.facility": "SYS",
+        "event.facilityMnemonic": "LOGGINGHOST_STARTSTOP",
+        "event.msg": "SYS-6-LOGGINGHOST_STARTSTOP: Logging to host 192.0.2.42 port 6514 started - CLI initiated",
+        "event.severity": "6",
         "target.ip": "192.0.2.42",
         "target.port": 6514,
         "severity": "low"
@@ -371,12 +371,12 @@
     "logginghost-stopped": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Logging to host 192.0.2.43 port 514 stopped - CLI initiated",
-        "log.ciscoTime": "Sep 24 13:10:32.300",
-        "log.facility": "SYS",
-        "log.facilityMnemonic": "LOGGINGHOST_STARTSTOP",
-        "log.msg": "SYS-6-LOGGINGHOST_STARTSTOP: Logging to host 192.0.2.43 port 514 stopped - CLI initiated",
-        "log.severity": "6",
+        "event.ciscoMsg": "Logging to host 192.0.2.43 port 514 stopped - CLI initiated",
+        "event.ciscoTime": "Sep 24 13:10:32.300",
+        "event.facility": "SYS",
+        "event.facilityMnemonic": "LOGGINGHOST_STARTSTOP",
+        "event.msg": "SYS-6-LOGGINGHOST_STARTSTOP: Logging to host 192.0.2.43 port 514 stopped - CLI initiated",
+        "event.severity": "6",
         "severity": "low"
       },
       "alerts": []
@@ -384,12 +384,12 @@
     "mac-duplicate-text": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "duplicate MAC 0200.0000.0305 detected on Gi9/0/45",
-        "log.ciscoTime": "Sep 24 13:11:03.500",
-        "log.facility": "SW_MATM",
-        "log.facilityMnemonic": "DUPMAC",
-        "log.msg": "SW_MATM-4-DUPMAC: duplicate MAC 0200.0000.0305 detected on Gi9/0/45",
-        "log.severity": "4",
+        "event.ciscoMsg": "duplicate MAC 0200.0000.0305 detected on Gi9/0/45",
+        "event.ciscoTime": "Sep 24 13:11:03.500",
+        "event.facility": "SW_MATM",
+        "event.facilityMnemonic": "DUPMAC",
+        "event.msg": "SW_MATM-4-DUPMAC: duplicate MAC 0200.0000.0305 detected on Gi9/0/45",
+        "event.severity": "4",
         "severity": "medium"
       },
       "alerts": []
@@ -397,11 +397,11 @@
     "misrouted-firepower-shape": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "EventPriority: Low, SrcIP: 198.51.100.7, DstIP: 192.0.2.10",
-        "log.facility": "FTD",
-        "log.facilityMnemonic": "430003",
-        "log.msg": "FTD-1-430003: EventPriority: Low, SrcIP: 198.51.100.7, DstIP: 192.0.2.10",
-        "log.severity": "1",
+        "event.ciscoMsg": "EventPriority: Low, SrcIP: 198.51.100.7, DstIP: 192.0.2.10",
+        "event.facility": "FTD",
+        "event.facilityMnemonic": "430003",
+        "event.msg": "FTD-1-430003: EventPriority: Low, SrcIP: 198.51.100.7, DstIP: 192.0.2.10",
+        "event.severity": "1",
         "severity": "high"
       },
       "alerts": []
@@ -409,12 +409,12 @@
     "severity-3-link": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Interface GigabitEthernet9/0/41, changed state to down",
-        "log.ciscoTime": "Sep 24 13:10:50.400",
-        "log.facility": "LINK",
-        "log.facilityMnemonic": "UPDOWN",
-        "log.msg": "LINK-3-UPDOWN: Interface GigabitEthernet9/0/41, changed state to down",
-        "log.severity": "3",
+        "event.ciscoMsg": "Interface GigabitEthernet9/0/41, changed state to down",
+        "event.ciscoTime": "Sep 24 13:10:50.400",
+        "event.facility": "LINK",
+        "event.facilityMnemonic": "UPDOWN",
+        "event.msg": "LINK-3-UPDOWN: Interface GigabitEthernet9/0/41, changed state to down",
+        "event.severity": "3",
         "severity": "high"
       },
       "alerts": []
@@ -422,12 +422,12 @@
     "severity-5-lineproto": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Line protocol on Interface GigabitEthernet9/0/41, changed state to up",
-        "log.ciscoTime": "Sep 24 13:10:51.400",
-        "log.facility": "LINEPROTO",
-        "log.facilityMnemonic": "UPDOWN",
-        "log.msg": "LINEPROTO-5-UPDOWN: Line protocol on Interface GigabitEthernet9/0/41, changed state to up",
-        "log.severity": "5",
+        "event.ciscoMsg": "Line protocol on Interface GigabitEthernet9/0/41, changed state to up",
+        "event.ciscoTime": "Sep 24 13:10:51.400",
+        "event.facility": "LINEPROTO",
+        "event.facilityMnemonic": "UPDOWN",
+        "event.msg": "LINEPROTO-5-UPDOWN: Line protocol on Interface GigabitEthernet9/0/41, changed state to up",
+        "event.severity": "5",
         "severity": "low"
       },
       "alerts": []
@@ -435,13 +435,13 @@
     "severity-5-subfacility": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Line protocol on Interface GigabitEthernet9/0/42, changed state to down",
-        "log.ciscoTime": "Sep 24 13:10:52.400",
-        "log.facility": "LINEPROTO",
-        "log.facilityMnemonic": "UPDOWN",
-        "log.msg": "LINEPROTO-SP-5-UPDOWN: Line protocol on Interface GigabitEthernet9/0/42, changed state to down",
-        "log.severity": "5",
-        "log.subFacility": "SP",
+        "event.ciscoMsg": "Line protocol on Interface GigabitEthernet9/0/42, changed state to down",
+        "event.ciscoTime": "Sep 24 13:10:52.400",
+        "event.facility": "LINEPROTO",
+        "event.facilityMnemonic": "UPDOWN",
+        "event.msg": "LINEPROTO-SP-5-UPDOWN: Line protocol on Interface GigabitEthernet9/0/42, changed state to down",
+        "event.severity": "5",
+        "event.subFacility": "SP",
         "severity": "low"
       },
       "alerts": []
@@ -449,12 +449,12 @@
     "sisf-colon-mac": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "R0/0: wncd: Excessive ARP activity detected for the client 02:00:00:00:02:03. client is brought down and added to the exclusion list",
-        "log.ciscoTime": "Sep 24 13:10:02.100",
-        "log.facility": "SISF",
-        "log.facilityMnemonic": "EXCESS_ARP_ACTIVITY",
-        "log.msg": "SISF-4-EXCESS_ARP_ACTIVITY: R0/0: wncd: Excessive ARP activity detected for the client 02:00:00:00:02:03. client is brought down and added to the exclusion list",
-        "log.severity": "4",
+        "event.ciscoMsg": "R0/0: wncd: Excessive ARP activity detected for the client 02:00:00:00:02:03. client is brought down and added to the exclusion list",
+        "event.ciscoTime": "Sep 24 13:10:02.100",
+        "event.facility": "SISF",
+        "event.facilityMnemonic": "EXCESS_ARP_ACTIVITY",
+        "event.msg": "SISF-4-EXCESS_ARP_ACTIVITY: R0/0: wncd: Excessive ARP activity detected for the client 02:00:00:00:02:03. client is brought down and added to the exclusion list",
+        "event.severity": "4",
         "severity": "medium"
       },
       "alerts": []
@@ -462,12 +462,12 @@
     "sisf-excess-arp": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "R0/0: wncd: Excessive ARP activity detected for the client 0200.0000.0201. client is brought down and added to the exclusion list",
-        "log.ciscoTime": "Sep 24 13:10:00.100",
-        "log.facility": "SISF",
-        "log.facilityMnemonic": "EXCESS_ARP_ACTIVITY",
-        "log.msg": "SISF-4-EXCESS_ARP_ACTIVITY: R0/0: wncd: Excessive ARP activity detected for the client 0200.0000.0201. client is brought down and added to the exclusion list",
-        "log.severity": "4",
+        "event.ciscoMsg": "R0/0: wncd: Excessive ARP activity detected for the client 0200.0000.0201. client is brought down and added to the exclusion list",
+        "event.ciscoTime": "Sep 24 13:10:00.100",
+        "event.facility": "SISF",
+        "event.facilityMnemonic": "EXCESS_ARP_ACTIVITY",
+        "event.msg": "SISF-4-EXCESS_ARP_ACTIVITY: R0/0: wncd: Excessive ARP activity detected for the client 0200.0000.0201. client is brought down and added to the exclusion list",
+        "event.severity": "4",
         "origin.mac": "0200.0000.0201",
         "severity": "medium"
       },
@@ -476,12 +476,12 @@
     "sisf-no-prefix": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Excessive ARP activity detected for the client 0200.0000.0202. client is brought down and added to the exclusion list",
-        "log.ciscoTime": "Sep 24 13:10:01.100",
-        "log.facility": "SISF",
-        "log.facilityMnemonic": "EXCESS_ARP_ACTIVITY",
-        "log.msg": "SISF-4-EXCESS_ARP_ACTIVITY: Excessive ARP activity detected for the client 0200.0000.0202. client is brought down and added to the exclusion list",
-        "log.severity": "4",
+        "event.ciscoMsg": "Excessive ARP activity detected for the client 0200.0000.0202. client is brought down and added to the exclusion list",
+        "event.ciscoTime": "Sep 24 13:10:01.100",
+        "event.facility": "SISF",
+        "event.facilityMnemonic": "EXCESS_ARP_ACTIVITY",
+        "event.msg": "SISF-4-EXCESS_ARP_ACTIVITY: Excessive ARP activity detected for the client 0200.0000.0202. client is brought down and added to the exclusion list",
+        "event.severity": "4",
         "origin.mac": "0200.0000.0202",
         "severity": "medium"
       },
@@ -490,12 +490,12 @@
     "ssh-close": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "SSH Session from 198.51.100.23 (tty = 0) for user 'alice' using crypto cipher 'aes256-ctr', hmac 'hmac-sha2-256' closed",
-        "log.ciscoTime": "*Sep 24 2026 09:55:14",
-        "log.facility": "SSH",
-        "log.facilityMnemonic": "SSH_CLOSE",
-        "log.msg": "SSH-5-SSH_CLOSE: SSH Session from 198.51.100.23 (tty = 0) for user 'alice' using crypto cipher 'aes256-ctr', hmac 'hmac-sha2-256' closed",
-        "log.severity": "5",
+        "event.ciscoMsg": "SSH Session from 198.51.100.23 (tty = 0) for user 'alice' using crypto cipher 'aes256-ctr', hmac 'hmac-sha2-256' closed",
+        "event.ciscoTime": "*Sep 24 2026 09:55:14",
+        "event.facility": "SSH",
+        "event.facilityMnemonic": "SSH_CLOSE",
+        "event.msg": "SSH-5-SSH_CLOSE: SSH Session from 198.51.100.23 (tty = 0) for user 'alice' using crypto cipher 'aes256-ctr', hmac 'hmac-sha2-256' closed",
+        "event.severity": "5",
         "origin.ip": "198.51.100.23",
         "severity": "low"
       },
@@ -504,12 +504,12 @@
     "ssh2-unexpected": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Unexpected message type has arrived. Terminating the connection from 198.51.100.21",
-        "log.ciscoTime": "Sep 24 13:10:10.200",
-        "log.facility": "SSH",
-        "log.facilityMnemonic": "SSH2_UNEXPECTED_MSG",
-        "log.msg": "SSH-4-SSH2_UNEXPECTED_MSG: Unexpected message type has arrived. Terminating the connection from 198.51.100.21",
-        "log.severity": "4",
+        "event.ciscoMsg": "Unexpected message type has arrived. Terminating the connection from 198.51.100.21",
+        "event.ciscoTime": "Sep 24 13:10:10.200",
+        "event.facility": "SSH",
+        "event.facilityMnemonic": "SSH2_UNEXPECTED_MSG",
+        "event.msg": "SSH-4-SSH2_UNEXPECTED_MSG: Unexpected message type has arrived. Terminating the connection from 198.51.100.21",
+        "event.severity": "4",
         "origin.ip": "198.51.100.21",
         "actionResult": "failed",
         "severity": "medium"
@@ -519,12 +519,12 @@
     "ssh2-unexpected-bad-octet": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Unexpected message type has arrived. Terminating the connection from 198.51.100.256",
-        "log.ciscoTime": "Sep 24 13:10:12.200",
-        "log.facility": "SSH",
-        "log.facilityMnemonic": "SSH2_UNEXPECTED_MSG",
-        "log.msg": "SSH-4-SSH2_UNEXPECTED_MSG: Unexpected message type has arrived. Terminating the connection from 198.51.100.256",
-        "log.severity": "4",
+        "event.ciscoMsg": "Unexpected message type has arrived. Terminating the connection from 198.51.100.256",
+        "event.ciscoTime": "Sep 24 13:10:12.200",
+        "event.facility": "SSH",
+        "event.facilityMnemonic": "SSH2_UNEXPECTED_MSG",
+        "event.msg": "SSH-4-SSH2_UNEXPECTED_MSG: Unexpected message type has arrived. Terminating the connection from 198.51.100.256",
+        "event.severity": "4",
         "actionResult": "failed",
         "severity": "medium"
       },
@@ -533,12 +533,12 @@
     "ssh2-unexpected-ipv6": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Unexpected message type has arrived. Terminating the connection from 2001:db8::21",
-        "log.ciscoTime": "Sep 24 13:10:11.200",
-        "log.facility": "SSH",
-        "log.facilityMnemonic": "SSH2_UNEXPECTED_MSG",
-        "log.msg": "SSH-4-SSH2_UNEXPECTED_MSG: Unexpected message type has arrived. Terminating the connection from 2001:db8::21",
-        "log.severity": "4",
+        "event.ciscoMsg": "Unexpected message type has arrived. Terminating the connection from 2001:db8::21",
+        "event.ciscoTime": "Sep 24 13:10:11.200",
+        "event.facility": "SSH",
+        "event.facilityMnemonic": "SSH2_UNEXPECTED_MSG",
+        "event.msg": "SSH-4-SSH2_UNEXPECTED_MSG: Unexpected message type has arrived. Terminating the connection from 2001:db8::21",
+        "event.severity": "4",
         "actionResult": "failed",
         "severity": "medium"
       },
@@ -547,12 +547,12 @@
     "ssh2-unexpected-trailing": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Unexpected message type has arrived. Terminating the connection from 198.51.100.22 port 22",
-        "log.ciscoTime": "Sep 24 13:10:13.200",
-        "log.facility": "SSH",
-        "log.facilityMnemonic": "SSH2_UNEXPECTED_MSG",
-        "log.msg": "SSH-4-SSH2_UNEXPECTED_MSG: Unexpected message type has arrived. Terminating the connection from 198.51.100.22 port 22",
-        "log.severity": "4",
+        "event.ciscoMsg": "Unexpected message type has arrived. Terminating the connection from 198.51.100.22 port 22",
+        "event.ciscoTime": "Sep 24 13:10:13.200",
+        "event.facility": "SSH",
+        "event.facilityMnemonic": "SSH2_UNEXPECTED_MSG",
+        "event.msg": "SSH-4-SSH2_UNEXPECTED_MSG: Unexpected message type has arrived. Terminating the connection from 198.51.100.22 port 22",
+        "event.severity": "4",
         "actionResult": "failed",
         "severity": "medium"
       },
@@ -566,20 +566,20 @@
     "unparsed-percent-without-header": {
       "logObject": true,
       "fields": {
-        "log.ciscoTime": "Sep 24 13:10:41 host01.example.com monitor[42]: disk usage 91",
-        "log.msg": "on /var"
+        "event.ciscoTime": "Sep 24 13:10:41 host01.example.com monitor[42]: disk usage 91",
+        "event.msg": "on /var"
       },
       "alerts": []
     },
     "vlan-inconsistency": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "VLAN 910 is inconsistent on port Gi9/0/46",
-        "log.ciscoTime": "Sep 24 13:11:10.600",
-        "log.facility": "SW_VLAN",
-        "log.facilityMnemonic": "VLAN_INCONSISTENCY",
-        "log.msg": "SW_VLAN-4-VLAN_INCONSISTENCY: VLAN 910 is inconsistent on port Gi9/0/46",
-        "log.severity": "4",
+        "event.ciscoMsg": "VLAN 910 is inconsistent on port Gi9/0/46",
+        "event.ciscoTime": "Sep 24 13:11:10.600",
+        "event.facility": "SW_VLAN",
+        "event.facilityMnemonic": "VLAN_INCONSISTENCY",
+        "event.msg": "SW_VLAN-4-VLAN_INCONSISTENCY: VLAN 910 is inconsistent on port Gi9/0/46",
+        "event.severity": "4",
         "severity": "medium"
       },
       "alerts": [
@@ -589,12 +589,12 @@
     "vlan-trunk-mode-change": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Port Gi9/0/46 trunk mode changed to on",
-        "log.ciscoTime": "Sep 24 13:11:11.600",
-        "log.facility": "SW_VLAN",
-        "log.facilityMnemonic": "TRUNK_MODE_CHANGE",
-        "log.msg": "SW_VLAN-5-TRUNK_MODE_CHANGE: Port Gi9/0/46 trunk mode changed to on",
-        "log.severity": "5",
+        "event.ciscoMsg": "Port Gi9/0/46 trunk mode changed to on",
+        "event.ciscoTime": "Sep 24 13:11:11.600",
+        "event.facility": "SW_VLAN",
+        "event.facilityMnemonic": "TRUNK_MODE_CHANGE",
+        "event.msg": "SW_VLAN-5-TRUNK_MODE_CHANGE: Port Gi9/0/46 trunk mode changed to on",
+        "event.severity": "5",
         "severity": "low"
       },
       "alerts": [
@@ -604,12 +604,12 @@
     "vtp-mode-change": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "VLAN manager changing device mode from SERVER to TRANSPARENT.",
-        "log.ciscoTime": "Sep 24 13:11:15.600",
-        "log.facility": "SW_VLAN",
-        "log.facilityMnemonic": "VTPMODECHANGE",
-        "log.msg": "SW_VLAN-6-VTPMODECHANGE: VLAN manager changing device mode from SERVER to TRANSPARENT.",
-        "log.severity": "6",
+        "event.ciscoMsg": "VLAN manager changing device mode from SERVER to TRANSPARENT.",
+        "event.ciscoTime": "Sep 24 13:11:15.600",
+        "event.facility": "SW_VLAN",
+        "event.facilityMnemonic": "VTPMODECHANGE",
+        "event.msg": "SW_VLAN-6-VTPMODECHANGE: VLAN manager changing device mode from SERVER to TRANSPARENT.",
+        "event.severity": "6",
         "severity": "low"
       },
       "alerts": []
@@ -617,12 +617,12 @@
     "ar-ssh-close-empty-user": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "SSH Session from 198.51.100.24 (tty = 0) for user '' using crypto cipher '' closed",
-        "log.ciscoTime": "Sep 24 13:12:00.100",
-        "log.facility": "SSH",
-        "log.facilityMnemonic": "SSH_CLOSE",
-        "log.msg": "SSH-5-SSH_CLOSE: SSH Session from 198.51.100.24 (tty = 0) for user '' using crypto cipher '' closed",
-        "log.severity": "5",
+        "event.ciscoMsg": "SSH Session from 198.51.100.24 (tty = 0) for user '' using crypto cipher '' closed",
+        "event.ciscoTime": "Sep 24 13:12:00.100",
+        "event.facility": "SSH",
+        "event.facilityMnemonic": "SSH_CLOSE",
+        "event.msg": "SSH-5-SSH_CLOSE: SSH Session from 198.51.100.24 (tty = 0) for user '' using crypto cipher '' closed",
+        "event.severity": "5",
         "origin.ip": "198.51.100.24",
         "actionResult": "failed",
         "severity": "low"
@@ -632,12 +632,12 @@
     "ar-ssh2-close-empty-user": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "SSH2 Session from 198.51.100.25 (tty = 0) for user '' using crypto cipher 'aes256-ctr', hmac 'hmac-sha2-256' closed",
-        "log.ciscoTime": "Sep 24 13:12:01.100",
-        "log.facility": "SSH",
-        "log.facilityMnemonic": "SSH2_CLOSE",
-        "log.msg": "SSH-5-SSH2_CLOSE: SSH2 Session from 198.51.100.25 (tty = 0) for user '' using crypto cipher 'aes256-ctr', hmac 'hmac-sha2-256' closed",
-        "log.severity": "5",
+        "event.ciscoMsg": "SSH2 Session from 198.51.100.25 (tty = 0) for user '' using crypto cipher 'aes256-ctr', hmac 'hmac-sha2-256' closed",
+        "event.ciscoTime": "Sep 24 13:12:01.100",
+        "event.facility": "SSH",
+        "event.facilityMnemonic": "SSH2_CLOSE",
+        "event.msg": "SSH-5-SSH2_CLOSE: SSH2 Session from 198.51.100.25 (tty = 0) for user '' using crypto cipher 'aes256-ctr', hmac 'hmac-sha2-256' closed",
+        "event.severity": "5",
         "actionResult": "failed",
         "severity": "low"
       },
@@ -646,12 +646,12 @@
     "ar-ssh2-close-named-user": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "SSH2 Session from 198.51.100.26 (tty = 0) for user 'alice' using crypto cipher 'aes256-ctr', hmac 'hmac-sha2-256' closed",
-        "log.ciscoTime": "Sep 24 13:12:02.100",
-        "log.facility": "SSH",
-        "log.facilityMnemonic": "SSH2_CLOSE",
-        "log.msg": "SSH-5-SSH2_CLOSE: SSH2 Session from 198.51.100.26 (tty = 0) for user 'alice' using crypto cipher 'aes256-ctr', hmac 'hmac-sha2-256' closed",
-        "log.severity": "5",
+        "event.ciscoMsg": "SSH2 Session from 198.51.100.26 (tty = 0) for user 'alice' using crypto cipher 'aes256-ctr', hmac 'hmac-sha2-256' closed",
+        "event.ciscoTime": "Sep 24 13:12:02.100",
+        "event.facility": "SSH",
+        "event.facilityMnemonic": "SSH2_CLOSE",
+        "event.msg": "SSH-5-SSH2_CLOSE: SSH2 Session from 198.51.100.26 (tty = 0) for user 'alice' using crypto cipher 'aes256-ctr', hmac 'hmac-sha2-256' closed",
+        "event.severity": "5",
         "severity": "low"
       },
       "alerts": []
@@ -659,12 +659,12 @@
     "ar-ssh2-userauth-succeeded": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "User 'alice' authentication for SSH2 Session from 198.51.100.27 (tty = 0) using crypto cipher 'aes128-ctr', hmac 'hmac-sha2-256' Succeeded",
-        "log.ciscoTime": "Sep 24 13:12:03.100",
-        "log.facility": "SSH",
-        "log.facilityMnemonic": "SSH2_USERAUTH",
-        "log.msg": "SSH-5-SSH2_USERAUTH: User 'alice' authentication for SSH2 Session from 198.51.100.27 (tty = 0) using crypto cipher 'aes128-ctr', hmac 'hmac-sha2-256' Succeeded",
-        "log.severity": "5",
+        "event.ciscoMsg": "User 'alice' authentication for SSH2 Session from 198.51.100.27 (tty = 0) using crypto cipher 'aes128-ctr', hmac 'hmac-sha2-256' Succeeded",
+        "event.ciscoTime": "Sep 24 13:12:03.100",
+        "event.facility": "SSH",
+        "event.facilityMnemonic": "SSH2_USERAUTH",
+        "event.msg": "SSH-5-SSH2_USERAUTH: User 'alice' authentication for SSH2 Session from 198.51.100.27 (tty = 0) using crypto cipher 'aes128-ctr', hmac 'hmac-sha2-256' Succeeded",
+        "event.severity": "5",
         "actionResult": "success",
         "severity": "low"
       },
@@ -673,12 +673,12 @@
     "ar-ssh2-userauth-failed": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "User 'alice' authentication for SSH2 Session from 198.51.100.27 (tty = 0) using crypto cipher 'aes128-ctr', hmac 'hmac-sha2-256' Failed",
-        "log.ciscoTime": "Sep 24 13:12:04.100",
-        "log.facility": "SSH",
-        "log.facilityMnemonic": "SSH2_USERAUTH",
-        "log.msg": "SSH-5-SSH2_USERAUTH: User 'alice' authentication for SSH2 Session from 198.51.100.27 (tty = 0) using crypto cipher 'aes128-ctr', hmac 'hmac-sha2-256' Failed",
-        "log.severity": "5",
+        "event.ciscoMsg": "User 'alice' authentication for SSH2 Session from 198.51.100.27 (tty = 0) using crypto cipher 'aes128-ctr', hmac 'hmac-sha2-256' Failed",
+        "event.ciscoTime": "Sep 24 13:12:04.100",
+        "event.facility": "SSH",
+        "event.facilityMnemonic": "SSH2_USERAUTH",
+        "event.msg": "SSH-5-SSH2_USERAUTH: User 'alice' authentication for SSH2 Session from 198.51.100.27 (tty = 0) using crypto cipher 'aes128-ctr', hmac 'hmac-sha2-256' Failed",
+        "event.severity": "5",
         "actionResult": "failed",
         "severity": "low"
       },
@@ -687,12 +687,12 @@
     "ar-ssh2-session-succeeded": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "SSH2 Session request from 198.51.100.28 (tty = 0) using crypto cipher 'aes256-ctr', hmac 'hmac-sha2-256' Succeeded",
-        "log.ciscoTime": "Sep 24 13:12:05.100",
-        "log.facility": "SSH",
-        "log.facilityMnemonic": "SSH2_SESSION",
-        "log.msg": "SSH-5-SSH2_SESSION: SSH2 Session request from 198.51.100.28 (tty = 0) using crypto cipher 'aes256-ctr', hmac 'hmac-sha2-256' Succeeded",
-        "log.severity": "5",
+        "event.ciscoMsg": "SSH2 Session request from 198.51.100.28 (tty = 0) using crypto cipher 'aes256-ctr', hmac 'hmac-sha2-256' Succeeded",
+        "event.ciscoTime": "Sep 24 13:12:05.100",
+        "event.facility": "SSH",
+        "event.facilityMnemonic": "SSH2_SESSION",
+        "event.msg": "SSH-5-SSH2_SESSION: SSH2 Session request from 198.51.100.28 (tty = 0) using crypto cipher 'aes256-ctr', hmac 'hmac-sha2-256' Succeeded",
+        "event.severity": "5",
         "actionResult": "success",
         "severity": "low"
       },
@@ -701,12 +701,12 @@
     "ar-ssh2-session-failed": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "SSH2 Session request from 198.51.100.28 (tty = 0) using crypto cipher 'aes256-ctr', hmac 'hmac-sha2-256' Failed",
-        "log.ciscoTime": "Sep 24 13:12:06.100",
-        "log.facility": "SSH",
-        "log.facilityMnemonic": "SSH2_SESSION",
-        "log.msg": "SSH-5-SSH2_SESSION: SSH2 Session request from 198.51.100.28 (tty = 0) using crypto cipher 'aes256-ctr', hmac 'hmac-sha2-256' Failed",
-        "log.severity": "5",
+        "event.ciscoMsg": "SSH2 Session request from 198.51.100.28 (tty = 0) using crypto cipher 'aes256-ctr', hmac 'hmac-sha2-256' Failed",
+        "event.ciscoTime": "Sep 24 13:12:06.100",
+        "event.facility": "SSH",
+        "event.facilityMnemonic": "SSH2_SESSION",
+        "event.msg": "SSH-5-SSH2_SESSION: SSH2 Session request from 198.51.100.28 (tty = 0) using crypto cipher 'aes256-ctr', hmac 'hmac-sha2-256' Failed",
+        "event.severity": "5",
         "actionResult": "failed",
         "severity": "low"
       },
@@ -715,12 +715,12 @@
     "ar-login-success": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Login Success [user: alice] [Source: 198.51.100.29] [localport: 22] at 13:12:07 UTC Thu Sep 24 2026",
-        "log.ciscoTime": "Sep 24 13:12:07.100",
-        "log.facility": "SEC_LOGIN",
-        "log.facilityMnemonic": "LOGIN_SUCCESS",
-        "log.msg": "SEC_LOGIN-5-LOGIN_SUCCESS: Login Success [user: alice] [Source: 198.51.100.29] [localport: 22] at 13:12:07 UTC Thu Sep 24 2026",
-        "log.severity": "5",
+        "event.ciscoMsg": "Login Success [user: alice] [Source: 198.51.100.29] [localport: 22] at 13:12:07 UTC Thu Sep 24 2026",
+        "event.ciscoTime": "Sep 24 13:12:07.100",
+        "event.facility": "SEC_LOGIN",
+        "event.facilityMnemonic": "LOGIN_SUCCESS",
+        "event.msg": "SEC_LOGIN-5-LOGIN_SUCCESS: Login Success [user: alice] [Source: 198.51.100.29] [localport: 22] at 13:12:07 UTC Thu Sep 24 2026",
+        "event.severity": "5",
         "actionResult": "success",
         "severity": "low"
       },
@@ -729,12 +729,12 @@
     "ar-login-failed": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Login failed [user: ] [Source: 198.51.100.30] [localport: 22] [Reason: Login Authentication Failed] at 13:12:08 UTC Thu Sep 24 2026",
-        "log.ciscoTime": "Sep 24 13:12:08.100",
-        "log.facility": "SEC_LOGIN",
-        "log.facilityMnemonic": "LOGIN_FAILED",
-        "log.msg": "SEC_LOGIN-4-LOGIN_FAILED: Login failed [user: ] [Source: 198.51.100.30] [localport: 22] [Reason: Login Authentication Failed] at 13:12:08 UTC Thu Sep 24 2026",
-        "log.severity": "4",
+        "event.ciscoMsg": "Login failed [user: ] [Source: 198.51.100.30] [localport: 22] [Reason: Login Authentication Failed] at 13:12:08 UTC Thu Sep 24 2026",
+        "event.ciscoTime": "Sep 24 13:12:08.100",
+        "event.facility": "SEC_LOGIN",
+        "event.facilityMnemonic": "LOGIN_FAILED",
+        "event.msg": "SEC_LOGIN-4-LOGIN_FAILED: Login failed [user: ] [Source: 198.51.100.30] [localport: 22] [Reason: Login Authentication Failed] at 13:12:08 UTC Thu Sep 24 2026",
+        "event.severity": "4",
         "actionResult": "failed",
         "severity": "medium"
       },
@@ -743,12 +743,12 @@
     "ar-login-quiet-mode": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Still timeleft for watching failures is 24 secs, [user: alice] [Source: 198.51.100.31] [localport: 22] [Reason: Login Authentication Failed] [ACL: sl_def_acl] at 13:12:09 UTC Thu Sep 24 2026",
-        "log.ciscoTime": "Sep 24 13:12:09.100",
-        "log.facility": "SEC_LOGIN",
-        "log.facilityMnemonic": "QUIET_MODE_ON",
-        "log.msg": "SEC_LOGIN-1-QUIET_MODE_ON: Still timeleft for watching failures is 24 secs, [user: alice] [Source: 198.51.100.31] [localport: 22] [Reason: Login Authentication Failed] [ACL: sl_def_acl] at 13:12:09 UTC Thu Sep 24 2026",
-        "log.severity": "1",
+        "event.ciscoMsg": "Still timeleft for watching failures is 24 secs, [user: alice] [Source: 198.51.100.31] [localport: 22] [Reason: Login Authentication Failed] [ACL: sl_def_acl] at 13:12:09 UTC Thu Sep 24 2026",
+        "event.ciscoTime": "Sep 24 13:12:09.100",
+        "event.facility": "SEC_LOGIN",
+        "event.facilityMnemonic": "QUIET_MODE_ON",
+        "event.msg": "SEC_LOGIN-1-QUIET_MODE_ON: Still timeleft for watching failures is 24 secs, [user: alice] [Source: 198.51.100.31] [localport: 22] [Reason: Login Authentication Failed] [ACL: sl_def_acl] at 13:12:09 UTC Thu Sep 24 2026",
+        "event.severity": "1",
         "actionResult": "denied",
         "severity": "high"
       },
@@ -757,12 +757,12 @@
     "ar-priv-auth-fail": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Authentication to privilege level 15 failed by alice on vty0 (198.51.100.32)",
-        "log.ciscoTime": "Sep 24 13:12:10.100",
-        "log.facility": "SYS",
-        "log.facilityMnemonic": "PRIV_AUTH_FAIL",
-        "log.msg": "SYS-5-PRIV_AUTH_FAIL: Authentication to privilege level 15 failed by alice on vty0 (198.51.100.32)",
-        "log.severity": "5",
+        "event.ciscoMsg": "Authentication to privilege level 15 failed by alice on vty0 (198.51.100.32)",
+        "event.ciscoTime": "Sep 24 13:12:10.100",
+        "event.facility": "SYS",
+        "event.facilityMnemonic": "PRIV_AUTH_FAIL",
+        "event.msg": "SYS-5-PRIV_AUTH_FAIL: Authentication to privilege level 15 failed by alice on vty0 (198.51.100.32)",
+        "event.severity": "5",
         "actionResult": "failed",
         "severity": "low"
       },
@@ -771,12 +771,12 @@
     "ar-priv-auth-pass": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Privilege level set to 15 by alice on vty0 (198.51.100.32)",
-        "log.ciscoTime": "Sep 24 13:12:11.100",
-        "log.facility": "SYS",
-        "log.facilityMnemonic": "PRIV_AUTH_PASS",
-        "log.msg": "SYS-5-PRIV_AUTH_PASS: Privilege level set to 15 by alice on vty0 (198.51.100.32)",
-        "log.severity": "5",
+        "event.ciscoMsg": "Privilege level set to 15 by alice on vty0 (198.51.100.32)",
+        "event.ciscoTime": "Sep 24 13:12:11.100",
+        "event.facility": "SYS",
+        "event.facilityMnemonic": "PRIV_AUTH_PASS",
+        "event.msg": "SYS-5-PRIV_AUTH_PASS: Privilege level set to 15 by alice on vty0 (198.51.100.32)",
+        "event.severity": "5",
         "actionResult": "success",
         "severity": "low"
       },
@@ -785,12 +785,12 @@
     "ar-dmi-auth-failed": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Switch 1 R0/0: dmiauthd: Authentication failure from 198.51.100.33:51679 for netconf over ssh.",
-        "log.ciscoTime": "Sep 24 13:12:12.100",
-        "log.facility": "DMI",
-        "log.facilityMnemonic": "AUTHENTICATION_FAILED",
-        "log.msg": "DMI-5-AUTHENTICATION_FAILED: Switch 1 R0/0: dmiauthd: Authentication failure from 198.51.100.33:51679 for netconf over ssh.",
-        "log.severity": "5",
+        "event.ciscoMsg": "Switch 1 R0/0: dmiauthd: Authentication failure from 198.51.100.33:51679 for netconf over ssh.",
+        "event.ciscoTime": "Sep 24 13:12:12.100",
+        "event.facility": "DMI",
+        "event.facilityMnemonic": "AUTHENTICATION_FAILED",
+        "event.msg": "DMI-5-AUTHENTICATION_FAILED: Switch 1 R0/0: dmiauthd: Authentication failure from 198.51.100.33:51679 for netconf over ssh.",
+        "event.severity": "5",
         "actionResult": "failed",
         "severity": "low"
       },
@@ -799,12 +799,12 @@
     "ar-dmi-auth-passed": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Switch 1 R0/0: dmiauthd: User 'alice' authenticated successfully from 198.51.100.33:38066 and was authorized for netconf over ssh. External groups: PRIV15",
-        "log.ciscoTime": "Sep 24 13:12:13.100",
-        "log.facility": "DMI",
-        "log.facilityMnemonic": "AUTH_PASSED",
-        "log.msg": "DMI-5-AUTH_PASSED: Switch 1 R0/0: dmiauthd: User 'alice' authenticated successfully from 198.51.100.33:38066 and was authorized for netconf over ssh. External groups: PRIV15",
-        "log.severity": "5",
+        "event.ciscoMsg": "Switch 1 R0/0: dmiauthd: User 'alice' authenticated successfully from 198.51.100.33:38066 and was authorized for netconf over ssh. External groups: PRIV15",
+        "event.ciscoTime": "Sep 24 13:12:13.100",
+        "event.facility": "DMI",
+        "event.facilityMnemonic": "AUTH_PASSED",
+        "event.msg": "DMI-5-AUTH_PASSED: Switch 1 R0/0: dmiauthd: User 'alice' authenticated successfully from 198.51.100.33:38066 and was authorized for netconf over ssh. External groups: PRIV15",
+        "event.severity": "5",
         "actionResult": "success",
         "severity": "low"
       },
@@ -813,12 +813,12 @@
     "ar-mab-fail": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Authentication failed for client (0200.0000.0501) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A1",
-        "log.ciscoTime": "Sep 24 13:12:14.100",
-        "log.facility": "MAB",
-        "log.facilityMnemonic": "FAIL",
-        "log.msg": "MAB-5-FAIL: Authentication failed for client (0200.0000.0501) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A1",
-        "log.severity": "5",
+        "event.ciscoMsg": "Authentication failed for client (0200.0000.0501) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A1",
+        "event.ciscoTime": "Sep 24 13:12:14.100",
+        "event.facility": "MAB",
+        "event.facilityMnemonic": "FAIL",
+        "event.msg": "MAB-5-FAIL: Authentication failed for client (0200.0000.0501) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A1",
+        "event.severity": "5",
         "actionResult": "failed",
         "severity": "low"
       },
@@ -827,12 +827,12 @@
     "ar-mab-success": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Authentication successful for client (0200.0000.0502) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A2",
-        "log.ciscoTime": "Sep 24 13:12:15.100",
-        "log.facility": "MAB",
-        "log.facilityMnemonic": "SUCCESS",
-        "log.msg": "MAB-5-SUCCESS: Authentication successful for client (0200.0000.0502) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A2",
-        "log.severity": "5",
+        "event.ciscoMsg": "Authentication successful for client (0200.0000.0502) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A2",
+        "event.ciscoTime": "Sep 24 13:12:15.100",
+        "event.facility": "MAB",
+        "event.facilityMnemonic": "SUCCESS",
+        "event.msg": "MAB-5-SUCCESS: Authentication successful for client (0200.0000.0502) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A2",
+        "event.severity": "5",
         "actionResult": "success",
         "severity": "low"
       },
@@ -841,12 +841,12 @@
     "ar-authmgr-fail": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Authorization failed or unapplied for client (0200.0000.0503) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A3",
-        "log.ciscoTime": "Sep 24 13:12:16.100",
-        "log.facility": "AUTHMGR",
-        "log.facilityMnemonic": "FAIL",
-        "log.msg": "AUTHMGR-5-FAIL: Authorization failed or unapplied for client (0200.0000.0503) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A3",
-        "log.severity": "5",
+        "event.ciscoMsg": "Authorization failed or unapplied for client (0200.0000.0503) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A3",
+        "event.ciscoTime": "Sep 24 13:12:16.100",
+        "event.facility": "AUTHMGR",
+        "event.facilityMnemonic": "FAIL",
+        "event.msg": "AUTHMGR-5-FAIL: Authorization failed or unapplied for client (0200.0000.0503) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A3",
+        "event.severity": "5",
         "actionResult": "failed",
         "severity": "low"
       },
@@ -855,12 +855,12 @@
     "ar-authmgr-success": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Authorization succeeded for client (0200.0000.0504) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A4",
-        "log.ciscoTime": "Sep 24 13:12:17.100",
-        "log.facility": "AUTHMGR",
-        "log.facilityMnemonic": "SUCCESS",
-        "log.msg": "AUTHMGR-5-SUCCESS: Authorization succeeded for client (0200.0000.0504) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A4",
-        "log.severity": "5",
+        "event.ciscoMsg": "Authorization succeeded for client (0200.0000.0504) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A4",
+        "event.ciscoTime": "Sep 24 13:12:17.100",
+        "event.facility": "AUTHMGR",
+        "event.facilityMnemonic": "SUCCESS",
+        "event.msg": "AUTHMGR-5-SUCCESS: Authorization succeeded for client (0200.0000.0504) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A4",
+        "event.severity": "5",
         "actionResult": "success",
         "severity": "low"
       },
@@ -869,12 +869,12 @@
     "ar-authmgr-start": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Starting 'mab' for client (0200.0000.0505) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A5",
-        "log.ciscoTime": "Sep 24 13:12:18.100",
-        "log.facility": "AUTHMGR",
-        "log.facilityMnemonic": "START",
-        "log.msg": "AUTHMGR-5-START: Starting 'mab' for client (0200.0000.0505) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A5",
-        "log.severity": "5",
+        "event.ciscoMsg": "Starting 'mab' for client (0200.0000.0505) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A5",
+        "event.ciscoTime": "Sep 24 13:12:18.100",
+        "event.facility": "AUTHMGR",
+        "event.facilityMnemonic": "START",
+        "event.msg": "AUTHMGR-5-START: Starting 'mab' for client (0200.0000.0505) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A5",
+        "event.severity": "5",
         "severity": "low"
       },
       "alerts": []
@@ -882,12 +882,12 @@
     "ar-dot1x-fail": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Authentication failed for client (0200.0000.0506) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A6",
-        "log.ciscoTime": "Sep 24 13:12:19.100",
-        "log.facility": "DOT1X",
-        "log.facilityMnemonic": "FAIL",
-        "log.msg": "DOT1X-5-FAIL: Authentication failed for client (0200.0000.0506) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A6",
-        "log.severity": "5",
+        "event.ciscoMsg": "Authentication failed for client (0200.0000.0506) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A6",
+        "event.ciscoTime": "Sep 24 13:12:19.100",
+        "event.facility": "DOT1X",
+        "event.facilityMnemonic": "FAIL",
+        "event.msg": "DOT1X-5-FAIL: Authentication failed for client (0200.0000.0506) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A6",
+        "event.severity": "5",
         "actionResult": "failed",
         "severity": "low"
       },
@@ -896,12 +896,12 @@
     "ar-dot1x-success": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Authentication successful for client (0200.0000.0507) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A7",
-        "log.ciscoTime": "Sep 24 13:12:20.100",
-        "log.facility": "DOT1X",
-        "log.facilityMnemonic": "SUCCESS",
-        "log.msg": "DOT1X-5-SUCCESS: Authentication successful for client (0200.0000.0507) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A7",
-        "log.severity": "5",
+        "event.ciscoMsg": "Authentication successful for client (0200.0000.0507) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A7",
+        "event.ciscoTime": "Sep 24 13:12:20.100",
+        "event.facility": "DOT1X",
+        "event.facilityMnemonic": "SUCCESS",
+        "event.msg": "DOT1X-5-SUCCESS: Authentication successful for client (0200.0000.0507) on Interface Gi9/0/47 AuditSessionID 0000000000000000000000A7",
+        "event.severity": "5",
         "actionResult": "success",
         "severity": "low"
       },
@@ -910,12 +910,12 @@
     "ar-dhcp-snooping-drop": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "DHCP_SNOOPING drop message on untrusted port, message type: DHCPACK, MAC sa: 0200.0000.0508",
-        "log.ciscoTime": "Sep 24 13:12:21.100",
-        "log.facility": "DHCP_SNOOPING",
-        "log.facilityMnemonic": "DHCP_SNOOPING_UNTRUSTED_PORT",
-        "log.msg": "DHCP_SNOOPING-5-DHCP_SNOOPING_UNTRUSTED_PORT: DHCP_SNOOPING drop message on untrusted port, message type: DHCPACK, MAC sa: 0200.0000.0508",
-        "log.severity": "5",
+        "event.ciscoMsg": "DHCP_SNOOPING drop message on untrusted port, message type: DHCPACK, MAC sa: 0200.0000.0508",
+        "event.ciscoTime": "Sep 24 13:12:21.100",
+        "event.facility": "DHCP_SNOOPING",
+        "event.facilityMnemonic": "DHCP_SNOOPING_UNTRUSTED_PORT",
+        "event.msg": "DHCP_SNOOPING-5-DHCP_SNOOPING_UNTRUSTED_PORT: DHCP_SNOOPING drop message on untrusted port, message type: DHCPACK, MAC sa: 0200.0000.0508",
+        "event.severity": "5",
         "actionResult": "denied",
         "severity": "low"
       },
@@ -924,12 +924,12 @@
     "ar-dhcp-snooping-agent": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "DHCP snooping binding transfer failed. Unable to access URL",
-        "log.ciscoTime": "Sep 24 13:12:22.100",
-        "log.facility": "DHCP_SNOOPING",
-        "log.facilityMnemonic": "AGENT_OPERATION_FAILED",
-        "log.msg": "DHCP_SNOOPING-4-AGENT_OPERATION_FAILED: DHCP snooping binding transfer failed. Unable to access URL",
-        "log.severity": "4",
+        "event.ciscoMsg": "DHCP snooping binding transfer failed. Unable to access URL",
+        "event.ciscoTime": "Sep 24 13:12:22.100",
+        "event.facility": "DHCP_SNOOPING",
+        "event.facilityMnemonic": "AGENT_OPERATION_FAILED",
+        "event.msg": "DHCP_SNOOPING-4-AGENT_OPERATION_FAILED: DHCP snooping binding transfer failed. Unable to access URL",
+        "event.severity": "4",
         "severity": "medium"
       },
       "alerts": []
@@ -937,12 +937,12 @@
     "ar-psecure-violation": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Security violation occurred, caused by MAC address 0200.0000.0509 on port GigabitEthernet9/0/48.",
-        "log.ciscoTime": "Sep 24 13:12:23.100",
-        "log.facility": "PORT_SECURITY",
-        "log.facilityMnemonic": "PSECURE_VIOLATION",
-        "log.msg": "PORT_SECURITY-2-PSECURE_VIOLATION: Security violation occurred, caused by MAC address 0200.0000.0509 on port GigabitEthernet9/0/48.",
-        "log.severity": "2",
+        "event.ciscoMsg": "Security violation occurred, caused by MAC address 0200.0000.0509 on port GigabitEthernet9/0/48.",
+        "event.ciscoTime": "Sep 24 13:12:23.100",
+        "event.facility": "PORT_SECURITY",
+        "event.facilityMnemonic": "PSECURE_VIOLATION",
+        "event.msg": "PORT_SECURITY-2-PSECURE_VIOLATION: Security violation occurred, caused by MAC address 0200.0000.0509 on port GigabitEthernet9/0/48.",
+        "event.severity": "2",
         "actionResult": "denied",
         "severity": "high"
       },
@@ -951,12 +951,12 @@
     "ar-psecure-violation-vlan": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Security violation on port GigabitEthernet9/0/48 due to MAC address 0200.0000.0510 on VLAN 910",
-        "log.ciscoTime": "Sep 24 13:12:24.100",
-        "log.facility": "PORT_SECURITY",
-        "log.facilityMnemonic": "PSECURE_VIOLATION_VLAN",
-        "log.msg": "PORT_SECURITY-2-PSECURE_VIOLATION_VLAN: Security violation on port GigabitEthernet9/0/48 due to MAC address 0200.0000.0510 on VLAN 910",
-        "log.severity": "2",
+        "event.ciscoMsg": "Security violation on port GigabitEthernet9/0/48 due to MAC address 0200.0000.0510 on VLAN 910",
+        "event.ciscoTime": "Sep 24 13:12:24.100",
+        "event.facility": "PORT_SECURITY",
+        "event.facilityMnemonic": "PSECURE_VIOLATION_VLAN",
+        "event.msg": "PORT_SECURITY-2-PSECURE_VIOLATION_VLAN: Security violation on port GigabitEthernet9/0/48 due to MAC address 0200.0000.0510 on VLAN 910",
+        "event.severity": "2",
         "actionResult": "denied",
         "severity": "high"
       },
@@ -965,12 +965,12 @@
     "ar-bpduguard": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Received BPDU on port Gi9/0/48 with BPDU Guard enabled. Disabling port.",
-        "log.ciscoTime": "Sep 24 13:12:25.100",
-        "log.facility": "SPANTREE",
-        "log.facilityMnemonic": "BLOCK_BPDUGUARD",
-        "log.msg": "SPANTREE-2-BLOCK_BPDUGUARD: Received BPDU on port Gi9/0/48 with BPDU Guard enabled. Disabling port.",
-        "log.severity": "2",
+        "event.ciscoMsg": "Received BPDU on port Gi9/0/48 with BPDU Guard enabled. Disabling port.",
+        "event.ciscoTime": "Sep 24 13:12:25.100",
+        "event.facility": "SPANTREE",
+        "event.facilityMnemonic": "BLOCK_BPDUGUARD",
+        "event.msg": "SPANTREE-2-BLOCK_BPDUGUARD: Received BPDU on port Gi9/0/48 with BPDU Guard enabled. Disabling port.",
+        "event.severity": "2",
         "actionResult": "denied",
         "severity": "high"
       },
@@ -979,12 +979,12 @@
     "ar-tcp-badauth": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "Invalid MD5 digest from 192.0.2.61(179) to 192.0.2.62(11000) tableid - 0",
-        "log.ciscoTime": "Sep 24 13:12:26.100",
-        "log.facility": "TCP",
-        "log.facilityMnemonic": "BADAUTH",
-        "log.msg": "TCP-6-BADAUTH: Invalid MD5 digest from 192.0.2.61(179) to 192.0.2.62(11000) tableid - 0",
-        "log.severity": "6",
+        "event.ciscoMsg": "Invalid MD5 digest from 192.0.2.61(179) to 192.0.2.62(11000) tableid - 0",
+        "event.ciscoTime": "Sep 24 13:12:26.100",
+        "event.facility": "TCP",
+        "event.facilityMnemonic": "BADAUTH",
+        "event.msg": "TCP-6-BADAUTH: Invalid MD5 digest from 192.0.2.61(179) to 192.0.2.62(11000) tableid - 0",
+        "event.severity": "6",
         "actionResult": "failed",
         "severity": "low"
       },
@@ -993,12 +993,12 @@
     "ar-acl-classic-permitted": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "list 101 permitted tcp 203.0.113.14(51001) -> 192.0.2.73(22), 1 packet",
-        "log.ciscoTime": "Sep 24 13:12:27.100",
-        "log.facility": "SEC",
-        "log.facilityMnemonic": "IPACCESSLOGP",
-        "log.msg": "SEC-6-IPACCESSLOGP: list 101 permitted tcp 203.0.113.14(51001) -> 192.0.2.73(22), 1 packet",
-        "log.severity": "6",
+        "event.ciscoMsg": "list 101 permitted tcp 203.0.113.14(51001) -> 192.0.2.73(22), 1 packet",
+        "event.ciscoTime": "Sep 24 13:12:27.100",
+        "event.facility": "SEC",
+        "event.facilityMnemonic": "IPACCESSLOGP",
+        "event.msg": "SEC-6-IPACCESSLOGP: list 101 permitted tcp 203.0.113.14(51001) -> 192.0.2.73(22), 1 packet",
+        "event.severity": "6",
         "actionResult": "success",
         "severity": "low"
       },
@@ -1007,12 +1007,12 @@
     "ar-acl-classic-denied": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "list 101 denied tcp 203.0.113.15(51002) -> 192.0.2.74(23), 1 packet",
-        "log.ciscoTime": "Sep 24 13:12:28.100",
-        "log.facility": "SEC",
-        "log.facilityMnemonic": "IPACCESSLOGP",
-        "log.msg": "SEC-6-IPACCESSLOGP: list 101 denied tcp 203.0.113.15(51002) -> 192.0.2.74(23), 1 packet",
-        "log.severity": "6",
+        "event.ciscoMsg": "list 101 denied tcp 203.0.113.15(51002) -> 192.0.2.74(23), 1 packet",
+        "event.ciscoTime": "Sep 24 13:12:28.100",
+        "event.facility": "SEC",
+        "event.facilityMnemonic": "IPACCESSLOGP",
+        "event.msg": "SEC-6-IPACCESSLOGP: list 101 denied tcp 203.0.113.15(51002) -> 192.0.2.74(23), 1 packet",
+        "event.severity": "6",
         "actionResult": "denied",
         "severity": "low"
       },
@@ -1021,12 +1021,12 @@
     "ar-acl-standard-denied": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "list 10 denied 203.0.113.11 5 packets",
-        "log.ciscoTime": "Sep 24 13:12:29.100",
-        "log.facility": "SEC",
-        "log.facilityMnemonic": "IPACCESSLOGS",
-        "log.msg": "SEC-6-IPACCESSLOGS: list 10 denied 203.0.113.11 5 packets",
-        "log.severity": "6",
+        "event.ciscoMsg": "list 10 denied 203.0.113.11 5 packets",
+        "event.ciscoTime": "Sep 24 13:12:29.100",
+        "event.facility": "SEC",
+        "event.facilityMnemonic": "IPACCESSLOGS",
+        "event.msg": "SEC-6-IPACCESSLOGS: list 10 denied 203.0.113.11 5 packets",
+        "event.severity": "6",
         "actionResult": "denied",
         "severity": "low"
       },
@@ -1035,12 +1035,12 @@
     "ar-acl-fmanfp-permitted": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "R0/0: fman_fp_image: list EXAMPLE-IN permitted tcp 203.0.113.12(51000) -> 192.0.2.71(443), 3 packets",
-        "log.ciscoTime": "Sep 24 13:12:30.100",
-        "log.facility": "FMANFP",
-        "log.facilityMnemonic": "IPACCESSLOGP",
-        "log.msg": "FMANFP-6-IPACCESSLOGP: R0/0: fman_fp_image: list EXAMPLE-IN permitted tcp 203.0.113.12(51000) -> 192.0.2.71(443), 3 packets",
-        "log.severity": "6",
+        "event.ciscoMsg": "R0/0: fman_fp_image: list EXAMPLE-IN permitted tcp 203.0.113.12(51000) -> 192.0.2.71(443), 3 packets",
+        "event.ciscoTime": "Sep 24 13:12:30.100",
+        "event.facility": "FMANFP",
+        "event.facilityMnemonic": "IPACCESSLOGP",
+        "event.msg": "FMANFP-6-IPACCESSLOGP: R0/0: fman_fp_image: list EXAMPLE-IN permitted tcp 203.0.113.12(51000) -> 192.0.2.71(443), 3 packets",
+        "event.severity": "6",
         "actionResult": "success",
         "severity": "low"
       },
@@ -1049,12 +1049,12 @@
     "ar-acl-fmanfp-denied": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "F0: fman_fp_image:  list EXAMPLE-IN denied icmp 203.0.113.13 -> 192.0.2.72 (8/0), 1 packet",
-        "log.ciscoTime": "Sep 24 13:12:31.100",
-        "log.facility": "FMANFP",
-        "log.facilityMnemonic": "IPACCESSLOGDP",
-        "log.msg": "FMANFP-6-IPACCESSLOGDP: F0: fman_fp_image:  list EXAMPLE-IN denied icmp 203.0.113.13 -> 192.0.2.72 (8/0), 1 packet",
-        "log.severity": "6",
+        "event.ciscoMsg": "F0: fman_fp_image:  list EXAMPLE-IN denied icmp 203.0.113.13 -> 192.0.2.72 (8/0), 1 packet",
+        "event.ciscoTime": "Sep 24 13:12:31.100",
+        "event.facility": "FMANFP",
+        "event.facilityMnemonic": "IPACCESSLOGDP",
+        "event.msg": "FMANFP-6-IPACCESSLOGDP: F0: fman_fp_image:  list EXAMPLE-IN denied icmp 203.0.113.13 -> 192.0.2.72 (8/0), 1 packet",
+        "event.severity": "6",
         "actionResult": "denied",
         "severity": "low"
       },
@@ -1063,12 +1063,12 @@
     "ar-acl-iosxr-deny": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "access-list EXAMPLE-EDGE (10) deny tcp 203.0.113.16(51003) -> 192.0.2.75(23), 1 packet",
-        "log.ciscoTime": "Sep 24 13:12:32 edge01 RP/0/RP0/CPU0:Sep 24 13:12:32.100 UTC: ipv4_acl_mgr[310]",
-        "log.facility": "ACL",
-        "log.facilityMnemonic": "_ACL-6-IPACCESSLOGP",
-        "log.msg": "ACL-IPV4_ACL-6-IPACCESSLOGP : access-list EXAMPLE-EDGE (10) deny tcp 203.0.113.16(51003) -> 192.0.2.75(23), 1 packet",
-        "log.severity": "IPV4",
+        "event.ciscoMsg": "access-list EXAMPLE-EDGE (10) deny tcp 203.0.113.16(51003) -> 192.0.2.75(23), 1 packet",
+        "event.ciscoTime": "Sep 24 13:12:32 edge01 RP/0/RP0/CPU0:Sep 24 13:12:32.100 UTC: ipv4_acl_mgr[310]",
+        "event.facility": "ACL",
+        "event.facilityMnemonic": "_ACL-6-IPACCESSLOGP",
+        "event.msg": "ACL-IPV4_ACL-6-IPACCESSLOGP : access-list EXAMPLE-EDGE (10) deny tcp 203.0.113.16(51003) -> 192.0.2.75(23), 1 packet",
+        "event.severity": "IPV4",
         "actionResult": "denied"
       },
       "alerts": []
@@ -1076,12 +1076,12 @@
     "ar-acl-iosxr-permit": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "access-list EXAMPLE-EDGE permit tcp 203.0.113.17(51004) -> 192.0.2.76(443), 1 packet",
-        "log.ciscoTime": "Sep 24 13:12:33 edge01 RP/0/RP0/CPU0:Sep 24 13:12:33.100 UTC: ipv4_acl_mgr[310]",
-        "log.facility": "ACL",
-        "log.facilityMnemonic": "_ACL-6-IPACCESSLOGP",
-        "log.msg": "ACL-IPV4_ACL-6-IPACCESSLOGP : access-list EXAMPLE-EDGE permit tcp 203.0.113.17(51004) -> 192.0.2.76(443), 1 packet",
-        "log.severity": "IPV4",
+        "event.ciscoMsg": "access-list EXAMPLE-EDGE permit tcp 203.0.113.17(51004) -> 192.0.2.76(443), 1 packet",
+        "event.ciscoTime": "Sep 24 13:12:33 edge01 RP/0/RP0/CPU0:Sep 24 13:12:33.100 UTC: ipv4_acl_mgr[310]",
+        "event.facility": "ACL",
+        "event.facilityMnemonic": "_ACL-6-IPACCESSLOGP",
+        "event.msg": "ACL-IPV4_ACL-6-IPACCESSLOGP : access-list EXAMPLE-EDGE permit tcp 203.0.113.17(51004) -> 192.0.2.76(443), 1 packet",
+        "event.severity": "IPV4",
         "actionResult": "success"
       },
       "alerts": []
@@ -1089,12 +1089,12 @@
     "ar-acl-rate-limited": {
       "logObject": true,
       "fields": {
-        "log.ciscoMsg": "access-list logging rate-limited or missed 18 packets",
-        "log.ciscoTime": "Sep 24 13:12:34.100",
-        "log.facility": "SEC",
-        "log.facilityMnemonic": "IPACCESSLOGRL",
-        "log.msg": "SEC-6-IPACCESSLOGRL: access-list logging rate-limited or missed 18 packets",
-        "log.severity": "6",
+        "event.ciscoMsg": "access-list logging rate-limited or missed 18 packets",
+        "event.ciscoTime": "Sep 24 13:12:34.100",
+        "event.facility": "SEC",
+        "event.facilityMnemonic": "IPACCESSLOGRL",
+        "event.msg": "SEC-6-IPACCESSLOGRL: access-list logging rate-limited or missed 18 packets",
+        "event.severity": "6",
         "severity": "low"
       },
       "alerts": []

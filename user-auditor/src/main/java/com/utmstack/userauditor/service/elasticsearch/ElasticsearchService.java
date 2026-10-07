@@ -90,7 +90,8 @@ public class ElasticsearchService {
     private static BoolQuery.Builder getBuilder(String sid) {
         BoolQuery.Builder shouldList = new BoolQuery.Builder();
         shouldList.minimumShouldMatch("1");
-        shouldList.should(f -> f.matchPhrase(m -> m.field(Constants.LOG_WINLOG_EVENT_DATA_TARGET_USER_SID_KEYWORD).query(String.valueOf(sid))));
+        shouldList.should(f -> f.term(t -> t.field(Constants.EVENT_WINLOG_EVENT_DATA_TARGET_USER_SID)
+                .value(org.opensearch.client.opensearch._types.FieldValue.of(sid))));
         return shouldList;
     }
 

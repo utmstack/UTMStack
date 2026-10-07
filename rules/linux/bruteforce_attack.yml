@@ -16,14 +16,14 @@ references:
   - "https://attack.mitre.org/tactics/TA0006/"
   - "https://attack.mitre.org/techniques/T1110/"
 where: |
-  contains("log.message", "Failed password") || (equals("action", "USER_AUTH") && contains("log.userauth.result", "fail"))
+  contains("event.message", "Failed password") || (equals("action", "USER_AUTH") && contains("event.userauth.result", "fail"))
 afterEvents:
   - indexPattern: v11-log-linux-*
     with:
       - field: dataSource.keyword
         operator: filter_term
         value: '{{.dataSource}}'
-      - field: log.message
+      - field: event.message
         operator: filter_match
         value: 'Failed password'
     within: 15m

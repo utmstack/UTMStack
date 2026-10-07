@@ -15,16 +15,16 @@ references:
 description: Sophos reports a tamper-protection trigger or an account health warning that endpoint/server tamper
   protection is off. Account health warnings can cover multiple devices; they do not identify an attacker. Resolution
   events are excluded.
-where: '((equals("log.type", "Event::Endpoint::Threat::TamperProtection") ||
+where: '((equals("event.type", "Event::Endpoint::Threat::TamperProtection") ||
 
-  (equals("log.name", "Tamper protection") && equals("log.severity", "high")) ||
+  (equals("event.name", "Tamper protection") && equals("event.severity", "high")) ||
 
-  (equals("log.type", "Event::Endpoint::TamperProtection") && equals("log.action", "blocked"))) || oneOf("log.type",["Event::AccountHealthCheck::EndpointTamperProtectionRaise","Event::AccountHealthCheck::ServerTamperProtectionRaise"]))
-  && !regexMatch("log.type","(?i)(clean|cleanedup|resolved|dismissed|cancelled|success)$")'
+  (equals("event.type", "Event::Endpoint::TamperProtection") && equals("event.action", "blocked"))) || oneOf("event.type",["Event::AccountHealthCheck::EndpointTamperProtectionRaise","Event::AccountHealthCheck::ServerTamperProtectionRaise"]))
+  && !regexMatch("event.type","(?i)(clean|cleanedup|resolved|dismissed|cancelled|success)$")'
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.customerId
-- lastEvent.log.endpointId
-- lastEvent.log.type
+- lastEvent.event.customerId
+- lastEvent.event.endpointId
+- lastEvent.event.type
 - target.host
 - target.ip

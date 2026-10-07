@@ -28,7 +28,7 @@ description: |
 where: |
   oneOf("action", ["CreateDataConnection", "UpdateDataConnection", "ExportData", "ImportData"]) &&
   equals("actionResult", "success") &&
-  equals("log.Workload", "PowerApps")
+  equals("event.Workload", "PowerApps")
 afterEvents:
   - indexPattern: v11-log-o365-*
     with:

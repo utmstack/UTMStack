@@ -26,9 +26,9 @@ description: |
   5. If confirmed malicious, reset user credentials immediately
   6. Review access logs for any unauthorized activities
 where: |
-  equals("log.protoPayloadServiceName", "login.googleapis.com") &&
-  equals("log.protoPayloadMethodName", "google.login.LoginService.loginSuccess") &&
-  exists('log.protoPayload.metadata.event.#(parameter.#(name=="is_suspicious").boolValue==true)')
+  equals("event.protoPayloadServiceName", "login.googleapis.com") &&
+  equals("event.protoPayloadMethodName", "google.login.LoginService.loginSuccess") &&
+  exists('event.protoPayload.metadata.event.#(parameter.#(name=="is_suspicious").boolValue==true)')
 groupBy:
   - lastEvent.origin.user
   - adversary.ip

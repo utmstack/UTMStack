@@ -44,7 +44,7 @@ func TestMerakiSDKHistory(t *testing.T) {
 	}
 	const raw = "1700000000.123456789 MX-LAB events type=anyconnect_vpn_auth_failure msg= 'Peer IP=198.51.100.10Peer port[8748] AAA[8]: AAA authenticate failed retval=7 - Authentication failure '"
 	const collector = "meraki-test-relay"
-	const marker = "log.vpnAuthenticationFailure"
+	const marker = "event.vpnAuthenticationFailure"
 	parse := func(raw string) string { return merakiParse(t, cfg, raw, collector, cache) }
 	out := parse(raw)
 	if yes, err := cache.Eval(rule.Where, out); err != nil || !yes || gjson.Get(out, marker).String() != "match" {
@@ -57,7 +57,7 @@ func TestMerakiSDKHistory(t *testing.T) {
 		w.Header().Set("Content-Type", "application/json")
 		if strings.HasSuffix(r.URL.Path, "/_mapping") {
 			// Text-with-keyword and exact IP mappings both exercise SDK lookup.
-			_, _ = io.WriteString(w, `{"v11-log-firewall-meraki-test":{"mappings":{"properties":{"@timestamp":{"type":"date"},"dataSource":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"origin":{"properties":{"ip":{"type":"ip"}}},"log":{"properties":{"merakiType":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"vpnAuthenticationFailure":{"type":"keyword"}}}}}}`)
+			_, _ = io.WriteString(w, `{"v11-log-firewall-meraki-test":{"mappings":{"properties":{"@timestamp":{"type":"date"},"dataSource":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"origin":{"properties":{"ip":{"type":"ip"}}},"event":{"properties":{"merakiType":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"vpnAuthenticationFailure":{"type":"keyword"}}}}}}`)
 			return
 		}
 		if r.URL.Path != "/v11-log-firewall-meraki-*/_search" {
@@ -76,7 +76,7 @@ func TestMerakiSDKHistory(t *testing.T) {
 		if len(clauses) != 5 {
 			t.Errorf("expected four exact scopes and time range, got %s", query)
 		}
-		expected := map[string]string{"dataSource": collector, "log.merakiType": "MX-LAB", "origin.ip": "198.51.100.10", marker: "match"}
+		expected := map[string]string{"dataSource": collector, "event.merakiType": "MX-LAB", "origin.ip": "198.51.100.10", marker: "match"}
 		for _, clause := range clauses {
 			if term := clause.Get("term"); term.Exists() {
 				for field, value := range term.Map() {
@@ -177,7 +177,7 @@ func TestMerakiSDKHistory(t *testing.T) {
 	check("inside_window", mutate(prior, "@timestamp", time.Now().Add(-15*time.Minute+10*time.Second).UTC().Format(time.RFC3339Nano)), 10, true)
 	check("expired", mutate(prior, "@timestamp", time.Now().Add(-15*time.Minute-10*time.Second).UTC().Format(time.RFC3339Nano)), 10, false)
 	check("different_collector", mutate(prior, "dataSource", "other-relay"), 10, false)
-	check("different_appliance", mutate(prior, "log.merakiType", "MX-OTHER"), 10, false)
+	check("different_appliance", mutate(prior, "event.merakiType", "MX-OTHER"), 10, false)
 	check("different_source", mutate(prior, "origin.ip", "198.51.100.99"), 10, false)
 	check("unmarked_history", mutate(prior, marker, nil), 10, false)
 	for _, eventType := range []string{"anyconnect_vpn_auth_success", "anyconnect_vpn_general", "anyconnect_vpn_session_manager"} {
@@ -196,7 +196,7 @@ func TestMerakiSDKHistory(t *testing.T) {
 		t.Fatalf("nested non-VPN class retained a candidate: %v %v", yes, err)
 	}
 	check("nested_airmarshal_is_not_failure_history", mutate(nested, "@timestamp", stamp), 10, false)
-	for _, field := range []string{"origin.ip", "log.merakiType", "dataSource"} {
+	for _, field := range []string{"origin.ip", "event.merakiType", "dataSource"} {
 		t.Run("missing_"+field+"_preflight", func(t *testing.T) {
 			missing := mutate(out, field, nil)
 			if yes, err := cache.Eval(rule.Where, missing); err != nil || yes {
@@ -208,7 +208,7 @@ func TestMerakiSDKHistory(t *testing.T) {
 			}
 		})
 	}
-	for _, field := range []string{"dataSource", "log.merakiType"} {
+	for _, field := range []string{"dataSource", "event.merakiType"} {
 		for _, invalid := range []string{"", "unknown", "-"} {
 			missing := mutate(out, field, invalid)
 			if yes, err := cache.Eval(rule.Where, missing); err != nil || yes {

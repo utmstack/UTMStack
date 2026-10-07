@@ -41,10 +41,10 @@ func TestSentinelOneActionResultContract(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.Name, func(t *testing.T) {
 			logFields := map[string]any{}
-			event := map[string]any{"log": logFields}
+			event := map[string]any{"event": logFields}
 			for path, value := range tc.Expected {
-				if strings.HasPrefix(path, "log.") {
-					logFields[strings.TrimPrefix(path, "log.")] = value
+				if strings.HasPrefix(path, "event.") {
+					logFields[strings.TrimPrefix(path, "event.")] = value
 				}
 			}
 			seenAdd := false

@@ -26,21 +26,21 @@ description: |
   6. Monitor for any subsequent suspicious activity from deployed containers
 where: |
   (
-    equals("log.protoPayloadServiceName", "binaryauthorization.googleapis.com") && 
+    equals("event.protoPayloadServiceName", "binaryauthorization.googleapis.com") && 
     (
-      contains("log.logName", "cloudaudit.googleapis.com/system_event") &&
-      (contains("log.protoPayload.response.details", "breakglass") || equals("log.jsonPayload.breakglass", true))
+      contains("event.logName", "cloudaudit.googleapis.com/system_event") &&
+      (contains("event.protoPayload.response.details", "breakglass") || equals("event.jsonPayload.breakglass", true))
     )
   ) ||
   (
-    equals("log.resourceType", "cloud_run_revision") &&
-    contains("log.logName", "cloudaudit.googleapis.com/system_event") &&
+    equals("event.resourceType", "cloud_run_revision") &&
+    contains("event.logName", "cloudaudit.googleapis.com/system_event") &&
     (
-      contains("log.protoPayload.response.status.conditions", "ContainerImageUnauthorized") ||
-      equals("log.jsonPayload.policyViolation", true) ||
-      equals("log.protoPayload.metadata.dryRun", true)
+      contains("event.protoPayload.response.status.conditions", "ContainerImageUnauthorized") ||
+      equals("event.jsonPayload.policyViolation", true) ||
+      equals("event.protoPayload.metadata.dryRun", true)
     )
   )
 groupBy:
   - lastEvent.origin.user
-  - lastEvent.log.protoPayloadResourceName
+  - lastEvent.event.protoPayloadResourceName

@@ -13,11 +13,11 @@ references:
 description: |
   Detects an explicitly identified GuardDuty EventBridge finding with severity from 7 through 10. The CloudWatch log group must receive those EventBridge events; GuardDuty management API calls are not findings. Review the original finding detail for affected resources and threat context.
 where: |
-  equals("log.awsRecordType","guardduty") &&
-  greaterOrEqual("log.detail.severity",7) &&
-  lessOrEqual("log.detail.severity",10)
+  equals("event.awsRecordType","guardduty") &&
+  greaterOrEqual("event.detail.severity",7) &&
+  lessOrEqual("event.detail.severity",10)
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.account
-- lastEvent.log.region
-- lastEvent.log.detail.id
+- lastEvent.event.account
+- lastEvent.event.region
+- lastEvent.event.detail.id

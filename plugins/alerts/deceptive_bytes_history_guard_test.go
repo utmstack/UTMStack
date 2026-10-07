@@ -19,7 +19,7 @@ func deceptiveBytesEvent(t *testing.T, logFields map[string]any, extra map[strin
 	for k, v := range logFields {
 		logCopy[k] = v
 	}
-	event := map[string]any{"dataType": "deceptive-bytes", "log": logCopy}
+	event := map[string]any{"dataType": "deceptive-bytes", "event": logCopy}
 	for path, value := range extra {
 		parts := strings.Split(path, ".")
 		node := event
@@ -60,7 +60,7 @@ func TestDeceptiveBytesHistoryPlaceholdersGuarded(t *testing.T) {
 			map[string]string{"origin.ip": "192.0.2.10"}},
 		{"ransomware_behavior_patterns",
 			map[string]any{"event_type": "ransomware_behavior", "behavior_pattern": "mass_encryption"},
-			map[string]string{"log.process": "example.exe", "log.source_ip": "192.0.2.10"}},
+			map[string]string{"event.process": "example.exe", "event.source_ip": "192.0.2.10"}},
 	}
 	for _, tc := range cases {
 		b, err := utils.ReadPbYaml(filepath.Join("../..", "rules/antivirus/deceptive-bytes", tc.rule+".yml"))

@@ -148,6 +148,9 @@ export class UtmDynamicTableComponent implements OnInit, OnChanges, OnDestroy {
    * @param column Column to check if column cant be sort
    */
   isSortableColumn(column: UtmFieldType): boolean {
+    if (column.type === ElasticDataTypesEnum.FLATTENED) {
+      return false;
+    }
     if (column.type === ElasticDataTypesEnum.TEXT || column.type === ElasticDataTypesEnum.STRING) {
       return column.field.includes('.keyword');
     } else {

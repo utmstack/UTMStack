@@ -25,8 +25,8 @@ description: |
   6. Review the mirrored traffic destination for data exfiltration
   7. Check for captured credentials or sensitive data
 where: |
-  contains("log.protoPayloadMethodName", "PacketMirrorings") &&
-  (contains("log.protoPayloadMethodName", "insert") || contains("log.protoPayloadMethodName", "patch") || contains("log.protoPayloadMethodName", "create"))
+  contains("event.protoPayloadMethodName", "PacketMirrorings") &&
+  (contains("event.protoPayloadMethodName", "insert") || contains("event.protoPayloadMethodName", "patch") || contains("event.protoPayloadMethodName", "create"))
 groupBy:
   - lastEvent.origin.user
-  - lastEvent.log.protoPayloadResourceName
+  - lastEvent.event.protoPayloadResourceName

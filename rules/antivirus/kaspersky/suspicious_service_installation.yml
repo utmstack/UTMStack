@@ -24,12 +24,12 @@ description: |
   6. If confirmed malicious, stop and remove the service, quarantine associated files
   7. Perform full system scan and check for additional compromise indicators
 where: |
-  equals("log.format","cef") && ((containsAll("log.msg", ["Service", "install"]) ||
-   containsAll("log.msg", ["sc.exe", "create"]) ||
-   containsAll("log.msg", ["New", "Service"]) ||
-   contains("log.fname", "\\services.exe") ||
-   contains("log.cs2", "Service")) &&
-  (oneOf("log.cs1", ["infected", "suspicious"]) ||
-   greaterOrEqual("log.cefDeviceSeverity", "3")))
+  equals("event.format","cef") && ((containsAll("event.msg", ["Service", "install"]) ||
+   containsAll("event.msg", ["sc.exe", "create"]) ||
+   containsAll("event.msg", ["New", "Service"]) ||
+   contains("event.fname", "\\services.exe") ||
+   contains("event.cs2", "Service")) &&
+  (oneOf("event.cs1", ["infected", "suspicious"]) ||
+   greaterOrEqual("event.cefDeviceSeverity", "3")))
 groupBy:
 - adversary.host

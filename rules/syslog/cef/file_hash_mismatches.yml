@@ -24,20 +24,20 @@ description: |
   5. Compare with known good file versions or backups
   6. If malicious activity is confirmed, isolate the affected system and initiate incident response procedures
 where: |
-  equals("log.dataType", "cef") && 
+  equals("event.dataType", "cef") && 
   (
-    (oneOf("log.cs1Label", ["hash", "fileHash", "md5", "sha1", "sha256"]) && exists("log.cs1") && contains("log.message", "mismatch")) ||
-    (oneOf("log.cs2Label", ["hash", "fileHash", "md5", "sha1", "sha256"]) && exists("log.cs2") && contains("log.message", "mismatch")) ||
-    (oneOf("log.cs3Label", ["hash", "fileHash", "md5", "sha1", "sha256"]) && exists("log.cs3") && contains("log.message", "mismatch")) ||
-    (oneOf("log.cs4Label", ["hash", "fileHash", "md5", "sha1", "sha256"]) && exists("log.cs4") && contains("log.message", "mismatch")) ||
-    (oneOf("log.cs5Label", ["hash", "fileHash", "md5", "sha1", "sha256"]) && exists("log.cs5") && contains("log.message", "mismatch")) ||
-    (oneOf("log.cs6Label", ["hash", "fileHash", "md5", "sha1", "sha256"]) && exists("log.cs6") && contains("log.message", "mismatch")) ||
-    (exists("log.fileHash") && contains("log.message", "mismatch")) ||
-    (exists("log.oldFileHash") && exists("log.fileHash") && safe(log.oldFileHash, "") != safe(log.fileHash, "")) ||
-    contains("log.message", "hash mismatch") ||
-    contains("log.message", "checksum failure") ||
-    contains("log.message", "integrity violation")
+    (oneOf("event.cs1Label", ["hash", "fileHash", "md5", "sha1", "sha256"]) && exists("event.cs1") && contains("event.message", "mismatch")) ||
+    (oneOf("event.cs2Label", ["hash", "fileHash", "md5", "sha1", "sha256"]) && exists("event.cs2") && contains("event.message", "mismatch")) ||
+    (oneOf("event.cs3Label", ["hash", "fileHash", "md5", "sha1", "sha256"]) && exists("event.cs3") && contains("event.message", "mismatch")) ||
+    (oneOf("event.cs4Label", ["hash", "fileHash", "md5", "sha1", "sha256"]) && exists("event.cs4") && contains("event.message", "mismatch")) ||
+    (oneOf("event.cs5Label", ["hash", "fileHash", "md5", "sha1", "sha256"]) && exists("event.cs5") && contains("event.message", "mismatch")) ||
+    (oneOf("event.cs6Label", ["hash", "fileHash", "md5", "sha1", "sha256"]) && exists("event.cs6") && contains("event.message", "mismatch")) ||
+    (exists("event.fileHash") && contains("event.message", "mismatch")) ||
+    (exists("event.oldFileHash") && exists("event.fileHash") && safe(event.oldFileHash, "") != safe(event.fileHash, "")) ||
+    contains("event.message", "hash mismatch") ||
+    contains("event.message", "checksum failure") ||
+    contains("event.message", "integrity violation")
   )
 groupBy:
-  - lastEvent.log.fname
+  - lastEvent.event.fname
   - adversary.host

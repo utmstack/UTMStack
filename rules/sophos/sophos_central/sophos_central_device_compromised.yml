@@ -13,11 +13,11 @@ references:
 - https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/NetworkAccessEventTypes/
 description: Sophos reports a potentially compromised device. Investigate device health and network activity. Blocking
   a peripheral is a separate policy event and does not establish device compromise.
-where: (equals("log.type","Event::UAV::PotentiallyCompromisedDevice")) && !regexMatch("log.type","(?i)(clean|cleanedup|resolved|dismissed|cancelled|success)$")
+where: (equals("event.type","Event::UAV::PotentiallyCompromisedDevice")) && !regexMatch("event.type","(?i)(clean|cleanedup|resolved|dismissed|cancelled|success)$")
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.customerId
-- lastEvent.log.endpointId
-- lastEvent.log.type
+- lastEvent.event.customerId
+- lastEvent.event.endpointId
+- lastEvent.event.type
 - target.host
 - target.ip

@@ -25,19 +25,19 @@ description: |
   5. Consider resetting credentials if unauthorized access is confirmed
   6. Monitor for additional credential access attempts from the same host or user
 where: |
-  (equals("log.subsystem", "com.apple.security") ||
-   equals("log.subsystem", "com.apple.securityd") ||
+  (equals("event.subsystem", "com.apple.security") ||
+   equals("event.subsystem", "com.apple.securityd") ||
    equals("origin.process", "securityd") ||
    equals("origin.process", "security")) &&
-  (contains("log.message", "keychain") ||
-   contains("log.message", "Keychain")) &&
-  (contains("log.message", "error") ||
-   contains("log.message", "failed") ||
-   contains("log.message", "denied") ||
-   contains("log.message", "unauthorized") ||
-   contains("log.message", "-25308") ||
-   contains("log.message", "accountsd wants to use")) &&
-  oneOf("log.level", ["error", "fault"])
+  (contains("event.message", "keychain") ||
+   contains("event.message", "Keychain")) &&
+  (contains("event.message", "error") ||
+   contains("event.message", "failed") ||
+   contains("event.message", "denied") ||
+   contains("event.message", "unauthorized") ||
+   contains("event.message", "-25308") ||
+   contains("event.message", "accountsd wants to use")) &&
+  oneOf("event.level", ["error", "fault"])
 groupBy:
   - adversary.host
   - adversary.user

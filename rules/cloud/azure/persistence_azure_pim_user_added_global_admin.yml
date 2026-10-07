@@ -35,9 +35,9 @@ description: 'Detects when users are granted Global Administrator (Company Admin
 
   **Investigation Steps:**
 
-  1. Identify the assignor: Check log.propertiesInitiatedBy for who made the role assignment
+  1. Identify the assignor: Check event.propertiesInitiatedBy for who made the role assignment
 
-  2. Identify the assignee: Examine log.propertiesTargetResources for the user receiving the role
+  2. Identify the assignee: Examine event.propertiesTargetResources for the user receiving the role
 
   3. Verify authorization: Confirm if this assignment was part of approved privileged access request
 
@@ -47,7 +47,7 @@ description: 'Detects when users are granted Global Administrator (Company Admin
 
   6. Analyze timing: Determine if assignment follows suspicious authentication or compromise indicators
 
-  7. Review justification: Check if a business justification was provided in log.propertiesAdditionalDetails
+  7. Review justification: Check if a business justification was provided in event.propertiesAdditionalDetails
 
   8. Check user history: Review the assignee''s account for recent suspicious activity
 
@@ -117,21 +117,21 @@ references:
 - https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/auditlogs
 - https://learn.microsoft.com/en-us/entra/id-governance/privileged-identity-management/pim-configure
 - https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/permissions-reference#global-administrator
-where: 'equalsIgnoreCase("log.azureKind","audit") && equalsIgnoreCase("actionResult","success") && (equalsIgnoreCase("log.azureOperation","Add
-  member to role") || equalsIgnoreCase("log.azureOperation","Add eligible member to role") || equalsIgnoreCase("log.azureOperation","Add
-  member to role completed (PIM activation)") || equalsIgnoreCase("log.azureOperation","Add eligible member to role in PIM completed")
-  || equalsIgnoreCase("log.azureOperation","Add eligible member to role in PIM completed (permanent)") || equalsIgnoreCase("log.azureOperation","Add
-  eligible member to role in PIM completed (timebound)") || equalsIgnoreCase("log.azureOperation","Add member to role in PIM completed
-  (permanent)") || equalsIgnoreCase("log.azureOperation","Add member to role in PIM completed (timebound)")) && (exists("log.properties.targetResources.#(displayName==\"Global
-  Administrator\")") || exists("log.properties.targetResources.#(modifiedProperties.#(displayName==\"Role.DisplayName\").newValue==\"\\\"Global
-  Administrator\\\"\")") || exists("log.properties.targetResources.#(displayName==\"Company Administrator\")") || exists("log.properties.targetResources.#(modifiedProperties.#(displayName==\"Role.DisplayName\").newValue==\"\\\"Company
+where: 'equalsIgnoreCase("event.azureKind","audit") && equalsIgnoreCase("actionResult","success") && (equalsIgnoreCase("event.azureOperation","Add
+  member to role") || equalsIgnoreCase("event.azureOperation","Add eligible member to role") || equalsIgnoreCase("event.azureOperation","Add
+  member to role completed (PIM activation)") || equalsIgnoreCase("event.azureOperation","Add eligible member to role in PIM completed")
+  || equalsIgnoreCase("event.azureOperation","Add eligible member to role in PIM completed (permanent)") || equalsIgnoreCase("event.azureOperation","Add
+  eligible member to role in PIM completed (timebound)") || equalsIgnoreCase("event.azureOperation","Add member to role in PIM completed
+  (permanent)") || equalsIgnoreCase("event.azureOperation","Add member to role in PIM completed (timebound)")) && (exists("event.properties.targetResources.#(displayName==\"Global
+  Administrator\")") || exists("event.properties.targetResources.#(modifiedProperties.#(displayName==\"Role.DisplayName\").newValue==\"\\\"Global
+  Administrator\\\"\")") || exists("event.properties.targetResources.#(displayName==\"Company Administrator\")") || exists("event.properties.targetResources.#(modifiedProperties.#(displayName==\"Role.DisplayName\").newValue==\"\\\"Company
   Administrator\\\"\")"))
 
   '
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.azureScopeType
-- lastEvent.log.azureScope
-- lastEvent.log.azureOperation
+- lastEvent.event.azureScopeType
+- lastEvent.event.azureScope
+- lastEvent.event.azureOperation
 - adversary.user
 - adversary.ip

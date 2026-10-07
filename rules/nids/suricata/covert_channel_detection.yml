@@ -27,14 +27,14 @@ description: |
   8. Review firewall and proxy logs for blocked or allowed suspicious connections
 where: |
   (
-    (equals("log.eventType", "alert") &&
-     contains("log.alert.signature", "DNS tunneling")) ||
+    (equals("event.eventType", "alert") &&
+     contains("event.alert.signature", "DNS tunneling")) ||
     (equals("protocol", "ICMP") &&
-     greaterThan("log.flow.bytes_toserver", 1000)) ||
+     greaterThan("event.flow.bytes_toserver", 1000)) ||
     (equals("protocol", "DNS") &&
-     greaterThan("log.dns.query.length", 100)) ||
-    (equals("log.appProto", "dns") &&
-     contains("log.dns.query.rrname", ".base64."))
+     greaterThan("event.dns.query.length", 100)) ||
+    (equals("event.appProto", "dns") &&
+     contains("event.dns.query.rrname", ".base64."))
   )
 afterEvents:
   - indexPattern: v11-log-suricata-*

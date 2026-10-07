@@ -132,7 +132,7 @@ func fortiGrok(t *testing.T, g *plugins.Grok, str string, cfg *plugins.Config) (
 }
 func fortiParse(t *testing.T, cfg *plugins.Config, raw string, dataSource string, cache *plugins.CELCache) string {
 	t.Helper()
-	draft := map[string]any{"raw": raw, "dataType": "firewall-fortigate-traffic", "dataSource": dataSource, "log": map[string]any{}}
+	draft := map[string]any{"raw": raw, "dataType": "firewall-fortigate-traffic", "dataSource": dataSource, "event": map[string]any{}}
 	for _, stage := range cfg.Pipeline {
 		matched := false
 		for _, dataType := range stage.DataTypes {
@@ -237,7 +237,7 @@ func fortiParse(t *testing.T, cfg *plugins.Config, raw string, dataSource string
 						}
 						utils.SanitizeField(&key)
 						if key != "" {
-							fortiPut(draft, "log."+key, strings.TrimSpace(value), false)
+							fortiPut(draft, "event."+key, strings.TrimSpace(value), false)
 						}
 					}
 				case "dynamic":
@@ -268,7 +268,7 @@ func fortiParse(t *testing.T, cfg *plugins.Config, raw string, dataSource string
 						t.Fatal(e)
 					}
 					for key, value := range fortiSanitizeJSON(parsed) {
-						fortiPut(draft, "log."+key, value, false)
+						fortiPut(draft, "event."+key, value, false)
 					}
 				case "cast":
 					for _, field := range s.Cast.Fields {
@@ -392,7 +392,7 @@ func TestFortiGateRawContracts(t *testing.T) {
 					t.Errorf("%s matched %v want %v", name, yes, expected[name])
 				}
 				if key := fortiMarkers[name]; key != "" {
-					if (gjson.Get(out, "log.correlationCandidate."+key).String() == "match") != yes {
+					if (gjson.Get(out, "event.correlationCandidate."+key).String() == "match") != yes {
 						t.Errorf("%s marker parity", name)
 					}
 				}
@@ -426,7 +426,7 @@ func TestFortiGateRawContracts(t *testing.T) {
 						if field == "adversary.ip" && ev.GetOrigin().GetIp() != "" && gjson.Get(*wire, path).String() != ev.GetOrigin().GetIp() {
 							t.Error("actor IP lost")
 						}
-						if strings.HasPrefix(field, "lastEvent.log.") && !gjson.Get(*wire, path).Exists() {
+						if strings.HasPrefix(field, "lastEvent.event.") && !gjson.Get(*wire, path).Exists() {
 							t.Errorf("missing grouping %s", field)
 						}
 					}
@@ -485,12 +485,12 @@ func TestFortiGatePrivateEvidence(t *testing.T) {
 			if match := re.FindStringSubmatch(raw); len(match) > 1 {
 				checkedRawStrings[field]++
 				want := strings.TrimSuffix(strings.TrimPrefix(match[1], `"`), `"`)
-				if gjson.Get(out, "log."+field).String() != want {
+				if gjson.Get(out, "event."+field).String() != want {
 					t.Errorf("private %s extraction differs from raw", field)
 				}
 			}
 		}
-		for _, field := range []string{"origin.ip", "target.ip", "origin.host", "origin.user", "origin.group", "target.mac", "origin.operatingSystem", "target.operatingSystem", "target.url", "target.domain", "log.msg", "log.logdesc", "actionResult"} {
+		for _, field := range []string{"origin.ip", "target.ip", "origin.host", "origin.user", "origin.group", "target.mac", "origin.operatingSystem", "target.operatingSystem", "target.url", "target.domain", "event.msg", "event.logdesc", "actionResult"} {
 			if gjson.Get(out, field).Exists() {
 				populated[field]++
 			}

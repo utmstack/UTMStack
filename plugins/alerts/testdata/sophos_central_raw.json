@@ -4,10 +4,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"high\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::CoreBehavioralDetection\"}",
     "expected": {
-      "log.type": "Event::Endpoint::CoreBehavioralDetection",
+      "event.type": "Event::Endpoint::CoreBehavioralDetection",
       "action": "Event::Endpoint::CoreBehavioralDetection",
-      "log.origin": "SAV",
-      "log.group": "MALWARE",
+      "event.origin": "SAV",
+      "event.group": "MALWARE",
       "severity": "error"
     },
     "absent": [
@@ -24,10 +24,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"PUA\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::CorePuaDetection\"}",
     "expected": {
-      "log.type": "Event::Endpoint::CorePuaDetection",
+      "event.type": "Event::Endpoint::CorePuaDetection",
       "action": "Event::Endpoint::CorePuaDetection",
-      "log.origin": "SAV",
-      "log.group": "PUA",
+      "event.origin": "SAV",
+      "event.group": "PUA",
       "severity": "warning"
     },
     "absent": [
@@ -44,10 +44,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::Threat::ExploitPrevented\"}",
     "expected": {
-      "log.type": "Event::Endpoint::Threat::ExploitPrevented",
+      "event.type": "Event::Endpoint::Threat::ExploitPrevented",
       "action": "Event::Endpoint::Threat::ExploitPrevented",
-      "log.origin": "SAV",
-      "log.group": "MALWARE",
+      "event.origin": "SAV",
+      "event.group": "MALWARE",
       "severity": "warning"
     },
     "absent": [
@@ -64,10 +64,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"critical\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"mtr_alert\"}",
     "expected": {
-      "log.type": "mtr_alert",
+      "event.type": "mtr_alert",
       "action": "mtr_alert",
-      "log.origin": "SAV",
-      "log.group": "MALWARE",
+      "event.origin": "SAV",
+      "event.group": "MALWARE",
       "severity": "critical"
     },
     "absent": [
@@ -84,10 +84,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::Threat::RansomwareDetected\"}",
     "expected": {
-      "log.type": "Event::Endpoint::Threat::RansomwareDetected",
+      "event.type": "Event::Endpoint::Threat::RansomwareDetected",
       "action": "Event::Endpoint::Threat::RansomwareDetected",
-      "log.origin": "SAV",
-      "log.group": "MALWARE",
+      "event.origin": "SAV",
+      "event.group": "MALWARE",
       "severity": "warning"
     },
     "absent": [
@@ -104,10 +104,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"server\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Server::Protection::Disabled\"}",
     "expected": {
-      "log.type": "Event::Server::Protection::Disabled",
+      "event.type": "Event::Server::Protection::Disabled",
       "action": "Event::Server::Protection::Disabled",
-      "log.origin": "SAV",
-      "log.group": "MALWARE",
+      "event.origin": "SAV",
+      "event.group": "MALWARE",
       "severity": "warning"
     },
     "absent": [
@@ -124,10 +124,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::HmpaApplicationHijacking\"}",
     "expected": {
-      "log.type": "Event::Endpoint::HmpaApplicationHijacking",
+      "event.type": "Event::Endpoint::HmpaApplicationHijacking",
       "action": "Event::Endpoint::HmpaApplicationHijacking",
-      "log.origin": "SAV",
-      "log.group": "MALWARE",
+      "event.origin": "SAV",
+      "event.group": "MALWARE",
       "severity": "warning"
     },
     "absent": [
@@ -144,10 +144,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::HmpaCredTheft\"}",
     "expected": {
-      "log.type": "Event::Endpoint::HmpaCredTheft",
+      "event.type": "Event::Endpoint::HmpaCredTheft",
       "action": "Event::Endpoint::HmpaCredTheft",
-      "log.origin": "SAV",
-      "log.group": "MALWARE",
+      "event.origin": "SAV",
+      "event.group": "MALWARE",
       "severity": "warning"
     },
     "absent": [
@@ -164,10 +164,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::UAV::PotentiallyCompromisedDevice\"}",
     "expected": {
-      "log.type": "Event::UAV::PotentiallyCompromisedDevice",
+      "event.type": "Event::UAV::PotentiallyCompromisedDevice",
       "action": "Event::UAV::PotentiallyCompromisedDevice",
-      "log.origin": "SAV",
-      "log.group": "MALWARE",
+      "event.origin": "SAV",
+      "event.group": "MALWARE",
       "severity": "warning"
     },
     "absent": [
@@ -184,10 +184,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::HmpaExploitPrevented\"}",
     "expected": {
-      "log.type": "Event::Endpoint::HmpaExploitPrevented",
+      "event.type": "Event::Endpoint::HmpaExploitPrevented",
       "action": "Event::Endpoint::HmpaExploitPrevented",
-      "log.origin": "SAV",
-      "log.group": "MALWARE",
+      "event.origin": "SAV",
+      "event.group": "MALWARE",
       "severity": "warning"
     },
     "absent": [
@@ -204,10 +204,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::CoreDetection\", \"appSha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}",
     "expected": {
-      "log.type": "Event::Endpoint::CoreDetection",
+      "event.type": "Event::Endpoint::CoreDetection",
       "action": "Event::Endpoint::CoreDetection",
-      "log.origin": "SAV",
-      "log.group": "MALWARE",
+      "event.origin": "SAV",
+      "event.group": "MALWARE",
       "severity": "warning"
     },
     "absent": [
@@ -224,10 +224,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Smc::MitmAttackEvent\"}",
     "expected": {
-      "log.type": "Event::Smc::MitmAttackEvent",
+      "event.type": "Event::Smc::MitmAttackEvent",
       "action": "Event::Smc::MitmAttackEvent",
-      "log.origin": "SAV",
-      "log.group": "MALWARE",
+      "event.origin": "SAV",
+      "event.group": "MALWARE",
       "severity": "warning"
     },
     "absent": [
@@ -244,10 +244,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": null, \"endpoint_type\": null, \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Firewall::FirewallAdvancedThreatProtection\"}",
     "expected": {
-      "log.type": "Event::Firewall::FirewallAdvancedThreatProtection",
+      "event.type": "Event::Firewall::FirewallAdvancedThreatProtection",
       "action": "Event::Firewall::FirewallAdvancedThreatProtection",
-      "log.origin": "SAV",
-      "log.group": "MALWARE",
+      "event.origin": "SAV",
+      "event.group": "MALWARE",
       "severity": "warning"
     },
     "absent": [
@@ -264,10 +264,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": null, \"endpoint_type\": null, \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::ZTNA::ZTNAAuthenticationFailure\"}",
     "expected": {
-      "log.type": "Event::ZTNA::ZTNAAuthenticationFailure",
+      "event.type": "Event::ZTNA::ZTNAAuthenticationFailure",
       "action": "Event::ZTNA::ZTNAAuthenticationFailure",
-      "log.origin": "SAV",
-      "log.group": "MALWARE",
+      "event.origin": "SAV",
+      "event.group": "MALWARE",
       "severity": "warning"
     },
     "absent": [
@@ -285,10 +285,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": null, \"endpoint_type\": null, \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::ZTNA::ZTNAAuthenticationFailure\"}",
     "expected": {
-      "log.type": "Event::ZTNA::ZTNAAuthenticationFailure",
+      "event.type": "Event::ZTNA::ZTNAAuthenticationFailure",
       "action": "Event::ZTNA::ZTNAAuthenticationFailure",
-      "log.origin": "SAV",
-      "log.group": "MALWARE",
+      "event.origin": "SAV",
+      "event.group": "MALWARE",
       "severity": "warning"
     },
     "absent": [
@@ -306,10 +306,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::HmpaCryptoGuardSMB\"}",
     "expected": {
-      "log.type": "Event::Endpoint::HmpaCryptoGuardSMB",
+      "event.type": "Event::Endpoint::HmpaCryptoGuardSMB",
       "action": "Event::Endpoint::HmpaCryptoGuardSMB",
-      "log.origin": "SAV",
-      "log.group": "MALWARE",
+      "event.origin": "SAV",
+      "event.group": "MALWARE",
       "severity": "warning"
     },
     "absent": [
@@ -326,10 +326,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::SavDisabled\"}",
     "expected": {
-      "log.type": "Event::Endpoint::SavDisabled",
+      "event.type": "Event::Endpoint::SavDisabled",
       "action": "Event::Endpoint::SavDisabled",
-      "log.origin": "SAV",
-      "log.group": "MALWARE",
+      "event.origin": "SAV",
+      "event.group": "MALWARE",
       "severity": "warning"
     },
     "absent": [
@@ -346,10 +346,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::CoreIps\"}",
     "expected": {
-      "log.type": "Event::Endpoint::CoreIps",
+      "event.type": "Event::Endpoint::CoreIps",
       "action": "Event::Endpoint::CoreIps",
-      "log.origin": "SAV",
-      "log.group": "MALWARE",
+      "event.origin": "SAV",
+      "event.group": "MALWARE",
       "severity": "warning"
     },
     "absent": [
@@ -366,10 +366,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": null, \"endpoint_type\": null, \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"DEVICE_AND_PLATFORM_HEALTH\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::AccountHealthCheck::EndpointTamperProtectionRaise\"}",
     "expected": {
-      "log.type": "Event::AccountHealthCheck::EndpointTamperProtectionRaise",
+      "event.type": "Event::AccountHealthCheck::EndpointTamperProtectionRaise",
       "action": "Event::AccountHealthCheck::EndpointTamperProtectionRaise",
-      "log.origin": "SAV",
-      "log.group": "DEVICE_AND_PLATFORM_HEALTH",
+      "event.origin": "SAV",
+      "event.group": "DEVICE_AND_PLATFORM_HEALTH",
       "severity": "warning"
     },
     "absent": [
@@ -386,10 +386,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"high\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"PROTECTION\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::NotProtected\"}",
     "expected": {
-      "log.type": "Event::Endpoint::NotProtected",
+      "event.type": "Event::Endpoint::NotProtected",
       "action": "Event::Endpoint::NotProtected",
-      "log.origin": "SAV",
-      "log.group": "PROTECTION",
+      "event.origin": "SAV",
+      "event.group": "PROTECTION",
       "severity": "error"
     },
     "absent": [
@@ -406,10 +406,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"low\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::UpdateSuccess\"}",
     "expected": {
-      "log.type": "Event::Endpoint::UpdateSuccess",
+      "event.type": "Event::Endpoint::UpdateSuccess",
       "action": "Event::Endpoint::UpdateSuccess",
-      "log.origin": "SAV",
-      "log.group": "MALWARE",
+      "event.origin": "SAV",
+      "event.group": "MALWARE",
       "severity": "info",
       "target.ip": "192.0.2.10",
       "target.host": "endpoint.example.test",
@@ -428,10 +428,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::CoreDetection\"}",
     "expected": {
-      "log.type": "Event::Endpoint::CoreDetection",
+      "event.type": "Event::Endpoint::CoreDetection",
       "action": "Event::Endpoint::CoreDetection",
-      "log.origin": "SAV",
-      "log.group": "MALWARE",
+      "event.origin": "SAV",
+      "event.group": "MALWARE",
       "target.ip": "192.0.2.10",
       "target.host": "endpoint.example.test"
     },
@@ -448,10 +448,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::HmpaCryptoGuardSMBOrigin\"}",
     "expected": {
-      "log.type": "Event::Endpoint::HmpaCryptoGuardSMBOrigin",
+      "event.type": "Event::Endpoint::HmpaCryptoGuardSMBOrigin",
       "action": "Event::Endpoint::HmpaCryptoGuardSMBOrigin",
-      "log.origin": "SAV",
-      "log.group": "MALWARE",
+      "event.origin": "SAV",
+      "event.group": "MALWARE",
       "origin.ip": "192.0.2.10",
       "origin.host": "endpoint.example.test"
     },
@@ -468,10 +468,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::HmpaCryptoGuard\"}",
     "expected": {
-      "log.type": "Event::Endpoint::HmpaCryptoGuard",
+      "event.type": "Event::Endpoint::HmpaCryptoGuard",
       "action": "Event::Endpoint::HmpaCryptoGuard",
-      "log.origin": "SAV",
-      "log.group": "MALWARE",
+      "event.origin": "SAV",
+      "event.group": "MALWARE",
       "target.ip": "192.0.2.10"
     },
     "absent": [
@@ -487,10 +487,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"low\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::CoreClean\"}",
     "expected": {
-      "log.type": "Event::Endpoint::CoreClean",
+      "event.type": "Event::Endpoint::CoreClean",
       "action": "Event::Endpoint::CoreClean",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [
       "actionResult",
@@ -503,10 +503,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"low\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::CoreHmpaClean\"}",
     "expected": {
-      "log.type": "Event::Endpoint::CoreHmpaClean",
+      "event.type": "Event::Endpoint::CoreHmpaClean",
       "action": "Event::Endpoint::CoreHmpaClean",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [
       "actionResult",
@@ -519,10 +519,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"low\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::CoreDismissed\"}",
     "expected": {
-      "log.type": "Event::Endpoint::CoreDismissed",
+      "event.type": "Event::Endpoint::CoreDismissed",
       "action": "Event::Endpoint::CoreDismissed",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [
       "actionResult",
@@ -535,10 +535,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"low\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::CorePuaClean\"}",
     "expected": {
-      "log.type": "Event::Endpoint::CorePuaClean",
+      "event.type": "Event::Endpoint::CorePuaClean",
       "action": "Event::Endpoint::CorePuaClean",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [
       "actionResult",
@@ -551,10 +551,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"low\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::CoreCleanCancelled\"}",
     "expected": {
-      "log.type": "Event::Endpoint::CoreCleanCancelled",
+      "event.type": "Event::Endpoint::CoreCleanCancelled",
       "action": "Event::Endpoint::CoreCleanCancelled",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [
       "actionResult",
@@ -567,10 +567,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"low\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::HmpaCryptoGuardSMBResolved\"}",
     "expected": {
-      "log.type": "Event::Endpoint::HmpaCryptoGuardSMBResolved",
+      "event.type": "Event::Endpoint::HmpaCryptoGuardSMBResolved",
       "action": "Event::Endpoint::HmpaCryptoGuardSMBResolved",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [
       "actionResult",
@@ -583,10 +583,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"low\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::HmpaCryptoGuardSMBOriginResolved\"}",
     "expected": {
-      "log.type": "Event::Endpoint::HmpaCryptoGuardSMBOriginResolved",
+      "event.type": "Event::Endpoint::HmpaCryptoGuardSMBOriginResolved",
       "action": "Event::Endpoint::HmpaCryptoGuardSMBOriginResolved",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [
       "actionResult",
@@ -599,10 +599,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"low\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::CoreAmsiClean\"}",
     "expected": {
-      "log.type": "Event::Endpoint::CoreAmsiClean",
+      "event.type": "Event::Endpoint::CoreAmsiClean",
       "action": "Event::Endpoint::CoreAmsiClean",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [
       "actionResult",
@@ -615,10 +615,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"low\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::CoreAmsiCleanedUp\"}",
     "expected": {
-      "log.type": "Event::Endpoint::CoreAmsiCleanedUp",
+      "event.type": "Event::Endpoint::CoreAmsiCleanedUp",
       "action": "Event::Endpoint::CoreAmsiCleanedUp",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [
       "actionResult",
@@ -631,10 +631,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"low\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::CoreAmsiResolved\"}",
     "expected": {
-      "log.type": "Event::Endpoint::CoreAmsiResolved",
+      "event.type": "Event::Endpoint::CoreAmsiResolved",
       "action": "Event::Endpoint::CoreAmsiResolved",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [
       "actionResult",
@@ -647,10 +647,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"low\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::HmpaMalwareCleanedUp\"}",
     "expected": {
-      "log.type": "Event::Endpoint::HmpaMalwareCleanedUp",
+      "event.type": "Event::Endpoint::HmpaMalwareCleanedUp",
       "action": "Event::Endpoint::HmpaMalwareCleanedUp",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [
       "actionResult",
@@ -663,10 +663,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"low\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::Threat::Dismissed\"}",
     "expected": {
-      "log.type": "Event::Endpoint::Threat::Dismissed",
+      "event.type": "Event::Endpoint::Threat::Dismissed",
       "action": "Event::Endpoint::Threat::Dismissed",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [
       "actionResult",
@@ -679,10 +679,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"low\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::Threat::CleanedUp\"}",
     "expected": {
-      "log.type": "Event::Endpoint::Threat::CleanedUp",
+      "event.type": "Event::Endpoint::Threat::CleanedUp",
       "action": "Event::Endpoint::Threat::CleanedUp",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [
       "actionResult",
@@ -695,10 +695,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"low\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::HmpaCredResolved\"}",
     "expected": {
-      "log.type": "Event::Endpoint::HmpaCredResolved",
+      "event.type": "Event::Endpoint::HmpaCredResolved",
       "action": "Event::Endpoint::HmpaCredResolved",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [
       "actionResult",
@@ -711,10 +711,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::CoreCleanFailed\"}",
     "expected": {
-      "log.type": "Event::Endpoint::CoreCleanFailed",
+      "event.type": "Event::Endpoint::CoreCleanFailed",
       "action": "Event::Endpoint::CoreCleanFailed",
-      "log.origin": "SAV",
-      "log.group": "MALWARE",
+      "event.origin": "SAV",
+      "event.group": "MALWARE",
       "actionResult": "failed"
     },
     "absent": [],
@@ -727,10 +727,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::CoreHmpaCleanFailed\"}",
     "expected": {
-      "log.type": "Event::Endpoint::CoreHmpaCleanFailed",
+      "event.type": "Event::Endpoint::CoreHmpaCleanFailed",
       "action": "Event::Endpoint::CoreHmpaCleanFailed",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [
       "actionResult"
@@ -744,10 +744,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::CoreAmsiCleanFailed\"}",
     "expected": {
-      "log.type": "Event::Endpoint::CoreAmsiCleanFailed",
+      "event.type": "Event::Endpoint::CoreAmsiCleanFailed",
       "action": "Event::Endpoint::CoreAmsiCleanFailed",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [],
     "matches": [
@@ -759,10 +759,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"low\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"PERIPHERALS\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::Device::Blocked\"}",
     "expected": {
-      "log.type": "Event::Endpoint::Device::Blocked",
+      "event.type": "Event::Endpoint::Device::Blocked",
       "action": "Event::Endpoint::Device::Blocked",
-      "log.origin": "SAV",
-      "log.group": "PERIPHERALS",
+      "event.origin": "SAV",
+      "event.group": "PERIPHERALS",
       "actionResult": "denied"
     },
     "absent": [],
@@ -773,10 +773,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"low\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"PERIPHERALS\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::Device::ReadOnly\"}",
     "expected": {
-      "log.type": "Event::Endpoint::Device::ReadOnly",
+      "event.type": "Event::Endpoint::Device::ReadOnly",
       "action": "Event::Endpoint::Device::ReadOnly",
-      "log.origin": "SAV",
-      "log.group": "PERIPHERALS"
+      "event.origin": "SAV",
+      "event.group": "PERIPHERALS"
     },
     "absent": [
       "actionResult"
@@ -788,10 +788,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"APPLICATION_CONTROL\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::Application::Blocked\"}",
     "expected": {
-      "log.type": "Event::Endpoint::Application::Blocked",
+      "event.type": "Event::Endpoint::Application::Blocked",
       "action": "Event::Endpoint::Application::Blocked",
-      "log.origin": "SAV",
-      "log.group": "APPLICATION_CONTROL",
+      "event.origin": "SAV",
+      "event.group": "APPLICATION_CONTROL",
       "actionResult": "denied",
       "target.host": "endpoint.example.test"
     },
@@ -806,10 +806,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"APPLICATION_CONTROL\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::Application::Detected\"}",
     "expected": {
-      "log.type": "Event::Endpoint::Application::Detected",
+      "event.type": "Event::Endpoint::Application::Detected",
       "action": "Event::Endpoint::Application::Detected",
-      "log.origin": "SAV",
-      "log.group": "APPLICATION_CONTROL"
+      "event.origin": "SAV",
+      "event.group": "APPLICATION_CONTROL"
     },
     "absent": [
       "actionResult"
@@ -821,10 +821,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"WEB\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::WebFilteringBlocked\"}",
     "expected": {
-      "log.type": "Event::Endpoint::WebFilteringBlocked",
+      "event.type": "Event::Endpoint::WebFilteringBlocked",
       "action": "Event::Endpoint::WebFilteringBlocked",
-      "log.origin": "SAV",
-      "log.group": "WEB",
+      "event.origin": "SAV",
+      "event.group": "WEB",
       "actionResult": "denied"
     },
     "absent": [
@@ -837,10 +837,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"PUA\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::CorePuaCleanFailed\", \"threat\": \"Restricted utility\"}",
     "expected": {
-      "log.type": "Event::Endpoint::CorePuaCleanFailed",
+      "event.type": "Event::Endpoint::CorePuaCleanFailed",
       "action": "Event::Endpoint::CorePuaCleanFailed",
-      "log.origin": "SAV",
-      "log.group": "PUA"
+      "event.origin": "SAV",
+      "event.group": "PUA"
     },
     "absent": [
       "target.malware"
@@ -854,10 +854,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"BLOCKLISTED\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::CoreBlocklistDetection\", \"threat\": \"Blocked by Administrator\"}",
     "expected": {
-      "log.type": "Event::Endpoint::CoreBlocklistDetection",
+      "event.type": "Event::Endpoint::CoreBlocklistDetection",
       "action": "Event::Endpoint::CoreBlocklistDetection",
-      "log.origin": "SAV",
-      "log.group": "BLOCKLISTED"
+      "event.origin": "SAV",
+      "event.group": "BLOCKLISTED"
     },
     "absent": [
       "target.malware",
@@ -870,10 +870,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": null, \"endpoint_type\": null, \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::AccountHealthCheck::EndpointTamperProtectionResolve\"}",
     "expected": {
-      "log.type": "Event::AccountHealthCheck::EndpointTamperProtectionResolve",
+      "event.type": "Event::AccountHealthCheck::EndpointTamperProtectionResolve",
       "action": "Event::AccountHealthCheck::EndpointTamperProtectionResolve",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [],
     "matches": []
@@ -883,10 +883,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": null, \"endpoint_type\": null, \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::AccountHealthCheck::ServerTamperProtectionResolve\"}",
     "expected": {
-      "log.type": "Event::AccountHealthCheck::ServerTamperProtectionResolve",
+      "event.type": "Event::AccountHealthCheck::ServerTamperProtectionResolve",
       "action": "Event::AccountHealthCheck::ServerTamperProtectionResolve",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [],
     "matches": []
@@ -896,10 +896,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": null, \"endpoint_type\": null, \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::AccountHealthCheck::ServerTamperProtectionRaise\"}",
     "expected": {
-      "log.type": "Event::AccountHealthCheck::ServerTamperProtectionRaise",
+      "event.type": "Event::AccountHealthCheck::ServerTamperProtectionRaise",
       "action": "Event::AccountHealthCheck::ServerTamperProtectionRaise",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [],
     "matches": [
@@ -911,10 +911,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"high\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::ServiceNotRunning\"}",
     "expected": {
-      "log.type": "Event::Endpoint::ServiceNotRunning",
+      "event.type": "Event::Endpoint::ServiceNotRunning",
       "action": "Event::Endpoint::ServiceNotRunning",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [],
     "matches": [
@@ -926,10 +926,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"low\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::NotProtected\"}",
     "expected": {
-      "log.type": "Event::Endpoint::NotProtected",
+      "event.type": "Event::Endpoint::NotProtected",
       "action": "Event::Endpoint::NotProtected",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [],
     "matches": []
@@ -939,10 +939,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"2001:db8::10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::CoreDetection\"}",
     "expected": {
-      "log.type": "Event::Endpoint::CoreDetection",
+      "event.type": "Event::Endpoint::CoreDetection",
       "action": "Event::Endpoint::CoreDetection",
-      "log.origin": "SAV",
-      "log.group": "MALWARE",
+      "event.origin": "SAV",
+      "event.group": "MALWARE",
       "target.ip": "2001:db8::10"
     },
     "absent": [
@@ -957,10 +957,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"0.0.0.0\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::UpdateSuccess\"}",
     "expected": {
-      "log.type": "Event::Endpoint::UpdateSuccess",
+      "event.type": "Event::Endpoint::UpdateSuccess",
       "action": "Event::Endpoint::UpdateSuccess",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [
       "target.ip",
@@ -973,10 +973,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"::\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::UpdateSuccess\"}",
     "expected": {
-      "log.type": "Event::Endpoint::UpdateSuccess",
+      "event.type": "Event::Endpoint::UpdateSuccess",
       "action": "Event::Endpoint::UpdateSuccess",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [
       "target.ip",
@@ -989,10 +989,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"0:0:0:0:0:0:0:0\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::UpdateSuccess\"}",
     "expected": {
-      "log.type": "Event::Endpoint::UpdateSuccess",
+      "event.type": "Event::Endpoint::UpdateSuccess",
       "action": "Event::Endpoint::UpdateSuccess",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [
       "target.ip",
@@ -1005,10 +1005,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"::ffff:0.0.0.0\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::UpdateSuccess\"}",
     "expected": {
-      "log.type": "Event::Endpoint::UpdateSuccess",
+      "event.type": "Event::Endpoint::UpdateSuccess",
       "action": "Event::Endpoint::UpdateSuccess",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [
       "target.ip",
@@ -1021,10 +1021,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"bad-ip\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::UpdateSuccess\"}",
     "expected": {
-      "log.type": "Event::Endpoint::UpdateSuccess",
+      "event.type": "Event::Endpoint::UpdateSuccess",
       "action": "Event::Endpoint::UpdateSuccess",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [
       "target.ip",
@@ -1037,10 +1037,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"999.1.1.1\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::UpdateSuccess\"}",
     "expected": {
-      "log.type": "Event::Endpoint::UpdateSuccess",
+      "event.type": "Event::Endpoint::UpdateSuccess",
       "action": "Event::Endpoint::UpdateSuccess",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [
       "target.ip",
@@ -1053,10 +1053,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::UpdateSuccess\"}",
     "expected": {
-      "log.type": "Event::Endpoint::UpdateSuccess",
+      "event.type": "Event::Endpoint::UpdateSuccess",
       "action": "Event::Endpoint::UpdateSuccess",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [
       "target.ip",
@@ -1069,10 +1069,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": null}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::UpdateSuccess\"}",
     "expected": {
-      "log.type": "Event::Endpoint::UpdateSuccess",
+      "event.type": "Event::Endpoint::UpdateSuccess",
       "action": "Event::Endpoint::UpdateSuccess",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [
       "target.ip",
@@ -1085,10 +1085,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::UpdateSuccess\", \"appSha256\": \"not-a-hash\"}",
     "expected": {
-      "log.type": "Event::Endpoint::UpdateSuccess",
+      "event.type": "Event::Endpoint::UpdateSuccess",
       "action": "Event::Endpoint::UpdateSuccess",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [
       "target.sha256"
@@ -1100,10 +1100,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::CoreDetection\", \"appSha256\": \"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\", \"threat\": \"Synthetic.Malware\"}",
     "expected": {
-      "log.type": "Event::Endpoint::CoreDetection",
+      "event.type": "Event::Endpoint::CoreDetection",
       "action": "Event::Endpoint::CoreDetection",
-      "log.origin": "SAV",
-      "log.group": "MALWARE",
+      "event.origin": "SAV",
+      "event.group": "MALWARE",
       "target.sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
       "target.malware": "Synthetic.Malware"
     },
@@ -1117,10 +1117,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": null, \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::UpdateSuccess\"}",
     "expected": {
-      "log.type": "Event::Endpoint::UpdateSuccess",
+      "event.type": "Event::Endpoint::UpdateSuccess",
       "action": "Event::Endpoint::UpdateSuccess",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [
       "target",
@@ -1133,10 +1133,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": {\"name\": \"x\"}, \"source\": [\"x\"], \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": 17, \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::UpdateSuccess\", \"appSha256\": 17}",
     "expected": {
-      "log.type": "Event::Endpoint::UpdateSuccess",
+      "event.type": "Event::Endpoint::UpdateSuccess",
       "action": "Event::Endpoint::UpdateSuccess",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [
       "target.host",
@@ -1151,10 +1151,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"urgent\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::UpdateSuccess\"}",
     "expected": {
-      "log.type": "Event::Endpoint::UpdateSuccess",
+      "event.type": "Event::Endpoint::UpdateSuccess",
       "action": "Event::Endpoint::UpdateSuccess",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [
       "severity"
@@ -1166,10 +1166,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": null, \"endpoint_type\": null, \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Firewall::FirewallVPNTunnelUp\"}",
     "expected": {
-      "log.type": "Event::Firewall::FirewallVPNTunnelUp",
+      "event.type": "Event::Firewall::FirewallVPNTunnelUp",
       "action": "Event::Firewall::FirewallVPNTunnelUp",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [
       "origin",
@@ -1184,10 +1184,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": null, \"endpoint_type\": null, \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Other::AdminRoleChangedEvent\"}",
     "expected": {
-      "log.type": "Event::Other::AdminRoleChangedEvent",
+      "event.type": "Event::Other::AdminRoleChangedEvent",
       "action": "Event::Other::AdminRoleChangedEvent",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [
       "origin",
@@ -1201,14 +1201,14 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::UpdateSuccess\", \"sophosCentralScope\": \"forged\", \"correlationCandidate\": {\"sophosCentral\": {\"behavior\": \"match\", \"exploit\": \"match\", \"mtr\": \"match\", \"ztnaFailure\": \"match\"}}}",
     "expected": {
-      "log.type": "Event::Endpoint::UpdateSuccess",
+      "event.type": "Event::Endpoint::UpdateSuccess",
       "action": "Event::Endpoint::UpdateSuccess",
-      "log.origin": "SAV",
-      "log.group": "MALWARE",
-      "log.sophosCentralScope": "tenant-fixture"
+      "event.origin": "SAV",
+      "event.group": "MALWARE",
+      "event.sophosCentralScope": "tenant-fixture"
     },
     "absent": [
-      "log.correlationCandidate"
+      "event.correlationCandidate"
     ],
     "matches": []
   },
@@ -1217,11 +1217,11 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": null, \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::UpdateSuccess\"}",
     "expected": {
-      "log.type": "Event::Endpoint::UpdateSuccess",
+      "event.type": "Event::Endpoint::UpdateSuccess",
       "action": "Event::Endpoint::UpdateSuccess",
-      "log.origin": "SAV",
-      "log.group": "MALWARE",
-      "log.sophosCentralScope": "fixture-collector"
+      "event.origin": "SAV",
+      "event.group": "MALWARE",
+      "event.sophosCentralScope": "fixture-collector"
     },
     "absent": [],
     "matches": []
@@ -1231,10 +1231,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {}, \"severity\": \"high\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::CoreBehavioralDetection\"}",
     "expected": {
-      "log.type": "Event::Endpoint::CoreBehavioralDetection",
+      "event.type": "Event::Endpoint::CoreBehavioralDetection",
       "action": "Event::Endpoint::CoreBehavioralDetection",
-      "log.origin": "SAV",
-      "log.group": "MALWARE",
+      "event.origin": "SAV",
+      "event.group": "MALWARE",
       "target.host": "endpoint.example.test"
     },
     "absent": [
@@ -1249,13 +1249,13 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": null, \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"high\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::CoreBehavioralDetection\"}",
     "expected": {
-      "log.type": "Event::Endpoint::CoreBehavioralDetection",
+      "event.type": "Event::Endpoint::CoreBehavioralDetection",
       "action": "Event::Endpoint::CoreBehavioralDetection",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [
-      "log.correlationCandidate.sophosCentral.behavior"
+      "event.correlationCandidate.sophosCentral.behavior"
     ],
     "matches": []
   },
@@ -1264,13 +1264,13 @@
     "dataSource": "",
     "raw": "{\"customer_id\": null, \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"high\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::CoreBehavioralDetection\"}",
     "expected": {
-      "log.type": "Event::Endpoint::CoreBehavioralDetection",
+      "event.type": "Event::Endpoint::CoreBehavioralDetection",
       "action": "Event::Endpoint::CoreBehavioralDetection",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [
-      "log.correlationCandidate.sophosCentral.behavior"
+      "event.correlationCandidate.sophosCentral.behavior"
     ],
     "matches": []
   },
@@ -1279,11 +1279,11 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": null, \"endpoint_type\": null, \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::ZTNA::ZTNAAuthenticationFailure\"}",
     "expected": {
-      "log.type": "Event::ZTNA::ZTNAAuthenticationFailure",
+      "event.type": "Event::ZTNA::ZTNAAuthenticationFailure",
       "action": "Event::ZTNA::ZTNAAuthenticationFailure",
-      "log.origin": "SAV",
-      "log.group": "MALWARE",
-      "log.ip": "192.0.2.10",
+      "event.origin": "SAV",
+      "event.group": "MALWARE",
+      "event.ip": "192.0.2.10",
       "actionResult": "failed"
     },
     "absent": [
@@ -1300,14 +1300,14 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::ZTNA::ZTNAAuthenticationFailure\"}",
     "expected": {
-      "log.type": "Event::ZTNA::ZTNAAuthenticationFailure",
+      "event.type": "Event::ZTNA::ZTNAAuthenticationFailure",
       "action": "Event::ZTNA::ZTNAAuthenticationFailure",
-      "log.origin": "SAV",
-      "log.group": "MALWARE",
+      "event.origin": "SAV",
+      "event.group": "MALWARE",
       "actionResult": "failed"
     },
     "absent": [
-      "log.correlationCandidate.sophosCentral.ztnaFailure"
+      "event.correlationCandidate.sophosCentral.ztnaFailure"
     ],
     "matches": []
   },
@@ -1316,13 +1316,13 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"high\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"mtr_alert\"}",
     "expected": {
-      "log.type": "mtr_alert",
+      "event.type": "mtr_alert",
       "action": "mtr_alert",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [
-      "log.correlationCandidate.sophosCentral.mtr"
+      "event.correlationCandidate.sophosCentral.mtr"
     ],
     "matches": [
       "managed_threat_response_alerts"
@@ -1333,13 +1333,13 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"critical\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::UpdateSuccess\"}",
     "expected": {
-      "log.type": "Event::Endpoint::UpdateSuccess",
+      "event.type": "Event::Endpoint::UpdateSuccess",
       "action": "Event::Endpoint::UpdateSuccess",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [
-      "log.correlationCandidate.sophosCentral.mtr"
+      "event.correlationCandidate.sophosCentral.mtr"
     ],
     "matches": []
   },
@@ -1348,10 +1348,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"VendorCustomPreventedDetail\"}",
     "expected": {
-      "log.type": "VendorCustomPreventedDetail",
+      "event.type": "VendorCustomPreventedDetail",
       "action": "VendorCustomPreventedDetail",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [
       "actionResult"
@@ -1363,10 +1363,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"VendorAuthenticationFailureResolved\"}",
     "expected": {
-      "log.type": "VendorAuthenticationFailureResolved",
+      "event.type": "VendorAuthenticationFailureResolved",
       "action": "VendorAuthenticationFailureResolved",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [
       "actionResult"
@@ -1378,10 +1378,10 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"PrefixEvent::Endpoint::CoreDetection\"}",
     "expected": {
-      "log.type": "PrefixEvent::Endpoint::CoreDetection",
+      "event.type": "PrefixEvent::Endpoint::CoreDetection",
       "action": "PrefixEvent::Endpoint::CoreDetection",
-      "log.origin": "SAV",
-      "log.group": "MALWARE"
+      "event.origin": "SAV",
+      "event.group": "MALWARE"
     },
     "absent": [
       "actionResult"
@@ -1393,17 +1393,17 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Synthetic vendor event\", \"type\": \"Event::Endpoint::CoreClean\", \"core_remedy_items\": {\"totalItems\": 2, \"items\": [{\"type\": \"file\", \"descriptor\": \"C:\\\\one.exe\", \"processPath\": \"\", \"result\": \"SUCCESS\"}, {\"type\": \"file\", \"descriptor\": \"C:\\\\two.exe\", \"result\": \"SUCCESS\"}]}}",
     "expected": {
-      "log.type": "Event::Endpoint::CoreClean",
+      "event.type": "Event::Endpoint::CoreClean",
       "action": "Event::Endpoint::CoreClean",
-      "log.origin": "SAV",
-      "log.group": "MALWARE",
-      "log.core_remedy_items.totalItems": 2
+      "event.origin": "SAV",
+      "event.group": "MALWARE",
+      "event.core_remedy_items.totalItems": 2
     },
     "absent": [
       "target.file",
       "target.path",
       "actionResult",
-      "log.coreremedyItems"
+      "event.coreremedyItems"
     ],
     "matches": []
   },
@@ -1414,8 +1414,8 @@
     "expected": {
       "target.path": "C:\\samples\\",
       "target.file": "test.exe",
-      "log.core_remedy_items.totalItems": 1,
-      "log.core_remedy_items.items.0.type": "file"
+      "event.core_remedy_items.totalItems": 1,
+      "event.core_remedy_items.items.0.type": "file"
     },
     "absent": [
       "actionResult"
@@ -1429,8 +1429,8 @@
     "expected": {
       "target.path": "/opt/samples/",
       "target.file": "test.bin",
-      "log.core_remedy_items.totalItems": 1,
-      "log.core_remedy_items.items.0.type": "file"
+      "event.core_remedy_items.totalItems": 1,
+      "event.core_remedy_items.items.0.type": "file"
     },
     "absent": [
       "actionResult"
@@ -1469,7 +1469,7 @@
     "absent": [
       "target.path",
       "target.file",
-      "log.coreremedyItems",
+      "event.coreremedyItems",
       "actionResult"
     ],
     "matches": []
@@ -1481,8 +1481,8 @@
     "expected": {
       "target.path": "C:\\",
       "target.file": "test.exe",
-      "log.core_remedy_items.totalItems": 1,
-      "log.core_remedy_items.items.0.type": "file"
+      "event.core_remedy_items.totalItems": 1,
+      "event.core_remedy_items.items.0.type": "file"
     },
     "absent": [
       "actionResult"
@@ -1494,7 +1494,7 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"AMSI Protection blocked a threat: AMSI/Example-A at C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\", \"type\": \"Event::Endpoint::CoreAmsiBlocked\"}",
     "expected": {
-      "log.type": "Event::Endpoint::CoreAmsiBlocked",
+      "event.type": "Event::Endpoint::CoreAmsiBlocked",
       "action": "Event::Endpoint::CoreAmsiBlocked",
       "actionResult": "denied",
       "target.ip": "192.0.2.10"
@@ -1511,7 +1511,7 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"low\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"RUNTIME_DETECTIONS\", \"origin\": \"SAV\", \"name\": \"Malicious inbound network traffic blocked from remote computer at 203.0.113.45 (Technical Support reference: 2026091701.00000001.1)\", \"type\": \"Event::Endpoint::Threat::IpsInboundDetection\", \"ips_threat_data\": {\"detectionType\": 0, \"executableName\": \"\", \"localPort\": \"445\", \"rawData\": \"Message       OS-WINDOWS Example SMB remote code execution attempt\\nPacket type   TCP\\nLocal IP:     192.0.2.10\\nLocal Port:   445\\nRemote IP:    203.0.113.45\\nRemote Port:  50123\", \"remoteIp\": \"203.0.113.45\", \"remotePort\": \"50123\", \"techSupportId\": \"2026091701.00000001.1\"}, \"threat\": \"IPS/Inbound/7777001\"}",
     "expected": {
-      "log.type": "Event::Endpoint::Threat::IpsInboundDetection",
+      "event.type": "Event::Endpoint::Threat::IpsInboundDetection",
       "action": "Event::Endpoint::Threat::IpsInboundDetection",
       "actionResult": "denied",
       "origin.ip": "203.0.113.45",
@@ -1527,7 +1527,7 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"low\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"RUNTIME_DETECTIONS\", \"origin\": \"SAV\", \"name\": \"Synthetic inbound network traffic detected from remote computer at 203.0.113.45\", \"type\": \"Event::Endpoint::Threat::IpsInboundDetection\", \"ips_threat_data\": {\"detectionType\": 0, \"executableName\": \"\", \"localPort\": \"445\", \"rawData\": \"Message       OS-WINDOWS Example SMB remote code execution attempt\\nPacket type   TCP\\nLocal IP:     192.0.2.10\\nLocal Port:   445\\nRemote IP:    203.0.113.45\\nRemote Port:  50123\", \"remoteIp\": \"203.0.113.45\", \"remotePort\": \"50123\", \"techSupportId\": \"2026091701.00000001.1\"}, \"threat\": \"IPS/Inbound/7777001\"}",
     "expected": {
-      "log.type": "Event::Endpoint::Threat::IpsInboundDetection",
+      "event.type": "Event::Endpoint::Threat::IpsInboundDetection",
       "action": "Event::Endpoint::Threat::IpsInboundDetection",
       "target.ip": "192.0.2.10"
     },
@@ -1544,7 +1544,7 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"low\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"RUNTIME_DETECTIONS\", \"origin\": \"SAV\", \"name\": \"Malicious inbound network traffic blocked from remote computer at 0.0.0.0 (Technical Support reference: 2026091701.00000001.2)\", \"type\": \"Event::Endpoint::Threat::IpsInboundDetection\", \"ips_threat_data\": {\"remoteIp\": \"0.0.0.0\", \"remotePort\": \"0\", \"localPort\": \"445\"}}",
     "expected": {
-      "log.type": "Event::Endpoint::Threat::IpsInboundDetection",
+      "event.type": "Event::Endpoint::Threat::IpsInboundDetection",
       "action": "Event::Endpoint::Threat::IpsInboundDetection",
       "actionResult": "denied",
       "target.ip": "192.0.2.10"
@@ -1561,7 +1561,7 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"UPDATING\", \"origin\": \"SAV\", \"name\": \"Download of ExampleComponent failed from server https://update.example.test.\", \"type\": \"Event::Endpoint::UpdateFailure\"}",
     "expected": {
-      "log.type": "Event::Endpoint::UpdateFailure",
+      "event.type": "Event::Endpoint::UpdateFailure",
       "action": "Event::Endpoint::UpdateFailure",
       "actionResult": "failed"
     },
@@ -1573,7 +1573,7 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"MALWARE\", \"origin\": \"SAV\", \"name\": \"Restore failed: 'Example-A' and associated items\", \"type\": \"Event::Endpoint::CoreRestoreFailed\"}",
     "expected": {
-      "log.type": "Event::Endpoint::CoreRestoreFailed",
+      "event.type": "Event::Endpoint::CoreRestoreFailed",
       "action": "Event::Endpoint::CoreRestoreFailed",
       "actionResult": "failed"
     },
@@ -1585,7 +1585,7 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"PROTECTION\", \"origin\": \"SAV\", \"name\": \"Failed to protect computer: ENDPOINT-01\", \"type\": \"Event::Endpoint::NotProtected\"}",
     "expected": {
-      "log.type": "Event::Endpoint::NotProtected",
+      "event.type": "Event::Endpoint::NotProtected",
       "action": "Event::Endpoint::NotProtected",
       "actionResult": "failed"
     },
@@ -1597,7 +1597,7 @@
     "dataSource": "fixture-collector",
     "raw": "{\"customer_id\": \"tenant-fixture\", \"endpoint_id\": \"endpoint-fixture\", \"endpoint_type\": \"computer\", \"location\": \"endpoint.example.test\", \"source\": \"EXAMPLE\\\\user\", \"source_info\": {\"ip\": \"192.0.2.10\"}, \"severity\": \"medium\", \"when\": \"2026-09-17T10:00:00.123Z\", \"created_at\": \"2026-09-17T10:01:00Z\", \"group\": \"WEB\", \"origin\": \"SAV\", \"name\": \"'example.com' blocked due to category 'Example'\", \"type\": \"Event::Endpoint::WebControlViolation\"}",
     "expected": {
-      "log.type": "Event::Endpoint::WebControlViolation",
+      "event.type": "Event::Endpoint::WebControlViolation",
       "action": "Event::Endpoint::WebControlViolation"
     },
     "absent": [

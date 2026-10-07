@@ -14,16 +14,16 @@ references:
 description: |
   Detects repeated successful permission-set creation, policy attachment, deletion or inline-policy updates in AWS SSO from the same source and account. These administrative operations do not establish a failed login or compromised SSO session.
 where: |
-  (equals("log.awsRecordType","cloudtrail") &&
-  (equals("log.eventSource","sso.amazonaws.com") &&
-  oneOf("log.eventName",["CreatePermissionSet", "AttachManagedPolicyToPermissionSet", "DeletePermissionSet", "PutInlinePolicyToPermissionSet"]) &&
+  (equals("event.awsRecordType","cloudtrail") &&
+  (equals("event.eventSource","sso.amazonaws.com") &&
+  oneOf("event.eventName",["CreatePermissionSet", "AttachManagedPolicyToPermissionSet", "DeletePermissionSet", "PutInlinePolicyToPermissionSet"]) &&
   equals("actionResult","success"))) &&
   exists("dataSource") &&
   !equals("dataSource","") &&
-  exists("log.awsAccountKeyType") &&
-  !equals("log.awsAccountKeyType","") &&
-  exists("log.awsAccountKey") &&
-  !equals("log.awsAccountKey","") &&
+  exists("event.awsAccountKeyType") &&
+  !equals("event.awsAccountKeyType","") &&
+  exists("event.awsAccountKey") &&
+  !equals("event.awsAccountKey","") &&
   exists("origin.ip") &&
   !equals("origin.ip","")
 afterEvents:
@@ -32,24 +32,24 @@ afterEvents:
   - field: dataSource
     operator: filter_term
     value: '{{.dataSource}}'
-  - field: log.awsAccountKeyType
+  - field: event.awsAccountKeyType
     operator: filter_term
-    value: '{{.log.awsAccountKeyType}}'
-  - field: log.awsAccountKey
+    value: '{{.event.awsAccountKeyType}}'
+  - field: event.awsAccountKey
     operator: filter_term
-    value: '{{.log.awsAccountKey}}'
+    value: '{{.event.awsAccountKey}}'
   - field: origin.ip
     operator: filter_term
     value: '{{.origin.ip}}'
-  - field: log.correlationCandidate.awsSsoSuspiciousActivities
+  - field: event.correlationCandidate.awsSsoSuspiciousActivities
     operator: filter_term
     value: match
   within: 30m
   count: 10
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
-- lastEvent.log.sourceIPAddress
-- lastEvent.log.userIdentity.principalId
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
+- lastEvent.event.sourceIPAddress
+- lastEvent.event.userIdentity.principalId
 technique: T1098 - Account Manipulation

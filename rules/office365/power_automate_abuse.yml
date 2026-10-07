@@ -28,14 +28,14 @@ description: |
 where: |
   oneOf("action", ["CreateFlow", "ShareFlow", "CreateConnection"]) &&
   equals("actionResult", "success") &&
-  equals("log.Workload", "PowerAutomate")
+  equals("event.Workload", "PowerAutomate")
 afterEvents:
   - indexPattern: v11-log-o365-*
     with:
       - field: origin.user
         operator: filter_term
         value: '{{.origin.user}}'
-      - field: log.Workload
+      - field: event.Workload
         operator: filter_term
         value: 'PowerAutomate'
     within: 6h

@@ -27,14 +27,14 @@ description: |
   5. Block suspicious domains at the DNS level if confirmed malicious
   6. Monitor the source host for other indicators of compromise
 where: |
-  equals("log.eventType", "dns") &&
+  equals("event.eventType", "dns") &&
   (
-    (equals("log.dns.type", "query") &&
-     (equals("log.dns.rrtype", "NULL") ||
-      (regexMatch("log.dns.rrname", "^.{100,}$") && regexMatch("log.dns.rrname", "[^.]{40,}")))) ||
-    (equals("log.dns.type", "request") &&
-     (equals("log.dns.queries.0.rrtype", "NULL") ||
-      (regexMatch("log.dns.queries.0.rrname", "^.{100,}$") && regexMatch("log.dns.queries.0.rrname", "[^.]{40,}"))))
+    (equals("event.dns.type", "query") &&
+     (equals("event.dns.rrtype", "NULL") ||
+      (regexMatch("event.dns.rrname", "^.{100,}$") && regexMatch("event.dns.rrname", "[^.]{40,}")))) ||
+    (equals("event.dns.type", "request") &&
+     (equals("event.dns.queries.0.rrtype", "NULL") ||
+      (regexMatch("event.dns.queries.0.rrname", "^.{100,}$") && regexMatch("event.dns.queries.0.rrname", "[^.]{40,}"))))
   )
 deduplicateBy:
   - dataSource

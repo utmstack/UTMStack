@@ -18,16 +18,16 @@ description: 'A successful storage-account write explicitly allows blob public a
   value does not prove it changed.
 
   '
-where: '(equalsIgnoreCase("log.azureKind","activity") || equalsIgnoreCase("log.azureKind","eventgrid")) && equalsIgnoreCase("actionResult","success")
-  && ((equalsIgnoreCase("log.azureOperation","Microsoft.Storage/storageAccounts/write") && equals("log.azureRequestBody.properties.allowBlobPublicAccess","true"))
-  || (equalsIgnoreCase("log.azureOperation","Microsoft.Storage/storageAccounts/blobServices/containers/write") && oneOf("log.azureRequestBody.properties.publicAccess",["Blob",
+where: '(equalsIgnoreCase("event.azureKind","activity") || equalsIgnoreCase("event.azureKind","eventgrid")) && equalsIgnoreCase("actionResult","success")
+  && ((equalsIgnoreCase("event.azureOperation","Microsoft.Storage/storageAccounts/write") && equals("event.azureRequestBody.properties.allowBlobPublicAccess","true"))
+  || (equalsIgnoreCase("event.azureOperation","Microsoft.Storage/storageAccounts/blobServices/containers/write") && oneOf("event.azureRequestBody.properties.publicAccess",["Blob",
   "Container"])))
 
   '
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.azureScopeType
-- lastEvent.log.azureScope
-- lastEvent.log.azureOperation
+- lastEvent.event.azureScopeType
+- lastEvent.event.azureScope
+- lastEvent.event.azureOperation
 - adversary.user
 - adversary.ip

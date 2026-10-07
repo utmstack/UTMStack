@@ -25,17 +25,17 @@ description: |
   6. Review web application logs for potential exploitation attempts
   7. Validate if the user agent represents legitimate automation tools
 where: |
-  equals("log.dataType", "cef") && 
-  exists("log.requestClientApplication") &&
+  equals("event.dataType", "cef") && 
+  exists("event.requestClientApplication") &&
   (
-    regexMatch("log.requestClientApplication", "(?i)sqlmap") ||
-    regexMatch("log.requestClientApplication", "(?i)nikto") ||
-    regexMatch("log.requestClientApplication", "(?i)havij") ||
-    regexMatch("log.requestClientApplication", "(?i)acunetix") ||
-    regexMatch("log.requestClientApplication", "(?i)nessus") ||
-    regexMatch("log.requestClientApplication", "(?i)metasploit") ||
-    contains("log.requestClientApplication", "${") ||
-    contains("log.requestClientApplication", "{{")
+    regexMatch("event.requestClientApplication", "(?i)sqlmap") ||
+    regexMatch("event.requestClientApplication", "(?i)nikto") ||
+    regexMatch("event.requestClientApplication", "(?i)havij") ||
+    regexMatch("event.requestClientApplication", "(?i)acunetix") ||
+    regexMatch("event.requestClientApplication", "(?i)nessus") ||
+    regexMatch("event.requestClientApplication", "(?i)metasploit") ||
+    contains("event.requestClientApplication", "${") ||
+    contains("event.requestClientApplication", "{{")
   )
 afterEvents:
   - indexPattern: v11-log-syslog-*
@@ -46,5 +46,5 @@ afterEvents:
     within: 1h
     count: 10
 groupBy:
-  - lastEvent.log.requestClientApplication
+  - lastEvent.event.requestClientApplication
   - adversary.ip

@@ -17,15 +17,15 @@ description: 'A successful role assignment at subscription scope explicitly targ
   The actor authorization role is not used as the granted role; a role assignment does not prove billing ownership transfer.
 
   '
-where: '(equalsIgnoreCase("log.azureKind","activity") || equalsIgnoreCase("log.azureKind","eventgrid")) && equalsIgnoreCase("actionResult","success")
-  && equalsIgnoreCase("log.azureOperation","Microsoft.Authorization/roleAssignments/write") && regexMatch("log.resourceId","(?i)^/subscriptions/[^/]+/providers/Microsoft\\.Authorization/roleAssignments/[^/]+$")
-  && regexMatch("log.azureRequestBody.properties.roleDefinitionId","(?i)/providers/Microsoft\\.Authorization/roleDefinitions/8e3af657-a8ff-443c-a75c-2fe8c4bcb635$")
+where: '(equalsIgnoreCase("event.azureKind","activity") || equalsIgnoreCase("event.azureKind","eventgrid")) && equalsIgnoreCase("actionResult","success")
+  && equalsIgnoreCase("event.azureOperation","Microsoft.Authorization/roleAssignments/write") && regexMatch("event.resourceId","(?i)^/subscriptions/[^/]+/providers/Microsoft\\.Authorization/roleAssignments/[^/]+$")
+  && regexMatch("event.azureRequestBody.properties.roleDefinitionId","(?i)/providers/Microsoft\\.Authorization/roleDefinitions/8e3af657-a8ff-443c-a75c-2fe8c4bcb635$")
 
   '
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.azureScopeType
-- lastEvent.log.azureScope
-- lastEvent.log.azureOperation
+- lastEvent.event.azureScopeType
+- lastEvent.event.azureScope
+- lastEvent.event.azureOperation
 - adversary.user
 - adversary.ip

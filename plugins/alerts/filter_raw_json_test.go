@@ -75,10 +75,10 @@ func TestRawJSONFixtureNormalization(t *testing.T) {
     steps:
       - json: {source: raw}
       - rename:
-          from: [log.Source_IP]
+          from: [event.Source_IP]
           to: origin.ip
-          where: inCIDR("log.Source_IP", "0.0.0.0/0") || inCIDR("log.Source_IP", "::/0")
-      - rename: {from: [log.EventID], to: action}
+          where: inCIDR("event.Source_IP", "0.0.0.0/0") || inCIDR("event.Source_IP", "::/0")
+      - rename: {from: [event.EventID], to: action}
       - cast: {fields: [action], to: string}
 `
 	if err := os.WriteFile(filepath.Join(root, "filters", "fixture.yml"), []byte(filter), 0600); err != nil {
@@ -92,16 +92,16 @@ func TestRawJSONFixtureNormalization(t *testing.T) {
 		if err != nil || len(issues) != 0 {
 			t.Fatalf("normalize: %v / %v", err, issues)
 		}
-		if gjson.Get(out, "action").String() != "4769" || gjson.Get(out, "log.Nested_Items.0.ChildName").String() != "preserved" {
+		if gjson.Get(out, "action").String() != "4769" || gjson.Get(out, "event.Nested_Items.0.ChildName").String() != "preserved" {
 			t.Fatalf("JSON sanitization/normalization failed: %s", out)
 		}
 		if gjson.Get(out, "origin.ip").Exists() != (ip != "-") {
 			t.Fatalf("IP promotion guard failed: %s", out)
 		}
-		if ip == "-" && gjson.Get(out, "log.Source_IP").String() != "-" {
+		if ip == "-" && gjson.Get(out, "event.Source_IP").String() != "-" {
 			t.Fatalf("invalid vendor IP should remain at its source: %s", out)
 		}
-		fixture.Input = map[string]any{"log": map[string]any{}}
+		fixture.Input = map[string]any{"event": map[string]any{}}
 		if _, _, err := normalize(root, fixture, cache); err == nil {
 			t.Fatal("raw and synthetic input must be mutually exclusive")
 		}
@@ -137,7 +137,7 @@ func TestRawFixtureRejectsUnsupportedAddAndMultilineGrok(t *testing.T) {
     steps:
       - add:
           function: %q
-          params: {key: log.literal, value: 17}
+          params: {key: event.literal, value: 17}
 `, function)
 		if err := os.WriteFile(filepath.Join(root, "filters", "fixture.yml"), []byte(filter), 0600); err != nil {
 			t.Fatal(err)
@@ -146,7 +146,7 @@ func TestRawFixtureRejectsUnsupportedAddAndMultilineGrok(t *testing.T) {
 		fixture := Fixture{Filter: "fixture.yml", Raw: &raw, DataType: "fixture-json", DataSource: "synthetic-host"}
 		out, _, err := normalize(root, fixture, cache)
 		if function == "string" {
-			if err != nil || gjson.Get(out, "log.literal").Type != gjson.String || gjson.Get(out, "log.literal").String() != "17" {
+			if err != nil || gjson.Get(out, "event.literal").Type != gjson.String || gjson.Get(out, "event.literal").String() != "17" {
 				t.Fatalf("add string must use SDK string conversion: %s / %v", out, err)
 			}
 		} else if err == nil || !strings.Contains(err.Error(), "does not support add function") {
@@ -159,7 +159,7 @@ func TestRawFixtureRejectsUnsupportedAddAndMultilineGrok(t *testing.T) {
     steps:
       - grok:
           source: raw
-          patterns: [{fieldName: log.message, pattern: %q}]
+          patterns: [{fieldName: event.message, pattern: %q}]
 `, pattern)
 		if err := os.WriteFile(filepath.Join(root, "filters", "fixture.yml"), []byte(filter), 0600); err != nil {
 			t.Fatal(err)
@@ -168,7 +168,7 @@ func TestRawFixtureRejectsUnsupportedAddAndMultilineGrok(t *testing.T) {
 			fixture := Fixture{Filter: "fixture.yml", Raw: &raw, DataType: "fixture-json", DataSource: "synthetic-host"}
 			out, _, err := normalize(root, fixture, cache)
 			if pattern == "(?s:.*)" {
-				if err != nil || gjson.Get(out, "log.message").String() != raw {
+				if err != nil || gjson.Get(out, "event.message").String() != raw {
 					t.Fatalf("explicit dot-all copy must preserve the complete message: %s / %v", out, err)
 				}
 			} else if err == nil || !strings.Contains(err.Error(), "multiline copy grok") {

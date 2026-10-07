@@ -107,7 +107,7 @@
         "protocol": "TCP"
       },
       "absent": [
-        "log.ipProtocolNumber"
+        "event.ipProtocolNumber"
       ],
       "rules": {}
     },
@@ -121,7 +121,7 @@
         "protocol": "UDP"
       },
       "absent": [
-        "log.ipProtocolNumber"
+        "event.ipProtocolNumber"
       ],
       "rules": {}
     }

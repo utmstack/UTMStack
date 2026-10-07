@@ -21,26 +21,26 @@ description: "Detects indicators of lateral movement attempts within the network
   \ from the same source host\n6. Consider isolating affected systems if lateral movement is confirmed\n7. Review similar patterns from\
   \ the same source within the detection window\n\nHistory counts only matching CEF candidates from the same collector and source identity.\n"
 where: |
-  equals("log.format","cef") && ((equals("log.cn1", "3") || equals("log.cs1", "DETECT") || equals("actionResult", "denied")) &&
-  (contains("log.msg", ["psexec", "wmi", "rdp", "smb", "admin$", "ipc$", "c$",
+  equals("event.format","cef") && ((equals("event.cn1", "3") || equals("event.cs1", "DETECT") || equals("actionResult", "denied")) &&
+  (contains("event.msg", ["psexec", "wmi", "rdp", "smb", "admin$", "ipc$", "c$",
     "remote", "lateral", "pivot"]) ||
-   contains("log.cs4", ["exploit", "mimikatz", "bloodhound", "sharphound", "propagat"])) &&
+   contains("event.cs4", ["exploit", "mimikatz", "bloodhound", "sharphound", "propagat"])) &&
   exists("target.ip") &&
   exists("origin.ip") &&
-  safe("origin.ip", "") != safe("target.ip", "")) && exists("log.endpointKey") && exists("log.endpointKeyType") && exists("dataSource")
+  safe("origin.ip", "") != safe("target.ip", "")) && exists("event.endpointKey") && exists("event.endpointKeyType") && exists("dataSource")
 correlation:
 - indexPattern: v11-log-antivirus-kaspersky-*
   with:
   - field: dataSource
     operator: filter_term
     value: '{{.dataSource}}'
-  - field: log.endpointKeyType
+  - field: event.endpointKeyType
     operator: filter_term
-    value: '{{.log.endpointKeyType}}'
-  - field: log.endpointKey
+    value: '{{.event.endpointKeyType}}'
+  - field: event.endpointKey
     operator: filter_term
-    value: '{{.log.endpointKey}}'
-  - field: log.correlationCandidate.lateralMovementIndicators
+    value: '{{.event.endpointKey}}'
+  - field: event.correlationCandidate.lateralMovementIndicators
     operator: filter_term
     value: match
   within: 2h

@@ -19,16 +19,16 @@ references:
 - https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_TrafficMirrorFilter.html
 - https://github.com/easttimor/aws-incident-response
 where: |
-  equals("log.awsRecordType","cloudtrail") &&
-  (equals("log.eventSource", "ec2.amazonaws.com") &&
-  (equals("log.eventName", "CreateTrafficMirrorFilter") ||
-  equals("log.eventName", "CreateTrafficMirrorFilterRule") ||
-  equals("log.eventName", "CreateTrafficMirrorSession") ||
-  equals("log.eventName", "CreateTrafficMirrorTarget")) &&
+  equals("event.awsRecordType","cloudtrail") &&
+  (equals("event.eventSource", "ec2.amazonaws.com") &&
+  (equals("event.eventName", "CreateTrafficMirrorFilter") ||
+  equals("event.eventName", "CreateTrafficMirrorFilterRule") ||
+  equals("event.eventName", "CreateTrafficMirrorSession") ||
+  equals("event.eventName", "CreateTrafficMirrorTarget")) &&
   equals("actionResult","success"))
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
 - adversary.ip
 - adversary.user

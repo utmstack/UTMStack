@@ -24,7 +24,7 @@ description: |
   - Investigate any authentication tokens or credentials used in the API calls
   - Consider blocking the source IP if malicious intent is confirmed
   - Document the attack pattern for threat intelligence sharing
-where: equals("log.eventType", "api_call") && equals("log.isDecoy", "true") && exists("log.httpMethod") && exists("origin.ip")
+where: equals("event.eventType", "api_call") && equals("event.isDecoy", "true") && exists("event.httpMethod") && exists("origin.ip")
 groupBy:
-  - lastEvent.log.apiEndpoint
+  - lastEvent.event.apiEndpoint
   - adversary.ip

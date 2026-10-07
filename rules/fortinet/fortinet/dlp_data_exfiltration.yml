@@ -25,36 +25,36 @@ description: |
   6. Contact the user if needed to understand the context of the attempted data transfer
   7. Consider implementing additional access controls if unauthorized access to suspected
 where: |
-  equals("log.type", "utm") && equals("log.subtype", "dlp") &&
-  exists("log.devid") && !equals("log.devid", "") && exists("log.vd") && !equals("log.vd", "") &&
+  equals("event.type", "utm") && equals("event.subtype", "dlp") &&
+  exists("event.devid") && !equals("event.devid", "") && exists("event.vd") && !equals("event.vd", "") &&
   (exists("origin.ip") &&
-  ((equals("log.subtype", "dlp") && oneOf("action", ["block", "blocked"])) ||
-   contains("log.msg", "DLP sensor") ||
-   contains("log.msg", "sensitive data detected") ||
-   (exists("log.dlpprofile") && equals("log.dlpaction", "block")) ||
-   contains("log.msg", "Data pattern matched")))
+  ((equals("event.subtype", "dlp") && oneOf("action", ["block", "blocked"])) ||
+   contains("event.msg", "DLP sensor") ||
+   contains("event.msg", "sensitive data detected") ||
+   (exists("event.dlpprofile") && equals("event.dlpaction", "block")) ||
+   contains("event.msg", "Data pattern matched")))
 afterEvents:
 - indexPattern: v11-log-firewall-fortigate-traffic-*
   with:
-  - field: log.devid
+  - field: event.devid
     operator: filter_term
-    value: '{{.log.devid}}'
-  - field: log.vd
+    value: '{{.event.devid}}'
+  - field: event.vd
     operator: filter_term
-    value: '{{.log.vd}}'
+    value: '{{.event.vd}}'
   - field: dataSource
     operator: filter_term
     value: '{{.dataSource}}'
   - field: origin.ip
     operator: filter_term
     value: '{{.origin.ip}}'
-  - field: log.correlationCandidate.dlp
+  - field: event.correlationCandidate.dlp
     operator: filter_term
     value: match
   within: 1h
   count: 3
 groupBy:
-- lastEvent.log.profile
+- lastEvent.event.profile
 - adversary.ip
-- lastEvent.log.devid
-- lastEvent.log.vd
+- lastEvent.event.devid
+- lastEvent.event.vd

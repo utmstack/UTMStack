@@ -52,7 +52,7 @@
       ],
       "name": "Bitdefender GravityZone Antivirus Service Stopped or Tampered",
       "kind": "groupBy",
-      "field": "lastEvent.log.BitdefenderGZModule",
+      "field": "lastEvent.event.BitdefenderGZModule",
       "lastEventAlias": true
     },
     {
@@ -74,7 +74,7 @@
       ],
       "name": "Advanced Persistent Threat (APT) Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.BitdefenderGZDetectionName",
+      "field": "lastEvent.event.BitdefenderGZDetectionName",
       "lastEventAlias": true
     },
     {
@@ -96,7 +96,7 @@
       ],
       "name": "Bitdefender GravityZone Task Burst Across Endpoints",
       "kind": "groupBy",
-      "field": "lastEvent.log.BitdefenderGZTaskName",
+      "field": "lastEvent.event.BitdefenderGZTaskName",
       "lastEventAlias": true
     },
     {
@@ -118,7 +118,7 @@
       ],
       "name": "Bitdefender GravityZone Protection Module Disabled",
       "kind": "groupBy",
-      "field": "lastEvent.log.BitdefenderGZModule",
+      "field": "lastEvent.event.BitdefenderGZModule",
       "lastEventAlias": true
     },
     {
@@ -360,7 +360,7 @@
       ],
       "name": "Bitdefender GravityZone Ransomware Detected",
       "kind": "groupBy",
-      "field": "lastEvent.log.BitdefenderGZIncidentId",
+      "field": "lastEvent.event.BitdefenderGZIncidentId",
       "lastEventAlias": true
     },
     {
@@ -415,7 +415,7 @@
       ],
       "name": "Bitdefender GravityZone Exclusion-Related Task Executed",
       "kind": "groupBy",
-      "field": "lastEvent.log.BitdefenderGZTaskName",
+      "field": "lastEvent.event.BitdefenderGZTaskName",
       "lastEventAlias": true
     },
     {
@@ -437,7 +437,7 @@
       ],
       "name": "Bitdefender GravityZone USB-Borne Threat Activity",
       "kind": "groupBy",
-      "field": "lastEvent.log.BitdefenderGZDeviceName",
+      "field": "lastEvent.event.BitdefenderGZDeviceName",
       "lastEventAlias": true
     },
     {
@@ -470,7 +470,7 @@
       ],
       "name": "Advanced Threat Tactic Identification",
       "kind": "groupBy",
-      "field": "lastEvent.log.tacticName",
+      "field": "lastEvent.event.tacticName",
       "lastEventAlias": true
     },
     {
@@ -481,7 +481,7 @@
       ],
       "name": "Advanced Threat Tactic Identification",
       "kind": "groupBy",
-      "field": "lastEvent.log.threatLevel",
+      "field": "lastEvent.event.threatLevel",
       "lastEventAlias": true
     },
     {
@@ -503,7 +503,7 @@
       ],
       "name": "Criminal Group Signatures",
       "kind": "groupBy",
-      "field": "lastEvent.log.groupName",
+      "field": "lastEvent.event.groupName",
       "lastEventAlias": true
     },
     {
@@ -514,7 +514,7 @@
       ],
       "name": "Criminal Group Signatures",
       "kind": "groupBy",
-      "field": "lastEvent.log.signature",
+      "field": "lastEvent.event.signature",
       "lastEventAlias": true
     },
     {
@@ -536,7 +536,7 @@
       ],
       "name": "Data Theft Attempt on Decoy Files",
       "kind": "groupBy",
-      "field": "lastEvent.log.decoy_file",
+      "field": "lastEvent.event.decoy_file",
       "lastEventAlias": true
     },
     {
@@ -569,7 +569,7 @@
       ],
       "name": "Deception API Call Tracking",
       "kind": "groupBy",
-      "field": "lastEvent.log.apiEndpoint",
+      "field": "lastEvent.event.apiEndpoint",
       "lastEventAlias": true
     },
     {
@@ -591,7 +591,7 @@
       ],
       "name": "Deception Token Access Patterns",
       "kind": "groupBy",
-      "field": "lastEvent.log.tokenId",
+      "field": "lastEvent.event.tokenId",
       "lastEventAlias": true
     },
     {
@@ -624,7 +624,7 @@
       ],
       "name": "Decoy Share Access Monitoring",
       "kind": "deduplicateBy",
-      "field": "lastEvent.log.resourceType",
+      "field": "lastEvent.event.resourceType",
       "lastEventAlias": true
     },
     {
@@ -646,7 +646,7 @@
       ],
       "name": "Decoy System Enumeration",
       "kind": "deduplicateBy",
-      "field": "lastEvent.log.targetHost",
+      "field": "lastEvent.event.targetHost",
       "lastEventAlias": true
     },
     {
@@ -657,7 +657,7 @@
       ],
       "name": "Decoy System Enumeration",
       "kind": "deduplicateBy",
-      "field": "lastEvent.log.decoyName",
+      "field": "lastEvent.event.decoyName",
       "lastEventAlias": true
     },
     {
@@ -668,7 +668,7 @@
       ],
       "name": "Fake User Authentication Attempts",
       "kind": "groupBy",
-      "field": "lastEvent.log.username",
+      "field": "lastEvent.event.username",
       "lastEventAlias": true
     },
     {
@@ -690,7 +690,7 @@
       ],
       "name": "Honey Table Query Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.tableName",
+      "field": "lastEvent.event.tableName",
       "lastEventAlias": true
     },
     {
@@ -712,7 +712,7 @@
       ],
       "name": "Lateral Movement Trap Triggered",
       "kind": "groupBy",
-      "field": "lastEvent.log.trap_type",
+      "field": "lastEvent.event.trap_type",
       "lastEventAlias": true
     },
     {
@@ -734,7 +734,7 @@
       ],
       "name": "Living Off The Land Attack Using Deceptive Resources",
       "kind": "groupBy",
-      "field": "lastEvent.log.deceptive_target",
+      "field": "lastEvent.event.deceptive_target",
       "lastEventAlias": true
     },
     {
@@ -811,7 +811,7 @@
       ],
       "name": "Ransomware Behavior Detected in Deception Environment",
       "kind": "groupBy",
-      "field": "lastEvent.log.hostname",
+      "field": "lastEvent.event.hostname",
       "lastEventAlias": true
     },
     {
@@ -822,7 +822,7 @@
       ],
       "name": "Ransomware Behavior Detected in Deception Environment",
       "kind": "groupBy",
-      "field": "lastEvent.log.process",
+      "field": "lastEvent.event.process",
       "lastEventAlias": true
     },
     {
@@ -833,7 +833,7 @@
       ],
       "name": "Threat Actor Attribution",
       "kind": "groupBy",
-      "field": "lastEvent.log.actorProfile",
+      "field": "lastEvent.event.actorProfile",
       "lastEventAlias": true
     },
     {
@@ -844,7 +844,7 @@
       ],
       "name": "Threat Actor Attribution",
       "kind": "groupBy",
-      "field": "lastEvent.log.campaignId",
+      "field": "lastEvent.event.campaignId",
       "lastEventAlias": true
     },
     {
@@ -866,7 +866,7 @@
       ],
       "name": "Zero-Day Behavior Patterns Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.exploitTechnique",
+      "field": "lastEvent.event.exploitTechnique",
       "lastEventAlias": true
     },
     {
@@ -877,7 +877,7 @@
       ],
       "name": "Zero-Day Behavior Patterns Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.processHash",
+      "field": "lastEvent.event.processHash",
       "lastEventAlias": true
     },
     {
@@ -899,7 +899,7 @@
       ],
       "name": "Advanced Heuristic Detection Triggers",
       "kind": "groupBy",
-      "field": "lastEvent.log.headHostname",
+      "field": "lastEvent.event.headHostname",
       "lastEventAlias": true
     },
     {
@@ -910,7 +910,7 @@
       ],
       "name": "Advanced Heuristic Detection Triggers",
       "kind": "groupBy",
-      "field": "lastEvent.log.msgType",
+      "field": "lastEvent.event.msgType",
       "lastEventAlias": true
     },
     {
@@ -921,7 +921,7 @@
       ],
       "name": "ESET Botnet Communication Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.headHostname",
+      "field": "lastEvent.event.headHostname",
       "lastEventAlias": true
     },
     {
@@ -932,7 +932,7 @@
       ],
       "name": "ESET Botnet Communication Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.jsonMessage",
+      "field": "lastEvent.event.jsonMessage",
       "lastEventAlias": true
     },
     {
@@ -943,7 +943,7 @@
       ],
       "name": "ESET Agent Disabled or Tampered",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventType",
+      "field": "lastEvent.event.eventType",
       "lastEventAlias": true
     },
     {
@@ -965,7 +965,7 @@
       ],
       "name": "ESET ERA/ESMC Console Suspicious Activity",
       "kind": "groupBy",
-      "field": "lastEvent.log.headHostname",
+      "field": "lastEvent.event.headHostname",
       "lastEventAlias": true
     },
     {
@@ -987,7 +987,7 @@
       ],
       "name": "ESET Repeated Quarantine Failures",
       "kind": "groupBy",
-      "field": "lastEvent.log.headHostname",
+      "field": "lastEvent.event.headHostname",
       "lastEventAlias": true
     },
     {
@@ -1009,7 +1009,7 @@
       ],
       "name": "ESET Exploit Detection Alert",
       "kind": "groupBy",
-      "field": "lastEvent.log.jsonMessage",
+      "field": "lastEvent.event.jsonMessage",
       "lastEventAlias": true
     },
     {
@@ -1031,7 +1031,7 @@
       ],
       "name": "ESET Host Intrusion Prevention System Triggered",
       "kind": "groupBy",
-      "field": "lastEvent.log.objectname",
+      "field": "lastEvent.event.objectname",
       "lastEventAlias": true
     },
     {
@@ -1053,7 +1053,7 @@
       ],
       "name": "Machine Learning Detection Anomalies",
       "kind": "groupBy",
-      "field": "lastEvent.log.headHostname",
+      "field": "lastEvent.event.headHostname",
       "lastEventAlias": true
     },
     {
@@ -1097,7 +1097,7 @@
       ],
       "name": "Registry Modification Attempts Blocked",
       "kind": "groupBy",
-      "field": "lastEvent.log.action",
+      "field": "lastEvent.event.action",
       "lastEventAlias": true
     },
     {
@@ -1119,7 +1119,7 @@
       ],
       "name": "Suspicious Encrypted File Activity",
       "kind": "groupBy",
-      "field": "lastEvent.log.msgType",
+      "field": "lastEvent.event.msgType",
       "lastEventAlias": true
     },
     {
@@ -1141,7 +1141,7 @@
       ],
       "name": "ESET Blocked Suspicious PowerShell Activity",
       "kind": "groupBy",
-      "field": "lastEvent.log.headHostname",
+      "field": "lastEvent.event.headHostname",
       "lastEventAlias": true
     },
     {
@@ -1163,7 +1163,7 @@
       ],
       "name": "Suspicious Process Behavior Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.headHostname",
+      "field": "lastEvent.event.headHostname",
       "lastEventAlias": true
     },
     {
@@ -1174,7 +1174,7 @@
       ],
       "name": "Suspicious Process Behavior Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.msgType",
+      "field": "lastEvent.event.msgType",
       "lastEventAlias": true
     },
     {
@@ -1196,7 +1196,7 @@
       ],
       "name": "Code Injection Attempt Detection",
       "kind": "deduplicateBy",
-      "field": "log.cs4",
+      "field": "event.cs4",
       "lastEventAlias": false
     },
     {
@@ -1240,7 +1240,7 @@
       ],
       "name": "Kaspersky Critical Object Detection",
       "kind": "groupBy",
-      "field": "log.signatureID",
+      "field": "event.signatureID",
       "lastEventAlias": false
     },
     {
@@ -1273,7 +1273,7 @@
       ],
       "name": "Living Off the Land Binaries (LOLBins) Abuse Detection",
       "kind": "groupBy",
-      "field": "log.cs4",
+      "field": "event.cs4",
       "lastEventAlias": false
     },
     {
@@ -1295,7 +1295,7 @@
       ],
       "name": "Kaspersky Application Privilege Escalation Detection",
       "kind": "groupBy",
-      "field": "log.signatureID",
+      "field": "event.signatureID",
       "lastEventAlias": false
     },
     {
@@ -1328,7 +1328,7 @@
       ],
       "name": "Process Hollowing Detection",
       "kind": "groupBy",
-      "field": "log.cs5",
+      "field": "event.cs5",
       "lastEventAlias": false
     },
     {
@@ -1460,7 +1460,7 @@
       ],
       "name": "SentinelOne Agent Tampering Attempts",
       "kind": "groupBy",
-      "field": "lastEvent.log.agentId",
+      "field": "lastEvent.event.agentId",
       "lastEventAlias": true
     },
     {
@@ -1482,7 +1482,7 @@
       ],
       "name": "SentinelOne AI-Based Threat Hunting Alerts",
       "kind": "groupBy",
-      "field": "lastEvent.log.accName",
+      "field": "lastEvent.event.accName",
       "lastEventAlias": true
     },
     {
@@ -1493,7 +1493,7 @@
       ],
       "name": "SentinelOne AI-Based Threat Hunting Alerts",
       "kind": "groupBy",
-      "field": "lastEvent.log.endpointDeviceName",
+      "field": "lastEvent.event.endpointDeviceName",
       "lastEventAlias": true
     },
     {
@@ -1504,7 +1504,7 @@
       ],
       "name": "SentinelOne Behavioral Threat Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventDescription",
+      "field": "lastEvent.event.eventDescription",
       "lastEventAlias": true
     },
     {
@@ -1515,7 +1515,7 @@
       ],
       "name": "SentinelOne Behavioral Threat Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.syslogHost",
+      "field": "lastEvent.event.syslogHost",
       "lastEventAlias": true
     },
     {
@@ -1526,7 +1526,7 @@
       ],
       "name": "SentinelOne Cloud Workload Protection Alert",
       "kind": "groupBy",
-      "field": "lastEvent.log.accName",
+      "field": "lastEvent.event.accName",
       "lastEventAlias": true
     },
     {
@@ -1570,7 +1570,7 @@
       ],
       "name": "Custom Detection Rule Triggers",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventDescription",
+      "field": "lastEvent.event.eventDescription",
       "lastEventAlias": true
     },
     {
@@ -1581,7 +1581,7 @@
       ],
       "name": "Custom Detection Rule Triggers",
       "kind": "groupBy",
-      "field": "lastEvent.log.syslogHost",
+      "field": "lastEvent.event.syslogHost",
       "lastEventAlias": true
     },
     {
@@ -1592,7 +1592,7 @@
       ],
       "name": "Deep Visibility Threat Indicators",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventDescription",
+      "field": "lastEvent.event.eventDescription",
       "lastEventAlias": true
     },
     {
@@ -1603,7 +1603,7 @@
       ],
       "name": "Deep Visibility Threat Indicators",
       "kind": "groupBy",
-      "field": "lastEvent.log.syslogHost",
+      "field": "lastEvent.event.syslogHost",
       "lastEventAlias": true
     },
     {
@@ -1614,7 +1614,7 @@
       ],
       "name": "SentinelOne Endpoint Detection and Response (EDR) Alerts",
       "kind": "groupBy",
-      "field": "lastEvent.log.endpointDeviceName",
+      "field": "lastEvent.event.endpointDeviceName",
       "lastEventAlias": true
     },
     {
@@ -1625,7 +1625,7 @@
       ],
       "name": "SentinelOne Endpoint Detection and Response (EDR) Alerts",
       "kind": "groupBy",
-      "field": "lastEvent.log.syslogHost",
+      "field": "lastEvent.event.syslogHost",
       "lastEventAlias": true
     },
     {
@@ -1636,7 +1636,7 @@
       ],
       "name": "SentinelOne IoT Device Compromise Indicator",
       "kind": "groupBy",
-      "field": "lastEvent.log.endpointDeviceName",
+      "field": "lastEvent.event.endpointDeviceName",
       "lastEventAlias": true
     },
     {
@@ -1647,7 +1647,7 @@
       ],
       "name": "SentinelOne IoT Device Compromise Indicator",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventDescription",
+      "field": "lastEvent.event.eventDescription",
       "lastEventAlias": true
     },
     {
@@ -1658,7 +1658,7 @@
       ],
       "name": "Kernel-Level Threat Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventDescription",
+      "field": "lastEvent.event.eventDescription",
       "lastEventAlias": true
     },
     {
@@ -1669,7 +1669,7 @@
       ],
       "name": "Kernel-Level Threat Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.syslogHost",
+      "field": "lastEvent.event.syslogHost",
       "lastEventAlias": true
     },
     {
@@ -1702,7 +1702,7 @@
       ],
       "name": "SentinelOne Rollback Operation Patterns Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.endpointDeviceName",
+      "field": "lastEvent.event.endpointDeviceName",
       "lastEventAlias": true
     },
     {
@@ -1713,7 +1713,7 @@
       ],
       "name": "SentinelOne Rollback Operation Patterns Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.syslogHost",
+      "field": "lastEvent.event.syslogHost",
       "lastEventAlias": true
     },
     {
@@ -1724,7 +1724,7 @@
       ],
       "name": "SentinelOne Suspicious Exclusion Addition",
       "kind": "groupBy",
-      "field": "lastEvent.log.activityType",
+      "field": "lastEvent.event.activityType",
       "lastEventAlias": true
     },
     {
@@ -1746,7 +1746,7 @@
       ],
       "name": "SentinelOne Policy Downgraded from Protect to Detect",
       "kind": "groupBy",
-      "field": "lastEvent.log.activityType",
+      "field": "lastEvent.event.activityType",
       "lastEventAlias": true
     },
     {
@@ -1768,7 +1768,7 @@
       ],
       "name": "Storyline Correlation Event",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventDescription",
+      "field": "lastEvent.event.eventDescription",
       "lastEventAlias": true
     },
     {
@@ -1790,7 +1790,7 @@
       ],
       "name": "Suspicious Process Tree Analysis",
       "kind": "groupBy",
-      "field": "lastEvent.log.syslogHost",
+      "field": "lastEvent.event.syslogHost",
       "lastEventAlias": true
     },
     {
@@ -1801,7 +1801,7 @@
       ],
       "name": "Suspicious Process Tree Analysis",
       "kind": "groupBy",
-      "field": "lastEvent.log.threatId",
+      "field": "lastEvent.event.threatId",
       "lastEventAlias": true
     },
     {
@@ -1812,7 +1812,7 @@
       ],
       "name": "SentinelOne Suspicious Script Execution Detected",
       "kind": "groupBy",
-      "field": "lastEvent.log.endpointDeviceName",
+      "field": "lastEvent.event.endpointDeviceName",
       "lastEventAlias": true
     },
     {
@@ -1823,7 +1823,7 @@
       ],
       "name": "SentinelOne Suspicious Script Execution Detected",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventDescription",
+      "field": "lastEvent.event.eventDescription",
       "lastEventAlias": true
     },
     {
@@ -1834,7 +1834,7 @@
       ],
       "name": "Threat Intelligence Matches",
       "kind": "groupBy",
-      "field": "lastEvent.log.externalthreatvalue",
+      "field": "lastEvent.event.externalthreatvalue",
       "lastEventAlias": true
     },
     {
@@ -1845,7 +1845,7 @@
       ],
       "name": "Threat Intelligence Matches",
       "kind": "groupBy",
-      "field": "lastEvent.log.filecontenthash",
+      "field": "lastEvent.event.filecontenthash",
       "lastEventAlias": true
     },
     {
@@ -1856,7 +1856,7 @@
       ],
       "name": "Threat Intelligence Matches",
       "kind": "groupBy",
-      "field": "lastEvent.log.syslogHost",
+      "field": "lastEvent.event.syslogHost",
       "lastEventAlias": true
     },
     {
@@ -1867,7 +1867,7 @@
       ],
       "name": "SentinelOne Threat Mitigation Failures",
       "kind": "groupBy",
-      "field": "lastEvent.log.agentId",
+      "field": "lastEvent.event.agentId",
       "lastEventAlias": true
     },
     {
@@ -1878,7 +1878,7 @@
       ],
       "name": "SentinelOne Threat Mitigation Failures",
       "kind": "groupBy",
-      "field": "lastEvent.log.threatId",
+      "field": "lastEvent.event.threatId",
       "lastEventAlias": true
     },
     {
@@ -2010,7 +2010,7 @@
       ],
       "name": "Advanced Malware Protection (AMP) Alert Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.sha256",
+      "field": "lastEvent.event.sha256",
       "lastEventAlias": true
     },
     {
@@ -2098,7 +2098,7 @@
       ],
       "name": "Threat Intelligence Director (TID) Alert Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.tidIndicator",
+      "field": "lastEvent.event.tidIndicator",
       "lastEventAlias": true
     },
     {
@@ -2153,7 +2153,7 @@
       ],
       "name": "Evil Twin Access Point Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.bssid",
+      "field": "lastEvent.event.bssid",
       "lastEventAlias": true
     },
     {
@@ -2175,7 +2175,7 @@
       ],
       "name": "Meraki IDS High Priority Intrusion Alert",
       "kind": "groupBy",
-      "field": "lastEvent.log.signature",
+      "field": "lastEvent.event.signature",
       "lastEventAlias": true
     },
     {
@@ -2263,7 +2263,7 @@
       ],
       "name": "AWS Backup Deletion for Impact",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventName",
+      "field": "lastEvent.event.eventName",
       "lastEventAlias": true
     },
     {
@@ -2285,7 +2285,7 @@
       ],
       "name": "AWS Config Service Disabled",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventName",
+      "field": "lastEvent.event.eventName",
       "lastEventAlias": true
     },
     {
@@ -2307,7 +2307,7 @@
       ],
       "name": "AWS Console GetSigninToken Abuse",
       "kind": "groupBy",
-      "field": "lastEvent.log.sourceIPAddress",
+      "field": "lastEvent.event.sourceIPAddress",
       "lastEventAlias": true
     },
     {
@@ -2329,7 +2329,7 @@
       ],
       "name": "AWS EC2 Instance Startup Script Modified",
       "kind": "groupBy",
-      "field": "lastEvent.log.requestParameters.instanceId",
+      "field": "lastEvent.event.requestParameters.instanceId",
       "lastEventAlias": true
     },
     {
@@ -2351,7 +2351,7 @@
       ],
       "name": "AWS ECS Task Credential Endpoint Query",
       "kind": "groupBy",
-      "field": "lastEvent.log.sourceIPAddress",
+      "field": "lastEvent.event.sourceIPAddress",
       "lastEventAlias": true
     },
     {
@@ -2373,7 +2373,7 @@
       ],
       "name": "AWS Glue Development Endpoint Privilege Escalation",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventName",
+      "field": "lastEvent.event.eventName",
       "lastEventAlias": true
     },
     {
@@ -2395,7 +2395,7 @@
       ],
       "name": "AWS Golden SAML Attack Detected",
       "kind": "groupBy",
-      "field": "lastEvent.log.requestParametersRoleArn",
+      "field": "lastEvent.event.requestParametersRoleArn",
       "lastEventAlias": true
     },
     {
@@ -2417,7 +2417,7 @@
       ],
       "name": "AWS IAM Login Profile Modified for Another User",
       "kind": "groupBy",
-      "field": "lastEvent.log.requestParameters.userName",
+      "field": "lastEvent.event.requestParameters.userName",
       "lastEventAlias": true
     },
     {
@@ -2439,7 +2439,7 @@
       ],
       "name": "AWS KMS Key Material Import or Deletion",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventName",
+      "field": "lastEvent.event.eventName",
       "lastEventAlias": true
     },
     {
@@ -2461,7 +2461,7 @@
       ],
       "name": "AWS RDS Database Restored as Publicly Accessible",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventName",
+      "field": "lastEvent.event.eventName",
       "lastEventAlias": true
     },
     {
@@ -2483,7 +2483,7 @@
       ],
       "name": "AWS S3 Bucket Versioning Suspended",
       "kind": "groupBy",
-      "field": "lastEvent.log.requestParameters.bucketName",
+      "field": "lastEvent.event.requestParameters.bucketName",
       "lastEventAlias": true
     },
     {
@@ -2505,7 +2505,7 @@
       ],
       "name": "AWS SecurityHub Finding Evasion",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventName",
+      "field": "lastEvent.event.eventName",
       "lastEventAlias": true
     },
     {
@@ -2527,7 +2527,7 @@
       ],
       "name": "AWS EC2 Snapshot Shared with External Account",
       "kind": "groupBy",
-      "field": "lastEvent.log.requestParameters.snapshotId",
+      "field": "lastEvent.event.requestParameters.snapshotId",
       "lastEventAlias": true
     },
     {
@@ -2549,7 +2549,7 @@
       ],
       "name": "AWS SSM SendCommand Remote Execution",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventName",
+      "field": "lastEvent.event.eventName",
       "lastEventAlias": true
     },
     {
@@ -2571,7 +2571,7 @@
       ],
       "name": "AWS SSO Identity Provider Configuration Changed",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventName",
+      "field": "lastEvent.event.eventName",
       "lastEventAlias": true
     },
     {
@@ -2582,7 +2582,7 @@
       ],
       "name": "AWS SSO Suspicious Activities",
       "kind": "groupBy",
-      "field": "lastEvent.log.sourceIPAddress",
+      "field": "lastEvent.event.sourceIPAddress",
       "lastEventAlias": true
     },
     {
@@ -2593,7 +2593,7 @@
       ],
       "name": "AWS SSO Suspicious Activities",
       "kind": "groupBy",
-      "field": "lastEvent.log.userIdentity.principalId",
+      "field": "lastEvent.event.userIdentity.principalId",
       "lastEventAlias": true
     },
     {
@@ -2615,7 +2615,7 @@
       ],
       "name": "AWS TruffleHog Credential Scanning Detected",
       "kind": "groupBy",
-      "field": "lastEvent.log.sourceIPAddress",
+      "field": "lastEvent.event.sourceIPAddress",
       "lastEventAlias": true
     },
     {
@@ -2626,7 +2626,7 @@
       ],
       "name": "AWS CloudFormation Stack Deletion",
       "kind": "groupBy",
-      "field": "lastEvent.log.userIdentityAccountId",
+      "field": "lastEvent.event.userIdentityAccountId",
       "lastEventAlias": true
     },
     {
@@ -2637,7 +2637,7 @@
       ],
       "name": "AWS CloudFormation Stack Deletion",
       "kind": "groupBy",
-      "field": "lastEvent.log.userIdentityArn",
+      "field": "lastEvent.event.userIdentityArn",
       "lastEventAlias": true
     },
     {
@@ -2659,7 +2659,7 @@
       ],
       "name": "AWS CloudTrail Event Selector Manipulation",
       "kind": "groupBy",
-      "field": "lastEvent.log.requestParameters.trailName",
+      "field": "lastEvent.event.requestParameters.trailName",
       "lastEventAlias": true
     },
     {
@@ -2681,7 +2681,7 @@
       ],
       "name": "AWS CloudTrail Logging Disabled",
       "kind": "groupBy",
-      "field": "lastEvent.log.requestParameters.name",
+      "field": "lastEvent.event.requestParameters.name",
       "lastEventAlias": true
     },
     {
@@ -2714,7 +2714,7 @@
       ],
       "name": "AWS Cross-Account Access Anomalies",
       "kind": "groupBy",
-      "field": "lastEvent.log.responseElementsAssumedRoleUserArn",
+      "field": "lastEvent.event.responseElementsAssumedRoleUserArn",
       "lastEventAlias": true
     },
     {
@@ -2725,7 +2725,7 @@
       ],
       "name": "AWS Cross-Account Access Anomalies",
       "kind": "groupBy",
-      "field": "lastEvent.log.sourceIPAddress",
+      "field": "lastEvent.event.sourceIPAddress",
       "lastEventAlias": true
     },
     {
@@ -2736,7 +2736,7 @@
       ],
       "name": "AWS Cross-Account Access Anomalies",
       "kind": "groupBy",
-      "field": "lastEvent.log.userIdentityAccountId",
+      "field": "lastEvent.event.userIdentityAccountId",
       "lastEventAlias": true
     },
     {
@@ -2747,7 +2747,7 @@
       ],
       "name": "EBS Snapshot Sharing Violations",
       "kind": "groupBy",
-      "field": "lastEvent.log.responseElements.snapshotId",
+      "field": "lastEvent.event.responseElements.snapshotId",
       "lastEventAlias": true
     },
     {
@@ -2758,7 +2758,7 @@
       ],
       "name": "EBS Snapshot Sharing Violations",
       "kind": "groupBy",
-      "field": "lastEvent.log.userIdentity.accountId",
+      "field": "lastEvent.event.userIdentity.accountId",
       "lastEventAlias": true
     },
     {
@@ -2780,7 +2780,7 @@
       ],
       "name": "AWS EC2 Cryptomining Instance Launch Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.requestParameters.instanceType",
+      "field": "lastEvent.event.requestParameters.instanceType",
       "lastEventAlias": true
     },
     {
@@ -2791,7 +2791,7 @@
       ],
       "name": "EC2 Instance Metadata Abuse",
       "kind": "groupBy",
-      "field": "lastEvent.log.sourceIPAddress",
+      "field": "lastEvent.event.sourceIPAddress",
       "lastEventAlias": true
     },
     {
@@ -2802,7 +2802,7 @@
       ],
       "name": "EC2 Instance Metadata Abuse",
       "kind": "groupBy",
-      "field": "lastEvent.log.userIdentityAccountId",
+      "field": "lastEvent.event.userIdentityAccountId",
       "lastEventAlias": true
     },
     {
@@ -2824,7 +2824,7 @@
       ],
       "name": "AWS ECS/EKS Container Abuse Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventName",
+      "field": "lastEvent.event.eventName",
       "lastEventAlias": true
     },
     {
@@ -2835,7 +2835,7 @@
       ],
       "name": "AWS GuardDuty High-Severity Finding",
       "kind": "groupBy",
-      "field": "lastEvent.log.accountId",
+      "field": "lastEvent.event.accountId",
       "lastEventAlias": true
     },
     {
@@ -2846,7 +2846,7 @@
       ],
       "name": "AWS GuardDuty High-Severity Finding",
       "kind": "groupBy",
-      "field": "lastEvent.log.region",
+      "field": "lastEvent.event.region",
       "lastEventAlias": true
     },
     {
@@ -2857,7 +2857,7 @@
       ],
       "name": "AWS GuardDuty High-Severity Finding",
       "kind": "groupBy",
-      "field": "lastEvent.log.type",
+      "field": "lastEvent.event.type",
       "lastEventAlias": true
     },
     {
@@ -2868,7 +2868,7 @@
       ],
       "name": "AWS IAM Backdoor Creation Attempts",
       "kind": "groupBy",
-      "field": "lastEvent.log.sourceIPAddress",
+      "field": "lastEvent.event.sourceIPAddress",
       "lastEventAlias": true
     },
     {
@@ -2879,7 +2879,7 @@
       ],
       "name": "AWS IAM Backdoor Creation Attempts",
       "kind": "groupBy",
-      "field": "lastEvent.log.userIdentity.arn",
+      "field": "lastEvent.event.userIdentity.arn",
       "lastEventAlias": true
     },
     {
@@ -2901,7 +2901,7 @@
       ],
       "name": "AWS IAM Privilege Escalation Path Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventName",
+      "field": "lastEvent.event.eventName",
       "lastEventAlias": true
     },
     {
@@ -2912,7 +2912,7 @@
       ],
       "name": "Lambda Function Privilege Escalation",
       "kind": "groupBy",
-      "field": "lastEvent.log.requestParameters.roleArn",
+      "field": "lastEvent.event.requestParameters.roleArn",
       "lastEventAlias": true
     },
     {
@@ -2923,7 +2923,7 @@
       ],
       "name": "Lambda Function Privilege Escalation",
       "kind": "groupBy",
-      "field": "lastEvent.log.userIdentity.arn",
+      "field": "lastEvent.event.userIdentity.arn",
       "lastEventAlias": true
     },
     {
@@ -2945,7 +2945,7 @@
       ],
       "name": "AWS Lambda Function URL Backdoor Creation",
       "kind": "groupBy",
-      "field": "lastEvent.log.requestParameters.functionName",
+      "field": "lastEvent.event.requestParameters.functionName",
       "lastEventAlias": true
     },
     {
@@ -2956,7 +2956,7 @@
       ],
       "name": "AWS Mass Resource Deletion",
       "kind": "groupBy",
-      "field": "lastEvent.log.sourceIPAddress",
+      "field": "lastEvent.event.sourceIPAddress",
       "lastEventAlias": true
     },
     {
@@ -2967,7 +2967,7 @@
       ],
       "name": "AWS Mass Resource Deletion",
       "kind": "groupBy",
-      "field": "lastEvent.log.userIdentity.arn",
+      "field": "lastEvent.event.userIdentity.arn",
       "lastEventAlias": true
     },
     {
@@ -2978,7 +2978,7 @@
       ],
       "name": "RDS Security Group Changes",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventName",
+      "field": "lastEvent.event.eventName",
       "lastEventAlias": true
     },
     {
@@ -2989,7 +2989,7 @@
       ],
       "name": "RDS Security Group Changes",
       "kind": "groupBy",
-      "field": "lastEvent.log.userIdentityArn",
+      "field": "lastEvent.event.userIdentityArn",
       "lastEventAlias": true
     },
     {
@@ -3011,7 +3011,7 @@
       ],
       "name": "AWS RDS Snapshot Sharing for Data Exfiltration",
       "kind": "groupBy",
-      "field": "lastEvent.log.requestParameters.dBSnapshotIdentifier",
+      "field": "lastEvent.event.requestParameters.dBSnapshotIdentifier",
       "lastEventAlias": true
     },
     {
@@ -3022,7 +3022,7 @@
       ],
       "name": "AWS Root Account Usage Without MFA",
       "kind": "groupBy",
-      "field": "lastEvent.log.sourceIPAddress",
+      "field": "lastEvent.event.sourceIPAddress",
       "lastEventAlias": true
     },
     {
@@ -3033,7 +3033,7 @@
       ],
       "name": "AWS Root Account Usage Without MFA",
       "kind": "groupBy",
-      "field": "lastEvent.log.userIdentityAccountId",
+      "field": "lastEvent.event.userIdentityAccountId",
       "lastEventAlias": true
     },
     {
@@ -3044,7 +3044,7 @@
       ],
       "name": "AWS Route 53 DNS Hijacking Attempt",
       "kind": "groupBy",
-      "field": "lastEvent.log.sourceIPAddress",
+      "field": "lastEvent.event.sourceIPAddress",
       "lastEventAlias": true
     },
     {
@@ -3055,7 +3055,7 @@
       ],
       "name": "AWS Route 53 DNS Hijacking Attempt",
       "kind": "groupBy",
-      "field": "lastEvent.log.userIdentityArn",
+      "field": "lastEvent.event.userIdentityArn",
       "lastEventAlias": true
     },
     {
@@ -3066,7 +3066,7 @@
       ],
       "name": "AWS S3 Bucket Public Exposure",
       "kind": "groupBy",
-      "field": "lastEvent.log.requestParameters.bucketName",
+      "field": "lastEvent.event.requestParameters.bucketName",
       "lastEventAlias": true
     },
     {
@@ -3077,7 +3077,7 @@
       ],
       "name": "AWS S3 Bucket Public Exposure",
       "kind": "groupBy",
-      "field": "lastEvent.log.userIdentity.accessKeyId",
+      "field": "lastEvent.event.userIdentity.accessKeyId",
       "lastEventAlias": true
     },
     {
@@ -3099,7 +3099,7 @@
       ],
       "name": "AWS S3 Bulk Data Exfiltration Detected",
       "kind": "groupBy",
-      "field": "lastEvent.log.requestParameters.bucketName",
+      "field": "lastEvent.event.requestParameters.bucketName",
       "lastEventAlias": true
     },
     {
@@ -3110,7 +3110,7 @@
       ],
       "name": "AWS Secrets Manager Suspicious Access Pattern",
       "kind": "groupBy",
-      "field": "lastEvent.log.sourceIPAddress",
+      "field": "lastEvent.event.sourceIPAddress",
       "lastEventAlias": true
     },
     {
@@ -3121,7 +3121,7 @@
       ],
       "name": "AWS Secrets Manager Suspicious Access Pattern",
       "kind": "groupBy",
-      "field": "lastEvent.log.userIdentityArn",
+      "field": "lastEvent.event.userIdentityArn",
       "lastEventAlias": true
     },
     {
@@ -3132,7 +3132,7 @@
       ],
       "name": "AWS Security Group Modifications",
       "kind": "groupBy",
-      "field": "lastEvent.log.sourceIPAddress",
+      "field": "lastEvent.event.sourceIPAddress",
       "lastEventAlias": true
     },
     {
@@ -3143,7 +3143,7 @@
       ],
       "name": "AWS Security Group Modifications",
       "kind": "groupBy",
-      "field": "lastEvent.log.userIdentity.arn",
+      "field": "lastEvent.event.userIdentity.arn",
       "lastEventAlias": true
     },
     {
@@ -3165,7 +3165,7 @@
       ],
       "name": "AWS Systems Manager Session Abuse",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventName",
+      "field": "lastEvent.event.eventName",
       "lastEventAlias": true
     },
     {
@@ -3176,7 +3176,7 @@
       ],
       "name": "AWS STS Token Abuse Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.userIdentityArn",
+      "field": "lastEvent.event.userIdentityArn",
       "lastEventAlias": true
     },
     {
@@ -3198,7 +3198,7 @@
       ],
       "name": "AWS Unusual API Call Patterns",
       "kind": "groupBy",
-      "field": "lastEvent.log.sourceIPAddress",
+      "field": "lastEvent.event.sourceIPAddress",
       "lastEventAlias": true
     },
     {
@@ -3209,7 +3209,7 @@
       ],
       "name": "AWS VPC Flow Log Anomalies",
       "kind": "deduplicateBy",
-      "field": "lastEvent.log.sourceIPAddress",
+      "field": "lastEvent.event.sourceIPAddress",
       "lastEventAlias": true
     },
     {
@@ -3220,7 +3220,7 @@
       ],
       "name": "AWS VPC Flow Log Anomalies",
       "kind": "deduplicateBy",
-      "field": "lastEvent.log.userIdentity.arn",
+      "field": "lastEvent.event.userIdentity.arn",
       "lastEventAlias": true
     },
     {
@@ -3231,7 +3231,7 @@
       ],
       "name": "AWS VPC Flow Log Anomalies",
       "kind": "deduplicateBy",
-      "field": "lastEvent.log.awsRegion",
+      "field": "lastEvent.event.awsRegion",
       "lastEventAlias": true
     },
     {
@@ -3253,7 +3253,7 @@
       ],
       "name": "AWS WAF and Shield Rule Modifications",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventName",
+      "field": "lastEvent.event.eventName",
       "lastEventAlias": true
     },
     {
@@ -3880,7 +3880,7 @@
       ],
       "name": "Azure AKS Container Security Threat Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.operationName",
+      "field": "lastEvent.event.operationName",
       "lastEventAlias": true
     },
     {
@@ -3902,7 +3902,7 @@
       ],
       "name": "Azure AD App Registration with High-Privilege API Permissions",
       "kind": "groupBy",
-      "field": "lastEvent.log.operationName",
+      "field": "lastEvent.event.operationName",
       "lastEventAlias": true
     },
     {
@@ -3924,7 +3924,7 @@
       ],
       "name": "Application Gateway WAF Security Alerts",
       "kind": "groupBy",
-      "field": "lastEvent.log.ruleId",
+      "field": "lastEvent.event.ruleId",
       "lastEventAlias": true
     },
     {
@@ -3946,7 +3946,7 @@
       ],
       "name": "Azure Automation Runbook Abuse",
       "kind": "groupBy",
-      "field": "lastEvent.log.operationName",
+      "field": "lastEvent.event.operationName",
       "lastEventAlias": true
     },
     {
@@ -3990,7 +3990,7 @@
       ],
       "name": "Azure AD Password Spray Attack Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.operationName",
+      "field": "lastEvent.event.operationName",
       "lastEventAlias": true
     },
     {
@@ -4012,7 +4012,7 @@
       ],
       "name": "Azure Security Alert Suppression Rule Created",
       "kind": "groupBy",
-      "field": "lastEvent.log.operationName",
+      "field": "lastEvent.event.operationName",
       "lastEventAlias": true
     },
     {
@@ -4056,7 +4056,7 @@
       ],
       "name": "Azure AD Application Credential Added",
       "kind": "groupBy",
-      "field": "lastEvent.log.properties.targetResources",
+      "field": "lastEvent.event.properties.targetResources",
       "lastEventAlias": true
     },
     {
@@ -4078,7 +4078,7 @@
       ],
       "name": "Azure AD Privileged App Role Assignment",
       "kind": "groupBy",
-      "field": "lastEvent.log.properties.targetResources",
+      "field": "lastEvent.event.properties.targetResources",
       "lastEventAlias": true
     },
     {
@@ -4166,7 +4166,7 @@
       ],
       "name": "Azure Disk Snapshot Exfiltration",
       "kind": "groupBy",
-      "field": "lastEvent.log.operationName",
+      "field": "lastEvent.event.operationName",
       "lastEventAlias": true
     },
     {
@@ -4188,7 +4188,7 @@
       ],
       "name": "Azure AD Federation Settings Modified",
       "kind": "groupBy",
-      "field": "lastEvent.log.operationName",
+      "field": "lastEvent.event.operationName",
       "lastEventAlias": true
     },
     {
@@ -4232,7 +4232,7 @@
       ],
       "name": "Azure Kubernetes Admission Webhook Modified",
       "kind": "groupBy",
-      "field": "lastEvent.log.resourceId",
+      "field": "lastEvent.event.resourceId",
       "lastEventAlias": true
     },
     {
@@ -4254,7 +4254,7 @@
       ],
       "name": "Azure Kubernetes Events Deleted",
       "kind": "groupBy",
-      "field": "lastEvent.log.resourceId",
+      "field": "lastEvent.event.resourceId",
       "lastEventAlias": true
     },
     {
@@ -4276,7 +4276,7 @@
       ],
       "name": "Azure Kubernetes Secret Write or Delete",
       "kind": "groupBy",
-      "field": "lastEvent.log.resourceId",
+      "field": "lastEvent.event.resourceId",
       "lastEventAlias": true
     },
     {
@@ -4342,7 +4342,7 @@
       ],
       "name": "Azure AD New Root Certificate Authority Added",
       "kind": "groupBy",
-      "field": "lastEvent.log.operationName",
+      "field": "lastEvent.event.operationName",
       "lastEventAlias": true
     },
     {
@@ -4364,7 +4364,7 @@
       ],
       "name": "Azure AD Password Spray Attack Detected",
       "kind": "groupBy",
-      "field": "lastEvent.log.operationName",
+      "field": "lastEvent.event.operationName",
       "lastEventAlias": true
     },
     {
@@ -4430,7 +4430,7 @@
       ],
       "name": "Azure Sentinel High/Critical Alert Pattern Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.AlertType",
+      "field": "lastEvent.event.AlertType",
       "lastEventAlias": true
     },
     {
@@ -4474,7 +4474,7 @@
       ],
       "name": "Azure AD Temporary Access Pass Registration",
       "kind": "groupBy",
-      "field": "lastEvent.log.properties.targetResources",
+      "field": "lastEvent.event.properties.targetResources",
       "lastEventAlias": true
     },
     {
@@ -4518,7 +4518,7 @@
       ],
       "name": "Azure Defender for Cloud Critical Security Alert",
       "kind": "groupBy",
-      "field": "lastEvent.log.correlationId",
+      "field": "lastEvent.event.correlationId",
       "lastEventAlias": true
     },
     {
@@ -4529,7 +4529,7 @@
       ],
       "name": "Azure Defender for Cloud Critical Security Alert",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventDataId",
+      "field": "lastEvent.event.eventDataId",
       "lastEventAlias": true
     },
     {
@@ -4606,7 +4606,7 @@
       ],
       "name": "Azure Diagnostic Settings Tampering",
       "kind": "groupBy",
-      "field": "lastEvent.log.resourceId",
+      "field": "lastEvent.event.resourceId",
       "lastEventAlias": true
     },
     {
@@ -4628,7 +4628,7 @@
       ],
       "name": "Azure AD Golden SAML and Federation Domain Abuse",
       "kind": "groupBy",
-      "field": "lastEvent.log.operationName",
+      "field": "lastEvent.event.operationName",
       "lastEventAlias": true
     },
     {
@@ -4716,7 +4716,7 @@
       ],
       "name": "Azure Key Vault Excessive Access Detected",
       "kind": "groupBy",
-      "field": "lastEvent.log.resourceId",
+      "field": "lastEvent.event.resourceId",
       "lastEventAlias": true
     },
     {
@@ -4738,7 +4738,7 @@
       ],
       "name": "Azure Managed Identity Token Abuse",
       "kind": "groupBy",
-      "field": "lastEvent.log.operationName",
+      "field": "lastEvent.event.operationName",
       "lastEventAlias": true
     },
     {
@@ -4760,7 +4760,7 @@
       ],
       "name": "MFA Disabled for Privileged Azure AD User",
       "kind": "groupBy",
-      "field": "lastEvent.log.correlationId",
+      "field": "lastEvent.event.correlationId",
       "lastEventAlias": true
     },
     {
@@ -4771,7 +4771,7 @@
       ],
       "name": "MFA Disabled for Privileged Azure AD User",
       "kind": "groupBy",
-      "field": "lastEvent.log.targetUserPrincipalName",
+      "field": "lastEvent.event.targetUserPrincipalName",
       "lastEventAlias": true
     },
     {
@@ -4826,7 +4826,7 @@
       ],
       "name": "Azure PIM Role Activation Anomaly",
       "kind": "groupBy",
-      "field": "lastEvent.log.operationName",
+      "field": "lastEvent.event.operationName",
       "lastEventAlias": true
     },
     {
@@ -4848,7 +4848,7 @@
       ],
       "name": "Storage Account Public Access Enabled",
       "kind": "groupBy",
-      "field": "lastEvent.log.aadObjectId",
+      "field": "lastEvent.event.aadObjectId",
       "lastEventAlias": true
     },
     {
@@ -4859,7 +4859,7 @@
       ],
       "name": "Storage Account Public Access Enabled",
       "kind": "groupBy",
-      "field": "lastEvent.log.resourceId",
+      "field": "lastEvent.event.resourceId",
       "lastEventAlias": true
     },
     {
@@ -4870,7 +4870,7 @@
       ],
       "name": "Azure Subscription Ownership Transfer Detected",
       "kind": "groupBy",
-      "field": "lastEvent.log.correlationId",
+      "field": "lastEvent.event.correlationId",
       "lastEventAlias": true
     },
     {
@@ -4892,7 +4892,7 @@
       ],
       "name": "Anthos Security Policy Violations",
       "kind": "groupBy",
-      "field": "lastEvent.log.protoPayloadResourceName",
+      "field": "lastEvent.event.protoPayloadResourceName",
       "lastEventAlias": true
     },
     {
@@ -4903,7 +4903,7 @@
       ],
       "name": "Anthos Security Policy Violations",
       "kind": "groupBy",
-      "field": "lastEvent.log.resource.labels.project_id",
+      "field": "lastEvent.event.resource.labels.project_id",
       "lastEventAlias": true
     },
     {
@@ -4925,7 +4925,7 @@
       ],
       "name": "Binary Authorization Bypass Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.protoPayloadResourceName",
+      "field": "lastEvent.event.protoPayloadResourceName",
       "lastEventAlias": true
     },
     {
@@ -5024,7 +5024,7 @@
       ],
       "name": "GCP Audit Log Disabling or Tampering",
       "kind": "groupBy",
-      "field": "lastEvent.log.protoPayloadMethodName",
+      "field": "lastEvent.event.protoPayloadMethodName",
       "lastEventAlias": true
     },
     {
@@ -5046,7 +5046,7 @@
       ],
       "name": "GCP BigQuery Data Exfiltration Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.protoPayloadMethodName",
+      "field": "lastEvent.event.protoPayloadMethodName",
       "lastEventAlias": true
     },
     {
@@ -5079,7 +5079,7 @@
       ],
       "name": "GCP Break-Glass Container Workload Deployed",
       "kind": "groupBy",
-      "field": "lastEvent.log.protoPayloadResourceName",
+      "field": "lastEvent.event.protoPayloadResourceName",
       "lastEventAlias": true
     },
     {
@@ -5090,7 +5090,7 @@
       ],
       "name": "GCP Cloud Function and Cloud Run Abuse",
       "kind": "groupBy",
-      "field": "lastEvent.log.protoPayloadMethodName",
+      "field": "lastEvent.event.protoPayloadMethodName",
       "lastEventAlias": true
     },
     {
@@ -5112,7 +5112,7 @@
       ],
       "name": "GCP Cryptomining Instance Launch Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.protoPayloadResourceName",
+      "field": "lastEvent.event.protoPayloadResourceName",
       "lastEventAlias": true
     },
     {
@@ -5134,7 +5134,7 @@
       ],
       "name": "GCP Custom Role with Overly Permissive Permissions",
       "kind": "groupBy",
-      "field": "lastEvent.log.protoPayloadMethodName",
+      "field": "lastEvent.event.protoPayloadMethodName",
       "lastEventAlias": true
     },
     {
@@ -5189,7 +5189,7 @@
       ],
       "name": "GCP DLP Re-Identification API Call",
       "kind": "groupBy",
-      "field": "lastEvent.log.protoPayloadMethodName",
+      "field": "lastEvent.event.protoPayloadMethodName",
       "lastEventAlias": true
     },
     {
@@ -5211,7 +5211,7 @@
       ],
       "name": "GCP Domain-Wide API Access Granted",
       "kind": "groupBy",
-      "field": "lastEvent.log.protoPayloadResourceName",
+      "field": "lastEvent.event.protoPayloadResourceName",
       "lastEventAlias": true
     },
     {
@@ -5288,7 +5288,7 @@
       ],
       "name": "GCP KMS Key Destruction or Disabling",
       "kind": "groupBy",
-      "field": "lastEvent.log.protoPayloadResourceName",
+      "field": "lastEvent.event.protoPayloadResourceName",
       "lastEventAlias": true
     },
     {
@@ -5321,7 +5321,7 @@
       ],
       "name": "GKE Kubernetes Admission Webhook Modified",
       "kind": "groupBy",
-      "field": "lastEvent.log.protoPayloadResourceName",
+      "field": "lastEvent.event.protoPayloadResourceName",
       "lastEventAlias": true
     },
     {
@@ -5343,7 +5343,7 @@
       ],
       "name": "GCP Network Packet Capture Configuration",
       "kind": "groupBy",
-      "field": "lastEvent.log.protoPayloadResourceName",
+      "field": "lastEvent.event.protoPayloadResourceName",
       "lastEventAlias": true
     },
     {
@@ -5398,7 +5398,7 @@
       ],
       "name": "GCP Project Manipulation and Shadow Projects",
       "kind": "groupBy",
-      "field": "lastEvent.log.protoPayloadMethodName",
+      "field": "lastEvent.event.protoPayloadMethodName",
       "lastEventAlias": true
     },
     {
@@ -5420,7 +5420,7 @@
       ],
       "name": "GCP Secret Manager Bulk Access Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.protoPayloadMethodName",
+      "field": "lastEvent.event.protoPayloadMethodName",
       "lastEventAlias": true
     },
     {
@@ -5442,7 +5442,7 @@
       ],
       "name": "GCP Service Account Impersonation Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.protoPayloadMethodName",
+      "field": "lastEvent.event.protoPayloadMethodName",
       "lastEventAlias": true
     },
     {
@@ -5464,7 +5464,7 @@
       ],
       "name": "GCP Cloud Storage Data Exfiltration",
       "kind": "groupBy",
-      "field": "lastEvent.log.protoPayloadResourceName",
+      "field": "lastEvent.event.protoPayloadResourceName",
       "lastEventAlias": true
     },
     {
@@ -5574,7 +5574,7 @@
       ],
       "name": "GCP Workload Identity Federation Abuse",
       "kind": "groupBy",
-      "field": "lastEvent.log.protoPayloadMethodName",
+      "field": "lastEvent.event.protoPayloadMethodName",
       "lastEventAlias": true
     },
     {
@@ -5607,7 +5607,7 @@
       ],
       "name": "Google Workspace MFA Enforcement Disabled",
       "kind": "groupBy",
-      "field": "lastEvent.log.protoPayloadMethodName",
+      "field": "lastEvent.event.protoPayloadMethodName",
       "lastEventAlias": true
     },
     {
@@ -5629,7 +5629,7 @@
       ],
       "name": "Google Cloud Service Account Key Creation Spike",
       "kind": "groupBy",
-      "field": "lastEvent.log.protoPayloadMethodName",
+      "field": "lastEvent.event.protoPayloadMethodName",
       "lastEventAlias": true
     },
     {
@@ -5640,7 +5640,7 @@
       ],
       "name": "Critical Role Modification (Privilege Escalation)",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventUserId",
+      "field": "lastEvent.event.eventUserId",
       "lastEventAlias": true
     },
     {
@@ -5651,7 +5651,7 @@
       ],
       "name": "Critical Role Modification (Privilege Escalation)",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventOperationName",
+      "field": "lastEvent.event.eventOperationName",
       "lastEventAlias": true
     },
     {
@@ -5662,7 +5662,7 @@
       ],
       "name": "Custom Indicator of Compromise (IoC) Detected",
       "kind": "groupBy",
-      "field": "lastEvent.log.metadataEventType",
+      "field": "lastEvent.event.metadataEventType",
       "lastEventAlias": true
     },
     {
@@ -5673,7 +5673,7 @@
       ],
       "name": "Deletion or Deactivation of User Account",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventUserId",
+      "field": "lastEvent.event.eventUserId",
       "lastEventAlias": true
     },
     {
@@ -5684,7 +5684,7 @@
       ],
       "name": "Deletion or Deactivation of User Account",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventOperationName",
+      "field": "lastEvent.event.eventOperationName",
       "lastEventAlias": true
     },
     {
@@ -5695,7 +5695,7 @@
       ],
       "name": "Endpoint Network Containment Action",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventUserId",
+      "field": "lastEvent.event.eventUserId",
       "lastEventAlias": true
     },
     {
@@ -5706,7 +5706,7 @@
       ],
       "name": "Endpoint Network Containment Action",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventOperationName",
+      "field": "lastEvent.event.eventOperationName",
       "lastEventAlias": true
     },
     {
@@ -5717,7 +5717,7 @@
       ],
       "name": "Endpoint or XDR Detection Alert",
       "kind": "groupBy",
-      "field": "lastEvent.log.metadataEventType",
+      "field": "lastEvent.event.metadataEventType",
       "lastEventAlias": true
     },
     {
@@ -5750,7 +5750,7 @@
       ],
       "name": "IP Whitelisting Modification",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventUserId",
+      "field": "lastEvent.event.eventUserId",
       "lastEventAlias": true
     },
     {
@@ -5761,7 +5761,7 @@
       ],
       "name": "IP Whitelisting Modification",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventOperationName",
+      "field": "lastEvent.event.eventOperationName",
       "lastEventAlias": true
     },
     {
@@ -5772,7 +5772,7 @@
       ],
       "name": "Major Incident Generated (CrowdScore)",
       "kind": "groupBy",
-      "field": "lastEvent.log.metadataEventType",
+      "field": "lastEvent.event.metadataEventType",
       "lastEventAlias": true
     },
     {
@@ -5816,7 +5816,7 @@
       ],
       "name": "Real-Time Response (RTR) Session Execution",
       "kind": "groupBy",
-      "field": "lastEvent.log.metadataEventType",
+      "field": "lastEvent.event.metadataEventType",
       "lastEventAlias": true
     },
     {
@@ -5827,7 +5827,7 @@
       ],
       "name": "Real-Time Response (RTR) Session Execution",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventUserId",
+      "field": "lastEvent.event.eventUserId",
       "lastEventAlias": true
     },
     {
@@ -5849,7 +5849,7 @@
       ],
       "name": "Security Defenses Impaired or Policy Disabled",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventPatternDispositionDescription",
+      "field": "lastEvent.event.eventPatternDispositionDescription",
       "lastEventAlias": true
     },
     {
@@ -5860,7 +5860,7 @@
       ],
       "name": "Security Policy Disabled or Deleted",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventUserId",
+      "field": "lastEvent.event.eventUserId",
       "lastEventAlias": true
     },
     {
@@ -5871,7 +5871,7 @@
       ],
       "name": "Security Policy Disabled or Deleted",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventOperationName",
+      "field": "lastEvent.event.eventOperationName",
       "lastEventAlias": true
     },
     {
@@ -5893,7 +5893,7 @@
       ],
       "name": "Suspicious Downloader Execution (Linux/macOS)",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventCommandLine",
+      "field": "lastEvent.event.eventCommandLine",
       "lastEventAlias": true
     },
     {
@@ -5915,7 +5915,7 @@
       ],
       "name": "Suspicious Encoded PowerShell Execution",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventCommandLine",
+      "field": "lastEvent.event.eventCommandLine",
       "lastEventAlias": true
     },
     {
@@ -5937,7 +5937,7 @@
       ],
       "name": "Suspicious Native Downloaders (LoLBin)",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventCommandLine",
+      "field": "lastEvent.event.eventCommandLine",
       "lastEventAlias": true
     },
     {
@@ -6014,7 +6014,7 @@
       ],
       "name": "Data Loss Prevention Trigger",
       "kind": "groupBy",
-      "field": "lastEvent.log.dlp_profile",
+      "field": "lastEvent.event.dlp_profile",
       "lastEventAlias": true
     },
     {
@@ -6102,7 +6102,7 @@
       ],
       "name": "FortiSandbox Malicious File Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.filehash",
+      "field": "lastEvent.event.filehash",
       "lastEventAlias": true
     },
     {
@@ -6300,7 +6300,7 @@
       ],
       "name": "GitHub Action Secret Access Activity",
       "kind": "groupBy",
-      "field": "lastEvent.log.action",
+      "field": "lastEvent.event.action",
       "lastEventAlias": true
     },
     {
@@ -6311,7 +6311,7 @@
       ],
       "name": "GitHub Action Secret Access Activity",
       "kind": "groupBy",
-      "field": "lastEvent.log.repositoryName",
+      "field": "lastEvent.event.repositoryName",
       "lastEventAlias": true
     },
     {
@@ -6322,7 +6322,7 @@
       ],
       "name": "GitHub Action Secret Access Activity",
       "kind": "groupBy",
-      "field": "lastEvent.log.senderLogin",
+      "field": "lastEvent.event.senderLogin",
       "lastEventAlias": true
     },
     {
@@ -6333,7 +6333,7 @@
       ],
       "name": "GitHub CODEOWNERS File Modification",
       "kind": "groupBy",
-      "field": "lastEvent.log.repositoryName",
+      "field": "lastEvent.event.repositoryName",
       "lastEventAlias": true
     },
     {
@@ -6344,7 +6344,7 @@
       ],
       "name": "GitHub CODEOWNERS File Modification",
       "kind": "groupBy",
-      "field": "lastEvent.log.senderLogin",
+      "field": "lastEvent.event.senderLogin",
       "lastEventAlias": true
     },
     {
@@ -6355,7 +6355,7 @@
       ],
       "name": "GitHub Dependabot Configuration Poisoning",
       "kind": "groupBy",
-      "field": "lastEvent.log.repositoryName",
+      "field": "lastEvent.event.repositoryName",
       "lastEventAlias": true
     },
     {
@@ -6366,7 +6366,7 @@
       ],
       "name": "GitHub Dependabot Configuration Poisoning",
       "kind": "groupBy",
-      "field": "lastEvent.log.senderLogin",
+      "field": "lastEvent.event.senderLogin",
       "lastEventAlias": true
     },
     {
@@ -6377,7 +6377,7 @@
       ],
       "name": "GitHub Environment Protection Rule Bypass",
       "kind": "groupBy",
-      "field": "lastEvent.log.repositoryName",
+      "field": "lastEvent.event.repositoryName",
       "lastEventAlias": true
     },
     {
@@ -6388,7 +6388,7 @@
       ],
       "name": "GitHub Environment Protection Rule Bypass",
       "kind": "groupBy",
-      "field": "lastEvent.log.senderLogin",
+      "field": "lastEvent.event.senderLogin",
       "lastEventAlias": true
     },
     {
@@ -6399,7 +6399,7 @@
       ],
       "name": "GitHub App Installation Token Suspicious Access",
       "kind": "groupBy",
-      "field": "lastEvent.log.action",
+      "field": "lastEvent.event.action",
       "lastEventAlias": true
     },
     {
@@ -6410,7 +6410,7 @@
       ],
       "name": "GitHub App Installation Token Suspicious Access",
       "kind": "groupBy",
-      "field": "lastEvent.log.senderLogin",
+      "field": "lastEvent.event.senderLogin",
       "lastEventAlias": true
     },
     {
@@ -6421,7 +6421,7 @@
       ],
       "name": "GitHub Mass Repository Cloning Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.senderLogin",
+      "field": "lastEvent.event.senderLogin",
       "lastEventAlias": true
     },
     {
@@ -6432,7 +6432,7 @@
       ],
       "name": "GitHub Organization Member to Owner Role Escalation",
       "kind": "groupBy",
-      "field": "lastEvent.log.senderLogin",
+      "field": "lastEvent.event.senderLogin",
       "lastEventAlias": true
     },
     {
@@ -6443,7 +6443,7 @@
       ],
       "name": "GitHub Organization Member to Owner Role Escalation",
       "kind": "groupBy",
-      "field": "lastEvent.log.user",
+      "field": "lastEvent.event.user",
       "lastEventAlias": true
     },
     {
@@ -6454,7 +6454,7 @@
       ],
       "name": "GitHub Repository Visibility Changed to Public",
       "kind": "groupBy",
-      "field": "lastEvent.log.repositoryName",
+      "field": "lastEvent.event.repositoryName",
       "lastEventAlias": true
     },
     {
@@ -6465,7 +6465,7 @@
       ],
       "name": "GitHub Repository Visibility Changed to Public",
       "kind": "groupBy",
-      "field": "lastEvent.log.senderLogin",
+      "field": "lastEvent.event.senderLogin",
       "lastEventAlias": true
     },
     {
@@ -6476,7 +6476,7 @@
       ],
       "name": "GitHub Secret Scanning Alert Detected",
       "kind": "groupBy",
-      "field": "lastEvent.log.alert_number",
+      "field": "lastEvent.event.alert_number",
       "lastEventAlias": true
     },
     {
@@ -6487,7 +6487,7 @@
       ],
       "name": "GitHub Secret Scanning Alert Detected",
       "kind": "groupBy",
-      "field": "lastEvent.log.repositoryName",
+      "field": "lastEvent.event.repositoryName",
       "lastEventAlias": true
     },
     {
@@ -6498,7 +6498,7 @@
       ],
       "name": "GitHub Self-Hosted Runner Compromise Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.action",
+      "field": "lastEvent.event.action",
       "lastEventAlias": true
     },
     {
@@ -6509,7 +6509,7 @@
       ],
       "name": "GitHub Self-Hosted Runner Compromise Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.senderLogin",
+      "field": "lastEvent.event.senderLogin",
       "lastEventAlias": true
     },
     {
@@ -6520,7 +6520,7 @@
       ],
       "name": "GitHub Sensitive Data Commit Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.headCommitId",
+      "field": "lastEvent.event.headCommitId",
       "lastEventAlias": true
     },
     {
@@ -6531,7 +6531,7 @@
       ],
       "name": "GitHub Sensitive Data Commit Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.repositoryName",
+      "field": "lastEvent.event.repositoryName",
       "lastEventAlias": true
     },
     {
@@ -6542,7 +6542,7 @@
       ],
       "name": "GitHub Workflow pull_request_target Injection",
       "kind": "groupBy",
-      "field": "lastEvent.log.repositoryName",
+      "field": "lastEvent.event.repositoryName",
       "lastEventAlias": true
     },
     {
@@ -6553,7 +6553,7 @@
       ],
       "name": "GitHub Workflow pull_request_target Injection",
       "kind": "groupBy",
-      "field": "lastEvent.log.senderLogin",
+      "field": "lastEvent.event.senderLogin",
       "lastEventAlias": true
     },
     {
@@ -6564,7 +6564,7 @@
       ],
       "name": "GitHub Workflow Modifications Detected",
       "kind": "groupBy",
-      "field": "lastEvent.log.repositoryName",
+      "field": "lastEvent.event.repositoryName",
       "lastEventAlias": true
     },
     {
@@ -6575,7 +6575,7 @@
       ],
       "name": "GitHub Workflow Modifications Detected",
       "kind": "groupBy",
-      "field": "lastEvent.log.senderLogin",
+      "field": "lastEvent.event.senderLogin",
       "lastEventAlias": true
     },
     {
@@ -6696,7 +6696,7 @@
       ],
       "name": "IBM AIX Security Audit Subsystem Alert",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventType",
+      "field": "lastEvent.event.eventType",
       "lastEventAlias": true
     },
     {
@@ -6718,7 +6718,7 @@
       ],
       "name": "IBM AIX System Integrity Violation Detected",
       "kind": "groupBy",
-      "field": "lastEvent.log.objName",
+      "field": "lastEvent.event.objName",
       "lastEventAlias": true
     },
     {
@@ -6740,7 +6740,7 @@
       ],
       "name": "IBM AIX Trusted Computing Base Violation",
       "kind": "groupBy",
-      "field": "lastEvent.log.objName",
+      "field": "lastEvent.event.objName",
       "lastEventAlias": true
     },
     {
@@ -7037,7 +7037,7 @@
       ],
       "name": "JSONP Vulnerability Exploitation Detected",
       "kind": "groupBy",
-      "field": "lastEvent.log.url_path",
+      "field": "lastEvent.event.url_path",
       "lastEventAlias": true
     },
     {
@@ -7840,7 +7840,7 @@
       ],
       "name": "Critical SELinux Policy Violation",
       "kind": "groupBy",
-      "field": "lastEvent.log.scontext",
+      "field": "lastEvent.event.scontext",
       "lastEventAlias": true
     },
     {
@@ -7851,7 +7851,7 @@
       ],
       "name": "Critical SELinux Policy Violation",
       "kind": "groupBy",
-      "field": "lastEvent.log.tcontext",
+      "field": "lastEvent.event.tcontext",
       "lastEventAlias": true
     },
     {
@@ -7884,7 +7884,7 @@
       ],
       "name": "YUM/DNF Repository Manipulation Attack",
       "kind": "groupBy",
-      "field": "lastEvent.log.comm",
+      "field": "lastEvent.event.comm",
       "lastEventAlias": true
     },
     {
@@ -8049,7 +8049,7 @@
       ],
       "name": "Dynamic Library Hijacking Detected",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventMessage",
+      "field": "lastEvent.event.eventMessage",
       "lastEventAlias": true
     },
     {
@@ -8071,7 +8071,7 @@
       ],
       "name": "Endpoint Security Framework Bypass Attempt",
       "kind": "groupBy",
-      "field": "lastEvent.log.process",
+      "field": "lastEvent.event.process",
       "lastEventAlias": true
     },
     {
@@ -8313,7 +8313,7 @@
       ],
       "name": "Launch Agent/Daemon Persistence Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventMessage",
+      "field": "lastEvent.event.eventMessage",
       "lastEventAlias": true
     },
     {
@@ -8335,7 +8335,7 @@
       ],
       "name": "Login Items Persistence Modification",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventMessage",
+      "field": "lastEvent.event.eventMessage",
       "lastEventAlias": true
     },
     {
@@ -8731,7 +8731,7 @@
       ],
       "name": "XProtect Evasion or Tampering Detected",
       "kind": "groupBy",
-      "field": "lastEvent.log.process",
+      "field": "lastEvent.event.process",
       "lastEventAlias": true
     },
     {
@@ -9160,7 +9160,7 @@
       ],
       "name": "Base64-Encoded User Agent String Detected",
       "kind": "groupBy",
-      "field": "lastEvent.log.http.http_user_agent",
+      "field": "lastEvent.event.http.http_user_agent",
       "lastEventAlias": true
     },
     {
@@ -9182,7 +9182,7 @@
       ],
       "name": "Cobalt Strike DNS Beacon Pattern Detected",
       "kind": "groupBy",
-      "field": "lastEvent.log.dns.query",
+      "field": "lastEvent.event.dns.query",
       "lastEventAlias": true
     },
     {
@@ -9325,7 +9325,7 @@
       ],
       "name": "Cryptocurrency Mining Pool DNS Lookup Detected",
       "kind": "groupBy",
-      "field": "lastEvent.log.dns.query",
+      "field": "lastEvent.event.dns.query",
       "lastEventAlias": true
     },
     {
@@ -9347,7 +9347,7 @@
       ],
       "name": "DNS Query to Out-of-Band Interaction Domain",
       "kind": "groupBy",
-      "field": "lastEvent.log.dns.query",
+      "field": "lastEvent.event.dns.query",
       "lastEventAlias": true
     },
     {
@@ -9391,7 +9391,7 @@
       ],
       "name": "DNS TXT Record Contains Execution Strings",
       "kind": "groupBy",
-      "field": "lastEvent.log.dns.query",
+      "field": "lastEvent.event.dns.query",
       "lastEventAlias": true
     },
     {
@@ -9413,7 +9413,7 @@
       ],
       "name": "Exploit Attempt Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.alert.signature",
+      "field": "lastEvent.event.alert.signature",
       "lastEventAlias": true
     },
     {
@@ -9446,7 +9446,7 @@
       ],
       "name": "Exploit Framework User Agent Detected in HTTP Traffic",
       "kind": "groupBy",
-      "field": "lastEvent.log.http.http_user_agent",
+      "field": "lastEvent.event.http.http_user_agent",
       "lastEventAlias": true
     },
     {
@@ -9490,7 +9490,7 @@
       ],
       "name": "Hack Tool User Agent Detected in HTTP Traffic",
       "kind": "deduplicateBy",
-      "field": "lastEvent.log.http.http_user_agent",
+      "field": "lastEvent.event.http.http_user_agent",
       "lastEventAlias": true
     },
     {
@@ -9523,7 +9523,7 @@
       ],
       "name": "IPFS-Based Credential Harvesting Page Access",
       "kind": "groupBy",
-      "field": "lastEvent.log.http.hostname",
+      "field": "lastEvent.event.http.hostname",
       "lastEventAlias": true
     },
     {
@@ -9611,7 +9611,7 @@
       ],
       "name": "Known Malware User Agent String Detected",
       "kind": "groupBy",
-      "field": "lastEvent.log.http.http_user_agent",
+      "field": "lastEvent.event.http.http_user_agent",
       "lastEventAlias": true
     },
     {
@@ -9677,7 +9677,7 @@
       ],
       "name": "Malicious File Download Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.alert.signature",
+      "field": "lastEvent.event.alert.signature",
       "lastEventAlias": true
     },
     {
@@ -9754,7 +9754,7 @@
       ],
       "name": "NKN Blockchain C2 Communication Detected",
       "kind": "groupBy",
-      "field": "lastEvent.log.dns.query",
+      "field": "lastEvent.event.dns.query",
       "lastEventAlias": true
     },
     {
@@ -9842,7 +9842,7 @@
       ],
       "name": "Threat Intelligence IOC Match",
       "kind": "groupBy",
-      "field": "lastEvent.log.threat_type",
+      "field": "lastEvent.event.threat_type",
       "lastEventAlias": true
     },
     {
@@ -9864,7 +9864,7 @@
       ],
       "name": "Tor Proxy/Gateway DNS Lookup Detected",
       "kind": "groupBy",
-      "field": "lastEvent.log.dns.query",
+      "field": "lastEvent.event.dns.query",
       "lastEventAlias": true
     },
     {
@@ -9908,7 +9908,7 @@
       ],
       "name": "Office 365 Anti-Phishing Policy Bypass Detected",
       "kind": "groupBy",
-      "field": "lastEvent.log.Operation",
+      "field": "lastEvent.event.Operation",
       "lastEventAlias": true
     },
     {
@@ -9930,7 +9930,7 @@
       ],
       "name": "Office 365 App Consent Grants Detected",
       "kind": "groupBy",
-      "field": "lastEvent.log.appAccessContextClientAppId",
+      "field": "lastEvent.event.appAccessContextClientAppId",
       "lastEventAlias": true
     },
     {
@@ -10029,7 +10029,7 @@
       ],
       "name": "Suspicious Compliance Alert Activity",
       "kind": "groupBy",
-      "field": "lastEvent.log.ObjectId",
+      "field": "lastEvent.event.ObjectId",
       "lastEventAlias": true
     },
     {
@@ -10205,7 +10205,7 @@
       ],
       "name": "Data Loss Prevention Policy Violation",
       "kind": "groupBy",
-      "field": "lastEvent.log.PolicyId",
+      "field": "lastEvent.event.PolicyId",
       "lastEventAlias": true
     },
     {
@@ -10216,7 +10216,7 @@
       ],
       "name": "Data Loss Prevention Policy Violation",
       "kind": "groupBy",
-      "field": "lastEvent.log.SensitiveInfoTypeData",
+      "field": "lastEvent.event.SensitiveInfoTypeData",
       "lastEventAlias": true
     },
     {
@@ -10315,7 +10315,7 @@
       ],
       "name": "Suspicious External Sharing Activity",
       "kind": "groupBy",
-      "field": "lastEvent.log.ObjectId",
+      "field": "lastEvent.event.ObjectId",
       "lastEventAlias": true
     },
     {
@@ -10359,7 +10359,7 @@
       ],
       "name": "Information Barriers Policy Violation",
       "kind": "groupBy",
-      "field": "lastEvent.log.TargetUser",
+      "field": "lastEvent.event.TargetUser",
       "lastEventAlias": true
     },
     {
@@ -10447,7 +10447,7 @@
       ],
       "name": "Insider Risk Indicator Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.PolicyName",
+      "field": "lastEvent.event.PolicyName",
       "lastEventAlias": true
     },
     {
@@ -10458,7 +10458,7 @@
       ],
       "name": "Insider Risk Indicator Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.RiskLevel",
+      "field": "lastEvent.event.RiskLevel",
       "lastEventAlias": true
     },
     {
@@ -10480,7 +10480,7 @@
       ],
       "name": "M365 Data Exfiltration to Unsanctioned Application",
       "kind": "groupBy",
-      "field": "lastEvent.log.Parameters",
+      "field": "lastEvent.event.Parameters",
       "lastEventAlias": true
     },
     {
@@ -10513,7 +10513,7 @@
       ],
       "name": "M365 Suspicious OAuth Application File Downloads",
       "kind": "groupBy",
-      "field": "lastEvent.log.Parameters",
+      "field": "lastEvent.event.Parameters",
       "lastEventAlias": true
     },
     {
@@ -10700,7 +10700,7 @@
       ],
       "name": "O365 Admin Role Assignment",
       "kind": "groupBy",
-      "field": "lastEvent.log.ObjectId",
+      "field": "lastEvent.event.ObjectId",
       "lastEventAlias": true
     },
     {
@@ -10744,7 +10744,7 @@
       ],
       "name": "Office 365 OAuth Application Anomalous Activity",
       "kind": "groupBy",
-      "field": "lastEvent.log.appAccessContextClientAppId",
+      "field": "lastEvent.event.appAccessContextClientAppId",
       "lastEventAlias": true
     },
     {
@@ -10898,7 +10898,7 @@
       ],
       "name": "Service Principal Credential Addition",
       "kind": "groupBy",
-      "field": "lastEvent.log.Parameters",
+      "field": "lastEvent.event.Parameters",
       "lastEventAlias": true
     },
     {
@@ -10975,7 +10975,7 @@
       ],
       "name": "Suspicious Teams Message Export Activity",
       "kind": "groupBy",
-      "field": "lastEvent.log.appAccessContextClientAppId",
+      "field": "lastEvent.event.appAccessContextClientAppId",
       "lastEventAlias": true
     },
     {
@@ -11041,7 +11041,7 @@
       ],
       "name": "IOC Match from Threat Intelligence Feed",
       "kind": "groupBy",
-      "field": "lastEvent.log.panOSThreatID",
+      "field": "lastEvent.event.panOSThreatID",
       "lastEventAlias": true
     },
     {
@@ -11118,7 +11118,7 @@
       ],
       "name": "PAN-OS Spyware and Vulnerability Threat Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.pa_threatid",
+      "field": "lastEvent.event.pa_threatid",
       "lastEventAlias": true
     },
     {
@@ -11173,7 +11173,7 @@
       ],
       "name": "WildFire Malware Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.pa_threatid",
+      "field": "lastEvent.event.pa_threatid",
       "lastEventAlias": true
     },
     {
@@ -11228,7 +11228,7 @@
       ],
       "name": "DNS Resolver Cache Poisoning Attempt",
       "kind": "groupBy",
-      "field": "lastEvent.log.query_name",
+      "field": "lastEvent.event.query_name",
       "lastEventAlias": true
     },
     {
@@ -11272,7 +11272,7 @@
       ],
       "name": "pfSense Snort/Suricata IDS Alerts",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventType",
+      "field": "lastEvent.event.eventType",
       "lastEventAlias": true
     },
     {
@@ -11448,7 +11448,7 @@
       ],
       "name": "Sophos Central Behavioral Analysis Alert",
       "kind": "groupBy",
-      "field": "lastEvent.log.processPath",
+      "field": "lastEvent.event.processPath",
       "lastEventAlias": true
     },
     {
@@ -11492,7 +11492,7 @@
       ],
       "name": "Sophos Central Exploit Prevention Triggered",
       "kind": "groupBy",
-      "field": "lastEvent.log.name",
+      "field": "lastEvent.event.name",
       "lastEventAlias": true
     },
     {
@@ -12108,7 +12108,7 @@
       ],
       "name": "CEF File Hash Mismatch Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.fname",
+      "field": "lastEvent.event.fname",
       "lastEventAlias": true
     },
     {
@@ -12130,7 +12130,7 @@
       ],
       "name": "CEF Source Impersonation Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.deviceVendor",
+      "field": "lastEvent.event.deviceVendor",
       "lastEventAlias": true
     },
     {
@@ -12152,7 +12152,7 @@
       ],
       "name": "CEF User Agent Anomaly Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.requestClientApplication",
+      "field": "lastEvent.event.requestClientApplication",
       "lastEventAlias": true
     },
     {
@@ -12317,7 +12317,7 @@
       ],
       "name": "Virtual Machine Escape Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.process",
+      "field": "lastEvent.event.process",
       "lastEventAlias": true
     },
     {
@@ -12350,7 +12350,7 @@
       ],
       "name": "vSphere API Abuse Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventInfo",
+      "field": "lastEvent.event.eventInfo",
       "lastEventAlias": true
     },
     {
@@ -12394,7 +12394,7 @@
       ],
       "name": "AdminSDHolder Abuse Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventDataObjectName",
+      "field": "lastEvent.event.eventDataObjectName",
       "lastEventAlias": true
     },
     {
@@ -12405,7 +12405,7 @@
       ],
       "name": "AdminSDHolder Abuse Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventDataSubjectUserName",
+      "field": "lastEvent.event.eventDataSubjectUserName",
       "lastEventAlias": true
     },
     {
@@ -12537,7 +12537,7 @@
       ],
       "name": "Certificate Services Abuse Detection",
       "kind": "groupBy",
-      "field": "lastEvent.log.eventDataSubjectUserName",
+      "field": "lastEvent.event.eventDataSubjectUserName",
       "lastEventAlias": true
     },
     {

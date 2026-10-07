@@ -24,10 +24,10 @@ description: |
   6. Check for persistence mechanisms (scheduled tasks, registry keys, services)
   7. Review network connections from the affected host for C2 communications
   8. Consider reimaging the system if critical processes were compromised
-where: "equals(\"log.format\",\"cef\") && ((regexMatch(\"log.msg\", \"(?i).*(inject|injection|CreateRemoteThread|SetWindowsHookEx|WriteProcessMemory).*\"\
-  ) ||\n (contains(\"log.cs4\", [\"inject\", \"hooking\", \"trojan\", \"backdoor\"]) && \n  contains(\"action\", [\"terminate\", \"\
-  delete\", \"quarantine\"]))) &&\ncontains(\"log.msg\", [\"lsass\", \"csrss\", \"winlogon\", \"services\", \"svchost\", \"explorer\"\
+where: "equals(\"event.format\",\"cef\") && ((regexMatch(\"event.msg\", \"(?i).*(inject|injection|CreateRemoteThread|SetWindowsHookEx|WriteProcessMemory).*\"\
+  ) ||\n (contains(\"event.cs4\", [\"inject\", \"hooking\", \"trojan\", \"backdoor\"]) && \n  contains(\"action\", [\"terminate\", \"\
+  delete\", \"quarantine\"]))) &&\ncontains(\"event.msg\", [\"lsass\", \"csrss\", \"winlogon\", \"services\", \"svchost\", \"explorer\"\
   ]))\n"
 deduplicateBy:
 - adversary.host
-- lastEvent.log.cs4
+- lastEvent.event.cs4

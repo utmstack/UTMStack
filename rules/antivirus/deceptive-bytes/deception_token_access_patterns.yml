@@ -27,21 +27,21 @@ description: |
   8. Document the incident and update detection rules based on observed attack patterns
   9. Verify the integrity of the deception infrastructure to ensure it wasn't compromised
 where: |
-  equals("log.eventType", "token_access") &&
-  equals("log.deceptionType", "honeytoken") &&
+  equals("event.eventType", "token_access") &&
+  equals("event.deceptionType", "honeytoken") &&
   exists("origin.ip") &&
-  oneOf("log.severity", ["high", "critical"])
+  oneOf("event.severity", ["high", "critical"])
 afterEvents:
   - indexPattern: v11-log-deceptive-bytes-*
     with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'
-      - field: log.eventType
+      - field: event.eventType
         operator: filter_term
         value: 'token_access'
     within: 1h
     count: 3
 groupBy:
-  - lastEvent.log.tokenId
+  - lastEvent.event.tokenId
   - adversary.ip

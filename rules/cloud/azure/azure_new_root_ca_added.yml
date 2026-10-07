@@ -17,14 +17,14 @@ description: 'A successful certificate authority entity or certificate-based aut
   approved PKI administration and does not by itself identify a rogue root CA.
 
   '
-where: 'equalsIgnoreCase("log.azureKind","audit") && equalsIgnoreCase("actionResult","success") && (equalsIgnoreCase("log.azureOperation","Create
-  CertificateAuthorityEntity") || equalsIgnoreCase("log.azureOperation","Add CertificateBasedAuthConfiguration"))
+where: 'equalsIgnoreCase("event.azureKind","audit") && equalsIgnoreCase("actionResult","success") && (equalsIgnoreCase("event.azureOperation","Create
+  CertificateAuthorityEntity") || equalsIgnoreCase("event.azureOperation","Add CertificateBasedAuthConfiguration"))
 
   '
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.azureScopeType
-- lastEvent.log.azureScope
-- lastEvent.log.azureOperation
+- lastEvent.event.azureScopeType
+- lastEvent.event.azureScope
+- lastEvent.event.azureOperation
 - adversary.user
 - adversary.ip

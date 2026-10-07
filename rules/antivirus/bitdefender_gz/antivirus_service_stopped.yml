@@ -19,10 +19,10 @@ description: 'GravityZone reported an antitampering event. This identifies attem
   before containment.
 
   '
-where: equals("log.BitdefenderGZModule", "antitampering")
+where: equals("event.BitdefenderGZModule", "antitampering")
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.BitdefenderGZCompanyId
-- lastEvent.log.endpointKeyType
-- lastEvent.log.endpointKey
-- lastEvent.log.BitdefenderGZModule
+- lastEvent.event.BitdefenderGZCompanyId
+- lastEvent.event.endpointKeyType
+- lastEvent.event.endpointKey
+- lastEvent.event.BitdefenderGZModule

@@ -24,13 +24,13 @@ description: |
   5. Scan the host for additional malware or compromise indicators
   6. Block the source domain/IP and investigate the delivery mechanism
 where: |
-  equals("log.eventType", "alert") &&
-  (contains("log.alert.signature", ["executable", "EXE download", "PE file", "script download", "malware download"]) ||
-   oneOf("log.alert.category", ["A Network Trojan was detected", "Potentially Bad Traffic", "Misc Attack"]) &&
-   contains("log.alert.signature", ["download", "file"])) &&
+  equals("event.eventType", "alert") &&
+  (contains("event.alert.signature", ["executable", "EXE download", "PE file", "script download", "malware download"]) ||
+   oneOf("event.alert.category", ["A Network Trojan was detected", "Potentially Bad Traffic", "Misc Attack"]) &&
+   contains("event.alert.signature", ["download", "file"])) &&
   exists("origin.ip") &&
   exists("target.ip")
 groupBy:
-  - lastEvent.log.alert.signature
+  - lastEvent.event.alert.signature
   - target.ip
   - target.ip

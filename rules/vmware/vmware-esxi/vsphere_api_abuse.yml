@@ -26,20 +26,20 @@ description: |
   7. Check for any indicators of lateral movement or data exfiltration
   8. Consider temporarily blocking the source IP if malicious activity is confirmed
 where: |
-  (contains("log.message", "authentication of user") &&
-   (contains("log.message", "failed") ||
-    contains("log.message", "denied"))) ||
-  (contains("log.message", "vpxuser") &&
-   (contains("log.message", "shell") ||
-    contains("log.message", "command"))) ||
-  (equals("log.process", "vpxd") &&
+  (contains("event.message", "authentication of user") &&
+   (contains("event.message", "failed") ||
+    contains("event.message", "denied"))) ||
+  (contains("event.message", "vpxuser") &&
+   (contains("event.message", "shell") ||
+    contains("event.message", "command"))) ||
+  (equals("event.process", "vpxd") &&
    (equals("severity", "error") ||
-    contains("log.message", "unauthorized") ||
-    contains("log.message", "permission denied"))) ||
-  (contains("log.message", "API") &&
-   (contains("log.message", "abuse") ||
-    contains("log.message", "flood") ||
-    contains("log.message", "excessive")))
+    contains("event.message", "unauthorized") ||
+    contains("event.message", "permission denied"))) ||
+  (contains("event.message", "API") &&
+   (contains("event.message", "abuse") ||
+    contains("event.message", "flood") ||
+    contains("event.message", "excessive")))
 afterEvents:
   - indexPattern: v11-log-vmware-esxi-*
     with:
@@ -49,5 +49,5 @@ afterEvents:
     within: 5m
     count: 10
 groupBy:
-  - lastEvent.log.eventInfo
+  - lastEvent.event.eventInfo
   - adversary.hostname

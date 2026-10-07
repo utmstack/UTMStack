@@ -36,7 +36,7 @@ func TestAzureActionResultRaw(t *testing.T) {
 		t.Run(c.Name, func(t *testing.T) {
 			got := azureParse(t, config, c.Raw, "synthetic-collector", cache)
 			if value := gjson.Get(got, "actionResult"); value.String() != c.Result {
-				t.Errorf("actionResult = %q, want %q; kind=%q statusCode=%q vendor=%q api=%q kubeKind=%q stage=%q", value.String(), c.Result, gjson.Get(got, "log.azureKind").String(), gjson.Get(got, "statusCode").String(), gjson.Get(got, "log.azureProperties.ScStatus").String(), gjson.Get(got, "log.azureKubernetes.apiVersion").String(), gjson.Get(got, "log.azureKubernetes.kind").String(), gjson.Get(got, "log.azureKubernetes.stage").String())
+				t.Errorf("actionResult = %q, want %q; kind=%q statusCode=%q vendor=%q api=%q kubeKind=%q stage=%q", value.String(), c.Result, gjson.Get(got, "event.azureKind").String(), gjson.Get(got, "statusCode").String(), gjson.Get(got, "event.azureProperties.ScStatus").String(), gjson.Get(got, "event.azureKubernetes.apiVersion").String(), gjson.Get(got, "event.azureKubernetes.kind").String(), gjson.Get(got, "event.azureKubernetes.stage").String())
 			}
 			if c.Rule != "" {
 				key := strings.TrimSuffix(filepath.Base(c.Rule), filepath.Ext(c.Rule))

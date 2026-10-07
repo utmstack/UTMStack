@@ -33,7 +33,7 @@ public class Event {
     private String tenantName;
     private String raw;
 
-    private Map<String, Object> log;
+    private Map<String, Object> event;
 
     private Side target;
     private Side origin;
@@ -48,8 +48,8 @@ public class Event {
     private List<String> errors;
     private Map<String, ComplianceValues> compliance;
 
-    public Map<String, String> getLogxFlatted() {
-        return MapUtil.flattenToStringMap(log, true);
+    public Map<String, String> getEventFlatted() {
+        return MapUtil.flattenToStringMap(event, true);
     }
 
     public String getTimestampFormatted() {

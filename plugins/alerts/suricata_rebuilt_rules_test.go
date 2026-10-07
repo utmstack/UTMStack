@@ -1,7 +1,7 @@
 package main
 
 // The rebuilt DNS tunneling, ICMP tunneling and threat-intelligence rules read
-// fields that Suricata EVE records carry after the filter: log.eventType, the
+// fields that Suricata EVE records carry after the filter: event.eventType, the
 // dns object (version 2 and version 3 layouts), ICMP flow counters and alert
 // metadata. Fabricated EVE records go through the ordered filter model (the JSON
 // step is modeled by fixtureJSON) and the real SDK CEL. deduplicateBy keys are
@@ -71,7 +71,7 @@ func TestSuricataRebuiltRules(t *testing.T) {
 				t.Fatal(err)
 			}
 			fixture := Fixture{Filter: "suricata/suricata.yml", Input: map[string]any{
-				"raw": tc.Raw, "dataType": "suricata", "dataSource": "synthetic-suricata", "log": parsed,
+				"raw": tc.Raw, "dataType": "suricata", "dataSource": "synthetic-suricata", "event": parsed,
 			}}
 			event, issues, err := normalize("../..", fixture, cache)
 			if err != nil || len(issues) != 0 {

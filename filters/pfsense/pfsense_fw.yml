@@ -20,15 +20,15 @@ pipeline:
       #......................................................................#
       - grok:
           patterns:
-            - fieldName: log.priority
+            - fieldName: event.priority
               pattern: '\<{{.integer}}\>'
-            - fieldName: log.syslogVersion
+            - fieldName: event.syslogVersion
               pattern: '{{.integer}}'
-            - fieldName: log.deviceTime
+            - fieldName: event.deviceTime
               pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}(?:T|{{.space}}){{.time}}{{.iso8601Timezone}}'
-            - fieldName: log.syslogHost
+            - fieldName: event.syslogHost
               pattern: '{{.hostname}}'
-            - fieldName: log.msgAll
+            - fieldName: event.msgAll
               pattern: '{{.greedy}}'
           source: raw
           where: regexMatch("raw", "\\d{4}-\\d{2}-\\d{2}")
@@ -38,13 +38,13 @@ pipeline:
       #......................................................................#
       - grok:
           patterns:
-            - fieldName: log.priority
+            - fieldName: event.priority
               pattern: '\<{{.integer}}\>'
-            - fieldName: log.deviceTime
+            - fieldName: event.deviceTime
               pattern: '{{.monthName}}{{.space}}{{.monthDay}}{{.space}}{{.time}}{{.space}}'
-            - fieldName: log.syslogHost
+            - fieldName: event.syslogHost
               pattern: '{{.hostname}}{{.space}}'
-            - fieldName: log.msgAll
+            - fieldName: event.msgAll
               pattern: '{{.greedy}}'
           source: raw
           where: regexMatch("raw", "<\\d+>[A-Z][a-z]{2}\\s+\\d{1,2}\\s+\\d{2}:\\d{2}:\\d{2}\\s+\\S+\\s+\\S+[\\[:]")
@@ -54,11 +54,11 @@ pipeline:
       #......................................................................#
       - grok:
           patterns:
-            - fieldName: log.priority
+            - fieldName: event.priority
               pattern: '\<{{.integer}}\>'
-            - fieldName: log.deviceTime
+            - fieldName: event.deviceTime
               pattern: '{{.monthName}}{{.space}}{{.monthDay}}{{.space}}{{.time}}{{.space}}'
-            - fieldName: log.msgAll
+            - fieldName: event.msgAll
               pattern: '{{.greedy}}'
           source: raw
           where: regexMatch("raw", "<\\d+>[A-Z][a-z]{2}\\s+\\d{1,2}\\s+\\d{2}:\\d{2}:\\d{2}\\s+[^\\s\\[:]+[\\[:]")
@@ -70,38 +70,38 @@ pipeline:
           function: prefix
           substring: "<"
           fields:
-            - log.priority
+            - event.priority
       - trim:
           function: suffix
           substring: ">"
           fields:
-            - log.priority
+            - event.priority
 
       #......................................................................#
       # Checking that the msgAll field exists
       #......................................................................#
       - grok:
           patterns:
-            - fieldName: log.eventType
+            - fieldName: event.eventType
               pattern: '{{.word}}'
-            - fieldName: log.pid
+            - fieldName: event.pid
               pattern: '(\[)?({{.integer}}?)(\])?\s*(- -|:)'
-            - fieldName: log.csvMsg
+            - fieldName: event.csvMsg
               pattern: '{{.greedy}}'
-          source: log.msgAll
+          source: event.msgAll
 
       # webConfigurator sign-in lines come from php-fpm; the step above does not
       # read a program name with a hyphen, so these lines get their own step
       - grok:
           patterns:
-            - fieldName: log.eventType
+            - fieldName: event.eventType
               pattern: 'php-fpm'
-            - fieldName: log.pid
+            - fieldName: event.pid
               pattern: '(\[)?({{.integer}}?)(\])?\s*(- -|:)'
-            - fieldName: log.csvMsg
+            - fieldName: event.csvMsg
               pattern: '{{.greedy}}'
-          source: log.msgAll
-          where: '!exists("log.eventType") && regexMatch("log.msgAll", "^php-fpm(\\[\\d+\\]:| \\d+ - -) \\S+: (Successful login|webConfigurator authentication error) for user ")'
+          source: event.msgAll
+          where: '!exists("event.eventType") && regexMatch("event.msgAll", "^php-fpm(\\[\\d+\\]:| \\d+ - -) \\S+: (Successful login|webConfigurator authentication error) for user ")'
 
       #......................................................................#
       # Removing unnecessary characters
@@ -110,288 +110,288 @@ pipeline:
           function: prefix
           substring: "["
           fields:
-            - log.pid
+            - event.pid
       - trim:
           function: suffix
           substring: "]:"
           fields:
-            - log.pid
+            - event.pid
       - trim:
           function: suffix
           substring: " - -"
           fields:
-            - log.pid
+            - event.pid
 
       # ..........................................................................#
       # Remove issues fileds
       # ..........................................................................#
       - delete:
           fields:
-            - log.msgAll
+            - event.msgAll
       
       #......................................................................#
       # Using csv to parse the message
       #......................................................................#      
       - csv:
-          source: log.csvMsg
+          source: event.csvMsg
           separator: ","
           headers:
-            - log.ruleNumber
-            - log.subRuleNumber
-            - log.anchor
-            - log.tracker
-            - log.realInterface
-            - log.reason
-            - log.action
-            - log.direction
-            - log.ipVersion
-            - log.ipv4Tos
-            - log.ipv4Ecn
-            - log.ipv4Ttl
-            - log.ipv4Id
-            - log.ipv4Offset
-            - log.ipv4Flags
-            - log.ipv4ProtocolId
-            - log.proto
-            - log.ipLength
-            - log.srcIp
-            - log.dstIp
-            - log.srcPort
-            - log.dstPort
-            - log.dataLength
-            - log.tcpFlags
-            - log.sequenceNumber
-            - log.ackNumber
-            - log.tcpWindow
-            - log.urg
-            - log.tcpOptions
-          where: regexMatch("log.csvMsg", "^(?:[^,]*,){8}4,(?:[^,]*,){7}(?i:tcp),(?:[^,]*,){11}")
+            - event.ruleNumber
+            - event.subRuleNumber
+            - event.anchor
+            - event.tracker
+            - event.realInterface
+            - event.reason
+            - event.action
+            - event.direction
+            - event.ipVersion
+            - event.ipv4Tos
+            - event.ipv4Ecn
+            - event.ipv4Ttl
+            - event.ipv4Id
+            - event.ipv4Offset
+            - event.ipv4Flags
+            - event.ipv4ProtocolId
+            - event.proto
+            - event.ipLength
+            - event.srcIp
+            - event.dstIp
+            - event.srcPort
+            - event.dstPort
+            - event.dataLength
+            - event.tcpFlags
+            - event.sequenceNumber
+            - event.ackNumber
+            - event.tcpWindow
+            - event.urg
+            - event.tcpOptions
+          where: regexMatch("event.csvMsg", "^(?:[^,]*,){8}4,(?:[^,]*,){7}(?i:tcp),(?:[^,]*,){11}")
 
       # .......................................................................#
       - csv:
-          source: log.csvMsg
+          source: event.csvMsg
           separator: ","
           headers:
-            - log.ruleNumber
-            - log.subRuleNumber
-            - log.anchor
-            - log.tracker
-            - log.realInterface
-            - log.reason
-            - log.action
-            - log.direction
-            - log.ipVersion
-            - log.ipv4Tos
-            - log.ipv4Ecn
-            - log.ipv4Ttl
-            - log.ipv4Id
-            - log.ipv4Offset
-            - log.ipv4Flags
-            - log.ipv4ProtocolId
-            - log.proto
-            - log.ipLength
-            - log.srcIp
-            - log.dstIp
-            - log.srcPort
-            - log.dstPort
-            - log.dataLength
-          where: regexMatch("log.csvMsg", "^(?:[^,]*,){8}4,(?:[^,]*,){7}(?i:udp),(?:[^,]*,){5}")
+            - event.ruleNumber
+            - event.subRuleNumber
+            - event.anchor
+            - event.tracker
+            - event.realInterface
+            - event.reason
+            - event.action
+            - event.direction
+            - event.ipVersion
+            - event.ipv4Tos
+            - event.ipv4Ecn
+            - event.ipv4Ttl
+            - event.ipv4Id
+            - event.ipv4Offset
+            - event.ipv4Flags
+            - event.ipv4ProtocolId
+            - event.proto
+            - event.ipLength
+            - event.srcIp
+            - event.dstIp
+            - event.srcPort
+            - event.dstPort
+            - event.dataLength
+          where: regexMatch("event.csvMsg", "^(?:[^,]*,){8}4,(?:[^,]*,){7}(?i:udp),(?:[^,]*,){5}")
 
       #......................................................................#
       - csv:
-          source: log.csvMsg
+          source: event.csvMsg
           separator: ","
           headers:
-            - log.ruleNumber
-            - log.subRuleNumber
-            - log.anchor
-            - log.tracker
-            - log.realInterface
-            - log.reason
-            - log.action
-            - log.direction
-            - log.ipVersion
-            - log.ipv4Tos
-            - log.ipv4Ecn
-            - log.ipv4Ttl
-            - log.ipv4Id
-            - log.ipv4Offset
-            - log.ipv4Flags
-            - log.ipv4ProtocolId
-            - log.proto
-            - log.ipLength
-            - log.srcIp
-            - log.dstIp
-            - log.icmpType
-            - log.icmpData1
-          where: regexMatch("log.csvMsg", "^(?:[^,]*,){8}4,(?:[^,]*,){7}(?i:icmp),(?:[^,]*,){4}")
+            - event.ruleNumber
+            - event.subRuleNumber
+            - event.anchor
+            - event.tracker
+            - event.realInterface
+            - event.reason
+            - event.action
+            - event.direction
+            - event.ipVersion
+            - event.ipv4Tos
+            - event.ipv4Ecn
+            - event.ipv4Ttl
+            - event.ipv4Id
+            - event.ipv4Offset
+            - event.ipv4Flags
+            - event.ipv4ProtocolId
+            - event.proto
+            - event.ipLength
+            - event.srcIp
+            - event.dstIp
+            - event.icmpType
+            - event.icmpData1
+          where: regexMatch("event.csvMsg", "^(?:[^,]*,){8}4,(?:[^,]*,){7}(?i:icmp),(?:[^,]*,){4}")
 
       #......................................................................#
       - csv:
-          source: log.csvMsg
+          source: event.csvMsg
           separator: ","
           headers:
-            - log.ruleNumber
-            - log.subRuleNumber
-            - log.anchor
-            - log.tracker
-            - log.realInterface
-            - log.reason
-            - log.action
-            - log.direction
-            - log.ipVersion
-            - log.ipv6Class
-            - log.ipv6FlowLabel
-            - log.ipv6HopLimit
-            - log.proto
-            - log.ipv6ProtocolId
-            - log.ipLength
-            - log.srcIp
-            - log.dstIp
-            - log.srcPort
-            - log.dstPort
-            - log.dataLength
-            - log.tcpFlags
-            - log.sequenceNumber
-            - log.ackNumber
-            - log.tcpWindow
-            - log.urg
-            - log.tcpOptions
-          where: regexMatch("log.csvMsg", "^(?:[^,]*,){8}6,(?:[^,]*,){3}(?i:tcp),(?:[^,]*,){12}")
+            - event.ruleNumber
+            - event.subRuleNumber
+            - event.anchor
+            - event.tracker
+            - event.realInterface
+            - event.reason
+            - event.action
+            - event.direction
+            - event.ipVersion
+            - event.ipv6Class
+            - event.ipv6FlowLabel
+            - event.ipv6HopLimit
+            - event.proto
+            - event.ipv6ProtocolId
+            - event.ipLength
+            - event.srcIp
+            - event.dstIp
+            - event.srcPort
+            - event.dstPort
+            - event.dataLength
+            - event.tcpFlags
+            - event.sequenceNumber
+            - event.ackNumber
+            - event.tcpWindow
+            - event.urg
+            - event.tcpOptions
+          where: regexMatch("event.csvMsg", "^(?:[^,]*,){8}6,(?:[^,]*,){3}(?i:tcp),(?:[^,]*,){12}")
       
       #......................................................................#
       - csv:
-          source: log.csvMsg
+          source: event.csvMsg
           separator: ","
           headers:
-            - log.ruleNumber
-            - log.subRuleNumber
-            - log.anchor
-            - log.tracker
-            - log.realInterface
-            - log.reason
-            - log.action
-            - log.direction
-            - log.ipVersion
-            - log.ipv6Class
-            - log.ipv6FlowLabel
-            - log.ipv6HopLimit
-            - log.proto
-            - log.ipv6ProtocolId
-            - log.ipLength
-            - log.srcIp
-            - log.dstIp
-            - log.srcPort
-            - log.dstPort
-            - log.dataLength
-          where: regexMatch("log.csvMsg", "^(?:[^,]*,){8}6,(?:[^,]*,){3}(?i:udp),(?:[^,]*,){6}")
+            - event.ruleNumber
+            - event.subRuleNumber
+            - event.anchor
+            - event.tracker
+            - event.realInterface
+            - event.reason
+            - event.action
+            - event.direction
+            - event.ipVersion
+            - event.ipv6Class
+            - event.ipv6FlowLabel
+            - event.ipv6HopLimit
+            - event.proto
+            - event.ipv6ProtocolId
+            - event.ipLength
+            - event.srcIp
+            - event.dstIp
+            - event.srcPort
+            - event.dstPort
+            - event.dataLength
+          where: regexMatch("event.csvMsg", "^(?:[^,]*,){8}6,(?:[^,]*,){3}(?i:udp),(?:[^,]*,){6}")
 
       #......................................................................#
       - csv:
-          source: log.csvMsg
+          source: event.csvMsg
           separator: ","
           headers:
-            - log.ruleNumber
-            - log.subRuleNumber
-            - log.anchor
-            - log.tracker
-            - log.realInterface
-            - log.reason
-            - log.action
-            - log.direction
-            - log.ipVersion
-            - log.ipv6Class
-            - log.ipv6FlowLabel
-            - log.ipv6HopLimit
-            - log.proto
-            - log.ipv6ProtocolId
-            - log.ipLength
-            - log.srcIp
-            - log.dstIp
-            - log.icmpType
-          where: regexMatch("log.csvMsg", "^(?:[^,]*,){8}6,(?:[^,]*,){3}(?i:icmp6|icmpv6|ipv6-icmp|icmp),(?:[^,]*,){4}")
+            - event.ruleNumber
+            - event.subRuleNumber
+            - event.anchor
+            - event.tracker
+            - event.realInterface
+            - event.reason
+            - event.action
+            - event.direction
+            - event.ipVersion
+            - event.ipv6Class
+            - event.ipv6FlowLabel
+            - event.ipv6HopLimit
+            - event.proto
+            - event.ipv6ProtocolId
+            - event.ipLength
+            - event.srcIp
+            - event.dstIp
+            - event.icmpType
+          where: regexMatch("event.csvMsg", "^(?:[^,]*,){8}6,(?:[^,]*,){3}(?i:icmp6|icmpv6|ipv6-icmp|icmp),(?:[^,]*,){4}")
 
       # The CSV step fails when a line has fewer columns than headers, so each
       # step above also requires its column count. For any other protocol, or a
       # shorter line, read the common columns and the addresses.
       - csv:
-          source: log.csvMsg
+          source: event.csvMsg
           separator: ","
           headers:
-            - log.ruleNumber
-            - log.subRuleNumber
-            - log.anchor
-            - log.tracker
-            - log.realInterface
-            - log.reason
-            - log.action
-            - log.direction
-            - log.ipVersion
-            - log.ipv4Tos
-            - log.ipv4Ecn
-            - log.ipv4Ttl
-            - log.ipv4Id
-            - log.ipv4Offset
-            - log.ipv4Flags
-            - log.ipv4ProtocolId
-            - log.proto
-            - log.ipLength
-            - log.srcIp
-            - log.dstIp
-          where: 'regexMatch("log.csvMsg", "^(?:[^,]*,){8}4,(?:[^,]*,){10}") && !exists("log.action")'
+            - event.ruleNumber
+            - event.subRuleNumber
+            - event.anchor
+            - event.tracker
+            - event.realInterface
+            - event.reason
+            - event.action
+            - event.direction
+            - event.ipVersion
+            - event.ipv4Tos
+            - event.ipv4Ecn
+            - event.ipv4Ttl
+            - event.ipv4Id
+            - event.ipv4Offset
+            - event.ipv4Flags
+            - event.ipv4ProtocolId
+            - event.proto
+            - event.ipLength
+            - event.srcIp
+            - event.dstIp
+          where: 'regexMatch("event.csvMsg", "^(?:[^,]*,){8}4,(?:[^,]*,){10}") && !exists("event.action")'
       - csv:
-          source: log.csvMsg
+          source: event.csvMsg
           separator: ","
           headers:
-            - log.ruleNumber
-            - log.subRuleNumber
-            - log.anchor
-            - log.tracker
-            - log.realInterface
-            - log.reason
-            - log.action
-            - log.direction
-            - log.ipVersion
-            - log.ipv6Class
-            - log.ipv6FlowLabel
-            - log.ipv6HopLimit
-            - log.proto
-            - log.ipv6ProtocolId
-            - log.ipLength
-            - log.srcIp
-            - log.dstIp
-          where: 'regexMatch("log.csvMsg", "^(?:[^,]*,){8}6,(?:[^,]*,){7}") && !exists("log.action")'
+            - event.ruleNumber
+            - event.subRuleNumber
+            - event.anchor
+            - event.tracker
+            - event.realInterface
+            - event.reason
+            - event.action
+            - event.direction
+            - event.ipVersion
+            - event.ipv6Class
+            - event.ipv6FlowLabel
+            - event.ipv6HopLimit
+            - event.proto
+            - event.ipv6ProtocolId
+            - event.ipLength
+            - event.srcIp
+            - event.dstIp
+          where: 'regexMatch("event.csvMsg", "^(?:[^,]*,){8}6,(?:[^,]*,){7}") && !exists("event.action")'
       # ................................................#
       # Rename fields
       # ................................................#
       - rename:
           from:
-            - log.action
+            - event.action
           to: action
 
       - rename:
           from:
-            - log.proto
+            - event.proto
           to: protocol
 
       - rename:
           from:
-            - log.srcIp
+            - event.srcIp
           to: origin.ip
 
       - rename:
           from:
-            - log.dstIp
+            - event.dstIp
           to: target.ip
 
       - rename:
           from:
-            - log.srcPort
+            - event.srcPort
           to: origin.port
 
       - rename:
           from:
-            - log.dstPort
+            - event.dstPort
           to: target.port
 
       # ................................................#
@@ -404,7 +404,7 @@ pipeline:
           patterns:
             - fieldName: ''
               pattern: '[^\s:]+:'
-            - fieldName: log.authEvent
+            - fieldName: event.authEvent
               pattern: '(?:webConfigurator authentication error|Successful login)'
             - fieldName: ''
               pattern: 'for user'
@@ -414,15 +414,15 @@ pipeline:
               pattern: 'from:'
             - fieldName: origin.ip
               pattern: '(?:{{.ipv4}}|{{.ipv6}})(?:\s|$)'
-          source: log.csvMsg
-          where: 'equals("log.eventType", "php-fpm") && regexMatch("log.csvMsg", "^\\S+: (webConfigurator authentication error|Successful login) for user ''")'
+          source: event.csvMsg
+          where: 'equals("event.eventType", "php-fpm") && regexMatch("event.csvMsg", "^\\S+: (webConfigurator authentication error|Successful login) for user ''")'
       # sshd: "Failed password for [invalid user ]root from 192.0.2.10 port 2276 ssh2"
       # and "Accepted publickey for admin from 192.0.2.10 port 50000 ssh2"
       - grok:
           patterns:
-            - fieldName: log.authEvent
+            - fieldName: event.authEvent
               pattern: '(?:Failed|Accepted)'
-            - fieldName: log.authMethod
+            - fieldName: event.authMethod
               pattern: '\S+'
             - fieldName: ''
               pattern: 'for(?: invalid user)?'
@@ -436,13 +436,13 @@ pipeline:
               pattern: 'port'
             - fieldName: origin.port
               pattern: '{{.integer}}(?:\s|$)'
-          source: log.csvMsg
-          where: 'equals("log.eventType", "sshd") && regexMatch("log.csvMsg", "^(Failed|Accepted) \\S+ for (invalid user )?\\S+ from \\S+ port \\d+")'
+          source: event.csvMsg
+          where: 'equals("event.eventType", "sshd") && regexMatch("event.csvMsg", "^(Failed|Accepted) \\S+ for (invalid user )?\\S+ from \\S+ port \\d+")'
       # sshguard block: 'Blocking "192.0.2.10/32" for 120 secs (3 attacks in 0 secs, ...)'.
       # "Attack from" lines are detections without an outcome and get no address.
       - grok:
           patterns:
-            - fieldName: log.sshguardAction
+            - fieldName: event.sshguardAction
               pattern: 'Blocking'
             - fieldName: ''
               pattern: '"'
@@ -450,8 +450,8 @@ pipeline:
               pattern: '(?:{{.ipv4}}|{{.ipv6}})'
             - fieldName: ''
               pattern: '(?:/\d+)?"'
-          source: log.csvMsg
-          where: 'equals("log.eventType", "sshguard") && regexMatch("log.csvMsg", "^Blocking \"[0-9A-Fa-f.:]+(/\\d+)?\" for ")'
+          source: event.csvMsg
+          where: 'equals("event.eventType", "sshguard") && regexMatch("event.csvMsg", "^Blocking \"[0-9A-Fa-f.:]+(/\\d+)?\" for ")'
       # OpenVPN user authentication (the line names no address):
       # "user 'bob' authenticated" and "user 'bob' could not authenticate."
       - grok:
@@ -460,10 +460,10 @@ pipeline:
               pattern: 'user'
             - fieldName: origin.user
               pattern: '''[^'']*'''
-            - fieldName: log.authEvent
+            - fieldName: event.authEvent
               pattern: '(?:authenticated|could not authenticate)'
-          source: log.csvMsg
-          where: 'equals("log.eventType", "openvpn") && regexMatch("log.csvMsg", "^user ''[^'']*'' (authenticated|could not authenticate)")'
+          source: event.csvMsg
+          where: 'equals("event.eventType", "openvpn") && regexMatch("event.csvMsg", "^user ''[^'']*'' (authenticated|could not authenticate)")'
       - trim:
           function: prefix
           substring: "'"
@@ -492,13 +492,13 @@ pipeline:
           params:
             key: actionResult
             value: success
-          where: 'oneOf("log.eventType", ["php-fpm", "sshd", "openvpn"]) && exists("log.authEvent") && oneOf("log.authEvent", ["Successful login", "Accepted", "authenticated"])'
+          where: 'oneOf("event.eventType", ["php-fpm", "sshd", "openvpn"]) && exists("event.authEvent") && oneOf("event.authEvent", ["Successful login", "Accepted", "authenticated"])'
       - add:
           function: string
           params:
             key: actionResult
             value: failed
-          where: 'oneOf("log.eventType", ["php-fpm", "sshd", "openvpn"]) && exists("log.authEvent") && oneOf("log.authEvent", ["webConfigurator authentication error", "Failed", "could not authenticate"])'
+          where: 'oneOf("event.eventType", ["php-fpm", "sshd", "openvpn"]) && exists("event.authEvent") && oneOf("event.authEvent", ["webConfigurator authentication error", "Failed", "could not authenticate"])'
       - add:
           function: string
           params:
@@ -510,7 +510,7 @@ pipeline:
           params:
             key: actionResult
             value: denied
-          where: 'equals("log.eventType", "sshguard") && equals("log.sshguardAction", "Blocking")'
+          where: 'equals("event.eventType", "sshguard") && equals("event.sshguardAction", "Blocking")'
 
       # ................................................#
       # Fileds conversions
@@ -542,4 +542,4 @@ pipeline:
       # ..........................................................................#
       - delete:
           fields:
-            - log.csvMsg
+            - event.csvMsg

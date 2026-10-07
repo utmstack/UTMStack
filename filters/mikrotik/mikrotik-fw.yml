@@ -21,241 +21,241 @@ pipeline:
       # Header with a timestamp: <pri>Mon DD HH:MM:SS [host ]topics message
       - grok:
           patterns:
-            - fieldName: log.priority
+            - fieldName: event.priority
               pattern: '\<{{.data}}\>'
-            - fieldName: log.deviceTime
+            - fieldName: event.deviceTime
               pattern: '{{.monthName}}{{.space}}{{.monthDay}}{{.space}}{{.time}}'
-            - fieldName: log.restData
+            - fieldName: event.restData
               pattern: '{{.greedy}}'
       # Header without a timestamp: <pri>topics message
       - grok:
           patterns:
-            - fieldName: log.priority
+            - fieldName: event.priority
               pattern: '^<[0-9]{1,3}>'
-            - fieldName: log.restData
+            - fieldName: event.restData
               pattern: '{{.greedy}}'
-          where: '!exists("log.restData") && regexMatch("raw", "^<[0-9]{1,3}>[a-z]+(,[a-z]+)+\\s")'
+          where: '!exists("event.restData") && regexMatch("raw", "^<[0-9]{1,3}>[a-z]+(,[a-z]+)+\\s")'
       # A host name before the topics; a host name has no comma, topics do
       - grok:
-          source: log.restData
+          source: event.restData
           patterns:
-            - fieldName: log.deviceHost
+            - fieldName: event.deviceHost
               pattern: '^[^\s,]+'
-            - fieldName: log.restData
+            - fieldName: event.restData
               pattern: '(?s:.+)'
-          where: regexMatch("log.restData", "^[^\\s,]+\\s+[a-z]+(,[a-z]+)+\\s")
+          where: regexMatch("event.restData", "^[^\\s,]+\\s+[a-z]+(,[a-z]+)+\\s")
       # Topics (for example firewall,info or system,error,critical), then the message
       - grok:
-          source: log.restData
+          source: event.restData
           patterns:
-            - fieldName: log.topics
+            - fieldName: event.topics
               pattern: '^[a-z]+(?:,[a-z]+)*'
-            - fieldName: log.message
+            - fieldName: event.message
               pattern: '(?s:.+)'
-          where: regexMatch("log.restData", "^[a-z]+(,[a-z]+)*\\s")
+          where: regexMatch("event.restData", "^[a-z]+(,[a-z]+)*\\s")
 
       # Firewall log action: [prefix ]chain: in:IF out:IF, [src-mac MAC, ]
       # proto P[ (flags)], SRC[:PORT]->DST[:PORT], [NAT ...,] len N
       - grok:
-          source: log.message
+          source: event.message
           patterns:
-            - fieldName: log.chainHeader
+            - fieldName: event.chainHeader
               pattern: '^.*?: in:'
-          where: contains("log.topics", "firewall")
+          where: contains("event.topics", "firewall")
       - trim:
           function: suffix
           substring: ': in:'
           fields:
-            - log.chainHeader
+            - event.chainHeader
       - grok:
-          source: log.chainHeader
+          source: event.chainHeader
           patterns:
-            - fieldName: log.logPrefix
+            - fieldName: event.logPrefix
               pattern: '^.*\s'
-            - fieldName: log.chain
+            - fieldName: event.chain
               pattern: '^\S+$'
-          where: contains("log.chainHeader", " ")
+          where: contains("event.chainHeader", " ")
       - grok:
-          source: log.chainHeader
+          source: event.chainHeader
           patterns:
-            - fieldName: log.chain
+            - fieldName: event.chain
               pattern: '^\S+$'
-          where: exists("log.chainHeader") && !contains("log.chainHeader", " ")
+          where: exists("event.chainHeader") && !contains("event.chainHeader", " ")
       # A log prefix written as key:value (for example action:drop) becomes fields
       - kv:
-          source: log.logPrefix
+          source: event.logPrefix
           fieldSplit: " "
           valueSplit: ":"
-          where: exists("log.logPrefix") && contains("log.logPrefix", ":")
+          where: exists("event.logPrefix") && contains("event.logPrefix", ":")
       - grok:
-          source: log.message
+          source: event.message
           patterns:
             - fieldName: ''
               pattern: '^.*?: in:'
-            - fieldName: log.inInterface
+            - fieldName: event.inInterface
               pattern: '^(?:\([^)]*\)|[^\s,]+)'
             - fieldName: ''
               pattern: '^out:'
-            - fieldName: log.outInterface
+            - fieldName: event.outInterface
               pattern: '^(?:\([^)]*\)|[^\s,]+)'
-          where: contains("log.topics", "firewall") && exists("log.chain")
+          where: contains("event.topics", "firewall") && exists("event.chain")
       - grok:
-          source: log.message
+          source: event.message
           patterns:
             - fieldName: ''
               pattern: '^.*?\bsrc-mac\s+'
-            - fieldName: log.srcMac
+            - fieldName: event.srcMac
               pattern: '^(?:{{.commonMacAddr}})'
-          where: contains("log.topics", "firewall") && contains("log.message", "src-mac ")
+          where: contains("event.topics", "firewall") && contains("event.message", "src-mac ")
       - grok:
-          source: log.message
+          source: event.message
           patterns:
             - fieldName: ''
               pattern: '^.*?\bproto\s+'
-            - fieldName: log.proto
+            - fieldName: event.proto
               pattern: '^[A-Za-z0-9-]+'
-          where: contains("log.topics", "firewall") && contains("log.message", "proto ")
+          where: contains("event.topics", "firewall") && contains("event.message", "proto ")
       # Addresses with ports, for example 192.168.1.2:8080->10.5.5.1:3000
       - grok:
-          source: log.message
+          source: event.message
           patterns:
             - fieldName: ''
               pattern: '^.*?\bproto\s+[A-Za-z0-9-]+(?:\s*\([^)]*\))?,'
-            - fieldName: log.srcIp
+            - fieldName: event.srcIp
               pattern: '^{{.ipv4}}'
-            - fieldName: log.srcPort
+            - fieldName: event.srcPort
               pattern: '^:[0-9]+'
             - fieldName: ''
               pattern: '^->'
-            - fieldName: log.dstIp
+            - fieldName: event.dstIp
               pattern: '^{{.ipv4}}'
-            - fieldName: log.dstPort
+            - fieldName: event.dstPort
               pattern: '^:[0-9]+'
-          where: contains("log.topics", "firewall") && regexMatch("log.message", "[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+:[0-9]+->[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+:[0-9]+")
+          where: contains("event.topics", "firewall") && regexMatch("event.message", "[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+:[0-9]+->[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+:[0-9]+")
       # Addresses without ports, for example ICMP: 192.168.1.2->10.5.5.1
       - grok:
-          source: log.message
+          source: event.message
           patterns:
             - fieldName: ''
               pattern: '^.*?\bproto\s+[A-Za-z0-9-]+(?:\s*\([^)]*\))?,'
-            - fieldName: log.srcIp
+            - fieldName: event.srcIp
               pattern: '^{{.ipv4}}'
             - fieldName: ''
               pattern: '^->'
-            - fieldName: log.dstIp
+            - fieldName: event.dstIp
               pattern: '^{{.ipv4}}'
-          where: contains("log.topics", "firewall") && !exists("log.srcIp") && regexMatch("log.message", "[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+->[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+")
+          where: contains("event.topics", "firewall") && !exists("event.srcIp") && regexMatch("event.message", "[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+->[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+")
       - grok:
-          source: log.message
+          source: event.message
           patterns:
             - fieldName: ''
               pattern: '^.*,\s*len\s+'
-            - fieldName: log.len
+            - fieldName: event.len
               pattern: '^[0-9]+'
-          where: contains("log.topics", "firewall") && contains("log.message", " len ")
+          where: contains("event.topics", "firewall") && contains("event.message", " len ")
 
       # A /system logging rule prefix between the topics and a login message
       # ("system,error,critical mk_R1: login failure for user ...") is split off,
       # so the login steps below read the message itself
       - grok:
-          source: log.message
+          source: event.message
           patterns:
-            - fieldName: log.loggingPrefix
+            - fieldName: event.loggingPrefix
               pattern: '^[^\s:]+'
             - fieldName: ''
               pattern: '^:'
-            - fieldName: log.message
+            - fieldName: event.message
               pattern: '(?s:.+)'
-          where: 'contains("log.topics", "system") && regexMatch("log.message", "^[^\\s:]+: (login failure for user |user \\S.*\\slogged in from )")'
+          where: 'contains("event.topics", "system") && regexMatch("event.message", "^[^\\s:]+: (login failure for user |user \\S.*\\slogged in from )")'
 
       # Documented failed login: "login failure for user root from 10.0.0.1 via telnet".
       # The address and service are read after the last " from ", so an empty user
       # name ("for user  from") or one with spaces keeps them; the user is read apart.
       - grok:
-          source: log.message
+          source: event.message
           patterns:
             - fieldName: ''
               pattern: '^login failure for user.*\sfrom'
-            - fieldName: log.loginSource
+            - fieldName: event.loginSource
               pattern: '^\S+'
             - fieldName: ''
               pattern: '^via'
-            - fieldName: log.service
+            - fieldName: event.service
               pattern: '^\S+'
-          where: contains("log.topics", "system") && startsWith("log.message", "login failure for user ")
+          where: contains("event.topics", "system") && startsWith("event.message", "login failure for user ")
       - grok:
-          source: log.message
+          source: event.message
           patterns:
             - fieldName: ''
               pattern: '^login failure for user'
-            - fieldName: log.loginUser
+            - fieldName: event.loginUser
               pattern: '^.*\S\s+from\s'
-          where: contains("log.topics", "system") && regexMatch("log.message", "^login failure for user \\S.*\\sfrom\\s")
+          where: contains("event.topics", "system") && regexMatch("event.message", "^login failure for user \\S.*\\sfrom\\s")
       # Documented successful login: "user admin logged in from 10.1.101.212 via winbox"
       - grok:
-          source: log.message
+          source: event.message
           patterns:
             - fieldName: ''
               pattern: '^user\s.*\slogged in from'
-            - fieldName: log.loginSource
+            - fieldName: event.loginSource
               pattern: '^\S+'
             - fieldName: ''
               pattern: '^via'
-            - fieldName: log.service
+            - fieldName: event.service
               pattern: '^\S+'
-          where: contains("log.topics", "account") && regexMatch("log.message", "^user \\S.*\\slogged in from \\S+ via \\S+$")
+          where: contains("event.topics", "account") && regexMatch("event.message", "^user \\S.*\\slogged in from \\S+ via \\S+$")
       - grok:
-          source: log.message
+          source: event.message
           patterns:
             - fieldName: ''
               pattern: '^user'
-            - fieldName: log.loginUser
+            - fieldName: event.loginUser
               pattern: '^.*\S\s+logged in from\s'
-          where: contains("log.topics", "account") && regexMatch("log.message", "^user \\S.*\\slogged in from \\S+ via \\S+$")
+          where: contains("event.topics", "account") && regexMatch("event.message", "^user \\S.*\\slogged in from \\S+ via \\S+$")
       - trim:
           function: suffix
           substring: ' from'
           fields:
-            - log.loginUser
+            - event.loginUser
       - trim:
           function: suffix
           substring: ' logged in'
           fields:
-            - log.loginUser
+            - event.loginUser
       - rename:
           from:
-            - log.loginUser
+            - event.loginUser
           to: origin.user
       - rename:
           from:
-            - log.loginSource
+            - event.loginSource
           to: origin.ip
-          where: (inCIDR("log.loginSource", "0.0.0.0/0") || inCIDR("log.loginSource", "::/0")) && !inCIDR("log.loginSource", "0.0.0.0/32") && !inCIDR("log.loginSource", "::/128")
+          where: (inCIDR("event.loginSource", "0.0.0.0/0") || inCIDR("event.loginSource", "::/0")) && !inCIDR("event.loginSource", "0.0.0.0/32") && !inCIDR("event.loginSource", "::/128")
 
       # Rename filds
       - rename:
           from:
-            - log.srcIp
+            - event.srcIp
           to: origin.ip
       - rename:
           from:
-            - log.dstIp
+            - event.dstIp
           to: target.ip
       - rename:
           from:
-            - log.srcMac
+            - event.srcMac
           to: origin.mac
       - rename:
           from:
-            - log.srcPort
+            - event.srcPort
           to: origin.port
       - rename:
           from:
-            - log.dstPort
+            - event.dstPort
           to: target.port
       - rename:
           from:
-            - log.proto
+            - event.proto
           to: protocol
 
       # Removing unused caracters
@@ -263,7 +263,7 @@ pipeline:
           function: prefix
           substring: '<'
           fields:
-            - log.priority
+            - event.priority
       - trim:
           function: prefix
           substring: ':'
@@ -274,20 +274,20 @@ pipeline:
           function: prefix
           substring: ','
           fields:
-            - log.chain
+            - event.chain
             - origin.ip
       - trim:
           function: suffix
           substring: '>'
           fields:
-            - log.priority
+            - event.priority
 
       # Fields conversions
       - cast:
           to: 'int'
           fields:
-            - log.priority
-            - log.len
+            - event.priority
+            - event.len
             - origin.port
             - target.port
 
@@ -319,34 +319,34 @@ pipeline:
           params:
             key: actionResult
             value: success
-          where: 'contains("log.topics", "firewall") && ((exists("log.action") && oneOf("log.action", ["accept", "allow"])) || (exists("log.logPrefix") && regexMatch("log.logPrefix", "(?i)(^|[^a-z])(accept|accepted|allow|allowed|permit|permitted)([^a-z]|$)")))'
+          where: 'contains("event.topics", "firewall") && ((exists("event.action") && oneOf("event.action", ["accept", "allow"])) || (exists("event.logPrefix") && regexMatch("event.logPrefix", "(?i)(^|[^a-z])(accept|accepted|allow|allowed|permit|permitted)([^a-z]|$)")))'
       - add:
           function: string
           params:
             key: actionResult
             value: success
-          where: 'contains("log.topics", "account") && regexMatch("log.message", "^user \\S.*\\slogged in from \\S+ via \\S+$")'
+          where: 'contains("event.topics", "account") && regexMatch("event.message", "^user \\S.*\\slogged in from \\S+ via \\S+$")'
       - add:
           function: string
           params:
             key: actionResult
             value: failed
-          where: 'contains("log.topics", "system") && startsWith("log.message", "login failure for user ")'
+          where: 'contains("event.topics", "system") && startsWith("event.message", "login failure for user ")'
       # A block word wins over an allow word in the same prefix
       - add:
           function: string
           params:
             key: actionResult
             value: denied
-          where: '(exists("log.action") && oneOf("log.action", ["drop", "reject", "tarpit"])) || (contains("log.topics", "firewall") && exists("log.logPrefix") && regexMatch("log.logPrefix", "(?i)(^|[^a-z])(drop|dropped|deny|denied|block|blocked|reject|rejected|tarpit)([^a-z]|$)"))'
+          where: '(exists("event.action") && oneOf("event.action", ["drop", "reject", "tarpit"])) || (contains("event.topics", "firewall") && exists("event.logPrefix") && regexMatch("event.logPrefix", "(?i)(^|[^a-z])(drop|dropped|deny|denied|block|blocked|reject|rejected|tarpit)([^a-z]|$)"))'
 
       # Removing unused fields
       - delete:
           fields:
-            - log.trash
-            - log.trash2
-            - log.trash3
-            - log.trash4
-            - log.trash5
-            - log.restData
-            - log.chainHeader
+            - event.trash
+            - event.trash2
+            - event.trash3
+            - event.trash4
+            - event.trash5
+            - event.restData
+            - event.chainHeader

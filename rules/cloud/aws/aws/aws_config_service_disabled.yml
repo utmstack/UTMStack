@@ -24,13 +24,13 @@ description: |
   6. Review CloudTrail for API calls during the gap in Config monitoring
   7. Verify compliance requirements are being met
 where: |
-  equals("log.awsRecordType","cloudtrail") &&
-  (equals("log.eventSource", "config.amazonaws.com") &&
-  oneOf("log.eventName", ["DeleteDeliveryChannel", "StopConfigurationRecorder", "DeleteConfigurationRecorder"]) &&
+  equals("event.awsRecordType","cloudtrail") &&
+  (equals("event.eventSource", "config.amazonaws.com") &&
+  oneOf("event.eventName", ["DeleteDeliveryChannel", "StopConfigurationRecorder", "DeleteConfigurationRecorder"]) &&
   equals("actionResult","success"))
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
 - adversary.user
-- lastEvent.log.eventName
+- lastEvent.event.eventName

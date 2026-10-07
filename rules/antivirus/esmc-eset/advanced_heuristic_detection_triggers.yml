@@ -29,33 +29,33 @@ description: |
   - Review system logs for any unusual activities before and after detection
   - Update ESET signatures and run a full system scan
 where: |
-  (equals("log.eventType", "Threat_Event") &&
-  (regexMatch("log.threat_name", "(?i)(heuristic|newheur|suspicious behavior)") || regexMatch("log.threat_type", "(?i)(heuristic|newheur|suspicious behavior)") || regexMatch("log.scanner_id", "(?i)(heuristic|newheur|suspicious behavior)")) &&
+  (equals("event.eventType", "Threat_Event") &&
+  (regexMatch("event.threat_name", "(?i)(heuristic|newheur|suspicious behavior)") || regexMatch("event.threat_type", "(?i)(heuristic|newheur|suspicious behavior)") || regexMatch("event.scanner_id", "(?i)(heuristic|newheur|suspicious behavior)")) &&
   regexMatch("action", "(?i)^(cleaned|deleted|quarantined|blocked|denied|prevented)$") &&
-  (!exists("log.action_error") || equals("log.action_error", "")) &&
-  !equals("log.threat_handled", false)) &&
+  (!exists("event.action_error") || equals("event.action_error", "")) &&
+  !equals("event.threat_handled", false)) &&
   exists("dataSource") && !oneOf("dataSource", ["", "unknown", "-"]) &&
-  oneOf("log.endpointKeyType", ["uuid", "host", "ip"]) &&
-  exists("log.endpointKey") && !equals("log.endpointKey", "")
+  oneOf("event.endpointKeyType", ["uuid", "host", "ip"]) &&
+  exists("event.endpointKey") && !equals("event.endpointKey", "")
 afterEvents:
   - indexPattern: v11-log-antivirus-esmc-eset-*
     with:
       - field: dataSource
         operator: filter_term
         value: '{{.dataSource}}'
-      - field: log.endpointKeyType
+      - field: event.endpointKeyType
         operator: filter_term
-        value: '{{.log.endpointKeyType}}'
-      - field: log.endpointKey
+        value: '{{.event.endpointKeyType}}'
+      - field: event.endpointKey
         operator: filter_term
-        value: '{{.log.endpointKey}}'
-      - field: log.correlationCandidate.heuristicRemediation
+        value: '{{.event.endpointKey}}'
+      - field: event.correlationCandidate.heuristicRemediation
         operator: filter_term
         value: 'match'
     within: 30m
     count: 3
 groupBy:
   - lastEvent.dataSource
-  - lastEvent.log.endpointKeyType
-  - lastEvent.log.endpointKey
-  - lastEvent.log.eventType
+  - lastEvent.event.endpointKeyType
+  - lastEvent.event.endpointKey
+  - lastEvent.event.eventType

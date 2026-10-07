@@ -27,10 +27,10 @@ description: |
   7. Analyze network traffic for data exfiltration or command and control communications
   8. Consider forensic imaging of affected virtual machines before remediation
 where: |
-  (regexMatch("log.message", "(?i)(vmx|vmware-vmx)") && regexMatch("log.message", "(?i)(escape|breakout|privilege|escalat|host access|unauthorized)")) ||
-  (regexMatch("log.process", "(?i)vmx") && equals("severity", "error")) ||
-  (regexMatch("log.message", "(?i)vpxuser") && regexMatch("log.message", "(?i)(failed|denied|unauthorized)")) ||
-  (regexMatch("log.message", "(?i)CVE-2024-37085")) ||
-  (regexMatch("log.message", "(?i)VMCI") && regexMatch("log.message", "(?i)(backdoor|socket|unauthorized)"))
+  (regexMatch("event.message", "(?i)(vmx|vmware-vmx)") && regexMatch("event.message", "(?i)(escape|breakout|privilege|escalat|host access|unauthorized)")) ||
+  (regexMatch("event.process", "(?i)vmx") && equals("severity", "error")) ||
+  (regexMatch("event.message", "(?i)vpxuser") && regexMatch("event.message", "(?i)(failed|denied|unauthorized)")) ||
+  (regexMatch("event.message", "(?i)CVE-2024-37085")) ||
+  (regexMatch("event.message", "(?i)VMCI") && regexMatch("event.message", "(?i)(backdoor|socket|unauthorized)"))
 groupBy:
   - adversary.hostname

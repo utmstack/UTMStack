@@ -25,20 +25,20 @@ description: |
   - Consider implementing additional monitoring for the affected resources
 where: |
   (
-    oneOf("log.protoPayloadServiceName", ["anthos.googleapis.com", "anthospolicycontroller.googleapis.com", "anthosservicemesh.googleapis.com"]) ||
-    oneOf("log.resourceType", ["k8s_cluster", "gke_cluster"])
+    oneOf("event.protoPayloadServiceName", ["anthos.googleapis.com", "anthospolicycontroller.googleapis.com", "anthosservicemesh.googleapis.com"]) ||
+    oneOf("event.resourceType", ["k8s_cluster", "gke_cluster"])
   ) && 
   (
-    contains("log.protoPayloadMethodName", "Policy") ||
-    oneOf("log.jsonPayload.type", ["admission.k8s.io/violation", "policy.violation", "security.alert"]) ||
-    oneOf("log.severity", ["ERROR", "WARNING"])
+    contains("event.protoPayloadMethodName", "Policy") ||
+    oneOf("event.jsonPayload.type", ["admission.k8s.io/violation", "policy.violation", "security.alert"]) ||
+    oneOf("event.severity", ["ERROR", "WARNING"])
   ) &&
   (
-    equals("log.protoPayload.response.status", "PERMISSION_DENIED") ||
-    contains("log.protoPayloadStatusMessage", "violation") ||
-    contains("log.protoPayloadStatusMessage", "denied") ||
-    contains("log.jsonPayload.details", "policy")
+    equals("event.protoPayload.response.status", "PERMISSION_DENIED") ||
+    contains("event.protoPayloadStatusMessage", "violation") ||
+    contains("event.protoPayloadStatusMessage", "denied") ||
+    contains("event.jsonPayload.details", "policy")
   )
 groupBy:
-  - lastEvent.log.protoPayloadResourceName
-  - lastEvent.log.resource.labels.project_id
+  - lastEvent.event.protoPayloadResourceName
+  - lastEvent.event.resource.labels.project_id

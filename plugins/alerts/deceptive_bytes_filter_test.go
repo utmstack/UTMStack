@@ -27,12 +27,12 @@ func TestDeceptiveBytesCommandAndKVContract(t *testing.T) {
 	}
 	commandCaptures, commandTrims, deniedResults := 0, 0, 0
 	kvSources := map[string]bool{
-		"log.restMessageToKv": false,
-		"log.restData":        false,
-		"log.pidStatusToKv":   false,
+		"event.restMessageToKv": false,
+		"event.restData":        false,
+		"event.pidStatusToKv":   false,
 	}
 	for _, step := range config.Pipeline[0].Steps {
-		if grok := step.Grok; grok != nil && grok.Source == "log.restMessage" {
+		if grok := step.Grok; grok != nil && grok.Source == "event.restMessage" {
 			for _, pattern := range grok.Patterns {
 				if pattern.FieldName == "command" {
 					t.Fatal("root command is dropped during Event finalization")
@@ -118,14 +118,14 @@ func TestDeceptiveBytesCommandAndKVContract(t *testing.T) {
 }
 
 // Deceptive Bytes parses its dynamic vendor keys through KV, which calls the
-// pinned SDK sanitizer before storing them under log. A rule spelling that the
+// pinned SDK sanitizer before storing them under event. A rule spelling that the
 // sanitizer removes cannot read the value produced by this filter.
 func TestDeceptiveBytesRuleFieldSanitization(t *testing.T) {
 	files, err := filepath.Glob(filepath.Join("..", "..", "rules", "antivirus", "deceptive-bytes", "*.yml"))
 	if err != nil || len(files) != 16 {
 		t.Fatalf("source rules: %d files, error %v", len(files), err)
 	}
-	field := regexp.MustCompile(`(?:lastEvent\.)?log\.([A-Za-z][A-Za-z0-9_]*)`)
+	field := regexp.MustCompile(`(?:lastEvent\.)?event\.([A-Za-z][A-Za-z0-9_]*)`)
 	for _, path := range files {
 		contents, err := os.ReadFile(path)
 		if err != nil {
@@ -135,7 +135,7 @@ func TestDeceptiveBytesRuleFieldSanitization(t *testing.T) {
 			name := match[1]
 			utils.SanitizeField(&name)
 			if name != match[1] {
-				t.Errorf("%s reads %q; the KV producer writes log.%s", path, match[0], name)
+				t.Errorf("%s reads %q; the KV producer writes event.%s", path, match[0], name)
 			}
 		}
 	}
@@ -168,7 +168,7 @@ func TestDeceptiveBytesKVBooleanRuleCompatibility(t *testing.T) {
 		{"numeric one", `1`, false},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			input := `{"dataType":"deceptive-bytes","log":{"` + keys[0] + `":"decoy_interaction","` + keys[1] + `":"critical","` + keys[2] + `":"advanced","` + keys[3] + `":` + tc.value + `}}`
+			input := `{"dataType":"deceptive-bytes","event":{"` + keys[0] + `":"decoy_interaction","` + keys[1] + `":"critical","` + keys[2] + `":"advanced","` + keys[3] + `":` + tc.value + `}}`
 			event := new(plugins.Event)
 			if err := utils.StringToProtoMessage(&input, event); err != nil {
 				t.Fatal(err)
@@ -211,7 +211,7 @@ func TestDeceptiveBytesExistingRulePredicate(t *testing.T) {
 		{"ordinary process event", "ordinary", false},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			input := `{"dataType":"deceptive-bytes","log":{"` + eventTypeField + `":"` + tc.eventType + `","` + processNameField + `":"cmd.exe","` + targetField + `":"decoy"}}`
+			input := `{"dataType":"deceptive-bytes","event":{"` + eventTypeField + `":"` + tc.eventType + `","` + processNameField + `":"cmd.exe","` + targetField + `":"decoy"}}`
 			event := new(plugins.Event)
 			if err := utils.StringToProtoMessage(&input, event); err != nil {
 				t.Fatal(err)
@@ -248,7 +248,7 @@ func TestDeceptiveBytesOutcomeAndSourceAddress(t *testing.T) {
 		if add := step.Add; add != nil && add.Params["key"].GetStringValue() == "actionResult" {
 			outcome = add.Where
 		}
-		if r := step.Rename; r != nil && r.To == "origin.ip" && len(r.From) == 1 && r.From[0] == "log.src" {
+		if r := step.Rename; r != nil && r.To == "origin.ip" && len(r.From) == 1 && r.From[0] == "event.src" {
 			source = r.Where
 		}
 	}
@@ -261,19 +261,19 @@ func TestDeceptiveBytesOutcomeAndSourceAddress(t *testing.T) {
 		name, input          string
 		wantDenied, wantSide bool
 	}{
-		{"cef act blocked", `{` + cef + `,"log":{"act":"blocked","src":"203.0.113.20"}}`, true, true},
-		{"cef act prevented", `{` + cef + `,"log":{"act":"prevented","src":"192.0.2.30"}}`, true, true},
-		{"cef act capitalized", `{` + cef + `,"log":{"act":"Prevented","src":"192.0.2.30"}}`, true, true},
-		{"cef act deny", `{` + cef + `,"log":{"act":"DENY","src":"2001:db8::20"}}`, true, true},
-		{"cef act detected", `{` + cef + `,"log":{"act":"detected","src":"192.0.2.30"}}`, false, true},
-		{"cef act phrase", `{` + cef + `,"log":{"act":"not blocked","src":"192.0.2.30"}}`, false, true},
-		{"cef source without action", `{` + cef + `,"log":{"src":"192.0.2.31"}}`, false, false},
-		{"cef unusable source", `{` + cef + `,"log":{"act":"blocked","src":"0.0.0.0"}}`, true, false},
-		{"cef unspecified v6 source", `{` + cef + `,"log":{"act":"blocked","src":"::"}}`, true, false},
-		{"cef non-address source", `{` + cef + `,"log":{"act":"blocked","src":"dbmgmt.example.com"}}`, true, false},
-		{"key=value action blocked", `{"raw":"<14>1 2026-09-27T12:00:00Z host 2 foo:1 action=blocked","log":{"action":"blocked","src":"192.0.2.33"}}`, true, false},
-		{"key=value action capitalized", `{"raw":"<14>1 2026-09-27T12:00:00Z host 2 foo:1 action=Blocked","log":{"action":"Blocked"}}`, true, false},
-		{"key=value other action", `{"raw":"<14>1 2026-09-27T12:00:00Z host 2 foo:1 action=file_copy","log":{"action":"file_copy"}}`, false, false},
+		{"cef act blocked", `{` + cef + `,"event":{"act":"blocked","src":"203.0.113.20"}}`, true, true},
+		{"cef act prevented", `{` + cef + `,"event":{"act":"prevented","src":"192.0.2.30"}}`, true, true},
+		{"cef act capitalized", `{` + cef + `,"event":{"act":"Prevented","src":"192.0.2.30"}}`, true, true},
+		{"cef act deny", `{` + cef + `,"event":{"act":"DENY","src":"2001:db8::20"}}`, true, true},
+		{"cef act detected", `{` + cef + `,"event":{"act":"detected","src":"192.0.2.30"}}`, false, true},
+		{"cef act phrase", `{` + cef + `,"event":{"act":"not blocked","src":"192.0.2.30"}}`, false, true},
+		{"cef source without action", `{` + cef + `,"event":{"src":"192.0.2.31"}}`, false, false},
+		{"cef unusable source", `{` + cef + `,"event":{"act":"blocked","src":"0.0.0.0"}}`, true, false},
+		{"cef unspecified v6 source", `{` + cef + `,"event":{"act":"blocked","src":"::"}}`, true, false},
+		{"cef non-address source", `{` + cef + `,"event":{"act":"blocked","src":"dbmgmt.example.com"}}`, true, false},
+		{"key=value action blocked", `{"raw":"<14>1 2026-09-27T12:00:00Z host 2 foo:1 action=blocked","event":{"action":"blocked","src":"192.0.2.33"}}`, true, false},
+		{"key=value action capitalized", `{"raw":"<14>1 2026-09-27T12:00:00Z host 2 foo:1 action=Blocked","event":{"action":"Blocked"}}`, true, false},
+		{"key=value other action", `{"raw":"<14>1 2026-09-27T12:00:00Z host 2 foo:1 action=file_copy","event":{"action":"file_copy"}}`, false, false},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			denied, err := cache.Eval(outcome, tc.input)

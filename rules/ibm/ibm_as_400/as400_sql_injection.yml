@@ -24,25 +24,25 @@ description: |
   5. Restrict ODBC/JDBC connection permissions
   6. Block the source IP if confirmed malicious
 where: |
-  exists("log.message") &&
+  exists("event.message") &&
   (
-    (contains("log.message", "SQL") && (
-      regexMatch("log.message", "(?i)UNION\\s+(ALL\\s+)?SELECT") ||
-      contains("log.message", "' OR '1'='1") ||
-      contains("log.message", "'; DROP") ||
-      contains("log.message", "QSYS2.") ||
-      contains("log.message", "SYSCOLUMNS") ||
-      contains("log.message", "SYSTABLES") ||
-      regexMatch("log.message", "(?i)CHAR\\s*\\([0-9]+\\)") ||
-      contains("log.message", "information_schema")
+    (contains("event.message", "SQL") && (
+      regexMatch("event.message", "(?i)UNION\\s+(ALL\\s+)?SELECT") ||
+      contains("event.message", "' OR '1'='1") ||
+      contains("event.message", "'; DROP") ||
+      contains("event.message", "QSYS2.") ||
+      contains("event.message", "SYSCOLUMNS") ||
+      contains("event.message", "SYSTABLES") ||
+      regexMatch("event.message", "(?i)CHAR\\s*\\([0-9]+\\)") ||
+      contains("event.message", "information_schema")
     )) ||
-    (contains("log.message", "ODBC") && contains("log.message", "SQL error")) ||
-    (contains("log.message", "JDBC") && contains("log.message", "syntax error"))
+    (contains("event.message", "ODBC") && contains("event.message", "SQL error")) ||
+    (contains("event.message", "JDBC") && contains("event.message", "syntax error"))
   )
 afterEvents:
   - indexPattern: v11-log-ibm-as400-*
     with:
-      - field: log.message
+      - field: event.message
         operator: filter_match
         value: 'SQL error OR syntax error OR UNION SELECT OR DROP'
     within: 15m

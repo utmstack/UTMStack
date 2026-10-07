@@ -6,23 +6,23 @@
     "match": true,
     "expected": {
       "action": "New-InboxRule",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:Name Value:Administrative rule]]"
+      "event.Parameters": "[map[Name:Name Value:Administrative rule]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -32,23 +32,23 @@
     "match": true,
     "expected": {
       "action": "Set-InboxRule",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:Name Value:Administrative rule]]"
+      "event.Parameters": "[map[Name:Name Value:Administrative rule]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -58,24 +58,24 @@
     "match": false,
     "expected": {
       "action": "UpdateInboxRules",
-      "log.Workload": "Exchange",
-      "log.RecordType": 2,
+      "event.Workload": "Exchange",
+      "event.RecordType": 2,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
       "target.user": "mailbox@example.invalid",
-      "log.ResultStatus": "Succeeded",
+      "event.ResultStatus": "Succeeded",
       "actionResult": "success"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
-      "log.MailboxOwnerUPN",
-      "log.Parameters",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.MailboxOwnerUPN",
+      "event.Parameters",
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -85,23 +85,23 @@
     "match": true,
     "expected": {
       "action": "Enable-InboxRule",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:Name Value:Administrative rule]]"
+      "event.Parameters": "[map[Name:Name Value:Administrative rule]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -111,23 +111,23 @@
     "match": true,
     "expected": {
       "action": "Disable-InboxRule",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:Name Value:Administrative rule]]"
+      "event.Parameters": "[map[Name:Name Value:Administrative rule]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -137,23 +137,23 @@
     "match": true,
     "expected": {
       "action": "Remove-InboxRule",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:Name Value:Administrative rule]]"
+      "event.Parameters": "[map[Name:Name Value:Administrative rule]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -163,23 +163,23 @@
     "match": true,
     "expected": {
       "action": "New-InboxRule",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:ForwardTo Value:delegate@example.invalid]]",
-      "log.o365InboxForwardingChange": "true"
+      "event.Parameters": "[map[Name:ForwardTo Value:delegate@example.invalid]]",
+      "event.o365InboxForwardingChange": "true"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -189,23 +189,23 @@
     "match": true,
     "expected": {
       "action": "New-InboxRule",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:ForwardTo Value:]]",
-      "log.o365InboxForwardingChange": "true"
+      "event.Parameters": "[map[Name:ForwardTo Value:]]",
+      "event.o365InboxForwardingChange": "true"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -215,23 +215,23 @@
     "match": true,
     "expected": {
       "action": "New-InboxRule",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:ForwardAsAttachmentTo Value:delegate@example.invalid]]",
-      "log.o365InboxForwardingChange": "true"
+      "event.Parameters": "[map[Name:ForwardAsAttachmentTo Value:delegate@example.invalid]]",
+      "event.o365InboxForwardingChange": "true"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -241,23 +241,23 @@
     "match": true,
     "expected": {
       "action": "New-InboxRule",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:ForwardAsAttachmentTo Value:]]",
-      "log.o365InboxForwardingChange": "true"
+      "event.Parameters": "[map[Name:ForwardAsAttachmentTo Value:]]",
+      "event.o365InboxForwardingChange": "true"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -267,23 +267,23 @@
     "match": true,
     "expected": {
       "action": "New-InboxRule",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:RedirectTo Value:delegate@example.invalid]]",
-      "log.o365InboxForwardingChange": "true"
+      "event.Parameters": "[map[Name:RedirectTo Value:delegate@example.invalid]]",
+      "event.o365InboxForwardingChange": "true"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -293,23 +293,23 @@
     "match": true,
     "expected": {
       "action": "New-InboxRule",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:RedirectTo Value:]]",
-      "log.o365InboxForwardingChange": "true"
+      "event.Parameters": "[map[Name:RedirectTo Value:]]",
+      "event.o365InboxForwardingChange": "true"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -319,23 +319,23 @@
     "match": true,
     "expected": {
       "action": "Set-InboxRule",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:ForwardTo Value:delegate@example.invalid]]",
-      "log.o365InboxForwardingChange": "true"
+      "event.Parameters": "[map[Name:ForwardTo Value:delegate@example.invalid]]",
+      "event.o365InboxForwardingChange": "true"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -345,23 +345,23 @@
     "match": true,
     "expected": {
       "action": "Set-InboxRule",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:ForwardTo Value:]]",
-      "log.o365InboxForwardingChange": "true"
+      "event.Parameters": "[map[Name:ForwardTo Value:]]",
+      "event.o365InboxForwardingChange": "true"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -371,23 +371,23 @@
     "match": true,
     "expected": {
       "action": "Set-InboxRule",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:ForwardAsAttachmentTo Value:delegate@example.invalid]]",
-      "log.o365InboxForwardingChange": "true"
+      "event.Parameters": "[map[Name:ForwardAsAttachmentTo Value:delegate@example.invalid]]",
+      "event.o365InboxForwardingChange": "true"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -397,23 +397,23 @@
     "match": true,
     "expected": {
       "action": "Set-InboxRule",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:ForwardAsAttachmentTo Value:]]",
-      "log.o365InboxForwardingChange": "true"
+      "event.Parameters": "[map[Name:ForwardAsAttachmentTo Value:]]",
+      "event.o365InboxForwardingChange": "true"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -423,23 +423,23 @@
     "match": true,
     "expected": {
       "action": "Set-InboxRule",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:RedirectTo Value:delegate@example.invalid]]",
-      "log.o365InboxForwardingChange": "true"
+      "event.Parameters": "[map[Name:RedirectTo Value:delegate@example.invalid]]",
+      "event.o365InboxForwardingChange": "true"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -449,23 +449,23 @@
     "match": true,
     "expected": {
       "action": "Set-InboxRule",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:RedirectTo Value:]]",
-      "log.o365InboxForwardingChange": "true"
+      "event.Parameters": "[map[Name:RedirectTo Value:]]",
+      "event.o365InboxForwardingChange": "true"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -475,23 +475,23 @@
     "match": true,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:ForwardingAddress Value:recipient@example.invalid]]",
-      "log.o365MailboxForwardingSet": "true"
+      "event.Parameters": "[map[Name:ForwardingAddress Value:recipient@example.invalid]]",
+      "event.o365MailboxForwardingSet": "true"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -501,23 +501,23 @@
     "match": false,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:ForwardingAddress Value:]]"
+      "event.Parameters": "[map[Name:ForwardingAddress Value:]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365SendOnBehalfChange",
-      "log.o365MailboxForwardingSet"
+      "event.o365InboxForwardingChange",
+      "event.o365SendOnBehalfChange",
+      "event.o365MailboxForwardingSet"
     ]
   },
   {
@@ -527,23 +527,23 @@
     "match": true,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:ForwardingSmtpAddress Value:recipient@example.invalid]]",
-      "log.o365MailboxForwardingSet": "true"
+      "event.Parameters": "[map[Name:ForwardingSmtpAddress Value:recipient@example.invalid]]",
+      "event.o365MailboxForwardingSet": "true"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -553,23 +553,23 @@
     "match": false,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:ForwardingSmtpAddress Value:]]"
+      "event.Parameters": "[map[Name:ForwardingSmtpAddress Value:]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365SendOnBehalfChange",
-      "log.o365MailboxForwardingSet"
+      "event.o365InboxForwardingChange",
+      "event.o365SendOnBehalfChange",
+      "event.o365MailboxForwardingSet"
     ]
   },
   {
@@ -579,23 +579,23 @@
     "match": false,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:DeliverToMailboxAndForward Value:True]]"
+      "event.Parameters": "[map[Name:DeliverToMailboxAndForward Value:True]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365SendOnBehalfChange",
-      "log.o365MailboxForwardingSet"
+      "event.o365InboxForwardingChange",
+      "event.o365SendOnBehalfChange",
+      "event.o365MailboxForwardingSet"
     ]
   },
   {
@@ -605,23 +605,23 @@
     "match": false,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:DeliverToMailboxAndForward Value:False]]"
+      "event.Parameters": "[map[Name:DeliverToMailboxAndForward Value:False]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365SendOnBehalfChange",
-      "log.o365MailboxForwardingSet"
+      "event.o365InboxForwardingChange",
+      "event.o365SendOnBehalfChange",
+      "event.o365MailboxForwardingSet"
     ]
   },
   {
@@ -631,22 +631,22 @@
     "match": true,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.o365MailboxForwardingSet": "true"
+      "event.o365MailboxForwardingSet": "true"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -656,22 +656,22 @@
     "match": true,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.o365MailboxForwardingSet": "true"
+      "event.o365MailboxForwardingSet": "true"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -681,22 +681,22 @@
     "match": false,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365SendOnBehalfChange",
-      "log.o365MailboxForwardingSet"
+      "event.o365InboxForwardingChange",
+      "event.o365SendOnBehalfChange",
+      "event.o365MailboxForwardingSet"
     ]
   },
   {
@@ -706,22 +706,22 @@
     "match": false,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365SendOnBehalfChange",
-      "log.o365MailboxForwardingSet"
+      "event.o365InboxForwardingChange",
+      "event.o365SendOnBehalfChange",
+      "event.o365MailboxForwardingSet"
     ]
   },
   {
@@ -731,23 +731,23 @@
     "match": true,
     "expected": {
       "action": "Add-MailboxPermission",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
+      "event.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -757,23 +757,23 @@
     "match": false,
     "expected": {
       "action": "Remove-MailboxPermission",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
+      "event.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -783,23 +783,23 @@
     "match": true,
     "expected": {
       "action": "Add-RecipientPermission",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
+      "event.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -809,23 +809,23 @@
     "match": false,
     "expected": {
       "action": "Remove-RecipientPermission",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
+      "event.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -835,23 +835,23 @@
     "match": true,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:GrantSendOnBehalfTo Value:delegate@example.invalid]]",
-      "log.o365SendOnBehalfChange": "true"
+      "event.Parameters": "[map[Name:GrantSendOnBehalfTo Value:delegate@example.invalid]]",
+      "event.o365SendOnBehalfChange": "true"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet"
     ]
   },
   {
@@ -861,23 +861,23 @@
     "match": true,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:GrantSendOnBehalfTo Value:]]",
-      "log.o365SendOnBehalfChange": "true"
+      "event.Parameters": "[map[Name:GrantSendOnBehalfTo Value:]]",
+      "event.o365SendOnBehalfChange": "true"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet"
     ]
   },
   {
@@ -887,23 +887,23 @@
     "match": true,
     "expected": {
       "action": "Add-MailboxFolderPermission",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
+      "event.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -913,23 +913,23 @@
     "match": true,
     "expected": {
       "action": "Set-MailboxFolderPermission",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
+      "event.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -939,23 +939,23 @@
     "match": true,
     "expected": {
       "action": "Remove-MailboxFolderPermission",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
+      "event.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -965,28 +965,28 @@
     "match": true,
     "expected": {
       "action": "AddFolderPermissions",
-      "log.Workload": "Exchange",
-      "log.RecordType": 2,
+      "event.Workload": "Exchange",
+      "event.RecordType": 2,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
       "target.user": "mailbox@example.invalid",
-      "log.ResultStatus": "Succeeded",
+      "event.ResultStatus": "Succeeded",
       "actionResult": "success",
-      "log.folderId": "folder-fixture-001",
-      "log.folderPath": "/Calendar"
+      "event.folderId": "folder-fixture-001",
+      "event.folderPath": "/Calendar"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
-      "log.MailboxOwnerUPN",
-      "log.Parameters",
-      "log.Folder.Id",
-      "log.Folder.Path",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.MailboxOwnerUPN",
+      "event.Parameters",
+      "event.Folder.Id",
+      "event.Folder.Path",
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -996,28 +996,28 @@
     "match": false,
     "expected": {
       "action": "AddFolderPermissions",
-      "log.Workload": "Exchange",
-      "log.RecordType": 2,
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "Succeeded",
+      "event.Workload": "Exchange",
+      "event.RecordType": 2,
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "Succeeded",
       "actionResult": "success",
-      "log.folderId": "folder-fixture-001",
-      "log.folderPath": "/Calendar",
+      "event.folderId": "folder-fixture-001",
+      "event.folderPath": "/Calendar",
       "origin.user": "owner@example.invalid",
       "target.user": "owner@example.invalid"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
-      "log.MailboxOwnerUPN",
-      "log.Parameters",
-      "log.Folder.Id",
-      "log.Folder.Path",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.MailboxOwnerUPN",
+      "event.Parameters",
+      "event.Folder.Id",
+      "event.Folder.Path",
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -1027,28 +1027,28 @@
     "match": true,
     "expected": {
       "action": "ModifyFolderPermissions",
-      "log.Workload": "Exchange",
-      "log.RecordType": 2,
+      "event.Workload": "Exchange",
+      "event.RecordType": 2,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
       "target.user": "mailbox@example.invalid",
-      "log.ResultStatus": "Succeeded",
+      "event.ResultStatus": "Succeeded",
       "actionResult": "success",
-      "log.folderId": "folder-fixture-001",
-      "log.folderPath": "/Calendar"
+      "event.folderId": "folder-fixture-001",
+      "event.folderPath": "/Calendar"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
-      "log.MailboxOwnerUPN",
-      "log.Parameters",
-      "log.Folder.Id",
-      "log.Folder.Path",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.MailboxOwnerUPN",
+      "event.Parameters",
+      "event.Folder.Id",
+      "event.Folder.Path",
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -1058,28 +1058,28 @@
     "match": true,
     "expected": {
       "action": "RemoveFolderPermissions",
-      "log.Workload": "Exchange",
-      "log.RecordType": 2,
+      "event.Workload": "Exchange",
+      "event.RecordType": 2,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
       "target.user": "mailbox@example.invalid",
-      "log.ResultStatus": "Succeeded",
+      "event.ResultStatus": "Succeeded",
       "actionResult": "success",
-      "log.folderId": "folder-fixture-001",
-      "log.folderPath": "/Calendar"
+      "event.folderId": "folder-fixture-001",
+      "event.folderPath": "/Calendar"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
-      "log.MailboxOwnerUPN",
-      "log.Parameters",
-      "log.Folder.Id",
-      "log.Folder.Path",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.MailboxOwnerUPN",
+      "event.Parameters",
+      "event.Folder.Id",
+      "event.Folder.Path",
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -1089,29 +1089,29 @@
     "match": false,
     "expected": {
       "action": "ModifyFolderPermissions",
-      "log.Workload": "Exchange",
-      "log.RecordType": 2,
+      "event.Workload": "Exchange",
+      "event.RecordType": 2,
       "origin.user": "S-1-5-21-1111111111-2222222222-3333333333-4444444",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "group@example.invalid",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "group@example.invalid",
       "target.user": "group@example.invalid",
-      "log.ResultStatus": "Succeeded",
+      "event.ResultStatus": "Succeeded",
       "actionResult": "success",
-      "log.folderId": "folder-fixture-001",
-      "log.folderPath": "/Calendar",
-      "log.ExternalAccess": true
+      "event.folderId": "folder-fixture-001",
+      "event.folderPath": "/Calendar",
+      "event.ExternalAccess": true
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
-      "log.MailboxOwnerUPN",
-      "log.Parameters",
-      "log.Folder.Id",
-      "log.Folder.Path",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.MailboxOwnerUPN",
+      "event.Parameters",
+      "event.Folder.Id",
+      "event.Folder.Path",
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -1121,29 +1121,29 @@
     "match": true,
     "expected": {
       "action": "ModifyFolderPermissions",
-      "log.Workload": "Exchange",
-      "log.RecordType": 2,
+      "event.Workload": "Exchange",
+      "event.RecordType": 2,
       "origin.user": "partner-admin@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "group@example.invalid",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "group@example.invalid",
       "target.user": "group@example.invalid",
-      "log.ResultStatus": "Succeeded",
+      "event.ResultStatus": "Succeeded",
       "actionResult": "success",
-      "log.folderId": "folder-fixture-001",
-      "log.folderPath": "/Calendar",
-      "log.ExternalAccess": true
+      "event.folderId": "folder-fixture-001",
+      "event.folderPath": "/Calendar",
+      "event.ExternalAccess": true
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
-      "log.MailboxOwnerUPN",
-      "log.Parameters",
-      "log.Folder.Id",
-      "log.Folder.Path",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.MailboxOwnerUPN",
+      "event.Parameters",
+      "event.Folder.Id",
+      "event.Folder.Path",
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -1153,29 +1153,29 @@
     "match": true,
     "expected": {
       "action": "ModifyFolderPermissions",
-      "log.Workload": "Exchange",
-      "log.RecordType": 2,
+      "event.Workload": "Exchange",
+      "event.RecordType": 2,
       "origin.user": "S-1-5-21-1111111111-2222222222-3333333333-4444444",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "group@example.invalid",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "group@example.invalid",
       "target.user": "group@example.invalid",
-      "log.ResultStatus": "Succeeded",
+      "event.ResultStatus": "Succeeded",
       "actionResult": "success",
-      "log.folderId": "folder-fixture-001",
-      "log.folderPath": "/Calendar",
-      "log.ExternalAccess": false
+      "event.folderId": "folder-fixture-001",
+      "event.folderPath": "/Calendar",
+      "event.ExternalAccess": false
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
-      "log.MailboxOwnerUPN",
-      "log.Parameters",
-      "log.Folder.Id",
-      "log.Folder.Path",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.MailboxOwnerUPN",
+      "event.Parameters",
+      "event.Folder.Id",
+      "event.Folder.Path",
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -1185,30 +1185,30 @@
     "match": false,
     "expected": {
       "action": "ModifyFolderPermissions",
-      "log.Workload": "Exchange",
-      "log.RecordType": 2,
+      "event.Workload": "Exchange",
+      "event.RecordType": 2,
       "origin.user": "Owner@Example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "owner@example.invalid",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "owner@example.invalid",
       "target.user": "owner@example.invalid",
-      "log.ResultStatus": "Succeeded",
+      "event.ResultStatus": "Succeeded",
       "actionResult": "success",
-      "log.folderId": "folder-fixture-001",
-      "log.folderPath": "/Calendar",
-      "log.LogonType": 0,
-      "log.ExternalAccess": false
+      "event.folderId": "folder-fixture-001",
+      "event.folderPath": "/Calendar",
+      "event.LogonType": 0,
+      "event.ExternalAccess": false
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
-      "log.MailboxOwnerUPN",
-      "log.Parameters",
-      "log.Folder.Id",
-      "log.Folder.Path",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.MailboxOwnerUPN",
+      "event.Parameters",
+      "event.Folder.Id",
+      "event.Folder.Path",
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -1218,24 +1218,24 @@
     "match": true,
     "expected": {
       "action": "UpdateCalendarDelegation",
-      "log.Workload": "Exchange",
-      "log.RecordType": 2,
+      "event.Workload": "Exchange",
+      "event.RecordType": 2,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
       "target.user": "mailbox@example.invalid",
-      "log.ResultStatus": "Succeeded",
+      "event.ResultStatus": "Succeeded",
       "actionResult": "success"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
-      "log.MailboxOwnerUPN",
-      "log.Parameters",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.MailboxOwnerUPN",
+      "event.Parameters",
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -1245,23 +1245,23 @@
     "match": true,
     "expected": {
       "action": "New-InboundConnector",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:Identity Value:Administrative connector]]"
+      "event.Parameters": "[map[Name:Identity Value:Administrative connector]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -1271,23 +1271,23 @@
     "match": true,
     "expected": {
       "action": "Set-InboundConnector",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:Identity Value:Administrative connector]]"
+      "event.Parameters": "[map[Name:Identity Value:Administrative connector]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -1297,23 +1297,23 @@
     "match": true,
     "expected": {
       "action": "Remove-InboundConnector",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:Identity Value:Administrative connector]]"
+      "event.Parameters": "[map[Name:Identity Value:Administrative connector]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -1323,23 +1323,23 @@
     "match": true,
     "expected": {
       "action": "New-OutboundConnector",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:Identity Value:Administrative connector]]"
+      "event.Parameters": "[map[Name:Identity Value:Administrative connector]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -1349,23 +1349,23 @@
     "match": true,
     "expected": {
       "action": "Set-OutboundConnector",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:Identity Value:Administrative connector]]"
+      "event.Parameters": "[map[Name:Identity Value:Administrative connector]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -1375,23 +1375,23 @@
     "match": true,
     "expected": {
       "action": "Remove-OutboundConnector",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:Identity Value:Administrative connector]]"
+      "event.Parameters": "[map[Name:Identity Value:Administrative connector]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -1401,23 +1401,23 @@
     "match": true,
     "expected": {
       "action": "Set-CASMailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:Identity Value:administrative-fixture]]"
+      "event.Parameters": "[map[Name:Identity Value:administrative-fixture]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -1427,23 +1427,23 @@
     "match": false,
     "expected": {
       "action": "New-InboxRule",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "False",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "False",
       "actionResult": "failed",
-      "log.Parameters": "[map[Name:Name Value:Administrative rule]]"
+      "event.Parameters": "[map[Name:Name Value:Administrative rule]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -1453,23 +1453,23 @@
     "match": false,
     "expected": {
       "action": "New-InboxRule",
-      "log.Workload": "SharePoint",
-      "log.RecordType": 1,
+      "event.Workload": "SharePoint",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:Name Value:Administrative rule]]"
+      "event.Parameters": "[map[Name:Name Value:Administrative rule]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -1479,23 +1479,23 @@
     "match": true,
     "expected": {
       "action": "New-InboxRule",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
-      "log.ResultStatus": "True",
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:Name Value:Administrative rule]]"
+      "event.Parameters": "[map[Name:Name Value:Administrative rule]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "origin.user",
-      "log.OrganizationId",
-      "log.ObjectId",
+      "event.OrganizationId",
+      "event.ObjectId",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -1505,23 +1505,23 @@
     "match": false,
     "expected": {
       "action": "New-InboxRule",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "False",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "False",
       "actionResult": "failed",
-      "log.Parameters": "[map[Name:ForwardTo Value:delegate@example.invalid]]",
-      "log.o365InboxForwardingChange": "true"
+      "event.Parameters": "[map[Name:ForwardTo Value:delegate@example.invalid]]",
+      "event.o365InboxForwardingChange": "true"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -1531,23 +1531,23 @@
     "match": false,
     "expected": {
       "action": "New-InboxRule",
-      "log.Workload": "SharePoint",
-      "log.RecordType": 1,
+      "event.Workload": "SharePoint",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:ForwardTo Value:delegate@example.invalid]]"
+      "event.Parameters": "[map[Name:ForwardTo Value:delegate@example.invalid]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -1557,23 +1557,23 @@
     "match": true,
     "expected": {
       "action": "New-InboxRule",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
-      "log.ResultStatus": "True",
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:ForwardTo Value:delegate@example.invalid]]",
-      "log.o365InboxForwardingChange": "true"
+      "event.Parameters": "[map[Name:ForwardTo Value:delegate@example.invalid]]",
+      "event.o365InboxForwardingChange": "true"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "origin.user",
-      "log.OrganizationId",
-      "log.ObjectId",
+      "event.OrganizationId",
+      "event.ObjectId",
       "target.user",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -1583,23 +1583,23 @@
     "match": false,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "False",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "False",
       "actionResult": "failed",
-      "log.Parameters": "[map[Name:ForwardingAddress Value:recipient@example.invalid]]",
-      "log.o365MailboxForwardingSet": "true"
+      "event.Parameters": "[map[Name:ForwardingAddress Value:recipient@example.invalid]]",
+      "event.o365MailboxForwardingSet": "true"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -1609,23 +1609,23 @@
     "match": false,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "SharePoint",
-      "log.RecordType": 1,
+      "event.Workload": "SharePoint",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:ForwardingAddress Value:recipient@example.invalid]]"
+      "event.Parameters": "[map[Name:ForwardingAddress Value:recipient@example.invalid]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -1635,23 +1635,23 @@
     "match": true,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
-      "log.ResultStatus": "True",
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:ForwardingAddress Value:recipient@example.invalid]]",
-      "log.o365MailboxForwardingSet": "true"
+      "event.Parameters": "[map[Name:ForwardingAddress Value:recipient@example.invalid]]",
+      "event.o365MailboxForwardingSet": "true"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "origin.user",
-      "log.OrganizationId",
-      "log.ObjectId",
+      "event.OrganizationId",
+      "event.ObjectId",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -1661,23 +1661,23 @@
     "match": false,
     "expected": {
       "action": "Add-MailboxPermission",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "False",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "False",
       "actionResult": "failed",
-      "log.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
+      "event.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -1687,23 +1687,23 @@
     "match": false,
     "expected": {
       "action": "Add-MailboxPermission",
-      "log.Workload": "SharePoint",
-      "log.RecordType": 1,
+      "event.Workload": "SharePoint",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
+      "event.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -1713,23 +1713,23 @@
     "match": true,
     "expected": {
       "action": "Add-MailboxPermission",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
-      "log.ResultStatus": "True",
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
+      "event.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "origin.user",
-      "log.OrganizationId",
-      "log.ObjectId",
+      "event.OrganizationId",
+      "event.ObjectId",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -1739,23 +1739,23 @@
     "match": false,
     "expected": {
       "action": "Add-MailboxFolderPermission",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "False",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "False",
       "actionResult": "failed",
-      "log.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
+      "event.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -1765,23 +1765,23 @@
     "match": false,
     "expected": {
       "action": "Add-MailboxFolderPermission",
-      "log.Workload": "SharePoint",
-      "log.RecordType": 1,
+      "event.Workload": "SharePoint",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
+      "event.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -1791,23 +1791,23 @@
     "match": true,
     "expected": {
       "action": "Add-MailboxFolderPermission",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
-      "log.ResultStatus": "True",
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
+      "event.Parameters": "[map[Name:User Value:delegate@example.invalid]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "origin.user",
-      "log.OrganizationId",
-      "log.ObjectId",
+      "event.OrganizationId",
+      "event.ObjectId",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -1817,24 +1817,24 @@
     "match": false,
     "expected": {
       "action": "UpdateCalendarDelegation",
-      "log.Workload": "Exchange",
-      "log.RecordType": 2,
+      "event.Workload": "Exchange",
+      "event.RecordType": 2,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
       "target.user": "mailbox@example.invalid",
-      "log.ResultStatus": "Failed",
+      "event.ResultStatus": "Failed",
       "actionResult": "failed"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
-      "log.MailboxOwnerUPN",
-      "log.Parameters",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.MailboxOwnerUPN",
+      "event.Parameters",
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -1844,24 +1844,24 @@
     "match": false,
     "expected": {
       "action": "UpdateCalendarDelegation",
-      "log.Workload": "SharePoint",
-      "log.RecordType": 2,
+      "event.Workload": "SharePoint",
+      "event.RecordType": 2,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
       "target.user": "mailbox@example.invalid",
-      "log.ResultStatus": "Succeeded",
+      "event.ResultStatus": "Succeeded",
       "actionResult": "success"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
-      "log.MailboxOwnerUPN",
-      "log.Parameters",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.MailboxOwnerUPN",
+      "event.Parameters",
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -1871,23 +1871,23 @@
     "match": true,
     "expected": {
       "action": "UpdateCalendarDelegation",
-      "log.Workload": "Exchange",
-      "log.RecordType": 2,
-      "log.ResultStatus": "Succeeded",
+      "event.Workload": "Exchange",
+      "event.RecordType": 2,
+      "event.ResultStatus": "Succeeded",
       "actionResult": "success"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "origin.user",
-      "log.OrganizationId",
-      "log.ObjectId",
+      "event.OrganizationId",
+      "event.ObjectId",
       "target.user",
-      "log.Parameters",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.Parameters",
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -1897,23 +1897,23 @@
     "match": false,
     "expected": {
       "action": "New-InboundConnector",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "False",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "False",
       "actionResult": "failed",
-      "log.Parameters": "[map[Name:Identity Value:Administrative connector]]"
+      "event.Parameters": "[map[Name:Identity Value:Administrative connector]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -1923,23 +1923,23 @@
     "match": false,
     "expected": {
       "action": "New-InboundConnector",
-      "log.Workload": "SharePoint",
-      "log.RecordType": 1,
+      "event.Workload": "SharePoint",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:Identity Value:Administrative connector]]"
+      "event.Parameters": "[map[Name:Identity Value:Administrative connector]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -1949,23 +1949,23 @@
     "match": true,
     "expected": {
       "action": "New-InboundConnector",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
-      "log.ResultStatus": "True",
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:Identity Value:Administrative connector]]"
+      "event.Parameters": "[map[Name:Identity Value:Administrative connector]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "origin.user",
-      "log.OrganizationId",
-      "log.ObjectId",
+      "event.OrganizationId",
+      "event.ObjectId",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -1975,23 +1975,23 @@
     "match": false,
     "expected": {
       "action": "Set-CASMailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "False",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "False",
       "actionResult": "failed",
-      "log.Parameters": "[map[Name:Identity Value:administrative-fixture]]"
+      "event.Parameters": "[map[Name:Identity Value:administrative-fixture]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2001,23 +2001,23 @@
     "match": false,
     "expected": {
       "action": "Set-CASMailbox",
-      "log.Workload": "SharePoint",
-      "log.RecordType": 1,
+      "event.Workload": "SharePoint",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:Identity Value:administrative-fixture]]"
+      "event.Parameters": "[map[Name:Identity Value:administrative-fixture]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2027,23 +2027,23 @@
     "match": true,
     "expected": {
       "action": "Set-CASMailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
-      "log.ResultStatus": "True",
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:Identity Value:administrative-fixture]]"
+      "event.Parameters": "[map[Name:Identity Value:administrative-fixture]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "origin.user",
-      "log.OrganizationId",
-      "log.ObjectId",
+      "event.OrganizationId",
+      "event.ObjectId",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2053,23 +2053,23 @@
     "match": true,
     "expected": {
       "action": "New-InboxRule",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:Name Value:ForwardTo ForwardAsAttachmentTo RedirectTo]]"
+      "event.Parameters": "[map[Name:Name Value:ForwardTo ForwardAsAttachmentTo RedirectTo]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2079,23 +2079,23 @@
     "match": true,
     "expected": {
       "action": "New-InboxRule",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.Parameters",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.Parameters",
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2105,23 +2105,23 @@
     "match": true,
     "expected": {
       "action": "New-InboxRule",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:ForwardToBackup Value:delegate@example.invalid]]"
+      "event.Parameters": "[map[Name:ForwardToBackup Value:delegate@example.invalid]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2131,23 +2131,23 @@
     "match": true,
     "expected": {
       "action": "Set-InboxRule",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:Name Value:ForwardTo ForwardAsAttachmentTo RedirectTo]]"
+      "event.Parameters": "[map[Name:Name Value:ForwardTo ForwardAsAttachmentTo RedirectTo]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2157,23 +2157,23 @@
     "match": true,
     "expected": {
       "action": "Set-InboxRule",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.Parameters",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.Parameters",
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2183,23 +2183,23 @@
     "match": true,
     "expected": {
       "action": "Set-InboxRule",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:ForwardToBackup Value:delegate@example.invalid]]"
+      "event.Parameters": "[map[Name:ForwardToBackup Value:delegate@example.invalid]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2209,23 +2209,23 @@
     "match": false,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:DisplayName Value:ForwardingAddress]]"
+      "event.Parameters": "[map[Name:DisplayName Value:ForwardingAddress]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2235,23 +2235,23 @@
     "match": false,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:DisplayName Value:ForwardingSmtpAddress]]"
+      "event.Parameters": "[map[Name:DisplayName Value:ForwardingSmtpAddress]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2261,23 +2261,23 @@
     "match": false,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:DisplayName Value:DeliverToMailboxAndForward]]"
+      "event.Parameters": "[map[Name:DisplayName Value:DeliverToMailboxAndForward]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2287,23 +2287,23 @@
     "match": false,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:DisplayName Value:GrantSendOnBehalfTo]]"
+      "event.Parameters": "[map[Name:DisplayName Value:GrantSendOnBehalfTo]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2313,23 +2313,23 @@
     "match": false,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.Parameters",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.Parameters",
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2339,23 +2339,23 @@
     "match": false,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:ForwardingAddressBackup Value:delegate@example.invalid]]"
+      "event.Parameters": "[map[Name:ForwardingAddressBackup Value:delegate@example.invalid]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2365,23 +2365,23 @@
     "match": false,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:GrantSendOnBehalfToBackup Value:delegate@example.invalid]]"
+      "event.Parameters": "[map[Name:GrantSendOnBehalfToBackup Value:delegate@example.invalid]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2391,23 +2391,23 @@
     "match": true,
     "expected": {
       "action": "New-InboxRule",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[{\"Name\":\"ForwardTo\",\"Value\":\"delegate@example.invalid\"}]"
+      "event.Parameters": "[{\"Name\":\"ForwardTo\",\"Value\":\"delegate@example.invalid\"}]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2417,23 +2417,23 @@
     "match": false,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[{\"Name\":\"ForwardingSmtpAddress\",\"Value\":\"delegate@example.invalid\"}]"
+      "event.Parameters": "[{\"Name\":\"ForwardingSmtpAddress\",\"Value\":\"delegate@example.invalid\"}]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2443,23 +2443,23 @@
     "match": false,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[{\"Name\":\"GrantSendOnBehalfTo\",\"Value\":\"delegate@example.invalid\"}]"
+      "event.Parameters": "[{\"Name\":\"GrantSendOnBehalfTo\",\"Value\":\"delegate@example.invalid\"}]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2469,23 +2469,23 @@
     "match": false,
     "expected": {
       "action": "Get-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.Parameters",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.Parameters",
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2495,23 +2495,23 @@
     "match": false,
     "expected": {
       "action": "New-InboxRule",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.Parameters": "[map[Name:ForwardTo Value:delegate@example.invalid]]",
-      "log.o365InboxForwardingChange": "true"
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.Parameters": "[map[Name:ForwardTo Value:delegate@example.invalid]]",
+      "event.o365InboxForwardingChange": "true"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
       "actionResult",
-      "log.ResultStatus",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.ResultStatus",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2521,23 +2521,23 @@
     "match": true,
     "expected": {
       "action": "New-InboxRule",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:DisplayName Value:Unrelated setting]]"
+      "event.Parameters": "[map[Name:DisplayName Value:Unrelated setting]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2547,23 +2547,23 @@
     "match": true,
     "expected": {
       "action": "New-InboxRule",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[ForwardTo ForwardingAddress GrantSendOnBehalfTo]"
+      "event.Parameters": "[ForwardTo ForwardingAddress GrantSendOnBehalfTo]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2573,23 +2573,23 @@
     "match": true,
     "expected": {
       "action": "New-InboxRule",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[1 2 3]"
+      "event.Parameters": "[1 2 3]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2599,23 +2599,23 @@
     "match": true,
     "expected": {
       "action": "New-InboxRule",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:[ForwardTo] Value:recipient@example.invalid] map[Name:map[nested:ForwardingAddress] Value:recipient@example.invalid] map[Name:<nil> Value:GrantSendOnBehalfTo]]"
+      "event.Parameters": "[map[Name:[ForwardTo] Value:recipient@example.invalid] map[Name:map[nested:ForwardingAddress] Value:recipient@example.invalid] map[Name:<nil> Value:GrantSendOnBehalfTo]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2625,23 +2625,23 @@
     "match": true,
     "expected": {
       "action": "New-InboxRule",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "map[Name:ForwardTo Value:recipient@example.invalid]"
+      "event.Parameters": "map[Name:ForwardTo Value:recipient@example.invalid]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2651,23 +2651,23 @@
     "match": true,
     "expected": {
       "action": "New-InboxRule",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[]"
+      "event.Parameters": "[]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2677,23 +2677,23 @@
     "match": true,
     "expected": {
       "action": "New-InboxRule",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": ""
+      "event.Parameters": ""
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2703,23 +2703,23 @@
     "match": true,
     "expected": {
       "action": "New-InboxRule",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:DisplayName Value:map[Name:ForwardTo Value:recipient@example.invalid] map[Name:ForwardingAddress Value:recipient@example.invalid] map[Name:GrantSendOnBehalfTo Value:recipient@example.invalid]]]"
+      "event.Parameters": "[map[Name:DisplayName Value:map[Name:ForwardTo Value:recipient@example.invalid] map[Name:ForwardingAddress Value:recipient@example.invalid] map[Name:GrantSendOnBehalfTo Value:recipient@example.invalid]]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2729,23 +2729,23 @@
     "match": true,
     "expected": {
       "action": "New-InboxRule",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:DisplayName Value:{\"Name\":\"ForwardTo\",\"Value\":\"recipient@example.invalid\"} {\"Name\":\"ForwardingAddress\",\"Value\":\"recipient@example.invalid\"} {\"Name\":\"GrantSendOnBehalfTo\",\"Value\":\"recipient@example.invalid\"}]]"
+      "event.Parameters": "[map[Name:DisplayName Value:{\"Name\":\"ForwardTo\",\"Value\":\"recipient@example.invalid\"} {\"Name\":\"ForwardingAddress\",\"Value\":\"recipient@example.invalid\"} {\"Name\":\"GrantSendOnBehalfTo\",\"Value\":\"recipient@example.invalid\"}]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2755,23 +2755,23 @@
     "match": false,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:DisplayName Value:Unrelated setting]]"
+      "event.Parameters": "[map[Name:DisplayName Value:Unrelated setting]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2781,23 +2781,23 @@
     "match": false,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[ForwardTo ForwardingAddress GrantSendOnBehalfTo]"
+      "event.Parameters": "[ForwardTo ForwardingAddress GrantSendOnBehalfTo]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2807,23 +2807,23 @@
     "match": false,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[1 2 3]"
+      "event.Parameters": "[1 2 3]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2833,23 +2833,23 @@
     "match": false,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:[ForwardTo] Value:recipient@example.invalid] map[Name:map[nested:ForwardingAddress] Value:recipient@example.invalid] map[Name:<nil> Value:GrantSendOnBehalfTo]]"
+      "event.Parameters": "[map[Name:[ForwardTo] Value:recipient@example.invalid] map[Name:map[nested:ForwardingAddress] Value:recipient@example.invalid] map[Name:<nil> Value:GrantSendOnBehalfTo]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2859,23 +2859,23 @@
     "match": false,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "map[Name:ForwardTo Value:recipient@example.invalid]"
+      "event.Parameters": "map[Name:ForwardTo Value:recipient@example.invalid]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2885,23 +2885,23 @@
     "match": false,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[]"
+      "event.Parameters": "[]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2911,23 +2911,23 @@
     "match": false,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": ""
+      "event.Parameters": ""
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2937,23 +2937,23 @@
     "match": false,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:DisplayName Value:map[Name:ForwardTo Value:recipient@example.invalid] map[Name:ForwardingAddress Value:recipient@example.invalid] map[Name:GrantSendOnBehalfTo Value:recipient@example.invalid]]]"
+      "event.Parameters": "[map[Name:DisplayName Value:map[Name:ForwardTo Value:recipient@example.invalid] map[Name:ForwardingAddress Value:recipient@example.invalid] map[Name:GrantSendOnBehalfTo Value:recipient@example.invalid]]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2963,23 +2963,23 @@
     "match": false,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:DisplayName Value:{\"Name\":\"ForwardTo\",\"Value\":\"recipient@example.invalid\"} {\"Name\":\"ForwardingAddress\",\"Value\":\"recipient@example.invalid\"} {\"Name\":\"GrantSendOnBehalfTo\",\"Value\":\"recipient@example.invalid\"}]]"
+      "event.Parameters": "[map[Name:DisplayName Value:{\"Name\":\"ForwardTo\",\"Value\":\"recipient@example.invalid\"} {\"Name\":\"ForwardingAddress\",\"Value\":\"recipient@example.invalid\"} {\"Name\":\"GrantSendOnBehalfTo\",\"Value\":\"recipient@example.invalid\"}]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -2989,23 +2989,23 @@
     "match": false,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:DisplayName Value:Unrelated setting]]"
+      "event.Parameters": "[map[Name:DisplayName Value:Unrelated setting]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -3015,23 +3015,23 @@
     "match": false,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[ForwardTo ForwardingAddress GrantSendOnBehalfTo]"
+      "event.Parameters": "[ForwardTo ForwardingAddress GrantSendOnBehalfTo]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -3041,23 +3041,23 @@
     "match": false,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[1 2 3]"
+      "event.Parameters": "[1 2 3]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -3067,23 +3067,23 @@
     "match": false,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:[ForwardTo] Value:recipient@example.invalid] map[Name:map[nested:ForwardingAddress] Value:recipient@example.invalid] map[Name:<nil> Value:GrantSendOnBehalfTo]]"
+      "event.Parameters": "[map[Name:[ForwardTo] Value:recipient@example.invalid] map[Name:map[nested:ForwardingAddress] Value:recipient@example.invalid] map[Name:<nil> Value:GrantSendOnBehalfTo]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -3093,23 +3093,23 @@
     "match": false,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "map[Name:ForwardTo Value:recipient@example.invalid]"
+      "event.Parameters": "map[Name:ForwardTo Value:recipient@example.invalid]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -3119,23 +3119,23 @@
     "match": false,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[]"
+      "event.Parameters": "[]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -3145,23 +3145,23 @@
     "match": false,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": ""
+      "event.Parameters": ""
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -3171,23 +3171,23 @@
     "match": false,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:DisplayName Value:map[Name:ForwardTo Value:recipient@example.invalid] map[Name:ForwardingAddress Value:recipient@example.invalid] map[Name:GrantSendOnBehalfTo Value:recipient@example.invalid]]]"
+      "event.Parameters": "[map[Name:DisplayName Value:map[Name:ForwardTo Value:recipient@example.invalid] map[Name:ForwardingAddress Value:recipient@example.invalid] map[Name:GrantSendOnBehalfTo Value:recipient@example.invalid]]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   },
   {
@@ -3197,23 +3197,23 @@
     "match": false,
     "expected": {
       "action": "Set-Mailbox",
-      "log.Workload": "Exchange",
-      "log.RecordType": 1,
+      "event.Workload": "Exchange",
+      "event.RecordType": 1,
       "origin.user": "administrator@example.invalid",
-      "log.OrganizationId": "11111111-1111-4111-8111-111111111111",
-      "log.ObjectId": "mailbox@example.invalid",
-      "log.ResultStatus": "True",
+      "event.OrganizationId": "11111111-1111-4111-8111-111111111111",
+      "event.ObjectId": "mailbox@example.invalid",
+      "event.ResultStatus": "True",
       "actionResult": "success",
-      "log.Parameters": "[map[Name:DisplayName Value:{\"Name\":\"ForwardTo\",\"Value\":\"recipient@example.invalid\"} {\"Name\":\"ForwardingAddress\",\"Value\":\"recipient@example.invalid\"} {\"Name\":\"GrantSendOnBehalfTo\",\"Value\":\"recipient@example.invalid\"}]]"
+      "event.Parameters": "[map[Name:DisplayName Value:{\"Name\":\"ForwardTo\",\"Value\":\"recipient@example.invalid\"} {\"Name\":\"ForwardingAddress\",\"Value\":\"recipient@example.invalid\"} {\"Name\":\"GrantSendOnBehalfTo\",\"Value\":\"recipient@example.invalid\"}]]"
     },
     "absent": [
-      "log.Operation",
-      "log.UserId",
+      "event.Operation",
+      "event.UserId",
       "origin.ip",
       "target.user",
-      "log.o365InboxForwardingChange",
-      "log.o365MailboxForwardingSet",
-      "log.o365SendOnBehalfChange"
+      "event.o365InboxForwardingChange",
+      "event.o365MailboxForwardingSet",
+      "event.o365SendOnBehalfChange"
     ]
   }
 ]

@@ -26,10 +26,10 @@ description: |
   7. Check for any data exfiltration attempts or unusual outbound traffic patterns
   8. Consider reimaging the affected system if compromise is confirmed
 where: |
-  oneOf("log.messageId", ["338001", "338002"])
-  || regexMatch("log.message", "botnet.*(detected|blocked|dropped)")
-  || contains("log.message", "dynamic filter blacklisted")
-  || contains("log.message", "malicious address")
+  oneOf("event.messageId", ["338001", "338002"])
+  || regexMatch("event.message", "botnet.*(detected|blocked|dropped)")
+  || contains("event.message", "dynamic filter blacklisted")
+  || contains("event.message", "malicious address")
 groupBy:
   - adversary.ip
   - target.ip

@@ -71,18 +71,18 @@ func asaWhere(step *plugins.Step) string {
 	return where
 }
 
-// Before this revision, 519 clauses compared log.* directly (for example log.messageId==106001).
+// Before this revision, 519 clauses compared event.* directly (for example event.messageId==106001).
 // These rewrite a helper clause back to that form, so both can be compared.
 var (
-	asaRawLog      = regexp.MustCompile(`(^|[^"\w.])log\.[A-Za-z0-9_.]+\s*(==|!=|>=|<=|<|>)`)
+	asaRawLog      = regexp.MustCompile(`(^|[^"\w.])event\.[A-Za-z0-9_.]+\s*(==|!=|>=|<=|<|>)`)
 	asaHelperToRaw = []struct {
 		helper *regexp.Regexp
 		raw    string
 	}{
-		{regexp.MustCompile(`equals\("log\.messageId", (\d+)\)`), `log.messageId==$1`},
-		{regexp.MustCompile(`greaterOrEqual\("log\.messageId", (\d+)\)`), `log.messageId>=$1`},
-		{regexp.MustCompile(`lessOrEqual\("log\.messageId", (\d+)\)`), `log.messageId<=$1`},
-		{regexp.MustCompile(`equals\("log\.severity", "4"\)`), `log.severity=="4"`},
+		{regexp.MustCompile(`equals\("event\.messageId", (\d+)\)`), `event.messageId==$1`},
+		{regexp.MustCompile(`greaterOrEqual\("event\.messageId", (\d+)\)`), `event.messageId>=$1`},
+		{regexp.MustCompile(`lessOrEqual\("event\.messageId", (\d+)\)`), `event.messageId<=$1`},
+		{regexp.MustCompile(`equals\("event\.severity", "4"\)`), `event.severity=="4"`},
 	}
 	asaHelperCall = regexp.MustCompile(`(\w+)\("([A-Za-z0-9_.]+)"(?:, ("[^"]*"|\d+))?\)`)
 )
@@ -94,8 +94,8 @@ func asaRawForm(where string) string {
 	return where
 }
 
-// asaTruthTable builds events that all carry a log object: log.messageId as the JSON number
-// the filter's cast produces (around every literal in the clause), log.severity as the
+// asaTruthTable builds events that all carry a log object: event.messageId as the JSON number
+// the filter's cast produces (around every literal in the clause), event.severity as the
 // one-digit levels 0 to 7, and every other field the clause reads absent, equal to its
 // literal, in other case, containing it, or unrelated. Severity text such as 04 or +4 is left
 // out on purpose: equals compares it as the number 4, the old clause did not (see the audit).
@@ -106,12 +106,12 @@ func asaTruthTable(where string) []string {
 	for _, m := range asaHelperCall.FindAllStringSubmatch(where, -1) {
 		field, arg := m[2], m[3]
 		switch field {
-		case "log.messageId":
+		case "event.messageId":
 			n, _ := strconv.Atoi(arg)
 			for d := -1; d <= 1; d++ {
 				ids[float64(n+d)] = true
 			}
-		case "log.severity":
+		case "event.severity":
 			severities = []string{"0", "1", "2", "3", "4", "5", "6", "7"}
 		default:
 			if others[field] == nil {
@@ -146,7 +146,7 @@ func asaTruthTable(where string) []string {
 		for _, sev := range severities {
 			for _, c := range combos {
 				doc := map[string]any{"id": "x", "dataType": "firewall-cisco-asa", "raw": "x",
-					"log": map[string]any{"messageId": id, "severity": sev}}
+					"event": map[string]any{"messageId": id, "severity": sev}}
 				for f, v := range c {
 					if v != nil {
 						asaSet(doc, f, v)
@@ -160,8 +160,8 @@ func asaTruthTable(where string) []string {
 	return docs
 }
 
-// No where clause compares log.* directly. Every clause that uses equals, greaterOrEqual or
-// lessOrEqual on log.messageId, or equals on log.severity, compiles, has the same truth table
+// No where clause compares event.* directly. Every clause that uses equals, greaterOrEqual or
+// lessOrEqual on event.messageId, or equals on event.severity, compiles, has the same truth table
 // as the direct comparison on events with a log object, and is false without an error when no
 // header pattern produced a log object.
 func TestCiscoASAWhereHelpers(t *testing.T) {
@@ -170,13 +170,13 @@ func TestCiscoASAWhereHelpers(t *testing.T) {
 	noLog := `{"id":"x","dataType":"firewall-cisco-asa","dataSource":"fixture-asa","tenantId":"` + asaTenant + `","raw":"x"}`
 	cast := -1
 	for i, step := range steps {
-		if c := step.Cast; c != nil && c.To == "int" && c.Where == "" && len(c.Fields) == 1 && c.Fields[0] == "log.messageId" {
+		if c := step.Cast; c != nil && c.To == "int" && c.Where == "" && len(c.Fields) == 1 && c.Fields[0] == "event.messageId" {
 			cast = i
 			break
 		}
 	}
 	if cast < 0 {
-		t.Fatal("no unconditional int cast of log.messageId")
+		t.Fatal("no unconditional int cast of event.messageId")
 	}
 	var raw []string
 	checked, rows := 0, 0
@@ -195,7 +195,7 @@ func TestCiscoASAWhereHelpers(t *testing.T) {
 		}
 		checked++
 		if i < cast {
-			t.Errorf("step %d reads log.messageId before it is cast to a number: %q", i, where)
+			t.Errorf("step %d reads event.messageId before it is cast to a number: %q", i, where)
 		}
 		if got, err := cache.Eval(where, noLog); err != nil || got {
 			t.Errorf("step %d without a log object: %q returned %t, error %v", i, where, got, err)
@@ -211,10 +211,10 @@ func TestCiscoASAWhereHelpers(t *testing.T) {
 		}
 	}
 	if len(raw) > 0 {
-		t.Errorf("%d where clauses compare log.* directly and fail without a log object, for example %q", len(raw), raw[0])
+		t.Errorf("%d where clauses compare event.* directly and fail without a log object, for example %q", len(raw), raw[0])
 	}
 	if checked < 503 {
-		t.Errorf("%d helper clauses read log.messageId or log.severity, want at least 503", checked)
+		t.Errorf("%d helper clauses read event.messageId or event.severity, want at least 503", checked)
 	}
 	t.Logf("%d helper clauses, %d truth-table rows", checked, rows)
 }
@@ -267,7 +267,7 @@ func TestCiscoASAGeolocationDestinations(t *testing.T) {
 		want := src + "Geolocation"
 		if src == "origin.ip" || src == "target.ip" {
 			want = strings.TrimSuffix(src, ".ip") + ".geolocation"
-		} else if !strings.HasPrefix(src, "log.") {
+		} else if !strings.HasPrefix(src, "event.") {
 			t.Errorf("step %d: unexpected geolocation source %s", i, src)
 		}
 		if dst != want {
@@ -281,14 +281,14 @@ func TestCiscoASAGeolocationDestinations(t *testing.T) {
 		t.Errorf("%d geolocation steps, want 18", count)
 	}
 	// The sibling key survives finalization next to the address.
-	draft := `{"id":"x","dataType":"firewall-cisco-asa","raw":"x","log":{"localIp":"192.0.2.1","localIpGeolocation":{"asn":64501,"country":"Fabricated Country B"}}}`
+	draft := `{"id":"x","dataType":"firewall-cisco-asa","raw":"x","event":{"localIp":"192.0.2.1","localIpGeolocation":{"asn":64501,"country":"Fabricated Country B"}}}`
 	event := new(plugins.Event)
 	if err := utils.StringToProtoMessage(&draft, event); err != nil {
 		t.Fatal(err)
 	}
-	if event.Log["localIp"].GetStringValue() != "192.0.2.1" ||
-		event.Log["localIpGeolocation"].GetStructValue().GetFields()["asn"].GetNumberValue() != 64501 {
-		t.Errorf("finalized log: %v", event.Log)
+	if event.Event["localIp"].GetStringValue() != "192.0.2.1" ||
+		event.Event["localIpGeolocation"].GetStructValue().GetFields()["asn"].GetNumberValue() != 64501 {
+		t.Errorf("finalized log: %v", event.Event)
 	}
 }
 
@@ -596,7 +596,7 @@ func asaFields(event map[string]any) map[string]any {
 	return out
 }
 
-var asaGeoPath = regexp.MustCompile(`^(origin\.geolocation|target\.geolocation|log\.[A-Za-z0-9]+Geolocation)(\.|$)`)
+var asaGeoPath = regexp.MustCompile(`^(origin\.geolocation|target\.geolocation|event\.[A-Za-z0-9]+Geolocation)(\.|$)`)
 
 type asaCase struct {
 	LogObject bool           `json:"logObject"`
@@ -646,14 +646,14 @@ var asaChangeCases = []struct {
 	change, fixture, path string
 	want                  any
 }{
-	{"F-C1", "unparsed-no-timestamp", "log", nil},
-	{"F-C1", "unparsed-rfc5424", "log", nil},
-	{"F-C1", "unparsed-linux-sshd", "log", nil},
+	{"F-C1", "unparsed-no-timestamp", "event", nil},
+	{"F-C1", "unparsed-rfc5424", "event", nil},
+	{"F-C1", "unparsed-linux-sshd", "event", nil},
 	{"F-C1", "botnet-338001", "severity", "medium"},
-	{"F-C3", "302013-outbound", "log.direction", "outbound"},
-	{"F-C3", "header-bsd", "log.direction", "inbound"},
-	{"F-C3 near miss", "302013-probe", "log.direction", "inbound"},
-	{"F-C3 near miss", "302015-outbound", "log.direction", "outbound"},
+	{"F-C3", "302013-outbound", "event.direction", "outbound"},
+	{"F-C3", "header-bsd", "event.direction", "inbound"},
+	{"F-C3 near miss", "302013-probe", "event.direction", "inbound"},
+	{"F-C3 near miss", "302015-outbound", "event.direction", "outbound"},
 	{"F-C4", "302304-teardown", "protocol", "TCP"},
 	{"F-C4 near miss", "302303-built", "protocol", "TCP"},
 	{"F-C5", "305011-built", "action", "Built dynamic TCP translation"},
@@ -661,8 +661,8 @@ var asaChangeCases = []struct {
 	{"F-C5", "305012-teardown", "action", "Teardown dynamic TCP translation"},
 	{"F-C5 near miss", "305012-one-digit-hour", "action", nil},
 	{"F-C6", "302017-gre", "target.user", "erin"},
-	{"F-C6", "302017-gre", "log.firewallUserTo", "dave"},
-	{"F-C6", "302017-gre", "log.firewallUserFrom", "carol"},
+	{"F-C6", "302017-gre", "event.firewallUserTo", "dave"},
+	{"F-C6", "302017-gre", "event.firewallUserFrom", "carol"},
 	{"F-C6 near miss", "302018-gre", "origin.user", "erin"},
 	{"F-C7", "106102-permitted", "actionResult", nil},
 	{"F-C7", "106102-permitted-arrow", "actionResult", nil},
@@ -670,20 +670,20 @@ var asaChangeCases = []struct {
 	{"F-C7 near miss", "106102-denied", "actionResult", "denied"},
 	{"F-C7 near miss", "106102-denied-arrow", "actionResult", "denied"},
 	{"F-C8", "113009-with-equals", "origin.user", "alice"},
-	{"F-C8", "113009-with-equals", "log.policy", "DfltGrpPolicy"},
+	{"F-C8", "113009-with-equals", "event.policy", "DfltGrpPolicy"},
 	{"F-C8", "113011-with-equals", "origin.user", "alice"},
-	{"F-C8", "113011-with-equals", "log.policy", "GP1"},
+	{"F-C8", "113011-with-equals", "event.policy", "GP1"},
 	{"F-C8 near miss", "113009-without-equals", "origin.user", "alice"},
 	{"F-C9", "302003-hostname", "origin.ip", "host-b.example.com"},
 	{"F-C9", "302003-hostname", "target.ip", "198.51.100.7"},
-	{"F-C9", "302003-hostname", "log.localAddress", "host-b.example.com"},
-	{"F-C9 near miss", "302003-ip", "log.localAddress", "192.0.2.10"},
-	{"F-C9 near miss", "302004-to", "log.localAddress", "192.0.2.10"},
-	{"F-C10", "302024-mapped-no-port", "log.mappedIpFrom", "198.51.100.7"},
-	{"F-C10", "302024-mapped-no-port", "log.mappedIpTo", "203.0.113.5"},
-	{"F-C10", "302024-mapped-no-port", "log.mappedPortFrom", nil},
-	{"F-C10 near miss", "302022-mapped-port", "log.mappedIpFrom", "198.51.100.7"},
-	{"F-C10 near miss", "302022-mapped-port", "log.mappedPortFrom", "443"},
+	{"F-C9", "302003-hostname", "event.localAddress", "host-b.example.com"},
+	{"F-C9 near miss", "302003-ip", "event.localAddress", "192.0.2.10"},
+	{"F-C9 near miss", "302004-to", "event.localAddress", "192.0.2.10"},
+	{"F-C10", "302024-mapped-no-port", "event.mappedIpFrom", "198.51.100.7"},
+	{"F-C10", "302024-mapped-no-port", "event.mappedIpTo", "203.0.113.5"},
+	{"F-C10", "302024-mapped-no-port", "event.mappedPortFrom", nil},
+	{"F-C10 near miss", "302022-mapped-port", "event.mappedIpFrom", "198.51.100.7"},
+	{"F-C10 near miss", "302022-mapped-port", "event.mappedPortFrom", "443"},
 }
 
 // Every fabricated line through the model: the named change cases, no where errors, and every
@@ -708,7 +708,7 @@ func TestCiscoASAExtractionModel(t *testing.T) {
 		if len(errs[name]) > 0 {
 			t.Errorf("%s: %d where errors, first: %.200s", name, len(errs[name]), errs[name][0])
 		}
-		if _, ok := stored[name]["log"]; ok != want.LogObject {
+		if _, ok := stored[name]["event"]; ok != want.LogObject {
 			t.Errorf("%s: log object present=%t", name, ok)
 		}
 		got := asaFields(stored[name])
@@ -784,10 +784,10 @@ func TestCiscoASAStepPredicates(t *testing.T) {
 	}
 	var writers []asaWriter
 	for _, step := range steps {
-		if a := step.Add; a != nil && a.Params["key"].GetStringValue() == "actionResult" && strings.Contains(a.Where, `"log.messageId", 106102`) {
+		if a := step.Add; a != nil && a.Params["key"].GetStringValue() == "actionResult" && strings.Contains(a.Where, `"event.messageId", 106102`) {
 			writers = append(writers, asaWriter{where: a.Where, value: a.Params["value"].GetStringValue()})
 		}
-		if d := step.Delete; d != nil && strings.Contains(d.Where, `"log.messageId", 106102`) {
+		if d := step.Delete; d != nil && strings.Contains(d.Where, `"event.messageId", 106102`) {
 			for _, f := range d.Fields {
 				if f == "actionResult" {
 					writers = append(writers, asaWriter{where: d.Where, remove: true})
@@ -805,9 +805,9 @@ func TestCiscoASAStepPredicates(t *testing.T) {
 		{106102, "denied", "denied"}, {106103, "denied", "denied"}} {
 		value := c.captured
 		for _, w := range writers {
-			doc := fmt.Sprintf(`{"raw":"x","log":{"messageId":%d}}`, c.id)
+			doc := fmt.Sprintf(`{"raw":"x","event":{"messageId":%d}}`, c.id)
 			if value != "" {
-				doc = fmt.Sprintf(`{"raw":"x","log":{"messageId":%d},"actionResult":%q}`, c.id, value)
+				doc = fmt.Sprintf(`{"raw":"x","event":{"messageId":%d},"actionResult":%q}`, c.id, value)
 			}
 			if eval(w.where, doc) {
 				value = w.value
@@ -822,7 +822,7 @@ func TestCiscoASAStepPredicates(t *testing.T) {
 		var writers []string
 		for _, step := range steps {
 			g := step.Grok
-			if g == nil || !strings.Contains(asaRawForm(g.Where), fmt.Sprintf("log.messageId==%d", id)) {
+			if g == nil || !strings.Contains(asaRawForm(g.Where), fmt.Sprintf("event.messageId==%d", id)) {
 				continue
 			}
 			for _, p := range g.Patterns {
@@ -834,15 +834,15 @@ func TestCiscoASAStepPredicates(t *testing.T) {
 		if len(writers) != 2 {
 			t.Fatalf("F-C8: %d origin.user writers for %d, want 2", len(writers), id)
 		}
-		without := fmt.Sprintf(`{"raw":"x","log":{"messageId":%d}}`, id)
-		with := fmt.Sprintf(`{"raw":"x","log":{"messageId":%d},"origin":{"user":"alice"}}`, id)
+		without := fmt.Sprintf(`{"raw":"x","event":{"messageId":%d}}`, id)
+		with := fmt.Sprintf(`{"raw":"x","event":{"messageId":%d},"origin":{"user":"alice"}}`, id)
 		if !eval(writers[0], without) || !eval(writers[1], without) {
 			t.Errorf("F-C8: %d variants must run while no user is set", id)
 		}
 		if eval(writers[1], with) {
 			t.Errorf("F-C8: %d second variant %q runs after the first set origin.user", id, writers[1])
 		}
-		if eval(writers[1], fmt.Sprintf(`{"raw":"x","log":{"messageId":%d},"origin":{"user":"alice"}}`, id+1)) {
+		if eval(writers[1], fmt.Sprintf(`{"raw":"x","event":{"messageId":%d},"origin":{"user":"alice"}}`, id+1)) {
 			t.Errorf("F-C8: %d second variant matches another message", id)
 		}
 	}
@@ -882,7 +882,7 @@ func TestCiscoASAActionResultMapping(t *testing.T) {
 		}
 		if g := s.Grok; g != nil {
 			for _, p := range g.Patterns {
-				if p.FieldName == "actionResult" && !strings.Contains(g.Where, `"log.messageId", 106102`) {
+				if p.FieldName == "actionResult" && !strings.Contains(g.Where, `"event.messageId", 106102`) {
 					t.Errorf("step %d captures a vendor word into actionResult outside 106102/106103", i)
 				}
 			}
@@ -958,7 +958,7 @@ func TestCiscoASAActionResultMapping(t *testing.T) {
 	} {
 		value := c.captured
 		for _, w := range writers {
-			doc := map[string]any{"raw": "x", "log": map[string]any{"messageId": c.id, "msg": c.msg}}
+			doc := map[string]any{"raw": "x", "event": map[string]any{"messageId": c.id, "msg": c.msg}}
 			if value != "" {
 				doc["actionResult"] = value
 			}
@@ -1034,7 +1034,7 @@ func asaPlaceholders(searches []*plugins.SearchRequest, out map[string]bool) {
 func TestCiscoASARuleContract(t *testing.T) {
 	const index = "v11-log-firewall-cisco-asa-*"
 	vpnBranch := func(id string) string {
-		return index + "[origin.ip filter_term {{.origin.ip}}; log.messageId filter_term " + id + "] within 15m count 10"
+		return index + "[origin.ip filter_term {{.origin.ip}}; event.messageId filter_term " + id + "] within 15m count 10"
 	}
 	want := map[string]string{
 		"botnet_traffic_detection": "Botnet Command and Control Traffic Detected|Command and Control|T1071 - Application Layer Protocol|origin|3/2/1|adversary.ip,target.ip|" +
@@ -1059,12 +1059,12 @@ func TestCiscoASARuleContract(t *testing.T) {
 		}
 	}
 	ips := strings.TrimSpace(rules["ips_signature_matches"].Where)
-	if !strings.HasPrefix(ips, `exists("origin.ip") && (`) || !strings.HasSuffix(ips, ")") || strings.Contains(ips, "log.action") {
-		t.Errorf("IPS condition must be exists(\"origin.ip\") && (...) without log.action: %s", ips)
+	if !strings.HasPrefix(ips, `exists("origin.ip") && (`) || !strings.HasSuffix(ips, ")") || strings.Contains(ips, "event.action") {
+		t.Errorf("IPS condition must be exists(\"origin.ip\") && (...) without event.action: %s", ips)
 	}
 	vpn := rules["multiple_failed_vpn_attempts"].Where
-	if !strings.Contains(vpn, `regexMatch("log.msg", `) || strings.Contains(vpn, `"log.message"`) {
-		t.Errorf("VPN condition must read log.msg: %s", vpn)
+	if !strings.Contains(vpn, `regexMatch("event.msg", `) || strings.Contains(vpn, `"event.message"`) {
+		t.Errorf("VPN condition must read event.msg: %s", vpn)
 	}
 }
 
@@ -1082,20 +1082,20 @@ var asaRuleCases = []struct {
 	rule, name, body string
 	want             bool
 }{
-	{"ips_signature_matches", "108003 with a source address (a future mapping, D02)", `"log":{"messageId":108003,"msg":"Terminating ESMTP/SMTP connection; malicious pattern detected"},"origin":{"ip":"198.51.100.7"}`, true},
-	{"ips_signature_matches", "108003 as a text id with a source address", `"log":{"messageId":"108003"},"origin":{"ip":"198.51.100.7"}`, true},
-	{"ips_signature_matches", "108003 as this filter stores it, no source address", `"log":{"messageId":108003,"msg":"Terminating ESMTP/SMTP connection; malicious pattern detected"}`, false},
-	{"ips_signature_matches", "log.action value that no step writes", `"log":{"messageId":420997,"action":"ips_alert"},"origin":{"ip":"198.51.100.7"}`, false},
-	{"ips_signature_matches", "unrelated connection with an address", `"log":{"messageId":302013},"origin":{"ip":"198.51.100.7"}`, false},
-	{"multiple_failed_vpn_attempts", "113015 with address and failing reason", `"log":{"messageId":113015,"reason":"Invalid password"},"origin":{"ip":"198.51.100.7","user":"alice"}`, true},
-	{"multiple_failed_vpn_attempts", "109034 failure text in log.msg", `"log":{"messageId":109034,"msg":"Authentication failed for network user alice from 198.51.100.7/51234 to 192.0.2.10/443"},"origin":{"ip":"198.51.100.7"}`, true},
-	{"multiple_failed_vpn_attempts", "611102 failure text in log.msg", `"log":{"messageId":611102,"msg":"User authentication failed: IP address: 198.51.100.7, Uname: alice"},"origin":{"ip":"198.51.100.7"}`, true},
-	{"multiple_failed_vpn_attempts", "109034 failure text only in log.message", `"log":{"messageId":109034,"message":"Authentication failed for network user alice"},"origin":{"ip":"198.51.100.7"}`, false},
-	{"multiple_failed_vpn_attempts", "113015 as this filter stores it, address in target.ip (D01)", `"log":{"messageId":113015,"reason":"Invalid password"},"target":{"ip":"198.51.100.7"}`, false},
-	{"multiple_failed_vpn_attempts", "failure text on an unlisted message", `"log":{"messageId":113005,"msg":"authentication failed"},"origin":{"ip":"198.51.100.7"}`, false},
-	{"multiple_failed_vpn_attempts", "109034 success text", `"log":{"messageId":109034,"msg":"Authentication succeeded for network user alice"},"origin":{"ip":"198.51.100.7"}`, false},
-	{"botnet_traffic_detection", "338001 by message id", `"log":{"messageId":338001}`, true},
-	{"botnet_traffic_detection", "unlisted 338003", `"log":{"messageId":338003}`, false},
+	{"ips_signature_matches", "108003 with a source address (a future mapping, D02)", `"event":{"messageId":108003,"msg":"Terminating ESMTP/SMTP connection; malicious pattern detected"},"origin":{"ip":"198.51.100.7"}`, true},
+	{"ips_signature_matches", "108003 as a text id with a source address", `"event":{"messageId":"108003"},"origin":{"ip":"198.51.100.7"}`, true},
+	{"ips_signature_matches", "108003 as this filter stores it, no source address", `"event":{"messageId":108003,"msg":"Terminating ESMTP/SMTP connection; malicious pattern detected"}`, false},
+	{"ips_signature_matches", "event.action value that no step writes", `"event":{"messageId":420997,"action":"ips_alert"},"origin":{"ip":"198.51.100.7"}`, false},
+	{"ips_signature_matches", "unrelated connection with an address", `"event":{"messageId":302013},"origin":{"ip":"198.51.100.7"}`, false},
+	{"multiple_failed_vpn_attempts", "113015 with address and failing reason", `"event":{"messageId":113015,"reason":"Invalid password"},"origin":{"ip":"198.51.100.7","user":"alice"}`, true},
+	{"multiple_failed_vpn_attempts", "109034 failure text in event.msg", `"event":{"messageId":109034,"msg":"Authentication failed for network user alice from 198.51.100.7/51234 to 192.0.2.10/443"},"origin":{"ip":"198.51.100.7"}`, true},
+	{"multiple_failed_vpn_attempts", "611102 failure text in event.msg", `"event":{"messageId":611102,"msg":"User authentication failed: IP address: 198.51.100.7, Uname: alice"},"origin":{"ip":"198.51.100.7"}`, true},
+	{"multiple_failed_vpn_attempts", "109034 failure text only in event.message", `"event":{"messageId":109034,"message":"Authentication failed for network user alice"},"origin":{"ip":"198.51.100.7"}`, false},
+	{"multiple_failed_vpn_attempts", "113015 as this filter stores it, address in target.ip (D01)", `"event":{"messageId":113015,"reason":"Invalid password"},"target":{"ip":"198.51.100.7"}`, false},
+	{"multiple_failed_vpn_attempts", "failure text on an unlisted message", `"event":{"messageId":113005,"msg":"authentication failed"},"origin":{"ip":"198.51.100.7"}`, false},
+	{"multiple_failed_vpn_attempts", "109034 success text", `"event":{"messageId":109034,"msg":"Authentication succeeded for network user alice"},"origin":{"ip":"198.51.100.7"}`, false},
+	{"botnet_traffic_detection", "338001 by message id", `"event":{"messageId":338001}`, true},
+	{"botnet_traffic_detection", "unlisted 338003", `"event":{"messageId":338003}`, false},
 }
 
 // SDK CEL (v1.1.36) on synthetic normalized events for the changed rule conditions.

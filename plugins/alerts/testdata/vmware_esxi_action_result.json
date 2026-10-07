@@ -1,267 +1,267 @@
 [
-  {
-    "name": "session-login-success",
-    "raw": "<166>2026-09-24T02:17:48.355Z esxi01.example.com Hostd[2098874]: [Originator@6876 sub=Vimsvc.ha-eventmgr opID=HB-5e468c62 sid=52405ba9 user=vpxuser] Event 141828 : User vpxuser@192.0.2.10 logged in as VMware-client/6.5.0",
-    "message": "Event 141828 : User vpxuser@192.0.2.10 logged in as VMware-client/6.5.0",
-    "dataSource": "synthetic-esxi",
-    "result": "success",
-    "expected": {
-      "origin.ip": "192.0.2.10",
-      "origin.user": "vpxuser"
+    {
+        "name": "session-login-success",
+        "raw": "<166>2026-09-24T02:17:48.355Z esxi01.example.com Hostd[2098874]: [Originator@6876 sub=Vimsvc.ha-eventmgr opID=HB-5e468c62 sid=52405ba9 user=vpxuser] Event 141828 : User vpxuser@192.0.2.10 logged in as VMware-client/6.5.0",
+        "message": "Event 141828 : User vpxuser@192.0.2.10 logged in as VMware-client/6.5.0",
+        "dataSource": "synthetic-esxi",
+        "result": "success",
+        "expected": {
+            "origin.ip": "192.0.2.10",
+            "origin.user": "vpxuser"
+        },
+        "absent": []
     },
-    "absent": []
-  },
-  {
-    "name": "session-login-sso-user",
-    "raw": "<166>2026-09-24T02:17:48.355Z esxi01.example.com Hostd[2098874]: [Originator@6876 sub=Vimsvc.ha-eventmgr opID=HB-5e468c62 sid=52405ba9 user=vpxuser] Event 141829 : User administrator@vsphere.local@198.51.100.7 logged in as VMware-client/8.0.0",
-    "message": "Event 141829 : User administrator@vsphere.local@198.51.100.7 logged in as VMware-client/8.0.0",
-    "dataSource": "synthetic-esxi",
-    "result": "success",
-    "expected": {
-      "origin.ip": "198.51.100.7",
-      "origin.user": "administrator@vsphere.local"
+    {
+        "name": "session-login-sso-user",
+        "raw": "<166>2026-09-24T02:17:48.355Z esxi01.example.com Hostd[2098874]: [Originator@6876 sub=Vimsvc.ha-eventmgr opID=HB-5e468c62 sid=52405ba9 user=vpxuser] Event 141829 : User administrator@vsphere.local@198.51.100.7 logged in as VMware-client/8.0.0",
+        "message": "Event 141829 : User administrator@vsphere.local@198.51.100.7 logged in as VMware-client/8.0.0",
+        "dataSource": "synthetic-esxi",
+        "result": "success",
+        "expected": {
+            "origin.ip": "198.51.100.7",
+            "origin.user": "administrator@vsphere.local"
+        },
+        "absent": []
     },
-    "absent": []
-  },
-  {
-    "name": "session-login-ipv6",
-    "raw": "<166>2026-09-24T02:17:48.355Z esxi01.example.com Hostd[2098874]: [Originator@6876 sub=Vimsvc.ha-eventmgr opID=HB-5e468c62 sid=52405ba9 user=vpxuser] Event 141830 : User root@2001:db8::10 logged in as Mozilla/5.0",
-    "message": "Event 141830 : User root@2001:db8::10 logged in as Mozilla/5.0",
-    "dataSource": "synthetic-esxi",
-    "result": "success",
-    "expected": {
-      "origin.ip": "2001:db8::10",
-      "origin.user": "root"
+    {
+        "name": "session-login-ipv6",
+        "raw": "<166>2026-09-24T02:17:48.355Z esxi01.example.com Hostd[2098874]: [Originator@6876 sub=Vimsvc.ha-eventmgr opID=HB-5e468c62 sid=52405ba9 user=vpxuser] Event 141830 : User root@2001:db8::10 logged in as Mozilla/5.0",
+        "message": "Event 141830 : User root@2001:db8::10 logged in as Mozilla/5.0",
+        "dataSource": "synthetic-esxi",
+        "result": "success",
+        "expected": {
+            "origin.ip": "2001:db8::10",
+            "origin.user": "root"
+        },
+        "absent": []
     },
-    "absent": []
-  },
-  {
-    "name": "session-login-hostname-client",
-    "raw": "<166>2026-09-24T02:17:48.355Z esxi01.example.com Hostd[2098874]: [Originator@6876 sub=Vimsvc.ha-eventmgr opID=HB-5e468c62 sid=52405ba9 user=vpxuser] Event 141831 : User root@vcenter.example.com logged in as VMware-client/6.5.0",
-    "message": "Event 141831 : User root@vcenter.example.com logged in as VMware-client/6.5.0",
-    "dataSource": "synthetic-esxi",
-    "result": "",
-    "expected": {},
-    "absent": [
-      "origin.ip",
-      "origin.user",
-      "actionResult"
-    ]
-  },
-  {
-    "name": "session-logout",
-    "raw": "<166>2026-09-24T02:17:48.355Z esxi01.example.com Hostd[2098874]: [Originator@6876 sub=Vimsvc.ha-eventmgr opID=HB-5e468c62 sid=52405ba9 user=vpxuser] Event 141832 : User vpxuser@192.0.2.10 logged out (login time: Monday, 21 September, 2026 09:15:02 AM, number of API invocations: 3, user agent: VMware-client/6.5.0)",
-    "message": "Event 141832 : User vpxuser@192.0.2.10 logged out (login time: Monday, 21 September, 2026 09:15:02 AM, number of API invocations: 3, user agent: VMware-client/6.5.0)",
-    "dataSource": "synthetic-esxi",
-    "result": "",
-    "expected": {},
-    "absent": [
-      "origin.ip",
-      "origin.user",
-      "actionResult"
-    ]
-  },
-  {
-    "name": "password-check-not-final",
-    "raw": "<166>2026-09-24T02:17:48.355Z esxi01.example.com Hostd[2098874]: [Originator@6876 sub=Vimsvc.ha-eventmgr opID=HB-5e468c62 sid=52405ba9 user=vpxuser] Accepted password for user vpxuser from 192.0.2.10 - session=00000000-0000-4000-8000-000000000001",
-    "message": "Accepted password for user vpxuser from 192.0.2.10 - session=00000000-0000-4000-8000-000000000001",
-    "process": "Hostd",
-    "dataSource": "synthetic-esxi",
-    "result": "",
-    "expected": {},
-    "absent": [
-      "origin.ip",
-      "origin.user",
-      "actionResult"
-    ]
-  },
-  {
-    "name": "authentication-failed-message",
-    "raw": "<166>2026-09-24T02:17:48.355Z esxi01.example.com Hostd[2098874]: [Originator@6876 sub=Vimsvc.ha-eventmgr opID=HB-5e468c62 sid=52405ba9 user=vpxuser] SSH login authentication failed for user root",
-    "message": "SSH login authentication failed for user root",
-    "dataSource": "synthetic-esxi",
-    "result": "failed",
-    "expected": {},
-    "absent": [
-      "origin.ip"
-    ]
-  },
-  {
-    "name": "authentication-of-user-capitalized-not-matched",
-    "raw": "<166>2026-09-24T02:17:48.355Z esxi01.example.com Hostd[2098874]: [Originator@6876 sub=Vimsvc.ha-eventmgr opID=HB-5e468c62 sid=52405ba9 user=vpxuser] Authentication of user root has failed",
-    "message": "Authentication of user root has failed",
-    "dataSource": "synthetic-esxi",
-    "result": "",
-    "expected": {},
-    "absent": [
-      "origin.ip",
-      "actionResult"
-    ]
-  },
-  {
-    "name": "authentication-of-user-failed-lowercase",
-    "raw": "<166>2026-09-24T02:17:48.355Z esxi01.example.com Hostd[2098874]: [Originator@6876 sub=Vimsvc.ha-eventmgr opID=HB-5e468c62 sid=52405ba9 user=vpxuser] authentication of user root failed",
-    "message": "authentication of user root failed",
-    "dataSource": "synthetic-esxi",
-    "result": "failed",
-    "expected": {},
-    "absent": [
-      "origin.ip"
-    ]
-  },
-  {
-    "name": "vcenter-line-not-parsed",
-    "raw": "<14>1 2026-09-24T02:38:14.212404+00:00 vcenter01 vpxd 5736 - -  Event [1410559] [1-1] [2026-09-24T02:38:14.206348Z] [vim.event.UserLoginSessionEvent] [info] [VSPHERE.LOCAL\\Administrator] [] [1410559] [User VSPHERE.LOCAL\\Administrator@203.0.113.9 logged in as VMware-client/6.5.0]",
-    "message": "",
-    "dataSource": "synthetic-esxi",
-    "result": "",
-    "expected": {},
-    "absent": [
-      "origin.ip",
-      "origin.user",
-      "actionResult"
-    ]
-  },
-  {
-    "name": "cannot-login-with-address",
-    "raw": "<166>2026-09-24T02:17:48.355Z esxi01.example.com Hostd[2098874]: [Originator@6876 sub=Vimsvc.ha-eventmgr opID=HB-5e468c62 sid=52405ba9] Event 141840 : Cannot login vpxuser@192.0.2.20",
-    "message": "Event 141840 : Cannot login vpxuser@192.0.2.20",
-    "dataSource": "synthetic-esxi",
-    "result": "failed",
-    "expected": {
-      "origin.ip": "192.0.2.20",
-      "origin.user": "vpxuser"
+    {
+        "name": "session-login-hostname-client",
+        "raw": "<166>2026-09-24T02:17:48.355Z esxi01.example.com Hostd[2098874]: [Originator@6876 sub=Vimsvc.ha-eventmgr opID=HB-5e468c62 sid=52405ba9 user=vpxuser] Event 141831 : User root@vcenter.example.com logged in as VMware-client/6.5.0",
+        "message": "Event 141831 : User root@vcenter.example.com logged in as VMware-client/6.5.0",
+        "dataSource": "synthetic-esxi",
+        "result": "",
+        "expected": {},
+        "absent": [
+            "origin.ip",
+            "origin.user",
+            "actionResult"
+        ]
     },
-    "absent": []
-  },
-  {
-    "name": "cannot-login-bare",
-    "raw": "<166>2026-09-24T02:17:48.355Z esxi01.example.com Hostd[2098874]: [Originator@6876 sub=Vimsvc.ha-eventmgr opID=HB-5e468c62 sid=52405ba9] Event 141841 : Cannot login",
-    "message": "Event 141841 : Cannot login",
-    "dataSource": "synthetic-esxi",
-    "result": "failed",
-    "expected": {},
-    "absent": [
-      "origin.ip",
-      "origin.user"
-    ]
-  },
-  {
-    "name": "cannot-login-no-permission",
-    "raw": "<166>2026-09-24T02:17:48.355Z esxi01.example.com Hostd[2098874]: [Originator@6876 sub=Vimsvc.ha-eventmgr opID=HB-5e468c62 sid=52405ba9] Event 141842 : Cannot login user root@198.51.100.12: no permission",
-    "message": "Event 141842 : Cannot login user root@198.51.100.12: no permission",
-    "dataSource": "synthetic-esxi",
-    "result": "denied",
-    "expected": {
-      "origin.ip": "198.51.100.12",
-      "origin.user": "root"
+    {
+        "name": "session-logout",
+        "raw": "<166>2026-09-24T02:17:48.355Z esxi01.example.com Hostd[2098874]: [Originator@6876 sub=Vimsvc.ha-eventmgr opID=HB-5e468c62 sid=52405ba9 user=vpxuser] Event 141832 : User vpxuser@192.0.2.10 logged out (login time: Monday, 21 September, 2026 09:15:02 AM, number of API invocations: 3, user agent: VMware-client/6.5.0)",
+        "message": "Event 141832 : User vpxuser@192.0.2.10 logged out (login time: Monday, 21 September, 2026 09:15:02 AM, number of API invocations: 3, user agent: VMware-client/6.5.0)",
+        "dataSource": "synthetic-esxi",
+        "result": "",
+        "expected": {},
+        "absent": [
+            "origin.ip",
+            "origin.user",
+            "actionResult"
+        ]
     },
-    "absent": []
-  },
-  {
-    "name": "rejected-password-check-not-final",
-    "raw": "<166>2026-09-24T02:17:48.355Z esxi01.example.com Hostd[2098874]: [Originator@6876 sub=Vimsvc.ha-eventmgr opID=HB-5e468c62 sid=52405ba9] Rejected password for user root from 198.51.100.30",
-    "message": "Rejected password for user root from 198.51.100.30",
-    "process": "Hostd",
-    "dataSource": "synthetic-esxi",
-    "result": "",
-    "expected": {},
-    "absent": [
-      "origin.ip",
-      "origin.user",
-      "actionResult"
-    ]
-  },
-  {
-    "name": "ssh-accepted",
-    "raw": "<38>2026-09-24T02:17:48.355Z esxi01.example.com sshd[1053654]: Accepted keyboard-interactive/pam for root from 203.0.113.40 port 58470 ssh2",
-    "message": "Accepted keyboard-interactive/pam for root from 203.0.113.40 port 58470 ssh2",
-    "process": "sshd",
-    "dataSource": "synthetic-esxi",
-    "result": "success",
-    "expected": {
-      "origin.ip": "203.0.113.40",
-      "origin.user": "root",
-      "log.authMethod": "keyboard-interactive/pam"
+    {
+        "name": "password-check-not-final",
+        "raw": "<166>2026-09-24T02:17:48.355Z esxi01.example.com Hostd[2098874]: [Originator@6876 sub=Vimsvc.ha-eventmgr opID=HB-5e468c62 sid=52405ba9 user=vpxuser] Accepted password for user vpxuser from 192.0.2.10 - session=00000000-0000-4000-8000-000000000001",
+        "message": "Accepted password for user vpxuser from 192.0.2.10 - session=00000000-0000-4000-8000-000000000001",
+        "process": "Hostd",
+        "dataSource": "synthetic-esxi",
+        "result": "",
+        "expected": {},
+        "absent": [
+            "origin.ip",
+            "origin.user",
+            "actionResult"
+        ]
     },
-    "absent": []
-  },
-  {
-    "name": "ssh-accepted-publickey-ipv6",
-    "raw": "<38>2026-09-24T02:17:48.355Z esxi01.example.com sshd[1053655]: Accepted publickey for root from 2001:db8::40 port 33398 ssh2: RSA SHA256:AAAAfabricated",
-    "message": "Accepted publickey for root from 2001:db8::40 port 33398 ssh2: RSA SHA256:AAAAfabricated",
-    "process": "sshd",
-    "dataSource": "synthetic-esxi",
-    "result": "success",
-    "expected": {
-      "origin.ip": "2001:db8::40",
-      "origin.user": "root"
+    {
+        "name": "authentication-failed-message",
+        "raw": "<166>2026-09-24T02:17:48.355Z esxi01.example.com Hostd[2098874]: [Originator@6876 sub=Vimsvc.ha-eventmgr opID=HB-5e468c62 sid=52405ba9 user=vpxuser] SSH login authentication failed for user root",
+        "message": "SSH login authentication failed for user root",
+        "dataSource": "synthetic-esxi",
+        "result": "failed",
+        "expected": {},
+        "absent": [
+            "origin.ip"
+        ]
     },
-    "absent": []
-  },
-  {
-    "name": "ssh-pam-failure",
-    "raw": "<38>2026-09-24T02:17:48.355Z esxi01.example.com sshd[1053700]: error: PAM: Authentication failure for root from 203.0.113.41",
-    "message": "error: PAM: Authentication failure for root from 203.0.113.41",
-    "process": "sshd",
-    "dataSource": "synthetic-esxi",
-    "result": "failed",
-    "expected": {
-      "origin.ip": "203.0.113.41",
-      "origin.user": "root"
+    {
+        "name": "authentication-of-user-capitalized-not-matched",
+        "raw": "<166>2026-09-24T02:17:48.355Z esxi01.example.com Hostd[2098874]: [Originator@6876 sub=Vimsvc.ha-eventmgr opID=HB-5e468c62 sid=52405ba9 user=vpxuser] Authentication of user root has failed",
+        "message": "Authentication of user root has failed",
+        "dataSource": "synthetic-esxi",
+        "result": "",
+        "expected": {},
+        "absent": [
+            "origin.ip",
+            "actionResult"
+        ]
     },
-    "absent": []
-  },
-  {
-    "name": "ssh-pam-failure-illegal-user",
-    "raw": "<38>2026-09-24T02:17:48.355Z esxi01.example.com sshd[1053701]: error: PAM: Authentication failure for illegal user admin from 203.0.113.42",
-    "message": "error: PAM: Authentication failure for illegal user admin from 203.0.113.42",
-    "process": "sshd",
-    "dataSource": "synthetic-esxi",
-    "result": "failed",
-    "expected": {
-      "origin.ip": "203.0.113.42",
-      "origin.user": "admin"
+    {
+        "name": "authentication-of-user-failed-lowercase",
+        "raw": "<166>2026-09-24T02:17:48.355Z esxi01.example.com Hostd[2098874]: [Originator@6876 sub=Vimsvc.ha-eventmgr opID=HB-5e468c62 sid=52405ba9 user=vpxuser] authentication of user root failed",
+        "message": "authentication of user root failed",
+        "dataSource": "synthetic-esxi",
+        "result": "failed",
+        "expected": {},
+        "absent": [
+            "origin.ip"
+        ]
     },
-    "absent": []
-  },
-  {
-    "name": "ssh-pam-unix-duplicate-line",
-    "raw": "<38>2026-09-24T02:17:48.355Z esxi01.example.com sshd[1053700]: pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=203.0.113.41 user=root",
-    "message": "pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=203.0.113.41 user=root",
-    "process": "sshd",
-    "dataSource": "synthetic-esxi",
-    "result": "",
-    "expected": {},
-    "absent": [
-      "origin.ip",
-      "actionResult"
-    ]
-  },
-  {
-    "name": "ssh-session-opened-notice",
-    "raw": "<14>2026-09-24T02:17:48.355Z esxi01.example.com vobd[2098100]:  [GenericCorrelator] 2216526905us: [vob.user.ssh.session.opened] SSH session was opened for 'root@203.0.113.40'.",
-    "message": "[vob.user.ssh.session.opened] SSH session was opened for 'root@203.0.113.40'.",
-    "process": "vobd",
-    "dataSource": "synthetic-esxi",
-    "result": "",
-    "expected": {},
-    "absent": [
-      "origin.ip",
-      "actionResult"
-    ]
-  },
-  {
-    "name": "ssh-login-failed-notice",
-    "raw": "<14>2026-09-24T02:17:48.355Z esxi01.example.com vobd[2098100]:  [GenericCorrelator] 2216526905us: [vob.user.ssh.session.failed] SSH login has failed for 'root@203.0.113.41'.",
-    "message": "[vob.user.ssh.session.failed] SSH login has failed for 'root@203.0.113.41'.",
-    "process": "vobd",
-    "dataSource": "synthetic-esxi",
-    "result": "",
-    "expected": {},
-    "absent": [
-      "origin.ip",
-      "actionResult"
-    ]
-  }
+    {
+        "name": "vcenter-line-not-parsed",
+        "raw": "<14>1 2026-09-24T02:38:14.212404+00:00 vcenter01 vpxd 5736 - -  Event [1410559] [1-1] [2026-09-24T02:38:14.206348Z] [vim.event.UserLoginSessionEvent] [info] [VSPHERE.LOCAL\\Administrator] [] [1410559] [User VSPHERE.LOCAL\\Administrator@203.0.113.9 logged in as VMware-client/6.5.0]",
+        "message": "",
+        "dataSource": "synthetic-esxi",
+        "result": "",
+        "expected": {},
+        "absent": [
+            "origin.ip",
+            "origin.user",
+            "actionResult"
+        ]
+    },
+    {
+        "name": "cannot-login-with-address",
+        "raw": "<166>2026-09-24T02:17:48.355Z esxi01.example.com Hostd[2098874]: [Originator@6876 sub=Vimsvc.ha-eventmgr opID=HB-5e468c62 sid=52405ba9] Event 141840 : Cannot login vpxuser@192.0.2.20",
+        "message": "Event 141840 : Cannot login vpxuser@192.0.2.20",
+        "dataSource": "synthetic-esxi",
+        "result": "failed",
+        "expected": {
+            "origin.ip": "192.0.2.20",
+            "origin.user": "vpxuser"
+        },
+        "absent": []
+    },
+    {
+        "name": "cannot-login-bare",
+        "raw": "<166>2026-09-24T02:17:48.355Z esxi01.example.com Hostd[2098874]: [Originator@6876 sub=Vimsvc.ha-eventmgr opID=HB-5e468c62 sid=52405ba9] Event 141841 : Cannot login",
+        "message": "Event 141841 : Cannot login",
+        "dataSource": "synthetic-esxi",
+        "result": "failed",
+        "expected": {},
+        "absent": [
+            "origin.ip",
+            "origin.user"
+        ]
+    },
+    {
+        "name": "cannot-login-no-permission",
+        "raw": "<166>2026-09-24T02:17:48.355Z esxi01.example.com Hostd[2098874]: [Originator@6876 sub=Vimsvc.ha-eventmgr opID=HB-5e468c62 sid=52405ba9] Event 141842 : Cannot login user root@198.51.100.12: no permission",
+        "message": "Event 141842 : Cannot login user root@198.51.100.12: no permission",
+        "dataSource": "synthetic-esxi",
+        "result": "denied",
+        "expected": {
+            "origin.ip": "198.51.100.12",
+            "origin.user": "root"
+        },
+        "absent": []
+    },
+    {
+        "name": "rejected-password-check-not-final",
+        "raw": "<166>2026-09-24T02:17:48.355Z esxi01.example.com Hostd[2098874]: [Originator@6876 sub=Vimsvc.ha-eventmgr opID=HB-5e468c62 sid=52405ba9] Rejected password for user root from 198.51.100.30",
+        "message": "Rejected password for user root from 198.51.100.30",
+        "process": "Hostd",
+        "dataSource": "synthetic-esxi",
+        "result": "",
+        "expected": {},
+        "absent": [
+            "origin.ip",
+            "origin.user",
+            "actionResult"
+        ]
+    },
+    {
+        "name": "ssh-accepted",
+        "raw": "<38>2026-09-24T02:17:48.355Z esxi01.example.com sshd[1053654]: Accepted keyboard-interactive/pam for root from 203.0.113.40 port 58470 ssh2",
+        "message": "Accepted keyboard-interactive/pam for root from 203.0.113.40 port 58470 ssh2",
+        "process": "sshd",
+        "dataSource": "synthetic-esxi",
+        "result": "success",
+        "expected": {
+            "origin.ip": "203.0.113.40",
+            "origin.user": "root",
+            "event.authMethod": "keyboard-interactive/pam"
+        },
+        "absent": []
+    },
+    {
+        "name": "ssh-accepted-publickey-ipv6",
+        "raw": "<38>2026-09-24T02:17:48.355Z esxi01.example.com sshd[1053655]: Accepted publickey for root from 2001:db8::40 port 33398 ssh2: RSA SHA256:AAAAfabricated",
+        "message": "Accepted publickey for root from 2001:db8::40 port 33398 ssh2: RSA SHA256:AAAAfabricated",
+        "process": "sshd",
+        "dataSource": "synthetic-esxi",
+        "result": "success",
+        "expected": {
+            "origin.ip": "2001:db8::40",
+            "origin.user": "root"
+        },
+        "absent": []
+    },
+    {
+        "name": "ssh-pam-failure",
+        "raw": "<38>2026-09-24T02:17:48.355Z esxi01.example.com sshd[1053700]: error: PAM: Authentication failure for root from 203.0.113.41",
+        "message": "error: PAM: Authentication failure for root from 203.0.113.41",
+        "process": "sshd",
+        "dataSource": "synthetic-esxi",
+        "result": "failed",
+        "expected": {
+            "origin.ip": "203.0.113.41",
+            "origin.user": "root"
+        },
+        "absent": []
+    },
+    {
+        "name": "ssh-pam-failure-illegal-user",
+        "raw": "<38>2026-09-24T02:17:48.355Z esxi01.example.com sshd[1053701]: error: PAM: Authentication failure for illegal user admin from 203.0.113.42",
+        "message": "error: PAM: Authentication failure for illegal user admin from 203.0.113.42",
+        "process": "sshd",
+        "dataSource": "synthetic-esxi",
+        "result": "failed",
+        "expected": {
+            "origin.ip": "203.0.113.42",
+            "origin.user": "admin"
+        },
+        "absent": []
+    },
+    {
+        "name": "ssh-pam-unix-duplicate-line",
+        "raw": "<38>2026-09-24T02:17:48.355Z esxi01.example.com sshd[1053700]: pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=203.0.113.41 user=root",
+        "message": "pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=203.0.113.41 user=root",
+        "process": "sshd",
+        "dataSource": "synthetic-esxi",
+        "result": "",
+        "expected": {},
+        "absent": [
+            "origin.ip",
+            "actionResult"
+        ]
+    },
+    {
+        "name": "ssh-session-opened-notice",
+        "raw": "<14>2026-09-24T02:17:48.355Z esxi01.example.com vobd[2098100]:  [GenericCorrelator] 2216526905us: [vob.user.ssh.session.opened] SSH session was opened for 'root@203.0.113.40'.",
+        "message": "[vob.user.ssh.session.opened] SSH session was opened for 'root@203.0.113.40'.",
+        "process": "vobd",
+        "dataSource": "synthetic-esxi",
+        "result": "",
+        "expected": {},
+        "absent": [
+            "origin.ip",
+            "actionResult"
+        ]
+    },
+    {
+        "name": "ssh-login-failed-notice",
+        "raw": "<14>2026-09-24T02:17:48.355Z esxi01.example.com vobd[2098100]:  [GenericCorrelator] 2216526905us: [vob.user.ssh.session.failed] SSH login has failed for 'root@203.0.113.41'.",
+        "message": "[vob.user.ssh.session.failed] SSH login has failed for 'root@203.0.113.41'.",
+        "process": "vobd",
+        "dataSource": "synthetic-esxi",
+        "result": "",
+        "expected": {},
+        "absent": [
+            "origin.ip",
+            "actionResult"
+        ]
+    }
 ]

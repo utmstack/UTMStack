@@ -31,20 +31,20 @@ description: |
   9. Document the incident and update threat hunting queries to detect similar activity
   10. If confirmed malicious, initiate incident response procedures and consider threat hunting across the environment
 where: |
-  equals("log.eventType", "alert") &&
+  equals("event.eventType", "alert") &&
   exists("origin.ip") &&
   (
-    equals("log.alert.category", "Domain Observed Used for C2 Detected") ||
+    equals("event.alert.category", "Domain Observed Used for C2 Detected") ||
     (
-      (startsWith("log.alert.signature", "ET CINS ") ||
-       startsWith("log.alert.signature", "ET DROP ") ||
-       startsWith("log.alert.signature", "ET COMPROMISED ") ||
-       startsWith("log.alert.signature", "ET 3CORESec ")) &&
-      equals("log.direction", "to_client")
+      (startsWith("event.alert.signature", "ET CINS ") ||
+       startsWith("event.alert.signature", "ET DROP ") ||
+       startsWith("event.alert.signature", "ET COMPROMISED ") ||
+       startsWith("event.alert.signature", "ET 3CORESec ")) &&
+      equals("event.direction", "to_client")
     )
   )
 deduplicateBy:
   - dataSource
   - adversary.ip
   - target.ip
-  - lastEvent.log.alert.signature_id
+  - lastEvent.event.alert.signature_id

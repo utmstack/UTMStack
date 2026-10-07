@@ -266,6 +266,18 @@ func Apply(version string, updating bool) (string, error) {
 		fmt.Println(" [OK]")
 	}
 
+	if utils.GetLock(20261001001, stack.LocksDir) {
+		fmt.Print("Pinning event/controls OpenSearch mappings.")
+		if err := services.UpdateOpenSearch(); err != nil {
+			return "", err
+		}
+
+		if err := utils.SetLock(20261001001, stack.LocksDir); err != nil {
+			return "", err
+		}
+		fmt.Println(" [OK]")
+	}
+
 	if !updating {
 		fmt.Print("Waiting for Backend to be ready. This may take a while.")
 

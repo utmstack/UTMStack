@@ -26,7 +26,7 @@ description: |
   7. Consider implementing additional monitoring or restrictions if the activity appears suspicious
   8. Review data loss prevention (DLP) policies and ensure they are properly configured
 where: |
-  equals("action", "FileDownloaded") && exists("origin.user") && oneOf("log.Workload", ["SharePoint", "OneDrive"])
+  equals("action", "FileDownloaded") && exists("origin.user") && oneOf("event.Workload", ["SharePoint", "OneDrive"])
 afterEvents:
   - indexPattern: v11-log-o365-*
     with:

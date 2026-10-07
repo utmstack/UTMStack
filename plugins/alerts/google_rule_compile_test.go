@@ -25,7 +25,7 @@ func TestGoogleAuditChangeRulesCompile(t *testing.T) {
 	}
 	sink, iam := load("gcp_logging_sink_modified"), load("gcp_iam_policy_changed")
 	event := func(service, method string) string {
-		return `{"dataType":"google","origin":{"user":"admin@example.test"},"log":{` +
+		return `{"dataType":"google","origin":{"user":"admin@example.test"},"event":{` +
 			`"protoPayloadServiceName":"` + service + `","protoPayloadMethodName":"` + method + `",` +
 			`"logName":"projects/example/logs/cloudaudit.googleapis.com%2Factivity",` +
 			`"protoPayload":{"request":{"policy":{"bindings":[{"role":"roles/owner"}]}}}}}`

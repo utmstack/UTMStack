@@ -15,36 +15,36 @@ references:
 description: |
   Detects a successful AssumeRoleWithSAML request after a successful SAML provider creation or update in the same AWS account and collector within 24 hours. The provider change can be by a different administrator. This sequence requires investigation and does not prove that a SAML assertion was forged.
 where: |
-  (equals("log.awsRecordType","cloudtrail") &&
-  (equals("log.eventSource", "sts.amazonaws.com") &&
-  equals("log.eventName", "AssumeRoleWithSAML") &&
+  (equals("event.awsRecordType","cloudtrail") &&
+  (equals("event.eventSource", "sts.amazonaws.com") &&
+  equals("event.eventName", "AssumeRoleWithSAML") &&
   equals("actionResult","success"))) &&
   exists("dataSource") &&
   !equals("dataSource","") &&
-  exists("log.awsAccountKeyType") &&
-  !equals("log.awsAccountKeyType","") &&
-  exists("log.awsAccountKey") &&
-  !equals("log.awsAccountKey","")
+  exists("event.awsAccountKeyType") &&
+  !equals("event.awsAccountKeyType","") &&
+  exists("event.awsAccountKey") &&
+  !equals("event.awsAccountKey","")
 afterEvents:
 - indexPattern: v11-log-aws-*
   with:
   - field: dataSource
     operator: filter_term
     value: '{{.dataSource}}'
-  - field: log.awsAccountKeyType
+  - field: event.awsAccountKeyType
     operator: filter_term
-    value: '{{.log.awsAccountKeyType}}'
-  - field: log.awsAccountKey
+    value: '{{.event.awsAccountKeyType}}'
+  - field: event.awsAccountKey
     operator: filter_term
-    value: '{{.log.awsAccountKey}}'
-  - field: log.correlationCandidate.samlProviderChange
+    value: '{{.event.awsAccountKey}}'
+  - field: event.correlationCandidate.samlProviderChange
     operator: filter_term
     value: match
   within: 24h
   count: 1
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
 - adversary.user
-- lastEvent.log.requestParametersRoleArn
+- lastEvent.event.requestParametersRoleArn

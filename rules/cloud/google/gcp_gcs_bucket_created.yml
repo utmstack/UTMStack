@@ -25,6 +25,6 @@ description: |
   5. If unauthorized, delete the bucket and investigate the user
   6. Review other storage operations by the same user in the same time window
 where: |
-  equals("log.protoPayloadServiceName", "storage.googleapis.com") &&
-  equals("log.protoPayloadMethodName", "storage.buckets.create") &&
+  equals("event.protoPayloadServiceName", "storage.googleapis.com") &&
+  equals("event.protoPayloadMethodName", "storage.buckets.create") &&
   exists("origin.user")

@@ -27,15 +27,15 @@ const s1Rules = "../../rules/antivirus/sentinel-one"
 
 // kv keeps only the first word of these values; each one is re-extracted in full.
 var s1MultiWord = map[string]string{
-	"accountName":                     "log.accName",
-	"eventDesc":                       "log.eventDescription",
-	"suser":                           "log.sourceUser",
-	"duser":                           "log.destinationUser",
-	"endpointDeviceControlDeviceName": "log.endpointDeviceName",
-	"sourceGroupName":                 "log.sourceGpName",
-	"sourceIpAddresses":               "log.sourceIps",
-	"sourceMacAddresses":              "log.sourceMacs",
-	"siteName":                        "log.siteName",
+	"accountName":                     "event.accName",
+	"eventDesc":                       "event.eventDescription",
+	"suser":                           "event.sourceUser",
+	"duser":                           "event.destinationUser",
+	"endpointDeviceControlDeviceName": "event.endpointDeviceName",
+	"sourceGroupName":                 "event.sourceGpName",
+	"sourceIpAddresses":               "event.sourceIps",
+	"sourceMacAddresses":              "event.sourceMacs",
+	"siteName":                        "event.siteName",
 }
 
 func s1Config(t *testing.T) *plugins.Pipeline {
@@ -114,15 +114,15 @@ func TestSentinelOneFilterContract(t *testing.T) {
 	header, kv := -1, -1
 	for i, step := range steps {
 		for _, field := range s1Writes(step) {
-			if field == "log.syslogHost" {
-				t.Errorf("step %d writes log.syslogHost; the CEF version slot is not a host", i)
+			if field == "event.syslogHost" {
+				t.Errorf("step %d writes event.syslogHost; the CEF version slot is not a host", i)
 			}
 			if field == "severity" {
 				t.Errorf("step %d writes severity; the vendor CEF severity scale is not established", i)
 			}
 		}
-		if trim := step.Trim; trim != nil && s1Contains(trim.Fields, "log.syslogHost") {
-			t.Errorf("step %d still trims log.syslogHost", i)
+		if trim := step.Trim; trim != nil && s1Contains(trim.Fields, "event.syslogHost") {
+			t.Errorf("step %d still trims event.syslogHost", i)
 		}
 		if g := step.Grok; g != nil && g.Source == "raw" && g.Where == `contains("raw", "CEF:")` {
 			header = i
@@ -132,8 +132,8 @@ func TestSentinelOneFilterContract(t *testing.T) {
 					named = append(named, p.FieldName)
 				}
 			}
-			want := []string{"log.cefDeviceVendor", "log.cefDeviceProduct", "log.cefDeviceVersion",
-				"log.cefSignatureId", "log.eventDescription", "log.cefSeverity", "log.restData"}
+			want := []string{"event.cefDeviceVendor", "event.cefDeviceProduct", "event.cefDeviceVersion",
+				"event.cefSignatureId", "event.eventDescription", "event.cefSeverity", "event.restData"}
 			if strings.Join(named, ",") != strings.Join(want, ",") {
 				t.Errorf("CEF header fields %v, want %v", named, want)
 			}
@@ -143,8 +143,8 @@ func TestSentinelOneFilterContract(t *testing.T) {
 		}
 		if step.Kv != nil {
 			kv = i
-			if step.Kv.Source != "log.restData" || step.Kv.Where != `exists("log.restData")` {
-				t.Errorf("kv must read log.restData only when it exists, got %q / %q", step.Kv.Source, step.Kv.Where)
+			if step.Kv.Source != "event.restData" || step.Kv.Where != `exists("event.restData")` {
+				t.Errorf("kv must read event.restData only when it exists, got %q / %q", step.Kv.Source, step.Kv.Where)
 			}
 		}
 	}
@@ -158,7 +158,7 @@ func TestSentinelOneFilterContract(t *testing.T) {
 		found := false
 		for _, step := range steps {
 			g := step.Grok
-			if g == nil || g.Source != "log.restData" || len(g.Patterns) != 2 {
+			if g == nil || g.Source != "event.restData" || len(g.Patterns) != 2 {
 				continue
 			}
 			if g.Patterns[0].Pattern != `{{.data}}(?:^|[\s|])`+key+`=` {
@@ -193,16 +193,16 @@ func TestSentinelOneFilterContract(t *testing.T) {
 	// Full rt value and a guarded deviceTime.
 	var rtGrok, reformat, deviceTime bool
 	for _, step := range steps {
-		if g := step.Grok; g != nil && g.Source == "log.restData" && len(g.Patterns) == 2 &&
-			g.Patterns[0].Pattern == `{{.data}}(?:^|[\s|])rt=#arcsightDate\(` && g.Patterns[1].FieldName == "log.rt" {
+		if g := step.Grok; g != nil && g.Source == "event.restData" && len(g.Patterns) == 2 &&
+			g.Patterns[0].Pattern == `{{.data}}(?:^|[\s|])rt=#arcsightDate\(` && g.Patterns[1].FieldName == "event.rt" {
 			rtGrok = true
 		}
-		if r := step.Reformat; r != nil && s1Contains(r.Fields, "log.deviceTimeCandidate") {
+		if r := step.Reformat; r != nil && s1Contains(r.Fields, "event.deviceTimeCandidate") {
 			reformat = r.Function == "time" && r.FromFormat == "Mon, 2 Jan 2006, 15:04:05 MST" &&
 				r.ToFormat == "2006-01-02T15:04:05Z07:00" && strings.Contains(r.Where, "UTC$")
 		}
 		if r := step.Rename; r != nil && r.To == "deviceTime" {
-			deviceTime = strings.Join(r.From, ",") == "log.deviceTimeCandidate" && strings.Contains(r.Where, "T[0-9]{2}")
+			deviceTime = strings.Join(r.From, ",") == "event.deviceTimeCandidate" && strings.Contains(r.Where, "T[0-9]{2}")
 		}
 	}
 	if !rtGrok || !reformat || !deviceTime {
@@ -217,9 +217,9 @@ func TestSentinelOneFilterContract(t *testing.T) {
 		}
 		writers++
 		g := step.Grok
-		if g == nil || g.Source != "log.sourceUser" || len(g.Patterns) != 1 ||
-			!strings.HasPrefix(g.Where, `equals("log.cat", "SystemEvent") && `) {
-			t.Errorf("step %d: origin.user must be a copy of log.sourceUser for SystemEvent only", i)
+		if g == nil || g.Source != "event.sourceUser" || len(g.Patterns) != 1 ||
+			!strings.HasPrefix(g.Where, `equals("event.cat", "SystemEvent") && `) {
+			t.Errorf("step %d: origin.user must be a copy of event.sourceUser for SystemEvent only", i)
 		}
 	}
 	if writers != 1 {
@@ -230,8 +230,8 @@ func TestSentinelOneFilterContract(t *testing.T) {
 	if cleanup == nil || cleanup.Where != "" {
 		t.Fatal("the filter must end with an unconditional cleanup")
 	}
-	for _, kept := range []string{"log.sourceUser", "log.eventDescription", "log.cefSeverity",
-		"log.cefSignatureId", "log.ruleTime", "log.siteName", "origin.user"} {
+	for _, kept := range []string{"event.sourceUser", "event.eventDescription", "event.cefSeverity",
+		"event.cefSignatureId", "event.ruleTime", "event.siteName", "origin.user"} {
 		if s1Contains(cleanup.Fields, kept) {
 			t.Errorf("cleanup deletes %s", kept)
 		}
@@ -241,7 +241,7 @@ func TestSentinelOneFilterContract(t *testing.T) {
 			}
 		}
 	}
-	for _, scratch := range []string{"log.restData", "log.deviceTimeCandidate", "log.3trash", "log.suser", "log.accountName"} {
+	for _, scratch := range []string{"event.restData", "event.deviceTimeCandidate", "event.3trash", "event.suser", "event.accountName"} {
 		if !s1Contains(cleanup.Fields, scratch) {
 			t.Errorf("cleanup keeps %s", scratch)
 		}
@@ -255,7 +255,7 @@ var s1RegexCall = regexp.MustCompile(`regexMatch\("[^"]*",\s*("(?:[^"\\]|\\.)*")
 func TestSentinelOnePatternsCompile(t *testing.T) {
 	defs := s1Patterns(t)
 	cache := plugins.NewCELCache("sentinel-one-compile")
-	sample := `{"dataType":"antivirus-sentinel-one","raw":"CEF:0","log":{"eventDescription":"x","restData":"x","cat":"x"}}`
+	sample := `{"dataType":"antivirus-sentinel-one","raw":"CEF:0","event":{"eventDescription":"x","restData":"x","cat":"x"}}`
 	checkWhere := func(where string) {
 		if where == "" {
 			return
@@ -332,7 +332,7 @@ func s1TrimRegex(value, pattern string) string {
 }
 
 type s1Case struct {
-	Log    map[string]string `json:"log"`
+	Log    map[string]string `json:"event"`
 	Alerts []string          `json:"alerts"`
 }
 
@@ -370,9 +370,9 @@ func TestSentinelOneExtractionPatternsModel(t *testing.T) {
 		switch g := step.Grok; {
 		case g != nil && g.Where == `contains("raw", "CEF:")`:
 			header = g
-		case g != nil && g.Source == "log.restData" && len(g.Patterns) == 2 && g.Patterns[1].FieldName == "log.rt":
+		case g != nil && g.Source == "event.restData" && len(g.Patterns) == 2 && g.Patterns[1].FieldName == "event.rt":
 			rt = g
-		case g != nil && g.Source == "log.restData" && len(g.Patterns) == 2 && strings.HasSuffix(g.Patterns[1].Pattern, "|.+)"):
+		case g != nil && g.Source == "event.restData" && len(g.Patterns) == 2 && strings.HasSuffix(g.Patterns[1].Pattern, "|.+)"):
 			valueGroks = append(valueGroks, g)
 		}
 		if tr := step.Trim; tr != nil && tr.Function == "regex" {
@@ -394,8 +394,8 @@ func TestSentinelOneExtractionPatternsModel(t *testing.T) {
 			if !ok {
 				t.Fatal("CEF header not parsed")
 			}
-			rest := got["log.restData"]
-			draft, _ := json.Marshal(map[string]any{"log": map[string]string{"restData": rest}})
+			rest := got["event.restData"]
+			draft, _ := json.Marshal(map[string]any{"event": map[string]string{"restData": rest}})
 			for _, g := range valueGroks {
 				match, err := cache.Eval(g.Where, string(draft))
 				if err != nil {
@@ -409,16 +409,16 @@ func TestSentinelOneExtractionPatternsModel(t *testing.T) {
 				}
 			}
 			if values, ok := s1Grok(t, rest, rt, defs); ok {
-				got["log.rt"] = values["log.rt"]
+				got["event.rt"] = values["event.rt"]
 			}
 			for _, key := range []string{"cefDeviceVendor", "cefDeviceProduct", "cefDeviceVersion",
 				"cefSignatureId", "eventDescription", "cefSeverity"} {
-				if got["log."+key] != want[key] {
-					t.Errorf("log.%s = %q, want %q", key, got["log."+key], want[key])
+				if got["event."+key] != want[key] {
+					t.Errorf("event.%s = %q, want %q", key, got["event."+key], want[key])
 				}
 			}
 			for _, out := range s1MultiWord {
-				key := strings.TrimPrefix(out, "log.")
+				key := strings.TrimPrefix(out, "event.")
 				if key == "eventDescription" {
 					continue
 				}
@@ -426,11 +426,11 @@ func TestSentinelOneExtractionPatternsModel(t *testing.T) {
 					t.Errorf("%s = %q, want %q", out, got[out], value)
 				}
 			}
-			if strings.Contains(line, "rt=#arcsightDate(") && got["log.rt"] != want["ruleTime"] {
-				t.Errorf("log.rt = %q, want %q", got["log.rt"], want["ruleTime"])
+			if strings.Contains(line, "rt=#arcsightDate(") && got["event.rt"] != want["ruleTime"] {
+				t.Errorf("event.rt = %q, want %q", got["event.rt"], want["ruleTime"])
 			}
 			if strings.Contains(rest, "CEF:") || strings.HasPrefix(rest, "|") {
-				t.Errorf("header text left in log.restData: %q", rest)
+				t.Errorf("header text left in event.restData: %q", rest)
 			}
 		})
 		checked++
@@ -470,7 +470,7 @@ func TestSentinelOneRuleConsumers(t *testing.T) {
 		if rule.Adversary != "origin" || len(rule.DataTypes) != 1 || rule.DataTypes[0] != "antivirus-sentinel-one" {
 			t.Errorf("%s: adversary %q dataTypes %v", stem, rule.Adversary, rule.DataTypes)
 		}
-		for _, stale := range []string{"log.syslogHost", "log.eventDescToParse", `greaterOrEqual("log.confidencelevel"`} {
+		for _, stale := range []string{"event.syslogHost", "event.eventDescToParse", `greaterOrEqual("event.confidencelevel"`} {
 			if strings.Contains(rule.Where, stale) {
 				t.Errorf("%s: condition still reads %s", stem, stale)
 			}
@@ -479,7 +479,7 @@ func TestSentinelOneRuleConsumers(t *testing.T) {
 			valid := alertPaths[field]
 			if strings.HasPrefix(field, "lastEvent.") {
 				inner := strings.TrimPrefix(field, "lastEvent.")
-				valid = eventPaths[inner] || strings.HasPrefix(inner, "log.")
+				valid = eventPaths[inner] || strings.HasPrefix(inner, "event.")
 			}
 			if !valid || strings.Contains(field, "syslogHost") {
 				t.Errorf("%s: grouping path %q", stem, field)
@@ -488,8 +488,8 @@ func TestSentinelOneRuleConsumers(t *testing.T) {
 	}
 	rules := s1LoadRules(t)
 	for stem, want := range map[string]string{
-		"s1_exclusion_abuse":         "lastEvent.log.activityType,adversary.user",
-		"s1_policy_downgrade":        "lastEvent.log.activityType,adversary.user",
+		"s1_exclusion_abuse":         "lastEvent.event.activityType,adversary.user",
+		"s1_policy_downgrade":        "lastEvent.event.activityType,adversary.user",
 		"memory_injection_detection": "target.host,adversary.user",
 	} {
 		if got := strings.Join(rules[stem].GroupBy, ","); got != want {
@@ -504,7 +504,7 @@ func TestSentinelOneRulePredicates(t *testing.T) {
 	rules := s1LoadRules(t)
 	cache := plugins.NewCELCache("sentinel-one-rules")
 	event := func(desc string, extra string) string {
-		body := `{"dataType":"antivirus-sentinel-one","log":{"eventDescription":` + strconv.Quote(desc)
+		body := `{"dataType":"antivirus-sentinel-one","event":{"eventDescription":` + strconv.Quote(desc)
 		if extra != "" {
 			body += "," + extra
 		}
@@ -521,7 +521,7 @@ func TestSentinelOneRulePredicates(t *testing.T) {
 		want              bool
 	}{
 		{"memory_injection_detection", "injection text", event("Memory injection detected in example.exe", ""), true},
-		{"memory_injection_detection", "removed scratch-field branch", `{"dataType":"antivirus-sentinel-one","log":{"eventDescToParse":"Memory injection detected"}}`, false},
+		{"memory_injection_detection", "removed scratch-field branch", `{"dataType":"antivirus-sentinel-one","event":{"eventDescToParse":"Memory injection detected"}}`, false},
 		{"memory_injection_detection", "near miss", event("Memory scan completed on example.exe", ""), false},
 
 		{"behavioral_threat_detection", "endpoint", withHost(event("Behavioral anomaly detected in example.exe", "")), true},

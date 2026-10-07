@@ -13,6 +13,6 @@ impact:
   integrity: 3
   availability: 3
 where: >
-  equals("log.metadataEventType", "IncidentSummaryEvent")
+  equals("event.metadataEventType", "IncidentSummaryEvent")
 groupBy:
-  - lastEvent.log.metadataEventType
+  - lastEvent.event.metadataEventType

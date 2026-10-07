@@ -30,15 +30,15 @@ description: |
   10. Document the incident and lessons learned
 where: |
   (
-    regexMatch("log.eventDescription", "(?i)(edr|endpoint detection|endpoint alert|endpoint threat|endpoint incident|suspicious endpoint|compromised endpoint|endpoint breach|endpoint attack)") ||
-    regexMatch("log.message", "(?i)(edr alert|endpoint response|incident response|threat response)")
+    regexMatch("event.eventDescription", "(?i)(edr|endpoint detection|endpoint alert|endpoint threat|endpoint incident|suspicious endpoint|compromised endpoint|endpoint breach|endpoint attack)") ||
+    regexMatch("event.message", "(?i)(edr alert|endpoint response|incident response|threat response)")
   ) &&
   (
-    regexMatch("log.eventDescription", "(?i)(critical|high|severe|malicious|unauthorized|breach)") ||
-    exists("log.destinationUser") ||
-    exists("log.endpointDeviceName")
+    regexMatch("event.eventDescription", "(?i)(critical|high|severe|malicious|unauthorized|breach)") ||
+    exists("event.destinationUser") ||
+    exists("event.endpointDeviceName")
   ) &&
   exists("target.host")
 groupBy:
-  - lastEvent.log.endpointDeviceName
+  - lastEvent.event.endpointDeviceName
   - target.host

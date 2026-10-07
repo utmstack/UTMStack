@@ -12,8 +12,8 @@ impact:
   integrity: 3
   availability: 3
 where: >
-    exists("log.eventCommandLine") && 
-    regexMatch("log.eventCommandLine", "(?i).*(vssadmin.*delete shadows|wmic.*shadowcopy.*delete|bcdedit.*recoveryenabled.*no).*")
+    exists("event.eventCommandLine") && 
+    regexMatch("event.eventCommandLine", "(?i).*(vssadmin.*delete shadows|wmic.*shadowcopy.*delete|bcdedit.*recoveryenabled.*no).*")
 groupBy: 
   - adversary.host
   - adversary.user

@@ -25,9 +25,9 @@ description: |
   1. Compare the changed values in the event with the approved password, lockout and Kerberos settings.
   2. If the change was not planned, find which Group Policy object or administrator changed it and restore the approved values.
 where: |
-  oneOf("log.eventCode", [4739, 4713]) &&
-  equals("log.channel", "Security") &&
-  equals("log.providerName", "Microsoft-Windows-Security-Auditing")
+  oneOf("event.eventCode", [4739, 4713]) &&
+  equals("event.channel", "Security") &&
+  equals("event.providerName", "Microsoft-Windows-Security-Auditing")
 groupBy:
   - dataSource
-  - lastEvent.log.eventDataSubjectUserSid
+  - lastEvent.event.eventDataSubjectUserSid

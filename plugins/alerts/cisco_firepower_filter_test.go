@@ -42,8 +42,8 @@ const (
 	fpC2       = "c2_nonstandard_port"
 )
 
-// The 4300xx message IDs seen in genuine records; only these are split into log.<Key> fields.
-const fpObserved = `oneOf("log.messageId", [430001, 430002, 430003, 430007])`
+// The 4300xx message IDs seen in genuine records; only these are split into event.<Key> fields.
+const fpObserved = `oneOf("event.messageId", [430001, 430002, 430003, 430007])`
 
 var fpEnvelope = map[string]bool{"id": true, "timestamp": true, "deviceTime": true, "dataType": true,
 	"dataSource": true, "tenantId": true, "tenantName": true, "raw": true, "errors": true}
@@ -78,21 +78,21 @@ func fpWhere(step *plugins.Step) string {
 	return where
 }
 
-// Before this revision, 98 clauses compared log.* directly (for example log.messageId==113032),
+// Before this revision, 98 clauses compared event.* directly (for example event.messageId==113032),
 // and one called the undeclared function lgreaterOrEqual. These rewrite a helper clause back to
 // the direct form, so both can be compared; the observed-ID list becomes a chain of ==.
 var (
-	fpRawLog      = regexp.MustCompile(`(^|[^"\w.])log\.[A-Za-z0-9_.]+\s*(==|!=|>=|<=|<|>)`)
+	fpRawLog      = regexp.MustCompile(`(^|[^"\w.])event\.[A-Za-z0-9_.]+\s*(==|!=|>=|<=|<|>)`)
 	fpHelperToRaw = []struct {
 		helper *regexp.Regexp
 		raw    string
 	}{
-		{regexp.MustCompile(`equals\("log\.messageId", (\d+)\)`), `log.messageId==$1`},
-		{regexp.MustCompile(`greaterOrEqual\("log\.messageId", (\d+)\)`), `log.messageId>=$1`},
-		{regexp.MustCompile(`lessOrEqual\("log\.messageId", (\d+)\)`), `log.messageId<=$1`},
-		{regexp.MustCompile(`equals\("log\.severity", "(\d)"\)`), `log.severity=="$1"`},
+		{regexp.MustCompile(`equals\("event\.messageId", (\d+)\)`), `event.messageId==$1`},
+		{regexp.MustCompile(`greaterOrEqual\("event\.messageId", (\d+)\)`), `event.messageId>=$1`},
+		{regexp.MustCompile(`lessOrEqual\("event\.messageId", (\d+)\)`), `event.messageId<=$1`},
+		{regexp.MustCompile(`equals\("event\.severity", "(\d)"\)`), `event.severity=="$1"`},
 		{regexp.MustCompile(regexp.QuoteMeta(fpObserved)),
-			`(log.messageId==430001 || log.messageId==430002 || log.messageId==430003 || log.messageId==430007)`},
+			`(event.messageId==430001 || event.messageId==430002 || event.messageId==430003 || event.messageId==430007)`},
 	}
 	fpHelperCall = regexp.MustCompile(`(\w+)\("([A-Za-z0-9_.]+)"(?:, ("[^"]*"|\d+|\[[\d, ]+\]))?\)`)
 	fpNumber     = regexp.MustCompile(`\d+`)
@@ -105,8 +105,8 @@ func fpRawForm(where string) string {
 	return where
 }
 
-// fpTruthTable builds events that all carry a log object: log.messageId as the JSON number the
-// filter's cast produces (around every literal in the clause), log.severity as the one-digit
+// fpTruthTable builds events that all carry a log object: event.messageId as the JSON number the
+// filter's cast produces (around every literal in the clause), event.severity as the one-digit
 // levels 0 to 7, and every other field the clause reads absent, equal to its literal, in other
 // case, containing it, or unrelated.
 func fpTruthTable(where string) []string {
@@ -116,14 +116,14 @@ func fpTruthTable(where string) []string {
 	for _, m := range fpHelperCall.FindAllStringSubmatch(where, -1) {
 		field, arg := m[2], m[3]
 		switch field {
-		case "log.messageId":
+		case "event.messageId":
 			for _, lit := range fpNumber.FindAllString(arg, -1) {
 				n, _ := strconv.Atoi(lit)
 				for d := -1; d <= 1; d++ {
 					ids[float64(n+d)] = true
 				}
 			}
-		case "log.severity":
+		case "event.severity":
 			severities = []string{"0", "1", "2", "3", "4", "5", "6", "7"}
 		default:
 			if others[field] == nil {
@@ -158,7 +158,7 @@ func fpTruthTable(where string) []string {
 		for _, sev := range severities {
 			for _, c := range combos {
 				doc := map[string]any{"id": "x", "dataType": "firewall-cisco-firepower", "raw": "x",
-					"log": map[string]any{"messageId": id, "severity": sev}}
+					"event": map[string]any{"messageId": id, "severity": sev}}
 				for f, v := range c {
 					if v != nil {
 						fpSet(doc, f, v)
@@ -172,9 +172,9 @@ func fpTruthTable(where string) []string {
 	return docs
 }
 
-// No where clause compares log.* directly, and every clause compiles and runs without an error
+// No where clause compares event.* directly, and every clause compiles and runs without an error
 // on a line that no header pattern accepted (no log object). Every clause that uses equals,
-// greaterOrEqual or lessOrEqual on log.messageId, equals on log.severity or the observed-ID list
+// greaterOrEqual or lessOrEqual on event.messageId, equals on event.severity or the observed-ID list
 // has the same truth table as the direct comparison on events with a log object, and is false
 // when there is none.
 func TestCiscoFirepowerWhereHelpers(t *testing.T) {
@@ -183,13 +183,13 @@ func TestCiscoFirepowerWhereHelpers(t *testing.T) {
 	noLog := `{"id":"x","dataType":"firewall-cisco-firepower","dataSource":"fixture-ftd","tenantId":"` + fpTenant + `","raw":"x"}`
 	cast := -1
 	for i, step := range steps {
-		if c := step.Cast; c != nil && c.To == "int" && c.Where == "" && len(c.Fields) == 1 && c.Fields[0] == "log.messageId" {
+		if c := step.Cast; c != nil && c.To == "int" && c.Where == "" && len(c.Fields) == 1 && c.Fields[0] == "event.messageId" {
 			cast = i
 			break
 		}
 	}
 	if cast < 0 {
-		t.Fatal("no unconditional int cast of log.messageId")
+		t.Fatal("no unconditional int cast of event.messageId")
 	}
 	var raw []string
 	clauses, checked, rows, observed := 0, 0, 0, 0
@@ -213,7 +213,7 @@ func TestCiscoFirepowerWhereHelpers(t *testing.T) {
 		}
 		checked++
 		if i < cast {
-			t.Errorf("step %d reads log.messageId before it is cast to a number: %q", i, where)
+			t.Errorf("step %d reads event.messageId before it is cast to a number: %q", i, where)
 		}
 		if got, err := cache.Eval(where, noLog); err != nil || got {
 			t.Errorf("step %d without a log object: %q returned %t, error %v", i, where, got, err)
@@ -229,7 +229,7 @@ func TestCiscoFirepowerWhereHelpers(t *testing.T) {
 		}
 	}
 	if len(raw) > 0 {
-		t.Errorf("%d where clauses compare log.* directly and fail without a log object, for example %q", len(raw), raw[0])
+		t.Errorf("%d where clauses compare event.* directly and fail without a log object, for example %q", len(raw), raw[0])
 	}
 	if observed != 14 {
 		t.Errorf("%d clauses restrict the key-value split to the observed IDs, want 14", observed)
@@ -237,7 +237,7 @@ func TestCiscoFirepowerWhereHelpers(t *testing.T) {
 	// 454 since the actionResult revision removed the adds of the Built, teardown and notice
 	// messages (their records state no final outcome).
 	if checked < 454 {
-		t.Errorf("%d helper clauses read log.messageId or log.severity, want at least 454", checked)
+		t.Errorf("%d helper clauses read event.messageId or event.severity, want at least 454", checked)
 	}
 	t.Logf("%d where clauses, %d helper clauses, %d truth-table rows", clauses, checked, rows)
 }
@@ -290,7 +290,7 @@ func TestCiscoFirepowerGeolocationDestinations(t *testing.T) {
 		want := src + "Geolocation"
 		if src == "origin.ip" || src == "target.ip" {
 			want = strings.TrimSuffix(src, ".ip") + ".geolocation"
-		} else if !strings.HasPrefix(src, "log.") {
+		} else if !strings.HasPrefix(src, "event.") {
 			t.Errorf("step %d: unexpected geolocation source %s", i, src)
 		}
 		if dst != want {
@@ -304,14 +304,14 @@ func TestCiscoFirepowerGeolocationDestinations(t *testing.T) {
 		t.Errorf("%d geolocation steps, want 18", count)
 	}
 	// The sibling key survives finalization next to the address.
-	draft := `{"id":"x","dataType":"firewall-cisco-firepower","raw":"x","log":{"localIp":"192.0.2.1","localIpGeolocation":{"asn":64501,"country":"Fabricated Country B"}}}`
+	draft := `{"id":"x","dataType":"firewall-cisco-firepower","raw":"x","event":{"localIp":"192.0.2.1","localIpGeolocation":{"asn":64501,"country":"Fabricated Country B"}}}`
 	event := new(plugins.Event)
 	if err := utils.StringToProtoMessage(&draft, event); err != nil {
 		t.Fatal(err)
 	}
-	if event.Log["localIp"].GetStringValue() != "192.0.2.1" ||
-		event.Log["localIpGeolocation"].GetStructValue().GetFields()["asn"].GetNumberValue() != 64501 {
-		t.Errorf("finalized log: %v", event.Log)
+	if event.Event["localIp"].GetStringValue() != "192.0.2.1" ||
+		event.Event["localIpGeolocation"].GetStructValue().GetFields()["asn"].GetNumberValue() != 64501 {
+		t.Errorf("finalized log: %v", event.Event)
 	}
 }
 
@@ -547,7 +547,7 @@ func (m *fpModel) grok(t *testing.T, doc map[string]any, g *plugins.Grok) error 
 }
 
 // kv follows plugins/kv/main.go: split on fieldSplit, cut each pair at the first valueSplit,
-// sanitize the key and store the trimmed value as text under log.<key>; a later copy of a key
+// sanitize the key and store the trimmed value as text under event.<key>; a later copy of a key
 // replaces an earlier one.
 func (m *fpModel) kv(doc map[string]any, k *plugins.Kv) error {
 	source := "raw"
@@ -561,7 +561,7 @@ func (m *fpModel) kv(doc map[string]any, k *plugins.Kv) error {
 	for _, pair := range strings.Split(strings.TrimSpace(fpString(v)), k.FieldSplit) {
 		if key, value, found := strings.Cut(pair, k.ValueSplit); found {
 			utils.SanitizeField(&key)
-			fpSet(doc, "log."+key, strings.TrimSpace(value))
+			fpSet(doc, "event."+key, strings.TrimSpace(value))
 		}
 	}
 	return nil
@@ -643,7 +643,7 @@ func fpFields(event map[string]any) map[string]any {
 	return out
 }
 
-var fpGeoPath = regexp.MustCompile(`^(origin\.geolocation|target\.geolocation|log\.[A-Za-z0-9]+Geolocation)(\.|$)`)
+var fpGeoPath = regexp.MustCompile(`^(origin\.geolocation|target\.geolocation|event\.[A-Za-z0-9]+Geolocation)(\.|$)`)
 
 type fpCase struct {
 	LogObject bool           `json:"logObject"`
@@ -693,70 +693,70 @@ var fpChangeCases = []struct {
 	change, fixture, path string
 	want                  any
 }{
-	{"F-H1", "430003-https", "log.messageId", float64(430003)},
-	{"F-H1", "430003-https", "log.severity", "1"},
+	{"F-H1", "430003-https", "event.messageId", float64(430003)},
+	{"F-H1", "430003-https", "event.severity", "1"},
 	{"F-H1", "430003-https", "severity", "high"},
-	{"F-H1", "430003-space-after-pri", "log.messageId", float64(430003)},
-	{"F-H1", "302013-real-header", "log.direction", "inbound"},
+	{"F-H1", "430003-space-after-pri", "event.messageId", float64(430003)},
+	{"F-H1", "302013-real-header", "event.direction", "inbound"},
 	{"F-H1", "302013-real-header", "origin.ip", "198.51.100.7"},
-	{"F-H1 near miss", "unparsed-no-pri", "log", nil},
-	{"F-H1 near miss", "unparsed-no-space", "log", nil},
-	{"F-H1 near miss", "unparsed-asa-prefix", "log", nil},
-	{"F-H1 near miss", "unparsed-glued-header", "log", nil},
-	{"F-H1 near miss", "unparsed-linux-sshd", "log", nil},
-	{"F-H1 older shape", "302013-header-bsd", "log.localIp", "ftd01.example.com"},
-	{"F-A3", "302013-header-no-pri", "log.direction", "inbound"},
+	{"F-H1 near miss", "unparsed-no-pri", "event", nil},
+	{"F-H1 near miss", "unparsed-no-space", "event", nil},
+	{"F-H1 near miss", "unparsed-asa-prefix", "event", nil},
+	{"F-H1 near miss", "unparsed-glued-header", "event", nil},
+	{"F-H1 near miss", "unparsed-linux-sshd", "event", nil},
+	{"F-H1 older shape", "302013-header-bsd", "event.localIp", "ftd01.example.com"},
+	{"F-A3", "302013-header-no-pri", "event.direction", "inbound"},
 	{"F-K1", "430003-https", "origin.ip", "192.0.2.10"},
 	{"F-K1", "430003-https", "target.ip", "198.51.100.20"},
 	{"F-K1", "430003-https", "origin.port", float64(51000)},
 	{"F-K1", "430003-https", "target.port", float64(443)},
 	{"F-K1", "430003-https", "protocol", "tcp"},
-	{"F-K1", "430003-https", "log.SrcIP", nil},
-	{"F-K1", "430003-https", "log.DstIP", nil},
-	{"F-K1", "430003-https", "log.SrcPort", nil},
-	{"F-K1", "430003-https", "log.DstPort", nil},
-	{"F-K1", "430003-https", "log.Protocol", nil},
-	{"F-K1", "430003-https", "log.PrefilterPolicy", "Example Prefilter Policy"},
-	{"F-K1", "430003-https", "log.ApplicationProtocol", "HTTPS"},
-	{"F-K1", "430003-https", "log.InitiatorPackets", "6"},
-	{"F-K1 underscore", "430003-dns-ttl", "log.DNS_TTL", "300"},
-	{"F-K1 underscore", "430003-dns-ttl", "log.DNSTTL", nil},
+	{"F-K1", "430003-https", "event.SrcIP", nil},
+	{"F-K1", "430003-https", "event.DstIP", nil},
+	{"F-K1", "430003-https", "event.SrcPort", nil},
+	{"F-K1", "430003-https", "event.DstPort", nil},
+	{"F-K1", "430003-https", "event.Protocol", nil},
+	{"F-K1", "430003-https", "event.PrefilterPolicy", "Example Prefilter Policy"},
+	{"F-K1", "430003-https", "event.ApplicationProtocol", "HTTPS"},
+	{"F-K1", "430003-https", "event.InitiatorPackets", "6"},
+	{"F-K1 underscore", "430003-dns-ttl", "event.DNS_TTL", "300"},
+	{"F-K1 underscore", "430003-dns-ttl", "event.DNSTTL", nil},
 	{"F-K1", "430003-dns-ttl", "protocol", "udp"},
 	{"F-K1", "430003-dns-ttl", "target.port", float64(53)},
-	{"F-K1", "430003-useragent", "log.UserAgent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Example/1.0"},
-	{"F-K1", "430003-useragent", "log.Client", "Example Client"},
-	{"F-K1", "430003-useragent", "log.ftdHead", nil},
+	{"F-K1", "430003-useragent", "event.UserAgent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Example/1.0"},
+	{"F-K1", "430003-useragent", "event.Client", "Example Client"},
+	{"F-K1", "430003-useragent", "event.ftdHead", nil},
 	{"F-K1 crafted text", "430003-useragent-spoof", "origin.ip", "192.0.2.10"},
 	{"F-K1 crafted text", "430003-useragent-spoof", "target.port", float64(80)},
-	{"F-K1 crafted text", "430003-useragent-spoof", "log.AccessControlRuleAction", "Allow"},
-	{"F-K1 crafted text", "430003-useragent-spoof", "log.User", "alice"},
+	{"F-K1 crafted text", "430003-useragent-spoof", "event.AccessControlRuleAction", "Allow"},
+	{"F-K1 crafted text", "430003-useragent-spoof", "event.User", "alice"},
 	{"F-K1", "430003-icmp", "origin.port", nil},
 	{"F-K1", "430003-icmp", "protocol", "icmp"},
 	{"F-K1", "430003-ipv6", "target.ip", "2001:db8::20"},
 	{"F-K1 near miss", "430003-bad-address", "origin.ip", nil},
-	{"F-K1 near miss", "430003-bad-address", "log.SrcIP", "not-an-address"},
-	{"F-K1", "430001-p2-user", "log.Priority", "2"},
-	{"F-K1", "430001-p2-user", "log.Classification", "Attempted User Privilege Gain"},
-	{"F-K1", "430002-block", "log.AccessControlRuleAction", "Block with reset"},
-	{"F-K1", "430007-elephant-inside", "log.AccessControlRuleReason", "Elephant Flow"},
-	{"F-K1 joined", "glued-text", "log.messageId", float64(430003)},
+	{"F-K1 near miss", "430003-bad-address", "event.SrcIP", "not-an-address"},
+	{"F-K1", "430001-p2-user", "event.Priority", "2"},
+	{"F-K1", "430001-p2-user", "event.Classification", "Attempted User Privilege Gain"},
+	{"F-K1", "430002-block", "event.AccessControlRuleAction", "Block with reset"},
+	{"F-K1", "430007-elephant-inside", "event.AccessControlRuleReason", "Elephant Flow"},
+	{"F-K1 joined", "glued-text", "event.messageId", float64(430003)},
 	{"F-K1 joined", "glued-text", "origin", nil},
-	{"F-K1 joined", "glued-text", "log.EventPriority", nil},
-	{"F-K1 joined", "glued-text-second-intrusion", "log.Priority", nil},
-	{"F-K1 scope", "scope-430005", "log.messageId", float64(430005)},
-	{"F-K1 scope", "scope-430005", "log.eventType", nil},
+	{"F-K1 joined", "glued-text", "event.EventPriority", nil},
+	{"F-K1 joined", "glued-text-second-intrusion", "event.Priority", nil},
+	{"F-K1 scope", "scope-430005", "event.messageId", float64(430005)},
+	{"F-K1 scope", "scope-430005", "event.eventType", nil},
 	{"F-K1 scope", "scope-430005", "origin", nil},
-	{"F-K1 scope", "scope-430008", "log.EventPriority", nil},
-	{"F-A2", "302013-header-device-ipv4", "log.localIp", "192.0.2.1"},
-	{"F-A3", "302013-outbound", "log.direction", "outbound"},
-	{"F-A3", "302013-header-bsd", "log.direction", "inbound"},
+	{"F-K1 scope", "scope-430008", "event.EventPriority", nil},
+	{"F-A2", "302013-header-device-ipv4", "event.localIp", "192.0.2.1"},
+	{"F-A3", "302013-outbound", "event.direction", "outbound"},
+	{"F-A3", "302013-header-bsd", "event.direction", "inbound"},
 	{"F-A4", "302304-teardown", "protocol", "TCP"},
 	{"F-A5", "305011-built", "action", "Built dynamic TCP translation"},
 	{"F-A5", "305011-built", "protocol", "TCP"},
 	{"F-A5", "305012-teardown", "action", "Teardown dynamic TCP translation"},
 	{"F-A6", "302017-gre", "target.user", "erin"},
-	{"F-A6", "302017-gre", "log.firewallUserTo", "dave"},
-	{"F-A6", "302017-gre", "log.firewallUserFrom", "carol"},
+	{"F-A6", "302017-gre", "event.firewallUserTo", "dave"},
+	{"F-A6", "302017-gre", "event.firewallUserFrom", "carol"},
 	{"F-A7", "106102-permitted", "actionResult", nil},
 	{"F-A7 near miss", "106102-denied", "actionResult", "denied"},
 	// actionResult is only success, failed or denied, or absent when the record states no final
@@ -790,7 +790,7 @@ var fpChangeCases = []struct {
 	{"V-01", "402119-hex", "actionResult", "denied"},
 	{"V-01", "402119-hex", "origin.ip", "198.51.100.7"},
 	{"V-01", "402119-hex", "target.ip", "192.0.2.1"},
-	{"V-01", "402119-hex", "log.seqNum", "0x598243"},
+	{"V-01", "402119-hex", "event.seqNum", "0x598243"},
 	{"FP-05", "113004", "actionResult", "success"},
 	{"FP-05 near miss", "302013-real-header", "actionResult", nil},
 	{"FP-05 near miss", "302304-teardown", "actionResult", nil},
@@ -799,22 +799,22 @@ var fpChangeCases = []struct {
 	{"AR-FP-02", "719023", "actionResult", "failed"},
 	{"AR-FP-02 near miss", "719019", "actionResult", "denied"},
 	{"F-A8", "113009-with-equals", "origin.user", "alice"},
-	{"F-A8", "113009-with-equals", "log.policy", "DfltGrpPolicy"},
+	{"F-A8", "113009-with-equals", "event.policy", "DfltGrpPolicy"},
 	{"F-A8", "113011-with-equals", "origin.user", "alice"},
-	{"F-A8", "113011-with-equals", "log.policy", "GP1"},
+	{"F-A8", "113011-with-equals", "event.policy", "GP1"},
 	{"F-A8 near miss", "113009-without-equals", "origin.user", "alice"},
 	{"F-W2", "109201-uauth", "origin.user", "alice"},
-	{"F-W2", "109201-uauth", "log.session", "0x1a2b"},
+	{"F-W2", "109201-uauth", "event.session", "0x1a2b"},
 	{"F-G1", "302003-hostname", "origin.ip", "host-b.example.com"},
 	{"F-G1", "302003-hostname", "target.ip", "198.51.100.7"},
-	{"F-G1", "302003-hostname", "log.localAddress", "host-b.example.com"},
-	{"F-G1 near miss", "302003-ip", "log.localAddress", "192.0.2.10"},
-	{"F-G1 near miss", "302004-to", "log.localAddress", "192.0.2.10"},
-	{"F-G2", "302024-mapped-no-port", "log.mappedIpFrom", "198.51.100.7"},
-	{"F-G2", "302024-mapped-no-port", "log.mappedIpTo", "203.0.113.5"},
-	{"F-G2", "302024-mapped-no-port", "log.mappedPortFrom", nil},
-	{"F-G2 near miss", "302022-mapped-port", "log.mappedIpFrom", "198.51.100.7"},
-	{"F-G2 near miss", "302022-mapped-port", "log.mappedPortFrom", "443"},
+	{"F-G1", "302003-hostname", "event.localAddress", "host-b.example.com"},
+	{"F-G1 near miss", "302003-ip", "event.localAddress", "192.0.2.10"},
+	{"F-G1 near miss", "302004-to", "event.localAddress", "192.0.2.10"},
+	{"F-G2", "302024-mapped-no-port", "event.mappedIpFrom", "198.51.100.7"},
+	{"F-G2", "302024-mapped-no-port", "event.mappedIpTo", "203.0.113.5"},
+	{"F-G2", "302024-mapped-no-port", "event.mappedPortFrom", nil},
+	{"F-G2 near miss", "302022-mapped-port", "event.mappedIpFrom", "198.51.100.7"},
+	{"F-G2 near miss", "302022-mapped-port", "event.mappedPortFrom", "443"},
 }
 
 // Every fabricated line through the model: the named change cases, no where errors, and every
@@ -847,7 +847,7 @@ func TestCiscoFirepowerExtractionModel(t *testing.T) {
 		if len(errs[name]) > 0 {
 			t.Errorf("%s: %d where errors, first: %.200s", name, len(errs[name]), errs[name][0])
 		}
-		if _, ok := stored[name]["log"]; ok != want.LogObject {
+		if _, ok := stored[name]["event"]; ok != want.LogObject {
 			t.Errorf("%s: log object present=%t", name, ok)
 		}
 		got := fpFields(stored[name])
@@ -920,7 +920,7 @@ func TestCiscoFirepowerStepPredicates(t *testing.T) {
 	for _, step := range steps {
 		if g := step.Grok; g != nil && (g.Source == "" || g.Source == "raw") {
 			for _, p := range g.Patterns {
-				if p.FieldName == "log.messageId" {
+				if p.FieldName == "event.messageId" {
 					headers = append(headers, g)
 					break
 				}
@@ -930,29 +930,29 @@ func TestCiscoFirepowerStepPredicates(t *testing.T) {
 	if len(headers) != 3 || headers[0].Where != "" || headers[1].Where != "" {
 		t.Fatalf("F-H1: header groks %d, want two unconditional ones and a third", len(headers))
 	}
-	if !eval(headers[2].Where, `{"raw":"x"}`) || eval(headers[2].Where, `{"raw":"x","log":{"messageId":"-302013"}}`) {
+	if !eval(headers[2].Where, `{"raw":"x"}`) || eval(headers[2].Where, `{"raw":"x","event":{"messageId":"-302013"}}`) {
 		t.Errorf("F-H1: third header grok %q must run only when no messageId was set", headers[2].Where)
 	}
-	// F-K1: the key-value split reads log.msg of the observed IDs only, and never a joined text.
+	// F-K1: the key-value split reads event.msg of the observed IDs only, and never a joined text.
 	var split *plugins.Kv
 	for _, step := range steps {
-		if k := step.Kv; k != nil && k.Source == "log.msg" {
+		if k := step.Kv; k != nil && k.Source == "event.msg" {
 			split = k
 		}
 	}
 	if split == nil || split.FieldSplit != ", " || split.ValueSplit != ": " {
-		t.Fatalf("F-K1: key-value split of log.msg: %v", split)
+		t.Fatalf("F-K1: key-value split of event.msg: %v", split)
 	}
 	for id := 430000; id <= 430009; id++ {
 		observed := id == 430001 || id == 430002 || id == 430003 || id == 430007
-		doc := fmt.Sprintf(`{"raw":"x","log":{"messageId":%d,"msg":"SrcIP: 192.0.2.10, DstIP: 198.51.100.20"}}`, id)
+		doc := fmt.Sprintf(`{"raw":"x","event":{"messageId":%d,"msg":"SrcIP: 192.0.2.10, DstIP: 198.51.100.20"}}`, id)
 		if eval(split.Where, doc) != observed {
 			t.Errorf("F-K1: %d split=%t, want %t", id, !observed, observed)
 		}
 	}
 	for _, doc := range []string{
-		`{"raw":"x","log":{"messageId":430003,"msg":"SrcIP: 192.0.2.10, DstIP: 198.51.1<113>%FTD-1-430003: SrcIP: 192.0.2.11"}}`,
-		`{"raw":"x","log":{"messageId":430003}}`,
+		`{"raw":"x","event":{"messageId":430003,"msg":"SrcIP: 192.0.2.10, DstIP: 198.51.1<113>%FTD-1-430003: SrcIP: 192.0.2.11"}}`,
+		`{"raw":"x","event":{"messageId":430003}}`,
 		`{"raw":"x"}`,
 	} {
 		if eval(split.Where, doc) {
@@ -967,10 +967,10 @@ func TestCiscoFirepowerStepPredicates(t *testing.T) {
 	}
 	var verbSteps []fpVerbStep
 	for _, step := range steps {
-		if a := step.Add; a != nil && a.Params["key"].GetStringValue() == "actionResult" && strings.Contains(a.Where, `"log.messageId", 106102`) {
+		if a := step.Add; a != nil && a.Params["key"].GetStringValue() == "actionResult" && strings.Contains(a.Where, `"event.messageId", 106102`) {
 			verbSteps = append(verbSteps, fpVerbStep{where: a.Where, value: a.Params["value"].GetStringValue()})
 		}
-		if d := step.Delete; d != nil && len(d.Fields) == 1 && d.Fields[0] == "actionResult" && strings.Contains(d.Where, `"log.messageId", 106102`) {
+		if d := step.Delete; d != nil && len(d.Fields) == 1 && d.Fields[0] == "actionResult" && strings.Contains(d.Where, `"event.messageId", 106102`) {
 			verbSteps = append(verbSteps, fpVerbStep{where: d.Where, remove: true})
 		}
 	}
@@ -984,9 +984,9 @@ func TestCiscoFirepowerStepPredicates(t *testing.T) {
 		{106102, "denied", "denied"}, {106103, "denied", "denied"}, {106102, "Deny", "denied"}} {
 		value := c.captured
 		for _, s := range verbSteps {
-			doc := fmt.Sprintf(`{"raw":"x","log":{"messageId":%d}}`, c.id)
+			doc := fmt.Sprintf(`{"raw":"x","event":{"messageId":%d}}`, c.id)
 			if value != fpAbsent {
-				doc = fmt.Sprintf(`{"raw":"x","log":{"messageId":%d},"actionResult":%q}`, c.id, value)
+				doc = fmt.Sprintf(`{"raw":"x","event":{"messageId":%d},"actionResult":%q}`, c.id, value)
 			}
 			if eval(s.where, doc) {
 				value = s.value
@@ -1004,7 +1004,7 @@ func TestCiscoFirepowerStepPredicates(t *testing.T) {
 		var writers []string
 		for _, step := range steps {
 			g := step.Grok
-			if g == nil || !strings.Contains(fpRawForm(g.Where), fmt.Sprintf("log.messageId==%d", id)) {
+			if g == nil || !strings.Contains(fpRawForm(g.Where), fmt.Sprintf("event.messageId==%d", id)) {
 				continue
 			}
 			for _, p := range g.Patterns {
@@ -1016,15 +1016,15 @@ func TestCiscoFirepowerStepPredicates(t *testing.T) {
 		if len(writers) != 2 {
 			t.Fatalf("F-A8: %d origin.user writers for %d, want 2", len(writers), id)
 		}
-		without := fmt.Sprintf(`{"raw":"x","log":{"messageId":%d}}`, id)
-		with := fmt.Sprintf(`{"raw":"x","log":{"messageId":%d},"origin":{"user":"alice"}}`, id)
+		without := fmt.Sprintf(`{"raw":"x","event":{"messageId":%d}}`, id)
+		with := fmt.Sprintf(`{"raw":"x","event":{"messageId":%d},"origin":{"user":"alice"}}`, id)
 		if !eval(writers[0], without) || !eval(writers[1], without) {
 			t.Errorf("F-A8: %d variants must run while no user is set", id)
 		}
 		if eval(writers[1], with) {
 			t.Errorf("F-A8: %d second variant %q runs after the first set origin.user", id, writers[1])
 		}
-		if eval(writers[1], fmt.Sprintf(`{"raw":"x","log":{"messageId":%d},"origin":{"user":"alice"}}`, id+1)) {
+		if eval(writers[1], fmt.Sprintf(`{"raw":"x","event":{"messageId":%d},"origin":{"user":"alice"}}`, id+1)) {
 			t.Errorf("F-A8: %d second variant matches another message", id)
 		}
 	}
@@ -1044,7 +1044,7 @@ func TestCiscoFirepowerStepPredicates(t *testing.T) {
 		for id, want := range map[int]bool{109200: false, 109201: true, 109207: true, 109213: true, 109214: false} {
 			got := false
 			for _, text := range []string{"Succeeded adding entry.", "Failed adding entry."} {
-				got = got || eval(w, fmt.Sprintf(`{"raw":"x","log":{"messageId":%d},"action":%q}`, id, text))
+				got = got || eval(w, fmt.Sprintf(`{"raw":"x","event":{"messageId":%d},"action":%q}`, id, text))
 			}
 			if got != want {
 				t.Errorf("F-W2: %q on %d, want %t", w, id, want)
@@ -1057,9 +1057,9 @@ func TestCiscoFirepowerStepPredicates(t *testing.T) {
 		value := fpAbsent
 		for _, step := range steps {
 			if a := step.Add; a != nil && a.Params["key"].GetStringValue() == "actionResult" && strings.Contains(a.Where, "109201") {
-				doc := `{"raw":"x","log":{"messageId":109205}}`
+				doc := `{"raw":"x","event":{"messageId":109205}}`
 				if text != "" {
-					doc = fmt.Sprintf(`{"raw":"x","log":{"messageId":109205},"action":%q}`, text)
+					doc = fmt.Sprintf(`{"raw":"x","event":{"messageId":109205},"action":%q}`, text)
 				}
 				if eval(a.Where, doc) {
 					value = a.Params["value"].GetStringValue()
@@ -1164,7 +1164,7 @@ func fpPlaceholders(searches []*plugins.SearchRequest, out map[string]bool) {
 func TestCiscoFirepowerRuleContract(t *testing.T) {
 	const docs = "https://www.cisco.com/c/en/us/td/docs/security/"
 	want := map[string]string{
-		"advanced_malware_protection_alerts": "Advanced Malware Protection (AMP) Alert Detection|Initial Access|T1566 - Phishing|origin|3/3/2|lastEvent.log.sha256,adversary.ip|" +
+		"advanced_malware_protection_alerts": "Advanced Malware Protection (AMP) Alert Detection|Initial Access|T1566 - Phishing|origin|3/3/2|lastEvent.event.sha256,adversary.ip|" +
 			docs + "firepower/70/configuration/guide/fpmc-config-guide-v70/file_malware_events_and_network_file_trajectory.html,https://attack.mitre.org/techniques/T1566/|",
 		fpC2: "Command and Control on Non-Standard Ports|Command and Control|T1571 - Non-Standard Port|origin|3/2/1|adversary.ip,target.ip,target.port|" +
 			docs + "secure-firewall/management-center/device-config/710/management-center-device-config-71/connection-log-fields.html,https://attack.mitre.org/techniques/T1571/|" +
@@ -1173,7 +1173,7 @@ func TestCiscoFirepowerRuleContract(t *testing.T) {
 			docs + "secure-firewall/management-center/device-config/710/management-center-device-config-71/intrusion-overview.html,https://attack.mitre.org/techniques/T1203/|",
 		"ioc_matches": "Firepower IOC (Indicator of Compromise) Detection|Initial Access|T1566 - Phishing|origin|3/3/2|adversary.ip|" +
 			docs + "firepower/70/configuration/guide/fpmc-config-guide-v70/file_malware_events_and_network_file_trajectory.html,https://attack.mitre.org/tactics/TA0040/,https://attack.mitre.org/techniques/T1566/|",
-		"threat_intelligence_director_alerts": "Threat Intelligence Director (TID) Alert Detection|Command and Control|T1071.001 - Application Layer Protocol: Web Protocols|origin|3/3/2|lastEvent.log.tidIndicator,adversary.ip|" +
+		"threat_intelligence_director_alerts": "Threat Intelligence Director (TID) Alert Detection|Command and Control|T1071.001 - Application Layer Protocol: Web Protocols|origin|3/3/2|lastEvent.event.tidIndicator,adversary.ip|" +
 			docs + "firepower/70/configuration/guide/fpmc-config-guide-v70/tid_overview.html,https://attack.mitre.org/techniques/T1071/|",
 	}
 	rules := fpLoadRules(t)
@@ -1189,8 +1189,8 @@ func TestCiscoFirepowerRuleContract(t *testing.T) {
 		}
 	}
 	for stem, gone := range map[string][]string{
-		fpIPS: {`"log.eventType"`, `"log.priority"`, `"log.severity"`, `"log.impact"`, `"log.classification"`},
-		fpC2:  {`"log.appProto"`, `"log.initiatorPackets"`, `unknown-tcp`},
+		fpIPS: {`"event.eventType"`, `"event.priority"`, `"event.severity"`, `"event.impact"`, `"event.classification"`},
+		fpC2:  {`"event.appProto"`, `"event.initiatorPackets"`, `unknown-tcp`},
 	} {
 		for _, name := range gone {
 			if strings.Contains(rules[stem].Where, name) {
@@ -1213,12 +1213,12 @@ func fpEvent(t *testing.T, body string) *plugins.Event {
 // Synthetic normalized events shaped as the filter stores them: key-value fields are text,
 // ports are numbers.
 func fpConnection(app, dst string, port int, packets string) string {
-	return fmt.Sprintf(`"log":{"messageId":430003,"ApplicationProtocol":%q,"InitiatorPackets":%q},"origin":{"ip":"192.0.2.10","port":51000},"target":{"ip":%q,"port":%d},"protocol":"tcp"`,
+	return fmt.Sprintf(`"event":{"messageId":430003,"ApplicationProtocol":%q,"InitiatorPackets":%q},"origin":{"ip":"192.0.2.10","port":51000},"target":{"ip":%q,"port":%d},"protocol":"tcp"`,
 		app, packets, dst, port)
 }
 
 func fpIntrusion(priority, classification string) string {
-	return fmt.Sprintf(`"log":{"messageId":430001,"Priority":%q,"Classification":%q,"severity":"1"},"origin":{"ip":"198.51.100.7","port":51000},"target":{"ip":"192.0.2.20","port":80},"protocol":"tcp"`,
+	return fmt.Sprintf(`"event":{"messageId":430001,"Priority":%q,"Classification":%q,"severity":"1"},"origin":{"ip":"198.51.100.7","port":51000},"target":{"ip":"192.0.2.20","port":80},"protocol":"tcp"`,
 		priority, classification)
 }
 
@@ -1234,8 +1234,8 @@ var fpRuleCases = []struct {
 	{fpIPS, "priority 2, Misc Attack", fpIntrusion("2", "Misc Attack"), false},
 	{fpIPS, "priority 3 at syslog level 1", fpIntrusion("3", "Potential Corporate Privacy Violation"), false},
 	{fpIPS, "short class name attempted-user", fpIntrusion("2", "attempted-user"), false},
-	{fpIPS, "connection event with Priority 1", `"log":{"messageId":430003,"Priority":"1","EventPriority":"High"},"origin":{"ip":"192.0.2.10"}`, false},
-	{fpIPS, "old key names only", `"log":{"messageId":430001,"eventType":"IPS_EVENT","priority":1,"impact":"HIGH"},"origin":{"ip":"198.51.100.7"}`, false},
+	{fpIPS, "connection event with Priority 1", `"event":{"messageId":430003,"Priority":"1","EventPriority":"High"},"origin":{"ip":"192.0.2.10"}`, false},
+	{fpIPS, "old key names only", `"event":{"messageId":430001,"eventType":"IPS_EVENT","priority":1,"impact":"HIGH"},"origin":{"ip":"198.51.100.7"}`, false},
 	{fpC2, "HTTP to an outside address on 8081", fpConnection("HTTP", "203.0.113.10", 8081, "6"), true},
 	{fpC2, "SSL to an outside address on 9001", fpConnection("SSL", "198.51.100.30", 9001, "6"), true},
 	{fpC2, "HTTPS to an outside address on 4443", fpConnection("HTTPS", "203.0.113.11", 4443, "6"), true},
@@ -1249,10 +1249,10 @@ var fpRuleCases = []struct {
 	{fpC2, "HTTP to fc00::/7", fpConnection("HTTP", "fd00::20", 8081, "6"), false},
 	{fpC2, "Unknown application", fpConnection("Unknown", "203.0.113.13", 4444, "6"), false},
 	{fpC2, "no initiator packets", fpConnection("HTTP", "203.0.113.10", 8081, "0"), false},
-	{fpC2, "no packet counter", `"log":{"messageId":430001,"ApplicationProtocol":"HTTP"},"origin":{"ip":"192.0.2.10"},"target":{"ip":"203.0.113.10","port":8081}`, false},
-	{fpC2, "no destination port", `"log":{"messageId":430003,"ApplicationProtocol":"HTTP","InitiatorPackets":"6"},"origin":{"ip":"192.0.2.10"},"target":{"ip":"203.0.113.15"}`, false},
-	{fpC2, "no source address", `"log":{"messageId":430003,"ApplicationProtocol":"HTTP","InitiatorPackets":"6","SrcIP":"not-an-address"},"target":{"ip":"203.0.113.10","port":8081}`, false},
-	{fpC2, "old key names only", `"log":{"messageId":430003,"appProto":"HTTP","initiatorPackets":true},"origin":{"ip":"192.0.2.10"},"target":{"ip":"203.0.113.10","port":8081}`, false},
+	{fpC2, "no packet counter", `"event":{"messageId":430001,"ApplicationProtocol":"HTTP"},"origin":{"ip":"192.0.2.10"},"target":{"ip":"203.0.113.10","port":8081}`, false},
+	{fpC2, "no destination port", `"event":{"messageId":430003,"ApplicationProtocol":"HTTP","InitiatorPackets":"6"},"origin":{"ip":"192.0.2.10"},"target":{"ip":"203.0.113.15"}`, false},
+	{fpC2, "no source address", `"event":{"messageId":430003,"ApplicationProtocol":"HTTP","InitiatorPackets":"6","SrcIP":"not-an-address"},"target":{"ip":"203.0.113.10","port":8081}`, false},
+	{fpC2, "old key names only", `"event":{"messageId":430003,"appProto":"HTTP","initiatorPackets":true},"origin":{"ip":"192.0.2.10"},"target":{"ip":"203.0.113.10","port":8081}`, false},
 }
 
 // go-sdk CEL on synthetic normalized events for the two changed conditions, and on the model

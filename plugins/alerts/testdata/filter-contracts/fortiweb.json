@@ -21,7 +21,7 @@
       "filter": "fortinet/fortiweb.yml",
       "input": {
         "dataType": "firewall-fortiweb",
-        "log": {}
+        "event": {}
       },
       "expected": {},
       "absent": [

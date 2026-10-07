@@ -25,13 +25,13 @@ description: |
   6. Consider engaging incident response team for ransomware cases
   7. Do not power off the system if encryption is in progress
 where: |
-  (equals("log.eventType", "Threat_Event") &&
-  (regexMatch("log.threat_name", "(?i)(ransomware|filecoder)") || regexMatch("log.threat_type", "(?i)(ransomware|filecoder)"))) &&
+  (equals("event.eventType", "Threat_Event") &&
+  (regexMatch("event.threat_name", "(?i)(ransomware|filecoder)") || regexMatch("event.threat_type", "(?i)(ransomware|filecoder)"))) &&
   exists("dataSource") && !oneOf("dataSource", ["", "unknown", "-"]) &&
-  oneOf("log.endpointKeyType", ["uuid", "host", "ip"]) &&
-  exists("log.endpointKey") && !equals("log.endpointKey", "")
+  oneOf("event.endpointKeyType", ["uuid", "host", "ip"]) &&
+  exists("event.endpointKey") && !equals("event.endpointKey", "")
 groupBy:
   - lastEvent.dataSource
-  - lastEvent.log.endpointKeyType
-  - lastEvent.log.endpointKey
-  - lastEvent.log.threat_name
+  - lastEvent.event.endpointKeyType
+  - lastEvent.event.endpointKey
+  - lastEvent.event.threat_name

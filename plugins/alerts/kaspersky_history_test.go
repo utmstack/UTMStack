@@ -34,13 +34,13 @@ func TestKasperskySDKHistory(t *testing.T) {
 	queries := 0
 	mapping := map[string]any{"properties": map[string]any{}}
 	props := mapping["properties"].(map[string]any)
-	paths := []string{"dataSource", "log.endpointKeyType", "log.endpointKey", "origin.ip", "target.ip", "log.cat"}
+	paths := []string{"dataSource", "event.endpointKeyType", "event.endpointKey", "origin.ip", "target.ip", "event.cat"}
 	for name, r := range rules {
 		if len(r.Correlation) > 0 {
 			if kasperskyHistoryMarkers[name] == "" {
 				t.Fatalf("history rule %s has no correlation marker", name)
 			}
-			paths = append(paths, "log.correlationCandidate."+kasperskyHistoryMarkers[name])
+			paths = append(paths, "event.correlationCandidate."+kasperskyHistoryMarkers[name])
 		}
 	}
 	for _, path := range paths {
@@ -172,7 +172,7 @@ func TestKasperskySDKHistory(t *testing.T) {
 		{"lateral_movement_indicators", "lateral_movement_indicators", "2h", 3, false, nil},
 		{"suspicious_network_activity", "suspicious_network_activity", "30m", 5, false, map[string]string{"target.ip": "192.0.2.8"}},
 		{"kaspersky_ransomware_behavior", "kaspersky_ransomware_behavior", "10m", 3, false, nil},
-		{"data_exfiltration_attempts", "data_exfiltration_attempts", "30m", 5, false, map[string]string{"log.cat": "NetworkThreat"}},
+		{"data_exfiltration_attempts", "data_exfiltration_attempts", "30m", 5, false, map[string]string{"event.cat": "NetworkThreat"}},
 	}
 	fixtures := map[string]kaspFixture{}
 	for _, f := range kaspFixtures(t) {
@@ -199,20 +199,20 @@ func TestKasperskySDKHistory(t *testing.T) {
 				t.Fatalf("raw trigger failed: %v %v", ok, e)
 			}
 			// The filter stores this marker and the rule counts it under the same name.
-			marker := "log.correlationCandidate." + kasperskyHistoryMarkers[tc.rule]
-			terms = map[string]string{"dataSource": "collector-test", "log.endpointKeyType": "ip", marker: "match"}
+			marker := "event.correlationCandidate." + kasperskyHistoryMarkers[tc.rule]
+			terms = map[string]string{"dataSource": "collector-test", "event.endpointKeyType": "ip", marker: "match"}
 			notTerms = map[string]string{}
 			if tc.cross {
-				notTerms["log.endpointKey"] = "198.51.100.9"
+				notTerms["event.endpointKey"] = "198.51.100.9"
 			} else {
-				terms["log.endpointKey"] = "198.51.100.9"
+				terms["event.endpointKey"] = "198.51.100.9"
 			}
 			for k, v := range tc.extra {
 				terms[k] = v
 			}
 			prior := mutate(out, "@timestamp", time.Now().Add(-time.Minute).UTC().Format(time.RFC3339Nano))
 			if tc.cross {
-				prior = mutate(prior, "log.endpointKey", "other-endpoint")
+				prior = mutate(prior, "event.endpointKey", "other-endpoint")
 			}
 			check := func(name, doc string, count uint64, want bool) {
 				t.Run(name, func(t *testing.T) {
@@ -230,19 +230,19 @@ func TestKasperskySDKHistory(t *testing.T) {
 			check("at_threshold", prior, tc.count, true)
 			check("expired", mutate(prior, "@timestamp", time.Now().Add(-window-time.Minute).UTC().Format(time.RFC3339Nano)), tc.count, false)
 			check("inside_window", mutate(prior, "@timestamp", time.Now().Add(-window+time.Minute).UTC().Format(time.RFC3339Nano)), tc.count, true)
-			for _, field := range []string{"dataSource", "log.endpointKeyType"} {
+			for _, field := range []string{"dataSource", "event.endpointKeyType"} {
 				check("different_"+field, mutate(prior, field, "other"), tc.count, false)
 			}
 			if tc.cross {
-				check("same_endpoint", mutate(prior, "log.endpointKey", "198.51.100.9"), tc.count, false)
+				check("same_endpoint", mutate(prior, "event.endpointKey", "198.51.100.9"), tc.count, false)
 			} else {
-				check("different_endpoint", mutate(prior, "log.endpointKey", "other"), tc.count, false)
+				check("different_endpoint", mutate(prior, "event.endpointKey", "other"), tc.count, false)
 			}
 			check("unrelated_population", mutate(prior, marker, nil), tc.count, false)
 			for field := range tc.extra {
 				check("different_"+field, mutate(prior, field, "other"), tc.count, false)
 			}
-			without := mutate(out, "log.endpointKey", nil)
+			without := mutate(out, "event.endpointKey", nil)
 			before := queries
 			if _, _, e := search.Execute(&without); e == nil {
 				t.Error("missing required placeholder accepted")

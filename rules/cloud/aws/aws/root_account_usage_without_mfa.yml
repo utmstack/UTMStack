@@ -27,15 +27,15 @@ description: |
   9. Check for any privilege escalation attempts or unusual API calls
   10. Implement additional monitoring for root account activities
 where: |
-  equals("log.awsRecordType","cloudtrail") &&
-  (equals("log.userIdentity.type","Root") &&
+  equals("event.awsRecordType","cloudtrail") &&
+  (equals("event.userIdentity.type","Root") &&
   equals("actionResult","success") &&
-  (equals("log.userIdentity.sessionContext.attributes.mfaAuthenticated","false") ||
-  (equals("log.eventName","ConsoleLogin") &&
-  equals("log.additionalEventData.MFAUsed","No"))))
+  (equals("event.userIdentity.sessionContext.attributes.mfaAuthenticated","false") ||
+  (equals("event.eventName","ConsoleLogin") &&
+  equals("event.additionalEventData.MFAUsed","No"))))
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
-- lastEvent.log.sourceIPAddress
-- lastEvent.log.userIdentityAccountId
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
+- lastEvent.event.sourceIPAddress
+- lastEvent.event.userIdentityAccountId

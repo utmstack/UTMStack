@@ -19,19 +19,19 @@ description: |
   1. Immediately review the CloudTrail event selector configuration changes
   2. Verify if the change was authorized through change management
   3. Check which data event types were excluded from logging
-  4. Review the IAM principal ({{log.userIdentityArn}}) making the change
+  4. Review the IAM principal ({{event.userIdentityArn}}) making the change
   5. Restore event selectors to include all critical data event types
   6. Review recent activities that may have been hidden by the selector change
   7. Implement SCPs to prevent modification of CloudTrail event selectors
   8. Enable AWS Config rules to monitor CloudTrail configuration compliance
 where: |
-  equals("log.awsRecordType","cloudtrail") &&
-  (equals("log.eventSource", "cloudtrail.amazonaws.com") &&
-  oneOf("log.eventName", ["PutEventSelectors", "PutInsightSelectors"]) &&
+  equals("event.awsRecordType","cloudtrail") &&
+  (equals("event.eventSource", "cloudtrail.amazonaws.com") &&
+  oneOf("event.eventName", ["PutEventSelectors", "PutInsightSelectors"]) &&
   equals("actionResult","success"))
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
 - adversary.user
-- lastEvent.log.requestParameters.trailName
+- lastEvent.event.requestParameters.trailName

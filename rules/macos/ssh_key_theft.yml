@@ -23,12 +23,12 @@ description: |
   5. Check for lateral movement using the stolen key
   6. Investigate the initial compromise vector
 where: |
-  (contains("log.message", ".ssh/id_rsa") || contains("log.message", ".ssh/id_ed25519") ||
-   contains("log.message", ".ssh/id_ecdsa") || contains("log.message", ".ssh/id_dsa") ||
-   contains("log.message", ".ssh/identity")) &&
-  (contains("log.message", "read") || contains("log.message", "copy") ||
-   contains("log.message", "open") || contains("log.message", "cat") ||
-   contains("log.message", "scp") || contains("log.message", "base64"))
+  (contains("event.message", ".ssh/id_rsa") || contains("event.message", ".ssh/id_ed25519") ||
+   contains("event.message", ".ssh/id_ecdsa") || contains("event.message", ".ssh/id_dsa") ||
+   contains("event.message", ".ssh/identity")) &&
+  (contains("event.message", "read") || contains("event.message", "copy") ||
+   contains("event.message", "open") || contains("event.message", "cat") ||
+   contains("event.message", "scp") || contains("event.message", "base64"))
 groupBy:
   - adversary.host
   - adversary.user

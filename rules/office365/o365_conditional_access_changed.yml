@@ -23,5 +23,5 @@ description: |
 where: |
   oneOf("action", ["DisableConditionalAccessPolicy", "UpdateConditionalAccessPolicy"]) && equals("actionResult", "success")
 groupBy:
-  - lastEvent.log.Parameters
+  - lastEvent.event.Parameters
   - adversary.user

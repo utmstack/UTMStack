@@ -25,6 +25,6 @@ description: |
   5. Review if other storage resources were deleted in the same window
   6. Check if the bucket had object versioning enabled for recovery
 where: |
-  equals("log.protoPayloadServiceName", "storage.googleapis.com") &&
-  equals("log.protoPayloadMethodName", "storage.buckets.delete") &&
+  equals("event.protoPayloadServiceName", "storage.googleapis.com") &&
+  equals("event.protoPayloadMethodName", "storage.buckets.delete") &&
   exists("origin.user")

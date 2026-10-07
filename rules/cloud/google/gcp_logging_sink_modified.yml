@@ -25,6 +25,6 @@ description: |
   5. Restore any deleted security-relevant sinks immediately
   6. Review Cloud Audit logs for other logging configuration changes
 where: |
-  equals("log.protoPayloadServiceName", "logging.googleapis.com") &&
-  oneOf("log.protoPayloadMethodName", ["google.logging.v2.ConfigServiceV2.CreateSink", "google.logging.v2.ConfigServiceV2.DeleteSink", "google.logging.v2.ConfigServiceV2.UpdateSink"]) &&
+  equals("event.protoPayloadServiceName", "logging.googleapis.com") &&
+  oneOf("event.protoPayloadMethodName", ["google.logging.v2.ConfigServiceV2.CreateSink", "google.logging.v2.ConfigServiceV2.DeleteSink", "google.logging.v2.ConfigServiceV2.UpdateSink"]) &&
   exists("origin.user")

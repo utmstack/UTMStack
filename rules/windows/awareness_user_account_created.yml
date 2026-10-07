@@ -22,12 +22,12 @@ description: |
   Requires the "Audit User Account Management" success audit.
 
   Next Steps:
-  1. Confirm the new account (target.user and log.eventDataTargetSid) and the account that created it (log.eventDataSubjectUserName) match an approved request or a known provisioning tool.
+  1. Confirm the new account (target.user and event.eventDataTargetSid) and the account that created it (event.eventDataSubjectUserName) match an approved request or a known provisioning tool.
   2. If it was not expected, disable the account and review sign-ins and group changes involving it.
 where: |
-  equals("log.eventCode", 4720) &&
-  equals("log.channel", "Security") &&
-  equals("log.providerName", "Microsoft-Windows-Security-Auditing")
+  equals("event.eventCode", 4720) &&
+  equals("event.channel", "Security") &&
+  equals("event.providerName", "Microsoft-Windows-Security-Auditing")
 groupBy:
   - dataSource
-  - lastEvent.log.eventDataSubjectUserSid
+  - lastEvent.event.eventDataSubjectUserSid

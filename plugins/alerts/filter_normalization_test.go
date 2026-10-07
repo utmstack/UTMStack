@@ -116,7 +116,7 @@ func normalize(root string, f Fixture, cache *plugins.CELCache) (string, []strin
 				if f.Raw == nil && (kind == "dynamic" || kind == "json" || kind == "kv" || kind == "csv" || kind == "xml" || kind == "reformat") {
 					continue
 				}
-				simpleGrok := step.Grok != nil && len(step.Grok.Patterns) == 1 && (step.Grok.Patterns[0].Pattern == "{{.greedy}}" || step.Grok.Patterns[0].Pattern == "(.*)" || step.Grok.Patterns[0].Pattern == "(?s:.*)")
+				simpleGrok := step.Grok != nil && len(step.Grok.Patterns) == 1 && (step.Grok.Patterns[0].Pattern == "{{.greedy}}" || step.Grok.Patterns[0].Pattern == "(.*)" || step.Grok.Patterns[0].Pattern == "(?s:.*)" || step.Grok.Patterns[0].Pattern == "(?s)^.+$")
 				if f.Raw == nil && kind == "grok" && !simpleGrok {
 					continue
 				}
@@ -150,7 +150,7 @@ func normalize(root string, f Fixture, cache *plugins.CELCache) (string, []strin
 						return "", issues, err
 					}
 					for key, value := range parsed {
-						put(draft, "log."+key, value, false)
+						put(draft, "event."+key, value, false)
 					}
 				case "rename":
 					for _, src := range step.Rename.From {

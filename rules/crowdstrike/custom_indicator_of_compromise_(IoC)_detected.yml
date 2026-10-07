@@ -12,6 +12,6 @@ impact:
   integrity: 3
   availability: 1
 where: >
-  equals("log.metadataEventType", "CustomerIOCEvent")
+  equals("event.metadataEventType", "CustomerIOCEvent")
 groupBy:
-  - lastEvent.log.metadataEventType
+  - lastEvent.event.metadataEventType

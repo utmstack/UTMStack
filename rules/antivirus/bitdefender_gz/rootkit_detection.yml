@@ -19,12 +19,12 @@ description: 'An antimalware detection name matches a rootkit-related family or 
   Use the incident response process and trusted forensic collection when the evidence supports compromise.
 
   '
-where: "oneOf(\"log.BitdefenderGZModule\", [\"av\", \"avc\", \"hd\"]) &&\n(regexMatch(\"log.BitdefenderGZDetectionName\", \"(?i)(rootkit|tdss|zeroaccess|necurs|alureon|rustock|sinowal|trojan\\\
+where: "oneOf(\"event.BitdefenderGZModule\", [\"av\", \"avc\", \"hd\"]) &&\n(regexMatch(\"event.BitdefenderGZDetectionName\", \"(?i)(rootkit|tdss|zeroaccess|necurs|alureon|rustock|sinowal|trojan\\\
   \\.rootkit)\") ||\n regexMatch(\"target.malware\", \"(?i)(rootkit|tdss|zeroaccess|necurs|alureon|rustock|sinowal|trojan\\\\.rootkit)\"\
   ))\n"
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.BitdefenderGZCompanyId
-- lastEvent.log.endpointKeyType
-- lastEvent.log.endpointKey
+- lastEvent.event.BitdefenderGZCompanyId
+- lastEvent.event.endpointKeyType
+- lastEvent.event.endpointKey
 - target.malware

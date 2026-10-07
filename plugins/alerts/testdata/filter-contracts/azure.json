@@ -50,7 +50,7 @@
       "name": "Azure dictionary severity DEBUG",
       "filter": "azure/azure-eventhub.yml",
       "input": {
-        "log": {
+        "event": {
           "level": "DEBUG",
           "category": "AppServiceConsoleLogs"
         }
@@ -109,7 +109,7 @@
       "name": "Azure dictionary severity CRITICAL",
       "filter": "azure/azure-eventhub.yml",
       "input": {
-        "log": {
+        "event": {
           "level": "CRITICAL",
           "category": "AppServiceConsoleLogs"
         }

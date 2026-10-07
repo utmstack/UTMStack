@@ -12,8 +12,8 @@ impact:
   integrity: 0
   availability: 0
 where: >
-  equals("log.metadataEventType", "AuthActivityAuditEvent") && 
-  equals("log.eventSuccess", false) && 
+  equals("event.metadataEventType", "AuthActivityAuditEvent") && 
+  equals("event.eventSuccess", false) && 
   exists("origin.ip")
 afterEvents:
   - indexPattern: v11-log-crowdstrike-*
@@ -23,7 +23,7 @@ afterEvents:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'
-      - field: log.eventSuccess
+      - field: event.eventSuccess
         operator: filter_term
         value: 'false'
 deduplicateBy:

@@ -26,15 +26,15 @@ description: |
   7. Check for persistence mechanisms on the affected host
   8. Review network connections from the suspicious process if applicable
 where: |
-  (oneOf("log.eventType", ["HipsAggregated_Event", "HIPSAggregated_Event"]) && equals("actionResult", "denied") && oneOf("severity", ["warning", "error", "critical"]) &&
-  (regexMatch("log.operation", "(?i)(suspicious|malicious|injection|exploit|tamper|self[- ]defen[sc]e)") ||
-   regexMatch("log.rulename", "(?i)(suspicious|malicious|injection|exploit|tamper|self[- ]defen[sc]e)"))) &&
+  (oneOf("event.eventType", ["HipsAggregated_Event", "HIPSAggregated_Event"]) && equals("actionResult", "denied") && oneOf("severity", ["warning", "error", "critical"]) &&
+  (regexMatch("event.operation", "(?i)(suspicious|malicious|injection|exploit|tamper|self[- ]defen[sc]e)") ||
+   regexMatch("event.rulename", "(?i)(suspicious|malicious|injection|exploit|tamper|self[- ]defen[sc]e)"))) &&
   exists("dataSource") && !oneOf("dataSource", ["", "unknown", "-"]) &&
-  oneOf("log.endpointKeyType", ["uuid", "host", "ip"]) &&
-  exists("log.endpointKey") && !equals("log.endpointKey", "")
+  oneOf("event.endpointKeyType", ["uuid", "host", "ip"]) &&
+  exists("event.endpointKey") && !equals("event.endpointKey", "")
 groupBy:
   - lastEvent.dataSource
-  - lastEvent.log.endpointKeyType
-  - lastEvent.log.endpointKey
-  - lastEvent.log.rulename
-  - lastEvent.log.ruleid
+  - lastEvent.event.endpointKeyType
+  - lastEvent.event.endpointKey
+  - lastEvent.event.rulename
+  - lastEvent.event.ruleid

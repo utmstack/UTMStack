@@ -7,790 +7,790 @@ pipeline:
   steps:
   - delete:
       fields:
-      - log.format
-      - log.cefExtension
-      - log.ksc
-      - log.eventType
-      - log.endpointKey
-      - log.endpointKeyType
-      - log.correlationCandidate
+      - event.format
+      - event.cefExtension
+      - event.ksc
+      - event.eventType
+      - event.endpointKey
+      - event.endpointKeyType
+      - event.correlationCandidate
   - grok:
       source: raw
       patterns:
       - fieldName: ''
         pattern: '^(?:(?:<[0-9]{1,3}>)?[A-Za-z]{3}\s+[0-9]{1,2}\s+[0-9]{2}:[0-9]{2}:[0-9]{2}\s+\S+\s+(?:[^\s:\"]+(?:\[[0-9]+\])?:\s*)?|<[0-9]{1,3}>[1-9][0-9]*\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+-\s+|<[0-9]{1,3}>)?CEF:'
-      - fieldName: log.cefVersion
+      - fieldName: event.cefVersion
         pattern: '[0-9]+'
       - fieldName: ''
         pattern: \|
-      - fieldName: log.embDeviceVendor
+      - fieldName: event.embDeviceVendor
         pattern: (?:\\.|[^\\|\r\n])+
       - fieldName: ''
         pattern: \|
-      - fieldName: log.embDeviceProduct
+      - fieldName: event.embDeviceProduct
         pattern: (?:\\.|[^\\|\r\n])*
       - fieldName: ''
         pattern: \|
-      - fieldName: log.deviceVersion
+      - fieldName: event.deviceVersion
         pattern: (?:\\.|[^\\|\r\n])*
       - fieldName: ''
         pattern: \|
-      - fieldName: log.signatureID
+      - fieldName: event.signatureID
         pattern: (?:\\.|[^\\|\r\n])*
       - fieldName: ''
         pattern: \|
-      - fieldName: log.descMsg
+      - fieldName: event.descMsg
         pattern: (?:\\.|[^\\|\r\n])*
       - fieldName: ''
         pattern: \|
-      - fieldName: log.cefDeviceSeverity
+      - fieldName: event.cefDeviceSeverity
         pattern: (?:\\.|[^\\|\r\n])*
       - fieldName: ''
         pattern: \|
-      - fieldName: log.cefExtension
+      - fieldName: event.cefExtension
         pattern: (?s:.*)$
   - kv:
-      source: log.cefExtension
+      source: event.cefExtension
       fieldSplit: ' '
       valueSplit: '='
-      where: exists("log.cefExtension")
+      where: exists("event.cefExtension")
   - delete:
       fields:
-      - log.act
-      - log.agt
-      - log.ahost
-      - log.amac
-      - log.cat
-      - log.cn1
-      - log.cn10
-      - log.cn10Label
-      - log.cn1Label
-      - log.cn2
-      - log.cn2Label
-      - log.cn3
-      - log.cn3Label
-      - log.cn4
-      - log.cn4Label
-      - log.cn5
-      - log.cn5Label
-      - log.cn6
-      - log.cn6Label
-      - log.cn7
-      - log.cn7Label
-      - log.cn8
-      - log.cn8Label
-      - log.cn9
-      - log.cn9Label
-      - log.cs1
-      - log.cs10
-      - log.cs10Label
-      - log.cs1Label
-      - log.cs2
-      - log.cs2Label
-      - log.cs3
-      - log.cs3Label
-      - log.cs4
-      - log.cs4Label
-      - log.cs5
-      - log.cs5Label
-      - log.cs6
-      - log.cs6Label
-      - log.cs7
-      - log.cs7Label
-      - log.cs8
-      - log.cs8Label
-      - log.cs9
-      - log.cs9Label
-      - log.customerURI
-      - log.destinationZoneExternalID
-      - log.destinationZoneURI
-      - log.dhost
-      - log.dmac
-      - log.dpt
-      - log.dst
-      - log.duser
-      - log.flexString1
-      - log.fname
-      - log.msg
-      - log.originalAgentZoneURI
-      - log.proto
-      - log.shost
-      - log.smac
-      - log.spt
-      - log.src
-      - log.suser
-      - log.cefVersion
-      - log.embDeviceVendor
-      - log.embDeviceProduct
-      - log.deviceVersion
-      - log.signatureID
-      - log.descMsg
-      - log.cefDeviceSeverity
-      - log.format
-      - log.cefExtension
-      - log.ksc
-      - log.eventType
-      - log.endpointKey
-      - log.endpointKeyType
-      - log.correlationCandidate
+      - event.act
+      - event.agt
+      - event.ahost
+      - event.amac
+      - event.cat
+      - event.cn1
+      - event.cn10
+      - event.cn10Label
+      - event.cn1Label
+      - event.cn2
+      - event.cn2Label
+      - event.cn3
+      - event.cn3Label
+      - event.cn4
+      - event.cn4Label
+      - event.cn5
+      - event.cn5Label
+      - event.cn6
+      - event.cn6Label
+      - event.cn7
+      - event.cn7Label
+      - event.cn8
+      - event.cn8Label
+      - event.cn9
+      - event.cn9Label
+      - event.cs1
+      - event.cs10
+      - event.cs10Label
+      - event.cs1Label
+      - event.cs2
+      - event.cs2Label
+      - event.cs3
+      - event.cs3Label
+      - event.cs4
+      - event.cs4Label
+      - event.cs5
+      - event.cs5Label
+      - event.cs6
+      - event.cs6Label
+      - event.cs7
+      - event.cs7Label
+      - event.cs8
+      - event.cs8Label
+      - event.cs9
+      - event.cs9Label
+      - event.customerURI
+      - event.destinationZoneExternalID
+      - event.destinationZoneURI
+      - event.dhost
+      - event.dmac
+      - event.dpt
+      - event.dst
+      - event.duser
+      - event.flexString1
+      - event.fname
+      - event.msg
+      - event.originalAgentZoneURI
+      - event.proto
+      - event.shost
+      - event.smac
+      - event.spt
+      - event.src
+      - event.suser
+      - event.cefVersion
+      - event.embDeviceVendor
+      - event.embDeviceProduct
+      - event.deviceVersion
+      - event.signatureID
+      - event.descMsg
+      - event.cefDeviceSeverity
+      - event.format
+      - event.cefExtension
+      - event.ksc
+      - event.eventType
+      - event.endpointKey
+      - event.endpointKeyType
+      - event.correlationCandidate
   - grok:
       source: raw
       patterns:
       - fieldName: ''
         pattern: '^(?:(?:<[0-9]{1,3}>)?[A-Za-z]{3}\s+[0-9]{1,2}\s+[0-9]{2}:[0-9]{2}:[0-9]{2}\s+\S+\s+(?:[^\s:\"]+(?:\[[0-9]+\])?:\s*)?|<[0-9]{1,3}>[1-9][0-9]*\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+-\s+|<[0-9]{1,3}>)?CEF:'
-      - fieldName: log.cefVersion
+      - fieldName: event.cefVersion
         pattern: '[0-9]+'
       - fieldName: ''
         pattern: \|
-      - fieldName: log.embDeviceVendor
+      - fieldName: event.embDeviceVendor
         pattern: (?:\\.|[^\\|\r\n])+
       - fieldName: ''
         pattern: \|
-      - fieldName: log.embDeviceProduct
+      - fieldName: event.embDeviceProduct
         pattern: (?:\\.|[^\\|\r\n])*
       - fieldName: ''
         pattern: \|
-      - fieldName: log.deviceVersion
+      - fieldName: event.deviceVersion
         pattern: (?:\\.|[^\\|\r\n])*
       - fieldName: ''
         pattern: \|
-      - fieldName: log.signatureID
+      - fieldName: event.signatureID
         pattern: (?:\\.|[^\\|\r\n])*
       - fieldName: ''
         pattern: \|
-      - fieldName: log.descMsg
+      - fieldName: event.descMsg
         pattern: (?:\\.|[^\\|\r\n])*
       - fieldName: ''
         pattern: \|
-      - fieldName: log.cefDeviceSeverity
+      - fieldName: event.cefDeviceSeverity
         pattern: (?:\\.|[^\\|\r\n])*
       - fieldName: ''
         pattern: \|
-      - fieldName: log.cefExtension
+      - fieldName: event.cefExtension
         pattern: (?s:.*)$
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:.*[ \t])?act=
-      - fieldName: log.act
+      - fieldName: event.act
         pattern: '[^ \t=]+'
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:.*[ \t])?agt=
-      - fieldName: log.agt
+      - fieldName: event.agt
         pattern: '[^ \t=]+'
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:.*[ \t])?ahost=
-      - fieldName: log.ahost
+      - fieldName: event.ahost
         pattern: '[^ \t=]+'
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:.*[ \t])?amac=
-      - fieldName: log.amac
+      - fieldName: event.amac
         pattern: '[^ \t=]+'
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:.*[ \t])?cat=
-      - fieldName: log.cat
+      - fieldName: event.cat
         pattern: '[^ \t=]+'
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:.*[ \t])?cn1=
-      - fieldName: log.cn1
+      - fieldName: event.cn1
         pattern: '[^ \t=]+'
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:.*[ \t])?cn10=
-      - fieldName: log.cn10
+      - fieldName: event.cn10
         pattern: '[^ \t=]+'
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cn10Label=
-      - fieldName: log.cn10Label
+      - fieldName: event.cn10Label
         pattern: (?:\\.|[^\\=\r\n])*?
       - fieldName: ''
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cn1Label=
-      - fieldName: log.cn1Label
+      - fieldName: event.cn1Label
         pattern: (?:\\.|[^\\=\r\n])*?
       - fieldName: ''
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:.*[ \t])?cn2=
-      - fieldName: log.cn2
+      - fieldName: event.cn2
         pattern: '[^ \t=]+'
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cn2Label=
-      - fieldName: log.cn2Label
+      - fieldName: event.cn2Label
         pattern: (?:\\.|[^\\=\r\n])*?
       - fieldName: ''
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:.*[ \t])?cn3=
-      - fieldName: log.cn3
+      - fieldName: event.cn3
         pattern: '[^ \t=]+'
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cn3Label=
-      - fieldName: log.cn3Label
+      - fieldName: event.cn3Label
         pattern: (?:\\.|[^\\=\r\n])*?
       - fieldName: ''
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:.*[ \t])?cn4=
-      - fieldName: log.cn4
+      - fieldName: event.cn4
         pattern: '[^ \t=]+'
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cn4Label=
-      - fieldName: log.cn4Label
+      - fieldName: event.cn4Label
         pattern: (?:\\.|[^\\=\r\n])*?
       - fieldName: ''
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:.*[ \t])?cn5=
-      - fieldName: log.cn5
+      - fieldName: event.cn5
         pattern: '[^ \t=]+'
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cn5Label=
-      - fieldName: log.cn5Label
+      - fieldName: event.cn5Label
         pattern: (?:\\.|[^\\=\r\n])*?
       - fieldName: ''
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:.*[ \t])?cn6=
-      - fieldName: log.cn6
+      - fieldName: event.cn6
         pattern: '[^ \t=]+'
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cn6Label=
-      - fieldName: log.cn6Label
+      - fieldName: event.cn6Label
         pattern: (?:\\.|[^\\=\r\n])*?
       - fieldName: ''
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:.*[ \t])?cn7=
-      - fieldName: log.cn7
+      - fieldName: event.cn7
         pattern: '[^ \t=]+'
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cn7Label=
-      - fieldName: log.cn7Label
+      - fieldName: event.cn7Label
         pattern: (?:\\.|[^\\=\r\n])*?
       - fieldName: ''
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:.*[ \t])?cn8=
-      - fieldName: log.cn8
+      - fieldName: event.cn8
         pattern: '[^ \t=]+'
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cn8Label=
-      - fieldName: log.cn8Label
+      - fieldName: event.cn8Label
         pattern: (?:\\.|[^\\=\r\n])*?
       - fieldName: ''
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:.*[ \t])?cn9=
-      - fieldName: log.cn9
+      - fieldName: event.cn9
         pattern: '[^ \t=]+'
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cn9Label=
-      - fieldName: log.cn9Label
+      - fieldName: event.cn9Label
         pattern: (?:\\.|[^\\=\r\n])*?
       - fieldName: ''
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:.*[ \t])?cs1=
-      - fieldName: log.cs1
+      - fieldName: event.cs1
         pattern: '[^ \t=]+'
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs10=
-      - fieldName: log.cs10
+      - fieldName: event.cs10
         pattern: (?:\\.|[^\\=\r\n])*?
       - fieldName: ''
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs10Label=
-      - fieldName: log.cs10Label
+      - fieldName: event.cs10Label
         pattern: (?:\\.|[^\\=\r\n])*?
       - fieldName: ''
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs1Label=
-      - fieldName: log.cs1Label
+      - fieldName: event.cs1Label
         pattern: (?:\\.|[^\\=\r\n])*?
       - fieldName: ''
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs2=
-      - fieldName: log.cs2
+      - fieldName: event.cs2
         pattern: (?:\\.|[^\\=\r\n])*?
       - fieldName: ''
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs2Label=
-      - fieldName: log.cs2Label
+      - fieldName: event.cs2Label
         pattern: (?:\\.|[^\\=\r\n])*?
       - fieldName: ''
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs3=
-      - fieldName: log.cs3
+      - fieldName: event.cs3
         pattern: (?:\\.|[^\\=\r\n])*?
       - fieldName: ''
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs3Label=
-      - fieldName: log.cs3Label
+      - fieldName: event.cs3Label
         pattern: (?:\\.|[^\\=\r\n])*?
       - fieldName: ''
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs4=
-      - fieldName: log.cs4
+      - fieldName: event.cs4
         pattern: (?:\\.|[^\\=\r\n])*?
       - fieldName: ''
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs4Label=
-      - fieldName: log.cs4Label
+      - fieldName: event.cs4Label
         pattern: (?:\\.|[^\\=\r\n])*?
       - fieldName: ''
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs5=
-      - fieldName: log.cs5
+      - fieldName: event.cs5
         pattern: (?:\\.|[^\\=\r\n])*?
       - fieldName: ''
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs5Label=
-      - fieldName: log.cs5Label
+      - fieldName: event.cs5Label
         pattern: (?:\\.|[^\\=\r\n])*?
       - fieldName: ''
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs6=
-      - fieldName: log.cs6
+      - fieldName: event.cs6
         pattern: (?:\\.|[^\\=\r\n])*?
       - fieldName: ''
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs6Label=
-      - fieldName: log.cs6Label
+      - fieldName: event.cs6Label
         pattern: (?:\\.|[^\\=\r\n])*?
       - fieldName: ''
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs7=
-      - fieldName: log.cs7
+      - fieldName: event.cs7
         pattern: (?:\\.|[^\\=\r\n])*?
       - fieldName: ''
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs7Label=
-      - fieldName: log.cs7Label
+      - fieldName: event.cs7Label
         pattern: (?:\\.|[^\\=\r\n])*?
       - fieldName: ''
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs8=
-      - fieldName: log.cs8
+      - fieldName: event.cs8
         pattern: (?:\\.|[^\\=\r\n])*?
       - fieldName: ''
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs8Label=
-      - fieldName: log.cs8Label
+      - fieldName: event.cs8Label
         pattern: (?:\\.|[^\\=\r\n])*?
       - fieldName: ''
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs9=
-      - fieldName: log.cs9
+      - fieldName: event.cs9
         pattern: (?:\\.|[^\\=\r\n])*?
       - fieldName: ''
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*cs9Label=
-      - fieldName: log.cs9Label
+      - fieldName: event.cs9Label
         pattern: (?:\\.|[^\\=\r\n])*?
       - fieldName: ''
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:.*[ \t])?customerURI=
-      - fieldName: log.customerURI
+      - fieldName: event.customerURI
         pattern: '[^ \t=]+'
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:.*[ \t])?destinationZoneExternalID=
-      - fieldName: log.destinationZoneExternalID
+      - fieldName: event.destinationZoneExternalID
         pattern: '[^ \t=]+'
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:.*[ \t])?destinationZoneURI=
-      - fieldName: log.destinationZoneURI
+      - fieldName: event.destinationZoneURI
         pattern: '[^ \t=]+'
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:.*[ \t])?dhost=
-      - fieldName: log.dhost
+      - fieldName: event.dhost
         pattern: '[^ \t=]+'
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:.*[ \t])?dmac=
-      - fieldName: log.dmac
+      - fieldName: event.dmac
         pattern: '[^ \t=]+'
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:.*[ \t])?dpt=
-      - fieldName: log.dpt
+      - fieldName: event.dpt
         pattern: '[^ \t=]+'
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:.*[ \t])?dst=
-      - fieldName: log.dst
+      - fieldName: event.dst
         pattern: '[^ \t=]+'
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:.*[ \t])?duser=
-      - fieldName: log.duser
+      - fieldName: event.duser
         pattern: '[^ \t=]+'
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*flexString1=
-      - fieldName: log.flexString1
+      - fieldName: event.flexString1
         pattern: (?:\\.|[^\\=\r\n])*?
       - fieldName: ''
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:[A-Za-z][A-Za-z0-9_]*=(?:\\.|[^\\=\r\n])*?[ \t]+)*fname=
-      - fieldName: log.fname
+      - fieldName: event.fname
         pattern: (?:\\.|[^\\=\r\n])*?
       - fieldName: ''
         pattern: (?:[ \t]+[A-Za-z][A-Za-z0-9_]*=|$)
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:.*[ \t])?msg=
-      - fieldName: log.msg
+      - fieldName: event.msg
         pattern: (?s:.+)$
-      where: regexMatch("log.cefExtension","(?:^|[ \t])msg=[^ \t=]")
+      where: regexMatch("event.cefExtension","(?:^|[ \t])msg=[^ \t=]")
   # CEF escapes '=' inside values. Stop before the next unescaped key, then
   # remove its name when the message is followed by a destination field.
   - grok:
-      source: log.msg
+      source: event.msg
       patterns:
-      - fieldName: log.msg
+      - fieldName: event.msg
         pattern: '^(?:\\.|[^=])+'
-      where: equals("log.format","cef") || exists("log.cefExtension")
+      where: equals("event.format","cef") || exists("event.cefExtension")
   - trim:
       function: suffix
       substring: ' dst'
-      fields: [log.msg]
-      where: endsWith("log.msg"," dst")
+      fields: [event.msg]
+      where: endsWith("event.msg"," dst")
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:.*[ \t])?originalAgentZoneURI=
-      - fieldName: log.originalAgentZoneURI
+      - fieldName: event.originalAgentZoneURI
         pattern: '[^ \t=]+'
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:.*[ \t])?proto=
-      - fieldName: log.proto
+      - fieldName: event.proto
         pattern: '[^ \t=]+'
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:.*[ \t])?shost=
-      - fieldName: log.shost
+      - fieldName: event.shost
         pattern: '[^ \t=]+'
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:.*[ \t])?smac=
-      - fieldName: log.smac
+      - fieldName: event.smac
         pattern: '[^ \t=]+'
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:.*[ \t])?spt=
-      - fieldName: log.spt
+      - fieldName: event.spt
         pattern: '[^ \t=]+'
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:.*[ \t])?src=
-      - fieldName: log.src
+      - fieldName: event.src
         pattern: '[^ \t=]+'
   - grok:
-      source: log.cefExtension
+      source: event.cefExtension
       patterns:
       - fieldName: ''
         pattern: ^(?:.*[ \t])?suser=
-      - fieldName: log.suser
+      - fieldName: event.suser
         pattern: '[^ \t=]+'
   - add:
       function: string
       params:
-        key: log.format
+        key: event.format
         value: cef
-      where: exists("log.cefExtension")
+      where: exists("event.cefExtension")
   - grok:
-      source: log.src
+      source: event.src
       patterns:
       - fieldName: origin.ip
         pattern: (?s)^.+$
-      where: (inCIDR("log.src","0.0.0.0/0") || inCIDR("log.src","::/0")) && !inCIDR("log.src","0.0.0.0/32") && !inCIDR("log.src","::/128")
+      where: (inCIDR("event.src","0.0.0.0/0") || inCIDR("event.src","::/0")) && !inCIDR("event.src","0.0.0.0/32") && !inCIDR("event.src","::/128")
   - grok:
-      source: log.dst
+      source: event.dst
       patterns:
       - fieldName: target.ip
         pattern: (?s)^.+$
-      where: (inCIDR("log.dst","0.0.0.0/0") || inCIDR("log.dst","::/0")) && !inCIDR("log.dst","0.0.0.0/32") && !inCIDR("log.dst","::/128")
+      where: (inCIDR("event.dst","0.0.0.0/0") || inCIDR("event.dst","::/0")) && !inCIDR("event.dst","0.0.0.0/32") && !inCIDR("event.dst","::/128")
   - grok:
-      source: log.shost
+      source: event.shost
       patterns:
       - fieldName: origin.host
         pattern: (?s)^.+$
-      where: exists("log.shost") && !oneOf("log.shost",["","-"]) && !contains("log.shost","\\")
+      where: exists("event.shost") && !oneOf("event.shost",["","-"]) && !contains("event.shost","\\")
   - grok:
-      source: log.dhost
+      source: event.dhost
       patterns:
       - fieldName: target.host
         pattern: (?s)^.+$
-      where: exists("log.dhost") && !oneOf("log.dhost",["","-"]) && !contains("log.dhost","\\")
+      where: exists("event.dhost") && !oneOf("event.dhost",["","-"]) && !contains("event.dhost","\\")
   - grok:
-      source: log.suser
+      source: event.suser
       patterns:
       - fieldName: origin.user
         pattern: (?s)^.+$
-      where: exists("log.suser") && !oneOf("log.suser",["","-"]) && !contains("log.suser","\\")
+      where: exists("event.suser") && !oneOf("event.suser",["","-"]) && !contains("event.suser","\\")
   - grok:
-      source: log.duser
+      source: event.duser
       patterns:
       - fieldName: target.user
         pattern: (?s)^.+$
-      where: exists("log.duser") && !oneOf("log.duser",["","-"]) && !contains("log.duser","\\")
+      where: exists("event.duser") && !oneOf("event.duser",["","-"]) && !contains("event.duser","\\")
   - grok:
-      source: log.smac
+      source: event.smac
       patterns:
       - fieldName: origin.mac
         pattern: (?s)^.+$
-      where: exists("log.smac") && !oneOf("log.smac",["","-"]) && !contains("log.smac","\\")
+      where: exists("event.smac") && !oneOf("event.smac",["","-"]) && !contains("event.smac","\\")
   - grok:
-      source: log.dmac
+      source: event.dmac
       patterns:
       - fieldName: target.mac
         pattern: (?s)^.+$
-      where: exists("log.dmac") && !oneOf("log.dmac",["","-"]) && !contains("log.dmac","\\")
+      where: exists("event.dmac") && !oneOf("event.dmac",["","-"]) && !contains("event.dmac","\\")
   - grok:
-      source: log.agt
+      source: event.agt
       patterns:
-      - fieldName: log.agentAddress
+      - fieldName: event.agentAddress
         pattern: (?s)^.+$
-      where: exists("log.agt") && !oneOf("log.agt",["","-"])
+      where: exists("event.agt") && !oneOf("event.agt",["","-"])
   - grok:
-      source: log.ahost
+      source: event.ahost
       patterns:
-      - fieldName: log.agentHost
+      - fieldName: event.agentHost
         pattern: (?s)^.+$
-      where: exists("log.ahost") && !oneOf("log.ahost",["","-"])
+      where: exists("event.ahost") && !oneOf("event.ahost",["","-"])
   - grok:
-      source: log.amac
+      source: event.amac
       patterns:
-      - fieldName: log.agentMac
+      - fieldName: event.agentMac
         pattern: (?s)^.+$
-      where: exists("log.amac") && !oneOf("log.amac",["","-"])
+      where: exists("event.amac") && !oneOf("event.amac",["","-"])
   - grok:
-      source: log.spt
+      source: event.spt
       patterns:
       - fieldName: origin.port
         pattern: (?s)^.+$
-      where: regexMatch("log.spt","^[0-9]+$") && greaterThan("log.spt",0) && lessOrEqual("log.spt",65535)
+      where: regexMatch("event.spt","^[0-9]+$") && greaterThan("event.spt",0) && lessOrEqual("event.spt",65535)
   - cast:
       fields:
       - origin.port
       to: int
       where: exists("origin.port")
   - grok:
-      source: log.dpt
+      source: event.dpt
       patterns:
       - fieldName: target.port
         pattern: (?s)^.+$
-      where: regexMatch("log.dpt","^[0-9]+$") && greaterThan("log.dpt",0) && lessOrEqual("log.dpt",65535)
+      where: regexMatch("event.dpt","^[0-9]+$") && greaterThan("event.dpt",0) && lessOrEqual("event.dpt",65535)
   - cast:
       fields:
       - target.port
       to: int
       where: exists("target.port")
   - grok:
-      source: log.proto
+      source: event.proto
       patterns:
       - fieldName: protocol
         pattern: (?s)^.+$
-      where: exists("log.proto") && !oneOf("log.proto",["","-"])
+      where: exists("event.proto") && !oneOf("event.proto",["","-"])
   - grok:
-      source: log.act
+      source: event.act
       patterns:
       - fieldName: action
         pattern: (?s)^.+$
-      where: exists("log.act") && !oneOf("log.act",["","-"])
+      where: exists("event.act") && !oneOf("event.act",["","-"])
   # A copied or extension-supplied result is not the final operation verdict.
   - delete:
       fields: [actionResult]
@@ -817,157 +817,157 @@ pipeline:
       params:
         key: severity
         value: info
-      where: (greaterOrEqual("log.cefDeviceSeverity",0) && lessOrEqual("log.cefDeviceSeverity",3)) || oneOf("log.cefDeviceSeverity",["Low","low","Unknown"])
+      where: (greaterOrEqual("event.cefDeviceSeverity",0) && lessOrEqual("event.cefDeviceSeverity",3)) || oneOf("event.cefDeviceSeverity",["Low","low","Unknown"])
   - add:
       function: string
       params:
         key: severity
         value: warning
-      where: (greaterOrEqual("log.cefDeviceSeverity",4) && lessOrEqual("log.cefDeviceSeverity",6)) || oneOf("log.cefDeviceSeverity",["Medium","medium"])
+      where: (greaterOrEqual("event.cefDeviceSeverity",4) && lessOrEqual("event.cefDeviceSeverity",6)) || oneOf("event.cefDeviceSeverity",["Medium","medium"])
   - add:
       function: string
       params:
         key: severity
         value: error
-      where: (greaterOrEqual("log.cefDeviceSeverity",7) && lessOrEqual("log.cefDeviceSeverity",8)) || oneOf("log.cefDeviceSeverity",["High","high"])
+      where: (greaterOrEqual("event.cefDeviceSeverity",7) && lessOrEqual("event.cefDeviceSeverity",8)) || oneOf("event.cefDeviceSeverity",["High","high"])
   - add:
       function: string
       params:
         key: severity
         value: critical
-      where: (greaterOrEqual("log.cefDeviceSeverity",9) && lessOrEqual("log.cefDeviceSeverity",10)) || oneOf("log.cefDeviceSeverity",["Very-High","Very
+      where: (greaterOrEqual("event.cefDeviceSeverity",9) && lessOrEqual("event.cefDeviceSeverity",10)) || oneOf("event.cefDeviceSeverity",["Very-High","Very
         High","very-high"])
   - delete:
       fields:
-      - log.cefExtension
+      - event.cefExtension
   - grok:
       source: raw
       patterns:
       - fieldName: ''
         pattern: ^<
-      - fieldName: log.priority
+      - fieldName: event.priority
         pattern: '[0-9]{1,3}'
       - fieldName: ''
         pattern: '>'
-      - fieldName: log.ksc.syslogVersion
+      - fieldName: event.ksc.syslogVersion
         pattern: '[1-9][0-9]*[ \t]+'
-      - fieldName: log.ksc.time
+      - fieldName: event.ksc.time
         pattern: \S+[ \t]+
-      - fieldName: log.ksc.reportingHost
+      - fieldName: event.ksc.reportingHost
         pattern: \S+[ \t]+
-      - fieldName: log.ksc.appName
+      - fieldName: event.ksc.appName
         pattern: \S+[ \t]+
-      - fieldName: log.ksc.procId
+      - fieldName: event.ksc.procId
         pattern: \S+[ \t]+
-      - fieldName: log.ksc.messageId
+      - fieldName: event.ksc.messageId
         pattern: \S+[ \t]+
       - fieldName: ''
         pattern: '\[event@23668'
-      - fieldName: log.ksc.params
+      - fieldName: event.ksc.params
         pattern: '(?:[A-Za-z][A-Za-z0-9_]*="(?:\\[\"\\\]]|[^\"\\\]\r\n])*"[ \t]*)+'
       - fieldName: ''
         pattern: '\](?: )?'
-      - fieldName: log.msg
+      - fieldName: event.msg
         pattern: (?s:.*)$
   - add:
       function: string
       params:
-        key: log.format
+        key: event.format
         value: ksc-syslog
-      where: exists("log.ksc.params")
+      where: exists("event.ksc.params")
   - grok:
-      source: log.ksc.params
+      source: event.ksc.params
       patterns:
       - fieldName: ''
         pattern: '^(?:.*[ \t])?p1="'
-      - fieldName: log.ksc.p1
+      - fieldName: event.ksc.p1
         pattern: '(?:\\.|[^\"\\])+'
       - fieldName: ''
         pattern: '"'
   - grok:
-      source: log.ksc.params
+      source: event.ksc.params
       patterns:
       - fieldName: ''
         pattern: '^(?:.*[ \t])?et="'
-      - fieldName: log.ksc.et
+      - fieldName: event.ksc.et
         pattern: '(?:\\.|[^\"\\])+'
       - fieldName: ''
         pattern: '"'
   - grok:
-      source: log.ksc.params
+      source: event.ksc.params
       patterns:
       - fieldName: ''
         pattern: '^(?:.*[ \t])?etdn="'
-      - fieldName: log.ksc.etdn
+      - fieldName: event.ksc.etdn
         pattern: '(?:\\.|[^\"\\])+'
       - fieldName: ''
         pattern: '"'
   - grok:
-      source: log.ksc.params
+      source: event.ksc.params
       patterns:
       - fieldName: ''
         pattern: '^(?:.*[ \t])?hdn="'
-      - fieldName: log.ksc.hdn
+      - fieldName: event.ksc.hdn
         pattern: '(?:\\.|[^\"\\])+'
       - fieldName: ''
         pattern: '"'
   - grok:
-      source: log.ksc.params
+      source: event.ksc.params
       patterns:
       - fieldName: ''
         pattern: '^(?:.*[ \t])?hip="'
-      - fieldName: log.ksc.hip
+      - fieldName: event.ksc.hip
         pattern: '(?:\\.|[^\"\\])+'
       - fieldName: ''
         pattern: '"'
   - grok:
-      source: log.ksc.params
+      source: event.ksc.params
       patterns:
       - fieldName: ''
         pattern: '^(?:.*[ \t])?gn="'
-      - fieldName: log.ksc.gn
+      - fieldName: event.ksc.gn
         pattern: '(?:\\.|[^\"\\])+'
       - fieldName: ''
         pattern: '"'
   - grok:
-      source: log.ksc.params
+      source: event.ksc.params
       patterns:
       - fieldName: ''
         pattern: '^(?:.*[ \t])?kscfqdn="'
-      - fieldName: log.ksc.kscfqdn
+      - fieldName: event.ksc.kscfqdn
         pattern: '(?:\\.|[^\"\\])+'
       - fieldName: ''
         pattern: '"'
   - grok:
-      source: log.ksc.et
+      source: event.ksc.et
       patterns:
-      - fieldName: log.eventType
+      - fieldName: event.eventType
         pattern: (?s)^.+$
-      where: exists("log.ksc.et") && !oneOf("log.ksc.et",["","-"])
+      where: exists("event.ksc.et") && !oneOf("event.ksc.et",["","-"])
   - grok:
-      source: log.ksc.messageId
+      source: event.ksc.messageId
       patterns:
-      - fieldName: log.eventType
+      - fieldName: event.eventType
         pattern: (?s)^.+$
-      where: '!exists("log.eventType")'
+      where: '!exists("event.eventType")'
   - grok:
-      source: log.ksc.hip
+      source: event.ksc.hip
       patterns:
       - fieldName: target.ip
         pattern: (?s)^.+$
-      where: (inCIDR("log.ksc.hip","0.0.0.0/0") || inCIDR("log.ksc.hip","::/0")) && !inCIDR("log.ksc.hip","0.0.0.0/32") && !inCIDR("log.ksc.hip","::/128")
+      where: (inCIDR("event.ksc.hip","0.0.0.0/0") || inCIDR("event.ksc.hip","::/0")) && !inCIDR("event.ksc.hip","0.0.0.0/32") && !inCIDR("event.ksc.hip","::/128")
   - grok:
-      source: log.ksc.hdn
+      source: event.ksc.hdn
       patterns:
       - fieldName: target.host
         pattern: (?s)^.+$
-      where: exists("log.ksc.hdn") && !oneOf("log.ksc.hdn",["","-"]) && !contains("log.ksc.hdn","\\")
+      where: exists("event.ksc.hdn") && !oneOf("event.ksc.hdn",["","-"]) && !contains("event.ksc.hdn","\\")
   - grok:
-      source: log.ksc.time
+      source: event.ksc.time
       patterns:
       - fieldName: deviceTime
         pattern: (?s)^.+$
-      where: regexMatch("log.ksc.time","^[0-9]{4}-(0[1-9]|1[0-2])-([0-2][0-9]|3[01])T([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.[0-9]+)?(Z|[+-][0-2][0-9]:[0-5][0-9])$")
+      where: regexMatch("event.ksc.time","^[0-9]{4}-(0[1-9]|1[0-2])-([0-2][0-9]|3[01])T([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.[0-9]+)?(Z|[+-][0-2][0-9]:[0-5][0-9])$")
   # Kaspersky Security Center states a block in the event type, not in CEF act:
   # object blocked, object found and blocked, application launch denied. The
   # native syslog message id is cut to 32 characters when et is missing.
@@ -977,37 +977,37 @@ pipeline:
       params:
         key: actionResult
         value: denied
-      where: oneOf("log.eventType",["GNRL_EV_OBJECT_BLOCKED","GNRL_EV_VIRUS_FOUND_AND_BLOCKED","GNRL_EV_APPLICATION_LAUNCH_DENIED","GNRL_EV_APPLICATION_LAUNCH_DENIE"]) || (equals("log.embDeviceVendor","KasperskyLab") && oneOf("log.signatureID",["GNRL_EV_OBJECT_BLOCKED","GNRL_EV_VIRUS_FOUND_AND_BLOCKED","GNRL_EV_APPLICATION_LAUNCH_DENIED"]))
+      where: oneOf("event.eventType",["GNRL_EV_OBJECT_BLOCKED","GNRL_EV_VIRUS_FOUND_AND_BLOCKED","GNRL_EV_APPLICATION_LAUNCH_DENIED","GNRL_EV_APPLICATION_LAUNCH_DENIE"]) || (equals("event.embDeviceVendor","KasperskyLab") && oneOf("event.signatureID",["GNRL_EV_OBJECT_BLOCKED","GNRL_EV_VIRUS_FOUND_AND_BLOCKED","GNRL_EV_APPLICATION_LAUNCH_DENIED"]))
   - add:
       function: string
       params:
         key: severity
         value: critical
-      where: equals("log.format","ksc-syslog") && oneOf("log.priority",["0","1","2","8","9","10","16","17","18","24","25","26","32","33","34","40","41","42","48","49","50","56","57","58","64","65","66","72","73","74","80","81","82","88","89","90","96","97","98","104","105","106","112","113","114","120","121","122","128","129","130","136","137","138","144","145","146","152","153","154","160","161","162","168","169","170","176","177","178","184","185","186"])
+      where: equals("event.format","ksc-syslog") && oneOf("event.priority",["0","1","2","8","9","10","16","17","18","24","25","26","32","33","34","40","41","42","48","49","50","56","57","58","64","65","66","72","73","74","80","81","82","88","89","90","96","97","98","104","105","106","112","113","114","120","121","122","128","129","130","136","137","138","144","145","146","152","153","154","160","161","162","168","169","170","176","177","178","184","185","186"])
   - add:
       function: string
       params:
         key: severity
         value: error
-      where: equals("log.format","ksc-syslog") && oneOf("log.priority",["3","11","19","27","35","43","51","59","67","75","83","91","99","107","115","123","131","139","147","155","163","171","179","187"])
+      where: equals("event.format","ksc-syslog") && oneOf("event.priority",["3","11","19","27","35","43","51","59","67","75","83","91","99","107","115","123","131","139","147","155","163","171","179","187"])
   - add:
       function: string
       params:
         key: severity
         value: warning
-      where: equals("log.format","ksc-syslog") && oneOf("log.priority",["4","12","20","28","36","44","52","60","68","76","84","92","100","108","116","124","132","140","148","156","164","172","180","188"])
+      where: equals("event.format","ksc-syslog") && oneOf("event.priority",["4","12","20","28","36","44","52","60","68","76","84","92","100","108","116","124","132","140","148","156","164","172","180","188"])
   - add:
       function: string
       params:
         key: severity
         value: info
-      where: equals("log.format","ksc-syslog") && oneOf("log.priority",["5","6","13","14","21","22","29","30","37","38","45","46","53","54","61","62","69","70","77","78","85","86","93","94","101","102","109","110","117","118","125","126","133","134","141","142","149","150","157","158","165","166","173","174","181","182","189","190"])
+      where: equals("event.format","ksc-syslog") && oneOf("event.priority",["5","6","13","14","21","22","29","30","37","38","45","46","53","54","61","62","69","70","77","78","85","86","93","94","101","102","109","110","117","118","125","126","133","134","141","142","149","150","157","158","165","166","173","174","181","182","189","190"])
   - add:
       function: string
       params:
         key: severity
         value: debug
-      where: equals("log.format","ksc-syslog") && oneOf("log.priority",["7","15","23","31","39","47","55","63","71","79","87","95","103","111","119","127","135","143","151","159","167","175","183","191"])
+      where: equals("event.format","ksc-syslog") && oneOf("event.priority",["7","15","23","31","39","47","55","63","71","79","87","95","103","111","119","127","135","143","151","159","167","175","183","191"])
   - dynamic:
       plugin: com.utmstack.geolocation
       params:
@@ -1023,74 +1023,74 @@ pipeline:
   - grok:
       source: origin.ip
       patterns:
-      - fieldName: log.endpointKey
+      - fieldName: event.endpointKey
         pattern: (?s)^.+$
-      where: equals("log.format","cef") && exists("origin.ip") && !oneOf("origin.ip",["","-"]) && !exists("log.endpointKey")
+      where: equals("event.format","cef") && exists("origin.ip") && !oneOf("origin.ip",["","-"]) && !exists("event.endpointKey")
   - add:
       function: string
       params:
-        key: log.endpointKeyType
+        key: event.endpointKeyType
         value: ip
-      where: exists("log.endpointKey") && !exists("log.endpointKeyType")
+      where: exists("event.endpointKey") && !exists("event.endpointKeyType")
   - grok:
       source: origin.host
       patterns:
-      - fieldName: log.endpointKey
+      - fieldName: event.endpointKey
         pattern: (?s)^.+$
-      where: equals("log.format","cef") && exists("origin.host") && !oneOf("origin.host",["","-"]) && !exists("log.endpointKey")
+      where: equals("event.format","cef") && exists("origin.host") && !oneOf("origin.host",["","-"]) && !exists("event.endpointKey")
   - add:
       function: string
       params:
-        key: log.endpointKeyType
+        key: event.endpointKeyType
         value: host
-      where: exists("log.endpointKey") && !exists("log.endpointKeyType")
+      where: exists("event.endpointKey") && !exists("event.endpointKeyType")
   - add:
       function: string
       params:
-        key: log.correlationCandidate.dataExfiltrationAttempts
+        key: event.correlationCandidate.dataExfiltrationAttempts
         value: match
       where: |-
-        equals("log.format","cef") && ((equals("log.cat", "NetworkThreat") ||
-         regexMatch("log.cs2", "(?i).*(trojan|backdoor).*") ||
-         regexMatch("log.msg", "(?i).*(data.*transfer|exfiltrat|upload.*suspicious|unauthorized.*transfer).*") ||
-         regexMatch("log.msg", "(?i).*(data.*exfiltration|suspicious.*upload|unauthorized.*transfer).*")) &&
+        equals("event.format","cef") && ((equals("event.cat", "NetworkThreat") ||
+         regexMatch("event.cs2", "(?i).*(trojan|backdoor).*") ||
+         regexMatch("event.msg", "(?i).*(data.*transfer|exfiltrat|upload.*suspicious|unauthorized.*transfer).*") ||
+         regexMatch("event.msg", "(?i).*(data.*exfiltration|suspicious.*upload|unauthorized.*transfer).*")) &&
         exists("target.ip") &&
-        greaterOrEqual("log.cefDeviceSeverity", "3") && exists("origin.ip")) && exists("log.endpointKey") && exists("log.endpointKeyType") && exists("dataSource")
+        greaterOrEqual("event.cefDeviceSeverity", "3") && exists("origin.ip")) && exists("event.endpointKey") && exists("event.endpointKeyType") && exists("dataSource")
   - add:
       function: string
       params:
-        key: log.correlationCandidate.kasperskyRansomwareBehavior
+        key: event.correlationCandidate.kasperskyRansomwareBehavior
         value: match
       where: |-
-        equals("log.format","cef") && (exists("log.signatureID") &&
-        (regexMatch("log.msg", "(?i)(ransomware|ransom|trojan-ransom|cryptolocker|locky|cerber|wannacry|ryuk|conti|lockbit|blackcat)") ||
-         contains("log.cs2", "Trojan-Ransom") || contains("log.cs4", "Trojan-Ransom") ||
-         (contains("log.msg", "encrypt") && contains("log.msg", "mass")) ||
-         (contains("log.msg", "System Watcher") && contains("log.msg", "rollback")))) && exists("log.endpointKey") && exists("log.endpointKeyType") && exists("dataSource")
+        equals("event.format","cef") && (exists("event.signatureID") &&
+        (regexMatch("event.msg", "(?i)(ransomware|ransom|trojan-ransom|cryptolocker|locky|cerber|wannacry|ryuk|conti|lockbit|blackcat)") ||
+         contains("event.cs2", "Trojan-Ransom") || contains("event.cs4", "Trojan-Ransom") ||
+         (contains("event.msg", "encrypt") && contains("event.msg", "mass")) ||
+         (contains("event.msg", "System Watcher") && contains("event.msg", "rollback")))) && exists("event.endpointKey") && exists("event.endpointKeyType") && exists("dataSource")
   - add:
       function: string
       params:
-        key: log.correlationCandidate.lateralMovementIndicators
+        key: event.correlationCandidate.lateralMovementIndicators
         value: match
       where: |-
-        equals("log.format","cef") && ((equals("log.cn1", "3") || equals("log.cs1", "DETECT") || equals("actionResult", "denied")) &&
-        (contains("log.msg", ["psexec", "wmi", "rdp", "smb", "admin$", "ipc$", "c$",
+        equals("event.format","cef") && ((equals("event.cn1", "3") || equals("event.cs1", "DETECT") || equals("actionResult", "denied")) &&
+        (contains("event.msg", ["psexec", "wmi", "rdp", "smb", "admin$", "ipc$", "c$",
           "remote", "lateral", "pivot"]) ||
-         contains("log.cs4", ["exploit", "mimikatz", "bloodhound", "sharphound", "propagat"])) &&
+         contains("event.cs4", ["exploit", "mimikatz", "bloodhound", "sharphound", "propagat"])) &&
         exists("target.ip") &&
         exists("origin.ip") &&
-        safe("origin.ip", "") != safe("target.ip", "")) && exists("log.endpointKey") && exists("log.endpointKeyType") && exists("dataSource")
+        safe("origin.ip", "") != safe("target.ip", "")) && exists("event.endpointKey") && exists("event.endpointKeyType") && exists("dataSource")
   - add:
       function: string
       params:
-        key: log.correlationCandidate.suspiciousNetworkActivity
+        key: event.correlationCandidate.suspiciousNetworkActivity
         value: match
       where: |-
-        equals("log.format","cef") && (exists("log.signatureID") &&
-        (contains("log.msg", ["suspicious connection", "network attack", "port scan", "unusual traffic"]) ||
-         contains("log.msg", "network") ||
-         contains("log.cs1", "NETWORK") ||
-         contains("log.cs2", "Net-Worm") ||
-         contains("log.cs4", "Net-Worm") ||
-         (exists("target.ip") && exists("log.dpt"))) &&
-        equals("actionResult", "denied") && exists("origin.ip") && exists("target.ip")) && exists("log.endpointKey") && exists("log.endpointKeyType") && exists("dataSource")
+        equals("event.format","cef") && (exists("event.signatureID") &&
+        (contains("event.msg", ["suspicious connection", "network attack", "port scan", "unusual traffic"]) ||
+         contains("event.msg", "network") ||
+         contains("event.cs1", "NETWORK") ||
+         contains("event.cs2", "Net-Worm") ||
+         contains("event.cs4", "Net-Worm") ||
+         (exists("target.ip") && exists("event.dpt"))) &&
+        equals("actionResult", "denied") && exists("origin.ip") && exists("target.ip")) && exists("event.endpointKey") && exists("event.endpointKeyType") && exists("dataSource")

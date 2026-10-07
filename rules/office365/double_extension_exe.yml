@@ -16,7 +16,7 @@ references:
 description: |
   Detects files on OneDrive for Business or SharePoint Online whose name contains a hidden ".exe." double extension (e.g., "invoice.exe.pdf", "report.exe.docx"). Attackers use double extensions to disguise malicious executables as documents so users and security tooling treat them as benign.
 
-  Verified against live Unified Audit data: file operations carry target.filename (full name) and log.SourceFileExtension (real last extension). The rule fires when the name embeds ".exe." but the true extension is not "exe".
+  Verified against live Unified Audit data: file operations carry target.filename (full name) and event.SourceFileExtension (real last extension). The rule fires when the name embeds ".exe." but the true extension is not "exe".
 
   Next Steps:
   1. Identify the file, its location, and the user who uploaded/accessed it
@@ -28,7 +28,7 @@ where: |
   oneOf("action", ["FileAccessed", "FileDownloaded", "FilePreviewed", "FileShared"]) &&
   exists("target.filename") &&
   contains("target.filename", ".exe.") &&
-  !equals("log.SourceFileExtension", "exe")
+  !equals("event.SourceFileExtension", "exe")
 groupBy:
   - adversary.user
   - origin.ip

@@ -19,11 +19,11 @@ pipeline:
       #......................................................................#
       - grok:
           patterns:
-            - fieldName: log.priority
+            - fieldName: event.priority
               pattern: '\<{{.data}}\>'
-            - fieldName: log.deviceTime
+            - fieldName: event.deviceTime
               pattern: '{{.monthName}}{{.space}}{{.monthDay}}{{.space}}{{.time}}'
-            - fieldName: log.msgInit
+            - fieldName: event.msgInit
               pattern: '{{.greedy}}'
           source: raw
 
@@ -34,26 +34,26 @@ pipeline:
           function: prefix
           substring: "<"
           fields:
-            - log.priority
+            - event.priority
       - trim:
           function: suffix
           substring: ">"
           fields:
-            - log.priority
+            - event.priority
 
       # .......................................................................#
       # Checking that the message contains Message forwarded from
       # .......................................................................#
       - grok:
           patterns:
-            - fildName: log.irrelevant
+            - fildName: event.irrelevant
               pattern: 'Message(\s)forwarded(\s)from'
             - fieldName: from.host
               pattern: '{{.data}}(\:)'
-            - fieldName: log.msgAll
+            - fieldName: event.msgAll
               pattern: '{{.greedy}}'
-          source: log.msgInit
-          where: contains("log.msgInit", "Message forwarded from")
+          source: event.msgInit
+          where: contains("event.msgInit", "Message forwarded from")
       
       # Removing unnecessary characters
       - trim:
@@ -67,21 +67,21 @@ pipeline:
       #......................................................................#
       - grok:
           patterns:
-            - fieldName: log.commandType
+            - fieldName: event.commandType
               pattern: '{{.data}}(\:)'
             - fieldName: origin.user
               pattern: '{{.data}}(\s)?(\:)'
-            - fieldName: log.msgWithTTY
+            - fieldName: event.msgWithTTY
               pattern: '{{.greedy}}'
-          source: log.msgAll
-          where: contains("log.msgAll", "TTY=") || contains("log.msgAll", "PWD=") || contains("log.msgAll", "USER=") || contains("log.msgAll", "COMMAND=")
+          source: event.msgAll
+          where: contains("event.msgAll", "TTY=") || contains("event.msgAll", "PWD=") || contains("event.msgAll", "USER=") || contains("event.msgAll", "COMMAND=")
 
       # Removing unnecessary characters
       - trim:
           function: suffix
           substring: ":"
           fields:
-            - log.commandType
+            - event.commandType
             - origin.user
       # ......................................................................#
       # Using grok to parse msgWithTTY individual fields
@@ -89,70 +89,70 @@ pipeline:
       # ......................................................................#
       - grok:
           patterns:
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: '(TTY=)'
-            - fieldName: log.tty
+            - fieldName: event.tty
               pattern: '{{.data}}(\;)'
-            - fieldName: log.msgWithTTY
+            - fieldName: event.msgWithTTY
               pattern: '{{.greedy}}'
-          source: log.msgWithTTY
-          where: contains("log.msgWithTTY", "TTY=") || contains("log.msgWithTTY", "PWD=") || contains("log.msgWithTTY", "USER=") || contains("log.msgWithTTY", "COMMAND=")
+          source: event.msgWithTTY
+          where: contains("event.msgWithTTY", "TTY=") || contains("event.msgWithTTY", "PWD=") || contains("event.msgWithTTY", "USER=") || contains("event.msgWithTTY", "COMMAND=")
 
       # ......................................................................#
       # If "PWD=" in [msgWithTTY]
       # ......................................................................#
       - grok:
           patterns:
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: '(PWD=)'
-            - fieldName: log.pwd
+            - fieldName: event.pwd
               pattern: '{{.data}}(\;)'
-            - fieldName: log.msgWithTTY
+            - fieldName: event.msgWithTTY
               pattern: '{{.greedy}}'
-          source: log.msgWithTTY
-          where: contains("log.msgWithTTY", "TTY=") || contains("log.msgWithTTY", "PWD=") || contains("log.msgWithTTY", "USER=") || contains("log.msgWithTTY", "COMMAND=")
+          source: event.msgWithTTY
+          where: contains("event.msgWithTTY", "TTY=") || contains("event.msgWithTTY", "PWD=") || contains("event.msgWithTTY", "USER=") || contains("event.msgWithTTY", "COMMAND=")
 
       # ......................................................................#
       # If "USER=" in [msgWithTTY]
       # ......................................................................#
       - grok:
           patterns:
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: '(USER=)'
             - fieldName: origin.user
               pattern: '{{.data}}(\;)'
-            - fieldName: log.msgWithTTY
+            - fieldName: event.msgWithTTY
               pattern: '{{.greedy}}'
-          source: log.msgWithTTY
-          where: contains("log.msgWithTTY", "TTY=") || contains("log.msgWithTTY", "PWD=") || contains("log.msgWithTTY", "USER=") || contains("log.msgWithTTY", "COMMAND=")
+          source: event.msgWithTTY
+          where: contains("event.msgWithTTY", "TTY=") || contains("event.msgWithTTY", "PWD=") || contains("event.msgWithTTY", "USER=") || contains("event.msgWithTTY", "COMMAND=")
 
       # ......................................................................#
       # If "COMMAND=" in [msgWithTTY]
       # ......................................................................#
       - grok:
           patterns:
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: '(COMMAND=)'
             - fieldName: origin.command
               pattern: '{{.greedy}}'
-          source: log.msgWithTTY
-          where: contains("log.msgWithTTY", "TTY=") || contains("log.msgWithTTY", "PWD=") || contains("log.msgWithTTY", "USER=") || contains("log.msgWithTTY", "COMMAND=")
+          source: event.msgWithTTY
+          where: contains("event.msgWithTTY", "TTY=") || contains("event.msgWithTTY", "PWD=") || contains("event.msgWithTTY", "USER=") || contains("event.msgWithTTY", "COMMAND=")
 
       # ......................................................................#
       # Using grok to parse msgAll
       # ......................................................................#
       - grok:
           patterns:
-            - fieldName: log.commandType
+            - fieldName: event.commandType
               pattern: '{{.data}}(\:)'
             - fieldName: origin.user
               pattern: '{{.data}}(\s)?(\:)'
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: '{{.data}}\)'
             - fieldName: origin.command
               pattern: '{{.greedy}}'
-          source: log.msgAll
-          where: contains("log.msgAll", "(command continued)")
+          source: event.msgAll
+          where: contains("event.msgAll", "(command continued)")
 
       # ......................................................................#
       # Removing unnecessary characters
@@ -161,14 +161,14 @@ pipeline:
           function: suffix
           substring: ";"
           fields:
-            - log.tty
-            - log.pwd
+            - event.tty
+            - event.pwd
             - origin.user
       - trim:
           function: suffix
           substring: ":"
           fields:
-            - log.commandType
+            - event.commandType
             - origin.user
 
       # ......................................................................#
@@ -176,14 +176,14 @@ pipeline:
       # ......................................................................#
       - grok:
           patterns:
-            - fieldName: log.eventType
+            - fieldName: event.eventType
               pattern: '{{.data}}\['
-            - fieldName: log.pid
+            - fieldName: event.pid
               pattern: '{{.integer}}\]:'
-            - fieldName: log.msg
+            - fieldName: event.msg
               pattern: '{{.greedy}}'
-          source: log.msgAll
-          where: regexMatch("log.msgAll", "\\w+\\[[0-9]+\\]\\:")
+          source: event.msgAll
+          where: regexMatch("event.msgAll", "\\w+\\[[0-9]+\\]\\:")
 
       # ......................................................................#
       #  Removing unnecessary characters
@@ -192,12 +192,12 @@ pipeline:
           function: suffix
           substring: "["
           fields:
-            - log.eventType
+            - event.eventType
       - trim:
           function: suffix
           substring: "]:"
           fields:
-            - log.pid
+            - event.pid
 
       # ......................................................................#
       # Format where the LENGTH, SESSIONID, ENTRYID, STATEMENT, USERID, USERHOST, ACTION, RETURNCODE, OBJ$CREATOR, OBJ$NAME, and OS$USERID fields exist
@@ -211,110 +211,110 @@ pipeline:
       # ......................................................................#
       - grok:
           patterns:
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: '(LENGTH:)'
-            - fieldName: log.length
+            - fieldName: event.length
               pattern: '\"{{.data}}\"'
-            - fieldName: log.msg
+            - fieldName: event.msg
               pattern: '{{.greedy}}'
-          source: log.msg
-          where: contains("log.msg", "LENGTH:") || contains("log.msg", "SESSIONID:") || contains("log.msg", "ENTRYID:") || contains("log.msg", "STATEMENT:") || contains("log.msg", "USERID:") || contains("log.msg", "USERHOST:") || contains("log.msg", "ACTION:") || contains("log.msg", "RETURNCODE:") || contains("log.msg", "OBJ$CREATOR:") || contains("log.msg", "OBJ$NAME:") || contains("log.msg", "OS$USERID:")
+          source: event.msg
+          where: contains("event.msg", "LENGTH:") || contains("event.msg", "SESSIONID:") || contains("event.msg", "ENTRYID:") || contains("event.msg", "STATEMENT:") || contains("event.msg", "USERID:") || contains("event.msg", "USERHOST:") || contains("event.msg", "ACTION:") || contains("event.msg", "RETURNCODE:") || contains("event.msg", "OBJ$CREATOR:") || contains("event.msg", "OBJ$NAME:") || contains("event.msg", "OS$USERID:")
 
       # ......................................................................#
       # If "SESSIONID:" in [msg]
       # ......................................................................#
       - grok:
           patterns:
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: '(SESSIONID:)'
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: '\[{{.data}}\]'
-            - fieldName: log.sessionID
+            - fieldName: event.sessionID
               pattern: '\"{{.data}}\"'
-            - fieldName: log.msg
+            - fieldName: event.msg
               pattern: '{{.greedy}}'
-          source: log.msg
-          where: contains("log.msg", "LENGTH:") || contains("log.msg", "SESSIONID:") || contains("log.msg", "ENTRYID:") || contains("log.msg", "STATEMENT:") || contains("log.msg", "USERID:") || contains("log.msg", "USERHOST:") || contains("log.msg", "ACTION:") || contains("log.msg", "RETURNCODE:") || contains("log.msg", "OBJ$CREATOR:") || contains("log.msg", "OBJ$NAME:") || contains("log.msg", "OS$USERID:")
+          source: event.msg
+          where: contains("event.msg", "LENGTH:") || contains("event.msg", "SESSIONID:") || contains("event.msg", "ENTRYID:") || contains("event.msg", "STATEMENT:") || contains("event.msg", "USERID:") || contains("event.msg", "USERHOST:") || contains("event.msg", "ACTION:") || contains("event.msg", "RETURNCODE:") || contains("event.msg", "OBJ$CREATOR:") || contains("event.msg", "OBJ$NAME:") || contains("event.msg", "OS$USERID:")
 
       # ......................................................................#
       # If "ENTRYID:" in [msg]
       # ......................................................................#
       - grok:
           patterns:
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: '(ENTRYID:)'
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: '\[{{.data}}\]'
-            - fieldName: log.entryID
+            - fieldName: event.entryID
               pattern: '\"{{.data}}\"'
-            - fieldName: log.msg
+            - fieldName: event.msg
               pattern: '{{.greedy}}'
-          source: log.msg
-          where: contains("log.msg", "LENGTH:") || contains("log.msg", "SESSIONID:") || contains("log.msg", "ENTRYID:") || contains("log.msg", "STATEMENT:") || contains("log.msg", "USERID:") || contains("log.msg", "USERHOST:") || contains("log.msg", "ACTION:") || contains("log.msg", "RETURNCODE:") || contains("log.msg", "OBJ$CREATOR:") || contains("log.msg", "OBJ$NAME:") || contains("log.msg", "OS$USERID:")
+          source: event.msg
+          where: contains("event.msg", "LENGTH:") || contains("event.msg", "SESSIONID:") || contains("event.msg", "ENTRYID:") || contains("event.msg", "STATEMENT:") || contains("event.msg", "USERID:") || contains("event.msg", "USERHOST:") || contains("event.msg", "ACTION:") || contains("event.msg", "RETURNCODE:") || contains("event.msg", "OBJ$CREATOR:") || contains("event.msg", "OBJ$NAME:") || contains("event.msg", "OS$USERID:")
 
       # ......................................................................#
       # If "STATEMENT:" in [msg]
       # ......................................................................#
       - grok:
           patterns:
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: '(STATEMENT:)'
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: '\[{{.data}}\]'
-            - fieldName: log.statement
+            - fieldName: event.statement
               pattern: '\"{{.data}}\"'
-            - fieldName: log.msg
+            - fieldName: event.msg
               pattern: '{{.greedy}}'
-          source: log.msg
-          where: contains("log.msg", "LENGTH:") || contains("log.msg", "SESSIONID:") || contains("log.msg", "ENTRYID:") || contains("log.msg", "STATEMENT:") || contains("log.msg", "USERID:") || contains("log.msg", "USERHOST:") || contains("log.msg", "ACTION:") || contains("log.msg", "RETURNCODE:") || contains("log.msg", "OBJ$CREATOR:") || contains("log.msg", "OBJ$NAME:") || contains("log.msg", "OS$USERID:")
+          source: event.msg
+          where: contains("event.msg", "LENGTH:") || contains("event.msg", "SESSIONID:") || contains("event.msg", "ENTRYID:") || contains("event.msg", "STATEMENT:") || contains("event.msg", "USERID:") || contains("event.msg", "USERHOST:") || contains("event.msg", "ACTION:") || contains("event.msg", "RETURNCODE:") || contains("event.msg", "OBJ$CREATOR:") || contains("event.msg", "OBJ$NAME:") || contains("event.msg", "OS$USERID:")
 
       # ......................................................................#
       # If "USERID:" in [msg]
       # ......................................................................#
       - grok:
           patterns:
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: '(USERID:)'
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: '\[{{.data}}\]'
-            - fieldName: log.userID
+            - fieldName: event.userID
               pattern: '\"{{.data}}\"'
-            - fieldName: log.msg
+            - fieldName: event.msg
               pattern: '{{.greedy}}'
-          source: log.msg
-          where: contains("log.msg", "LENGTH:") || contains("log.msg", "SESSIONID:") || contains("log.msg", "ENTRYID:") || contains("log.msg", "STATEMENT:") || contains("log.msg", "USERID:") || contains("log.msg", "USERHOST:") || contains("log.msg", "ACTION:") || contains("log.msg", "RETURNCODE:") || contains("log.msg", "OBJ$CREATOR:") || contains("log.msg", "OBJ$NAME:") || contains("log.msg", "OS$USERID:")
+          source: event.msg
+          where: contains("event.msg", "LENGTH:") || contains("event.msg", "SESSIONID:") || contains("event.msg", "ENTRYID:") || contains("event.msg", "STATEMENT:") || contains("event.msg", "USERID:") || contains("event.msg", "USERHOST:") || contains("event.msg", "ACTION:") || contains("event.msg", "RETURNCODE:") || contains("event.msg", "OBJ$CREATOR:") || contains("event.msg", "OBJ$NAME:") || contains("event.msg", "OS$USERID:")
 
       # ......................................................................#
       # If "USERHOST:" in [msg]
       # ......................................................................#
       - grok:
           patterns:
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: '(USERHOST:)'
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: '\[{{.data}}\]'
-            - fieldName: log.userHost
+            - fieldName: event.userHost
               pattern: '\"{{.data}}\"'
-            - fieldName: log.msg
+            - fieldName: event.msg
               pattern: '{{.greedy}}'
-          source: log.msg
-          where: contains("log.msg", "LENGTH:") || contains("log.msg", "SESSIONID:") || contains("log.msg", "ENTRYID:") || contains("log.msg", "STATEMENT:") || contains("log.msg", "USERID:") || contains("log.msg", "USERHOST:") || contains("log.msg", "ACTION:") || contains("log.msg", "RETURNCODE:") || contains("log.msg", "OBJ$CREATOR:") || contains("log.msg", "OBJ$NAME:") || contains("log.msg", "OS$USERID:")
+          source: event.msg
+          where: contains("event.msg", "LENGTH:") || contains("event.msg", "SESSIONID:") || contains("event.msg", "ENTRYID:") || contains("event.msg", "STATEMENT:") || contains("event.msg", "USERID:") || contains("event.msg", "USERHOST:") || contains("event.msg", "ACTION:") || contains("event.msg", "RETURNCODE:") || contains("event.msg", "OBJ$CREATOR:") || contains("event.msg", "OBJ$NAME:") || contains("event.msg", "OS$USERID:")
 
       # ......................................................................#
       # If "ACTION:" in [msg]
       # ......................................................................#
       - grok:
           patterns:
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: '(ACTION:)'
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: '\[{{.data}}\]'
             - fieldName: action
               pattern: '\"{{.data}}\"'
-            - fieldName: log.msg
+            - fieldName: event.msg
               pattern: '{{.greedy}}'
-          source: log.msg
-          where: contains("log.msg", "LENGTH:") || contains("log.msg", "SESSIONID:") || contains("log.msg", "ENTRYID:") || contains("log.msg", "STATEMENT:") || contains("log.msg", "USERID:") || contains("log.msg", "USERHOST:") || contains("log.msg", "ACTION:") || contains("log.msg", "RETURNCODE:") || contains("log.msg", "OBJ$CREATOR:") || contains("log.msg", "OBJ$NAME:") || contains("log.msg", "OS$USERID:")
+          source: event.msg
+          where: contains("event.msg", "LENGTH:") || contains("event.msg", "SESSIONID:") || contains("event.msg", "ENTRYID:") || contains("event.msg", "STATEMENT:") || contains("event.msg", "USERID:") || contains("event.msg", "USERHOST:") || contains("event.msg", "ACTION:") || contains("event.msg", "RETURNCODE:") || contains("event.msg", "OBJ$CREATOR:") || contains("event.msg", "OBJ$NAME:") || contains("event.msg", "OS$USERID:")
 
       # ......................................................................#
       # If "RETURNCODE:" in [msg]
@@ -324,101 +324,101 @@ pipeline:
       # ......................................................................#
       - grok:
           patterns:
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: '(.*?\s)?RETURNCODE:\[[0-9]+\]'
-            - fieldName: log.returnCode
+            - fieldName: event.returnCode
               pattern: '"[^"]*"'
-          source: log.msg
-          where: contains("log.msg", "RETURNCODE:")
+          source: event.msg
+          where: contains("event.msg", "RETURNCODE:")
 
       # ......................................................................#
       # If "OBJ$CREATOR:" in [msg]
       # ......................................................................#
       - grok:
           patterns:
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: '(OBJ$CREATOR:)'
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: '\[{{.data}}\]'
-            - fieldName: log.objCreator
+            - fieldName: event.objCreator
               pattern: '\"{{.data}}\"'
-            - fieldName: log.msg
+            - fieldName: event.msg
               pattern: '{{.greedy}}'
-          source: log.msg
-          where: contains("log.msg", "LENGTH:") || contains("log.msg", "SESSIONID:") || contains("log.msg", "ENTRYID:") || contains("log.msg", "STATEMENT:") || contains("log.msg", "USERID:") || contains("log.msg", "USERHOST:") || contains("log.msg", "ACTION:") || contains("log.msg", "RETURNCODE:") || contains("log.msg", "OBJ$CREATOR:") || contains("log.msg", "OBJ$NAME:") || contains("log.msg", "OS$USERID:")
+          source: event.msg
+          where: contains("event.msg", "LENGTH:") || contains("event.msg", "SESSIONID:") || contains("event.msg", "ENTRYID:") || contains("event.msg", "STATEMENT:") || contains("event.msg", "USERID:") || contains("event.msg", "USERHOST:") || contains("event.msg", "ACTION:") || contains("event.msg", "RETURNCODE:") || contains("event.msg", "OBJ$CREATOR:") || contains("event.msg", "OBJ$NAME:") || contains("event.msg", "OS$USERID:")
 
       # ......................................................................#
       # If "OBJ$NAME:" in [msg]
       # ......................................................................#
       - grok:
           patterns:
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: '(OBJ$NAME:)'
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: '\[{{.data}}\]'
-            - fieldName: log.objName
+            - fieldName: event.objName
               pattern: '\"{{.data}}\"'
-            - fieldName: log.msg
+            - fieldName: event.msg
               pattern: '{{.greedy}}'
-          source: log.msg
-          where: contains("log.msg", "LENGTH:") || contains("log.msg", "SESSIONID:") || contains("log.msg", "ENTRYID:") || contains("log.msg", "STATEMENT:") || contains("log.msg", "USERID:") || contains("log.msg", "USERHOST:") || contains("log.msg", "ACTION:") || contains("log.msg", "RETURNCODE:") || contains("log.msg", "OBJ$CREATOR:") || contains("log.msg", "OBJ$NAME:") || contains("log.msg", "OS$USERID:")
+          source: event.msg
+          where: contains("event.msg", "LENGTH:") || contains("event.msg", "SESSIONID:") || contains("event.msg", "ENTRYID:") || contains("event.msg", "STATEMENT:") || contains("event.msg", "USERID:") || contains("event.msg", "USERHOST:") || contains("event.msg", "ACTION:") || contains("event.msg", "RETURNCODE:") || contains("event.msg", "OBJ$CREATOR:") || contains("event.msg", "OBJ$NAME:") || contains("event.msg", "OS$USERID:")
 
       # ......................................................................#
       # If "OS$USERID:" in [msg]
       # ......................................................................#
       - grok:
           patterns:
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: '(OS$USERID:)'
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: '\[{{.data}}\]'
-            - fieldName: log.osUserID
+            - fieldName: event.osUserID
               pattern: '\"{{.data}}\"'
-            - fieldName: log.msg
+            - fieldName: event.msg
               pattern: '{{.greedy}}'
-          source: log.msg
-          where: contains("log.msg", "LENGTH:") || contains("log.msg", "SESSIONID:") || contains("log.msg", "ENTRYID:") || contains("log.msg", "STATEMENT:") || contains("log.msg", "USERID:") || contains("log.msg", "USERHOST:") || contains("log.msg", "ACTION:") || contains("log.msg", "RETURNCODE:") || contains("log.msg", "OBJ$CREATOR:") || contains("log.msg", "OBJ$NAME:") || contains("log.msg", "OS$USERID:")
+          source: event.msg
+          where: contains("event.msg", "LENGTH:") || contains("event.msg", "SESSIONID:") || contains("event.msg", "ENTRYID:") || contains("event.msg", "STATEMENT:") || contains("event.msg", "USERID:") || contains("event.msg", "USERHOST:") || contains("event.msg", "ACTION:") || contains("event.msg", "RETURNCODE:") || contains("event.msg", "OBJ$CREATOR:") || contains("event.msg", "OBJ$NAME:") || contains("event.msg", "OS$USERID:")
 
       # ......................................................................
       # Removing msg field
       # ......................................................................
       - delete:
           fields:
-            - log.msg
-          where: contains("log.msg", "LENGTH:") || contains("log.msg", "SESSIONID:") || contains("log.msg", "ENTRYID:") || contains("log.msg", "STATEMENT:") || contains("log.msg", "USERID:") || contains("log.msg", "USERHOST:") || contains("log.msg", "ACTION:") || contains("log.msg", "RETURNCODE:") || contains("log.msg", "OBJ$CREATOR:") || contains("log.msg", "OBJ$NAME:") || contains("log.msg", "OS$USERID:")
+            - event.msg
+          where: contains("event.msg", "LENGTH:") || contains("event.msg", "SESSIONID:") || contains("event.msg", "ENTRYID:") || contains("event.msg", "STATEMENT:") || contains("event.msg", "USERID:") || contains("event.msg", "USERHOST:") || contains("event.msg", "ACTION:") || contains("event.msg", "RETURNCODE:") || contains("event.msg", "OBJ$CREATOR:") || contains("event.msg", "OBJ$NAME:") || contains("event.msg", "OS$USERID:")
 
       # ......................................................................#
       # if ([msg]=~/from(.+)port/)
       # ......................................................................#
       - grok:
           patterns:
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: '{{.greedy}}from(\s)'
             - fieldName: origin.ip
               pattern: '{{.ipv4}}'
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: '(port)'
             - fieldName: origin.port
               pattern: '{{.integer}}'
-            - fieldName: log.restMsg
+            - fieldName: event.restMsg
               pattern: '{{.greedy}}'
-          source: log.msg
-          where:  regexMatch("log.msg", "from(.+)port")
+          source: event.msg
+          where:  regexMatch("event.msg", "from(.+)port")
 
       - grok:
           patterns:
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: '{{.greedy}}from(\s)user(\s)'
             - fieldName: origin.user
               pattern: '{{.word}}'
             - fieldName: origin.ip
               pattern: '{{.ipv4}}'
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: '(port)'
             - fieldName: origin.port
               pattern: '{{.greedy}}'
-          source: log.msg
-          where:  regexMatch("log.msg", "from(.+)port")
+          source: event.msg
+          where:  regexMatch("event.msg", "from(.+)port")
 
       # ......................................................................#
       # if restmsg contains protocol SSH  and SHA256
@@ -427,14 +427,14 @@ pipeline:
           patterns:
             - fieldName: protocol
               pattern: '{{.data}}(\:)'
-            - fieldName: log.sshKey
+            - fieldName: event.sshKey
               pattern: '{{.word}}'
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: '{{.data}}(\:)'
             - fieldName: origin.sha256
               pattern: '{{.greedy}}'
-          source: log.restMsg
-          where: contains("log.restMsg", "ssh") && contains("log.restMsg", "SHA256")
+          source: event.restMsg
+          where: contains("event.restMsg", "ssh") && contains("event.restMsg", "SHA256")
          
       # ......................................................................#
       # Fileds conversions
@@ -451,7 +451,7 @@ pipeline:
           function: suffix
           substring: ':'
           fields:
-            - log.eventType
+            - event.eventType
             - protocol
 
       # ......................................................................#
@@ -459,32 +459,32 @@ pipeline:
       # ......................................................................#
       - grok:
           patterns:
-            - fieldName: log.eventType
+            - fieldName: event.eventType
               pattern: '{{.word}}(\:)'
-            - fieldName: log.msg
+            - fieldName: event.msg
               pattern: '{{.greedy}}'
-          source: log.msgAll
+          source: event.msgAll
 
       - grok:
           patterns:
-            - fieldName: log.msg
+            - fieldName: event.msg
               pattern: '{{.greedy}}'
-          source: log.msgAll
+          source: event.msgAll
 
       # ......................................................................#
       # Using grok to parse msgInit
       # ......................................................................#
       - grok:
           patterns:
-            - fieldName: log.eventType
+            - fieldName: event.eventType
               pattern: '{{.word}}(\:)'
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: '{{.data}}(\[)'
-            - fieldName: log.pid
+            - fieldName: event.pid
               pattern: '{{.integer}}(\])'
-            - fieldName: log.msg
+            - fieldName: event.msg
               pattern: '{{.greedy}}'
-          source: log.msgInit
+          source: event.msgInit
       # ......................................................................#
 
       # ......................................................................#
@@ -494,13 +494,13 @@ pipeline:
           function: suffix
           substring: ':'
           fields:
-            - log.eventType
+            - event.eventType
             
       - trim:
           function: suffix
           substring: ']'
           fields:
-            - log.pid
+            - event.pid
 
       # ......................................................................#
       # Removing unnecessary characters
@@ -509,33 +509,33 @@ pipeline:
           function: suffix
           substring: '"'
           fields:
-            - log.length
-            - log.sessionID
-            - log.entryID
-            - log.statement
-            - log.userID
-            - log.userHost
+            - event.length
+            - event.sessionID
+            - event.entryID
+            - event.statement
+            - event.userID
+            - event.userHost
             - action
-            - log.returnCode
-            - log.objCreator
-            - log.objName
-            - log.osUserID
+            - event.returnCode
+            - event.objCreator
+            - event.objName
+            - event.osUserID
       
       - trim:
           function: prefix
           substring: '"'
           fields:
-            - log.length
-            - log.sessionID
-            - log.entryID
-            - log.statement
-            - log.userID
-            - log.userHost
+            - event.length
+            - event.sessionID
+            - event.entryID
+            - event.statement
+            - event.userID
+            - event.userHost
             - action
-            - log.returnCode
-            - log.objCreator
-            - log.objName
-            - log.osUserID
+            - event.returnCode
+            - event.objCreator
+            - event.objName
+            - event.osUserID
 
       # ......................................................................#
       # sshd sign-in result, method and account:
@@ -544,20 +544,20 @@ pipeline:
       # ......................................................................#
       - grok:
           patterns:
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: '[^\s\[]+\[[0-9]+\]:'
-            - fieldName: log.authResult
+            - fieldName: event.authResult
               pattern: '(Accepted|Failed)'
-            - fieldName: log.authMethod
+            - fieldName: event.authMethod
               pattern: '[^\s]+'
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: 'for(\s+invalid\s+user)?'
             - fieldName: origin.user
               pattern: '[^\s]+'
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: 'from'
-          source: log.msgAll
-          where: 'regexMatch("log.msgAll", "^sshd[^\\[ ]*\\[[0-9]+\\]: (Accepted|Failed) [^ ]+ for ")'
+          source: event.msgAll
+          where: 'regexMatch("event.msgAll", "^sshd[^\\[ ]*\\[[0-9]+\\]: (Accepted|Failed) [^ ]+ for ")'
 
       # ......................................................................#
       # Adding action result: only success, failed or denied, or nothing when
@@ -579,19 +579,19 @@ pipeline:
           params:
             key: actionResult
             value: "success"
-          where: '(exists("log.returnCode") && equals("log.returnCode", "0")) || equals("log.authResult", "Accepted") || regexMatch("log.msgAll", "^su: from [^ ]+ to ") || regexMatch("log.msgAll", "^sudo:\\s+[^ ]+ : (TTY|PWD)=")'
+          where: '(exists("event.returnCode") && equals("event.returnCode", "0")) || equals("event.authResult", "Accepted") || regexMatch("event.msgAll", "^su: from [^ ]+ to ") || regexMatch("event.msgAll", "^sudo:\\s+[^ ]+ : (TTY|PWD)=")'
       - add:
           function: string
           params:
             key: actionResult
             value: "failed"
-          where: '(exists("log.returnCode") && !equals("log.returnCode", "0")) || equals("log.authResult", "Failed") || startsWith("log.msgAll", "syslog: ssh: failed login attempt for ") || startsWith("log.msgAll", "su: BAD SU from ") || regexMatch("log.msgAll", "^sudo:\\s+[^ ]+ : [0-9]+ incorrect password attempts? ; ") || regexMatch("log.msgAll", "^[^ ]+\\[[0-9]+\\]: Login restricted for [^ ]+: 3004-303 ")'
+          where: '(exists("event.returnCode") && !equals("event.returnCode", "0")) || equals("event.authResult", "Failed") || startsWith("event.msgAll", "syslog: ssh: failed login attempt for ") || startsWith("event.msgAll", "su: BAD SU from ") || regexMatch("event.msgAll", "^sudo:\\s+[^ ]+ : [0-9]+ incorrect password attempts? ; ") || regexMatch("event.msgAll", "^[^ ]+\\[[0-9]+\\]: Login restricted for [^ ]+: 3004-303 ")'
       - add:
           function: string
           params:
             key: actionResult
             value: "denied"
-          where: '(exists("log.returnCode") && oneOf("log.returnCode", ["1031", "1035", "1045"])) || regexMatch("log.msgAll", "^sudo:\\s+[^ ]+ : (user NOT in sudoers|user NOT authorized on host|command not allowed) ; ")'
+          where: '(exists("event.returnCode") && oneOf("event.returnCode", ["1031", "1035", "1045"])) || regexMatch("event.msgAll", "^sudo:\\s+[^ ]+ : (user NOT in sudoers|user NOT authorized on host|command not allowed) ; ")'
 
       # Adding geolocation to origin.ip
       - dynamic:
@@ -614,8 +614,8 @@ pipeline:
       # ..........................................................................#
       - delete:
           fields:
-            - log.irrelevant
-            - log.msgWithTTY
-            - log.msgAll
-            - log.msgInit
-            - log.restMsg
+            - event.irrelevant
+            - event.msgWithTTY
+            - event.msgAll
+            - event.msgInit
+            - event.restMsg

@@ -26,10 +26,10 @@ description: |
   7. Enable DHCP snooping and dynamic ARP inspection if not already configured
 # SW_MATM MACFLAP_NOTIF is excluded until its meaning as a spoofing signal is documented.
 where: |
-  exists("origin.mac") && !regexMatch("log.msg", "(?i)(mac.*flap|is flapping between port)") && (
-    (equals("log.facility", "SW_DAI") && oneOf("log.facilityMnemonic", ["INVALID_ARP", "DHCP_SNOOPING_DENY"]))
-    || regexMatch("log.msg", "(?i)(duplicate.*mac|mac.*move.*between.*port)")
-    || (lessOrEqual("log.severity", 4) && regexMatch("log.msg", "(?i)(mac.*address.*conflict|duplicate.*address.*detected)"))
+  exists("origin.mac") && !regexMatch("event.msg", "(?i)(mac.*flap|is flapping between port)") && (
+    (equals("event.facility", "SW_DAI") && oneOf("event.facilityMnemonic", ["INVALID_ARP", "DHCP_SNOOPING_DENY"]))
+    || regexMatch("event.msg", "(?i)(duplicate.*mac|mac.*move.*between.*port)")
+    || (lessOrEqual("event.severity", 4) && regexMatch("event.msg", "(?i)(mac.*address.*conflict|duplicate.*address.*detected)"))
   )
 afterEvents:
   - indexPattern: v11-log-cisco-switch-*

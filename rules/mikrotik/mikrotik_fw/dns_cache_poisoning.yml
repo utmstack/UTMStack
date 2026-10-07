@@ -25,17 +25,17 @@ description: |
   6. Monitor for subsequent DNS queries to verify if poisoned cache entries are being used
   7. Consider implementing DNS security measures like DNSSEC if not already in place
 where: |
-  equals("log.topics", "dns") && 
+  equals("event.topics", "dns") && 
   equals("target.port", 53) && 
   exists("origin.ip") &&
-  contains("log.chain", "response")
+  contains("event.chain", "response")
 afterEvents:
   - indexPattern: v11-log-firewall-mikrotik-*
     with:
       - field: target.ip
         operator: filter_term
         value: '{{.target.ip}}'
-      - field: log.topics
+      - field: event.topics
         operator: filter_term
         value: 'dns'
     within: 5m

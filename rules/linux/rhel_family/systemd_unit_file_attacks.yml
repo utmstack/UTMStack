@@ -26,6 +26,6 @@ description: |
   7. Look for persistence mechanisms in systemd configuration
   8. Consider isolating the affected system if malicious activity is confirmed
 where: |
-  (contains("log.message", "Failed at step EXEC") || contains("log.message", "Unable to locate executable") || contains("log.message", "ExecStart")) && (contains("log.message", "/tmp/") || contains("log.message", "/dev/shm/"))
+  (contains("event.message", "Failed at step EXEC") || contains("event.message", "Unable to locate executable") || contains("event.message", "ExecStart")) && (contains("event.message", "/tmp/") || contains("event.message", "/dev/shm/"))
 deduplicateBy:
   - dataSource

@@ -7,8 +7,8 @@
     "expected": {
       "origin.ip": "192.0.2.10",
       "target.ip": "203.0.113.20",
-      "log.eventDataSourceAddress": "192.0.2.10",
-      "log.eventDataDestAddress": "203.0.113.20"
+      "event.eventDataSourceAddress": "192.0.2.10",
+      "event.eventDataDestAddress": "203.0.113.20"
     }
   },
   {

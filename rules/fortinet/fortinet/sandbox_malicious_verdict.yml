@@ -25,12 +25,12 @@ description: |
   - Investigate the user account associated with the file download/transfer
   - Document the incident and notify the security team for further analysis
 where: |
-  (equals("log.subtype", "sandbox") && equals("log.verdict", "malicious")) ||
-  (contains("log.msg", "sandbox verdict: malicious")) ||
-  (equals("log.risk", "high") && equals("log.subtype", "sandbox")) ||
-  (contains("log.msg", "FortiSandbox detected malware")) ||
-  (contains("log.msg", "verdict=malicious")) ||
-  (contains("log.msg", "subtype=sandbox") && contains("log.msg", "malicious"))
+  (equals("event.subtype", "sandbox") && equals("event.verdict", "malicious")) ||
+  (contains("event.msg", "sandbox verdict: malicious")) ||
+  (equals("event.risk", "high") && equals("event.subtype", "sandbox")) ||
+  (contains("event.msg", "FortiSandbox detected malware")) ||
+  (contains("event.msg", "verdict=malicious")) ||
+  (contains("event.msg", "subtype=sandbox") && contains("event.msg", "malicious"))
 groupBy:
-  - lastEvent.log.filehash
+  - lastEvent.event.filehash
   - adversary.ip

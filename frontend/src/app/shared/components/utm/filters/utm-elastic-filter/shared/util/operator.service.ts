@@ -36,6 +36,23 @@ export class OperatorService {
           value.operator !== ElasticOperatorsEnum.DOES_NOT_CONTAIN &&
           value.operator !== ElasticOperatorsEnum.START_WITH &&
           value.operator !== ElasticOperatorsEnum.NOT_START_WITH);
+      } else if (field.type === ElasticDataTypesEnum.FLATTENED) {
+        operators = FILTER_OPERATORS.filter(value =>
+          value.operator === ElasticOperatorsEnum.IS ||
+          value.operator === ElasticOperatorsEnum.IS_NOT ||
+          value.operator === ElasticOperatorsEnum.IS_ONE_OF ||
+          value.operator === ElasticOperatorsEnum.IS_NOT_ONE_OF ||
+          value.operator === ElasticOperatorsEnum.CONTAIN_ONE_OF ||
+          value.operator === ElasticOperatorsEnum.DOES_NOT_CONTAIN_ONE_OF ||
+          value.operator === ElasticOperatorsEnum.CONTAIN ||
+          value.operator === ElasticOperatorsEnum.DOES_NOT_CONTAIN ||
+          value.operator === ElasticOperatorsEnum.START_WITH ||
+          value.operator === ElasticOperatorsEnum.NOT_START_WITH ||
+          value.operator === ElasticOperatorsEnum.ENDS_WITH ||
+          value.operator === ElasticOperatorsEnum.NOT_ENDS_WITH ||
+          value.operator === ElasticOperatorsEnum.EXIST ||
+          value.operator === ElasticOperatorsEnum.DOES_NOT_EXIST ||
+          value.operator === ElasticOperatorsEnum.IS_BETWEEN);
       } else {
         operators = FILTER_OPERATORS;
       }

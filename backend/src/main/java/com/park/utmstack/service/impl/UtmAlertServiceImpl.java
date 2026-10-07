@@ -10,7 +10,6 @@ import com.park.utmstack.domain.chart_builder.types.query.OperatorType;
 import com.park.utmstack.domain.index_pattern.enums.SystemIndexPattern;
 import com.park.utmstack.domain.shared_types.ApplicationLayer;
 import com.park.utmstack.domain.shared_types.alert.UtmAlert;
-import com.park.utmstack.domain.shared_types.LogType;
 import com.park.utmstack.domain.shared_types.static_dashboard.CardType;
 import com.park.utmstack.repository.UtmAlertLastRepository;
 import com.park.utmstack.security.SecurityUtils;
@@ -131,30 +130,6 @@ public class UtmAlertServiceImpl implements UtmAlertService {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             eventService.createEvent(msg, ApplicationEventType.ERROR);
-        }
-    }
-
-    private List<LogType> getRelatedAlerts(List<String> logs) throws UtmElasticsearchException {
-        final String ctx = CLASS_NAME + ".getRelatedAlerts";
-
-        try {
-            if (CollectionUtils.isEmpty(logs))
-                return Collections.emptyList();
-
-            List<FilterType> filters = new ArrayList<>();
-            filters.add(new FilterType(Constants._id, OperatorType.IS_ONE_OF_TERMS, logs));
-            SearchRequest.Builder srb = new SearchRequest.Builder();
-            srb.query(SearchUtil.toQuery(filters)).size(100).index(Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.LOGS));
-            SearchUtil.applySort(srb, Sort.by(Sort.Order.desc(Constants.timestamp)));
-
-            HitsMetadata<LogType> hits = elasticsearchService.search(srb.build(), LogType.class).hits();
-
-            if (hits.total().value() <= 0)
-                return Collections.emptyList();
-
-            return hits.hits().stream().map(Hit::source).collect(Collectors.toList());
-        } catch (Exception e) {
-            throw new UtmElasticsearchException(ctx + ": " + e.getMessage());
         }
     }
 

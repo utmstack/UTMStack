@@ -13,12 +13,12 @@ references:
 description: Sophos reports an unprotected computer/server or a protection service
   that is not running, at high or critical vendor severity. Verify installation, service
   health and approved maintenance. This warning does not establish an attack.
-where: oneOf("log.type",["Event::Endpoint::NotProtected","Event::Endpoint::ServiceNotRunning"])
-  && oneOf("log.severity",["high","critical"])
+where: oneOf("event.type",["Event::Endpoint::NotProtected","Event::Endpoint::ServiceNotRunning"])
+  && oneOf("event.severity",["high","critical"])
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.customerId
-- lastEvent.log.endpointId
-- lastEvent.log.type
+- lastEvent.event.customerId
+- lastEvent.event.endpointId
+- lastEvent.event.type
 - target.host
 - target.ip

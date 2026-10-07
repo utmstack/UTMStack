@@ -26,12 +26,12 @@ description: |
   7. Consider quarantining the affected system if malicious activity is confirmed
   8. Review security policies regarding software installation and execution
 where: |
-  (equals("origin.process", "spctl") && contains("log.message", "assessment")) ||
-  (equals("log.subsystem", "com.apple.xprotect") && contains("log.message", "failed on rPathCmd")) ||
-  (contains("log.message", "com.apple.quarantine") && contains("log.message", "remove")) ||
-  (equals("origin.process", "xattr") && contains("log.message", "-d com.apple.quarantine")) ||
-  (contains("log.message", "LSFileQuarantineEnabled") && contains("log.message", "false")) ||
-  (contains("log.message", "ACL") && contains("log.message", "quarantine"))
+  (equals("origin.process", "spctl") && contains("event.message", "assessment")) ||
+  (equals("event.subsystem", "com.apple.xprotect") && contains("event.message", "failed on rPathCmd")) ||
+  (contains("event.message", "com.apple.quarantine") && contains("event.message", "remove")) ||
+  (equals("origin.process", "xattr") && contains("event.message", "-d com.apple.quarantine")) ||
+  (contains("event.message", "LSFileQuarantineEnabled") && contains("event.message", "false")) ||
+  (contains("event.message", "ACL") && contains("event.message", "quarantine"))
 groupBy:
   - adversary.host
   - adversary.user

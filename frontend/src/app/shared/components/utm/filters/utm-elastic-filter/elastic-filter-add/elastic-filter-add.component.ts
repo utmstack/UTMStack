@@ -70,9 +70,12 @@ export class ElasticFilterAddComponent implements OnInit {
 
   ngOnInit() {
     this.initFormFilter();
+    // Flattened fields (event bag) are not generically filterable: the backend
+    // only translates event.<leaf> dot-paths, and the picker offers the bare field.
     this.fieldDataBehavior.getFields(this.pattern)
       .pipe(takeUntil(this.destroy$),
-        map(fields => fields.filter(f => !this.hiddenFields.includes(f.name))))
+        map(fields => fields.filter(f => !this.hiddenFields.includes(f.name) &&
+          f.type !== ElasticDataTypesEnum.FLATTENED)))
       .subscribe(field => {
         if (field) {
           this.fields = field;
@@ -225,7 +228,10 @@ export class ElasticFilterAddComponent implements OnInit {
     // if field exist
     if (this.field) {
       if (this.field.type === ElasticDataTypesEnum.TEXT ||
-        this.field.type === ElasticDataTypesEnum.STRING) {
+        this.field.type === ElasticDataTypesEnum.STRING ||
+        /* flattened fields (the event bag): distinct values are unavailable by design
+        (terms aggs are not supported on flattened), so multi-value ops rely on addTag */
+        this.field.type === ElasticDataTypesEnum.FLATTENED) {
         /* if fields is type string or text determine if field is a keyword or not, if field is keyword return
         result of function operatorFieldSelectable() that return if current operator cant apply select or input
         */

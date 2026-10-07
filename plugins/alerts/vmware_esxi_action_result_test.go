@@ -1,7 +1,7 @@
 package main
 
 // Ordered-step model of the ESXi sign-in and outcome steps, run with this
-// module's go-sdk CEL. It starts from the parsed log.message and follows the
+// module's go-sdk CEL. It starts from the parsed event.message and follows the
 // filter from the session grok onward; the grok model mirrors the EventProcessor
 // grok plugin (trim before each pattern, prefix-only matches, all or nothing).
 // Header parsing of the raw fixture lines runs in the isolated parser instead.
@@ -65,12 +65,12 @@ func esxiGrok(t *testing.T, event map[string]any, g *plugins.Grok) {
 
 func esxiRun(t *testing.T, cfg *plugins.Config, cache *plugins.CELCache, message, process string) string {
 	t.Helper()
-	event := map[string]any{"log": map[string]any{}}
+	event := map[string]any{"event": map[string]any{}}
 	if message != "" {
-		put(event, "log.message", message, false)
+		put(event, "event.message", message, false)
 	}
 	if process != "" {
-		put(event, "log.process", process, false)
+		put(event, "event.process", process, false)
 	}
 	state := func() string {
 		b, err := json.Marshal(event)
@@ -92,7 +92,7 @@ func esxiRun(t *testing.T, cfg *plugins.Config, cache *plugins.CELCache, message
 	started := false
 	for _, stage := range cfg.Pipeline {
 		for _, step := range stage.Steps {
-			if g := step.Grok; g != nil && len(g.Patterns) > 0 && g.Patterns[0].FieldName == "log.loginEvent" {
+			if g := step.Grok; g != nil && len(g.Patterns) > 0 && g.Patterns[0].FieldName == "event.loginEvent" {
 				started = true
 			}
 			if !started {
@@ -182,8 +182,8 @@ func TestVMwareESXiActionResultContract(t *testing.T) {
 					t.Fatalf("%s should be absent: %s", path, state)
 				}
 			}
-			for _, scratch := range []string{"log.loginEvent", "log.loginUser", "log.loginAddress", "log.loginClient",
-				"log.failEvent", "log.failUser", "log.failAddress", "log.sshUser", "log.sshAddress"} {
+			for _, scratch := range []string{"event.loginEvent", "event.loginUser", "event.loginAddress", "event.loginClient",
+				"event.failEvent", "event.failUser", "event.failAddress", "event.sshUser", "event.sshAddress"} {
 				if gjson.Get(state, scratch).Exists() {
 					t.Fatalf("scratch field %s kept", scratch)
 				}

@@ -2,7 +2,7 @@ package main
 
 // The parser plugins keep only letters, digits and dots in the field names they write
 // (go-sdk utils.SanitizeField), while rules look names up exactly as written. A marker
-// added as log.correlationCandidate.lateral_movement_indicators is stored as
+// added as event.correlationCandidate.lateral_movement_indicators is stored as
 // ...lateralmovementindicators, so a history rule counting the underscored name never fires.
 import (
 	"encoding/json"
@@ -31,7 +31,7 @@ var kasperskyHistoryMarkers = map[string]string{
 // history fields and placeholders, groupBy, deduplicateBy) must be the same string, made
 // only of letters, digits and dots, so the stored name is the name the rule looks up.
 func TestKasperskyCorrelationMarkerNames(t *testing.T) {
-	const prefix = "log.correlationCandidate."
+	const prefix = "event.correlationCandidate."
 	clean := regexp.MustCompile(`^[A-Za-z0-9.]+$`)
 	kept := func(name string) bool {
 		stored := name
@@ -78,7 +78,7 @@ func TestKasperskyCorrelationMarkerNames(t *testing.T) {
 		}
 	}
 
-	reference := regexp.MustCompile(`log\.correlationCandidate\.[^"'\s,()\[\]{}]*`)
+	reference := regexp.MustCompile(`event\.correlationCandidate\.[^"'\s,()\[\]{}]*`)
 	read := map[string]map[string]bool{}
 	err := filepath.WalkDir("../../rules", func(path string, d os.DirEntry, err error) error {
 		if err != nil || d.IsDir() || (filepath.Ext(path) != ".yml" && filepath.Ext(path) != ".yaml") {

@@ -17,15 +17,15 @@ description: 'A successful device-code sign-in carries high or active risk. Rout
   excluded.
 
   '
-where: 'equalsIgnoreCase("log.azureKind","signin") && equalsIgnoreCase("actionResult","success") && equalsIgnoreCase("log.properties.authenticationProtocol","deviceCode")
-  && (equalsIgnoreCase("log.properties.riskState","atRisk") || equalsIgnoreCase("log.properties.riskState","confirmedCompromised")
-  || equalsIgnoreCase("log.properties.riskLevelDuringSignIn","high"))
+where: 'equalsIgnoreCase("event.azureKind","signin") && equalsIgnoreCase("actionResult","success") && equalsIgnoreCase("event.properties.authenticationProtocol","deviceCode")
+  && (equalsIgnoreCase("event.properties.riskState","atRisk") || equalsIgnoreCase("event.properties.riskState","confirmedCompromised")
+  || equalsIgnoreCase("event.properties.riskLevelDuringSignIn","high"))
 
   '
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.azureScopeType
-- lastEvent.log.azureScope
-- lastEvent.log.azureOperation
+- lastEvent.event.azureScopeType
+- lastEvent.event.azureScope
+- lastEvent.event.azureOperation
 - adversary.user
 - adversary.ip

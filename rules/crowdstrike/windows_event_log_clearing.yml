@@ -12,8 +12,8 @@ impact:
   integrity: 3
   availability: 2
 where: >
-  exists("log.eventCommandLine") && 
-  regexMatch("log.eventCommandLine", "(?i).*(wevtutil\\s+cl.*|Clear-EventLog.*|Remove-EventLog.*).*")
+  exists("event.eventCommandLine") && 
+  regexMatch("event.eventCommandLine", "(?i).*(wevtutil\\s+cl.*|Clear-EventLog.*|Remove-EventLog.*).*")
 groupBy: 
   - adversary.host
   - adversary.user

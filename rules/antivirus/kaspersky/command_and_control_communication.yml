@@ -15,8 +15,8 @@ references:
 description: |
   Reports Kaspersky CEF command-and-control indicators without an explicit block outcome. Missing or unknown actions do not prove that a connection succeeded. Confirm the vendor event, source/destination roles, process and traffic before containment. A generic NetworkThreat category alone is insufficient.
 where: |
-  equals("log.format","cef") && ((contains("log.cs2", ["Bot", "bot", "C2", "Command", "command"]) ||
-   contains("log.msg", ["callback", "beacon", "botnet", "command and control"])) &&
+  equals("event.format","cef") && ((contains("event.cs2", ["Bot", "bot", "C2", "Command", "command"]) ||
+   contains("event.msg", ["callback", "beacon", "botnet", "command and control"])) &&
   exists("target.ip") &&
   !equals("actionResult", "denied"))
 groupBy:

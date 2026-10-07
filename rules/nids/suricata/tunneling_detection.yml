@@ -26,21 +26,21 @@ description: |
   7. Review firewall rules to prevent unauthorized tunneling protocols
 where: |
   (
-    (equals("log.eventType", "alert") &&
-     (contains("log.alert.signature", "SSH") &&
+    (equals("event.eventType", "alert") &&
+     (contains("event.alert.signature", "SSH") &&
       !equals("target.port", 22))) ||
-    (equals("log.appProto", "ssh") &&
+    (equals("event.appProto", "ssh") &&
      !equals("target.port", 22)) ||
-    (equals("log.eventType", "flow") &&
+    (equals("event.eventType", "flow") &&
      equals("protocol", "TCP") &&
      equals("target.port", 443) &&
-     exists("log.appProto") &&
-     !oneOf("log.appProto", ["tls", "failed"])) ||
-    (equals("log.eventType", "alert") &&
-     contains("log.alert.signature", "tunnel")) ||
+     exists("event.appProto") &&
+     !oneOf("event.appProto", ["tls", "failed"])) ||
+    (equals("event.eventType", "alert") &&
+     contains("event.alert.signature", "tunnel")) ||
     (equals("target.port", 53) &&
      equals("protocol", "TCP") &&
-     greaterThan("log.flow.bytes_toserver", 5000))
+     greaterThan("event.flow.bytes_toserver", 5000))
   )
 afterEvents:
   - indexPattern: v11-log-suricata-*

@@ -24,11 +24,11 @@ description: |
   5. Check for weak dylib references using otool
   6. Remove the malicious dylib and investigate the delivery method
 where: |
-  (contains("log.message", "dylib") || contains("log.message", "DYLD")) &&
-  (contains("log.message", "hijack") || contains("log.message", "suspicious") ||
-   contains("log.message", "unsigned") || contains("log.message", "load failed") ||
-   (contains("log.message", "DYLD_INSERT_LIBRARIES") && contains("log.message", "set")) ||
-   regexMatch("log.message", "(?i)dylib.*(/tmp/|/Users/.*/Downloads/|/var/tmp/)"))
+  (contains("event.message", "dylib") || contains("event.message", "DYLD")) &&
+  (contains("event.message", "hijack") || contains("event.message", "suspicious") ||
+   contains("event.message", "unsigned") || contains("event.message", "load failed") ||
+   (contains("event.message", "DYLD_INSERT_LIBRARIES") && contains("event.message", "set")) ||
+   regexMatch("event.message", "(?i)dylib.*(/tmp/|/Users/.*/Downloads/|/var/tmp/)"))
 groupBy:
-  - lastEvent.log.message
+  - lastEvent.event.message
   - adversary.host

@@ -31,27 +31,27 @@ description: |
   8. Implement Kerberos armoring and constrained delegation
 where: |
   !oneOf("dataSource", ["", "unknown"]) &&
-  exists("log.authenticationSource") &&
+  exists("event.authenticationSource") &&
   (
   (
-    equals("log.eventCode", "4769") &&
-    equals("log.channel", "Security") &&
-    equals("log.eventDataServiceName", "krbtgt") &&
-    !equals("log.eventDataStatus", "0")
+    equals("event.eventCode", "4769") &&
+    equals("event.channel", "Security") &&
+    equals("event.eventDataServiceName", "krbtgt") &&
+    !equals("event.eventDataStatus", "0")
   ) ||
   (
-    equals("log.eventCode", "4768") &&
-    equals("log.channel", "Security") &&
-    !oneOf("log.eventDataTicketEncryptionType", ["18", "17"]) &&
+    equals("event.eventCode", "4768") &&
+    equals("event.channel", "Security") &&
+    !oneOf("event.eventDataTicketEncryptionType", ["18", "17"]) &&
     exists("target.user") &&
     !regexMatch("target.user", "(?i)\\$$")
   ) ||
   (
-    equals("log.eventCode", "4672") &&
-    equals("log.channel", "Security") &&
-    contains("log.eventDataPrivilegeList", "SeTcbPrivilege") &&
-    !regexMatch("log.eventDataSubjectUserName", "(?i)^(SYSTEM|LOCAL SERVICE|NETWORK SERVICE)$") &&
-    !regexMatch("log.eventDataSubjectUserName", "(?i)\\$$")
+    equals("event.eventCode", "4672") &&
+    equals("event.channel", "Security") &&
+    contains("event.eventDataPrivilegeList", "SeTcbPrivilege") &&
+    !regexMatch("event.eventDataSubjectUserName", "(?i)^(SYSTEM|LOCAL SERVICE|NETWORK SERVICE)$") &&
+    !regexMatch("event.eventDataSubjectUserName", "(?i)\\$$")
   )
   )
 afterEvents:
@@ -60,18 +60,18 @@ afterEvents:
       - field: dataSource.keyword
         operator: filter_term
         value: '{{.dataSource}}'
-      - field: log.authenticationSource.keyword
+      - field: event.authenticationSource.keyword
         operator: filter_term
-        value: '{{.log.authenticationSource}}'
-      - field: log.authenticationCandidate.goldenTicketDetection.keyword
+        value: '{{.event.authenticationSource}}'
+      - field: event.authenticationCandidate.goldenTicketDetection.keyword
         operator: filter_term
         value: match
-      - field: log.eventCode
+      - field: event.eventCode
         operator: filter_term
-        value: '{{.log.eventCode}}'
+        value: '{{.event.eventCode}}'
     within: 30m
     count: 3
 groupBy:
   - dataSource
-  - lastEvent.log.authenticationSource
+  - lastEvent.event.authenticationSource
   - target.user

@@ -25,11 +25,11 @@ description: |
   6. Check for persistence mechanisms that may have been established
   7. Consider isolating the system if unauthorized tampering is confirmed
 where: |
-  equals("log.format","cef") && (exists("log.signatureID") &&
-  (contains("log.msg", ["system file", "critical file", "protected file", "service tamper"]) ||
-   contains("log.cs1", "SYSTEM_MOD") ||
-   contains("log.cs4", "SystemFile") ||
-   contains("log.msg", ["system modification", "unauthorized change"]) ||
-   (equals("log.cat", "Behavior Detection") && contains("log.msg", "modify"))))
+  equals("event.format","cef") && (exists("event.signatureID") &&
+  (contains("event.msg", ["system file", "critical file", "protected file", "service tamper"]) ||
+   contains("event.cs1", "SYSTEM_MOD") ||
+   contains("event.cs4", "SystemFile") ||
+   contains("event.msg", ["system modification", "unauthorized change"]) ||
+   (equals("event.cat", "Behavior Detection") && contains("event.msg", "modify"))))
 groupBy:
 - adversary.host

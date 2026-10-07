@@ -267,11 +267,11 @@ public class OverviewService {
 
             List<FilterType> filters = new ArrayList<>();
             filters.add(new FilterType(Constants.timestamp, OperatorType.IS_BETWEEN, List.of(from, to)));
-            filters.add(new FilterType(Constants.logxWineventlogLogNameKeyword, OperatorType.IS, "Security"));
+            filters.add(new FilterType("event.channel", OperatorType.IS, "Security"));
 
             SearchRequest rq = SearchRequest.of(s -> s.size(0).query(SearchUtil.toQuery(filters))
                 .index(Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.LOGS_WINDOWS))
-                .aggregations(AGG_NAME, agg -> agg.terms(t -> t.field(Constants.logxWineventlogEventNameKeyword)
+                .aggregations(AGG_NAME, agg -> agg.terms(t -> t.field("action.keyword")
                     .size(top).order(List.of(Map.of("_count", SortOrder.Desc))))));
 
             SearchResponse<String> rs = elasticsearchService.search(rq, String.class);

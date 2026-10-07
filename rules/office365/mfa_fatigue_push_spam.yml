@@ -27,17 +27,17 @@ description: |
   8. Implement risk-based Conditional Access policies
 where: |
   (equals("action", "UserLoginFailed") || equals("action", "UserLoggedIn")) &&
-  (contains("log.Parameters", "MFA") ||
-   contains("log.LogonError", "MfaDenied") ||
-   contains("log.LogonError", "MfaIncomplete") ||
-   equals("log.LogonError", "InvalidStrongAuthenticationMethod"))
+  (contains("event.Parameters", "MFA") ||
+   contains("event.LogonError", "MfaDenied") ||
+   contains("event.LogonError", "MfaIncomplete") ||
+   equals("event.LogonError", "InvalidStrongAuthenticationMethod"))
 afterEvents:
   - indexPattern: v11-log-o365-*
     with:
       - field: origin.user
         operator: filter_term
         value: '{{.origin.user}}'
-      - field: log.LogonError
+      - field: event.LogonError
         operator: filter_match
         value: 'Mfa'
     within: 15m

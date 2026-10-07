@@ -12,8 +12,8 @@ impact:
   integrity: 3
   availability: 2
 where: >
-  exists("log.eventOperationName") && 
-  oneOf("log.eventOperationName", ["ip_rules_added", "ip_rules_removed"])
+  exists("event.eventOperationName") && 
+  oneOf("event.eventOperationName", ["ip_rules_added", "ip_rules_removed"])
 groupBy:
-  - lastEvent.log.eventUserId
-  - lastEvent.log.eventOperationName
+  - lastEvent.event.eventUserId
+  - lastEvent.event.eventOperationName

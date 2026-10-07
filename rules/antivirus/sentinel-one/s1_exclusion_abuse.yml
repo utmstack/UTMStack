@@ -25,11 +25,11 @@ description: |
   6. Audit the admin account for compromise indicators
   7. Scan endpoints for threats in previously excluded locations
 where: |
-  ((contains("log.eventDescription", "exclusion") || contains("log.eventDescription", "allowlist") ||
-    contains("log.eventDescription", "whitelist") || contains("log.eventDescription", "exception")) &&
-   (contains("log.eventDescription", "added") || contains("log.eventDescription", "created") ||
-    contains("log.eventDescription", "modified"))) ||
-  oneOf("log.activityType", ["exclusion_created", "whitelist_created", "exclusion_modified"])
+  ((contains("event.eventDescription", "exclusion") || contains("event.eventDescription", "allowlist") ||
+    contains("event.eventDescription", "whitelist") || contains("event.eventDescription", "exception")) &&
+   (contains("event.eventDescription", "added") || contains("event.eventDescription", "created") ||
+    contains("event.eventDescription", "modified"))) ||
+  oneOf("event.activityType", ["exclusion_created", "whitelist_created", "exclusion_modified"])
 groupBy:
-  - lastEvent.log.activityType
+  - lastEvent.event.activityType
   - adversary.user

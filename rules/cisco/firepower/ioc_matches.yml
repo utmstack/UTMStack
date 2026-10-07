@@ -28,6 +28,6 @@ description: |
   8. Perform deep scan of the affected system and related network segments
   9. Consider reimaging the affected system after complete evidence collection
   10. Update security controls to prevent similar future compromises
-where: (equals("log.eventType", "AMP_IOC") || equals("log.eventType", "IOC_DETECTED") || contains("log.message", "indication of compromise") || contains("log.message", "IOC")) && exists("origin.ip") && (exists("log.threatName") || exists("log.sha256") || exists("log.fileName"))
+where: (equals("event.eventType", "AMP_IOC") || equals("event.eventType", "IOC_DETECTED") || contains("event.message", "indication of compromise") || contains("event.message", "IOC")) && exists("origin.ip") && (exists("event.threatName") || exists("event.sha256") || exists("event.fileName"))
 groupBy:
   - adversary.ip

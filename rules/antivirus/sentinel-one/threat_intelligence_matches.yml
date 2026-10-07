@@ -29,8 +29,8 @@ description: |
   10. Analyze the timeline of events leading to the threat intelligence match
   11. Check for any related indicators of compromise (IoCs) in the environment
   12. Verify if this is a false positive by cross-referencing with other security tools
-where: exists("log.externalthreatvalue") || (exists("log.filecontenthash") && equalsIgnoreCase("log.confidencelevel", "MALICIOUS")) || contains("log.dveventtype", "threat_intel") || (contains("log.eventDescription", "reputation") && exists("target.host"))
+where: exists("event.externalthreatvalue") || (exists("event.filecontenthash") && equalsIgnoreCase("event.confidencelevel", "MALICIOUS")) || contains("event.dveventtype", "threat_intel") || (contains("event.eventDescription", "reputation") && exists("target.host"))
 groupBy:
-  - lastEvent.log.externalthreatvalue
-  - lastEvent.log.filecontenthash
+  - lastEvent.event.externalthreatvalue
+  - lastEvent.event.filecontenthash
   - target.host

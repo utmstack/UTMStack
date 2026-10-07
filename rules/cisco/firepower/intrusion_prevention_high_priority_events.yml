@@ -26,12 +26,12 @@ description: |
   7. Consider blocking the source IP if it shows persistent malicious behavior
   8. Document the incident and update security controls based on findings
 where: |
-  equals("log.messageId", 430001) &&
-  (equals("log.Priority", 1) ||
-   contains("log.Classification", "Attempted Administrator Privilege Gain") ||
-   contains("log.Classification", "Attempted User Privilege Gain") ||
-   contains("log.Classification", "Web Application Attack") ||
-   contains("log.Classification", "Exploit Kit Activity Detected"))
+  equals("event.messageId", 430001) &&
+  (equals("event.Priority", 1) ||
+   contains("event.Classification", "Attempted Administrator Privilege Gain") ||
+   contains("event.Classification", "Attempted User Privilege Gain") ||
+   contains("event.Classification", "Web Application Attack") ||
+   contains("event.Classification", "Exploit Kit Activity Detected"))
 groupBy:
   - adversary.ip
   - target.ip

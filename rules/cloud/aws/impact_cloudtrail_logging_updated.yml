@@ -18,13 +18,13 @@ references:
 - https://docs.aws.amazon.com/awscloudtrail/latest/APIReference/API_UpdateTrail.html
 - https://awscli.amazonaws.com/v2/documentation/api/latest/reference/cloudtrail/update-trail.html
 where: |
-  equals("log.awsRecordType","cloudtrail") &&
-  (equals("log.eventSource", "cloudtrail.amazonaws.com") &&
-  equals("log.eventName", "UpdateTrail") &&
+  equals("event.awsRecordType","cloudtrail") &&
+  (equals("event.eventSource", "cloudtrail.amazonaws.com") &&
+  equals("event.eventName", "UpdateTrail") &&
   equals("actionResult","success"))
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
 - adversary.ip
 - adversary.user

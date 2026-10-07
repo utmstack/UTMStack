@@ -25,14 +25,14 @@ description: |
   7. Review CloudTrail logs for the function's invocation history
   8. Implement SCPs to restrict Lambda function URL creation to authorized roles
 where: |
-  equals("log.awsRecordType","cloudtrail") &&
-  (equals("log.eventSource","lambda.amazonaws.com") &&
-  oneOf("log.eventName",["CreateFunctionUrlConfig", "UpdateFunctionUrlConfig"]) &&
+  equals("event.awsRecordType","cloudtrail") &&
+  (equals("event.eventSource","lambda.amazonaws.com") &&
+  oneOf("event.eventName",["CreateFunctionUrlConfig", "UpdateFunctionUrlConfig"]) &&
   equals("actionResult","success") &&
-  equals("log.requestParameters.authType","NONE"))
+  equals("event.requestParameters.authType","NONE"))
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
 - adversary.user
-- lastEvent.log.requestParameters.functionName
+- lastEvent.event.requestParameters.functionName

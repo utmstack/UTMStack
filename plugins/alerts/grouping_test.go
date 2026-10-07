@@ -25,7 +25,7 @@ func TestAlertGroupingValue(t *testing.T) {
 		Target:    &plugins.Side{Host: "dc01"},
 		Events: []*plugins.Event{
 			{Action: "previous", Origin: &plugins.Side{User: "previous-user"}},
-			{Action: "login", Origin: &plugins.Side{User: "alice"}, Log: eventLog.Fields},
+			{Action: "login", Origin: &plugins.Side{User: "alice"}, Event: eventLog.Fields},
 		},
 	}
 	serialized, err := utils.ProtoMessageToString(alert)
@@ -35,8 +35,8 @@ func TestAlertGroupingValue(t *testing.T) {
 	for _, tc := range []struct{ field, want string }{
 		{"adversary.ip", "203.0.113.7"}, {"target.host", "dc01"},
 		{"lastEvent.action", "login"}, {"lastEvent.origin.user", "alice"},
-		{"lastEvent.log.eventCode", "4625"}, {"lastEvent.log.isFailure", "true"},
-		{"lastEvent.log.accounts.1", "bob"},
+		{"lastEvent.event.eventCode", "4625"}, {"lastEvent.event.isFailure", "true"},
+		{"lastEvent.event.accounts.1", "bob"},
 	} {
 		t.Run(tc.field, func(t *testing.T) {
 			got := alertGroupingValue(*serialized, tc.field)
@@ -45,7 +45,7 @@ func TestAlertGroupingValue(t *testing.T) {
 			}
 		})
 	}
-	for _, field := range []string{"lastEvent.log.missing", "origin.ip"} {
+	for _, field := range []string{"lastEvent.event.missing", "origin.ip"} {
 		if alertGroupingValue(*serialized, field).Exists() {
 			t.Errorf("unexpected value for %s", field)
 		}
@@ -89,7 +89,7 @@ func TestAlertGroupingIndexedTerms(t *testing.T) {
 		Adversary: &plugins.Side{Ip: "203.0.113.7"},
 		Events: []*plugins.Event{
 			{Action: "previous-action", Origin: &plugins.Side{User: "previous-user", Ip: "192.0.2.2"}},
-			{Action: "final-action", Origin: &plugins.Side{User: "final-user"}, Log: log.Fields},
+			{Action: "final-action", Origin: &plugins.Side{User: "final-user"}, Event: log.Fields},
 		},
 	}
 	wire, err := utils.ProtoMessageToString(alert)
@@ -99,9 +99,9 @@ func TestAlertGroupingIndexedTerms(t *testing.T) {
 	builder := sdkos.NewBoolBuilder(context.Background(), nil, "grouping-query-test")
 	fields := []string{
 		"lastEvent.action.keyword", "lastEvent.origin.user", "adversary.ip",
-		"lastEvent.log.accounts.1.id.keyword", "lastEvent.log.attempts", "lastEvent.log.blocked",
+		"lastEvent.event.accounts.1.id.keyword", "lastEvent.event.attempts", "lastEvent.event.blocked",
 		"lastEvent.origin.ip", // Only present on the older event: do not fall back.
-		"lastEvent.log.accounts", "lastEvent.log.object", "lastEvent.log.missing",
+		"lastEvent.event.accounts", "lastEvent.event.object", "lastEvent.event.missing",
 	}
 	if !addAlertGroupingTerms(builder, *wire, fields) {
 		t.Fatal("expected usable grouping terms")
@@ -125,8 +125,8 @@ func TestAlertGroupingIndexedTerms(t *testing.T) {
 	}
 	want := map[string]any{
 		"lastEvent.action": "final-action", "lastEvent.origin.user": "final-user",
-		"adversary.ip": "203.0.113.7", "lastEvent.log.accounts.id": "selected",
-		"lastEvent.log.attempts": float64(0), "lastEvent.log.blocked": false,
+		"adversary.ip": "203.0.113.7", "lastEvent.event.accounts.id": "selected",
+		"lastEvent.event.attempts": float64(0), "lastEvent.event.blocked": false,
 	}
 	if !reflect.DeepEqual(terms, want) {
 		t.Fatalf("indexed terms differ: got %s, want %v", encoded, want)
@@ -137,12 +137,12 @@ func TestAlertGroupingDoesNotEnableNameOnlyQuery(t *testing.T) {
 	for _, wire := range []string{
 		`{}`, `{"events":[]}`,
 		`{"events":[{"action":"older"},{}]}`,
-		`{"events":[{"log":{"items":[1],"object":{"id":"x"},"empty":null}}]}`,
+		`{"events":[{"event":{"items":[1],"object":{"id":"x"},"empty":null}}]}`,
 	} {
 		builder := sdkos.NewBoolBuilder(context.Background(), nil, "grouping-query-test")
 		builder.FilterTerm("name", "Synthetic grouping contract")
 		if addAlertGroupingTerms(builder, wire, []string{
-			"lastEvent.action", "lastEvent.log.items", "lastEvent.log.object", "lastEvent.log.empty",
+			"lastEvent.action", "lastEvent.event.items", "lastEvent.event.object", "lastEvent.event.empty",
 		}) {
 			t.Fatalf("caller would execute a name-only query for %s", wire)
 		}

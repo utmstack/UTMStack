@@ -16,14 +16,14 @@ references:
 description: 'The sign-in carries a high risk level or an active risk state. This signal does not establish impossible travel.
 
   '
-where: 'equalsIgnoreCase("log.azureKind","signin") && (equalsIgnoreCase("log.properties.riskState","atRisk") || equalsIgnoreCase("log.properties.riskState","confirmedCompromised")
-  || equalsIgnoreCase("log.properties.riskLevelDuringSignIn","high")) && !(equalsIgnoreCase("actionResult","success") && equalsIgnoreCase("log.properties.riskLevelDuringSignIn","high"))
+where: 'equalsIgnoreCase("event.azureKind","signin") && (equalsIgnoreCase("event.properties.riskState","atRisk") || equalsIgnoreCase("event.properties.riskState","confirmedCompromised")
+  || equalsIgnoreCase("event.properties.riskLevelDuringSignIn","high")) && !(equalsIgnoreCase("actionResult","success") && equalsIgnoreCase("event.properties.riskLevelDuringSignIn","high"))
 
   '
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.azureScopeType
-- lastEvent.log.azureScope
-- lastEvent.log.azureOperation
+- lastEvent.event.azureScopeType
+- lastEvent.event.azureScope
+- lastEvent.event.azureOperation
 - adversary.user
 - adversary.ip

@@ -14,8 +14,8 @@ impact:
 where: >
   exists("origin.operatingSystem") && 
   oneOf("origin.operatingSystem", ["Mac", "Lin"]) && 
-  exists("log.eventCommandLine") && 
-  regexMatch("log.eventCommandLine", "(?i).*(curl|wget).*http.*")
+  exists("event.eventCommandLine") && 
+  regexMatch("event.eventCommandLine", "(?i).*(curl|wget).*http.*")
 groupBy: 
   - adversary.host
-  - lastEvent.log.eventCommandLine
+  - lastEvent.event.eventCommandLine

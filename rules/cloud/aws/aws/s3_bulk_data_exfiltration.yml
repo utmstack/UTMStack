@@ -25,46 +25,46 @@ description: |
   7. Enable S3 server access logging for affected buckets
   8. Review S3 bucket policies and tighten access controls
 where: |
-  (equals("log.awsRecordType","cloudtrail") &&
-  (equals("log.eventSource", "s3.amazonaws.com") &&
-  equals("log.eventName", "GetObject") &&
+  (equals("event.awsRecordType","cloudtrail") &&
+  (equals("event.eventSource", "s3.amazonaws.com") &&
+  equals("event.eventName", "GetObject") &&
   equals("actionResult","success"))) &&
   exists("dataSource") &&
   !equals("dataSource","") &&
-  exists("log.awsAccountKeyType") &&
-  !equals("log.awsAccountKeyType","") &&
-  exists("log.awsAccountKey") &&
-  !equals("log.awsAccountKey","") &&
-  exists("log.awsActorKeyType") &&
-  !equals("log.awsActorKeyType","") &&
-  exists("log.awsActorKey") &&
-  !equals("log.awsActorKey","")
+  exists("event.awsAccountKeyType") &&
+  !equals("event.awsAccountKeyType","") &&
+  exists("event.awsAccountKey") &&
+  !equals("event.awsAccountKey","") &&
+  exists("event.awsActorKeyType") &&
+  !equals("event.awsActorKeyType","") &&
+  exists("event.awsActorKey") &&
+  !equals("event.awsActorKey","")
 afterEvents:
 - indexPattern: v11-log-aws-*
   with:
   - field: dataSource
     operator: filter_term
     value: '{{.dataSource}}'
-  - field: log.awsAccountKeyType
+  - field: event.awsAccountKeyType
     operator: filter_term
-    value: '{{.log.awsAccountKeyType}}'
-  - field: log.awsAccountKey
+    value: '{{.event.awsAccountKeyType}}'
+  - field: event.awsAccountKey
     operator: filter_term
-    value: '{{.log.awsAccountKey}}'
-  - field: log.awsActorKeyType
+    value: '{{.event.awsAccountKey}}'
+  - field: event.awsActorKeyType
     operator: filter_term
-    value: '{{.log.awsActorKeyType}}'
-  - field: log.awsActorKey
+    value: '{{.event.awsActorKeyType}}'
+  - field: event.awsActorKey
     operator: filter_term
-    value: '{{.log.awsActorKey}}'
-  - field: log.correlationCandidate.s3BulkDataExfiltration
+    value: '{{.event.awsActorKey}}'
+  - field: event.correlationCandidate.s3BulkDataExfiltration
     operator: filter_term
     value: match
   within: 15m
   count: 100
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
 - adversary.user
-- lastEvent.log.requestParameters.bucketName
+- lastEvent.event.requestParameters.bucketName

@@ -39,5 +39,5 @@ afterEvents:
     within: 4h
     count: 2
 groupBy:
-  - lastEvent.log.Operation
+  - lastEvent.event.Operation
   - adversary.user

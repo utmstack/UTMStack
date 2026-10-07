@@ -22,12 +22,12 @@ description: |
   4. Identify the user and process that made the change
   5. Restore the profile from backup if tampered
 where: |
-  (contains("log.message", ".bash_profile") || contains("log.message", ".zshrc") ||
-   contains("log.message", ".zprofile") || contains("log.message", ".bashrc") ||
-   contains("log.message", ".zshenv") || contains("log.message", "/etc/zshrc") ||
-   contains("log.message", "/etc/profile")) &&
-  (contains("log.message", "modified") || contains("log.message", "written") ||
-   contains("log.message", "created") || contains("log.message", "changed"))
+  (contains("event.message", ".bash_profile") || contains("event.message", ".zshrc") ||
+   contains("event.message", ".zprofile") || contains("event.message", ".bashrc") ||
+   contains("event.message", ".zshenv") || contains("event.message", "/etc/zshrc") ||
+   contains("event.message", "/etc/profile")) &&
+  (contains("event.message", "modified") || contains("event.message", "written") ||
+   contains("event.message", "created") || contains("event.message", "changed"))
 groupBy:
   - adversary.host
   - adversary.user

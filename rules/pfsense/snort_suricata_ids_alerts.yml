@@ -26,8 +26,8 @@ description: |
   6. Update IDS signatures and review firewall rules to prevent similar attacks
   7. Correlate with threat intelligence feeds to identify known malicious indicators
 where: |
-  regexMatch("log.eventType", "(?i)(snort|suricata)") &&
-  regexMatch("log.raw", "(?i)(priority\\s*:\\s*1|classification\\s*:\\s*(trojan|exploit|malware|backdoor|shellcode|rootkit))")
+  regexMatch("event.eventType", "(?i)(snort|suricata)") &&
+  regexMatch("event.raw", "(?i)(priority\\s*:\\s*1|classification\\s*:\\s*(trojan|exploit|malware|backdoor|shellcode|rootkit))")
 afterEvents:
   - indexPattern: v11-log-firewall-pfsense-*
     with:
@@ -37,5 +37,5 @@ afterEvents:
     within: 15m
     count: 3
 groupBy:
-  - lastEvent.log.eventType
+  - lastEvent.event.eventType
   - adversary.ip

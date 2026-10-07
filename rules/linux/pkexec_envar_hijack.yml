@@ -16,6 +16,6 @@ references:
   - "https://attack.mitre.org/tactics/TA0004/"
   - "https://attack.mitre.org/techniques/T1068/"
 where: |
-  contains("log.message", "with NULL argv") || contains("log.message", "The value for the SHELL variable was not found") || ((contains("origin.process", "pkexec") || contains("log.syslogIdentifier", "pkexec")) && (contains("log.message", "SHELL variable") || contains("log.message", "PATH variable") || contains("log.message", "XAUTHORITY")))
+  contains("event.message", "with NULL argv") || contains("event.message", "The value for the SHELL variable was not found") || ((contains("origin.process", "pkexec") || contains("event.syslogIdentifier", "pkexec")) && (contains("event.message", "SHELL variable") || contains("event.message", "PATH variable") || contains("event.message", "XAUTHORITY")))
 deduplicateBy:
   - dataSource

@@ -40,7 +40,7 @@ func TestESETSDKHistory(t *testing.T) {
 		w.Header().Set("Content-Type", "application/json")
 		if strings.HasSuffix(r.URL.Path, "/_mapping") {
 			// Text-with-keyword and exact IP mappings both exercise SDK lookup.
-			_, _ = io.WriteString(w, `{"v11-log-antivirus-esmc-eset-test":{"mappings":{"properties":{"@timestamp":{"type":"date"},"dataSource":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"target":{"properties":{"user":{"type":"text","fields":{"keyword":{"type":"keyword"}}}}},"log":{"properties":{"endpointKey":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"endpointKeyType":{"type":"keyword"},"correlationCandidate":{"properties":{"heuristicRemediation":{"type":"keyword"},"consoleAuthenticationFailure":{"type":"keyword"},"quarantineFailure":{"type":"keyword"}}}}}}}}`)
+			_, _ = io.WriteString(w, `{"v11-log-antivirus-esmc-eset-test":{"mappings":{"properties":{"@timestamp":{"type":"date"},"dataSource":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"target":{"properties":{"user":{"type":"text","fields":{"keyword":{"type":"keyword"}}}}},"event":{"properties":{"endpointKey":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"endpointKeyType":{"type":"keyword"},"correlationCandidate":{"properties":{"heuristicRemediation":{"type":"keyword"},"consoleAuthenticationFailure":{"type":"keyword"},"quarantineFailure":{"type":"keyword"}}}}}}}}`)
 			return
 		}
 		if r.URL.Path != "/v11-log-antivirus-esmc-eset-*/_search" {
@@ -186,14 +186,14 @@ func TestESETSDKHistory(t *testing.T) {
 			if search.Count != test.count || search.Within != test.within || len(search.With) != n {
 				t.Fatal("history threshold or scope changed")
 			}
-			expectedTerms = map[string]string{"dataSource": collector, "log.endpointKeyType": "uuid", "log.endpointKey": endpoint, "log.correlationCandidate." + test.marker: "match"}
+			expectedTerms = map[string]string{"dataSource": collector, "event.endpointKeyType": "uuid", "event.endpointKey": endpoint, "event.correlationCandidate." + test.marker: "match"}
 			if test.rule == "eset_console_abuse" {
 				expectedTerms["target.user"] = "Administrator"
 			}
 			parse := func(raw string) string { return esetParse(t, cfg, raw, collector, cache) }
 			raw := rawDocument(test.event)
 			out := parse(raw)
-			marker := "log.correlationCandidate." + test.marker
+			marker := "event.correlationCandidate." + test.marker
 			if yes, err := cache.Eval(rule.Where, out); err != nil || !yes || gjson.Get(out, marker).String() != "match" {
 				t.Fatalf("synthetic documented-field positive did not produce candidate: %v %v", yes, err)
 			}
@@ -220,8 +220,8 @@ func TestESETSDKHistory(t *testing.T) {
 			check("inside_window", mutate(prior, "@timestamp", time.Now().Add(-duration+10*time.Second).UTC().Format(time.RFC3339Nano)), test.count, true)
 			check("expired", mutate(prior, "@timestamp", time.Now().Add(-duration-10*time.Second).UTC().Format(time.RFC3339Nano)), test.count, false)
 			check("different_collector", mutate(prior, "dataSource", "other-relay"), test.count, false)
-			check("different_endpoint", mutate(prior, "log.endpointKey", "OTHER-ENDPOINT"), test.count, false)
-			check("different_identity_namespace", mutate(prior, "log.endpointKeyType", "host"), test.count, false)
+			check("different_endpoint", mutate(prior, "event.endpointKey", "OTHER-ENDPOINT"), test.count, false)
+			check("different_identity_namespace", mutate(prior, "event.endpointKeyType", "host"), test.count, false)
 			check("unmarked_history", mutate(prior, marker, nil), test.count, false)
 			if test.rule == "eset_console_abuse" {
 				check("different_attempted_account", mutate(prior, "target.user", "OtherAdmin"), test.count, false)
@@ -258,7 +258,7 @@ func TestESETSDKHistory(t *testing.T) {
 					check("explicit_result_"+result, mutate(denied, "@timestamp", stamp), test.count, true)
 				}
 			}
-			fields := []string{"dataSource", "log.endpointKeyType", "log.endpointKey"}
+			fields := []string{"dataSource", "event.endpointKeyType", "event.endpointKey"}
 			if test.rule == "eset_console_abuse" {
 				fields = append(fields, "target.user")
 			}
@@ -289,7 +289,7 @@ func TestESETSDKHistory(t *testing.T) {
 				if yes, err := cache.Eval(rule.Where, out); err != nil || !yes || gjson.Get(out, marker).String() != "match" {
 					t.Fatalf("%s fallback must remain eligible: %v %v", identity.kind, yes, err)
 				}
-				expectedTerms["log.endpointKeyType"], expectedTerms["log.endpointKey"] = identity.kind, identity.key
+				expectedTerms["event.endpointKeyType"], expectedTerms["event.endpointKey"] = identity.kind, identity.key
 				check(identity.kind+"_fallback_threshold", mutate(out, "@timestamp", stamp), test.count, true)
 			}
 			noEndpoint := raw

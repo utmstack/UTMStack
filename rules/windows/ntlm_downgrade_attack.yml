@@ -31,7 +31,7 @@ description: |
   7. Audit network traffic for NTLMv1 authentication attempts
   8. Consider disabling NTLM entirely where possible
 where: |
-  equals("log.eventCode", "4657") && regexMatch("log.eventDataObjectName", "ControlSet.*Control.Lsa") && regexMatch("log.data.ObjectValueName", "(LMCompatibilityLevel|NtlmMinClientSec|NtlmMinServerSec|RestrictSendingNTLMTraffic|AuditReceivingNTLMTraffic|RequireSignOrSeal)") && !regexMatch("log.eventDataSubjectUserName", "(?i)^(SYSTEM|TrustedInstaller)$")
+  equals("event.eventCode", "4657") && regexMatch("event.eventDataObjectName", "ControlSet.*Control.Lsa") && regexMatch("event.data.ObjectValueName", "(LMCompatibilityLevel|NtlmMinClientSec|NtlmMinServerSec|RestrictSendingNTLMTraffic|AuditReceivingNTLMTraffic|RequireSignOrSeal)") && !regexMatch("event.eventDataSubjectUserName", "(?i)^(SYSTEM|TrustedInstaller)$")
 groupBy:
   - dataSource
 deduplicateBy: []

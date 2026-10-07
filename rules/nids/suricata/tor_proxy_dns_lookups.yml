@@ -25,51 +25,51 @@ description: |
   6. Implement network controls to block Tor relay IPs at the firewall
   7. Monitor for Tor bridge connections as an evasion technique
 where: |
-  equals("log.eventType", "dns") &&
-  exists("log.dns.query") &&
+  equals("event.eventType", "dns") &&
+  exists("event.dns.query") &&
   exists("origin.ip") &&
   (
-    contains("log.dns.query", ".torproject.org") ||
-    contains("log.dns.query", ".tor2web.") ||
-    contains("log.dns.query", ".onion.to") ||
-    contains("log.dns.query", ".onion.cab") ||
-    contains("log.dns.query", ".onion.nu") ||
-    contains("log.dns.query", ".onion.link") ||
-    contains("log.dns.query", ".onion.it") ||
-    contains("log.dns.query", ".onion.city") ||
-    contains("log.dns.query", ".onion.direct") ||
-    contains("log.dns.query", ".onion.top") ||
-    contains("log.dns.query", ".onion.casa") ||
-    contains("log.dns.query", ".onion.plus") ||
-    contains("log.dns.query", ".onion.dog") ||
-    contains("log.dns.query", ".onion.rip") ||
-    contains("log.dns.query", ".onion.guide") ||
-    contains("log.dns.query", ".onion.ws") ||
-    contains("log.dns.query", ".onion.pet") ||
-    contains("log.dns.query", ".onion.sh") ||
-    contains("log.dns.query", ".onion.ly") ||
-    contains("log.dns.query", ".onion.mn") ||
-    contains("log.dns.query", ".onion.si") ||
-    contains("log.dns.query", ".onion.lu") ||
-    contains("log.dns.query", ".darknet.to") ||
-    contains("log.dns.query", ".onion.foundation") ||
-    endsWith("log.dns.query", ".torproxy.io") ||
-    endsWith("log.dns.query", ".tor-gateways.de") ||
-    endsWith("log.dns.query", ".torstorm.org") ||
-    endsWith("log.dns.query", ".tor.taxi") ||
-    endsWith("log.dns.query", ".tor.direct") ||
-    endsWith("log.dns.query", ".torghost.com") ||
-    endsWith("log.dns.query", ".tor.gs") ||
-    endsWith("log.dns.query", ".tor.cat") ||
-    endsWith("log.dns.query", ".tor.haus") ||
-    endsWith("log.dns.query", ".tor.rocks") ||
-    endsWith("log.dns.query", ".tor.lol") ||
-    endsWith("log.dns.query", ".onion.in.net") ||
-    endsWith("log.dns.query", ".onion.glass") ||
-    endsWith("log.dns.query", ".onion.ms") ||
-    endsWith("log.dns.query", ".onion.gg") ||
-    endsWith("log.dns.query", ".tor.pm")
+    contains("event.dns.query", ".torproject.org") ||
+    contains("event.dns.query", ".tor2web.") ||
+    contains("event.dns.query", ".onion.to") ||
+    contains("event.dns.query", ".onion.cab") ||
+    contains("event.dns.query", ".onion.nu") ||
+    contains("event.dns.query", ".onion.link") ||
+    contains("event.dns.query", ".onion.it") ||
+    contains("event.dns.query", ".onion.city") ||
+    contains("event.dns.query", ".onion.direct") ||
+    contains("event.dns.query", ".onion.top") ||
+    contains("event.dns.query", ".onion.casa") ||
+    contains("event.dns.query", ".onion.plus") ||
+    contains("event.dns.query", ".onion.dog") ||
+    contains("event.dns.query", ".onion.rip") ||
+    contains("event.dns.query", ".onion.guide") ||
+    contains("event.dns.query", ".onion.ws") ||
+    contains("event.dns.query", ".onion.pet") ||
+    contains("event.dns.query", ".onion.sh") ||
+    contains("event.dns.query", ".onion.ly") ||
+    contains("event.dns.query", ".onion.mn") ||
+    contains("event.dns.query", ".onion.si") ||
+    contains("event.dns.query", ".onion.lu") ||
+    contains("event.dns.query", ".darknet.to") ||
+    contains("event.dns.query", ".onion.foundation") ||
+    endsWith("event.dns.query", ".torproxy.io") ||
+    endsWith("event.dns.query", ".tor-gateways.de") ||
+    endsWith("event.dns.query", ".torstorm.org") ||
+    endsWith("event.dns.query", ".tor.taxi") ||
+    endsWith("event.dns.query", ".tor.direct") ||
+    endsWith("event.dns.query", ".torghost.com") ||
+    endsWith("event.dns.query", ".tor.gs") ||
+    endsWith("event.dns.query", ".tor.cat") ||
+    endsWith("event.dns.query", ".tor.haus") ||
+    endsWith("event.dns.query", ".tor.rocks") ||
+    endsWith("event.dns.query", ".tor.lol") ||
+    endsWith("event.dns.query", ".onion.in.net") ||
+    endsWith("event.dns.query", ".onion.glass") ||
+    endsWith("event.dns.query", ".onion.ms") ||
+    endsWith("event.dns.query", ".onion.gg") ||
+    endsWith("event.dns.query", ".tor.pm")
   )
 groupBy:
-  - lastEvent.log.dns.query
+  - lastEvent.event.dns.query
   - adversary.ip

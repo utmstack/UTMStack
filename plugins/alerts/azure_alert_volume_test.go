@@ -44,7 +44,7 @@ func TestAzureKubernetesWebhookAlertVolume(t *testing.T) {
 	if r == nil {
 		t.Fatal("missing azure_kubernetes_admission_controller")
 	}
-	want := []string{"dataSource", "lastEvent.log.azureScope", "adversary.user"}
+	want := []string{"dataSource", "lastEvent.event.azureScope", "adversary.user"}
 	if len(r.GroupBy) != 0 || !reflect.DeepEqual(r.DeduplicateBy, want) {
 		t.Fatalf("grouping got groupBy %v deduplicateBy %v, want deduplicateBy %v", r.GroupBy, r.DeduplicateBy, want)
 	}
@@ -70,7 +70,7 @@ func TestAzureKubernetesWebhookAlertVolume(t *testing.T) {
 				return
 			}
 			// adversary: origin, so adversary.user is the event's origin.user.
-			for key, path := range map[string]string{"dataSource": "dataSource", "lastEvent.log.azureScope": "log.azureScope", "adversary.user": "origin.user"} {
+			for key, path := range map[string]string{"dataSource": "dataSource", "lastEvent.event.azureScope": "event.azureScope", "adversary.user": "origin.user"} {
 				if v := gjson.Get(out, path); v.Type != gjson.String || v.String() == "" {
 					t.Fatalf("de-duplication key %s (%s) does not resolve to text in %s", key, path, out)
 				}

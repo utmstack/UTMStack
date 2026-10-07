@@ -24,7 +24,7 @@ description: |
   5. Consider implementing IP blocking or rate limiting for the source IP
   6. Verify RouterOS user accounts for any unauthorized changes or access
   7. Check if default credentials are still in use on the device
-where: contains("log.topics", "system") && contains("log.topics", "error") && contains("log.topics", "critical") && contains("log.message", "login failure") && exists("origin.ip")
+where: contains("event.topics", "system") && contains("event.topics", "error") && contains("event.topics", "critical") && contains("event.message", "login failure") && exists("origin.ip")
 afterEvents:
   - indexPattern: v11-log-firewall-mikrotik-*
     with:

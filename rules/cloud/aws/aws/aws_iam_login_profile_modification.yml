@@ -23,13 +23,13 @@ description: |
   5. Check if the target user's MFA was also modified
   6. If unauthorized, reset the password and rotate all credentials for the target user
 where: |
-  equals("log.awsRecordType","cloudtrail") &&
-  (equals("log.eventSource", "iam.amazonaws.com") &&
-  equals("log.eventName", "UpdateLoginProfile") &&
+  equals("event.awsRecordType","cloudtrail") &&
+  (equals("event.eventSource", "iam.amazonaws.com") &&
+  equals("event.eventName", "UpdateLoginProfile") &&
   equals("actionResult","success"))
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
 - adversary.user
-- lastEvent.log.requestParameters.userName
+- lastEvent.event.requestParameters.userName

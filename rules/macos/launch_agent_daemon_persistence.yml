@@ -26,14 +26,14 @@ description: |
   6. Check for other persistence mechanisms on the affected system
   7. Consider isolating the system if malicious persistence is confirmed
 where: |
-  (equals("log.subsystem", "com.apple.launchd") || equals("origin.process", "launchd")) &&
-  (contains("log.message", "LaunchAgent") || contains("log.message", "LaunchDaemon")) &&
-  (contains("log.message", "loaded") || contains("log.message", "started") || contains("log.message", "created")) &&
-  (contains("log.message", "/Library/LaunchAgents") ||
-   contains("log.message", "/Library/LaunchDaemons") ||
-   contains("log.message", "/System/Library/LaunchAgents") ||
-   contains("log.message", "/System/Library/LaunchDaemons") ||
-   contains("log.message", "~/Library/LaunchAgents"))
+  (equals("event.subsystem", "com.apple.launchd") || equals("origin.process", "launchd")) &&
+  (contains("event.message", "LaunchAgent") || contains("event.message", "LaunchDaemon")) &&
+  (contains("event.message", "loaded") || contains("event.message", "started") || contains("event.message", "created")) &&
+  (contains("event.message", "/Library/LaunchAgents") ||
+   contains("event.message", "/Library/LaunchDaemons") ||
+   contains("event.message", "/System/Library/LaunchAgents") ||
+   contains("event.message", "/System/Library/LaunchDaemons") ||
+   contains("event.message", "~/Library/LaunchAgents"))
 groupBy:
-  - lastEvent.log.message
+  - lastEvent.event.message
   - adversary.host

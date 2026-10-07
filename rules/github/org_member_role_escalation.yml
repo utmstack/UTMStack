@@ -26,10 +26,10 @@ description: |
   7. Enable required two-factor authentication for all organization owners
   8. Implement audit log streaming for real-time organization event monitoring
 where: |
-  (equals("log.action", "org.update_member") ||
-   equals("log.action", "org.add_member")) &&
-  equals("log.permission", "admin") &&
-  exists("log.senderLogin")
+  (equals("event.action", "org.update_member") ||
+   equals("event.action", "org.add_member")) &&
+  equals("event.permission", "admin") &&
+  exists("event.senderLogin")
 groupBy:
-  - lastEvent.log.senderLogin
-  - lastEvent.log.user
+  - lastEvent.event.senderLogin
+  - lastEvent.event.user

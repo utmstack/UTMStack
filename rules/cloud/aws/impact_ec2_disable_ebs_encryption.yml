@@ -18,13 +18,13 @@ references:
 - https://awscli.amazonaws.com/v2/documentation/api/latest/reference/ec2/disable-ebs-encryption-by-default.html
 - https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DisableEbsEncryptionByDefault.html
 where: |
-  equals("log.awsRecordType","cloudtrail") &&
-  (equals("log.eventSource", "ec2.amazonaws.com") &&
-  equals("log.eventName", "DisableEbsEncryptionByDefault") &&
+  equals("event.awsRecordType","cloudtrail") &&
+  (equals("event.eventSource", "ec2.amazonaws.com") &&
+  equals("event.eventName", "DisableEbsEncryptionByDefault") &&
   equals("actionResult","success"))
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
 - adversary.ip
 - adversary.user

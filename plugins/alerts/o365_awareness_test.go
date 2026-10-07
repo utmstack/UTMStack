@@ -49,7 +49,7 @@ func TestO365AwarenessRawPredicatesAndGrouping(t *testing.T) {
 	}
 	// One top-level alert per acting account and action; later changes become children, which the
 	// rule flood guard does not count. Grouping per object passed 50 top-level alerts a day.
-	want := []string{"lastEvent.tenantId", "lastEvent.log.OrganizationId", "dataSource", "adversary.user", "lastEvent.action"}
+	want := []string{"lastEvent.tenantId", "lastEvent.event.OrganizationId", "dataSource", "adversary.user", "lastEvent.action"}
 	// Forwarding mail out of a mailbox is a common step after it is taken over, so the two
 	// forwarding rules alert at medium severity (highest impact value 2); the others stay low.
 	medium := map[string]bool{

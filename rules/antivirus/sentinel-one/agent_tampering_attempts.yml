@@ -25,12 +25,12 @@ description: |
   6. Review network connections from the affected host for command and control activity
   7. If tampering was successful, consider reimaging the system after forensic analysis
 where: |
-  regexMatch("log.eventDescription", "\\b(tamper(s|ed|ing)?|disabl(e|es|ed|ing)|stop(s|ped|ping)?|uninstall(s|ed|ing)?|modif(y|ies|ied|ying))\\b.*\\bagents?\\b") ||
-  regexMatch("log.eventDescription", "\\bagents?\\b.*\\b(tamper(s|ed|ing)?|disabl(e|es|ed|ing)|stop(s|ped|ping)?|uninstall(s|ed|ing)?|modif(y|ies|ied|ying))\\b") ||
-  oneOf("log.activityType", ["agent_uninstall", "agent_disable", "agent_tamper"]) ||
-  equals("log.eventType", "AgentTamperingAttempt") ||
-  (regexMatch("log.processName", ".*(sentinelone|sentinel).*") &&
-   oneOf("log.action", ["kill", "terminate", "stop", "disable"]))
+  regexMatch("event.eventDescription", "\\b(tamper(s|ed|ing)?|disabl(e|es|ed|ing)|stop(s|ped|ping)?|uninstall(s|ed|ing)?|modif(y|ies|ied|ying))\\b.*\\bagents?\\b") ||
+  regexMatch("event.eventDescription", "\\bagents?\\b.*\\b(tamper(s|ed|ing)?|disabl(e|es|ed|ing)|stop(s|ped|ping)?|uninstall(s|ed|ing)?|modif(y|ies|ied|ying))\\b") ||
+  oneOf("event.activityType", ["agent_uninstall", "agent_disable", "agent_tamper"]) ||
+  equals("event.eventType", "AgentTamperingAttempt") ||
+  (regexMatch("event.processName", ".*(sentinelone|sentinel).*") &&
+   oneOf("event.action", ["kill", "terminate", "stop", "disable"]))
 groupBy:
-  - lastEvent.log.agentId
+  - lastEvent.event.agentId
   - adversary.host

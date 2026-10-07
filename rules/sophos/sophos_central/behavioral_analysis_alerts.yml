@@ -13,37 +13,37 @@ references:
 - https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/MaliciousBehaviorTypes/
 description: Repeated behavioral detections on the same managed endpoint and Sophos account. Inspect the vendor
   threat name for its specific behavior or MITRE technique; these events do not all indicate process injection.
-where: '((oneOf("log.type", ["Event::Endpoint::Threat::BehavioralDetection", "Event::Endpoint::BehaviorDetected"])
+where: '((oneOf("event.type", ["Event::Endpoint::Threat::BehavioralDetection", "Event::Endpoint::BehaviorDetected"])
   ||
 
-  (oneOf("log.detectionMethod", ["Behavioral", "HIPS"]) && oneOf("log.severity", ["medium", "high", "critical"]))
+  (oneOf("event.detectionMethod", ["Behavioral", "HIPS"]) && oneOf("event.severity", ["medium", "high", "critical"]))
   ||
 
-  (contains("log.name", "Behavioral") && oneOf("log.severity", ["high", "critical"]))) || equals("log.type","Event::Endpoint::CoreBehavioralDetection"))
-  && !regexMatch("log.type","(?i)(clean|cleanedup|resolved|dismissed|cancelled|success)$") && (regexMatch("log.endpointId","[^[:space:]]")
-  && !oneOf("log.endpointId",["-","n/a","N/A","unknown"])) && (regexMatch("dataSource","[^[:space:]]") && !oneOf("dataSource",["-","n/a","N/A","unknown"]))
-  && (regexMatch("log.sophosCentralScope","[^[:space:]]") && !oneOf("log.sophosCentralScope",["-","n/a","N/A","unknown"]))'
+  (contains("event.name", "Behavioral") && oneOf("event.severity", ["high", "critical"]))) || equals("event.type","Event::Endpoint::CoreBehavioralDetection"))
+  && !regexMatch("event.type","(?i)(clean|cleanedup|resolved|dismissed|cancelled|success)$") && (regexMatch("event.endpointId","[^[:space:]]")
+  && !oneOf("event.endpointId",["-","n/a","N/A","unknown"])) && (regexMatch("dataSource","[^[:space:]]") && !oneOf("dataSource",["-","n/a","N/A","unknown"]))
+  && (regexMatch("event.sophosCentralScope","[^[:space:]]") && !oneOf("event.sophosCentralScope",["-","n/a","N/A","unknown"]))'
 afterEvents:
 - indexPattern: v11-log-sophos-central-*
   with:
   - field: dataSource
     operator: filter_term
     value: '{{.dataSource}}'
-  - field: log.sophosCentralScope
+  - field: event.sophosCentralScope
     operator: filter_term
-    value: '{{.log.sophosCentralScope}}'
-  - field: log.endpointId
+    value: '{{.event.sophosCentralScope}}'
+  - field: event.endpointId
     operator: filter_term
-    value: '{{.log.endpointId}}'
-  - field: log.correlationCandidate.sophosCentral.behavior
+    value: '{{.event.endpointId}}'
+  - field: event.correlationCandidate.sophosCentral.behavior
     operator: filter_term
     value: match
   within: 30m
   count: 3
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.customerId
-- lastEvent.log.endpointId
-- lastEvent.log.type
+- lastEvent.event.customerId
+- lastEvent.event.endpointId
+- lastEvent.event.type
 - target.host
 - target.ip

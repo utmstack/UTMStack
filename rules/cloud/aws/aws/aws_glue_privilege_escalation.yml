@@ -23,13 +23,13 @@ description: |
   5. If unauthorized, delete the endpoint and investigate the passed role
   6. Review IAM policies to restrict Glue PassRole permissions
 where: |
-  equals("log.awsRecordType","cloudtrail") &&
-  (equals("log.eventSource", "glue.amazonaws.com") &&
-  oneOf("log.eventName", ["CreateDevEndpoint", "UpdateDevEndpoint"]) &&
+  equals("event.awsRecordType","cloudtrail") &&
+  (equals("event.eventSource", "glue.amazonaws.com") &&
+  oneOf("event.eventName", ["CreateDevEndpoint", "UpdateDevEndpoint"]) &&
   equals("actionResult","success"))
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
 - adversary.user
-- lastEvent.log.eventName
+- lastEvent.event.eventName

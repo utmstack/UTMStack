@@ -27,15 +27,15 @@ description: |
   - Update security policies to prevent similar threats
   - Check for any data exfiltration or lateral movement attempts from the affected host
 where: |
-  (equals("log.eventType", "Threat_Event") &&
-  (regexMatch("log.threat_name", "(?i)machine[ -]learning") ||
-   regexMatch("log.threat_type", "(?i)machine[ -]learning") ||
-   regexMatch("log.scanner_id", "(?i)machine[ -]learning"))) &&
+  (equals("event.eventType", "Threat_Event") &&
+  (regexMatch("event.threat_name", "(?i)machine[ -]learning") ||
+   regexMatch("event.threat_type", "(?i)machine[ -]learning") ||
+   regexMatch("event.scanner_id", "(?i)machine[ -]learning"))) &&
   exists("dataSource") && !oneOf("dataSource", ["", "unknown", "-"]) &&
-  oneOf("log.endpointKeyType", ["uuid", "host", "ip"]) &&
-  exists("log.endpointKey") && !equals("log.endpointKey", "")
+  oneOf("event.endpointKeyType", ["uuid", "host", "ip"]) &&
+  exists("event.endpointKey") && !equals("event.endpointKey", "")
 groupBy:
   - lastEvent.dataSource
-  - lastEvent.log.endpointKeyType
-  - lastEvent.log.endpointKey
-  - lastEvent.log.threat_name
+  - lastEvent.event.endpointKeyType
+  - lastEvent.event.endpointKey
+  - lastEvent.event.threat_name

@@ -24,18 +24,18 @@ description: |
   5. Consider blocking the source IP at the perimeter firewall if attacks persist
   6. Update network security policies and ensure all systems are patched
 where: |
-  (equals("log.eventType", "FirewallAggregated_Event") && equals("actionResult", "denied") &&
+  (equals("event.eventType", "FirewallAggregated_Event") && equals("actionResult", "denied") &&
   exists("origin.ip") &&
-  !regexMatch("log.threat_name", "(?i)(botnet|cnc[.]generic|c&c|command and control)") &&
-  !regexMatch("log.event", "(?i)(botnet|cnc[.]generic|c&c|command and control)") &&
-  (regexMatch("log.event", "(?i)(attack|exploit|intrusion)") ||
-   (exists("log.threat_name") && !oneOf("log.threat_name", ["", "unknown", "-"])))) &&
+  !regexMatch("event.threat_name", "(?i)(botnet|cnc[.]generic|c&c|command and control)") &&
+  !regexMatch("event.event", "(?i)(botnet|cnc[.]generic|c&c|command and control)") &&
+  (regexMatch("event.event", "(?i)(attack|exploit|intrusion)") ||
+   (exists("event.threat_name") && !oneOf("event.threat_name", ["", "unknown", "-"])))) &&
   exists("dataSource") && !oneOf("dataSource", ["", "unknown", "-"]) &&
-  oneOf("log.endpointKeyType", ["uuid", "host", "ip"]) &&
-  exists("log.endpointKey") && !equals("log.endpointKey", "")
+  oneOf("event.endpointKeyType", ["uuid", "host", "ip"]) &&
+  exists("event.endpointKey") && !equals("event.endpointKey", "")
 groupBy:
   - lastEvent.dataSource
-  - lastEvent.log.endpointKeyType
-  - lastEvent.log.endpointKey
+  - lastEvent.event.endpointKeyType
+  - lastEvent.event.endpointKey
   - adversary.ip
-  - lastEvent.log.threat_name
+  - lastEvent.event.threat_name

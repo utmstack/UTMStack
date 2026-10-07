@@ -26,7 +26,7 @@ description: |
   7. Consider implementing additional monitoring for the affected accounts
   8. If malicious activity is confirmed, immediately review and revoke any unauthorized permissions or access
 where: |
-  equals("log.Workload", "AzureActiveDirectory") &&
+  equals("event.Workload", "AzureActiveDirectory") &&
   (
     (equals("action", "Add member to role.") && equals("actionResult", "success")) ||
     (equals("action", "Remove user.") && equals("actionResult", "success")) ||
@@ -38,7 +38,7 @@ afterEvents:
       - field: origin.user
         operator: filter_term
         value: '{{.origin.user}}'
-      - field: log.Workload
+      - field: event.Workload
         operator: filter_term
         value: 'AzureActiveDirectory'
     within: 15m

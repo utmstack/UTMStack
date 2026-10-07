@@ -1,8 +1,8 @@
 package main
 
 // The rebuilt RHEL-family rules read what the Linux filter writes: journal keys
-// renamed to log.syslogIdentifier and log.message, and the audit collector's
-// records (log.avc, log.macstatus, log.paths, action, origin.process and
+// renamed to event.syslogIdentifier and event.message, and the audit collector's
+// records (event.avc, event.macstatus, event.paths, action, origin.process and
 // origin.command). Fabricated raw records go through the ordered filter model and
 // the real SDK CEL. deduplicateBy keys are resolved the way grouping.go resolves
 // them, so every branch keeps a key more specific than the collector.

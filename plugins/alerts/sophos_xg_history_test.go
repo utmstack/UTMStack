@@ -41,7 +41,7 @@ func TestSophosXGSDKHistory(t *testing.T) {
 		if strings.HasSuffix(r.URL.Path, "/_mapping") {
 			// Text fields exercise the SDK's .keyword mapping resolution; IP and
 			// keyword fields exercise exact mappings without that suffix.
-			_, _ = io.WriteString(w, `{"v11-log-firewall-sophos-xg-test": {"mappings": {"properties": {"@timestamp": {"type": "date"}, "dataSource": {"type": "text", "fields": {"keyword": {"type": "keyword"}}}, "origin": {"properties": {"ip": {"type": "ip"}}}, "target": {"properties": {"ip": {"type": "ip"}}}, "log": {"properties": {"sophosScope": {"type": "keyword"}, "correlationCandidate": {"properties": {"sophosXG": {"properties": {"atp": {"type": "keyword"}, "adminFailure": {"type": "keyword"}, "ips": {"type": "keyword"}, "vpnFailure": {"type": "keyword"}}}}}}}}}}}`)
+			_, _ = io.WriteString(w, `{"v11-log-firewall-sophos-xg-test": {"mappings": {"properties": {"@timestamp": {"type": "date"}, "dataSource": {"type": "text", "fields": {"keyword": {"type": "keyword"}}}, "origin": {"properties": {"ip": {"type": "ip"}}}, "target": {"properties": {"ip": {"type": "ip"}}}, "event": {"properties": {"sophosScope": {"type": "keyword"}, "correlationCandidate": {"properties": {"sophosXG": {"properties": {"atp": {"type": "keyword"}, "adminFailure": {"type": "keyword"}, "ips": {"type": "keyword"}, "vpnFailure": {"type": "keyword"}}}}}}}}}}}`)
 			return
 		}
 		if r.URL.Path != "/v11-log-firewall-sophos-xg-*/_search" {
@@ -145,7 +145,7 @@ func TestSophosXGSDKHistory(t *testing.T) {
 			}
 			expectedClauses = len(search.With) + 1
 			out := sophosXGParse(t, cfg, fixture.Raw, fixture.DataSource, cache)
-			marker := "log.correlationCandidate.sophosXG." + c.marker
+			marker := "event.correlationCandidate.sophosXG." + c.marker
 			if match, e := cache.Eval(rule.Where, out); e != nil || !match || gjson.Get(out, marker).String() != "match" {
 				t.Fatal("positive predicate/marker mismatch")
 			}

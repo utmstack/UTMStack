@@ -23,19 +23,19 @@ description: |
   5. Contact the owner of the originating account to verify if the activity was legitimate
   6. If unauthorized, immediately revoke the assumed role session and review all IAM trust policies
 where: |
-  (equals("log.awsRecordType","cloudtrail") &&
-  (equals("log.eventSource","sts.amazonaws.com") &&
-  oneOf("log.eventName",["AssumeRole"]) &&
+  (equals("event.awsRecordType","cloudtrail") &&
+  (equals("event.eventSource","sts.amazonaws.com") &&
+  oneOf("event.eventName",["AssumeRole"]) &&
   equals("actionResult","success") &&
-  regexMatch("log.userIdentity.accountId","^[0-9]{12}$") &&
-  regexMatch("log.responseElements.assumedRoleUser.arn","^arn:[^:]+:sts::[0-9]{12}:assumed-role/.+$") &&
-  !regexMatch("log.responseElements.assumedRoleUser.arn","^arn:[^:]+:sts::" + safe("log.userIdentity.accountId", "") + ":assumed-role/"))) &&
+  regexMatch("event.userIdentity.accountId","^[0-9]{12}$") &&
+  regexMatch("event.responseElements.assumedRoleUser.arn","^arn:[^:]+:sts::[0-9]{12}:assumed-role/.+$") &&
+  !regexMatch("event.responseElements.assumedRoleUser.arn","^arn:[^:]+:sts::" + safe("event.userIdentity.accountId", "") + ":assumed-role/"))) &&
   exists("dataSource") &&
   !equals("dataSource","") &&
-  exists("log.awsAccountKeyType") &&
-  !equals("log.awsAccountKeyType","") &&
-  exists("log.awsAccountKey") &&
-  !equals("log.awsAccountKey","") &&
+  exists("event.awsAccountKeyType") &&
+  !equals("event.awsAccountKeyType","") &&
+  exists("event.awsAccountKey") &&
+  !equals("event.awsAccountKey","") &&
   exists("origin.ip") &&
   !equals("origin.ip","")
 afterEvents:
@@ -44,24 +44,24 @@ afterEvents:
   - field: dataSource
     operator: filter_term
     value: '{{.dataSource}}'
-  - field: log.awsAccountKeyType
+  - field: event.awsAccountKeyType
     operator: filter_term
-    value: '{{.log.awsAccountKeyType}}'
-  - field: log.awsAccountKey
+    value: '{{.event.awsAccountKeyType}}'
+  - field: event.awsAccountKey
     operator: filter_term
-    value: '{{.log.awsAccountKey}}'
+    value: '{{.event.awsAccountKey}}'
   - field: origin.ip
     operator: filter_term
     value: '{{.origin.ip}}'
-  - field: log.correlationCandidate.crossAccountAccessAnomalies
+  - field: event.correlationCandidate.crossAccountAccessAnomalies
     operator: filter_term
     value: match
   within: 15m
   count: 15
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
-- lastEvent.log.responseElementsAssumedRoleUserArn
-- lastEvent.log.sourceIPAddress
-- lastEvent.log.userIdentityAccountId
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
+- lastEvent.event.responseElementsAssumedRoleUserArn
+- lastEvent.event.sourceIPAddress
+- lastEvent.event.userIdentityAccountId

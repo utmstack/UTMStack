@@ -25,7 +25,7 @@ description: |
   6. Check for additional security events around the same time period
   7. Verify audit log integrity and ensure no logs have been tampered with
   8. Review system logs for any other indicators of compromise
-where: (startsWith("log.eventType", "audit") && !equals("log.returnCode", "0")) || (contains("log.message", "audit") && (contains("log.message", "stop") || contains("log.message", "disable") || contains("log.message", "fail"))) || (equals("action", "FILE_MODIFY") && startsWith("log.objName", "/etc/security/audit/")) || (equals("log.commandType", "audit"))
+where: (startsWith("event.eventType", "audit") && !equals("event.returnCode", "0")) || (contains("event.message", "audit") && (contains("event.message", "stop") || contains("event.message", "disable") || contains("event.message", "fail"))) || (equals("action", "FILE_MODIFY") && startsWith("event.objName", "/etc/security/audit/")) || (equals("event.commandType", "audit"))
 groupBy:
-  - lastEvent.log.eventType
+  - lastEvent.event.eventType
   - adversary.user

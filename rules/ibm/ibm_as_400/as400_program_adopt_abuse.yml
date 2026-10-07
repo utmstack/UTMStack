@@ -24,14 +24,14 @@ description: |
   5. Implement adopted authority auditing
   6. Review all programs adopting elevated authority
 where: |
-  exists("log.message") &&
+  exists("event.message") &&
   (
-    (contains("log.message", "ADOPTED") && contains("log.message", "*ALLOBJ")) ||
-    (contains("log.message", "ADOPT") && contains("log.message", "authority")) ||
-    (contains("log.message", "CRTPGM") && contains("log.message", "USRPRF(*OWNER)")) ||
-    (contains("log.message", "CHGPGM") && contains("log.message", "USRPRF(*OWNER)")) ||
-    (contains("log.message", "program adopt") && contains("log.message", "special authority")) ||
-    (contains("log.message", "adopted") && contains("log.message", "QSECOFR"))
+    (contains("event.message", "ADOPTED") && contains("event.message", "*ALLOBJ")) ||
+    (contains("event.message", "ADOPT") && contains("event.message", "authority")) ||
+    (contains("event.message", "CRTPGM") && contains("event.message", "USRPRF(*OWNER)")) ||
+    (contains("event.message", "CHGPGM") && contains("event.message", "USRPRF(*OWNER)")) ||
+    (contains("event.message", "program adopt") && contains("event.message", "special authority")) ||
+    (contains("event.message", "adopted") && contains("event.message", "QSECOFR"))
   )
 groupBy:
   - adversary.host

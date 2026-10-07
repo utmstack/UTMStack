@@ -13,7 +13,7 @@ description: 'Detects high-risk PowerShell script-block content: download cradle
 references:
   - https://attack.mitre.org/techniques/T1059/001/
 where: |
-  equals("log.eventCode", "4104") && !regexMatch("log.eventDataScriptBlockText", "(?i)(sentinelbreakpoints|windows.sentinel.[0-9]|po_wer_spl_oit_indicators)") && (regexMatch("log.eventDataScriptBlockText", "(?i)(amsiutils|amsiinitfailed|amsiscanbuffer|virtualalloc|writeprocessmemory|getdelegateforfunctionpointer|invoke-mimikatz|invoke-shellcode|invoke-dllinjection|createremotethread)") || (regexMatch("log.eventDataScriptBlockText", "(?i)(downloadstring|downloadfile|downloaddata|invoke-webrequest|net.webclient|start-bitstransfer)") && regexMatch("log.eventDataScriptBlockText", "(?i)(iex|invoke-expression|-enc |-encodedcommand|-w hidden|-windowstyle hidden|frombase64string)")))
+  equals("event.eventCode", "4104") && !regexMatch("event.eventDataScriptBlockText", "(?i)(sentinelbreakpoints|windows.sentinel.[0-9]|po_wer_spl_oit_indicators)") && (regexMatch("event.eventDataScriptBlockText", "(?i)(amsiutils|amsiinitfailed|amsiscanbuffer|virtualalloc|writeprocessmemory|getdelegateforfunctionpointer|invoke-mimikatz|invoke-shellcode|invoke-dllinjection|createremotethread)") || (regexMatch("event.eventDataScriptBlockText", "(?i)(downloadstring|downloadfile|downloaddata|invoke-webrequest|net.webclient|start-bitstransfer)") && regexMatch("event.eventDataScriptBlockText", "(?i)(iex|invoke-expression|-enc |-encodedcommand|-w hidden|-windowstyle hidden|frombase64string)")))
 groupBy:
   - dataSource
 deduplicateBy: []

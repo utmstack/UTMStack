@@ -19,12 +19,12 @@ description: 'GravityZone reports an Anti-Exploit event, a HyperDetect exploit c
   process command and parent information, action and endpoint evidence before containment.
 
   '
-where: "equals(\"log.BitdefenderGZModule\", \"antiexploit\") ||\n(equals(\"log.BitdefenderGZModule\", \"hd\") &&\n regexMatch(\"log.BitdefenderGZAttackType\"\
-  , \"(?i)exploits\")) ||\n(equals(\"log.BitdefenderGZMalwareType\", \"process\") &&\n oneOf(\"log.BitdefenderGZModule\", [\"av\", \"\
+where: "equals(\"event.BitdefenderGZModule\", \"antiexploit\") ||\n(equals(\"event.BitdefenderGZModule\", \"hd\") &&\n regexMatch(\"event.BitdefenderGZAttackType\"\
+  , \"(?i)exploits\")) ||\n(equals(\"event.BitdefenderGZMalwareType\", \"process\") &&\n oneOf(\"event.BitdefenderGZModule\", [\"av\", \"\
   avc\", \"hd\"]))\n"
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.BitdefenderGZCompanyId
-- lastEvent.log.endpointKeyType
-- lastEvent.log.endpointKey
+- lastEvent.event.BitdefenderGZCompanyId
+- lastEvent.event.endpointKeyType
+- lastEvent.event.endpointKey
 - target.process

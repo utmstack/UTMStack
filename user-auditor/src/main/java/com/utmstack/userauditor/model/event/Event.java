@@ -18,7 +18,7 @@ public class Event {
     private String tenantId;
     private String tenantName;
     private String raw;
-    private Map<String, Object> log;
+    private Map<String, Object> event;
     private Side target;
     private Side origin;
     private String protocol;

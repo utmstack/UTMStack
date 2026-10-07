@@ -5,6 +5,7 @@ import com.park.utmstack.domain.chart_builder.types.query.FilterType;
 import com.park.utmstack.domain.chart_builder.types.query.OperatorType;
 import com.park.utmstack.util.CustomStringEscapeUtil;
 import com.park.utmstack.util.UtilPagination;
+import com.park.utmstack.util.exceptions.ApiException;
 import org.apache.commons.lang3.ObjectUtils;
 import org.opensearch.client.json.JsonData;
 import org.opensearch.client.opensearch._types.FieldValue;
@@ -13,6 +14,7 @@ import org.opensearch.client.opensearch._types.query_dsl.*;
 import org.opensearch.client.opensearch.core.SearchRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import tech.jhipster.service.filter.InstantFilter;
@@ -27,6 +29,11 @@ import java.util.stream.Collectors;
 public class SearchUtil {
 
     private static final String CLASSNAME = "SearchUtil";
+
+    private static final String MSG_SORT_FLATTENED =
+        "Sorting is not supported on flattened field [%s]. Sort by a top-level field such as origin.ip, action, or @timestamp instead.";
+    private static final String MSG_RANGE_FLATTENED =
+        "Range operators are not supported on flattened field [%s].";
 
     public static Query toQuery(List<FilterType> filters) {
         final String ctx = CLASSNAME + ".toQuery";
@@ -114,16 +121,29 @@ public class SearchUtil {
             }
 
             return Query.of(q -> q.bool(bool.build()));
+        } catch (ApiException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getLocalizedMessage());
         }
+    }
+
+    /** Matches the event-bag flattened field (any filter path under the "event." prefix). */
+    private static boolean isFlattenedField(String field) {
+        return field != null && field.startsWith("event.");
     }
 
     private static void buildIsOperator(BoolQuery.Builder bool, FilterType filter) {
         final String ctx = CLASSNAME + ".buildIsOperator";
         try {
             filter.validate();
+            if (isFlattenedField(filter.getField())) {
+                bool.filter(f -> f.term(t -> t.field(filter.getField()).value(FieldValue.of(String.valueOf(filter.getValue())))));
+                return;
+            }
             bool.filter(f -> f.matchPhrase(m -> m.field(filter.getField()).query(String.valueOf(filter.getValue()))));
+        } catch (ApiException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getLocalizedMessage());
         }
@@ -133,7 +153,13 @@ public class SearchUtil {
         final String ctx = CLASSNAME + ".buildIsNotOperator";
         try {
             filter.validate();
+            if (isFlattenedField(filter.getField())) {
+                bool.mustNot(n -> n.term(t -> t.field(filter.getField()).value(FieldValue.of(String.valueOf(filter.getValue())))));
+                return;
+            }
             bool.mustNot(n -> n.matchPhrase(m -> m.field(filter.getField()).query(String.valueOf(filter.getValue()))));
+        } catch (ApiException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getLocalizedMessage());
         }
@@ -159,6 +185,13 @@ public class SearchUtil {
         try {
             filter.validate();
 
+            if (isFlattenedField(filter.getField())) {
+                List<FieldValue> values = ((List<?>) filter.getValue()).stream().map(v -> FieldValue.of(String.valueOf(v)))
+                    .collect(Collectors.toList());
+                bool.filter(f -> f.terms(t -> t.field(filter.getField()).terms(q -> q.value(values))));
+                return;
+            }
+
             BoolQuery.Builder shouldQuery = new BoolQuery.Builder();
             for (Object val : (List<?>) filter.getValue()) {
                 shouldQuery.should(f -> f.matchPhrase(m -> m.field(filter.getField()).query(String.valueOf(val))));
@@ -168,6 +201,8 @@ public class SearchUtil {
 
             bool.filter(f -> f.bool(shouldQuery.build()));
 
+        } catch (ApiException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getLocalizedMessage());
         }
@@ -178,6 +213,13 @@ public class SearchUtil {
         try {
             filter.validate();
 
+            if (isFlattenedField(filter.getField())) {
+                List<FieldValue> values = ((List<?>) filter.getValue()).stream().map(v -> FieldValue.of(String.valueOf(v)))
+                    .collect(Collectors.toList());
+                bool.mustNot(n -> n.terms(t -> t.field(filter.getField()).terms(q -> q.value(values))));
+                return;
+            }
+
             BoolQuery.Builder mustNotQuery = new BoolQuery.Builder();
             for (Object val : (List<?>) filter.getValue()) {
                 mustNotQuery.mustNot(f -> f.matchPhrase(m -> m.field(filter.getField()).query(String.valueOf(val))));
@@ -185,6 +227,8 @@ public class SearchUtil {
 
             bool.filter(f -> f.bool(mustNotQuery.build()));
 
+        } catch (ApiException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getLocalizedMessage());
         }
@@ -210,11 +254,19 @@ public class SearchUtil {
         final String ctx = CLASSNAME + ".buildIsOneOfOperator";
         try {
             filter.validate();
+            if (isFlattenedField(filter.getField())) {
+                List<FieldValue> values = ((List<?>) filter.getValue()).stream().map(v -> FieldValue.of(String.valueOf(v)))
+                    .collect(Collectors.toList());
+                bool.filter(f -> f.terms(t -> t.field(filter.getField()).terms(q -> q.value(values))));
+                return;
+            }
             BoolQuery.Builder shouldList = new BoolQuery.Builder();
             shouldList.minimumShouldMatch("1");
             for (Object val : (List<?>) filter.getValue())
                 shouldList.should(f -> f.matchPhrase(m -> m.field(filter.getField()).query(String.valueOf(val))));
             bool.filter(f -> f.bool(shouldList.build()));
+        } catch (ApiException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getLocalizedMessage());
         }
@@ -224,11 +276,19 @@ public class SearchUtil {
         final String ctx = CLASSNAME + ".buildIsNotOneOfOperator";
         try {
             filter.validate();
+            if (isFlattenedField(filter.getField())) {
+                List<FieldValue> values = ((List<?>) filter.getValue()).stream().map(v -> FieldValue.of(String.valueOf(v)))
+                    .collect(Collectors.toList());
+                bool.mustNot(n -> n.terms(t -> t.field(filter.getField()).terms(q -> q.value(values))));
+                return;
+            }
             BoolQuery.Builder shouldList = new BoolQuery.Builder();
             shouldList.minimumShouldMatch("1");
             for (Object val : (List<?>) filter.getValue())
                 shouldList.should(f -> f.matchPhrase(m -> m.field(filter.getField()).query(String.valueOf(val))));
             bool.mustNot(f -> f.bool(shouldList.build()));
+        } catch (ApiException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getLocalizedMessage());
         }
@@ -332,7 +392,13 @@ public class SearchUtil {
         final String ctx = CLASSNAME + ".buildStartWith";
         try {
             filter.validate();
+            if (isFlattenedField(filter.getField())) {
+                bool.filter(f -> f.prefix(p -> p.field(filter.getField()).value(String.valueOf(filter.getValue()))));
+                return;
+            }
             bool.filter(f -> f.wildcard(w -> w.field(filter.getField()).value(String.format("%1$s*", filter.getValue()))));
+        } catch (ApiException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getLocalizedMessage());
         }
@@ -342,9 +408,15 @@ public class SearchUtil {
         final String ctx = CLASSNAME + ".buildNotStartWith";
         try {
             filter.validate();
+            if (isFlattenedField(filter.getField())) {
+                bool.mustNot(n -> n.prefix(p -> p.field(filter.getField()).value(String.valueOf(filter.getValue()))));
+                return;
+            }
             bool.filter(f -> f.bool(b -> b.mustNot(n -> n.wildcard(w -> w
                 .field(filter.getField())
                 .value(String.format("%1$s*", filter.getValue()))))));
+        } catch (ApiException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getLocalizedMessage());
         }
@@ -366,8 +438,13 @@ public class SearchUtil {
     private static void buildIsGreaterThan(BoolQuery.Builder bool, FilterType filter) {
         final String ctx = CLASSNAME + ".buildIsGreaterThan";
         try {
+            if (isFlattenedField(filter.getField())) {
+                throw new ApiException(String.format(MSG_RANGE_FLATTENED, filter.getField()), HttpStatus.BAD_REQUEST);
+            }
             bool.filter(f -> f.range(RangeQuery.of(r -> r.field(filter.getField())
                 .gt(JsonData.of(filter.getValue())).format(Constants.INDEX_TIMESTAMP_FORMAT))));
+        } catch (ApiException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getLocalizedMessage());
         }
@@ -376,8 +453,13 @@ public class SearchUtil {
     private static void buildIsLessThanOrEquals(BoolQuery.Builder bool, FilterType filter) {
         final String ctx = CLASSNAME + ".buildIsLessThanOrEquals";
         try {
+            if (isFlattenedField(filter.getField())) {
+                throw new ApiException(String.format(MSG_RANGE_FLATTENED, filter.getField()), HttpStatus.BAD_REQUEST);
+            }
             bool.filter(f -> f.range(RangeQuery.of(r -> r.field(filter.getField())
                 .lte(JsonData.of(filter.getValue())).format(Constants.INDEX_TIMESTAMP_FORMAT))));
+        } catch (ApiException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getLocalizedMessage());
         }
@@ -407,8 +489,15 @@ public class SearchUtil {
             if (sort == null || !sort.isSorted())
                 srb.sort(s -> s.field(f -> f.field("_source").order(SortOrder.Desc)));
             else
-                sort.forEach(order -> srb.sort(s -> s.field(f -> f.field(order.getProperty())
-                    .order(order.isAscending() ? SortOrder.Asc : SortOrder.Desc))));
+                sort.forEach(order -> {
+                    if (isFlattenedField(order.getProperty())) {
+                        throw new ApiException(String.format(MSG_SORT_FLATTENED, order.getProperty()), HttpStatus.BAD_REQUEST);
+                    }
+                    srb.sort(s -> s.field(f -> f.field(order.getProperty())
+                        .order(order.isAscending() ? SortOrder.Asc : SortOrder.Desc)));
+                });
+        } catch (ApiException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getMessage());
         }
@@ -438,11 +527,18 @@ public class SearchUtil {
             // Applying sort
             Sort sort = pageable.getSort();
             if (sort.isSorted()) {
-                sort.forEach(order -> srb.sort(s -> s.field(f -> f.field(order.getProperty())
-                    .order(order.isAscending() ? SortOrder.Asc : SortOrder.Desc))));
+                sort.forEach(order -> {
+                    if (isFlattenedField(order.getProperty())) {
+                        throw new ApiException(String.format(MSG_SORT_FLATTENED, order.getProperty()), HttpStatus.BAD_REQUEST);
+                    }
+                    srb.sort(s -> s.field(f -> f.field(order.getProperty())
+                        .order(order.isAscending() ? SortOrder.Asc : SortOrder.Desc)));
+                });
             } else {
                 srb.sort(s -> s.field(f -> f.field("_score").order(SortOrder.Desc)));
             }
+        } catch (ApiException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getMessage());
         }

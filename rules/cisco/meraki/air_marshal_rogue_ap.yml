@@ -26,11 +26,11 @@ description: |
   6. Consider implementing MAC address filtering or 802.1X authentication to prevent unauthorized connections
   7. Document the incident and update the wireless security policy if needed
 where: |
-  equals("log.eventType", "airmarshal_events") &&
-  equals("log.type", "rogue_ssid_detected") &&
-  exists("log.bssid") &&
-  greaterOrEqual("log.rssi", -50)
+  equals("event.eventType", "airmarshal_events") &&
+  equals("event.type", "rogue_ssid_detected") &&
+  exists("event.bssid") &&
+  greaterOrEqual("event.rssi", -50)
 groupBy:
   - lastEvent.dataSource
-  - lastEvent.log.merakiType
-  - lastEvent.log.bssid
+  - lastEvent.event.merakiType
+  - lastEvent.event.bssid

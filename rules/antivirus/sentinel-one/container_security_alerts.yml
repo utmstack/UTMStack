@@ -26,12 +26,12 @@ description: |
   6. Review container deployment policies and runtime security configurations
   7. Check for similar alerts across other container environments
 where: |
-  exists("log.eventDescription") &&
-  contains("log.eventDescription", ["container", "kubernetes", "k8s",
+  exists("event.eventDescription") &&
+  contains("event.eventDescription", ["container", "kubernetes", "k8s",
     "docker", "pod"]) &&
-  contains("log.eventDescription", ["drift detected", "cryptominer", "malicious",
+  contains("event.eventDescription", ["drift detected", "cryptominer", "malicious",
     "breach", "unauthorized container", "container escape"]) &&
-  (exists("log.threatId") || exists("log.endpointDeviceName"))
+  (exists("event.threatId") || exists("event.endpointDeviceName"))
 groupBy:
   - adversary.host
   - target.host

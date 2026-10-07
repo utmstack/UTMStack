@@ -23,9 +23,9 @@ description: |
   5. Verify if this is legitimate administrative activity or potential malicious behavior
   6. If confirmed malicious, isolate the system and perform incident response procedures
 where: |
-  equals("log.format","cef") && ((contains("log.msg", ["WMI", "wmi", "wmic", "winmgmt", "scrcons.exe"]) ||
-   contains("log.msg", "WMI")) &&
-  (greaterOrEqual("log.cefDeviceSeverity", "3") || equals("log.cat", "blocked")))
+  equals("event.format","cef") && ((contains("event.msg", ["WMI", "wmi", "wmic", "winmgmt", "scrcons.exe"]) ||
+   contains("event.msg", "WMI")) &&
+  (greaterOrEqual("event.cefDeviceSeverity", "3") || equals("event.cat", "blocked")))
 groupBy:
 - adversary.host
 - adversary.user

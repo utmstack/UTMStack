@@ -24,8 +24,8 @@ description: |
   5. If unauthorized, revoke access and investigate potential data exposure
   6. Review DLP API permissions and restrict re-identification access
 where: |
-  contains("log.protoPayloadMethodName", "ReidentifyContent") ||
-  contains("log.protoPayloadMethodName", "reidentify")
+  contains("event.protoPayloadMethodName", "ReidentifyContent") ||
+  contains("event.protoPayloadMethodName", "reidentify")
 groupBy:
   - lastEvent.origin.user
-  - lastEvent.log.protoPayloadMethodName
+  - lastEvent.event.protoPayloadMethodName

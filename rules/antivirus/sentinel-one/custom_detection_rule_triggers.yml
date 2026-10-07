@@ -18,16 +18,16 @@ description: |
   
   Next Steps:
   1. Review the specific custom rule that triggered and understand its purpose
-  2. Investigate the affected endpoint (log.syslogHost) for additional suspicious activity
+  2. Investigate the affected endpoint (event.syslogHost) for additional suspicious activity
   3. Check if the same custom rule has triggered on other endpoints
   4. Verify if the detection is a false positive based on the custom rule's logic
   5. If legitimate threat activity, initiate incident response procedures
   6. Consider updating the custom rule if false positives are frequent
 where: |
-  (contains("log.eventDescription", ["custom rule", "custom detection", "Custom Rules"]) ||
-   equals("log.detectionSource", "CustomRule") ||
-   equals("log.ruleType", "Custom")) &&
+  (contains("event.eventDescription", ["custom rule", "custom detection", "Custom Rules"]) ||
+   equals("event.detectionSource", "CustomRule") ||
+   equals("event.ruleType", "Custom")) &&
   exists("target.host")
 groupBy:
-  - lastEvent.log.eventDescription
+  - lastEvent.event.eventDescription
   - target.host

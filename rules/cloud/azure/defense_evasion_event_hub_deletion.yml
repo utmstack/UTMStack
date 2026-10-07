@@ -79,14 +79,14 @@ description: 'Detects the deletion of an Azure Event Hub, which is a critical ev
   9. Review authorization rules and access policies for remaining Event Hubs
 
   '
-where: '(equalsIgnoreCase("log.azureKind","activity") || equalsIgnoreCase("log.azureKind","eventgrid")) && equalsIgnoreCase("actionResult","success")
-  && equalsIgnoreCase("log.azureOperation","Microsoft.EventHub/namespaces/eventhubs/delete")
+where: '(equalsIgnoreCase("event.azureKind","activity") || equalsIgnoreCase("event.azureKind","eventgrid")) && equalsIgnoreCase("actionResult","success")
+  && equalsIgnoreCase("event.azureOperation","Microsoft.EventHub/namespaces/eventhubs/delete")
 
   '
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.azureScopeType
-- lastEvent.log.azureScope
-- lastEvent.log.azureOperation
+- lastEvent.event.azureScopeType
+- lastEvent.event.azureScope
+- lastEvent.event.azureOperation
 - adversary.user
 - adversary.ip

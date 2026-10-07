@@ -29,31 +29,31 @@ description: |
   8. Consider rebuilding the system from known good backups if extensive tampering is detected
 where: |
   (
-    contains("log.paths", "/var/lib/rpm/") &&
+    contains("event.paths", "/var/lib/rpm/") &&
     (
       oneOf("action", ["unlink", "unlinkat", "rename", "renameat", "renameat2", "truncate", "ftruncate"]) ||
-      contains("log.paths", "CREATE")
+      contains("event.paths", "CREATE")
     ) &&
-    !oneOf("log.comm", ["rpm", "rpmdb", "rpmkeys", "dnf", "yum", "microdnf", "dnf-automatic", "packagekitd", "rpm-ostree", "rpm-ostreed"])
+    !oneOf("event.comm", ["rpm", "rpmdb", "rpmkeys", "dnf", "yum", "microdnf", "dnf-automatic", "packagekitd", "rpm-ostree", "rpm-ostreed"])
   ) ||
   (
     (endsWith("origin.process", "/rpm") || endsWith("origin.process", "/rpmdb")) &&
     contains("origin.command", "--rebuilddb") &&
-    exists("log.uid") &&
-    !equals("log.uid", "0")
+    exists("event.uid") &&
+    !equals("event.uid", "0")
   ) ||
   (
-    contains("log.message", "rpmdb") &&
+    contains("event.message", "rpmdb") &&
     (
-      contains("log.message", "corrupt") ||
-      contains("log.message", "checksum") ||
-      contains("log.message", "mismatch") ||
-      contains("log.message", "damaged header") ||
-      contains("log.message", "DB_RUNRECOVERY")
+      contains("event.message", "corrupt") ||
+      contains("event.message", "checksum") ||
+      contains("event.message", "mismatch") ||
+      contains("event.message", "damaged header") ||
+      contains("event.message", "DB_RUNRECOVERY")
     )
   )
 deduplicateBy:
   - dataSource
-  - lastEvent.log.comm
+  - lastEvent.event.comm
   - lastEvent.origin.command
-  - lastEvent.log.message
+  - lastEvent.event.message

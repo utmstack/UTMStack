@@ -24,7 +24,7 @@ description: |
   5. Examine the connection duration and data transfer patterns
   6. Consider blocking the destination IP and scanning the internal host
 where: |
-  exists("log.ApplicationProtocol") &&
+  exists("event.ApplicationProtocol") &&
   exists("origin.ip") &&
   exists("target.ip") &&
   exists("target.port") &&
@@ -32,9 +32,9 @@ where: |
   !inCIDR("target.ip", "172.16.0.0/12") &&
   !inCIDR("target.ip", "192.168.0.0/16") &&
   !inCIDR("target.ip", "fc00::/7") &&
-  ((contains("log.ApplicationProtocol", "HTTP") && !oneOf("target.port", [80, 443, 8080, 8443, 8000, 8888])) ||
-   (contains("log.ApplicationProtocol", "SSL") && !oneOf("target.port", [443, 8443, 993, 995, 465, 636]))) &&
-  greaterThan("log.InitiatorPackets", 0)
+  ((contains("event.ApplicationProtocol", "HTTP") && !oneOf("target.port", [80, 443, 8080, 8443, 8000, 8888])) ||
+   (contains("event.ApplicationProtocol", "SSL") && !oneOf("target.port", [443, 8443, 993, 995, 465, 636]))) &&
+  greaterThan("event.InitiatorPackets", 0)
 afterEvents:
   - indexPattern: v11-log-firewall-cisco-firepower-*
     with:

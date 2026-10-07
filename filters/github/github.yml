@@ -12,657 +12,657 @@ pipeline:
 
       - rename:
           from:
-            - log.base_ref
-          to: log.baseRef
+            - event.base_ref
+          to: event.baseRef
 
       # Parsing headCommit section
       - rename:
           from:
-            - log.head_commit.added
-          to: log.headCommitAdded
+            - event.head_commit.added
+          to: event.headCommitAdded
 
       - rename:
           from:
-            - log.head_commit.author.email
-          to: log.headCommitAuthorEmail
+            - event.head_commit.author.email
+          to: event.headCommitAuthorEmail
 
       - rename:
           from:
-            - log.head_commit.author.name
-          to: log.headCommitAuthorName
+            - event.head_commit.author.name
+          to: event.headCommitAuthorName
 
       - rename:
           from:
-            - log.head_commit.committer.email
-          to: log.headCommitCommitterEmail
+            - event.head_commit.committer.email
+          to: event.headCommitCommitterEmail
 
       - rename:
           from:
-            - log.head_commit.author.username
-          to: log.headCommitAuthorUsername
+            - event.head_commit.author.username
+          to: event.headCommitAuthorUsername
 
       - rename:
           from:
-            - log.head_commit.committer.name
-          to: log.headCommitCommitterName
+            - event.head_commit.committer.name
+          to: event.headCommitCommitterName
 
       - rename:
           from:
-            - log.head_commit.committer.username
-          to: log.headCommitCommitterUsername
+            - event.head_commit.committer.username
+          to: event.headCommitCommitterUsername
 
       - rename:
           from:
-            - log.head_commit.distinct
-          to: log.headCommitDistinct
+            - event.head_commit.distinct
+          to: event.headCommitDistinct
 
       - rename:
           from:
-            - log.head_commit.id
-          to: log.headCommitId
+            - event.head_commit.id
+          to: event.headCommitId
 
       - rename:
           from:
-            - log.head_commit.message
-          to: log.headCommitMessage
+            - event.head_commit.message
+          to: event.headCommitMessage
 
       - rename:
           from:
-            - log.head_commit.modified.0
-          to: log.headCommitModified
+            - event.head_commit.modified.0
+          to: event.headCommitModified
 
       - rename:
           from:
-            - log.head_commit.removed
-          to: log.headCommitRemoved
+            - event.head_commit.removed
+          to: event.headCommitRemoved
 
       - rename:
           from:
-            - log.head_commit.timestamp
-          to: log.headCommitTimesTamp
+            - event.head_commit.timestamp
+          to: event.headCommitTimesTamp
 
       - rename:
           from:
-            - log.head_commit.tree_id
-          to: log.headCommitTreeId
+            - event.head_commit.tree_id
+          to: event.headCommitTreeId
 
       - rename:
           from:
-            - log.head_commit.url
-          to: log.headCommitUrl
+            - event.head_commit.url
+          to: event.headCommitUrl
 
       # Parsing pusher section
       - rename:
           from:
-            - log.pusher.email
-          to: log.pusherEmail
+            - event.pusher.email
+          to: event.pusherEmail
 
       - rename:
           from:
-            - log.pusher.name
-          to: log.pusherName
+            - event.pusher.name
+          to: event.pusherName
 
       # Parsing repository section
       - rename:
           from:
-            - log.repository.allow_forking
-          to: log.repositoryAllowForking
+            - event.repository.allow_forking
+          to: event.repositoryAllowForking
 
       - rename:
           from:
-            - log.repository.archive_url
-          to: log.repositoryArchiveUrl
+            - event.repository.archive_url
+          to: event.repositoryArchiveUrl
 
       - rename:
           from:
-            - log.repository.archived
-          to: log.repositoryArchived
+            - event.repository.archived
+          to: event.repositoryArchived
 
       - rename:
           from:
-            - log.repository.assignees_url
-          to: log.repositoryAssigneesUrl
+            - event.repository.assignees_url
+          to: event.repositoryAssigneesUrl
 
       - rename:
           from:
-            - log.repository.blobs_url
-          to: log.repositoryBlobsUrl
+            - event.repository.blobs_url
+          to: event.repositoryBlobsUrl
 
       - rename:
           from:
-            - log.repository.branches_url
-          to: log.repositoryBranchesUrl
+            - event.repository.branches_url
+          to: event.repositoryBranchesUrl
 
       - rename:
           from:
-            - log.repository.clone_url
-          to: log.repositoryCloneUrl
+            - event.repository.clone_url
+          to: event.repositoryCloneUrl
 
       - rename:
           from:
-            - log.repository.collaborators_url
-          to: log.repositoryCollaboratorsUrl
+            - event.repository.collaborators_url
+          to: event.repositoryCollaboratorsUrl
 
       - rename:
           from:
-            - log.repository.comments_url
-          to: log.repositoryCommentsUrl
+            - event.repository.comments_url
+          to: event.repositoryCommentsUrl
 
       - rename:
           from:
-            - log.repository.commits_url
-          to: log.repositoryCommitsUrl
+            - event.repository.commits_url
+          to: event.repositoryCommitsUrl
 
       - rename:
           from:
-            - log.repository.compare_url
-          to: log.repositoryCompareUrl
+            - event.repository.compare_url
+          to: event.repositoryCompareUrl
 
       - rename:
           from:
-            - log.repository.contents_url
-          to: log.repositoryContentsUrl
+            - event.repository.contents_url
+          to: event.repositoryContentsUrl
 
       - rename:
           from:
-            - log.repository.contributors_url
-          to: log.repositoryContributorsUrl
+            - event.repository.contributors_url
+          to: event.repositoryContributorsUrl
 
       - rename:
           from:
-            - log.repository.created_at
-          to: log.repositoryCreatedAt
+            - event.repository.created_at
+          to: event.repositoryCreatedAt
 
       - rename:
           from:
-            - log.repository.default_branch
-          to: log.repositoryDefaultBranch
+            - event.repository.default_branch
+          to: event.repositoryDefaultBranch
 
       - rename:
           from:
-            - log.repository.deployments_url
-          to: log.repositoryDeploymentsUrl
+            - event.repository.deployments_url
+          to: event.repositoryDeploymentsUrl
 
       - rename:
           from:
-            - log.repository.description
-          to: log.repositoryDescription
+            - event.repository.description
+          to: event.repositoryDescription
 
       - rename:
           from:
-            - log.repository.disabled
-          to: log.repositoryDisabled
+            - event.repository.disabled
+          to: event.repositoryDisabled
 
       - rename:
           from:
-            - log.repository.downloads_url
-          to: log.repositoryDownloadsUrl
+            - event.repository.downloads_url
+          to: event.repositoryDownloadsUrl
 
       - rename:
           from:
-            - log.repository.events_url
-          to: log.repositoryEventsUrl
+            - event.repository.events_url
+          to: event.repositoryEventsUrl
 
       - rename:
           from:
-            - log.repository.fork
-          to: log.repositoryFork
+            - event.repository.fork
+          to: event.repositoryFork
 
       - rename:
           from:
-            - log.repository.forks
-          to: log.repositoryForks
+            - event.repository.forks
+          to: event.repositoryForks
 
       - rename:
           from:
-            - log.repository.forks_url
-          to: log.repositoryForksUrl
+            - event.repository.forks_url
+          to: event.repositoryForksUrl
 
       - rename:
           from:
-            - log.repository.full_name
-          to: log.repositoryFullName
+            - event.repository.full_name
+          to: event.repositoryFullName
 
       - rename:
           from:
-            - log.repository.git_commits_url
-          to: log.repositoryGitCommitsUrl
+            - event.repository.git_commits_url
+          to: event.repositoryGitCommitsUrl
 
       - rename:
           from:
-            - log.repository.git_refs_url
-          to: log.repositoryGitRefsUrl
+            - event.repository.git_refs_url
+          to: event.repositoryGitRefsUrl
 
       - rename:
           from:
-            - log.repository.git_tags_url
-          to: log.repositoryGitTagsUrl
+            - event.repository.git_tags_url
+          to: event.repositoryGitTagsUrl
 
       - rename:
           from:
-            - log.repository.git_url
-          to: log.repositoryGitUrl
+            - event.repository.git_url
+          to: event.repositoryGitUrl
 
       - rename:
           from:
-            - log.repository.has_discussions
-          to: log.repositoryHasDiscussions
+            - event.repository.has_discussions
+          to: event.repositoryHasDiscussions
 
       - rename:
           from:
-            - log.repository.has_downloads
-          to: log.repositoryHasDownloads
+            - event.repository.has_downloads
+          to: event.repositoryHasDownloads
 
       - rename:
           from:
-            - log.repository.has_issues
-          to: log.repositoryHasIssues
+            - event.repository.has_issues
+          to: event.repositoryHasIssues
 
       - rename:
           from:
-            - log.repository.has_pages
-          to: log.repositoryHasPages
+            - event.repository.has_pages
+          to: event.repositoryHasPages
 
       - rename:
           from:
-            - log.repository.has_projects
-          to: log.repositoryHasProjects
+            - event.repository.has_projects
+          to: event.repositoryHasProjects
 
       - rename:
           from:
-            - log.repository.has_wiki
-          to: log.repositoryHasWiki
+            - event.repository.has_wiki
+          to: event.repositoryHasWiki
 
       - rename:
           from:
-            - log.repository.homepage
-          to: log.repositoryHomepage
+            - event.repository.homepage
+          to: event.repositoryHomepage
 
       - rename:
           from:
-            - log.repository.hooks_url
-          to: log.repositoryHooksUrl
+            - event.repository.hooks_url
+          to: event.repositoryHooksUrl
 
       - rename:
           from:
-            - log.repository.html_url
-          to: log.repositoryHtmlUrl
+            - event.repository.html_url
+          to: event.repositoryHtmlUrl
 
       - rename:
           from:
-            - log.repository.id
-          to: log.repositoryId
+            - event.repository.id
+          to: event.repositoryId
 
       - rename:
           from:
-            - log.repository.is_template
-          to: log.repositoryIsTemplate
+            - event.repository.is_template
+          to: event.repositoryIsTemplate
 
       - rename:
           from:
-            - log.repository.issue_comment_url
-          to: log.repositoryIssueCommentUrl
+            - event.repository.issue_comment_url
+          to: event.repositoryIssueCommentUrl
 
       - rename:
           from:
-            - log.repository.issue_events_url
-          to: log.repositoryIssueEventsUrl
+            - event.repository.issue_events_url
+          to: event.repositoryIssueEventsUrl
 
       - rename:
           from:
-            - log.repository.issues_url
-          to: log.repositoryIssuesUrl
+            - event.repository.issues_url
+          to: event.repositoryIssuesUrl
 
       - rename:
           from:
-            - log.repository.keys_url
-          to: log.repositoryKeysUrl
+            - event.repository.keys_url
+          to: event.repositoryKeysUrl
 
       - rename:
           from:
-            - log.repository.labels_url
-          to: log.repositoryLabelsUrl
+            - event.repository.labels_url
+          to: event.repositoryLabelsUrl
 
       - rename:
           from:
-            - log.repository.language
-          to: log.repositoryLanguage
+            - event.repository.language
+          to: event.repositoryLanguage
 
       - rename:
           from:
-            - log.repository.languages_url
-          to: log.repositoryLanguagesUrl
+            - event.repository.languages_url
+          to: event.repositoryLanguagesUrl
 
       - rename:
           from:
-            - log.repository.license
-          to: log.repositoryLicense
+            - event.repository.license
+          to: event.repositoryLicense
 
       - rename:
           from:
-            - log.repository.master_branch
-          to: log.repositoryMasterBranch
+            - event.repository.master_branch
+          to: event.repositoryMasterBranch
 
       - rename:
           from:
-            - log.repository.merges_url
-          to: log.repositoryMergesUrl
+            - event.repository.merges_url
+          to: event.repositoryMergesUrl
 
       - rename:
           from:
-            - log.repository.milestones_url
-          to: log.repositoryMilestonesUrl
+            - event.repository.milestones_url
+          to: event.repositoryMilestonesUrl
 
       - rename:
           from:
-            - log.repository.mirror_url
-          to: log.repositoryMirrorUrl
+            - event.repository.mirror_url
+          to: event.repositoryMirrorUrl
 
       - rename:
           from:
-            - log.repository.name
-          to: log.repositoryName
+            - event.repository.name
+          to: event.repositoryName
 
       - rename:
           from:
-            - log.repository.node_id
-          to: log.repositoryNodeId
+            - event.repository.node_id
+          to: event.repositoryNodeId
 
       - rename:
           from:
-            - log.repository.notifications_url
-          to: log.repositoryNtificationsUrl
+            - event.repository.notifications_url
+          to: event.repositoryNtificationsUrl
 
       - rename:
           from:
-            - log.repository.open_issues
-          to: log.repositoryOpenIssues
+            - event.repository.open_issues
+          to: event.repositoryOpenIssues
 
       - rename:
           from:
-            - log.repository.owner.email
-          to: log.repositoryOwnerEmail
+            - event.repository.owner.email
+          to: event.repositoryOwnerEmail
 
       - rename:
           from:
-            - log.repository.owner.events_url
-          to: log.repositoryOwnerEventsUrl
+            - event.repository.owner.events_url
+          to: event.repositoryOwnerEventsUrl
 
       - rename:
           from:
-            - log.repository.owner.followers_url
-          to: log.repositoryOwnerFollowersUrl
+            - event.repository.owner.followers_url
+          to: event.repositoryOwnerFollowersUrl
 
       - rename:
           from:
-            - log.repository.owner.following_url
-          to: log.repositoryOwnerFollowingUrl
+            - event.repository.owner.following_url
+          to: event.repositoryOwnerFollowingUrl
 
       - rename:
           from:
-            - log.repository.owner.gists_url
-          to: log.repositoryOwnerGistsUrl
+            - event.repository.owner.gists_url
+          to: event.repositoryOwnerGistsUrl
 
       - rename:
           from:
-            - log.repository.owner.html_url
-          to: log.repositoryOwnerHtmlUrl
+            - event.repository.owner.html_url
+          to: event.repositoryOwnerHtmlUrl
 
       - rename:
           from:
-            - log.repository.owner.id
-          to: log.repositoryOwnerId
+            - event.repository.owner.id
+          to: event.repositoryOwnerId
 
       - rename:
           from:
-            - log.repository.owner.login
-          to: log.repositoryOwnerLogin
+            - event.repository.owner.login
+          to: event.repositoryOwnerLogin
 
       - rename:
           from:
-            - log.repository.owner.name
-          to: log.repositoryOwnerName
+            - event.repository.owner.name
+          to: event.repositoryOwnerName
 
       - rename:
           from:
-            - log.repository.owner.node_id
-          to: log.repositoryOwnerNodeId
+            - event.repository.owner.node_id
+          to: event.repositoryOwnerNodeId
 
       - rename:
           from:
-            - log.repository.owner.organizations_url
-          to: log.repositoryOwnerOrganizationsUrl
+            - event.repository.owner.organizations_url
+          to: event.repositoryOwnerOrganizationsUrl
 
       - rename:
           from:
-            - log.repository.owner.received_events_url
-          to: log.repositoryOwnerReceivedEventsUrl
+            - event.repository.owner.received_events_url
+          to: event.repositoryOwnerReceivedEventsUrl
 
       - rename:
           from:
-            - log.repository.owner.repos_url
-          to: log.repositoryOwnerReposUrl
+            - event.repository.owner.repos_url
+          to: event.repositoryOwnerReposUrl
 
       - rename:
           from:
-            - log.repository.owner.site_admin
-          to: log.repositoryOwnerSiteAdmin
+            - event.repository.owner.site_admin
+          to: event.repositoryOwnerSiteAdmin
 
       - rename:
           from:
-            - log.repository.owner.starred_url
-          to: log.repositoryOwnerStarredUrl
+            - event.repository.owner.starred_url
+          to: event.repositoryOwnerStarredUrl
 
       - rename:
           from:
-            - log.repository.owner.subscriptions_url
-          to: log.repositoryOwnerSubscriptionsUrl
+            - event.repository.owner.subscriptions_url
+          to: event.repositoryOwnerSubscriptionsUrl
 
       - rename:
           from:
-            - log.repository.owner.type
-          to: log.repositoryOwnerType
+            - event.repository.owner.type
+          to: event.repositoryOwnerType
 
       - rename:
           from:
-            - log.repository.owner.url
-          to: log.repositoryOwnerUrl
+            - event.repository.owner.url
+          to: event.repositoryOwnerUrl
 
       - rename:
           from:
-            - log.repository.owner.user_view_type
-          to: log.repositoryOwnerUserViewType
+            - event.repository.owner.user_view_type
+          to: event.repositoryOwnerUserViewType
 
       - rename:
           from:
-            - log.repository.private
-          to: log.repositoryPrivate
+            - event.repository.private
+          to: event.repositoryPrivate
 
       - rename:
           from:
-            - log.repository.pulls_url
-          to: log.repositoryPullsUrl
+            - event.repository.pulls_url
+          to: event.repositoryPullsUrl
 
       - rename:
           from:
-            - log.repository.pushed_at
-          to: log.repositoryPushedAt
+            - event.repository.pushed_at
+          to: event.repositoryPushedAt
 
       - rename:
           from:
-            - log.repository.releases_url
-          to: log.repositoryReleasesUrl
+            - event.repository.releases_url
+          to: event.repositoryReleasesUrl
 
       - rename:
           from:
-            - log.repository.size
-          to: log.repositorySize
+            - event.repository.size
+          to: event.repositorySize
 
       - rename:
           from:
-            - log.repository.ssh_url
-          to: log.repositorySshUrl
+            - event.repository.ssh_url
+          to: event.repositorySshUrl
 
       - rename:
           from:
-            - log.repository.stargazers
-          to: log.repositoryStargazers
+            - event.repository.stargazers
+          to: event.repositoryStargazers
 
       - rename:
           from:
-            - log.repository.stargazers_url
-          to: log.repositoryStargazersUrl
+            - event.repository.stargazers_url
+          to: event.repositoryStargazersUrl
 
       - rename:
           from:
-            - log.repository.statuses_url
-          to: log.repositoryStatusesUrl
+            - event.repository.statuses_url
+          to: event.repositoryStatusesUrl
 
       - rename:
           from:
-            - log.repository.subscribers_url
-          to: log.repositorySubscribersUrl
+            - event.repository.subscribers_url
+          to: event.repositorySubscribersUrl
 
       - rename:
           from:
-            - log.repository.subscription_url
-          to: log.repositorySubscriptionUrl
+            - event.repository.subscription_url
+          to: event.repositorySubscriptionUrl
 
       - rename:
           from:
-            - log.repository.svn_url
-          to: log.repositorySvnUrl
+            - event.repository.svn_url
+          to: event.repositorySvnUrl
 
       - rename:
           from:
-            - log.repository.tags_url
-          to: log.repositoryTagsUrl
+            - event.repository.tags_url
+          to: event.repositoryTagsUrl
 
       - rename:
           from:
-            - log.repository.teams_url
-          to: log.repositoryTeamsUrl
+            - event.repository.teams_url
+          to: event.repositoryTeamsUrl
 
       - rename:
           from:
-            - log.repository.topics
-          to: log.repositoryTopics
+            - event.repository.topics
+          to: event.repositoryTopics
 
       - rename:
           from:
-            - log.repository.trees_url
-          to: log.repositoryTreesUrl
+            - event.repository.trees_url
+          to: event.repositoryTreesUrl
 
       - rename:
           from:
-            - log.repository.updated_at
-          to: log.repositoryUpdatedAt
+            - event.repository.updated_at
+          to: event.repositoryUpdatedAt
 
       - rename:
           from:
-            - log.repository.url
-          to: log.repositoryUrl
+            - event.repository.url
+          to: event.repositoryUrl
 
       - rename:
           from:
-            - log.repository.visibility
-          to: log.repositoryVisibility
+            - event.repository.visibility
+          to: event.repositoryVisibility
 
       - rename:
           from:
-            - log.repository.watchers
-          to: log.repositoryWatchers
+            - event.repository.watchers
+          to: event.repositoryWatchers
 
       - rename:
           from:
-            - log.repository.web_commit_signoff_required
-          to: log.repositoryWebCommitSignoffRequired
+            - event.repository.web_commit_signoff_required
+          to: event.repositoryWebCommitSignoffRequired
 
       # Parsing sender section
       - rename:
           from:
-            - log.sender.events_url
-          to: log.senderEventsUrl
+            - event.sender.events_url
+          to: event.senderEventsUrl
 
       - rename:
           from:
-            - log.sender.followers_url
-          to: log.senderFllowersUrl
+            - event.sender.followers_url
+          to: event.senderFllowersUrl
 
       - rename:
           from:
-            - log.sender.following_url
-          to: log.senderFollowingUrl
+            - event.sender.following_url
+          to: event.senderFollowingUrl
 
       - rename:
           from:
-            - log.sender.gists_url
-          to: log.senderGistsUrl
+            - event.sender.gists_url
+          to: event.senderGistsUrl
 
       - rename:
           from:
-            - log.sender.html_url
-          to: log.senderHtmlUrl
+            - event.sender.html_url
+          to: event.senderHtmlUrl
 
       - rename:
           from:
-            - log.sender.id
-          to: log.senderId
+            - event.sender.id
+          to: event.senderId
 
       - rename:
           from:
-            - log.sender.login
-          to: log.senderLogin
+            - event.sender.login
+          to: event.senderLogin
 
       - rename:
           from:
-            - log.sender.node_id
-          to: log.senderNodeId
+            - event.sender.node_id
+          to: event.senderNodeId
 
       - rename:
           from:
-            - log.sender.organizations_url
-          to: log.senderOrganizationsUrl
+            - event.sender.organizations_url
+          to: event.senderOrganizationsUrl
 
       - rename:
           from:
-            - log.sender.received_events_url
-          to: log.senderReceivedEventsUrl
+            - event.sender.received_events_url
+          to: event.senderReceivedEventsUrl
 
       - rename:
           from:
-            - log.sender.repos_url
-          to: log.senderReposUrl
+            - event.sender.repos_url
+          to: event.senderReposUrl
 
       - rename:
           from:
-            - log.sender.site_admin
-          to: log.senderSiteAdmin
+            - event.sender.site_admin
+          to: event.senderSiteAdmin
 
       - rename:
           from:
-            - log.sender.starred_url
-          to: log.senderStarredUrl
+            - event.sender.starred_url
+          to: event.senderStarredUrl
 
       - rename:
           from:
-            - log.sender.subscriptions_url
-          to: log.senderSubscriptionsUrl
+            - event.sender.subscriptions_url
+          to: event.senderSubscriptionsUrl
 
       - rename:
           from:
-            - log.sender.type
-          to: log.senderType
+            - event.sender.type
+          to: event.senderType
 
       - rename:
           from:
-            - log.sender.url
-          to: log.senderUrl
+            - event.sender.url
+          to: event.senderUrl
 
       - rename:
           from:
-            - log.sender.user_view_type
-          to: log.senderUserViewType
+            - event.sender.user_view_type
+          to: event.senderUserViewType
 
       # Adding action result (only success, failed or denied)
       # The conclusion of a workflow run, workflow job, check run or check suite
@@ -673,20 +673,20 @@ pipeline:
       # no outcome either.
       - rename:
           from:
-            - log.workflow_run.conclusion
-          to: log.conclusion
+            - event.workflow_run.conclusion
+          to: event.conclusion
       - add:
           function: string
           params:
             key: actionResult
             value: "success"
-          where: 'equals("log.action", "completed") && (equals("log.conclusion", "success") || equals("log.workflow_job.conclusion", "success") || equals("log.check_run.conclusion", "success") || equals("log.check_suite.conclusion", "success"))'
+          where: 'equals("event.action", "completed") && (equals("event.conclusion", "success") || equals("event.workflow_job.conclusion", "success") || equals("event.check_run.conclusion", "success") || equals("event.check_suite.conclusion", "success"))'
       - add:
           function: string
           params:
             key: actionResult
             value: "failed"
-          where: 'equals("log.action", "completed") && (oneOf("log.conclusion", ["failure", "timed_out", "startup_failure"]) || oneOf("log.workflow_job.conclusion", ["failure", "timed_out", "startup_failure"]) || oneOf("log.check_run.conclusion", ["failure", "timed_out", "startup_failure"]) || oneOf("log.check_suite.conclusion", ["failure", "timed_out", "startup_failure"]))'
+          where: 'equals("event.action", "completed") && (oneOf("event.conclusion", ["failure", "timed_out", "startup_failure"]) || oneOf("event.workflow_job.conclusion", ["failure", "timed_out", "startup_failure"]) || oneOf("event.check_run.conclusion", ["failure", "timed_out", "startup_failure"]) || oneOf("event.check_suite.conclusion", ["failure", "timed_out", "startup_failure"]))'
 
       # Deployment status and commit status (status event: top-level state,
       # context and sha): success is a finished deployment or check, failure
@@ -697,26 +697,26 @@ pipeline:
           params:
             key: actionResult
             value: "success"
-          where: 'equals("log.deployment_status.state", "success") || (equals("log.state", "success") && exists("log.context") && exists("log.sha"))'
+          where: 'equals("event.deployment_status.state", "success") || (equals("event.state", "success") && exists("event.context") && exists("event.sha"))'
       - add:
           function: string
           params:
             key: actionResult
             value: "failed"
-          where: 'oneOf("log.deployment_status.state", ["failure", "error"]) || (oneOf("log.state", ["failure", "error"]) && exists("log.context") && exists("log.sha"))'
+          where: 'oneOf("event.deployment_status.state", ["failure", "error"]) || (oneOf("event.state", ["failure", "error"]) && exists("event.context") && exists("event.sha"))'
 
       # Removing unused fields
       - delete:
           fields:
-            - log.repository.forks_count
-            - log.repository.open_issues_count
-            - log.repository.owner.avatar_url
-            - log.repository.owner.gravatar_id
-            - log.repository.stargazers_count
-            - log.repository.watchers_count
-            - log.sender.avatar_url
-            - log.sender.gravatar_id
-            - log.sender
-            - log.pusher
-            - log.repository.owner
-            - log.repository
+            - event.repository.forks_count
+            - event.repository.open_issues_count
+            - event.repository.owner.avatar_url
+            - event.repository.owner.gravatar_id
+            - event.repository.stargazers_count
+            - event.repository.watchers_count
+            - event.sender.avatar_url
+            - event.sender.gravatar_id
+            - event.sender
+            - event.pusher
+            - event.repository.owner
+            - event.repository

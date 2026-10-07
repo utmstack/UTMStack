@@ -26,18 +26,18 @@ description: |
   6. Contact the user to confirm if they initiated these export operations
   7. Review any third-party applications that may have access to Teams data
 where: |
-  oneOf("action", ["MessagesListed", "MessagesExported", "RecordingExported", "TranscriptsExported"]) && exists("origin.user") && equals("log.Workload", "MicrosoftTeams")
+  oneOf("action", ["MessagesListed", "MessagesExported", "RecordingExported", "TranscriptsExported"]) && exists("origin.user") && equals("event.Workload", "MicrosoftTeams")
 afterEvents:
   - indexPattern: v11-log-o365-*
     with:
       - field: origin.user
         operator: filter_term
         value: '{{.origin.user}}'
-      - field: log.Workload
+      - field: event.Workload
         operator: filter_term
         value: 'MicrosoftTeams'
     within: 1h
     count: 100
 deduplicateBy:
   - adversary.user
-  - lastEvent.log.appAccessContextClientAppId
+  - lastEvent.event.appAccessContextClientAppId

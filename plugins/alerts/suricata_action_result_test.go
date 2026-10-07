@@ -53,7 +53,7 @@ func TestSuricataActionResult(t *testing.T) {
 				t.Fatal(err)
 			}
 			fixture := Fixture{Filter: "suricata/suricata.yml", Input: map[string]any{
-				"raw": tc.Raw, "dataType": "suricata", "dataSource": "synthetic-suricata", "log": parsed,
+				"raw": tc.Raw, "dataType": "suricata", "dataSource": "synthetic-suricata", "event": parsed,
 			}}
 			out, issues, err := normalize("../..", fixture, cache)
 			if err != nil || len(issues) != 0 {

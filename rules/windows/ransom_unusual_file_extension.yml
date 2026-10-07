@@ -16,7 +16,7 @@ description: "Ransomware, is a type of malware that prevents users from accessin
 references:
   - "https://attack.mitre.org/tactics/TA0040/"
 where: |
-  equals("log.eventCode", 4663) && regexMatch("log.eventDataObjectName", "[.](locky|wcry|wncry|wannacry|cryptolocker|cryptowall|cerber[0-9]?|zepto|aesir|osiris|spora|jaff|globe|purge|xtbl|crinf|crjoker|cryptotorlocker|xrtn|cripttt|kraken|darkness|nochance|comrade|encrypted|crypted)$")
+  equals("event.eventCode", 4663) && regexMatch("event.eventDataObjectName", "[.](locky|wcry|wncry|wannacry|cryptolocker|cryptowall|cerber[0-9]?|zepto|aesir|osiris|spora|jaff|globe|purge|xtbl|crinf|crjoker|cryptotorlocker|xrtn|cripttt|kraken|darkness|nochance|comrade|encrypted|crypted)$")
 groupBy: []
 deduplicateBy:
   - dataSource

@@ -25,7 +25,7 @@ description: |
   6. Validate that the invitation frequency aligns with normal business processes
   7. Consider implementing additional approval workflows for guest user invitations
 where: |
-  equals("log.Workload", "AzureActiveDirectory") && 
+  equals("event.Workload", "AzureActiveDirectory") && 
   (
     equals("action", "Invite external user") ||
     equals("action", "InviteGuest") ||

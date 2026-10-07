@@ -25,12 +25,12 @@ description: |
   6. Check if similar detection occurred on other systems in the network
   7. Consider submitting the sample to Kaspersky for further analysis
 where: |
-  equals("log.format","cef") && (exists("log.signatureID") &&
-  (contains("log.msg", ["sandbox", "evasion", "anti-VM", "virtualization"]) ||
-   contains("log.msg", ["sandbox", "evasion"]) ||
-   contains("log.cs1", "SANDBOX_") ||
-   contains("log.cs4", ["Evasion", "AntiVM", "environment check", "time delay", "VM detection"]) ||
-   (equals("log.cat", "Behavior Detection") &&
-    contains("log.msg", ["delay", "sleep"]))))
+  equals("event.format","cef") && (exists("event.signatureID") &&
+  (contains("event.msg", ["sandbox", "evasion", "anti-VM", "virtualization"]) ||
+   contains("event.msg", ["sandbox", "evasion"]) ||
+   contains("event.cs1", "SANDBOX_") ||
+   contains("event.cs4", ["Evasion", "AntiVM", "environment check", "time delay", "VM detection"]) ||
+   (equals("event.cat", "Behavior Detection") &&
+    contains("event.msg", ["delay", "sleep"]))))
 deduplicateBy:
 - adversary.host

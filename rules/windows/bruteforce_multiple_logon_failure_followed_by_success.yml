@@ -14,22 +14,22 @@ references:
   - "https://attack.mitre.org/tactics/TA0006/"
   - "https://attack.mitre.org/techniques/T1110/"
 where: |
-  equals("log.eventCode", 4624) &&
+  equals("event.eventCode", 4624) &&
   !oneOf("dataSource", ["", "unknown"]) &&
-  exists("log.authenticationSource") &&
+  exists("event.authenticationSource") &&
   exists("target.user") && !endsWith("target.user", "$")
 afterEvents:
   - indexPattern: v11-log-wineventlog-*
     with:
-      - field: log.eventCode
+      - field: event.eventCode
         operator: filter_term
         value: 4625
       - field: dataSource.keyword
         operator: filter_term
         value: '{{.dataSource}}'
-      - field: log.authenticationSource.keyword
+      - field: event.authenticationSource.keyword
         operator: filter_term
-        value: '{{.log.authenticationSource}}'
+        value: '{{.event.authenticationSource}}'
       - field: target.user.keyword
         operator: filter_term
         value: '{{.target.user}}'
@@ -37,5 +37,5 @@ afterEvents:
     count: 10
 deduplicateBy:
   - dataSource
-  - lastEvent.log.authenticationSource
+  - lastEvent.event.authenticationSource
   - target.user

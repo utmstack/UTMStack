@@ -25,7 +25,7 @@ description: |
   5. Review the actor's Cloud Shell and gcloud session history
   6. Rotate credentials for any service accounts that were granted elevated roles
 where: |
-  equals("log.protoPayloadServiceName", "cloudresourcemanager.googleapis.com") &&
-  equals("log.protoPayloadMethodName", "SetIamPolicy") &&
-  (contains("log.protoPayload.response.bindings", "roles/owner") ||
-  contains("log.protoPayload.response.bindings", "roles/editor")) && exists("origin.user")
+  equals("event.protoPayloadServiceName", "cloudresourcemanager.googleapis.com") &&
+  equals("event.protoPayloadMethodName", "SetIamPolicy") &&
+  (contains("event.protoPayload.response.bindings", "roles/owner") ||
+  contains("event.protoPayload.response.bindings", "roles/editor")) && exists("origin.user")

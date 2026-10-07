@@ -24,17 +24,17 @@ description: |
   5. Investigate what traffic the rule changes would allow
   6. Monitor network traffic for newly allowed connections
 where: |
-  exists("log.message") &&
+  exists("event.message") &&
   (
-    contains("log.message", "esxcli network firewall") ||
-    (contains("log.message", "firewall") && contains("log.message", "ruleset")) ||
-    contains("log.message", "esxcli network firewall set --enabled false") ||
-    (contains("log.message", "firewall") && (
-      contains("log.message", "allowedip add") ||
-      contains("log.message", "set --allowed-all true") ||
-      contains("log.message", "set --enabled")
+    contains("event.message", "esxcli network firewall") ||
+    (contains("event.message", "firewall") && contains("event.message", "ruleset")) ||
+    contains("event.message", "esxcli network firewall set --enabled false") ||
+    (contains("event.message", "firewall") && (
+      contains("event.message", "allowedip add") ||
+      contains("event.message", "set --allowed-all true") ||
+      contains("event.message", "set --enabled")
     )) ||
-    (contains("log.message", "iptables") && exists("origin.hostname"))
+    (contains("event.message", "iptables") && exists("origin.hostname"))
   )
 deduplicateBy:
   - dataSource

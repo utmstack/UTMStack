@@ -29,16 +29,16 @@ description: |
   9. Consider implementing additional monitoring on the affected host
   10. If confirmed malicious, isolate the affected system and begin incident response procedures
 where: |
-  (contains("log.alert.signature", ["exfiltration", "data theft", "suspicious upload"]) ||
-   oneOf("log.alert.category", ["policy-violation", "data-loss"]) ||
-   (greaterThan("log.flow.bytes_toserver", 10485760) && oneOf("target.port", [443, 22, 53, 8080])) ||
-   (equals("log.http.method", "POST") && greaterThan("log.http.length", 5242880)) ||
-   contains("log.dns.query", ".pastebin.") || contains("log.dns.query", ".wetransfer.") || contains("log.dns.query", ".mediafire.") ||
-   (equals("log.protocol", "DNS") && greaterThan("log.dns.query_length", 200)) ||
-   contains("log.tls.sni", ["tor2web", ".onion"])) &&
+  (contains("event.alert.signature", ["exfiltration", "data theft", "suspicious upload"]) ||
+   oneOf("event.alert.category", ["policy-violation", "data-loss"]) ||
+   (greaterThan("event.flow.bytes_toserver", 10485760) && oneOf("target.port", [443, 22, 53, 8080])) ||
+   (equals("event.http.method", "POST") && greaterThan("event.http.length", 5242880)) ||
+   contains("event.dns.query", ".pastebin.") || contains("event.dns.query", ".wetransfer.") || contains("event.dns.query", ".mediafire.") ||
+   (equals("event.protocol", "DNS") && greaterThan("event.dns.query_length", 200)) ||
+   contains("event.tls.sni", ["tor2web", ".onion"])) &&
   exists("origin.ip") &&
   exists("target.ip") &&
-  equals("log.direction", "outbound")
+  equals("event.direction", "outbound")
 afterEvents:
   - indexPattern: v11-log-suricata-*
     with:

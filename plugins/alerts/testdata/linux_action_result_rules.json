@@ -7,7 +7,7 @@
     "actionResult": "failed",
     "playground": false,
     "preserve": {
-      "log.userauth.result": "fail",
+      "event.userauth.result": "fail",
       "origin.ip": "198.51.100.10"
     }
   },
@@ -19,7 +19,7 @@
     "actionResult": "success",
     "playground": false,
     "preserve": {
-      "log.userauth.result": "success",
+      "event.userauth.result": "success",
       "origin.ip": "198.51.100.10"
     }
   },
@@ -31,7 +31,7 @@
     "actionResult": "failed",
     "playground": false,
     "preserve": {
-      "log.userlogin.result": "fail",
+      "event.userlogin.result": "fail",
       "origin.ip": "198.51.100.10"
     }
   },
@@ -43,7 +43,7 @@
     "actionResult": "success",
     "playground": false,
     "preserve": {
-      "log.userlogin.result": "success",
+      "event.userlogin.result": "success",
       "origin.ip": "198.51.100.10"
     }
   },
@@ -73,8 +73,8 @@
     "actionResult": "success",
     "playground": true,
     "preserve": {
-      "log.result": "success",
-      "log.exit": "0",
+      "event.result": "success",
+      "event.exit": "0",
       "origin.process": "/usr/bin/bash"
     }
   },
@@ -86,8 +86,8 @@
     "actionResult": "denied",
     "playground": true,
     "preserve": {
-      "log.result": "fail",
-      "log.exit": "EACCES",
+      "event.result": "fail",
+      "event.exit": "EACCES",
       "origin.process": "/usr/bin/bash"
     }
   },

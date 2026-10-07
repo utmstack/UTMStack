@@ -18,13 +18,13 @@ references:
 - https://docs.aws.amazon.com/Route53/latest/APIReference/API_Operations_Amazon_Route_53.html
 - https://docs.aws.amazon.com/Route53/latest/APIReference/API_domains_DisableDomainTransferLock.html
 where: |
-  equals("log.awsRecordType","cloudtrail") &&
-  (equals("log.eventSource", "route53domains.amazonaws.com") &&
-  equalsIgnoreCase("log.eventName", "DisableDomainTransferLock") &&
+  equals("event.awsRecordType","cloudtrail") &&
+  (equals("event.eventSource", "route53domains.amazonaws.com") &&
+  equalsIgnoreCase("event.eventName", "DisableDomainTransferLock") &&
   equals("actionResult","success"))
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
 - adversary.ip
 - adversary.user

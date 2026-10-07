@@ -24,20 +24,20 @@ description: |
   5. Implement SSH key management policies
   6. Monitor for SSH connections using the new keys
 where: |
-  exists("log.message") &&
+  exists("event.message") &&
   (
-    (contains("log.message", "authorized_keys") && (
-      contains("log.message", "modified") ||
-      contains("log.message", "changed") ||
-      contains("log.message", "written") ||
-      contains("log.message", "appended")
+    (contains("event.message", "authorized_keys") && (
+      contains("event.message", "modified") ||
+      contains("event.message", "changed") ||
+      contains("event.message", "written") ||
+      contains("event.message", "appended")
     )) ||
-    (contains("log.message", ".ssh/authorized_keys") && exists("origin.user")) ||
-    (contains("log.message", "ssh-rsa") && (
-      contains("log.message", ">>") ||
-      contains("log.message", "echo")
+    (contains("event.message", ".ssh/authorized_keys") && exists("origin.user")) ||
+    (contains("event.message", "ssh-rsa") && (
+      contains("event.message", ">>") ||
+      contains("event.message", "echo")
     )) ||
-    (contains("log.message", "sshd_config") && contains("log.message", "AuthorizedKeysFile"))
+    (contains("event.message", "sshd_config") && contains("event.message", "AuthorizedKeysFile"))
   )
 groupBy:
   - adversary.host

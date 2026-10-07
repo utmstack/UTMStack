@@ -83,8 +83,8 @@ func paloaltoGet(m map[string]any, p string) (any, bool) {
 // utils.SanitizeField and reject a reserved name. Since go-sdk v1.1.35 the
 // sanitizer keeps letters, digits, dots and underscores and removes every other
 // character (earlier versions also removed underscores). Conditions and rules look
-// names up as written, so a filter that writes "log.pa-type" and tests
-// "log.pa-type" never matches in production and must not match here either.
+// names up as written, so a filter that writes "event.pa-type" and tests
+// "event.pa-type" never matches in production and must not match here either.
 func paloaltoWriteName(t *testing.T, name string, allowEmpty bool) string {
 	t.Helper()
 	utils.SanitizeField(&name)
@@ -232,7 +232,7 @@ func paloaltoCSV(c *plugins.Csv, draft map[string]any) ([]paloaltoWrite, error) 
 }
 func paloaltoParse(t *testing.T, cfg *plugins.Config, raw string, dataSource string, cache *plugins.CELCache) string {
 	t.Helper()
-	draft := map[string]any{"raw": raw, "dataType": "firewall-paloalto", "dataSource": dataSource, "log": map[string]any{}}
+	draft := map[string]any{"raw": raw, "dataType": "firewall-paloalto", "dataSource": dataSource, "event": map[string]any{}}
 	var stepErrors []string
 	// A failed step records its error and the pipeline continues without its output.
 	apply := func(kind string, writes []paloaltoWrite, err error) {
@@ -351,7 +351,7 @@ func paloaltoParse(t *testing.T, cfg *plugins.Config, raw string, dataSource str
 						key := pair[0]
 						utils.SanitizeField(&key)
 						if key != "" {
-							paloaltoPut(draft, "log."+key, pair[1], false)
+							paloaltoPut(draft, "event."+key, pair[1], false)
 						}
 					}
 				case "dynamic":
@@ -382,7 +382,7 @@ func paloaltoParse(t *testing.T, cfg *plugins.Config, raw string, dataSource str
 						t.Fatal(e)
 					}
 					for key, value := range paloaltoSanitizeJSON(parsed) {
-						paloaltoPut(draft, "log."+key, value, false)
+						paloaltoPut(draft, "event."+key, value, false)
 					}
 				case "reformat":
 					for _, field := range s.Reformat.Fields {
@@ -562,7 +562,7 @@ func paloaltoCheck(t *testing.T, fixtures []paloaltoFixture) {
 				}
 				for _, field := range r.GroupBy {
 					path := strings.Replace(field, "lastEvent.", "events.0.", 1)
-					if (field == "lastEvent.dataSource" || field == "lastEvent.log.paScope" || field == "lastEvent.log.paVsys") && !gjson.Get(*wire, path).Exists() {
+					if (field == "lastEvent.dataSource" || field == "lastEvent.event.paScope" || field == "lastEvent.event.paVsys") && !gjson.Get(*wire, path).Exists() {
 						t.Errorf("grouping scope missing: %s", field)
 					}
 				}
@@ -600,9 +600,9 @@ func TestPaloAltoPrivateContracts(t *testing.T) {
 
 // The model must fail where the parser plugins fail, or it hides real-engine defects.
 func TestPaloAltoModelFollowsPlugins(t *testing.T) {
-	short := &plugins.Csv{Source: "log.line", Separator: ",", Headers: []string{"log.a", "log.b", "log.c"}}
+	short := &plugins.Csv{Source: "event.line", Separator: ",", Headers: []string{"event.a", "event.b", "event.c"}}
 	for line, want := range map[string]int{"1,2": -1, "1,2,3": 3, `"1,5",2,3`: 3, "1,2,3,4": 3} {
-		writes, err := paloaltoCSV(short, map[string]any{"log": map[string]any{"line": line}})
+		writes, err := paloaltoCSV(short, map[string]any{"event": map[string]any{"line": line}})
 		if (want < 0) != (err != nil) || (want >= 0 && len(writes) != want) {
 			t.Errorf("csv %q: %d writes, error %v; want %d", line, len(writes), err, want)
 		}
@@ -619,11 +619,11 @@ func TestPaloAltoModelFollowsPlugins(t *testing.T) {
 		{"1.2.", []string{"[0-9.]*[0-9]", "\\.$"}, 2},
 		{"a b", []string{"b"}, 0}, // a match must start the remaining text
 	} {
-		g := &plugins.Grok{Source: "log.line"}
+		g := &plugins.Grok{Source: "event.line"}
 		for i, p := range tc.patterns {
-			g.Patterns = append(g.Patterns, &plugins.Pattern{FieldName: "log.f" + strconv.Itoa(i), Pattern: p})
+			g.Patterns = append(g.Patterns, &plugins.Pattern{FieldName: "event.f" + strconv.Itoa(i), Pattern: p})
 		}
-		writes, err := paloaltoGrok(cfg, g, map[string]any{"log": map[string]any{"line": tc.text}})
+		writes, err := paloaltoGrok(cfg, g, map[string]any{"event": map[string]any{"line": tc.text}})
 		if err != nil || len(writes) != tc.writes {
 			t.Errorf("grok %q %q: %d writes, error %v; want %d", tc.text, tc.patterns, len(writes), err, tc.writes)
 		}
@@ -669,7 +669,7 @@ func TestPaloAltoGrokPatternsNeverMatchEmpty(t *testing.T) {
 // csv plugin counts them, quoted commas included; otherwise the plugin fails the step.
 func TestPaloAltoCSVTierCondition(t *testing.T) {
 	cache := plugins.NewCELCache("paloalto-tiers")
-	count := regexp.MustCompile(`regexMatch\("log\.paPayload", "\^\(\?:\(\?:.*\{([0-9]+)\}"\)`)
+	count := regexp.MustCompile(`regexMatch\("event\.paPayload", "\^\(\?:\(\?:.*\{([0-9]+)\}"\)`)
 	tiers := 0
 	for _, s := range paloaltoConfig(t).Pipeline[0].Steps {
 		if s.Csv == nil {
@@ -690,7 +690,7 @@ func TestPaloAltoCSVTierCondition(t *testing.T) {
 			for i := range cols {
 				cols[i] = []string{"1", `"a, b"`, "", `"say ""x"", y"`}[i%4]
 			}
-			doc, err := json.Marshal(map[string]any{"log": map[string]any{"paPayload": strings.Join(cols, ",")}})
+			doc, err := json.Marshal(map[string]any{"event": map[string]any{"paPayload": strings.Join(cols, ",")}})
 			if err != nil {
 				t.Fatal(err)
 			}

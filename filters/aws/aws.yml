@@ -10,261 +10,261 @@ pipeline:
       source: raw
   - rename:
       from:
-      - log.userIdentity.accessKeyId
-      to: log.userIdentityAccessKeyId
+      - event.userIdentity.accessKeyId
+      to: event.userIdentityAccessKeyId
   - rename:
       from:
-      - log.userIdentity.accountId
-      to: log.userIdentityAccountId
+      - event.userIdentity.accountId
+      to: event.userIdentityAccountId
   - rename:
       from:
-      - log.userIdentity.arn
-      to: log.userIdentityArn
+      - event.userIdentity.arn
+      to: event.userIdentityArn
   - rename:
       from:
-      - log.userIdentity.invokedBy
-      to: log.userIdentityInvokedBy
+      - event.userIdentity.invokedBy
+      to: event.userIdentityInvokedBy
   - rename:
       from:
-      - log.userIdentity.principalId
-      to: log.userIdentityPrincipalId
+      - event.userIdentity.principalId
+      to: event.userIdentityPrincipalId
   - rename:
       from:
-      - log.userIdentity.sessionContext.attributes.creationDate
-      to: log.userIdentitySessionContextAttributesCreationDate
+      - event.userIdentity.sessionContext.attributes.creationDate
+      to: event.userIdentitySessionContextAttributesCreationDate
   - rename:
       from:
-      - log.userIdentity.sessionContext.attributes.mfaAuthenticated
-      to: log.userIdentitySessionContextAttributesMfaAuthenticated
+      - event.userIdentity.sessionContext.attributes.mfaAuthenticated
+      to: event.userIdentitySessionContextAttributesMfaAuthenticated
   - rename:
       from:
-      - log.userIdentity.sessionContext.sessionIssuer.accountId
-      to: log.userIdentitySessionContextSessionIssuerAccountId
+      - event.userIdentity.sessionContext.sessionIssuer.accountId
+      to: event.userIdentitySessionContextSessionIssuerAccountId
   - rename:
       from:
-      - log.userIdentity.sessionContext.sessionIssuer.arn
-      to: log.userIdentitySessionContextSessionIssuerArn
+      - event.userIdentity.sessionContext.sessionIssuer.arn
+      to: event.userIdentitySessionContextSessionIssuerArn
   - rename:
       from:
-      - log.userIdentity.sessionContext.sessionIssuer.principalId
-      to: log.userIdentitySessionContextSessionIssuerPrincipalId
+      - event.userIdentity.sessionContext.sessionIssuer.principalId
+      to: event.userIdentitySessionContextSessionIssuerPrincipalId
   - rename:
       from:
-      - log.userIdentity.sessionContext.sessionIssuer.type
-      to: log.userIdentitySessionContextSessionIssuerType
+      - event.userIdentity.sessionContext.sessionIssuer.type
+      to: event.userIdentitySessionContextSessionIssuerType
   - rename:
       from:
-      - log.userIdentity.sessionContext.sessionIssuer.userName
-      to: log.userIdentitySessionContextSessionIssuerUserName
+      - event.userIdentity.sessionContext.sessionIssuer.userName
+      to: event.userIdentitySessionContextSessionIssuerUserName
   - rename:
       from:
-      - log.userIdentity.sessionContext.webIdFederationData
-      to: log.userIdentitySessionContextWebIdFederationData
+      - event.userIdentity.sessionContext.webIdFederationData
+      to: event.userIdentitySessionContextWebIdFederationData
   - rename:
       from:
-      - log.userIdentity.type
-      to: log.userIdentityType
+      - event.userIdentity.type
+      to: event.userIdentityType
   - rename:
       from:
-      - log.requestParameters.durationSeconds
-      to: log.requestParametersDurationSeconds
+      - event.requestParameters.durationSeconds
+      to: event.requestParametersDurationSeconds
   - rename:
       from:
-      - log.requestParameters.roleArn
-      to: log.requestParametersRoleArn
+      - event.requestParameters.roleArn
+      to: event.requestParametersRoleArn
   - rename:
       from:
-      - log.requestParameters.roleSessionName
-      to: log.requestParametersRoleSessionName
+      - event.requestParameters.roleSessionName
+      to: event.requestParametersRoleSessionName
   - rename:
       from:
-      - log.responseElements.assumedRoleUser.arn
-      to: log.responseElementsAssumedRoleUserArn
+      - event.responseElements.assumedRoleUser.arn
+      to: event.responseElementsAssumedRoleUserArn
   - rename:
       from:
-      - log.responseElements.assumedRoleUser.assumedRoleId
-      to: log.responseElementsAssumedRoleUserAssumedRoleId
+      - event.responseElements.assumedRoleUser.assumedRoleId
+      to: event.responseElementsAssumedRoleUserAssumedRoleId
   - rename:
       from:
-      - log.responseElements.credentials.accessKeyId
-      to: log.responseElementsCredentialsAccessKeyId
+      - event.responseElements.credentials.accessKeyId
+      to: event.responseElementsCredentialsAccessKeyId
   - rename:
       from:
-      - log.responseElements.credentials.expiration
-      to: log.responseElementsCredentialsExpiration
+      - event.responseElements.credentials.expiration
+      to: event.responseElementsCredentialsExpiration
   - rename:
       from:
-      - log.responseElements.credentials.sessionToken
-      to: log.responseElementsCredentialsSessionToken
+      - event.responseElements.credentials.sessionToken
+      to: event.responseElementsCredentialsSessionToken
   - rename:
       from:
-      - log.requestParameters.Host
-      to: log.requestParametersHost
+      - event.requestParameters.Host
+      to: event.requestParametersHost
   - rename:
       from:
-      - log.requestParameters.acl
-      to: log.requestParametersAcl
+      - event.requestParameters.acl
+      to: event.requestParametersAcl
   - rename:
       from:
-      - log.requestParameters.bucketName
-      to: log.userIdentityAccessrequestParametersBucketNamesKeyId
+      - event.requestParameters.bucketName
+      to: event.userIdentityAccessrequestParametersBucketNamesKeyId
   - rename:
       from:
-      - log.additionalEventData.SignatureVersion
-      to: log.additionalEventDataSignatureVersion
+      - event.additionalEventData.SignatureVersion
+      to: event.additionalEventDataSignatureVersion
   - rename:
       from:
-      - log.additionalEventData.AuthenticationMethod
-      to: log.additionalEventDataAuthenticationMethod
+      - event.additionalEventData.AuthenticationMethod
+      to: event.additionalEventDataAuthenticationMethod
   - rename:
       from:
-      - log.additionalEventData.CipherSuite
-      to: log.additionalEventDataCipherSuite
+      - event.additionalEventData.CipherSuite
+      to: event.additionalEventDataCipherSuite
   - rename:
       from:
-      - log.additionalEventData.bytesTransferredIn
+      - event.additionalEventData.bytesTransferredIn
       to: origin.bytesReceived
-      where: greaterOrEqual("log.additionalEventData.bytesTransferredIn",0) && lessOrEqual("log.additionalEventData.bytesTransferredIn",1.7976931348623157e308)
+      where: greaterOrEqual("event.additionalEventData.bytesTransferredIn",0) && lessOrEqual("event.additionalEventData.bytesTransferredIn",1.7976931348623157e308)
   - rename:
       from:
-      - log.additionalEventData.bytesTransferredOut
+      - event.additionalEventData.bytesTransferredOut
       to: origin.bytesSent
-      where: greaterOrEqual("log.additionalEventData.bytesTransferredOut",0) && lessOrEqual("log.additionalEventData.bytesTransferredOut",1.7976931348623157e308)
+      where: greaterOrEqual("event.additionalEventData.bytesTransferredOut",0) && lessOrEqual("event.additionalEventData.bytesTransferredOut",1.7976931348623157e308)
   - rename:
       from:
-      - log.additionalEventData.xamzid2
-      - log.additionalEventData.x-amz-id-2
-      to: log.additionalEventDataXamzId2
+      - event.additionalEventData.xamzid2
+      - event.additionalEventData.x-amz-id-2
+      to: event.additionalEventDataXamzId2
   - rename:
       from:
-      - log.additionalEventData.SSEApplied
-      to: log.additionalEventDataSSEApplied
+      - event.additionalEventData.SSEApplied
+      to: event.additionalEventDataSSEApplied
   - rename:
       from:
-      - log.requestParameters.key
-      to: log.requestParametersKey
+      - event.requestParameters.key
+      to: event.requestParametersKey
   - rename:
       from:
-      - log.requestParameters.xamzacl
-      - log.requestParameters.x-amz-acl
-      to: log.requestParametersXAmzAcl
+      - event.requestParameters.xamzacl
+      - event.requestParameters.x-amz-acl
+      to: event.requestParametersXAmzAcl
   - rename:
       from:
-      - log.requestParameters.xamzserversideencryption
-      - log.requestParameters.x-amz-server-side-encryption
-      to: log.requestParametersXAmzServerSideEncryption
+      - event.requestParameters.xamzserversideencryption
+      - event.requestParameters.x-amz-server-side-encryption
+      to: event.requestParametersXAmzServerSideEncryption
   - rename:
       from:
-      - log.responseElements.xamzexpiration
-      - log.responseElements.x-amz-expiration
-      to: log.responseElementsXAmzExpiration
+      - event.responseElements.xamzexpiration
+      - event.responseElements.x-amz-expiration
+      to: event.responseElementsXAmzExpiration
   - rename:
       from:
-      - log.responseElements.xamzserversideencryption
-      - log.responseElements.x-amz-server-side-encryption
-      to: log.responseElementsXAmzServerSideEncryption
+      - event.responseElements.xamzserversideencryption
+      - event.responseElements.x-amz-server-side-encryption
+      to: event.responseElementsXAmzServerSideEncryption
   - rename:
       from:
-      - log.responseElements.assumedRoleUser
-      to: log.responseElementsAssumedRoleUser
+      - event.responseElements.assumedRoleUser
+      to: event.responseElementsAssumedRoleUser
   - rename:
       from:
-      - log.responseElements.credentials
-      to: log.responseElementsCredentials
+      - event.responseElements.credentials
+      to: event.responseElementsCredentials
   - rename:
       from:
-      - log.tlsDetails.cipherSuite
-      to: log.tlsDetailsCipherSuite
+      - event.tlsDetails.cipherSuite
+      to: event.tlsDetailsCipherSuite
   - rename:
       from:
-      - log.tlsDetails.clientProvidedHostHeader
-      to: log.tlsDetailsClientProvidedHostHeader
+      - event.tlsDetails.clientProvidedHostHeader
+      to: event.tlsDetailsClientProvidedHostHeader
   - rename:
       from:
-      - log.tlsDetails.tlsVersion
-      to: log.tlsDetailsTlsVersion
+      - event.tlsDetails.tlsVersion
+      to: event.tlsDetailsTlsVersion
   - json:
       source: raw
   - delete:
       fields:
-      - log.awsRecordType
-      - log.awsActorKey
-      - log.awsActorKeyType
-      - log.awsAccountKey
-      - log.awsAccountKeyType
-      - log.correlationCandidate
+      - event.awsRecordType
+      - event.awsActorKey
+      - event.awsActorKeyType
+      - event.awsAccountKey
+      - event.awsAccountKeyType
+      - event.correlationCandidate
   - add:
       function: string
       params:
-        key: log.awsRecordType
+        key: event.awsRecordType
         value: cloudtrail
       # Amazon Managed Grafana workspace events use punctuated names (login-auth.sso) and state
       # their outcome in result.statusType, so they are recognised too.
-      where: (regexMatch("log.eventName","^[A-Za-z][A-Za-z0-9]*$") || (endsWith("log.eventSource","grafana.amazonaws.com")
-        && regexMatch("log.eventName","^[A-Za-z][A-Za-z0-9._:-]*$"))) && regexMatch("log.eventVersion","^[0-9]+\\.[0-9]+$") && regexMatch("log.eventSource","^[A-Za-z0-9.-]+\\.amazonaws\\.com(\\.cn)?$")
+      where: (regexMatch("event.eventName","^[A-Za-z][A-Za-z0-9]*$") || (endsWith("event.eventSource","grafana.amazonaws.com")
+        && regexMatch("event.eventName","^[A-Za-z][A-Za-z0-9._:-]*$"))) && regexMatch("event.eventVersion","^[0-9]+\\.[0-9]+$") && regexMatch("event.eventSource","^[A-Za-z0-9.-]+\\.amazonaws\\.com(\\.cn)?$")
   - add:
       function: string
       params:
-        key: log.awsRecordType
+        key: event.awsRecordType
         value: guardduty
-      where: equals("log.source","aws.guardduty") && equals("log.detailtype","GuardDuty Finding") && exists("log.detail.id") && exists("log.detail.type")
+      where: equals("event.source","aws.guardduty") && equals("event.detailtype","GuardDuty Finding") && exists("event.detail.id") && exists("event.detail.type")
   - grok:
-      source: log.eventName
+      source: event.eventName
       patterns:
       - fieldName: action
         pattern: (?s)^.+$
-      where: regexMatch("log.eventName","(?s)^.+$") && (equals("log.awsRecordType","cloudtrail"))
+      where: regexMatch("event.eventName","(?s)^.+$") && (equals("event.awsRecordType","cloudtrail"))
   - grok:
-      source: log.sourceIPAddress
+      source: event.sourceIPAddress
       patterns:
       - fieldName: origin.ip
         pattern: (?s)^.+$
-      where: regexMatch("log.sourceIPAddress","(?s)^.+$") && (equals("log.awsRecordType","cloudtrail") && (inCIDR("log.sourceIPAddress","0.0.0.0/0")
-        || inCIDR("log.sourceIPAddress","::/0")) && !inCIDR("log.sourceIPAddress","0.0.0.0/32") && !inCIDR("log.sourceIPAddress","::/128"))
+      where: regexMatch("event.sourceIPAddress","(?s)^.+$") && (equals("event.awsRecordType","cloudtrail") && (inCIDR("event.sourceIPAddress","0.0.0.0/0")
+        || inCIDR("event.sourceIPAddress","::/0")) && !inCIDR("event.sourceIPAddress","0.0.0.0/32") && !inCIDR("event.sourceIPAddress","::/128"))
   - grok:
-      source: log.sourceIPAddress
+      source: event.sourceIPAddress
       patterns:
       - fieldName: origin.host
         pattern: (?s)^.+$
-      where: regexMatch("log.sourceIPAddress","(?s)^.+$") && (equals("log.awsRecordType","cloudtrail") && !exists("origin.ip") && regexMatch("log.sourceIPAddress","^[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*\\.[A-Za-z][A-Za-z0-9-]*$"))
+      where: regexMatch("event.sourceIPAddress","(?s)^.+$") && (equals("event.awsRecordType","cloudtrail") && !exists("origin.ip") && regexMatch("event.sourceIPAddress","^[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*\\.[A-Za-z][A-Za-z0-9-]*$"))
   - grok:
-      source: log.userIdentity.arn
+      source: event.userIdentity.arn
       patterns:
       - fieldName: origin.user
         pattern: (?s)^.+$
-      where: regexMatch("log.userIdentity.arn","(?s)^.+$") && (equals("log.awsRecordType","cloudtrail") && regexMatch("log.userIdentity.arn","(?s)^.+$")
-        && !oneOf("log.userIdentity.arn",["","-","HIDDEN_DUE_TO_SECURITY_REASONS"]))
+      where: regexMatch("event.userIdentity.arn","(?s)^.+$") && (equals("event.awsRecordType","cloudtrail") && regexMatch("event.userIdentity.arn","(?s)^.+$")
+        && !oneOf("event.userIdentity.arn",["","-","HIDDEN_DUE_TO_SECURITY_REASONS"]))
   - grok:
-      source: log.userIdentity.userName
+      source: event.userIdentity.userName
       patterns:
       - fieldName: origin.user
         pattern: (?s)^.+$
-      where: regexMatch("log.userIdentity.userName","(?s)^.+$") && (equals("log.awsRecordType","cloudtrail") && !exists("origin.user")
-        && regexMatch("log.userIdentity.userName","(?s)^.+$") && !oneOf("log.userIdentity.userName",["","-","HIDDEN_DUE_TO_SECURITY_REASONS"]))
+      where: regexMatch("event.userIdentity.userName","(?s)^.+$") && (equals("event.awsRecordType","cloudtrail") && !exists("origin.user")
+        && regexMatch("event.userIdentity.userName","(?s)^.+$") && !oneOf("event.userIdentity.userName",["","-","HIDDEN_DUE_TO_SECURITY_REASONS"]))
   - grok:
-      source: log.eventSource
+      source: event.eventSource
       patterns:
       - fieldName: target.domain
         pattern: (?s)^.+$
-      where: regexMatch("log.eventSource","(?s)^.+$") && (equals("log.awsRecordType","cloudtrail"))
+      where: regexMatch("event.eventSource","(?s)^.+$") && (equals("event.awsRecordType","cloudtrail"))
   - grok:
-      source: log.eventTime
+      source: event.eventTime
       patterns:
       - fieldName: deviceTime
         pattern: (?s)^.+$
-      where: regexMatch("log.eventTime","(?s)^.+$") && (equals("log.awsRecordType","cloudtrail") && regexMatch("log.eventTime","^[0-9]{4}-(0[1-9]|1[0-2])-([0-2][0-9]|3[01])T([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.[0-9]+)?(Z|[+-][0-2][0-9]:[0-5][0-9])$"))
+      where: regexMatch("event.eventTime","(?s)^.+$") && (equals("event.awsRecordType","cloudtrail") && regexMatch("event.eventTime","^[0-9]{4}-(0[1-9]|1[0-2])-([0-2][0-9]|3[01])T([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.[0-9]+)?(Z|[+-][0-2][0-9]:[0-5][0-9])$"))
   - grok:
-      source: log.time
+      source: event.time
       patterns:
       - fieldName: deviceTime
         pattern: (?s)^.+$
-      where: regexMatch("log.time","(?s)^.+$") && (equals("log.awsRecordType","guardduty") && regexMatch("log.time","^[0-9]{4}-(0[1-9]|1[0-2])-([0-2][0-9]|3[01])T([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.[0-9]+)?(Z|[+-][0-2][0-9]:[0-5][0-9])$"))
+      where: regexMatch("event.time","(?s)^.+$") && (equals("event.awsRecordType","guardduty") && regexMatch("event.time","^[0-9]{4}-(0[1-9]|1[0-2])-([0-2][0-9]|3[01])T([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.[0-9]+)?(Z|[+-][0-2][0-9]:[0-5][0-9])$"))
   - grok:
-      source: log.requestParameters.bucketName
+      source: event.requestParameters.bucketName
       patterns:
-      - fieldName: log.requestParametersBucketName
+      - fieldName: event.requestParametersBucketName
         pattern: (?s)^.+$
-      where: regexMatch("log.requestParameters.bucketName","(?s)^.+$") && (equals("log.awsRecordType","cloudtrail"))
+      where: regexMatch("event.requestParameters.bucketName","(?s)^.+$") && (equals("event.awsRecordType","cloudtrail"))
   - add:
       function: string
       params:
@@ -273,20 +273,20 @@ pipeline:
       # Amazon Managed Grafana puts the HTTP status in errorCode ("200" on success), so a 2xx
       # errorCode is not an error; Grafana's own result.statusType decides. IAM Identity Center
       # states its sign-in outcome in serviceEventDetails (a failed credential check ends the attempt).
-      where: equals("log.awsRecordType","cloudtrail") && ((exists("log.errorCode") && !equals("log.errorCode","") && !regexMatch("log.errorCode","^2[0-9][0-9]$"))
-        || (exists("log.errorMessage") && !equals("log.errorMessage","")) || (exists("log.responseElements.errorCode") && !equals("log.responseElements.errorCode",""))
-        || (exists("log.responseElements.errorMessage") && !equals("log.responseElements.errorMessage","")) || equalsIgnoreCase("log.responseElements.ConsoleLogin","Failure")
-        || equalsIgnoreCase("log.responseElements.GetSigninToken","Failure") || equalsIgnoreCase("log.responseElements.CheckMfa","Failure")
-        || equalsIgnoreCase("log.responseElements.SwitchRole","Failure")
-        || (endsWith("log.eventSource","grafana.amazonaws.com") && (equals("log.serviceEventDetails.result.statusType","failure") || equals("log.additionalEventData.result.statusType","failure")))
-        || (equals("log.eventSource","signin.amazonaws.com") && (equals("log.serviceEventDetails.CredentialVerification","Failure") || equals("log.serviceEventDetails.UserAuthentication","Failure"))))
+      where: equals("event.awsRecordType","cloudtrail") && ((exists("event.errorCode") && !equals("event.errorCode","") && !regexMatch("event.errorCode","^2[0-9][0-9]$"))
+        || (exists("event.errorMessage") && !equals("event.errorMessage","")) || (exists("event.responseElements.errorCode") && !equals("event.responseElements.errorCode",""))
+        || (exists("event.responseElements.errorMessage") && !equals("event.responseElements.errorMessage","")) || equalsIgnoreCase("event.responseElements.ConsoleLogin","Failure")
+        || equalsIgnoreCase("event.responseElements.GetSigninToken","Failure") || equalsIgnoreCase("event.responseElements.CheckMfa","Failure")
+        || equalsIgnoreCase("event.responseElements.SwitchRole","Failure")
+        || (endsWith("event.eventSource","grafana.amazonaws.com") && (equals("event.serviceEventDetails.result.statusType","failure") || equals("event.additionalEventData.result.statusType","failure")))
+        || (equals("event.eventSource","signin.amazonaws.com") && (equals("event.serviceEventDetails.CredentialVerification","Failure") || equals("event.serviceEventDetails.UserAuthentication","Failure"))))
   - add:
       function: string
       params:
         key: actionResult
         value: denied
-      where: equals("log.awsRecordType","cloudtrail") && (regexMatch("log.errorCode","(^|[.])(AccessDenied(?:Exception)?|VpceAccessDenied|UnauthorizedOperation|UnauthorizedException|NotAuthorizedException|AuthorizationError)$")
-        || regexMatch("log.responseElements.errorCode","(^|[.])(AccessDenied(?:Exception)?|VpceAccessDenied|UnauthorizedOperation|UnauthorizedException|NotAuthorizedException|AuthorizationError)$"))
+      where: equals("event.awsRecordType","cloudtrail") && (regexMatch("event.errorCode","(^|[.])(AccessDenied(?:Exception)?|VpceAccessDenied|UnauthorizedOperation|UnauthorizedException|NotAuthorizedException|AuthorizationError)$")
+        || regexMatch("event.responseElements.errorCode","(^|[.])(AccessDenied(?:Exception)?|VpceAccessDenied|UnauthorizedOperation|UnauthorizedException|NotAuthorizedException|AuthorizationError)$"))
   - add:
       function: string
       params:
@@ -296,270 +296,270 @@ pipeline:
       # Preserve its vendor response without promoting the intermediate success.
       # IAM Identity Center logs UserAuthentication Success only after every challenge passed;
       # CredentialChallenge and CredentialVerification Success are intermediate steps.
-      where: equals("log.awsRecordType","cloudtrail") && !((exists("log.errorCode") && !equals("log.errorCode","") && !regexMatch("log.errorCode","^2[0-9][0-9]$"))
-        || (exists("log.errorMessage") && !equals("log.errorMessage","")) || (exists("log.responseElements.errorCode") && !equals("log.responseElements.errorCode",""))
-        || (exists("log.responseElements.errorMessage") && !equals("log.responseElements.errorMessage","")) || equalsIgnoreCase("log.responseElements.ConsoleLogin","Failure")
-        || equalsIgnoreCase("log.responseElements.GetSigninToken","Failure") || equalsIgnoreCase("log.responseElements.CheckMfa","Failure")
-        || equalsIgnoreCase("log.responseElements.SwitchRole","Failure")
-        || (endsWith("log.eventSource","grafana.amazonaws.com") && (equals("log.serviceEventDetails.result.statusType","failure") || equals("log.additionalEventData.result.statusType","failure")))
-        || (equals("log.eventSource","signin.amazonaws.com") && (equals("log.serviceEventDetails.CredentialVerification","Failure") || equals("log.serviceEventDetails.UserAuthentication","Failure"))))
-        && (equals("log.eventType","AwsApiCall") || (equals("log.eventName","ConsoleLogin") && equals("log.responseElements.ConsoleLogin","Success"))
-        || (equals("log.eventName","GetSigninToken") && equals("log.responseElements.GetSigninToken","Success"))
-        || (equals("log.eventName","SwitchRole") && equals("log.responseElements.SwitchRole","Success"))
-        || (endsWith("log.eventSource","grafana.amazonaws.com") && (equals("log.serviceEventDetails.result.statusType","success") || equals("log.additionalEventData.result.statusType","success")))
-        || (equals("log.eventSource","signin.amazonaws.com") && equals("log.eventName","UserAuthentication") && equals("log.serviceEventDetails.UserAuthentication","Success")))
+      where: equals("event.awsRecordType","cloudtrail") && !((exists("event.errorCode") && !equals("event.errorCode","") && !regexMatch("event.errorCode","^2[0-9][0-9]$"))
+        || (exists("event.errorMessage") && !equals("event.errorMessage","")) || (exists("event.responseElements.errorCode") && !equals("event.responseElements.errorCode",""))
+        || (exists("event.responseElements.errorMessage") && !equals("event.responseElements.errorMessage","")) || equalsIgnoreCase("event.responseElements.ConsoleLogin","Failure")
+        || equalsIgnoreCase("event.responseElements.GetSigninToken","Failure") || equalsIgnoreCase("event.responseElements.CheckMfa","Failure")
+        || equalsIgnoreCase("event.responseElements.SwitchRole","Failure")
+        || (endsWith("event.eventSource","grafana.amazonaws.com") && (equals("event.serviceEventDetails.result.statusType","failure") || equals("event.additionalEventData.result.statusType","failure")))
+        || (equals("event.eventSource","signin.amazonaws.com") && (equals("event.serviceEventDetails.CredentialVerification","Failure") || equals("event.serviceEventDetails.UserAuthentication","Failure"))))
+        && (equals("event.eventType","AwsApiCall") || (equals("event.eventName","ConsoleLogin") && equals("event.responseElements.ConsoleLogin","Success"))
+        || (equals("event.eventName","GetSigninToken") && equals("event.responseElements.GetSigninToken","Success"))
+        || (equals("event.eventName","SwitchRole") && equals("event.responseElements.SwitchRole","Success"))
+        || (endsWith("event.eventSource","grafana.amazonaws.com") && (equals("event.serviceEventDetails.result.statusType","success") || equals("event.additionalEventData.result.statusType","success")))
+        || (equals("event.eventSource","signin.amazonaws.com") && equals("event.eventName","UserAuthentication") && equals("event.serviceEventDetails.UserAuthentication","Success")))
   - grok:
-      source: log.recipientAccountId
+      source: event.recipientAccountId
       patterns:
-      - fieldName: log.awsAccountKey
+      - fieldName: event.awsAccountKey
         pattern: (?s)^.+$
-      where: regexMatch("log.recipientAccountId","(?s)^.+$") && (equals("log.awsRecordType","cloudtrail") && regexMatch("log.recipientAccountId","^[0-9]{12}$")
-        && !exists("log.awsAccountKey"))
+      where: regexMatch("event.recipientAccountId","(?s)^.+$") && (equals("event.awsRecordType","cloudtrail") && regexMatch("event.recipientAccountId","^[0-9]{12}$")
+        && !exists("event.awsAccountKey"))
   - add:
       function: string
       params:
-        key: log.awsAccountKeyType
+        key: event.awsAccountKeyType
         value: recipient
-      where: exists("log.awsAccountKey") && !exists("log.awsAccountKeyType")
+      where: exists("event.awsAccountKey") && !exists("event.awsAccountKeyType")
   - grok:
-      source: log.userIdentity.accountId
+      source: event.userIdentity.accountId
       patterns:
-      - fieldName: log.awsAccountKey
+      - fieldName: event.awsAccountKey
         pattern: (?s)^.+$
-      where: regexMatch("log.userIdentity.accountId","(?s)^.+$") && (equals("log.awsRecordType","cloudtrail") && regexMatch("log.userIdentity.accountId","^[0-9]{12}$")
-        && !exists("log.awsAccountKey"))
+      where: regexMatch("event.userIdentity.accountId","(?s)^.+$") && (equals("event.awsRecordType","cloudtrail") && regexMatch("event.userIdentity.accountId","^[0-9]{12}$")
+        && !exists("event.awsAccountKey"))
   - add:
       function: string
       params:
-        key: log.awsAccountKeyType
+        key: event.awsAccountKeyType
         value: caller
-      where: exists("log.awsAccountKey") && !exists("log.awsAccountKeyType")
+      where: exists("event.awsAccountKey") && !exists("event.awsAccountKeyType")
   - grok:
-      source: log.userIdentity.arn
+      source: event.userIdentity.arn
       patterns:
-      - fieldName: log.awsActorKey
+      - fieldName: event.awsActorKey
         pattern: (?s)^.+$
-      where: regexMatch("log.userIdentity.arn","(?s)^.+$") && (equals("log.awsRecordType","cloudtrail") && regexMatch("log.userIdentity.arn","(?s)^.+$")
-        && !oneOf("log.userIdentity.arn",["","-","HIDDEN_DUE_TO_SECURITY_REASONS"]) && !exists("log.awsActorKey"))
+      where: regexMatch("event.userIdentity.arn","(?s)^.+$") && (equals("event.awsRecordType","cloudtrail") && regexMatch("event.userIdentity.arn","(?s)^.+$")
+        && !oneOf("event.userIdentity.arn",["","-","HIDDEN_DUE_TO_SECURITY_REASONS"]) && !exists("event.awsActorKey"))
   - add:
       function: string
       params:
-        key: log.awsActorKeyType
+        key: event.awsActorKeyType
         value: arn
-      where: exists("log.awsActorKey") && !exists("log.awsActorKeyType")
+      where: exists("event.awsActorKey") && !exists("event.awsActorKeyType")
   - grok:
-      source: log.userIdentity.principalId
+      source: event.userIdentity.principalId
       patterns:
-      - fieldName: log.awsActorKey
+      - fieldName: event.awsActorKey
         pattern: (?s)^.+$
-      where: regexMatch("log.userIdentity.principalId","(?s)^.+$") && (equals("log.awsRecordType","cloudtrail") && regexMatch("log.userIdentity.principalId","(?s)^.+$")
-        && !oneOf("log.userIdentity.principalId",["","-","HIDDEN_DUE_TO_SECURITY_REASONS"]) && !exists("log.awsActorKey"))
+      where: regexMatch("event.userIdentity.principalId","(?s)^.+$") && (equals("event.awsRecordType","cloudtrail") && regexMatch("event.userIdentity.principalId","(?s)^.+$")
+        && !oneOf("event.userIdentity.principalId",["","-","HIDDEN_DUE_TO_SECURITY_REASONS"]) && !exists("event.awsActorKey"))
   - add:
       function: string
       params:
-        key: log.awsActorKeyType
+        key: event.awsActorKeyType
         value: principal
-      where: exists("log.awsActorKey") && !exists("log.awsActorKeyType")
+      where: exists("event.awsActorKey") && !exists("event.awsActorKeyType")
   - grok:
       source: origin.ip
       patterns:
-      - fieldName: log.awsActorKey
+      - fieldName: event.awsActorKey
         pattern: (?s)^.+$
-      where: regexMatch("origin.ip","(?s)^.+$") && (equals("log.awsRecordType","cloudtrail") && regexMatch("origin.ip","(?s)^.+$") &&
-        !oneOf("origin.ip",["","-","HIDDEN_DUE_TO_SECURITY_REASONS"]) && !exists("log.awsActorKey"))
+      where: regexMatch("origin.ip","(?s)^.+$") && (equals("event.awsRecordType","cloudtrail") && regexMatch("origin.ip","(?s)^.+$") &&
+        !oneOf("origin.ip",["","-","HIDDEN_DUE_TO_SECURITY_REASONS"]) && !exists("event.awsActorKey"))
   - add:
       function: string
       params:
-        key: log.awsActorKeyType
+        key: event.awsActorKeyType
         value: ip
-      where: exists("log.awsActorKey") && !exists("log.awsActorKeyType")
+      where: exists("event.awsActorKey") && !exists("event.awsActorKeyType")
   - add:
       function: string
       params:
         key: severity
         value: info
-      where: equals("log.awsRecordType","guardduty") && greaterOrEqual("log.detail.severity",1) && lessOrEqual("log.detail.severity",3.9)
+      where: equals("event.awsRecordType","guardduty") && greaterOrEqual("event.detail.severity",1) && lessOrEqual("event.detail.severity",3.9)
   - add:
       function: string
       params:
         key: severity
         value: warning
-      where: equals("log.awsRecordType","guardduty") && greaterOrEqual("log.detail.severity",4) && lessOrEqual("log.detail.severity",6.9)
+      where: equals("event.awsRecordType","guardduty") && greaterOrEqual("event.detail.severity",4) && lessOrEqual("event.detail.severity",6.9)
   - add:
       function: string
       params:
         key: severity
         value: error
-      where: equals("log.awsRecordType","guardduty") && greaterOrEqual("log.detail.severity",7) && lessOrEqual("log.detail.severity",8.9)
+      where: equals("event.awsRecordType","guardduty") && greaterOrEqual("event.detail.severity",7) && lessOrEqual("event.detail.severity",8.9)
   - add:
       function: string
       params:
         key: severity
         value: critical
-      where: equals("log.awsRecordType","guardduty") && greaterOrEqual("log.detail.severity",9) && lessOrEqual("log.detail.severity",10)
+      where: equals("event.awsRecordType","guardduty") && greaterOrEqual("event.detail.severity",9) && lessOrEqual("event.detail.severity",10)
   - dynamic:
       plugin: com.utmstack.geolocation
       params:
         source: origin.ip
         destination: origin.geolocation
-      where: equals("log.awsRecordType","cloudtrail") && exists("origin.ip")
+      where: equals("event.awsRecordType","cloudtrail") && exists("origin.ip")
   - add:
       function: string
       params:
-        key: log.correlationCandidate.awsEcsCredentialTheft
+        key: event.correlationCandidate.awsEcsCredentialTheft
         value: match
       where: |-
-        equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource", "ecs.amazonaws.com") &&
-        oneOf("log.eventName", ["DescribeTaskDefinition", "RunTask", "StartTask"]) &&
+        equals("event.awsRecordType","cloudtrail") && (equals("event.eventSource", "ecs.amazonaws.com") &&
+        oneOf("event.eventName", ["DescribeTaskDefinition", "RunTask", "StartTask"]) &&
         equals("actionResult","success") &&
-        equals("log.userIdentity.type", "AssumedRole") &&
-        contains("log.userIdentity.arn", ":assumed-role/"))
+        equals("event.userIdentity.type", "AssumedRole") &&
+        contains("event.userIdentity.arn", ":assumed-role/"))
   - add:
       function: string
       params:
-        key: log.correlationCandidate.samlProviderChange
+        key: event.correlationCandidate.samlProviderChange
         value: match
-      where: equals("log.awsRecordType","cloudtrail") && equals("log.eventSource","iam.amazonaws.com") && oneOf("log.eventName",["CreateSAMLProvider",
+      where: equals("event.awsRecordType","cloudtrail") && equals("event.eventSource","iam.amazonaws.com") && oneOf("event.eventName",["CreateSAMLProvider",
         "UpdateSAMLProvider"]) && equals("actionResult","success")
   - add:
       function: string
       params:
-        key: log.correlationCandidate.awsSecurityhubFindingEvasion
+        key: event.correlationCandidate.awsSecurityhubFindingEvasion
         value: match
       where: |-
-        equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource", "securityhub.amazonaws.com") &&
-        oneOf("log.eventName", ["BatchUpdateFindings", "DeleteInsight", "UpdateFindings", "DeleteActionTarget"]) &&
+        equals("event.awsRecordType","cloudtrail") && (equals("event.eventSource", "securityhub.amazonaws.com") &&
+        oneOf("event.eventName", ["BatchUpdateFindings", "DeleteInsight", "UpdateFindings", "DeleteActionTarget"]) &&
         equals("actionResult","success") &&
-        !equals("log.userIdentity.type", "AWSService"))
+        !equals("event.userIdentity.type", "AWSService"))
   - add:
       function: string
       params:
-        key: log.correlationCandidate.awsSsmSendcommandAbuse
+        key: event.correlationCandidate.awsSsmSendcommandAbuse
         value: match
       where: |-
-        equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource", "ssm.amazonaws.com") &&
-        oneOf("log.eventName", ["SendCommand", "StartSession"]) &&
+        equals("event.awsRecordType","cloudtrail") && (equals("event.eventSource", "ssm.amazonaws.com") &&
+        oneOf("event.eventName", ["SendCommand", "StartSession"]) &&
         equals("actionResult","success"))
   - add:
       function: string
       params:
-        key: log.correlationCandidate.awsSsoSuspiciousActivities
+        key: event.correlationCandidate.awsSsoSuspiciousActivities
         value: match
-      where: equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource","sso.amazonaws.com") && oneOf("log.eventName",["CreatePermissionSet",
+      where: equals("event.awsRecordType","cloudtrail") && (equals("event.eventSource","sso.amazonaws.com") && oneOf("event.eventName",["CreatePermissionSet",
         "AttachManagedPolicyToPermissionSet", "DeletePermissionSet", "PutInlinePolicyToPermissionSet"]) && equals("actionResult","success"))
   - add:
       function: string
       params:
-        key: log.correlationCandidate.cloudformationStackDeletion
+        key: event.correlationCandidate.cloudformationStackDeletion
         value: match
-      where: equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource", "cloudformation.amazonaws.com") && equals("log.eventName",
+      where: equals("event.awsRecordType","cloudtrail") && (equals("event.eventSource", "cloudformation.amazonaws.com") && equals("event.eventName",
         "DeleteStack") && equals("actionResult","success"))
   - add:
       function: string
       params:
-        key: log.correlationCandidate.consoleLoginImpossibleTravel
+        key: event.correlationCandidate.consoleLoginImpossibleTravel
         value: match
-      where: equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource","signin.amazonaws.com") && oneOf("log.eventName",["ConsoleLogin"])
+      where: equals("event.awsRecordType","cloudtrail") && (equals("event.eventSource","signin.amazonaws.com") && oneOf("event.eventName",["ConsoleLogin"])
         && equals("actionResult","success") && regexMatch("origin.geolocation.countryCode","^[A-Z]{2}$"))
   - add:
       function: string
       params:
-        key: log.correlationCandidate.crossAccountAccessAnomalies
+        key: event.correlationCandidate.crossAccountAccessAnomalies
         value: match
-      where: equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource","sts.amazonaws.com") && oneOf("log.eventName",["AssumeRole"])
-        && equals("actionResult","success") && regexMatch("log.userIdentity.accountId","^[0-9]{12}$") && regexMatch("log.responseElements.assumedRoleUser.arn","^arn:[^:]+:sts::[0-9]{12}:assumed-role/.+$")
-        && !regexMatch("log.responseElements.assumedRoleUser.arn","^arn:[^:]+:sts::" + safe("log.userIdentity.accountId", "") + ":assumed-role/"))
+      where: equals("event.awsRecordType","cloudtrail") && (equals("event.eventSource","sts.amazonaws.com") && oneOf("event.eventName",["AssumeRole"])
+        && equals("actionResult","success") && regexMatch("event.userIdentity.accountId","^[0-9]{12}$") && regexMatch("event.responseElements.assumedRoleUser.arn","^arn:[^:]+:sts::[0-9]{12}:assumed-role/.+$")
+        && !regexMatch("event.responseElements.assumedRoleUser.arn","^arn:[^:]+:sts::" + safe("event.userIdentity.accountId", "") + ":assumed-role/"))
   - add:
       function: string
       params:
-        key: log.correlationCandidate.iamBackdoorCreationAttempts
+        key: event.correlationCandidate.iamBackdoorCreationAttempts
         value: match
-      where: equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource", "iam.amazonaws.com") && oneOf("log.eventName", ["CreateUser",
+      where: equals("event.awsRecordType","cloudtrail") && (equals("event.eventSource", "iam.amazonaws.com") && oneOf("event.eventName", ["CreateUser",
         "CreateAccessKey", "AttachUserPolicy", "PutUserPolicy", "CreateLoginProfile"]) && equals("actionResult","success"))
   - add:
       function: string
       params:
-        key: log.correlationCandidate.iamPrivilegeEscalationPaths
+        key: event.correlationCandidate.iamPrivilegeEscalationPaths
         value: match
       where: |-
-        equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource", "iam.amazonaws.com") &&
-        oneOf("log.eventName", ["CreatePolicyVersion", "SetDefaultPolicyVersion", "AttachUserPolicy", "AttachGroupPolicy", "AttachRolePolicy", "PutUserPolicy", "PutGroupPolicy", "PutRolePolicy", "AddUserToGroup"]) &&
+        equals("event.awsRecordType","cloudtrail") && (equals("event.eventSource", "iam.amazonaws.com") &&
+        oneOf("event.eventName", ["CreatePolicyVersion", "SetDefaultPolicyVersion", "AttachUserPolicy", "AttachGroupPolicy", "AttachRolePolicy", "PutUserPolicy", "PutGroupPolicy", "PutRolePolicy", "AddUserToGroup"]) &&
         equals("actionResult","success"))
   - add:
       function: string
       params:
-        key: log.correlationCandidate.lambdaPrivilegeEscalation
+        key: event.correlationCandidate.lambdaPrivilegeEscalation
         value: match
-      where: equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource","iam.amazonaws.com") && oneOf("log.eventName",["AttachRolePolicy",
-        "AttachUserPolicy"]) && equals("actionResult","success") && regexMatch("log.requestParameters.policyArn","^arn:(aws|aws-cn|aws-us-gov):iam::aws:policy/(AdministratorAccess|IAMFullAccess)$"))
+      where: equals("event.awsRecordType","cloudtrail") && (equals("event.eventSource","iam.amazonaws.com") && oneOf("event.eventName",["AttachRolePolicy",
+        "AttachUserPolicy"]) && equals("actionResult","success") && regexMatch("event.requestParameters.policyArn","^arn:(aws|aws-cn|aws-us-gov):iam::aws:policy/(AdministratorAccess|IAMFullAccess)$"))
   - add:
       function: string
       params:
-        key: log.correlationCandidate.massResourceDeletion
+        key: event.correlationCandidate.massResourceDeletion
         value: match
-      where: equals("log.awsRecordType","cloudtrail") && (regexMatch("log.eventName","^(Delete|Terminate|Remove)[A-Z]") && equals("actionResult","success")
-        && !equals("log.eventSource","s3.amazonaws.com"))
+      where: equals("event.awsRecordType","cloudtrail") && (regexMatch("event.eventName","^(Delete|Terminate|Remove)[A-Z]") && equals("actionResult","success")
+        && !equals("event.eventSource","s3.amazonaws.com"))
   - add:
       function: string
       params:
-        key: log.correlationCandidate.route53DnsHijacking
+        key: event.correlationCandidate.route53DnsHijacking
         value: match
-      where: equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource", "route53.amazonaws.com") && equals("log.eventName",
+      where: equals("event.awsRecordType","cloudtrail") && (equals("event.eventSource", "route53.amazonaws.com") && equals("event.eventName",
         "ChangeResourceRecordSets") && equals("actionResult","success"))
   - add:
       function: string
       params:
-        key: log.correlationCandidate.s3BulkDataExfiltration
+        key: event.correlationCandidate.s3BulkDataExfiltration
         value: match
       where: |-
-        equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource", "s3.amazonaws.com") &&
-        equals("log.eventName", "GetObject") &&
+        equals("event.awsRecordType","cloudtrail") && (equals("event.eventSource", "s3.amazonaws.com") &&
+        equals("event.eventName", "GetObject") &&
         equals("actionResult","success"))
   - add:
       function: string
       params:
-        key: log.correlationCandidate.secretsManagerSuspiciousAccess
+        key: event.correlationCandidate.secretsManagerSuspiciousAccess
         value: match
-      where: equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource", "secretsmanager.amazonaws.com") && (equals("log.eventName",
-        "GetSecretValue") || equals("log.eventName", "BatchGetSecretValue")) && equals("actionResult","success"))
+      where: equals("event.awsRecordType","cloudtrail") && (equals("event.eventSource", "secretsmanager.amazonaws.com") && (equals("event.eventName",
+        "GetSecretValue") || equals("event.eventName", "BatchGetSecretValue")) && equals("actionResult","success"))
   - add:
       function: string
       params:
-        key: log.correlationCandidate.securityGroupModifications
+        key: event.correlationCandidate.securityGroupModifications
         value: match
-      where: equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource","ec2.amazonaws.com") && oneOf("log.eventName",["AuthorizeSecurityGroupIngress",
-        "AuthorizeSecurityGroupEgress", "ModifySecurityGroupRules"]) && equals("actionResult","success") && (exists('log.requestParameters.ipPermissions.items.#(ipRanges.items.#(cidrIp=="0.0.0.0/0"))')
-        || exists('log.requestParameters.ipPermissions.items.#(ipv6Ranges.items.#(cidrIpv6=="::/0"))') || exists('log.requestParameters.securityGroupRuleSet.items.#(securityGroupRule.cidrIpv4=="0.0.0.0/0")')
-        || exists('log.requestParameters.securityGroupRuleSet.items.#(securityGroupRule.cidrIpv6=="::/0")')))
+      where: equals("event.awsRecordType","cloudtrail") && (equals("event.eventSource","ec2.amazonaws.com") && oneOf("event.eventName",["AuthorizeSecurityGroupIngress",
+        "AuthorizeSecurityGroupEgress", "ModifySecurityGroupRules"]) && equals("actionResult","success") && (exists('event.requestParameters.ipPermissions.items.#(ipRanges.items.#(cidrIp=="0.0.0.0/0"))')
+        || exists('event.requestParameters.ipPermissions.items.#(ipv6Ranges.items.#(cidrIpv6=="::/0"))') || exists('event.requestParameters.securityGroupRuleSet.items.#(securityGroupRule.cidrIpv4=="0.0.0.0/0")')
+        || exists('event.requestParameters.securityGroupRuleSet.items.#(securityGroupRule.cidrIpv6=="::/0")')))
   - add:
       function: string
       params:
-        key: log.correlationCandidate.ssmSessionAbuse
+        key: event.correlationCandidate.ssmSessionAbuse
         value: match
       where: |-
-        equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource", "ssm.amazonaws.com") &&
-        oneOf("log.eventName", ["StartSession", "ResumeSession", "SendCommand", "StartAutomationExecution"]) &&
+        equals("event.awsRecordType","cloudtrail") && (equals("event.eventSource", "ssm.amazonaws.com") &&
+        oneOf("event.eventName", ["StartSession", "ResumeSession", "SendCommand", "StartAutomationExecution"]) &&
         equals("actionResult","success"))
   - add:
       function: string
       params:
-        key: log.correlationCandidate.stsTokenAbuse
+        key: event.correlationCandidate.stsTokenAbuse
         value: match
       where: |-
-        equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource", "sts.amazonaws.com") &&
-        equals("log.eventName", "AssumeRole") &&
+        equals("event.awsRecordType","cloudtrail") && (equals("event.eventSource", "sts.amazonaws.com") &&
+        equals("event.eventName", "AssumeRole") &&
         equals("actionResult","success") &&
-        equals("log.userIdentity.sessionContext.attributes.mfaAuthenticated", "false") &&
-        !equals("log.userIdentity.type", "AWSService") &&
-        !contains("log.userAgent", "aws-sdk") &&
-        !contains("log.userAgent", "Botocore"))
+        equals("event.userIdentity.sessionContext.attributes.mfaAuthenticated", "false") &&
+        !equals("event.userIdentity.type", "AWSService") &&
+        !contains("event.userAgent", "aws-sdk") &&
+        !contains("event.userAgent", "Botocore"))
   - add:
       function: string
       params:
-        key: log.correlationCandidate.unusualApiCallPatterns
+        key: event.correlationCandidate.unusualApiCallPatterns
         value: match
-      where: "equals(\"log.awsRecordType\",\"cloudtrail\") && (exists(\"log.eventSource\") && \nexists(\"log.sourceIPAddress\") &&\n\
-        exists(\"log.eventName\") &&\n(\n  oneOf(\"log.eventName\", [\"DescribeSecurityGroups\", \"DescribeNetworkAcls\", \"DescribeVpcs\"\
+      where: "equals(\"event.awsRecordType\",\"cloudtrail\") && (exists(\"event.eventSource\") && \nexists(\"event.sourceIPAddress\") &&\n\
+        exists(\"event.eventName\") &&\n(\n  oneOf(\"event.eventName\", [\"DescribeSecurityGroups\", \"DescribeNetworkAcls\", \"DescribeVpcs\"\
         , \"DescribeSubnets\", \"DescribeRouteTables\", \"DescribeInstances\", \"DescribeSnapshots\", \"DescribeVolumes\", \"DescribeImages\"\
         , \"DescribeKeyPairs\", \"ListBuckets\", \"GetBucketAcl\", \"GetBucketPolicy\", \"ListAccessKeys\", \"ListUsers\", \"ListRoles\"\
         , \"ListPolicies\", \"GetAccountAuthorizationDetails\", \"GenerateCredentialReport\", \"GetCredentialReport\"])\n) &&\nequals(\"\
@@ -567,21 +567,21 @@ pipeline:
   - add:
       function: string
       params:
-        key: log.correlationCandidate.vpcFlowLogAnomalies
+        key: event.correlationCandidate.vpcFlowLogAnomalies
         value: match
-      where: equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource","ec2.amazonaws.com") && oneOf("log.eventName",["DeleteFlowLogs"])
+      where: equals("event.awsRecordType","cloudtrail") && (equals("event.eventSource","ec2.amazonaws.com") && oneOf("event.eventName",["DeleteFlowLogs"])
         && equals("actionResult","success"))
   - add:
       function: string
       params:
-        key: log.correlationCandidate.credentialAccessAwsIamAssumeRoleBruteForce
+        key: event.correlationCandidate.credentialAccessAwsIamAssumeRoleBruteForce
         value: match
-      where: equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource","iam.amazonaws.com") && oneOf("log.eventName",["UpdateAssumeRolePolicy"])
-        && oneOf("log.errorCode",["MalformedPolicyDocument", "MalformedPolicyDocumentException"]) && equals("actionResult","failed"))
+      where: equals("event.awsRecordType","cloudtrail") && (equals("event.eventSource","iam.amazonaws.com") && oneOf("event.eventName",["UpdateAssumeRolePolicy"])
+        && oneOf("event.errorCode",["MalformedPolicyDocument", "MalformedPolicyDocumentException"]) && equals("actionResult","failed"))
   - add:
       function: string
       params:
-        key: log.correlationCandidate.credentialAccessRootConsoleFailureBruteForce
+        key: event.correlationCandidate.credentialAccessRootConsoleFailureBruteForce
         value: match
-      where: equals("log.awsRecordType","cloudtrail") && (equals("log.eventSource","signin.amazonaws.com") && oneOf("log.eventName",["ConsoleLogin"])
-        && equals("log.userIdentity.type","Root") && oneOf("actionResult",["failed", "denied"]))
+      where: equals("event.awsRecordType","cloudtrail") && (equals("event.eventSource","signin.amazonaws.com") && oneOf("event.eventName",["ConsoleLogin"])
+        && equals("event.userIdentity.type","Root") && oneOf("actionResult",["failed", "denied"]))

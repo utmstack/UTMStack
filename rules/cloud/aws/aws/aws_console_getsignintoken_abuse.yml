@@ -23,13 +23,13 @@ description: |
   5. Check if MFA was properly enforced on the original authentication
   6. If unauthorized, revoke the federated session immediately
 where: |
-  equals("log.awsRecordType","cloudtrail") &&
-  (equals("log.eventSource", "signin.amazonaws.com") &&
-  equals("log.eventName", "GetSigninToken") &&
+  equals("event.awsRecordType","cloudtrail") &&
+  (equals("event.eventSource", "signin.amazonaws.com") &&
+  equals("event.eventName", "GetSigninToken") &&
   equals("actionResult","success"))
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
 - adversary.user
-- lastEvent.log.sourceIPAddress
+- lastEvent.event.sourceIPAddress

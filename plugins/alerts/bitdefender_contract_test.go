@@ -129,7 +129,7 @@ func bitdefGrok(t *testing.T, g *plugins.Grok, cfg *plugins.Config, value string
 }
 func bitdefParse(t *testing.T, cfg *plugins.Config, raw string, dataSource string, cache *plugins.CELCache) string {
 	t.Helper()
-	draft := map[string]any{"raw": raw, "dataType": "antivirus-bitdefender-gz", "dataSource": dataSource, "log": map[string]any{}}
+	draft := map[string]any{"raw": raw, "dataType": "antivirus-bitdefender-gz", "dataSource": dataSource, "event": map[string]any{}}
 	for _, stage := range cfg.Pipeline {
 		matched := false
 		for _, dataType := range stage.DataTypes {
@@ -235,7 +235,7 @@ func bitdefParse(t *testing.T, cfg *plugins.Config, raw string, dataSource strin
 						}
 						utils.SanitizeField(&key)
 						if key != "" {
-							bitdefPut(draft, "log."+key, strings.TrimSpace(value), false)
+							bitdefPut(draft, "event."+key, strings.TrimSpace(value), false)
 						}
 					}
 				case "dynamic":
@@ -266,7 +266,7 @@ func bitdefParse(t *testing.T, cfg *plugins.Config, raw string, dataSource strin
 						t.Fatal(e)
 					}
 					for key, value := range bitdefSanitizeJSON(parsed) {
-						bitdefPut(draft, "log."+key, value, false)
+						bitdefPut(draft, "event."+key, value, false)
 					}
 				case "cast":
 					for _, field := range s.Cast.Fields {

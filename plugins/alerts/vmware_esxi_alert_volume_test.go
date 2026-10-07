@@ -34,7 +34,7 @@ func esxiVolumeEvent(t *testing.T, process, message string) string {
 	t.Helper()
 	b, err := json.Marshal(map[string]any{
 		"dataType": "vmware-esxi", "dataSource": "192.0.2.21",
-		"log": map[string]any{"process": process, "message": message},
+		"event": map[string]any{"process": process, "message": message},
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -49,7 +49,7 @@ func TestESXiAlertVolume(t *testing.T) {
 		dedup              []string
 		positive, negative [][2]string
 	}{
-		{"vm_escape_detection", []string{"dataSource", "lastEvent.log.process"},
+		{"vm_escape_detection", []string{"dataSource", "lastEvent.event.process"},
 			[][2]string{{"Vpxa", "[VpxLRO] -- ERROR lro-1001 -- 5f1c2d3e-0000-4000-8000-000000000001 -- guestOperationsFileManager -- vim.vm.guest.FileManager.listFiles: :vim.fault.FileNotFound"}},
 			[][2]string{{"Vpxa", "[VpxLRO] -- BEGIN lro-1002 -- guestOperationsFileManager -- vim.vm.guest.FileManager.deleteFile -- 5f1c2d3e-0000-4000-8000-000000000002"}}},
 		{"esxi_syslog_disruption", []string{"dataSource"},
@@ -74,7 +74,7 @@ func TestESXiAlertVolume(t *testing.T) {
 					continue
 				}
 				for _, key := range tc.dedup {
-					path := map[string]string{"dataSource": "dataSource", "lastEvent.log.process": "log.process"}[key]
+					path := map[string]string{"dataSource": "dataSource", "lastEvent.event.process": "event.process"}[key]
 					if v := gjson.Get(event, path); v.Type != gjson.String || v.String() == "" {
 						t.Fatalf("de-duplication key %s (%s) does not resolve in %s", key, path, event)
 					}

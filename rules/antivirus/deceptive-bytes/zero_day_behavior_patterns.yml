@@ -26,31 +26,31 @@ description: |
   6. Update security controls based on the identified exploit patterns
   7. Document all IOCs (file hashes, network connections, process behaviors) for threat hunting
 where: |
-  oneOf("log.eventType", ["unknown_threat", "behavioral_anomaly", "zero_day_suspect"]) &&
-  equals("log.threatSignature", "unknown") &&
-  equals("log.deceptionEnvironment", "true") &&
+  oneOf("event.eventType", ["unknown_threat", "behavioral_anomaly", "zero_day_suspect"]) &&
+  equals("event.threatSignature", "unknown") &&
+  equals("event.deceptionEnvironment", "true") &&
   (
-    (greaterOrEqual("log.memoryAnomalyScore", 90)) ||
-    (greaterOrEqual("log.processChainAnomalyScore", 85)) ||
-    (greaterOrEqual("log.networkBehaviorScore", 88)) ||
-    (greaterOrEqual("log.fileSystemAnomalyScore", 92))
+    (greaterOrEqual("event.memoryAnomalyScore", 90)) ||
+    (greaterOrEqual("event.processChainAnomalyScore", 85)) ||
+    (greaterOrEqual("event.networkBehaviorScore", 88)) ||
+    (greaterOrEqual("event.fileSystemAnomalyScore", 92))
   ) &&
-  equals("log.knownMalwareFamily", "") &&
-  exists("log.exploitTechnique") &&
+  equals("event.knownMalwareFamily", "") &&
+  exists("event.exploitTechnique") &&
   exists("origin.ip") &&
-  exists("log.processName")
+  exists("event.processName")
 afterEvents:
   - indexPattern: v11-log-deceptive-bytes-*
     with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'
-      - field: log.processName
+      - field: event.processName
         operator: filter_term
-        value: '{{.log.processName}}'
+        value: '{{.event.processName}}'
     within: 30m
     count: 2
 groupBy:
-  - lastEvent.log.exploitTechnique
-  - lastEvent.log.processHash
+  - lastEvent.event.exploitTechnique
+  - lastEvent.event.processHash
   - adversary.host

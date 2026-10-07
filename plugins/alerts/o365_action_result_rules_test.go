@@ -161,8 +161,8 @@ func TestO365ActionResultRuleCompatibility(t *testing.T) {
 			// described as success. Other migrated outcome branches need an outcome.
 			o365OutcomeAssert(t, cache, r, o365OutcomeSet(t, event, "actionResult", nil), name == "dlp_policy_violations")
 			unrelated := o365OutcomeSet(t, event, "action", "UnrelatedOperation")
-			unrelated = o365OutcomeSet(t, unrelated, "log.PolicyName", nil)
-			unrelated = o365OutcomeSet(t, unrelated, "log.PolicyType", nil)
+			unrelated = o365OutcomeSet(t, unrelated, "event.PolicyName", nil)
+			unrelated = o365OutcomeSet(t, unrelated, "event.PolicyType", nil)
 			o365OutcomeAssert(t, cache, r, unrelated, false)
 			if failureRule || name == "safe_links_click_patterns" {
 				o365OutcomeAssert(t, cache, r, o365OutcomeSet(t, event, "origin.ip", nil), name == "safe_links_click_patterns")
@@ -181,11 +181,11 @@ func TestO365ActionResultPreservesIndependentBranches(t *testing.T) {
 		want        bool
 	}{
 		{"insider_risk_indicators", `{"action":"InsiderRiskAlert","actionResult":"failed"}`, true},
-		{"insider_risk_indicators", `{"log":{"RiskLevel":"High","AlertSource":"InsiderRiskManagement"}}`, true},
-		{"insider_risk_indicators", `{"log":{"RiskLevel":"Low","AlertSource":"InsiderRiskManagement"}}`, false},
+		{"insider_risk_indicators", `{"event":{"RiskLevel":"High","AlertSource":"InsiderRiskManagement"}}`, true},
+		{"insider_risk_indicators", `{"event":{"RiskLevel":"Low","AlertSource":"InsiderRiskManagement"}}`, false},
 		{"information_barriers_violations", `{"action":"InformationBarrierPolicyViolation","origin":{"user":"reviewer@example.test"}}`, true},
-		{"information_barriers_violations", `{"action":"CommunicationBlocked","log":{"ViolationType":"InformationBarrier"},"origin":{"user":"reviewer@example.test"}}`, true},
-		{"information_barriers_violations", `{"action":"CommunicationBlocked","log":{"ViolationType":"Other"},"origin":{"user":"reviewer@example.test"}}`, false},
+		{"information_barriers_violations", `{"action":"CommunicationBlocked","event":{"ViolationType":"InformationBarrier"},"origin":{"user":"reviewer@example.test"}}`, true},
+		{"information_barriers_violations", `{"action":"CommunicationBlocked","event":{"ViolationType":"Other"},"origin":{"user":"reviewer@example.test"}}`, false},
 	} {
 		t.Run(tc.name+fmt.Sprint(tc.want), func(t *testing.T) { o365OutcomeAssert(t, cache, o365OutcomeRule(t, tc.name), tc.event, tc.want) })
 	}
@@ -208,7 +208,7 @@ func TestO365ActionResultSDKHistory(t *testing.T) {
 	mapping := map[string]any{"properties": map[string]any{
 		"@timestamp": map[string]any{"type": "date"}, "action": map[string]any{"type": "keyword"},
 		"origin": map[string]any{"properties": map[string]any{"user": map[string]any{"type": "keyword"}, "ip": map[string]any{"type": "ip"}}},
-		"log":    map[string]any{"properties": map[string]any{"PolicyType": map[string]any{"type": "keyword"}}},
+		"event":    map[string]any{"properties": map[string]any{"PolicyType": map[string]any{"type": "keyword"}}},
 	}}
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -285,7 +285,7 @@ func TestO365ActionResultSDKHistory(t *testing.T) {
 		{"possible_succesfull_password_guessing_o365", "1m", 10, map[string]string{"action": "UserLoginFailed", "origin.user": "reviewer@example.test", "origin.ip": "198.51.100.10"}},
 		{"credential_access_microsoft_365_potential_password_spraying_attack", "10m", 50, map[string]string{"action": "UserLoginFailed", "origin.ip": "198.51.100.10"}},
 		{"safe_links_click_patterns", "30m", 5, map[string]string{"origin.user": "reviewer@example.test", "action": "ClickedSafeLink"}},
-		{"information_barriers_violations", "12h", 3, map[string]string{"origin.user": "reviewer@example.test", "log.PolicyType": "InformationBarrier"}},
+		{"information_barriers_violations", "12h", 3, map[string]string{"origin.user": "reviewer@example.test", "event.PolicyType": "InformationBarrier"}},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			r := o365OutcomeRule(t, tc.name)
@@ -301,13 +301,13 @@ func TestO365ActionResultSDKHistory(t *testing.T) {
 			event := o365ActionResultNormalize(t, o365OutcomeRaw(t, tc.name))
 			o365OutcomeAssert(t, cache, r, event, true)
 			if tc.name == "possible_succesfull_password_guessing_o365" {
-				if gjson.Get(event, "log.clientIP").Exists() {
+				if gjson.Get(event, "event.clientIP").Exists() {
 					t.Fatal("test needs normalized IP without obsolete alias")
 				}
 				old := proto.Clone(search).(*plugins.SearchRequest)
 				for _, e := range old.With {
 					if e.Field == "origin.ip" {
-						e.Value = structpb.NewStringValue("{{.log.clientIP}}")
+						e.Value = structpb.NewStringValue("{{.event.clientIP}}")
 					}
 				}
 				before := queries
