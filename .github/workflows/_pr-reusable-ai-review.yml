@@ -66,14 +66,20 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BASE_REF: ${{ github.event.pull_request.base.ref }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
-          # Use a local merge-base diff, NOT `gh pr diff`: GitHub's REST diff
-          # endpoint returns HTTP 406 once a PR exceeds 300 changed files,
-          # which large rename/rewrite PRs hit (e.g. the log->event bag rename).
-          # `git diff <base>...HEAD` (three-dot) produces the same unified diff
-          # the UI shows and has no file-count limit.
-          git fetch --no-tags origin "${BASE_REF}"
-          git diff "origin/${BASE_REF}...HEAD" > /tmp/pr.diff
+          # Primary: local merge-base diff via git. GitHub's REST diff endpoint
+          # (which `gh pr diff` uses) returns HTTP 406 when a PR exceeds 300
+          # changed files, which large rename/rewrite PRs hit (e.g. the log->event
+          # bag rename). `git diff <base>...HEAD` (three-dot) produces the same
+          # unified diff the UI shows and has no file-count limit.
+          # Fallback: `gh pr diff` — works for small PRs and covers the edge case
+          # where the base branch has been deleted/renamed (the fetch would fail).
+          if ! git fetch --no-tags origin "${BASE_REF}" \
+             || ! git diff "origin/${BASE_REF}...HEAD" > /tmp/pr.diff; then
+            echo "Local diff failed (base branch deleted?); falling back to gh pr diff"
+            gh pr diff "$PR_NUMBER" > /tmp/pr.diff
+          fi
           echo "Diff size: $(wc -c < /tmp/pr.diff) bytes"
           echo "Files in diff: $(grep -c '^diff --git' /tmp/pr.diff)"
 
