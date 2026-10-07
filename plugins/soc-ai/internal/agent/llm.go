@@ -44,11 +44,12 @@ type Message struct {
 }
 
 type CompletionRequest struct {
-	System    string
-	Messages  []Message
-	Tools     []ToolSpec
-	Model     string
-	MaxTokens int
+	System      string
+	Messages    []Message
+	Tools       []ToolSpec
+	Model       string
+	MaxTokens   int
+	Temperature float64 // 0 = provider default; ops path sets it low to curb exploratory tool use
 }
 
 type CompletionResponse struct {
