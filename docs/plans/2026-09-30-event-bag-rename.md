@@ -1134,19 +1134,18 @@ Separately, `DefinitionSyncService` (a `CommandLineRunner`) resyncs Postgres fro
             .aggregations(AGG_NAME, agg -> agg.terms(t -> t.field(Constants.logxWineventlogEventNameKeyword)
                 .size(top).order(List.of(Map.of("_count", SortOrder.Desc))))));
 ```
-becomes (filter on the flattened `event.eventCode` for the file/Security object-access events — `term` via Task 10; aggregate on the typed `action.keyword`):
+becomes (filter `event.channel` IS "Security" — a flat-keyword `term` via Task 10's `IS` translation, exactly mirroring the old `log_name IS Security` intent; aggregate on the typed `action.keyword` populated by Task 7's `eventName`→`action` copy):
 ```java
         List<FilterType> filters = new ArrayList<>();
         filters.add(new FilterType(Constants.timestamp, OperatorType.IS_BETWEEN, List.of(from, to)));
-        filters.add(new FilterType("event.eventCode", OperatorType.IS_ONE_OF_TERMS,
-            List.of("4656", "4658", "4659", "4660", "4661", "4662", "4663", "4664", "4670")));
+        filters.add(new FilterType("event.channel", OperatorType.IS, "Security"));
 
         SearchRequest rq = SearchRequest.of(s -> s.size(0).query(SearchUtil.toQuery(filters))
             .index(Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.LOGS_WINDOWS))
             .aggregations(AGG_NAME, agg -> agg.terms(t -> t.field("action.keyword")
                 .size(top).order(List.of(Map.of("_count", SortOrder.Desc))))));
 ```
-The event-ID list (4656/4658-4664/4670) mirrors the file-management module's `ALL_FILE_EVENT_ID_NUMBER` (`file-field.constant.ts:794`) so the table shows object-access events, matching the old "log_name = Security" intent. `action.keyword` exists for wineventlog only after Task 7 ships — coordinate (this method returns an empty table if the index predates it; that's the pre-rename state anyway).
+(`event.channel` is a raw bag field that arrives from the agent — the Windows filter's `json: source: raw` step lifts it into `event.channel` and never renames/deletes it, so it survives (see the contract fixture `kerberoasting_detection dash-with-account`, whose input carries `event.channel: "Security"`; it predates this rename). `action.keyword` exists for wineventlog only after Task 7 ships; pre-Task-7 data shows an empty table — same as today's dead logx query.)
 
 - [ ] **Step 2: Remove the dead `logx` constants + dead `LogType`/`getRelatedAlerts`**
 
