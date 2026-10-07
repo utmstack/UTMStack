@@ -1,4 +1,5 @@
 {
     "version": "11.1.4",
-    "updater_version": "1.0.4"
+    "updater_version": "1.0.4",
+    "edr_version": "11.1.4"
 }

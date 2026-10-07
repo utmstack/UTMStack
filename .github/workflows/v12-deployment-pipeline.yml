@@ -124,7 +124,7 @@ jobs:
             agent/go.sum
             agent/updater/go.sum
 
-      - name: Build agent + updater binaries
+      - name: Build agent + updater + EDR binaries
         env:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
@@ -139,6 +139,9 @@ jobs:
           cd ${{ github.workspace }}/agent/updater
           go build -o "utmstack_updater_service_${{ matrix.goos }}_${{ matrix.goarch }}${EXT}" .
 
+          cd ${{ github.workspace }}/agent/edr
+          go build -o "utmstack_edr_${{ matrix.goos }}_${{ matrix.goarch }}${EXT}" .
+
       - name: Upload agent binaries as artifact
         uses: actions/upload-artifact@v4
         with:
@@ -146,6 +149,7 @@ jobs:
           path: |
             agent/utmstack_agent_service_${{ matrix.goos }}_${{ matrix.goarch }}*
             agent/updater/utmstack_updater_service_${{ matrix.goos }}_${{ matrix.goarch }}*
+            agent/edr/utmstack_edr_${{ matrix.goos }}_${{ matrix.goarch }}*
           retention-days: 1
   sign_agent_windows:
     name: Sign Windows Agent Binaries
@@ -322,16 +326,21 @@ jobs:
           cp "${{ github.workspace }}/agent/utmstack_agent_service_linux_arm64" ./dependencies/agent/
           cp "${{ github.workspace }}/agent/updater/utmstack_updater_service_linux_amd64" ./dependencies/agent/
           cp "${{ github.workspace }}/agent/updater/utmstack_updater_service_linux_arm64" ./dependencies/agent/
+          cp "${{ github.workspace }}/agent/edr/utmstack_edr_linux_amd64" ./dependencies/agent/
+          cp "${{ github.workspace }}/agent/edr/utmstack_edr_linux_arm64" ./dependencies/agent/
 
           # Windows agents
           cp "${{ github.workspace }}/agent/utmstack_agent_service_windows_amd64.exe" ./dependencies/agent/
           cp "${{ github.workspace }}/agent/utmstack_agent_service_windows_arm64.exe" ./dependencies/agent/
           cp "${{ github.workspace }}/agent/updater/utmstack_updater_service_windows_amd64.exe" ./dependencies/agent/
           cp "${{ github.workspace }}/agent/updater/utmstack_updater_service_windows_arm64.exe" ./dependencies/agent/
+          cp "${{ github.workspace }}/agent/edr/utmstack_edr_windows_amd64.exe" ./dependencies/agent/
+          cp "${{ github.workspace }}/agent/edr/utmstack_edr_windows_arm64.exe" ./dependencies/agent/
 
           # macOS agents (signed and notarized in production; unsigned in dev)
           cp "${{ github.workspace }}/agent-darwin/utmstack_agent_service_darwin_arm64" ./dependencies/agent/
           cp "${{ github.workspace }}/agent-darwin/updater/utmstack_updater_service_darwin_arm64" ./dependencies/agent/
+          cp "${{ github.workspace }}/agent-darwin/edr/utmstack_edr_darwin_arm64" ./dependencies/agent/
           gh release download "$ENTERPRISE_VERSION" \
             --repo utmstack/UTMStackEnterprise \
             --pattern utmstack-collector-mac \
