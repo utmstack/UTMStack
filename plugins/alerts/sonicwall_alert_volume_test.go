@@ -80,7 +80,7 @@ func sonicVolumeGrok(t *testing.T, g *plugins.Grok, str string) ([][2]string, bo
 
 func sonicVolumeParse(t *testing.T, cfg *plugins.Config, raw string, cache *plugins.CELCache) string {
 	t.Helper()
-	draft := map[string]any{"raw": raw, "dataType": sonicDataType, "dataSource": "192.0.2.1", "log": map[string]any{}}
+	draft := map[string]any{"raw": raw, "dataType": sonicDataType, "dataSource": "192.0.2.1", "event": map[string]any{}}
 	for _, stage := range cfg.Pipeline {
 		if len(stage.DataTypes) != 1 || stage.DataTypes[0] != sonicDataType {
 			t.Fatalf("unexpected pipeline stage %v", stage.DataTypes)
@@ -137,7 +137,7 @@ func sonicVolumeParse(t *testing.T, cfg *plugins.Config, raw string, cache *plug
 						}
 						utils.SanitizeField(&key)
 						if key != "" {
-							sonicPut(draft, "log."+key, strings.TrimSpace(value), false)
+							sonicPut(draft, "event."+key, strings.TrimSpace(value), false)
 						}
 					}
 				case "rename":
@@ -269,7 +269,7 @@ func TestSonicWallBotnetAlertVolume(t *testing.T) {
 				return
 			}
 			// adversary: origin, so the alert's target is the event's target: the listed address.
-			if ip := gjson.Get(event, "target.ip").String(); ip != tc.responder || !strings.Contains(gjson.Get(event, "log.message").String(), tc.responder) {
+			if ip := gjson.Get(event, "target.ip").String(); ip != tc.responder || !strings.Contains(gjson.Get(event, "event.message").String(), tc.responder) {
 				t.Fatalf("de-duplication key target.ip %q, want the listed address %s in %s", ip, tc.responder, event)
 			}
 			if gjson.Get(event, "dataSource").String() == "" || !strings.HasPrefix(gjson.Get(event, "origin.ip").String(), "10.") {

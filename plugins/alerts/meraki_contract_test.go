@@ -474,7 +474,7 @@ func TestMerakiActionResultVocabulary(t *testing.T) {
 	if count == 0 {
 		t.Fatal("no actionResult steps found")
 	}
-	if last != `equalsIgnoreCase("log.merakiResult","blocked")` {
+	if last != `equalsIgnoreCase("event.merakiResult","blocked")` {
 		t.Errorf("the vendor blocked outcome must be the last actionResult step, got %s", last)
 	}
 }

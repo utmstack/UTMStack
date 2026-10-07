@@ -248,7 +248,7 @@ func TestDeceptiveBytesOutcomeAndSourceAddress(t *testing.T) {
 		if add := step.Add; add != nil && add.Params["key"].GetStringValue() == "actionResult" {
 			outcome = add.Where
 		}
-		if r := step.Rename; r != nil && r.To == "origin.ip" && len(r.From) == 1 && r.From[0] == "log.src" {
+		if r := step.Rename; r != nil && r.To == "origin.ip" && len(r.From) == 1 && r.From[0] == "event.src" {
 			source = r.Where
 		}
 	}
@@ -261,19 +261,19 @@ func TestDeceptiveBytesOutcomeAndSourceAddress(t *testing.T) {
 		name, input          string
 		wantDenied, wantSide bool
 	}{
-		{"cef act blocked", `{` + cef + `,"log":{"act":"blocked","src":"203.0.113.20"}}`, true, true},
-		{"cef act prevented", `{` + cef + `,"log":{"act":"prevented","src":"192.0.2.30"}}`, true, true},
-		{"cef act capitalized", `{` + cef + `,"log":{"act":"Prevented","src":"192.0.2.30"}}`, true, true},
-		{"cef act deny", `{` + cef + `,"log":{"act":"DENY","src":"2001:db8::20"}}`, true, true},
-		{"cef act detected", `{` + cef + `,"log":{"act":"detected","src":"192.0.2.30"}}`, false, true},
-		{"cef act phrase", `{` + cef + `,"log":{"act":"not blocked","src":"192.0.2.30"}}`, false, true},
-		{"cef source without action", `{` + cef + `,"log":{"src":"192.0.2.31"}}`, false, false},
-		{"cef unusable source", `{` + cef + `,"log":{"act":"blocked","src":"0.0.0.0"}}`, true, false},
-		{"cef unspecified v6 source", `{` + cef + `,"log":{"act":"blocked","src":"::"}}`, true, false},
-		{"cef non-address source", `{` + cef + `,"log":{"act":"blocked","src":"dbmgmt.example.com"}}`, true, false},
-		{"key=value action blocked", `{"raw":"<14>1 2026-09-27T12:00:00Z host 2 foo:1 action=blocked","log":{"action":"blocked","src":"192.0.2.33"}}`, true, false},
-		{"key=value action capitalized", `{"raw":"<14>1 2026-09-27T12:00:00Z host 2 foo:1 action=Blocked","log":{"action":"Blocked"}}`, true, false},
-		{"key=value other action", `{"raw":"<14>1 2026-09-27T12:00:00Z host 2 foo:1 action=file_copy","log":{"action":"file_copy"}}`, false, false},
+		{"cef act blocked", `{` + cef + `,"event":{"act":"blocked","src":"203.0.113.20"}}`, true, true},
+		{"cef act prevented", `{` + cef + `,"event":{"act":"prevented","src":"192.0.2.30"}}`, true, true},
+		{"cef act capitalized", `{` + cef + `,"event":{"act":"Prevented","src":"192.0.2.30"}}`, true, true},
+		{"cef act deny", `{` + cef + `,"event":{"act":"DENY","src":"2001:db8::20"}}`, true, true},
+		{"cef act detected", `{` + cef + `,"event":{"act":"detected","src":"192.0.2.30"}}`, false, true},
+		{"cef act phrase", `{` + cef + `,"event":{"act":"not blocked","src":"192.0.2.30"}}`, false, true},
+		{"cef source without action", `{` + cef + `,"event":{"src":"192.0.2.31"}}`, false, false},
+		{"cef unusable source", `{` + cef + `,"event":{"act":"blocked","src":"0.0.0.0"}}`, true, false},
+		{"cef unspecified v6 source", `{` + cef + `,"event":{"act":"blocked","src":"::"}}`, true, false},
+		{"cef non-address source", `{` + cef + `,"event":{"act":"blocked","src":"dbmgmt.example.com"}}`, true, false},
+		{"key=value action blocked", `{"raw":"<14>1 2026-09-27T12:00:00Z host 2 foo:1 action=blocked","event":{"action":"blocked","src":"192.0.2.33"}}`, true, false},
+		{"key=value action capitalized", `{"raw":"<14>1 2026-09-27T12:00:00Z host 2 foo:1 action=Blocked","event":{"action":"Blocked"}}`, true, false},
+		{"key=value other action", `{"raw":"<14>1 2026-09-27T12:00:00Z host 2 foo:1 action=file_copy","event":{"action":"file_copy"}}`, false, false},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			denied, err := cache.Eval(outcome, tc.input)

@@ -2019,7 +2019,7 @@
     "absent": [
       "origin.ip",
       "actionResult",
-      "log.azureIpsecClientIp"
+      "event.azureIpsecClientIp"
     ],
     "matches": []
   },
