@@ -58,16 +58,24 @@ jobs:
         prompt: ${{ fromJson(needs.discover.outputs.prompts) }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Full history so we can compute the merge-base diff locally.
+          fetch-depth: 0
 
       - name: Fetch PR diff
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
         run: |
-          # gh pr diff gives the same unified diff the GitHub UI shows.
-          # Simpler than `git diff base..head` and doesn't require fetch-depth: 0.
-          gh pr diff "$PR_NUMBER" > /tmp/pr.diff
+          # Use a local merge-base diff, NOT `gh pr diff`: GitHub's REST diff
+          # endpoint returns HTTP 406 once a PR exceeds 300 changed files,
+          # which large rename/rewrite PRs hit (e.g. the log->event bag rename).
+          # `git diff <base>...HEAD` (three-dot) produces the same unified diff
+          # the UI shows and has no file-count limit.
+          git fetch --no-tags origin "${BASE_REF}"
+          git diff "origin/${BASE_REF}...HEAD" > /tmp/pr.diff
           echo "Diff size: $(wc -c < /tmp/pr.diff) bytes"
+          echo "Files in diff: $(grep -c '^diff --git' /tmp/pr.diff)"
 
       - name: Exclude rules/filters/definitions from the review diff
         # Changes under any "rules", "filters" or "definitions" folder are
