@@ -48,7 +48,7 @@
     "jquery": "^3.7.1",
     "jquery-ui": "^1.13.2",
     "js-yaml": "^4.1.0",
-    "jspdf": "^2.3.1",
+    "jspdf": "^4.2.1",
     "leaflet": "^1.6.0",
     "leaflet.heat": "^0.2.0",
     "lodash": "^4.17.21",
