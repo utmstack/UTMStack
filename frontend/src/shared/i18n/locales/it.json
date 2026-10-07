@@ -1187,7 +1187,21 @@
       "secret.ldap": "Bind password",
       "secretHintCreate": "Stored encrypted and never shown again.",
       "secretHintEdit": "Leave blank to keep the stored one.",
-      "secretUnchanged": "unchanged"
+      "secretUnchanged": "invariato",
+      "errors": {
+        "required": "Questo campo è obbligatorio.",
+        "url": "Deve essere un URL http(s) valido.",
+        "httpsUrl": "Deve essere un URL https valido.",
+        "hostname": "Immettere un host o un IP senza schema (es. ldap.esempio.it).",
+        "port": "La porta deve essere un numero intero tra 0 e 65535.",
+        "pemCertificate": "Non sembra un certificato PEM (manca -----BEGIN/END CERTIFICATE-----).",
+        "pemKey": "Non sembra una chiave privata PEM (manca -----BEGIN/END PRIVATE KEY-----).",
+        "userFilterPlaceholder": "Il filtro deve contenere %s, dove viene inserita l'indirizzo di accesso.",
+        "userFilterUnbalanced": "Parentesi non bilanciate: la ricerca non restituirà nulla.",
+        "nameFormat": "Usa lettere, numeri, punti, trattini o underscore (max 64). Compare nell'URL SSO, quindi niente spazi.",
+        "redirectUrl": "Deve essere un URL https valido oppure un URL http di loopback (localhost / 127.0.0.1 / [::1]).",
+        "entityId": "Deve essere un URI valido, es. https://utmstack.example.com/sp."
+      }
     },
     "delete": {
       "title": "Elimina provider di identità",
@@ -1240,7 +1254,17 @@
     },
     "searchPlaceholder": "Cerca per nome account o SID…",
     "allTenants": "Tutti i tenant",
-    "filters": "Filtri",
+    "filters": {
+      "add": "Aggiungi filtro",
+      "clearAll": "Cancella tutto",
+      "filterValues": "Filtra valori…",
+      "loadingValues": "Caricamento valori…",
+      "noValues": "Nessun valore trovato.",
+      "pickValue": "Scegli un valore per aggiungere il filtro.",
+      "empty": "(vuoto)",
+      "cancel": "Annulla",
+      "addBtn": "Aggiungi"
+    },
     "filterFields": {
       "status": "Stato del ciclo di vita"
     },

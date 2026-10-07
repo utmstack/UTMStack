@@ -2,6 +2,8 @@ package domain
 
 import "encoding/json"
 
+const FalsePositiveTag = "False positive"
+
 type IncidentDetail struct {
 	IncidentName string `json:"incidentName,omitempty"`
 	IncidentID   string `json:"incidentId,omitempty"`
