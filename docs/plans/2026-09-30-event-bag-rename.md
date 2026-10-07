@@ -2,11 +2,11 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use subagent-driven-development (recommended) or executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Replace the heterogeneous `log` map with a new `event` bag (OpenSearch type `flattened`) so new logs can never hit dynamic-mapping type conflicts, add a `controls []string` field for future compliance tags, and migrate all UI/backend consumers off `log.*` (and dead `logx.*`).
+**Goal:** Replace the heterogeneous `log` map with a new `event` bag (OpenSearch type `flat_object` — Elasticsearch's `flattened`) so new logs can never hit dynamic-mapping type conflicts, add a `controls []string` field for future compliance tags, and migrate all UI/backend consumers off `log.*` (and dead `logx.*`).
 
-**Architecture:** The `log` JSON key IS the protobuf field name for `Event.Log` (field 9, `go-sdk/plugins/plugins.proto`). Renaming that one field cascades the new `event` key through the draft JSON, the OpenSearch document, and CEL rule evaluation in a single move — no dual namespace. Parsers that hardcode the prefix (`json`/`xml`/`kv`) switch to `event.%s`; every other parser takes field paths from filter YAML, which gets a scripted `log.`→`event.` rename. The installer's `v11-log-*` template pins `event: {type:flattened}` + `controls: {type:keyword}` + typed top-level fields. The Java `SearchUtil` becomes flattened-aware (translates UI operators to the query types `flattened` supports). The file-management module moves to canonical `origin.*`/`target.*` fields. **Do NOT touch** `plugins.Log` (gRPC input message) or `Draft.log` (a JSON string) — only `Event.log`.
+**Architecture:** The `log` JSON key IS the protobuf field name for `Event.Log` (field 9, `go-sdk/plugins/plugins.proto`). Renaming that one field cascades the new `event` key through the draft JSON, the OpenSearch document, and CEL rule evaluation in a single move — no dual namespace. Parsers that hardcode the prefix (`json`/`xml`/`kv`) switch to `event.%s`; every other parser takes field paths from filter YAML, which gets a scripted `log.`→`event.` rename. The installer's `v11-log-*` template pins `event: {type:flat_object}` + `controls: {type:keyword}` + typed top-level fields. The Java `SearchUtil` becomes flattened-aware (translates UI operators to the query types `flat_object` supports). The file-management module moves to canonical `origin.*`/`target.*` fields. **Do NOT touch** `plugins.Log` (gRPC input message) or `Draft.log` (a JSON string) — only `Event.log`.
 
-**Tech Stack:** Go (protobuf + gRPC + tidwall/gjson/sjson), Java 17 (Spring Boot + OpenSearch Java client), Angular 7 / TypeScript, OpenSearch (composable index templates, `flattened` field type), PowerShell for scripted renames.
+**Tech Stack:** Go (protobuf + gRPC + tidwall/gjson/sjson), Java 17 (Spring Boot + OpenSearch Java client), Angular 7 / TypeScript, OpenSearch (composable index templates, `flat_object` field type), PowerShell for scripted renames.
 
 **Supersedes:** `docs/plans/event-rename-plan.md` and the earlier `log`-pinning plan — this file is canonical.
 
@@ -633,7 +633,7 @@ git commit -m "refactor(rules): rename log.* to event.* in CEL/afterEvents/group
 
 **Background:** The installer is the only code that creates the `v11-log-*` index template. Fresh installs run `InitOpenSearch()` (lock 7); upgrades run `UpdateOpenSearch()` (lock-gated). A composable template only affects **newly created** indices — existing indices need an explicit `_mapping` PUT (non-destructive: adding `event`/`controls`/typed top-levels doesn't touch the legacy dynamic `log` mapping, which old docs still use).
 
-The template pins: `event` as `flattened` (the conflict-proof bag), `controls` as `keyword`, and the top-level Event fields the UI/SQL/sort depend on with real types (`@timestamp` date, `dataType`/`dataSource`/`action`/`protocol`/`actionResult`/`severity`/`connectionStatus` text+keyword, `statusCode` long, `origin.ip`/`target.ip` ip, `origin.port`/`target.port` long, `origin.user`/`target.user`/`origin.host`/`target.host` text+keyword, `origin.file`/`target.path`/`target.file` text+keyword — the last three are the canonical file slots from Task 7 + syslog/o365 filters). `origin`/`target` stay `dynamic:true` beyond those so new canonical fields map naturally (their values are schema-controlled, not vendor-arbitrary).
+The template pins: `event` as OpenSearch `flat_object` (the conflict-proof bag; Elasticsearch calls the same type `flattened`, but the OS mapping type string must be `flat_object`), `controls` as `keyword`, and the top-level Event fields the UI/SQL/sort depend on with real types (`@timestamp` date, `dataType`/`dataSource`/`action`/`protocol`/`actionResult`/`severity`/`connectionStatus` text+keyword, `statusCode` long, `origin.ip`/`target.ip` ip, `origin.port`/`target.port` long, `origin.user`/`target.user`/`origin.host`/`target.host` text+keyword, `origin.file`/`target.path`/`target.file` text+keyword — the last three are the canonical file slots from Task 7 + syslog/o365 filters). `origin`/`target` stay `dynamic:true` beyond those so new canonical fields map naturally (their values are schema-controlled, not vendor-arbitrary).
 
 - [ ] **Step 1: Add the mappings constant to `search.go`**
 
@@ -641,7 +641,7 @@ After the imports in `installer/services/search.go`:
 
 ```go
 // logIndexMappings pins the canonical fields for v11-log-* documents.
-// "event" is flattened: OpenSearch stores every sub-key as a keyword and never
+// "event" is flat_object (OpenSearch): it stores every sub-key as a keyword and never
 // infers types, so heterogeneous vendor values can no longer produce
 // mapper_parsing_exception. "controls" holds compliance control tags.
 // Top-level Event fields keep real types so the UI/SQL/sort work on them.
@@ -675,8 +675,8 @@ const logIndexMappings = `
     "bytesSent": {"type":"double"},
     "bytesReceived": {"type":"double"}
   }},
-  "event": {"type":"flattened"},
-  "controls": {"type":"keyword"}
+   "event": {"type":"flat_object"},
+   "controls": {"type":"keyword"}
 }`
 ```
 
@@ -722,7 +722,7 @@ func UpdateOpenSearch() error {
 	// Do NOT add the typed top-levels here: they can conflict with existing dynamic
 	// mappings (e.g. origin.port already inferred) and would 400 the whole upgrade.
 	if err := execCurl(containerID, "PUT", "https://localhost:9200/v11-log-*/_mapping?allow_no_indices=true",
-		`{"properties":{"event":{"type":"flattened"},"controls":{"type":"keyword"}}}`); err != nil {
+		`{"properties":{"event":{"type":"flat_object"},"controls":{"type":"keyword"}}}`); err != nil {
 		return err
 	}
 
@@ -775,8 +775,8 @@ func TestLogIndexMappingsValidJSON(t *testing.T) {
 		t.Fatalf("logIndexMappings is not valid JSON: %v", err)
 	}
 	ev, _ := m["event"].(map[string]any)
-	if ev["type"] != "flattened" {
-		t.Fatalf("event should be flattened: %v", m["event"])
+	if ev["type"] != "flat_object" {
+		t.Fatalf("event should be flat_object (OpenSearch): %v", m["event"])
 	}
 	ct, _ := m["controls"].(map[string]any)
 	if ct["type"] != "keyword" {
@@ -1282,13 +1282,13 @@ git commit -m "feat(backend,user-auditor): read event bag, drop dead logx"
 - Modify: `user-auditor/.../service/Impl/ElasticsearchService.java:93` (searchBySid query)
 - Modify: `plugins/soc-ai/internal/alert/transform.go` (direct `LastEvent.Log` struct access)
 
-**Background:** The connector returns OS field types as strings; a `flattened` field arrives as type `"flattened"`. The operator list is derived from the field type (`operator.service.ts`), and the value box is either an `ng-select` (multi-value operators, driven by `applySelectFilter()`) or a plain `<input>`. For a flattened field: add the type, restrict operators to the flattened-compatible set (the backend Task 10 translates `IS`/`IS_NOT`/`IS_ONE_OF`/`IS_NOT_ONE_OF`/`START_WITH`/`NOT_START_WITH`; `IS_ONE_OF_TERMS` already emits `terms` and needs no translation; everything else on `event.*` is unsupported), and force the plain input for single-value operators so the user types a dot-path value (e.g. `eventCode: 4624`).
+**Background:** The connector returns OS field types as strings; a `flat_object` field arrives as type `"flat_object"` (the OS type string — note Elasticsearch calls the same concept `flattened`, but UTMStack ships OpenSearch, so the wire value is `flat_object`). The operator list is derived from the field type (`operator.service.ts`), and the value box is either an `ng-select` (multi-value operators, driven by `applySelectFilter()`) or a plain `<input>`. For a flattened field: add the type, restrict operators to the flattened-compatible set (the backend Task 10 translates `IS`/`IS_NOT`/`IS_ONE_OF`/`IS_NOT_ONE_OF`/`START_WITH`/`NOT_START_WITH`; `IS_ONE_OF_TERMS` already emits `terms` and needs no translation; everything else on `event.*` is unsupported), and force the plain input for single-value operators so the user types a dot-path value (e.g. `eventCode: 4624`).
 
 - [ ] **Step 1: Add the enum value**
 
-`frontend/src/app/shared/enums/elastic-data-types.enum.ts` — add after `KEYWORD = 'keyword'`:
+`frontend/src/app/shared/enums/elastic-data-types.enum.ts` — add after `KEYWORD = 'keyword'` (the value MUST be `flat_object` — the type string OpenSearch actually returns for the mapping — NOT Elasticsearch's `flattened` name):
 ```ts
-  FLATTENED = 'flattened'
+  FLATTENED = 'flat_object'
 ```
 
 - [ ] **Step 2: Add the flattened operator branch**
@@ -1650,7 +1650,7 @@ SELECT count(*) FROM utm_correlation_rules WHERE rule_definition_def LIKE '%log.
 
 1. Revert `TW_EVENT_PROCESSOR_VERSION_PROD` to the previous base (engine emits `log` again).
 2. Revert UTMStack filters/rules/installer/backend/frontend to the pre-rename release.
-3. The `event:flattened` + `controls:keyword` + typed top-level OS mappings are harmless no-ops if unused — no need to remove them.
+3. The `event:flat_object` + `controls:keyword` + typed top-level OS mappings are harmless no-ops if unused — no need to remove them.
 4. No data loss: `log` docs and any `event` docs coexist.
 
 - [ ] **Step 6: Close out**

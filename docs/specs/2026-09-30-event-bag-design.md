@@ -45,9 +45,9 @@ Field number 9 is unchanged (wire format is field-number-based, so in-flight gRP
 
 **Do NOT rename** `message Log` (gRPC input message) or `Draft.log` (a JSON string field) — only `Event.log`.
 
-### 4.2 Map `event` as OpenSearch `flattened`
+### 4.2 Map `event` as OpenSearch `flat_object`
 
-`flattened` stores every sub-key as a keyword and never infers types → **conflicts are impossible by construction** (this is what cures the bug). Trade-offs, accepted:
+OpenSearch's `flat_object` (Elasticsearch's `flattened` under a different name — UTMStack ships OpenSearch, so the mapping type string must be `flat_object`) stores every sub-key as a keyword and never infers types → **conflicts are impossible by construction** (this is what cures the bug). Trade-offs, accepted:
 
 - No aggregations, sorting, or numeric range on `event.*` (OpenSearch `flat_object` limitation). Fields that need those belong in the canonical schema and must be promoted by filters.
 - Supported queries: `term`, `terms`, `terms_set`, `prefix`, `range` (lexical), `match`, `multi_match`, `query_string`, `simple_query_string`, `exists`, `wildcard`. **Not supported: `match_phrase`.**
@@ -58,7 +58,7 @@ Field number 9 is unchanged (wire format is field-number-based, so in-flight gRP
 
 ### 4.4 UI/connector requires no code change to enumerate
 
-The connector's `IndexUtils.propertiesFromMapping` only checks `isObject()`/`isText()` and never reads `dynamic`, so it already handles the pinned top-level fields. A `flattened` field appears as one field of type `flattened` — which the frontend must learn about (Task: add `FLATTENED` to `ElasticDataTypesEnum` and restrict its operators).
+The connector's `IndexUtils.propertiesFromMapping` only checks `isObject()`/`isText()` and never reads `dynamic`, so it already handles the pinned top-level fields. A `flat_object` field appears as one field of type `flat_object` — which the frontend must learn about (Task: add `FLATTENED = 'flat_object'` to `ElasticDataTypesEnum` and restrict its operators).
 
 ### 4.5 The backend query builder becomes flattened-aware
 

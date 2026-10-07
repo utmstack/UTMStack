@@ -292,6 +292,26 @@
             <artifactId>opensearch-connector</artifactId>
             <version>1.0.5</version>
         </dependency>
+        <!-- The v11-log-* event bag is an OpenSearch `flat_object` field. The
+             connector pulls opensearch-java 2.6.0 transitively, but 2.6.0
+             predates FlatObjectProperty and THROWS deserializing a flat_object
+             mapping, which breaks getIndexProperties (the UI field picker).
+             Bump the client to 2.10.2. All of 2.10.2's transitive deps are
+             excluded so the ONLY jar that changes is opensearch-java itself;
+             the app keeps its existing jackson (2.12.5) and opensearch-rest-client
+             (2.9.0, via the connector). Verified empirically against the product
+             OS image 2.19.1 with the connector 1.0.5 code unchanged. -->
+        <dependency>
+            <groupId>org.opensearch.client</groupId>
+            <artifactId>opensearch-java</artifactId>
+            <version>2.10.2</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <dependency>
             <groupId>jakarta.json</groupId>
             <artifactId>jakarta.json-api</artifactId>

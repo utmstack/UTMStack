@@ -11,8 +11,8 @@ func TestLogIndexMappingsValidJSON(t *testing.T) {
 		t.Fatalf("logIndexMappings is not valid JSON: %v", err)
 	}
 	ev, _ := m["event"].(map[string]any)
-	if ev["type"] != "flattened" {
-		t.Fatalf("event should be flattened: %v", m["event"])
+	if ev["type"] != "flat_object" {
+		t.Fatalf("event should be flat_object (OpenSearch): %v", m["event"])
 	}
 	ct, _ := m["controls"].(map[string]any)
 	if ct["type"] != "keyword" {
@@ -25,8 +25,8 @@ func TestNewBagMappingsValidJSON(t *testing.T) {
 	if err := json.Unmarshal([]byte(newBagMappings), &m); err != nil {
 		t.Fatalf("newBagMappings is not valid JSON: %v", err)
 	}
-	if ev, _ := m["event"].(map[string]any); ev["type"] != "flattened" {
-		t.Fatalf("event should be flattened: %v", m["event"])
+	if ev, _ := m["event"].(map[string]any); ev["type"] != "flat_object" {
+		t.Fatalf("event should be flat_object (OpenSearch): %v", m["event"])
 	}
 	if ct, _ := m["controls"].(map[string]any); ct["type"] != "keyword" {
 		t.Fatalf("controls should be keyword: %v", m["controls"])

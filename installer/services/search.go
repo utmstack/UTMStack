@@ -9,8 +9,8 @@ import (
 )
 
 // logIndexMappings pins the canonical fields for v11-log-* documents.
-// "event" is flattened: OpenSearch stores every sub-key as a keyword and never
-// infers types, so heterogeneous vendor values can no longer produce
+// "event" is OpenSearch's flat_object type: it stores every sub-key as a keyword
+// and never infers types, so heterogeneous vendor values can no longer produce
 // mapper_parsing_exception conflicts. "controls" holds compliance control tags.
 // Top-level Event fields keep real types so the UI/SQL/sort work on them.
 //
@@ -48,14 +48,14 @@ const logIndexMappings = `
     "bytesSent": {"type":"double"},
     "bytesReceived": {"type":"double"}
   }},
-  "event": {"type":"flattened"},
+  "event": {"type":"flat_object"},
   "controls": {"type":"keyword"}
 }`
 
 // newBagMappings are the mappings added to EXISTING v11-log-* indices on
 // upgrade (event/controls are new keys — safe to add in-place; typed
 // top-levels are not, so they stay out of the retro PUT).
-const newBagMappings = `{"event":{"type":"flattened"},"controls":{"type":"keyword"}}`
+const newBagMappings = `{"event":{"type":"flat_object"},"controls":{"type":"keyword"}}`
 
 func getOpenSearchContainerID() (string, error) {
 	containerIDs, err := utils.RunCmdWithOutput("docker", "ps", "-q", "-f", "name=utmstack_node1")
