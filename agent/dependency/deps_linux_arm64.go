@@ -32,16 +32,14 @@ func GetDependencies() []Dependency {
 			Uninstall:   uninstallUpdater,
 		},
 
-		// Auditd dependency - auto-configures Linux audit daemon
-		// No download - installs from system package manager
 		{
-			Name:       "auditd",
-			Version:    AuditdVersion,
-			BinaryPath: "/sbin/auditctl", // Check if auditd tools exist
-			Critical:   false,
-			Configure:  configureAuditd,
-			Update:     updateAuditdRules,
-			Uninstall:  cleanupAuditd,
+			Name:        "edr",
+			Version:     EDRVersion,
+			BinaryPath:  filepath.Join(basePath, EDRFile("")),
+			DownloadURL: edrDownloadURL,
+			Critical:    false, // agent runs even if EDR is unavailable
+			Configure:   configureEDRLinux,
+			Uninstall:   uninstallEDR,
 		},
 
 		// Auditd dependency - auto-configures Linux audit daemon

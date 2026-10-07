@@ -26,6 +26,14 @@ func configureEDR() error {
 	return exec.Run(edrPath, fs.GetExecutablePath(), "install")
 }
 
+func configureEDRLinux() error {
+	edrPath := filepath.Join(fs.GetExecutablePath(), EDRFile(""))
+	if err := exec.Run("chmod", fs.GetExecutablePath(), "755", edrPath); err != nil {
+		return fmt.Errorf("error setting executable permission on EDR: %v", err)
+	}
+	return configureEDR()
+}
+
 func uninstallEDR() error {
 	edrPath := filepath.Join(fs.GetExecutablePath(), EDRFile(""))
 	if !fs.Exists(edrPath) {

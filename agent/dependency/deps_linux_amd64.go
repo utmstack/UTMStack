@@ -32,6 +32,16 @@ func GetDependencies() []Dependency {
 			Uninstall:   uninstallUpdater,
 		},
 
+		{
+			Name:        "edr",
+			Version:     EDRVersion,
+			BinaryPath:  filepath.Join(basePath, EDRFile("")),
+			DownloadURL: edrDownloadURL,
+			Critical:    false, // agent runs even if EDR is unavailable
+			Configure:   configureEDRLinux,
+			Uninstall:   uninstallEDR,
+		},
+
 		// Auditd dependency - auto-configures Linux audit daemon
 		// No download - installs from system package manager
 		{
