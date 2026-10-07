@@ -1,0 +1,25 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - utmstack_edr
+name: UTMStack EDR Quarantined File Restored
+impact:
+  confidentiality: 1
+  integrity: 1
+  availability: 1
+category: Defense Evasion
+technique: "T1490 - Inhibit System Recovery"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1490/
+description: |
+  Records a quarantined file being restored to its original path. This is an audit trail, not a paging alert: a restore is usually a legitimate admin or user action after a false-positive review. The value is the record - the file, its hash, and that it left quarantine. target.file and target.sha256 identify the restored item; log.signature carries the quarantine id to tie it back to the original quarantine event.
+
+  Next Steps:
+  1. Confirm the restore is authorized: match it against the original quarantine alert and who closed it
+  2. Re-scan the restored file to confirm the verdict is still malicious or that it was a false positive
+  3. If the original detection was real and this restore is not authorized, treat the endpoint as re-infected and re-isolate it
+  4. Correlate with the quarantine event (same target.sha256) to reconstruct the full lifecycle
+where: |
+  equals("log.source", "edr_engine") &&
+  equals("action", "quarantined_restored")

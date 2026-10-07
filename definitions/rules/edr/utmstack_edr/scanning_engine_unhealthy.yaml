@@ -1,0 +1,27 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - utmstack_edr
+name: UTMStack EDR Scanning Engine Unhealthy
+impact:
+  confidentiality: 2
+  integrity: 2
+  availability: 2
+category: Defense Evasion
+technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1562/001/
+description: |
+  Detects the endpoint's scanning engine failing its 30-second health check, with the restart attempt reported back to the SIEM. A down engine means no verdicts: file and process scans fail open and AMSI blocks stall, so the endpoint is momentarily blind. signature "scan_engine_down" fires on the failed health check; "scan_engine_restart_failed" additionally means the engine came back down or could not be started, which is the worse of the two.
+
+  Next Steps:
+  1. Check the endpoint's available RAM: the engine can be OOM-killed under a scan burst, so a memory-starved host will keep dropping it
+  2. If signature is scan_engine_restart_failed, verify the engine binaries and config are intact on the endpoint
+  3. Correlate with quarantine and scan events from the same host in the window the engine was down - detections there are unreliable
+  4. If multiple hosts go down at once, look at the signature mirror or an installer update that may have broken the engine
+  5. Re-verify the engine is healthy on the endpoint before closing
+where: |
+  equals("log.source", "edr_engine") &&
+  equals("action", "health") &&
+  oneOf("log.signature", ["scan_engine_down", "scan_engine_restart_failed"])

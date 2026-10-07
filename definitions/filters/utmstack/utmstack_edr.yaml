@@ -1,4 +1,4 @@
-# UTMStack EDR filter, version 1.0.0
+# UTMStack EDR filter, version 1.2.0
 #
 # Parses utmstack_edr events and normalizes them to the UTMStack event schema.
 # Source of truth for the field list: agent/edr/event/event.go (Event struct).
@@ -26,6 +26,11 @@ pipeline:
             - log.severity
           to: severity
           where: 'exists("log.severity")'
+      - rename:
+          from:
+            - log.objectpath
+          to: log.sensor
+          where: 'equals("action", "config_change")'
       - rename:
           from:
             - log.objectpath
