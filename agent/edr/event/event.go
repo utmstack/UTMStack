@@ -30,7 +30,40 @@ const (
 
 	ActionRansomwareSuspected = "ransomware_suspected"
 	ActionRansomwareContained = "ransomware_contained"
+	ActionConfigChange        = "config_change"
+	ActionQuarantineRestore   = "quarantined_restored"
 )
+
+func NewHealthEvent(signature string) Event {
+	return Event{
+		Source:    SourceEngine,
+		Action:    ActionHealth,
+		Signature: signature,
+		Severity:  "warning",
+	}
+}
+
+func NewConfigChangeEvent(sensor, state string) Event {
+	return Event{
+		Source:     SourceEngine,
+		Action:     ActionConfigChange,
+		Signature:  "sensor_toggled",
+		Verdict:    state,
+		ObjectPath: sensor,
+		Severity:   "info",
+	}
+}
+
+func NewQuarantineRestoreEvent(originalPath, sha256, quarantineID string) Event {
+	return Event{
+		Source:     SourceEngine,
+		Action:     ActionQuarantineRestore,
+		ObjectPath: originalPath,
+		FileHash:   sha256,
+		Signature:  quarantineID,
+		Severity:   "info",
+	}
+}
 
 // NewAMSIEvent builds a branded amsi event. appName is the script host that
 // submitted the content (carried in ObjectPath).

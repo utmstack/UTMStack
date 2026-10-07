@@ -12,6 +12,7 @@ import (
 
 	"github.com/utmstack/UTMStack/agent/edr/cache"
 	"github.com/utmstack/UTMStack/agent/edr/config"
+	"github.com/utmstack/UTMStack/agent/edr/event"
 	"github.com/utmstack/UTMStack/agent/edr/quarantine"
 )
 
@@ -241,13 +242,13 @@ func applySet(cfg *config.EDRConfig, key, val string) error {
 		}
 		cfg.SignatureFallback = val
 	case "sensors.file_watcher":
-		return setSensor(&cfg.Sensors.FileWatcher, val)
+		return setSensorAndReport(&cfg.Sensors.FileWatcher, val, "file_watcher")
 	case "sensors.process_guard":
-		return setSensor(&cfg.Sensors.ProcessGuard, val)
+		return setSensorAndReport(&cfg.Sensors.ProcessGuard, val, "process_guard")
 	case "sensors.amsi":
-		return setSensor(&cfg.Sensors.AMSI, val)
+		return setSensorAndReport(&cfg.Sensors.AMSI, val, "amsi")
 	case "sensors.behavioral":
-		return setSensor(&cfg.Sensors.Behavioral, val)
+		return setSensorAndReport(&cfg.Sensors.Behavioral, val, "behavioral")
 	case "ransomware.enabled":
 		b, err := parseBool(val)
 		if err != nil {
@@ -640,13 +641,32 @@ func setPositiveInt(dst *int, val string) error {
 	return nil
 }
 
-func setSensor(dst **bool, val string) error {
+func setSensorAndReport(dst **bool, val, sensor string) error {
 	b, err := parseBool(val)
 	if err != nil {
 		return err
 	}
+	prev := dst != nil && *dst != nil && **dst
 	*dst = &b
+	if b != prev {
+		state := "off"
+		if b {
+			state = "on"
+		}
+		emitConfigChangeEvent(event.NewConfigChangeEvent(sensor, state))
+	}
 	return nil
+}
+
+func emitConfigChangeEvent(ev event.Event) {
+	sp, err := event.OpenSpool(config.SpoolFile, 8<<20)
+	if err != nil {
+		return
+	}
+	defer sp.Close()
+	if js, err := ev.ToJSON(); err == nil {
+		_ = sp.Append(js)
+	}
 }
 
 func containsFold(list []string, v string) bool {

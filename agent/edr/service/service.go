@@ -447,6 +447,12 @@ func (p *program) startPipeline(ctx context.Context, cfg config.EDRConfig, c *ca
 	p.sigFeed.SetSpool(sp)
 	goSafe("feed", func() { p.sigFeed.Run(ctx) })
 
+	p.eng.SetEventSink(func(signature string) {
+		if js, err := event.NewHealthEvent(signature).ToJSON(); err == nil {
+			_ = sp.Append(js)
+		}
+	})
+
 	// Scripts/fileless (AMSI): named-pipe scan server + provider registration.
 	if cfg.Sensors.AMSIOn() {
 		amsiSc := amsi.NewScanner(cfg, sp)

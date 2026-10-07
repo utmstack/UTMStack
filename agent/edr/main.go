@@ -236,8 +236,15 @@ func restoreData(id string) error {
 	if err != nil {
 		return fmt.Errorf("quarantine: %w", err)
 	}
+	rec, _, _ := c.GetQuarantine(id)
 	if err := store.Restore(id); err != nil {
 		return fmt.Errorf("restore error: %w", err)
+	}
+	if sp, spErr := event.OpenSpool(config.SpoolFile, 8<<20); spErr == nil {
+		defer sp.Close()
+		if js, jErr := event.NewQuarantineRestoreEvent(rec.OriginalPath, rec.SHA256, id).ToJSON(); jErr == nil {
+			_ = sp.Append(js)
+		}
 	}
 	return nil
 }

@@ -17,9 +17,13 @@ type Engine struct {
 	cfg    config.EDRConfig
 	cmd    *exec.Cmd
 	tuning Tuning
+
+	eventSink func(signature string)
 }
 
 func New(cfg config.EDRConfig) *Engine { return &Engine{cfg: cfg} }
+
+func (e *Engine) SetEventSink(sink func(signature string)) { e.eventSink = sink }
 
 // Tuning returns the host-adaptive engine tuning, deriving it (with failsafe)
 // on first use so status reporting always has a value.
@@ -103,8 +107,14 @@ func (e *Engine) Supervise(ctx context.Context) {
 				continue // healthy
 			}
 			logger.Error("UTMStack EDR: scan engine not responding; restarting it")
+			if e.eventSink != nil {
+				e.eventSink("scan_engine_down")
+			}
 			if err := e.EnsureRunning(); err != nil {
 				logger.Error("UTMStack EDR: scan engine restart failed: %v", err)
+				if e.eventSink != nil {
+					e.eventSink("scan_engine_restart_failed")
+				}
 			}
 		}
 	}
