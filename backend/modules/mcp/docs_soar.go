@@ -6,9 +6,9 @@ package mcp
 const soarFlowGuideDoc = `# SOAR flow guide — building alert-response DAGs
 
 A SOAR rule ("flow") is a DAG of nodes that runs when an alert matches its
-trigger conditions. Build flows with soar.rule.create / soar.rule.update:
+trigger conditions. Build flows with soar.flow.create / soar.flow.update:
 pass conditions + roots + nodes in one call. Read an existing flow first
-with soar.rule.get (rel_path from soar.rule.list).
+with soar.flow.get (rel_path from soar.flow.list).
 
 ## Node kinds — executor vs enrichment
 
@@ -82,7 +82,7 @@ flow run — you do not wire triggers yourself, only declare conditions. Typical
 IS, IS_NOT, CONTAINS, NOT_CONTAINS, EXISTS, NOT_EXISTS, START_WITH, NOT_START_WITH,
 ENDS_WITH, NOT_ENDS_WITH, IS_ONE_OF (value = string[]), IS_NOT_ONE_OF. Use
 soar.rule.resolve_filter_values for field suggestions. A rule only fires when
-enabled — create with active:true or flip later with soar.rule.set_enabled.
+enabled — create with active:true or flip later with soar.flow.set_enabled.
 
 ## Branching on success/failure of a step
 
@@ -93,8 +93,8 @@ and "failure path" subtrees.
 
 ## Editing an existing flow
 
-soar.rule.update is FULL REPLACE, not a patch — it overwrites conditions, roots
-and the entire nodes map. Always: soar.rule.get(rel_path) → modify the complete
+soar.flow.update is FULL REPLACE, not a patch — it overwrites conditions, roots
+and the entire nodes map. Always: soar.flow.get(rel_path) → modify the complete
 payload in memory → send everything back.
 
 1. **Add a node** — new id in nodes; wire it by appending that id to an
@@ -106,7 +106,7 @@ payload in memory → send everything back.
    swap kind/executor/params, or delete + add under a new id and rewire edges.
    The server does NOT validate edge consistency at write time — dangling refs
    only surface at run time as dead branches, so you own referential integrity.
-4. **Enable/disable** — soar.rule.set_enabled(rel_path, enabled); no payload
+4. **Enable/disable** — soar.flow.set_enabled(rel_path, enabled); no payload
    needed. System-owned flows are read-only (update/delete rejected).
 
 ## Worked example — block brute-force source IP unless internal

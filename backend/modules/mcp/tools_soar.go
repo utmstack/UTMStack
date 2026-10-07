@@ -19,7 +19,7 @@ func registerSOAR(m *Module) {
 	registerSOARPrompts(m)
 }
 
-// ---- soar.rule.* -----------------------------------------------------------
+// ---- soar.flow.* -----------------------------------------------------------
 
 type soarRuleCreateInput struct {
 	Name        string                    `json:"name"`
@@ -65,7 +65,19 @@ func registerSOARRules(m *Module) {
 	uc := m.deps.SOAR.GetRuleUsecase()
 
 	Add(m, &mcp.Tool{
-		Name: "soar.rule.create", Title: "Create SOAR rule",
+		Name: "soar.flow.create", Title: "Create SOAR rule",
+		Description: `Create a SOAR rule: a DAG of nodes that runs when an alert matches ALL trigger conditions. ` +
+			`See mcp://utmstack/docs/soar-flow-guide for the full authoring guide. ` +
+			`Node params shape depends on the executor type — params is a plain object: ` +
+			`shell: (none, use node-level command/shell/platform/agent); ` +
+			`http: {"method","url","headers","body"?}; ` +
+			`conditional: {"conditions":[{"operator","field","value"?}]}; ` +
+			`llm_enrich/llm_action: {"prompt"}; ` +
+			`notify: {"message","type":"INFO"|"WARNING"|"ERROR"}; ` +
+			`incident: {"name","description"}; ` +
+			`mail: {"to","cc","subject","body"}. ` +
+			`Live executor types: call soar.node_types. ` +
+			`Create with active=false unless the user explicitly asks to enable it.`,
 	}, Gate{Permission: "soar.write"},
 		func(ctx context.Context, actor *authz.Actor, in soarRuleCreateInput) (any, error) {
 			if len(in.Conditions) == 0 || len(in.Roots) == 0 || len(in.Nodes) == 0 {
@@ -80,7 +92,7 @@ func registerSOARRules(m *Module) {
 		})
 
 	Add(m, &mcp.Tool{
-		Name: "soar.rule.update", Title: "Update SOAR rule",
+		Name: "soar.flow.update", Title: "Update SOAR rule",
 	}, Gate{Permission: "soar.write"},
 		func(ctx context.Context, actor *authz.Actor, in soarRuleUpdateInput) (any, error) {
 			active := in.Active
@@ -92,7 +104,7 @@ func registerSOARRules(m *Module) {
 		})
 
 	Add(m, &mcp.Tool{
-		Name: "soar.rule.get", Title: "Get SOAR rule",
+		Name: "soar.flow.get", Title: "Get SOAR rule",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, Gate{Permission: "soar.read"},
 		func(ctx context.Context, _ *authz.Actor, in soarRuleRelPathInput) (any, error) {
@@ -100,7 +112,7 @@ func registerSOARRules(m *Module) {
 		})
 
 	Add(m, &mcp.Tool{
-		Name: "soar.rule.delete", Title: "Delete SOAR rule",
+		Name: "soar.flow.delete", Title: "Delete SOAR rule",
 	}, Gate{Permission: "soar.write"},
 		func(ctx context.Context, _ *authz.Actor, in soarRuleRelPathInput) (any, error) {
 			if err := uc.Delete(ctx, in.RelPath); err != nil {
@@ -110,7 +122,7 @@ func registerSOARRules(m *Module) {
 		})
 
 	Add(m, &mcp.Tool{
-		Name: "soar.rule.set_enabled", Title: "Enable/disable SOAR rule",
+		Name: "soar.flow.set_enabled", Title: "Enable/disable SOAR rule",
 		Annotations: &mcp.ToolAnnotations{IdempotentHint: true},
 	}, Gate{Permission: "soar.write"},
 		func(ctx context.Context, _ *authz.Actor, in soarRuleSetEnabledInput) (any, error) {
@@ -121,7 +133,7 @@ func registerSOARRules(m *Module) {
 		})
 
 	Add(m, &mcp.Tool{
-		Name: "soar.rule.list", Title: "List SOAR rules",
+		Name: "soar.flow.list", Title: "List SOAR rules",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, Gate{Permission: "soar.read"},
 		func(ctx context.Context, _ *authz.Actor, in soarRuleListInput) (any, error) {
@@ -173,11 +185,11 @@ func registerSOARPrompts(m *Module) {
 		text := fmt.Sprintf(`Draft a SOAR rule for this goal: %s
 
 Follow these steps, showing results as you go:
-1. Call soar.rule.list to find existing flows that could be a starting point.
+1. Call soar.flow.list to find existing flows that could be a starting point.
 2. Call soar.variable.list to see available incident variables.
 3. Call soar.rule.resolve_filter_values to suggest valid filter fields/values.
 4. Draft the rule (name, conditions, roots, nodes) and present it to the user.
-5. Only after explicit user confirmation, call soar.rule.create with active=false so the user can review before enabling.
+5. Only after explicit user confirmation, call soar.flow.create with active=false so the user can review before enabling.
 
 Never enable a newly created rule without asking first.`, goal)
 		msg := &mcp.PromptMessage{Role: "user", Content: &mcp.TextContent{Text: text}}
