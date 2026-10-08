@@ -57,6 +57,24 @@ const logIndexMappings = `
 // top-levels are not, so they stay out of the retro PUT).
 const newBagMappings = `{"event":{"type":"flat_object"},"controls":{"type":"keyword"}}`
 
+// alertIndexMappings pins the nested event bags inside alert documents so they
+// use flat_object (same conflict-proof behaviour as the log index). Without
+// this, lastEvent.event and events[N].event are dynamically mapped and two
+// vendor events with the same field but different types will collide.
+// The alert's own top-level fields (severity, status, tags, etc.) keep their
+// natural dynamic types — only the embedded event bags need pinning.
+const alertIndexMappings = `
+{
+  "lastEvent": {"type":"object","properties":{
+    "event": {"type":"flat_object"},
+    "controls": {"type":"keyword"}
+  }},
+  "events": {"type":"object","properties":{
+    "event": {"type":"flat_object"},
+    "controls": {"type":"keyword"}
+  }}
+}`
+
 func getOpenSearchContainerID() (string, error) {
 	containerIDs, err := utils.RunCmdWithOutput("docker", "ps", "-q", "-f", "name=utmstack_node1")
 	if err != nil {
@@ -126,6 +144,17 @@ func InitOpenSearch() error {
 		return err
 	}
 
+	// Alert-document mappings template: alerts embed full Event copies at
+	// lastEvent and events[*] — each carrying an `event` bag. Without this,
+	// those nested bags are dynamically mapped, and two alerts whose events
+	// disagree on a bag field's type (int vs string) will collide, failing
+	// alert ingestion. Pin them as flat_object (conflict-proof). The alert's
+	// own top-level fields (severity int, status, tags…) stay dynamic.
+	alertMappingsData := `{"index_patterns":["v11-alert-*"],"template":{"mappings":{"properties":` + alertIndexMappings + `}}}`
+	if err := execCurl(containerID, "PUT", "https://localhost:9200/_index_template/utmstack_alert_event_mappings", alertMappingsData); err != nil {
+		return err
+	}
+
 
 	// Restore geoip snapshot
 	restoreData := `{"indices":".utm-geoip","include_global_state":false}`
@@ -155,12 +184,26 @@ func UpdateOpenSearch() error{
 		return err
 	}
 
+	// (Re)create the alert-document event-bag mappings template (v11-alert-*).
+	alertMappingsData := `{"index_patterns":["v11-alert-*"],"template":{"mappings":{"properties":` + alertIndexMappings + `}}}`
+	if err := execCurl(containerID, "PUT", "https://localhost:9200/_index_template/utmstack_alert_event_mappings", alertMappingsData); err != nil {
+		return err
+	}
+
 	// Add ONLY the new bag mappings to already-existing v11-log-* indices
 	// (non-destructive: event/controls are new keys - no type clash with the
 	// legacy dynamic log mapping). Typed top-levels are NOT retro-applied: they
 	// can conflict with existing dynamic mappings and would 400 the upgrade.
 	if err := execCurl(containerID, "PUT", "https://localhost:9200/v11-log-*/_mapping?allow_no_indices=true",
 		`{"properties":` + newBagMappings + `}`); err != nil {
+		return err
+	}
+
+	// Add the nested event-bag mappings to already-existing v11-alert-* indices.
+	// lastEvent.event / events[*].event are new keys post-rename (previously
+	// lastEvent.log), so this is additive - no conflict with existing mappings.
+	if err := execCurl(containerID, "PUT", "https://localhost:9200/v11-alert-*/_mapping?allow_no_indices=true",
+		`{"properties":` + alertIndexMappings + `}`); err != nil {
 		return err
 	}
 
