@@ -513,7 +513,7 @@
     {
       "uri": "mcp://utmstack/docs/soar-flow-guide",
       "name": "SOAR flow building guide",
-      "description": "How to author SOAR rules: node kinds (executor vs enrichment), DAG wiring (roots, onSuccess/onError, AND-join), $(...) and $[variables...] interpolation, alert trigger conditions, and branching. Read before soar.rule.create/update. Ends with the live list of executor types registered on this instance.",
+      "description": "How to author SOAR rules: node kinds (executor vs enrichment), DAG wiring (roots, onSuccess/onError, AND-join), $(...) and $[variables...] interpolation, alert trigger conditions, and branching. Read before soar.flow.create/soar.flow.update. Ends with the live list of executor types registered on this instance.",
       "mime_type": "text/markdown",
       "status": "implemented",
       "backed_by": "modules/mcp/docs_soar.go + soar.Module.GetExecutorTypes"
@@ -592,12 +592,11 @@
         {"name": "goal", "description": "Plain-language goal for the rule (e.g. 'isolate hosts on Mimikatz detections')", "required": true}
       ],
       "tool_sequence": [
-        "soar.rule.list",
-        "soar.rule.get",
+        "soar.flow.list",
         "soar.variable.list",
         "soar.rule.resolve_filter_values",
         "(model drafts)",
-        "soar.rule.create | soar.rule.update (partial)"
+        "soar.flow.create"
       ]
     }
   ],

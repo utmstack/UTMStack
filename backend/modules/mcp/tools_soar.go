@@ -19,6 +19,7 @@ func registerSOAR(m *Module) {
 	registerSOARPrompts(m)
 }
 
+// ---- soar.flow.* -----------------------------------------------------------
 func mergeFlowUpdate(cur *dto.RuleResponse, in soarRuleUpdateInput) (dto.UpdateRuleRequest, error) {
 	for _, id := range in.DeletedNodes {
 		if _, ok := in.Nodes[id]; ok {
@@ -136,9 +137,19 @@ func registerSOARRules(m *Module) {
 	uc := m.deps.SOAR.GetRuleUsecase()
 
 	Add(m, &mcp.Tool{
-		Name: "soar.rule.create", Title: "Create SOAR rule",
-		Description: "Creates a NEW flow; the full flow (conditions, roots, nodes) is required. " +
-			"To modify an existing flow use soar.rule.update (partial) instead.",
+		Name: "soar.flow.create", Title: "Create SOAR rule",
+		Description: `Create a SOAR rule: a DAG of nodes that runs when an alert matches ALL trigger conditions. ` +
+			`See mcp://utmstack/docs/soar-flow-guide for the full authoring guide. ` +
+			`Node params shape depends on the executor type — params is a plain object: ` +
+			`shell: (none, use node-level command/shell/platform/agent); ` +
+			`http: {"method","url","headers","body"?}; ` +
+			`conditional: {"conditions":[{"operator","field","value"?}]}; ` +
+			`llm_enrich/llm_action: {"prompt"}; ` +
+			`notify: {"message","type":"INFO"|"WARNING"|"ERROR"}; ` +
+			`incident: {"name","description"}; ` +
+			`mail: {"to","cc","subject","body"}. ` +
+			`Live executor types: call soar.node_types. ` +
+			`Create with active=false unless the user explicitly asks to enable it.`,
 	}, Gate{Permission: "soar.write"},
 		func(ctx context.Context, actor *authz.Actor, in soarRuleCreateInput) (any, error) {
 			if len(in.Conditions) == 0 || len(in.Roots) == 0 || len(in.Nodes) == 0 {
@@ -170,7 +181,7 @@ func registerSOARRules(m *Module) {
 		})
 
 	Add(m, &mcp.Tool{
-		Name: "soar.rule.get", Title: "Get SOAR rule",
+		Name: "soar.flow.get", Title: "Get SOAR rule",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, Gate{Permission: "soar.read"},
 		func(ctx context.Context, _ *authz.Actor, in soarRuleRelPathInput) (any, error) {
@@ -178,7 +189,7 @@ func registerSOARRules(m *Module) {
 		})
 
 	Add(m, &mcp.Tool{
-		Name: "soar.rule.delete", Title: "Delete SOAR rule",
+		Name: "soar.flow.delete", Title: "Delete SOAR rule",
 	}, Gate{Permission: "soar.write"},
 		func(ctx context.Context, _ *authz.Actor, in soarRuleRelPathInput) (any, error) {
 			if err := uc.Delete(ctx, in.RelPath); err != nil {
@@ -188,7 +199,7 @@ func registerSOARRules(m *Module) {
 		})
 
 	Add(m, &mcp.Tool{
-		Name: "soar.rule.set_enabled", Title: "Enable/disable SOAR rule",
+		Name: "soar.flow.set_enabled", Title: "Enable/disable SOAR rule",
 		Annotations: &mcp.ToolAnnotations{IdempotentHint: true},
 	}, Gate{Permission: "soar.write"},
 		func(ctx context.Context, _ *authz.Actor, in soarRuleSetEnabledInput) (any, error) {
@@ -199,7 +210,7 @@ func registerSOARRules(m *Module) {
 		})
 
 	Add(m, &mcp.Tool{
-		Name: "soar.rule.list", Title: "List SOAR rules",
+		Name: "soar.flow.list", Title: "List SOAR rules",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, Gate{Permission: "soar.read"},
 		func(ctx context.Context, _ *authz.Actor, in soarRuleListInput) (any, error) {
