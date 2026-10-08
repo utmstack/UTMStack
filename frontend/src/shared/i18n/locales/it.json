@@ -3534,7 +3534,25 @@
       "SURICATA": "Acquisisci avvisi ed eventi di rete Suricata IDS/IPS per rilevare intrusioni e traffico malevolo sulla rete.",
       "DECEPTIVE_BYTES": "Acquisisci gli avvisi di Deceptive Bytes dalla sua piattaforma di inganno attivo degli endpoint per rilevare tempestivamente l'attività degli attaccanti.",
       "GITHUB": "Acquisisci i log di audit di GitHub per monitorare l'accesso ai repository, le modifiche al codice e l'attività dell'organizzazione ai fini della sicurezza del codice sorgente.",
-      "UTMSTACK": "Acquisisci la telemetria SIEM e XDR di UTMStack per monitorare l'integrità della piattaforma, l'attività interna e gli eventi di self-audit."
+      "UTMSTACK": "Acquisisci la telemetria SIEM e XDR di UTMStack per monitorare l'integrità della piattaforma, l'attività interna e gli eventi di self-audit.",
+      "NGINX": "Acquisisci i log di accesso ed errore di Nginx per monitorare l'attività del web server, il traffico del proxy inverso e le richieste dei client.",
+      "APACHE": "Acquisisci i log di accesso ed errore di Apache HTTPD per monitorare l'attività del web server e le richieste dei client.",
+      "APACHE2": "Acquisisci i log del web server Apache2 (HTTPD) per monitorare la gestione delle richieste, gli errori e l'accesso sugli host Linux.",
+      "IIS": "Acquisisci l'attività di accesso e i file di log di Internet Information Services (IIS) per monitorare il web server di Windows.",
+      "MYSQL": "Acquisisci l'attività di log di MySQL per monitorare query, autenticazione e accesso al data store.",
+      "POSTGRESQL": "Acquisisci i log di PostgreSQL per monitorare query, accesso e attività nei tuoi data store.",
+      "MONGODB": "Acquisisci l'attività di log di MongoDB per monitorare l'accesso al database documentale, le query e il comportamento dell'applicazione.",
+      "REDIS": "Acquisisci l'attività di log e telemetria di Redis per monitorare l'uso del data store in memoria e i workload in tempo reale.",
+      "ELASTICSEARCH": "Acquisisci i log di Elasticsearch per monitorare il motore di ricerca e analisi e i relativi workload applicativi.",
+      "LOGSTASH": "Acquisisci i log delle pipeline Logstash per monitorare la pipeline di elaborazione dati e le trasformazioni degli eventi.",
+      "KIBANA": "Acquisisci i log di Kibana per monitorare il layer di visualizzazione ed esplorazione dati e il relativo utilizzo.",
+      "KAFKA": "Acquisisci i log di Apache Kafka per monitorare le pipeline di streaming in tempo reale, i broker e il flusso dei messaggi.",
+      "NATS": "Acquisisci i log di messaging NATS per monitorare il message bus, la connettività e la consegna degli eventi.",
+      "HAPROXY": "Acquisisci i log di HAProxy per monitorare il bilanciamento del carico, il traffico del proxy e la disponibilità della rete.",
+      "TRAEFIK": "Acquisisci i log di Traefik per monitorare il routing, il bilanciamento del carico e il traffico del proxy tra i workload.",
+      "OSQUERY": "Acquisisci i log di OsQuery per monitorare lo stato degli endpoint, le query e l'inventario di sistema tramite richieste in stile SQL.",
+      "SYSLOG": "Invia syslog (RFC 5424/3164) da qualsiasi dispositivo o applicazione all'endpoint del collector per l'acquisizione centralizzata dei log.",
+      "JSON": "Invia carichi di log in JSON all'endpoint di acquisizione per l'ingest strutturata di eventi da applicazioni e script."
     },
     "edit": {
       "title": "Modifica integrazione"

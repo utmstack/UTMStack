@@ -3534,7 +3534,25 @@
       "SURICATA": "Ingérez les alertes et événements réseau Suricata IDS/IPS pour détecter les intrusions et le trafic malveillant sur le réseau.",
       "DECEPTIVE_BYTES": "Ingérez les alertes Deceptive Bytes depuis sa plateforme active de tromperie des endpoints pour détecter rapidement l'activité des attaquants.",
       "GITHUB": "Ingérez les journaux d'audit GitHub pour surveiller les accès aux dépôts, les modifications de code et l'activité de l'organisation pour la sécurité des sources.",
-      "UTMSTACK": "Ingérez la télémétrie SIEM et XDR propre à UTMStack pour surveiller la santé de la plateforme, l'activité interne et les événements d'auto-audit."
+      "UTMSTACK": "Ingérez la télémétrie SIEM et XDR propre à UTMStack pour surveiller la santé de la plateforme, l'activité interne et les événements d'auto-audit.",
+      "NGINX": "Ingérez les journaux d'accès et d'erreur de Nginx pour surveiller l'activité du serveur web, le trafic du proxy inverse et les requêtes des clients.",
+      "APACHE": "Ingérez les journaux d'accès et d'erreur d'Apache HTTPD pour surveiller l'activité du serveur web et les requêtes des clients.",
+      "APACHE2": "Ingérez les journaux du serveur web Apache2 (HTTPD) pour surveiller le traitement des requêtes, les erreurs et l'accès sur les hôtes Linux.",
+      "IIS": "Ingérez l'activité d'accès et les fichiers journaux d'Internet Information Services (IIS) pour surveiller le service web Windows.",
+      "MYSQL": "Ingérez l'activité des journaux MySQL pour surveiller les requêtes, l'authentification et l'accès au magasin de données.",
+      "POSTGRESQL": "Ingérez les journaux PostgreSQL pour surveiller les requêtes, l'accès et l'activité de vos magasins de données.",
+      "MONGODB": "Ingérez l'activité des journaux MongoDB pour surveiller l'accès à la base de données documentaire, les requêtes et le comportement de l'application.",
+      "REDIS": "Ingérez l'activité des journaux et de la télémétrie Redis pour surveiller l'utilisation du magasin de données en mémoire et les charges de travail en temps réel.",
+      "ELASTICSEARCH": "Ingérez les journaux Elasticsearch pour surveiller le moteur de recherche et d'analyse et ses charges de travail applicatives.",
+      "LOGSTASH": "Ingérez les journaux des pipelines Logstash pour surveiller le pipeline de traitement des données et ses transformations d'événements.",
+      "KIBANA": "Ingérez les journaux Kibana pour surveiller la couche de visualisation et d'exploration des données et son utilisation.",
+      "KAFKA": "Ingérez les journaux Apache Kafka pour surveiller les pipelines de streaming en temps réel, les brokers et le flux de messages.",
+      "NATS": "Ingérez les journaux de messagerie NATS pour surveiller le bus de messages, la connectivité et la livraison des événements.",
+      "HAPROXY": "Ingérez les journaux HAProxy pour surveiller l'équilibrage de charge, le trafic du proxy et la disponibilité du réseau.",
+      "TRAEFIK": "Ingérez les journaux Traefik pour surveiller le routage, l'équilibrage de charge et le trafic du proxy entre les charges de travail.",
+      "OSQUERY": "Ingérez les journaux OsQuery pour surveiller l'état des terminaux, les requêtes et l'inventaire du système via des requêtes au style SQL.",
+      "SYSLOG": "Envoyez le syslog (RFC 5424/3164) de n'importe quel appareil ou application vers le point d'accès du collecteur pour une prise en charge centralisée des journaux.",
+      "JSON": "Envoyez des charges de journaux JSON vers le point d'ingestion pour une prise en charge structurée des événements d'applications et de scripts."
     },
     "edit": {
       "title": "Modifier l'intégration"

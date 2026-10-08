@@ -3496,7 +3496,25 @@
       "SURICATA": "Ingesta alertas de Suricata IDS/IPS y eventos de red para detectar intrusiones y tráfico malicioso en la red.",
       "DECEPTIVE_BYTES": "Ingesta alertas de Deceptive Bytes desde su plataforma de engaño activo en endpoints para detectar actividad de atacantes de forma temprana.",
       "GITHUB": "Ingesta registros de auditoría de GitHub para monitorear el acceso a repositorios, cambios de código y actividad organizacional para la seguridad del código fuente.",
-      "UTMSTACK": "Ingesta la telemetría propia de UTMStack de SIEM y XDR para monitorear el estado de la plataforma, la actividad interna y los eventos de autoauditoría."
+      "UTMSTACK": "Ingesta la telemetría propia de UTMStack de SIEM y XDR para monitorear el estado de la plataforma, la actividad interna y los eventos de autoauditoría.",
+      "NGINX": "Ingesta los registros de acceso y error de Nginx para monitorear la actividad del servidor web, el tráfico del proxy inverso y las solicitudes de cliente.",
+      "APACHE": "Ingesta los registros de acceso y error de Apache HTTPD para monitorear la actividad del servidor web y las solicitudes de cliente.",
+      "APACHE2": "Ingesta los registros del servidor web Apache2 (HTTPD) para monitorear el manejo de solicitudes, errores y el acceso en hosts Linux.",
+      "IIS": "Ingesta la actividad de acceso y archivos de registro de Internet Information Services (IIS) para monitorear el servicio web de Windows.",
+      "MYSQL": "Ingesta la actividad de registros de MySQL para monitorear consultas, autenticación y acceso al almacén de datos.",
+      "POSTGRESQL": "Ingesta los registros de PostgreSQL para monitorear consultas, acceso y actividad en tus almacenes de datos.",
+      "MONGODB": "Ingesta la actividad de registros de MongoDB para monitorear el acceso a la base de datos documental, consultas y el comportamiento de la aplicación.",
+      "REDIS": "Ingesta la actividad de registros y telemetría de Redis para monitorear el uso del almacén de datos en memoria y las cargas de trabajo en tiempo real.",
+      "ELASTICsearch": "Ingesta los registros de Elasticsearch para monitorear el motor de búsqueda y análisis y sus cargas de trabajo de aplicación.",
+      "LOGSTASH": "Ingesta los registros de las tuberías de Logstash para monitorear la tubería de procesamiento de datos y sus transformaciones de eventos.",
+      "KIBANA": "Ingesta los registros de Kibana para monitorear la capa de visualización y exploración de datos y su uso.",
+      "KAFKA": "Ingesta los registros de Apache Kafka para monitorear las tuberías de streaming en tiempo real, los brokers y el flujo de mensajes.",
+      "NATS": "Ingesta los registros de mensajería de NATS para monitorear el bus de mensajes, la conectividad y la entrega de eventos.",
+      "HAPROXY": "Ingesta los registros de HAProxy para monitorear el balanceo de carga, el tráfico del proxy y la disponibilidad de red.",
+      "TRAEFIK": "Ingesta los registros de Traefik para monitorear el enrutamiento, el balanceo de carga y el tráfico del proxy entre cargas de trabajo.",
+      "OSQUERY": "Ingesta los registros de OsQuery para monitorear el estado del endpoint, las consultas y el inventario del sistema mediante solicitudes estilo SQL.",
+      "SYSLOG": "Envía syslog (RFC 5424/3164) desde cualquier dispositivo o aplicación al extremo del collector para la ingesta centralizada de registros.",
+      "JSON": "Envía cargas de registros en JSON al extremo de ingesta para la captura estructurada de eventos de aplicaciones y scripts."
     },
     "edit": {
       "title": "Editar integración"

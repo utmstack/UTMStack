@@ -13,6 +13,7 @@ import { AddCustomIntegrationCard } from '@/features/integrations/components/Add
 import { CreateIntegrationDrawer } from '@/features/integrations/components/CreateIntegrationDrawer'
 import { KIND_META, categoryLabel } from '@/features/integrations/constants'
 import { SYSTEM_MODULES } from '@/features/integrations/constants/systemModules'
+import { INJECTED_MODULES } from '@/features/integrations/constants/injectedModules'
 import type {
   Integration,
   DeployKind,
@@ -159,7 +160,20 @@ export function IntegrationsPage() {
   const [editing, setEditing] = useState<Integration | null>(null)
 
   const modules = integrations.integrations.data || []
-  const displayList = useMemo(() => modules.map((m) => mapModuleToIntegration(m, t)), [modules, t])
+  const displayList = useMemo(() => {
+    const catalog = modules.map((m) => mapModuleToIntegration(m, t))
+    // Injected catalog cards are frontend-owned; dedupe against the backend
+    // list by moduleName so a future backend row for the same module never
+    // shows up twice (backend row wins — it carries the real id + dataType).
+    const backendModuleNames = new Set(modules.map((m) => m.name))
+    const injected = INJECTED_MODULES.filter((i) => !backendModuleNames.has(i.moduleName ?? '')).map((i) => ({
+      ...i,
+      // Description is i18n-owned like the backend system cards; the name stays
+      // the injected English label (no i18n key is read for it).
+      description: t(`integrations.modules.${i.moduleName}`, { defaultValue: '' }),
+    }))
+    return [...catalog, ...injected]
+  }, [modules, t])
 
   // The raw catalog row for the module being edited (for its actual stored icon).
   const editingModule = editing ? modules.find((m) => String(m.id) === editing.id) : undefined

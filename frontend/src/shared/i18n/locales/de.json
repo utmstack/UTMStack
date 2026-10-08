@@ -3534,7 +3534,25 @@
       "SURICATA": "Importieren Sie Suricata IDS/IPS-Alarme und Netzwerkereignisse, um Eindringlinge und bösartigen Datenverkehr im Netzwerk zu erkennen.",
       "DECEPTIVE_BYTES": "Importieren Sie Deceptive Bytes-Alarme von der aktiven Endpoint-Deception-Plattform, um Angreiferaktivitäten frühzeitig zu erkennen.",
       "GITHUB": "Importieren Sie GitHub-Prüfprotokolle, um Repository-Zugriffe, Codeänderungen und Organisationsaktivitäten für die Quellcodesicherheit zu überwachen.",
-      "UTMSTACK": "Importieren Sie UTMStack-eigene SIEM- und XDR-Telemetrie, um den Plattformzustand, interne Aktivitäten und Selbstprüfungsereignisse zu überwachen."
+      "UTMSTACK": "Importieren Sie UTMStack-eigene SIEM- und XDR-Telemetrie, um den Plattformzustand, interne Aktivitäten und Selbstprüfungsereignisse zu überwachen.",
+      "NGINX": "Importieren Sie Nginx-Zugriffs- und Fehlerprotokolle, um die Webserver-Aktivität, den Reverse-Proxy-Verkehr und die Client-Anfragen zu überwachen.",
+      "APACHE": "Importieren Sie Apache-HTTPD-Zugriffs- und Fehlerprotokolle, um die Webserver-Aktivität und die Client-Anfragen zu überwachen.",
+      "APACHE2": "Importieren Sie Apache2- (HTTPD-) Webserver-Protokolle, um die Anfrageverarbeitung, Fehler und den Zugriff auf Linux-Hosts zu überwachen.",
+      "IIS": "Importieren Sie Internet Information Services (IIS) Zugriffs- und Protokollaktivität, um das Windows-Webserving zu überwachen.",
+      "MYSQL": "Importieren Sie MySQL-Protokollaktivität, um Abfragen, Authentifizierung und den Datenstore-Zugriff zu überwachen.",
+      "POSTGRESQL": "Importieren Sie PostgreSQL-Protokolle, um Abfragen, Zugriff und Aktivität in Ihren Datenstores zu überwachen.",
+      "MONGODB": "Importieren Sie MongoDB-Protokollaktivität, um Dokumentendatenbank-Zugriff, Abfragen und das Anwendungsverhalten zu überwachen.",
+      "REDIS": "Importieren Sie Redis-Protokoll- und Telemetrieaktivität, um die Nutzung des In-Memory-Datenstores und die Echtzeit-Workloads zu überwachen.",
+      "ELASTICSEARCH": "Importieren Sie Elasticsearch-Protokolle, um die Such- und Analysemaschine und ihre Anwendungs-Workloads zu überwachen.",
+      "LOGSTASH": "Importieren Sie Logstash-Pipeline-Protokolle, um die Datenverarbeitungs-Pipeline und ihre Ereignis-Transformationen zu überwachen.",
+      "KIBANA": "Importieren Sie Kibana-Protokolle, um die Datenvisualisierungs- und -erforschungsschicht und deren Nutzung zu überwachen.",
+      "KAFKA": "Importieren Sie Apache-Kafka-Protokolle, um Echtzeit-Streaming-Pipelines, Broker und den Nachrichtenfluss zu überwachen.",
+      "NATS": "Importieren Sie NATS-Messaging-Protokolle, um die Message-Bus-Konnektivität und die Ereignis-Lieferung zu überwachen.",
+      "HAPROXY": "Importieren Sie HAProxy-Protokolle, um Load Balancing, Proxy-Verkehr und Netzwerkverfügbarkeit zu überwachen.",
+      "TRAEFIK": "Importieren Sie Traefik-Protokolle, um Routing, Load Balancing und Proxy-Verkehr zwischen Workloads zu überwachen.",
+      "OSQUERY": "Importieren Sie OsQuery-Protokolle, um Endpoint-Zustand, Abfragen und System-Inventar über SQL-artige Anfragen zu überwachen.",
+      "SYSLOG": "Senden Sie Syslog (RFC 5424/3164) von jedem Gerät oder jeder Anwendung an den Collector-Endpunkt für die zentrale Protokollaufnahme.",
+      "JSON": "Senden Sie JSON-Protokollinhalte an den Ingestions-Endpunkt für die strukturierte Ereignisaufnahme aus Anwendungen und Skripten."
     },
     "edit": {
       "title": "Integration bearbeiten"

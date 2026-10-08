@@ -3496,7 +3496,25 @@
       "SURICATA": "Ingira alertas e eventos de rede do Suricata IDS/IPS para detectar intrusões e tráfego malicioso na rede.",
       "DECEPTIVE_BYTES": "Ingira alertas do Deceptive Bytes da sua plataforma ativa de decepção em endpoints para identificar atividade de atacantes precocemente.",
       "GITHUB": "Ingira logs de auditoria do GitHub para monitorar acesso a repositórios, alterações de código e atividade da organização para segurança do código-fonte.",
-      "UTMSTACK": "Ingira a própria telemetria SIEM e XDR do UTMStack para monitorar a saúde da plataforma, atividade interna e eventos de autoauditoria."
+      "UTMSTACK": "Ingira a própria telemetria SIEM e XDR do UTMStack para monitorar a saúde da plataforma, atividade interna e eventos de autoauditoria.",
+      "NGINX": "Ingira os logs de acesso e erro do Nginx para monitorar a atividade do servidor web, o tráfego do proxy reverso e as requisições dos clientes.",
+      "APACHE": "Ingira os logs de acesso e erro do Apache HTTPD para monitorar a atividade do servidor web e as requisições dos clientes.",
+      "APACHE2": "Ingira os logs do servidor web Apache2 (HTTPD) para monitorar o processamento de requisições, erros e o acesso em hosts Linux.",
+      "IIS": "Ingira a atividade de acesso e os arquivos de log do Internet Information Services (IIS) para monitorar o serviço web do Windows.",
+      "MYSQL": "Ingira a atividade de logs do MySQL para monitorar consultas, autenticação e o acesso ao repositório de dados.",
+      "POSTGRESQL": "Ingira os logs do PostgreSQL para monitorar consultas, acesso e a atividade em seus repositórios de dados.",
+      "MONGODB": "Ingira a atividade de logs do MongoDB para monitorar o acesso ao banco de dados documental, as consultas e o comportamento do aplicativo.",
+      "REDIS": "Ingira a atividade de logs e telemetria do Redis para monitorar o uso do repositório de dados em memória e as cargas de trabalho em tempo real.",
+      "ELASTICSEARCH": "Ingira os logs do Elasticsearch para monitorar o mecanismo de busca e análise e suas cargas de trabalho do aplicativo.",
+      "LOGSTASH": "Ingira os logs das pipelines do Logstash para monitorar a pipeline de processamento de dados e suas transformações de eventos.",
+      "KIBANA": "Ingira os logs do Kibana para monitorar a camada de visualização e exploração de dados e seu uso.",
+      "KAFKA": "Ingira os logs do Apache Kafka para monitorar as pipelines de streaming em tempo real, os brokers e o fluxo de mensagens.",
+      "NATS": "Ingira os logs de mensageria do NATS para monitorar o bus de mensagens, a conectividade e a entrega de eventos.",
+      "HAPROXY": "Ingira os logs do HAProxy para monitorar o balanceamento de carga, o tráfego do proxy e a disponibilidade da rede.",
+      "TRAEFIK": "Ingira os logs do Traefik para monitorar o roteamento, o balanceamento de carga e o tráfego do proxy entre as cargas de trabalho.",
+      "OSQUERY": "Ingira os logs do OsQuery para monitorar o estado do endpoint, as consultas e o inventário do sistema por meio de requisições no estilo SQL.",
+      "SYSLOG": "Envie syslog (RFC 5424/3164) de qualquer dispositivo ou aplicação para o endpoint do coletor, para a ingestão centralizada de logs.",
+      "JSON": "Envie cargas de logs em JSON para o endpoint de ingestão, para a captura estruturada de eventos de aplicativos e scripts."
     },
     "edit": {
       "title": "Editar integração"

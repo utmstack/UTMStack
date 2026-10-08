@@ -3635,7 +3635,25 @@
       "SURICATA": "Ingest Suricata IDS/IPS alerts and network events to detect intrusions and malicious traffic across the network.",
       "DECEPTIVE_BYTES": "Ingest Deceptive Bytes alerts from its active endpoint-deception platform to surface attacker activity early.",
       "GITHUB": "Ingest GitHub audit logs to monitor repository access, code changes and organization activity for source security.",
-      "UTMSTACK": "Ingest UTMStack's own SIEM and XDR telemetry to monitor platform health, internal activity and self-audit events."
+      "UTMSTACK": "Ingest UTMStack's own SIEM and XDR telemetry to monitor platform health, internal activity and self-audit events.",
+      "NGINX": "Ingest Nginx access and error logs to monitor web-serving activity, reverse-proxy traffic and client requests.",
+      "APACHE": "Ingest Apache HTTPD access and error logs to monitor web-serving activity and client requests.",
+      "APACHE2": "Ingest Apache2 (HTTPD) web server logs to monitor request handling, errors and access on Linux hosts.",
+      "IIS": "Ingest Internet Information Services (IIS) access and log-file activity to monitor Windows web serving.",
+      "MYSQL": "Ingest MySQL database log activity to monitor queries, authentication and data-store access.",
+      "POSTGRESQL": "Ingest PostgreSQL database logs to monitor queries, access and activity across your data stores.",
+      "MONGODB": "Ingest MongoDB log activity to monitor document-database access, queries and application behavior.",
+      "REDIS": "Ingest Redis log and telemetry activity to monitor in-memory data store usage and real-time workloads.",
+      "ELASTICSEARCH": "Ingest Elasticsearch logs to monitor the search and analytics engine and its application workloads.",
+      "LOGSTASH": "Ingest Logstash pipeline logs to monitor the data-processing pipeline and its event transformations.",
+      "KIBANA": "Ingest Kibana logs to monitor the data-visualization and exploration layer and its usage.",
+      "KAFKA": "Ingest Apache Kafka logs to monitor real-time streaming pipelines, brokers and message flow.",
+      "NATS": "Ingest NATS messaging logs to monitor the message bus, connectivity and event delivery.",
+      "HAPROXY": "Ingest HAProxy logs to monitor load balancing, proxy traffic and network availability.",
+      "TRAEFIK": "Ingest Traefik logs to monitor routing, load balancing and proxy traffic across workloads.",
+      "OSQUERY": "Ingest OsQuery logs to monitor endpoint state, queries and system inventory via SQL-style requests.",
+      "SYSLOG": "Send syslog (RFC 5424/3164) from any device or application to the collector endpoint for central log intake.",
+      "JSON": "Send JSON log payloads to the ingestion endpoint for structured event intake from applications and scripts."
     },
     "edit": {
       "title": "Edit integration"
