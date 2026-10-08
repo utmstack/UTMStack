@@ -198,6 +198,21 @@ func (g *Guard) OnFileEvent(fe FileEvent) {
 	g.handle(g.scorer.Add(ev), fe.PID)
 }
 
+// OnRegistryEvent is called by the registry feed when a sensitive key is
+// mutated. It records KindRegistry evidence; the scorer accumulates it like
+// any other fuzzy kind.
+func (g *Guard) OnRegistryEvent(re RegistryEvent) {
+	if !g.cfg.Ransomware.EnabledOn() {
+		return
+	}
+	if g.isTrusted(re.PID) {
+		return
+	}
+	ev := Evidence{PID: re.PID, Gen: g.genOf(re.PID, 0), Kind: KindRegistry,
+		Weight: float64(g.cfg.Ransomware.FuzzyWeight("registry")), Detail: re.Key, TS: g.deps.Now()}
+	g.handle(g.scorer.Add(ev), re.PID)
+}
+
 func (g *Guard) genOf(pid int, gen int64) int64 {
 	if gen != 0 {
 		return gen

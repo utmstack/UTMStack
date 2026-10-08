@@ -242,8 +242,8 @@ func writeStatus(cfg config.EDRConfig, eng *engine.Engine, canaries *ransomware.
 		// From the config; when the blocklist is off the netblock manager is
 		// nil and the Health() block below never runs, so without this the
 		// status would report false for a config-true blocklist.
-		BlocklistEnabled:      cfg.Blocklist.EnabledOn(),
-		BlocklistEnforce:      cfg.Blocklist.EnforceOn(),
+		BlocklistEnabled: cfg.Blocklist.EnabledOn(),
+		BlocklistEnforce: cfg.Blocklist.EnforceOn(),
 	}
 	doc.SignatureSource = feed.SignatureSource(cfg)
 	if sf != nil {
@@ -411,6 +411,8 @@ func (p *program) startPipeline(ctx context.Context, cfg config.EDRConfig, c *ca
 		}
 		selfPID := os.Getpid()
 		fileFeed := ransomware.NewFeed(cfg.WatchVolumes...)
+		regFeed := ransomware.NewRegistryFeed()
+		goSafe("ransomware-registry", func() { _ = runRegistryFeed(ctx, regFeed, rwGuard) })
 		goSafe("ransomware", func() { _ = rwGuard.Run(ctx, fileFeed, selfPID, ex.Excluded) })
 	}
 
@@ -575,6 +577,30 @@ func goSafe(name string, fn func()) {
 		}()
 		fn()
 	}()
+}
+
+// runRegistryFeed supervises the registry feed loop, mirroring guard.Run for
+// the file feed. It restarts after a bounded backoff on unexpected exit.
+func runRegistryFeed(ctx context.Context, feed ransomware.RegistryFeed, guard *ransomware.Guard) error {
+	backoff := 5 * time.Second
+	for {
+		if ctx.Err() != nil {
+			return ctx.Err()
+		}
+		sink := func(re ransomware.RegistryEvent) {
+			guard.OnRegistryEvent(re)
+		}
+		err := feed.Run(ctx, sink)
+		if ctx.Err() != nil {
+			return ctx.Err()
+		}
+		logger.Error("UTMStack EDR: ransomware registry feed exited (%v); restarting", err)
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(backoff):
+		}
+	}
 }
 
 type sinkAdapter struct{ o *orchestrator.Orchestrator }

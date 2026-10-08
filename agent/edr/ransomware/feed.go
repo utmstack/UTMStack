@@ -52,3 +52,17 @@ func Consider(ev FileEvent, isCanary func(string) bool, excluded func(string) bo
 		return false
 	}
 }
+
+// RegistryEvent is a per-process registry mutation on a sensitive key. PID is the
+// acting process and Key is the full registry path.
+type RegistryEvent struct {
+	PID int
+	Key string
+}
+
+// RegistryFeed delivers per-process registry mutations on sensitive keys to sink
+// until ctx is cancelled. Windows: ETW Microsoft-Windows-Kernel-Registry.
+// Non-Windows: a no-op that blocks until ctx is done.
+type RegistryFeed interface {
+	Run(ctx context.Context, sink func(RegistryEvent)) error
+}
