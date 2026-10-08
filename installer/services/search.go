@@ -139,7 +139,9 @@ func InitOpenSearch() error {
 	// Event-bag mappings template: scoped to v11-log-* ONLY (alert docs carry
 	// severity as an integer — they must not inherit these log-side types).
 	// No settings here; settings come from utmstack_log_indexes above.
-	eventMappingsData := `{"index_patterns":["v11-log-*"],"template":{"mappings":{"properties":` + logIndexMappings + `}}}`
+	// Priority 10 so it composes with (not collides with) the settings-only
+	// utmstack_indexes template, which also matches v11-log-* at priority 0.
+	eventMappingsData := `{"index_patterns":["v11-log-*"],"priority":10,"template":{"mappings":{"properties":` + logIndexMappings + `}}}`
 	if err := execCurl(containerID, "PUT", "https://localhost:9200/_index_template/utmstack_log_event_mappings", eventMappingsData); err != nil {
 		return err
 	}
@@ -150,7 +152,7 @@ func InitOpenSearch() error {
 	// disagree on a bag field's type (int vs string) will collide, failing
 	// alert ingestion. Pin them as flat_object (conflict-proof). The alert's
 	// own top-level fields (severity int, status, tags…) stay dynamic.
-	alertMappingsData := `{"index_patterns":["v11-alert-*"],"template":{"mappings":{"properties":` + alertIndexMappings + `}}}`
+	alertMappingsData := `{"index_patterns":["v11-alert-*"],"priority":10,"template":{"mappings":{"properties":` + alertIndexMappings + `}}}`
 	if err := execCurl(containerID, "PUT", "https://localhost:9200/_index_template/utmstack_alert_event_mappings", alertMappingsData); err != nil {
 		return err
 	}
@@ -179,13 +181,15 @@ func UpdateOpenSearch() error{
 	}
 
 	// (Re)create the event-bag mappings template (v11-log-* only).
-	eventMappingsData := `{"index_patterns":["v11-log-*"],"template":{"mappings":{"properties":` + logIndexMappings + `}}}`
+	// Priority 10 so it composes with (not collides with) the settings-only
+	// utmstack_indexes template, which also matches v11-log-* at priority 0.
+	eventMappingsData := `{"index_patterns":["v11-log-*"],"priority":10,"template":{"mappings":{"properties":` + logIndexMappings + `}}}`
 	if err := execCurl(containerID, "PUT", "https://localhost:9200/_index_template/utmstack_log_event_mappings", eventMappingsData); err != nil {
 		return err
 	}
 
 	// (Re)create the alert-document event-bag mappings template (v11-alert-*).
-	alertMappingsData := `{"index_patterns":["v11-alert-*"],"template":{"mappings":{"properties":` + alertIndexMappings + `}}}`
+	alertMappingsData := `{"index_patterns":["v11-alert-*"],"priority":10,"template":{"mappings":{"properties":` + alertIndexMappings + `}}}`
 	if err := execCurl(containerID, "PUT", "https://localhost:9200/_index_template/utmstack_alert_event_mappings", alertMappingsData); err != nil {
 		return err
 	}
