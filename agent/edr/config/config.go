@@ -94,6 +94,63 @@ func boolPtr(b bool) *bool { return &b }
 // to pointer-bool config fields.
 func BoolPtr(b bool) *bool { return &b }
 
+// DefaultFuzzySensors is the canonical X1 fuzzy-weight set. Every value must
+// stay below the default suspend threshold (50); see TestX1FuzzyWeightsBelowSuspend.
+func DefaultFuzzySensors() FuzzySensors {
+	return FuzzySensors{Entropy: 40, ExtChurn: 40, MassRate: 35, RansomNote: 30, Registry: 35}
+}
+
+// DefaultBehaviorTuning is the canonical X1 sensor threshold set.
+func DefaultBehaviorTuning() BehaviorTuning {
+	return BehaviorTuning{
+		MassRateWindowMs:     5000,
+		MassRateMinWrites:    25,
+		CooldownMs:           10000,
+		ChurnWindowMs:        5000,
+		ChurnMinRenames:      10,
+		ChurnMinDistinct:     5,
+		EntropyBitsPerByte:   7.5,
+		EntropySampleSize:    4096,
+		EntropySampleOffsets: 4,
+	}
+}
+
+// FuzzyWeight returns the configured evidence weight for a fuzzy kind. It
+// falls back to the package default (kept in sync with
+// agent/edr/ransomware.DefaultWeights) when the field is zero — e.g. a config
+// that never went through Load, or a hand-edited edr.json that sets only some
+// weights. Config must not import the detector package, so the fallback table
+// lives here.
+func (r RansomwareConfig) FuzzyWeight(kind string) int {
+	var v int
+	switch kind {
+	case "entropy":
+		v = r.Fuzzy.Entropy
+	case "ext_churn":
+		v = r.Fuzzy.ExtChurn
+	case "mass_rate":
+		v = r.Fuzzy.MassRate
+	case "ransom_note":
+		v = r.Fuzzy.RansomNote
+	case "registry":
+		v = r.Fuzzy.Registry
+	default:
+		return 0
+	}
+	if v != 0 {
+		return v
+	}
+	switch kind {
+	case "entropy", "ext_churn":
+		return 40
+	case "mass_rate", "registry":
+		return 35
+	case "ransom_note":
+		return 30
+	}
+	return 0
+}
+
 func ptrOn(p *bool) bool { return p == nil || *p }
 
 // EnabledOn reports whether the ransomware guard is on (absent = default on).
@@ -124,6 +181,48 @@ type RansomwareConfig struct {
 	// still carry it keep working.
 	CommandAllowlist []string `json:"command_allowlist,omitempty"`
 	UseETW           bool     `json:"use_etw"` // true = ETW file attribution (v1 default)
+
+	// Fuzzy carries the X1 fuzzy-sensor weights. Every weight must stay below
+	// SuspendThreshold so no single behavioural signal can escalate on its own;
+	// the scorer's kind-diversity bonus is what lets several agree. Tunable by
+	// H9 without code changes.
+	Fuzzy FuzzySensors `json:"fuzzy"`
+	// Behavior carries the X1 sensor threshold knobs (windows, rates, cooldowns).
+	Behavior BehaviorTuning `json:"behavior"`
+}
+
+// FuzzySensors holds the per-kind evidence weights for the fuzzy (X1) sensors.
+// All defaults are sub-suspend; the scorer only escalates when several kinds
+// agree (diversity bonus).
+type FuzzySensors struct {
+	Entropy    int `json:"entropy"`     // default 40
+	ExtChurn   int `json:"ext_churn"`   // default 40
+	MassRate   int `json:"mass_rate"`   // default 35
+	RansomNote int `json:"ransom_note"` // default 30
+	Registry   int `json:"registry"`    // default 35 (Windows only; unused on Linux)
+}
+
+// BehaviorTuning holds the sensor thresholds that decide when a fuzzy signal
+// fires at all. Zero means "use the default" after Load.
+type BehaviorTuning struct {
+	// MassRate: writes per PID within WindowMs that trip the sensor.
+	MassRateWindowMs int `json:"mass_rate_window_ms"` // default 5000
+	MassRateMinWrites int `json:"mass_rate_min_writes"` // default 25
+	// CooldownMs: a sensor that already fired for a PID stays quiet this long.
+	CooldownMs int `json:"cooldown_ms"` // default 10000
+	// Churn: renames within WindowMs that take a NEW extension (different from
+	// the file's previous one); MinDistinctFiles bounds how many distinct
+	// targets must share the new extension before the sensor fires.
+	ChurnWindowMs      int `json:"churn_window_ms"`       // default 5000
+	ChurnMinRenames    int `json:"churn_min_renames"`     // default 10
+	ChurnMinDistinct   int `json:"churn_min_distinct"`    // default 5
+	// Entropy sampling: read SampleSize bytes at SampleOffsets offsets, require
+	// BitsPerByte to be reached to emit evidence.
+	EntropyBitsPerByte float64 `json:"entropy_bits_per_byte"` // default 7.5
+	EntropySampleSize  int     `json:"entropy_sample_size"`   // default 4096
+	EntropySampleOffsets int   `json:"entropy_sample_offsets"` // default 4
+	// RansomNote: no thresholds — the name matcher decides; the weight above
+	// caps the blast radius.
 }
 
 // BlocklistConfig configures the network blocklist (ThreatWinds via the UTMStack
@@ -256,6 +355,8 @@ func Default() EDRConfig {
 			KillThreshold:    100,
 			DecayHalfLifeMs:  10000,
 			UseETW:           true,
+			Fuzzy:            DefaultFuzzySensors(),
+			Behavior:         DefaultBehaviorTuning(),
 		},
 		Blocklist: BlocklistConfig{
 			Enabled:            boolPtr(true),
@@ -322,6 +423,58 @@ func Load() (EDRConfig, error) {
 		if c.Ransomware.Enabled == nil {
 			c.Ransomware.Enabled = Default().Ransomware.Enabled // absent → default (true)
 		}
+	}
+	// Fuzzy weights and behavior tuning backfill zero fields from defaults so a
+	// hand-edited edr.json that sets only some knobs keeps working. A zero
+	// weight means "absent" — any other value is the operator's call (H9 tunes
+	// via these fields).
+	if c.Ransomware.Fuzzy == (FuzzySensors{}) {
+		c.Ransomware.Fuzzy = DefaultFuzzySensors()
+	}
+	if c.Ransomware.Behavior == (BehaviorTuning{}) {
+		c.Ransomware.Behavior = DefaultBehaviorTuning()
+	}
+	if c.Ransomware.Fuzzy.Entropy == 0 {
+		c.Ransomware.Fuzzy.Entropy = DefaultFuzzySensors().Entropy
+	}
+	if c.Ransomware.Fuzzy.ExtChurn == 0 {
+		c.Ransomware.Fuzzy.ExtChurn = DefaultFuzzySensors().ExtChurn
+	}
+	if c.Ransomware.Fuzzy.MassRate == 0 {
+		c.Ransomware.Fuzzy.MassRate = DefaultFuzzySensors().MassRate
+	}
+	if c.Ransomware.Fuzzy.RansomNote == 0 {
+		c.Ransomware.Fuzzy.RansomNote = DefaultFuzzySensors().RansomNote
+	}
+	if c.Ransomware.Fuzzy.Registry == 0 {
+		c.Ransomware.Fuzzy.Registry = DefaultFuzzySensors().Registry
+	}
+	if c.Ransomware.Behavior.MassRateWindowMs == 0 {
+		c.Ransomware.Behavior.MassRateWindowMs = DefaultBehaviorTuning().MassRateWindowMs
+	}
+	if c.Ransomware.Behavior.MassRateMinWrites == 0 {
+		c.Ransomware.Behavior.MassRateMinWrites = DefaultBehaviorTuning().MassRateMinWrites
+	}
+	if c.Ransomware.Behavior.CooldownMs == 0 {
+		c.Ransomware.Behavior.CooldownMs = DefaultBehaviorTuning().CooldownMs
+	}
+	if c.Ransomware.Behavior.ChurnWindowMs == 0 {
+		c.Ransomware.Behavior.ChurnWindowMs = DefaultBehaviorTuning().ChurnWindowMs
+	}
+	if c.Ransomware.Behavior.ChurnMinRenames == 0 {
+		c.Ransomware.Behavior.ChurnMinRenames = DefaultBehaviorTuning().ChurnMinRenames
+	}
+	if c.Ransomware.Behavior.ChurnMinDistinct == 0 {
+		c.Ransomware.Behavior.ChurnMinDistinct = DefaultBehaviorTuning().ChurnMinDistinct
+	}
+	if c.Ransomware.Behavior.EntropyBitsPerByte == 0 {
+		c.Ransomware.Behavior.EntropyBitsPerByte = DefaultBehaviorTuning().EntropyBitsPerByte
+	}
+	if c.Ransomware.Behavior.EntropySampleSize == 0 {
+		c.Ransomware.Behavior.EntropySampleSize = DefaultBehaviorTuning().EntropySampleSize
+	}
+	if c.Ransomware.Behavior.EntropySampleOffsets == 0 {
+		c.Ransomware.Behavior.EntropySampleOffsets = DefaultBehaviorTuning().EntropySampleOffsets
 	}
 	// BlocklistConfig also has slice fields, so detect an on-disk block via a
 	// reliable non-zero signal and copy it wholesale, then backfill any missing

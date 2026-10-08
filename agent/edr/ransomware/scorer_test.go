@@ -63,12 +63,12 @@ func TestScorer_DecayLowersScore(t *testing.T) {
 	cur := base
 	s := NewScorer(50, 100, 10, func() time.Time { return cur })
 	// One 60-weight signal → suspend but not kill.
-	if s.Add(Evidence{PID: 5, Gen: 1, Kind: KindEntropyPlaceholder, Weight: 60}).Escalation != EscSuspend {
+	if s.Add(Evidence{PID: 5, Gen: 1, Kind: KindEntropy, Weight: 60}).Escalation != EscSuspend {
 		t.Fatal("60 should suspend")
 	}
 	// Advance two half-lives (20s): 60 → ~15, well under suspend threshold.
 	cur = base.Add(20 * time.Second)
-	d := s.Add(Evidence{PID: 5, Gen: 1, Kind: KindEntropyPlaceholder, Weight: 1})
+	d := s.Add(Evidence{PID: 5, Gen: 1, Kind: KindEntropy, Weight: 1})
 	if d.Score > 30 {
 		t.Fatalf("score did not decay: %v", d.Score)
 	}
@@ -79,7 +79,7 @@ func TestScorer_RecycledPIDResets(t *testing.T) {
 	s := NewScorer(50, 100, 10, clk)
 	s.Add(Evidence{PID: 9, Gen: 1, Kind: KindCanary, Weight: 100})
 	// Same PID, new generation → fresh score, a single small signal must not kill.
-	d := s.Add(Evidence{PID: 9, Gen: 2, Kind: KindEntropyPlaceholder, Weight: 10})
+	d := s.Add(Evidence{PID: 9, Gen: 2, Kind: KindEntropy, Weight: 10})
 	if d.Escalation != EscNone {
 		t.Fatalf("recycled PID inherited old score: %v", d.Escalation)
 	}
@@ -89,8 +89,8 @@ func TestScorer_KindDiversityBonus(t *testing.T) {
 	_, clk := fixedClock(time.Unix(1000, 0))
 	s := NewScorer(50, 100, 10, clk)
 	// Two DIFFERENT 40-weight kinds: raw 80, with +25% diversity → 100 → kill.
-	s.Add(Evidence{PID: 3, Gen: 1, Kind: KindEntropyPlaceholder, Weight: 40})
-	d := s.Add(Evidence{PID: 3, Gen: 1, Kind: KindExtChurnPlaceholder, Weight: 40})
+	s.Add(Evidence{PID: 3, Gen: 1, Kind: KindEntropy, Weight: 40})
+	d := s.Add(Evidence{PID: 3, Gen: 1, Kind: KindExtChurn, Weight: 40})
 	if d.Escalation != EscKill {
 		t.Fatalf("diversity bonus missing: score=%v esc=%v", d.Score, d.Escalation)
 	}
@@ -104,7 +104,7 @@ func TestScorer_ConcurrentAddNoRace(t *testing.T) {
 	_, clk := fixedClock(time.Unix(1000, 0))
 	s := NewScorer(50, 100, 10, clk)
 
-	kinds := []SignalKind{KindCanary, KindT1490, KindEntropyPlaceholder, KindExtChurnPlaceholder}
+	kinds := []SignalKind{KindCanary, KindT1490, KindEntropy, KindExtChurn}
 	weights := []float64{10, 25, 40, 100}
 
 	const adders = 50
