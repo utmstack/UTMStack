@@ -189,7 +189,7 @@ public class DefinitionSyncService implements CommandLineRunner {
                             continue;
                         }
 
-                        Optional<UtmCorrelationRules> ruleOpt = rulesRepository.findOneByRuleName(ruleYaml.getName());
+                        Optional<UtmCorrelationRules> ruleOpt = rulesRepository.findOneByRuleNameAndSystemOwner(ruleYaml.getName(), true);
                         foundRules.add(ruleYaml.getName());
                         UtmCorrelationRulesDTO ruleDto = new UtmCorrelationRulesDTO();
 
