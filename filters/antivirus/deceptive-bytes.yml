@@ -8,406 +8,406 @@ pipeline:
       # Using grok to parse header of the message
       - grok:
           patterns:
-            - fieldName: log.syslogPriority
+            - fieldName: event.syslogPriority
               pattern: '\<{{.data}}\>'
-            - fieldName: log.syslogVersion
+            - fieldName: event.syslogVersion
               pattern: '{{.integer}}'
-            - fieldName: log.syslogDeviceTime
+            - fieldName: event.syslogDeviceTime
               pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}\w{{.time}}\w'
-            - fieldName: log.syslogHostIP
+            - fieldName: event.syslogHostIP
               pattern: '{{.ipv4}}|{{.ipv6}}|{{.word}}'
-            - fieldName: log.notDefined
+            - fieldName: event.notDefined
               pattern: '{{.integer}}'
-            - fieldName: log.0trash
+            - fieldName: event.0trash
               pattern: '{{.word}}\:{{.integer}}'
-            - fieldName: log.restData
+            - fieldName: event.restData
               pattern: '{{.greedy}}'
           source: raw
 
       - grok:
           patterns:
-            - fieldName: log.syslogPriority
+            - fieldName: event.syslogPriority
               pattern: '\<{{.data}}\>'
-            - fieldName: log.syslogDeviceTime
+            - fieldName: event.syslogDeviceTime
               pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}\w{{.time}}\w'
-            - fieldName: log.syslogHostIP
+            - fieldName: event.syslogHostIP
               pattern: '{{.ipv4}}|{{.ipv6}}|{{.word}}'
-            - fieldName: log.0trash
+            - fieldName: event.0trash
               pattern: '{{.word}}\:{{.integer}}'
-            - fieldName: log.restData
+            - fieldName: event.restData
               pattern: '{{.greedy}}'
           source: raw
 
       - grok:
           patterns:
-            - fieldName: log.syslogPriority
+            - fieldName: event.syslogPriority
               pattern: '\<{{.data}}\>'
-            - fieldName: log.syslogVersion
+            - fieldName: event.syslogVersion
               pattern: '{{.integer}}'
-            - fieldName: log.syslogDeviceTime
+            - fieldName: event.syslogDeviceTime
               pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}\w{{.time}}\w'
-            - fieldName: log.syslogHostIP
+            - fieldName: event.syslogHostIP
               pattern: '{{.ipv4}}|{{.ipv6}}|{{.word}}'
-            - fieldName: log.0trash
+            - fieldName: event.0trash
               pattern: '{{.word}}\:{{.integer}}'
-            - fieldName: log.restData
+            - fieldName: event.restData
               pattern: '{{.greedy}}'
           source: raw
 
       - grok:
           patterns:
-            - fieldName: log.syslogPriority
+            - fieldName: event.syslogPriority
               pattern: '\<{{.data}}\>'
-            - fieldName: log.syslogVersion
+            - fieldName: event.syslogVersion
               pattern: '{{.integer}}'
-            - fieldName: log.syslogDeviceTime
+            - fieldName: event.syslogDeviceTime
               pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}\w{{.time}}\w'
-            - fieldName: log.restData
+            - fieldName: event.restData
               pattern: '{{.greedy}}'
           source: raw
 
       - grok:
           patterns:
-            - fieldName: log.syslogPriority
+            - fieldName: event.syslogPriority
               pattern: '\<{{.data}}\>'
-            - fieldName: log.0trash
+            - fieldName: event.0trash
               pattern: '{{.word}}\:{{.integer}}'
-            - fieldName: log.restData
+            - fieldName: event.restData
               pattern: '{{.greedy}}'
           source: raw
 
       - grok:
           patterns:
-            - fieldName: log.syslogPriority
+            - fieldName: event.syslogPriority
               pattern: '\<{{.data}}\>'
-            - fieldName: log.syslogVersion
+            - fieldName: event.syslogVersion
               pattern: '{{.integer}}'
-            - fieldName: log.syslogDeviceTime
+            - fieldName: event.syslogDeviceTime
               pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}\w{{.time}}\w'
-            - fieldName: log.syslogHostIP
+            - fieldName: event.syslogHostIP
               pattern: '{{.ipv4}}|{{.ipv6}}|{{.word}}'
-            - fieldName: log.0trash
+            - fieldName: event.0trash
               pattern: '{{.word}}\:'
-            - fieldName: log.userWithTrash
+            - fieldName: event.userWithTrash
               pattern: '{{.data}}CEF'
-            - fieldName: log.1trash
+            - fieldName: event.1trash
               pattern: '\:{{.integer}}'
-            - fieldName: log.messageWithTrash
+            - fieldName: event.messageWithTrash
               pattern: '{{.data}}{{.word}}\={{.data}}{{.space}}'
-            - fieldName: log.restData
+            - fieldName: event.restData
               pattern: '{{.greedy}}'
           source: raw
 
       - grok:
           patterns:
-            - fieldName: log.syslogPriority
+            - fieldName: event.syslogPriority
               pattern: '\<{{.data}}\>'
-            - fieldName: log.syslogDeviceTime
+            - fieldName: event.syslogDeviceTime
               pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}\w{{.time}}\w'
-            - fieldName: log.syslogHostIP
+            - fieldName: event.syslogHostIP
               pattern: '{{.ipv4}}|{{.ipv6}}|{{.word}}'
-            - fieldName: log.0trash
+            - fieldName: event.0trash
               pattern: '{{.word}}\:'
-            - fieldName: log.userWithTrash
+            - fieldName: event.userWithTrash
               pattern: '{{.data}}CEF'
-            - fieldName: log.1trash
+            - fieldName: event.1trash
               pattern: '\:{{.integer}}'
-            - fieldName: log.messageWithTrash
+            - fieldName: event.messageWithTrash
               pattern: '{{.data}}{{.word}}\={{.data}}{{.space}}'
-            - fieldName: log.restData
+            - fieldName: event.restData
               pattern: '{{.greedy}}'
           source: raw
 
       - grok:
           patterns:
-            - fieldName: log.user
+            - fieldName: event.user
               pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: '{{.greedy}}'
-          source: log.userWithTrash
+          source: event.userWithTrash
 
       - grok:
           patterns:
-            - fieldName: log.message
+            - fieldName: event.message
               pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.restMessageToKv
+            - fieldName: event.restMessageToKv
               pattern: '{{.greedy}}'
-          source: log.messageWithTrash
+          source: event.messageWithTrash
 
       # Parsing the common fields
       - grok:
           patterns:
-            - fieldName: log.syslogPriority
+            - fieldName: event.syslogPriority
               pattern: '\<{{.data}}\>'
-            - fieldName: log.eventTime
+            - fieldName: event.eventTime
               pattern: '{{.year}}-{{.monthNumber}}-{{.monthDay}}\w{{.time}}\w'
-            - fieldName: log.restMessage
+            - fieldName: event.restMessage
               pattern: '{{.greedy}}'
           source: raw
 
       - grok:
           patterns:
-            - fieldName: log.syslogPriority
+            - fieldName: event.syslogPriority
               pattern: '\<{{.data}}\>'
-            - fieldName: log.eventTime
+            - fieldName: event.eventTime
               pattern: '\[{{.year}}-{{.monthNumber}}-{{.monthDay}}{{.space}}{{.hour}}\:{{.minute}}\:{{.seconds}}'
-            - fieldName: log.restMessage
+            - fieldName: event.restMessage
               pattern: '{{.greedy}}'
           source: raw
 
       - grok:
           patterns:
-            - fieldName: log.syslogPriority
+            - fieldName: event.syslogPriority
               pattern: '\<{{.data}}\>'
-            - fieldName: log.eventTime
+            - fieldName: event.eventTime
               pattern: '{{.monthDay}}-{{.monthNumber}}{{.space}}{{.hour}}\:{{.minute}}\:{{.seconds}}'
-            - fieldName: log.restMessage
+            - fieldName: event.restMessage
               pattern: '{{.greedy}}'
           source: raw
 
       # Parse the restMessage field from the rest of the common fields
       - grok:
           patterns:
-            - fieldName: log.processId
+            - fieldName: event.processId
               pattern: '\,{{.integer}}'
-            - fieldName: log.trheadId
+            - fieldName: event.trheadId
               pattern: '\,\-'
-            - fieldName: log.eventType
+            - fieldName: event.eventType
               pattern: '\,{{.integer}}'
-            - fieldName: log.eventSource
+            - fieldName: event.eventSource
               pattern: '\,{{.word}}'
-            - fieldName: log.processName
+            - fieldName: event.processName
               pattern: '\,{{.integer}}'
-            - fieldName: log.processPath
+            - fieldName: event.processPath
               pattern: '\,{{.word}}'
-            - fieldName: log.platform
+            - fieldName: event.platform
               pattern: '\,{{.data}}\,'
             - fieldName: origin.path
               pattern: '{{.greedy}}\,'
             - fieldName: origin.command
               pattern: '{{.greedy}}'
-          source: log.restMessage
+          source: event.restMessage
 
       - grok:
           patterns:
-            - fieldName: log.processId
+            - fieldName: event.processId
               pattern: '\,{{.integer}}'
-            - fieldName: log.trheadId
+            - fieldName: event.trheadId
               pattern: '\,{{.data}}\,'
-            - fieldName: log.eventType
+            - fieldName: event.eventType
               pattern: '{{.integer}}'
-            - fieldName: log.eventSource
+            - fieldName: event.eventSource
               pattern: '\,\-'
-            - fieldName: log.processName
+            - fieldName: event.processName
               pattern: '\,{{.word}}\.{{.word}}'
-          source: log.restMessage
+          source: event.restMessage
 
       - grok:
           patterns:
-            - fieldName: log.processId
+            - fieldName: event.processId
               pattern: '\,{{.integer}}'
-            - fieldName: log.trheadId
+            - fieldName: event.trheadId
               pattern: '\,{{.data}}\,'
-            - fieldName: log.eventType
+            - fieldName: event.eventType
               pattern: '{{.integer}}'
-            - fieldName: log.eventSource
+            - fieldName: event.eventSource
               pattern: '\,\-\,'
-          source: log.restMessage
+          source: event.restMessage
 
       - grok:
           patterns:
-            - fieldName: log.severityLabelCharacter
+            - fieldName: event.severityLabelCharacter
               pattern: '{{.word}}\s'
-            - fieldName: log.trheadId
+            - fieldName: event.trheadId
               pattern: '{{.integer}}\,'
-            - fieldName: log.eventSource
+            - fieldName: event.eventSource
               pattern: '{{.integer}}\s'
-            - fieldName: log.component
+            - fieldName: event.component
               pattern: '{{.word}}\,'
-            - fieldName: log.errorCode
+            - fieldName: event.errorCode
               pattern: '{{.integer}}\]'
-            - fieldName: log.restDataMessage
+            - fieldName: event.restDataMessage
               pattern: '{{.greedy}}'
-          source: log.restMessage
+          source: event.restMessage
 
       - grok:
           patterns:
-            - fieldName: log.severityLabelCharacter
+            - fieldName: event.severityLabelCharacter
               pattern: '{{.word}}\s'
-            - fieldName: log.trheadId
+            - fieldName: event.trheadId
               pattern: '{{.integer}}\,'
-            - fieldName: log.eventSource
+            - fieldName: event.eventSource
               pattern: '{{.integer}}\s'
-            - fieldName: log.component
+            - fieldName: event.component
               pattern: '{{.word}}\,'
-            - fieldName: log.trheadId
+            - fieldName: event.trheadId
               pattern: '{{.integer}}\,'
-            - fieldName: log.eventSource
+            - fieldName: event.eventSource
               pattern: '{{.integer}}\s'
-            - fieldName: log.component
+            - fieldName: event.component
               pattern: '{{.word}}\,'
-            - fieldName: log.errorCode
+            - fieldName: event.errorCode
               pattern: '{{.integer}}\]\s'
             - fieldName: origin.path
               pattern: '(?:[A-Z]:\\(?:[^\\\n]+\\)*[^\\\n]*|\/(?:[^\/\n]+\/)*[^\/\n]*)'
-          source: log.restMessage
-          where: contains("log.severityLabelCharacter", "V")
+          source: event.restMessage
+          where: contains("event.severityLabelCharacter", "V")
 
       - grok:
           patterns:
-            - fieldName: log.severityLabelCharacter
+            - fieldName: event.severityLabelCharacter
               pattern: '{{.word}}\s'
-            - fieldName: log.processId
+            - fieldName: event.processId
               pattern: '{{.integer}}\,'
-            - fieldName: log.trheadId
+            - fieldName: event.trheadId
               pattern: '{{.integer}}\s'
-            - fieldName: log.methodName
+            - fieldName: event.methodName
               pattern: '\:\:{{.data}}\,'
-            - fieldName: log.returnCode
+            - fieldName: event.returnCode
               pattern: '{{.integer}}\]\s'
-            - fieldName: log.detailedMessage
+            - fieldName: event.detailedMessage
               pattern: '\({{.data}}\)'
-          source: log.restMessage
+          source: event.restMessage
 
       - grok:
           patterns:
-            - fieldName: log.severityLabelCharacter
+            - fieldName: event.severityLabelCharacter
               pattern: '{{.word}}\s'
-            - fieldName: log.processId
+            - fieldName: event.processId
               pattern: '{{.integer}}\,'
-            - fieldName: log.trheadId
+            - fieldName: event.trheadId
               pattern: '{{.integer}}\s'
-            - fieldName: log.methodName
+            - fieldName: event.methodName
               pattern: '{{.data}}\:\:{{.data}}\,'
-            - fieldName: log.returnCode
+            - fieldName: event.returnCode
               pattern: '{{.integer}}\]\s'
-            - fieldName: log.message
+            - fieldName: event.message
               pattern: '{{.greedy}}'
-          source: log.restMessage
+          source: event.restMessage
 
       - grok:
           patterns:
-            - fieldName: log.severityLabelCharacter
+            - fieldName: event.severityLabelCharacter
               pattern: '\[{{.data}}\]'
-            - fieldName: log.processId
+            - fieldName: event.processId
               pattern: '\[{{.integer}}\/'
-            - fieldName: log.trheadId
+            - fieldName: event.trheadId
               pattern: '{{.data}}\]:?\s'
-            - fieldName: log.message
+            - fieldName: event.message
               pattern: '{{.greedy}}'
-          source: log.restMessage
+          source: event.restMessage
 
       # Using kv for the rest of the trash in the message
       - kv:
           fieldSplit: " "
           valueSplit: "="
-          source: log.restMessageToKv
-          where: exists("log.restMessageToKv")
+          source: event.restMessageToKv
+          where: exists("event.restMessageToKv")
 
       # Using grok to analyze the rest of the data
       - grok:
           patterns:
-            - fieldName: log.productVendor
+            - fieldName: event.productVendor
               pattern: '\|{{.data}}\|'
-            - fieldName: log.product
+            - fieldName: event.product
               pattern: '{{.data}}\|'
-            - fieldName: log.productVersion
+            - fieldName: event.productVersion
               pattern: '{{.data}}\|'
-            - fieldName: log.signatureID
+            - fieldName: event.signatureID
               pattern: '{{.data}}\|'
-            - fieldName: log.eventType
+            - fieldName: event.eventType
               pattern: '{{.data}}\|'
-            - fieldName: log.severity
+            - fieldName: event.severity
               pattern: '{{.data}}\|'
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: '{{.greedy}}'
-          source: log.restData
+          source: event.restData
 
       - grok:
           patterns:
-            - fieldName: log.pidStatusToKv
+            - fieldName: event.pidStatusToKv
               pattern: '\[{{.data}}\]'
-            - fieldName: log.message
+            - fieldName: event.message
               pattern: '{{.greedy}}'
-          source: log.restDataMessage
+          source: event.restDataMessage
 
       - grok:
           patterns:
-            - fieldName: log.0trash
+            - fieldName: event.0trash
               pattern: '{{.data}}PID='
-            - fieldName: log.pid
+            - fieldName: event.pid
               pattern: '{{.integer}}'
-            - fieldName: log.irrelevant
+            - fieldName: event.irrelevant
               pattern: '{{.greedy}}'
           source: raw
-          where: contains("log.severityLabelCharacter", "W")
+          where: contains("event.severityLabelCharacter", "W")
 
       # Removing unnecessary characters
       - trim:
           function: prefix
           substring: '|'
           fields:
-            - log.productVendor
+            - event.productVendor
 
       - trim:
           function: suffix
           substring: '|'
           fields:
-            - log.productVendor
-            - log.product
-            - log.productVersion
-            - log.signatureID
-            - log.eventType
-            - log.severity
+            - event.productVendor
+            - event.product
+            - event.productVersion
+            - event.signatureID
+            - event.eventType
+            - event.severity
 
       - trim:
           function: suffix
           substring: ':'
           fields:
-            - log.trheadId
+            - event.trheadId
 
       - trim:
           function: suffix
           substring: '/'
           fields:
-            - log.processId
+            - event.processId
 
       - trim:
           function: prefix
           substring: '<'
           fields:
-            - log.syslogPriority
+            - event.syslogPriority
 
       - trim:
           function: suffix
           substring: '>'
           fields:
-            - log.syslogPriority
+            - event.syslogPriority
 
       - trim:
           function: prefix
           substring: ','
           fields:
-            - log.trheadId
-            - log.processId
-            - log.eventType
-            - log.eventSource
-            - log.processName
-            - log.processPath
-            - log.platform
+            - event.trheadId
+            - event.processId
+            - event.eventType
+            - event.eventSource
+            - event.processName
+            - event.processPath
+            - event.platform
             - origin.path
 
       - trim:
           function: suffix
           substring: ','
           fields:
-            - log.trheadId
-            - log.component
-            - log.platform
+            - event.trheadId
+            - event.component
+            - event.platform
             - origin.path
-            - log.eventSource
-            - log.processId
-            - log.methodName
+            - event.eventSource
+            - event.processId
+            - event.methodName
 
       - trim:
           function: prefix
@@ -425,42 +425,42 @@ pipeline:
           function: prefix
           substring: '['
           fields:
-            - log.eventTime
-            - log.processId
-            - log.severityLabelCharacter
+            - event.eventTime
+            - event.processId
+            - event.severityLabelCharacter
 
       - trim:
           function: suffix
           substring: ']'
           fields:
-            - log.status
-            - log.errorCode
-            - log.returnCode
-            - log.severityLabelCharacter
-            - log.trheadId
+            - event.status
+            - event.errorCode
+            - event.returnCode
+            - event.severityLabelCharacter
+            - event.trheadId
 
       # Using the kv filter with default config, usefull in key-value logs
       - kv:
           fieldSplit: " "
           valueSplit: "="
-          source: log.restData
-          where: exists("log.restData")
+          source: event.restData
+          where: exists("event.restData")
 
       # Using the kv filter with other config, usefull in key-value logs
       - kv:
           fieldSplit: ", "
           valueSplit: "="
-          source: log.pidStatusToKv
-          where: exists("log.pidStatusToKv")
+          source: event.pidStatusToKv
+          where: exists("event.pidStatusToKv")
 
       # CEF src is the address the activity came from. It is mapped only when the
       # record also carries its action (act or action), so a record whose action
       # could not be read never gets an address without its outcome.
       - rename:
           from:
-            - log.src
+            - event.src
           to: origin.ip
-          where: 'contains("raw", "CEF:") && exists("log.src") && (exists("log.act") || exists("log.action")) && !equals("log.src", "0.0.0.0") && !equals("log.src", "::") && (inCIDR("log.src", "0.0.0.0/0") || inCIDR("log.src", "::/0"))'
+          where: 'contains("raw", "CEF:") && exists("event.src") && (exists("event.act") || exists("event.action")) && !equals("event.src", "0.0.0.0") && !equals("event.src", "::") && (inCIDR("event.src", "0.0.0.0/0") || inCIDR("event.src", "::/0"))'
 
       # Adding action result: only success, failed or denied. CEF carries the
       # device action in act; key=value lines use action. The vendor's letter
@@ -470,7 +470,7 @@ pipeline:
           params:
             key: actionResult
             value: "denied"
-          where: '(exists("log.act") && regexMatch("log.act", "(?i)^(blocked|block|prevented|denied|deny)$")) || (exists("log.action") && regexMatch("log.action", "(?i)^(blocked|block|prevented|denied|deny)$"))'
+          where: '(exists("event.act") && regexMatch("event.act", "(?i)^(blocked|block|prevented|denied|deny)$")) || (exists("event.action") && regexMatch("event.action", "(?i)^(blocked|block|prevented|denied|deny)$"))'
 
       # Adding severity based on log.severityLabelCharacter
       - add:
@@ -478,33 +478,33 @@ pipeline:
           params:
             key: severity
             value: 'high'
-          where: oneOf("log.severityLabelCharacter", ["C", "A", "E"])
+          where: oneOf("event.severityLabelCharacter", ["C", "A", "E"])
 
       - add:
           function: 'string'
           params:
             key: severity
             value: 'medium'
-          where: equals("log.severityLabelCharacter", "W")
+          where: equals("event.severityLabelCharacter", "W")
 
       - add:
           function: 'string'
           params:
             key: severity
             value: 'low'
-          where: oneOf("log.severityLabelCharacter", ["D", "V", "N", "I", "T"])
+          where: oneOf("event.severityLabelCharacter", ["D", "V", "N", "I", "T"])
 
       # Removing unused fields
       - delete:
           fields:
-            - log.0trash
-            - log.1trash
-            - log.restData
-            - log.restMessage
-            - log.restDataMessage
-            - log.irrelevant
-            - log.messageWithTrash
-            - log.restMessageToKv
-            - log.pidStatusToKv
-            - log.userWithTrash
-            - log.severityLabelCharacter
+            - event.0trash
+            - event.1trash
+            - event.restData
+            - event.restMessage
+            - event.restDataMessage
+            - event.irrelevant
+            - event.messageWithTrash
+            - event.restMessageToKv
+            - event.pidStatusToKv
+            - event.userWithTrash
+            - event.severityLabelCharacter

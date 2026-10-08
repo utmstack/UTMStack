@@ -20,12 +20,12 @@ description: 'An AntiMalware event reports failure to remediate (still present),
   file/process and endpoint state; prioritize containment if active compromise is confirmed or strongly supported.
 
   '
-where: "equals(\"log.eventType\", \"AntiMalware\") &&\n(\n  equals(\"actionResult\", \"failed\") ||\n  (greaterOrEqual(\"\
-  log.BitdefenderGZPresentMalwareCnt\", 1) &&\n   equals(\"log.BitdefenderGZQuarantinedMalwareCnt\", 0) &&\n   equals(\"log.BitdefenderGZCleanedMalwareCnt\"\
+where: "equals(\"event.eventType\", \"AntiMalware\") &&\n(\n  equals(\"actionResult\", \"failed\") ||\n  (greaterOrEqual(\"\
+  event.BitdefenderGZPresentMalwareCnt\", 1) &&\n   equals(\"event.BitdefenderGZQuarantinedMalwareCnt\", 0) &&\n   equals(\"event.BitdefenderGZCleanedMalwareCnt\"\
   , 0))\n)\n"
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.BitdefenderGZCompanyId
-- lastEvent.log.endpointKeyType
-- lastEvent.log.endpointKey
+- lastEvent.event.BitdefenderGZCompanyId
+- lastEvent.event.endpointKeyType
+- lastEvent.event.endpointKey
 - target.malware

@@ -24,11 +24,11 @@ description: |
   5. Consider implementing additional wireless monitoring and detection capabilities
   6. Document the incident and update security policies if needed
 where: |
-  equals("log.eventType", "events") &&
-  equals("log.type", "device_packet_flood") &&
-  equals("log.state", "start")
+  equals("event.eventType", "events") &&
+  equals("event.type", "device_packet_flood") &&
+  equals("event.state", "start")
 deduplicateBy:
   - lastEvent.dataSource
-  - lastEvent.log.merakiType
+  - lastEvent.event.merakiType
   - adversary.mac
-  - lastEvent.log.packet
+  - lastEvent.event.packet

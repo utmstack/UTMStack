@@ -7,7 +7,7 @@ pipeline:
   - json:
       source: raw
   - drop:
-      where: oneOf("log.Operation", ['AINotesUpdate', 'AcceptedSharingLinkOnFolder', 'AccessRequestUpdated', 'AccessedOdataLink', 'AddCommentToIncident.', 'AddFormCoauthor', 'AddRemediatedData', 'AddTagsToIncident', 'AdminThreadMuted', 'AdminThreadUnmuted', 'AlertExcelDownloaded', 'AlertNotificationsRecipientAdded', 'AllowShareFormForCopy', 'AppPublishedToCatalog', 'AppUpdatedInCatalog', 'AppUpgraded', 'ApplyRecordLabel', 'ApproveDisposal', 'AssignUserToIncident', 'AuditSearchCancelled', 'AuditSearchCompleted', 'AuditSearchCreated', 'AuditSearchExportJobCompleted', 'AuditSearchExportJobCreated', 'AuditSearchExportResultsDownloaded', 'BackupItemAdded', 'BackupItemRemoved', 'BackupItemRestoreCompleted', 'BackupItemRestoreTriggered', 'BackupPolicyActivated', 'BackupPolicyPaused', 'BotAddedToTeam', 'BreakEnded', 'BurnJob', 'CanceledQuery', 'CaseUpdated', 'ChannelAdded', 'ChannelOwnerResponded', 'ChatRetrieved', 'ChatUpdated', 'ClassificationAdded', 'ClassificationDefinitionCreated', 'ClientViewSignaled', 'ClockedIn', 'ClockedOut', 'CloseConversation', 'CollectionCreated', 'CollectionHardDeleted', 'CollectionRenamed', 'CollectionSoftDeleted', 'CollectionUpdated', 'ComplianceManagerAutomationChange', 'ComplianceSettingChanged', 'ConnectToExcelWorkbook', 'ConnectorAdded', 'CopilotInteraction', 'Copy', 'Create', 'CreateComment', 'CreateCopilotPlugin', 'CreateCopilotPromptBook', 'CreateForm', 'CreateResponse', 'CreateTag', 'CreateUpdateRequest', 'CreateWorkingSet', 'CreateWorkingSetSearch', 'DataExport', 'DataShareCreated', 'DataShareDeleted', 'DeleteCopilotPlugin', 'DeleteCopilotPromptBook', 'DeleteSummaryLink', 'DeleteTag', 'DeleteWorkingSetSearch', 'DeletedResult', 'DisableCopilotPlugin', 'DisableCopilotPromptBook', 'DisallowShareFormForCopy', 'DocumentSensitivityMismatchDetected', 'DomainControllerCoverageExcelDownloaded', 'DownloadCopyOfLakeData', 'DownloadDocument', 'DownloadedReport', 'DraftRestoreTaskCreated', 'DraftRestoreTaskDeleted', 'DraftRestoreTaskEdited', 'EditUpdateRequest', 'EnableCopilotPlugin', 'EnableCopilotPromptBook', 'EntityCreated', 'ErrorRemediationJob', 'ExchangeDataProactivelyPreserved', 'ExecutedQuery', 'ExportForm', 'ExportJob', 'ExtendRetention', 'FailedValidation', 'FileCheckOutDiscarded', 'FileCheckedIn', 'FileCheckedOut', 'FileCopied', 'FileDeletedFirstStageRecycleBin', 'FileDeletedSecondStageRecycleBin', 'FileModifiedExtended', 'FileRecycled', 'FileRestored', 'FileSyncDownloadedFull', 'FileSyncUploadedFull', 'FileUpdateDescription', 'FileUploaded', 'FileVersionRecycled', 'FileVersionsAllMinorsRecycled', 'FileVersionsAllRecycled', 'FileVisited', 'FolderCopied', 'FolderCreated', 'FolderDeletedFirstStageRecycleBin', 'FolderDeletedSecondStageRecycleBin', 'FolderRecycled', 'FolderRestored', 'FolderSharingLinkShared', 'GenerateCopyOfLakeData', 'GetAllRestoreArtifactsInTask', 'GetBackupItem', 'GetRestoreTaskDetails', 'GetSummaryLink', 'GlossaryTermAssigned', 'GlossaryTermCreated', 'HoldRemoved', 'HoldUpdated', 'HubSiteJoined', 'HubSiteOrphanHubDeleted', 'HubSiteRegistered', 'InformationBarriersInsightsReportCompleted', 'InformationBarriersInsightsReportOneDriveSectionQueried', 'InformationBarriersInsightsReportSchedule', 'InformationBarriersInsightsReportSharePointSectionQueried', 'InviteSent', 'InviteeResponded', 'LabelContentExplorerAccessedItem', 'LegacyWorkflowEnabledSet', 'LinkedEntityCreated', 'ListAllBackupItemsInPolicies', 'ListAllBackupItemsInTenant', 'ListAllBackupItemsInWorkload', 'ListAllBackupPolicies', 'ListAllRestorePoints', 'ListAllRestoreTasks', 'ListColumnCreated', 'ListColumnUpdated', 'ListContentTypeCreated', 'ListContentTypeDeleted', 'ListContentTypeUpdated', 'ListCreated', 'ListForms', 'ListItemCreated', 'ListItemRecycled', 'ListItemRestored', 'LiveNotesUpdate', 'LockRecord', 'LogsCollection', 'ManagedSyncClientAllowed', 'MarkedMessageChanged', 'MeetingDetail', 'MeetingParticipantDetail', 'MessageCreatedHasLink', 'MessageCreatedNotification', 'MessageCreation', 'MessageDeleted', 'MessageDeletedNotification', 'MessageEditedHasLink', 'MessageHostedContentsListed', 'MessageRead', 'MessageUpdated', 'MessageUpdatedNotification', 'MonitoringAlertNotificationRecipientAdded', 'MonitoringAlertUpdated', 'MoveForm', 'MovedFormIntoCollection', 'MovedFormOutofCollection', 'NewAdaptiveScope', 'NewBackupPolicyCreated', 'NewComplianceTag', 'NewRetentionCompliancePolicy', 'NewsFeedEnabledSet', 'OffShiftDialogAccepted', 'OfficeOnDemandSet', 'OpenConversation', 'OpenShiftAdded', 'PagePrefetched', 'PageViewed', 'PageViewedExtended', 'PeopleResultsScopeSet', 'PerformedCardAction', 'PlanCopied', 'PlanListRead', 'PreviewForm', 'PreviewItemDownloaded', 'PreviewItemListed', 'PreviewModeEnabledSet', 'PreviewWorkingSetSearch', 'ProInvitation', 'ProjectCreated', 'ProjectListAccessed', 'PulseCancel', 'PulseCreate', 'PulseCreateDraft', 'PulseDeleteDraft', 'PulseExtendDeadline', 'PulseInvite', 'PulseShareResults', 'PulseSubmit', 'QuarantinePreview', 'QuarantineReleaseRequest', 'QuarantineReleaseRequestDeny', 'QuarantineViewHeader', 'RecordDelete', 'RelabelItem', 'RemediationActionAdded', 'RemediationActionUpdated', 'RemoveAdaptiveScope', 'RemoveComplianceTag', 'RemoveCuratedTopic', 'RemoveFormCoauthor', 'RemoveTagsFromIncident', 'RemovedSearchExported', 'RemovedSearchPreviewed', 'RemovedSearchResultsPurged', 'RemovedSearchResultsSentToZoom', 'ReportDownloaded', 'RequestAdded', 'RequestRespondedTo', 'RestoreTaskActivated', 'RestoreTaskCompleted', 'RoadmapAccessed', 'RoadmapCreated', 'RoadmapItemAccessed', 'RoadmapItemCreated', 'RunAntiVirusScan', 'ScheduleGroupAdded', 'ScheduleShared', 'SearchPermissionUpdated', 'SearchQueryPerformed', 'SearchRemoved', 'SearchReport', 'SearchReportRemoved', 'SearchResultsSentToZoom', 'SearchStopped', 'SearchUpdated', 'SearchViewed', 'Send', 'SensitivityLabelApplied', 'SensitivityLabelChanged', 'SensorActivationMethodConfigurationUpdated', 'SensorCreated', 'SensorDeploymentAccessKeyReceived', 'SensorDeploymentAccessKeyUpdated', 'SetAdvancedFeatures', 'SetRestrictiveRetentionUI', 'SharePointDataProactivelyPreserved', 'SharingInvitationRevoked', 'SharingInvitationUpdated', 'ShiftAdded', 'SiteAdminChangeRequest', 'SiteCollectionCreated', 'SiteCollectionQuotaModified', 'SiteColumnCreated', 'SiteColumnDeleted', 'SiteColumnUpdated', 'SiteContentTypeCreated', 'SiteContentTypeDeleted', 'SiteContentTypeUpdated', 'SoftDeleteSettingsUpdated', 'SubTaskCreated', 'SubmitResponse', 'SubmitUpdate', 'SubscribedToMessages', 'SupervisionRuleMatch', 'SupervisoryReviewTag', 'TabAdded', 'TabUpdated', 'TagFiles', 'TagJob', 'TaggingConfigurationUpdated', 'TaskAccessed', 'TaskAssigned', 'TaskCompleted', 'TaskCreated', 'TaskListCreated', 'TaskListRead', 'TaskRead', 'TeamCreated', 'ThreadAccessFailure', 'ThreadViewed', 'TimeClockEntryAdded', 'TimeOffAdded', 'UnlockRecord', 'Update', 'UpdateCopilotPlugin', 'UpdateCopilotPromptBook', 'UpdateCopilotSettings', 'UpdateIncidentStatus', 'UpdateResponse', 'UpdateTag', 'UpdateUsageReportsPrivacySetting', 'UpdateWorkingSetSearch', 'UpdatedPolicyConfigPriority', 'UploadedOrgData', 'UsagePolicyAcceptance', 'ViewBackupPolicyDetails', 'ViewDocument', 'ViewForm', 'ViewResponse', 'ViewResponses', 'ViewRuntimeForm', 'ViewUpdate', 'ViewedExplore', 'ViewedSearchExported', 'ViewedSearchPreviewed', 'WorkforceIntegrationAdded', 'WorkspaceCreated', 'updateddeviceconfiguration'])
+      where: oneOf("event.Operation", ['AINotesUpdate', 'AcceptedSharingLinkOnFolder', 'AccessRequestUpdated', 'AccessedOdataLink', 'AddCommentToIncident.', 'AddFormCoauthor', 'AddRemediatedData', 'AddTagsToIncident', 'AdminThreadMuted', 'AdminThreadUnmuted', 'AlertExcelDownloaded', 'AlertNotificationsRecipientAdded', 'AllowShareFormForCopy', 'AppPublishedToCatalog', 'AppUpdatedInCatalog', 'AppUpgraded', 'ApplyRecordLabel', 'ApproveDisposal', 'AssignUserToIncident', 'AuditSearchCancelled', 'AuditSearchCompleted', 'AuditSearchCreated', 'AuditSearchExportJobCompleted', 'AuditSearchExportJobCreated', 'AuditSearchExportResultsDownloaded', 'BackupItemAdded', 'BackupItemRemoved', 'BackupItemRestoreCompleted', 'BackupItemRestoreTriggered', 'BackupPolicyActivated', 'BackupPolicyPaused', 'BotAddedToTeam', 'BreakEnded', 'BurnJob', 'CanceledQuery', 'CaseUpdated', 'ChannelAdded', 'ChannelOwnerResponded', 'ChatRetrieved', 'ChatUpdated', 'ClassificationAdded', 'ClassificationDefinitionCreated', 'ClientViewSignaled', 'ClockedIn', 'ClockedOut', 'CloseConversation', 'CollectionCreated', 'CollectionHardDeleted', 'CollectionRenamed', 'CollectionSoftDeleted', 'CollectionUpdated', 'ComplianceManagerAutomationChange', 'ComplianceSettingChanged', 'ConnectToExcelWorkbook', 'ConnectorAdded', 'CopilotInteraction', 'Copy', 'Create', 'CreateComment', 'CreateCopilotPlugin', 'CreateCopilotPromptBook', 'CreateForm', 'CreateResponse', 'CreateTag', 'CreateUpdateRequest', 'CreateWorkingSet', 'CreateWorkingSetSearch', 'DataExport', 'DataShareCreated', 'DataShareDeleted', 'DeleteCopilotPlugin', 'DeleteCopilotPromptBook', 'DeleteSummaryLink', 'DeleteTag', 'DeleteWorkingSetSearch', 'DeletedResult', 'DisableCopilotPlugin', 'DisableCopilotPromptBook', 'DisallowShareFormForCopy', 'DocumentSensitivityMismatchDetected', 'DomainControllerCoverageExcelDownloaded', 'DownloadCopyOfLakeData', 'DownloadDocument', 'DownloadedReport', 'DraftRestoreTaskCreated', 'DraftRestoreTaskDeleted', 'DraftRestoreTaskEdited', 'EditUpdateRequest', 'EnableCopilotPlugin', 'EnableCopilotPromptBook', 'EntityCreated', 'ErrorRemediationJob', 'ExchangeDataProactivelyPreserved', 'ExecutedQuery', 'ExportForm', 'ExportJob', 'ExtendRetention', 'FailedValidation', 'FileCheckOutDiscarded', 'FileCheckedIn', 'FileCheckedOut', 'FileCopied', 'FileDeletedFirstStageRecycleBin', 'FileDeletedSecondStageRecycleBin', 'FileModifiedExtended', 'FileRecycled', 'FileRestored', 'FileSyncDownloadedFull', 'FileSyncUploadedFull', 'FileUpdateDescription', 'FileUploaded', 'FileVersionRecycled', 'FileVersionsAllMinorsRecycled', 'FileVersionsAllRecycled', 'FileVisited', 'FolderCopied', 'FolderCreated', 'FolderDeletedFirstStageRecycleBin', 'FolderDeletedSecondStageRecycleBin', 'FolderRecycled', 'FolderRestored', 'FolderSharingLinkShared', 'GenerateCopyOfLakeData', 'GetAllRestoreArtifactsInTask', 'GetBackupItem', 'GetRestoreTaskDetails', 'GetSummaryLink', 'GlossaryTermAssigned', 'GlossaryTermCreated', 'HoldRemoved', 'HoldUpdated', 'HubSiteJoined', 'HubSiteOrphanHubDeleted', 'HubSiteRegistered', 'InformationBarriersInsightsReportCompleted', 'InformationBarriersInsightsReportOneDriveSectionQueried', 'InformationBarriersInsightsReportSchedule', 'InformationBarriersInsightsReportSharePointSectionQueried', 'InviteSent', 'InviteeResponded', 'LabelContentExplorerAccessedItem', 'LegacyWorkflowEnabledSet', 'LinkedEntityCreated', 'ListAllBackupItemsInPolicies', 'ListAllBackupItemsInTenant', 'ListAllBackupItemsInWorkload', 'ListAllBackupPolicies', 'ListAllRestorePoints', 'ListAllRestoreTasks', 'ListColumnCreated', 'ListColumnUpdated', 'ListContentTypeCreated', 'ListContentTypeDeleted', 'ListContentTypeUpdated', 'ListCreated', 'ListForms', 'ListItemCreated', 'ListItemRecycled', 'ListItemRestored', 'LiveNotesUpdate', 'LockRecord', 'LogsCollection', 'ManagedSyncClientAllowed', 'MarkedMessageChanged', 'MeetingDetail', 'MeetingParticipantDetail', 'MessageCreatedHasLink', 'MessageCreatedNotification', 'MessageCreation', 'MessageDeleted', 'MessageDeletedNotification', 'MessageEditedHasLink', 'MessageHostedContentsListed', 'MessageRead', 'MessageUpdated', 'MessageUpdatedNotification', 'MonitoringAlertNotificationRecipientAdded', 'MonitoringAlertUpdated', 'MoveForm', 'MovedFormIntoCollection', 'MovedFormOutofCollection', 'NewAdaptiveScope', 'NewBackupPolicyCreated', 'NewComplianceTag', 'NewRetentionCompliancePolicy', 'NewsFeedEnabledSet', 'OffShiftDialogAccepted', 'OfficeOnDemandSet', 'OpenConversation', 'OpenShiftAdded', 'PagePrefetched', 'PageViewed', 'PageViewedExtended', 'PeopleResultsScopeSet', 'PerformedCardAction', 'PlanCopied', 'PlanListRead', 'PreviewForm', 'PreviewItemDownloaded', 'PreviewItemListed', 'PreviewModeEnabledSet', 'PreviewWorkingSetSearch', 'ProInvitation', 'ProjectCreated', 'ProjectListAccessed', 'PulseCancel', 'PulseCreate', 'PulseCreateDraft', 'PulseDeleteDraft', 'PulseExtendDeadline', 'PulseInvite', 'PulseShareResults', 'PulseSubmit', 'QuarantinePreview', 'QuarantineReleaseRequest', 'QuarantineReleaseRequestDeny', 'QuarantineViewHeader', 'RecordDelete', 'RelabelItem', 'RemediationActionAdded', 'RemediationActionUpdated', 'RemoveAdaptiveScope', 'RemoveComplianceTag', 'RemoveCuratedTopic', 'RemoveFormCoauthor', 'RemoveTagsFromIncident', 'RemovedSearchExported', 'RemovedSearchPreviewed', 'RemovedSearchResultsPurged', 'RemovedSearchResultsSentToZoom', 'ReportDownloaded', 'RequestAdded', 'RequestRespondedTo', 'RestoreTaskActivated', 'RestoreTaskCompleted', 'RoadmapAccessed', 'RoadmapCreated', 'RoadmapItemAccessed', 'RoadmapItemCreated', 'RunAntiVirusScan', 'ScheduleGroupAdded', 'ScheduleShared', 'SearchPermissionUpdated', 'SearchQueryPerformed', 'SearchRemoved', 'SearchReport', 'SearchReportRemoved', 'SearchResultsSentToZoom', 'SearchStopped', 'SearchUpdated', 'SearchViewed', 'Send', 'SensitivityLabelApplied', 'SensitivityLabelChanged', 'SensorActivationMethodConfigurationUpdated', 'SensorCreated', 'SensorDeploymentAccessKeyReceived', 'SensorDeploymentAccessKeyUpdated', 'SetAdvancedFeatures', 'SetRestrictiveRetentionUI', 'SharePointDataProactivelyPreserved', 'SharingInvitationRevoked', 'SharingInvitationUpdated', 'ShiftAdded', 'SiteAdminChangeRequest', 'SiteCollectionCreated', 'SiteCollectionQuotaModified', 'SiteColumnCreated', 'SiteColumnDeleted', 'SiteColumnUpdated', 'SiteContentTypeCreated', 'SiteContentTypeDeleted', 'SiteContentTypeUpdated', 'SoftDeleteSettingsUpdated', 'SubTaskCreated', 'SubmitResponse', 'SubmitUpdate', 'SubscribedToMessages', 'SupervisionRuleMatch', 'SupervisoryReviewTag', 'TabAdded', 'TabUpdated', 'TagFiles', 'TagJob', 'TaggingConfigurationUpdated', 'TaskAccessed', 'TaskAssigned', 'TaskCompleted', 'TaskCreated', 'TaskListCreated', 'TaskListRead', 'TaskRead', 'TeamCreated', 'ThreadAccessFailure', 'ThreadViewed', 'TimeClockEntryAdded', 'TimeOffAdded', 'UnlockRecord', 'Update', 'UpdateCopilotPlugin', 'UpdateCopilotPromptBook', 'UpdateCopilotSettings', 'UpdateIncidentStatus', 'UpdateResponse', 'UpdateTag', 'UpdateUsageReportsPrivacySetting', 'UpdateWorkingSetSearch', 'UpdatedPolicyConfigPriority', 'UploadedOrgData', 'UsagePolicyAcceptance', 'ViewBackupPolicyDetails', 'ViewDocument', 'ViewForm', 'ViewResponse', 'ViewResponses', 'ViewRuntimeForm', 'ViewUpdate', 'ViewedExplore', 'ViewedSearchExported', 'ViewedSearchPreviewed', 'WorkforceIntegrationAdded', 'WorkspaceCreated', 'updateddeviceconfiguration'])
   # Capture documented Name/Value parameter identities before the legacy string
   # cast loses their structure. The inbox rule and send-on-behalf flags mean a
   # setting was supplied, including clearing it. The mailbox flag needs a non-empty
@@ -16,102 +16,102 @@ pipeline:
   # external recipient. Never trust markers supplied by the input record.
   - delete:
       fields:
-      - log.o365InboxForwardingChange
-      - log.o365MailboxForwardingSet
-      - log.o365SendOnBehalfChange
+      - event.o365InboxForwardingChange
+      - event.o365MailboxForwardingSet
+      - event.o365SendOnBehalfChange
   - add:
       function: string
       params:
-        key: log.o365InboxForwardingChange
+        key: event.o365InboxForwardingChange
         value: "true"
       where: >-
-        equals("log.Workload", "Exchange") &&
-        oneOf("log.Operation", ["New-InboxRule", "Set-InboxRule"]) &&
-        (exists("log.Parameters.#(Name==ForwardTo).Name") ||
-         exists("log.Parameters.#(Name==ForwardAsAttachmentTo).Name") ||
-         exists("log.Parameters.#(Name==RedirectTo).Name"))
+        equals("event.Workload", "Exchange") &&
+        oneOf("event.Operation", ["New-InboxRule", "Set-InboxRule"]) &&
+        (exists("event.Parameters.#(Name==ForwardTo).Name") ||
+         exists("event.Parameters.#(Name==ForwardAsAttachmentTo).Name") ||
+         exists("event.Parameters.#(Name==RedirectTo).Name"))
   - add:
       function: string
       params:
-        key: log.o365MailboxForwardingSet
+        key: event.o365MailboxForwardingSet
         value: "true"
       where: >-
-        equals("log.Workload", "Exchange") && equals("log.Operation", "Set-Mailbox") &&
-        (regexMatch("log.Parameters.#(Name==ForwardingAddress).Value", "(?s)^.+$") ||
-         regexMatch("log.Parameters.#(Name==ForwardingSmtpAddress).Value", "(?s)^.+$"))
+        equals("event.Workload", "Exchange") && equals("event.Operation", "Set-Mailbox") &&
+        (regexMatch("event.Parameters.#(Name==ForwardingAddress).Value", "(?s)^.+$") ||
+         regexMatch("event.Parameters.#(Name==ForwardingSmtpAddress).Value", "(?s)^.+$"))
   - add:
       function: string
       params:
-        key: log.o365SendOnBehalfChange
+        key: event.o365SendOnBehalfChange
         value: "true"
       where: >-
-        equals("log.Workload", "Exchange") && equals("log.Operation", "Set-Mailbox") &&
-        exists("log.Parameters.#(Name==GrantSendOnBehalfTo).Name")
+        equals("event.Workload", "Exchange") && equals("event.Operation", "Set-Mailbox") &&
+        exists("event.Parameters.#(Name==GrantSendOnBehalfTo).Name")
   - cast:
       fields:
-      - log.Parameters
-      - log.Members
+      - event.Parameters
+      - event.Members
       to: string
   - rename:
       from:
-      - log.AppAccessContext.AADSessionId
-      to: log.appAccessContextAADSessionId
+      - event.AppAccessContext.AADSessionId
+      to: event.appAccessContextAADSessionId
   - rename:
       from:
-      - log.AppAccessContext.APIId
-      to: log.appAccessContextAPIId
+      - event.AppAccessContext.APIId
+      to: event.appAccessContextAPIId
   - rename:
       from:
-      - log.AppAccessContext.ClientAppId
-      to: log.appAccessContextClientAppId
+      - event.AppAccessContext.ClientAppId
+      to: event.appAccessContextClientAppId
   - rename:
       from:
-      - log.AppAccessContext.CorrelationId
-      to: log.appAccessContextCorrelationId
+      - event.AppAccessContext.CorrelationId
+      to: event.appAccessContextCorrelationId
   - rename:
       from:
-      - log.CreationTime
+      - event.CreationTime
       to: deviceTime
   - rename:
       from:
-      - log.AppAccessContext.UniqueTokenId
-      to: log.appAccessContextUniqueTokenId
+      - event.AppAccessContext.UniqueTokenId
+      to: event.appAccessContextUniqueTokenId
   - rename:
       from:
-      - log.ClientIPAddress
+      - event.ClientIPAddress
       to: origin.ip
   - rename:
       from:
-      - log.Operation
+      - event.Operation
       to: action
   - rename:
       from:
-      - log.Version
-      to: log.version
+      - event.Version
+      to: event.version
   - rename:
       from:
-      - log.ClientIP
+      - event.ClientIP
       to: origin.ip
   - rename:
       from:
-      - log.UserId
+      - event.UserId
       to: origin.user
   - rename:
       from:
-      - log.Folder.Path
-      to: log.folderPath
+      - event.Folder.Path
+      to: event.folderPath
   - rename:
       from:
-      - log.Folder.Id
-      to: log.folderId
+      - event.Folder.Id
+      to: event.folderId
   - rename:
       from:
-      - log.DestFolder.Id
-      to: log.destFolderId
+      - event.DestFolder.Id
+      to: event.destFolderId
   - rename:
       from:
-      - log.DestFolder.Path
-      to: log.destFolderPath
+      - event.DestFolder.Path
+      to: event.destFolderPath
   # ResultStatus is workload-specific. Preserve it and derive only established
   # operation outcomes; partial, pending and unknown results remain unset.
   - delete:
@@ -123,24 +123,24 @@ pipeline:
         key: actionResult
         value: success
       where: >-
-        !oneOf("log.RecordType", [1, 15, 41, 188, 189, 190, 191, 192, 193, 194, 231, 386, 387, 401, 402]) &&
-        oneOf("log.ResultStatus", ["Succeeded", "Success", "Successful"]) &&
+        !oneOf("event.RecordType", [1, 15, 41, 188, 189, 190, 191, 192, 193, 194, 231, 386, 387, 401, 402]) &&
+        oneOf("event.ResultStatus", ["Succeeded", "Success", "Successful"]) &&
         !equals("action", "UserLoginFailed") &&
-        !(equals("log.RecordType", 40) && oneOf("action", ["AlertTriggered", "AlertEntityGenerated"]))
+        !(equals("event.RecordType", 40) && oneOf("action", ["AlertTriggered", "AlertEntityGenerated"]))
   # ExchangeAdmin uses string True/False; these are not universal outcome codes.
   - add:
       function: string
       params:
         key: actionResult
         value: success
-      where: equals("log.RecordType", 1) && equals("log.ResultStatus", "True")
+      where: equals("event.RecordType", 1) && equals("event.ResultStatus", "True")
   # Yammer admin sync records report TRUE for a completed operation.
   - add:
       function: string
       params:
         key: actionResult
         value: success
-      where: equals("log.RecordType", 22) && oneOf("log.ResultStatus", ["TRUE", "True"])
+      where: equals("event.RecordType", 22) && oneOf("event.ResultStatus", ["TRUE", "True"])
   # STS HTTP success and UserLoggedIn alone do not prove completed authentication.
   # Require an explicit zero result code and reject contradictory/unknown errors.
   # ErrorNumber is the corresponding field in observed STS audit records.
@@ -150,12 +150,12 @@ pipeline:
         key: actionResult
         value: success
       where: >-
-        equals("log.RecordType", 15) &&
-        (equals("log.ErrorCode", 0) || equals("log.ErrorNumber", 0)) &&
-        (!exists("log.ErrorCode") || equals("log.ErrorCode", 0)) &&
-        (!exists("log.ErrorNumber") || equals("log.ErrorNumber", 0)) &&
-        (!exists("log.LogonError") || regexMatch("log.LogonError", "^$")) &&
-        (!exists("log.ResultStatus") || oneOf("log.ResultStatus", ["Succeeded", "Success", "Successful"])) &&
+        equals("event.RecordType", 15) &&
+        (equals("event.ErrorCode", 0) || equals("event.ErrorNumber", 0)) &&
+        (!exists("event.ErrorCode") || equals("event.ErrorCode", 0)) &&
+        (!exists("event.ErrorNumber") || equals("event.ErrorNumber", 0)) &&
+        (!exists("event.LogonError") || regexMatch("event.LogonError", "^$")) &&
+        (!exists("event.ResultStatus") || oneOf("event.ResultStatus", ["Succeeded", "Success", "Successful"])) &&
         !equals("action", "UserLoginFailed")
   # Planner defines its own result enum. Audit records also emit its member names.
   - add:
@@ -164,8 +164,8 @@ pipeline:
         key: actionResult
         value: success
       where: >-
-        oneOf("log.RecordType", [188, 189, 190, 191, 192, 193, 194, 231, 386, 387, 401, 402]) &&
-        (equals("log.ResultStatus", 1) || equals("log.ResultStatus", "Success"))
+        oneOf("event.RecordType", [188, 189, 190, 191, 192, 193, 194, 231, 386, 387, 401, 402]) &&
+        (equals("event.ResultStatus", 1) || equals("event.ResultStatus", "Success"))
   # Safe Links reports the navigation decision separately from event processing.
   # Values 4/5 mean the user overrode the page and navigated; 3 remains pending.
   # Observed records spell the key UrlClickAction; the documented spelling is URLClickAction.
@@ -175,8 +175,8 @@ pipeline:
         key: actionResult
         value: success
       where: >-
-        equals("log.RecordType", 41) &&
-        (oneOf("log.URLClickAction", [4, 5]) || oneOf("log.UrlClickAction", [4, 5]))
+        equals("event.RecordType", 41) &&
+        (oneOf("event.URLClickAction", [4, 5]) || oneOf("event.UrlClickAction", [4, 5]))
   # Teams, SharePoint and OneDrive write these records only after the operation happened
   # and carry no ResultStatus. Detection, DLP, block, denial and partial records are excluded;
   # the failed and denied steps below still run later.
@@ -186,10 +186,10 @@ pipeline:
         key: actionResult
         value: success
       where: >-
-        !exists("log.ResultStatus") &&
-        ((equals("log.Workload", "MicrosoftTeams") && equals("action", "TeamsSessionStarted")) ||
-         (oneOf("log.Workload", ["SharePoint", "OneDrive"]) &&
-          !oneOf("log.RecordType", [11, 33]) &&
+        !exists("event.ResultStatus") &&
+        ((equals("event.Workload", "MicrosoftTeams") && equals("action", "TeamsSessionStarted")) ||
+         (oneOf("event.Workload", ["SharePoint", "OneDrive"]) &&
+          !oneOf("event.RecordType", [11, 33]) &&
           !oneOf("action", ["BaselineSecurityModeThirdPartyAppHPA", "ContentSecurityPolicyViolated", "FileMalwareDetected"]) &&
           !regexMatch("action", "(?i)^dlp") &&
           !regexMatch("action", "(Blocked|Denied|Failed|Failure|Violated|Detected|Partial)$")))
@@ -199,55 +199,55 @@ pipeline:
       params:
         key: actionResult
         value: success
-      where: equals("log.RecordType", 20) && oneOf("log.IsSuccess", [true, "true", "True"])
+      where: equals("event.RecordType", 20) && oneOf("event.IsSuccess", [true, "true", "True"])
   - add:
       function: string
       params:
         key: actionResult
         value: failed
       where: >-
-        !oneOf("log.RecordType", [41, 188, 189, 190, 191, 192, 193, 194, 231, 386, 387, 401, 402]) &&
-        (oneOf("log.ResultStatus", ["Failure", "Failed"]) ||
-         (equals("log.RecordType", 1) && equals("log.ResultStatus", "False")) ||
-         (equals("log.RecordType", 18) && equals("log.ResultStatus", "Error")))
+        !oneOf("event.RecordType", [41, 188, 189, 190, 191, 192, 193, 194, 231, 386, 387, 401, 402]) &&
+        (oneOf("event.ResultStatus", ["Failure", "Failed"]) ||
+         (equals("event.RecordType", 1) && equals("event.ResultStatus", "False")) ||
+         (equals("event.RecordType", 18) && equals("event.ResultStatus", "Error")))
   - add:
       function: string
       params:
         key: actionResult
         value: failed
-      where: equals("log.RecordType", 20) && oneOf("log.IsSuccess", [false, "false", "False"])
-  - add:
-      function: string
-      params:
-        key: actionResult
-        value: failed
-      where: >-
-        equals("log.RecordType", 15) &&
-        (greaterThan("log.ErrorCode", 0) || regexMatch("log.LogonError", "(?s)^.+$"))
+      where: equals("event.RecordType", 20) && oneOf("event.IsSuccess", [false, "false", "False"])
   - add:
       function: string
       params:
         key: actionResult
         value: failed
       where: >-
-        oneOf("log.RecordType", [188, 189, 190, 191, 192, 193, 194, 231, 386, 387, 401, 402]) &&
-        (equals("log.ResultStatus", 2) || equals("log.ResultStatus", "Failure"))
+        equals("event.RecordType", 15) &&
+        (greaterThan("event.ErrorCode", 0) || regexMatch("event.LogonError", "(?s)^.+$"))
+  - add:
+      function: string
+      params:
+        key: actionResult
+        value: failed
+      where: >-
+        oneOf("event.RecordType", [188, 189, 190, 191, 192, 193, 194, 231, 386, 387, 401, 402]) &&
+        (equals("event.ResultStatus", 2) || equals("event.ResultStatus", "Failure"))
   - add:
       function: string
       params:
         key: actionResult
         value: denied
       where: >-
-        !oneOf("log.RecordType", [41, 188, 189, 190, 191, 192, 193, 194, 231, 386, 387, 401, 402]) &&
-        equals("log.ResultStatus", "Blocked")
+        !oneOf("event.RecordType", [41, 188, 189, 190, 191, 192, 193, 194, 231, 386, 387, 401, 402]) &&
+        equals("event.ResultStatus", "Blocked")
   - add:
       function: string
       params:
         key: actionResult
         value: denied
       where: >-
-        oneOf("log.RecordType", [188, 189, 190, 191, 192, 193, 194, 231, 386, 387, 401, 402]) &&
-        (equals("log.ResultStatus", 3) || equals("log.ResultStatus", "AuthorizationFailure"))
+        oneOf("event.RecordType", [188, 189, 190, 191, 192, 193, 194, 231, 386, 387, 401, 402]) &&
+        (equals("event.ResultStatus", 3) || equals("event.ResultStatus", "AuthorizationFailure"))
   # These exact operation names describe prevented user access, not successful
   # administrative changes to a blocking policy.
   - add:
@@ -257,21 +257,21 @@ pipeline:
         value: denied
       where: >-
         oneOf("action", ["SharingInvitationBlocked", "UnmanagedSyncClientBlocked", "URLNavigationBlocked", "AccessRequestDenied"]) ||
-        (equals("log.RecordType", 41) && (equals("log.URLClickAction", 2) || equals("log.UrlClickAction", 2)))
+        (equals("event.RecordType", 41) && (equals("event.URLClickAction", 2) || equals("event.UrlClickAction", 2)))
   # A mail threat record whose DeliveryAction is Blocked describes a message the service stopped.
   - add:
       function: string
       params:
         key: actionResult
         value: denied
-      where: equals("log.RecordType", 28) && equals("log.DeliveryAction", "Blocked")
+      where: equals("event.RecordType", 28) && equals("event.DeliveryAction", "Blocked")
   # KmsiInterrupt is the expected "Keep me signed in" prompt, not a final result.
   - delete:
       fields:
       - actionResult
       where: >-
-        equals("log.RecordType", 15) &&
-        (equals("log.ErrorCode", 50140) || equals("log.ErrorNumber", 50140))
+        equals("event.RecordType", 15) &&
+        (equals("event.ErrorCode", 50140) || equals("event.ErrorNumber", 50140))
   # A failed login wins even when its HTTP request or audit operation succeeded.
   - add:
       function: string
@@ -287,9 +287,9 @@ pipeline:
         key: actionResult
         value: denied
       where: >-
-        equals("log.RecordType", 15) &&
-        (oneOf("log.ErrorNumber", [53000, 53001, 53002, 53003, 530032, 530034, 530035]) ||
-         oneOf("log.ErrorCode", [53000, 53001, 53002, 53003, 530032, 530034, 530035]))
+        equals("event.RecordType", 15) &&
+        (oneOf("event.ErrorNumber", [53000, 53001, 53002, 53003, 530032, 530034, 530035]) ||
+         oneOf("event.ErrorCode", [53000, 53001, 53002, 53003, 530032, 530034, 530035]))
   - dynamic:
       plugin: com.utmstack.geolocation
       params:
@@ -298,71 +298,71 @@ pipeline:
       where: exists("origin.ip")
   - rename:
       from:
-      - log.ActorIpAddress
+      - event.ActorIpAddress
       to: origin.ip
-      where: equals("log.Workload", "AzureActiveDirectory")
+      where: equals("event.Workload", "AzureActiveDirectory")
   - rename:
       from:
-      - log.Target.4.ID
+      - event.Target.4.ID
       to: target.user
-      where: equals("log.Workload", "AzureActiveDirectory") && equals("log.Target.2.ID", "User") && equals("log.Target.4.Type", 5)
+      where: equals("event.Workload", "AzureActiveDirectory") && equals("event.Target.2.ID", "User") && equals("event.Target.4.Type", 5)
   - rename:
       from:
-      - log.MailboxOwnerUPN
+      - event.MailboxOwnerUPN
       to: target.user
-      where: exists("log.MailboxOwnerUPN")
+      where: exists("event.MailboxOwnerUPN")
   - rename:
       from:
-      - log.ClientProcessName
+      - event.ClientProcessName
       to: origin.process
-      where: exists("log.ClientProcessName")
+      where: exists("event.ClientProcessName")
   - rename:
       from:
-      - log.SiteUrl
+      - event.SiteUrl
       to: target.url
-      where: exists("log.SiteUrl")
+      where: exists("event.SiteUrl")
   - rename:
       from:
-      - log.SourceRelativeUrl
+      - event.SourceRelativeUrl
       to: target.path
-      where: exists("log.SourceRelativeUrl")
+      where: exists("event.SourceRelativeUrl")
   - rename:
       from:
-      - log.DestinationRelativeUrl
+      - event.DestinationRelativeUrl
       to: target.path
-      where: exists("log.DestinationRelativeUrl")
+      where: exists("event.DestinationRelativeUrl")
   - rename:
       from:
-      - log.SourceFileName
+      - event.SourceFileName
       to: target.filename
-      where: exists("log.SourceFileName")
+      where: exists("event.SourceFileName")
   - rename:
       from:
-      - log.DestinationFileName
+      - event.DestinationFileName
       to: target.filename
-      where: exists("log.DestinationFileName")
+      where: exists("event.DestinationFileName")
   - rename:
       from:
-      - log.ItemName
+      - event.ItemName
       to: target.filename
-      where: equals("log.Workload", "OneDrive") || equals("log.Workload", "SharePoint")
+      where: equals("event.Workload", "OneDrive") || equals("event.Workload", "SharePoint")
   # Safe Links supplies the clicking user's IP and destination URL under its own
   # documented fields. Copy them so vendor-specific queries retain the originals.
   - grok:
-      source: log.UserIp
+      source: event.UserIp
       patterns:
       - fieldName: origin.ip
         pattern: (?s:.*)
       where: >-
-        equals("log.RecordType", 41) &&
-        (inCIDR("log.UserIp", "0.0.0.0/0") || inCIDR("log.UserIp", "::/0")) &&
-        !inCIDR("log.UserIp", "0.0.0.0/32") && !inCIDR("log.UserIp", "::/128")
+        equals("event.RecordType", 41) &&
+        (inCIDR("event.UserIp", "0.0.0.0/0") || inCIDR("event.UserIp", "::/0")) &&
+        !inCIDR("event.UserIp", "0.0.0.0/32") && !inCIDR("event.UserIp", "::/128")
   - grok:
-      source: log.URL
+      source: event.URL
       patterns:
       - fieldName: target.url
         pattern: (?s:.*)
-      where: equals("log.RecordType", 41) && regexMatch("log.URL", "(?s)^.+$")
+      where: equals("event.RecordType", 41) && regexMatch("event.URL", "(?s)^.+$")
   - delete:
       fields:
-      - log.AppAccessContext
+      - event.AppAccessContext

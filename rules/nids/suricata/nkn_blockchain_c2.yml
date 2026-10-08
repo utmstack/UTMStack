@@ -26,13 +26,13 @@ description: |
   6. Block NKN protocol traffic at the network perimeter
   7. Engage threat intelligence team to identify the specific malware family
 where: |
-  equals("log.eventType", "dns") &&
-  exists("log.dns.query") &&
+  equals("event.eventType", "dns") &&
+  exists("event.dns.query") &&
   exists("origin.ip") &&
   (
-    regexMatch("log.dns.query", "(?i)^seed[0-9]*\\.nkn\\.org$") ||
-    endsWith("log.dns.query", ".nkn.org") ||
-    endsWith("log.dns.query", ".nknx.org")
+    regexMatch("event.dns.query", "(?i)^seed[0-9]*\\.nkn\\.org$") ||
+    endsWith("event.dns.query", ".nkn.org") ||
+    endsWith("event.dns.query", ".nknx.org")
   )
 afterEvents:
   - indexPattern: v11-log-suricata-*
@@ -40,11 +40,11 @@ afterEvents:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'
-      - field: log.eventType
+      - field: event.eventType
         operator: filter_term
         value: 'dns'
     within: 15m
     count: 3
 groupBy:
-  - lastEvent.log.dns.query
+  - lastEvent.event.dns.query
   - adversary.ip

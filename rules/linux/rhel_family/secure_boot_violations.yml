@@ -29,19 +29,19 @@ description: |
   8. Review and strengthen access controls for system administration
 where: |
   (
-    equals("log.syslogIdentifier", "kernel") &&
+    equals("event.syslogIdentifier", "kernel") &&
     (
-      regexMatch("log.message", "^Loading of (unsigned module|module with unavailable key|module with unsupported crypto) is rejected") ||
-      contains("log.message", "PKCS#7 signature not signed with a trusted key") ||
-      contains("log.message", "module verification failed: signature and/or required key missing") ||
-      (startsWith("log.message", "Lockdown: ") &&
-       (contains("log.message", "unsigned module loading is restricted") ||
-        contains("log.message", "kexec of unsigned images is restricted")))
+      regexMatch("event.message", "^Loading of (unsigned module|module with unavailable key|module with unsupported crypto) is rejected") ||
+      contains("event.message", "PKCS#7 signature not signed with a trusted key") ||
+      contains("event.message", "module verification failed: signature and/or required key missing") ||
+      (startsWith("event.message", "Lockdown: ") &&
+       (contains("event.message", "unsigned module loading is restricted") ||
+        contains("event.message", "kexec of unsigned images is restricted")))
     )
   ) ||
   (
     oneOf("action", ["init_module", "finit_module"]) &&
-    oneOf("log.exit", ["EKEYREJECTED", "ENOKEY", "EBADMSG"])
+    oneOf("event.exit", ["EKEYREJECTED", "ENOKEY", "EBADMSG"])
   ) ||
   (
     equals("action", "execve") &&
@@ -50,11 +50,11 @@ where: |
      contains("origin.command", "--delete") || contains("origin.command", "--reset"))
   ) ||
   (
-    equals("log.syslogIdentifier", "sudo") &&
-    regexMatch("log.message", "COMMAND=\\S*mokutil\\s.*--(disable-validation|import|delete|reset)")
+    equals("event.syslogIdentifier", "sudo") &&
+    regexMatch("event.message", "COMMAND=\\S*mokutil\\s.*--(disable-validation|import|delete|reset)")
   )
 deduplicateBy:
   - dataSource
-  - lastEvent.log.message
+  - lastEvent.event.message
   - lastEvent.origin.command
-  - lastEvent.log.kernmodule.name
+  - lastEvent.event.kernmodule.name

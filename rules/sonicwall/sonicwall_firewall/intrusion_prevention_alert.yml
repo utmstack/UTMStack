@@ -18,10 +18,10 @@ description: |
   matching a known signature — buffer overflow attempts, SQL injection,
   cross-site scripting, exploit kits, etc. Reflects the IPS Prevention Alert
   message family (event codes 88 / 89 / 100 / 785) as well as the descriptive
-  `log.message`, `log.contentCategory` and `log.ipsCategory` fields.
+  `event.message`, `event.contentCategory` and `event.ipsCategory` fields.
 
   Next Steps:
-  1. Review the matched signature and CVE (if any) in `log.message` / `log.note`.
+  1. Review the matched signature and CVE (if any) in `event.message` / `event.note`.
   2. Confirm the block succeeded — check for follow-up connections from the
      same source that bypassed IPS.
   3. Investigate the target for compromise signs if the signature was severity
@@ -30,10 +30,10 @@ description: |
      surface.
 where: |
   (
-    oneOf("log.eventCode", ["88", "89", "100", "785"]) ||
-    exists("log.ipsCategory") ||
-    contains("log.message", ["IPS Detection Alert", "IPS Prevention Alert", "Intrusion"]) ||
-    contains("log.contentCategory", "Intrusion Prevention")
+    oneOf("event.eventCode", ["88", "89", "100", "785"]) ||
+    exists("event.ipsCategory") ||
+    contains("event.message", ["IPS Detection Alert", "IPS Prevention Alert", "Intrusion"]) ||
+    contains("event.contentCategory", "Intrusion Prevention")
   ) && equals("actionResult", "denied")
 afterEvents:
   - indexPattern: v11-log-firewall-sonicwall-*

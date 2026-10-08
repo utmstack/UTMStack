@@ -24,18 +24,18 @@ description: |
   5. Provide additional training to users if violations appear to be due to lack of awareness
   6. Consider implementing additional technical controls to prevent future violations
 where: |
-  equals("action", "InformationBarrierPolicyViolation") || (equals("log.PolicyType", "InformationBarrier") && equals("actionResult", "denied")) || (equals("log.ViolationType", "InformationBarrier") && equals("action", "CommunicationBlocked"))
+  equals("action", "InformationBarrierPolicyViolation") || (equals("event.PolicyType", "InformationBarrier") && equals("actionResult", "denied")) || (equals("event.ViolationType", "InformationBarrier") && equals("action", "CommunicationBlocked"))
 afterEvents:
   - indexPattern: v11-log-o365-*
     with:
       - field: origin.user
         operator: filter_term
         value: '{{.origin.user}}'
-      - field: log.PolicyType
+      - field: event.PolicyType
         operator: filter_term
         value: 'InformationBarrier'
     within: 12h
     count: 3
 groupBy:
-  - lastEvent.log.TargetUser
+  - lastEvent.event.TargetUser
   - adversary.user

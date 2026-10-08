@@ -25,21 +25,21 @@ description: |
   6. Perform endpoint forensics to identify the malware component
   7. Search for similar base64-encoded UA patterns from other hosts
 where: |
-  equals("log.eventType", "http") &&
-  exists("log.http.http_user_agent") &&
+  equals("event.eventType", "http") &&
+  exists("event.http.http_user_agent") &&
   exists("origin.ip") &&
-  regexMatch("log.http.http_user_agent", "^[A-Za-z0-9+/]{40,}={0,2}$")
+  regexMatch("event.http.http_user_agent", "^[A-Za-z0-9+/]{40,}={0,2}$")
 afterEvents:
   - indexPattern: v11-log-suricata-*
     with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'
-      - field: log.eventType
+      - field: event.eventType
         operator: filter_term
         value: 'http'
     within: 30m
     count: 3
 groupBy:
-  - lastEvent.log.http.http_user_agent
+  - lastEvent.event.http.http_user_agent
   - adversary.ip

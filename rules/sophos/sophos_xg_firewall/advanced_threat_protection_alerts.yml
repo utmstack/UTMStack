@@ -14,12 +14,12 @@ references:
 - https://attack.mitre.org/techniques/T1204/
 description: Repeated ATP Alert or Drop records from the same source address and firewall. ATP signature detection
   does not establish a successful connection or endpoint compromise.
-where: (equals("log.type","ATP") && oneOf("log.component",["Firewall","DNS","IPS","Web"]) && oneOf("log.subType",["Alert","Drop"])
-  && ((exists("log.malware") && !equals("log.malware","")) || (exists("log.threatname") && !equals("log.threatname",""))))
-  && exists("origin.ip") && exists("dataSource") && !equals("dataSource","") && exists("log.sophosScope") && !equals("log.sophosScope","")
+where: (equals("event.type","ATP") && oneOf("event.component",["Firewall","DNS","IPS","Web"]) && oneOf("event.subType",["Alert","Drop"])
+  && ((exists("event.malware") && !equals("event.malware","")) || (exists("event.threatname") && !equals("event.threatname",""))))
+  && exists("origin.ip") && exists("dataSource") && !equals("dataSource","") && exists("event.sophosScope") && !equals("event.sophosScope","")
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.sophosScope
+- lastEvent.event.sophosScope
 - adversary.ip
 - target.ip
 correlation:
@@ -30,12 +30,12 @@ correlation:
   - field: dataSource
     operator: filter_term
     value: '{{.dataSource}}'
-  - field: log.sophosScope
+  - field: event.sophosScope
     operator: filter_term
-    value: '{{.log.sophosScope}}'
+    value: '{{.event.sophosScope}}'
   - field: origin.ip
     operator: filter_term
     value: '{{.origin.ip}}'
-  - field: log.correlationCandidate.sophosXG.atp
+  - field: event.correlationCandidate.sophosXG.atp
     operator: filter_term
     value: match

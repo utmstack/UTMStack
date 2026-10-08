@@ -28,7 +28,7 @@ description: |
   9. Consider implementing additional monitoring on compliance configuration changes
   10. Escalate to security team if evidence suggests malicious intent or privilege abuse
 where: |
-  equals("log.Workload", "SecurityComplianceCenter") &&
+  equals("event.Workload", "SecurityComplianceCenter") &&
   (
     equals("action", "Set-ComplianceSecurityFilter") ||
     equals("action", "New-ComplianceSecurityFilter") ||
@@ -47,12 +47,12 @@ afterEvents:
       - field: origin.user
         operator: filter_term
         value: '{{.origin.user}}'
-      - field: log.Workload
+      - field: event.Workload
         operator: filter_term
         value: 'SecurityComplianceCenter'
     within: 2h
     count: 5
 groupBy:
   - lastEvent.action
-  - lastEvent.log.ObjectId
+  - lastEvent.event.ObjectId
   - adversary.user

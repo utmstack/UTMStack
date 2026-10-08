@@ -13,14 +13,14 @@ description: Identifies PutBucketLogging with no target bucket, disabling server
 references:
 - https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketLogging.html
 where: |
-  equals("log.awsRecordType","cloudtrail") &&
-  (equals("log.eventSource", "s3.amazonaws.com") &&
-  equals("log.eventName", "PutBucketLogging") &&
+  equals("event.awsRecordType","cloudtrail") &&
+  (equals("event.eventSource", "s3.amazonaws.com") &&
+  equals("event.eventName", "PutBucketLogging") &&
   equals("actionResult","success") &&
-  !exists("log.requestParameters.LoggingEnabledTarget.Bucket"))
+  !exists("event.requestParameters.LoggingEnabledTarget.Bucket"))
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
 - adversary.ip
 - adversary.user

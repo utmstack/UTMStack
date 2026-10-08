@@ -20,10 +20,10 @@ references:
   - "https://attack.mitre.org/techniques/T1003/"
   - "https://attack.mitre.org/techniques/T1003/001/"
 where: |
-  equals("log.eventCode", 4656) &&
-  regexMatch("log.eventDataObjectName", "(?i)(^[a-z]:|harddiskvolume[0-9]+).windows.system32.lsass[.]exe$") &&
-  oneOf("log.eventDataAccessMask", ["2097151", "4112", "1040", "1179785", "2031615"]) &&
-  !regexMatch("log.eventDataProcessName", "(?i)^[a-z]:.(program files( [(]x86[)])?.|programdata.microsoft.windows defender.|windows.(system32.(wbem.wmiprvse|dllhost|svchost|msiexec)|explorer)[.]exe$)")
+  equals("event.eventCode", 4656) &&
+  regexMatch("event.eventDataObjectName", "(?i)(^[a-z]:|harddiskvolume[0-9]+).windows.system32.lsass[.]exe$") &&
+  oneOf("event.eventDataAccessMask", ["2097151", "4112", "1040", "1179785", "2031615"]) &&
+  !regexMatch("event.eventDataProcessName", "(?i)^[a-z]:.(program files( [(]x86[)])?.|programdata.microsoft.windows defender.|windows.(system32.(wbem.wmiprvse|dllhost|svchost|msiexec)|explorer)[.]exe$)")
 deduplicateBy:
   - dataSource
-  - lastEvent.log.eventDataProcessName
+  - lastEvent.event.eventDataProcessName

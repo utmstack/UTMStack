@@ -29,35 +29,35 @@ where: |
   (
     equals("origin.process", "tccd") &&
     (
-      regexMatch("log.message", ".*unauthorized.*access.*") ||
-      contains("log.message", "bypass") ||
-      contains("log.message", "CVE-2020-9934")
+      regexMatch("event.message", ".*unauthorized.*access.*") ||
+      contains("event.message", "bypass") ||
+      contains("event.message", "CVE-2020-9934")
     )
   ) ||
   (
     regexMatch("origin.path", ".*/Library/Application Support/com\\.apple\\.TCC/TCC\\.db.*") &&
-    regexMatch("log.message", ".*(write|modify|INSERT|UPDATE|DELETE).*") &&
+    regexMatch("event.message", ".*(write|modify|INSERT|UPDATE|DELETE).*") &&
     exists("origin.process") && !equals("origin.process", "tccd")
   ) ||
   (
-    contains("log.message", "TCC.db") &&
+    contains("event.message", "TCC.db") &&
     (
-      regexMatch("log.message", ".*(sqlite3|INSERT INTO|UPDATE|DELETE FROM).*") ||
-      regexMatch("log.message", ".*(kTCCServiceDeveloperTool|kTCCServiceScreenCapture|kTCCServiceAccessibility).*")
+      regexMatch("event.message", ".*(sqlite3|INSERT INTO|UPDATE|DELETE FROM).*") ||
+      regexMatch("event.message", ".*(kTCCServiceDeveloperTool|kTCCServiceScreenCapture|kTCCServiceAccessibility).*")
     )
   ) ||
   (
-    equals("log.subsystem", "com.apple.TCC") &&
+    equals("event.subsystem", "com.apple.TCC") &&
     (
-      contains("log.message", "Full Disk Access") ||
-      contains("log.message", "Screen Recording") ||
-      contains("log.message", "Accessibility")
+      contains("event.message", "Full Disk Access") ||
+      contains("event.message", "Screen Recording") ||
+      contains("event.message", "Accessibility")
     ) &&
-    regexMatch("log.message", ".*(grant|bypass|override).*")
+    regexMatch("event.message", ".*(grant|bypass|override).*")
   ) ||
   (
     exists("origin.process") &&
-    regexMatch("log.message", ".*com\\.apple\\.private\\.tcc\\.manager.*") &&
+    regexMatch("event.message", ".*com\\.apple\\.private\\.tcc\\.manager.*") &&
     !equals("origin.process", "tccd")
   )
 groupBy:

@@ -25,11 +25,11 @@ description: |
   6. If persistent failures occur, engage incident response team for deep forensic analysis
   7. Document the threat indicators for future detection improvements
 where: |
-  (regexMatch("log.eventDescription", "\\b(mitigation|remediation)s?\\b") &&
-   regexMatch("log.eventDescription", "\\bfail(s|ed|ing|ure|ures)?\\b")) ||
-  contains("log.mitigationStatus", "fail") ||
-  equals("log.threatStatus", "mitigation_failed") ||
-  (equals("log.activityType", "mitigation") && equals("log.status", "failed"))
+  (regexMatch("event.eventDescription", "\\b(mitigation|remediation)s?\\b") &&
+   regexMatch("event.eventDescription", "\\bfail(s|ed|ing|ure|ures)?\\b")) ||
+  contains("event.mitigationStatus", "fail") ||
+  equals("event.threatStatus", "mitigation_failed") ||
+  (equals("event.activityType", "mitigation") && equals("event.status", "failed"))
 groupBy:
-  - lastEvent.log.agentId
-  - lastEvent.log.threatId
+  - lastEvent.event.agentId
+  - lastEvent.event.threatId

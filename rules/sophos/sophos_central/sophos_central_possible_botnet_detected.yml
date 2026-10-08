@@ -14,11 +14,11 @@ references:
 - https://attack.mitre.org/techniques/T1071/
 description: Sophos Firewall ATP logged an attempt to communicate with a known botnet or command-and-control server.
   The notification alone does not prove that the connection succeeded or that the endpoint is compromised.
-where: (equals("log.type", "Event::Firewall::FirewallAdvancedThreatProtection")) && !regexMatch("log.type","(?i)(clean|cleanedup|resolved|dismissed|cancelled|success)$")
+where: (equals("event.type", "Event::Firewall::FirewallAdvancedThreatProtection")) && !regexMatch("event.type","(?i)(clean|cleanedup|resolved|dismissed|cancelled|success)$")
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.customerId
-- lastEvent.log.endpointId
-- lastEvent.log.type
+- lastEvent.event.customerId
+- lastEvent.event.endpointId
+- lastEvent.event.type
 - target.host
 - target.ip

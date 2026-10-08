@@ -27,12 +27,12 @@ description: |
   7. Update security policies based on the AI detection patterns observed
 where: |
   (
-    regexMatch("log.eventDescription", "(?i)(ai detected|machine learning|threat hunt|hunting alert|ai threat|automated detection)") ||
-    oneOf("log.engines", ["AI", "MachineLearning", "Static AI", "Behavioral AI"]) ||
-    contains("log.threatClassificationSource", "AI")
+    regexMatch("event.eventDescription", "(?i)(ai detected|machine learning|threat hunt|hunting alert|ai threat|automated detection)") ||
+    oneOf("event.engines", ["AI", "MachineLearning", "Static AI", "Behavioral AI"]) ||
+    contains("event.threatClassificationSource", "AI")
   ) &&
-  exists("log.endpointDeviceName") &&
-  (exists("log.threatId") || exists("log.threatName") || exists("log.threatClassification"))
+  exists("event.endpointDeviceName") &&
+  (exists("event.threatId") || exists("event.threatName") || exists("event.threatClassification"))
 groupBy:
-  - lastEvent.log.accName
-  - lastEvent.log.endpointDeviceName
+  - lastEvent.event.accName
+  - lastEvent.event.endpointDeviceName

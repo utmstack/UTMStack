@@ -26,20 +26,20 @@ description: |
   7. Implement branch protection rules requiring CODEOWNERS approval
   8. Set up alerts on changes to repository configuration files
 where: |
-  (equals("log.action", "git.push") || equals("log.action", "repo.update_file")) &&
-  exists("log.senderLogin") &&
-  contains("log.commitMessage", "CODEOWNERS")
+  (equals("event.action", "git.push") || equals("event.action", "repo.update_file")) &&
+  exists("event.senderLogin") &&
+  contains("event.commitMessage", "CODEOWNERS")
 afterEvents:
   - indexPattern: v11-log-github-*
     with:
-      - field: log.repositoryName
+      - field: event.repositoryName
         operator: filter_term
-        value: '{{.log.repositoryName}}'
-      - field: log.senderLogin
+        value: '{{.event.repositoryName}}'
+      - field: event.senderLogin
         operator: filter_term
-        value: '{{.log.senderLogin}}'
+        value: '{{.event.senderLogin}}'
     within: 24h
     count: 2
 groupBy:
-  - lastEvent.log.repositoryName
-  - lastEvent.log.senderLogin
+  - lastEvent.event.repositoryName
+  - lastEvent.event.senderLogin

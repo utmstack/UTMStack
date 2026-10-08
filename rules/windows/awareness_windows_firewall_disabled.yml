@@ -21,15 +21,15 @@ description: |
   Requires collection of the "Microsoft-Windows-Windows Firewall With Advanced Security/Firewall" channel.
 
   Next Steps:
-  1. Check which program (log.data.ModifyingApplication) and account (log.data.ModifyingUser) switched the firewall off, and whether that was approved.
+  1. Check which program (event.data.ModifyingApplication) and account (event.data.ModifyingUser) switched the firewall off, and whether that was approved.
   2. If it was not approved, switch the firewall back on and review the computer for other security changes.
 where: |
-  oneOf("log.eventCode", [2003, 2082]) &&
-  equals("log.channel", "Microsoft-Windows-Windows Firewall With Advanced Security/Firewall") &&
-  equals("log.providerName", "Microsoft-Windows-Windows Firewall With Advanced Security") &&
-  equals("log.data.SettingType", 1) &&
-  equals("log.data.SettingValue", "00000000")
+  oneOf("event.eventCode", [2003, 2082]) &&
+  equals("event.channel", "Microsoft-Windows-Windows Firewall With Advanced Security/Firewall") &&
+  equals("event.providerName", "Microsoft-Windows-Windows Firewall With Advanced Security") &&
+  equals("event.data.SettingType", 1) &&
+  equals("event.data.SettingValue", "00000000")
 groupBy:
   - dataSource
-  - lastEvent.log.data.ModifyingUser
-  - lastEvent.log.data.ModifyingApplication
+  - lastEvent.event.data.ModifyingUser
+  - lastEvent.event.data.ModifyingApplication

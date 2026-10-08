@@ -27,7 +27,7 @@ func bitdefMarker(rule string) string {
 			parts[i] = strings.ToUpper(parts[i][:1]) + parts[i][1:]
 		}
 	}
-	return "log.correlationCandidate." + strings.Join(parts, "")
+	return "event.correlationCandidate." + strings.Join(parts, "")
 }
 
 func TestBitdefenderSDKHistory(t *testing.T) {
@@ -46,7 +46,7 @@ func TestBitdefenderSDKHistory(t *testing.T) {
 	queries := 0
 	mapping := map[string]any{"properties": map[string]any{}}
 	props := mapping["properties"].(map[string]any)
-	paths := []string{"dataSource", "log.BitdefenderGZCompanyId", "log.endpointKeyType", "log.endpointKey", "target.malware", "origin.ip", "log.suid", "log.BitdefenderGZTaskType"}
+	paths := []string{"dataSource", "event.BitdefenderGZCompanyId", "event.endpointKeyType", "event.endpointKey", "target.malware", "origin.ip", "event.suid", "event.BitdefenderGZTaskType"}
 	for name, r := range rules {
 		if len(r.Correlation) > 0 {
 			paths = append(paths, bitdefMarker(name))
@@ -182,7 +182,7 @@ func TestBitdefenderSDKHistory(t *testing.T) {
 		{"multiple_malware_from_single_source", "AV high severity candidate", "1h", 3, false, nil},
 		{"usb_malware_propagation", "USB malware signature", "30m", 3, false, nil},
 		{"network_threat_detection", "network physical roles", "2h", 5, false, map[string]string{"origin.ip": "198.51.100.9"}},
-		{"av_console_lateral_movement", "sensitive task", "1h", 3, true, map[string]string{"log.suid": "admin-id", "log.BitdefenderGZTaskType": "280"}},
+		{"av_console_lateral_movement", "sensitive task", "1h", 3, true, map[string]string{"event.suid": "admin-id", "event.BitdefenderGZTaskType": "280"}},
 	}
 	fixtures := map[string]bitdefFixture{}
 	for _, f := range bitdefFixtures(t) {
@@ -209,19 +209,19 @@ func TestBitdefenderSDKHistory(t *testing.T) {
 				t.Fatalf("raw trigger failed: %v %v", ok, e)
 			}
 			marker := bitdefMarker(tc.rule)
-			terms = map[string]string{"dataSource": "collector-test", "log.BitdefenderGZCompanyId": "company-test", "log.endpointKeyType": "computer-id", marker: "match"}
+			terms = map[string]string{"dataSource": "collector-test", "event.BitdefenderGZCompanyId": "company-test", "event.endpointKeyType": "computer-id", marker: "match"}
 			notTerms = map[string]string{}
 			if tc.cross {
-				notTerms["log.endpointKey"] = "endpoint-test"
+				notTerms["event.endpointKey"] = "endpoint-test"
 			} else {
-				terms["log.endpointKey"] = "endpoint-test"
+				terms["event.endpointKey"] = "endpoint-test"
 			}
 			for k, v := range tc.extra {
 				terms[k] = v
 			}
 			prior := mutate(out, "@timestamp", time.Now().Add(-time.Minute).UTC().Format(time.RFC3339Nano))
 			if tc.cross {
-				prior = mutate(prior, "log.endpointKey", "other-endpoint")
+				prior = mutate(prior, "event.endpointKey", "other-endpoint")
 			}
 			check := func(name, doc string, count uint64, want bool) {
 				t.Run(name, func(t *testing.T) {
@@ -239,13 +239,13 @@ func TestBitdefenderSDKHistory(t *testing.T) {
 			check("at_threshold", prior, tc.count, true)
 			check("expired", mutate(prior, "@timestamp", time.Now().Add(-window-time.Minute).UTC().Format(time.RFC3339Nano)), tc.count, false)
 			check("inside_window", mutate(prior, "@timestamp", time.Now().Add(-window+time.Minute).UTC().Format(time.RFC3339Nano)), tc.count, true)
-			for _, field := range []string{"dataSource", "log.BitdefenderGZCompanyId", "log.endpointKeyType"} {
+			for _, field := range []string{"dataSource", "event.BitdefenderGZCompanyId", "event.endpointKeyType"} {
 				check("different_"+field, mutate(prior, field, "other"), tc.count, false)
 			}
 			if tc.cross {
-				check("same_endpoint", mutate(prior, "log.endpointKey", "endpoint-test"), tc.count, false)
+				check("same_endpoint", mutate(prior, "event.endpointKey", "endpoint-test"), tc.count, false)
 			} else {
-				check("different_endpoint", mutate(prior, "log.endpointKey", "other"), tc.count, false)
+				check("different_endpoint", mutate(prior, "event.endpointKey", "other"), tc.count, false)
 			}
 			check("unrelated_population", mutate(prior, marker, nil), tc.count, false)
 			for field := range tc.extra {
@@ -259,11 +259,11 @@ func TestBitdefenderSDKHistory(t *testing.T) {
 				if ok, e := cache.Eval(r.Where, candidate); e != nil || ok != want {
 					t.Fatalf("identity fallback %v want %v: %v", ok, want, e)
 				}
-				if want && gjson.Get(candidate, "log.endpointKeyType").String() != "host" {
+				if want && gjson.Get(candidate, "event.endpointKeyType").String() != "host" {
 					t.Error("expected hostname namespace")
 				}
 			}
-			without := mutate(out, "log.endpointKey", nil)
+			without := mutate(out, "event.endpointKey", nil)
 			before := queries
 			if _, _, e := search.Execute(&without); e == nil {
 				t.Error("missing required placeholder accepted")

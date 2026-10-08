@@ -3,19 +3,19 @@
 Distilled from the O365 validation campaign and `docs/rvald26-draft-prs-review.md` (review of another engineer's 45 filter/rule PRs). Each entry: the mistake, the symptom, the fix.
 
 ## 1. Keying a `contains` on an array field
-- **Mistake:** `where: contains("log.Parameters","ForwardTo")`.
-- **Why dead:** `log.Parameters` is an array → `contains` returns false (scalar-only CEL). 11+ O365 rules shipped this way and could never fire.
-- **Fix:** filter `cast: {fields:[log.Parameters, log.Members], to: string}` so the array is stringified before any rule `contains` runs. Verified live (843/824/846 all fired after the cast).
+- **Mistake:** `where: contains("event.Parameters","ForwardTo")`.
+- **Why dead:** `event.Parameters` is an array → `contains` returns false (scalar-only CEL). 11+ O365 rules shipped this way and could never fire.
+- **Fix:** filter `cast: {fields:[event.Parameters, event.Members], to: string}` so the array is stringified before any rule `contains` runs. Verified live (843/824/846 all fired after the cast).
 
 ## 2. Assuming a normalized field that isn't there
-- **Mistake:** referencing `log.clientIP` after the filter renamed `log.ClientIP → origin.ip` (rename deletes the source), or `MailboxOwnerUPN` (never emitted by O365).
+- **Mistake:** referencing `event.clientIP` after the filter renamed `event.ClientIP → origin.ip` (rename deletes the source), or `MailboxOwnerUPN` (never emitted by O365).
 - **Symptom:** rule never matches; no error.
 - **Fix:** query the live index first to confirm the exact field name + JSON type before writing any step. `MailItemsAccessed` has `MailboxOwnerSid`/`LogonType`, not a UPN.
 
 ## 3. IP-guard that empties `origin.ip` and silently kills `{{.origin.ip}}` correlation  🔴 (rvald26 Issue 1)
 - **Mistake:** appending a "keep only real IPs" guard:
   ```yaml
-  - rename: {from:[origin.ip], to: log.unparsedOriginIp,
+  - rename: {from:[origin.ip], to: event.unparsedOriginIp,
              where: exists("origin.ip") && !(inCIDR(...))}
   ```
   Any non-IP source (`"-"`, hostname — very common in Windows Kerberos 4768/4769) gets `origin.ip` emptied.
@@ -51,7 +51,7 @@ Distilled from the O365 validation campaign and `docs/rvald26-draft-prs-review.m
 - `PartiallySucceeded` was mapped to `success` in two `add` steps (one `oneOf`, one `equals`) — the first ran, the second was dead code. Evaluate each value exactly once.
 
 ## 9. Delete list clobbers fields rules need
-- A filter's `delete` step removed `log.bytes`/`log.packets` that 4 netflow rules referenced → dead. (rvald26 #2612.)
+- A filter's `delete` step removed `event.bytes`/`event.packets` that 4 netflow rules referenced → dead. (rvald26 #2612.)
 - **Fix:** before adding to `delete`/`drop`, grep all rules for the field.
 
 ## 10. `lastEvent.*` groupBy/dedup was a silent no-op (foundation bug, #2590)

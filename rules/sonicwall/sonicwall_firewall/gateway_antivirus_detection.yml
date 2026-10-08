@@ -19,16 +19,16 @@ description: |
   attempt at the network perimeter.
 
   Next Steps:
-  1. Review the malware name/signature carried in `log.message` / `log.note`.
+  1. Review the malware name/signature carried in `event.message` / `event.note`.
   2. Investigate the source IP and geolocation for correlated attempts.
   3. Confirm the AV definitions are current on the firewall.
   4. Escalate to incident response if the activity is part of a broader
      campaign against the tenant.
 where: |
   (
-    oneOf("log.eventCode", ["79", "608", "609", "1122"]) ||
-    (equals("log.groupCategory", "Security Services") && contains("log.message", ["virus", "malware", "Anti-Virus"])) ||
-    contains("log.contentCategory", "Anti-Virus")
+    oneOf("event.eventCode", ["79", "608", "609", "1122"]) ||
+    (equals("event.groupCategory", "Security Services") && contains("event.message", ["virus", "malware", "Anti-Virus"])) ||
+    contains("event.contentCategory", "Anti-Virus")
   ) && equals("actionResult", "denied")
 afterEvents:
   - indexPattern: v11-log-firewall-sonicwall-*

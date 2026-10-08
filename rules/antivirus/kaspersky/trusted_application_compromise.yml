@@ -26,13 +26,13 @@ description: |
   7. Consider reimaging the system if compromise is confirmed
   8. Update security policies to monitor the exploited application more closely
 where: |
-  equals("log.format","cef") && (exists("log.signatureID") &&
-  (contains("log.msg", ["trusted application", "signed binary", "legitimate program"]) ||
-   contains("log.cs1", "TRUSTED_COMP") ||
-   contains("log.cs4", "TrustedApp") ||
-   contains("log.msg", "whitelisted") ||
-   (equals("log.cat", "Exploit Prevention") && contains("log.msg", "exploit")) ||
-   containsAll("log.msg", ["behavior", "trusted"])) &&
-  oneOf("log.cefDeviceSeverity", ["High", "Medium"]))
+  equals("event.format","cef") && (exists("event.signatureID") &&
+  (contains("event.msg", ["trusted application", "signed binary", "legitimate program"]) ||
+   contains("event.cs1", "TRUSTED_COMP") ||
+   contains("event.cs4", "TrustedApp") ||
+   contains("event.msg", "whitelisted") ||
+   (equals("event.cat", "Exploit Prevention") && contains("event.msg", "exploit")) ||
+   containsAll("event.msg", ["behavior", "trusted"])) &&
+  oneOf("event.cefDeviceSeverity", ["High", "Medium"]))
 groupBy:
 - adversary.host

@@ -30,7 +30,7 @@
       "filter": "antivirus/kaspersky.yml",
       "input": {
         "dataType": "antivirus-kaspersky",
-        "log": {
+        "event": {
           "format": "cef",
           "endpointKey": "forged",
           "correlationCandidate": {
@@ -40,9 +40,9 @@
       },
       "expected": {},
       "absent": [
-        "log.format",
-        "log.endpointKey",
-        "log.correlationCandidate"
+        "event.format",
+        "event.endpointKey",
+        "event.correlationCandidate"
       ],
       "rules": {
         "rules/antivirus/kaspersky/code_injection_attempts.yml": false,

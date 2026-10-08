@@ -27,7 +27,7 @@ description: |
   8. Check backup systems and shadow copies for unauthorized access
   9. Coordinate with incident response team for full forensic analysis
 where: |
-  oneOf("log.eventCode", ["4663","4656"]) && (contains("log.eventDataObjectName", "ntds.dit") || endsWith("log.eventDataProcessName", "ntdsutil.exe")) && !equals("log.eventDataAccessMask", "0")
+  oneOf("event.eventCode", ["4663","4656"]) && (contains("event.eventDataObjectName", "ntds.dit") || endsWith("event.eventDataProcessName", "ntdsutil.exe")) && !equals("event.eventDataAccessMask", "0")
 groupBy:
   - dataSource
 deduplicateBy: []

@@ -26,12 +26,12 @@ description: |
   7. Rotate all secrets and tokens accessible to the runner
   8. Implement runner groups with restricted repository access
 where: |
-  (equals("log.action", "self_hosted_runner.register") ||
-   equals("log.action", "self_hosted_runner.remove") ||
-   equals("log.action", "self_hosted_runner.update") ||
-   equals("log.action", "self_hosted_runner_group.create") ||
-   equals("log.action", "self_hosted_runner_group.update")) &&
-  exists("log.senderLogin")
+  (equals("event.action", "self_hosted_runner.register") ||
+   equals("event.action", "self_hosted_runner.remove") ||
+   equals("event.action", "self_hosted_runner.update") ||
+   equals("event.action", "self_hosted_runner_group.create") ||
+   equals("event.action", "self_hosted_runner_group.update")) &&
+  exists("event.senderLogin")
 groupBy:
-  - lastEvent.log.action
-  - lastEvent.log.senderLogin
+  - lastEvent.event.action
+  - lastEvent.event.senderLogin

@@ -13,12 +13,12 @@ references:
 - https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/EventTypes/
 description: Sophos reports a runtime, network, AMSI or outbreak detection, or failed cleanup. Review the exact
   vendor type and remediation status; successful cleanup and resolved events are excluded.
-where: (regexMatch("log.type","^Event::Endpoint::(CoreIps|HomeThreatRemnants|HmpaBehaviourPrevented|HmpaThreat|HmpaSafeBrowsing|CoreAmsi|CoreOutbreak|Threat::(CleanupFailed::|Ips|CommandAndControl))"))
-  && !regexMatch("log.type","(?i)(clean|cleanedup|resolved|dismissed|cancelled|success)$")
+where: (regexMatch("event.type","^Event::Endpoint::(CoreIps|HomeThreatRemnants|HmpaBehaviourPrevented|HmpaThreat|HmpaSafeBrowsing|CoreAmsi|CoreOutbreak|Threat::(CleanupFailed::|Ips|CommandAndControl))"))
+  && !regexMatch("event.type","(?i)(clean|cleanedup|resolved|dismissed|cancelled|success)$")
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.customerId
-- lastEvent.log.endpointId
-- lastEvent.log.type
+- lastEvent.event.customerId
+- lastEvent.event.endpointId
+- lastEvent.event.type
 - target.host
 - target.ip

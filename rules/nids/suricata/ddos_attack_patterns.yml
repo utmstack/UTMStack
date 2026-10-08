@@ -27,22 +27,22 @@ description: |
   7. Document the attack timeline and impact for incident response
 where: |
   (
-    (equals("log.eventType", "alert") &&
-     (contains("log.alert.signature", "SYN flood") ||
-      contains("log.alert.signature", "DDoS") ||
-      contains("log.alert.signature", "amplification"))) ||
+    (equals("event.eventType", "alert") &&
+     (contains("event.alert.signature", "SYN flood") ||
+      contains("event.alert.signature", "DDoS") ||
+      contains("event.alert.signature", "amplification"))) ||
     (equals("protocol", "TCP") &&
-     equals("log.tcp.flags", "S") &&
-     greaterThan("log.flow.pkts_toserver", 100) &&
-     lessThan("log.flow.duration", 5)) ||
+     equals("event.tcp.flags", "S") &&
+     greaterThan("event.flow.pkts_toserver", 100) &&
+     lessThan("event.flow.duration", 5)) ||
     (equals("protocol", "UDP") &&
-     greaterThan("log.flow.pkts_toserver", 1000) &&
-     lessThan("log.flow.duration", 10)) ||
+     greaterThan("event.flow.pkts_toserver", 1000) &&
+     lessThan("event.flow.duration", 10)) ||
     (equals("protocol", "ICMP") &&
-     greaterThan("log.flow.pkts_toserver", 500) &&
-     lessThan("log.flow.duration", 5)) ||
+     greaterThan("event.flow.pkts_toserver", 500) &&
+     lessThan("event.flow.duration", 5)) ||
     (equals("target.port", 123) &&
-     safe("log.flow.bytes_toclient", 0.0) > safe("log.flow.bytes_toserver", 0.0) * 10.0)
+     safe("event.flow.bytes_toclient", 0.0) > safe("event.flow.bytes_toserver", 0.0) * 10.0)
   )
 afterEvents:
   - indexPattern: v11-log-suricata-*

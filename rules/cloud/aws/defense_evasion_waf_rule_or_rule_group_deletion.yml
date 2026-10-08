@@ -16,14 +16,14 @@ references:
 - https://awscli.amazonaws.com/v2/documentation/api/latest/reference/waf/delete-rule-group.html
 - https://docs.aws.amazon.com/waf/latest/APIReference/API_waf_DeleteRuleGroup.html
 where: |
-  equals("log.awsRecordType","cloudtrail") &&
-  (oneOf("log.eventSource", ["waf.amazonaws.com", "waf-regional.amazonaws.com", "wafv2.amazonaws.com"]) &&
-  (equals("log.eventName", "DeleteRule") ||
-  equals("log.eventName", "DeleteRuleGroup")) &&
+  equals("event.awsRecordType","cloudtrail") &&
+  (oneOf("event.eventSource", ["waf.amazonaws.com", "waf-regional.amazonaws.com", "wafv2.amazonaws.com"]) &&
+  (equals("event.eventName", "DeleteRule") ||
+  equals("event.eventName", "DeleteRuleGroup")) &&
   equals("actionResult","success"))
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
 - adversary.ip
 - adversary.user

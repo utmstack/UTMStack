@@ -14,12 +14,12 @@ references:
 - https://attack.mitre.org/techniques/T1110/
 description: Repeated failed SSL VPN, VPN or VPN portal authentication from the same source address and firewall.
   Successful authentication, tunnel termination and IKE parsing errors are excluded.
-where: (equals("log.type","Event") && equals("log.subType","Authentication") && oneOf("log.component",["SSL VPN
+where: (equals("event.type","Event") && equals("event.subType","Authentication") && oneOf("event.component",["SSL VPN
   Authentication","VPN Authentication","VPN Portal Authentication"]) && equals("actionResult","failed")) && exists("origin.ip")
-  && exists("dataSource") && !equals("dataSource","") && exists("log.sophosScope") && !equals("log.sophosScope","")
+  && exists("dataSource") && !equals("dataSource","") && exists("event.sophosScope") && !equals("event.sophosScope","")
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.sophosScope
+- lastEvent.event.sophosScope
 - adversary.ip
 - adversary.user
 correlation:
@@ -30,12 +30,12 @@ correlation:
   - field: dataSource
     operator: filter_term
     value: '{{.dataSource}}'
-  - field: log.sophosScope
+  - field: event.sophosScope
     operator: filter_term
-    value: '{{.log.sophosScope}}'
+    value: '{{.event.sophosScope}}'
   - field: origin.ip
     operator: filter_term
     value: '{{.origin.ip}}'
-  - field: log.correlationCandidate.sophosXG.vpnFailure
+  - field: event.correlationCandidate.sophosXG.vpnFailure
     operator: filter_term
     value: match

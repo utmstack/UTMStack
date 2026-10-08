@@ -28,40 +28,40 @@ where: |
   (
     regexMatch("origin.process", ".*(kextload|kextutil|kextcache).*") &&
     (
-      contains("log.message", "load") ||
-      contains("log.message", "install")
+      contains("event.message", "load") ||
+      contains("event.message", "install")
     ) &&
     (
-      contains("log.message", "unsigned") ||
-      regexMatch("log.message", ".*invalid.*signature.*")
+      contains("event.message", "unsigned") ||
+      regexMatch("event.message", ".*invalid.*signature.*")
     )
   ) ||
   (
-    equals("log.subsystem", "com.apple.kernel") &&
-    contains("log.message", "kext") &&
+    equals("event.subsystem", "com.apple.kernel") &&
+    contains("event.message", "kext") &&
     (
-      regexMatch("log.message", ".*load.*failed.*") ||
-      regexMatch("log.message", ".*authentication.*error.*") ||
-      contains("log.message", "rootless")
+      regexMatch("event.message", ".*load.*failed.*") ||
+      regexMatch("event.message", ".*authentication.*error.*") ||
+      contains("event.message", "rootless")
     )
   ) ||
   (
     equals("origin.process", "kernel") &&
-    contains("log.message", "kext") &&
+    contains("event.message", "kext") &&
     (
-      regexMatch("log.message", ".*third.*party.*") ||
-      contains("log.message", "unsigned") ||
-      regexMatch("log.message", ".*developer.*mode.*")
+      regexMatch("event.message", ".*third.*party.*") ||
+      contains("event.message", "unsigned") ||
+      regexMatch("event.message", ".*developer.*mode.*")
     )
   ) ||
   (
-    contains("log.message", "/System/Library/Extensions") &&
-    regexMatch("log.message", ".*(modify|write|create).*") &&
+    contains("event.message", "/System/Library/Extensions") &&
+    regexMatch("event.message", ".*(modify|write|create).*") &&
     exists("origin.process") && !equals("origin.process", "kextcache")
   ) ||
   (
     equals("origin.process", "eslogger") &&
-    regexMatch("log.message", ".*kext.*bypass.*")
+    regexMatch("event.message", ".*kext.*bypass.*")
   )
 groupBy:
   - adversary.host

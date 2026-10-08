@@ -16,13 +16,13 @@ references:
 - https://attack.mitre.org/tactics/TA0005/
 - https://attack.mitre.org/techniques/T1562/
 where: |
-  equals("log.awsRecordType","cloudtrail") &&
-  (equals("log.eventSource", "config.amazonaws.com") &&
-  equals("log.eventName", "StopConfigurationRecorder") &&
+  equals("event.awsRecordType","cloudtrail") &&
+  (equals("event.eventSource", "config.amazonaws.com") &&
+  equals("event.eventName", "StopConfigurationRecorder") &&
   equals("actionResult","success"))
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
 - adversary.ip
 - adversary.user

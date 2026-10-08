@@ -22,12 +22,12 @@ description: |
   1. Check which audit categories were turned on or off, and confirm the change with the account that made it.
   2. If auditing was reduced without approval, restore the audit policy and review that account's activity on the computer.
 where: |
-  equals("log.eventCode", 4719) &&
-  equals("log.channel", "Security") &&
-  equals("log.providerName", "Microsoft-Windows-Security-Auditing") &&
-  exists("log.eventDataSubjectUserSid") &&
-  !oneOf("log.eventDataSubjectUserSid", ["S-1-5-18", "S-1-5-19", "S-1-5-20"]) &&
-  !endsWith("log.eventDataSubjectUserName", "$")
+  equals("event.eventCode", 4719) &&
+  equals("event.channel", "Security") &&
+  equals("event.providerName", "Microsoft-Windows-Security-Auditing") &&
+  exists("event.eventDataSubjectUserSid") &&
+  !oneOf("event.eventDataSubjectUserSid", ["S-1-5-18", "S-1-5-19", "S-1-5-20"]) &&
+  !endsWith("event.eventDataSubjectUserName", "$")
 groupBy:
   - dataSource
-  - lastEvent.log.eventDataSubjectUserSid
+  - lastEvent.event.eventDataSubjectUserSid

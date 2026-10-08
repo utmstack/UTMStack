@@ -15,7 +15,7 @@ impact:
   confidentiality: 2
   integrity: 3
   availability: 0
-where: equals("log.Workload", "AzureActiveDirectory") && equals("action", "Add member to role.") && equals("actionResult", "success")
+where: equals("event.Workload", "AzureActiveDirectory") && equals("action", "Add member to role.") && equals("actionResult", "success")
 deduplicateBy:
   - adversary.user
-  - lastEvent.log.ObjectId
+  - lastEvent.event.ObjectId

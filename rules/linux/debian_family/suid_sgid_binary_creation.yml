@@ -24,10 +24,10 @@ description: |
   5. Compare against known legitimate SUID binaries on the system
   6. Remove the SUID/SGID bit if unauthorized and investigate the account used
 where: |
-  (contains("log.message", "chmod") &&
-   (contains("log.message", "+s") || contains("log.message", "4755") ||
-    contains("log.message", "2755") || contains("log.message", "6755") ||
-    contains("log.message", "u+s") || contains("log.message", "g+s")))
+  (contains("event.message", "chmod") &&
+   (contains("event.message", "+s") || contains("event.message", "4755") ||
+    contains("event.message", "2755") || contains("event.message", "6755") ||
+    contains("event.message", "u+s") || contains("event.message", "g+s")))
 groupBy:
   - origin.host
   - origin.user

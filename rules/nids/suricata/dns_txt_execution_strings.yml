@@ -25,26 +25,26 @@ description: |
   6. Review DNS logs for similar queries from other hosts
   7. Perform endpoint forensics to identify the malware requesting these records
 where: |
-  equals("log.eventType", "dns") &&
-  equals("log.dns.type", "answer") &&
-  exists("log.dns.answers") &&
+  equals("event.eventType", "dns") &&
+  equals("event.dns.type", "answer") &&
+  exists("event.dns.answers") &&
   (
-    contains("log.dns.answers", "IEX") ||
-    contains("log.dns.answers", "Invoke-Expression") ||
-    contains("log.dns.answers", "cmd.exe") ||
-    contains("log.dns.answers", "powershell") ||
-    contains("log.dns.answers", "cmd /c") ||
-    contains("log.dns.answers", "Start-Process") ||
-    contains("log.dns.answers", "DownloadString") ||
-    contains("log.dns.answers", "DownloadFile") ||
-    contains("log.dns.answers", "Net.WebClient") ||
-    contains("log.dns.answers", "FromBase64String") ||
-    contains("log.dns.answers", "/bin/bash") ||
-    contains("log.dns.answers", "/bin/sh") ||
-    contains("log.dns.answers", "wget ") ||
-    contains("log.dns.answers", "curl ")
+    contains("event.dns.answers", "IEX") ||
+    contains("event.dns.answers", "Invoke-Expression") ||
+    contains("event.dns.answers", "cmd.exe") ||
+    contains("event.dns.answers", "powershell") ||
+    contains("event.dns.answers", "cmd /c") ||
+    contains("event.dns.answers", "Start-Process") ||
+    contains("event.dns.answers", "DownloadString") ||
+    contains("event.dns.answers", "DownloadFile") ||
+    contains("event.dns.answers", "Net.WebClient") ||
+    contains("event.dns.answers", "FromBase64String") ||
+    contains("event.dns.answers", "/bin/bash") ||
+    contains("event.dns.answers", "/bin/sh") ||
+    contains("event.dns.answers", "wget ") ||
+    contains("event.dns.answers", "curl ")
   ) &&
   exists("origin.ip")
 groupBy:
-  - lastEvent.log.dns.query
+  - lastEvent.event.dns.query
   - adversary.ip

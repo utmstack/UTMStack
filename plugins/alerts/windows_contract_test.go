@@ -114,7 +114,7 @@ func winRegex(t *testing.T, g *plugins.Grok, cfg *plugins.Config) *regexp.Regexp
 }
 func winParse(t *testing.T, cfg *plugins.Config, raw string, dataSource string, cache *plugins.CELCache) string {
 	t.Helper()
-	draft := map[string]any{"raw": raw, "dataType": "wineventlog", "dataSource": dataSource, "log": map[string]any{}}
+	draft := map[string]any{"raw": raw, "dataType": "wineventlog", "dataSource": dataSource, "event": map[string]any{}}
 	for _, stage := range cfg.Pipeline {
 		for _, s := range stage.Steps {
 			b, e := protojson.Marshal(s)
@@ -210,7 +210,7 @@ func winParse(t *testing.T, cfg *plugins.Config, raw string, dataSource string, 
 						t.Fatal(e)
 					}
 					for key, value := range winSanitizeJSON(parsed) {
-						winPut(draft, "log."+key, value, false)
+						winPut(draft, "event."+key, value, false)
 					}
 				case "cast":
 					for _, field := range s.Cast.Fields {
@@ -411,7 +411,7 @@ func TestWindowsSDKHistory(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		if strings.HasSuffix(r.URL.Path, "/_mapping") {
-			_, _ = w.Write([]byte(`{"v11-log-wineventlog-test":{"mappings":{"properties":{"@timestamp":{"type":"date"},"dataSource":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"log":{"properties":{"authenticationSource":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"eventCode":{"type":"long"},"eventDataTicketEncryptionType":{"type":"long"},"eventDataPreAuthType":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"authenticationCandidate":{"properties":{"kerberoastingDetection":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"asrepRoastingDetection":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"silverTicketDetection":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"goldenTicketDetection":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"adfsAuthenticationAnomalies":{"type":"text","fields":{"keyword":{"type":"keyword"}}}}}}},"target":{"properties":{"user":{"type":"text","fields":{"keyword":{"type":"keyword"}}}}}}}}}`))
+			_, _ = w.Write([]byte(`{"v11-log-wineventlog-test":{"mappings":{"properties":{"@timestamp":{"type":"date"},"dataSource":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"event":{"properties":{"authenticationSource":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"eventCode":{"type":"long"},"eventDataTicketEncryptionType":{"type":"long"},"eventDataPreAuthType":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"authenticationCandidate":{"properties":{"kerberoastingDetection":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"asrepRoastingDetection":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"silverTicketDetection":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"goldenTicketDetection":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"adfsAuthenticationAnomalies":{"type":"text","fields":{"keyword":{"type":"keyword"}}}}}}},"target":{"properties":{"user":{"type":"text","fields":{"keyword":{"type":"keyword"}}}}}}}}}`))
 			return
 		}
 		requests++
@@ -463,7 +463,7 @@ func TestWindowsSDKHistory(t *testing.T) {
 					previous := mutate(trigger, "@timestamp", time.Now().Add(-time.Minute).UTC().Format(time.RFC3339Nano))
 					// Success-after-failures searches 4625, not the triggering 4624.
 					for _, term := range search.With {
-						if term.Field == "log.eventCode" && term.Value.GetStringValue() == "" {
+						if term.Field == "event.eventCode" && term.Value.GetStringValue() == "" {
 							var failedRaw map[string]any
 							if e := json.Unmarshal([]byte(f.Raw), &failedRaw); e != nil {
 								t.Fatal(e)
@@ -512,11 +512,11 @@ func TestWindowsSDKHistory(t *testing.T) {
 						t.Fatalf("%s expired history result=%v error=%v", name, ok, e)
 					}
 				}
-				if winSearchesField(r, "log.authenticationSource.keyword") {
-					missing := mutate(trigger, "log.authenticationSource", nil)
+				if winSearchesField(r, "event.authenticationSource.keyword") {
+					missing := mutate(trigger, "event.authenticationSource", nil)
 					ok, e := cache.Eval(r.Where, missing)
 					if e != nil || ok {
-						t.Errorf("%s accepted missing log.authenticationSource", name)
+						t.Errorf("%s accepted missing event.authenticationSource", name)
 					}
 				}
 			}
@@ -644,7 +644,7 @@ func TestWindowsPrivateEvidence(t *testing.T) {
 func winUsesCandidateMarker(r *plugins.Rule) bool {
 	for _, search := range r.Correlation {
 		for _, term := range search.With {
-			if strings.HasPrefix(term.Field, "log.authenticationCandidate.") {
+			if strings.HasPrefix(term.Field, "event.authenticationCandidate.") {
 				return true
 			}
 		}
@@ -669,5 +669,5 @@ func winCandidateField(ruleName string) string {
 	for _, p := range parts[1:] {
 		key += strings.ToUpper(p[:1]) + p[1:]
 	}
-	return "log.authenticationCandidate." + key
+	return "event.authenticationCandidate." + key
 }

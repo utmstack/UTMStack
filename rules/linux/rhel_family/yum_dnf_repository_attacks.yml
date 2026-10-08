@@ -31,18 +31,18 @@ description: |
   10. **Documentation**: Document all findings and remediation steps for incident response records
 where: |
   (
-    oneOf("log.syslogIdentifier", ["dnf", "yum", "dnf-automatic", "yum-cron", "packagekitd", "PackageKit", "microdnf"]) &&
+    oneOf("event.syslogIdentifier", ["dnf", "yum", "dnf-automatic", "yum-cron", "packagekitd", "PackageKit", "microdnf"]) &&
     (
-      contains("log.message", "GPG signature verification error") ||
-      contains("log.message", "GPG check FAILED") ||
-      contains("log.message", "Bad GPG signature") ||
-      (contains("log.message", "Public key for ") && contains("log.message", " is not installed")) ||
-      (contains("log.message", "The GPG keys listed for the ") && contains("log.message", " are not correct")) ||
-      contains("log.message", "Key imported successfully")
+      contains("event.message", "GPG signature verification error") ||
+      contains("event.message", "GPG check FAILED") ||
+      contains("event.message", "Bad GPG signature") ||
+      (contains("event.message", "Public key for ") && contains("event.message", " is not installed")) ||
+      (contains("event.message", "The GPG keys listed for the ") && contains("event.message", " are not correct")) ||
+      contains("event.message", "Key imported successfully")
     )
   ) ||
   (
-    oneOf("log.comm", ["dnf", "dnf-3", "dnf5", "yum", "microdnf", "rpm", "rpmkeys", "yum-config-mana"]) &&
+    oneOf("event.comm", ["dnf", "dnf-3", "dnf5", "yum", "microdnf", "rpm", "rpmkeys", "yum-config-mana"]) &&
     (
       contains("origin.command", "--nogpgcheck") ||
       contains("origin.command", "--nosignature") ||
@@ -52,10 +52,10 @@ where: |
     )
   ) ||
   (
-    equals("log.syslogIdentifier", "sudo") &&
-    regexMatch("log.message", "COMMAND=\\S*(dnf|yum|microdnf|rpm|rpmkeys|yum-config-manager)\\s.*(--nogpgcheck|--nosignature|--add-repo|--import)")
+    equals("event.syslogIdentifier", "sudo") &&
+    regexMatch("event.message", "COMMAND=\\S*(dnf|yum|microdnf|rpm|rpmkeys|yum-config-manager)\\s.*(--nogpgcheck|--nosignature|--add-repo|--import)")
   )
 deduplicateBy:
   - dataSource
-  - lastEvent.log.message
+  - lastEvent.event.message
   - lastEvent.origin.command

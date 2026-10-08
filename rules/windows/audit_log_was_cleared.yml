@@ -12,7 +12,7 @@ adversary: origin
 description: "Detects when the Windows audit log (Security event log) has been cleared. Adversaries may clear event logs to remove evidence of an intrusion."
 references:
   - "https://attack.mitre.org/techniques/T1070/001/"
-where: equals("log.eventCode", 1102)
+where: equals("event.eventCode", 1102)
 groupBy:
   - adversary.ip
   - target.user

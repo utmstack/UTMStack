@@ -18,13 +18,13 @@ references:
 - https://awscli.amazonaws.com/v2/documentation/api/latest/reference/iam/deactivate-mfa-device.html
 - https://docs.aws.amazon.com/IAM/latest/APIReference/API_DeactivateMFADevice.html
 where: |
-  equals("log.awsRecordType","cloudtrail") &&
-  (equals("log.eventSource", "iam.amazonaws.com") &&
-  oneOf("log.eventName", ["DeactivateMFADevice", "DeleteVirtualMFADevice"]) &&
+  equals("event.awsRecordType","cloudtrail") &&
+  (equals("event.eventSource", "iam.amazonaws.com") &&
+  oneOf("event.eventName", ["DeactivateMFADevice", "DeleteVirtualMFADevice"]) &&
   equals("actionResult","success"))
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
 - adversary.ip
 - adversary.user

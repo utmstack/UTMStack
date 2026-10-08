@@ -13,15 +13,15 @@ references:
 - https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/EventTypes/
 description: Sophos reports an endpoint threat, potentially unwanted application, or failed PUA cleanup. A PUA can
   be legitimate software restricted by policy. Completed cleanup and dismissed events are excluded.
-where: '((oneOf("log.type", ["Event::Endpoint::Threat::Detected", "Event::Endpoint::Threat::HIPSDetected", "Event::Endpoint::Threat::PuaDetected"])
+where: '((oneOf("event.type", ["Event::Endpoint::Threat::Detected", "Event::Endpoint::Threat::HIPSDetected", "Event::Endpoint::Threat::PuaDetected"])
   ||
 
-  (oneOf("log.severity", ["high", "critical"]) && equals("log.category", "threat") && exists("log.threatName")))
-  || oneOf("log.type",["Event::Endpoint::CorePuaDetection","Event::Endpoint::CorePuaCleanFailed"])) && !regexMatch("log.type","(?i)(clean|cleanedup|resolved|dismissed|cancelled|success)$")'
+  (oneOf("event.severity", ["high", "critical"]) && equals("event.category", "threat") && exists("event.threatName")))
+  || oneOf("event.type",["Event::Endpoint::CorePuaDetection","Event::Endpoint::CorePuaCleanFailed"])) && !regexMatch("event.type","(?i)(clean|cleanedup|resolved|dismissed|cancelled|success)$")'
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.customerId
-- lastEvent.log.endpointId
-- lastEvent.log.type
+- lastEvent.event.customerId
+- lastEvent.event.endpointId
+- lastEvent.event.type
 - target.host
 - target.ip

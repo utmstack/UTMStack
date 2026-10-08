@@ -30,11 +30,11 @@ func TestSuricataConsumerRules(t *testing.T) {
 	tunneling, ddos := load("tunneling_detection"), load("ddos_attack_patterns")
 	flow443 := func(log string) string {
 		return `{"dataType":"suricata","protocol":"TCP","origin":{"ip":"192.0.2.10","port":50000},` +
-			`"target":{"ip":"203.0.113.20","port":443},"log":` + log + `}`
+			`"target":{"ip":"203.0.113.20","port":443},"event":` + log + `}`
 	}
 	ntp := func(toClient, toServer int) string {
 		return `{"dataType":"suricata","protocol":"UDP","origin":{"ip":"192.0.2.10","port":50000},` +
-			`"target":{"ip":"203.0.113.20","port":123},"log":{"eventType":"flow","flow":{"bytes_toclient":` +
+			`"target":{"ip":"203.0.113.20","port":123},"event":{"eventType":"flow","flow":{"bytes_toclient":` +
 			strconv.Itoa(toClient) + `,"bytes_toserver":` + strconv.Itoa(toServer) + `,"pkts_toserver":2}}}`
 	}
 	cases := []struct {

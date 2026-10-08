@@ -19,7 +19,7 @@ func TestFortiGateVPNBruteForceAlertVolume(t *testing.T) {
 	if r == nil {
 		t.Fatal("missing fortigate_vpn_brute_force")
 	}
-	want := []string{"dataSource", "lastEvent.log.devid", "lastEvent.log.vd", "adversary.ip"}
+	want := []string{"dataSource", "lastEvent.event.devid", "lastEvent.event.vd", "adversary.ip"}
 	if len(r.GroupBy) != 0 || !reflect.DeepEqual(r.DeduplicateBy, want) {
 		t.Fatalf("grouping got groupBy %v deduplicateBy %v, want deduplicateBy %v", r.GroupBy, r.DeduplicateBy, want)
 	}
@@ -33,13 +33,13 @@ func TestFortiGateVPNBruteForceAlertVolume(t *testing.T) {
 			t.Fatalf("where got %v (%v) for %s", got, err, out)
 		}
 		key := ""
-		for key2, path := range map[string]string{"dataSource": "dataSource", "lastEvent.log.devid": "log.devid", "lastEvent.log.vd": "log.vd", "adversary.ip": "origin.ip"} {
+		for key2, path := range map[string]string{"dataSource": "dataSource", "lastEvent.event.devid": "event.devid", "lastEvent.event.vd": "event.vd", "adversary.ip": "origin.ip"} {
 			v := gjson.Get(out, path)
 			if v.Type != gjson.String || v.String() == "" {
 				t.Fatalf("de-duplication key %s (%s) does not resolve in %s", key2, path, out)
 			}
 		}
-		for _, path := range []string{"dataSource", "log.devid", "log.vd", "origin.ip"} {
+		for _, path := range []string{"dataSource", "event.devid", "event.vd", "origin.ip"} {
 			key += gjson.Get(out, path).String() + "|"
 		}
 		if gjson.Get(out, "origin.user").String() != user {

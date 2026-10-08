@@ -24,15 +24,15 @@ description: |
   5. Review the endpoint for malware or unauthorized software
   6. Check if similar tampering occurred on other endpoints
 where: |
-  (((oneOf("log.eventType", ["HipsAggregated_Event", "HIPSAggregated_Event"]) && equals("actionResult", "denied")) || equals("log.eventType", "EnterpriseInspectorAlert_Event")) &&
-  regexMatch("log.rulename", "(?i)(eset|ekrn|egui|self[- ]defen[sc]e)") &&
-  regexMatch("log.rulename", "(?i)(tamper|self[- ]defen[sc]e|disable|stopp?ed|terminat)")) &&
+  (((oneOf("event.eventType", ["HipsAggregated_Event", "HIPSAggregated_Event"]) && equals("actionResult", "denied")) || equals("event.eventType", "EnterpriseInspectorAlert_Event")) &&
+  regexMatch("event.rulename", "(?i)(eset|ekrn|egui|self[- ]defen[sc]e)") &&
+  regexMatch("event.rulename", "(?i)(tamper|self[- ]defen[sc]e|disable|stopp?ed|terminat)")) &&
   exists("dataSource") && !oneOf("dataSource", ["", "unknown", "-"]) &&
-  oneOf("log.endpointKeyType", ["uuid", "host", "ip"]) &&
-  exists("log.endpointKey") && !equals("log.endpointKey", "")
+  oneOf("event.endpointKeyType", ["uuid", "host", "ip"]) &&
+  exists("event.endpointKey") && !equals("event.endpointKey", "")
 groupBy:
   - lastEvent.dataSource
-  - lastEvent.log.endpointKeyType
-  - lastEvent.log.endpointKey
-  - lastEvent.log.rulename
-  - lastEvent.log.ruleid
+  - lastEvent.event.endpointKeyType
+  - lastEvent.event.endpointKey
+  - lastEvent.event.rulename
+  - lastEvent.event.ruleid

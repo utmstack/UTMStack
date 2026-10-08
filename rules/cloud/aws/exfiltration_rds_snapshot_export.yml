@@ -15,13 +15,13 @@ references:
 - https://attack.mitre.org/tactics/TA0010/
 - https://docs.aws.amazon.com/AmazonRDS/latest/APIReference/API_StartExportTask.html
 where: |
-  equals("log.awsRecordType","cloudtrail") &&
-  (equals("log.eventSource", "rds.amazonaws.com") &&
-  equals("log.eventName", "StartExportTask") &&
+  equals("event.awsRecordType","cloudtrail") &&
+  (equals("event.eventSource", "rds.amazonaws.com") &&
+  equals("event.eventName", "StartExportTask") &&
   equals("actionResult","success"))
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
 - adversary.ip
 - adversary.user

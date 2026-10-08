@@ -17,14 +17,14 @@ references:
 description: 'A Security-category record reports high alert severity. Alert issuance is not treated as a successful attacker connection.
 
   '
-where: '(equalsIgnoreCase("log.category","Security") || equalsIgnoreCase("log.category.value","Security")) && (equalsIgnoreCase("log.properties.severity","High")
-  || equalsIgnoreCase("log.properties.Severity","High") || equalsIgnoreCase("log.properties.alertSeverity","High")) && regexMatch("log.azureOperation","(?i)^Microsoft\\.Security/")
+where: '(equalsIgnoreCase("event.category","Security") || equalsIgnoreCase("event.category.value","Security")) && (equalsIgnoreCase("event.properties.severity","High")
+  || equalsIgnoreCase("event.properties.Severity","High") || equalsIgnoreCase("event.properties.alertSeverity","High")) && regexMatch("event.azureOperation","(?i)^Microsoft\\.Security/")
 
   '
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.azureScopeType
-- lastEvent.log.azureScope
-- lastEvent.log.azureOperation
+- lastEvent.event.azureScopeType
+- lastEvent.event.azureScope
+- lastEvent.event.azureOperation
 - adversary.user
 - adversary.ip

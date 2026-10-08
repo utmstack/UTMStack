@@ -111,7 +111,7 @@ var o365VolumeRules = []struct {
 		[]map[string]any{o365VolumeFile("reader@example.test", "FileDownloaded", "OneDrive"),
 			o365VolumeFile("reader@example.test", "FileDownloaded", "SharePoint")},
 		[]map[string]any{o365VolumeFile("reader@example.test", "FileAccessed", "SharePoint")}},
-	{"teams_data_exfiltration", []string{"adversary.user", "lastEvent.log.appAccessContextClientAppId"},
+	{"teams_data_exfiltration", []string{"adversary.user", "lastEvent.event.appAccessContextClientAppId"},
 		[]map[string]any{o365VolumeTeams()},
 		[]map[string]any{{"Operation": "ChatCreated", "RecordType": 25, "Workload": "MicrosoftTeams", "UserId": "backup-app"}}},
 	{"mass_email_deletion", []string{"adversary.user"},
@@ -125,7 +125,7 @@ var o365VolumeRules = []struct {
 	{"credential_access_microsoft_365_potential_password_spraying_attack", []string{"adversary.ip"},
 		[]map[string]any{o365VolumeLogin()},
 		[]map[string]any{{"Operation": "UserLoggedIn", "RecordType": 15, "Workload": "AzureActiveDirectory", "ClientIP": "198.51.100.10", "UserId": "sprayed@example.test"}}},
-	{"o365-admin-role-assignment", []string{"adversary.user", "lastEvent.log.ObjectId"},
+	{"o365-admin-role-assignment", []string{"adversary.user", "lastEvent.event.ObjectId"},
 		[]map[string]any{o365VolumeDirectory("Add member to role.")},
 		[]map[string]any{o365VolumeDirectory("Add member to group."), o365VolumeDirectory("Add delegated permission grant."),
 			o365VolumeDirectory("Update user.")}},
@@ -174,7 +174,7 @@ func TestO365AlertVolumeSDKHistory(t *testing.T) {
 	mapping := map[string]any{"properties": map[string]any{
 		"@timestamp": map[string]any{"type": "date"}, "action": map[string]any{"type": "keyword"},
 		"origin": map[string]any{"properties": map[string]any{"user": map[string]any{"type": "keyword"}, "ip": map[string]any{"type": "ip"}}},
-		"log":    map[string]any{"properties": map[string]any{"Workload": map[string]any{"type": "keyword"}}},
+		"event":    map[string]any{"properties": map[string]any{"Workload": map[string]any{"type": "keyword"}}},
 	}}
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -255,13 +255,13 @@ func TestO365AlertVolumeSDKHistory(t *testing.T) {
 		{"o365_mailbox_mass_access", []search{
 			{o365VolumeMailbox(user, "MailItemsAccessed", 50), "1h", 2000, map[string]string{"origin.user": user, "action": "MailItemsAccessed"}}}},
 		{"onedrive_mass_file_access", []search{
-			{o365VolumeFile(user, "FileAccessed", "OneDrive"), "1h", 1000, map[string]string{"origin.user": user, "action": "FileAccessed", "log.Workload": "OneDrive"}},
-			{o365VolumeFile(user, "FileAccessedExtended", "OneDrive"), "1h", 1000, map[string]string{"origin.user": user, "action": "FileAccessedExtended", "log.Workload": "OneDrive"}},
-			{o365VolumeFile(user, "FilePreviewed", "OneDrive"), "1h", 1000, map[string]string{"origin.user": user, "action": "FilePreviewed", "log.Workload": "OneDrive"}}}},
+			{o365VolumeFile(user, "FileAccessed", "OneDrive"), "1h", 1000, map[string]string{"origin.user": user, "action": "FileAccessed", "event.Workload": "OneDrive"}},
+			{o365VolumeFile(user, "FileAccessedExtended", "OneDrive"), "1h", 1000, map[string]string{"origin.user": user, "action": "FileAccessedExtended", "event.Workload": "OneDrive"}},
+			{o365VolumeFile(user, "FilePreviewed", "OneDrive"), "1h", 1000, map[string]string{"origin.user": user, "action": "FilePreviewed", "event.Workload": "OneDrive"}}}},
 		{"sharepoint_mass_downloads", []search{
 			{o365VolumeFile(user, "FileDownloaded", "SharePoint"), "1h", 500, map[string]string{"origin.user": user, "action": "FileDownloaded"}}}},
 		{"teams_data_exfiltration", []search{
-			{o365VolumeTeams(), "1h", 100, map[string]string{"origin.user": "backup-app", "log.Workload": "MicrosoftTeams"}}}},
+			{o365VolumeTeams(), "1h", 100, map[string]string{"origin.user": "backup-app", "event.Workload": "MicrosoftTeams"}}}},
 		{"mass_email_deletion", []search{
 			{o365VolumeMailbox("cleaner@example.test", "HardDelete", 3), "1h", 200, map[string]string{"origin.user": "cleaner@example.test", "action": "HardDelete"}},
 			{o365VolumeMailbox("cleaner@example.test", "SoftDelete", 3), "1h", 5000, map[string]string{"origin.user": "cleaner@example.test", "action": "SoftDelete"}}}},

@@ -25,24 +25,24 @@ description: |
   6. Check for persistence mechanisms that might be attempting to disable security controls
 where: |
   !oneOf("dataSource", ["", "unknown"]) &&
-  (equals("log.subsystem", "com.apple.endpointsecurity") ||
+  (equals("event.subsystem", "com.apple.endpointsecurity") ||
    contains("origin.process", "EndpointSecurity") ||
-   contains("log.message", "ES_EVENT_TYPE")) &&
-  (contains("log.message", "bypass") ||
-   contains("log.message", "failed authorization") ||
-   contains("log.message", "client disconnected") ||
-   contains("log.message", "authorization denied") ||
-   contains("log.message", "invalid client") ||
-   contains("log.message", "ES_RETURN_ERROR") ||
-   equals("log.level", "error") ||
-   contains("log.message", "memory leak detected"))
+   contains("event.message", "ES_EVENT_TYPE")) &&
+  (contains("event.message", "bypass") ||
+   contains("event.message", "failed authorization") ||
+   contains("event.message", "client disconnected") ||
+   contains("event.message", "authorization denied") ||
+   contains("event.message", "invalid client") ||
+   contains("event.message", "ES_RETURN_ERROR") ||
+   equals("event.level", "error") ||
+   contains("event.message", "memory leak detected"))
 afterEvents:
   - indexPattern: v11-log-macos-*
     with:
       - field: dataSource
         operator: filter_term
         value: '{{.dataSource}}'
-      - field: log.correlationCandidate.endpointSecurity
+      - field: event.correlationCandidate.endpointSecurity
         operator: filter_term
         value: match
     within: 15m

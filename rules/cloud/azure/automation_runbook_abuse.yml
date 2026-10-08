@@ -17,14 +17,14 @@ description: 'A successful Azure Automation runbook write/publish, job creation 
   does not prove malicious execution.
 
   '
-where: '(equalsIgnoreCase("log.azureKind","activity") || equalsIgnoreCase("log.azureKind","eventgrid")) && equalsIgnoreCase("actionResult","success")
-  && regexMatch("log.azureOperation","(?i)^Microsoft\\.Automation/automationAccounts/(runbooks/(write|publish/action)|jobs/write|schedules/write)$")
+where: '(equalsIgnoreCase("event.azureKind","activity") || equalsIgnoreCase("event.azureKind","eventgrid")) && equalsIgnoreCase("actionResult","success")
+  && regexMatch("event.azureOperation","(?i)^Microsoft\\.Automation/automationAccounts/(runbooks/(write|publish/action)|jobs/write|schedules/write)$")
 
   '
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.azureScopeType
-- lastEvent.log.azureScope
-- lastEvent.log.azureOperation
+- lastEvent.event.azureScopeType
+- lastEvent.event.azureScope
+- lastEvent.event.azureOperation
 - adversary.user
 - adversary.ip

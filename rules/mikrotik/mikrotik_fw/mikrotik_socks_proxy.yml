@@ -24,9 +24,9 @@ description: |
   5. If compromised, disable SOCKS proxy, remove unauthorized users and scripts
   6. Update RouterOS to the latest firmware version
 where: |
-  contains("log.topics", "system") &&
-  (contains("log.message", "socks") || contains("log.message", "SOCKS")) &&
-  (contains("log.message", ["enabled", "changed", "added", "proxy"]))
+  contains("event.topics", "system") &&
+  (contains("event.message", "socks") || contains("event.message", "SOCKS")) &&
+  (contains("event.message", ["enabled", "changed", "added", "proxy"]))
 groupBy:
   - adversary.host
   - adversary.ip

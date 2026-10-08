@@ -1,6 +1,6 @@
 ---
 name: working-with-filters
-description: Use when creating, editing, debugging, or deploying UTMStack event-processor filters (the YAML pipelines under filters/ that normalize vendor logs into the go-sdk Event/Side schema), or when a filter field is missing, a rule cannot match a value, actionResult is wrong, or a dropped op needs to be kept. Typical prompts are edit the o365 filter, add a rename or cast step, why is log.Parameters not matching, deploy the filter, or the filter reverted after a restart. Not for correlation rules, use working-with-rules for those.
+description: Use when creating, editing, debugging, or deploying UTMStack event-processor filters (the YAML pipelines under filters/ that normalize vendor logs into the go-sdk Event/Side schema), or when a filter field is missing, a rule cannot match a value, actionResult is wrong, or a dropped op needs to be kept. Typical prompts are edit the o365 filter, add a rename or cast step, why is event.Parameters not matching, deploy the filter, or the filter reverted after a restart. Not for correlation rules, use working-with-rules for those.
 ---
 
 # Working with UTMStack Filters
@@ -20,9 +20,9 @@ Filters are YAML in `filters/<vendor>/<name>.yml` — a `pipeline` of ordered `s
 
 ## Critical gotchas (the ones that cause dead detections)
 
-- **CEL is scalar-only.** `contains()` / `startsWith` / `endsWith` require the gjson value to be a *String*; `equals`/`oneOf` compare scalars. Array/object fields (`log.Parameters`, `log.Members`, `Target`) return **false**. If a rule must `contains` one of them, add a `cast: {fields:[...], to: string}` step — but `cast` on an array stringifies it, so `contains` then works. Confirm in `go-sdk .../plugins/cel_overloads.go`.
-- **`action` is a RENAME, not a raw field.** In O365, `log.Operation → action`. A `drop`/`rename` keys on `action` only work *after* that rename; key on `log.Operation` if you move them before it. Renames are lossy — the source is deleted.
-- **`actionResult` is ADDED by the filter**, derived from `log.ResultStatus`. Order of `add` steps matters (later `add` wins for a matching event), and some vendors lie (AAD reports `ResultStatus: Success` on a *failed* login → force-override to `failed`).
+- **CEL is scalar-only.** `contains()` / `startsWith` / `endsWith` require the gjson value to be a *String*; `equals`/`oneOf` compare scalars. Array/object fields (`event.Parameters`, `event.Members`, `Target`) return **false**. If a rule must `contains` one of them, add a `cast: {fields:[...], to: string}` step — but `cast` on an array stringifies it, so `contains` then works. Confirm in `go-sdk .../plugins/cel_overloads.go`.
+- **`action` is a RENAME, not a raw field.** In O365, `event.Operation → action`. A `drop`/`rename` keys on `action` only work *after* that rename; key on `event.Operation` if you move them before it. Renames are lossy — the source is deleted.
+- **`actionResult` is ADDED by the filter**, derived from `event.ResultStatus`. Order of `add` steps matters (later `add` wins for a matching event), and some vendors lie (AAD reports `ResultStatus: Success` on a *failed* login → force-override to `failed`).
 - **`drop` is a performance lever.** Put the `drop` step as early as possible (right after `json`) keyed on the raw op field, so dropped events skip all renames/`add`s and the geolocation `dynamic` plugin call. Reorder is safe iff the match set is identical.
 - **Schema is proto-gated.** `Side` has `host`, not `hostname`; `Event` has no `system.*`. Writing `origin.hostname` silently produces nothing.
 

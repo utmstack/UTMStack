@@ -59,14 +59,14 @@ description: 'Detects the deletion of diagnostic settings in Azure, which are cr
   8. Check for other defense evasion techniques in the timeline
 
   '
-where: '(equalsIgnoreCase("log.azureKind","activity") || equalsIgnoreCase("log.azureKind","eventgrid")) && equalsIgnoreCase("actionResult","success")
-  && equalsIgnoreCase("log.azureOperation","Microsoft.Insights/diagnosticSettings/delete")
+where: '(equalsIgnoreCase("event.azureKind","activity") || equalsIgnoreCase("event.azureKind","eventgrid")) && equalsIgnoreCase("actionResult","success")
+  && equalsIgnoreCase("event.azureOperation","Microsoft.Insights/diagnosticSettings/delete")
 
   '
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.azureScopeType
-- lastEvent.log.azureScope
-- lastEvent.log.azureOperation
+- lastEvent.event.azureScopeType
+- lastEvent.event.azureScope
+- lastEvent.event.azureOperation
 - adversary.user
 - adversary.ip

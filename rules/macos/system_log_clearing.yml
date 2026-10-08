@@ -25,11 +25,11 @@ description: |
   6. Ensure centralized logging is in place to prevent future evidence destruction
 where: |
   (
-    contains("log.message", ["rm ", "unlink ", "shred "]) &&
-    contains("log.message", ["/var/log", "/Library/Logs", "system.log", "install.log", "asl/"])
+    contains("event.message", ["rm ", "unlink ", "shred "]) &&
+    contains("event.message", ["/var/log", "/Library/Logs", "system.log", "install.log", "asl/"])
   ) ||
   (
-    contains("log.message", "log erase") &&
+    contains("event.message", "log erase") &&
     equals("origin.process", "log")
   )
 groupBy:

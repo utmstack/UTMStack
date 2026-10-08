@@ -24,19 +24,19 @@ description: |
   5. Restrict SBMJOB authority for non-administrative users
   6. Monitor job queue activity for unusual patterns
 where: |
-  exists("log.message") &&
+  exists("event.message") &&
   (
-    (contains("log.message", "SBMJOB") && (
-      contains("log.message", "USER(QSECOFR)") ||
-      contains("log.message", "USER(QSYSOPR)") ||
-      contains("log.message", "*ALLOBJ")
+    (contains("event.message", "SBMJOB") && (
+      contains("event.message", "USER(QSECOFR)") ||
+      contains("event.message", "USER(QSYSOPR)") ||
+      contains("event.message", "*ALLOBJ")
     )) ||
-    (contains("log.message", "CHGJOBQE") && exists("origin.user")) ||
-    (contains("log.message", "HLDJOBQ") || contains("log.message", "RLSJOBQ")) ||
-    (contains("log.message", "ADDJOBSCDE") && exists("origin.user")) ||
-    (contains("log.message", "job") && contains("log.message", "submitted") && (
-      contains("log.message", "QBATCH") ||
-      contains("log.message", "QSYSNOMAX")
+    (contains("event.message", "CHGJOBQE") && exists("origin.user")) ||
+    (contains("event.message", "HLDJOBQ") || contains("event.message", "RLSJOBQ")) ||
+    (contains("event.message", "ADDJOBSCDE") && exists("origin.user")) ||
+    (contains("event.message", "job") && contains("event.message", "submitted") && (
+      contains("event.message", "QBATCH") ||
+      contains("event.message", "QSYSNOMAX")
     ))
   )
 groupBy:

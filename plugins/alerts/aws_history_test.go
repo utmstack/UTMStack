@@ -35,13 +35,13 @@ func TestAWSSDKHistory(t *testing.T) {
 	queries := 0
 	mapping := map[string]any{"properties": map[string]any{}}
 	props := mapping["properties"].(map[string]any)
-	paths := []string{"dataSource", "log.awsAccountKeyType", "log.awsAccountKey", "log.awsActorKeyType", "log.awsActorKey", "origin.ip", "origin.geolocation.countryCode", "log.eventName"}
+	paths := []string{"dataSource", "event.awsAccountKeyType", "event.awsAccountKey", "event.awsActorKeyType", "event.awsActorKey", "origin.ip", "origin.geolocation.countryCode", "event.eventName"}
 	for name, r := range rules {
 		if len(r.Correlation) > 0 {
 			if awsHistoryMarkers[name] == "" {
 				t.Fatalf("history rule %s has no correlation marker", name)
 			}
-			paths = append(paths, "log.correlationCandidate."+awsHistoryMarkers[name])
+			paths = append(paths, "event.correlationCandidate."+awsHistoryMarkers[name])
 		}
 	}
 	for _, path := range paths {
@@ -124,11 +124,11 @@ func TestAWSSDKHistory(t *testing.T) {
 			expectedTerms[k] = v
 		}
 		if ruleName == "secrets_manager_suspicious_access" {
-			value := gotTerms["log.eventName"]
+			value := gotTerms["event.eventName"]
 			if value != "GetSecretValue" && value != "BatchGetSecretValue" {
 				t.Error("unexpected secret query")
 			}
-			expectedTerms["log.eventName"] = value
+			expectedTerms["event.eventName"] = value
 		}
 		if !same(gotTerms, expectedTerms) || !same(gotNot, notTerms) {
 			t.Errorf("scope mismatch: terms=%v negatives=%v", gotTerms, gotNot)
@@ -229,15 +229,15 @@ func TestAWSSDKHistory(t *testing.T) {
 				t.Fatalf("raw trigger failed: %v %v", yes, e)
 			}
 			// The filter stores this marker and the rule counts it under the same name.
-			marker := "log.correlationCandidate." + awsHistoryMarkers[tc.rule]
-			terms = map[string]string{"dataSource": "collector-test", "log.awsAccountKeyType": "recipient", "log.awsAccountKey": "123456789012", marker: "match"}
+			marker := "event.correlationCandidate." + awsHistoryMarkers[tc.rule]
+			terms = map[string]string{"dataSource": "collector-test", "event.awsAccountKeyType": "recipient", "event.awsAccountKey": "123456789012", marker: "match"}
 			notTerms = map[string]string{}
 			if tc.mode == "ip" {
 				terms["origin.ip"] = "198.51.100.10"
 			}
 			if tc.mode == "actor" {
-				terms["log.awsActorKeyType"] = "arn"
-				terms["log.awsActorKey"] = "arn:aws:iam::123456789012:user/reviewer"
+				terms["event.awsActorKeyType"] = "arn"
+				terms["event.awsActorKey"] = "arn:aws:iam::123456789012:user/reviewer"
 			}
 			prior := out
 			if tc.rule == "aws_golden_saml_attack" {
@@ -306,7 +306,7 @@ func TestAWSSDKHistory(t *testing.T) {
 				if len(search.Or) != 1 || search.Or[0].Count != 5 || search.Or[0].Within != "10m" {
 					t.Fatal("batch secret OR threshold changed")
 				}
-				batch := mutate(prior, "log.eventName", "BatchGetSecretValue")
+				batch := mutate(prior, "event.eventName", "BatchGetSecretValue")
 				check("batch_below_threshold", batch, 4, false)
 				check("batch_or_threshold", batch, 5, true)
 				// Neither population independently reaches its threshold.

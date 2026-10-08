@@ -17,15 +17,15 @@ description: 'A successful federation/authentication configuration change. Revie
   this is not proof of a forged SAML token.
 
   '
-where: 'equalsIgnoreCase("log.azureKind","audit") && equalsIgnoreCase("actionResult","success") && (equalsIgnoreCase("log.azureOperation","Set
-  federation settings on domain") || equalsIgnoreCase("log.azureOperation","Set domain authentication") || equalsIgnoreCase("log.azureOperation","Set
+where: 'equalsIgnoreCase("event.azureKind","audit") && equalsIgnoreCase("actionResult","success") && (equalsIgnoreCase("event.azureOperation","Set
+  federation settings on domain") || equalsIgnoreCase("event.azureOperation","Set domain authentication") || equalsIgnoreCase("event.azureOperation","Set
   DomainFederationSettings"))
 
   '
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.azureScopeType
-- lastEvent.log.azureScope
-- lastEvent.log.azureOperation
+- lastEvent.event.azureScopeType
+- lastEvent.event.azureScope
+- lastEvent.event.azureOperation
 - adversary.user
 - adversary.ip

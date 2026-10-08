@@ -24,10 +24,10 @@ description: |
   5. Enable MFA for administrator accounts if not already active
   6. If unauthorized, disable the account and audit recent changes
 where: |
-  equals("log.logid", "0100032001") &&
-  equals("log.type", "event") &&
-  equals("log.subtype", "system") &&
-  equals("log.logdesc", "Admin login successful") &&
+  equals("event.logid", "0100032001") &&
+  equals("event.type", "event") &&
+  equals("event.subtype", "system") &&
+  equals("event.logdesc", "Admin login successful") &&
   exists("origin.ip") &&
   !inCIDR("origin.ip", "10.0.0.0/8") &&
   !inCIDR("origin.ip", "172.16.0.0/12") &&

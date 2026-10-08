@@ -24,27 +24,27 @@ description: |
   5. Restrict IFS directory permissions
   6. Implement IFS object auditing for sensitive directories
 where: |
-  exists("log.message") &&
+  exists("event.message") &&
   (
-    (contains("log.message", "IFS") && (
-      contains("log.message", "QSYS.LIB") ||
-      contains("log.message", "/QIBM/") ||
-      contains("log.message", "/home/") ||
-      contains("log.message", "/tmp/")
+    (contains("event.message", "IFS") && (
+      contains("event.message", "QSYS.LIB") ||
+      contains("event.message", "/QIBM/") ||
+      contains("event.message", "/home/") ||
+      contains("event.message", "/tmp/")
     ) && (
-      contains("log.message", "access") ||
-      contains("log.message", "read") ||
-      contains("log.message", "copy") ||
-      contains("log.message", "download")
+      contains("event.message", "access") ||
+      contains("event.message", "read") ||
+      contains("event.message", "copy") ||
+      contains("event.message", "download")
     )) ||
-    (contains("log.message", "CPYFRMSTMF") || contains("log.message", "CPYTOSTMF")) ||
-    (contains("log.message", "NetServer") && contains("log.message", "file access")) ||
-    (contains("log.message", "FTP") && contains("log.message", "GET") && contains("log.message", "/QSYS"))
+    (contains("event.message", "CPYFRMSTMF") || contains("event.message", "CPYTOSTMF")) ||
+    (contains("event.message", "NetServer") && contains("event.message", "file access")) ||
+    (contains("event.message", "FTP") && contains("event.message", "GET") && contains("event.message", "/QSYS"))
   )
 afterEvents:
   - indexPattern: v11-log-ibm-as400-*
     with:
-      - field: log.message
+      - field: event.message
         operator: filter_match
         value: 'IFS OR CPYFRMSTMF OR CPYTOSTMF OR NetServer'
     within: 15m

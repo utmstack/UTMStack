@@ -31,6 +31,6 @@ export class AdEventComponent implements OnInit {
 
   onEventChange($event: Event) {
     this.event = $event;
-    this.message = this.event ? this.replaceDetail(this.event.log.message) : '';
+    this.message = this.event ? this.replaceDetail(this.event.event.message) : '';
   }
 }

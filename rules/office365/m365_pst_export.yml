@@ -26,7 +26,7 @@ description: |
   7. Check for other mass data access by the same user
 where: |
   oneOf("action", ["New-ComplianceSearchAction", "SearchExportDownloaded"]) &&
-  contains("log.Parameters", "Export") &&
+  contains("event.Parameters", "Export") &&
   exists("origin.user")
 groupBy:
   - adversary.user

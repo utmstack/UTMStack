@@ -25,13 +25,13 @@ description: |
   6. Check for any successful exploitation or data exfiltration
 where: |
   exists("origin.ip") &&
-  (contains("log.payload", "<script") ||
-   contains("log.payload", "javascript:") ||
-   contains("log.payload", "eval(") ||
-   contains("log.payload", "__proto__") ||
-   contains("log.data", "<script") ||
-   contains("log.data", "javascript:") ||
-   contains("log.data", "eval("))
+  (contains("event.payload", "<script") ||
+   contains("event.payload", "javascript:") ||
+   contains("event.payload", "eval(") ||
+   contains("event.payload", "__proto__") ||
+   contains("event.data", "<script") ||
+   contains("event.data", "javascript:") ||
+   contains("event.data", "eval("))
 afterEvents:
   - indexPattern: v11-log-json-input-*
     with:

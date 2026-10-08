@@ -32,26 +32,26 @@ where: |
   (
     equals("origin.process", "syspolicyd") &&
     (
-      regexMatch("log.message", ".*assessment.*bypass.*") ||
-      regexMatch("log.message", ".*quarantine.*removed.*") ||
-      regexMatch("log.message", ".*GKE.*override.*")
+      regexMatch("event.message", ".*assessment.*bypass.*") ||
+      regexMatch("event.message", ".*quarantine.*removed.*") ||
+      regexMatch("event.message", ".*GKE.*override.*")
     )
   ) ||
   (
-    regexMatch("log.message", ".*xattr.*-d.*com\\.apple\\.quarantine.*") &&
-    (equals("log.eventType", "logEvent") || equals("log.className", "OSLogEntryLog"))
+    regexMatch("event.message", ".*xattr.*-d.*com\\.apple\\.quarantine.*") &&
+    (equals("event.eventType", "logEvent") || equals("event.className", "OSLogEntryLog"))
   ) ||
   (
     regexMatch("origin.path", ".*/var/db/SystemPolicy.*") &&
-    regexMatch("log.message", ".*(modify|write|delete).*")
+    regexMatch("event.message", ".*(modify|write|delete).*")
   ) ||
   (
-    equals("log.subsystem", "com.apple.security.assessment") &&
-    (contains("log.message", "bypass") || contains("log.message", "override") || contains("log.message", "disable"))
+    equals("event.subsystem", "com.apple.security.assessment") &&
+    (contains("event.message", "bypass") || contains("event.message", "override") || contains("event.message", "disable"))
   ) ||
   (
     equals("origin.process", "spctl") &&
-    contains("log.message", "--disable")
+    contains("event.message", "--disable")
   )
 groupBy:
   - adversary.host

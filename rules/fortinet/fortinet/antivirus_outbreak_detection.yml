@@ -26,23 +26,23 @@ description: |
   7. Consider blocking the source IP at the perimeter if it's external
   8. Document all affected systems and remediation actions taken
 where: |
-  exists("log.devid") && !equals("log.devid", "") && exists("log.vd") && !equals("log.vd", "") &&
-  (equals("log.type", "utm") && equals("log.subtype", "virus") &&
-  equals("log.eventtype", "infected") && equals("actionResult", "denied") &&
+  exists("event.devid") && !equals("event.devid", "") && exists("event.vd") && !equals("event.vd", "") &&
+  (equals("event.type", "utm") && equals("event.subtype", "virus") &&
+  equals("event.eventtype", "infected") && equals("actionResult", "denied") &&
   exists("origin.ip"))
 afterEvents:
 - indexPattern: v11-log-firewall-fortigate-traffic-*
   with:
-  - field: log.devid
+  - field: event.devid
     operator: filter_term
-    value: '{{.log.devid}}'
-  - field: log.vd
+    value: '{{.event.devid}}'
+  - field: event.vd
     operator: filter_term
-    value: '{{.log.vd}}'
+    value: '{{.event.vd}}'
   - field: origin.ip
     operator: filter_term
     value: '{{.origin.ip}}'
-  - field: log.correlationCandidate.virusOutbreak
+  - field: event.correlationCandidate.virusOutbreak
     operator: filter_term
     value: match
   within: 1h
@@ -50,5 +50,5 @@ afterEvents:
 groupBy:
 - adversary.ip
 - target.ip
-- lastEvent.log.devid
-- lastEvent.log.vd
+- lastEvent.event.devid
+- lastEvent.event.vd

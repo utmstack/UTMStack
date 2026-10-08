@@ -20,15 +20,15 @@ description: |
   Requires the "Audit Directory Service Changes" success audit on domain controllers and an auditing entry that covers Group Policy objects.
 
   Next Steps:
-  1. Identify the policy (log.data.ObjectDN) and the changed attribute (log.data.AttributeLDAPDisplayName), and confirm the change with the account that made it.
+  1. Identify the policy (event.data.ObjectDN) and the changed attribute (event.data.AttributeLDAPDisplayName), and confirm the change with the account that made it.
   2. If it was not approved, review the policy settings and links, and restore the approved version.
 where: |
-  equals("log.eventCode", 5136) &&
-  equals("log.channel", "Security") &&
-  equals("log.providerName", "Microsoft-Windows-Security-Auditing") &&
-  equals("log.data.ObjectClass", "groupPolicyContainer") &&
-  equals("log.eventDataOperationType", "%%14674")
+  equals("event.eventCode", 5136) &&
+  equals("event.channel", "Security") &&
+  equals("event.providerName", "Microsoft-Windows-Security-Auditing") &&
+  equals("event.data.ObjectClass", "groupPolicyContainer") &&
+  equals("event.eventDataOperationType", "%%14674")
 groupBy:
   - dataSource
-  - lastEvent.log.eventDataSubjectUserSid
-  - lastEvent.log.data.ObjectDN
+  - lastEvent.event.eventDataSubjectUserSid
+  - lastEvent.event.data.ObjectDN

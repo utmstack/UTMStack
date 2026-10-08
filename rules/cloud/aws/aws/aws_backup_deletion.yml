@@ -25,13 +25,13 @@ description: |
   7. Restore deleted recovery points from any cross-region or cross-account copies
   8. Enable MFA delete on backup vaults and implement SCPs to restrict backup deletion
 where: |
-  equals("log.awsRecordType","cloudtrail") &&
-  (equals("log.eventSource", "backup.amazonaws.com") &&
-  oneOf("log.eventName", ["DeleteBackupVault", "DeleteRecoveryPoint", "DeleteBackupPlan", "DeleteBackupVaultAccessPolicy", "DeleteBackupVaultLockConfiguration"]) &&
+  equals("event.awsRecordType","cloudtrail") &&
+  (equals("event.eventSource", "backup.amazonaws.com") &&
+  oneOf("event.eventName", ["DeleteBackupVault", "DeleteRecoveryPoint", "DeleteBackupPlan", "DeleteBackupVaultAccessPolicy", "DeleteBackupVaultLockConfiguration"]) &&
   equals("actionResult","success"))
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
 - adversary.user
-- lastEvent.log.eventName
+- lastEvent.event.eventName

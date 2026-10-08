@@ -16,9 +16,9 @@ references:
 description: Sophos reports appliance message ID 17925. Inspect the original vendor message and approved administration.
   The available field guide lists this legacy identifier without a message body; this event alone does not establish
   a vulnerability, account abuse or unauthorized access.
-where: equals("log.type","Event") && equals("log.messageId","17925")
+where: equals("event.type","Event") && equals("event.messageId","17925")
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.sophosScope
+- lastEvent.event.sophosScope
 - adversary.ip
 - adversary.user

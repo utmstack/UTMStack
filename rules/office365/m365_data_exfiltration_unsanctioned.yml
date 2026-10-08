@@ -25,8 +25,8 @@ description: |
   6. Review DLP policies for coverage gaps
   7. Consider implementing session controls for risky applications
 where: |
-  (contains("action", "DlpRuleMatch") && contains("log.Parameters", "UnsanctionedApp")) ||
-  (equals("log.Workload", "MicrosoftDefenderForCloudApps") && contains("log.Parameters", "exfiltration"))
+  (contains("action", "DlpRuleMatch") && contains("event.Parameters", "UnsanctionedApp")) ||
+  (equals("event.Workload", "MicrosoftDefenderForCloudApps") && contains("event.Parameters", "exfiltration"))
 groupBy:
-  - lastEvent.log.Parameters
+  - lastEvent.event.Parameters
   - adversary.user

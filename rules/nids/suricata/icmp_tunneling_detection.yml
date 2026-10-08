@@ -29,14 +29,14 @@ description: |
   7. Implement ICMP payload inspection rules to detect tunneling signatures
   8. Monitor for other covert channel techniques from the same source
 where: |
-  equals("log.eventType", "flow") &&
+  equals("event.eventType", "flow") &&
   oneOf("protocol", ["ICMP", "IPv6-ICMP"]) &&
-  oneOf("log.icmp_type", [0, 8, 128, 129]) &&
-  greaterOrEqual("log.flow.pkts_toserver", 10) &&
+  oneOf("event.icmp_type", [0, 8, 128, 129]) &&
+  greaterOrEqual("event.flow.pkts_toserver", 10) &&
   (
-    safe("log.flow.bytes_toserver", 0.0) >= 300.0 * safe("log.flow.pkts_toserver", 0.0) ||
-    (greaterThan("log.flow.pkts_toclient", 0) &&
-     safe("log.flow.bytes_toclient", 0.0) >= 300.0 * safe("log.flow.pkts_toclient", 0.0))
+    safe("event.flow.bytes_toserver", 0.0) >= 300.0 * safe("event.flow.pkts_toserver", 0.0) ||
+    (greaterThan("event.flow.pkts_toclient", 0) &&
+     safe("event.flow.bytes_toclient", 0.0) >= 300.0 * safe("event.flow.pkts_toclient", 0.0))
   )
 deduplicateBy:
   - dataSource

@@ -6,7 +6,7 @@ The `where:` clauses in filters and rules are CEL expressions evaluated against 
 
 | function | arg type | matches if | returns false when the gjson value is… |
 |---|---|---|---|
-| `contains(key, sub)` | value must be `String` | substring in the string | an **array** or **object** (e.g. `log.Parameters`, `log.Members`) |
+| `contains(key, sub)` | value must be `String` | substring in the string | an **array** or **object** (e.g. `event.Parameters`, `event.Members`) |
 | `containsAll(key, [subs])` | value must be `String` | all substrings present | array/object |
 | `startsWith(key, pref)` / `endsWith` | value must be `String` | prefix/suffix match | array/object |
 | `regexMatch(key, re)` | value must be `String` | regex match | array/object |
@@ -23,18 +23,18 @@ The `where:` clauses in filters and rules are CEL expressions evaluated against 
 
 ## Consequences (why rules go dead)
 
-1. **`contains` on an array is always false.** O365 `log.Parameters` is `[{Name,Value}]`, `log.Members` is `[...]`. A rule doing `contains("log.Parameters","ForwardTo")` never fires. Two fixes:
-   - **Preferred (no rule change per-rule):** add a filter step `cast: {fields:[log.Parameters], to: string}` — `cast` stringifies the array, after which `contains` works. This is what the O365 filter v1.2.x does for both `log.Parameters` and `log.Members`.
-   - Or use the gjson query form in the rule: `log.Parameters.#(Name=ForwardTo).Value` (bare `Name=`, no inner quotes, resolves to a String).
-2. **`exists` ≠ "is a usable string."** `exists("log.Members")` is true, but `contains("log.Members","#EXT#")` is false unless it's been cast. Pair `exists` (presence) with a `cast` (usability) in the filter.
-3. **`actionResult` is not raw — it's synthesized.** The filter `add`-s it from `log.ResultStatus`. `equals("actionResult","success")` only matches events whose `ResultStatus` mapped to success. Check the actual events: AAD **failed** logins carry `ResultStatus: Success` (so they'd wrongly map to success unless overridden); `TeamDeleted`/`MailboxLogin` carry **no** `ResultStatus` at all (so `actionResult` is null and `equals(actionResult,"success")` is false — drop that clause for those ops).
+1. **`contains` on an array is always false.** O365 `event.Parameters` is `[{Name,Value}]`, `event.Members` is `[...]`. A rule doing `contains("event.Parameters","ForwardTo")` never fires. Two fixes:
+   - **Preferred (no rule change per-rule):** add a filter step `cast: {fields:[event.Parameters], to: string}` — `cast` stringifies the array, after which `contains` works. This is what the O365 filter v1.2.x does for both `event.Parameters` and `event.Members`.
+   - Or use the gjson query form in the rule: `event.Parameters.#(Name=ForwardTo).Value` (bare `Name=`, no inner quotes, resolves to a String).
+2. **`exists` ≠ "is a usable string."** `exists("event.Members")` is true, but `contains("event.Members","#EXT#")` is false unless it's been cast. Pair `exists` (presence) with a `cast` (usability) in the filter.
+3. **`actionResult` is not raw — it's synthesized.** The filter `add`-s it from `event.ResultStatus`. `equals("actionResult","success")` only matches events whose `ResultStatus` mapped to success. Check the actual events: AAD **failed** logins carry `ResultStatus: Success` (so they'd wrongly map to success unless overridden); `TeamDeleted`/`MailboxLogin` carry **no** `ResultStatus` at all (so `actionResult` is null and `equals(actionResult,"success")` is false — drop that clause for those ops).
 4. **`oneOf` on a null field is false.** If the field isn't populated for that event, no match.
-5. **`rename` is lossy** and order-dependent. `rename: {from: [log.Operation], to: action}` deletes `log.Operation`. After it, `where` must use `action`; before it, use `log.Operation`.
+5. **`rename` is lossy** and order-dependent. `rename: {from: [event.Operation], to: action}` deletes `event.Operation`. After it, `where` must use `action`; before it, use `event.Operation`.
 
 ## O365 normalized vocabulary (verified against live index, Sept 2026)
-- Workload field: `log.Workload` (`Exchange`, `MicrosoftTeams`, `OneDrive`, `SharePoint`, `AzureActiveDirectory`, `MicrosoftDefenderForCloudApps`…).
-- `action` ← `log.Operation`. Common ops (keep-list, i.e. NOT dropped): `UserLoggedIn`, `UserLoginFailed`, `Add service principal.`, `Add member to role.`, `Remove member from role.`, `MailboxLogin`, `MailItemsAccessed`, `TeamDeleted`, `MemberAdded`, `ChatCreated`, `MessageSent`, `FileAccessed`, `FileDownloaded`, `FilePreviewed`, `FileShared`, `FileRecycled`, `New-InboxRule`, `Set-InboxRule`, `Set-Mailbox`, `New-TransportRule`.
-- Dropped (never ingested — do NOT key on these): `TeamCreated`, `FileUploaded`, `AccessedOdataLink`, `ChatRetrieved`, `ChatUpdated`, `MessageDeleted`, `Copy`, `Create`, `Update`, `ViewDocument`, and ~300 more. (Full list: the `oneOf("log.Operation", [...])` drop step in the filter — 323 entries.)
-- File ops carry `target.filename` (full name) + `log.SourceFileExtension` (real last ext) — NOT `log.SourceFileName`.
+- Workload field: `event.Workload` (`Exchange`, `MicrosoftTeams`, `OneDrive`, `SharePoint`, `AzureActiveDirectory`, `MicrosoftDefenderForCloudApps`…).
+- `action` ← `event.Operation`. Common ops (keep-list, i.e. NOT dropped): `UserLoggedIn`, `UserLoginFailed`, `Add service principal.`, `Add member to role.`, `Remove member from role.`, `MailboxLogin`, `MailItemsAccessed`, `TeamDeleted`, `MemberAdded`, `ChatCreated`, `MessageSent`, `FileAccessed`, `FileDownloaded`, `FilePreviewed`, `FileShared`, `FileRecycled`, `New-InboxRule`, `Set-InboxRule`, `Set-Mailbox`, `New-TransportRule`.
+- Dropped (never ingested — do NOT key on these): `TeamCreated`, `FileUploaded`, `AccessedOdataLink`, `ChatRetrieved`, `ChatUpdated`, `MessageDeleted`, `Copy`, `Create`, `Update`, `ViewDocument`, and ~300 more. (Full list: the `oneOf("event.Operation", [...])` drop step in the filter — 323 entries.)
+- File ops carry `target.filename` (full name) + `event.SourceFileExtension` (real last ext) — NOT `event.SourceFileName`.
 - `MailItemsAccessed` carries `MailboxOwnerSid`, `LogonType` (int), `ClientInfoString`, `Folders` (array) — **no `MailboxOwnerUPN`** (so owner-vs-accessor comparisons need the owner SID/UPN from elsewhere).
-- Teams ops: `TeamDeleted` has `log.TeamName`, `log.TeamGuid`, `log.AADGroupId`; `MemberAdded`/`ChatCreated` carry `log.Members[].UPN` (cast to string to `contains "#EXT#"`) and `log.ParticipantInfo`.
+- Teams ops: `TeamDeleted` has `event.TeamName`, `event.TeamGuid`, `event.AADGroupId`; `MemberAdded`/`ChatCreated` carry `event.Members[].UPN` (cast to string to `contains "#EXT#"`) and `event.ParticipantInfo`.

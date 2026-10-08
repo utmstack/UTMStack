@@ -102,7 +102,7 @@ func sophosXGRegex(t *testing.T, pattern string, cfg *plugins.Config) *regexp.Re
 }
 func sophosXGParse(t *testing.T, cfg *plugins.Config, raw string, dataSource string, cache *plugins.CELCache) string {
 	t.Helper()
-	draft := map[string]any{"raw": raw, "dataType": "firewall-sophos-xg", "dataSource": dataSource, "log": map[string]any{}}
+	draft := map[string]any{"raw": raw, "dataType": "firewall-sophos-xg", "dataSource": dataSource, "event": map[string]any{}}
 	for _, stage := range cfg.Pipeline {
 		matched := false
 		for _, dataType := range stage.DataTypes {
@@ -223,7 +223,7 @@ func sophosXGParse(t *testing.T, cfg *plugins.Config, raw string, dataSource str
 						key := pair[0]
 						utils.SanitizeField(&key)
 						if key != "" {
-							sophosXGPut(draft, "log."+key, pair[1], false)
+							sophosXGPut(draft, "event."+key, pair[1], false)
 						}
 					}
 				case "dynamic":
@@ -254,7 +254,7 @@ func sophosXGParse(t *testing.T, cfg *plugins.Config, raw string, dataSource str
 						t.Fatal(e)
 					}
 					for key, value := range sophosXGSanitizeJSON(parsed) {
-						sophosXGPut(draft, "log."+key, value, false)
+						sophosXGPut(draft, "event."+key, value, false)
 					}
 				case "reformat":
 					for _, field := range s.Reformat.Fields {
@@ -422,7 +422,7 @@ func sophosXGCheck(t *testing.T, fixtures []sophosXGFixture) {
 				}
 				for _, field := range r.GroupBy {
 					path := strings.Replace(field, "lastEvent.", "events.0.", 1)
-					if (field == "lastEvent.dataSource" || field == "lastEvent.log.sophosScope") && !gjson.Get(*wire, path).Exists() {
+					if (field == "lastEvent.dataSource" || field == "lastEvent.event.sophosScope") && !gjson.Get(*wire, path).Exists() {
 						t.Errorf("grouping scope missing: %s", field)
 					}
 				}

@@ -18,14 +18,14 @@ references:
 - https://attack.mitre.org/techniques/T1566/
 - https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/manage-consent-requests
 - https://learn.microsoft.com/en-us/defender-cloud-apps/investigate-risky-oauth
-where: 'equalsIgnoreCase("log.azureKind","audit") && equalsIgnoreCase("actionResult","success") && equalsIgnoreCase("log.azureOperation","Consent
+where: 'equalsIgnoreCase("event.azureKind","audit") && equalsIgnoreCase("actionResult","success") && equalsIgnoreCase("event.azureOperation","Consent
   to application")
 
   '
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.azureScopeType
-- lastEvent.log.azureScope
-- lastEvent.log.azureOperation
+- lastEvent.event.azureScopeType
+- lastEvent.event.azureScope
+- lastEvent.event.azureOperation
 - adversary.user
 - adversary.ip

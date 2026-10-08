@@ -19,12 +19,12 @@ description: 'A high-severity vendor detection indicates a targeted-attack label
   indicators do not establish an advanced persistent actor. Review the detection and endpoint evidence before attributing a campaign.
 
   '
-where: "greaterOrEqual(\"log.cefSeverity\", 8) &&\n(\n  (equals(\"log.BitdefenderGZModule\", \"hd\") &&\n   regexMatch(\"log.BitdefenderGZAttackTypes\"\
-  , \"(?i)targeted attack\")) ||\n  equals(\"log.BitdefenderGZModule\", \"network-sandboxing\") ||\n  equals(\"log.BitdefenderGZDetectionAttackTechnique\"\
+where: "greaterOrEqual(\"event.cefSeverity\", 8) &&\n(\n  (equals(\"event.BitdefenderGZModule\", \"hd\") &&\n   regexMatch(\"event.BitdefenderGZAttackTypes\"\
+  , \"(?i)targeted attack\")) ||\n  equals(\"event.BitdefenderGZModule\", \"network-sandboxing\") ||\n  equals(\"event.BitdefenderGZDetectionAttackTechnique\"\
   , \"credentialAccess\")\n)\n"
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.BitdefenderGZCompanyId
-- lastEvent.log.endpointKeyType
-- lastEvent.log.endpointKey
-- lastEvent.log.BitdefenderGZDetectionName
+- lastEvent.event.BitdefenderGZCompanyId
+- lastEvent.event.endpointKeyType
+- lastEvent.event.endpointKey
+- lastEvent.event.BitdefenderGZDetectionName

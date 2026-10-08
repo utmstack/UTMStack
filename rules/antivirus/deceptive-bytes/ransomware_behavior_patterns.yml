@@ -28,21 +28,21 @@ description: |
   8. Check for lateral movement attempts from the source IP address
   9. Review backup integrity and availability before any restoration attempts
 where: |
-  equals("log.event_type", "ransomware_behavior") &&
-  oneOf("log.behavior_pattern", ["mass_encryption", "file_enumeration", "ransom_note_drop"]) &&
-  exists("log.process") &&
-  exists("log.source_ip")
+  equals("event.event_type", "ransomware_behavior") &&
+  oneOf("event.behavior_pattern", ["mass_encryption", "file_enumeration", "ransom_note_drop"]) &&
+  exists("event.process") &&
+  exists("event.source_ip")
 afterEvents:
   - indexPattern: v11-log-deceptive-bytes-*
     with:
-      - field: log.process
+      - field: event.process
         operator: filter_term
-        value: '{{.log.process}}'
-      - field: log.source_ip
+        value: '{{.event.process}}'
+      - field: event.source_ip
         operator: filter_term
-        value: '{{.log.source_ip}}'
+        value: '{{.event.source_ip}}'
     within: 15m
     count: 10
 groupBy:
-  - lastEvent.log.hostname
-  - lastEvent.log.process
+  - lastEvent.event.hostname
+  - lastEvent.event.process

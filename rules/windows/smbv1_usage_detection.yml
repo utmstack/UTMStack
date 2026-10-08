@@ -24,6 +24,6 @@ description: |
   5. Plan migration to SMBv2/SMBv3 and disable SMBv1 on all systems where possible
   6. Monitor for any lateral movement patterns that may indicate ongoing compromise
   7. Consider implementing network segmentation to limit exposure if SMBv1 cannot be immediately disabled
-where: equals("log.eventCode", 3000) && equals("log.providerName", "Microsoft-Windows-SMBServer")
+where: equals("event.eventCode", 3000) && equals("event.providerName", "Microsoft-Windows-SMBServer")
 deduplicateBy:
   - dataSource

@@ -13,14 +13,14 @@ references:
 description: |
   Identifies a successful database restore request explicitly setting publiclyAccessible to true. Verify the task status, subnet routing, security groups and approval. Request acceptance does not prove that the database is reachable from the internet or that any data was exfiltrated.
 where: |
-  equals("log.awsRecordType","cloudtrail") &&
-  (equals("log.eventSource","rds.amazonaws.com") &&
-  oneOf("log.eventName",["RestoreDBInstanceFromDBSnapshot", "RestoreDBClusterFromSnapshot"]) &&
+  equals("event.awsRecordType","cloudtrail") &&
+  (equals("event.eventSource","rds.amazonaws.com") &&
+  oneOf("event.eventName",["RestoreDBInstanceFromDBSnapshot", "RestoreDBClusterFromSnapshot"]) &&
   equals("actionResult","success") &&
-  equals("log.requestParameters.publiclyAccessible",true))
+  equals("event.requestParameters.publiclyAccessible",true))
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
 - adversary.user
-- lastEvent.log.eventName
+- lastEvent.event.eventName

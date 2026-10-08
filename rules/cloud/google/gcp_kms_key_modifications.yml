@@ -26,10 +26,10 @@ description: |
   7. Implement IAM conditions to restrict KMS key destruction permissions
   8. Enable Cloud KMS key rotation policies and cross-region key replication
 where: |
-  contains("log.protoPayloadServiceName", "cloudkms.googleapis.com") &&
-  (contains("log.protoPayloadMethodName", "DestroyCryptoKeyVersion") ||
-   contains("log.protoPayloadMethodName", "DisableCryptoKeyVersion") ||
-   contains("log.protoPayloadMethodName", "UpdateCryptoKeyPrimaryVersion"))
+  contains("event.protoPayloadServiceName", "cloudkms.googleapis.com") &&
+  (contains("event.protoPayloadMethodName", "DestroyCryptoKeyVersion") ||
+   contains("event.protoPayloadMethodName", "DisableCryptoKeyVersion") ||
+   contains("event.protoPayloadMethodName", "UpdateCryptoKeyPrimaryVersion"))
 groupBy:
-  - lastEvent.log.protoPayloadResourceName
+  - lastEvent.event.protoPayloadResourceName
   - adversary.user

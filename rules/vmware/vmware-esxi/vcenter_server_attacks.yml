@@ -27,17 +27,17 @@ description: |
   7. Implement emergency access controls and change administrative passwords
   8. Contact VMware security team if vulnerability exploitation is suspected
 where: |
-  (contains("log.message", "SSH enabled") ||
-   contains("log.message", "esxcli") ||
-   contains("log.message", "openssl enc") ||
-   contains("log.message", "VMware admins") ||
-   contains("log.message", "ESX admins") ||
-   contains("log.message", "virtualization admins") ||
-   contains("log.message", "storage admins") ||
-   contains("log.message", "password reset") ||
-   contains("log.message", "VIB install") ||
-   contains("log.message", "authentication failed") ||
-   (equals("log.process", "vpxd") && equals("severity", "error"))) &&
+  (contains("event.message", "SSH enabled") ||
+   contains("event.message", "esxcli") ||
+   contains("event.message", "openssl enc") ||
+   contains("event.message", "VMware admins") ||
+   contains("event.message", "ESX admins") ||
+   contains("event.message", "virtualization admins") ||
+   contains("event.message", "storage admins") ||
+   contains("event.message", "password reset") ||
+   contains("event.message", "VIB install") ||
+   contains("event.message", "authentication failed") ||
+   (equals("event.process", "vpxd") && equals("severity", "error"))) &&
   exists("origin.hostname")
 afterEvents:
   - indexPattern: v11-log-vmware-esxi-*

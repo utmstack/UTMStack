@@ -13,11 +13,11 @@ references:
 - https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/ManagementEventTypes/
 description: Sophos reports disabled real-time protection. Review approved maintenance and device health before
   concluding that an adversary impaired defenses.
-where: (equals("log.type", "Event::Endpoint::SavDisabled")) && !regexMatch("log.type","(?i)(clean|cleanedup|resolved|dismissed|cancelled|success)$")
+where: (equals("event.type", "Event::Endpoint::SavDisabled")) && !regexMatch("event.type","(?i)(clean|cleanedup|resolved|dismissed|cancelled|success)$")
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.customerId
-- lastEvent.log.endpointId
-- lastEvent.log.type
+- lastEvent.event.customerId
+- lastEvent.event.endpointId
+- lastEvent.event.type
 - target.host
 - target.ip

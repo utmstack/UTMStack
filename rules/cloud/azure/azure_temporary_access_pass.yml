@@ -17,15 +17,15 @@ description: 'A successful admin security-info registration explicitly identifie
   Other authentication-method registrations are excluded.
 
   '
-where: 'equalsIgnoreCase("log.azureKind","audit") && equalsIgnoreCase("actionResult","success") && equalsIgnoreCase("log.azureOperation","Admin
-  registered security info") && (exists(''log.properties.additionalDetails.#(key=="AuthenticationMethod").value'') && (equalsIgnoreCase("log.properties.additionalDetails.#(key==\"AuthenticationMethod\").value","Temporary
-  Access Pass") || equalsIgnoreCase("log.properties.additionalDetails.#(key==\"AuthenticationMethod\").value","TemporaryAccessPass")))
+where: 'equalsIgnoreCase("event.azureKind","audit") && equalsIgnoreCase("actionResult","success") && equalsIgnoreCase("event.azureOperation","Admin
+  registered security info") && (exists(''event.properties.additionalDetails.#(key=="AuthenticationMethod").value'') && (equalsIgnoreCase("event.properties.additionalDetails.#(key==\"AuthenticationMethod\").value","Temporary
+  Access Pass") || equalsIgnoreCase("event.properties.additionalDetails.#(key==\"AuthenticationMethod\").value","TemporaryAccessPass")))
 
   '
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.azureScopeType
-- lastEvent.log.azureScope
-- lastEvent.log.azureOperation
+- lastEvent.event.azureScopeType
+- lastEvent.event.azureScope
+- lastEvent.event.azureOperation
 - adversary.user
 - adversary.ip

@@ -31,18 +31,18 @@ where: |
     equals("action", "DLPRuleMatch") ||
     equals("action", "DlpPolicyMatch") ||
     equals("action", "DLPRuleUndo") ||
-    contains("log.PolicyDetails", "DLP") ||
-    contains("log.ExceptionInfo", "DLP")
+    contains("event.PolicyDetails", "DLP") ||
+    contains("event.ExceptionInfo", "DLP")
   ) &&
   (
-    equals("log.Workload", "Exchange") ||
-    equals("log.Workload", "SharePoint") ||
-    equals("log.Workload", "OneDrive") ||
-    equals("log.Workload", "Teams") ||
-    equals("log.Workload", "SecurityComplianceCenter")
+    equals("event.Workload", "Exchange") ||
+    equals("event.Workload", "SharePoint") ||
+    equals("event.Workload", "OneDrive") ||
+    equals("event.Workload", "Teams") ||
+    equals("event.Workload", "SecurityComplianceCenter")
   ) &&
   !equals("actionResult", "failed")
 groupBy:
-  - lastEvent.log.PolicyId
-  - lastEvent.log.SensitiveInfoTypeData
+  - lastEvent.event.PolicyId
+  - lastEvent.event.SensitiveInfoTypeData
   - adversary.user

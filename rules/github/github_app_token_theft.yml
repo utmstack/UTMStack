@@ -26,10 +26,10 @@ description: |
   7. Review all repositories the App had access to for unauthorized changes
   8. Implement IP allow-listing for the GitHub App
 where: |
-  (equals("log.action", "integration_installation.create") ||
-   equals("log.action", "integration_installation.repositories_added") ||
-   equals("log.action", "integration_installation.unsuspend")) &&
-  exists("log.senderLogin")
+  (equals("event.action", "integration_installation.create") ||
+   equals("event.action", "integration_installation.repositories_added") ||
+   equals("event.action", "integration_installation.unsuspend")) &&
+  exists("event.senderLogin")
 groupBy:
-  - lastEvent.log.action
-  - lastEvent.log.senderLogin
+  - lastEvent.event.action
+  - lastEvent.event.senderLogin

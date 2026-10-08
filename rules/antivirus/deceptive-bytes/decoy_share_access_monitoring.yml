@@ -24,21 +24,21 @@ description: |
   - Consider isolating the source system if it shows signs of compromise
   - Document all accessed decoy resources for threat intelligence purposes
   - Update security controls to block or monitor the attacker's techniques
-where: equals("log.eventType", "decoy_access") && equals("log.resourceType", "network_share") && exists("origin.ip")
+where: equals("event.eventType", "decoy_access") && equals("event.resourceType", "network_share") && exists("origin.ip")
 afterEvents:
   - indexPattern: v11-log-deceptive-bytes-*
     with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'
-      - field: log.eventType
+      - field: event.eventType
         operator: filter_term
         value: 'decoy_access'
-      - field: log.resourceType
+      - field: event.resourceType
         operator: filter_term
         value: 'network_share'
     within: 30m
     count: 3
 deduplicateBy:
   - adversary.ip
-  - lastEvent.log.resourceType
+  - lastEvent.event.resourceType

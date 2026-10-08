@@ -29,11 +29,11 @@ description: |
   9. Update security controls to block the identified tactics
   10. Consider deploying additional deception assets in the path of the attacker
 where: |
-  equals("log.eventType", "advanced_threat_detected") &&
-  equals("log.threatLevel", "critical") &&
-  (oneOf("log.tacticName", ["initial_access", "execution", "persistence", "privilege_escalation", "defense_evasion"])) &&
-  equals("log.deceptionTriggered", "true") &&
-  greaterOrEqual("log.behaviorScore", 80) &&
+  equals("event.eventType", "advanced_threat_detected") &&
+  equals("event.threatLevel", "critical") &&
+  (oneOf("event.tacticName", ["initial_access", "execution", "persistence", "privilege_escalation", "defense_evasion"])) &&
+  equals("event.deceptionTriggered", "true") &&
+  greaterOrEqual("event.behaviorScore", 80) &&
   exists("origin.ip")
 afterEvents:
   - indexPattern: v11-log-deceptive-bytes-*
@@ -41,12 +41,12 @@ afterEvents:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'
-      - field: log.tacticName
+      - field: event.tacticName
         operator: filter_term
-        value: '{{.log.tacticName}}'
+        value: '{{.event.tacticName}}'
     within: 15m
     count: 3
 groupBy:
-  - lastEvent.log.tacticName
-  - lastEvent.log.threatLevel
+  - lastEvent.event.tacticName
+  - lastEvent.event.threatLevel
   - adversary.ip

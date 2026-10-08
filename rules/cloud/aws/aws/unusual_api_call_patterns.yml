@@ -24,21 +24,21 @@ description: |
   - Consider blocking the source IP if unauthorized activity is confirmed
   - Implement additional monitoring for the affected account and resources
 where: |
-  (equals("log.awsRecordType","cloudtrail") &&
-  (exists("log.eventSource") &&
+  (equals("event.awsRecordType","cloudtrail") &&
+  (exists("event.eventSource") &&
 
-  exists("log.sourceIPAddress") &&
-  exists("log.eventName") &&
+  exists("event.sourceIPAddress") &&
+  exists("event.eventName") &&
   (
-    oneOf("log.eventName", ["DescribeSecurityGroups", "DescribeNetworkAcls", "DescribeVpcs", "DescribeSubnets", "DescribeRouteTables", "DescribeInstances", "DescribeSnapshots", "DescribeVolumes", "DescribeImages", "DescribeKeyPairs", "ListBuckets", "GetBucketAcl", "GetBucketPolicy", "ListAccessKeys", "ListUsers", "ListRoles", "ListPolicies", "GetAccountAuthorizationDetails", "GenerateCredentialReport", "GetCredentialReport"])
+    oneOf("event.eventName", ["DescribeSecurityGroups", "DescribeNetworkAcls", "DescribeVpcs", "DescribeSubnets", "DescribeRouteTables", "DescribeInstances", "DescribeSnapshots", "DescribeVolumes", "DescribeImages", "DescribeKeyPairs", "ListBuckets", "GetBucketAcl", "GetBucketPolicy", "ListAccessKeys", "ListUsers", "ListRoles", "ListPolicies", "GetAccountAuthorizationDetails", "GenerateCredentialReport", "GetCredentialReport"])
   ) &&
   equals("actionResult","success"))) &&
   exists("dataSource") &&
   !equals("dataSource","") &&
-  exists("log.awsAccountKeyType") &&
-  !equals("log.awsAccountKeyType","") &&
-  exists("log.awsAccountKey") &&
-  !equals("log.awsAccountKey","") &&
+  exists("event.awsAccountKeyType") &&
+  !equals("event.awsAccountKeyType","") &&
+  exists("event.awsAccountKey") &&
+  !equals("event.awsAccountKey","") &&
   exists("origin.ip") &&
   !equals("origin.ip","")
 afterEvents:
@@ -47,23 +47,23 @@ afterEvents:
   - field: dataSource
     operator: filter_term
     value: '{{.dataSource}}'
-  - field: log.awsAccountKeyType
+  - field: event.awsAccountKeyType
     operator: filter_term
-    value: '{{.log.awsAccountKeyType}}'
-  - field: log.awsAccountKey
+    value: '{{.event.awsAccountKeyType}}'
+  - field: event.awsAccountKey
     operator: filter_term
-    value: '{{.log.awsAccountKey}}'
+    value: '{{.event.awsAccountKey}}'
   - field: origin.ip
     operator: filter_term
     value: '{{.origin.ip}}'
-  - field: log.correlationCandidate.unusualApiCallPatterns
+  - field: event.correlationCandidate.unusualApiCallPatterns
     operator: filter_term
     value: match
   within: 10m
   count: 50
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
-- lastEvent.log.sourceIPAddress
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
+- lastEvent.event.sourceIPAddress
 technique: T1580 - Cloud Infrastructure Discovery

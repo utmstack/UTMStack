@@ -16,7 +16,7 @@ references:
   - "https://attack.mitre.org/tactics/TA0004/"
   - "https://attack.mitre.org/techniques/T1068/"
 where: |
-  equals("log.eventCode", 4663) && !regexMatch("log.eventDataProcessName", "(spoolsv.exe|printfilterpipelinesvc.exe|PrintIsolationHost.exe|splwow64.exe|msiexec.exe|poqexec.exe)") && regexMatch("log.eventDataObjectName", "Windows.System32.spool.PRINTERS")
+  equals("event.eventCode", 4663) && !regexMatch("event.eventDataProcessName", "(spoolsv.exe|printfilterpipelinesvc.exe|PrintIsolationHost.exe|splwow64.exe|msiexec.exe|poqexec.exe)") && regexMatch("event.eventDataObjectName", "Windows.System32.spool.PRINTERS")
 groupBy:
   - dataSource
 deduplicateBy: []

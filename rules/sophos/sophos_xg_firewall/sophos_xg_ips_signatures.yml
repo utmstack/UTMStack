@@ -15,13 +15,13 @@ references:
 description: Repeated IDP signature/anomaly detections carrying rule priority 1 or 2 (or explicit High/Critical
   severity), from the same source to the same destination on the same firewall. A Drop remains denied; a Detect
   does not prove exploitation succeeded.
-where: (equals("log.type","IDP") && oneOf("log.component",["Signatures","Anomaly"]) && oneOf("log.subType",["Detect","Drop"])
-  && (oneOf("log.rulepriority",["1","2"]) || oneOf("log.severity",["Critical","High"])) && exists("origin.ip") &&
-  exists("target.ip")) && exists("origin.ip") && exists("dataSource") && !equals("dataSource","") && exists("log.sophosScope")
-  && !equals("log.sophosScope","")
+where: (equals("event.type","IDP") && oneOf("event.component",["Signatures","Anomaly"]) && oneOf("event.subType",["Detect","Drop"])
+  && (oneOf("event.rulepriority",["1","2"]) || oneOf("event.severity",["Critical","High"])) && exists("origin.ip") &&
+  exists("target.ip")) && exists("origin.ip") && exists("dataSource") && !equals("dataSource","") && exists("event.sophosScope")
+  && !equals("event.sophosScope","")
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.sophosScope
+- lastEvent.event.sophosScope
 - adversary.ip
 - target.ip
 correlation:
@@ -32,15 +32,15 @@ correlation:
   - field: dataSource
     operator: filter_term
     value: '{{.dataSource}}'
-  - field: log.sophosScope
+  - field: event.sophosScope
     operator: filter_term
-    value: '{{.log.sophosScope}}'
+    value: '{{.event.sophosScope}}'
   - field: origin.ip
     operator: filter_term
     value: '{{.origin.ip}}'
   - field: target.ip
     operator: filter_term
     value: '{{.target.ip}}'
-  - field: log.correlationCandidate.sophosXG.ips
+  - field: event.correlationCandidate.sophosXG.ips
     operator: filter_term
     value: match

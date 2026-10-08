@@ -25,8 +25,8 @@ description: |
   6. Review MikroTik firewall rules and consider disabling SSH access from untrusted networks
 where: |
   equals("target.port", 22) && equals("protocol", "tcp") && exists("origin.ip") &&
-  (contains("log.chain", "input") || contains("log.action", "drop")
-  || (contains("log.topics", "system") && contains("log.kvMessage", "ssh")))
+  (contains("event.chain", "input") || contains("event.action", "drop")
+  || (contains("event.topics", "system") && contains("event.kvMessage", "ssh")))
 afterEvents:
   - indexPattern: v11-log-firewall-mikrotik-*
     with:

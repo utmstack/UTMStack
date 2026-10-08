@@ -26,18 +26,18 @@ description: |
   7. Review database access logs for unauthorized queries to legitimate tables
   8. Consider blocking the source IP if it's external and confirmed malicious
   9. Document the incident and update security monitoring rules if needed
-where: equals("log.eventType", "decoy_access") && equals("log.resourceType", "database_table") && equals("log.action", "query") && exists("origin.ip")
+where: equals("event.eventType", "decoy_access") && equals("event.resourceType", "database_table") && equals("event.action", "query") && exists("origin.ip")
 afterEvents:
   - indexPattern: v11-log-deceptive-bytes-*
     with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'
-      - field: log.eventType
+      - field: event.eventType
         operator: filter_term
         value: decoy_access
     within: 1h
     count: 5
 groupBy:
-  - lastEvent.log.tableName
+  - lastEvent.event.tableName
   - adversary.ip

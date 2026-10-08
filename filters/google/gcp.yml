@@ -18,244 +18,244 @@ pipeline:
       # .......................................................................#
       - rename:
           from:
-            - log.timestamp
+            - event.timestamp
           to: deviceTime
           
       - rename:
           from:
-            - log.httpRequest.cacheHit
-          to: log.httpRequestCacheHit
+            - event.httpRequest.cacheHit
+          to: event.httpRequestCacheHit
 
       - rename:
           from:
-            - log.httpRequest.cacheLookup
-          to: log.httpRequestCacheLookup
+            - event.httpRequest.cacheLookup
+          to: event.httpRequestCacheLookup
 
       - rename:
           from:
-            - log.httpRequest.latency
-          to: log.httpRequestLatency
+            - event.httpRequest.latency
+          to: event.httpRequestLatency
 
       - rename:
           from:
-            - log.httpRequest.remoteIp
+            - event.httpRequest.remoteIp
           to: origin.ip
 
       - rename:
           from:
-            - log.httpRequest.requestMethod
-          to: log.httpRequestMethod
+            - event.httpRequest.requestMethod
+          to: event.httpRequestMethod
 
       - rename:
           from:
-            - log.httpRequest.requestSize
+            - event.httpRequest.requestSize
           to: origin.bytesSent
 
       - rename:
           from:
-            - log.httpRequest.requestUrl
+            - event.httpRequest.requestUrl
           to: target.url
 
       - rename:
           from:
-            - log.httpRequest.responseSize
+            - event.httpRequest.responseSize
           to: target.bytesSent
 
       - rename:
           from:
-            - log.httpRequest.status
+            - event.httpRequest.status
           to: statusCode
 
       - rename:
           from:
-            - log.httpRequest.userAgent
-          to: log.httpUserAgent
+            - event.httpRequest.userAgent
+          to: event.httpUserAgent
 
       # .......................................................................#
       # Renaming jsonPayload fields
       # .......................................................................#
       - rename:
           from:
-            - log.jsonPayload.type
-          to: log.jsonPayloadType
+            - event.jsonPayload.type
+          to: event.jsonPayloadType
 
       - rename:
           from:
-            - log.jsonPayload.backendTargetProjectNumber
-          to: log.jsonPayloadBackendTargetProjectNumber
+            - event.jsonPayload.backendTargetProjectNumber
+          to: event.jsonPayloadBackendTargetProjectNumber
 
       - rename:
           from:
-            - log.jsonPayload.cacheDecision
-          to: log.jsonPayloadCacheDecision
+            - event.jsonPayload.cacheDecision
+          to: event.jsonPayloadCacheDecision
 
       - rename:
           from:
-            - log.jsonPayload.cacheId
-          to: log.jsonPayloadCacheId
+            - event.jsonPayload.cacheId
+          to: event.jsonPayloadCacheId
 
       - rename:
           from:
-            - log.jsonPayload.enforcedEdgeSecurityPolicy.configuredAction
-          to: log.jsonPayloadEnforcedEdgeSecurityPolicyConfiguredAction
+            - event.jsonPayload.enforcedEdgeSecurityPolicy.configuredAction
+          to: event.jsonPayloadEnforcedEdgeSecurityPolicyConfiguredAction
 
       - rename:
           from:
-            - log.jsonPayload.enforcedEdgeSecurityPolicy.name
-          to: log.jsonPayloadEnforcedEdgeSecurityPolicyName
+            - event.jsonPayload.enforcedEdgeSecurityPolicy.name
+          to: event.jsonPayloadEnforcedEdgeSecurityPolicyName
 
       - rename:
           from:
-            - log.jsonPayload.enforcedEdgeSecurityPolicy.outcome
-          to: log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome
+            - event.jsonPayload.enforcedEdgeSecurityPolicy.outcome
+          to: event.jsonPayloadEnforcedEdgeSecurityPolicyOutcome
 
       - rename:
           from:
-            - log.jsonPayload.enforcedSecurityPolicy.outcome
-          to: log.jsonPayloadEnforcedSecurityPolicyOutcome
+            - event.jsonPayload.enforcedSecurityPolicy.outcome
+          to: event.jsonPayloadEnforcedSecurityPolicyOutcome
 
       - rename:
           from:
-            - log.jsonPayload.enforcedEdgeSecurityPolicy.priority
-          to: log.jsonPayloadEnforcedEdgeSecurityPolicyPriority
+            - event.jsonPayload.enforcedEdgeSecurityPolicy.priority
+          to: event.jsonPayloadEnforcedEdgeSecurityPolicyPriority
 
       - rename:
           from:
-            - log.jsonPayload.remoteIp
-          to: log.jsonPayloadRemoteIp
+            - event.jsonPayload.remoteIp
+          to: event.jsonPayloadRemoteIp
 
       - rename:
           from:
-            - log.jsonPayload.statusDetails
-          to: log.jsonPayloadStatusDetails
+            - event.jsonPayload.statusDetails
+          to: event.jsonPayloadStatusDetails
 
       - rename:
           from:
-            - log.jsonPayload.authAnswer
-          to: log.JsonPayloadAuthAnswer
+            - event.jsonPayload.authAnswer
+          to: event.JsonPayloadAuthAnswer
 
       - rename:
           from:
-            - log.jsonPayload.destinationIP
+            - event.jsonPayload.destinationIP
           to: target.ip
 
       - rename:
           from:
-            - log.jsonPayload.dns64Translated
-          to: log.jsonPayloadDns64Translated
+            - event.jsonPayload.dns64Translated
+          to: event.jsonPayloadDns64Translated
 
       - rename:
           from:
-            - log.jsonPayload.protocol
+            - event.jsonPayload.protocol
           to: protocol
 
       - rename:
           from:
-            - log.jsonPayload.queryType
-          to: log.jsonPayloadQueryType
+            - event.jsonPayload.queryType
+          to: event.jsonPayloadQueryType
 
       - rename:
           from:
-            - log.jsonPayload.responseCode
-          to: log.jsonPayloadResponseCode
+            - event.jsonPayload.responseCode
+          to: event.jsonPayloadResponseCode
 
       - rename:
           from:
-            - log.jsonPayload.serverLatency
-          to: log.jsonPayloadServerLatency
+            - event.jsonPayload.serverLatency
+          to: event.jsonPayloadServerLatency
 
       - rename:
           from:
-            - log.jsonPayload.sourceIP
+            - event.jsonPayload.sourceIP
           to: origin.ip
 
       - rename:
           from:
-            - log.class
-          to: log.dnsQuery.class
+            - event.class
+          to: event.dnsQuery.class
 
       - rename:
           from:
-            - log.domainName
-          to: log.dnsQuery.domain
+            - event.domainName
+          to: event.dnsQuery.domain
 
       - rename:
           from:
-            - log.rvalue
-          to: log.dnsQuery.rValue
+            - event.rvalue
+          to: event.dnsQuery.rValue
 
       - rename:
           from:
-            - log.ttl
-          to: log.dnsQuery.ttl
+            - event.ttl
+          to: event.dnsQuery.ttl
 
       - rename:
           from:
-            - log.type
-          to: log.dnsQuery.type
+            - event.type
+          to: event.dnsQuery.type
 
       # .......................................................................#
       # Renaming resource fields
       # .......................................................................#
       - rename:
           from:
-            - log.resource.labels.backend_service_name
-          to: log.resourceLabelsBackendServiceName
+            - event.resource.labels.backend_service_name
+          to: event.resourceLabelsBackendServiceName
 
       - rename:
           from:
-            - log.resource.labels.forwarding_rule_name
-          to: log.resourceLabelsForwardingRuleName
+            - event.resource.labels.forwarding_rule_name
+          to: event.resourceLabelsForwardingRuleName
 
       - rename:
           from:
-            - log.resource.labels.project_id
-          to: log.resourceLabelsProjectId
+            - event.resource.labels.project_id
+          to: event.resourceLabelsProjectId
 
       - rename:
           from:
-            - log.resource.labels.target_proxy_name
-          to: log.resourceLabelsTargetProxyName
+            - event.resource.labels.target_proxy_name
+          to: event.resourceLabelsTargetProxyName
 
       - rename:
           from:
-            - log.resource.labels.url_map_name
-          to: log.resourceLabelsUrlMapName
+            - event.resource.labels.url_map_name
+          to: event.resourceLabelsUrlMapName
 
       - rename:
           from:
-            - log.resource.labels.zone
-          to: log.resourceLabelsZone
+            - event.resource.labels.zone
+          to: event.resourceLabelsZone
 
       - rename:
           from:
-            - log.resource.labels.location
-          to: log.resourceLabelsLocation
+            - event.resource.labels.location
+          to: event.resourceLabelsLocation
 
       - rename:
           from:
-            - log.resource.labels.projectId
-          to: log.resourceLabelsProjectId
+            - event.resource.labels.projectId
+          to: event.resourceLabelsProjectId
 
       - rename:
           from:
-            - log.resource.labels.projectType
-          to: log.resourceLabelsProjectType
+            - event.resource.labels.projectType
+          to: event.resourceLabelsProjectType
 
       - rename:
           from:
-            - log.resource.labels.targetName
-          to: log.resourceLabelsTargetName
+            - event.resource.labels.targetName
+          to: event.resourceLabelsTargetName
 
       - rename:
           from:
-            - log.resource.labels.targetType
-          to: log.resourceLabelsTargetType
+            - event.resource.labels.targetType
+          to: event.resourceLabelsTargetType
 
       - rename:
           from:
-            - log.resource.type
-          to: log.resourceType
+            - event.resource.type
+          to: event.resourceType
 
       # .......................................................................#
       # Renaming protoPayload fields (Cloud Audit Logs — AuditLog message)
@@ -268,109 +268,109 @@ pipeline:
       # AuditLog) as the discriminator for protoPayload-derived actionResult.
       - rename:
           from:
-            - log.protoPayload.authenticationInfo.principalEmail
+            - event.protoPayload.authenticationInfo.principalEmail
           to: origin.user
 
       - rename:
           from:
-            - log.protoPayload.authenticationInfo.principalSubject
-          to: log.protoPayloadPrincipalSubject
+            - event.protoPayload.authenticationInfo.principalSubject
+          to: event.protoPayloadPrincipalSubject
 
       - rename:
           from:
-            - log.protoPayload.authenticationInfo.oauthInfo.oauthClientId
-          to: log.protoPayloadOauthClientId
+            - event.protoPayload.authenticationInfo.oauthInfo.oauthClientId
+          to: event.protoPayloadOauthClientId
 
       - rename:
           from:
-            - log.protoPayload.requestMetadata.callerIp
+            - event.protoPayload.requestMetadata.callerIp
           to: origin.ip
 
       - rename:
           from:
-            - log.protoPayload.requestMetadata.callerSuppliedUserAgent
-          to: log.httpUserAgent
+            - event.protoPayload.requestMetadata.callerSuppliedUserAgent
+          to: event.httpUserAgent
 
       - rename:
           from:
-            - log.protoPayload.methodName
-          to: log.protoPayloadMethodName
+            - event.protoPayload.methodName
+          to: event.protoPayloadMethodName
 
       - rename:
           from:
-            - log.protoPayload.serviceName
-          to: log.protoPayloadServiceName
+            - event.protoPayload.serviceName
+          to: event.protoPayloadServiceName
 
       - rename:
           from:
-            - log.protoPayload.resourceName
-          to: log.protoPayloadResourceName
+            - event.protoPayload.resourceName
+          to: event.protoPayloadResourceName
 
       - rename:
           from:
-            - log.protoPayload.resourceLocation.currentLocations
-          to: log.protoPayloadResourceLocation
+            - event.protoPayload.resourceLocation.currentLocations
+          to: event.protoPayloadResourceLocation
 
       - rename:
           from:
-            - log.protoPayload.authorizationInfo
-          to: log.protoPayloadAuthorizationInfo
+            - event.protoPayload.authorizationInfo
+          to: event.protoPayloadAuthorizationInfo
 
       - rename:
           from:
-            - log.protoPayload.status.code
-          to: log.protoPayloadStatusCode
+            - event.protoPayload.status.code
+          to: event.protoPayloadStatusCode
 
       - rename:
           from:
-            - log.protoPayload.status.message
-          to: log.protoPayloadStatusMessage
+            - event.protoPayload.status.message
+          to: event.protoPayloadStatusMessage
 
       # .......................................................................#
       # Renaming operation field
       # .......................................................................#
       - rename:
           from:
-            - log.operation.id
-          to: log.operationId
+            - event.operation.id
+          to: event.operationId
 
       - rename:
           from:
-            - log.operation.producer
-          to: log.operationProducer
+            - event.operation.producer
+          to: event.operationProducer
 
       - rename:
           from:
-            - log.operation.first
-          to: log.operationFirst
+            - event.operation.first
+          to: event.operationFirst
 
       - rename:
           from:
-            - log.operation.last
-          to: log.operationLast
+            - event.operation.last
+          to: event.operationLast
 
       # .......................................................................#
       # Renaming sourceLocation field
       # .......................................................................#
       - rename:
           from:
-            - log.sourceLocation.file
-          to: log.sourceLocationFile
+            - event.sourceLocation.file
+          to: event.sourceLocationFile
 
       - rename:
           from:
-            - log.sourceLocation.line
-          to: log.sourceLocationLine
+            - event.sourceLocation.line
+          to: event.sourceLocationLine
 
       - rename:
           from:
-            - log.sourceLocation.function
-          to: log.sourceLocationFunction
+            - event.sourceLocation.function
+          to: event.sourceLocationFunction
 
       # Fields conversions
       - cast:
           fields:
-            - log.jsonPayloadCacheDecision
+            - event.jsonPayloadCacheDecision
           to: '[]string'
 
       - cast:
@@ -380,7 +380,7 @@ pipeline:
 
       - cast:
           fields:
-            - log.protoPayloadStatusCode
+            - event.protoPayloadStatusCode
           to: int
 
       # Adding severity field based on log.severity
@@ -389,35 +389,35 @@ pipeline:
           params:
             key: severity
             value: "debug"
-          where: equals("log.severity", "DEBUG")
+          where: equals("event.severity", "DEBUG")
 
       - add:
           function: "string"
           params:
             key: severity
             value: "info"
-          where: oneOf("log.severity", ["INFO", "NOTICE"])
+          where: oneOf("event.severity", ["INFO", "NOTICE"])
 
       - add:
           function: "string"
           params:
             key: severity
             value: "warning"
-          where: equals("log.severity", "WARNING")
+          where: equals("event.severity", "WARNING")
 
       - add:
           function: "string"
           params:
             key: severity
             value: "error"
-          where: equals("log.severity", "ERROR")
+          where: equals("event.severity", "ERROR")
 
       - add:
           function: "string"
           params:
             key: severity
             value: "critical"
-          where: oneOf("log.severity", ["CRITICAL", "ALERT", "EMERGENCY"])
+          where: oneOf("event.severity", ["CRITICAL", "ALERT", "EMERGENCY"])
 
       # Adding action field based on log.httpRequestMethod
       - add:
@@ -425,42 +425,42 @@ pipeline:
           params:
             key: action
             value: "get"
-          where: equals("log.httpRequestMethod", "GET")
+          where: equals("event.httpRequestMethod", "GET")
 
       - add:
           function: "string"
           params:
             key: action
             value: "post"
-          where: equals("log.httpRequestMethod", "POST")
+          where: equals("event.httpRequestMethod", "POST")
 
       - add:
           function: "string"
           params:
             key: action
             value: "put"
-          where: equals("log.httpRequestMethod", "PUT")
+          where: equals("event.httpRequestMethod", "PUT")
 
       - add:
           function: "string"
           params:
             key: action
             value: "patch"
-          where: equals("log.httpRequestMethod", "PATCH")
+          where: equals("event.httpRequestMethod", "PATCH")
 
       - add:
           function: "string"
           params:
             key: action
             value: "request"
-          where: equals("log.httpRequestMethod", "REQUEST")
+          where: equals("event.httpRequestMethod", "REQUEST")
 
       - add:
           function: "string"
           params:
             key: action
             value: "delete"
-          where: equals("log.httpRequestMethod", "DELETE")
+          where: equals("event.httpRequestMethod", "DELETE")
 
       # A raw field must not become a trusted outcome. Derive the final result
       # from the vendor's operation-specific status after extraction.
@@ -478,13 +478,13 @@ pipeline:
             key: actionResult
             value: "success"
           where: >-
-            exists("log.protoPayloadMethodName") &&
-            contains("log.logName","cloudaudit.googleapis.com") &&
-            !equals("log.protoPayloadServiceName","login.googleapis.com") &&
-            !oneOf("log.protoPayloadMethodName",["google.identity.oauth2.Deny","google.identity.oauth2.Request"]) &&
-            (!equals("log.operationFirst",true) || equals("log.operationLast",true)) &&
-            (!exists("log.protoPayloadStatusCode") || equals("log.protoPayloadStatusCode",0)) &&
-            !exists("log.protoPayloadStatusMessage") &&
+            exists("event.protoPayloadMethodName") &&
+            contains("event.logName","cloudaudit.googleapis.com") &&
+            !equals("event.protoPayloadServiceName","login.googleapis.com") &&
+            !oneOf("event.protoPayloadMethodName",["google.identity.oauth2.Deny","google.identity.oauth2.Request"]) &&
+            (!equals("event.operationFirst",true) || equals("event.operationLast",true)) &&
+            (!exists("event.protoPayloadStatusCode") || equals("event.protoPayloadStatusCode",0)) &&
+            !exists("event.protoPayloadStatusMessage") &&
             (!exists("statusCode") || oneOf("statusCode",[200,201,203,204,205,206,208,226]))
 
       - add:
@@ -493,10 +493,10 @@ pipeline:
             key: actionResult
             value: "denied"
           where: >-
-            exists("log.protoPayloadMethodName") &&
-            contains("log.logName","cloudaudit.googleapis.com") &&
-            (!equals("log.operationFirst",true) || equals("log.operationLast",true)) &&
-            oneOf("log.protoPayloadStatusCode",[7,16])
+            exists("event.protoPayloadMethodName") &&
+            contains("event.logName","cloudaudit.googleapis.com") &&
+            (!equals("event.operationFirst",true) || equals("event.operationLast",true)) &&
+            oneOf("event.protoPayloadStatusCode",[7,16])
 
       - add:
           function: "string"
@@ -504,11 +504,11 @@ pipeline:
             key: actionResult
             value: "failed"
           where: >-
-            exists("log.protoPayloadMethodName") &&
-            contains("log.logName","cloudaudit.googleapis.com") &&
-            (!equals("log.operationFirst",true) || equals("log.operationLast",true)) &&
-            greaterThan("log.protoPayloadStatusCode",0) &&
-            !oneOf("log.protoPayloadStatusCode",[7,16])
+            exists("event.protoPayloadMethodName") &&
+            contains("event.logName","cloudaudit.googleapis.com") &&
+            (!equals("event.operationFirst",true) || equals("event.operationLast",true)) &&
+            greaterThan("event.protoPayloadStatusCode",0) &&
+            !oneOf("event.protoPayloadStatusCode",[7,16])
 
       # Google Workspace Login and SAML audit records (login.googleapis.com)
       # carry their result in the method: a failed or blocked sign-in has no
@@ -523,9 +523,9 @@ pipeline:
             value: "success"
           where: >-
             !exists("actionResult") &&
-            contains("log.logName","cloudaudit.googleapis.com") &&
-            equals("log.protoPayloadServiceName","login.googleapis.com") &&
-            oneOf("log.protoPayloadMethodName",["google.login.LoginService.loginSuccess",
+            contains("event.logName","cloudaudit.googleapis.com") &&
+            equals("event.protoPayloadServiceName","login.googleapis.com") &&
+            oneOf("event.protoPayloadMethodName",["google.login.LoginService.loginSuccess",
             "google.login.LoginService.2svDisable","google.login.LoginService.2svEnroll",
             "google.login.LoginService.passwordEdit","google.login.LoginService.recoveryEmailEdit",
             "google.login.LoginService.recoveryPhoneEdit","google.login.LoginService.recoverySecretQaEdit",
@@ -539,9 +539,9 @@ pipeline:
             key: actionResult
             value: "failed"
           where: >-
-            contains("log.logName","cloudaudit.googleapis.com") &&
-            equals("log.protoPayloadServiceName","login.googleapis.com") &&
-            oneOf("log.protoPayloadMethodName",["google.login.LoginService.loginFailure",
+            contains("event.logName","cloudaudit.googleapis.com") &&
+            equals("event.protoPayloadServiceName","login.googleapis.com") &&
+            oneOf("event.protoPayloadMethodName",["google.login.LoginService.loginFailure",
             "google.apps.login.v1.SamlLoginFailed"])
 
       # Google blocked these sign-ins and sensitive actions. An OAuth Deny
@@ -552,14 +552,14 @@ pipeline:
             key: actionResult
             value: "denied"
           where: >-
-            contains("log.logName","cloudaudit.googleapis.com") &&
-            ((equals("log.protoPayloadServiceName","login.googleapis.com") &&
-              oneOf("log.protoPayloadMethodName",["google.login.LoginService.suspiciousLogin",
+            contains("event.logName","cloudaudit.googleapis.com") &&
+            ((equals("event.protoPayloadServiceName","login.googleapis.com") &&
+              oneOf("event.protoPayloadMethodName",["google.login.LoginService.suspiciousLogin",
               "google.login.LoginService.suspiciousLoginLessSecureApp",
               "google.login.LoginService.suspiciousProgrammaticLogin",
               "google.login.LoginService.riskySensitiveActionBlocked"])) ||
-             (equals("log.protoPayloadServiceName","oauth2.googleapis.com") &&
-              equals("log.protoPayloadMethodName","google.identity.oauth2.Deny")))
+             (equals("event.protoPayloadServiceName","oauth2.googleapis.com") &&
+              equals("event.protoPayloadMethodName","google.identity.oauth2.Deny")))
 
       # Cloud DNS documents numeric DNS RCODEs; preserve named values for
       # compatible producers. A response code alone is not a DNS discriminator.
@@ -569,9 +569,9 @@ pipeline:
             key: actionResult
             value: "success"
           where: >-
-            !exists("actionResult") && !exists("log.protoPayloadMethodName") && !exists("statusCode") &&
-            exists("log.jsonPayload.queryName") &&
-            (equals("log.jsonPayloadResponseCode",0) || equals("log.jsonPayloadResponseCode","NOERROR"))
+            !exists("actionResult") && !exists("event.protoPayloadMethodName") && !exists("statusCode") &&
+            exists("event.jsonPayload.queryName") &&
+            (equals("event.jsonPayloadResponseCode",0) || equals("event.jsonPayloadResponseCode","NOERROR"))
 
       - add:
           function: "string"
@@ -579,9 +579,9 @@ pipeline:
             key: actionResult
             value: "denied"
           where: >-
-            !exists("actionResult") && !exists("log.protoPayloadMethodName") && !exists("statusCode") &&
-            exists("log.jsonPayload.queryName") &&
-            (equals("log.jsonPayloadResponseCode",5) || equals("log.jsonPayloadResponseCode","REFUSED"))
+            !exists("actionResult") && !exists("event.protoPayloadMethodName") && !exists("statusCode") &&
+            exists("event.jsonPayload.queryName") &&
+            (equals("event.jsonPayloadResponseCode",5) || equals("event.jsonPayloadResponseCode","REFUSED"))
 
       - add:
           function: "string"
@@ -589,10 +589,10 @@ pipeline:
             key: actionResult
             value: "failed"
           where: >-
-            !exists("actionResult") && !exists("log.protoPayloadMethodName") && !exists("statusCode") &&
-            exists("log.jsonPayload.queryName") &&
-            ((greaterThan("log.jsonPayloadResponseCode",0) && !equals("log.jsonPayloadResponseCode",5)) ||
-            oneOf("log.jsonPayloadResponseCode",["FORMERR","SERVFAIL","NXDOMAIN","NOTIMP"]))
+            !exists("actionResult") && !exists("event.protoPayloadMethodName") && !exists("statusCode") &&
+            exists("event.jsonPayload.queryName") &&
+            ((greaterThan("event.jsonPayloadResponseCode",0) && !equals("event.jsonPayloadResponseCode",5)) ||
+            oneOf("event.jsonPayloadResponseCode",["FORMERR","SERVFAIL","NXDOMAIN","NOTIMP"]))
 
       # HTTP 202, 207, and redirects do not establish a completed successful
       # request. Other final 2xx codes do; explicit denials/failures follow.
@@ -602,7 +602,7 @@ pipeline:
             key: actionResult
             value: "success"
           where: >-
-            !exists("actionResult") && !exists("log.protoPayloadMethodName") &&
+            !exists("actionResult") && !exists("event.protoPayloadMethodName") &&
             oneOf("statusCode",[200,201,203,204,205,206,208,226])
 
       - add:
@@ -611,7 +611,7 @@ pipeline:
             key: actionResult
             value: "denied"
           where: >-
-            !exists("actionResult") && !exists("log.protoPayloadMethodName") &&
+            !exists("actionResult") && !exists("event.protoPayloadMethodName") &&
             oneOf("statusCode",[401,403])
 
       - add:
@@ -620,7 +620,7 @@ pipeline:
             key: actionResult
             value: "failed"
           where: >-
-            !exists("actionResult") && !exists("log.protoPayloadMethodName") &&
+            !exists("actionResult") && !exists("event.protoPayloadMethodName") &&
             greaterOrEqual("statusCode",400) && lessThan("statusCode",600)
 
       # Edge and backend Cloud Armor policies are both enforced. An ACCEPT
@@ -630,10 +630,10 @@ pipeline:
             - actionResult
           where: >-
             equals("actionResult","success") &&
-            ((exists("log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome") &&
-              !oneOf("log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome",["ACCEPT","DENY"])) ||
-             (exists("log.jsonPayloadEnforcedSecurityPolicyOutcome") &&
-              !oneOf("log.jsonPayloadEnforcedSecurityPolicyOutcome",["ACCEPT","DENY"])))
+            ((exists("event.jsonPayloadEnforcedEdgeSecurityPolicyOutcome") &&
+              !oneOf("event.jsonPayloadEnforcedEdgeSecurityPolicyOutcome",["ACCEPT","DENY"])) ||
+             (exists("event.jsonPayloadEnforcedSecurityPolicyOutcome") &&
+              !oneOf("event.jsonPayloadEnforcedSecurityPolicyOutcome",["ACCEPT","DENY"])))
 
       - add:
           function: "string"
@@ -641,14 +641,14 @@ pipeline:
             key: actionResult
             value: "success"
           where: >-
-            !exists("actionResult") && !exists("statusCode") && !exists("log.protoPayloadMethodName") &&
-            (equals("log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome","ACCEPT") ||
-             equals("log.jsonPayloadEnforcedSecurityPolicyOutcome","ACCEPT")) &&
-            (!exists("log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome") ||
-             equals("log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome","ACCEPT")) &&
-            (!exists("log.jsonPayloadEnforcedSecurityPolicyOutcome") ||
-             equals("log.jsonPayloadEnforcedSecurityPolicyOutcome","ACCEPT")) &&
-            !equals("log.jsonPayloadStatusDetails","denied_by_security_policy")
+            !exists("actionResult") && !exists("statusCode") && !exists("event.protoPayloadMethodName") &&
+            (equals("event.jsonPayloadEnforcedEdgeSecurityPolicyOutcome","ACCEPT") ||
+             equals("event.jsonPayloadEnforcedSecurityPolicyOutcome","ACCEPT")) &&
+            (!exists("event.jsonPayloadEnforcedEdgeSecurityPolicyOutcome") ||
+             equals("event.jsonPayloadEnforcedEdgeSecurityPolicyOutcome","ACCEPT")) &&
+            (!exists("event.jsonPayloadEnforcedSecurityPolicyOutcome") ||
+             equals("event.jsonPayloadEnforcedSecurityPolicyOutcome","ACCEPT")) &&
+            !equals("event.jsonPayloadStatusDetails","denied_by_security_policy")
 
       - add:
           function: "string"
@@ -656,9 +656,9 @@ pipeline:
             key: actionResult
             value: "denied"
           where: >-
-            equals("log.jsonPayloadEnforcedEdgeSecurityPolicyOutcome","DENY") ||
-            equals("log.jsonPayloadEnforcedSecurityPolicyOutcome","DENY") ||
-            equals("log.jsonPayloadStatusDetails","denied_by_security_policy")
+            equals("event.jsonPayloadEnforcedEdgeSecurityPolicyOutcome","DENY") ||
+            equals("event.jsonPayloadEnforcedSecurityPolicyOutcome","DENY") ||
+            equals("event.jsonPayloadStatusDetails","denied_by_security_policy")
 
       # Firewall Rules Logging (compute.googleapis.com/firewall) writes one
       # record per connection with the rule's disposition, ALLOWED or DENIED.
@@ -667,27 +667,27 @@ pipeline:
       # no outcome, so they are left as they were.
       - rename:
           from:
-            - log.jsonPayload.connection.src_ip
+            - event.jsonPayload.connection.src_ip
           to: origin.ip
-          where: oneOf("log.jsonPayload.disposition",["ALLOWED","DENIED"])
+          where: oneOf("event.jsonPayload.disposition",["ALLOWED","DENIED"])
 
       - rename:
           from:
-            - log.jsonPayload.connection.dest_ip
+            - event.jsonPayload.connection.dest_ip
           to: target.ip
-          where: oneOf("log.jsonPayload.disposition",["ALLOWED","DENIED"])
+          where: oneOf("event.jsonPayload.disposition",["ALLOWED","DENIED"])
 
       - rename:
           from:
-            - log.jsonPayload.connection.src_port
+            - event.jsonPayload.connection.src_port
           to: origin.port
-          where: oneOf("log.jsonPayload.disposition",["ALLOWED","DENIED"])
+          where: oneOf("event.jsonPayload.disposition",["ALLOWED","DENIED"])
 
       - rename:
           from:
-            - log.jsonPayload.connection.dest_port
+            - event.jsonPayload.connection.dest_port
           to: target.port
-          where: oneOf("log.jsonPayload.disposition",["ALLOWED","DENIED"])
+          where: oneOf("event.jsonPayload.disposition",["ALLOWED","DENIED"])
 
       - add:
           function: "string"
@@ -695,8 +695,8 @@ pipeline:
             key: protocol
             value: "tcp"
           where: >-
-            oneOf("log.jsonPayload.disposition",["ALLOWED","DENIED"]) &&
-            equals("log.jsonPayload.connection.protocol",6)
+            oneOf("event.jsonPayload.disposition",["ALLOWED","DENIED"]) &&
+            equals("event.jsonPayload.connection.protocol",6)
 
       - add:
           function: "string"
@@ -704,8 +704,8 @@ pipeline:
             key: protocol
             value: "udp"
           where: >-
-            oneOf("log.jsonPayload.disposition",["ALLOWED","DENIED"]) &&
-            equals("log.jsonPayload.connection.protocol",17)
+            oneOf("event.jsonPayload.disposition",["ALLOWED","DENIED"]) &&
+            equals("event.jsonPayload.connection.protocol",17)
 
       - add:
           function: "string"
@@ -713,8 +713,8 @@ pipeline:
             key: protocol
             value: "icmp"
           where: >-
-            oneOf("log.jsonPayload.disposition",["ALLOWED","DENIED"]) &&
-            equals("log.jsonPayload.connection.protocol",1)
+            oneOf("event.jsonPayload.disposition",["ALLOWED","DENIED"]) &&
+            equals("event.jsonPayload.connection.protocol",1)
 
       - add:
           function: "string"
@@ -722,20 +722,20 @@ pipeline:
             key: protocol
             value: "icmpv6"
           where: >-
-            oneOf("log.jsonPayload.disposition",["ALLOWED","DENIED"]) &&
-            equals("log.jsonPayload.connection.protocol",58)
+            oneOf("event.jsonPayload.disposition",["ALLOWED","DENIED"]) &&
+            equals("event.jsonPayload.connection.protocol",58)
 
       - rename:
           from:
-            - log.jsonPayload.rule_details.reference
-          to: log.jsonPayloadRuleReference
-          where: oneOf("log.jsonPayload.disposition",["ALLOWED","DENIED"])
+            - event.jsonPayload.rule_details.reference
+          to: event.jsonPayloadRuleReference
+          where: oneOf("event.jsonPayload.disposition",["ALLOWED","DENIED"])
 
       - rename:
           from:
-            - log.jsonPayload.rule_details.direction
-          to: log.jsonPayloadRuleDirection
-          where: oneOf("log.jsonPayload.disposition",["ALLOWED","DENIED"])
+            - event.jsonPayload.rule_details.direction
+          to: event.jsonPayloadRuleDirection
+          where: oneOf("event.jsonPayload.disposition",["ALLOWED","DENIED"])
 
       # Firewall Rules Logging writes nothing after the allow decision (no
       # closing record and no reply count), so the allow record is the only
@@ -745,7 +745,7 @@ pipeline:
           params:
             key: actionResult
             value: "success"
-          where: equals("log.jsonPayload.disposition","ALLOWED")
+          where: equals("event.jsonPayload.disposition","ALLOWED")
 
       # A firewall rule refused the connection.
       - add:
@@ -753,13 +753,13 @@ pipeline:
           params:
             key: actionResult
             value: "denied"
-          where: equals("log.jsonPayload.disposition","DENIED")
+          where: equals("event.jsonPayload.disposition","DENIED")
 
       - rename:
           from:
-            - log.jsonPayload.disposition
-          to: log.jsonPayloadDisposition
-          where: oneOf("log.jsonPayload.disposition",["ALLOWED","DENIED"])
+            - event.jsonPayload.disposition
+          to: event.jsonPayloadDisposition
+          where: oneOf("event.jsonPayload.disposition",["ALLOWED","DENIED"])
 
       # Adding geolocation to origin.ip
       - dynamic:
@@ -780,8 +780,8 @@ pipeline:
       # Removing unused fields
       - delete:
           fields:
-            - log.httpRequest
-            - log.jsonPayload
-            - log.resource
-            - log.httpRequestMethod
-            - log.jsonPayloadStructuredRdata
+            - event.httpRequest
+            - event.jsonPayload
+            - event.resource
+            - event.httpRequestMethod
+            - event.jsonPayloadStructuredRdata

@@ -134,7 +134,7 @@ func azureParse(t *testing.T, cfg *plugins.Config, raw string, dataSource string
 // plugin preserves nested keys; deployed extractor versions can differ.
 func azureParseMode(t *testing.T, cfg *plugins.Config, raw string, dataSource string, cache *plugins.CELCache, preserveNested bool, enrichment ...map[string]any) string {
 	t.Helper()
-	draft := map[string]any{"raw": raw, "dataType": "azure", "dataSource": dataSource, "log": map[string]any{}}
+	draft := map[string]any{"raw": raw, "dataType": "azure", "dataSource": dataSource, "event": map[string]any{}}
 	for _, stage := range cfg.Pipeline {
 		matched := false
 		for _, dataType := range stage.DataTypes {
@@ -259,7 +259,7 @@ func azureParseMode(t *testing.T, cfg *plugins.Config, raw string, dataSource st
 						}
 					}
 					for key, value := range normalized {
-						azurePut(draft, "log."+key, value, false)
+						azurePut(draft, "event."+key, value, false)
 					}
 				case "cast":
 					for _, field := range s.Cast.Fields {

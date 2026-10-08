@@ -23,16 +23,16 @@ description: |
   5. If unauthorized, immediately disable the created user and revoke access keys
   6. Investigate other activities from the same source IP or user identity
 where: |
-  (equals("log.awsRecordType","cloudtrail") &&
-  (equals("log.eventSource", "iam.amazonaws.com") &&
-  oneOf("log.eventName", ["CreateUser", "CreateAccessKey", "AttachUserPolicy", "PutUserPolicy", "CreateLoginProfile"]) &&
+  (equals("event.awsRecordType","cloudtrail") &&
+  (equals("event.eventSource", "iam.amazonaws.com") &&
+  oneOf("event.eventName", ["CreateUser", "CreateAccessKey", "AttachUserPolicy", "PutUserPolicy", "CreateLoginProfile"]) &&
   equals("actionResult","success"))) &&
   exists("dataSource") &&
   !equals("dataSource","") &&
-  exists("log.awsAccountKeyType") &&
-  !equals("log.awsAccountKeyType","") &&
-  exists("log.awsAccountKey") &&
-  !equals("log.awsAccountKey","") &&
+  exists("event.awsAccountKeyType") &&
+  !equals("event.awsAccountKeyType","") &&
+  exists("event.awsAccountKey") &&
+  !equals("event.awsAccountKey","") &&
   exists("origin.ip") &&
   !equals("origin.ip","")
 afterEvents:
@@ -41,23 +41,23 @@ afterEvents:
   - field: dataSource
     operator: filter_term
     value: '{{.dataSource}}'
-  - field: log.awsAccountKeyType
+  - field: event.awsAccountKeyType
     operator: filter_term
-    value: '{{.log.awsAccountKeyType}}'
-  - field: log.awsAccountKey
+    value: '{{.event.awsAccountKeyType}}'
+  - field: event.awsAccountKey
     operator: filter_term
-    value: '{{.log.awsAccountKey}}'
+    value: '{{.event.awsAccountKey}}'
   - field: origin.ip
     operator: filter_term
     value: '{{.origin.ip}}'
-  - field: log.correlationCandidate.iamBackdoorCreationAttempts
+  - field: event.correlationCandidate.iamBackdoorCreationAttempts
     operator: filter_term
     value: match
   within: 30m
   count: 3
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
-- lastEvent.log.sourceIPAddress
-- lastEvent.log.userIdentity.arn
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
+- lastEvent.event.sourceIPAddress
+- lastEvent.event.userIdentity.arn

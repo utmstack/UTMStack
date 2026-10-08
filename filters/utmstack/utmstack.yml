@@ -13,7 +13,7 @@ pipeline:
       - grok:
           source: raw
           patterns:
-            - fieldName: log.message
+            - fieldName: event.message
               pattern: '{{.greedy}}'
           where: '!contains("raw", "\"msg\":") || !contains("raw", "\"args\":")'
 
@@ -25,17 +25,17 @@ pipeline:
           params:
             key: actionResult
             value: success
-          where: 'startsWith("log.msg", "UserJWTController.authorize: Login successfully completed for user ")'
+          where: 'startsWith("event.msg", "UserJWTController.authorize: Login successfully completed for user ")'
       - add:
           function: string
           params:
             key: actionResult
             value: failed
-          where: 'equals("log.msg", "UserJWTController.authorize: Bad credentials")'
+          where: 'equals("event.msg", "UserJWTController.authorize: Bad credentials")'
       # On a completed sign-in args.username is the account that signed in; on a failed
       # one it is "anonymous", so it is not mapped there.
       - rename:
           from:
-            - log.args.username
+            - event.args.username
           to: origin.user
-          where: 'equals("actionResult", "success") && exists("log.args.username") && !oneOf("log.args.username", ["", "anonymous"])'
+          where: 'equals("actionResult", "success") && exists("event.args.username") && !oneOf("event.args.username", ["", "anonymous"])'

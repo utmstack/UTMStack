@@ -26,17 +26,17 @@ description: |
   6. Consider blocking or monitoring the source if malicious intent is confirmed
 where: |
   (oneOf("origin.process", ["osascript", "Script Editor", "AppleScript", "Automator"]) ||
-   contains("log.message", "osascript") ||
-   contains("log.message", "AppleScript") ||
-   equals("log.subsystem", "com.apple.applescript")) &&
-  (contains("log.message", "tell application") ||
-   contains("log.message", "do shell script") ||
-   contains("log.message", "keystroke") ||
-   contains("log.message", "System Events") ||
-   contains("log.message", "admin privileges") ||
-   contains("log.message", "sudo") ||
-   contains("log.message", "password")) &&
-  (oneOf("log.eventType", ["logEvent", "traceEvent"]) || equals("log.className", "OSLogEntryLog"))
+   contains("event.message", "osascript") ||
+   contains("event.message", "AppleScript") ||
+   equals("event.subsystem", "com.apple.applescript")) &&
+  (contains("event.message", "tell application") ||
+   contains("event.message", "do shell script") ||
+   contains("event.message", "keystroke") ||
+   contains("event.message", "System Events") ||
+   contains("event.message", "admin privileges") ||
+   contains("event.message", "sudo") ||
+   contains("event.message", "password")) &&
+  (oneOf("event.eventType", ["logEvent", "traceEvent"]) || equals("event.className", "OSLogEntryLog"))
 groupBy:
   - adversary.host
   - adversary.user

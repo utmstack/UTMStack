@@ -26,14 +26,14 @@ where: |
   exists("origin.ip") &&
   exists("origin.user") &&
   (
-    (exists("log.message") && (
-      (contains("log.message", "remote") && contains("log.message", "login")) ||
-      (contains("log.message", "authenticated") && contains("log.message", "from")) ||
-      (contains("log.message", "session") && contains("log.message", "opened") && contains("log.message", "remote")) ||
-      contains("log.message", "lateral movement") ||
-      (contains("log.message", "RDP") && contains("log.message", "connection")) ||
-      (contains("log.message", "SMB") && contains("log.message", "authenticated")) ||
-      (contains("log.message", "WMI") && contains("log.message", "connection"))
+    (exists("event.message") && (
+      (contains("event.message", "remote") && contains("event.message", "login")) ||
+      (contains("event.message", "authenticated") && contains("event.message", "from")) ||
+      (contains("event.message", "session") && contains("event.message", "opened") && contains("event.message", "remote")) ||
+      contains("event.message", "lateral movement") ||
+      (contains("event.message", "RDP") && contains("event.message", "connection")) ||
+      (contains("event.message", "SMB") && contains("event.message", "authenticated")) ||
+      (contains("event.message", "WMI") && contains("event.message", "connection"))
     )) ||
     (exists("action") && (
       equals("action", "remote_login") ||
@@ -47,7 +47,7 @@ afterEvents:
       - field: origin.user
         operator: filter_term
         value: '{{.origin.user}}'
-      - field: log.message
+      - field: event.message
         operator: filter_match
         value: 'remote login OR authenticated OR session opened'
     within: 30m

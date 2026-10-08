@@ -24,13 +24,13 @@ description: |
   5. Implement SSH access controls and key-based authentication
   6. Monitor for post-login suspicious activity
 where: |
-  exists("log.message") &&
+  exists("event.message") &&
   (
-    (contains("log.message", "SSH") && contains("log.message", "login")) ||
-    (contains("log.message", "sshd") && contains("log.message", "Accepted")) ||
-    (contains("log.message", "SSH session") && contains("log.message", "opened")) ||
-    (contains("log.message", "SSH") && contains("log.message", "enabled")) ||
-    (contains("log.message", "ssh") && contains("log.message", "connection from"))
+    (contains("event.message", "SSH") && contains("event.message", "login")) ||
+    (contains("event.message", "sshd") && contains("event.message", "Accepted")) ||
+    (contains("event.message", "SSH session") && contains("event.message", "opened")) ||
+    (contains("event.message", "SSH") && contains("event.message", "enabled")) ||
+    (contains("event.message", "ssh") && contains("event.message", "connection from"))
   )
 groupBy:
   - adversary.hostname

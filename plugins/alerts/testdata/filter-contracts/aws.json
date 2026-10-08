@@ -92,7 +92,7 @@
       "filter": "aws/aws.yml",
       "input": {
         "dataType": "aws",
-        "log": {
+        "event": {
           "eventVersion": "1.09",
           "eventSource": "cloudtrail.amazonaws.com",
           "eventType": "AwsApiCall",
@@ -107,10 +107,10 @@
       },
       "expected": {
         "actionResult": "denied",
-        "log.awsRecordType": "cloudtrail"
+        "event.awsRecordType": "cloudtrail"
       },
       "absent": [
-        "log.correlationCandidate"
+        "event.correlationCandidate"
       ],
       "rules": {
         "rules/cloud/aws/aws/aws_backup_deletion.yml": false,
@@ -193,7 +193,7 @@
       "filter": "aws/aws.yml",
       "input": {
         "dataType": "aws",
-        "log": {
+        "event": {
           "eventVersion": "1.09",
           "eventSource": "signin.amazonaws.com",
           "eventType": "AwsConsoleSignIn",
@@ -209,7 +209,7 @@
       },
       "expected": {
         "actionResult": "failed",
-        "log.awsRecordType": "cloudtrail"
+        "event.awsRecordType": "cloudtrail"
       },
       "rules": {
         "rules/cloud/aws/aws/aws_backup_deletion.yml": false,
@@ -292,7 +292,7 @@
       "filter": "aws/aws.yml",
       "input": {
         "dataType": "aws",
-        "log": {
+        "event": {
           "eventVersion": "1.08",
           "eventSource": "signin.amazonaws.com",
           "eventType": "AwsServiceEvent",
@@ -305,7 +305,7 @@
       },
       "expected": {
         "actionResult": "success",
-        "log.awsRecordType": "cloudtrail"
+        "event.awsRecordType": "cloudtrail"
       },
       "rules": {
         "rules/cloud/aws/aws/aws_backup_deletion.yml": false,

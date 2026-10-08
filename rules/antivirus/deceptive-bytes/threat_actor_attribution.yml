@@ -26,15 +26,15 @@ description: |
   7. Share attribution indicators with security teams for enhanced monitoring
   8. Escalate to incident response team if high-profile threat actor is identified
 where: |
-  equals("log.eventType", "threat_attribution") &&
-  greaterOrEqual("log.attributionConfidence", 70) &&
-  exists("log.actorProfile") &&
-  equals("log.deceptionTriggered", "true") &&
-  (greaterOrEqual("log.ttpsMatched", 3) ||
-   equals("log.infrastructureMatch", "true") ||
-   exists("log.toolingFingerprint")) &&
-  equals("log.historicalCampaignMatch", "true")
+  equals("event.eventType", "threat_attribution") &&
+  greaterOrEqual("event.attributionConfidence", 70) &&
+  exists("event.actorProfile") &&
+  equals("event.deceptionTriggered", "true") &&
+  (greaterOrEqual("event.ttpsMatched", 3) ||
+   equals("event.infrastructureMatch", "true") ||
+   exists("event.toolingFingerprint")) &&
+  equals("event.historicalCampaignMatch", "true")
 groupBy:
-  - lastEvent.log.actorProfile
-  - lastEvent.log.campaignId
+  - lastEvent.event.actorProfile
+  - lastEvent.event.campaignId
   - adversary.host

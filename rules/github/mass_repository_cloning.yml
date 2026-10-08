@@ -26,21 +26,21 @@ description: |
   7. Review access logs for the specific repositories that were cloned
   8. Check for any data downloads or exports from the same user session
 where: |
-  (equals("log.action", "clone") ||
-   equals("log.action", "git.clone") ||
-   equals("log.action", "git.fetch")) &&
-  exists("log.repositoryName") &&
-  exists("log.senderLogin")
+  (equals("event.action", "clone") ||
+   equals("event.action", "git.clone") ||
+   equals("event.action", "git.fetch")) &&
+  exists("event.repositoryName") &&
+  exists("event.senderLogin")
 afterEvents:
   - indexPattern: v11-log-github-*
     with:
-      - field: log.senderLogin
+      - field: event.senderLogin
         operator: filter_term
-        value: '{{.log.senderLogin}}'
-      - field: log.action
+        value: '{{.event.senderLogin}}'
+      - field: event.action
         operator: filter_match
         value: 'clone fetch'
     within: 30m
     count: 10
 groupBy:
-  - lastEvent.log.senderLogin
+  - lastEvent.event.senderLogin

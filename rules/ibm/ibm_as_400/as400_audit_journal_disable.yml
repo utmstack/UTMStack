@@ -24,15 +24,15 @@ description: |
   5. Restrict CHGAUD and system value change authority
   6. Implement monitoring for audit control system values
 where: |
-  exists("log.message") &&
+  exists("event.message") &&
   (
-    contains("log.message", "CHGAUD") ||
-    (contains("log.message", "QAUDCTL") && contains("log.message", "*NONE")) ||
-    (contains("log.message", "QAUDLVL") && contains("log.message", "changed")) ||
-    (contains("log.message", "QAUDLVL2") && contains("log.message", "changed")) ||
-    (contains("log.message", "audit") && contains("log.message", "disabled")) ||
-    (contains("log.message", "QAUDJRN") && contains("log.message", "DLTJRN")) ||
-    contains("log.message", "CHGSYSVAL SYSVAL(QAUDCTL) VALUE('*NONE')")
+    contains("event.message", "CHGAUD") ||
+    (contains("event.message", "QAUDCTL") && contains("event.message", "*NONE")) ||
+    (contains("event.message", "QAUDLVL") && contains("event.message", "changed")) ||
+    (contains("event.message", "QAUDLVL2") && contains("event.message", "changed")) ||
+    (contains("event.message", "audit") && contains("event.message", "disabled")) ||
+    (contains("event.message", "QAUDJRN") && contains("event.message", "DLTJRN")) ||
+    contains("event.message", "CHGSYSVAL SYSVAL(QAUDCTL) VALUE('*NONE')")
   )
 groupBy:
   - adversary.host

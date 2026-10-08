@@ -25,70 +25,70 @@ description: |
   6. Block common mining ports (3333, 4444, 5555, 8333, 9999) at the firewall
   7. Review system resource utilization for anomalous CPU/GPU usage
 where: |
-  equals("log.eventType", "dns") &&
-  exists("log.dns.query") &&
+  equals("event.eventType", "dns") &&
+  exists("event.dns.query") &&
   exists("origin.ip") &&
   (
-    contains("log.dns.query", "monerohash.com") ||
-    contains("log.dns.query", "moneropool.com") ||
-    contains("log.dns.query", "moneropools.com") ||
-    contains("log.dns.query", "xmrpool.eu") ||
-    contains("log.dns.query", "xmrpool.net") ||
-    contains("log.dns.query", "xmr.nanopool.org") ||
-    contains("log.dns.query", "pool.minergate.com") ||
-    contains("log.dns.query", "minexmr.com") ||
-    contains("log.dns.query", "hashvault.pro") ||
-    contains("log.dns.query", "supportxmr.com") ||
-    contains("log.dns.query", "xmr-usa.dwarfpool.com") ||
-    contains("log.dns.query", "xmr-eu.dwarfpool.com") ||
-    contains("log.dns.query", "pool.hashvault.pro") ||
-    contains("log.dns.query", "xmr.pool.minergate.com") ||
-    contains("log.dns.query", "mine.moneropool.com") ||
-    contains("log.dns.query", "xmr.2miners.com") ||
-    contains("log.dns.query", "pool.xmr.pt") ||
-    contains("log.dns.query", "pool.minexmr.com") ||
-    contains("log.dns.query", "monero.herominers.com") ||
-    contains("log.dns.query", "xmr.f2pool.com") ||
-    contains("log.dns.query", "pool.supportxmr.com") ||
-    contains("log.dns.query", "monerohash.net") ||
-    contains("log.dns.query", "us-east.stratum-mining.com") ||
-    contains("log.dns.query", "gulf.moneroocean.stream") ||
-    contains("log.dns.query", "moneroocean.stream") ||
-    contains("log.dns.query", "eu.stratum.slushpool.com") ||
-    contains("log.dns.query", "stratum.slushpool.com") ||
-    contains("log.dns.query", "pool.hashrate.to") ||
-    contains("log.dns.query", "us-east1.miningpoolhub.com") ||
-    contains("log.dns.query", "asia.miningpoolhub.com") ||
-    contains("log.dns.query", "europe.miningpoolhub.com") ||
-    contains("log.dns.query", "pool.coinfoundry.org") ||
-    contains("log.dns.query", "unmineable.com") ||
-    contains("log.dns.query", "ethermine.org") ||
-    contains("log.dns.query", "flypool.org") ||
-    contains("log.dns.query", "eth.nanopool.org") ||
-    contains("log.dns.query", "prohashing.com") ||
-    contains("log.dns.query", "nicehash.com") ||
-    contains("log.dns.query", "luxor.tech") ||
-    contains("log.dns.query", "cruxpool.com") ||
-    contains("log.dns.query", "crazypool.org") ||
-    contains("log.dns.query", "hiveon.net") ||
-    contains("log.dns.query", "poolin.com") ||
-    (regexMatch("log.dns.query", "(?i)(stratum|mining|pool).*\\.(com|net|org|eu|io)$") && contains("log.dns.query", "xmr")) ||
-    (regexMatch("log.dns.query", "(?i)(stratum|mining|pool).*\\.(com|net|org|eu|io)$") && contains("log.dns.query", "monero")) ||
-    regexMatch("log.dns.query", "(?i)coinhive\\.com$") ||
-    contains("log.dns.query", "cryptonight.") ||
-    contains("log.dns.query", "coin-hive.com") ||
-    contains("log.dns.query", "jsecoin.com") ||
-    contains("log.dns.query", "authedmine.com") ||
-    contains("log.dns.query", "coinimp.com") ||
-    contains("log.dns.query", "crypto-loot.com") ||
-    contains("log.dns.query", "minecrunch.co") ||
-    contains("log.dns.query", "webmine.cz") ||
-    contains("log.dns.query", "ppxxmr.com") ||
-    contains("log.dns.query", "coinlab.biz") ||
-    contains("log.dns.query", "minero.cc") ||
-    contains("log.dns.query", "deepminer.js") ||
-    contains("log.dns.query", "cryptoloot.pro")
+    contains("event.dns.query", "monerohash.com") ||
+    contains("event.dns.query", "moneropool.com") ||
+    contains("event.dns.query", "moneropools.com") ||
+    contains("event.dns.query", "xmrpool.eu") ||
+    contains("event.dns.query", "xmrpool.net") ||
+    contains("event.dns.query", "xmr.nanopool.org") ||
+    contains("event.dns.query", "pool.minergate.com") ||
+    contains("event.dns.query", "minexmr.com") ||
+    contains("event.dns.query", "hashvault.pro") ||
+    contains("event.dns.query", "supportxmr.com") ||
+    contains("event.dns.query", "xmr-usa.dwarfpool.com") ||
+    contains("event.dns.query", "xmr-eu.dwarfpool.com") ||
+    contains("event.dns.query", "pool.hashvault.pro") ||
+    contains("event.dns.query", "xmr.pool.minergate.com") ||
+    contains("event.dns.query", "mine.moneropool.com") ||
+    contains("event.dns.query", "xmr.2miners.com") ||
+    contains("event.dns.query", "pool.xmr.pt") ||
+    contains("event.dns.query", "pool.minexmr.com") ||
+    contains("event.dns.query", "monero.herominers.com") ||
+    contains("event.dns.query", "xmr.f2pool.com") ||
+    contains("event.dns.query", "pool.supportxmr.com") ||
+    contains("event.dns.query", "monerohash.net") ||
+    contains("event.dns.query", "us-east.stratum-mining.com") ||
+    contains("event.dns.query", "gulf.moneroocean.stream") ||
+    contains("event.dns.query", "moneroocean.stream") ||
+    contains("event.dns.query", "eu.stratum.slushpool.com") ||
+    contains("event.dns.query", "stratum.slushpool.com") ||
+    contains("event.dns.query", "pool.hashrate.to") ||
+    contains("event.dns.query", "us-east1.miningpoolhub.com") ||
+    contains("event.dns.query", "asia.miningpoolhub.com") ||
+    contains("event.dns.query", "europe.miningpoolhub.com") ||
+    contains("event.dns.query", "pool.coinfoundry.org") ||
+    contains("event.dns.query", "unmineable.com") ||
+    contains("event.dns.query", "ethermine.org") ||
+    contains("event.dns.query", "flypool.org") ||
+    contains("event.dns.query", "eth.nanopool.org") ||
+    contains("event.dns.query", "prohashing.com") ||
+    contains("event.dns.query", "nicehash.com") ||
+    contains("event.dns.query", "luxor.tech") ||
+    contains("event.dns.query", "cruxpool.com") ||
+    contains("event.dns.query", "crazypool.org") ||
+    contains("event.dns.query", "hiveon.net") ||
+    contains("event.dns.query", "poolin.com") ||
+    (regexMatch("event.dns.query", "(?i)(stratum|mining|pool).*\\.(com|net|org|eu|io)$") && contains("event.dns.query", "xmr")) ||
+    (regexMatch("event.dns.query", "(?i)(stratum|mining|pool).*\\.(com|net|org|eu|io)$") && contains("event.dns.query", "monero")) ||
+    regexMatch("event.dns.query", "(?i)coinhive\\.com$") ||
+    contains("event.dns.query", "cryptonight.") ||
+    contains("event.dns.query", "coin-hive.com") ||
+    contains("event.dns.query", "jsecoin.com") ||
+    contains("event.dns.query", "authedmine.com") ||
+    contains("event.dns.query", "coinimp.com") ||
+    contains("event.dns.query", "crypto-loot.com") ||
+    contains("event.dns.query", "minecrunch.co") ||
+    contains("event.dns.query", "webmine.cz") ||
+    contains("event.dns.query", "ppxxmr.com") ||
+    contains("event.dns.query", "coinlab.biz") ||
+    contains("event.dns.query", "minero.cc") ||
+    contains("event.dns.query", "deepminer.js") ||
+    contains("event.dns.query", "cryptoloot.pro")
   )
 groupBy:
-  - lastEvent.log.dns.query
+  - lastEvent.event.dns.query
   - adversary.ip

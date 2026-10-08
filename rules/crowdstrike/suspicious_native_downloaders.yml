@@ -12,8 +12,8 @@ impact:
   integrity: 2
   availability: 0
 where: >
-  exists("log.eventCommandLine") && 
-  regexMatch("log.eventCommandLine", "(?i).*(certutil.*-urlcache|bitsadmin.*-transfer|curl.*http|wget.*http).*")
+  exists("event.eventCommandLine") && 
+  regexMatch("event.eventCommandLine", "(?i).*(certutil.*-urlcache|bitsadmin.*-transfer|curl.*http|wget.*http).*")
 groupBy: 
   - adversary.host
-  - lastEvent.log.eventCommandLine
+  - lastEvent.event.eventCommandLine

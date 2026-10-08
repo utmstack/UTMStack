@@ -26,5 +26,5 @@ description: |
 where: |
   equals("action", "Consent to application") && equals("actionResult", "success")
 groupBy:
-  - lastEvent.log.appAccessContextClientAppId
+  - lastEvent.event.appAccessContextClientAppId
   - adversary.user

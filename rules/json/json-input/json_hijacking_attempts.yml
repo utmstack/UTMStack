@@ -31,7 +31,7 @@ where: |
    contains("raw", "window.location") ||
    contains("raw", "document.domain") ||
    contains("raw", "postMessage") ||
-   (exists("log.callback") && contains("log.callback", "eval")) ||
+   (exists("event.callback") && contains("event.callback", "eval")) ||
    (exists("origin.url") && exists("target.domain") && 
     !contains(safe(origin.url, ""), safe(target.domain, ""))))
 groupBy:

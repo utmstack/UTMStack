@@ -21,7 +21,7 @@ references:
   - "https://attack.mitre.org/tactics/TA0040/"
   - "https://attack.mitre.org/techniques/T1485/"
 where: |
-  regexMatch("log.protoPayloadMethodName", "(.+)\\.bucket(s)?\\.delete")
+  regexMatch("event.protoPayloadMethodName", "(.+)\\.bucket(s)?\\.delete")
 groupBy:
   - adversary.ip
   - adversary.user

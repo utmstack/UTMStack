@@ -21,20 +21,20 @@ description: |
 
   Next Steps:
   1. Investigate the source IP for additional malicious activity.
-  2. Pivot on the file hash / URL captured in `log.note` against threat intel.
+  2. Pivot on the file hash / URL captured in `event.note` against threat intel.
   3. Check whether the same file reached other internal systems.
   4. Verify ATP policies and enforce automated blocking if not already set.
 where: |
   (
-    oneOf("log.eventCode", ["1440", "1441"]) ||
-    equals("log.appFirewallType", "ATP") ||
-    contains("log.message", ["Capture ATP", "Sandbox", "RTDMI"]) ||
-    contains("log.note", ["Capture ATP", "malicious verdict", "ATP verdict"])
+    oneOf("event.eventCode", ["1440", "1441"]) ||
+    equals("event.appFirewallType", "ATP") ||
+    contains("event.message", ["Capture ATP", "Sandbox", "RTDMI"]) ||
+    contains("event.note", ["Capture ATP", "malicious verdict", "ATP verdict"])
   ) &&
   (
-    equals("log.threatResult", "malicious") ||
-    contains("log.message", ["malicious", "threat"]) ||
-    contains("log.note", ["malicious", "threat"]) ||
+    equals("event.threatResult", "malicious") ||
+    contains("event.message", ["malicious", "threat"]) ||
+    contains("event.note", ["malicious", "threat"]) ||
     equals("actionResult", "denied")
   )
 afterEvents:

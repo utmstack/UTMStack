@@ -26,18 +26,18 @@ description: |
   6. Check for lateral movement and credential theft from the compromised host
   7. Engage incident response procedures for confirmed C2 activity
 where: |
-  equals("log.eventType", "http") &&
+  equals("event.eventType", "http") &&
   exists("origin.ip") &&
   exists("target.ip") &&
   (
-    (contains("log.http.url", "/s/ref=nb_sb_noss_1/") && contains("log.http.http_user_agent", "Mozilla")) ||
-    (contains("log.http.url", "/MFEwTzBNMEswSTAJBg") && contains("log.http.http_content_type", "application/ocsp-response")) ||
-    (regexMatch("log.http.url", "(?i)/jquery-3\\.[0-9]+\\.[0-9]+\\.min\\.js$") && contains("log.http.http_user_agent", "Mozilla")) ||
-    (contains("log.http.url", "/_api/v2.0/") && contains("log.http.hostname", "onedrive")) ||
-    (contains("log.http.url", "/pixel.gif") && contains("log.http.url", "utmac=")) ||
-    (regexMatch("log.http.url", "(?i)/api/v1/push$") && contains("log.http.http_content_type", "application/octet-stream")) ||
-    (contains("log.http.url", "/updates/") && endsWith("log.http.url", ".cab")) ||
-    (regexMatch("log.http.url", "(?i)/__utm\\.gif\\?utmac=") && contains("log.http.http_user_agent", "Mozilla"))
+    (contains("event.http.url", "/s/ref=nb_sb_noss_1/") && contains("event.http.http_user_agent", "Mozilla")) ||
+    (contains("event.http.url", "/MFEwTzBNMEswSTAJBg") && contains("event.http.http_content_type", "application/ocsp-response")) ||
+    (regexMatch("event.http.url", "(?i)/jquery-3\\.[0-9]+\\.[0-9]+\\.min\\.js$") && contains("event.http.http_user_agent", "Mozilla")) ||
+    (contains("event.http.url", "/_api/v2.0/") && contains("event.http.hostname", "onedrive")) ||
+    (contains("event.http.url", "/pixel.gif") && contains("event.http.url", "utmac=")) ||
+    (regexMatch("event.http.url", "(?i)/api/v1/push$") && contains("event.http.http_content_type", "application/octet-stream")) ||
+    (contains("event.http.url", "/updates/") && endsWith("event.http.url", ".cab")) ||
+    (regexMatch("event.http.url", "(?i)/__utm\\.gif\\?utmac=") && contains("event.http.http_user_agent", "Mozilla"))
   )
 afterEvents:
   - indexPattern: v11-log-suricata-*
@@ -48,7 +48,7 @@ afterEvents:
       - field: target.ip
         operator: filter_term
         value: '{{.target.ip}}'
-      - field: log.eventType
+      - field: event.eventType
         operator: filter_term
         value: 'http'
     within: 30m

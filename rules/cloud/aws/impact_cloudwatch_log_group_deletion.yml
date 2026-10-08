@@ -19,13 +19,13 @@ references:
 - https://awscli.amazonaws.com/v2/documentation/api/latest/reference/logs/delete-log-group.html
 - https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_DeleteLogGroup.html
 where: |
-  equals("log.awsRecordType","cloudtrail") &&
-  (equals("log.eventSource", "logs.amazonaws.com") &&
-  equals("log.eventName", "DeleteLogGroup") &&
+  equals("event.awsRecordType","cloudtrail") &&
+  (equals("event.eventSource", "logs.amazonaws.com") &&
+  equals("event.eventName", "DeleteLogGroup") &&
   equals("actionResult","success"))
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
 - adversary.ip
 - adversary.user

@@ -25,8 +25,8 @@ description: |
   6. Enable anti-lockout rules and consider implementing CAPTCHA
 where: |
   (regexMatch("raw", "(?i)(webconfigurator.*authentication.*error|login.*failed|authentication.*failure|invalid.*login)") ||
-   regexMatch("log.csvMsg", "(?i)(webconfigurator.*authentication.*error|login.*failed|authentication.*failure|invalid.*login)") ||
-   contains("log.eventType", "sshguard")) &&
+   regexMatch("event.csvMsg", "(?i)(webconfigurator.*authentication.*error|login.*failed|authentication.*failure|invalid.*login)") ||
+   contains("event.eventType", "sshguard")) &&
   exists("origin.ip")
 afterEvents:
   - indexPattern: v11-log-firewall-pfsense-*

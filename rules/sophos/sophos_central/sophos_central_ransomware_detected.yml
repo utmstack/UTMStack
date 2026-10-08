@@ -15,13 +15,13 @@ references:
 description: Sophos reports local or remote ransomware activity. The managed endpoint is the affected target, except
   SMBOrigin, which explicitly identifies the endpoint attempting remote encryption. Remote peer addresses are not
   inferred from the message.
-where: (oneOf("log.type",["Event::Endpoint::HmpaCryptoGuardSMBOrigin","Event::Endpoint::HmpaCryptoGuardSMB","Event::Endpoint::HmpaCryptoGuard"]))
-  && !regexMatch("log.type","(?i)(clean|cleanedup|resolved|dismissed|cancelled|success)$")
+where: (oneOf("event.type",["Event::Endpoint::HmpaCryptoGuardSMBOrigin","Event::Endpoint::HmpaCryptoGuardSMB","Event::Endpoint::HmpaCryptoGuard"]))
+  && !regexMatch("event.type","(?i)(clean|cleanedup|resolved|dismissed|cancelled|success)$")
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.customerId
-- lastEvent.log.endpointId
-- lastEvent.log.type
+- lastEvent.event.customerId
+- lastEvent.event.endpointId
+- lastEvent.event.type
 - target.host
 - target.ip
 - adversary.host

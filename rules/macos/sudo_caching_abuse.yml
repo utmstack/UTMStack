@@ -22,13 +22,13 @@ description: |
   4. Check for sudoers file modifications via visudo or direct editing
   5. Review the user account for unauthorized privilege escalation
 where: |
-  (contains("log.message", "sudoers") &&
-   (contains("log.message", "modified") || contains("log.message", "syntax error") ||
-    contains("log.message", "timestamp_timeout"))) ||
-  (contains("log.message", "sudo") && contains("log.message", "timestamp") &&
-   (contains("log.message", "too far in the future") || contains("log.message", "reset"))) ||
-  (contains("log.message", "/var/db/sudo") &&
-   (contains("log.message", "modified") || contains("log.message", "touch")))
+  (contains("event.message", "sudoers") &&
+   (contains("event.message", "modified") || contains("event.message", "syntax error") ||
+    contains("event.message", "timestamp_timeout"))) ||
+  (contains("event.message", "sudo") && contains("event.message", "timestamp") &&
+   (contains("event.message", "too far in the future") || contains("event.message", "reset"))) ||
+  (contains("event.message", "/var/db/sudo") &&
+   (contains("event.message", "modified") || contains("event.message", "touch")))
 groupBy:
   - adversary.host
   - adversary.user

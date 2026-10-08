@@ -49,8 +49,8 @@ func Clean(alert schema.AlertFields) schema.AlertFields {
 			anonymized = append(anonymized, "lastEvent.target.email")
 		}
 
-		if alert.LastEvent.Log != nil {
-			for key, val := range alert.LastEvent.Log {
+		if alert.LastEvent.Event != nil {
+			for key, val := range alert.LastEvent.Event {
 				switch v := val.Kind.(type) {
 				case *structpb.Value_StringValue:
 					original := v.StringValue
@@ -60,8 +60,8 @@ func Clean(alert schema.AlertFields) schema.AlertFields {
 						cleaned = re.ReplaceAllString(cleaned, pattern.FakeValue)
 					}
 					if cleaned != original {
-						alert.LastEvent.Log[key] = structpb.NewStringValue(cleaned)
-						anonymized = append(anonymized, "lastEvent.log."+key)
+						alert.LastEvent.Event[key] = structpb.NewStringValue(cleaned)
+						anonymized = append(anonymized, "lastEvent.event."+key)
 					}
 				default:
 					continue

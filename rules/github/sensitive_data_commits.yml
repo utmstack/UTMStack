@@ -25,19 +25,19 @@ description: |
   6. Review repository access logs to determine if the exposed data was accessed
   7. Implement pre-commit hooks to prevent future credential commits
 where: |
-  equals("log.action", "push") &&
-  (contains("log.headCommitAdded", ".pem") ||
-   contains("log.headCommitAdded", ".key") ||
-   contains("log.headCommitAdded", ".p12") ||
-   contains("log.headCommitAdded", ".pfx") ||
-   contains("log.headCommitAdded", "id_rsa") ||
-   contains("log.headCommitAdded", "id_dsa") ||
-   contains("log.headCommitModified", ".pem") ||
-   contains("log.headCommitModified", ".key") ||
-   contains("log.headCommitModified", ".p12") ||
-   contains("log.headCommitModified", ".pfx") ||
-   contains("log.headCommitModified", "id_rsa") ||
-   contains("log.headCommitModified", "id_dsa"))
+  equals("event.action", "push") &&
+  (contains("event.headCommitAdded", ".pem") ||
+   contains("event.headCommitAdded", ".key") ||
+   contains("event.headCommitAdded", ".p12") ||
+   contains("event.headCommitAdded", ".pfx") ||
+   contains("event.headCommitAdded", "id_rsa") ||
+   contains("event.headCommitAdded", "id_dsa") ||
+   contains("event.headCommitModified", ".pem") ||
+   contains("event.headCommitModified", ".key") ||
+   contains("event.headCommitModified", ".p12") ||
+   contains("event.headCommitModified", ".pfx") ||
+   contains("event.headCommitModified", "id_rsa") ||
+   contains("event.headCommitModified", "id_dsa"))
 groupBy:
-  - lastEvent.log.headCommitId
-  - lastEvent.log.repositoryName
+  - lastEvent.event.headCommitId
+  - lastEvent.event.repositoryName

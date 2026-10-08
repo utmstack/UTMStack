@@ -22,15 +22,15 @@ description: |
   Requires the "Audit User Account Management" success audit.
 
   Next Steps:
-  1. Confirm who enabled the account (log.eventDataSubjectUserName) and why.
+  1. Confirm who enabled the account (event.eventDataSubjectUserName) and why.
   2. If it was not expected, disable the account again, change its password and review its recent sign-ins.
   3. Check whether a policy, script or management tool keeps enabling it.
 where: |
-  equals("log.eventCode", 4722) &&
-  equals("log.channel", "Security") &&
-  equals("log.providerName", "Microsoft-Windows-Security-Auditing") &&
-  regexMatch("log.eventDataTargetSid", "^S-1-5-21-[0-9]+-[0-9]+-[0-9]+-50[01]$")
+  equals("event.eventCode", 4722) &&
+  equals("event.channel", "Security") &&
+  equals("event.providerName", "Microsoft-Windows-Security-Auditing") &&
+  regexMatch("event.eventDataTargetSid", "^S-1-5-21-[0-9]+-[0-9]+-[0-9]+-50[01]$")
 groupBy:
   - dataSource
-  - lastEvent.log.eventDataSubjectUserSid
-  - lastEvent.log.eventDataTargetSid
+  - lastEvent.event.eventDataSubjectUserSid
+  - lastEvent.event.eventDataTargetSid

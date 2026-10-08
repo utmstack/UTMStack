@@ -23,4 +23,4 @@ export class LocalFieldService {
 
 }
 
-export const INDEX_PATTERN_FIELD = '_fields';
+export const INDEX_PATTERN_FIELD = '_fields_v2';

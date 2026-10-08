@@ -26,9 +26,9 @@ description: |
   6. Search for other hosts that connected to the same PwnDrop server
   7. Check email logs for phishing links pointing to the PwnDrop server
 where: |
-  equals("log.eventType", "http") &&
+  equals("event.eventType", "http") &&
   exists("origin.ip") &&
-  contains("log.http.url", "/pwndrop/")
+  contains("event.http.url", "/pwndrop/")
 groupBy:
   - adversary.ip
   - target.ip

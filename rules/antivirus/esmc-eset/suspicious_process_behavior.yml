@@ -43,13 +43,13 @@ description: |
      - Ensure ESET real-time protection is enabled
      - Consider implementing application whitelisting
 where: |
-  ((oneOf("log.eventType", ["HipsAggregated_Event", "HIPSAggregated_Event"]) && (regexMatch("log.operation", "(?i)(process injection|suspicious (object|behavior)|anomalous process|injecting)") || regexMatch("log.rulename", "(?i)(process injection|suspicious (object|behavior)|anomalous process|injecting)"))) ||
-  (equals("log.eventType", "EnterpriseInspectorAlert_Event") && regexMatch("log.rulename", "(?i)(process injection|suspicious (object|behavior)|anomalous process|injecting)"))) &&
+  ((oneOf("event.eventType", ["HipsAggregated_Event", "HIPSAggregated_Event"]) && (regexMatch("event.operation", "(?i)(process injection|suspicious (object|behavior)|anomalous process|injecting)") || regexMatch("event.rulename", "(?i)(process injection|suspicious (object|behavior)|anomalous process|injecting)"))) ||
+  (equals("event.eventType", "EnterpriseInspectorAlert_Event") && regexMatch("event.rulename", "(?i)(process injection|suspicious (object|behavior)|anomalous process|injecting)"))) &&
   exists("dataSource") && !oneOf("dataSource", ["", "unknown", "-"]) &&
-  oneOf("log.endpointKeyType", ["uuid", "host", "ip"]) &&
-  exists("log.endpointKey") && !equals("log.endpointKey", "")
+  oneOf("event.endpointKeyType", ["uuid", "host", "ip"]) &&
+  exists("event.endpointKey") && !equals("event.endpointKey", "")
 groupBy:
   - lastEvent.dataSource
-  - lastEvent.log.endpointKeyType
-  - lastEvent.log.endpointKey
-  - lastEvent.log.eventType
+  - lastEvent.event.endpointKeyType
+  - lastEvent.event.endpointKey
+  - lastEvent.event.eventType

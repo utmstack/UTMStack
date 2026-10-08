@@ -24,17 +24,17 @@ description: |
   5. Remove unauthorized exit point programs
   6. Restrict ADDEXITPGM authority to security administrators
 where: |
-  exists("log.message") &&
+  exists("event.message") &&
   (
-    contains("log.message", "ADDEXITPGM") ||
-    contains("log.message", "RMVEXITPGM") ||
-    contains("log.message", "CHGEXITPGM") ||
-    (contains("log.message", "exit point") && (
-      contains("log.message", "registered") ||
-      contains("log.message", "added") ||
-      contains("log.message", "changed")
+    contains("event.message", "ADDEXITPGM") ||
+    contains("event.message", "RMVEXITPGM") ||
+    contains("event.message", "CHGEXITPGM") ||
+    (contains("event.message", "exit point") && (
+      contains("event.message", "registered") ||
+      contains("event.message", "added") ||
+      contains("event.message", "changed")
     )) ||
-    (contains("log.message", "WRKREGINF") && contains("log.message", "exit"))
+    (contains("event.message", "WRKREGINF") && contains("event.message", "exit"))
   )
 groupBy:
   - adversary.host

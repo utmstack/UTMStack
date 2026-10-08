@@ -13,13 +13,13 @@ references:
 description: |
   Identifies successful ImportKeyMaterial or DeleteImportedKeyMaterial requests. Verify the key, authorization and dependent resources. These are key-management operations and do not by themselves prove encryption of data or ransomware. Review key lifecycle and recovery plans before taking any containment action.
 where: |
-  equals("log.awsRecordType","cloudtrail") &&
-  (equals("log.eventSource", "kms.amazonaws.com") &&
-  oneOf("log.eventName", ["ImportKeyMaterial", "DeleteImportedKeyMaterial"]) &&
+  equals("event.awsRecordType","cloudtrail") &&
+  (equals("event.eventSource", "kms.amazonaws.com") &&
+  oneOf("event.eventName", ["ImportKeyMaterial", "DeleteImportedKeyMaterial"]) &&
   equals("actionResult","success"))
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
 - adversary.user
-- lastEvent.log.eventName
+- lastEvent.event.eventName

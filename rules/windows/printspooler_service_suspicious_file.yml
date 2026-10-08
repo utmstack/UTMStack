@@ -17,7 +17,7 @@ references:
   - "https://attack.mitre.org/tactics/TA0004/"
   - "https://attack.mitre.org/techniques/T1068/"
 where: |
-  equals("log.eventCode",4688) && contains("log.data.NewProcessName", "spoolsv.exe") && !regexMatch("log.data.NewProcessName", "[Ss]ystem32.spoolsv[.]exe$")
+  equals("event.eventCode",4688) && contains("event.data.NewProcessName", "spoolsv.exe") && !regexMatch("event.data.NewProcessName", "[Ss]ystem32.spoolsv[.]exe$")
 groupBy:
   - dataSource
 deduplicateBy: []

@@ -27,11 +27,11 @@ description: |
   7. Update VMware ESXi to latest security patches
   8. Consider forensic analysis of the VM if compromise is confirmed
 where: |
-  (regexMatch("log.message", "(?i)guest.*(operation|ops)") && regexMatch("log.message", "(?i)(failed|denied|error|unauthorized)")) ||
-  (regexMatch("log.message", "(?i)vmware.*tools") && regexMatch("log.message", "(?i)(exploit|malicious|unauthorized|abnormal)")) ||
-  (regexMatch("log.message", "(?i)(vmdk|vswp)") && regexMatch("log.message", "(?i)(modify|rename|delete)") && !regexMatch("log.process", "(?i)(vmware|esxcli)")) ||
-  (regexMatch("log.message", "(?i)vib.*install") && regexMatch("log.message", "(?i)(malicious|unsigned|failed)")) ||
-  (regexMatch("log.eventInfo", "(?i)(vm.*escape|breakout|containment.*breach)"))
+  (regexMatch("event.message", "(?i)guest.*(operation|ops)") && regexMatch("event.message", "(?i)(failed|denied|error|unauthorized)")) ||
+  (regexMatch("event.message", "(?i)vmware.*tools") && regexMatch("event.message", "(?i)(exploit|malicious|unauthorized|abnormal)")) ||
+  (regexMatch("event.message", "(?i)(vmdk|vswp)") && regexMatch("event.message", "(?i)(modify|rename|delete)") && !regexMatch("event.process", "(?i)(vmware|esxcli)")) ||
+  (regexMatch("event.message", "(?i)vib.*install") && regexMatch("event.message", "(?i)(malicious|unsigned|failed)")) ||
+  (regexMatch("event.eventInfo", "(?i)(vm.*escape|breakout|containment.*breach)"))
 deduplicateBy:
   - dataSource
-  - lastEvent.log.process
+  - lastEvent.event.process

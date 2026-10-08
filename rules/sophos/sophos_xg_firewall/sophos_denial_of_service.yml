@@ -17,9 +17,9 @@ description: A Denial of Service (DoS) attack is an attempt to make a machine or
   the intended users. One common method of attack involves saturating the target machine with external communications
   requests so that it cannot respond to legitimate traffic or the machine responds so slowly that it is essentially
   useless.
-where: equals("log.type","Firewall") && equalsIgnoreCase("log.component","DoS attacks") && equalsIgnoreCase("log.subType","DoS")
+where: equals("event.type","Firewall") && equalsIgnoreCase("event.component","DoS attacks") && equalsIgnoreCase("event.subType","DoS")
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.sophosScope
+- lastEvent.event.sophosScope
 - adversary.ip
 - target.ip

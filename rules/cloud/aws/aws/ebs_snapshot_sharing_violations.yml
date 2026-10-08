@@ -15,19 +15,19 @@ references:
 description: |
   Detects a successful addition of EBS snapshot volume-creation permissions. Check whether the destination accounts or public group are authorized. Removing permissions does not match, and a sharing change alone does not establish a policy violation.
 where: |
-  equals("log.awsRecordType","cloudtrail") &&
-  (equals("log.eventSource","ec2.amazonaws.com") &&
-  oneOf("log.eventName",["ModifySnapshotAttribute"]) &&
+  equals("event.awsRecordType","cloudtrail") &&
+  (equals("event.eventSource","ec2.amazonaws.com") &&
+  oneOf("event.eventName",["ModifySnapshotAttribute"]) &&
   equals("actionResult","success") &&
-  (greaterThan("log.requestParameters.createVolumePermission.add.items.#",0) ||
-  greaterThan("log.requestParameters.createVolumePermission.add.#",0) ||
-  (equals("log.requestParameters.attribute","createVolumePermission") &&
-  equals("log.requestParameters.operationType","add") &&
-  (greaterThan("log.requestParameters.userIds.#",0) ||
-  greaterThan("log.requestParameters.userGroups.#",0)))))
+  (greaterThan("event.requestParameters.createVolumePermission.add.items.#",0) ||
+  greaterThan("event.requestParameters.createVolumePermission.add.#",0) ||
+  (equals("event.requestParameters.attribute","createVolumePermission") &&
+  equals("event.requestParameters.operationType","add") &&
+  (greaterThan("event.requestParameters.userIds.#",0) ||
+  greaterThan("event.requestParameters.userGroups.#",0)))))
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
-- lastEvent.log.requestParameters.snapshotId
-- lastEvent.log.userIdentity.accountId
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
+- lastEvent.event.requestParameters.snapshotId
+- lastEvent.event.userIdentity.accountId

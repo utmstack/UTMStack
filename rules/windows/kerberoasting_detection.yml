@@ -32,29 +32,29 @@ description: |
   8. Monitor for follow-up lateral movement using obtained credentials
 where: |
   !oneOf("dataSource", ["", "unknown"]) &&
-  exists("log.authenticationSource") &&
-  equals("log.eventCode", "4769") &&
-  equals("log.channel", "Security") &&
-  equals("log.eventDataTicketEncryptionType", "23") &&
-  !regexMatch("log.eventDataServiceName", "(?i)\\$$") &&
-  !equals("log.eventDataServiceName", "krbtgt") &&
-  !oneOf("log.eventDataTicketOptions", ["1082195968", "1082130432"]) &&
-  exists("log.eventDataServiceName")
+  exists("event.authenticationSource") &&
+  equals("event.eventCode", "4769") &&
+  equals("event.channel", "Security") &&
+  equals("event.eventDataTicketEncryptionType", "23") &&
+  !regexMatch("event.eventDataServiceName", "(?i)\\$$") &&
+  !equals("event.eventDataServiceName", "krbtgt") &&
+  !oneOf("event.eventDataTicketOptions", ["1082195968", "1082130432"]) &&
+  exists("event.eventDataServiceName")
 afterEvents:
   - indexPattern: v11-log-wineventlog-*
     with:
       - field: dataSource.keyword
         operator: filter_term
         value: '{{.dataSource}}'
-      - field: log.authenticationSource.keyword
+      - field: event.authenticationSource.keyword
         operator: filter_term
-        value: '{{.log.authenticationSource}}'
-      - field: log.authenticationCandidate.kerberoastingDetection.keyword
+        value: '{{.event.authenticationSource}}'
+      - field: event.authenticationCandidate.kerberoastingDetection.keyword
         operator: filter_term
         value: match
     within: 15m
     count: 3
 groupBy:
   - dataSource
-  - lastEvent.log.authenticationSource
+  - lastEvent.event.authenticationSource
   - target.user

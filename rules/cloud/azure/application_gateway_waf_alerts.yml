@@ -34,16 +34,16 @@ description: 'Detects Web Application Firewall alerts from Azure Application Gat
   7. Review application logs for any successful bypass attempts
 
   '
-where: '(equalsIgnoreCase("log.azureKind","waf") && equalsIgnoreCase("actionResult","denied") && exists("log.properties.ruleId"))
-  && exists("dataSource") && !equals("dataSource","") && exists("log.azureScopeType") && !equals("log.azureScopeType","") && exists("log.azureScope")
-  && !equals("log.azureScope","") && exists("origin.ip") && !equals("origin.ip","")
+where: '(equalsIgnoreCase("event.azureKind","waf") && equalsIgnoreCase("actionResult","denied") && exists("event.properties.ruleId"))
+  && exists("dataSource") && !equals("dataSource","") && exists("event.azureScopeType") && !equals("event.azureScopeType","") && exists("event.azureScope")
+  && !equals("event.azureScope","") && exists("origin.ip") && !equals("origin.ip","")
 
   '
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.azureScopeType
-- lastEvent.log.azureScope
-- lastEvent.log.azureOperation
+- lastEvent.event.azureScopeType
+- lastEvent.event.azureScope
+- lastEvent.event.azureOperation
 - adversary.user
 - adversary.ip
 correlation:
@@ -52,16 +52,16 @@ correlation:
   - field: dataSource
     operator: filter_term
     value: '{{.dataSource}}'
-  - field: log.azureScopeType
+  - field: event.azureScopeType
     operator: filter_term
-    value: '{{.log.azureScopeType}}'
-  - field: log.azureScope
+    value: '{{.event.azureScopeType}}'
+  - field: event.azureScope
     operator: filter_term
-    value: '{{.log.azureScope}}'
+    value: '{{.event.azureScope}}'
   - field: origin.ip
     operator: filter_term
     value: '{{.origin.ip}}'
-  - field: log.correlationCandidate.applicationGatewayWafAlerts
+  - field: event.correlationCandidate.applicationGatewayWafAlerts
     operator: filter_term
     value: 'true'
   within: 10m

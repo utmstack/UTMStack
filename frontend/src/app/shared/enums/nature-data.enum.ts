@@ -5,7 +5,7 @@ export enum NatureDataPrefixEnum {
   VULNERABILITY = 'vulnerability.',
   TIMESTAMP = '@timestamp',
   ALERT = 'alert.',
-  EVENT = 'logx.'
+  EVENT = 'event.'
 }
 
 export enum DataNatureTypeEnum {

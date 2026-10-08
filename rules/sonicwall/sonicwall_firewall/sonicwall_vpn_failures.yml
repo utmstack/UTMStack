@@ -26,12 +26,12 @@ description: |
      malicious sources at the perimeter.
 where: |
   (
-    oneOf("log.eventCode", ["548", "549", "550"]) ||
+    oneOf("event.eventCode", ["548", "549", "550"]) ||
     (
-      contains("log.message", ["VPN", "SSL VPN", "SSL-VPN", "NetExtender"]) &&
-      contains("log.message", ["failed", "fail", "denied", "invalid", "rejected"])
+      contains("event.message", ["VPN", "SSL VPN", "SSL-VPN", "NetExtender"]) &&
+      contains("event.message", ["failed", "fail", "denied", "invalid", "rejected"])
     ) ||
-    (equals("log.groupCategory", "SSL VPN") && contains("log.message", ["failed", "denied", "rejected"]))
+    (equals("event.groupCategory", "SSL VPN") && contains("event.message", ["failed", "denied", "rejected"]))
   ) && exists("origin.ip")
 afterEvents:
   - indexPattern: v11-log-firewall-sonicwall-*

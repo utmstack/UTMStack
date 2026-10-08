@@ -24,15 +24,15 @@ description: |
   6. Check if MFA Delete was configured on the bucket
   7. Review S3 bucket lifecycle policies for any recent changes
 where: |
-  equals("log.awsRecordType","cloudtrail") &&
-  (equals("log.eventSource","s3.amazonaws.com") &&
-  oneOf("log.eventName",["PutBucketVersioning"]) &&
+  equals("event.awsRecordType","cloudtrail") &&
+  (equals("event.eventSource","s3.amazonaws.com") &&
+  oneOf("event.eventName",["PutBucketVersioning"]) &&
   equals("actionResult","success") &&
-  (equals("log.requestParameters.VersioningConfiguration.Status","Suspended") ||
-  equals("log.requestParameters.versioningConfiguration.status","Suspended")))
+  (equals("event.requestParameters.VersioningConfiguration.Status","Suspended") ||
+  equals("event.requestParameters.versioningConfiguration.status","Suspended")))
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
 - adversary.user
-- lastEvent.log.requestParameters.bucketName
+- lastEvent.event.requestParameters.bucketName

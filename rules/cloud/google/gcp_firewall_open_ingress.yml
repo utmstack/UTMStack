@@ -25,6 +25,6 @@ description: |
   5. If unauthorized, delete the rule and investigate the user's session
   6. Review Cloud Audit logs for other firewall changes in the same time window
 where: |
-  equals("log.protoPayloadServiceName", "compute.googleapis.com") &&
-  equals("log.protoPayloadMethodName", "v1.compute.firewalls.insert") &&
+  equals("event.protoPayloadServiceName", "compute.googleapis.com") &&
+  equals("event.protoPayloadMethodName", "v1.compute.firewalls.insert") &&
   exists("origin.user")

@@ -17,17 +17,17 @@ description: |
 
   Next Steps:
   1. Immediately isolate the affected system from the network to prevent lateral movement
-  2. Identify the malware name/signature from log.cs1, log.cs2, or log.cs4 fields
+  2. Identify the malware name/signature from event.cs1, event.cs2, or event.cs4 fields
   3. Check if Kaspersky successfully quarantined or removed the threat
   4. Scan other systems in the same network segment for similar infections
   5. Review recent user activity and email attachments that could be the infection vector
   6. Collect and preserve forensic artifacts if needed for incident response
   7. Update antivirus signatures and run a full system scan
   8. Consider reimaging the system if the infection is severe or persistent
-where: "equals(\"log.format\",\"cef\") && ((greaterOrEqual(\"log.cefDeviceSeverity\", \"7\") || \n equalsIgnoreCase(\"log.cefDeviceSeverity\"\
-  , \"High\") ||\n equalsIgnoreCase(\"log.cefDeviceSeverity\", \"Very-High\")) &&\n(contains(\"log.cs1\", [\"INFECTED\", \"MALWARE\"\
-  , \"TROJAN\"]) ||\n contains(\"log.cs2\", [\"Trojan\", \"HEUR:\", \"PDM:\", \"UDS:\"]) ||\n contains(\"log.cs4\", [\"Trojan\", \"\
-  HEUR:\", \"PDM:\", \"UDS:\"]) ||\n contains(\"log.msg\", [\"infected\", \"malicious\", \"dangerous\"])))\n"
+where: "equals(\"event.format\",\"cef\") && ((greaterOrEqual(\"event.cefDeviceSeverity\", \"7\") || \n equalsIgnoreCase(\"event.cefDeviceSeverity\"\
+  , \"High\") ||\n equalsIgnoreCase(\"event.cefDeviceSeverity\", \"Very-High\")) &&\n(contains(\"event.cs1\", [\"INFECTED\", \"MALWARE\"\
+  , \"TROJAN\"]) ||\n contains(\"event.cs2\", [\"Trojan\", \"HEUR:\", \"PDM:\", \"UDS:\"]) ||\n contains(\"event.cs4\", [\"Trojan\", \"\
+  HEUR:\", \"PDM:\", \"UDS:\"]) ||\n contains(\"event.msg\", [\"infected\", \"malicious\", \"dangerous\"])))\n"
 groupBy:
 - adversary.host
-- lastEvent.log.signatureID
+- lastEvent.event.signatureID

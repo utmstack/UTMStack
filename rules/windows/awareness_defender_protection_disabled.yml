@@ -23,8 +23,8 @@ description: |
   1. Confirm whether another approved antivirus product is installed or an administrator switched protection off on purpose.
   2. If not, turn protection back on, find what switched it off, and scan the computer.
 where: |
-  oneOf("log.eventCode", [5001, 5010, 5012]) &&
-  equals("log.channel", "Microsoft-Windows-Windows Defender/Operational") &&
-  equals("log.providerName", "Microsoft-Windows-Windows Defender")
+  oneOf("event.eventCode", [5001, 5010, 5012]) &&
+  equals("event.channel", "Microsoft-Windows-Windows Defender/Operational") &&
+  equals("event.providerName", "Microsoft-Windows-Windows Defender")
 groupBy:
   - dataSource

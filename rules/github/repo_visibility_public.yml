@@ -26,11 +26,11 @@ description: |
   7. Review the repository's commit history for sensitive data
   8. Implement organization policy to prevent public repository creation
 where: |
-  (equals("log.action", "repo.access") ||
-   equals("log.action", "repo.visibility_change") ||
-   equals("log.action", "repo.update")) &&
-  equals("log.visibility", "public") &&
-  exists("log.senderLogin")
+  (equals("event.action", "repo.access") ||
+   equals("event.action", "repo.visibility_change") ||
+   equals("event.action", "repo.update")) &&
+  equals("event.visibility", "public") &&
+  exists("event.senderLogin")
 groupBy:
-  - lastEvent.log.repositoryName
-  - lastEvent.log.senderLogin
+  - lastEvent.event.repositoryName
+  - lastEvent.event.senderLogin

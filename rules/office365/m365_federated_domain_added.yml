@@ -26,7 +26,7 @@ description: |
   7. Audit all changes to tenant federation settings
 where: |
   oneOf("action", ["Set domain authentication", "Add unverified domain", "Verify domain"]) &&
-  (contains("log.Parameters", "Federated") || contains("log.Parameters", "federation")) &&
+  (contains("event.Parameters", "Federated") || contains("event.Parameters", "federation")) &&
   exists("origin.user")
 groupBy:
   - adversary.user

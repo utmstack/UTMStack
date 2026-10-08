@@ -25,6 +25,6 @@ description: |
   5. Review other compute firewall changes in the same time window
   6. Check if the user's account shows signs of compromise
 where: |
-  equals("log.protoPayloadServiceName", "compute.googleapis.com") &&
-  equals("log.protoPayloadMethodName", "v1.compute.firewalls.delete") &&
+  equals("event.protoPayloadServiceName", "compute.googleapis.com") &&
+  equals("event.protoPayloadMethodName", "v1.compute.firewalls.delete") &&
   exists("origin.user")

@@ -25,11 +25,11 @@ description: |
   6. Review user account activity for signs of compromise or privilege escalation
   7. Consider reimaging the system if fileless malware is confirmed
 where: |
-  equals("log.format","cef") && ((equals("log.signatureID", "3") || equals("log.cs1", "DETECT")) &&
-  (regexMatch("log.msg", "(?i).*(rundll32|regsvr32|mshta|certutil|bitsadmin|powershell|wmic|cscript|wscript|msiexec|installutil|regasm|regsvcs).*") ||
-   contains("log.cs4", ["fileless", "LOLBin", "LOLBas"])) &&
-  (contains("log.msg", ["download", "execute", "bypass", "encoded", "obfuscat", "hidden", "malicious"]) ||
+  equals("event.format","cef") && ((equals("event.signatureID", "3") || equals("event.cs1", "DETECT")) &&
+  (regexMatch("event.msg", "(?i).*(rundll32|regsvr32|mshta|certutil|bitsadmin|powershell|wmic|cscript|wscript|msiexec|installutil|regasm|regsvcs).*") ||
+   contains("event.cs4", ["fileless", "LOLBin", "LOLBas"])) &&
+  (contains("event.msg", ["download", "execute", "bypass", "encoded", "obfuscat", "hidden", "malicious"]) ||
    oneOf("actionResult",["denied","failed"])))
 groupBy:
-- lastEvent.log.cs4
+- lastEvent.event.cs4
 - adversary.host

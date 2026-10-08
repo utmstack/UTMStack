@@ -26,10 +26,10 @@ description: |
   7. Consider implementing VLAN ACLs or private VLANs for additional protection
   8. Document the incident and update switch hardening procedures
 where: |
-  (equals("log.facility", "SW_VLAN") && oneOf("log.facilityMnemonic", ["VLAN_INCONSISTENCY", "MACFLAP_NOTIF", "TRUNK_MODE_CHANGE"]))
-  || (equals("log.facility", "DTP") && oneOf("log.facilityMnemonic", ["NONTRUNKPORTON", "DOMAINMISMATCH", "TRUNKPORTON"]))
-  || regexMatch("log.message", "(?i)(received 802.1Q BPDU on non trunk|native vlan mismatch|inconsistent vlan|double tag)")
-  || (lessOrEqual("log.severity", 4) && regexMatch("log.message", "(?i)(vlan.*tag.*tag|switch.*spoofing|dtp.*negotiation)"))
+  (equals("event.facility", "SW_VLAN") && oneOf("event.facilityMnemonic", ["VLAN_INCONSISTENCY", "MACFLAP_NOTIF", "TRUNK_MODE_CHANGE"]))
+  || (equals("event.facility", "DTP") && oneOf("event.facilityMnemonic", ["NONTRUNKPORTON", "DOMAINMISMATCH", "TRUNKPORTON"]))
+  || regexMatch("event.message", "(?i)(received 802.1Q BPDU on non trunk|native vlan mismatch|inconsistent vlan|double tag)")
+  || (lessOrEqual("event.severity", 4) && regexMatch("event.message", "(?i)(vlan.*tag.*tag|switch.*spoofing|dtp.*negotiation)"))
 groupBy:
   - adversary.ip
   - adversary.mac

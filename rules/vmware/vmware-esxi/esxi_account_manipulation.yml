@@ -24,19 +24,19 @@ description: |
   5. Reset passwords for compromised accounts
   6. Implement centralized authentication (Active Directory integration)
 where: |
-  exists("log.message") &&
+  exists("event.message") &&
   (
-    (contains("log.message", "vim-cmd vimsvc/auth/") && (
-      contains("log.message", "entity_permission_add") ||
-      contains("log.message", "entity_permission_update")
+    (contains("event.message", "vim-cmd vimsvc/auth/") && (
+      contains("event.message", "entity_permission_add") ||
+      contains("event.message", "entity_permission_update")
     )) ||
-    (contains("log.message", "useradd") || contains("log.message", "usermod") || contains("log.message", "userdel")) ||
-    (contains("log.message", "esxcli system account") && (
-      contains("log.message", "add") ||
-      contains("log.message", "set")
+    (contains("event.message", "useradd") || contains("event.message", "usermod") || contains("event.message", "userdel")) ||
+    (contains("event.message", "esxcli system account") && (
+      contains("event.message", "add") ||
+      contains("event.message", "set")
     )) ||
-    (contains("log.message", "permission") && contains("log.message", "Admin") && (
-      contains("log.message", "added") || contains("log.message", "granted")
+    (contains("event.message", "permission") && contains("event.message", "Admin") && (
+      contains("event.message", "added") || contains("event.message", "granted")
     ))
   )
 groupBy:

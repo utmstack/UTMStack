@@ -25,14 +25,14 @@ description: |
   6. Block unauthorized CEF sources at the network level
 where: |
   exists("origin.ip") &&
-  exists("log.deviceVendor") &&
-  exists("log.deviceProduct") &&
+  exists("event.deviceVendor") &&
+  exists("event.deviceProduct") &&
   (
-    (regexMatch("log.deviceVendor", "(?i)^(unknown|test|debug|hack|admin|null)$")) ||
-    (contains("log.deviceVendor", "<") || contains("log.deviceVendor", ">") || contains("log.deviceVendor", ";")) ||
-    (contains("log.deviceProduct", "<") || contains("log.deviceProduct", ">") || contains("log.deviceProduct", ";")) ||
-    (regexMatch("log.deviceVendor", ".*[|\\n\\r].*")) ||
-    (regexMatch("log.deviceProduct", ".*[|\\n\\r].*"))
+    (regexMatch("event.deviceVendor", "(?i)^(unknown|test|debug|hack|admin|null)$")) ||
+    (contains("event.deviceVendor", "<") || contains("event.deviceVendor", ">") || contains("event.deviceVendor", ";")) ||
+    (contains("event.deviceProduct", "<") || contains("event.deviceProduct", ">") || contains("event.deviceProduct", ";")) ||
+    (regexMatch("event.deviceVendor", ".*[|\\n\\r].*")) ||
+    (regexMatch("event.deviceProduct", ".*[|\\n\\r].*"))
   )
 afterEvents:
   - indexPattern: v11-log-syslog-*
@@ -43,5 +43,5 @@ afterEvents:
     within: 15m
     count: 5
 groupBy:
-  - lastEvent.log.deviceVendor
+  - lastEvent.event.deviceVendor
   - adversary.ip

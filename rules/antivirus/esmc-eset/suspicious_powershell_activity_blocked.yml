@@ -25,13 +25,13 @@ description: |
   6. Consider isolating the affected system if malicious intent is confirmed
   7. Review and update PowerShell execution policies if needed
 where: |
-  ((oneOf("log.eventType", ["HipsAggregated_Event", "HIPSAggregated_Event"]) || equals("log.eventType", "Threat_Event")) &&
+  ((oneOf("event.eventType", ["HipsAggregated_Event", "HIPSAggregated_Event"]) || equals("event.eventType", "Threat_Event")) &&
   equals("actionResult", "denied") && regexMatch("origin.process", "(?i)^(powershell|pwsh)([.]exe)?$")) &&
   exists("dataSource") && !oneOf("dataSource", ["", "unknown", "-"]) &&
-  oneOf("log.endpointKeyType", ["uuid", "host", "ip"]) &&
-  exists("log.endpointKey") && !equals("log.endpointKey", "")
+  oneOf("event.endpointKeyType", ["uuid", "host", "ip"]) &&
+  exists("event.endpointKey") && !equals("event.endpointKey", "")
 groupBy:
   - lastEvent.dataSource
-  - lastEvent.log.endpointKeyType
-  - lastEvent.log.endpointKey
+  - lastEvent.event.endpointKeyType
+  - lastEvent.event.endpointKey
   - adversary.process

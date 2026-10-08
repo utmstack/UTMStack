@@ -159,7 +159,7 @@
       "dataSource",
       "adversary.ip",
       "target.ip",
-      "lastEvent.log.alert.signature_id"
+      "lastEvent.event.alert.signature_id"
     ]
   },
   {
@@ -177,7 +177,7 @@
       "dataSource",
       "adversary.ip",
       "target.ip",
-      "lastEvent.log.alert.signature_id"
+      "lastEvent.event.alert.signature_id"
     ]
   },
   {
@@ -195,7 +195,7 @@
       "dataSource",
       "adversary.ip",
       "target.ip",
-      "lastEvent.log.alert.signature_id"
+      "lastEvent.event.alert.signature_id"
     ]
   },
   {
@@ -207,7 +207,7 @@
       "dataSource",
       "adversary.ip",
       "target.ip",
-      "lastEvent.log.alert.signature_id"
+      "lastEvent.event.alert.signature_id"
     ]
   },
   {

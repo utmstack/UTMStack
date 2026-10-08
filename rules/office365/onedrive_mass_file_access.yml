@@ -28,7 +28,7 @@ description: |
   9. Correlate with other security events from the same user or IP address
   10. Document findings and escalate to incident response team if malicious activity is confirmed
 where: |
-  oneOf("action", ["FileAccessed", "FileAccessedExtended", "FilePreviewed"]) && exists("origin.user") && equals("log.Workload", "OneDrive")
+  oneOf("action", ["FileAccessed", "FileAccessedExtended", "FilePreviewed"]) && exists("origin.user") && equals("event.Workload", "OneDrive")
 afterEvents:
   - indexPattern: v11-log-o365-*
     with:
@@ -38,7 +38,7 @@ afterEvents:
       - field: action
         operator: filter_term
         value: 'FileAccessed'
-      - field: log.Workload
+      - field: event.Workload
         operator: filter_term
         value: 'OneDrive'
     within: 1h
@@ -52,7 +52,7 @@ afterEvents:
           - field: action
             operator: filter_term
             value: 'FileAccessedExtended'
-          - field: log.Workload
+          - field: event.Workload
             operator: filter_term
             value: 'OneDrive'
         within: 1h
@@ -65,7 +65,7 @@ afterEvents:
           - field: action
             operator: filter_term
             value: 'FilePreviewed'
-          - field: log.Workload
+          - field: event.Workload
             operator: filter_term
             value: 'OneDrive'
         within: 1h

@@ -32,36 +32,36 @@ description: 'Detects critical alerts from Sophos Managed Threat Response (MTR) 
   6. Document the incident and response actions taken
 
   '
-where: '(oneOf("log.type", ["mtr_alert", "threat_detection"]) &&
+where: '(oneOf("event.type", ["mtr_alert", "threat_detection"]) &&
 
-  oneOf("log.severity", ["critical", "high"])) && !regexMatch("log.type","(?i)(clean|cleanedup|resolved|dismissed|cancelled|success)$")
-  && (regexMatch("log.endpointId","[^[:space:]]") && !oneOf("log.endpointId",["-","n/a","N/A","unknown"])) && (regexMatch("dataSource","[^[:space:]]")
-  && !oneOf("dataSource",["-","n/a","N/A","unknown"])) && (regexMatch("log.sophosCentralScope","[^[:space:]]") &&
-  !oneOf("log.sophosCentralScope",["-","n/a","N/A","unknown"]))'
+  oneOf("event.severity", ["critical", "high"])) && !regexMatch("event.type","(?i)(clean|cleanedup|resolved|dismissed|cancelled|success)$")
+  && (regexMatch("event.endpointId","[^[:space:]]") && !oneOf("event.endpointId",["-","n/a","N/A","unknown"])) && (regexMatch("dataSource","[^[:space:]]")
+  && !oneOf("dataSource",["-","n/a","N/A","unknown"])) && (regexMatch("event.sophosCentralScope","[^[:space:]]") &&
+  !oneOf("event.sophosCentralScope",["-","n/a","N/A","unknown"]))'
 afterEvents:
 - indexPattern: v11-log-sophos-central-*
   with:
   - field: dataSource
     operator: filter_term
     value: '{{.dataSource}}'
-  - field: log.sophosCentralScope
+  - field: event.sophosCentralScope
     operator: filter_term
-    value: '{{.log.sophosCentralScope}}'
-  - field: log.endpointId
+    value: '{{.event.sophosCentralScope}}'
+  - field: event.endpointId
     operator: filter_term
-    value: '{{.log.endpointId}}'
-  - field: log.correlationCandidate.sophosCentral.mtr
+    value: '{{.event.endpointId}}'
+  - field: event.correlationCandidate.sophosCentral.mtr
     operator: filter_term
     value: match
-  - field: log.severity
+  - field: event.severity
     operator: filter_term
     value: critical
   within: 1h
   count: 3
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.customerId
-- lastEvent.log.endpointId
-- lastEvent.log.type
+- lastEvent.event.customerId
+- lastEvent.event.endpointId
+- lastEvent.event.type
 - target.host
 - target.ip

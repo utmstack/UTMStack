@@ -4,8 +4,8 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"backup.amazonaws.com\",\"eventName\":\"DeleteBackupVault\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {},
-      "log.eventName": "DeleteBackupVault",
+      "event.requestParameters": {},
+      "event.eventName": "DeleteBackupVault",
       "action": "DeleteBackupVault",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -33,8 +33,8 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"config.amazonaws.com\",\"eventName\":\"StopConfigurationRecorder\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {},
-      "log.eventName": "StopConfigurationRecorder",
+      "event.requestParameters": {},
+      "event.eventName": "StopConfigurationRecorder",
       "action": "StopConfigurationRecorder",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -62,8 +62,8 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"config.amazonaws.com\",\"eventName\":\"DeleteConfigRule\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {},
-      "log.eventName": "DeleteConfigRule",
+      "event.requestParameters": {},
+      "event.eventName": "DeleteConfigRule",
       "action": "DeleteConfigRule",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -93,10 +93,10 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"ec2.amazonaws.com\",\"eventName\":\"ModifyInstanceAttribute\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{\"userData\":\"BASE64\"},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {
+      "event.requestParameters": {
         "userData": "BASE64"
       },
-      "log.eventName": "ModifyInstanceAttribute",
+      "event.eventName": "ModifyInstanceAttribute",
       "action": "ModifyInstanceAttribute",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -123,8 +123,8 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"glue.amazonaws.com\",\"eventName\":\"CreateDevEndpoint\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {},
-      "log.eventName": "CreateDevEndpoint",
+      "event.requestParameters": {},
+      "event.eventName": "CreateDevEndpoint",
       "action": "CreateDevEndpoint",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -151,10 +151,10 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"sts.amazonaws.com\",\"eventName\":\"AssumeRoleWithSAML\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{\"roleArn\":\"arn:aws:iam::123456789012:role/demo\"},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {
+      "event.requestParameters": {
         "roleArn": "arn:aws:iam::123456789012:role/demo"
       },
-      "log.eventName": "AssumeRoleWithSAML",
+      "event.eventName": "AssumeRoleWithSAML",
       "action": "AssumeRoleWithSAML",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -181,10 +181,10 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"iam.amazonaws.com\",\"eventName\":\"UpdateLoginProfile\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{\"userName\":\"test-user\"},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {
+      "event.requestParameters": {
         "userName": "test-user"
       },
-      "log.eventName": "UpdateLoginProfile",
+      "event.eventName": "UpdateLoginProfile",
       "action": "UpdateLoginProfile",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -211,8 +211,8 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"kms.amazonaws.com\",\"eventName\":\"ImportKeyMaterial\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {},
-      "log.eventName": "ImportKeyMaterial",
+      "event.requestParameters": {},
+      "event.eventName": "ImportKeyMaterial",
       "action": "ImportKeyMaterial",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -239,10 +239,10 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"rds.amazonaws.com\",\"eventName\":\"RestoreDBInstanceFromDBSnapshot\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{\"publiclyAccessible\":true},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {
+      "event.requestParameters": {
         "publiclyAccessible": true
       },
-      "log.eventName": "RestoreDBInstanceFromDBSnapshot",
+      "event.eventName": "RestoreDBInstanceFromDBSnapshot",
       "action": "RestoreDBInstanceFromDBSnapshot",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -269,12 +269,12 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"s3.amazonaws.com\",\"eventName\":\"PutBucketVersioning\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{\"VersioningConfiguration\":{\"Status\":\"Suspended\"}},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {
+      "event.requestParameters": {
         "VersioningConfiguration": {
           "Status": "Suspended"
         }
       },
-      "log.eventName": "PutBucketVersioning",
+      "event.eventName": "PutBucketVersioning",
       "action": "PutBucketVersioning",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -301,8 +301,8 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"securityhub.amazonaws.com\",\"eventName\":\"BatchUpdateFindings\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {},
-      "log.eventName": "BatchUpdateFindings",
+      "event.requestParameters": {},
+      "event.eventName": "BatchUpdateFindings",
       "action": "BatchUpdateFindings",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -329,7 +329,7 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"ec2.amazonaws.com\",\"eventName\":\"ModifySnapshotAttribute\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{\"snapshotId\":\"snap-test\",\"createVolumePermission\":{\"add\":{\"items\":[{\"group\":\"all\"}]}}},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {
+      "event.requestParameters": {
         "snapshotId": "snap-test",
         "createVolumePermission": {
           "add": {
@@ -341,7 +341,7 @@
           }
         }
       },
-      "log.eventName": "ModifySnapshotAttribute",
+      "event.eventName": "ModifySnapshotAttribute",
       "action": "ModifySnapshotAttribute",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -372,10 +372,10 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"ssm.amazonaws.com\",\"eventName\":\"SendCommand\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{\"documentName\":\"AWS-RunShellScript\"},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {
+      "event.requestParameters": {
         "documentName": "AWS-RunShellScript"
       },
-      "log.eventName": "SendCommand",
+      "event.eventName": "SendCommand",
       "action": "SendCommand",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -404,8 +404,8 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"sso.amazonaws.com\",\"eventName\":\"AssociateDirectory\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {},
-      "log.eventName": "AssociateDirectory",
+      "event.requestParameters": {},
+      "event.eventName": "AssociateDirectory",
       "action": "AssociateDirectory",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -432,8 +432,8 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"sso.amazonaws.com\",\"eventName\":\"CreatePermissionSet\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {},
-      "log.eventName": "CreatePermissionSet",
+      "event.requestParameters": {},
+      "event.eventName": "CreatePermissionSet",
       "action": "CreatePermissionSet",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -460,8 +460,8 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"cloudformation.amazonaws.com\",\"eventName\":\"DeleteStack\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {},
-      "log.eventName": "DeleteStack",
+      "event.requestParameters": {},
+      "event.eventName": "DeleteStack",
       "action": "DeleteStack",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -489,8 +489,8 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"cloudtrail.amazonaws.com\",\"eventName\":\"PutEventSelectors\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {},
-      "log.eventName": "PutEventSelectors",
+      "event.requestParameters": {},
+      "event.eventName": "PutEventSelectors",
       "action": "PutEventSelectors",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -517,8 +517,8 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"cloudtrail.amazonaws.com\",\"eventName\":\"StopLogging\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {},
-      "log.eventName": "StopLogging",
+      "event.requestParameters": {},
+      "event.eventName": "StopLogging",
       "action": "StopLogging",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -546,8 +546,8 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"cloudtrail.amazonaws.com\",\"eventName\":\"DeleteTrail\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {},
-      "log.eventName": "DeleteTrail",
+      "event.requestParameters": {},
+      "event.eventName": "DeleteTrail",
       "action": "DeleteTrail",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -576,10 +576,10 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"ec2.amazonaws.com\",\"eventName\":\"RunInstances\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{\"instanceType\":\"p3.2xlarge\"},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {
+      "event.requestParameters": {
         "instanceType": "p3.2xlarge"
       },
-      "log.eventName": "RunInstances",
+      "event.eventName": "RunInstances",
       "action": "RunInstances",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -606,10 +606,10 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"ec2.amazonaws.com\",\"eventName\":\"ModifyInstanceMetadataOptions\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{\"httpTokens\":\"optional\"},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {
+      "event.requestParameters": {
         "httpTokens": "optional"
       },
-      "log.eventName": "ModifyInstanceMetadataOptions",
+      "event.eventName": "ModifyInstanceMetadataOptions",
       "action": "ModifyInstanceMetadataOptions",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -636,14 +636,14 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"ecs.amazonaws.com\",\"eventName\":\"RegisterTaskDefinition\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{\"containerDefinitions\":[{\"privileged\":true}]},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {
+      "event.requestParameters": {
         "containerDefinitions": [
           {
             "privileged": true
           }
         ]
       },
-      "log.eventName": "RegisterTaskDefinition",
+      "event.eventName": "RegisterTaskDefinition",
       "action": "RegisterTaskDefinition",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -670,8 +670,8 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"iam.amazonaws.com\",\"eventName\":\"CreateUser\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {},
-      "log.eventName": "CreateUser",
+      "event.requestParameters": {},
+      "event.eventName": "CreateUser",
       "action": "CreateUser",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -698,8 +698,8 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"iam.amazonaws.com\",\"eventName\":\"AddUserToGroup\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {},
-      "log.eventName": "AddUserToGroup",
+      "event.requestParameters": {},
+      "event.eventName": "AddUserToGroup",
       "action": "AddUserToGroup",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -726,11 +726,11 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"iam.amazonaws.com\",\"eventName\":\"AttachRolePolicy\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{\"roleName\":\"review-role\",\"policyArn\":\"arn:aws:iam::aws:policy/AdministratorAccess\"},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {
+      "event.requestParameters": {
         "roleName": "review-role",
         "policyArn": "arn:aws:iam::aws:policy/AdministratorAccess"
       },
-      "log.eventName": "AttachRolePolicy",
+      "event.eventName": "AttachRolePolicy",
       "action": "AttachRolePolicy",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -758,10 +758,10 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"lambda.amazonaws.com\",\"eventName\":\"CreateFunctionUrlConfig\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{\"authType\":\"NONE\"},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {
+      "event.requestParameters": {
         "authType": "NONE"
       },
-      "log.eventName": "CreateFunctionUrlConfig",
+      "event.eventName": "CreateFunctionUrlConfig",
       "action": "CreateFunctionUrlConfig",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -788,10 +788,10 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"rds.amazonaws.com\",\"eventName\":\"AuthorizeDBSecurityGroupIngress\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{\"cidrip\":\"0.0.0.0/0\"},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {
+      "event.requestParameters": {
         "cidrip": "0.0.0.0/0"
       },
-      "log.eventName": "AuthorizeDBSecurityGroupIngress",
+      "event.eventName": "AuthorizeDBSecurityGroupIngress",
       "action": "AuthorizeDBSecurityGroupIngress",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -818,13 +818,13 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"rds.amazonaws.com\",\"eventName\":\"ModifyDBSnapshotAttribute\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{\"attributeName\":\"restore\",\"valuesToAdd\":[\"111122223333\"]},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {
+      "event.requestParameters": {
         "attributeName": "restore",
         "valuesToAdd": [
           "111122223333"
         ]
       },
-      "log.eventName": "ModifyDBSnapshotAttribute",
+      "event.eventName": "ModifyDBSnapshotAttribute",
       "action": "ModifyDBSnapshotAttribute",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -851,8 +851,8 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"route53.amazonaws.com\",\"eventName\":\"ChangeResourceRecordSets\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {},
-      "log.eventName": "ChangeResourceRecordSets",
+      "event.requestParameters": {},
+      "event.eventName": "ChangeResourceRecordSets",
       "action": "ChangeResourceRecordSets",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -879,11 +879,11 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"s3.amazonaws.com\",\"eventName\":\"PutBucketAcl\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{\"bucketName\":\"test-bucket\",\"x-amz-acl\":\"public-read\"},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {
+      "event.requestParameters": {
         "bucketName": "test-bucket",
         "xamzacl": "public-read"
       },
-      "log.eventName": "PutBucketAcl",
+      "event.eventName": "PutBucketAcl",
       "action": "PutBucketAcl",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -910,11 +910,11 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"s3.amazonaws.com\",\"eventName\":\"GetObject\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{\"bucketName\":\"test-bucket\",\"key\":\"test.txt\"},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {
+      "event.requestParameters": {
         "bucketName": "test-bucket",
         "key": "test.txt"
       },
-      "log.eventName": "GetObject",
+      "event.eventName": "GetObject",
       "action": "GetObject",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -941,8 +941,8 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"secretsmanager.amazonaws.com\",\"eventName\":\"GetSecretValue\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {},
-      "log.eventName": "GetSecretValue",
+      "event.requestParameters": {},
+      "event.eventName": "GetSecretValue",
       "action": "GetSecretValue",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -969,7 +969,7 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"ec2.amazonaws.com\",\"eventName\":\"AuthorizeSecurityGroupIngress\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{\"ipPermissions\":{\"items\":[{\"ipProtocol\":\"tcp\",\"ipRanges\":{\"items\":[{\"cidrIp\":\"0.0.0.0/0\"}]}}]}},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {
+      "event.requestParameters": {
         "ipPermissions": {
           "items": [
             {
@@ -985,7 +985,7 @@
           ]
         }
       },
-      "log.eventName": "AuthorizeSecurityGroupIngress",
+      "event.eventName": "AuthorizeSecurityGroupIngress",
       "action": "AuthorizeSecurityGroupIngress",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -1012,8 +1012,8 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"ec2.amazonaws.com\",\"eventName\":\"DescribeNetworkAcls\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {},
-      "log.eventName": "DescribeNetworkAcls",
+      "event.requestParameters": {},
+      "event.eventName": "DescribeNetworkAcls",
       "action": "DescribeNetworkAcls",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -1040,8 +1040,8 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"ec2.amazonaws.com\",\"eventName\":\"DeleteFlowLogs\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {},
-      "log.eventName": "DeleteFlowLogs",
+      "event.requestParameters": {},
+      "event.eventName": "DeleteFlowLogs",
       "action": "DeleteFlowLogs",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -1070,8 +1070,8 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"wafv2.amazonaws.com\",\"eventName\":\"DeleteRule\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {},
-      "log.eventName": "DeleteRule",
+      "event.requestParameters": {},
+      "event.eventName": "DeleteRule",
       "action": "DeleteRule",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -1100,8 +1100,8 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"guardduty.amazonaws.com\",\"eventName\":\"DeleteDetector\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {},
-      "log.eventName": "DeleteDetector",
+      "event.requestParameters": {},
+      "event.eventName": "DeleteDetector",
       "action": "DeleteDetector",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -1129,8 +1129,8 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"s3.amazonaws.com\",\"eventName\":\"DeleteBucketPolicy\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {},
-      "log.eventName": "DeleteBucketPolicy",
+      "event.requestParameters": {},
+      "event.eventName": "DeleteBucketPolicy",
       "action": "DeleteBucketPolicy",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -1157,8 +1157,8 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"wafv2.amazonaws.com\",\"eventName\":\"DeleteWebACL\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {},
-      "log.eventName": "DeleteWebACL",
+      "event.requestParameters": {},
+      "event.eventName": "DeleteWebACL",
       "action": "DeleteWebACL",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -1187,8 +1187,8 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"ec2.amazonaws.com\",\"eventName\":\"CreateTrafficMirrorFilter\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {},
-      "log.eventName": "CreateTrafficMirrorFilter",
+      "event.requestParameters": {},
+      "event.eventName": "CreateTrafficMirrorFilter",
       "action": "CreateTrafficMirrorFilter",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -1215,8 +1215,8 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"ec2.amazonaws.com\",\"eventName\":\"CreateInstanceExportTask\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {},
-      "log.eventName": "CreateInstanceExportTask",
+      "event.requestParameters": {},
+      "event.eventName": "CreateInstanceExportTask",
       "action": "CreateInstanceExportTask",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -1245,8 +1245,8 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"rds.amazonaws.com\",\"eventName\":\"StartExportTask\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {},
-      "log.eventName": "StartExportTask",
+      "event.requestParameters": {},
+      "event.eventName": "StartExportTask",
       "action": "StartExportTask",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -1273,8 +1273,8 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"cloudtrail.amazonaws.com\",\"eventName\":\"UpdateTrail\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {},
-      "log.eventName": "UpdateTrail",
+      "event.requestParameters": {},
+      "event.eventName": "UpdateTrail",
       "action": "UpdateTrail",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -1301,8 +1301,8 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"logs.amazonaws.com\",\"eventName\":\"DeleteLogGroup\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {},
-      "log.eventName": "DeleteLogGroup",
+      "event.requestParameters": {},
+      "event.eventName": "DeleteLogGroup",
       "action": "DeleteLogGroup",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -1330,8 +1330,8 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"logs.amazonaws.com\",\"eventName\":\"DeleteLogStream\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {},
-      "log.eventName": "DeleteLogStream",
+      "event.requestParameters": {},
+      "event.eventName": "DeleteLogStream",
       "action": "DeleteLogStream",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -1359,8 +1359,8 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"ec2.amazonaws.com\",\"eventName\":\"DisableEbsEncryptionByDefault\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {},
-      "log.eventName": "DisableEbsEncryptionByDefault",
+      "event.requestParameters": {},
+      "event.eventName": "DisableEbsEncryptionByDefault",
       "action": "DisableEbsEncryptionByDefault",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -1387,8 +1387,8 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"iam.amazonaws.com\",\"eventName\":\"DeactivateMFADevice\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {},
-      "log.eventName": "DeactivateMFADevice",
+      "event.requestParameters": {},
+      "event.eventName": "DeactivateMFADevice",
       "action": "DeactivateMFADevice",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -1415,8 +1415,8 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"rds.amazonaws.com\",\"eventName\":\"DeleteDBCluster\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {},
-      "log.eventName": "DeleteDBCluster",
+      "event.requestParameters": {},
+      "event.eventName": "DeleteDBCluster",
       "action": "DeleteDBCluster",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -1444,8 +1444,8 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"signin.amazonaws.com\",\"eventName\":\"PasswordRecoveryRequested\",\"eventType\":\"AwsConsoleSignIn\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {},
-      "log.eventName": "PasswordRecoveryRequested",
+      "event.requestParameters": {},
+      "event.eventName": "PasswordRecoveryRequested",
       "action": "PasswordRecoveryRequested",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -1473,8 +1473,8 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"route53domains.amazonaws.com\",\"eventName\":\"disableDomainTransferLock\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {},
-      "log.eventName": "disableDomainTransferLock",
+      "event.requestParameters": {},
+      "event.eventName": "disableDomainTransferLock",
       "action": "disableDomainTransferLock",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -1501,8 +1501,8 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"route53domains.amazonaws.com\",\"eventName\":\"transferDomainToAnotherAwsAccount\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {},
-      "log.eventName": "transferDomainToAnotherAwsAccount",
+      "event.requestParameters": {},
+      "event.eventName": "transferDomainToAnotherAwsAccount",
       "action": "transferDomainToAnotherAwsAccount",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -1529,8 +1529,8 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"iam.amazonaws.com\",\"eventName\":\"UpdateAssumeRolePolicy\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null}",
     "expected": {
-      "log.requestParameters": {},
-      "log.eventName": "UpdateAssumeRolePolicy",
+      "event.requestParameters": {},
+      "event.eventName": "UpdateAssumeRolePolicy",
       "action": "UpdateAssumeRolePolicy",
       "origin.ip": "198.51.100.10",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
@@ -1560,7 +1560,7 @@
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"signin.amazonaws.com\",\"eventName\":\"ConsoleLogin\",\"eventType\":\"AwsConsoleSignIn\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"Root\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:root\",\"principalId\":\"TESTPRINCIPAL\"},\"requestParameters\":{},\"responseElements\":{\"ConsoleLogin\":\"Success\"},\"additionalEventData\":{\"MFAUsed\":\"Yes\"}}",
     "expected": {
       "actionResult": "success",
-      "log.userIdentity.type": "Root"
+      "event.userIdentity.type": "Root"
     },
     "absent": [],
     "matches": [
@@ -1573,7 +1573,7 @@
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"signin.amazonaws.com\",\"eventName\":\"ConsoleLogin\",\"eventType\":\"AwsConsoleSignIn\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"Root\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:root\",\"principalId\":\"TESTPRINCIPAL\"},\"requestParameters\":{},\"responseElements\":{\"ConsoleLogin\":\"Success\"},\"additionalEventData\":{\"MFAUsed\":\"No\"}}",
     "expected": {
       "actionResult": "success",
-      "log.userIdentity.type": "Root"
+      "event.userIdentity.type": "Root"
     },
     "absent": [],
     "matches": [
@@ -1588,7 +1588,7 @@
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"signin.amazonaws.com\",\"eventName\":\"ConsoleLogin\",\"eventType\":\"AwsConsoleSignIn\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"Root\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:root\",\"principalId\":\"TESTPRINCIPAL\"},\"requestParameters\":{},\"responseElements\":{\"ConsoleLogin\":\"Success\"}}",
     "expected": {
       "actionResult": "success",
-      "log.userIdentity.type": "Root"
+      "event.userIdentity.type": "Root"
     },
     "absent": [],
     "matches": [
@@ -1601,7 +1601,7 @@
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"signin.amazonaws.com\",\"eventName\":\"ConsoleLogin\",\"eventType\":\"AwsConsoleSignIn\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"Root\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:root\",\"principalId\":\"TESTPRINCIPAL\"},\"requestParameters\":{},\"responseElements\":{\"ConsoleLogin\":\"Failure\"},\"additionalEventData\":{\"MFAUsed\":\"Yes\"},\"errorMessage\":\"Failed authentication\"}",
     "expected": {
       "actionResult": "failed",
-      "log.userIdentity.type": "Root"
+      "event.userIdentity.type": "Root"
     },
     "absent": [],
     "matches": [
@@ -1614,7 +1614,7 @@
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"signin.amazonaws.com\",\"eventName\":\"ConsoleLogin\",\"eventType\":\"AwsConsoleSignIn\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"Root\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:root\",\"principalId\":\"TESTPRINCIPAL\"},\"requestParameters\":{},\"responseElements\":{\"ConsoleLogin\":\"Failure\"},\"additionalEventData\":{\"MFAUsed\":\"No\"},\"errorMessage\":\"Failed authentication\"}",
     "expected": {
       "actionResult": "failed",
-      "log.userIdentity.type": "Root"
+      "event.userIdentity.type": "Root"
     },
     "absent": [],
     "matches": [
@@ -1627,7 +1627,7 @@
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"signin.amazonaws.com\",\"eventName\":\"ConsoleLogin\",\"eventType\":\"AwsConsoleSignIn\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"Root\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:root\",\"principalId\":\"TESTPRINCIPAL\"},\"requestParameters\":{},\"responseElements\":{\"ConsoleLogin\":\"Failure\"},\"errorMessage\":\"Failed authentication\"}",
     "expected": {
       "actionResult": "failed",
-      "log.userIdentity.type": "Root"
+      "event.userIdentity.type": "Root"
     },
     "absent": [],
     "matches": [
@@ -1677,7 +1677,7 @@
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"signin.amazonaws.com\",\"eventName\":\"CheckMfa\",\"eventType\":\"AwsConsoleSignIn\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":{\"CheckMfa\":\"Success\"}}",
     "expected": {
       "action": "CheckMfa",
-      "log.responseElements.CheckMfa": "Success"
+      "event.responseElements.CheckMfa": "Success"
     },
     "absent": [
       "actionResult"
@@ -2156,10 +2156,10 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"ec2.amazonaws.com\",\"eventName\":\"DescribeTags\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{\"unknownVendorField\":{\"value\":\"retained\"}},\"responseElements\":null,\"additionalEventData\":{\"MFAUsed\":\"Yes\",\"customFlag\":true},\"tlsDetails\":{\"tlsVersion\":\"TLSv1.3\"}}",
     "expected": {
-      "log.requestParameters.unknownVendorField.value": "retained",
-      "log.additionalEventData.customFlag": true,
-      "log.tlsDetails.tlsVersion": "TLSv1.3",
-      "log.tlsDetailsTlsVersion": "TLSv1.3"
+      "event.requestParameters.unknownVendorField.value": "retained",
+      "event.additionalEventData.customFlag": true,
+      "event.tlsDetails.tlsVersion": "TLSv1.3",
+      "event.tlsDetailsTlsVersion": "TLSv1.3"
     },
     "absent": [],
     "matches": []
@@ -2169,11 +2169,11 @@
     "dataSource": "collector-test",
     "raw": "{\"eventVersion\":\"1.09\",\"eventTime\":\"2026-09-17T12:00:00Z\",\"eventSource\":\"ec2.amazonaws.com\",\"eventName\":\"DescribeTags\",\"eventType\":\"AwsApiCall\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"198.51.100.10\",\"recipientAccountId\":\"123456789012\",\"userIdentity\":{\"type\":\"IAMUser\",\"accountId\":\"123456789012\",\"arn\":\"arn:aws:iam::123456789012:user/reviewer\",\"principalId\":\"TESTPRINCIPAL\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"true\"}}},\"requestParameters\":{},\"responseElements\":null,\"awsRecordType\":\"guardduty\",\"correlationCandidate\":{\"massResourceDeletion\":\"match\"},\"awsActorKey\":\"fake\"}",
     "expected": {
-      "log.awsRecordType": "cloudtrail",
-      "log.awsActorKey": "arn:aws:iam::123456789012:user/reviewer"
+      "event.awsRecordType": "cloudtrail",
+      "event.awsActorKey": "arn:aws:iam::123456789012:user/reviewer"
     },
     "absent": [
-      "log.correlationCandidate.massResourceDeletion"
+      "event.correlationCandidate.massResourceDeletion"
     ],
     "matches": []
   },
@@ -2341,8 +2341,8 @@
     "absent": [
       "action",
       "actionResult",
-      "log.awsRecordType",
-      "log.correlationCandidate"
+      "event.awsRecordType",
+      "event.correlationCandidate"
     ],
     "matches": []
   },
@@ -2354,7 +2354,7 @@
     "absent": [
       "action",
       "actionResult",
-      "log.awsRecordType"
+      "event.awsRecordType"
     ],
     "matches": []
   },
@@ -2492,7 +2492,7 @@
       "origin.ip": "198.51.100.20",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
       "actionResult": "success",
-      "log.awsRecordType": "cloudtrail"
+      "event.awsRecordType": "cloudtrail"
     },
     "absent": [],
     "matches": [
@@ -2508,7 +2508,7 @@
       "origin.ip": "198.51.100.20",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
       "actionResult": "success",
-      "log.awsRecordType": "cloudtrail"
+      "event.awsRecordType": "cloudtrail"
     },
     "absent": [],
     "matches": [
@@ -2524,7 +2524,7 @@
       "origin.ip": "198.51.100.20",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
       "actionResult": "success",
-      "log.awsRecordType": "cloudtrail"
+      "event.awsRecordType": "cloudtrail"
     },
     "absent": [],
     "matches": [
@@ -2540,7 +2540,7 @@
       "origin.ip": "198.51.100.20",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
       "actionResult": "success",
-      "log.awsRecordType": "cloudtrail"
+      "event.awsRecordType": "cloudtrail"
     },
     "absent": [],
     "matches": [
@@ -2556,7 +2556,7 @@
       "origin.ip": "198.51.100.20",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
       "actionResult": "success",
-      "log.awsRecordType": "cloudtrail"
+      "event.awsRecordType": "cloudtrail"
     },
     "absent": [],
     "matches": [
@@ -2572,7 +2572,7 @@
       "origin.ip": "198.51.100.20",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
       "actionResult": "success",
-      "log.awsRecordType": "cloudtrail"
+      "event.awsRecordType": "cloudtrail"
     },
     "absent": [],
     "matches": [
@@ -2588,7 +2588,7 @@
       "origin.ip": "198.51.100.20",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
       "actionResult": "success",
-      "log.awsRecordType": "cloudtrail"
+      "event.awsRecordType": "cloudtrail"
     },
     "absent": [],
     "matches": [
@@ -2604,7 +2604,7 @@
       "origin.ip": "198.51.100.20",
       "origin.user": "arn:aws:iam::123456789012:user/reviewer",
       "actionResult": "success",
-      "log.awsRecordType": "cloudtrail"
+      "event.awsRecordType": "cloudtrail"
     },
     "absent": [],
     "matches": [
@@ -2620,7 +2620,7 @@
       "origin.ip": "198.51.100.20",
       "origin.user": "system:serviceaccount:payments:api",
       "actionResult": "success",
-      "log.awsRecordType": "cloudtrail"
+      "event.awsRecordType": "cloudtrail"
     },
     "absent": [],
     "matches": []

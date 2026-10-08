@@ -19,19 +19,19 @@ pipeline:
       - grok:
           source: raw
           patterns:
-            - fieldName: log.syslogPri
+            - fieldName: event.syslogPri
               pattern: '\<{{.integer}}\>'
 
       - trim:
           function: prefix
           substring: "<"
           fields:
-            - log.syslogPri
+            - event.syslogPri
       - trim:
           function: suffix
           substring: ">"
           fields:
-            - log.syslogPri
+            - event.syslogPri
 
       # -------------------------------------------------------------------
       # CEF header (only when the log line contains "CEF:")
@@ -43,31 +43,31 @@ pipeline:
           patterns:
             - fieldName: ""
               pattern: '{{.data}}CEF:'
-            - fieldName: log.cefVersion
+            - fieldName: event.cefVersion
               pattern: '{{.integer}}'
             - fieldName: ""
               pattern: '\|'
-            - fieldName: log.deviceVendor
+            - fieldName: event.deviceVendor
               pattern: '(?:[^|\\]|\\.)+'
             - fieldName: ""
               pattern: '\|'
-            - fieldName: log.deviceProduct
+            - fieldName: event.deviceProduct
               pattern: '(?:[^|\\]|\\.)+'
             - fieldName: ""
               pattern: '\|'
-            - fieldName: log.deviceVersion
+            - fieldName: event.deviceVersion
               pattern: '(?:[^|\\]|\\.)+'
             - fieldName: ""
               pattern: '\|'
-            - fieldName: log.eventCode
+            - fieldName: event.eventCode
               pattern: '(?:[^|\\]|\\.)+'
             - fieldName: ""
               pattern: '\|'
-            - fieldName: log.eventName
+            - fieldName: event.eventName
               pattern: '(?:[^|\\]|\\.)+'
             - fieldName: ""
               pattern: '\|'
-            - fieldName: log.cefSeverity
+            - fieldName: event.cefSeverity
               pattern: '(?:[^|\\]|\\.)+'
             - fieldName: ""
               pattern: '\|'
@@ -86,162 +86,162 @@ pipeline:
       # -------------------------------------------------------------------
       - delete:
           fields:
-            - log.msg
+            - event.msg
           where: contains("raw", "msg=\"")
       - grok:
           source: raw
           patterns:
-            - fieldName: log.grokTrash
+            - fieldName: event.grokTrash
               pattern: '{{.data}}(msg=)'
-            - fieldName: log.message
+            - fieldName: event.message
               pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.grokTrash
+            - fieldName: event.grokTrash
               pattern: '{{.greedy}}'
           where: contains("raw", "msg=\"")
 
       - delete:
           fields:
-            - log.note
+            - event.note
           where: contains("raw", "note=\"")
       - grok:
           source: raw
           patterns:
-            - fieldName: log.grokTrash
+            - fieldName: event.grokTrash
               pattern: '{{.data}}(note=)'
-            - fieldName: log.note
+            - fieldName: event.note
               pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.grokTrash
+            - fieldName: event.grokTrash
               pattern: '{{.greedy}}'
           where: contains("raw", "note=\"")
 
       - delete:
           fields:
-            - log.Category
+            - event.Category
           where: contains("raw", "Category=\"")
       - grok:
           source: raw
           patterns:
-            - fieldName: log.grokTrash
+            - fieldName: event.grokTrash
               pattern: '{{.data}}(Category=)'
-            - fieldName: log.contentCategory
+            - fieldName: event.contentCategory
               pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.grokTrash
+            - fieldName: event.grokTrash
               pattern: '{{.greedy}}'
           where: contains("raw", "Category=\"")
 
       - delete:
           fields:
-            - log.rule
+            - event.rule
           where: contains("raw", "rule=\"")
       - grok:
           source: raw
           patterns:
-            - fieldName: log.grokTrash
+            - fieldName: event.grokTrash
               pattern: '{{.data}}(rule=)'
-            - fieldName: log.rule
+            - fieldName: event.rule
               pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.grokTrash
+            - fieldName: event.grokTrash
               pattern: '{{.greedy}}'
           where: contains("raw", "rule=\"")
 
       - delete:
           fields:
-            - log.sess
+            - event.sess
           where: contains("raw", "sess=\"")
       - grok:
           source: raw
           patterns:
-            - fieldName: log.grokTrash
+            - fieldName: event.grokTrash
               pattern: '{{.data}}(sess=)'
-            - fieldName: log.sessionType
+            - fieldName: event.sessionType
               pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.grokTrash
+            - fieldName: event.grokTrash
               pattern: '{{.greedy}}'
           where: contains("raw", "sess=\"")
 
       - delete:
           fields:
-            - log.vpnpolicy
+            - event.vpnpolicy
           where: contains("raw", "vpnpolicy=\"")
       - grok:
           source: raw
           patterns:
-            - fieldName: log.grokTrash
+            - fieldName: event.grokTrash
               pattern: '{{.data}}(vpnpolicy=)'
-            - fieldName: log.vpnPolicy
+            - fieldName: event.vpnPolicy
               pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.grokTrash
+            - fieldName: event.grokTrash
               pattern: '{{.greedy}}'
           where: contains("raw", "vpnpolicy=\"")
 
       - delete:
           fields:
-            - log.usr
+            - event.usr
           where: contains("raw", "usr=\"")
       - grok:
           source: raw
           patterns:
-            - fieldName: log.grokTrash
+            - fieldName: event.grokTrash
               pattern: '{{.data}}(usr=)'
-            - fieldName: log.userRaw
+            - fieldName: event.userRaw
               pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.grokTrash
+            - fieldName: event.grokTrash
               pattern: '{{.greedy}}'
           where: contains("raw", "usr=\"")
 
       - delete:
           fields:
-            - log.uuid
+            - event.uuid
           where: contains("raw", "uuid=\"")
       - grok:
           source: raw
           patterns:
-            - fieldName: log.grokTrash
+            - fieldName: event.grokTrash
               pattern: '{{.data}}(uuid=)'
-            - fieldName: log.eventUuid
+            - fieldName: event.eventUuid
               pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.grokTrash
+            - fieldName: event.grokTrash
               pattern: '{{.greedy}}'
           where: contains("raw", "uuid=\"")
 
       - grok:
           source: raw
           patterns:
-            - fieldName: log.grokTrash
+            - fieldName: event.grokTrash
               pattern: '{{.data}}(fw_action=)'
-            - fieldName: log.actionRaw
+            - fieldName: event.actionRaw
               pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.grokTrash
+            - fieldName: event.grokTrash
               pattern: '{{.greedy}}'
           where: contains("raw", "fw_action=\"")
 
       - delete:
           fields:
-            - log.appName
+            - event.appName
           where: contains("raw", "appName='")
       - grok:
           source: raw
           patterns:
-            - fieldName: log.grokTrash
+            - fieldName: event.grokTrash
               pattern: '{{.data}}(appName=)'
-            - fieldName: log.appName
+            - fieldName: event.appName
               pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.grokTrash
+            - fieldName: event.grokTrash
               pattern: '{{.greedy}}'
           where: contains("raw", "appName='")
 
       - delete:
           fields:
-            - log.time
+            - event.time
           where: contains("raw", "time=\"")
       - grok:
           source: raw
           patterns:
-            - fieldName: log.grokTrash
+            - fieldName: event.grokTrash
               pattern: '{{.data}}(time=)'
-            - fieldName: log.deviceTimeRaw
+            - fieldName: event.deviceTimeRaw
               pattern: '{{.data}}({{.word}}=)'
-            - fieldName: log.grokTrash
+            - fieldName: event.grokTrash
               pattern: '{{.greedy}}'
           where: contains("raw", "time=\"")
 
@@ -250,103 +250,103 @@ pipeline:
       # the captured value.
       # -------------------------------------------------------------------
       - grok:
-          source: log.message
+          source: event.message
           patterns:
-            - fieldName: log.message
+            - fieldName: event.message
               pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.grokTrash
+            - fieldName: event.grokTrash
               pattern: '{{.word}}(=)'
-          where: exists("log.message")
+          where: exists("event.message")
 
       - grok:
-          source: log.note
+          source: event.note
           patterns:
-            - fieldName: log.note
+            - fieldName: event.note
               pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.grokTrash
+            - fieldName: event.grokTrash
               pattern: '{{.word}}(=)'
-          where: exists("log.note")
+          where: exists("event.note")
 
       - grok:
-          source: log.contentCategory
+          source: event.contentCategory
           patterns:
-            - fieldName: log.contentCategory
+            - fieldName: event.contentCategory
               pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.grokTrash
+            - fieldName: event.grokTrash
               pattern: '{{.word}}(=)'
-          where: exists("log.contentCategory")
+          where: exists("event.contentCategory")
 
       - grok:
-          source: log.rule
+          source: event.rule
           patterns:
-            - fieldName: log.rule
+            - fieldName: event.rule
               pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.grokTrash
+            - fieldName: event.grokTrash
               pattern: '{{.word}}(=)'
-          where: exists("log.rule")
+          where: exists("event.rule")
 
       - grok:
-          source: log.sessionType
+          source: event.sessionType
           patterns:
-            - fieldName: log.sessionType
+            - fieldName: event.sessionType
               pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.grokTrash
+            - fieldName: event.grokTrash
               pattern: '{{.word}}(=)'
-          where: exists("log.sessionType")
+          where: exists("event.sessionType")
 
       - grok:
-          source: log.vpnPolicy
+          source: event.vpnPolicy
           patterns:
-            - fieldName: log.vpnPolicy
+            - fieldName: event.vpnPolicy
               pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.grokTrash
+            - fieldName: event.grokTrash
               pattern: '{{.word}}(=)'
-          where: exists("log.vpnPolicy")
+          where: exists("event.vpnPolicy")
 
       - grok:
-          source: log.userRaw
+          source: event.userRaw
           patterns:
-            - fieldName: log.userRaw
+            - fieldName: event.userRaw
               pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.grokTrash
+            - fieldName: event.grokTrash
               pattern: '{{.word}}(=)'
-          where: exists("log.userRaw")
+          where: exists("event.userRaw")
 
       - grok:
-          source: log.eventUuid
+          source: event.eventUuid
           patterns:
-            - fieldName: log.eventUuid
+            - fieldName: event.eventUuid
               pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.grokTrash
+            - fieldName: event.grokTrash
               pattern: '{{.word}}(=)'
-          where: exists("log.eventUuid")
+          where: exists("event.eventUuid")
 
       - grok:
-          source: log.actionRaw
+          source: event.actionRaw
           patterns:
-            - fieldName: log.actionRaw
+            - fieldName: event.actionRaw
               pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.grokTrash
+            - fieldName: event.grokTrash
               pattern: '{{.word}}(=)'
-          where: exists("log.actionRaw")
+          where: exists("event.actionRaw")
 
       - grok:
-          source: log.appName
+          source: event.appName
           patterns:
-            - fieldName: log.appName
+            - fieldName: event.appName
               pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.grokTrash
+            - fieldName: event.grokTrash
               pattern: '{{.word}}(=)'
-          where: exists("log.appName")
+          where: exists("event.appName")
 
       - grok:
-          source: log.deviceTimeRaw
+          source: event.deviceTimeRaw
           patterns:
-            - fieldName: log.deviceTimeRaw
+            - fieldName: event.deviceTimeRaw
               pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.grokTrash
+            - fieldName: event.grokTrash
               pattern: '{{.word}}(=)'
-          where: exists("log.deviceTimeRaw")
+          where: exists("event.deviceTimeRaw")
 
       # -------------------------------------------------------------------
       # Split src / dst  =>  ip[:port[:iface]], ip:port or ip::iface.
@@ -354,7 +354,7 @@ pipeline:
       # -------------------------------------------------------------------
       # ip:port:interface
       - grok:
-          source: log.src
+          source: event.src
           patterns:
             - fieldName: origin.ip
               pattern: '{{.ipv4}}'
@@ -364,12 +364,12 @@ pipeline:
               pattern: '{{.integer}}'
             - fieldName: ""
               pattern: ':'
-            - fieldName: log.sourceInterface
+            - fieldName: event.sourceInterface
               pattern: '{{.word}}'
-          where: regexMatch("log.src", "^[0-9.]+:[0-9]+:.")
+          where: regexMatch("event.src", "^[0-9.]+:[0-9]+:.")
       # ip:port, used by VPN negotiation events
       - grok:
-          source: log.src
+          source: event.src
           patterns:
             - fieldName: origin.ip
               pattern: '{{.ipv4}}'
@@ -377,34 +377,34 @@ pipeline:
               pattern: ':'
             - fieldName: origin.port
               pattern: '{{.integer}}'
-          where: regexMatch("log.src", "^[0-9.]+:[0-9]+$")
+          where: regexMatch("event.src", "^[0-9.]+:[0-9]+$")
       # ip::interface, used by user login events
       - grok:
-          source: log.src
+          source: event.src
           patterns:
             - fieldName: origin.ip
               pattern: '{{.ipv4}}'
             - fieldName: ""
               pattern: '::'
-            - fieldName: log.sourceInterface
+            - fieldName: event.sourceInterface
               pattern: '{{.word}}'
-          where: regexMatch("log.src", "^[0-9.]+::.")
+          where: regexMatch("event.src", "^[0-9.]+::.")
 
       - delete:
           fields:
-            - log.src
+            - event.src
           where: exists("origin.ip")
 
       # A bare address; any other value stays under its vendor key.
       - rename:
           from:
-            - log.src
+            - event.src
           to: origin.ip
-          where: inCIDR("log.src", "0.0.0.0/0")
+          where: inCIDR("event.src", "0.0.0.0/0")
 
       # ip:port:interface
       - grok:
-          source: log.dst
+          source: event.dst
           patterns:
             - fieldName: target.ip
               pattern: '{{.ipv4}}'
@@ -414,12 +414,12 @@ pipeline:
               pattern: '{{.integer}}'
             - fieldName: ""
               pattern: ':'
-            - fieldName: log.targetInterface
+            - fieldName: event.targetInterface
               pattern: '{{.word}}'
-          where: regexMatch("log.dst", "^[0-9.]+:[0-9]+:.")
+          where: regexMatch("event.dst", "^[0-9.]+:[0-9]+:.")
       # ip:port, used by VPN negotiation events
       - grok:
-          source: log.dst
+          source: event.dst
           patterns:
             - fieldName: target.ip
               pattern: '{{.ipv4}}'
@@ -427,85 +427,85 @@ pipeline:
               pattern: ':'
             - fieldName: target.port
               pattern: '{{.integer}}'
-          where: regexMatch("log.dst", "^[0-9.]+:[0-9]+$")
+          where: regexMatch("event.dst", "^[0-9.]+:[0-9]+$")
       # ip::interface, used by user login events
       - grok:
-          source: log.dst
+          source: event.dst
           patterns:
             - fieldName: target.ip
               pattern: '{{.ipv4}}'
             - fieldName: ""
               pattern: '::'
-            - fieldName: log.targetInterface
+            - fieldName: event.targetInterface
               pattern: '{{.word}}'
-          where: regexMatch("log.dst", "^[0-9.]+::.")
+          where: regexMatch("event.dst", "^[0-9.]+::.")
 
       - delete:
           fields:
-            - log.dst
+            - event.dst
           where: exists("target.ip")
 
       # A bare address; any other value stays under its vendor key.
       - rename:
           from:
-            - log.dst
+            - event.dst
           to: target.ip
-          where: inCIDR("log.dst", "0.0.0.0/0")
+          where: inCIDR("event.dst", "0.0.0.0/0")
 
       - grok:
-          source: log.natSrc
+          source: event.natSrc
           patterns:
-            - fieldName: log.natSourceIp
+            - fieldName: event.natSourceIp
               pattern: '{{.ipv4}}'
             - fieldName: ""
               pattern: ':'
-            - fieldName: log.natSourcePort
+            - fieldName: event.natSourcePort
               pattern: '{{.integer}}'
-          where: contains("log.natSrc", ":")
+          where: contains("event.natSrc", ":")
 
       - delete:
           fields:
-            - log.natSrc
-          where: contains("log.natSrc", ":")
+            - event.natSrc
+          where: contains("event.natSrc", ":")
 
       - grok:
-          source: log.natDst
+          source: event.natDst
           patterns:
-            - fieldName: log.natTargetIp
+            - fieldName: event.natTargetIp
               pattern: '{{.ipv4}}'
             - fieldName: ""
               pattern: ':'
-            - fieldName: log.natTargetPort
+            - fieldName: event.natTargetPort
               pattern: '{{.integer}}'
-          where: contains("log.natDst", ":")
+          where: contains("event.natDst", ":")
 
       - delete:
           fields:
-            - log.natDst
-          where: contains("log.natDst", ":")
+            - event.natDst
+          where: contains("event.natDst", ":")
 
       # -------------------------------------------------------------------
       # Split protocol => transport / service
       # -------------------------------------------------------------------
       - grok:
-          source: log.proto
+          source: event.proto
           patterns:
             - fieldName: protocol
               pattern: '{{.word}}'
             - fieldName: ""
               pattern: '/'
-            - fieldName: log.appProto
+            - fieldName: event.appProto
               pattern: '{{.notSpace}}'
-          where: contains("log.proto", "/")
+          where: contains("event.proto", "/")
 
       - delete:
           fields:
-            - log.proto
-          where: contains("log.proto", "/")
+            - event.proto
+          where: contains("event.proto", "/")
 
       - rename:
           from:
-            - log.proto
+            - event.proto
           to: protocol
 
       # -------------------------------------------------------------------
@@ -513,137 +513,137 @@ pipeline:
       # -------------------------------------------------------------------
       - rename:
           from:
-            - log.dstname
+            - event.dstname
           to: target.host
       - rename:
           from:
-            - log.srcMac
+            - event.srcMac
           to: origin.mac
       - rename:
           from:
-            - log.dstMac
+            - event.dstMac
           to: target.mac
       - rename:
           from:
-            - log.smac
+            - event.smac
           to: origin.mac
       - rename:
           from:
-            - log.dmac
+            - event.dmac
           to: target.mac
       - rename:
           from:
-            - log.sent
+            - event.sent
           to: origin.bytesSent
       - rename:
           from:
-            - log.rcvd
+            - event.rcvd
           to: origin.bytesReceived
       - rename:
           from:
-            - log.spkt
+            - event.spkt
           to: origin.packagesSent
       - rename:
           from:
-            - log.rpkt
+            - event.rpkt
           to: origin.packagesReceived
       - rename:
           from:
-            - log.id
-          to: log.sourceId
+            - event.id
+          to: event.sourceId
       - rename:
           from:
-            - log.sn
-          to: log.deviceSerial
+            - event.sn
+          to: event.deviceSerial
       - rename:
           from:
-            - log.fw
-          to: log.deviceIp
+            - event.fw
+          to: event.deviceIp
       - rename:
           from:
-            - log.pri
-          to: log.priority
+            - event.pri
+          to: event.priority
       - rename:
           from:
-            - log.c
-          to: log.messageClass
+            - event.c
+          to: event.messageClass
       - rename:
           from:
-            - log.gcat
-          to: log.groupCategoryId
+            - event.gcat
+          to: event.groupCategoryId
       - rename:
           from:
-            - log.m
-          to: log.eventCode
+            - event.m
+          to: event.eventCode
       - rename:
           from:
-            - log.n
-          to: log.eventSerial
+            - event.n
+          to: event.eventSerial
       - rename:
           from:
-            - log.app
-          to: log.appId
+            - event.app
+          to: event.appId
       - rename:
           from:
-            - log.srcZone
-          to: log.sourceZone
+            - event.srcZone
+          to: event.sourceZone
       - rename:
           from:
-            - log.dstZone
-          to: log.targetZone
+            - event.dstZone
+          to: event.targetZone
       - rename:
           from:
-            - log.code
-          to: log.contentCode
+            - event.code
+          to: event.contentCode
       - rename:
           from:
-            - log.arg
-          to: log.webPath
+            - event.arg
+          to: event.webPath
       - rename:
           from:
-            - log.dpi
-          to: log.dpiEnabled
+            - event.dpi
+          to: event.dpiEnabled
       - rename:
           from:
-            - log.ipscat
-          to: log.ipsCategory
+            - event.ipscat
+          to: event.ipsCategory
       - rename:
           from:
-            - log.ipspri
-          to: log.ipsPriority
+            - event.ipspri
+          to: event.ipsPriority
       - rename:
           from:
-            - log.spycat
-          to: log.spywareCategory
+            - event.spycat
+          to: event.spywareCategory
       - rename:
           from:
-            - log.spypri
-          to: log.spywarePriority
+            - event.spypri
+          to: event.spywarePriority
       - rename:
           from:
-            - log.af_service
-          to: log.appFirewallService
+            - event.af_service
+          to: event.appFirewallService
       - rename:
           from:
-            - log.af_type
-          to: log.appFirewallType
+            - event.af_type
+          to: event.appFirewallType
       - rename:
           from:
-            - log.result
-          to: log.threatResult
+            - event.result
+          to: event.threatResult
       - rename:
           from:
-            - log.cs6
-          to: log.threatContext
+            - event.cs6
+          to: event.threatContext
 
       # fw_action is often the last key, which the rescue above cannot bound.
       # Fall back to the KV value; go-sdk v1.1.35 and later keep the underscore.
       - rename:
           from:
-            - log.fw_action
-            - log.fwaction
-          to: log.actionRaw
-          where: '!exists("log.actionRaw")'
+            - event.fw_action
+            - event.fwaction
+          to: event.actionRaw
+          where: '!exists("event.actionRaw")'
 
       # -------------------------------------------------------------------
       # Strip residual quotes / apostrophes from rescued values.
@@ -652,48 +652,48 @@ pipeline:
           function: prefix
           substring: '"'
           fields:
-            - log.message
-            - log.note
-            - log.contentCategory
-            - log.rule
-            - log.sessionType
-            - log.vpnPolicy
-            - log.eventUuid
-            - log.deviceTimeRaw
-            - log.actionRaw
-            - log.userRaw
+            - event.message
+            - event.note
+            - event.contentCategory
+            - event.rule
+            - event.sessionType
+            - event.vpnPolicy
+            - event.eventUuid
+            - event.deviceTimeRaw
+            - event.actionRaw
+            - event.userRaw
       - trim:
           function: suffix
           substring: '"'
           fields:
-            - log.message
-            - log.note
-            - log.contentCategory
-            - log.rule
-            - log.sessionType
-            - log.vpnPolicy
-            - log.eventUuid
-            - log.deviceTimeRaw
-            - log.actionRaw
-            - log.userRaw
+            - event.message
+            - event.note
+            - event.contentCategory
+            - event.rule
+            - event.sessionType
+            - event.vpnPolicy
+            - event.eventUuid
+            - event.deviceTimeRaw
+            - event.actionRaw
+            - event.userRaw
       - trim:
           function: prefix
           substring: "'"
           fields:
-            - log.appName
+            - event.appName
       - trim:
           function: suffix
           substring: "'"
           fields:
-            - log.appName
+            - event.appName
 
       - rename:
           from:
-            - log.actionRaw
+            - event.actionRaw
           to: action
       - rename:
           from:
-            - log.userRaw
+            - event.userRaw
           to: origin.user
 
       # -------------------------------------------------------------------
@@ -703,8 +703,8 @@ pipeline:
           fields:
             - origin.port
             - target.port
-            - log.natSourcePort
-            - log.natTargetPort
+            - event.natSourcePort
+            - event.natTargetPort
           to: int
       - cast:
           fields:
@@ -718,9 +718,9 @@ pipeline:
           to: int
       - cast:
           fields:
-            - log.groupCategoryId
-            - log.eventCode
-            - log.priority
+            - event.groupCategoryId
+            - event.eventCode
+            - event.priority
           to: string
 
       # -------------------------------------------------------------------
@@ -747,7 +747,7 @@ pipeline:
           params:
             key: actionResult
             value: success
-          where: oneOf("log.eventCode", ["29", "31", "236", "237", "238", "1080", "942", "978", "89", "139", "357", "1794"])
+          where: oneOf("event.eventCode", ["29", "31", "236", "237", "238", "1080", "942", "978", "89", "139", "357", "1794"])
       # 537 "Connection Closed" follows an allowed connection; only one that
       # received data back completed. Without received bytes it keeps no outcome.
       - add:
@@ -755,7 +755,7 @@ pipeline:
           params:
             key: actionResult
             value: success
-          where: '!exists("actionResult") && equals("log.eventCode", "537") && greaterThan("origin.bytesReceived", 0)'
+          where: '!exists("actionResult") && equals("event.eventCode", "537") && greaterThan("origin.bytesReceived", 0)'
       # Attempted and not completed. 32, 33 and 200 "... login denied due to bad
       # credentials"; 34 "Pending login timed out"; 140 "XAUTH Failed ...
       # Authentication failure"; 243, 244, 746 and 747 RADIUS or LDAP failures;
@@ -773,7 +773,7 @@ pipeline:
           params:
             key: actionResult
             value: failed
-          where: oneOf("log.eventCode", ["32", "33", "34", "140", "200", "243", "244", "746", "747", "1035", "1117", "401", "402", "403", "405", "414", "545", "616", "658", "914", "916", "919", "953", "967", "971", "981", "983", "1305", "1222", "1226"]) || contains("log.message", "denied due to bad credentials")
+          where: oneOf("event.eventCode", ["32", "33", "34", "140", "200", "243", "244", "746", "747", "1035", "1117", "401", "402", "403", "405", "414", "545", "616", "658", "914", "916", "919", "953", "967", "971", "981", "983", "1305", "1222", "1226"]) || contains("event.message", "denied due to bad credentials")
       # Refused by a control; runs last so a firewall decision or a stated
       # block wins. fw_action drop or deny; 986 "User login denied - not allowed
       # by Policy rule"; 1079 "SSLVPN service is not allowed on <zone>"; 27
@@ -787,7 +787,7 @@ pipeline:
           params:
             key: actionResult
             value: denied
-          where: oneOf("action", ["drop", "dropped", "deny", "denied", "block", "blocked"]) || oneOf("log.eventCode", ["986", "1079", "27", "267", "1475"]) || (equals("log.eventCode", "809") && endsWith("log.message", "blocked.")) || startsWith("log.note", "Pkt is dropped") || (!exists("action") && oneOf("log.eventCode", ["14", "38"]))
+          where: oneOf("action", ["drop", "dropped", "deny", "denied", "block", "blocked"]) || oneOf("event.eventCode", ["986", "1079", "27", "267", "1475"]) || (equals("event.eventCode", "809") && endsWith("event.message", "blocked.")) || startsWith("event.note", "Pkt is dropped") || (!exists("action") && oneOf("event.eventCode", ["14", "38"]))
 
       # -------------------------------------------------------------------
       # Group category human label from log.groupCategoryId (1..17)
@@ -795,105 +795,105 @@ pipeline:
       - add:
           function: string
           params:
-            key: log.groupCategory
+            key: event.groupCategory
             value: System
-          where: equals("log.groupCategoryId", "1")
+          where: equals("event.groupCategoryId", "1")
       - add:
           function: string
           params:
-            key: log.groupCategory
+            key: event.groupCategory
             value: Log
-          where: equals("log.groupCategoryId", "2")
+          where: equals("event.groupCategoryId", "2")
       - add:
           function: string
           params:
-            key: log.groupCategory
+            key: event.groupCategory
             value: Security Services
-          where: equals("log.groupCategoryId", "3")
+          where: equals("event.groupCategoryId", "3")
       - add:
           function: string
           params:
-            key: log.groupCategory
+            key: event.groupCategory
             value: Users
-          where: equals("log.groupCategoryId", "4")
+          where: equals("event.groupCategoryId", "4")
       - add:
           function: string
           params:
-            key: log.groupCategory
+            key: event.groupCategory
             value: Firewall Settings
-          where: equals("log.groupCategoryId", "5")
+          where: equals("event.groupCategoryId", "5")
       - add:
           function: string
           params:
-            key: log.groupCategory
+            key: event.groupCategory
             value: Network
-          where: equals("log.groupCategoryId", "6")
+          where: equals("event.groupCategoryId", "6")
       - add:
           function: string
           params:
-            key: log.groupCategory
+            key: event.groupCategory
             value: VPN
-          where: equals("log.groupCategoryId", "7")
+          where: equals("event.groupCategoryId", "7")
       - add:
           function: string
           params:
-            key: log.groupCategory
+            key: event.groupCategory
             value: High Availability
-          where: equals("log.groupCategoryId", "8")
+          where: equals("event.groupCategoryId", "8")
       - add:
           function: string
           params:
-            key: log.groupCategory
+            key: event.groupCategory
             value: 3G/4G, Modem, and Module
-          where: equals("log.groupCategoryId", "9")
+          where: equals("event.groupCategoryId", "9")
       - add:
           function: string
           params:
-            key: log.groupCategory
+            key: event.groupCategory
             value: Firewall
-          where: equals("log.groupCategoryId", "10")
+          where: equals("event.groupCategoryId", "10")
       - add:
           function: string
           params:
-            key: log.groupCategory
+            key: event.groupCategory
             value: Wireless
-          where: equals("log.groupCategoryId", "11")
+          where: equals("event.groupCategoryId", "11")
       - add:
           function: string
           params:
-            key: log.groupCategory
+            key: event.groupCategory
             value: VoIP
-          where: equals("log.groupCategoryId", "12")
+          where: equals("event.groupCategoryId", "12")
       - add:
           function: string
           params:
-            key: log.groupCategory
+            key: event.groupCategory
             value: SSL VPN
-          where: equals("log.groupCategoryId", "13")
+          where: equals("event.groupCategoryId", "13")
       - add:
           function: string
           params:
-            key: log.groupCategory
+            key: event.groupCategory
             value: Anti-Spam
-          where: equals("log.groupCategoryId", "14")
+          where: equals("event.groupCategoryId", "14")
       - add:
           function: string
           params:
-            key: log.groupCategory
+            key: event.groupCategory
             value: WAN Acceleration
-          where: equals("log.groupCategoryId", "15")
+          where: equals("event.groupCategoryId", "15")
       - add:
           function: string
           params:
-            key: log.groupCategory
+            key: event.groupCategory
             value: SD-WAN
-          where: equals("log.groupCategoryId", "16")
+          where: equals("event.groupCategoryId", "16")
       - add:
           function: string
           params:
-            key: log.groupCategory
+            key: event.groupCategory
             value: Multi-Tenancy
-          where: equals("log.groupCategoryId", "17")
+          where: equals("event.groupCategoryId", "17")
 
       # -------------------------------------------------------------------
       # Severity from syslog priority (SonicWall log.priority = 0..7)
@@ -903,31 +903,31 @@ pipeline:
           params:
             key: severity
             value: critical
-          where: oneOf("log.priority", ["0", "1", "2"])
+          where: oneOf("event.priority", ["0", "1", "2"])
       - add:
           function: string
           params:
             key: severity
             value: error
-          where: equals("log.priority", "3")
+          where: equals("event.priority", "3")
       - add:
           function: string
           params:
             key: severity
             value: warning
-          where: equals("log.priority", "4")
+          where: equals("event.priority", "4")
       - add:
           function: string
           params:
             key: severity
             value: info
-          where: oneOf("log.priority", ["5", "6"])
+          where: oneOf("event.priority", ["5", "6"])
       - add:
           function: string
           params:
             key: severity
             value: debug
-          where: equals("log.priority", "7")
+          where: equals("event.priority", "7")
 
       # -------------------------------------------------------------------
       # Geolocation
@@ -951,8 +951,8 @@ pipeline:
       # -------------------------------------------------------------------
       - delete:
           fields:
-            - log.syslogPri
-            - log.cefVersion
-            - log.fwaction
-            - log.fw_action
-            - log.grokTrash
+            - event.syslogPri
+            - event.cefVersion
+            - event.fwaction
+            - event.fw_action
+            - event.grokTrash

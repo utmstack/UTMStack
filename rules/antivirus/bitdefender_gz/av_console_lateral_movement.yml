@@ -20,36 +20,36 @@ description: 'A successful task with a name indicating uninstall, quarantine res
   compromise or lateral movement. Check the creator, actual task operation and approved change record before containment.
 
   '
-where: equals("log.correlationCandidate.avConsoleLateralMovement","match")
+where: equals("event.correlationCandidate.avConsoleLateralMovement","match")
 correlation:
 - indexPattern: v11-log-antivirus-bitdefender-gz-*
   within: 1h
   count: 3
   with:
-  - field: log.correlationCandidate.avConsoleLateralMovement
+  - field: event.correlationCandidate.avConsoleLateralMovement
     operator: filter_term
     value: match
   - field: dataSource
     operator: filter_term
     value: '{{.dataSource}}'
-  - field: log.BitdefenderGZCompanyId
+  - field: event.BitdefenderGZCompanyId
     operator: filter_term
-    value: '{{.log.BitdefenderGZCompanyId}}'
-  - field: log.endpointKeyType
+    value: '{{.event.BitdefenderGZCompanyId}}'
+  - field: event.endpointKeyType
     operator: filter_term
-    value: '{{.log.endpointKeyType}}'
-  - field: log.endpointKey
+    value: '{{.event.endpointKeyType}}'
+  - field: event.endpointKey
     operator: must_not_term
-    value: '{{.log.endpointKey}}'
-  - field: log.suid
+    value: '{{.event.endpointKey}}'
+  - field: event.suid
     operator: filter_term
-    value: '{{.log.suid}}'
-  - field: log.BitdefenderGZTaskType
+    value: '{{.event.suid}}'
+  - field: event.BitdefenderGZTaskType
     operator: filter_term
-    value: '{{.log.BitdefenderGZTaskType}}'
+    value: '{{.event.BitdefenderGZTaskType}}'
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.BitdefenderGZCompanyId
-- lastEvent.log.endpointKeyType
-- lastEvent.log.endpointKey
-- lastEvent.log.BitdefenderGZTaskName
+- lastEvent.event.BitdefenderGZCompanyId
+- lastEvent.event.endpointKeyType
+- lastEvent.event.endpointKey
+- lastEvent.event.BitdefenderGZTaskName

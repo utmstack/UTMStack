@@ -17,7 +17,7 @@ description: |
 
   Next Steps:
   1. Immediately verify if the CloudTrail modification was authorized
-  2. Check the user identity ({{log.userIdentityArn}}) and source IP ({{log.sourceIPAddress}}) for legitimacy
+  2. Check the user identity ({{event.userIdentityArn}}) and source IP ({{event.sourceIPAddress}}) for legitimacy
   3. Review CloudTrail configuration to ensure logging is re-enabled for all regions
   4. Check for any suspicious API calls made around the time of this event
   5. If unauthorized, investigate what activities may have occurred while logging was disabled
@@ -27,13 +27,13 @@ description: |
   9. Review AWS Config rules for CloudTrail compliance
   10. Enable CloudTrail Insights for anomaly detection
 where: |
-  equals("log.awsRecordType","cloudtrail") &&
-  (equals("log.eventSource", "cloudtrail.amazonaws.com") &&
-  oneOf("log.eventName", ["StopLogging", "DeleteTrail"]) &&
+  equals("event.awsRecordType","cloudtrail") &&
+  (equals("event.eventSource", "cloudtrail.amazonaws.com") &&
+  oneOf("event.eventName", ["StopLogging", "DeleteTrail"]) &&
   equals("actionResult","success"))
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
 - adversary.user
-- lastEvent.log.requestParameters.name
+- lastEvent.event.requestParameters.name

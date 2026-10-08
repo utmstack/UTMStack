@@ -62,11 +62,11 @@ export class DashboardOverviewComponent implements OnInit, OnDestroy {
     // 'global.type.keyword': 'logx',
     '@timestamp': null,
     'dataType.keyword': 'wineventlog',
-    'logx.wineventlog.event_name.keyword': null,
+    'action.keyword': null,
     patternId: IndexPatternSystemEnumID.LOG,
     indexPattern: IndexPatternSystemEnumName.LOG
   };
-  paramEvenTopCLick = 'logx.wineventlog.event_name.keyword';
+  paramEvenTopCLick = 'action.keyword';
   alertSeverityColorMap: { value: string, color: string }[] = [
     {color: '#42A5F5', value: LOW_TEXT},
     {color: '#FF9800', value: MEDIUM_TEXT},

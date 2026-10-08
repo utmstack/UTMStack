@@ -15,15 +15,15 @@ references:
 description: |
   Detects a successful AuthorizeDBSecurityGroupIngress request allowing 0.0.0.0/0. Revoking a permission does not add exposure. Review the database security group and business justification.
 where: |
-  equals("log.awsRecordType","cloudtrail") &&
-  (equals("log.eventSource","rds.amazonaws.com") &&
-  oneOf("log.eventName",["AuthorizeDBSecurityGroupIngress"]) &&
+  equals("event.awsRecordType","cloudtrail") &&
+  (equals("event.eventSource","rds.amazonaws.com") &&
+  oneOf("event.eventName",["AuthorizeDBSecurityGroupIngress"]) &&
   equals("actionResult","success") &&
-  (equals("log.requestParameters.cidrip","0.0.0.0/0") ||
-  equals("log.requestParameters.cidrIp","0.0.0.0/0")))
+  (equals("event.requestParameters.cidrip","0.0.0.0/0") ||
+  equals("event.requestParameters.cidrIp","0.0.0.0/0")))
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
-- lastEvent.log.eventName
-- lastEvent.log.userIdentityArn
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
+- lastEvent.event.eventName
+- lastEvent.event.userIdentityArn

@@ -31,23 +31,23 @@ description: |
   12. Document the incident details and update security monitoring rules based on attack patterns
 where: |
   (
-    equals("log.eventType", "ids") ||
-    equals("log.eventType", "securityd") ||
-    equals("log.eventType", "audit") ||
-    contains("log.msg", "intrusion") ||
-    contains("log.msg", "suspicious") ||
-    contains("log.msg", "anomaly detected")
+    equals("event.eventType", "ids") ||
+    equals("event.eventType", "securityd") ||
+    equals("event.eventType", "audit") ||
+    contains("event.msg", "intrusion") ||
+    contains("event.msg", "suspicious") ||
+    contains("event.msg", "anomaly detected")
   ) && 
   (
-    contains("log.msg", "buffer overflow") ||
-    contains("log.msg", "privilege escalation") ||
-    contains("log.msg", "unauthorized modification") ||
-    contains("log.msg", "rootkit") ||
-    contains("log.msg", "backdoor") ||
-    contains("log.msg", "suspicious process") ||
-    contains("log.msg", "file integrity") ||
+    contains("event.msg", "buffer overflow") ||
+    contains("event.msg", "privilege escalation") ||
+    contains("event.msg", "unauthorized modification") ||
+    contains("event.msg", "rootkit") ||
+    contains("event.msg", "backdoor") ||
+    contains("event.msg", "suspicious process") ||
+    contains("event.msg", "file integrity") ||
     contains("action", "ALERT") ||
-    equals("log.returnCode", "1")
+    equals("event.returnCode", "1")
   )
 groupBy:
   - target.host

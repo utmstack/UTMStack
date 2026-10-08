@@ -23,5 +23,5 @@ description: |
 where: |
   equals("action", "Add-MailboxFolderPermission") && equals("actionResult", "success")
 groupBy:
-  - lastEvent.log.Parameters
+  - lastEvent.event.Parameters
   - adversary.user

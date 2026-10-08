@@ -23,8 +23,8 @@ description: |
   5. Check for lateral movement from the compromised host
   6. Determine the initial infection vector
 where: |
-  equals("log.format","cef") && (exists("log.signatureID") &&
-  (regexMatch("log.msg", "(?i)(rootkit|bootkit|Rootkit|hidden.*process|hidden.*module)") ||
-   contains("log.cs2", "Rootkit") || contains("log.cs4", "Rootkit") ||
-   contains("log.cs2", "Bootkit") || contains("log.cs4", "Bootkit") ||
-   (contains("log.msg", "System Analysis") && contains("log.msg", "hidden"))))
+  equals("event.format","cef") && (exists("event.signatureID") &&
+  (regexMatch("event.msg", "(?i)(rootkit|bootkit|Rootkit|hidden.*process|hidden.*module)") ||
+   contains("event.cs2", "Rootkit") || contains("event.cs4", "Rootkit") ||
+   contains("event.cs2", "Bootkit") || contains("event.cs4", "Bootkit") ||
+   (contains("event.msg", "System Analysis") && contains("event.msg", "hidden"))))

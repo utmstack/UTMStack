@@ -25,8 +25,8 @@ description: |
   6. Check for other security policy changes from the same admin
   7. Audit admin roles and consider implementing super admin 2SV enforcement
 where: |
-  contains("log.protoPayloadMethodName", "ENFORCE_STRONG_AUTHENTICATION") ||
-  (contains("log.protoPayloadServiceName", "admin.googleapis.com") && contains("log.protoPayloadMethodName", "2sv") && contains("log.protoPayload.request", "disable"))
+  contains("event.protoPayloadMethodName", "ENFORCE_STRONG_AUTHENTICATION") ||
+  (contains("event.protoPayloadServiceName", "admin.googleapis.com") && contains("event.protoPayloadMethodName", "2sv") && contains("event.protoPayload.request", "disable"))
 groupBy:
   - lastEvent.origin.user
-  - lastEvent.log.protoPayloadMethodName
+  - lastEvent.event.protoPayloadMethodName

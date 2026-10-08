@@ -25,10 +25,10 @@ description: |
   6. Scan the deployed container for vulnerabilities and malware
   7. Review cluster activity following the deployment
 where: |
-  (equals("log.protoPayloadServiceName", "binaryauthorization.googleapis.com") &&
-  contains("log.protoPayload.response", "breakglass")) ||
-  (contains("log.protoPayloadMethodName", "container.clusters") &&
-  contains("log.protoPayload.request", "breakglass"))
+  (equals("event.protoPayloadServiceName", "binaryauthorization.googleapis.com") &&
+  contains("event.protoPayload.response", "breakglass")) ||
+  (contains("event.protoPayloadMethodName", "container.clusters") &&
+  contains("event.protoPayload.request", "breakglass"))
 groupBy:
   - lastEvent.origin.user
-  - lastEvent.log.protoPayloadResourceName
+  - lastEvent.event.protoPayloadResourceName

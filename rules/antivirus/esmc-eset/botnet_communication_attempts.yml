@@ -27,15 +27,15 @@ description: |
   8. Consider reimaging the system if the infection persists
   9. Review ESET logs for the time period around this detection to identify related malicious activity
 where: |
-  (equals("log.eventType", "FirewallAggregated_Event") &&
-  (regexMatch("log.threat_name", "(?i)(botnet|cnc[.]generic|c&c|command and control)") || regexMatch("log.event", "(?i)(botnet|cnc[.]generic|c&c|command and control)")) &&
-  equals("log.inbound", false) && exists("target.ip")) &&
+  (equals("event.eventType", "FirewallAggregated_Event") &&
+  (regexMatch("event.threat_name", "(?i)(botnet|cnc[.]generic|c&c|command and control)") || regexMatch("event.event", "(?i)(botnet|cnc[.]generic|c&c|command and control)")) &&
+  equals("event.inbound", false) && exists("target.ip")) &&
   exists("dataSource") && !oneOf("dataSource", ["", "unknown", "-"]) &&
-  oneOf("log.endpointKeyType", ["uuid", "host", "ip"]) &&
-  exists("log.endpointKey") && !equals("log.endpointKey", "")
+  oneOf("event.endpointKeyType", ["uuid", "host", "ip"]) &&
+  exists("event.endpointKey") && !equals("event.endpointKey", "")
 groupBy:
   - lastEvent.dataSource
-  - lastEvent.log.endpointKeyType
-  - lastEvent.log.endpointKey
+  - lastEvent.event.endpointKeyType
+  - lastEvent.event.endpointKey
   - adversary.ip
-  - lastEvent.log.threat_name
+  - lastEvent.event.threat_name

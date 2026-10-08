@@ -32,8 +32,8 @@ description: |
      address; they are not alerted again for seven days.
 where: |
   (
-    oneOf("log.eventCode", ["1201", "1519"]) ||
-    (contains("log.message", "Suspected Botnet responder blocked") && !contains("log.message", "Source: Custom List"))
+    oneOf("event.eventCode", ["1201", "1519"]) ||
+    (contains("event.message", "Suspected Botnet responder blocked") && !contains("event.message", "Source: Custom List"))
   ) && equals("actionResult", "denied")
 deduplicateBy:
   - dataSource

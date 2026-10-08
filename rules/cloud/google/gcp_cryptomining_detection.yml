@@ -26,12 +26,12 @@ description: |
   7. Rotate compromised credentials and review IAM bindings
   8. Implement Organization Policy constraints to restrict GPU instance creation
 where: |
-  contains("log.protoPayloadMethodName", "compute.instances.insert") &&
-  (contains("log.protoPayload.request.machineType", "a2-") ||
-   contains("log.protoPayload.request.machineType", "g2-") ||
-   contains("log.protoPayload.request.machineType", "n1-highmem-96") ||
-   contains("log.protoPayload.request.machineType", "c2d-highcpu") ||
-   contains("log.protoPayload.request.guestAccelerators", "nvidia"))
+  contains("event.protoPayloadMethodName", "compute.instances.insert") &&
+  (contains("event.protoPayload.request.machineType", "a2-") ||
+   contains("event.protoPayload.request.machineType", "g2-") ||
+   contains("event.protoPayload.request.machineType", "n1-highmem-96") ||
+   contains("event.protoPayload.request.machineType", "c2d-highcpu") ||
+   contains("event.protoPayload.request.guestAccelerators", "nvidia"))
 groupBy:
-  - lastEvent.log.protoPayloadResourceName
+  - lastEvent.event.protoPayloadResourceName
   - adversary.user

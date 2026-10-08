@@ -26,7 +26,7 @@ description: |
   7. Update DLP policies if needed to prevent future violations
   8. Document findings and coordinate with data protection team
 where: |
-  (equals("log.Workload", "SharePoint") || equals("log.Workload", "OneDrive")) &&
+  (equals("event.Workload", "SharePoint") || equals("event.Workload", "OneDrive")) &&
   (
     equals("action", "SharingInvitationCreated") ||
     equals("action", "AnonymousLinkCreated") ||
@@ -38,7 +38,7 @@ where: |
   ) &&
   equals("actionResult", "success") &&
   (
-    equals("log.TargetUserOrGroupType", "Guest")  
+    equals("event.TargetUserOrGroupType", "Guest")  
   )
 afterEvents:
   - indexPattern: v11-log-o365-*
@@ -49,5 +49,5 @@ afterEvents:
     within: 1h
     count: 5
 groupBy:
-  - lastEvent.log.ObjectId
+  - lastEvent.event.ObjectId
   - adversary.user

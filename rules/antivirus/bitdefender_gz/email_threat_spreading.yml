@@ -19,12 +19,12 @@ description: 'The Exchange antimalware module reports a detection. Determine whe
   that a specific user opened a message. Investigate affected messages and recipients before choosing containment.
 
   '
-where: 'equals("log.BitdefenderGZModule", "exchange-malware")
+where: 'equals("event.BitdefenderGZModule", "exchange-malware")
 
   '
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.BitdefenderGZCompanyId
-- lastEvent.log.endpointKeyType
-- lastEvent.log.endpointKey
+- lastEvent.event.BitdefenderGZCompanyId
+- lastEvent.event.endpointKeyType
+- lastEvent.event.endpointKey
 - target.malware

@@ -26,15 +26,15 @@ description: |
   7. Check for any unauthorized scheduled tasks or services
   8. Update Kaspersky signatures and run a full system scan
 where: |
-  equals("log.format","cef") && (exists("log.signatureID") &&
+  equals("event.format","cef") && (exists("event.signatureID") &&
   !equals("actionResult", "success") &&
-  (contains("log.msg", ["privilege", "elevation", "EXPLOIT", "Exploit",
+  (contains("event.msg", ["privilege", "elevation", "EXPLOIT", "Exploit",
      "process injection", "token manipulation"]) ||
-   contains("log.cs1", "EXPLOIT") ||
-   contains("log.cs2", "Exploit") ||
-   contains("log.cs4", "Exploit") ||
-   contains("log.msg", ["privilege", "elevation"])))
+   contains("event.cs1", "EXPLOIT") ||
+   contains("event.cs2", "Exploit") ||
+   contains("event.cs4", "Exploit") ||
+   contains("event.msg", ["privilege", "elevation"])))
 groupBy:
-- lastEvent.log.signatureID
+- lastEvent.event.signatureID
 - adversary.host
 - adversary.user

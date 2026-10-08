@@ -24,9 +24,9 @@ description: |
   5. Review the SSH client version for known vulnerable or suspicious clients
   6. Consider restricting SSH access to authorized jump hosts only
 where: |
-  equals("log.eventType", "alert") &&
-  (contains("log.alert.signature", ["SSH", "ssh"]) &&
-   contains("log.alert.signature", ["brute", "scan", "tunnel", "banner", "exploit", "overflow"])) &&
+  equals("event.eventType", "alert") &&
+  (contains("event.alert.signature", ["SSH", "ssh"]) &&
+   contains("event.alert.signature", ["brute", "scan", "tunnel", "banner", "exploit", "overflow"])) &&
   exists("origin.ip") &&
   exists("target.ip")
 afterEvents:

@@ -15,7 +15,7 @@ description: "Adversaries may use Valid Accounts to interact with a remote netwo
 references:
   - "https://attack.mitre.org/techniques/T1021/002/"
 where: |
-  equals("log.eventCode", 7045) && oneOf("log.channel", ["system", "System"]) && (contains("log.eventDataImagePath", "%systemroot%") || regexMatch("log.eventDataImagePath", "(?i).:.[Ww]indows.")) && !regexMatch("log.eventDataImagePath", "(?i)(System32|SysWOW64|WinSxS|Microsoft.NET|servicing|SystemApps|drivers|Installer)") && regexMatch("log.eventDataImagePath", "[.]exe")
+  equals("event.eventCode", 7045) && oneOf("event.channel", ["system", "System"]) && (contains("event.eventDataImagePath", "%systemroot%") || regexMatch("event.eventDataImagePath", "(?i).:.[Ww]indows.")) && !regexMatch("event.eventDataImagePath", "(?i)(System32|SysWOW64|WinSxS|Microsoft.NET|servicing|SystemApps|drivers|Installer)") && regexMatch("event.eventDataImagePath", "[.]exe")
 groupBy:
   - dataSource
 deduplicateBy: []

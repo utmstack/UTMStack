@@ -12,7 +12,7 @@ impact:
   integrity: 3
   availability: 1
 where: >
-  equals("log.metadataEventType", "RemoteResponseSessionStartEvent")
+  equals("event.metadataEventType", "RemoteResponseSessionStartEvent")
 groupBy:
-  - lastEvent.log.metadataEventType
-  - lastEvent.log.eventUserId
+  - lastEvent.event.metadataEventType
+  - lastEvent.event.eventUserId

@@ -23,7 +23,7 @@ description: |
   4. Confirm the identity of the user who initiated the rollback operation
   5. If unauthorized, investigate potential system compromise and consider isolating the affected endpoint
   6. Document the rollback operation and its justification for compliance purposes
-where: regexMatch("log.eventDescription", ".*[Rr]ollback.*") && (equals("log.activityType", "rollback") || exists("log.rollbackStatus") || equals("log.cat", "SystemEvent"))
+where: regexMatch("event.eventDescription", ".*[Rr]ollback.*") && (equals("event.activityType", "rollback") || exists("event.rollbackStatus") || equals("event.cat", "SystemEvent"))
 groupBy:
-  - lastEvent.log.endpointDeviceName
+  - lastEvent.event.endpointDeviceName
   - target.host

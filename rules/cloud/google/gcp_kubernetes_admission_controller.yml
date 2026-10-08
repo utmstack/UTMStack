@@ -24,9 +24,9 @@ description: |
   5. If unauthorized, delete the webhook and audit all recent workload deployments
   6. Review cluster RBAC for webhook management permissions
 where: |
-  contains("log.protoPayloadMethodName", "admissionregistration.k8s.io") &&
-  (contains("log.protoPayloadMethodName", "mutatingwebhookconfigurations") || contains("log.protoPayloadMethodName", "validatingwebhookconfigurations")) &&
-  (contains("log.protoPayloadMethodName", "create") || contains("log.protoPayloadMethodName", "update") || contains("log.protoPayloadMethodName", "patch"))
+  contains("event.protoPayloadMethodName", "admissionregistration.k8s.io") &&
+  (contains("event.protoPayloadMethodName", "mutatingwebhookconfigurations") || contains("event.protoPayloadMethodName", "validatingwebhookconfigurations")) &&
+  (contains("event.protoPayloadMethodName", "create") || contains("event.protoPayloadMethodName", "update") || contains("event.protoPayloadMethodName", "patch"))
 groupBy:
   - lastEvent.origin.user
-  - lastEvent.log.protoPayloadResourceName
+  - lastEvent.event.protoPayloadResourceName

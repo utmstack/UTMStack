@@ -19,7 +19,7 @@ description: |
   Next Steps:
   1. Review the source and destination IP addresses for known malicious indicators using threat intelligence feeds
   2. Check if the blocked connection was attempting to reach known C2 servers or suspicious domains
-  3. Examine the process that initiated the network connection (check log.processName or log.filePath if available)
+  3. Examine the process that initiated the network connection (check event.processName or event.filePath if available)
   4. Review other security events from the same host within the last hour for additional IOCs
   5. Verify if multiple hosts are exhibiting similar network behavior (potential lateral movement or outbreak)
   6. Check firewall logs for any successful connections to the same destination that may have bypassed Kaspersky
@@ -30,14 +30,14 @@ description: |
 
   History counts only matching CEF candidates from the same collector and source identity.
 where: |
-  equals("log.format","cef") && (exists("log.signatureID") &&
-  (contains("log.msg", ["suspicious connection", "network attack", "port scan", "unusual traffic"]) ||
-   contains("log.msg", "network") ||
-   contains("log.cs1", "NETWORK") ||
-   contains("log.cs2", "Net-Worm") ||
-   contains("log.cs4", "Net-Worm") ||
-   (exists("target.ip") && exists("log.dpt"))) &&
-  equals("actionResult", "denied") && exists("origin.ip") && exists("target.ip")) && exists("log.endpointKey") && exists("log.endpointKeyType") && exists("dataSource")
+  equals("event.format","cef") && (exists("event.signatureID") &&
+  (contains("event.msg", ["suspicious connection", "network attack", "port scan", "unusual traffic"]) ||
+   contains("event.msg", "network") ||
+   contains("event.cs1", "NETWORK") ||
+   contains("event.cs2", "Net-Worm") ||
+   contains("event.cs4", "Net-Worm") ||
+   (exists("target.ip") && exists("event.dpt"))) &&
+  equals("actionResult", "denied") && exists("origin.ip") && exists("target.ip")) && exists("event.endpointKey") && exists("event.endpointKeyType") && exists("dataSource")
 groupBy:
 - target.ip
 correlation:
@@ -46,13 +46,13 @@ correlation:
   - field: dataSource
     operator: filter_term
     value: '{{.dataSource}}'
-  - field: log.endpointKeyType
+  - field: event.endpointKeyType
     operator: filter_term
-    value: '{{.log.endpointKeyType}}'
-  - field: log.endpointKey
+    value: '{{.event.endpointKeyType}}'
+  - field: event.endpointKey
     operator: filter_term
-    value: '{{.log.endpointKey}}'
-  - field: log.correlationCandidate.suspiciousNetworkActivity
+    value: '{{.event.endpointKey}}'
+  - field: event.correlationCandidate.suspiciousNetworkActivity
     operator: filter_term
     value: match
   - field: target.ip

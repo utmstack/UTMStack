@@ -29,19 +29,19 @@ description: |
   8. Document findings and update security policies if needed
 where: |
   (
-    contains("log.syslogIdentifier", "openshift") ||
-    contains("log.syslogIdentifier", "kube") ||
-    oneOf("log.syslogIdentifier", ["k3s", "rke2", "crio"])
+    contains("event.syslogIdentifier", "openshift") ||
+    contains("event.syslogIdentifier", "kube") ||
+    oneOf("event.syslogIdentifier", ["k3s", "rke2", "crio"])
   ) &&
   (
-    (contains("log.message", "is forbidden: User ") &&
-     !contains("log.message", "system:node:") &&
-     !contains("log.message", "system:kube-")) ||
-    contains("log.message", "unable to validate against any security context constraint") ||
-    contains("log.message", "violates PodSecurity") ||
-    (contains("log.message", "admission webhook ") && contains("log.message", " denied the request")) ||
-    contains("log.message", "RBAC DENY:")
+    (contains("event.message", "is forbidden: User ") &&
+     !contains("event.message", "system:node:") &&
+     !contains("event.message", "system:kube-")) ||
+    contains("event.message", "unable to validate against any security context constraint") ||
+    contains("event.message", "violates PodSecurity") ||
+    (contains("event.message", "admission webhook ") && contains("event.message", " denied the request")) ||
+    contains("event.message", "RBAC DENY:")
   )
 deduplicateBy:
   - dataSource
-  - lastEvent.log.syslogIdentifier
+  - lastEvent.event.syslogIdentifier

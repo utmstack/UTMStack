@@ -292,10 +292,39 @@
             <artifactId>opensearch-connector</artifactId>
             <version>1.0.5</version>
         </dependency>
+        <!-- The v11-log-* event bag is an OpenSearch `flat_object` field. The
+             connector pulls opensearch-java 2.6.0 transitively, but 2.6.0
+             predates FlatObjectProperty and THROWS deserializing a flat_object
+             mapping, which breaks getIndexProperties (the UI field picker).
+             Bump the client to 2.10.2. All of 2.10.2's transitive deps are
+             excluded so the ONLY jar that changes is opensearch-java itself;
+             the app keeps its existing jackson (2.12.5) and opensearch-rest-client
+             (2.9.0, via the connector). Verified empirically against the product
+             OS image 2.19.1 with the connector 1.0.5 code unchanged. -->
+        <dependency>
+            <groupId>org.opensearch.client</groupId>
+            <artifactId>opensearch-java</artifactId>
+            <version>2.10.2</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <dependency>
             <groupId>jakarta.json</groupId>
             <artifactId>jakarta.json-api</artifactId>
             <version>2.1.1</version>
+        </dependency>
+        <!-- JSON-P provider implementation. jakarta.json-api is SPI-only: without
+             one on the classpath, opensearch-java's JsonValueParser$DefaultJsonProvider
+             static init fails (JsonProvider.provider() finds nothing) and every later
+             use throws NoClassDefFoundError. -->
+        <dependency>
+            <groupId>org.eclipse.parsson</groupId>
+            <artifactId>parsson</artifactId>
+            <version>1.1.4</version>
         </dependency>
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
@@ -397,6 +426,12 @@
           <artifactId>commons-io</artifactId>
           <version>2.15.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.10.1</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -445,6 +480,15 @@
             <plugin>
                 <groupId>org.gaul</groupId>
                 <artifactId>modernizer-maven-plugin</artifactId>
+            </plugin>
+            <!-- tests live in src/main/java (no src/test tree); point surefire at the main output dir -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven-surefire-plugin.version}</version>
+                <configuration>
+                    <testClassesDirectory>${project.build.outputDirectory}</testClassesDirectory>
+                </configuration>
             </plugin>
             <!-- jhipster-needle-maven-add-plugin -->
 

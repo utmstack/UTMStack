@@ -18,17 +18,17 @@ description: 'GravityZone reports an antimalware, behavioral or HyperDetect even
   priority, not proof of compromise. actionResult=denied means the product blocked, quarantined, killed, deleted or disinfected the
   threat; success means the file was restored; failed means the vendor reports the threat still present. An absent
   result is unknown. Review target.malware, hashes,
-  log.filePath and log.BitdefenderGZMalwareType; the latter describes the infected-object category, not the SDK malware type.
+  event.filePath and event.BitdefenderGZMalwareType; the latter describes the infected-object category, not the SDK malware type.
 
   '
-where: 'oneOf("log.BitdefenderGZModule", ["av", "avc", "hd"]) &&
+where: 'oneOf("event.BitdefenderGZModule", ["av", "avc", "hd"]) &&
 
-  greaterOrEqual("log.cefSeverity", 8)
+  greaterOrEqual("event.cefSeverity", 8)
 
   '
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.BitdefenderGZCompanyId
-- lastEvent.log.endpointKeyType
-- lastEvent.log.endpointKey
+- lastEvent.event.BitdefenderGZCompanyId
+- lastEvent.event.endpointKeyType
+- lastEvent.event.endpointKey
 - target.malware

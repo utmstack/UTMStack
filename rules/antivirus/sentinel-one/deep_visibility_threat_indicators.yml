@@ -24,15 +24,15 @@ description: |
   5. Check if this is part of a larger attack campaign
   6. Consider isolating the affected endpoint if threat is confirmed
 where: |
-  exists("log.eventDescription") &&
+  exists("event.eventDescription") &&
   (
-    contains("log.eventDescription", ["malware detected", "threat detected", "malicious file", "malicious process",
+    contains("event.eventDescription", ["malware detected", "threat detected", "malicious file", "malicious process",
       "exploit detected", "ransomware detected", "trojan detected", "backdoor detected", "rootkit detected",
       "cryptominer detected", "worm detected", "spyware detected"]) ||
-    (contains("log.eventDescription", "threat") && oneOf("log.threatClassification", ["Malware", "Exploit", "Ransomware", "Trojan", "PUP"])) ||
-    (contains("log.eventDescription", "malicious") && exists("log.threatId"))
+    (contains("event.eventDescription", "threat") && oneOf("event.threatClassification", ["Malware", "Exploit", "Ransomware", "Trojan", "PUP"])) ||
+    (contains("event.eventDescription", "malicious") && exists("event.threatId"))
   ) &&
   exists("target.host")
 groupBy:
-  - lastEvent.log.eventDescription
+  - lastEvent.event.eventDescription
   - target.host

@@ -25,9 +25,9 @@ description: |
   6. Check for malware on the source host that is performing the exfiltration
   7. Implement DNS query length monitoring and blocking for oversized queries
 where: |
-  equals("log.eventType", "dns") &&
-  exists("log.dns.query") &&
-  regexMatch("log.dns.query", ".*==\\..*") &&
+  equals("event.eventType", "dns") &&
+  exists("event.dns.query") &&
+  regexMatch("event.dns.query", ".*==\\..*") &&
   exists("origin.ip")
 afterEvents:
   - indexPattern: v11-log-suricata-*
@@ -35,7 +35,7 @@ afterEvents:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'
-      - field: log.eventType
+      - field: event.eventType
         operator: filter_term
         value: 'dns'
     within: 10m

@@ -25,14 +25,14 @@ description: |
   6) Review network traffic for command & control communications
   7) Implement enhanced monitoring on high-value targets identified in the attack
 where: |
-  oneOf("log.event_type", ["decoy_interaction", "honeypot_access", "deception_triggered"]) &&
-  equals("log.threat_level", "critical") &&
-  (equals("log.attack_sophistication", "advanced") || greaterOrEqual("log.threat_score", 85)) &&
-  (equals("log.apt_indicators", "true") ||
-   equals("log.custom_malware", "true") ||
-   equals("log.advanced_ttps", "true") ||
-   greaterThan("log.targeted_decoys", 1) ||
-   equals("log.persistence_attempt", "true"))
+  oneOf("event.event_type", ["decoy_interaction", "honeypot_access", "deception_triggered"]) &&
+  equals("event.threat_level", "critical") &&
+  (equals("event.attack_sophistication", "advanced") || greaterOrEqual("event.threat_score", 85)) &&
+  (equals("event.apt_indicators", "true") ||
+   equals("event.custom_malware", "true") ||
+   equals("event.advanced_ttps", "true") ||
+   greaterThan("event.targeted_decoys", 1) ||
+   equals("event.persistence_attempt", "true"))
 groupBy:
   - adversary.host
   - adversary.ip

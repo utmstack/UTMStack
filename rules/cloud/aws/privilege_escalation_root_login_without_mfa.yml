@@ -16,15 +16,15 @@ references:
 - https://attack.mitre.org/techniques/T1078/
 - https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-user.html
 where: |
-  equals("log.awsRecordType","cloudtrail") &&
-  (equals("log.eventSource", "signin.amazonaws.com") &&
-  equals("log.eventName", "ConsoleLogin") &&
-  equals("log.userIdentity.type", "Root") &&
-  equals("log.additionalEventData.MFAUsed", "No") &&
+  equals("event.awsRecordType","cloudtrail") &&
+  (equals("event.eventSource", "signin.amazonaws.com") &&
+  equals("event.eventName", "ConsoleLogin") &&
+  equals("event.userIdentity.type", "Root") &&
+  equals("event.additionalEventData.MFAUsed", "No") &&
   equals("actionResult","success"))
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
 - adversary.ip
 - adversary.user

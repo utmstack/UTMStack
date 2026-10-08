@@ -29,11 +29,11 @@ description: |
   6. Monitor for subsequent credential usage from the requesting IP
 where: |
   !oneOf("dataSource", ["", "unknown"]) &&
-  exists("log.authenticationSource") &&
-  equals("log.eventCode", "4768") &&
-  equals("log.channel", "Security") &&
-  equals("log.eventDataTicketEncryptionType", "23") &&
-  equals("log.eventDataPreAuthType", "0") &&
+  exists("event.authenticationSource") &&
+  equals("event.eventCode", "4768") &&
+  equals("event.channel", "Security") &&
+  equals("event.eventDataTicketEncryptionType", "23") &&
+  equals("event.eventDataPreAuthType", "0") &&
   !regexMatch("target.user", "(?i)\\$$") &&
   exists("target.user")
 afterEvents:
@@ -42,15 +42,15 @@ afterEvents:
       - field: dataSource.keyword
         operator: filter_term
         value: '{{.dataSource}}'
-      - field: log.authenticationSource.keyword
+      - field: event.authenticationSource.keyword
         operator: filter_term
-        value: '{{.log.authenticationSource}}'
-      - field: log.authenticationCandidate.asrepRoastingDetection.keyword
+        value: '{{.event.authenticationSource}}'
+      - field: event.authenticationCandidate.asrepRoastingDetection.keyword
         operator: filter_term
         value: match
     within: 15m
     count: 3
 groupBy:
   - dataSource
-  - lastEvent.log.authenticationSource
+  - lastEvent.event.authenticationSource
   - target.user

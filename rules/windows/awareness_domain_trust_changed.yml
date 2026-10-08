@@ -25,12 +25,12 @@ description: |
   1. Confirm the trusted domain, the trust direction and the account that made the change match a planned change.
   2. If it was not planned, review the trust settings and the other activity of that account, and remove trusts nobody requested.
 where: |
-  equals("log.channel", "Security") &&
-  equals("log.providerName", "Microsoft-Windows-Security-Auditing") &&
+  equals("event.channel", "Security") &&
+  equals("event.providerName", "Microsoft-Windows-Security-Auditing") &&
   (
-    oneOf("log.eventCode", [4706, 4707]) ||
-    (equals("log.eventCode", 4716) && !equals("log.eventDataSubjectUserSid", "S-1-5-7"))
+    oneOf("event.eventCode", [4706, 4707]) ||
+    (equals("event.eventCode", 4716) && !equals("event.eventDataSubjectUserSid", "S-1-5-7"))
   )
 groupBy:
   - dataSource
-  - lastEvent.log.eventDataSubjectUserSid
+  - lastEvent.event.eventDataSubjectUserSid

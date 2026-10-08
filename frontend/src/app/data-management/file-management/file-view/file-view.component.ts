@@ -77,7 +77,7 @@ export class FileViewComponent implements OnInit {
   setFiltersByFileType(fileFilter: FileQueryParamEnum): Promise<ElasticFilterType[]> {
     return new Promise<ElasticFilterType[]>(resolve => {
       const filters: ElasticFilterType[] = [
-        {field: FileFieldEnum.FILE_OBJECT_TYPE_FIELD, operator: ElasticOperatorsEnum.IS_ONE_OF, value: FILE_OBJECT_TYPE_VALUE},
+        {field: FileFieldEnum.FILE_OBJECT_TYPE_FIELD, operator: ElasticOperatorsEnum.IS_ONE_OF_TERMS, value: FILE_OBJECT_TYPE_VALUE},
         {field: FileFieldEnum.FILE_TIMESTAMP_FIELD, operator: ElasticOperatorsEnum.IS_BETWEEN, value: ['now-7d', 'now']}
       ];
       switch (fileFilter) {
@@ -86,34 +86,34 @@ export class FileViewComponent implements OnInit {
           this.fields = FILE_FIELDS;
           filters.push({
             field: FileFieldEnum.FILE_EVENT_ID_FIELD,
-            operator: ElasticOperatorsEnum.IS_ONE_OF,
-            value: ALL_FILE_EVENT_ID_NUMBER
+            operator: ElasticOperatorsEnum.IS_ONE_OF_TERMS,
+            value: ALL_FILE_EVENT_ID_NUMBER.map(String)
           });
           break;
         case FileQueryParamEnum.FILES_CREATED:
           this.fileTitle = 'Files created';
           filters.push({
             field: FileFieldEnum.FILE_EVENT_ID_FIELD,
-            operator: ElasticOperatorsEnum.IS,
-            value: CREATED_FILE_EVENT_ID_NUMBER
+            operator: ElasticOperatorsEnum.IS_ONE_OF_TERMS,
+            value: [String(CREATED_FILE_EVENT_ID_NUMBER)]
           });
           filters.push({
             field: FileFieldEnum.FILE_ACCESS_MASK_FIELD,
-            operator: ElasticOperatorsEnum.IS_ONE_OF,
-            value: [AccessMaskEnum.WRITE_DATA, AccessMaskEnum.APPEND_DATA]
+            operator: ElasticOperatorsEnum.IS_ONE_OF_TERMS,
+            value: [AccessMaskEnum.WRITE_DATA, AccessMaskEnum.APPEND_DATA].map(String)
           });
           break;
         case FileQueryParamEnum.FILES_DELETED:
           this.fileTitle = 'Files deleted';
           filters.push({
             field: FileFieldEnum.FILE_EVENT_ID_FIELD,
-            operator: ElasticOperatorsEnum.IS_ONE_OF,
-            value: DELETED_FILE_EVENT_ID_NUMBER
+            operator: ElasticOperatorsEnum.IS_ONE_OF_TERMS,
+            value: DELETED_FILE_EVENT_ID_NUMBER.map(String)
           });
           filters.push({
             field: FileFieldEnum.FILE_ACCESS_MASK_FIELD,
-            operator: ElasticOperatorsEnum.IS_ONE_OF,
-            value: [AccessMaskEnum.DELETE, AccessMaskEnum.DELETE_CHILD]
+            operator: ElasticOperatorsEnum.IS_ONE_OF_TERMS,
+            value: [AccessMaskEnum.DELETE, AccessMaskEnum.DELETE_CHILD].map(String)
           });
           break;
         case FileQueryParamEnum.FILES_MODIFIED:
@@ -130,8 +130,8 @@ export class FileViewComponent implements OnInit {
           this.fields = FILE_PERMISSION_FIELDS;
           filters.push({
             field: FileFieldEnum.FILE_EVENT_ID_FIELD,
-            operator: ElasticOperatorsEnum.IS,
-            value: PERMISSION_FILE_EVENT_ID_NUMBER
+            operator: ElasticOperatorsEnum.IS_ONE_OF_TERMS,
+            value: [String(PERMISSION_FILE_EVENT_ID_NUMBER)]
           });
           break;
         case FileQueryParamEnum.FILES_SHARED:
@@ -139,8 +139,8 @@ export class FileViewComponent implements OnInit {
           this.fileTitle = 'Shared files';
           filters.push({
             field: FileFieldEnum.FILE_EVENT_ID_FIELD,
-            operator: ElasticOperatorsEnum.IS_ONE_OF,
-            value: SHARE_FILE_EVENT_ID_NUMBER
+            operator: ElasticOperatorsEnum.IS_ONE_OF_TERMS,
+            value: SHARE_FILE_EVENT_ID_NUMBER.map(String)
           });
           break;
       }

@@ -15,14 +15,14 @@ references:
 description: |
   Detects a successful ModifyInstanceMetadataOptions request setting httpTokens to optional. This permits use of IMDSv1; it does not prove that instance credentials were accessed. Verify the change and instance metadata configuration.
 where: |
-  equals("log.awsRecordType","cloudtrail") &&
-  (equals("log.eventSource","ec2.amazonaws.com") &&
-  oneOf("log.eventName",["ModifyInstanceMetadataOptions"]) &&
+  equals("event.awsRecordType","cloudtrail") &&
+  (equals("event.eventSource","ec2.amazonaws.com") &&
+  oneOf("event.eventName",["ModifyInstanceMetadataOptions"]) &&
   equals("actionResult","success") &&
-  equals("log.requestParameters.httpTokens","optional"))
+  equals("event.requestParameters.httpTokens","optional"))
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.awsAccountKeyType
-- lastEvent.log.awsAccountKey
-- lastEvent.log.sourceIPAddress
-- lastEvent.log.userIdentityAccountId
+- lastEvent.event.awsAccountKeyType
+- lastEvent.event.awsAccountKey
+- lastEvent.event.sourceIPAddress
+- lastEvent.event.userIdentityAccountId

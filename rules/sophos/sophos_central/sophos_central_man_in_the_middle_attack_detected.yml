@@ -18,11 +18,11 @@ description: Adversaries may attempt to position themselves between two or more 
   features of common networking protocols that can determine the flow of network traffic (e.g. ARP, DNS, LLMNR,
   etc.), adversaries may force a device to communicate through an adversary controlled system so they can collect
   information or perform additional actions.
-where: (equals("log.type","Event::Smc::MitmAttackEvent")) && !regexMatch("log.type","(?i)(clean|cleanedup|resolved|dismissed|cancelled|success)$")
+where: (equals("event.type","Event::Smc::MitmAttackEvent")) && !regexMatch("event.type","(?i)(clean|cleanedup|resolved|dismissed|cancelled|success)$")
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.customerId
-- lastEvent.log.endpointId
-- lastEvent.log.type
+- lastEvent.event.customerId
+- lastEvent.event.endpointId
+- lastEvent.event.type
 - target.host
 - target.ip

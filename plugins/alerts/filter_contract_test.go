@@ -70,7 +70,7 @@ func TestFilterAndRuleContracts(t *testing.T) {
 	eventPath := func(p string) bool {
 		p = strings.TrimSuffix(p, ".keyword")
 		p = arrayIndex.ReplaceAllString(p, "$1")
-		return eventPaths[p] || strings.HasPrefix(p, "log.") || strings.HasPrefix(p, "compliance.")
+		return eventPaths[p] || strings.HasPrefix(p, "event.") || strings.HasPrefix(p, "compliance.")
 	}
 	alertPath := func(p string) bool {
 		p = strings.TrimSuffix(p, ".keyword")
@@ -81,7 +81,7 @@ func TestFilterAndRuleContracts(t *testing.T) {
 		return alertPaths[p]
 	}
 	cache := plugins.NewCELCache("filter-rule-contract-test")
-	sample := `{"log":{"messageId":0,"severity":0},"origin":{},"target":{},"action":"","actionResult":"","protocol":"","severity":"","connectionStatus":"","raw":"","dataType":"","dataSource":"","deviceTime":"","tenantId":"","tenantName":"","statusCode":0}`
+	sample := `{"event":{"messageId":0,"severity":0},"origin":{},"target":{},"action":"","actionResult":"","protocol":"","severity":"","connectionStatus":"","raw":"","dataType":"","dataSource":"","deviceTime":"","tenantId":"","tenantName":"","statusCode":0}`
 	var expressions func(*testing.T, any)
 	expressions = func(t *testing.T, v any) {
 		switch n := v.(type) {

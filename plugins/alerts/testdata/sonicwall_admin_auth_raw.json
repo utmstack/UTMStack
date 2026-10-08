@@ -6,10 +6,10 @@
     "expected": {
       "origin.ip": "192.0.2.10",
       "origin.port": 4455,
-      "log.eventCode": "32",
+      "event.eventCode": "32",
       "actionResult": "failed"
     },
-    "absent": ["log.src"],
+    "absent": ["event.src"],
     "matchRule": "admin_auth_failures"
   },
   {
@@ -18,7 +18,7 @@
     "raw": "<166>  id=104 sn=SWL-20260924-0002 time=\"Wed Sep 24 03:22:09 2026\" fw=\"SonicWall\" msg=\"VPN login denied due to bad credentials\" src=203.0.113.44:1111 usr=\"svc_backup\" eventCode=200",
     "expected": {
       "origin.ip": "203.0.113.44",
-      "log.eventCode": "200",
+      "event.eventCode": "200",
       "actionResult": "failed"
     },
     "matchRule": "admin_auth_failures"
@@ -29,7 +29,7 @@
     "raw": "<166>  id=105 sn=SWL-20260924-0003 time=\"Wed Sep 24 04:15:33 2026\" fw=\"SonicWall\" msg=\"CLI login denied due to bad credentials\" src=198.51.100.77:2222 usr=\"netops\" eventCode=33",
     "expected": {
       "origin.ip": "198.51.100.77",
-      "log.eventCode": "33",
+      "event.eventCode": "33",
       "actionResult": "failed"
     },
     "matchRule": "admin_auth_failures"
@@ -40,7 +40,7 @@
     "raw": "<166>  id=101 sn=SWL-20260924-0004 time=\"Wed Sep 24 05:01:12 2026\" fw=\"SonicWall\" msg=\"Login allowed for user\" src=192.0.2.80:3333 usr=\"admin\" eventCode=29",
     "expected": {
       "origin.ip": "192.0.2.80",
-      "log.eventCode": "29",
+      "event.eventCode": "29",
       "actionResult": "success"
     }
   },
@@ -50,7 +50,7 @@
     "raw": "<166>  id=110 sn=SWL-20260924-0005 time=\"Wed Sep 24 05:44:00 2026\" fw=\"SonicWall\" msg=\"User login denied - not allowed by Policy rule\" src=192.0.2.81:4444 usr=\"guest\" eventCode=986",
     "expected": {
       "origin.ip": "192.0.2.81",
-      "log.eventCode": "986",
+      "event.eventCode": "986",
       "actionResult": "denied"
     }
   },
@@ -59,7 +59,7 @@
     "dataSource": "firewall-sonicwall",
     "raw": "<166>  id=103 sn=SWL-20260924-0006 time=\"Wed Sep 24 06:10:27 2026\" fw=\"SonicWall\" msg=\"Login denied due to bad credentials\" src=local usr=\"admin\" eventCode=32",
     "expected": {
-      "log.eventCode": "32",
+      "event.eventCode": "32",
       "actionResult": "failed"
     },
     "absent": ["origin.ip"]
@@ -70,7 +70,7 @@
     "raw": "<129>  id=firewall sn=SWL-20260927-0007 time=\"2026-09-27 10:01:00\" fw=203.0.113.1 pri=1 c=16 gcat=4 m=33 msg=\"User login denied due to bad credentials\" src=198.51.100.20:50111:X1 dst=203.0.113.1:443:X1 usr=\"admin\" sess=\"Web\" dur=0 n=1001 fw_action=\"forward\"",
     "expected": {
       "origin.ip": "198.51.100.20",
-      "log.eventCode": "33",
+      "event.eventCode": "33",
       "action": "forward",
       "actionResult": "failed"
     },
@@ -81,7 +81,7 @@
     "dataSource": "firewall-sonicwall",
     "raw": "<134>  id=firewall sn=SWL-20260927-0008 time=\"2026-09-27 10:16:00\" fw=203.0.113.1 pri=6 c=16 gcat=6 m=526 msg=\"Web management request allowed\" src=198.51.100.34:39888:X1 dst=203.0.113.1:4443:X1 usr=\"admin\" rcvd=52 sess=\"Web\" note=\"policyCheck\" n=1016 fw_action=\"mgmt\"",
     "expected": {
-      "log.eventCode": "526",
+      "event.eventCode": "526",
       "action": "mgmt",
       "actionResult": "success"
     }
@@ -91,7 +91,7 @@
     "dataSource": "firewall-sonicwall",
     "raw": "<129>  id=firewall sn=SWL-20260927-0009 time=\"2026-09-27 10:11:00\" fw=203.0.113.1 pri=1 c=32 gcat=3 m=83 src=198.51.100.29:443:X1 dst=203.0.113.1:10417:X1 msg=\"Probable port scan detected\" note=\"Pkt is dropped. TCP scanned port list, 22, 23, 80\" n=1011 fw_action=\"NA\"",
     "expected": {
-      "log.eventCode": "83",
+      "event.eventCode": "83",
       "actionResult": "denied"
     }
   },
@@ -100,7 +100,7 @@
     "dataSource": "firewall-sonicwall",
     "raw": "<132>  id=firewall sn=SWL-20260927-0010 time=\"2026-09-27 10:17:00\" fw=203.0.113.1 pri=4 c=16 gcat=5 m=401 src=198.51.100.35:500:X1 dst=203.0.113.1:500:X1 msg=\"Received notify. NO_PROPOSAL_CHOSEN\" n=1017 fw_action=\"NA\"",
     "expected": {
-      "log.eventCode": "401",
+      "event.eventCode": "401",
       "actionResult": "failed"
     }
   },
@@ -109,7 +109,7 @@
     "dataSource": "firewall-sonicwall",
     "raw": "<134>  id=firewall sn=SWL-20260927-0011 time=\"2026-09-27 10:15:00\" fw=203.0.113.1 pri=6 c=16 gcat=5 m=931 src=198.51.100.33:500:X1 dst=203.0.113.1:500:X1 msg=\"IKE Responder: Remote party Timeout - Retransmitting IKE request.\" n=1015 fw_action=\"NA\"",
     "expected": {
-      "log.eventCode": "931"
+      "event.eventCode": "931"
     },
     "absent": ["actionResult"]
   }

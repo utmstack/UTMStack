@@ -28,20 +28,20 @@ description: |
 where: |
   (
     equals("origin.process", "storagekitd") &&
-    contains("log.message", "com.apple.rootless.install.heritable")
+    contains("event.message", "com.apple.rootless.install.heritable")
   ) ||
   (
     regexMatch("origin.path", ".*/System/Library/.*") &&
-    regexMatch("log.message", ".*(csrutil|disable|rootless).*") &&
-    (equals("log.eventType", "logEvent") || equals("log.className", "OSLogEntryLog"))
+    regexMatch("event.message", ".*(csrutil|disable|rootless).*") &&
+    (equals("event.eventType", "logEvent") || equals("event.className", "OSLogEntryLog"))
   ) ||
   (
-    equals("log.subsystem", "com.apple.kernel") &&
-    regexMatch("log.message", ".*(SIP|rootless).*bypass.*")
+    equals("event.subsystem", "com.apple.kernel") &&
+    regexMatch("event.message", ".*(SIP|rootless).*bypass.*")
   ) ||
   (
     regexMatch("origin.process", ".*kext.*") &&
-    contains("log.message", "rootless")
+    contains("event.message", "rootless")
   )
 groupBy:
   - adversary.host

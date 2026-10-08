@@ -17,9 +17,9 @@ description: 'A new high severity record in the documented SecurityAlert schema.
   does not require VendorName to equal Microsoft Sentinel. This is an upstream finding, not a successful attacker action.
 
   '
-where: 'equalsIgnoreCase("log.azureKind","securityalert") && equalsIgnoreCase("log.AlertSeverity","High") && equalsIgnoreCase("log.Status","New")
+where: 'equalsIgnoreCase("event.azureKind","securityalert") && equalsIgnoreCase("event.AlertSeverity","High") && equalsIgnoreCase("event.Status","New")
 
   '
 groupBy:
 - lastEvent.dataSource
-- lastEvent.log.SystemAlertId
+- lastEvent.event.SystemAlertId
