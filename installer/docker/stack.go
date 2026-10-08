@@ -57,7 +57,8 @@ func GetStackConfig() *StackConfig {
 		stackConfig.ShmFolder = utils.MakeDir(0777, cnf.DataDir, "tmpfs")
 
 		Services = []system.ServiceConfig{
-			{Name: "event-processor", Priority: 1, MinMemory: 5120, MaxMemory: 60 * 1024},
+			{Name: "event-processor-manager", Priority: 1, MinMemory: 2560, MaxMemory: 60 * 1024},
+			{Name: "event-processor-worker", Priority: 1, MinMemory: 3072, MaxMemory: 60 * 1024},
 			{Name: "opensearch", Priority: 1, MinMemory: 5120, MaxMemory: 60 * 1024},
 			{Name: "backend", Priority: 3, MinMemory: 700, MaxMemory: 2 * 1024},
 			{Name: "web-pdf", Priority: 3, MinMemory: 1024, MaxMemory: 2 * 1024},
@@ -114,7 +115,70 @@ func loadPersistedMemoryAllocation() (map[string]*system.ServiceConfig, bool) {
 		return nil, false
 	}
 
+	if migratePersistedMemoryAllocation(rsrcs) {
+		// Persist the rewritten keys so the next start reads them directly.
+		if err := utils.WriteJSON(config.MemoryAllocationPath, rsrcs); err != nil {
+			fmt.Printf("warning: could not persist migrated memory allocation: %v\n", err)
+		}
+		fmt.Println("  Migrated legacy memory-allocation.json from the single event-processor entry to per-container entries.")
+	}
+
 	return rsrcs, true
+}
+
+// svcMeta returns the current Services[] entry for name (priority, min and
+// max). Used so migrated allocations inherit today's metadata, not the
+// legacy single-entry values.
+func svcMeta(name string) *system.ServiceConfig {
+	for i := range Services {
+		if Services[i].Name == name {
+			return &Services[i]
+		}
+	}
+	return nil
+}
+
+// migratePersistedMemoryAllocation rewrites the pre-split persisted
+// allocation: the single "event-processor" entry (which compose used to apply
+// to both the manager and the worker) becomes per-container entries. The old
+// limit is kept on the manager and the worker gets half, clamped to each
+// service's MinMemory/MaxMemory. Returns true if the map was changed.
+func migratePersistedMemoryAllocation(rsrcs map[string]*system.ServiceConfig) bool {
+	legacy, ok := rsrcs["event-processor"]
+	if !ok {
+		return false
+	}
+
+	mgrMeta := svcMeta("event-processor-manager")
+	workerMeta := svcMeta("event-processor-worker")
+	if mgrMeta == nil || workerMeta == nil {
+		return false
+	}
+
+	migrate := func(name string, meta *system.ServiceConfig, assigned int) {
+		if assigned < meta.MinMemory {
+			assigned = meta.MinMemory
+		}
+		if meta.MaxMemory != 0 && assigned > meta.MaxMemory {
+			assigned = meta.MaxMemory
+		}
+		rsrcs[name] = &system.ServiceConfig{
+			Name: name, Priority: meta.Priority, MinMemory: meta.MinMemory, MaxMemory: meta.MaxMemory, AssignedMemory: assigned,
+		}
+	}
+
+	// A partially migrated file may already have one side: keep it and derive
+	// the other from the legacy total.
+	if mgr, has := rsrcs["event-processor-manager"]; has {
+		migrate("event-processor-worker", workerMeta, legacy.AssignedMemory-mgr.AssignedMemory)
+	} else if w, has := rsrcs["event-processor-worker"]; has {
+		migrate("event-processor-manager", mgrMeta, legacy.AssignedMemory-w.AssignedMemory)
+	} else {
+		migrate("event-processor-manager", mgrMeta, legacy.AssignedMemory)
+		migrate("event-processor-worker", workerMeta, legacy.AssignedMemory/2)
+	}
+	delete(rsrcs, "event-processor")
+	return true
 }
 
 func RecalculateMemory() error {

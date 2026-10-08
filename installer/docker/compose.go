@@ -247,8 +247,8 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		},
 	}
 
-	epMem := stack.ServiceResources["event-processor"].AssignedMemory
-	epMin := stack.ServiceResources["event-processor"].MinMemory
+	epMem := stack.ServiceResources["event-processor-worker"].AssignedMemory
+	epMin := stack.ServiceResources["event-processor-worker"].MinMemory
 	c.Services["event-processor-worker"] = Service{
 		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/eventprocessor:${UTMSTACK_TAG}"),
 		DependsOn: utils.Mode(conf.ServerType, map[string]any{
@@ -294,6 +294,8 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		},
 	}
 
+	epMgrMem := stack.ServiceResources["event-processor-manager"].AssignedMemory
+	epMgrMin := stack.ServiceResources["event-processor-manager"].MinMemory
 	c.Services["event-processor-manager"] = Service{
 		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/eventprocessor:${UTMSTACK_TAG}"),
 		DependsOn: utils.Mode(conf.ServerType, map[string]any{
@@ -332,10 +334,10 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 			},
 			Resources: &Resources{
 				Limits: &Res{
-					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", epMem)),
+					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", epMgrMem)),
 				},
 				Reservations: &Res{
-					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", epMin)),
+					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", epMgrMin)),
 				},
 			},
 		},
