@@ -14,25 +14,44 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-// feedMask is the set of events marked on every volume. Probed against the
-// target kernel (FAN_MARK_MOUNT): FAN_MODIFY and FAN_CLOSE_WRITE are accepted;
-// FAN_DELETE, FAN_DELETE_SELF, FAN_RENAME, FAN_CREATE and FAN_MOVED_TO are
-// rejected with EINVAL at mount level. A file write generates both FAN_MODIFY
-// and FAN_CLOSE_WRITE, so the mask covers "a file was written" with clean
-// events. Delete/rename-based tampering is invisible to this feed and is
-// covered by the T1490 command rules instead (see rules_linux.go).
-const feedMask = uint64(unix.FAN_MODIFY | unix.FAN_CLOSE_WRITE)
+// desiredFeedBits are the fanotify event bits the feed wants to mark on every
+// volume. They are probed at runtime, one per FAN_MARK_ADD, because
+// FAN_MARK_MOUNT rejects bits the target kernel cannot honor: on the kernel
+// observed here FAN_CREATE and FAN_MOVED_TO are declined with EINVAL at mount
+// level, while FAN_MODIFY and FAN_CLOSE_WRITE are accepted. Fanotify OR-s the
+// masks of marks over the same object, so marking each accepted bit
+// individually is equivalent to marking their union, and the feed degrades to
+// write-only on kernels without the extended bits rather than failing to start.
+//
+// FAN_DELETE is deliberately omitted: without FAN_REPORT_DFID_NAME the kernel
+// gives it no fd, so its path is unresolvable and the event would be dropped in
+// processFeedEvent anyway — marking it only costs a syscall. CREATE and
+// MOVED_TO DO carry a fd (the new destination), which is exactly what the
+// churn and ransom-note sensors need. The list is ordered so the always-
+// available write bits come first: a kernel that accepts nothing still yields
+// them.
+var desiredFeedBits = []uint64{
+	unix.FAN_CLOSE_WRITE,
+	unix.FAN_MODIFY,
+	unix.FAN_CREATE,
+	unix.FAN_MOVED_TO,
+}
+
+// fullFeedMask is the union of every desired bit, i.e. what the feed requests
+// from a fully-capable kernel. The mark path uses it to decide whether to log
+// a degraded mark.
+var fullFeedMask = desiredFeedBits[0] | desiredFeedBits[1] | desiredFeedBits[2] | desiredFeedBits[3]
 
 // fanReadBufSize: a single read from the fanotify fd returns one or more
 // records; 64 KiB matches the watcher and is enough for a batch of events.
 const fanReadBufSize = 64 * 1024
 
 // fanotifyFeed is the Linux fanotify file-activity feed. It marks each
-// configured volume at mount level (FAN_MARK_MOUNT) for FAN_MODIFY |
-// FAN_CLOSE_WRITE and delivers per-process FileEvents (PID from
-// FAN_REPORT_PIDFD, path from readlink of the event fd) to the guard's sink.
-// It is observational only (no FAN_CLASS_CONTENT): the main watcher already
-// owns permission mode.
+// configured volume at mount level (FAN_MARK_MOUNT) with the largest mask the
+// kernel accepts — writes always, plus create/moved-to when available — and
+// delivers per-process FileEvents (PID from FAN_REPORT_PIDFD, path from
+// readlink of the event fd) to the guard's sink. It is observational only (no
+// FAN_CLASS_CONTENT): the main watcher already owns permission mode.
 type fanotifyFeed struct {
 	volumes []string
 }
@@ -90,10 +109,16 @@ func (f fanotifyFeed) Run(ctx context.Context, sink func(FileEvent)) error {
 			logger.Error("UTMStack EDR: ransomware feed: open %s: %v", vol, err)
 			continue
 		}
-		if err := unix.FanotifyMark(fd, unix.FAN_MARK_ADD|unix.FAN_MARK_MOUNT, feedMask, dirFd, ""); err != nil {
-			logger.Error("UTMStack EDR: ransomware feed: mark %s: %v", vol, err)
+		mask := effectiveMask(func(bit uint64) error {
+			return unix.FanotifyMark(fd, unix.FAN_MARK_ADD|unix.FAN_MARK_MOUNT, bit, dirFd, "")
+		})
+		if mask == 0 {
+			logger.Error("UTMStack EDR: ransomware feed: mark %s: no accepted bits", vol)
 			unix.Close(dirFd)
 			continue
+		}
+		if mask != fullFeedMask {
+			logger.Info("UTMStack EDR: ransomware feed: %s marked 0x%x (degraded from 0x%x)", vol, mask, fullFeedMask)
 		}
 		dirFds = append(dirFds, dirFd)
 	}
@@ -207,9 +232,28 @@ func (f fanotifyFeed) processFeedEvent(meta feedEvent, sink func(FileEvent)) {
 	sink(FileEvent{PID: int(meta.pid), Path: path, Op: op})
 }
 
-// opForMask maps a fanotify event mask to a FileOp. Both FAN_CLOSE_WRITE and
-// FAN_MODIFY mean "a file was written" → OpWrite (the only ops in feedMask).
-// FAN_Q_OVERFLOW is not a file op. Returns (0,false) for anything else.
+// effectiveMask marks each candidate bit on dirFd and returns the union of
+// the bits the kernel accepted. tryBit performs one FAN_MARK_ADD for a single
+// bit; fanotify OR-s accepted marks over the same object, so the result is the
+// live mask. Bits are tried in the order of desiredFeedBits (writes first, so
+// a kernel that accepts nothing still yields the write bits). If no bit is
+// accepted the return is 0 and the caller skips the volume.
+func effectiveMask(tryBit func(uint64) error) uint64 {
+	var result uint64
+	for _, bit := range desiredFeedBits {
+		if tryBit(bit) == nil {
+			result |= bit
+		}
+	}
+	return result
+}
+
+// opForMask maps a fanotify event mask to a FileOp. FAN_CLOSE_WRITE and
+// FAN_MODIFY both mean "a file was written" → OpWrite; FAN_CREATE → OpCreate;
+// FAN_MOVED_TO → OpRename (the file arrived at a new path, the churn input);
+// FAN_DELETE → OpDelete. FAN_Q_OVERFLOW is not a file op. Returns (0,false)
+// for anything else. Write bits take priority so a compound mask still yields
+// the op the sensors most need.
 func opForMask(mask uint64) (FileOp, bool) {
 	if mask&unix.FAN_Q_OVERFLOW != 0 {
 		return 0, false
@@ -219,6 +263,12 @@ func opForMask(mask uint64) (FileOp, bool) {
 		return OpWrite, true
 	case mask&unix.FAN_MODIFY != 0:
 		return OpWrite, true
+	case mask&unix.FAN_CREATE != 0:
+		return OpCreate, true
+	case mask&unix.FAN_MOVED_TO != 0:
+		return OpRename, true
+	case mask&unix.FAN_DELETE != 0:
+		return OpDelete, true
 	default:
 		return 0, false
 	}

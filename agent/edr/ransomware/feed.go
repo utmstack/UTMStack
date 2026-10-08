@@ -30,7 +30,7 @@ type FileActivityFeed interface {
 }
 
 // Consider is the portable pre-filter applied before evidence is generated:
-// keep only mutating ops (write/rename/delete/setinfo), drop the EDR's own PID
+// keep only mutating ops (create/write/rename/delete/setinfo), drop the EDR's own PID
 // and excluded paths, and always keep a canary tamper (highest signal). This
 // keeps the guard's evidence stream small and self-noise-free.
 func Consider(ev FileEvent, isCanary func(string) bool, excluded func(string) bool, selfPID int) bool {
@@ -46,7 +46,7 @@ func Consider(ev FileEvent, isCanary func(string) bool, excluded func(string) bo
 		return false
 	}
 	switch ev.Op {
-	case OpWrite, OpRename, OpDelete, OpSetInfo:
+	case OpCreate, OpWrite, OpRename, OpDelete, OpSetInfo:
 		return true
 	default:
 		return false

@@ -9,10 +9,12 @@ func TestConsider_KeepsCanaryTamper(t *testing.T) {
 	if !Consider(ev, isCanary, ex, 9) {
 		t.Fatal("canary write must be considered")
 	}
-	// A canary touch is kept even for a non-mutating op (OpCreate), proving the
-	// canary branch — not the mutating-op switch — is what keeps it.
+	// A canary touch is kept even for OpCreate, proving the canary branch —
+	// not the mutating-op switch — is what keeps it (the create may be outside
+	// the operator's interest, but a canary is always the highest-confidence
+	// signal).
 	if !Consider(FileEvent{PID: 40, Path: `C:\u\00__a.xlsx`, Op: OpCreate}, isCanary, ex, 9) {
-		t.Fatal("canary touch must be kept even for a non-mutating op")
+		t.Fatal("canary touch must be kept even for a create op")
 	}
 }
 
@@ -35,8 +37,9 @@ func TestConsider_DropsSelfExcludedAndReads(t *testing.T) {
 	if Consider(FileEvent{PID: 5, Path: `C:\Program Files\UTMStack\edr`, Op: OpWrite}, isCanary, ex, 9) {
 		t.Error("excluded path must be dropped")
 	}
-	// non-mutating op dropped
-	if Consider(FileEvent{PID: 5, Path: `C:\u\a.txt`, Op: OpCreate}, isCanary, ex, 9) {
-		t.Error("OpCreate alone (no write/rename/delete) is not a ransomware signal in v1")
+	// OpCreate is now a mutating op: the Linux feed emits FAN_CREATE and it is
+	// a ransom-note input, so a create on an in-scope path is kept.
+	if !Consider(FileEvent{PID: 5, Path: `C:\u\a.txt`, Op: OpCreate}, isCanary, ex, 9) {
+		t.Error("create is a mutating op and must be considered")
 	}
 }
