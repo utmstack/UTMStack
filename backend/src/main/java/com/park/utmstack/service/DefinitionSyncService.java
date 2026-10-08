@@ -189,7 +189,7 @@ public class DefinitionSyncService implements CommandLineRunner {
                             continue;
                         }
 
-                        Optional<UtmCorrelationRules> ruleOpt = rulesRepository.findOneByRuleName(ruleYaml.getName());
+                        Optional<UtmCorrelationRules> ruleOpt = rulesRepository.findOneByRuleNameAndSystemOwner(ruleYaml.getName(), true);
                         foundRules.add(ruleYaml.getName());
                         UtmCorrelationRulesDTO ruleDto = new UtmCorrelationRulesDTO();
 
@@ -212,7 +212,7 @@ public class DefinitionSyncService implements CommandLineRunner {
                         ruleDto.setDeduplicateBy(ruleYaml.getDeduplicateBy());
                         ruleDto.setAfterEvents(ruleYaml.getAfterEvents());
                         ruleDto.setSystemOwner(true);
-                        ruleDto.setRuleActive(true);
+                        ruleDto.setRuleActive(ruleOpt.isPresent() ? ruleOpt.get().getRuleActive() : true);
 
                         if (ruleYaml.getImpact() != null) {
                             ruleDto.setConfidentiality(ruleYaml.getImpact().getConfidentiality());
