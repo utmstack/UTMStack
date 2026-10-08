@@ -1874,15 +1874,15 @@
         "syslog": {
           "sections": {
             "sendLogs": {
-              "title": "1 · Envoyer les journaux à UTMStack",
+              "title": "Envoyer les journaux à UTMStack",
               "body": "Configurez votre équipement pour envoyer des messages syslog via UDP (514) ou TCP (514) à l'agent UTMStack."
             },
             "enableCollector": {
-              "title": "2 · Activer le collecteur syslog",
+              "title": "Activer le collecteur syslog",
               "body": "Activez le collecteur de journaux et l'intégration syslog dans le fichier de configuration où votre agent UTMStack est installé."
             },
             "activate": {
-              "title": "3 · Activer",
+              "title": "Activer",
               "body": "Activez le module UTMStack pour que les événements commencent à affluer dans Log Explorer."
             }
           }
@@ -2379,11 +2379,11 @@
         "json": {
           "sections": {
             "overview": {
-              "title": "1 · Utiliser le point de terminaison d'ingestion HTTP/JSON",
+              "title": "Utiliser le point de terminaison d'ingestion HTTP/JSON",
               "body": "UTMStack accepte des événements JSON arbitraires via HTTPS. Envoyez une requête POST avec une liste d'événements ; UTMStack les analyse et les achemine via votre analyseur configuré."
             },
             "auth": {
-              "title": "2 · S'authentifier avec un jeton de fédération",
+              "title": "S'authentifier avec un jeton de fédération",
               "body": "Obtenez un jeton de fédération depuis Settings → Connection Key et envoyez-le comme jeton Bearer dans l'en-tête Authorization."
             }
           },

@@ -11,7 +11,7 @@ export function AddCustomIntegrationCard({ onClick }: AddCustomIntegrationCardPr
   return (
     <button
       onClick={onClick}
-      className="group flex h-[300px] w-full flex-col items-center justify-between rounded-lg border-2 border-dashed border-border bg-gradient-to-b from-primary/[0.04] to-transparent p-5 text-center transition-all hover:border-primary/50 hover:from-primary/10 hover:shadow-md"
+      className="group flex h-[350px] w-full flex-col items-center justify-between rounded-lg border-2 border-dashed border-border bg-gradient-to-b from-primary/[0.04] to-transparent p-5 text-center transition-all hover:border-primary/50 hover:from-primary/10 hover:shadow-md"
     >
       <div className="flex w-full flex-1 flex-col items-center justify-center gap-4">
         <div className="relative flex h-20 w-20 items-center justify-center rounded-2xl bg-primary/10 ring-1 ring-primary/20 transition-transform group-hover:scale-105">

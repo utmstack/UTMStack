@@ -35,11 +35,13 @@ registerCollector({
       id: 'overview',
       titleKey: `${ROOT}.sections.overview.title`,
       bodyKey: `${ROOT}.sections.overview.body`,
+      step: 1,
     },
     {
       id: 'auth',
       titleKey: `${ROOT}.sections.auth.title`,
       bodyKey: `${ROOT}.sections.auth.body`,
+      step: 2,
     },
   ],
   render: () => <JsonEndpoint />,

@@ -2292,15 +2292,15 @@
         "syslog": {
           "sections": {
             "sendLogs": {
-              "title": "1 · Enviar registros a UTMStack",
+              "title": "Enviar registros a UTMStack",
               "body": "Configure su dispositivo para enviar mensajes syslog por UDP (514) o TCP (514) al agente de UTMStack."
             },
             "enableCollector": {
-              "title": "2 · Habilitar el colector syslog",
+              "title": "Habilitar el colector syslog",
               "body": "Habilite el colector de registros y la integración syslog en el archivo de configuración donde está instalado su agente de UTMStack."
             },
             "activate": {
-              "title": "3 · Activar",
+              "title": "Activar",
               "body": "Active el módulo de UTMStack para que los eventos comiencen a fluir en el Log Explorer."
             }
           }
@@ -2503,11 +2503,11 @@
         "json": {
           "sections": {
             "overview": {
-              "title": "1 · Usar el endpoint de ingesta HTTP/JSON",
+              "title": "Usar el endpoint de ingesta HTTP/JSON",
               "body": "UTMStack acepta eventos JSON arbitrarios por HTTPS. Envíe una solicitud POST con una lista de eventos; UTMStack los analiza y los enruta a través del parser configurado."
             },
             "auth": {
-              "title": "2 · Autenticarse con un token de federación",
+              "title": "Autenticarse con un token de federación",
               "body": "Obtenga un token de federación desde Configuración → Connection Key y envíelo como Bearer token en el encabezado Authorization."
             }
           },

@@ -19,7 +19,7 @@ export function GenericCollectorGuide({ integration: i }: GenericCollectorGuideP
         </p>
       </Section>
 
-      <Section title={t('integrations.setup.collector.step1Title')}>
+      <Section title={t('integrations.setup.collector.step1Title')} step={1}>
         <p className="mb-2 text-xs text-muted-foreground">
           {t('integrations.setup.collector.step1Hint', { name: i.name })}
         </p>
@@ -29,7 +29,7 @@ export function GenericCollectorGuide({ integration: i }: GenericCollectorGuideP
         />
       </Section>
 
-      <Section title={t('integrations.setup.collector.step2Title', { name: i.name })}>
+      <Section title={t('integrations.setup.collector.step2Title', { name: i.name })} step={2}>
         <p className="mb-2 text-xs text-muted-foreground">
           {t('integrations.setup.collector.step2Hint', { name: i.name, port: i.defaultPort ?? '514/udp' })}
         </p>
@@ -45,7 +45,7 @@ facility:    local0`}
         </a>
       </Section>
 
-      <Section title={t('integrations.setup.collector.step3Title')}>
+      <Section title={t('integrations.setup.collector.step3Title')} step={3}>
         <p className="text-sm text-foreground/90">
           {t('integrations.setup.collector.step3Body', {
             name: i.name,
