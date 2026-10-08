@@ -61,6 +61,9 @@ type GuardDeps struct {
 	// snapshot) when the process table has not caught up with the PID yet. nil
 	// = no live source; the table is the only source of truth.
 	LiveImage liveImager
+	// EntropyReader is the FileReader handed to the entropy sensor so tests can
+	// inject synthetic content. nil = the default OS-backed reader.
+	EntropyReader FileReader
 }
 
 // isTrusted resolves a PID's image via the process table and reports whether it
@@ -82,6 +85,14 @@ type Guard struct {
 	deps        GuardDeps
 	scorer      *Scorer
 	feedHealthy atomic.Bool
+
+	// Fuzzy (X1) behavioural sensors. Each is fed from OnFileEvent and emits
+	// sub-suspend evidence into the same scorer; the kind-diversity bonus is
+	// what lets several agree without any single one firing alone.
+	massRate   *MassRateSensor
+	churn      *ChurnSensor
+	entropy    *EntropySensor
+	ransomNote *RansomNoteSensor
 
 	// Hot-reloadable policy: the response mode and command allowlist can change
 	// at runtime (CLI edit → service reload) without restarting the guard. The
@@ -124,12 +135,19 @@ func NewGuard(deps GuardDeps) *Guard {
 	}
 	half := float64(rc.DecayHalfLifeMs) / 1000.0
 	sc := NewScorer(float64(rc.SuspendThreshold), float64(rc.KillThreshold), half, deps.Now)
-	return &Guard{
+	g := &Guard{
 		cfg: deps.Cfg, deps: deps, scorer: sc,
-		responseMode: rc.ResponseMode,
-		commands:     deps.Cfg.Allowlist.Commands,
+		responseMode:  rc.ResponseMode,
+		commands:      deps.Cfg.Allowlist.Commands,
 		containedPIDs: map[int]time.Time{},
 	}
+	// Build the fuzzy sensors up front; they share the scorer's now() clock so
+	// their windows and cooldowns line up with the decay.
+	g.massRate = NewMassRateSensor(deps.Cfg, deps.Now)
+	g.churn = NewChurnSensor(deps.Cfg, deps.Now)
+	g.entropy = NewEntropySensor(deps.Cfg, deps.Now, deps.EntropyReader)
+	g.ransomNote = NewRansomNoteSensor(deps.Cfg, deps.Now)
+	return g
 }
 
 // recentlyContained reports whether pid was successfully contained within the
@@ -177,25 +195,47 @@ func (g *Guard) OnProcStart(pid, ppid int, image, cmdline string, gen int64) {
 	g.handle(g.scorer.Add(ev), culprit)
 }
 
-// OnFileEvent runs the canary sensor for a per-process file op.
+// OnFileEvent runs the canary sensor (max-weight, deterministic) and the fuzzy
+// (X1) behavioural sensors for a per-process file op. The canary branch is
+// exclusive: a canary touch is the highest-confidence signal and short-circuits
+// the rest. Otherwise every fuzzy sensor gets the event and any that fire
+// record sub-suspend evidence into the scorer; the kind-diversity bonus is what
+// lets several agree into an escalation without any single one firing alone.
 func (g *Guard) OnFileEvent(fe FileEvent) {
 	if !g.cfg.Ransomware.EnabledOn() {
 		return
 	}
-	if !g.deps.Canaries.Contains(fe.Path) {
-		return // v1: only canary touches produce evidence from the file stream
-	}
-	// A trusted process (backup/sync/indexer) touching a canary is not scored.
+	// A trusted process (backup/sync/indexer) is never scored from the file stream.
 	if g.isTrusted(fe.PID) {
 		return
 	}
-	base := fe.Path
-	if i := strings.LastIndexAny(base, `/\`); i >= 0 {
-		base = base[i+1:]
+	if g.deps.Canaries.Contains(fe.Path) {
+		base := fe.Path
+		if i := strings.LastIndexAny(base, `/\`); i >= 0 {
+			base = base[i+1:]
+		}
+		ev := Evidence{PID: fe.PID, Gen: g.genOf(fe.PID, 0), Kind: KindCanary,
+			Weight: DefaultWeights[KindCanary], Detail: base, TS: g.deps.Now()}
+		g.handle(g.scorer.Add(ev), fe.PID)
+		return
 	}
-	ev := Evidence{PID: fe.PID, Gen: g.genOf(fe.PID, 0), Kind: KindCanary,
-		Weight: DefaultWeights[KindCanary], Detail: base, TS: g.deps.Now()}
-	g.handle(g.scorer.Add(ev), fe.PID)
+	// Fuzzy (X1) sensors: each returns ready evidence or nil. The scorer
+	// accumulates and the kind-diversity bonus is what lets several agree.
+	for _, ev := range []*Evidence{
+		g.massRate.Record(fe),
+		g.churn.Record(fe),
+		g.entropy.Record(fe),
+		g.ransomNote.Record(fe),
+	} {
+		if ev == nil {
+			continue
+		}
+		out := *ev
+		out.PID = fe.PID
+		out.Gen = g.genOf(fe.PID, ev.Gen)
+		out.TS = g.deps.Now()
+		g.handle(g.scorer.Add(out), fe.PID)
+	}
 }
 
 // OnRegistryEvent is called by the registry feed when a sensitive key is
