@@ -37,9 +37,6 @@ func NewExecutionUsecase(
 	return &executionUsecase{repo: repo, runs: runs, flows: flows, agents: agents, vars: vars, notify: notify}
 }
 
-// HandleMatch starts a new flow run — creates the SoarFlowRun row plus one
-// PENDING SoarExecution per declared root. Non-root nodes are spawned lazily
-// by the dispatcher as their parents complete.
 func (u *executionUsecase) HandleMatch(ctx context.Context, req dto.MatchRequest) error {
 	tenant := authz.TenantIDFromContext(ctx)
 	sf := u.flows.Get(tenant, req.RulePath)
@@ -88,17 +85,16 @@ func (u *executionUsecase) HandleMatch(ctx context.Context, req dto.MatchRequest
 			_ = catcher.Error("soar: params interpolation failed", ierr, map[string]any{"rule": req.RulePath, "root": rootID})
 			continue
 		}
-		command, ierr := Interpolate(ctx, u.vars, bag, node.Command)
+		command, ierr := Interpolate(ctx, u.vars, bag, node.Command, node.Shell)
 		if ierr != nil {
 			_ = catcher.Error("soar: command interpolation failed", ierr, map[string]any{"rule": req.RulePath, "root": rootID})
 			continue
 		}
 
-		masked_command,cerr := u.vars.MaskSecrets(ctx,command)
+		masked_command, cerr := u.vars.MaskSecrets(ctx, command)
 		if cerr != nil {
-			_ = catcher.Error("soar: command variable masking failed", cerr,map[string]any{"rule": req.RulePath, "root": rootID})
+			_ = catcher.Error("soar: command variable masking failed", cerr, map[string]any{"rule": req.RulePath, "root": rootID})
 		}
-
 
 		exec := &domain.SoarExecution{
 			TenantID:  tenantUUID,
@@ -140,7 +136,7 @@ func (u *executionUsecase) resolveAgentForNode(ctx context.Context, _ domain.Flo
 		return "", nil
 	}
 	if node.Agent != "" {
-		return Interpolate(ctx, u.vars, bag, node.Agent)
+		return Interpolate(ctx, u.vars, bag, node.Agent, "")
 	}
 	src := gjson.GetBytes(alertJSON, "dataSource").String()
 	for _, x := range node.ExcludedAgents {
@@ -199,9 +195,9 @@ func (u *executionUsecase) List(ctx context.Context, f dto.ExecutionFilters) (*d
 
 func (u *executionUsecase) StartManual(ctx context.Context, agent, command, triggeredBy string) (uuid.UUID, error) {
 
-	masked_command,cerr := u.vars.MaskSecrets(ctx,command)
+	masked_command, cerr := u.vars.MaskSecrets(ctx, command)
 	if cerr != nil {
-		_ = catcher.Error("soar: command variable masking failed", cerr,map[string]any{})
+		_ = catcher.Error("soar: command variable masking failed", cerr, map[string]any{})
 	}
 
 	e, err := u.repo.Create(ctx, &domain.SoarExecution{

@@ -327,7 +327,7 @@ func (d *Dispatcher) transitionChild(ctx context.Context, flow *domain.Flow, nod
 	}
 	bag := MergeContexts(contribs)
 
-	command, err := Interpolate(ctx, d.vars, bag, node.Command)
+	command, err := Interpolate(ctx, d.vars, bag, node.Command, node.Shell)
 	if err != nil {
 		_ = catcher.Error("soar dispatch: command interpolation failed", err, map[string]any{"execution": child.ID})
 		return
@@ -337,7 +337,7 @@ func (d *Dispatcher) transitionChild(ctx context.Context, flow *domain.Flow, nod
 		_ = catcher.Error("soar dispatch: params interpolation failed", err, map[string]any{"execution": child.ID})
 		return
 	}
-	shell, err := Interpolate(ctx, d.vars, bag, node.Shell)
+	shell, err := Interpolate(ctx, d.vars, bag, node.Shell, "")
 	if err != nil {
 		_ = catcher.Error("soar dispatch: shell interpolation failed", err, map[string]any{"execution": child.ID})
 		return
@@ -349,7 +349,7 @@ func (d *Dispatcher) transitionChild(ctx context.Context, flow *domain.Flow, nod
 		agent = parents[0].Agent
 	}
 	if agent != "" {
-		if resolved, err := Interpolate(ctx, d.vars, bag, agent); err == nil {
+		if resolved, err := Interpolate(ctx, d.vars, bag, agent, ""); err == nil {
 			agent = resolved
 		}
 	}
