@@ -46,7 +46,7 @@ const (
 	dispatchTick        = 15 * time.Second
 	dispatchBatch       = database.MaxPageSize
 	dispatchConcurrency = 5
-	dispatchTimeout     = 60 * time.Second
+	dispatchTimeout     = 5 * time.Minute // llm_enrich/llm_action streams can take minutes
 	dispatchMaxRetries  = 3
 )
 
@@ -158,7 +158,9 @@ func (d *Dispatcher) process(parent context.Context, exec domain.SoarExecution) 
 	_ = d.exec.UpdateStatus(ctx, exec.ID, connectors.ExecutionStatusUpdate{Status: &executing})
 
 	branch, output := d.invoke(ctx, &exec)
-	d.settle(ctx, &exec, branch, output)
+	rest, cancelRest := context.WithTimeout(context.WithoutCancel(parent), 30*time.Second)
+	defer cancelRest()
+	d.settle(rest, &exec, branch, output)
 
 	node, ok := flow.Nodes[exec.NodeID]
 	if !ok {
@@ -166,11 +168,11 @@ func (d *Dispatcher) process(parent context.Context, exec domain.SoarExecution) 
 		return
 	}
 	fired, dead := d.edgesForBranch(node, branch)
-	d.spawnChildren(ctx, flow, exec, fired, branch, true)
-	d.spawnChildren(ctx, flow, exec, dead, oppositeBranch(branch), false)
+	d.spawnChildren(rest, flow, exec, fired, branch, true)
+	d.spawnChildren(rest, flow, exec, dead, oppositeBranch(branch), false)
 
 	if exec.FlowRunID != nil {
-		if _, err := d.runs.MaybeComplete(ctx, *exec.FlowRunID); err != nil {
+		if _, err := d.runs.MaybeComplete(rest, *exec.FlowRunID); err != nil {
 			_ = catcher.Error("soar dispatch: maybeComplete failed", err, map[string]any{"flowRun": *exec.FlowRunID})
 		}
 	}
@@ -325,7 +327,7 @@ func (d *Dispatcher) transitionChild(ctx context.Context, flow *domain.Flow, nod
 	}
 	bag := MergeContexts(contribs)
 
-	command, err := Interpolate(ctx, d.vars, bag, node.Command)
+	command, err := Interpolate(ctx, d.vars, bag, node.Command, node.Shell)
 	if err != nil {
 		_ = catcher.Error("soar dispatch: command interpolation failed", err, map[string]any{"execution": child.ID})
 		return
@@ -335,7 +337,7 @@ func (d *Dispatcher) transitionChild(ctx context.Context, flow *domain.Flow, nod
 		_ = catcher.Error("soar dispatch: params interpolation failed", err, map[string]any{"execution": child.ID})
 		return
 	}
-	shell, err := Interpolate(ctx, d.vars, bag, node.Shell)
+	shell, err := Interpolate(ctx, d.vars, bag, node.Shell, "")
 	if err != nil {
 		_ = catcher.Error("soar dispatch: shell interpolation failed", err, map[string]any{"execution": child.ID})
 		return
@@ -347,7 +349,7 @@ func (d *Dispatcher) transitionChild(ctx context.Context, flow *domain.Flow, nod
 		agent = parents[0].Agent
 	}
 	if agent != "" {
-		if resolved, err := Interpolate(ctx, d.vars, bag, agent); err == nil {
+		if resolved, err := Interpolate(ctx, d.vars, bag, agent, ""); err == nil {
 			agent = resolved
 		}
 	}

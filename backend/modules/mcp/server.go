@@ -2,6 +2,7 @@ package mcp
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"reflect"
@@ -14,7 +15,8 @@ import (
 )
 
 var uuidTypeSchemas = map[reflect.Type]*jsonschema.Schema{
-	reflect.TypeFor[uuid.UUID](): {Type: "string", Format: "uuid"},
+	reflect.TypeFor[uuid.UUID]():       {Type: "string", Format: "uuid"},
+	reflect.TypeFor[json.RawMessage](): {Type: "object", Description: "Arbitrary JSON object (untyped payload; see the tool description for its shape)"},
 }
 
 func inputSchemaFor[In any]() (*jsonschema.Schema, error) {

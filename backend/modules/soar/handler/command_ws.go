@@ -164,7 +164,7 @@ func (h *CommandWSHandler) CommandStream(c *gin.Context) {
 	}
 	command := req.Command
 	if h.variableUC != nil {
-		interpolated, vErr := h.variableUC.InterpolateCommand(ctx, command)
+		interpolated, vErr := h.variableUC.InterpolateCommand(ctx, command, req.Shell)
 		if vErr != nil {
 			// Sending it anyway would put a literal "$[variables.NAME]" on the
 			// agent's command line as an argument.
