@@ -1,4 +1,10 @@
 <div class="w-100 d-flex flex-column flex-grow-1 h-100">
+
+      <button (click)="exportToPdf()"
+              class="btn utm-button utm-button-primary mb-2">
+        <i class="mr-1 icon-file-pdf"></i>
+        Save to PDF
+      </button>
   <div [ngClass]="{
       'border-left-success': control.lastEvaluationStatus === ComplianceStatusExtendedEnum.COMPLIANT,
       'border-left-danger': control.lastEvaluationStatus === ComplianceStatusExtendedEnum.NON_COMPLIANT,
@@ -38,11 +44,6 @@
       <div class="alert-details w-100 d-flex justify-content-start align-items-center">
         <span class="text-blue-800 font-weight-light mr-2">Compliance report scope:</span>
       </div>
-      <button (click)="exportToPdf()"
-              class="btn utm-button utm-button-primary mb-2">
-        <i class="mr-1 icon-file-pdf"></i>
-        Save to PDF
-      </button>
     </div>
     <div class="alert-details w-100 d-flex justify-content-start align-items-center mb-2">
       <p class="font-size-base">{{ control.section.standard.standardName }}</p>
