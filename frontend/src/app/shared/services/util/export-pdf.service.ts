@@ -25,6 +25,31 @@ export class ExportPdfService {
   handlePdfResponse(response: any): void {
     const blob = new Blob([response.body], { type: 'application/pdf' });
     const url = window.URL.createObjectURL(blob);
-    window.open(url, '_blank');
+    this.printBlob(url)
   }
+
+ printBlob(blobUrl) {
+  const iframe = document.createElement('iframe');
+
+  iframe.style.position = 'fixed';
+  iframe.style.right = '0';
+  iframe.style.bottom = '0';
+  iframe.style.width = '0';
+  iframe.style.height = '0';
+  iframe.style.border = 'none';
+
+  iframe.src = blobUrl;
+
+  document.body.appendChild(iframe);
+
+  iframe.onload = function() {
+    iframe.contentWindow.focus();
+    iframe.contentWindow.print();
+
+    setTimeout(() => {
+      document.body.removeChild(iframe);
+    }, 1000);   };
+}
+
+
 }

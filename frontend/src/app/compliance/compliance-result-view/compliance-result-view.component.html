@@ -79,13 +79,6 @@
       </h5>
 
       <div class="d-flex align-items-center mt-2">
-        <a *ngIf="showExport"
-           (click)="exportToPdf()"
-           [hidden]="pdfExport || !visualizationRender || loadingVisualizations"
-           class="btn utm-button utm-button-primary ml-2">
-          <i [ngClass]="pdfExport ? 'icon-download10' : 'icon-file-pdf'" class="mr-1"></i>
-          {{ pdfExport ? 'Generating...' : 'Save to PDF' }}
-        </a>
 
         <app-elastic-filter-time *ngIf="true"
                                  [invertContent]="true"

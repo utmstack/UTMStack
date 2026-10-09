@@ -11,10 +11,13 @@
         <button (click)="manageStandards()" class="btn utm-button utm-button-primary">
           <i class="icon-cog3 mr-1"></i> Change framework
         </button>
-        <a (click)="exportToPdf()" class="btn utm-button utm-button-primary ml-2" *ngIf="action === 'compliance'">
+
+
+        <a (click)="exportToPdf()" class="btn utm-button utm-button-primary ml-2" >
           <i [ngClass]="pdfExport ? 'icon-download10' : 'icon-file-pdf'" class="mr-1"></i>
           {{ pdfExport ? 'Generating...' : 'Save to PDF' }}
         </a>
+
       </div>
     </div>
   </div>
@@ -75,7 +78,7 @@
         <!--<app-compliance-latest-evaluations-view [section]="activeSection" (pageChange)="onPageChange($event)" *ngIf="action === 'compliance' && activeSection"></app-compliance-latest-evaluations-view>
         <app-compliance-evaluation-history-view *ngIf="action === 'reports'"></app-compliance-evaluation-history-view>-->
         <app-compliance-reports-view [section]="activeSection" (pageChange)="onPageChange($event)" *ngIf="action === 'compliance' && activeSection"></app-compliance-reports-view>
-        <app-compliance-result-view *ngIf="action === 'reports'" [showExport]="false" [template]="'compliance'"></app-compliance-result-view>
+        <app-compliance-result-view #compilanceRep [hidden]="action !== 'reports'" [showExport]="true" [template]="'compliance'"></app-compliance-result-view>
       </div>
     </div>
   </div>
