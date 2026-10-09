@@ -6,8 +6,8 @@ package mcp
 const soarFlowGuideDoc = `# SOAR flow guide — building alert-response DAGs
 
 A SOAR rule ("flow") is a DAG of nodes that runs when an alert matches its
-trigger conditions. Create NEW flows with soar.rule.create (full flow in one
-call). MODIFY existing flows with soar.rule.update — it is PARTIAL: send only
+trigger conditions. Create NEW flows with soar.flow.create (full flow in one
+call). MODIFY existing flows with soar.flow.update — it is PARTIAL: send only
 the fields that change, never resend the whole flow (see "Editing an existing
 flow" below).
 
@@ -82,8 +82,8 @@ flow run — you do not wire triggers yourself, only declare conditions. Typical
 [{"operator":"IS","field":"name","value":"<exact alert name>"}]. Operators:
 IS, IS_NOT, CONTAINS, NOT_CONTAINS, EXISTS, NOT_EXISTS, START_WITH, NOT_START_WITH,
 ENDS_WITH, NOT_ENDS_WITH, IS_ONE_OF (value = string[]), IS_NOT_ONE_OF. Use
-soar.rule.resolve_filter_values for field suggestions. A rule only fires when
-enabled — create with active:true or flip later with soar.rule.set_enabled.
+soar.flow.resolve_filter_values for field suggestions. A rule only fires when
+enabled — create with active:true or flip later with soar.flow.set_enabled.
 
 ## Branching on success/failure of a step
 
@@ -94,7 +94,7 @@ and "failure path" subtrees.
 
 ## Editing an existing flow
 
-soar.rule.update is a PARTIAL update, not a full replace:
+soar.flow.update is a PARTIAL update, not a full replace:
 - omitted fields keep their current value (name, description, conditions,
   roots, nodes, max_depth, active);
 - nodes is a MERGE by id: the ids you send are added or overwritten, every
@@ -103,7 +103,7 @@ soar.rule.update is a PARTIAL update, not a full replace:
   remaining node's onSuccess/onError and from roots. Never list the same id
   in both nodes and deleted_nodes.
 
-So: soar.rule.get(rel_path) once, then send only the delta. Typical edits:
+So: soar.flow.get(rel_path) once, then send only the delta. Typical edits:
 
 1. **Add a node** — send nodes: {"new_id": {...}}; if it wires off an
    existing node, also send that existing node with new_id appended to its
@@ -114,7 +114,7 @@ So: soar.rule.get(rel_path) once, then send only the delta. Typical edits:
    for you; nothing else to send.
 4. **Change triggers** — conditions is a full replace of the small list, so
    send the complete new conditions array.
-5. **Enable/disable** — soar.rule.set_enabled(rel_path, enabled); no payload
+5. **Enable/disable** — soar.flow.set_enabled(rel_path, enabled); no payload
    needed. System-owned flows are read-only (update/delete rejected).
 
 ## Worked example — block brute-force source IP unless internal
@@ -150,9 +150,9 @@ So: soar.rule.get(rel_path) once, then send only the delta. Typical edits:
     },
     "done": {  // AND-join: runs only after both block and notify_only succeeded
       "kind": "executor", "executor": "incident",
-      "params": {"name":"Blocked $(alert.adversary.ip)","description":"Auto-blocked after $(alert.name)"} 
-    } 
-  } 
+      "params": {"name":"Blocked $(alert.adversary.ip)","description":"Auto-blocked after $(alert.name)"}
+    }
+  }
 }
 
 Rules of thumb: keep side effects in executor nodes; put every data lookup you
