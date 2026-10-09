@@ -7,6 +7,8 @@
           <ng-select (change)="changeField($event)"
                      [clearable]="false"
                      [items]="fields"
+                     [addTag]="true"
+                     [addTagText]="'Type field, e.g. event.eventCode'"
                      [loadingText]="'Loading fields....'"
                      [loading]="loading"
                      [virtualScroll]="true"
@@ -15,7 +17,7 @@
                      bindLabel="name"
                      bindValue="name"
                      formControlName="field"
-                     placeholder="Select field">
+                     placeholder="Select or type a field (e.g. event.eventCode)">
             <ng-template let-item="item" ng-option-tmp>
               <span class="span-small-icon" title="{{item.name}}"><i [ngClass]="resolveIcon(item)"
                                                                      class="mr-1"></i>{{item.name}}</span>

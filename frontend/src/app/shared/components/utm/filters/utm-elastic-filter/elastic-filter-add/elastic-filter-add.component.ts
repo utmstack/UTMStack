@@ -70,12 +70,12 @@ export class ElasticFilterAddComponent implements OnInit {
 
   ngOnInit() {
     this.initFormFilter();
-    // Flattened fields (event bag) are not generically filterable: the backend
-    // only translates event.<leaf> dot-paths, and the picker offers the bare field.
+    // The `event` field (flat_object bag) is listed like any other field; the
+    // field picker also allows typing an `event.<leaf>` dot-path (addTag), and
+    // typed/selected flattened fields get the flattened operator set below.
     this.fieldDataBehavior.getFields(this.pattern)
       .pipe(takeUntil(this.destroy$),
-        map(fields => fields.filter(f => !this.hiddenFields.includes(f.name) &&
-          f.type !== ElasticDataTypesEnum.FLATTENED)))
+        map(fields => fields.filter(f => !this.hiddenFields.includes(f.name))))
       .subscribe(field => {
         if (field) {
           this.fields = field;
@@ -187,12 +187,28 @@ export class ElasticFilterAddComponent implements OnInit {
   }
 
   /**
-   * Return field data type
+   * Resolve the selected field to a field-info object. A typed `event.<leaf>`
+   * dot-path (allowed via addTag) is not in the server field list, so synthesize
+   * a FLATTENED field for it — the backend translates `event.*` to flat_object
+   * queries and only a subset of operators is valid.
+   */
+  get field(): ElasticSearchFieldInfoType {
+    const value = this.formFilter.get('field').value;
+    const index = this.fields.findIndex(f => f.name === value);
+    if (index !== -1) {
+      return this.fields[index];
+    }
+    if (typeof value === 'string' && value.startsWith('event.')) {
+      return {name: value, type: ElasticDataTypesEnum.FLATTENED};
+    }
+  }
+
+  /**
+   * Determine the type string of the selected field (handles typed event.* paths).
    */
   extractFieldDataType(): string {
-    const field = this.formFilter.get('field').value;
-    const index = this.fields.findIndex(value => value.name === field);
-    return this.fields[index].type;
+    const field = this.field;
+    return field ? field.type : null;
   }
 
   onDateRangeChange($event: TimeFilterType) {
@@ -270,37 +286,22 @@ export class ElasticFilterAddComponent implements OnInit {
   }
 
   applyInputFilter(): boolean {
-    const field = this.formFilter.get('field').value;
-    const index = this.fields.findIndex(value => value.name === field);
-    if (index !== -1) {
-      return (this.fields[index].type === ElasticDataTypesEnum.TEXT || this.fields[index].type === ElasticDataTypesEnum.STRING);
-    } else {
-      return false;
-    }
+    const field = this.field;
+    return !!field && (field.type === ElasticDataTypesEnum.TEXT || field.type === ElasticDataTypesEnum.STRING);
   }
 
   /**
-   * Return index of field selected
+   * Return index of field selected in the server field list (typed event.* paths
+   * are not in the list, so this returns -1 for them).
    */
   getIndexField(): number {
     return this.fields.findIndex(value => value.name === this.formFilter.get('field').value);
   }
 
-  /**
-   * return current field selected
-   */
-  get field(): ElasticSearchFieldInfoType {
-    const field = this.formFilter.get('field').value;
-    const index = this.fields.findIndex(value => value.name === field);
-    if (index !== -1) {
-      return this.fields[index];
-    }
-  }
-
   getOperators() {
-    const index = this.getIndexField();
-    if (index !== -1) {
-      this.operators = this.operatorService.getOperators(this.fields[index], this.operators);
+    const field = this.field;
+    if (field) {
+      this.operators = this.operatorService.getOperators(field, this.operators);
     }
   }
 
