@@ -109,7 +109,7 @@ func registerDocResources(m *Module) {
 	srv.AddResource(&mcp.Resource{
 		URI:         "mcp://utmstack/docs/soar-flow-guide",
 		Name:        "SOAR flow building guide",
-		Description: "How to author SOAR rules: node kinds (executor vs enrichment), DAG wiring (roots, onSuccess/onError, AND-join), $(...) and $[variables...] interpolation, alert trigger conditions, and branching. Read this before soar.flow.create. Ends with the live list of executor types registered on this instance.",
+		Description: "How to author SOAR rules: node kinds (executor vs enrichment), DAG wiring (roots, onSuccess/onError, AND-join), $(...) and $[variables...] interpolation, alert trigger conditions, and branching. Read this before soar.rule.create. Ends with the live list of executor types registered on this instance.",
 		MIMEType:    "text/markdown",
 	}, func(ctx context.Context, req *mcp.ReadResourceRequest) (*mcp.ReadResourceResult, error) {
 		text := soarFlowGuideDoc + "\n\n## Executor types registered on this instance\n\n" + strings.Join(m.deps.SOAR.GetExecutorTypes(), ", ") + "\n"

@@ -83,7 +83,7 @@ flow run — you do not wire triggers yourself, only declare conditions. Typical
 IS, IS_NOT, CONTAINS, NOT_CONTAINS, EXISTS, NOT_EXISTS, START_WITH, NOT_START_WITH,
 ENDS_WITH, NOT_ENDS_WITH, IS_ONE_OF (value = string[]), IS_NOT_ONE_OF. Use
 soar.rule.resolve_filter_values for field suggestions. A rule only fires when
-enabled — create with active:true or flip later with soar.flow.set_enabled.
+enabled — create with active:true or flip later with soar.rule.set_enabled.
 
 ## Branching on success/failure of a step
 
