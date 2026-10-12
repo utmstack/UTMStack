@@ -3437,3 +3437,24 @@ pipeline:
       - azureRequestroleDefinitionId
       - azureRequestallowBlobPublicAccess
       - azureRequestpublicAccess
+  # UTM aggregatable bag (go-sdk v1.1.38+). Copies chart-needed fields
+  # from the flat_object event bag into the typed utm bag so they can be
+  # terms/date aggregated. Guarded by exists(): only copied when present.
+  - grok:
+      source: event.category
+      patterns:
+        - fieldName: utm.category
+          pattern: (?s)^.+$
+      where: exists("event.category")
+  - grok:
+      source: event.message
+      patterns:
+        - fieldName: utm.message
+          pattern: (?s)^.+$
+      where: exists("event.message")
+  - grok:
+      source: event.resourceId
+      patterns:
+        - fieldName: utm.resourceId
+          pattern: (?s)^.+$
+      where: exists("event.resourceId")

@@ -1,4 +1,4 @@
-# VMWare-ESXi, version 3.2.0
+# VMWare-ESXi, version 3.3.0
 # 
 # Based on docs and real logs provided
 # Support VMWare-ESXi log
@@ -308,3 +308,12 @@ pipeline:
             - event.failAddress
             - event.sshUser
             - event.sshAddress
+      # UTM aggregatable bag (go-sdk v1.1.38+). Copies chart-needed fields
+      # from the flat_object event bag into the typed utm bag so they can be
+      # terms/date aggregated. Guarded by exists(): only copied when present.
+      - grok:
+          source: event.process
+          patterns:
+            - fieldName: utm.process
+              pattern: (?s)^.+$
+          where: exists("event.process")

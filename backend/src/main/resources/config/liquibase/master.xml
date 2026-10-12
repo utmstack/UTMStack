@@ -610,5 +610,7 @@
   <include file="/config/liquibase/changelog/20260915001_grant_admin_to_federation_user.xml" relativeToChangelogFile="false"/>
 
   <include file="/config/liquibase/changelog/20261009001_remap_event_bag_dashboard_fields.xml" relativeToChangelogFile="false"/>
+<include file="/config/liquibase/changelog/20261012001_remap_viz_agg_to_utm.xml" relativeToChangelogFile="false"/>
 
 </databaseChangeLog>
+

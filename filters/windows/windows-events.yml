@@ -1,4 +1,4 @@
-# Windows_Agent filter, version 3.2.2
+# Windows_Agent filter, version 3.3.0
 # Based on winlogbeat fields, reference [8.15]
 # See https://www.elastic.co/guide/en/beats/winlogbeat/current/exported-fields-winlog.html
 
@@ -3423,3 +3423,739 @@ pipeline:
             - fieldName: action
               pattern: (?s)^.+$
           where: exists("event.eventName")
+      # UTM aggregatable bag - wineventlog (go-sdk v1.1.38+). Copies chart-needed fields
+      # from the flat_object event bag into the typed utm bag so they can be
+      # terms/date aggregated. Each step is guarded by exists() so a field
+      # is only copied when present (non-lossy: event bag is preserved).
+      - grok:
+          source: event.accessType
+          patterns:
+            - fieldName: utm.accessType
+              pattern: (?s)^.+$
+          where: exists("event.accessType")
+      - grok:
+          source: event.activityId
+          patterns:
+            - fieldName: utm.activityId
+              pattern: (?s)^.+$
+          where: exists("event.activityId")
+      - grok:
+          source: event.beatVersion
+          patterns:
+            - fieldName: utm.beatVersion
+              pattern: (?s)^.+$
+          where: exists("event.beatVersion")
+      - grok:
+          source: event.eventCode
+          patterns:
+            - fieldName: utm.eventCode
+              pattern: (?s)^.+$
+          where: exists("event.eventCode")
+      - grok:
+          source: event.eventDataAccessList
+          patterns:
+            - fieldName: utm.eventDataAccessList
+              pattern: (?s)^.+$
+          where: exists("event.eventDataAccessList")
+      - grok:
+          source: event.eventDataAccessMask
+          patterns:
+            - fieldName: utm.eventDataAccessMask
+              pattern: (?s)^.+$
+          where: exists("event.eventDataAccessMask")
+      - grok:
+          source: event.eventDataAlgorithmName
+          patterns:
+            - fieldName: utm.eventDataAlgorithmName
+              pattern: (?s)^.+$
+          where: exists("event.eventDataAlgorithmName")
+      - grok:
+          source: event.eventDataApplication
+          patterns:
+            - fieldName: utm.eventDataApplication
+              pattern: (?s)^.+$
+          where: exists("event.eventDataApplication")
+      - grok:
+          source: event.eventDataBootAppStatus
+          patterns:
+            - fieldName: utm.eventDataBootAppStatus
+              pattern: (?s)^.+$
+          where: exists("event.eventDataBootAppStatus")
+      - grok:
+          source: event.eventDataCA
+          patterns:
+            - fieldName: utm.eventDataCA
+              pattern: (?s)^.+$
+          where: exists("event.eventDataCA")
+      - grok:
+          source: event.eventDataCallerProcessId
+          patterns:
+            - fieldName: utm.eventDataCallerProcessId
+              pattern: (?s)^.+$
+          where: exists("event.eventDataCallerProcessId")
+      - grok:
+          source: event.eventDataCallerProcessName
+          patterns:
+            - fieldName: utm.eventDataCallerProcessName
+              pattern: (?s)^.+$
+          where: exists("event.eventDataCallerProcessName")
+      - grok:
+          source: event.eventDataCategoryId
+          patterns:
+            - fieldName: utm.eventDataCategoryId
+              pattern: (?s)^.+$
+          where: exists("event.eventDataCategoryId")
+      - grok:
+          source: event.eventDataClassId
+          patterns:
+            - fieldName: utm.eventDataClassId
+              pattern: (?s)^.+$
+          where: exists("event.eventDataClassId")
+      - grok:
+          source: event.eventDataClassName
+          patterns:
+            - fieldName: utm.eventDataClassName
+              pattern: (?s)^.+$
+          where: exists("event.eventDataClassName")
+      - grok:
+          source: event.eventDataClientProcessId
+          patterns:
+            - fieldName: utm.eventDataClientProcessId
+              pattern: (?s)^.+$
+          where: exists("event.eventDataClientProcessId")
+      - grok:
+          source: event.eventDataContextInfo
+          patterns:
+            - fieldName: utm.eventDataContextInfo
+              pattern: (?s)^.+$
+          where: exists("event.eventDataContextInfo")
+      - grok:
+          source: event.eventDataDCName
+          patterns:
+            - fieldName: utm.eventDataDCName
+              pattern: (?s)^.+$
+          where: exists("event.eventDataDCName")
+      - grok:
+          source: event.eventDataDeviceDescription
+          patterns:
+            - fieldName: utm.eventDataDeviceDescription
+              pattern: (?s)^.+$
+          where: exists("event.eventDataDeviceDescription")
+      - grok:
+          source: event.eventDataDeviceId
+          patterns:
+            - fieldName: utm.eventDataDeviceId
+              pattern: (?s)^.+$
+          where: exists("event.eventDataDeviceId")
+      - grok:
+          source: event.eventDataDisplayName
+          patterns:
+            - fieldName: utm.eventDataDisplayName
+              pattern: (?s)^.+$
+          where: exists("event.eventDataDisplayName")
+      - grok:
+          source: event.eventDataErrorCode
+          patterns:
+            - fieldName: utm.eventDataErrorCode
+              pattern: (?s)^.+$
+          where: exists("event.eventDataErrorCode")
+      - grok:
+          source: event.eventDataExceptionCode
+          patterns:
+            - fieldName: utm.eventDataExceptionCode
+              pattern: (?s)^.+$
+          where: exists("event.eventDataExceptionCode")
+      - grok:
+          source: event.eventDataFQDN
+          patterns:
+            - fieldName: utm.eventDataFQDN
+              pattern: (?s)^.+$
+          where: exists("event.eventDataFQDN")
+      - grok:
+          source: event.eventDataFailureReasonDescription
+          patterns:
+            - fieldName: utm.eventDataFailureReasonDescription
+              pattern: (?s)^.+$
+          where: exists("event.eventDataFailureReasonDescription")
+      - grok:
+          source: event.eventDataFilePath
+          patterns:
+            - fieldName: utm.eventDataFilePath
+              pattern: (?s)^.+$
+          where: exists("event.eventDataFilePath")
+      - grok:
+          source: event.eventDataFilterRTID
+          patterns:
+            - fieldName: utm.eventDataFilterRTID
+              pattern: (?s)^.+$
+          where: exists("event.eventDataFilterRTID")
+      - grok:
+          source: event.eventDataHandleId
+          patterns:
+            - fieldName: utm.eventDataHandleId
+              pattern: (?s)^.+$
+          where: exists("event.eventDataHandleId")
+      - grok:
+          source: event.eventDataHiveName
+          patterns:
+            - fieldName: utm.eventDataHiveName
+              pattern: (?s)^.+$
+          where: exists("event.eventDataHiveName")
+      - grok:
+          source: event.eventDataImagePath
+          patterns:
+            - fieldName: utm.eventDataImagePath
+              pattern: (?s)^.+$
+          where: exists("event.eventDataImagePath")
+      - grok:
+          source: event.eventDataIpPort
+          patterns:
+            - fieldName: utm.eventDataIpPort
+              pattern: (?s)^.+$
+          where: exists("event.eventDataIpPort")
+      - grok:
+          source: event.eventDataKeyFilePath
+          patterns:
+            - fieldName: utm.eventDataKeyFilePath
+              pattern: (?s)^.+$
+          where: exists("event.eventDataKeyFilePath")
+      - grok:
+          source: event.eventDataKeyName
+          patterns:
+            - fieldName: utm.eventDataKeyName
+              pattern: (?s)^.+$
+          where: exists("event.eventDataKeyName")
+      - grok:
+          source: event.eventDataKeyType
+          patterns:
+            - fieldName: utm.eventDataKeyType
+              pattern: (?s)^.+$
+          where: exists("event.eventDataKeyType")
+      - grok:
+          source: event.eventDataLastBootGood
+          patterns:
+            - fieldName: utm.eventDataLastBootGood
+              pattern: (?s)^.+$
+          where: exists("event.eventDataLastBootGood")
+      - grok:
+          source: event.eventDataLastShutdownGood
+          patterns:
+            - fieldName: utm.eventDataLastShutdownGood
+              pattern: (?s)^.+$
+          where: exists("event.eventDataLastShutdownGood")
+      - grok:
+          source: event.eventDataLayerName
+          patterns:
+            - fieldName: utm.eventDataLayerName
+              pattern: (?s)^.+$
+          where: exists("event.eventDataLayerName")
+      - grok:
+          source: event.eventDataLevel
+          patterns:
+            - fieldName: utm.eventDataLevel
+              pattern: (?s)^.+$
+          where: exists("event.eventDataLevel")
+      - grok:
+          source: event.eventDataLogonGuid
+          patterns:
+            - fieldName: utm.eventDataLogonGuid
+              pattern: (?s)^.+$
+          where: exists("event.eventDataLogonGuid")
+      - grok:
+          source: event.eventDataLogonType
+          patterns:
+            - fieldName: utm.eventDataLogonType
+              pattern: (?s)^.+$
+          where: exists("event.eventDataLogonType")
+      - grok:
+          source: event.eventDataMemberName
+          patterns:
+            - fieldName: utm.eventDataMemberName
+              pattern: (?s)^.+$
+          where: exists("event.eventDataMemberName")
+      - grok:
+          source: event.eventDataMemberSid
+          patterns:
+            - fieldName: utm.eventDataMemberSid
+              pattern: (?s)^.+$
+          where: exists("event.eventDataMemberSid")
+      - grok:
+          source: event.eventDataMessage
+          patterns:
+            - fieldName: utm.eventDataMessage
+              pattern: (?s)^.+$
+          where: exists("event.eventDataMessage")
+      - grok:
+          source: event.eventDataNewSd
+          patterns:
+            - fieldName: utm.eventDataNewSd
+              pattern: (?s)^.+$
+          where: exists("event.eventDataNewSd")
+      - grok:
+          source: event.eventDataNewSize
+          patterns:
+            - fieldName: utm.eventDataNewSize
+              pattern: (?s)^.+$
+          where: exists("event.eventDataNewSize")
+      - grok:
+          source: event.eventDataNewState
+          patterns:
+            - fieldName: utm.eventDataNewState
+              pattern: (?s)^.+$
+          where: exists("event.eventDataNewState")
+      - grok:
+          source: event.eventDataNewTime
+          patterns:
+            - fieldName: utm.eventDataNewTime
+              pattern: (?s)^.+$
+          where: exists("event.eventDataNewTime")
+      - grok:
+          source: event.eventDataNewValueType
+          patterns:
+            - fieldName: utm.eventDataNewValueType
+              pattern: (?s)^.+$
+          where: exists("event.eventDataNewValueType")
+      - grok:
+          source: event.eventDataObjectServer
+          patterns:
+            - fieldName: utm.eventDataObjectServer
+              pattern: (?s)^.+$
+          where: exists("event.eventDataObjectServer")
+      - grok:
+          source: event.eventDataObjectType
+          patterns:
+            - fieldName: utm.eventDataObjectType
+              pattern: (?s)^.+$
+          where: exists("event.eventDataObjectType")
+      - grok:
+          source: event.eventDataObjectValueName
+          patterns:
+            - fieldName: utm.eventDataObjectValueName
+              pattern: (?s)^.+$
+          where: exists("event.eventDataObjectValueName")
+      - grok:
+          source: event.eventDataOldSd
+          patterns:
+            - fieldName: utm.eventDataOldSd
+              pattern: (?s)^.+$
+          where: exists("event.eventDataOldSd")
+      - grok:
+          source: event.eventDataOldValueType
+          patterns:
+            - fieldName: utm.eventDataOldValueType
+              pattern: (?s)^.+$
+          where: exists("event.eventDataOldValueType")
+      - grok:
+          source: event.eventDataOperation
+          patterns:
+            - fieldName: utm.eventDataOperation
+              pattern: (?s)^.+$
+          where: exists("event.eventDataOperation")
+      - grok:
+          source: event.eventDataOperationType
+          patterns:
+            - fieldName: utm.eventDataOperationType
+              pattern: (?s)^.+$
+          where: exists("event.eventDataOperationType")
+      - grok:
+          source: event.eventDataOriginalSize
+          patterns:
+            - fieldName: utm.eventDataOriginalSize
+              pattern: (?s)^.+$
+          where: exists("event.eventDataOriginalSize")
+      - grok:
+          source: event.eventDataOutcome
+          patterns:
+            - fieldName: utm.eventDataOutcome
+              pattern: (?s)^.+$
+          where: exists("event.eventDataOutcome")
+      - grok:
+          source: event.eventDataParam1
+          patterns:
+            - fieldName: utm.eventDataParam1
+              pattern: (?s)^.+$
+          where: exists("event.eventDataParam1")
+      - grok:
+          source: event.eventDataParam2
+          patterns:
+            - fieldName: utm.eventDataParam2
+              pattern: (?s)^.+$
+          where: exists("event.eventDataParam2")
+      - grok:
+          source: event.eventDataParentProcessId
+          patterns:
+            - fieldName: utm.eventDataParentProcessId
+              pattern: (?s)^.+$
+          where: exists("event.eventDataParentProcessId")
+      - grok:
+          source: event.eventDataParentProcessName
+          patterns:
+            - fieldName: utm.eventDataParentProcessName
+              pattern: (?s)^.+$
+          where: exists("event.eventDataParentProcessName")
+      - grok:
+          source: event.eventDataPasswordLastSet
+          patterns:
+            - fieldName: utm.eventDataPasswordLastSet
+              pattern: (?s)^.+$
+          where: exists("event.eventDataPasswordLastSet")
+      - grok:
+          source: event.eventDataPreAuthType
+          patterns:
+            - fieldName: utm.eventDataPreAuthType
+              pattern: (?s)^.+$
+          where: exists("event.eventDataPreAuthType")
+      - grok:
+          source: event.eventDataPreviousTime
+          patterns:
+            - fieldName: utm.eventDataPreviousTime
+              pattern: (?s)^.+$
+          where: exists("event.eventDataPreviousTime")
+      - grok:
+          source: event.eventDataPrivilegeList
+          patterns:
+            - fieldName: utm.eventDataPrivilegeList
+              pattern: (?s)^.+$
+          where: exists("event.eventDataPrivilegeList")
+      - grok:
+          source: event.eventDataProcessID
+          patterns:
+            - fieldName: utm.eventDataProcessID
+              pattern: (?s)^.+$
+          where: exists("event.eventDataProcessID")
+      - grok:
+          source: event.eventDataProcessId
+          patterns:
+            - fieldName: utm.eventDataProcessId
+              pattern: (?s)^.+$
+          where: exists("event.eventDataProcessId")
+      - grok:
+          source: event.eventDataProfileChanged
+          patterns:
+            - fieldName: utm.eventDataProfileChanged
+              pattern: (?s)^.+$
+          where: exists("event.eventDataProfileChanged")
+      - grok:
+          source: event.eventDataProtocol
+          patterns:
+            - fieldName: utm.eventDataProtocol
+              pattern: (?s)^.+$
+          where: exists("event.eventDataProtocol")
+      - grok:
+          source: event.eventDataProviderName
+          patterns:
+            - fieldName: utm.eventDataProviderName
+              pattern: (?s)^.+$
+          where: exists("event.eventDataProviderName")
+      - grok:
+          source: event.eventDataReadOperation
+          patterns:
+            - fieldName: utm.eventDataReadOperation
+              pattern: (?s)^.+$
+          where: exists("event.eventDataReadOperation")
+      - grok:
+          source: event.eventDataRelativeTargetName
+          patterns:
+            - fieldName: utm.eventDataRelativeTargetName
+              pattern: (?s)^.+$
+          where: exists("event.eventDataRelativeTargetName")
+      - grok:
+          source: event.eventDataRequestId
+          patterns:
+            - fieldName: utm.eventDataRequestId
+              pattern: (?s)^.+$
+          where: exists("event.eventDataRequestId")
+      - grok:
+          source: event.eventDataReturnCode
+          patterns:
+            - fieldName: utm.eventDataReturnCode
+              pattern: (?s)^.+$
+          where: exists("event.eventDataReturnCode")
+      - grok:
+          source: event.eventDataRuleId
+          patterns:
+            - fieldName: utm.eventDataRuleId
+              pattern: (?s)^.+$
+          where: exists("event.eventDataRuleId")
+      - grok:
+          source: event.eventDataRuleName
+          patterns:
+            - fieldName: utm.eventDataRuleName
+              pattern: (?s)^.+$
+          where: exists("event.eventDataRuleName")
+      - grok:
+          source: event.eventDataRunspaceId
+          patterns:
+            - fieldName: utm.eventDataRunspaceId
+              pattern: (?s)^.+$
+          where: exists("event.eventDataRunspaceId")
+      - grok:
+          source: event.eventDataSamAccountName
+          patterns:
+            - fieldName: utm.eventDataSamAccountName
+              pattern: (?s)^.+$
+          where: exists("event.eventDataSamAccountName")
+      - grok:
+          source: event.eventDataScriptBlockId
+          patterns:
+            - fieldName: utm.eventDataScriptBlockId
+              pattern: (?s)^.+$
+          where: exists("event.eventDataScriptBlockId")
+      - grok:
+          source: event.eventDataServiceAccount
+          patterns:
+            - fieldName: utm.eventDataServiceAccount
+              pattern: (?s)^.+$
+          where: exists("event.eventDataServiceAccount")
+      - grok:
+          source: event.eventDataServiceFileName
+          patterns:
+            - fieldName: utm.eventDataServiceFileName
+              pattern: (?s)^.+$
+          where: exists("event.eventDataServiceFileName")
+      - grok:
+          source: event.eventDataServiceName
+          patterns:
+            - fieldName: utm.eventDataServiceName
+              pattern: (?s)^.+$
+          where: exists("event.eventDataServiceName")
+      - grok:
+          source: event.eventDataServiceSid
+          patterns:
+            - fieldName: utm.eventDataServiceSid
+              pattern: (?s)^.+$
+          where: exists("event.eventDataServiceSid")
+      - grok:
+          source: event.eventDataServiceType
+          patterns:
+            - fieldName: utm.eventDataServiceType
+              pattern: (?s)^.+$
+          where: exists("event.eventDataServiceType")
+      - grok:
+          source: event.eventDataShareLocalPath
+          patterns:
+            - fieldName: utm.eventDataShareLocalPath
+              pattern: (?s)^.+$
+          where: exists("event.eventDataShareLocalPath")
+      - grok:
+          source: event.eventDataShareName
+          patterns:
+            - fieldName: utm.eventDataShareName
+              pattern: (?s)^.+$
+          where: exists("event.eventDataShareName")
+      - grok:
+          source: event.eventDataShutdownType
+          patterns:
+            - fieldName: utm.eventDataShutdownType
+              pattern: (?s)^.+$
+          where: exists("event.eventDataShutdownType")
+      - grok:
+          source: event.eventDataSourceAddress
+          patterns:
+            - fieldName: utm.eventDataSourceAddress
+              pattern: (?s)^.+$
+          where: exists("event.eventDataSourceAddress")
+      - grok:
+          source: event.eventDataSourceHandleId
+          patterns:
+            - fieldName: utm.eventDataSourceHandleId
+              pattern: (?s)^.+$
+          where: exists("event.eventDataSourceHandleId")
+      - grok:
+          source: event.eventDataSourcePort
+          patterns:
+            - fieldName: utm.eventDataSourcePort
+              pattern: (?s)^.+$
+          where: exists("event.eventDataSourcePort")
+      - grok:
+          source: event.eventDataStartType
+          patterns:
+            - fieldName: utm.eventDataStartType
+              pattern: (?s)^.+$
+          where: exists("event.eventDataStartType")
+      - grok:
+          source: event.eventDataStatus
+          patterns:
+            - fieldName: utm.eventDataStatus
+              pattern: (?s)^.+$
+          where: exists("event.eventDataStatus")
+      - grok:
+          source: event.eventDataStatusDescription
+          patterns:
+            - fieldName: utm.eventDataStatusDescription
+              pattern: (?s)^.+$
+          where: exists("event.eventDataStatusDescription")
+      - grok:
+          source: event.eventDataSubjectLogonId
+          patterns:
+            - fieldName: utm.eventDataSubjectLogonId
+              pattern: (?s)^.+$
+          where: exists("event.eventDataSubjectLogonId")
+      - grok:
+          source: event.eventDataSubjectUserSid
+          patterns:
+            - fieldName: utm.eventDataSubjectUserSid
+              pattern: (?s)^.+$
+          where: exists("event.eventDataSubjectUserSid")
+      - grok:
+          source: event.eventDataTargetHandleId
+          patterns:
+            - fieldName: utm.eventDataTargetHandleId
+              pattern: (?s)^.+$
+          where: exists("event.eventDataTargetHandleId")
+      - grok:
+          source: event.eventDataTargetLogonGuid
+          patterns:
+            - fieldName: utm.eventDataTargetLogonGuid
+              pattern: (?s)^.+$
+          where: exists("event.eventDataTargetLogonGuid")
+      - grok:
+          source: event.eventDataTargetLogonId
+          patterns:
+            - fieldName: utm.eventDataTargetLogonId
+              pattern: (?s)^.+$
+          where: exists("event.eventDataTargetLogonId")
+      - grok:
+          source: event.eventDataTargetName
+          patterns:
+            - fieldName: utm.eventDataTargetName
+              pattern: (?s)^.+$
+          where: exists("event.eventDataTargetName")
+      - grok:
+          source: event.eventDataTargetServerName
+          patterns:
+            - fieldName: utm.eventDataTargetServerName
+              pattern: (?s)^.+$
+          where: exists("event.eventDataTargetServerName")
+      - grok:
+          source: event.eventDataTargetSid
+          patterns:
+            - fieldName: utm.eventDataTargetSid
+              pattern: (?s)^.+$
+          where: exists("event.eventDataTargetSid")
+      - grok:
+          source: event.eventDataTargetUserSid
+          patterns:
+            - fieldName: utm.eventDataTargetUserSid
+              pattern: (?s)^.+$
+          where: exists("event.eventDataTargetUserSid")
+      - grok:
+          source: event.eventDataTaskName
+          patterns:
+            - fieldName: utm.eventDataTaskName
+              pattern: (?s)^.+$
+          where: exists("event.eventDataTaskName")
+      - grok:
+          source: event.eventDataTemplateName
+          patterns:
+            - fieldName: utm.eventDataTemplateName
+              pattern: (?s)^.+$
+          where: exists("event.eventDataTemplateName")
+      - grok:
+          source: event.eventDataTicketEncryptionType
+          patterns:
+            - fieldName: utm.eventDataTicketEncryptionType
+              pattern: (?s)^.+$
+          where: exists("event.eventDataTicketEncryptionType")
+      - grok:
+          source: event.eventDataTicketOptions
+          patterns:
+            - fieldName: utm.eventDataTicketOptions
+              pattern: (?s)^.+$
+          where: exists("event.eventDataTicketOptions")
+      - grok:
+          source: event.eventDataTokenElevationType
+          patterns:
+            - fieldName: utm.eventDataTokenElevationType
+              pattern: (?s)^.+$
+          where: exists("event.eventDataTokenElevationType")
+      - grok:
+          source: event.eventDataTransactionId
+          patterns:
+            - fieldName: utm.eventDataTransactionId
+              pattern: (?s)^.+$
+          where: exists("event.eventDataTransactionId")
+      - grok:
+          source: event.eventDataUserPrincipalName
+          patterns:
+            - fieldName: utm.eventDataUserPrincipalName
+              pattern: (?s)^.+$
+          where: exists("event.eventDataUserPrincipalName")
+      - grok:
+          source: event.eventDataVendorIds
+          patterns:
+            - fieldName: utm.eventDataVendorIds
+              pattern: (?s)^.+$
+          where: exists("event.eventDataVendorIds")
+      - grok:
+          source: event.hostOsVersion
+          patterns:
+            - fieldName: utm.hostOsVersion
+              pattern: (?s)^.+$
+          where: exists("event.hostOsVersion")
+      - grok:
+          source: event.keywords
+          patterns:
+            - fieldName: utm.keywords
+              pattern: (?s)^.+$
+          where: exists("event.keywords")
+      - grok:
+          source: event.message
+          patterns:
+            - fieldName: utm.message
+              pattern: (?s)^.+$
+          where: exists("event.message")
+      - grok:
+          source: event.opcode
+          patterns:
+            - fieldName: utm.opcode
+              pattern: (?s)^.+$
+          where: exists("event.opcode")
+      - grok:
+          source: event.providerGuid
+          patterns:
+            - fieldName: utm.providerGuid
+              pattern: (?s)^.+$
+          where: exists("event.providerGuid")
+      - grok:
+          source: event.providerName
+          patterns:
+            - fieldName: utm.providerName
+              pattern: (?s)^.+$
+          where: exists("event.providerName")
+      - grok:
+          source: event.recordId
+          patterns:
+            - fieldName: utm.recordId
+              pattern: (?s)^.+$
+          where: exists("event.recordId")
+      - grok:
+          source: event.tags
+          patterns:
+            - fieldName: utm.tags
+              pattern: (?s)^.+$
+          where: exists("event.tags")
+      - grok:
+          source: event.task
+          patterns:
+            - fieldName: utm.task
+              pattern: (?s)^.+$
+          where: exists("event.task")
+      - grok:
+          source: event.threadId
+          patterns:
+            - fieldName: utm.threadId
+              pattern: (?s)^.+$
+          where: exists("event.threadId")
+      - grok:
+          source: event.userDataBackupPath
+          patterns:
+            - fieldName: utm.userDataBackupPath
+              pattern: (?s)^.+$
+          where: exists("event.userDataBackupPath")
+      - grok:
+          source: event.userDomain
+          patterns:
+            - fieldName: utm.userDomain
+              pattern: (?s)^.+$
+          where: exists("event.userDomain")

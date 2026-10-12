@@ -1,4 +1,4 @@
-# CISCO ASA filter, version 3.2.0
+# CISCO ASA filter, version 3.3.0
 # Based on examples provided and https://www.cisco.com/c/en/us/td/docs/security/asa/syslog/b_syslog.html
 # Filter Input requirements -> Syslog
 #
@@ -5794,3 +5794,12 @@ pipeline:
             - event.irrelevant
             - event.syslogPri
             - event.rest
+      # UTM aggregatable bag (go-sdk v1.1.38+). Copies chart-needed fields
+      # from the flat_object event bag into the typed utm bag so they can be
+      # terms/date aggregated. Guarded by exists(): only copied when present.
+      - grok:
+          source: event.msg
+          patterns:
+            - fieldName: utm.msg
+              pattern: (?s)^.+$
+          where: exists("event.msg")

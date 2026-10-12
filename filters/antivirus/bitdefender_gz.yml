@@ -1,4 +1,4 @@
-# Bitdefender GravityZone CEF filter, version 3.3.1
+# Bitdefender GravityZone CEF filter, version 3.4.0
 # CEF-encoded originals remain under log; no unsupported decoder is assumed.
 # Re-read the protected raw header after generic KV so extension text cannot overwrite it.
 # The grok plugin matches each pattern in turn against what is left of the text,
@@ -1453,3 +1453,36 @@ pipeline:
   - delete:
       fields:
       - event.cefExtension
+  # UTM aggregatable bag (go-sdk v1.1.38+). Copies chart-needed fields
+  # from the flat_object event bag into the typed utm bag so they can be
+  # terms/date aggregated. Guarded by exists(): only copied when present.
+  - grok:
+      source: event.deviceIps
+      patterns:
+        - fieldName: utm.deviceIps
+          pattern: (?s)^.+$
+      where: exists("event.deviceIps")
+  - grok:
+      source: event.eventType
+      patterns:
+        - fieldName: utm.eventType
+          pattern: (?s)^.+$
+      where: exists("event.eventType")
+  - grok:
+      source: event.priority
+      patterns:
+        - fieldName: utm.priority
+          pattern: (?s)^.+$
+      where: exists("event.priority")
+  - grok:
+      source: event.product
+      patterns:
+        - fieldName: utm.product
+          pattern: (?s)^.+$
+      where: exists("event.product")
+  - grok:
+      source: event.src_host
+      patterns:
+        - fieldName: utm.src_host
+          pattern: (?s)^.+$
+      where: exists("event.src_host")
