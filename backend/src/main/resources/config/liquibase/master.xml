@@ -611,4 +611,6 @@
 
   <include file="/config/liquibase/changelog/20261009001_remap_event_bag_dashboard_fields.xml" relativeToChangelogFile="false"/>
 
+  <include file="/config/liquibase/changelog/20261012002_add_gap_dashboards.xml" relativeToChangelogFile="false"/>
+
 </databaseChangeLog>
