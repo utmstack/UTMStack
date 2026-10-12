@@ -126,9 +126,9 @@ const sections: Section[] = [
         basePath: '/threat-intelligence',
         children: [
           { to: '/threat-intelligence', label: 'nav.threat-intel.indicators', icon: Radar },
-          { to: '/analyst', label: 'nav.threat-intel.analyzt', icon: Bot },
-          { to: '/triage', label: 'nav.threat-intel.triage', icon: ListChecks },
-          { to: '/report', label: 'nav.threat-intel.report', icon: Flag },
+          { to: '/threat-intelligence/analyst', label: 'nav.threat-intel.analyzt', icon: Bot },
+          { to: '/threat-intelligence/triage', label: 'nav.threat-intel.triage', icon: ListChecks },
+          { to: '/threat-intelligence/report', label: 'nav.threat-intel.report', icon: Flag },
         ],
       },
       { to: '/compliance', label: 'nav.compliance', icon: BadgeCheck },
