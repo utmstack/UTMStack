@@ -301,6 +301,12 @@
     "logExplorer": "Log Explorer",
     "userAuditor": "User Auditor",
     "threatIntelligence": "Threat Intelligence",
+    "threat-intel": {
+      "indicators": "Indicators",
+      "analyzt": "Analyze",
+      "triage": "Triage",
+      "report": "Report"
+    },
     "compliance": "Compliance",
     "configure": "Configure",
     "dataSources": "Data Sources",

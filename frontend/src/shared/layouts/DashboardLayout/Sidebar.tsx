@@ -39,6 +39,8 @@ import {
   UserX,
   Users,
   Workflow,
+  ListChecks,
+  Flag,
   type LucideIcon,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -117,7 +119,18 @@ const sections: Section[] = [
       },
       { to: '/log-explorer', label: 'nav.logExplorer', icon: ScrollText },
       { to: '/user-auditor', label: 'nav.userAuditor', icon: UserCheck },
-      { to: '/threat-intelligence', label: 'nav.threatIntelligence', icon: Radar },
+      {
+        id: '/threat-intelligence',
+        label: 'nav.threatIntelligence',
+        icon: Radar,
+        basePath: '/threat-intelligence',
+        children: [
+          { to: '/threat-intelligence', label: 'nav.threat-intel.indicators', icon: Radar },
+          { to: '/analyst', label: 'nav.threat-intel.analyzt', icon: Bot },
+          { to: '/triage', label: 'nav.threat-intel.triage', icon: ListChecks },
+          { to: '/report', label: 'nav.threat-intel.report', icon: Flag },
+        ],
+      },
       { to: '/compliance', label: 'nav.compliance', icon: BadgeCheck },
     ],
   },

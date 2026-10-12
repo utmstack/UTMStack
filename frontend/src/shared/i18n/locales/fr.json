@@ -300,6 +300,12 @@
     "logExplorer": "Explorateur de logs",
     "userAuditor": "Auditeur d'utilisateurs",
     "threatIntelligence": "Renseignement sur les menaces",
+    "threat-intel": {
+      "indicators": "Indicateurs",
+      "analyzt": "Analyse",
+      "triage": "Triage",
+      "report": "Rapport"
+    },
     "compliance": "Conformité",
     "configure": "Configurer",
     "dataSources": "Sources de données",

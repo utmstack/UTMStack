@@ -302,6 +302,12 @@
     "logExplorer": "Обозреватель логов",
     "userAuditor": "Аудит пользователей",
     "threatIntelligence": "Аналитика угроз",
+    "threat-intel": {
+      "indicators": "Индикаторы",
+      "analyzt": "Анализ",
+      "triage": "Триаж",
+      "report": "Отчёт"
+    },
     "compliance": "Соответствие",
     "configure": "Настройка",
     "dataSources": "Источники данных",
