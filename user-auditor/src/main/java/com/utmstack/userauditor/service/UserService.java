@@ -117,8 +117,8 @@ public class UserService {
 
         user.setSid(
                 eventId == EventType.USER_LAST_LOGON.getEventId()
-                        ? (String) eventLog.getEvent().get("winlogEventDataTargetUserSid")
-                        : (String) eventLog.getEvent().get("winlogEventDataTargetSid"));
+                        ? (String) eventLog.getEvent().get("eventDataTargetUserSid")
+                        : (String) eventLog.getEvent().get("eventDataTargetSid"));
 
 
         List<UserAttribute> attributes = new ArrayList<>();
@@ -165,16 +165,16 @@ public class UserService {
                         eventLog.getTarget() != null ? eventLog.getTarget().getUser() : null, "");
 
             case ObjectSID:
-                return Objects.toString(eventLog.getEvent().get("winlogEventDataTargetUserSid"), "");
+                return Objects.toString(eventLog.getEvent().get("eventDataTargetUserSid"), "");
 
             case CreatedAt:
                 return eventId == EventType.USER_CREATED.getEventId()
-                        ? Objects.toString(eventLog.getEvent().get("winlogEventDataCreatedAt"), "")
+                        ? Objects.toString(eventLog.getDeviceTime(), "")
                         : "";
 
             case LastLogon:
                 return eventId == EventType.USER_LAST_LOGON.getEventId()
-                        ? Objects.toString(eventLog.getEvent().get("winlogEventDataCreatedAt"), "")
+                        ? Objects.toString(eventLog.getDeviceTime(), "")
                         : "";
 
             default:

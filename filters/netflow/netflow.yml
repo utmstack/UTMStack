@@ -1,4 +1,4 @@
-# Netflow firewall module filter, version 3.1.2
+# Netflow firewall module filter, version 3.2.0
 # Based in docs and Netflow Generator (Solarwinds) for send log
 # 
 # Documentations
@@ -211,32 +211,26 @@ pipeline:
             - event.destAs
             - event.sourceAs
 
-      - trim:
-          function: prefix
-          substring: '0'
-          fields:
-            - event.srcPortg
-            - event.src_port
-            - event.dstPortg
-            - event.dest_port
-
-      - trim: 
-          function: substring
-          substring: " "
-          fields:
-            - event.srcPortg
-            - event.src_port
-            - event.dstPortg
-            - event.dest_port
-
-      # Fields conversions
+      # Field conversions. NetFlow v9/IPFIX numeric fields arrive as big-endian
+      # byte lists (e.g. srcPort="[89 151]"); intBytes decodes them to the true
+      # integer (89*256+151=22935). A bare scalar (v5/v1/v6/v7 concrete types)
+      # passes through unchanged, so this is safe across versions.
       - cast:
-          to: 'int'
+          to: 'intBytes'
           fields:
             - event.srcPortg
             - event.src_port
             - event.dstPortg
             - event.dest_port
+            - event.inEthernet
+            - event.outEthernet
+            - event.tcpFlgs
+            - event.destMask
+            - event.sourceMask
+            - event.destAs
+            - event.sourceAs
+            - event.totalBytes
+            - event.totalPackets
 
       # Rename fields to fields base
       - rename:
@@ -255,6 +249,15 @@ pipeline:
           from:
             - event.dest_port
           to: target.port
+
+      # dataSource arrives from the collector as "host:port" (the UDP listener
+      # address). Only the host identifies the exporter; strip the port so
+      # dataSource is not polluted. Idempotent on already-clean values.
+      - trim:
+          function: regex
+          substring: ':[0-9]+$'
+          fields:
+            - dataSource
 
       # Adding geolocation to origin.ip
       - dynamic:
