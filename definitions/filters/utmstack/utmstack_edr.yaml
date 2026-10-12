@@ -28,19 +28,23 @@ pipeline:
           where: 'exists("log.severity")'
       - rename:
           from:
-            - log.objectpath
+            - log.object_path
           to: log.sensor
           where: 'equals("action", "config_change")'
       - rename:
           from:
-            - log.objectpath
+            - log.object_path
           to: target.file
-          where: 'exists("log.objectpath")'
+          where: 'exists("log.object_path")'
       - rename:
           from:
-            - log.filehash
+            - log.file_hash
           to: target.sha256
-          where: 'exists("log.filehash")'
+          where: 'exists("log.file_hash")'
+      - rename:
+          from:
+            - log.host_id
+          to: log.hostId
       - rename:
           from:
             - log.process.image
