@@ -21,6 +21,11 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	advancedSearchHandler := handler.NewReverseProxyHandler("/proxy/api/search/v1/entities/advanced")
 	g.POST("/search/advanced", advancedSearchHandler.Handle)
 
+	// POST /api/v1/threat-intel/entity/lookup → /proxy/api/search/v1/entity
+	// Exact per-type lookup; 404 when the entity is not in the corpus.
+	lookupHandler := handler.NewReverseProxyHandler("/proxy/api/search/v1/entity")
+	g.POST("/entity/lookup", lookupHandler.Handle)
+
 	// GET /api/v1/threat-intel/entity/:id → /proxy/api/analytics/v1/entity/{id}/details
 	g.GET("/entity/:id", func(c *gin.Context) {
 		id := c.Param("id")
