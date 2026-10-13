@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20261013001_fix_map_tile_source" author="osmontero">
+        <comment>
+            Coordinate-map charts render their base tiles from a cross-origin
+            https:// img, which the nginx Content-Security-Policy img-src governs.
+            The CSP allows *.tile.openstreetmap.org and *.tile.thunderforest.com
+            (the panel's preferred hosts, per product decision - not .fr). The
+            seeded map charts (6 compliance in 20250127001/20250227001 + 3 gap
+            dashboards in 20261012002) baked in the openstreetmap.fr tile URL,
+            so they requested a host the CSP does not allow -> blank tiles.
+            Flip any stored map chart_config from openstreetmap.fr/hot/ to
+            openstreetmap.org/ so the tile request matches the CSP allow-list.
+            Idempotent: REPLACE is a no-op once no .fr remains (guarded by LIKE).
+        </comment>
+        <sql>UPDATE utm_visualization SET chart_config = REPLACE(chart_config, 'openstreetmap.fr/hot/', 'openstreetmap.org/') WHERE chart_type = 'COORDINATE_MAP_CHART' AND chart_config LIKE '%openstreetmap.fr%';</sql>
+    </changeSet>
+</databaseChangeLog>

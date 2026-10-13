@@ -15,7 +15,7 @@ const FrontEnd string = `server {
       add_header X-Frame-Options "SAMEORIGIN" always;
       add_header X-Content-Type-Options "nosniff" always;
       add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-      add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' ws: wss:; frame-ancestors 'self'; form-action 'self'; base-uri 'self'; object-src 'none'" always;
+      add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://*.tile.thunderforest.com; connect-src 'self' ws: wss:; frame-ancestors 'self'; form-action 'self'; base-uri 'self'; object-src 'none'" always;
       # Reported, not enforced: index.html still carries one inline script and
       # inline styles. Once those are moved out (or hashed), fold script-src
       # and style-src below into the enforced policy above.

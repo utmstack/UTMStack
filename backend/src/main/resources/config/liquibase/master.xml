@@ -612,6 +612,7 @@
   <include file="/config/liquibase/changelog/20261009001_remap_event_bag_dashboard_fields.xml" relativeToChangelogFile="false"/>
 
   <include file="/config/liquibase/changelog/20261012002_add_gap_dashboards.xml" relativeToChangelogFile="false"/>
-<include file="/config/liquibase/changelog/20261012003_fix_map_coordinate_fields.xml" relativeToChangelogFile="false"/>
+  <include file="/config/liquibase/changelog/20261012003_fix_map_coordinate_fields.xml" relativeToChangelogFile="false"/>
+  <include file="/config/liquibase/changelog/20261013001_fix_map_tile_source.xml" relativeToChangelogFile="false"/>
 
 </databaseChangeLog>
