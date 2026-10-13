@@ -3680,6 +3680,7 @@
       "AWS_IAM_USER": "Ingest AWS account activity and API calls via CloudTrail and CloudWatch to audit cloud usage, access and changes.",
       "AZURE": "Ingest Microsoft Azure platform and activity logs to monitor cloud workloads, identity and resource changes.",
       "O365": "Ingest Microsoft 365 audit logs across Exchange, Teams, SharePoint and OneDrive to monitor user and admin activity.",
+      "O365_GRAPH": "Ingest Microsoft Graph security events — alerts, incidents, directory audit, sign-ins, risk detections and Purview audit logs — to monitor identity and threat activity across your tenant.",
       "GCP": "Ingest Google Cloud Platform audit and activity logs to monitor compute, storage and identity across projects.",
       "KASPERSKY": "Ingest Kaspersky Security Center detections and endpoint telemetry to correlate malware activity across the network.",
       "ESET": "Ingest ESET PROTECT endpoint detections and telemetry to correlate multilayered malware defense across your estate.",

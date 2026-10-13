@@ -3581,6 +3581,7 @@
       "AWS_IAM_USER": "Ingérez l'activité des comptes AWS et les appels API via CloudTrail et CloudWatch pour auditer l'utilisation, les accès et les modifications dans le cloud.",
       "AZURE": "Ingérez les journaux de plateforme et d'activité Microsoft Azure pour surveiller les charges de travail cloud, les identités et les modifications de ressources.",
       "O365": "Ingérez les journaux d'audit Microsoft 365 couvrant Exchange, Teams, SharePoint et OneDrive pour surveiller l'activité des utilisateurs et des administrateurs.",
+      "O365_GRAPH": "Ingeste les événements de sécurité Microsoft Graph — alertes, incidents, audit du répertoire, sign-ins, détections de risque et journaux Purview — pour surveiller l'identité et les menaces dans votre tenant.",
       "GCP": "Ingérez les journaux d'audit et d'activité Google Cloud Platform pour surveiller le calcul, le stockage et les identités dans vos projets.",
       "KASPERSKY": "Ingérez les détections et la télémétrie des endpoints Kaspersky Security Center pour corréler l'activité des logiciels malveillants sur le réseau.",
       "ESET": "Ingérez les détections et la télémétrie des endpoints ESET PROTECT pour corréler la défense multicouche contre les logiciels malveillants sur votre parc.",

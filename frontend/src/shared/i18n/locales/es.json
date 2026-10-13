@@ -3541,6 +3541,7 @@
       "AWS_IAM_USER": "Ingesta actividad de cuentas AWS y llamadas a API mediante CloudTrail y CloudWatch para auditar el uso, acceso y cambios en la nube.",
       "AZURE": "Ingesta registros de plataforma y actividad de Microsoft Azure para monitorear cargas de trabajo en la nube, identidad y cambios en recursos.",
       "O365": "Ingesta registros de auditoría de Microsoft 365 en Exchange, Teams, SharePoint y OneDrive para monitorear la actividad de usuarios y administradores.",
+      "O365_GRAPH": "Ingesta eventos de seguridad de Microsoft Graph: alertas, incidentes, auditoría del directorio, inicios de sesión, detecciones de riesgo y logs de auditoría de Purview para monitorear identidad y actividad de amenazas en tu tenant.",
       "GCP": "Ingesta registros de auditoría y actividad de Google Cloud Platform para monitorear cómputo, almacenamiento e identidad en los proyectos.",
       "KASPERSKY": "Ingesta detecciones de Kaspersky Security Center y telemetría de endpoints para correlacionar actividad de malware en la red.",
       "ESET": "Ingesta detecciones y telemetría de endpoints de ESET PROTECT para correlacionar la defensa multicapa contra malware en tu infraestructura.",
