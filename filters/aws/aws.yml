@@ -585,3 +585,198 @@ pipeline:
         value: match
       where: equals("event.awsRecordType","cloudtrail") && (equals("event.eventSource","signin.amazonaws.com") && oneOf("event.eventName",["ConsoleLogin"])
         && equals("event.userIdentity.type","Root") && oneOf("actionResult",["failed", "denied"]))
+  # UTM aggregatable bag (go-sdk v1.1.38+). Copies chart-needed fields
+  # from the flat_object event bag into the typed utm bag so they can be
+  # terms/date aggregated. Guarded by exists(): only copied when present.
+  - grok:
+      source: event.additionalEventData.AuthenticationMethod
+      patterns:
+        - fieldName: utm.additionalEventData.AuthenticationMethod
+          pattern: (?s)^.+$
+      where: exists("event.additionalEventData.AuthenticationMethod")
+  - grok:
+      source: event.additionalEventData.CipherSuite
+      patterns:
+        - fieldName: utm.additionalEventData.CipherSuite
+          pattern: (?s)^.+$
+      where: exists("event.additionalEventData.CipherSuite")
+  - grok:
+      source: event.awsRegion
+      patterns:
+        - fieldName: utm.awsRegion
+          pattern: (?s)^.+$
+      where: exists("event.awsRegion")
+  - grok:
+      source: event.eventCategory
+      patterns:
+        - fieldName: utm.eventCategory
+          pattern: (?s)^.+$
+      where: exists("event.eventCategory")
+  - grok:
+      source: event.eventID
+      patterns:
+        - fieldName: utm.eventID
+          pattern: (?s)^.+$
+      where: exists("event.eventID")
+  - grok:
+      source: event.eventType
+      patterns:
+        - fieldName: utm.eventType
+          pattern: (?s)^.+$
+      where: exists("event.eventType")
+  - grok:
+      source: event.insightDetails.eventName
+      patterns:
+        - fieldName: utm.insightDetails.eventName
+          pattern: (?s)^.+$
+      where: exists("event.insightDetails.eventName")
+  - grok:
+      source: event.managementEvent
+      patterns:
+        - fieldName: utm.managementEvent
+          pattern: (?s)^.+$
+      where: exists("event.managementEvent")
+  - grok:
+      source: event.readOnly
+      patterns:
+        - fieldName: utm.readOnly
+          pattern: (?s)^.+$
+      where: exists("event.readOnly")
+  - grok:
+      source: event.recipientAccountId
+      patterns:
+        - fieldName: utm.recipientAccountId
+          pattern: (?s)^.+$
+      where: exists("event.recipientAccountId")
+  - grok:
+      source: event.requestID
+      patterns:
+        - fieldName: utm.requestID
+          pattern: (?s)^.+$
+      where: exists("event.requestID")
+  - grok:
+      source: event.requestParameters.Host
+      patterns:
+        - fieldName: utm.requestParameters.Host
+          pattern: (?s)^.+$
+      where: exists("event.requestParameters.Host")
+  - grok:
+      source: event.requestParameters.bucketName
+      patterns:
+        - fieldName: utm.requestParameters.bucketName
+          pattern: (?s)^.+$
+      where: exists("event.requestParameters.bucketName")
+  - grok:
+      source: event.requestParameters.key
+      patterns:
+        - fieldName: utm.requestParameters.key
+          pattern: (?s)^.+$
+      where: exists("event.requestParameters.key")
+  - grok:
+      source: event.requestParameters.logGroupName
+      patterns:
+        - fieldName: utm.requestParameters.logGroupName
+          pattern: (?s)^.+$
+      where: exists("event.requestParameters.logGroupName")
+  - grok:
+      source: event.requestParameters.policyArn
+      patterns:
+        - fieldName: utm.requestParameters.policyArn
+          pattern: (?s)^.+$
+      where: exists("event.requestParameters.policyArn")
+  - grok:
+      source: event.requestParameters.roleArn
+      patterns:
+        - fieldName: utm.requestParameters.roleArn
+          pattern: (?s)^.+$
+      where: exists("event.requestParameters.roleArn")
+  - grok:
+      source: event.requestParameters.roleName
+      patterns:
+        - fieldName: utm.requestParameters.roleName
+          pattern: (?s)^.+$
+      where: exists("event.requestParameters.roleName")
+  - grok:
+      source: event.requestParameters.roleSessionName
+      patterns:
+        - fieldName: utm.requestParameters.roleSessionName
+          pattern: (?s)^.+$
+      where: exists("event.requestParameters.roleSessionName")
+  - grok:
+      source: event.requestParameters.userName
+      patterns:
+        - fieldName: utm.requestParameters.userName
+          pattern: (?s)^.+$
+      where: exists("event.requestParameters.userName")
+  - grok:
+      source: event.responseElements.ConsoleLogin
+      patterns:
+        - fieldName: utm.responseElements.ConsoleLogin
+          pattern: (?s)^.+$
+      where: exists("event.responseElements.ConsoleLogin")
+  - grok:
+      source: event.responseElements.assumedRoleUser.arn
+      patterns:
+        - fieldName: utm.responseElements.assumedRoleUser.arn
+          pattern: (?s)^.+$
+      where: exists("event.responseElements.assumedRoleUser.arn")
+  - grok:
+      source: event.responseElements.credentials.accessKeyId
+      patterns:
+        - fieldName: utm.responseElements.credentials.accessKeyId
+          pattern: (?s)^.+$
+      where: exists("event.responseElements.credentials.accessKeyId")
+  - grok:
+      source: event.responseElements.credentials.expiration
+      patterns:
+        - fieldName: utm.responseElements.credentials.expiration
+          pattern: (?s)^.+$
+      where: exists("event.responseElements.credentials.expiration")
+  - grok:
+      source: event.responseElements.x
+      patterns:
+        - fieldName: utm.responseElements.x
+          pattern: (?s)^.+$
+      where: exists("event.responseElements.x")
+  - grok:
+      source: event.tlsDetails.tlsVersion
+      patterns:
+        - fieldName: utm.tlsDetails.tlsVersion
+          pattern: (?s)^.+$
+      where: exists("event.tlsDetails.tlsVersion")
+  - grok:
+      source: event.userAgent
+      patterns:
+        - fieldName: utm.userAgent
+          pattern: (?s)^.+$
+      where: exists("event.userAgent")
+  - grok:
+      source: event.userIdentity.accessKeyId
+      patterns:
+        - fieldName: utm.userIdentity.accessKeyId
+          pattern: (?s)^.+$
+      where: exists("event.userIdentity.accessKeyId")
+  - grok:
+      source: event.userIdentity.invokedBy
+      patterns:
+        - fieldName: utm.userIdentity.invokedBy
+          pattern: (?s)^.+$
+      where: exists("event.userIdentity.invokedBy")
+  - grok:
+      source: event.userIdentity.principalId
+      patterns:
+        - fieldName: utm.userIdentity.principalId
+          pattern: (?s)^.+$
+      where: exists("event.userIdentity.principalId")
+  - grok:
+      source: event.userIdentity.sessionContext.attributes.mfaAuthenticated
+      patterns:
+        - fieldName: utm.userIdentity.sessionContext.attributes.mfaAuthenticated
+          pattern: (?s)^.+$
+      where: exists("event.userIdentity.sessionContext.attributes.mfaAuthenticated")
+  - grok:
+      source: event.userIdentity.sessionContext.sessionIssuer.userName
+      patterns:
+        - fieldName: utm.userIdentity.sessionContext.sessionIssuer.userName
+          pattern: (?s)^.+$
+      where: exists("event.userIdentity.sessionContext.sessionIssuer.userName")

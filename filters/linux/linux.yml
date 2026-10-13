@@ -1,4 +1,4 @@
-# System Linux filter version 5.2.0
+# System Linux filter version 5.3.0
 # Support for:
 #   - systemd/journald JSON format (SCREAMINGSNAKECASE fields)
 #   - Native auditd collector JSON format (type: "auditd")
@@ -1048,3 +1048,30 @@ pipeline:
           fields: [statusCode]
           to: int
           where: 'equals("event.type", "auditd") && exists("statusCode")'
+      # UTM aggregatable bag (go-sdk v1.1.38+). Copies chart-needed fields
+      # from the flat_object event bag into the typed utm bag so they can be
+      # terms/date aggregated. Guarded by exists(): only copied when present.
+      - grok:
+          source: event.agentVersion
+          patterns:
+            - fieldName: utm.agentVersion
+              pattern: (?s)^.+$
+          where: exists("event.agentVersion")
+      - grok:
+          source: event.host.os.version
+          patterns:
+            - fieldName: utm.host.os.version
+              pattern: (?s)^.+$
+          where: exists("event.host.os.version")
+      - grok:
+          source: event.message
+          patterns:
+            - fieldName: utm.message
+              pattern: (?s)^.+$
+          where: exists("event.message")
+      - grok:
+          source: event.osType
+          patterns:
+            - fieldName: utm.osType
+              pattern: (?s)^.+$
+          where: exists("event.osType")
