@@ -55,7 +55,7 @@ export class ChartMapTilesOptionComponent implements OnInit {
     });
     this.tiles.push(this.fb.group({
         label: ['Open Street Map', Validators.required],
-        urlTemplate: ['https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', Validators.required],
+        urlTemplate: ['https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', Validators.required],
         options: this.fb.group({
           attribution: ['']
         })

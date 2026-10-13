@@ -39,7 +39,7 @@ export class ScatterMap implements ChartBuildInterface {
         [
           {
             label: 'Open Street Map',
-            urlTemplate: 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+            urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
             options: {
               attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             }
