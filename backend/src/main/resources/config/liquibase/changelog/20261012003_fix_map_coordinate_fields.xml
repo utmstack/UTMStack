@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20261012003_fix_map_coordinate_fields" author="osmontero">
+        <comment>
+            Fix 6 coordinate-map visualizations that bucket on origin.ip.keyword.
+            The origin.ip field is typed 'ip' in the index template, which has NO
+            .keyword sub-field, so the terms bucket is always empty and the map
+            renders blank. The map mechanism (RequestDsl.java) then attaches a
+            _geo_hit topHits agg pulling origin.geolocation.lat/lng per bucket.
+            Switching the bucket field to the bare 'origin.ip' (an 'ip' field
+            aggregates directly) makes the maps render. Verified on lab:
+            aws=Spain, google=Canada, netflow/pfsense=US points.
+            The 6 viz are compliance-pinned dashboards; this is an additive
+            field correction (no id renumber/delete), so compliance rendering
+            is preserved. Idempotent: re-running sets the same field.
+        </comment>
+        <sql>UPDATE utm_visualization SET aggregation = jsonb_set(aggregation::jsonb, '{bucket,field}', to_jsonb('origin.ip'::text))::text WHERE id IN (127,522,55,573,532,510) AND aggregation::text LIKE '%origin.ip.keyword%';</sql>
+    </changeSet>
+</databaseChangeLog>
