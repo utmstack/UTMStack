@@ -20,8 +20,6 @@ const (
 // same instance key.
 type FeedsConfig struct {
 	Enabled   bool   `yaml:"enabled"`
-	APIKey    string `yaml:"api_key,omitempty"`
-	APISecret string `yaml:"api_secret,omitempty"`
 }
 
 // pluginsFile is the on-disk wrapper every plugin config shares —
