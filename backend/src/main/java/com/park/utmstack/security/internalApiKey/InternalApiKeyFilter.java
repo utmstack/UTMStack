@@ -66,6 +66,11 @@ public class InternalApiKeyFilter extends OncePerRequestFilter {
             "/api/utm-configuration-parameters",
             "/api/utm-alerts/status",
             "/api/elasticsearch/search",
+            // rule-flood-guard: resolve + auto-disable a flooding correlation rule, and
+            // post its flood warning. (GET search-by-filters, PUT activate-deactivate, POST notifications)
+            "/api/correlation-rule/search-by-filters",
+            "/api/correlation-rule/activate-deactivate",
+            "/api/notifications",
             // federation / panel connection keys
             "/api/federation-service/token",
             "/api/federation-service/generateApiToken"
