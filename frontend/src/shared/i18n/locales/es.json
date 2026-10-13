@@ -2939,6 +2939,74 @@
             "body": "Apunta la facilidad <hl>local5</hl> (donde Suricata escribe ahora) al Collector. Agrega esta regla en <hl>/etc/rsyslog.d/60-utmstack-suricata.conf</hl> en el host de Suricata:",
             "note": "Usa @@ en lugar de @ para TCP. Luego reinicia rsyslog: sudo systemctl restart rsyslog"
           }
+        },
+        "o365_graph": {
+          "intro": {
+            "title": "Cómo funciona",
+            "body": "UTMStack se conecta a Microsoft 365 con una app registrada en Azure AD y consulta Microsoft Graph por eventos de seguridad: alertas, incidentes, auditoría de directorio, sign-ins, detecciones de riesgo, hunting queries y auditoría de Purview. No se instala ningún agente en el tenant.",
+            "diagram": {
+              "source": "eventos de seguridad",
+              "edge": "Microsoft Graph",
+              "utmstackSub": "correlación & alertas"
+            },
+            "note": "UTMStack requiere solo acceso de lectura a la API de Graph — no se piden permisos de escritura."
+          },
+          "appSection": "Registro de la app en Azure",
+          "steps": {
+            "azurePortal": {
+              "title": "Abrir Microsoft Entra ID",
+              "body": "Abrí el <hl>portal de Azure</hl> (portal.azure.com) y hacé clic en <hl>Microsoft Entra ID</hl>."
+            },
+            "appRegistrations": {
+              "title": "Ir a App registrations",
+              "body": "En el menú izquierdo, hacé clic en <hl>App registrations</hl>."
+            },
+            "registerApp": {
+              "title": "Registrar una app nueva",
+              "body": "Hacé clic en <hl>New registration</hl>. Nombrala <hl>UTMStack Graph Dev</hl>, elegí <hl>Accounts in this organizational directory only (Single-tenant)</hl> y hacé clic en <hl>Register</hl>."
+            },
+            "clientSecret": {
+              "title": "Crear un client secret",
+              "body": "Andá a <hl>Certificates & Secrets → New client secret</hl>. Agregá una descripción, poné la expiración en <hl>730 días (24 meses)</hl> y hacé clic en <hl>Add</hl>.",
+              "copyNote": "Copiá el valor del secret de inmediato — solo se muestra una vez y no se puede recuperar después."
+            },
+            "apiPermissions": {
+              "title": "Agregar permisos de Microsoft Graph",
+              "body": "Andá a <hl>API Permissions → Add a permission</hl> y elegí <hl>Microsoft Graph</hl>, luego <hl>Application permissions</hl>."
+            },
+            "graphPermissions": {
+              "title": "Agregar las cuatro permissions de Graph",
+              "body": "Agregá <hl>SecurityEvents.Read.All</hl>, <hl>Directory.Read.All</hl>, <hl>AuditLog.Read.All</hl> y <hl>IdentityRiskEvent.Read.All</hl>."
+            },
+            "adminConsent": {
+              "title": "Dar admin consent",
+              "body": "De vuelta en <hl>API Permissions</hl>, hacé clic en <hl>Grant admin consent</hl> y confirmá."
+            },
+            "noteIds": {
+              "title": "Copiar los IDs de la app",
+              "body": "Andá a <hl>Overview</hl> de la app y copiá el <hl>Application (client) ID</hl> y el <hl>Directory (tenant) ID</hl>. También necesitás el valor del secret que copiaste en el paso 4."
+            }
+          },
+          "credentialsSection": "Credenciales",
+          "credentials": {
+            "title": "Conectar tu tenant de Microsoft 365",
+            "body": "Ingresá los datos de los pasos anteriores. UTMStack verifica las credenciales antes de guardar. Podés agregar varios grupos de configuración."
+          },
+          "fields": {
+            "tenantId": {
+              "label": "Tenant ID (Directory ID)"
+            },
+            "clientId": {
+              "label": "Client ID (Application ID)"
+            },
+            "clientSecret": {
+              "label": "Client Secret"
+            },
+            "cloudEnv": {
+              "label": "Cloud Environment (opcional)",
+              "hint": "Commercial (default), GCC, GCCHigh o DoD"
+            }
+          }
         }
       },
       "cloud": {
