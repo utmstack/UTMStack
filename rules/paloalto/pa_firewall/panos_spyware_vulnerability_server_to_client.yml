@@ -8,7 +8,7 @@ impact:
   integrity: 3
   availability: 2
 category: Intrusion Detection
-technique: ''
+technique: Vendor threat detection
 adversary: target
 references:
 - https://docs.paloaltonetworks.com/ngfw/administration/monitoring/use-syslog-for-monitoring/syslog-field-descriptions/threat-log-fields

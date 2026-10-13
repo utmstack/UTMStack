@@ -7,7 +7,7 @@ impact:
   integrity: 3
   availability: 2
 category: Identity and Access Management
-technique: ''
+technique: T1078 - Valid Accounts
 adversary: origin
 references:
 - https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema
