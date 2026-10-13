@@ -72,7 +72,6 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	if fh := m.FeedsHandler(); fh != nil {
 		g.GET("/feeds/contribution", middleware.RequirePlatform(), fh.Status)
 		g.PUT("/feeds/contribution", middleware.RequirePlatform(), middleware.RequireAdmin(), fh.SetEnabled)
-		g.PUT("/feeds/credentials", middleware.RequireInternal(), fh.SaveCredentials)
 	}
 }
 

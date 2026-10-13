@@ -26,7 +26,6 @@ func (s *FeedsService) Status() (dto.FeedsStatus, error) {
 	}
 	return dto.FeedsStatus{
 		Enabled:    cfg.Enabled,
-		Configured: cfg.APIKey != "" && cfg.APISecret != "",
 	}, nil
 }
 
@@ -36,17 +35,3 @@ func (s *FeedsService) SetEnabled(enabled bool) error {
 	return s.store.Update(func(c *repository.FeedsConfig) { c.Enabled = enabled })
 }
 
-func (s *FeedsService) SaveCredentials(apiKey, apiSecret string) error {
-	key, err := s.cipher.Encrypt(apiKey)
-	if err != nil {
-		return err
-	}
-	sec, err := s.cipher.Encrypt(apiSecret)
-	if err != nil {
-		return err
-	}
-	return s.store.Update(func(c *repository.FeedsConfig) {
-		c.APIKey = key
-		c.APISecret = sec
-	})
-}
