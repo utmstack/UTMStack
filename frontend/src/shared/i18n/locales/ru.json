@@ -490,7 +490,8 @@
         "limit": "Сколько",
         "limitPlaceholder": "По умолчанию (50)",
         "splitHint": "Необязательно: по одной линии на каждое значение поля."
-      }
+      },
+      "editFilters": "Edit filters"
     },
     "grid": {
       "empty": "В этой панели пока нет виджетов.",
@@ -563,7 +564,9 @@
       "filterDeleted": "Фильтр удалён.",
       "filterCreateFailed": "Не удалось создать фильтр.",
       "filterUpdateFailed": "Не удалось обновить фильтр.",
-      "filterDeleteFailed": "Не удалось удалить фильтр."
+      "filterDeleteFailed": "Не удалось удалить фильтр.",
+      "filtersSaved": "Filters saved.",
+      "filtersSaveFailed": "Could not save filters."
     },
     "newDashboard": {
       "title": "Новая панель",
@@ -656,7 +659,30 @@
       "editAria": "Изменить фильтр",
       "removeAria": "Удалить фильтр",
       "saving": "Сохранение…",
-      "addChip": "Добавить фильтр"
+      "addChip": "Добавить фильтр",
+      "chooseValue": "Choose…",
+      "selected": "selected",
+      "loading": "Loading values…",
+      "searchPlaceholder": "Search values…",
+      "noValues": "No values available.",
+      "loadError": "Could not load values.",
+      "clear": "Clear",
+      "editorTitle": "Dashboard filters",
+      "editorHint": "Add dropdown chips that filter every widget on this dashboard.",
+      "emptyEditor": "No filter chips yet. Add one to get started.",
+      "cancel": "Cancel",
+      "save": "Save",
+      "field": {
+        "dataset": "Data set",
+        "field": "Field",
+        "chooseField": "Choose a field…",
+        "label": "Label",
+        "labelPlaceholder": "e.g. Host",
+        "placeholder": "Placeholder",
+        "placeholderPlaceholder": "e.g. Pick a host",
+        "multiple": "Multiple",
+        "searchable": "Searchable"
+      }
     },
     "duplicate": {
       "copyName": "{{name}} (копия)"
@@ -1644,7 +1670,8 @@
       "loadingValues": "Загрузка значений…",
       "noValues": "Значения не найдены.",
       "cancel": "Отмена",
-      "confirm": "Добавить"
+      "confirm": "Добавить",
+      "pickValue": "Pick a value to add the filter."
     },
     "related": {
       "nLogs_one": "{{count}} лог",
@@ -2693,6 +2720,12 @@
             "body": "Включайте этот заголовок Authorization в каждый запрос, отправляемый на инстанс. Секрет API-ключа отображается только один раз при его создании — скопируйте его тогда и вставьте вместо заполнителя ниже.",
             "tabSimple": "Одиночный",
             "tabBatch": "Пакетный"
+          },
+          "manualCommand": {
+            "title": "Optional — Enable via the command line instead",
+            "intro": "Prefer the terminal? SSH into the Collector host and run the command below — it matches whatever protocol and port you have selected above.",
+            "certStep": "1 · Load your certificate and key (once per Collector)",
+            "enableStep": "2 · Enable the integration"
           }
         },
         "aix": {
@@ -2935,10 +2968,6 @@
         },
         "azure": {
           "sections": {
-            "eventHub": {
-              "title": "1 · Создайте Event Hub",
-              "body": "В Azure Portal создайте пространство имён Event Hubs и внутри — Event Hub. UTMStack будет читать события из этого хаба."
-            },
             "sharedAccessPolicy": {
               "title": "2 · Добавьте политику общего доступа",
               "body": "Откройте Event Hub → Политики общего доступа и создайте новую политику только с разрешением Listen."
@@ -2952,10 +2981,6 @@
               "body": "Откройте Event Hub → Consumer groups и создайте новую для UTMStack. Не используйте $Default — выделите UTMStack собственную группу, чтобы контрольные точки не пересекались с другими потребителями.",
               "warn": "Создайте группу потребителей специально для UTMStack. Не используйте $Default или другие уже используемые группы — совместное использование группы потребителей несвязанными потребителями может привести к непредвиденному поведению и потере событий. Все экземпляры UTMStack должны использовать одну группу потребителей для совместной обработки событий."
             },
-            "storageAccount": {
-              "title": "5 · Создайте учётную запись хранения",
-              "body": "UTMStack требуется учётная запись хранения для контрольных точек. Создайте её в том же регионе, что и Event Hub."
-            },
             "storageContainer": {
               "title": "6 · Создайте контейнер в учётной записи хранения",
               "body": "В учётной записи хранения → Контейнеры создайте новый контейнер. Запишите имя контейнера и строку подключения учётной записи (Ключи доступа → Строка подключения)."
@@ -2963,10 +2988,6 @@
             "eventGrid": {
               "title": "7 · Зарегистрируйте поставщик ресурсов Event Grid",
               "body": "В Подписки → Поставщики ресурсов зарегистрируйте Microsoft.EventGrid, если ещё нет. Это позволит Azure пересылать события уровня подписки в ваш Event Hub."
-            },
-            "eventSubscription": {
-              "title": "8 · Создайте подписку на события",
-              "body": "Создайте подписку на события, нацеленную на ваш Event Hub. Выберите типы событий для пересылки в UTMStack."
             },
             "createEventHub": {
               "title": "Создать Event Hub",
@@ -3032,44 +3053,6 @@
           }
         },
         "aws": {
-          "sections": {
-            "prerequisite": {
-              "title": "Требование · Пользователь IAM",
-              "body": "Чтобы эта интеграция работала, нужен пользователь IAM для UTMStack с политикой CloudWatchLogsReadOnlyAccess. Запишите ID ключа доступа и секретный ключ — вы вставите их в форму группы конфигурации ниже."
-            },
-            "createTrail": {
-              "title": "1 · Создайте trail",
-              "body": "В панели CloudTrail выберите «Create trail»."
-            },
-            "trailName": {
-              "title": "2 · Назовите trail",
-              "body": "Заполните поле «Trail name»."
-            },
-            "s3Buckets": {
-              "title": "3 · Выберите бакеты S3",
-              "body": "Отметьте «Select all S3 buckets in your account»."
-            },
-            "bucketName": {
-              "title": "4 · Создайте бакет S3",
-              "body": "Заполните поле «S3 bucket». Имя бакета должно быть уникальным в S3. Затем нажмите «Create»."
-            },
-            "editTrail": {
-              "title": "5 · Откройте trail для редактирования",
-              "body": "Нажмите на имя trail, чтобы отредактировать его."
-            },
-            "cloudwatchConfig": {
-              "title": "6 · Настройте CloudWatch Logs",
-              "body": "Откройте раздел CloudWatch Logs и включите интеграцию, чтобы trail пересылал события в log group."
-            },
-            "logGroup": {
-              "title": "7 · Укажите имя log group",
-              "body": "Заполните имя log group (напр. utmstack) и продолжите. Используйте это же имя в поле «Имя log group» ниже."
-            },
-            "permissions": {
-              "title": "8 · Предоставьте права CloudTrail",
-              "body": "Нажмите «Allow», чтобы предоставить CloudTrail права на запись в log group."
-            }
-          },
           "fields": {
             "accessKeyId": {
               "label": "ID ключа доступа AWS"
@@ -3286,6 +3269,10 @@
           "bodyNetwork": "Настройте ваш источник для отправки syslog <hl>{{proto}}</hl> на <hl>{{host}}:{{port}}</hl>. На большинстве устройств для этого есть параметр удалённого syslog или пересылки журналов.",
           "bodyHttp": "Отправляйте события в формате JSON через HTTP POST на <hl>{{endpoint}}</hl>. Тело каждого запроса — одно событие JSON:",
           "httpBindNote": "По умолчанию слушатель HTTP/HTTPS привязывается к 127.0.0.1 (хосту Collector), поэтому отправляйте запросы из приложения, работающего на этом хосте, или используйте обратный прокси. Для удалённых источников используйте syslog (UDP/TCP/TLS)."
+        },
+        "manualCommand": {
+          "title": "Optional — Enable via the command line instead",
+          "intro": "Prefer the terminal? SSH into the Collector host and run the command below — it matches whatever protocol and port you have selected above."
         }
       },
       "remoteEnable": {
@@ -4285,7 +4272,8 @@
       "dataTypesNone": "Нет типов данных",
       "visualTab": "Визуально",
       "codeTab": "Код",
-      "yamlError": "Не удалось применить YAML: {{error}}"
+      "yamlError": "Не удалось применить YAML: {{error}}",
+      "test": "Test"
     },
     "toast": {
       "activated": "Правило включено",
@@ -4343,7 +4331,8 @@
       "approved": "Одобрено",
       "rejected": "Отклонено",
       "done": "Готово"
-    }
+    },
+    "test": "Test"
   },
   "regexPatterns": {
     "title": "Регулярные выражения",
@@ -4437,7 +4426,8 @@
       "saving": "Сохранение…",
       "delete": "Удалить",
       "confirmDelete": "Подтвердить удаление",
-      "cancel": "Отмена"
+      "cancel": "Отмена",
+      "test": "Test"
     },
     "toast": {
       "saved": "Пайплайн сохранён",
@@ -4483,7 +4473,8 @@
       "paramsKey": "Ключ",
       "paramsValue": "Значение"
     },
-    "allDataTypes": "Все типы данных"
+    "allDataTypes": "Все типы данных",
+    "testPipeline": "Test pipeline"
   },
   "soar": {
     "title": "SOAR",
@@ -4702,6 +4693,11 @@
           "subjectPlaceholder": "Напр. Тревога на $(alert.dataSource)",
           "body": "Текст",
           "bodyPlaceholder": "Содержимое сообщения. Шаблоны вроде $(alert.name) подставляются."
+        },
+        "notify": {
+          "level": "Level",
+          "message": "Message",
+          "messagePlaceholder": "Notification text. Templates like $(alert.name) are interpolated."
         }
       }
     },
@@ -4721,7 +4717,11 @@
         "retries": "Попытки",
         "node": "Узел"
       },
-      "manual": "Интерактивная консоль"
+      "manual": "Интерактивная консоль",
+      "filters": {
+        "source": "Source",
+        "allSources": "All sources"
+      }
     },
     "executionStatus": {
       "WAITING": "В ожидании",
@@ -4754,6 +4754,10 @@
       "aiDescriptionPlaceholder": "напр. При критическом оповещении найти исходный IP в разведданных и заблокировать его на файрволе",
       "aiCreate": "Создать с ИИ",
       "manualContinue": "Продолжить"
+    },
+    "executionOrigin": {
+      "FLOW": "Flow",
+      "MANUAL": "Manual"
     }
   },
   "compliance": {
@@ -5571,6 +5575,38 @@
       "level1": "Уровень 1",
       "level2": "Уровень 2",
       "level3": "Уровень 3"
+    },
+    "triage": {
+      "title": "Triage",
+      "subtitle": "Paste indicators, get verdicts",
+      "input": "Indicators",
+      "placeholder": "Paste IPs, domains, URLs or hashes — one per line, or comma separated.\nDefanged values (1.2.3[.]4, hxxp://) are accepted.",
+      "run": "Triage",
+      "stop": "Stop",
+      "reset": "Clear",
+      "parsed": "{{count}} unique indicators",
+      "capped": "Capped at {{max}} per run.",
+      "progress": "{{done}} of {{total}}",
+      "empty": "Paste indicators above to begin.",
+      "indicator": "Indicator",
+      "type": "Type",
+      "verdict": "Verdict",
+      "reputation": "Rep",
+      "accuracy": "Acc",
+      "tags": "Tags",
+      "lastSeen": "Last seen",
+      "exportCsv": "Export CSV",
+      "exportStix": "Export STIX",
+      "stixNote": "STIX export includes malicious and suspicious rows only.",
+      "open": "Open",
+      "notConfigured": "Threat intelligence is not configured — triage needs an upstream ThreatWinds instance.",
+      "summary": "Summary",
+      "v.malicious": "Malicious",
+      "v.suspicious": "Suspicious",
+      "v.benign": "Benign",
+      "v.unknown": "Unknown",
+      "v.notFound": "Not found",
+      "v.invalid": "Unrecognised"
     }
   },
   "playground": {
@@ -5622,7 +5658,8 @@
       "none": "Оповещения не сработали.",
       "count_one": "{{count}} оповещение",
       "count_other": "{{count}} оповещений"
-    }
+    },
+    "title": "Test pipeline"
   },
   "tenants": {
     "title": "Арендаторы",
@@ -5718,6 +5755,11 @@
       "notFound": "Арендатор не найден",
       "invalidRequest": "Некорректный запрос",
       "operationFailed": "Операция не выполнена"
+    },
+    "switcher": {
+      "aria": "Switch tenant",
+      "self": "Default tenant",
+      "create": "Create tenant"
     }
   },
   "supportAccess": {

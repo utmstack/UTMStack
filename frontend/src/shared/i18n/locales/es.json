@@ -488,7 +488,8 @@
         "limit": "Cuántos",
         "limitPlaceholder": "Predeterminado (50)",
         "splitHint": "Opcional: una línea por cada valor de este campo."
-      }
+      },
+      "editFilters": "Edit filters"
     },
     "grid": {
       "empty": "Este panel aún no tiene widgets.",
@@ -561,7 +562,9 @@
       "filterDeleted": "Filtro eliminado.",
       "filterCreateFailed": "No se pudo crear el filtro.",
       "filterUpdateFailed": "No se pudo actualizar el filtro.",
-      "filterDeleteFailed": "No se pudo eliminar el filtro."
+      "filterDeleteFailed": "No se pudo eliminar el filtro.",
+      "filtersSaved": "Filters saved.",
+      "filtersSaveFailed": "Could not save filters."
     },
     "newDashboard": {
       "title": "Nuevo panel",
@@ -654,7 +657,30 @@
       "editAria": "Editar filtro",
       "removeAria": "Eliminar filtro",
       "saving": "Guardando…",
-      "addChip": "Añadir filtro"
+      "addChip": "Añadir filtro",
+      "chooseValue": "Choose…",
+      "selected": "selected",
+      "loading": "Loading values…",
+      "searchPlaceholder": "Search values…",
+      "noValues": "No values available.",
+      "loadError": "Could not load values.",
+      "clear": "Clear",
+      "editorTitle": "Dashboard filters",
+      "editorHint": "Add dropdown chips that filter every widget on this dashboard.",
+      "emptyEditor": "No filter chips yet. Add one to get started.",
+      "cancel": "Cancel",
+      "save": "Save",
+      "field": {
+        "dataset": "Data set",
+        "field": "Field",
+        "chooseField": "Choose a field…",
+        "label": "Label",
+        "labelPlaceholder": "e.g. Host",
+        "placeholder": "Placeholder",
+        "placeholderPlaceholder": "e.g. Pick a host",
+        "multiple": "Multiple",
+        "searchable": "Searchable"
+      }
     },
     "duplicate": {
       "copyName": "{{name}} (copia)"
@@ -1762,7 +1788,8 @@
       "loadingValues": "Cargando valores…",
       "noValues": "Sin valores.",
       "cancel": "Cancelar",
-      "confirm": "Agregar"
+      "confirm": "Agregar",
+      "pickValue": "Pick a value to add the filter."
     },
     "related": {
       "nLogs_one": "{{count}} log",
@@ -1913,6 +1940,12 @@
             "body": "Incluye esta cabecera Authorization en cada solicitud que envíes a la instancia. El secreto de la clave API solo se muestra una vez al generarla — cópialo entonces y pégalo en lugar del marcador de posición de abajo.",
             "tabSimple": "Simple",
             "tabBatch": "Lote"
+          },
+          "manualCommand": {
+            "title": "Optional — Enable via the command line instead",
+            "intro": "Prefer the terminal? SSH into the Collector host and run the command below — it matches whatever protocol and port you have selected above.",
+            "certStep": "1 · Load your certificate and key (once per Collector)",
+            "enableStep": "2 · Enable the integration"
           }
         },
         "cisco": {
@@ -3053,10 +3086,6 @@
         },
         "azure": {
           "sections": {
-            "eventHub": {
-              "title": "1 · Crea un Event Hub",
-              "body": "En el Portal de Azure, crea un namespace de Event Hubs y un Event Hub dentro. UTMStack leerá los eventos de este hub."
-            },
             "sharedAccessPolicy": {
               "title": "2 · Añade una directiva de acceso compartido",
               "body": "Abre el Event Hub → Directivas de acceso compartido y crea una nueva directiva con el permiso Listen únicamente."
@@ -3070,10 +3099,6 @@
               "body": "Abre el Event Hub → Consumer groups y crea uno nuevo para UTMStack. No reutilices $Default; dale a UTMStack su propio grupo para que los checkpoints no choquen con otros consumidores.",
               "warn": "Crea un consumer group específicamente para UTMStack. No uses $Default ni ningún otro grupo que ya esté en uso — reutilizar un consumer group entre consumidores no relacionados puede provocar comportamientos inesperados y pérdida de eventos. Todas las instancias de UTMStack deben compartir el mismo consumer group para procesar los eventos en conjunto."
             },
-            "storageAccount": {
-              "title": "5 · Crea una cuenta de almacenamiento",
-              "body": "UTMStack necesita una cuenta de almacenamiento para checkpoints. Créala en la misma región que el Event Hub."
-            },
             "storageContainer": {
               "title": "6 · Crea un contenedor dentro de la cuenta de almacenamiento",
               "body": "Dentro de la cuenta de almacenamiento → Contenedores, crea uno nuevo. Anota el nombre del contenedor y la cadena de conexión de la cuenta (Claves de acceso → Cadena de conexión)."
@@ -3081,10 +3106,6 @@
             "eventGrid": {
               "title": "7 · Registra el proveedor de recursos Event Grid",
               "body": "En Suscripciones → Proveedores de recursos, registra Microsoft.EventGrid si aún no está. Esto permite que Azure reenvíe eventos de suscripción a tu Event Hub."
-            },
-            "eventSubscription": {
-              "title": "8 · Crea una suscripción de eventos",
-              "body": "Crea una suscripción de eventos que apunte a tu Event Hub. Elige los tipos de evento que deseas reenviar a UTMStack."
             },
             "createEventHub": {
               "title": "Crear un Event Hub",
@@ -3366,6 +3387,10 @@
           "bodyNetwork": "Configura tu fuente para enviar syslog <hl>{{proto}}</hl> a <hl>{{host}}:{{port}}</hl>. La mayoría de los dispositivos tienen una opción de syslog remoto o reenvío de registros para esto.",
           "bodyHttp": "Envía tus eventos como JSON mediante HTTP POST a <hl>{{endpoint}}</hl>. El cuerpo de cada solicitud es un evento JSON:",
           "httpBindNote": "El listener HTTP/HTTPS se enlaza a 127.0.0.1 (el host del Collector) de forma predeterminada, así que envía desde una app que se ejecute en ese host — o usa un reverse proxy como intermediario. Para fuentes remotas, usa syslog (UDP/TCP/TLS)."
+        },
+        "manualCommand": {
+          "title": "Optional — Enable via the command line instead",
+          "intro": "Prefer the terminal? SSH into the Collector host and run the command below — it matches whatever protocol and port you have selected above."
         }
       },
       "remoteEnable": {
@@ -4541,7 +4566,8 @@
       "saving": "Guardando…",
       "delete": "Eliminar",
       "confirmDelete": "Confirmar eliminación",
-      "cancel": "Cancelar"
+      "cancel": "Cancelar",
+      "test": "Test"
     },
     "toast": {
       "saved": "Pipeline guardado",
@@ -4587,7 +4613,8 @@
       "paramsKey": "Clave",
       "paramsValue": "Valor"
     },
-    "allDataTypes": "Todos los tipos de dato"
+    "allDataTypes": "Todos los tipos de dato",
+    "testPipeline": "Test pipeline"
   },
   "alertingRules": {
     "title": "Reglas de Alertas",
@@ -4694,7 +4721,8 @@
       "dataTypesNone": "Sin tipos de dato",
       "visualTab": "Visual",
       "codeTab": "Código",
-      "yamlError": "No se puede aplicar el YAML: {{error}}"
+      "yamlError": "No se puede aplicar el YAML: {{error}}",
+      "test": "Test"
     },
     "toast": {
       "activated": "Regla activada",
@@ -4752,7 +4780,8 @@
       "approved": "Aprobadas",
       "rejected": "Rechazadas",
       "done": "Listo"
-    }
+    },
+    "test": "Test"
   },
   "regexPatterns": {
     "title": "Expresiones regulares",
@@ -5018,6 +5047,11 @@
           "subjectPlaceholder": "Ej. Alerta en $(alert.dataSource)",
           "body": "Cuerpo",
           "bodyPlaceholder": "Contenido del mensaje. Plantillas como $(alert.name) se interpolan."
+        },
+        "notify": {
+          "level": "Level",
+          "message": "Message",
+          "messagePlaceholder": "Notification text. Templates like $(alert.name) are interpolated."
         }
       }
     },
@@ -5515,6 +5549,38 @@
       "level1": "Nivel 1",
       "level2": "Nivel 2",
       "level3": "Nivel 3"
+    },
+    "triage": {
+      "title": "Triage",
+      "subtitle": "Paste indicators, get verdicts",
+      "input": "Indicators",
+      "placeholder": "Paste IPs, domains, URLs or hashes — one per line, or comma separated.\nDefanged values (1.2.3[.]4, hxxp://) are accepted.",
+      "run": "Triage",
+      "stop": "Stop",
+      "reset": "Clear",
+      "parsed": "{{count}} unique indicators",
+      "capped": "Capped at {{max}} per run.",
+      "progress": "{{done}} of {{total}}",
+      "empty": "Paste indicators above to begin.",
+      "indicator": "Indicator",
+      "type": "Type",
+      "verdict": "Verdict",
+      "reputation": "Rep",
+      "accuracy": "Acc",
+      "tags": "Tags",
+      "lastSeen": "Last seen",
+      "exportCsv": "Export CSV",
+      "exportStix": "Export STIX",
+      "stixNote": "STIX export includes malicious and suspicious rows only.",
+      "open": "Open",
+      "notConfigured": "Threat intelligence is not configured — triage needs an upstream ThreatWinds instance.",
+      "summary": "Summary",
+      "v.malicious": "Malicious",
+      "v.suspicious": "Suspicious",
+      "v.benign": "Benign",
+      "v.unknown": "Unknown",
+      "v.notFound": "Not found",
+      "v.invalid": "Unrecognised"
     }
   },
   "playground": {
@@ -5566,7 +5632,8 @@
       "none": "No se activó ninguna alerta.",
       "count_one": "{{count}} alerta",
       "count_other": "{{count}} alertas"
-    }
+    },
+    "title": "Test pipeline"
   },
   "tenants": {
     "title": "Tenants",
@@ -5662,6 +5729,11 @@
       "notFound": "Tenant no encontrado",
       "invalidRequest": "Petición inválida",
       "operationFailed": "La operación falló"
+    },
+    "switcher": {
+      "aria": "Switch tenant",
+      "self": "Default tenant",
+      "create": "Create tenant"
     }
   },
   "supportAccess": {
