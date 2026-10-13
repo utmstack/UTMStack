@@ -165,6 +165,7 @@ INSERT INTO integrations (tenant_id, name, data_type, ingest_type, system_owner)
     ('00000000-0000-0000-0000-000000000000', 'AWS_IAM_USER',       'aws',                        'plugin', TRUE),
     ('00000000-0000-0000-0000-000000000000', 'AZURE',              'azure',                      'plugin', TRUE),
     ('00000000-0000-0000-0000-000000000000', 'O365',               'o365',                       'plugin', TRUE),
+    ('00000000-0000-0000-0000-000000000000', 'O365_GRAPH',         'o365-graph',                 'plugin', TRUE),
     ('00000000-0000-0000-0000-000000000000', 'GCP',                'google',                     'plugin', TRUE),
     ('00000000-0000-0000-0000-000000000000', 'KASPERSKY',          'antivirus-kaspersky',        'forwarder', TRUE),
     ('00000000-0000-0000-0000-000000000000', 'ESET',               'antivirus-esmc-eset',        'forwarder', TRUE),

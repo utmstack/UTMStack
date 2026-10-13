@@ -26,6 +26,7 @@ var dataTypeCriticality = map[string]int{
 	"google":                     34,
 	"ibm-as400":                  32,
 	"o365":                       30,
+	"o365-graph":                 30,
 	"postgresql":                 30,
 	"mysql":                      30,
 	"mongodb":                    30,
