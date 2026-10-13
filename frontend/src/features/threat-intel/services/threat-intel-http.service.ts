@@ -44,6 +44,10 @@ export const threatIntelHttpService = {
   // Whether the instance is registered with ThreatWinds. Open to any tenant —
   // unlike the counters below, which are the operator's.
   status: () => api.get<{ configured: boolean }>(`${BASE}/status`),
+  // ThreatWinds contribution — platform-only: the switch decides what leaves
+  // the install.
+  contribution: () => api.get<{ enabled: boolean }>(`${BASE}/feeds/contribution`),
+  setContribution: (enabled: boolean) => api.put<{ enabled: boolean }>(`${BASE}/feeds/contribution`, { enabled }),
   usage: () => wrap(() => api.get<UsageInfo>(`${BASE}/usage`)),
   entityLookup: (body: EntityLookupRequest) =>
     wrap(() => api.post<EntityLookupResponse>(`${BASE}/entity/lookup`, body)),

@@ -697,7 +697,8 @@
     "auditLogs": "App Audit Logs",
     "about": "About",
     "socAi": "SOC-AI",
-    "supportAccess": "Support access"
+    "supportAccess": "Support access",
+    "threatwinds": "ThreatWinds Integration"
   },
   "topbar": {
     "theme": {
@@ -5832,6 +5833,20 @@
       "noneSucceeded": "No tenants succeeded.",
       "failed": "Failed",
       "noneFailed": "No failures."
+    }
+  },
+  "threatwinds": {
+    "title": "ThreatWinds Integration",
+    "subtitle": "Share this instance's incidents with the ThreatWinds community feed.",
+    "contribute": "Contribute incidents",
+    "contributeHint": "When on, incidents from this instance are sent to ThreatWinds.",
+    "loading": "Loading integration status…",
+    "failed": "Could not load the ThreatWinds integration status.",
+    "retry": "Retry",
+    "toast": {
+      "enabled": "Contribution enabled",
+      "disabled": "Contribution disabled",
+      "failed": "Could not update the contribution setting"
     }
   }
 }

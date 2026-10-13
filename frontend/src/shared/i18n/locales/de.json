@@ -671,7 +671,8 @@
     "auditLogs": "App-Audit-Protokolle",
     "about": "Über",
     "socAi": "SOC-AI",
-    "supportAccess": "Support-Zugriff"
+    "supportAccess": "Support-Zugriff",
+    "threatwinds": "ThreatWinds-Integration"
   },
   "topbar": {
     "theme": {
@@ -5834,6 +5835,20 @@
       "noneSucceeded": "Kein Mandant war erfolgreich.",
       "failed": "Fehlgeschlagen",
       "noneFailed": "Keine Fehler."
+    }
+  },
+  "threatwinds": {
+    "title": "ThreatWinds-Integration",
+    "subtitle": "Teilen Sie die Vorfälle dieser Instanz mit der ThreatWinds-Community-Feeds.",
+    "contribute": "Vorfälle beisteuern",
+    "contributeHint": "Wenn aktiviert, werden die Vorfälle dieser Instanz an ThreatWinds gesendet.",
+    "loading": "Integrationsstatus wird geladen…",
+    "failed": "Der Status der ThreatWinds-Integration konnte nicht geladen werden.",
+    "retry": "Erneut versuchen",
+    "toast": {
+      "enabled": "Beitrag aktiviert",
+      "disabled": "Beitrag deaktiviert",
+      "failed": "Die Beitragseinstellung konnte nicht aktualisiert werden"
     }
   }
 }

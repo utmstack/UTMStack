@@ -145,5 +145,32 @@ export const alertingRulesHttpService = {
   propertyValues: (prop: string, value = '') =>
     api.get<string[]>(`${BASE}/search-property-values?prop=${prop}${value ? `&value=${encodeURIComponent(value)}` : ''}`),
   // Available data types (from the integrations/modules catalog) for the picker + filter.
-  dataTypes: () => api.get<DataTypeOption[]>('/integrations/data-types'),
+  dataTypes: async () => {
+
+    try{
+
+       let int_dat_types = await api.get<DataTypeOption[]>('/integrations/data-types')
+       const log_data_types = await api.get<string[]>(`/log-analyzer/datasets/logs/data-types`)
+
+        const accum_map = new Set(int_dat_types.map(d=>d.dataType))
+
+        log_data_types.forEach(dt=>{
+          if(!accum_map.has(dt)){
+            int_dat_types.push({
+              dataType:dt,
+              name:dt.toUpperCase().replace(/(_|-)/g," "),
+              moduleName:"",
+              active: true,
+              isSystem: false,
+            })
+          }
+        })
+
+      return int_dat_types
+
+    }catch(e){
+      console.log(e)
+      throw new Error("failed to get data-types")
+    }
+    },
 }
