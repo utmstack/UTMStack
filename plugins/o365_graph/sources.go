@@ -139,7 +139,7 @@ func huntingPoll(p *GraphProcessor, group *ModuleGroup, payload *cursorPayload, 
 
 // collect pulls every source for the group, advancing each source's position
 // independently so one failing source does not stall the others.
-func collect(payload *cursorPayload, windowStart, windowEnd time.Time, group *ModuleGroup) (int, *cursorPayload, error) {
+func collect(payload *cursorPayload, windowEnd time.Time, group *ModuleGroup) (int, *cursorPayload, error) {
 	p := newGraphProcessor(group)
 
 	if _, err := p.getToken(); err != nil {
@@ -149,7 +149,7 @@ func collect(payload *cursorPayload, windowStart, windowEnd time.Time, group *Mo
 		return 0, payload, err
 	}
 
-	next := &cursorPayload{WindowEnd: payload.WindowEnd, Sources: map[string]time.Time{}}
+	next := &cursorPayload{WindowEnd: windowEnd, Sources: map[string]time.Time{}}
 	for k, v := range payload.Sources {
 		next.Sources[k] = v
 	}
