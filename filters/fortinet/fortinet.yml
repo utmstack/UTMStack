@@ -1,4 +1,4 @@
-# Fortinet firewall module filter, version 3.4.0
+# Fortinet firewall module filter, version 3.5.0
 # Based in docs and samples provided
 # 
 # Documentations
@@ -2621,3 +2621,24 @@ pipeline:
             (equals("event.type", "utm") && equals("event.subtype", "virus") &&
             equals("event.eventtype", "infected") && equals("actionResult", "denied") &&
             exists("origin.ip"))
+      # UTM aggregatable bag (go-sdk v1.1.38+). Copies chart-needed fields
+      # from the flat_object event bag into the typed utm bag so they can be
+      # terms/date aggregated. Guarded by exists(): only copied when present.
+      - grok:
+          source: event.eventtype
+          patterns:
+            - fieldName: utm.eventtype
+              pattern: (?s)^.+$
+          where: exists("event.eventtype")
+      - grok:
+          source: event.policyid
+          patterns:
+            - fieldName: utm.policyid
+              pattern: (?s)^.+$
+          where: exists("event.policyid")
+      - grok:
+          source: event.subtype
+          patterns:
+            - fieldName: utm.subtype
+              pattern: (?s)^.+$
+          where: exists("event.subtype")

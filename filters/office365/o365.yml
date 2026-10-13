@@ -1,4 +1,4 @@
-# Microsoft 365 filter, version 1.4.2
+# Microsoft 365 filter, version 1.5.0
 
 pipeline:
 - dataTypes:
@@ -366,3 +366,150 @@ pipeline:
   - delete:
       fields:
       - event.AppAccessContext
+  # UTM aggregatable bag (go-sdk v1.1.38+). Copies chart-needed fields
+  # from the flat_object event bag into the typed utm bag so they can be
+  # terms/date aggregated. Guarded by exists(): only copied when present.
+  - grok:
+      source: event.ActorContextId
+      patterns:
+        - fieldName: utm.ActorContextId
+          pattern: (?s)^.+$
+      where: exists("event.ActorContextId")
+  - grok:
+      source: event.AppPoolName
+      patterns:
+        - fieldName: utm.AppPoolName
+          pattern: (?s)^.+$
+      where: exists("event.AppPoolName")
+  - grok:
+      source: event.CorrelationId
+      patterns:
+        - fieldName: utm.CorrelationId
+          pattern: (?s)^.+$
+      where: exists("event.CorrelationId")
+  - grok:
+      source: event.DetectionMethod
+      patterns:
+        - fieldName: utm.DetectionMethod
+          pattern: (?s)^.+$
+      where: exists("event.DetectionMethod")
+  - grok:
+      source: event.EventData
+      patterns:
+        - fieldName: utm.EventData
+          pattern: (?s)^.+$
+      where: exists("event.EventData")
+  - grok:
+      source: event.ExternalAccess
+      patterns:
+        - fieldName: utm.ExternalAccess
+          pattern: (?s)^.+$
+      where: exists("event.ExternalAccess")
+  - grok:
+      source: event.ItemType
+      patterns:
+        - fieldName: utm.ItemType
+          pattern: (?s)^.+$
+      where: exists("event.ItemType")
+  - grok:
+      source: event.LogonError
+      patterns:
+        - fieldName: utm.LogonError
+          pattern: (?s)^.+$
+      where: exists("event.LogonError")
+  - grok:
+      source: event.ObjectId
+      patterns:
+        - fieldName: utm.ObjectId
+          pattern: (?s)^.+$
+      where: exists("event.ObjectId")
+  - grok:
+      source: event.OrganizationId
+      patterns:
+        - fieldName: utm.OrganizationId
+          pattern: (?s)^.+$
+      where: exists("event.OrganizationId")
+  - grok:
+      source: event.OrganizationName
+      patterns:
+        - fieldName: utm.OrganizationName
+          pattern: (?s)^.+$
+      where: exists("event.OrganizationName")
+  - grok:
+      source: event.OriginatingServer
+      patterns:
+        - fieldName: utm.OriginatingServer
+          pattern: (?s)^.+$
+      where: exists("event.OriginatingServer")
+  - grok:
+      source: event.P2Sender
+      patterns:
+        - fieldName: utm.P2Sender
+          pattern: (?s)^.+$
+      where: exists("event.P2Sender")
+  - grok:
+      source: event.Platform
+      patterns:
+        - fieldName: utm.Platform
+          pattern: (?s)^.+$
+      where: exists("event.Platform")
+  - grok:
+      source: event.Recipients
+      patterns:
+        - fieldName: utm.Recipients
+          pattern: (?s)^.+$
+      where: exists("event.Recipients")
+  - grok:
+      source: event.RequestId
+      patterns:
+        - fieldName: utm.RequestId
+          pattern: (?s)^.+$
+      where: exists("event.RequestId")
+  - grok:
+      source: event.SourceFileExtension
+      patterns:
+        - fieldName: utm.SourceFileExtension
+          pattern: (?s)^.+$
+      where: exists("event.SourceFileExtension")
+  - grok:
+      source: event.Subject
+      patterns:
+        - fieldName: utm.Subject
+          pattern: (?s)^.+$
+      where: exists("event.Subject")
+  - grok:
+      source: event.TargetUserOrGroupName
+      patterns:
+        - fieldName: utm.TargetUserOrGroupName
+          pattern: (?s)^.+$
+      where: exists("event.TargetUserOrGroupName")
+  - grok:
+      source: event.TargetUserOrGroupType
+      patterns:
+        - fieldName: utm.TargetUserOrGroupType
+          pattern: (?s)^.+$
+      where: exists("event.TargetUserOrGroupType")
+  - grok:
+      source: event.UserType
+      patterns:
+        - fieldName: utm.UserType
+          pattern: (?s)^.+$
+      where: exists("event.UserType")
+  - grok:
+      source: event.Verdict
+      patterns:
+        - fieldName: utm.Verdict
+          pattern: (?s)^.+$
+      where: exists("event.Verdict")
+  - grok:
+      source: event.Workload
+      patterns:
+        - fieldName: utm.Workload
+          pattern: (?s)^.+$
+      where: exists("event.Workload")
+  - grok:
+      source: event.appAccessContextClientAppId
+      patterns:
+        - fieldName: utm.appAccessContextClientAppId
+          pattern: (?s)^.+$
+      where: exists("event.appAccessContextClientAppId")
