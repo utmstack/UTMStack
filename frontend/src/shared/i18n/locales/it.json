@@ -3581,6 +3581,7 @@
       "AWS_IAM_USER": "Acquisisci l'attività dell'account AWS e le chiamate API tramite CloudTrail e CloudWatch per controllare l'utilizzo cloud, gli accessi e le modifiche.",
       "AZURE": "Acquisisci i log di piattaforma e attività di Microsoft Azure per monitorare i workload cloud, l'identità e le modifiche alle risorse.",
       "O365": "Acquisisci i log di audit di Microsoft 365 su Exchange, Teams, SharePoint e OneDrive per monitorare l'attività degli utenti e degli amministratori.",
+      "O365_GRAPH": "Ingeste gli eventi di sicurezza di Microsoft Graph: allerte, incidenti, audit del directory, sign-in, rilevamenti di rischio e log di audit Purview per monitorare identità e attività di minaccia nel tuo tenant.",
       "GCP": "Acquisisci i log di audit e attività di Google Cloud Platform per monitorare compute, storage e identità tra i progetti.",
       "KASPERSKY": "Acquisisci i rilevamenti di Kaspersky Security Center e la telemetria degli endpoint per correlare l'attività malware nella rete.",
       "ESET": "Acquisisci i rilevamenti endpoint e la telemetria di ESET PROTECT per correlare la difesa multilivello dal malware nel tuo parco macchine.",

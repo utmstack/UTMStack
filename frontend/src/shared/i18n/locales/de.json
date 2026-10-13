@@ -3581,6 +3581,7 @@
       "AWS_IAM_USER": "AWS-Kontoaktivitäten und API-Aufrufe über CloudTrail und CloudWatch erfassen, um Cloud-Nutzung, Zugriffe und Änderungen zu auditieren.",
       "AZURE": "Microsoft Azure-Plattform- und Aktivitätsprotokolle erfassen, um Cloud-Workloads, Identitäten und Ressourcenänderungen zu überwachen.",
       "O365": "Microsoft 365-Auditprotokolle aus Exchange, Teams, SharePoint und OneDrive erfassen, um Benutzer- und Administratoraktivitäten zu überwachen.",
+      "O365_GRAPH": "Erfasst Microsoft-Graph-Sicherheitsereignisse — Alerts, Incidenten, Verzeichnis-Audits, Sign-ins, Risikodetektionen und Purview-Audit-Logs — zur Überwachung der Identitäts- und Bedrohungsaktivität in Ihrem Tenant.",
       "GCP": "Google Cloud Platform-Audit- und Aktivitätsprotokolle erfassen, um Compute, Speicher und Identitäten projektübergreifend zu überwachen.",
       "KASPERSKY": "Kaspersky Security Center-Erkennungen und Endpunkt-Telemetrie erfassen, um Malware-Aktivitäten im Netzwerk zu korrelieren.",
       "ESET": "ESET PROTECT-Endpunkterkennung und -Telemetrie erfassen, um mehrstufige Malware-Abwehr in Ihrer Umgebung zu korrelieren.",
