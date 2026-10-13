@@ -3099,6 +3099,74 @@
             "body": "Point the <hl>local5</hl> facility (where Suricata now writes) at the Collector. Add this rule to <hl>/etc/rsyslog.d/60-utmstack-suricata.conf</hl> on the Suricata host:",
             "note": "Use @@ instead of @ for TCP. Then restart rsyslog: sudo systemctl restart rsyslog"
           }
+        },
+        "o365_graph": {
+          "intro": {
+            "title": "How it works",
+            "body": "UTMStack connects to Microsoft 365 with a registered Azure AD app and polls Microsoft Graph for security events: alerts, incidents, directory audit, sign-ins, risk detections, hunting queries and Purview audit logs. No agent is installed in your tenant.",
+            "diagram": {
+              "source": "security events",
+              "edge": "Microsoft Graph",
+              "utmstackSub": "correlation & alerts"
+            },
+            "note": "UTMStack requires read-only Graph API access — no write permissions are requested."
+          },
+          "appSection": "Azure App Registration",
+          "steps": {
+            "azurePortal": {
+              "title": "Open Microsoft Entra ID",
+              "body": "Open the <hl>Azure Portal</hl> (portal.azure.com) and click on <hl>Microsoft Entra ID</hl>."
+            },
+            "appRegistrations": {
+              "title": "Go to App registrations",
+              "body": "In the left menu, click <hl>App registrations</hl>."
+            },
+            "registerApp": {
+              "title": "Register a new app",
+              "body": "Click <hl>New registration</hl>. Name it <hl>UTMStack Graph Dev</hl>, select <hl>Accounts in this organizational directory only (Single-tenant)</hl>, and click <hl>Register</hl>."
+            },
+            "clientSecret": {
+              "title": "Create a client secret",
+              "body": "Go to <hl>Certificates & Secrets → New client secret</hl>. Add a description, set expiry to <hl>730 days (24 months)</hl>, and click <hl>Add</hl>.",
+              "copyNote": "Copy the secret Value immediately — it is only shown once and cannot be retrieved later."
+            },
+            "apiPermissions": {
+              "title": "Add Microsoft Graph permissions",
+              "body": "Go to <hl>API Permissions → Add a permission</hl> and select <hl>Microsoft Graph</hl>, then choose <hl>Application permissions</hl>."
+            },
+            "graphPermissions": {
+              "title": "Add the four Graph permissions",
+              "body": "Add <hl>SecurityEvents.Read.All</hl>, <hl>Directory.Read.All</hl>, <hl>AuditLog.Read.All</hl> and <hl>IdentityRiskEvent.Read.All</hl>."
+            },
+            "adminConsent": {
+              "title": "Grant admin consent",
+              "body": "Back in <hl>API Permissions</hl>, click <hl>Grant admin consent for {tenant}</hl> and confirm."
+            },
+            "noteIds": {
+              "title": "Copy the app IDs",
+              "body": "Go to the app <hl>Overview</hl> and copy the <hl>Application (client) ID</hl> and <hl>Directory (tenant) ID</hl>. You also need the secret value copied in step 4."
+            }
+          },
+          "credentialsSection": "Credentials",
+          "credentials": {
+            "title": "Connect your Microsoft 365 tenant",
+            "body": "Enter the details from the steps above. UTMStack verifies the credentials before saving. You can add multiple config groups."
+          },
+          "fields": {
+            "tenantId": {
+              "label": "Tenant ID (Directory ID)"
+            },
+            "clientId": {
+              "label": "Client ID (Application ID)"
+            },
+            "clientSecret": {
+              "label": "Client Secret"
+            },
+            "cloudEnv": {
+              "label": "Cloud Environment (optional)",
+              "hint": "Commercial (default), GCC, GCCHigh, or DoD"
+            }
+          }
         }
       },
       "cloud": {

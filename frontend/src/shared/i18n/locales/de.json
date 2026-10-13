@@ -2940,7 +2940,77 @@
             "body": "Leiten Sie die <hl>local5</hl>-Facility (in die Suricata jetzt schreibt) an den Collector weiter. Fügen Sie diese Regel in <hl>/etc/rsyslog.d/60-utmstack-suricata.conf</hl> auf dem Suricata-Host hinzu:",
             "note": "Verwenden Sie @@ statt @ für TCP. Dann rsyslog neu starten: sudo systemctl restart rsyslog"
           }
-        }
+        },
+        
+  "o365_graph": {
+    "intro": {
+      "title": "So funktioniert es",
+      "body": "UTMStack verbindet sich mit Microsoft 365 über eine registrierte Azure-AD-App und ruft Sicherheitsereignisse aus Microsoft Graph ab: Alerts, Incidenten, Verzeichnis-Audits, Sign-ins, Risikodetektionen, Hunting-Queries und Purview-Audit-Logs. In Ihrem Tenant wird kein Agent installiert.",
+      "diagram": {
+        "source": "Sicherheitsereignisse",
+        "edge": "Microsoft Graph",
+        "utmstackSub": "Korrelation & Alerts"
+      },
+      "note": "UTMStack benötigt nur read-only-Zugriff auf die Graph-API — es werden keine Schreibberechtigungen angefordert."
+    },
+    "appSection": "Azure-App-Registrierung",
+    "steps": {
+      "azurePortal": {
+        "title": "Microsoft Entra ID öffnen",
+        "body": "Öffnen Sie das <hl>Azure-Portal</hl> (portal.azure.com) und klicken Sie auf <hl>Microsoft Entra ID</hl>."
+      },
+      "appRegistrations": {
+        "title": "Zu App-Registrierungen gehen",
+        "body": "Klicken Sie im linken Menü auf <hl>App-Registrierungen</hl>."
+      },
+      "registerApp": {
+        "title": "Neue App registrieren",
+        "body": "Klicken Sie auf <hl>Neue Registrierung</hl>. Benennen Sie sie <hl>UTMStack Graph Dev</hl>, wählen Sie <hl>Nur Konten in diesem Organisationsverzeichnis (Single-Tenant)</hl> und klicken Sie auf <hl>Registrieren</hl>."
+      },
+      "clientSecret": {
+        "title": "Client-Secret erstellen",
+        "body": "Gehen Sie zu <hl>Zertifikate & Secrets → Neues Client-Secret</hl>. Fügen Sie eine Beschreibung hinzu, setzen Sie die Gültigkeit auf <hl>730 Tage (24 Monate)</hl> und klicken Sie auf <hl>Hinzufügen</hl>.",
+        "copyNote": "Kopieren Sie den Secret-Wert sofort — er wird nur einmal angezeigt und kann später nicht wieder abgerufen werden."
+      },
+      "apiPermissions": {
+        "title": "Microsoft-Graph-Berechtigungen hinzufügen",
+        "body": "Gehen Sie zu <hl>API-Berechtigungen → Berechtigung hinzufügen</hl> und wählen Sie <hl>Microsoft Graph</hl>, dann <hl>Anwendungsberechtigungen</hl>."
+      },
+      "graphPermissions": {
+        "title": "Die vier Graph-Berechtigungen hinzufügen",
+        "body": "Fügen Sie <hl>SecurityEvents.Read.All</hl>, <hl>Directory.Read.All</hl>, <hl>AuditLog.Read.All</hl> und <hl>IdentityRiskEvent.Read.All</hl> hinzu."
+      },
+      "adminConsent": {
+        "title": "Admin-Zustimmung erteilen",
+        "body": "Zurück in <hl>API-Berechtigungen</hl>, klicken Sie auf <hl>Verwaltungsrechtliche Zustimmung für {tenant} erteilen</hl> und bestätigen Sie."
+      },
+      "noteIds": {
+        "title": "App-IDs kopieren",
+        "body": "Gehen Sie zur <hl>Übersicht</hl> der App und kopieren Sie die <hl>Anwendungs- (Client-)ID</hl> und die <hl>Verzeichnis- (Tenant-)ID</hl>. Sie benötigen außerdem den im Schritt 4 kopierten Secret-Wert."
+      }
+    },
+    "credentialsSection": "Anmeldedaten",
+    "credentials": {
+      "title": "Verbinden Sie Ihren Microsoft 365-Tenant",
+      "body": "Geben Sie die Details aus den obigen Schritten ein. UTMStack überprüft die Anmeldedaten, bevor sie gespeichert werden. Sie können mehrere Konfigurationsgruppen hinzufügen."
+    },
+    "fields": {
+      "tenantId": {
+        "label": "Tenant-ID (Verzeichnis-ID)"
+      },
+      "clientId": {
+        "label": "Client-ID (Anwendungs-ID)"
+      },
+      "clientSecret": {
+        "label": "Client-Secret"
+      },
+      "cloudEnv": {
+        "label": "Cloud-Umgebung (optional)",
+        "hint": "Commercial (Standard), GCC, GCCHigh oder DoD"
+      }
+    }
+  }
+
       },
       "cloud": {
         "howItWorksTitle": "Funktionsweise",

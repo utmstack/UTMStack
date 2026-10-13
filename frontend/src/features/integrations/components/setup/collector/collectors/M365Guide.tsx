@@ -9,27 +9,49 @@ import { useIntegrations } from '@/features/integrations/hooks/useIntegrations'
 import type { CloudConfigField } from '@/features/integrations/components/setup/cloud/builders/cloudGuideBuilder'
 import type { Integration, ConfigGroupResponse } from '@/features/integrations/types'
 
-const ROOT = 'integrations.setup.collector.office365'
-const IMG = '/integrations/guides/collector/office365'
+const O365_ROOT = 'integrations.setup.collector.office365'
+const GRAPH_ROOT = 'integrations.setup.collector.o365_graph'
+const O365_IMG = '/integrations/guides/collector/office365'
+const GRAPH_IMG = '/integrations/guides/collector/o365_graph'
 
-const FIELDS: CloudConfigField[] = [
-  { key: 'office365_tenant_id',         labelKey: `${ROOT}.fields.tenantId.label`,     placeholder: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' },
-  { key: 'office365_client_id',         labelKey: `${ROOT}.fields.clientId.label`,     placeholder: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' },
-  { key: 'office365_client_secret',     labelKey: `${ROOT}.fields.clientSecret.label`, secret: true, type: 'password' },
-  { key: 'office365_cloud_environment', labelKey: `${ROOT}.fields.cloudEnv.label`,     placeholder: 'Commercial' },
+const O365_FIELDS: CloudConfigField[] = [
+  { key: 'office365_tenant_id',         labelKey: `${O365_ROOT}.fields.tenantId.label`,     placeholder: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' },
+  { key: 'office365_client_id',         labelKey: `${O365_ROOT}.fields.clientId.label`,     placeholder: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' },
+  { key: 'office365_client_secret',     labelKey: `${O365_ROOT}.fields.clientSecret.label`, secret: true, type: 'password' },
+  { key: 'office365_cloud_environment', labelKey: `${O365_ROOT}.fields.cloudEnv.label`,     placeholder: 'Commercial' },
 ]
 
-const STEPS = [
-  { key: 'azurePortal',          img: `${IMG}/o365-portal.png` },
-  { key: 'appRegistrations',     img: `${IMG}/o365-app-registration.png` },
-  { key: 'registerApp',          img: `${IMG}/o365-register-app.png` },
-  { key: 'clientSecret',         img: `${IMG}/o365-certificate-secret.png` },
-  { key: 'apiPermissions',       img: `${IMG}/o365-api-permission.png` },
-  { key: 'activityFeed',         img: `${IMG}/o365-api-permission-request.png` },
-  { key: 'graphPermissions',     img: `${IMG}/o365-activity-feed.png` },
-  { key: 'delegatedPermissions', img: `${IMG}/o365-delegated-permission.png` },
-  { key: 'appPermissions',       img: `${IMG}/o365-app-permission.png` },
-  { key: 'noteIds',              img: `${IMG}/o365-overview-client.png` },
+export const O365_GRAPH_FIELDS: CloudConfigField[] = [
+  { key: 'o365_graph_tenant_id',         labelKey: `${GRAPH_ROOT}.fields.tenantId.label`,     placeholder: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' },
+  { key: 'o365_graph_client_id',         labelKey: `${GRAPH_ROOT}.fields.clientId.label`,     placeholder: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' },
+  { key: 'o365_graph_client_secret',     labelKey: `${GRAPH_ROOT}.fields.clientSecret.label`, secret: true, type: 'password' },
+  { key: 'o365_graph_cloud_environment', labelKey: `${GRAPH_ROOT}.fields.cloudEnv.label`,     placeholder: 'Commercial' },
+]
+
+const O365_STEPS = [
+  { key: 'azurePortal',          img: `${O365_IMG}/o365-portal.png` },
+  { key: 'appRegistrations',     img: `${O365_IMG}/o365-app-registration.png` },
+  { key: 'registerApp',          img: `${O365_IMG}/o365-register-app.png` },
+  { key: 'clientSecret',         img: `${O365_IMG}/o365-certificate-secret.png` },
+  { key: 'apiPermissions',       img: `${O365_IMG}/o365-api-permission.png` },
+  { key: 'activityFeed',         img: `${O365_IMG}/o365-api-permission-request.png` },
+  { key: 'graphPermissions',     img: `${O365_IMG}/o365-activity-feed.png` },
+  { key: 'delegatedPermissions', img: `${O365_IMG}/o365-delegated-permission.png` },
+  { key: 'appPermissions',       img: `${O365_IMG}/o365-app-permission.png` },
+  { key: 'noteIds',              img: `${O365_IMG}/o365-overview-client.png` },
+]
+
+// Graph guide reuses the same app-registration flow but points at the
+// o365_graph screenshots and Graph-specific permission steps.
+const GRAPH_STEPS = [
+  { key: 'azurePortal',       img: `${GRAPH_IMG}/graph-portal.png` },
+  { key: 'appRegistrations',  img: `${GRAPH_IMG}/graph-app-registrations.png` },
+  { key: 'registerApp',       img: `${GRAPH_IMG}/graph-register-app.png` },
+  { key: 'clientSecret',      img: `${GRAPH_IMG}/graph-certificate-secret.png` },
+  { key: 'apiPermissions',    img: `${GRAPH_IMG}/graph-api-permission.png` },
+  { key: 'graphPermissions',  img: `${GRAPH_IMG}/graph-permissions-list.png` },
+  { key: 'adminConsent',      img: `${GRAPH_IMG}/graph-admin-consent.png` },
+  { key: 'noteIds',           img: `${GRAPH_IMG}/graph-overview-client.png` },
 ]
 
 function StepImg({ src }: { src: string }) {
@@ -53,11 +75,13 @@ function SectionLabel({ title }: { title: string }) {
   )
 }
 
-export function M365Guide({ module: integration }: { module: Integration }) {
+export function M365Guide({ module: integration, fields = O365_FIELDS, variant = 'o365' }: { module: Integration; fields?: CloudConfigField[]; variant?: 'o365' | 'graph' }) {
   const { t } = useTranslation()
   const { configGroups: tenantsQuery, deleteConfigGroup } = useIntegrations()
 
-  const moduleName = integration.moduleName ?? 'O365'
+  const ROOT = variant === 'graph' ? GRAPH_ROOT : O365_ROOT
+  const STEPS = variant === 'graph' ? GRAPH_STEPS : O365_STEPS
+  const moduleName = integration.moduleName ?? (variant === 'graph' ? 'O365_GRAPH' : 'O365')
   const tenantList = tenantsQuery(moduleName)
   const tenants: ConfigGroupResponse[] = tenantList.data ?? []
 
@@ -135,7 +159,7 @@ export function M365Guide({ module: integration }: { module: Integration }) {
           )}
           <CloudTenantForm
             moduleName={moduleName}
-            fields={FIELDS}
+            fields={fields}
             editing={editing}
             onCancel={() => setEditing(null)}
             onSaved={() => setEditing(null)}

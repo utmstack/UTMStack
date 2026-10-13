@@ -23,6 +23,8 @@ func (BackendVerifier) Verify(module string, c map[string]string) error {
 		return verifyAzure(c)
 	case "O365":
 		return verifyO365(c)
+	case "O365_GRAPH":
+		return verifyO365Graph(c)
 	case "BITDEFENDER":
 		return verifyBitdefender(c)
 	case "CROWDSTRIKE":
