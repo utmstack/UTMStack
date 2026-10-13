@@ -673,7 +673,8 @@
     "branding": "Брендинг",
     "language": "Язык",
     "socAi": "SOC-AI",
-    "supportAccess": "Доступ поддержки"
+    "supportAccess": "Доступ поддержки",
+    "threatwinds": "Интеграция ThreatWinds"
   },
   "topbar": {
     "theme": {
@@ -5792,6 +5793,20 @@
       "noneSucceeded": "Ни один арендатор не завершился успешно.",
       "failed": "Не удалось",
       "noneFailed": "Ошибок нет."
+    }
+  },
+  "threatwinds": {
+    "title": "Интеграция ThreatWinds",
+    "subtitle": "Поделитесь инцидентами этой инстанции с общественным фидом ThreatWinds.",
+    "contribute": "Передавать инциденты",
+    "contributeHint": "Если включено, инциденты этой инстанции отправляются в ThreatWinds.",
+    "loading": "Загрузка состояния интеграции…",
+    "failed": "Не удалось загрузить состояние интеграции ThreatWinds.",
+    "retry": "Повторить",
+    "toast": {
+      "enabled": "Передача включена",
+      "disabled": "Передача выключена",
+      "failed": "Не удалось обновить настройку передачи"
     }
   }
 }

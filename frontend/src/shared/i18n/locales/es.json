@@ -671,7 +671,8 @@
     "auditLogs": "Registros de auditoría",
     "about": "Acerca de",
     "socAi": "SOC-AI",
-    "supportAccess": "Acceso de soporte"
+    "supportAccess": "Acceso de soporte",
+    "threatwinds": "Integración de ThreatWinds"
   },
   "topbar": {
     "theme": {
@@ -5736,6 +5737,20 @@
       "noneSucceeded": "Ningún inquilino tuvo éxito.",
       "failed": "Fallidos",
       "noneFailed": "Sin fallos."
+    }
+  },
+  "threatwinds": {
+    "title": "Integración de ThreatWinds",
+    "subtitle": "Comparte los incidentes de esta instancia con el feed comunitario de ThreatWinds.",
+    "contribute": "Contribuir incidentes",
+    "contributeHint": "Cuando está activado, los incidentes de esta instancia se envían a ThreatWinds.",
+    "loading": "Cargando estado de la integración…",
+    "failed": "No se pudo cargar el estado de la integración de ThreatWinds.",
+    "retry": "Reintentar",
+    "toast": {
+      "enabled": "Contribución activada",
+      "disabled": "Contribución desactivada",
+      "failed": "No se pudo actualizar la configuración de contribución"
     }
   }
 }
