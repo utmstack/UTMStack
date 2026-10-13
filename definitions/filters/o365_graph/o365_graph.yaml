@@ -1,0 +1,151 @@
+# Microsoft Graph filter, version 1.0.0
+
+# Normalizes raw Microsoft Graph records into a log object and tags each record
+# with its source so rules can branch on it. The raw record is preserved under
+# log.record for field access.
+
+pipeline:
+  - dataTypes: [o365-graph]
+    order: 37
+    steps:
+      - json:
+          source: raw
+      - add:
+          function: string
+          params:
+            key: log.record
+            value: raw
+      - add:
+          function: string
+          params:
+            key: log.graphSource
+            value: unknown
+      # securityAlerts + category: alerts_v2
+      - add:
+          function: string
+          params:
+            key: log.graphSource
+            value: security-alerts
+          where: exists("category") && exists("securityAlerts")
+      # incidentType + alertCount: incidents
+      - add:
+          function: string
+          params:
+            key: log.graphSource
+            value: security-incidents
+          where: exists("incidentType") && exists("alertCount")
+      # activityDisplayName + result: directoryAudits
+      - add:
+          function: string
+          params:
+            key: log.graphSource
+            value: directory-audit
+          where: exists("activityDisplayName") && exists("result")
+      # ipAddress + status: signIns
+      - add:
+          function: string
+          params:
+            key: log.graphSource
+            value: sign-ins
+          where: exists("ipAddress") && exists("authenticationRequirement")
+      # riskState + riskLevel: riskDetections
+      - add:
+          function: string
+          params:
+            key: log.graphSource
+            value: risk-detections
+          where: exists("riskState") && exists("riskLevel")
+      # RowKey/Timestamp: hunting query result rows
+      - add:
+          function: string
+          params:
+            key: log.graphSource
+            value: hunting
+          where: exists("RowKey")
+      # ActivityDisplayName + ActivityDateTime: Purview auditLog/queries records
+      - add:
+          function: string
+          params:
+            key: log.graphSource
+            value: purview-audit
+          where: exists("ActivityDisplayName") && exists("ActivityDateTime")
+      # Promote each source's time field to the event timestamp so @timestamp is
+      # the record's own time, not ingest wall-clock time.
+      - rename:
+          from:
+            - log.alertDateTime
+          to: log.eventTime
+          where: exists("log.alertDateTime")
+      - rename:
+          from:
+            - log.lastUpdateDateTime
+          to: log.eventTime
+          where: exists("log.lastUpdateDateTime")
+      - rename:
+          from:
+            - log.activityDateTime
+          to: log.eventTime
+          where: exists("log.activityDateTime")
+      - rename:
+          from:
+            - log.createdDateTime
+          to: log.eventTime
+          where: exists("log.createdDateTime")
+      - rename:
+          from:
+            - log.lastUpdatedDateTime
+          to: log.eventTime
+          where: exists("log.lastUpdatedDateTime")
+      - rename:
+          from:
+            - log.ActivityDateTime
+          to: log.eventTime
+          where: exists("log.ActivityDateTime")
+      # Promote the human-readable action name to `action`.
+      - rename:
+          from:
+            - log.alertDisplayName
+          to: action
+          where: exists("log.alertDisplayName")
+      - rename:
+          from:
+            - log.activityDisplayName
+          to: action
+          where: exists("log.activityDisplayName")
+      - rename:
+          from:
+            - log.ActivityDisplayName
+          to: action
+          where: exists("log.ActivityDisplayName")
+      - rename:
+          from:
+            - log.incidentType
+          to: action
+          where: exists("log.incidentType")
+      # User attribution.
+      - rename:
+          from:
+            - log.activityUser.userPrincipalName
+          to: origin.user
+          where: exists("log.activityUser.userPrincipalName")
+      - rename:
+          from:
+            - log.userPrincipalName
+          to: origin.user
+          where: exists("log.userPrincipalName")
+      - rename:
+          from:
+            - log.user.userPrincipalName
+          to: origin.user
+          where: exists("log.user.userPrincipalName")
+      # Network attribution.
+      - rename:
+          from:
+            - log.activityIPAddresses
+          to: origin.ip
+          where: exists("log.activityIPAddresses")
+      - rename:
+          from:
+            - log.ipAddress
+          to: origin.ip
+          where: exists("log.ipAddress")
