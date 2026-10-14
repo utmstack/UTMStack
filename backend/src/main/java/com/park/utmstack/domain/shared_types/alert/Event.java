@@ -1,5 +1,6 @@
 package com.park.utmstack.domain.shared_types.alert;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -11,6 +12,7 @@ import org.springframework.util.StringUtils;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -33,6 +35,7 @@ public class Event {
     private String tenantName;
     private String raw;
 
+    @JsonAlias("log")
     private Map<String, Object> event;
 
     private Side target;
@@ -49,7 +52,7 @@ public class Event {
     private Map<String, ComplianceValues> compliance;
 
     public Map<String, String> getEventFlatted() {
-        return MapUtil.flattenToStringMap(event, true);
+        return event == null ? Collections.emptyMap() : MapUtil.flattenToStringMap(event, true);
     }
 
     public String getTimestampFormatted() {
