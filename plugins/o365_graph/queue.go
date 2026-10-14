@@ -77,13 +77,13 @@ func consumeJob(
 	work := coordination.ConsumeWork{
 		Activate: func(ctx context.Context, job coordination.Job) ([]byte, error) {
 			n, next, err := collectFn(&cursorPayload{}, job.WindowStart, job.WindowEnd, group)
+			windowStart, windowEnd, ingested = job.WindowStart, job.WindowEnd, n
 			if err != nil {
 				if data, mErr := coordination.MarshalCursorPayload(next, encryptionKey); mErr == nil {
 					return data, err
 				}
 				return nil, err
 			}
-			windowStart, windowEnd, ingested = job.WindowStart, job.WindowEnd, n
 			return coordination.MarshalCursorPayload(next, encryptionKey)
 		},
 		Resume: func(ctx context.Context, job coordination.Job, cur coordination.Cursor) ([]byte, error) {
@@ -94,13 +94,13 @@ func consumeJob(
 			// Per-source positions (not prev.WindowEnd) set the start point: a
 			// different worker may have handled the previous tick.
 			n, next, err := collectFn(&prev, job.WindowStart, job.WindowEnd, group)
+			windowStart, windowEnd, ingested = prev.WindowEnd, job.WindowEnd, n
 			if err != nil {
 				if data, mErr := coordination.MarshalCursorPayload(next, encryptionKey); mErr == nil {
 					return data, err
 				}
 				return nil, err
 			}
-			windowStart, windowEnd, ingested = prev.WindowEnd, job.WindowEnd, n
 			return coordination.MarshalCursorPayload(next, encryptionKey)
 		},
 	}
