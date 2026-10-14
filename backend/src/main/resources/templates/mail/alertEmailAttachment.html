@@ -157,7 +157,8 @@
             <tbody>
             <tr th:each="relatedLog: ${relatedLogs}">
                 <td style="padding: 3px 3px;border: 1px solid #dddddd;font-size: 13px;vertical-align: top;"
-                    th:text="${relatedLog.getLog().get('type')}"></td>
+                    th:with="etype=${relatedLog.getEvent() != null ? relatedLog.getEvent().get('type') : null}"
+                    th:text="${etype}"></td>
                 <td style="padding: 3px 3px;border: 1px solid #dddddd;font-size: 13px;vertical-align: top;"
                     th:with="timestampFormatted = ${relatedLog.getTimestampFormatted()}"
                     th:text="${#strings.isEmpty(timestampFormatted) ? '-' : timestampFormatted}"></td>
@@ -173,7 +174,7 @@
                         </thead>
                         <tbody>
                         <tr style="font-family:Roboto, sans-serif;font-size: 13px"
-                            th:each="event : ${relatedLog.getLogxFlatted()}">
+                            th:each="event : ${relatedLog.getEventFlatted()}">
                             <td style="font-weight: bold;vertical-align: top;" th:text="${event.getKey()}"></td>
                             <td style="vertical-align: top;" th:text="${event.getValue()}"></td>
                         </tr>
