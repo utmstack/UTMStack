@@ -64,6 +64,51 @@ checks:
         value: 'success'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: macos-directory-auth-success
+    name: 'macOS: successful password verifications are recorded'
+    dataType: macos
+    filters:
+      - field: log.subsystem
+        operator: IS
+        value: 'com.apple.opendirectoryd'
+      - field: log.message
+        operator: START_WITH
+        value: 'Authentication succeeded for '
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: macos-login-authorized
+    name: 'macOS: successful console logins and screen unlocks are recorded'
+    dataType: macos
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'success'
+      - field: log.subsystem
+        operator: IS
+        value: 'com.apple.Authorization'
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - '''system.login.console'''
+          - '''system.login.screensaver'''
+          - '''system.login.fus'''
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: macos-unlock-authenticated-user
+    name: 'macOS: users authenticating to unlock the screen are recorded'
+    dataType: macos
+    filters:
+      - field: log.subsystem
+        operator: IS
+        value: 'com.apple.Authorization'
+      - field: log.message
+        operator: CONTAIN
+        value: 'authenticated as user'
+      - field: log.message
+        operator: CONTAIN
+        value: 'system.login'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
   - key: o365-signin-success
     name: 'Microsoft 365: successful sign-ins are recorded with the user'
     dataType: o365
@@ -107,6 +152,21 @@ checks:
         value: 'success'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: gcp-workspace-signin-success
+    name: 'Google: successful Workspace / Cloud Identity sign-ins are recorded'
+    dataType: google
+    filters:
+      - field: log.protoPayloadServiceName
+        operator: IS
+        value: 'login.googleapis.com'
+      - field: log.protoPayloadMethodName
+        operator: IS
+        value: 'google.login.LoginService.loginSuccess'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
   - key: eset-console-sign-in
     name: 'ESET PROTECT: successful Web Console sign-ins are recorded'
     dataType: antivirus-esmc-eset
@@ -120,6 +180,38 @@ checks:
       - field: actionResult
         operator: IS
         value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: kaspersky-ksc-console-connect
+    name: 'Kaspersky: connections to the Administration Server console'
+    dataType: antivirus-kaspersky
+    filters:
+      - field: log.eventType
+        operator: IS
+        value: 'KLAUD_EV_SERVERCONNECT'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sentinelone-console-login
+    name: 'SentinelOne: console user logged in'
+    dataType: antivirus-sentinel-one
+    filters:
+      - field: log.activityType
+        operator: IS
+        value: '27'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: cisco-switch-login-success
+    name: 'Cisco switch: successful logins are recorded'
+    dataType: cisco-switch
+    filters:
+      - field: log.facility
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'SEC_LOGIN'
+          - 'SECLOGIN'
+      - field: log.facilityMnemonic
+        operator: IS
+        value: 'LOGIN_SUCCESS'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: crowdstrike-console-sign-in
@@ -288,6 +380,15 @@ checks:
         operator: EXIST
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: aix-ssh-logon-success
+    name: 'IBM AIX: accepted SSH sign-ins are recorded'
+    dataType: ibm-aix
+    filters:
+      - field: log.authResult
+        operator: IS
+        value: 'Accepted'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
   - key: as400-host-server-signon
     name: 'IBM i (AS/400): host server sign-ons are recorded'
     dataType: ibm-as400
@@ -295,6 +396,19 @@ checks:
       - field: actionResult
         operator: IS
         value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-graph-signin-success
+    name: 'Microsoft Graph: successful Entra sign-ins with a user are recorded'
+    dataType: o365-graph
+    filters:
+      - field: log.conditionalAccessStatus
+        operator: EXIST
+      - field: log.status.errorCode
+        operator: IS
+        value: '0'
+      - field: origin.user
+        operator: EXIST
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: esxi-logon-success

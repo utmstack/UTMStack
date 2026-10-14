@@ -49,6 +49,52 @@ checks:
         value: 'timed'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: cisco-switch-ntp-sync
+    name: 'Cisco switch: NTP synchronization is recorded'
+    dataType: cisco-switch
+    filters:
+      - field: log.facility
+        operator: IS
+        value: 'NTP'
+      - field: log.facilityMnemonic
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'PEERSYNC'
+          - 'PEERREACH'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fgt-ntp-time-sync
+    name: 'FortiGate: NTP time synchronization is recorded'
+    dataType: firewall-fortigate-traffic
+    filters:
+      - field: log.logid
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '0100032141'
+          - '0100032105'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fortiweb-ntp-time-change
+    name: 'FortiWeb: NTP time changes are recorded'
+    dataType: firewall-fortiweb
+    filters:
+      - field: log.type
+        operator: IS
+        value: 'event'
+      - field: log.msg
+        operator: CONTAIN
+        value: 'ntp daemon changed time'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: mikrotik-ntp-time-change
+    name: 'MikroTik: NTP time changes are recorded'
+    dataType: firewall-mikrotik
+    filters:
+      - field: log.message
+        operator: CONTAIN
+        value: 'ntp change time'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
   - key: paloalto-ntp-sync
     name: 'Palo Alto: NTP synchronization is recorded'
     dataType: firewall-paloalto
@@ -61,6 +107,15 @@ checks:
         value: 'sync'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: pfsense-ntpd-events
+    name: 'pfSense: NTP daemon events are recorded'
+    dataType: firewall-pfsense
+    filters:
+      - field: log.eventType
+        operator: IS
+        value: 'ntpd'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
   - key: sonicwall-ntp-sync
     name: 'SonicWall: NTP time updates are recorded'
     dataType: firewall-sonicwall
@@ -68,5 +123,16 @@ checks:
       - field: log.eventCode
         operator: IS
         value: '1231'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: esxi-time-sync
+    name: 'VMware ESXi: time synchronization is recorded'
+    dataType: vmware-esxi
+    filters:
+      - field: log.process
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'ntpd'
+          - 'ptpd'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1

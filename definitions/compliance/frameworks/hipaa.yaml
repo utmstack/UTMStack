@@ -150,7 +150,7 @@ sections:
     satisfiedBy: [ac-3, ac-6]
   - id: 164.312(a)(2)(i)
     name: Unique user identification (Required)
-    satisfiedBy: [ia-2, ia-4, au-3]
+    satisfiedBy: [ia-2, ia-4, au-3, ia-2.5]
   - id: 164.312(a)(2)(ii)
     name: Emergency access procedure (Required)
     satisfiedBy: [cp-2]
@@ -159,7 +159,7 @@ sections:
     satisfiedBy: [ac-12]
   - id: 164.312(a)(2)(iv)
     name: Encryption and decryption (Addressable)
-    satisfiedBy: [sc-13, sc-28]
+    satisfiedBy: [sc-13, sc-28, sc-28.1]
   - id: 164.312(b)
     name: Audit controls
     satisfiedBy: [au-2, au-12, au-6]
@@ -174,13 +174,13 @@ sections:
     satisfiedBy: [ia-2]
   - id: 164.312(e)(1)
     name: Transmission security
-    satisfiedBy: [sc-8]
+    satisfiedBy: [sc-8, sc-8.1]
   - id: 164.312(e)(2)(i)
     name: Integrity controls (Addressable)
     satisfiedBy: [sc-8]
   - id: 164.312(e)(2)(ii)
     name: Encryption (Addressable)
-    satisfiedBy: [sc-8, sc-13]
+    satisfiedBy: [sc-8, sc-13, sc-8.1]
 - key: organizational
   name: '§164.314 Organizational requirements'
   requirements:

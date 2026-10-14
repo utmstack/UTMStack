@@ -31,6 +31,19 @@ checks:
           - '4888'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: win-defender-folder-access-blocked
+    name: 'Windows: Microsoft Defender Controlled Folder Access blocks are recorded'
+    dataType: wineventlog
+    filters:
+      - field: log.providerName
+        operator: IS
+        value: 'Microsoft-Windows-Windows Defender'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '1123'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
   - key: linux-audit-access-denied
     name: 'Linux: refused access is recorded (audit)'
     dataType: linux
@@ -82,6 +95,18 @@ checks:
         value: 'denied'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: gcp-permission-denied
+    name: 'Google: API calls refused for missing permission are recorded'
+    dataType: google
+    filters:
+      - field: log.logName
+        operator: CONTAIN
+        value: 'cloudaudit.googleapis.com'
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
   - key: bitdefender-threat-blocked
     name: 'Bitdefender GravityZone: threats, sites or files are blocked, quarantined or removed'
     dataType: antivirus-bitdefender-gz
@@ -122,10 +147,155 @@ checks:
         value: 'denied'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: kaspersky-object-blocked
+    name: 'Kaspersky: object or launch blocked'
+    dataType: antivirus-kaspersky
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sentinelone-threat-killed-quarantined
+    name: 'SentinelOne: threat killed or quarantined'
+    dataType: antivirus-sentinel-one
+    filters:
+      - field: log.activityType
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '2001'
+          - '2004'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: cisco-switch-port-security-denied
+    name: 'Cisco switch: port security, ARP inspection and DHCP snooping denials are recorded'
+    dataType: cisco-switch
+    filters:
+      - field: log.facility
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'PORT_SECURITY'
+          - 'SW_DAI'
+          - 'DHCP_SNOOPING'
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: crowdstrike-prevention-blocked
+    name: 'CrowdStrike: prevention blocked a detection'
+    dataType: crowdstrike
+    filters:
+      - field: log.metadataEventType
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'DetectionSummaryEvent'
+          - 'EppDetectionSummaryEvent'
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: deceptive-bytes-prevented
+    name: 'Deceptive Bytes: activity prevented or blocked'
+    dataType: deceptive-bytes
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fgt-local-in-denied
+    name: 'FortiGate: denied access to the firewall itself is recorded'
+    dataType: firewall-fortigate-traffic
+    filters:
+      - field: log.type
+        operator: IS
+        value: 'traffic'
+      - field: log.subtype
+        operator: IS
+        value: 'local'
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: paloalto-unauthorized-config
+    name: 'Palo Alto: refused configuration attempts are recorded'
+    dataType: firewall-paloalto
+    filters:
+      - field: log.paType
+        operator: IS
+        value: 'CONFIG'
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sonicwall-access-denied
+    name: 'SonicWall: denied user and management access is recorded'
+    dataType: firewall-sonicwall
+    filters:
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '986'
+          - '1079'
+          - '35'
+          - '1672'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sophos-xg-appliance-access-denied
+    name: 'Sophos Firewall: denied access to the appliance itself is recorded'
+    dataType: firewall-sophos-xg
+    filters:
+      - field: log.type
+        operator: IS
+        value: 'Firewall'
+      - field: log.component
+        operator: IS
+        value: 'Appliance Access'
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aix-sudo-refusals
+    name: 'IBM AIX: refused sudo use is recorded'
+    dataType: ibm-aix
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+      - field: log.returnCode
+        operator: DOES_NOT_EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-graph-conditional-access-blocks
+    name: 'Microsoft Graph: sign-ins refused by conditional access are recorded'
+    dataType: o365-graph
+    filters:
+      - field: log.conditionalAccessStatus
+        operator: IS
+        value: 'failure'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
   - key: sophos-central-blocked
     name: 'Sophos Central: applications, devices, web pages or exploits are blocked'
     dataType: sophos-central
     filters:
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: syslog-cef-denied
+    name: 'Syslog: CEF devices report refused actions'
+    dataType: syslog
+    filters:
+      - field: log.dataType
+        operator: IS
+        value: 'cef'
       - field: actionResult
         operator: IS
         value: 'denied'
@@ -142,5 +312,14 @@ checks:
           - 'killed'
           - 'blocked'
           - 'ransomware_contained'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: esxi-access-denied
+    name: 'VMware ESXi: refused access is recorded'
+    dataType: vmware-esxi
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'denied'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1

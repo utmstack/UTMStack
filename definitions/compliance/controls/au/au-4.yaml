@@ -10,24 +10,25 @@ remediation: |-
   Passes when no connected source reported that its audit log was full or that audit records were lost for lack of space during the window.
   If it fails: increase the log size or forwarding capacity on the source that reported it, and confirm no records were lost.
 source: NIST SP 800-53 Rev 5 (public domain)
-strategy: ALL
+strategy: ANY
 checks:
-  - key: linux-audit-records-lost
-    name: 'Linux: the kernel dropped audit records'
+  - key: win-security-log-full
+    name: 'Windows: the Security log did not fill up or lose audit records for lack of space'
+    dataType: wineventlog
     filters:
-      - field: log.syslogIdentifier
+      - field: log.channel
         operator: IS
-        value: 'kernel'
-      - field: log.message
-        operator: CONTAIN_ONE_OF
+        value: 'Security'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
         value:
-          - 'audit_lost='
-          - 'kauditd hold queue overflow'
-          - 'audit_backlog='
+          - '1104'
+          - '4612'
     rule: THRESHOLD_MAX
     ruleValue: 0
   - key: linux-auditd-disk-full
-    name: 'Linux: auditd ran out of log space'
+    name: 'Linux: auditd did not run out of log space'
+    dataType: linux
     filters:
       - field: log.syslogIdentifier
         operator: IS
@@ -36,24 +37,62 @@ checks:
         operator: CONTAIN_ONE_OF
         value:
           - 'low on disk space'
+          - 'low disk space'
           - 'no space left'
           - 'larger than max size'
           - 'due to logfile size'
     rule: THRESHOLD_MAX
     ruleValue: 0
-  - key: win-security-log-full
-    name: 'Windows: the Security log did not fill up or lose audit records for lack of space'
+  - key: asa-logging-queue-full
+    name: 'Cisco ASA: the logging queue never fills'
+    dataType: firewall-cisco-asa
     filters:
-      - field: log.channel
+      - field: log.messageId
         operator: IS
-        value: 'Security'
-      - field: log.providerName
-        operator: START_WITH
-        value: 'Microsoft-Windows-'
-      - field: log.eventCode
+        value: '414006'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: ftd-logging-queue-full
+    name: 'Cisco FTD: the logging queue never fills'
+    dataType: firewall-cisco-firepower
+    filters:
+      - field: log.messageId
+        operator: IS
+        value: '414006'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: fgt-log-disk-full
+    name: 'FortiGate: log disk never full and no logs dropped for rate'
+    dataType: firewall-fortigate-traffic
+    filters:
+      - field: log.logid
         operator: IS_ONE_OF_TERMS
         value:
-          - '1104'
-          - '4612'
+          - '0100032010'
+          - '0100032015'
+          - '0100022019'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: paloalto-log-storage-full
+    name: 'Palo Alto: log storage never full'
+    dataType: firewall-paloalto
+    filters:
+      - field: log.paType
+        operator: IS
+        value: 'SYSTEM'
+      - field: log.opaque
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'logs is full'
+          - 'logdb-full'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: sonicwall-log-full
+    name: 'SonicWall: the event log never fills up'
+    dataType: firewall-sonicwall
+    filters:
+      - field: log.eventCode
+        operator: IS
+        value: '7'
     rule: THRESHOLD_MAX
     ruleValue: 0

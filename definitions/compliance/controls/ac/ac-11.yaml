@@ -27,6 +27,24 @@ checks:
           - '7'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: linux-desktop-screen-unlock
+    name: 'Linux: desktop screen unlock authentications are recorded'
+    dataType: linux
+    filters:
+      - field: log.syslogIdentifier
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'cinnamon-screensaver-pam-helper'
+          - 'gnome-screensaver-dialog'
+          - 'xscreensaver'
+          - 'light-locker'
+          - 'kscreenlocker_greet'
+          - 'xfce4-screensaver-dialog'
+          - 'mate-screensaver-dialog'
+          - 'swaylock'
+          - 'i3lock'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
   - key: macos-screen-lock
     name: 'macOS: screen lock and unlock are recorded'
     dataType: macos
@@ -39,5 +57,19 @@ checks:
         value:
           - 'com.apple.screenIsLocked'
           - 'com.apple.screenIsUnlocked'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: azure-defender-workstation-unlock
+    name: 'Azure (Defender for Endpoint): workstation unlocks are recorded'
+    dataType: azure
+    filters:
+      - field: log.category
+        operator: IS
+        value: 'AdvancedHunting-DeviceLogonEvents'
+      - field: log.properties.LogonType
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Unlock'
+          - 'CachedUnlock'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1

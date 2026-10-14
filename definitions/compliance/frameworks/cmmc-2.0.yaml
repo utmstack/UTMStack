@@ -25,7 +25,7 @@ sections:
     satisfiedBy: [ac-22]
   - id: IA.L1-b.1.v
     name: Identification
-    satisfiedBy: [ia-2, ia-3]
+    satisfiedBy: [ia-2, ia-3, ia-2.5]
   - id: IA.L1-b.1.vi
     name: Authentication
     satisfiedBy: [ia-2, ia-3]
@@ -97,7 +97,7 @@ sections:
     satisfiedBy: [ac-17]
   - id: AC.L2-3.1.13
     name: Remote Access Confidentiality
-    satisfiedBy: [sc-8, sc-13]
+    satisfiedBy: [sc-8, sc-13, sc-8.1]
   - id: AC.L2-3.1.14
     name: Remote Access Routing
     satisfiedBy: [ac-17.3]
@@ -109,7 +109,7 @@ sections:
     satisfiedBy: [ac-18]
   - id: AC.L2-3.1.17
     name: Wireless Access Protection
-    satisfiedBy: [ac-18]
+    satisfiedBy: [ac-18, ac-18.1]
   - id: AC.L2-3.1.18
     name: Mobile Device Connection
     satisfiedBy: [ac-19]
@@ -160,7 +160,7 @@ sections:
     satisfiedBy: [au-7]
   - id: AU.L2-3.3.7
     name: Authoritative Time Source
-    satisfiedBy: [au-8, sc-45]
+    satisfiedBy: [au-8, sc-45, sc-45.1]
   - id: AU.L2-3.3.8
     name: Audit Protection
     satisfiedBy: [au-9]
@@ -193,7 +193,7 @@ sections:
     satisfiedBy: [cm-7]
   - id: CM.L2-3.4.8
     name: Application Execution Policy
-    satisfiedBy: [cm-7]
+    satisfiedBy: [cm-7, cm-7.5]
   - id: CM.L2-3.4.9
     name: User-Installed Software
     satisfiedBy: [cm-11]
@@ -202,7 +202,7 @@ sections:
   requirements:
   - id: IA.L2-3.5.1
     name: Identification
-    satisfiedBy: [ia-2, ia-3]
+    satisfiedBy: [ia-2, ia-3, ia-2.5]
   - id: IA.L2-3.5.2
     name: Authentication
     satisfiedBy: [ia-2, ia-3]
@@ -295,7 +295,7 @@ sections:
     satisfiedBy: [mp-7]
   - id: MP.L2-3.8.9
     name: Protect Backups
-    satisfiedBy: [cp-9]
+    satisfiedBy: [mp-4, sc-28]
 - key: ps
   name: PS — Personnel Security
   requirements:
@@ -379,7 +379,7 @@ sections:
     satisfiedBy: [sc-7.7]
   - id: SC.L2-3.13.8
     name: Data in Transit
-    satisfiedBy: [sc-8, sc-13]
+    satisfiedBy: [sc-8, sc-13, sc-8.1]
   - id: SC.L2-3.13.9
     name: Connections Termination
     satisfiedBy: [sc-10]
@@ -403,7 +403,7 @@ sections:
     satisfiedBy: [sc-23]
   - id: SC.L2-3.13.16
     name: Data at Rest
-    satisfiedBy: [sc-28]
+    satisfiedBy: [sc-28, sc-28.1]
 - key: si
   name: SI — System and Information Integrity
   requirements:

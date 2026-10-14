@@ -42,6 +42,24 @@ checks:
         value: 'sudo'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: macos-admin-rights-granted
+    name: 'macOS: administrator rights granted by authd are recorded'
+    dataType: macos
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'success'
+      - field: log.subsystem
+        operator: IS
+        value: 'com.apple.Authorization'
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - '''system.privilege.admin'''
+          - '''system.install.'
+          - '''system.privilege.taskport'''
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
   - key: macos-sudo-use
     name: 'macOS: sudo use is recorded'
     dataType: macos
@@ -148,6 +166,40 @@ checks:
         value: 'success'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: gcp-workspace-admin-roles
+    name: 'Google: Workspace admin roles assigned or removed'
+    dataType: google
+    filters:
+      - field: log.protoPayloadServiceName
+        operator: IS
+        value: 'admin.googleapis.com'
+      - field: log.protoPayloadMethodName
+        operator: IS_ONE_OF
+        value:
+          - 'google.admin.AdminService.assignRole'
+          - 'google.admin.AdminService.unassignRole'
+          - 'google.admin.AdminService.grantAdminPrivilege'
+          - 'google.admin.AdminService.revokeAdminPrivilege'
+          - 'google.admin.AdminService.grantDelegatedAdminPrivileges'
+          - 'google.admin.AdminService.addPrivilege'
+          - 'google.admin.AdminService.removePrivilege'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: eset-permission-set-changes
+    name: 'ESET: permission sets changed'
+    dataType: antivirus-esmc-eset
+    filters:
+      - field: log.eventType
+        operator: IS
+        value: 'Audit_Event'
+      - field: log.domain
+        operator: CONTAIN
+        value: 'permission'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
   - key: sentinelone-console-role-assigned
     name: 'SentinelOne: roles are assigned to console users'
     dataType: antivirus-sentinel-one
@@ -155,5 +207,173 @@ checks:
       - field: log.activityType
         operator: IS
         value: '37'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: cisco-switch-enable
+    name: 'Cisco switch: privileged (enable) mode entries are recorded'
+    dataType: cisco-switch
+    filters:
+      - field: log.facility
+        operator: IS
+        value: 'SYS'
+      - field: log.facilityMnemonic
+        operator: IS
+        value: 'PRIV_AUTH_PASS'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: crowdstrike-role-changes
+    name: 'CrowdStrike: Falcon console roles granted or revoked'
+    dataType: crowdstrike
+    filters:
+      - field: log.eventOperationName
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'grantUserRoles'
+          - 'revokeUserRoles'
+          - 'updateUserRoles'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: asa-privilege-level-changes
+    name: 'Cisco ASA: privilege level changes are recorded'
+    dataType: firewall-cisco-asa
+    filters:
+      - field: log.messageId
+        operator: IS
+        value: '502103'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fgt-admin-logins
+    name: 'FortiGate: administrator sign-ins are recorded'
+    dataType: firewall-fortigate-traffic
+    filters:
+      - field: log.logid
+        operator: IS
+        value: '0100032001'
+      - field: origin.user
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fortiweb-admin-logins
+    name: 'FortiWeb: administrator sign-ins are recorded'
+    dataType: firewall-fortiweb
+    filters:
+      - field: log.type
+        operator: IS
+        value: 'event'
+      - field: action
+        operator: IS
+        value: 'login'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: paloalto-admin-logins
+    name: 'Palo Alto: administrator sign-ins are recorded'
+    dataType: firewall-paloalto
+    filters:
+      - field: log.paType
+        operator: IS
+        value: 'SYSTEM'
+      - field: log.opaque
+        operator: CONTAIN
+        value: 'logged in via'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: pfsense-webgui-logins
+    name: 'pfSense: web administration sign-ins are recorded'
+    dataType: firewall-pfsense
+    filters:
+      - field: log.authEvent
+        operator: IS
+        value: 'Successful login'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sonicwall-admin-logins
+    name: 'SonicWall: administrator sign-ins and configuration sessions are recorded'
+    dataType: firewall-sonicwall
+    filters:
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '29'
+          - '199'
+          - '235'
+          - '236'
+          - '994'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sophos-xg-admin-logins
+    name: 'Sophos Firewall: administrator sign-ins are recorded'
+    dataType: firewall-sophos-xg
+    filters:
+      - field: log.messageId
+        operator: IS
+        value: '17507'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: github-org-owner-added
+    name: 'GitHub: an organization owner was added'
+    dataType: github
+    filters:
+      - field: log.action
+        operator: IS
+        value: 'member_added'
+      - field: log.membership.role
+        operator: IS
+        value: 'admin'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aix-sudo-commands
+    name: 'IBM AIX: commands run through sudo are recorded'
+    dataType: ibm-aix
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'success'
+      - field: origin.command
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-graph-privilege-changes
+    name: 'Microsoft Graph: directory role and application permission grants are recorded'
+    dataType: o365-graph
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Add member to role'
+          - 'Remove member from role'
+          - 'Add eligible member to role'
+          - 'Remove eligible member from role'
+          - 'Add member to role completed (PIM activation)'
+          - 'Add app role assignment to service principal'
+          - 'Remove app role assignment from service principal'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sophos-central-admin-role-changed
+    name: 'Sophos Central: administrator role changed'
+    dataType: sophos-central
+    filters:
+      - field: action
+        operator: IS
+        value: 'Event::Other::AdminRoleChangedEvent'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: esxi-permission-changes
+    name: 'VMware ESXi: permission and role changes are recorded'
+    dataType: vmware-esxi
+    filters:
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'Permission created for'
+          - 'Permission changed for'
+          - 'Permission rule removed for'
+          - 'New role '
+          - 'esx.audit.lockdownmode.exceptions.changed'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1

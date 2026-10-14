@@ -171,7 +171,7 @@ sections:
     satisfiedBy: [ac-1]
   - id: A.5.16
     name: Identities managed across their whole life
-    satisfiedBy: [ia-4, ac-2]
+    satisfiedBy: [ia-4, ac-2, ia-2.5]
   - id: A.5.17
     name: Passwords and other authentication secrets issued and handled under control
     satisfiedBy: [ia-5.1]
@@ -312,7 +312,7 @@ sections:
   requirements:
   - id: A.8.1
     name: Information on user endpoint devices protected
-    satisfiedBy: [ac-19, cm-2, sc-28]
+    satisfiedBy: [ac-19, cm-2, sc-28, sc-7.12, sc-28.1]
   - id: A.8.2
     name: Privileged access rights restricted, managed and reviewed
     satisfiedBy: [ac-6, ac-6.2, ac-6.7]
@@ -360,13 +360,13 @@ sections:
     satisfiedBy: [si-4, au-6]
   - id: A.8.17
     name: System clocks synchronized to approved time sources
-    satisfiedBy: [au-8, sc-45]
+    satisfiedBy: [au-8, sc-45, sc-45.1]
   - id: A.8.18
     name: Utility programs that can bypass controls restricted
     satisfiedBy: [ac-6, cm-7]
   - id: A.8.19
     name: Software installation on production systems controlled
-    satisfiedBy: [cm-11, cm-5]
+    satisfiedBy: [cm-11, cm-5, cm-7.5]
   - id: A.8.20
     name: Networks and network devices secured and controlled
     satisfiedBy: [sc-7, ac-4]

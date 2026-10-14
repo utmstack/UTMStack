@@ -99,6 +99,22 @@ checks:
         value: 'Reloading'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: macos-configuration-profiles
+    name: 'macOS: configuration profile changes are recorded'
+    dataType: macos
+    filters:
+      - field: log.subsystem
+        operator: START_WITH
+        value: 'com.apple.ManagedClient'
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'request: InstallProfile'
+          - 'request: RemoveProfile'
+          - 'Installed profile'
+          - 'Removed profile'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
   - key: o365-exchange-admin-changes
     name: 'Microsoft 365: Exchange configuration changes (admin cmdlets) are recorded'
     dataType: o365
@@ -169,6 +185,18 @@ checks:
         value: 'polic'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: kaspersky-ksc-object-modified
+    name: 'Kaspersky: Security Center objects or groups changed'
+    dataType: antivirus-kaspersky
+    filters:
+      - field: log.eventType
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'KLAUD_EV_OBJECTMODIFY'
+          - 'KLAUD_EV_ADMGROUP_CHANGED'
+          - 'KLAUD_EV_TASK_STATE_CHANGED'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
   - key: cisco-switch-config-changes
     name: 'Cisco switch: configuration changes are recorded'
     dataType: cisco-switch
@@ -179,6 +207,26 @@ checks:
       - field: log.facilityMnemonic
         operator: IS
         value: 'CONFIG_I'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: crowdstrike-policy-changes
+    name: 'CrowdStrike: policies or allowlists changed'
+    dataType: crowdstrike
+    filters:
+      - field: log.eventOperationName
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'create_policy'
+          - 'update_policy'
+          - 'delete_policy'
+          - 'enable_policy'
+          - 'disable_policy'
+          - 'remove_policy'
+          - 'CreateAllowlistGroup'
+          - 'UpdateAllowlistGroup'
+          - 'DeleteAllowlistGroup'
+          - 'ip_rules_added'
+          - 'ip_rules_removed'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: asa-config-changes
@@ -236,6 +284,18 @@ checks:
           - ' removed by '
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: paloalto-commit-succeeded
+    name: 'Palo Alto: configuration commits are recorded'
+    dataType: firewall-paloalto
+    filters:
+      - field: log.paType
+        operator: IS
+        value: 'SYSTEM'
+      - field: log.opaque
+        operator: CONTAIN
+        value: 'Commit job succeeded'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
   - key: paloalto-config-changes
     name: 'Palo Alto: configuration changes are recorded'
     dataType: firewall-paloalto
@@ -246,6 +306,15 @@ checks:
       - field: actionResult
         operator: IS
         value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: pfsense-config-changes
+    name: 'pfSense: configuration changes are recorded'
+    dataType: firewall-pfsense
+    filters:
+      - field: raw
+        operator: CONTAIN
+        value: 'Configuration Change:'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: sonicwall-config-changes
@@ -276,5 +345,37 @@ checks:
           - '17502'
           - '17503'
           - '17504'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-graph-directory-changes
+    name: 'Microsoft Graph: directory configuration changes are recorded'
+    dataType: o365-graph
+    filters:
+      - field: log.loggedByService
+        operator: EXIST
+      - field: log.operationType
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Add'
+          - 'Update'
+          - 'Delete'
+          - 'Assign'
+          - 'Unassign'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: esxi-reconfigurations
+    name: 'VMware ESXi: host and virtual machine reconfigurations are recorded'
+    dataType: vmware-esxi
+    filters:
+      - field: log.process
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Hostd'
+          - 'hostd'
+          - 'Vpxa'
+          - 'vpxa'
+      - field: log.message
+        operator: CONTAIN
+        value: 'Reconfigured '
     rule: MIN_HITS_REQUIRED
     ruleValue: 1

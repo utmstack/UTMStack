@@ -102,6 +102,66 @@ checks:
         value: 'failed'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: gcp-workspace-signin-failures
+    name: 'Google: failed or blocked Workspace sign-ins are recorded'
+    dataType: google
+    filters:
+      - field: log.protoPayloadServiceName
+        operator: IS
+        value: 'login.googleapis.com'
+      - field: actionResult
+        operator: IS_ONE_OF
+        value:
+          - 'failed'
+          - 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: eset-console-sign-in-failed
+    name: 'ESET: failed console sign-ins'
+    dataType: antivirus-esmc-eset
+    filters:
+      - field: log.eventType
+        operator: IS
+        value: 'Audit_Event'
+      - field: action
+        operator: IS
+        value: 'Login attempt'
+      - field: actionResult
+        operator: IS
+        value: 'failed'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: cisco-switch-login-failed
+    name: 'Cisco switch: failed logins are recorded'
+    dataType: cisco-switch
+    filters:
+      - field: log.facility
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'SEC_LOGIN'
+          - 'SECLOGIN'
+      - field: log.facilityMnemonic
+        operator: IS
+        value: 'LOGIN_FAILED'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: crowdstrike-console-sign-in-failed
+    name: 'CrowdStrike: failed console sign-ins'
+    dataType: crowdstrike
+    filters:
+      - field: log.metadataEventType
+        operator: IS
+        value: 'AuthActivityAuditEvent'
+      - field: log.eventOperationName
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'userAuthenticate'
+          - 'twoFactorAuthenticate'
+      - field: actionResult
+        operator: IS
+        value: 'failed'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
   - key: asa-auth-failures
     name: 'Cisco ASA: failed management and AAA sign-ins and lockouts are recorded'
     dataType: firewall-cisco-asa
@@ -235,9 +295,81 @@ checks:
         value: 'Failed'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: aix-logon-failures
+    name: 'IBM AIX: failed sign-ins and password attempts are recorded'
+    dataType: ibm-aix
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'failed'
+      - field: log.returnCode
+        operator: DOES_NOT_EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
   - key: as400-password-failures
     name: 'IBM i (AS/400): wrong passwords are recorded'
     dataType: ibm-as400
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'failed'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: as400-profile-lockouts
+    name: 'IBM i (AS/400): user profiles disabled after failed sign-ons are recorded'
+    dataType: ibm-as400
+    filters:
+      - field: log.messageId
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'CPF1393'
+          - 'CPF1397'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-graph-signin-failures
+    name: 'Microsoft Graph: failed Entra sign-ins and lockouts are recorded'
+    dataType: o365-graph
+    filters:
+      - field: log.conditionalAccessStatus
+        operator: EXIST
+      - field: log.status.errorCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '50126'
+          - '50053'
+          - '50034'
+          - '50057'
+          - '50055'
+          - '500121'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sophos-central-auth-failures
+    name: 'Sophos Central: authentication failures'
+    dataType: sophos-central
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Event::Endpoint::AuthenticationFailure'
+          - 'Event::ZTNA::ZTNAAuthenticationFailure'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: esxi-account-lockouts
+    name: 'VMware ESXi: account lockouts and repeated login failures are recorded'
+    dataType: vmware-esxi
+    filters:
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'esx.audit.account.locked'
+          - 'esx.audit.account.loginfailures'
+          - 'esx.audit.ssh.session.failed'
+          - 'esx.audit.dcui.login.failed'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: esxi-logon-failures
+    name: 'VMware ESXi: failed sign-ins are recorded'
+    dataType: vmware-esxi
     filters:
       - field: actionResult
         operator: IS

@@ -28,6 +28,31 @@ checks:
           - 'appservice-ipsec'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: azure-firewall-traffic-logs
+    name: 'Azure Firewall: traffic logs are received'
+    dataType: azure
+    filters:
+      - field: log.category
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'AZFWNetworkRule'
+          - 'AZFWApplicationRule'
+          - 'AZFWNatRule'
+          - 'AzureFirewallNetworkRule'
+          - 'AzureFirewallApplicationRule'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-network-firewall-flows
+    name: 'AWS: Network Firewall flow logs are received'
+    dataType: aws
+    filters:
+      - field: log.event.event_type
+        operator: IS
+        value: 'netflow'
+      - field: log.event.netflow.pkts
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
   - key: gcp-firewall-rule-logs
     name: 'Google Cloud: VPC firewall rule logs are received'
     dataType: google

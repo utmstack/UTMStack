@@ -12,8 +12,9 @@ statement: |-
   [block malicious code | quarantine malicious code | take [organization-defined value]]; and send alert to [personnel or roles] in response to malicious code detection; and
   Address the receipt of false positives during malicious code detection and eradication and the resulting potential impact on the availability of the system.
 remediation: |-
-  Passes when an anti-malware or EDR product shows activity: scans, detections, protection updates or health reports.
-  If it fails: connect the anti-malware console or the endpoint agent to UTMStack and confirm protection is running on the endpoints.
+  Passes when an anti-malware or EDR product shows activity (scans, detections, protection updates or health reports) and no connected product reported protection switched off or malware it failed to remove.
+  If it fails on activity: connect the anti-malware console or endpoint agent to UTMStack.
+  If it fails on a limit: open the failing check, restore protection on that endpoint or remove the malware, and find out why it happened.
 source: NIST SP 800-53 Rev 5 (public domain)
 strategy: ANY
 checks:
@@ -43,6 +44,188 @@ checks:
           - '2010'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: win-defender-disabled-by-setting
+    name: 'Windows: Microsoft Defender protection was not switched off by a setting or policy'
+    dataType: wineventlog
+    filters:
+      - field: log.providerName
+        operator: IS
+        value: 'Microsoft-Windows-Windows Defender'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '5007'
+      - field: log.data.New Value
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'DisableRealtimeMonitoring = 0x1'
+          - 'DisableAntiSpyware = 0x1'
+          - 'DisableAntiVirus = 0x1'
+          - 'DisableBehaviorMonitoring = 0x1'
+          - 'DisableIOAVProtection = 0x1'
+          - 'DisableOnAccessProtection = 0x1'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: win-defender-protection-failed
+    name: 'Windows: Microsoft Defender real-time protection and engine did not fail'
+    dataType: wineventlog
+    filters:
+      - field: log.providerName
+        operator: IS
+        value: 'Microsoft-Windows-Windows Defender'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '3002'
+          - '5008'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: win-defender-remediation-failed
+    name: 'Windows: Microsoft Defender removed or quarantined every detected threat'
+    dataType: wineventlog
+    filters:
+      - field: log.providerName
+        operator: IS
+        value: 'Microsoft-Windows-Windows Defender'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '1118'
+          - '1119'
+          - '1008'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: linux-antimalware-activity
+    name: 'Linux: anti-malware agent activity is recorded'
+    dataType: linux
+    filters:
+      - field: log.syslogIdentifier
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'clamd'
+          - 'freshclam'
+          - 'clamscan'
+          - 'clamonacc'
+          - 'clamav-milter'
+          - 'clamav-freshclam'
+          - 'imunify-realtime-av'
+          - 'kesl'
+          - 'falcon-sensor'
+          - 'falcon-sensor-bpf'
+          - 'falcond'
+          - 'mdatp'
+          - 'wdavdaemon'
+          - 'ds_agent'
+          - 'ds_am'
+          - 'ds_agent.init'
+          - 'sophos-spl'
+          - 'savd'
+          - 'sav-protect'
+          - 'esets'
+          - 'esets_daemon'
+          - 'sentinelone'
+          - 's1-agent'
+          - 'sentinel-agent'
+          - 'bdsec'
+          - 'cbagentd'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-antimalware-service-failed
+    name: 'Linux: anti-malware service did not fail to start'
+    dataType: linux
+    filters:
+      - field: log.unit
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'clamav-daemon.service'
+          - 'clamav-freshclam.service'
+          - 'clamd@scan.service'
+          - 'clamonacc.service'
+          - 'falcon-sensor.service'
+          - 'mdatp.service'
+          - 'sentinelone.service'
+          - 'sophos-spl.service'
+          - 'sav-protect.service'
+          - 'ds_agent.service'
+          - 'kesl.service'
+          - 'esets.service'
+          - 'imunify-antivirus.service'
+          - 'imunify360.service'
+          - 'cbagentd.service'
+          - 'bdsec.service'
+      - field: actionResult
+        operator: IS
+        value: 'failed'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: linux-antimalware-stopped
+    name: 'Linux: anti-malware service not stopped by a command'
+    dataType: linux
+    filters:
+      - field: action
+        operator: IS
+        value: 'execve'
+      - field: origin.command
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'systemctl stop clamav'
+          - 'systemctl disable clamav'
+          - 'systemctl mask clamav'
+          - 'systemctl stop falcon-sensor'
+          - 'systemctl disable falcon-sensor'
+          - 'systemctl stop mdatp'
+          - 'systemctl disable mdatp'
+          - 'real-time-protection --value disabled'
+          - 'systemctl stop sentinelone'
+          - 'sentinelctl control stop'
+          - 'systemctl stop sophos-spl'
+          - 'systemctl stop sav-protect'
+          - 'systemctl stop ds_agent'
+          - 'systemctl stop kesl'
+          - 'systemctl stop imunify'
+          - 'systemctl stop esets'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: linux-clamav-detection
+    name: 'Linux: no ClamAV detection left in place'
+    dataType: linux
+    filters:
+      - field: log.syslogIdentifier
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'clamd'
+          - 'clamonacc'
+          - 'clamscan'
+      - field: log.message
+        operator: ENDS_WITH
+        value: 'FOUND'
+      - field: log.message
+        operator: DOES_NOT_CONTAIN_ONE_OF
+        value:
+          - 'amavis'
+          - 'milter'
+          - '/var/spool/'
+          - 'zimbra/data'
+          - '/var/lib/clamav/tmp'
+          - 'mailscanner'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: macos-gatekeeper-disabled
+    name: 'macOS: Gatekeeper or XProtect not switched off'
+    dataType: macos
+    filters:
+      - field: origin.process
+        operator: IS
+        value: 'sudo'
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'spctl --master-disable'
+          - 'spctl --global-disable'
+          - 'spctl --disable'
+          - 'launchctl unload -w /Library/Apple/System/Library/LaunchDaemons/com.apple.XProtect'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
   - key: macos-xprotect-activity
     name: 'macOS: XProtect anti-malware activity is recorded'
     dataType: macos
@@ -52,6 +235,106 @@ checks:
         value: 'com.apple.xprotect'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: macos-xprotect-remediation-failed
+    name: 'macOS: XProtect did not fail to remove malware'
+    dataType: macos
+    filters:
+      - field: log.subsystem
+        operator: START_WITH
+        value: 'com.apple.XProtectFramework'
+      - field: log.message
+        operator: CONTAIN
+        value: 'FailedToRemediate'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: o365-file-malware-detections
+    name: 'Microsoft 365: malware detections in SharePoint, OneDrive and Teams files are recorded'
+    dataType: o365
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'FileMalwareDetected'
+          - 'AtpDetection'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-mail-malware-detections
+    name: 'Microsoft 365: anti-malware detections in mail are recorded'
+    dataType: o365
+    filters:
+      - field: action
+        operator: IS
+        value: 'TIMailData'
+      - field: log.Verdict
+        operator: IS
+        value: 'Malware'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-malware-left-in-mailbox
+    name: 'Microsoft 365: a message with a malware verdict must not remain in a mailbox folder'
+    dataType: o365
+    filters:
+      - field: action
+        operator: IS
+        value: 'TIMailData'
+      - field: log.Verdict
+        operator: IS
+        value: 'Malware'
+      - field: log.LatestDeliveryLocation
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Inbox'
+          - 'JunkFolder'
+          - 'DeletedFolder'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: o365-malware-not-zapped-alert
+    name: 'Microsoft 365: malware found after delivery must not be left in place because ZAP is off'
+    dataType: o365
+    filters:
+      - field: action
+        operator: IS
+        value: 'AlertTriggered'
+      - field: log.Name
+        operator: CONTAIN
+        value: 'Malware not zapped'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: o365-malware-protection-disabled
+    name: 'Microsoft 365: anti-malware, Safe Attachments and preset protection rules must not be disabled or removed'
+    dataType: o365
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Disable-MalwareFilterRule'
+          - 'Remove-MalwareFilterRule'
+          - 'Remove-MalwareFilterPolicy'
+          - 'Disable-SafeAttachmentRule'
+          - 'Remove-SafeAttachmentRule'
+          - 'Remove-SafeAttachmentPolicy'
+          - 'Disable-ATPProtectionPolicyRule'
+          - 'Disable-EOPProtectionPolicyRule'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: o365-safe-attachments-spo-off
+    name: 'Microsoft 365: Safe Attachments for SharePoint, OneDrive and Teams must not be switched off'
+    dataType: o365
+    filters:
+      - field: action
+        operator: IS
+        value: 'Set-AtpPolicyForO365'
+      - field: log.Parameters
+        operator: CONTAIN
+        value: 'Name:EnableATPForSPOTeamsODB Value:False'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
   - key: azure-defender-antivirus-events
     name: 'Azure: Defender for Endpoint antivirus scan and detection events are recorded'
     dataType: azure
@@ -64,6 +347,106 @@ checks:
         value: 'antivirus'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: azure-defender-malware-not-remediated
+    name: 'Azure (Defender for Endpoint): detected malware must be remediated'
+    dataType: azure
+    filters:
+      - field: log.azureKind
+        operator: IS
+        value: 'endpoint-event'
+      - field: action
+        operator: IS
+        value: 'AntivirusDetection'
+      - field: log.properties.AdditionalFields
+        operator: CONTAIN
+        value: '"WasRemediated":false'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: azure-defender-tampering
+    name: 'Azure (Defender for Endpoint): Defender must not be tampered with'
+    dataType: azure
+    filters:
+      - field: log.azureKind
+        operator: IS
+        value: 'endpoint-event'
+      - field: action
+        operator: IS
+        value: 'TamperingAttempt'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: aws-guardduty-deleted
+    name: 'AWS: GuardDuty detector or malware protection plan was deleted'
+    dataType: aws
+    filters:
+      - field: target.domain
+        operator: IS
+        value: 'guardduty.amazonaws.com'
+      - field: action
+        operator: IS_ONE_OF
+        value:
+          - 'DeleteDetector'
+          - 'DeleteMalwareProtectionPlan'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: aws-guardduty-malware-scans
+    name: 'AWS: GuardDuty Malware Protection scans S3 objects'
+    dataType: aws
+    filters:
+      - field: log.source
+        operator: IS
+        value: 'aws.guardduty'
+      - field: log.detailtype
+        operator: IS
+        value: 'GuardDuty Malware Protection Object Scan Result'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-guardduty-suspended
+    name: 'AWS: GuardDuty detector was suspended'
+    dataType: aws
+    filters:
+      - field: target.domain
+        operator: IS
+        value: 'guardduty.amazonaws.com'
+      - field: action
+        operator: IS
+        value: 'UpdateDetector'
+      - field: log.requestParameters.enable
+        operator: IS
+        value: 'false'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: bitdefender-antimalware-module-disabled
+    name: 'Bitdefender: antimalware module disabled on an endpoint'
+    dataType: antivirus-bitdefender-gz
+    filters:
+      - field: log.BitdefenderGZModule
+        operator: IS
+        value: 'modules'
+      - field: log.BitdefenderGZMalwareModuleStatus
+        operator: IS
+        value: 'disabled'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: bitdefender-malware-still-present
+    name: 'Bitdefender: malware detected but still present'
+    dataType: antivirus-bitdefender-gz
+    filters:
+      - field: log.BitdefenderGZModule
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'av'
+          - 'avc'
+      - field: actionResult
+        operator: IS
+        value: 'failed'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
   - key: bitdefender-protection-activity
     name: 'Bitdefender GravityZone: anti-malware, EDR and protection-status events are recorded'
     dataType: antivirus-bitdefender-gz
@@ -86,6 +469,30 @@ checks:
           - 'supa-update-status'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: bitdefender-update-server-outdated
+    name: 'Bitdefender: update server outdated'
+    dataType: antivirus-bitdefender-gz
+    filters:
+      - field: log.BitdefenderGZModule
+        operator: IS
+        value: 'supa-update-status'
+      - field: log.BitdefenderGZStatus
+        operator: IS
+        value: 'outdated'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: eset-cleaning-failed
+    name: 'ESET: threat cleaning or quarantine failed'
+    dataType: antivirus-esmc-eset
+    filters:
+      - field: log.eventType
+        operator: IS
+        value: 'Threat_Event'
+      - field: actionResult
+        operator: IS
+        value: 'failed'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
   - key: eset-detections
     name: 'ESET PROTECT: anti-malware, HIPS and ESET Inspect detections are recorded'
     dataType: antivirus-esmc-eset
@@ -100,6 +507,54 @@ checks:
           - 'EnterpriseInspectorAlert_Event'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: eset-threat-not-handled
+    name: 'ESET: threat not handled'
+    dataType: antivirus-esmc-eset
+    filters:
+      - field: log.eventType
+        operator: IS
+        value: 'Threat_Event'
+      - field: log.threat_handled
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'false'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: kaspersky-active-threats-status
+    name: 'Kaspersky: device status reports active (unprocessed) threats'
+    dataType: antivirus-kaspersky
+    filters:
+      - field: log.eventType
+        operator: IS
+        value: 'KLSRV_HOST_STATUS_CRITICAL'
+      - field: log.ksc.p1
+        operator: CONTAIN
+        value: 'Active threats'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: kaspersky-databases-outdated
+    name: 'Kaspersky: anti-virus databases outdated'
+    dataType: antivirus-kaspersky
+    filters:
+      - field: log.eventType
+        operator: IS
+        value: 'KLSRV_HOST_STATUS_CRITICAL'
+      - field: log.ksc.p1
+        operator: CONTAIN
+        value: 'Databases are outdated'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: kaspersky-object-not-disinfected
+    name: 'Kaspersky: malicious object not disinfected or let through'
+    dataType: antivirus-kaspersky
+    filters:
+      - field: log.eventType
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'GNRL_EV_OBJECT_NOTCURED'
+          - 'GNRL_EV_VIRUS_FOUND_AND_PASSED'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
   - key: kaspersky-protection-events-cef
     name: 'Kaspersky Security Center: detections, clean-ups and device protection status are recorded (CEF format)'
     dataType: antivirus-kaspersky
@@ -121,6 +576,10 @@ checks:
           - 'KLSRV_HOST_STATUS_CRITICAL'
           - 'KLSRV_HOST_STATUS_WARNING'
           - 'KLSRV_HOST_OUT_CONTROL'
+          - 'KLSRV_UPD_BASES_UPDATED'
+          - 'GNRL_EV_VIRUS_FOUND_AND_PASSED'
+          - 'GNRL_EV_VIRUS_FOUND_AND_REPORTED'
+          - 'GNRL_EV_VIRUS_FOUND_BY_KSN'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: kaspersky-protection-events-syslog
@@ -144,8 +603,56 @@ checks:
           - 'KLSRV_HOST_STATUS_CRITICAL'
           - 'KLSRV_HOST_STATUS_WARNING'
           - 'KLSRV_HOST_OUT_CONTROL'
+          - 'KLSRV_UPD_BASES_UPDATED'
+          - 'GNRL_EV_VIRUS_FOUND_AND_PASSED'
+          - 'GNRL_EV_VIRUS_FOUND_AND_REPORTED'
+          - 'GNRL_EV_VIRUS_FOUND_BY_KSN'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: kaspersky-protection-not-running
+    name: 'Kaspersky: protection disabled or security application not running'
+    dataType: antivirus-kaspersky
+    filters:
+      - field: log.eventType
+        operator: IS
+        value: 'KLSRV_HOST_STATUS_CRITICAL'
+      - field: log.ksc.p1
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'Protection is disabled'
+          - 'Security application is not running'
+          - 'Security application is not installed'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: sentinelone-agent-disabled
+    name: 'SentinelOne: agent disabled or functionality limited'
+    dataType: antivirus-sentinel-one
+    filters:
+      - field: log.activityType
+        operator: IS
+        value: '128'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: sentinelone-mitigation-failed
+    name: 'SentinelOne: mitigation failed'
+    dataType: antivirus-sentinel-one
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'failed'
+      - field: log.fileHash
+        operator: EXIST
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: sentinelone-quarantine-failed
+    name: 'SentinelOne: threat quarantine failed'
+    dataType: antivirus-sentinel-one
+    filters:
+      - field: log.activityType
+        operator: IS
+        value: '2009'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
   - key: sentinelone-threat-activity
     name: 'SentinelOne: new threats are reported'
     dataType: antivirus-sentinel-one
@@ -154,42 +661,266 @@ checks:
         operator: IS_ONE_OF_TERMS
         value:
           - '19'
+          - '4003'
+          - '2001'
+          - '2004'
+          - '2009'
+          - '4008'
+          - '71'
+          - '90'
+          - '92'
+          - '3784'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
-  - key: fgt-av-updates
-    name: 'FortiGate: FortiGuard antivirus and signature updates are recorded'
+  - key: crowdstrike-detections
+    name: 'CrowdStrike: endpoint detections'
+    dataType: crowdstrike
+    filters:
+      - field: log.metadataEventType
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'DetectionSummaryEvent'
+          - 'EppDetectionSummaryEvent'
+          - 'XdrDetectionSummaryEvent'
+          - 'IncidentSummaryEvent'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: crowdstrike-kill-failed
+    name: 'CrowdStrike: prevention kill action failed'
+    dataType: crowdstrike
+    filters:
+      - field: log.metadataEventType
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'DetectionSummaryEvent'
+          - 'EppDetectionSummaryEvent'
+      - field: log.eventPatternDispositionFlagsKillActionFailed
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'true'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: crowdstrike-policy-disabled
+    name: 'CrowdStrike: a Falcon policy was disabled'
+    dataType: crowdstrike
+    filters:
+      - field: log.eventOperationName
+        operator: IS
+        value: 'disable_policy'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: crowdstrike-prevention-not-applied
+    name: 'CrowdStrike: detection would have been blocked but prevention is disabled'
+    dataType: crowdstrike
+    filters:
+      - field: log.metadataEventType
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'DetectionSummaryEvent'
+          - 'EppDetectionSummaryEvent'
+      - field: log.eventPatternDispositionFlagsPolicyDisabled
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'true'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: ftd-malware-not-blocked
+    name: 'Cisco FTD: no malware file let through'
+    dataType: firewall-cisco-firepower
+    filters:
+      - field: log.messageId
+        operator: IS
+        value: '430005'
+      - field: log.msg
+        operator: CONTAIN
+        value: 'SHA_Disposition: Malware'
+      - field: log.msg
+        operator: CONTAIN
+        value: 'FileAction: Malware Cloud Lookup'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: fgt-av-license-or-db-failure
+    name: 'FortiGate: antivirus license and database stay valid'
     dataType: firewall-fortigate-traffic
     filters:
       - field: log.logid
         operator: IS_ONE_OF_TERMS
         value:
-          - '0100041000'
-          - '0100022813'
-    rule: MIN_HITS_REQUIRED
-    ruleValue: 1
-  - key: sonicwall-gateway-av
-    name: 'SonicWall: gateway antivirus detections and signature updates are recorded'
-    dataType: firewall-sonicwall
-    filters:
-      - field: log.eventCode
-        operator: IS_ONE_OF_TERMS
-        value:
-          - '809'
-          - '1741'
-    rule: MIN_HITS_REQUIRED
-    ruleValue: 1
-  - key: sophos-xg-av-events
-    name: 'Sophos Firewall: anti-virus system events are recorded'
-    dataType: firewall-sophos-xg
+          - '0100020117'
+          - '0100022814'
+          - '0100022816'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: fgt-virus-not-blocked
+    name: 'FortiGate: no infected file let through'
+    dataType: firewall-fortigate-traffic
     filters:
       - field: log.type
         operator: IS
-        value: 'Event'
-      - field: log.component
+        value: 'utm'
+      - field: log.subtype
         operator: IS
-        value: 'Anti-Virus'
+        value: 'virus'
+      - field: log.eventtype
+        operator: IS
+        value: 'infected'
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'passthrough'
+          - 'monitored'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: fortiweb-trojan-alert-only
+    name: 'FortiWeb: no trojan detection left on alert only'
+    dataType: firewall-fortiweb
+    filters:
+      - field: log.type
+        operator: IS
+        value: 'attack'
+      - field: log.subtype
+        operator: IS
+        value: 'Trojans'
+      - field: log.action
+        operator: IS
+        value: 'Alert'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: meraki-amp-malware-allowed
+    name: 'Meraki: no malicious file let through'
+    dataType: firewall-meraki
+    filters:
+      - field: log.alertType
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'security_filtering_file_scanned'
+          - 'security_filtering_disposition_change'
+      - field: log.disposition
+        operator: IS
+        value: 'malicious'
+      - field: log.action
+        operator: IS
+        value: 'allow'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: paloalto-malware-alert-only
+    name: 'Palo Alto: no malware detection left on alert only'
+    dataType: firewall-paloalto
+    filters:
+      - field: log.paType
+        operator: IS
+        value: 'THREAT'
+      - field: log.paSubtype
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'virus'
+          - 'wildfire-virus'
+          - 'ml-virus'
+      - field: action
+        operator: IS
+        value: 'alert'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: sonicwall-gav-not-blocked
+    name: 'SonicWall: no gateway antivirus detection let through'
+    dataType: firewall-sonicwall
+    filters:
+      - field: log.eventCode
+        operator: IS
+        value: '809'
+      - field: actionResult
+        operator: IS_NOT
+        value: 'denied'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: sonicwall-security-service-expired
+    name: 'SonicWall: anti-spyware service never expired'
+    dataType: firewall-sonicwall
+    filters:
+      - field: log.eventCode
+        operator: IS
+        value: '796'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: o365-graph-antivirus-alerts
+    name: 'Microsoft Graph: Defender Antivirus alerts are received'
+    dataType: o365-graph
+    filters:
+      - field: log.detectionSource
+        operator: IS
+        value: 'antivirus'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: o365-graph-av-tampering-alerts
+    name: 'Microsoft Graph: Defender must not report antivirus turned off or tampered with'
+    dataType: o365-graph
+    filters:
+      - field: log.serviceSource
+        operator: IS
+        value: 'microsoftDefenderForEndpoint'
+      - field: log.title
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'protection turned off'
+          - 'turn off microsoft defender antivirus'
+          - 'tamper'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: o365-graph-email-malware
+    name: 'Microsoft Graph (Defender hunting): malware verdicts on mail are recorded'
+    dataType: o365-graph
+    filters:
+      - field: log.ThreatTypes
+        operator: CONTAIN
+        value: 'Malware'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-graph-malware-not-remediated-alerts
+    name: 'Microsoft Graph: Defender must not report malware that ran or was left in mailboxes'
+    dataType: o365-graph
+    filters:
+      - field: log.serviceSource
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'microsoftDefenderForEndpoint'
+          - 'microsoftDefenderForOffice365'
+      - field: log.title
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'malware not zapped'
+          - 'an active '''
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: sophos-central-cleanup-failed
+    name: 'Sophos Central: malware or PUA cleanup failed'
+    dataType: sophos-central
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Event::Endpoint::CoreCleanFailed'
+          - 'Event::Endpoint::CorePuaCleanFailed'
+          - 'Event::Endpoint::CoreHmpaCleanFailed'
+          - 'Event::Endpoint::CoreBlocklistCleanFailed'
+          - 'Event::Endpoint::CoreSystemCleanFailed'
+          - 'Event::Endpoint::CoreIpsCleanFailed'
+          - 'Event::Endpoint::Threat::CleanupFailed::CLEANUP'
+          - 'Event::Endpoint::Threat::CleanupFailed::CLEANUPABLE'
+          - 'Event::Endpoint::Threat::CleanupFailed::FULL'
+          - 'Event::Endpoint::Threat::CleanupFailed::NONE'
+          - 'Event::Endpoint::Threat::CleanupFailed::REBOOT'
+          - 'Event::Endpoint::Threat::PuaCleanupFailed::CLEANUP'
+          - 'Event::Endpoint::Threat::PuaCleanupFailed::CLEANUPABLE'
+          - 'Event::Endpoint::Threat::PuaCleanupFailed::FULL'
+          - 'Event::Endpoint::Threat::PuaCleanupFailed::NONE'
+          - 'Event::Endpoint::Threat::PuaCleanupFailed::REBOOT'
+          - 'Event::Endpoint::Threat::HIPSCleanupFailed::CLEANUP'
+          - 'Event::Endpoint::Threat::HIPSCleanupFailed::CLEANUPABLE'
+          - 'Event::Endpoint::Threat::HIPSCleanupFailed::FULL'
+          - 'Event::Endpoint::Threat::HIPSCleanupFailed::NONE'
+          - 'Event::Endpoint::Threat::HIPSCleanupFailed::REBOOT'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
   - key: sophos-central-protection-activity
     name: 'Sophos Central: updates, scans, detections, clean-ups and protection-service status are recorded'
     dataType: sophos-central
@@ -220,6 +951,77 @@ checks:
           - 'Event::Endpoint::Reprotected'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: sophos-central-protection-off
+    name: 'Sophos Central: real-time protection disabled, device unprotected or out of date'
+    dataType: sophos-central
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Event::Endpoint::SavDisabled'
+          - 'Event::Endpoint::NotProtected'
+          - 'Event::Endpoint::OutOfDate'
+          - 'Event::Endpoint::Threat::TamperProtection'
+          - 'Event::AccountHealthCheck::EndpointTamperProtectionRaise'
+          - 'Event::AccountHealthCheck::ServerTamperProtectionRaise'
+          - 'Event::Server::Protection::Disabled'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: sophos-central-service-not-running
+    name: 'Sophos Central: Sophos services missing or not running'
+    dataType: sophos-central
+    filters:
+      - field: action
+        operator: IS
+        value: 'Event::Endpoint::ServiceNotRunning'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: edr-malware-not-quarantined
+    name: 'UTMStack EDR: malware detected but left in place'
+    dataType: utmstack_edr
+    filters:
+      - field: action
+        operator: IS
+        value: 'detected'
+      - field: log.source
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'file_watcher'
+          - 'process_watcher'
+          - 'edr_engine'
+          - 'scheduled_scan'
+      - field: log.signature
+        operator: NOT_START_WITH
+        value: 'Heuristics.'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: edr-protection-unhealthy
+    name: 'UTMStack EDR: scan engine down or signatures stale'
+    dataType: utmstack_edr
+    filters:
+      - field: action
+        operator: IS
+        value: 'health'
+      - field: log.signature
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'scan_engine_restart_failed'
+          - 'signature_updates_stale'
+          - 'signature_updates_unavailable'
+          - 'Analysis.Incomplete.Unavailable'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: edr-ransomware-containment-failed
+    name: 'UTMStack EDR: ransomware containment failed'
+    dataType: utmstack_edr
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'ransomware_contain_failed'
+          - 'contain_failed'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
   - key: edr-sensor-activity
     name: 'UTMStack EDR: protection sensors report activity (telemetry, detections, responses, scans, health)'
     dataType: utmstack_edr
@@ -243,3 +1045,15 @@ checks:
           - 'quarantined_restored'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: edr-sensor-switched-off
+    name: 'UTMStack EDR: a protection sensor was switched off'
+    dataType: utmstack_edr
+    filters:
+      - field: action
+        operator: IS
+        value: 'config_change'
+      - field: log.verdict
+        operator: IS
+        value: 'off'
+    rule: THRESHOLD_MAX
+    ruleValue: 0

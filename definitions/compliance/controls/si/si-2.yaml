@@ -52,3 +52,178 @@ checks:
         value: 'com.apple.softwareupdate'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: azure-vm-patch-installs
+    name: 'Azure: patch installations on virtual machines and Arc servers are recorded'
+    dataType: azure
+    filters:
+      - field: action
+        operator: CONTAIN
+        value: '/installpatches/action'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-ssm-patch-runs
+    name: 'AWS: Systems Manager Patch Manager runs are recorded'
+    dataType: aws
+    filters:
+      - field: target.domain
+        operator: IS
+        value: 'ssm.amazonaws.com'
+      - field: action
+        operator: IS
+        value: 'SendCommand'
+      - field: log.requestParameters.documentName
+        operator: IS_ONE_OF
+        value:
+          - 'AWS-RunPatchBaseline'
+          - 'AWS-RunPatchBaselineWithHooks'
+          - 'AWS-RunPatchBaselineAssociation'
+          - 'AWS-InstallWindowsUpdates'
+          - 'AWS-ApplyPatchBaseline'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: gcp-os-patch-jobs
+    name: 'Google: VM Manager patch jobs run'
+    dataType: google
+    filters:
+      - field: log.protoPayloadMethodName
+        operator: CONTAIN
+        value: 'OsConfigService.ExecutePatchJob'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: kaspersky-patch-installed
+    name: 'Kaspersky: software update installed by Security Center'
+    dataType: antivirus-kaspersky
+    filters:
+      - field: log.eventType
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'KLNAG_EV_PATCH_INSTALLED_SUCCESSFULLY'
+          - 'KLNAG_EV_PATCH_INSTALLED_SUCCESS'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: cisco-switch-install-completed
+    name: 'Cisco switch: software installs are recorded'
+    dataType: cisco-switch
+    filters:
+      - field: log.facility
+        operator: IS
+        value: 'INSTALL'
+      - field: log.facilityMnemonic
+        operator: IS
+        value: 'INSTALL_COMPLETED_INFO'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: asa-boot-image-set
+    name: 'Cisco ASA: new boot images are recorded'
+    dataType: firewall-cisco-asa
+    filters:
+      - field: log.messageId
+        operator: IS
+        value: '111008'
+      - field: log.msg
+        operator: CONTAIN
+        value: 'boot system'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fgt-firmware-upgrades
+    name: 'FortiGate: firmware upgrades are recorded'
+    dataType: firewall-fortigate-traffic
+    filters:
+      - field: log.logid
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '0100032202'
+          - '0100022096'
+          - '0100022085'
+          - '0100032235'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fortiweb-firmware-upgrade
+    name: 'FortiWeb: firmware upgrades are recorded'
+    dataType: firewall-fortiweb
+    filters:
+      - field: log.type
+        operator: IS
+        value: 'event'
+      - field: action
+        operator: IS
+        value: 'upgrade'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: mikrotik-package-installed
+    name: 'MikroTik: RouterOS package installs are recorded'
+    dataType: firewall-mikrotik
+    filters:
+      - field: log.topics
+        operator: CONTAIN
+        value: 'system'
+      - field: log.message
+        operator: START_WITH
+        value: 'installed '
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: paloalto-software-install
+    name: 'Palo Alto: PAN-OS software installations are recorded'
+    dataType: firewall-paloalto
+    filters:
+      - field: log.paType
+        operator: IS
+        value: 'SYSTEM'
+      - field: log.opaque
+        operator: CONTAIN
+        value: 'Software install job succeeded'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: pfsense-base-upgraded
+    name: 'pfSense: system upgrades are recorded'
+    dataType: firewall-pfsense
+    filters:
+      - field: raw
+        operator: CONTAIN
+        value: 'pfSense-base upgraded'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sonicwall-firmware-updates
+    name: 'SonicWall: firmware updates are recorded'
+    dataType: firewall-sonicwall
+    filters:
+      - field: log.eventCode
+        operator: IS
+        value: '1269'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: github-vulnerabilities-fixed
+    name: 'GitHub: Dependabot or code scanning vulnerabilities were fixed'
+    dataType: github
+    filters:
+      - field: log.action
+        operator: IS
+        value: 'fixed'
+      - field: log.alert.url
+        operator: CONTAIN_ONE_OF
+        value:
+          - '/dependabot/alerts/'
+          - '/code-scanning/alerts/'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: esxi-image-updates
+    name: 'VMware ESXi: host image updates are recorded'
+    dataType: vmware-esxi
+    filters:
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'esx.audit.esximage.profile.install.successful'
+          - 'esx.audit.esximage.profile.update.successful'
+          - 'esx.audit.esximage.software.apply.succeeded'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1

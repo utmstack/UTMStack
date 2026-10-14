@@ -104,3 +104,71 @@ checks:
           - 'consent to application'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: aws-ssm-software-install
+    name: 'AWS: software packages installed through Systems Manager'
+    dataType: aws
+    filters:
+      - field: target.domain
+        operator: IS
+        value: 'ssm.amazonaws.com'
+      - field: action
+        operator: IS
+        value: 'SendCommand'
+      - field: log.requestParameters.documentName
+        operator: IS_ONE_OF
+        value:
+          - 'AWS-ConfigureAWSPackage'
+          - 'AWS-InstallApplication'
+          - 'AWS-InstallPowerShellModule'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: kaspersky-app-installed
+    name: 'Kaspersky: application installed or removed on a managed device'
+    dataType: antivirus-kaspersky
+    filters:
+      - field: log.eventType
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'KLNAG_EV_INV_APP_INSTALLED'
+          - 'KLNAG_EV_INV_APP_UNINSTALLED'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: pfsense-package-installed
+    name: 'pfSense: package installations are recorded'
+    dataType: firewall-pfsense
+    filters:
+      - field: log.eventType
+        operator: IS
+        value: 'pkg-static'
+      - field: raw
+        operator: CONTAIN
+        value: ' installed'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-graph-app-installs
+    name: 'Microsoft Graph: application and service principal additions and consents are recorded'
+    dataType: o365-graph
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Add service principal'
+          - 'Add application'
+          - 'Consent to application'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: esxi-vib-changes
+    name: 'VMware ESXi: software (VIB) installs and removals are recorded'
+    dataType: vmware-esxi
+    filters:
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'esx.audit.esximage.vib.install.successful'
+          - 'esx.audit.esximage.vib.remove.successful'
+          - 'esx.audit.esximage.software.apply.succeeded'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1

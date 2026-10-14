@@ -74,6 +74,54 @@ checks:
         operator: EXIST
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: bitdefender-endpoint-identity
+    name: 'Bitdefender: events name the endpoint'
+    dataType: antivirus-bitdefender-gz
+    filters:
+      - field: target.host
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: eset-endpoint-identity
+    name: 'ESET: events name the endpoint'
+    dataType: antivirus-esmc-eset
+    filters:
+      - field: target.host
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: kaspersky-device-identity
+    name: 'Kaspersky: events name the managed device'
+    dataType: antivirus-kaspersky
+    filters:
+      - field: target.host
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sentinelone-user-identity
+    name: 'SentinelOne: console records name the acting user'
+    dataType: antivirus-sentinel-one
+    filters:
+      - field: origin.user
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: cisco-switch-source-address
+    name: 'Cisco switch: records carry the source address'
+    dataType: cisco-switch
+    filters:
+      - field: origin.ip
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: crowdstrike-user-identity
+    name: 'CrowdStrike: audit records name the user'
+    dataType: crowdstrike
+    filters:
+      - field: log.eventUserId
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
   - key: asa-source-address
     name: 'Cisco ASA: records carry the source address'
     dataType: firewall-cisco-asa
@@ -162,6 +210,14 @@ checks:
         operator: EXIST
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: aix-user-identity
+    name: 'IBM AIX: records name the user'
+    dataType: ibm-aix
+    filters:
+      - field: origin.user
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
   - key: as400-host-identity
     name: 'IBM i (AS/400): records name the system'
     dataType: ibm-as400
@@ -178,6 +234,14 @@ checks:
         operator: EXIST
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: o365-graph-audit-initiator-recorded
+    name: 'Microsoft Graph: directory audit records name the acting user'
+    dataType: o365-graph
+    filters:
+      - field: log.initiatedBy.user.userPrincipalName
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
   - key: o365-graph-records-carry-user
     name: 'Microsoft Graph security: records name the user'
     dataType: o365-graph
@@ -186,11 +250,35 @@ checks:
         operator: EXIST
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: sophos-central-endpoint-identity
+    name: 'Sophos Central: endpoint events name the device'
+    dataType: sophos-central
+    filters:
+      - field: target.host
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
   - key: suricata-source-address
     name: 'Suricata: records carry the source address'
     dataType: suricata
     filters:
       - field: origin.ip
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: syslog-host-identity
+    name: 'Syslog: records name the sending host'
+    dataType: syslog
+    filters:
+      - field: origin.host
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: edr-host-identity
+    name: 'UTMStack EDR: records name the protected host'
+    dataType: utmstack_edr
+    filters:
+      - field: log.hostId
         operator: EXIST
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
