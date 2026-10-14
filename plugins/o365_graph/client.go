@@ -296,14 +296,15 @@ func (p *GraphProcessor) getJSONPages(path string) ([]map[string]any, error) {
 	return items, nil
 }
 
-func sourceWindow(position, windowEnd time.Time) (time.Time, time.Time) {
+func sourceWindow(position, windowStart, windowEnd time.Time) (time.Time, time.Time) {
 	end := windowEnd
-	start := end.Add(-maxLookback)
-	if !position.IsZero() {
-		s := position.Add(-overlap)
-		if s.After(start) {
-			start = s
-		}
+	if position.IsZero() {
+		// A slow source must not backfill multi-hour windows on its first tick.
+		return windowStart, end
+	}
+	start := position.Add(-overlap)
+	if start.Before(end.Add(-maxLookback)) {
+		start = end.Add(-maxLookback)
 	}
 	return start, end
 }

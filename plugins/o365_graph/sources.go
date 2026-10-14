@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"strconv"
 	"time"
 
@@ -19,7 +20,7 @@ type LogRecord struct {
 
 type source struct {
 	name string
-	poll func(p *GraphProcessor, group *ModuleGroup, payload *cursorPayload, windowEnd time.Time) ([]LogRecord, time.Time, error)
+	poll func(p *GraphProcessor, group *ModuleGroup, payload *cursorPayload, windowStart, windowEnd time.Time) ([]LogRecord, time.Time, error)
 }
 
 // listSource builds a source that pages an OData list endpoint bounded by a
@@ -27,14 +28,18 @@ type source struct {
 func listSource(name, path, timeField, top string, idFn func(item map[string]any) (string, string)) source {
 	return source{
 		name: name,
-		poll: func(p *GraphProcessor, group *ModuleGroup, payload *cursorPayload, windowEnd time.Time) ([]LogRecord, time.Time, error) {
+		poll: func(p *GraphProcessor, group *ModuleGroup, payload *cursorPayload, windowStart, windowEnd time.Time) ([]LogRecord, time.Time, error) {
 			if p.sourceUnavailable(name) {
 				return nil, windowEnd, nil
 			}
-			start, end := sourceWindow(payload.sourcePosition(name), windowEnd)
+			start, end := sourceWindow(payload.sourcePosition(name), windowStart, windowEnd)
 
-			q := fmt.Sprintf("%s?$top=%s&$filter=(%s ge %s and %s lt %s)",
-				path, top, timeField, odata(start), timeField, odata(end))
+			// url.Values.Encode: a hand-built URL with raw spaces is a malformed
+			// request line that Graph rejects with a generic 400.
+			q := path + "?" + url.Values{
+				"$filter": {fmt.Sprintf("(%s ge %s and %s lt %s)", timeField, odata(start), timeField, odata(end))},
+				"$top":    {top},
+			}.Encode()
 
 			items, err := p.getJSONPages(q)
 			if err != nil {
@@ -83,15 +88,16 @@ func idOnly(item map[string]any) (string, string) {
 	return id, ""
 }
 
-func huntingPoll(p *GraphProcessor, group *ModuleGroup, payload *cursorPayload, windowEnd time.Time) ([]LogRecord, time.Time, error) {
+func huntingPoll(p *GraphProcessor, group *ModuleGroup, payload *cursorPayload, windowStart, windowEnd time.Time) ([]LogRecord, time.Time, error) {
 	name := "hunting"
 	if p.sourceUnavailable(name) {
 		return nil, windowEnd, nil
 	}
-	start, end := sourceWindow(payload.sourcePosition(name), windowEnd)
+	start, end := sourceWindow(payload.sourcePosition(name), windowStart, windowEnd)
 
+	table := "EmailEvents"
 	// KQL literal timestamps must be single-quoted.
-	q := "EmailEvents | where Timestamp >= datetime('" + start.UTC().Format("2006-01-02T15:04:05") +
+	q := table + " | where Timestamp >= datetime('" + start.UTC().Format("2006-01-02T15:04:05") +
 		"') and Timestamp < datetime('" + end.UTC().Format("2006-01-02T15:04:05") + "') | limit 5000"
 	body, _ := json.Marshal(map[string]any{"Query": q})
 
@@ -107,22 +113,17 @@ func huntingPoll(p *GraphProcessor, group *ModuleGroup, payload *cursorPayload, 
 		return nil, windowEnd, fmt.Errorf("%s: %w", name, err)
 	}
 
+	// runHuntingQuery returns {"schema":[...], "results":[{...row...}, ...]};
+	// results is the row array, not a nested table object.
 	var resp struct {
-		Results struct {
-			Table               string           `json:"table"`
-			HuntingQueryResults []map[string]any `json:"huntingQueryResults"`
-		} `json:"results"`
+		Results []map[string]any `json:"results"`
 	}
 	if err := json.Unmarshal(respBody, &resp); err != nil {
 		return nil, windowEnd, fmt.Errorf("%s: response decode: %w", name, err)
 	}
 
-	records := make([]LogRecord, 0, len(resp.Results.HuntingQueryResults))
-	table := resp.Results.Table
-	if table == "" {
-		table = "EmailEvents"
-	}
-	for _, row := range resp.Results.HuntingQueryResults {
+	records := make([]LogRecord, 0, len(resp.Results))
+	for _, row := range resp.Results {
 		raw, err := json.Marshal(row)
 		if err != nil {
 			continue
@@ -139,7 +140,7 @@ func huntingPoll(p *GraphProcessor, group *ModuleGroup, payload *cursorPayload, 
 
 // collect pulls every source for the group, advancing each source's position
 // independently so one failing source does not stall the others.
-func collect(payload *cursorPayload, windowEnd time.Time, group *ModuleGroup) (int, *cursorPayload, error) {
+func collect(payload *cursorPayload, windowStart, windowEnd time.Time, group *ModuleGroup) (int, *cursorPayload, error) {
 	p := newGraphProcessor(group)
 
 	if _, err := p.getToken(); err != nil {
@@ -156,7 +157,8 @@ func collect(payload *cursorPayload, windowEnd time.Time, group *ModuleGroup) (i
 
 	sources := []source{
 		listSource("alerts", graphAPIVersion+"/security/alerts_v2", "lastUpdateDateTime", strconv.Itoa(topParam), idAndTime),
-		listSource("incidents", graphAPIVersion+"/security/incidents", "lastUpdateDateTime", strconv.Itoa(topParam), idAndTime),
+		// incidents caps $top at 50; other list sources accept 500.
+		listSource("incidents", graphAPIVersion+"/security/incidents", "lastUpdateDateTime", "50", idAndTime),
 		listSource("directory-audit", graphAPIVersion+"/auditLogs/directoryAudits", "activityDateTime", strconv.Itoa(topParam), idOnly),
 		listSource("sign-ins", graphAPIVersion+"/auditLogs/signIns", "createdDateTime", "1000", idOnly),
 		listSource("risk-detections", graphAPIVersion+"/identityProtection/riskDetections", "lastUpdatedDateTime", "500", idAndTime),
@@ -168,11 +170,15 @@ func collect(payload *cursorPayload, windowEnd time.Time, group *ModuleGroup) (i
 	ingested := 0
 
 	for _, s := range sources {
-		records, newPos, err := s.poll(p, group, next, windowEnd)
+		records, newPos, err := s.poll(p, group, next, windowStart, windowEnd)
 		if err != nil {
 			_ = catcher.Error("graph collect: source failed", err, map[string]any{
 				"process": processName, "group": group.Key(), "source": s.name,
 			})
+			// Park at windowStart: the next tick starts from position -
+			// overlap, so the unread part of this window is re-covered
+			// instead of silently skipped.
+			next.setSourcePosition(s.name, windowStart)
 			if firstErr == nil {
 				firstErr = err
 			}
