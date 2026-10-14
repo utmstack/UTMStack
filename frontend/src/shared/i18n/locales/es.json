@@ -5326,7 +5326,7 @@
       "nameRequired": "El nombre es obligatorio",
       "anyDataType": "Cualquier tipo de dato",
       "addFilter": "Añadir filtro",
-      "filterField": "log.eventID",
+      "filterField": "log.eventCode",
       "filterValue": "valor",
       "filterValues": "a, b, c",
       "toast": {

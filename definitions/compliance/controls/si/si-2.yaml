@@ -1,4 +1,4 @@
-# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
 id: si-2
 family: si
 familyName: System and Information Integrity
@@ -6,11 +6,49 @@ name: Flaw Remediation
 scope: data
 statement: |-
   Identify, report, and correct system flaws;
-    Test software and firmware updates related to flaw remediation for effectiveness and potential side effects before installation;
-    Install security-relevant software and firmware updates within [time period] of the release of the updates; and
-    Incorporate flaw remediation into the organizational configuration management process.
+  Test software and firmware updates related to flaw remediation for effectiveness and potential side effects before installation;
+  Install security-relevant software and firmware updates within [time period] of the release of the updates; and
+  Incorporate flaw remediation into the organizational configuration management process.
+remediation: |-
+  Passes when a connected source shows updates or patches being installed.
+  If it fails: check that patching is running and that its events are collected (Windows Update events in the System log; Linux package manager logs). That critical patches were applied in time is a process to evidence manually.
 source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY
 checks:
-  - key: todo
-    name: 'TODO: define compliance check for this control'
-    todo: true            # Pending — evaluator shows "Not implemented", excluded from score
+  - key: win-update-installed
+    name: 'Windows: Windows Update installations are recorded'
+    dataType: wineventlog
+    filters:
+      - field: log.providerName
+        operator: IS
+        value: 'Microsoft-Windows-WindowsUpdateClient'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '19'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-update-job-run
+    name: 'Linux: the automatic update job runs'
+    dataType: linux
+    filters:
+      - field: log.syslogIdentifier
+        operator: IS
+        value: 'systemd'
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'apt-daily-upgrade.service'
+          - 'Daily apt upgrade and clean activities'
+          - 'dnf-automatic'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: macos-software-update-activity
+    name: 'macOS: Software Update activity is recorded'
+    dataType: macos
+    filters:
+      - field: log.subsystem
+        operator: START_WITH
+        value: 'com.apple.softwareupdate'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1

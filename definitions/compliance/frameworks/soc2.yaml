@@ -1,249 +1,255 @@
-# SOC 2 TSC (checklist). Public IDs/titles, NO normative text (AICPA copyright). satisfiedBy best-effort.
+# Provenance: AICPA 2017 Trust Services Criteria with revised points of focus 2022 (AICPA copyright), public
+#   criterion ids only, titles paraphrased. Mapping guided by AICPA's mapping of the TSC to NIST SP 800-53 Rev 5,
+#   reduced to base controls and adjusted so data controls are used only where logs evidence the criterion.
+# AICPA SOC 2 Trust Services Criteria (2017, revised points of focus 2022). Criterion ids only; titles are our own short
+# wording, NO normative text (AICPA copyright). Mapping to NIST SP 800-53 Rev 5 guided by AICPA's TSC-to-800-53 mapping.
 key: soc2
-name: SOC 2 (Trust Services Criteria 2017)
-description: AICPA Trust Services Criteria — Common Criteria plus Availability, Confidentiality, Processing
-  Integrity and Privacy categories. Reference IDs/titles only; normative text is AICPA copyright.
-source: AICPA TSC (copyright) — public IDs/titles. 800-53 mapping best-effort (review).
+name: SOC 2 — Trust Services Criteria
+description: AICPA Trust Services Criteria (2017, revised points of focus 2022), the common criteria CC1 to CC9 plus the
+  Availability, Confidentiality, Processing Integrity and Privacy criteria, each mapped to shared NIST SP 800-53 Rev 5
+  controls. Criterion ids and short titles in our own words only; the criteria text is AICPA copyright.
+source: 'AICPA 2017 Trust Services Criteria, 2022 points of focus (AICPA copyright): ids only, titles paraphrased. Mapping guided by the AICPA crosswalk.'
 sections:
 - key: cc1
-  name: CC1 — Control Environment
+  name: CC1 Control environment
   requirements:
   - id: CC1.1
-    name: Demonstrates commitment to integrity and ethical values
-    satisfiedBy: []
+    name: Integrity and ethical standards set and upheld
+    satisfiedBy: [pl-4, ps-6, ps-8]
   - id: CC1.2
-    name: Board exercises oversight responsibility
-    satisfiedBy: []
+    name: An independent board oversees internal control
+    satisfiedBy: [pm-1, pm-29]
   - id: CC1.3
-    name: Establishes structure, authority, and responsibility
-    satisfiedBy: []
+    name: Structure, reporting lines and authority defined by management
+    satisfiedBy: [pm-2, ps-9]
   - id: CC1.4
-    name: Demonstrates commitment to competence
-    satisfiedBy:
-    - at-3
+    name: Competent people hired, developed and kept
+    satisfiedBy: [pm-13, at-3, ps-3]
   - id: CC1.5
-    name: Enforces accountability
-    satisfiedBy:
-    - ps-8
+    name: People held accountable for their control duties
+    satisfiedBy: [ps-8, ps-9]
 - key: cc2
-  name: CC2 — Communication and Information
+  name: CC2 Communication and information
   requirements:
   - id: CC2.1
-    name: Uses relevant, quality information
-    satisfiedBy: []
+    name: Relevant, good quality information supports internal control
+    satisfiedBy: [pm-6, pl-2, cm-12]
   - id: CC2.2
-    name: Communicates internally
-    satisfiedBy:
-    - at-2
+    name: Control objectives and duties communicated inside the organization
+    satisfiedBy: [at-2, pl-4]
   - id: CC2.3
-    name: Communicates externally
-    satisfiedBy: []
+    name: Control matters communicated with outside parties
+    satisfiedBy: [ir-6, sa-9]
 - key: cc3
-  name: CC3 — Risk Assessment
+  name: CC3 Risk assessment
   requirements:
   - id: CC3.1
-    name: Specifies suitable objectives
-    satisfiedBy: []
+    name: Objectives clear enough to find and assess risks
+    satisfiedBy: [pm-11, ra-2]
   - id: CC3.2
-    name: Identifies and analyzes risk
-    satisfiedBy:
-    - ra-3
+    name: Risks to objectives identified and analysed
+    satisfiedBy: [ra-3, ra-5]
   - id: CC3.3
-    name: Assesses fraud risk
-    satisfiedBy:
-    - ra-3
+    name: Fraud risk considered in the risk assessment
+    satisfiedBy: [ra-3, pm-12]
   - id: CC3.4
-    name: Identifies and analyzes significant change
-    satisfiedBy:
-    - ca-7
+    name: Significant changes assessed for their effect on controls
+    satisfiedBy: [ra-3, cm-4]
 - key: cc4
-  name: CC4 — Monitoring Activities
+  name: CC4 Monitoring activities
   requirements:
   - id: CC4.1
-    name: Selects and develops ongoing/separate evaluations
-    satisfiedBy:
-    - ca-7
+    name: Ongoing and separate evaluations show controls are working
+    satisfiedBy: [ca-7, ca-2, ca-8]
   - id: CC4.2
-    name: Evaluates and communicates deficiencies
-    satisfiedBy:
-    - ca-5
+    name: Control deficiencies reported and fixed in time
+    satisfiedBy: [ca-5, pm-4]
 - key: cc5
-  name: CC5 — Control Activities
+  name: CC5 Control activities
   requirements:
   - id: CC5.1
-    name: Selects and develops control activities
-    satisfiedBy: []
+    name: Control activities chosen to bring risks to acceptable levels
+    satisfiedBy: [ra-7, pl-10, ac-5]
   - id: CC5.2
-    name: Selects and develops general controls over technology
-    satisfiedBy:
-    - cm-2
+    name: General controls over technology chosen
+    satisfiedBy: [pl-8, sa-3, cm-2]
   - id: CC5.3
-    name: Deploys controls through policies and procedures
-    satisfiedBy: []
+    name: Controls put in place through policies and procedures
+    satisfiedBy: [pm-1]
 - key: cc6
-  name: CC6 — Logical and Physical Access Controls
+  name: CC6 Logical and physical access
   requirements:
   - id: CC6.1
-    name: Implements logical access security software and architecture
-    satisfiedBy:
-    - ac-2
-    - ac-3
-    - ac-6
-    - ia-2
+    name: Logical access security software, infrastructure and architecture in place
+    satisfiedBy: [ac-2, ac-3, ia-2]
   - id: CC6.2
-    name: Registers and authorizes new users before access
-    satisfiedBy:
-    - ac-2
-    - ia-4
+    name: Users registered and approved before access, credentials reviewed and removed
+    satisfiedBy: [ac-2, ia-4, ac-6.7]
   - id: CC6.3
-    name: Manages access modification and removal
-    satisfiedBy:
-    - ac-2
-    - ac-6
+    name: Access granted, changed and removed by role and least privilege
+    satisfiedBy: [ac-2, ac-6, ia-4, ac-6.7]
   - id: CC6.4
-    name: Restricts physical access
-    satisfiedBy:
-    - pe-2
-    - pe-3
+    name: Physical access to facilities and protected assets restricted
+    satisfiedBy: [pe-2, pe-3, pe-6]
   - id: CC6.5
-    name: Discontinues logical/physical protections on disposal
-    satisfiedBy:
-    - mp-6
+    name: Data recovered or removed before assets are disposed of
+    satisfiedBy: [mp-6, sr-12]
   - id: CC6.6
-    name: Implements controls against external threats
-    satisfiedBy:
-    - sc-7
-    - ac-17
+    name: Protection against threats from outside the system boundary
+    satisfiedBy: [sc-7, ac-4, ac-17]
   - id: CC6.7
-    name: Restricts movement/transmission of information
-    satisfiedBy:
-    - sc-8
-    - ac-4
+    name: Transmission, movement and removal of information restricted
+    satisfiedBy: [ac-4, sc-8, mp-5, ac-19]
   - id: CC6.8
-    name: Prevents/detects unauthorized software
-    satisfiedBy:
-    - si-3
-    - cm-7
+    name: Unauthorized or malicious software prevented or detected
+    satisfiedBy: [si-3, cm-11, si-7]
 - key: cc7
-  name: CC7 — System Operations
+  name: CC7 System operations
   requirements:
   - id: CC7.1
-    name: Detects configuration changes and vulnerabilities
-    satisfiedBy:
-    - si-4
-    - ra-5
-    - cm-3
+    name: Configuration changes and new vulnerabilities detected
+    satisfiedBy: [cm-3, cm-6, ra-5]
   - id: CC7.2
-    name: Monitors components for anomalies
-    satisfiedBy:
-    - au-6
-    - si-4
+    name: Systems monitored for anomalies that point to attacks or errors
+    satisfiedBy: [si-4, au-6, au-12]
   - id: CC7.3
-    name: Evaluates security events for incidents
-    satisfiedBy:
-    - ir-4
-    - au-6
+    name: Security events evaluated to decide whether they are incidents
+    satisfiedBy: [au-6, ir-4, ir-5, ir-8]
   - id: CC7.4
-    name: Responds to security incidents
-    satisfiedBy:
-    - ir-4
-    - ir-5
-    - ir-6
+    name: Security incidents handled under a defined response program
+    satisfiedBy: [ir-4, ir-5, ir-6, ir-8]
   - id: CC7.5
-    name: Recovers from identified security incidents
-    satisfiedBy:
-    - ir-4
-    - cp-10
+    name: Recovery from security incidents carried out
+    satisfiedBy: [ir-4, ir-5, cp-10, ir-8]
 - key: cc8
-  name: CC8 — Change Management
+  name: CC8 Change management
   requirements:
   - id: CC8.1
-    name: Authorizes, designs, tests, approves, and implements changes
-    satisfiedBy:
-    - cm-3
-    - cm-4
+    name: Changes authorized, designed, tested, approved and put in place under control
+    satisfiedBy: [cm-3, cm-2, cm-4]
 - key: cc9
-  name: CC9 — Risk Mitigation
+  name: CC9 Risk mitigation
   requirements:
   - id: CC9.1
-    name: Identifies and develops risk mitigation activities
-    satisfiedBy:
-    - ra-3
+    name: Risks of business disruption mitigated
+    satisfiedBy: [ra-7, cp-2]
   - id: CC9.2
-    name: Manages vendor and business partner risk
-    satisfiedBy:
-    - sa-9
+    name: Vendor and business partner risk managed
+    satisfiedBy: [sa-9, sr-2, sr-6]
 - key: a1
-  name: Availability
+  name: A1 Availability
   requirements:
   - id: A1.1
-    name: Maintains/monitors capacity
-    satisfiedBy: []
+    name: Processing capacity monitored and planned
+    satisfiedBy: [cp-2, sc-5, sc-6]
   - id: A1.2
-    name: Environmental protections, backup, recovery
-    satisfiedBy:
-    - cp-9
-    - cp-10
+    name: Environmental protection, backups and recovery infrastructure in place
+    satisfiedBy: [pe-11, pe-14, cp-9, cp-10]
   - id: A1.3
-    name: Tests recovery plan
-    satisfiedBy:
-    - cp-4
+    name: Recovery plan procedures tested
+    satisfiedBy: [cp-4]
 - key: c1
-  name: Confidentiality
+  name: C1 Confidentiality
   requirements:
   - id: C1.1
-    name: Identifies and maintains confidential information
-    satisfiedBy:
-    - sc-28
+    name: Confidential information identified and protected
+    satisfiedBy: [ra-2, sc-28, si-12]
   - id: C1.2
-    name: Disposes of confidential information
-    satisfiedBy:
-    - mp-6
+    name: Confidential information disposed of securely
+    satisfiedBy: [mp-6, si-12]
 - key: pi1
-  name: Processing Integrity
+  name: PI1 Processing integrity
   requirements:
   - id: PI1.1
-    name: Obtains/uses relevant quality information over processing
-    satisfiedBy: []
+    name: Processing specifications and data definitions documented and shared
+    satisfiedBy: [sa-5]
   - id: PI1.2
-    name: Inputs are complete and accurate
-    satisfiedBy: []
+    name: System inputs complete and accurate
+    satisfiedBy: [si-10]
   - id: PI1.3
-    name: Processing is complete, accurate, timely
-    satisfiedBy: []
+    name: Processing complete, accurate and timely
+    satisfiedBy: [si-10, si-11]
   - id: PI1.4
-    name: Outputs are complete and accurate
-    satisfiedBy: []
+    name: Outputs complete, accurate and delivered only to intended parties
+    satisfiedBy: [si-15, pe-5]
   - id: PI1.5
-    name: Stores inputs/outputs completely and accurately
-    satisfiedBy: []
+    name: Stored inputs, work in progress and outputs kept complete and accurate
+    satisfiedBy: [si-12, cp-9, sc-28]
 - key: p1
-  name: Privacy
+  name: 'P1 Privacy: notice'
   requirements:
   - id: P1.1
-    name: Notice of privacy practices
-    satisfiedBy: []
+    name: Data subjects told about privacy practices
+    satisfiedBy: [pt-5, pm-20]
+- key: p2
+  name: 'P2 Privacy: choice and consent'
+  requirements:
   - id: P2.1
-    name: Choice and consent
-    satisfiedBy: []
+    name: Choices and consent explained, obtained and recorded
+    satisfiedBy: [pt-4, pt-5]
+- key: p3
+  name: 'P3 Privacy: collection'
+  requirements:
   - id: P3.1
-    name: Collection of personal information
-    satisfiedBy: []
+    name: Personal data collected only for stated objectives
+    satisfiedBy: [pt-2, pt-3]
+  - id: P3.2
+    name: Explicit consent obtained where it is required
+    satisfiedBy: [pt-4, pt-7]
+- key: p4
+  name: 'P4 Privacy: use, retention and disposal'
+  requirements:
   - id: P4.1
-    name: Use, retention, and disposal
-    satisfiedBy:
-    - sc-28
-    - mp-6
+    name: Personal data used only for stated purposes
+    satisfiedBy: [pt-3]
+  - id: P4.2
+    name: Personal data kept only as long as needed
+    satisfiedBy: [si-12]
+  - id: P4.3
+    name: Personal data disposed of securely
+    satisfiedBy: [mp-6, si-12]
+- key: p5
+  name: 'P5 Privacy: access'
+  requirements:
   - id: P5.1
-    name: Access by data subjects
-    satisfiedBy: []
+    name: Data subjects can see and get a copy of their personal data
+    satisfiedBy: [pm-20, pt-5]
+  - id: P5.2
+    name: Data subjects can correct their personal data
+    satisfiedBy: [si-18, pm-26]
+- key: p6
+  name: 'P6 Privacy: disclosure and notification'
+  requirements:
   - id: P6.1
-    name: Disclosure to third parties
-    satisfiedBy: []
+    name: Personal data shared with third parties only with consent
+    satisfiedBy: [pt-4, ac-21]
+  - id: P6.2
+    name: Record kept of authorized disclosures
+    satisfiedBy: [pm-21]
+  - id: P6.3
+    name: Record kept of unauthorized disclosures and breaches
+    satisfiedBy: [ir-5, ir-8]
+  - id: P6.4
+    name: Third parties commit to the entity's privacy obligations
+    satisfiedBy: [sa-9, sa-4]
+  - id: P6.5
+    name: Third parties report unauthorized disclosures to the entity
+    satisfiedBy: [sa-9, sr-8]
+  - id: P6.6
+    name: Affected people and authorities told about breaches
+    satisfiedBy: [ir-6, ir-8]
+  - id: P6.7
+    name: On request, data subjects get an account of their data held and disclosed
+    satisfiedBy: [pm-21, cm-12]
+- key: p7
+  name: 'P7 Privacy: quality'
+  requirements:
   - id: P7.1
-    name: Quality of personal information
-    satisfiedBy: []
+    name: Personal data kept accurate, complete and relevant
+    satisfiedBy: [si-18, pm-22]
+- key: p8
+  name: 'P8 Privacy: monitoring and enforcement'
+  requirements:
   - id: P8.1
-    name: Monitoring and enforcement
-    satisfiedBy:
-    - au-6
+    name: Privacy inquiries, complaints and compliance monitored and acted on
+    satisfiedBy: [pm-26, ca-2, ca-5]

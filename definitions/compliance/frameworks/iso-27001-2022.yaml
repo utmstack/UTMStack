@@ -1,343 +1,414 @@
-# ISO 27001:2022 Annex A (checklist). Public IDs/titles, NO normative text (ISO copyright). satisfiedBy best-effort.
+# Provenance: ISO/IEC 27001:2022 and Amd 1:2024 (ISO copyright), public identifiers only, titles paraphrased.
+#   Mapping guided by the NIST OLIR crosswalk of SP 800-53 Rev 5 to ISO/IEC 27001:2022, reduced to base controls
+#   and adjusted so data controls are used only where logs evidence the requirement.
+# ISO/IEC 27001:2022 (incl. Amd 1:2024): ISMS clauses 4-10 and the 93 Annex A controls. Identifiers only; titles are our own
+# short wording, NO normative text (ISO copyright). Mapping to NIST SP 800-53 Rev 5 guided by NIST's OLIR crosswalk.
 key: iso-27001-2022
-name: ISO/IEC 27001:2022 (Annex A)
-description: ISO/IEC 27001:2022 Annex A controls (all 93). Reference IDs and short titles only — the normative
-  text is ISO copyright and is not reproduced.
-source: ISO/IEC 27001:2022 (ISO copyright) — public IDs/titles. 800-53 mapping best-effort (review).
+name: ISO/IEC 27001:2022
+description: ISO/IEC 27001:2022 with Amendment 1:2024, ISMS requirements (clauses 4 to 10) and all 93 Annex A controls,
+  each mapped to shared NIST SP 800-53 Rev 5 controls. Reference identifiers and short titles in our own words only; the
+  normative text is ISO copyright and is not reproduced.
+source: 'ISO/IEC 27001:2022 + Amd 1:2024 (ISO copyright): identifiers only, titles paraphrased. Mapping guided by the NIST OLIR crosswalk.'
 sections:
+- key: cl-4
+  name: 'Clause 4: Context of the organization'
+  requirements:
+  - id: '4.1'
+    name: Internal and external issues that shape the ISMS are known, including climate change
+    satisfiedBy: [pm-11, pm-28]
+  - id: '4.2'
+    name: Interested parties and their security requirements are known, including climate change
+    satisfiedBy: [pm-1, pm-28]
+  - id: '4.3'
+    name: ISMS boundaries and scope are set and documented
+    satisfiedBy: [pm-1, pl-2]
+  - id: '4.4'
+    name: An ISMS is set up, run, kept current and improved
+    satisfiedBy: [pm-1]
+- key: cl-5
+  name: 'Clause 5: Leadership'
+  requirements:
+  - id: '5.1'
+    name: Top management leads the ISMS and shows commitment to it
+    satisfiedBy: [pm-2, pm-3]
+  - id: '5.2'
+    name: Top management sets an information security policy
+    satisfiedBy: [pm-1]
+  - id: '5.3'
+    name: Security roles, duties and authority are assigned and communicated
+    satisfiedBy: [pm-2, pm-29]
+- key: cl-6
+  name: 'Clause 6: Planning'
+  requirements:
+  - id: '6.1.1'
+    name: Actions on ISMS risks and opportunities are planned
+    satisfiedBy: [pm-9, pm-28]
+  - id: '6.1.2'
+    name: A security risk assessment method is defined and applied
+    satisfiedBy: [ra-1, ra-3]
+  - id: '6.1.3'
+    name: Risk treatment is chosen and a Statement of Applicability kept
+    satisfiedBy: [ra-7, pl-10, pl-11]
+  - id: '6.2'
+    name: Security objectives are set with plans to reach them
+    satisfiedBy: [pm-1, pm-6]
+  - id: '6.3'
+    name: Changes to the ISMS are made in a planned way
+    satisfiedBy: [pm-1, pl-2]
+- key: cl-7
+  name: 'Clause 7: Support'
+  requirements:
+  - id: '7.1'
+    name: Resources needed for the ISMS are provided
+    satisfiedBy: [pm-3, sa-2]
+  - id: '7.2'
+    name: People doing security work are competent, with evidence kept
+    satisfiedBy: [pm-13, at-3, at-4]
+  - id: '7.3'
+    name: Staff know the policy, their part and the effect of not following it
+    satisfiedBy: [at-2]
+  - id: '7.4'
+    name: Internal and external ISMS communication is planned
+    satisfiedBy: [pm-1, pm-15]
+  - id: '7.5.1'
+    name: Documentation the ISMS needs is kept
+    satisfiedBy: [pm-1, pl-2]
+  - id: '7.5.2'
+    name: Documents are identified, formatted, reviewed and approved when written or updated
+    satisfiedBy: [pl-2, sa-5]
+  - id: '7.5.3'
+    name: Documents are controlled for availability, protection, versions and retention
+    satisfiedBy: [sa-5, si-12]
+- key: cl-8
+  name: 'Clause 8: Operation'
+  requirements:
+  - id: '8.1'
+    name: Operations are planned and controlled, including outsourced processes
+    satisfiedBy: [pm-9, sa-9]
+  - id: '8.2'
+    name: Risk assessments are run at planned intervals and after major change
+    satisfiedBy: [ra-3]
+  - id: '8.3'
+    name: The risk treatment plan is carried out
+    satisfiedBy: [ra-7]
+- key: cl-9
+  name: 'Clause 9: Performance evaluation'
+  requirements:
+  - id: '9.1'
+    name: ISMS performance and effectiveness are measured and evaluated
+    satisfiedBy: [pm-6, pm-31]
+  - id: '9.2.1'
+    name: Internal ISMS audits are held at planned intervals
+    satisfiedBy: [ca-2]
+  - id: '9.2.2'
+    name: An internal audit programme is planned and results reported
+    satisfiedBy: [ca-1, ca-2]
+  - id: '9.3.1'
+    name: Top management reviews the ISMS at planned intervals
+    satisfiedBy: [pm-1, pm-9]
+  - id: '9.3.2'
+    name: Management review covers the required inputs
+    satisfiedBy: [pm-6, ca-5]
+  - id: '9.3.3'
+    name: Management review records decisions on improvement and change
+    satisfiedBy: [pm-1, pm-4]
+- key: cl-10
+  name: 'Clause 10: Improvement'
+  requirements:
+  - id: '10.1'
+    name: The ISMS is improved continually
+    satisfiedBy: [pm-4]
+  - id: '10.2'
+    name: Nonconformities are corrected and their causes removed
+    satisfiedBy: [ca-5, pm-4]
 - key: a5
   name: A.5 Organizational controls
   requirements:
   - id: A.5.1
-    name: Policies for information security
-    satisfiedBy: []
+    name: Security policy and topic policies approved, published and reviewed
+    satisfiedBy: [pm-1]
   - id: A.5.2
-    name: Information security roles and responsibilities
-    satisfiedBy: []
+    name: Security roles and responsibilities defined and assigned
+    satisfiedBy: [pm-2, ps-9]
   - id: A.5.3
-    name: Segregation of duties
-    satisfiedBy: []
+    name: Conflicting duties and areas of responsibility kept apart
+    satisfiedBy: [ac-5]
   - id: A.5.4
-    name: Management responsibilities
-    satisfiedBy: []
+    name: Management requires staff to apply security policy
+    satisfiedBy: [pl-4, ps-6, ps-7]
   - id: A.5.5
-    name: Contact with authorities
-    satisfiedBy: []
+    name: Contact with relevant authorities maintained
+    satisfiedBy: [ir-6]
   - id: A.5.6
-    name: Contact with special interest groups
-    satisfiedBy: []
+    name: Contact with security interest groups and forums maintained
+    satisfiedBy: [pm-15, si-5]
   - id: A.5.7
-    name: Threat intelligence
-    satisfiedBy:
-    - ra-3
-    - si-5
+    name: Threat information gathered and analysed
+    satisfiedBy: [pm-16, si-5]
   - id: A.5.8
-    name: Information security in project management
-    satisfiedBy: []
+    name: Security built into project management
+    satisfiedBy: [sa-3, sa-4]
   - id: A.5.9
-    name: Inventory of information and other associated assets
-    satisfiedBy: []
+    name: Inventory of information and related assets, with owners
+    satisfiedBy: [cm-8, cm-12, pm-5]
   - id: A.5.10
-    name: Acceptable use of information and other associated assets
-    satisfiedBy: []
+    name: Rules for acceptable use and handling of information and assets
+    satisfiedBy: [pl-4]
   - id: A.5.11
-    name: Return of assets
-    satisfiedBy: []
+    name: Assets handed back when a job or contract ends
+    satisfiedBy: [ps-4, ps-5]
   - id: A.5.12
-    name: Classification of information
-    satisfiedBy: []
+    name: Information classified by its security needs
+    satisfiedBy: [ra-2]
   - id: A.5.13
-    name: Labelling of information
-    satisfiedBy: []
+    name: Information labelled according to the classification scheme
+    satisfiedBy: [mp-3, ac-16]
   - id: A.5.14
-    name: Information transfer
-    satisfiedBy: []
+    name: Rules and agreements for every kind of information transfer
+    satisfiedBy: [ca-3, sc-8, ps-6]
   - id: A.5.15
-    name: Access control
-    satisfiedBy:
-    - ac-3
-    - ac-6
+    name: Rules for physical and logical access set from business and security needs
+    satisfiedBy: [ac-1]
   - id: A.5.16
-    name: Identity management
-    satisfiedBy:
-    - ia-4
-    - ia-2
+    name: Identities managed across their whole life
+    satisfiedBy: [ia-4, ac-2]
   - id: A.5.17
-    name: Authentication information
-    satisfiedBy:
-    - ia-5
+    name: Passwords and other authentication secrets issued and handled under control
+    satisfiedBy: [ia-5.1]
   - id: A.5.18
-    name: Access rights
-    satisfiedBy:
-    - ac-2
-    - ac-6
+    name: Access rights granted, reviewed, changed and removed per policy
+    satisfiedBy: [ac-2, ac-6.7]
   - id: A.5.19
-    name: Information security in supplier relationships
-    satisfiedBy: []
+    name: Security risks from suppliers managed
+    satisfiedBy: [sr-1, sa-9]
   - id: A.5.20
-    name: Addressing information security within supplier agreements
-    satisfiedBy: []
+    name: Security requirements agreed in supplier contracts
+    satisfiedBy: [sa-4, sa-9]
   - id: A.5.21
-    name: Managing information security in the ICT supply chain
-    satisfiedBy: []
+    name: Security risks in the ICT product and service supply chain managed
+    satisfiedBy: [sr-2, sr-3, sr-5]
   - id: A.5.22
-    name: Monitoring, review and change management of supplier services
-    satisfiedBy: []
+    name: Supplier security and service delivery monitored and changes managed
+    satisfiedBy: [sa-9, sr-6]
   - id: A.5.23
-    name: Information security for use of cloud services
-    satisfiedBy: []
+    name: Security for buying, using, managing and leaving cloud services
+    satisfiedBy: [sa-9, ac-20]
   - id: A.5.24
-    name: Information security incident management planning and preparation
-    satisfiedBy:
-    - ir-4
+    name: Incident management planned, with roles and procedures set
+    satisfiedBy: [ir-1, ir-8, ir-4, ir-5]
   - id: A.5.25
-    name: Assessment and decision on information security events
-    satisfiedBy:
-    - ir-4
-    - au-6
+    name: Security events assessed and classed as incidents where needed
+    satisfiedBy: [au-6, ir-4, ir-5]
   - id: A.5.26
-    name: Response to information security incidents
-    satisfiedBy:
-    - ir-4
-    - ir-5
+    name: Security incidents handled by documented procedures
+    satisfiedBy: [ir-4, ir-5, ir-6]
   - id: A.5.27
-    name: Learning from information security incidents
-    satisfiedBy:
-    - ir-4
+    name: Lessons from incidents used to improve controls
+    satisfiedBy: [ir-8]
   - id: A.5.28
-    name: Collection of evidence
-    satisfiedBy:
-    - au-9
+    name: Evidence about security events identified, collected and preserved
+    satisfiedBy: [au-9, au-11]
   - id: A.5.29
-    name: Information security during disruption
-    satisfiedBy: []
+    name: Security maintained during a disruption
+    satisfiedBy: [cp-2, cp-10]
   - id: A.5.30
-    name: ICT readiness for business continuity
-    satisfiedBy: []
+    name: ICT readiness for business continuity planned and tested
+    satisfiedBy: [cp-2, cp-4, cp-7]
   - id: A.5.31
-    name: Legal, statutory, regulatory and contractual requirements
-    satisfiedBy: []
+    name: Legal, regulatory and contract security requirements identified and kept current
+    satisfiedBy: [pm-1, pm-28]
   - id: A.5.32
-    name: Intellectual property rights
-    satisfiedBy: []
+    name: Intellectual property rights respected
+    satisfiedBy: [cm-10]
   - id: A.5.33
-    name: Protection of records
-    satisfiedBy: []
+    name: Records protected from loss, tampering and unauthorized access
+    satisfiedBy: [si-12, au-9, au-11]
   - id: A.5.34
-    name: Privacy and protection of PII
-    satisfiedBy: []
+    name: Privacy and personal data protected as laws and contracts require
+    satisfiedBy: [pm-18, pt-1, pt-2]
   - id: A.5.35
-    name: Independent review of information security
-    satisfiedBy: []
+    name: Information security reviewed independently at planned intervals
+    satisfiedBy: [ca-2]
   - id: A.5.36
-    name: Compliance with policies, rules and standards for information security
-    satisfiedBy: []
+    name: Compliance with security policies and standards regularly checked
+    satisfiedBy: [ca-2, ca-5]
   - id: A.5.37
-    name: Documented operating procedures
-    satisfiedBy: []
+    name: Operating procedures documented and available to those who need them
+    satisfiedBy: [sa-5]
 - key: a6
   name: A.6 People controls
   requirements:
   - id: A.6.1
-    name: Screening
-    satisfiedBy: []
+    name: Background checks on candidates before joining and as needed after
+    satisfiedBy: [ps-3]
   - id: A.6.2
-    name: Terms and conditions of employment
-    satisfiedBy: []
+    name: Employment contracts state security duties
+    satisfiedBy: [ps-6, pl-4]
   - id: A.6.3
-    name: Information security awareness, education and training
-    satisfiedBy: []
+    name: Security awareness, education and training for staff
+    satisfiedBy: [at-2, at-3]
   - id: A.6.4
-    name: Disciplinary process
-    satisfiedBy: []
+    name: Formal disciplinary process for security policy breaches
+    satisfiedBy: [ps-8]
   - id: A.6.5
-    name: Responsibilities after termination or change of employment
-    satisfiedBy: []
+    name: Security duties that remain after leaving or changing role
+    satisfiedBy: [ps-4, ps-5]
   - id: A.6.6
-    name: Confidentiality or non-disclosure agreements
-    satisfiedBy: []
+    name: Confidentiality and non-disclosure agreements in place and reviewed
+    satisfiedBy: [ps-6]
   - id: A.6.7
-    name: Remote working
-    satisfiedBy: []
+    name: Security measures for staff working remotely
+    satisfiedBy: [pe-17, ac-17.3]
   - id: A.6.8
-    name: Information security event reporting
-    satisfiedBy: []
+    name: Staff have a way to report observed security events quickly
+    satisfiedBy: [ir-6, ir-7]
 - key: a7
   name: A.7 Physical controls
   requirements:
   - id: A.7.1
-    name: Physical security perimeters
-    satisfiedBy: []
+    name: Security perimeters around areas holding information and assets
+    satisfiedBy: [pe-3]
   - id: A.7.2
-    name: Physical entry
-    satisfiedBy: []
+    name: Entry to secure areas controlled at access points
+    satisfiedBy: [pe-2, pe-3, pe-8]
   - id: A.7.3
-    name: Securing offices, rooms and facilities
-    satisfiedBy: []
+    name: Offices, rooms and facilities physically secured
+    satisfiedBy: [pe-3, pe-5]
   - id: A.7.4
-    name: Physical security monitoring
-    satisfiedBy: []
+    name: Premises watched for unauthorized physical access
+    satisfiedBy: [pe-6]
   - id: A.7.5
-    name: Protecting against physical and environmental threats
-    satisfiedBy: []
+    name: Protection from natural and man-made physical threats
+    satisfiedBy: [pe-13, pe-14, pe-15, pe-23]
   - id: A.7.6
-    name: Working in secure areas
-    satisfiedBy: []
+    name: Rules for working inside secure areas
+    satisfiedBy: [pe-3, pe-6]
   - id: A.7.7
-    name: Clear desk and clear screen
-    satisfiedBy: []
+    name: Desks cleared of papers and media, screens locked when unattended
+    satisfiedBy: [ac-11, mp-4]
   - id: A.7.8
-    name: Equipment siting and protection
-    satisfiedBy: []
+    name: Equipment placed and protected safely
+    satisfiedBy: [pe-18, pe-19]
   - id: A.7.9
-    name: Security of assets off-premises
-    satisfiedBy: []
+    name: Assets protected when taken off-site
+    satisfiedBy: [pe-17, mp-5, ac-19]
   - id: A.7.10
-    name: Storage media
-    satisfiedBy: []
+    name: Storage media managed from purchase through use, transport and disposal
+    satisfiedBy: [mp-2, mp-4, mp-5, mp-6]
   - id: A.7.11
-    name: Supporting utilities
-    satisfiedBy: []
+    name: Power and other supporting utilities protected from failure
+    satisfiedBy: [pe-9, pe-11, pe-14]
   - id: A.7.12
-    name: Cabling security
-    satisfiedBy: []
+    name: Power and network cables protected from damage and tapping
+    satisfiedBy: [pe-4, pe-9]
   - id: A.7.13
-    name: Equipment maintenance
-    satisfiedBy: []
+    name: Equipment maintained correctly
+    satisfiedBy: [ma-2, ma-6]
   - id: A.7.14
-    name: Secure disposal or re-use of equipment
-    satisfiedBy: []
+    name: Data wiped or media destroyed before equipment disposal or reuse
+    satisfiedBy: [mp-6, sr-12]
 - key: a8
   name: A.8 Technological controls
   requirements:
   - id: A.8.1
-    name: User end point devices
-    satisfiedBy: []
+    name: Information on user endpoint devices protected
+    satisfiedBy: [ac-19, cm-2, sc-28]
   - id: A.8.2
-    name: Privileged access rights
-    satisfiedBy:
-    - ac-2
-    - ac-6
+    name: Privileged access rights restricted, managed and reviewed
+    satisfiedBy: [ac-6, ac-6.2, ac-6.7]
   - id: A.8.3
-    name: Information access restriction
-    satisfiedBy:
-    - ac-3
-    - ac-6
+    name: Access to information and application functions restricted per policy
+    satisfiedBy: [ac-3]
   - id: A.8.4
-    name: Access to source code
-    satisfiedBy: []
+    name: Read and write access to source code and tools controlled
+    satisfiedBy: [cm-5, sa-10]
   - id: A.8.5
-    name: Secure authentication
-    satisfiedBy:
-    - ia-2
-    - ia-5
+    name: Secure authentication methods in place
+    satisfiedBy: [ia-2.1, ia-2.2, ia-2.8]
   - id: A.8.6
-    name: Capacity management
-    satisfiedBy: []
+    name: Resource use monitored and adjusted to current and future needs
+    satisfiedBy: [cp-2, sc-5, sc-6]
   - id: A.8.7
-    name: Protection against malware
-    satisfiedBy:
-    - si-3
+    name: Malware protection, backed by user awareness
+    satisfiedBy: [si-3]
   - id: A.8.8
-    name: Management of technical vulnerabilities
-    satisfiedBy:
-    - ra-5
-    - si-2
+    name: Technical vulnerabilities found, assessed and fixed
+    satisfiedBy: [ra-5, si-2]
   - id: A.8.9
-    name: Configuration management
-    satisfiedBy:
-    - cm-2
-    - cm-6
+    name: Secure configurations set, documented, monitored and reviewed
+    satisfiedBy: [cm-2, cm-6]
   - id: A.8.10
-    name: Information deletion
-    satisfiedBy: []
+    name: Information deleted when no longer needed
+    satisfiedBy: [mp-6, si-12]
   - id: A.8.11
-    name: Data masking
-    satisfiedBy: []
+    name: Data masked where policy and law require
+    satisfiedBy: [si-19]
   - id: A.8.12
-    name: Data leakage prevention
-    satisfiedBy:
-    - ac-4
+    name: Leakage of sensitive data prevented and detected
+    satisfiedBy: [ac-4, au-13]
   - id: A.8.13
-    name: Information backup
-    satisfiedBy:
-    - cp-9
+    name: Backups of information, software and systems kept and tested
+    satisfiedBy: [cp-9]
   - id: A.8.14
-    name: Redundancy of information processing facilities
-    satisfiedBy: []
+    name: Enough redundancy in processing facilities to meet availability needs
+    satisfiedBy: [cp-6, cp-7]
   - id: A.8.15
-    name: Logging
-    satisfiedBy:
-    - au-2
-    - au-3
-    - au-12
+    name: Activity and event logs produced, stored, protected and analysed
+    satisfiedBy: [au-2, au-3, au-9, au-12]
   - id: A.8.16
-    name: Monitoring activities
-    satisfiedBy:
-    - au-6
-    - si-4
+    name: Networks, systems and applications watched for unusual behaviour
+    satisfiedBy: [si-4, au-6]
   - id: A.8.17
-    name: Clock synchronization
-    satisfiedBy:
-    - au-8
+    name: System clocks synchronized to approved time sources
+    satisfiedBy: [au-8, sc-45]
   - id: A.8.18
-    name: Use of privileged utility programs
-    satisfiedBy:
-    - ac-6
+    name: Utility programs that can bypass controls restricted
+    satisfiedBy: [ac-6, cm-7]
   - id: A.8.19
-    name: Installation of software on operational systems
-    satisfiedBy: []
+    name: Software installation on production systems controlled
+    satisfiedBy: [cm-11, cm-5]
   - id: A.8.20
-    name: Networks security
-    satisfiedBy:
-    - sc-7
-    - ac-4
+    name: Networks and network devices secured and controlled
+    satisfiedBy: [sc-7, ac-4]
   - id: A.8.21
-    name: Security of network services
-    satisfiedBy:
-    - sc-7
+    name: Security of network services defined, put in place and monitored
+    satisfiedBy: [sc-7, sa-9, ca-3]
   - id: A.8.22
-    name: Segregation of networks
-    satisfiedBy:
-    - sc-7
+    name: Groups of services, users and systems kept on separate networks
+    satisfiedBy: [sc-32]
   - id: A.8.23
-    name: Web filtering
-    satisfiedBy:
-    - sc-7
+    name: Access to external websites filtered
+    satisfiedBy: [ac-4, sc-7]
   - id: A.8.24
-    name: Use of cryptography
-    satisfiedBy:
-    - sc-13
-    - sc-28
-    - sc-8
+    name: Rules for using cryptography and managing keys
+    satisfiedBy: [sc-12, sc-13, sc-8, sc-28]
   - id: A.8.25
-    name: Secure development life cycle
-    satisfiedBy: []
+    name: Security across the development life cycle
+    satisfiedBy: [sa-3, sa-15]
   - id: A.8.26
-    name: Application security requirements
-    satisfiedBy: []
+    name: Security requirements set when building or buying applications
+    satisfiedBy: [sa-4, sa-8]
   - id: A.8.27
-    name: Secure system architecture and engineering principles
-    satisfiedBy: []
+    name: Secure architecture and engineering principles applied
+    satisfiedBy: [sa-8, pl-8]
   - id: A.8.28
-    name: Secure coding
-    satisfiedBy: []
+    name: Secure coding practices applied
+    satisfiedBy: [sa-15, sa-11, si-10]
   - id: A.8.29
-    name: Security testing in development and acceptance
-    satisfiedBy: []
+    name: Security tests during development and before acceptance
+    satisfiedBy: [sa-11, ca-2]
   - id: A.8.30
-    name: Outsourced development
-    satisfiedBy: []
+    name: Outsourced development directed and checked
+    satisfiedBy: [sa-4, sa-10, sa-11]
   - id: A.8.31
-    name: Separation of development, test and production environments
-    satisfiedBy: []
+    name: Development, test and production environments kept apart
+    satisfiedBy: [cm-2, cm-4, sa-3]
   - id: A.8.32
-    name: Change management
-    satisfiedBy:
-    - cm-3
+    name: Changes to systems go through change control
+    satisfiedBy: [cm-3, cm-4]
   - id: A.8.33
-    name: Test information
-    satisfiedBy: []
+    name: Test data chosen with care and protected
+    satisfiedBy: [sa-3, pm-25]
   - id: A.8.34
-    name: Protection of information systems during audit testing
-    satisfiedBy: []
+    name: Audit tests on live systems planned to limit disruption
+    satisfiedBy: [ca-2, ca-8]

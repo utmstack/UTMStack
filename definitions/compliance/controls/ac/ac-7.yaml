@@ -1,14 +1,246 @@
-# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
 id: ac-7
 family: ac
 familyName: Access Control
 name: Unsuccessful Logon Attempts
 scope: data
 statement: |-
-  Enforce a limit of [number] consecutive invalid logon attempts by a user during a [time period] ; and
-    Automatically [lock the account or node for {{ insert: param, ac-07_odp.04 }}  | lock the account or node until released by an administrator | delay next logon prompt per {{ insert: param, ac-07_odp.05 }}  | notify system administrator | take other {{ insert: param, ac-07_odp.06 }} ] when the maximum number of unsuccessful attempts is exceeded.
+  Enforce a limit of [number] consecutive invalid logon attempts by a user during a [time period]; and
+  Automatically [lock the account or node for [organization-defined value] | lock the account or node until released by an administrator | delay next logon prompt per [organization-defined value] | notify system administrator | take other [organization-defined value]] when the maximum number of unsuccessful attempts is exceeded.
+remediation: |-
+  Passes when a connected source shows failed logons or account lockouts, which shows invalid logon attempts are recorded.
+  If it fails: enable logon failure auditing (Windows "Logon" and "Account Lockout" for failure; Linux authentication logs; Microsoft 365 sign-in auditing).
+  The lockout threshold itself is a setting logs cannot show: keep the policy setting as evidence.
 source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY
 checks:
-  - key: todo
-    name: 'TODO: define compliance check for this control'
-    todo: true            # Pending — evaluator shows "Not implemented", excluded from score
+  - key: win-logon-failures
+    name: 'Windows: failed logons and account lockouts are recorded'
+    dataType: wineventlog
+    filters:
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '4625'
+          - '4771'
+          - '4740'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-audit-logon-failures
+    name: 'Linux: failed logins and authentications are recorded (audit)'
+    dataType: linux
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'USER_LOGIN'
+          - 'USER_AUTH'
+      - field: actionResult
+        operator: IS
+        value: 'failed'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-logon-failures
+    name: 'Linux: failed logins are recorded'
+    dataType: linux
+    filters:
+      - field: log.syslogIdentifier
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'sshd'
+          - 'sshd-session'
+          - 'sudo'
+          - 'su'
+          - 'login'
+          - 'unix_chkpwd'
+      - field: actionResult
+        operator: IS
+        value: 'failed'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: macos-authentication-failures
+    name: 'macOS: failed authentications are recorded'
+    dataType: macos
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'failed'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-signin-failures
+    name: 'Microsoft 365: failed sign-ins are recorded'
+    dataType: o365
+    filters:
+      - field: action
+        operator: IS
+        value: 'UserLoginFailed'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: azure-entra-signin-failures
+    name: 'Azure: failed or blocked Entra ID sign-ins are recorded'
+    dataType: azure
+    filters:
+      - field: log.azureKind
+        operator: IS
+        value: 'signin'
+      - field: actionResult
+        operator: IS_ONE_OF
+        value:
+          - 'failed'
+          - 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-signin-failures
+    name: 'AWS: failed console and single sign-on sign-ins are recorded'
+    dataType: aws
+    filters:
+      - field: target.domain
+        operator: IS
+        value: 'signin.amazonaws.com'
+      - field: actionResult
+        operator: IS
+        value: 'failed'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: asa-auth-failures
+    name: 'Cisco ASA: failed management and AAA sign-ins and lockouts are recorded'
+    dataType: firewall-cisco-asa
+    filters:
+      - field: log.messageId
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '605004'
+          - '113005'
+          - '113006'
+          - '113015'
+          - '611102'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: ftd-auth-failures
+    name: 'Cisco Firepower: failed AAA sign-ins and lockouts are recorded'
+    dataType: firewall-cisco-firepower
+    filters:
+      - field: log.messageId
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '113005'
+          - '113006'
+          - '113015'
+          - '611102'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fgt-auth-failures
+    name: 'FortiGate: failed admin, firewall and SSL VPN sign-ins are recorded'
+    dataType: firewall-fortigate-traffic
+    filters:
+      - field: log.logid
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '0100032002'
+          - '0101039426'
+          - '0102043009'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fortiweb-admin-login-failures
+    name: 'FortiWeb: failed administrator sign-ins are recorded'
+    dataType: firewall-fortiweb
+    filters:
+      - field: log.type
+        operator: IS
+        value: 'event'
+      - field: action
+        operator: IS
+        value: 'login'
+      - field: actionResult
+        operator: IS
+        value: 'failed'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: meraki-auth-failures
+    name: 'Cisco Meraki: failed AnyConnect and 802.1X sign-ins are recorded'
+    dataType: firewall-meraki
+    filters:
+      - field: log.type
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'anyconnect_vpn_auth_failure'
+          - '8021x_eap_failure'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: mikrotik-auth-failures
+    name: 'MikroTik: failed router sign-ins are recorded'
+    dataType: firewall-mikrotik
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'failed'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: paloalto-auth-failures
+    name: 'Palo Alto: failed admin and GlobalProtect sign-ins are recorded'
+    dataType: firewall-paloalto
+    filters:
+      - field: log.eventid
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'auth-fail'
+          - 'portal-auth'
+          - 'gateway-auth'
+      - field: actionResult
+        operator: IS
+        value: 'failed'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: pfsense-auth-failures
+    name: 'pfSense: failed web, SSH and OpenVPN sign-ins are recorded'
+    dataType: firewall-pfsense
+    filters:
+      - field: log.authEvent
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'webConfigurator authentication error'
+          - 'Failed'
+          - 'could not authenticate'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sonicwall-auth-failures
+    name: 'SonicWall: failed or refused sign-ins are recorded'
+    dataType: firewall-sonicwall
+    filters:
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '30'
+          - '32'
+          - '33'
+          - '200'
+          - '243'
+          - '244'
+          - '746'
+          - '747'
+          - '1035'
+          - '140'
+          - '986'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sophos-xg-auth-failures
+    name: 'Sophos Firewall: failed sign-ins are recorded'
+    dataType: firewall-sophos-xg
+    filters:
+      - field: log.subType
+        operator: IS
+        value: 'Authentication'
+      - field: log.status
+        operator: IS
+        value: 'Failed'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: as400-password-failures
+    name: 'IBM i (AS/400): wrong passwords are recorded'
+    dataType: ibm-as400
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'failed'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1

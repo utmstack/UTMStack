@@ -1,14 +1,13 @@
-# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Manual: set in the report.
 id: sc-51
 family: sc
 familyName: System and Communications Protection
 name: Hardware-based Protection
-scope: data
+scope: governance
 statement: |-
-  Employ hardware-based, write-protect for [system firmware components] ; and
-    Implement specific procedures for [authorized individuals] to manually disable hardware write-protect for firmware modifications and re-enable the write-protect prior to returning to operational mode.
+  Employ hardware-based, write-protect for [system firmware components]; and
+  Implement specific procedures for [authorized individuals] to manually disable hardware write-protect for firmware modifications and re-enable the write-protect prior to returning to operational mode.
+remediation: |-
+  Manual control: logs cannot show whether this is in place, so the report lists it as "Out of scope" until a person decides. Open the framework report, set this control's status (Compliant, Non-compliant or At risk) and write the justification.
+  Keep the evidence an auditor will ask for, for example network or cryptography configuration evidence: diagrams, TLS settings, key management records.
 source: NIST SP 800-53 Rev 5 (public domain)
-checks:
-  - key: todo
-    name: 'TODO: define compliance check for this control'
-    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

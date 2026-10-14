@@ -1,4 +1,4 @@
-# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Manual: set in the report.
 id: ca-6
 family: ca
 familyName: Assessment, Authorization, and Monitoring
@@ -6,10 +6,13 @@ name: Authorization
 scope: governance
 statement: |-
   Assign a senior official as the authorizing official for the system;
-    Assign a senior official as the authorizing official for common controls available for inheritance by organizational systems;
-    Ensure that the authorizing official for the system, before commencing operations:
-      Accepts the use of common controls inherited by the system; and
-      Authorizes the system to operate;
-    Ensure that the authorizing official for common controls authorizes the use of those controls for inheritance by organizational systems;
-    Update the authorizations [frequency].
+  Assign a senior official as the authorizing official for common controls available for inheritance by organizational systems;
+  Ensure that the authorizing official for the system, before commencing operations:
+  Accepts the use of common controls inherited by the system; and
+  Authorizes the system to operate;
+  Ensure that the authorizing official for common controls authorizes the use of those controls for inheritance by organizational systems;
+  Update the authorizations [frequency].
+remediation: |-
+  Manual control: logs cannot show whether this is in place, so the report lists it as "Out of scope" until a person decides. Open the framework report, set this control's status (Compliant, Non-compliant or At risk) and write the justification.
+  Keep the evidence an auditor will ask for, for example the assessment report, the plan of action and milestones, or the authorization record.
 source: NIST SP 800-53 Rev 5 (public domain)

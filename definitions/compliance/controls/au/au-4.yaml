@@ -1,12 +1,59 @@
-# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
 id: au-4
 family: au
 familyName: Audit and Accountability
 name: Audit Log Storage Capacity
 scope: data
-statement: Allocate audit log storage capacity to accommodate [audit log retention requirements].
+statement: |-
+  Allocate audit log storage capacity to accommodate [audit log retention requirements].
+remediation: |-
+  Passes when no connected source reported that its audit log was full or that audit records were lost for lack of space during the window.
+  If it fails: increase the log size or forwarding capacity on the source that reported it, and confirm no records were lost.
 source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ALL
 checks:
-  - key: todo
-    name: 'TODO: define compliance check for this control'
-    todo: true            # Pending — evaluator shows "Not implemented", excluded from score
+  - key: linux-audit-records-lost
+    name: 'Linux: the kernel dropped audit records'
+    filters:
+      - field: log.syslogIdentifier
+        operator: IS
+        value: 'kernel'
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'audit_lost='
+          - 'kauditd hold queue overflow'
+          - 'audit_backlog='
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: linux-auditd-disk-full
+    name: 'Linux: auditd ran out of log space'
+    filters:
+      - field: log.syslogIdentifier
+        operator: IS
+        value: 'auditd'
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'low on disk space'
+          - 'no space left'
+          - 'larger than max size'
+          - 'due to logfile size'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: win-security-log-full
+    name: 'Windows: the Security log did not fill up or lose audit records for lack of space'
+    filters:
+      - field: log.channel
+        operator: IS
+        value: 'Security'
+      - field: log.providerName
+        operator: START_WITH
+        value: 'Microsoft-Windows-'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '1104'
+          - '4612'
+    rule: THRESHOLD_MAX
+    ruleValue: 0

@@ -1,4 +1,4 @@
-# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
 id: au-3
 family: au
 familyName: Audit and Accountability
@@ -6,14 +6,199 @@ name: Content of Audit Records
 scope: data
 statement: |-
   Ensure that audit records contain information that establishes the following:
-    What type of event occurred;
-    When the event occurred;
-    Where the event occurred;
-    Source of the event;
-    Outcome of the event; and
-    Identity of any individuals, subjects, or objects/entities associated with the event.
+  What type of event occurred;
+  When the event occurred;
+  Where the event occurred;
+  Source of the event;
+  Outcome of the event; and
+  Identity of any individuals, subjects, or objects/entities associated with the event.
+remediation: |-
+  Passes when the records of a connected source carry who and where: a user, a host or a network address.
+  If it fails: check that the source's integration is the supported one and that its records are parsed; records without identity cannot support an investigation.
 source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY
 checks:
-  - key: todo
-    name: 'TODO: define compliance check for this control'
-    todo: true            # Pending — evaluator shows "Not implemented", excluded from score
+  - key: win-records-carry-user
+    name: 'Windows: event records identify the acting user'
+    dataType: wineventlog
+    filters:
+      - field: origin.user
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-host-identity
+    name: 'Linux: records name the host'
+    dataType: linux
+    filters:
+      - field: origin.host
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: macos-host-identity
+    name: 'macOS: records name the host'
+    dataType: macos
+    filters:
+      - field: origin.host
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-records-carry-user
+    name: 'Microsoft 365: audit records carry the acting user'
+    dataType: o365
+    filters:
+      - field: origin.user
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: azure-records-carry-user
+    name: 'Azure: records carry the acting user or principal'
+    dataType: azure
+    filters:
+      - field: origin.user
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-records-identify-caller
+    name: 'AWS: CloudTrail records identify the caller'
+    dataType: aws
+    filters:
+      - field: origin.user
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: gcp-audit-identifies-caller
+    name: 'Google Cloud: audit records identify the caller'
+    dataType: google
+    filters:
+      - field: origin.user
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: asa-source-address
+    name: 'Cisco ASA: records carry the source address'
+    dataType: firewall-cisco-asa
+    filters:
+      - field: origin.ip
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: ftd-source-address
+    name: 'Cisco Firepower: records carry the source address'
+    dataType: firewall-cisco-firepower
+    filters:
+      - field: origin.ip
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fgt-source-address
+    name: 'FortiGate: records carry the source address'
+    dataType: firewall-fortigate-traffic
+    filters:
+      - field: origin.ip
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fortiweb-source-address
+    name: 'FortiWeb: records carry the client address'
+    dataType: firewall-fortiweb
+    filters:
+      - field: origin.ip
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: meraki-source-address
+    name: 'Cisco Meraki: records carry the source address'
+    dataType: firewall-meraki
+    filters:
+      - field: origin.ip
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: mikrotik-source-address
+    name: 'MikroTik: records carry the source address'
+    dataType: firewall-mikrotik
+    filters:
+      - field: origin.ip
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: paloalto-source-address
+    name: 'Palo Alto: records carry the source address'
+    dataType: firewall-paloalto
+    filters:
+      - field: origin.ip
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: pfsense-source-address
+    name: 'pfSense: records carry the source address'
+    dataType: firewall-pfsense
+    filters:
+      - field: origin.ip
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sonicwall-source-address
+    name: 'SonicWall: records carry the source address'
+    dataType: firewall-sonicwall
+    filters:
+      - field: origin.ip
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sophos-xg-source-address
+    name: 'Sophos Firewall: records carry the source address'
+    dataType: firewall-sophos-xg
+    filters:
+      - field: origin.ip
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: github-events-identify-sender
+    name: 'GitHub: webhook events identify the acting user'
+    dataType: github
+    filters:
+      - field: log.senderLogin
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: as400-host-identity
+    name: 'IBM i (AS/400): records name the system'
+    dataType: ibm-as400
+    filters:
+      - field: origin.host
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: netflow-source-address
+    name: 'NetFlow: flow records carry the source address'
+    dataType: netflow
+    filters:
+      - field: origin.ip
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-graph-records-carry-user
+    name: 'Microsoft Graph security: records name the user'
+    dataType: o365-graph
+    filters:
+      - field: origin.user
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: suricata-source-address
+    name: 'Suricata: records carry the source address'
+    dataType: suricata
+    filters:
+      - field: origin.ip
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: esxi-user-identity
+    name: 'VMware ESXi: sign-in records name the user'
+    dataType: vmware-esxi
+    filters:
+      - field: origin.user
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
