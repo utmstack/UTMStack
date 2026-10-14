@@ -17,9 +17,10 @@ var ErrMissingActivateWork = errors.New("coordination: ConsumeAndAdvanceCursor: 
 
 var ErrMissingResumeWork = errors.New("coordination: ConsumeAndAdvanceCursor: a cursor already exists for this key but ConsumeWork.Resume is nil")
 
-// Nothing is Acked on failure, so AckWait drives redelivery. On
-// ErrCursorConflict the write is dropped but the job is Acked anyway: the work
-// already published.
+// Failures without a cursor are neither Saved nor Acked, so AckWait drives
+// redelivery; a failure with a returned cursor (partial progress) is Saved and
+// Acked so one slow source cannot hammer the same window. On ErrCursorConflict
+// the write is dropped but the job is Acked anyway: the work already published.
 func ConsumeAndAdvanceCursor(
 	ctx context.Context,
 	cursors CursorStore,
@@ -51,7 +52,13 @@ func ConsumeAndAdvanceCursor(
 	}
 
 	if workErr != nil {
-		// No Save and no Ack: the next attempt re-pulls the same window.
+		// A returned cursor carries partial progress: persist it and Ack.
+		// Nil next keeps the legacy redelivery.
+		if next != nil {
+			if _, saveErr := cursors.Save(ctx, cursorKey, Cursor{Data: next, Revision: cur.Revision}); saveErr == nil || errors.Is(saveErr, ErrCursorConflict) {
+				return delivery.Ack()
+			}
+		}
 		return workErr
 	}
 
