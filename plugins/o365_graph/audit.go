@@ -11,11 +11,11 @@ import (
 
 const (
 	purviewPollInterval = 5 * time.Second
-	purviewPollMaxWait  = 120 * time.Second
+	purviewPollMaxWait  = 5 * time.Minute
 )
 
 // purview-audit is an async job API available only in the global cloud.
-func purviewPoll(p *GraphProcessor, group *ModuleGroup, payload *cursorPayload, windowEnd time.Time) ([]LogRecord, time.Time, error) {
+func purviewPoll(p *GraphProcessor, group *ModuleGroup, payload *cursorPayload, windowStart, windowEnd time.Time) ([]LogRecord, time.Time, error) {
 	name := "purview-audit"
 	if p.sourceUnavailable(name) {
 		return nil, windowEnd, nil
@@ -24,7 +24,7 @@ func purviewPoll(p *GraphProcessor, group *ModuleGroup, payload *cursorPayload, 
 		return nil, windowEnd, nil
 	}
 
-	start, end := sourceWindow(payload.sourcePosition(name), windowEnd)
+	start, end := sourceWindow(payload.sourcePosition(name), windowStart, windowEnd)
 
 	createBody, _ := json.Marshal(map[string]any{
 		"filterStartDateTime": odata(start),

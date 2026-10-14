@@ -66,7 +66,7 @@ func consumeJob(
 	cursors coordination.CursorStore,
 	delivery coordination.JobDelivery,
 	group *ModuleGroup,
-	collectFn func(payload *cursorPayload, windowEnd time.Time, group *ModuleGroup) (int, *cursorPayload, error),
+	collectFn func(payload *cursorPayload, windowStart, windowEnd time.Time, group *ModuleGroup) (int, *cursorPayload, error),
 	encryptionKey string,
 ) error {
 	key := graphCursorKey(group)
@@ -75,12 +75,9 @@ func consumeJob(
 	var ingested int
 
 	work := coordination.ConsumeWork{
-		// First activation, no persisted cursor. job.WindowStart seeds "now
-		// minus one tick", never the epoch, so no full-history replay.
 		Activate: func(ctx context.Context, job coordination.Job) ([]byte, error) {
-			n, next, err := collectFn(&cursorPayload{}, job.WindowEnd, group)
+			n, next, err := collectFn(&cursorPayload{}, job.WindowStart, job.WindowEnd, group)
 			if err != nil {
-				// Persist successful sources' positions; only failed ones retry next tick.
 				if data, mErr := coordination.MarshalCursorPayload(next, encryptionKey); mErr == nil {
 					return data, err
 				}
@@ -96,9 +93,8 @@ func consumeJob(
 			}
 			// Per-source positions (not prev.WindowEnd) set the start point: a
 			// different worker may have handled the previous tick.
-			n, next, err := collectFn(&prev, job.WindowEnd, group)
+			n, next, err := collectFn(&prev, job.WindowStart, job.WindowEnd, group)
 			if err != nil {
-				// Persist successful sources' positions; only failed ones retry next tick.
 				if data, mErr := coordination.MarshalCursorPayload(next, encryptionKey); mErr == nil {
 					return data, err
 				}
