@@ -55,9 +55,13 @@ func ConsumeAndAdvanceCursor(
 		// A returned cursor carries partial progress: persist it and Ack.
 		// Nil next keeps the legacy redelivery.
 		if next != nil {
-			if _, saveErr := cursors.Save(ctx, cursorKey, Cursor{Data: next, Revision: cur.Revision}); saveErr == nil || errors.Is(saveErr, ErrCursorConflict) {
+			_, saveErr := cursors.Save(ctx, cursorKey, Cursor{Data: next, Revision: cur.Revision})
+			if saveErr == nil || errors.Is(saveErr, ErrCursorConflict) {
 				return delivery.Ack()
 			}
+			// The cursor was not persisted: report the persistence failure,
+			// redelivery will re-run the work.
+			return saveErr
 		}
 		return workErr
 	}

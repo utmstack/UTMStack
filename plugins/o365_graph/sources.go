@@ -175,10 +175,15 @@ func collect(payload *cursorPayload, windowStart, windowEnd time.Time, group *Mo
 			_ = catcher.Error("graph collect: source failed", err, map[string]any{
 				"process": processName, "group": group.Key(), "source": s.name,
 			})
-			// Park at windowStart: the next tick starts from position -
-			// overlap, so the unread part of this window is re-covered
-			// instead of silently skipped.
-			next.setSourcePosition(s.name, windowStart)
+			// Never park a source past where it already is: on repeated
+			// failure the position stays put and re-covers the still-unread
+			// part of the window, so consecutive failed ticks cannot skip
+			// data.
+			park := windowStart
+			if old := next.sourcePosition(s.name); old.After(park) {
+				park = old
+			}
+			next.setSourcePosition(s.name, park)
 			if firstErr == nil {
 				firstErr = err
 			}
