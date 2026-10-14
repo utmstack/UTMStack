@@ -48,7 +48,7 @@ sections:
     satisfiedBy: [ac-17]
   - id: '03.01.16'
     name: Wireless Access
-    satisfiedBy: [ac-18]
+    satisfiedBy: [ac-18, ac-18.1]
   - id: '03.01.18'
     name: Access Control for Mobile Devices
     satisfiedBy: [ac-19]
@@ -90,7 +90,7 @@ sections:
     satisfiedBy: [au-7]
   - id: '03.03.07'
     name: Time Stamps
-    satisfiedBy: [au-8]
+    satisfiedBy: [au-8, sc-45.1]
   - id: '03.03.08'
     name: Protection of Audit Information
     satisfiedBy: [au-9]
@@ -117,7 +117,7 @@ sections:
     satisfiedBy: [cm-7]
   - id: '03.04.08'
     name: Authorized Software – Allow by Exception
-    satisfiedBy: [cm-7]
+    satisfiedBy: [cm-7, cm-7.5]
   - id: '03.04.10'
     name: System Component Inventory
     satisfiedBy: [cm-8]
@@ -132,7 +132,7 @@ sections:
   requirements:
   - id: '03.05.01'
     name: User Identification and Authentication
-    satisfiedBy: [ia-2, ia-11]
+    satisfiedBy: [ia-2, ia-11, ia-2.5]
   - id: '03.05.02'
     name: Device Identification and Authentication
     satisfiedBy: [ia-3]
@@ -207,7 +207,7 @@ sections:
     satisfiedBy: [mp-7]
   - id: '03.08.09'
     name: System Backup – Cryptographic Protection
-    satisfiedBy: [cp-9]
+    satisfiedBy: [sc-13, sc-28]
 - key: '03.09'
   name: Personnel Security
   requirements:
@@ -276,7 +276,7 @@ sections:
     satisfiedBy: [sc-7.5]
   - id: '03.13.08'
     name: Transmission and Storage Confidentiality
-    satisfiedBy: [sc-8, sc-28]
+    satisfiedBy: [sc-8, sc-28, sc-8.1, sc-28.1]
   - id: '03.13.09'
     name: Network Disconnect
     satisfiedBy: [sc-10]

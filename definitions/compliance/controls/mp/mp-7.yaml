@@ -26,6 +26,45 @@ checks:
           - '6416'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: linux-usb-storage
+    name: 'Linux: USB storage devices connecting are recorded'
+    dataType: linux
+    filters:
+      - field: log.syslogIdentifier
+        operator: IS
+        value: 'kernel'
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'usb-storage'
+          - 'USB Mass Storage device detected'
+          - 'Attached SCSI removable disk'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: macos-usb-storage
+    name: 'macOS: USB storage devices connecting are recorded'
+    dataType: macos
+    filters:
+      - field: origin.process
+        operator: IS
+        value: 'kernel'
+      - field: log.message
+        operator: CONTAIN
+        value: 'USBMSC Identifier'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-endpoint-removable-media
+    name: 'Microsoft 365: endpoint DLP records removable media use'
+    dataType: o365
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'RemovableMediaMount'
+          - 'FileCopiedToRemovableMedia'
+          - 'FileCreatedOnRemovableMedia'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
   - key: azure-defender-device-connected
     name: 'Azure: Defender for Endpoint external device and USB connections are recorded'
     dataType: azure
@@ -39,6 +78,48 @@ checks:
           - 'UsbDriveDriveLetterChanged'
           - 'RemovableStoragePolicyTriggered'
           - 'RemovableStorageFileEvent'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: bitdefender-device-control
+    name: 'Bitdefender: device control events'
+    dataType: antivirus-bitdefender-gz
+    filters:
+      - field: log.BitdefenderGZModule
+        operator: IS
+        value: 'device-control'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: kaspersky-device-control
+    name: 'Kaspersky: removable device connected or blocked'
+    dataType: antivirus-kaspersky
+    filters:
+      - field: log.eventType
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'GNRL_EV_DEVCTRL_DEV_PLUGGED'
+          - 'GNRL_EV_DEVCTRL_DEV_PLUG_DENIED'
+          - 'GNRL_EV_DEVCTRL_DEV_UNPLUGGED'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sentinelone-usb-device
+    name: 'SentinelOne: USB device connected or disconnected'
+    dataType: antivirus-sentinel-one
+    filters:
+      - field: log.activityType
+        operator: IS
+        value: '5126'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-graph-purview-removable-media
+    name: 'Microsoft Graph (Purview audit): endpoint DLP records removable media use'
+    dataType: o365-graph
+    filters:
+      - field: log.operation
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'RemovableMediaMount'
+          - 'FileCopiedToRemovableMedia'
+          - 'FileCreatedOnRemovableMedia'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: sophos-central-peripheral-control

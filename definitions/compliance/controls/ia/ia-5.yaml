@@ -37,6 +37,40 @@ checks:
         value: '$'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: linux-audit-password-change
+    name: 'Linux: password changes are recorded (audit)'
+    dataType: linux
+    filters:
+      - field: action
+        operator: IS
+        value: 'USER_CHAUTHTOK'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-pam-password-changed
+    name: 'Linux: PAM password changes are recorded'
+    dataType: linux
+    filters:
+      - field: log.message
+        operator: CONTAIN
+        value: 'password changed for'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: macos-password-change-commands
+    name: 'macOS: password change commands are recorded'
+    dataType: macos
+    filters:
+      - field: origin.process
+        operator: IS
+        value: 'sudo'
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'COMMAND=/usr/bin/passwd'
+          - 'sysadminctl -resetPasswordFor'
+          - 'dscl . -passwd'
+          - 'dscl . passwd'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
   - key: o365-credential-changes
     name: 'Microsoft 365: password resets and credential changes are recorded'
     dataType: o365
@@ -122,5 +156,147 @@ checks:
       - field: actionResult
         operator: IS
         value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: gcp-workspace-password-changes
+    name: 'Google: Workspace passwords changed or reset'
+    dataType: google
+    filters:
+      - field: log.protoPayloadMethodName
+        operator: IS_ONE_OF
+        value:
+          - 'google.admin.AdminService.changePassword'
+          - 'google.admin.AdminService.changePasswordOnNextLogin'
+          - 'google.login.LoginService.passwordEdit'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: cisco-switch-secret-commands
+    name: 'Cisco switch: password and secret changes are recorded'
+    dataType: cisco-switch
+    filters:
+      - field: log.facility
+        operator: IS
+        value: 'PARSER'
+      - field: log.facilityMnemonic
+        operator: IS
+        value: 'CFGLOG_LOGGEDCMD'
+      - field: log.ciscoMsg
+        operator: CONTAIN_ONE_OF
+        value:
+          - ' secret '
+          - ' password '
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: crowdstrike-credential-changes
+    name: 'CrowdStrike: password changed or API client created'
+    dataType: crowdstrike
+    filters:
+      - field: log.eventOperationName
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'changePassword'
+          - 'CreateAPIClient'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: asa-password-commands
+    name: 'Cisco ASA: password and secret commands are recorded'
+    dataType: firewall-cisco-asa
+    filters:
+      - field: log.messageId
+        operator: IS
+        value: '111008'
+      - field: log.msg
+        operator: CONTAIN_ONE_OF
+        value:
+          - ' password '
+          - 'enable password'
+          - ' secret '
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fgt-password-changes
+    name: 'FortiGate: administrator and local user password changes are recorded'
+    dataType: firewall-fortigate-traffic
+    filters:
+      - field: log.logid
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '0100044546'
+          - '0100044547'
+      - field: log.cfgpath
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'system.admin'
+          - 'user.local'
+      - field: log.cfgattr
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'password['
+          - 'passwd['
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: pfsense-password-changes
+    name: 'pfSense: password changes are recorded'
+    dataType: firewall-pfsense
+    filters:
+      - field: raw
+        operator: CONTAIN
+        value: 'Password changed for user'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sonicwall-password-changes
+    name: 'SonicWall: user password changes are recorded'
+    dataType: firewall-sonicwall
+    filters:
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '1337'
+          - '1338'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: github-deploy-keys
+    name: 'GitHub: repository deploy keys added or removed'
+    dataType: github
+    filters:
+      - field: log.key.title
+        operator: EXIST
+      - field: log.action
+        operator: IS_ONE_OF
+        value:
+          - 'created'
+          - 'deleted'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-graph-credential-changes
+    name: 'Microsoft Graph: password, security info and application secret changes are recorded'
+    dataType: o365-graph
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Change user password'
+          - 'Reset user password'
+          - 'Change password (self-service)'
+          - 'Reset password (self-service)'
+          - 'User registered security info'
+          - 'Admin registered security info'
+          - 'Add service principal credentials'
+          - 'Remove service principal credentials'
+          - 'Update application – Certificates and secrets management '
+          - 'Create application – Certificates and secrets management '
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: esxi-password-changes
+    name: 'VMware ESXi: password changes are recorded'
+    dataType: vmware-esxi
+    filters:
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'Password was changed for account'
+          - 'esx.audit.dcui.login.passwd.changed'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1

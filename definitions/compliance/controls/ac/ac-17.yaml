@@ -27,6 +27,19 @@ checks:
           - '10'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: win-rdp-user-authenticated
+    name: 'Windows: Remote Desktop user authentications are recorded'
+    dataType: wineventlog
+    filters:
+      - field: log.providerName
+        operator: IS
+        value: 'Microsoft-Windows-TerminalServices-RemoteConnectionManager'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '1149'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
   - key: linux-audit-ssh-logins
     name: 'Linux: SSH logins are recorded (audit)'
     dataType: linux
@@ -54,6 +67,69 @@ checks:
       - field: actionResult
         operator: IS
         value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: macos-screen-sharing-logins
+    name: 'macOS: screen sharing (remote desktop) sign-ins are recorded'
+    dataType: macos
+    filters:
+      - field: origin.process
+        operator: IS
+        value: 'screensharingd'
+      - field: log.message
+        operator: CONTAIN
+        value: 'Authentication: SUCCEEDED'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: macos-ssh-logins
+    name: 'macOS: accepted SSH sign-ins are recorded'
+    dataType: macos
+    filters:
+      - field: origin.process
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'sshd'
+          - 'sshd-session'
+      - field: log.message
+        operator: START_WITH
+        value: 'Accepted '
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-remote-admin-signins
+    name: 'Microsoft 365: remote administration sign-ins (Azure portal, CLI, PowerShell) are recorded'
+    dataType: o365
+    filters:
+      - field: action
+        operator: IS
+        value: 'UserLoggedIn'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+      - field: log.ObjectId
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '797f4846-ba00-4fd7-ba43-dac1f8f63013'
+          - 'c44b4083-3bb0-49c1-b47d-974e53cbdf3c'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-remote-desktop-signins
+    name: 'Microsoft 365: remote desktop and VPN sign-ins (Azure Virtual Desktop, Windows 365, Azure VPN) are recorded'
+    dataType: o365
+    filters:
+      - field: action
+        operator: IS
+        value: 'UserLoggedIn'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+      - field: log.ObjectId
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '9cdead84-a844-4324-93f2-b2e6bb768d07'
+          - '270efc09-cd0d-444b-a71f-39af4910ec45'
+          - 'a4a365df-50f1-4397-bc59-1a1564b8bb9c'
+          - '0af06dc6-e4b5-4f28-818e-e78e62d137a5'
+          - '41b23e61-6c1e-4545-b367-cd054e0ed4b4'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: azure-defender-rdp-connections
@@ -86,6 +162,47 @@ checks:
       - field: actionResult
         operator: IS
         value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: gcp-iap-remote-access
+    name: 'Google: Identity-Aware Proxy remote access is recorded'
+    dataType: google
+    filters:
+      - field: log.protoPayloadServiceName
+        operator: IS
+        value: 'iap.googleapis.com'
+      - field: log.protoPayloadMethodName
+        operator: IS
+        value: 'AuthorizeUser'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: cisco-switch-ssh-sessions
+    name: 'Cisco switch: SSH administration sessions are recorded'
+    dataType: cisco-switch
+    filters:
+      - field: log.facility
+        operator: IS
+        value: 'SSH'
+      - field: log.facilityMnemonic
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'SSH2_SESSION'
+          - 'SSH2_USERAUTH'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: crowdstrike-rtr-sessions
+    name: 'CrowdStrike: Real Time Response remote sessions'
+    dataType: crowdstrike
+    filters:
+      - field: log.metadataEventType
+        operator: IS
+        value: 'RemoteResponseSessionStartEvent'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: asa-remote-access
@@ -209,6 +326,17 @@ checks:
           - '17718'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: aix-ssh-sessions
+    name: 'IBM AIX: SSH remote sessions are recorded'
+    dataType: ibm-aix
+    filters:
+      - field: log.authResult
+        operator: IS
+        value: 'Accepted'
+      - field: origin.ip
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
   - key: as400-client-connections
     name: 'IBM i (AS/400): client connections are recorded'
     dataType: ibm-as400
@@ -218,6 +346,36 @@ checks:
         value: 'success'
       - field: origin.ip
         operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-graph-remote-admin-signins
+    name: 'Microsoft Graph: remote administration sign-ins (Azure management) are recorded'
+    dataType: o365-graph
+    filters:
+      - field: log.resourceId
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '797f4846-ba00-4fd7-ba43-dac1f8f63013'
+      - field: log.status.errorCode
+        operator: IS
+        value: '0'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-graph-remote-desktop-signins
+    name: 'Microsoft Graph: remote desktop and VPN sign-ins are recorded'
+    dataType: o365-graph
+    filters:
+      - field: log.resourceId
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '9cdead84-a844-4324-93f2-b2e6bb768d07'
+          - '270efc09-cd0d-444b-a71f-39af4910ec45'
+          - 'a4a365df-50f1-4397-bc59-1a1564b8bb9c'
+          - '0af06dc6-e4b5-4f28-818e-e78e62d137a5'
+          - '41b23e61-6c1e-4545-b367-cd054e0ed4b4'
+      - field: log.status.errorCode
+        operator: IS
+        value: '0'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
   - key: esxi-remote-sessions

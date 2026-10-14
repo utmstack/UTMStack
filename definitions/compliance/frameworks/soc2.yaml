@@ -81,7 +81,7 @@ sections:
   requirements:
   - id: CC6.1
     name: Logical access security software, infrastructure and architecture in place
-    satisfiedBy: [ac-2, ac-3, ia-2]
+    satisfiedBy: [ac-2, ac-3, ia-2, ia-2.5]
   - id: CC6.2
     name: Users registered and approved before access, credentials reviewed and removed
     satisfiedBy: [ac-2, ia-4, ac-6.7]
@@ -96,13 +96,13 @@ sections:
     satisfiedBy: [mp-6, sr-12]
   - id: CC6.6
     name: Protection against threats from outside the system boundary
-    satisfiedBy: [sc-7, ac-4, ac-17]
+    satisfiedBy: [sc-7, ac-4, ac-17, sc-7.12]
   - id: CC6.7
     name: Transmission, movement and removal of information restricted
-    satisfiedBy: [ac-4, sc-8, mp-5, ac-19]
+    satisfiedBy: [ac-4, sc-8, mp-5, ac-19, sc-8.1]
   - id: CC6.8
     name: Unauthorized or malicious software prevented or detected
-    satisfiedBy: [si-3, cm-11, si-7]
+    satisfiedBy: [si-3, cm-11, si-7, cm-7.5]
 - key: cc7
   name: CC7 System operations
   requirements:

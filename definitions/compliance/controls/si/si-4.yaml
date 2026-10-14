@@ -17,7 +17,7 @@ statement: |-
   Obtain legal opinion regarding system monitoring activities; and
   Provide [system monitoring information] to [personnel or roles] [as needed | [organization-defined value]].
 remediation: |-
-  Passes when UTMStack is monitoring: logs are arriving and detections are raised.
+  Passes when UTMStack is monitoring: logs arrive, detections are raised, or a network intrusion detection or prevention system reports.
   If it fails: connect the data sources and confirm the correlation rules are active.
 source: NIST SP 800-53 Rev 5 (public domain)
 strategy: ANY
@@ -29,5 +29,371 @@ checks:
   - key: alerts-raised
     name: 'Security alerts were raised and tracked'
     dataset: alerts
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-host-ips-bans
+    name: 'Linux: host intrusion prevention bans are recorded'
+    dataType: linux
+    filters:
+      - field: log.syslogIdentifier
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'fail2ban'
+          - 'fail2ban.actions'
+          - 'fail2ban-server'
+          - 'sshguard'
+          - 'crowdsec'
+          - 'psad'
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'Ban '
+          - 'Blocking '
+          - 'blocked'
+          - 'banned'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: azure-firewall-idps-signatures
+    name: 'Azure Firewall: intrusion detection and prevention signature hits are recorded'
+    dataType: azure
+    filters:
+      - field: log.category
+        operator: IS
+        value: 'AZFWIdpsSignature'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: azure-waf-rule-matches
+    name: 'Azure: web application firewall rule matches are recorded'
+    dataType: azure
+    filters:
+      - field: log.azureKind
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'waf'
+          - 'frontdoor-waf'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-guardduty-findings
+    name: 'AWS: GuardDuty threat findings are received'
+    dataType: aws
+    filters:
+      - field: log.awsRecordType
+        operator: IS
+        value: 'guardduty'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-network-firewall-alerts
+    name: 'AWS: Network Firewall intrusion alerts are recorded'
+    dataType: aws
+    filters:
+      - field: log.event.event_type
+        operator: IS
+        value: 'alert'
+      - field: log.event.alert.signature_id
+        operator: EXIST
+      - field: log.event.aws_category
+        operator: DOES_NOT_EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: gcp-cloud-armor-denies
+    name: 'Google: Cloud Armor blocks requests'
+    dataType: google
+    filters:
+      - field: log.jsonPayloadStatusDetails
+        operator: IS
+        value: 'denied_by_security_policy'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: gcp-threat-logs
+    name: 'Google: Cloud IDS or Cloud NGFW threat detections are recorded'
+    dataType: google
+    filters:
+      - field: log.logName
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'ids.googleapis.com%2Fthreat'
+          - 'networksecurity.googleapis.com%2Ffirewall_threat'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: bitdefender-network-attack-defense
+    name: 'Bitdefender: Network Attack Defense detections'
+    dataType: antivirus-bitdefender-gz
+    filters:
+      - field: log.BitdefenderGZModule
+        operator: IS
+        value: 'network-monitor'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: eset-network-attack-protection
+    name: 'ESET: network attack protection detections'
+    dataType: antivirus-esmc-eset
+    filters:
+      - field: log.eventType
+        operator: IS
+        value: 'FirewallAggregated_Event'
+      - field: log.event
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'attack'
+          - 'exploitation'
+          - 'botnet'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: kaspersky-network-attack
+    name: 'Kaspersky: network attack detected'
+    dataType: antivirus-kaspersky
+    filters:
+      - field: log.eventType
+        operator: IS
+        value: 'GNRL_EV_ATTACK_DETECTED'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: asa-threat-detection-ips
+    name: 'Cisco ASA: IP audit signatures, threat detection and botnet filter events are recorded'
+    dataType: firewall-cisco-asa
+    filters:
+      - field: log.messageId
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '400000'
+          - '400001'
+          - '400002'
+          - '400003'
+          - '400004'
+          - '400005'
+          - '400006'
+          - '400007'
+          - '400008'
+          - '400009'
+          - '400010'
+          - '400011'
+          - '400012'
+          - '400013'
+          - '400014'
+          - '400015'
+          - '400016'
+          - '400017'
+          - '400018'
+          - '400019'
+          - '400020'
+          - '400021'
+          - '400022'
+          - '400023'
+          - '400024'
+          - '400025'
+          - '400026'
+          - '400027'
+          - '400028'
+          - '400029'
+          - '400030'
+          - '400031'
+          - '400032'
+          - '400033'
+          - '400034'
+          - '400035'
+          - '400036'
+          - '400037'
+          - '400038'
+          - '400039'
+          - '400040'
+          - '400041'
+          - '400042'
+          - '400043'
+          - '400044'
+          - '400045'
+          - '400046'
+          - '400047'
+          - '400048'
+          - '400049'
+          - '400050'
+          - '400051'
+          - '733100'
+          - '733101'
+          - '733102'
+          - '733104'
+          - '733105'
+          - '338001'
+          - '338002'
+          - '338003'
+          - '338004'
+          - '338005'
+          - '338006'
+          - '338007'
+          - '338008'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: ftd-intrusion-malware-events
+    name: 'Cisco FTD: intrusion and malware events are recorded'
+    dataType: firewall-cisco-firepower
+    filters:
+      - field: log.messageId
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '430001'
+          - '430005'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fgt-ips-av-detections
+    name: 'FortiGate: IPS, anomaly and antivirus detections are recorded'
+    dataType: firewall-fortigate-traffic
+    filters:
+      - field: log.type
+        operator: IS
+        value: 'utm'
+      - field: log.subtype
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'ips'
+          - 'anomaly'
+          - 'virus'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fgt-security-signature-updates
+    name: 'FortiGate: IPS and antivirus signature updates are recorded'
+    dataType: firewall-fortigate-traffic
+    filters:
+      - field: log.logid
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '0100041000'
+          - '0100022813'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fortiweb-attack-detections
+    name: 'FortiWeb: web application attacks are recorded'
+    dataType: firewall-fortiweb
+    filters:
+      - field: log.type
+        operator: IS
+        value: 'attack'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: meraki-ids-alerts
+    name: 'Meraki: IDS/IPS alerts are recorded'
+    dataType: firewall-meraki
+    filters:
+      - field: log.alertType
+        operator: IS
+        value: 'ids_alerted'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: paloalto-signature-updates
+    name: 'Palo Alto: antivirus, content and WildFire updates are recorded'
+    dataType: firewall-paloalto
+    filters:
+      - field: log.paType
+        operator: IS
+        value: 'SYSTEM'
+      - field: log.opaque
+        operator: CONTAIN
+        value: 'update job succeeded'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: paloalto-threat-detections
+    name: 'Palo Alto: threat prevention detections are recorded'
+    dataType: firewall-paloalto
+    filters:
+      - field: log.paType
+        operator: IS
+        value: 'THREAT'
+      - field: log.paSubtype
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'virus'
+          - 'spyware'
+          - 'vulnerability'
+          - 'wildfire-virus'
+          - 'ml-virus'
+          - 'flood'
+          - 'scan'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: pfsense-snort-suricata-alerts
+    name: 'pfSense: Snort or Suricata package alerts are recorded'
+    dataType: firewall-pfsense
+    filters:
+      - field: log.eventType
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'snort'
+          - 'suricata'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sonicwall-ips-gav-spyware
+    name: 'SonicWall: IPS, gateway antivirus, anti-spyware and botnet detections are recorded'
+    dataType: firewall-sonicwall
+    filters:
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '608'
+          - '609'
+          - '794'
+          - '795'
+          - '809'
+          - '82'
+          - '83'
+          - '177'
+          - '1200'
+          - '1201'
+          - '1518'
+          - '1519'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sophos-xg-ips-atp-av-detections
+    name: 'Sophos Firewall: IPS, ATP and antivirus detections are recorded'
+    dataType: firewall-sophos-xg
+    filters:
+      - field: log.type
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'IDP'
+          - 'ATP'
+          - 'Anti-Virus'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sophos-xg-pattern-updates
+    name: 'Sophos Firewall: IPS, ATP and antivirus pattern updates are recorded'
+    dataType: firewall-sophos-xg
+    filters:
+      - field: log.messageId
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '17818'
+          - '17819'
+          - '18017'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-graph-identity-attack-alerts
+    name: 'Microsoft Graph: Defender for Identity attack alerts are received'
+    dataType: o365-graph
+    filters:
+      - field: log.serviceSource
+        operator: IS
+        value: 'microsoftDefenderForIdentity'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sophos-central-intrusion-prevention
+    name: 'Sophos Central: intrusion prevention or advanced threat protection events'
+    dataType: sophos-central
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Event::Endpoint::Threat::IpsInboundDetection'
+          - 'Event::Firewall::FirewallAdvancedThreatProtection'
+          - 'Event::Firewall::FirewallAdvancedThreatProtectionDetailed'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: suricata-alerts
+    name: 'Suricata: IDS alerts are recorded'
+    dataType: suricata
+    filters:
+      - field: log.eventType
+        operator: IS
+        value: 'alert'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1

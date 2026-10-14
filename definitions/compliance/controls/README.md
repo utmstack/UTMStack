@@ -79,20 +79,26 @@ checks:
 
 How the checks are designed:
 
-- **Evidence per source, strategy `ANY`.** Most automatic controls carry one check per data
-  source (Windows, Linux, Microsoft 365, firewalls…). A check whose `dataType` the tenant does
-  not send is "not applicable" and neither passes nor fails; one passing source is enough.
-- **Violations, strategy `ALL`, no `dataType`.** `au-4`, `au-5` and `au-9` count things that
-  must not happen (a cleared audit log, audit records dropped) with `THRESHOLD_MAX` 0. Their
-  filters are specific enough to match only the intended records of any source.
-- **Alerts.** `au-6`, `ir-4`, `ir-5`, `si-4` and `ca-7` read the alert store (`dataset: alerts`):
-  whether alerts are raised, reviewed and closed.
+- **Every check names one data source (`dataType`).** A check whose source the tenant does not
+  send is "not applicable": it neither passes nor fails. A control whose checks are all not
+  applicable is "not evaluated", never compliant by default.
+- **Evidence checks** (`MIN_HITS_REQUIRED`, ruleValue 1) show something is in place: failed
+  logons recorded, backups completing, anti-malware active. One source showing it is enough
+  (strategy `ANY`).
+- **Limit checks** (`THRESHOLD_MAX`, usually 0) count things that must not happen: an audit log
+  cleared, protection switched off, a sign-in without multi-factor, root used directly, telnet or
+  FTP allowed. A limit that is exceeded fails the control whatever its strategy, so a clean source
+  never hides a violation on another one.
+- **Alerts.** `au-6`, `ir-4`, `ir-5`, `si-4` and `ca-7` also read the alert store
+  (`dataset: alerts`): alerts raised, reviewed and closed.
 - **Field names are what v12 stores**, after the filters in `definitions/filters/`: the
   standard fields (`action`, `actionResult`, `origin.*`, `target.*`) where a filter fills them,
   vendor fields under `log.` otherwise (for example `log.eventCode` for Windows, not
   `log.eventID`). A field outside what the filter writes, or an event the filter drops, never
   matches. A negative operator (`IS_NOT`, `NOT_ENDS_WITH`) also drops rows where the field is
-  missing.
+  missing, and `EXIST` on a plain column (`action`, `actionResult`) is always true.
+- Checks for sources no server sent yet are built from the filter, the correlation rules and
+  the vendor's documentation, and were replayed through the real filters where possible.
 
 ## System vs user (templates and customisation)
 

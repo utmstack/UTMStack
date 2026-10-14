@@ -1,9 +1,9 @@
-# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Manual: set in the report.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
 id: ra-5
 family: ra
 familyName: Risk Assessment
 name: Vulnerability Monitoring and Scanning
-scope: governance
+scope: data
 statement: |-
   Monitor and scan for vulnerabilities in the system and hosted applications [organization-defined frequency and/or randomly in accordance with organization-defined process] and when new vulnerabilities potentially affecting the system are identified and reported;
   Employ vulnerability monitoring tools and techniques that facilitate interoperability among tools and automate parts of the vulnerability management process by using standards for:
@@ -15,6 +15,117 @@ statement: |-
   Share information obtained from the vulnerability monitoring process and control assessments with [personnel or roles] to help eliminate similar vulnerabilities in other systems; and
   Employ vulnerability monitoring tools that include the capability to readily update the vulnerabilities to be scanned.
 remediation: |-
-  Manual control: logs cannot show whether this is in place, so the report lists it as "Out of scope" until a person decides. Open the framework report, set this control's status (Compliant, Non-compliant or At risk) and write the justification.
-  Keep the evidence an auditor will ask for, for example the risk assessment, vulnerability scan reports and remediation tracking.
+  Passes when a connected source shows vulnerability scans or assessments ran during the window.
+  If it fails: schedule vulnerability scans and send their results or job events to UTMStack.
 source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY
+checks:
+  - key: linux-vulnerability-scanner
+    name: 'Linux: vulnerability scanner agent activity is recorded'
+    dataType: linux
+    filters:
+      - field: log.syslogIdentifier
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'cybercnsagent_linux'
+          - 'cybercnsagentv2_linux'
+          - 'qualys-cloud-agent'
+          - 'nessusd'
+          - 'nessus-agent'
+          - 'nessusagent'
+          - 'ir_agent'
+          - 'oscap'
+          - 'lynis'
+          - 'ospd-openvas'
+          - 'gvmd'
+          - 'insights-client'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: azure-defender-for-cloud-assessments
+    name: 'Azure (Defender for Cloud): security assessments and vulnerability findings are exported'
+    dataType: azure
+    filters:
+      - field: log.type
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Microsoft.Security/assessments'
+          - 'Microsoft.Security/assessments/subAssessments'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-inspector-scans
+    name: 'AWS: Amazon Inspector scans and findings are received'
+    dataType: aws
+    filters:
+      - field: log.source
+        operator: IS
+        value: 'aws.inspector2'
+      - field: log.detailtype
+        operator: IS_ONE_OF
+        value:
+          - 'Inspector2 Scan'
+          - 'Inspector2 Finding'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-securityhub-findings
+    name: 'AWS: Security Hub assessment findings are received'
+    dataType: aws
+    filters:
+      - field: log.source
+        operator: IS
+        value: 'aws.securityhub'
+      - field: log.detailtype
+        operator: IS
+        value: 'Security Hub Findings - Imported'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: gcp-scc-vulnerability-findings
+    name: 'Google: Security Command Center vulnerability and misconfiguration findings are received'
+    dataType: google
+    filters:
+      - field: log.notificationConfigName
+        operator: EXIST
+      - field: log.finding.findingClass
+        operator: IS_ONE_OF
+        value:
+          - 'VULNERABILITY'
+          - 'MISCONFIGURATION'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: kaspersky-vulnerabilities-reported
+    name: 'Kaspersky: device status reports detected software vulnerabilities'
+    dataType: antivirus-kaspersky
+    filters:
+      - field: log.eventType
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'KLSRV_HOST_STATUS_CRITICAL'
+          - 'KLSRV_HOST_STATUS_WARNING'
+      - field: log.ksc.p1
+        operator: CONTAIN
+        value: 'vulnerabilit'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fgt-security-rating
+    name: 'FortiGate: security rating and device vulnerability checks are recorded'
+    dataType: firewall-fortigate-traffic
+    filters:
+      - field: log.logid
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '0110052000'
+          - '0110052001'
+          - '0100020150'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: github-security-alerts
+    name: 'GitHub: Dependabot, code scanning and secret scanning alerts are received'
+    dataType: github
+    filters:
+      - field: log.alert.url
+        operator: CONTAIN_ONE_OF
+        value:
+          - '/dependabot/alerts/'
+          - '/code-scanning/alerts/'
+          - '/secret-scanning/alerts/'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1

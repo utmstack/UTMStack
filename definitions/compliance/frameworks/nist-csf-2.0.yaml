@@ -170,7 +170,7 @@ sections:
     satisfiedBy: [cm-3, cm-4]
   - id: ID.RA-08
     name: Processes to receive, analyze and respond to vulnerability disclosures are established
-    satisfiedBy: [ra-5]
+    satisfiedBy: [si-5]
   - id: ID.RA-09
     name: Authenticity and integrity of hardware and software are assessed before acquisition and use
     satisfiedBy: [sr-11, sr-10, sr-5]
@@ -197,7 +197,7 @@ sections:
   requirements:
   - id: PR.AA-01
     name: Identities and credentials for users, services and hardware are managed
-    satisfiedBy: [ac-2, ia-2, ia-4, ia-5]
+    satisfiedBy: [ac-2, ia-2, ia-4, ia-5, ia-2.5]
   - id: PR.AA-02
     name: Identities are proofed and bound to credentials based on the context of interactions
     satisfiedBy: [ia-12]
@@ -227,10 +227,10 @@ sections:
   requirements:
   - id: PR.DS-01
     name: Confidentiality, integrity and availability of data at rest are protected
-    satisfiedBy: [sc-28, sc-13, sc-12]
+    satisfiedBy: [sc-28, sc-13, sc-12, sc-28.1]
   - id: PR.DS-02
     name: Confidentiality, integrity and availability of data in transit are protected
-    satisfiedBy: [sc-8, sc-13, sc-12]
+    satisfiedBy: [sc-8, sc-13, sc-12, sc-8.1]
   - id: PR.DS-10
     name: Confidentiality, integrity and availability of data in use are protected
     satisfiedBy: [sc-4, sc-39, si-16]
@@ -254,7 +254,7 @@ sections:
     satisfiedBy: [au-2, au-12, au-7]
   - id: PR.PS-05
     name: Installation and execution of unauthorized software are prevented
-    satisfiedBy: [cm-7, sc-34]
+    satisfiedBy: [cm-7, sc-34, cm-7.5]
   - id: PR.PS-06
     name: Secure software development practices are integrated and monitored across the development life cycle
     satisfiedBy: [sa-3, sa-8, sa-11, sa-15]
@@ -263,7 +263,7 @@ sections:
   requirements:
   - id: PR.IR-01
     name: Networks and environments are protected from unauthorized logical access and usage
-    satisfiedBy: [sc-7.5, sc-5]
+    satisfiedBy: [sc-7.5, sc-5, sc-7.12]
   - id: PR.IR-02
     name: Technology assets are protected from environmental threats
     satisfiedBy: [pe-11, pe-13, pe-14, pe-15]
@@ -374,7 +374,7 @@ sections:
     satisfiedBy: [cp-10]
   - id: RC.RP-03
     name: Integrity of backups and restoration assets is verified before use in restoration
-    satisfiedBy: [cp-9, cp-4]
+    satisfiedBy: [cp-4, cp-10]
   - id: RC.RP-04
     name: Critical mission functions and risk management shape post-incident operational norms
     satisfiedBy: [ir-8, pm-11]

@@ -38,6 +38,9 @@ sections:
   - id: BA-LC-08
     name: The log retention period is formally approved and meets the bank's legal, regulatory and record-keeping obligations
     satisfiedBy: [au-11, si-12]
+  - id: BA-LC-09
+    name: Systems stay synchronised with the approved time source; synchronisation failures are detected
+    satisfiedBy: [sc-45.1]
 - key: identity-authentication
   name: Identity and authentication monitoring
   requirements:
@@ -62,6 +65,9 @@ sections:
   - id: BA-IA-07
     name: Password rules are enforced (minimum length, blocking of common or compromised passwords, protected storage and transmission)
     satisfiedBy: [ia-5.1]
+  - id: BA-IA-08
+    name: Administrators sign in with individual accounts; shared built-in administrator accounts (root, the built-in Administrator, cloud root users) are not used to log on directly
+    satisfiedBy: [ia-2.5]
 - key: account-privilege
   name: Account and privilege management
   requirements:
@@ -119,6 +125,12 @@ sections:
   - id: BA-CC-07
     name: Systems are scanned for vulnerabilities at a set frequency and findings are tracked to remediation
     satisfiedBy: [ra-5]
+  - id: BA-CC-08
+    name: Backups of critical systems and data run and complete on schedule
+    satisfiedBy: [cp-9]
+  - id: BA-CC-09
+    name: Only approved software can run on payment systems and critical servers (application allowlisting)
+    satisfiedBy: [cm-7.5]
 - key: malware-endpoint
   name: Malware and endpoint protection
   requirements:
@@ -137,6 +149,9 @@ sections:
   - id: BA-MW-05
     name: Email filtering events (spam, phishing and malware blocked or quarantined) are collected
     satisfiedBy: [si-8]
+  - id: BA-MW-06
+    name: Anti-malware protection and host firewalls stay switched on, and detected malware is removed
+    satisfiedBy: [si-3, sc-7.12]
 - key: network-perimeter
   name: Network and perimeter monitoring
   requirements:
@@ -152,6 +167,9 @@ sections:
   - id: BA-NP-04
     name: Payment systems (for example the SWIFT environment) and other critical zones are separated from the general network, and their boundary firewalls deny traffic by default and allow only approved flows
     satisfiedBy: [sc-7.5, pl-8]
+  - id: BA-NP-05
+    name: Cleartext administration and file-transfer protocols (telnet, FTP, rlogin, TFTP) are not allowed through the network
+    satisfiedBy: [sc-8.1]
 - key: alerting-correlation
   name: Real-time alerting and event correlation
   requirements:
@@ -220,7 +238,7 @@ sections:
     satisfiedBy: [au-5, au-4]
   - id: BA-AP-03
     name: Logs are kept in a backed-up central store separate from the systems that produce them, and administrators of monitored systems cannot change or delete them
-    satisfiedBy: [cp-9, ac-5]
+    satisfiedBy: [cp-6, ac-5]
   - id: BA-AP-04
     name: Logs are encrypted in transit from their sources to the log platform
     satisfiedBy: [sc-8]

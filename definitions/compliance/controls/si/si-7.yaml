@@ -34,6 +34,26 @@ checks:
           - '%%4434'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: win-sysmon-file-registry-change
+    name: 'Windows: file and registry changes recorded by Sysmon are present'
+    dataType: wineventlog
+    filters:
+      - field: log.providerName
+        operator: IS
+        value: 'Microsoft-Windows-Sysmon'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '2'
+          - '11'
+          - '12'
+          - '13'
+          - '14'
+          - '15'
+          - '23'
+          - '26'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
   - key: linux-audit-watched-file-write
     name: 'Linux: writes to watched system files are recorded (audit)'
     dataType: linux
@@ -77,6 +97,18 @@ checks:
           - 'fremovexattr'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: o365-file-modifications
+    name: 'Microsoft 365: file modifications, deletions and renames are recorded'
+    dataType: o365
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'FileModified'
+          - 'FileDeleted'
+          - 'FileRenamed'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
   - key: azure-defender-file-registry-events
     name: 'Azure: Defender for Endpoint file and registry change events are recorded'
     dataType: azure
@@ -86,5 +118,59 @@ checks:
         value:
           - 'AdvancedHunting-DeviceFileEvents'
           - 'AdvancedHunting-DeviceRegistryEvents'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-s3-object-changes
+    name: 'AWS: S3 object writes and deletions are recorded (data events)'
+    dataType: aws
+    filters:
+      - field: log.eventCategory
+        operator: IS
+        value: 'Data'
+      - field: target.domain
+        operator: IS
+        value: 's3.amazonaws.com'
+      - field: action
+        operator: IS_ONE_OF
+        value:
+          - 'PutObject'
+          - 'DeleteObject'
+          - 'DeleteObjects'
+          - 'CopyObject'
+          - 'CompleteMultipartUpload'
+          - 'RestoreObject'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: gcp-gcs-object-changes
+    name: 'Google: Cloud Storage object writes and deletions are recorded'
+    dataType: google
+    filters:
+      - field: log.protoPayloadServiceName
+        operator: IS
+        value: 'storage.googleapis.com'
+      - field: log.protoPayloadMethodName
+        operator: IS_ONE_OF
+        value:
+          - 'storage.objects.create'
+          - 'storage.objects.delete'
+          - 'storage.objects.update'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-graph-purview-file-modifications
+    name: 'Microsoft Graph (Purview audit): file modifications, deletions and renames are recorded'
+    dataType: o365-graph
+    filters:
+      - field: log.operation
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'FileModified'
+          - 'FileDeleted'
+          - 'FileRenamed'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1

@@ -70,6 +70,24 @@ checks:
         operator: EXIST
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: macos-security-settings-authorized
+    name: 'macOS: changes to security settings authorized by an administrator are recorded'
+    dataType: macos
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'success'
+      - field: log.subsystem
+        operator: IS
+        value: 'com.apple.Authorization'
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - '''system.preferences.security'''
+          - '''com.apple.system-extensions.admin'''
+          - '''system.preferences.security.remotepair'''
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
   - key: o365-security-policy-changes
     name: 'Microsoft 365: audit, conditional access and threat policy changes are recorded'
     dataType: o365
@@ -206,6 +224,15 @@ checks:
         value: 'success'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: bitdefender-module-status-change
+    name: 'Bitdefender: protection module status changed'
+    dataType: antivirus-bitdefender-gz
+    filters:
+      - field: log.BitdefenderGZModule
+        operator: IS
+        value: 'modules'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
   - key: eset-policy-change
     name: 'ESET PROTECT: security policies are created or changed in the console'
     dataType: antivirus-esmc-eset
@@ -216,5 +243,214 @@ checks:
       - field: log.domain
         operator: CONTAIN
         value: 'polic'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sentinelone-exclusion-change
+    name: 'SentinelOne: exclusion changed'
+    dataType: antivirus-sentinel-one
+    filters:
+      - field: log.activityType
+        operator: IS
+        value: '3016'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: cisco-switch-security-commands
+    name: 'Cisco switch: AAA, logging and access-list commands are recorded'
+    dataType: cisco-switch
+    filters:
+      - field: log.facility
+        operator: IS
+        value: 'PARSER'
+      - field: log.facilityMnemonic
+        operator: IS
+        value: 'CFGLOG_LOGGEDCMD'
+      - field: log.ciscoMsg
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'aaa '
+          - 'logging '
+          - 'access-list'
+          - 'snmp-server'
+          - 'ip ssh'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: crowdstrike-policy-toggled
+    name: 'CrowdStrike: policies enabled, disabled or deleted'
+    dataType: crowdstrike
+    filters:
+      - field: log.eventOperationName
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'enable_policy'
+          - 'disable_policy'
+          - 'delete_policy'
+          - 'remove_policy'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: asa-security-config-commands
+    name: 'Cisco ASA: access-list, AAA and logging configuration commands are recorded'
+    dataType: firewall-cisco-asa
+    filters:
+      - field: log.messageId
+        operator: IS
+        value: '111008'
+      - field: log.msg
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'access-list'
+          - 'access-group'
+          - 'aaa '
+          - 'logging '
+          - 'threat-detection'
+          - 'ip audit'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fgt-security-policy-changes
+    name: 'FortiGate: firewall policy and security profile changes are recorded'
+    dataType: firewall-fortigate-traffic
+    filters:
+      - field: log.logid
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '0100044544'
+          - '0100044545'
+          - '0100044546'
+          - '0100044547'
+      - field: log.cfgpath
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'firewall.policy'
+          - 'firewall.proxy-policy'
+          - 'ips.sensor'
+          - 'antivirus.profile'
+          - 'webfilter.profile'
+          - 'application.list'
+          - 'dnsfilter.profile'
+          - 'log.setting'
+          - 'log.syslogd'
+          - 'log.fortianalyzer'
+          - 'system.global'
+          - 'vpn.ssl.settings'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: paloalto-security-policy-changes
+    name: 'Palo Alto: security policy and security profile changes are recorded'
+    dataType: firewall-paloalto
+    filters:
+      - field: log.paType
+        operator: IS
+        value: 'CONFIG'
+      - field: log.path
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'rulebase security'
+          - 'profiles virus'
+          - 'profiles spyware'
+          - 'profiles vulnerability'
+          - 'profiles url-filtering'
+          - 'profiles wildfire-analysis'
+          - 'log-settings'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: pfsense-rule-and-logging-changes
+    name: 'pfSense: firewall rule and logging setting changes are recorded'
+    dataType: firewall-pfsense
+    filters:
+      - field: raw
+        operator: CONTAIN
+        value: 'Configuration Change:'
+      - field: raw
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'Firewall: Rules'
+          - 'Firewall: NAT'
+          - 'System Logs'
+          - 'System: Advanced'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sonicwall-rule-and-cfs-changes
+    name: 'SonicWall: access rule and content filter policy changes are recorded'
+    dataType: firewall-sonicwall
+    filters:
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '440'
+          - '441'
+          - '442'
+          - '1599'
+          - '1600'
+          - '1601'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: github-branch-protection-changes
+    name: 'GitHub: branch protection rules created, changed or deleted'
+    dataType: github
+    filters:
+      - field: log.rule.name
+        operator: EXIST
+      - field: log.action
+        operator: IS_ONE_OF
+        value:
+          - 'created'
+          - 'edited'
+          - 'deleted'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-graph-security-policy-changes
+    name: 'Microsoft Graph: conditional access, authorization and authentication method policy changes are recorded'
+    dataType: o365-graph
+    filters:
+      - field: action
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'conditional access policy'
+          - 'authorization policy'
+          - 'authentication methods policy'
+          - 'strong authentication'
+          - 'security defaults'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sophos-central-protection-setting-change
+    name: 'Sophos Central: protection switched on or off by an administrator'
+    dataType: sophos-central
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Event::Endpoint::SavDisabled'
+          - 'Event::Endpoint::SavEnabled'
+          - 'Event::Endpoint::AapDisabledByAdmin'
+          - 'Event::Endpoint::AapEnabledByAdmin'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: edr-sensor-toggled
+    name: 'UTMStack EDR: protection sensor switched on or off'
+    dataType: utmstack_edr
+    filters:
+      - field: action
+        operator: IS
+        value: 'config_change'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: esxi-security-config-changes
+    name: 'VMware ESXi: firewall, SSH, shell and lockdown setting changes are recorded'
+    dataType: vmware-esxi
+    filters:
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'esx.audit.net.firewall.config.changed'
+          - 'esx.audit.ssh.enabled'
+          - 'esx.audit.ssh.disabled'
+          - 'esx.audit.shell.enabled'
+          - 'esx.audit.shell.disabled'
+          - 'esx.audit.lockdownmode'
+          - 'esx.audit.uw.secpolicy'
+          - 'esx.audit.esximage.hostacceptance.changed'
+          - 'esx.audit.dcui.enabled'
+          - 'esx.audit.dcui.disabled'
+          - 'Firewall configuration has changed'
+          - 'SSH access has been enabled'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1

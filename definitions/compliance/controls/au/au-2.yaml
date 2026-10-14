@@ -107,6 +107,95 @@ checks:
         value: 'cloudaudit.googleapis.com'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: eset-audit-events
+    name: 'ESET: ESET PROTECT audit events'
+    dataType: antivirus-esmc-eset
+    filters:
+      - field: log.eventType
+        operator: IS
+        value: 'Audit_Event'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: kaspersky-ksc-audit
+    name: 'Kaspersky: Security Center audit events'
+    dataType: antivirus-kaspersky
+    filters:
+      - field: log.eventType
+        operator: START_WITH
+        value: 'KLAUD_EV_'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: cisco-switch-security-events
+    name: 'Cisco switch: login, SSH, configuration and port-security events are recorded'
+    dataType: cisco-switch
+    filters:
+      - field: log.facility
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'SEC_LOGIN'
+          - 'SECLOGIN'
+          - 'SSH'
+          - 'SYS'
+          - 'PARSER'
+          - 'AUTHMGR'
+          - 'DOT1X'
+          - 'PORT_SECURITY'
+          - 'SW_DAI'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: crowdstrike-falcon-audit
+    name: 'CrowdStrike: Falcon console audit events'
+    dataType: crowdstrike
+    filters:
+      - field: log.metadataEventType
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'AuthActivityAuditEvent'
+          - 'UserActivityAuditEvent'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: asa-security-events
+    name: 'Cisco ASA: authentication, command and threat events are recorded'
+    dataType: firewall-cisco-asa
+    filters:
+      - field: log.messageId
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '111008'
+          - '111010'
+          - '113004'
+          - '113005'
+          - '113012'
+          - '113015'
+          - '605004'
+          - '605005'
+          - '611101'
+          - '611102'
+          - '502101'
+          - '502102'
+          - '502103'
+          - '733100'
+          - '733101'
+          - '733102'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: ftd-security-events
+    name: 'Cisco FTD: intrusion, malware and management login events are recorded'
+    dataType: firewall-cisco-firepower
+    filters:
+      - field: log.messageId
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '430001'
+          - '430005'
+          - '113004'
+          - '113005'
+          - '605004'
+          - '605005'
+          - '611101'
+          - '611102'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
   - key: fgt-event-logs
     name: 'FortiGate: system, user and VPN event logs are recorded'
     dataType: firewall-fortigate-traffic
@@ -122,6 +211,41 @@ checks:
           - 'vpn'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: fortiweb-attack-and-event-logs
+    name: 'FortiWeb: attack and event logs are recorded'
+    dataType: firewall-fortiweb
+    filters:
+      - field: log.type
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'attack'
+          - 'event'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: meraki-security-events
+    name: 'Meraki: security and authentication events are recorded'
+    dataType: firewall-meraki
+    filters:
+      - field: log.merakiGroup
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'security_event'
+          - 'ids-alerts'
+          - 'events'
+          - 'airmarshal_events'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: mikrotik-account-and-critical
+    name: 'MikroTik: login and critical system events are recorded'
+    dataType: firewall-mikrotik
+    filters:
+      - field: log.topics
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'account'
+          - 'critical'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
   - key: paloalto-system-config-logs
     name: 'Palo Alto: system and configuration logs are recorded'
     dataType: firewall-paloalto
@@ -133,6 +257,42 @@ checks:
           - 'CONFIG'
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
+  - key: sonicwall-security-events
+    name: 'SonicWall: security service and administrator/user login events are recorded'
+    dataType: firewall-sonicwall
+    filters:
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '608'
+          - '609'
+          - '794'
+          - '795'
+          - '809'
+          - '82'
+          - '83'
+          - '177'
+          - '1200'
+          - '1201'
+          - '1518'
+          - '1519'
+          - '14'
+          - '29'
+          - '30'
+          - '31'
+          - '32'
+          - '33'
+          - '199'
+          - '200'
+          - '236'
+          - '237'
+          - '238'
+          - '1080'
+          - '994'
+          - '995'
+          - '1382'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
   - key: sophos-xg-event-logs
     name: 'Sophos Firewall: event logs are recorded'
     dataType: firewall-sophos-xg
@@ -140,5 +300,86 @@ checks:
       - field: log.type
         operator: IS
         value: 'Event'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aix-auth-program-events
+    name: 'IBM AIX: sign-in and privilege program messages are recorded'
+    dataType: ibm-aix
+    filters:
+      - field: log.eventType
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'sshd'
+          - 'sudo'
+          - 'su'
+          - 'login'
+          - 'tsm'
+          - 'telnetd'
+          - 'ftpd'
+          - 'rlogind'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: as400-security-messages
+    name: 'IBM i (AS/400): sign-on and security messages are recorded'
+    dataType: ibm-as400
+    filters:
+      - field: log.messageId
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'CPIAD09'
+          - 'CPIAD02'
+          - 'CPF2234'
+          - 'CPF1393'
+          - 'CPF1397'
+          - 'CPI2283'
+          - 'CPI2284'
+          - 'CPI9014'
+          - 'CPI96C4'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-graph-directory-audit-present
+    name: 'Microsoft Graph: Entra directory audit records are received'
+    dataType: o365-graph
+    filters:
+      - field: log.loggedByService
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: suricata-alerts-anomalies
+    name: 'Suricata: alerts, anomalies and drops are recorded'
+    dataType: suricata
+    filters:
+      - field: log.eventType
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'alert'
+          - 'anomaly'
+          - 'drop'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: esxi-audit-events
+    name: 'VMware ESXi: host audit events are recorded'
+    dataType: vmware-esxi
+    filters:
+      - field: log.process
+        operator: IS
+        value: 'vobd'
+      - field: log.message
+        operator: CONTAIN
+        value: 'esx.audit.'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: esxi-hostd-events
+    name: 'VMware ESXi: host management events are recorded'
+    dataType: vmware-esxi
+    filters:
+      - field: log.process
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Hostd'
+          - 'hostd'
+      - field: log.message
+        operator: CONTAIN
+        value: 'Event '
     rule: MIN_HITS_REQUIRED
     ruleValue: 1
