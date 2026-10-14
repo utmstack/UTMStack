@@ -61,6 +61,11 @@ func isPermanent(err error) bool {
 	return he.status == http.StatusBadRequest && strings.Contains(he.Error(), "AADSTS700082")
 }
 
+func isThrottled(err error) bool {
+	var he *graphHTTPError
+	return errors.As(err, &he) && he.status == http.StatusTooManyRequests
+}
+
 func joinPath(base, path string) string {
 	if base != "" && !strings.HasSuffix(base, "/") {
 		base += "/"
@@ -99,16 +104,12 @@ type GraphProcessor struct {
 	accessToken string
 	tokenType   string
 	tokenExpiry time.Time
-	// availableSources holds a source's backoff deadline after a permanent
-	// failure, so the error is logged once and the tick is cheap in between.
-	availableSources map[string]time.Time
 }
 
 func newGraphProcessor(group *ModuleGroup) *GraphProcessor {
 	p := &GraphProcessor{
-		UtmTenantId:      group.UtmTenantId,
-		httpClient:       &http.Client{Timeout: reqTimeout},
-		availableSources: make(map[string]time.Time),
+		UtmTenantId: group.UtmTenantId,
+		httpClient:  &http.Client{Timeout: reqTimeout},
 	}
 	for _, cnf := range group.ModuleGroupConfigurations {
 		switch cnf.ConfKey {
@@ -129,15 +130,6 @@ func newGraphProcessor(group *ModuleGroup) *GraphProcessor {
 	}
 	p.CloudConfig = GetCloudConfig(p.CloudEnvironment)
 	return p
-}
-
-func (p *GraphProcessor) sourceUnavailable(source string) bool {
-	t, ok := p.availableSources[source]
-	return ok && time.Now().UTC().Before(t)
-}
-
-func (p *GraphProcessor) markSourceUnavailable(source string) {
-	p.availableSources[source] = time.Now().UTC().Add(time.Hour)
 }
 
 // getToken refreshes 60s before expiry to avoid using a token at the edge.

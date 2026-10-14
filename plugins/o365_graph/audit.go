@@ -17,8 +17,9 @@ const (
 // purview-audit is an async job API available only in the global cloud.
 func purviewPoll(p *GraphProcessor, group *ModuleGroup, payload *cursorPayload, windowStart, windowEnd time.Time) ([]LogRecord, time.Time, error) {
 	name := "purview-audit"
-	if p.sourceUnavailable(name) {
-		return nil, windowEnd, nil
+	pos := payload.sourcePosition(name)
+	if payload.sourceUnavailable(name) {
+		return nil, pos, nil
 	}
 	if p.CloudEnvironment != CloudCommercial && p.CloudEnvironment != CloudGCC {
 		return nil, windowEnd, nil
@@ -33,14 +34,16 @@ func purviewPoll(p *GraphProcessor, group *ModuleGroup, payload *cursorPayload, 
 
 	respBody, err := p.doGraphRequest(http.MethodPost, graphAPIVersion+"/security/auditLog/queries", createBody)
 	if err != nil {
-		if isPermanent(err) {
-			p.markSourceUnavailable(name)
-			catcher.Warn("graph source permanently unavailable", map[string]any{
+		if isPermanent(err) || isThrottled(err) {
+			// The window is still unread: keep the position so it is
+			// re-covered once the backoff expires.
+			payload.markSourceUnavailable(name)
+			catcher.Warn("graph source unavailable", map[string]any{
 				"process": processName, "source": name, "error": err.Error(),
 			})
-			return nil, windowEnd, nil
+			return nil, pos, nil
 		}
-		return nil, windowEnd, fmt.Errorf("%s: %w", name, err)
+		return nil, pos, fmt.Errorf("%s: %w", name, err)
 	}
 
 	var query struct {
@@ -48,30 +51,28 @@ func purviewPoll(p *GraphProcessor, group *ModuleGroup, payload *cursorPayload, 
 		Status string `json:"status"`
 	}
 	if err := json.Unmarshal(respBody, &query); err != nil {
-		return nil, windowEnd, fmt.Errorf("%s: query decode: %w", name, err)
+		return nil, pos, fmt.Errorf("%s: query decode: %w", name, err)
 	}
 
 	deadline := time.Now().Add(purviewPollMaxWait)
 	for query.Status == "notStarted" || query.Status == "running" {
 		if time.Now().After(deadline) {
-			// Error keeps the position: the window is re-covered next tick and
-			// duplicate ids are deduped by the deterministic identity.
-			return nil, windowEnd, fmt.Errorf("%s: query still running after %s", name, purviewPollMaxWait)
+			return nil, pos, fmt.Errorf("%s: query still running after %s", name, purviewPollMaxWait)
 		}
 		time.Sleep(purviewPollInterval)
 		statusBody, err := p.doGraphRequest(http.MethodGet, graphAPIVersion+"/security/auditLog/queries/"+query.Id, nil)
 		if err != nil {
-			return nil, windowEnd, fmt.Errorf("%s: poll: %w", name, err)
+			return nil, pos, fmt.Errorf("%s: poll: %w", name, err)
 		}
 		_ = json.Unmarshal(statusBody, &query)
 	}
 	if query.Status != "succeeded" {
-		return nil, windowEnd, fmt.Errorf("%s: query status %s", name, query.Status)
+		return nil, pos, fmt.Errorf("%s: query status %s", name, query.Status)
 	}
 
 	items, err := p.getJSONPages(graphAPIVersion + "/security/auditLog/queries/" + query.Id + "/records")
 	if err != nil {
-		return nil, windowEnd, fmt.Errorf("%s: records: %w", name, err)
+		return nil, pos, fmt.Errorf("%s: records: %w", name, err)
 	}
 
 	records := make([]LogRecord, 0, len(items))

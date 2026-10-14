@@ -15,6 +15,9 @@ func graphCursorKey(group *ModuleGroup) string {
 type cursorPayload struct {
 	WindowEnd time.Time            `json:"windowEnd"`
 	Sources   map[string]time.Time `json:"sources,omitempty"`
+	// Backoff deadlines persist here so a permanent error logs once per
+	// window, not every tick (the processor is rebuilt each tick).
+	UnavailableSources map[string]time.Time `json:"unavailableSources,omitempty"`
 }
 
 func (c *cursorPayload) sourcePosition(name string) time.Time {
@@ -29,4 +32,16 @@ func (c *cursorPayload) setSourcePosition(name string, t time.Time) {
 		c.Sources = make(map[string]time.Time)
 	}
 	c.Sources[name] = t
+}
+
+func (c *cursorPayload) sourceUnavailable(source string) bool {
+	t, ok := c.UnavailableSources[source]
+	return ok && time.Now().UTC().Before(t)
+}
+
+func (c *cursorPayload) markSourceUnavailable(source string) {
+	if c.UnavailableSources == nil {
+		c.UnavailableSources = make(map[string]time.Time)
+	}
+	c.UnavailableSources[source] = time.Now().UTC().Add(time.Hour)
 }

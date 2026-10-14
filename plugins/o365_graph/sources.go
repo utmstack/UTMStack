@@ -29,7 +29,7 @@ func listSource(name, path, timeField, top string, idFn func(item map[string]any
 	return source{
 		name: name,
 		poll: func(p *GraphProcessor, group *ModuleGroup, payload *cursorPayload, windowStart, windowEnd time.Time) ([]LogRecord, time.Time, error) {
-			if p.sourceUnavailable(name) {
+			if payload.sourceUnavailable(name) {
 				return nil, windowEnd, nil
 			}
 			start, end := sourceWindow(payload.sourcePosition(name), windowStart, windowEnd)
@@ -44,7 +44,7 @@ func listSource(name, path, timeField, top string, idFn func(item map[string]any
 			items, err := p.getJSONPages(q)
 			if err != nil {
 				if isPermanent(err) {
-					p.markSourceUnavailable(name)
+					payload.markSourceUnavailable(name)
 					catcher.Warn("graph source permanently unavailable", map[string]any{
 						"process": processName, "source": name, "error": err.Error(),
 					})
@@ -90,7 +90,7 @@ func idOnly(item map[string]any) (string, string) {
 
 func huntingPoll(p *GraphProcessor, group *ModuleGroup, payload *cursorPayload, windowStart, windowEnd time.Time) ([]LogRecord, time.Time, error) {
 	name := "hunting"
-	if p.sourceUnavailable(name) {
+	if payload.sourceUnavailable(name) {
 		return nil, windowEnd, nil
 	}
 	start, end := sourceWindow(payload.sourcePosition(name), windowStart, windowEnd)
@@ -104,7 +104,7 @@ func huntingPoll(p *GraphProcessor, group *ModuleGroup, payload *cursorPayload, 
 	respBody, err := p.doGraphRequest("POST", graphAPIVersion+"/security/runHuntingQuery", body)
 	if err != nil {
 		if isPermanent(err) {
-			p.markSourceUnavailable(name)
+			payload.markSourceUnavailable(name)
 			catcher.Warn("graph source permanently unavailable", map[string]any{
 				"process": processName, "source": name, "error": err.Error(),
 			})
@@ -153,6 +153,12 @@ func collect(payload *cursorPayload, windowStart, windowEnd time.Time, group *Mo
 	next := &cursorPayload{WindowEnd: windowEnd, Sources: map[string]time.Time{}}
 	for k, v := range payload.Sources {
 		next.Sources[k] = v
+	}
+	if payload.UnavailableSources != nil {
+		next.UnavailableSources = make(map[string]time.Time, len(payload.UnavailableSources))
+		for k, v := range payload.UnavailableSources {
+			next.UnavailableSources[k] = v
+		}
 	}
 
 	sources := []source{
