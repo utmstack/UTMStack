@@ -1,4 +1,4 @@
-# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
 id: ir-4
 family: ir
 familyName: Incident Response
@@ -6,11 +6,21 @@ name: Incident Handling
 scope: data
 statement: |-
   Implement an incident handling capability for incidents that is consistent with the incident response plan and includes preparation, detection and analysis, containment, eradication, and recovery;
-    Coordinate incident handling activities with contingency planning activities;
-    Incorporate lessons learned from ongoing incident handling activities into incident response procedures, training, and testing, and implement the resulting changes accordingly; and
-    Ensure the rigor, intensity, scope, and results of incident handling activities are comparable and predictable across the organization.
+  Coordinate incident handling activities with contingency planning activities;
+  Incorporate lessons learned from ongoing incident handling activities into incident response procedures, training, and testing, and implement the resulting changes accordingly; and
+  Ensure the rigor, intensity, scope, and results of incident handling activities are comparable and predictable across the organization.
+remediation: |-
+  Passes when at least one alert in the window was worked to the end (status "Completed").
+  If it fails: alerts are not being closed. Work them to completion and record the outcome in UTMStack.
 source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY
 checks:
-  - key: todo
-    name: 'TODO: define compliance check for this control'
-    todo: true            # Pending — evaluator shows "Not implemented", excluded from score
+  - key: alerts-completed
+    name: 'Alerts were worked to completion'
+    dataset: alerts
+    filters:
+      - field: status
+        operator: IS
+        value: 'Completed'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1

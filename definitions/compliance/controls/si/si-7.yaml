@@ -1,14 +1,90 @@
-# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
 id: si-7
 family: si
 familyName: System and Information Integrity
 name: Software, Firmware, and Information Integrity
 scope: data
 statement: |-
-  Employ integrity verification tools to detect unauthorized changes to the following software, firmware, and information: [organization-defined software, firmware, and information] ; and
-    Take the following actions when unauthorized changes to the software, firmware, and information are detected: [organization-defined actions].
+  Employ integrity verification tools to detect unauthorized changes to the following software, firmware, and information: [organization-defined software, firmware, and information]; and
+  Take the following actions when unauthorized changes to the software, firmware, and information are detected: [organization-defined actions].
+remediation: |-
+  Passes when a connected source shows integrity-relevant changes: files, registry values or system binaries modified.
+  If it fails: enable file integrity monitoring (Windows object access auditing on critical folders and registry keys, Linux auditd watches, or the EDR file events).
 source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY
 checks:
-  - key: todo
-    name: 'TODO: define compliance check for this control'
-    todo: true            # Pending — evaluator shows "Not implemented", excluded from score
+  - key: win-object-write-access
+    name: 'Windows: write, delete and permission changes on audited files and registry keys are recorded'
+    dataType: wineventlog
+    filters:
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '4663'
+      - field: log.eventDataAccessList
+        operator: CONTAIN_ONE_OF
+        value:
+          - '%%4417'
+          - '%%4418'
+          - '%%4424'
+          - '%%1537'
+          - '%%1539'
+          - '%%1540'
+          - '%%4433'
+          - '%%4434'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-audit-watched-file-write
+    name: 'Linux: writes to watched system files are recorded (audit)'
+    dataType: linux
+    filters:
+      - field: log.type
+        operator: IS
+        value: 'auditd'
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'open'
+          - 'openat'
+          - 'openat2'
+          - 'creat'
+          - 'rename'
+          - 'renameat'
+          - 'renameat2'
+          - 'unlink'
+          - 'unlinkat'
+          - 'rmdir'
+          - 'mkdir'
+          - 'mkdirat'
+          - 'chmod'
+          - 'fchmod'
+          - 'fchmodat'
+          - 'chown'
+          - 'fchown'
+          - 'fchownat'
+          - 'lchown'
+          - 'truncate'
+          - 'ftruncate'
+          - 'link'
+          - 'linkat'
+          - 'symlink'
+          - 'symlinkat'
+          - 'setxattr'
+          - 'lsetxattr'
+          - 'fsetxattr'
+          - 'removexattr'
+          - 'lremovexattr'
+          - 'fremovexattr'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: azure-defender-file-registry-events
+    name: 'Azure: Defender for Endpoint file and registry change events are recorded'
+    dataType: azure
+    filters:
+      - field: log.category
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'AdvancedHunting-DeviceFileEvents'
+          - 'AdvancedHunting-DeviceRegistryEvents'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1

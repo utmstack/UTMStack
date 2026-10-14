@@ -1,4 +1,4 @@
-# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
 id: cm-3
 family: cm
 familyName: Configuration Management
@@ -6,14 +6,275 @@ name: Configuration Change Control
 scope: data
 statement: |-
   Determine and document the types of changes to the system that are configuration-controlled;
-    Review proposed configuration-controlled changes to the system and approve or disapprove such changes with explicit consideration for security and privacy impact analyses;
-    Document configuration change decisions associated with the system;
-    Implement approved configuration-controlled changes to the system;
-    Retain records of configuration-controlled changes to the system for [time period];
-    Monitor and review activities associated with configuration-controlled changes to the system; and
-    Coordinate and provide oversight for configuration change control activities through [configuration change control element] that convenes [{{ insert: param, cm-03_odp.04 }}  | when {{ insert: param, cm-03_odp.05 }} ].
+  Review proposed configuration-controlled changes to the system and approve or disapprove such changes with explicit consideration for security and privacy impact analyses;
+  Document configuration change decisions associated with the system;
+  Implement approved configuration-controlled changes to the system;
+  Retain records of configuration-controlled changes to the system for [time period];
+  Monitor and review activities associated with configuration-controlled changes to the system; and
+  Coordinate and provide oversight for configuration change control activities through [configuration change control element] that convenes [[organization-defined value] | when [organization-defined value]].
+remediation: |-
+  Passes when a connected source shows configuration or policy changes, which shows changes are recorded for review.
+  If it fails: enable policy change auditing (Windows "Audit Policy Change" and "Authentication Policy Change"; Linux auditd configuration changes; cloud admin audit logs).
+  That changes were approved is a process logs cannot show: keep change tickets as evidence.
 source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY
 checks:
-  - key: todo
-    name: 'TODO: define compliance check for this control'
-    todo: true            # Pending — evaluator shows "Not implemented", excluded from score
+  - key: win-policy-config-change
+    name: 'Windows: policy and configuration changes are recorded'
+    dataType: wineventlog
+    filters:
+      - field: log.providerName
+        operator: IS
+        value: 'Microsoft-Windows-Security-Auditing'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '4670'
+          - '4698'
+          - '4702'
+          - '4704'
+          - '4705'
+          - '4706'
+          - '4707'
+          - '4713'
+          - '4716'
+          - '4717'
+          - '4718'
+          - '4719'
+          - '4739'
+          - '4865'
+          - '4867'
+          - '4907'
+          - '5136'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-audit-watched-file-change
+    name: 'Linux: changes to watched configuration files are recorded (audit)'
+    dataType: linux
+    filters:
+      - field: log.type
+        operator: IS
+        value: 'auditd'
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'rename'
+          - 'renameat'
+          - 'renameat2'
+          - 'unlink'
+          - 'unlinkat'
+          - 'rmdir'
+          - 'mkdir'
+          - 'mkdirat'
+          - 'chmod'
+          - 'fchmod'
+          - 'fchmodat'
+          - 'chown'
+          - 'fchown'
+          - 'fchownat'
+          - 'lchown'
+          - 'truncate'
+          - 'ftruncate'
+          - 'link'
+          - 'linkat'
+          - 'symlink'
+          - 'symlinkat'
+          - 'setxattr'
+          - 'lsetxattr'
+          - 'fsetxattr'
+          - 'removexattr'
+          - 'lremovexattr'
+          - 'fremovexattr'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-systemd-config-reload
+    name: 'Linux: service manager configuration reloads are recorded'
+    dataType: linux
+    filters:
+      - field: log.syslogIdentifier
+        operator: IS
+        value: 'systemd'
+      - field: log.message
+        operator: START_WITH
+        value: 'Reloading'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-exchange-admin-changes
+    name: 'Microsoft 365: Exchange configuration changes (admin cmdlets) are recorded'
+    dataType: o365
+    filters:
+      - field: log.RecordType
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '1'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: azure-resource-write-delete
+    name: 'Azure: resource write and delete operations are recorded'
+    dataType: azure
+    filters:
+      - field: log.azureKind
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'activity'
+          - 'eventgrid'
+      - field: action
+        operator: CONTAIN_ONE_OF
+        value:
+          - '/write'
+          - '/delete'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-write-api-calls
+    name: 'AWS: configuration changes (write management API calls) are recorded'
+    dataType: aws
+    filters:
+      - field: log.eventType
+        operator: IS
+        value: 'AwsApiCall'
+      - field: log.managementEvent
+        operator: IS_ONE_OF
+        value:
+          - 'true'
+      - field: log.readOnly
+        operator: IS_ONE_OF
+        value:
+          - 'false'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: gcp-admin-activity
+    name: 'Google Cloud: configuration changes (Admin Activity) are recorded'
+    dataType: google
+    filters:
+      - field: log.logName
+        operator: CONTAIN
+        value: 'cloudaudit.googleapis.com%2Factivity'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: eset-policy-change-config
+    name: 'ESET PROTECT: policy configuration changes are recorded'
+    dataType: antivirus-esmc-eset
+    filters:
+      - field: log.eventType
+        operator: IS
+        value: 'Audit_Event'
+      - field: log.domain
+        operator: CONTAIN
+        value: 'polic'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: cisco-switch-config-changes
+    name: 'Cisco switch: configuration changes are recorded'
+    dataType: cisco-switch
+    filters:
+      - field: log.facility
+        operator: IS
+        value: 'SYS'
+      - field: log.facilityMnemonic
+        operator: IS
+        value: 'CONFIG_I'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: asa-config-changes
+    name: 'Cisco ASA: administrator commands and configuration changes are recorded'
+    dataType: firewall-cisco-asa
+    filters:
+      - field: log.messageId
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '111008'
+          - '111010'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fgt-config-changes
+    name: 'FortiGate: configuration changes are recorded'
+    dataType: firewall-fortigate-traffic
+    filters:
+      - field: log.logid
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '0100044544'
+          - '0100044545'
+          - '0100044546'
+          - '0100044547'
+          - '0100032102'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fortiweb-config-changes
+    name: 'FortiWeb: administrator configuration changes are recorded'
+    dataType: firewall-fortiweb
+    filters:
+      - field: log.type
+        operator: IS
+        value: 'event'
+      - field: log.subtype
+        operator: IS
+        value: 'admin'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: mikrotik-config-changes
+    name: 'MikroTik: configuration changes are recorded'
+    dataType: firewall-mikrotik
+    filters:
+      - field: log.topics
+        operator: CONTAIN
+        value: 'system'
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - ' changed by '
+          - ' added by '
+          - ' removed by '
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: paloalto-config-changes
+    name: 'Palo Alto: configuration changes are recorded'
+    dataType: firewall-paloalto
+    filters:
+      - field: log.paType
+        operator: IS
+        value: 'CONFIG'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sonicwall-config-changes
+    name: 'SonicWall: configuration and policy changes are recorded'
+    dataType: firewall-sonicwall
+    filters:
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '1382'
+          - '440'
+          - '441'
+          - '442'
+          - '1314'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sophos-xg-config-changes
+    name: 'Sophos Firewall: administrator configuration changes are recorded'
+    dataType: firewall-sophos-xg
+    filters:
+      - field: log.subType
+        operator: IS
+        value: 'Admin'
+      - field: log.messageId
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '17501'
+          - '17502'
+          - '17503'
+          - '17504'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1

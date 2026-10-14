@@ -1,4 +1,4 @@
-# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
 id: ia-5
 family: ia
 familyName: Identification and Authentication
@@ -6,17 +6,121 @@ name: Authenticator Management
 scope: data
 statement: |-
   Manage system authenticators by:
-    Verifying, as part of the initial authenticator distribution, the identity of the individual, group, role, service, or device receiving the authenticator;
-    Establishing initial authenticator content for any authenticators issued by the organization;
-    Ensuring that authenticators have sufficient strength of mechanism for their intended use;
-    Establishing and implementing administrative procedures for initial authenticator distribution, for lost or compromised or damaged authenticators, and for revoking authenticators;
-    Changing default authenticators prior to first use;
-    Changing or refreshing authenticators [time period by authenticator type] or when [events] occur;
-    Protecting authenticator content from unauthorized disclosure and modification;
-    Requiring individuals to take, and having devices implement, specific controls to protect authenticators; and
-    Changing authenticators for group or role accounts when membership to those accounts changes.
+  Verifying, as part of the initial authenticator distribution, the identity of the individual, group, role, service, or device receiving the authenticator;
+  Establishing initial authenticator content for any authenticators issued by the organization;
+  Ensuring that authenticators have sufficient strength of mechanism for their intended use;
+  Establishing and implementing administrative procedures for initial authenticator distribution, for lost or compromised or damaged authenticators, and for revoking authenticators;
+  Changing default authenticators prior to first use;
+  Changing or refreshing authenticators [time period by authenticator type] or when [events] occur;
+  Protecting authenticator content from unauthorized disclosure and modification;
+  Requiring individuals to take, and having devices implement, specific controls to protect authenticators; and
+  Changing authenticators for group or role accounts when membership to those accounts changes.
+remediation: |-
+  Passes when a connected source shows passwords or credentials being changed or reset, or access keys being created.
+  If it fails: enable account management auditing (password change and reset events). Password rules themselves are the manual control ia-5.1.
 source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY
 checks:
-  - key: todo
-    name: 'TODO: define compliance check for this control'
-    todo: true            # Pending — evaluator shows "Not implemented", excluded from score
+  - key: win-password-change-reset
+    name: 'Windows: password changes and resets are recorded'
+    dataType: wineventlog
+    filters:
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '4723'
+          - '4724'
+      - field: target.user
+        operator: EXIST
+      - field: target.user
+        operator: NOT_ENDS_WITH
+        value: '$'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-credential-changes
+    name: 'Microsoft 365: password resets and credential changes are recorded'
+    dataType: o365
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Change user password.'
+          - 'Reset user password.'
+          - 'Change password (self-service)'
+          - 'Reset password (self-service)'
+          - 'Set force change user password.'
+          - 'Update PasswordProfile.'
+          - 'Create application password for user.'
+          - 'Delete application password for user.'
+          - 'Add service principal credentials.'
+          - 'Remove service principal credentials.'
+          - 'Update application – Certificates and secrets management '
+          - 'Create application – Certificates and secrets management '
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: azure-credential-changes
+    name: 'Azure: password, app secret, access key and Key Vault secret changes are recorded'
+    dataType: azure
+    filters:
+      - field: action
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'change user password'
+          - 'reset user password'
+          - 'password (self-service)'
+          - 'certificates and secrets management'
+          - 'service principal credentials'
+          - 'regeneratekey/action'
+          - 'secretset'
+          - 'keycreate'
+          - 'keyrotate'
+          - 'certificatecreate'
+          - 'certificateimport'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-credential-changes
+    name: 'AWS: IAM password, access key and MFA changes are recorded'
+    dataType: aws
+    filters:
+      - field: target.domain
+        operator: IS
+        value: 'iam.amazonaws.com'
+      - field: action
+        operator: IS_ONE_OF
+        value:
+          - 'CreateAccessKey'
+          - 'UpdateAccessKey'
+          - 'DeleteAccessKey'
+          - 'ChangePassword'
+          - 'CreateLoginProfile'
+          - 'UpdateLoginProfile'
+          - 'EnableMFADevice'
+          - 'DeactivateMFADevice'
+          - 'CreateVirtualMFADevice'
+          - 'ResyncMFADevice'
+          - 'UploadSSHPublicKey'
+          - 'UploadSigningCertificate'
+          - 'CreateServiceSpecificCredential'
+          - 'ResetServiceSpecificCredential'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: gcp-service-account-keys
+    name: 'Google Cloud: service account key changes are recorded'
+    dataType: google
+    filters:
+      - field: log.protoPayloadMethodName
+        operator: IS_ONE_OF
+        value:
+          - 'google.iam.admin.v1.CreateServiceAccountKey'
+          - 'google.iam.admin.v1.DeleteServiceAccountKey'
+          - 'google.iam.admin.v1.UploadServiceAccountKey'
+          - 'google.iam.admin.v1.DisableServiceAccountKey'
+          - 'google.iam.admin.v1.EnableServiceAccountKey'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1

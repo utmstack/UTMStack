@@ -1,4 +1,4 @@
-# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
 id: cm-11
 family: cm
 familyName: Configuration Management
@@ -6,10 +6,101 @@ name: User-installed Software
 scope: data
 statement: |-
   Establish [policies] governing the installation of software by users;
-    Enforce software installation policies through the following methods: [methods] ; and
-    Monitor policy compliance [frequency].
+  Enforce software installation policies through the following methods: [methods]; and
+  Monitor policy compliance [frequency].
+remediation: |-
+  Passes when a connected source shows software or service installations.
+  If it fails: enable installer and service auditing (Windows Application log and "Security System Extension"; Linux package manager logs).
 source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY
 checks:
-  - key: todo
-    name: 'TODO: define compliance check for this control'
-    todo: true            # Pending — evaluator shows "Not implemented", excluded from score
+  - key: win-msi-install
+    name: 'Windows: software installations (Windows Installer) are recorded'
+    dataType: wineventlog
+    filters:
+      - field: log.providerName
+        operator: IS
+        value: 'MsiInstaller'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '1033'
+          - '11707'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: win-service-installed
+    name: 'Windows: service installations are recorded'
+    dataType: wineventlog
+    filters:
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '4697'
+          - '7045'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-dpkg-package-install
+    name: 'Linux: Debian/Ubuntu package installs are recorded (audit)'
+    dataType: linux
+    filters:
+      - field: action
+        operator: IS
+        value: 'execve'
+      - field: origin.process
+        operator: IS
+        value: '/usr/bin/dpkg'
+      - field: origin.command
+        operator: CONTAIN_ONE_OF
+        value:
+          - '--unpack'
+          - '--install'
+          - ' -i '
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-rpm-package-change
+    name: 'Linux: RPM package installs and updates are recorded (audit)'
+    dataType: linux
+    filters:
+      - field: action
+        operator: IS
+        value: 'SOFTWARE_UPDATE'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: macos-installer-activity
+    name: 'macOS: package installer activity is recorded'
+    dataType: macos
+    filters:
+      - field: origin.process
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'installd'
+          - 'system_installd'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-app-installs
+    name: 'Microsoft 365: application additions, consents and app installs are recorded'
+    dataType: o365
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Add service principal.'
+          - 'Add application.'
+          - 'Consent to application.'
+          - 'AppInstalled'
+          - 'ApplicationInstallationStarted'
+          - 'SPAppsInstallSuccessfully'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: azure-service-extension-installs
+    name: 'Azure: service installations, VM extension installs and app consents are recorded'
+    dataType: azure
+    filters:
+      - field: action
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'serviceinstalled'
+          - '/extensions/write'
+          - 'consent to application'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1

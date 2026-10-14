@@ -1,4 +1,4 @@
-# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Manual: set in the report.
 id: pm-10
 family: pm
 familyName: Program Management
@@ -6,6 +6,9 @@ name: Authorization Process
 scope: governance
 statement: |-
   Manage the security and privacy state of organizational systems and the environments in which those systems operate through authorization processes;
-    Designate individuals to fulfill specific roles and responsibilities within the organizational risk management process; and
-    Integrate the authorization processes into an organization-wide risk management program.
+  Designate individuals to fulfill specific roles and responsibilities within the organizational risk management process; and
+  Integrate the authorization processes into an organization-wide risk management program.
+remediation: |-
+  Manual control: logs cannot show whether this is in place, so the report lists it as "Out of scope" until a person decides. Open the framework report, set this control's status (Compliant, Non-compliant or At risk) and write the justification.
+  Keep the evidence an auditor will ask for, for example the security programme documents, assigned roles and measures.
 source: NIST SP 800-53 Rev 5 (public domain)

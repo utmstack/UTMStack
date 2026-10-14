@@ -4902,7 +4902,7 @@
       "nameRequired": "Имя обязательно",
       "anyDataType": "Any data type",
       "addFilter": "Add filter",
-      "filterField": "log.eventID",
+      "filterField": "log.eventCode",
       "filterValue": "value",
       "filterValues": "a, b, c",
       "toast": {

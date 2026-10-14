@@ -1,4 +1,4 @@
-# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
 id: si-3
 family: si
 familyName: System and Information Integrity
@@ -6,13 +6,240 @@ name: Malicious Code Protection
 scope: data
 statement: |-
   Implement [signature-based | non-signature-based] malicious code protection mechanisms at system entry and exit points to detect and eradicate malicious code;
-    Automatically update malicious code protection mechanisms as new releases are available in accordance with organizational configuration management policy and procedures;
-    Configure malicious code protection mechanisms to:
-      Perform periodic scans of the system [frequency] and real-time scans of files from external sources at [endpoint | network entry and exit points] as the files are downloaded, opened, or executed in accordance with organizational policy; and
-      [block malicious code | quarantine malicious code | take {{ insert: param, si-03_odp.05 }} ] ; and send alert to [personnel or roles] in response to malicious code detection; and
-    Address the receipt of false positives during malicious code detection and eradication and the resulting potential impact on the availability of the system.
+  Automatically update malicious code protection mechanisms as new releases are available in accordance with organizational configuration management policy and procedures;
+  Configure malicious code protection mechanisms to:
+  Perform periodic scans of the system [frequency] and real-time scans of files from external sources at [endpoint | network entry and exit points] as the files are downloaded, opened, or executed in accordance with organizational policy; and
+  [block malicious code | quarantine malicious code | take [organization-defined value]]; and send alert to [personnel or roles] in response to malicious code detection; and
+  Address the receipt of false positives during malicious code detection and eradication and the resulting potential impact on the availability of the system.
+remediation: |-
+  Passes when an anti-malware or EDR product shows activity: scans, detections, protection updates or health reports.
+  If it fails: connect the anti-malware console or the endpoint agent to UTMStack and confirm protection is running on the endpoints.
 source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY
 checks:
-  - key: todo
-    name: 'TODO: define compliance check for this control'
-    todo: true            # Pending — evaluator shows "Not implemented", excluded from score
+  - key: win-defender-activity
+    name: 'Windows: Microsoft Defender scans, detections, health and updates are recorded'
+    dataType: wineventlog
+    filters:
+      - field: log.providerName
+        operator: IS
+        value: 'Microsoft-Windows-Windows Defender'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '1000'
+          - '1001'
+          - '1002'
+          - '1006'
+          - '1007'
+          - '1116'
+          - '1117'
+          - '1118'
+          - '1119'
+          - '1150'
+          - '1151'
+          - '2000'
+          - '2002'
+          - '2010'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: macos-xprotect-activity
+    name: 'macOS: XProtect anti-malware activity is recorded'
+    dataType: macos
+    filters:
+      - field: log.subsystem
+        operator: START_WITH
+        value: 'com.apple.xprotect'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: azure-defender-antivirus-events
+    name: 'Azure: Defender for Endpoint antivirus scan and detection events are recorded'
+    dataType: azure
+    filters:
+      - field: log.azureKind
+        operator: IS
+        value: 'endpoint-event'
+      - field: action
+        operator: CONTAIN
+        value: 'antivirus'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: bitdefender-protection-activity
+    name: 'Bitdefender GravityZone: anti-malware, EDR and protection-status events are recorded'
+    dataType: antivirus-bitdefender-gz
+    filters:
+      - field: log.BitdefenderGZModule
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'av'
+          - 'avc'
+          - 'hd'
+          - 'antiexploit'
+          - 'ransomware-mitigation'
+          - 'network-sandboxing'
+          - 'new-incident'
+          - 'exchange-malware'
+          - 'network-monitor'
+          - 'aph'
+          - 'modules'
+          - 'sva'
+          - 'supa-update-status'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: eset-detections
+    name: 'ESET PROTECT: anti-malware, HIPS and ESET Inspect detections are recorded'
+    dataType: antivirus-esmc-eset
+    filters:
+      - field: log.eventType
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Threat_Event'
+          - 'HipsAggregated_Event'
+          - 'HIPSAggregated_Event'
+          - 'BlockedFiles_Event'
+          - 'EnterpriseInspectorAlert_Event'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: kaspersky-protection-events-cef
+    name: 'Kaspersky Security Center: detections, clean-ups and device protection status are recorded (CEF format)'
+    dataType: antivirus-kaspersky
+    filters:
+      - field: log.signatureID
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'GNRL_EV_VIRUS_FOUND'
+          - 'GNRL_EV_SUSPICIOUS_OBJECT_FOUND'
+          - 'GNRL_EV_OBJECT_CURED'
+          - 'GNRL_EV_OBJECT_DELETED'
+          - 'GNRL_EV_OBJECT_QUARANTINED'
+          - 'GNRL_EV_OBJECT_NOTCURED'
+          - 'GNRL_EV_OBJECT_BLOCKED'
+          - 'GNRL_EV_VIRUS_FOUND_AND_BLOCKED'
+          - 'GNRL_EV_ATTACK_DETECTED'
+          - 'GNRL_EV_APPLICATION_LAUNCH_DENIED'
+          - 'GNRL_EV_APPLICATION_LAUNCH_DENIE'
+          - 'KLSRV_HOST_STATUS_CRITICAL'
+          - 'KLSRV_HOST_STATUS_WARNING'
+          - 'KLSRV_HOST_OUT_CONTROL'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: kaspersky-protection-events-syslog
+    name: 'Kaspersky Security Center: detections, clean-ups and device protection status are recorded (KSC syslog format)'
+    dataType: antivirus-kaspersky
+    filters:
+      - field: log.eventType
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'GNRL_EV_VIRUS_FOUND'
+          - 'GNRL_EV_SUSPICIOUS_OBJECT_FOUND'
+          - 'GNRL_EV_OBJECT_CURED'
+          - 'GNRL_EV_OBJECT_DELETED'
+          - 'GNRL_EV_OBJECT_QUARANTINED'
+          - 'GNRL_EV_OBJECT_NOTCURED'
+          - 'GNRL_EV_OBJECT_BLOCKED'
+          - 'GNRL_EV_VIRUS_FOUND_AND_BLOCKED'
+          - 'GNRL_EV_ATTACK_DETECTED'
+          - 'GNRL_EV_APPLICATION_LAUNCH_DENIED'
+          - 'GNRL_EV_APPLICATION_LAUNCH_DENIE'
+          - 'KLSRV_HOST_STATUS_CRITICAL'
+          - 'KLSRV_HOST_STATUS_WARNING'
+          - 'KLSRV_HOST_OUT_CONTROL'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sentinelone-threat-activity
+    name: 'SentinelOne: new threats are reported'
+    dataType: antivirus-sentinel-one
+    filters:
+      - field: log.activityType
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '19'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fgt-av-updates
+    name: 'FortiGate: FortiGuard antivirus and signature updates are recorded'
+    dataType: firewall-fortigate-traffic
+    filters:
+      - field: log.logid
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '0100041000'
+          - '0100022813'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sonicwall-gateway-av
+    name: 'SonicWall: gateway antivirus detections and signature updates are recorded'
+    dataType: firewall-sonicwall
+    filters:
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '809'
+          - '1741'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sophos-xg-av-events
+    name: 'Sophos Firewall: anti-virus system events are recorded'
+    dataType: firewall-sophos-xg
+    filters:
+      - field: log.type
+        operator: IS
+        value: 'Event'
+      - field: log.component
+        operator: IS
+        value: 'Anti-Virus'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sophos-central-protection-activity
+    name: 'Sophos Central: updates, scans, detections, clean-ups and protection-service status are recorded'
+    dataType: sophos-central
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Event::Endpoint::UpdateSuccess'
+          - 'Event::Endpoint::UpdateFailure'
+          - 'Event::Endpoint::SavScanComplete'
+          - 'Event::Endpoint::CoreDetection'
+          - 'Event::Endpoint::CoreClean'
+          - 'Event::Endpoint::CoreCleanFailed'
+          - 'Event::Endpoint::CorePuaDetection'
+          - 'Event::Endpoint::CorePuaClean'
+          - 'Event::Endpoint::CorePuaCleanFailed'
+          - 'Event::Endpoint::CoreBlocklistDetection'
+          - 'Event::Endpoint::CoreBehavioralDetection'
+          - 'Event::Endpoint::CoreAmsiBlocked'
+          - 'Event::Endpoint::HmpaExploitPrevented'
+          - 'Event::Endpoint::HmpaCryptoGuard'
+          - 'Event::Endpoint::HmpaBehaviourPrevented'
+          - 'Event::Endpoint::Threat::IpsInboundDetection'
+          - 'Event::Endpoint::Threat::BehavioralDetection'
+          - 'Event::Endpoint::ServiceNotRunning'
+          - 'Event::Endpoint::ServiceRestored'
+          - 'Event::Endpoint::NotProtected'
+          - 'Event::Endpoint::Reprotected'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: edr-sensor-activity
+    name: 'UTMStack EDR: protection sensors report activity (telemetry, detections, responses, scans, health)'
+    dataType: utmstack_edr
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'process_create'
+          - 'script_block'
+          - 'shell_activity'
+          - 'detected'
+          - 'quarantined'
+          - 'killed'
+          - 'blocked'
+          - 'scan_start'
+          - 'scan_complete'
+          - 'health'
+          - 'ransomware_suspected'
+          - 'ransomware_contained'
+          - 'ransomware_contain_failed'
+          - 'quarantined_restored'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1

@@ -1,13 +1,146 @@
-# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
 id: ac-3
 family: ac
 familyName: Access Control
 name: Access Enforcement
 scope: data
-statement: Enforce approved authorizations for logical access to information and system resources in accordance
-  with applicable access control policies.
+statement: |-
+  Enforce approved authorizations for logical access to information and system resources in accordance with applicable access control policies.
+remediation: |-
+  Passes when a connected source shows access that was refused (a file, object, share, mailbox or resource request denied).
+  If it fails: enable failure auditing for object access (Windows: "File System", "Handle Manipulation" and "Detailed File Share" failure auditing on sensitive folders; Linux: auditd watches or SELinux/AppArmor denials) and confirm those records reach UTMStack.
 source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY
 checks:
-  - key: todo
-    name: 'TODO: define compliance check for this control'
-    todo: true            # Pending — evaluator shows "Not implemented", excluded from score
+  - key: win-access-denied
+    name: 'Windows: refused object and privilege access is recorded'
+    dataType: wineventlog
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '4656'
+          - '4661'
+          - '4663'
+          - '4673'
+          - '4674'
+          - '4675'
+          - '4888'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-audit-access-denied
+    name: 'Linux: refused access is recorded (audit)'
+    dataType: linux
+    filters:
+      - field: log.type
+        operator: IS
+        value: 'auditd'
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: macos-access-denied
+    name: 'macOS: refused access is recorded'
+    dataType: macos
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-access-denied
+    name: 'Microsoft 365: refused access (policy blocks, denied sign-ins, blocked sharing) is recorded'
+    dataType: o365
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+      - field: action
+        operator: IS_NOT
+        value: 'TIMailData'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: azure-access-denied
+    name: 'Azure: refused requests (401/403, access restrictions, conditional access) are recorded'
+    dataType: azure
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-access-denied
+    name: 'AWS: API calls refused by IAM are recorded'
+    dataType: aws
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: bitdefender-threat-blocked
+    name: 'Bitdefender GravityZone: threats, sites or files are blocked, quarantined or removed'
+    dataType: antivirus-bitdefender-gz
+    filters:
+      - field: log.BitdefenderGZModule
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'av'
+          - 'avc'
+          - 'hd'
+          - 'antiexploit'
+          - 'ransomware-mitigation'
+          - 'network-sandboxing'
+          - 'new-incident'
+          - 'exchange-malware'
+          - 'aph'
+          - 'uc'
+          - 'dp'
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: eset-threat-blocked
+    name: 'ESET PROTECT: threats, files and web pages are blocked, cleaned or quarantined'
+    dataType: antivirus-esmc-eset
+    filters:
+      - field: log.eventType
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Threat_Event'
+          - 'HipsAggregated_Event'
+          - 'HIPSAggregated_Event'
+          - 'BlockedFiles_Event'
+          - 'FilteredWebsites_Event'
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sophos-central-blocked
+    name: 'Sophos Central: applications, devices, web pages or exploits are blocked'
+    dataType: sophos-central
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: edr-blocked-execution
+    name: 'UTMStack EDR: malicious files or processes are quarantined, killed or blocked'
+    dataType: utmstack_edr
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'quarantined'
+          - 'killed'
+          - 'blocked'
+          - 'ransomware_contained'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1

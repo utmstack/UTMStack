@@ -1,4 +1,4 @@
-# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
 id: ma-4
 family: ma
 familyName: Maintenance
@@ -6,12 +6,231 @@ name: Nonlocal Maintenance
 scope: data
 statement: |-
   Approve and monitor nonlocal maintenance and diagnostic activities;
-    Allow the use of nonlocal maintenance and diagnostic tools only as consistent with organizational policy and documented in the security plan for the system;
-    Employ strong authentication in the establishment of nonlocal maintenance and diagnostic sessions;
-    Maintain records for nonlocal maintenance and diagnostic activities; and
-    Terminate session and network connections when nonlocal maintenance is completed.
+  Allow the use of nonlocal maintenance and diagnostic tools only as consistent with organizational policy and documented in the security plan for the system;
+  Employ strong authentication in the establishment of nonlocal maintenance and diagnostic sessions;
+  Maintain records for nonlocal maintenance and diagnostic activities; and
+  Terminate session and network connections when nonlocal maintenance is completed.
+remediation: |-
+  Passes when a connected source shows remote administrative sessions (Remote Desktop, SSH or VPN).
+  If it fails: log remote sessions at the host or VPN. If no remote maintenance happened, set the status manually and note that.
 source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY
 checks:
-  - key: todo
-    name: 'TODO: define compliance check for this control'
-    todo: true            # Pending — evaluator shows "Not implemented", excluded from score
+  - key: win-rdp-logon
+    name: 'Windows: Remote Desktop logons are recorded'
+    dataType: wineventlog
+    filters:
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '4624'
+      - field: log.eventDataLogonType
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '10'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-audit-ssh-logins
+    name: 'Linux: SSH logins are recorded (audit)'
+    dataType: linux
+    filters:
+      - field: action
+        operator: IS
+        value: 'USER_LOGIN'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+      - field: log.userlogin.exe
+        operator: CONTAIN
+        value: 'sshd'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-ssh-sessions
+    name: 'Linux: SSH remote sessions are recorded'
+    dataType: linux
+    filters:
+      - field: log.syslogIdentifier
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'sshd'
+          - 'sshd-session'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: azure-defender-rdp-connections
+    name: 'Azure: Defender for Endpoint remote desktop connections are recorded'
+    dataType: azure
+    filters:
+      - field: action
+        operator: IS
+        value: 'RemoteDesktopConnection'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-remote-sessions
+    name: 'AWS: Session Manager and EC2 Instance Connect remote sessions are recorded'
+    dataType: aws
+    filters:
+      - field: target.domain
+        operator: IS_ONE_OF
+        value:
+          - 'ssm.amazonaws.com'
+          - 'ssm-guiconnect.amazonaws.com'
+          - 'ec2-instance-connect.amazonaws.com'
+      - field: action
+        operator: IS_ONE_OF
+        value:
+          - 'StartSession'
+          - 'ResumeSession'
+          - 'StartConnection'
+          - 'SendSSHPublicKey'
+          - 'SendSerialConsoleSSHPublicKey'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: asa-remote-access
+    name: 'Cisco ASA: remote access VPN sessions and management sign-ins are recorded'
+    dataType: firewall-cisco-asa
+    filters:
+      - field: log.messageId
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '113039'
+          - '716001'
+          - '722022'
+          - '722051'
+          - '605005'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: ftd-remote-access
+    name: 'Cisco Firepower: remote access VPN sessions are recorded'
+    dataType: firewall-cisco-firepower
+    filters:
+      - field: log.messageId
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '113039'
+          - '716001'
+          - '722022'
+          - '722051'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fgt-remote-access
+    name: 'FortiGate: SSL VPN tunnels and remote admin sign-ins are recorded'
+    dataType: firewall-fortigate-traffic
+    filters:
+      - field: log.logid
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '0101039424'
+          - '0101039947'
+          - '0100032001'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: meraki-client-vpn
+    name: 'Cisco Meraki: client VPN connections are recorded'
+    dataType: firewall-meraki
+    filters:
+      - field: log.merakiGroup
+        operator: IS
+        value: 'events'
+      - field: log.vpnLocalIp
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: mikrotik-remote-admin
+    name: 'MikroTik: remote admin sessions (SSH, Winbox, web, API) are recorded'
+    dataType: firewall-mikrotik
+    filters:
+      - field: log.topics
+        operator: CONTAIN
+        value: 'account'
+      - field: log.service
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: paloalto-globalprotect-sessions
+    name: 'Palo Alto: GlobalProtect gateway sign-ins are recorded'
+    dataType: firewall-paloalto
+    filters:
+      - field: log.paType
+        operator: IS
+        value: 'GLOBALPROTECT'
+      - field: log.eventid
+        operator: IS
+        value: 'gateway-auth'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: pfsense-remote-access
+    name: 'pfSense: OpenVPN and SSH sign-ins are recorded'
+    dataType: firewall-pfsense
+    filters:
+      - field: log.eventType
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'openvpn'
+          - 'sshd'
+      - field: log.authEvent
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'authenticated'
+          - 'Accepted'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sonicwall-remote-access
+    name: 'SonicWall: remote VPN sign-ins and admin sessions are recorded'
+    dataType: firewall-sonicwall
+    filters:
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '237'
+          - '238'
+          - '1080'
+          - '139'
+          - '994'
+          - '996'
+          - '997'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sophos-xg-remote-access
+    name: 'Sophos Firewall: SSL VPN, L2TP and VPN portal sessions are recorded'
+    dataType: firewall-sophos-xg
+    filters:
+      - field: log.messageId
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '17824'
+          - '17710'
+          - '17707'
+          - '17718'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: as400-client-connections
+    name: 'IBM i (AS/400): client connections are recorded'
+    dataType: ibm-as400
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'success'
+      - field: origin.ip
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: esxi-remote-sessions
+    name: 'VMware ESXi: remote management sessions are recorded'
+    dataType: vmware-esxi
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'success'
+      - field: origin.ip
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1

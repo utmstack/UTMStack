@@ -1,4 +1,4 @@
-# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
 id: au-12
 family: au
 familyName: Audit and Accountability
@@ -6,10 +6,191 @@ name: Audit Record Generation
 scope: data
 statement: |-
   Provide audit record generation capability for the event types the system is capable of auditing as defined in [AU-2a](#au-2_smt.a) on [system components];
-    Allow [personnel or roles] to select the event types that are to be logged by specific components of the system; and
-    Generate audit records for the event types defined in [AU-2c](#au-2_smt.c) that include the audit record content defined in [AU-3](#au-3).
+  Allow [personnel or roles] to select the event types that are to be logged by specific components of the system; and
+  Generate audit records for the event types defined in [AU-2c](#au-2_smt.c) that include the audit record content defined in [AU-3](#au-3).
+remediation: |-
+  Passes when at least one connected source produced audit records during the window. Each source has its own check, so the report shows which ones are sending.
+  If it fails: no source is sending; connect them to UTMStack.
 source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY
 checks:
-  - key: todo
-    name: 'TODO: define compliance check for this control'
-    todo: true            # Pending — evaluator shows "Not implemented", excluded from score
+  - key: win-logs-received
+    name: 'Windows: event logs are received'
+    dataType: wineventlog
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-logs-received
+    name: 'Linux: the server sends logs'
+    dataType: linux
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: macos-logs-received
+    name: 'macOS: the Mac sends logs'
+    dataType: macos
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-logs-received
+    name: 'Microsoft 365: audit records are received'
+    dataType: o365
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: azure-logs-received
+    name: 'Azure: Event Hub records are received'
+    dataType: azure
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-logs-received
+    name: 'AWS: CloudWatch log events are received'
+    dataType: aws
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: gcp-logs-received
+    name: 'Google Cloud: logs are received'
+    dataType: google
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: bitdefender-logs-present
+    name: 'Bitdefender GravityZone: events are received'
+    dataType: antivirus-bitdefender-gz
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: eset-logs-present
+    name: 'ESET PROTECT: exported events are received'
+    dataType: antivirus-esmc-eset
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: kaspersky-logs-present
+    name: 'Kaspersky Security Center: events are received'
+    dataType: antivirus-kaspersky
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sentinelone-logs-present
+    name: 'SentinelOne: console events are received'
+    dataType: antivirus-sentinel-one
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: cisco-switch-logs-received
+    name: 'Cisco switch: logs are received'
+    dataType: cisco-switch
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: crowdstrike-logs-present
+    name: 'CrowdStrike Falcon: stream events are received'
+    dataType: crowdstrike
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: deceptive-bytes-logs-present
+    name: 'Deceptive Bytes: events are received'
+    dataType: deceptive-bytes
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: asa-logs-received
+    name: 'Cisco ASA: logs are received'
+    dataType: firewall-cisco-asa
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: ftd-logs-received
+    name: 'Cisco Firepower: logs are received'
+    dataType: firewall-cisco-firepower
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fgt-logs-received
+    name: 'FortiGate: logs are received'
+    dataType: firewall-fortigate-traffic
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fortiweb-logs-received
+    name: 'FortiWeb: logs are received'
+    dataType: firewall-fortiweb
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: meraki-logs-received
+    name: 'Cisco Meraki: logs are received'
+    dataType: firewall-meraki
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: mikrotik-logs-received
+    name: 'MikroTik: logs are received'
+    dataType: firewall-mikrotik
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: paloalto-logs-received
+    name: 'Palo Alto: logs are received'
+    dataType: firewall-paloalto
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: pfsense-logs-received
+    name: 'pfSense: logs are received'
+    dataType: firewall-pfsense
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sonicwall-logs-received
+    name: 'SonicWall: logs are received'
+    dataType: firewall-sonicwall
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sophos-xg-logs-received
+    name: 'Sophos Firewall: logs are received'
+    dataType: firewall-sophos-xg
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: generic-logs-received
+    name: 'Generic: the source sends logs'
+    dataType: generic
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: github-webhooks-received
+    name: 'GitHub: webhook events are received'
+    dataType: github
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aix-logs-received
+    name: 'IBM AIX: the system sends logs'
+    dataType: ibm-aix
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: as400-logs-received
+    name: 'IBM i (AS/400): the system sends logs'
+    dataType: ibm-as400
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: json-input-received
+    name: 'JSON input: logs are received'
+    dataType: json-input
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: netflow-logs-received
+    name: 'NetFlow: flow records are received'
+    dataType: netflow
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-graph-logs-received
+    name: 'Microsoft Graph security: records are received'
+    dataType: o365-graph
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sophos-central-logs-present
+    name: 'Sophos Central: events are received'
+    dataType: sophos-central
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: suricata-logs-received
+    name: 'Suricata: logs are received'
+    dataType: suricata
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: syslog-logs-received
+    name: 'Syslog: the device sends logs'
+    dataType: syslog
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: edr-logs-present
+    name: 'UTMStack EDR: the EDR agent sends events'
+    dataType: utmstack_edr
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: esxi-logs-received
+    name: 'VMware ESXi: the host sends logs'
+    dataType: vmware-esxi
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1

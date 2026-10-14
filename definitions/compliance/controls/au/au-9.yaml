@@ -1,4 +1,4 @@
-# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
 id: au-9
 family: au
 familyName: Audit and Accountability
@@ -6,9 +6,68 @@ name: Protection of Audit Information
 scope: data
 statement: |-
   Protect audit information and audit logging tools from unauthorized access, modification, and deletion; and
-    Alert [personnel or roles] upon detection of unauthorized access, modification, or deletion of audit information.
+  Alert [personnel or roles] upon detection of unauthorized access, modification, or deletion of audit information.
+remediation: |-
+  Passes when no connected source recorded an audit log being cleared or deleted during the window (Windows Security or System log cleared, a cloud trail or log store deleted).
+  If it fails: open the matching records, find who cleared the log and why. Clearing an audit log outside an approved procedure is a security incident.
 source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ALL
 checks:
-  - key: todo
-    name: 'TODO: define compliance check for this control'
-    todo: true            # Pending — evaluator shows "Not implemented", excluded from score
+  - key: aws-cloudtrail-deleted
+    name: 'AWS: a CloudTrail trail or event data store was deleted'
+    filters:
+      - field: action
+        operator: IS_ONE_OF
+        value:
+          - 'DeleteTrail'
+          - 'DeleteEventDataStore'
+      - field: log.eventSource
+        operator: IS
+        value: 'cloudtrail.amazonaws.com'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: azure-log-workspace-purged
+    name: 'Azure: no Log Analytics data was purged and no workspace was deleted'
+    filters:
+      - field: action
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'microsoft.operationalinsights/workspaces/purge/action'
+          - 'microsoft.operationalinsights/workspaces/delete'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: gcp-logs-deleted
+    name: 'Google Cloud: a log or log bucket was deleted'
+    filters:
+      - field: log.protoPayloadMethodName
+        operator: IS_ONE_OF
+        value:
+          - 'google.logging.v2.LoggingServiceV2.DeleteLog'
+          - 'google.logging.v2.ConfigServiceV2.DeleteBucket'
+      - field: log.protoPayloadServiceName
+        operator: IS
+        value: 'logging.googleapis.com'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: win-event-log-cleared
+    name: 'Windows: no Security or System event log was cleared'
+    filters:
+      - field: log.providerName
+        operator: IS
+        value: 'Microsoft-Windows-Eventlog'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '1102'
+          - '104'
+    rule: THRESHOLD_MAX
+    ruleValue: 0

@@ -174,7 +174,7 @@ definitions:
   domain.Check:
     properties:
       dataType:
-        description: wineventlog, o365, aws-cloudtrail… empty means every type in
+        description: wineventlog, o365, aws… empty means every type in
           the dataset
         type: string
       dataset:

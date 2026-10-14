@@ -1,13 +1,159 @@
-# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
 id: ac-6
 family: ac
 familyName: Access Control
 name: Least Privilege
 scope: data
-statement: Employ the principle of least privilege, allowing only authorized accesses for users (or processes
-  acting on behalf of users) that are necessary to accomplish assigned organizational tasks.
+statement: |-
+  Employ the principle of least privilege, allowing only authorized accesses for users (or processes acting on behalf of users) that are necessary to accomplish assigned organizational tasks.
+remediation: |-
+  Passes when a connected source shows privileged activity: members added to or removed from privileged groups or roles, special privileges used, sudo, or admin role assignments.
+  If it fails: enable auditing of security group management and privilege use (Windows "Security Group Management" and "Sensitive Privilege Use"; Linux sudo logging; cloud role assignment logs).
 source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY
 checks:
-  - key: todo
-    name: 'TODO: define compliance check for this control'
-    todo: true            # Pending — evaluator shows "Not implemented", excluded from score
+  - key: win-privileged-use
+    name: 'Windows: privileged logons and privilege use are recorded'
+    dataType: wineventlog
+    filters:
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '4672'
+          - '4673'
+          - '4674'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-audit-sudo-commands
+    name: 'Linux: privileged commands run through sudo are recorded (audit)'
+    dataType: linux
+    filters:
+      - field: action
+        operator: IS
+        value: 'USER_CMD'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-sudo-use
+    name: 'Linux: sudo use is recorded'
+    dataType: linux
+    filters:
+      - field: log.syslogIdentifier
+        operator: IS
+        value: 'sudo'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: macos-sudo-use
+    name: 'macOS: sudo use is recorded'
+    dataType: macos
+    filters:
+      - field: origin.process
+        operator: IS
+        value: 'sudo'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-privilege-changes
+    name: 'Microsoft 365: admin role, site admin and mailbox permission changes are recorded'
+    dataType: o365
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Add member to role.'
+          - 'Remove member from role.'
+          - 'Add eligible member to role.'
+          - 'Remove eligible member from role.'
+          - 'Add member to role in PIM completed (permanent)'
+          - 'Add member to role in PIM completed (timebound)'
+          - 'Add-RoleGroupMember'
+          - 'Remove-RoleGroupMember'
+          - 'Update-RoleGroupMember'
+          - 'New-ManagementRoleAssignment'
+          - 'Remove-ManagementRoleAssignment'
+          - 'SiteCollectionAdminAdded'
+          - 'SiteCollectionAdminRemoved'
+          - 'Add-MailboxPermission'
+          - 'Remove-MailboxPermission'
+          - 'Add-RecipientPermission'
+          - 'Remove-RecipientPermission'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: azure-role-assignment-changes
+    name: 'Azure: RBAC and Entra ID role assignment changes are recorded'
+    dataType: azure
+    filters:
+      - field: action
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'microsoft.authorization/roleassignments/write'
+          - 'microsoft.authorization/roleassignments/delete'
+          - 'microsoft.authorization/elevateaccess/action'
+          - 'add member to role'
+          - 'remove member from role'
+          - 'add eligible member to role'
+          - 'remove eligible member from role'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-permission-assignment
+    name: 'AWS: permission policy and group membership changes are recorded'
+    dataType: aws
+    filters:
+      - field: target.domain
+        operator: IS_ONE_OF
+        value:
+          - 'iam.amazonaws.com'
+          - 'sso.amazonaws.com'
+          - 'identitystore.amazonaws.com'
+      - field: action
+        operator: IS_ONE_OF
+        value:
+          - 'AttachUserPolicy'
+          - 'AttachRolePolicy'
+          - 'AttachGroupPolicy'
+          - 'DetachUserPolicy'
+          - 'DetachRolePolicy'
+          - 'DetachGroupPolicy'
+          - 'PutUserPolicy'
+          - 'PutRolePolicy'
+          - 'PutGroupPolicy'
+          - 'DeleteUserPolicy'
+          - 'DeleteRolePolicy'
+          - 'DeleteGroupPolicy'
+          - 'CreatePolicyVersion'
+          - 'SetDefaultPolicyVersion'
+          - 'AddUserToGroup'
+          - 'RemoveUserFromGroup'
+          - 'CreateGroupMembership'
+          - 'DeleteGroupMembership'
+          - 'CreateAccountAssignment'
+          - 'DeleteAccountAssignment'
+          - 'AttachManagedPolicyToPermissionSet'
+          - 'PutInlinePolicyToPermissionSet'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: gcp-iam-policy-changes
+    name: 'Google Cloud: IAM role grants (setIamPolicy) are recorded'
+    dataType: google
+    filters:
+      - field: log.protoPayloadMethodName
+        operator: CONTAIN
+        value: 'setIamPolicy'
+      - field: log.logName
+        operator: CONTAIN
+        value: 'cloudaudit.googleapis.com%2Factivity'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sentinelone-console-role-assigned
+    name: 'SentinelOne: roles are assigned to console users'
+    dataType: antivirus-sentinel-one
+    filters:
+      - field: log.activityType
+        operator: IS
+        value: '37'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1

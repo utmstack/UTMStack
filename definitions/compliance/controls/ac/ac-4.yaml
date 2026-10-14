@@ -1,13 +1,126 @@
-# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
 id: ac-4
 family: ac
 familyName: Access Control
 name: Information Flow Enforcement
 scope: data
-statement: Enforce approved authorizations for controlling the flow of information within the system and
-  between connected systems based on [information flow control policies].
+statement: |-
+  Enforce approved authorizations for controlling the flow of information within the system and between connected systems based on [information flow control policies].
+remediation: |-
+  Passes when a firewall or other network security device shows traffic it denied or blocked, which shows the flow rules are enforced and logged.
+  If it fails: log the deny and drop rules (not only the allow rules) on each firewall and send them to UTMStack.
 source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY
 checks:
-  - key: todo
-    name: 'TODO: define compliance check for this control'
-    todo: true            # Pending — evaluator shows "Not implemented", excluded from score
+  - key: azure-waf-ip-restriction-blocks
+    name: 'Azure: WAF and App Service access-restriction blocks are recorded'
+    dataType: azure
+    filters:
+      - field: log.azureKind
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'waf'
+          - 'frontdoor-waf'
+          - 'appservice-ipsec'
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: gcp-firewall-denied
+    name: 'Google Cloud: traffic denied by VPC firewall rules is recorded'
+    dataType: google
+    filters:
+      - field: log.jsonPayloadDisposition
+        operator: IS
+        value: 'DENIED'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: asa-denied-traffic
+    name: 'Cisco ASA: denied packets and connections are recorded'
+    dataType: firewall-cisco-asa
+    filters:
+      - field: log.messageId
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '106001'
+          - '106006'
+          - '106007'
+          - '106014'
+          - '106015'
+          - '106021'
+          - '106023'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: ftd-denied-traffic
+    name: 'Cisco Firepower: blocked connections are recorded'
+    dataType: firewall-cisco-firepower
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fgt-denied-traffic
+    name: 'FortiGate: denied or blocked traffic is recorded'
+    dataType: firewall-fortigate-traffic
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fortiweb-blocked-requests
+    name: 'FortiWeb: blocked web requests are recorded'
+    dataType: firewall-fortiweb
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: meraki-denied-traffic
+    name: 'Cisco Meraki: denied or blocked traffic is recorded'
+    dataType: firewall-meraki
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: paloalto-denied-traffic
+    name: 'Palo Alto: denied or blocked traffic is recorded'
+    dataType: firewall-paloalto
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: pfsense-blocked-packets
+    name: 'pfSense: blocked packets are recorded'
+    dataType: firewall-pfsense
+    filters:
+      - field: action
+        operator: IS
+        value: 'block'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sonicwall-denied-traffic
+    name: 'SonicWall: denied or blocked traffic is recorded'
+    dataType: firewall-sonicwall
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sophos-xg-denied-traffic
+    name: 'Sophos Firewall: denied or blocked traffic is recorded'
+    dataType: firewall-sophos-xg
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1

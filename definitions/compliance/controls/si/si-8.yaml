@@ -1,4 +1,4 @@
-# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
 id: si-8
 family: si
 familyName: System and Information Integrity
@@ -6,9 +6,34 @@ name: Spam Protection
 scope: data
 statement: |-
   Employ spam protection mechanisms at system entry and exit points to detect and act on unsolicited messages; and
-    Update spam protection mechanisms when new releases are available in accordance with organizational configuration management policy and procedures.
+  Update spam protection mechanisms when new releases are available in accordance with organizational configuration management policy and procedures.
+remediation: |-
+  Passes when the email service shows its threat protection at work (spam, phishing or malware filtering events).
+  If it fails: connect the email security logs (Microsoft 365 Defender / Exchange Online Protection) to UTMStack.
 source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY
 checks:
-  - key: todo
-    name: 'TODO: define compliance check for this control'
-    todo: true            # Pending — evaluator shows "Not implemented", excluded from score
+  - key: o365-mail-threat-protection
+    name: 'Microsoft 365: email threat detections, submissions and quarantine actions are recorded'
+    dataType: o365
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'TIMailData'
+          - 'TIUrlClickData'
+          - 'AtpDetection'
+          - 'UserSubmission'
+          - 'AdminSubmission'
+          - 'UserSubmissionTriage'
+          - 'AdminSubmissionTriage'
+          - 'QuarantineReleaseMessage'
+          - 'QuarantinePreviewMessage'
+          - 'QuarantineDeleteMessage'
+          - 'QuarantineExportMessage'
+          - 'QuarantineRequestReleaseMessage'
+          - 'QuarantineViewMessageHeader'
+          - 'Release-QuarantineMessage'
+          - 'Preview-QuarantineMessageV1'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1

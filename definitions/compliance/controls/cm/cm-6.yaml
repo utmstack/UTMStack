@@ -1,4 +1,4 @@
-# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
 id: cm-6
 family: cm
 familyName: Configuration Management
@@ -6,11 +6,215 @@ name: Configuration Settings
 scope: data
 statement: |-
   Establish and document configuration settings for components employed within the system that reflect the most restrictive mode consistent with operational requirements using [common secure configurations];
-    Implement the configuration settings;
-    Identify, document, and approve any deviations from established configuration settings for [system components] based on [operational requirements] ; and
-    Monitor and control changes to the configuration settings in accordance with organizational policies and procedures.
+  Implement the configuration settings;
+  Identify, document, and approve any deviations from established configuration settings for [system components] based on [operational requirements]; and
+  Monitor and control changes to the configuration settings in accordance with organizational policies and procedures.
+remediation: |-
+  Passes when a connected source shows changes to security settings (audit policy, antivirus settings, host firewall settings).
+  If it fails: enable auditing of those settings at the source.
 source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY
 checks:
-  - key: todo
-    name: 'TODO: define compliance check for this control'
-    todo: true            # Pending — evaluator shows "Not implemented", excluded from score
+  - key: win-defender-setting-change
+    name: 'Windows: Microsoft Defender setting changes are recorded'
+    dataType: wineventlog
+    filters:
+      - field: log.providerName
+        operator: IS
+        value: 'Microsoft-Windows-Windows Defender'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '5001'
+          - '5004'
+          - '5007'
+          - '5010'
+          - '5012'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: win-firewall-setting-change
+    name: 'Windows: host firewall rule and setting changes are recorded'
+    dataType: wineventlog
+    filters:
+      - field: log.providerName
+        operator: IS
+        value: 'Microsoft-Windows-Windows Firewall With Advanced Security'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '2002'
+          - '2003'
+          - '2004'
+          - '2005'
+          - '2006'
+          - '2008'
+          - '2033'
+          - '2052'
+          - '2097'
+          - '2099'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-audit-config-change
+    name: 'Linux: audit configuration changes are recorded'
+    dataType: linux
+    filters:
+      - field: log.configchange.op
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-firewall-config-change
+    name: 'Linux: host firewall table changes are recorded'
+    dataType: linux
+    filters:
+      - field: log.netfiltercfg.op
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-security-policy-changes
+    name: 'Microsoft 365: audit, conditional access and threat policy changes are recorded'
+    dataType: o365
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Set-AdminAuditLogConfig'
+          - 'Set-ConditionalAccessPolicy'
+          - 'New-ConditionalAccessPolicy'
+          - 'Remove-ConditionalAccessPolicy'
+          - 'Add policy.'
+          - 'Update policy.'
+          - 'Delete policy.'
+          - 'Update authorization policy.'
+          - 'Set-MalwareFilterPolicy'
+          - 'New-MalwareFilterPolicy'
+          - 'Remove-MalwareFilterPolicy'
+          - 'Set-HostedContentFilterPolicy'
+          - 'New-HostedContentFilterPolicy'
+          - 'Set-HostedOutboundSpamFilterPolicy'
+          - 'New-HostedOutboundSpamFilterPolicy'
+          - 'Set-HostedConnectionFilterPolicy'
+          - 'Set-AntiPhishPolicy'
+          - 'New-AntiPhishPolicy'
+          - 'Remove-AntiPhishPolicy'
+          - 'Set-SafeLinksPolicy'
+          - 'New-SafeLinksPolicy'
+          - 'Set-SafeAttachmentPolicy'
+          - 'New-SafeAttachmentPolicy'
+          - 'Set-AtpPolicyForO365'
+          - 'Set-ATPProtectionPolicyRule'
+          - 'Set-EOPProtectionPolicyRule'
+          - 'Set-DkimSigningConfig'
+          - 'New-DkimSigningConfig'
+          - 'Set-MailboxAuditBypassAssociation'
+          - 'Enable Strong Authentication.'
+          - 'Disable Strong Authentication.'
+          - 'New-DlpCompliancePolicy'
+          - 'Set-DlpCompliancePolicy'
+          - 'Remove-DlpCompliancePolicy'
+          - 'New-DlpComplianceRule'
+          - 'Set-DlpComplianceRule'
+          - 'New-ProtectionAlert'
+          - 'Set-ProtectionAlert'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: azure-security-setting-changes
+    name: 'Azure: network security group, firewall rule, diagnostic and access policy changes are recorded'
+    dataType: azure
+    filters:
+      - field: log.azureKind
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'activity'
+          - 'eventgrid'
+          - 'audit'
+      - field: action
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'networksecuritygroups/write'
+          - 'networksecuritygroups/delete'
+          - 'securityrules/write'
+          - 'securityrules/delete'
+          - 'firewallrules/write'
+          - 'firewallrules/delete'
+          - 'firewallpolicies/write'
+          - 'azurefirewalls/write'
+          - 'diagnosticsettings/write'
+          - 'diagnosticsettings/delete'
+          - 'policyassignments/write'
+          - 'policyassignments/delete'
+          - 'accesspolicies/write'
+          - 'microsoft.security/pricings/write'
+          - 'microsoft.security/securitycontacts/write'
+          - 'conditional access policy'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-security-config-changes
+    name: 'AWS: security setting changes (trail, KMS, bucket policy, Config, security groups, network ACLs) are recorded'
+    dataType: aws
+    filters:
+      - field: action
+        operator: IS_ONE_OF
+        value:
+          - 'CreateTrail'
+          - 'UpdateTrail'
+          - 'DeleteTrail'
+          - 'StartLogging'
+          - 'StopLogging'
+          - 'DisableKey'
+          - 'ScheduleKeyDeletion'
+          - 'PutBucketAcl'
+          - 'PutBucketPolicy'
+          - 'DeleteBucketPolicy'
+          - 'StopConfigurationRecorder'
+          - 'DeleteDeliveryChannel'
+          - 'PutDeliveryChannel'
+          - 'PutConfigurationRecorder'
+          - 'AuthorizeSecurityGroupIngress'
+          - 'AuthorizeSecurityGroupEgress'
+          - 'RevokeSecurityGroupIngress'
+          - 'RevokeSecurityGroupEgress'
+          - 'CreateSecurityGroup'
+          - 'DeleteSecurityGroup'
+          - 'ModifySecurityGroupRules'
+          - 'CreateNetworkAcl'
+          - 'CreateNetworkAclEntry'
+          - 'DeleteNetworkAcl'
+          - 'DeleteNetworkAclEntry'
+          - 'ReplaceNetworkAclEntry'
+          - 'ReplaceNetworkAclAssociation'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: gcp-security-config-changes
+    name: 'Google Cloud: firewall, Cloud Armor and logging configuration changes are recorded'
+    dataType: google
+    filters:
+      - field: log.protoPayloadMethodName
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'compute.firewalls.'
+          - 'compute.firewallPolicies.'
+          - 'compute.securityPolicies.'
+          - 'logging.v2.ConfigServiceV2.'
+      - field: log.logName
+        operator: CONTAIN
+        value: 'cloudaudit.googleapis.com%2Factivity'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: eset-policy-change
+    name: 'ESET PROTECT: security policies are created or changed in the console'
+    dataType: antivirus-esmc-eset
+    filters:
+      - field: log.eventType
+        operator: IS
+        value: 'Audit_Event'
+      - field: log.domain
+        operator: CONTAIN
+        value: 'polic'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1

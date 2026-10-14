@@ -1,4 +1,4 @@
-# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
 id: au-5
 family: au
 familyName: Audit and Accountability
@@ -6,9 +6,120 @@ name: Response to Audit Logging Process Failures
 scope: data
 statement: |-
   Alert [personnel or roles] within [time period] in the event of an audit logging process failure; and
-    Take the following additional actions: [additional actions].
+  Take the following additional actions: [additional actions].
+remediation: |-
+  Passes when no connected source reported an audit logging failure, or logging being stopped or switched off, during the window.
+  If it fails: find the source in the failing check, restore logging and find out why it stopped; an unexplained stop must be treated as a possible incident.
 source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ALL
 checks:
-  - key: todo
-    name: 'TODO: define compliance check for this control'
-    todo: true            # Pending — evaluator shows "Not implemented", excluded from score
+  - key: aws-cloudtrail-stopped
+    name: 'AWS: CloudTrail logging was stopped'
+    filters:
+      - field: action
+        operator: IS
+        value: 'StopLogging'
+      - field: log.eventSource
+        operator: IS
+        value: 'cloudtrail.amazonaws.com'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: azure-diagnostic-export-deleted
+    name: 'Azure: no diagnostic (log export) setting was deleted'
+    filters:
+      - field: action
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'microsoft.insights/diagnosticsettings/delete'
+          - 'microsoft.aadiam/diagnosticsettings/delete'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: cisco-ios-logging-host-failed
+    name: 'Cisco IOS: logging to a syslog host failed'
+    filters:
+      - field: log.facility
+        operator: IS
+        value: 'SYS'
+      - field: log.facilityMnemonic
+        operator: IS
+        value: 'LOGGINGHOST_FAIL'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: gcp-log-sink-deleted
+    name: 'Google Cloud: a log export sink was deleted'
+    filters:
+      - field: log.protoPayloadMethodName
+        operator: IS
+        value: 'google.logging.v2.ConfigServiceV2.DeleteSink'
+      - field: log.protoPayloadServiceName
+        operator: IS
+        value: 'logging.googleapis.com'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: linux-audit-disabled
+    name: 'Linux: kernel auditing was switched off'
+    filters:
+      - field: log.configchange.audit_enabled
+        operator: IS
+        value: '0'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: linux-auditd-suspended
+    name: 'Linux: auditd stopped writing records'
+    filters:
+      - field: log.syslogIdentifier
+        operator: IS
+        value: 'auditd'
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'suspending logging'
+          - 'error writing an event'
+          - 'halting the system'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: o365-audit-disabled
+    name: 'Microsoft 365: no audit logging was switched off'
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Set-AdminAuditLogConfig'
+          - 'Set-OrganizationConfig'
+          - 'Set-Mailbox'
+          - 'Set-MailboxAuditBypassAssociation'
+      - field: log.Parameters
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'Name:UnifiedAuditLogIngestionEnabled Value:False'
+          - 'Name:AdminAuditLogEnabled Value:False'
+          - 'Name:AuditDisabled Value:True'
+          - 'Name:AuditEnabled Value:False'
+          - 'Name:AuditBypassEnabled Value:True'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: win-event-logging-failed
+    name: 'Windows: the event log service did not drop or fail to process audit events'
+    filters:
+      - field: log.providerName
+        operator: IS
+        value: 'Microsoft-Windows-Eventlog'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '1101'
+          - '1108'
+    rule: THRESHOLD_MAX
+    ruleValue: 0

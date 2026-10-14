@@ -1,10 +1,55 @@
-# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
 id: mp-7
 family: mp
 familyName: Media Protection
 name: Media Use
-scope: governance
+scope: data
 statement: |-
-  [restrict | prohibit] the use of [types of system media] on [systems or system components] using [controls] ; and
-    Prohibit the use of portable storage devices in organizational systems when such devices have no identifiable owner.
+  [restrict | prohibit] the use of [types of system media] on [systems or system components] using [controls]; and
+  Prohibit the use of portable storage devices in organizational systems when such devices have no identifiable owner.
+remediation: |-
+  Passes when a connected source shows external or removable devices being connected.
+  If it fails: enable device auditing (Windows "Plug and Play Events") or an endpoint product that reports device use.
 source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY
+checks:
+  - key: win-external-device
+    name: 'Windows: newly connected external devices are recorded'
+    dataType: wineventlog
+    filters:
+      - field: log.providerName
+        operator: IS
+        value: 'Microsoft-Windows-Security-Auditing'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '6416'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: azure-defender-device-connected
+    name: 'Azure: Defender for Endpoint external device and USB connections are recorded'
+    dataType: azure
+    filters:
+      - field: action
+        operator: IS_ONE_OF
+        value:
+          - 'PnpDeviceConnected'
+          - 'UsbDriveMounted'
+          - 'UsbDriveMount'
+          - 'UsbDriveDriveLetterChanged'
+          - 'RemovableStoragePolicyTriggered'
+          - 'RemovableStorageFileEvent'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sophos-central-peripheral-control
+    name: 'Sophos Central: removable media and peripheral devices are detected or blocked'
+    dataType: sophos-central
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Event::Endpoint::Device::AlertedOnly'
+          - 'Event::Endpoint::Device::Blocked'
+          - 'Event::Endpoint::Device::ReadOnly'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
