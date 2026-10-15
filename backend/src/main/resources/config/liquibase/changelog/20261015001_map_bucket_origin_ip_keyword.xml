@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20261015001_map_bucket_origin_ip_keyword" author="osmontero">
+        <comment>
+            Issue #2893: coordinate maps 500 on upgraded instances. The v11.3.0
+            event-bag rename changed how origin.ip is typed across index
+            generations:
+              - pre-upgrade (v11.2.16) indices: origin.ip is dynamically mapped
+                as text + .keyword sub-field.
+              - post-upgrade indices (new template): origin.ip is typed "ip",
+                which has NO .keyword sub-field.
+            A terms aggregation on a TEXT field fails (fielddata disabled), so
+            any pre-upgrade index in the time range makes the whole map request
+            500 (all shards failed).
+
+            Fix: bucket the maps on origin.ip.keyword, which exists and is
+            aggregatable on BOTH generations (verified on OpenSearch 2.19.1:
+            cross-generation terms agg on origin.ip.keyword -> successful:2
+            failed:0; on bare origin.ip -> failed:1). The installer template
+            adds the fields.keyword multi-field to origin.ip for new indices so
+            the keyword sub-field is present there too.
+
+            Idempotent: only rows whose bucket field is exactly "origin.ip" are
+            updated; re-running is a no-op once it is origin.ip.keyword.
+            Coordinate maps only (chart_type filter) - no id renumber/delete, so
+            pinned compliance dashboards are preserved.
+        </comment>
+        <sql>UPDATE utm_visualization SET aggregation = jsonb_set(aggregation::jsonb, '{bucket,field}', to_jsonb('origin.ip.keyword'::text))::text WHERE chart_type = 'COORDINATE_MAP_CHART' AND aggregation::jsonb -&gt; 'bucket' -&gt;&gt; 'field' = 'origin.ip';</sql>
+    </changeSet>
+</databaseChangeLog>
