@@ -1,13 +1,545 @@
-# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
 id: ac-4
 family: ac
 familyName: Access Control
 name: Information Flow Enforcement
 scope: data
-statement: Enforce approved authorizations for controlling the flow of information within the system and
-  between connected systems based on [information flow control policies].
+statement: |-
+  Enforce approved authorizations for controlling the flow of information within the system and between connected systems based on [information flow control policies].
+remediation: |-
+  Passes when a firewall or other control shows it enforced information flow: denied traffic, blocked web categories, or data loss prevention rule matches.
+  If it fails: log the deny rules, web filtering and data loss prevention events and send them to UTMStack.
 source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY
 checks:
-  - key: todo
-    name: 'TODO: define compliance check for this control'
-    todo: true            # Pending — evaluator shows "Not implemented", excluded from score
+  - key: win-defender-network-protection-block
+    name: 'Windows: Microsoft Defender network protection blocks web destinations'
+    dataType: wineventlog
+    filters:
+      - field: log.providerName
+        operator: IS
+        value: 'Microsoft-Windows-Windows Defender'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '1126'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: win-host-firewall-blocked
+    name: 'Windows: connections blocked by the host firewall are recorded'
+    dataType: wineventlog
+    filters:
+      - field: log.providerName
+        operator: IS
+        value: 'Microsoft-Windows-Security-Auditing'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '5152'
+          - '5157'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-firewall-drops
+    name: 'Linux: host firewall refusals are recorded'
+    dataType: linux
+    filters:
+      - field: log.transport
+        operator: IS
+        value: 'kernel'
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-dlp-rule-matches
+    name: 'Microsoft 365: data loss prevention rule matches are recorded'
+    dataType: o365
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'DLPRuleMatch'
+          - 'DlpRuleMatch'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-safe-links-blocks
+    name: 'Microsoft 365: Safe Links blocked a malicious URL click'
+    dataType: o365
+    filters:
+      - field: action
+        operator: IS
+        value: 'TIUrlClickData'
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: azure-defender-web-protection-blocks
+    name: 'Azure (Defender for Endpoint): network protection and SmartScreen web blocks are recorded'
+    dataType: azure
+    filters:
+      - field: log.azureKind
+        operator: IS
+        value: 'endpoint-event'
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'ExploitGuardNetworkProtectionBlocked'
+          - 'SmartScreenUrlWarning'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: azure-firewall-network-denies
+    name: 'Azure Firewall: denied network traffic is recorded'
+    dataType: azure
+    filters:
+      - field: log.category
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'AZFWNetworkRule'
+          - 'AZFWNatRule'
+      - field: log.properties.Action
+        operator: IS
+        value: 'Deny'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: azure-firewall-web-denies
+    name: 'Azure Firewall: application (web) rule denials are recorded'
+    dataType: azure
+    filters:
+      - field: log.category
+        operator: IS
+        value: 'AZFWApplicationRule'
+      - field: log.properties.Action
+        operator: IS
+        value: 'Deny'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: azure-waf-ip-restriction-blocks
+    name: 'Azure: WAF and App Service access-restriction blocks are recorded'
+    dataType: azure
+    filters:
+      - field: log.azureKind
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'waf'
+          - 'frontdoor-waf'
+          - 'appservice-ipsec'
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-network-firewall-blocks
+    name: 'AWS: traffic blocked by Network Firewall rules is recorded'
+    dataType: aws
+    filters:
+      - field: log.event.event_type
+        operator: IS
+        value: 'alert'
+      - field: log.event.alert.action
+        operator: IS
+        value: 'blocked'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-network-firewall-category-blocks
+    name: 'AWS: Network Firewall URL and domain category filtering blocks requests'
+    dataType: aws
+    filters:
+      - field: log.event.event_type
+        operator: IS
+        value: 'alert'
+      - field: log.event.aws_category
+        operator: EXIST
+      - field: log.event.alert.action
+        operator: IS
+        value: 'blocked'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: gcp-firewall-denied
+    name: 'Google Cloud: traffic denied by VPC firewall rules is recorded'
+    dataType: google
+    filters:
+      - field: log.jsonPayloadDisposition
+        operator: IS
+        value: 'DENIED'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: gcp-secure-web-proxy-denies
+    name: 'Google: Secure Web Proxy denies web requests'
+    dataType: google
+    filters:
+      - field: log.logName
+        operator: CONTAIN
+        value: 'networkservices.googleapis.com%2Fgateway_requests'
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: bitdefender-content-control
+    name: 'Bitdefender: content control blocked a web site'
+    dataType: antivirus-bitdefender-gz
+    filters:
+      - field: log.BitdefenderGZModule
+        operator: IS
+        value: 'uc'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: bitdefender-data-protection
+    name: 'Bitdefender: data protection rule blocked sensitive data'
+    dataType: antivirus-bitdefender-gz
+    filters:
+      - field: log.BitdefenderGZModule
+        operator: IS
+        value: 'dp'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: bitdefender-firewall-blocks
+    name: 'Bitdefender: endpoint firewall blocked traffic'
+    dataType: antivirus-bitdefender-gz
+    filters:
+      - field: log.BitdefenderGZModule
+        operator: IS
+        value: 'fw'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: eset-filtered-websites
+    name: 'ESET: web sites blocked by web access protection'
+    dataType: antivirus-esmc-eset
+    filters:
+      - field: log.eventType
+        operator: IS
+        value: 'FilteredWebsites_Event'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: eset-firewall-blocked
+    name: 'ESET: firewall blocked traffic'
+    dataType: antivirus-esmc-eset
+    filters:
+      - field: log.eventType
+        operator: IS
+        value: 'FirewallAggregated_Event'
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: kaspersky-web-control
+    name: 'Kaspersky: web page blocked or warned by web control'
+    dataType: antivirus-kaspersky
+    filters:
+      - field: log.eventType
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'GNRL_EV_WEB_URL_BLOCKED'
+          - 'GNRL_EV_WEB_URL_WARNING'
+          - 'GNRL_EV_WEB_URL_BLOCKED_BY_KSN'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sentinelone-firewall-control-blocked
+    name: 'SentinelOne: firewall control blocked traffic'
+    dataType: antivirus-sentinel-one
+    filters:
+      - field: log.activityType
+        operator: IS
+        value: '5232'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: cisco-switch-acl-denied
+    name: 'Cisco switch: access-list denials are recorded'
+    dataType: cisco-switch
+    filters:
+      - field: log.facilityMnemonic
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'IPACCESSLOGP'
+          - 'IPACCESSLOGDP'
+          - 'IPACCESSLOGRP'
+          - 'IPACCESSLOGSP'
+          - 'IPACCESSLOGNP'
+          - 'IPACCESSLOGS'
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: asa-denied-traffic
+    name: 'Cisco ASA: denied packets and connections are recorded'
+    dataType: firewall-cisco-asa
+    filters:
+      - field: log.messageId
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '106001'
+          - '106006'
+          - '106007'
+          - '106014'
+          - '106015'
+          - '106021'
+          - '106023'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: ftd-denied-traffic
+    name: 'Cisco Firepower: blocked connections are recorded'
+    dataType: firewall-cisco-firepower
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: ftd-url-category-blocks
+    name: 'Cisco FTD: URL category blocks are recorded'
+    dataType: firewall-cisco-firepower
+    filters:
+      - field: log.messageId
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '430002'
+          - '430003'
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+      - field: log.URLCategory
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fgt-denied-traffic
+    name: 'FortiGate: denied or blocked traffic is recorded'
+    dataType: firewall-fortigate-traffic
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fgt-dlp-matches
+    name: 'FortiGate: data loss prevention matches are recorded'
+    dataType: firewall-fortigate-traffic
+    filters:
+      - field: log.type
+        operator: IS
+        value: 'utm'
+      - field: log.subtype
+        operator: IS
+        value: 'dlp'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fgt-webfilter-blocks
+    name: 'FortiGate: web filter blocks are recorded'
+    dataType: firewall-fortigate-traffic
+    filters:
+      - field: log.type
+        operator: IS
+        value: 'utm'
+      - field: log.subtype
+        operator: IS
+        value: 'webfilter'
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fortiweb-blocked-requests
+    name: 'FortiWeb: blocked web requests are recorded'
+    dataType: firewall-fortiweb
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: meraki-content-filtering-blocks
+    name: 'Meraki: content filtering blocks are recorded'
+    dataType: firewall-meraki
+    filters:
+      - field: log.merakiGroup
+        operator: IS
+        value: 'events'
+      - field: log.message
+        operator: START_WITH
+        value: 'content_filtering_block'
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: meraki-denied-traffic
+    name: 'Cisco Meraki: denied or blocked traffic is recorded'
+    dataType: firewall-meraki
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: paloalto-data-filtering
+    name: 'Palo Alto: data filtering matches are recorded'
+    dataType: firewall-paloalto
+    filters:
+      - field: log.paType
+        operator: IS
+        value: 'THREAT'
+      - field: log.paSubtype
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'data'
+          - 'dlp'
+          - 'dlp-non-file'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: paloalto-denied-traffic
+    name: 'Palo Alto: denied or blocked traffic is recorded'
+    dataType: firewall-paloalto
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: paloalto-url-blocks
+    name: 'Palo Alto: URL filtering blocks are recorded'
+    dataType: firewall-paloalto
+    filters:
+      - field: log.paType
+        operator: IS
+        value: 'THREAT'
+      - field: log.paSubtype
+        operator: IS
+        value: 'url'
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: pfsense-blocked-packets
+    name: 'pfSense: blocked packets are recorded'
+    dataType: firewall-pfsense
+    filters:
+      - field: action
+        operator: IS
+        value: 'block'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sonicwall-cfs-blocks
+    name: 'SonicWall: content filter blocks are recorded'
+    dataType: firewall-sonicwall
+    filters:
+      - field: log.eventCode
+        operator: IS
+        value: '14'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sonicwall-denied-traffic
+    name: 'SonicWall: denied or blocked traffic is recorded'
+    dataType: firewall-sonicwall
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sophos-xg-denied-traffic
+    name: 'Sophos Firewall: denied or blocked traffic is recorded'
+    dataType: firewall-sophos-xg
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sophos-xg-email-dlp
+    name: 'Sophos Firewall: email data protection matches are recorded'
+    dataType: firewall-sophos-xg
+    filters:
+      - field: log.type
+        operator: IS
+        value: 'Anti-Spam'
+      - field: log.messageId
+        operator: IS
+        value: '13009'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sophos-xg-web-blocks
+    name: 'Sophos Firewall: web filter blocks are recorded'
+    dataType: firewall-sophos-xg
+    filters:
+      - field: log.type
+        operator: IS
+        value: 'Content Filtering'
+      - field: log.component
+        operator: IS
+        value: 'HTTP'
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-graph-dlp-alerts
+    name: 'Microsoft Graph: data loss prevention alerts are received'
+    dataType: o365-graph
+    filters:
+      - field: log.serviceSource
+        operator: IS
+        value: 'dataLossPrevention'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-graph-purview-dlp-matches
+    name: 'Microsoft Graph (Purview audit): data loss prevention rule matches are recorded'
+    dataType: o365-graph
+    filters:
+      - field: log.operation
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'DLPRuleMatch'
+          - 'DlpRuleMatch'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sophos-central-dlp
+    name: 'Sophos Central: data loss prevention rule matched'
+    dataType: sophos-central
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Event::Endpoint::DataLossPreventionAutomaticallyAllowed'
+          - 'Event::Endpoint::DataLossPreventionAutomaticallyBlocked'
+          - 'Event::Endpoint::DataLossPreventionUserAllowed'
+          - 'Event::Endpoint::DataLossPreventionUserBlocked'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sophos-central-web-control
+    name: 'Sophos Central: web control or web filtering applied'
+    dataType: sophos-central
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Event::Endpoint::WebControlViolation'
+          - 'Event::Endpoint::WebFilteringBlocked'
+          - 'Event::Endpoint::WebControlViolation::BLOCKED'
+          - 'Event::Endpoint::WebControlViolation::WARNED'
+          - 'Event::Endpoint::WebControlViolation::PROCEEDED'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sophos-central-windows-firewall-blocked
+    name: 'Sophos Central: managed Windows firewall blocked traffic'
+    dataType: sophos-central
+    filters:
+      - field: action
+        operator: IS
+        value: 'Event::Endpoint::WindowsFirewall::Blocked'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: edr-network-blocked
+    name: 'UTMStack EDR: connections to blocklisted addresses are blocked'
+    dataType: utmstack_edr
+    filters:
+      - field: action
+        operator: IS
+        value: 'blocked'
+      - field: log.source
+        operator: IS
+        value: 'network_watcher'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1

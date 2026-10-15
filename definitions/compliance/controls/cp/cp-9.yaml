@@ -1,4 +1,4 @@
-# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
 id: cp-9
 family: cp
 familyName: Contingency Planning
@@ -6,11 +6,302 @@ name: System Backup
 scope: data
 statement: |-
   Conduct backups of user-level information contained in [system components] [frequency];
-    Conduct backups of system-level information contained in the system [frequency];
-    Conduct backups of system documentation, including security- and privacy-related documentation [frequency] ; and
-    Protect the confidentiality, integrity, and availability of backup information.
+  Conduct backups of system-level information contained in the system [frequency];
+  Conduct backups of system documentation, including security- and privacy-related documentation [frequency]; and
+  Protect the confidentiality, integrity, and availability of backup information.
+remediation: |-
+  Passes when a connected source shows backup jobs running or completing during the window (Windows Server Backup, Veeam, cloud backup services, device configuration backups).
+  If it fails: check that backups are scheduled and that their job events reach UTMStack. That backups can be restored is shown by restore tests, kept as evidence.
 source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY
 checks:
-  - key: todo
-    name: 'TODO: define compliance check for this control'
-    todo: true            # Pending — evaluator shows "Not implemented", excluded from score
+  - key: win-backupexec-job-succeeded
+    name: 'Windows: Veritas Backup Exec jobs complete successfully'
+    dataType: wineventlog
+    filters:
+      - field: log.providerName
+        operator: START_WITH
+        value: 'Backup'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '34112'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: win-sqlserver-backup-completed
+    name: 'Windows: SQL Server database backups complete'
+    dataType: wineventlog
+    filters:
+      - field: log.providerName
+        operator: START_WITH
+        value: 'MSSQL'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '18264'
+          - '18265'
+          - '18270'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-backup-job-finished
+    name: 'Linux: scheduled backup jobs finishing are recorded'
+    dataType: linux
+    filters:
+      - field: log.syslogIdentifier
+        operator: IS
+        value: 'systemd'
+      - field: log.message
+        operator: START_WITH
+        value: 'Finished '
+      - field: log.message
+        operator: CONTAIN
+        value: 'backup'
+      - field: log.message
+        operator: DOES_NOT_CONTAIN_ONE_OF
+        value:
+          - 'dpkg-db-backup'
+          - 'dpkg database backup'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-backup-tools
+    name: 'Linux: backup software activity is recorded'
+    dataType: linux
+    filters:
+      - field: log.syslogIdentifier
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'borg'
+          - 'borgmatic'
+          - 'restic'
+          - 'rsnapshot'
+          - 'duplicity'
+          - 'duplicati'
+          - 'bacula-fd'
+          - 'bareos-fd'
+          - 'veeamservice'
+          - 'veeamsvc'
+          - 'Veeam.Azure.Service'
+          - 'veeamtransport'
+          - 'urbackupclientbackend'
+          - 'urbackupsrv'
+          - 'timeshift'
+          - 'rear'
+          - 'amdump'
+          - 'rsyncd'
+          - 'backup-manager'
+          - 'automysqlbackup'
+          - 'proxmox-backup-client'
+          - 'proxmox-backup-proxy'
+          - 'vzdump'
+          - 'dsmc'
+          - 'dsmcad'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: macos-time-machine-completed
+    name: 'macOS: Time Machine backups completing are recorded'
+    dataType: macos
+    filters:
+      - field: log.subsystem
+        operator: IS
+        value: 'com.apple.TimeMachine'
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'Backup completed successfully'
+          - 'Completed backup'
+          - 'Finished copying from volume'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: azure-backup-jobs-completed
+    name: 'Azure Backup: completed backup jobs are recorded'
+    dataType: azure
+    filters:
+      - field: log.category
+        operator: IS
+        value: 'AddonAzureBackupJobs'
+      - field: log.properties.JobOperation
+        operator: IS
+        value: 'Backup'
+      - field: log.properties.JobStatus
+        operator: IS
+        value: 'Completed'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: azure-backup-on-demand
+    name: 'Azure Backup: on-demand backups are recorded'
+    dataType: azure
+    filters:
+      - field: action
+        operator: CONTAIN
+        value: '/protecteditems/backup/action'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-backup-jobs-completed
+    name: 'AWS: AWS Backup jobs completed'
+    dataType: aws
+    filters:
+      - field: action
+        operator: IS
+        value: 'BackupJobCompleted'
+      - field: target.domain
+        operator: IS
+        value: 'backup.amazonaws.com'
+      - field: log.serviceEventDetails.state
+        operator: IS
+        value: 'COMPLETED'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-snapshots-created
+    name: 'AWS: EBS and RDS snapshots are created'
+    dataType: aws
+    filters:
+      - field: target.domain
+        operator: IS_ONE_OF
+        value:
+          - 'ec2.amazonaws.com'
+          - 'rds.amazonaws.com'
+      - field: action
+        operator: IS_ONE_OF
+        value:
+          - 'CreateSnapshot'
+          - 'CreateSnapshots'
+          - 'CopySnapshot'
+          - 'CreateDBSnapshot'
+          - 'CreateDBClusterSnapshot'
+          - 'CopyDBSnapshot'
+          - 'CopyDBClusterSnapshot'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: gcp-backupdr-jobs
+    name: 'Google: Backup and DR job records are received'
+    dataType: google
+    filters:
+      - field: log.logName
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'backupdr.googleapis.com%2Fgcb_backup_recovery_jobs'
+          - 'backupdr.googleapis.com%2Fbackup_recovery_jobs'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: gcp-disk-snapshots
+    name: 'Google: disk snapshots are taken (scheduled or manual)'
+    dataType: google
+    filters:
+      - field: log.protoPayloadMethodName
+        operator: IS_ONE_OF
+        value:
+          - 'ScheduledSnapshots'
+          - 'v1.compute.disks.createSnapshot'
+          - 'v1.compute.regionDisks.createSnapshot'
+          - 'v1.compute.snapshots.insert'
+          - 'beta.compute.snapshots.insert'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: asa-config-copied-out
+    name: 'Cisco ASA: running configuration copies (backups) are recorded'
+    dataType: firewall-cisco-asa
+    filters:
+      - field: log.messageId
+        operator: IS
+        value: '111008'
+      - field: log.msg
+        operator: CONTAIN
+        value: 'running-config'
+      - field: log.msg
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'tftp:'
+          - 'ftp:'
+          - 'scp:'
+          - 'disk0:'
+          - 'flash:'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fgt-config-backups
+    name: 'FortiGate: configuration backups are recorded'
+    dataType: firewall-fortigate-traffic
+    filters:
+      - field: log.logid
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '0100032142'
+          - '0100032143'
+          - '0100032145'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fortiweb-config-backup
+    name: 'FortiWeb: configuration backups are recorded'
+    dataType: firewall-fortiweb
+    filters:
+      - field: log.type
+        operator: IS
+        value: 'event'
+      - field: action
+        operator: IS
+        value: 'backup'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: pfsense-autoconfigbackup
+    name: 'pfSense: AutoConfigBackup uploads are recorded'
+    dataType: firewall-pfsense
+    filters:
+      - field: raw
+        operator: CONTAIN
+        value: 'End of configuration backup'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sonicwall-config-backups
+    name: 'SonicWall: configuration backups are recorded'
+    dataType: firewall-sonicwall
+    filters:
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '1065'
+          - '1494'
+          - '1511'
+          - '1513'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sophos-xg-scheduled-backup
+    name: 'Sophos Firewall: scheduled configuration backups are recorded'
+    dataType: firewall-sophos-xg
+    filters:
+      - field: log.messageId
+        operator: IS
+        value: '17923'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: as400-save-completed
+    name: 'IBM i (AS/400): completed saves are recorded'
+    dataType: ibm-as400
+    filters:
+      - field: log.messageId
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'CPC3701'
+          - 'CPC3722'
+          - 'CPC370D'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: esxi-config-backup
+    name: 'VMware ESXi: host configuration backups are recorded'
+    dataType: vmware-esxi
+    filters:
+      - field: log.process
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'auto-backup.sh'
+          - 'backup.sh'
+          - 'configStoreBackup'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1

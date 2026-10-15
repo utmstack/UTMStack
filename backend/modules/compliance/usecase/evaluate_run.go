@@ -169,8 +169,14 @@ func (e *evaluator) controlRow(ctx context.Context, id string, results map[check
 		return row
 	}
 
+	// A MIN_HITS_REQUIRED check is evidence that something is in place; a
+	// THRESHOLD_MAX check is a limit on something that must not happen. The two
+	// are judged differently: evidence follows the control's strategy, while a
+	// limit that was exceeded fails the control whatever the strategy, so a
+	// cleared audit log is not excused by another source that logs fine.
 	passed, failed, skipped := 0, 0, 0
-	var firstFail string
+	evidencePassed, evidenceFailed, violated := 0, 0, 0
+	var firstFail, firstViolation string
 	for _, ch := range runnable {
 		res := results[sigOf(ch)]
 		row.Checks = append(row.Checks, dto.CheckResult{
@@ -184,13 +190,25 @@ func (e *evaluator) controlRow(ctx context.Context, id string, results map[check
 			Hits:     res.hits,
 			Error:    res.err,
 		})
+		limit := ch.Rule == domain.RuleThresholdMax
 		switch res.outcome {
 		case domain.CheckPassed:
 			passed++
+			if !limit {
+				evidencePassed++
+			}
 		case domain.CheckFailed:
 			failed++
 			if firstFail == "" {
 				firstFail = fmt.Sprintf("%s (%d hits)", ch.Name, res.hits)
+			}
+			if limit {
+				violated++
+				if firstViolation == "" {
+					firstViolation = fmt.Sprintf("%s (%d hits)", ch.Name, res.hits)
+				}
+			} else {
+				evidenceFailed++
 			}
 		default: // NOT_APPLICABLE or ERROR — neither passes nor fails the control
 			skipped++
@@ -202,11 +220,25 @@ func (e *evaluator) controlRow(ctx context.Context, id string, results map[check
 		row.EngineStatus = domain.StatusNotEvaluated
 		row.Evidence = fmt.Sprintf("no data for %d check(s) in the window", skipped)
 
+	case violated > 0:
+		row.EngineStatus = domain.StatusNonCompliant
+		row.Evidence = firstViolation
+		if violated > 1 {
+			row.Evidence = fmt.Sprintf("%s, and %d more", firstViolation, violated-1)
+		}
+
 	case effectiveStrategy(c) == domain.StrategyAny:
-		if passed > 0 {
+		// Only checks whose source the tenant sends count: "2 of 16" would
+		// read as failure when 14 of them are products the tenant never had.
+		switch {
+		case evidencePassed > 0:
 			row.EngineStatus = domain.StatusCompliant
-			row.Evidence = fmt.Sprintf("%d of %d checks passed", passed, len(runnable))
-		} else {
+			row.Evidence = fmt.Sprintf("%d of %d checks with data passed", passed, passed+failed)
+		case evidenceFailed == 0:
+			// Only limits ran, and none was exceeded.
+			row.EngineStatus = domain.StatusCompliant
+			row.Evidence = fmt.Sprintf("all %d checks with data passed", passed)
+		default:
 			row.EngineStatus = domain.StatusNonCompliant
 			row.Evidence = firstFail
 		}
