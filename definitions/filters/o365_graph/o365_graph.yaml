@@ -1,8 +1,8 @@
-# Microsoft Graph filter, version 1.0.0
+# Microsoft Graph filter, version 1.1.0
 
-# Normalizes raw Microsoft Graph records into a log object and tags each record
-# with its source so rules can branch on it. The raw record is preserved under
-# log.record for field access.
+# Normalizes raw Microsoft Graph security records into the event schema.
+# Tags each record with its source in log.graphSource so rules can branch,
+# and promotes each source's own time field to deviceTime.
 
 pipeline:
   - dataTypes: [o365-graph]
@@ -13,41 +13,15 @@ pipeline:
       - add:
           function: string
           params:
-            key: log.record
-            value: raw
-      - add:
-          function: string
-          params:
             key: log.graphSource
             value: unknown
-      # securityAlerts + category: alerts_v2
-      - add:
-          function: string
-          params:
-            key: log.graphSource
-            value: security-alerts
-          where: exists("category") && exists("securityAlerts")
-      # incidentType + alertCount: incidents
-      - add:
-          function: string
-          params:
-            key: log.graphSource
-            value: security-incidents
-          where: exists("incidentType") && exists("alertCount")
-      # activityDisplayName + result: directoryAudits
-      - add:
-          function: string
-          params:
-            key: log.graphSource
-            value: directory-audit
-          where: exists("activityDisplayName") && exists("result")
-      # ipAddress + status: signIns
+      # appDisplayName + ipAddress: signIns
       - add:
           function: string
           params:
             key: log.graphSource
             value: sign-ins
-          where: exists("ipAddress") && exists("authenticationRequirement")
+          where: exists("appDisplayName") && exists("ipAddress")
       # riskState + riskLevel: riskDetections
       - add:
           function: string
@@ -55,53 +29,79 @@ pipeline:
             key: log.graphSource
             value: risk-detections
           where: exists("riskState") && exists("riskLevel")
-      # RowKey/Timestamp: hunting query result rows
+      # activityDisplayName + result: directoryAudits
+      - add:
+          function: string
+          params:
+            key: log.graphSource
+            value: directory-audit
+          where: exists("activityDisplayName") && exists("result")
+      # NetworkMessageId: hunting query result rows (no RowKey in results)
       - add:
           function: string
           params:
             key: log.graphSource
             value: hunting
-          where: exists("RowKey")
-      # ActivityDisplayName + ActivityDateTime: Purview auditLog/queries records
+          where: exists("NetworkMessageId")
+      # ActivityDisplayName + ActivityDateTime (capital A): Purview audit records
       - add:
           function: string
           params:
             key: log.graphSource
             value: purview-audit
           where: exists("ActivityDisplayName") && exists("ActivityDateTime")
-      # Promote each source's time field to the event timestamp so @timestamp is
-      # the record's own time, not ingest wall-clock time.
+      # alertDisplayName: securityAlerts v1 and v2
+      - add:
+          function: string
+          params:
+            key: log.graphSource
+            value: security-alerts
+          where: exists("alertDisplayName")
+      # incidentType + alertCount: securityIncidents
+      - add:
+          function: string
+          params:
+            key: log.graphSource
+            value: security-incidents
+          where: exists("incidentType") && exists("alertCount")
+      # Promote each source's time field to deviceTime so the event keeps the
+      # record's own time instead of ingest wall-clock time.
       - rename:
           from:
             - log.alertDateTime
-          to: log.eventTime
+          to: deviceTime
           where: exists("log.alertDateTime")
       - rename:
           from:
+            - log.modifiedDateTime
+          to: deviceTime
+          where: exists("log.modifiedDateTime")
+      - rename:
+          from:
             - log.lastUpdateDateTime
-          to: log.eventTime
+          to: deviceTime
           where: exists("log.lastUpdateDateTime")
       - rename:
           from:
             - log.activityDateTime
-          to: log.eventTime
+          to: deviceTime
           where: exists("log.activityDateTime")
       - rename:
           from:
             - log.createdDateTime
-          to: log.eventTime
+          to: deviceTime
           where: exists("log.createdDateTime")
       - rename:
           from:
-            - log.lastUpdatedDateTime
-          to: log.eventTime
-          where: exists("log.lastUpdatedDateTime")
+            - log.Timestamp
+          to: deviceTime
+          where: exists("log.Timestamp")
       - rename:
           from:
             - log.ActivityDateTime
-          to: log.eventTime
+          to: deviceTime
           where: exists("log.ActivityDateTime")
-      # Promote the human-readable action name to `action`.
+      # Human-readable action name.
       - rename:
           from:
             - log.alertDisplayName
@@ -122,12 +122,38 @@ pipeline:
             - log.incidentType
           to: action
           where: exists("log.incidentType")
-      # User attribution.
+      - add:
+          function: string
+          params:
+            key: action
+            value: sign-in
+          where: exists("appDisplayName") && exists("ipAddress")
+      - add:
+          function: string
+          params:
+            key: action
+            value: email-event
+          where: exists("NetworkMessageId")
+      # Result outcome.
       - rename:
           from:
-            - log.activityUser.userPrincipalName
-          to: origin.user
-          where: exists("log.activityUser.userPrincipalName")
+            - log.result
+          to: actionResult
+          where: exists("log.result")
+      # Graph sign-in reports errorCode 0 on success, a non-zero code on failure.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: exists("status.errorCode") && equals("status.errorCode", 0)
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failed
+          where: exists("status.errorCode") && !equals("status.errorCode", 0)
+      # User attribution.
       - rename:
           from:
             - log.userPrincipalName
@@ -135,17 +161,33 @@ pipeline:
           where: exists("log.userPrincipalName")
       - rename:
           from:
-            - log.user.userPrincipalName
+            - log.initiatedBy.user.userPrincipalName
           to: origin.user
-          where: exists("log.user.userPrincipalName")
-      # Network attribution.
+          where: exists("log.initiatedBy.user.userPrincipalName")
       - rename:
           from:
-            - log.activityIPAddresses
-          to: origin.ip
-          where: exists("log.activityIPAddresses")
+            - log.activityUser.userPrincipalName
+          to: origin.user
+          where: exists("log.activityUser.userPrincipalName")
+      # Hunting rows: external sender becomes the origin, recipient the target.
+      - rename:
+          from:
+            - log.SenderFromAddress
+          to: origin.user
+          where: exists("log.SenderFromAddress")
+      - rename:
+          from:
+            - log.RecipientEmailAddress
+          to: target.user
+          where: exists("log.RecipientEmailAddress")
+      # Network attribution.
       - rename:
           from:
             - log.ipAddress
           to: origin.ip
           where: exists("log.ipAddress")
+      - rename:
+          from:
+            - log.initiatedBy.user.ipAddress
+          to: origin.ip
+          where: exists("log.initiatedBy.user.ipAddress")
