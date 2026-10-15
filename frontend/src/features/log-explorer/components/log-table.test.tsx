@@ -1,4 +1,5 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { formatDateTime, setDateFormatPrefs } from '@/shared/lib/datetime'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import type { LogDocument } from '../types/log-explorer.types'
 import { LogTable } from './log-table'
@@ -11,6 +12,17 @@ const docs: LogDocument[] = [
 const props = { docs, autoColumns: [] as string[], expanded: null as number | null, onToggle: vi.fn() }
 
 describe('LogTable', () => {
+  it('updates memoized timestamp cells when timezone changes', () => {
+    setDateFormatPrefs({ timezone: 'UTC', dateFormat: 'short' })
+    render(<LogTable {...props} columns={['action']} />)
+    const before = formatDateTime(docs[0]['@timestamp'] as string)
+    expect(screen.getByText(before)).toBeInTheDocument()
+    act(() => setDateFormatPrefs({ timezone: 'Europe/Istanbul' }))
+    expect(screen.queryByText(before)).not.toBeInTheDocument()
+    expect(screen.getByText(formatDateTime(docs[0]['@timestamp'] as string))).toBeInTheDocument()
+    act(() => setDateFormatPrefs({ timezone: 'UTC', dateFormat: 'medium' }))
+  })
+
   it('shows one row per document with the source and the picked columns', () => {
     render(<LogTable {...props} columns={['action']} />)
 

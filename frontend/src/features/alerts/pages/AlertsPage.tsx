@@ -1,3 +1,4 @@
+import { useDateFormat } from '@/shared/lib/datetime'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AlertTriangle, Loader2 } from 'lucide-react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
@@ -43,6 +44,7 @@ import type { TaggingRule } from '../types/tagging-rule.types'
 import type { AlertTag } from '../types/alert.types'
 
 export function AlertsPage() {
+  useDateFormat()
   const { t } = useTranslation()
   const [view, setView] = useState<AlertsView>('alerts')
   const [statusTab, setStatusTab] = useState<StatusTab>('all')

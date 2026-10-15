@@ -1,3 +1,4 @@
+import { useDateFormat } from '@/shared/lib/datetime'
 import { useMemo, useState } from 'react'
 import { Flame, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -57,6 +58,7 @@ export function AlertDrawer({
   onGenerateAi?: () => void
   aiGenerating?: boolean
 }) {
+  useDateFormat()
   const { t } = useTranslation()
   const backdrop = useBackdropDismiss(onClose)
   useSocAiFocus(useMemo(() => alertFocus(a), [a]))
