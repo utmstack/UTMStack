@@ -156,8 +156,9 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
       filters,
       searchInput,
       appliedQuery,
+      columns: [...columns],
     }),
-    [pattern, range, filters, searchInput, appliedQuery]
+    [dataset, pattern, range, filters, searchInput, appliedQuery, columns]
   )
 
   const loadSnapshot = useCallback(
@@ -168,6 +169,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
       setFilters(s.filters ?? [])
       setSearchInput(s.searchInput ?? '')
       setAppliedQuery(s.appliedQuery ?? '')
+      setColumns(Array.isArray(s.columns) ? s.columns.filter((c): c is string => typeof c === 'string') : [])
       setExpanded(null)
     },
     []

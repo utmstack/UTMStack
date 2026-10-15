@@ -17,6 +17,8 @@ export interface SavedSearchState {
   filters: FilterType[]
   searchInput: string
   appliedQuery: string
+  /** Absent in older saved searches; an empty array selects automatic columns. */
+  columns?: string[]
 }
 
 const LEGACY_KEY = 'utmstack-logexplorer-saved-searches'
