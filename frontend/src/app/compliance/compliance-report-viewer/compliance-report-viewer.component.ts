@@ -1,5 +1,5 @@
 import {HttpErrorResponse} from '@angular/common/http';
-import {AfterViewInit, Component, HostListener, OnDestroy, OnInit} from '@angular/core';
+import {ViewChild, Component, HostListener, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal, NgbModalOptions} from '@ng-bootstrap/ng-bootstrap';
 import {NgxSpinnerService} from 'ngx-spinner';
@@ -17,13 +17,15 @@ import {CpStandardService} from '../shared/services/cp-standard.service';
 import {ComplianceReportType} from '../shared/type/compliance-report.type';
 import {ComplianceStandardSectionType} from '../shared/type/compliance-standard-section.type';
 import {ComplianceStandardType} from '../shared/type/compliance-standard.type';
+import {ComplianceResultViewComponent} from '../compliance-result-view/compliance-result-view.component';
 
 @Component({
   selector: 'app-compliance-report-viewer',
   templateUrl: './compliance-report-viewer.component.html',
   styleUrls: ['./compliance-report-viewer.component.css']
 })
-export class ComplianceReportViewerComponent implements OnInit, AfterViewInit, OnDestroy {
+export class ComplianceReportViewerComponent implements OnInit,  OnDestroy {
+  @ViewChild('compilanceRep') compilanceRep!: ComplianceResultViewComponent
   admin = ADMIN_ROLE;
   sections$: Observable<ComplianceStandardSectionType[]>;
   standard: ComplianceStandardType;
@@ -114,8 +116,6 @@ export class ComplianceReportViewerComponent implements OnInit, AfterViewInit, O
       .subscribe((params) => this.report = params.template);
   }
 
-  ngAfterViewInit(): void {
-  }
 
   manageStandards() {
     const options: NgbModalOptions = {
@@ -151,6 +151,13 @@ export class ComplianceReportViewerComponent implements OnInit, AfterViewInit, O
   }
 
   exportToPdf() {
+
+    if(this.action=='reports'){
+        this.compilanceRep.exportToPdf()
+        return
+    }
+
+
     this.spinner.show('buildPrintPDF');
     const url = this.getUrl();
     const fileName = this.report ? this.report.associatedDashboard.name.replace(/ /g, '_') : 'Reports';
@@ -176,7 +183,7 @@ export class ComplianceReportViewerComponent implements OnInit, AfterViewInit, O
         return '/dashboard/export-compliance/' + this.report.id;
     } else {
       const section = this.getActiveSectionParams();
-      return  encodeURIComponent('/compliance/print-view?section=' + section);
+      return '/compliance/print-view?section=' + section;
       // return  encodeURIComponent('/compliance/evaluations-print-view=' + section);
     }
   }
