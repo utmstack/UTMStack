@@ -25,7 +25,7 @@ func purviewPoll(p *GraphProcessor, group *ModuleGroup, payload *cursorPayload, 
 		return nil, windowEnd, nil
 	}
 
-	start, end := sourceWindow(payload.sourcePosition(name), windowStart, windowEnd)
+	start, end := sourceWindow(name, payload.sourcePosition(name), windowStart, windowEnd)
 
 	createBody, _ := json.Marshal(map[string]any{
 		"filterStartDateTime": odata(start),

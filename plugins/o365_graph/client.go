@@ -26,9 +26,24 @@ const (
 
 	// Late-arriving records: re-read the last 30s each tick; duplicates are
 	// dropped by the deterministic identity downstream.
-	overlap     = 30 * time.Second
+	overlap = 30 * time.Second
+
+	// Microsoft publishes sign-ins (and risk-detections) up to ~10 minutes
+	// after the event, so those sources query a window that ends earlier.
+	latePublicationLag = 10 * time.Minute
+
 	maxLookback = 24 * time.Hour
 )
+
+// lateSourceLag returns the lag applied to the end of the window per source.
+func lateSourceLag(name string) time.Duration {
+	switch name {
+	case "sign-ins", "risk-detections":
+		return latePublicationLag
+	default:
+		return 0
+	}
+}
 
 type microsoftLoginResponse struct {
 	TokenType   string `json:"token_type,omitempty"`
@@ -288,10 +303,11 @@ func (p *GraphProcessor) getJSONPages(path string) ([]map[string]any, error) {
 	return items, nil
 }
 
-func sourceWindow(position, windowStart, windowEnd time.Time) (time.Time, time.Time) {
-	end := windowEnd
+func sourceWindow(name string, position, windowStart, windowEnd time.Time) (time.Time, time.Time) {
+	end := windowEnd.Add(-lateSourceLag(name))
 	if position.IsZero() {
-		// A slow source must not backfill multi-hour windows on its first tick.
+		// Start at now-lag, not windowEnd: the first tick is a full-lookback
+		// backfill and must leave the unread trailing lag for later ticks.
 		return windowStart, end
 	}
 	start := position.Add(-overlap)

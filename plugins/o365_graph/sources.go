@@ -32,7 +32,7 @@ func listSource(name, path, timeField, top string, idFn func(item map[string]any
 			if payload.sourceUnavailable(name) {
 				return nil, windowEnd, nil
 			}
-			start, end := sourceWindow(payload.sourcePosition(name), windowStart, windowEnd)
+			start, end := sourceWindow(name, payload.sourcePosition(name), windowStart, windowEnd)
 
 			// url.Values.Encode: a hand-built URL with raw spaces is a malformed
 			// request line that Graph rejects with a generic 400.
@@ -93,7 +93,7 @@ func huntingPoll(p *GraphProcessor, group *ModuleGroup, payload *cursorPayload, 
 	if payload.sourceUnavailable(name) {
 		return nil, windowEnd, nil
 	}
-	start, end := sourceWindow(payload.sourcePosition(name), windowStart, windowEnd)
+	start, end := sourceWindow(name, payload.sourcePosition(name), windowStart, windowEnd)
 
 	table := "EmailEvents"
 	// KQL literal timestamps must be single-quoted.
