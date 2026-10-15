@@ -158,7 +158,7 @@ func (d *Dispatcher) process(parent context.Context, exec domain.SoarExecution) 
 	_ = d.exec.UpdateStatus(ctx, exec.ID, connectors.ExecutionStatusUpdate{Status: &executing})
 
 	branch, output := d.invoke(ctx, &exec)
-	rest, cancelRest := context.WithTimeout(context.WithoutCancel(parent), 30*time.Second)
+	rest, cancelRest := context.WithTimeout(context.WithoutCancel(ctx), 30*time.Second)
 	defer cancelRest()
 	d.settle(rest, &exec, branch, output)
 
@@ -179,9 +179,9 @@ func (d *Dispatcher) process(parent context.Context, exec domain.SoarExecution) 
 }
 
 // runOnce handles the legacy manual path: run the shell executor once, no DAG.
-func (d *Dispatcher) runOnce(ctx context.Context, exec *domain.SoarExecution) {
+func (d *Dispatcher) runOnce(ctx context.Context, exec *domain.SoarExecution) error {
 	branch, output := d.invoke(ctx, exec)
-	d.settle(ctx, exec, branch, output)
+	return d.settle(ctx, exec, branch, output)
 }
 
 func (d *Dispatcher) invoke(ctx context.Context, exec *domain.SoarExecution) (domain.EdgeBranch, json.RawMessage) {
@@ -204,7 +204,7 @@ func (d *Dispatcher) invoke(ctx context.Context, exec *domain.SoarExecution) (do
 	return domain.EdgeBranchSuccess, output
 }
 
-func (d *Dispatcher) settle(ctx context.Context, exec *domain.SoarExecution, branch domain.EdgeBranch, output json.RawMessage) {
+func (d *Dispatcher) settle(ctx context.Context, exec *domain.SoarExecution, branch domain.EdgeBranch, output json.RawMessage) error {
 	result := exec.Result
 	if d.vars != nil && result != "" {
 		masked, merr := d.vars.MaskSecrets(ctx, result)
@@ -217,11 +217,14 @@ func (d *Dispatcher) settle(ctx context.Context, exec *domain.SoarExecution, bra
 	if branch == domain.EdgeBranchError {
 		status = domain.ExecutionStatusFailed
 	}
-	_ = d.exec.UpdateStatus(ctx, exec.ID, connectors.ExecutionStatusUpdate{
+	if err := d.exec.UpdateStatus(ctx, exec.ID, connectors.ExecutionStatusUpdate{
 		Status:     &status,
 		Result:     &result,
 		FinishedAt: &now,
-	})
+	}); err != nil {
+		_ = catcher.Error("soar dispatch: settle status write failed", err, map[string]any{"execution": exec.ID, "status": status})
+		return err
+	}
 	exec.Status = status
 	if branch == domain.EdgeBranchSuccess && exec.Kind == domain.NodeKindEnrichment && len(output) > 0 {
 		if err := d.exec.SaveOutput(ctx, exec.ID, output); err != nil {
@@ -229,6 +232,7 @@ func (d *Dispatcher) settle(ctx context.Context, exec *domain.SoarExecution, bra
 		}
 		exec.Output = output
 	}
+	return nil
 }
 
 func (d *Dispatcher) edgesForBranch(node domain.FlowNode, branch domain.EdgeBranch) (fired []string, dead []string) {
@@ -378,22 +382,28 @@ func (d *Dispatcher) handleOffline(ctx context.Context, exec domain.SoarExecutio
 	cause := domain.NonExecutionCauseAgentOffline
 	if exec.Retries+1 >= dispatchMaxRetries {
 		failed := domain.ExecutionStatusFailed
-		_ = d.exec.UpdateStatus(ctx, exec.ID, connectors.ExecutionStatusUpdate{
+		if err := d.exec.UpdateStatus(ctx, exec.ID, connectors.ExecutionStatusUpdate{
 			Status:            &failed,
 			NonExecutionCause: &cause,
-		})
+		}); err != nil {
+			_ = catcher.Error("soar dispatch: offline terminal write failed", err, map[string]any{"execution": exec.ID})
+		}
 		return
 	}
-	_ = d.exec.UpdateStatus(ctx, exec.ID, connectors.ExecutionStatusUpdate{
+	if err := d.exec.UpdateStatus(ctx, exec.ID, connectors.ExecutionStatusUpdate{
 		NonExecutionCause: &cause,
 		IncrementRetries:  true,
-	})
+	}); err != nil {
+		_ = catcher.Error("soar dispatch: offline retry write failed", err, map[string]any{"execution": exec.ID})
+	}
 }
 
 func (d *Dispatcher) fail(ctx context.Context, id uuid.UUID, cause domain.NonExecutionCause) {
 	failed := domain.ExecutionStatusFailed
-	_ = d.exec.UpdateStatus(ctx, id, connectors.ExecutionStatusUpdate{
+	if err := d.exec.UpdateStatus(ctx, id, connectors.ExecutionStatusUpdate{
 		Status:            &failed,
 		NonExecutionCause: &cause,
-	})
+	}); err != nil {
+		_ = catcher.Error("soar dispatch: fail status write failed", err, map[string]any{"execution": id, "cause": cause})
+	}
 }
