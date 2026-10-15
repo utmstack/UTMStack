@@ -30,7 +30,7 @@ const logIndexMappings = `
   "connectionStatus": {"type":"keyword"},
   "statusCode": {"type":"long"},
   "origin": {"type":"object","dynamic":true,"properties":{
-    "ip": {"type":"ip"},
+    "ip": {"type":"ip","fields":{"keyword":{"type":"keyword","ignore_above":256}}},
     "port": {"type":"long"},
     "user": {"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}},
     "host": {"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}},
@@ -39,7 +39,7 @@ const logIndexMappings = `
     "bytesReceived": {"type":"double"}
   }},
   "target": {"type":"object","dynamic":true,"properties":{
-    "ip": {"type":"ip"},
+    "ip": {"type":"ip","fields":{"keyword":{"type":"keyword","ignore_above":256}}},
     "port": {"type":"long"},
     "user": {"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}},
     "host": {"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}},

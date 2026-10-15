@@ -98,6 +98,20 @@ public class SearchUtil {
         final String ctx = CLASSNAME + ".buildIsOperator";
         try {
             filter.validate();
+            if (isBagField(filter.getField())) {
+                // The v11.3.0 event-bag rename moved Windows event fields from
+                // the "log" bag to the "event" bag (same leaf name). Match both
+                // so the AD sync keeps pre-upgrade history and picks up new
+                // events (issue #2894). New generation is flat_object (term);
+                // legacy generation is dynamic text (match_phrase).
+                BoolQuery.Builder should = new BoolQuery.Builder();
+                should.minimumShouldMatch("1");
+                String leaf = bagLeaf(filter.getField());
+                should.should(f -> f.term(t -> t.field("event." + leaf).value(FieldValue.of(String.valueOf(filter.getValue())))));
+                should.should(f -> f.matchPhrase(m -> m.field("log." + leaf).query(String.valueOf(filter.getValue()))));
+                bool.filter(f -> f.bool(should.build()));
+                return;
+            }
             bool.filter(f -> f.matchPhrase(m -> m.field(filter.getField()).query(String.valueOf(filter.getValue()))));
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getLocalizedMessage());
@@ -108,10 +122,40 @@ public class SearchUtil {
         final String ctx = CLASSNAME + ".buildIsNotOperator";
         try {
             filter.validate();
+            if (isBagField(filter.getField())) {
+                // Symmetric dual-read negation: exclude a doc if either the
+                // new or the legacy bag field equals the value.
+                BoolQuery.Builder should = new BoolQuery.Builder();
+                should.minimumShouldMatch("1");
+                String leaf = bagLeaf(filter.getField());
+                should.should(f -> f.term(t -> t.field("event." + leaf).value(FieldValue.of(String.valueOf(filter.getValue())))));
+                should.should(f -> f.matchPhrase(m -> m.field("log." + leaf).query(String.valueOf(filter.getValue()))));
+                bool.mustNot(n -> n.bool(should.build()));
+                return;
+            }
             bool.mustNot(n -> n.matchPhrase(m -> m.field(filter.getField()).query(String.valueOf(filter.getValue()))));
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getLocalizedMessage());
         }
+    }
+
+    /**
+     * True for a field inside the per-vendor log bag under either generation
+     * name: "event.*" (post v11.3.0 rename) or "log.*" (pre-upgrade).
+     */
+    private static boolean isBagField(String field) {
+        return field != null && (field.startsWith("event.") || field.startsWith("log."));
+    }
+
+    /**
+     * Bare leaf of a bag field, stripping the "event."/"log." root and any
+     * trailing ".keyword" (the flat_object new-generation field has no
+     * .keyword sub-field).
+     */
+    private static String bagLeaf(String bagField) {
+        String leaf = bagField.startsWith("event.") ? bagField.substring("event.".length())
+                : bagField.startsWith("log.") ? bagField.substring("log.".length()) : bagField;
+        return leaf.endsWith(".keyword") ? leaf.substring(0, leaf.length() - ".keyword".length()) : leaf;
     }
 
     private static void buildContainOperator(BoolQuery.Builder bool, FilterType filter) {
