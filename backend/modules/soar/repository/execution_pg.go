@@ -102,6 +102,9 @@ func (r *pgExecutionRepository) UpdateStatus(ctx context.Context, id uuid.UUID, 
 	if u.FinishedAt != nil {
 		updates["finished_at"] = *u.FinishedAt
 	}
+	if u.DispatchedAt != nil {
+		updates["dispatched_at"] = *u.DispatchedAt
+	}
 	if u.IncrementRetries {
 		updates["retries"] = gorm.Expr("COALESCE(retries, 0) + 1")
 	}
@@ -140,6 +143,23 @@ func (r *pgExecutionRepository) SaveOutput(ctx context.Context, id uuid.UUID, ou
 		Model(&domain.SoarExecution{}).
 		Where("id = ?", id).
 		Update("output", output).Error
+}
+
+func (r *pgExecutionRepository) RequeueStuck(ctx context.Context, id uuid.UUID) error {
+	return r.db.WithContext(ctx).
+		Model(&domain.SoarExecution{}).
+		Where("id = ? AND status = ?", id, domain.ExecutionStatusExecuting).
+		Updates(map[string]any{"status": domain.ExecutionStatusPending, "claimed_at": nil}).Error
+}
+
+func (r *pgExecutionRepository) ListStuckExecuting(ctx context.Context, cutoff time.Time) ([]domain.SoarExecution, error) {
+	var out []domain.SoarExecution
+	err := r.db.WithContext(ctx).
+		Where("status = ? AND claimed_at IS NOT NULL AND claimed_at < ?",
+			domain.ExecutionStatusExecuting, cutoff).
+		Order("claimed_at ASC").
+		Find(&out).Error
+	return out, err
 }
 
 // RecordEdge is the atomic hinge of the DAG engine. Everything happens inside

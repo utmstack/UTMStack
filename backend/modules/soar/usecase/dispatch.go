@@ -48,6 +48,7 @@ const (
 	dispatchConcurrency = 5
 	dispatchTimeout     = 5 * time.Minute // llm_enrich/llm_action streams can take minutes
 	dispatchMaxRetries  = 3
+	reapGrace           = 1 * time.Minute
 )
 
 func (d *Dispatcher) Kick() {
@@ -94,6 +95,9 @@ func (d *Dispatcher) drain(ctx context.Context) {
 		_ = catcher.Error("soar dispatcher: failed to list pending executions", err, nil)
 		return
 	}
+
+	d.reapStuck(ctx)
+
 	if len(pending) == 0 {
 		return
 	}
@@ -157,10 +161,18 @@ func (d *Dispatcher) process(parent context.Context, exec domain.SoarExecution) 
 	executing := domain.ExecutionStatusExecuting
 	_ = d.exec.UpdateStatus(ctx, exec.ID, connectors.ExecutionStatusUpdate{Status: &executing})
 
+	// dispatched_at is internal evidence, written once before the side effect
+	// goes out: if the worker dies between here and settle, the row proves the
+	// command was handed to its executor.
+	now := time.Now().UTC()
+	_ = d.exec.UpdateStatus(ctx, exec.ID, connectors.ExecutionStatusUpdate{DispatchedAt: &now})
+
 	branch, output := d.invoke(ctx, &exec)
 	rest, cancelRest := context.WithTimeout(context.WithoutCancel(ctx), 30*time.Second)
 	defer cancelRest()
-	d.settle(rest, &exec, branch, output)
+	if err := d.settle(rest, &exec, branch, output); err != nil {
+		return
+	}
 
 	node, ok := flow.Nodes[exec.NodeID]
 	if !ok {
@@ -233,6 +245,78 @@ func (d *Dispatcher) settle(ctx context.Context, exec *domain.SoarExecution, bra
 		exec.Output = output
 	}
 	return nil
+}
+
+var retriableExecutors = map[string]bool{
+	"conditional": true,
+	"llm_enrich":  true,
+	"llm_action":  true,
+}
+
+func (d *Dispatcher) reapStuck(ctx context.Context) {
+	listCtx, cancel := context.WithTimeout(tenancy.WithAllTenants(ctx), 20*time.Second)
+	stuck, err := d.exec.ListStuckExecuting(listCtx, time.Now().UTC().Add(-dispatchTimeout-reapGrace))
+	cancel()
+	if err != nil {
+		_ = catcher.Error("soar dispatcher: failed to list stuck executions", err, nil)
+		return
+	}
+	for i := range stuck {
+		d.reapOne(ctx, stuck[i])
+	}
+}
+
+func (d *Dispatcher) reapOne(ctx context.Context, exec domain.SoarExecution) {
+	defer func() {
+		if r := recover(); r != nil {
+			_ = catcher.Error("recovered from panic in soar reaper", nil, map[string]any{"panic": r, "execution": exec.ID})
+		}
+	}()
+
+	ctx, cancel := context.WithTimeout(authz.WithTenantID(context.WithoutCancel(ctx), exec.TenantID.String()), 30*time.Second)
+	defer cancel()
+
+	if retriableExecutors[exec.Executor] {
+		if err := d.exec.RequeueStuck(ctx, exec.ID); err != nil {
+			_ = catcher.Error("soar dispatcher: requeue stuck execution failed", err, map[string]any{"execution": exec.ID})
+			return
+		}
+		catcher.Info("soar dispatcher: requeued retriable stuck execution", map[string]any{"execution": exec.ID, "executor": exec.Executor})
+		return
+	}
+
+	failed := domain.ExecutionStatusFailed
+	cause := domain.NonExecutionCauseDispatchLost
+	now := time.Now().UTC()
+	if err := d.exec.UpdateStatus(ctx, exec.ID, connectors.ExecutionStatusUpdate{
+		Status:            &failed,
+		NonExecutionCause: &cause,
+		FinishedAt:        &now,
+	}); err != nil {
+		_ = catcher.Error("soar dispatcher: stuck terminal write failed", err, map[string]any{"execution": exec.ID})
+		return
+	}
+	exec.Status = failed
+	catcher.Info("soar dispatcher: marked stuck execution failed (worker lost)", map[string]any{"execution": exec.ID, "dispatchedAt": exec.DispatchedAt})
+
+	if exec.FlowRunID == nil {
+		return
+	}
+	flow := d.loadFlow(exec)
+	if flow == nil {
+		_ = catcher.Error("soar reaper: flow vanished for stuck execution", nil, map[string]any{"execution": exec.ID, "rulePath": exec.RulePath})
+		return
+	}
+	node, ok := flow.Nodes[exec.NodeID]
+	if !ok {
+		_ = catcher.Error("soar reaper: node vanished for stuck execution", nil, map[string]any{"execution": exec.ID, "node": exec.NodeID})
+		return
+	}
+	d.spawnChildren(ctx, flow, exec, node.OnSuccess, domain.EdgeBranchSuccess, false)
+	d.spawnChildren(ctx, flow, exec, node.OnError, domain.EdgeBranchError, false)
+	if _, err := d.runs.MaybeComplete(ctx, *exec.FlowRunID); err != nil {
+		_ = catcher.Error("soar reaper: maybeComplete failed", err, map[string]any{"flowRun": *exec.FlowRunID})
+	}
 }
 
 func (d *Dispatcher) edgesForBranch(node domain.FlowNode, branch domain.EdgeBranch) (fired []string, dead []string) {

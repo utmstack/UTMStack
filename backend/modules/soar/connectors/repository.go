@@ -29,6 +29,7 @@ type ExecutionStatusUpdate struct {
 	Result            *string
 	NonExecutionCause *domain.NonExecutionCause
 	FinishedAt        *time.Time
+	DispatchedAt      *time.Time
 	IncrementRetries  bool
 }
 
@@ -50,6 +51,14 @@ type ExecutionRepository interface {
 	// copied from the flow node). Returns the child's post-update state.
 	RecordEdge(ctx context.Context, req RecordEdgeRequest) (child *domain.SoarExecution, err error)
 
+	// RequeueStuck is the reaper's path for retriable executions: back to
+	// PENDING with the claim cleared so the next tick picks the row up again.
+	RequeueStuck(ctx context.Context, id uuid.UUID) error
+
+	// ListStuckExecuting returns executions left EXECUTING past the claim lease
+	// (their dispatcher worker died). Must run on an all-tenants context.
+	ListStuckExecuting(ctx context.Context, cutoff time.Time) ([]domain.SoarExecution, error)
+
 	// ListFiredParents returns all fired parents of a child execution, used to
 	// build the merged context bag when the child transitions to PENDING.
 	ListFiredParents(ctx context.Context, childID uuid.UUID) ([]domain.SoarExecution, error)
@@ -61,18 +70,18 @@ type ExecutionRepository interface {
 }
 
 type RecordEdgeRequest struct {
-	FlowRunID       uuid.UUID
-	TenantID        uuid.UUID
-	RulePath        string
-	AlertID         string
-	Parent          domain.SoarExecution
-	ChildNodeID     string
-	ChildDepth      int
-	ChildKind       domain.NodeKind
-	ChildExecutor   string
-	IncomingCount   int
-	Branch          domain.EdgeBranch
-	Fired           bool
+	FlowRunID     uuid.UUID
+	TenantID      uuid.UUID
+	RulePath      string
+	AlertID       string
+	Parent        domain.SoarExecution
+	ChildNodeID   string
+	ChildDepth    int
+	ChildKind     domain.NodeKind
+	ChildExecutor string
+	IncomingCount int
+	Branch        domain.EdgeBranch
+	Fired         bool
 }
 
 type ReadyUpdate struct {
