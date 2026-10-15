@@ -1,3 +1,4 @@
+import { formatDateTime, parseTimestamp } from '@/shared/lib/datetime'
 import {
   type Alert,
   SEVERITY_BY_VALUE,
@@ -110,7 +111,7 @@ export const SELECT_CLS =
 
 export function relativeTime(iso?: string) {
   if (!iso) return '—'
-  const diff = Date.now() - new Date(iso).getTime()
+  const diff = Date.now() - parseTimestamp(iso).getTime()
   if (Number.isNaN(diff)) return '—'
   const m = Math.round(diff / 60_000)
   if (m < 1) return 'now'
@@ -122,10 +123,7 @@ export function relativeTime(iso?: string) {
 
 export function absTime(iso?: string) {
   if (!iso) return '—'
-  const d = new Date(iso)
-  return Number.isNaN(d.getTime())
-    ? iso
-    : d.toLocaleString(undefined, { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' })
+  return Number.isNaN(parseTimestamp(iso).getTime()) ? iso : formatDateTime(iso)
 }
 
 /** ISO 3166-1 alpha-2 → regional-indicator flag emoji. */

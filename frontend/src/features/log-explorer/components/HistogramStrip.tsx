@@ -1,3 +1,4 @@
+import { useDateFormat } from '@/shared/lib/datetime'
 import { memo, useEffect, useState } from 'react'
 import type { TimeRange } from '@/shared/components/ui/time-range-picker'
 import { logExplorerHttpService as svc } from '../services/log-explorer-http.service'
@@ -37,6 +38,7 @@ function HistogramStripImpl({
   filters: FilterType[]
   range: TimeRange
 }) {
+  useDateFormat()
   const interval = histogramInterval(range.from, range.to)
   const [data, setData] = useState<ChartView | null>(null)
 

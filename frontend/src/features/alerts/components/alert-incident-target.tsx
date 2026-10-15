@@ -1,3 +1,4 @@
+import { useDateFormat } from '@/shared/lib/datetime'
 import { useEffect, useRef, useState } from 'react'
 import { Crosshair, Flame, Target } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -17,6 +18,7 @@ export function AlertIncidentTarget({
   alert: Alert
   onIncident: (a: Alert) => void
 }) {
+  useDateFormat()
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)

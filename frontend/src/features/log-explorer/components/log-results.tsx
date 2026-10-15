@@ -1,3 +1,4 @@
+import { formatDateTime, parseTimestamp, useDateFormat } from '@/shared/lib/datetime'
 import { memo, useCallback, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -30,17 +31,11 @@ export const LEVEL_TONE: Record<string, { dot: string; tone: string }> = {
 }
 
 export function shortTime(iso: string) {
-  const d = new Date(iso)
-  return Number.isNaN(d.getTime())
-    ? iso
-    : d.toLocaleString(undefined, { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' })
+  return Number.isNaN(parseTimestamp(iso).getTime()) ? iso : formatDateTime(iso)
 }
 
 function absTimestamp(iso: string) {
-  const d = new Date(iso)
-  return Number.isNaN(d.getTime())
-    ? iso
-    : d.toLocaleString(undefined, { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' })
+  return shortTime(iso)
 }
 
 // Grid columns. Manual mode (user picked columns): time + each picked column.
@@ -108,6 +103,7 @@ function ResultRowImpl({
   onAdd?: (f: FilterType) => void
   onSurrounding?: (ts: string, srcField?: string, srcVal?: string) => void
 }) {
+  useDateFormat()
   const flat = flatOf(doc)
   const ts = (flat[TS] as string) ?? ''
   const source = pick(flat, SRC_FIELDS) ?? '—'
@@ -176,6 +172,7 @@ export function LogDetail({
   onAdd?: (f: FilterType) => void
   onSurrounding?: (ts: string, srcField?: string, srcVal?: string) => void
 }) {
+  useDateFormat()
   const { t } = useTranslation()
   const [tab, setTab] = useState<DetailTab>('fields')
   const flat = flatOf(doc)
