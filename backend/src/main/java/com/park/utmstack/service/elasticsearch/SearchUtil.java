@@ -133,10 +133,75 @@ public class SearchUtil {
         return field != null && field.startsWith("event.");
     }
 
+    /**
+     * True for any field inside the per-vendor log bag, regardless of which
+     * generation names it: "event.*" (post v11.3.0 rename) or "log.*"
+     * (pre-upgrade). The rename changed only the bag root (log -> event); the
+     * leaf field name is identical in both, so a filter on either must match
+     * both namespaces so upgraded instances keep their pre-upgrade history.
+     */
+    private static boolean isBagField(String field) {
+        return field != null && (field.startsWith("event.") || field.startsWith("log."));
+    }
+
+    /**
+     * Builds a bool "should" (minimum_should_match 1) matching the value on
+     * BOTH generations of the per-vendor bag:
+     *   - "event.&lt;leaf&gt;"  -> term.  Post-upgrade docs store the bag as a
+     *     flat_object (all sub-fields keyword), so an exact term match is the
+     *     correct, fast form.
+     *   - "log.&lt;leaf&gt;"    -> match_phrase. Pre-upgrade docs store the bag
+     *     dynamically as text; match_phrase mirrors the exact query the
+     *     pre-rename code emitted for bag fields, so old documents keep
+     *     matching with identical analysis semantics.
+     * On a data generation that lacks one of the two field names that clause
+     * matches nothing (it does not fail), so the union is safe across a
+     * mixed old/new index set with no reindex.
+     *
+     * @param bagField a field under the event/ bag, written as "event.x" or
+     *                 "log.x" (the leaf name is identical in both).
+     * @return the built BoolQuery, to be attached via {@code .bool(...)}.
+     */
+    private static BoolQuery bagShould(String bagField, Object value) {
+        String leaf = bagField.startsWith("event.") ? bagField.substring("event.".length())
+                : bagField.startsWith("log.") ? bagField.substring("log.".length()) : bagField;
+        BoolQuery.Builder should = new BoolQuery.Builder();
+        should.minimumShouldMatch("1");
+        should.should(f -> f.term(t -> t.field("event." + leaf).value(FieldValue.of(String.valueOf(value)))));
+        should.should(f -> f.matchPhrase(m -> m.field("log." + leaf).query(String.valueOf(value))));
+        return should.build();
+    }
+
+    /**
+     * Dual-read list form of {@link #bagShould}: matches a document if ANY of
+     * the values matches either the new ("event.&lt;leaf&gt;") or the legacy
+     * ("log.&lt;leaf&gt;") bag field. Used by the IS_ONE_OF family for bag
+     * fields so upgraded instances keep matching pre-upgrade documents.
+     *
+     * @return the built BoolQuery, to be attached via {@code .bool(...)}.
+     */
+    private static BoolQuery bagTermsShouldForList(String bagField, List<?> values) {
+        String leaf = bagField.startsWith("event.") ? bagField.substring("event.".length())
+                : bagField.startsWith("log.") ? bagField.substring("log.".length()) : bagField;
+        BoolQuery.Builder should = new BoolQuery.Builder();
+        should.minimumShouldMatch("1");
+        for (Object val : values) {
+            String v = String.valueOf(val);
+            should.should(f -> f.term(t -> t.field("event." + leaf).value(FieldValue.of(v))));
+            should.should(f -> f.matchPhrase(m -> m.field("log." + leaf).query(v)));
+        }
+        return should.build();
+    }
+
     private static void buildIsOperator(BoolQuery.Builder bool, FilterType filter) {
         final String ctx = CLASSNAME + ".buildIsOperator";
         try {
             filter.validate();
+            if (isBagField(filter.getField())) {
+                // Dual-read across the event-bag rename (see bagShould).
+                bool.filter(f -> f.bool(bagShould(filter.getField(), filter.getValue())));
+                return;
+            }
             if (isFlattenedField(filter.getField())) {
                 bool.filter(f -> f.term(t -> t.field(filter.getField()).value(FieldValue.of(String.valueOf(filter.getValue())))));
                 return;
@@ -153,6 +218,12 @@ public class SearchUtil {
         final String ctx = CLASSNAME + ".buildIsNotOperator";
         try {
             filter.validate();
+            if (isBagField(filter.getField())) {
+                // Dual-read: exclude a doc if either the new or the legacy bag
+                // field equals the value (negation of the IS dual-read).
+                bool.mustNot(n -> n.bool(bagShould(filter.getField(), filter.getValue())));
+                return;
+            }
             if (isFlattenedField(filter.getField())) {
                 bool.mustNot(n -> n.term(t -> t.field(filter.getField()).value(FieldValue.of(String.valueOf(filter.getValue())))));
                 return;
@@ -254,6 +325,11 @@ public class SearchUtil {
         final String ctx = CLASSNAME + ".buildIsOneOfOperator";
         try {
             filter.validate();
+            if (isBagField(filter.getField())) {
+                // Dual-read: match if ANY value matches either bag generation.
+                bool.filter(f -> f.bool(bagTermsShouldForList(filter.getField(), (List<?>) filter.getValue())));
+                return;
+            }
             if (isFlattenedField(filter.getField())) {
                 List<FieldValue> values = ((List<?>) filter.getValue()).stream().map(v -> FieldValue.of(String.valueOf(v)))
                     .collect(Collectors.toList());
@@ -276,6 +352,12 @@ public class SearchUtil {
         final String ctx = CLASSNAME + ".buildIsNotOneOfOperator";
         try {
             filter.validate();
+            if (isBagField(filter.getField())) {
+                // Dual-read negation: keep only docs where NO value matches
+                // either bag generation.
+                bool.mustNot(n -> n.bool(bagTermsShouldForList(filter.getField(), (List<?>) filter.getValue())));
+                return;
+            }
             if (isFlattenedField(filter.getField())) {
                 List<FieldValue> values = ((List<?>) filter.getValue()).stream().map(v -> FieldValue.of(String.valueOf(v)))
                     .collect(Collectors.toList());

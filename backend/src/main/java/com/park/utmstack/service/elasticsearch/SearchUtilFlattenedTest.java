@@ -41,21 +41,30 @@ public class SearchUtilFlattenedTest {
 
     @Test
     public void isOnFlattenedFieldUsesTerm() {
+        // Post the event-bag rename, an IS on a bag field dual-reads both
+        // generations: a bool(should) of term(event.<leaf>) OR
+        // match_phrase(log.<leaf>). The top-level filter clause is that bool,
+        // and no bare term / match_phrase sits at the top level.
         Query q = SearchUtil.toQuery(List.of(f(OperatorType.IS, "event.eventCode", "4624")));
         BoolQuery b = bool(q);
-        assertTrue(clauses(b).stream().anyMatch(c -> c.isTerm()
-            && c.term().field().equals("event.eventCode")
-            && c.term().value().stringValue().equals("4624")));
-        assertTrue(clauses(b).stream().noneMatch(c -> c.isMatchPhrase()));
+        assertTrue(clauses(b).stream().anyMatch(Query::isBool),
+            "IS on a bag field should emit a dual-read bool, got: " + q);
+        assertTrue(clauses(b).stream().noneMatch(Query::isTerm),
+            "dual-read must nest the term inside a bool, not emit a bare term: " + q);
+        assertTrue(clauses(b).stream().noneMatch(Query::isMatchPhrase),
+            "dual-read must nest the match_phrase inside a bool: " + q);
     }
 
     @Test
     public void isOneOfOnFlattenedFieldUsesTerms() {
+        // Same dual-read for the list operator: a bool(should) carrying
+        // term(event.<leaf>) / match_phrase(log.<leaf>) per value.
         Query q = SearchUtil.toQuery(List.of(f(OperatorType.IS_ONE_OF, "event.eventCode", List.of("4624", "4670"))));
         BoolQuery b = bool(q);
-        assertTrue(clauses(b).stream().anyMatch(c -> c.isTerms()
-            && c.terms().field().equals("event.eventCode")
-            && c.terms().terms().value().stream().anyMatch(v -> v.stringValue().equals("4624"))));
+        assertTrue(clauses(b).stream().anyMatch(Query::isBool),
+            "IS_ONE_OF on a bag field should emit a dual-read bool, got: " + q);
+        assertTrue(clauses(b).stream().noneMatch(Query::isTerms),
+            "dual-read must nest the terms inside a bool, not emit a bare terms: " + q);
     }
 
     @Test
