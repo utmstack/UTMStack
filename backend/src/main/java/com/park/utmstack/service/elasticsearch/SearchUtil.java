@@ -145,6 +145,19 @@ public class SearchUtil {
     }
 
     /**
+     * Normalizes a bag field written as "event.&lt;leaf&gt;" or "log.&lt;leaf&gt;"
+     * (optionally with a trailing ".keyword") to its bare leaf, so both the
+     * new flat_object path (event.&lt;leaf&gt;) and the legacy text path
+     * (log.&lt;leaf&gt;) resolve to the same physical field. The new-generation
+     * flat_object has no .keyword sub-field, so the suffix must be dropped.
+     */
+    private static String bagLeaf(String bagField) {
+        String leaf = bagField.startsWith("event.") ? bagField.substring("event.".length())
+                : bagField.startsWith("log.") ? bagField.substring("log.".length()) : bagField;
+        return leaf.endsWith(".keyword") ? leaf.substring(0, leaf.length() - ".keyword".length()) : leaf;
+    }
+
+    /**
      * Builds a bool "should" (minimum_should_match 1) matching the value on
      * BOTH generations of the per-vendor bag:
      *   - "event.&lt;leaf&gt;"  -> term.  Post-upgrade docs store the bag as a
@@ -163,8 +176,7 @@ public class SearchUtil {
      * @return the built BoolQuery, to be attached via {@code .bool(...)}.
      */
     private static BoolQuery bagShould(String bagField, Object value) {
-        String leaf = bagField.startsWith("event.") ? bagField.substring("event.".length())
-                : bagField.startsWith("log.") ? bagField.substring("log.".length()) : bagField;
+        String leaf = bagLeaf(bagField);
         BoolQuery.Builder should = new BoolQuery.Builder();
         should.minimumShouldMatch("1");
         should.should(f -> f.term(t -> t.field("event." + leaf).value(FieldValue.of(String.valueOf(value)))));
@@ -178,11 +190,18 @@ public class SearchUtil {
      * ("log.&lt;leaf&gt;") bag field. Used by the IS_ONE_OF family for bag
      * fields so upgraded instances keep matching pre-upgrade documents.
      *
+     * <p>An empty value list is treated as "match nothing". (A bool with
+     * minimum_should_match=1 and zero should clauses is a match-all in
+     * OpenSearch, which would silently leak every document for an empty
+     * IS_ONE_OF.)
+     *
      * @return the built BoolQuery, to be attached via {@code .bool(...)}.
      */
     private static BoolQuery bagTermsShouldForList(String bagField, List<?> values) {
-        String leaf = bagField.startsWith("event.") ? bagField.substring("event.".length())
-                : bagField.startsWith("log.") ? bagField.substring("log.".length()) : bagField;
+        if (values == null || values.isEmpty()) {
+            return BoolQuery.of(b -> b.mustNot(n -> n.matchAll(m -> m))).build();
+        }
+        String leaf = bagLeaf(bagField);
         BoolQuery.Builder should = new BoolQuery.Builder();
         should.minimumShouldMatch("1");
         for (Object val : values) {

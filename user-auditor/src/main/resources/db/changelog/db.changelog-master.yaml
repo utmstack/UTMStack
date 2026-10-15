@@ -9,5 +9,3 @@ databaseChangeLog:
       file: classpath:/db/changelog/changes/004-2025-11-06-update_index_pattern.sql
   - include:
         file: classpath:/db/changelog/changes/005-2025-11-06-update_filter_fields.sql
-  - include:
-        file: classpath:/db/changelog/changes/006-2026-10-15-event_bag_rename.sql

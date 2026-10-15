@@ -56,6 +56,32 @@ public class SearchUtilFlattenedTest {
     }
 
     @Test
+    public void isOneOfOnBagFieldWithEmptyListMatchesNothing() {
+        // A regression guard: an empty IS_ONE_OF on a bag field must NOT be a
+        // match-all. (A bool with minimum_should_match=1 and zero should
+        // clauses is a match-all in OpenSearch, which would silently return
+        // every document.) The guard emits mustNot(matchAll).
+        Query q = SearchUtil.toQuery(List.of(f(OperatorType.IS_ONE_OF, "event.eventCode", List.of())));
+        BoolQuery b = bool(q);
+        assertTrue(clauses(b).stream().anyMatch(c -> c.isBool()
+            && c.bool().mustNot().stream().anyMatch(Query::isMatchAll)),
+            "empty IS_ONE_OF on a bag field should match nothing, got: " + q);
+    }
+
+    @Test
+    public void bagFieldWithKeywordSuffixStripsSuffix() {
+        // A filter written against the legacy "event.<leaf>.keyword" form must
+        // still resolve to the same flat_object field "event.<leaf>" (which has
+        // no .keyword sub-field) on the new generation.
+        Query q = SearchUtil.toQuery(List.of(f(OperatorType.IS, "event.eventCode.keyword", "4624")));
+        BoolQuery b = bool(q);
+        assertTrue(clauses(b).stream().anyMatch(c -> c.isBool()
+            && c.bool().should().stream().anyMatch(s -> s.isTerm()
+                && s.term().field().equals("event.eventCode"))),
+            ".keyword suffix should be stripped to the flat_object field, got: " + q);
+    }
+
+    @Test
     public void isOneOfOnFlattenedFieldUsesTerms() {
         // Same dual-read for the list operator: a bool(should) carrying
         // term(event.<leaf>) / match_phrase(log.<leaf>) per value.
