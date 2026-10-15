@@ -11,7 +11,11 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/alerts/dto"
 )
 
-const relatedMaxSize = 1000
+const (
+	relatedMaxSize      = 1000
+	relatedEchoPageSize = 100
+	relatedMaxEchoes    = 1000
+)
 
 func (u *alertUsecase) RelatedLogs(ctx context.Context, alertID string) (*dto.RelatedLogsResponse, error) {
 	raw, err := u.repo.GetRawByID(ctx, alertID)
@@ -29,6 +33,7 @@ func (u *alertUsecase) RelatedLogs(ctx context.Context, alertID string) (*dto.Re
 
 	var ids []string
 	seen := make(map[string]struct{})
+	truncated := false
 	add := func(id string) {
 		if id == "" {
 			return
@@ -36,33 +41,75 @@ func (u *alertUsecase) RelatedLogs(ctx context.Context, alertID string) (*dto.Re
 		if _, dup := seen[id]; dup {
 			return
 		}
+		if len(ids) >= relatedMaxSize {
+			truncated = true
+			return
+		}
 		seen[id] = struct{}{}
 		ids = append(ids, id)
 	}
 
-	earliest, latest := anchorTS, anchorTS
+	var earliest, latest time.Time
 	span := func(t time.Time) {
 		if t.IsZero() {
 			return
 		}
-		if t.Before(earliest) {
+		if earliest.IsZero() || t.Before(earliest) {
 			earliest = t
 		}
-		if t.After(latest) {
+		if latest.IsZero() || t.After(latest) {
 			latest = t
 		}
 	}
-	for _, ev := range gjson.GetBytes(raw, "events").Array() {
+	collect := func(alert gjson.Result) {
+		span(parseRelatedTime(alert.Get("@timestamp").String()))
+		for _, ev := range alert.Get("events").Array() {
+			add(ev.Get("id").String())
+			span(eventTime(ev))
+		}
+		ev := alert.Get("lastEvent")
 		add(ev.Get("id").String())
 		span(eventTime(ev))
 	}
-	add(lastEvent.Get("id").String())
-	span(eventTime(lastEvent))
+	collect(gjson.ParseBytes(raw))
+
+	// Echoes are separate alerts. Their event references are not stored on
+	// the parent, so collecting only the parent's events omits later matches.
+	for offset := 0; offset < relatedMaxEchoes; {
+		echoes, total, err := u.repo.ListEchoes(ctx, alertID, offset, relatedEchoPageSize, "@timestamp", "asc")
+		if err != nil {
+			return nil, err
+		}
+		for _, echo := range echoes {
+			encoded, err := json.Marshal(echo)
+			if err != nil {
+				return nil, err
+			}
+			collect(gjson.ParseBytes(encoded))
+		}
+		offset += len(echoes)
+		if int64(offset) >= total {
+			break
+		}
+		if len(echoes) == 0 || offset >= relatedMaxEchoes {
+			truncated = true
+			break
+		}
+	}
+	if earliest.IsZero() {
+		earliest = anchorTS
+		latest = anchorTS
+	}
 
 	resp := &dto.RelatedLogsResponse{
-		DataType: gjson.GetBytes(raw, "lastEvent.dataType").String(),
-		TimeTo:   latest.Add(5 * time.Minute).UTC().Format(time.RFC3339),
-		TimeFrom: earliest.Add(-time.Hour).UTC().Format(time.RFC3339),
+		DataType:  gjson.GetBytes(raw, "lastEvent.dataType").String(),
+		Truncated: truncated,
+		TimeTo:    latest.Add(5 * time.Minute).UTC().Format(time.RFC3339),
+		TimeFrom:  earliest.Add(-time.Hour).UTC().Format(time.RFC3339),
+	}
+
+	if resp.DataType == "" {
+		resp.DataType = gjson.GetBytes(raw, "dataType").String()
 	}
 
 	var afterRaw json.RawMessage
@@ -85,7 +132,7 @@ func (u *alertUsecase) RelatedLogs(ctx context.Context, alertID string) (*dto.Re
 		return resp, nil
 	}
 
-	refs, truncated, err := u.repo.RelatedLogRefs(ctx, steps, anchorTS, relatedMaxSize)
+	refs, refsTruncated, err := u.repo.RelatedLogRefs(ctx, steps, anchorTS, relatedMaxSize)
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +146,7 @@ func (u *alertUsecase) RelatedLogs(ctx context.Context, alertID string) (*dto.Re
 
 	resp.IDs = ids
 	resp.Total = len(ids)
-	resp.Truncated = truncated
+	resp.Truncated = truncated || refsTruncated
 	return resp, nil
 }
 
@@ -182,25 +229,27 @@ func maxWithin(steps []domain.CorrelationStep) time.Duration {
 	return max
 }
 
-func parseAlertTime(s string) time.Time {
-	for _, layout := range []string{time.RFC3339Nano, time.RFC3339} {
+// Event-store timestamps without a zone are UTC, including fractional seconds.
+func parseRelatedTime(s string) time.Time {
+	for _, layout := range []string{time.RFC3339Nano, "2006-01-02 15:04:05.999999999", "2006-01-02T15:04:05.999999999"} {
 		if t, err := time.Parse(layout, s); err == nil {
 			return t.UTC()
 		}
+	}
+	return time.Time{}
+}
+
+func parseAlertTime(s string) time.Time {
+	if t := parseRelatedTime(s); !t.IsZero() {
+		return t
 	}
 	return time.Now().UTC()
 }
 
 func eventTime(ev gjson.Result) time.Time {
 	for _, f := range []string{"@timestamp", "timestamp", "deviceTime"} {
-		s := ev.Get(f).String()
-		if s == "" {
-			continue
-		}
-		for _, layout := range []string{time.RFC3339Nano, time.RFC3339} {
-			if t, err := time.Parse(layout, s); err == nil {
-				return t.UTC()
-			}
+		if t := parseRelatedTime(ev.Get(f).String()); !t.IsZero() {
+			return t
 		}
 	}
 	return time.Time{}
