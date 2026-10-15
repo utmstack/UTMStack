@@ -199,7 +199,7 @@ public class SearchUtil {
      */
     private static BoolQuery bagTermsShouldForList(String bagField, List<?> values) {
         if (values == null || values.isEmpty()) {
-            return BoolQuery.of(b -> b.mustNot(n -> n.matchAll(m -> m))).build();
+            return BoolQuery.of(b -> b.mustNot(n -> n.matchAll(m -> m)));
         }
         String leaf = bagLeaf(bagField);
         BoolQuery.Builder should = new BoolQuery.Builder();
