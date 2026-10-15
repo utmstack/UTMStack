@@ -27,6 +27,10 @@ export class FederationUserMenuComponent {
     this.router.navigate(['/federation/email-config']);
   }
 
+  goToTfaConfig(): void {
+    this.router.navigate(['/federation/tfa-config']);
+  }
+
   openProfileSettings(): void {
     this.modalService.open(SettingsComponent, {centered: true});
   }
