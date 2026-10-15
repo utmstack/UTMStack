@@ -90,7 +90,12 @@ public class ElasticsearchService {
     private static BoolQuery.Builder getBuilder(String sid) {
         BoolQuery.Builder shouldList = new BoolQuery.Builder();
         shouldList.minimumShouldMatch("1");
+        // Post-upgrade documents carry the bag under "event"; pre-upgrade
+        // (v11.2.x) documents under "log". Match both so the user timeline
+        // keeps its history across the event-bag rename (#2894).
         shouldList.should(f -> f.term(t -> t.field(Constants.EVENT_WINLOG_EVENT_DATA_TARGET_USER_SID)
+                .value(org.opensearch.client.opensearch._types.FieldValue.of(sid))));
+        shouldList.should(f -> f.term(t -> t.field(Constants.LOG_WINLOG_EVENT_DATA_TARGET_USER_SID_KEYWORD)
                 .value(org.opensearch.client.opensearch._types.FieldValue.of(sid))));
         return shouldList;
     }

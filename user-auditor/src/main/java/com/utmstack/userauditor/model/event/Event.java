@@ -1,5 +1,6 @@
 package com.utmstack.userauditor.model.event;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.Getter;
@@ -18,6 +19,7 @@ public class Event {
     private String tenantId;
     private String tenantName;
     private String raw;
+    @JsonAlias("log")
     private Map<String, Object> event;
     private Side target;
     private Side origin;
