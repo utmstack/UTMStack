@@ -705,7 +705,8 @@
     "auditLogs": "App-Audit-Protokolle",
     "about": "Über",
     "socAi": "SOC-AI",
-    "supportAccess": "Support-Zugriff"
+    "supportAccess": "Support-Zugriff",
+    "threatwinds": "ThreatWinds-Integration"
   },
   "topbar": {
     "theme": {
@@ -2980,7 +2981,77 @@
             "body": "Leiten Sie die <hl>local5</hl>-Facility (in die Suricata jetzt schreibt) an den Collector weiter. Fügen Sie diese Regel in <hl>/etc/rsyslog.d/60-utmstack-suricata.conf</hl> auf dem Suricata-Host hinzu:",
             "note": "Verwenden Sie @@ statt @ für TCP. Dann rsyslog neu starten: sudo systemctl restart rsyslog"
           }
-        }
+        },
+        
+  "o365_graph": {
+    "intro": {
+      "title": "So funktioniert es",
+      "body": "UTMStack verbindet sich mit Microsoft 365 über eine registrierte Azure-AD-App und ruft Sicherheitsereignisse aus Microsoft Graph ab: Alerts, Incidenten, Verzeichnis-Audits, Sign-ins, Risikodetektionen, Hunting-Queries und Purview-Audit-Logs. In Ihrem Tenant wird kein Agent installiert.",
+      "diagram": {
+        "source": "Sicherheitsereignisse",
+        "edge": "Microsoft Graph",
+        "utmstackSub": "Korrelation & Alerts"
+      },
+      "note": "UTMStack benötigt nur read-only-Zugriff auf die Graph-API — es werden keine Schreibberechtigungen angefordert."
+    },
+    "appSection": "Azure-App-Registrierung",
+    "steps": {
+      "azurePortal": {
+        "title": "Microsoft Entra ID öffnen",
+        "body": "Öffnen Sie das <hl>Azure-Portal</hl> (portal.azure.com) und klicken Sie auf <hl>Microsoft Entra ID</hl>."
+      },
+      "appRegistrations": {
+        "title": "Zu App-Registrierungen gehen",
+        "body": "Klicken Sie im linken Menü auf <hl>App-Registrierungen</hl>."
+      },
+      "registerApp": {
+        "title": "Neue App registrieren",
+        "body": "Klicken Sie auf <hl>Neue Registrierung</hl>. Benennen Sie sie <hl>UTMStack Graph Dev</hl>, wählen Sie <hl>Nur Konten in diesem Organisationsverzeichnis (Single-Tenant)</hl> und klicken Sie auf <hl>Registrieren</hl>."
+      },
+      "clientSecret": {
+        "title": "Client-Secret erstellen",
+        "body": "Gehen Sie zu <hl>Zertifikate & Secrets → Neues Client-Secret</hl>. Fügen Sie eine Beschreibung hinzu, setzen Sie die Gültigkeit auf <hl>730 Tage (24 Monate)</hl> und klicken Sie auf <hl>Hinzufügen</hl>.",
+        "copyNote": "Kopieren Sie den Secret-Wert sofort — er wird nur einmal angezeigt und kann später nicht wieder abgerufen werden."
+      },
+      "apiPermissions": {
+        "title": "Microsoft-Graph-Berechtigungen hinzufügen",
+        "body": "Gehen Sie zu <hl>API-Berechtigungen → Berechtigung hinzufügen</hl> und wählen Sie <hl>Microsoft Graph</hl>, dann <hl>Anwendungsberechtigungen</hl>."
+      },
+      "graphPermissions": {
+        "title": "Die vier Graph-Berechtigungen hinzufügen",
+        "body": "Fügen Sie <hl>SecurityEvents.Read.All</hl>, <hl>Directory.Read.All</hl>, <hl>AuditLog.Read.All</hl> und <hl>IdentityRiskEvent.Read.All</hl> hinzu."
+      },
+      "adminConsent": {
+        "title": "Admin-Zustimmung erteilen",
+        "body": "Zurück in <hl>API-Berechtigungen</hl>, klicken Sie auf <hl>Verwaltungsrechtliche Zustimmung für {tenant} erteilen</hl> und bestätigen Sie."
+      },
+      "noteIds": {
+        "title": "App-IDs kopieren",
+        "body": "Gehen Sie zur <hl>Übersicht</hl> der App und kopieren Sie die <hl>Anwendungs- (Client-)ID</hl> und die <hl>Verzeichnis- (Tenant-)ID</hl>. Sie benötigen außerdem den im Schritt 4 kopierten Secret-Wert."
+      }
+    },
+    "credentialsSection": "Anmeldedaten",
+    "credentials": {
+      "title": "Verbinden Sie Ihren Microsoft 365-Tenant",
+      "body": "Geben Sie die Details aus den obigen Schritten ein. UTMStack überprüft die Anmeldedaten, bevor sie gespeichert werden. Sie können mehrere Konfigurationsgruppen hinzufügen."
+    },
+    "fields": {
+      "tenantId": {
+        "label": "Tenant-ID (Verzeichnis-ID)"
+      },
+      "clientId": {
+        "label": "Client-ID (Anwendungs-ID)"
+      },
+      "clientSecret": {
+        "label": "Client-Secret"
+      },
+      "cloudEnv": {
+        "label": "Cloud-Umgebung (optional)",
+        "hint": "Commercial (Standard), GCC, GCCHigh oder DoD"
+      }
+    }
+  }
+
       },
       "cloud": {
         "howItWorksTitle": "Funktionsweise",
@@ -3505,6 +3576,7 @@
       "AWS_IAM_USER": "AWS-Kontoaktivitäten und API-Aufrufe über CloudTrail und CloudWatch erfassen, um Cloud-Nutzung, Zugriffe und Änderungen zu auditieren.",
       "AZURE": "Microsoft Azure-Plattform- und Aktivitätsprotokolle erfassen, um Cloud-Workloads, Identitäten und Ressourcenänderungen zu überwachen.",
       "O365": "Microsoft 365-Auditprotokolle aus Exchange, Teams, SharePoint und OneDrive erfassen, um Benutzer- und Administratoraktivitäten zu überwachen.",
+      "O365_GRAPH": "Erfasst Microsoft-Graph-Sicherheitsereignisse — Alerts, Incidenten, Verzeichnis-Audits, Sign-ins, Risikodetektionen und Purview-Audit-Logs — zur Überwachung der Identitäts- und Bedrohungsaktivität in Ihrem Tenant.",
       "GCP": "Google Cloud Platform-Audit- und Aktivitätsprotokolle erfassen, um Compute, Speicher und Identitäten projektübergreifend zu überwachen.",
       "KASPERSKY": "Kaspersky Security Center-Erkennungen und Endpunkt-Telemetrie erfassen, um Malware-Aktivitäten im Netzwerk zu korrelieren.",
       "ESET": "ESET PROTECT-Endpunkterkennung und -Telemetrie erfassen, um mehrstufige Malware-Abwehr in Ihrer Umgebung zu korrelieren.",
@@ -5990,6 +6062,18 @@
       "noMatches": "Keine Treffer.",
       "matches": "{{items}} Treffer für „{{query}}“",
       "more": "+{{count}} weitere"
+  "threatwinds": {
+    "title": "ThreatWinds-Integration",
+    "subtitle": "Teilen Sie die Vorfälle dieser Instanz mit der ThreatWinds-Community-Feeds.",
+    "contribute": "Vorfälle beisteuern",
+    "contributeHint": "Wenn aktiviert, werden die Vorfälle dieser Instanz an ThreatWinds gesendet.",
+    "loading": "Integrationsstatus wird geladen…",
+    "failed": "Der Status der ThreatWinds-Integration konnte nicht geladen werden.",
+    "retry": "Erneut versuchen",
+    "toast": {
+      "enabled": "Beitrag aktiviert",
+      "disabled": "Beitrag deaktiviert",
+      "failed": "Die Beitragseinstellung konnte nicht aktualisiert werden"
     }
   }
 }

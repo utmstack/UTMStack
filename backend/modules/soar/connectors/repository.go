@@ -29,6 +29,7 @@ type ExecutionStatusUpdate struct {
 	Result            *string
 	NonExecutionCause *domain.NonExecutionCause
 	FinishedAt        *time.Time
+	DispatchedAt      *time.Time
 	IncrementRetries  bool
 }
 
@@ -37,6 +38,12 @@ type ExecutionRepository interface {
 	List(ctx context.Context, f ExecutionFilters) ([]domain.SoarExecution, int64, error)
 	Get(ctx context.Context, id uuid.UUID) (*domain.SoarExecution, error)
 	UpdateStatus(ctx context.Context, id uuid.UUID, u ExecutionStatusUpdate) error
+	// SettleExecuting is the worker's terminal write for a row it claimed:
+	// it applies only while the row is still EXECUTING. It reports (false,
+	// nil) when the status guard matches nothing — i.e. the reaper already
+	// closed the row — so the caller must skip the child cascade: that row's
+	// flow was already accounted by whoever won the race.
+	SettleExecuting(ctx context.Context, id uuid.UUID, u ExecutionStatusUpdate) (bool, error)
 	ClaimPending(ctx context.Context, id uuid.UUID, leaseDuration time.Duration) (bool, error)
 
 	// SaveOutput persists an enrichment node's structured output; called after
@@ -50,6 +57,22 @@ type ExecutionRepository interface {
 	// copied from the flow node). Returns the child's post-update state.
 	RecordEdge(ctx context.Context, req RecordEdgeRequest) (child *domain.SoarExecution, err error)
 
+	// RequeueStuck is the reaper's path for retriable executions: back to
+	// PENDING with the claim cleared so the next tick picks the row up again.
+	// Guarded by status: if the original worker settles the row between the
+	// stuck list and this write, nothing happens and that path owns the row.
+	RequeueStuck(ctx context.Context, id uuid.UUID) error
+
+	// CloseStuckLost marks a stuck EXECUTING execution FAILED with the
+	// dispatcher-lost cause. Like RequeueStuck it is guarded by status: it
+	// reports (false, nil) — touching nothing — when the original worker
+	// settled the row first, so the reaper must not also spawn its children.
+	CloseStuckLost(ctx context.Context, id uuid.UUID) (bool, error)
+
+	// ListStuckExecuting returns executions left EXECUTING past the claim lease
+	// (their dispatcher worker died). Must run on an all-tenants context.
+	ListStuckExecuting(ctx context.Context, cutoff time.Time) ([]domain.SoarExecution, error)
+
 	// ListFiredParents returns all fired parents of a child execution, used to
 	// build the merged context bag when the child transitions to PENDING.
 	ListFiredParents(ctx context.Context, childID uuid.UUID) ([]domain.SoarExecution, error)
@@ -61,18 +84,18 @@ type ExecutionRepository interface {
 }
 
 type RecordEdgeRequest struct {
-	FlowRunID       uuid.UUID
-	TenantID        uuid.UUID
-	RulePath        string
-	AlertID         string
-	Parent          domain.SoarExecution
-	ChildNodeID     string
-	ChildDepth      int
-	ChildKind       domain.NodeKind
-	ChildExecutor   string
-	IncomingCount   int
-	Branch          domain.EdgeBranch
-	Fired           bool
+	FlowRunID     uuid.UUID
+	TenantID      uuid.UUID
+	RulePath      string
+	AlertID       string
+	Parent        domain.SoarExecution
+	ChildNodeID   string
+	ChildDepth    int
+	ChildKind     domain.NodeKind
+	ChildExecutor string
+	IncomingCount int
+	Branch        domain.EdgeBranch
+	Fired         bool
 }
 
 type ReadyUpdate struct {

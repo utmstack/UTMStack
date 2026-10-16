@@ -30,6 +30,12 @@ var moduleSchemas = map[string]map[string]string{
 		"office365_tenant_id":         "text",
 		"office365_cloud_environment": "text",
 	},
+	"O365_GRAPH": {
+		"o365_graph_client_id":          "text",
+		"o365_graph_client_secret":      "password",
+		"o365_graph_tenant_id":          "text",
+		"o365_graph_cloud_environment":  "text",
+	},
 	"BITDEFENDER": {
 		"connectionKey": "password",
 		"accessUrl":     "text",

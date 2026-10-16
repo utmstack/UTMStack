@@ -705,7 +705,8 @@
     "auditLogs": "Journaux d'audit",
     "about": "À propos",
     "socAi": "SOC-AI",
-    "supportAccess": "Accès support"
+    "supportAccess": "Accès support",
+    "threatwinds": "Intégration ThreatWinds"
   },
   "topbar": {
     "theme": {
@@ -2980,7 +2981,77 @@
             "body": "Dirigez la facility <hl>local5</hl> (vers laquelle Suricata écrit désormais) vers le Collector. Ajoutez cette règle dans <hl>/etc/rsyslog.d/60-utmstack-suricata.conf</hl> sur l'hôte Suricata :",
             "note": "Utilisez @@ au lieu de @ pour TCP. Puis redémarrez rsyslog : sudo systemctl restart rsyslog"
           }
-        }
+        },
+        
+  "o365_graph": {
+    "intro": {
+      "title": "Comment ça fonctionne",
+      "body": "UTMStack se connecte à Microsoft 365 avec une app Azure AD enregistrée et interroge Microsoft Graph pour les événements de sécurité : alertes, incidents, audit du répertoire, sign-ins, détections de risque, requêtes de hunting et journaux d'audit Purview. Aucun agent n'est installé dans votre tenant.",
+      "diagram": {
+        "source": "événements de sécurité",
+        "edge": "Microsoft Graph",
+        "utmstackSub": "corrélation & alertes"
+      },
+      "note": "UTMStack nécessite un accès en lecture seule à l'API Graph — aucune permission d'écriture n'est demandée."
+    },
+    "appSection": "Enregistrement d'application Azure",
+    "steps": {
+      "azurePortal": {
+        "title": "Ouvrir Microsoft Entra ID",
+        "body": "Ouvrez le <hl>Portail Azure</hl> (portal.azure.com) et cliquez sur <hl>Microsoft Entra ID</hl>."
+      },
+      "appRegistrations": {
+        "title": "Aller aux Enregistrements d'application",
+        "body": "Dans le menu de gauche, cliquez sur <hl>Enregistrements d'application</hl>."
+      },
+      "registerApp": {
+        "title": "Enregistrer une nouvelle application",
+        "body": "Cliquez sur <hl>Nouvel enregistrement</hl>. Nommez-la <hl>UTMStack Graph Dev</hl>, sélectionnez <hl>Comptes de ce seul annuaire d'organisation (monolocataire)</hl> et cliquez sur <hl>Enregistrer</hl>."
+      },
+      "clientSecret": {
+        "title": "Créer un secret client",
+        "body": "Allez dans <hl>Certificats et secrets → Nouveau secret client</hl>. Ajoutez une description, définissez l'expiration sur <hl>730 jours (24 mois)</hl> et cliquez sur <hl>Ajouter</hl>.",
+        "copyNote": "Copiez la valeur du secret immédiatement — elle n'est affichée qu'une seule fois et ne pourra pas être récupérée ensuite."
+      },
+      "apiPermissions": {
+        "title": "Ajouter les permissions Microsoft Graph",
+        "body": "Allez dans <hl>Permissions de l'API → Ajouter une permission</hl> et sélectionnez <hl>Microsoft Graph</hl>, puis choisissez <hl>Permissions d'application</hl>."
+      },
+      "graphPermissions": {
+        "title": "Ajouter les quatre permissions Graph",
+        "body": "Ajoutez <hl>SecurityEvents.Read.All</hl>, <hl>Directory.Read.All</hl>, <hl>AuditLog.Read.All</hl> et <hl>IdentityRiskEvent.Read.All</hl>."
+      },
+      "adminConsent": {
+        "title": "Accorder le consentement administrateur",
+        "body": "De retour dans <hl>Permissions de l'API</hl>, cliquez sur <hl>Accorder le consentement administrateur pour {tenant}</hl> et confirmez."
+      },
+      "noteIds": {
+        "title": "Copier les ID de l'application",
+        "body": "Allez dans la <hl>Vue d'ensemble</hl> de l'application et copiez l'<hl>ID d'application (client)</hl> et l'<hl>ID d'annuaire (tenant)</hl>. Vous avez également besoin de la valeur du secret copiée à l'étape 4."
+      }
+    },
+    "credentialsSection": "Identifiants",
+    "credentials": {
+      "title": "Connecter votre tenant Microsoft 365",
+      "body": "Saisissez les informations des étapes ci-dessus. UTMStack vérifie les identifiants avant l'enregistrement. Vous pouvez ajouter plusieurs groupes de configuration."
+    },
+    "fields": {
+      "tenantId": {
+        "label": "ID de tenant (ID d'annuaire)"
+      },
+      "clientId": {
+        "label": "ID de client (ID d'application)"
+      },
+      "clientSecret": {
+        "label": "Secret client"
+      },
+      "cloudEnv": {
+        "label": "Environnement cloud (facultatif)",
+        "hint": "Commercial (par défaut), GCC, GCCHigh ou DoD"
+      }
+    }
+  }
+
       },
       "cloud": {
         "howItWorksTitle": "Comment ça marche",
@@ -3505,6 +3576,7 @@
       "AWS_IAM_USER": "Ingérez l'activité des comptes AWS et les appels API via CloudTrail et CloudWatch pour auditer l'utilisation, les accès et les modifications dans le cloud.",
       "AZURE": "Ingérez les journaux de plateforme et d'activité Microsoft Azure pour surveiller les charges de travail cloud, les identités et les modifications de ressources.",
       "O365": "Ingérez les journaux d'audit Microsoft 365 couvrant Exchange, Teams, SharePoint et OneDrive pour surveiller l'activité des utilisateurs et des administrateurs.",
+      "O365_GRAPH": "Ingeste les événements de sécurité Microsoft Graph — alertes, incidents, audit du répertoire, sign-ins, détections de risque et journaux Purview — pour surveiller l'identité et les menaces dans votre tenant.",
       "GCP": "Ingérez les journaux d'audit et d'activité Google Cloud Platform pour surveiller le calcul, le stockage et les identités dans vos projets.",
       "KASPERSKY": "Ingérez les détections et la télémétrie des endpoints Kaspersky Security Center pour corréler l'activité des logiciels malveillants sur le réseau.",
       "ESET": "Ingérez les détections et la télémétrie des endpoints ESET PROTECT pour corréler la défense multicouche contre les logiciels malveillants sur votre parc.",
@@ -5990,6 +6062,18 @@
       "noMatches": "Aucune correspondance.",
       "matches": "{{items}} correspondances pour « {{query}} »",
       "more": "+{{count}} de plus"
+  "threatwinds": {
+    "title": "Intégration ThreatWinds",
+    "subtitle": "Partagez les incidents de cette instance avec le flux communautaire ThreatWinds.",
+    "contribute": "Contribuer des incidents",
+    "contributeHint": "Quand activé, les incidents de cette instance sont envoyés à ThreatWinds.",
+    "loading": "Chargement du statut de l'intégration…",
+    "failed": "Impossible de charger le statut de l'intégration ThreatWinds.",
+    "retry": "Réessayer",
+    "toast": {
+      "enabled": "Contribution activée",
+      "disabled": "Contribution désactivée",
+      "failed": "Impossible de mettre à jour le réglage de contribution"
     }
   }
 }

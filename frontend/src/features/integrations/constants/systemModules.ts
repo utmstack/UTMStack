@@ -21,6 +21,7 @@ export const SYSTEM_MODULES: Record<string, SystemModuleMeta> = {
   AWS_IAM_USER: { icon: 'aws.png', iconDark: 'aws-dark.png', category: 'cloud' },
   AZURE: { icon: 'azure.svg', category: 'cloud' },
   O365: { icon: 'm365.svg', category: 'cloud' },
+  O365_GRAPH: { icon: 'm365.svg', category: 'cloud' },
   GCP: { icon: 'gcp.svg', category: 'cloud' },
   KASPERSKY: { icon: 'kaspersky.svg', category: 'antivirus' },
   ESET: { icon: 'eset.svg', category: 'antivirus' },

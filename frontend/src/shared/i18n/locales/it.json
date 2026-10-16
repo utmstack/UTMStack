@@ -705,7 +705,8 @@
     "auditLogs": "Log di audit",
     "about": "Informazioni",
     "socAi": "SOC-AI",
-    "supportAccess": "Accesso di supporto"
+    "supportAccess": "Accesso di supporto",
+    "threatwinds": "Integrazione ThreatWinds"
   },
   "topbar": {
     "theme": {
@@ -2980,7 +2981,77 @@
             "body": "Punta la facility <hl>local5</hl> (dove Suricata scrive ora) verso il Collector. Aggiungi questa regola in <hl>/etc/rsyslog.d/60-utmstack-suricata.conf</hl> sull'host Suricata:",
             "note": "Usa @@ al posto di @ per TCP. Quindi riavvia rsyslog: sudo systemctl restart rsyslog"
           }
-        }
+        },
+        
+  "o365_graph": {
+    "intro": {
+      "title": "Come funziona",
+      "body": "UTMStack si connette a Microsoft 365 con un'app Azure AD registrata e interroga Microsoft Graph per gli eventi di sicurezza: allerte, incidenti, audit del directory, sign-in, rilevamenti di rischio, query di hunting e log di audit Purview. Non viene installato alcun agente nel tuo tenant.",
+      "diagram": {
+        "source": "eventi di sicurezza",
+        "edge": "Microsoft Graph",
+        "utmstackSub": "correlazione & allerte"
+      },
+      "note": "UTMStack richiede solo accesso in sola lettura all'API Graph — non vengono richieste autorizzazioni di scrittura."
+    },
+    "appSection": "Registrazione app Azure",
+    "steps": {
+      "azurePortal": {
+        "title": "Apri Microsoft Entra ID",
+        "body": "Apri il <hl>Portale di Azure</hl> (portal.azure.com) e clicca su <hl>Microsoft Entra ID</hl>."
+      },
+      "appRegistrations": {
+        "title": "Vai a Registrazioni app",
+        "body": "Nel menu a sinistra, clicca su <hl>Registrazioni app</hl>."
+      },
+      "registerApp": {
+        "title": "Registra una nuova app",
+        "body": "Clicca su <hl>Nuova registrazione</hl>. Nominala <hl>UTMStack Graph Dev</hl>, seleziona <hl>Solo account in questo directory organizzativo (Single-tenant)</hl> e clicca su <hl>Registra</hl>."
+      },
+      "clientSecret": {
+        "title": "Crea un segreto client",
+        "body": "Vai su <hl>Certificati e segreti → Nuovo segreto client</hl>. Aggiungi una descrizione, imposta la scadenza su <hl>730 giorni (24 mesi)</hl> e clicca su <hl>Aggiungi</hl>.",
+        "copyNote": "Copia subito il valore del segreto — viene mostrato solo una volta e non potrà essere recuperato in seguito."
+      },
+      "apiPermissions": {
+        "title": "Aggiungi le autorizzazioni Microsoft Graph",
+        "body": "Vai su <hl>Autorizzazioni API → Aggiungi un'autorizzazione</hl> e seleziona <hl>Microsoft Graph</hl>, poi scegli <hl>Autorizzazioni dell'applicazione</hl>."
+      },
+      "graphPermissions": {
+        "title": "Aggiungi le quattro autorizzazioni Graph",
+        "body": "Aggiungi <hl>SecurityEvents.Read.All</hl>, <hl>Directory.Read.All</hl>, <hl>AuditLog.Read.All</hl> e <hl>IdentityRiskEvent.Read.All</hl>."
+      },
+      "adminConsent": {
+        "title": "Concedi il consenso amministratore",
+        "body": "Tornato in <hl>Autorizzazioni API</hl>, clicca su <hl>Concedi consenso amministratore per {tenant}</hl> e conferma."
+      },
+      "noteIds": {
+        "title": "Copia gli ID dell'app",
+        "body": "Vai alla <hl>Panoramica</hl> dell'app e copia l'<hl>ID applicazione (client)</hl> e l'<hl>ID directory (tenant)</hl>. Ti serve anche il valore del segreto copiato al passaggio 4."
+      }
+    },
+    "credentialsSection": "Credenziali",
+    "credentials": {
+      "title": "Connetti il tuo tenant Microsoft 365",
+      "body": "Inserisci i dettagli dai passaggi sopra. UTMStack verifica le credenziali prima di salvarle. Puoi aggiungere più gruppi di configurazione."
+    },
+    "fields": {
+      "tenantId": {
+        "label": "ID Tenant (ID Directory)"
+      },
+      "clientId": {
+        "label": "ID Client (ID Applicazione)"
+      },
+      "clientSecret": {
+        "label": "Segreto Client"
+      },
+      "cloudEnv": {
+        "label": "Ambiente cloud (facoltativo)",
+        "hint": "Commercial (default), GCC, GCCHigh o DoD"
+      }
+    }
+  }
+
       },
       "cloud": {
         "howItWorksTitle": "Come funziona",
@@ -3505,6 +3576,7 @@
       "AWS_IAM_USER": "Acquisisci l'attività dell'account AWS e le chiamate API tramite CloudTrail e CloudWatch per controllare l'utilizzo cloud, gli accessi e le modifiche.",
       "AZURE": "Acquisisci i log di piattaforma e attività di Microsoft Azure per monitorare i workload cloud, l'identità e le modifiche alle risorse.",
       "O365": "Acquisisci i log di audit di Microsoft 365 su Exchange, Teams, SharePoint e OneDrive per monitorare l'attività degli utenti e degli amministratori.",
+      "O365_GRAPH": "Ingeste gli eventi di sicurezza di Microsoft Graph: allerte, incidenti, audit del directory, sign-in, rilevamenti di rischio e log di audit Purview per monitorare identità e attività di minaccia nel tuo tenant.",
       "GCP": "Acquisisci i log di audit e attività di Google Cloud Platform per monitorare compute, storage e identità tra i progetti.",
       "KASPERSKY": "Acquisisci i rilevamenti di Kaspersky Security Center e la telemetria degli endpoint per correlare l'attività malware nella rete.",
       "ESET": "Acquisisci i rilevamenti endpoint e la telemetria di ESET PROTECT per correlare la difesa multilivello dal malware nel tuo parco macchine.",
@@ -5990,6 +6062,18 @@
       "noMatches": "Nessuna corrispondenza.",
       "matches": "{{items}} corrispondenze per «{{query}}»",
       "more": "+{{count}} altri"
+  "threatwinds": {
+    "title": "Integrazione ThreatWinds",
+    "subtitle": "Condividi gli incidenti di questa istanza con il feed comunitario ThreatWinds.",
+    "contribute": "Contribuisci incidenti",
+    "contributeHint": "Quando attivo, gli incidenti di questa istanza vengono inviati a ThreatWinds.",
+    "loading": "Caricamento stato integrazione…",
+    "failed": "Impossibile caricare lo stato dell'integrazione ThreatWinds.",
+    "retry": "Riprova",
+    "toast": {
+      "enabled": "Contribuzione attivata",
+      "disabled": "Contribuzione disattivata",
+      "failed": "Impossibile aggiornare l'impostazione di contribuzione"
     }
   }
 }
