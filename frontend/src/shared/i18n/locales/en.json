@@ -1806,6 +1806,9 @@
       "clearAll": "Clear all"
     },
     "fields": {
+      "resetColumns": "Restore default columns",
+      "columnsReset": "Columns reset",
+      "undoReset": "Undo",
       "title": "Fields",
       "filterPlaceholder": "Filter fields…",
       "none": "No fields",

@@ -1654,6 +1654,9 @@
       "clearAll": "Cancella tutto"
     },
     "fields": {
+      "resetColumns": "Ripristina colonne predefinite",
+      "columnsReset": "Colonne ripristinate",
+      "undoReset": "Annulla",
       "title": "Campi",
       "filterPlaceholder": "Filtra campi…",
       "none": "Nessun campo",

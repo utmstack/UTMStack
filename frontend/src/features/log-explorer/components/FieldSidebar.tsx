@@ -17,6 +17,7 @@ function FieldSidebarImpl({
   columns,
   onAdd,
   onToggleColumn,
+  onResetColumns,
 }: {
   fields: IndexField[]
   dataset: string
@@ -24,6 +25,7 @@ function FieldSidebarImpl({
   filters: FilterType[]
   columns: string[]
   onAdd: (f: FilterType) => void
+  onResetColumns?: () => void
   onToggleColumn: (name: string) => void
 }) {
   const { t } = useTranslation()
@@ -84,6 +86,11 @@ function FieldSidebarImpl({
           />
         </div>
       </div>
+      {onResetColumns && (
+        <button type="button" onClick={onResetColumns} className="mx-2 my-1 rounded px-2 py-1.5 text-left text-xs text-muted-foreground hover:bg-muted hover:text-foreground">
+          {t('logExplorer.fields.resetColumns')}
+        </button>
+      )}
       <div className="min-h-0 flex-1 overflow-y-auto p-1.5">
         {visible.length === 0 && (
           <div className="px-2 py-6 text-center text-xs text-muted-foreground">{t('logExplorer.fields.none')}</div>

@@ -1532,6 +1532,9 @@
       "clearAll": "Очистить всё"
     },
     "fields": {
+      "resetColumns": "Восстановить столбцы по умолчанию",
+      "columnsReset": "Столбцы сброшены",
+      "undoReset": "Отменить",
       "title": "Поля",
       "filterPlaceholder": "Фильтр полей…",
       "none": "Нет полей",

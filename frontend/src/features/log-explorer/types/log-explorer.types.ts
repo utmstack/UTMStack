@@ -47,6 +47,7 @@ export interface LogExplorerTabConfig {
   range: { from: string | null; to: string; interval: string }
   filters: FilterType[]
   columns: string[]
+  columnLayouts?: Record<string, string[]>
   searchInput: string
   appliedQuery: string
   sqlMode: boolean

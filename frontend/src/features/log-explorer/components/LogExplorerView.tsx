@@ -7,6 +7,7 @@ import { Button } from '@/shared/components/ui/button'
 import { presetRange, resolveRange, type TimeRange } from '@/shared/components/ui/time-range-picker'
 import { looksLikeSql } from '../domain/sql-sync'
 import { LogTable } from './log-table'
+import { useColumnLayouts } from '../hooks/useColumnLayouts'
 import { MSG_FIELDS, SRC_FIELDS, flattenDoc, pick, previewText } from '../domain/flatten'
 import { CustomFilterBar } from '@/shared/components/filters/CustomFilterBar'
 import type { CustomFilter, FilterOpDef } from '@/shared/components/filters/custom-filter.types'
@@ -107,7 +108,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
   // Two axes: which table, and which kind of record inside it.
   const [sources, setSources] = useState<DatasetTypes[]>([])
   const [dataset, setDataset] = useState<string>(initial.dataset ?? DEFAULT_DATASET)
-  const [pattern, setPattern] = useState<string | null>(null)
+  const [pattern, setPattern] = useState<string | null>(initial.patternStr ?? null)
 
   const [range, setRange] = useState<TimeRange>(initial.range)
 
@@ -140,11 +141,26 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
   const [viewMode, setViewMode] = useState<'table' | 'chart'>(initial.viewMode)
 
   // Table columns (Discover-style). Empty → the compact "Document" summary view.
-  const [columns, setColumns] = useState<string[]>(initial.columns)
+  const { columns, layouts: columnLayouts, scope: columnLayoutScope, setColumns, setScopedColumns } = useColumnLayouts(dataset, pattern, {
+    dataset: initial.dataset ?? DEFAULT_DATASET,
+    dataType: initial.patternStr ?? null,
+    columns: initial.columns,
+    layouts: initial.columnLayouts,
+  })
+  const resetColumns = useCallback(() => {
+    const previous = [...columns]
+    setColumns([])
+    toast.success(t('logExplorer.fields.columnsReset'), {
+      action: {
+        label: t('logExplorer.fields.undoReset'),
+        onClick: () => setScopedColumns(columnLayoutScope, previous),
+      },
+    })
+  }, [columns, columnLayoutScope, setColumns, setScopedColumns, t])
   const toggleColumn = useCallback(
     (name: string) =>
       setColumns((cur) => (cur.includes(name) ? cur.filter((c) => c !== name) : [...cur, name])),
-    []
+    [setColumns]
   )
 
   // Capture the current query as a reusable saved search.
@@ -280,6 +296,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
       range,
       filters,
       columns,
+      columnLayouts,
       searchInput,
       appliedQuery,
       sqlMode,
@@ -290,10 +307,12 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     readyToPersist,
+    dataset,
     pattern,
     range,
     filters,
     columns,
+    columnLayouts,
     searchInput,
     appliedQuery,
     sqlMode,
@@ -331,14 +350,21 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
   const autoColumns = useMemo(() => {
     if (columns.length > 0 || rows.length === 0) return []
     const sample = rows.slice(0, 50).map((d) => flattenDoc(d))
-    const present = IMPORTANT_FIELDS.filter((f) =>
+    const typeFields = pattern === 'wineventlog'
+      ? ['log.eventCode', 'log.computer', 'log.eventName', 'target.user', 'origin.ip']
+      : pattern?.includes('fortigate')
+        ? ['action', 'origin.ip', 'origin.port', 'target.ip', 'target.port', 'protocol', 'log.subtype']
+        : pattern?.includes('vmware') || pattern?.includes('esxi')
+          ? ['origin.hostname', 'log.process', 'log.message']
+          : []
+    const present = [...new Set([...typeFields, ...IMPORTANT_FIELDS])].filter((f) =>
       sample.some((flat) => {
         const v = flat[f]
         return v != null && v !== ''
       })
     )
     return present.slice(0, MAX_AUTO_COLUMNS)
-  }, [columns.length, rows])
+  }, [columns.length, rows, pattern])
 
   // The CSV is the table: the analyst's own columns when they picked any, the
   // default source/important layout when they didn't. Exporting a fixed
@@ -563,7 +589,6 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
             setDataset(ds)
             setPattern(dt)
             setFilters([])
-            setColumns([])
           }}
           searchInput={searchInput}
           onSearchInput={setSearchInput}
@@ -657,6 +682,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
                 columns={columns}
                 onAdd={addFilter}
                 onToggleColumn={toggleColumn}
+                onResetColumns={resetColumns}
               />
             <div className="flex min-w-0 flex-1 flex-col border-l border-border">
               <div ref={scrollRef} onScroll={onScroll} className="min-h-0 flex-1 overflow-auto">
