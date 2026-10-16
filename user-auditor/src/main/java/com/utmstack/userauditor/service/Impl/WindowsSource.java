@@ -175,16 +175,16 @@ public class WindowsSource implements Source {
 
     private LocalDateTime executionDate(LocalDateTime startDate) {
 
-        LocalDateTime currentDateTime = LocalDateTime.now();
-
-        if (currentDateTime.getMonth().equals(startDate.getMonth()) && currentDateTime.getYear() == startDate.getYear() ) {
-            if (ChronoUnit.MINUTES.between(startDate, currentDateTime) >= searchIntervalMinutes){
-                return LocalDateTime.of(startDate.toLocalDate(), startDate.toLocalTime()).plusMinutes(ChronoUnit.MINUTES.between(startDate, currentDateTime));
-            }
-        }
-
-        return LocalDateTime.of(startDate.toLocalDate(), LocalTime.of(0,0,0)).plusMonths(searchIntervalMonths);
-
+        // The one-month step exists only for the historical back-fill (catching
+        // up from startYear). On a normal first run after midnight on the 1st,
+        // months differ, so the old code fell through to the plusMonths branch
+        // and jumped the pointer ~29 days into the future, skipping the month
+        // (issue #2895). Cap the step at now: while back-filling we stay
+        // behind now and take the month step; once the step would land in the
+        // future we pin to now and track in real time.
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime monthStep = startDate.toLocalDate().atStartOfDay().plusMonths(searchIntervalMonths);
+        return monthStep.isBefore(now) ? monthStep : now;
     }
 
     private String getKey(CompositeBucket bucket) {
