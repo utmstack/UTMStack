@@ -51,6 +51,8 @@ const (
 	reapGrace           = 1 * time.Minute
 )
 
+var errSettleLostToReaper = errors.New("soar dispatch: settle lost to reaper")
+
 func (d *Dispatcher) Kick() {
 	select {
 	case d.kick <- struct{}{}:
@@ -85,6 +87,8 @@ func (d *Dispatcher) drain(ctx context.Context) {
 		}
 	}()
 
+	d.reapStuck(ctx)
+
 	listCtx, cancel := context.WithTimeout(tenancy.WithAllTenants(ctx), 20*time.Second)
 	pending, _, err := d.exec.List(listCtx, connectors.ExecutionFilters{
 		Status: domain.ExecutionStatusPending,
@@ -95,8 +99,6 @@ func (d *Dispatcher) drain(ctx context.Context) {
 		_ = catcher.Error("soar dispatcher: failed to list pending executions", err, nil)
 		return
 	}
-
-	d.reapStuck(ctx)
 
 	if len(pending) == 0 {
 		return
@@ -171,6 +173,10 @@ func (d *Dispatcher) process(parent context.Context, exec domain.SoarExecution) 
 	rest, cancelRest := context.WithTimeout(context.WithoutCancel(ctx), 30*time.Second)
 	defer cancelRest()
 	if err := d.settle(rest, &exec, branch, output); err != nil {
+		if errors.Is(err, errSettleLostToReaper) {
+			catcher.Info("soar dispatch: worker yielded to reaper after settle race", map[string]any{"execution": exec.ID})
+			return
+		}
 		return
 	}
 
@@ -229,13 +235,18 @@ func (d *Dispatcher) settle(ctx context.Context, exec *domain.SoarExecution, bra
 	if branch == domain.EdgeBranchError {
 		status = domain.ExecutionStatusFailed
 	}
-	if err := d.exec.UpdateStatus(ctx, exec.ID, connectors.ExecutionStatusUpdate{
+	applied, err := d.exec.SettleExecuting(ctx, exec.ID, connectors.ExecutionStatusUpdate{
 		Status:     &status,
 		Result:     &result,
 		FinishedAt: &now,
-	}); err != nil {
+	})
+	if err != nil {
 		_ = catcher.Error("soar dispatch: settle status write failed", err, map[string]any{"execution": exec.ID, "status": status})
 		return err
+	}
+	if !applied {
+		catcher.Info("soar dispatch: settle lost race to reaper, yielding", map[string]any{"execution": exec.ID})
+		return errSettleLostToReaper
 	}
 	exec.Status = status
 	if branch == domain.EdgeBranchSuccess && exec.Kind == domain.NodeKindEnrichment && len(output) > 0 {
@@ -303,17 +314,23 @@ func (d *Dispatcher) reapOne(ctx context.Context, exec domain.SoarExecution) {
 	flow := d.loadFlow(exec)
 	if flow == nil {
 		_ = catcher.Error("soar reaper: flow vanished for stuck execution", nil, map[string]any{"execution": exec.ID, "rulePath": exec.RulePath})
+		d.finishRun(ctx, *exec.FlowRunID)
 		return
 	}
 	node, ok := flow.Nodes[exec.NodeID]
 	if !ok {
 		_ = catcher.Error("soar reaper: node vanished for stuck execution", nil, map[string]any{"execution": exec.ID, "node": exec.NodeID})
+		d.finishRun(ctx, *exec.FlowRunID)
 		return
 	}
 	d.spawnChildren(ctx, flow, exec, node.OnSuccess, domain.EdgeBranchSuccess, false)
 	d.spawnChildren(ctx, flow, exec, node.OnError, domain.EdgeBranchError, false)
-	if _, err := d.runs.MaybeComplete(ctx, *exec.FlowRunID); err != nil {
-		_ = catcher.Error("soar reaper: maybeComplete failed", err, map[string]any{"flowRun": *exec.FlowRunID})
+	d.finishRun(ctx, *exec.FlowRunID)
+}
+
+func (d *Dispatcher) finishRun(ctx context.Context, runID uuid.UUID) {
+	if _, err := d.runs.MaybeComplete(ctx, runID); err != nil {
+		_ = catcher.Error("soar reaper: maybeComplete failed", err, map[string]any{"flowRun": runID})
 	}
 }
 
@@ -461,10 +478,10 @@ func (d *Dispatcher) loadFlow(exec domain.SoarExecution) *domain.Flow {
 }
 
 func (d *Dispatcher) handleOffline(ctx context.Context, exec domain.SoarExecution) {
+	failed := domain.ExecutionStatusFailed
 	cause := domain.NonExecutionCauseAgentOffline
 	if exec.Retries+1 >= dispatchMaxRetries {
-		failed := domain.ExecutionStatusFailed
-		if err := d.exec.UpdateStatus(ctx, exec.ID, connectors.ExecutionStatusUpdate{
+		if _, err := d.exec.SettleExecuting(ctx, exec.ID, connectors.ExecutionStatusUpdate{
 			Status:            &failed,
 			NonExecutionCause: &cause,
 		}); err != nil {

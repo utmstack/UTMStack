@@ -38,6 +38,12 @@ type ExecutionRepository interface {
 	List(ctx context.Context, f ExecutionFilters) ([]domain.SoarExecution, int64, error)
 	Get(ctx context.Context, id uuid.UUID) (*domain.SoarExecution, error)
 	UpdateStatus(ctx context.Context, id uuid.UUID, u ExecutionStatusUpdate) error
+	// SettleExecuting is the worker's terminal write for a row it claimed:
+	// it applies only while the row is still EXECUTING. It reports (false,
+	// nil) when the status guard matches nothing — i.e. the reaper already
+	// closed the row — so the caller must skip the child cascade: that row's
+	// flow was already accounted by whoever won the race.
+	SettleExecuting(ctx context.Context, id uuid.UUID, u ExecutionStatusUpdate) (bool, error)
 	ClaimPending(ctx context.Context, id uuid.UUID, leaseDuration time.Duration) (bool, error)
 
 	// SaveOutput persists an enrichment node's structured output; called after
