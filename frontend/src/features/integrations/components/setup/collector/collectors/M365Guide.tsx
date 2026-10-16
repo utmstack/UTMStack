@@ -12,7 +12,7 @@ import type { Integration, ConfigGroupResponse } from '@/features/integrations/t
 const O365_ROOT = 'integrations.setup.collector.office365'
 const GRAPH_ROOT = 'integrations.setup.collector.o365_graph'
 const O365_IMG = '/integrations/guides/collector/office365'
-const GRAPH_IMG = '/integrations/guides/collector/o365_graph'
+const GRAPH_IMG = '/integrations/guides/o365_graph'
 
 const O365_FIELDS: CloudConfigField[] = [
   { key: 'office365_tenant_id',         labelKey: `${O365_ROOT}.fields.tenantId.label`,     placeholder: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' },
@@ -44,14 +44,11 @@ const O365_STEPS = [
 // Graph guide reuses the same app-registration flow but points at the
 // o365_graph screenshots and Graph-specific permission steps.
 const GRAPH_STEPS = [
-  { key: 'azurePortal',       img: `${GRAPH_IMG}/graph-portal.png` },
-  { key: 'appRegistrations',  img: `${GRAPH_IMG}/graph-app-registrations.png` },
-  { key: 'registerApp',       img: `${GRAPH_IMG}/graph-register-app.png` },
-  { key: 'clientSecret',      img: `${GRAPH_IMG}/graph-certificate-secret.png` },
-  { key: 'apiPermissions',    img: `${GRAPH_IMG}/graph-api-permission.png` },
-  { key: 'graphPermissions',  img: `${GRAPH_IMG}/graph-permissions-list.png` },
-  { key: 'adminConsent',      img: `${GRAPH_IMG}/graph-admin-consent.png` },
-  { key: 'noteIds',           img: `${GRAPH_IMG}/graph-overview-client.png` },
+  { key: 'azurePortal',      img: `${GRAPH_IMG}/o365_graph_2.png` },
+  { key: 'appRegistrations', img: `${GRAPH_IMG}/o365_graph_3.png` },
+  { key: 'registerApp',      img: `${GRAPH_IMG}/o365_graph_4.jpeg` },
+  { key: 'clientSecret',     img: `${GRAPH_IMG}/o365_graph_5.jpeg` },
+  { key: 'apiPermissions',   img: `${GRAPH_IMG}/o365_graph_6.jpeg` },
 ]
 
 function StepImg({ src }: { src: string }) {
@@ -134,7 +131,7 @@ export function M365Guide({ module: integration, fields = O365_FIELDS, variant =
               {t(`${ROOT}.steps.clientSecret.copyNote`)}
             </p>
           )}
-          <StepImg src={s.img} />
+          {s.img && <StepImg src={s.img} />}
         </Section>
       ))}
 
