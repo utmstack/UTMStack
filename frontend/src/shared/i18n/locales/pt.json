@@ -1654,6 +1654,9 @@
       "clearAll": "Limpar tudo"
     },
     "fields": {
+      "resetColumns": "Restaurar colunas padrão",
+      "columnsReset": "Colunas redefinidas",
+      "undoReset": "Desfazer",
       "title": "Campos",
       "filterPlaceholder": "Filtrar campos…",
       "none": "Sem campos",
