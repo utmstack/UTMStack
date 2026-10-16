@@ -54,6 +54,18 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	feedsHandler := handler.NewReverseProxyHandler("/proxy/api/feeds/v1/list")
 	g.GET("/feeds", feedsHandler.Handle)
 
+	// GET /api/v1/threat-intel/feeds/download/:level/:type/:name
+	// → /proxy/api/feeds/v1/download/list/{level}/{type}/{name}
+	g.GET("/feeds/download/:level/:type/:name", func(c *gin.Context) {
+		targetPath := "/proxy/api/feeds/v1/download/list/" +
+			c.Param("level") + "/" + c.Param("type") + "/" + c.Param("name")
+		handler.NewReverseProxyHandler(targetPath).Handle(c)
+	})
+
+	// GET /api/v1/threat-intel/feeds/checksum → /proxy/api/feeds/v1/download/checksum
+	checksumHandler := handler.NewReverseProxyHandler("/proxy/api/feeds/v1/download/checksum")
+	g.GET("/feeds/checksum", checksumHandler.Handle)
+
 	// POST /api/v1/threat-intel/ai/chat → /proxy/api/ai/v1/chat/completions
 	chatHandler := handler.NewReverseProxyHandler("/proxy/api/ai/v1/chat/completions")
 	g.POST("/ai/chat", chatHandler.Handle)
