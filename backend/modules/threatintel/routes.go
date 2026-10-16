@@ -50,6 +50,9 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	chatHandler := handler.NewReverseProxyHandler("/proxy/api/ai/v1/chat/completions")
 	g.POST("/ai/chat", chatHandler.Handle)
 
+	simpleSearchHandler := handler.NewReverseProxyHandler("/proxy/api/search/v1/entities/simple")
+	g.POST("/ai/search", simpleSearchHandler.Handle)
+
 	// GET /api/v1/threat-intel/status — can this instance reach ThreatWinds at
 	// all. Answers a boolean and nothing else, so the page can say "not set up"
 	// without the caller being told what the instance is spending. It replaces
