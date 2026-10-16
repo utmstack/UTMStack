@@ -214,6 +214,13 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		"EVENT_PROCESSOR_HOST=event-processor-manager",
 		"EVENT_PROCESSOR_PORT=9002",
 		"SOC_AI_BASE_URL=http://event-processor-manager:8090",
+		// The backend JVM previously had no -Xmx/heap setting, so JDK 17 sized
+		// its heap to 25% of the container limit (issue #2918) — only ~200-512MB
+		// on the capped backend, which OOM'd on large Log Explorer result sets.
+		// JAVA_TOOL_OPTIONS is honored by the JVM without any image change; sizing
+		// the heap as a percentage of the (now larger) container limit lets it
+		// scale with host size and self-adjust if memory is recalculated.
+		"JAVA_TOOL_OPTIONS=-XX:MaxRAMPercentage=75.0",
 	}
 
 	// Disable TFA in dev and rc environments

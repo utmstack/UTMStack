@@ -57,10 +57,22 @@ func GetStackConfig() *StackConfig {
 		stackConfig.ShmFolder = utils.MakeDir(0777, cnf.DataDir, "tmpfs")
 
 		Services = []system.ServiceConfig{
-			{Name: "event-processor-manager", Priority: 1, MinMemory: 2560, MaxMemory: 60 * 1024},
+			// The EP manager is the coordination/soc-ai process — lighter than the
+			// worker that parses the event stream. It used to share the worker's
+			// Priority 1 weight AND 60GB cap, so on large hosts it hoarded a
+			// worker-sized share of memory (issue #2918). Cap it at 4GB; small
+			// hosts are unaffected (their allocation never reaches the cap).
+			{Name: "event-processor-manager", Priority: 1, MinMemory: 2560, MaxMemory: 4 * 1024},
 			{Name: "event-processor-worker", Priority: 1, MinMemory: 3072, MaxMemory: 60 * 1024},
 			{Name: "opensearch", Priority: 1, MinMemory: 5120, MaxMemory: 60 * 1024},
-			{Name: "backend", Priority: 3, MinMemory: 700, MaxMemory: 2 * 1024},
+			// The backend serves the whole UI/API and loads OpenSearch result sets
+			// into the JVM heap. It was capped at 2GB flat, so its effective heap
+			// (JDK default 25% of the container) was only ~200-512MB regardless of
+			// host size, and simple Log Explorer queries could OOM it. Let the
+			// container scale with the host (capped at 8GB) and set -Xmx explicitly
+			// in compose.go / the Dockerfile so the heap actually grows (issue
+			// #2918).
+			{Name: "backend", Priority: 3, MinMemory: 700, MaxMemory: 8 * 1024},
 			{Name: "web-pdf", Priority: 3, MinMemory: 1024, MaxMemory: 2 * 1024},
 			{Name: "postgres", Priority: 2, MinMemory: 500, MaxMemory: 2 * 1024},
 			{Name: "user-auditor", Priority: 3, MinMemory: 200, MaxMemory: 1024},
