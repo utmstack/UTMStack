@@ -102,6 +102,9 @@ func (r *pgExecutionRepository) UpdateStatus(ctx context.Context, id uuid.UUID, 
 	if u.FinishedAt != nil {
 		updates["finished_at"] = *u.FinishedAt
 	}
+	if u.DispatchedAt != nil {
+		updates["dispatched_at"] = *u.DispatchedAt
+	}
 	if u.IncrementRetries {
 		updates["retries"] = gorm.Expr("COALESCE(retries, 0) + 1")
 	}
@@ -140,6 +143,64 @@ func (r *pgExecutionRepository) SaveOutput(ctx context.Context, id uuid.UUID, ou
 		Model(&domain.SoarExecution{}).
 		Where("id = ?", id).
 		Update("output", output).Error
+}
+
+func (r *pgExecutionRepository) SettleExecuting(ctx context.Context, id uuid.UUID, u connectors.ExecutionStatusUpdate) (bool, error) {
+	updates := map[string]any{}
+	if u.Status != nil {
+		updates["status"] = *u.Status
+	}
+	if u.Result != nil {
+		updates["result"] = *u.Result
+	}
+	if u.NonExecutionCause != nil {
+		updates["non_execution_cause"] = *u.NonExecutionCause
+	}
+	if u.FinishedAt != nil {
+		updates["finished_at"] = *u.FinishedAt
+	}
+	if len(updates) == 0 {
+		return false, nil
+	}
+	res := r.db.WithContext(ctx).
+		Model(&domain.SoarExecution{}).
+		Where("id = ? AND status = ?", id, domain.ExecutionStatusExecuting).
+		Updates(updates)
+	if res.Error != nil {
+		return false, res.Error
+	}
+	return res.RowsAffected > 0, nil
+}
+
+func (r *pgExecutionRepository) RequeueStuck(ctx context.Context, id uuid.UUID) error {
+	return r.db.WithContext(ctx).
+		Model(&domain.SoarExecution{}).
+		Where("id = ? AND status = ?", id, domain.ExecutionStatusExecuting).
+		Updates(map[string]any{"status": domain.ExecutionStatusPending, "claimed_at": nil}).Error
+}
+
+func (r *pgExecutionRepository) CloseStuckLost(ctx context.Context, id uuid.UUID) (bool, error) {
+	cause := domain.NonExecutionCauseDispatchLost
+	failed := domain.ExecutionStatusFailed
+	now := time.Now().UTC()
+	res := r.db.WithContext(ctx).
+		Model(&domain.SoarExecution{}).
+		Where("id = ? AND status = ?", id, domain.ExecutionStatusExecuting).
+		Updates(map[string]any{"status": failed, "non_execution_cause": cause, "finished_at": now})
+	if res.Error != nil {
+		return false, res.Error
+	}
+	return res.RowsAffected > 0, nil
+}
+
+func (r *pgExecutionRepository) ListStuckExecuting(ctx context.Context, cutoff time.Time) ([]domain.SoarExecution, error) {
+	var out []domain.SoarExecution
+	err := r.db.WithContext(ctx).
+		Where("status = ? AND claimed_at IS NOT NULL AND claimed_at < ?",
+			domain.ExecutionStatusExecuting, cutoff).
+		Order("claimed_at ASC").
+		Find(&out).Error
+	return out, err
 }
 
 // RecordEdge is the atomic hinge of the DAG engine. Everything happens inside
