@@ -235,6 +235,14 @@ func collect(payload *cursorPayload, windowStart, windowEnd time.Time, group *Mo
 			next.UnavailableSources[k] = v
 		}
 	}
+	// Carry the riskyUsers state diff forward; without it every tick sees
+	// an empty snapshot and re-emits the full collection.
+	if payload.RiskyUsers != nil {
+		next.RiskyUsers = make(map[string]riskyUserState, len(payload.RiskyUsers))
+		for k, v := range payload.RiskyUsers {
+			next.RiskyUsers[k] = v
+		}
+	}
 
 	sources := []source{
 		listSource("alerts", graphAPIVersion+"/security/alerts_v2", "lastUpdateDateTime", strconv.Itoa(topParam), idAndTime),
