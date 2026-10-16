@@ -149,8 +149,16 @@ function getAxiosInstance(baseURL: string): AxiosInstance {
         }
       }
 
-      const data = error.response?.data as { error?: string } | undefined
-      const message = data?.error ?? error.message ?? 'Request failed'
+      const data = error.response?.data as {
+        error?: string | { message?: string }
+        message?: string
+      } | undefined
+      const raw = data?.error
+      const message =
+        (typeof raw === 'string' ? raw : raw?.message) ??
+        data?.message ??
+        error.message ??
+        'Request failed'
       throw new ApiError(message, error.response?.status ?? 0)
     }
   )
