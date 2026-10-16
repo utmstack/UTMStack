@@ -321,7 +321,9 @@
     "taggingRules": "Правила тегирования",
     "parsingFilters": "Пайплайны",
     "overview": "Обзор",
-    "tenants": "Арендаторы"
+    "tenants": "Арендаторы",
+    "openMenu": "Открыть меню",
+    "closeMenu": "Закрыть меню"
   },
   "dashboards": {
     "title": "Панели",
@@ -5482,7 +5484,8 @@
     "tabs": {
       "iocs": "IOCs",
       "actors": "Угрозы",
-      "feeds": "Feeds"
+      "feeds": "Feeds",
+      "analyst": "ИИ-аналитик"
     },
     "toolbar": {
       "searchPlaceholders": {
@@ -5840,6 +5843,95 @@
       "noneSucceeded": "Ни один арендатор не завершился успешно.",
       "failed": "Не удалось",
       "noneFailed": "Ошибок нет."
+    }
+  },
+  "tiAnalyst": {
+    "console": {
+      "subtitle": "Рабочее пространство аналитика",
+      "model": "Модель",
+      "resizeResults": "Изменить размер панели результатов",
+      "resizeHint": "Перетащите, чтобы изменить размер · двойной клик — сброс"
+    },
+    "conv": {
+      "title": "Диалоги",
+      "allConversations": "Все диалоги",
+      "empty": "Диалогов пока нет.",
+      "new": "Новый диалог",
+      "newTitle": "Название диалога",
+      "selectPrompt": "Выберите диалог или начните новый.",
+      "running": "выполняется",
+      "delete": "Удалить {{title}}",
+      "unread_one": "{{count}} непрочитанное сообщение",
+      "unread_other": "{{count}} непрочитанных сообщения",
+      "transcript": "Транскрипция диалога"
+    },
+    "agent": {
+      "placeholder": "Расследовать индикатор…",
+      "ask": "Спросить агента-аналитика",
+      "intro": "Спрашивайте о любом индикаторе. Агент напрямую обращается к ThreatWinds и показывает свою работу.",
+      "send": "Отправить",
+      "stop": "Остановить",
+      "thinking": "размышление…",
+      "suggestionInvestigate": "Расследуйте 8.8.8.8 и скажите, является ли он вредоносным",
+      "suggestionInfrastructure": "Какая инфраструктура связана с google.com?",
+      "suggestionCounts": "Покажите, сколько сущностей существует по каждому типу"
+    },
+    "canvas": {
+      "title": "Результаты",
+      "empty": "Результаты этого диалога появляются здесь.",
+      "tile": "Выровнять",
+      "closeAll": "Закрыть все",
+      "pinOut": "Открыть {{title}} как панель",
+      "loading": "загрузка…",
+      "failed": "не удалось загрузить",
+      "noRelations": "связанных сущностей нет",
+      "noGeo": "геолокация не зафиксирована",
+      "noResults": "совпадений нет",
+      "matches": "совпадений: {{total}}",
+      "panelName": "{{title}} — {{kind}}",
+      "movePanel": "Переместить {{title}}",
+      "resizePanel": "Изменить размер {{title}}",
+      "closePanel": "Закрыть {{title}}",
+      "collapse": "Свернуть {{title}}",
+      "expand": "Развернуть {{title}}",
+      "kind": {
+        "entity": "досье",
+        "graph": "связи",
+        "geo": "геолокация",
+        "search": "поиск"
+      }
+    },
+    "graph": {
+      "nodes_one": "{{count}} узел",
+      "nodes_other": "{{count}} узлов",
+      "edges_one": "{{count}} ребро",
+      "edges_other": "{{count}} рёбер",
+      "clickToPivot": "клик для перехода",
+      "malicious": "вредоносный",
+      "unknown": "неизвестный",
+      "benign": "безопасный"
+    },
+    "entity": {
+      "reputation": "Репутация",
+      "accuracy": "Точность",
+      "worst": "Худшая",
+      "best": "Лучшая",
+      "relations": "Граф связей",
+      "geolocations": "Геолокации",
+      "associations": "Ассоциации",
+      "radius": "r={{radius}}м",
+      "askAgentBtn": "Спросить агента",
+      "askAgent": "Оцените {{type}} {{value}} (сущность id {{id}}). Это угроза?"
+    },
+    "tool": {
+      "querying": "запрос…",
+      "notRetained": "Результат не сохранён.",
+      "expand": "Показать запрос и результат",
+      "collapse": "Скрыть запрос и результат",
+      "noIntel": "По «{{value}}» нет записанных данных об угрозах.",
+      "noMatches": "Совпадений нет.",
+      "matches": "совпадений по «{{query}}»: {{items}}",
+      "more": "ещё +{{count}}"
     }
   }
 }

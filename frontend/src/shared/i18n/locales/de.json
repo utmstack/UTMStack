@@ -319,7 +319,9 @@
     "taggingRules": "Tagging-Regeln",
     "parsingFilters": "Pipelines",
     "overview": "Übersicht",
-    "tenants": "Mandanten"
+    "tenants": "Mandanten",
+    "openMenu": "Menü öffnen",
+    "closeMenu": "Menü schließen"
   },
   "dashboards": {
     "title": "Dashboards",
@@ -5456,7 +5458,8 @@
     "tabs": {
       "iocs": "IOCs",
       "actors": "Bedrohungsakteure",
-      "feeds": "Feeds"
+      "feeds": "Feeds",
+      "analyst": "KI-Analyst"
     },
     "toolbar": {
       "searchPlaceholders": {
@@ -5814,6 +5817,95 @@
       "noneSucceeded": "Kein Mandant war erfolgreich.",
       "failed": "Fehlgeschlagen",
       "noneFailed": "Keine Fehler."
+    }
+  },
+  "tiAnalyst": {
+    "console": {
+      "subtitle": "Analystenbereich",
+      "model": "Modell",
+      "resizeResults": "Ergebnisfeld in der Größe ändern",
+      "resizeHint": "Ziehen zum Größenänderung · Doppelklick zum Zurücksetzen"
+    },
+    "conv": {
+      "title": "Gespräche",
+      "allConversations": "Alle Gespräche",
+      "empty": "Noch keine Gespräche.",
+      "new": "Neues Gespräch",
+      "newTitle": "Gesprächstitel",
+      "selectPrompt": "Wähle ein Gespräch aus oder beginne ein neues.",
+      "running": "läuft",
+      "delete": "{{title}} löschen",
+      "unread_one": "{{count}} ungelesene Nachricht",
+      "unread_other": "{{count}} ungelesene Nachrichten",
+      "transcript": "Gesprächstranskript"
+    },
+    "agent": {
+      "placeholder": "Ein Indikator untersuchen…",
+      "ask": "Frage an den Analysten-Agenten",
+      "intro": "Frag zu jedem Indikator. Der Agent befragt ThreatWinds direkt und zeigt seine Arbeit.",
+      "send": "Senden",
+      "stop": "Stopp",
+      "thinking": "denke nach…",
+      "suggestionInvestigate": "Untersuche 8.8.8.8 und sag mir, ob er bösartig ist",
+      "suggestionInfrastructure": "Welche Infrastruktur ist mit google.com verbunden?",
+      "suggestionCounts": "Zeig mir, wie viele Entitäten pro Typ existieren"
+    },
+    "canvas": {
+      "title": "Ergebnisse",
+      "empty": "Die Ergebnisse dieses Gesprächs erscheinen hier.",
+      "tile": "Ausrichten",
+      "closeAll": "Alle schließen",
+      "pinOut": "{{title}} als Panel öffnen",
+      "loading": "lädt…",
+      "failed": "konnte nicht geladen werden",
+      "noRelations": "keine verbundenen Entitäten",
+      "noGeo": "keine Geolokalisierung erfasst",
+      "noResults": "keine Treffer",
+      "matches": "{{total}} Treffer",
+      "panelName": "{{title}} — {{kind}}",
+      "movePanel": "{{title}} verschieben",
+      "resizePanel": "{{title}} in der Größe ändern",
+      "closePanel": "{{title}} schließen",
+      "collapse": "{{title}} einblenden",
+      "expand": "{{title}} ausblenden",
+      "kind": {
+        "entity": "Dossier",
+        "graph": "Beziehungen",
+        "geo": "Geolokalisierung",
+        "search": "Suche"
+      }
+    },
+    "graph": {
+      "nodes_one": "{{count}} Knoten",
+      "nodes_other": "{{count}} Knoten",
+      "edges_one": "{{count}} Kante",
+      "edges_other": "{{count}} Kanten",
+      "clickToPivot": "zum Wechseln klicken",
+      "malicious": "bösartig",
+      "unknown": "unbekannt",
+      "benign": "harmlos"
+    },
+    "entity": {
+      "reputation": "Ruf",
+      "accuracy": "Genauigkeit",
+      "worst": "Schlechtester",
+      "best": "Bester",
+      "relations": "Beziehungsgraph",
+      "geolocations": "Geolokalisierungen",
+      "associations": "Assoziationen",
+      "radius": "r={{radius}}m",
+      "askAgentBtn": "Agenten befragen",
+      "askAgent": "Bewerte {{type}} {{value}} (Entität id {{id}}). Ist es eine Bedrohung?"
+    },
+    "tool": {
+      "querying": "abfrage läuft…",
+      "notRetained": "Ergebnis nicht aufbewahrt.",
+      "expand": "Anfrage und Ergebnis anzeigen",
+      "collapse": "Anfrage und Ergebnis verbergen",
+      "noIntel": "Für „{{value}}“ sind keine Bedrohungsdaten erfasst.",
+      "noMatches": "Keine Treffer.",
+      "matches": "{{items}} Treffer für „{{query}}“",
+      "more": "+{{count}} weitere"
     }
   }
 }

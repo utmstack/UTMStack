@@ -319,7 +319,9 @@
     "taggingRules": "Regole di etichettatura",
     "parsingFilters": "Pipeline",
     "overview": "Panoramica",
-    "tenants": "Tenant"
+    "tenants": "Tenant",
+    "openMenu": "Apri menu",
+    "closeMenu": "Chiudi menu"
   },
   "dashboards": {
     "title": "Dashboard",
@@ -5456,7 +5458,8 @@
     "tabs": {
       "iocs": "IOCs",
       "actors": "Attori minaccia",
-      "feeds": "Feed"
+      "feeds": "Feed",
+      "analyst": "Analista IA"
     },
     "toolbar": {
       "searchPlaceholders": {
@@ -5814,6 +5817,95 @@
       "noneSucceeded": "Nessun tenant riuscito.",
       "failed": "Falliti",
       "noneFailed": "Nessun errore."
+    }
+  },
+  "tiAnalyst": {
+    "console": {
+      "subtitle": "Area analista",
+      "model": "Modello",
+      "resizeResults": "Ridimensiona il pannello dei risultati",
+      "resizeHint": "Trascina per ridimensionare · doppio clic per reimpostare"
+    },
+    "conv": {
+      "title": "Conversazioni",
+      "allConversations": "Tutte le conversazioni",
+      "empty": "Nessuna conversazione al momento.",
+      "new": "Nuova conversazione",
+      "newTitle": "Titolo della conversazione",
+      "selectPrompt": "Seleziona una conversazione o avviane una.",
+      "running": "in corso",
+      "delete": "Elimina {{title}}",
+      "unread_one": "{{count}} messaggio non letto",
+      "unread_other": "{{count}} messaggi non letti",
+      "transcript": "Trascrizione della conversazione"
+    },
+    "agent": {
+      "placeholder": "Indaga su un indicatore…",
+      "ask": "Chiedi all'agente analista",
+      "intro": "Chiedi qualsiasi indicatore. L'agente interroga direttamente ThreatWinds e mostra il suo lavoro.",
+      "send": "Invia",
+      "stop": "Ferma",
+      "thinking": "pensiero…",
+      "suggestionInvestigate": "Indaga su 8.8.8.8 e dimmi se è malevolo",
+      "suggestionInfrastructure": "Che infrastruttura è collegata a google.com?",
+      "suggestionCounts": "Mostrami quante entità esistono per tipo"
+    },
+    "canvas": {
+      "title": "Risultati",
+      "empty": "I risultati di questa conversazione appaiono qui.",
+      "tile": "Ordina",
+      "closeAll": "Chiudi tutto",
+      "pinOut": "Apri {{title}} come pannello",
+      "loading": "caricamento…",
+      "failed": "impossibile caricare",
+      "noRelations": "nessuna entità correlata",
+      "noGeo": "nessuna geolocalizzazione registrata",
+      "noResults": "nessuna corrispondenza",
+      "matches": "{{total}} corrispondenze",
+      "panelName": "{{title}} — {{kind}}",
+      "movePanel": "Sposta {{title}}",
+      "resizePanel": "Ridimensiona {{title}}",
+      "closePanel": "Chiudi {{title}}",
+      "collapse": "Comprimi {{title}}",
+      "expand": "Espandi {{title}}",
+      "kind": {
+        "entity": "dossier",
+        "graph": "relazioni",
+        "geo": "geolocalizzazione",
+        "search": "ricerca"
+      }
+    },
+    "graph": {
+      "nodes_one": "{{count}} nodo",
+      "nodes_other": "{{count}} nodi",
+      "edges_one": "{{count}} arco",
+      "edges_other": "{{count}} archi",
+      "clickToPivot": "clic per passare",
+      "malicious": "malevolo",
+      "unknown": "sconosciuto",
+      "benign": "inoffensivo"
+    },
+    "entity": {
+      "reputation": "Reputazione",
+      "accuracy": "Precisione",
+      "worst": "Peggio",
+      "best": "Meglio",
+      "relations": "Grafo delle relazioni",
+      "geolocations": "Geolocalizzazioni",
+      "associations": "Associazioni",
+      "radius": "r={{radius}}m",
+      "askAgentBtn": "Chiedi all'agente",
+      "askAgent": "Valuta {{type}} {{value}} (entità id {{id}}). È una minaccia?"
+    },
+    "tool": {
+      "querying": "interrogazione…",
+      "notRetained": "Risultato non conservato.",
+      "expand": "Mostra richiesta e risultato",
+      "collapse": "Nascondi richiesta e risultato",
+      "noIntel": "«{{value}}» non ha informazioni di minaccia registrate.",
+      "noMatches": "Nessuna corrispondenza.",
+      "matches": "{{items}} corrispondenze per «{{query}}»",
+      "more": "+{{count}} altri"
     }
   }
 }

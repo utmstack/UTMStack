@@ -319,7 +319,9 @@
     "taggingRules": "Règles d'étiquetage",
     "parsingFilters": "Pipelines",
     "overview": "Vue d'ensemble",
-    "tenants": "Locataires"
+    "tenants": "Locataires",
+    "openMenu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu"
   },
   "dashboards": {
     "title": "Tableaux de bord",
@@ -5456,7 +5458,8 @@
     "tabs": {
       "iocs": "IOCs",
       "actors": "Acteurs de menace",
-      "feeds": "Flux"
+      "feeds": "Flux",
+      "analyst": "Analyste IA"
     },
     "toolbar": {
       "searchPlaceholders": {
@@ -5814,6 +5817,95 @@
       "noneSucceeded": "Aucun locataire n'a réussi.",
       "failed": "Échoué",
       "noneFailed": "Aucun échec."
+    }
+  },
+  "tiAnalyst": {
+    "console": {
+      "subtitle": "Espace analyste",
+      "model": "Modèle",
+      "resizeResults": "Redimensionner le panneau de résultats",
+      "resizeHint": "Glisser pour redimensionner · double-clic pour réinitialiser"
+    },
+    "conv": {
+      "title": "Conversations",
+      "allConversations": "Toutes les conversations",
+      "empty": "Aucune conversation pour l'instant.",
+      "new": "Nouvelle conversation",
+      "newTitle": "Titre de la conversation",
+      "selectPrompt": "Sélectionnez une conversation, ou commencez-en une.",
+      "running": "en cours",
+      "delete": "Supprimer {{title}}",
+      "unread_one": "{{count}} message non lu",
+      "unread_other": "{{count}} messages non lus",
+      "transcript": "Transcription de la conversation"
+    },
+    "agent": {
+      "placeholder": "Investiguer un indicateur…",
+      "ask": "Demander à l'agent analyste",
+      "intro": "Posez une question sur n'importe quel indicateur. L'agent interroge ThreatWinds directement et montre son travail.",
+      "send": "Envoyer",
+      "stop": "Arrêter",
+      "thinking": "réflexion…",
+      "suggestionInvestigate": "Investiguez 8.8.8.8 et dites-moi si c'est malveillant",
+      "suggestionInfrastructure": "Quelles infrastructures sont liées à google.com ?",
+      "suggestionCounts": "Montrez-moi combien d'entités existent par type"
+    },
+    "canvas": {
+      "title": "Résultats",
+      "empty": "Les résultats de cette conversation apparaissent ici.",
+      "tile": "Aligner",
+      "closeAll": "Tout fermer",
+      "pinOut": "Ouvrir {{title}} en panneau",
+      "loading": "chargement…",
+      "failed": "impossible de charger",
+      "noRelations": "aucune entité liée",
+      "noGeo": "pas de géolocalisation enregistrée",
+      "noResults": "aucune correspondance",
+      "matches": "{{total}} correspondances",
+      "panelName": "{{title}} — {{kind}}",
+      "movePanel": "Déplacer {{title}}",
+      "resizePanel": "Redimensionner {{title}}",
+      "closePanel": "Fermer {{title}}",
+      "collapse": "Réduire {{title}}",
+      "expand": "Agrandir {{title}}",
+      "kind": {
+        "entity": "dossier",
+        "graph": "relations",
+        "geo": "géolocalisation",
+        "search": "recherche"
+      }
+    },
+    "graph": {
+      "nodes_one": "{{count}} nœud",
+      "nodes_other": "{{count}} nœuds",
+      "edges_one": "{{count}} arête",
+      "edges_other": "{{count}} arêtes",
+      "clickToPivot": "clic pour pivoter",
+      "malicious": "malveillant",
+      "unknown": "inconnu",
+      "benign": "bénin"
+    },
+    "entity": {
+      "reputation": "Réputation",
+      "accuracy": "Précision",
+      "worst": "Pire",
+      "best": "Meilleure",
+      "relations": "Graphe de relations",
+      "geolocations": "Géolocalisations",
+      "associations": "Associations",
+      "radius": "r={{radius}}m",
+      "askAgentBtn": "Demander à l'agent",
+      "askAgent": "Évaluez {{type}} {{value}} (entité id {{id}}). Est-ce une menace ?"
+    },
+    "tool": {
+      "querying": "interrogation…",
+      "notRetained": "Résultat non conservé.",
+      "expand": "Afficher la requête et le résultat",
+      "collapse": "Masquer la requête et le résultat",
+      "noIntel": "« {{value}} » n'a aucune information de menace enregistrée.",
+      "noMatches": "Aucune correspondance.",
+      "matches": "{{items}} correspondances pour « {{query}} »",
+      "more": "+{{count}} de plus"
     }
   }
 }

@@ -283,6 +283,8 @@
     }
   },
   "nav": {
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
     "home": "Home",
     "dashboards": "Dashboards",
     "dashboardList": "Dashboard list",
@@ -748,7 +750,8 @@
     "tabs": {
       "iocs": "IOCs",
       "actors": "Threat actors",
-      "feeds": "Feeds"
+      "feeds": "Feeds",
+      "analyst": "AI Analyst"
     },
     "toolbar": {
       "searchPlaceholders": {
@@ -5802,6 +5805,95 @@
       "noneSucceeded": "No tenants succeeded.",
       "failed": "Failed",
       "noneFailed": "No failures."
+    }
+  },
+  "tiAnalyst": {
+    "console": {
+      "subtitle": "Analyst workspace",
+      "model": "Model",
+      "resizeResults": "Resize the results pane",
+      "resizeHint": "Drag to resize · double-click to reset"
+    },
+    "conv": {
+      "title": "Conversations",
+      "allConversations": "All conversations",
+      "empty": "No conversations yet.",
+      "new": "New conversation",
+      "newTitle": "Conversation title",
+      "selectPrompt": "Select a conversation, or start one.",
+      "running": "running",
+      "delete": "Delete {{title}}",
+      "unread_one": "{{count}} unread message",
+      "unread_other": "{{count}} unread messages",
+      "transcript": "Conversation transcript"
+    },
+    "agent": {
+      "placeholder": "Investigate an indicator…",
+      "ask": "Ask the analyst agent",
+      "intro": "Ask about any indicator. The agent queries ThreatWinds directly and shows its work.",
+      "send": "Send",
+      "stop": "Stop",
+      "thinking": "thinking…",
+      "suggestionInvestigate": "Investigate 8.8.8.8 and tell me if it is malicious",
+      "suggestionInfrastructure": "What infrastructure is related to google.com?",
+      "suggestionCounts": "Show me how many entities exist per type"
+    },
+    "canvas": {
+      "title": "Results",
+      "empty": "Results from this conversation appear here.",
+      "tile": "Tile",
+      "closeAll": "Close all",
+      "pinOut": "Open {{title}} as panel",
+      "loading": "loading…",
+      "failed": "could not load",
+      "noRelations": "no related entities",
+      "noGeo": "no geolocation recorded",
+      "noResults": "no matches",
+      "matches": "{{total}} matches",
+      "panelName": "{{title}} — {{kind}}",
+      "movePanel": "Move {{title}}",
+      "resizePanel": "Resize {{title}}",
+      "closePanel": "Close {{title}}",
+      "collapse": "Collapse {{title}}",
+      "expand": "Expand {{title}}",
+      "kind": {
+        "entity": "dossier",
+        "graph": "relations",
+        "geo": "geolocation",
+        "search": "search"
+      }
+    },
+    "graph": {
+      "nodes_one": "{{count}} node",
+      "nodes_other": "{{count}} nodes",
+      "edges_one": "{{count}} edge",
+      "edges_other": "{{count}} edges",
+      "clickToPivot": "click to pivot",
+      "malicious": "malicious",
+      "unknown": "unknown",
+      "benign": "benign"
+    },
+    "entity": {
+      "reputation": "Reputation",
+      "accuracy": "Accuracy",
+      "worst": "Worst",
+      "best": "Best",
+      "relations": "Relationship graph",
+      "geolocations": "Geolocations",
+      "associations": "Associations",
+      "radius": "r={{radius}}m",
+      "askAgentBtn": "Ask agent",
+      "askAgent": "Assess {{type}} {{value}} (entity id {{id}}). Is it a threat?"
+    },
+    "tool": {
+      "querying": "querying…",
+      "notRetained": "Result not kept.",
+      "expand": "Show request and result",
+      "collapse": "Hide request and result",
+      "noIntel": "\"{{value}}\" has no threat intelligence recorded.",
+      "noMatches": "No matches.",
+      "matches": "{{items}} matches for \"{{query}}\"",
+      "more": "+{{count}} more"
     }
   }
 }

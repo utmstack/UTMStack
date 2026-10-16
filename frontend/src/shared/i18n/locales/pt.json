@@ -319,7 +319,9 @@
     "regexPatterns": "Expressões regulares",
     "taggingRules": "Regras de Marcação",
     "overview": "Visão geral",
-    "tenants": "Tenants"
+    "tenants": "Tenants",
+    "openMenu": "Abrir menu",
+    "closeMenu": "Fechar menu"
   },
   "dashboards": {
     "title": "Painéis",
@@ -5456,7 +5458,8 @@
     "tabs": {
       "iocs": "IOCs",
       "actors": "Atores de ameaça",
-      "feeds": "Feeds"
+      "feeds": "Feeds",
+      "analyst": "Analista de IA"
     },
     "toolbar": {
       "searchPlaceholders": {
@@ -5814,6 +5817,95 @@
       "noneSucceeded": "Nenhum inquilino teve sucesso.",
       "failed": "Falhados",
       "noneFailed": "Sem falhas."
+    }
+  },
+  "tiAnalyst": {
+    "console": {
+      "subtitle": "Espaço do analista",
+      "model": "Modelo",
+      "resizeResults": "Redimensionar o painel de resultados",
+      "resizeHint": "Arraste para redimensionar · duplo clique para redefinir"
+    },
+    "conv": {
+      "title": "Conversas",
+      "allConversations": "Todas as conversas",
+      "empty": "Ainda não há conversas.",
+      "new": "Nova conversa",
+      "newTitle": "Título da conversa",
+      "selectPrompt": "Selecione uma conversa ou comece uma.",
+      "running": "em andamento",
+      "delete": "Excluir {{title}}",
+      "unread_one": "{{count}} mensagem não lida",
+      "unread_other": "{{count}} mensagens não lidas",
+      "transcript": "Transcrição da conversa"
+    },
+    "agent": {
+      "placeholder": "Investigar um indicador…",
+      "ask": "Perguntar ao agente analista",
+      "intro": "Pergunte sobre qualquer indicador. O agente consulta o ThreatWinds diretamente e mostra seu trabalho.",
+      "send": "Enviar",
+      "stop": "Parar",
+      "thinking": "pensando…",
+      "suggestionInvestigate": "Investigue 8.8.8.8 e me diga se é malicioso",
+      "suggestionInfrastructure": "Qual infraestrutura está relacionada ao google.com?",
+      "suggestionCounts": "Mostre-me quantas entidades existem por tipo"
+    },
+    "canvas": {
+      "title": "Resultados",
+      "empty": "Os resultados desta conversa aparecem aqui.",
+      "tile": "Organizar",
+      "closeAll": "Fechar tudo",
+      "pinOut": "Abrir {{title}} como painel",
+      "loading": "carregando…",
+      "failed": "não foi possível carregar",
+      "noRelations": "sem entidades relacionadas",
+      "noGeo": "sem geolocalização registrada",
+      "noResults": "sem correspondências",
+      "matches": "{{total}} correspondências",
+      "panelName": "{{title}} — {{kind}}",
+      "movePanel": "Mover {{title}}",
+      "resizePanel": "Redimensionar {{title}}",
+      "closePanel": "Fechar {{title}}",
+      "collapse": "Recolher {{title}}",
+      "expand": "Expandir {{title}}",
+      "kind": {
+        "entity": "dossiê",
+        "graph": "relações",
+        "geo": "geolocalização",
+        "search": "pesquisa"
+      }
+    },
+    "graph": {
+      "nodes_one": "{{count}} nó",
+      "nodes_other": "{{count}} nós",
+      "edges_one": "{{count}} aresta",
+      "edges_other": "{{count}} arestas",
+      "clickToPivot": "clique para alternar",
+      "malicious": "malicioso",
+      "unknown": "desconhecido",
+      "benign": "inofensivo"
+    },
+    "entity": {
+      "reputation": "Reputação",
+      "accuracy": "Precisão",
+      "worst": "Pior",
+      "best": "Melhor",
+      "relations": "Grafo de relações",
+      "geolocations": "Geolocalizações",
+      "associations": "Associações",
+      "radius": "r={{radius}}m",
+      "askAgentBtn": "Perguntar ao agente",
+      "askAgent": "Avalie {{type}} {{value}} (entidade id {{id}}). É uma ameaça?"
+    },
+    "tool": {
+      "querying": "consultando…",
+      "notRetained": "Resultado não mantido.",
+      "expand": "Mostrar solicitação e resultado",
+      "collapse": "Ocultar solicitação e resultado",
+      "noIntel": "«{{value}}» não tem inteligência de ameaça registrada.",
+      "noMatches": "Sem correspondências.",
+      "matches": "{{items}} correspondências para «{{query}}»",
+      "more": "+{{count}} mais"
     }
   }
 }
