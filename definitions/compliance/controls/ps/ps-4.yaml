@@ -1,4 +1,4 @@
-# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Manual: set in the report.
 id: ps-4
 family: ps
 familyName: Personnel Security
@@ -6,9 +6,12 @@ name: Personnel Termination
 scope: governance
 statement: |-
   Upon termination of individual employment:
-    Disable system access within [time period];
-    Terminate or revoke any authenticators and credentials associated with the individual;
-    Conduct exit interviews that include a discussion of [information security topics];
-    Retrieve all security-related organizational system-related property; and
-    Retain access to organizational information and systems formerly controlled by terminated individual.
+  Disable system access within [time period];
+  Terminate or revoke any authenticators and credentials associated with the individual;
+  Conduct exit interviews that include a discussion of [information security topics];
+  Retrieve all security-related organizational system-related property; and
+  Retain access to organizational information and systems formerly controlled by terminated individual.
+remediation: |-
+  Manual control: logs cannot show whether this is in place, so the report lists it as "Out of scope" until a person decides. Open the framework report, set this control's status (Compliant, Non-compliant or At risk) and write the justification.
+  Keep the evidence an auditor will ask for, for example screening, termination and transfer records, or signed access agreements.
 source: NIST SP 800-53 Rev 5 (public domain)

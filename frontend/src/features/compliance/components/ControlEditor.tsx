@@ -360,7 +360,7 @@ function FilterRows({
               value={f.field}
               readOnly={readOnly}
               onChange={(e) => setAt(i, { field: e.target.value })}
-              placeholder={t('compliance.controls.filterField', { defaultValue: 'log.eventID' })}
+              placeholder={t('compliance.controls.filterField', { defaultValue: 'log.eventCode' })}
               className="h-8 flex-1 font-mono text-xs"
             />
             <select

@@ -1,4 +1,4 @@
-# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Manual: set in the report.
 id: pm-25
 family: pm
 familyName: Program Management
@@ -6,7 +6,10 @@ name: Minimization of Personally Identifiable Information Used in Testing, Train
 scope: governance
 statement: |-
   Develop, document, and implement policies and procedures that address the use of personally identifiable information for internal testing, training, and research;
-    Limit or minimize the amount of personally identifiable information used for internal testing, training, and research purposes;
-    Authorize the use of personally identifiable information when such information is required for internal testing, training, and research; and
-    Review and update policies and procedures [organization-defined frequency].
+  Limit or minimize the amount of personally identifiable information used for internal testing, training, and research purposes;
+  Authorize the use of personally identifiable information when such information is required for internal testing, training, and research; and
+  Review and update policies and procedures [organization-defined frequency].
+remediation: |-
+  Manual control: logs cannot show whether this is in place, so the report lists it as "Out of scope" until a person decides. Open the framework report, set this control's status (Compliant, Non-compliant or At risk) and write the justification.
+  Keep the evidence an auditor will ask for, for example the security programme documents, assigned roles and measures.
 source: NIST SP 800-53 Rev 5 (public domain)

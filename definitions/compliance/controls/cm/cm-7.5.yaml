@@ -1,0 +1,208 @@
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
+id: cm-7.5
+family: cm
+familyName: Configuration Management
+name: Least Functionality | Authorized Software — Allow-by-exception
+scope: data
+statement: |-
+  Identify [software programs authorized to execute on the system]; employ a deny-all, permit-by-exception policy to allow the execution of authorized software programs on the system; and review and update the list of authorized software programs [frequency].
+remediation: |-
+  Passes when application control (allowlisting) shows it blocked or audited programs that are not approved (AppLocker, Windows Defender Application Control, attack surface reduction rules, endpoint application control).
+  If it fails: deploy an allowlisting policy in enforce mode and send its events to UTMStack.
+source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY
+checks:
+  - key: win-defender-asr-rules
+    name: 'Windows: Microsoft Defender attack surface reduction rules block or audit programs'
+    dataType: wineventlog
+    filters:
+      - field: log.providerName
+        operator: IS
+        value: 'Microsoft-Windows-Windows Defender'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '1121'
+          - '1122'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: win-wdac-policy-enforced
+    name: 'Windows: App Control (WDAC) code integrity policy blocks or audits programs'
+    dataType: wineventlog
+    filters:
+      - field: log.providerName
+        operator: IS
+        value: 'Microsoft-Windows-CodeIntegrity'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '3076'
+          - '3077'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-fapolicyd-denials
+    name: 'Linux: fapolicyd application allowlisting refusals are recorded'
+    dataType: linux
+    filters:
+      - field: log.syslogIdentifier
+        operator: IS
+        value: 'fapolicyd'
+      - field: log.message
+        operator: CONTAIN
+        value: 'dec=deny'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-selinux-enforcing-denials
+    name: 'Linux: SELinux refusals in enforcing mode are recorded'
+    dataType: linux
+    filters:
+      - field: log.avc.seresult
+        operator: IS
+        value: 'denied'
+      - field: log.avc.permissive
+        operator: IS
+        value: '0'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: macos-gatekeeper-blocks
+    name: 'macOS: Gatekeeper blocking unapproved programs is recorded'
+    dataType: macos
+    filters:
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'Terminating process due to Gatekeeper rejection'
+          - 'Security policy would not allow process'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-app-consent-blocked
+    name: 'Microsoft 365: consent to an unapproved application was refused'
+    dataType: o365
+    filters:
+      - field: action
+        operator: IS
+        value: 'Consent to application.'
+      - field: actionResult
+        operator: IS
+        value: 'failed'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-office-addin-blocked
+    name: 'Microsoft 365: a blocked Office add-in was recorded'
+    dataType: o365
+    filters:
+      - field: action
+        operator: IS
+        value: 'HKCUAddinBlocked'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: azure-defender-app-control-blocks
+    name: 'Azure (Defender for Endpoint): application control, AppLocker or attack surface reduction blocks are recorded'
+    dataType: azure
+    filters:
+      - field: log.azureKind
+        operator: IS
+        value: 'endpoint-event'
+      - field: action
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'AppControl'
+          - 'AppLocker'
+          - 'Asr'
+          - 'ExploitGuardNonMicrosoftSigned'
+      - field: action
+        operator: CONTAIN
+        value: 'Block'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: bitdefender-application-control
+    name: 'Bitdefender: application control events'
+    dataType: antivirus-bitdefender-gz
+    filters:
+      - field: log.BitdefenderGZModule
+        operator: IS
+        value: 'application-control'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: eset-blocked-files
+    name: 'ESET: blocked files (administrator blocklist)'
+    dataType: antivirus-esmc-eset
+    filters:
+      - field: log.eventType
+        operator: IS
+        value: 'BlockedFiles_Event'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: kaspersky-application-launch-denied
+    name: 'Kaspersky: application control denied a program launch'
+    dataType: antivirus-kaspersky
+    filters:
+      - field: log.eventType
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'GNRL_EV_APPLICATION_LAUNCH_DENIED'
+          - 'GNRL_EV_APPLICATION_LAUNCH_DENIE'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fgt-appctrl-blocks
+    name: 'FortiGate: application control blocks are recorded'
+    dataType: firewall-fortigate-traffic
+    filters:
+      - field: log.type
+        operator: IS
+        value: 'utm'
+      - field: log.subtype
+        operator: IS
+        value: 'app-ctrl'
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: meraki-l7-firewall-blocks
+    name: 'Meraki: layer 7 (application) firewall blocks are recorded'
+    dataType: firewall-meraki
+    filters:
+      - field: log.merakiGroup
+        operator: IS
+        value: 'l7_firewall'
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sonicwall-app-control-blocks
+    name: 'SonicWall: application control blocks are recorded'
+    dataType: firewall-sonicwall
+    filters:
+      - field: log.eventCode
+        operator: IS
+        value: '1155'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sophos-xg-application-blocks
+    name: 'Sophos Firewall: application filter blocks are recorded'
+    dataType: firewall-sophos-xg
+    filters:
+      - field: log.type
+        operator: IS
+        value: 'Content Filtering'
+      - field: log.component
+        operator: IS
+        value: 'Application'
+      - field: actionResult
+        operator: IS
+        value: 'denied'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sophos-central-application-control
+    name: 'Sophos Central: application control blocked or detected a controlled application'
+    dataType: sophos-central
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Event::Endpoint::Application::Blocked'
+          - 'Event::Endpoint::Application::Detected'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1

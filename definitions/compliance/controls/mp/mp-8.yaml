@@ -1,4 +1,4 @@
-# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Manual: set in the report.
 id: mp-8
 family: mp
 familyName: Media Protection
@@ -6,7 +6,10 @@ name: Media Downgrading
 scope: governance
 statement: |-
   Establish [system media downgrading process] that includes employing downgrading mechanisms with strength and integrity commensurate with the security category or classification of the information;
-    Verify that the system media downgrading process is commensurate with the security category and/or classification level of the information to be removed and the access authorizations of the potential recipients of the downgraded information;
-    Identify [system media requiring downgrading] ; and
-    Downgrade the identified system media using the established process.
+  Verify that the system media downgrading process is commensurate with the security category and/or classification level of the information to be removed and the access authorizations of the potential recipients of the downgraded information;
+  Identify [system media requiring downgrading]; and
+  Downgrade the identified system media using the established process.
+remediation: |-
+  Manual control: logs cannot show whether this is in place, so the report lists it as "Out of scope" until a person decides. Open the framework report, set this control's status (Compliant, Non-compliant or At risk) and write the justification.
+  Keep the evidence an auditor will ask for, for example media handling, marking, transport and sanitization records.
 source: NIST SP 800-53 Rev 5 (public domain)
