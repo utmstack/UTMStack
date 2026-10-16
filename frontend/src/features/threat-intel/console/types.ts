@@ -64,6 +64,7 @@ export type ToolPayload =
   | { kind: 'details'; id: string; details: EntityDetails }
   | { kind: 'relations'; id: string; graph: RelationsResult }
   | { kind: 'geo'; id: string; locations: EntityGeo[] }
+  | { kind: 'counts'; buckets: { key: string; count: number }[] }
 
 export interface AgentStep {
   id: string

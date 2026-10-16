@@ -9,7 +9,7 @@ import type {
   ModelToolCall,
   ToolPayload,
 } from './types'
-import { detectIndicatorTypes } from '../lib/report'
+import { countEntitiesByType, detectIndicatorTypes } from '../lib/report'
 
 const API_URL = import.meta.env.VITE_API_URL || '/api/v1'
 const BASE = `${API_URL}/threat-intel`
@@ -89,6 +89,20 @@ const TOOL_SCHEMAS: ToolSchema[] = [
         type: 'object',
         properties: { id: { type: 'string', description: 'Entity id' } },
         required: ['id'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'count_entities_by_type',
+      description:
+        'Corpus-wide counts of how many entities exist per type. Use for scale and coverage questions, not for investigating a specific indicator.',
+      parameters: {
+        type: 'object',
+        properties: {
+          types: { type: 'array', items: { type: 'string' }, description: 'Entity types to count. Omit for all known types.' },
+        },
       },
     },
   },
@@ -270,6 +284,14 @@ async function runTool(name: string, args: Record<string, unknown>, step: AgentS
       const graph = relationsToGraph(id, '', Array.isArray(rels) ? rels : [])
       step.payload = { kind: 'relations', id, graph }
       return JSON.stringify(graph)
+    }
+    case 'count_entities_by_type': {
+      const requested = Array.isArray(args.types)
+        ? args.types.filter((x): x is string => typeof x === 'string')
+        : []
+      const buckets = await countEntitiesByType(requested)
+      step.payload = { kind: 'counts', buckets }
+      return buckets.map((b) => `${b.key}: ${b.count}`).join('\n')
     }
     default:
       return `Tool failed: unknown tool ${name}`

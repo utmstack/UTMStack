@@ -403,3 +403,29 @@ export async function listEntityDefinitions(): Promise<EntityDefinition[]> {
     return []
   }
 }
+
+const ENTITY_TYPES = [
+  'url', 'link', 'github-organization', 'github-repository', 'profile-photo',
+  'facebook-profile', 'tiktok-profile', 'twitter-profile',
+  'ip', 'cidr', 'domain', 'hostname',
+  'malware', 'sha1', 'sha224', 'sha256', 'sha384', 'sha512',
+  'sha512-224', 'sha512-256', 'sha3-224', 'sha3-256', 'sha3-384', 'sha3-512',
+  'authentihash', 'cdhash', 'md5', 'filename',
+]
+
+export interface TypeBucket {
+  key: string
+  count: number
+}
+
+export async function countEntitiesByType(types: string[] = ENTITY_TYPES): Promise<TypeBucket[]> {
+  const body = {
+    aggs: { byTypes: { terms: { field: 'type.keyword', size: Math.max(types.length, 20) } } },
+    query: { must: [{ terms: { 'type.keyword': types } }] },
+  }
+  const res = await proxyFetch<{ aggregations?: { byTypes?: { buckets?: { key: string; doc_count: number }[] } } }>(
+    '/search/advanced',
+    { method: 'POST', body: JSON.stringify(body) },
+  )
+  return (res.aggregations?.byTypes?.buckets ?? []).map((b) => ({ key: b.key, count: b.doc_count }))
+}

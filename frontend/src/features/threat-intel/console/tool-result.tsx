@@ -231,6 +231,26 @@ function PayloadView({
           ))}
         </div>
       )
+    case 'counts': {
+      const max = Math.max(...payload.buckets.map((b) => b.count), 1)
+      return (
+        <div className="space-y-1">
+          {payload.buckets.slice(0, 12).map((bucket) => (
+            <div key={bucket.key} className="flex items-center gap-2">
+              <span className="w-28 shrink-0 truncate text-[10px] uppercase tracking-wide text-muted-foreground">
+                {bucket.key}
+              </span>
+              <div className="h-1.5 flex-1 overflow-hidden rounded-sm bg-muted/30">
+                <div className="h-full rounded-sm bg-primary/70" style={{ width: `${(bucket.count / max) * 100}%` }} />
+              </div>
+              <span className="w-14 shrink-0 text-end text-[10px] text-foreground/80">
+                {bucket.count.toLocaleString()}
+              </span>
+            </div>
+          ))}
+        </div>
+      )
+    }
   }
 }
 

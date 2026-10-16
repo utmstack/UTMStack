@@ -19,6 +19,8 @@ export function panelForStep(step: AgentStep): PanelRequest | null {
       return payload.locations.length ? { kind: 'geo', title: payload.id, ref: payload.id } : null
     case 'search':
       return payload.results.length ? { kind: 'search', title: payload.query, ref: payload.query } : null
+    case 'counts':
+      return null
   }
 }
 
