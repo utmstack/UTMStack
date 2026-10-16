@@ -22,6 +22,19 @@ import {
 
 const EMPTY: ReportIocInput = { value: '' }
 
+const EXAMPLE: ReportIocInput = {
+  value: '45.133.232.1',
+  type: 'ip',
+  reputation: -3,
+  tags: ['c2', 'malware'],
+  description: 'C2 beaconing host observed by multiple sensors contacting malware families.',
+  attributes: {},
+  associations: [
+    { value: 'evil-domain.example', type: 'domain', mode: 'association' },
+  ],
+  visibleBy: ['public'],
+}
+
 export function ThreatIntelReportPage() {
   const { t } = useTranslation()
   const { isConfigured } = useTiConfigStatus()
@@ -63,6 +76,19 @@ export function ThreatIntelReportPage() {
         <header className="flex flex-wrap items-baseline gap-3">
           <h1 className="text-xl font-semibold">{t('threatIntel.report.title')}</h1>
           <span className="text-xs text-muted-foreground">{t('threatIntel.report.subtitle')}</span>
+          {!result && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="ms-auto"
+              onClick={() => {
+                setInput({ ...EXAMPLE })
+                submit.reset()
+              }}
+            >
+              {t('threatIntel.report.example')}
+            </Button>
+          )}
         </header>
 
         {result ? (

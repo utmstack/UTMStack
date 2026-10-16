@@ -53,7 +53,7 @@ function VisibilityPicker({ value, onChange }: { value: string[]; onChange: (v: 
               type="button"
               size="sm"
               aria-pressed={selected}
-              variant={selected ? 'secondary' : 'outline'}
+              variant={selected ? 'default' : 'outline'}
               onClick={() =>
                 onChange(selected ? value.filter((g) => g !== group) : [...value, group])
               }
