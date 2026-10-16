@@ -106,6 +106,12 @@ function getAxiosInstance(baseURL: string): AxiosInstance {
     if (tokens?.access_token) {
       config.headers.Authorization = `Bearer ${tokens.access_token}`
     }
+    // Keep list data fresh in the browser: never serve a GET from cache.
+    if (config.method === 'get') {
+      config.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+      config.headers['Pragma'] = 'no-cache'
+      config.headers['Expires'] = '0'
+    }
     // Federation: stamp the selected instance so the FS proxy can route the call.
     // The FS shares the /api/v1 namespace (its own subpaths vs proxied instance
     // paths), so we can't tell them apart by base URL — stamp on every call once
