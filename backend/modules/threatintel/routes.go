@@ -26,6 +26,14 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	lookupHandler := handler.NewReverseProxyHandler("/proxy/api/search/v1/entity")
 	g.POST("/entity/lookup", lookupHandler.Handle)
 
+	// POST /api/v1/threat-intel/report/entity → /proxy/api/ingest/v1/entity
+	reportEntityHandler := handler.NewReverseProxyHandler("/proxy/api/ingest/v1/entity")
+	g.POST("/report/entity", reportEntityHandler.Handle)
+
+	// GET /api/v1/threat-intel/report/definitions → /proxy/api/ingest/v1/definitions
+	definitionsHandler := handler.NewReverseProxyHandler("/proxy/api/ingest/v1/definitions")
+	g.GET("/report/definitions", definitionsHandler.Handle)
+
 	// GET /api/v1/threat-intel/entity/:id → /proxy/api/analytics/v1/entity/{id}/details
 	g.GET("/entity/:id", func(c *gin.Context) {
 		id := c.Param("id")
