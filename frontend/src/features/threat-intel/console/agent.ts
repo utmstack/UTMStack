@@ -2,14 +2,14 @@ import { getStoredTokens } from '@/shared/lib/api-client'
 import { IS_FEDERATION } from '@/shared/config/mode'
 import { getCurrentInstanceId } from '@/shared/lib/current-instance'
 import type {
-  AgentStep,
-  ChatMessage,
+  AgentStep,  ChatMessage,
   IntelEntity,
   RelationsResult,
   EntityDetails,
   ModelToolCall,
   ToolPayload,
 } from './types'
+import { detectIndicatorTypes } from '../lib/report'
 
 const API_URL = import.meta.env.VITE_API_URL || '/api/v1'
 const BASE = `${API_URL}/threat-intel`
@@ -47,10 +47,10 @@ const TOOL_SCHEMAS: ToolSchema[] = [
       parameters: {
         type: 'object',
         properties: {
-          type: { type: 'string', enum: ['ip', 'domain', 'hostname', 'url', 'hash', 'cve', 'email-address'], description: 'Indicator type' },
-          value: { type: 'string', description: 'The indicator value' },
+          value: { type: 'string', description: 'The exact indicator, e.g. "8.8.8.8"' },
+          type: { type: 'string', description: 'Optional indicator type (ip, domain, hostname, url, hash, cve, email-address). Inferred from the value when omitted.' },
         },
-        required: ['type', 'value'],
+        required: ['value'],
       },
     },
   },
@@ -229,16 +229,23 @@ export function relationsToGraph(id: string, self: string, rels: RawRelation[]):
 async function runTool(name: string, args: Record<string, unknown>, step: AgentStep): Promise<string> {
   switch (name) {
     case 'lookup_indicator': {
+      const value = String(args.value ?? '')
+      const type = String(args.type || '') || detectIndicatorTypes(value)[0]
+      if (!type) {
+        step.status = 'error'
+        step.error = 'could not infer an indicator type'
+        return `Tool failed: could not infer a type for "${value}".`
+      }
       try {
         const item = await proxyFetch<SearchItem>('/entity/lookup', {
           method: 'POST',
-          body: JSON.stringify({ type: String(args.type), value: args.value }),
+          body: JSON.stringify({ type, value }),
         })
-        step.payload = { kind: 'lookup', value: String(args.value), entity: toItem(item) }
+        step.payload = { kind: 'lookup', value, entity: toItem(item) }
         return JSON.stringify(toItem(item))
       } catch {
-        step.payload = { kind: 'lookup', value: String(args.value), entity: null }
-        return `No threat intelligence recorded for "${args.value}".`
+        step.payload = { kind: 'lookup', value, entity: null }
+        return `No threat intelligence recorded for "${value}".`
       }
     }
     case 'search_entities': {
@@ -278,6 +285,27 @@ interface ChatChunk {
   }[]
 }
 
+function sanitizeHistory(messages: ChatMessage[]): ChatMessage[] {
+  const out: ChatMessage[] = []
+  let openIds: Set<string> | null = null
+  for (const m of messages) {
+    if (m.role === 'assistant') {
+      const calls = (m.tool_calls ?? []).filter(
+        (c) => c.function?.name && typeof c.function.arguments === 'string',
+      )
+      openIds = new Set(calls.map((c) => c.id))
+      out.push(calls.length ? { ...m, tool_calls: calls } : { ...m, tool_calls: undefined })
+      continue
+    }
+    if (m.role === 'tool') {
+      if (!openIds?.has(m.tool_call_id ?? '')) continue
+      openIds.delete(m.tool_call_id ?? '')
+    }
+    out.push(m)
+  }
+  return out
+}
+
 export async function runAgent(
   question: string,
   opts: {
@@ -293,7 +321,7 @@ export async function runAgent(
   for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
     const requestMessages: ChatMessage[] = [
       { role: 'system', content: SYSTEM_PROMPT },
-      ...convo,
+      ...sanitizeHistory(convo),
     ]
     const res = await fetch(`${BASE}/ai/chat`, {
       method: 'POST',
@@ -305,8 +333,10 @@ export async function runAgent(
       let msg = `Request failed (${res.status})`
       try {
         const j = JSON.parse(await res.text())
-        if (j?.error) msg = j.error
+        const err = j?.error
+        msg = (typeof err === 'string' ? err : err?.message) ?? msg
       } catch {
+        // non-JSON error body — keep the HTTP status message
       }
       throw new Error(msg)
     }
@@ -366,6 +396,7 @@ export async function runAgent(
       try {
         args = JSON.parse(call.function.arguments || '{}')
       } catch {
+        // malformed tool args — call with {} rather than crashing the turn
       }
       const step: AgentStep = {
         id: call.id,
