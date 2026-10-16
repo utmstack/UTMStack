@@ -152,6 +152,20 @@ func (r *pgExecutionRepository) RequeueStuck(ctx context.Context, id uuid.UUID) 
 		Updates(map[string]any{"status": domain.ExecutionStatusPending, "claimed_at": nil}).Error
 }
 
+func (r *pgExecutionRepository) CloseStuckLost(ctx context.Context, id uuid.UUID) (bool, error) {
+	cause := domain.NonExecutionCauseDispatchLost
+	failed := domain.ExecutionStatusFailed
+	now := time.Now().UTC()
+	res := r.db.WithContext(ctx).
+		Model(&domain.SoarExecution{}).
+		Where("id = ? AND status = ?", id, domain.ExecutionStatusExecuting).
+		Updates(map[string]any{"status": failed, "non_execution_cause": cause, "finished_at": now})
+	if res.Error != nil {
+		return false, res.Error
+	}
+	return res.RowsAffected > 0, nil
+}
+
 func (r *pgExecutionRepository) ListStuckExecuting(ctx context.Context, cutoff time.Time) ([]domain.SoarExecution, error) {
 	var out []domain.SoarExecution
 	err := r.db.WithContext(ctx).

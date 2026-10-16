@@ -286,14 +286,12 @@ func (d *Dispatcher) reapOne(ctx context.Context, exec domain.SoarExecution) {
 	}
 
 	failed := domain.ExecutionStatusFailed
-	cause := domain.NonExecutionCauseDispatchLost
-	now := time.Now().UTC()
-	if err := d.exec.UpdateStatus(ctx, exec.ID, connectors.ExecutionStatusUpdate{
-		Status:            &failed,
-		NonExecutionCause: &cause,
-		FinishedAt:        &now,
-	}); err != nil {
+	applied, err := d.exec.CloseStuckLost(ctx, exec.ID)
+	if err != nil {
 		_ = catcher.Error("soar dispatcher: stuck terminal write failed", err, map[string]any{"execution": exec.ID})
+		return
+	}
+	if !applied {
 		return
 	}
 	exec.Status = failed

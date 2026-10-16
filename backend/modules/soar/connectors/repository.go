@@ -53,7 +53,15 @@ type ExecutionRepository interface {
 
 	// RequeueStuck is the reaper's path for retriable executions: back to
 	// PENDING with the claim cleared so the next tick picks the row up again.
+	// Guarded by status: if the original worker settles the row between the
+	// stuck list and this write, nothing happens and that path owns the row.
 	RequeueStuck(ctx context.Context, id uuid.UUID) error
+
+	// CloseStuckLost marks a stuck EXECUTING execution FAILED with the
+	// dispatcher-lost cause. Like RequeueStuck it is guarded by status: it
+	// reports (false, nil) — touching nothing — when the original worker
+	// settled the row first, so the reaper must not also spawn its children.
+	CloseStuckLost(ctx context.Context, id uuid.UUID) (bool, error)
 
 	// ListStuckExecuting returns executions left EXECUTING past the claim lease
 	// (their dispatcher worker died). Must run on an all-tenants context.
