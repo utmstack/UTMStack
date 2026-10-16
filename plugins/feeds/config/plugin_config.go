@@ -15,7 +15,7 @@ import (
 const (
 	processName        = "plugin_com.utmstack.feeds"
 	pluginFile         = "system_plugins_feeds.yaml"
-	pluginKey          = "feeds"
+	pluginKey          = "feeds_contribution"
 	pipelineDirDefault = "/workdir/pipeline"
 	reconnectDelay     = 5 * time.Second
 	pollInterval       = 30 * time.Second
