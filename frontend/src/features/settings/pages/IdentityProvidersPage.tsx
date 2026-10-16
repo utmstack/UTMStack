@@ -366,6 +366,9 @@ function UpsertDialog({
   const [roles, setRoles] = useState<RoleOption[]>([])
   const [busy, setBusy] = useState(false)
 
+  const [touched, setTouched] = useState<Record<string, boolean>>({})
+  const touch = (key: string) => setTouched((m) => (m[key] ? m : { ...m, [key]: true }))
+
   useEffect(() => {
     void rolesHttpService.list().then(setRoles).catch(() => setRoles([]))
     if (existing) {
@@ -383,16 +386,20 @@ function UpsertDialog({
 
   const set = (key: string, value: unknown) => setSettings((s) => ({ ...s, [key]: value }))
   const str = (key: string) => String(settings[key] ?? '')
+  const changeName = (v: string) => { touch('name'); setName(v) }
+  const changeSetting = (key: string, v: string) => { touch(key); set(key, v) }
+  const changeSecret = (v: string) => { touch(SECRET_FIELD[providerType]); setSecret(v) }
 
-  // Per-field format errors (URL, PEM, port, %s …). Pure, in the lib; the
-  // component only renders the i18n key it returns.
+  // SAFETY: settings is built from EMPTY_SETTINGS[providerType], whose keys
+  // match the ProviderSettings shape for that protocol.
   const fieldErrors = useMemo(
     () => validateIdpForm({ name, providerType, settings: settings as unknown as ProviderSettings, secret, editing }),
     [name, providerType, settings, secret, editing],
   )
   const fieldErr = (key: string): { invalid: boolean; err: string | undefined } => {
     const k = fieldErrors[key]
-    return { invalid: Boolean(k), err: k ? t(k) : undefined }
+    if (!k || !touched[key]) return { invalid: false, err: undefined }
+    return { invalid: true, err: t(k) }
   }
 
   const required = REQUIRED_FIELDS[providerType]
@@ -403,8 +410,15 @@ function UpsertDialog({
     (providerType !== 'ldap' || str('userFilter').includes('%s')) &&
     Object.keys(fieldErrors).length === 0
 
+  const revealAll = () =>
+    setTouched((m) => ({ ...m, ...Object.fromEntries(Object.keys(fieldErrors).map((k) => [k, true])) }))
+
   const submit = async () => {
-    if (!valid || busy) return
+    if (busy) return
+    if (!valid) {
+      revealAll()
+      return
+    }
     setBusy(true)
     const payload: IdentityProviderRequest = {
       id: existing?.id,
@@ -441,7 +455,7 @@ function UpsertDialog({
           <Field label={t('idp.form.name')} hint={t('idp.form.nameHint')} error={fieldErr('name').err}>
             <Input
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => changeName(e.target.value)}
               placeholder="acme-entra"
               disabled={editing}
               aria-invalid={fieldErr('name').invalid}
@@ -468,7 +482,7 @@ function UpsertDialog({
             <Field label={t('idp.form.metadataUrl')} error={fieldErr('metadataUrl').err}>
               <Input
                 value={str('metadataUrl')}
-                onChange={(e) => set('metadataUrl', e.target.value)}
+                onChange={(e) => changeSetting('metadataUrl', e.target.value)}
                 aria-invalid={fieldErr('metadataUrl').invalid}
                 className={cn('font-mono text-xs', fieldErr('metadataUrl').invalid && 'border-red-500')}
               />
@@ -477,7 +491,7 @@ function UpsertDialog({
               <Field label={t('idp.form.spEntityId')} error={fieldErr('spEntityId').err}>
                 <Input
                   value={str('spEntityId')}
-                  onChange={(e) => set('spEntityId', e.target.value)}
+                  onChange={(e) => changeSetting('spEntityId', e.target.value)}
                   aria-invalid={fieldErr('spEntityId').invalid}
                   className={cn('font-mono text-xs', fieldErr('spEntityId').invalid && 'border-red-500')}
                 />
@@ -485,7 +499,7 @@ function UpsertDialog({
               <Field label={t('idp.form.spAcsUrl')} error={fieldErr('spAcsUrl').err}>
                 <Input
                   value={str('spAcsUrl')}
-                  onChange={(e) => set('spAcsUrl', e.target.value)}
+                  onChange={(e) => changeSetting('spAcsUrl', e.target.value)}
                   aria-invalid={fieldErr('spAcsUrl').invalid}
                   className={cn('font-mono text-xs', fieldErr('spAcsUrl').invalid && 'border-red-500')}
                 />
@@ -494,7 +508,7 @@ function UpsertDialog({
             <Field label={t('idp.form.certificate')} error={fieldErr('spCertificatePem').err}>
               <Textarea
                 value={str('spCertificatePem')}
-                onChange={(e) => set('spCertificatePem', e.target.value)}
+                onChange={(e) => changeSetting('spCertificatePem', e.target.value)}
                 rows={4}
                 aria-invalid={fieldErr('spCertificatePem').invalid}
                 className={cn(fieldErr('spCertificatePem').invalid && 'border-red-500')}
@@ -508,7 +522,7 @@ function UpsertDialog({
             <Field label={t('idp.form.issuer')} hint={t('idp.form.issuerHint')} error={fieldErr('issuer').err}>
               <Input
                 value={str('issuer')}
-                onChange={(e) => set('issuer', e.target.value)}
+                onChange={(e) => changeSetting('issuer', e.target.value)}
                 placeholder="https://login.microsoftonline.com/<tenant>/v2.0"
                 aria-invalid={fieldErr('issuer').invalid}
                 className={cn('font-mono text-xs', fieldErr('issuer').invalid && 'border-red-500')}
@@ -518,7 +532,7 @@ function UpsertDialog({
               <Field label={t('idp.form.clientId')} error={fieldErr('clientId').err}>
                 <Input
                   value={str('clientId')}
-                  onChange={(e) => set('clientId', e.target.value)}
+                  onChange={(e) => changeSetting('clientId', e.target.value)}
                   aria-invalid={fieldErr('clientId').invalid}
                   className={cn('font-mono text-xs', fieldErr('clientId').invalid && 'border-red-500')}
                 />
@@ -526,7 +540,7 @@ function UpsertDialog({
               <Field label={t('idp.form.redirectUrl')} hint={t('idp.form.redirectUrlHint')} error={fieldErr('redirectUrl').err}>
                 <Input
                   value={str('redirectUrl')}
-                  onChange={(e) => set('redirectUrl', e.target.value)}
+                  onChange={(e) => changeSetting('redirectUrl', e.target.value)}
                   aria-invalid={fieldErr('redirectUrl').invalid}
                   className={cn('font-mono text-xs', fieldErr('redirectUrl').invalid && 'border-red-500')}
                 />
@@ -541,7 +555,7 @@ function UpsertDialog({
               <Field label={t('idp.form.host')} error={fieldErr('host').err}>
                 <Input
                   value={str('host')}
-                  onChange={(e) => set('host', e.target.value)}
+                  onChange={(e) => changeSetting('host', e.target.value)}
                   aria-invalid={fieldErr('host').invalid}
                   className={cn('font-mono text-xs', fieldErr('host').invalid && 'border-red-500')}
                 />
@@ -552,7 +566,7 @@ function UpsertDialog({
                   value={str('port')}
                   // Integer only: the backend unmarshals to int, so a float like
                   // 389.5 would 400. Empty means 0, which the backend dials as 389.
-                  onChange={(e) => set('port', Math.trunc(Number(e.target.value) || 0))}
+                  onChange={(e) => { touch('port'); set('port', Math.trunc(Number(e.target.value) || 0)) }}
                   aria-invalid={fieldErr('port').invalid}
                   className={cn(fieldErr('port').invalid && 'border-red-500')}
                 />
@@ -568,7 +582,7 @@ function UpsertDialog({
               <Field label={t('idp.form.bindDn')} hint={t('idp.form.bindDnHint')} error={fieldErr('bindDn').err}>
                 <Input
                   value={str('bindDn')}
-                  onChange={(e) => set('bindDn', e.target.value)}
+                  onChange={(e) => changeSetting('bindDn', e.target.value)}
                   aria-invalid={fieldErr('bindDn').invalid}
                   className={cn('font-mono text-xs', fieldErr('bindDn').invalid && 'border-red-500')}
                 />
@@ -576,7 +590,7 @@ function UpsertDialog({
               <Field label={t('idp.form.baseDn')} error={fieldErr('baseDn').err}>
                 <Input
                   value={str('baseDn')}
-                  onChange={(e) => set('baseDn', e.target.value)}
+                  onChange={(e) => changeSetting('baseDn', e.target.value)}
                   aria-invalid={fieldErr('baseDn').invalid}
                   className={cn('font-mono text-xs', fieldErr('baseDn').invalid && 'border-red-500')}
                 />
@@ -585,20 +599,20 @@ function UpsertDialog({
             <Field label={t('idp.form.userFilter')} hint={t('idp.form.userFilterHint')} error={fieldErr('userFilter').err}>
               <Input
                 value={str('userFilter')}
-                onChange={(e) => set('userFilter', e.target.value)}
+                onChange={(e) => changeSetting('userFilter', e.target.value)}
                 aria-invalid={fieldErr('userFilter').invalid}
                 className={cn('font-mono text-xs', fieldErr('userFilter').invalid && 'border-red-500')}
               />
             </Field>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <Field label={t('idp.form.emailAttribute')}>
-                <Input value={str('emailAttribute')} onChange={(e) => set('emailAttribute', e.target.value)} className="font-mono text-xs" />
+                <Input value={str('emailAttribute')} onChange={(e) => changeSetting('emailAttribute', e.target.value)} className="font-mono text-xs" />
               </Field>
               <Field label={t('idp.form.nameAttribute')}>
-                <Input value={str('nameAttribute')} onChange={(e) => set('nameAttribute', e.target.value)} className="font-mono text-xs" />
+                <Input value={str('nameAttribute')} onChange={(e) => changeSetting('nameAttribute', e.target.value)} className="font-mono text-xs" />
               </Field>
               <Field label={t('idp.form.groupAttribute')}>
-                <Input value={str('groupAttribute')} onChange={(e) => set('groupAttribute', e.target.value)} className="font-mono text-xs" />
+                <Input value={str('groupAttribute')} onChange={(e) => changeSetting('groupAttribute', e.target.value)} className="font-mono text-xs" />
               </Field>
             </div>
           </>
@@ -612,7 +626,7 @@ function UpsertDialog({
           {providerType === 'saml' ? (
             <Textarea
               value={secret}
-              onChange={(e) => setSecret(e.target.value)}
+              onChange={(e) => changeSecret(e.target.value)}
               rows={4}
               aria-invalid={fieldErr(SECRET_FIELD[providerType]).invalid}
               placeholder={editing ? t('idp.form.secretUnchanged') : '-----BEGIN PRIVATE KEY-----'}
@@ -622,7 +636,7 @@ function UpsertDialog({
             <Input
               type="password"
               value={secret}
-              onChange={(e) => setSecret(e.target.value)}
+              onChange={(e) => changeSecret(e.target.value)}
               aria-invalid={fieldErr(SECRET_FIELD[providerType]).invalid}
               placeholder={editing ? t('idp.form.secretUnchanged') : ''}
               className={cn(fieldErr(SECRET_FIELD[providerType]).invalid && 'border-red-500')}
@@ -725,7 +739,7 @@ function UpsertDialog({
           <Button variant="outline" size="sm" onClick={onClose} disabled={busy}>
             {t('idp.form.cancel')}
           </Button>
-          <Button size="sm" disabled={!valid || busy} onClick={() => void submit()}>
+          <Button size="sm" disabled={busy} onClick={() => { revealAll(); void submit() }}>
             {busy ? t('idp.form.saving') : editing ? t('idp.form.save') : t('idp.form.create')}
           </Button>
         </div>
