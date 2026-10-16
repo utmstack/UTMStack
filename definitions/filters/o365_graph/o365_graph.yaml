@@ -1,4 +1,4 @@
-# Microsoft Graph filter, version 1.1.0
+# Microsoft Graph filter, version 1.2.0
 
 # Normalizes raw Microsoft Graph security records into the event schema.
 # Tags each record with its source in log.graphSource so rules can branch,
@@ -22,13 +22,21 @@ pipeline:
             key: log.graphSource
             value: sign-ins
           where: exists("appDisplayName") && exists("ipAddress")
+      # riskLastUpdatedDateTime: riskyUsers (before risk-detections, which
+      # also carries riskState+riskLevel)
+      - add:
+          function: string
+          params:
+            key: log.graphSource
+            value: risky-user
+          where: exists("riskLastUpdatedDateTime")
       # riskState + riskLevel: riskDetections
       - add:
           function: string
           params:
             key: log.graphSource
             value: risk-detections
-          where: exists("riskState") && exists("riskLevel")
+          where: exists("riskState") && exists("riskLevel") && !exists("riskLastUpdatedDateTime")
       # activityDisplayName + result: directoryAudits
       - add:
           function: string
@@ -36,13 +44,21 @@ pipeline:
             key: log.graphSource
             value: directory-audit
           where: exists("activityDisplayName") && exists("result")
+      # Url + AccountUpn: UrlClickEvents (before hunting, which also carries
+      # NetworkMessageId)
+      - add:
+          function: string
+          params:
+            key: log.graphSource
+            value: url-click
+          where: exists("Url") && exists("AccountUpn")
       # NetworkMessageId: hunting query result rows (no RowKey in results)
       - add:
           function: string
           params:
             key: log.graphSource
             value: hunting
-          where: exists("NetworkMessageId")
+          where: exists("NetworkMessageId") && !exists("Url")
       # ActivityDisplayName + ActivityDateTime (capital A): Purview audit records
       - add:
           function: string
@@ -98,6 +114,11 @@ pipeline:
           where: exists("log.Timestamp")
       - rename:
           from:
+            - log.riskLastUpdatedDateTime
+          to: deviceTime
+          where: exists("log.riskLastUpdatedDateTime")
+      - rename:
+          from:
             - log.ActivityDateTime
           to: deviceTime
           where: exists("log.ActivityDateTime")
@@ -133,7 +154,19 @@ pipeline:
           params:
             key: action
             value: email-event
-          where: exists("NetworkMessageId")
+          where: exists("NetworkMessageId") && !exists("Url")
+      - add:
+          function: string
+          params:
+            key: action
+            value: url-click
+          where: exists("Url") && exists("AccountUpn")
+      - add:
+          function: string
+          params:
+            key: action
+            value: risky-user
+          where: exists("riskLastUpdatedDateTime")
       # Result outcome.
       - rename:
           from:
@@ -161,6 +194,11 @@ pipeline:
           where: exists("log.userPrincipalName")
       - rename:
           from:
+            - log.AccountUpn
+          to: origin.user
+          where: exists("log.AccountUpn")
+      - rename:
+          from:
             - log.initiatedBy.user.userPrincipalName
           to: origin.user
           where: exists("log.initiatedBy.user.userPrincipalName")
@@ -186,6 +224,11 @@ pipeline:
             - log.ipAddress
           to: origin.ip
           where: exists("log.ipAddress")
+      - rename:
+          from:
+            - log.IPAddress
+          to: origin.ip
+          where: exists("log.IPAddress")
       - rename:
           from:
             - log.initiatedBy.user.ipAddress
