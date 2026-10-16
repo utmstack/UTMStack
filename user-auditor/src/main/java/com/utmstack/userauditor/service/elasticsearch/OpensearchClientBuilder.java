@@ -5,10 +5,6 @@ import com.utmstack.opensearch_connector.enums.HttpScheme;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -19,10 +15,20 @@ public class OpensearchClientBuilder {
     @Getter
     private OpenSearch client;
 
-    @Order(Ordered.HIGHEST_PRECEDENCE)
-    @EventListener(ApplicationReadyEvent.class)
-    public void init() throws Exception {
-        final String ctx = CLASSNAME + ".init";
+    /**
+     * The OpenSearch client is built eagerly in the constructor, NOT on
+     * ApplicationReadyEvent. The @Scheduled findUsers() tick can fire before
+     * ApplicationReadyEvent is published, and a null client there threw
+     * "OpensearchClientBuilder.getClient() is null" on every restart. Because
+     * OpensearchClientBuilder is a constructor dependency of
+     * ElasticsearchService -> WindowsSource -> UserService, it is fully
+     * constructed before the singleton UserService (which holds the
+     * @Scheduled task) is created, so the client is guaranteed non-null by
+     * the time the scheduler can run. Failing here also fails fast at startup
+     * if the ELASTICSEARCH_* env vars are missing, same as before.
+     */
+    public OpensearchClientBuilder() {
+        final String ctx = CLASSNAME + ".constructor";
         try {
             String host = System.getenv("ELASTICSEARCH_HOST");
             Assert.hasText(host, "Environment variable ELASTICSEARCH_HOST is missing or his value is null or empty");
@@ -40,7 +46,6 @@ public class OpensearchClientBuilder {
                     .withHost(host, Integer.parseInt(port), HttpScheme.https)
                     .withCredentials(user, password)
                     .build();
-
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
