@@ -99,6 +99,18 @@ export class LogAnalyzerFieldComponent implements OnInit, OnDestroy {
           return !value.name.includes('.keyword');
         });
       }
+      // The event/ and log/ bags are flat_object, so the field list reports only
+      // the bag root (event) and never its sub-fields. Mirror the filter picker's
+      // addTag behavior: if the user types a full bag dot-path (e.g.
+      // "event.eventCode") that isn't already in the list, surface a synthesized
+      // FLATTENED field so it can be added as a column. The cell renderer
+      // (extractFieldValueFromKvArray) already resolves the dot-path, so the
+      // column displays correctly.
+      const trimmed = search.trim();
+      const isBagPath = /^(event|log)\.[^./]+(\.[^./]+)*$/.test(trimmed) && trimmed.split('.').length >= 2;
+      if (isBagPath && !this.fieldsOriginal.some(value => value.name === trimmed)) {
+        this.fields = [{name: trimmed, type: ElasticDataTypesEnum.FLATTENED}, ...this.fields];
+      }
       resolve(true);
     });
   }
