@@ -193,10 +193,10 @@ func ValidateMemoryAllocation(rsrcs map[string]*ServiceConfig, services []Servic
 	}
 	availableMemory := totalSystemMemory - SYSTEM_RESERVED_MEMORY
 
-	totalAssigned := 0
+	totalAssigned := int64(0)
 	for _, s := range services {
 		assigned, ok := rsrcs[s.Name]
-		if !ok {
+		if !ok || assigned == nil {
 			return fmt.Errorf("service %s is missing from the memory allocation", s.Name)
 		}
 		if assigned.AssignedMemory < s.MinMemory {
@@ -205,10 +205,10 @@ func ValidateMemoryAllocation(rsrcs map[string]*ServiceConfig, services []Servic
 		if s.MaxMemory != 0 && assigned.AssignedMemory > s.MaxMemory {
 			return fmt.Errorf("service %s is assigned %dMB, above its maximum of %dMB", s.Name, assigned.AssignedMemory, s.MaxMemory)
 		}
-		totalAssigned += assigned.AssignedMemory
+		totalAssigned += int64(assigned.AssignedMemory)
 	}
 
-	if totalAssigned > availableMemory {
+	if totalAssigned > int64(availableMemory) {
 		return fmt.Errorf("total assigned memory (%dMB) exceeds available memory (%dMB)", totalAssigned, availableMemory)
 	}
 	return nil

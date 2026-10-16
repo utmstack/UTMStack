@@ -154,13 +154,9 @@ func (s *StackConfig) ApplyMemory() (map[string]*system.ServiceConfig, error) {
 		return nil, fmt.Errorf("error getting memory: %v", err)
 	}
 
-	if !utils.CheckIfPathExist(config.MemoryAllocationPath) {
-		return nil, fmt.Errorf("no persisted memory allocation at %s; run --recalculate-memory first", config.MemoryAllocationPath)
-	}
-
-	var rsrcs map[string]*system.ServiceConfig
-	if err := utils.ReadJson(config.MemoryAllocationPath, &rsrcs); err != nil {
-		return nil, fmt.Errorf("memory allocation file is corrupt, run --recalculate-memory to regenerate: %v", err)
+	rsrcs, ok := loadPersistedMemoryAllocation()
+	if !ok {
+		return nil, fmt.Errorf("no usable memory allocation at %s; fix the file or run --recalculate-memory to regenerate", config.MemoryAllocationPath)
 	}
 
 	if err := system.ValidateMemoryAllocation(rsrcs, Services, total); err != nil {

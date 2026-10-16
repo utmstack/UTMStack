@@ -42,8 +42,20 @@ func ApplyMemory(dryRun bool) error {
 	}
 
 	fmt.Printf("  %-22s %6s\n", "Service", "Memory(MB)")
-	for name, svc := range rsrcs {
-		fmt.Printf("  %-22s %6d\n", name, svc.AssignedMemory)
+	for _, svc := range docker.Services {
+		fmt.Printf("  %-22s %6d\n", svc.Name, rsrcs[svc.Name].AssignedMemory)
+	}
+	for name := range rsrcs {
+		known := false
+		for _, svc := range docker.Services {
+			if svc.Name == name {
+				known = true
+				break
+			}
+		}
+		if !known {
+			fmt.Printf("  warning: unknown service %q in memory allocation, ignored\n", name)
+		}
 	}
 
 	if dryRun {
