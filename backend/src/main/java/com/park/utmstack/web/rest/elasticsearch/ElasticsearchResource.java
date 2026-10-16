@@ -16,6 +16,7 @@ import com.park.utmstack.util.ResponseUtil;
 import com.park.utmstack.util.chart_builder.IndexPropertyType;
 import com.park.utmstack.util.chart_builder.IndexType;
 import com.park.utmstack.util.elastic.SqlPaginationUtil;
+import com.park.utmstack.util.exceptions.ApiException;
 import com.park.utmstack.util.exceptions.OpenSearchIndexNotFoundException;
 import com.park.utmstack.web.rest.util.HeaderUtil;
 import com.park.utmstack.web.rest.util.PaginationUtil;
@@ -191,6 +192,10 @@ public class ElasticsearchResource {
             }
 
             return ResponseEntity.ok().headers(headers).body(results);
+        } catch (ApiException e) {
+            // Intentional 4xx from SearchUtil (flattened-field sort/range) — rethrow
+            // so the global handler returns its own status, not a 500 (#2909).
+            throw e;
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
