@@ -151,6 +151,13 @@ export class UtmDynamicTableComponent implements OnInit, OnChanges, OnDestroy {
     if (column.type === ElasticDataTypesEnum.FLATTENED) {
       return false;
     }
+    // Event-bag sub-fields (event.<leaf>) are not sortable by the backend — it
+    // returns 400 for them (they live in a flat_object bag). On upgraded
+    // instances the field list expands the bag to concrete sub-fields, so this
+    // guard hides the sort arrow before the user can trigger the 400 (#2909).
+    if (column.field && column.field.startsWith('event.')) {
+      return false;
+    }
     if (column.type === ElasticDataTypesEnum.TEXT || column.type === ElasticDataTypesEnum.STRING) {
       return column.field.includes('.keyword');
     } else {
