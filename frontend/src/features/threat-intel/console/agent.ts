@@ -286,24 +286,14 @@ interface ChatChunk {
 }
 
 function sanitizeHistory(messages: ChatMessage[]): ChatMessage[] {
-  const out: ChatMessage[] = []
-  let openIds: Set<string> | null = null
-  for (const m of messages) {
-    if (m.role === 'assistant') {
-      const calls = (m.tool_calls ?? []).filter(
-        (c) => c.function?.name && typeof c.function.arguments === 'string',
-      )
-      openIds = new Set(calls.map((c) => c.id))
-      out.push(calls.length ? { ...m, tool_calls: calls } : { ...m, tool_calls: undefined })
-      continue
-    }
-    if (m.role === 'tool') {
-      if (!openIds?.has(m.tool_call_id ?? '')) continue
-      openIds.delete(m.tool_call_id ?? '')
-    }
-    out.push(m)
-  }
-  return out
+  return messages.map((m) => {
+    if (m.role !== 'assistant' || !m.tool_calls?.length) return m
+    const calls = m.tool_calls.map((c) => ({
+      ...c,
+      function: { ...c.function, arguments: typeof c.function.arguments === 'string' ? c.function.arguments : '{}' },
+    }))
+    return { ...m, tool_calls: calls }
+  })
 }
 
 export async function runAgent(
