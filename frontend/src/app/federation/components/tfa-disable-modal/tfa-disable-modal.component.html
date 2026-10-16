@@ -1,0 +1,19 @@
+<app-utm-modal-header [name]="'Disable Two-Factor Authentication'"></app-utm-modal-header>
+<div class="p-3">
+  <form (ngSubmit)="onDisable()">
+    <div class="form-group">
+      <label for="tfaPassword">Password</label>
+      <input [(ngModel)]="password" name="tfaPassword" id="tfaPassword"
+             class="form-control" type="password" required
+             autocomplete="current-password">
+    </div>
+    <div class="w-100 pt-2 d-flex justify-content-end">
+      <button type="button" class="btn utm-button utm-button-grey mr-3" (click)="reject()">
+        Cancel
+      </button>
+      <button type="submit" class="btn utm-button utm-button-primary" [disabled]="saving || !password">
+        Disable
+      </button>
+    </div>
+  </form>
+</div>
