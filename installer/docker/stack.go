@@ -99,14 +99,20 @@ func GetStackConfig() *StackConfig {
 	return stackConfig
 }
 
-func balanceMemoryNow() (map[string]*system.ServiceConfig, error) {
+func totalSystemMemoryMB() (int, error) {
 	mem := sigar.Mem{}
 	if err := mem.Get(); err != nil {
+		return 0, err
+	}
+	return int(mem.Total / 1024 / 1024), nil
+}
+
+func balanceMemoryNow() (map[string]*system.ServiceConfig, error) {
+	total, err := totalSystemMemoryMB()
+	if err != nil {
 		return nil, fmt.Errorf("error getting memory: %v", err)
 	}
-	total := int(mem.Total/1024/1024) - system.SYSTEM_RESERVED_MEMORY
-
-	rsrcs, err := system.BalanceMemory(Services, total)
+	rsrcs, err := system.BalanceMemory(Services, total-system.SYSTEM_RESERVED_MEMORY)
 	if err != nil {
 		return nil, fmt.Errorf("error balancing memory: %v", err)
 	}
@@ -137,6 +143,35 @@ func loadPersistedMemoryAllocation() (map[string]*system.ServiceConfig, bool) {
 	}
 
 	return rsrcs, true
+}
+
+// ApplyMemory loads and validates the persisted allocation, then applies it to this
+// stack config. It never rewrites the file, so admin edits survive this call
+// and the next update.
+func (s *StackConfig) ApplyMemory() (map[string]*system.ServiceConfig, error) {
+	total, err := totalSystemMemoryMB()
+	if err != nil {
+		return nil, fmt.Errorf("error getting memory: %v", err)
+	}
+
+	if !utils.CheckIfPathExist(config.MemoryAllocationPath) {
+		return nil, fmt.Errorf("no persisted memory allocation at %s; run --recalculate-memory first", config.MemoryAllocationPath)
+	}
+
+	var rsrcs map[string]*system.ServiceConfig
+	if err := utils.ReadJson(config.MemoryAllocationPath, &rsrcs); err != nil {
+		return nil, fmt.Errorf("memory allocation file is corrupt, run --recalculate-memory to regenerate: %v", err)
+	}
+
+	if err := system.ValidateMemoryAllocation(rsrcs, Services, total); err != nil {
+		return nil, err
+	}
+
+	for _, svc := range Services {
+		s.ServiceResources[svc.Name] = rsrcs[svc.Name]
+	}
+
+	return rsrcs, nil
 }
 
 func RecalculateMemory() error {

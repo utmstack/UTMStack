@@ -184,6 +184,36 @@ func BalanceMemory(services []ServiceConfig, totalSystemMemory int) (map[string]
 	return serviceMap, nil
 }
 
+// ValidateMemoryAllocation checks a persisted allocation against the service
+// contract. totalSystemMemory is the raw system total, the same contract
+// BalanceMemory takes.
+func ValidateMemoryAllocation(rsrcs map[string]*ServiceConfig, services []ServiceConfig, totalSystemMemory int) error {
+	if totalSystemMemory <= SYSTEM_RESERVED_MEMORY {
+		return fmt.Errorf("total system memory (%dMB) is not greater than reserved memory (%dMB)", totalSystemMemory, SYSTEM_RESERVED_MEMORY)
+	}
+	availableMemory := totalSystemMemory - SYSTEM_RESERVED_MEMORY
+
+	totalAssigned := 0
+	for _, s := range services {
+		assigned, ok := rsrcs[s.Name]
+		if !ok {
+			return fmt.Errorf("service %s is missing from the memory allocation", s.Name)
+		}
+		if assigned.AssignedMemory < s.MinMemory {
+			return fmt.Errorf("service %s is assigned %dMB, below its minimum of %dMB", s.Name, assigned.AssignedMemory, s.MinMemory)
+		}
+		if s.MaxMemory != 0 && assigned.AssignedMemory > s.MaxMemory {
+			return fmt.Errorf("service %s is assigned %dMB, above its maximum of %dMB", s.Name, assigned.AssignedMemory, s.MaxMemory)
+		}
+		totalAssigned += assigned.AssignedMemory
+	}
+
+	if totalAssigned > availableMemory {
+		return fmt.Errorf("total assigned memory (%dMB) exceeds available memory (%dMB)", totalAssigned, availableMemory)
+	}
+	return nil
+}
+
 func GetOddValue(value int) int {
 	if value%2 == 0 {
 		return value
