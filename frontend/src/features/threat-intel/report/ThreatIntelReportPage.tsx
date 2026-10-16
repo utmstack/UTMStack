@@ -2,7 +2,10 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { Button } from '@/shared/components/ui/button'
 import { IocDrawer } from '../components/IocDrawer'
+import { NotConfiguredState } from '../components/NotConfiguredState'
+import { useTiConfigStatus } from '../hooks/use-ti-config-status'
 import { IndicatorForm } from './indicator-form'
 import { SubmissionReceipt } from './submission-receipt'
 import {
@@ -21,6 +24,7 @@ const EMPTY: ReportIocInput = { value: '' }
 
 export function ThreatIntelReportPage() {
   const { t } = useTranslation()
+  const { isConfigured } = useTiConfigStatus()
   const [input, setInput] = useState<ReportIocInput>(EMPTY)
   const [result, setResult] = useState<ReportIocResult | null>(null)
   const [openIoc, setOpenIoc] = useState<string | null>(null)
@@ -39,6 +43,8 @@ export function ThreatIntelReportPage() {
     staleTime: 1000 * 60 * 60,
   })
 
+  if (!isConfigured) return <NotConfiguredState />
+
   const typeInferenceFailed = submit.error instanceof TypeInferenceError
   const typeUnknown = !isKnownEntityType(input.type, definitions.data)
 
@@ -52,19 +58,14 @@ export function ThreatIntelReportPage() {
       : null
 
   return (
-    <div className="flex h-full flex-col overflow-y-auto px-6 py-6">
-      <h1 className="text-lg font-semibold">{t('nav.threat-intel.report')}</h1>
-      <div className="mx-auto mt-4 w-full max-w-2xl space-y-6">
-      <header className="flex flex-wrap items-baseline gap-3">
-        <h1 className="text-xl font-bold tracking-widest text-foreground sm:text-2xl">
-          {t('threatIntel.report.title').toUpperCase()}
-        </h1>
-        <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-          {t('threatIntel.report.subtitle')}
-        </span>
-      </header>
+    <div className="w-full overflow-y-auto px-6 pb-6 pt-3">
+      <div className="  space-y-4">
+        <header className="flex flex-wrap items-baseline gap-3">
+          <h1 className="text-xl font-semibold">{t('threatIntel.report.title')}</h1>
+          <span className="text-xs text-muted-foreground">{t('threatIntel.report.subtitle')}</span>
+        </header>
 
-      {result ? (
+        {result ? (
         <SubmissionReceipt
           result={result}
           onEntityView={setOpenIoc}
@@ -74,50 +75,51 @@ export function ThreatIntelReportPage() {
             submit.reset()
           }}
         />
-      ) : (
-        <form
-          onSubmit={(e) => {
-            e.preventDefault()
-            submit.mutate(input)
-          }}
-          className="space-y-6"
-        >
-          <IndicatorForm
-            value={input}
-            onChange={(next) => {
-              setInput(next)
-              if (submit.error) submit.reset()
+        ) : (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault()
+              submit.mutate(input)
             }}
-            disabled={submit.isPending}
-            typeError={
-              typeInferenceFailed
-                ? t('threatIntel.report.type.inferenceFailed')
-                : typeUnknown
-                  ? t('threatIntel.report.type.unknown', { type: input.type?.trim() ?? '' })
-                  : undefined
-            }
-          />
-
-          {submitError && <p className="text-sm text-destructive">{submitError}</p>}
-
-          <button
-            type="submit"
-            className="inline-flex items-center justify-center gap-1.5 rounded-sm border border-primary/40 px-3 py-1.5 font-mono text-[10px] uppercase tracking-wider text-primary transition-colors hover:bg-primary/10 disabled:pointer-events-none disabled:opacity-40"
-            disabled={
-              !input.value.trim() ||
-              typeUnknown ||
-              hasAttributeProblem ||
-              hasVisibilityConflict ||
-              submit.isPending
-            }
+            className="space-y-4"
           >
-            {submit.isPending ? t('threatIntel.report.submitting') : t('threatIntel.report.submit')}
-          </button>
-        </form>
-      )}
+            <IndicatorForm
+              value={input}
+              onChange={(next) => {
+                setInput(next)
+                if (submit.error) submit.reset()
+              }}
+              disabled={submit.isPending}
+              typeError={
+                typeInferenceFailed
+                  ? t('threatIntel.report.type.inferenceFailed')
+                  : typeUnknown
+                    ? t('threatIntel.report.type.unknown', { type: input.type?.trim() ?? '' })
+                    : undefined
+              }
+            />
 
+            {submitError && <p className="text-sm text-destructive">{submitError}</p>}
+
+            <div className="flex justify-end">
+              <Button
+                type="submit"
+                disabled={
+                  !input.value.trim() ||
+                  typeUnknown ||
+                  hasAttributeProblem ||
+                  hasVisibilityConflict ||
+                  submit.isPending
+                }
+              >
+                {submit.isPending ? t('threatIntel.report.submitting') : t('threatIntel.report.submit')}
+              </Button>
+            </div>
+          </form>
+        )}
+
+        <IocDrawer id={openIoc} onClose={() => setOpenIoc(null)} />
       </div>
-      <IocDrawer id={openIoc} onClose={() => setOpenIoc(null)} />
     </div>
   )
 }

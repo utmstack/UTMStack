@@ -1,8 +1,8 @@
-import { cn } from '@/shared/lib/utils'
 import { useTranslation } from 'react-i18next'
 import { Input } from '@/shared/components/ui/input'
 import { Textarea } from '@/shared/components/ui/textarea'
-import { Plus, X } from 'lucide-react'
+import { Button } from '@/shared/components/ui/button'
+import { Plus, X,Check } from 'lucide-react'
 import { useState, useEffect, useId, useRef } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import {
@@ -20,26 +20,11 @@ import {
   type ReportAssociationInput,
 } from './report'
 
-const LABEL = 'font-mono text-[10px] uppercase tracking-widest text-muted-foreground'
-const FIELD =
-  'h-9 rounded-sm border border-border/60 bg-muted/30 font-mono text-sm placeholder:text-muted-foreground/40 focus:outline-none focus:ring-1 focus:ring-primary'
-const TOGGLE = (selected: boolean) =>
-  cn(
-    'rounded-sm border px-3 py-1.5 font-mono text-[10px] uppercase tracking-wider transition-colors',
-    selected
-      ? 'border-primary bg-primary/10 text-primary'
-      : 'border-border/60 text-muted-foreground hover:bg-muted hover:text-foreground',
-  )
+const LABEL = 'block text-[11px] uppercase tracking-wider text-muted-foreground'
 
-function FieldLabel({ htmlFor, children }: { htmlFor?: string; children: React.ReactNode }) {
-  return <label htmlFor={htmlFor} className={cn(LABEL, 'block')}>{children}</label>
-}
-function FieldLegend({ children }: { children: React.ReactNode }) {
-  return <legend className={LABEL}>{children}</legend>
-}
-function Frame({ children }: { children: React.ReactNode }) {
+function Card({ children }: { children: React.ReactNode }) {
   return (
-    <fieldset className="war-frame relative space-y-3 rounded-sm border border-border/50 bg-muted/20 p-3">
+    <fieldset className=" rounded-xl border border-border bg-card p-4">
       {children}
     </fieldset>
   )
@@ -50,6 +35,36 @@ function parseTags(raw: string): string[] {
 }
 function joinTags(tags: string[] | undefined): string {
   return (tags ?? []).join(', ')
+}
+
+const VISIBILITY_GROUPS = ['public']
+
+function VisibilityPicker({ value, onChange }: { value: string[]; onChange: (v: string[]) => void }) {
+  const { t } = useTranslation()
+  return (
+    <Card>
+      <h3 className="text-sm font-medium text-foreground">{t('threatIntel.report.visibility.legend')}</h3>
+      <div className="mt-2 flex flex-wrap gap-2">
+        {VISIBILITY_GROUPS.map((group) => {
+          const selected = value.includes(group)
+          return (
+            <Button
+              key={group}
+              type="button"
+              size="sm"
+              aria-pressed={selected}
+              variant={selected ? 'secondary' : 'outline'}
+              onClick={() =>
+                onChange(selected ? value.filter((g) => g !== group) : [...value, group])
+              }
+            >
+              {group}
+            </Button>
+          )
+        })}
+      </div>
+    </Card>
+  )
 }
 
 function ReputationInput({ value, onChange }: { value: number | undefined; onChange: (v: number | undefined) => void }) {
@@ -64,26 +79,29 @@ function ReputationInput({ value, onChange }: { value: number | undefined; onCha
     { score: 3, key: 'threatIntel.report.reputation.exceptional' },
   ]
   return (
-    <Frame>
-      <FieldLegend>{t('threatIntel.report.reputation.legend')}</FieldLegend>
+    <Card>
+      <h3 className="text-sm font-medium text-foreground">{t('threatIntel.report.reputation.legend')}</h3>
       <p className="text-xs text-muted-foreground">{t('threatIntel.report.reputation.hint')}</p>
       <div className="mt-2 flex flex-wrap gap-2">
         {options.map((option) => {
           const selected = value === option.score
           return (
-            <button
+            <Button
               key={option.score}
               type="button"
+              size="sm"
               aria-pressed={selected}
               onClick={() => onChange(selected ? undefined : option.score)}
-              className={TOGGLE(selected) + (option.score < 0 && selected ? ' border-destructive bg-destructive/10 text-destructive' : '')}
+
+              variant={selected && option.score < 0 ? 'destructive' : selected && option.score==0 ? 'secondary': selected?'default' : 'outline'}
             >
-              {t(option.key)}
-            </button>
+              {selected && (<Check size="20" className="scale-0.1 mr-3" />)}
+              {t(option.key)}  {option.score}
+            </Button>
           )
         })}
       </div>
-    </Frame>
+    </Card>
   )
 }
 
@@ -112,9 +130,9 @@ function AttributeFields({
   const set = (name: string, next: string) => onChange({ ...(value ?? {}), [name]: next })
 
   return (
-    <Frame>
-      <FieldLegend>{t('threatIntel.report.attributes.legend')}</FieldLegend>
-      <p className={LABEL}>{t('threatIntel.report.attributes.hint')}</p>
+    <Card>
+      <h3 className={LABEL}>{t('threatIntel.report.attributes.legend')}</h3>
+      <p className="text-xs text-muted-foreground">{t('threatIntel.report.attributes.hint')}</p>
       <div className="space-y-3">
         {attributes.map((attribute) => {
           const id = `${scope}-${attribute.type}`
@@ -122,11 +140,10 @@ function AttributeFields({
           const errorId = `${id}-error`
           return (
             <div key={attribute.type} className="space-y-1.5">
-              <FieldLabel htmlFor={id}>{attribute.label}</FieldLabel>
+              <label htmlFor={id} className={LABEL}>{attribute.label}</label>
               <Input
                 id={id}
                 type={controlFor(attribute.dataType)}
-                className={FIELD}
                 value={value?.[attribute.type] ?? ''}
                 placeholder={attribute.description}
                 aria-invalid={problem ? true : undefined}
@@ -146,7 +163,7 @@ function AttributeFields({
           )
         })}
       </div>
-    </Frame>
+    </Card>
   )
 }
 
@@ -177,34 +194,35 @@ function CorrelatePicker({
   const selected = value ?? available.filter((name) => !dismissed.includes(name))
 
   return (
-    <Frame>
-      <FieldLegend>{t('threatIntel.report.correlate.legend')}</FieldLegend>
-      <p className={LABEL}>{t('threatIntel.report.correlate.hint')}</p>
+    <Card>
+      <h3 className={LABEL}>{t('threatIntel.report.correlate.legend')}</h3>
+      <p className="text-xs text-muted-foreground">{t('threatIntel.report.correlate.hint')}</p>
       <div className="mt-2 flex flex-wrap gap-2">
         {available.map((name) => {
           const on = selected.includes(name)
           return (
-            <button
+            <Button
               key={`${scope}-${name}`}
               type="button"
+              size="sm"
               aria-pressed={on}
+              variant={on ? 'secondary' : 'outline'}
               onClick={() => {
                 setDismissed((d) => (on ? [...d, name] : d.filter((n) => n !== name)))
                 onChange(on ? selected.filter((n) => n !== name) : [...selected, name])
               }}
-              className={TOGGLE(on)}
             >
               {name}
-            </button>
+            </Button>
           )
         })}
       </div>
       {selected.length > 0 && (
-        <p className={LABEL}>
+        <p className="text-xs text-muted-foreground">
           {t(selected.length === 1 ? 'threatIntel.report.correlate.count_one' : 'threatIntel.report.correlate.count_other', { count: String(selected.length) })}
         </p>
       )}
-    </Frame>
+    </Card>
   )
 }
 
@@ -224,8 +242,8 @@ function AssociationList({
     onChange(value.map((a, i) => (i === index ? { ...a, ...patch } : a)))
 
   return (
-    <Frame>
-      <FieldLegend>{t('threatIntel.report.associations.legend')}</FieldLegend>
+    <Card>
+      <h3 className="text-sm font-medium text-foreground">{t('threatIntel.report.associations.legend')}</h3>
       <div className="mt-2 space-y-3">
         {value.map((association, index) => {
           const conflicted = conflicts.has(index)
@@ -236,40 +254,43 @@ function AssociationList({
                 <Input
                   value={association.value}
                   placeholder={t('threatIntel.report.associations.valuePlaceholder')}
-                  className={FIELD}
                   aria-invalid={conflicted ? true : undefined}
                   onChange={(e) => update(index, { value: e.target.value })}
                 />
                 <Input
                   value={association.type ?? ''}
                   placeholder={t('threatIntel.report.associations.typePlaceholder')}
-                  className={FIELD + ' max-w-[10rem]'}
+                  className="max-w-[10rem]"
                   onChange={(e) => update(index, { type: e.target.value || undefined })}
                 />
-                <button
+                <Button
                   type="button"
+                  variant="outline"
+                  size="icon"
                   aria-label={t('threatIntel.report.associations.remove')}
                   onClick={() => onChange(value.filter((_, i) => i !== index))}
-                  className="shrink-0 rounded-sm p-1 text-muted-foreground transition-colors hover:text-destructive"
                 >
                   <X className="h-4 w-4" />
-                </button>
+                </Button>
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
-                <span className={LABEL}>{t('threatIntel.report.associations.modeLabel')}</span>
+                <span className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                  {t('threatIntel.report.associations.modeLabel')}
+                </span>
                 {(['association', 'aggregation'] as const).map((mode) => {
                   const on = (association.mode ?? 'association') === mode
                   return (
-                    <button
+                    <Button
                       key={mode}
                       type="button"
+                      size="sm"
                       aria-pressed={on}
+                      variant={on ? 'secondary' : 'outline'}
                       onClick={() => update(index, { mode })}
-                      className={TOGGLE(on)}
                     >
                       {t(`threatIntel.report.associations.mode.${mode}`)}
-                    </button>
+                    </Button>
                   )
                 })}
 
@@ -277,18 +298,19 @@ function AssociationList({
                   chosen.map((group) => {
                     const on = true
                     return (
-                      <button
+                      <Button
                         key={group}
                         type="button"
+                        size="sm"
                         aria-pressed={on}
+                        variant={on ? 'secondary' : 'outline'}
                         onClick={() => {
                           const next = chosen.filter((g) => g !== group)
                           update(index, { visibleBy: next.length ? next : undefined })
                         }}
-                        className={TOGGLE(on)}
                       >
                         {group}
-                      </button>
+                      </Button>
                     )
                   })}
               </div>
@@ -301,16 +323,17 @@ function AssociationList({
             </div>
           )
         })}
-        <button
+        <Button
           type="button"
-          className="inline-flex items-center gap-1.5 rounded-sm border border-primary/40 px-3 py-1.5 font-mono text-[10px] uppercase tracking-wider text-primary transition-colors hover:bg-primary/10"
+          variant="outline"
+          size="sm"
           onClick={() => onChange([...value, { value: '', mode: 'association' }])}
         >
-          <Plus className="h-3 w-3" />
+          <Plus className="mr-1.5 h-3 w-3" />
           {t('threatIntel.report.associations.add')}
-        </button>
+        </Button>
       </div>
-    </Frame>
+    </Card>
   )
 }
 
@@ -349,19 +372,28 @@ export function IndicatorForm({
   const typeErrorId = `${typeListId}-error`
 
   const [tagsInput, setTagsInput] = useState(() => joinTags(value.tags))
+  const [visibleBySeeded, setVisibleBySeeded] = useState(false)
   const handleTagsChange = (raw: string) => {
     setTagsInput(raw)
     set({ tags: parseTags(raw) })
   }
 
+  useEffect(() => {
+    if (visibleBySeeded) return
+    if (value.visibleBy === undefined) {
+      setVisibleBySeeded(true)
+      set({ visibleBy: ['public'] })
+    }
+  }, [value.visibleBy, visibleBySeeded, set])
+
   return (
     <fieldset disabled={disabled} className="space-y-4">
-      <div className="war-frame relative space-y-4 rounded-sm border border-border/50 bg-muted/20 p-3">
+      <Card>
         <div className="space-y-1.5">
-          <FieldLabel htmlFor="report-value">{t('threatIntel.report.value.label')}</FieldLabel>
+          <label htmlFor="report-value" className={LABEL}>{t('threatIntel.report.value.label')}</label>
           <Input
             id="report-value"
-            className={FIELD}
+            dir="ltr"
             value={value.value}
             placeholder={t('threatIntel.report.value.placeholder')}
             onChange={(e) => set({ value: e.target.value })}
@@ -369,10 +401,10 @@ export function IndicatorForm({
         </div>
 
         <div>
-          <FieldLabel htmlFor="report-type">{t('threatIntel.report.type.label')}</FieldLabel>
+          <label htmlFor="report-type" className={LABEL}>{t('threatIntel.report.type.label')}</label>
           <Input
             id="report-type"
-            className={FIELD}
+            dir="ltr"
             list={typeListId}
             value={value.type ?? ''}
             placeholder={inferred ? t('threatIntel.report.type.inferred', { type: inferred }) : t('threatIntel.report.type.placeholder')}
@@ -394,13 +426,11 @@ export function IndicatorForm({
           )}
         </div>
 
-        <ReputationInput value={value.reputation} onChange={(reputation) => set({ reputation })} />
-
         <div className="space-y-1.5">
-          <FieldLabel htmlFor="report-tags">{t('threatIntel.report.tags.label')}</FieldLabel>
+          <label htmlFor="report-tags" className={LABEL}>{t('threatIntel.report.tags.label')}</label>
           <Input
             id="report-tags"
-            className={FIELD}
+            dir="ltr"
             value={tagsInput}
             placeholder={t('threatIntel.report.tags.placeholder')}
             onChange={(e) => handleTagsChange(e.target.value)}
@@ -408,18 +438,19 @@ export function IndicatorForm({
         </div>
 
         <div className="space-y-1.5">
-          <FieldLabel htmlFor="report-description">{t('threatIntel.report.description.label')}</FieldLabel>
+          <label htmlFor="report-description" className={LABEL}>{t('threatIntel.report.description.label')}</label>
           <Textarea
             id="report-description"
-            className={FIELD + ' h-auto py-2'}
             value={value.description ?? ''}
             rows={3}
             onChange={(e) => set({ description: e.target.value || undefined })}
           />
         </div>
 
-        {queuesScan && <p className={LABEL}>{t('threatIntel.report.scan.notice')}</p>}
-      </div>
+        {queuesScan && (
+          <p className="text-xs text-muted-foreground">{t('threatIntel.report.scan.notice')}</p>
+        )}
+      </Card>
 
       <AttributeFields definition={definition} value={value.attributes} onChange={(attributes) => set({ attributes })} />
 
@@ -431,10 +462,17 @@ export function IndicatorForm({
         onChange={(correlate) => set({ correlate })}
       />
 
+      <ReputationInput value={value.reputation} onChange={(reputation) => set({ reputation })} />
+
       <AssociationList
         value={value.associations ?? []}
         onChange={(associations) => set({ associations })}
         parentVisibleBy={value.visibleBy}
+      />
+
+      <VisibilityPicker
+        value={value.visibleBy ?? []}
+        onChange={(visibleBy) => set({ visibleBy })}
       />
     </fieldset>
   )

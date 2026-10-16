@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Button } from '@/shared/components/ui/button'
 import { proxyFetch } from '../console/proxy'
 import type { ReportIocResult, ReportedAssociation } from './report'
 
@@ -86,8 +87,8 @@ export function SubmissionReceipt({
   const repKey = reputationKey(result.reputation)
 
   return (
-    <div className="war-frame relative space-y-4 rounded-sm border border-border/50 bg-muted/20 p-3">
-      <h2 className="font-display text-sm font-bold uppercase tracking-widest text-foreground">
+    <div className="space-y-4 rounded-xl border border-border bg-card p-4">
+      <h2 className="text-[11px] uppercase tracking-wider text-muted-foreground">
         {t('threatIntel.report.receipt.title')}
       </h2>
 
@@ -95,7 +96,7 @@ export function SubmissionReceipt({
         <dt className="text-muted-foreground">{t('threatIntel.report.type.label')}</dt>
         <dd>{result.type}</dd>
         <dt className="text-muted-foreground">{t('threatIntel.report.value.label')}</dt>
-        <dd className="break-all font-mono">{result.value}</dd>
+        <dd className="break-all">{result.value}</dd>
         <dt className="text-muted-foreground">{t('threatIntel.report.reputation.legend')}</dt>
         <dd>{result.reputation === undefined ? t('threatIntel.report.receipt.noVerdict') : repKey ? t(repKey) : result.reputation}</dd>
         {result.tags.length > 0 && (
@@ -115,20 +116,22 @@ export function SubmissionReceipt({
       </dl>
 
       {result.skippedAssociations.length > 0 && (
-        <p className="rounded-sm border border-amber-500/40 bg-amber-500/10 p-2 font-mono text-xs text-amber-600 dark:text-amber-400">
+        <p className="rounded-md border border-amber-300 bg-amber-50 p-2 text-xs text-amber-700">
           {t('threatIntel.report.receipt.skipped')}: {result.skippedAssociations.join(', ')}
         </p>
       )}
 
       <p className="text-sm">
         {status === 'live' && entityId ? (
-          <button
+          <Button
             type="button"
+            variant="link"
+            size="sm"
+            className="h-auto px-0 underline"
             onClick={() => onEntityView?.(entityId)}
-            className="text-primary underline"
           >
             {t('threatIntel.report.receipt.live')}
-          </button>
+          </Button>
         ) : status === 'processing' ? (
           t('threatIntel.report.receipt.processing')
         ) : (
@@ -136,13 +139,11 @@ export function SubmissionReceipt({
         )}
       </p>
 
-      <button
-        type="button"
-        className="inline-flex items-center justify-center gap-1.5 rounded-sm border border-primary/40 px-3 py-1.5 font-mono text-[10px] uppercase tracking-wider text-primary transition-colors hover:bg-primary/10"
-        onClick={onReportAnother}
-      >
-        {t('threatIntel.report.receipt.another')}
-      </button>
+      <div className="flex justify-end">
+        <Button type="button" variant="outline" size="sm" onClick={onReportAnother}>
+          {t('threatIntel.report.receipt.another')}
+        </Button>
+      </div>
     </div>
   )
 }
@@ -152,7 +153,7 @@ function AssociationTree({ associations }: { associations: ReportedAssociation[]
     <ul className="space-y-0.5">
       {associations.map((association, index) => (
         <li key={`${association.type}:${association.value}:${index}`}>
-          <span className="break-all font-mono">{association.value}</span>
+          <span className="break-all">{association.value}</span>
           <span className="text-muted-foreground"> · {association.type}</span>
           {association.associations && association.associations.length > 0 && (
             <div className="ms-3 border-l border-border/60 pl-2">
