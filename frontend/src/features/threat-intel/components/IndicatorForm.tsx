@@ -92,11 +92,10 @@ function ReputationInput({ value, onChange }: { value: number | undefined; onCha
               size="sm"
               aria-pressed={selected}
               onClick={() => onChange(selected ? undefined : option.score)}
-
-              variant={selected && option.score < 0 ? 'destructive' : selected && option.score==0 ? 'secondary': selected?'default' : 'outline'}
+              variant={selected && option.score < 0 ? 'destructive' : selected && option.score == 0 ? 'secondary' : selected ? 'default' : 'outline'}
             >
-              {selected && (<Check size="20" className="scale-0.1 mr-3" />)}
-              {t(option.key)}  {option.score}
+              {selected && <Check className="mr-1.5 h-3.5 w-3.5" />}
+              {t(option.key)} ({option.score})
             </Button>
           )
         })}

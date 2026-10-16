@@ -289,8 +289,12 @@ function sanitizeHistory(messages: ChatMessage[]): ChatMessage[] {
   return messages.map((m) => {
     if (m.role !== 'assistant' || !m.tool_calls?.length) return m
     const calls = m.tool_calls.map((c) => ({
-      ...c,
-      function: { ...c.function, arguments: typeof c.function.arguments === 'string' ? c.function.arguments : '{}' },
+      id: c.id,
+      type: 'function' as const,
+      function: {
+        name: c.function?.name ?? '',
+        arguments: typeof c.function?.arguments === 'string' ? c.function.arguments : '{}',
+      },
     }))
     return { ...m, tool_calls: calls }
   })
@@ -361,12 +365,12 @@ export async function runAgent(
         }
         for (const tc of delta.tool_calls ?? []) {
           const slot = toolCalls[tc.index]
-          if (!tc.function?.name) continue
+          if (!tc.function?.name && !tc.function?.arguments) continue
           toolCalls[tc.index] = {
             id: tc.id ?? slot?.id ?? `call_${round}_${tc.index}`,
             type: 'function',
             function: {
-              name: tc.function.name,
+              name: tc.function?.name ?? slot?.function.name ?? '',
               arguments: (slot?.function.arguments ?? '') + (tc.function.arguments ?? ''),
             },
           }
@@ -375,7 +379,11 @@ export async function runAgent(
     }
 
     const calls = toolCalls.filter((c): c is ModelToolCall => Boolean(c))
-    convo.push({ role: 'assistant', content: text, ...(calls.length ? { tool_calls: calls } : {}) })
+    convo.push({
+      role: 'assistant',
+      content: calls.length ? text || null : text,
+      ...(calls.length ? { tool_calls: calls } : {}),
+    })
 
     if (calls.length === 0) {
       return { answer: text, history: convo }

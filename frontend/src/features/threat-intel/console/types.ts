@@ -96,7 +96,7 @@ export interface Conversation {
 
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant' | 'tool'
-  content: string
+  content: string | null
   tool_calls?: ModelToolCall[]
   tool_call_id?: string
 }
