@@ -18,6 +18,16 @@ type cursorPayload struct {
 	// Backoff deadlines persist here so a permanent error logs once per
 	// window, not every tick (the processor is rebuilt each tick).
 	UnavailableSources map[string]time.Time `json:"unavailableSources,omitempty"`
+	// State diff for riskyUsers, which is a state collection, not an event
+	// feed; the logs table has no id dedup, so only changes emit a record.
+	RiskyUsers map[string]riskyUserState `json:"riskyUsers,omitempty"`
+}
+
+type riskyUserState struct {
+	User         string `json:"user"`
+	RiskLevel    string `json:"riskLevel"`
+	RiskState    string `json:"riskState"`
+	LastSeenTime time.Time `json:"lastSeen"`
 }
 
 func (c *cursorPayload) sourcePosition(name string) time.Time {

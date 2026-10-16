@@ -32,7 +32,7 @@ func listSource(name, path, timeField, top string, idFn func(item map[string]any
 			if payload.sourceUnavailable(name) {
 				return nil, windowEnd, nil
 			}
-			start, end := sourceWindow(payload.sourcePosition(name), windowStart, windowEnd)
+			start, end := sourceWindow(name, payload.sourcePosition(name), windowStart, windowEnd)
 
 			// url.Values.Encode: a hand-built URL with raw spaces is a malformed
 			// request line that Graph rejects with a generic 400.
@@ -88,20 +88,71 @@ func idOnly(item map[string]any) (string, string) {
 	return id, ""
 }
 
-func huntingPoll(p *GraphProcessor, group *ModuleGroup, payload *cursorPayload, windowStart, windowEnd time.Time) ([]LogRecord, time.Time, error) {
-	name := "hunting"
+// huntSource builds a source that polls one runHuntingQuery table, bounded by
+// a KQL where on its Timestamp column.
+func huntSource(name, table string) source {
+	return source{
+		name: name,
+		poll: func(p *GraphProcessor, group *ModuleGroup, payload *cursorPayload, windowStart, windowEnd time.Time) ([]LogRecord, time.Time, error) {
+			if payload.sourceUnavailable(name) {
+				return nil, windowEnd, nil
+			}
+			start, end := sourceWindow(name, payload.sourcePosition(name), windowStart, windowEnd)
+
+			// KQL literal timestamps must be single-quoted.
+			q := table + " | where Timestamp >= datetime('" + start.UTC().Format("2006-01-02T15:04:05") +
+				"') and Timestamp < datetime('" + end.UTC().Format("2006-01-02T15:04:05") + "') | limit 5000"
+			body, _ := json.Marshal(map[string]any{"Query": q})
+
+			respBody, err := p.doGraphRequest("POST", graphAPIVersion+"/security/runHuntingQuery", body)
+			if err != nil {
+				if isPermanent(err) {
+					payload.markSourceUnavailable(name)
+					catcher.Warn("graph source permanently unavailable", map[string]any{
+						"process": processName, "source": name, "error": err.Error(),
+					})
+					return nil, windowEnd, nil
+				}
+				return nil, windowEnd, fmt.Errorf("%s: %w", name, err)
+			}
+
+			// runHuntingQuery returns {"schema":[...], "results":[{...row...}, ...]};
+			// results is the row array, not a nested table object.
+			var resp struct {
+				Results []map[string]any `json:"results"`
+			}
+			if err := json.Unmarshal(respBody, &resp); err != nil {
+				return nil, windowEnd, fmt.Errorf("%s: response decode: %w", name, err)
+			}
+
+			records := make([]LogRecord, 0, len(resp.Results))
+			for _, row := range resp.Results {
+				raw, err := json.Marshal(row)
+				if err != nil {
+					continue
+				}
+				records = append(records, LogRecord{
+					ID:        huntingIdentity(p.UtmTenantId, group.Key(), table, row),
+					Raw:       string(raw),
+					EventTime: stringsToTime(row["Timestamp"]),
+					Source:    name,
+				})
+			}
+			return records, end, nil
+		},
+	}
+}
+
+// riskyUsersPoll emits a record per user whose risk level or state changed
+// since the last tick, and prunes users no longer in the collection.
+func riskyUsersPoll(p *GraphProcessor, group *ModuleGroup, payload *cursorPayload, windowStart, windowEnd time.Time) ([]LogRecord, time.Time, error) {
+	name := "riskyUsers"
 	if payload.sourceUnavailable(name) {
 		return nil, windowEnd, nil
 	}
-	start, end := sourceWindow(payload.sourcePosition(name), windowStart, windowEnd)
 
-	table := "EmailEvents"
-	// KQL literal timestamps must be single-quoted.
-	q := table + " | where Timestamp >= datetime('" + start.UTC().Format("2006-01-02T15:04:05") +
-		"') and Timestamp < datetime('" + end.UTC().Format("2006-01-02T15:04:05") + "') | limit 5000"
-	body, _ := json.Marshal(map[string]any{"Query": q})
-
-	respBody, err := p.doGraphRequest("POST", graphAPIVersion+"/security/runHuntingQuery", body)
+	q := "/beta/identityProtection/riskyUsers?$top=500"
+	items, err := p.getJSONPages(q)
 	if err != nil {
 		if isPermanent(err) {
 			payload.markSourceUnavailable(name)
@@ -113,29 +164,53 @@ func huntingPoll(p *GraphProcessor, group *ModuleGroup, payload *cursorPayload, 
 		return nil, windowEnd, fmt.Errorf("%s: %w", name, err)
 	}
 
-	// runHuntingQuery returns {"schema":[...], "results":[{...row...}, ...]};
-	// results is the row array, not a nested table object.
-	var resp struct {
-		Results []map[string]any `json:"results"`
-	}
-	if err := json.Unmarshal(respBody, &resp); err != nil {
-		return nil, windowEnd, fmt.Errorf("%s: response decode: %w", name, err)
+	prev := payload.RiskyUsers
+	if prev == nil {
+		prev = map[string]riskyUserState{}
 	}
 
-	records := make([]LogRecord, 0, len(resp.Results))
-	for _, row := range resp.Results {
-		raw, err := json.Marshal(row)
-		if err != nil {
-			continue
+	now := time.Now().UTC()
+	seen := make(map[string]bool, len(items))
+	records := make([]LogRecord, 0)
+
+	for _, item := range items {
+		id, _ := item["id"].(string)
+		user, _ := item["userPrincipalName"].(string)
+		riskLevel, _ := item["riskLevel"].(string)
+		riskState, _ := item["riskState"].(string)
+		seen[id] = true
+		changed, isNew := false, false
+		oldState, existed := prev[id]
+		if !existed {
+			isNew = true
+		} else if oldState.User != user || oldState.RiskLevel != riskLevel || oldState.RiskState != riskState {
+			changed = true
 		}
-		records = append(records, LogRecord{
-			ID:        huntingIdentity(p.UtmTenantId, group.Key(), table, row),
-			Raw:       string(raw),
-			EventTime: stringsToTime(row["Timestamp"]),
-			Source:    name,
-		})
+		if isNew || changed {
+			raw, _ := json.Marshal(item)
+			records = append(records, LogRecord{
+				ID:        graphIdentity(p.UtmTenantId, group.Key(), name, id, riskLastUpdated(item)),
+				Raw:       string(raw),
+				EventTime: stringsToTime(item["riskLastUpdatedDateTime"]),
+				Source:    name,
+			})
+		}
+		prev[id] = riskyUserState{User: user, RiskLevel: riskLevel, RiskState: riskState, LastSeenTime: now}
 	}
-	return records, end, nil
+
+	// prune users not seen for 30d
+	for id, st := range prev {
+		if !seen[id] && time.Since(st.LastSeenTime) > 30*24*time.Hour {
+			delete(prev, id)
+		}
+	}
+	payload.RiskyUsers = prev
+	return records, windowEnd, nil
+}
+
+func riskLastUpdated(item map[string]any) string {
+	s, _ := item["riskLastUpdatedDateTime"].(string)
+	return s
 }
 
 // collect pulls every source for the group, advancing each source's position
@@ -168,7 +243,9 @@ func collect(payload *cursorPayload, windowStart, windowEnd time.Time, group *Mo
 		listSource("directory-audit", graphAPIVersion+"/auditLogs/directoryAudits", "activityDateTime", strconv.Itoa(topParam), idOnly),
 		listSource("sign-ins", graphAPIVersion+"/auditLogs/signIns", "createdDateTime", "1000", idOnly),
 		listSource("risk-detections", graphAPIVersion+"/identityProtection/riskDetections", "lastUpdatedDateTime", "500", idAndTime),
-		{name: "hunting", poll: huntingPoll},
+		{name: "riskyUsers", poll: riskyUsersPoll},
+		huntSource("hunting", "EmailEvents"),
+		huntSource("hunting-url", "UrlClickEvents"),
 		{name: "purview-audit", poll: purviewPoll},
 	}
 
@@ -210,16 +287,13 @@ func enqueueRecord(p *GraphProcessor, group *ModuleGroup, r LogRecord) {
 	if utmTenantId == "" {
 		utmTenantId = DefaultTenant
 	}
-	ts := r.EventTime
-	if ts == "" {
-		ts = time.Now().UTC().Format(time.RFC3339Nano)
-	}
+
 	_ = plugins.EnqueueLog(&plugins.Log{
 		Id:         r.ID,
 		TenantId:   utmTenantId,
 		DataType:   "o365-graph",
 		DataSource: group.GroupName,
-		Timestamp:  ts,
+		Timestamp:  time.Now().UTC().Format(time.RFC3339Nano),
 		Raw:        r.Raw,
 	}, pluginName)
 }
