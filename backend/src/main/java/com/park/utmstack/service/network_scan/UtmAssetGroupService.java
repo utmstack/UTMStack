@@ -218,7 +218,7 @@ public class UtmAssetGroupService {
             Sort sort = pageable.getSort();
 
             if (sort.isSorted()) {
-                sb.append("ORDER BY ");
+                sb.append(" ORDER BY ");
                 boolean firstProperty = true;
 
                 List<Sort.Order> orders = sort.stream().collect(Collectors.toList());
