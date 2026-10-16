@@ -35,6 +35,7 @@ const (
 	NonExecutionCauseAgentNotFound NonExecutionCause = "AGENT_NOT_FOUND"
 	NonExecutionCauseMaxDepth      NonExecutionCause = "MAX_DEPTH_EXCEEDED"
 	NonExecutionCauseUnknown       NonExecutionCause = "UNKNOWN"
+	NonExecutionCauseDispatchLost  NonExecutionCause = "DISPATCHER_LOST"
 )
 
 type ExecutionOrigin string
@@ -55,8 +56,8 @@ const (
 // hold many rows; siblings that AND-join land on the same (flow_run_id, node_id,
 // depth) tuple and coalesce.
 type SoarExecution struct {
-	ID       uuid.UUID  `gorm:"column:id;type:uuid;primaryKey;default:gen_random_uuid()"                               json:"id"`
-	TenantID uuid.UUID  `gorm:"column:tenant_id;type:uuid;not null;index:idx_soar_execution_tenant_started,priority:1" json:"-"`
+	ID       uuid.UUID       `gorm:"column:id;type:uuid;primaryKey;default:gen_random_uuid()"                               json:"id"`
+	TenantID uuid.UUID       `gorm:"column:tenant_id;type:uuid;not null;index:idx_soar_execution_tenant_started,priority:1" json:"-"`
 	Origin   ExecutionOrigin `gorm:"column:origin;size:20;not null" json:"origin"`
 
 	// Manual-execution fields (untouched by the DAG engine).
@@ -92,6 +93,7 @@ type SoarExecution struct {
 	StartedAt         time.Time          `gorm:"column:started_at;not null;index:idx_soar_execution_tenant_started,priority:2,sort:desc" json:"startedAt"`
 	FinishedAt        *time.Time         `gorm:"column:finished_at"                                                                      json:"finishedAt,omitempty"`
 	ClaimedAt         *time.Time         `gorm:"column:claimed_at"                                                                       json:"-"`
+	DispatchedAt      *time.Time         `gorm:"column:dispatched_at"                                                                    json:"-"`
 	Retries           int                `gorm:"column:retries;not null;default:0"                                                       json:"retries"`
 	NonExecutionCause *NonExecutionCause `gorm:"column:non_execution_cause;size:100"                                                     json:"nonExecutionCause,omitempty"`
 }
