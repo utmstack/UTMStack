@@ -5584,6 +5584,82 @@
       "v.unknown": "Unknown",
       "v.notFound": "Not found",
       "v.invalid": "Unrecognised"
+    },
+    "report": {
+      "title": "Melden",
+      "subtitle": "Einen Indikator im ThreatWinds-Graph veröffentlichen",
+      "submit": "Indikator melden",
+      "submitting": "Wird gemeldet…",
+      "error": {
+        "generic": "Indikator konnte nicht gesendet werden. Versuche es erneut."
+      },
+      "value": {
+        "label": "Indikator",
+        "placeholder": "IP, Domain, URL, Hash oder E-Mail"
+      },
+      "type": {
+        "label": "Typ",
+        "placeholder": "Aus dem Wert abgeleitet",
+        "inferred": "Abgeleitet: {{type}}",
+        "inferenceFailed": "Kein Typ konnte aus diesem Wert abgeleitet werden. Wähle einen aus der Liste oder tippe ihn ein.",
+        "unknown": "„{{type}}“ ist kein Entitätstyp. Wähle einen aus der Liste."
+      },
+      "tags": {
+        "label": "Tags",
+        "placeholder": "phishing, datendiebstahl"
+      },
+      "description": {
+        "label": "Notizen"
+      },
+      "reputation": {
+        "legend": "Ruf",
+        "hint": "Leer lassen, wenn kein Urteil gefällt wurde.",
+        "alarming": "Alarmierend",
+        "worrying": "Sorgenbezeugend",
+        "concerning": "Besorgniserregend",
+        "indefinable": "Undefinierbar",
+        "adequate": "Angemessen",
+        "good": "Gut",
+        "exceptional": "Hervorragend"
+      },
+      "associations": {
+        "legend": "Verwandte Indikatoren",
+        "add": "Verwandten Indikator hinzufügen",
+        "remove": "Entfernen",
+        "valuePlaceholder": "Verwandter Wert",
+        "typePlaceholder": "Typ (optional)",
+        "modeLabel": "Beziehung",
+        "mode": {
+          "association": "Verwandt mit",
+          "aggregation": "Teil von"
+        },
+        "visibilityConflict": "Teilt mit dem Indikator oben keine Sichtbarkeitsgruppe. Die gesamte Sendung würde abgelehnt."
+      },
+      "attributes": {
+        "legend": "Details",
+        "hint": "Optional. Leer gelassene Felder werden nicht gesendet.",
+        "invalidHex": "{{length}} hexadezimale Zeichen erwartet.",
+        "invalidHexAny": "Nur hexadecimale Zeichen.",
+        "invalidNumber": "Eine Zahl wird erwartet."
+      },
+      "correlate": {
+        "legend": "Korrelieren",
+        "hint": "Jedes angehaktes Attribut wird als eigene Entität verknüpft veröffentlicht.",
+        "count_one": "Erstellt {{count}} verknüpfte Entität.",
+        "count_other": "Erstellt {{count}} verknüpfte Entitäten."
+      },
+      "scan": {
+        "notice": "Dies stellt auch ein Scan des Ziels in die Warteschlange."
+      },
+      "receipt": {
+        "title": "Gesendet",
+        "noVerdict": "Kein Urteil abgegeben",
+        "skipped": "Nicht gesendet, kein Typ konnte abgeleitet werden",
+        "pending": "Warte darauf, dass der Indikator im Korpus erscheint…",
+        "live": "Im Korpus verfügbar — Entität ansehen",
+        "processing": "Wird noch verarbeitet. Sie erscheint, sobald die Verarbeitung nachkommt.",
+        "another": "Einen anderen melden"
+      }
     }
   },
   "playground": {

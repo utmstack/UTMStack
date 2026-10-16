@@ -5584,6 +5584,82 @@
       "v.unknown": "Unknown",
       "v.notFound": "Not found",
       "v.invalid": "Unrecognised"
+    },
+    "report": {
+      "title": "Reportar",
+      "subtitle": "Publicar un indicador en el grafo ThreatWinds",
+      "submit": "Reportar indicador",
+      "submitting": "Reportando…",
+      "error": {
+        "generic": "No se pudo enviar el indicador. Inténtalo de nuevo."
+      },
+      "value": {
+        "label": "Indicador",
+        "placeholder": "IP, dominio, URL, hash o dirección de correo"
+      },
+      "type": {
+        "label": "Tipo",
+        "placeholder": "Inferido del valor",
+        "inferred": "Inferido: {{type}}",
+        "inferenceFailed": "No se pudo inferir ningún tipo de este valor. Elige uno de la lista o escríbelo.",
+        "unknown": "«{{type}}» no es un tipo de entidad. Elige uno de la lista."
+      },
+      "tags": {
+        "label": "Etiquetas",
+        "placeholder": "phishing, robo-de-credenciales"
+      },
+      "description": {
+        "label": "Notas"
+      },
+      "reputation": {
+        "legend": "Reputación",
+        "hint": "Déjalo sin establecer si no has llegado a un veredicto.",
+        "alarming": "Alarmante",
+        "worrying": "Preocupante",
+        "concerning": "Sospechoso",
+        "indefinable": "Indefinible",
+        "adequate": "Adecuado",
+        "good": "Bueno",
+        "exceptional": "Excelente"
+      },
+      "associations": {
+        "legend": "Indicadores relacionados",
+        "add": "Añadir indicador relacionado",
+        "remove": "Eliminar",
+        "valuePlaceholder": "Valor relacionado",
+        "typePlaceholder": "Tipo (opcional)",
+        "modeLabel": "Relación",
+        "mode": {
+          "association": "Relacionado con",
+          "aggregation": "Parte de"
+        },
+        "visibilityConflict": "No comparte ningún grupo de visibilidad con el indicador de arriba. Se rechazaría todo el envío."
+      },
+      "attributes": {
+        "legend": "Detalles",
+        "hint": "Opcional. Lo que quede en blanco no se envía.",
+        "invalidHex": "Se esperan {{length}} caracteres hexadecimales.",
+        "invalidHexAny": "Solo se aceptan caracteres hexadecimales.",
+        "invalidNumber": "Se espera un número."
+      },
+      "correlate": {
+        "legend": "Correlacionar",
+        "hint": "Cada atributo marcado se publica como entidad propia, vinculada a esta.",
+        "count_one": "Crea {{count}} entidad vinculada.",
+        "count_other": "Crea {{count}} entidades vinculadas."
+      },
+      "scan": {
+        "notice": "Reportar esto también encola un análisis del destino."
+      },
+      "receipt": {
+        "title": "Enviado",
+        "noVerdict": "Sin veredicto",
+        "skipped": "No enviado, no se pudo inferir el tipo",
+        "pending": "Esperando a que el indicador aparezca en el corpus…",
+        "live": "Activo en el corpus — ver entidad",
+        "processing": "Siguiendo en proceso de ingestión. Aparecerá cuando el flujo se ponga al día.",
+        "another": "Reportar otro"
+      }
     }
   },
   "playground": {

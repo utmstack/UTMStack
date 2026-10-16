@@ -25,6 +25,7 @@ import { LogExplorerPage } from '@/features/log-explorer/pages/LogExplorerPage'
 import { UserAuditorPage } from '@/features/user-auditor/pages/UserAuditorPage'
 import { ThreatIntelPage } from '@/features/threat-intel/pages/ThreatIntelPage'
 import { ThreatIntelAnalystPage } from '@/features/threat-intel/pages/ThreatIntelAnalystPage'
+import { ThreatIntelReportPage } from '@/features/threat-intel/report/ThreatIntelReportPage'
 import { TriagePage } from '@/features/threat-intel-triage/pages/TriagePage'
 import { CompliancePage } from '@/features/compliance/pages/CompliancePage'
 import { FrameworkReportPage } from '@/features/compliance/pages/FrameworkReportPage'
@@ -135,6 +136,7 @@ export function AppRoutes() {
         <Route path="user-auditor" element={<UserAuditorPage />} />
         <Route path="threat-intelligence" element={<ThreatIntelPage />} />
         <Route path="threat-intelligence/analyst" element={<ThreatIntelAnalystPage />} />
+        <Route path="threat-intelligence/report" element={<ThreatIntelReportPage />} />
         <Route path="threat-intelligence/triage" element={<TriagePage />} />
 
         {/* Compliance */}

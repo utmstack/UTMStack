@@ -5584,6 +5584,82 @@
       "v.unknown": "Unknown",
       "v.notFound": "Not found",
       "v.invalid": "Unrecognised"
+    },
+    "report": {
+      "title": "Segnala",
+      "subtitle": "Pubblica un indicatore nel grafo ThreatWinds",
+      "submit": "Segnala indicatore",
+      "submitting": "Segnalazione…",
+      "error": {
+        "generic": "Impossibile inviare l'indicatore. Riprova."
+      },
+      "value": {
+        "label": "Indicatore",
+        "placeholder": "IP, dominio, URL, hash o indirizzo e-mail"
+      },
+      "type": {
+        "label": "Tipo",
+        "placeholder": "Deducibile dal valore",
+        "inferred": "Dedotto: {{type}}",
+        "inferenceFailed": "Impossibile dedurre un tipo da questo valore. Scegline uno dall'elenco o scrivilo.",
+        "unknown": "“{{type}}” non è un tipo di entità. Scegline uno dall'elenco."
+      },
+      "tags": {
+        "label": "Etichette",
+        "placeholder": "phishing, furto-di-credenziali"
+      },
+      "description": {
+        "label": "Note"
+      },
+      "reputation": {
+        "legend": "Reputazione",
+        "hint": "Lascia vuoto se non hai emesso un verdetto.",
+        "alarming": "Allarmante",
+        "worrying": "Preoccupante",
+        "concerning": "Sospetto",
+        "indefinable": "Indefinibile",
+        "adequate": "Adeguato",
+        "good": "Buono",
+        "exceptional": "Eccellente"
+      },
+      "associations": {
+        "legend": "Indicatori correlati",
+        "add": "Aggiungi indicatore correlato",
+        "remove": "Rimuovi",
+        "valuePlaceholder": "Valore correlato",
+        "typePlaceholder": "Tipo (facoltativo)",
+        "modeLabel": "Relazione",
+        "mode": {
+          "association": "Correlato a",
+          "aggregation": "Parte di"
+        },
+        "visibilityConflict": "Non condivide nessun gruppo di visibilità con l'indicatore qui sopra. L'intera invio verrebbe rifiutato."
+      },
+      "attributes": {
+        "legend": "Dettagli",
+        "hint": "Facoltativo. Qualsiasi campo vuoto non viene inviato.",
+        "invalidHex": "Sono attesi {{length}} caratteri esadecimali.",
+        "invalidHexAny": "Solo caratteri esadecimali.",
+        "invalidNumber": "È atteso un numero."
+      },
+      "correlate": {
+        "legend": "Correla",
+        "hint": "Ogni attributo spuntato viene pubblicato come entità propria, collegata a questa.",
+        "count_one": "Crea {{count}} entità collegata.",
+        "count_other": "Crea {{count}} entità collegate."
+      },
+      "scan": {
+        "notice": "Segnalarlo mette anche in coda una scansione dell'obiettivo."
+      },
+      "receipt": {
+        "title": "Inviato",
+        "noVerdict": "Nessun verdetto",
+        "skipped": "Non inviato, non è stato possibile dedurre un tipo",
+        "pending": "In attesa che l'indicatore compaia nel corpus…",
+        "live": "Presente nel corpus — visualizza entità",
+        "processing": "Ancora in elaborazione. Comparirà quando l'ingestione sarà al passo.",
+        "another": "Segnala un altro"
+      }
     }
   },
   "playground": {

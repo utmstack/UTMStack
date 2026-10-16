@@ -218,3 +218,25 @@ body {
     margin: 14mm;
   }
 }
+
+.war-frame::before,
+.war-frame::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-color: color-mix(in srgb, var(--primary) 45%, transparent);
+  pointer-events: none;
+}
+.war-frame::before {
+  top: 0;
+  left: 0;
+  border-top: 1px solid;
+  border-left: 1px solid;
+}
+.war-frame::after {
+  bottom: 0;
+  right: 0;
+  border-bottom: 1px solid;
+  border-right: 1px solid;
+}

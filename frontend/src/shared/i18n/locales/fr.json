@@ -5584,6 +5584,82 @@
       "v.unknown": "Unknown",
       "v.notFound": "Not found",
       "v.invalid": "Unrecognised"
+    },
+    "report": {
+      "title": "Signaler",
+      "subtitle": "Publier un indicateur dans le graphe ThreatWinds",
+      "submit": "Signaler l'indicateur",
+      "submitting": "Signalement…",
+      "error": {
+        "generic": "Impossible de soumettre l'indicateur. Réessayez."
+      },
+      "value": {
+        "label": "Indicateur",
+        "placeholder": "IP, domaine, URL, hachage ou adresse e-mail"
+      },
+      "type": {
+        "label": "Type",
+        "placeholder": "Déduit de la valeur",
+        "inferred": "Déduit : {{type}}",
+        "inferenceFailed": "Aucun type n'a pu être déduit de cette valeur. Choisissez-en un dans la liste ou saisissez-le.",
+        "unknown": "« {{type}} » n'est pas un type d'entité. Choisissez-en un dans la liste."
+      },
+      "tags": {
+        "label": "Étiquettes",
+        "placeholder": "phishing, vol-de-credentials"
+      },
+      "description": {
+        "label": "Notes"
+      },
+      "reputation": {
+        "legend": "Réputation",
+        "hint": "Laissez vide si vous n'avez pas de verdict.",
+        "alarming": "Alarmant",
+        "worrying": "Préoccupant",
+        "concerning": "Suspect",
+        "indefinable": "Indéfinissable",
+        "adequate": "Suffisant",
+        "good": "Bon",
+        "exceptional": "Excellent"
+      },
+      "associations": {
+        "legend": "Indicateurs liés",
+        "add": "Ajouter un indicateur lié",
+        "remove": "Supprimer",
+        "valuePlaceholder": "Valeur liée",
+        "typePlaceholder": "Type (facultatif)",
+        "modeLabel": "Relation",
+        "mode": {
+          "association": "Lié à",
+          "aggregation": "Fait partie de"
+        },
+        "visibilityConflict": "N'appartient à aucun groupe de visibilité commun avec l'indicateur ci-dessus. La soumission entière serait rejetée."
+      },
+      "attributes": {
+        "legend": "Détails",
+        "hint": "Facultatif. Les champs vides ne sont pas soumis.",
+        "invalidHex": "{{length}} caractères hexadécimaux attendus.",
+        "invalidHexAny": "Caractères hexadécimaux uniquement.",
+        "invalidNumber": "Un nombre est attendu."
+      },
+      "correlate": {
+        "legend": "Corréler",
+        "hint": "Chaque attribut coché est publié comme entité distincte, liée à celle-ci.",
+        "count_one": "Crée {{count}} entité liée.",
+        "count_other": "Crée {{count}} entités liées."
+      },
+      "scan": {
+        "notice": "Signaler cela met également une analyse de la cible en file d'attente."
+      },
+      "receipt": {
+        "title": "Soumis",
+        "noVerdict": "Aucun verdict émis",
+        "skipped": "Non soumis, aucun type n'a pu être déduit",
+        "pending": "En attente que l'indicateur apparaisse dans le corpus…",
+        "live": "Présent dans le corpus — voir l'entité",
+        "processing": "Toujours en cours de traitement. Il apparaîtra quand l'ingestion sera à jour.",
+        "another": "Signaler un autre"
+      }
     }
   },
   "playground": {

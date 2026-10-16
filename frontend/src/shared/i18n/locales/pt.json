@@ -5584,6 +5584,82 @@
       "v.unknown": "Unknown",
       "v.notFound": "Not found",
       "v.invalid": "Unrecognised"
+    },
+    "report": {
+      "title": "Reportar",
+      "subtitle": "Publicar um indicador no grafo ThreatWinds",
+      "submit": "Reportar indicador",
+      "submitting": "Reportando…",
+      "error": {
+        "generic": "Não foi possível enviar o indicador. Tente novamente."
+      },
+      "value": {
+        "label": "Indicador",
+        "placeholder": "IP, domínio, URL, hash ou e-mail"
+      },
+      "type": {
+        "label": "Tipo",
+        "placeholder": "Inferido do valor",
+        "inferred": "Inferido: {{type}}",
+        "inferenceFailed": "Nenhum tipo pôde ser inferido deste valor. Escolha um da lista ou digite.",
+        "unknown": "“{{type}}” não é um tipo de entidade. Escolha um da lista."
+      },
+      "tags": {
+        "label": "Etiquetas",
+        "placeholder": "phishing, roubo-de-credenciais"
+      },
+      "description": {
+        "label": "Notas"
+      },
+      "reputation": {
+        "legend": "Reputação",
+        "hint": "Deixe em branco se você não chegou a um veredito.",
+        "alarming": "Alarmante",
+        "worrying": "Preocupante",
+        "concerning": "Suspeito",
+        "indefinable": "Indefinível",
+        "adequate": "Adequado",
+        "good": "Bom",
+        "exceptional": "Excelente"
+      },
+      "associations": {
+        "legend": "Indicadores relacionados",
+        "add": "Adicionar indicador relacionado",
+        "remove": "Remover",
+        "valuePlaceholder": "Valor relacionado",
+        "typePlaceholder": "Tipo (opcional)",
+        "modeLabel": "Relação",
+        "mode": {
+          "association": "Relacionado a",
+          "aggregation": "Parte de"
+        },
+        "visibilityConflict": "Não compartilha nenhum grupo de visibilidade com o indicador acima. Todo o envio seria rejeitado."
+      },
+      "attributes": {
+        "legend": "Detalhes",
+        "hint": "Opcional. Qualquer campo em branco não é enviado.",
+        "invalidHex": "Esperados {{length}} caracteres hexadecimais.",
+        "invalidHexAny": "Apenas caracteres hexadecimais.",
+        "invalidNumber": "Esperado um número."
+      },
+      "correlate": {
+        "legend": "Correlacionar",
+        "hint": "Cada atributo marcado é publicado como entidade própria, vinculada a esta.",
+        "count_one": "Cria {{count}} entidade vinculada.",
+        "count_other": "Cria {{count}} entidades vinculadas."
+      },
+      "scan": {
+        "notice": "Reportar isto também enfileira uma varredura do alvo."
+      },
+      "receipt": {
+        "title": "Enviado",
+        "noVerdict": "Sem veredito",
+        "skipped": "Não enviado, nenhum tipo pôde ser inferido",
+        "pending": "Aguardando o indicador aparecer no corpus…",
+        "live": "No ar no corpus — ver entidade",
+        "processing": "Ainda em processamento. Aparecerá quando a ingestão estiver em dia.",
+        "another": "Reportar outro"
+      }
     }
   },
   "playground": {

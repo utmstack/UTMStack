@@ -876,6 +876,82 @@
       "v.notFound": "Not found",
       "v.invalid": "Unrecognised",
       "summary": "Summary"
+    },
+    "report": {
+      "title": "Report",
+      "subtitle": "Publish an indicator to the ThreatWinds graph",
+      "submit": "Report indicator",
+      "submitting": "Reporting…",
+      "error": {
+        "generic": "Could not submit the indicator. Try again."
+      },
+      "value": {
+        "label": "Indicator",
+        "placeholder": "IP, domain, URL, hash or email address"
+      },
+      "type": {
+        "label": "Type",
+        "placeholder": "Inferred from the value",
+        "inferred": "Inferred: {{type}}",
+        "inferenceFailed": "No type could be inferred from this value. Choose one from the list, or type it.",
+        "unknown": "“{{type}}” is not an entity type. Choose one from the list."
+      },
+      "tags": {
+        "label": "Tags",
+        "placeholder": "phishing, credential-theft"
+      },
+      "description": {
+        "label": "Notes"
+      },
+      "reputation": {
+        "legend": "Reputation",
+        "hint": "Leave unset if you have not reached a verdict.",
+        "alarming": "Alarming",
+        "worrying": "Worrying",
+        "concerning": "Concerning",
+        "indefinable": "Indefinable",
+        "adequate": "Adequate",
+        "good": "Good",
+        "exceptional": "Exceptional"
+      },
+      "associations": {
+        "legend": "Related indicators",
+        "add": "Add related indicator",
+        "remove": "Remove",
+        "valuePlaceholder": "Related value",
+        "typePlaceholder": "Type (optional)",
+        "modeLabel": "Relationship",
+        "mode": {
+          "association": "Related to",
+          "aggregation": "Part of"
+        },
+        "visibilityConflict": "This shares no visibility group with the indicator above. The whole submission would be rejected."
+      },
+      "attributes": {
+        "legend": "Details",
+        "hint": "Optional. Anything left blank is not submitted.",
+        "invalidHex": "Expected {{length}} hexadecimal characters.",
+        "invalidHexAny": "Expected hexadecimal characters only.",
+        "invalidNumber": "Expected a number."
+      },
+      "correlate": {
+        "legend": "Correlate",
+        "hint": "Each ticked attribute is published as its own entity, linked to this one.",
+        "count_one": "Creates {{count}} linked entity.",
+        "count_other": "Creates {{count}} linked entities."
+      },
+      "scan": {
+        "notice": "Reporting this also queues a scan of the target."
+      },
+      "receipt": {
+        "title": "Submitted",
+        "noVerdict": "No verdict stated",
+        "skipped": "Not submitted, no type could be inferred",
+        "pending": "Waiting for the indicator to appear in the corpus…",
+        "live": "Live in the corpus — view entity",
+        "processing": "Still being processed. It will appear once ingestion catches up.",
+        "another": "Report another"
+      }
     }
   },
   "notifications": {
