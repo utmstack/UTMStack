@@ -30,7 +30,7 @@ export function ConversationPanel({
 }: {
   conversationId: string
   model: string
-  
+
   canvasEnabled: boolean
 }) {
   const { t } = useTranslation()

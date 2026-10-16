@@ -820,8 +820,12 @@
       "table": {
         "name": "Feed",
         "type": "Type",
-        "accuracy": "Accuracy"
-      }
+        "accuracy": "Accuracy",
+        "header": "Feeds",
+        "format": "Format"
+      },
+      "download": "Download feed",
+      "checksum": "Checksum"
     },
     "entityTypes": {
       "ip": "IP",

@@ -5554,8 +5554,12 @@
       "table": {
         "name": "Feed",
         "type": "Тип",
-        "accuracy": "Точность"
-      }
+        "accuracy": "Точность",
+        "header": "Источники",
+        "format": "Формат"
+      },
+      "download": "Скачать источник",
+      "checksum": "Контрольная сумма"
     },
     "entityTypes": {
       "ip": "IP",

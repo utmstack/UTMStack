@@ -32,6 +32,12 @@ export function ThreatIntelConsole() {
   }, [conversationId, store.conversations])
 
   useEffect(() => {
+    if (conversationId || store.conversations.length) return
+    const conversation = createConversation('New conversation')
+    setConversationId(conversation.id)
+  }, [conversationId, store.conversations.length])
+
+  useEffect(() => {
     if (!conversationId) return
     if (!store.conversations.some((c) => c.id === conversationId)) setConversationId(null)
   }, [conversationId, store.conversations])

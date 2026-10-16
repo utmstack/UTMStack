@@ -5528,8 +5528,12 @@
       "table": {
         "name": "Feed",
         "type": "Typ",
-        "accuracy": "Genauigkeit"
-      }
+        "accuracy": "Genauigkeit",
+        "header": "Feeds",
+        "format": "Format"
+      },
+      "download": "Feed herunterladen",
+      "checksum": "Prüfsumme"
     },
     "entityTypes": {
       "ip": "IP",

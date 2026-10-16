@@ -5528,8 +5528,12 @@
       "table": {
         "name": "Flux",
         "type": "Type",
-        "accuracy": "Précision"
-      }
+        "accuracy": "Précision",
+        "header": "Flux",
+        "format": "Format"
+      },
+      "download": "Télécharger le flux",
+      "checksum": "Somme de contrôle"
     },
     "entityTypes": {
       "ip": "IP",
