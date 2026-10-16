@@ -11,7 +11,7 @@ import (
 
 const (
 	configFileName = "system_plugins_feeds.yaml"
-	pluginKey      = "feeds"
+	pluginKey      = "feeds_contribution"
 )
 
 // FeedsConfig is what the feeds plugin needs to know: whether this instance
