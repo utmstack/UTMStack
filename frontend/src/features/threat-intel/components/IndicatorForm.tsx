@@ -18,7 +18,7 @@ import {
   attributeProblems,
   type ReportIocInput,
   type ReportAssociationInput,
-} from './report'
+} from '../lib/report'
 
 const LABEL = 'block text-[11px] uppercase tracking-wider text-muted-foreground'
 

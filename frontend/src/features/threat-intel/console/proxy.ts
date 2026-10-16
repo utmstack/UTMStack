@@ -17,8 +17,11 @@ export async function proxyFetch<T>(path: string, init: RequestInit = {}): Promi
   if (!res.ok) {
     let msg = `HTTP ${res.status}`
     try {
-      msg = JSON.parse(await res.text()).error ?? msg
+      const body = JSON.parse(await res.text())
+      const err = body?.error
+      msg = (typeof err === 'string' ? err : err?.message) ?? msg
     } catch {
+      // non-JSON error body — keep the HTTP status message
     }
     throw new Error(msg)
   }

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/shared/components/ui/button'
 import { proxyFetch } from '../console/proxy'
-import type { ReportIocResult, ReportedAssociation } from './report'
+import type { ReportIocResult, ReportedAssociation } from '../lib/report'
 
 export const pollPlan = { intervalMs: 5000, timeoutMs: 120000 } as const
 

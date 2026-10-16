@@ -6,8 +6,8 @@ import { Button } from '@/shared/components/ui/button'
 import { IocDrawer } from '../components/IocDrawer'
 import { NotConfiguredState } from '../components/NotConfiguredState'
 import { useTiConfigStatus } from '../hooks/use-ti-config-status'
-import { IndicatorForm } from './indicator-form'
-import { SubmissionReceipt } from './submission-receipt'
+import { IndicatorForm } from '../components/IndicatorForm'
+import { SubmissionReceipt } from '../components/SubmissionReceipt'
 import {
   TypeInferenceError,
   attributeProblems,
@@ -18,7 +18,7 @@ import {
   resolveDefinition,
   type ReportIocInput,
   type ReportIocResult,
-} from './report'
+} from '../lib/report'
 
 const EMPTY: ReportIocInput = { value: '' }
 
