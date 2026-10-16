@@ -28,6 +28,7 @@ const HOST_RE = /^(?:\[[0-9A-Fa-f:]+\]|(?!.*[\/\s])[A-Za-z0-9.-]+)$/
 const PORT_RE = /^(0|[1-9][0-9]*)$/
 
 function isHttpUrl(value: string): boolean {
+  if (URL_BAD_RE.test(value)) return false
   try {
     const u = new URL(value)
     return u.protocol === 'http:' || u.protocol === 'https:'
@@ -37,6 +38,7 @@ function isHttpUrl(value: string): boolean {
 }
 
 function isHttpsUrl(value: string): boolean {
+  if (URL_BAD_RE.test(value)) return false
   try {
     return new URL(value).protocol === 'https:'
   } catch {
@@ -50,7 +52,10 @@ function isHttpsUrl(value: string): boolean {
 // that rejects it blocks a legitimate mobile app configuration.
 const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '::1'])
 
+const URL_BAD_RE = /\s|\.\./
+
 function isLoopbackRedirect(value: string): boolean {
+  if (URL_BAD_RE.test(value)) return false
   try {
     const u = new URL(value)
     // URL keeps the IPv6 literal bracketed; drop it so [::1] matches ::1.
@@ -65,6 +70,7 @@ function isLoopbackRedirect(value: string): boolean {
 // We catch "https://foo com/sp" (the space) and "foo bar" here, which is the
 // typo an IdP would reject at login; a pure presence check would not.
 function isEntityIdUri(value: string): boolean {
+  if (URL_BAD_RE.test(value)) return false
   try {
     const proto = new URL(value).protocol
     return proto === 'http:' || proto === 'https:' || proto === 'urn:'
