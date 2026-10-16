@@ -73,7 +73,7 @@ export function ConversationPanel({
   }, [turns])
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <div className="flex min-h-0 max-w-[57%] flex-1 flex-col">
       <div
         ref={scrollRef}
         className="min-h-0 flex-1 space-y-5 overflow-y-auto px-3 py-4 sm:px-4"
