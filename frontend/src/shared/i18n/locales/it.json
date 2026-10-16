@@ -1675,6 +1675,7 @@
       "loadingMore": "Caricamento in corso…",
       "message": "Messaggio",
       "none": "Nessun log corrisponde a questa query.",
+      "reorderColumn": "Trascina {{field}}; Alt + Sinistra/Destra per spostare",
       "removeColumn": "Rimuovi {{field}}",
       "retry": "Riprova",
       "searchFailed": "Ricerca fallita.",
