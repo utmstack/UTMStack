@@ -112,7 +112,7 @@ func balanceMemoryNow() (map[string]*system.ServiceConfig, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error getting memory: %v", err)
 	}
-	rsrcs, err := system.BalanceMemory(Services, total-system.SYSTEM_RESERVED_MEMORY)
+	rsrcs, err := system.BalanceMemory(Services, total)
 	if err != nil {
 		return nil, fmt.Errorf("error balancing memory: %v", err)
 	}
