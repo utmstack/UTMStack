@@ -70,7 +70,7 @@ function GeoPanel({ entityId }: { entityId: string }) {
     <ul className="space-y-1">
       {locations.map((location, i) => (
         <li key={`${location.latitude}-${location.longitude}-${i}`}>
-          <div className="flex items-center gap-2 rounded-sm px-2 py-1.5">
+          <div className="flex items-center gap-2 rounded-md px-2 py-1.5">
             <MapPin className="h-3.5 w-3.5 shrink-0 text-primary/60" />
             <span className="font-mono text-xs text-foreground/90">
               {location.latitude.toFixed(4)}°, {location.longitude.toFixed(4)}°
@@ -121,7 +121,7 @@ function SearchPanel({ query, onPivot }: { query: string; onPivot(target: { id: 
 
   return (
     <div className="space-y-1">
-      <div className="pb-1 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+      <div className="pb-1 text-[11px] uppercase tracking-wider text-muted-foreground">
         {t('tiAnalyst.canvas.matches', { total: results.data?.items ?? items.length })}
       </div>
       {items.map((item) => (
@@ -129,9 +129,9 @@ function SearchPanel({ query, onPivot }: { query: string; onPivot(target: { id: 
           key={item.id}
           type="button"
           onClick={() => onPivot({ id: item.id, type: item.type, value: item.value })}
-          className="flex w-full items-center gap-2 rounded-sm border border-border/40 px-2 py-1.5 text-start transition-colors hover:border-primary/40"
+          className="flex w-full items-center gap-2 rounded-md border border-border px-2 py-1.5 text-start transition-colors hover:border-primary/40"
         >
-          <span className="shrink-0 rounded-sm border border-border/50 px-1.5 py-0.5 font-mono text-[9px] text-muted-foreground">
+          <span className="shrink-0 rounded-md border border-border px-1.5 py-0.5 font-mono text-[9px] text-muted-foreground">
             {item.type}
           </span>
           <span className="min-w-0 flex-1 truncate font-mono text-[11px] text-foreground">{item.value}</span>
@@ -143,7 +143,7 @@ function SearchPanel({ query, onPivot }: { query: string; onPivot(target: { id: 
 
 function PanelStatus({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-full items-center justify-center font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+    <div className="flex h-full items-center justify-center text-[11px] uppercase tracking-wider text-muted-foreground">
       {children}
     </div>
   )

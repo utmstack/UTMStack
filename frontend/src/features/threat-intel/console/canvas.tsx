@@ -58,10 +58,10 @@ export function Canvas({
   return (
     <section
       aria-label={t('tiAnalyst.canvas.title')}
-      className="flex h-full min-h-0 flex-col border-l border-border/40"
+      className="flex h-full min-h-0 flex-col border-l border-border"
     >
-      <div className="flex shrink-0 items-center gap-2 border-b border-border/40 bg-muted/20 px-2 py-1.5">
-        <h2 className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+      <div className="flex shrink-0 items-center gap-2 border-b border-border bg-card px-2 py-1.5">
+        <h2 className="text-[11px] uppercase tracking-wider text-muted-foreground">
           {t('tiAnalyst.canvas.title')}
         </h2>
         <div className="flex-1" />
@@ -70,7 +70,7 @@ export function Canvas({
           onClick={tileToFit}
           disabled={!panels.length}
           aria-label={t('tiAnalyst.canvas.tile')}
-          className="flex items-center gap-1 rounded-sm border border-border/50 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40"
+          className="flex items-center gap-1 rounded-md border border-border px-1.5 py-0.5 text-[11px] uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40"
         >
           <LayoutGrid className="h-3 w-3" />
           {t('tiAnalyst.canvas.tile')}
@@ -80,7 +80,7 @@ export function Canvas({
           onClick={() => closeAllPanels(conversationId)}
           disabled={!panels.length}
           aria-label={t('tiAnalyst.canvas.closeAll')}
-          className="flex items-center gap-1 rounded-sm border border-border/50 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground transition-colors hover:text-destructive disabled:opacity-40"
+          className="flex items-center gap-1 rounded-md border border-border px-1.5 py-0.5 text-[11px] uppercase tracking-wider text-muted-foreground transition-colors hover:text-destructive disabled:opacity-40"
         >
           <X className="h-3 w-3" />
           {t('tiAnalyst.canvas.closeAll')}

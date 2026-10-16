@@ -40,7 +40,7 @@ export function EntityInspector({ entityId, onPivot, onAskAgent }: EntityInspect
   const d: EntityDetails | undefined = details.data
   if (details.isError || !d) {
     return (
-      <div className="flex h-full items-center justify-center p-4 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+      <div className="flex h-full items-center justify-center p-4 text-[11px] uppercase tracking-wider text-muted-foreground">
         {t('tiAnalyst.canvas.failed')}
       </div>
     )
@@ -54,8 +54,8 @@ export function EntityInspector({ entityId, onPivot, onAskAgent }: EntityInspect
       <div className="flex flex-wrap items-center gap-2">
         <span
           className={
-            'rounded-sm border px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wide ' +
-            (malicious ? 'border-destructive/40 bg-destructive/10 text-destructive' : 'border-border/50 text-muted-foreground')
+            'rounded-md border px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wide ' +
+            (malicious ? 'border-destructive/40 bg-destructive/10 text-destructive' : 'border-border text-muted-foreground')
           }
         >
           {a.type}
@@ -64,7 +64,7 @@ export function EntityInspector({ entityId, onPivot, onAskAgent }: EntityInspect
         <button
           type="button"
           onClick={() => onAskAgent(t('tiAnalyst.entity.askAgent', { type: a.type, value: a.value, id: a.id }))}
-          className="ms-auto flex items-center gap-1.5 rounded-sm border border-primary/30 px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider text-primary transition-colors hover:bg-primary/10"
+          className="ms-auto flex items-center gap-1.5 rounded-md border border-primary/30 px-2.5 py-1 text-[11px] uppercase tracking-wider text-primary transition-colors hover:bg-primary/10"
         >
           <Sparkles className="h-3 w-3" />
           {t('tiAnalyst.entity.askAgentBtn')}
@@ -87,7 +87,7 @@ export function EntityInspector({ entityId, onPivot, onAskAgent }: EntityInspect
           {Object.entries(d.metadata).map(([k, v]) => (
             <span
               key={k}
-              className="rounded-sm border border-border/40 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
+              className="rounded-md border border-border px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
             >
               {k}: <span className="text-foreground/80">{String(v)}</span>
             </span>
@@ -96,7 +96,7 @@ export function EntityInspector({ entityId, onPivot, onAskAgent }: EntityInspect
       )}
 
       <section className="space-y-2">
-        <h3 className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+        <h3 className="text-[11px] uppercase tracking-wider text-muted-foreground">
           {t('tiAnalyst.entity.relations')}
         </h3>
         {relations.isLoading ? (
@@ -109,7 +109,7 @@ export function EntityInspector({ entityId, onPivot, onAskAgent }: EntityInspect
             onSelect={(node) => onPivot({ id: node.id, type: node.type, value: node.value })}
           />
         ) : (
-          <div className="rounded-sm border border-dashed border-border/50 px-3 py-6 text-center font-mono text-xs text-muted-foreground">
+          <div className="rounded-md border border-dashed border-border px-3 py-6 text-center font-mono text-xs text-muted-foreground">
             {t('tiAnalyst.canvas.noRelations')}
           </div>
         )}
@@ -117,13 +117,13 @@ export function EntityInspector({ entityId, onPivot, onAskAgent }: EntityInspect
 
       {d.geolocations.length > 0 && (
         <section className="space-y-2">
-          <h3 className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+          <h3 className="text-[11px] uppercase tracking-wider text-muted-foreground">
             {t('tiAnalyst.entity.geolocations')}
           </h3>
           {d.geolocations.map((geo, i) => (
             <div
               key={`${geo.lat}-${geo.lng}-${i}`}
-              className="flex items-center gap-2 rounded-sm border border-border/40 px-3 py-2"
+              className="flex items-center gap-2 rounded-md border border-border px-3 py-2"
             >
               <MapPin className="h-3.5 w-3.5 shrink-0 text-primary/60" />
               <span className="font-mono text-xs text-foreground/90">
@@ -139,7 +139,7 @@ export function EntityInspector({ entityId, onPivot, onAskAgent }: EntityInspect
 
       {d.latest_associations.length > 0 && (
         <section className="space-y-1">
-          <h3 className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+          <h3 className="text-[11px] uppercase tracking-wider text-muted-foreground">
             {t('tiAnalyst.entity.associations')}
           </h3>
           {d.latest_associations.map((assoc) => (
@@ -147,9 +147,9 @@ export function EntityInspector({ entityId, onPivot, onAskAgent }: EntityInspect
               key={assoc.id}
               type="button"
               onClick={() => onPivot({ id: assoc.id, type: assoc.type, value: assoc.value })}
-              className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-start transition-colors hover:bg-muted/40"
+              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-start transition-colors hover:bg-muted/40"
             >
-              <span className="shrink-0 rounded-sm border border-border/50 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wide text-muted-foreground">
+              <span className="shrink-0 rounded-md border border-border px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wide text-muted-foreground">
                 {assoc.type}
               </span>
               <span className="min-w-0 flex-1 truncate font-mono text-xs text-foreground/90">{assoc.value}</span>
@@ -163,8 +163,8 @@ export function EntityInspector({ entityId, onPivot, onAskAgent }: EntityInspect
 
 function Stat({ label, value, score }: { label: string; value: string; score: number }) {
   return (
-    <div className="rounded-sm border border-border/40 bg-card px-2.5 py-2">
-      <div className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">{label}</div>
+    <div className="rounded-md border border-border bg-card px-2.5 py-2">
+      <div className="font-mono text-[9px] uppercase tracking-wider text-muted-foreground">{label}</div>
       <div className="truncate font-mono text-xs text-foreground/90">{value || '—'}</div>
       <div className="font-mono text-[10px] text-muted-foreground">{score}</div>
     </div>

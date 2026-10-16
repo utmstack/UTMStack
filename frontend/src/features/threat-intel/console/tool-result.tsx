@@ -28,12 +28,12 @@ const TOOL_ICONS: Record<string, typeof Search> = {
 function reputationVariant(reputation: number | null) {
   return reputation !== null && reputation < 0
     ? 'border-destructive/40 bg-destructive/10 text-destructive'
-    : 'border-border/50 text-muted-foreground'
+    : 'border-border text-muted-foreground'
 }
 
 function Badge({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <span className={cn('shrink-0 rounded-sm border px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wide', className)}>
+    <span className={cn('shrink-0 rounded-md border px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wide', className)}>
       {children}
     </span>
   )
@@ -50,7 +50,7 @@ function EntityRow({
     <button
       type="button"
       onClick={() => onPivot(entity)}
-      className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-start transition-colors hover:bg-muted/40"
+      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-start transition-colors hover:bg-muted/40"
     >
       <Badge className={reputationVariant(entity.reputation)}>{entity.type}</Badge>
       <span className="min-w-0 flex-1 truncate font-mono text-xs text-foreground/90">{entity.value}</span>
@@ -68,10 +68,10 @@ export function ToolResult({ step, onPivot }: ToolResultProps) {
   const Icon = TOOL_ICONS[step.toolName] ?? Search
 
   return (
-    <div className="overflow-hidden rounded-sm border border-border/50 bg-muted/20">
-      <div className="flex items-center gap-2 border-b border-border/30 bg-muted/40 px-3 py-2">
+    <div className="overflow-hidden rounded-md border border-border bg-card">
+      <div className="flex items-center gap-2 border-b border-border bg-muted/40 px-3 py-2">
         <Icon className="h-3.5 w-3.5 shrink-0 text-primary/70" />
-        <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+        <span className="text-[11px] uppercase tracking-wider text-muted-foreground">
           {step.toolName.replace(/_/g, ' ')}
         </span>
         <span className="min-w-0 flex-1 truncate font-mono text-[10px] text-muted-foreground/60">
@@ -138,7 +138,7 @@ function PayloadView({
               key={entity.id}
               type="button"
               onClick={() => onPivot(entity)}
-              className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-start transition-colors hover:bg-muted/40"
+              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-start transition-colors hover:bg-muted/40"
             >
               <Badge className={reputationVariant(entity.reputation)}>{entity.type}</Badge>
               <span className="min-w-0 flex-1 truncate font-mono text-xs text-foreground/90">{shorten(entity.value, 72)}</span>
@@ -174,7 +174,7 @@ function PayloadView({
               {Object.entries(payload.details.metadata).map(([k, v]) => (
                 <span
                   key={k}
-                  className="rounded-sm border border-border/40 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
+                  className="rounded-md border border-border px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
                 >
                   {k}: <span className="text-foreground/80">{String(v)}</span>
                 </span>
@@ -183,7 +183,7 @@ function PayloadView({
           )}
           {payload.details.latest_associations.length > 0 && (
             <div className="space-y-1 pt-1">
-              <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
                 {t('tiAnalyst.entity.associations')}
               </div>
               {payload.details.latest_associations.slice(0, 6).map((assoc) => (
@@ -191,7 +191,7 @@ function PayloadView({
                   key={assoc.id}
                   type="button"
                   onClick={() => onPivot(assoc)}
-                  className="flex w-full items-center gap-2 rounded-sm px-2 py-1 text-start transition-colors hover:bg-muted/40"
+                  className="flex w-full items-center gap-2 rounded-md px-2 py-1 text-start transition-colors hover:bg-muted/40"
                 >
                   <Badge className={reputationVariant(assoc.reputation)}>{assoc.type}</Badge>
                   <span className="min-w-0 flex-1 truncate font-mono text-xs text-foreground/90">{assoc.value}</span>
@@ -219,7 +219,7 @@ function PayloadView({
       ) : (
         <div className="space-y-1">
           {payload.locations.map((geo, i) => (
-            <div key={`${geo.lat}-${geo.lng}-${i}`} className="flex items-center gap-2 rounded-sm px-2 py-1.5">
+            <div key={`${geo.lat}-${geo.lng}-${i}`} className="flex items-center gap-2 rounded-md px-2 py-1.5">
               <MapPin className="h-3.5 w-3.5 shrink-0 text-primary/60" />
               <span className="font-mono text-xs text-foreground/90">
                 {geo.lat.toFixed(4)}°, {geo.lng.toFixed(4)}°
@@ -236,8 +236,8 @@ function PayloadView({
 
 function Metric({ label, value, score }: { label: string; value: string; score: number }) {
   return (
-    <div className="rounded-sm border border-border/40 bg-card px-2.5 py-2">
-      <div className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">{label}</div>
+    <div className="rounded-md border border-border bg-card px-2.5 py-2">
+      <div className="font-mono text-[9px] uppercase tracking-wider text-muted-foreground">{label}</div>
       <div className="truncate font-mono text-xs text-foreground/90">{value || '—'}</div>
       <div className="font-mono text-[10px] text-muted-foreground">{score}</div>
     </div>

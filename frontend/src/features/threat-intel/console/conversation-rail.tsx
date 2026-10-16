@@ -43,14 +43,14 @@ export function ConversationRail({
     <nav
       aria-label={t('tiAnalyst.conv.title')}
       className={cn(
-        'flex min-h-0 w-56 shrink-0 flex-col border-r border-border/40 bg-muted/10',
+        'flex min-h-0 w-56 shrink-0 flex-col border-r border-border bg-card',
         className,
       )}
     >
-      <div className="shrink-0 border-b border-border/40 p-2">
+      <div className="shrink-0 border-b border-border p-2">
         <button
           type="button"
-          className="flex w-full items-center gap-1.5 rounded-sm border border-border/50 bg-muted/50 px-1.5 py-1 font-mono text-[10px] text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+          className="flex w-full items-center gap-1.5 rounded-md border border-border bg-muted/50 px-1.5 py-1 font-mono text-[10px] text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
         >
           <Folder className="h-3 w-3 shrink-0" />
           <span className="min-w-0 flex-1 truncate text-start">{t('tiAnalyst.conv.allConversations')}</span>
@@ -79,7 +79,7 @@ export function ConversationRail({
         </ul>
       </div>
 
-      <div className="shrink-0 border-t border-border/40 p-1.5">
+      <div className="shrink-0 border-t border-border p-1.5">
         {creating ? (
           <form
             onSubmit={(e) => {
@@ -98,14 +98,14 @@ export function ConversationRail({
               onChange={(e) => setTitle(e.target.value)}
               onBlur={() => !title.trim() && setCreating(false)}
               placeholder={t('tiAnalyst.conv.newTitle')}
-              className="w-full rounded-sm border border-border/60 bg-muted/50 px-2 py-1 font-mono text-[11px] focus:outline-none focus:ring-1 focus:ring-primary"
+              className="w-full rounded-md border border-border bg-muted/50 px-2 py-1 font-mono text-[11px] focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </form>
         ) : (
           <button
             type="button"
             onClick={() => setCreating(true)}
-            className="flex w-full items-center gap-1.5 rounded-sm border border-border/50 px-2 py-1.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+            className="flex w-full items-center gap-1.5 rounded-md border border-border px-2 py-1.5 text-[11px] uppercase tracking-wider text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
           >
             <MessageSquarePlus className="h-3 w-3" />
             {t('tiAnalyst.conv.new')}
@@ -140,7 +140,7 @@ function ConversationRow({
         onClick={onSelect}
         aria-current={active ? 'true' : undefined}
         className={cn(
-          'flex w-full items-center gap-1.5 rounded-sm px-2 py-1.5 text-start transition-colors',
+          'flex w-full items-center gap-1.5 rounded-md px-2 py-1.5 text-start transition-colors',
           active ? 'bg-primary/10 text-foreground' : 'text-muted-foreground hover:bg-muted/50',
         )}
       >
@@ -162,7 +162,7 @@ function ConversationRow({
         type="button"
         onClick={onDelete}
         aria-label={t('tiAnalyst.conv.delete', { title: conversation.title })}
-        className="absolute end-1 top-1/2 hidden -translate-y-1/2 rounded-sm p-1 text-muted-foreground transition-colors hover:text-destructive focus-visible:block group-hover:block"
+        className="absolute end-1 top-1/2 hidden -translate-y-1/2 rounded-md p-1 text-muted-foreground transition-colors hover:text-destructive focus-visible:block group-hover:block"
       >
         <Trash2 className="h-3 w-3" />
       </button>

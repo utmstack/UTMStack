@@ -302,7 +302,7 @@
     "threatIntelligence": "Inteligência de ameaças",
     "threat-intel": {
       "indicators": "Indicadores",
-      "analyzt": "Análise",
+      "analyzt": "Analista de IA",
       "triage": "Triagem",
       "report": "Relatório"
     },
@@ -5659,7 +5659,11 @@
         "live": "No ar no corpus — ver entidade",
         "processing": "Ainda em processamento. Aparecerá quando a ingestão estiver em dia.",
         "another": "Reportar outro"
-      }
+      },
+      "visibility": {
+        "legend": "Visível para"
+      },
+      "example": "Tentar um exemplo"
     }
   },
   "playground": {

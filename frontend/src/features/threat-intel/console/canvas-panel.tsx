@@ -123,8 +123,8 @@ export function CanvasPanelFrame({
       aria-label={name}
       onPointerDown={() => onFocus(panel.id)}
       className={cn(
-        'absolute flex flex-col overflow-hidden rounded-sm border bg-card shadow-lg',
-        dragging || resizing ? 'border-primary/50' : 'border-border/60',
+        'absolute flex flex-col overflow-hidden rounded-md border bg-card shadow-lg',
+        dragging || resizing ? 'border-primary/50' : 'border-border',
       )}
       style={{
         left: panel.x,
@@ -141,16 +141,16 @@ export function CanvasPanelFrame({
         onPointerCancel={endGesture}
         onKeyDown={onKeyDown}
         tabIndex={0}
-        className="flex shrink-0 cursor-move items-center gap-2 border-b border-border/40 bg-muted/30 px-2 py-1.5 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+        className="flex shrink-0 cursor-move items-center gap-2 border-b border-border bg-muted/30 px-2 py-1.5 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
       >
-        <span className="min-w-0 flex-1 truncate font-mono text-[10px] uppercase tracking-widest text-muted-foreground">{name}</span>
+        <span className="min-w-0 flex-1 truncate text-[11px] uppercase tracking-wider text-muted-foreground">{name}</span>
 
         <button
           type="button"
           onPointerDown={(e) => e.stopPropagation()}
           onClick={() => onToggleMinimise(panel.id)}
           aria-label={panel.minimised ? t('tiAnalyst.canvas.expand', { title: name }) : t('tiAnalyst.canvas.collapse', { title: name })}
-          className="rounded-sm p-0.5 text-muted-foreground transition-colors hover:text-foreground"
+          className="rounded-md p-0.5 text-muted-foreground transition-colors hover:text-foreground"
         >
           {panel.minimised ? <Square className="h-3 w-3" /> : <Minus className="h-3 w-3" />}
         </button>
@@ -159,7 +159,7 @@ export function CanvasPanelFrame({
           onPointerDown={(e) => e.stopPropagation()}
           onClick={() => onClose(panel.id)}
           aria-label={t('tiAnalyst.canvas.closePanel', { title: name })}
-          className="rounded-sm p-0.5 text-muted-foreground transition-colors hover:text-destructive"
+          className="rounded-md p-0.5 text-muted-foreground transition-colors hover:text-destructive"
         >
           <X className="h-3 w-3" />
         </button>

@@ -302,7 +302,7 @@
     "threatIntelligence": "Bedrohungsanalyse",
     "threat-intel": {
       "indicators": "Indikatoren",
-      "analyzt": "Analyse",
+      "analyzt": "KI-Analyst",
       "triage": "Triage",
       "report": "Bericht"
     },
@@ -5659,7 +5659,11 @@
         "live": "Im Korpus verfügbar — Entität ansehen",
         "processing": "Wird noch verarbeitet. Sie erscheint, sobald die Verarbeitung nachkommt.",
         "another": "Einen anderen melden"
-      }
+      },
+      "visibility": {
+        "legend": "Sichtbar für"
+      },
+      "example": "Beispiel ausprobieren"
     }
   },
   "playground": {

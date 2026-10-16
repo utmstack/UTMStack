@@ -305,7 +305,7 @@
     "threatIntelligence": "Threat Intelligence",
     "threat-intel": {
       "indicators": "Indicators",
-      "analyzt": "Analyze",
+      "analyzt": "AI Analyst",
       "triage": "Triage",
       "report": "Report"
     },
@@ -951,7 +951,11 @@
         "live": "Live in the corpus — view entity",
         "processing": "Still being processed. It will appear once ingestion catches up.",
         "another": "Report another"
-      }
+      },
+      "visibility": {
+        "legend": "Visible to"
+      },
+      "example": "Try example"
     }
   },
   "notifications": {

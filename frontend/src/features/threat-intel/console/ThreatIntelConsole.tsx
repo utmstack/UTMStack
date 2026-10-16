@@ -51,28 +51,28 @@ export function ThreatIntelConsole() {
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="flex shrink-0 items-center gap-2 border-b border-border/40 bg-muted/10 px-3 py-1.5 sm:px-4">
+      <div className="flex shrink-0 items-center gap-2 border-b border-border bg-card px-3 py-1.5 sm:px-4">
         <button
           type="button"
           aria-label={mobileRailOpen ? t('nav.closeMenu') : t('nav.openMenu')}
           aria-expanded={mobileRailOpen}
           onClick={() => setMobileRailOpen((prev) => !prev)}
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm border border-border/40 bg-muted/20 text-muted-foreground hover:text-foreground lg:hidden"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border bg-card text-muted-foreground hover:text-foreground lg:hidden"
         >
           {mobileRailOpen ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />}
         </button>
-        <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+        <span className="text-[11px] uppercase tracking-wider text-muted-foreground">
           {t('tiAnalyst.console.subtitle')}
         </span>
         <div className="flex-1" />
         <label className="flex items-center gap-1.5">
-          <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+          <span className="text-[11px] uppercase tracking-wider text-muted-foreground">
             {t('tiAnalyst.console.model')}
           </span>
           <select
             value={model}
             onChange={(e) => setModel(e.target.value)}
-            className="h-6 rounded-sm border border-border/50 bg-background px-1.5 font-mono text-[10px]"
+            className="h-6 rounded-md border border-border bg-background px-1.5 font-mono text-[10px]"
           >
             {AVAILABLE_MODELS.map((m) => (
               <option key={m.id} value={m.id}>

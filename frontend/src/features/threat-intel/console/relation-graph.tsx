@@ -262,7 +262,7 @@ export function RelationGraph({ graph, rootId, onSelect, className, height = 420
     <div ref={wrapperRef} className={cn('relative w-full', className)}>
       <canvas
         ref={canvasRef}
-        className="cursor-grab rounded-sm border border-border/50 bg-muted/20 active:cursor-grabbing"
+        className="cursor-grab rounded-md border border-border bg-card active:cursor-grabbing"
         onMouseDown={(e) => {
           dragRef.current = { x: e.clientX, y: e.clientY }
         }}

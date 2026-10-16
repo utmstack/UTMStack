@@ -88,7 +88,7 @@ export function ConversationPanel({
         ))}
 
         {loop.liveState.busy && (
-          <div className="flex items-center gap-2 rounded-sm border border-primary/30 bg-primary/5 px-3 py-2 font-mono text-[11px] text-primary">
+          <div className="flex items-center gap-2 rounded-md border border-primary/30 bg-primary/5 px-3 py-2 font-mono text-[11px] text-primary">
             <Clock className="h-3.5 w-3.5 shrink-0" />
             {t('tiAnalyst.agent.thinking')}
           </div>
@@ -100,7 +100,7 @@ export function ConversationPanel({
           e.preventDefault()
           ask(input)
         }}
-        className="shrink-0 border-t border-border/50 bg-background/80 px-3 py-3 sm:px-4"
+        className="shrink-0 border-t border-border bg-card/80 px-3 py-3 sm:px-4"
       >
         <div className="flex items-center gap-2">
           <input
@@ -109,14 +109,14 @@ export function ConversationPanel({
             disabled={loop.liveState.busy}
             placeholder={t('tiAnalyst.agent.placeholder')}
             aria-label={t('tiAnalyst.agent.ask')}
-            className="h-10 min-w-0 flex-1 rounded-sm border border-border/60 bg-muted/30 px-3 font-mono text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50"
+            className="h-10 min-w-0 flex-1 rounded-md border border-border bg-muted/30 px-3 font-mono text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50"
           />
           {loop.liveState.busy ? (
             <button
               type="button"
               aria-label={t('tiAnalyst.agent.stop')}
               onClick={() => loop.stop()}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm border border-destructive/40 text-destructive transition-colors hover:bg-destructive/10"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-destructive/40 text-destructive transition-colors hover:bg-destructive/10"
             >
               <Square className="h-3.5 w-3.5" />
             </button>
@@ -126,10 +126,10 @@ export function ConversationPanel({
               aria-label={t('tiAnalyst.agent.send')}
               disabled={!input.trim()}
               className={cn(
-                'flex h-10 w-10 shrink-0 items-center justify-center rounded-sm border transition-colors',
+                'flex h-10 w-10 shrink-0 items-center justify-center rounded-md border transition-colors',
                 input.trim()
                   ? 'border-primary/40 text-primary hover:bg-primary/10'
-                  : 'border-border/40 text-muted-foreground/40',
+                  : 'border-border text-muted-foreground/40',
               )}
             >
               <ArrowUp className="h-4 w-4" />
@@ -155,7 +155,7 @@ function TurnView({
   return (
     <div className="space-y-2.5">
       <div className="flex justify-end">
-        <div className="max-w-[85%] rounded-sm border border-primary/25 bg-primary/10 px-3 py-2 font-mono text-xs text-foreground">
+        <div className="max-w-[85%] rounded-md border border-primary/25 bg-primary/10 px-3 py-2 font-mono text-xs text-foreground">
           {turn.question}
         </div>
       </div>
@@ -174,20 +174,20 @@ function TurnView({
         : turn.steps.map((step) => <ToolResult key={step.id} step={step} onPivot={() => undefined} />)}
 
       {turn.text && (
-        <div className="rounded-sm border border-border/40 bg-muted/20 px-3 py-2.5">
+        <div className="rounded-md border border-border bg-card px-3 py-2.5">
           <MarkdownMessage text={turn.text} />
         </div>
       )}
 
       {turn.status === 'running' && !turn.text && !turn.steps.length && (
-        <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+        <div className="flex items-center gap-2 text-[11px] uppercase tracking-wider text-muted-foreground">
           <Sparkles className="h-3 w-3 animate-pulse" />
           {t('tiAnalyst.agent.thinking')}
         </div>
       )}
 
       {turn.error && (
-        <div className="rounded-sm border border-destructive/30 bg-destructive/10 px-3 py-2 font-mono text-xs text-destructive">
+        <div className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 font-mono text-xs text-destructive">
           {turn.error}
         </div>
       )}
@@ -208,7 +208,7 @@ function ToolChip({
   const panel = useMemo(() => panelForStep(step), [step])
 
   return (
-    <div className="overflow-hidden rounded-sm border border-border/40 bg-muted/20">
+    <div className="overflow-hidden rounded-md border border-border bg-card">
       <div className="flex items-center gap-2 px-2 py-1.5">
         <button
           type="button"
@@ -216,7 +216,7 @@ function ToolChip({
           aria-expanded={open}
           aria-controls={bodyId}
           aria-label={open ? t('tiAnalyst.tool.collapse') : t('tiAnalyst.tool.expand')}
-          className="flex min-w-0 flex-1 items-center gap-2 text-start font-mono text-[10px] uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground"
+          className="flex min-w-0 flex-1 items-center gap-2 text-start text-[11px] uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground"
         >
           <ChevronRight className={cn('h-3 w-3 shrink-0 transition-transform', open && 'rotate-90')} />
           <span className="truncate">{step.toolName.replace(/_/g, ' ')}</span>
@@ -230,14 +230,14 @@ function ToolChip({
             type="button"
             onClick={onOpenPanel}
             aria-label={t('tiAnalyst.canvas.pinOut', { title: panel.title })}
-            className="shrink-0 rounded-sm p-1 text-muted-foreground transition-colors hover:text-primary"
+            className="shrink-0 rounded-md p-1 text-muted-foreground transition-colors hover:text-primary"
           >
             <ExternalLink className="h-3 w-3" />
           </button>
         )}
       </div>
       {open && (
-        <div id={bodyId} className="border-t border-border/30 p-2">
+        <div id={bodyId} className="border-t border-border p-2">
           <ToolResult step={step} onPivot={() => undefined} />
         </div>
       )}
@@ -257,7 +257,7 @@ function Empty({ onAsk }: { onAsk(question: string): void }) {
             key={key}
             type="button"
             onClick={() => onAsk(t(key))}
-            className="block w-full rounded-sm border border-border/40 px-3 py-2 text-start font-mono text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+            className="block w-full rounded-md border border-border px-3 py-2 text-start font-mono text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
           >
             {t(key)}
           </button>
