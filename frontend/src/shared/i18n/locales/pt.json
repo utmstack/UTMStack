@@ -1675,6 +1675,7 @@
       "loadingMore": "Carregando mais…",
       "message": "Mensagem",
       "none": "Nenhum log corresponde a esta consulta.",
+      "reorderColumn": "Arraste {{field}}; Alt + Esquerda/Direita para mover",
       "removeColumn": "Remover {{field}}",
       "retry": "Tentar novamente",
       "searchFailed": "A busca falhou.",

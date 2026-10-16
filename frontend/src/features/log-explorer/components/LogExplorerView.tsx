@@ -147,6 +147,18 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
     []
   )
 
+  const reorderColumn = useCallback((source: string, target: string) => {
+    setColumns((current) => {
+      const from = current.indexOf(source)
+      const to = current.indexOf(target)
+      if (from < 0 || to < 0 || from === to) return current
+      const next = [...current]
+      next.splice(from, 1)
+      next.splice(to, 0, source)
+      return next
+    })
+  }, [])
+
   // Capture the current query as a reusable saved search.
   const currentSnapshot = useCallback(
     (): SavedSearchState => ({
@@ -669,6 +681,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
                   onAdd={addFilter}
                   onSurrounding={viewSurrounding}
                   onRemoveColumn={toggleColumn}
+                  onReorderColumn={reorderColumn}
                 />
                 {loading && rows.length === 0 ? (
                   <RowMessage>

@@ -1827,6 +1827,7 @@
       "loadingMore": "Loading more…",
       "message": "Message",
       "none": "No logs match this query.",
+      "reorderColumn": "Drag to reorder {{field}}; Alt + Left/Right to move",
       "removeColumn": "Remove {{field}}",
       "retry": "Retry",
       "searchFailed": "Search failed.",

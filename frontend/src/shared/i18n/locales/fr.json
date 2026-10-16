@@ -1675,6 +1675,7 @@
       "loadingMore": "Chargement…",
       "message": "Message",
       "none": "Aucun log ne correspond à cette requête.",
+      "reorderColumn": "Glisser {{field}} ; Alt + Gauche/Droite pour déplacer",
       "removeColumn": "Retirer {{field}}",
       "retry": "Réessayer",
       "searchFailed": "La recherche a échoué.",

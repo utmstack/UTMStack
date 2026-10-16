@@ -2,7 +2,7 @@ import { memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import type { ColumnDef } from '@tanstack/react-table'
-import { ChevronRight, X } from 'lucide-react'
+import { ChevronRight, GripVertical, X } from 'lucide-react'
 import { ResizableDataTable } from '@/shared/components/ui/resizable-data-table'
 import { cn } from '@/shared/lib/utils'
 import type { FilterType, LogDocument } from '../types/log-explorer.types'
@@ -20,6 +20,8 @@ import {
   shortTime,
 } from './log-results'
 
+const COLUMN_DRAG_TYPE = 'application/x-utmstack-log-column'
+
 const TS = '@timestamp'
 const TH = 'whitespace-nowrap px-3 py-1.5 text-left align-middle font-medium'
 const TD = 'whitespace-nowrap px-3 py-1 align-middle'
@@ -33,16 +35,53 @@ interface Layout {
   columns: string[]
   autoColumns: string[]
   expanded: number | null
+  onReorderColumn?: (source: string, target: string) => void
   onRemoveColumn?: (field: string) => void
 }
 
-function buildColumns(t: TFunction, { columns, autoColumns, expanded, onRemoveColumn }: Layout): ColumnDef<LogDocument>[] {
+function buildColumns(t: TFunction, { columns, autoColumns, expanded, onRemoveColumn, onReorderColumn }: Layout): ColumnDef<LogDocument>[] {
   const field = (name: string, isLast: boolean, removable: boolean): ColumnDef<LogDocument> => ({
     id: fieldId(name),
     size: fieldColumnSize(name, isLast),
     minSize: FIELD_MIN,
     header: () => (
-      <div className="group flex min-w-0 items-center gap-1">
+      <div
+        className="group flex min-w-0 items-center gap-1"
+        onDragOver={(event) => {
+          if (removable && onReorderColumn && event.dataTransfer.types.includes(COLUMN_DRAG_TYPE)) {
+            event.preventDefault()
+            event.dataTransfer.dropEffect = 'move'
+          }
+        }}
+        onDrop={(event) => {
+          if (!removable || !onReorderColumn) return
+          const source = event.dataTransfer.getData(COLUMN_DRAG_TYPE)
+          if (!columns.includes(source)) return
+          event.preventDefault()
+          onReorderColumn(source, name)
+        }}
+      >
+        {removable && onReorderColumn && (
+          <button
+            type="button"
+            draggable
+            aria-label={t('logExplorer.results.reorderColumn', { field: name })}
+            title={t('logExplorer.results.reorderColumn', { field: name })}
+            className="shrink-0 cursor-grab touch-auto active:cursor-grabbing"
+            onDragStart={(event) => {
+              event.dataTransfer.setData(COLUMN_DRAG_TYPE, name)
+              event.dataTransfer.effectAllowed = 'move'
+            }}
+            onKeyDown={(event) => {
+              if (!event.altKey || !['ArrowLeft', 'ArrowRight'].includes(event.key)) return
+              event.preventDefault()
+              const target = columns[columns.indexOf(name) + (event.key === 'ArrowLeft' ? -1 : 1)]
+              if (target) onReorderColumn(name, target)
+            }}
+          >
+            <GripVertical size={12} />
+          </button>
+        )}
         <span className="truncate" title={name}>
           {fieldLabel(name)}
         </span>
@@ -148,6 +187,7 @@ function LogTableImpl({
   onAdd,
   onSurrounding,
   onRemoveColumn,
+  onReorderColumn,
 }: {
   docs: LogDocument[]
   columns: string[]
@@ -156,16 +196,17 @@ function LogTableImpl({
   onToggle: (index: number) => void
   onAdd?: (f: FilterType) => void
   onSurrounding?: (ts: string, srcField?: string, srcVal?: string) => void
+  onReorderColumn?: (source: string, target: string) => void
   onRemoveColumn?: (field: string) => void
 }) {
   const { t } = useTranslation()
   const tableColumns = useMemo(
-    () => buildColumns(t, { columns, autoColumns, expanded, onRemoveColumn }),
-    [t, columns, autoColumns, expanded, onRemoveColumn],
+    () => buildColumns(t, { columns, autoColumns, expanded, onRemoveColumn, onReorderColumn }),
+    [t, columns, autoColumns, expanded, onRemoveColumn, onReorderColumn],
   )
   // Widths are kept per column set, and the set changes what the columns are:
   // the table starts over with its own sizes whenever it does.
-  const storageKey = `log-explorer-table-sizing:${columns.length > 0 ? columns.join('|') : `auto:${autoColumns.join('|')}`}`
+  const storageKey = `log-explorer-table-sizing:${columns.length > 0 ? [...columns].sort().join('|') : `auto:${autoColumns.join('|')}`}`
   const flexColumn =
     columns.length > 0
       ? fieldId(columns[columns.length - 1])

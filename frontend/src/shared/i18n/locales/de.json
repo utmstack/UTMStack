@@ -1675,6 +1675,7 @@
       "loadingMore": "Mehr wird geladen…",
       "message": "Nachricht",
       "none": "Keine Logs entsprechen dieser Abfrage.",
+      "reorderColumn": "{{field}} ziehen; Alt + Links/Rechts zum Verschieben",
       "removeColumn": "{{field}} entfernen",
       "retry": "Erneut versuchen",
       "searchFailed": "Suche fehlgeschlagen.",
