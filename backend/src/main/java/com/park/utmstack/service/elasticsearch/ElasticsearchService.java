@@ -18,6 +18,7 @@ import com.park.utmstack.service.dto.compliance.UtmComplianceControlEvaluationHi
 import com.park.utmstack.service.mapper.compliance.UtmComplianceControlLatestEvaluationMapper;
 import com.park.utmstack.service.mapper.compliance.UtmComplianceControlEvaluationHistoryMapper;
 import com.park.utmstack.util.chart_builder.IndexPropertyType;
+import com.park.utmstack.util.exceptions.ApiException;
 import com.park.utmstack.util.exceptions.OpenSearchIndexNotFoundException;
 import com.park.utmstack.util.exceptions.UtmElasticsearchException;
 import com.utmstack.opensearch_connector.enums.IndexSortableProperty;
@@ -94,10 +95,20 @@ public class ElasticsearchService {
     public List<String> getFieldValues(String keyword, String indexPattern) {
         final String ctx = CLASSNAME + ".getFieldValues";
         try {
-            return new ArrayList<>(client.getClient().getFieldValues(keyword, indexPattern,
+            // event.* is stored as a flat_object, whose sub-fields are NOT
+            // aggregatable. The typed twin lives in the utm.* bag
+            // (keyword, aggregatable), so suggest from there (issue #2904).
+            String field = keyword != null && keyword.startsWith("event.")
+                    ? "utm." + keyword.substring("event.".length())
+                    : keyword;
+            return new ArrayList<>(client.getClient().getFieldValues(field, indexPattern,
                     null, 10000, TermOrder.Count, SortOrder.Desc).keySet());
         } catch (Exception e) {
-            throw new RuntimeException(ctx + ": " + e.getLocalizedMessage());
+            // This endpoint only feeds value suggestions; a field that isn't
+            // aggregatable in some generation should yield no suggestions, not
+            // a 500 that empties the whole filter UI.
+            log.warn(ctx + ": field value suggestions unavailable for {}: {}", keyword, e.getMessage());
+            return new ArrayList<>();
         }
     }
 
@@ -381,6 +392,10 @@ public class ElasticsearchService {
             Assert.hasText(indexPattern, "Parameter indexPattern must not be null or empty");
             SearchRequest query = buildQuery(indexPattern, filters, top, pageable);
             return client.execute(c -> c.search(query, type));
+        } catch (ApiException e) {
+            // Intentional 4xx from buildQuery (e.g. flattened-field sort/range) —
+            // let the global handler return its own status, don't 500 (#2909).
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getMessage());
         }
@@ -591,6 +606,11 @@ public class ElasticsearchService {
             srb.index(pattern);
             SearchUtil.applyPaginationAndSort(srb, pageable, top);
             return srb.query(SearchUtil.toQuery(filters)).build();
+        } catch (ApiException e) {
+            // Intentional 4xx (e.g. "Sorting is not supported on flattened field")
+            // must reach the global handler as its own status, not be wrapped
+            // into a 500 by the catch-all below (issue #2909).
+            throw e;
         } catch (Exception e) {
             throw new UtmElasticsearchException(ctx + ": " + e.getMessage());
         }
