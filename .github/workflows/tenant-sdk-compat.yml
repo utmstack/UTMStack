@@ -1,0 +1,53 @@
+name: Tenant SDK compatibility
+
+on:
+  pull_request:
+    branches: [v12, 'release/v12*']
+    paths:
+      - 'backend/go.mod'
+      - 'backend/modules/eventprocessing/domain/tenant*.go'
+      - 'plugins/**/go.mod'
+      - 'plugins/**/go.sum'
+      - 'tools/runtimecompat/**'
+      - '.github/workflows/tenant-sdk-compat.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  runtime-schema:
+    name: Tenant config (${{ matrix.plugin }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        plugin:
+          - ad-audit
+          - alerts
+          - aws
+          - azure
+          - bitdefender
+          - crowdstrike
+          - events
+          - feeds
+          - gcp
+          - geolocation
+          - o365
+          - playground
+          - rule-flood-guard
+          - soar
+          - soc-ai
+          - sophos
+          - stats
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: plugins/${{ matrix.plugin }}/go.mod
+          cache-dependency-path: plugins/${{ matrix.plugin }}/go.sum
+      - name: Check the plugin's runtime tenant schema
+        working-directory: plugins/${{ matrix.plugin }}
+        run: go test -mod=readonly ../../tools/runtimecompat/tenant_config_test.go
+      - name: Test plugin
+        working-directory: plugins/${{ matrix.plugin }}
+        run: go test -mod=readonly ./...
