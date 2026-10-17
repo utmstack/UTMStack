@@ -5,9 +5,14 @@ import { toast } from 'sonner'
 import { cn } from '@/shared/lib/utils'
 import { threatIntelHttpService } from '@/features/threat-intel/services/threat-intel-http.service'
 
+interface FeedsStatus {
+  feeds_enabled: boolean
+  feeds_contribution_enabled: boolean
+}
+
 export function ThreatWindsPage() {
   const { t } = useTranslation()
-  const [status, setStatus] = useState<{ enabled: boolean } | null>(null)
+  const [status, setStatus] = useState<FeedsStatus | null>(null)
   const [loading, setLoading] = useState(true)
   const [failed, setFailed] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -16,7 +21,7 @@ export function ThreatWindsPage() {
     setLoading(true)
     setFailed(false)
     try {
-      setStatus(await threatIntelHttpService.contribution())
+      setStatus(await threatIntelHttpService.feedsStatus())
     } catch {
       setFailed(true)
     } finally {
@@ -28,21 +33,20 @@ export function ThreatWindsPage() {
     void load()
   }, [load])
 
-  const toggle = async (enabled: boolean) => {
+  const setFlag = (key: keyof FeedsStatus, next: FeedsStatus) => {
     if (!status || busy) return
     setBusy(true)
-    try {
-      const next = await threatIntelHttpService.setContribution(enabled)
-      setStatus(next)
-      toast.success(enabled ? t('threatwinds.toast.enabled') : t('threatwinds.toast.disabled'))
-    } catch {
-      toast.error(t('threatwinds.toast.failed'))
-    } finally {
-      setBusy(false)
-    }
+    void threatIntelHttpService
+      .setFeedsStatus(next)
+      .then((res) => {
+        setStatus(res)
+        toast.success(
+          next[key] ? t('threatwinds.toast.enabled') : t('threatwinds.toast.disabled'),
+        )
+      })
+      .catch(() => toast.error(t('threatwinds.toast.failed')))
+      .finally(() => setBusy(false))
   }
-
-  const enabled = status?.enabled ?? false
 
   return (
     <div className="mx-auto w-full max-w-3xl px-6 pb-10 pt-4">
@@ -52,46 +56,86 @@ export function ThreatWindsPage() {
       </header>
       <p className="mt-2 text-sm text-muted-foreground">{t('threatwinds.subtitle')}</p>
 
-      <div className="mt-6 rounded-lg border border-border p-4">
+      <div className="mt-6 space-y-4">
         {loading ? (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2 rounded-lg border border-border p-4 text-sm text-muted-foreground">
             <Loader2 size={16} className="animate-spin" />
             {t('threatwinds.loading')}
           </div>
         ) : failed ? (
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center justify-between gap-4 rounded-lg border border-border p-4">
             <p className="text-sm text-muted-foreground">{t('threatwinds.failed')}</p>
             <button type="button" onClick={() => void load()} className="text-sm underline">
               {t('threatwinds.retry')}
             </button>
           </div>
         ) : (
-          <div className="flex items-start justify-between gap-4">
-            <div className="min-w-0">
-              <div className="text-sm font-medium">{t('threatwinds.contribute')}</div>
-              <p className="mt-0.5 text-xs text-muted-foreground">{t('threatwinds.contributeHint')}</p>
-            </div>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={enabled}
-              disabled={busy}
-              onClick={() => toggle(!enabled)}
-              className={cn(
-                'relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-50',
-                enabled ? 'bg-primary' : 'bg-muted-foreground/30',
-              )}
-            >
-              <span
-                className={cn(
-                  'inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform',
-                  enabled ? 'translate-x-4' : 'translate-x-0.5',
-                )}
+          <>
+            <div className="flex items-start justify-between gap-4 rounded-lg border border-border p-4">
+              <div className="min-w-0">
+                <div className="text-sm font-medium">{t('threatwinds.feeds')}</div>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  {t('threatwinds.feedsHint')}
+                </p>
+              </div>
+              <Switch
+                checked={status?.feeds_enabled ?? false}
+                disabled={busy}
+                onToggle={(v) => setFlag('feeds_enabled', { ...status!, feeds_enabled: v })}
               />
-            </button>
-          </div>
+            </div>
+            <div className="flex items-start justify-between gap-4 rounded-lg border border-border p-4">
+              <div className="min-w-0">
+                <div className="text-sm font-medium">{t('threatwinds.contribute')}</div>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  {t('threatwinds.contributeHint')}
+                </p>
+              </div>
+              <Switch
+                checked={status?.feeds_contribution_enabled ?? false}
+                disabled={busy}
+                onToggle={(v) =>
+                  setFlag('feeds_contribution_enabled', {
+                    ...status!,
+                    feeds_contribution_enabled: v,
+                  })
+                }
+              />
+            </div>
+          </>
         )}
       </div>
     </div>
+  )
+}
+
+function Switch({
+  checked,
+  disabled,
+  onToggle,
+}: {
+  checked: boolean
+  disabled: boolean
+  onToggle: (next: boolean) => void
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      disabled={disabled}
+      onClick={() => onToggle(!checked)}
+      className={cn(
+        'relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-50',
+        checked ? 'bg-primary' : 'bg-muted-foreground/30',
+      )}
+    >
+      <span
+        className={cn(
+          'inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform',
+          checked ? 'translate-x-4' : 'translate-x-0.5',
+        )}
+      />
+    </button>
   )
 }

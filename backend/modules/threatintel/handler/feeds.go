@@ -50,7 +50,7 @@ func (h *FeedsHandler) SetEnabled(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if err := h.uc.SetEnabled(req.Enabled); err != nil {
+	if err := h.uc.SetEnabled(req); err != nil {
 		_ = catcher.Error("threatintel: saving the feeds configuration failed", err, nil)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not save the configuration"})
 		return
