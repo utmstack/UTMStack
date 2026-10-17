@@ -5811,6 +5811,8 @@
   "threatwinds": {
     "title": "Integración de ThreatWinds",
     "subtitle": "Comparte los incidentes de esta instancia con el feed comunitario de ThreatWinds.",
+    "feeds": "Habilitar feeds",
+    "feedsHint": "Cuando está activado, los eventos se comprueban contra los feeds de inteligencia de ThreatWinds.",
     "contribute": "Contribuir incidentes",
     "contributeHint": "Cuando está activado, los incidentes de esta instancia se envían a ThreatWinds.",
     "loading": "Cargando estado de la integración…",
