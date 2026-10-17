@@ -24,6 +24,9 @@ import { InteractiveConsolePage } from '@/features/soar/pages/InteractiveConsole
 import { LogExplorerPage } from '@/features/log-explorer/pages/LogExplorerPage'
 import { UserAuditorPage } from '@/features/user-auditor/pages/UserAuditorPage'
 import { ThreatIntelPage } from '@/features/threat-intel/pages/ThreatIntelPage'
+import { ThreatIntelAnalystPage } from '@/features/threat-intel/pages/ThreatIntelAnalystPage'
+import { ThreatIntelReportPage } from '@/features/threat-intel/pages/ThreatIntelReportPage'
+import { TriagePage } from '@/features/threat-intel/pages/TriagePage'
 import { CompliancePage } from '@/features/compliance/pages/CompliancePage'
 import { FrameworkReportPage } from '@/features/compliance/pages/FrameworkReportPage'
 import { DataSourcesPage } from '@/features/datasources/pages/DataSourcesPage'
@@ -133,6 +136,9 @@ export function AppRoutes() {
         <Route path="log-explorer" element={<LogExplorerPage />} />
         <Route path="user-auditor" element={<UserAuditorPage />} />
         <Route path="threat-intelligence" element={<ThreatIntelPage />} />
+        <Route path="threat-intelligence/analyst" element={<ThreatIntelAnalystPage />} />
+        <Route path="threat-intelligence/report" element={<ThreatIntelReportPage />} />
+        <Route path="threat-intelligence/triage" element={<TriagePage />} />
 
         {/* Compliance */}
         <Route path="compliance" element={<CompliancePage />} />
