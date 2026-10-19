@@ -4,10 +4,12 @@ package dto
 // whether this instance sends to it and whether it has credentials. The
 // credentials themselves are never part of an answer.
 type FeedsStatus struct {
-	Enabled    bool `json:"enabled"`
+	FeedsEnabled    			bool `json:"feeds_enabled"`
+	FeedsContributionEnabled    bool `json:"feeds_contribution_enabled"`
 }
 
 type FeedsToggleRequest struct {
-	Enabled bool `json:"enabled"`
+	FeedsEnabled    			bool `json:"feeds_enabled"`
+	FeedsContributionEnabled    bool `json:"feeds_contribution_enabled"`
 }
 

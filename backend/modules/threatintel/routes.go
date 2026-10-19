@@ -21,6 +21,19 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	advancedSearchHandler := handler.NewReverseProxyHandler("/proxy/api/search/v1/entities/advanced")
 	g.POST("/search/advanced", advancedSearchHandler.Handle)
 
+	// POST /api/v1/threat-intel/entity/lookup → /proxy/api/search/v1/entity
+	// Exact per-type lookup; 404 when the entity is not in the corpus.
+	lookupHandler := handler.NewReverseProxyHandler("/proxy/api/search/v1/entity")
+	g.POST("/entity/lookup", lookupHandler.Handle)
+
+	// POST /api/v1/threat-intel/report/entity → /proxy/api/ingest/v1/entity
+	reportEntityHandler := handler.NewReverseProxyHandler("/proxy/api/ingest/v1/entity")
+	g.POST("/report/entity", reportEntityHandler.Handle)
+
+	// GET /api/v1/threat-intel/report/definitions → /proxy/api/ingest/v1/definitions
+	definitionsHandler := handler.NewReverseProxyHandler("/proxy/api/ingest/v1/definitions")
+	g.GET("/report/definitions", definitionsHandler.Handle)
+
 	// GET /api/v1/threat-intel/entity/:id → /proxy/api/analytics/v1/entity/{id}/details
 	g.GET("/entity/:id", func(c *gin.Context) {
 		id := c.Param("id")
@@ -41,9 +54,24 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	feedsHandler := handler.NewReverseProxyHandler("/proxy/api/feeds/v1/list")
 	g.GET("/feeds", feedsHandler.Handle)
 
+	// GET /api/v1/threat-intel/feeds/download/:level/:type/:name
+	// → /proxy/api/feeds/v1/download/list/{level}/{type}/{name}
+	g.GET("/feeds/download/:level/:type/:name", func(c *gin.Context) {
+		targetPath := "/proxy/api/feeds/v1/download/list/" +
+			c.Param("level") + "/" + c.Param("type") + "/" + c.Param("name")
+		handler.NewReverseProxyHandler(targetPath).Handle(c)
+	})
+
+	// GET /api/v1/threat-intel/feeds/checksum → /proxy/api/feeds/v1/download/checksum
+	checksumHandler := handler.NewReverseProxyHandler("/proxy/api/feeds/v1/download/checksum")
+	g.GET("/feeds/checksum", checksumHandler.Handle)
+
 	// POST /api/v1/threat-intel/ai/chat → /proxy/api/ai/v1/chat/completions
 	chatHandler := handler.NewReverseProxyHandler("/proxy/api/ai/v1/chat/completions")
 	g.POST("/ai/chat", chatHandler.Handle)
+
+	simpleSearchHandler := handler.NewReverseProxyHandler("/proxy/api/search/v1/entities/simple")
+	g.POST("/ai/search", simpleSearchHandler.Handle)
 
 	// GET /api/v1/threat-intel/status — can this instance reach ThreatWinds at
 	// all. Answers a boolean and nothing else, so the page can say "not set up"
