@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import type { ColumnDef } from "@tanstack/react-table";
+import { useListScrollReset } from '@/shared/hooks/use-list-scroll-reset'
 import {
   AlertTriangle,
   Loader2,
@@ -84,6 +85,10 @@ export function FlowsPage() {
   const [starting, setStarting] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
   const { soarEditVersion } = useSocAi();
+
+  const scrollRef = useRef<HTMLDivElement>(null)
+  useListScrollReset(page, 0, scrollRef)
+
   useEffect(() => {
     const relPath = (location.state as { selectFlowId?: string } | null)
       ?.selectFlowId;
@@ -157,6 +162,11 @@ export function FlowsPage() {
       .catch(() => setError(true))
       .finally(() => setLoading(false));
   }, [query, page]);
+  // Refresh resets to page 0 first so a scrolled list replaces, not appends.
+  const handleRefresh = useCallback(() => {
+    if (page === 0) load();
+    else setPage(0);
+  }, [page, load]);
   useEffect(() => {
     load();
   }, [load]);
@@ -251,7 +261,7 @@ export function FlowsPage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={load}
+              onClick={handleRefresh}
               disabled={loading}
               title={t("soar.refresh")}
             >
@@ -265,7 +275,7 @@ export function FlowsPage() {
           </div>
 
           <div className="mt-3 flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card">
-            <div className="min-h-0 flex-1 overflow-auto">
+            <div className="min-h-0 flex-1 overflow-auto" ref={scrollRef}>
               <ResizableDataTable
                 columns={buildFlowColumns(t, stats, toggleActive)}
                 data={items}

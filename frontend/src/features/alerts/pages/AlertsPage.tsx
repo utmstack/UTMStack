@@ -20,6 +20,7 @@ import {
   type StatusTab,
 } from '../types/alert.types'
 import { useAlertsList } from '../hooks/use-alerts-list'
+import { useListScrollReset } from '@/shared/hooks/use-list-scroll-reset'
 import { useAlertStats } from '../hooks/use-alert-stats'
 import { useAlertTagCatalog } from '../hooks/use-alert-tag-catalog'
 import { useAlertMutations } from '../hooks/use-alert-mutations'
@@ -103,12 +104,8 @@ export function AlertsPage() {
   const [page, setPage] = useState(0)
   const [pageSize] = useState(50)
 
-  const scrollRef = useRef<null|HTMLDivElement>(null)
-
-  const handleReset = () => {
-    if(scrollRef.current)
-    scrollRef.current.scrollTop = 0;
-  };
+  const scrollRef = useRef<HTMLDivElement>(null)
+  useListScrollReset(page, 0, scrollRef)
 
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [expandedEchoes, setExpandedEchoes] = useState<Set<string>>(new Set())
@@ -209,10 +206,7 @@ export function AlertsPage() {
 
   const refresh = useCallback(() => {
     if (page === 0) refreshList()
-    else{
-      setPage(0)
-      handleReset()
-    }
+    else setPage(0)
     refreshStats()
 
   }, [page, refreshList, refreshStats])
