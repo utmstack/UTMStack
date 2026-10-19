@@ -2,16 +2,20 @@ package com.park.utmstack.service.util;
 
 import com.park.utmstack.config.Constants;
 import com.park.utmstack.service.dto.web_pdf.PdfServiceResponse;
-import com.park.utmstack.service.web_clients.rest_template.RestTemplateService;
 import com.park.utmstack.util.exceptions.ApiException;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Set;
@@ -20,12 +24,15 @@ import java.util.Set;
  * Service Implementation for PDF generation.
  */
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class PdfService {
     private final Logger log = LoggerFactory.getLogger(PdfService.class);
     private static final String CLASSNAME = "PdfService";
-    private final RestTemplateService restTemplateService;
+    private final RestTemplate pdfRestTemplate;
+
+    public PdfService(@Qualifier("pdfRestTemplate") RestTemplate pdfRestTemplate) {
+        this.pdfRestTemplate = pdfRestTemplate;
+    }
 
 
     /**
@@ -53,8 +60,11 @@ public class PdfService {
                 .build().toUriString();
         try {
             log.info("Requesting PDF creation to URL : {}", urlService);
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Type", "application/json");
+            headers.add("Accept", "*/*");
             ResponseEntity<PdfServiceResponse> rs =
-                    restTemplateService.getRaw(urlService, PdfServiceResponse.class);
+                    pdfRestTemplate.exchange(urlService, HttpMethod.GET, new HttpEntity<>(headers), PdfServiceResponse.class);
 
             if (!rs.getStatusCode().is2xxSuccessful()) {
                 PdfServiceResponse errorBody = rs.getBody();
@@ -81,6 +91,12 @@ public class PdfService {
 
         } catch (ApiException e) {
             throw e;
+        } catch (ResourceAccessException e) {
+            // The PDF service did not answer within the read timeout (issue
+            // #2934). Fail fast with a clear message so the UI can close its
+            // spinner and show an error instead of hanging.
+            log.error("{}: Timed out waiting for the PDF service: {}", ctx, e.getMessage());
+            throw new ApiException("PDF generation timed out. The report may be too large; try a narrower time range.", HttpStatus.GATEWAY_TIMEOUT);
         } catch (Exception e){
             log.error("{}: Exception occurred while requesting PDF service: {}", ctx, e.getMessage());
             throw new ApiException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
