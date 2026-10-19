@@ -6060,6 +6060,8 @@
       "noMatches": "Sem correspondências.",
       "matches": "{{items}} correspondências para «{{query}}»",
       "more": "+{{count}} mais"
+    }
+  },
   "threatwinds": {
     "title": "Integração ThreatWinds",
     "subtitle": "Partilhe os incidentes desta instância com o feed comunitário da ThreatWinds.",

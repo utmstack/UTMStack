@@ -6048,6 +6048,8 @@
       "noMatches": "No matches.",
       "matches": "{{items}} matches for \"{{query}}\"",
       "more": "+{{count}} more"
+    }
+  },
   "threatwinds": {
     "title": "ThreatWinds Integration",
     "subtitle": "Share this instance's incidents with the ThreatWinds community feed.",
