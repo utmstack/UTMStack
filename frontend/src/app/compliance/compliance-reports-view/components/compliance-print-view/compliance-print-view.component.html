@@ -26,7 +26,7 @@
     <div *ngIf="report.visualization" class="compliance-evidence mb-3">
       <p class="font-weight-bold">Evidence:</p>
       <app-render-visualization-print *ngIf="report.visualization"
-                                      (visualizationLoaded)="onVisualizationLoaded()"
+                                      (visualizationLoaded)="onVisualizationRun()"
                                       [visualizationRender]="[report.visualization]"></app-render-visualization-print>
     </div>
   </div>
