@@ -40,6 +40,14 @@ import {resolveDefaultVisualizationTime} from '../../../util/visualization/visua
   styleUrls: ['./table-view.component.scss']
 })
 export class TableViewComponent implements OnInit, OnChanges, OnDestroy {
+  /**
+   * Max rows rendered in a PDF/print export (issue #2934). A compliance report
+   * can return thousands of events; rendering every row makes the headless
+   * browser run out of memory while printing (its container is ~1.1 GiB). 250
+   * is well under the observed OOM point (~800 rows) while still giving a
+   * meaningful, reviewable sample.
+   */
+  static readonly EXPORT_MAX_ROWS = 250;
   @ViewChildren(SortableDirective) headers: QueryList<SortableDirective>;
   @Input() visualization: VisualizationType;
   @Input() building: boolean;
@@ -68,6 +76,8 @@ export class TableViewComponent implements OnInit, OnChanges, OnDestroy {
   responseRows: Array<{ value: any; metric: boolean }[]>;
   exporting = false;
   error = false;
+  /** True when an export rendered only a capped subset of rows (see EXPORT_MAX_ROWS). */
+  exportTruncated = false;
   defaultTime: ElasticFilterDefaultTime;
   screenResolution = window.screen.width;
   searching = false;
@@ -154,7 +164,14 @@ export class TableViewComponent implements OnInit, OnChanges, OnDestroy {
   calcItemsPerPage(): number {
     this.tableOptions = this.visualization.chartConfig;
     if (this.exportFormat) {
-      return this.data.rows.length - 1;
+      // Cap the rows rendered in a PDF/print export. Rendering every row
+      // (up to 10,000) makes the headless browser run out of memory while
+      // printing and the export hangs forever (issue #2934). data.rows is
+      // left intact so totalFunction aggregates (sum/count/...) still work
+      // over the full result set; only the rendered slice is limited.
+      const total = this.data.rows.length;
+      this.exportTruncated = total > TableViewComponent.EXPORT_MAX_ROWS;
+      return Math.min(total - 1, TableViewComponent.EXPORT_MAX_ROWS);
     } else if (this.tableOptions.dynamicPageSize) {
       const gridHeight = Number(this.height.replace('px', ''));
       const calc = Math.round((gridHeight / 40));

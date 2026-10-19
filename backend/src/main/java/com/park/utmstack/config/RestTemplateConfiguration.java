@@ -52,6 +52,23 @@ public class RestTemplateConfiguration {
         return rest;
     }
 
+    /**
+     * RestTemplate for the web-pdf microservice. PDF generation is the slowest
+     * backend call (headless browser render + print of a report), and it must be
+     * bounded: without a read timeout a hung or OOM-ing printPage call makes the
+     * UI spinner spin forever (issue #2934). Connect is quick (local service);
+     * the generous read timeout leaves room for legitimate large reports.
+     */
+    @Bean(name = "pdfRestTemplate")
+    public RestTemplate pdfRestTemplate() {
+        HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
+        factory.setConnectTimeout(10_000);
+        factory.setReadTimeout(120_000);
+        RestTemplate rest = new RestTemplate(factory);
+        rest.setErrorHandler(new DefaultResponseErrorHandler());
+        return rest;
+    }
+
 
     private HttpComponentsClientHttpRequestFactory clientHttpRequestFactory() {
         final String ctx = CLASSNAME + ".clientHttpRequestFactory";
