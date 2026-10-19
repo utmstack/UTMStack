@@ -6060,6 +6060,8 @@
       "noMatches": "Keine Treffer.",
       "matches": "{{items}} Treffer für „{{query}}“",
       "more": "+{{count}} weitere"
+    }
+  },
   "threatwinds": {
     "title": "ThreatWinds-Integration",
     "subtitle": "Teilen Sie die Vorfälle dieser Instanz mit der ThreatWinds-Community-Feeds.",
