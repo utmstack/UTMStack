@@ -62,7 +62,7 @@ export function CustomFilterBar({
                 disabled={!onUpdate}
                 className="inline-flex items-center gap-1.5 rounded hover:bg-primary/10 disabled:cursor-default disabled:hover:bg-transparent"
               >
-                <span className="text-muted-foreground">{t(fields.find((x) => x.field === f.field))?.label ?? f.label}</span>
+                <span className="text-muted-foreground">{t(fields.find((x) => x.field === f.field)?.label ?? f.label)}</span>
                 <span className="text-[11px] text-muted-foreground/70">{t(op?.label ?? f.operator)}</span>
                 {op?.needsValue && <span className="max-w-[200px] truncate font-mono font-medium">{t(f.value)}</span>}
               </button>

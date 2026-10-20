@@ -3,6 +3,7 @@ import { Loader2, Search } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
+import { useTranslation } from 'react-i18next'
 import type {
   CustomFilter,
   FilterBarLabels,
@@ -38,6 +39,9 @@ export function FilterEditorPanel({
   const [loadingValues, setLoadingValues] = useState(false)
   const [vq, setVq] = useState('')
 
+  const {t} = useTranslation()
+
+
   const op = operators.find((o) => o.id === operator)
   const needsValue = op?.needsValue ?? true
 
@@ -65,14 +69,14 @@ export function FilterEditorPanel({
         <select value={field} onChange={(e) => setField(e.target.value)} className={cn(SELECT_CLS, 'w-full')}>
           {fields.map((f) => (
             <option key={f.field} value={f.field}>
-              {f.label}
+              {t(f.label)}
             </option>
           ))}
         </select>
         <select value={operator} onChange={(e) => setOperator(e.target.value)} className={cn(SELECT_CLS, 'w-full')}>
           {operators.map((o) => (
             <option key={o.id} value={o.id}>
-              {o.label}
+              {t(o.label)}
             </option>
           ))}
         </select>
@@ -112,7 +116,7 @@ export function FilterEditorPanel({
                         <span className="truncate font-mono">{v.value || labels.empty}</span>
                         {v.count != null && (
                           <span className="shrink-0 font-mono text-[10px] text-muted-foreground">
-                            {v.count.toLocaleString()}
+                            {t(v.count.toLocaleString())}
                           </span>
                         )}
                       </button>
@@ -120,7 +124,7 @@ export function FilterEditorPanel({
                   })
                 )}
               </div>
-              <p className="text-[10px] text-muted-foreground">{labels.pickValue}</p>
+              <p className="text-[10px] text-muted-foreground">{t(labels.pickValue)}</p>
             </>
           ) : (
             <>
@@ -134,10 +138,10 @@ export function FilterEditorPanel({
               />
               <div className="flex justify-end gap-2 pt-1">
                 <Button variant="outline" size="sm" onClick={onCancel}>
-                  {labels.cancel}
+                  {t(labels.cancel)}
                 </Button>
                 <Button size="sm" disabled={!freeValue} onClick={() => submit(freeValue)}>
-                  {labels.addBtn}
+                  {t(labels.addBtn)}
                 </Button>
               </div>
             </>
@@ -145,10 +149,10 @@ export function FilterEditorPanel({
         ) : (
           <div className="flex justify-end gap-2 pt-1">
             <Button variant="outline" size="sm" onClick={onCancel}>
-              {labels.cancel}
+              {t(labels.cancel)}
             </Button>
             <Button size="sm" onClick={() => submit('')}>
-              {labels.addBtn}
+              {t(labels.addBtn)}
             </Button>
           </div>
         )}
