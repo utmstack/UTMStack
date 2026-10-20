@@ -69,9 +69,10 @@ type SoarExecution struct {
 	AlertID   string     `gorm:"column:alert_id;size:150;not null"  json:"alertId,omitempty"`
 
 	// DAG node identity.
-	NodeID string   `gorm:"column:node_id;size:150;not null;index:idx_soar_execution_run_node,unique,priority:2" json:"nodeId,omitempty"`
-	Depth  int      `gorm:"column:depth;not null;default:0;index:idx_soar_execution_run_node,unique,priority:3"  json:"depth"`
-	Kind   NodeKind `gorm:"column:kind;size:20;not null"                                                          json:"kind"`
+	NodeID   string   `gorm:"column:node_id;size:150;not null;index:idx_soar_execution_run_node,unique,priority:2" json:"nodeId,omitempty"`
+	Depth    int      `gorm:"column:depth;not null;default:0;index:idx_soar_execution_run_node,unique,priority:3" json:"depth"`
+	Sequence int      `gorm:"column:sequence;not null;default:0;index:idx_soar_execution_run_node,unique,priority:4" json:"sequence"`
+	Kind     NodeKind `gorm:"column:kind;size:20;not null"                                                          json:"kind"`
 
 	// Executor + interpolated payload.
 	Executor string          `gorm:"column:executor;size:60;not null"     json:"executor"`
@@ -84,10 +85,6 @@ type SoarExecution struct {
 	Command string `gorm:"column:command;not null"        json:"command"`
 	Result  string `gorm:"column:result"                  json:"result,omitempty"`
 	Shell   string `gorm:"column:shell;size:20"           json:"shell,omitempty"`
-
-	// AND-join accounting.
-	PendingParents int `gorm:"column:pending_parents;not null;default:0" json:"pendingParents"`
-	DeadParents    int `gorm:"column:dead_parents;not null;default:0"    json:"deadParents"`
 
 	Status            ExecutionStatus    `gorm:"column:status;size:20;not null" json:"status"`
 	StartedAt         time.Time          `gorm:"column:started_at;not null;index:idx_soar_execution_tenant_started,priority:2,sort:desc" json:"startedAt"`

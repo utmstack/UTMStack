@@ -20,9 +20,9 @@ import (
 )
 
 // Dispatcher walks the DAG: it pulls PENDING executions, hands each one to its
-// registered Executor, then spawns downstream children (on_success or on_error
-// edges) using the AND-join semantics described in
-// /home/nadie/.claude/plans/more-a-dag-than-sunny-umbrella.md.
+// registered Executor, then fires downstream children — one execution per
+// fired on_success/on_error edge. Unfired branches are recorded as DEAD rows
+// for visibility but never run.
 type Dispatcher struct {
 	exec  connectors.ExecutionRepository
 	runs  connectors.FlowRunRepository
@@ -186,8 +186,8 @@ func (d *Dispatcher) process(parent context.Context, exec domain.SoarExecution) 
 		return
 	}
 	fired, dead := d.edgesForBranch(node, branch)
-	d.spawnChildren(rest, flow, exec, fired, branch, true)
-	d.spawnChildren(rest, flow, exec, dead, oppositeBranch(branch), false)
+	d.fireChildren(rest, flow, exec, fired, branch)
+	d.markDeadBranches(rest, flow, exec, dead, branch)
 
 	if exec.FlowRunID != nil {
 		if _, err := d.runs.MaybeComplete(rest, *exec.FlowRunID); err != nil {
@@ -323,8 +323,9 @@ func (d *Dispatcher) reapOne(ctx context.Context, exec domain.SoarExecution) {
 		d.finishRun(ctx, *exec.FlowRunID)
 		return
 	}
-	d.spawnChildren(ctx, flow, exec, node.OnSuccess, domain.EdgeBranchSuccess, false)
-	d.spawnChildren(ctx, flow, exec, node.OnError, domain.EdgeBranchError, false)
+	fired, dead := d.edgesForBranch(node, domain.EdgeBranchError)
+	d.markDeadBranches(ctx, flow, exec, fired, domain.EdgeBranchError)
+	d.markDeadBranches(ctx, flow, exec, dead, oppositeBranch(domain.EdgeBranchError))
 	d.finishRun(ctx, *exec.FlowRunID)
 }
 
@@ -348,14 +349,10 @@ func oppositeBranch(b domain.EdgeBranch) domain.EdgeBranch {
 	return domain.EdgeBranchSuccess
 }
 
-// spawnChildren records edges and, when a child's incoming edges are fully
-// resolved, transitions it to PENDING (or DEAD when any parent came in on the
-// wrong branch).
-func (d *Dispatcher) spawnChildren(ctx context.Context, flow *domain.Flow, parent domain.SoarExecution, childIDs []string, branch domain.EdgeBranch, fired bool) {
+func (d *Dispatcher) fireChildren(ctx context.Context, flow *domain.Flow, parent domain.SoarExecution, childIDs []string, branch domain.EdgeBranch) {
 	if len(childIDs) == 0 || parent.FlowRunID == nil {
 		return
 	}
-	incoming := flow.IncomingCounts()
 	maxDepth := flow.ResolvedMaxDepth()
 	for _, id := range childIDs {
 		node, ok := flow.Nodes[id]
@@ -378,55 +375,53 @@ func (d *Dispatcher) spawnChildren(ctx context.Context, flow *domain.Flow, paren
 			ChildDepth:    childDepth,
 			ChildKind:     node.Kind,
 			ChildExecutor: node.Executor,
-			IncomingCount: incoming[id],
 			Branch:        branch,
-			Fired:         fired,
+			Fired:         true,
 		})
 		if err != nil {
 			_ = catcher.Error("soar dispatch: record edge failed", err, map[string]any{"parent": parent.ID, "child": id})
 			continue
 		}
-		if child.PendingParents > 0 {
-			continue
-		}
-		if child.Status.Terminal() {
-			continue // already settled by another parent racing us
-		}
-		d.transitionChild(ctx, flow, node, child)
+		d.transitionChild(ctx, node, child)
 	}
 }
 
-// transitionChild fires when a child's last parent resolves. Dead-if-any-dead
-// wins: an AND-join that had any incoming edge on the wrong branch cannot
-// execute and its subtree is marked dead.
-func (d *Dispatcher) transitionChild(ctx context.Context, flow *domain.Flow, node domain.FlowNode, child *domain.SoarExecution) {
-	if child.DeadParents > 0 {
-		dead := domain.ExecutionStatusDead
-		now := time.Now().UTC()
-		_ = d.exec.UpdateStatus(ctx, child.ID, connectors.ExecutionStatusUpdate{
-			Status:     &dead,
-			FinishedAt: &now,
-		})
-		child.Status = dead
-		// Propagate death down both branches — every downstream node is dead.
-		d.spawnChildren(ctx, flow, *child, node.OnSuccess, domain.EdgeBranchSuccess, false)
-		d.spawnChildren(ctx, flow, *child, node.OnError, domain.EdgeBranchError, false)
+func (d *Dispatcher) markDeadBranches(ctx context.Context, flow *domain.Flow, parent domain.SoarExecution, childIDs []string, branch domain.EdgeBranch) {
+	if len(childIDs) == 0 || parent.FlowRunID == nil {
 		return
 	}
-
-	parents, err := d.exec.ListFiredParents(ctx, child.ID)
-	if err != nil {
-		_ = catcher.Error("soar dispatch: list parents failed", err, map[string]any{"execution": child.ID})
-		return
-	}
-	contribs := make([]ParentContribution, 0, len(parents))
-	for _, p := range parents {
-		c := ParentContribution{Context: p.Context}
-		if p.Kind == domain.NodeKindEnrichment && len(p.Output) > 0 {
-			c.EnrichmentNodeID = p.NodeID
-			c.Output = p.Output
+	maxDepth := flow.ResolvedMaxDepth()
+	for _, id := range childIDs {
+		node, ok := flow.Nodes[id]
+		if !ok {
+			continue
 		}
-		contribs = append(contribs, c)
+		childDepth := parent.Depth + 1
+		if childDepth > maxDepth {
+			continue
+		}
+		if err := d.exec.RecordDeadBranch(ctx, connectors.RecordEdgeRequest{
+			FlowRunID:     *parent.FlowRunID,
+			TenantID:      parent.TenantID,
+			RulePath:      parent.RulePath,
+			AlertID:       parent.AlertID,
+			Parent:        parent,
+			ChildNodeID:   id,
+			ChildDepth:    childDepth,
+			ChildKind:     node.Kind,
+			ChildExecutor: node.Executor,
+			Branch:        branch,
+			Fired:         false,
+		}); err != nil {
+			_ = catcher.Error("soar dispatch: record dead branch failed", err, map[string]any{"parent": parent.ID, "child": id})
+		}
+	}
+}
+
+func (d *Dispatcher) transitionChild(ctx context.Context, node domain.FlowNode, child *domain.SoarExecution) {
+	contribs := []ParentContribution{{Context: child.Context}}
+	if child.Kind == domain.NodeKindEnrichment && len(child.Output) > 0 {
+		contribs = append(contribs, ParentContribution{EnrichmentNodeID: child.NodeID, Output: child.Output})
 	}
 	bag := MergeContexts(contribs)
 
@@ -445,11 +440,9 @@ func (d *Dispatcher) transitionChild(ctx context.Context, flow *domain.Flow, nod
 		_ = catcher.Error("soar dispatch: shell interpolation failed", err, map[string]any{"execution": child.ID})
 		return
 	}
-	// Children of the same flow-run inherit the parent's agent unless the node
-	// overrides it. Root-level agent resolution has already run in HandleMatch.
 	agent := node.Agent
-	if agent == "" && len(parents) > 0 {
-		agent = parents[0].Agent
+	if agent == "" && child.Agent != "" {
+		agent = child.Agent
 	}
 	if agent != "" {
 		if resolved, err := Interpolate(ctx, d.vars, bag, agent, ""); err == nil {
