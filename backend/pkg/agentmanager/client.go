@@ -359,6 +359,56 @@ func (c *AgentManagerClient) GetCollectorIntegrationState(ctx context.Context, c
 	return resp, nil
 }
 
+// GetEdrStatuses returns stored EDR status reports. agentID 0 = every agent
+// in the caller's tenant.
+func (c *AgentManagerClient) GetEdrStatuses(ctx context.Context, agentID uint32) ([]*agent.EdrStatusRow, error) {
+	resp, err := c.agentService.GetEdrStatus(ctx, &agent.EdrStatusListRequest{
+		AgentId:  agentID,
+		TenantId: authz.TenantIDFromContext(ctx),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("agentmanager: GetEdrStatus: %w", err)
+	}
+	return resp.GetRows(), nil
+}
+
+// DispatchEdrCommand pushes one EDR action to a connected agent. Fire-and-
+// forget: the result arrives asynchronously in the agent command history.
+func (c *AgentManagerClient) DispatchEdrCommand(ctx context.Context, agentID, cmdID, action, payload, executedBy, reason string) (*agent.DispatchEdrCommandResponse, error) {
+	resp, err := c.agentService.DispatchEdrCommand(ctx, &agent.DispatchEdrCommandRequest{
+		AgentId:    agentID,
+		CmdId:      cmdID,
+		Action:     action,
+		Payload:    payload,
+		ExecutedBy: executedBy,
+		Reason:     reason,
+		TenantId:   authz.TenantIDFromContext(ctx),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("agentmanager: DispatchEdrCommand: %w", err)
+	}
+	return resp, nil
+}
+
+// DispatchEdrCommands pushes the same action/payload to a set of agents. Per-
+// target results are returned; an offline target is reported, not fatal.
+func (c *AgentManagerClient) DispatchEdrCommands(ctx context.Context, agentIDs []string, action, payload, executedBy, reason string) ([]*agent.EdrCommandResultRow, error) {
+	targets := make([]*agent.EdrCommandDispatch, 0, len(agentIDs))
+	for _, id := range agentIDs {
+		targets = append(targets, &agent.EdrCommandDispatch{AgentId: id, Action: action, Payload: payload})
+	}
+	resp, err := c.agentService.DispatchEdrCommands(ctx, &agent.DispatchEdrCommandsRequest{
+		Targets:    targets,
+		ExecutedBy: executedBy,
+		Reason:     reason,
+		TenantId:   authz.TenantIDFromContext(ctx),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("agentmanager: DispatchEdrCommands: %w", err)
+	}
+	return resp.GetRows(), nil
+}
+
 // ProcessCommand opens a bidi stream, sends one command, and reads one result.
 // It does NOT call CloseSend — parity with ProcessCommandStream / Java. Half-
 // closing the panel-side stream races the agent-manager's ProcessCommand
