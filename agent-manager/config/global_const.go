@@ -35,6 +35,9 @@ func InternalKeyRoutes() []string {
 	return []string{
 		"/agent.AgentService/ListAgents",
 		"/agent.AgentService/ListAgentCommands",
+		"/agent.AgentService/GetEdrStatus",
+		"/agent.AgentService/DispatchEdrCommand",
+		"/agent.AgentService/DispatchEdrCommands",
 
 		"/agent.CollectorService/ListCollector",
 
