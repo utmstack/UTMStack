@@ -38,6 +38,7 @@ type program struct {
 	rwGuard  *ransomware.Guard   // set by startPipeline; read by writeStatus
 	netblock *netblock.Manager   // set by startPipeline; read by writeStatus
 	sigFeed  *feed.Feed          // set by startPipeline; read by writeStatus
+	qCache   *cache.Cache        // opened in run; read by writeStatus
 
 	// Periodic full-disk scan (set by startPipeline). The runner reuses the
 	// shared worker pool + exclusions; it never owns a second scan path.
@@ -77,6 +78,15 @@ func (p *program) Stop(s service.Service) error {
 	return nil
 }
 
+type QuarantineItem struct {
+	ID            string `json:"id"`
+	OriginalPath  string `json:"original_path"`
+	SHA256        string `json:"sha256"`
+	Detection     string `json:"detection"`
+	QuarantinedAt string `json:"quarantined_at"`
+	Restorable    bool   `json:"restorable"`
+}
+
 type statusDoc struct {
 	Running       bool   `json:"running"`
 	EngineHealthy bool   `json:"engine_healthy"`
@@ -112,6 +122,17 @@ type statusDoc struct {
 	AllowProcesses     int  `json:"allowlist_processes"`
 	AllowCommands      int  `json:"allowlist_commands"`
 
+	// Effective allowlist entries (server-managed allowlist is mirrored here so
+	// the console can list it fleet-wide without waking each endpoint).
+	AllowlistPaths     []string `json:"allowlist_paths_entries"`
+	AllowlistProcesses []string `json:"allowlist_processes_entries"`
+	AllowlistCommands  []string `json:"allowlist_commands_entries"`
+
+	// Current quarantine items: the store's live records, so the console's
+	// fleet quarantine view folds status reports instead of issuing a CLI call
+	// per endpoint. Restored/purged rows are excluded — only live items count.
+	QuarantineItems []QuarantineItem `json:"quarantine_items"`
+
 	// Effective engine tuning (ClamAV Configuration Guide §8.5 — auditable posture).
 	EngineTier       string `json:"engine_tier"`
 	EngineResident   bool   `json:"engine_resident"`
@@ -137,6 +158,7 @@ func (p *program) run() {
 		return
 	}
 	defer c.Close()
+	p.qCache = c
 
 	p.eng = engine.New(cfg)
 	if err := p.eng.EnsureRunning(); err != nil {
@@ -156,14 +178,14 @@ func (p *program) run() {
 	// (allowlists + response mode) without a restart.
 	reloadTicker := time.NewTicker(3 * time.Second)
 	defer reloadTicker.Stop()
-	writeStatus(cfg, p.eng, p.canaries, p.rwGuard, p.netblock, p.sigFeed)
+	writeStatus(cfg, p.eng, p.canaries, p.rwGuard, p.netblock, p.sigFeed, p.qCache)
 	for {
 		select {
 		case <-ctx.Done():
 			logger.Info("UTMStack EDR: stopping")
 			return
 		case <-ticker.C:
-			writeStatus(cfg, p.eng, p.canaries, p.rwGuard, p.netblock, p.sigFeed)
+			writeStatus(cfg, p.eng, p.canaries, p.rwGuard, p.netblock, p.sigFeed, p.qCache)
 		case <-reloadTicker.C:
 			p.maybeReload()
 		}
@@ -211,7 +233,7 @@ func (p *program) maybeReload() {
 		len(cfg.Allowlist.Paths), len(cfg.Allowlist.Processes), len(cfg.Allowlist.Commands), cfg.Ransomware.ResponseMode)
 }
 
-func writeStatus(cfg config.EDRConfig, eng *engine.Engine, canaries *ransomware.Manager, rwGuard *ransomware.Guard, nb *netblock.Manager, sf *feed.Feed) {
+func writeStatus(cfg config.EDRConfig, eng *engine.Engine, canaries *ransomware.Manager, rwGuard *ransomware.Guard, nb *netblock.Manager, sf *feed.Feed, qc *cache.Cache) {
 	healthy := engine.Ping(cfg.ClamdAddr) == nil
 	ver := ""
 	if healthy {
@@ -239,6 +261,9 @@ func writeStatus(cfg config.EDRConfig, eng *engine.Engine, canaries *ransomware.
 		AllowPaths:            len(cfg.Allowlist.Paths),
 		AllowProcesses:        len(cfg.Allowlist.Processes),
 		AllowCommands:         len(cfg.Allowlist.Commands),
+		AllowlistPaths:        cfg.Allowlist.Paths,
+		AllowlistProcesses:    cfg.Allowlist.Processes,
+		AllowlistCommands:     cfg.Allowlist.Commands,
 		// From the config; when the blocklist is off the netblock manager is
 		// nil and the Health() block below never runs, so without this the
 		// status would report false for a config-true blocklist.
@@ -261,6 +286,26 @@ func writeStatus(cfg config.EDRConfig, eng *engine.Engine, canaries *ransomware.
 		doc.BlocklistFeedStale = h.FeedStale
 		doc.BlocklistFeedAgeSec = h.FeedAgeSec
 		doc.BlocklistRecentBlocks = h.RecentBlocks
+	}
+	if qc != nil {
+		if recs, lerr := qc.ListQuarantine(); lerr == nil {
+			for _, r := range recs {
+				if r.Restored || r.Purged {
+					continue
+				}
+				doc.QuarantineItems = append(doc.QuarantineItems, QuarantineItem{
+					ID:             r.QuarantineID,
+					OriginalPath:   r.OriginalPath,
+					SHA256:         r.SHA256,
+					Detection:      r.Detection,
+					QuarantinedAt:  r.QuarantinedAt.UTC().Format(time.RFC3339),
+					Restorable:     r.Restorable,
+				})
+			}
+		}
+	}
+	if doc.QuarantineItems == nil {
+		doc.QuarantineItems = []QuarantineItem{}
 	}
 	b, _ := json.MarshalIndent(doc, "", "  ")
 	_ = os.WriteFile(config.StatusFile, b, 0o644)
