@@ -63,6 +63,10 @@ func correlate(ctx context.Context, alert *plugins.Alert) (*emptypb.Empty, error
 		return &emptypb.Empty{}, nil
 	}
 
+	if alert.GetParentId() != "" {
+		return &emptypb.Empty{}, nil
+	}
+
 	for _, f := range activeFlowsFor(alert.GetTenantId()) {
 		if !matches(string(alertJSON), f.Conditions) {
 			continue
