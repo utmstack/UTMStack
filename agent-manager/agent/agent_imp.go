@@ -18,6 +18,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	"gorm.io/gorm"
 )
 
@@ -321,6 +322,7 @@ func (s *AgentService) evictIfOwner(agentID uint, stream AgentService_AgentStrea
 // storeEdrStatus keeps the latest EDR status report per agent in the DB.
 // Never deletes: an offline agent's last report stays readable.
 func (s *AgentService) storeEdrStatus(agentID uint, report *EdrStatusReport) {
+	tenant := s.agentTenant(agentID)
 	reportedAt := time.Now().UTC()
 	if ts := report.GetReportedAt(); ts != nil {
 		reportedAt = ts.AsTime()
@@ -335,6 +337,7 @@ func (s *AgentService) storeEdrStatus(agentID uint, report *EdrStatusReport) {
 		// First report for this agent: insert.
 		rec := &models.AgentEdrStatus{
 			AgentID:       agentID,
+			TenantID:      tenant,
 			StatusJSON:    report.GetStatusJson(),
 			PolicyVersion: report.GetPolicyVersion(),
 			ReportedAt:    reportedAt,
@@ -345,6 +348,7 @@ func (s *AgentService) storeEdrStatus(agentID uint, report *EdrStatusReport) {
 		return
 	}
 	if _, err := s.DBConnection.UpdateOnly(existing, "id = ?", map[string]interface{}{
+		"tenant_id":      tenant,
 		"status_json":    report.GetStatusJson(),
 		"policy_version": report.GetPolicyVersion(),
 		"reported_at":    reportedAt,
@@ -353,9 +357,25 @@ func (s *AgentService) storeEdrStatus(agentID uint, report *EdrStatusReport) {
 	}
 }
 
-// GetEdrStatus returns the latest stored EDR status report for an agent.
+// agentTenant resolves the tenant of agentID for tenant-scoped reads: the
+// enrolment key cache first, then the agents table. Returns "" when unknown.
+func (s *AgentService) agentTenant(agentID uint) string {
+	s.CacheAgentKeyMutex.Lock()
+	tenant := s.CacheAgentKey[agentID].TenantID
+	s.CacheAgentKeyMutex.Unlock()
+	if tenant != "" {
+		return tenant
+	}
+	agent := models.Agent{}
+	if err := s.DBConnection.GetFirst(&agent, "id = ?", agentID); err == nil {
+		return tenantOrDefault(agent.TenantID)
+	}
+	return ""
+}
+
+// loadEdrStatus returns the latest stored EDR status report for an agent.
 // (nil, nil) when the agent never sent one, (nil, err) on a real DB error.
-func (s *AgentService) GetEdrStatus(agentID uint) (*models.AgentEdrStatus, error) {
+func (s *AgentService) loadEdrStatus(agentID uint) (*models.AgentEdrStatus, error) {
 	rec := &models.AgentEdrStatus{}
 	if err := s.DBConnection.GetFirst(rec, "agent_id = ?", agentID); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -364,6 +384,199 @@ func (s *AgentService) GetEdrStatus(agentID uint) (*models.AgentEdrStatus, error
 		return nil, err
 	}
 	return rec, nil
+}
+
+// tenantGuard resolves the caller's tenant for scoping: the request payload
+// wins (the internal-key path carries no tenant in context, same as ListAgents),
+// then the auth context, else "" = platform view, no guard.
+func tenantGuard(ctx context.Context, reqTenant string) string {
+	if reqTenant != "" {
+		return reqTenant
+	}
+	if tid, ok := tenantFromContext(ctx); ok {
+		return tid
+	}
+	return ""
+}
+
+// GetEdrStatus returns stored EDR status reports. req.AgentId 0 means every
+// agent the caller may see: tenant-scoped callers get their own rows, and a
+// caller with no tenant (platform) gets all of them.
+func (s *AgentService) GetEdrStatus(ctx context.Context, req *EdrStatusListRequest) (*EdrStatusListResponse, error) {
+	if req.GetAgentId() != 0 {
+		rec, err := s.loadEdrStatus(uint(req.GetAgentId()))
+		if err != nil {
+			catcher.Error("failed to fetch EDR status report", err, map[string]any{"agent_id": req.GetAgentId(), "process": "agent-manager"})
+			return nil, status.Errorf(codes.Internal, "failed to fetch edr status: %v", err)
+		}
+		rows := &EdrStatusListResponse{}
+		if rec != nil {
+			rows.Rows = append(rows.Rows, edrStatusRow(rec))
+		}
+		return rows, nil
+	}
+
+	rows := []models.AgentEdrStatus{}
+	var err error
+	if tid := tenantGuard(ctx, req.GetTenantId()); tid != "" {
+		_, err = s.DBConnection.GetAll(&rows, "tenant_id = ?", tid)
+	} else {
+		_, err = s.DBConnection.GetAll(&rows, "")
+	}
+	if err != nil {
+		catcher.Error("failed to fetch EDR status reports", err, map[string]any{"process": "agent-manager"})
+		return nil, status.Errorf(codes.Internal, "failed to fetch edr statuses: %v", err)
+	}
+	resp := &EdrStatusListResponse{}
+	for i := range rows {
+		resp.Rows = append(resp.Rows, edrStatusRow(&rows[i]))
+	}
+	return resp, nil
+}
+
+func edrStatusRow(rec *models.AgentEdrStatus) *EdrStatusRow {
+	ts := timestamppb.New(rec.ReportedAt)
+	if rec.ReportedAt.IsZero() {
+		ts = nil
+	}
+	return &EdrStatusRow{
+		AgentId:       uint32(rec.AgentID),
+		StatusJson:    rec.StatusJSON,
+		PolicyVersion: rec.PolicyVersion,
+		ReportedAt:    ts,
+	}
+}
+
+// storeEdrResult folds a returned EdrResult into the pending history row that
+// dispatchOne created for the same cmd id. The proto carries no executed_by,
+// so the row keeps the dispatcher's value; only status + result change.
+func (s *AgentService) storeEdrResult(res *EdrResult) {
+	agentID, err := strconv.ParseUint(res.GetAgentId(), 10, 64)
+	if err != nil {
+		catcher.Error("failed to parse edr result agent id", err, map[string]any{"agent_id": res.GetAgentId(), "process": "agent-manager"})
+		return
+	}
+	statusStr := models.Executed
+	if !res.GetOk() {
+		statusStr = models.Error
+	}
+	result := res.GetPayload()
+	if !res.GetOk() && res.GetError() != "" {
+		if result == "" {
+			result = res.GetError()
+		} else {
+			result = result + " (" + res.GetError() + ")"
+		}
+	}
+	if uErr := s.DBConnection.Upsert(
+		&models.AgentCommand{},
+		"agent_id = ? AND cmd_id = ?",
+		map[string]interface{}{"command_status": statusStr, "result": result},
+		agentID, res.GetCmdId(),
+	); uErr != nil {
+		catcher.Error("failed to update edr command result", uErr, map[string]any{"cmd_id": res.GetCmdId(), "process": "agent-manager"})
+	}
+}
+
+// DispatchEdrCommand pushes one EdrCommand to a connected agent and records it
+// in the history table as pending. The result arrives asynchronously as an
+// EdrResult on the AgentStream and is folded in by storeEdrResult.
+func (s *AgentService) DispatchEdrCommand(ctx context.Context, req *DispatchEdrCommandRequest) (*DispatchEdrCommandResponse, error) {
+	return s.dispatchOne(ctx, req.GetAgentId(), req.GetCmdId(), req.GetAction(), req.GetPayload(), req.GetExecutedBy(), req.GetReason(), tenantGuard(ctx, req.GetTenantId()))
+}
+
+// DispatchEdrCommands pushes the same action/payload to a set of agents, e.g.
+// assigning a policy or an allowlist to a group. Per-target results are
+// returned; a target that is offline is reported, not fatal to the batch.
+func (s *AgentService) DispatchEdrCommands(ctx context.Context, req *DispatchEdrCommandsRequest) (*DispatchEdrCommandsResponse, error) {
+	resp := &DispatchEdrCommandsResponse{}
+	tenant := tenantGuard(ctx, req.GetTenantId())
+	for _, t := range req.GetTargets() {
+		one, err := s.dispatchOne(ctx, t.GetAgentId(), t.GetCmdId(), t.GetAction(), t.GetPayload(), req.GetExecutedBy(), req.GetReason(), tenant)
+		if err != nil {
+			resp.Rows = append(resp.Rows, &EdrCommandResultRow{
+				AgentId:   t.GetAgentId(),
+				CmdId:     t.GetCmdId(),
+				Dispatched: false,
+				Error:     err.Error(),
+			})
+			continue
+		}
+		resp.Rows = append(resp.Rows, &EdrCommandResultRow{
+			AgentId:   t.GetAgentId(),
+			CmdId:     one.GetCmdId(),
+			Dispatched: one.GetDispatched(),
+			Error:     "",
+		})
+	}
+	return resp, nil
+}
+
+func (s *AgentService) dispatchOne(ctx context.Context, agentIDStr, cmdID, action, payload, executedBy, reason, tenant string) (*DispatchEdrCommandResponse, error) {
+	agentID, err := strconv.ParseUint(agentIDStr, 10, 64)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid agent id: %s", agentIDStr)
+	}
+	if action == "" {
+		return nil, status.Errorf(codes.InvalidArgument, "action is required")
+	}
+	if cmdID == "" {
+		cmdID = uuid.New().String()
+	}
+
+	// Tenant guard: a tenant-scoped caller may only reach its own agents.
+	if tenant != "" {
+		if s.agentTenant(uint(agentID)) != tenant {
+			return nil, status.Errorf(codes.PermissionDenied, "agent %s is not in caller tenant", agentIDStr)
+		}
+	}
+
+	s.AgentStreamMutex.Lock()
+	agentStream, connected := s.AgentStreamMap[uint(agentID)]
+	s.AgentStreamMutex.Unlock()
+	if !connected {
+		return nil, status.Errorf(codes.NotFound, "agent %s is not connected", agentIDStr)
+	}
+
+	hist := &models.AgentCommand{
+		AgentID:       uint(agentID),
+		Command:       "edr: " + action,
+		CommandStatus: models.Pending,
+		Result:        "",
+		ExecutedBy:    executedBy,
+		CmdId:         cmdID,
+		OriginType:    "edr",
+		OriginId:      cmdID,
+		Reason:        reason,
+	}
+	if cErr := s.DBConnection.Create(hist); cErr != nil {
+		catcher.Error("unable to create edr command history", cErr, map[string]any{"process": "agent-manager"})
+	}
+
+	var lock sync.Locker
+	if LockStreamHook != nil {
+		lock = LockStreamHook(uint(agentID))
+	}
+	func() {
+		if lock != nil {
+			lock.Lock()
+			defer lock.Unlock()
+		}
+		_ = agentStream.Send(&BidirectionalStream{
+			StreamMessage: &BidirectionalStream_EdrCommand{
+				EdrCommand: &EdrCommand{
+					AgentId:    agentIDStr,
+					CmdId:      cmdID,
+					Action:     action,
+					Payload:    payload,
+					ExecutedBy: executedBy,
+					Reason:     reason,
+				},
+			},
+		})
+	}()
+
+	return &DispatchEdrCommandResponse{Dispatched: true, CmdId: cmdID}, nil
 }
 
 func (s *AgentService) AgentStream(stream AgentService_AgentStreamServer) error {
@@ -439,6 +652,8 @@ func (s *AgentService) AgentStream(stream AgentService_AgentStreamServer) error 
 			// The authenticated context id is trustworthy; the agent_id
 			// field inside the message is not.
 			s.storeEdrStatus(idUint, msg.EdrStatusReport)
+		case *BidirectionalStream_EdrResult:
+			s.storeEdrResult(msg.EdrResult)
 		}
 	}
 }
