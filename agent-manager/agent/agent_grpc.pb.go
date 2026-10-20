@@ -439,7 +439,7 @@ func (UnimplementedPanelServiceServer) RotateConnectionKey(context.Context, *Con
 	return nil, status.Error(codes.Unimplemented, "method RotateConnectionKey not implemented")
 }
 func (UnimplementedPanelServiceServer) SetAgentConfig(context.Context, *SetAgentConfigRequest) (*SetAgentConfigResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetAgentConfig not implemented")
+	return nil, status.Error(codes.Unimplemented, "method SetAgentConfig not implemented")
 }
 func (UnimplementedPanelServiceServer) mustEmbedUnimplementedPanelServiceServer() {}
 func (UnimplementedPanelServiceServer) testEmbeddedByValue()                      {}
