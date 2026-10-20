@@ -151,6 +151,57 @@ jobs:
             agent/updater/utmstack_updater_service_${{ matrix.goos }}_${{ matrix.goarch }}*
             agent/edr/utmstack_edr_${{ matrix.goos }}_${{ matrix.goarch }}*
           retention-days: 1
+  build_engine:
+    name: Build Scan Engine Packages
+    needs: [setup_deployment]
+    if: ${{ needs.setup_deployment.outputs.tag != '' }}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out code into the right branch
+        uses: actions/checkout@v4
+
+      - name: Install ClamAV tooling + archive tools
+        run: sudo apt-get update && sudo apt-get install -y clamav-daemon unzip zip && sudo freshclam
+
+      - name: Seed signature databases
+        run: |
+          mkdir -p /tmp/edrsigdb
+          sudo freshclam --database=/tmp/edrsigdb
+          ls /tmp/edrsigdb
+
+      - name: Build per-platform engine packages
+        run: |
+          set -e
+          ENGINE_VERSION="1.4.6"
+          mkdir -p /tmp/engine-src /tmp/engine-stage
+          for GOARCH in amd64 arm64; do
+            ARCH="${GOARCH}"; [ "$GOARCH" = "amd64" ] && ARCH="x64"
+            ZIP="clamav-${ENGINE_VERSION}.win.${ARCH}.zip"
+            curl -fsSL -o "/tmp/engine-src/${ZIP}" "https://github.com/Cisco-Talos/clamav/releases/download/clamav-${ENGINE_VERSION}/${ZIP}"
+            BUILD="/tmp/engine-build-${GOARCH}"
+            RAW="$BUILD/raw"
+            rm -rf "$BUILD" && mkdir -p "$RAW"
+            unzip -q "/tmp/engine-src/${ZIP}" -d "$RAW"
+            NESTED="$(find "$RAW" -mindepth 1 -maxdepth 1 -type d | head -1)"
+            if [ -n "$NESTED" ]; then cp -r "$NESTED"/. "$RAW"/; rm -rf "$NESTED"; fi
+            mkdir -p "$BUILD/engine/database"
+            cp -r "$RAW"/. "$BUILD/engine/"
+            rm -rf "$BUILD/engine"/UserManual "$BUILD/engine"/include "$BUILD/engine"/conf_examples \
+                 "$BUILD/engine"/*.pdb "$BUILD/engine"/*.md "$BUILD/engine"/COPYING* "$BUILD/engine"/NEWS.md "$BUILD/engine"/LICENSE* || true
+            cp /tmp/edrsigdb/*.cvd "$BUILD/engine/database/"
+            printf '{"version":"%s","os":"windows","arch":"%s"}\n' "$ENGINE_VERSION" "$GOARCH" > "$BUILD/engine/version.json"
+            ( cd "$BUILD" && zip -qr "/tmp/engine-stage/utmstack_scan_engine_${ENGINE_VERSION}_windows_${GOARCH}.zip" engine )
+          done
+          ( cd /tmp/engine-stage && for f in *.zip; do sha256sum "$f" > "$f.sha256"; done )
+          ls -la /tmp/engine-stage
+
+      - name: Upload engine packages as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: engine-packages
+          path: /tmp/engine-stage
+          retention-days: 1
+
   sign_agent_windows:
     name: Sign Windows Agent Binaries
     needs: [build_agent, setup_deployment]
@@ -231,7 +282,7 @@ jobs:
           retention-days: 1
   build_agent_manager:
     name: Build Agent Manager Microservice
-    needs: [build_agent, sign_agent_windows, sign_agent_macos, build_utmstack_collector, setup_deployment]
+    needs: [build_agent, build_engine, sign_agent_windows, sign_agent_macos, build_utmstack_collector, setup_deployment]
     # Signing jobs are skipped (not "success") on dev — only require them when
     # we're actually shipping to customers.
     if: >-
@@ -293,6 +344,12 @@ jobs:
           path: ${{ github.workspace }}/agent-darwin
           merge-multiple: true
 
+      - name: Download scan engine packages from artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: engine-packages
+          path: ${{ github.workspace }}/engine-stage
+
       - name: Prepare dependencies for Agent Manager Image
         env:
           GH_TOKEN: ${{ secrets.READ_PRIVATE_REPO }}
@@ -336,6 +393,10 @@ jobs:
           cp "${{ github.workspace }}/agent/updater/utmstack_updater_service_windows_arm64.exe" ./dependencies/agent/
           cp "${{ github.workspace }}/agent/edr/utmstack_edr_windows_amd64.exe" ./dependencies/agent/
           cp "${{ github.workspace }}/agent/edr/utmstack_edr_windows_arm64.exe" ./dependencies/agent/
+
+          # Scan engine packages
+          cp "${{ github.workspace }}"/engine-stage/*.zip ./dependencies/agent/ 2>/dev/null || true
+          cp "${{ github.workspace }}"/engine-stage/*.zip.sha256 ./dependencies/agent/ 2>/dev/null || true
 
           # macOS agents (signed and notarized in production; unsigned in dev)
           cp "${{ github.workspace }}/agent-darwin/utmstack_agent_service_darwin_arm64" ./dependencies/agent/

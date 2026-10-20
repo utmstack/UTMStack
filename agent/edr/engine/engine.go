@@ -60,7 +60,12 @@ func (e *Engine) EnsureRunning() error {
 
 	bin := e.binaryPath()
 	if !fs.Exists(bin) {
-		return fmt.Errorf("UTMStack EDR scan engine binary not found at %s", bin)
+		if err := e.provision(); err != nil {
+			return err
+		}
+		if !fs.Exists(bin) {
+			return fmt.Errorf("UTMStack EDR scan engine binary not found at %s", bin)
+		}
 	}
 	// Write the detection-maximizing, host-tuned clamd.conf + freshclam.conf
 	// before starting the daemon (ClamAV Configuration Guide §3–§9).
