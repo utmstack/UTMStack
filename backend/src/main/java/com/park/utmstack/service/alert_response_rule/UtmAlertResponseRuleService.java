@@ -35,6 +35,9 @@ import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -52,7 +55,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class UtmAlertResponseRuleService {
+public class UtmAlertResponseRuleService implements ApplicationRunner {
 
     private static final String CLASSNAME = "UtmAlertResponseRuleService";
     private final Logger log = LoggerFactory.getLogger(UtmAlertResponseRuleService.class);
@@ -67,6 +70,31 @@ public class UtmAlertResponseRuleService {
     private final UtmIncidentVariableService utmIncidentVariableService;
     private final UtmAlertResponseActionTemplateRepository utmAlertResponseActionTemplateRepository;
     private final UtmAlertResponseActionTemplateService utmAlertResponseActionTemplateService;
+    private final JdbcTemplate jdbcTemplate;
+
+    /**
+     * issue #2942: an EXECUTING row is finalised by the gRPC callback, which
+     * lives only in this JVM's memory. If the backend restarts while a command
+     * is in flight the callback is gone and the row would stay EXECUTING
+     * forever (and the action may not have run on the agent). On startup,
+     * reset every EXECUTING row to PENDING so the scheduler retries it once,
+     * the same way it already retries when the agent is offline.
+     */
+    @Override
+    public void run(ApplicationArguments args) {
+        final String ctx = CLASSNAME + ".run";
+        try {
+            int reset = jdbcTemplate.update(
+                    "UPDATE utm_alert_response_rule_execution SET execution_status = ?, non_execution_cause = NULL " +
+                            "WHERE execution_status = ?",
+                    RuleExecutionStatus.PENDING.name(), RuleExecutionStatus.EXECUTING.name());
+            if (reset > 0) {
+                log.warn(ctx + ": reset {} in-flight (EXECUTING) response executions to PENDING after restart", reset);
+            }
+        } catch (Exception e) {
+            log.error(ctx + ": " + e.getLocalizedMessage(), e);
+        }
+    }
 
 
 
@@ -282,28 +310,19 @@ public class UtmAlertResponseRuleService {
                     AgentDTO agent = opt.get();
                     if (agent.getStatus().equals(AgentStatusEnum.ONLINE)) {
                         String reason = "The incident response automation executed this command because it was accomplished the conditions of the rule with ID: " + cmd.getRuleId();
-                        final StringBuilder results = new StringBuilder();
                         String shell = cmd.getRule() != null ? cmd.getRule().getRuleShell() : null;
+                        // Mark the execution in-flight in its OWN committed transaction BEFORE
+                        // dispatching (issue #2942). The scheduler only re-selects PENDING rows,
+                        // so this makes the record invisible to the next tick and prevents a
+                        // duplicate dispatch if the command takes longer than the 30s fixedDelay.
+                        // The gRPC result callback arrives later, on another thread, so it must
+                        // not rely on the outer @Transactional context still being open.
+                        jdbcTemplate.update(
+                                "UPDATE utm_alert_response_rule_execution SET execution_status = ? WHERE id = ?",
+                                RuleExecutionStatus.EXECUTING.name(), cmd.getId());
                         incidentResponseCommandService.sendCommand(String.valueOf(agent.getId()), utmIncidentVariableService.replaceVariablesInCommand(cmd.getCommand()), "INCIDENT_RESPONSE_AUTOMATION",
-                                cmd.getRuleId().toString(), reason, Constants.SYSTEM_ACCOUNT, shell, new StreamObserver<>() {
-                                    @Override
-                                    public void onNext(CommandResult commandResult) {
-                                        results.append(commandResult.getResult());
-                                    }
-
-                                    @Override
-                                    public void onError(Throwable throwable) {
-
-                                    }
-
-                                    @Override
-                                    public void onCompleted() {
-                                        cmd.setCommandResult(results.toString());
-                                        cmd.setExecutionStatus(RuleExecutionStatus.EXECUTED);
-                                        cmd.setNonExecutionCause(null);
-                                        alertResponseRuleExecutionRepository.save(cmd);
-                                    }
-                                });
+                                cmd.getRuleId().toString(), reason, Constants.SYSTEM_ACCOUNT, shell,
+                                new SoarExecutionObserver(ctx, cmd, alertResponseRuleExecutionRepository));
                     } else {
                         if (cmd.getExecutionRetries() < Constants.IRA_EXECUTION_RETRIES) {
                             cmd.setExecutionStatus(RuleExecutionStatus.PENDING);
