@@ -55,15 +55,15 @@ export function UserAuditorPage() {
   ]
   const filterOps: FilterOpDef[] = [{ id: 'IS', label: t('userAuditor.ops.is'), needsValue: true }]
   const filterLabels = {
-    add: t('userAuditor.filters.add'),
-    clearAll: t('userAuditor.filters.clearAll'),
-    filterValues: t('userAuditor.filters.filterValues'),
-    loadingValues: t('userAuditor.filters.loadingValues'),
-    noValues: t('userAuditor.filters.noValues'),
-    pickValue: t('userAuditor.filters.pickValue'),
-    empty: t('userAuditor.filters.empty'),
-    cancel: t('userAuditor.filters.cancel'),
-    addBtn: t('userAuditor.filters.addBtn'),
+    add: 'userAuditor.filters.add',
+    clearAll: 'userAuditor.filters.clearAll',
+    filterValues: 'userAuditor.filters.filterValues',
+    loadingValues: 'userAuditor.filters.loadingValues',
+    noValues: 'userAuditor.filters.noValues',
+    pickValue: 'userAuditor.filters.pickValue',
+    empty: 'userAuditor.filters.empty',
+    cancel: 'userAuditor.filters.cancel',
+    addBtn: 'userAuditor.filters.addBtn',
   }
   const fetchFilterValues = async (field: string) => {
     if (field === 'status') return STATUS_VALUES.map((v) => ({ value: v, count: 0 }))
