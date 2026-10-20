@@ -1,0 +1,32 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365-graph
+name: Graph User Flagged as Compromised or High Risk
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Credential Access
+technique: "T1078.004 - Valid Accounts: Cloud Accounts"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/graph/api/resources/riskyuser
+  - https://attack.mitre.org/techniques/T1078/004/
+description: |
+  Microsoft Entra ID Protection now rates a user as high risk, or an administrator confirmed the user as compromised. The collector reports a user only when their risk level or state changes, so this fires on the change itself.
+
+  One alert is raised per user, state and level; repeats are suppressed for seven days.
+
+  Next Steps:
+  1. Open the user's risk history in Entra ID Protection to see which detections raised the risk.
+  2. Reset the password, revoke the user's sessions and require multi-factor registration again.
+  3. Review the account's recent sign-ins, inbox rules, application consents and file activity.
+where: |
+  equals("log.graphSource", "risky-user") &&
+  (equals("log.riskState", "confirmedCompromised") ||
+   (equals("log.riskState", "atRisk") && equals("log.riskLevel", "high")))
+deduplicateBy:
+  - adversary.user
+  - lastEvent.log.riskState
+  - lastEvent.log.riskLevel
