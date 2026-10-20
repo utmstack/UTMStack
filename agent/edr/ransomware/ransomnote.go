@@ -12,22 +12,24 @@ import (
 
 // strongNoteTokens are substrings that make a basename a ransom note on any
 // extension. Deliberate choices: "ransom" is a whole distinctive word;
-// "bitcoin"/"wallet"/"payment" are note vocabulary; "we_have"/"all_your"/
-// "your_files"/"h2w" appear in lock-in messages. "decrypt" is NOT strong:
-// it also appears in legit "decryptor"-style tools, so it stays weak and is
-// gated on a text-ish extension.
+// "we_have"/"all_your"/"your_files"/"h2w" appear in lock-in messages.
+// "bitcoin" is kept strong: it is not a common legitimate filename token,
+// and "wallet"/"payment" are deliberately NOT strong — they appear in
+// browser wallet caches, e-commerce flows, and crypto tools, so they fire
+// only on text-ish extensions via weakNoteTokens below.
 var strongNoteTokens = []string{
-	"ransom", "bitcoin", "wallet", "payment",
-	"we_have", "all_your", "your_files", "h2w",
+	"ransom", "bitcoin", "we_have", "all_your", "your_files", "h2w",
 }
 
 // weakNoteTokens only count when the file has a text-ish extension — a
 // binary README.bin or how_to_decrypt.bmp is not a note.
-var weakNoteTokens = []string{"readme", "how_to", "deleted", "decrypt", "recovery"}
+var weakNoteTokens = []string{"readme", "how_to", "deleted", "decrypt", "recovery", "wallet", "payment"}
 
 // textishExts are the extensions a weak token will fire on (or no extension).
+// ".dat" is deliberately excluded: it is a generic binary data extension
+// (browser caches, SQLite, config blobs), not a note format.
 var textishExts = map[string]bool{
-	".txt": true, ".md": true, ".html": true, ".htm": true, ".rtf": true, ".dat": true,
+	".txt": true, ".md": true, ".html": true, ".htm": true, ".rtf": true,
 }
 
 // prefixNoteForms are explicit prefix shapes that fire regardless of
