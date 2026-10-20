@@ -181,7 +181,8 @@ export function UserAuditorPage() {
   }, [loadStats])
 
   const refresh = () => {
-    void load()
+    if (page === 0) void load()
+    else setPage(0)
     void loadStats()
   }
 

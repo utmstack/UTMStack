@@ -50,12 +50,9 @@ type ExecutionRepository interface {
 	// a successful Executor.Execute for kind=enrichment.
 	SaveOutput(ctx context.Context, id uuid.UUID, output []byte) error
 
-	// RecordEdge inserts one parent→child edge and atomically decrements the
-	// child's pending_parents counter. If the child does not yet exist for
-	// (flowRunID, childNodeID, childDepth), it is created with the given
-	// template (status=WAITING, pending_parents=incomingCount, kind/executor
-	// copied from the flow node). Returns the child's post-update state.
 	RecordEdge(ctx context.Context, req RecordEdgeRequest) (child *domain.SoarExecution, err error)
+
+	RecordDeadBranch(ctx context.Context, req RecordEdgeRequest) error
 
 	// RequeueStuck is the reaper's path for retriable executions: back to
 	// PENDING with the claim cleared so the next tick picks the row up again.
@@ -73,13 +70,8 @@ type ExecutionRepository interface {
 	// (their dispatcher worker died). Must run on an all-tenants context.
 	ListStuckExecuting(ctx context.Context, cutoff time.Time) ([]domain.SoarExecution, error)
 
-	// ListFiredParents returns all fired parents of a child execution, used to
-	// build the merged context bag when the child transitions to PENDING.
 	ListFiredParents(ctx context.Context, childID uuid.UUID) ([]domain.SoarExecution, error)
 
-	// TransitionReady moves a child from WAITING to PENDING (or DEAD) once all
-	// its parents have resolved. context/params/command/shell are the
-	// interpolated values computed by the caller from ListFiredParents.
 	TransitionReady(ctx context.Context, id uuid.UUID, ready ReadyUpdate) error
 }
 
@@ -93,7 +85,6 @@ type RecordEdgeRequest struct {
 	ChildDepth    int
 	ChildKind     domain.NodeKind
 	ChildExecutor string
-	IncomingCount int
 	Branch        domain.EdgeBranch
 	Fired         bool
 }

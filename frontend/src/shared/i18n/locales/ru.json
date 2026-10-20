@@ -6086,6 +6086,8 @@
       "noMatches": "Совпадений нет.",
       "matches": "совпадений по «{{query}}»: {{items}}",
       "more": "ещё +{{count}}"
+    }
+  },
   "threatwinds": {
     "title": "Интеграция ThreatWinds",
     "subtitle": "Поделитесь инцидентами этой инстанции с общественным фидом ThreatWinds.",
