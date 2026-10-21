@@ -300,6 +300,7 @@
     "logExplorer": "Esplora log",
     "userAuditor": "Auditor utenti",
     "threatIntelligence": "Intelligence sulle minacce",
+    "edr": "EDR",
     "compliance": "Conformità",
     "configure": "Configura",
     "dataSources": "Origini dati",
@@ -1209,6 +1210,9 @@
       "comingSoon": "non ancora disponibile"
     }
   },
+  "edr": {
+    "eyebrow": "Rilevamento e risposta endpoint", "title": "Flotta EDR", "subtitle": "Copertura, protezione, rilevamenti e stato degli endpoint in un’unica vista.", "refresh": "Aggiorna", "retry": "Riprova", "loading": "Caricamento stato endpoint…", "units": { "days": "giorni" }, "coverage": { "title": "Copertura", "protected": "endpoint protetti", "unprotected": "endpoint non protetti", "total": "{{count}} endpoint nell’inventario" }, "health": { "title": "Stato", "healthy": "Motore integro", "unhealthy": "Motore non integro", "stale": "Firme obsolete", "degraded": "Rete degradata", "off": "Sensori disattivati", "drift": "Deriva della policy" }, "protection": { "title": "Stato protezione", "alert": "Modalità avviso", "responding": "In risposta", "isolated": "Isolati", "mode": "endpoint", "now": "ora" }, "activity": { "detections": "Rilevamenti nel tempo", "ransomware": "Contenimenti ransomware", "containments": "eventi contenuti", "blockedConnections": "Connessioni bloccate", "topDetections": "Rilevamenti principali", "affectedEndpoints": "Endpoint più colpiti", "empty": "Nessuna attività" }, "grid": { "title": "Stato endpoint", "count": "{{count}} visualizzati", "search": "Cerca endpoint…", "empty": "Nessun endpoint corrisponde ai filtri.", "selectAll": "Seleziona endpoint visibili", "selectEndpoint": "Seleziona endpoint" }, "filters": { "allHealth": "Tutti gli stati del motore", "clear": "Cancella filtri" }, "columns": { "hostName": "Nome host", "operatingSystem": "Sistema operativo", "moduleVersion": "Versione modulo", "serviceState": "Stato servizio", "engineHealth": "Stato motore", "signatureAge": "Età firme", "sensors": "Sensori", "assignedPolicy": "Policy assegnata", "policyDrift": "Deriva policy", "detectionsLastWeek": "Rilevamenti (7g)", "quarantinedFiles": "File in quarantena", "isolationState": "Isolamento", "lastReportTime": "Ultimo rapporto" }, "values": { "drifted": "Derivata", "inSync": "Allineata" }, "actions": { "applyPolicy": "Applica policy", "scan": "Scansiona", "isolate": "Isola", "success": { "apply-policy": "Policy applicata", "scan": "Scansione avviata", "isolate": "Endpoint isolati" } }, "endpoint": { "title": "Dettagli endpoint" }, "errors": { "load": "Impossibile caricare i dati EDR", "action": "Azione endpoint non completata" }
+  },
   "userAuditor": {
     "title": "Auditor utenti",
     "subtitle": "Account di Active Directory osservati nei tuoi log di sicurezza di Windows — rilevati da eventi di creazione, accesso ed eliminazione.",
@@ -1695,6 +1699,39 @@
       "filterOut": "Escludi",
       "surrounding": "Eventi circostanti",
       "surroundingHint": "Mostra gli eventi ±15 min attorno a questo, dalla stessa sorgente"
+    },
+    "demo": {
+      "show": "Vedi esempio EDR",
+      "hide": "Nascondi esempio EDR"
+    },
+    "edr": {
+      "subtitle": "Evidenza endpoint analizzata",
+      "sources": {
+        "file": "Rilevamento file",
+        "network": "Blocco di rete",
+        "ransomware": "Evento ransomware",
+        "script": "Blocco script",
+        "process": "Attività del processo",
+        "endpoint": "Rilevamento endpoint"
+      },
+      "fields": {
+        "host": "Host",
+        "action": "Azione",
+        "severity": "Gravità",
+        "filePath": "Percorso file",
+        "verdict": "Verdetto",
+        "detectionName": "Nome rilevamento",
+        "fileHash": "Hash file",
+        "process": "Processo",
+        "parentProcess": "Processo padre",
+        "remoteAddress": "Indirizzo remoto",
+        "domain": "Dominio",
+        "matchedIndicator": "Indicatore corrispondente",
+        "scoreSignal": "Segnale del punteggio",
+        "contained": "Contenuto",
+        "script": "Script",
+        "commandLine": "Riga di comando"
+      }
     },
     "view": {
       "table": "Tabella",

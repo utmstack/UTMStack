@@ -24,6 +24,7 @@ import { InteractiveConsolePage } from '@/features/soar/pages/InteractiveConsole
 import { LogExplorerPage } from '@/features/log-explorer/pages/LogExplorerPage'
 import { UserAuditorPage } from '@/features/user-auditor/pages/UserAuditorPage'
 import { ThreatIntelPage } from '@/features/threat-intel/pages/ThreatIntelPage'
+import { EdrDashboardPage } from '@/features/edr/pages/EdrDashboardPage'
 import { CompliancePage } from '@/features/compliance/pages/CompliancePage'
 import { FrameworkReportPage } from '@/features/compliance/pages/FrameworkReportPage'
 import { DataSourcesPage } from '@/features/datasources/pages/DataSourcesPage'
@@ -132,6 +133,7 @@ export function AppRoutes() {
         <Route path="log-explorer" element={<LogExplorerPage />} />
         <Route path="user-auditor" element={<UserAuditorPage />} />
         <Route path="threat-intelligence" element={<ThreatIntelPage />} />
+        <Route path="edr" element={<EdrDashboardPage />} />
 
         {/* Compliance */}
         <Route path="compliance" element={<CompliancePage />} />

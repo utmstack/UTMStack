@@ -300,6 +300,7 @@
     "logExplorer": "Explorador de logs",
     "userAuditor": "Auditor de usuários",
     "threatIntelligence": "Inteligência de ameaças",
+    "edr": "EDR",
     "compliance": "Conformidade",
     "configure": "Configurar",
     "dataSources": "Fontes de dados",
@@ -1209,6 +1210,9 @@
       "comingSoon": "ainda não disponível"
     }
   },
+  "edr": {
+    "eyebrow": "Detecção e resposta em endpoints", "title": "Frota EDR", "subtitle": "Veja cobertura, proteção, detecções e saúde dos endpoints em um só lugar.", "refresh": "Atualizar", "retry": "Tentar novamente", "loading": "Carregando estado dos endpoints…", "units": { "days": "dias" }, "coverage": { "title": "Cobertura", "protected": "endpoints protegidos", "unprotected": "endpoints sem proteção", "total": "{{count}} endpoints no inventário" }, "health": { "title": "Saúde", "healthy": "Motor saudável", "unhealthy": "Motor não saudável", "stale": "Assinaturas antigas", "degraded": "Rede degradada", "off": "Sensores desligados", "drift": "Desvio de política" }, "protection": { "title": "Estado de proteção", "alert": "Modo alerta", "responding": "Respondendo", "isolated": "Isolados", "mode": "endpoints", "now": "agora" }, "activity": { "detections": "Detecções ao longo do tempo", "ransomware": "Contenções de ransomware", "containments": "eventos contidos", "blockedConnections": "Conexões bloqueadas", "topDetections": "Principais detecções", "affectedEndpoints": "Endpoints mais afetados", "empty": "Sem atividade" }, "grid": { "title": "Saúde dos endpoints", "count": "{{count}} exibidos", "search": "Buscar endpoints…", "empty": "Nenhum endpoint corresponde aos filtros.", "selectAll": "Selecionar endpoints visíveis", "selectEndpoint": "Selecionar endpoint" }, "filters": { "allHealth": "Toda a saúde do motor", "clear": "Limpar filtros" }, "columns": { "hostName": "Nome do host", "operatingSystem": "Sistema operacional", "moduleVersion": "Versão do módulo", "serviceState": "Estado do serviço", "engineHealth": "Saúde do motor", "signatureAge": "Idade das assinaturas", "sensors": "Sensores", "assignedPolicy": "Política atribuída", "policyDrift": "Desvio de política", "detectionsLastWeek": "Detecções (7d)", "quarantinedFiles": "Arquivos em quarentena", "isolationState": "Isolamento", "lastReportTime": "Último relatório" }, "values": { "drifted": "Desviado", "inSync": "Sincronizado" }, "actions": { "applyPolicy": "Aplicar política", "scan": "Verificar", "isolate": "Isolar", "success": { "apply-policy": "Política aplicada", "scan": "Verificação iniciada", "isolate": "Endpoints isolados" } }, "endpoint": { "title": "Detalhes do endpoint" }, "errors": { "load": "Não foi possível carregar os dados EDR", "action": "Não foi possível concluir a ação" }
+  },
   "userAuditor": {
     "title": "Auditor de usuários",
     "subtitle": "Contas do Active Directory observadas nos seus logs de segurança do Windows — descobertas a partir de eventos de criação, logon e exclusão.",
@@ -1695,6 +1699,39 @@
       "filterOut": "Excluir",
       "surrounding": "Eventos ao redor",
       "surroundingHint": "Mostrar eventos ±15 min ao redor deste, da mesma fonte"
+    },
+    "demo": {
+      "show": "Ver exemplo EDR",
+      "hide": "Ocultar exemplo EDR"
+    },
+    "edr": {
+      "subtitle": "Evidências analisadas do endpoint",
+      "sources": {
+        "file": "Detecção de arquivo",
+        "network": "Bloqueio de rede",
+        "ransomware": "Evento de ransomware",
+        "script": "Bloqueio de script",
+        "process": "Atividade do processo",
+        "endpoint": "Detecção do endpoint"
+      },
+      "fields": {
+        "host": "Host",
+        "action": "Ação",
+        "severity": "Severidade",
+        "filePath": "Caminho do arquivo",
+        "verdict": "Veredito",
+        "detectionName": "Nome da detecção",
+        "fileHash": "Hash do arquivo",
+        "process": "Processo",
+        "parentProcess": "Processo pai",
+        "remoteAddress": "Endereço remoto",
+        "domain": "Domínio",
+        "matchedIndicator": "Indicador correspondente",
+        "scoreSignal": "Sinal da pontuação",
+        "contained": "Contido",
+        "script": "Script",
+        "commandLine": "Linha de comando"
+      }
     },
     "view": {
       "table": "Tabela",

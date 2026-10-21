@@ -302,6 +302,7 @@
     "logExplorer": "Обозреватель логов",
     "userAuditor": "Аудит пользователей",
     "threatIntelligence": "Аналитика угроз",
+    "edr": "EDR",
     "compliance": "Соответствие",
     "configure": "Настройка",
     "dataSources": "Источники данных",
@@ -1221,6 +1222,9 @@
       "comingSoon": "пока недоступно"
     }
   },
+  "edr": {
+    "eyebrow": "Обнаружение и реагирование на конечных точках", "title": "Флот EDR", "subtitle": "Покрытие, защита, обнаружения и состояние конечных точек в одном представлении.", "refresh": "Обновить", "retry": "Повторить", "loading": "Загрузка состояния конечных точек…", "units": { "days": "дн." }, "coverage": { "title": "Покрытие", "protected": "защищённых точек", "unprotected": "незащищённых точек", "total": "{{count}} точек в инвентаре" }, "health": { "title": "Состояние", "healthy": "Исправный движок", "unhealthy": "Неисправный движок", "stale": "Устаревшие сигнатуры", "degraded": "Сеть работает нестабильно", "off": "Датчики выключены", "drift": "Отклонение политики" }, "protection": { "title": "Состояние защиты", "alert": "Режим оповещения", "responding": "Реагирование", "isolated": "Изолировано", "mode": "точек", "now": "сейчас" }, "activity": { "detections": "Обнаружения во времени", "ransomware": "Сдерживание ransomware", "containments": "сдержанных событий", "blockedConnections": "Заблокированные соединения", "topDetections": "Основные обнаружения", "affectedEndpoints": "Наиболее затронутые точки", "empty": "Активности пока нет" }, "grid": { "title": "Состояние конечных точек", "count": "показано: {{count}}", "search": "Поиск конечных точек…", "empty": "Нет точек, соответствующих фильтрам.", "selectAll": "Выбрать видимые точки", "selectEndpoint": "Выбрать точку" }, "filters": { "allHealth": "Все состояния движка", "clear": "Очистить фильтры" }, "columns": { "hostName": "Имя хоста", "operatingSystem": "Операционная система", "moduleVersion": "Версия модуля", "serviceState": "Состояние службы", "engineHealth": "Состояние движка", "signatureAge": "Возраст сигнатур", "sensors": "Датчики", "assignedPolicy": "Назначенная политика", "policyDrift": "Отклонение политики", "detectionsLastWeek": "Обнаружения (7д)", "quarantinedFiles": "Файлы в карантине", "isolationState": "Изоляция", "lastReportTime": "Последний отчёт" }, "values": { "drifted": "Отклонено", "inSync": "Синхронно" }, "actions": { "applyPolicy": "Применить политику", "scan": "Сканировать", "isolate": "Изолировать", "success": { "apply-policy": "Политика применена", "scan": "Сканирование начато", "isolate": "Точки изолированы" } }, "endpoint": { "title": "Данные конечной точки" }, "errors": { "load": "Не удалось загрузить данные EDR", "action": "Не удалось выполнить действие" }
+  },
   "userAuditor": {
     "title": "Аудит пользователей",
     "subtitle": "Учётные записи Active Directory, замеченные в журналах безопасности Windows — обнаружены из событий создания, входа и удаления.",
@@ -1577,6 +1581,39 @@
       "filterOut": "Исключить",
       "surrounding": "Окружающие события",
       "surroundingHint": "Показать события ±15 мин вокруг этого, из того же источника"
+    },
+    "demo": {
+      "show": "Показать пример EDR",
+      "hide": "Скрыть пример EDR"
+    },
+    "edr": {
+      "subtitle": "Разобранные данные конечной точки",
+      "sources": {
+        "file": "Обнаружение файла",
+        "network": "Блокировка сети",
+        "ransomware": "Событие ransomware",
+        "script": "Блокировка скрипта",
+        "process": "Активность процесса",
+        "endpoint": "Обнаружение конечной точки"
+      },
+      "fields": {
+        "host": "Хост",
+        "action": "Действие",
+        "severity": "Серьёзность",
+        "filePath": "Путь к файлу",
+        "verdict": "Вердикт",
+        "detectionName": "Название обнаружения",
+        "fileHash": "Хеш файла",
+        "process": "Процесс",
+        "parentProcess": "Родительский процесс",
+        "remoteAddress": "Удалённый адрес",
+        "domain": "Домен",
+        "matchedIndicator": "Совпавший индикатор",
+        "scoreSignal": "Сигнал оценки",
+        "contained": "Изолировано",
+        "script": "Скрипт",
+        "commandLine": "Командная строка"
+      }
     },
     "view": {
       "table": "Таблица",
