@@ -60,6 +60,7 @@ func (m *Module) buildServer() *mcp.Server {
 	// registerNotifications(m) // temporarily disabled — notification management not exposed for now
 	registerAppConfig(m)
 	registerBilling(m)
+	registerEDR(m)
 	registerSOCAI(m)
 	registerTenants(m)
 	registerPlatformBulk(m)
