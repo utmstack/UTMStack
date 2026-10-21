@@ -89,8 +89,10 @@ func (r *chStatsReader) TenantUsageByDay(ctx context.Context, day time.Time) ([]
 		var (
 			u      connectors.TenantUsage
 			tenant string
+			events uint64
+			bytes  uint64
 		)
-		if err := rows.Scan(&tenant, &u.EventCount, &u.Bytes); err != nil {
+		if err := rows.Scan(&tenant, &events, &bytes); err != nil {
 			return nil, err
 		}
 		id, err := uuid.Parse(tenant)
@@ -99,6 +101,8 @@ func (r *chStatsReader) TenantUsageByDay(ctx context.Context, day time.Time) ([]
 			continue
 		}
 		u.TenantID = id
+		u.EventCount = int64(events)
+		u.Bytes = int64(bytes)
 		out = append(out, u)
 	}
 	if unparseable > 0 {
