@@ -1,49 +1,77 @@
-export type EdrHealth = 'healthy' | 'unhealthy' | 'stale' | 'degraded' | 'off' | 'unknown'
-export type EdrProtectionState = 'alert' | 'responding' | 'isolated' | 'normal' | 'unknown'
+// Types mirror backend/modules/edr/dto/*.go exactly. Fields the backend does
+// not produce (isolationState, blocklist feed detail) have no counterpart and
+// are intentionally absent here.
 
 export interface EdrOverview {
-  coverage?: { protected?: number; unprotected?: number; total?: number }
-  health?: {
-    healthy?: number
-    unhealthyEngine?: number
-    staleSignatures?: number
-    degradedNetwork?: number
-    sensorsOff?: number
-    policyDrift?: number
-  }
-  protection?: { alertMode?: number; responding?: number; isolated?: number }
-  activity?: {
-    detectionsOverTime?: Array<{ timestamp?: string; source?: string; count?: number }>
-    ransomwareContainments?: number
-    blockedConnections?: number
-    topDetections?: Array<{ name?: string; count?: number }>
-    affectedEndpoints?: Array<{ hostName?: string; count?: number }>
-  }
+  endpoints: number
+  withModule: number
+  healthy: number
+  unhealthy: number
+  staleSignatures: number
+  drifted: number
+  detectionsToday: number
 }
 
 export interface EdrEndpoint {
-  id: string
-  hostName: string
-  operatingSystem: string
-  moduleVersion: string
-  serviceState: string
-  engineHealth: EdrHealth
-  signatureAge: number | null
-  sensors: string[]
-  assignedPolicy: string
-  policyDrift: boolean
-  detectionsLastWeek: number
-  quarantinedFiles: number
-  isolationState: EdrProtectionState
-  lastReportTime: string
-  [key: string]: unknown
+  agentId: number
+  hostname: string
+  ip: string
+  os: string
+  platform: string
+  version: string
+  status: string
+  lastSeen: string
+  hasModule: boolean
+  moduleHealthy: boolean
+  sigdbVersion?: string
+  staleSignature: boolean
+  policyVersion?: string
+  drift: boolean
+  lastReport?: string | null
 }
 
-export interface EdrEndpointsResponse {
-  items?: unknown[]
-  endpoints?: unknown[]
-  content?: unknown[]
-  total?: number
+export interface EdrActionResult {
+  agentId: number
+  action: string
+  cmdId: string
+  dispatched: boolean
+  error?: string
+}
+
+export interface EdrCommandRow {
+  cmdId: string
+  action: string
+  status: string
+  result?: string
+  executedBy: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface EdrQuarantineItem {
+  agentId: number
+  hostname: string
+  id: string
+  originalPath: string
+  sha256: string
+  detection: string
+  quarantinedAt: string
+  restorable: boolean
+}
+
+export interface EdrAllowlistEntry {
+  category: 'allow_paths' | 'allow_processes' | 'allow_commands'
+  value: string
+}
+
+export interface EdrBlocklistStatus {
+  indicators: number
+  activeFilters: number
+  feedStale: boolean
+  feedAgeSec: number
+  recentBlocks: number
+  enforced: boolean
+  enforcementDegraded: boolean
 }
 
 export type EdrBulkAction = 'apply-policy' | 'scan' | 'isolate'

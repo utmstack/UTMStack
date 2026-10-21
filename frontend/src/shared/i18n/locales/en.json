@@ -1369,18 +1369,89 @@
     "refresh": "Refresh",
     "retry": "Retry",
     "loading": "Loading endpoint posture…",
-    "units": { "days": "days" },
-    "coverage": { "title": "Coverage", "protected": "protected endpoints", "unprotected": "unprotected endpoints", "total": "{{count}} endpoints in inventory" },
-    "health": { "title": "Health", "healthy": "Healthy engine", "unhealthy": "Unhealthy engine", "stale": "Stale signatures", "degraded": "Degraded network", "off": "Sensors off", "drift": "Policy drift" },
-    "protection": { "title": "Protection state", "alert": "Alert mode", "responding": "Responding", "isolated": "Isolated", "mode": "endpoints", "now": "right now" },
-    "activity": { "detections": "Detections over time", "ransomware": "Ransomware containments", "containments": "contained events", "blockedConnections": "Blocked connections", "topDetections": "Top detection names", "affectedEndpoints": "Most affected endpoints", "empty": "No activity yet" },
-    "grid": { "title": "Endpoint health", "count": "{{count}} shown", "search": "Search endpoints…", "empty": "No endpoints match the current filters.", "selectAll": "Select all visible endpoints", "selectEndpoint": "Select endpoint" },
-    "filters": { "allHealth": "All engine health", "clear": "Clear filters" },
-    "columns": { "hostName": "Host name", "operatingSystem": "Operating system", "moduleVersion": "Module version", "serviceState": "Service state", "engineHealth": "Engine health", "signatureAge": "Signature age", "sensors": "Sensors", "assignedPolicy": "Assigned policy", "policyDrift": "Policy drift", "detectionsLastWeek": "Detections (7d)", "quarantinedFiles": "Quarantined files", "isolationState": "Isolation", "lastReportTime": "Last report" },
-    "values": { "drifted": "Drifted", "inSync": "In sync" },
-    "actions": { "applyPolicy": "Apply policy", "scan": "Scan", "isolate": "Isolate", "success": { "apply-policy": "Policy applied", "scan": "Scan started", "isolate": "Endpoints isolated" } },
-    "endpoint": { "title": "Endpoint details" },
-    "errors": { "load": "Could not load EDR data", "action": "The endpoint action could not be completed" }
+    "units": {
+      "days": "days"
+    },
+    "coverage": {
+      "title": "Coverage",
+      "protected": "protected endpoints",
+      "unprotected": "unprotected endpoints",
+      "total": "{{count}} endpoints in inventory"
+    },
+    "health": {
+      "title": "Health",
+      "healthy": "Healthy engine",
+      "unhealthy": "Unhealthy engine",
+      "stale": "Stale signatures",
+      "degraded": "Degraded network",
+      "off": "Sensors off",
+      "drift": "Policy drift"
+    },
+    "protection": {
+      "title": "Protection state",
+      "alert": "Alert mode",
+      "responding": "Responding",
+      "isolated": "Isolated",
+      "mode": "endpoints",
+      "now": "right now"
+    },
+    "activity": {
+      "detections": "Detections over time",
+      "ransomware": "Ransomware containments",
+      "containments": "contained events",
+      "blockedConnections": "Blocked connections",
+      "topDetections": "Top detection names",
+      "affectedEndpoints": "Most affected endpoints",
+      "empty": "No activity yet"
+    },
+    "grid": {
+      "title": "Endpoint health",
+      "count": "{{count}} shown",
+      "search": "Search endpoints…",
+      "empty": "No endpoints match the current filters.",
+      "selectAll": "Select all visible endpoints",
+      "selectEndpoint": "Select endpoint"
+    },
+    "filters": {
+      "allHealth": "All engine health",
+      "clear": "Clear filters"
+    },
+    "columns": {
+      "hostname": "Hostname",
+      "ip": "IP",
+      "os": "OS",
+      "platform": "Platform",
+      "version": "Version",
+      "status": "Status",
+      "moduleHealthy": "Engine health",
+      "staleSignature": "Signatures",
+      "policyVersion": "Policy version",
+      "drift": "Policy drift",
+      "lastSeen": "Last seen",
+      "lastReport": "Last report"
+    },
+    "values": {
+      "drifted": "Drifted",
+      "inSync": "In sync",
+      "stale": "stale"
+    },
+    "actions": {
+      "applyPolicy": "Apply policy",
+      "scan": "Scan",
+      "isolate": "Isolate",
+      "success": {
+        "apply-policy": "Policy applied",
+        "scan": "Scan started",
+        "isolate": "Endpoints isolated"
+      }
+    },
+    "endpoint": {
+      "title": "Endpoint details"
+    },
+    "errors": {
+      "load": "Could not load EDR data",
+      "action": "The endpoint action could not be completed"
+    }
   },
   "userAuditor": {
     "title": "User auditor",

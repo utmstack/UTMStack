@@ -6,7 +6,7 @@ import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { ColumnResizeHandle } from '@/shared/components/ui/column-resize-handle'
 import { useResizableColumns } from '@/shared/hooks/useResizableColumns'
-import type { EdrBulkAction, EdrEndpoint, EdrHealth } from '../types/edr.types'
+import type { EdrBulkAction, EdrEndpoint } from '../types/edr.types'
 
 interface EndpointHealthGridProps {
   endpoints: EdrEndpoint[]
@@ -17,47 +17,41 @@ interface EndpointHealthGridProps {
   t: TFunction
 }
 
-type SortKey = keyof Pick<EdrEndpoint, 'hostName' | 'operatingSystem' | 'moduleVersion' | 'serviceState' | 'engineHealth' | 'signatureAge' | 'assignedPolicy' | 'policyDrift' | 'detectionsLastWeek' | 'quarantinedFiles' | 'isolationState' | 'lastReportTime'>
+// Sortable columns map 1:1 to backend EdrEndpoint fields (camelCase in the API).
+type SortKey = keyof Pick<EdrEndpoint, 'hostname' | 'os' | 'version' | 'status' | 'moduleHealthy' | 'staleSignature' | 'policyVersion' | 'drift' | 'lastReport'>
 
 const columns: Array<{ key: SortKey; label: string }> = [
-  { key: 'hostName', label: 'hostName' },
-  { key: 'operatingSystem', label: 'operatingSystem' },
-  { key: 'moduleVersion', label: 'moduleVersion' },
-  { key: 'serviceState', label: 'serviceState' },
-  { key: 'engineHealth', label: 'engineHealth' },
-  { key: 'signatureAge', label: 'signatureAge' },
-  { key: 'assignedPolicy', label: 'assignedPolicy' },
-  { key: 'policyDrift', label: 'policyDrift' },
-  { key: 'detectionsLastWeek', label: 'detectionsLastWeek' },
-  { key: 'quarantinedFiles', label: 'quarantinedFiles' },
-  { key: 'isolationState', label: 'isolationState' },
-  { key: 'lastReportTime', label: 'lastReportTime' },
+  { key: 'hostname', label: 'hostname' },
+  { key: 'os', label: 'os' },
+  { key: 'version', label: 'version' },
+  { key: 'status', label: 'status' },
+  { key: 'moduleHealthy', label: 'moduleHealthy' },
+  { key: 'staleSignature', label: 'staleSignature' },
+  { key: 'policyVersion', label: 'policyVersion' },
+  { key: 'drift', label: 'drift' },
+  { key: 'lastReport', label: 'lastReport' },
 ]
 
-const endpointColumnWidths = [40, 180, 150, 120, 120, 130, 120, 170, 120, 120, 125, 120, 170, 230]
-const endpointColumnMins = [40, 130, 120, 100, 100, 110, 100, 130, 100, 110, 100, 110, 140, 170]
+const endpointColumnWidths = [40, 180, 120, 110, 130, 150, 150, 120, 170]
+const endpointColumnMins = [40, 130, 90, 90, 110, 120, 110, 90, 140]
 
-const healthTone: Record<EdrHealth, string> = {
-  healthy: 'text-emerald-600 dark:text-emerald-400',
-  unhealthy: 'text-red-600 dark:text-red-400',
-  stale: 'text-amber-600 dark:text-amber-400',
-  degraded: 'text-orange-600 dark:text-orange-400',
-  off: 'text-slate-500',
-  unknown: 'text-muted-foreground',
+const boolTone = (on: boolean, goodWhenTrue: boolean) => {
+  const positive = goodWhenTrue === on
+  return positive ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'
 }
 
 const displayValue = (endpoint: EdrEndpoint, key: SortKey, t: TFunction): string => {
   const value = endpoint[key]
-  if (key === 'signatureAge') return value == null ? '—' : `${value} ${t('edr.units.days')}`
-  if (key === 'policyDrift') return value ? t('edr.values.drifted') : t('edr.values.inSync')
-  if (key === 'lastReportTime') return value ? new Date(String(value)).toLocaleString() : '—'
+  if (key === 'moduleHealthy') return value ? t('edr.health.healthy') : t('edr.health.unhealthy')
+  if (key === 'staleSignature' || key === 'drift') return value ? t('edr.values.stale') : t('edr.values.inSync')
+  if (key === 'lastReport') return value ? new Date(String(value)).toLocaleString() : '—'
   return String(value ?? '—')
 }
 
 export function EndpointHealthGrid({ endpoints, selectedIds, onSelectionChange, onOpen, onBulkAction, t }: EndpointHealthGridProps) {
   const [query, setQuery] = useState('')
-  const [healthFilter, setHealthFilter] = useState<EdrHealth | 'all'>('all')
-  const [sort, setSort] = useState<{ key: SortKey; direction: 'asc' | 'desc' }>({ key: 'hostName', direction: 'asc' })
+  const [healthFilter, setHealthFilter] = useState<'all' | 'healthy' | 'unhealthy' | 'drift'>('all')
+  const [sort, setSort] = useState<{ key: SortKey; direction: 'asc' | 'desc' }>({ key: 'hostname', direction: 'asc' })
   const { widths, startDrag } = useResizableColumns(endpointColumnWidths, {
     min: endpointColumnMins,
     storageKey: 'edr-endpoint-health-grid-columns',
@@ -66,10 +60,15 @@ export function EndpointHealthGrid({ endpoints, selectedIds, onSelectionChange, 
   const visible = useMemo(() => {
     const needle = query.trim().toLowerCase()
     return endpoints
-      .filter((endpoint) => healthFilter === 'all' || endpoint.engineHealth === healthFilter)
+      .filter((endpoint) => {
+        if (healthFilter === 'healthy') return endpoint.moduleHealthy
+        if (healthFilter === 'unhealthy') return !endpoint.moduleHealthy
+        if (healthFilter === 'drift') return endpoint.drift
+        return true
+      })
       .filter((endpoint) => {
         if (!needle) return true
-        return [endpoint.hostName, endpoint.operatingSystem, endpoint.moduleVersion, endpoint.serviceState, endpoint.engineHealth, endpoint.assignedPolicy, endpoint.sensors.join(' '), endpoint.isolationState]
+        return [endpoint.hostname, endpoint.os, endpoint.version, endpoint.status, endpoint.policyVersion]
           .join(' ').toLowerCase().includes(needle)
       })
       .sort((a, b) => {
@@ -80,7 +79,7 @@ export function EndpointHealthGrid({ endpoints, selectedIds, onSelectionChange, 
       })
   }, [endpoints, healthFilter, query, sort, t])
 
-  const visibleIds = visible.map((endpoint) => endpoint.id)
+  const visibleIds = visible.map((endpoint) => String(endpoint.agentId))
   const allVisibleSelected = visibleIds.length > 0 && visibleIds.every((id) => selectedIds.includes(id))
   const toggleSort = (key: SortKey) => setSort((current) => current.key === key ? { key, direction: current.direction === 'asc' ? 'desc' : 'asc' } : { key, direction: 'asc' })
   const toggleSelection = (id: string) => onSelectionChange(selectedIds.includes(id) ? selectedIds.filter((value) => value !== id) : [...selectedIds, id])
@@ -103,26 +102,24 @@ export function EndpointHealthGrid({ endpoints, selectedIds, onSelectionChange, 
             </>
           )}
           <div className="relative"><Search size={14} className="absolute left-2.5 top-2.5 text-muted-foreground" /><Input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t('edr.grid.search')} className="h-8 w-52 pl-8 text-xs" /></div>
-          <div className="relative"><Filter size={14} className="absolute left-2.5 top-2.5 text-muted-foreground" /><select value={healthFilter} onChange={(event) => setHealthFilter(event.target.value as EdrHealth | 'all')} className="h-8 appearance-none rounded-md border border-input bg-background py-1 pl-8 pr-7 text-xs"><option value="all">{t('edr.filters.allHealth')}</option><option value="healthy">{t('edr.health.healthy')}</option><option value="unhealthy">{t('edr.health.unhealthy')}</option><option value="stale">{t('edr.health.stale')}</option><option value="degraded">{t('edr.health.degraded')}</option><option value="off">{t('edr.health.off')}</option></select></div>
+          <div className="relative"><Filter size={14} className="absolute left-2.5 top-2.5 text-muted-foreground" /><select value={healthFilter} onChange={(event) => setHealthFilter(event.target.value as 'all' | 'healthy' | 'unhealthy' | 'drift')} className="h-8 appearance-none rounded-md border border-input bg-background py-1 pl-8 pr-7 text-xs"><option value="all">{t('edr.filters.allHealth')}</option><option value="healthy">{t('edr.health.healthy')}</option><option value="unhealthy">{t('edr.health.unhealthy')}</option><option value="drift">{t('edr.health.drift')}</option></select></div>
           {(query || healthFilter !== 'all') && <button onClick={() => { setQuery(''); setHealthFilter('all') }} className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted" title={t('edr.filters.clear')}><X size={14} /></button>}
         </div>
       </div>
       <div className="overflow-x-auto">
-        <table className="w-max min-w-[1800px] table-fixed border-collapse text-xs">
+        <table className="w-max min-w-[1100px] table-fixed border-collapse text-xs">
           <colgroup>{widths.map((width, index) => <col key={index} style={{ width: `${width}px` }} />)}</colgroup>
           <thead className="bg-muted/40 text-[10px] uppercase tracking-wider text-muted-foreground">
             <tr>
               <th data-resizable-col className="relative px-3 py-2 text-left"><button onClick={toggleAll} aria-label={t('edr.grid.selectAll')} className="text-muted-foreground">{allVisibleSelected ? <Check size={15} /> : <Square size={15} />}</button></th>
               {columns.map((column, index) => <th key={column.key} data-resizable-col className="relative whitespace-nowrap px-3 py-2 text-left"><button onClick={() => toggleSort(column.key)} className="inline-flex items-center gap-1 hover:text-foreground">{t(`edr.columns.${column.label}`)}{sort.key === column.key && (sort.direction === 'asc' ? <ChevronUp size={12} /> : <ChevronDown size={12} />)}</button><ColumnResizeHandle onMouseDown={startDrag(index + 1)} /></th>)}
-              <th data-resizable-col className="relative px-3 py-2 text-left">{t('edr.columns.sensors')}</th>
             </tr>
           </thead>
           <tbody>
             {visible.map((endpoint) => (
-              <tr key={endpoint.id} onClick={() => onOpen(endpoint)} className="cursor-pointer border-t border-border/60 hover:bg-muted/30">
-                <td className="px-3 py-2" onClick={(event) => event.stopPropagation()}><button onClick={() => toggleSelection(endpoint.id)} aria-label={t('edr.grid.selectEndpoint')} className="text-muted-foreground hover:text-foreground">{selectedIds.includes(endpoint.id) ? <Check size={15} className="text-primary" /> : <Square size={15} />}</button></td>
-                {columns.map((column) => <td key={column.key} className={cn('whitespace-nowrap px-3 py-2', column.key === 'engineHealth' && healthTone[endpoint.engineHealth], column.key === 'policyDrift' && (endpoint.policyDrift ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400'), column.key === 'isolationState' && endpoint.isolationState === 'isolated' && 'font-semibold text-red-600 dark:text-red-400')}>{displayValue(endpoint, column.key, t)}</td>)}
-                <td className="max-w-[220px] px-3 py-2"><div className="flex flex-wrap gap-1">{endpoint.sensors.length > 0 ? endpoint.sensors.map((sensor) => <span key={sensor} className="rounded bg-muted px-1.5 py-0.5 text-[10px]">{sensor}</span>) : <span className="text-muted-foreground">—</span>}</div></td>
+              <tr key={String(endpoint.agentId)} onClick={() => onOpen(endpoint)} className="cursor-pointer border-t border-border/60 hover:bg-muted/30">
+                <td className="px-3 py-2" onClick={(event) => event.stopPropagation()}><button onClick={() => toggleSelection(String(endpoint.agentId))} aria-label={t('edr.grid.selectEndpoint')} className="text-muted-foreground hover:text-foreground">{selectedIds.includes(String(endpoint.agentId)) ? <Check size={15} className="text-primary" /> : <Square size={15} />}</button></td>
+                {columns.map((column) => <td key={column.key} className={cn('whitespace-nowrap px-3 py-2', (column.key === 'moduleHealthy' && boolTone(endpoint.moduleHealthy, true)), (column.key === 'staleSignature' && boolTone(endpoint.staleSignature, false)), (column.key === 'drift' && boolTone(endpoint.drift, false)))}>{displayValue(endpoint, column.key, t)}</td>)}
               </tr>
             ))}
           </tbody>
