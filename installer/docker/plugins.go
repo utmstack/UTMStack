@@ -150,11 +150,36 @@ func SetPluginsConfigs(conf *config.Config, stack *StackConfig) error {
 	}
 
 	feedsPath := filepath.Join(pipelineDir, "system_plugins_feeds.yaml")
-	if _, err := os.Stat(feedsPath); os.IsNotExist(err) {
-		if err := utils.WriteYAML(feedsPath, feedsFile{Plugins: map[string]feedsCfg{"feeds": {Enabled: true}}}); err != nil {
-			return fmt.Errorf("error writing feeds plugin config: %w", err)
-		}
+	if err := seedFeedsConfig(feedsPath); err != nil {
+		return fmt.Errorf("error seeding feeds plugin config: %w", err)
 	}
 
 	return nil
+}
+
+func seedFeedsConfig(path string) error {
+	var pf feedsFile
+	if _, err := os.Stat(path); err == nil {
+		if err := utils.ReadYAML(path, &pf); err != nil {
+			return fmt.Errorf("error reading %s: %w", path, err)
+		}
+	}
+	if pf.Plugins == nil {
+		pf.Plugins = map[string]feedsCfg{}
+	}
+
+	changed := false
+	if _, ok := pf.Plugins["feeds"]; !ok {
+		pf.Plugins["feeds"] = feedsCfg{Enabled: true}
+		changed = true
+	}
+	if _, ok := pf.Plugins["feeds_contribution"]; !ok {
+		pf.Plugins["feeds_contribution"] = feedsCfg{Enabled: true}
+		changed = true
+	}
+
+	if !changed {
+		return nil
+	}
+	return utils.WriteYAML(path, pf)
 }

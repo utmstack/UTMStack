@@ -21,24 +21,24 @@ export function AlertsFilterBar({
   const { t } = useTranslation()
 
   const fields = useMemo<FilterFieldDef[]>(
-    () => FILTER_FIELDS.map((f) => ({ field: f.field, label: t(`alerts.fields.${fieldKey(f.field)}`) })),
+    () => FILTER_FIELDS.map((f) => ({ field: f.field, label: `alerts.fields.${fieldKey(f.field)}` })),
     [t],
   )
   const operators = useMemo<FilterOpDef[]>(
-    () => FILTER_OPS.map((o) => ({ id: o.id, label: t(`alerts.ops.${o.id}`), needsValue: o.needsValue })),
+    () => FILTER_OPS.map((o) => ({ id: o.id, label: `alerts.ops.${o.id}`, needsValue: o.needsValue })),
     [t],
   )
   const labels = useMemo(
     () => ({
-      add: t('alerts.filters.add'),
-      clearAll: t('alerts.filters.clearAll'),
-      filterValues: t('alerts.filters.filterValues'),
-      loadingValues: t('alerts.filters.loadingValues'),
-      noValues: t('alerts.filters.noValues'),
-      pickValue: t('alerts.filters.pickValue'),
-      empty: t('alerts.filters.empty'),
-      cancel: t('alerts.filters.cancel'),
-      addBtn: t('alerts.filters.addBtn'),
+      add: 'alerts.filters.add',
+      clearAll: 'alerts.filters.clearAll',
+      filterValues: 'alerts.filters.filterValues',
+      loadingValues: 'alerts.filters.loadingValues',
+      noValues: 'alerts.filters.noValues',
+      pickValue: 'alerts.filters.pickValue',
+      empty: 'alerts.filters.empty',
+      cancel: 'alerts.filters.cancel',
+      addBtn: 'alerts.filters.addBtn',
     }),
     [t],
   )

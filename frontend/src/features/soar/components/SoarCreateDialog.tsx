@@ -16,11 +16,12 @@ export function SoarCreateDialog({
 }: {
   open: boolean
   onClose: () => void
-  onManual: (name: string) => void
+  onManual: (name: string, description: string, maxDepth: number) => void
 }) {
   const { t } = useTranslation()
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
+  const [maxDepth, setMaxDepth] = useState(50)
   const [mode, setMode] = useState<'manual' | 'ai'>('manual')
   const aiConfigured = useSocAiConfigured()
   const { openPanel, submit: submitToAssistant, setSoarCreateTarget } = useSocAi()
@@ -29,6 +30,7 @@ export function SoarCreateDialog({
     if (open) {
       setName('')
       setDescription('')
+      setMaxDepth(50)
       setMode('manual')
     }
   }, [open])
@@ -54,7 +56,7 @@ export function SoarCreateDialog({
       submitToAssistant(task, { scope: 'soar-create' })
       return
     }
-    onManual(name.trim())
+    onManual(name.trim(), description.trim(), maxDepth || 50)
   }
 
   return (
@@ -95,14 +97,24 @@ export function SoarCreateDialog({
 
         <div className="space-y-4 px-6 py-5">
           {mode === 'manual' ? (
-            <div>
-              <label className="mb-1.5 block text-xs font-medium text-foreground/80">{t('soar.create.name')}</label>
-              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t('soar.create.namePlaceholder')} autoFocus />
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="create-name" className="mb-1.5 block text-xs font-medium text-foreground/80">{t('soar.create.name')}</label>
+                <Input id="create-name" value={name} onChange={(e) => setName(e.target.value)} placeholder={t('soar.create.namePlaceholder')} autoFocus />
+              </div>
+              <div>
+                <label htmlFor="create-description" className="mb-1.5 block text-xs font-medium text-foreground/80">{t('soar.editor.descriptionLabel')}</label>
+                <Textarea id="create-description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder={t('soar.editor.descriptionHint')} maxRows={4} />
+              </div>
+              <div>
+                <label htmlFor="create-maxdepth" className="mb-1.5 block text-xs font-medium text-foreground/80">{t('soar.editor.maxDepth', 'Max depth')}</label>
+                <Input id="create-maxdepth" type="number" min={1} max={1000} value={maxDepth} onChange={(e) => setMaxDepth(Number(e.target.value) || 50)} />
+              </div>
             </div>
           ) : (
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-foreground/80">{t('soar.create.aiDescriptionLabel')}</label>
-              <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder={t('soar.create.aiDescriptionPlaceholder')} maxRows={8} autoFocus />
+              <label htmlFor="create-ai-description" className="mb-1.5 block text-xs font-medium text-foreground/80">{t('soar.create.aiDescriptionLabel')}</label>
+              <Textarea id="create-ai-description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder={t('soar.create.aiDescriptionPlaceholder')} maxRows={8} autoFocus />
             </div>
           )}
         </div>

@@ -283,6 +283,8 @@
     }
   },
   "nav": {
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
     "home": "Home",
     "dashboards": "Dashboards",
     "dashboardList": "Dashboard list",
@@ -301,6 +303,12 @@
     "logExplorer": "Log Explorer",
     "userAuditor": "User Auditor",
     "threatIntelligence": "Threat Intelligence",
+    "threat-intel": {
+      "indicators": "Indicators",
+      "analyzt": "AI Analyst",
+      "triage": "Triage",
+      "report": "Report"
+    },
     "compliance": "Compliance",
     "configure": "Configure",
     "dataSources": "Data Sources",
@@ -697,7 +705,8 @@
     "auditLogs": "App Audit Logs",
     "about": "About",
     "socAi": "SOC-AI",
-    "supportAccess": "Support access"
+    "supportAccess": "Support access",
+    "threatwinds": "ThreatWinds Integration"
   },
   "topbar": {
     "theme": {
@@ -742,7 +751,8 @@
     "tabs": {
       "iocs": "IOCs",
       "actors": "Threat actors",
-      "feeds": "Feeds"
+      "feeds": "Feeds",
+      "analyst": "AI Analyst"
     },
     "toolbar": {
       "searchPlaceholders": {
@@ -811,8 +821,12 @@
       "table": {
         "name": "Feed",
         "type": "Type",
-        "accuracy": "Accuracy"
-      }
+        "accuracy": "Accuracy",
+        "header": "Feeds",
+        "format": "Format"
+      },
+      "download": "Download feed",
+      "checksum": "Checksum"
     },
     "entityTypes": {
       "ip": "IP",
@@ -835,6 +849,118 @@
       "level1": "Level 1",
       "level2": "Level 2",
       "level3": "Level 3"
+    },
+    "triage": {
+      "title": "Triage",
+      "subtitle": "Paste indicators, get verdicts",
+      "input": "Indicators",
+      "placeholder": "Paste IPs, domains, URLs or hashes — one per line, or comma separated.\nDefanged values (1.2.3[.]4, hxxp://) are accepted.",
+      "run": "Triage",
+      "stop": "Stop",
+      "reset": "Clear",
+      "parsed": "{{count}} unique indicators",
+      "capped": "Capped at {{max}} per run.",
+      "progress": "{{done}} of {{total}}",
+      "empty": "Paste indicators above to begin.",
+      "indicator": "Indicator",
+      "type": "Type",
+      "verdict": "Verdict",
+      "reputation": "Rep",
+      "accuracy": "Acc",
+      "tags": "Tags",
+      "lastSeen": "Last seen",
+      "exportCsv": "Export CSV",
+      "exportStix": "Export STIX",
+      "stixNote": "STIX export includes malicious and suspicious rows only.",
+      "open": "Open",
+      "notConfigured": "Threat intelligence is not configured — triage needs an upstream ThreatWinds instance.",
+      "v.malicious": "Malicious",
+      "v.suspicious": "Suspicious",
+      "v.benign": "Benign",
+      "v.unknown": "Unknown",
+      "v.notFound": "Not found",
+      "v.invalid": "Unrecognised",
+      "summary": "Summary"
+    },
+    "report": {
+      "title": "Report",
+      "subtitle": "Publish an indicator to the ThreatWinds graph",
+      "submit": "Report indicator",
+      "submitting": "Reporting…",
+      "error": {
+        "generic": "Could not submit the indicator. Try again."
+      },
+      "value": {
+        "label": "Indicator",
+        "placeholder": "IP, domain, URL, hash or email address"
+      },
+      "type": {
+        "label": "Type",
+        "placeholder": "Inferred from the value",
+        "inferred": "Inferred: {{type}}",
+        "inferenceFailed": "No type could be inferred from this value. Choose one from the list, or type it.",
+        "unknown": "“{{type}}” is not an entity type. Choose one from the list."
+      },
+      "tags": {
+        "label": "Tags",
+        "placeholder": "phishing, credential-theft"
+      },
+      "description": {
+        "label": "Notes"
+      },
+      "reputation": {
+        "legend": "Reputation",
+        "hint": "Leave unset if you have not reached a verdict.",
+        "alarming": "Alarming",
+        "worrying": "Worrying",
+        "concerning": "Concerning",
+        "indefinable": "Indefinable",
+        "adequate": "Adequate",
+        "good": "Good",
+        "exceptional": "Exceptional"
+      },
+      "associations": {
+        "legend": "Related indicators",
+        "add": "Add related indicator",
+        "remove": "Remove",
+        "valuePlaceholder": "Related value",
+        "typePlaceholder": "Type (optional)",
+        "modeLabel": "Relationship",
+        "mode": {
+          "association": "Related to",
+          "aggregation": "Part of"
+        },
+        "visibilityConflict": "This shares no visibility group with the indicator above. The whole submission would be rejected."
+      },
+      "attributes": {
+        "legend": "Details",
+        "hint": "Optional. Anything left blank is not submitted.",
+        "invalidHex": "Expected {{length}} hexadecimal characters.",
+        "invalidHexAny": "Expected hexadecimal characters only.",
+        "invalidNumber": "Expected a number."
+      },
+      "correlate": {
+        "legend": "Correlate",
+        "hint": "Each ticked attribute is published as its own entity, linked to this one.",
+        "count_one": "Creates {{count}} linked entity.",
+        "count_other": "Creates {{count}} linked entities."
+      },
+      "scan": {
+        "notice": "Reporting this also queues a scan of the target."
+      },
+      "receipt": {
+        "title": "Submitted",
+        "noVerdict": "No verdict stated",
+        "skipped": "Not submitted, no type could be inferred",
+        "pending": "Waiting for the indicator to appear in the corpus…",
+        "live": "Live in the corpus — view entity",
+        "processing": "Still being processed. It will appear once ingestion catches up.",
+        "another": "Report another"
+      },
+      "visibility": {
+        "legend": "Visible to"
+      },
+      "example": "Try example"
     }
   },
   "notifications": {
@@ -3098,6 +3224,74 @@
             "body": "Point the <hl>local5</hl> facility (where Suricata now writes) at the Collector. Add this rule to <hl>/etc/rsyslog.d/60-utmstack-suricata.conf</hl> on the Suricata host:",
             "note": "Use @@ instead of @ for TCP. Then restart rsyslog: sudo systemctl restart rsyslog"
           }
+        },
+        "o365_graph": {
+          "intro": {
+            "title": "How it works",
+            "body": "UTMStack connects to Microsoft 365 with a registered Azure AD app and polls Microsoft Graph for security events: alerts, incidents, directory audit, sign-ins, risk detections, hunting queries and Purview audit logs. No agent is installed in your tenant.",
+            "diagram": {
+              "source": "security events",
+              "edge": "Microsoft Graph",
+              "utmstackSub": "correlation & alerts"
+            },
+            "note": "UTMStack requires read-only Graph API access — no write permissions are requested."
+          },
+          "appSection": "Azure App Registration",
+          "steps": {
+            "azurePortal": {
+              "title": "Open Microsoft Entra ID",
+              "body": "Open the <hl>Azure Portal</hl> (portal.azure.com) and click on <hl>Microsoft Entra ID</hl>."
+            },
+            "appRegistrations": {
+              "title": "Go to App registrations",
+              "body": "In the left menu, click <hl>App registrations</hl>."
+            },
+            "registerApp": {
+              "title": "Register a new app",
+              "body": "Click <hl>New registration</hl>. Name it <hl>UTMStack Graph Dev</hl>, select <hl>Accounts in this organizational directory only (Single-tenant)</hl>, and click <hl>Register</hl>."
+            },
+            "clientSecret": {
+              "title": "Create a client secret",
+              "body": "Go to <hl>Certificates & Secrets → New client secret</hl>. Add a description, set expiry to <hl>730 days (24 months)</hl>, and click <hl>Add</hl>.",
+              "copyNote": "Copy the secret Value immediately — it is only shown once and cannot be retrieved later."
+            },
+            "apiPermissions": {
+              "title": "Add Microsoft Graph permissions",
+              "body": "Go to <hl>API Permissions → Add a permission</hl> and select <hl>Microsoft Graph</hl>, then choose <hl>Application permissions</hl>."
+            },
+            "graphPermissions": {
+              "title": "Add the four Graph permissions",
+              "body": "Add <hl>SecurityEvents.Read.All</hl>, <hl>Directory.Read.All</hl>, <hl>AuditLog.Read.All</hl> and <hl>IdentityRiskEvent.Read.All</hl>."
+            },
+            "adminConsent": {
+              "title": "Grant admin consent",
+              "body": "Back in <hl>API Permissions</hl>, click <hl>Grant admin consent for {tenant}</hl> and confirm."
+            },
+            "noteIds": {
+              "title": "Copy the app IDs",
+              "body": "Go to the app <hl>Overview</hl> and copy the <hl>Application (client) ID</hl> and <hl>Directory (tenant) ID</hl>. You also need the secret value copied in step 4."
+            }
+          },
+          "credentialsSection": "Credentials",
+          "credentials": {
+            "title": "Connect your Microsoft 365 tenant",
+            "body": "Enter the details from the steps above. UTMStack verifies the credentials before saving. You can add multiple config groups."
+          },
+          "fields": {
+            "tenantId": {
+              "label": "Tenant ID (Directory ID)"
+            },
+            "clientId": {
+              "label": "Client ID (Application ID)"
+            },
+            "clientSecret": {
+              "label": "Client Secret"
+            },
+            "cloudEnv": {
+              "label": "Cloud Environment (optional)",
+              "hint": "Commercial (default), GCC, GCCHigh, or DoD"
+            }
+          }
         }
       },
       "cloud": {
@@ -3611,6 +3805,7 @@
       "AWS_IAM_USER": "Ingest AWS account activity and API calls via CloudTrail and CloudWatch to audit cloud usage, access and changes.",
       "AZURE": "Ingest Microsoft Azure platform and activity logs to monitor cloud workloads, identity and resource changes.",
       "O365": "Ingest Microsoft 365 audit logs across Exchange, Teams, SharePoint and OneDrive to monitor user and admin activity.",
+      "O365_GRAPH": "Ingest Microsoft Graph security events — alerts, incidents, directory audit, sign-ins, risk detections and Purview audit logs — to monitor identity and threat activity across your tenant.",
       "GCP": "Ingest Google Cloud Platform audit and activity logs to monitor compute, storage and identity across projects.",
       "KASPERSKY": "Ingest Kaspersky Security Center detections and endpoint telemetry to correlate malware activity across the network.",
       "ESET": "Ingest ESET PROTECT endpoint detections and telemetry to correlate multilayered malware defense across your estate.",
@@ -5764,6 +5959,111 @@
       "noneSucceeded": "No tenants succeeded.",
       "failed": "Failed",
       "noneFailed": "No failures."
+    }
+  },
+  "tiAnalyst": {
+    "console": {
+      "subtitle": "Analyst workspace",
+      "model": "Model",
+      "resizeResults": "Resize the results pane",
+      "resizeHint": "Drag to resize · double-click to reset"
+    },
+    "conv": {
+      "title": "Conversations",
+      "allConversations": "All conversations",
+      "empty": "No conversations yet.",
+      "new": "New conversation",
+      "newTitle": "Conversation title",
+      "selectPrompt": "Select a conversation, or start one.",
+      "running": "running",
+      "delete": "Delete {{title}}",
+      "unread_one": "{{count}} unread message",
+      "unread_other": "{{count}} unread messages",
+      "transcript": "Conversation transcript"
+    },
+    "agent": {
+      "placeholder": "Investigate an indicator…",
+      "ask": "Ask the analyst agent",
+      "intro": "Ask about any indicator. The agent queries ThreatWinds directly and shows its work.",
+      "send": "Send",
+      "stop": "Stop",
+      "thinking": "thinking…",
+      "suggestionInvestigate": "Investigate 8.8.8.8 and tell me if it is malicious",
+      "suggestionInfrastructure": "What infrastructure is related to google.com?",
+      "suggestionCounts": "Show me how many entities exist per type"
+    },
+    "canvas": {
+      "title": "Results",
+      "empty": "Results from this conversation appear here.",
+      "tile": "Tile",
+      "closeAll": "Close all",
+      "pinOut": "Open {{title}} as panel",
+      "loading": "loading…",
+      "failed": "could not load",
+      "noRelations": "no related entities",
+      "noGeo": "no geolocation recorded",
+      "noResults": "no matches",
+      "matches": "{{total}} matches",
+      "panelName": "{{title}} — {{kind}}",
+      "movePanel": "Move {{title}}",
+      "resizePanel": "Resize {{title}}",
+      "closePanel": "Close {{title}}",
+      "collapse": "Collapse {{title}}",
+      "expand": "Expand {{title}}",
+      "kind": {
+        "entity": "dossier",
+        "graph": "relations",
+        "geo": "geolocation",
+        "search": "search"
+      }
+    },
+    "graph": {
+      "nodes_one": "{{count}} node",
+      "nodes_other": "{{count}} nodes",
+      "edges_one": "{{count}} edge",
+      "edges_other": "{{count}} edges",
+      "clickToPivot": "click to pivot",
+      "malicious": "malicious",
+      "unknown": "unknown",
+      "benign": "benign"
+    },
+    "entity": {
+      "reputation": "Reputation",
+      "accuracy": "Accuracy",
+      "worst": "Worst",
+      "best": "Best",
+      "relations": "Relationship graph",
+      "geolocations": "Geolocations",
+      "associations": "Associations",
+      "radius": "r={{radius}}m",
+      "askAgentBtn": "Ask agent",
+      "askAgent": "Assess {{type}} {{value}} (entity id {{id}}). Is it a threat?"
+    },
+    "tool": {
+      "querying": "querying…",
+      "notRetained": "Result not kept.",
+      "expand": "Show request and result",
+      "collapse": "Hide request and result",
+      "noIntel": "\"{{value}}\" has no threat intelligence recorded.",
+      "noMatches": "No matches.",
+      "matches": "{{items}} matches for \"{{query}}\"",
+      "more": "+{{count}} more"
+    }
+  },
+  "threatwinds": {
+    "title": "ThreatWinds Integration",
+    "subtitle": "Share this instance's incidents with the ThreatWinds community feed.",
+    "feeds": "Enable feeds",
+    "feedsHint": "When on, events are checked against ThreatWinds intelligence feeds.",
+    "contribute": "Contribute incidents",
+    "contributeHint": "When on, incidents from this instance are sent to ThreatWinds.",
+    "loading": "Loading integration status…",
+    "failed": "Could not load the ThreatWinds integration status.",
+    "retry": "Retry",
+    "toast": {
+      "enabled": "Contribution enabled",
+      "disabled": "Contribution disabled",
+      "failed": "Could not update the contribution setting"
     }
   }
 }

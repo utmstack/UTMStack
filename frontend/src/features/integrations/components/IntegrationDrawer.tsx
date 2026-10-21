@@ -13,7 +13,7 @@ import { AWSGuide } from '@/features/integrations/components/setup/cloud/AWSGuid
 import { AzureGuide } from '@/features/integrations/components/setup/cloud/AzureGuide'
 import { GcpGuide } from '@/features/integrations/components/setup/cloud/GcpGuide'
 import { CrowdStrikeGuide } from '@/features/integrations/components/setup/cloud/CrowdStrikeGuide'
-import { M365Guide } from '@/features/integrations/components/setup/collector/collectors/M365Guide'
+import { M365Guide, O365_GRAPH_FIELDS } from '@/features/integrations/components/setup/collector/collectors/M365Guide'
 import { SophosGuide } from '@/features/integrations/components/setup/collector/collectors/SophosGuide'
 import { CustomSetup } from '@/features/integrations/components/setup/CustomSetup'
 import type { Integration } from '@/features/integrations/types'
@@ -24,10 +24,8 @@ const isAWS = (name: string) =>
 const isAzure = (name: string) =>
   (name ?? '').toLowerCase().replace(/\s/g, '').includes('azure')
 
-const isM365 = (i: Integration) =>
-  (i.moduleName ?? '').toUpperCase() === 'O365' ||
-  (i.name ?? '').toLowerCase().replace(/\s/g, '').includes('microsoft365') ||
-  (i.name ?? '').toLowerCase().includes('office365')
+const isM365 = (i: Integration) => (i.moduleName ?? '').toUpperCase() === 'O365'
+const isO365Graph = (i: Integration) => (i.moduleName ?? '').toUpperCase() === 'O365_GRAPH'
 
 const isGCP = (i: Integration) => {
   const n = (i.name ?? '').toLowerCase()
@@ -161,8 +159,11 @@ export function IntegrationDrawer({ integration: i, onClose }: IntegrationDrawer
               {!isCustom(i) && i.kind === 'cloud' && isAWS(i.name) && <AWSGuide integration={i} />}
               {!isCustom(i) && i.kind === 'cloud' && isAzure(i.name) && <AzureGuide integration={i} />}
               {!isCustom(i) && i.kind === 'cloud' && isGCP(i) && <GcpGuide integration={i} />}
+              {!isCustom(i) && i.kind === 'cloud' && isO365Graph(i) && (
+                <M365Guide module={i} fields={O365_GRAPH_FIELDS} variant="graph" />
+              )}
               {!isCustom(i) && i.kind === 'cloud' && isM365(i) && <M365Guide module={i} />}
-              {!isCustom(i) && i.kind === 'cloud' && !isAWS(i.name) && !isAzure(i.name) && !isGCP(i) && !isM365(i) && <CloudSetup integration={i} />}
+              {!isCustom(i) && i.kind === 'cloud' && !isAWS(i.name) && !isAzure(i.name) && !isGCP(i) && !isM365(i) && !isO365Graph(i) && <CloudSetup integration={i} />}
               {!isCustom(i) && isCrowdStrike(i) && <CrowdStrikeGuide integration={i} />}
               {!isCustom(i) && isSophos(i) && <SophosGuide module={i} />}
               {!isCustom(i) && isCollectorGroup && !isCrowdStrike(i) && !isSophos(i) && !isAgent(i) && <CollectorSetup integration={i} />}

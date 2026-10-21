@@ -1,0 +1,27 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365-graph
+name: Graph Admin Role Assignment Detected
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Privilege Escalation
+technique: "T1098 - Account Manipulation"
+references:
+  - https://learn.microsoft.com/en-us/graph/api/directory-audit
+  - https://attack.mitre.org/techniques/T1098/
+description: |
+  Detects directory audit events where a privileged role is granted through the
+  Microsoft Graph API. An admin role assignment, or a role assigned to a service
+  principal, can indicate privilege escalation or a backdoor.
+
+  Next Steps:
+  1. Confirm who performed the assignment and whether it was authorized.
+  2. Check the target for anomalous activity.
+  3. Revoke the role if it is not justified.
+where: |
+  equals("log.graphSource", "directory-audit") &&
+  regexMatch("log.roleDisplayName", "(?i)admin") &&
+  equals("log.result", "success")

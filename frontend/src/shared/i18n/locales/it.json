@@ -300,6 +300,12 @@
     "logExplorer": "Esplora log",
     "userAuditor": "Auditor utenti",
     "threatIntelligence": "Intelligence sulle minacce",
+    "threat-intel": {
+      "indicators": "Indicatori",
+      "analyzt": "Analista IA",
+      "triage": "Triage",
+      "report": "Report"
+    },
     "compliance": "Conformità",
     "configure": "Configura",
     "dataSources": "Origini dati",
@@ -313,7 +319,9 @@
     "taggingRules": "Regole di etichettatura",
     "parsingFilters": "Pipeline",
     "overview": "Panoramica",
-    "tenants": "Tenant"
+    "tenants": "Tenant",
+    "openMenu": "Apri menu",
+    "closeMenu": "Chiudi menu"
   },
   "dashboards": {
     "title": "Dashboard",
@@ -482,7 +490,8 @@
         "limit": "Quanti",
         "limitPlaceholder": "Predefinito (50)",
         "splitHint": "Facoltativo: una linea per ogni valore di questo campo."
-      }
+      },
+      "editFilters": "Edit filters"
     },
     "grid": {
       "empty": "Questa dashboard non ha ancora widget.",
@@ -555,7 +564,9 @@
       "filterDeleted": "Filtro eliminato.",
       "filterCreateFailed": "Impossibile creare il filtro.",
       "filterUpdateFailed": "Impossibile aggiornare il filtro.",
-      "filterDeleteFailed": "Impossibile eliminare il filtro."
+      "filterDeleteFailed": "Impossibile eliminare il filtro.",
+      "filtersSaved": "Filters saved.",
+      "filtersSaveFailed": "Could not save filters."
     },
     "newDashboard": {
       "title": "Nuova dashboard",
@@ -648,7 +659,30 @@
       "editAria": "Modifica filtro",
       "removeAria": "Rimuovi filtro",
       "saving": "Salvataggio…",
-      "addChip": "Aggiungi filtro"
+      "addChip": "Aggiungi filtro",
+      "chooseValue": "Choose…",
+      "selected": "selected",
+      "loading": "Loading values…",
+      "searchPlaceholder": "Search values…",
+      "noValues": "No values available.",
+      "loadError": "Could not load values.",
+      "clear": "Clear",
+      "editorTitle": "Dashboard filters",
+      "editorHint": "Add dropdown chips that filter every widget on this dashboard.",
+      "emptyEditor": "No filter chips yet. Add one to get started.",
+      "cancel": "Cancel",
+      "save": "Save",
+      "field": {
+        "dataset": "Data set",
+        "field": "Field",
+        "chooseField": "Choose a field…",
+        "label": "Label",
+        "labelPlaceholder": "e.g. Host",
+        "placeholder": "Placeholder",
+        "placeholderPlaceholder": "e.g. Pick a host",
+        "multiple": "Multiple",
+        "searchable": "Searchable"
+      }
     },
     "duplicate": {
       "copyName": "{{name}} (copia)"
@@ -671,7 +705,8 @@
     "auditLogs": "Log di audit",
     "about": "Informazioni",
     "socAi": "SOC-AI",
-    "supportAccess": "Accesso di supporto"
+    "supportAccess": "Accesso di supporto",
+    "threatwinds": "Integrazione ThreatWinds"
   },
   "topbar": {
     "theme": {
@@ -1756,7 +1791,8 @@
       "loadingValues": "Caricamento valori…",
       "noValues": "Nessun valore.",
       "cancel": "Annulla",
-      "confirm": "Aggiungi"
+      "confirm": "Aggiungi",
+      "pickValue": "Pick a value to add the filter."
     },
     "related": {
       "nLogs_one": "{{count}} log",
@@ -2805,6 +2841,12 @@
             "body": "Includi questa intestazione Authorization in ogni richiesta inviata all'istanza. Il segreto della chiave API viene rivelato una sola volta al momento della sua generazione — copialo allora e incollalo al posto del segnaposto qui sotto.",
             "tabSimple": "Semplice",
             "tabBatch": "Batch"
+          },
+          "manualCommand": {
+            "title": "Optional — Enable via the command line instead",
+            "intro": "Prefer the terminal? SSH into the Collector host and run the command below — it matches whatever protocol and port you have selected above.",
+            "certStep": "1 · Load your certificate and key (once per Collector)",
+            "enableStep": "2 · Enable the integration"
           }
         },
         "aix": {
@@ -2939,6 +2981,74 @@
             "body": "Punta la facility <hl>local5</hl> (dove Suricata scrive ora) verso il Collector. Aggiungi questa regola in <hl>/etc/rsyslog.d/60-utmstack-suricata.conf</hl> sull'host Suricata:",
             "note": "Usa @@ al posto di @ per TCP. Quindi riavvia rsyslog: sudo systemctl restart rsyslog"
           }
+        },
+        "o365_graph": {
+          "intro": {
+            "title": "Come funziona",
+            "body": "UTMStack si connette a Microsoft 365 con un'app Azure AD registrata e interroga Microsoft Graph per gli eventi di sicurezza: allerte, incidenti, audit del directory, sign-in, rilevamenti di rischio, query di hunting e log di audit Purview. Non viene installato alcun agente nel tuo tenant.",
+            "diagram": {
+              "source": "eventi di sicurezza",
+              "edge": "Microsoft Graph",
+              "utmstackSub": "correlazione & allerte"
+            },
+            "note": "UTMStack richiede solo accesso in sola lettura all'API Graph — non vengono richieste autorizzazioni di scrittura."
+          },
+          "appSection": "Registrazione app Azure",
+          "steps": {
+            "azurePortal": {
+              "title": "Apri Microsoft Entra ID",
+              "body": "Apri il <hl>Portale di Azure</hl> (portal.azure.com) e clicca su <hl>Microsoft Entra ID</hl>."
+            },
+            "appRegistrations": {
+              "title": "Vai a Registrazioni app",
+              "body": "Nel menu a sinistra, clicca su <hl>Registrazioni app</hl>."
+            },
+            "registerApp": {
+              "title": "Registra una nuova app",
+              "body": "Clicca su <hl>Nuova registrazione</hl>. Nominala <hl>UTMStack Graph Dev</hl>, seleziona <hl>Solo account in questo directory organizzativo (Single-tenant)</hl> e clicca su <hl>Registra</hl>."
+            },
+            "clientSecret": {
+              "title": "Crea un segreto client",
+              "body": "Vai su <hl>Certificati e segreti → Nuovo segreto client</hl>. Aggiungi una descrizione, imposta la scadenza su <hl>730 giorni (24 mesi)</hl> e clicca su <hl>Aggiungi</hl>.",
+              "copyNote": "Copia subito il valore del segreto — viene mostrato solo una volta e non potrà essere recuperato in seguito."
+            },
+            "apiPermissions": {
+              "title": "Aggiungi le autorizzazioni Microsoft Graph",
+              "body": "Vai su <hl>Autorizzazioni API → Aggiungi un'autorizzazione</hl> e seleziona <hl>Microsoft Graph</hl>, poi scegli <hl>Autorizzazioni dell'applicazione</hl>."
+            },
+            "graphPermissions": {
+              "title": "Aggiungi le quattro autorizzazioni Graph",
+              "body": "Aggiungi <hl>SecurityEvents.Read.All</hl>, <hl>Directory.Read.All</hl>, <hl>AuditLog.Read.All</hl> e <hl>IdentityRiskEvent.Read.All</hl>."
+            },
+            "adminConsent": {
+              "title": "Concedi il consenso amministratore",
+              "body": "Tornato in <hl>Autorizzazioni API</hl>, clicca su <hl>Concedi consenso amministratore per {tenant}</hl> e conferma."
+            },
+            "noteIds": {
+              "title": "Copia gli ID dell'app",
+              "body": "Vai alla <hl>Panoramica</hl> dell'app e copia l'<hl>ID applicazione (client)</hl> e l'<hl>ID directory (tenant)</hl>. Ti serve anche il valore del segreto copiato al passaggio 4."
+            }
+          },
+          "credentialsSection": "Credenziali",
+          "credentials": {
+            "title": "Connetti il tuo tenant Microsoft 365",
+            "body": "Inserisci i dettagli dai passaggi sopra. UTMStack verifica le credenziali prima di salvarle. Puoi aggiungere più gruppi di configurazione."
+          },
+          "fields": {
+            "tenantId": {
+              "label": "ID Tenant (ID Directory)"
+            },
+            "clientId": {
+              "label": "ID Client (ID Applicazione)"
+            },
+            "clientSecret": {
+              "label": "Segreto Client"
+            },
+            "cloudEnv": {
+              "label": "Ambiente cloud (facoltativo)",
+              "hint": "Commercial (default), GCC, GCCHigh o DoD"
+            }
+          }
         }
       },
       "cloud": {
@@ -3047,10 +3157,6 @@
         },
         "azure": {
           "sections": {
-            "eventHub": {
-              "title": "1 · Crea un Event Hub",
-              "body": "Nel portale di Azure, crea un namespace di Event Hubs e un Event Hub al suo interno. UTMStack leggerà gli eventi da questo hub."
-            },
             "sharedAccessPolicy": {
               "title": "2 · Aggiungi un criterio di accesso condiviso",
               "body": "Apri l'Event Hub → Criteri di accesso condiviso e crea un nuovo criterio con solo il permesso Listen."
@@ -3064,10 +3170,6 @@
               "body": "Apri l'Event Hub → Consumer group e creane uno nuovo per UTMStack. Non riutilizzare $Default: dai a UTMStack un proprio gruppo per evitare conflitti di checkpoint con altri consumer.",
               "warn": "Crea un consumer group specificamente per UTMStack. Non utilizzare $Default o altri gruppi già in uso — riutilizzare un consumer group tra consumer non correlati può causare comportamenti imprevisti ed eventi persi. Tutte le istanze UTMStack devono condividere lo stesso consumer group per elaborare gli eventi insieme."
             },
-            "storageAccount": {
-              "title": "5 · Crea un account di archiviazione",
-              "body": "UTMStack richiede un account di archiviazione per i checkpoint. Creane uno nella stessa regione dell'Event Hub."
-            },
             "storageContainer": {
               "title": "6 · Crea un container nell'account di archiviazione",
               "body": "Nell'account di archiviazione → Container, crea un nuovo container. Annota il nome del container e la stringa di connessione dell'account (Chiavi di accesso → Stringa di connessione)."
@@ -3075,10 +3177,6 @@
             "eventGrid": {
               "title": "7 · Registra il provider di risorse Event Grid",
               "body": "In Sottoscrizioni → Provider di risorse, registra Microsoft.EventGrid se non lo è già. Permette ad Azure di inoltrare eventi a livello di sottoscrizione al tuo Event Hub."
-            },
-            "eventSubscription": {
-              "title": "8 · Crea una sottoscrizione di eventi",
-              "body": "Crea una sottoscrizione di eventi che punti al tuo Event Hub. Scegli i tipi di evento da inoltrare a UTMStack."
             },
             "createEventHub": {
               "title": "Crea un Event Hub",
@@ -3144,44 +3242,6 @@
           }
         },
         "aws": {
-          "sections": {
-            "prerequisite": {
-              "title": "Prerequisito · Utente IAM",
-              "body": "Per far funzionare questa integrazione, serve un utente IAM per UTMStack con la policy CloudWatchLogsReadOnlyAccess. Annota l'ID della chiave di accesso e la chiave segreta: le incollerai nel modulo del gruppo di configurazione qui sotto."
-            },
-            "createTrail": {
-              "title": "1 · Crea un trail",
-              "body": "Nel pannello CloudTrail, seleziona «Create trail»."
-            },
-            "trailName": {
-              "title": "2 · Assegna un nome al trail",
-              "body": "Compila il campo «Trail name»."
-            },
-            "s3Buckets": {
-              "title": "3 · Seleziona i bucket S3",
-              "body": "Spunta «Select all S3 buckets in your account»."
-            },
-            "bucketName": {
-              "title": "4 · Crea il bucket S3",
-              "body": "Compila il campo «S3 bucket». Il nome del bucket deve essere univoco in S3. Poi clicca «Create»."
-            },
-            "editTrail": {
-              "title": "5 · Apri il trail per modificarlo",
-              "body": "Clicca sul nome del trail per modificarlo."
-            },
-            "cloudwatchConfig": {
-              "title": "6 · Configura CloudWatch Logs",
-              "body": "Apri la sezione CloudWatch Logs e abilita l'integrazione affinché il trail inoltri gli eventi a un log group."
-            },
-            "logGroup": {
-              "title": "7 · Imposta il nome del log group",
-              "body": "Compila il nome del log group (es. utmstack) e continua. Usa lo stesso nome nel campo «Nome del log group» qui sotto."
-            },
-            "permissions": {
-              "title": "8 · Concedi i permessi a CloudTrail",
-              "body": "Clicca su «Allow» per concedere a CloudTrail i permessi di scrittura sul log group."
-            }
-          },
           "fields": {
             "accessKeyId": {
               "label": "ID chiave di accesso AWS"
@@ -3398,6 +3458,10 @@
           "bodyNetwork": "Configura la tua sorgente per inviare syslog <hl>{{proto}}</hl> a <hl>{{host}}:{{port}}</hl>. La maggior parte dei dispositivi dispone di un'impostazione remote-syslog o di inoltro log remoto per questo.",
           "bodyHttp": "Invia i tuoi eventi come JSON via HTTP POST a <hl>{{endpoint}}</hl>. Il corpo di ogni richiesta è un evento JSON:",
           "httpBindNote": "Il listener HTTP/HTTPS si collega a 127.0.0.1 (l'host del Collector) per impostazione predefinita, quindi invia dall'app in esecuzione su quell'host — oppure usalo con un reverse proxy. Per sorgenti remote, usa syslog (UDP/TCP/TLS)."
+        },
+        "manualCommand": {
+          "title": "Optional — Enable via the command line instead",
+          "intro": "Prefer the terminal? SSH into the Collector host and run the command below — it matches whatever protocol and port you have selected above."
         }
       },
       "remoteEnable": {
@@ -3510,6 +3574,7 @@
       "AWS_IAM_USER": "Acquisisci l'attività dell'account AWS e le chiamate API tramite CloudTrail e CloudWatch per controllare l'utilizzo cloud, gli accessi e le modifiche.",
       "AZURE": "Acquisisci i log di piattaforma e attività di Microsoft Azure per monitorare i workload cloud, l'identità e le modifiche alle risorse.",
       "O365": "Acquisisci i log di audit di Microsoft 365 su Exchange, Teams, SharePoint e OneDrive per monitorare l'attività degli utenti e degli amministratori.",
+      "O365_GRAPH": "Ingeste gli eventi di sicurezza di Microsoft Graph: allerte, incidenti, audit del directory, sign-in, rilevamenti di rischio e log di audit Purview per monitorare identità e attività di minaccia nel tuo tenant.",
       "GCP": "Acquisisci i log di audit e attività di Google Cloud Platform per monitorare compute, storage e identità tra i progetti.",
       "KASPERSKY": "Acquisisci i rilevamenti di Kaspersky Security Center e la telemetria degli endpoint per correlare l'attività malware nella rete.",
       "ESET": "Acquisisci i rilevamenti endpoint e la telemetria di ESET PROTECT per correlare la difesa multilivello dal malware nel tuo parco macchine.",
@@ -4485,7 +4550,8 @@
       "dataTypesNone": "Nessun tipo di dato",
       "visualTab": "Visuale",
       "codeTab": "Codice",
-      "yamlError": "Impossibile applicare lo YAML: {{error}}"
+      "yamlError": "Impossibile applicare lo YAML: {{error}}",
+      "test": "Test"
     },
     "toast": {
       "activated": "Regola attivata",
@@ -4543,7 +4609,8 @@
       "approved": "Approvate",
       "rejected": "Rifiutate",
       "done": "Fatto"
-    }
+    },
+    "test": "Test"
   },
   "regexPatterns": {
     "title": "Espressioni regolari",
@@ -4637,7 +4704,8 @@
       "saving": "Salvataggio…",
       "delete": "Elimina",
       "confirmDelete": "Conferma eliminazione",
-      "cancel": "Annulla"
+      "cancel": "Annulla",
+      "test": "Test"
     },
     "toast": {
       "saved": "Pipeline salvata",
@@ -4683,7 +4751,8 @@
       "paramsKey": "Chiave",
       "paramsValue": "Valore"
     },
-    "allDataTypes": "Tutti i tipi di dati"
+    "allDataTypes": "Tutti i tipi di dati",
+    "testPipeline": "Test pipeline"
   },
   "soar": {
     "title": "SOAR",
@@ -4902,6 +4971,11 @@
           "subjectPlaceholder": "Es. Allarme su $(alert.dataSource)",
           "body": "Corpo",
           "bodyPlaceholder": "Contenuto del messaggio. I template come $(alert.name) vengono interpolati."
+        },
+        "notify": {
+          "level": "Level",
+          "message": "Message",
+          "messagePlaceholder": "Notification text. Templates like $(alert.name) are interpolated."
         }
       }
     },
@@ -5454,7 +5528,8 @@
     "tabs": {
       "iocs": "IOCs",
       "actors": "Attori minaccia",
-      "feeds": "Feed"
+      "feeds": "Feed",
+      "analyst": "Analista IA"
     },
     "toolbar": {
       "searchPlaceholders": {
@@ -5523,8 +5598,12 @@
       "table": {
         "name": "Feed",
         "type": "Tipo",
-        "accuracy": "Accuratezza"
-      }
+        "accuracy": "Accuratezza",
+        "header": "Feed",
+        "format": "Formato"
+      },
+      "download": "Scarica feed",
+      "checksum": "Checksum"
     },
     "entityTypes": {
       "ip": "IP",
@@ -5547,6 +5626,118 @@
       "level1": "Livello 1",
       "level2": "Livello 2",
       "level3": "Livello 3"
+    },
+    "triage": {
+      "title": "Triage",
+      "subtitle": "Paste indicators, get verdicts",
+      "input": "Indicators",
+      "placeholder": "Paste IPs, domains, URLs or hashes — one per line, or comma separated.\nDefanged values (1.2.3[.]4, hxxp://) are accepted.",
+      "run": "Triage",
+      "stop": "Stop",
+      "reset": "Clear",
+      "parsed": "{{count}} unique indicators",
+      "capped": "Capped at {{max}} per run.",
+      "progress": "{{done}} of {{total}}",
+      "empty": "Paste indicators above to begin.",
+      "indicator": "Indicator",
+      "type": "Type",
+      "verdict": "Verdict",
+      "reputation": "Rep",
+      "accuracy": "Acc",
+      "tags": "Tags",
+      "lastSeen": "Last seen",
+      "exportCsv": "Export CSV",
+      "exportStix": "Export STIX",
+      "stixNote": "STIX export includes malicious and suspicious rows only.",
+      "open": "Open",
+      "notConfigured": "Threat intelligence is not configured — triage needs an upstream ThreatWinds instance.",
+      "summary": "Summary",
+      "v.malicious": "Malicious",
+      "v.suspicious": "Suspicious",
+      "v.benign": "Benign",
+      "v.unknown": "Unknown",
+      "v.notFound": "Not found",
+      "v.invalid": "Unrecognised"
+    },
+    "report": {
+      "title": "Segnala",
+      "subtitle": "Pubblica un indicatore nel grafo ThreatWinds",
+      "submit": "Segnala indicatore",
+      "submitting": "Segnalazione…",
+      "error": {
+        "generic": "Impossibile inviare l'indicatore. Riprova."
+      },
+      "value": {
+        "label": "Indicatore",
+        "placeholder": "IP, dominio, URL, hash o indirizzo e-mail"
+      },
+      "type": {
+        "label": "Tipo",
+        "placeholder": "Deducibile dal valore",
+        "inferred": "Dedotto: {{type}}",
+        "inferenceFailed": "Impossibile dedurre un tipo da questo valore. Scegline uno dall'elenco o scrivilo.",
+        "unknown": "“{{type}}” non è un tipo di entità. Scegline uno dall'elenco."
+      },
+      "tags": {
+        "label": "Etichette",
+        "placeholder": "phishing, furto-di-credenziali"
+      },
+      "description": {
+        "label": "Note"
+      },
+      "reputation": {
+        "legend": "Reputazione",
+        "hint": "Lascia vuoto se non hai emesso un verdetto.",
+        "alarming": "Allarmante",
+        "worrying": "Preoccupante",
+        "concerning": "Sospetto",
+        "indefinable": "Indefinibile",
+        "adequate": "Adeguato",
+        "good": "Buono",
+        "exceptional": "Eccellente"
+      },
+      "associations": {
+        "legend": "Indicatori correlati",
+        "add": "Aggiungi indicatore correlato",
+        "remove": "Rimuovi",
+        "valuePlaceholder": "Valore correlato",
+        "typePlaceholder": "Tipo (facoltativo)",
+        "modeLabel": "Relazione",
+        "mode": {
+          "association": "Correlato a",
+          "aggregation": "Parte di"
+        },
+        "visibilityConflict": "Non condivide nessun gruppo di visibilità con l'indicatore qui sopra. L'intera invio verrebbe rifiutato."
+      },
+      "attributes": {
+        "legend": "Dettagli",
+        "hint": "Facoltativo. Qualsiasi campo vuoto non viene inviato.",
+        "invalidHex": "Sono attesi {{length}} caratteri esadecimali.",
+        "invalidHexAny": "Solo caratteri esadecimali.",
+        "invalidNumber": "È atteso un numero."
+      },
+      "correlate": {
+        "legend": "Correla",
+        "hint": "Ogni attributo spuntato viene pubblicato come entità propria, collegata a questa.",
+        "count_one": "Crea {{count}} entità collegata.",
+        "count_other": "Crea {{count}} entità collegate."
+      },
+      "scan": {
+        "notice": "Segnalarlo mette anche in coda una scansione dell'obiettivo."
+      },
+      "receipt": {
+        "title": "Inviato",
+        "noVerdict": "Nessun verdetto",
+        "skipped": "Non inviato, non è stato possibile dedurre un tipo",
+        "pending": "In attesa che l'indicatore compaia nel corpus…",
+        "live": "Presente nel corpus — visualizza entità",
+        "processing": "Ancora in elaborazione. Comparirà quando l'ingestione sarà al passo.",
+        "another": "Segnala un altro"
+      },
+      "visibility": {
+        "legend": "Visibile a"
+      },
+      "example": "Prova un esempio"
     }
   },
   "playground": {
@@ -5598,7 +5789,8 @@
       "none": "Nessun avviso è stato generato.",
       "count_one": "{{count}} avviso",
       "count_other": "{{count}} avvisi"
-    }
+    },
+    "title": "Test pipeline"
   },
   "tenants": {
     "title": "Tenant",
@@ -5694,6 +5886,11 @@
       "notFound": "Tenant non trovato",
       "invalidRequest": "Richiesta non valida",
       "operationFailed": "Operazione fallita"
+    },
+    "switcher": {
+      "aria": "Switch tenant",
+      "self": "Default tenant",
+      "create": "Create tenant"
     }
   },
   "supportAccess": {
@@ -5774,6 +5971,111 @@
       "noneSucceeded": "Nessun tenant riuscito.",
       "failed": "Falliti",
       "noneFailed": "Nessun errore."
+    }
+  },
+  "tiAnalyst": {
+    "console": {
+      "subtitle": "Area analista",
+      "model": "Modello",
+      "resizeResults": "Ridimensiona il pannello dei risultati",
+      "resizeHint": "Trascina per ridimensionare · doppio clic per reimpostare"
+    },
+    "conv": {
+      "title": "Conversazioni",
+      "allConversations": "Tutte le conversazioni",
+      "empty": "Nessuna conversazione al momento.",
+      "new": "Nuova conversazione",
+      "newTitle": "Titolo della conversazione",
+      "selectPrompt": "Seleziona una conversazione o avviane una.",
+      "running": "in corso",
+      "delete": "Elimina {{title}}",
+      "unread_one": "{{count}} messaggio non letto",
+      "unread_other": "{{count}} messaggi non letti",
+      "transcript": "Trascrizione della conversazione"
+    },
+    "agent": {
+      "placeholder": "Indaga su un indicatore…",
+      "ask": "Chiedi all'agente analista",
+      "intro": "Chiedi qualsiasi indicatore. L'agente interroga direttamente ThreatWinds e mostra il suo lavoro.",
+      "send": "Invia",
+      "stop": "Ferma",
+      "thinking": "pensiero…",
+      "suggestionInvestigate": "Indaga su 8.8.8.8 e dimmi se è malevolo",
+      "suggestionInfrastructure": "Che infrastruttura è collegata a google.com?",
+      "suggestionCounts": "Mostrami quante entità esistono per tipo"
+    },
+    "canvas": {
+      "title": "Risultati",
+      "empty": "I risultati di questa conversazione appaiono qui.",
+      "tile": "Ordina",
+      "closeAll": "Chiudi tutto",
+      "pinOut": "Apri {{title}} come pannello",
+      "loading": "caricamento…",
+      "failed": "impossibile caricare",
+      "noRelations": "nessuna entità correlata",
+      "noGeo": "nessuna geolocalizzazione registrata",
+      "noResults": "nessuna corrispondenza",
+      "matches": "{{total}} corrispondenze",
+      "panelName": "{{title}} — {{kind}}",
+      "movePanel": "Sposta {{title}}",
+      "resizePanel": "Ridimensiona {{title}}",
+      "closePanel": "Chiudi {{title}}",
+      "collapse": "Comprimi {{title}}",
+      "expand": "Espandi {{title}}",
+      "kind": {
+        "entity": "dossier",
+        "graph": "relazioni",
+        "geo": "geolocalizzazione",
+        "search": "ricerca"
+      }
+    },
+    "graph": {
+      "nodes_one": "{{count}} nodo",
+      "nodes_other": "{{count}} nodi",
+      "edges_one": "{{count}} arco",
+      "edges_other": "{{count}} archi",
+      "clickToPivot": "clic per passare",
+      "malicious": "malevolo",
+      "unknown": "sconosciuto",
+      "benign": "inoffensivo"
+    },
+    "entity": {
+      "reputation": "Reputazione",
+      "accuracy": "Precisione",
+      "worst": "Peggio",
+      "best": "Meglio",
+      "relations": "Grafo delle relazioni",
+      "geolocations": "Geolocalizzazioni",
+      "associations": "Associazioni",
+      "radius": "r={{radius}}m",
+      "askAgentBtn": "Chiedi all'agente",
+      "askAgent": "Valuta {{type}} {{value}} (entità id {{id}}). È una minaccia?"
+    },
+    "tool": {
+      "querying": "interrogazione…",
+      "notRetained": "Risultato non conservato.",
+      "expand": "Mostra richiesta e risultato",
+      "collapse": "Nascondi richiesta e risultato",
+      "noIntel": "«{{value}}» non ha informazioni di minaccia registrate.",
+      "noMatches": "Nessuna corrispondenza.",
+      "matches": "{{items}} corrispondenze per «{{query}}»",
+      "more": "+{{count}} altri"
+    }
+  },
+  "threatwinds": {
+    "title": "Integrazione ThreatWinds",
+    "subtitle": "Condividi gli incidenti di questa istanza con il feed comunitario ThreatWinds.",
+    "feeds": "Abilita i feed",
+    "feedsHint": "Quando attivo, gli eventi vengono confrontati con i feed di intelligence di ThreatWinds.",
+    "contribute": "Contribuisci incidenti",
+    "contributeHint": "Quando attivo, gli incidenti di questa istanza vengono inviati a ThreatWinds.",
+    "loading": "Caricamento stato integrazione…",
+    "failed": "Impossibile caricare lo stato dell'integrazione ThreatWinds.",
+    "retry": "Riprova",
+    "toast": {
+      "enabled": "Contribuzione attivata",
+      "disabled": "Contribuzione disattivata",
+      "failed": "Impossibile aggiornare l'impostazione di contribuzione"
     }
   }
 }

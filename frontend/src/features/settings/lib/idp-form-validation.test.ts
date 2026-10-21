@@ -268,3 +268,21 @@ describe('validateIdpForm — name', () => {
     expect(validateIdpForm(samlBase({ editing: true, name: 'legacy idp name' })).name).toBeUndefined()
   })
 })
+
+describe('validateIdpForm — URL substrings', () => {
+  it('flags a metadataUrl with consecutive dots', () => {
+    expect(validateIdpForm(samlBase({}, { metadataUrl: 'https://idp..example.com/meta' })).metadataUrl).toBe('idp.form.errors.url')
+  })
+
+  it('flags an issuer with a stray space', () => {
+    expect(validateIdpForm(oidcBase({}, { issuer: 'https://login.example.com /v2.0' })).issuer).toBe('idp.form.errors.httpsUrl')
+  })
+
+  it('flags a redirectUrl with consecutive dots', () => {
+    expect(validateIdpForm(oidcBase({}, { redirectUrl: 'https://utm..example.com/cb' })).redirectUrl).toBe('idp.form.errors.redirectUrl')
+  })
+
+  it('still accepts a clean URL', () => {
+    expect(validateIdpForm(oidcBase({}, { issuer: 'https://login.microsoftonline.com/tenant/v2.0' })).issuer).toBeUndefined()
+  })
+})

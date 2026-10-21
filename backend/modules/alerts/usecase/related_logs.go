@@ -30,7 +30,7 @@ func (u *alertUsecase) RelatedLogs(ctx context.Context, alertID string) (*dto.Re
 	var ids []string
 	seen := make(map[string]struct{})
 	add := func(id string) {
-		if id == "" {
+		if id == "" || len(ids) >= relatedMaxSize {
 			return
 		}
 		if _, dup := seen[id]; dup {
@@ -58,6 +58,27 @@ func (u *alertUsecase) RelatedLogs(ctx context.Context, alertID string) (*dto.Re
 	}
 	add(lastEvent.Get("id").String())
 	span(eventTime(lastEvent))
+
+	// Echoes (child alerts, parentId = this alert) contribute their log IDs too.
+	echoes, _, err := u.repo.ListEchoes(ctx, alertID, 0, relatedMaxSize, "@timestamp", "desc")
+	if err != nil {
+		return nil, err
+	}
+	for i := range echoes {
+		span(parseAlertTime(echoes[i].Timestamp))
+		for _, ev := range echoes[i].Events {
+			add(ev.ID)
+			span(parseAlertTime(ev.Timestamp))
+		}
+		if len(echoes[i].LastEvent) > 0 {
+			le := gjson.ParseBytes(echoes[i].LastEvent)
+			add(le.Get("id").String())
+			span(eventTime(le))
+		}
+		if len(ids) >= relatedMaxSize {
+			break
+		}
+	}
 
 	resp := &dto.RelatedLogsResponse{
 		DataType: gjson.GetBytes(raw, "lastEvent.dataType").String(),

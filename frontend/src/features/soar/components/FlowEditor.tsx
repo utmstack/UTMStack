@@ -20,6 +20,8 @@ export function FlowEditor({
   flow,
   creating,
   initialName,
+  initialDescription,
+  initialMaxDepth,
   onClose,
   onSaved,
 }: {
@@ -28,6 +30,8 @@ export function FlowEditor({
   /** Name typed in the "New flow" dialog before landing here — seeds the
    *  form so a manually-created flow doesn't show up as "New flow" again. */
   initialName?: string
+  initialDescription?: string
+  initialMaxDepth?: number
   onClose: () => void
   onSaved: () => void
 }) {
@@ -35,7 +39,9 @@ export function FlowEditor({
   const readOnly = !!flow?.systemOwner
   const [form, setForm] = useState<FlowFormState>(() => {
     const f = flowToForm(flow)
-    return initialName ? { ...f, name: initialName } : f
+    return initialName
+      ? { ...f, name: initialName, description: initialDescription ?? '', maxDepth: initialMaxDepth ?? f.maxDepth }
+      : f
   })
   const [mode, setMode] = useState<'visual' | 'code'>('visual')
   const [yaml, setYaml] = useState('')

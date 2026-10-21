@@ -48,6 +48,9 @@ func (u *executionUsecase) HandleMatch(ctx context.Context, req dto.MatchRequest
 		return nil
 	}
 	alertJSON := req.Alert
+	if gjson.GetBytes(alertJSON, "parentId").String() != "" {
+		return nil
+	}
 	alertID := gjson.GetBytes(alertJSON, "id").String()
 	tenantUUID, tenantErr := uuid.Parse(tenant)
 	if tenantErr != nil {
