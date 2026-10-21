@@ -369,4 +369,24 @@ func (s *Service) QuarantineItem(ctx context.Context, agentID uint32, itemID, op
 	return s.Action(ctx, agentID, action, string(payload), executedBy, "edr quarantine "+op)
 }
 
-var ErrEndpointNotFound = fmt.Errorf("endpoint not found")
+// CommandResult returns the current state of a dispatched action by its cmd
+// id. Three distinct answers: the row is absent (dispatch itself failed or
+// the agent never received it → ErrCommandNotFound, UI shows offline), the
+// row is pending (agent has not answered yet), or the row is executed/error
+// (the endpoint answered — a refusal like unsupported_action lands here with
+// its reason in Result).
+func (s *Service) CommandResult(ctx context.Context, agentID uint32, cmdID string) (*dto.CommandRow, error) {
+	row, err := s.gateway.Command(ctx, agentID, cmdID)
+	if err != nil {
+		return nil, err
+	}
+	if row == nil {
+		return nil, ErrCommandNotFound
+	}
+	return row, nil
+}
+
+var (
+	ErrEndpointNotFound = fmt.Errorf("endpoint not found")
+	ErrCommandNotFound  = fmt.Errorf("command not found: dispatch failed or the endpoint is offline")
+)

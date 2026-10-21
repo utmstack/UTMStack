@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 
@@ -12,12 +13,19 @@ import (
 type fakeGateway struct {
 	agents   []dto.Endpoint
 	statuses []dto.EdrStatus
+	cmd      *dto.CommandRow
 }
 
 func (f *fakeGateway) ListEndpoints(context.Context) ([]dto.Endpoint, error) { return f.agents, nil }
 func (f *fakeGateway) EdrStatuses(context.Context) ([]dto.EdrStatus, error)  { return f.statuses, nil }
 func (f *fakeGateway) Dispatch(ctx context.Context, agentID uint32, action, payloadJSON, executedBy, reason string) (string, error) {
 	return "cmd-1", nil
+}
+func (f *fakeGateway) Command(ctx context.Context, agentID uint32, cmdID string) (*dto.CommandRow, error) {
+	if f.cmd != nil && f.cmd.CmdID == cmdID {
+		return f.cmd, nil
+	}
+	return nil, nil
 }
 
 type fakeCounter struct{ n int64 }
@@ -51,6 +59,24 @@ func TestOverviewFold(t *testing.T) {
 	if ov.Endpoints != 2 || ov.WithModule != 1 || ov.Healthy != 1 || ov.DetectionsToday != 7 {
 		t.Fatalf("bad overview: %+v", ov)
 	}
+}
+
+// TestCommandResult distinguishes refused (row exists, status error) from
+// offline/never-received (no row).
+func TestCommandResult(t *testing.T) {
+	t.Run("refused", func(t *testing.T) {
+		svc := New(nil, &fakeGateway{cmd: &dto.CommandRow{CmdID: "c1", Status: "error", Result: "(unsupported_action)"}}, nil)
+		row, err := svc.CommandResult(context.Background(), 1, "c1")
+		if err != nil || row.Status != "error" {
+			t.Fatalf("want error row, got %+v err=%v", row, err)
+		}
+	})
+	t.Run("never received", func(t *testing.T) {
+		svc := New(nil, &fakeGateway{}, nil)
+		if _, err := svc.CommandResult(context.Background(), 1, "c1"); !errors.Is(err, ErrCommandNotFound) {
+			t.Fatalf("want ErrCommandNotFound, got %v", err)
+		}
+	})
 }
 
 func TestEndpointDrift(t *testing.T) {

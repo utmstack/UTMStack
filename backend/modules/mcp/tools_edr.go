@@ -46,6 +46,15 @@ func registerEDR(m *Module) {
 		})
 
 	Add(m, &mcp.Tool{
+		Name: "edr.command", Title: "Check a dispatched EDR action result",
+		Description: "Poll the answer of a dispatched action by cmd_id: not found = the endpoint is offline or the dispatch failed; pending = still working; error with a refusal reason (unsupported_action, validation_error) = the endpoint answered and refused.",
+		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
+	}, Gate{Permission: "edr.read"},
+		func(ctx context.Context, _ *authz.Actor, in edrCommandInput) (any, error) {
+			return uc.CommandResult(ctx, in.AgentID, in.CmdID)
+		})
+
+	Add(m, &mcp.Tool{
 		Name: "edr.quarantine_list", Title: "Quarantine items across the fleet",
 		Description: "Live quarantined files on all endpoints (or one, when agent_id is set), newest first.",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
@@ -82,6 +91,11 @@ type edrEmptyInput struct{}
 
 type edrEndpointInput struct {
 	AgentID uint32 `json:"agent_id" jsonschema:"Endpoint agent id (from edr.endpoints)"`
+}
+
+type edrCommandInput struct {
+	AgentID uint32 `json:"agent_id" jsonschema:"Endpoint agent id"`
+	CmdID   string `json:"cmd_id" jsonschema:"Command id returned by edr.action or edr.quarantine_action"`
 }
 
 type edrEndpointFilterInput struct {

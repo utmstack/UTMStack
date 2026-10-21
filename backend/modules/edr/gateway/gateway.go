@@ -3,6 +3,7 @@ package gateway
 import (
 	"context"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
@@ -68,4 +69,21 @@ func (g *managerGateway) Dispatch(ctx context.Context, agentID uint32, action, p
 		return "", err
 	}
 	return resp.GetCmdId(), nil
+}
+
+func (g *managerGateway) Command(ctx context.Context, agentID uint32, cmdID string) (*dto.CommandRow, error) {
+	row, err := g.client.GetEdrCommand(ctx, agentID, cmdID)
+	if err != nil {
+		return nil, err
+	}
+	if row == nil {
+		return nil, nil
+	}
+	return &dto.CommandRow{
+		CmdID:      row.GetCmdId(),
+		Action:     strings.TrimPrefix(row.GetCommand(), "edr: "),
+		Status:     row.GetCommandStatus().String(),
+		Result:     row.GetResult(),
+		ExecutedBy: row.GetExecutedBy(),
+	}, nil
 }

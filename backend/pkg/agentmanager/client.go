@@ -14,10 +14,21 @@ import (
 	"github.com/utmstack/utmstack/backend/pkg/agentmanager/agent"
 	"github.com/utmstack/utmstack/backend/pkg/env"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 )
+
+// rpcTimeout bounds every agent-manager call: the console must not hang
+// because an endpoint (or the manager's DB) is asleep.
+const rpcTimeout = 10 * time.Second
+
+// ErrAgentOffline is returned when dispatch targets an agent that is not
+// connected. It is deliberately distinct from an endpoint refusal, which only
+// exists once the agent has answered — see the command history (GetEdrCommand).
+var ErrAgentOffline = fmt.Errorf("agentmanager: target agent is offline or not connected")
 
 type AgentManagerClient struct {
 	conn             *grpc.ClientConn
@@ -362,6 +373,8 @@ func (c *AgentManagerClient) GetCollectorIntegrationState(ctx context.Context, c
 // GetEdrStatuses returns stored EDR status reports. agentID 0 = every agent
 // in the caller's tenant.
 func (c *AgentManagerClient) GetEdrStatuses(ctx context.Context, agentID uint32) ([]*agent.EdrStatusRow, error) {
+	ctx, cancel := context.WithTimeout(ctx, rpcTimeout)
+	defer cancel()
 	resp, err := c.agentService.GetEdrStatus(ctx, &agent.EdrStatusListRequest{
 		AgentId:  agentID,
 		TenantId: authz.TenantIDFromContext(ctx),
@@ -374,7 +387,12 @@ func (c *AgentManagerClient) GetEdrStatuses(ctx context.Context, agentID uint32)
 
 // DispatchEdrCommand pushes one EDR action to a connected agent. Fire-and-
 // forget: the result arrives asynchronously in the agent command history.
+// ErrAgentOffline is returned (not a wrapped gRPC error) when the target is
+// not connected — distinct from an endpoint refusal, which only appears in
+// the history after the agent answers.
 func (c *AgentManagerClient) DispatchEdrCommand(ctx context.Context, agentID, cmdID, action, payload, executedBy, reason string) (*agent.DispatchEdrCommandResponse, error) {
+	ctx, cancel := context.WithTimeout(ctx, rpcTimeout)
+	defer cancel()
 	resp, err := c.agentService.DispatchEdrCommand(ctx, &agent.DispatchEdrCommandRequest{
 		AgentId:    agentID,
 		CmdId:      cmdID,
@@ -385,6 +403,9 @@ func (c *AgentManagerClient) DispatchEdrCommand(ctx context.Context, agentID, cm
 		TenantId:   authz.TenantIDFromContext(ctx),
 	})
 	if err != nil {
+		if st, ok := status.FromError(err); ok && st.Code() == codes.NotFound {
+			return nil, ErrAgentOffline
+		}
 		return nil, fmt.Errorf("agentmanager: DispatchEdrCommand: %w", err)
 	}
 	return resp, nil
@@ -393,6 +414,8 @@ func (c *AgentManagerClient) DispatchEdrCommand(ctx context.Context, agentID, cm
 // DispatchEdrCommands pushes the same action/payload to a set of agents. Per-
 // target results are returned; an offline target is reported, not fatal.
 func (c *AgentManagerClient) DispatchEdrCommands(ctx context.Context, agentIDs []string, action, payload, executedBy, reason string) ([]*agent.EdrCommandResultRow, error) {
+	ctx, cancel := context.WithTimeout(ctx, rpcTimeout)
+	defer cancel()
 	targets := make([]*agent.EdrCommandDispatch, 0, len(agentIDs))
 	for _, id := range agentIDs {
 		targets = append(targets, &agent.EdrCommandDispatch{AgentId: id, Action: action, Payload: payload})
@@ -407,6 +430,29 @@ func (c *AgentManagerClient) DispatchEdrCommands(ctx context.Context, agentIDs [
 		return nil, fmt.Errorf("agentmanager: DispatchEdrCommands: %w", err)
 	}
 	return resp.GetRows(), nil
+}
+
+// GetEdrCommand returns one command-history row by cmd id (the correlation
+// key DispatchEdrCommand returns). nil result, nil error = the dispatch never
+// reached the manager (offline at send time). A row with status error carries
+// the endpoint's refusal (e.g. unsupported_action) in its result.
+func (c *AgentManagerClient) GetEdrCommand(ctx context.Context, agentID uint32, cmdID string) (*agent.AgentCommand, error) {
+	ctx, cancel := context.WithTimeout(ctx, rpcTimeout)
+	defer cancel()
+	resp, err := c.agentService.ListAgentCommands(ctx, &agent.ListRequest{
+		TenantId:    authz.TenantIDFromContext(ctx),
+		SearchQuery: "id.Is=" + strconv.FormatUint(uint64(agentID), 10) + "&cmd_id.Is=" + cmdID,
+		PageNumber:  1,
+		PageSize:    1,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("agentmanager: ListAgentCommands: %w", err)
+	}
+	rows := resp.GetRows()
+	if len(rows) == 0 {
+		return nil, nil
+	}
+	return rows[0], nil
 }
 
 // ProcessCommand opens a bidi stream, sends one command, and reads one result.

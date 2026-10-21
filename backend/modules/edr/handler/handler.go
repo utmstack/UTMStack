@@ -11,6 +11,7 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/edr/dto"
 	"github.com/utmstack/utmstack/backend/modules/edr/repository"
 	"github.com/utmstack/utmstack/backend/modules/edr/usecase"
+	"github.com/utmstack/utmstack/backend/pkg/agentmanager"
 	"github.com/utmstack/utmstack/backend/pkg/http/middleware"
 )
 
@@ -105,6 +106,11 @@ func (h *Handler) Action(c *gin.Context) {
 	}
 	out, err := h.svc.Action(c.Request.Context(), id, body.Action, string(body.Payload), loginFromCtx(c), body.Reason)
 	if err != nil {
+		if errors.Is(err, agentmanager.ErrAgentOffline) {
+			// Distinct from a refusal: the endpoint was never reached.
+			c.JSON(http.StatusServiceUnavailable, gin.H{"error": "endpoint offline or not connected"})
+			return
+		}
 		if out != nil {
 			out.Error = err.Error()
 			c.JSON(http.StatusBadGateway, out)
@@ -122,6 +128,38 @@ func parseAgentID(s string) (uint32, error) {
 		return 0, err
 	}
 	return uint32(n), nil
+}
+
+// @Summary Action result by command id
+// @Description Poll the answer of a dispatched EDR action. 404 = the dispatch
+// @Description itself failed or the endpoint never received it (offline);
+// @Description status pending = the endpoint has not answered yet; status
+// @Description error with a refusal reason (unsupported_action, validation_error)
+// @Description = the endpoint answered and refused.
+// @Tags EDR
+// @Security BearerAuth
+// @Param agentId path int true "agent-manager id"
+// @Param cmdId path string true "cmdId returned by the action dispatch"
+// @Produce json
+// @Success 200 {object} dto.CommandRow
+// @Failure 404 {object} map[string]string
+// @Router /edr/endpoints/{agentId}/actions/{cmdId} [get]
+func (h *Handler) ActionResult(c *gin.Context) {
+	id, err := parseAgentID(c.Param("agentId"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid agentId"})
+		return
+	}
+	out, err := h.svc.CommandResult(c.Request.Context(), id, c.Param("cmdId"))
+	if err != nil {
+		if errors.Is(err, usecase.ErrCommandNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "no such command: dispatch failed or endpoint offline"})
+			return
+		}
+		c.JSON(http.StatusBadGateway, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, out)
 }
 
 // @Summary List EDR policies

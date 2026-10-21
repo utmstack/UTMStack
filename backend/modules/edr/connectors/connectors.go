@@ -26,6 +26,10 @@ type AgentGateway interface {
 	// Dispatch pushes one EDR action to one endpoint. Fire-and-forget: the
 	// result lands in the command history when the endpoint answers.
 	Dispatch(ctx context.Context, agentID uint32, action, payloadJSON, executedBy, reason string) (string, error)
+	// Command returns the history row for a dispatched cmdID. (nil, nil) when
+	// the row does not exist yet — the dispatch itself failed or the answer
+	// has not landed.
+	Command(ctx context.Context, agentID uint32, cmdID string) (*dto.CommandRow, error)
 }
 
 // DetectionCounter counts EDR events in the logs store over a window.

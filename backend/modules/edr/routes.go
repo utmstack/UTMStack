@@ -16,6 +16,7 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	g.GET("/endpoints", middleware.RequirePermission("edr.read"), h.Endpoints)
 	g.GET("/endpoints/:agentId", middleware.RequirePermission("edr.read"), h.Endpoint)
 	g.POST("/endpoints/:agentId/actions", middleware.RequirePermission("edr.write"), h.Action)
+	g.GET("/endpoints/:agentId/actions/:cmdId", middleware.RequirePermission("edr.read"), h.ActionResult)
 
 	g.GET("/policies", middleware.RequirePermission("edr.read"), h.ListPolicies)
 	g.POST("/policies", middleware.RequirePermission("edr.write"), h.CreatePolicy)
