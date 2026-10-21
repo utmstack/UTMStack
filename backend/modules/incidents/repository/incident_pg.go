@@ -5,12 +5,18 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/utmstack/utmstack/backend/modules/incidents/connectors"
 	"github.com/utmstack/utmstack/backend/modules/incidents/domain"
 	"github.com/utmstack/utmstack/backend/modules/incidents/dto"
 	"github.com/utmstack/utmstack/backend/pkg/authz"
 	"github.com/utmstack/utmstack/backend/pkg/tenancy"
 	"gorm.io/gorm"
+)
+
+const (
+	pgCodeUniqueViolation  = "23505"
+	incidentNameConstraint = "uniq_incident_tenant_name"
 )
 
 func tenantFromCtx(ctx context.Context) uuid.UUID {
@@ -65,10 +71,18 @@ func (r *pgIncidentRepository) Create(ctx context.Context, incident *domain.Inci
 	}
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(incident).Error; err != nil {
+			if isNameTaken(err) {
+				return domain.ErrNameTaken
+			}
 			return err
 		}
 		return insertAlerts(tx, incident, alerts, tenant)
 	})
+}
+
+func isNameTaken(err error) bool {
+	var pgErr *pgconn.PgError
+	return errors.As(err, &pgErr) && pgErr.Code == pgCodeUniqueViolation && pgErr.ConstraintName == incidentNameConstraint
 }
 
 func (r *pgIncidentRepository) LinkAlerts(ctx context.Context, incident *domain.Incident, alerts []domain.IncidentAlert) error {

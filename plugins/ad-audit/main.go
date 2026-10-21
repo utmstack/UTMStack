@@ -610,21 +610,40 @@ var (
 	httpClient  = &http.Client{Timeout: 30 * time.Second}
 )
 
+// flexString reads a JSON string or number. The backend stores uidNumber as an
+// unsigned integer and serves it as a number in the seed stream, while the
+// ingest requests this plugin sends carry it as a string.
+type flexString string
+
+func (f *flexString) UnmarshalJSON(b []byte) error {
+	var s string
+	if err := json.Unmarshal(b, &s); err == nil {
+		*f = flexString(s)
+		return nil
+	}
+	var n json.Number
+	if err := json.Unmarshal(b, &n); err != nil {
+		return err
+	}
+	*f = flexString(n.String())
+	return nil
+}
+
 type ingestUser struct {
-	TenantID         string     `json:"tenantId"`
-	Source           string     `json:"source,omitempty"`
-	SID              string     `json:"sid,omitempty"`
-	SamAccountName   string     `json:"samAccountName,omitempty"`
-	Domain           string     `json:"domain,omitempty"`
-	MachineID        *string    `json:"machineId,omitempty"`
-	UIDNumber        *string    `json:"uidNumber,omitempty"`
-	Hostname         *string    `json:"hostname,omitempty"`
-	Username         *string    `json:"username,omitempty"`
-	Active           *bool      `json:"active"`
-	AccountCreatedAt *time.Time `json:"accountCreatedAt"`
-	LastLogon        *time.Time `json:"lastLogon"`
-	AccountDeletedAt *time.Time `json:"accountDeletedAt"`
-	LastSeen         *time.Time `json:"lastSeen"`
+	TenantID         string      `json:"tenantId"`
+	Source           string      `json:"source,omitempty"`
+	SID              string      `json:"sid,omitempty"`
+	SamAccountName   string      `json:"samAccountName,omitempty"`
+	Domain           string      `json:"domain,omitempty"`
+	MachineID        *string     `json:"machineId,omitempty"`
+	UIDNumber        *flexString `json:"uidNumber,omitempty"`
+	Hostname         *string     `json:"hostname,omitempty"`
+	Username         *string     `json:"username,omitempty"`
+	Active           *bool       `json:"active"`
+	AccountCreatedAt *time.Time  `json:"accountCreatedAt"`
+	LastLogon        *time.Time  `json:"lastLogon"`
+	AccountDeletedAt *time.Time  `json:"accountDeletedAt"`
+	LastSeen         *time.Time  `json:"lastSeen"`
 }
 
 func (cu *cachedWindowsUser) toIngest() ingestUser {
@@ -659,7 +678,7 @@ func (cu *cachedLinuxUser) toIngest() ingestUser {
 		u.MachineID = &m
 	}
 	if cu.UIDNumber != "" {
-		n := cu.UIDNumber
+		n := flexString(cu.UIDNumber)
 		u.UIDNumber = &n
 	}
 	if cu.Hostname != "" {
@@ -765,7 +784,7 @@ func seedLinux() {
 			cu.MachineID = *u.MachineID
 		}
 		if u.UIDNumber != nil {
-			cu.UIDNumber = *u.UIDNumber
+			cu.UIDNumber = string(*u.UIDNumber)
 		}
 		if u.Hostname != nil {
 			cu.Hostname = *u.Hostname
