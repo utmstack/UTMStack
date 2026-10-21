@@ -1211,7 +1211,95 @@
     }
   },
   "edr": {
-    "eyebrow": "Endpoint-Erkennung und -Reaktion", "title": "EDR-Flotte", "subtitle": "Abdeckung, Schutzstatus, Erkennungen und Endpoint-Zustand auf einen Blick.", "refresh": "Aktualisieren", "retry": "Erneut versuchen", "loading": "Endpoint-Status wird geladen…", "units": { "days": "Tage" }, "coverage": { "title": "Abdeckung", "protected": "geschützte Endpoints", "unprotected": "ungeschützte Endpoints", "total": "{{count}} Endpoints im Bestand" }, "health": { "title": "Zustand", "healthy": "Gesunde Engine", "unhealthy": "Ungesunde Engine", "stale": "Veraltete Signaturen", "degraded": "Netzwerk beeinträchtigt", "off": "Sensoren aus", "drift": "Policy-Abweichung" }, "protection": { "title": "Schutzstatus", "alert": "Alarmmodus", "responding": "Reagierend", "isolated": "Isoliert", "mode": "Endpoints", "now": "jetzt" }, "activity": { "detections": "Erkennungen im Zeitverlauf", "ransomware": "Ransomware-Eindämmungen", "containments": "eingedämmte Ereignisse", "blockedConnections": "Blockierte Verbindungen", "topDetections": "Häufigste Erkennungen", "affectedEndpoints": "Am stärksten betroffene Endpoints", "empty": "Noch keine Aktivität" }, "grid": { "title": "Endpoint-Zustand", "count": "{{count}} angezeigt", "search": "Endpoints suchen…", "empty": "Keine Endpoints entsprechen den Filtern.", "selectAll": "Sichtbare Endpoints auswählen", "selectEndpoint": "Endpoint auswählen" }, "filters": { "allHealth": "Alle Engine-Zustände", "clear": "Filter löschen" }, "columns": { "hostName": "Hostname", "operatingSystem": "Betriebssystem", "moduleVersion": "Modulversion", "serviceState": "Dienststatus", "engineHealth": "Engine-Zustand", "signatureAge": "Signaturalter", "sensors": "Sensoren", "assignedPolicy": "Zugewiesene Policy", "policyDrift": "Policy-Abweichung", "detectionsLastWeek": "Erkennungen (7T)", "quarantinedFiles": "Dateien in Quarantäne", "isolationState": "Isolation", "lastReportTime": "Letzter Bericht" }, "values": { "drifted": "Abweichend", "inSync": "Synchron" }, "actions": { "applyPolicy": "Policy anwenden", "scan": "Scan", "isolate": "Isolieren", "success": { "apply-policy": "Policy angewendet", "scan": "Scan gestartet", "isolate": "Endpoints isoliert" } }, "endpoint": { "title": "Endpoint-Details" }, "errors": { "load": "EDR-Daten konnten nicht geladen werden", "action": "Endpoint-Aktion konnte nicht abgeschlossen werden" }
+    "eyebrow": "Endpoint-Erkennung und -Reaktion",
+    "title": "EDR-Flotte",
+    "subtitle": "Abdeckung, Schutzstatus, Erkennungen und Endpoint-Zustand auf einen Blick.",
+    "refresh": "Aktualisieren",
+    "retry": "Erneut versuchen",
+    "loading": "Endpoint-Status wird geladen…",
+    "units": {
+      "days": "Tage"
+    },
+    "coverage": {
+      "title": "Abdeckung",
+      "protected": "geschützte Endpoints",
+      "unprotected": "ohne Schutz",
+      "total": "{{count}} Endpoints im Bestand"
+    },
+    "health": {
+      "title": "Zustand",
+      "healthy": "Gesunde Engine",
+      "unhealthy": "Ungesunde Engine",
+      "stale": "Veraltete Signaturen",
+      "degraded": "Netzwerk beeinträchtigt",
+      "off": "Sensoren aus",
+      "drift": "Abweichung"
+    },
+    "protection": {
+      "title": "Schutzstatus",
+      "alert": "Alarmmodus",
+      "responding": "Reagierend",
+      "isolated": "Isoliert",
+      "mode": "Endpoints",
+      "now": "jetzt"
+    },
+    "activity": {
+      "detections": "Erkennungen im Zeitverlauf",
+      "ransomware": "Ransomware-Eindämmungen",
+      "containments": "eingedämmte Ereignisse",
+      "blockedConnections": "Blockierte Verbindungen",
+      "topDetections": "Häufigste Erkennungen",
+      "affectedEndpoints": "Am stärksten betroffene Endpoints",
+      "empty": "Noch keine Aktivität"
+    },
+    "grid": {
+      "title": "Endpoint-Zustand",
+      "count": "{{count}} angezeigt",
+      "search": "Endpoints suchen…",
+      "empty": "Keine Endpoints entsprechen den Filtern.",
+      "selectAll": "Sichtbare Endpoints auswählen",
+      "selectEndpoint": "Endpoint auswählen"
+    },
+    "filters": {
+      "allHealth": "Alle Engine-Zustände",
+      "clear": "Filter löschen"
+    },
+    "columns": {
+      "hostname": "Hostname",
+      "ip": "IP",
+      "os": "Betriebssystem",
+      "platform": "Plattform",
+      "version": "Version",
+      "status": "Status",
+      "moduleHealthy": "Engine-Zustand",
+      "staleSignature": "Signaturen",
+      "policyVersion": "Richtlinienversion",
+      "drift": "Richtlinienabweichung",
+      "lastSeen": "Zuletzt gesehen",
+      "lastReport": "Letzter Bericht"
+    },
+    "values": {
+      "drifted": "Abweichend",
+      "inSync": "Synchron",
+      "stale": "veraltet"
+    },
+    "actions": {
+      "applyPolicy": "Policy anwenden",
+      "scan": "Scan",
+      "isolate": "Isolieren",
+      "success": {
+        "apply-policy": "Policy angewendet",
+        "scan": "Scan gestartet",
+        "isolate": "Endpoints isoliert"
+      }
+    },
+    "endpoint": {
+      "title": "Endpoint-Details"
+    },
+    "errors": {
+      "load": "EDR-Daten konnten nicht geladen werden",
+      "action": "Endpoint-Aktion konnte nicht abgeschlossen werden"
+    }
   },
   "userAuditor": {
     "title": "Benutzer-Auditor",
