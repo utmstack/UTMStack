@@ -8,7 +8,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/credentials v1.20.9
 	github.com/fsnotify/fsnotify v1.10.1
 	github.com/google/uuid v1.6.0
-	github.com/threatwinds/go-sdk v1.1.37-0.20261001164002-a596631a84c5
+	github.com/threatwinds/go-sdk v1.1.37-0.20261022065353-1c4f36d2f357
 	github.com/utmstack/UTMStack/plugins/shared v0.0.0-00010101000000-000000000000
 )
 

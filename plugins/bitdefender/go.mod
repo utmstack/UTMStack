@@ -6,7 +6,7 @@ require (
 	github.com/fsnotify/fsnotify v1.10.1
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/mux v1.8.1
-	github.com/threatwinds/go-sdk v1.1.37-0.20261001164002-a596631a84c5
+	github.com/threatwinds/go-sdk v1.1.37-0.20261022065353-1c4f36d2f357
 	golang.org/x/crypto v0.58.0
 	gopkg.in/yaml.v3 v3.0.1
 )
