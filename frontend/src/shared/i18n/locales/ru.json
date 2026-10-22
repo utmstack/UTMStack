@@ -6080,6 +6080,7 @@
       "worst": "Худшая",
       "best": "Лучшая",
       "relations": "Граф связей",
+      "history": "История",
       "geolocations": "Геолокации",
       "associations": "Ассоциации",
       "radius": "r={{radius}}м",

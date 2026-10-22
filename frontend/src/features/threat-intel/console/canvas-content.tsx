@@ -6,7 +6,7 @@ import type { CanvasPanel } from './types'
 import { EntityInspector } from './entity-inspector'
 import { RelationGraph } from './relation-graph'
 import { relationsToGraph } from './agent'
-import type { RawRelation } from './agent'
+import type { RawRelations } from './agent'
 
 export function CanvasContent({
   panel,
@@ -33,7 +33,7 @@ function GraphPanel({ entityId, onPivot }: { entityId: string; onPivot(target: {
   const { t } = useTranslation()
   const relations = useQuery({
     queryKey: ['ti-analyst-relations', entityId],
-    queryFn: async () => relationsToGraph(entityId, '', (await proxyFetch<RawRelation[]>(`/entity/${encodeURIComponent(entityId)}/relations`)) ?? []),
+    queryFn: async () => relationsToGraph(entityId, '', (await proxyFetch<RawRelations>(`/entity/${encodeURIComponent(entityId)}/relations`)) ?? []),
     staleTime: 5 * 60 * 1000,
   })
 

@@ -6042,6 +6042,7 @@
       "worst": "Worst",
       "best": "Best",
       "relations": "Relationship graph",
+      "history": "History",
       "geolocations": "Geolocations",
       "associations": "Associations",
       "radius": "r={{radius}}m",

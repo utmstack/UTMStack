@@ -172,6 +172,28 @@ function detailsToGeo(d: EntityDetails): { lat: number; lng: number; radius: num
   return (d.geolocations ?? []).map((g) => ({ lat: g.lat, lng: g.lng, radius: g.radius, ip: g.ip }))
 }
 
+/**
+ * Extended metadata arrives flat or already grouped by source. The inspector
+ * wants groups, so a flat `{key: value}` object is wrapped under a single
+ * default group; anything unrecognised is dropped rather than rendered as
+ * `undefined`.
+ */
+export function groupExtendedMetadata(
+  raw: Record<string, Record<string, string>> | unknown[] | null | undefined,
+): Record<string, Record<string, string>> | null {
+  if (!raw) return null
+  if (Array.isArray(raw)) return null
+  const out: Record<string, Record<string, string>> = {}
+  for (const [group, fields] of Object.entries(raw)) {
+    if (fields && typeof fields === 'object' && !Array.isArray(fields)) {
+      out[group] = Object.fromEntries(
+        Object.entries(fields as Record<string, unknown>).map(([k, v]) => [k, String(v)]),
+      )
+    }
+  }
+  return Object.keys(out).length ? out : null
+}
+
 export interface RawDetails {
   attributes: {
     id: string
@@ -191,8 +213,8 @@ export interface RawDetails {
     accuracy: string
   }
   metadata: Record<string, string> | null
-  extended_metadata?: unknown[]
-  latest_associations: { id: string; type: string; value?: string; label?: string; tags?: string[]; reputation?: number; accuracy?: number }[]
+  extended_metadata?: Record<string, Record<string, string>> | unknown[] | null
+  latest_associations: { id: string; type: string; value?: string; label?: string; tags?: string[]; reputation?: number; accuracy?: number; last_seen?: string }[]
   geolocations: { latitude: number; longitude: number; accuracy_radius: number }[]
 }
 
@@ -217,6 +239,7 @@ export function normalizeDetails(raw: RawDetails): EntityDetails {
       accuracy: a.accuracy,
     },
     metadata: raw.metadata ?? null,
+    extendedMetadata: groupExtendedMetadata(raw.extended_metadata),
     latest_associations: (raw.latest_associations ?? []).map((x) => ({
       id: x.id,
       type: x.type,
@@ -224,6 +247,7 @@ export function normalizeDetails(raw: RawDetails): EntityDetails {
       reputation: x.reputation ?? 0,
       accuracy: x.accuracy ?? 0,
       tags: x.tags ?? [],
+      lastSeen: x.last_seen,
     })),
     geolocations: (raw.geolocations ?? []).map((g) => ({
       lat: g.latitude,
@@ -233,21 +257,56 @@ export function normalizeDetails(raw: RawDetails): EntityDetails {
   }
 }
 
-export interface RawRelation {
+export interface RawRelationNode {
   id: string
   type: string
-  label: string
-  reputation_score: number
-  reputation: string
+  label?: string
+  value?: string
+  reputation_score?: number
+  reputation?: string
 }
-export function relationsToGraph(id: string, self: string, rels: RawRelation[]): RelationsResult {
+export interface RawRelationEdge {
+  source: string
+  target: string
+}
+/**
+ * The upstream `/entity/:id/relations` response is not a flat list of related
+ * entities — it is a graph object `{nodes, edges}`, where each node carries its
+ * own `label` and `reputation_score`. An older shape returned a bare array; we
+ * accept that too so neither breaks. Treating the graph object as a list is what
+ * previously reduced every relation view to a single root node, because
+ * `Array.isArray(object)` is false and the fallback was an empty array.
+ */
+export type RawRelations = { nodes: RawRelationNode[]; edges: RawRelationEdge[] } | RawRelationNode[]
+
+export function normalizeRelations(raw: RawRelations | null | undefined): { nodes: RawRelationNode[]; edges: RawRelationEdge[] } {
+  if (!raw) return { nodes: [], edges: [] }
+  if (Array.isArray(raw)) return { nodes: raw, edges: [] }
+  return { nodes: Array.isArray(raw.nodes) ? raw.nodes : [], edges: Array.isArray(raw.edges) ? raw.edges : [] }
+}
+
+export function relationsToGraph(id: string, self: string, rels: RawRelations | null | undefined): RelationsResult {
+  const { nodes: rawNodes, edges: rawEdges } = normalizeRelations(rels)
   const nodes: { id: string; type: string; value: string; reputation: number | null }[] = [
     { id, type: 'root', value: self || id, reputation: null },
   ]
+  const seen = new Set<string>([id])
+  for (const r of rawNodes) {
+    if (!r.id || seen.has(r.id)) continue
+    seen.add(r.id)
+    nodes.push({ id: r.id, type: r.type, value: r.label ?? r.value ?? r.id, reputation: typeof r.reputation_score === 'number' ? r.reputation_score : null })
+  }
   const edges: { source: string; target: string }[] = []
-  for (const r of rels) {
-    nodes.push({ id: r.id, type: r.type, value: r.label, reputation: r.reputation_score })
-    edges.push({ source: id, target: r.id })
+  if (rawEdges.length) {
+    // Real edges from the graph; drop any endpoint that was not returned as a node.
+    for (const e of rawEdges) {
+      if (seen.has(e.source) && seen.has(e.target)) edges.push({ source: e.source, target: e.target })
+    }
+  } else {
+    // Flat list: no edge structure, so link every relation back to the root.
+    for (const r of rawNodes) {
+      if (r.id && seen.has(r.id)) edges.push({ source: id, target: r.id })
+    }
   }
   return { nodes, edges }
 }
@@ -479,8 +538,19 @@ const TOOLS: Record<string, ToolDef> = {
     },
     async run(args, signal) {
       const id = str(args.id).replace(/[.\//\\]/g, '')
-      const rels = await proxyFetch<RawRelation[]>(`/entity/${encodeURIComponent(id)}/relations`, {}, signal)
-      const graph = relationsToGraph(id, '', Array.isArray(rels) ? rels : [])
+      const depth = Math.max(1, Math.min(4, int(args.depth, 2)))
+      let rels: RawRelations = []
+      try {
+        rels = await proxyFetch<RawRelations>(`/entity/${encodeURIComponent(id)}/relations?depth=${depth}`, {}, signal)
+      } catch (err) {
+        // A shallower graph is far more useful than an error: retry depth 1.
+        if (depth > 1 && !signal?.aborted) {
+          rels = await proxyFetch<RawRelations>(`/entity/${encodeURIComponent(id)}/relations?depth=1`, {}, signal)
+        } else {
+          throw err
+        }
+      }
+      const graph = relationsToGraph(id, '', rels)
       return {
         payload: { kind: 'relations', id, graph },
         summarize: () => {

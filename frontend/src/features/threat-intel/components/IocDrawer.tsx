@@ -1,5 +1,7 @@
 import { useTiEntity } from '../hooks/use-ti-entity'
+import type { EntityRelation } from '../domain/threat-intel.types'
 import { useTiEntityRelations } from '../hooks/use-ti-entity-relations'
+import type { RawRelationNode, RawRelations } from '../console/agent'
 import { IocDrawerBody } from './IocDrawerBody'
 import { IocDrawerLoading } from './IocDrawerLoading'
 
@@ -16,7 +18,12 @@ export function IocDrawer({ id, onClose }: IocDrawerProps) {
   if (entityData?.kind === 'not-configured') return null
 
   const detail = entityData?.kind === 'ok' ? entityData.value : null
-  const relations = relationsData?.kind === 'ok' ? relationsData.value : []
+  // The relations endpoint returns a graph object ({nodes, edges}) with full
+  // entity attributes, not a bare list. `EntityRelation = EntityAttributes` so
+  // the drawer body can render value/reputation straight off each node.
+  const rawRels = (relationsData?.kind === 'ok' ? relationsData.value : null) as unknown as RawRelations
+  const relNodes: RawRelationNode[] = Array.isArray(rawRels) ? rawRels : rawRels?.nodes ?? []
+  const relations: EntityRelation[] = relNodes.map((r) => ({ ...r, value: r.value ?? r.label ?? r.id }) as EntityRelation)
 
   return (
     <div

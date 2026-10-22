@@ -6054,6 +6054,7 @@
       "worst": "Pire",
       "best": "Meilleure",
       "relations": "Graphe de relations",
+      "history": "Historique",
       "geolocations": "Géolocalisations",
       "associations": "Associations",
       "radius": "r={{radius}}m",

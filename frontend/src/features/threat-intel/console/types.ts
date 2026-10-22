@@ -54,8 +54,16 @@ export interface EntityGeo {
 export interface EntityDetails {
   attributes: EntityDetailAttributes
   metadata: Record<string, string> | null
+  /** Grouped extended metadata, when the corpus carries it. */
+  extendedMetadata?: Record<string, Record<string, string>> | null
   latest_associations: IntelEntity[]
   geolocations: EntityGeo[]
+}
+
+export interface EntityHistoryRecord {
+  timestamp: string
+  reputation: number
+  author?: string
 }
 
 export type ToolPayload =

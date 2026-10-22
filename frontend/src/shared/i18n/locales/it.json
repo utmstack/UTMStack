@@ -6054,6 +6054,7 @@
       "worst": "Peggio",
       "best": "Meglio",
       "relations": "Grafo delle relazioni",
+      "history": "Cronologia",
       "geolocations": "Geolocalizzazioni",
       "associations": "Associazioni",
       "radius": "r={{radius}}m",

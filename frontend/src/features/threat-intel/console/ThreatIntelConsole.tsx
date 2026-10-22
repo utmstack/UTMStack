@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { PanelLeftClose, PanelLeftOpen } from 'lucide-react'
-import { byRecency, createConversation, useConsoleStore } from './store'
+import { byRecency, createConversation, initConsoleStore, isConsoleStoreReady, subscribe, useConsoleStore } from './store'
 import { ASK_EVENT } from './events'
 import { ConversationRail } from './conversation-rail'
 import { ConversationPanel } from './conversation-panel'
@@ -27,15 +27,27 @@ export function ThreatIntelConsole() {
   const [workspaceRef, workspaceWidth] = useMeasuredWidth()
 
   useEffect(() => {
-    if (conversationId || !store.conversations.length) return
-    setConversationId([...store.conversations].sort(byRecency)[0].id)
-  }, [conversationId, store.conversations])
+    void initConsoleStore()
+  }, [])
+
+  const storeReady = useSyncExternalStore(
+    (l) => subscribe(l),
+    isConsoleStoreReady,
+    isConsoleStoreReady,
+  )
 
   useEffect(() => {
+    if (!storeReady) return
+    if (conversationId || !store.conversations.length) return
+    setConversationId([...store.conversations].sort(byRecency)[0].id)
+  }, [conversationId, storeReady, store.conversations])
+
+  useEffect(() => {
+    if (!storeReady) return
     if (conversationId || store.conversations.length) return
     const conversation = createConversation('New conversation')
     setConversationId(conversation.id)
-  }, [conversationId, store.conversations.length])
+  }, [conversationId, storeReady, store.conversations.length])
 
   useEffect(() => {
     if (!conversationId) return
