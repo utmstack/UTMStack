@@ -50,6 +50,31 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 		h.Handle(c)
 	})
 
+	// GET /api/v1/threat-intel/entity/:id/history → /proxy/api/search/v1/entities/history/advanced/{id}
+	g.GET("/entity/:id/history", func(c *gin.Context) {
+		id := c.Param("id")
+		targetPath := "/proxy/api/search/v1/entities/history/advanced/" + sanitizeId(id)
+		handler.NewReverseProxyHandler(targetPath).Handle(c)
+	})
+
+	// GET /api/v1/threat-intel/entity/:id/comments → /proxy/api/search/v1/entities/comments/{id}
+	g.GET("/entity/:id/comments", func(c *gin.Context) {
+		id := c.Param("id")
+		handler.NewReverseProxyHandler("/proxy/api/search/v1/entities/comments/" + sanitizeId(id)).Handle(c)
+	})
+
+	// AI-analyst conversation persistence. These are local to the tenant and
+	// user — they do not leave the instance — so they are not proxied and the
+	// upstream credential requirement does not apply. The handler is nil when
+	// the module was constructed without a database, in which case the routes
+	// are not registered and the console falls back to localStorage.
+	if ah := m.AnalystHandler(); ah != nil {
+		g.GET("/analyst/conversations", ah.List)
+		g.POST("/analyst/conversations", ah.Create)
+		g.PUT("/analyst/conversations/:id", ah.Update)
+		g.DELETE("/analyst/conversations/:id", ah.Delete)
+	}
+
 	// GET /api/v1/threat-intel/feeds → /proxy/api/feeds/v1/list
 	feedsHandler := handler.NewReverseProxyHandler("/proxy/api/feeds/v1/list")
 	g.GET("/feeds", feedsHandler.Handle)
