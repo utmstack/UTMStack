@@ -1,0 +1,34 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365-graph
+name: Graph Microsoft Defender High Severity Alert
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Security Alert
+technique: "Microsoft Defender XDR alert"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/graph/api/resources/security-alert
+  - https://learn.microsoft.com/en-us/defender-xdr/investigate-alerts
+description: |
+  Microsoft Defender XDR raised a high severity alert (Defender for Endpoint, Office 365, Identity, Cloud Apps, Entra ID Protection or data loss prevention). The title is in log.title, the product in log.serviceSource and the evidence in log.evidence; the affected user, device, mailbox or file is copied to target. Resolved alerts and alerts classified as false positives are not reported.
+
+  Microsoft updates an alert several times; one UTMStack alert is raised per Defender detector and affected entity, and repeats are suppressed for seven days.
+
+  Next Steps:
+  1. Open the alert in the Microsoft Defender portal (log.alertWebUrl) and read its evidence and recommended actions.
+  2. Check the affected user, device or mailbox (target) for related activity in UTMStack.
+  3. Contain as Defender recommends, then classify the alert in Defender so its status follows.
+where: |
+  equals("log.graphSource", "security-alerts") &&
+  equals("log.severity", "high") &&
+  !equals("log.status", "resolved") &&
+  !equals("log.classification", "falsePositive")
+deduplicateBy:
+  - lastEvent.log.detectorId
+  - target.user
+  - target.host
+  - target.emailAddress

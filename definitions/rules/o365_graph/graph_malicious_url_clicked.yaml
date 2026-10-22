@@ -1,0 +1,31 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365-graph
+name: Graph User Opened a Malicious Link
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Initial Access
+technique: "T1204.001 - User Execution: Malicious Link"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-urlclickevents-table
+  - https://attack.mitre.org/techniques/T1204/001/
+description: |
+  A user opened a link that Safe Links rated as phishing or malware (log.ThreatTypes), either because the click was allowed or because the user continued past the warning page. The user may have entered credentials or downloaded malware.
+
+  One alert is raised per user and link; repeats are suppressed for seven days.
+
+  Next Steps:
+  1. Ask the user what they did on the page, and check their sign-ins right after the click.
+  2. If credentials may have been entered, reset the password and revoke the user's sessions.
+  3. Block the link (target url) in the Tenant Allow/Block List and find other recipients of the message (log.NetworkMessageId).
+where: |
+  equals("log.graphSource", "url-click") &&
+  regexMatch("log.ThreatTypes", "(?i)(phish|malware)") &&
+  equals("actionResult", "success")
+deduplicateBy:
+  - adversary.user
+  - target.url
