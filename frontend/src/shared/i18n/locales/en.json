@@ -4597,6 +4597,8 @@
     },
     "related": {
       "sample": "A sample of up to ~11 events the engine stored on this alert. Use “View all related logs” for the full, uncapped set.",
+      "loadingEchoes": "Loading the events of its echoes…",
+      "sampleWithEchoes": "The events stored on this alert and on its {{count}} echoes ({{read}} read). Use “View all related logs” for the full, uncapped set.",
       "empty": "No sampled events stored on this alert. Load the full correlated set in the Log Explorer.",
       "viewAll": "View all related logs"
     },

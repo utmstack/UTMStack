@@ -4218,6 +4218,8 @@
     },
     "related": {
       "sample": "Un campione fino a ~11 eventi che il motore ha memorizzato su questo avviso. Usa «Vedi tutti i log correlati» per l’insieme completo e senza limiti.",
+      "loadingEchoes": "Caricamento degli eventi dei suoi echi…",
+      "sampleWithEchoes": "Gli eventi memorizzati su questo avviso e sui suoi {{count}} echi ({{read}} letti). Usa «Vedi tutti i log correlati» per l’insieme completo e senza limiti.",
       "empty": "Nessun evento di campione memorizzato su questo avviso. Carica l’insieme correlato completo nell’Esploratore log.",
       "viewAll": "Vedi tutti i log correlati"
     },

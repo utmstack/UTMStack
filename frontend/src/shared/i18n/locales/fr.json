@@ -4218,6 +4218,8 @@
     },
     "related": {
       "sample": "Un échantillon de jusqu’à ~11 événements que le moteur a stockés sur cette alerte. Utilisez « Voir tous les journaux associés » pour l’ensemble complet et non plafonné.",
+      "loadingEchoes": "Chargement des événements de ses échos…",
+      "sampleWithEchoes": "Les événements stockés sur cette alerte et sur ses {{count}} échos ({{read}} lus). Utilisez « Voir tous les journaux associés » pour l’ensemble complet et non plafonné.",
       "empty": "Aucun événement d’échantillon stocké sur cette alerte. Chargez l’ensemble corrélé complet dans l’Explorateur de journaux.",
       "viewAll": "Voir tous les journaux associés"
     },

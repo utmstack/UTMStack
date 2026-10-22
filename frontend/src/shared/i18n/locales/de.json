@@ -4218,6 +4218,8 @@
     },
     "related": {
       "sample": "Eine Stichprobe von bis zu ~11 Ereignissen, die die Engine zu dieser Warnung gespeichert hat. Verwende „Alle zugehörigen Logs anzeigen“ für den vollständigen, unbegrenzten Satz.",
+      "loadingEchoes": "Ereignisse der Echos werden geladen …",
+      "sampleWithEchoes": "Die in dieser Warnung und in ihren {{count}} Echos gespeicherten Ereignisse ({{read}} gelesen). Verwende „Alle zugehörigen Logs anzeigen“ für den vollständigen, unbegrenzten Satz.",
       "empty": "Keine Beispielereignisse zu dieser Warnung gespeichert. Lade den vollständigen korrelierten Satz im Log-Explorer.",
       "viewAll": "Alle zugehörigen Logs anzeigen"
     },

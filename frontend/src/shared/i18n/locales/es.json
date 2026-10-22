@@ -4366,6 +4366,8 @@
     },
     "related": {
       "sample": "Una muestra de hasta ~11 eventos que el motor almacenó en esta alerta. Usa «Ver todos los registros relacionados» para el conjunto completo y sin límite.",
+      "loadingEchoes": "Cargando los eventos de sus echoes…",
+      "sampleWithEchoes": "Los eventos guardados en esta alerta y en sus {{count}} echoes ({{read}} leídos). Usa «Ver todos los registros relacionados» para el conjunto completo y sin límite.",
       "empty": "No hay eventos de muestra almacenados en esta alerta. Carga el conjunto correlacionado completo en el Explorador de registros.",
       "viewAll": "Ver todos los registros relacionados"
     },
