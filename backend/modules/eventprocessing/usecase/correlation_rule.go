@@ -370,9 +370,6 @@ func validateRuleContent(def, after json.RawMessage) error {
 }
 
 func validateStepShape(s *validateStep, n int) error {
-	if strings.TrimSpace(s.IndexPattern) == "" {
-		return fmt.Errorf("%w: step %d needs an index pattern", domain.ErrCorrelationRuleInvalidContent, n)
-	}
 	if s.Within != "" {
 		if _, err := time.ParseDuration(s.Within); err != nil {
 			return fmt.Errorf("%w: step %d 'within' (%q) is not a valid duration", domain.ErrCorrelationRuleInvalidContent, n, s.Within)

@@ -3,10 +3,10 @@ package handler
 import (
 	"archive/zip"
 	"bytes"
+	"errors"
 	"net/http"
 	"path/filepath"
 	"strconv"
-	"fmt"
 
 	"github.com/gin-gonic/gin"
 	"github.com/utmstack/utmstack/backend/modules/audit"
@@ -83,25 +83,18 @@ func (h *CorrelationRuleHandler) Create(c *gin.Context) {
 func (h *CorrelationRuleHandler) Import(c *gin.Context) {
 	var req dto.ImportCorrelationRulesRequest
 
-	events := make([]audit_connectors.Event,0)
-	for _,rule := range req.Files{
-		event:=audit_connectors.Event{
-			Action: "correlation_rule.import",
-			ResourceType:"correlation_rule",
-			ResourceID:rule.Filename,
-		}
-		events = append(events,event)
-	}
-
-
 	if err := c.ShouldBindJSON(&req); err != nil {
-		for _,e :=range events {
-			e.Status="domain.StatusFailure"
-		}
-
-        bulkImportAuditEvents(c,events,audit_domain.CORRELATION_RULE_CREATE_ATTEMPT, audit_domain.CORRELATION_RULE_CREATE_FAILURE, err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
+	}
+
+	events := make([]audit_connectors.Event, 0, len(req.Files))
+	for _, rule := range req.Files {
+		events = append(events, audit_connectors.Event{
+			Action:       "correlation_rule.import",
+			ResourceType: "correlation_rule",
+			ResourceID:   rule.Filename,
+		})
 	}
 
 	results := h.usecase.ImportRules(c.Request.Context(), req.Files)
@@ -113,7 +106,7 @@ func (h *CorrelationRuleHandler) Import(c *gin.Context) {
 			approved++
 		}else{
 			events[i].Status="domain.StatusFailure"
-			audit.Record(c, events[i], audit_domain.CORRELATION_RULE_CREATE_ATTEMPT, audit_domain.CORRELATION_RULE_CREATE_FAILURE, fmt.Errorf(r.Error))
+			audit.Record(c, events[i], audit_domain.CORRELATION_RULE_CREATE_ATTEMPT, audit_domain.CORRELATION_RULE_CREATE_FAILURE, errors.New(r.Error))
 		}
 	}
 	c.JSON(http.StatusOK, dto.ImportCorrelationRulesResponse{
@@ -121,12 +114,6 @@ func (h *CorrelationRuleHandler) Import(c *gin.Context) {
 		Approved: approved,
 		Rejected: len(results) - approved,
 	})
-}
-
-func bulkImportAuditEvents(c *gin.Context,events []audit_connectors.Event, action audit_domain.ApplicationEventType, action_status audit_domain.ApplicationEventType,error error ){
-	for _, event := range events{
-		audit.Record(c, event, action, action_status, error)
-	}
 }
 
 // @Summary     Export correlation rules as a zip
