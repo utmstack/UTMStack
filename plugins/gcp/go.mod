@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go/pubsub v1.51.1
 	github.com/fsnotify/fsnotify v1.10.1
 	github.com/google/uuid v1.6.0
-	github.com/threatwinds/go-sdk v1.1.37-0.20261022065353-1c4f36d2f357
+	github.com/threatwinds/go-sdk v1.1.37-0.20261022104547-4582af12105a
 	golang.org/x/crypto v0.58.0
 	google.golang.org/api v0.305.0
 	gopkg.in/yaml.v3 v3.0.1

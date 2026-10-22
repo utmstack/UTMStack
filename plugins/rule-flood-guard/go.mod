@@ -4,7 +4,7 @@ go 1.25.5
 
 require (
 	github.com/fsnotify/fsnotify v1.10.1
-	github.com/threatwinds/go-sdk v1.1.37-0.20261022065353-1c4f36d2f357
+	github.com/threatwinds/go-sdk v1.1.37-0.20261022104547-4582af12105a
 	google.golang.org/protobuf v1.36.12
 	gopkg.in/yaml.v3 v3.0.1
 )
