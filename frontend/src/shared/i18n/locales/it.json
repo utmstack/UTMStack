@@ -4751,7 +4751,14 @@
       "patternDefRequired": "La definizione è obbligatoria",
       "parameters": "Parametri",
       "paramsKey": "Chiave",
-      "paramsValue": "Valore"
+      "paramsValue": "Valore",
+      "entry": "Vocetta {{n}}",
+      "order": "ordine {{n}}",
+      "orderLabel": "Ordine",
+      "removeEntry": "Rimuovi vocetta",
+      "addEntry": "Aggiungi vocetta di pipeline",
+      "collapse": "Comprimi",
+      "expand": "Espandi"
     },
     "allDataTypes": "Tutti i tipi di dati",
     "testPipeline": "Test pipeline"

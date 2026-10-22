@@ -4751,7 +4751,14 @@
       "patternDefRequired": "Definition ist erforderlich",
       "parameters": "Parameter",
       "paramsKey": "Schlüssel",
-      "paramsValue": "Wert"
+      "paramsValue": "Wert",
+      "entry": "Eintrag {{n}}",
+      "order": "Reihenfolge {{n}}",
+      "orderLabel": "Reihenfolge",
+      "removeEntry": "Eintrag entfernen",
+      "addEntry": "Pipeline-Eintrag hinzufügen",
+      "collapse": "Zuklappen",
+      "expand": "Ausklappen"
     },
     "allDataTypes": "Alle Datentypen",
     "testPipeline": "Test pipeline"

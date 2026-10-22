@@ -4751,7 +4751,14 @@
       "patternDefRequired": "La définition est requise",
       "parameters": "Paramètres",
       "paramsKey": "Clé",
-      "paramsValue": "Valeur"
+      "paramsValue": "Valeur",
+      "entry": "Entrée {{n}}",
+      "order": "ordre {{n}}",
+      "orderLabel": "Ordre",
+      "removeEntry": "Supprimer l’entrée",
+      "addEntry": "Ajouter une entrée de pipeline",
+      "collapse": "Replier",
+      "expand": "Déplier"
     },
     "allDataTypes": "Tous les types de données",
     "testPipeline": "Test pipeline"

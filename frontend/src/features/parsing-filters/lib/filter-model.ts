@@ -27,7 +27,7 @@ export function sanitizeFileName(name: string): string {
 
 /**
  * Structured model of a parsing filter, mirroring the Event Processor's pipeline
- * schema (go-sdk plugins.Config) — one dataTypes/order/steps entry per file:
+ * schema (go-sdk plugins.Config) — one or more dataTypes/order/steps entries per file:
  *
  *   pipeline:
  *     - dataTypes: [<string>, ...]   # a pipeline can be reused across several dataTypes
@@ -67,10 +67,16 @@ export interface Step {
   config: Record<string, unknown>
 }
 
-export interface FilterModel {
+export interface EntryModel {
   dataTypes: string[]
   order: number
   steps: Step[]
+}
+
+/** One file may hold several pipeline entries (e.g. a CEF stage followed by a
+ * LEEF stage, each with its own dataTypes and order). */
+export interface FilterModel {
+  entries: EntryModel[]
 }
 
 export type ParseResult = { ok: true; model: FilterModel } | { ok: false; error: string }
@@ -95,48 +101,54 @@ export function parseFilter(content: string): ParseResult {
   if (!Array.isArray(rawPipeline) || rawPipeline.length === 0) {
     return { ok: false, error: '"pipeline" must be a non-empty list' }
   }
-  if (rawPipeline.length > 1) {
-    return { ok: false, error: `this editor only supports one pipeline entry per file (found ${rawPipeline.length})` }
-  }
-  const rawBlock = rawPipeline[0]
-  if (!isRecord(rawBlock)) return { ok: false, error: 'the pipeline entry must be a mapping' }
+  const entries: EntryModel[] = []
+  for (const rawBlock of rawPipeline) {
+    if (!isRecord(rawBlock)) return { ok: false, error: 'each pipeline entry must be a mapping' }
 
-  const steps: Step[] = []
-  const rawSteps = rawBlock.steps
-  if (rawSteps != null) {
-    if (!Array.isArray(rawSteps)) return { ok: false, error: '"steps" must be a list' }
-    for (const rawStep of rawSteps) {
-      if (!isRecord(rawStep)) return { ok: false, error: 'each step must be a mapping' }
-      const keys = Object.keys(rawStep)
-      if (keys.length !== 1) {
-        return { ok: false, error: `a step must have exactly one processor (found ${keys.length})` }
+    const steps: Step[] = []
+    const rawSteps = rawBlock.steps
+    if (rawSteps != null) {
+      if (!Array.isArray(rawSteps)) return { ok: false, error: '"steps" must be a list' }
+      for (const rawStep of rawSteps) {
+        if (!isRecord(rawStep)) return { ok: false, error: 'each step must be a mapping' }
+        const keys = Object.keys(rawStep)
+        if (keys.length !== 1) {
+          return { ok: false, error: `a step must have exactly one processor (found ${keys.length})` }
+        }
+        const kind = keys[0] as StepKind
+        if (!STEP_KINDS.includes(kind)) {
+          return { ok: false, error: `unknown processor "${kind}"` }
+        }
+        const body = rawStep[kind]
+        steps.push({ kind, config: isRecord(body) ? { ...body } : {} })
       }
-      const kind = keys[0] as StepKind
-      if (!STEP_KINDS.includes(kind)) {
-        return { ok: false, error: `unknown processor "${kind}"` }
-      }
-      const body = rawStep[kind]
-      steps.push({ kind, config: isRecord(body) ? { ...body } : {} })
     }
+
+    const rawDataTypes = rawBlock.dataTypes
+    const dataTypes = Array.isArray(rawDataTypes) ? rawDataTypes.filter((d): d is string => typeof d === 'string') : []
+    const order = typeof rawBlock.order === 'number' ? rawBlock.order : 0
+
+    entries.push({ dataTypes, order, steps })
   }
 
-  const rawDataTypes = rawBlock.dataTypes
-  const dataTypes = Array.isArray(rawDataTypes) ? rawDataTypes.filter((d): d is string => typeof d === 'string') : []
-  const order = typeof rawBlock.order === 'number' ? rawBlock.order : 0
+  return { ok: true, model: { entries } }
+}
 
-  return { ok: true, model: { dataTypes, order, steps } }
+/** All dataTypes across every entry — the test playground picks from the union. */
+export function modelDataTypes(model: FilterModel): string[] {
+  const seen = new Set<string>()
+  for (const e of model.entries) for (const d of e.dataTypes) seen.add(d)
+  return [...seen]
 }
 
 /** Serialize the structured model back to YAML the Event Processor accepts. */
 export function serializeFilter(model: FilterModel): string {
   const doc = {
-    pipeline: [
-      {
-        dataTypes: model.dataTypes,
-        order: model.order,
-        steps: model.steps.map((s) => ({ [s.kind]: pruneEmpty(s.config) })),
-      },
-    ],
+    pipeline: model.entries.map((e) => ({
+      dataTypes: e.dataTypes,
+      order: e.order,
+      steps: e.steps.map((s) => ({ [s.kind]: pruneEmpty(s.config) })),
+    })),
   }
   return dump(doc, { indent: 2, lineWidth: -1, noRefs: true, quotingType: '"' })
 }
@@ -174,5 +186,9 @@ export function emptyStep(kind: StepKind): Step {
 }
 
 export function emptyModel(dataTypes: string[], order: number): FilterModel {
+  return { entries: [{ dataTypes, order, steps: [] }] }
+}
+
+export function emptyEntry(dataTypes: string[] = [], order = 0): EntryModel {
   return { dataTypes, order, steps: [] }
 }
