@@ -6,10 +6,16 @@ import { load, dump } from 'js-yaml'
 export function displayName(relPath: string): string {
   const base = (relPath.split('/').pop() ?? relPath).replace(/\.ya?ml$/i, '')
 
-  return base
-    .split('-')[0]
-    .split(/[-_]+/)
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+  let splitted = base.split(/[-]+/)
+
+  if(splitted.length >  4){
+    splitted=splitted.slice(0,-5)
+  }else{
+    splitted=splitted.slice(0,1)
+  }
+
+  return splitted
+    .map((w) => (w.charAt(0).toUpperCase() + w.slice(1)).replace(/[_]+/g,' '))
     .join(' ')
 }
 
@@ -20,7 +26,7 @@ export function sanitizeFileName(name: string): string {
   const slug = name
     .trim()
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/[^a-z0-9]+/g, '_')
     .replace(/^-+|-+$/g, '')
   return slug ? `${slug}.yaml` : ''
 }
