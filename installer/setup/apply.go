@@ -18,6 +18,28 @@ func Apply(version string, updating bool) (string, error) {
 	fmt.Println("Generating Stack configuration...")
 	stack := docker.GetStackConfig()
 
+	// The memory distribution in memory-allocation.json is authoritative and is
+	// only ever rewritten by --recalculate-memory (or the one-time fresh-install
+	// seed below). On an update we must therefore be able to read it: if it is
+	// missing or unparseable, GetStackConfig produced a non-authoritative
+	// in-memory balance, and deploying that would silently reset the distribution
+	// the operator has on file. Fail loudly instead of guessing.
+	if updating && !stack.MemoryAuthoritative {
+		return "", fmt.Errorf(
+			"memory distribution is missing or corrupt at %s and an update will not re-balance it; "+
+				"restore the file from backup, or run the installer with --recalculate-memory to regenerate it deliberately",
+			config.MemoryAllocationPath)
+	}
+
+	// On a fresh install there is no stored distribution to preserve, so seed
+	// the authority file now (one-time baseline). On an update this is a no-op
+	// because stack.MemoryAuthoritative is true (the file already exists).
+	if !updating {
+		if err := docker.EnsureMemoryBaseline(); err != nil {
+			return "", err
+		}
+	}
+
 	// Check distro (always needed for later steps)
 	distro, err := system.CheckDistro()
 	if err != nil {
