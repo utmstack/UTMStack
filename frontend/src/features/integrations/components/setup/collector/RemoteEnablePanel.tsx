@@ -20,6 +20,7 @@ export interface RemoteEnableSelection {
   proto: Proto
   port: string
   isMaster: boolean
+  collector?:ForwarderCollector|null
 }
 
 interface RemoteEnablePanelProps {
@@ -202,12 +203,15 @@ export function RemoteEnablePanel({
   }, [allForwarders, collectorId])
 
   useEffect(() => {
+    const selectedForwarder = allForwarders.find((f) => f.id === collectorId) ?? null
+
     onSelectionChange?.({
+      collector:selectedForwarder,
       proto: isMaster ? 'https' : proto,
       port,
       isMaster,
     })
-  }, [proto, port, isMaster, onSelectionChange])
+  }, [proto, port, isMaster, onSelectionChange,collectorId])
 
   const isHttp = proto === 'http' || proto === 'https'
   const needsCerts = proto === 'tls' || proto === 'https'
