@@ -26,8 +26,7 @@ export function sanitizeFileName(name: string): string {
   const slug = name
     .trim()
     .toLowerCase()
-    .replace(/\s+/g, '_')
-    .replace(/[^a-z0-9|_]+/g, '-')
+    .replace(/[^a-z0-9]+/g, '_')
     .replace(/^-+|-+$/g, '')
   return slug ? `${slug}.yaml` : ''
 }
