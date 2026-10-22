@@ -15,7 +15,7 @@ func RecalculateMemory() error {
 		return fmt.Errorf("error getting UTMStack version: %v", err)
 	}
 
-	if err := docker.RecalculateMemory(); err != nil {
+	if err := docker.Recalculate(); err != nil {
 		return fmt.Errorf("error recalculating memory: %v", err)
 	}
 

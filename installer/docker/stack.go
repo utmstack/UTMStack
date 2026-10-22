@@ -19,6 +19,11 @@ import (
 type StackConfig struct {
 	FrontEndNginx       string
 	ServiceResources    map[string]*system.ServiceConfig
+	// MemoryAuthoritative is true when ServiceResources came from the
+	// persisted authority file; false when it was balanced in memory because
+	// the file was absent. Apply uses this to refuse an update that would
+	// otherwise have to invent a distribution.
+	MemoryAuthoritative bool
 	Threads             int
 	ESData              string
 	ESBackups           string
@@ -35,6 +40,16 @@ var (
 	Services        = []system.ServiceConfig{}
 )
 
+// GetStackConfig builds the stack configuration. It resolves the memory
+// distribution from the authority file when present; otherwise it balances in
+// memory. It NEVER writes the authority file — seeding (fresh install) and
+// recalculation (--recalculate-memory) are explicit, separate steps so an
+// update can never silently reset the distribution the operator has on file.
+//
+// It is safe to call from any goroutine (the updater daemon does, for lock
+// removal). A missing authority file only produces a non-authoritative
+// in-memory balance here; it does not exit. (A genuine balance error — e.g.
+// the host RAM cannot be read — exits, as before.)
 func GetStackConfig() *StackConfig {
 	stackConfigOnce.Do(func() {
 		cnf := config.GetConfig()
@@ -85,42 +100,37 @@ func GetStackConfig() *StackConfig {
 			{Name: "frontend", Priority: 3, MinMemory: 80, MaxMemory: 1024},
 		}
 
-		if rsrcs, ok := loadPersistedMemoryAllocation(); ok {
-			stackConfig.ServiceResources = rsrcs
-			return
-		}
-
-		rsrcs, err := balanceMemoryNow()
-		if err != nil {
-			fmt.Printf("error balancing memory: %v\n", err)
-			os.Exit(1)
-		}
-		stackConfig.ServiceResources = rsrcs
+		stackConfig.ServiceResources, stackConfig.MemoryAuthoritative = resolveServiceResources()
 	})
 
 	return stackConfig
 }
 
-func balanceMemoryNow() (map[string]*system.ServiceConfig, error) {
-	mem := sigar.Mem{}
-	if err := mem.Get(); err != nil {
-		return nil, fmt.Errorf("error getting memory: %v", err)
+// resolveServiceResources decides the memory distribution. The authority file
+// (config.MemoryAllocationPath) is the single source of truth: if it parses,
+// its AssignedMemory values are used verbatim. If it is missing or corrupt, a
+// distribution is balanced in memory for the current host — but that is
+// flagged non-authoritative so Apply can refuse to deploy it on an update.
+// This function never writes the file.
+func resolveServiceResources() (map[string]*system.ServiceConfig, bool) {
+	if rsrcs, ok := loadPersistedMemoryAllocation(); ok {
+		return rsrcs, true
 	}
 
-	total := int(mem.Total / 1024 / 1024)
-
-	rsrcs, err := system.BalanceMemory(Services, total)
+	// No usable authority file. Balance in memory only; the caller decides
+	// whether that is acceptable (fresh install seeds it, an update does not).
+	rsrcs, err := balanceMemoryOnly()
 	if err != nil {
-		return nil, fmt.Errorf("error balancing memory: %v", err)
+		fmt.Printf("error balancing memory: %v\n", err)
+		os.Exit(1)
 	}
-
-	if err := utils.WriteJSON(config.MemoryAllocationPath, rsrcs); err != nil {
-		fmt.Printf("warning: could not persist memory allocation: %v\n", err)
-	}
-
-	return rsrcs, nil
+	return rsrcs, false
 }
 
+// loadPersistedMemoryAllocation reads the persisted memory-allocation.json,
+// repairing a legacy single "event-processor" entry to per-container keys.
+// It rewrites the file ONLY to apply that one-time data migration (a key
+// rename, not a rebalance); it never re-balances.
 func loadPersistedMemoryAllocation() (map[string]*system.ServiceConfig, bool) {
 	if !utils.CheckIfPathExist(config.MemoryAllocationPath) {
 		return nil, false
@@ -128,12 +138,10 @@ func loadPersistedMemoryAllocation() (map[string]*system.ServiceConfig, bool) {
 
 	var rsrcs map[string]*system.ServiceConfig
 	if err := utils.ReadJson(config.MemoryAllocationPath, &rsrcs); err != nil {
-		fmt.Printf("warning: could not read persisted memory allocation, recalculating: %v\n", err)
 		return nil, false
 	}
 
 	if migratePersistedMemoryAllocation(rsrcs) {
-		// Persist the rewritten keys so the next start reads them directly.
 		if err := utils.WriteJSON(config.MemoryAllocationPath, rsrcs); err != nil {
 			fmt.Printf("warning: could not persist migrated memory allocation: %v\n", err)
 		}
@@ -141,6 +149,58 @@ func loadPersistedMemoryAllocation() (map[string]*system.ServiceConfig, bool) {
 	}
 
 	return rsrcs, true
+}
+
+// balanceMemoryOnly computes a distribution for the current host without
+// writing it to disk.
+func balanceMemoryOnly() (map[string]*system.ServiceConfig, error) {
+	mem := sigar.Mem{}
+	if err := mem.Get(); err != nil {
+		return nil, fmt.Errorf("error getting memory: %v", err)
+	}
+	total := int(mem.Total / 1024 / 1024)
+	rsrcs, err := system.BalanceMemory(Services, total)
+	if err != nil {
+		return nil, fmt.Errorf("error balancing memory: %v", err)
+	}
+	return rsrcs, nil
+}
+
+// Recalculate re-balances the memory distribution from the current host and
+// persists it to the authority file. It is invoked only via --recalculate-memory,
+// i.e. only when the operator explicitly asks the installer to recompute and
+// replace the stored distribution.
+func Recalculate() error {
+	GetStackConfig() // ensures Services is populated for the balance
+
+	rsrcs, err := balanceMemoryOnly()
+	if err != nil {
+		return err
+	}
+	if err := utils.WriteJSON(config.MemoryAllocationPath, rsrcs); err != nil {
+		return fmt.Errorf("could not persist recalculated memory allocation: %v", err)
+	}
+	stackConfig.ServiceResources = rsrcs
+	stackConfig.MemoryAuthoritative = true
+	return nil
+}
+
+// EnsureMemoryBaseline persists the in-memory distribution to the authority
+// file on a fresh install, where there is no stored distribution to preserve.
+// It is a no-op when the distribution already came from the file (the normal
+// update path), so it can never reset a stored distribution during an update.
+// This is the second, and final, writer of the file besides Recalculate.
+func EnsureMemoryBaseline() error {
+	stack := GetStackConfig()
+	if stack.MemoryAuthoritative {
+		return nil
+	}
+	if err := utils.WriteJSON(config.MemoryAllocationPath, stack.ServiceResources); err != nil {
+		return fmt.Errorf("could not persist initial memory allocation: %v", err)
+	}
+	stack.MemoryAuthoritative = true
+	fmt.Println("  Seeded memory-allocation.json (first-time baseline).")
+	return nil
 }
 
 // svcMeta returns the current Services[] entry for name (priority, min and
@@ -196,18 +256,6 @@ func migratePersistedMemoryAllocation(rsrcs map[string]*system.ServiceConfig) bo
 	}
 	delete(rsrcs, "event-processor")
 	return true
-}
-
-func RecalculateMemory() error {
-	stack := GetStackConfig() // ensures Services and directories are set up
-
-	rsrcs, err := balanceMemoryNow()
-	if err != nil {
-		return err
-	}
-
-	stack.ServiceResources = rsrcs
-	return nil
 }
 
 func StackUP(tag string) error {
