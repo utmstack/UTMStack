@@ -73,7 +73,12 @@ func GetStackConfig() *StackConfig {
 			// in compose.go / the Dockerfile so the heap actually grows (issue
 			// #2918).
 			{Name: "backend", Priority: 3, MinMemory: 700, MaxMemory: 8 * 1024},
-			{Name: "web-pdf", Priority: 3, MinMemory: 1024, MaxMemory: 2 * 1024},
+			// web-pdf drives a headless Chrome to render PDFs. Chromium runs
+			// out of memory in printPage below ~1250MB (issue #2951,
+			// corroborated by #2934 where web-pdf OOM'd at ~1.1GiB), so floor
+			// its minimum at 1250. A 16GB host (the README minimum) still fits
+			// all service minimums with this raised from 1024.
+			{Name: "web-pdf", Priority: 3, MinMemory: 1250, MaxMemory: 2 * 1024},
 			{Name: "postgres", Priority: 2, MinMemory: 500, MaxMemory: 2 * 1024},
 			{Name: "user-auditor", Priority: 3, MinMemory: 200, MaxMemory: 1024},
 			{Name: "agentmanager", Priority: 3, MinMemory: 200, MaxMemory: 1024},
