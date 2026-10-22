@@ -2,12 +2,16 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 
+	"github.com/utmstack/utmstack/backend/modules/audit"
+	audit_connectors "github.com/utmstack/utmstack/backend/modules/audit/connectors"
+	audit_domain "github.com/utmstack/utmstack/backend/modules/audit/domain"
 	"github.com/utmstack/utmstack/backend/modules/threatintel/domain"
 	"github.com/utmstack/utmstack/backend/modules/threatintel/repository"
 	"github.com/utmstack/utmstack/backend/pkg/authz"
@@ -16,6 +20,8 @@ import (
 type AnalystHandler struct {
 	store *repository.AnalystStore
 }
+
+var errConversationNotFound = errors.New("conversation not found")
 
 func NewAnalystHandler(store *repository.AnalystStore) *AnalystHandler {
 	return &AnalystHandler{store: store}
@@ -81,14 +87,16 @@ func (h *AnalystHandler) Create(c *gin.Context) {
 	turns, _ := json.Marshal(req.Turns)
 	history, _ := json.Marshal(req.History)
 	conv := &domain.AnalystConversation{
-		ID:      req.ID,
+		ID:       req.ID,
 		TenantID: tenantID,
-		UserID:  userID,
-		Title:   req.Title,
-		Turns:   string(turns),
-		History: string(history),
+		UserID:   userID,
+		Title:    req.Title,
+		Turns:    string(turns),
+		History:  string(history),
 	}
 	if err := h.store.Create(c.Request.Context(), conv); err != nil {
+		audit.Record(c, audit_connectors.Event{Action: "threatintel.analyst.create", ResourceType: "threatintel_analyst_conversation", ResourceID: conv.ID, Metadata: map[string]any{"title": req.Title}},
+			audit_domain.THREATINTEL_ANALYST_CREATE_ATTEMPT, audit_domain.THREATINTEL_ANALYST_CREATE_SUCCESS, err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create conversation"})
 		return
 	}
@@ -113,6 +121,9 @@ func (h *AnalystHandler) Update(c *gin.Context) {
 		return
 	}
 	if conv == nil {
+		audit.Record(c, audit_connectors.Event{Action: "threatintel.analyst.update", ResourceType: "threatintel_analyst_conversation", ResourceID: id},
+			audit_domain.THREATINTEL_ANALYST_UPDATE_ATTEMPT, audit_domain.THREATINTEL_ANALYST_UPDATE_SUCCESS,
+			errConversationNotFound)
 		c.JSON(http.StatusNotFound, gin.H{"error": "conversation not found"})
 		return
 	}
@@ -122,6 +133,8 @@ func (h *AnalystHandler) Update(c *gin.Context) {
 	conv.Turns = string(turns)
 	conv.History = string(history)
 	if err := h.store.Save(c.Request.Context(), conv); err != nil {
+		audit.Record(c, audit_connectors.Event{Action: "threatintel.analyst.update", ResourceType: "threatintel_analyst_conversation", ResourceID: id, Metadata: map[string]any{"title": req.Title}},
+			audit_domain.THREATINTEL_ANALYST_UPDATE_ATTEMPT, audit_domain.THREATINTEL_ANALYST_UPDATE_SUCCESS, err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to save conversation"})
 		return
 	}
@@ -134,7 +147,10 @@ func (h *AnalystHandler) Delete(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return
 	}
-	if err := h.store.Delete(c.Request.Context(), tenantID, userID, c.Param("id")); err != nil {
+	id := c.Param("id")
+	if err := h.store.Delete(c.Request.Context(), tenantID, userID, id); err != nil {
+		audit.Record(c, audit_connectors.Event{Action: "threatintel.analyst.delete", ResourceType: "threatintel_analyst_conversation", ResourceID: id},
+			audit_domain.THREATINTEL_ANALYST_DELETE_ATTEMPT, audit_domain.THREATINTEL_ANALYST_DELETE_SUCCESS, err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to delete conversation"})
 		return
 	}
