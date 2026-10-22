@@ -6068,7 +6068,9 @@
       "noIntel": "«{{value}}» no tiene información de amenazas registrada.",
       "noMatches": "Sin coincidencias.",
       "matches": "{{items}} coincidencias para «{{query}}»",
-      "more": "+{{count}} más"
+      "more": "+{{count}} más",
+      "reported": "Reportado al corpus compartido de ThreatWinds. La ingesta es asincrona, no es inmediatamente consultable.",
+      "skippedAssociations": "No registrado (tipo no inferible): {{values}}"
     }
   },
   "threatwinds": {

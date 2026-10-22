@@ -6068,7 +6068,9 @@
       "noIntel": "« {{value}} » n'a aucune information de menace enregistrée.",
       "noMatches": "Aucune correspondance.",
       "matches": "{{items}} correspondances pour « {{query}} »",
-      "more": "+{{count}} de plus"
+      "more": "+{{count}} de plus",
+      "reported": "Signale au corpus ThreatWinds partage. L ingestion est asynchrone, non immediatement rechercheable.",
+      "skippedAssociations": "Non enregistre (type non inferable) : {{values}}"
     }
   },
   "threatwinds": {

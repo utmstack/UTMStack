@@ -6068,7 +6068,9 @@
       "noIntel": "Für „{{value}}“ sind keine Bedrohungsdaten erfasst.",
       "noMatches": "Keine Treffer.",
       "matches": "{{items}} Treffer für „{{query}}“",
-      "more": "+{{count}} weitere"
+      "more": "+{{count}} weitere",
+      "reported": "An den gemeinsamen ThreatWinds-Korpus gemeldet. Ingestion ist asynchron, noch nicht durchsuchbar.",
+      "skippedAssociations": "Nicht aufgezeichnet (Typ nicht ermittelbar): {{values}}"
     }
   },
   "threatwinds": {

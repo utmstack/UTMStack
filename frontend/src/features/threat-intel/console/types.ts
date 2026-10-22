@@ -59,12 +59,18 @@ export interface EntityDetails {
 }
 
 export type ToolPayload =
-  | { kind: 'lookup'; value: string; entity: IntelEntity | null }
+  | { kind: 'lookup'; value: string; entity: IntelEntity | null; rejected: string[] }
   | { kind: 'search'; query: string; items: number; results: IntelEntity[] }
   | { kind: 'details'; id: string; details: EntityDetails }
   | { kind: 'relations'; id: string; graph: RelationsResult }
   | { kind: 'geo'; id: string; locations: EntityGeo[] }
   | { kind: 'counts'; buckets: { key: string; count: number }[] }
+  | { kind: 'report'; value: string; type: string; reputation: number | undefined; skippedAssociations: string[] }
+  | { kind: 'link'; entityID: string; relatedEntityID: string }
+  | { kind: 'cases'; cases: import('../lib/casework').Case[] }
+  | { kind: 'watchlists'; watchlists: import('../lib/casework').Watchlist[] }
+  | { kind: 'alerts'; alerts: import('../lib/casework').Alert[]; unread: number }
+  | { kind: 'casework'; action: string; label: string; ref: string }
 
 export interface AgentStep {
   id: string
@@ -84,6 +90,7 @@ export interface LoopTurn {
   steps: AgentStep[]
   status: 'running' | 'done' | 'error'
   error?: string
+  stoppedReason?: 'complete' | 'max-turns' | 'aborted'
 }
 
 export interface Conversation {

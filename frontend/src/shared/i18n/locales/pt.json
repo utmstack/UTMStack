@@ -6068,7 +6068,9 @@
       "noIntel": "«{{value}}» não tem inteligência de ameaça registrada.",
       "noMatches": "Sem correspondências.",
       "matches": "{{items}} correspondências para «{{query}}»",
-      "more": "+{{count}} mais"
+      "more": "+{{count}} mais",
+      "reported": "Reportado no corpus ThreatWinds compartilhado. A ingestao e assincrona, nao imediatamente pesquisavel.",
+      "skippedAssociations": "Nao registrado (tipo nao inferivel): {{values}}"
     }
   },
   "threatwinds": {

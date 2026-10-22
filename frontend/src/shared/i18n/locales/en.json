@@ -6056,7 +6056,9 @@
       "noIntel": "\"{{value}}\" has no threat intelligence recorded.",
       "noMatches": "No matches.",
       "matches": "{{items}} matches for \"{{query}}\"",
-      "more": "+{{count}} more"
+      "more": "+{{count}} more",
+      "reported": "Reported to the shared ThreatWinds corpus. Ingestion is asynchronous, not immediately searchable.",
+      "skippedAssociations": "Not recorded (type could not be inferred): {{values}}"
     }
   },
   "threatwinds": {
