@@ -1,4 +1,4 @@
-# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Manual: set in the report.
 id: sr-3
 family: sr
 familyName: Supply Chain Risk Management
@@ -6,6 +6,9 @@ name: Supply Chain Controls and Processes
 scope: governance
 statement: |-
   Establish a process or processes to identify and address weaknesses or deficiencies in the supply chain elements and processes of [system or system component] in coordination with [supply chain personnel];
-    Employ the following controls to protect against supply chain risks to the system, system component, or system service and to limit the harm or consequences from supply chain-related events: [supply chain controls] ; and
-    Document the selected and implemented supply chain processes and controls in [security and privacy plans | supply chain risk management plan | {{ insert: param, sr-03_odp.05 }} ].
+  Employ the following controls to protect against supply chain risks to the system, system component, or system service and to limit the harm or consequences from supply chain-related events: [supply chain controls]; and
+  Document the selected and implemented supply chain processes and controls in [security and privacy plans | supply chain risk management plan | [organization-defined value]].
+remediation: |-
+  Manual control: logs cannot show whether this is in place, so the report lists it as "Out of scope" until a person decides. Open the framework report, set this control's status (Compliant, Non-compliant or At risk) and write the justification.
+  Keep the evidence an auditor will ask for, for example supplier assessments, the supply chain risk plan or contract clauses.
 source: NIST SP 800-53 Rev 5 (public domain)

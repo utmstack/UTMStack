@@ -1,4 +1,4 @@
-# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
 id: au-5
 family: au
 familyName: Audit and Accountability
@@ -6,9 +6,331 @@ name: Response to Audit Logging Process Failures
 scope: data
 statement: |-
   Alert [personnel or roles] within [time period] in the event of an audit logging process failure; and
-    Take the following additional actions: [additional actions].
+  Take the following additional actions: [additional actions].
+remediation: |-
+  Passes when no connected source reported an audit logging failure, or logging being stopped or switched off, during the window.
+  If it fails: find the source in the failing check, restore logging and find out why it stopped; an unexplained stop must be treated as a possible incident.
 source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY
 checks:
-  - key: todo
-    name: 'TODO: define compliance check for this control'
-    todo: true            # Pending — evaluator shows "Not implemented", excluded from score
+  - key: win-audit-policy-removed-by-user
+    name: 'Windows: no user switched off success or failure auditing'
+    dataType: wineventlog
+    filters:
+      - field: log.providerName
+        operator: IS
+        value: 'Microsoft-Windows-Security-Auditing'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '4719'
+      - field: log.data.AuditPolicyChanges
+        operator: CONTAIN_ONE_OF
+        value:
+          - '%%8448'
+          - '%%8450'
+      - field: log.eventDataSubjectUserSid
+        operator: EXIST
+      - field: log.eventDataSubjectUserSid
+        operator: IS_NOT_ONE_OF
+        value:
+          - 'S-1-5-18'
+          - 'S-1-5-19'
+          - 'S-1-5-20'
+      - field: log.eventDataSubjectUserName
+        operator: EXIST
+      - field: log.eventDataSubjectUserName
+        operator: NOT_ENDS_WITH
+        value: '$'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: win-event-logging-failed
+    name: 'Windows: the event log service did not drop or fail to process audit events'
+    dataType: wineventlog
+    filters:
+      - field: log.providerName
+        operator: IS
+        value: 'Microsoft-Windows-Eventlog'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '1101'
+          - '1108'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: linux-audit-disabled
+    name: 'Linux: kernel auditing was not switched off'
+    dataType: linux
+    filters:
+      - field: log.configchange.audit_enabled
+        operator: IS
+        value: '0'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: linux-audit-records-lost
+    name: 'Linux: the kernel did not drop audit records'
+    dataType: linux
+    filters:
+      - field: log.syslogIdentifier
+        operator: IS
+        value: 'kernel'
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'audit_lost='
+          - 'kauditd hold queue overflow'
+          - 'audit_backlog='
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: linux-auditd-suspended
+    name: 'Linux: auditd did not stop writing records'
+    dataType: linux
+    filters:
+      - field: log.syslogIdentifier
+        operator: IS
+        value: 'auditd'
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'suspending logging'
+          - 'error writing an event'
+          - 'halting the system'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: linux-logging-service-stopped
+    name: 'Linux: no audit or syslog service stopped by a command'
+    dataType: linux
+    filters:
+      - field: action
+        operator: IS
+        value: 'execve'
+      - field: origin.command
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'systemctl stop auditd'
+          - 'systemctl disable auditd'
+          - 'systemctl mask auditd'
+          - 'service auditd stop'
+          - 'systemctl stop rsyslog'
+          - 'systemctl disable rsyslog'
+          - 'systemctl mask rsyslog'
+          - 'service rsyslog stop'
+          - 'systemctl stop syslog-ng'
+          - 'systemctl disable syslog-ng'
+          - 'systemctl stop systemd-journald'
+          - 'systemctl mask systemd-journald'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: o365-audit-disabled
+    name: 'Microsoft 365: audit logging must not be switched off'
+    dataType: o365
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Set-AdminAuditLogConfig'
+          - 'Set-OrganizationConfig'
+          - 'Set-Mailbox'
+          - 'Set-MailboxAuditBypassAssociation'
+      - field: log.Parameters
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'Name:UnifiedAuditLogIngestionEnabled Value:False'
+          - 'Name:AdminAuditLogEnabled Value:False'
+          - 'Name:AuditDisabled Value:True'
+          - 'Name:AuditEnabled Value:False'
+          - 'Name:AuditBypassEnabled Value:True'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: azure-diagnostic-export-deleted
+    name: 'Azure: diagnostic log export settings must not be deleted'
+    dataType: azure
+    filters:
+      - field: action
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'microsoft.insights/diagnosticsettings/delete'
+          - 'microsoft.aadiam/diagnosticsettings/delete'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: aws-cloudtrail-stopped
+    name: 'AWS: CloudTrail logging was stopped'
+    dataType: aws
+    filters:
+      - field: action
+        operator: IS
+        value: 'StopLogging'
+      - field: log.eventSource
+        operator: IS
+        value: 'cloudtrail.amazonaws.com'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: aws-trail-management-events-dropped
+    name: 'AWS: a trail was changed to stop recording management events'
+    dataType: aws
+    filters:
+      - field: action
+        operator: IS
+        value: 'PutEventSelectors'
+      - field: target.domain
+        operator: IS
+        value: 'cloudtrail.amazonaws.com'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+      - field: log.requestParameters.eventSelectors
+        operator: CONTAIN
+        value: '"includeManagementEvents":false'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: gcp-log-sink-deleted
+    name: 'Google: a log export sink was deleted'
+    dataType: google
+    filters:
+      - field: log.protoPayloadMethodName
+        operator: IS
+        value: 'google.logging.v2.ConfigServiceV2.DeleteSink'
+      - field: log.protoPayloadServiceName
+        operator: IS
+        value: 'logging.googleapis.com'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: gcp-log-sink-disabled
+    name: 'Google: a log export sink was disabled'
+    dataType: google
+    filters:
+      - field: log.protoPayloadMethodName
+        operator: IS
+        value: 'google.logging.v2.ConfigServiceV2.UpdateSink'
+      - field: log.protoPayload.request.sink.disabled
+        operator: IS
+        value: 'true'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: cisco-ios-logging-host-failed
+    name: 'Cisco switch: logging to the syslog host never fails'
+    dataType: cisco-switch
+    filters:
+      - field: log.facility
+        operator: IS
+        value: 'SYS'
+      - field: log.facilityMnemonic
+        operator: IS
+        value: 'LOGGINGHOST_FAIL'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: asa-logging-failed
+    name: 'Cisco ASA: logging to the syslog server and buffer never fails'
+    dataType: firewall-cisco-asa
+    filters:
+      - field: log.messageId
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '414001'
+          - '414002'
+          - '414003'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: ftd-logging-failed
+    name: 'Cisco FTD: logging to the syslog server never fails'
+    dataType: firewall-cisco-firepower
+    filters:
+      - field: log.messageId
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '414001'
+          - '414002'
+          - '414003'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: fgt-log-forwarding-failed
+    name: 'FortiGate: log forwarding and log disk never fail'
+    dataType: firewall-fortigate-traffic
+    filters:
+      - field: log.logid
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '0100022902'
+          - '0100022903'
+          - '0100020107'
+          - '0100022102'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: paloalto-syslog-connection-broken
+    name: 'Palo Alto: syslog forwarding never breaks'
+    dataType: firewall-paloalto
+    filters:
+      - field: log.eventid
+        operator: IS
+        value: 'syslog-conn-status'
+      - field: log.opaque
+        operator: CONTAIN
+        value: 'broken'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: github-webhook-deleted
+    name: 'GitHub: the webhook that feeds UTMStack was deleted'
+    dataType: github
+    filters:
+      - field: log.action
+        operator: IS
+        value: 'deleted'
+      - field: log.hook.name
+        operator: IS
+        value: 'web'
+      - field: log.hook.config.url
+        operator: EXIST
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: as400-audit-control-none
+    name: 'IBM i (AS/400): security auditing (QAUDCTL) not switched off'
+    dataType: ibm-as400
+    filters:
+      - field: log.messageId
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'CPI2283'
+          - 'CPI2284'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: o365-graph-purview-audit-disabled
+    name: 'Microsoft Graph (Purview audit): audit logging must not be switched off'
+    dataType: o365-graph
+    filters:
+      - field: log.operation
+        operator: IS
+        value: 'Set-AdminAuditLogConfig'
+      - field: log.auditData.Parameters
+        operator: CONTAIN_ONE_OF
+        value:
+          - '"Name":"UnifiedAuditLogIngestionEnabled","Value":"False"'
+          - '"Name":"AdminAuditLogEnabled","Value":"False"'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: esxi-logging-failed
+    name: 'VMware ESXi: remote or local logging did not fail'
+    dataType: vmware-esxi
+    filters:
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'esx.problem.vmsyslogd.remote.failure'
+          - 'esx.problem.vmsyslogd.storage.failure'
+          - 'esx.problem.vmsyslogd.unexpected'
+    rule: THRESHOLD_MAX
+    ruleValue: 0

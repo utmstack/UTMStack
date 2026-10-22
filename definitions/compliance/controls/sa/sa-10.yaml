@@ -1,4 +1,4 @@
-# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Manual: set in the report.
 id: sa-10
 family: sa
 familyName: System and Services Acquisition
@@ -6,9 +6,12 @@ name: Developer Configuration Management
 scope: governance
 statement: |-
   Require the developer of the system, system component, or system service to:
-    Perform configuration management during system, component, or service [design | development | implementation | operation | disposal];
-    Document, manage, and control the integrity of changes to [configuration items];
-    Implement only organization-approved changes to the system, component, or service;
-    Document approved changes to the system, component, or service and the potential security and privacy impacts of such changes; and
-    Track security flaws and flaw resolution within the system, component, or service and report findings to [personnel].
+  Perform configuration management during system, component, or service [design | development | implementation | operation | disposal];
+  Document, manage, and control the integrity of changes to [configuration items];
+  Implement only organization-approved changes to the system, component, or service;
+  Document approved changes to the system, component, or service and the potential security and privacy impacts of such changes; and
+  Track security flaws and flaw resolution within the system, component, or service and report findings to [personnel].
+remediation: |-
+  Manual control: logs cannot show whether this is in place, so the report lists it as "Out of scope" until a person decides. Open the framework report, set this control's status (Compliant, Non-compliant or At risk) and write the justification.
+  Keep the evidence an auditor will ask for, for example contracts, acquisition requirements, or development and testing records.
 source: NIST SP 800-53 Rev 5 (public domain)

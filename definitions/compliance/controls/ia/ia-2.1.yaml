@@ -1,0 +1,82 @@
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
+id: ia-2.1
+family: ia
+familyName: Identification and Authentication
+name: Identification and Authentication (Organizational Users) | Multi-factor Authentication to Privileged Accounts
+scope: data
+statement: |-
+  Implement multi-factor authentication for access to privileged accounts.
+remediation: |-
+  Measured: fails when a privileged account (root, global or super administrator) signed in without multi-factor authentication during the window. Not evaluated when no connected source records the authentication factor.
+  If it fails: open the failing check, find the sign-ins and enforce multi-factor authentication for that account.
+source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY
+checks:
+  - key: linux-ssh-root-password-only
+    name: 'Linux: no root SSH sign-in with a password alone'
+    dataType: linux
+    filters:
+      - field: log.syslogIdentifier
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'sshd'
+          - 'sshd-session'
+      - field: log.message
+        operator: START_WITH
+        value: 'Accepted password for root '
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: azure-admin-signin-without-mfa
+    name: 'Entra ID: sign-ins to Azure management (portal, CLI, PowerShell) must not succeed with a single factor'
+    dataType: azure
+    filters:
+      - field: log.category
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'SignInLogs'
+          - 'SigninLogs'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+      - field: log.properties.authenticationRequirement
+        operator: IS
+        value: 'singleFactorAuthentication'
+      - field: log.properties.resourceId
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '797f4846-ba00-4fd7-ba43-dac1f8f63013'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: aws-root-signin-without-mfa
+    name: 'AWS: the root user signed in without MFA'
+    dataType: aws
+    filters:
+      - field: action
+        operator: IS
+        value: 'ConsoleLogin'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+      - field: log.additionalEventData.MFAUsed
+        operator: IS
+        value: 'No'
+      - field: log.userIdentity.type
+        operator: IS
+        value: 'Root'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: aix-root-ssh-password-only
+    name: 'IBM AIX: no root SSH sign-in with a password alone'
+    dataType: ibm-aix
+    filters:
+      - field: log.authResult
+        operator: IS
+        value: 'Accepted'
+      - field: log.authMethod
+        operator: IS
+        value: 'password'
+      - field: origin.user
+        operator: IS
+        value: 'root'
+    rule: THRESHOLD_MAX
+    ruleValue: 0

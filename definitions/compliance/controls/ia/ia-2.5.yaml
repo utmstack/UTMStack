@@ -1,0 +1,337 @@
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
+id: ia-2.5
+family: ia
+familyName: Identification and Authentication
+name: Identification and Authentication (Organizational Users) | Individual Authentication with Group Authentication
+scope: data
+statement: |-
+  When shared accounts or authenticators are employed, require users to be individually authenticated before granting access to the shared accounts or resources.
+remediation: |-
+  Measured: fails when someone signed in directly with a shared built-in administrator account (root, the built-in Windows Administrator, the AWS root user) instead of an individual account.
+  If it fails: give administrators individual accounts with elevation (sudo, admin groups, roles), disable direct logins to the shared account and keep its password in a vault.
+source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY
+checks:
+  - key: win-builtin-admin-signin
+    name: 'Windows: nobody signed in interactively or by Remote Desktop with the built-in Administrator account'
+    dataType: wineventlog
+    filters:
+      - field: log.providerName
+        operator: IS
+        value: 'Microsoft-Windows-Security-Auditing'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '4624'
+      - field: log.eventDataTargetUserSid
+        operator: START_WITH
+        value: 'S-1-5-21-'
+      - field: log.eventDataTargetUserSid
+        operator: ENDS_WITH
+        value: '-500'
+      - field: log.eventDataLogonType
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '2'
+          - '10'
+          - '11'
+      - field: log.eventDataLogonProcessName
+        operator: START_WITH
+        value: 'User32'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: linux-audit-root-login
+    name: 'Linux: no direct sign-in as root (audit)'
+    dataType: linux
+    filters:
+      - field: action
+        operator: IS
+        value: 'USER_LOGIN'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+      - field: log.userlogin.id
+        operator: IS
+        value: '0'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: linux-ssh-root-login
+    name: 'Linux: no direct SSH sign-in as root'
+    dataType: linux
+    filters:
+      - field: log.syslogIdentifier
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'sshd'
+          - 'sshd-session'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+      - field: log.message
+        operator: CONTAIN
+        value: ' for root from '
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: macos-root-login
+    name: 'macOS: no direct sign-in as root'
+    dataType: macos
+    filters:
+      - field: origin.process
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'sshd'
+          - 'sshd-session'
+          - 'screensharingd'
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'Accepted publickey for root '
+          - 'Accepted password for root '
+          - 'Accepted keyboard-interactive/pam for root '
+          - 'SUCCEEDED :: User Name: root '
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: azure-defender-builtin-admin-logon
+    name: 'Azure (Defender for Endpoint): the built-in Administrator account must not log on interactively or over RDP'
+    dataType: azure
+    filters:
+      - field: log.category
+        operator: IS
+        value: 'AdvancedHunting-DeviceLogonEvents'
+      - field: log.properties.ActionType
+        operator: IS
+        value: 'LogonSuccess'
+      - field: log.properties.AccountSid
+        operator: ENDS_WITH
+        value: '-500'
+      - field: log.properties.LogonType
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Interactive'
+          - 'RemoteInteractive'
+          - 'CachedInteractive'
+          - 'CachedRemoteInteractive'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: aws-root-user-activity
+    name: 'AWS: the shared root user was used'
+    dataType: aws
+    filters:
+      - field: log.userIdentity.type
+        operator: IS
+        value: 'Root'
+      - field: log.userIdentity.invokedBy
+        operator: DOES_NOT_EXIST
+      - field: log.eventType
+        operator: IS_NOT
+        value: 'AwsServiceEvent'
+      - field: actionResult
+        operator: IS_NOT
+        value: 'failed'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: cisco-switch-admin-login
+    name: 'Cisco switch: no login with an account named admin'
+    dataType: cisco-switch
+    filters:
+      - field: log.facility
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'SEC_LOGIN'
+          - 'SECLOGIN'
+      - field: log.facilityMnemonic
+        operator: IS
+        value: 'LOGIN_SUCCESS'
+      - field: log.ciscoMsg
+        operator: CONTAIN
+        value: '[user: admin]'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: asa-shared-enable-login
+    name: 'Cisco ASA: no administration with the shared enable password'
+    dataType: firewall-cisco-asa
+    filters:
+      - field: log.messageId
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '111008'
+          - '111010'
+          - '502103'
+          - '605005'
+      - field: log.msg
+        operator: CONTAIN
+        value: 'enable_15'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: ftd-builtin-admin-login
+    name: 'Cisco FTD: no sign-in with the built-in admin account'
+    dataType: firewall-cisco-firepower
+    filters:
+      - field: log.messageId
+        operator: IS
+        value: '605005'
+      - field: log.msg
+        operator: CONTAIN
+        value: 'for user ''admin'''
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: fgt-builtin-admin-login
+    name: 'FortiGate: no sign-in with the built-in admin account'
+    dataType: firewall-fortigate-traffic
+    filters:
+      - field: log.logid
+        operator: IS
+        value: '0100032001'
+      - field: origin.user
+        operator: IS
+        value: 'admin'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: fortiweb-builtin-admin-login
+    name: 'FortiWeb: no sign-in with the built-in admin account'
+    dataType: firewall-fortiweb
+    filters:
+      - field: log.type
+        operator: IS
+        value: 'event'
+      - field: action
+        operator: IS
+        value: 'login'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+      - field: log.user
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'admin'
+          - '"admin"'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: mikrotik-builtin-admin-login
+    name: 'MikroTik: no sign-in with the built-in admin account'
+    dataType: firewall-mikrotik
+    filters:
+      - field: log.topics
+        operator: CONTAIN
+        value: 'account'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+      - field: origin.user
+        operator: IS
+        value: 'admin'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: paloalto-builtin-admin-login
+    name: 'Palo Alto: no sign-in with the built-in admin account'
+    dataType: firewall-paloalto
+    filters:
+      - field: log.paType
+        operator: IS
+        value: 'SYSTEM'
+      - field: log.opaque
+        operator: START_WITH
+        value: 'User admin logged in via'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: pfsense-builtin-admin-login
+    name: 'pfSense: no sign-in with the built-in admin or root account'
+    dataType: firewall-pfsense
+    filters:
+      - field: log.authEvent
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Successful login'
+          - 'Accepted'
+      - field: origin.user
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'admin'
+          - 'root'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: sonicwall-builtin-admin-login
+    name: 'SonicWall: no sign-in with the built-in admin account'
+    dataType: firewall-sonicwall
+    filters:
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '29'
+          - '199'
+          - '235'
+          - '236'
+          - '994'
+      - field: origin.user
+        operator: IS
+        value: 'admin'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: sophos-xg-builtin-admin-login
+    name: 'Sophos Firewall: no sign-in with the built-in admin account'
+    dataType: firewall-sophos-xg
+    filters:
+      - field: log.messageId
+        operator: IS
+        value: '17507'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+      - field: origin.user
+        operator: IS
+        value: 'admin'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: aix-root-ssh-login
+    name: 'IBM AIX: no direct SSH sign-in as root'
+    dataType: ibm-aix
+    filters:
+      - field: log.authResult
+        operator: IS
+        value: 'Accepted'
+      - field: origin.user
+        operator: IS
+        value: 'root'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: as400-qsecofr-host-server-signon
+    name: 'IBM i (AS/400): no host server sign-on as QSECOFR'
+    dataType: ibm-as400
+    filters:
+      - field: log.messageId
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'CPIAD09'
+          - 'CPIAD02'
+      - field: log.message
+        operator: CONTAIN
+        value: 'QSECOFR'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: as400-qsecofr-interactive-job
+    name: 'IBM i (AS/400): no interactive session as QSECOFR'
+    dataType: ibm-as400
+    filters:
+      - field: log.messageId
+        operator: IS
+        value: 'CPF1124'
+      - field: log.message
+        operator: CONTAIN
+        value: '/QSECOFR/'
+      - field: log.message
+        operator: CONTAIN
+        value: 'QINTER'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: esxi-root-login
+    name: 'VMware ESXi: no direct sign-in as root'
+    dataType: vmware-esxi
+    filters:
+      - field: origin.user
+        operator: IS
+        value: 'root'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
