@@ -30,6 +30,7 @@
       <app-utm-search-input [placeholder]="'Search rule'" (searchFor)="searchByRule($event)"></app-utm-search-input>
 
     </div>
+    <div class="table-container">
     <table class="table mb-0">
       <thead>
       <tr>
@@ -39,7 +40,7 @@
           Rule name
         </th>
         <th class="font-weight-semibold" id="des"
-            style="width: 35%">
+            style="width: 25%">
           Description
         </th>
         <th class="font-weight-semibold" id="cond">
@@ -58,8 +59,7 @@
             [sortable]="'last_modified_by'" appColumnSortable>
           Modified by
         </th>
-        <th class="font-weight-semibold" id="thAction"
-            style="width: 15px">
+        <th class="font-weight-semibold" id="thAction">
           Actions
         </th>
       </tr>
@@ -70,14 +70,14 @@
         <td (click)="viewRule=rule" class="cursor-pointer text-wrap" style="width: 35%"><p class="font-size-base">{{rule.description }}</p></td>
         <td
           class="text-blue-800 cursor-pointer" (click)="viewRule=rule">
-          <strong>{{rule.conditions.length }}</strong> {{rule.conditions.length > 1 ? 'conditions' : 'condition'}}</td>
+          <strong>{{rule.conditions.length }}</strong> {{rule.conditions.length &gt; 1 ? 'conditions' : 'condition'}}</td>
         <td class="text-wrap tags-container text-break cursor-pointer "
             (click)="viewRule=rule">
           <app-alert-tag-label [tags]="rule.tags"></app-alert-tag-label>
         </td>
         <td (click)="viewRule=rule" class="cursor-pointer">{{rule.lastModifiedDate | date:'short' }}</td>
         <td (click)="viewRule=rule" class="cursor-pointer">{{rule.createdBy }}</td>
-        <td style="width: 15px" class="text-center medium-icon">
+        <td  class="text-center medium-icon">
           <i (click)="editRuleAction(rule)"
              class="icon-pencil3 utm-submenu-table-actions cursor-pointer mr-2"></i>
           <i (click)="deleteRuleAction(rule)"
@@ -108,6 +108,7 @@
       </tr>
       </tbody>
     </table>
+    </div>
     <div *ngIf="rules && rules.length" class="mb-4 mt-3">
       <div class="row justify-content-center">
         <ngb-pagination (pageChange)="loadPage($event)"
