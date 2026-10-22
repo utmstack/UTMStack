@@ -6054,6 +6054,7 @@
       "worst": "Peggio",
       "best": "Meglio",
       "relations": "Grafo delle relazioni",
+      "history": "Cronologia",
       "geolocations": "Geolocalizzazioni",
       "associations": "Associazioni",
       "radius": "r={{radius}}m",
@@ -6068,7 +6069,9 @@
       "noIntel": "«{{value}}» non ha informazioni di minaccia registrate.",
       "noMatches": "Nessuna corrispondenza.",
       "matches": "{{items}} corrispondenze per «{{query}}»",
-      "more": "+{{count}} altri"
+      "more": "+{{count}} altri",
+      "reported": "Segnalato al corpus ThreatWinds condiviso. L ingestione e asincrona, non immediatamente ricercabile.",
+      "skippedAssociations": "Non registrato (tipo non deducibile): {{values}}"
     }
   },
   "threatwinds": {

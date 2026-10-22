@@ -1,11 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
-import { MapPin, Sparkles } from 'lucide-react'
+import { Sparkles } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { proxyFetch } from './proxy'
 import { normalizeDetails, relationsToGraph } from './agent'
-import type { EntityDetails } from './types'
-import type { RawDetails, RawRelation } from './agent'
+import type { EntityDetails, EntityHistoryRecord } from './types'
+import type { RawDetails, RawRelations } from './agent'
 import { RelationGraph } from './relation-graph'
+import { EntityVerdict, ExtendedMetadataCard, GeoCard, HistoryRecordCard, MetadataCard } from './entity-cards'
 
 interface EntityInspectorProps {
   entityId: string
@@ -24,7 +25,25 @@ export function EntityInspector({ entityId, onPivot, onAskAgent }: EntityInspect
 
   const relations = useQuery({
     queryKey: ['ti-analyst-relations', entityId],
-    queryFn: async () => relationsToGraph(entityId, '', (await proxyFetch<RawRelation[]>(`/entity/${encodeURIComponent(entityId)}/relations`)) ?? []),
+    queryFn: async () => relationsToGraph(entityId, '', (await proxyFetch<RawRelations>(`/entity/${encodeURIComponent(entityId)}/relations`)) ?? []),
+    staleTime: 10 * 60 * 1000,
+  })
+
+  // History endpoint shape is upstream-dependent: accept an array or a wrapper.
+  const history = useQuery({
+    queryKey: ['ti-analyst-history', entityId],
+    queryFn: async (): Promise<EntityHistoryRecord[]> => {
+      const raw = await proxyFetch<unknown>(`/entity/${encodeURIComponent(entityId)}/history`)
+      const arr = Array.isArray(raw) ? raw : ((raw as Record<string, unknown> | null)?.items as unknown[]) ?? ((raw as Record<string, unknown> | null)?.records as unknown[]) ?? []
+      return arr.map((r) => {
+        const x = r as Record<string, unknown>
+        return {
+          timestamp: String(x.timestamp ?? x.time ?? ''),
+          reputation: Number(x.reputation ?? x.reputation_score ?? 0),
+          author: x.author ? String(x.author) : undefined,
+        }
+      })
+    },
     staleTime: 10 * 60 * 1000,
   })
 
@@ -47,15 +66,13 @@ export function EntityInspector({ entityId, onPivot, onAskAgent }: EntityInspect
   }
 
   const a = d.attributes
-  const malicious = a.reputation_score < 0
 
   return (
     <div className="h-full space-y-4 overflow-y-auto px-3 py-4 sm:px-4">
       <div className="flex flex-wrap items-center gap-2">
         <span
           className={
-            'rounded-md border px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wide ' +
-            (malicious ? 'border-destructive/40 bg-destructive/10 text-destructive' : 'border-border text-muted-foreground')
+            'rounded-md border border-border px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wide text-muted-foreground'
           }
         >
           {a.type}
@@ -71,29 +88,10 @@ export function EntityInspector({ entityId, onPivot, onAskAgent }: EntityInspect
         </button>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <Stat label={t('tiAnalyst.entity.reputation')} value={a.reputation} score={a.reputation_score} />
-        <Stat label={t('tiAnalyst.entity.accuracy')} value={a.accuracy} score={a.accuracy_score} />
-        <Stat label={t('tiAnalyst.entity.worst')} value={a.worst_reputation} score={a.worst_reputation_score} />
-        <Stat label={t('tiAnalyst.entity.best')} value={a.best_reputation} score={a.best_reputation_score} />
-      </div>
+      <EntityVerdict attributes={a} />
 
-      {a.description && (
-        <p className="font-mono text-xs leading-relaxed text-muted-foreground">{a.description}</p>
-      )}
-
-      {d.metadata && (
-        <div className="flex flex-wrap gap-1.5">
-          {Object.entries(d.metadata).map(([k, v]) => (
-            <span
-              key={k}
-              className="rounded-md border border-border px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
-            >
-              {k}: <span className="text-foreground/80">{String(v)}</span>
-            </span>
-          ))}
-        </div>
-      )}
+      {d.metadata && <MetadataCard metadata={d.metadata} />}
+      {d.extendedMetadata && <ExtendedMetadataCard entries={d.extendedMetadata} />}
 
       <section className="space-y-2">
         <h3 className="text-[11px] uppercase tracking-wider text-muted-foreground">
@@ -115,24 +113,24 @@ export function EntityInspector({ entityId, onPivot, onAskAgent }: EntityInspect
         )}
       </section>
 
+      {history.data && history.data.length > 0 && (
+        <section className="space-y-2">
+          <h3 className="text-[11px] uppercase tracking-wider text-muted-foreground">
+            {t('tiAnalyst.entity.history')}
+          </h3>
+          {history.data.map((record, i) => (
+            <HistoryRecordCard key={i} record={record} previous={history.data[i + 1]} />
+          ))}
+        </section>
+      )}
+
       {d.geolocations.length > 0 && (
         <section className="space-y-2">
           <h3 className="text-[11px] uppercase tracking-wider text-muted-foreground">
             {t('tiAnalyst.entity.geolocations')}
           </h3>
           {d.geolocations.map((geo, i) => (
-            <div
-              key={`${geo.lat}-${geo.lng}-${i}`}
-              className="flex items-center gap-2 rounded-md border border-border px-3 py-2"
-            >
-              <MapPin className="h-3.5 w-3.5 shrink-0 text-primary/60" />
-              <span className="font-mono text-xs text-foreground/90">
-                {geo.lat.toFixed(4)}°, {geo.lng.toFixed(4)}°
-              </span>
-              <span className="font-mono text-[10px] text-muted-foreground">
-                {t('tiAnalyst.entity.radius', { radius: geo.radius })}
-              </span>
-            </div>
+            <GeoCard key={`${geo.lat}-${geo.lng}-${i}`} latitude={geo.lat} longitude={geo.lng} radius={geo.radius} />
           ))}
         </section>
       )}
@@ -153,20 +151,13 @@ export function EntityInspector({ entityId, onPivot, onAskAgent }: EntityInspect
                 {assoc.type}
               </span>
               <span className="min-w-0 flex-1 truncate font-mono text-xs text-foreground/90">{assoc.value}</span>
+              <span dir="ltr" className="shrink-0 font-mono text-[10px] text-muted-foreground">
+                {assoc.reputation > 0 ? `+${assoc.reputation}` : assoc.reputation}
+              </span>
             </button>
           ))}
         </section>
       )}
-    </div>
-  )
-}
-
-function Stat({ label, value, score }: { label: string; value: string; score: number }) {
-  return (
-    <div className="rounded-md border border-border bg-card px-2.5 py-2">
-      <div className="font-mono text-[9px] uppercase tracking-wider text-muted-foreground">{label}</div>
-      <div className="truncate font-mono text-xs text-foreground/90">{value || '—'}</div>
-      <div className="font-mono text-[10px] text-muted-foreground">{score}</div>
     </div>
   )
 }

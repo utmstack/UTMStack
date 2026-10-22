@@ -1,48 +1,65 @@
 import { useSyncExternalStore } from 'react'
 import type { CanvasPanel, Conversation, LoopTurn, PanelGeometry, PanelRequest } from './types'
+import { proxyFetch } from './proxy'
 
-const CONV_KEY = 'utmstack.ti-analyst.conversations'
 const CANVAS_KEY = 'utmstack.ti-analyst.canvases'
+// Legacy localStorage for conversations, used only as a fallback when the
+// backend is unavailable or as a one-time migration source.
+const CONV_KEY = 'utmstack.ti-analyst.conversations'
 
 interface Store {
   conversations: Conversation[]
   canvases: Record<string, CanvasPanel[]>
 }
 
-function load(): Store {
-  const read = <T>(key: string, fallback: T): T => {
-    try {
-      const raw = localStorage.getItem(key)
-      return raw ? (JSON.parse(raw) as T) : fallback
-    } catch {
-      return fallback
-    }
-  }
-  return {
-    conversations: read<Conversation[]>(CONV_KEY, []),
-    canvases: read<Record<string, CanvasPanel[]>>(CANVAS_KEY, {}),
+function loadCanvases(): Record<string, CanvasPanel[]> {
+  try {
+    const raw = localStorage.getItem(CANVAS_KEY)
+    return raw ? (JSON.parse(raw) as Record<string, CanvasPanel[]>) : {}
+  } catch {
+    return {}
   }
 }
 
-let state: Store = load()
-const listeners = new Set<() => void>()
-
-function commit(next: Store) {
-  state = next
+function readLegacyConversations(): Conversation[] {
   try {
-    localStorage.setItem(CONV_KEY, JSON.stringify(next.conversations))
-    localStorage.setItem(CANVAS_KEY, JSON.stringify(next.canvases))
+    const raw = localStorage.getItem(CONV_KEY)
+    return raw ? (JSON.parse(raw) as Conversation[]) : []
   } catch {
+    return []
   }
+}
+
+function writeLegacyConversations(conversations: Conversation[]) {
+  try {
+    localStorage.setItem(CONV_KEY, JSON.stringify(conversations))
+  } catch {
+    // quota — ignore, the backend is the real store
+  }
+}
+
+let state: Store = { conversations: [], canvases: loadCanvases() }
+const listeners = new Set<() => void>()
+let backendReady = false
+
+/**
+ * Whether the store has finished hydrating from the backend (or falling back
+ * to localStorage). Consumers that auto-create must wait for this — creating
+ * into an unhydrated store orphans the conversation behind the backend's list.
+ */
+export function isConsoleStoreReady(): boolean {
+  return backendReady
+}
+
+function emit() {
   listeners.forEach((l) => l())
 }
-
-const noop = () => {}
 
 function subscribe(listener: () => void) {
   listeners.add(listener)
   return () => listeners.delete(listener)
 }
+export { subscribe }
 function getSnapshot() {
   return state
 }
@@ -55,6 +72,96 @@ function makeId(prefix: string): string {
   return `${prefix}_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`
 }
 
+// ---- backend persistence (best-effort; falls back to localStorage) ----
+
+function toDTO(conv: Conversation) {
+  return { id: conv.id, title: conv.title, turns: conv.turns, history: conv.history }
+}
+
+interface ConversationDTO {
+  id: string
+  title: string
+  turns: LoopTurn[]
+  history: Conversation['history']
+  updatedAt: string
+}
+
+function mapDTO(dto: ConversationDTO): Conversation {
+  const updatedAt = Date.parse(dto.updatedAt)
+  return { id: dto.id, title: dto.title, turns: dto.turns ?? [], history: dto.history ?? [], updatedAt: Number.isNaN(updatedAt) ? Date.now() : updatedAt }
+}
+
+async function createOnBackend(conv: Conversation) {
+  await proxyFetch('/analyst/conversations', { method: 'POST', body: JSON.stringify(toDTO(conv)) })
+}
+
+async function putOnBackend(conv: Conversation) {
+  await proxyFetch(`/analyst/conversations/${encodeURIComponent(conv.id)}`, { method: 'PUT', body: JSON.stringify(toDTO(conv)) })
+}
+
+async function deleteOnBackend(id: string) {
+  await proxyFetch(`/analyst/conversations/${encodeURIComponent(id)}`, { method: 'DELETE' })
+}
+
+/**
+ * Hydrates the store from the backend once. Seeds from legacy localStorage if
+ * the backend returns nothing (one-time migration); if the backend is
+ * unreachable, loads conversations from localStorage and stays local.
+ */
+let initPromise: Promise<void> | null = null
+
+export async function initConsoleStore(): Promise<void> {
+  if (backendReady) return
+  if (initPromise) return initPromise
+  initPromise = (async () => {
+  try {
+    const res = await proxyFetch<{ conversations: ConversationDTO[] }>('/analyst/conversations')
+    const dtos = res.conversations ?? []
+    let conversations = dtos.map(mapDTO)
+    if (!conversations.length) {
+      // Empty on the backend — migrate anything the analyst had locally.
+      const legacy = readLegacyConversations()
+      conversations = legacy
+      for (const conv of legacy) await createOnBackend(conv).catch(() => undefined)
+    }
+    backendReady = true
+    state = { ...state, conversations }
+    emit()
+  } catch {
+    // Backend unavailable — degrade to localStorage so the console still works.
+    backendReady = true
+    state = { ...state, conversations: readLegacyConversations() }
+    writeLegacyConversations(state.conversations)
+    emit()
+  }
+  })()
+  return initPromise
+}
+
+function persist(conv: Conversation, op: 'create' | 'put' | 'delete') {
+  if (!backendReady) return
+  const p = op === 'create' ? createOnBackend(conv) : op === 'put' ? putOnBackend(conv) : deleteOnBackend(conv.id)
+  p.catch(() => {
+    // Backend write failed — keep the local store authoritative and mirror to
+    // localStorage so a refresh does not lose it.
+    if (op !== 'delete') writeLegacyConversations(state.conversations)
+  })
+}
+
+// ---- conversations ----
+
+function commit(next: Store, changedConv?: Conversation, op?: 'create' | 'put' | 'delete') {
+  state = next
+  try {
+    localStorage.setItem(CANVAS_KEY, JSON.stringify(next.canvases))
+  } catch {
+    // Canvas layout is best-effort local state; a quota or storage error must
+    // not break the conversation store.
+  }
+  if (changedConv) persist(changedConv, op ?? 'put')
+  listeners.forEach((l) => l())
+}
+
 export function createConversation(title: string): Conversation {
   const conversation: Conversation = {
     id: makeId('conv'),
@@ -63,49 +170,65 @@ export function createConversation(title: string): Conversation {
     turns: [],
     history: [],
   }
-  commit({ ...state, conversations: [conversation, ...state.conversations] })
+  commit({ ...state, conversations: [conversation, ...state.conversations] }, conversation, 'create')
   return conversation
 }
 
 export function deleteConversation(id: string) {
   const canvases = { ...state.canvases }
   delete canvases[id]
-  commit({
-    conversations: state.conversations.filter((c) => c.id !== id),
-    canvases,
-  })
+  const removed = state.conversations.find((c) => c.id === id)
+  commit(
+    {
+      conversations: state.conversations.filter((c) => c.id !== id),
+      canvases,
+    },
+    removed,
+    'delete',
+  )
 }
 
 export function patchTurn(conversationId: string, turnId: string, fn: (t: LoopTurn) => LoopTurn) {
+  let conv: Conversation | undefined
   commit({
     ...state,
-    conversations: state.conversations.map((c) =>
-      c.id === conversationId
-        ? { ...c, turns: c.turns.map((t) => (t.id === turnId ? fn(t) : t)) }
-        : c,
-    ),
-  })
+    conversations: state.conversations.map((c) => {
+      if (c.id !== conversationId) return c
+      conv = { ...c, turns: c.turns.map((t) => (t.id === turnId ? fn(t) : t)) }
+      return conv
+    }),
+  }, conv)
 }
 
 export function appendTurn(conversationId: string, turn: LoopTurn, history: Conversation['history']): string {
   const id = makeId('turn')
+  let conv: Conversation | undefined
   commit({
     ...state,
-    conversations: state.conversations.map((c) =>
-      c.id === conversationId
-        ? { ...c, updatedAt: Date.now(), turns: [...c.turns, { ...turn, id }], history }
-        : c,
-    ),
-  })
+    conversations: state.conversations.map((c) => {
+      if (c.id !== conversationId) return c
+      conv = { ...c, updatedAt: Date.now(), turns: [...c.turns, { ...turn, id }], history }
+      return conv
+    }),
+  }, conv)
   return id
 }
 
 export function replaceHistory(conversationId: string, history: Conversation['history']) {
+  let conv: Conversation | undefined
   commit({
     ...state,
-    conversations: state.conversations.map((c) => (c.id === conversationId ? { ...c, history } : c)),
-  })
+    conversations: state.conversations.map((c) => {
+      if (c.id === conversationId) {
+        conv = { ...c, history }
+        return conv
+      }
+      return c
+    }),
+  }, conv)
 }
+
+// ---- canvas panels (localStorage — layout, not worth a backend table) ----
 
 const CASCADE_STEP = 28
 const DEFAULT_SIZE = { width: 520, height: 400 }
@@ -159,11 +282,7 @@ export function focusPanel(conversationId: string, panelId: string) {
   )
 }
 
-export function movePanel(
-  conversationId: string,
-  panelId: string,
-  geo: Partial<PanelGeometry>,
-) {
+export function movePanel(conversationId: string, panelId: string, geo: Partial<PanelGeometry>) {
   const prev = state.canvases[conversationId] ?? []
   setPanels(
     conversationId,
@@ -229,4 +348,4 @@ export function byRecency(a: Conversation, b: Conversation): number {
   return b.updatedAt - a.updatedAt
 }
 
-export const noopListener = noop
+export const noopListener = () => {}

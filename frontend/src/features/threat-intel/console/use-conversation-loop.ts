@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useSyncExternalStore } from 'react'
-import { runAgent } from './agent'
+import { runAgent, explainAgentError } from './agent'
 import {
   appendTurn,
   patchTurn,
@@ -121,13 +121,22 @@ export function useConversationLoop(conversationId: string | null, conversation:
             },
           },
         })
-        patch((t) => ({ ...t, status: 'done' }))
+        if (result.stoppedReason === 'max-turns') {
+          patch((t) => ({
+            ...t,
+            status: 'error',
+            stoppedReason: result.stoppedReason,
+            error: 'Reached the reasoning-step limit before finishing.',
+          }))
+        } else {
+          patch((t) => ({ ...t, status: 'done', stoppedReason: result.stoppedReason }))
+        }
         replaceHistory(conversationId, result.history)
       } catch (err) {
         if (err instanceof DOMException && err.name === 'AbortError') {
-          patch((t) => ({ ...t, status: 'done' }))
+          patch((t) => ({ ...t, status: 'done', stoppedReason: 'aborted' }))
         } else {
-          patch((t) => ({ ...t, status: 'error', error: err instanceof Error ? err.message : String(err) }))
+          patch((t) => ({ ...t, status: 'error', error: explainAgentError(err) }))
         }
       } finally {
         e.busy = false

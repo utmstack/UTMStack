@@ -21,6 +21,18 @@ export function panelForStep(step: AgentStep): PanelRequest | null {
       return payload.results.length ? { kind: 'search', title: payload.query, ref: payload.query } : null
     case 'counts':
       return null
+    case 'report':
+      return null
+    case 'link':
+      return null
+    case 'cases':
+      return null
+    case 'watchlists':
+      return null
+    case 'alerts':
+      return null
+    case 'casework':
+      return null
   }
 }
 

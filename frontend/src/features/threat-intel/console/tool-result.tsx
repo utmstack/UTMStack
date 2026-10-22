@@ -1,12 +1,14 @@
 import { useTranslation } from 'react-i18next'
 import {
   AlertTriangle,
+  BarChart3,
   CircleSlash,
   Crosshair,
   FileText,
   MapPin,
   Network,
   Search,
+  Send,
 } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import type { AgentStep, IntelEntity } from './types'
@@ -23,6 +25,8 @@ const TOOL_ICONS: Record<string, typeof Search> = {
   get_entity_details: FileText,
   get_relations: Network,
   get_geolocations: MapPin,
+  count_entities_by_type: BarChart3,
+  report_ioc: Send,
 }
 
 function reputationVariant(reputation: number | null) {
@@ -248,6 +252,28 @@ function PayloadView({
               </span>
             </div>
           ))}
+        </div>
+      )
+    }
+    case 'report': {
+      return (
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 font-mono text-xs text-foreground/90">
+            <Badge className={payload.reputation != null && payload.reputation < 0 ? 'border-destructive/40 bg-destructive/10 text-destructive' : undefined}>
+              {payload.type}
+            </Badge>
+            <span className="min-w-0 flex-1 truncate">{payload.value}</span>
+            {payload.reputation != null && (
+              <span className="shrink-0 font-mono text-[10px] text-muted-foreground">rep {payload.reputation}</span>
+            )}
+          </div>
+          {payload.skippedAssociations.length > 0 && (
+            <div className="flex items-start gap-2 font-mono text-[10px] text-destructive">
+              <AlertTriangle className="mt-0.5 h-3 w-3 shrink-0" />
+              <span>{t('tiAnalyst.tool.skippedAssociations', { values: payload.skippedAssociations.join(', ') })}</span>
+            </div>
+          )}
+          <div className="font-mono text-[10px] text-muted-foreground">{t('tiAnalyst.tool.reported')}</div>
         </div>
       )
     }
