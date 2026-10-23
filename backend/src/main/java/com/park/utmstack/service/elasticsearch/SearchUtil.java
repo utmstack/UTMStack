@@ -38,6 +38,22 @@ public class SearchUtil {
     public static Query toQuery(List<FilterType> filters) {
         final String ctx = CLASSNAME + ".toQuery";
         try {
+            // Upfront validation so a structurally invalid filter (e.g. an
+            // IS_ONE_OF whose value is not a list) fails fast with a 400
+            // ApiException instead of a 500 after the query was half-built
+            // (#2968). FilterType.validate() uses Spring Assert, which throws
+            // IllegalArgumentException — convert it here to the 400 type.
+            // The per-operator build* methods re-validate unchanged.
+            if (!CollectionUtils.isEmpty(filters)) {
+                for (FilterType filter : filters) {
+                    try {
+                        filter.validate();
+                    } catch (IllegalArgumentException e) {
+                        throw new ApiException("Invalid filter on field '" + filter.getField()
+                            + "': " + e.getMessage(), HttpStatus.BAD_REQUEST);
+                    }
+                }
+            }
             boolean hasShouldClauses = false;
             BoolQuery.Builder bool = new BoolQuery.Builder();
             /*bool.filter(Query.of(q -> q.matchAll(MatchAllQuery.of(m -> m))));*/
