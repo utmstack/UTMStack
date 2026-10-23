@@ -11,6 +11,7 @@ import (
 	compliance_domain "github.com/utmstack/utmstack/backend/modules/compliance/domain"
 	dashboards_domain "github.com/utmstack/utmstack/backend/modules/dashboards/domain"
 	datasources_domain "github.com/utmstack/utmstack/backend/modules/datasources/domain"
+	edr_domain "github.com/utmstack/utmstack/backend/modules/edr/domain"
 	iam_domain "github.com/utmstack/utmstack/backend/modules/iam/domain"
 	incidents_domain "github.com/utmstack/utmstack/backend/modules/incidents/domain"
 	integrations_domain "github.com/utmstack/utmstack/backend/modules/integrations/domain"
@@ -61,6 +62,7 @@ func Models() []any {
 		incidents_domain.IncidentAlert{},
 		incidents_domain.IncidentNote{},
 		incidents_domain.IncidentHistory{},
+		edr_domain.Policy{},
 		notifications_domain.UtmNotification{},
 		datasources_domain.Datasource{},
 		dashboards_domain.Dashboard{},

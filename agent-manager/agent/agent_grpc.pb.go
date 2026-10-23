@@ -19,13 +19,16 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AgentService_RegisterAgent_FullMethodName     = "/agent.AgentService/RegisterAgent"
-	AgentService_UpdateAgent_FullMethodName       = "/agent.AgentService/UpdateAgent"
-	AgentService_DeleteAgent_FullMethodName       = "/agent.AgentService/DeleteAgent"
-	AgentService_ListAgents_FullMethodName        = "/agent.AgentService/ListAgents"
-	AgentService_GetAgentAuth_FullMethodName      = "/agent.AgentService/GetAgentAuth"
-	AgentService_AgentStream_FullMethodName       = "/agent.AgentService/AgentStream"
-	AgentService_ListAgentCommands_FullMethodName = "/agent.AgentService/ListAgentCommands"
+	AgentService_RegisterAgent_FullMethodName       = "/agent.AgentService/RegisterAgent"
+	AgentService_UpdateAgent_FullMethodName         = "/agent.AgentService/UpdateAgent"
+	AgentService_DeleteAgent_FullMethodName         = "/agent.AgentService/DeleteAgent"
+	AgentService_ListAgents_FullMethodName          = "/agent.AgentService/ListAgents"
+	AgentService_GetAgentAuth_FullMethodName        = "/agent.AgentService/GetAgentAuth"
+	AgentService_AgentStream_FullMethodName         = "/agent.AgentService/AgentStream"
+	AgentService_ListAgentCommands_FullMethodName   = "/agent.AgentService/ListAgentCommands"
+	AgentService_GetEdrStatus_FullMethodName        = "/agent.AgentService/GetEdrStatus"
+	AgentService_DispatchEdrCommand_FullMethodName  = "/agent.AgentService/DispatchEdrCommand"
+	AgentService_DispatchEdrCommands_FullMethodName = "/agent.AgentService/DispatchEdrCommands"
 )
 
 // AgentServiceClient is the client API for AgentService service.
@@ -39,6 +42,9 @@ type AgentServiceClient interface {
 	GetAgentAuth(ctx context.Context, in *ConnectorAuthRequest, opts ...grpc.CallOption) (*ConnectorAuthResponse, error)
 	AgentStream(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[BidirectionalStream, BidirectionalStream], error)
 	ListAgentCommands(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*ListAgentsCommandsResponse, error)
+	GetEdrStatus(ctx context.Context, in *EdrStatusListRequest, opts ...grpc.CallOption) (*EdrStatusListResponse, error)
+	DispatchEdrCommand(ctx context.Context, in *DispatchEdrCommandRequest, opts ...grpc.CallOption) (*DispatchEdrCommandResponse, error)
+	DispatchEdrCommands(ctx context.Context, in *DispatchEdrCommandsRequest, opts ...grpc.CallOption) (*DispatchEdrCommandsResponse, error)
 }
 
 type agentServiceClient struct {
@@ -122,6 +128,36 @@ func (c *agentServiceClient) ListAgentCommands(ctx context.Context, in *ListRequ
 	return out, nil
 }
 
+func (c *agentServiceClient) GetEdrStatus(ctx context.Context, in *EdrStatusListRequest, opts ...grpc.CallOption) (*EdrStatusListResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(EdrStatusListResponse)
+	err := c.cc.Invoke(ctx, AgentService_GetEdrStatus_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *agentServiceClient) DispatchEdrCommand(ctx context.Context, in *DispatchEdrCommandRequest, opts ...grpc.CallOption) (*DispatchEdrCommandResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DispatchEdrCommandResponse)
+	err := c.cc.Invoke(ctx, AgentService_DispatchEdrCommand_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *agentServiceClient) DispatchEdrCommands(ctx context.Context, in *DispatchEdrCommandsRequest, opts ...grpc.CallOption) (*DispatchEdrCommandsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DispatchEdrCommandsResponse)
+	err := c.cc.Invoke(ctx, AgentService_DispatchEdrCommands_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AgentServiceServer is the server API for AgentService service.
 // All implementations must embed UnimplementedAgentServiceServer
 // for forward compatibility.
@@ -133,6 +169,9 @@ type AgentServiceServer interface {
 	GetAgentAuth(context.Context, *ConnectorAuthRequest) (*ConnectorAuthResponse, error)
 	AgentStream(grpc.BidiStreamingServer[BidirectionalStream, BidirectionalStream]) error
 	ListAgentCommands(context.Context, *ListRequest) (*ListAgentsCommandsResponse, error)
+	GetEdrStatus(context.Context, *EdrStatusListRequest) (*EdrStatusListResponse, error)
+	DispatchEdrCommand(context.Context, *DispatchEdrCommandRequest) (*DispatchEdrCommandResponse, error)
+	DispatchEdrCommands(context.Context, *DispatchEdrCommandsRequest) (*DispatchEdrCommandsResponse, error)
 	mustEmbedUnimplementedAgentServiceServer()
 }
 
@@ -163,6 +202,15 @@ func (UnimplementedAgentServiceServer) AgentStream(grpc.BidiStreamingServer[Bidi
 }
 func (UnimplementedAgentServiceServer) ListAgentCommands(context.Context, *ListRequest) (*ListAgentsCommandsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListAgentCommands not implemented")
+}
+func (UnimplementedAgentServiceServer) GetEdrStatus(context.Context, *EdrStatusListRequest) (*EdrStatusListResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetEdrStatus not implemented")
+}
+func (UnimplementedAgentServiceServer) DispatchEdrCommand(context.Context, *DispatchEdrCommandRequest) (*DispatchEdrCommandResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DispatchEdrCommand not implemented")
+}
+func (UnimplementedAgentServiceServer) DispatchEdrCommands(context.Context, *DispatchEdrCommandsRequest) (*DispatchEdrCommandsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DispatchEdrCommands not implemented")
 }
 func (UnimplementedAgentServiceServer) mustEmbedUnimplementedAgentServiceServer() {}
 func (UnimplementedAgentServiceServer) testEmbeddedByValue()                      {}
@@ -300,6 +348,60 @@ func _AgentService_ListAgentCommands_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AgentService_GetEdrStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EdrStatusListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServiceServer).GetEdrStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AgentService_GetEdrStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServiceServer).GetEdrStatus(ctx, req.(*EdrStatusListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AgentService_DispatchEdrCommand_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DispatchEdrCommandRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServiceServer).DispatchEdrCommand(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AgentService_DispatchEdrCommand_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServiceServer).DispatchEdrCommand(ctx, req.(*DispatchEdrCommandRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AgentService_DispatchEdrCommands_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DispatchEdrCommandsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServiceServer).DispatchEdrCommands(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AgentService_DispatchEdrCommands_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServiceServer).DispatchEdrCommands(ctx, req.(*DispatchEdrCommandsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AgentService_ServiceDesc is the grpc.ServiceDesc for AgentService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -330,6 +432,18 @@ var AgentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListAgentCommands",
 			Handler:    _AgentService_ListAgentCommands_Handler,
+		},
+		{
+			MethodName: "GetEdrStatus",
+			Handler:    _AgentService_GetEdrStatus_Handler,
+		},
+		{
+			MethodName: "DispatchEdrCommand",
+			Handler:    _AgentService_DispatchEdrCommand_Handler,
+		},
+		{
+			MethodName: "DispatchEdrCommands",
+			Handler:    _AgentService_DispatchEdrCommands_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
@@ -439,7 +553,7 @@ func (UnimplementedPanelServiceServer) RotateConnectionKey(context.Context, *Con
 	return nil, status.Error(codes.Unimplemented, "method RotateConnectionKey not implemented")
 }
 func (UnimplementedPanelServiceServer) SetAgentConfig(context.Context, *SetAgentConfigRequest) (*SetAgentConfigResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetAgentConfig not implemented")
+	return nil, status.Error(codes.Unimplemented, "method SetAgentConfig not implemented")
 }
 func (UnimplementedPanelServiceServer) mustEmbedUnimplementedPanelServiceServer() {}
 func (UnimplementedPanelServiceServer) testEmbeddedByValue()                      {}

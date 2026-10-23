@@ -11,6 +11,7 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/compliance"
 	"github.com/utmstack/utmstack/backend/modules/dashboards"
 	"github.com/utmstack/utmstack/backend/modules/datasources"
+	"github.com/utmstack/utmstack/backend/modules/edr"
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing"
 	"github.com/utmstack/utmstack/backend/modules/iam"
 	"github.com/utmstack/utmstack/backend/modules/incidents"
@@ -45,6 +46,7 @@ type Deps struct {
 	Billing         *billing.Module
 	AppConfig       *appconfig.Module
 	Tenant          *tenant.Module
+	EDR             *edr.Module
 
 	// ServerName / ServerVersion populate the MCP Implementation block sent
 	// during the initialize handshake; clients display these in their UI.

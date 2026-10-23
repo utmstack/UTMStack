@@ -69,6 +69,24 @@ const IMPORTANT_FIELDS = [
 ]
 const MAX_AUTO_COLUMNS = 10
 
+const DEMO_EDR_ROWS: LogDocument[] = [
+  {
+    '@timestamp': '2026-09-22T10:30:00Z',
+    dataType: 'EDR_FILE_DETECTION',
+    dataSource: 'EDR demo endpoint',
+    severity: 'high',
+    action: 'quarantine',
+    'origin.ip': '10.24.8.15',
+    'origin.host': 'WKS-042',
+    'file.path': 'C:\\Users\\analyst\\AppData\\Local\\Temp\\invoice.js',
+    'detection.name': 'Suspicious JavaScript downloader',
+    verdict: 'blocked',
+    'file.hash.sha256': '7f4e2d8b9a11c6d4e58a0f2c9b7d3a6e4f1c8b2d9e5a7c3f6b0d2e8a4c1f9b6d',
+    'process.name': 'wscript.exe',
+    'process.parent.name': 'outlook.exe',
+  },
+]
+
 /** Router state passed by an alert's "view all related logs" action. */
 interface RelatedLogsSeed {
   ids: string[]
@@ -123,6 +141,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
   const [total, setTotal] = useState(0)
 
   const [rows, setRows] = useState<LogDocument[]>([])
+  const [showDemo, setShowDemo] = useState(false)
   const [loading, setLoading] = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -329,9 +348,10 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
 
   // Auto-detected default columns: the important fields present in the current
   // results. Only used when the analyst hasn't picked their own columns.
+  const visibleRows = showDemo ? DEMO_EDR_ROWS : rows
   const autoColumns = useMemo(() => {
-    if (columns.length > 0 || rows.length === 0) return []
-    const sample = rows.slice(0, 50).map((d) => flattenDoc(d))
+    if (columns.length > 0 || visibleRows.length === 0) return []
+    const sample = visibleRows.slice(0, 50).map((d) => flattenDoc(d))
     const present = IMPORTANT_FIELDS.filter((f) =>
       sample.some((flat) => {
         const v = flat[f]
@@ -339,7 +359,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
       })
     )
     return present.slice(0, MAX_AUTO_COLUMNS)
-  }, [columns.length, rows])
+  }, [columns.length, visibleRows])
 
   // The CSV is the table: the analyst's own columns when they picked any, the
   // default source/important layout when they didn't. Exporting a fixed
@@ -649,12 +669,22 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
               t('logExplorer.searching')
             ) : (
               <>
-                <span className="font-medium text-foreground">{total.toLocaleString()}</span> {t('logExplorer.eventsIn')}{' '}
+                <span className="font-medium text-foreground">{(showDemo ? visibleRows.length : total).toLocaleString()}</span> {t('logExplorer.eventsIn')}{' '}
                 <span className="font-mono">{pattern ?? '—'}</span>
               </>
             )}
           </span>
           {!sqlMode && <ViewToggle mode={viewMode} onChange={setViewMode} />}
+          <Button
+            size="sm"
+            variant={showDemo ? 'default' : 'outline'}
+            onClick={() => {
+              setShowDemo((current) => !current)
+              setExpanded(null)
+            }}
+          >
+            {showDemo ? t('logExplorer.demo.hide') : t('logExplorer.demo.show')}
+          </Button>
         </div>
       </div>
 
@@ -678,7 +708,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
             <div className="flex min-w-0 flex-1 flex-col border-l border-border">
               <div ref={scrollRef} onScroll={onScroll} className="min-h-0 flex-1 overflow-auto">
                 <ResultsHeader columns={columns} autoColumns={autoColumns} tableCols={tableCols} startDrag={startDrag} onRemoveColumn={toggleColumn} />
-                {loading && rows.length === 0 ? (
+                {!showDemo && loading && rows.length === 0 ? (
                   <RowMessage>
                     <Loader2 className="h-4 w-4 animate-spin" /> {t('logExplorer.results.searching')}
                   </RowMessage>
@@ -694,7 +724,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
                       {t('logExplorer.results.retry')}
                     </Button>
                   </RowMessage>
-                ) : rows.length === 0 ? (
+                ) : visibleRows.length === 0 ? (
                   <div className="px-6 py-16 text-center text-sm text-muted-foreground">
                     <div>{t('logExplorer.results.none')}</div>
                     {/* A data type still narrows the search even when the filter
@@ -715,7 +745,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
                   </div>
                 ) : (
                   <>
-                    {rows.map((doc, i) => (
+                    {visibleRows.map((doc, i) => (
                       <ResultRow
                         key={i}
                         index={i}
@@ -734,7 +764,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
                         <Loader2 className="h-3.5 w-3.5 animate-spin" /> {t('logExplorer.results.loadingMore')}
                       </div>
                     )}
-                    {!loadingMore && rows.length >= total && (
+                    {!showDemo && !loadingMore && rows.length >= total && (
                       <div className="py-4 text-center text-[11px] text-muted-foreground/70">
                         {t('logExplorer.results.endOfResults', { count: total.toLocaleString() })}
                       </div>

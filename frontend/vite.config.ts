@@ -27,9 +27,9 @@ type ConfigureProxy = NonNullable<import('vite').ProxyOptions['configure']>
 
 const spoofOriginHeaders: ConfigureProxy = (proxy) => {
   proxy.on('proxyReq', (proxyReq, req) => {
-    proxyReq.setHeader('Referer', API_TARGET + '/')
-    if (!req.headers.origin || req.headers.origin?.startsWith('http://localhost')) return
-    proxyReq.setHeader('Origin', API_TARGET)
+    proxyReq.setHeader('Host', '10.11.11.19')
+    proxyReq.setHeader('Origin', 'https://10.11.11.19')
+    proxyReq.setHeader('Referer', 'https://10.11.11.19' + '/')
   })
 }
 

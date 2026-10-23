@@ -16,6 +16,7 @@ import (
 type AgentEdrStatus struct {
 	gorm.Model
 	AgentID       uint   `gorm:"uniqueIndex;not null"`
+	TenantID      string `gorm:"not null;default:'';index"`
 	StatusJSON    string `gorm:"type:text"`
 	PolicyVersion string
 	ReportedAt    time.Time
