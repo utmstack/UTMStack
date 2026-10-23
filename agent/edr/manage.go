@@ -646,7 +646,7 @@ func setSensorAndReport(dst **bool, val, sensor string) error {
 	if err != nil {
 		return err
 	}
-	prev := dst != nil && *dst != nil && **dst
+	prev := *dst == nil || **dst
 	*dst = &b
 	if b != prev {
 		state := "off"
