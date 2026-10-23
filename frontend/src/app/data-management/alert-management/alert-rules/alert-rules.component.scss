@@ -1,0 +1,18 @@
+.table-container {
+  max-height: 67dvh;
+  overflow-y: auto;
+}
+
+table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+th,
+.table-container th[appColumnSortable] {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #fff;
+}
