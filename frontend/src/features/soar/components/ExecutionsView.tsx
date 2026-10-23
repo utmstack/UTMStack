@@ -341,7 +341,7 @@ function nodeLabelOf(e: Execution, flow: Flow | undefined, t: TFunction) {
   if (e.origin === "FLOW" && e.nodeId)
     return [ancestorPath(e.nodeId, flow?.nodes ?? {}), e.nodeId]
       .filter(Boolean)
-      .join(" ← ");
+      .join(" -> ");
   return e.origin === "MANUAL" ? t("soar.executions.manual") : "—";
 }
 
@@ -514,7 +514,7 @@ function ancestorPath(
     chain.unshift(next);
     cur = next;
   }
-  return chain.join(" ← ");
+  return chain.join(" -> ");
 }
 
 function parentIds(id: string, nodes: Record<string, FlowNode>): string[] {
