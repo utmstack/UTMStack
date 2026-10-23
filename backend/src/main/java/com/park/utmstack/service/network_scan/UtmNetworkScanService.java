@@ -130,6 +130,35 @@ public class UtmNetworkScanService {
     }
 
     /**
+     * Update ONLY the notes of the given assets. Unlike the whole-entity
+     * save() used by PUT /utm-network-scans, this cannot clobber other
+     * columns (group_id, asset_type_id, ...) when the caller sends a list
+     * row that lacks them (#2967).
+     */
+    public void updateNotes(List<Long> assetIds, String assetNotes) throws Exception {
+        final String ctx = CLASSNAME + ".updateNotes";
+        Assert.notEmpty(assetIds, ctx + ": Missing parameter [assetIds]");
+        try {
+            networkScanRepository.updateNotes(assetIds, assetNotes);
+        } catch (Exception e) {
+            throw new Exception(ctx + ": " + e.getMessage());
+        }
+    }
+
+    /**
+     * Update ONLY the alias of the given assets (same rationale as updateNotes).
+     */
+    public void updateAlias(List<Long> assetIds, String assetAlias) throws Exception {
+        final String ctx = CLASSNAME + ".updateAlias";
+        Assert.notEmpty(assetIds, ctx + ": Missing parameter [assetIds]");
+        try {
+            networkScanRepository.updateAlias(assetIds, assetAlias);
+        } catch (Exception e) {
+            throw new Exception(ctx + ": " + e.getMessage());
+        }
+    }
+
+    /**
      * Find all network scan results without paginating them
      *
      * @return List of {@link UtmNetworkScan}

@@ -24,11 +24,10 @@ export class AssetsApplyNoteComponent implements OnInit {
 
   addNote() {
     this.creating = true;
-    const asset = {
-      ...this.asset,
-      metrics: []
-    };
-    this.utmNetScanService.update(asset).subscribe(response => {
+    // Dedicated note endpoint: the whole-entity update() below would persist
+    // the list row as the entity and NULL out group_id/asset_type_id, which
+    // the row (NetworkScanDTO) does not carry (#2967).
+    this.utmNetScanService.updateNotes({value: this.asset.assetNotes, assetsIds: [this.asset.id]}).subscribe(response => {
       this.utmToastService.showSuccessBottom('Comment added successfully');
       this.applyNote.emit('success');
       this.focus.emit(false);

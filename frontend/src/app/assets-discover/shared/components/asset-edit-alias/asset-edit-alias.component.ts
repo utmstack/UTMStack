@@ -24,7 +24,9 @@ export class AssetEditAliasComponent implements OnInit {
 
   editAlias() {
     this.creating = true;
-    this.utmNetScanService.update(this.asset)
+    // Dedicated alias endpoint: the whole-entity update() would NULL out
+    // group_id/asset_type_id because the list row does not carry them (#2967).
+    this.utmNetScanService.updateAlias({value: this.asset.assetAlias, assetsIds: [this.asset.id]})
       .subscribe(response => {
         this.utmToastService.showSuccessBottom('Asset alias created successfully');
         this.assetReloadFilterBehavior.$assetReloadFilter.next(AssetFieldFilterEnum.ALIAS);

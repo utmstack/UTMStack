@@ -129,6 +129,44 @@ public class UtmNetworkScanResource {
     }
 
     /**
+     * PUT  /utm-network-scans/updateNotes : updates ONLY the note text of the
+     * given assets. The note/alias row actions used to send the whole list row
+     * (a NetworkScanDTO) to the entity PUT, which nulls group_id/asset_type_id
+     * because the DTO carries those only as read-only relations (#2967). This
+     * field-scoped endpoint avoids that. Mirrors updateGroup/updateType (no
+     * existence guard: a missing id is a no-op, as there).
+     */
+    @PutMapping("/utm-network-scans/updateNotes")
+    public ResponseEntity<Void> updateNotes(@Valid @RequestBody UpdateFieldRequestBody body) {
+        final String ctx = CLASSNAME + ".updateNotes";
+        try {
+            networkScanService.updateNotes(body.getAssetsIds(), body.getValue());
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            String msg = ctx + ": " + e.getMessage();
+            log.error(msg);
+            eventService.createEvent(msg, ApplicationEventType.ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
+                HeaderUtil.createFailureAlert("", "", msg)).body(null);
+        }
+    }
+
+    @PutMapping("/utm-network-scans/updateAlias")
+    public ResponseEntity<Void> updateAlias(@Valid @RequestBody UpdateFieldRequestBody body) {
+        final String ctx = CLASSNAME + ".updateAlias";
+        try {
+            networkScanService.updateAlias(body.getAssetsIds(), body.getValue());
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            String msg = ctx + ": " + e.getMessage();
+            log.error(msg);
+            eventService.createEvent(msg, ApplicationEventType.ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(
+                HeaderUtil.createFailureAlert("", "", msg)).body(null);
+        }
+    }
+
+    /**
      * GET  /utm-network-scans : get all the utmNetworkScans.
      *
      * @param pageable the pagination information
@@ -331,6 +369,29 @@ public class UtmNetworkScanResource {
 
         public void setAssetGroupId(Long assetGroupId) {
             this.assetGroupId = assetGroupId;
+        }
+    }
+
+    public static class UpdateFieldRequestBody {
+        @NotEmpty
+        private List<Long> assetsIds;
+
+        private String value;
+
+        public List<Long> getAssetsIds() {
+            return assetsIds;
+        }
+
+        public void setAssetsIds(List<Long> assetsIds) {
+            this.assetsIds = assetsIds;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
         }
     }
 }
