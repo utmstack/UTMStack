@@ -66,9 +66,10 @@ func (u *alertUsecase) RelatedLogs(ctx context.Context, alertID string) (*dto.Re
 	}
 	for i := range echoes {
 		span(parseAlertTime(echoes[i].Timestamp))
-		for _, ev := range echoes[i].Events {
-			add(ev.ID)
-			span(parseAlertTime(ev.Timestamp))
+		for _, raw := range echoes[i].Events {
+			ev := gjson.ParseBytes(raw)
+			add(ev.Get("id").String())
+			span(eventTime(ev))
 		}
 		if len(echoes[i].LastEvent) > 0 {
 			le := gjson.ParseBytes(echoes[i].LastEvent)

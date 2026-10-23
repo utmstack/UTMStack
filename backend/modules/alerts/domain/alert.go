@@ -115,46 +115,41 @@ type Impact struct {
 	Availability    int `json:"availability,omitempty"`
 }
 
-type AlertEvent struct {
-	ID        string `json:"id,omitempty"`
-	Timestamp string `json:"timestamp,omitempty"`
-}
-
 type UtmAlert struct {
-	TenantID          string          `json:"tenantId,omitempty"`
-	TenantName        string          `json:"tenantName,omitempty"`
-	Timestamp         string          `json:"@timestamp,omitempty"`
-	LastUpdate        string          `json:"lastUpdate,omitempty"`
-	ID                string          `json:"id,omitempty"`
-	ParentID          string          `json:"parentId,omitempty"`
-	Name              string          `json:"name,omitempty"`
-	Category          string          `json:"category,omitempty"`
-	Technique         string          `json:"technique,omitempty"`
-	Description       string          `json:"description,omitempty"`
-	Solution          string          `json:"solution,omitempty"`
-	DataType          string          `json:"dataType,omitempty"`
-	DataSource        string          `json:"dataSource,omitempty"`
-	Severity          AlertSeverity   `json:"severity,omitempty"`
-	Status            AlertStatus     `json:"status,omitempty"`
-	StatusObservation string          `json:"statusObservation,omitempty"`
-	Impact            *Impact         `json:"impact,omitempty"`
-	ImpactScore       int             `json:"impactScore,omitempty"`
-	Echoes            int64           `json:"echoes,omitempty"`
-	Adversary         *Side           `json:"adversary,omitempty"`
-	Target            *Side           `json:"target,omitempty"`
-	LastEvent         json.RawMessage `json:"lastEvent,omitempty"`
-	Events            []AlertEvent    `json:"events,omitempty"`
-	References        []string        `json:"references,omitempty"`
-	DeduplicateBy     []string        `json:"deduplicateBy,omitempty"`
-	GroupBy           []string        `json:"groupBy,omitempty"`
-	Errors            []string        `json:"errors,omitempty"`
-	IsIncident        bool            `json:"isIncident,omitempty"`
-	IncidentDetail    *IncidentDetail `json:"incidentDetail,omitempty"`
-	Tags              []string        `json:"tags,omitempty"`
-	TagRulesApplied   []string        `json:"tagRulesApplied,omitempty"`
-	Notes             string          `json:"notes,omitempty"`
-	Assignee          string          `json:"assignee,omitempty"`
-	History           []AlertHistory  `json:"history,omitempty"`
+	TenantID          string            `json:"tenantId,omitempty"`
+	TenantName        string            `json:"tenantName,omitempty"`
+	Timestamp         string            `json:"@timestamp,omitempty"`
+	LastUpdate        string            `json:"lastUpdate,omitempty"`
+	ID                string            `json:"id,omitempty"`
+	ParentID          string            `json:"parentId,omitempty"`
+	Name              string            `json:"name,omitempty"`
+	Category          string            `json:"category,omitempty"`
+	Technique         string            `json:"technique,omitempty"`
+	Description       string            `json:"description,omitempty"`
+	Solution          string            `json:"solution,omitempty"`
+	DataType          string            `json:"dataType,omitempty"`
+	DataSource        string            `json:"dataSource,omitempty"`
+	Severity          AlertSeverity     `json:"severity,omitempty"`
+	Status            AlertStatus       `json:"status,omitempty"`
+	StatusObservation string            `json:"statusObservation,omitempty"`
+	Impact            *Impact           `json:"impact,omitempty"`
+	ImpactScore       int               `json:"impactScore,omitempty"`
+	Echoes            int64             `json:"echoes,omitempty"`
+	Adversary         *Side             `json:"adversary,omitempty"`
+	Target            *Side             `json:"target,omitempty"`
+	LastEvent         json.RawMessage   `json:"lastEvent,omitempty"`
+	Events            []json.RawMessage `json:"events,omitempty"`
+	References        []string          `json:"references,omitempty"`
+	DeduplicateBy     []string          `json:"deduplicateBy,omitempty"`
+	GroupBy           []string          `json:"groupBy,omitempty"`
+	Errors            []string          `json:"errors,omitempty"`
+	IsIncident        bool              `json:"isIncident,omitempty"`
+	IncidentDetail    *IncidentDetail   `json:"incidentDetail,omitempty"`
+	Tags              []string          `json:"tags,omitempty"`
+	TagRulesApplied   []string          `json:"tagRulesApplied,omitempty"`
+	Notes             string            `json:"notes,omitempty"`
+	Assignee          string            `json:"assignee,omitempty"`
+	History           []AlertHistory    `json:"history,omitempty"`
 }
 
 type AlertHistory struct {
