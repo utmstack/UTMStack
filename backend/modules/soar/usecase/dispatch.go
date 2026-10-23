@@ -382,7 +382,7 @@ func (d *Dispatcher) fireChildren(ctx context.Context, flow *domain.Flow, parent
 			_ = catcher.Error("soar dispatch: record edge failed", err, map[string]any{"parent": parent.ID, "child": id})
 			continue
 		}
-		d.transitionChild(ctx, node, child)
+		d.transitionChild(ctx, node, parent, child)
 	}
 }
 
@@ -418,10 +418,10 @@ func (d *Dispatcher) markDeadBranches(ctx context.Context, flow *domain.Flow, pa
 	}
 }
 
-func (d *Dispatcher) transitionChild(ctx context.Context, node domain.FlowNode, child *domain.SoarExecution) {
-	contribs := []ParentContribution{{Context: child.Context}}
-	if child.Kind == domain.NodeKindEnrichment && len(child.Output) > 0 {
-		contribs = append(contribs, ParentContribution{EnrichmentNodeID: child.NodeID, Output: child.Output})
+func (d *Dispatcher) transitionChild(ctx context.Context, node domain.FlowNode, parent domain.SoarExecution, child *domain.SoarExecution) {
+	contribs := []ParentContribution{{Context: parent.Context}}
+	if parent.Kind == domain.NodeKindEnrichment && len(parent.Output) > 0 {
+		contribs = append(contribs, ParentContribution{EnrichmentNodeID: parent.NodeID, Output: parent.Output})
 	}
 	bag := MergeContexts(contribs)
 

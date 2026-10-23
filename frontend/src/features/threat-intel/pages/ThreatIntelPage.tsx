@@ -107,10 +107,18 @@ export function ThreatIntelPage() {
     if (!observedFragment.ready) return
     const my = ++seqRef.current
     const mode = modeRef.current
-    const body = composeBody(filtersToRequest(filters), query, timeRange, observedFragment.fragment)
+    const filterRequest = filtersToRequest(filters)
+    const body = composeBody(filterRequest, query, timeRange, observedFragment.fragment)
     setLastBody(body)
+    // The generic corpus fallback is licensed only for the first, un-narrowed
+    // instance-IoC query. Any user-applied filter, text, lookup or time range
+    // that 404s means "no data for that query", not "serve the default".
+    const narrowed =
+      filterRequest.query !== undefined ||
+      query !== '*' ||
+      timeRange !== 'all'
     searchAdvancedMutation.mutate(
-      { body, limit: size, page: page + 1 },
+      { body, limit: size, page: page + 1, fallback: !narrowed },
       {
         onSuccess: (data) => {
           if (my !== seqRef.current) return
@@ -146,8 +154,9 @@ export function ThreatIntelPage() {
   const handleSearch = (q: string) => {
     modeRef.current = 'replace'
     setPage(0)
-    if (q === query) setBump((b) => b + 1)
-    else setQuery(q)
+    const next = q || '*'
+    if (next === query) setBump((b) => b + 1)
+    else setQuery(next)
   }
 
   const handlePageChange = (p: number) => {
