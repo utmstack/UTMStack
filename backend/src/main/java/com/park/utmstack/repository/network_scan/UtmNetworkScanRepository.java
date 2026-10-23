@@ -103,6 +103,16 @@ public interface UtmNetworkScanRepository extends JpaRepository<UtmNetworkScan, 
     void updateGroup(@Param("assetIds") List<Long> assetIds,
                      @Param("assetGroupId") Long assetGroupId);
 
+    @Modifying
+    @Query("UPDATE UtmNetworkScan s SET s.assetNotes = :assetNotes WHERE s.id IN :assetIds")
+    void updateNotes(@Param("assetIds") List<Long> assetIds,
+                     @Param("assetNotes") String assetNotes);
+
+    @Modifying
+    @Query("UPDATE UtmNetworkScan s SET s.assetAlias = :assetAlias WHERE s.id IN :assetIds")
+    void updateAlias(@Param("assetIds") List<Long> assetIds,
+                     @Param("assetAlias") String assetAlias);
+
     Optional<List<UtmNetworkScan>> findAllByAssetStatus(AssetStatus status);
 
     Optional<List<UtmNetworkScan>> findAllByServerNameAndRegisteredMode(String serverName, AssetRegisteredMode registeredMode);

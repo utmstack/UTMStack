@@ -59,6 +59,17 @@ export class UtmNetScanService extends RefreshDataService<boolean, HttpResponse<
     return this.http.put<any>(this.resourceUrl + '/updateGroup', asset, {observe: 'response'});
   }
 
+  // Dedicated single-field updates: they must not reuse the whole-entity
+  // update() above, which persists missing columns as NULL (e.g. group_id,
+  // asset_type_id) when fed a list row (#2967).
+  updateNotes(asset: { value: string, assetsIds: number[] }): Observable<HttpResponse<any>> {
+    return this.http.put<any>(this.resourceUrl + '/updateNotes', asset, {observe: 'response'});
+  }
+
+  updateAlias(asset: { value: string, assetsIds: number[] }): Observable<HttpResponse<any>> {
+    return this.http.put<any>(this.resourceUrl + '/updateAlias', asset, {observe: 'response'});
+  }
+
   deleteCustomAsset(id: number): Observable<HttpResponse<any>> {
     return this.http.delete<any>(this.resourceUrl + '/deleteCustomAsset/' + id, {observe: 'response'});
   }
