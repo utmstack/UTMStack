@@ -188,6 +188,10 @@ export class AlertViewComponent implements OnInit, OnDestroy {
          * Emit default array filter
          */
         this.alertFiltersBehavior.$filters.next(this.filters);
+        // Direct load of /data/alert/view without ?alertType must still run the
+        // initial search: without this the table stays on "Loading..." forever
+        // because nothing else calls getAlert on this path (#2954).
+        this.changeParamsByDataType(this.dataType).then(() => this.setDefaultParams());
       }
     });
     this.incomingAlert$ = this.openAlertsService.openAlerts$
