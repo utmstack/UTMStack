@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { builderToSpec, resultToRows, specIsComplete } from './spec'
+import { builderToSpec, resultToRows, specChartFor, specIsComplete } from './spec'
 import { makeInitialBuilder } from './builder-config'
 import type { BuilderState, QueryResult, VizSpec } from '@/features/dashboard/types'
 
@@ -34,6 +34,14 @@ describe('the question a widget asks', () => {
   it('asks a table for records, with the columns picked', () => {
     const spec = builderToSpec(builder({ chartType: 'table', columns: ['name', 'severity'] }))
     expect(spec).toMatchObject({ chart: 'table', columns: ['name', 'severity'] })
+  })
+
+  it('builds a table of top values when table breakdown is set to a field', () => {
+    const spec = builderToSpec(
+      builder({ chartType: 'table', breakdown: 'field', dimension: 'log.eventCode' })
+    )
+    expect(spec).toMatchObject({ chart: 'category', dimension: 'log.eventCode' })
+    expect(specChartFor('table', 'field')).toBe('category')
   })
 
   it('translates the filter vocabulary into the store operators', () => {

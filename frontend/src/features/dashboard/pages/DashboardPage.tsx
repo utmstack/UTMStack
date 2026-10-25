@@ -56,6 +56,7 @@ export function DashboardPage() {
   const { t } = useTranslation();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [integrationDashboardName, setIntegrationDashboardName] = useState<string | null>(null);
   const [time, setTime] = useState<TimeRange>(() => presetRange("24h"));
   const [refreshMs, setRefreshMs] = useState<number | null>(null);
   const [formOpen, setFormOpen] = useState<null | {
@@ -102,10 +103,17 @@ export function DashboardPage() {
     const state = location.state as {
       selectDashboardId?: string;
       resumeEditing?: boolean;
+      integrationDashboardName?: string;
     } | null;
+    if (state?.integrationDashboardName) {
+      setIntegrationDashboardName(state.integrationDashboardName);
+      setSearch(state.integrationDashboardName);
+    }
     if (state?.selectDashboardId != null) {
       setSelectedId(state.selectDashboardId);
       pendingEditRef.current = state.resumeEditing !== false;
+    }
+    if (state?.selectDashboardId != null || state?.integrationDashboardName) {
       navigate(location.pathname, { replace: true, state: null });
     }
     // Only react to navigation-state changes, not every render.
@@ -332,6 +340,19 @@ export function DashboardPage() {
     pendingEditRef.current = !!options?.edit;
     setSelectedId(id);
   };
+
+  useEffect(() => {
+    if (!integrationDashboardName || dashboards.list.isLoading) return;
+    const target = dashboardItems.find(
+      (dashboard) =>
+        normalizeDashboardName(dashboard.name) === normalizeDashboardName(integrationDashboardName),
+    );
+    if (!target) return;
+    setIntegrationDashboardName(null);
+    openFromTable(target.id);
+    // The name is a one-shot navigation request, not a dashboard list filter.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dashboardItems, dashboards.list.isLoading, integrationDashboardName]);
 
   const handleSaveFilters = async (next: DashboardFilterChip[]) => {
     const target = selectedDashboard.data;
@@ -614,4 +635,8 @@ function chipsToFilters(
     }
   }
   return out;
+}
+
+function normalizeDashboardName(name: string): string {
+  return name.toLowerCase().replace(/[^a-z0-9]/g, "");
 }

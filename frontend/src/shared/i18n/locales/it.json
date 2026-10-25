@@ -475,6 +475,7 @@
       },
       "breakdown": {
         "title": "Suddividi per",
+        "topValuesTable": "Tabella dei valori principali",
         "time": "Nel tempo",
         "field": "Valori più frequenti",
         "interval": "Dimensione dell'intervallo",
@@ -491,6 +492,7 @@
     },
     "widget": {
       "renderError": "Impossibile renderizzare questo widget.",
+      "count": "Conteggio",
       "loading": "Caricamento dei dati…",
       "queryError": "Impossibile caricare i dati del widget.",
       "noData": "Nessun dato per l'intervallo di tempo selezionato.",
@@ -1677,7 +1679,8 @@
       "exists": "esiste",
       "between": "tra",
       "search": "cerca",
-      "isOneOf": "è uno di"
+      "isOneOf": "è uno di",
+      "isNotOneOf": "non è nessuno di"
     },
     "filters": {
       "label": "Filtri",
@@ -1818,6 +1821,7 @@
     },
     "drawer": {
       "manage": "Gestisci",
+      "openDashboard": "Apri dashboard",
       "viewEvents": "Visualizza eventi",
       "documentation": "Documentazione",
       "getInstallCmd": "Ottieni comando di installazione",
