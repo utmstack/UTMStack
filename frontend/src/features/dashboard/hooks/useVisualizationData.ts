@@ -76,8 +76,12 @@ export function useVisualizationData(
       : [...VISUALIZATION_DATA_QUERY_KEYS.all, 'noop'],
     queryFn: async () => {
       if (!spec) return { rows: [], total: 0 }
-      const result = await service.run(spec)
-      const rows = resultToRows(result, spec)
+      const querySpec =
+        spec.chart === 'table' && spec.columns?.length && !spec.columns.includes('id')
+          ? { ...spec, columns: [...spec.columns, 'id'] }
+          : spec
+      const result = await service.run(querySpec)
+      const rows = resultToRows(result, querySpec)
       return { rows, total: result.total ?? rows.length }
     },
     enabled: visualization != null && spec != null,

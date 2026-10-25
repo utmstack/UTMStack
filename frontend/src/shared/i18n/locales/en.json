@@ -476,6 +476,7 @@
       },
       "breakdown": {
         "title": "Break down by",
+        "topValuesTable": "Top values table",
         "time": "Over time",
         "field": "Top values",
         "interval": "Bucket size",
@@ -492,6 +493,7 @@
     },
     "widget": {
       "renderError": "Could not render this widget.",
+      "count": "Count",
       "loading": "Loading data…",
       "queryError": "Could not load widget data.",
       "noData": "No data for the selected time range.",
@@ -1829,7 +1831,19 @@
       "exists": "exists",
       "between": "between",
       "search": "search",
-      "isOneOf": "is one of"
+      "isOneOf": "is one of",
+      "isNotOneOf": "is not one of",
+      "doesNotContain": "does not contain",
+      "startsWith": "starts with",
+      "doesNotStartWith": "does not start with",
+      "endsWith": "ends with",
+      "doesNotEndWith": "does not end with",
+      "doesNotExist": "does not exist",
+      "notBetween": "not between",
+      "greaterThan": "is greater than",
+      "greaterThanOrEquals": "is greater than or equal to",
+      "lessThan": "is less than",
+      "lessThanOrEquals": "is less than or equal to"
     },
     "filters": {
       "label": "Filters",
@@ -1971,6 +1985,7 @@
     },
     "drawer": {
       "manage": "Manage",
+      "openDashboard": "Open dashboard",
       "viewEvents": "View events",
       "documentation": "Documentation",
       "getInstallCmd": "Get install command",

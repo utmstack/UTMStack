@@ -475,6 +475,7 @@
       },
       "breakdown": {
         "title": "Aufschlüsseln nach",
+        "topValuesTable": "Tabelle der häufigsten Werte",
         "time": "Im Zeitverlauf",
         "field": "Häufigste Werte",
         "interval": "Intervallgröße",
@@ -491,6 +492,7 @@
     },
     "widget": {
       "renderError": "Dieses Widget konnte nicht gerendert werden.",
+      "count": "Anzahl",
       "loading": "Daten werden geladen…",
       "queryError": "Widget-Daten konnten nicht geladen werden.",
       "noData": "Keine Daten für den ausgewählten Zeitraum.",
@@ -1677,7 +1679,8 @@
       "exists": "existiert",
       "between": "zwischen",
       "search": "sucht",
-      "isOneOf": "ist eines von"
+      "isOneOf": "ist eines von",
+      "isNotOneOf": "ist keines von"
     },
     "filters": {
       "label": "Filter",
@@ -1818,6 +1821,7 @@
     },
     "drawer": {
       "manage": "Verwalten",
+      "openDashboard": "Dashboard öffnen",
       "viewEvents": "Ereignisse anzeigen",
       "documentation": "Dokumentation",
       "getInstallCmd": "Installationsbefehl abrufen",

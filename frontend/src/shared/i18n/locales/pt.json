@@ -475,6 +475,7 @@
       },
       "breakdown": {
         "title": "Detalhar por",
+        "topValuesTable": "Tabela de valores principais",
         "time": "Ao longo do tempo",
         "field": "Valores mais frequentes",
         "interval": "Tamanho do intervalo",
@@ -491,6 +492,7 @@
     },
     "widget": {
       "renderError": "Não foi possível renderizar este widget.",
+      "count": "Contagem",
       "loading": "Carregando dados…",
       "queryError": "Não foi possível carregar os dados do widget.",
       "noData": "Sem dados para o intervalo de tempo selecionado.",
@@ -1677,7 +1679,8 @@
       "exists": "existe",
       "between": "entre",
       "search": "busca",
-      "isOneOf": "é um de"
+      "isOneOf": "é um de",
+      "isNotOneOf": "não é nenhum de"
     },
     "filters": {
       "label": "Filtros",
@@ -1818,6 +1821,7 @@
     },
     "drawer": {
       "manage": "Gerenciar",
+      "openDashboard": "Abrir painel",
       "viewEvents": "Ver eventos",
       "documentation": "Documentação",
       "getInstallCmd": "Obter comando de instalação",

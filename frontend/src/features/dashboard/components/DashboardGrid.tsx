@@ -90,7 +90,14 @@ export function DashboardGrid({
                   onRemove={viz ? () => onRemoveItem?.(viz.id) : undefined}
                 >
                   {viz ? (
-                    <WidgetRenderer visualization={viz} time={time} filters={filters} refreshMs={refreshMs} />
+                    <WidgetRenderer
+                      visualization={viz}
+                      time={time}
+                      filters={filters}
+                      refreshMs={refreshMs}
+                      interactive={!editing}
+                      title={title}
+                    />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
                       {t('dashboards.grid.missingVisualization')}

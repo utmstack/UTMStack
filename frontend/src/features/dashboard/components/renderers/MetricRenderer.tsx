@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import type { Row } from '@/features/dashboard/types'
 
-export function MetricRenderer({ rows }: { rows: Row[] }) {
+export function MetricRenderer({ rows, onClick }: { rows: Row[]; onClick?: () => void }) {
   const { t } = useTranslation()
   if (rows.length === 0) {
     return (
@@ -25,7 +25,19 @@ export function MetricRenderer({ rows }: { rows: Row[] }) {
   }
 
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center gap-1 px-3 text-center">
+    <div
+      className={`flex h-full w-full flex-col items-center justify-center gap-1 px-3 text-center ${onClick ? 'cursor-pointer' : ''}`}
+      onClick={onClick}
+      onKeyDown={
+        onClick
+          ? (event) => {
+              if (event.key === 'Enter' || event.key === ' ') onClick()
+            }
+          : undefined
+      }
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+    >
       <span className="text-4xl font-semibold tabular-nums">{formatValue(value)}</span>
     </div>
   )

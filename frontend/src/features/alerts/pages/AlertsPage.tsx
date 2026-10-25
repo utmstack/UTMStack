@@ -51,11 +51,32 @@ import type { AlertTag } from '../types/alert.types'
 function readSeed(location: ReturnType<typeof useLocation>): {
   filters: CustomFilter[]
   range: TimeRange
+  queryFilters?: FilterType[]
 } | null {
   const state = location.state as {
+    dashboardSearch?: { filters: FilterType[]; range: TimeRange }
     socaiFilters?: (FilterType & { label?: string })[]
     socaiTime?: string
   } | null
+  if (state?.dashboardSearch) {
+    return {
+      filters: state.dashboardSearch.filters
+        .filter((filter) => filter.field !== TS)
+        .map((filter) => ({
+          field: filter.field,
+          label: filter.field,
+          operator:
+            filter.operator === 'IS_ONE_OF_TERMS'
+              ? 'IS'
+              : filter.operator === 'IS_NOT_ONE_OF_TERMS'
+                ? 'IS_NOT'
+                : filter.operator,
+          value: Array.isArray(filter.value) ? filter.value.join(', ') : String(filter.value ?? ''),
+        })),
+      range: state.dashboardSearch.range,
+      queryFilters: state.dashboardSearch.filters,
+    }
+  }
   if (!state?.socaiFilters?.length) return null
 
   // @timestamp filters drive the dedicated time picker, not the custom filter bar.
@@ -98,7 +119,16 @@ export function AlertsPage() {
   const [search, setSearch] = useState('')
   const [debounced, setDebounced] = useState('')
   const [tagFilter, setTagFilter] = useState<string[]>([])
-  const [customFilters, setCustomFilters] = useState<CustomFilter[]>(() => seeded?.filters ?? [])
+  const [dashboardSeedFilters, setDashboardSeedFilters] = useState<FilterType[] | null>(
+    () => seeded?.queryFilters ?? null,
+  )
+  const [customFilters, setCustomFiltersState] = useState<CustomFilter[]>(() => seeded?.filters ?? [])
+  const setCustomFilters = (
+    next: CustomFilter[] | ((previous: CustomFilter[]) => CustomFilter[]),
+  ) => {
+    setDashboardSeedFilters(null)
+    setCustomFiltersState(next)
+  }
 
   const [page, setPage] = useState(0)
   const [pageSize] = useState(50)
@@ -164,18 +194,26 @@ export function AlertsPage() {
   // Scope filters (time + search). `parentId IS ''` hides deduplicated
   // child "echoes" — they roll up under their parent (matches the legacy default).
   const scopeFilters = useMemo<FilterType[]>(() => {
-    const f: FilterType[] = [{ field: 'parentId', operator: 'IS', value: '' }]
+    const f: FilterType[] = dashboardSeedFilters
+      ? []
+      : [{ field: 'parentId', operator: 'IS', value: '' }]
     const abs = resolveRange(range)
     if (abs.from) f.push({ field: TS, operator: 'IS_BETWEEN', value: [abs.from, abs.to] })
-    if (debounced) f.push({ field: 'name', operator: 'CONTAIN', value: debounced })
+    if (dashboardSeedFilters) {
+      f.push(...dashboardSeedFilters)
+    } else if (debounced) {
+      f.push({ field: 'name', operator: 'CONTAIN', value: debounced })
+    }
     // Tag selector: match alerts carrying ANY of the chosen tags (OR semantics).
     if (tagFilter.length) f.push({ field: 'tags', operator: 'IS_ONE_OF', value: tagFilter })
-    for (const cf of customFilters) {
-      const needsValue = FILTER_OPS.find((o) => o.id === cf.operator)?.needsValue ?? true
-      f.push({ field: cf.field, operator: cf.operator, value: needsValue ? cf.value : undefined })
+    if (!dashboardSeedFilters) {
+      for (const cf of customFilters) {
+        const needsValue = FILTER_OPS.find((o) => o.id === cf.operator)?.needsValue ?? true
+        f.push({ field: cf.field, operator: cf.operator, value: needsValue ? cf.value : undefined })
+      }
     }
     return f
-  }, [range.from, range.to, debounced, tagFilter, customFilters])
+  }, [range.from, range.to, debounced, tagFilter, customFilters, dashboardSeedFilters])
 
   // List filters add the tab (status) + severity refinement.
   const listFilters = useMemo<FilterType[]>(() => {
