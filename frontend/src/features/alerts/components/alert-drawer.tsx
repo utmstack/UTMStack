@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo,useEffect, useState } from 'react'
 import { Flame, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
@@ -74,6 +74,11 @@ export function AlertDrawer({
   const smLabel = t(`alerts.severity.${sk}`)
   const stmLabel = t(`alerts.status.${statusKey(a)}`)
   const tags = a.tags ?? []
+
+
+  useEffect(()=>{
+    viewRelatedLogs(a)
+  },[])
 
   return (
     <div
