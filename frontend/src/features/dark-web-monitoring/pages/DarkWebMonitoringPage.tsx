@@ -6,6 +6,9 @@ import { toast } from 'sonner'
 import { Button } from '@/shared/components/ui/button'
 import { DEMO_RECORDS } from '../data/demo-records'
 import { DEMO_ORGANIZATION_BREACH_STATS } from '../data/demo-organization-stats'
+import { AdvancedExportOptionsDialog } from '../components/AdvancedExportOptionsDialog'
+import { CustomRangeExportDialog } from '../components/CustomRangeExportDialog'
+import type { ExportAction } from '../components/export-types'
 import type {
   BreachStatus,
   DarkWebRecord,
@@ -68,6 +71,27 @@ function downloadCsv(filename: string, rows: string[][]) {
   link.download = filename
   link.click()
   URL.revokeObjectURL(url)
+}
+
+function printPdf(title: string, rows: string[][]) {
+  const printWindow = window.open('', '_blank')
+  if (!printWindow) {
+    throw new Error('The report window was blocked by the browser.')
+  }
+  const escapeHtml = (value: string) =>
+    value.replace(/[&<>"']/g, (character) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;',
+    })[character] ?? character)
+  const header = rows[0] ?? []
+  const body = rows.slice(1)
+  printWindow.document.write(
+    `<!doctype html><html><head><title>${escapeHtml(title)}</title><style>body{font:12px Arial,sans-serif;margin:24px}h1{font-size:18px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #bbb;padding:6px;text-align:left;word-break:break-word}th{background:#eee}</style></head><body><h1>${escapeHtml(title)}</h1><table><thead><tr>${header.map((cell) => `<th>${escapeHtml(cell)}</th>`).join('')}</tr></thead><tbody>${body.map((row) => `<tr>${row.map((cell) => `<td>${escapeHtml(cell)}</td>`).join('')}</tr>`).join('')}</tbody></table><script>window.onload=()=>window.print()</script></body></html>`,
+  )
+  printWindow.document.close()
 }
 
 function formatDate(value: string) {
@@ -184,6 +208,8 @@ export function DarkWebMonitoringPage() {
   const loadMoreTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [allRecords, setAllRecords] = useState(DEMO_RECORDS)
   const [reportMenuOpen, setReportMenuOpen] = useState(false)
+  const [customRangeOpen, setCustomRangeOpen] = useState(false)
+  const [advancedExportOpen, setAdvancedExportOpen] = useState(false)
   const reportButtonRef = useRef<HTMLButtonElement>(null)
   const reportMenuRef = useRef<HTMLDivElement>(null)
   const [reportMenuPosition, setReportMenuPosition] = useState<{ left: number; top: number } | null>(null)
@@ -265,7 +291,7 @@ export function DarkWebMonitoringPage() {
   ))
   const exposedSurfaceCount = SURFACES.filter((key) => surfaceCounts[key] > 0).length
 
-  const exportRows = (items: DarkWebRecord[]) => [
+  const exportRows = (items: DarkWebRecord[], maskSensitive = !reveal) => [
     [
       t('darkWebMonitoring.table.status'),
       t('darkWebMonitoring.table.who'),
@@ -291,8 +317,8 @@ export function DarkWebMonitoringPage() {
       valueOrDash(record.email),
       valueOrDash(record.ipAddress),
       valueOrDash(record.username),
-      reveal ? valueOrDash(record.password) : record.password ? '••••••••' : EMPTY_VALUE,
-      reveal ? valueOrDash(record.hashedPassword) : record.hashedPassword ? '••••••••' : EMPTY_VALUE,
+      maskSensitive ? (record.password ? '••••••••' : EMPTY_VALUE) : valueOrDash(record.password),
+      maskSensitive ? (record.hashedPassword ? '••••••••' : EMPTY_VALUE) : valueOrDash(record.hashedPassword),
       valueOrDash(record.databaseName),
       valueOrDash(record.leakName),
       valueOrDash(record.foundIn),
@@ -314,6 +340,25 @@ export function DarkWebMonitoringPage() {
       [t('darkWebMonitoring.summary.mitigation'), String(statusCounts.IN_MITIGATION)],
       [t('darkWebMonitoring.summary.completed'), String(statusCounts.COMPLETED)],
     ])
+  const handleDialogExport = (items: DarkWebRecord[], action: ExportAction, filename: string, maskSensitive: boolean): boolean => {
+    try {
+      const rows = exportRows(items, maskSensitive)
+      if (action === 'CSV') downloadCsv(`${filename}.csv`, rows)
+      else printPdf(t('darkWebMonitoring.title'), rows)
+      return true
+    } catch {
+      toast.error(t('darkWebMonitoring.exportDialogs.exportFailed'))
+      return false
+    }
+  }
+  const openCustomRange = () => {
+    setReportMenuOpen(false)
+    setCustomRangeOpen(true)
+  }
+  const openAdvancedExport = () => {
+    setReportMenuOpen(false)
+    setAdvancedExportOpen(true)
+  }
   const toggleReportMenu = () => {
     if (reportMenuOpen) {
       setReportMenuOpen(false)
@@ -327,10 +372,6 @@ export function DarkWebMonitoringPage() {
       })
       setReportMenuOpen(true)
     }
-  }
-  const handleUnavailableReportOption = () => {
-    setReportMenuOpen(false)
-    toast.info(t('darkWebMonitoring.reportMenu.demoOption'))
   }
   const loadMore = useCallback(() => {
     if (loadingMore || !hasMoreRecords) return
@@ -394,7 +435,7 @@ export function DarkWebMonitoringPage() {
             <button
               type="button"
               role="menuitem"
-              onClick={handleUnavailableReportOption}
+              onClick={openCustomRange}
               className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-xs hover:bg-muted"
             >
               <CalendarDays size={14} className="shrink-0 text-muted-foreground" />
@@ -403,7 +444,7 @@ export function DarkWebMonitoringPage() {
             <button
               type="button"
               role="menuitem"
-              onClick={handleUnavailableReportOption}
+              onClick={openAdvancedExport}
               className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-xs hover:bg-muted"
             >
               <SlidersHorizontal size={14} className="shrink-0 text-muted-foreground" />
@@ -413,6 +454,21 @@ export function DarkWebMonitoringPage() {
           document.body,
         )}
       </header>
+
+      {customRangeOpen && (
+        <CustomRangeExportDialog
+          records={records}
+          onClose={() => setCustomRangeOpen(false)}
+          onExport={handleDialogExport}
+        />
+      )}
+      {advancedExportOpen && (
+        <AdvancedExportOptionsDialog
+          records={records}
+          onClose={() => setAdvancedExportOpen(false)}
+          onExport={handleDialogExport}
+        />
+      )}
 
       <div className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-2 text-xs text-primary">
         {t('darkWebMonitoring.demoNotice')}

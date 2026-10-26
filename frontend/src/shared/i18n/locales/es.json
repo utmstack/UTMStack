@@ -387,6 +387,53 @@
       "advancedOptions": "Opciones avanzadas de exportación",
       "demoOption": "Esta opción estará disponible cuando se conecte la configuración de informes."
     },
+    "exportDialogs": {
+      "action": "Acción",
+      "cancel": "Cancelar",
+      "close": "Cerrar diálogo",
+      "exportFailed": "No se pudo abrir o exportar el informe. Permite las ventanas emergentes e inténtalo de nuevo.",
+      "custom": {
+        "title": "Configuración de rango personalizado",
+        "from": "Fecha desde",
+        "to": "Fecha hasta",
+        "invalidRange": "El rango de fechas no es válido",
+        "select": "Seleccionar"
+      },
+      "advanced": {
+        "title": "Opciones avanzadas de exportación",
+        "employeesOnly": "¿Deseas exportar solo empleados?",
+        "maskSensitive": "¿Deseas ocultar los datos sensibles?",
+        "additionalFilters": "Filtros adicionales",
+        "field": "Campo del filtro",
+        "operator": "Operador del filtro",
+        "value": "Valor del filtro",
+        "chooseValue": "Selecciona un valor",
+        "addFilter": "Agregar filtro",
+        "addedFilters": "Lista de filtros agregados",
+        "noFilters": "No se han agregado filtros adicionales.",
+        "removeFilter": "Eliminar filtro",
+        "export": "Exportar"
+      },
+      "fields": {
+        "organizationElementType": "Tipo de elemento de la organización",
+        "breachStatus": "Estado de la filtración",
+        "employee": "Empleado",
+        "domain": "Dominio",
+        "source": "Fuente"
+      },
+      "operators": {
+        "equals": "es",
+        "contains": "contiene",
+        "notContains": "no contiene"
+      },
+      "elementTypes": {
+        "DOMAIN": "Dominio",
+        "EMAIL": "Correo",
+        "IP": "Dirección IP",
+        "USER": "Usuario",
+        "PHONE": "Teléfono"
+      }
+    },
     "loadingMore": "Cargando más…",
     "endOfResults": "Fin de los resultados ({{count}} cargados).",
     "results": "Resultados de la tabla",

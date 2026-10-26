@@ -71,6 +71,43 @@ describe('DarkWebMonitoringPage demo', () => {
     expect(screen.getByRole('menuitem', { name: 'darkWebMonitoring.reportMenu.advancedOptions' })).toBeInTheDocument()
   })
 
+  it('opens the custom range dialog and validates date selection', () => {
+    render(<DarkWebMonitoringPage />)
+
+    fireEvent.click(screen.getByRole('button', { name: /darkWebMonitoring.report/ }))
+    fireEvent.click(screen.getByRole('menuitem', { name: 'darkWebMonitoring.reportMenu.customRange' }))
+
+    expect(screen.getByRole('dialog', { name: 'darkWebMonitoring.exportDialogs.custom.title' })).toBeInTheDocument()
+    const selectButton = screen.getByRole('button', { name: /darkWebMonitoring.exportDialogs.custom.select/ })
+    expect(selectButton).toBeDisabled()
+
+    const fromDate = screen.getByLabelText('darkWebMonitoring.exportDialogs.custom.from').parentElement?.querySelector('input')
+    const toDate = screen.getByLabelText('darkWebMonitoring.exportDialogs.custom.to').parentElement?.querySelector('input')
+    if (!fromDate || !toDate) throw new Error('Expected custom range date inputs')
+    fireEvent.change(fromDate, { target: { value: '2026-01-01' } })
+    fireEvent.change(toDate, { target: { value: '2026-01-31' } })
+
+    expect(selectButton).toBeEnabled()
+  })
+
+  it('opens advanced export options and lets the user add a filter', () => {
+    render(<DarkWebMonitoringPage />)
+
+    fireEvent.click(screen.getByRole('button', { name: /darkWebMonitoring.report/ }))
+    fireEvent.click(screen.getByRole('menuitem', { name: 'darkWebMonitoring.reportMenu.advancedOptions' }))
+
+    expect(screen.getByRole('dialog', { name: 'darkWebMonitoring.exportDialogs.advanced.title' })).toBeInTheDocument()
+    fireEvent.change(screen.getByLabelText('darkWebMonitoring.exportDialogs.advanced.value'), {
+      target: { value: 'DOMAIN' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'darkWebMonitoring.exportDialogs.advanced.addFilter' }))
+
+    const addedFilter = within(screen.getByRole('list')).getByRole('listitem')
+    expect(addedFilter).toHaveTextContent('darkWebMonitoring.exportDialogs.fields.organizationElementType')
+    expect(addedFilter).toHaveTextContent('darkWebMonitoring.exportDialogs.operators.contains')
+    expect(addedFilter).toHaveTextContent('DOMAIN')
+  })
+
   it('keeps table columns aligned with their group headers', () => {
     render(<DarkWebMonitoringPage />)
     const table = screen.getByRole('table')

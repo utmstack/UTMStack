@@ -387,6 +387,53 @@
       "advancedOptions": "Erweiterte Exportoptionen",
       "demoOption": "Diese Exportoption ist verfügbar, sobald die Berichtseinstellungen verbunden sind."
     },
+    "exportDialogs": {
+      "action": "Aktion",
+      "cancel": "Abbrechen",
+      "close": "Dialog schließen",
+      "exportFailed": "Der Bericht konnte nicht geöffnet oder exportiert werden. Erlaube Pop-ups und versuche es erneut.",
+      "custom": {
+        "title": "Benutzerdefinierten Zeitraum festlegen",
+        "from": "Zeitraum von",
+        "to": "Zeitraum bis",
+        "invalidRange": "Der Zeitraum ist ungültig",
+        "select": "Auswählen"
+      },
+      "advanced": {
+        "title": "Erweiterte Exportoptionen",
+        "employeesOnly": "Nur Mitarbeitende exportieren?",
+        "maskSensitive": "Sensible Daten maskieren?",
+        "additionalFilters": "Zusätzliche Filter",
+        "field": "Filterfeld",
+        "operator": "Filteroperator",
+        "value": "Filterwert",
+        "chooseValue": "Wert auswählen",
+        "addFilter": "Filter hinzufügen",
+        "addedFilters": "Hinzugefügte Filter",
+        "noFilters": "Keine zusätzlichen Filter hinzugefügt.",
+        "removeFilter": "Filter entfernen",
+        "export": "Exportieren"
+      },
+      "fields": {
+        "organizationElementType": "Organisationselementtyp",
+        "breachStatus": "Leckstatus",
+        "employee": "Mitarbeiter",
+        "domain": "Domain",
+        "source": "Quelle"
+      },
+      "operators": {
+        "equals": "ist",
+        "contains": "enthält",
+        "notContains": "enthält nicht"
+      },
+      "elementTypes": {
+        "DOMAIN": "Domain",
+        "EMAIL": "E-Mail",
+        "IP": "IP-Adresse",
+        "USER": "Benutzername",
+        "PHONE": "Telefon"
+      }
+    },
     "loadingMore": "Weitere Ergebnisse werden geladen…",
     "endOfResults": "Ende der Ergebnisse ({{count}} geladen).",
     "results": "Tabellenergebnisse",

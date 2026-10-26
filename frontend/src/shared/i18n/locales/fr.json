@@ -387,6 +387,53 @@
       "advancedOptions": "Options d’exportation avancées",
       "demoOption": "Cette option sera disponible lorsque les paramètres de rapport seront connectés."
     },
+    "exportDialogs": {
+      "action": "Action",
+      "cancel": "Annuler",
+      "close": "Fermer la fenêtre",
+      "exportFailed": "Impossible d’ouvrir ou d’exporter le rapport. Autorisez les fenêtres contextuelles puis réessayez.",
+      "custom": {
+        "title": "Paramètres de plage personnalisée",
+        "from": "Date de début",
+        "to": "Date de fin",
+        "invalidRange": "La plage de dates est invalide",
+        "select": "Sélectionner"
+      },
+      "advanced": {
+        "title": "Options d’exportation avancées",
+        "employeesOnly": "Exporter uniquement les employés ?",
+        "maskSensitive": "Masquer les données sensibles ?",
+        "additionalFilters": "Filtres supplémentaires",
+        "field": "Champ du filtre",
+        "operator": "Opérateur du filtre",
+        "value": "Valeur du filtre",
+        "chooseValue": "Choisir une valeur",
+        "addFilter": "Ajouter un filtre",
+        "addedFilters": "Liste des filtres ajoutés",
+        "noFilters": "Aucun filtre supplémentaire.",
+        "removeFilter": "Supprimer le filtre",
+        "export": "Exporter"
+      },
+      "fields": {
+        "organizationElementType": "Type d’élément de l’organisation",
+        "breachStatus": "Statut de la fuite",
+        "employee": "Employé",
+        "domain": "Domaine",
+        "source": "Source"
+      },
+      "operators": {
+        "equals": "est",
+        "contains": "contient",
+        "notContains": "ne contient pas"
+      },
+      "elementTypes": {
+        "DOMAIN": "Domaine",
+        "EMAIL": "E-mail",
+        "IP": "Adresse IP",
+        "USER": "Nom d’utilisateur",
+        "PHONE": "Téléphone"
+      }
+    },
     "loadingMore": "Chargement…",
     "endOfResults": "Fin des résultats ({{count}} chargés).",
     "results": "Résultats du tableau",

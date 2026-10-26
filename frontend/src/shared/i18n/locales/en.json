@@ -387,6 +387,53 @@
       "advancedOptions": "Advanced export options",
       "demoOption": "This export option will be available when report settings are connected."
     },
+    "exportDialogs": {
+      "action": "Action",
+      "cancel": "Cancel",
+      "close": "Close dialog",
+      "exportFailed": "Could not open or export the report. Allow pop-ups and try again.",
+      "custom": {
+        "title": "Custom Range Setting",
+        "from": "Time from",
+        "to": "Time to",
+        "invalidRange": "Date range is invalid",
+        "select": "Select"
+      },
+      "advanced": {
+        "title": "Advanced Export Options",
+        "employeesOnly": "Do you want to export employees only?",
+        "maskSensitive": "Do you want to mask sensitive data?",
+        "additionalFilters": "Additional filters",
+        "field": "Filter field",
+        "operator": "Filter operator",
+        "value": "Filter value",
+        "chooseValue": "Select a value",
+        "addFilter": "Add filter",
+        "addedFilters": "Added filters list",
+        "noFilters": "No additional filters added.",
+        "removeFilter": "Remove filter",
+        "export": "Export"
+      },
+      "fields": {
+        "organizationElementType": "Organization Element Type",
+        "breachStatus": "Breach status",
+        "employee": "Employee",
+        "domain": "Domain",
+        "source": "Source"
+      },
+      "operators": {
+        "equals": "is",
+        "contains": "contains",
+        "notContains": "does not contain"
+      },
+      "elementTypes": {
+        "DOMAIN": "Domain",
+        "EMAIL": "Email",
+        "IP": "IP address",
+        "USER": "Username",
+        "PHONE": "Phone"
+      }
+    },
     "loadingMore": "Loading more…",
     "endOfResults": "End of results ({{count}} loaded).",
     "results": "Table results",
