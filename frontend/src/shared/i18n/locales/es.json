@@ -306,6 +306,7 @@
       "triage": "Triaje",
       "report": "Informe"
     },
+    "darkWebMonitoring": "Monitoreo de la dark web",
     "compliance": "Cumplimiento",
     "configure": "Configurar",
     "dataSources": "Fuentes de datos",
@@ -322,6 +323,97 @@
     "tenants": "Tenants",
     "openMenu": "Abrir menú",
     "closeMenu": "Cerrar menú"
+  },
+  "darkWebMonitoring": {
+    "title": "Monitoreo de la dark web",
+    "subtitle": "Todos los registros de la dark web encontrados para esta organización y la cola de gestión.",
+    "back": "Dark web",
+    "report": "Informe",
+    "demoNotice": "Solo datos de demostración: estos registros y métricas son sintéticos.",
+    "export": "Exportar a CSV",
+    "search": "Buscar datos filtrados…",
+    "employeeOnly": "Mostrar solo empleados",
+    "reveal": "Revelar secretos",
+    "empty": "No hay registros que coincidan con estos filtros.",
+    "previousPage": "Página anterior",
+    "nextPage": "Página siguiente",
+    "pageOf": "Página {{page}} de {{pages}}",
+    "employee": "Empleado",
+    "other": "Otro",
+    "summary": {
+      "employeeCredentials": "Credenciales de empleados",
+      "ofRecords": "de {{count}} registros de demostración: credenciales vinculadas a personas de la organización.",
+      "records": "Registros",
+      "open": "Abiertos",
+      "mitigation": "En mitigación",
+      "completed": "Completados"
+    },
+    "surfaces": {
+      "title": "Superficies monitoreadas",
+      "exposed": "{{count}} de {{total}} expuestas",
+      "monitoredCount": "{{count}} monitoreados",
+      "work": "Gestionar superficie",
+      "notMonitored": "Sin monitorear",
+      "addAssets": "Agregar activos"
+    },
+    "tabs": {
+      "domains": "Dominios",
+      "emails": "Correos personales",
+      "ips": "IPs",
+      "usernames": "Nombres de usuario",
+      "phones": "Teléfonos"
+    },
+    "statusFilter": {
+      "all": "Todos",
+      "open": "Abiertos",
+      "mitigation": "En mitigación",
+      "completed": "Completados"
+    },
+    "status": {
+      "open": "Abierto",
+      "mitigation": "En mitigación",
+      "completed": "Completado"
+    },
+    "time": {
+      "all": "Cualquier fecha",
+      "7d": "Últimos 7 días",
+      "30d": "Últimos 30 días"
+    },
+    "reportMenu": {
+      "title": "Exportar información",
+      "description": "Exporta los resultados de los últimos seis meses. Para usar otro período, elige Rango personalizado u Opciones avanzadas de exportación.",
+      "exportCsv": "Exportar a CSV",
+      "customRange": "Rango personalizado",
+      "advancedOptions": "Opciones avanzadas de exportación",
+      "demoOption": "Esta opción estará disponible cuando se conecte la configuración de informes."
+    },
+    "loadingMore": "Cargando más…",
+    "endOfResults": "Fin de los resultados ({{count}} cargados).",
+    "results": "Resultados de la tabla",
+    "table": {
+      "state": "Estado",
+      "whatLeaked": "Qué se filtró",
+      "whereFrom": "Origen",
+      "when": "Cuándo",
+      "status": "Estado",
+      "who": "Quién",
+      "domain": "Dominio",
+      "email": "Correo",
+      "ipAddress": "Dirección IP",
+      "username": "Usuario",
+      "password": "Contraseña",
+      "secret": "Secreto",
+      "hashedPassword": "Contraseña cifrada",
+      "name": "Nombre",
+      "phone": "Teléfono",
+      "database": "Base de datos",
+      "leakName": "Nombre de la filtración",
+      "foundIn": "Encontrado en",
+      "source": "Fuente",
+      "organizationElement": "Activo monitoreado",
+      "breached": "Filtrado",
+      "ingested": "Recibido"
+    }
   },
   "dashboards": {
     "title": "Paneles",

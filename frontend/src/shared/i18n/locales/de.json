@@ -306,6 +306,7 @@
       "triage": "Triage",
       "report": "Bericht"
     },
+    "darkWebMonitoring": "Dark-Web-Überwachung",
     "compliance": "Compliance",
     "configure": "Konfigurieren",
     "dataSources": "Datenquellen",
@@ -322,6 +323,97 @@
     "tenants": "Mandanten",
     "openMenu": "Menü öffnen",
     "closeMenu": "Menü schließen"
+  },
+  "darkWebMonitoring": {
+    "title": "Dark-Web-Überwachung",
+    "subtitle": "Alle Dark-Web-Einträge, die für diese Organisation gefunden wurden, und die zugehörige Bearbeitungswarteschlange.",
+    "back": "Dark Web",
+    "report": "Bericht",
+    "demoNotice": "Nur Demo-Daten — diese Einträge und Kennzahlen sind synthetisch.",
+    "export": "Als CSV exportieren",
+    "search": "Nach geleakten Daten suchen…",
+    "employeeOnly": "Nur Mitarbeitende anzeigen",
+    "reveal": "Geheimnisse anzeigen",
+    "empty": "Keine Einträge entsprechen diesen Filtern.",
+    "previousPage": "Vorherige Seite",
+    "nextPage": "Nächste Seite",
+    "pageOf": "Seite {{page}} von {{pages}}",
+    "employee": "Mitarbeiter",
+    "other": "Andere",
+    "summary": {
+      "employeeCredentials": "Zugangsdaten von Mitarbeitenden",
+      "ofRecords": "von {{count}} Demo-Einträgen — Zugangsdaten von Personen in der Organisation.",
+      "records": "Einträge",
+      "open": "Offen",
+      "mitigation": "In Bearbeitung",
+      "completed": "Abgeschlossen"
+    },
+    "surfaces": {
+      "title": "Überwachte Angriffsflächen",
+      "exposed": "{{count}} von {{total}} offengelegt",
+      "monitoredCount": "{{count}} überwacht",
+      "work": "Angriffsfläche bearbeiten",
+      "notMonitored": "Nicht überwacht",
+      "addAssets": "Assets hinzufügen"
+    },
+    "tabs": {
+      "domains": "Domains",
+      "emails": "Private E-Mails",
+      "ips": "IPs",
+      "usernames": "Benutzernamen",
+      "phones": "Telefonnummern"
+    },
+    "statusFilter": {
+      "all": "Alle",
+      "open": "Offen",
+      "mitigation": "In Bearbeitung",
+      "completed": "Abgeschlossen"
+    },
+    "status": {
+      "open": "Offen",
+      "mitigation": "In Bearbeitung",
+      "completed": "Abgeschlossen"
+    },
+    "time": {
+      "all": "Jederzeit",
+      "7d": "Letzte 7 Tage",
+      "30d": "Letzte 30 Tage"
+    },
+    "reportMenu": {
+      "title": "Informationen exportieren",
+      "description": "Ergebnisse der letzten sechs Monate exportieren. Für einen anderen Zeitraum wählen Sie Benutzerdefinierter Zeitraum oder Erweiterte Exportoptionen.",
+      "exportCsv": "Als CSV exportieren",
+      "customRange": "Benutzerdefinierter Zeitraum",
+      "advancedOptions": "Erweiterte Exportoptionen",
+      "demoOption": "Diese Exportoption ist verfügbar, sobald die Berichtseinstellungen verbunden sind."
+    },
+    "loadingMore": "Weitere Ergebnisse werden geladen…",
+    "endOfResults": "Ende der Ergebnisse ({{count}} geladen).",
+    "results": "Tabellenergebnisse",
+    "table": {
+      "state": "Status",
+      "whatLeaked": "Was offengelegt wurde",
+      "whereFrom": "Herkunft",
+      "when": "Zeitpunkt",
+      "status": "Status",
+      "who": "Wer",
+      "domain": "Domain",
+      "email": "E-Mail",
+      "ipAddress": "IP-Adresse",
+      "username": "Benutzername",
+      "password": "Passwort",
+      "secret": "Geheimnis",
+      "hashedPassword": "Gehashtes Passwort",
+      "name": "Name",
+      "phone": "Telefonnummer",
+      "database": "Datenbank",
+      "leakName": "Name des Datenlecks",
+      "foundIn": "Gefunden in",
+      "source": "Quelle",
+      "organizationElement": "Überwachtes Asset",
+      "breached": "Kompromittiert",
+      "ingested": "Eingegangen"
+    }
   },
   "dashboards": {
     "title": "Dashboards",

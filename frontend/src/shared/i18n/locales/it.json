@@ -306,6 +306,7 @@
       "triage": "Triage",
       "report": "Report"
     },
+    "darkWebMonitoring": "Monitoraggio del dark web",
     "compliance": "Conformità",
     "configure": "Configura",
     "dataSources": "Origini dati",
@@ -322,6 +323,97 @@
     "tenants": "Tenant",
     "openMenu": "Apri menu",
     "closeMenu": "Chiudi menu"
+  },
+  "darkWebMonitoring": {
+    "title": "Monitoraggio del dark web",
+    "subtitle": "Tutti i record del dark web trovati per questa organizzazione e la relativa coda di gestione.",
+    "back": "Dark web",
+    "report": "Report",
+    "demoNotice": "Solo dati dimostrativi — record e metriche sono sintetici.",
+    "export": "Esporta in CSV",
+    "search": "Cerca dati divulgati…",
+    "employeeOnly": "Mostra solo dipendenti",
+    "reveal": "Mostra i segreti",
+    "empty": "Nessun record corrisponde a questi filtri.",
+    "previousPage": "Pagina precedente",
+    "nextPage": "Pagina successiva",
+    "pageOf": "Pagina {{page}} di {{pages}}",
+    "employee": "Dipendente",
+    "other": "Altro",
+    "summary": {
+      "employeeCredentials": "Credenziali dei dipendenti",
+      "ofRecords": "su {{count}} record demo — credenziali associate alle persone dell'organizzazione.",
+      "records": "Record",
+      "open": "Aperti",
+      "mitigation": "In mitigazione",
+      "completed": "Completati"
+    },
+    "surfaces": {
+      "title": "Superfici monitorate",
+      "exposed": "{{count}} di {{total}} esposte",
+      "monitoredCount": "{{count}} monitorati",
+      "work": "Gestisci superficie",
+      "notMonitored": "Non monitorate",
+      "addAssets": "Aggiungi asset"
+    },
+    "tabs": {
+      "domains": "Domini",
+      "emails": "E-mail personali",
+      "ips": "IP",
+      "usernames": "Nomi utente",
+      "phones": "Telefoni"
+    },
+    "statusFilter": {
+      "all": "Tutti",
+      "open": "Aperti",
+      "mitigation": "In mitigazione",
+      "completed": "Completati"
+    },
+    "status": {
+      "open": "Aperto",
+      "mitigation": "In mitigazione",
+      "completed": "Completato"
+    },
+    "time": {
+      "all": "Qualsiasi periodo",
+      "7d": "Ultimi 7 giorni",
+      "30d": "Ultimi 30 giorni"
+    },
+    "reportMenu": {
+      "title": "Esporta informazioni",
+      "description": "Esporta i risultati degli ultimi sei mesi. Per scegliere un altro periodo, usa Intervallo personalizzato o Opzioni di esportazione avanzate.",
+      "exportCsv": "Esporta in CSV",
+      "customRange": "Intervallo personalizzato",
+      "advancedOptions": "Opzioni di esportazione avanzate",
+      "demoOption": "Questa opzione sarà disponibile quando le impostazioni del report saranno collegate."
+    },
+    "loadingMore": "Caricamento…",
+    "endOfResults": "Fine dei risultati ({{count}} caricati).",
+    "results": "Risultati della tabella",
+    "table": {
+      "state": "Stato",
+      "whatLeaked": "Dati divulgati",
+      "whereFrom": "Provenienza",
+      "when": "Quando",
+      "status": "Stato",
+      "who": "Chi",
+      "domain": "Dominio",
+      "email": "E-mail",
+      "ipAddress": "Indirizzo IP",
+      "username": "Nome utente",
+      "password": "Password",
+      "secret": "Segreto",
+      "hashedPassword": "Password con hash",
+      "name": "Nome",
+      "phone": "Telefono",
+      "database": "Database",
+      "leakName": "Nome della violazione",
+      "foundIn": "Trovato in",
+      "source": "Fonte",
+      "organizationElement": "Asset monitorato",
+      "breached": "Violazione",
+      "ingested": "Acquisito"
+    }
   },
   "dashboards": {
     "title": "Dashboard",

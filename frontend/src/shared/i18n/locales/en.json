@@ -309,6 +309,7 @@
       "triage": "Triage",
       "report": "Report"
     },
+    "darkWebMonitoring": "Dark Web Monitoring",
     "compliance": "Compliance",
     "configure": "Configure",
     "dataSources": "Data Sources",
@@ -322,6 +323,97 @@
     "regexPatterns": "Regex Patterns",
     "overview": "Overview",
     "tenants": "Tenants"
+  },
+  "darkWebMonitoring": {
+    "title": "Dark Web Monitoring",
+    "subtitle": "Every dark-web record found for this organization, and the queue behind it.",
+    "back": "Dark web",
+    "report": "Report",
+    "demoNotice": "Demonstration data only — these records and metrics are synthetic.",
+    "export": "Export to CSV",
+    "search": "Search leaked data…",
+    "employeeOnly": "Show employees only",
+    "reveal": "Reveal secrets",
+    "empty": "No records match these filters.",
+    "previousPage": "Previous page",
+    "nextPage": "Next page",
+    "pageOf": "Page {{page}} of {{pages}}",
+    "employee": "Employee",
+    "other": "Other",
+    "summary": {
+      "employeeCredentials": "Employee credentials",
+      "ofRecords": "of {{count}} demo records — credentials linked to people in the organization.",
+      "records": "Records",
+      "open": "Open",
+      "mitigation": "In mitigation",
+      "completed": "Completed"
+    },
+    "surfaces": {
+      "title": "Monitored surfaces",
+      "exposed": "{{count}} of {{total}} exposed",
+      "monitoredCount": "{{count}} monitored",
+      "work": "Work this surface",
+      "notMonitored": "Not monitored",
+      "addAssets": "Add assets"
+    },
+    "tabs": {
+      "domains": "Domains",
+      "emails": "Personal emails",
+      "ips": "IPs",
+      "usernames": "Usernames",
+      "phones": "Phones"
+    },
+    "statusFilter": {
+      "all": "All",
+      "open": "Open",
+      "mitigation": "In mitigation",
+      "completed": "Completed"
+    },
+    "status": {
+      "open": "Open",
+      "mitigation": "In mitigation",
+      "completed": "Completed"
+    },
+    "time": {
+      "all": "Any time",
+      "7d": "Last 7 days",
+      "30d": "Last 30 days"
+    },
+    "reportMenu": {
+      "title": "Export information",
+      "description": "Export results from the past six months. To use a different period, choose Custom range or Advanced export options.",
+      "exportCsv": "Export to CSV",
+      "customRange": "Custom range",
+      "advancedOptions": "Advanced export options",
+      "demoOption": "This export option will be available when report settings are connected."
+    },
+    "loadingMore": "Loading more…",
+    "endOfResults": "End of results ({{count}} loaded).",
+    "results": "Table results",
+    "table": {
+      "state": "State",
+      "whatLeaked": "What leaked",
+      "whereFrom": "Where from",
+      "when": "When",
+      "status": "Status",
+      "who": "Who",
+      "domain": "Domain",
+      "email": "Email",
+      "ipAddress": "IP address",
+      "username": "Username",
+      "password": "Password",
+      "secret": "Secret",
+      "hashedPassword": "Hashed password",
+      "name": "Name",
+      "phone": "Phone",
+      "database": "Database",
+      "leakName": "Leak name",
+      "foundIn": "Found in",
+      "source": "Source",
+      "organizationElement": "Monitored asset",
+      "breached": "Breached",
+      "ingested": "Ingested"
+    }
   },
   "dashboards": {
     "title": "Dashboards",
