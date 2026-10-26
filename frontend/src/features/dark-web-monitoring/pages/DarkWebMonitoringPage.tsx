@@ -7,6 +7,7 @@ import { Button } from '@/shared/components/ui/button'
 import { DEMO_RECORDS } from '../data/demo-records'
 import { DEMO_ORGANIZATION_BREACH_STATS } from '../data/demo-organization-stats'
 import { AdvancedExportOptionsDialog } from '../components/AdvancedExportOptionsDialog'
+import { BreachDetailsDrawer } from '../components/BreachDetailsDrawer'
 import { CustomRangeExportDialog } from '../components/CustomRangeExportDialog'
 import type { ExportAction } from '../components/export-types'
 import type {
@@ -207,6 +208,7 @@ export function DarkWebMonitoringPage() {
   const [loadingMore, setLoadingMore] = useState(false)
   const loadMoreTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [allRecords, setAllRecords] = useState(DEMO_RECORDS)
+  const [selectedRecordId, setSelectedRecordId] = useState<string | null>(null)
   const [reportMenuOpen, setReportMenuOpen] = useState(false)
   const [customRangeOpen, setCustomRangeOpen] = useState(false)
   const [advancedExportOpen, setAdvancedExportOpen] = useState(false)
@@ -275,6 +277,7 @@ export function DarkWebMonitoringPage() {
   }, [allRecords, employeesOnly, query, status, surface, time])
 
   const visibleRecords = records.slice(0, visibleCount)
+  const selectedRecord = selectedRecordId ? allRecords.find((record) => record.id === selectedRecordId) : undefined
   const hasMoreRecords = visibleCount < records.length
   const surfaceCounts = Object.fromEntries(
     SURFACES.map((key) => [key, DEMO_ORGANIZATION_BREACH_STATS[SURFACE_STATS_KEYS[key]]]),
@@ -469,6 +472,12 @@ export function DarkWebMonitoringPage() {
           onExport={handleDialogExport}
         />
       )}
+      {selectedRecord && (
+        <BreachDetailsDrawer
+          record={selectedRecord}
+          onClose={() => setSelectedRecordId(null)}
+        />
+      )}
 
       <div className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-2 text-xs text-primary">
         {t('darkWebMonitoring.demoNotice')}
@@ -633,7 +642,20 @@ export function DarkWebMonitoringPage() {
             </thead>
             <tbody className="divide-y divide-border/70">
               {visibleRecords.map((record) => (
-                <tr key={record.id} className="hover:bg-muted/20">
+                <tr
+                  key={record.id}
+                  tabIndex={0}
+                  aria-label={t('darkWebMonitoring.details.openRecord', { value: record.organizationElement })}
+                  onClick={() => setSelectedRecordId(record.id)}
+                  onKeyDown={(event) => {
+                    if (event.target !== event.currentTarget) return
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault()
+                      setSelectedRecordId(record.id)
+                    }
+                  }}
+                  className="cursor-pointer hover:bg-muted/20 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-primary"
+                >
                   <td className="whitespace-nowrap px-3 py-2.5">
                     <StatusPill
                       status={record.breachStatus}

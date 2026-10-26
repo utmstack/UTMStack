@@ -71,6 +71,27 @@ describe('DarkWebMonitoringPage demo', () => {
     expect(screen.getByRole('menuitem', { name: 'darkWebMonitoring.reportMenu.advancedOptions' })).toBeInTheDocument()
   })
 
+  it('opens a breach details side panel when a table row is selected', () => {
+    render(<DarkWebMonitoringPage />)
+    const table = screen.getByRole('table')
+    const row = within(table).getAllByText('taylor@test01.example')[0].closest('tr')
+    if (!row) throw new Error('Expected a breach table row')
+
+    fireEvent.click(row)
+
+    const details = screen.getByRole('dialog', { name: 'darkWebMonitoring.details.title' })
+    expect(details).toBeInTheDocument()
+    expect(within(details).getByText('darkWebMonitoring.details.information')).toBeInTheDocument()
+    expect(within(details).getByText('Synthetic demonstration breach')).toBeInTheDocument()
+    expect(within(details).getByText('••••••••')).toBeInTheDocument()
+
+    fireEvent.click(within(details).getByRole('button', { name: 'darkWebMonitoring.details.revealSecrets' }))
+    expect(within(details).getByText('Demo!4821')).toBeInTheDocument()
+
+    fireEvent.click(within(details).getByRole('button', { name: 'darkWebMonitoring.details.close' }))
+    expect(screen.queryByRole('dialog', { name: 'darkWebMonitoring.details.title' })).not.toBeInTheDocument()
+  })
+
   it('opens the custom range dialog and validates date selection', () => {
     render(<DarkWebMonitoringPage />)
 
