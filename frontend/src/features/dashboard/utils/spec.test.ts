@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { builderToSpec, resultToRows, specChartFor, specIsComplete } from './spec'
+import { builderToSpec, normalizeSpecDataType, resultToRows, specChartFor, specIsComplete } from './spec'
 import { makeInitialBuilder } from './builder-config'
 import type { BuilderState, QueryResult, VizSpec } from '@/features/dashboard/types'
 
@@ -12,6 +12,27 @@ function builder(patch: Partial<BuilderState>): BuilderState {
 }
 
 describe('the question a widget asks', () => {
+  it('uses the canonical Windows agent data type for log queries', () => {
+    const spec: VizSpec = {
+      dataset: 'logs',
+      dataType: 'windows',
+      chart: 'metric',
+      metric: { agg: 'count' },
+    }
+    expect(normalizeSpecDataType(spec).dataType).toBe('wineventlog')
+    expect(spec.dataType).toBe('windows')
+  })
+
+  it('does not rewrite data types for another dataset', () => {
+    const spec: VizSpec = {
+      dataset: 'alerts',
+      dataType: 'windows',
+      chart: 'metric',
+      metric: { agg: 'count' },
+    }
+    expect(normalizeSpecDataType(spec)).toBe(spec)
+  })
+
   it('counts records, because the store does nothing else', () => {
     const spec = builderToSpec(builder({ chartType: 'metric' }))
     expect(spec).toMatchObject({ dataset: 'logs', chart: 'metric', metric: { agg: 'count' } })

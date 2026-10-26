@@ -69,6 +69,15 @@ export function filterTypesToSpec(filters: FilterType[]): SpecFilter[] {
 }
 
 /**
+ * Older shipped dashboard definitions use `windows`, while Windows agent
+ * events are indexed under the canonical `wineventlog` data type.
+ */
+export function normalizeSpecDataType(spec: VizSpec): VizSpec {
+  if (spec.dataset !== 'logs' || spec.dataType !== 'windows') return spec
+  return { ...spec, dataType: 'wineventlog' }
+}
+
+/**
  * Which shape of answer a chart type needs. A table can show raw records or
  * grouped top values; everything else plots a series over time or categories.
  * The map is drawn from records, so it asks for them.

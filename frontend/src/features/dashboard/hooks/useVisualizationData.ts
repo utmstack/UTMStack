@@ -4,6 +4,7 @@ import { createQueryService } from '@/features/dashboard/service/query.service'
 import { resolveRangeToISO } from '@/features/dashboard/utils/datemath'
 import {
   filterTypesToSpec,
+  normalizeSpecDataType,
   parseSpec,
   resultToRows,
   specIsComplete,
@@ -30,12 +31,13 @@ export interface VisualizationData {
  * spec on the way out rather than stored with it.
  */
 export function scopeSpec(spec: VizSpec, fromISO: string, toISO: string, filters: FilterType[]): VizSpec {
+  const normalized = normalizeSpecDataType(spec)
   const bar = filterTypesToSpec(filters)
   return {
-    ...spec,
+    ...normalized,
     from: fromISO,
     to: toISO,
-    filters: bar.length > 0 ? [...(spec.filters ?? []), ...bar] : spec.filters,
+    filters: bar.length > 0 ? [...(normalized.filters ?? []), ...bar] : normalized.filters,
   }
 }
 

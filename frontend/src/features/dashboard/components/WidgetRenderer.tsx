@@ -10,7 +10,7 @@ import { TextRenderer } from '@/features/dashboard/components/renderers/TextRend
 import { useVisualizationData } from '@/features/dashboard/hooks/useVisualizationData'
 import { defaultChartSkeleton, mergeRowsIntoOption, parseChartConfig } from '@/features/dashboard/utils/echarts'
 import { parseBuilderConfig } from '@/features/dashboard/utils/builder-config'
-import { parseSpec, specIsComplete } from '@/features/dashboard/utils/spec'
+import { normalizeSpecDataType, parseSpec, specIsComplete } from '@/features/dashboard/utils/spec'
 import { resolveRangeToISO } from '@/features/dashboard/utils/datemath'
 import { termFilter, timeBucketRange, widgetBaseFilters } from '@/features/dashboard/utils/click-through'
 import { getChartTypeMeta, type ChartRenderer } from '@/features/dashboard/constants'
@@ -44,7 +44,10 @@ export function WidgetRenderer({
     ? getChartTypeMeta(builderParsed.builder.chartType).renderer
     : 'echarts'
 
-  const spec = useMemo(() => parseSpec(visualization.spec), [visualization.spec])
+  const spec = useMemo(() => {
+    const parsedSpec = parseSpec(visualization.spec)
+    return parsedSpec ? normalizeSpecDataType(parsedSpec) : null
+  }, [visualization.spec])
   const answerable = spec != null && specIsComplete(spec)
   const query = useVisualizationData(answerable ? visualization : null, time, filters, refreshMs ?? null)
   const rows = query.data?.rows ?? []
