@@ -3506,57 +3506,218 @@
       "error": "Integration konnte nicht gelöscht werden"
     },
     "modules": {
-      "WINDOWS_AGENT": "Windows-System-, Sicherheits- und Ereignisprotokollaktivitäten über den auf jedem Host installierten schlanken UTMStack-Agenten erfassen.",
-      "LINUX_AGENT": "Linux-System-, Authentifizierungs- und Audit-Protokolle über den auf jedem Host installierten schlanken UTMStack-Agenten erfassen.",
-      "MACOS": "macOS-System- und Sicherheitsprotokollaktivitäten von Apple Mac-Endpunkten über den schlanken UTMStack-Agenten erfassen.",
-      "VMWARE": "VMware ESXi Hypervisor-Syslog erfassen, damit Virtualisierungshost-Aktivitäten und -Ereignisse in UTMStack überwacht werden.",
-      "NETFLOW": "NetFlow-Datensätze von Routern und Switches erfassen, um Netzwerkverkehrsmuster zu überwachen und Verkehrsanomalien zu erkennen.",
-      "AWS_IAM_USER": "AWS-Kontoaktivitäten und API-Aufrufe über CloudTrail und CloudWatch erfassen, um Cloud-Nutzung, Zugriffe und Änderungen zu auditieren.",
-      "AZURE": "Microsoft Azure-Plattform- und Aktivitätsprotokolle erfassen, um Cloud-Workloads, Identitäten und Ressourcenänderungen zu überwachen.",
-      "O365": "Microsoft 365-Auditprotokolle aus Exchange, Teams, SharePoint und OneDrive erfassen, um Benutzer- und Administratoraktivitäten zu überwachen.",
-      "GCP": "Google Cloud Platform-Audit- und Aktivitätsprotokolle erfassen, um Compute, Speicher und Identitäten projektübergreifend zu überwachen.",
-      "KASPERSKY": "Kaspersky Security Center-Erkennungen und Endpunkt-Telemetrie erfassen, um Malware-Aktivitäten im Netzwerk zu korrelieren.",
-      "ESET": "ESET PROTECT-Endpunkterkennung und -Telemetrie erfassen, um mehrstufige Malware-Abwehr in Ihrer Umgebung zu korrelieren.",
-      "BITDEFENDER": "Bitdefender GravityZone-Erkennungen und Endpunkt-Telemetrie erfassen, um Bedrohungen auf Unternehmensgeräten zu korrelieren.",
-      "SENTINEL_ONE": "SentinelOne-Endpunkterkennung und Verhaltenstelemetrie erfassen, um Bedrohungen im großen Maßstab zu korrelieren und zu untersuchen.",
-      "SOPHOS": "Sophos Central-Erkennungen aus Endpunkten, Servern, Firewall und E-Mail erfassen, um Bedrohungen zentral zu korrelieren.",
-      "CROWDSTRIKE": "CrowdStrike Falcon-Endpunkt- und Workload-Erkennungen erfassen, um Cloud-native Bedrohungsaktivitäten in UTMStack zu korrelieren.",
-      "CISCO": "Cisco ASA-Firewall-Datenverkehr, VPN- und Bedrohungsprotokolle erfassen, um Perimetersicherheit und Zugriffe in UTMStack zu überwachen.",
-      "MERAKI": "Cisco Meraki-Firewall- und Sicherheitsappliance-Syslog erfassen, um cloud-verwalteten Netzwerkverkehr und Bedrohungen zu überwachen.",
-      "FIRE_POWER": "Cisco Firepower NGFW- und IPS-Protokolle erfassen, um Angriffsversuche und Bedrohungsaktivitäten am Perimeter zu überwachen.",
-      "CISCO_SWITCH": "Cisco-Switch-Syslog und -Telemetrie erfassen, um Netzwerkleistung, Konfigurationsänderungen und Sicherheit zu überwachen.",
-      "FORTIGATE": "Fortinet FortiGate NGFW-Datenverkehr- und Bedrohungsprotokolle erfassen, um Perimetersicherheit und Netzwerkaktivitäten zu überwachen.",
-      "FORTIWEB": "Fortinet FortiWeb WAF-Protokolle erfassen, um Webanwendungsangriffe zu überwachen und exponierte Dienste und APIs zu schützen.",
-      "SOPHOS_XG": "Sophos XG-Firewall-Protokolle mit Web-Filterung, IPS und VPN erfassen, um Netzwerkverkehr und Bedrohungen zu überwachen.",
-      "PALO_ALTO": "Palo Alto Networks NGFW-Datenverkehr- und Bedrohungsprotokolle erfassen, um Anwendungsnutzung und Perimetersicherheit zu überwachen.",
-      "SONIC_WALL": "SonicWall NGFW-Datenverkehr- und Bedrohungsprotokolle erfassen, um Perimetersicherheit und Netzwerkaktivitäten in UTMStack zu überwachen.",
-      "PFSENSE": "pfSense-Firewall- und Router-Protokolle mit Unified Threat Management erfassen, um Netzwerkverkehr und Bedrohungen zu überwachen.",
-      "MIKROTIK": "MikroTik RouterOS-Firewall-, Routing- und WLAN-Protokolle erfassen, um Netzwerkaktivitäten und -konfigurationen zu überwachen.",
-      "AIX": "IBM AIX Unix-System-, Sicherheits- und Audit-Protokolle erfassen, um Aktivitäten auf IBM Power-Plattformen in UTMStack zu überwachen.",
-      "AS_400": "Sammeln Sie IBM AS/400 (IBM i) System- und Prüfjournale, um Benutzeraktivitäten auf Midrange-OS/400-Plattformen zu überwachen.",
-      "ORACLE": "Importieren Sie Oracle Database-Prüfprotokolle, um Abfragen, Zugriffe und privilegierte Aktivitäten in Ihren Datenbanken zu überwachen.",
-      "SURICATA": "Importieren Sie Suricata IDS/IPS-Alarme und Netzwerkereignisse, um Eindringlinge und bösartigen Datenverkehr im Netzwerk zu erkennen.",
-      "DECEPTIVE_BYTES": "Importieren Sie Deceptive Bytes-Alarme von der aktiven Endpoint-Deception-Plattform, um Angreiferaktivitäten frühzeitig zu erkennen.",
-      "GITHUB": "Importieren Sie GitHub-Prüfprotokolle, um Repository-Zugriffe, Codeänderungen und Organisationsaktivitäten für die Quellcodesicherheit zu überwachen.",
-      "UTMSTACK": "Importieren Sie UTMStack-eigene SIEM- und XDR-Telemetrie, um den Plattformzustand, interne Aktivitäten und Selbstprüfungsereignisse zu überwachen.",
-      "NGINX": "Importieren Sie Nginx-Zugriffs- und Fehlerprotokolle, um die Webserver-Aktivität, den Reverse-Proxy-Verkehr und die Client-Anfragen zu überwachen.",
-      "APACHE": "Importieren Sie Apache-HTTPD-Zugriffs- und Fehlerprotokolle, um die Webserver-Aktivität und die Client-Anfragen zu überwachen.",
-      "APACHE2": "Importieren Sie Apache2- (HTTPD-) Webserver-Protokolle, um die Anfrageverarbeitung, Fehler und den Zugriff auf Linux-Hosts zu überwachen.",
-      "IIS": "Importieren Sie Internet Information Services (IIS) Zugriffs- und Protokollaktivität, um das Windows-Webserving zu überwachen.",
-      "MYSQL": "Importieren Sie MySQL-Protokollaktivität, um Abfragen, Authentifizierung und den Datenstore-Zugriff zu überwachen.",
-      "POSTGRESQL": "Importieren Sie PostgreSQL-Protokolle, um Abfragen, Zugriff und Aktivität in Ihren Datenstores zu überwachen.",
-      "MONGODB": "Importieren Sie MongoDB-Protokollaktivität, um Dokumentendatenbank-Zugriff, Abfragen und das Anwendungsverhalten zu überwachen.",
-      "REDIS": "Importieren Sie Redis-Protokoll- und Telemetrieaktivität, um die Nutzung des In-Memory-Datenstores und die Echtzeit-Workloads zu überwachen.",
-      "ELASTICSEARCH": "Importieren Sie Elasticsearch-Protokolle, um die Such- und Analysemaschine und ihre Anwendungs-Workloads zu überwachen.",
-      "LOGSTASH": "Importieren Sie Logstash-Pipeline-Protokolle, um die Datenverarbeitungs-Pipeline und ihre Ereignis-Transformationen zu überwachen.",
-      "KIBANA": "Importieren Sie Kibana-Protokolle, um die Datenvisualisierungs- und -erforschungsschicht und deren Nutzung zu überwachen.",
-      "KAFKA": "Importieren Sie Apache-Kafka-Protokolle, um Echtzeit-Streaming-Pipelines, Broker und den Nachrichtenfluss zu überwachen.",
-      "NATS": "Importieren Sie NATS-Messaging-Protokolle, um die Message-Bus-Konnektivität und die Ereignis-Lieferung zu überwachen.",
-      "HAPROXY": "Importieren Sie HAProxy-Protokolle, um Load Balancing, Proxy-Verkehr und Netzwerkverfügbarkeit zu überwachen.",
-      "TRAEFIK": "Importieren Sie Traefik-Protokolle, um Routing, Load Balancing und Proxy-Verkehr zwischen Workloads zu überwachen.",
-      "OSQUERY": "Importieren Sie OsQuery-Protokolle, um Endpoint-Zustand, Abfragen und System-Inventar über SQL-artige Anfragen zu überwachen.",
-      "SYSLOG": "Senden Sie Syslog (RFC 5424/3164) von jedem Gerät oder jeder Anwendung an den Collector-Endpunkt für die zentrale Protokollaufnahme.",
-      "JSON": "Senden Sie JSON-Protokollinhalte an den Ingestions-Endpunkt für die strukturierte Ereignisaufnahme aus Anwendungen und Skripten."
+      "WINDOWS_AGENT": {
+        "name": "Windows Agent",
+        "description": "Windows-System-, Sicherheits- und Ereignisprotokollaktivitäten über den auf jedem Host installierten schlanken UTMStack-Agenten erfassen."
+      },
+      "LINUX_AGENT": {
+        "name": "Linux Agent",
+        "description": "Linux-System-, Authentifizierungs- und Audit-Protokolle über den auf jedem Host installierten schlanken UTMStack-Agenten erfassen."
+      },
+      "MACOS": {
+        "name": "macOS",
+        "description": "macOS-System- und Sicherheitsprotokollaktivitäten von Apple Mac-Endpunkten über den schlanken UTMStack-Agenten erfassen."
+      },
+      "VMWARE": {
+        "name": "VMware",
+        "description": "VMware ESXi Hypervisor-Syslog erfassen, damit Virtualisierungshost-Aktivitäten und -Ereignisse in UTMStack überwacht werden."
+      },
+      "NETFLOW": {
+        "name": "NetFlow",
+        "description": "NetFlow-Datensätze von Routern und Switches erfassen, um Netzwerkverkehrsmuster zu überwachen und Verkehrsanomalien zu erkennen."
+      },
+      "AWS_IAM_USER": {
+        "name": "AWS",
+        "description": "AWS-Kontoaktivitäten und API-Aufrufe über CloudTrail und CloudWatch erfassen, um Cloud-Nutzung, Zugriffe und Änderungen zu auditieren."
+      },
+      "AZURE": {
+        "name": "Microsoft Azure",
+        "description": "Microsoft Azure-Plattform- und Aktivitätsprotokolle erfassen, um Cloud-Workloads, Identitäten und Ressourcenänderungen zu überwachen."
+      },
+      "O365": {
+        "name": "Microsoft 365",
+        "description": "Microsoft 365-Auditprotokolle aus Exchange, Teams, SharePoint und OneDrive erfassen, um Benutzer- und Administratoraktivitäten zu überwachen."
+      },
+      "GCP": {
+        "name": "Google Cloud Platform",
+        "description": "Google Cloud Platform-Audit- und Aktivitätsprotokolle erfassen, um Compute, Speicher und Identitäten projektübergreifend zu überwachen."
+      },
+      "KASPERSKY": {
+        "name": "Kaspersky",
+        "description": "Kaspersky Security Center-Erkennungen und Endpunkt-Telemetrie erfassen, um Malware-Aktivitäten im Netzwerk zu korrelieren."
+      },
+      "ESET": {
+        "name": "ESET",
+        "description": "ESET PROTECT-Endpunkterkennung und -Telemetrie erfassen, um mehrstufige Malware-Abwehr in Ihrer Umgebung zu korrelieren."
+      },
+      "BITDEFENDER": {
+        "name": "Bitdefender",
+        "description": "Bitdefender GravityZone-Erkennungen und Endpunkt-Telemetrie erfassen, um Bedrohungen auf Unternehmensgeräten zu korrelieren."
+      },
+      "SENTINEL_ONE": {
+        "name": "SentinelOne",
+        "description": "SentinelOne-Endpunkterkennung und Verhaltenstelemetrie erfassen, um Bedrohungen im großen Maßstab zu korrelieren und zu untersuchen."
+      },
+      "SOPHOS": {
+        "name": "Sophos Central",
+        "description": "Sophos Central-Erkennungen aus Endpunkten, Servern, Firewall und E-Mail erfassen, um Bedrohungen zentral zu korrelieren."
+      },
+      "CROWDSTRIKE": {
+        "name": "CrowdStrike Falcon",
+        "description": "CrowdStrike Falcon-Endpunkt- und Workload-Erkennungen erfassen, um Cloud-native Bedrohungsaktivitäten in UTMStack zu korrelieren."
+      },
+      "CISCO": {
+        "name": "Cisco ASA",
+        "description": "Cisco ASA-Firewall-Datenverkehr, VPN- und Bedrohungsprotokolle erfassen, um Perimetersicherheit und Zugriffe in UTMStack zu überwachen."
+      },
+      "MERAKI": {
+        "name": "Cisco Meraki",
+        "description": "Cisco Meraki-Firewall- und Sicherheitsappliance-Syslog erfassen, um cloud-verwalteten Netzwerkverkehr und Bedrohungen zu überwachen."
+      },
+      "FIRE_POWER": {
+        "name": "Cisco Firepower",
+        "description": "Cisco Firepower NGFW- und IPS-Protokolle erfassen, um Angriffsversuche und Bedrohungsaktivitäten am Perimeter zu überwachen."
+      },
+      "CISCO_SWITCH": {
+        "name": "Cisco Switch",
+        "description": "Cisco-Switch-Syslog und -Telemetrie erfassen, um Netzwerkleistung, Konfigurationsänderungen und Sicherheit zu überwachen."
+      },
+      "FORTIGATE": {
+        "name": "FortiGate",
+        "description": "Fortinet FortiGate NGFW-Datenverkehr- und Bedrohungsprotokolle erfassen, um Perimetersicherheit und Netzwerkaktivitäten zu überwachen."
+      },
+      "FORTIWEB": {
+        "name": "FortiWeb",
+        "description": "Fortinet FortiWeb WAF-Protokolle erfassen, um Webanwendungsangriffe zu überwachen und exponierte Dienste und APIs zu schützen."
+      },
+      "SOPHOS_XG": {
+        "name": "Sophos XG",
+        "description": "Sophos XG-Firewall-Protokolle mit Web-Filterung, IPS und VPN erfassen, um Netzwerkverkehr und Bedrohungen zu überwachen."
+      },
+      "PALO_ALTO": {
+        "name": "Palo Alto Networks",
+        "description": "Palo Alto Networks NGFW-Datenverkehr- und Bedrohungsprotokolle erfassen, um Anwendungsnutzung und Perimetersicherheit zu überwachen."
+      },
+      "SONIC_WALL": {
+        "name": "SonicWall",
+        "description": "SonicWall NGFW-Datenverkehr- und Bedrohungsprotokolle erfassen, um Perimetersicherheit und Netzwerkaktivitäten in UTMStack zu überwachen."
+      },
+      "PFSENSE": {
+        "name": "pfSense",
+        "description": "pfSense-Firewall- und Router-Protokolle mit Unified Threat Management erfassen, um Netzwerkverkehr und Bedrohungen zu überwachen."
+      },
+      "MIKROTIK": {
+        "name": "MikroTik",
+        "description": "MikroTik RouterOS-Firewall-, Routing- und WLAN-Protokolle erfassen, um Netzwerkaktivitäten und -konfigurationen zu überwachen."
+      },
+      "AIX": {
+        "name": "IBM AIX",
+        "description": "IBM AIX Unix-System-, Sicherheits- und Audit-Protokolle erfassen, um Aktivitäten auf IBM Power-Plattformen in UTMStack zu überwachen."
+      },
+      "AS_400": {
+        "name": "IBM i (AS/400)",
+        "description": "Sammeln Sie IBM AS/400 (IBM i) System- und Prüfjournale, um Benutzeraktivitäten auf Midrange-OS/400-Plattformen zu überwachen."
+      },
+      "ORACLE": {
+        "name": "Oracle Database",
+        "description": "Importieren Sie Oracle Database-Prüfprotokolle, um Abfragen, Zugriffe und privilegierte Aktivitäten in Ihren Datenbanken zu überwachen."
+      },
+      "SURICATA": {
+        "name": "Suricata",
+        "description": "Importieren Sie Suricata IDS/IPS-Alarme und Netzwerkereignisse, um Eindringlinge und bösartigen Datenverkehr im Netzwerk zu erkennen."
+      },
+      "DECEPTIVE_BYTES": {
+        "name": "Deceptive Bytes",
+        "description": "Importieren Sie Deceptive Bytes-Alarme von der aktiven Endpoint-Deception-Plattform, um Angreiferaktivitäten frühzeitig zu erkennen."
+      },
+      "GITHUB": {
+        "name": "GitHub",
+        "description": "Importieren Sie GitHub-Prüfprotokolle, um Repository-Zugriffe, Codeänderungen und Organisationsaktivitäten für die Quellcodesicherheit zu überwachen."
+      },
+      "UTMSTACK": {
+        "name": "UTMStack",
+        "description": "Importieren Sie UTMStack-eigene SIEM- und XDR-Telemetrie, um den Plattformzustand, interne Aktivitäten und Selbstprüfungsereignisse zu überwachen."
+      },
+      "NGINX": {
+        "name": "Nginx",
+        "description": "Importieren Sie Nginx-Zugriffs- und Fehlerprotokolle, um die Webserver-Aktivität, den Reverse-Proxy-Verkehr und die Client-Anfragen zu überwachen."
+      },
+      "APACHE": {
+        "name": "Apache",
+        "description": "Importieren Sie Apache-HTTPD-Zugriffs- und Fehlerprotokolle, um die Webserver-Aktivität und die Client-Anfragen zu überwachen."
+      },
+      "APACHE2": {
+        "name": "Apache2",
+        "description": "Importieren Sie Apache2- (HTTPD-) Webserver-Protokolle, um die Anfrageverarbeitung, Fehler und den Zugriff auf Linux-Hosts zu überwachen."
+      },
+      "IIS": {
+        "name": "IIS",
+        "description": "Importieren Sie Internet Information Services (IIS) Zugriffs- und Protokollaktivität, um das Windows-Webserving zu überwachen."
+      },
+      "MYSQL": {
+        "name": "MySQL",
+        "description": "Importieren Sie MySQL-Protokollaktivität, um Abfragen, Authentifizierung und den Datenstore-Zugriff zu überwachen."
+      },
+      "POSTGRESQL": {
+        "name": "PostgreSQL",
+        "description": "Importieren Sie PostgreSQL-Protokolle, um Abfragen, Zugriff und Aktivität in Ihren Datenstores zu überwachen."
+      },
+      "MONGODB": {
+        "name": "MongoDB",
+        "description": "Importieren Sie MongoDB-Protokollaktivität, um Dokumentendatenbank-Zugriff, Abfragen und das Anwendungsverhalten zu überwachen."
+      },
+      "REDIS": {
+        "name": "Redis",
+        "description": "Importieren Sie Redis-Protokoll- und Telemetrieaktivität, um die Nutzung des In-Memory-Datenstores und die Echtzeit-Workloads zu überwachen."
+      },
+      "ELASTICSEARCH": {
+        "name": "Elasticsearch",
+        "description": "Importieren Sie Elasticsearch-Protokolle, um die Such- und Analysemaschine und ihre Anwendungs-Workloads zu überwachen."
+      },
+      "LOGSTASH": {
+        "name": "Logstash",
+        "description": "Importieren Sie Logstash-Pipeline-Protokolle, um die Datenverarbeitungs-Pipeline und ihre Ereignis-Transformationen zu überwachen."
+      },
+      "KIBANA": {
+        "name": "Kibana",
+        "description": "Importieren Sie Kibana-Protokolle, um die Datenvisualisierungs- und -erforschungsschicht und deren Nutzung zu überwachen."
+      },
+      "KAFKA": {
+        "name": "Apache Kafka",
+        "description": "Importieren Sie Apache-Kafka-Protokolle, um Echtzeit-Streaming-Pipelines, Broker und den Nachrichtenfluss zu überwachen."
+      },
+      "NATS": {
+        "name": "NATS",
+        "description": "Importieren Sie NATS-Messaging-Protokolle, um die Message-Bus-Konnektivität und die Ereignis-Lieferung zu überwachen."
+      },
+      "HAPROXY": {
+        "name": "HAProxy",
+        "description": "Importieren Sie HAProxy-Protokolle, um Load Balancing, Proxy-Verkehr und Netzwerkverfügbarkeit zu überwachen."
+      },
+      "TRAEFIK": {
+        "name": "Traefik",
+        "description": "Importieren Sie Traefik-Protokolle, um Routing, Load Balancing und Proxy-Verkehr zwischen Workloads zu überwachen."
+      },
+      "OSQUERY": {
+        "name": "osquery",
+        "description": "Importieren Sie OsQuery-Protokolle, um Endpoint-Zustand, Abfragen und System-Inventar über SQL-artige Anfragen zu überwachen."
+      },
+      "SYSLOG": {
+        "name": "Syslog",
+        "description": "Senden Sie Syslog (RFC 5424/3164) von jedem Gerät oder jeder Anwendung an den Collector-Endpunkt für die zentrale Protokollaufnahme."
+      },
+      "JSON": {
+        "name": "JSON Input",
+        "description": "Senden Sie JSON-Protokollinhalte an den Ingestions-Endpunkt für die strukturierte Ereignisaufnahme aus Anwendungen und Skripten."
+      },
+      "WINDOWS_SQL_SERVER": {
+        "name": "SQL Server Event Logs",
+        "description": "Collect Microsoft SQL Server audit and event records through the Windows Event Log and UTMStack agent."
+      },
+      "WINDOWS_FILE_AUDITING": {
+        "name": "Windows File Access Auditing",
+        "description": "Collect Windows file access audit events through the Windows Event Log and UTMStack agent."
+      }
     },
     "edit": {
       "title": "Integration bearbeiten"
@@ -5347,7 +5508,6 @@
       "editingDashboard": "Bearbeite: {{name}}",
       "soarEditTitle": "SOAR-Flow-Editor",
       "soarCreateTitle": "SOAR-Flow erstellen",
-
       "editingFlow": "Bearbeite Flow: {{name}}"
     },
     "focus": {

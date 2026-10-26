@@ -27,7 +27,7 @@ function AixGuide({ module: _module }: { module: Integration }) {
 
 registerCollector({
   getName: () => 'AIX',
-  matches: (n) => n.includes('aix'),
+  matches: (n) => n === 'aix' || n === 'ibm-aix',
   sections: [],
   render: (m) => <AixGuide module={m} />,
 })

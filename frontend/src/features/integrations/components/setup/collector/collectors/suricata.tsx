@@ -58,7 +58,7 @@ function SuricataGuide({ module: _module }: { module: Integration }) {
 
 registerCollector({
   getName: () => 'SURICATA',
-  matches: (n) => n.includes('suricata'),
+  matches: (n) => n === 'suricata',
   sections: [],
   render: (m) => <SuricataGuide module={m} />,
 })

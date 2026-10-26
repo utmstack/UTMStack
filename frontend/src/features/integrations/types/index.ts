@@ -35,6 +35,14 @@ export type DeployKind = 'agents & syslog' | 'device' | 'antivirus' | 'other' | 
 export type Status = 'configured' | 'available'
 export type Tab = 'all' | 'agents' | 'collectors' | 'cloud' |'custom'
 
+export type IntegrationGuideChannel = 'syslog' | 'netflow' | 'windows-agent' | 'linux-agent'
+
+export interface IntegrationLogFilter {
+  field: string
+  operator: 'IS_ONE_OF_TERMS'
+  value: unknown[]
+}
+
 export interface Integration {
   id: string;
   /** Display label, translated (i18n integrations.modules.<moduleName>). */
@@ -52,6 +60,15 @@ export interface Integration {
   systemOwner?: boolean;  // false → custom (uses the catalog row's icon/description)
   darkInvert?: boolean;
   defaultPort?: string;
+  /** Frontend-only guide route for injected and channel-based integrations. */
+  guideChannel?: IntegrationGuideChannel;
+  /** This entry is a presentation/demo fallback and has no catalog row of its own. */
+  guideOnly?: boolean;
+  /** Technology-specific filters passed to Log Explorer. */
+  logFilters?: IntegrationLogFilter[];
+  /** Value entered by the user for sources identified by sender/exporter address. */
+  logFilterField?: 'dataSource' | 'log.exporter';
+  guideSetting?: string;
   cloudFields?: { label: string; placeholder: string; secret?: boolean }[];
   events24h?: number;
   rate?: number;

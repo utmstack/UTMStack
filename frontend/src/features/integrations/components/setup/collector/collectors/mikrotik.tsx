@@ -36,7 +36,7 @@ add action=utmstack topics=account,error,info,warning`} />
 
 registerCollector({
   getName: () => 'MIKROTIK',
-  matches: (n) => n.includes('mikrotik'),
+  matches: (n) => n === 'mikrotik' || n === 'firewall-mikrotik',
   sections: [],
   render: (m) => <MikroTikGuide module={m} />,
 })

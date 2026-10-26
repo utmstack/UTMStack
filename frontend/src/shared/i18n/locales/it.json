@@ -3506,57 +3506,218 @@
       "error": "Eliminazione dell'integrazione non riuscita"
     },
     "modules": {
-      "WINDOWS_AGENT": "Raccogli l'attività di sistema Windows, sicurezza e log degli eventi tramite l'agente leggero UTMStack installato su ciascun host.",
-      "LINUX_AGENT": "Raccogli i log di sistema Linux, autenticazione e audit tramite l'agente leggero UTMStack installato su ciascun host.",
-      "MACOS": "Raccogli l'attività di log di sistema e sicurezza di macOS dagli endpoint Apple Mac tramite l'agente leggero UTMStack.",
-      "VMWARE": "Acquisisci il syslog dell'hypervisor VMware ESXi in modo che l'attività e gli eventi dell'host di virtualizzazione vengano monitorati in UTMStack.",
-      "NETFLOW": "Acquisisci i record NetFlow da router e switch per monitorare i pattern di traffico di rete e rilevare anomalie del traffico.",
-      "AWS_IAM_USER": "Acquisisci l'attività dell'account AWS e le chiamate API tramite CloudTrail e CloudWatch per controllare l'utilizzo cloud, gli accessi e le modifiche.",
-      "AZURE": "Acquisisci i log di piattaforma e attività di Microsoft Azure per monitorare i workload cloud, l'identità e le modifiche alle risorse.",
-      "O365": "Acquisisci i log di audit di Microsoft 365 su Exchange, Teams, SharePoint e OneDrive per monitorare l'attività degli utenti e degli amministratori.",
-      "GCP": "Acquisisci i log di audit e attività di Google Cloud Platform per monitorare compute, storage e identità tra i progetti.",
-      "KASPERSKY": "Acquisisci i rilevamenti di Kaspersky Security Center e la telemetria degli endpoint per correlare l'attività malware nella rete.",
-      "ESET": "Acquisisci i rilevamenti endpoint e la telemetria di ESET PROTECT per correlare la difesa multilivello dal malware nel tuo parco macchine.",
-      "BITDEFENDER": "Acquisisci i rilevamenti di Bitdefender GravityZone e la telemetria degli endpoint per correlare le minacce tra i dispositivi aziendali.",
-      "SENTINEL_ONE": "Acquisisci i rilevamenti endpoint e la telemetria comportamentale di SentinelOne per correlare e investigare le minacce su larga scala.",
-      "SOPHOS": "Acquisisci i rilevamenti di Sophos Central su endpoint, server, firewall ed e-mail per correlare le minacce in un unico luogo.",
-      "CROWDSTRIKE": "Acquisisci i rilevamenti su endpoint e workload di CrowdStrike Falcon per correlare l'attività cloud-native delle minacce in UTMStack.",
-      "CISCO": "Acquisisci il traffico firewall Cisco ASA, VPN e log delle minacce per monitorare la sicurezza perimetrale e gli accessi in UTMStack.",
-      "MERAKI": "Acquisisci il syslog di firewall e security appliance Cisco Meraki per monitorare il traffico di rete e le minacce gestite nel cloud.",
-      "FIRE_POWER": "Acquisisci i log di Cisco Firepower NGFW e IPS per monitorare i tentativi di intrusione e l'attività delle minacce al perimetro.",
-      "CISCO_SWITCH": "Acquisisci il syslog e la telemetria degli switch Cisco per monitorare le prestazioni di rete, le modifiche alla configurazione e la sicurezza.",
-      "FORTIGATE": "Acquisisci il traffico Fortinet FortiGate NGFW e i log delle minacce per monitorare la sicurezza perimetrale e l'attività di rete.",
-      "FORTIWEB": "Acquisisci i log WAF di Fortinet FortiWeb per monitorare gli attacchi alle applicazioni web e proteggere servizi e API esposti.",
-      "SOPHOS_XG": "Acquisisci i log del firewall Sophos XG relativi a web filtering, IPS e VPN per monitorare il traffico di rete e le minacce.",
-      "PALO_ALTO": "Acquisisci il traffico Palo Alto Networks NGFW e i log delle minacce per monitorare l'utilizzo delle applicazioni e la sicurezza perimetrale.",
-      "SONIC_WALL": "Acquisisci il traffico SonicWall NGFW e i log delle minacce per monitorare la sicurezza perimetrale e l'attività di rete in UTMStack.",
-      "PFSENSE": "Acquisisci i log di firewall e router pfSense con unified threat management per monitorare il traffico di rete e le minacce.",
-      "MIKROTIK": "Acquisisci i log di firewall, routing e wireless di MikroTik RouterOS per monitorare l'attività di rete e la configurazione.",
-      "AIX": "Raccogli i log di sistema Unix IBM AIX, sicurezza e audit per monitorare l'attività sulle piattaforme IBM Power in UTMStack.",
-      "AS_400": "Raccogli journal di sistema e di controllo IBM AS/400 (IBM i) per monitorare l'attività degli utenti sulle piattaforme midrange OS/400.",
-      "ORACLE": "Acquisisci i log di audit di Oracle Database per monitorare query, accessi e attività privilegiate nei tuoi database.",
-      "SURICATA": "Acquisisci avvisi ed eventi di rete Suricata IDS/IPS per rilevare intrusioni e traffico malevolo sulla rete.",
-      "DECEPTIVE_BYTES": "Acquisisci gli avvisi di Deceptive Bytes dalla sua piattaforma di inganno attivo degli endpoint per rilevare tempestivamente l'attività degli attaccanti.",
-      "GITHUB": "Acquisisci i log di audit di GitHub per monitorare l'accesso ai repository, le modifiche al codice e l'attività dell'organizzazione ai fini della sicurezza del codice sorgente.",
-      "UTMSTACK": "Acquisisci la telemetria SIEM e XDR di UTMStack per monitorare l'integrità della piattaforma, l'attività interna e gli eventi di self-audit.",
-      "NGINX": "Acquisisci i log di accesso ed errore di Nginx per monitorare l'attività del web server, il traffico del proxy inverso e le richieste dei client.",
-      "APACHE": "Acquisisci i log di accesso ed errore di Apache HTTPD per monitorare l'attività del web server e le richieste dei client.",
-      "APACHE2": "Acquisisci i log del web server Apache2 (HTTPD) per monitorare la gestione delle richieste, gli errori e l'accesso sugli host Linux.",
-      "IIS": "Acquisisci l'attività di accesso e i file di log di Internet Information Services (IIS) per monitorare il web server di Windows.",
-      "MYSQL": "Acquisisci l'attività di log di MySQL per monitorare query, autenticazione e accesso al data store.",
-      "POSTGRESQL": "Acquisisci i log di PostgreSQL per monitorare query, accesso e attività nei tuoi data store.",
-      "MONGODB": "Acquisisci l'attività di log di MongoDB per monitorare l'accesso al database documentale, le query e il comportamento dell'applicazione.",
-      "REDIS": "Acquisisci l'attività di log e telemetria di Redis per monitorare l'uso del data store in memoria e i workload in tempo reale.",
-      "ELASTICSEARCH": "Acquisisci i log di Elasticsearch per monitorare il motore di ricerca e analisi e i relativi workload applicativi.",
-      "LOGSTASH": "Acquisisci i log delle pipeline Logstash per monitorare la pipeline di elaborazione dati e le trasformazioni degli eventi.",
-      "KIBANA": "Acquisisci i log di Kibana per monitorare il layer di visualizzazione ed esplorazione dati e il relativo utilizzo.",
-      "KAFKA": "Acquisisci i log di Apache Kafka per monitorare le pipeline di streaming in tempo reale, i broker e il flusso dei messaggi.",
-      "NATS": "Acquisisci i log di messaging NATS per monitorare il message bus, la connettività e la consegna degli eventi.",
-      "HAPROXY": "Acquisisci i log di HAProxy per monitorare il bilanciamento del carico, il traffico del proxy e la disponibilità della rete.",
-      "TRAEFIK": "Acquisisci i log di Traefik per monitorare il routing, il bilanciamento del carico e il traffico del proxy tra i workload.",
-      "OSQUERY": "Acquisisci i log di OsQuery per monitorare lo stato degli endpoint, le query e l'inventario di sistema tramite richieste in stile SQL.",
-      "SYSLOG": "Invia syslog (RFC 5424/3164) da qualsiasi dispositivo o applicazione all'endpoint del collector per l'acquisizione centralizzata dei log.",
-      "JSON": "Invia carichi di log in JSON all'endpoint di acquisizione per l'ingest strutturata di eventi da applicazioni e script."
+      "WINDOWS_AGENT": {
+        "name": "Windows Agent",
+        "description": "Raccogli l'attività di sistema Windows, sicurezza e log degli eventi tramite l'agente leggero UTMStack installato su ciascun host."
+      },
+      "LINUX_AGENT": {
+        "name": "Linux Agent",
+        "description": "Raccogli i log di sistema Linux, autenticazione e audit tramite l'agente leggero UTMStack installato su ciascun host."
+      },
+      "MACOS": {
+        "name": "macOS",
+        "description": "Raccogli l'attività di log di sistema e sicurezza di macOS dagli endpoint Apple Mac tramite l'agente leggero UTMStack."
+      },
+      "VMWARE": {
+        "name": "VMware",
+        "description": "Acquisisci il syslog dell'hypervisor VMware ESXi in modo che l'attività e gli eventi dell'host di virtualizzazione vengano monitorati in UTMStack."
+      },
+      "NETFLOW": {
+        "name": "NetFlow",
+        "description": "Acquisisci i record NetFlow da router e switch per monitorare i pattern di traffico di rete e rilevare anomalie del traffico."
+      },
+      "AWS_IAM_USER": {
+        "name": "AWS",
+        "description": "Acquisisci l'attività dell'account AWS e le chiamate API tramite CloudTrail e CloudWatch per controllare l'utilizzo cloud, gli accessi e le modifiche."
+      },
+      "AZURE": {
+        "name": "Microsoft Azure",
+        "description": "Acquisisci i log di piattaforma e attività di Microsoft Azure per monitorare i workload cloud, l'identità e le modifiche alle risorse."
+      },
+      "O365": {
+        "name": "Microsoft 365",
+        "description": "Acquisisci i log di audit di Microsoft 365 su Exchange, Teams, SharePoint e OneDrive per monitorare l'attività degli utenti e degli amministratori."
+      },
+      "GCP": {
+        "name": "Google Cloud Platform",
+        "description": "Acquisisci i log di audit e attività di Google Cloud Platform per monitorare compute, storage e identità tra i progetti."
+      },
+      "KASPERSKY": {
+        "name": "Kaspersky",
+        "description": "Acquisisci i rilevamenti di Kaspersky Security Center e la telemetria degli endpoint per correlare l'attività malware nella rete."
+      },
+      "ESET": {
+        "name": "ESET",
+        "description": "Acquisisci i rilevamenti endpoint e la telemetria di ESET PROTECT per correlare la difesa multilivello dal malware nel tuo parco macchine."
+      },
+      "BITDEFENDER": {
+        "name": "Bitdefender",
+        "description": "Acquisisci i rilevamenti di Bitdefender GravityZone e la telemetria degli endpoint per correlare le minacce tra i dispositivi aziendali."
+      },
+      "SENTINEL_ONE": {
+        "name": "SentinelOne",
+        "description": "Acquisisci i rilevamenti endpoint e la telemetria comportamentale di SentinelOne per correlare e investigare le minacce su larga scala."
+      },
+      "SOPHOS": {
+        "name": "Sophos Central",
+        "description": "Acquisisci i rilevamenti di Sophos Central su endpoint, server, firewall ed e-mail per correlare le minacce in un unico luogo."
+      },
+      "CROWDSTRIKE": {
+        "name": "CrowdStrike Falcon",
+        "description": "Acquisisci i rilevamenti su endpoint e workload di CrowdStrike Falcon per correlare l'attività cloud-native delle minacce in UTMStack."
+      },
+      "CISCO": {
+        "name": "Cisco ASA",
+        "description": "Acquisisci il traffico firewall Cisco ASA, VPN e log delle minacce per monitorare la sicurezza perimetrale e gli accessi in UTMStack."
+      },
+      "MERAKI": {
+        "name": "Cisco Meraki",
+        "description": "Acquisisci il syslog di firewall e security appliance Cisco Meraki per monitorare il traffico di rete e le minacce gestite nel cloud."
+      },
+      "FIRE_POWER": {
+        "name": "Cisco Firepower",
+        "description": "Acquisisci i log di Cisco Firepower NGFW e IPS per monitorare i tentativi di intrusione e l'attività delle minacce al perimetro."
+      },
+      "CISCO_SWITCH": {
+        "name": "Cisco Switch",
+        "description": "Acquisisci il syslog e la telemetria degli switch Cisco per monitorare le prestazioni di rete, le modifiche alla configurazione e la sicurezza."
+      },
+      "FORTIGATE": {
+        "name": "FortiGate",
+        "description": "Acquisisci il traffico Fortinet FortiGate NGFW e i log delle minacce per monitorare la sicurezza perimetrale e l'attività di rete."
+      },
+      "FORTIWEB": {
+        "name": "FortiWeb",
+        "description": "Acquisisci i log WAF di Fortinet FortiWeb per monitorare gli attacchi alle applicazioni web e proteggere servizi e API esposti."
+      },
+      "SOPHOS_XG": {
+        "name": "Sophos XG",
+        "description": "Acquisisci i log del firewall Sophos XG relativi a web filtering, IPS e VPN per monitorare il traffico di rete e le minacce."
+      },
+      "PALO_ALTO": {
+        "name": "Palo Alto Networks",
+        "description": "Acquisisci il traffico Palo Alto Networks NGFW e i log delle minacce per monitorare l'utilizzo delle applicazioni e la sicurezza perimetrale."
+      },
+      "SONIC_WALL": {
+        "name": "SonicWall",
+        "description": "Acquisisci il traffico SonicWall NGFW e i log delle minacce per monitorare la sicurezza perimetrale e l'attività di rete in UTMStack."
+      },
+      "PFSENSE": {
+        "name": "pfSense",
+        "description": "Acquisisci i log di firewall e router pfSense con unified threat management per monitorare il traffico di rete e le minacce."
+      },
+      "MIKROTIK": {
+        "name": "MikroTik",
+        "description": "Acquisisci i log di firewall, routing e wireless di MikroTik RouterOS per monitorare l'attività di rete e la configurazione."
+      },
+      "AIX": {
+        "name": "IBM AIX",
+        "description": "Raccogli i log di sistema Unix IBM AIX, sicurezza e audit per monitorare l'attività sulle piattaforme IBM Power in UTMStack."
+      },
+      "AS_400": {
+        "name": "IBM i (AS/400)",
+        "description": "Raccogli journal di sistema e di controllo IBM AS/400 (IBM i) per monitorare l'attività degli utenti sulle piattaforme midrange OS/400."
+      },
+      "ORACLE": {
+        "name": "Oracle Database",
+        "description": "Acquisisci i log di audit di Oracle Database per monitorare query, accessi e attività privilegiate nei tuoi database."
+      },
+      "SURICATA": {
+        "name": "Suricata",
+        "description": "Acquisisci avvisi ed eventi di rete Suricata IDS/IPS per rilevare intrusioni e traffico malevolo sulla rete."
+      },
+      "DECEPTIVE_BYTES": {
+        "name": "Deceptive Bytes",
+        "description": "Acquisisci gli avvisi di Deceptive Bytes dalla sua piattaforma di inganno attivo degli endpoint per rilevare tempestivamente l'attività degli attaccanti."
+      },
+      "GITHUB": {
+        "name": "GitHub",
+        "description": "Acquisisci i log di audit di GitHub per monitorare l'accesso ai repository, le modifiche al codice e l'attività dell'organizzazione ai fini della sicurezza del codice sorgente."
+      },
+      "UTMSTACK": {
+        "name": "UTMStack",
+        "description": "Acquisisci la telemetria SIEM e XDR di UTMStack per monitorare l'integrità della piattaforma, l'attività interna e gli eventi di self-audit."
+      },
+      "NGINX": {
+        "name": "Nginx",
+        "description": "Acquisisci i log di accesso ed errore di Nginx per monitorare l'attività del web server, il traffico del proxy inverso e le richieste dei client."
+      },
+      "APACHE": {
+        "name": "Apache",
+        "description": "Acquisisci i log di accesso ed errore di Apache HTTPD per monitorare l'attività del web server e le richieste dei client."
+      },
+      "APACHE2": {
+        "name": "Apache2",
+        "description": "Acquisisci i log del web server Apache2 (HTTPD) per monitorare la gestione delle richieste, gli errori e l'accesso sugli host Linux."
+      },
+      "IIS": {
+        "name": "IIS",
+        "description": "Acquisisci l'attività di accesso e i file di log di Internet Information Services (IIS) per monitorare il web server di Windows."
+      },
+      "MYSQL": {
+        "name": "MySQL",
+        "description": "Acquisisci l'attività di log di MySQL per monitorare query, autenticazione e accesso al data store."
+      },
+      "POSTGRESQL": {
+        "name": "PostgreSQL",
+        "description": "Acquisisci i log di PostgreSQL per monitorare query, accesso e attività nei tuoi data store."
+      },
+      "MONGODB": {
+        "name": "MongoDB",
+        "description": "Acquisisci l'attività di log di MongoDB per monitorare l'accesso al database documentale, le query e il comportamento dell'applicazione."
+      },
+      "REDIS": {
+        "name": "Redis",
+        "description": "Acquisisci l'attività di log e telemetria di Redis per monitorare l'uso del data store in memoria e i workload in tempo reale."
+      },
+      "ELASTICSEARCH": {
+        "name": "Elasticsearch",
+        "description": "Acquisisci i log di Elasticsearch per monitorare il motore di ricerca e analisi e i relativi workload applicativi."
+      },
+      "LOGSTASH": {
+        "name": "Logstash",
+        "description": "Acquisisci i log delle pipeline Logstash per monitorare la pipeline di elaborazione dati e le trasformazioni degli eventi."
+      },
+      "KIBANA": {
+        "name": "Kibana",
+        "description": "Acquisisci i log di Kibana per monitorare il layer di visualizzazione ed esplorazione dati e il relativo utilizzo."
+      },
+      "KAFKA": {
+        "name": "Apache Kafka",
+        "description": "Acquisisci i log di Apache Kafka per monitorare le pipeline di streaming in tempo reale, i broker e il flusso dei messaggi."
+      },
+      "NATS": {
+        "name": "NATS",
+        "description": "Acquisisci i log di messaging NATS per monitorare il message bus, la connettività e la consegna degli eventi."
+      },
+      "HAPROXY": {
+        "name": "HAProxy",
+        "description": "Acquisisci i log di HAProxy per monitorare il bilanciamento del carico, il traffico del proxy e la disponibilità della rete."
+      },
+      "TRAEFIK": {
+        "name": "Traefik",
+        "description": "Acquisisci i log di Traefik per monitorare il routing, il bilanciamento del carico e il traffico del proxy tra i workload."
+      },
+      "OSQUERY": {
+        "name": "osquery",
+        "description": "Acquisisci i log di OsQuery per monitorare lo stato degli endpoint, le query e l'inventario di sistema tramite richieste in stile SQL."
+      },
+      "SYSLOG": {
+        "name": "Syslog",
+        "description": "Invia syslog (RFC 5424/3164) da qualsiasi dispositivo o applicazione all'endpoint del collector per l'acquisizione centralizzata dei log."
+      },
+      "JSON": {
+        "name": "JSON Input",
+        "description": "Invia carichi di log in JSON all'endpoint di acquisizione per l'ingest strutturata di eventi da applicazioni e script."
+      },
+      "WINDOWS_SQL_SERVER": {
+        "name": "SQL Server Event Logs",
+        "description": "Collect Microsoft SQL Server audit and event records through the Windows Event Log and UTMStack agent."
+      },
+      "WINDOWS_FILE_AUDITING": {
+        "name": "Windows File Access Auditing",
+        "description": "Collect Windows file access audit events through the Windows Event Log and UTMStack agent."
+      }
     },
     "edit": {
       "title": "Modifica integrazione"

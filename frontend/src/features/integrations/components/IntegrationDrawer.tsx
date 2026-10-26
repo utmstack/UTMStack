@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { ExternalLink, Filter, LayoutDashboard, ListChecks, X } from 'lucide-react'
@@ -17,6 +18,7 @@ import { CrowdStrikeGuide } from '@/features/integrations/components/setup/cloud
 import { M365Guide } from '@/features/integrations/components/setup/collector/collectors/M365Guide'
 import { SophosGuide } from '@/features/integrations/components/setup/collector/collectors/SophosGuide'
 import { CustomSetup } from '@/features/integrations/components/setup/CustomSetup'
+import { getIntegrationDashboardSearch } from '@/features/dashboard/utils/integration-dashboard-routing'
 import type { Integration } from '@/features/integrations/types'
 
 const isAWS = (name: string) =>
@@ -68,6 +70,7 @@ export function IntegrationDrawer({ integration: i, onClose }: IntegrationDrawer
   const { t } = useTranslation()
   const { theme } = useThemeContext()
   const navigate = useNavigate()
+  const [logFilterValue, setLogFilterValue] = useState('')
   const km = KIND_META[i.kind]
   const logo = theme === 'dark' && i.logoDark ? i.logoDark : i.logo
   const isCollectorGroup = km?.group === 'collectors'
@@ -76,13 +79,20 @@ export function IntegrationDrawer({ integration: i, onClose }: IntegrationDrawer
   const rulesHref = `/alerting-rules${dtQuery}`
   const filtersHref = `/pipelines${dtQuery}`
 
+  useEffect(() => {
+    setLogFilterValue('')
+  }, [i.id])
+
   const viewEvents = () => {
+    const sourceFilter = i.logFilterField && logFilterValue.trim()
+      ? [{ field: i.logFilterField, operator: 'IS_ONE_OF_TERMS' as const, value: [logFilterValue.trim()] }]
+      : []
     navigate('/log-explorer', {
       state: {
         dashboardSearch: {
           dataset: 'logs',
           dataType: i.dataType,
-          filters: [],
+          filters: [...(i.logFilters ?? []), ...sourceFilter],
           range: presetRange('24h'),
         },
       },
@@ -91,7 +101,7 @@ export function IntegrationDrawer({ integration: i, onClose }: IntegrationDrawer
 
   const openDashboard = () => {
     navigate('/dashboards/list', {
-      state: { integrationDashboardName: i.moduleName ?? i.dataType ?? i.name },
+      state: { integrationDashboardSearch: getIntegrationDashboardSearch(i) },
     })
   }
 
@@ -143,9 +153,23 @@ export function IntegrationDrawer({ integration: i, onClose }: IntegrationDrawer
               <LayoutDashboard size={13} className="mr-1.5" />
               {t('integrations.drawer.openDashboard')}
             </Button>
-            <Button size="sm" variant="outline" onClick={viewEvents}>
+            {i.logFilterField && (
+              <input
+                value={logFilterValue}
+                onChange={(event) => setLogFilterValue(event.target.value)}
+                aria-label={i.logFilterField === 'dataSource' ? 'Log sender' : 'NetFlow exporter address'}
+                placeholder={i.logFilterField === 'dataSource' ? 'Sender (dataSource)' : 'Exporter address'}
+                className="h-9 min-w-40 rounded-md border border-border bg-background px-3 text-xs text-foreground"
+              />
+            )}
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={viewEvents}
+              disabled={!!i.logFilterField && !logFilterValue.trim()}
+            >
               <ExternalLink size={13} className="mr-1.5" />
-              {t('integrations.drawer.viewEvents')}
+              {t('datasources.drawer.viewLogs')}
             </Button>
             <Button
               size="sm"

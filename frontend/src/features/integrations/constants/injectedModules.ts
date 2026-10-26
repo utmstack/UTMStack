@@ -1,4 +1,9 @@
-import type { Integration, DeployKind } from '@/features/integrations/types'
+import type {
+  Integration,
+  DeployKind,
+  IntegrationGuideChannel,
+  IntegrationLogFilter,
+} from '@/features/integrations/types'
 
 /**
  * Integrations that exist in the product but not in the backend `integrations`
@@ -6,16 +11,9 @@ import type { Integration, DeployKind } from '@/features/integrations/types'
  * it). They are injected client-side so they show up as catalog cards with their
  * setup guides, exactly like the backend-owned ones.
  *
- * These are the log sources v10/v11 shipped and later dropped (the 2026-02-18
- * removal batch): web servers, databases, app stacks, messaging and proxies,
- * plus the two generic channels SYSLOG and JSON. Each keeps its own `dataType`
- * (no shared parse pipeline — see the plan) and `ingestType: 'forwarder'` so it
- * groups under Collectors and routes to the collector guide in the drawer.
- *
- * `kind` is 'other' for all of them: `KIND_META['other'].group === 'collectors'`,
- * which is what makes IntegrationDrawer render <CollectorSetup>. From there
- * `getCollector(moduleName)` picks the specific guide when one is registered
- * (IIS, SYSLOG, JSON) and falls back to the generic collector guide otherwise.
+ * These frontend-owned demonstration entries fill gaps in the backend catalog.
+ * The API row wins when one exists; otherwise the stable injected entry keeps
+ * its icon, category, guide channel and log filter available in the grid.
  *
  * IDs are fixed (not random per render) so React keys and references stay
  * stable across refetches.
@@ -50,22 +48,82 @@ const SEEDS: InjectedSeed[] = [
   { id: '5e6f7a8b-9c0d-4e1f-2a3b-4c5d6e7f8a9b', name: 'OsQuery', moduleName: 'OSQUERY', dataType: 'osquery', kind: 'other', category: 'other', icon: 'osquery.svg', defaultPort: 'agent (local)' },
   { id: '6f7a8b9c-0d1e-4f2a-3b4c-5d6e7f8a9b0c', name: 'Syslog', moduleName: 'SYSLOG', dataType: 'syslog', kind: 'other', category: 'syslog', icon: 'syslog.svg', defaultPort: '514/udp' },
   { id: '7a8b9c0d-1e2f-4a3b-4c5d-6e7f8a9b0c1d', name: 'JSON Input', moduleName: 'JSON', dataType: 'json-input', kind: 'other', category: 'other', icon: 'json.svg', defaultPort: '8080' },
+  { id: '8b9c0d1e-2f3a-4b5c-8d9e-0f1a2b3c4d5e', name: 'SQL Server Event Logs', moduleName: 'WINDOWS_SQL_SERVER', dataType: 'wineventlog', kind: 'other', category: 'database', icon: 'windows.png', defaultPort: 'agent (local)' },
+  { id: '9c0d1e2f-3a4b-5c6d-9e0f-1a2b3c4d5e6f', name: 'Windows File Access Auditing', moduleName: 'WINDOWS_FILE_AUDITING', dataType: 'wineventlog', kind: 'other', category: 'operating-system', icon: 'windows.png', defaultPort: 'agent (local)' },
+  { id: 'ad1e2f3a-4b5c-6d7e-8f90-1a2b3c4d5e6f', name: 'NetFlow Exporter', moduleName: 'NETFLOW', dataType: 'netflow', kind: 'other', category: 'network', icon: 'netflow.svg', defaultPort: '2055/udp' },
 ]
 
-export const INJECTED_MODULES: Integration[] = SEEDS.map((s) => ({
-  id: s.id,
-  name: s.name,
-  moduleName: s.moduleName,
-  dataType: s.dataType,
-  ingestType: 'forwarder',
-  kind: s.kind,
-  status: 'available',
-  description: '',
-  category: s.category,
-  logo: `/integrations/${s.icon}`,
-  systemOwner: true,
-  defaultPort: s.defaultPort,
-  events24h: undefined,
-  rate: undefined,
-  darkInvert: false,
-}))
+interface GuideMetadata {
+  channel: IntegrationGuideChannel
+  dataType?: string
+  defaultPort?: string
+  filters?: IntegrationLogFilter[]
+  filterField?: 'dataSource' | 'log.exporter'
+  setting?: string
+}
+
+const GUIDE_METADATA: Record<string, GuideMetadata> = {
+  DEFAULT: {
+    channel: 'syslog',
+    dataType: 'syslog',
+    defaultPort: '7014/tcp',
+    filterField: 'dataSource',
+  },
+  NGINX: {
+    channel: 'linux-agent',
+    dataType: 'linux',
+    filters: [{ field: 'log.syslogIdentifier', operator: 'IS_ONE_OF_TERMS', value: ['nginx'] }],
+    setting: 'Configure Nginx access and error logs to be forwarded to the Linux journal or syslog.',
+  },
+  SYSLOG: { channel: 'syslog', defaultPort: '7014/tcp', filterField: 'dataSource' },
+  NETFLOW: { channel: 'netflow', defaultPort: '2055/udp', filterField: 'log.exporter' },
+  JSON: {
+    channel: 'syslog',
+    dataType: 'syslog',
+    defaultPort: '7014/tcp',
+    filterField: 'dataSource',
+    setting: 'The legacy JSON HTTP endpoint is not published in v12. This demo entry uses the supported syslog channel; send JSON text as a syslog message.',
+  },
+  WINDOWS_SQL_SERVER: {
+    channel: 'windows-agent',
+    filters: [
+      { field: 'log.providerName', operator: 'IS_ONE_OF_TERMS', value: ['MSSQLSERVER'] },
+      { field: 'log.channel', operator: 'IS_ONE_OF_TERMS', value: ['Application'] },
+    ],
+    setting: 'Enable SQL Server auditing and write its events to the Windows Application event log. The event provider name depends on the SQL Server instance configuration.',
+  },
+  WINDOWS_FILE_AUDITING: {
+    channel: 'windows-agent',
+    filters: [
+      { field: 'log.providerName', operator: 'IS_ONE_OF_TERMS', value: ['Microsoft-Windows-Security-Auditing'] },
+      { field: 'log.channel', operator: 'IS_ONE_OF_TERMS', value: ['Security'] },
+    ],
+    setting: 'Enable File System auditing in Advanced Audit Policy and configure auditing entries on the folders to monitor.',
+  },
+}
+
+export const INJECTED_MODULES: Integration[] = SEEDS.map((s) => {
+  const guide = GUIDE_METADATA[s.moduleName] ?? GUIDE_METADATA.DEFAULT
+  return {
+    id: s.id,
+    name: s.name,
+    moduleName: s.moduleName,
+    dataType: guide.dataType ?? s.dataType,
+    ingestType: 'forwarder',
+    kind: s.kind,
+    status: 'available',
+    description: guide.setting ?? '',
+    category: s.category,
+    logo: `/integrations/${s.icon}`,
+    systemOwner: true,
+    guideOnly: true,
+    defaultPort: guide.defaultPort ?? s.defaultPort,
+    guideChannel: guide.channel,
+    logFilters: guide.filters,
+    logFilterField: guide.filterField,
+    guideSetting: guide.setting ?? `Configure ${s.name} to send its logs through the supported syslog channel.`,
+    events24h: undefined,
+    rate: undefined,
+    darkInvert: false,
+  }
+})

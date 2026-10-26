@@ -1,5 +1,5 @@
 import { registerCollector } from '../registry'
-import { CollectorEndpointInfo } from '../CollectorEndpointInfo'
+import { ChannelGuide } from '@/features/integrations/components/setup/ChannelGuide'
 
 const ROOT = 'integrations.setup.collector.syslog'
 
@@ -25,5 +25,5 @@ registerCollector({
       step: 3,
     },
   ],
-  render: (m) => <CollectorEndpointInfo module={m} port="514/udp" sourceType="syslog" />,
+  render: (m) => <ChannelGuide integration={{ ...m, guideChannel: 'syslog' }} />,
 })

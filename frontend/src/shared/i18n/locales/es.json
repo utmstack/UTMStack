@@ -3479,57 +3479,218 @@
       "error": "No se pudo eliminar la integración"
     },
     "modules": {
-      "WINDOWS_AGENT": "Recopila actividad del sistema Windows, seguridad y registros de eventos a través del agente ligero de UTMStack instalado en cada host.",
-      "LINUX_AGENT": "Recopila registros del sistema Linux, autenticación y auditoría a través del agente ligero de UTMStack instalado en cada host.",
-      "MACOS": "Recopila actividad de registros del sistema y seguridad de macOS desde endpoints Apple Mac a través del agente ligero de UTMStack.",
-      "VMWARE": "Ingesta el syslog del hipervisor VMware ESXi para monitorear la actividad y eventos del host de virtualización en UTMStack.",
-      "NETFLOW": "Ingesta registros NetFlow de routers y switches para monitorear patrones de tráfico de red y detectar anomalías.",
-      "AWS_IAM_USER": "Ingesta actividad de cuentas AWS y llamadas a API mediante CloudTrail y CloudWatch para auditar el uso, acceso y cambios en la nube.",
-      "AZURE": "Ingesta registros de plataforma y actividad de Microsoft Azure para monitorear cargas de trabajo en la nube, identidad y cambios en recursos.",
-      "O365": "Ingesta registros de auditoría de Microsoft 365 en Exchange, Teams, SharePoint y OneDrive para monitorear la actividad de usuarios y administradores.",
-      "GCP": "Ingesta registros de auditoría y actividad de Google Cloud Platform para monitorear cómputo, almacenamiento e identidad en los proyectos.",
-      "KASPERSKY": "Ingesta detecciones de Kaspersky Security Center y telemetría de endpoints para correlacionar actividad de malware en la red.",
-      "ESET": "Ingesta detecciones y telemetría de endpoints de ESET PROTECT para correlacionar la defensa multicapa contra malware en tu infraestructura.",
-      "BITDEFENDER": "Ingesta detecciones de Bitdefender GravityZone y telemetría de endpoints para correlacionar amenazas en los dispositivos empresariales.",
-      "SENTINEL_ONE": "Ingesta detecciones de endpoints y telemetría de comportamiento de SentinelOne para correlacionar e investigar amenazas a escala.",
-      "SOPHOS": "Ingesta detecciones de Sophos Central en endpoints, servidores, firewall y correo electrónico para correlacionar amenazas en un solo lugar.",
-      "CROWDSTRIKE": "Ingesta detecciones de endpoints y cargas de trabajo de CrowdStrike Falcon para correlacionar actividad de amenazas nativas de la nube en UTMStack.",
-      "CISCO": "Ingesta registros de tráfico, VPN y amenazas del firewall Cisco ASA para monitorear la seguridad perimetral y el acceso en UTMStack.",
-      "MERAKI": "Ingesta el syslog del firewall y dispositivos de seguridad Cisco Meraki para monitorear el tráfico de red gestionado en la nube y las amenazas.",
-      "FIRE_POWER": "Ingesta registros de Cisco Firepower NGFW e IPS para monitorear intentos de intrusión y actividad de amenazas en el perímetro.",
-      "CISCO_SWITCH": "Ingesta el syslog y la telemetría de switches Cisco para monitorear el rendimiento de la red, cambios de configuración y seguridad.",
-      "FORTIGATE": "Ingesta registros de tráfico y amenazas de Fortinet FortiGate NGFW para monitorear la seguridad perimetral y la actividad de red.",
-      "FORTIWEB": "Ingesta registros WAF de Fortinet FortiWeb para monitorear ataques a aplicaciones web y proteger los servicios y APIs expuestos.",
-      "SOPHOS_XG": "Ingesta registros del firewall Sophos XG con filtrado web, IPS y VPN para monitorear el tráfico de red y las amenazas.",
-      "PALO_ALTO": "Ingesta registros de tráfico y amenazas de Palo Alto Networks NGFW para monitorear el uso de aplicaciones y la seguridad perimetral.",
-      "SONIC_WALL": "Ingesta registros de tráfico y amenazas de SonicWall NGFW para monitorear la seguridad perimetral y la actividad de red en UTMStack.",
-      "PFSENSE": "Ingesta registros del firewall y router pfSense con gestión unificada de amenazas para monitorear el tráfico de red y las amenazas.",
-      "MIKROTIK": "Ingesta registros de firewall, enrutamiento y redes inalámbricas de MikroTik RouterOS para monitorear la actividad y configuración de red.",
-      "AIX": "Recopila registros del sistema Unix IBM AIX, seguridad y auditoría para monitorear la actividad en plataformas IBM Power en UTMStack.",
-      "AS_400": "Recopila diarios del sistema y de auditoría de IBM AS/400 (IBM i) para monitorear la actividad de usuarios en plataformas OS/400 de rango medio.",
-      "ORACLE": "Ingesta registros de auditoría de Oracle Database para monitorear consultas, acceso y actividad privilegiada en tus bases de datos.",
-      "SURICATA": "Ingesta alertas de Suricata IDS/IPS y eventos de red para detectar intrusiones y tráfico malicioso en la red.",
-      "DECEPTIVE_BYTES": "Ingesta alertas de Deceptive Bytes desde su plataforma de engaño activo en endpoints para detectar actividad de atacantes de forma temprana.",
-      "GITHUB": "Ingesta registros de auditoría de GitHub para monitorear el acceso a repositorios, cambios de código y actividad organizacional para la seguridad del código fuente.",
-      "UTMSTACK": "Ingesta la telemetría propia de UTMStack de SIEM y XDR para monitorear el estado de la plataforma, la actividad interna y los eventos de autoauditoría.",
-      "NGINX": "Ingesta los registros de acceso y error de Nginx para monitorear la actividad del servidor web, el tráfico del proxy inverso y las solicitudes de cliente.",
-      "APACHE": "Ingesta los registros de acceso y error de Apache HTTPD para monitorear la actividad del servidor web y las solicitudes de cliente.",
-      "APACHE2": "Ingesta los registros del servidor web Apache2 (HTTPD) para monitorear el manejo de solicitudes, errores y el acceso en hosts Linux.",
-      "IIS": "Ingesta la actividad de acceso y archivos de registro de Internet Information Services (IIS) para monitorear el servicio web de Windows.",
-      "MYSQL": "Ingesta la actividad de registros de MySQL para monitorear consultas, autenticación y acceso al almacén de datos.",
-      "POSTGRESQL": "Ingesta los registros de PostgreSQL para monitorear consultas, acceso y actividad en tus almacenes de datos.",
-      "MONGODB": "Ingesta la actividad de registros de MongoDB para monitorear el acceso a la base de datos documental, consultas y el comportamiento de la aplicación.",
-      "REDIS": "Ingesta la actividad de registros y telemetría de Redis para monitorear el uso del almacén de datos en memoria y las cargas de trabajo en tiempo real.",
-      "ELASTICsearch": "Ingesta los registros de Elasticsearch para monitorear el motor de búsqueda y análisis y sus cargas de trabajo de aplicación.",
-      "LOGSTASH": "Ingesta los registros de las tuberías de Logstash para monitorear la tubería de procesamiento de datos y sus transformaciones de eventos.",
-      "KIBANA": "Ingesta los registros de Kibana para monitorear la capa de visualización y exploración de datos y su uso.",
-      "KAFKA": "Ingesta los registros de Apache Kafka para monitorear las tuberías de streaming en tiempo real, los brokers y el flujo de mensajes.",
-      "NATS": "Ingesta los registros de mensajería de NATS para monitorear el bus de mensajes, la conectividad y la entrega de eventos.",
-      "HAPROXY": "Ingesta los registros de HAProxy para monitorear el balanceo de carga, el tráfico del proxy y la disponibilidad de red.",
-      "TRAEFIK": "Ingesta los registros de Traefik para monitorear el enrutamiento, el balanceo de carga y el tráfico del proxy entre cargas de trabajo.",
-      "OSQUERY": "Ingesta los registros de OsQuery para monitorear el estado del endpoint, las consultas y el inventario del sistema mediante solicitudes estilo SQL.",
-      "SYSLOG": "Envía syslog (RFC 5424/3164) desde cualquier dispositivo o aplicación al extremo del collector para la ingesta centralizada de registros.",
-      "JSON": "Envía cargas de registros en JSON al extremo de ingesta para la captura estructurada de eventos de aplicaciones y scripts."
+      "WINDOWS_AGENT": {
+        "name": "Windows Agent",
+        "description": "Recopila actividad del sistema Windows, seguridad y registros de eventos a través del agente ligero de UTMStack instalado en cada host."
+      },
+      "LINUX_AGENT": {
+        "name": "Linux Agent",
+        "description": "Recopila registros del sistema Linux, autenticación y auditoría a través del agente ligero de UTMStack instalado en cada host."
+      },
+      "MACOS": {
+        "name": "macOS",
+        "description": "Recopila actividad de registros del sistema y seguridad de macOS desde endpoints Apple Mac a través del agente ligero de UTMStack."
+      },
+      "VMWARE": {
+        "name": "VMware",
+        "description": "Ingesta el syslog del hipervisor VMware ESXi para monitorear la actividad y eventos del host de virtualización en UTMStack."
+      },
+      "NETFLOW": {
+        "name": "NetFlow",
+        "description": "Ingesta registros NetFlow de routers y switches para monitorear patrones de tráfico de red y detectar anomalías."
+      },
+      "AWS_IAM_USER": {
+        "name": "AWS",
+        "description": "Ingesta actividad de cuentas AWS y llamadas a API mediante CloudTrail y CloudWatch para auditar el uso, acceso y cambios en la nube."
+      },
+      "AZURE": {
+        "name": "Microsoft Azure",
+        "description": "Ingesta registros de plataforma y actividad de Microsoft Azure para monitorear cargas de trabajo en la nube, identidad y cambios en recursos."
+      },
+      "O365": {
+        "name": "Microsoft 365",
+        "description": "Ingesta registros de auditoría de Microsoft 365 en Exchange, Teams, SharePoint y OneDrive para monitorear la actividad de usuarios y administradores."
+      },
+      "GCP": {
+        "name": "Google Cloud Platform",
+        "description": "Ingesta registros de auditoría y actividad de Google Cloud Platform para monitorear cómputo, almacenamiento e identidad en los proyectos."
+      },
+      "KASPERSKY": {
+        "name": "Kaspersky",
+        "description": "Ingesta detecciones de Kaspersky Security Center y telemetría de endpoints para correlacionar actividad de malware en la red."
+      },
+      "ESET": {
+        "name": "ESET",
+        "description": "Ingesta detecciones y telemetría de endpoints de ESET PROTECT para correlacionar la defensa multicapa contra malware en tu infraestructura."
+      },
+      "BITDEFENDER": {
+        "name": "Bitdefender",
+        "description": "Ingesta detecciones de Bitdefender GravityZone y telemetría de endpoints para correlacionar amenazas en los dispositivos empresariales."
+      },
+      "SENTINEL_ONE": {
+        "name": "SentinelOne",
+        "description": "Ingesta detecciones de endpoints y telemetría de comportamiento de SentinelOne para correlacionar e investigar amenazas a escala."
+      },
+      "SOPHOS": {
+        "name": "Sophos Central",
+        "description": "Ingesta detecciones de Sophos Central en endpoints, servidores, firewall y correo electrónico para correlacionar amenazas en un solo lugar."
+      },
+      "CROWDSTRIKE": {
+        "name": "CrowdStrike Falcon",
+        "description": "Ingesta detecciones de endpoints y cargas de trabajo de CrowdStrike Falcon para correlacionar actividad de amenazas nativas de la nube en UTMStack."
+      },
+      "CISCO": {
+        "name": "Cisco ASA",
+        "description": "Ingesta registros de tráfico, VPN y amenazas del firewall Cisco ASA para monitorear la seguridad perimetral y el acceso en UTMStack."
+      },
+      "MERAKI": {
+        "name": "Cisco Meraki",
+        "description": "Ingesta el syslog del firewall y dispositivos de seguridad Cisco Meraki para monitorear el tráfico de red gestionado en la nube y las amenazas."
+      },
+      "FIRE_POWER": {
+        "name": "Cisco Firepower",
+        "description": "Ingesta registros de Cisco Firepower NGFW e IPS para monitorear intentos de intrusión y actividad de amenazas en el perímetro."
+      },
+      "CISCO_SWITCH": {
+        "name": "Cisco Switch",
+        "description": "Ingesta el syslog y la telemetría de switches Cisco para monitorear el rendimiento de la red, cambios de configuración y seguridad."
+      },
+      "FORTIGATE": {
+        "name": "FortiGate",
+        "description": "Ingesta registros de tráfico y amenazas de Fortinet FortiGate NGFW para monitorear la seguridad perimetral y la actividad de red."
+      },
+      "FORTIWEB": {
+        "name": "FortiWeb",
+        "description": "Ingesta registros WAF de Fortinet FortiWeb para monitorear ataques a aplicaciones web y proteger los servicios y APIs expuestos."
+      },
+      "SOPHOS_XG": {
+        "name": "Sophos XG",
+        "description": "Ingesta registros del firewall Sophos XG con filtrado web, IPS y VPN para monitorear el tráfico de red y las amenazas."
+      },
+      "PALO_ALTO": {
+        "name": "Palo Alto Networks",
+        "description": "Ingesta registros de tráfico y amenazas de Palo Alto Networks NGFW para monitorear el uso de aplicaciones y la seguridad perimetral."
+      },
+      "SONIC_WALL": {
+        "name": "SonicWall",
+        "description": "Ingesta registros de tráfico y amenazas de SonicWall NGFW para monitorear la seguridad perimetral y la actividad de red en UTMStack."
+      },
+      "PFSENSE": {
+        "name": "pfSense",
+        "description": "Ingesta registros del firewall y router pfSense con gestión unificada de amenazas para monitorear el tráfico de red y las amenazas."
+      },
+      "MIKROTIK": {
+        "name": "MikroTik",
+        "description": "Ingesta registros de firewall, enrutamiento y redes inalámbricas de MikroTik RouterOS para monitorear la actividad y configuración de red."
+      },
+      "AIX": {
+        "name": "IBM AIX",
+        "description": "Recopila registros del sistema Unix IBM AIX, seguridad y auditoría para monitorear la actividad en plataformas IBM Power en UTMStack."
+      },
+      "AS_400": {
+        "name": "IBM i (AS/400)",
+        "description": "Recopila diarios del sistema y de auditoría de IBM AS/400 (IBM i) para monitorear la actividad de usuarios en plataformas OS/400 de rango medio."
+      },
+      "ORACLE": {
+        "name": "Oracle Database",
+        "description": "Ingesta registros de auditoría de Oracle Database para monitorear consultas, acceso y actividad privilegiada en tus bases de datos."
+      },
+      "SURICATA": {
+        "name": "Suricata",
+        "description": "Ingesta alertas de Suricata IDS/IPS y eventos de red para detectar intrusiones y tráfico malicioso en la red."
+      },
+      "DECEPTIVE_BYTES": {
+        "name": "Deceptive Bytes",
+        "description": "Ingesta alertas de Deceptive Bytes desde su plataforma de engaño activo en endpoints para detectar actividad de atacantes de forma temprana."
+      },
+      "GITHUB": {
+        "name": "GitHub",
+        "description": "Ingesta registros de auditoría de GitHub para monitorear el acceso a repositorios, cambios de código y actividad organizacional para la seguridad del código fuente."
+      },
+      "UTMSTACK": {
+        "name": "UTMStack",
+        "description": "Ingesta la telemetría propia de UTMStack de SIEM y XDR para monitorear el estado de la plataforma, la actividad interna y los eventos de autoauditoría."
+      },
+      "NGINX": {
+        "name": "Nginx",
+        "description": "Ingesta los registros de acceso y error de Nginx para monitorear la actividad del servidor web, el tráfico del proxy inverso y las solicitudes de cliente."
+      },
+      "APACHE": {
+        "name": "Apache",
+        "description": "Ingesta los registros de acceso y error de Apache HTTPD para monitorear la actividad del servidor web y las solicitudes de cliente."
+      },
+      "APACHE2": {
+        "name": "Apache2",
+        "description": "Ingesta los registros del servidor web Apache2 (HTTPD) para monitorear el manejo de solicitudes, errores y el acceso en hosts Linux."
+      },
+      "IIS": {
+        "name": "IIS",
+        "description": "Ingesta la actividad de acceso y archivos de registro de Internet Information Services (IIS) para monitorear el servicio web de Windows."
+      },
+      "MYSQL": {
+        "name": "MySQL",
+        "description": "Ingesta la actividad de registros de MySQL para monitorear consultas, autenticación y acceso al almacén de datos."
+      },
+      "POSTGRESQL": {
+        "name": "PostgreSQL",
+        "description": "Ingesta los registros de PostgreSQL para monitorear consultas, acceso y actividad en tus almacenes de datos."
+      },
+      "MONGODB": {
+        "name": "MongoDB",
+        "description": "Ingesta la actividad de registros de MongoDB para monitorear el acceso a la base de datos documental, consultas y el comportamiento de la aplicación."
+      },
+      "REDIS": {
+        "name": "Redis",
+        "description": "Ingesta la actividad de registros y telemetría de Redis para monitorear el uso del almacén de datos en memoria y las cargas de trabajo en tiempo real."
+      },
+      "ELASTICsearch": {
+        "name": "ELASTICsearch",
+        "description": "Ingesta los registros de Elasticsearch para monitorear el motor de búsqueda y análisis y sus cargas de trabajo de aplicación."
+      },
+      "LOGSTASH": {
+        "name": "Logstash",
+        "description": "Ingesta los registros de las tuberías de Logstash para monitorear la tubería de procesamiento de datos y sus transformaciones de eventos."
+      },
+      "KIBANA": {
+        "name": "Kibana",
+        "description": "Ingesta los registros de Kibana para monitorear la capa de visualización y exploración de datos y su uso."
+      },
+      "KAFKA": {
+        "name": "Apache Kafka",
+        "description": "Ingesta los registros de Apache Kafka para monitorear las tuberías de streaming en tiempo real, los brokers y el flujo de mensajes."
+      },
+      "NATS": {
+        "name": "NATS",
+        "description": "Ingesta los registros de mensajería de NATS para monitorear el bus de mensajes, la conectividad y la entrega de eventos."
+      },
+      "HAPROXY": {
+        "name": "HAProxy",
+        "description": "Ingesta los registros de HAProxy para monitorear el balanceo de carga, el tráfico del proxy y la disponibilidad de red."
+      },
+      "TRAEFIK": {
+        "name": "Traefik",
+        "description": "Ingesta los registros de Traefik para monitorear el enrutamiento, el balanceo de carga y el tráfico del proxy entre cargas de trabajo."
+      },
+      "OSQUERY": {
+        "name": "osquery",
+        "description": "Ingesta los registros de OsQuery para monitorear el estado del endpoint, las consultas y el inventario del sistema mediante solicitudes estilo SQL."
+      },
+      "SYSLOG": {
+        "name": "Syslog",
+        "description": "Envía syslog (RFC 5424/3164) desde cualquier dispositivo o aplicación al extremo del collector para la ingesta centralizada de registros."
+      },
+      "JSON": {
+        "name": "JSON Input",
+        "description": "Envía cargas de registros en JSON al extremo de ingesta para la captura estructurada de eventos de aplicaciones y scripts."
+      },
+      "WINDOWS_SQL_SERVER": {
+        "name": "SQL Server Event Logs",
+        "description": "Collect Microsoft SQL Server audit and event records through the Windows Event Log and UTMStack agent."
+      },
+      "WINDOWS_FILE_AUDITING": {
+        "name": "Windows File Access Auditing",
+        "description": "Collect Windows file access audit events through the Windows Event Log and UTMStack agent."
+      }
     },
     "edit": {
       "title": "Editar integración"

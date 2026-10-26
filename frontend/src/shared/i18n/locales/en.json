@@ -3618,57 +3618,218 @@
       "error": "Failed to delete integration"
     },
     "modules": {
-      "WINDOWS_AGENT": "Collect Windows system, security and event-log activity through the lightweight UTMStack agent installed on each host.",
-      "LINUX_AGENT": "Collect Linux system, authentication and audit logs through the lightweight UTMStack agent installed on each host.",
-      "MACOS": "Collect macOS system and security log activity from Apple Mac endpoints through the lightweight UTMStack agent.",
-      "VMWARE": "Ingest VMware ESXi hypervisor syslog so virtualization-host activity and events are monitored within UTMStack.",
-      "NETFLOW": "Ingest NetFlow records from routers and switches to monitor network-traffic patterns and detect traffic anomalies.",
-      "AWS_IAM_USER": "Ingest AWS account activity and API calls via CloudTrail and CloudWatch to audit cloud usage, access and changes.",
-      "AZURE": "Ingest Microsoft Azure platform and activity logs to monitor cloud workloads, identity and resource changes.",
-      "O365": "Ingest Microsoft 365 audit logs across Exchange, Teams, SharePoint and OneDrive to monitor user and admin activity.",
-      "GCP": "Ingest Google Cloud Platform audit and activity logs to monitor compute, storage and identity across projects.",
-      "KASPERSKY": "Ingest Kaspersky Security Center detections and endpoint telemetry to correlate malware activity across the network.",
-      "ESET": "Ingest ESET PROTECT endpoint detections and telemetry to correlate multilayered malware defense across your estate.",
-      "BITDEFENDER": "Ingest Bitdefender GravityZone detections and endpoint telemetry to correlate threats across business devices.",
-      "SENTINEL_ONE": "Ingest SentinelOne endpoint detections and behavioral telemetry to correlate and investigate threats at scale.",
-      "SOPHOS": "Ingest Sophos Central detections across endpoint, server, firewall and email to correlate threats in one place.",
-      "CROWDSTRIKE": "Ingest CrowdStrike Falcon endpoint and workload detections to correlate cloud-native threat activity in UTMStack.",
-      "CISCO": "Ingest Cisco ASA firewall traffic, VPN and threat logs to monitor perimeter security and access within UTMStack.",
-      "MERAKI": "Ingest Cisco Meraki firewall and security-appliance syslog to monitor cloud-managed network traffic and threats.",
-      "FIRE_POWER": "Ingest Cisco Firepower NGFW and IPS logs to monitor intrusion attempts and threat activity at the perimeter.",
-      "CISCO_SWITCH": "Ingest Cisco switch syslog and telemetry to monitor network performance, configuration changes and security.",
-      "FORTIGATE": "Ingest Fortinet FortiGate NGFW traffic and threat logs to monitor perimeter security and network activity.",
-      "FORTIWEB": "Ingest Fortinet FortiWeb WAF logs to monitor web-application attacks and protect exposed services and APIs.",
-      "SOPHOS_XG": "Ingest Sophos XG firewall logs covering web filtering, IPS and VPN to monitor network traffic and threats.",
-      "PALO_ALTO": "Ingest Palo Alto Networks NGFW traffic and threat logs to monitor application usage and perimeter security.",
-      "SONIC_WALL": "Ingest SonicWall NGFW traffic and threat logs to monitor perimeter security and network activity in UTMStack.",
-      "PFSENSE": "Ingest pfSense firewall and router logs with unified threat management to monitor network traffic and threats.",
-      "MIKROTIK": "Ingest MikroTik RouterOS firewall, routing and wireless logs to monitor network activity and configuration.",
-      "AIX": "Collect IBM AIX Unix system, security and audit logs to monitor activity on IBM Power platforms within UTMStack.",
-      "AS_400": "Collect IBM AS/400 (IBM i) system and audit journals to monitor user activity on midrange OS/400 platforms.",
-      "ORACLE": "Ingest Oracle Database audit logs to monitor queries, access and privileged activity across your databases.",
-      "SURICATA": "Ingest Suricata IDS/IPS alerts and network events to detect intrusions and malicious traffic across the network.",
-      "DECEPTIVE_BYTES": "Ingest Deceptive Bytes alerts from its active endpoint-deception platform to surface attacker activity early.",
-      "GITHUB": "Ingest GitHub audit logs to monitor repository access, code changes and organization activity for source security.",
-      "UTMSTACK": "Ingest UTMStack's own SIEM and XDR telemetry to monitor platform health, internal activity and self-audit events.",
-      "NGINX": "Ingest Nginx access and error logs to monitor web-serving activity, reverse-proxy traffic and client requests.",
-      "APACHE": "Ingest Apache HTTPD access and error logs to monitor web-serving activity and client requests.",
-      "APACHE2": "Ingest Apache2 (HTTPD) web server logs to monitor request handling, errors and access on Linux hosts.",
-      "IIS": "Ingest Internet Information Services (IIS) access and log-file activity to monitor Windows web serving.",
-      "MYSQL": "Ingest MySQL database log activity to monitor queries, authentication and data-store access.",
-      "POSTGRESQL": "Ingest PostgreSQL database logs to monitor queries, access and activity across your data stores.",
-      "MONGODB": "Ingest MongoDB log activity to monitor document-database access, queries and application behavior.",
-      "REDIS": "Ingest Redis log and telemetry activity to monitor in-memory data store usage and real-time workloads.",
-      "ELASTICSEARCH": "Ingest Elasticsearch logs to monitor the search and analytics engine and its application workloads.",
-      "LOGSTASH": "Ingest Logstash pipeline logs to monitor the data-processing pipeline and its event transformations.",
-      "KIBANA": "Ingest Kibana logs to monitor the data-visualization and exploration layer and its usage.",
-      "KAFKA": "Ingest Apache Kafka logs to monitor real-time streaming pipelines, brokers and message flow.",
-      "NATS": "Ingest NATS messaging logs to monitor the message bus, connectivity and event delivery.",
-      "HAPROXY": "Ingest HAProxy logs to monitor load balancing, proxy traffic and network availability.",
-      "TRAEFIK": "Ingest Traefik logs to monitor routing, load balancing and proxy traffic across workloads.",
-      "OSQUERY": "Ingest OsQuery logs to monitor endpoint state, queries and system inventory via SQL-style requests.",
-      "SYSLOG": "Send syslog (RFC 5424/3164) from any device or application to the collector endpoint for central log intake.",
-      "JSON": "Send JSON log payloads to the ingestion endpoint for structured event intake from applications and scripts."
+      "WINDOWS_AGENT": {
+        "name": "Windows Agent",
+        "description": "Collect Windows system, security and event-log activity through the lightweight UTMStack agent installed on each host."
+      },
+      "LINUX_AGENT": {
+        "name": "Linux Agent",
+        "description": "Collect Linux system, authentication and audit logs through the lightweight UTMStack agent installed on each host."
+      },
+      "MACOS": {
+        "name": "macOS",
+        "description": "Collect macOS system and security log activity from Apple Mac endpoints through the lightweight UTMStack agent."
+      },
+      "VMWARE": {
+        "name": "VMware",
+        "description": "Ingest VMware ESXi hypervisor syslog so virtualization-host activity and events are monitored within UTMStack."
+      },
+      "NETFLOW": {
+        "name": "NetFlow",
+        "description": "Ingest NetFlow records from routers and switches to monitor network-traffic patterns and detect traffic anomalies."
+      },
+      "AWS_IAM_USER": {
+        "name": "AWS",
+        "description": "Ingest AWS account activity and API calls via CloudTrail and CloudWatch to audit cloud usage, access and changes."
+      },
+      "AZURE": {
+        "name": "Microsoft Azure",
+        "description": "Ingest Microsoft Azure platform and activity logs to monitor cloud workloads, identity and resource changes."
+      },
+      "O365": {
+        "name": "Microsoft 365",
+        "description": "Ingest Microsoft 365 audit logs across Exchange, Teams, SharePoint and OneDrive to monitor user and admin activity."
+      },
+      "GCP": {
+        "name": "Google Cloud Platform",
+        "description": "Ingest Google Cloud Platform audit and activity logs to monitor compute, storage and identity across projects."
+      },
+      "KASPERSKY": {
+        "name": "Kaspersky",
+        "description": "Ingest Kaspersky Security Center detections and endpoint telemetry to correlate malware activity across the network."
+      },
+      "ESET": {
+        "name": "ESET",
+        "description": "Ingest ESET PROTECT endpoint detections and telemetry to correlate multilayered malware defense across your estate."
+      },
+      "BITDEFENDER": {
+        "name": "Bitdefender",
+        "description": "Ingest Bitdefender GravityZone detections and endpoint telemetry to correlate threats across business devices."
+      },
+      "SENTINEL_ONE": {
+        "name": "SentinelOne",
+        "description": "Ingest SentinelOne endpoint detections and behavioral telemetry to correlate and investigate threats at scale."
+      },
+      "SOPHOS": {
+        "name": "Sophos Central",
+        "description": "Ingest Sophos Central detections across endpoint, server, firewall and email to correlate threats in one place."
+      },
+      "CROWDSTRIKE": {
+        "name": "CrowdStrike Falcon",
+        "description": "Ingest CrowdStrike Falcon endpoint and workload detections to correlate cloud-native threat activity in UTMStack."
+      },
+      "CISCO": {
+        "name": "Cisco ASA",
+        "description": "Ingest Cisco ASA firewall traffic, VPN and threat logs to monitor perimeter security and access within UTMStack."
+      },
+      "MERAKI": {
+        "name": "Cisco Meraki",
+        "description": "Ingest Cisco Meraki firewall and security-appliance syslog to monitor cloud-managed network traffic and threats."
+      },
+      "FIRE_POWER": {
+        "name": "Cisco Firepower",
+        "description": "Ingest Cisco Firepower NGFW and IPS logs to monitor intrusion attempts and threat activity at the perimeter."
+      },
+      "CISCO_SWITCH": {
+        "name": "Cisco Switch",
+        "description": "Ingest Cisco switch syslog and telemetry to monitor network performance, configuration changes and security."
+      },
+      "FORTIGATE": {
+        "name": "FortiGate",
+        "description": "Ingest Fortinet FortiGate NGFW traffic and threat logs to monitor perimeter security and network activity."
+      },
+      "FORTIWEB": {
+        "name": "FortiWeb",
+        "description": "Ingest Fortinet FortiWeb WAF logs to monitor web-application attacks and protect exposed services and APIs."
+      },
+      "SOPHOS_XG": {
+        "name": "Sophos XG",
+        "description": "Ingest Sophos XG firewall logs covering web filtering, IPS and VPN to monitor network traffic and threats."
+      },
+      "PALO_ALTO": {
+        "name": "Palo Alto Networks",
+        "description": "Ingest Palo Alto Networks NGFW traffic and threat logs to monitor application usage and perimeter security."
+      },
+      "SONIC_WALL": {
+        "name": "SonicWall",
+        "description": "Ingest SonicWall NGFW traffic and threat logs to monitor perimeter security and network activity in UTMStack."
+      },
+      "PFSENSE": {
+        "name": "pfSense",
+        "description": "Ingest pfSense firewall and router logs with unified threat management to monitor network traffic and threats."
+      },
+      "MIKROTIK": {
+        "name": "MikroTik",
+        "description": "Ingest MikroTik RouterOS firewall, routing and wireless logs to monitor network activity and configuration."
+      },
+      "AIX": {
+        "name": "IBM AIX",
+        "description": "Collect IBM AIX Unix system, security and audit logs to monitor activity on IBM Power platforms within UTMStack."
+      },
+      "AS_400": {
+        "name": "IBM i (AS/400)",
+        "description": "Collect IBM AS/400 (IBM i) system and audit journals to monitor user activity on midrange OS/400 platforms."
+      },
+      "ORACLE": {
+        "name": "Oracle Database",
+        "description": "Ingest Oracle Database audit logs to monitor queries, access and privileged activity across your databases."
+      },
+      "SURICATA": {
+        "name": "Suricata",
+        "description": "Ingest Suricata IDS/IPS alerts and network events to detect intrusions and malicious traffic across the network."
+      },
+      "DECEPTIVE_BYTES": {
+        "name": "Deceptive Bytes",
+        "description": "Ingest Deceptive Bytes alerts from its active endpoint-deception platform to surface attacker activity early."
+      },
+      "GITHUB": {
+        "name": "GitHub",
+        "description": "Ingest GitHub audit logs to monitor repository access, code changes and organization activity for source security."
+      },
+      "UTMSTACK": {
+        "name": "UTMStack",
+        "description": "Ingest UTMStack's own SIEM and XDR telemetry to monitor platform health, internal activity and self-audit events."
+      },
+      "NGINX": {
+        "name": "Nginx",
+        "description": "Ingest Nginx access and error logs to monitor web-serving activity, reverse-proxy traffic and client requests."
+      },
+      "APACHE": {
+        "name": "Apache",
+        "description": "Ingest Apache HTTPD access and error logs to monitor web-serving activity and client requests."
+      },
+      "APACHE2": {
+        "name": "Apache2",
+        "description": "Ingest Apache2 (HTTPD) web server logs to monitor request handling, errors and access on Linux hosts."
+      },
+      "IIS": {
+        "name": "IIS",
+        "description": "Ingest Internet Information Services (IIS) access and log-file activity to monitor Windows web serving."
+      },
+      "MYSQL": {
+        "name": "MySQL",
+        "description": "Ingest MySQL database log activity to monitor queries, authentication and data-store access."
+      },
+      "POSTGRESQL": {
+        "name": "PostgreSQL",
+        "description": "Ingest PostgreSQL database logs to monitor queries, access and activity across your data stores."
+      },
+      "MONGODB": {
+        "name": "MongoDB",
+        "description": "Ingest MongoDB log activity to monitor document-database access, queries and application behavior."
+      },
+      "REDIS": {
+        "name": "Redis",
+        "description": "Ingest Redis log and telemetry activity to monitor in-memory data store usage and real-time workloads."
+      },
+      "ELASTICSEARCH": {
+        "name": "Elasticsearch",
+        "description": "Ingest Elasticsearch logs to monitor the search and analytics engine and its application workloads."
+      },
+      "LOGSTASH": {
+        "name": "Logstash",
+        "description": "Ingest Logstash pipeline logs to monitor the data-processing pipeline and its event transformations."
+      },
+      "KIBANA": {
+        "name": "Kibana",
+        "description": "Ingest Kibana logs to monitor the data-visualization and exploration layer and its usage."
+      },
+      "KAFKA": {
+        "name": "Apache Kafka",
+        "description": "Ingest Apache Kafka logs to monitor real-time streaming pipelines, brokers and message flow."
+      },
+      "NATS": {
+        "name": "NATS",
+        "description": "Ingest NATS messaging logs to monitor the message bus, connectivity and event delivery."
+      },
+      "HAPROXY": {
+        "name": "HAProxy",
+        "description": "Ingest HAProxy logs to monitor load balancing, proxy traffic and network availability."
+      },
+      "TRAEFIK": {
+        "name": "Traefik",
+        "description": "Ingest Traefik logs to monitor routing, load balancing and proxy traffic across workloads."
+      },
+      "OSQUERY": {
+        "name": "osquery",
+        "description": "Ingest OsQuery logs to monitor endpoint state, queries and system inventory via SQL-style requests."
+      },
+      "SYSLOG": {
+        "name": "Syslog",
+        "description": "Send syslog (RFC 5424/3164) from any device or application to the collector endpoint for central log intake."
+      },
+      "JSON": {
+        "name": "JSON Input",
+        "description": "Send JSON log payloads to the ingestion endpoint for structured event intake from applications and scripts."
+      },
+      "WINDOWS_SQL_SERVER": {
+        "name": "SQL Server Event Logs",
+        "description": "Collect Microsoft SQL Server audit and event records through the Windows Event Log and UTMStack agent."
+      },
+      "WINDOWS_FILE_AUDITING": {
+        "name": "Windows File Access Auditing",
+        "description": "Collect Windows file access audit events through the Windows Event Log and UTMStack agent."
+      }
     },
     "edit": {
       "title": "Edit integration"

@@ -1,25 +1,21 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
-import { Check, ChevronDown, Copy, KeyRound, Loader2, Lock, Plus, ShieldAlert, ShieldCheck, Upload } from 'lucide-react'
+import { Check, ChevronDown, Copy, Loader2, Lock, Plus, ShieldAlert, ShieldCheck, Upload } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Section } from '@/features/integrations/components/ui/Section'
 import { useAuth } from '@/features/auth/services/auth.context'
-import { useBilling } from '@/features/billing/services/billing.context'
 import { useCollectorIntegration } from '@/features/integrations/hooks/useCollectorIntegration'
 import type { ForwarderCollector } from '@/features/integrations/types'
 import { defaultPortFor, httpDefaultsFor, type HttpAuth, type Proto } from './protoCatalog'
 
 const ROOT = 'integrations.setup.remoteEnable'
-const MASTER_ID = -1
 const ADD_COLLECTOR_ID = -2
 
 export interface RemoteEnableSelection {
   proto: Proto
   port: string
-  isMaster: boolean
 }
 
 interface RemoteEnablePanelProps {
@@ -140,11 +136,8 @@ export function RemoteEnablePanel({
   onRequestAddCollector,
 }: RemoteEnablePanelProps) {
   const { t } = useTranslation()
-  const navigate = useNavigate()
   const { hasPermission } = useAuth()
   const canManage = hasPermission('integrations.write')
-  const { license } = useBilling()
-  const canUseMaster = license?.edition === 'enterprise' || !!license?.mssp
 
   const { forwarders, setDataType, setCertificates, tlsStatus, dataTypeConfig } = useCollectorIntegration()
 
@@ -172,14 +165,6 @@ export function RemoteEnablePanel({
   const [keyPem, setKeyPem] = useState<File | null>(null)
   const [caPem, setCaPem] = useState<File | null>(null)
 
-  const isMaster = collectorId === MASTER_ID
-  const masterOption: ForwarderCollector = {
-    id: MASTER_ID,
-    hostname: t(`${ROOT}.sendToInstance`),
-    ip: '',
-    version: '',
-    status: 'online',
-  }
   const addCollectorOption: ForwarderCollector = {
     id: ADD_COLLECTOR_ID,
     hostname: t(`${ROOT}.addCollector`),
@@ -187,35 +172,30 @@ export function RemoteEnablePanel({
     version: '',
     status: 'online',
   }
-  const pickerOptions = [masterOption, ...allForwarders, addCollectorOption]
+  const pickerOptions = [...allForwarders, addCollectorOption]
   const selectedForwarder = allForwarders.find((f) => f.id === collectorId) ?? null
-  const isSelectedForwarderOffline = !isMaster && selectedForwarder != null && selectedForwarder.status !== 'online'
+  const isSelectedForwarderOffline = selectedForwarder != null && selectedForwarder.status !== 'online'
   // Offline is a wait; this is not. The forwarder discards what this panel
   // sends and answers nothing, so saving would look like it worked.
-  const isSelectedForwarderLocked = !isMaster && selectedForwarder?.noRemoteControl === true
+  const isSelectedForwarderLocked = selectedForwarder?.noRemoteControl === true
 
   useEffect(() => {
     if (collectorId == null) return
-    if (collectorId === MASTER_ID) return
     if (allForwarders.some((f) => f.id === collectorId)) return
     setCollectorId(null)
   }, [allForwarders, collectorId])
 
   useEffect(() => {
-    onSelectionChange?.({
-      proto: isMaster ? 'https' : proto,
-      port,
-      isMaster,
-    })
-  }, [proto, port, isMaster, onSelectionChange])
+    onSelectionChange?.({ proto, port })
+  }, [proto, port, onSelectionChange])
 
   const isHttp = proto === 'http' || proto === 'https'
   const needsCerts = proto === 'tls' || proto === 'https'
 
-  const tlsStatusQuery = tlsStatus(needsCerts && !isMaster ? collectorId : null)
+  const tlsStatusQuery = tlsStatus(needsCerts ? collectorId : null)
 
-  const currentConfig = dataTypeConfig(isMaster ? null : collectorId, dataType)
-  const isSyncingConfig = !isMaster && collectorId != null && currentConfig.isLoading
+  const currentConfig = dataTypeConfig(collectorId, dataType)
+  const isSyncingConfig = collectorId != null && currentConfig.isLoading
 
   const isLiveOnSelectedForwarder = !!(currentConfig.data?.configured && currentConfig.data?.enabled)
   const isConfigLocked = isSyncingConfig || isLiveOnSelectedForwarder
@@ -321,18 +301,18 @@ export function RemoteEnablePanel({
       <p className="mb-3 text-sm text-foreground/90">{t(`${ROOT}.body`)}</p>
 
       <div className="space-y-3">
-        {!forwarders.isLoading && allForwarders.length === 0 && !isMaster && (
+        {!forwarders.isLoading && allForwarders.length === 0 && (
           <p className="rounded-md bg-muted/40 px-3 py-2 text-[11px] text-muted-foreground">
             {t(`${ROOT}.noCollectors`)}
           </p>
         )}
-          <div className={cn('grid gap-3', !isMaster && 'sm:grid-cols-2')}>
+          <div className="grid gap-3 sm:grid-cols-2">
             <label className="block">
               <div className="mb-1 flex items-center justify-between gap-2">
                 <span className="text-[11px] font-medium text-muted-foreground">
                   {t(`${ROOT}.forwarderLabel`)}
                 </span>
-                {!isMaster && <ForwarderStatusLegend forwarders={allForwarders} />}
+                <ForwarderStatusLegend forwarders={allForwarders} />
               </div>
               <ForwarderPicker
                 forwarders={pickerOptions}
@@ -341,10 +321,6 @@ export function RemoteEnablePanel({
                   if (id === ADD_COLLECTOR_ID) {
                     setCollectorId(null)
                     onRequestAddCollector?.()
-                    return
-                  }
-                  if (id === MASTER_ID && !canUseMaster) {
-                    toast.info(t(`${ROOT}.enterpriseFeature`))
                     return
                   }
                   setCollectorId(id)
@@ -364,47 +340,30 @@ export function RemoteEnablePanel({
               )}
             </label>
 
-            {!isMaster && (
-              <label className="block">
-                <span className="mb-1 block text-[11px] font-medium text-muted-foreground">
-                  {t(`${ROOT}.protoLabel`)}
-                </span>
-                <select
-                  value={proto}
-                  onChange={(e) => {
-                    const next = e.target.value as Proto
-                    setProto(next)
-                    setPort(defaultPortFor(dataType, next))
-                    setGeneratedSecret(null)
-                  }}
-                  disabled={availableProtos.length <= 1 || isConfigLocked}
-                  className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground disabled:opacity-70"
-                >
-                  {availableProtos.map((p) => (
-                    <option key={p} value={p}>
-                      {p.toUpperCase()}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            )}
+            <label className="block">
+              <span className="mb-1 block text-[11px] font-medium text-muted-foreground">
+                {t(`${ROOT}.protoLabel`)}
+              </span>
+              <select
+                value={proto}
+                onChange={(e) => {
+                  const next = e.target.value as Proto
+                  setProto(next)
+                  setPort(defaultPortFor(dataType, next))
+                  setGeneratedSecret(null)
+                }}
+                disabled={availableProtos.length <= 1 || isConfigLocked}
+                className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground disabled:opacity-70"
+              >
+                {availableProtos.map((p) => (
+                  <option key={p} value={p}>
+                    {p.toUpperCase()}
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
 
-          {isMaster && (
-            <div className="flex flex-col items-start gap-1.5">
-              <p className="text-[11px] text-muted-foreground">{t(`${ROOT}.apiKeyHint`)}</p>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => navigate('/settings/api-keys')}
-              >
-                <KeyRound size={13} className="mr-1.5" />
-                {t(`${ROOT}.apiKeyAddNew`)}
-              </Button>
-            </div>
-          )}
-
-          {!isMaster && (<>
           {isSyncingConfig ? (
             <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
               <Loader2 className="h-3 w-3 animate-spin" />
@@ -589,7 +548,6 @@ export function RemoteEnablePanel({
               {t(`${ROOT}.disableButton`)}
             </Button>
           </div>
-          </>)}
         </div>
     </Section>
   )

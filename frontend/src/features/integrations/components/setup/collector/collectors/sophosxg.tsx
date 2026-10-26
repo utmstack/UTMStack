@@ -28,7 +28,7 @@ function SophosXGGuide({ module: _module }: { module: Integration }) {
 
 registerCollector({
   getName: () => 'SOPHOS_XG',
-  matches: (n) => n.includes('sophos') && n.includes('xg'),
+  matches: (n) => n === 'sophos_xg' || n === 'firewall-sophos-xg',
   sections: [],
   render: (m) => <SophosXGGuide module={m} />,
 })
