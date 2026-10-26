@@ -44,6 +44,12 @@ export function CustomFilterBar({
     return () => document.removeEventListener('mousedown', onDoc)
   }, [editing])
 
+  useEffect(()=>{
+    if(!!filters && filters!.length>0 && filters.at(-1)!.value==""){
+      setEditing(filters.length-1)
+    }
+  },[filters])
+
 
   const {t} = useTranslation()
 

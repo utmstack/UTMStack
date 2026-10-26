@@ -320,7 +320,8 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
     if (appliedQuery.trim() && supportsTextSearch) {
       out.push({ field: 'raw', operator: 'IS_IN_FIELDS', value: appliedQuery.trim() })
     }
-    out.push(...filters)
+    console.log(filters)
+    out.push(...filters.filter((f)=>f.value!="" && f.value!=null))
     return out
   }, [range.from, range.to, appliedQuery, supportsTextSearch, filters])
 

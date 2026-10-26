@@ -1,5 +1,5 @@
 import { memo, useEffect, useState } from 'react'
-import { Check, ChevronRight, Columns3, Loader2, Minus, Plus } from 'lucide-react'
+import { Filter,Check, ChevronRight, Columns3, Loader2, Minus, Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
 import { logExplorerHttpService as svc } from '../services/log-explorer-http.service'
@@ -59,18 +59,35 @@ function FieldItemImpl({
             {field.name}
           </span>
         </button>
-        <button
-          onClick={() => onToggleColumn(field.name)}
-          title={isColumn ? t('logExplorer.fields.removeColumn') : t('logExplorer.fields.addColumn')}
-          className={cn(
-            'flex h-6 w-6 shrink-0 items-center justify-center rounded transition-colors',
-            isColumn
-              ? 'text-primary hover:bg-primary/10'
-              : 'text-muted-foreground opacity-0 hover:bg-muted group-hover/field:opacity-100'
-          )}
-        >
-          {isColumn ? <Check size={13} /> : <Columns3 size={13} />}
-        </button>
+
+        <div className="flex flex-row items-center justofy-center gap-0.5">
+          <button
+            onClick={() => onAdd({ field: field.name, operator: 'IS', value: null })}
+            title={t('logExplorer.fields.filterFor')}
+            className={cn(
+              'flex h-3 w-3 shrink-0 items-center justify-center rounded transition-colors',
+              isColumn
+                ? 'text-primary hover:bg-primary/10'
+                : 'text-muted-foreground opacity-0 hover:bg-muted group-hover/field:opacity-100'
+            )}
+          >
+            <Filter />
+          </button>
+
+          <button
+            onClick={() => onToggleColumn(field.name)}
+            title={isColumn ? t('logExplorer.fields.removeColumn') : t('logExplorer.fields.addColumn')}
+            className={cn(
+              'flex h-6 w-6 shrink-0 items-center justify-center rounded transition-colors',
+              isColumn
+                ? 'text-primary hover:bg-primary/10'
+                : 'text-muted-foreground opacity-0 hover:bg-muted group-hover/field:opacity-100'
+            )}
+          >
+            {isColumn ? <Check size={13} /> : <Columns3 size={13} />}
+          </button>
+
+        </div>
         <button onClick={() => onToggle(field.name)} className="shrink-0">
           <ChevronRight size={13} className={cn('text-muted-foreground/60 transition-transform', open && 'rotate-90')} />
         </button>
