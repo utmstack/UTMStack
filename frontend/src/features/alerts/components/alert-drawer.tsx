@@ -78,7 +78,7 @@ export function AlertDrawer({
 
   useEffect(()=>{
     viewRelatedLogs(a)
-  },[])
+  },[a])
 
   return (
     <div
