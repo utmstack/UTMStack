@@ -35,6 +35,7 @@ func main() {
 const (
 	wineventlogDataType = "wineventlog"
 	linuxDataType       = "linux"
+	o365GraphDataType   = "o365-graph"
 )
 
 func analyze(event *plugins.Event, _ plugins.Analysis_AnalyzeServer) error {
@@ -43,6 +44,8 @@ func analyze(event *plugins.Event, _ plugins.Analysis_AnalyzeServer) error {
 		return handleWindows(event)
 	case linuxDataType:
 		return handleLinux(event)
+	case o365GraphDataType:
+		return handleO365Graph(event)
 	default:
 		return io.EOF
 	}
