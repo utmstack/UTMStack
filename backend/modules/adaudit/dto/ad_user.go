@@ -8,7 +8,7 @@ import (
 
 type IngestUser struct {
 	TenantID         string     `json:"tenantId"`
-	Source           string     `json:"source,omitempty"` // "windows"|"linux"; defaults to "windows" if absent
+	Source           string     `json:"source,omitempty"` // "windows"|"linux"|"o365"|"azure"|"gcp"|"aws"; defaults to "windows" if absent
 	SID              string     `json:"sid,omitempty"`    // required when source=windows; enforced in usecase
 	SamAccountName   string     `json:"samAccountName,omitempty"`
 	Domain           string     `json:"domain,omitempty"`
@@ -29,7 +29,7 @@ type IngestRequest struct {
 
 type ADUserFilter struct {
 	Search string `form:"search"` // substring on samAccountName/sid
-	Source string `form:"source"` // "windows"|"linux"|"" (all)
+	Source string `form:"source"` // "windows"|"linux"|"o365"|"azure"|"gcp"|"aws"|"" (all)
 	Active *bool  `form:"active"`
 	Status string `form:"status"` // active|disabled|deleted|stale|service — overrides Active when set
 	Sort   string `form:"sort"`   // recent (last_seen desc) | name (default, samAccountName asc)
@@ -44,6 +44,10 @@ type DomainCount struct {
 type SourceCount struct {
 	Windows int64 `json:"windows"`
 	Linux   int64 `json:"linux"`
+	O365    int64 `json:"o365"`
+	Azure   int64 `json:"azure"`
+	GCP     int64 `json:"gcp"`
+	AWS     int64 `json:"aws"`
 }
 
 type ADUserStats struct {

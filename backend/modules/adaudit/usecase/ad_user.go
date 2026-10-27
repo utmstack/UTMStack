@@ -54,6 +54,10 @@ func (u *adUserUsecase) Ingest(ctx context.Context, req dto.IngestRequest) (int,
 			if !hasResolved && !hasProvisional {
 				continue
 			}
+		case "o365", "azure", "gcp", "aws":
+			if in.Username == nil || strings.TrimSpace(*in.Username) == "" {
+				continue
+			}
 		default:
 			continue
 		}
@@ -86,6 +90,16 @@ func (u *adUserUsecase) Ingest(ctx context.Context, req dto.IngestRequest) (int,
 		if source == "windows" {
 			sid := strings.TrimSpace(in.SID)
 			ad.SID = &sid
+		}
+		if source == "o365" || source == "azure" || source == "gcp" || source == "aws" {
+			if ad.Username != nil {
+				un := strings.ToLower(strings.TrimSpace(*ad.Username))
+				ad.Username = &un
+			}
+			if ad.SamAccountName == nil && ad.Username != nil {
+				sa := *ad.Username
+				ad.SamAccountName = &sa
+			}
 		}
 
 		users = append(users, ad)

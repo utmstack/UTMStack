@@ -72,8 +72,8 @@ func (h *ADUserHandler) List(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if f.Source != "" && f.Source != "windows" && f.Source != "linux" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "source must be 'windows', 'linux', or omitted"})
+	if f.Source != "" && f.Source != "windows" && f.Source != "linux" && !domain.IsCloudSource(f.Source) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "source must be 'windows', 'linux', a cloud source, or omitted"})
 		return
 	}
 	res, err := h.uc.List(c.Request.Context(), f)
@@ -120,8 +120,8 @@ func (h *ADUserHandler) Stats(c *gin.Context) {
 //	@Router			/ad-audit/users/sync [get]
 func (h *ADUserHandler) Sync(c *gin.Context) {
 	source := c.Query("source")
-	if source != "" && source != "windows" && source != "linux" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "source must be 'windows', 'linux', or omitted"})
+	if source != "" && source != "windows" && source != "linux" && !domain.IsCloudSource(source) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "source must be 'windows', 'linux', a cloud source, or omitted"})
 		return
 	}
 	c.Header("Content-Type", "application/x-ndjson")

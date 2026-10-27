@@ -25,7 +25,7 @@ func NewADUserRepository(db *gorm.DB) connectors.ADUserRepository {
 	return &pgADUserRepository{db: db}
 }
 
-func splitByIdentity(users []domain.ADUser) (windows, linuxKeyed, linuxByAccount []domain.ADUser) {
+func splitByIdentity(users []domain.ADUser) (windows, linuxKeyed, linuxByAccount, cloud []domain.ADUser) {
 	for _, u := range users {
 		switch u.Source {
 		case "linux":
@@ -38,10 +38,14 @@ func splitByIdentity(users []domain.ADUser) (windows, linuxKeyed, linuxByAccount
 			if u.Source == "" {
 				u.Source = "windows"
 			}
-			windows = append(windows, u)
+			if domain.IsCloudSource(u.Source) {
+				cloud = append(cloud, u)
+			} else {
+				windows = append(windows, u)
+			}
 		}
 	}
-	return windows, linuxKeyed, linuxByAccount
+	return windows, linuxKeyed, linuxByAccount, cloud
 }
 
 func (r *pgADUserRepository) Upsert(ctx context.Context, users []domain.ADUser) error {
@@ -49,9 +53,9 @@ func (r *pgADUserRepository) Upsert(ctx context.Context, users []domain.ADUser) 
 		return nil
 	}
 
-	windowsBatch, linuxKeyed, linuxByAccount := splitByIdentity(users)
+	windows, linuxKeyed, linuxByAccount, cloud := splitByIdentity(users)
 
-	if len(windowsBatch) > 0 {
+	if len(windows) > 0 {
 		if err := r.db.WithContext(ctx).Clauses(clause.OnConflict{
 			Columns:     []clause.Column{{Name: "tenant_id"}, {Name: "sid"}},
 			TargetWhere: clause.Where{Exprs: []clause.Expression{clause.Expr{SQL: "source = 'windows'"}}},
@@ -59,8 +63,31 @@ func (r *pgADUserRepository) Upsert(ctx context.Context, users []domain.ADUser) 
 				"sam_account_name", "domain", "active",
 				"account_created_at", "last_logon", "account_deleted_at", "last_seen",
 			}),
-		}).Create(&windowsBatch).Error; err != nil {
+		}).Create(&windows).Error; err != nil {
 			return err
+		}
+	}
+
+	if len(cloud) > 0 {
+		bySource := map[string][]domain.ADUser{}
+		for _, u := range cloud {
+			bySource[u.Source] = append(bySource[u.Source], u)
+		}
+		for _, source := range domain.CloudSources {
+			batch := bySource[source]
+			if len(batch) == 0 {
+				continue
+			}
+			if err := r.db.WithContext(ctx).Clauses(clause.OnConflict{
+				Columns:     []clause.Column{{Name: "tenant_id"}, {Name: "username"}},
+				TargetWhere: clause.Where{Exprs: []clause.Expression{clause.Expr{SQL: "source = '" + source + "'"}}},
+				DoUpdates: clause.AssignmentColumns([]string{
+					"sam_account_name", "domain", "active",
+					"account_created_at", "last_logon", "account_deleted_at", "last_seen",
+				}),
+			}).Create(&batch).Error; err != nil {
+				return err
+			}
 		}
 	}
 
@@ -289,6 +316,14 @@ func (r *pgADUserRepository) Stats(ctx context.Context) (*dto.ADUserStats, error
 			s.BySource.Windows = row.Count
 		case "linux":
 			s.BySource.Linux = row.Count
+		case "o365":
+			s.BySource.O365 = row.Count
+		case "azure":
+			s.BySource.Azure = row.Count
+		case "gcp":
+			s.BySource.GCP = row.Count
+		case "aws":
+			s.BySource.AWS = row.Count
 		}
 	}
 
