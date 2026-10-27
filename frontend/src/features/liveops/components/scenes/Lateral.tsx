@@ -4,7 +4,7 @@ import { stream, type Pt } from '../geometry'
 import { type SceneProps, party, sel } from './SceneProps'
 
 export function Lateral(props: SceneProps) {
-  const { scene, t } = props
+  const { scene, t, tr } = props
   const tone = usePalette()
   const f = scene.facts as { account: string }
   const from = party(scene, 'source')!
@@ -21,7 +21,7 @@ export function Lateral(props: SceneProps) {
   const owned = t > 6400
   return (
     <g>
-      <Zone x={60} y={70} w={880} h={410} label="Internal network" tone={tone.internal} />
+      <Zone x={60} y={70} w={880} h={410} label={tr('liveOps.netInternal')} tone={tone.internal} />
       {others.map((o, i) => (
         <g key={i} opacity={0.45}>
           <Wire a={F} b={o} tone={tone.muted} t={t} opacity={0.25} />
@@ -38,7 +38,7 @@ export function Lateral(props: SceneProps) {
         <Packet key={`k${p.i}`} a={F} b={T} u={p.u} tone={tone.highlight} bend={70} r={5} label={p.u < 0.6 ? `🔑 ${f.account}` : undefined} />
       ))}
       {owned && stream(t, 6400, 1e12, 1100, 1400).map((p) => <Packet key={`s${p.i}`} a={F} b={T} u={p.u} tone={tone.alert} bend={70} r={3.5} />)}
-      {owned && <Pill x={500} y={214} text={`session as ${f.account}`} tone={tone.alert} />}
+      {owned && <Pill x={500} y={214} text={tr('liveOps.scSessionAs', { account: f.account })} tone={tone.alert} />}
       <MachineNode party={from} at={F} t={t} state="compromised" selected={props.selectedId === from.id} onSelect={sel(props, from)} />
       <MachineNode party={to} at={T} t={t} state={owned ? 'compromised' : t > 3000 ? 'targeted' : 'idle'} selected={props.selectedId === to.id} onSelect={sel(props, to)} />
       <AlertBell at={{ x: T.x + 60, y: T.y - 112 }} t={t} start={9200} />

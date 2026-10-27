@@ -12,9 +12,9 @@ function halo(bg: string, width = 4) {
 
 function subLines(sub: string): string[] {
   const clip = (x: string, n: number) => (x.length > n ? `${x.slice(0, n - 1)}…` : x)
-  if (sub.length <= 30 || !sub.includes(' · ')) return [clip(sub, 34)]
+  if (sub.length <= 44 || !sub.includes(' · ')) return [clip(sub, 50)]
   const [first, ...rest] = sub.split(' · ')
-  return [clip(first, 30), clip(rest.join(' · '), 30)]
+  return [clip(first, 44), clip(rest.join(' · '), 44)]
 }
 
 const ICON: Record<NodeKind, typeof Globe> = {
@@ -106,7 +106,7 @@ export function MachineNode({ party, at, t, state = 'idle', appear = 0, selected
         </g>
       )}
       <text y={r + 20} textAnchor="middle" fill={p.text} fontSize={13} fontWeight={600} {...halo(p.bg)}>
-        {party.name.length > 30 ? `${party.name.slice(0, 29)}…` : party.name}
+        {party.name.length > 44 ? `${party.name.slice(0, 43)}…` : party.name}
       </text>
       {subs.map((line, i) => (
         <text key={i} y={r + 36 + i * 15} textAnchor="middle" fill={p.textMuted} fontSize={11} fontFamily={MONO} {...halo(p.bg)}>
@@ -115,10 +115,10 @@ export function MachineNode({ party, at, t, state = 'idle', appear = 0, selected
       ))}
       {party.user && party.role === 'internal' && (
         <g transform={`translate(0,${userY})`}>
-          <rect x={-56} y={-11} width={112} height={20} rx={10} fill={p.surfaceAlt} stroke={p.line} />
-          <User x={-50} y={-7} width={13} height={13} color={p.textMuted} />
+          <rect x={-78} y={-11} width={156} height={20} rx={10} fill={p.surfaceAlt} stroke={p.line} />
+          <User x={-72} y={-7} width={13} height={13} color={p.textMuted} />
           <text x={6} y={4} textAnchor="middle" fill={p.textSoft} fontSize={11}>
-            {party.user.length > 16 ? `${party.user.slice(0, 15)}…` : party.user}
+            {party.user.length > 24 ? `${party.user.slice(0, 23)}…` : party.user}
           </text>
         </g>
       )}

@@ -5,7 +5,7 @@ import { stream, prog, type Pt } from '../geometry'
 import { type SceneProps, party, sel } from './SceneProps'
 
 export function CloudChange(props: SceneProps) {
-  const { scene, t } = props
+  const { scene, t, tr } = props
   const tone = usePalette()
   const glow = useGlow()
   const f = scene.facts as { what: string; before: string; after: string; risk: string }
@@ -18,7 +18,7 @@ export function CloudChange(props: SceneProps) {
   const req = stream(t, 600, 5800, 1300, 1000)
   return (
     <g>
-      <Zone x={36} y={70} w={250} h={380} label={actor.role === 'internal' ? 'Internal' : 'Internet'} tone={actor.role === 'internal' ? tone.internal : tone.attacker} />
+      <Zone x={36} y={70} w={250} h={380} label={actor.role === 'internal' ? tr('liveOps.netInternal') : tr('liveOps.netInternet')} tone={actor.role === 'internal' ? tone.internal : tone.attacker} />
       <Zone x={330} y={70} w={634} h={380} label={cloud.name} tone={tone.cloud} />
       <Wire a={A} b={C} tone={tone.cloud} t={t} />
       {req.map((p) => (
