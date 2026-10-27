@@ -6169,6 +6169,26 @@
     "replayTip": "Проиграть все события этого окна по порядку",
     "liveTip": "Следовать за новыми событиями по мере их поступления",
     "playAgain": "Проиграть это событие снова",
-    "alertAt": "{{name}} в {{time}}"
+    "alertAt": "{{name}} в {{time}}",
+    "netInternet": "Интернет",
+    "netInternal": "Внутренняя сеть",
+    "scUser": "пользователь: {{account}}",
+    "scWrongPassword": "✕ неверный пароль",
+    "scSignedIn": "✓ вошёл",
+    "scSignedInAs": "вошёл как {{account}}",
+    "scFailedSignins": "Неудачные входы",
+    "scBlocked": "🛡 {{name}} заблокирован",
+    "scSessionAs": "сеанс как {{account}}",
+    "scHost": "Хост · {{name}}",
+    "scProcessTree": "Дерево процессов",
+    "scDns": "DNS? {{host}}",
+    "scThreatIntel": "Threat intel: Тревожно (-3)",
+    "scConnDropped": "✕ соединение разорвано",
+    "scPortsProbed": "Проверенные порты",
+    "scSignIn": "✓ вход",
+    "scKmInMin": "{{km}} км за {{min}} мин",
+    "scAbroad": "за границей",
+    "scDropped": "{{status}} заблокирован",
+    "scBeacon": "маяк"
   }
 }

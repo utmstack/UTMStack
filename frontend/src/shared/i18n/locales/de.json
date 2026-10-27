@@ -6143,6 +6143,26 @@
     "replayTip": "Alle Warnungen dieses Zeitfensters der Reihe nach abspielen",
     "liveTip": "Neuen Warnungen folgen, sobald sie eintreffen",
     "playAgain": "Diese Warnung erneut abspielen",
-    "alertAt": "{{name}} um {{time}}"
+    "alertAt": "{{name}} um {{time}}",
+    "netInternet": "Internet",
+    "netInternal": "Internes Netzwerk",
+    "scUser": "Benutzer: {{account}}",
+    "scWrongPassword": "✕ falsches Passwort",
+    "scSignedIn": "✓ angemeldet",
+    "scSignedInAs": "angemeldet als {{account}}",
+    "scFailedSignins": "Fehlgeschlagene Anmeldungen",
+    "scBlocked": "🛡 {{name}} blockiert",
+    "scSessionAs": "Sitzung als {{account}}",
+    "scHost": "Host · {{name}}",
+    "scProcessTree": "Prozessbaum",
+    "scDns": "DNS? {{host}}",
+    "scThreatIntel": "Bedrohungsdaten: Alarmierend (-3)",
+    "scConnDropped": "✕ Verbindung getrennt",
+    "scPortsProbed": "Geprüfte Ports",
+    "scSignIn": "✓ Anmeldung",
+    "scKmInMin": "{{km}} km in {{min}} Min.",
+    "scAbroad": "im Ausland",
+    "scDropped": "{{status}} abgewehrt",
+    "scBeacon": "Beacon"
   }
 }

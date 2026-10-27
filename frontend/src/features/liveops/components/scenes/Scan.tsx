@@ -4,7 +4,7 @@ import { prog, type Pt } from '../geometry'
 import { type SceneProps, party, sel } from './SceneProps'
 
 export function Scan(props: SceneProps) {
-  const { scene, t } = props
+  const { scene, t, tr } = props
   const tone = usePalette()
   const f = scene.facts as { ports: number[]; open: number[] }
   const attacker = party(scene, 'attacker')!
@@ -46,7 +46,7 @@ export function Scan(props: SceneProps) {
           </g>
         )
       })}
-      <Counter x={161} y={384} label="Ports probed" value={`${Math.min(f.ports.length, Math.max(0, Math.floor((t - 600) / per) + 1))}/${f.ports.length}`} tone={tone.attacker} opacity={prog(t, 500, 900)} />
+      <Counter x={161} y={384} label={tr('liveOps.scPortsProbed')} value={`${Math.min(f.ports.length, Math.max(0, Math.floor((t - 600) / per) + 1))}/${f.ports.length}`} tone={tone.attacker} opacity={prog(t, 500, 900)} />
       <MachineNode party={attacker} at={A} t={t} state={props.blockedAt !== undefined && t >= props.blockedAt ? 'blocked' : 'active'} selected={props.selectedId === attacker.id} onSelect={sel(props, attacker)} />
       <MachineNode party={target} at={T} t={t} state={t > 600 ? 'targeted' : 'idle'} selected={props.selectedId === target.id} onSelect={sel(props, target)} />
       <AlertBell at={{ x: T.x + 238, y: T.y - 150 }} t={t} start={9000} />

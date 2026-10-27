@@ -95,6 +95,7 @@ export function LiveOpsPage() {
     const id = setInterval(() => void refresh(win), POLL_MS)
     return () => clearInterval(id)
   }, [win, refresh])
+
   useEffect(() => {
     const id = setInterval(() => setTick((x) => x + 1), 5_000)
     return () => clearInterval(id)

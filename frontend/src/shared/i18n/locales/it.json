@@ -6143,6 +6143,26 @@
     "replayTip": "Riproduci tutte le alerte di questa finestra in ordine",
     "liveTip": "Segui le nuove alerte man mano che arrivano",
     "playAgain": "Riproduci questa allerta di nuovo",
-    "alertAt": "{{name}} alle {{time}}"
+    "alertAt": "{{name}} alle {{time}}",
+    "netInternet": "Internet",
+    "netInternal": "Rete interna",
+    "scUser": "utente: {{account}}",
+    "scWrongPassword": "✕ password errata",
+    "scSignedIn": "✓ accesso effettuato",
+    "scSignedInAs": "accesso effettuato come {{account}}",
+    "scFailedSignins": "Accessi falliti",
+    "scBlocked": "🛡 {{name}} bloccato",
+    "scSessionAs": "sessione come {{account}}",
+    "scHost": "Host · {{name}}",
+    "scProcessTree": "Albero dei processi",
+    "scDns": "DNS? {{host}}",
+    "scThreatIntel": "Threat intel: Allarmante (-3)",
+    "scConnDropped": "✕ connessione interrotta",
+    "scPortsProbed": "Porte sondati",
+    "scSignIn": "✓ accesso",
+    "scKmInMin": "{{km}} km in {{min}} min",
+    "scAbroad": "all'estero",
+    "scDropped": "{{status}} bloccato",
+    "scBeacon": "baliza"
   }
 }

@@ -6143,6 +6143,26 @@
     "replayTip": "Rejouer toutes les alertes de cette fenêtre dans l'ordre",
     "liveTip": "Suivre les nouvelles alertes à mesure qu'elles arrivent",
     "playAgain": "Rejouer cette alerte",
-    "alertAt": "{{name}} à {{time}}"
+    "alertAt": "{{name}} à {{time}}",
+    "netInternet": "Internet",
+    "netInternal": "Réseau interne",
+    "scUser": "utilisateur : {{account}}",
+    "scWrongPassword": "✕ mauvais mot de passe",
+    "scSignedIn": "✓ connecté",
+    "scSignedInAs": "connecté en tant que {{account}}",
+    "scFailedSignins": "Échecs de connexion",
+    "scBlocked": "🛡 {{name}} bloqué",
+    "scSessionAs": "session en tant que {{account}}",
+    "scHost": "Hôte · {{name}}",
+    "scProcessTree": "Arbre de processus",
+    "scDns": "DNS ? {{host}}",
+    "scThreatIntel": "Intel menaces : Alarmant (-3)",
+    "scConnDropped": "✕ connexion interrompue",
+    "scPortsProbed": "Ports sondés",
+    "scSignIn": "✓ connexion",
+    "scKmInMin": "{{km}} km en {{min}} min",
+    "scAbroad": "à l'étranger",
+    "scDropped": "{{status}} bloqué",
+    "scBeacon": "balise"
   }
 }

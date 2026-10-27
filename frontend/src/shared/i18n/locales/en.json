@@ -6131,6 +6131,26 @@
     "replayTip": "Play every alert of this window in order",
     "liveTip": "Follow new alerts as they arrive",
     "playAgain": "Play this alert again",
-    "alertAt": "{{name}} at {{time}}"
+    "alertAt": "{{name}} at {{time}}",
+    "netInternet": "Internet",
+    "netInternal": "Internal network",
+    "scUser": "user: {{account}}",
+    "scWrongPassword": "✕ wrong password",
+    "scSignedIn": "✓ signed in",
+    "scSignedInAs": "signed in as {{account}}",
+    "scFailedSignins": "Failed sign-ins",
+    "scBlocked": "🛡 {{name}} blocked",
+    "scSessionAs": "session as {{account}}",
+    "scHost": "Host · {{name}}",
+    "scProcessTree": "Process tree",
+    "scDns": "DNS? {{host}}",
+    "scThreatIntel": "Threat intel: Alarming (-3)",
+    "scConnDropped": "✕ connection dropped",
+    "scPortsProbed": "Ports probed",
+    "scSignIn": "✓ sign-in",
+    "scKmInMin": "{{km}} km in {{min}} min",
+    "scAbroad": "abroad",
+    "scDropped": "{{status}} dropped",
+    "scBeacon": "beacon"
   }
 }
