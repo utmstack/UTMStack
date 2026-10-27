@@ -6139,6 +6139,10 @@
       "scan": "Scan de ports",
       "cloud": "Modification risquée dans le cloud",
       "generic": "Détection"
-    }
+    },
+    "replayTip": "Rejouer toutes les alertes de cette fenêtre dans l'ordre",
+    "liveTip": "Suivre les nouvelles alertes à mesure qu'elles arrivent",
+    "playAgain": "Rejouer cette alerte",
+    "alertAt": "{{name}} à {{time}}"
   }
 }

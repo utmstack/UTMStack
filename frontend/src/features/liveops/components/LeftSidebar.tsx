@@ -64,7 +64,7 @@ export function LeftSidebar({
               type="button"
               onClick={() => onShow(a.id)}
               className={cn('relative flex w-full gap-2 border-b border-border/60 px-3 py-2 text-left transition-colors', sel ? 'bg-primary/15' : 'hover:bg-muted/60')}
-              title={sel ? 'Play this alert again' : undefined}
+              title={sel ? t('liveOps.playAgain') : undefined}
             >
               <span className={cn('mt-0.5 w-1 shrink-0 self-stretch rounded-full', sevBar(String(a.severity)))} />
               <span className="min-w-0 flex-1">

@@ -85,10 +85,10 @@ export function Timeline({
           <button type="button" disabled={idx < 0 || idx >= alerts.length - 1} onClick={() => idx >= 0 && idx < alerts.length - 1 && onSelect(alerts[idx + 1].id)} className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30" title={t('liveOps.timNext')}>
             <ChevronRight size={16} />
           </button>
-          <button type="button" onClick={onReplay} className={cn('flex items-center gap-1 rounded-md px-2 py-1 text-[11.5px] font-medium', replaying ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:bg-muted hover:text-foreground')} title="Play every alert of this window in order">
+          <button type="button" onClick={onReplay} className={cn('flex items-center gap-1 rounded-md px-2 py-1 text-[11.5px] font-medium', replaying ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:bg-muted hover:text-foreground')} title={t('liveOps.replayTip')}>
             {replaying ? <Square size={12} /> : <History size={13} />} {replaying ? t('liveOps.timStop') : t('liveOps.timReplay')}
           </button>
-          <button type="button" onClick={onLive} className={cn('flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[11.5px] font-bold tracking-wide', live ? 'bg-red-500/15 text-red-600 dark:text-red-400' : 'border border-border text-muted-foreground hover:text-foreground')} title="Follow new alerts as they arrive">
+          <button type="button" onClick={onLive} className={cn('flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[11.5px] font-bold tracking-wide', live ? 'bg-red-500/15 text-red-600 dark:text-red-400' : 'border border-border text-muted-foreground hover:text-foreground')} title={t('liveOps.liveTip')}>
             <span className={cn('h-2 w-2 rounded-full', live ? 'lo-live-dot bg-red-500' : 'bg-muted-foreground')} /> {t('liveOps.timLive')}
           </button>
         </div>
@@ -115,7 +115,7 @@ export function Timeline({
               onMouseEnter={() => setHover(a)}
               className={cn('absolute -translate-x-1/2 -translate-y-1/2 rounded-full transition-transform hover:scale-150', dot(String(a.severity)), selected ? 'h-3.5 w-3.5 ring-2 ring-primary ring-offset-1 ring-offset-card' : 'h-2.5 w-2.5 opacity-85', fresh && 'lo-new-dot')}
               style={{ left: `${pos(a['@timestamp'] ?? '')}%`, top: 10 + (ROW[String(a.severity)] ?? 2) * 16 }}
-              aria-label={`${a.name} at ${a['@timestamp'] ? new Date(tsMs(a['@timestamp'])).toLocaleTimeString() : ''}`}
+              aria-label={a['@timestamp'] ? t('liveOps.alertAt', { name: a.name, time: new Date(tsMs(a['@timestamp'])).toLocaleTimeString() }) : a.name}
             />
           )
         })}

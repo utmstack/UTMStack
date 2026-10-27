@@ -6139,6 +6139,10 @@
       "scan": "Varredura de portas",
       "cloud": "Alteração arriscada na cloud",
       "generic": "Deteção"
-    }
+    },
+    "replayTip": "Reproduzir todas as alertas desta janela em ordem",
+    "liveTip": "Seguir as novas alertas à medida que chegam",
+    "playAgain": "Reproduzir esta alerta novamente",
+    "alertAt": "{{name}} às {{time}}"
   }
 }

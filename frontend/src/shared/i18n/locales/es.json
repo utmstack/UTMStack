@@ -6139,6 +6139,10 @@
       "scan": "Baneo de puertos",
       "cloud": "Cambio riesgoso en la nube",
       "generic": "Detección"
-    }
+    },
+    "replayTip": "Reproducir todas las alertas de esta ventana en orden",
+    "liveTip": "Seguir las nuevas alertas a medida que llegan",
+    "playAgain": "Reproducir esta alerta de nuevo",
+    "alertAt": "{{name}} a las {{time}}"
   }
 }

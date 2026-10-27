@@ -6127,6 +6127,10 @@
       "scan": "Port scan",
       "cloud": "Risky cloud change",
       "generic": "Detection"
-    }
+    },
+    "replayTip": "Play every alert of this window in order",
+    "liveTip": "Follow new alerts as they arrive",
+    "playAgain": "Play this alert again",
+    "alertAt": "{{name}} at {{time}}"
   }
 }

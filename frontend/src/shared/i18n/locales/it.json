@@ -6139,6 +6139,10 @@
       "scan": "Scansione di porte",
       "cloud": "Modifica rischiosa nel cloud",
       "generic": "Rilevamento"
-    }
+    },
+    "replayTip": "Riproduci tutte le alerte di questa finestra in ordine",
+    "liveTip": "Segui le nuove alerte man mano che arrivano",
+    "playAgain": "Riproduci questa allerta di nuovo",
+    "alertAt": "{{name}} alle {{time}}"
   }
 }
