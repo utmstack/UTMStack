@@ -362,6 +362,7 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 			stack.ClickHouseConf + "/" + settingsFileName + ":/etc/clickhouse-server/users.d/" + settingsFileName + ":ro",
 			// Read-only here and writable in the backend: one writer, one reader.
 			stack.ClickHouseConfigD + ":/etc/clickhouse-server/config.d:ro",
+			stack.ClickHouseCold + ":/mnt/utmstack-cold",
 		},
 		Environment: []string{
 			"CLICKHOUSE_DB=utmstack",

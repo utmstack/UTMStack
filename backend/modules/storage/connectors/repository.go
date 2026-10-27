@@ -22,6 +22,11 @@ type StoreRepository interface {
 	// volume. It is about the server's own configuration, not about any table.
 	ColdStorageReady(ctx context.Context) (bool, error)
 
+	// ColdDisk reports what the server sees behind the cold volume, so a folder
+	// that is missing or read-only is caught when it is configured rather than
+	// when the first part tries to move.
+	ColdDisk(ctx context.Context) (domain.ColdDiskInfo, error)
+
 	// ReloadConfig makes the server read its configuration again, which is what
 	// turns a written file into a disk it can use.
 	ReloadConfig(ctx context.Context) error
@@ -36,5 +41,5 @@ type ConfigRepository interface {
 	// Write returns how to put the file back as it was. The store validates a
 	// bucket when it reads the file, so a rejected one has to be taken out
 	// again — left behind, it is what the server would load on its next start.
-	Write(o domain.ObjectStore) (undo func() error, err error)
+	Write(o domain.ColdTarget) (undo func() error, err error)
 }
