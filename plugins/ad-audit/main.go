@@ -39,6 +39,7 @@ const (
 	o365APIDataType     = "o365"
 	azureDataType       = "azure"
 	gcpDataType         = "google"
+	awsDataType         = "aws"
 )
 
 func analyze(event *plugins.Event, _ plugins.Analysis_AnalyzeServer) error {
@@ -55,6 +56,8 @@ func analyze(event *plugins.Event, _ plugins.Analysis_AnalyzeServer) error {
 		return handleAzure(event)
 	case gcpDataType:
 		return handleGCP(event)
+	case awsDataType:
+		return handleAWS(event)
 	default:
 		return io.EOF
 	}
