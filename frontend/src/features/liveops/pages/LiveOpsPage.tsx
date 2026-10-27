@@ -6,7 +6,7 @@ import { useSocAi, useSocAiFocus } from '@/features/soc-ai'
 import { alertFocus } from '@/features/alerts/lib/alert-focus'
 import type { Alert } from '@/features/alerts/types/alert.types'
 import { alertsHttpService } from '@/features/alerts/services/alerts-http.service'
-import { buildScene, type Party } from '../model'
+import { buildScene, type Party, tsMs } from '../model'
 import { Stage } from '../components/Stage'
 import { Timeline } from '../components/Timeline'
 import { LeftSidebar } from '../components/LeftSidebar'
@@ -101,7 +101,7 @@ export function LiveOpsPage() {
   }, [])
 
   const list = useMemo(
-    () => (alerts ?? []).map((a) => ({ ...a })).sort((a, b) => String(b['@timestamp'] ?? '').localeCompare(String(a['@timestamp'] ?? ''))),
+    () => (alerts ?? []).map((a) => ({ ...a })).sort((a, b) => tsMs(b['@timestamp']) - tsMs(a['@timestamp'])),
     [alerts],
   )
   const windowAlerts = useMemo(() => list, [list, tick])
@@ -218,7 +218,7 @@ export function LiveOpsPage() {
         </div>
         <div className="hidden min-w-0 items-center gap-2 @min-[980px]:flex">
           {[
-            [t('liveOps.statLastHour'), list.filter((a) => a['@timestamp'] && new Date(a['@timestamp']).getTime() >= Date.now() - 3_600_000).length],
+            [t('liveOps.statLastHour'), list.filter((a) => a['@timestamp'] && Date.now() - tsMs(a['@timestamp']) < 3_600_000).length],
             [t('liveOps.statHigh'), list.filter((a) => a.severity === 'high').length],
             [t('liveOps.statOpen'), list.filter((a) => String(a.status).toLowerCase() === 'open').length],
             [t('liveOps.statAttackers'), new Set(list.map((a) => a.adversary?.ip).filter(isExternal)).size],

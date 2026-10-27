@@ -7,7 +7,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { cn } from '@/shared/lib/utils'
 import { SEV_META } from '@/features/alerts/lib/alert-meta'
 import type { Alert } from '@/features/alerts/types/alert.types'
-import type { Party, Scene } from '@/features/liveops/model'
+import { tsMs, type Party, type Scene } from '@/features/liveops/model'
 import { H, W } from './geometry'
 import { SceneDefs } from './SceneDefs'
 import { SCENES } from './scenes'
@@ -122,7 +122,7 @@ export function Stage({
   const capEnd = blockCaption ? blockCaption.at + 1 : scene.captions[capIndex + 1]?.at ?? scene.duration
   const capStart = blockCaption ? blockCaption.at : caption.at
   const capFill = blockCaption ? 1 : Math.min(1, Math.max(0, (t - capStart) / Math.max(1, capEnd - capStart)))
-  const time = alert['@timestamp'] ? new Date(alert['@timestamp']) : new Date()
+  const time = alert['@timestamp'] ? new Date(tsMs(alert['@timestamp'])) : new Date()
 
   // Place the title, the scene and the caption as one group inside the free space.
   const [stageRef, box] = useBox<HTMLDivElement>()

@@ -14,14 +14,14 @@ export function WebAttack(props: SceneProps) {
   const A: Pt = { x: 140, y: 260 }
   const P: Pt = { x: 480, y: 260 }
   const S: Pt = { x: 830, y: 260 }
-  const edge = fw ? P : S // where packets stop: the firewall, or the server when there is none
+  const edge = fw ? P : S
   const every = 1400
   const sends = f.payloads.map((p, i) => ({ p, i, start: 900 + i * every }))
   const isBlocked = props.blockedAt !== undefined && t >= props.blockedAt
   return (
     <g>
       <Zone x={36} y={70} w={260} h={380} label="Internet" tone={tone.attacker} />
-      <Zone x={650} y={70} w={fw ? 314 : 214} h={380} label="Customer portal" tone={tone.internal} />
+      <Zone x={650} y={70} w={fw ? 314 : 314} h={380} label={web.name} tone={tone.internal} />
       {fw ? (
         <>
           <Wire a={A} b={P} tone={tone.attacker} t={t} />

@@ -25,7 +25,7 @@ export function BruteForce(props: SceneProps) {
   return (
     <g>
       <Zone x={36} y={70} w={268} h={360} label="Internet" tone={tone.attacker} />
-      {f.cloud ? <Zone x={600} y={70} w={364} h={360} label="Microsoft cloud" tone={tone.cloud} /> : <Zone x={640} y={70} w={324} h={360} label="Internal network" tone={tone.internal} />}
+      {f.cloud ? <Zone x={600} y={70} w={364} h={360} label={target.name} tone={tone.cloud} /> : <Zone x={640} y={70} w={324} h={360} label="Internal network" tone={tone.internal} />}
       <Wire a={A} b={firstHop} tone={tone.attacker} t={t} />
       {perimeter && <Wire a={P} b={T} tone={tone.perimeter} t={t} />}
       {tries.map((p) => (

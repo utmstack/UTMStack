@@ -2,14 +2,14 @@ import { List, PanelLeftClose } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { useTranslation } from 'react-i18next'
 import type { Alert } from '@/features/alerts/types/alert.types'
-import { templateFor } from '../model'
+import { templateFor, tsMs } from '../model'
 import { SEV_META } from '@/features/alerts/lib/alert-meta'
 
 const sevBar = (severity: string) => (SEV_META[severity as keyof typeof SEV_META] ?? SEV_META.low).bar
 
 function ago(iso: string | undefined, t: (k: string, o?: Record<string, unknown>) => string) {
   if (!iso) return t('liveOps.agoJust')
-  const s = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 1000))
+  const s = Math.max(0, Math.round((Date.now() - tsMs(iso)) / 1000))
   if (s < 60) return t('liveOps.agoJust')
   if (s < 3600) return t('liveOps.agoMin', { count: Math.round(s / 60) })
   return t('liveOps.agoH', { count: Math.round(s / 3600) })

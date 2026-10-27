@@ -43,6 +43,12 @@ type Ev = Record<string, unknown>
 
 const isInternalIp = (ip?: string) => !!ip && /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|127\.)/.test(ip)
 
+export function tsMs(iso?: string): number {
+  if (!iso) return NaN
+  if (iso.endsWith('Z') || /([+-]\d{2}:?\d{2})$/.test(iso)) return Date.parse(iso)
+  return Date.parse(iso.replace(' ', 'T') + 'Z')
+}
+
 /** A stable number from a string, for counts that look real but stay the same on every visit. */
 export function hashNum(s: string, min: number, max: number): number {
   let h = 2166136261
@@ -286,10 +292,11 @@ const BUILDERS: Record<TemplateId, (a: Alert) => Scene> = {
     const user = a.target?.user ?? a.adversary?.user ?? 'user'
     const cloud = cloudParty(a, 'Identity provider')
     const far = a.adversary?.geolocation
-    const km = far?.latitude != null && far?.longitude != null ? Math.round(distanceKm(far.latitude, far.longitude, 41.88, -87.63)) : 9000
+    const home = { city: 'Chicago', country: 'United States', lat: 41.88, lon: -87.63 }
+    const km = far?.latitude != null && far?.longitude != null ? Math.round(distanceKm(home.lat, home.lon, far.latitude, far.longitude)) : 9000
     const gap = hashNum(a.id, 6, 38)
     const captions: Caption[] = [
-      { at: 0, text: `${user} signs in from one place, as usual.` },
+      { at: 0, text: `${user} signs in from ${home.city}, as usual.` },
       { at: 3200, text: `${gap} minutes later the same account signs in from ${far?.city ?? 'far away'}, ${far?.country ?? ''}.` },
       { at: 6400, text: `${km.toLocaleString()} km in ${gap} minutes: no one travels that fast. The password is likely stolen.` },
       { at: 9200, text: `Alert raised: ${a.name}. Revoke the sessions and reset ${user}'s password.` },
@@ -300,7 +307,7 @@ const BUILDERS: Record<TemplateId, (a: Alert) => Scene> = {
       duration: 11800,
       parties: [attacker, cloud],
       captions,
-      facts: { user, km, gap, far },
+      facts: { user, km, gap, far, home },
     }
   },
 

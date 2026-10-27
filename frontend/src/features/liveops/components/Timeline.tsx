@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, History, Square } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { SEV_META } from '@/features/alerts/lib/alert-meta'
 import type { Alert } from '@/features/alerts/types/alert.types'
+import { tsMs } from '../model'
 
 const ROW: Record<string, number> = { high: 0, medium: 1, low: 2 }
 // Severity colours as the Alerts page shows them.
@@ -51,7 +52,7 @@ export function Timeline({
   const [hover, setHover] = useState<Alert | null>(null)
   const now = Date.now()
   const from = now - WINDOW_MS[win]
-  const pos = (iso: string) => ((new Date(iso).getTime() - from) / (now - from)) * 100
+  const pos = (iso: string) => ((tsMs(iso) - from) / (now - from)) * 100
   const idx = alerts.findIndex((a) => a.id === selectedId)
   const ticks = useMemo(() => {
     const span = WINDOW_MS[win]
@@ -105,7 +106,7 @@ export function Timeline({
         {selectedId && idx >= 0 && <div className="absolute top-0 h-[52px] w-px bg-primary" style={{ left: `${pos(alerts[idx]['@timestamp'] ?? '')}%` }} />}
         {alerts.map((a) => {
           const selected = a.id === selectedId
-          const fresh = !!a['@timestamp'] && now - new Date(a['@timestamp']).getTime() < 5*60_000
+          const fresh = !!a['@timestamp'] && now - tsMs(a['@timestamp']) < 5*60_000
           return (
             <button
               key={a.id}
@@ -114,7 +115,7 @@ export function Timeline({
               onMouseEnter={() => setHover(a)}
               className={cn('absolute -translate-x-1/2 -translate-y-1/2 rounded-full transition-transform hover:scale-150', dot(String(a.severity)), selected ? 'h-3.5 w-3.5 ring-2 ring-primary ring-offset-1 ring-offset-card' : 'h-2.5 w-2.5 opacity-85', fresh && 'lo-new-dot')}
               style={{ left: `${pos(a['@timestamp'] ?? '')}%`, top: 10 + (ROW[String(a.severity)] ?? 2) * 16 }}
-              aria-label={`${a.name} at ${a['@timestamp'] ? new Date(a['@timestamp']).toLocaleTimeString() : ''}`}
+              aria-label={`${a.name} at ${a['@timestamp'] ? new Date(tsMs(a['@timestamp'])).toLocaleTimeString() : ''}`}
             />
           )
         })}
@@ -123,7 +124,7 @@ export function Timeline({
         </div>
         {hover && (
           <div className="pointer-events-none absolute -top-9 z-10 max-w-[360px] -translate-x-1/2 truncate rounded-md border border-border bg-popover px-2 py-1 text-[11.5px] text-popover-foreground shadow-lg" style={{ left: `${Math.min(88, Math.max(12, pos(hover['@timestamp'] ?? '')))}%` }}>
-            <span className="font-mono text-muted-foreground">{hover['@timestamp'] ? new Date(hover['@timestamp']).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) : ''}</span> {hover.name}
+            <span className="font-mono text-muted-foreground">{hover['@timestamp'] ? new Date(tsMs(hover['@timestamp'])).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) : ''}</span> {hover.name}
           </div>
         )}
       </div>
