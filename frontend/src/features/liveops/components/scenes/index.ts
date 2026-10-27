@@ -9,6 +9,11 @@ import { WebAttack } from './WebAttack'
 import { Travel } from './Travel'
 import { Scan } from './Scan'
 import { CloudChange } from './CloudChange'
+import { Ransomware } from './Ransomware'
+import { Persistence } from './Persistence'
+import { Exfil } from './Exfil'
+import { DefenseEvasion } from './DefenseEvasion'
+import { PrivEsc } from './PrivEsc'
 import { Generic } from './Generic'
 
 export type { SceneProps }
@@ -23,5 +28,10 @@ export const SCENES: Record<Scene['template'], (p: SceneProps) => ReactElement> 
   travel: Travel,
   scan: Scan,
   cloud: CloudChange,
+  ransomware: Ransomware,
+  persistence: Persistence,
+  exfil: Exfil,
+  defenseEvasion: DefenseEvasion,
+  privEsc: PrivEsc,
   generic: Generic,
 }

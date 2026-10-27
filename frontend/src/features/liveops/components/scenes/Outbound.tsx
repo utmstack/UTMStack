@@ -25,7 +25,7 @@ export function Outbound(props: SceneProps) {
   return (
     <g>
       <Zone x={36} y={70} w={290} h={360} label="Internet" tone={tone.attacker} />
-      <Zone x={650} y={70} w={fw ? 314 : 214} h={360} label={tr('liveOps.netInternal')} tone={tone.internal} />
+      <Zone x={650} y={70} w={fw ? 314 : 314} h={360} label={tr('liveOps.netInternal')} tone={tone.internal} />
       <Wire a={S} b={fw ? P : D} tone={matched ? tone.attacker : tone.internal} t={t} />
       {fw && <Wire a={P} b={D} tone={matched ? tone.attacker : tone.muted} t={t} />}
       {dns > 0 && dns < 1 && <Packet a={S} b={fw ? P : D} u={dns} tone={tone.textSoft} r={4} label={tr('liveOps.scDns', { host: dst.name.length > 26 ? dst.name.slice(0, 25) + '…' : dst.name })} />}

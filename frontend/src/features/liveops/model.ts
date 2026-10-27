@@ -1,7 +1,7 @@
 import { flagEmoji } from '@/features/alerts/lib/alert-meta'
 import type { Alert } from '@/features/alerts/types/alert.types'
 
-export type TemplateId = 'bruteForce' | 'outbound' | 'lateral' | 'malware' | 'webAttack' | 'travel' | 'scan' | 'cloud' | 'generic'
+export type TemplateId = 'bruteForce' | 'outbound' | 'lateral' | 'malware' | 'webAttack' | 'travel' | 'scan' | 'cloud' | 'ransomware' | 'persistence' | 'exfil' | 'defenseEvasion' | 'privEsc' | 'generic'
 
 export type Role = 'attacker' | 'perimeter' | 'internal' | 'cloud' | 'external'
 export type NodeKind = 'globe' | 'firewall' | 'server' | 'dc' | 'workstation' | 'laptop' | 'web' | 'k8s' | 'cloud' | 'skull' | 'user' | 'sensor'
@@ -138,6 +138,11 @@ export function templateFor(a: Alert): TemplateId {
   if (/hack tool|spyware and vulnerability|ips critical|exploit attempt|sqli|xss|injection|web attack/.test(n)) return 'webAttack'
   if (/beaconing|malicious url|dns security|tor network|mining pool|out-of-band|ssh tunneling|wildfire|malware outbreak|c2|command.?(and|&)?control/.test(n)) return 'outbound'
   if (/(aws|google|gcp|github|azure|o365|office)/.test(dt) || /inbox rule|forwarding rule|transport rule|external sharing|safe links|safe attachment|admin login/.test(n)) return 'cloud'
+  if (n.includes('ransom') || n.includes('crypto') && n.includes('file') || n.includes('encryption') && n.includes('file') || /encrypted for impact/i.test(n)) return 'ransomware'
+  if (/persistence|scheduled task|cron|crontab|launch (agent|daemon)|autorun|autostart|sshd? (config|key)|authorized (keys|users)|systemd|startup|registry run|winlogon/i.test(n)) return 'persistence'
+  if (/exfil|staged (and )?exfil|data (leaving|transfer)|rclone|archive.*exfil|cloud storage|upload.*external|outbound transfer/i.test(n)) return 'exfil'
+  if (/clear(ed|ing)? (windows )?(event )?log|audit log|impair|selinux|disable|turn(ed)? (off|down)|defender.*disabled|antivirus (protection )?(disabled|off)|security tool|tamper|xprotect|sip bypass|gatekeeper|log.*(clear|delet|remov)|wevtutil|shred|rm -rf.*log|kernel (module|removal)/i.test(n)) return 'defenseEvasion'
+  if (/privilege escalation|uac bypass|token (impersonation|theft)|getsystem|suid|setgid|escalation|sudo (caching|cache)|dscl|root (account|kit|privilege)|sid history/i.test(n)) return 'privEsc'
   if (/(wineventlog|windows|linux|macos|crowdstrike|defender|edr|osquery)/.test(dt)) return 'malware'
   return 'generic'
 }
@@ -363,6 +368,148 @@ const BUILDERS: Record<TemplateId, (a: Alert, t: (k: string, o?: Record<string, 
       parties: [actor, cloud],
       captions,
       facts: change,
+    }
+  },
+
+  ransomware(a, t) {
+    const host = internalSide('host', a.target?.host ? a.target : a.adversary, a.dataSource)
+    const n = (a.name ?? '').toLowerCase()
+    const files = hashNum(a.id, 5, 8)
+    const note = /ransom (note|message|file)/.test(n) || n.includes('note') || (a.events ?? []).some((e) => /readme|restore|pay|wallet|bitcoin/.test(String(evLog(e as Ev).fileName ?? evLog(e as Ev).message ?? '')))
+    const exts = [n.includes('lockbit') ? '.lockbit' : '.enc', n.includes('conti') ? '.conti' : n.includes('ransom') ? '.locked' : '.crypt', '.crypt2'].slice(0, 3)
+    const captions: Caption[] = [
+      { at: 0, text: t('liveOps.capRan0', { host: host.name, user: a.adversary?.user ? t('liveOps.capRanUser', { user: a.adversary.user }) : '' }) },
+      { at: 2800, text: t('liveOps.capRan1', { exts: exts.join(', ') }) },
+      { at: 5800, text: note ? t('liveOps.capRan2') : t('liveOps.capRan2b') },
+      { at: 8400, text: `${t('liveOps.capAlertRaised', { name: a.name ?? '' })}${t('liveOps.capRan3')}` },
+    ]
+    return {
+      template: 'ransomware',
+      title: t('liveOps.titleRan', { to: host.name }),
+      duration: 10800,
+      parties: [host],
+      captions,
+      facts: { files, extensions: exts, note: !!note },
+    }
+  },
+
+  persistence(a, t) {
+    const host = internalSide('host', a.target?.host ? a.target : a.adversary, a.dataSource)
+    const n = (a.name ?? '').toLowerCase()
+    const entries: { label: string; kind: 'file' | 'cmd'; detail?: string }[] = []
+    if (/crontab|cron job|scheduled task/.test(n)) entries.push({ label: '/etc/crontab', kind: 'file', detail: t('liveOps.dPersistCron') })
+    if (/systemd|systemd unit|service/.test(n)) entries.push({ label: '/etc/systemd/system/agent.service', kind: 'file', detail: t('liveOps.dPersistSd') })
+    if (/launch (agent|daemon)|plista|runatload/.test(n)) entries.push({ label: '~/Library/LaunchAgents/com.agent.plist', kind: 'file', detail: t('liveOps.dPersistLaunch') })
+    if (/ssh.*key|authorized.?keys/.test(n)) entries.push({ label: '~/.ssh/authorized_keys', kind: 'file', detail: t('liveOps.dPersistKey') })
+    if (/shell rc|profile|bashrc|zshrc/.test(n)) entries.push({ label: '~/.bashrc', kind: 'file', detail: t('liveOps.dPersistRc') })
+    if (/binary|setuid|suid/.test(n)) entries.push({ label: '/tmp/payload (suid)', kind: 'cmd' })
+    if (/powershell profile/.test(n)) entries.push({ label: 'powershell profile.ps1', kind: 'file', detail: t('liveOps.dPersistPs') })
+    if (entries.length < 2) {
+      entries.unshift({ label: 'payload binary', kind: 'cmd', detail: t('liveOps.dPersistPay') })
+      entries.push(entries.length > 1 ? { label: '~/.bashrc', kind: 'file' } : { label: '/etc/systemd/system/agent.service', kind: 'file' })
+    }
+    const captions: Caption[] = [
+      { at: 0, text: t('liveOps.capPer0', { host: host.name, user: a.adversary?.user ? t('liveOps.capRanUser', { user: a.adversary.user }) : '' }) },
+      { at: 3000, text: t('liveOps.capPer1', { what: entries.map((e) => e.label).slice(0, 2).join(', ') }) },
+      { at: 6200, text: t('liveOps.capPer2', { what: entries[entries.length - 1].label }) },
+      { at: 8600, text: `${t('liveOps.capAlertRaised', { name: a.name ?? '' })}${t('liveOps.capPer3')}` },
+    ]
+    return {
+      template: 'persistence',
+      title: t('liveOps.titlePer', { to: host.name, what: entries[0].label }),
+      duration: 10800,
+      parties: [host],
+      captions,
+      facts: { chain: entries.slice(0, 4) },
+    }
+  },
+
+  exfil(a, t) {
+    const src = internalSide('source', a.adversary, a.dataSource)
+    const destName = a.target?.domain ?? a.target?.ip ?? t('liveOps.destUnknown')
+    const dest: Party = { id: 'destination', role: 'cloud', kind: 'cloud', name: destName, sub: a.target?.ip, ip: a.target?.ip }
+    const n = (a.name ?? '').toLowerCase()
+    const tool = n.includes('rclone') ? 'rclone' : n.includes('web service') || n.includes('http') ? 'HTTPS' : n.includes('dns') ? 'DNS tunnel' : n.includes('ftp') ? 'FTP' : 'bulk transfer'
+    const bytes = hashNum(a.id + 'b', 2400, 19000) * 1024
+    const captions: Caption[] = [
+      { at: 0, text: t('liveOps.capExf0', { host: src.name, user: src.user ? t('liveOps.capRanUser', { user: src.user }) : '' }) },
+      { at: 2600, text: t('liveOps.capExf1', { tool }) },
+      { at: 5400, text: t('liveOps.capExf2', { dest: destName }) },
+      { at: 8800, text: `${t('liveOps.capAlertRaised', { name: a.name ?? '' })}${t('liveOps.capExf3')}` },
+    ]
+    return {
+      template: 'exfil',
+      title: t('liveOps.titleExf', { name: src.name, to: destName }),
+      duration: 11200,
+      parties: [src, dest],
+      captions,
+      facts: { bytes, tool, dest: destName },
+    }
+  },
+
+  defenseEvasion(a, t) {
+    const host = internalSide('host', a.target?.host ? a.target : a.adversary, a.dataSource)
+    const n = (a.name ?? '').toLowerCase()
+    const tools: { name: string; kind: string }[] = []
+    if (/audit log|event log|clear/.test(n)) tools.push({ name: 'Security audit log', kind: t('liveOps.dEvLog') })
+    if (/selinux/.test(n)) tools.push({ name: 'SELinux', kind: t('liveOps.dEvEnf') })
+    if (/defender|antivirus|crypto?guard|xprotect|real-time/.test(n)) tools.push({ name: 'Endpoint AV', kind: t('liveOps.dEvEnf') })
+    if (/kernel module/.test(n)) tools.push({ name: 'Kernel monitoring module', kind: t('liveOps.dEvEnf') })
+    if (/systemd|service|monitoring/.test(n)) tools.push({ name: 'Log forwarding service', kind: t('liveOps.dEvEnf') })
+    if (tools.length < 2) {
+      tools.push({ name: 'Syslog forwarder', kind: t('liveOps.dEvEnf') })
+      tools.push({ name: 'Host firewall', kind: t('liveOps.dEvEnf') })
+    }
+    const cleared = /clear|delet|shred|rm -rf|wevtutil/.test(n)
+    const captions: Caption[] = [
+      { at: 0, text: t('liveOps.capEv0', { host: host.name }) },
+      { at: 3000, text: t('liveOps.capEv1', { what: tools[0].name }) },
+      { at: 6200, text: cleared ? t('liveOps.capEv2') : t('liveOps.capEv2b', { what: tools.map((x) => x.name).join(', ') }) },
+      { at: 8600, text: `${t('liveOps.capAlertRaised', { name: a.name ?? '' })}${t('liveOps.capEv3')}` },
+    ]
+    return {
+      template: 'defenseEvasion',
+      title: t('liveOps.titleEv', { to: host.name }),
+      duration: 10800,
+      parties: [host],
+      captions,
+      facts: { tools: tools.slice(0, 3), cleared },
+    }
+  },
+
+  privEsc(a, t) {
+    const host = internalSide('host', a.target?.host ? a.target : a.adversary, a.dataSource)
+    const userSide = a.adversary?.user ? { ...a.adversary, user: a.adversary.user } : undefined
+    const userName = userSide?.user ?? a.adversary?.ip ?? 'unknown user'
+    const user: Party = userSide
+      ? { id: 'user', role: 'internal', kind: 'user', name: userSide.user, sub: userSide.host ?? userSide.ip, ip: userSide.ip, user: userSide.user }
+      : { id: 'user', role: 'internal', kind: 'user', name: userName, sub: a.adversary?.host, ip: a.adversary?.ip }
+    const n = (a.name ?? '').toLowerCase()
+    const method = /uac bypass/.test(n)
+      ? t('liveOps.dEvUac')
+      : /token/.test(n)
+        ? t('liveOps.dEvToken')
+        : /suid|setgid/.test(n)
+          ? t('liveOps.dEvSuid')
+          : /sudo/.test(n)
+            ? t('liveOps.dEvSudo')
+            : /kernel|exploit|getsystem/i.test(n)
+              ? t('liveOps.dEvExploit')
+              : t('liveOps.dEvDefault')
+    const account = userSide?.user ?? a.target?.user ?? 'root'
+    const captions: Caption[] = [
+      { at: 0, text: t('liveOps.capPe0', { host: host.name, user: userSide?.user ? t('liveOps.capPeUser', { user: userSide.user }) : '' }) },
+      { at: 3000, text: t('liveOps.capPe1', { method }) },
+      { at: 5800, text: t('liveOps.capPe2', { account }) },
+      { at: 8400, text: `${t('liveOps.capAlertRaised', { name: a.name ?? '' })}${t('liveOps.capPe3')}` },
+    ]
+    return {
+      template: 'privEsc',
+      title: t('liveOps.titlePe', { to: host.name, method }),
+      duration: 10800,
+      parties: [user, host],
+      captions,
+      facts: { method, account },
     }
   },
 
