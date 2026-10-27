@@ -455,7 +455,39 @@
       "address": "Address",
       "vin": "VIN",
       "noEchoes": "No echoes reported for this breach.",
-      "echoesCount": "{{count}} echoes reported for this breach."
+      "echoesCount": "{{count}} echoes reported for this breach.",
+      "howTo": "HOW TO",
+      "howToBody": "Click the button to change the status of this breach to <strong>Mitigation</strong> in order to view the resolution steps.",
+      "mitigateBreach": "In Mitigation",
+      "whyListed": "Why is this {{type}} listed?",
+      "whyListedBody": "Your <strong>{{type}}</strong> is listed because it was found in data breaches or associated with malicious activity. Specific reasons may include:",
+      "listedReasons": {
+        "dataBreach": "Your domain was included in a data breach, meaning it may have been compromised.",
+        "phishing": "Your domain has been used in phishing or spoofing attacks, indicating misuse.",
+        "forum": "Your domain has been shared on hacking forums, suggesting it may be targeted by cybercriminals.",
+        "dnsHijack": "Your domain's DNS settings were hijacked, which can redirect traffic to malicious sites.",
+        "misconfigured": "Your domain has poorly configured services, making it vulnerable to attacks."
+      },
+      "mitigationStepsTitle": "Mitigation steps",
+      "mitigationSteps": {
+        "labels": {
+          "immediateNextSteps": "Immediate next steps",
+          "requestDataRemoval": "Request data removal",
+          "ceaseAndDesist": "Cease and Desist Letter",
+          "courtOrder": "Obtain a Court Order"
+        },
+        "descriptions": {
+          "immediateNextSteps": "These are the immediate next steps you should take to mitigate the risk of this vulnerability.",
+          "requestDataRemoval": "These are the steps you should take to request the removal of the data from the breached website.",
+          "ceaseAndDesist": "A cease and desist letter is a powerful and simple way to protect one's rights",
+          "courtOrder": "Obtain a Court Order to Remove Content"
+        },
+        "status": {
+          "NOT_STARTED": "Not started",
+          "IN_PROGRESS": "In progress",
+          "COMPLETED": "Done"
+        }
+      }
     },
     "loadingMore": "Loading more…",
     "endOfResults": "End of results ({{count}} loaded).",

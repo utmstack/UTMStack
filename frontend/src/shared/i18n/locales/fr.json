@@ -455,7 +455,39 @@
       "address": "Adresse",
       "vin": "VIN",
       "noEchoes": "Aucune réapparition signalée pour cette fuite.",
-      "echoesCount": "{{count}} réapparitions signalées pour cette fuite."
+      "echoesCount": "{{count}} réapparitions signalées pour cette fuite.",
+      "howTo": "COMMENT",
+      "howToBody": "Cliquez sur le bouton pour passer le statut de cette fuite à <strong>En mitigation</strong> afin d’afficher les étapes de résolution.",
+      "mitigateBreach": "En mitigation",
+      "whyListed": "Pourquoi ce {{type}} est-il répertorié ?",
+      "whyListedBody": "Votre <strong>{{type}}</strong> est répertorié car il a été retrouvé dans des fuites de données ou associé à une activité malveillante. Les raisons possibles incluent notamment :",
+      "listedReasons": {
+        "dataBreach": "Votre domaine figurait dans une fuite de données, il a donc pu être compromis.",
+        "phishing": "Votre domaine a été utilisé dans des attaques de phishing ou de spoofing, ce qui indique un abus.",
+        "forum": "Votre domaine a été partagé sur des forums de hacking, ce qui suggère qu’il est ciblé par des cybercriminels.",
+        "dnsHijack": "Les paramètres DNS de votre domaine ont été détournés, ce qui peut rediriger le trafic vers des sites malveillants.",
+        "misconfigured": "Votre domaine possède des services mal configurés, ce qui le rend vulnérable aux attaques."
+      },
+      "mitigationStepsTitle": "Étapes de mitigation",
+      "mitigationSteps": {
+        "labels": {
+          "immediateNextSteps": "Prochaines étapes immédiates",
+          "requestDataRemoval": "Demander le retrait des données",
+          "ceaseAndDesist": "Lettre de mise en demeure",
+          "courtOrder": "Obtenir une injonction judiciaire"
+        },
+        "descriptions": {
+          "immediateNextSteps": "Voici les prochaines étapes immédiates à prendre pour atténuer le risque de cette vulnérabilité.",
+          "requestDataRemoval": "Voici les étapes à suivre pour demander le retrait des données du site concerné.",
+          "ceaseAndDesist": "Une lettre de mise en demeure est un moyen puissant et simple de protéger ses droits.",
+          "courtOrder": "Obtenez une injonction judiciaire pour faire retirer le contenu."
+        },
+        "status": {
+          "NOT_STARTED": "Non démarré",
+          "IN_PROGRESS": "En cours",
+          "COMPLETED": "Terminé"
+        }
+      }
     },
     "loadingMore": "Chargement…",
     "endOfResults": "Fin des résultats ({{count}} chargés).",

@@ -1,24 +1,44 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
-import { AlertCircle, CalendarDays, Copy, Database, Eye, EyeOff, FileText, Globe2, Layers3, ShieldAlert, UserRound, X } from 'lucide-react'
+import { AlertCircle, CalendarDays, ChevronDown, Copy, Database, Eye, EyeOff, FileText, Globe2, Info, Layers3, ShieldAlert, UserRound, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import type { BreachStatus, DarkWebRecord } from '../types'
+import { StatusPill } from './StatusPill'
 
 interface BreachDetailsDrawerProps {
   record: DarkWebRecord
   onClose: () => void
+  onStatusChange?: (status: BreachStatus) => void
 }
 
-const STATUS_STYLES: Record<BreachStatus, string> = {
-  OPEN: 'bg-red-500/10 text-red-400',
-  IN_MITIGATION: 'bg-amber-500/10 text-amber-400',
-  COMPLETED: 'bg-blue-500/10 text-blue-400',
-}
 const STATUS_KEYS: Record<BreachStatus, string> = {
   OPEN: 'open',
   IN_MITIGATION: 'mitigation',
   COMPLETED: 'completed',
+}
+
+type MitigationStepStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED'
+
+const MITIGATION_STEP_KEYS = ['immediateNextSteps', 'requestDataRemoval', 'ceaseAndDesist', 'courtOrder'] as const
+type MitigationStepKey = (typeof MITIGATION_STEP_KEYS)[number]
+const MITIGATION_STEP_STATUSES: MitigationStepStatus[] = ['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED']
+
+const MITIGATION_STEP_STATUS_STYLES: Record<MitigationStepStatus, string> = {
+  NOT_STARTED: 'bg-green-500/10 text-green-400 ring-green-500/20 hover:bg-green-500/20',
+  IN_PROGRESS: 'bg-amber-500/10 text-amber-400 ring-amber-500/20 hover:bg-amber-500/20',
+  COMPLETED: 'bg-red-500/10 text-red-400 ring-red-500/20 hover:bg-red-500/20',
+}
+
+const MITIGATION_STEP_IMAGES: Record<MitigationStepKey, string> = {
+  immediateNextSteps:
+    'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 80 80%27%3E%3Crect width=%2780%27 height=%2780%27 fill=%27%2310151d%27/%3E%3Crect x=%276%27 y=%278%27 width=%2714%27 height=%2714%27 rx=%273%27 fill=%27%23ef4444%27/%3E%3Crect x=%2760%27 y=%2710%27 width=%2714%27 height=%2714%27 rx=%273%27 fill=%27%2322c55e%27/%3E%3Crect x=%2710%27 y=%2756%27 width=%2714%27 height=%2714%27 rx=%273%27 fill=%27%23eab308%27/%3E%3Crect x=%2760%27 y=%2756%27 width=%2714%27 height=%2714%27 rx=%273%27 fill=%27%233b82f6%27/%3E%3Crect x=%2730%27 y=%2730%27 width=%2720%27 height=%2726%27 rx=%274%27 fill=%27%23ef4444%27/%3E%3Crect x=%2730%27 y=%2730%27 width=%2720%27 height=%2711%27 rx=%274%27 fill=%27%23f87171%27/%3E%3Cpath d=%27M34 30v-4a6 6 0 0 1 12 0v4%27 stroke=%27%23cbd5e1%27 stroke-width=%273%27 fill=%27none%27/%3E%3Ccircle cx=%2740%27 cy=%2743%27 r=%273.5%27 fill=%27%230f172a%27/%3E%3Crect x=%2738.7%27 y=%2745%27 width=%272.6%27 height=%276%27 fill=%27%230f172a%27/%3E%3C/svg%3E',
+  requestDataRemoval:
+    'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 80 80%27%3E%3Crect width=%2780%27 height=%2780%27 fill=%27%230d1219%27/%3E%3Ccircle cx=%2714%27 cy=%2714%27 r=%272%27 fill=%27%23ef4444%27/%3E%3Ccircle cx=%2730%27 cy=%279%27 r=%272%27 fill=%27%2322c55e%27/%3E%3Ccircle cx=%2748%27 cy=%2715%27 r=%272%27 fill=%27%23eab308%27/%3E%3Ccircle cx=%2764%27 cy=%2710%27 r=%272%27 fill=%27%233b82f6%27/%3E%3Ccircle cx=%2720%27 cy=%2726%27 r=%272%27 fill=%27%23a855f7%27/%3E%3Ccircle cx=%2740%27 cy=%2724%27 r=%272%27 fill=%27%23ef4444%27/%3E%3Ccircle cx=%2760%27 cy=%2726%27 r=%272%27 fill=%27%2322c55e%27/%3E%3Crect x=%274%27 y=%2766%27 width=%2772%27 height=%2710%27 rx=%273%27 fill=%27%231f2937%27/%3E%3Crect x=%2710%27 y=%2744%27 width=%2742%27 height=%2724%27 rx=%274%27 fill=%27%23374151%27/%3E%3Crect x=%2710%27 y=%2744%27 width=%2742%27 height=%276%27 rx=%273%27 fill=%27%234b5563%27/%3E%3Crect x=%2716%27 y=%2756%27 width=%278%27 height=%2710%27 rx=%272%27 fill=%27%23111827%27/%3E%3Crect x=%2738%27 y=%2756%27 width=%278%27 height=%2710%27 rx=%272%27 fill=%27%23111827%27/%3E%3Crect x=%2762%27 y=%2730%27 width=%2710%27 height=%2722%27 fill=%27%230b1220%27/%3E%3Crect x=%2746%27 y=%2732%27 width=%2720%27 height=%2710%27 rx=%272%27 fill=%27%2316a34a%27/%3E%3Crect x=%2746%27 y=%2732%27 width=%2720%27 height=%273%27 fill=%27%2322c55e%27/%3E%3Cpath d=%27M28 44v-6h12v6%27 fill=%27%230f172a%27/%3E%3C/svg%3E',
+  ceaseAndDesist:
+    'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 80 80%27%3E%3Crect width=%2780%27 height=%2780%27 fill=%27%230e131a%27/%3E%3Crect x=%2714%27 y=%2718%27 width=%2748%27 height=%2742%27 rx=%273%27 fill=%27%23f8fafc%27/%3E%3Crect x=%2714%27 y=%2718%27 width=%2748%27 height=%276%27 fill=%27%23e2e8f0%27/%3E%3Crect x=%2720%27 y=%2730%27 width=%2736%27 height=%272%27 fill=%27%2394a3b8%27/%3E%3Crect x=%2720%27 y=%2736%27 width=%2736%27 height=%272%27 fill=%27%23cbd5e1%27/%3E%3Crect x=%2720%27 y=%2742%27 width=%2724%27 height=%272%27 fill=%27%23cbd5e1%27/%3E%3Crect x=%2730%27 y=%2752%27 width=%2716%27 height=%273%27 rx=%271%27 fill=%27%23dc2626%27/%3E%3Cpath d=%27M52 46l12 12-2 6-14-14z%27 fill=%27%23f59e0b%27/%3E%3Cpath d=%27M64 58l2.6-2.6 3 3-2.6 2.6z%27 fill=%27%23111827%27/%3E%3Cpath d=%27M52 46l-1.5-5.5L62 43z%27 fill=%27%2378350f%27/%3E%3C/svg%3E',
+  courtOrder:
+    'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 80 80%27%3E%3Crect width=%2780%27 height=%2780%27 fill=%27%2311151c%27/%3E%3Crect x=%2714%27 y=%2748%27 width=%2752%27 height=%278%27 rx=%272%27 fill=%27%231f2937%27/%3E%3Cpath d=%27M40 48l-8 14h16z%27 fill=%27%23243041%27/%3E%3Cpath d=%27M32 14h20l-4 18h-12z%27 fill=%27%23d97706%27/%3E%3Cpath d=%27M32 14h8l-4 18h-4z%27 fill=%27%23f59e0b%27/%3E%3Ccircle cx=%2740%27 cy=%2736%27 r=%274%27 fill=%27%2392400e%27/%3E%3Crect x=%2737%27 y=%2738%27 width=%276%27 height=%2714%27 fill=%27%23b45309%27/%3E%3Ccircle cx=%2762%27 cy=%2720%27 r=%277%27 fill=%27%23dc2626%27/%3E%3Ccircle cx=%2762%27 cy=%2720%27 r=%274%27 fill=%27%230f172a%27/%3E%3C/svg%3E',
 }
 
 function valueOrDash(value: string | null): string {
@@ -29,10 +49,16 @@ function formatDate(value: string): string {
   return new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(new Date(value))
 }
 
-export function BreachDetailsDrawer({ record, onClose }: BreachDetailsDrawerProps) {
+export function BreachDetailsDrawer({ record, onClose, onStatusChange }: BreachDetailsDrawerProps) {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<'information' | 'echoes'>('information')
   const [showSecrets, setShowSecrets] = useState(false)
+  const [stepStatuses, setStepStatuses] = useState<Record<MitigationStepKey, MitigationStepStatus>>({
+    immediateNextSteps: 'NOT_STARTED',
+    requestDataRemoval: 'NOT_STARTED',
+    ceaseAndDesist: 'NOT_STARTED',
+    courtOrder: 'NOT_STARTED',
+  })
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -44,6 +70,7 @@ export function BreachDetailsDrawer({ record, onClose }: BreachDetailsDrawerProp
 
   const subject = record.organizationElement
   const subjectType = t(`darkWebMonitoring.exportDialogs.elementTypes.${record.organizationElementType}`)
+  const inMitigation = record.breachStatus === 'IN_MITIGATION'
   const sensitiveValue = (value: string | null) =>
     value ? (showSecrets ? value : '••••••••') : '—'
 
@@ -121,9 +148,11 @@ export function BreachDetailsDrawer({ record, onClose }: BreachDetailsDrawerProp
                 </div>
                 <div>
                   <div className="mb-1.5 text-[10px] text-muted-foreground">{t('darkWebMonitoring.table.status')}</div>
-                  <span className={`inline-flex rounded-full px-2 py-1 text-[10px] font-semibold ${STATUS_STYLES[record.breachStatus]}`}>
-                    {t(`darkWebMonitoring.status.${STATUS_KEYS[record.breachStatus]}`)}
-                  </span>
+                  <StatusPill
+                    status={record.breachStatus}
+                    label={t(`darkWebMonitoring.status.${STATUS_KEYS[record.breachStatus]}`)}
+                    onChange={(nextStatus) => onStatusChange?.(nextStatus)}
+                  />
                 </div>
               </div>
 
@@ -178,6 +207,74 @@ export function BreachDetailsDrawer({ record, onClose }: BreachDetailsDrawerProp
                 <DetailField icon={<Layers3 size={13} />} label={t('darkWebMonitoring.details.distributionType')} value={valueOrDash(record.distributionType)} />
                 <DetailField icon={<UserRound size={13} />} label={t('darkWebMonitoring.table.who')} value={record.employee ? t('darkWebMonitoring.employee') : t('darkWebMonitoring.other')} />
               </section>
+
+              <section className="space-y-4">
+                {record.breachStatus === 'OPEN' && (
+                  <div className="flex items-start justify-between gap-4 rounded-lg border border-primary/40 bg-primary/5 p-4">
+                    <div className="flex items-start gap-3">
+                      <Info size={14} className="mt-0.5 shrink-0 text-primary" />
+                      <div>
+                        <div className="mb-1 text-[10px] font-bold tracking-[0.14em] text-primary">{t('darkWebMonitoring.details.howTo')}</div>
+                        <p className="leading-relaxed text-foreground/90" dangerouslySetInnerHTML={{ __html: t('darkWebMonitoring.details.howToBody') }} />
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => onStatusChange?.('IN_MITIGATION')}
+                      className="shrink-0 rounded-md bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+                    >
+                      {t('darkWebMonitoring.details.mitigateBreach')}
+                    </button>
+                  </div>
+                )}
+
+                {inMitigation && (
+                  <div>
+                    <h2 className="mb-3 text-lg font-bold tracking-tight">{t('darkWebMonitoring.details.mitigationStepsTitle')}</h2>
+                    <div className="space-y-4">
+                      {MITIGATION_STEP_KEYS.map((key) => {
+                        const stepStatus = stepStatuses[key]
+                        return (
+                          <div key={key} className="rounded-xl border border-border bg-card p-4">
+                            <div className="flex items-center justify-between gap-3">
+                              <h3 className="text-sm font-bold">{t(`darkWebMonitoring.details.mitigationSteps.labels.${key}`)}</h3>
+                              <StepStatusSelect
+                                status={stepStatus}
+                                onChange={(next) => setStepStatuses((current) => ({ ...current, [key]: next }))}
+                              />
+                            </div>
+                            <div className="mt-3 flex items-start gap-3">
+                              <img
+                                src={MITIGATION_STEP_IMAGES[key]}
+                                alt=""
+                                aria-hidden="true"
+                                className="h-20 w-20 shrink-0 rounded-lg border border-border object-cover"
+                              />
+                              <p className="leading-relaxed text-foreground/80">{t(`darkWebMonitoring.details.mitigationSteps.descriptions.${key}`)}</p>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <h2 className="text-xl font-bold tracking-tight">{t('darkWebMonitoring.details.whyListed')}</h2>
+                  <p className="mt-3 leading-relaxed text-foreground/90" dangerouslySetInnerHTML={{ __html: t('darkWebMonitoring.details.whyListedBody', { type: subjectType.toLowerCase() }) }} />
+                  <ul className="mt-3 space-y-2.5">
+                    {([
+                      'dataBreach',
+                      'phishing',
+                      'forum',
+                      'dnsHijack',
+                      'misconfigured',
+                    ] as const).map((reason) => (
+                      <li key={reason} className="flex gap-2 border-b border-border/60 pb-2.5 leading-relaxed text-foreground/80" dangerouslySetInnerHTML={{ __html: t(`darkWebMonitoring.details.listedReasons.${reason}`) }} />
+                    ))}
+                  </ul>
+                </div>
+              </section>
             </div>
           ) : (
             <div role="tabpanel" className="rounded-lg border border-border bg-background px-4 py-8 text-center text-muted-foreground">
@@ -203,5 +300,97 @@ function DetailField({ icon, label, value }: { icon?: ReactNode; label: string; 
       </div>
       <div className="break-words text-foreground/90">{value}</div>
     </div>
+  )
+}
+
+function StepStatusSelect({
+  status,
+  onChange,
+}: {
+  status: MitigationStepStatus
+  onChange: (status: MitigationStepStatus) => void
+}) {
+  const { t } = useTranslation()
+  const [position, setPosition] = useState<{ left: number; top: number } | null>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!position) return
+    const close = () => setPosition(null)
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') close()
+    }
+    const onMouseDown = (event: MouseEvent) => {
+      const target = event.target as Node
+      if (!triggerRef.current?.contains(target) && !menuRef.current?.contains(target)) close()
+    }
+    document.addEventListener('mousedown', onMouseDown)
+    document.addEventListener('keydown', onKeyDown)
+    window.addEventListener('scroll', close, true)
+    window.addEventListener('resize', close)
+    return () => {
+      document.removeEventListener('mousedown', onMouseDown)
+      document.removeEventListener('keydown', onKeyDown)
+      window.removeEventListener('scroll', close, true)
+      window.removeEventListener('resize', close)
+    }
+  }, [position])
+
+  const toggle = () => {
+    if (position) {
+      setPosition(null)
+      return
+    }
+    const rect = triggerRef.current?.getBoundingClientRect()
+    if (rect) setPosition({ left: rect.left, top: rect.bottom + 4 })
+  }
+
+  return (
+    <>
+      <button
+        ref={triggerRef}
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={position !== null}
+        onClick={(event) => {
+          event.stopPropagation()
+          toggle()
+        }}
+        className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-2.5 py-1.5 text-[10px] font-medium ring-1 ring-inset ${MITIGATION_STEP_STATUS_STYLES[status]}`}
+      >
+        {t(`darkWebMonitoring.details.mitigationSteps.status.${status}`)}
+        <ChevronDown size={11} />
+      </button>
+      {position && createPortal(
+        <div
+          ref={menuRef}
+          role="listbox"
+          onClick={(event) => event.stopPropagation()}
+          style={{ position: 'fixed', left: position.left, top: position.top }}
+          className="z-[95] w-max min-w-40 rounded-md border border-border bg-popover py-1 shadow-lg"
+        >
+          {MITIGATION_STEP_STATUSES.map((option) => (
+            <button
+              key={option}
+              type="button"
+              role="option"
+              aria-selected={option === status}
+              disabled={option === status}
+              onClick={() => {
+                onChange(option)
+                setPosition(null)
+              }}
+              className="flex w-full items-center px-3 py-1.5 text-left hover:bg-muted disabled:opacity-50 disabled:hover:bg-transparent"
+            >
+              <span className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-2 py-1 text-[10px] font-medium ring-1 ring-inset ${MITIGATION_STEP_STATUS_STYLES[option]}`}>
+                {t(`darkWebMonitoring.details.mitigationSteps.status.${option}`)}
+              </span>
+            </button>
+          ))}
+        </div>,
+        document.body,
+      )}
+    </>
   )
 }

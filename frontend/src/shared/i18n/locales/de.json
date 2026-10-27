@@ -455,7 +455,39 @@
       "address": "Adresse",
       "vin": "VIN",
       "noEchoes": "Keine Wiederholungen für diesen Datenverstoß gemeldet.",
-      "echoesCount": "{{count}} Wiederholungen für diesen Datenverstoß gemeldet."
+      "echoesCount": "{{count}} Wiederholungen für diesen Datenverstoß gemeldet.",
+      "howTo": "WIE",
+      "howToBody": "Klicken Sie auf die Schaltfläche, um den Status dieses Verstoßes auf <strong>Abgemildert</strong> zu ändern, und zeigen Sie die Lösungsschritte an.",
+      "mitigateBreach": "Abgemildert",
+      "whyListed": "Warum ist dieses {{type}} aufgeführt?",
+      "whyListedBody": "Ihr <strong>{{type}}</strong> ist aufgeführt, weil er in Datenlecks gefunden wurde oder mit schädlicher Aktivität in Verbindung steht. Mögliche Gründe sind u. a.:",
+      "listedReasons": {
+        "dataBreach": "Ihre Domain war Teil eines Datenlecks und wurde möglicherweise kompromittiert.",
+        "phishing": "Ihre Domain wurde in Phishing- oder Spoofing-Angriffen verwendet, was auf Missbrauch hindeutet.",
+        "forum": "Ihre Domain wurde auf Hacking-Foren geteilt, was darauf hindeutet, dass sie von Cyberkriminellen angegriffen werden könnte.",
+        "dnsHijack": "Die DNS-Einstellungen Ihrer Domain wurden übernommen, wodurch Verkehr zu schädlichen Websites umgeleitet werden kann.",
+        "misconfigured": "Ihre Domain hat schlecht konfigurierte Dienste, was sie anfällig für Angriffe macht."
+      },
+      "mitigationStepsTitle": "Mitigationsschritte",
+      "mitigationSteps": {
+        "labels": {
+          "immediateNextSteps": "Sofortige nächste Schritte",
+          "requestDataRemoval": "Datenlöschung beantragen",
+          "ceaseAndDesist": "Abmahnung (Cease and Desist)",
+          "courtOrder": "Gerichtliche Anordnung erwirken"
+        },
+        "descriptions": {
+          "immediateNextSteps": "Dies sind die sofortigen nächsten Schritte, die Sie unternehmen sollten, um das Risiko dieser Schwachstelle zu mildern.",
+          "requestDataRemoval": "Dies sind die Schritte, die Sie unternehmen sollten, um die Löschung der Daten von der betroffenen Website zu beantragen.",
+          "ceaseAndDesist": "Ein Cease-and-Desist-Schreiben ist ein wirksames und einfaches Mittel, um Rechte zu schützen.",
+          "courtOrder": "Erwirken Sie eine gerichtliche Anordnung zur Entfernung des Inhalts."
+        },
+        "status": {
+          "NOT_STARTED": "Nicht begonnen",
+          "IN_PROGRESS": "In Arbeit",
+          "COMPLETED": "Abgeschlossen"
+        }
+      }
     },
     "loadingMore": "Weitere Ergebnisse werden geladen…",
     "endOfResults": "Ende der Ergebnisse ({{count}} geladen).",

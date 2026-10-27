@@ -455,7 +455,39 @@
       "address": "Dirección",
       "vin": "VIN",
       "noEchoes": "No se han reportado reapariciones de esta brecha.",
-      "echoesCount": "Se han reportado {{count}} reapariciones de esta brecha."
+      "echoesCount": "Se han reportado {{count}} reapariciones de esta brecha.",
+      "howTo": "CÓMO",
+      "howToBody": "Haz clic en el botón para cambiar el estado de esta brecha a <strong>Mitigación</strong> para ver los pasos de resolución.",
+      "mitigateBreach": "En mitigación",
+      "whyListed": "¿Por qué está listado este {{type}}?",
+      "whyListedBody": "Tu <strong>{{type}}</strong> está listado porque se encontró en brechas de datos o asociado a actividad maliciosa. Las razones específicas pueden incluir:",
+      "listedReasons": {
+        "dataBreach": "Tu dominio se incluyó en una brecha de datos, lo que significa que pudo haber sido comprometido.",
+        "phishing": "Tu dominio se ha utilizado en ataques de phishing o suplantación, indicando un uso indebido.",
+        "forum": "Tu dominio se ha compartido en foros de hackers, lo que sugiere que puede estar siendo objetivo de ciberdelincuentes.",
+        "dnsHijack": "La configuración DNS de tu dominio fue secuestrada, lo que puede redirigir el tráfico a sitios maliciosos.",
+        "misconfigured": "Tu dominio tiene servicios mal configurados, lo que lo hace vulnerable a ataques."
+      },
+      "mitigationStepsTitle": "Pasos de mitigación",
+      "mitigationSteps": {
+        "labels": {
+          "immediateNextSteps": "Próximos pasos inmediatos",
+          "requestDataRemoval": "Solicitar eliminación de datos",
+          "ceaseAndDesist": "Carta de cesación y desistimiento",
+          "courtOrder": "Obtener una orden judicial"
+        },
+        "descriptions": {
+          "immediateNextSteps": "Estos son los próximos pasos inmediatos que debe tomar para mitigar el riesgo de esta vulnerabilidad.",
+          "requestDataRemoval": "Estos son los pasos que debe seguir para solicitar la eliminación de los datos del sitio comprometido.",
+          "ceaseAndDesist": "Una carta de cesación y desistimiento es una forma poderosa y sencilla de proteger los derechos de una persona.",
+          "courtOrder": "Obtenga una orden judicial para eliminar el contenido."
+        },
+        "status": {
+          "NOT_STARTED": "Sin iniciar",
+          "IN_PROGRESS": "En progreso",
+          "COMPLETED": "Hecho"
+        }
+      }
     },
     "loadingMore": "Cargando más…",
     "endOfResults": "Fin de los resultados ({{count}} cargados).",
