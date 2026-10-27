@@ -42,6 +42,7 @@ import {
   Workflow,
   ListChecks,
   Flag,
+  Radio,
   type LucideIcon,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -95,6 +96,7 @@ const sections: Section[] = [
       { to: '/home', label: 'nav.overview', icon: Home },
       { to: '/tenants', label: 'nav.tenants', icon: Building2, platformOnly: true },
       { to: '/dashboards', label: 'nav.dashboards', icon: LayoutDashboard, matchPrefix: true },
+      { to: '/live-operations', label: 'nav.liveOps', icon: Radio, matchPrefix: true },
       {
         id: 'threat-management',
         label: 'nav.threatManagement',

@@ -1,8 +1,3 @@
-// Live Operations: a SOC wall for the instance's alerts. Each alert plays as an animated scene
-// built from its own details and filling the whole page; the alert list and the details panel float
-// on top of it (they fold away). SOC-AI answers questions about the alert on stage.
-// The alerts come straight from the console's own alert store (the same search the Alerts page
-// uses) and are re-read while the page is open, so new detections appear as they land.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AlertTriangle, ExternalLink, List, PanelLeftClose, PanelRightClose, Radio, SlidersHorizontal, Sparkles } from 'lucide-react'
