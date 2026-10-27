@@ -117,8 +117,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/tfa/verify-code").hasAnyAuthority(AuthoritiesConstants.PRE_VERIFICATION_USER, AuthoritiesConstants.USER, AuthoritiesConstants.ADMIN)
                 .antMatchers("/api/tfa/refresh").hasAnyAuthority(AuthoritiesConstants.PRE_VERIFICATION_USER, AuthoritiesConstants.USER, AuthoritiesConstants.ADMIN)
                 .antMatchers("/api/tfa/**").hasAnyAuthority(AuthoritiesConstants.ADMIN, AuthoritiesConstants.USER)
-                .antMatchers("/api/utm-incident-jobs").hasAuthority(AuthoritiesConstants.ADMIN)
-                .antMatchers("/api/utm-incident-jobs/**").hasAuthority(AuthoritiesConstants.ADMIN)
+                // Incident-response dispatch: security analysts (ROLE_USER) execute
+                // IR actions, not just platform admins.
+                .antMatchers("/api/utm-incident-jobs").hasAnyAuthority(AuthoritiesConstants.ADMIN, AuthoritiesConstants.USER)
+                .antMatchers("/api/utm-incident-jobs/**").hasAnyAuthority(AuthoritiesConstants.ADMIN, AuthoritiesConstants.USER)
                 .antMatchers("/api/utm-incident-variables/**").hasAuthority(AuthoritiesConstants.ADMIN)
                 .antMatchers(HttpMethod.GET, "/api/utm-incident-variables").hasAnyAuthority()
                 .antMatchers("/api/custom-reports/**").denyAll()

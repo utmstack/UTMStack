@@ -49,8 +49,11 @@ public class UTMIncidentCommandWebsocket {
     public void processCommand(@NotNull String command, @DestinationVariable @NotNull String hostname) {
         final String ctx = CLASSNAME + ".processCommand";
         try {
-            if (!SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN)) {
-                throw new AccessDeniedException(ctx + ": Incident response command execution requires admin privileges");
+            // Security analysts (ROLE_USER) are allowed to execute incident-response
+            // commands, not only platform admins.
+            if (!SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN)
+                    && !SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.USER)) {
+                throw new AccessDeniedException(ctx + ": Incident response command execution requires an authenticated user");
             }
 
             String executedBy = SecurityUtils.getCurrentUserLogin()
