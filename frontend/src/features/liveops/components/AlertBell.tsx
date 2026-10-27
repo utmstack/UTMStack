@@ -3,9 +3,10 @@ import { usePalette } from '@/features/liveops/hooks/usePalette'
 import { useGlow } from '@/features/liveops/hooks/useGlow'
 import { backOut, easeOut, prog, type Pt } from './geometry'
 import { Pill } from './Pill'
-
+import { useTranslation } from 'react-i18next'
 // The bell that pops when the alert is raised.
-export function AlertBell({ at, t, start, label = 'Alert raised', labelAbove = false }: { at: Pt; t: number; start: number; label?: string; labelAbove?: boolean }) {
+export function AlertBell({ at, t, start, label = 'liveOps.alertRaised', labelAbove = false }: { at: Pt; t: number; start: number; label?: string; labelAbove?: boolean }) {
+  const {t:tr} = useTranslation()
   const p = usePalette()
   const glow = useGlow(true)
   const u = prog(t, start, start + 550)
@@ -24,7 +25,7 @@ export function AlertBell({ at, t, start, label = 'Alert raised', labelAbove = f
           <Bell x={-11} y={-11} width={22} height={22} color={p.alertText} strokeWidth={2.2} />
         </g>
       </g>
-      <Pill x={0} y={labelAbove ? -38 : 38} text={label} tone={p.alert} small />
+      <Pill x={0} y={labelAbove ? -38 : 38} text={tr(label)} tone={p.alert} small />
     </g>
   )
 }

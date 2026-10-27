@@ -5,16 +5,32 @@ import { ChevronLeft, ChevronRight, History, Square } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { SEV_META } from '@/features/alerts/lib/alert-meta'
 import type { Alert } from '@/features/alerts/types/alert.types'
+import { tsMs } from '../model'
 
 const ROW: Record<string, number> = { high: 0, medium: 1, low: 2 }
 // Severity colours as the Alerts page shows them.
 const dot = (severity: string) => (SEV_META[severity as keyof typeof SEV_META] ?? SEV_META.low).bar
 
+/** Time window options, newest first; labels are plain (1h / 6h / 24h / 7d). */
+export type WindowKey = '1h' | '6h' | '24h' | '7d'
+export const WINDOW_OPTIONS: { key: WindowKey; label: string }[] = [
+  { key: '1h', label: '1h' },
+  { key: '6h', label: '6h' },
+  { key: '24h', label: '24h' },
+  { key: '7d', label: '7d' },
+]
+export const WINDOW_MS: Record<WindowKey, number> = {
+  '1h': 3_600_000,
+  '6h': 6 * 3_600_000,
+  '24h': 24 * 3_600_000,
+  '7d': 7 * 24 * 3_600_000,
+}
+
 export function Timeline({
   t,
   alerts,
-  hours,
-  onHours,
+  win,
+  onWin,
   selectedId,
   live,
   onSelect,
@@ -24,8 +40,8 @@ export function Timeline({
 }: {
   t: (k: string, o?: Record<string, unknown>) => string
   alerts: Alert[]
-  hours: number
-  onHours: (h: number) => void
+  win: WindowKey
+  onWin: (w: WindowKey) => void
   selectedId: string | null
   live: boolean
   onSelect: (id: string) => void
@@ -35,31 +51,32 @@ export function Timeline({
 }) {
   const [hover, setHover] = useState<Alert | null>(null)
   const now = Date.now()
-  const from = now - hours * 3_600_000
-  const pos = (iso: string) => ((new Date(iso).getTime() - from) / (now - from)) * 100
+  const from = now - WINDOW_MS[win]
+  const pos = (iso: string) => ((tsMs(iso) - from) / (now - from)) * 100
   const idx = alerts.findIndex((a) => a.id === selectedId)
   const ticks = useMemo(() => {
-    const step = hours <= 1 ? 10 * 60_000 : hours <= 6 ? 3_600_000 : 3 * 3_600_000
+    const span = WINDOW_MS[win]
+    const step = span <= 3_600_000 ? 10 * 60_000 : span <= 6 * 3_600_000 ? 3_600_000 : span <= 24 * 3_600_000 ? 3 * 3_600_000 : 12 * 3_600_000
     const out: { left: number; label: string }[] = []
-    for (let t = Math.ceil(from / step) * step; t < now; t += step) {
-      out.push({ left: ((t - from) / (now - from)) * 100, label: new Date(t).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) })
+    for (let tt = Math.ceil(from / step) * step; tt < now; tt += step) {
+      out.push({ left: ((tt - from) / (now - from)) * 100, label: new Date(tt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) })
     }
     return out
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hours, Math.floor(now / 60_000)])
+  }, [win, Math.floor(now / 60_000)])
 
   return (
     <div className="lo-panel rounded-xl px-3 pb-2 pt-2">
       <div className="flex items-center gap-2">
         <div className="flex rounded-md border border-border p-0.5">
-          {[1, 6, 24].map((h) => (
-            <button key={h} type="button" onClick={() => onHours(h)} className={cn('rounded px-2 py-0.5 text-[11.5px] font-medium', h === hours ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground')}>
-              {t('liveOps.timHours', { count: h })}
+          {WINDOW_OPTIONS.map((o) => (
+            <button key={o.key} type="button" onClick={() => onWin(o.key)} className={cn('rounded px-2 py-0.5 text-[11.5px] font-medium', o.key === win ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground')}>
+              {o.label}
             </button>
           ))}
         </div>
         <span className="text-[11.5px] text-muted-foreground">
-          {t('liveOps.timCount', { count: alerts.length, range: hours === 1 ? t('liveOps.timHour') : t('liveOps.timHoursUnit', { count: hours }) })}
+          {t('liveOps.timCount', { count: alerts.length, range: WINDOW_OPTIONS.find((o) => o.key === win)?.label ?? '' })}
         </span>
         <div className="ml-auto flex items-center gap-1">
           <button type="button" disabled={idx <= 0} onClick={() => idx > 0 && onSelect(alerts[idx - 1].id)} className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30" title={t('liveOps.timPrev')}>
@@ -68,10 +85,10 @@ export function Timeline({
           <button type="button" disabled={idx < 0 || idx >= alerts.length - 1} onClick={() => idx >= 0 && idx < alerts.length - 1 && onSelect(alerts[idx + 1].id)} className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30" title={t('liveOps.timNext')}>
             <ChevronRight size={16} />
           </button>
-          <button type="button" onClick={onReplay} className={cn('flex items-center gap-1 rounded-md px-2 py-1 text-[11.5px] font-medium', replaying ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:bg-muted hover:text-foreground')} title="Play every alert of this window in order">
+          <button type="button" onClick={onReplay} className={cn('flex items-center gap-1 rounded-md px-2 py-1 text-[11.5px] font-medium', replaying ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:bg-muted hover:text-foreground')} title={t('liveOps.replayTip')}>
             {replaying ? <Square size={12} /> : <History size={13} />} {replaying ? t('liveOps.timStop') : t('liveOps.timReplay')}
           </button>
-          <button type="button" onClick={onLive} className={cn('flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[11.5px] font-bold tracking-wide', live ? 'bg-red-500/15 text-red-600 dark:text-red-400' : 'border border-border text-muted-foreground hover:text-foreground')} title="Follow new alerts as they arrive">
+          <button type="button" onClick={onLive} className={cn('flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[11.5px] font-bold tracking-wide', live ? 'bg-red-500/15 text-red-600 dark:text-red-400' : 'border border-border text-muted-foreground hover:text-foreground')} title={t('liveOps.liveTip')}>
             <span className={cn('h-2 w-2 rounded-full', live ? 'lo-live-dot bg-red-500' : 'bg-muted-foreground')} /> {t('liveOps.timLive')}
           </button>
         </div>
@@ -89,7 +106,7 @@ export function Timeline({
         {selectedId && idx >= 0 && <div className="absolute top-0 h-[52px] w-px bg-primary" style={{ left: `${pos(alerts[idx]['@timestamp'] ?? '')}%` }} />}
         {alerts.map((a) => {
           const selected = a.id === selectedId
-          const fresh = !!a['@timestamp'] && now - new Date(a['@timestamp']).getTime() < 5*60_000
+          const fresh = !!a['@timestamp'] && now - tsMs(a['@timestamp']) < 5*60_000
           return (
             <button
               key={a.id}
@@ -98,7 +115,7 @@ export function Timeline({
               onMouseEnter={() => setHover(a)}
               className={cn('absolute -translate-x-1/2 -translate-y-1/2 rounded-full transition-transform hover:scale-150', dot(String(a.severity)), selected ? 'h-3.5 w-3.5 ring-2 ring-primary ring-offset-1 ring-offset-card' : 'h-2.5 w-2.5 opacity-85', fresh && 'lo-new-dot')}
               style={{ left: `${pos(a['@timestamp'] ?? '')}%`, top: 10 + (ROW[String(a.severity)] ?? 2) * 16 }}
-              aria-label={`${a.name} at ${a['@timestamp'] ? new Date(a['@timestamp']).toLocaleTimeString() : ''}`}
+              aria-label={a['@timestamp'] ? t('liveOps.alertAt', { name: a.name, time: new Date(tsMs(a['@timestamp'])).toLocaleTimeString() }) : a.name}
             />
           )
         })}
@@ -107,7 +124,7 @@ export function Timeline({
         </div>
         {hover && (
           <div className="pointer-events-none absolute -top-9 z-10 max-w-[360px] -translate-x-1/2 truncate rounded-md border border-border bg-popover px-2 py-1 text-[11.5px] text-popover-foreground shadow-lg" style={{ left: `${Math.min(88, Math.max(12, pos(hover['@timestamp'] ?? '')))}%` }}>
-            <span className="font-mono text-muted-foreground">{hover['@timestamp'] ? new Date(hover['@timestamp']).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) : ''}</span> {hover.name}
+            <span className="font-mono text-muted-foreground">{hover['@timestamp'] ? new Date(tsMs(hover['@timestamp'])).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) : ''}</span> {hover.name}
           </div>
         )}
       </div>

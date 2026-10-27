@@ -6,6 +6,8 @@ import type { Party, Scene } from '@/features/liveops/model'
 export interface SceneProps {
   scene: Scene
   t: number
+  /** i18n function: scene labels are shown in the visitor's language. */
+  tr: (k: string, o?: Record<string, unknown>) => string
   selectedId?: string
   onSelect: (p: Party) => void
   /** Scene time at which the visitor blocked the attacker (traffic stops at the firewall from then on). */

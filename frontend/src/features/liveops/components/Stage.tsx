@@ -4,10 +4,11 @@
 // The three are sized and placed together: the scene as large as the free space allows, and the
 // group centred in it, so no screen size leaves a gap between the scene and its caption.
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
 import { SEV_META } from '@/features/alerts/lib/alert-meta'
 import type { Alert } from '@/features/alerts/types/alert.types'
-import type { Party, Scene } from '@/features/liveops/model'
+import { tsMs, type Party, type Scene } from '@/features/liveops/model'
 import { H, W } from './geometry'
 import { SceneDefs } from './SceneDefs'
 import { SCENES } from './scenes'
@@ -101,6 +102,7 @@ export function Stage({
   blocked?: { ip: string; on: string }
 }) {
   const t = useSceneClock()
+  const { t: tr } = useTranslation()
   const ended = useRef(false)
   const [blockedAt, setBlockedAt] = useState<number | undefined>(undefined)
   useEffect(() => {
@@ -115,14 +117,14 @@ export function Stage({
   }, [t, scene.duration, onEnded])
 
   const Scene = SCENES[scene.template]
-  const blockCaption = blocked && blockedAt !== undefined && t >= blockedAt ? { at: blockedAt, text: `${blocked.ip} is now blocked on ${blocked.on}: the traffic stops here.` } : null
+  const blockCaption = blocked && blockedAt !== undefined && t >= blockedAt ? { at: blockedAt, text: tr('liveOps.capBlocked', { ip: blocked.ip, on: blocked.on }) } : null
   const caption = blockCaption ?? [...scene.captions].reverse().find((c) => t >= c.at) ?? scene.captions[0]
   const capIndex = blockCaption ? scene.captions.length - 1 : scene.captions.indexOf(caption)
   // How far the story is into the current caption, for the progress bar.
   const capEnd = blockCaption ? blockCaption.at + 1 : scene.captions[capIndex + 1]?.at ?? scene.duration
   const capStart = blockCaption ? blockCaption.at : caption.at
   const capFill = blockCaption ? 1 : Math.min(1, Math.max(0, (t - capStart) / Math.max(1, capEnd - capStart)))
-  const time = alert['@timestamp'] ? new Date(alert['@timestamp']) : new Date()
+  const time = alert['@timestamp'] ? new Date(tsMs(alert['@timestamp'])) : new Date()
 
   // Place the title, the scene and the caption as one group inside the free space.
   const [stageRef, box] = useBox<HTMLDivElement>()
@@ -166,7 +168,7 @@ export function Stage({
         aria-label={scene.title}
       >
         <SceneDefs />
-        <Scene scene={scene} t={t} selectedId={selectedParty} onSelect={onSelectParty} blockedAt={blockedAt} />
+        <Scene scene={scene} t={t} tr={tr} selectedId={selectedParty} onSelect={onSelectParty} blockedAt={blockedAt} />
       </svg>
 
       {/* The story */}
