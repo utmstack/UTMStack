@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { CalendarDays, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -17,7 +17,22 @@ export function CustomRangeExportDialog({ records, onClose, onExport }: CustomRa
   const [action, setAction] = useState<ExportAction>('PDF')
   const [from, setFrom] = useState('')
   const [to, setTo] = useState('')
+  const fromInputRef = useRef<HTMLInputElement>(null)
+  const toInputRef = useRef<HTMLInputElement>(null)
   const invalidRange = Boolean(from && to && from > to)
+
+  const openPicker = (input: HTMLInputElement | null) => {
+    if (!input) return
+    if (typeof input.showPicker === 'function') {
+      try {
+        input.showPicker()
+      } catch {
+        input.focus()
+      }
+    } else {
+      input.focus()
+    }
+  }
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -68,15 +83,15 @@ export function CustomRangeExportDialog({ records, onClose, onExport }: CustomRa
           <label className="block space-y-1.5">
             <span className="font-semibold">{t('darkWebMonitoring.exportDialogs.custom.from')}</span>
             <span className="flex h-9 overflow-hidden rounded-md border border-input bg-background">
-              <input aria-label={t('darkWebMonitoring.exportDialogs.custom.from')} type="date" value={from} max={to || undefined} onChange={(event) => setFrom(event.target.value)} className="min-w-0 flex-1 bg-transparent px-2 text-xs" />
-              <span className="flex w-10 items-center justify-center bg-primary/10 text-primary"><CalendarDays size={14} /></span>
+              <input aria-label={t('darkWebMonitoring.exportDialogs.custom.from')} ref={fromInputRef} type="date" value={from} max={to || undefined} onChange={(event) => setFrom(event.target.value)} className="dwm-date-input min-w-0 flex-1 bg-transparent px-2 text-xs" />
+              <button type="button" aria-hidden="true" tabIndex={-1} onClick={() => openPicker(fromInputRef.current)} className="flex w-10 items-center justify-center bg-primary/10 text-primary transition-colors hover:bg-primary/20"><CalendarDays size={14} /></button>
             </span>
           </label>
           <label className="block space-y-1.5">
             <span className="font-semibold">{t('darkWebMonitoring.exportDialogs.custom.to')}</span>
             <span className="flex h-9 overflow-hidden rounded-md border border-input bg-background">
-              <input aria-label={t('darkWebMonitoring.exportDialogs.custom.to')} type="date" value={to} min={from || undefined} onChange={(event) => setTo(event.target.value)} className="min-w-0 flex-1 bg-transparent px-2 text-xs" />
-              <span className="flex w-10 items-center justify-center bg-primary/10 text-primary"><CalendarDays size={14} /></span>
+              <input aria-label={t('darkWebMonitoring.exportDialogs.custom.to')} ref={toInputRef} type="date" value={to} min={from || undefined} onChange={(event) => setTo(event.target.value)} className="dwm-date-input min-w-0 flex-1 bg-transparent px-2 text-xs" />
+              <button type="button" aria-hidden="true" tabIndex={-1} onClick={() => openPicker(toInputRef.current)} className="flex w-10 items-center justify-center bg-primary/10 text-primary transition-colors hover:bg-primary/20"><CalendarDays size={14} /></button>
             </span>
           </label>
           {invalidRange && <p className="text-xs text-destructive">{t('darkWebMonitoring.exportDialogs.custom.invalidRange')}</p>}

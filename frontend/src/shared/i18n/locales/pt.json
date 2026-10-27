@@ -376,8 +376,21 @@
     },
     "time": {
       "all": "Qualquer período",
-      "7d": "Últimos 7 dias",
-      "30d": "Últimos 30 dias"
+      "last15m": "Últimos 15 minutos",
+      "last1h": "Última hora",
+      "last7d": "Últimos 7 dias",
+      "last90d": "Últimos 90 dias",
+      "last30m": "Últimos 30 minutos",
+      "last24h": "Últimas 24 horas",
+      "last30d": "Últimos 30 dias",
+      "last1y": "Último ano",
+      "custom": "Intervalo personalizado",
+      "commonlyUsed": "Usados com frequência",
+      "timeFrom": "De",
+      "timeTo": "Até",
+      "invalidRange": "O intervalo de datas é inválido",
+      "cancel": "Cancelar",
+      "select": "Selecionar"
     },
     "reportMenu": {
       "title": "Exportar informações",

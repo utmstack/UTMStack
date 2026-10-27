@@ -10,6 +10,7 @@ import { AdvancedExportOptionsDialog } from '../components/AdvancedExportOptions
 import { BreachDetailsDrawer } from '../components/BreachDetailsDrawer'
 import { StatusPill } from '../components/StatusPill'
 import { CustomRangeExportDialog } from '../components/CustomRangeExportDialog'
+import { TimeRangeFilter, resolveTimeBounds, type TimeFilter } from '../components/TimeRangeFilter'
 import type { ExportAction } from '../components/export-types'
 import type {
   BreachStatus,
@@ -20,7 +21,6 @@ import type {
 } from '../types'
 
 type StatusFilter = BreachStatus | 'all'
-type TimeFilter = 'all' | '7d' | '30d'
 
 const PAGE_SIZE = 5
 const SURFACES: LeakSurface[] = ['domains', 'emails', 'ips', 'usernames', 'phones']
@@ -100,7 +100,7 @@ export function DarkWebMonitoringPage() {
   const [surface, setSurface] = useState<LeakSurface>('domains')
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState<StatusFilter>('all')
-  const [time, setTime] = useState<TimeFilter>('all')
+  const [time, setTime] = useState<TimeFilter>({ kind: 'preset', preset: 'all' })
   const [employeesOnly, setEmployeesOnly] = useState(false)
   const [reveal, setReveal] = useState(false)
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
@@ -148,13 +148,12 @@ export function DarkWebMonitoringPage() {
 
   const records = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase()
-    const latestRecordTime = Math.max(...allRecords.map((record) => new Date(record.createdAt).getTime()))
-    const cutoff = time === 'all' ? 0 : latestRecordTime - (time === '7d' ? 7 : 30) * 24 * 60 * 60 * 1000
+    const bounds = resolveTimeBounds(time)
     return allRecords.filter((record) => {
       const matchesSurface = record.organizationElementType === SURFACE_TYPES[surface]
       const matchesStatus = status === 'all' || record.breachStatus === status
       const matchesEmployee = !employeesOnly || record.employee
-      const matchesTime = time === 'all' || new Date(record.createdAt).getTime() >= cutoff
+      const matchesTime = new Date(record.createdAt).getTime() >= bounds.from && new Date(record.createdAt).getTime() <= bounds.to
       const matchesQuery =
         !normalizedQuery ||
         [
@@ -504,12 +503,7 @@ export function DarkWebMonitoringPage() {
               </button>
             ))}
           </div>
-          <label className="flex h-9 items-center gap-2 rounded-lg border border-border px-2.5 text-xs text-muted-foreground">
-            <span aria-hidden="true">◷</span>
-            <select value={time} onChange={(event) => setTime(event.target.value as TimeFilter)} className="bg-transparent outline-none">
-              {(['all', '7d', '30d'] as const).map((key) => <option key={key} value={key}>{t(`darkWebMonitoring.time.${key}`)}</option>)}
-            </select>
-          </label>
+          <TimeRangeFilter value={time} onChange={setTime} />
           <div className="ml-auto flex flex-wrap items-center gap-4 text-[10px] text-muted-foreground">
             <label className="flex cursor-pointer items-center gap-1.5">
               <input type="checkbox" checked={employeesOnly} onChange={(event) => setEmployeesOnly(event.target.checked)} />
