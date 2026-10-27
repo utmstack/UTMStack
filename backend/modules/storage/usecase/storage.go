@@ -74,24 +74,10 @@ func (s *service) Tiering(ctx context.Context) (domain.Tiering, error) {
 	return t, nil
 }
 
-func (s *service) EnableTiering(ctx context.Context, o domain.ObjectStore) (domain.Tiering, error) {
+func (s *service) EnableTiering(ctx context.Context, o domain.ColdTarget) (domain.Tiering, error) {
 	o = o.Normalized()
 	if err := o.Validate(); err != nil {
 		return domain.Tiering{}, err
-	}
-
-	current, err := s.config.Read()
-	if err != nil {
-		return domain.Tiering{}, err
-	}
-	if current.Configured && current.Endpoint != o.Endpoint {
-		moved, err := s.anyDatasetTiered(ctx)
-		if err != nil {
-			return domain.Tiering{}, err
-		}
-		if moved {
-			return domain.Tiering{}, domain.ErrEndpointLocked
-		}
 	}
 
 	undo, err := s.config.Write(o)
@@ -122,25 +108,23 @@ func (s *service) EnableTiering(ctx context.Context, o domain.ObjectStore) (doma
 		return domain.Tiering{}, domain.ErrColdNotReady
 	}
 
+	if o.Kind == domain.KindLocal {
+		disk, err := s.store.ColdDisk(ctx)
+		if err != nil {
+			return domain.Tiering{}, err
+		}
+		if !disk.Present || disk.ReadOnly {
+			return domain.Tiering{}, domain.ErrLocalUnusable
+		}
+	}
+
 	return domain.Tiering{
 		Configured: true,
 		Ready:      true,
-		Endpoint:   o.Endpoint,
+		Kind:       o.Kind,
+		Endpoint:   o.Location(),
 		Policy:     domain.PolicyName,
 	}, nil
-}
-
-func (s *service) anyDatasetTiered(ctx context.Context) (bool, error) {
-	for _, d := range domain.Datasets() {
-		r, err := s.store.Retention(ctx, d)
-		if err != nil {
-			return false, err
-		}
-		if r.Tiered() {
-			return true, nil
-		}
-	}
-	return false, nil
 }
 
 func (s *service) waitForColdStorage(ctx context.Context) (bool, error) {

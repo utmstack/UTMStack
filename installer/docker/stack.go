@@ -22,6 +22,7 @@ type StackConfig struct {
 	ClickHouseSchema    string
 	ClickHouseConf      string
 	ClickHouseConfigD   string
+	ClickHouseCold      string
 	NATSData            string
 	ValkeyData          string
 	Cert                string
@@ -66,6 +67,9 @@ func GetStackConfig() *StackConfig {
 		// Server configuration the backend writes and ClickHouse reads: today
 		// the cold-storage declaration, which is why both mount it.
 		stackConfig.ClickHouseConfigD = utils.MakeDir(0777, cnf.DataDir, "clickhouse", "config.d")
+		// Backs a local cold disk: a plain folder, or an NFS share the operator
+		// mounts over it on the host.
+		stackConfig.ClickHouseCold = utils.MakeDir(0777, cnf.DataDir, "clickhouse", "cold")
 		stackConfig.NATSData = utils.MakeDir(0777, cnf.DataDir, "nats")
 		stackConfig.ValkeyData = utils.MakeDir(0777, cnf.DataDir, "valkey")
 		stackConfig.LocksDir = utils.MakeDir(0777, cnf.DataDir, "locks")
