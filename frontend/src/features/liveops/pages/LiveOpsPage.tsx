@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { AlertTriangle, Radio } from 'lucide-react'
+import { AlertTriangle, Loader2, Radio } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { useTranslation } from 'react-i18next'
 import { useSocAi, useSocAiFocus } from '@/features/soc-ai'
@@ -50,6 +50,8 @@ export function LiveOpsPage() {
   const [party, setParty] = useState<Party | null>(null)
   const [tick, setTick] = useState(0)
   const [error, setError] = useState('')
+  // True while the list is re-fetched after a window change; the interval polls don't set it.
+  const [loading, setLoading] = useState(false)
   // Each restart of the same alert gets a new run number, so its story plays again from the top.
   const [run, setRun] = useState(0)
   const [replaying, setReplaying] = useState(false)
@@ -77,13 +79,18 @@ export function LiveOpsPage() {
         })
         .then((r) => {
           setAlerts(r.data)
+          setLoading(false)
           setError('')
         })
-        .catch((e: unknown) => setError(e instanceof Error ? e.message : String(e))),
+        .catch((e: unknown) => {
+          setLoading(false)
+          setError(e instanceof Error ? e.message : String(e))
+        }),
     [],
   )
 
   useEffect(() => {
+    setLoading(true)
     void refresh(win)
     const id = setInterval(() => void refresh(win), POLL_MS)
     return () => clearInterval(id)
@@ -171,8 +178,13 @@ export function LiveOpsPage() {
   if (!alerts) {
     return (
       <div ref={wallRef} className="lo-wall @container relative h-full min-h-[560px] overflow-hidden text-foreground">
-        <div className="absolute inset-0 flex items-center justify-center text-sm text-muted-foreground">
-          {error ? <span className="flex items-center gap-2 text-red-600 dark:text-red-400"><AlertTriangle size={14} /> {t('liveOps.error', { msg: error })}</span> : t('liveOps.loading')}
+        <div className="absolute inset-0 flex items-center justify-center">
+          {error ? <span className="flex items-center gap-2 text-red-600 dark:text-red-400"><AlertTriangle size={14} /> {t('liveOps.error', { msg: error })}</span> : (
+            <span className="flex flex-col items-center gap-2.5">
+              <Loader2 size={36} className="animate-spin text-primary" />
+              <span className="text-[12px] font-medium text-muted-foreground">{t('liveOps.loading')}</span>
+            </span>
+          )}
         </div>
       </div>
     )
@@ -184,6 +196,14 @@ export function LiveOpsPage() {
         <Stage key={`${alert.id}:${run}`} alert={alert} scene={scene} templateLabel={t(`liveOps.kb.${scene.template}`)} area={area} selectedParty={party?.id} onSelectParty={setParty} onEnded={onSceneEnded} />
       ) : (
         <div className="absolute inset-0 flex items-center justify-center text-sm text-muted-foreground">{t('liveOps.empty')}</div>
+      )}
+
+      {/* Refetch in flight (window change): show it on the canvas even when it is empty. */}
+      {loading && (
+        <div className="absolute z-10 flex flex-col items-center justify-center gap-2.5" style={area}>
+          <Loader2 size={36} className="animate-spin text-primary" />
+          <span className="text-[12px] font-medium text-muted-foreground">{t('liveOps.loading')}</span>
+        </div>
       )}
 
       {/* Header */}
