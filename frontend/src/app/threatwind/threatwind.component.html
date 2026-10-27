@@ -1,6 +1,15 @@
-<div class="d-flex flex-column h-100">
-  <iframe style="height: 100%" [src]="iframeSrc | safe:'resourceUrl'" width="100%"></iframe>
+<div class="d-flex flex-column h-100 p-5">
+  <div class="card mx-auto" style="max-width: 520px;">
+    <div class="card-body text-center">
+      <h5 class="card-title">Threat Intelligence</h5>
+      <p class="card-text">
+        Threat intelligence is now available on
+        <a [href]="url" target="_blank" rel="noopener noreferrer">threatwinds.com</a>.
+      </p>
+      <!-- Shown only if the browser blocked the automatic new-tab open. -->
+      <a *ngIf="!opened" [href]="url" target="_blank" rel="noopener noreferrer" class="btn utm-button utm-button-primary mt-2">
+        Open threatwinds.com
+      </a>
+    </div>
+  </div>
 </div>
-
-
-
