@@ -87,6 +87,20 @@ class UtmIncidentActionServiceImmutabilityTest {
     }
 
     @Test
+    void bodyEditableFlagIsIgnoredWhenStoredRowIsPreset() {
+        RepoStore store = new RepoStore();
+        store.rows.put(1L, action(1L, false));
+        UtmIncidentActionService svc = new UtmIncidentActionService(proxyRepo(store));
+
+        UtmIncidentAction incoming = action(1L, false);
+        incoming.setActionEditable(true); // attacker flips the flag in the request body
+        incoming.setActionCommand("EVIL_CMD");
+        ApiException ex = assertThrows(ApiException.class, () -> svc.save(incoming));
+        assertEquals(HttpStatus.FORBIDDEN, ex.getStatus());
+        assertEquals("SHUTDOWN_SERVER", store.rows.get(1L).getActionCommand());
+    }
+
+    @Test
     void updateAnalystActionIsAllowed() {
         RepoStore store = new RepoStore();
         store.rows.put(20L, action(20L, true));
@@ -154,6 +168,7 @@ class UtmIncidentActionServiceImmutabilityTest {
 
         ApiException ex = assertThrows(ApiException.class, () -> svc.delete(999L));
         assertEquals(HttpStatus.NOT_FOUND, ex.getStatus());
+        assertFalse(store.deleteCalled, "guard must reject before any repository write");
     }
 
     @Test

@@ -83,7 +83,10 @@ public class UtmIncidentActionService {
     /**
      * Delete the utmIncidentAction by id.
      *
-     * @param id the id of the entity
+     * <p>System presets (actionEditable=false) cannot be removed via the API —
+     * see {@link #save(UtmIncidentAction)}.
+     *
+     * @param id the id of the utmIncidentAction
      */
     public void delete(Long id) {
         log.debug("Request to delete UtmIncidentAction : {}", id);
