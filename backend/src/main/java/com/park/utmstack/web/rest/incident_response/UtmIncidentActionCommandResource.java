@@ -53,7 +53,7 @@ public class UtmIncidentActionCommandResource {
             return ResponseEntity.ok(incidentActionCommandService.save(incidentActionCommand));
         } catch (ApiException e) {
             // Intentional 4xx from the service guard (system preset immutability) —
-            // rethrow so GlobalExceptionHandler returns 403, not 500 (#2909 pattern).
+            // rethrow so GlobalExceptionHandler returns its status (403/404/400), not 500 (#2909 pattern).
             throw e;
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
@@ -73,7 +73,7 @@ public class UtmIncidentActionCommandResource {
             return ResponseEntity.ok(incidentActionCommandService.save(incidentActionCommand));
         } catch (ApiException e) {
             // Intentional 4xx from the service guard (system preset immutability) —
-            // rethrow so GlobalExceptionHandler returns 403, not 500 (#2909 pattern).
+            // rethrow so GlobalExceptionHandler returns its status (403/404/400), not 500 (#2909 pattern).
             throw e;
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
@@ -108,7 +108,7 @@ public class UtmIncidentActionCommandResource {
             return ResponseEntity.ok().build();
         } catch (ApiException e) {
             // Intentional 4xx from the service guard (system preset immutability) —
-            // rethrow so GlobalExceptionHandler returns 403, not 500 (#2909 pattern).
+            // rethrow so GlobalExceptionHandler returns its status (403/404/400), not 500 (#2909 pattern).
             throw e;
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
