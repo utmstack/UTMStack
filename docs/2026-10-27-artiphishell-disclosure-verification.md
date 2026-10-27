@@ -18,15 +18,15 @@
 | C1 | SSRF via persisted SAML `metadataUrl` (fetcher unvalidated) | **Yes** | DB row with internal URL (legacy/pre-fix row, direct DB write, or DNS-rebind/redirect TOCTOU on fetch) | **Medium** (def-in-depth gap, not unauth) |
 | C2 | inputs plugin: shared `internal-key` authenticates ALL gRPC RPCs incl. `ProcessLog` (log injection) | **Code fact yes; rejected as a vulnerability** — key + port are one trust domain; worst key-holder (agent-manager) is already more powerful (see §2) | — | **Not a vuln** (hardening nit: no method allowlist) |
 | C3 | web-pdf `/generate-pdf` unauthenticated SSRF via `baseUrl` | **Code fact yes; not exploitable as deployed** (no published port, internal-network vantage only) | — | **Not a vuln** (hardening: add one auth check) |
-| C4 | SQL injection in visualization filter builder (`/api/utm-visualizations/run`) | **Yes** | any `ROLE_USER` JWT | **Low/Medium** (marginal: same role can already run raw OS SQL, see §3) |
-| C5 | "JPQL in network-scan property search" | **Duplicate of C4** (content is the same sink; actual CVE-2026-82045 site is already parameterized) | — | duplicate |
-| H1 | `ROLE_USER` can rewrite incident action-command templates (`PUT /api/incident-action-commands`) → stored shell command executed on agents later | **Yes** | any `ROLE_USER` JWT; execution when a job references the action | **High** (the most serious actionable item) |
-| M1 | same as H1 | **Duplicate of H1** | — | duplicate |
+| C4 | SQL injection in visualization filter builder (`/api/utm-visualizations/run`) | **Yes** | any `ROLE_USER` JWT | **Code hygiene** — no tenant boundary exists (analysts read all logs by design) |
+| C5 | "JPQL in network-scan property search" | **Duplicate of C4** (content is the same sink; actual CVE-2026-82045 site is already parameterized) | — | duplicate of C4; same reclassification |
+| H1 | `ROLE_USER` can rewrite incident action-command templates | **By design** — ROLE_USER is the analyst and owns IR authoring; the only defect was the unguarded seeded presets | — | **Fixed** (preset immutability, not an admin gate) |
+| M1 | duplicate writeup of H1 | **Reclassified with H1** | — | reclassified |
 | M2 | Bitdefender ingest: non-constant-time auth comparison | **Yes** (defect real; no demonstrated remote oracle — by their own admission) | network reach to plugin + sustained timing measurement | **Low** (hardening) |
-| M3 | `ROLE_USER` can update incident actions (`PUT /api/utm-incident-actions`), incl. `actionCommand`/`actionParams` | **Yes** | any `ROLE_USER` JWT | **High** (same class as H1) |
-| M4 | `ROLE_USER` can delete incident actions (`DELETE /api/utm-incident-actions/{id}`) | **Yes** | any `ROLE_USER` JWT | **Medium** (availability of IR automation) |
+| M3 | `ROLE_USER` can update incident actions | **By design** for analyst-authored actions; seeded presets now immutable | — | **Fixed** (preset guard) |
+| M4 | `ROLE_USER` can delete incident actions | **Fixed** — system presets undeletable; analyst actions still deletable | — | fixed |
 
-**Bottom line: all 8 distinct findings are real code-level defects on current v11.** The reports are accurate to an unusual degree. After topology verification (2026-10-27): **C2 and C3 are rejected as vulnerabilities** — both require a trust-domain foothold that already supersedes them. The actionable items are the incident-action authorization holes (H1/M1/M3/M4), the SQL filter-builder hygiene (C4/C5), C1 (fetch-time validation), and M2 (constant-time compare). Their severity labels are inflated in two places (C4/C5 "Critical", C2/C3 "Critical") and the batch contains two duplicate writeups.
+**Bottom line (revised 2026-10-27 after the role-model decision):** the incident-response findings (H1/M1/M3/M4) assumed those routes were meant to be admin-only; they were never intended to be — ROLE_USER is the security analyst and IR authoring/execution is its core function. The one real defect — seeded system presets being writable/deletable by anyone — is fixed by `actionEditable` enforcement in `UtmIncidentActionService`/`UtmIncidentActionCommandService` (commits 47d32a23..54e01f25). C2/C3 are rejected (trust-domain preconditions). C4/C5 are code hygiene. C1 is accepted as minor hardening. M2 is optional hygiene.
 
 ## 2. Per-finding evidence
 
@@ -55,31 +55,23 @@
 - **Why I downgrade it from Critical:** `POST /api/elasticsearch/search/sql` (`ElasticsearchResource.java:252-265`) accepts a **fully attacker-controlled raw SQL string** from the same `ROLE_USER` role and executes it via the same `searchBySql` sink. OpenSearch SQL is read-only (no DML/DDL, no code exec). So the filter-builder injection adds *no new capability* over the existing raw-SQL endpoint — it breaks an internal invariant, not a security boundary. (Whether the raw-SQL endpoint itself is over-broad is a separate design question worth reviewing, but that pre-dates this disclosure.)
 - **Fix (still worth it):** parameterize values / escape quotes + allowlist field identifiers in `SqlQueryFilterService`, and consider restricting `/api/elasticsearch/search/sql` to admin or chart-builder roles.
 
-### H1/M1 — incident action-command templates writable by ROLE_USER → stored command execution
-- `backend/.../web/rest/incident_response/UtmIncidentActionCommandResource.java:46-107` — POST/PUT/DELETE `/api/incident-action-commands` have **no role checks**; `SecurityConfiguration.java:146` catch-all grants `ROLE_USER` (only `/api/utm-incident-jobs` and `/api/utm-incident-variables` are admin-matched, lines 120-123).
-- Poisoned template flows to agents: `UtmIncidentJobService.java:65-69` prepends `incidentActionCommandService.getCommand(osPlatform, actionId)` to the job `params`, which the agent executes via the gRPC command channel (same machinery as the #2942 re-run bug — commands are real shell: `init 0`, `netsh ...`).
-- **Store-now, execute-later:** a `ROLE_USER` poisons the template today; an admin (or scheduled dispatch) that later queues a job for that action runs the attacker's command on the target endpoint. The CVE-2026-82041 fix only touched `UTMIncidentCommandWebsocket` (6 lines in `4e7a727c`) — these REST routes were never gated.
-- **This is the most dangerous finding in the batch.**
-- **Fix:** add `antMatchers("/api/incident-action-commands/**").hasAuthority(ADMIN)` (or `@PreAuthorize`) — one line in `SecurityConfiguration`, covers H1+M1.
+**Reclassified 2026-10-27:** the report's impact claim was "cross-tenant read." UTMStack has no per-tenant scoping for analysts — ROLE_USER reads all logs by design — so there is no boundary for the injection to escape. The string concatenation remains a code-hygiene fix (CWE-89 in principle), tracked separately, not a disclosure acceptance.
+
+### H1/M1/M3/M4 — reclassified (not missing authorization)
+- The report assumed `/api/incident-action-commands/**` and `/api/utm-incident-actions/**` were meant to be admin-only. Product decision (2026-10-27): ROLE_USER is the security analyst role; authoring and executing IR actions/commands is the analyst's job, so the routes were correct as shipped (they resolve to ROLE_USER via the `/api/**` catch-all).
+- What WAS a real defect: the seeded system presets (`actionEditable=false`: SHUTDOWN_SERVER, RUN_CMD, ... including their shell strings in `utm_incident_action_command`) were writable/deletable by any authenticated user — a shared-preset integrity/availability gap.
+- Fix shipped on `fix/ir-role-model-v11.3.1`: service-layer guards (commits 47d32a23, d94f0ca4, 61a071ac, 685d4ab9, 54e01f25) reject update/delete/create-of-command-rows against non-editable presets for every role (403), plus controller rethrows (7659884a, b8d52059) so the 403 reaches the client. Repairs to presets are reseed/liquibase changes, not API calls.
+- Also on this branch: `/api/utm-incident-jobs/**` and the console-command websocket were opened from admin-only to `ADMIN || USER` — dispatching IR was wrongly locked out of the role whose job it is (commit d00a808f).
 
 ### M2 — Bitdefender plugin non-constant-time auth
 - `plugins/bitdefender/server/server.go:42` — `utils.GenerateAuthCode(key) == r.Header.Get("authorization")` (Go `==` on strings; expected value is `"Basic " + base64(key + ":")`, stable per deployment, `utils/auth.go:5-9`).
 - Their own repro concedes: *"Timing samples were collected but were too noisy, under this harness, to establish a stable remote oracle."*
 - **Assessment:** real hygiene defect, no demonstrated exploit. **Fix:** `subtle.ConstantTimeCompare`. (Note: other plugins — inputs, sophos, o365, aws, azure, gcp, crowdstrike — use `internal-key` via go-sdk or their own middleware; worth a sweep for the same pattern.)
 
-### M3 — incident actions writable by ROLE_USER
-- `backend/.../web/rest/incident_response/UtmIncidentActionResource.java:60-201` — POST/PUT/DELETE `/api/utm-incident-actions` unguarded; PUT persists client-supplied `actionCommand`/`actionParams`.
-- Same store-now, execute-later class as H1 (admin later dispatches → attacker-chosen params run on the agent).
-- **Fix:** same one-line admin matcher for `/api/utm-incident-actions/**`.
-
-### M4 — incident actions deletable by ROLE_USER
-- `UtmIncidentActionResource.java:188-201` — `DELETE /api/utm-incident-actions/{id}` → `repository.deleteById` with no checks; can delete system actions (`SHUTDOWN_SERVER`, `RUN_CMD`), breaking IR automation.
-- **Fix:** covered by the same admin matcher as M3.
-
 ## 3. Recommended response
 
 **Technical (fix ourselves, don't buy patches):**
-1. **P1 — one `SecurityConfiguration` hunk:** admin-match `/api/incident-action-commands/**` and `/api/utm-incident-actions/**` (closes H1, M1, M3, M4).
+1. **Incident-action authorization findings (H1/M1/M3/M4): reclassified as by-design** under the ROLE_USER=analyst model (IR authoring + execution are the analyst's job). Shipped instead: preset immutability (`actionEditable` enforcement) + opening `/api/utm-incident-jobs` and the console websocket to ROLE_USER.
 2. **P2 — SamlMetadataFetcher:** reuse metadata-URL validation at fetch time (closes C1).
 3. **P2 — SqlQueryFilterService:** escape/parameterize values + field allowlist (closes C4/C5); separately decide if `/api/elasticsearch/search/sql` should stay ROLE_USER-reachable.
 4. **P3 — bitdefender (and sibling plugins):** constant-time compares (closes M2).
