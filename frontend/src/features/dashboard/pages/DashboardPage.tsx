@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useQueries } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { LayoutDashboard, Loader2, Plus } from "lucide-react";
@@ -16,9 +17,11 @@ import {
 } from "@/features/dashboard/hooks/useDashboards";
 import { createDashboardsService } from "@/features/dashboard/service/dashboards.service";
 import {
+  VISUALIZATIONS_QUERY_KEYS,
   useVisualizations,
   useVisualizationMutations,
 } from "@/features/dashboard/hooks/useVisualizations";
+import { createVisualizationsService } from "@/features/dashboard/service/visualizations.service";
 import { useDashboardEditor } from "@/features/dashboard/hooks/useDashboardEditor";
 import { useDashboardFilters } from "@/features/dashboard/hooks/useDashboardFilters";
 import { DashboardGrid } from "@/features/dashboard/components/DashboardGrid";
@@ -85,8 +88,31 @@ export function DashboardPage() {
     size: DEFAULT_PAGE_SIZE,
     name: search || undefined,
   });
-  const dashboardItems = dashboards.list.data?.data ?? [];
-  const noDashboards = dashboardItems.length === 0 && !search;
+  const rawDashboards = dashboards.list.data?.data ?? [];
+  const noDashboards = rawDashboards.length === 0 && !dashboards.list.isLoading && !search;
+
+  // Visualization counts per dashboard — widgets are separate rows, so one
+  // query each. Feeds the ordering and the card badges.
+  const countQueries = useQueries({
+    queries: rawDashboards.map((d) => ({
+      queryKey: VISUALIZATIONS_QUERY_KEYS.list({ dashboardId: d.id, page: 0, size: 1 }),
+      queryFn: () => vizService.listVisualizations({ dashboardId: d.id, page: 0, size: 1 }),
+      staleTime: 5 * 60 * 1000,
+    })),
+  });
+  const counts = useMemo(() => {
+    const m = new Map<string, number>();
+    rawDashboards.forEach((d, i) => m.set(d.id, countQueries[i]?.data?.total ?? 0));
+    return m;
+  }, [rawDashboards, countQueries]);
+  const dashboardItems = useMemo(
+    () =>
+      [...rawDashboards].sort((a, b) => {
+        const c = (counts.get(b.id) ?? 0) - (counts.get(a.id) ?? 0);
+        return c !== 0 ? c : a.name.localeCompare(b.name);
+      }),
+    [rawDashboards, counts],
+  );
 
   const selectedDashboard = useDashboard(selectedId);
   const navigate = useNavigate();
@@ -112,6 +138,7 @@ export function DashboardPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.state]);
 
+  const vizService = useMemo(() => createVisualizationsService(), []);
   const visualizations = useVisualizations(
     selectedId != null
       ? { dashboardId: selectedId, page: 0, size: 500 }
@@ -458,6 +485,7 @@ export function DashboardPage() {
             <DashboardGallery
               dashboards={dashboardItems}
               loading={dashboards.list.isLoading}
+              counts={counts}
               search={search}
               onSearchChange={setSearch}
               onSelect={(id) => openFromTable(id)}

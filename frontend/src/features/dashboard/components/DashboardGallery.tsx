@@ -13,6 +13,7 @@ import type { ChartTypeId, Dashboard, Visualization } from '@/features/dashboard
 export function DashboardGallery({
   dashboards,
   loading,
+  counts,
   search,
   onSearchChange,
   onSelect,
@@ -20,6 +21,7 @@ export function DashboardGallery({
 }: {
   dashboards: Dashboard[]
   loading: boolean
+  counts: Map<string, number>
   search: string
   onSearchChange: (value: string) => void
   onSelect: (id: string) => void
@@ -64,7 +66,7 @@ export function DashboardGallery({
         {!loading && dashboards.length > 0 && (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {dashboards.map((d) => (
-              <DashboardCard key={d.id} dashboard={d} onSelect={onSelect} />
+              <DashboardCard key={d.id} dashboard={d} count={counts.get(d.id) ?? 0} onSelect={onSelect} />
             ))}
           </div>
         )}
@@ -75,10 +77,11 @@ export function DashboardGallery({
 
 // Editing/deleting a dashboard only happens from inside it (DashboardPreviewHeader)
 // — the gallery is browse-only, so a card is just its preview + metadata, no actions.
-function DashboardCard({ dashboard: d, onSelect }: { dashboard: Dashboard; onSelect: (id: string) => void }) {
+function DashboardCard({ dashboard: d, count, onSelect }: { dashboard: Dashboard; count: number; onSelect: (id: string) => void }) {
+  const { t } = useTranslation()
   const modified = d.modifiedDate ? new Date(d.modifiedDate).toLocaleString() : '—'
-  // Just enough to draw the mini layout skeleton — no query execution, so this
-  // stays cheap even with many dashboards on screen at once.
+  // The mini preview's queries are already cached by the per-dashboard count
+  // queries, so this hook usually resolves from cache.
   const visualizations = useVisualizations({ dashboardId: d.id, page: 0, size: 50 })
 
   return (
@@ -100,7 +103,10 @@ function DashboardCard({ dashboard: d, onSelect }: { dashboard: Dashboard; onSel
             {d.description}
           </p>
         )}
-        <p className="mt-1 text-[10px] text-muted-foreground/70">{modified}</p>
+        <p className="mt-1 flex items-center justify-between gap-2 text-[10px] text-muted-foreground/70">
+          <span>{modified}</span>
+          <span className="shrink-0 tabular-nums">{count} {t('dashboards.card.widgets', { defaultValue: 'widgets' })}</span>
+        </p>
       </div>
     </div>
   )
