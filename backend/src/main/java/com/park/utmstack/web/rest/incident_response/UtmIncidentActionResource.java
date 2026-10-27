@@ -7,6 +7,7 @@ import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.dto.incident_response.UtmIncidentActionCriteria;
 import com.park.utmstack.service.incident_response.UtmIncidentActionQueryService;
 import com.park.utmstack.service.incident_response.UtmIncidentActionService;
+import com.park.utmstack.util.exceptions.ApiException;
 import com.park.utmstack.web.rest.util.HeaderUtil;
 import com.park.utmstack.web.rest.util.PaginationUtil;
 import org.slf4j.Logger;
@@ -99,6 +100,10 @@ public class UtmIncidentActionResource {
 
             UtmIncidentAction result = utmIncidentActionService.save(utmIncidentAction);
             return ResponseEntity.ok(result);
+        } catch (ApiException e) {
+            // Intentional 4xx from the service guard (system preset immutability) —
+            // rethrow so GlobalExceptionHandler returns 403, not 500 (#2909 pattern).
+            throw e;
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
@@ -191,6 +196,10 @@ public class UtmIncidentActionResource {
         try {
             utmIncidentActionService.delete(id);
             return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
+        } catch (ApiException e) {
+            // Intentional 4xx from the service guard (system preset immutability) —
+            // rethrow so GlobalExceptionHandler returns 403, not 500 (#2909 pattern).
+            throw e;
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
