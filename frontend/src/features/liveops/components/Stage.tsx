@@ -117,7 +117,7 @@ export function Stage({
   }, [t, scene.duration, onEnded])
 
   const Scene = SCENES[scene.template]
-  const blockCaption = blocked && blockedAt !== undefined && t >= blockedAt ? { at: blockedAt, text: `${blocked.ip} is now blocked on ${blocked.on}: the traffic stops here.` } : null
+  const blockCaption = blocked && blockedAt !== undefined && t >= blockedAt ? { at: blockedAt, text: tr('liveOps.capBlocked', { ip: blocked.ip, on: blocked.on }) } : null
   const caption = blockCaption ?? [...scene.captions].reverse().find((c) => t >= c.at) ?? scene.captions[0]
   const capIndex = blockCaption ? scene.captions.length - 1 : scene.captions.indexOf(caption)
   // How far the story is into the current caption, for the progress bar.

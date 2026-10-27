@@ -144,14 +144,14 @@ export function templateFor(a: Alert): TemplateId {
 
 /* ─── Building the scene ────────────────────────────────────────────── */
 
-export function buildScene(a: Alert): Scene {
+export function buildScene(a: Alert, t: (k: string, o?: Record<string, unknown>) => string): Scene {
   const template = templateFor(a)
   const builder = BUILDERS[template] ?? BUILDERS.generic
-  return builder(a)
+  return builder(a, t)
 }
 
-const BUILDERS: Record<TemplateId, (a: Alert) => Scene> = {
-  bruteForce(a) {
+const BUILDERS: Record<TemplateId, (a: Alert, t: (k: string, o?: Record<string, unknown>) => string) => Scene> = {
+  bruteForce(a, t) {
     const cloud = /(o365|azure|google|aws|github)/i.test(a.dataType ?? '') || /impossible|single sign-on/.test(a.name ?? '')
     const attacker = attackerParty(a.adversary)
     const target = cloud ? cloudParty(a, 'Sign-in service') : internalSide('target', a.target, a.dataSource)
@@ -162,18 +162,18 @@ const BUILDERS: Record<TemplateId, (a: Alert) => Scene> = {
     const minutes = hashNum(a.id + 'm', 6, 19)
     const account = a.target?.user ?? 'administrator'
     const accounts = [account, 'administrator', 'admin', 'backup', 'service']
-    const where = target.kind === 'firewall' ? `the VPN on ${target.name}` : target.name
+    const where = target.kind === 'firewall' ? t('liveOps.capBruteVpn', { name: target.name }) : target.name
     const captions: Caption[] = [
-      { at: 0, text: `${attacker.name}${attacker.sub ? ` (${attacker.sub.split(' · ')[0]})` : ''} starts guessing passwords against ${where}.` },
-      { at: 3200, text: `${attempts} failed sign-ins in ${minutes} minutes, rotating ${accounts.length} account names.` },
+      { at: 0, text: t('liveOps.capBrute0', { name: attacker.name, sub: attacker.sub ? ` (${attacker.sub.split(' · ')[0]})` : '', where }) },
+      { at: 3200, text: t('liveOps.capBrute1', { attempts: attempts.toLocaleString(), minutes, count: accounts.length }) },
       success
-        ? { at: 7600, text: `A sign-in for ${account} succeeds right after the failures: the password was guessed.` }
-        : { at: 7600, text: `Correlation of the failures across sources: one attacker, many accounts.` },
-      { at: 10200, text: `Alert raised: ${a.name}. Block ${attacker.name} at the edge${success ? ` and reset ${account}` : ''}.` },
+        ? { at: 7600, text: t('liveOps.capBrute2', { account }) }
+        : { at: 7600, text: t('liveOps.capBrute3') },
+      { at: 10200, text: `${t('liveOps.capAlertRaised', { name: a.name ?? '' })}${t('liveOps.capBrute4', { name: attacker.name, reset: success ? t('liveOps.capBruteReset', { account }) : '' })}` },
     ]
     return {
       template: 'bruteForce',
-      title: `Brute force from ${attacker.name} on ${target.name}`,
+      title: t('liveOps.titleBrute', { name: attacker.name, to: target.name }),
       duration: 12500,
       parties: [attacker, ...(perimeter ? [perimeter] : []), target],
       captions,
@@ -181,10 +181,10 @@ const BUILDERS: Record<TemplateId, (a: Alert) => Scene> = {
     }
   },
 
-  outbound(a) {
+  outbound(a, t) {
     const src = internalSide('source', a.adversary, a.dataSource)
     const perimeter = perimeterParty(a)
-    const destName = a.target?.domain ?? a.target?.ip ?? 'unknown destination'
+    const destName = a.target?.domain ?? a.target?.ip ?? t('liveOps.destUnknown')
     const dest: Party = {
       id: 'destination',
       role: 'external',
@@ -200,16 +200,16 @@ const BUILDERS: Record<TemplateId, (a: Alert) => Scene> = {
     const kind = n.includes('tor') ? 'a Tor relay' : n.includes('mining') ? 'a crypto-mining pool' : n.includes('beacon') || n.includes('c2') ? 'a command-and-control server' : n.includes('out-of-band') ? 'an out-of-band callback domain' : n.includes('url') ? 'a blacklisted phishing site' : n.includes('dns') ? 'a malicious domain' : 'a known-bad destination'
     const who = src.user ? `${src.user} on ${src.name}` : src.name
     const captions: Caption[] = [
-      { at: 0, text: `${who} looks up ${destName}.` },
-      { at: 2600, text: `It connects out on port ${port}${perimeter ? `, through ${perimeter.name}` : ''}.` },
-      { at: 5600, text: `Threat intelligence matches ${destName}: ${kind}.` },
+      { at: 0, text: t('liveOps.capOut1', { who, dest: destName }) },
+      { at: 2600, text: t('liveOps.capOut2', { port, through: perimeter ? t('liveOps.capOutThrough', { name: perimeter.name }) : '' }) },
+      { at: 5600, text: t('liveOps.capOut3', { dest: destName, kind }) },
       blocked
-        ? { at: 8400, text: `The connection was dropped, and the alert was raised so the machine gets checked.` }
-        : { at: 8400, text: `The connection repeats: ${src.name} is likely infected. Isolate it and find the process.` },
+        ? { at: 8400, text: t('liveOps.capOut4') }
+        : { at: 8400, text: t('liveOps.capOut5', { name: src.name }) },
     ]
     return {
       template: 'outbound',
-      title: `${src.name} contacting ${destName}`,
+      title: t('liveOps.titleOut', { name: src.name, to: destName }),
       duration: 11500,
       parties: [src, ...(perimeter ? [perimeter] : []), dest],
       captions,
@@ -217,21 +217,31 @@ const BUILDERS: Record<TemplateId, (a: Alert) => Scene> = {
     }
   },
 
-  lateral(a) {
+  lateral(a, t) {
     const from = internalSide('source', a.adversary, a.dataSource)
     const to = internalSide('target', a.target, a.dataSource)
     const account = a.target?.user ?? a.adversary?.user ?? 'service account'
     const n = (a.name ?? '').toLowerCase()
-    const how = n.includes('hash') ? 'a stolen password hash' : n.includes('kerberoast') ? 'Kerberos service tickets it can crack offline' : n.includes('as-rep') ? 'a Kerberos reply for an account without pre-authentication' : n.includes('smbv1') ? 'the old SMBv1 protocol' : 'remote sessions and file shares'
+    const how = t(
+      n.includes('hash')
+        ? 'liveOps.capLatHowHash'
+        : n.includes('kerberoast')
+          ? 'liveOps.capLatHowKerb'
+          : n.includes('as-rep')
+            ? 'liveOps.capLatHowAsrep'
+            : n.includes('smbv1')
+              ? 'liveOps.capLatHowSmb'
+              : 'liveOps.capLatHowRdp',
+    )
     const captions: Caption[] = [
-      { at: 0, text: `${from.name}${from.user ? ` (${from.user})` : ''} reaches out to ${to.name} inside the network.` },
-      { at: 3000, text: `It authenticates as ${account} using ${how}.` },
-      { at: 6400, text: `${to.name} accepts the session: the attacker now moves between machines.` },
-      { at: 9200, text: `Alert raised: ${a.name}. Disable ${account} and check both machines.` },
+      { at: 0, text: t('liveOps.capLat0', { name: from.name, user: from.user ? t('liveOps.capLatUser', { user: from.user }) : '', to: to.name }) },
+      { at: 3000, text: t('liveOps.capLat1', { account, how }) },
+      { at: 6400, text: t('liveOps.capLat2', { to: to.name }) },
+      { at: 9200, text: `${t('liveOps.capAlertRaised', { name: a.name ?? '' })}${t('liveOps.capLat3', { account })}` },
     ]
     return {
       template: 'lateral',
-      title: `${from.name} moving to ${to.name} as ${account}`,
+      title: t('liveOps.titleLat', { name: from.name, to: to.name, account }),
       duration: 11800,
       parties: [from, to],
       captions,
@@ -239,20 +249,20 @@ const BUILDERS: Record<TemplateId, (a: Alert) => Scene> = {
     }
   },
 
-  malware(a) {
+  malware(a, t) {
     const host = internalSide('host', a.target?.host ? a.target : a.adversary, a.dataSource)
     const user = a.adversary?.user ?? a.target?.user
-    const chain = processChain(a)
+    const chain = processChain(a, t)
     const bad = chain[chain.length - 1]
     const captions: Caption[] = [
-      { at: 0, text: `On ${host.name}${user ? `, ${user}` : ''} runs ${chain[0].name}.` },
-      { at: 2600, text: `${chain[0].name} starts ${chain[1]?.name ?? 'a child process'}: unusual for this program.` },
-      { at: 5600, text: `${bad.name} runs: ${bad.detail ?? 'a known attack technique'}.` },
-      { at: 8600, text: `Alert raised: ${a.name}. Stop the process or isolate ${host.name}.` },
+      { at: 0, text: t('liveOps.capMal0', { host: host.name, user: user ? t('liveOps.capMalUser', { user }) : '', proc: chain[0].name }) },
+      { at: 2600, text: t('liveOps.capMal1', { p0: chain[0].name, p1: chain[1]?.name ?? t('liveOps.capMalChild') }) },
+      { at: 5600, text: t('liveOps.capMal2', { name: bad.name, detail: bad.detail ?? t('liveOps.capMalKnown') }) },
+      { at: 8600, text: `${t('liveOps.capAlertRaised', { name: a.name ?? '' })}${t('liveOps.capMal3', { host: host.name })}` },
     ]
     return {
       template: 'malware',
-      title: `${bad.name} on ${host.name}`,
+      title: t('liveOps.titleMal', { name: bad.name, to: host.name }),
       duration: 11500,
       parties: [{ ...host, user }],
       captions,
@@ -260,7 +270,7 @@ const BUILDERS: Record<TemplateId, (a: Alert) => Scene> = {
     }
   },
 
-  webAttack(a) {
+  webAttack(a, t) {
     const attacker = attackerParty(a.adversary)
     const target = internalSide('target', a.target, a.dataSource)
     const perimeter = perimeterParty(a)
@@ -270,16 +280,16 @@ const BUILDERS: Record<TemplateId, (a: Alert) => Scene> = {
     })
     const payloads = webPayloads(a)
     const captions: Caption[] = [
-      { at: 0, text: `${attacker.name} probes the server on ${target.name}.` },
-      { at: 2800, text: `It sends attack payloads: ${payloads.slice(0, 2).map((p) => p.label).join(', ')}…` },
+      { at: 0, text: t('liveOps.capWeb0', { name: attacker.name, to: target.name }) },
+      { at: 2800, text: t('liveOps.capWeb1', { payloads: payloads.slice(0, 2).map((p) => p.label).join(', ') }) },
       blocked
-        ? { at: 6200, text: perimeter ? `${perimeter.name} recognizes the attack signatures and drops the requests.` : 'The IPS recognizes the attack signatures and drops the requests.' }
-        : { at: 6200, text: `Some requests reach ${target.name}; the server answers with errors and one 200 OK.` },
-      { at: 9000, text: `Alert raised: ${a.name}. Block ${attacker.name} and check the server's logs.` },
+        ? { at: 6200, text: perimeter ? t('liveOps.capWeb2', { perimeter: perimeter.name }) : t('liveOps.capWeb2b') }
+        : { at: 6200, text: t('liveOps.capWeb3', { to: target.name }) },
+      { at: 9000, text: `${t('liveOps.capAlertRaised', { name: a.name ?? '' })}${t('liveOps.capWeb4', { name: attacker.name })}` },
     ]
     return {
       template: 'webAttack',
-      title: `Web attack from ${attacker.name} on ${target.name}`,
+      title: t('liveOps.titleWeb', { name: attacker.name, to: target.name }),
       duration: 11800,
       parties: [attacker, ...(perimeter ? [perimeter] : []), target],
       captions,
@@ -287,7 +297,7 @@ const BUILDERS: Record<TemplateId, (a: Alert) => Scene> = {
     }
   },
 
-  travel(a) {
+  travel(a, t) {
     const attacker = attackerParty(a.adversary)
     const user = a.target?.user ?? a.adversary?.user ?? 'user'
     const cloud = cloudParty(a, 'Identity provider')
@@ -296,14 +306,14 @@ const BUILDERS: Record<TemplateId, (a: Alert) => Scene> = {
     const km = far?.latitude != null && far?.longitude != null ? Math.round(distanceKm(home.lat, home.lon, far.latitude, far.longitude)) : 9000
     const gap = hashNum(a.id, 6, 38)
     const captions: Caption[] = [
-      { at: 0, text: `${user} signs in from ${home.city}, as usual.` },
-      { at: 3200, text: `${gap} minutes later the same account signs in from ${far?.city ?? 'far away'}, ${far?.country ?? ''}.` },
-      { at: 6400, text: `${km.toLocaleString()} km in ${gap} minutes: no one travels that fast. The password is likely stolen.` },
-      { at: 9200, text: `Alert raised: ${a.name}. Revoke the sessions and reset ${user}'s password.` },
+      { at: 0, text: t('liveOps.capTrv0', { user, city: home.city }) },
+      { at: 3200, text: t('liveOps.capTrv1', { gap, city: far?.city ?? t('liveOps.capTrvFar'), country: far?.country ?? '' }) },
+      { at: 6400, text: t('liveOps.capTrv2', { km: km.toLocaleString(), gap }) },
+      { at: 9200, text: `${t('liveOps.capAlertRaised', { name: a.name ?? '' })}${t('liveOps.capTrv3', { user })}` },
     ]
     return {
       template: 'travel',
-      title: `${user} signing in from two continents`,
+      title: t('liveOps.titleTrv', { name: user }),
       duration: 11800,
       parties: [attacker, cloud],
       captions,
@@ -311,21 +321,21 @@ const BUILDERS: Record<TemplateId, (a: Alert) => Scene> = {
     }
   },
 
-  scan(a) {
+  scan(a, t) {
     const attackerSide = isInternalIp(a.adversary?.ip) ? undefined : a.adversary
     const attacker = attackerSide ? attackerParty(attackerSide) : internalSide('attacker', a.adversary)
     const target = a.target?.host && kindOf(a.target.host) !== 'firewall' ? internalSide('target', a.target) : (perimeterParty(a) ?? internalSide('target', a.target, a.dataSource))
     const ports = [21, 22, 23, 25, 53, 80, 110, 139, 443, 445, 1433, 3306, 3389, 5900, 8080, 8443]
     const open = [22, 443]
     const captions: Caption[] = [
-      { at: 0, text: `${attacker.name} starts knocking on ${target.name}, one port after another.` },
-      { at: 3200, text: `${ports.length} ports probed in seconds: SSH, SMB, RDP, databases, web consoles…` },
-      { at: 6400, text: `Ports ${open.join(' and ')} answer; everything else is closed or filtered.` },
-      { at: 9000, text: `Alert raised: ${a.name}. Usually the first step of an attack: block the source.` },
+      { at: 0, text: t('liveOps.capScn0', { name: attacker.name, to: target.name }) },
+      { at: 3200, text: t('liveOps.capScn1', { count: ports.length }) },
+      { at: 6400, text: t('liveOps.capScn2', { open: open.join(' and ') }) },
+      { at: 9000, text: `${t('liveOps.capAlertRaised', { name: a.name ?? '' })}${t('liveOps.capScn3')}` },
     ]
     return {
       template: 'scan',
-      title: `Port scan from ${attacker.name}`,
+      title: t('liveOps.titleScn', { name: attacker.name }),
       duration: 11500,
       parties: [attacker, target],
       captions,
@@ -333,7 +343,7 @@ const BUILDERS: Record<TemplateId, (a: Alert) => Scene> = {
     }
   },
 
-  cloud(a) {
+  cloud(a, t) {
     const actorInternal = isInternalIp(a.adversary?.ip)
     const actor: Party = actorInternal
       ? { id: 'actor', role: 'internal', kind: 'user', name: a.adversary?.user ?? 'user', sub: a.adversary?.ip, ip: a.adversary?.ip }
@@ -341,14 +351,14 @@ const BUILDERS: Record<TemplateId, (a: Alert) => Scene> = {
     const cloud = cloudParty(a, a.target?.host ?? 'Cloud console')
     const change = cloudChange(a)
     const captions: Caption[] = [
-      { at: 0, text: `${actor.name} signs in to ${cloud.name}${actorInternal ? '' : ` from ${a.adversary?.geolocation?.country ?? 'outside the company'}`}.` },
-      { at: 3000, text: `They change ${change.what}.` },
+      { at: 0, text: t('liveOps.capCl0', { name: actor.name, cloud: cloud.name, from: actorInternal ? '' : t('liveOps.capClFrom', { country: a.adversary?.geolocation?.country ?? t('liveOps.capClFromDef') }) }) },
+      { at: 3000, text: t('liveOps.capCl1', { what: change.what }) },
       { at: 6200, text: `${change.before} → ${change.after}: ${change.risk}` },
-      { at: 9000, text: `Alert raised: ${a.name}. Confirm it was planned, or undo it.` },
+      { at: 9000, text: `${t('liveOps.capAlertRaised', { name: a.name ?? '' })}${t('liveOps.capCl3')}` },
     ]
     return {
       template: 'cloud',
-      title: `${change.what} changed in ${cloud.name}`,
+      title: t('liveOps.titleCl', { what: change.what, to: cloud.name }),
       duration: 11500,
       parties: [actor, cloud],
       captions,
@@ -356,18 +366,18 @@ const BUILDERS: Record<TemplateId, (a: Alert) => Scene> = {
     }
   },
 
-  generic(a) {
+  generic(a, t) {
     const src = a.adversary?.ip && !isInternalIp(a.adversary.ip) ? attackerParty(a.adversary) : internalSide('source', a.adversary, a.dataSource)
     const tgt = internalSide('target', a.target, a.dataSource)
     return {
       template: 'generic',
-      title: a.name ?? 'Alert',
+      title: a.name ?? t('liveOps.titleAlert'),
       duration: 9000,
       parties: [src, tgt],
       captions: [
-        { at: 0, text: `${src.name} → ${tgt.name}` },
-        { at: 3500, text: `${a.technique || a.category || 'New detection'}` },
-        { at: 6500, text: `Alert raised: ${a.name}.` },
+        { at: 0, text: t('liveOps.capGen0', { src: src.name, tgt: tgt.name }) },
+        { at: 3500, text: a.technique || a.category || t('liveOps.capGenNew') },
+        { at: 6500, text: t('liveOps.capGen2', { name: a.name ?? '' }) },
       ],
       facts: {},
     }
@@ -382,7 +392,7 @@ export interface ProcStep {
   bad?: boolean
 }
 
-function processChain(a: Alert): ProcStep[] {
+function processChain(a: Alert, t: (k: string, o?: Record<string, unknown>) => string): ProcStep[] {
   const steps: ProcStep[] = []
   for (const e of (a.events ?? []) as Ev[]) {
     const l = evLog(e)
@@ -394,17 +404,17 @@ function processChain(a: Alert): ProcStep[] {
   }
   const n = (a.name ?? '').toLowerCase()
   const fallback: ProcStep[] =
-    n.includes('lsass') ? [{ name: 'explorer.exe' }, { name: 'rundll32.exe' }, { name: 'comsvcs.dll MiniDump', detail: 'dumps LSASS memory to steal passwords' }]
-    : n.includes('miner') ? [{ name: 'containerd-shim' }, { name: 'sh -c' }, { name: 'xmrig', detail: 'mines cryptocurrency with the server CPU' }]
-    : n.includes('reverse shell') ? [{ name: 'nginx' }, { name: 'sh' }, { name: 'bash -i', detail: 'opens an interactive shell back to the attacker' }]
-    : n.includes('keychain') ? [{ name: 'Terminal' }, { name: 'zsh' }, { name: 'security dump-keychain', detail: 'exports saved passwords from the keychain' }]
-    : n.includes('scheduled task') ? [{ name: 'cmd.exe' }, { name: 'schtasks.exe /create', detail: 'creates a task that runs a payload at every logon' }]
-    : n.includes('audit log') ? [{ name: 'mmc.exe' }, { name: 'wevtutil.exe cl Security', detail: 'wipes the Windows security log' }]
-    : n.includes('firewall') ? [{ name: 'cmd.exe' }, { name: 'netsh advfirewall', detail: 'deletes the host firewall rules' }]
-    : n.includes('shadow') ? [{ name: 'svchost.exe' }, { name: 'vssadmin delete shadows', detail: 'deletes the volume shadow copies before encryption' }]
-    : n.includes('credential dumping') ? [{ name: 'cmd.exe' }, { name: 'procdump.exe', detail: 'credential dumping tool' }]
-    : n.includes('downloaded') || n.includes('ingress') ? [{ name: 'bash' }, { name: 'curl', detail: 'downloads a tool into a writable folder' }]
-    : [{ name: 'explorer.exe' }, { name: 'cmd.exe' }, { name: 'powershell.exe', detail: 'runs an encoded command' }]
+    n.includes('lsass') ? [{ name: 'explorer.exe' }, { name: 'rundll32.exe' }, { name: 'comsvcs.dll MiniDump', detail: t('liveOps.dLsass') }]
+    : n.includes('miner') ? [{ name: 'containerd-shim' }, { name: 'sh -c' }, { name: 'xmrig', detail: t('liveOps.dMiner') }]
+    : n.includes('reverse shell') ? [{ name: 'nginx' }, { name: 'sh' }, { name: 'bash -i', detail: t('liveOps.dRev') }]
+    : n.includes('keychain') ? [{ name: 'Terminal' }, { name: 'zsh' }, { name: 'security dump-keychain', detail: t('liveOps.dKey') }]
+    : n.includes('scheduled task') ? [{ name: 'cmd.exe' }, { name: 'schtasks.exe /create', detail: t('liveOps.dTask') }]
+    : n.includes('audit log') ? [{ name: 'mmc.exe' }, { name: 'wevtutil.exe cl Security', detail: t('liveOps.dAudit') }]
+    : n.includes('firewall') ? [{ name: 'cmd.exe' }, { name: 'netsh advfirewall', detail: t('liveOps.dFw') }]
+    : n.includes('shadow') ? [{ name: 'svchost.exe' }, { name: 'vssadmin delete shadows', detail: t('liveOps.dShadow') }]
+    : n.includes('credential dumping') ? [{ name: 'cmd.exe' }, { name: 'procdump.exe', detail: t('liveOps.dDump') }]
+    : n.includes('downloaded') || n.includes('ingress') ? [{ name: 'bash' }, { name: 'curl', detail: t('liveOps.dDl') }]
+    : [{ name: 'explorer.exe' }, { name: 'cmd.exe' }, { name: 'powershell.exe', detail: t('liveOps.dPs') }]
   const chain = steps.length >= 2 ? steps : fallback
   const out = chain.slice(-4)
   out[out.length - 1] = { ...out[out.length - 1], bad: true }

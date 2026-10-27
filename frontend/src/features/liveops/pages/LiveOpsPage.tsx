@@ -107,7 +107,7 @@ export function LiveOpsPage() {
   )
   const windowAlerts = useMemo(() => list, [list, tick])
   const alert = list.find((a) => a.id === selectedId) ?? list[list.length - 1]
-  const scene = useMemo(() => (alert ? buildScene(alert) : null), [alert])
+  const scene = useMemo(() => (alert ? buildScene(alert, t) : null), [alert, t])
 
   useSocAiFocus(useMemo(() => (alert ? alertFocus(alert) : null), [alert]))
 
