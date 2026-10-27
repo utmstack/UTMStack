@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { useListScrollReset } from "@/shared/hooks/use-list-scroll-reset";
+
 import {
   AlertTriangle,
   Download,
@@ -53,6 +55,10 @@ export function AlertingRulesPage() {
   const [page, setPage] = useState(0)
   const [pageSize] = useState(50)
   const [nonce, setNonce] = useState(0)
+
+
+  const scrollRef = useRef<HTMLDivElement>(null)
+  useListScrollReset(page, 0, scrollRef)
 
   const [categories, setCategories] = useState<string[]>([])
   const [dataTypeOptions, setDataTypeOptions] = useState<DataTypeOption[]>([])
@@ -162,7 +168,10 @@ export function AlertingRulesPage() {
     svc.dataTypes().then((d) => setDataTypeOptions(d ?? [])).catch(() => {})
   }, [nonce])
 
-  const refresh = useCallback(() => setNonce((n) => n + 1), [])
+  const refresh = useCallback(() => {
+    if (page === 0) setNonce((n) => n + 1)
+    else setPage(0)
+  }, [page])
 
   const toggleActive = async (r: CorrelationRule, next: boolean) => {
     try {
@@ -289,6 +298,7 @@ export function AlertingRulesPage() {
           onOpen={setOpen}
           onToggle={toggleActive}
           t={t}
+          scrollRef={scrollRef}
           footer={
             <InfiniteScrollSentinel
               onReach={() => setPage((p) => p + 1)}

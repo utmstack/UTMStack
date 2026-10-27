@@ -16,6 +16,8 @@ const ADD_COLLECTOR_ID = -2
 export interface RemoteEnableSelection {
   proto: Proto
   port: string
+  /** The Forwarder the user picked, when any (used by custom integrations to show its IP). */
+  collector?: ForwarderCollector | null
 }
 
 interface RemoteEnablePanelProps {
@@ -186,8 +188,8 @@ export function RemoteEnablePanel({
   }, [allForwarders, collectorId])
 
   useEffect(() => {
-    onSelectionChange?.({ proto, port })
-  }, [proto, port, onSelectionChange])
+    onSelectionChange?.({ proto, port, collector: selectedForwarder })
+  }, [proto, port, selectedForwarder, onSelectionChange])
 
   const isHttp = proto === 'http' || proto === 'https'
   const needsCerts = proto === 'tls' || proto === 'https'

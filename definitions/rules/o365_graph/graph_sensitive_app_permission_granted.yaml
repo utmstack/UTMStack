@@ -1,0 +1,36 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365-graph
+name: Graph Sensitive Application Permission Granted
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Privilege Escalation
+technique: "T1098.003 - Account Manipulation: Additional Cloud Roles"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/entra/identity/monitoring-health/reference-audit-activities
+  - https://learn.microsoft.com/en-us/graph/permissions-reference
+  - https://attack.mitre.org/techniques/T1098/003/
+description: |
+  An application was granted a Microsoft Graph or Exchange permission that reaches every mailbox, every file or the directory itself (for example Mail.Read, Files.ReadWrite.All, RoleManagement.ReadWrite.Directory or full_access_as_app). Application permissions work without a signed-in user, so an application holding one can read or change data across the whole company. Attackers grant these to an application they control to keep silent access.
+
+  The permission is in log.appRoleValue (application permission) or log.permissionScope (delegated permission granted for all users). One alert is raised per application and permission; repeats are suppressed for seven days.
+
+  Next Steps:
+  1. Identify the application that received the permission (log.clientServicePrincipalId) and who granted it (origin user).
+  2. Confirm the application needs this permission and that the grant was approved.
+  3. If not, remove the permission and review what the application accessed.
+where: |
+  equals("log.graphSource", "directory-audit") &&
+  equals("actionResult", "success") &&
+  ((equals("action", "Add app role assignment to service principal") &&
+    regexMatch("log.appRoleValue", "^(Mail\\.(Read|ReadBasic\\.All|ReadWrite|Send)|MailboxSettings\\.ReadWrite|Files\\.(Read|ReadWrite)\\.All|Sites\\.(Read|ReadWrite|Manage|FullControl)\\.All|Directory\\.ReadWrite\\.All|RoleManagement\\.ReadWrite\\.Directory|AppRoleAssignment\\.ReadWrite\\.All|Application\\.ReadWrite\\.All|User\\.ReadWrite\\.All|Group\\.ReadWrite\\.All|GroupMember\\.ReadWrite\\.All|Policy\\.ReadWrite\\.[A-Za-z]+|full_access_as_app|Exchange\\.ManageAsApp)$")) ||
+   (equals("action", "Add delegated permission grant") &&
+    regexMatch("log.permissionScope", "(^|\\s)(Directory\\.ReadWrite\\.All|RoleManagement\\.ReadWrite\\.Directory|AppRoleAssignment\\.ReadWrite\\.All|Application\\.ReadWrite\\.All|full_access_as_user|Mail\\.ReadWrite|Files\\.ReadWrite\\.All|Sites\\.FullControl\\.All)(\\s|$)")))
+deduplicateBy:
+  - lastEvent.log.clientServicePrincipalId
+  - lastEvent.log.appRoleValue
+  - lastEvent.log.permissionScope

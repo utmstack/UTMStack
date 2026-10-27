@@ -92,6 +92,7 @@ export function ThreatIntelPage() {
   const [empty, setEmpty] = useState<boolean>(false)
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [timeRange, setTimeRange] = useState<TimeRange>('all')
+  const [bump, setBump] = useState(0)
 
   const modeRef = useRef<'replace' | 'append'>('replace')
   const seqRef = useRef(0)
@@ -106,10 +107,18 @@ export function ThreatIntelPage() {
     if (!observedFragment.ready) return
     const my = ++seqRef.current
     const mode = modeRef.current
-    const body = composeBody(filtersToRequest(filters), query, timeRange, observedFragment.fragment)
+    const filterRequest = filtersToRequest(filters)
+    const body = composeBody(filterRequest, query, timeRange, observedFragment.fragment)
     setLastBody(body)
+    // The generic corpus fallback is licensed only for the first, un-narrowed
+    // instance-IoC query. Any user-applied filter, text, lookup or time range
+    // that 404s means "no data for that query", not "serve the default".
+    const narrowed =
+      filterRequest.query !== undefined ||
+      query !== '*' ||
+      timeRange !== 'all'
     searchAdvancedMutation.mutate(
-      { body, limit: size, page: page + 1 },
+      { body, limit: size, page: page + 1, fallback: !narrowed },
       {
         onSuccess: (data) => {
           if (my !== seqRef.current) return
@@ -133,7 +142,7 @@ export function ThreatIntelPage() {
         },
       }
     )
-  }, [query, page, size, isConfigured, timeRange, observedFragment.ready, observedFragment.fragment])
+  }, [query, page, size, isConfigured, timeRange, filters, bump, observedFragment.ready, observedFragment.fragment])
 
   if (configLoading) return null
   if (isConfigured === false) return <NotConfiguredState />
@@ -145,7 +154,9 @@ export function ThreatIntelPage() {
   const handleSearch = (q: string) => {
     modeRef.current = 'replace'
     setPage(0)
-    setQuery(q)
+    const next = q || '*'
+    if (next === query) setBump((b) => b + 1)
+    else setQuery(next)
   }
 
   const handlePageChange = (p: number) => {
@@ -166,27 +177,13 @@ export function ThreatIntelPage() {
   }
 
   const handleFiltersApply = (request: AdvancedSearchRequest) => {
-    const body = composeBody(request, query, timeRange, observedFragment.fragment)
+    void request
     modeRef.current = 'replace'
     setPage(0)
-    setLastBody(body)
     setIocs([])
     setTotalItems(0)
     setTotalPages(0)
-    const my = ++seqRef.current
-    searchAdvancedMutation.mutate(
-      { body, limit: size, page: 1 },
-      {
-        onSuccess: (data) => {
-          if (my !== seqRef.current) return
-          if (data?.kind === 'not-configured') return
-          if (data?.kind !== 'ok') return
-          setTotalItems(data.value.items)
-          setTotalPages(data.value.pages)
-          setIocs(data.value.results)
-        },
-      }
-    )
+    setBump((b) => b + 1)
   }
 
   const handleLookup = (input: { type: string; value: string }) => {

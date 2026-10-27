@@ -9,6 +9,7 @@ import { SEV_BADGE, ST_META, TS, absTime, riskOf, sevKey, statusKey } from '../l
 import { combineUserNote, isAiNote, parseAiNote, userNotePart } from '../lib/ai-note'
 import { type Alert, type AlertTag } from '../types/alert.types'
 import { useRelatedLogs } from '../hooks/use-related-logs'
+import { useAlertThreadEvents } from '../hooks/use-alert-thread-events'
 import { alertFocus } from '../lib/alert-focus'
 import { Section } from './section'
 import { Row } from './row'
@@ -62,6 +63,7 @@ export function AlertDrawer({
   useSocAiFocus(useMemo(() => alertFocus(a), [a]))
   const [tab, setTab] = useState<Tab>('summary')
   const { loading: loadingRelated, viewRelatedLogs } = useRelatedLogs()
+  const thread = useAlertThreadEvents(a, tab === 'events')
   // `notes` stores only the analyst's own free text; any AI assessment block is
   // kept separate so the SOC AI note is preserved when the analyst saves.
   const [notes, setNotes] = useState(userNotePart(a.notes))
@@ -154,7 +156,7 @@ export function AlertDrawer({
               )}
             >
               {id === 'events'
-                ? `${t('alerts.drawer.tabs.events')}${a.events?.length ? ` (${a.events.length})` : ''}`
+                ? `${t('alerts.drawer.tabs.events')}${thread.events.length ? ` (${thread.events.length})` : ''}`
                 : t(`alerts.drawer.tabs.${id}`)}
               {tab === id && <span className="absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-primary" />}
             </button>
@@ -282,7 +284,14 @@ export function AlertDrawer({
             </div>
           )}
           {tab === 'events' && (
-            <AlertRelatedEvents events={a.events ?? []} onViewAll={() => void viewRelatedLogs(a)} loadingAll={loadingRelated} />
+            <AlertRelatedEvents
+              events={thread.events}
+              echoes={thread.echoes}
+              echoesRead={thread.echoesRead}
+              loadingEchoes={thread.loading}
+              onViewAll={() => void viewRelatedLogs(a)}
+              loadingAll={loadingRelated}
+            />
           )}
           {tab === 'history' && <HistoryTab alert={a} />}
         </div>

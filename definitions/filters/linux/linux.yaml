@@ -357,6 +357,15 @@ pipeline:
           to: origin.host
           where: exists("log.HOSTNAME") || exists("log._HOSTNAME")
 
+      # auditd records carry no hostname, so without this their alerts have no
+      # adversary.host and a groupBy on it matches nothing.
+      - grok:
+          source: dataSource
+          patterns:
+            - fieldName: origin.host
+              pattern: '(?s:.*)'
+          where: '!oneOf("dataSource", ["", "unknown"]) && !exists("origin.host")'
+
       - rename:
           from:
             - log.USERID

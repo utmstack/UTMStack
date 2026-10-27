@@ -1,10 +1,12 @@
-# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Manual: set in the report.
 id: sa-16
 family: sa
 familyName: System and Services Acquisition
 name: Developer-provided Training
 scope: governance
-statement: 'Require the developer of the system, system component, or system service to provide the following
-  training on the correct use and operation of the implemented security and privacy functions, controls,
-  and/or mechanisms: [training].'
+statement: |-
+  Require the developer of the system, system component, or system service to provide the following training on the correct use and operation of the implemented security and privacy functions, controls, and/or mechanisms: [training].
+remediation: |-
+  Manual control: logs cannot show whether this is in place, so the report lists it as "Out of scope" until a person decides. Open the framework report, set this control's status (Compliant, Non-compliant or At risk) and write the justification.
+  Keep the evidence an auditor will ask for, for example contracts, acquisition requirements, or development and testing records.
 source: NIST SP 800-53 Rev 5 (public domain)

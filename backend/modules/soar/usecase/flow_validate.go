@@ -91,10 +91,6 @@ func validateFlow(f domain.Flow) error {
 		errs = append(errs, validateNodeParams(id, n)...)
 	}
 
-	if cyc := findCycle(f); cyc != nil {
-		errs = append(errs, "flow contains a cycle: "+strings.Join(cyc, " -> "))
-	}
-
 	if len(errs) > 0 {
 		return fmt.Errorf("invalid flow: %s", strings.Join(errs, "; "))
 	}
@@ -215,61 +211,4 @@ func validFlowURL(u string) error {
 		return fmt.Errorf("url %q has no host", u)
 	}
 	return nil
-}
-
-// findCycle returns one cycle path (ids) if the flow has any, else nil.
-// Iterative three-color DFS with an explicit parent map so recursion depth
-// never tracks user-controlled flow size, and the cycle is rebuilt in O(length).
-func findCycle(f domain.Flow) []string {
-	const (
-		white = 0 // unvisited
-		gray  = 1 // on current DFS path
-		black = 2 // fully explored
-	)
-	color := make(map[string]int, len(f.Nodes))
-	parent := make(map[string]string, len(f.Nodes))
-
-	for start := range f.Nodes {
-		if color[start] != white {
-			continue
-		}
-		color[start] = gray
-		stack := []string{start}
-		for len(stack) > 0 {
-			id := stack[len(stack)-1]
-			expanded := false
-			for _, t := range append(append([]string{}, f.Nodes[id].OnSuccess...), f.Nodes[id].OnError...) {
-				if _, ok := f.Nodes[t]; !ok {
-					continue // dangling edges reported by validateFlow
-				}
-				switch color[t] {
-				case white:
-					color[t] = gray
-					parent[t] = id
-					stack = append(stack, t)
-					expanded = true
-				case gray:
-					// id -> t closes the cycle; walk parents from id back to t.
-					c := []string{t}
-					for cur := id; cur != t; cur = parent[cur] {
-						c = append(c, cur)
-					}
-					c = append(c, t)
-					reverse(c)
-					return c
-				}
-			}
-			if !expanded {
-				stack = stack[:len(stack)-1]
-				color[id] = black
-			}
-		}
-	}
-	return nil
-}
-
-func reverse(s []string) {
-	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
-		s[i], s[j] = s[j], s[i]
-	}
 }

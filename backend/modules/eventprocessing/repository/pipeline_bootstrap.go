@@ -88,11 +88,24 @@ func preserveDestOrder(destPath string, newContent []byte) []byte {
 	if err := yaml.Unmarshal(existing, &existingCfg); err != nil || len(existingCfg.Pipeline) == 0 {
 		return newContent
 	}
-	order := existingCfg.Pipeline[0].Order
-	if order == 0 {
+	if len(orderLinePattern.FindAll(newContent, -1)) != len(existingCfg.Pipeline) {
 		return newContent
 	}
-	return orderLinePattern.ReplaceAll(newContent, []byte(fmt.Sprintf("${1}%d$2", order)))
+
+	// A value the file already uses for another entry is not the operator's
+	// choice: an earlier refresh copied the first entry's order onto every
+	// entry, so that duplicate is the shipped value overwritten, not a setting.
+	used := make(map[int32]bool, len(existingCfg.Pipeline))
+	i := -1
+	return orderLinePattern.ReplaceAllFunc(newContent, func(line []byte) []byte {
+		i++
+		order := existingCfg.Pipeline[i].Order
+		if order == 0 || used[order] {
+			return line
+		}
+		used[order] = true
+		return orderLinePattern.ReplaceAll(line, []byte(fmt.Sprintf("${1}%d$2", order)))
+	})
 }
 
 func (b *PipelineBootstrap) pruneSystemOverlay(expected map[string]bool) error {

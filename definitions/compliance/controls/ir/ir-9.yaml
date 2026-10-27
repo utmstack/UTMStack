@@ -1,20 +1,19 @@
-# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Manual: set in the report.
 id: ir-9
 family: ir
 familyName: Incident Response
 name: Information Spillage Response
-scope: data
+scope: governance
 statement: |-
   Respond to information spills by:
-    Assigning [personnel or roles] with responsibility for responding to information spills;
-    Identifying the specific information involved in the system contamination;
-    Alerting [personnel or roles] of the information spill using a method of communication not associated with the spill;
-    Isolating the contaminated system or system component;
-    Eradicating the information from the contaminated system or component;
-    Identifying other systems or system components that may have been subsequently contaminated; and
-    Performing the following additional actions: [actions].
+  Assigning [personnel or roles] with responsibility for responding to information spills;
+  Identifying the specific information involved in the system contamination;
+  Alerting [personnel or roles] of the information spill using a method of communication not associated with the spill;
+  Isolating the contaminated system or system component;
+  Eradicating the information from the contaminated system or component;
+  Identifying other systems or system components that may have been subsequently contaminated; and
+  Performing the following additional actions: [actions].
+remediation: |-
+  Manual control: logs cannot show whether this is in place, so the report lists it as "Out of scope" until a person decides. Open the framework report, set this control's status (Compliant, Non-compliant or At risk) and write the justification.
+  Keep the evidence an auditor will ask for, for example the incident response plan, the last exercise record, or the report sent to the authority.
 source: NIST SP 800-53 Rev 5 (public domain)
-checks:
-  - key: todo
-    name: 'TODO: define compliance check for this control'
-    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

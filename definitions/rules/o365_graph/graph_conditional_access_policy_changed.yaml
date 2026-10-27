@@ -1,0 +1,31 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365-graph
+name: Graph Conditional Access Policy Changed
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 1
+category: Defense Evasion
+technique: "T1556.009 - Modify Authentication Process: Conditional Access Policies"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/entra/identity/monitoring-health/reference-audit-activities
+  - https://attack.mitre.org/techniques/T1556/009/
+description: |
+  An Entra ID Conditional Access policy was created, changed or deleted. These policies decide who must use multi-factor sign-in and from where; an attacker with administrator access weakens or removes them, or adds an exclusion, so stolen credentials keep working.
+
+  One alert is raised per person and kind of change (create, update, delete); repeats within seven days are suppressed, because administrators often roll out several policies together.
+
+  Next Steps:
+  1. Identify the policy (log.targetDisplayName) and compare the old and new settings in log.targetResources.
+  2. Confirm the change with the person who made it (origin user).
+  3. Restore the policy if the change was not approved, and review that account's activity.
+where: |
+  equals("log.graphSource", "directory-audit") &&
+  equals("actionResult", "success") &&
+  regexMatch("action", "(?i)^(add|update|delete) conditional access policy$")
+deduplicateBy:
+  - adversary.user
+  - lastEvent.action

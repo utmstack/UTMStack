@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, type ReactNode } from 'react'
+import { useMemo, useRef, useState,useEffect, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ChevronDown, Forward, Server, ShieldCheck } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
@@ -162,10 +162,20 @@ interface ForwarderGuideProps {
   /** Initial protocol, when the device needs something other than the catalog's first entry (e.g. ESXi/SentinelOne are TCP-only in practice). */
   defaultProto?: Proto
   /** Vendor-specific device-side config (how to point the device at the Forwarder). */
+  header?: ReactNode
+  onSetSelection?:(selection:RemoteEnableSelection)=>void
   children: ReactNode
 }
 
-export function ForwarderGuide({ source, port, sourceType, defaultProto, children }: ForwarderGuideProps) {
+export function ForwarderGuide({
+  source,
+  port,
+  sourceType,
+  defaultProto,
+  header,
+  onSetSelection,
+  children
+}: ForwarderGuideProps) {
   const { t } = useTranslation()
   const availableProtos = useMemo(() => availableProtosFor(sourceType), [sourceType])
   const initialProto = defaultProto ?? availableProtos[0]
@@ -174,6 +184,13 @@ export function ForwarderGuide({ source, port, sourceType, defaultProto, childre
     port: defaultPortFor(sourceType, initialProto) || port,
     apiKey: null,
   }))
+
+  useEffect(()=>{
+    if(onSetSelection && selection.port){
+      onSetSelection(selection)
+    }
+  },[selection,onSetSelection])
+
   const [installOpen, setInstallOpen] = useState(false)
   const installRef = useRef<HTMLDivElement>(null)
 
@@ -184,13 +201,15 @@ export function ForwarderGuide({ source, port, sourceType, defaultProto, childre
 
   return (
     <div className="space-y-4">
-      <Section title={t(`${SHARED}.intro.title`)}>
+    {
+      header || (      <Section title={t(`${SHARED}.intro.title`)}>
         <p className="text-sm text-foreground/90">{t(`${SHARED}.intro.body`, { source })}</p>
         <FlowDiagram source={source} port={port} />
         <p className="mt-3 rounded-md bg-muted/40 px-3 py-2 text-[11px] text-muted-foreground">
           {t(`${SHARED}.noInstall`, { source })}
         </p>
-      </Section>
+      </Section>)
+    }
 
       <RemoteEnablePanel
         dataType={sourceType}

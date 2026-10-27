@@ -1,0 +1,31 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365-graph
+name: Graph Application Consent Granted
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Initial Access
+technique: "T1528 - Steal Application Access Token"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/entra/identity/monitoring-health/reference-audit-activities
+  - https://learn.microsoft.com/en-us/defender-office-365/detect-and-remediate-illicit-consent-grants
+  - https://attack.mitre.org/techniques/T1528/
+description: |
+  A user or an administrator consented to an application in Entra ID, giving it access to company data. Illicit consent phishing tricks users into approving a malicious application that then reads mail and files through Microsoft Graph without needing the user's password. Admin consent is recorded in log.targetResources (ConsentContext.IsAdminConsent) and grants the access for every user.
+
+  One alert is raised per application; further consents to the same application within seven days are suppressed, because many users often consent to one new application in the same hour.
+
+  Next Steps:
+  1. Identify the application (log.targetDisplayName) and check its publisher and the permissions it was granted.
+  2. Confirm with the person who consented (origin user) that they meant to.
+  3. If the application is unknown or over-privileged, revoke the consent and remove the service principal.
+where: |
+  equals("log.graphSource", "directory-audit") &&
+  equals("actionResult", "success") &&
+  equals("action", "Consent to application")
+deduplicateBy:
+  - lastEvent.log.targetId

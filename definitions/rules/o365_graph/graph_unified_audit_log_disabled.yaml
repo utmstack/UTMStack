@@ -1,0 +1,32 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365-graph
+name: Graph Unified Audit Logging Disabled
+impact:
+  confidentiality: 2
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1562.008 - Impair Defenses: Disable or Modify Cloud Logs"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/purview/audit-log-enable-disable
+  - https://attack.mitre.org/techniques/T1562/008/
+description: |
+  Set-AdminAuditLogConfig turned off the Microsoft 365 unified audit log (UnifiedAuditLogIngestionEnabled set to False). From then on no Exchange, SharePoint, OneDrive, Teams or Entra ID activity is recorded, and the Purview audit records this integration collects stop. Attackers do this to hide what they do next.
+
+  One alert is raised per organization; repeats are suppressed for seven days.
+
+  Next Steps:
+  1. Turn the unified audit log back on at once (Set-AdminAuditLogConfig -UnifiedAuditLogIngestionEnabled $true).
+  2. Confirm with the person who made the change (origin user) why it was done.
+  3. Investigate that account and every administrative change made around the same time.
+where: |
+  equals("log.graphSource", "purview-audit") &&
+  equals("actionResult", "success") &&
+  equals("action", "Set-AdminAuditLogConfig") &&
+  equalsIgnoreCase("log.Parameters.#(Name==UnifiedAuditLogIngestionEnabled).Value", "False")
+deduplicateBy:
+  - lastEvent.log.OrganizationId
+  - lastEvent.action

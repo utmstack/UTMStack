@@ -17,10 +17,12 @@ function listQuery(q: FlowListQuery): string {
   return p.toString()
 }
 
+const NO_CACHE = { headers: { 'Cache-Control': 'no-cache' } }
+
 export const soarFlowsService = {
   // Returns { data: Flow[], total } — total from X-Total-Count.
-  list: (q: FlowListQuery = {}) => api.getPaged<Flow[]>(`${BASE}?${listQuery(q)}`),
-  get: (relPath: string) => api.get<Flow>(`${BASE}/${encodeURIComponent(relPath)}`),
+  list: (q: FlowListQuery = {}) => api.getPaged<Flow[]>(`${BASE}?${listQuery(q)}`, NO_CACHE),
+  get: (relPath: string) => api.get<Flow>(`${BASE}/${encodeURIComponent(relPath)}`, NO_CACHE),
   create: (input: SaveFlowInput) => api.post<Flow>(BASE, input),
   update: (relPath: string, input: SaveFlowInput) =>
     api.put<Flow>(`${BASE}/${encodeURIComponent(relPath)}`, input),

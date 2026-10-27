@@ -19,6 +19,7 @@ func registerSOAR(m *Module) {
 	registerSOARPrompts(m)
 }
 
+// ---- soar.rule.* -----------------------------------------------------------
 func mergeFlowUpdate(cur *dto.RuleResponse, in soarRuleUpdateInput) (dto.UpdateRuleRequest, error) {
 	for _, id := range in.DeletedNodes {
 		if _, ok := in.Nodes[id]; ok {
@@ -137,8 +138,18 @@ func registerSOARRules(m *Module) {
 
 	Add(m, &mcp.Tool{
 		Name: "soar.rule.create", Title: "Create SOAR rule",
-		Description: "Creates a NEW flow; the full flow (conditions, roots, nodes) is required. " +
-			"To modify an existing flow use soar.rule.update (partial) instead.",
+		Description: `Create a SOAR rule: a DAG of nodes that runs when an alert matches ALL trigger conditions. ` +
+			`See mcp://utmstack/docs/soar-flow-guide for the full authoring guide. ` +
+			`Node params shape depends on the executor type — params is a plain object: ` +
+			`shell: (none, use node-level command/shell/platform/agent); ` +
+			`http: {"method","url","headers","body"?}; ` +
+			`conditional: {"conditions":[{"operator","field","value"?}]}; ` +
+			`llm_enrich/llm_action: {"prompt"}; ` +
+			`notify: {"message","type":"INFO"|"WARNING"|"ERROR"}; ` +
+			`incident: {"name","description"}; ` +
+			`mail: {"to","cc","subject","body"}. ` +
+			`Live executor types: call soar.node_types. ` +
+			`Create with active=false unless the user explicitly asks to enable it.`,
 	}, Gate{Permission: "soar.write"},
 		func(ctx context.Context, actor *authz.Actor, in soarRuleCreateInput) (any, error) {
 			if len(in.Conditions) == 0 || len(in.Roots) == 0 || len(in.Nodes) == 0 {
@@ -257,7 +268,7 @@ Follow these steps, showing results as you go:
 4. Call soar.rule.resolve_filter_values to suggest valid filter fields/values.
 5. Draft the change and present it to the user before touching anything.
 6. Only after explicit user confirmation, apply it:
-   - new flow → soar.rule.create with the full flow and active=false;
+   - new flow → soar.rule.create (full flow) and active=false;
    - existing flow → soar.rule.update with PARTIAL fields only: omit what does
      not change, use nodes to add/overwrite by id and deleted_nodes to remove.
      Never resend the whole flow in an update.

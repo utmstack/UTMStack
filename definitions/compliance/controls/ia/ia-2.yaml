@@ -1,13 +1,422 @@
-# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
 id: ia-2
 family: ia
 familyName: Identification and Authentication
 name: Identification and Authentication (Organizational Users)
 scope: data
-statement: Uniquely identify and authenticate organizational users and associate that unique identification
-  with processes acting on behalf of those users.
+statement: |-
+  Uniquely identify and authenticate organizational users and associate that unique identification with processes acting on behalf of those users.
+remediation: |-
+  Passes when a connected source shows successful sign-ins with a user name, which shows users are identified and authenticated.
+  If it fails: enable logon success auditing and connect the identity sources (Windows domain controllers, Microsoft 365, VPN, Linux).
+  Multi-factor authentication is a separate, manual control (ia-2.1 and ia-2.2).
 source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY
 checks:
-  - key: todo
-    name: 'TODO: define compliance check for this control'
-    todo: true            # Pending — evaluator shows "Not implemented", excluded from score
+  - key: win-user-logon-success
+    name: 'Windows: successful user logons are recorded'
+    dataType: wineventlog
+    filters:
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '4624'
+      - field: log.eventDataLogonType
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '2'
+          - '3'
+          - '7'
+          - '10'
+          - '11'
+      - field: target.user
+        operator: EXIST
+      - field: target.user
+        operator: NOT_ENDS_WITH
+        value: '$'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-audit-logon-success
+    name: 'Linux: successful logins and authentications are recorded (audit)'
+    dataType: linux
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'USER_LOGIN'
+          - 'USER_AUTH'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-ssh-logon-success
+    name: 'Linux: accepted SSH logins are recorded'
+    dataType: linux
+    filters:
+      - field: log.syslogIdentifier
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'sshd'
+          - 'sshd-session'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: macos-directory-auth-success
+    name: 'macOS: successful password verifications are recorded'
+    dataType: macos
+    filters:
+      - field: log.subsystem
+        operator: IS
+        value: 'com.apple.opendirectoryd'
+      - field: log.message
+        operator: START_WITH
+        value: 'Authentication succeeded for '
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: macos-login-authorized
+    name: 'macOS: successful console logins and screen unlocks are recorded'
+    dataType: macos
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'success'
+      - field: log.subsystem
+        operator: IS
+        value: 'com.apple.Authorization'
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - '''system.login.console'''
+          - '''system.login.screensaver'''
+          - '''system.login.fus'''
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: macos-unlock-authenticated-user
+    name: 'macOS: users authenticating to unlock the screen are recorded'
+    dataType: macos
+    filters:
+      - field: log.subsystem
+        operator: IS
+        value: 'com.apple.Authorization'
+      - field: log.message
+        operator: CONTAIN
+        value: 'authenticated as user'
+      - field: log.message
+        operator: CONTAIN
+        value: 'system.login'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-signin-success
+    name: 'Microsoft 365: successful sign-ins are recorded with the user'
+    dataType: o365
+    filters:
+      - field: action
+        operator: IS
+        value: 'UserLoggedIn'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+      - field: origin.user
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: azure-entra-signin-success
+    name: 'Azure: successful Entra ID sign-ins are recorded with the user'
+    dataType: azure
+    filters:
+      - field: log.azureKind
+        operator: IS
+        value: 'signin'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+      - field: origin.user
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-signin-success
+    name: 'AWS: successful console and single sign-on sign-ins are recorded'
+    dataType: aws
+    filters:
+      - field: action
+        operator: IS_ONE_OF
+        value:
+          - 'ConsoleLogin'
+          - 'UserAuthentication'
+          - 'AssumeRoleWithSAML'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: gcp-workspace-signin-success
+    name: 'Google: successful Workspace / Cloud Identity sign-ins are recorded'
+    dataType: google
+    filters:
+      - field: log.protoPayloadServiceName
+        operator: IS
+        value: 'login.googleapis.com'
+      - field: log.protoPayloadMethodName
+        operator: IS
+        value: 'google.login.LoginService.loginSuccess'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: eset-console-sign-in
+    name: 'ESET PROTECT: successful Web Console sign-ins are recorded'
+    dataType: antivirus-esmc-eset
+    filters:
+      - field: log.eventType
+        operator: IS
+        value: 'Audit_Event'
+      - field: action
+        operator: IS
+        value: 'Login attempt'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: kaspersky-ksc-console-connect
+    name: 'Kaspersky: connections to the Administration Server console'
+    dataType: antivirus-kaspersky
+    filters:
+      - field: log.eventType
+        operator: IS
+        value: 'KLAUD_EV_SERVERCONNECT'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sentinelone-console-login
+    name: 'SentinelOne: console user logged in'
+    dataType: antivirus-sentinel-one
+    filters:
+      - field: log.activityType
+        operator: IS
+        value: '27'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: cisco-switch-login-success
+    name: 'Cisco switch: successful logins are recorded'
+    dataType: cisco-switch
+    filters:
+      - field: log.facility
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'SEC_LOGIN'
+          - 'SECLOGIN'
+      - field: log.facilityMnemonic
+        operator: IS
+        value: 'LOGIN_SUCCESS'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: crowdstrike-console-sign-in
+    name: 'CrowdStrike Falcon: successful console sign-ins are recorded'
+    dataType: crowdstrike
+    filters:
+      - field: log.metadataEventType
+        operator: IS
+        value: 'AuthActivityAuditEvent'
+      - field: log.eventOperationName
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'userAuthenticate'
+          - 'twoFactorAuthenticate'
+          - 'assert'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: asa-auth-success
+    name: 'Cisco ASA: successful management and AAA sign-ins are recorded'
+    dataType: firewall-cisco-asa
+    filters:
+      - field: log.messageId
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '605005'
+          - '113004'
+          - '113012'
+          - '611101'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: ftd-auth-success
+    name: 'Cisco Firepower: successful AAA sign-ins are recorded'
+    dataType: firewall-cisco-firepower
+    filters:
+      - field: log.messageId
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '113004'
+          - '113012'
+          - '611101'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fgt-auth-success
+    name: 'FortiGate: successful admin, firewall and SSL VPN sign-ins are recorded'
+    dataType: firewall-fortigate-traffic
+    filters:
+      - field: log.logid
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '0100032001'
+          - '0102043039'
+          - '0101039424'
+          - '0101039947'
+      - field: origin.user
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fortiweb-admin-login-success
+    name: 'FortiWeb: successful administrator sign-ins are recorded'
+    dataType: firewall-fortiweb
+    filters:
+      - field: log.type
+        operator: IS
+        value: 'event'
+      - field: action
+        operator: IS
+        value: 'login'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: meraki-auth-success
+    name: 'Cisco Meraki: successful VPN and 802.1X sign-ins are recorded'
+    dataType: firewall-meraki
+    filters:
+      - field: log.merakiGroup
+        operator: IS
+        value: 'events'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+      - field: origin.user
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: mikrotik-auth-success
+    name: 'MikroTik: successful router sign-ins are recorded'
+    dataType: firewall-mikrotik
+    filters:
+      - field: log.topics
+        operator: CONTAIN
+        value: 'account'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+      - field: origin.user
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: paloalto-auth-success
+    name: 'Palo Alto: successful admin and GlobalProtect sign-ins are recorded'
+    dataType: firewall-paloalto
+    filters:
+      - field: log.eventid
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'auth-success'
+          - 'portal-auth'
+          - 'gateway-auth'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+      - field: origin.user
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: pfsense-auth-success
+    name: 'pfSense: successful web, SSH and OpenVPN sign-ins are recorded'
+    dataType: firewall-pfsense
+    filters:
+      - field: log.authEvent
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Successful login'
+          - 'Accepted'
+          - 'authenticated'
+      - field: origin.user
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sonicwall-auth-success
+    name: 'SonicWall: successful admin, user and VPN sign-ins are recorded'
+    dataType: firewall-sonicwall
+    filters:
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '29'
+          - '31'
+          - '236'
+          - '237'
+          - '238'
+          - '1080'
+          - '139'
+      - field: origin.user
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sophos-xg-auth-success
+    name: 'Sophos Firewall: successful user and VPN sign-ins are recorded'
+    dataType: firewall-sophos-xg
+    filters:
+      - field: log.messageId
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '17701'
+          - '17704'
+          - '17707'
+          - '17710'
+          - '17718'
+      - field: origin.user
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aix-ssh-logon-success
+    name: 'IBM AIX: accepted SSH sign-ins are recorded'
+    dataType: ibm-aix
+    filters:
+      - field: log.authResult
+        operator: IS
+        value: 'Accepted'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: as400-host-server-signon
+    name: 'IBM i (AS/400): host server sign-ons are recorded'
+    dataType: ibm-as400
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-graph-signin-success
+    name: 'Microsoft Graph: successful Entra sign-ins with a user are recorded'
+    dataType: o365-graph
+    filters:
+      - field: log.conditionalAccessStatus
+        operator: EXIST
+      - field: log.status.errorCode
+        operator: IS
+        value: '0'
+      - field: origin.user
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: esxi-logon-success
+    name: 'VMware ESXi: successful sign-ins are recorded'
+    dataType: vmware-esxi
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1

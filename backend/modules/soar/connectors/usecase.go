@@ -34,7 +34,7 @@ type VariableUsecase interface {
 	FindAll(ctx context.Context, f dto.VariableFilter) ([]dto.VariableResponse, int64, error)
 	Delete(ctx context.Context, id uuid.UUID) error
 
-	InterpolateCommand(ctx context.Context, cmd string) (string, error)
+	InterpolateCommand(ctx context.Context, cmd, shell string) (string, error)
 	MaskSecrets(ctx context.Context, output string) (string, error)
 }
 

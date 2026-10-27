@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	adaudit_domain "github.com/utmstack/utmstack/backend/modules/adaudit/domain"
+	threatintel_domain "github.com/utmstack/utmstack/backend/modules/threatintel/domain"
 	alerts_domain "github.com/utmstack/utmstack/backend/modules/alerts/domain"
 	appconfig_domain "github.com/utmstack/utmstack/backend/modules/appconfig/domain"
 	audit_domain "github.com/utmstack/utmstack/backend/modules/audit/domain"
@@ -68,6 +69,7 @@ func Models() []any {
 		dashboards_domain.DashboardFilter{},
 		loganalyzer_domain.SavedQuery{},
 		adaudit_domain.ADUser{},
+		threatintel_domain.AnalystConversation{},
 	}
 }
 

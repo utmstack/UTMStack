@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
@@ -9,6 +9,7 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
+import { useListScrollReset } from '@/shared/hooks/use-list-scroll-reset'
 import { ResizableDataTable } from '@/shared/components/ui/resizable-data-table'
 import { pipelinesHttpService } from '@/features/data-processing/services/data-processing-http.service'
 import type { Pipeline } from '@/features/data-processing/types/data-processing.types'
@@ -38,6 +39,8 @@ export function ParsingFiltersPage() {
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(0) // 0-based
   const [pageSize] = useState(50)
+  const scrollRef = useRef<HTMLDivElement>(null)
+  useListScrollReset(page, 0, scrollRef)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const [editing, setEditing] = useState<{ filter: Pipeline; creating: boolean } | null>(null)
@@ -250,7 +253,7 @@ export function ParsingFiltersPage() {
       </div>
 
       <div className="mt-3 flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card">
-        <div className="min-h-0 flex-1 overflow-auto">
+        <div className="min-h-0 flex-1 overflow-auto" ref={scrollRef}>
           <ResizableDataTable
             columns={columns}
             data={items}

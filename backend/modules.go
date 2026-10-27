@@ -282,6 +282,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		env.String("UPDATES_DIR", "/updates", false),
 		env.String("INTEGRATIONS_CONFIG_DIR", "/workdir/pipeline", false),
 		cipher,
+		db,
 	)
 
 	integrationsMod := integrations.NewModule(db, cipher,

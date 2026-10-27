@@ -302,6 +302,12 @@
     "logExplorer": "Обозреватель логов",
     "userAuditor": "Аудит пользователей",
     "threatIntelligence": "Аналитика угроз",
+    "threat-intel": {
+      "indicators": "Индикаторы",
+      "analyzt": "ИИ-аналитик",
+      "triage": "Триаж",
+      "report": "Отчёт"
+    },
     "compliance": "Соответствие",
     "configure": "Настройка",
     "dataSources": "Источники данных",
@@ -315,7 +321,9 @@
     "taggingRules": "Правила тегирования",
     "parsingFilters": "Пайплайны",
     "overview": "Обзор",
-    "tenants": "Арендаторы"
+    "tenants": "Арендаторы",
+    "openMenu": "Открыть меню",
+    "closeMenu": "Закрыть меню"
   },
   "dashboards": {
     "title": "Панели",
@@ -484,7 +492,8 @@
         "limit": "Сколько",
         "limitPlaceholder": "По умолчанию (50)",
         "splitHint": "Необязательно: по одной линии на каждое значение поля."
-      }
+      },
+      "editFilters": "Edit filters"
     },
     "grid": {
       "empty": "В этой панели пока нет виджетов.",
@@ -557,7 +566,9 @@
       "filterDeleted": "Фильтр удалён.",
       "filterCreateFailed": "Не удалось создать фильтр.",
       "filterUpdateFailed": "Не удалось обновить фильтр.",
-      "filterDeleteFailed": "Не удалось удалить фильтр."
+      "filterDeleteFailed": "Не удалось удалить фильтр.",
+      "filtersSaved": "Filters saved.",
+      "filtersSaveFailed": "Could not save filters."
     },
     "newDashboard": {
       "title": "Новая панель",
@@ -650,7 +661,30 @@
       "editAria": "Изменить фильтр",
       "removeAria": "Удалить фильтр",
       "saving": "Сохранение…",
-      "addChip": "Добавить фильтр"
+      "addChip": "Добавить фильтр",
+      "chooseValue": "Choose…",
+      "selected": "selected",
+      "loading": "Loading values…",
+      "searchPlaceholder": "Search values…",
+      "noValues": "No values available.",
+      "loadError": "Could not load values.",
+      "clear": "Clear",
+      "editorTitle": "Dashboard filters",
+      "editorHint": "Add dropdown chips that filter every widget on this dashboard.",
+      "emptyEditor": "No filter chips yet. Add one to get started.",
+      "cancel": "Cancel",
+      "save": "Save",
+      "field": {
+        "dataset": "Data set",
+        "field": "Field",
+        "chooseField": "Choose a field…",
+        "label": "Label",
+        "labelPlaceholder": "e.g. Host",
+        "placeholder": "Placeholder",
+        "placeholderPlaceholder": "e.g. Pick a host",
+        "multiple": "Multiple",
+        "searchable": "Searchable"
+      }
     },
     "duplicate": {
       "copyName": "{{name}} (копия)"
@@ -673,7 +707,8 @@
     "branding": "Брендинг",
     "language": "Язык",
     "socAi": "SOC-AI",
-    "supportAccess": "Доступ поддержки"
+    "supportAccess": "Доступ поддержки",
+    "threatwinds": "Интеграция ThreatWinds"
   },
   "topbar": {
     "theme": {
@@ -1638,7 +1673,8 @@
       "loadingValues": "Загрузка значений…",
       "noValues": "Значения не найдены.",
       "cancel": "Отмена",
-      "confirm": "Добавить"
+      "confirm": "Добавить",
+      "pickValue": "Pick a value to add the filter."
     },
     "related": {
       "nLogs_one": "{{count}} лог",
@@ -2687,6 +2723,12 @@
             "body": "Включайте этот заголовок Authorization в каждый запрос, отправляемый на инстанс. Секрет API-ключа отображается только один раз при его создании — скопируйте его тогда и вставьте вместо заполнителя ниже.",
             "tabSimple": "Одиночный",
             "tabBatch": "Пакетный"
+          },
+          "manualCommand": {
+            "title": "Optional — Enable via the command line instead",
+            "intro": "Prefer the terminal? SSH into the Collector host and run the command below — it matches whatever protocol and port you have selected above.",
+            "certStep": "1 · Load your certificate and key (once per Collector)",
+            "enableStep": "2 · Enable the integration"
           }
         },
         "aix": {
@@ -2821,6 +2863,74 @@
             "body": "Направьте объект <hl>local5</hl> (куда теперь пишет Suricata) на Collector. Добавьте это правило в <hl>/etc/rsyslog.d/60-utmstack-suricata.conf</hl> на хосте Suricata:",
             "note": "Используйте @@ вместо @ для TCP. Затем перезапустите rsyslog: sudo systemctl restart rsyslog"
           }
+        },
+        "o365_graph": {
+          "intro": {
+            "title": "Как это работает",
+            "body": "UTMStack подключается к Microsoft 365 через зарегистрированное приложение Azure AD и опрашивает Microsoft Graph на события безопасности: оповещения, инциденты, аудит каталога, sign-in, обнаружения рисков, hunting-запросы и журналы аудита Purview. Агент в вашем tenant не устанавливается.",
+            "diagram": {
+              "source": "события безопасности",
+              "edge": "Microsoft Graph",
+              "utmstackSub": "корреляция и оповещения"
+            },
+            "note": "UTMStack требует только доступа к API Graph в режиме чтения — разрешения на запись не запрашиваются."
+          },
+          "appSection": "Регистрация приложения Azure",
+          "steps": {
+            "azurePortal": {
+              "title": "Откройте Microsoft Entra ID",
+              "body": "Откройте <hl>портал Azure</hl> (portal.azure.com) и нажмите <hl>Microsoft Entra ID</hl>."
+            },
+            "appRegistrations": {
+              "title": "Перейдите к «Регистрации приложений»",
+              "body": "В левом меню нажмите <hl>Регистрация приложений</hl>."
+            },
+            "registerApp": {
+              "title": "Зарегистрируйте новое приложение",
+              "body": "Нажмите <hl>Новая регистрация</hl>. Назовите его <hl>UTMStack Graph Dev</hl>, выберите <hl>Только учётные записи в этом организационном каталоге (Single-tenant)</hl> и нажмите <hl>Зарегистрировать</hl>."
+            },
+            "clientSecret": {
+              "title": "Создайте секрет клиента",
+              "body": "Перейдите в <hl>Сертификаты и секреты → Новый секрет клиента</hl>. Добавьте описание, установите срок действия <hl>730 дней (24 месяца)</hl> и нажмите <hl>Добавить</hl>.",
+              "copyNote": "Сразу скопируйте значение секрета — оно показывается только один раз и позже недоступно."
+            },
+            "apiPermissions": {
+              "title": "Добавьте разрешения Microsoft Graph",
+              "body": "Перейдите в <hl>Разрешения API → Добавить разрешение</hl> и выберите <hl>Microsoft Graph</hl>, затем <hl>Разрешения приложения</hl>."
+            },
+            "graphPermissions": {
+              "title": "Добавьте четыре разрешения Graph",
+              "body": "Добавьте <hl>SecurityEvents.Read.All</hl>, <hl>Directory.Read.All</hl>, <hl>AuditLog.Read.All</hl> и <hl>IdentityRiskEvent.Read.All</hl>."
+            },
+            "adminConsent": {
+              "title": "Предоставьте согласие администратора",
+              "body": "Вернувшись в <hl>Разрешения API</hl>, нажмите <hl>Предоставить согласие администратора для {tenant}</hl> и подтвердите."
+            },
+            "noteIds": {
+              "title": "Скопируйте идентификаторы приложения",
+              "body": "Перейдите в <hl>Обзор</hl> приложения и скопируйте <hl>Идентификатор приложения (клиента)</hl> и <hl>Идентификатор каталога (tenant)</hl>. Также вам понадобится значение секрета, скопированное на шаге 4."
+            }
+          },
+          "credentialsSection": "Учётные данные",
+          "credentials": {
+            "title": "Подключите ваш tenant Microsoft 365",
+            "body": "Введите данные из шагов выше. UTMStack проверяет учётные данные перед сохранением. Можно добавить несколько групп конфигурации."
+          },
+          "fields": {
+            "tenantId": {
+              "label": "Идентификатор Tenant (Идентификатор каталога)"
+            },
+            "clientId": {
+              "label": "Идентификатор клиента (Идентификатор приложения)"
+            },
+            "clientSecret": {
+              "label": "Секрет клиента"
+            },
+            "cloudEnv": {
+              "label": "Облачная среда (необязательно)",
+              "hint": "Commercial (по умолчанию), GCC, GCCHigh или DoD"
+            }
+          }
         }
       },
       "cloud": {
@@ -2929,10 +3039,6 @@
         },
         "azure": {
           "sections": {
-            "eventHub": {
-              "title": "1 · Создайте Event Hub",
-              "body": "В Azure Portal создайте пространство имён Event Hubs и внутри — Event Hub. UTMStack будет читать события из этого хаба."
-            },
             "sharedAccessPolicy": {
               "title": "2 · Добавьте политику общего доступа",
               "body": "Откройте Event Hub → Политики общего доступа и создайте новую политику только с разрешением Listen."
@@ -2946,10 +3052,6 @@
               "body": "Откройте Event Hub → Consumer groups и создайте новую для UTMStack. Не используйте $Default — выделите UTMStack собственную группу, чтобы контрольные точки не пересекались с другими потребителями.",
               "warn": "Создайте группу потребителей специально для UTMStack. Не используйте $Default или другие уже используемые группы — совместное использование группы потребителей несвязанными потребителями может привести к непредвиденному поведению и потере событий. Все экземпляры UTMStack должны использовать одну группу потребителей для совместной обработки событий."
             },
-            "storageAccount": {
-              "title": "5 · Создайте учётную запись хранения",
-              "body": "UTMStack требуется учётная запись хранения для контрольных точек. Создайте её в том же регионе, что и Event Hub."
-            },
             "storageContainer": {
               "title": "6 · Создайте контейнер в учётной записи хранения",
               "body": "В учётной записи хранения → Контейнеры создайте новый контейнер. Запишите имя контейнера и строку подключения учётной записи (Ключи доступа → Строка подключения)."
@@ -2957,10 +3059,6 @@
             "eventGrid": {
               "title": "7 · Зарегистрируйте поставщик ресурсов Event Grid",
               "body": "В Подписки → Поставщики ресурсов зарегистрируйте Microsoft.EventGrid, если ещё нет. Это позволит Azure пересылать события уровня подписки в ваш Event Hub."
-            },
-            "eventSubscription": {
-              "title": "8 · Создайте подписку на события",
-              "body": "Создайте подписку на события, нацеленную на ваш Event Hub. Выберите типы событий для пересылки в UTMStack."
             },
             "createEventHub": {
               "title": "Создать Event Hub",
@@ -3026,44 +3124,6 @@
           }
         },
         "aws": {
-          "sections": {
-            "prerequisite": {
-              "title": "Требование · Пользователь IAM",
-              "body": "Чтобы эта интеграция работала, нужен пользователь IAM для UTMStack с политикой CloudWatchLogsReadOnlyAccess. Запишите ID ключа доступа и секретный ключ — вы вставите их в форму группы конфигурации ниже."
-            },
-            "createTrail": {
-              "title": "1 · Создайте trail",
-              "body": "В панели CloudTrail выберите «Create trail»."
-            },
-            "trailName": {
-              "title": "2 · Назовите trail",
-              "body": "Заполните поле «Trail name»."
-            },
-            "s3Buckets": {
-              "title": "3 · Выберите бакеты S3",
-              "body": "Отметьте «Select all S3 buckets in your account»."
-            },
-            "bucketName": {
-              "title": "4 · Создайте бакет S3",
-              "body": "Заполните поле «S3 bucket». Имя бакета должно быть уникальным в S3. Затем нажмите «Create»."
-            },
-            "editTrail": {
-              "title": "5 · Откройте trail для редактирования",
-              "body": "Нажмите на имя trail, чтобы отредактировать его."
-            },
-            "cloudwatchConfig": {
-              "title": "6 · Настройте CloudWatch Logs",
-              "body": "Откройте раздел CloudWatch Logs и включите интеграцию, чтобы trail пересылал события в log group."
-            },
-            "logGroup": {
-              "title": "7 · Укажите имя log group",
-              "body": "Заполните имя log group (напр. utmstack) и продолжите. Используйте это же имя в поле «Имя log group» ниже."
-            },
-            "permissions": {
-              "title": "8 · Предоставьте права CloudTrail",
-              "body": "Нажмите «Allow», чтобы предоставить CloudTrail права на запись в log group."
-            }
-          },
           "fields": {
             "accessKeyId": {
               "label": "ID ключа доступа AWS"
@@ -3280,6 +3340,10 @@
           "bodyNetwork": "Настройте ваш источник для отправки syslog <hl>{{proto}}</hl> на <hl>{{host}}:{{port}}</hl>. На большинстве устройств для этого есть параметр удалённого syslog или пересылки журналов.",
           "bodyHttp": "Отправляйте события в формате JSON через HTTP POST на <hl>{{endpoint}}</hl>. Тело каждого запроса — одно событие JSON:",
           "httpBindNote": "По умолчанию слушатель HTTP/HTTPS привязывается к 127.0.0.1 (хосту Collector), поэтому отправляйте запросы из приложения, работающего на этом хосте, или используйте обратный прокси. Для удалённых источников используйте syslog (UDP/TCP/TLS)."
+        },
+        "manualCommand": {
+          "title": "Optional — Enable via the command line instead",
+          "intro": "Prefer the terminal? SSH into the Collector host and run the command below — it matches whatever protocol and port you have selected above."
         }
       },
       "remoteEnable": {
@@ -3415,6 +3479,10 @@
       "O365": {
         "name": "Microsoft 365",
         "description": "Приём журналов аудита Microsoft 365 по Exchange, Teams, SharePoint и OneDrive для мониторинга активности пользователей и администраторов."
+      },
+      "O365_GRAPH": {
+        "name": "Microsoft 365 (Graph)",
+        "description": "Захват событий безопасности Microsoft Graph — оповещения, инциденты, аудит каталога, sign-in, обнаружения рисков и журналы аудита Purview — для мониторинга идентификации и угроз в вашем tenant."
       },
       "GCP": {
         "name": "Google Cloud Platform",
@@ -4005,6 +4073,8 @@
     },
     "related": {
       "sample": "Выборка до ~11 событий, которые движок сохранил для этого оповещения. Используйте «Показать все связанные журналы» для полного набора без ограничений.",
+      "loadingEchoes": "Загрузка событий его эхо…",
+      "sampleWithEchoes": "События, сохранённые в этом оповещении и в его {{count}} эхо (прочитано {{read}}). Используйте «Показать все связанные журналы» для полного набора без ограничений.",
       "empty": "Для этого оповещения нет сохранённых событий-образцов. Загрузите полный коррелированный набор в Обозревателе журналов.",
       "viewAll": "Показать все связанные журналы"
     },
@@ -4458,7 +4528,8 @@
       "dataTypesNone": "Нет типов данных",
       "visualTab": "Визуально",
       "codeTab": "Код",
-      "yamlError": "Не удалось применить YAML: {{error}}"
+      "yamlError": "Не удалось применить YAML: {{error}}",
+      "test": "Test"
     },
     "toast": {
       "activated": "Правило включено",
@@ -4516,7 +4587,8 @@
       "approved": "Одобрено",
       "rejected": "Отклонено",
       "done": "Готово"
-    }
+    },
+    "test": "Test"
   },
   "regexPatterns": {
     "title": "Регулярные выражения",
@@ -4610,7 +4682,8 @@
       "saving": "Сохранение…",
       "delete": "Удалить",
       "confirmDelete": "Подтвердить удаление",
-      "cancel": "Отмена"
+      "cancel": "Отмена",
+      "test": "Test"
     },
     "toast": {
       "saved": "Пайплайн сохранён",
@@ -4654,9 +4727,17 @@
       "patternDefRequired": "Определение обязательно",
       "parameters": "Параметры",
       "paramsKey": "Ключ",
-      "paramsValue": "Значение"
+      "paramsValue": "Значение",
+      "entry": "Запись {{n}}",
+      "order": "порядок {{n}}",
+      "orderLabel": "Порядок",
+      "removeEntry": "Удалить запись",
+      "addEntry": "Добавить запись пайплайна",
+      "collapse": "Свернуть",
+      "expand": "Развернуть"
     },
-    "allDataTypes": "Все типы данных"
+    "allDataTypes": "Все типы данных",
+    "testPipeline": "Test pipeline"
   },
   "soar": {
     "title": "SOAR",
@@ -4813,7 +4894,8 @@
         "commandLabel": "Команда",
         "paramsJson": "Параметры (JSON)",
         "dragToResize": "Потяните, чтобы изменить размер",
-        "templatesLabel": "Шаблоны",
+        "templatesLabel": "Шаблоны",        "templatesLabel": "Шаблоны",
+        "templatesNeedPlatform": "Сначала выберите целевую платформу",
         "handlesHint": "Потяните от зелёного разъёма (снизу слева) для on_success и от красного (снизу справа) для on_error. Несколько связей = параллельно. Несколько связей к одному узлу = AND-join.",
         "invalidJson": "недопустимый JSON",
         "hidePalette": "Скрыть палитру",
@@ -4875,6 +4957,11 @@
           "subjectPlaceholder": "Напр. Тревога на $(alert.dataSource)",
           "body": "Текст",
           "bodyPlaceholder": "Содержимое сообщения. Шаблоны вроде $(alert.name) подставляются."
+        },
+        "notify": {
+          "level": "Level",
+          "message": "Message",
+          "messagePlaceholder": "Notification text. Templates like $(alert.name) are interpolated."
         }
       }
     },
@@ -4894,7 +4981,11 @@
         "retries": "Попытки",
         "node": "Узел"
       },
-      "manual": "Интерактивная консоль"
+      "manual": "Интерактивная консоль",
+      "filters": {
+        "source": "Source",
+        "allSources": "All sources"
+      }
     },
     "executionStatus": {
       "WAITING": "В ожидании",
@@ -4927,6 +5018,10 @@
       "aiDescriptionPlaceholder": "напр. При критическом оповещении найти исходный IP в разведданных и заблокировать его на файрволе",
       "aiCreate": "Создать с ИИ",
       "manualContinue": "Продолжить"
+    },
+    "executionOrigin": {
+      "FLOW": "Flow",
+      "MANUAL": "Manual"
     }
   },
   "compliance": {
@@ -5111,7 +5206,7 @@
       "nameRequired": "Имя обязательно",
       "anyDataType": "Any data type",
       "addFilter": "Add filter",
-      "filterField": "log.eventID",
+      "filterField": "log.eventCode",
       "filterValue": "value",
       "filterValues": "a, b, c",
       "toast": {
@@ -5651,7 +5746,8 @@
     "tabs": {
       "iocs": "IOCs",
       "actors": "Угрозы",
-      "feeds": "Feeds"
+      "feeds": "Feeds",
+      "analyst": "ИИ-аналитик"
     },
     "toolbar": {
       "searchPlaceholders": {
@@ -5720,8 +5816,12 @@
       "table": {
         "name": "Feed",
         "type": "Тип",
-        "accuracy": "Точность"
-      }
+        "accuracy": "Точность",
+        "header": "Источники",
+        "format": "Формат"
+      },
+      "download": "Скачать источник",
+      "checksum": "Контрольная сумма"
     },
     "entityTypes": {
       "ip": "IP",
@@ -5744,6 +5844,118 @@
       "level1": "Уровень 1",
       "level2": "Уровень 2",
       "level3": "Уровень 3"
+    },
+    "triage": {
+      "title": "Triage",
+      "subtitle": "Paste indicators, get verdicts",
+      "input": "Indicators",
+      "placeholder": "Paste IPs, domains, URLs or hashes — one per line, or comma separated.\nDefanged values (1.2.3[.]4, hxxp://) are accepted.",
+      "run": "Triage",
+      "stop": "Stop",
+      "reset": "Clear",
+      "parsed": "{{count}} unique indicators",
+      "capped": "Capped at {{max}} per run.",
+      "progress": "{{done}} of {{total}}",
+      "empty": "Paste indicators above to begin.",
+      "indicator": "Indicator",
+      "type": "Type",
+      "verdict": "Verdict",
+      "reputation": "Rep",
+      "accuracy": "Acc",
+      "tags": "Tags",
+      "lastSeen": "Last seen",
+      "exportCsv": "Export CSV",
+      "exportStix": "Export STIX",
+      "stixNote": "STIX export includes malicious and suspicious rows only.",
+      "open": "Open",
+      "notConfigured": "Threat intelligence is not configured — triage needs an upstream ThreatWinds instance.",
+      "summary": "Summary",
+      "v.malicious": "Malicious",
+      "v.suspicious": "Suspicious",
+      "v.benign": "Benign",
+      "v.unknown": "Unknown",
+      "v.notFound": "Not found",
+      "v.invalid": "Unrecognised"
+    },
+    "report": {
+      "title": "Сообщение",
+      "subtitle": "Опубликовать индикатор в графе ThreatWinds",
+      "submit": "Отправить индикатор",
+      "submitting": "Отправка…",
+      "error": {
+        "generic": "Не удалось отправить индикатор. Попробуйте ещё раз."
+      },
+      "value": {
+        "label": "Индикатор",
+        "placeholder": "IP, домен, URL, хеш или e-mail"
+      },
+      "type": {
+        "label": "Тип",
+        "placeholder": "Определяется из значения",
+        "inferred": "Определён: {{type}}",
+        "inferenceFailed": "Не удалось определить тип по этому значению. Выберите его из списка или введите.",
+        "unknown": "«{{type}}» — не тип сущности. Выберите из списка."
+      },
+      "tags": {
+        "label": "Метки",
+        "placeholder": "phishing, кража-учётных-данных"
+      },
+      "description": {
+        "label": "Заметки"
+      },
+      "reputation": {
+        "legend": "Репутация",
+        "hint": "Оставьте пустым, если вы не приняли решения.",
+        "alarming": "Опасный",
+        "worrying": "Тревожный",
+        "concerning": "Подозрительный",
+        "indefinable": "Неопределённый",
+        "adequate": "Приемлемый",
+        "good": "Хороший",
+        "exceptional": "Отличный"
+      },
+      "associations": {
+        "legend": "Связанные индикаторы",
+        "add": "Добавить связанный индикатор",
+        "remove": "Удалить",
+        "valuePlaceholder": "Связанное значение",
+        "typePlaceholder": "Тип (необязательно)",
+        "modeLabel": "Связь",
+        "mode": {
+          "association": "Связан с",
+          "aggregation": "Часть"
+        },
+        "visibilityConflict": "Не имеет общей группы видимости с индикатором выше. Всё сообщение будет отклонено."
+      },
+      "attributes": {
+        "legend": "Детали",
+        "hint": "Необязательно. Пустые поля не отправляются.",
+        "invalidHex": "Ожидается {{length}} шестнадцатеричных символов.",
+        "invalidHexAny": "Только шестнадцатеричные символы.",
+        "invalidNumber": "Ожидается число."
+      },
+      "correlate": {
+        "legend": "Скоррелировать",
+        "hint": "Каждый отмеченный атрибут публикуется как отдельная сущность, связанная с этой.",
+        "count_one": "Создаёт {{count}} связанную сущность.",
+        "count_other": "Создаёт {{count}} связанных сущностей."
+      },
+      "scan": {
+        "notice": "Также ставит сканирование цели в очередь."
+      },
+      "receipt": {
+        "title": "Отправлено",
+        "noVerdict": "Решение не принято",
+        "skipped": "Не отправлено, тип не удалось определить",
+        "pending": "Ожидание появления индикатора в корпусе…",
+        "live": "Присутствует в корпусе — посмотреть сущность",
+        "processing": "Ещё обрабатывается. Появится, когда загрузка догонит очередь.",
+        "another": "Отправить ещё"
+      },
+      "visibility": {
+        "legend": "Видимо для"
+      },
+      "example": "Попробовать пример"
     }
   },
   "playground": {
@@ -5795,7 +6007,8 @@
       "none": "Оповещения не сработали.",
       "count_one": "{{count}} оповещение",
       "count_other": "{{count}} оповещений"
-    }
+    },
+    "title": "Test pipeline"
   },
   "tenants": {
     "title": "Арендаторы",
@@ -5891,6 +6104,11 @@
       "notFound": "Арендатор не найден",
       "invalidRequest": "Некорректный запрос",
       "operationFailed": "Операция не выполнена"
+    },
+    "switcher": {
+      "aria": "Switch tenant",
+      "self": "Default tenant",
+      "create": "Create tenant"
     }
   },
   "supportAccess": {
@@ -5971,6 +6189,114 @@
       "noneSucceeded": "Ни один арендатор не завершился успешно.",
       "failed": "Не удалось",
       "noneFailed": "Ошибок нет."
+    }
+  },
+  "tiAnalyst": {
+    "console": {
+      "subtitle": "Рабочее пространство аналитика",
+      "model": "Модель",
+      "resizeResults": "Изменить размер панели результатов",
+      "resizeHint": "Перетащите, чтобы изменить размер · двойной клик — сброс"
+    },
+    "conv": {
+      "title": "Диалоги",
+      "allConversations": "Все диалоги",
+      "empty": "Диалогов пока нет.",
+      "new": "Новый диалог",
+      "newTitle": "Название диалога",
+      "selectPrompt": "Выберите диалог или начните новый.",
+      "running": "выполняется",
+      "delete": "Удалить {{title}}",
+      "unread_one": "{{count}} непрочитанное сообщение",
+      "unread_other": "{{count}} непрочитанных сообщения",
+      "transcript": "Транскрипция диалога"
+    },
+    "agent": {
+      "placeholder": "Расследовать индикатор…",
+      "ask": "Спросить агента-аналитика",
+      "intro": "Спрашивайте о любом индикаторе. Агент напрямую обращается к ThreatWinds и показывает свою работу.",
+      "send": "Отправить",
+      "stop": "Остановить",
+      "thinking": "размышление…",
+      "suggestionInvestigate": "Расследуйте 8.8.8.8 и скажите, является ли он вредоносным",
+      "suggestionInfrastructure": "Какая инфраструктура связана с google.com?",
+      "suggestionCounts": "Покажите, сколько сущностей существует по каждому типу"
+    },
+    "canvas": {
+      "title": "Результаты",
+      "empty": "Результаты этого диалога появляются здесь.",
+      "tile": "Выровнять",
+      "closeAll": "Закрыть все",
+      "pinOut": "Открыть {{title}} как панель",
+      "loading": "загрузка…",
+      "failed": "не удалось загрузить",
+      "noRelations": "связанных сущностей нет",
+      "noGeo": "геолокация не зафиксирована",
+      "noResults": "совпадений нет",
+      "matches": "совпадений: {{total}}",
+      "panelName": "{{title}} — {{kind}}",
+      "movePanel": "Переместить {{title}}",
+      "resizePanel": "Изменить размер {{title}}",
+      "closePanel": "Закрыть {{title}}",
+      "collapse": "Свернуть {{title}}",
+      "expand": "Развернуть {{title}}",
+      "kind": {
+        "entity": "досье",
+        "graph": "связи",
+        "geo": "геолокация",
+        "search": "поиск"
+      }
+    },
+    "graph": {
+      "nodes_one": "{{count}} узел",
+      "nodes_other": "{{count}} узлов",
+      "edges_one": "{{count}} ребро",
+      "edges_other": "{{count}} рёбер",
+      "clickToPivot": "клик для перехода",
+      "malicious": "вредоносный",
+      "unknown": "неизвестный",
+      "benign": "безопасный"
+    },
+    "entity": {
+      "reputation": "Репутация",
+      "accuracy": "Точность",
+      "worst": "Худшая",
+      "best": "Лучшая",
+      "relations": "Граф связей",
+      "history": "История",
+      "geolocations": "Геолокации",
+      "associations": "Ассоциации",
+      "radius": "r={{radius}}м",
+      "askAgentBtn": "Спросить агента",
+      "askAgent": "Оцените {{type}} {{value}} (сущность id {{id}}). Это угроза?"
+    },
+    "tool": {
+      "querying": "запрос…",
+      "notRetained": "Результат не сохранён.",
+      "expand": "Показать запрос и результат",
+      "collapse": "Скрыть запрос и результат",
+      "noIntel": "По «{{value}}» нет записанных данных об угрозах.",
+      "noMatches": "Совпадений нет.",
+      "matches": "совпадений по «{{query}}»: {{items}}",
+      "more": "ещё +{{count}}",
+      "reported": "Сообщено в общий корпус ThreatWinds. Ингест асинхронный, пока не ищется.",
+      "skippedAssociations": "Не записано (тип не определён): {{values}}"
+    }
+  },
+  "threatwinds": {
+    "title": "Интеграция ThreatWinds",
+    "subtitle": "Поделитесь инцидентами этой инстанции с общественным фидом ThreatWinds.",
+    "feeds": "Включить фиды",
+    "feedsHint": "Если включено, события сверяются с фидами угроз ThreatWinds.",
+    "contribute": "Передавать инциденты",
+    "contributeHint": "Если включено, инциденты этой инстанции отправляются в ThreatWinds.",
+    "loading": "Загрузка состояния интеграции…",
+    "failed": "Не удалось загрузить состояние интеграции ThreatWinds.",
+    "retry": "Повторить",
+    "toast": {
+      "enabled": "Передача включена",
+      "disabled": "Передача выключена",
+      "failed": "Не удалось обновить настройку передачи"
     }
   }
 }

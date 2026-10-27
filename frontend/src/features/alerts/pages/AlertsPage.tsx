@@ -20,6 +20,7 @@ import {
   type StatusTab,
 } from '../types/alert.types'
 import { useAlertsList } from '../hooks/use-alerts-list'
+import { useListScrollReset } from '@/shared/hooks/use-list-scroll-reset'
 import { useAlertStats } from '../hooks/use-alert-stats'
 import { useAlertTagCatalog } from '../hooks/use-alert-tag-catalog'
 import { useAlertMutations } from '../hooks/use-alert-mutations'
@@ -133,6 +134,9 @@ export function AlertsPage() {
   const [page, setPage] = useState(0)
   const [pageSize] = useState(50)
 
+  const scrollRef = useRef<HTMLDivElement>(null)
+  useListScrollReset(page, 0, scrollRef)
+
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [expandedEchoes, setExpandedEchoes] = useState<Set<string>>(new Set())
   const [openAlert, setOpenAlert] = useState<Alert | null>(null)
@@ -239,10 +243,11 @@ export function AlertsPage() {
   )
 
   const refresh = useCallback(() => {
-    setPage(0)
-    refreshList()
+    if (page === 0) refreshList()
+    else setPage(0)
     refreshStats()
-  }, [refreshList, refreshStats])
+
+  }, [page, refreshList, refreshStats])
 
   const socAiConfigured = useSocAiConfigured()
   const { applyStatus, applyTags, updateNotes, updateAssignee, exportCsv, generateAiSummary, aiGenerating } = useAlertMutations({
@@ -414,7 +419,7 @@ export function AlertsPage() {
             }
           }}
           >
-            <div className="min-h-0 flex-1 overflow-auto">
+            <div className="min-h-0 flex-1 overflow-auto" ref={scrollRef}>
               <ResizableDataTable
                 columns={alertColumns}
                 data={alerts}

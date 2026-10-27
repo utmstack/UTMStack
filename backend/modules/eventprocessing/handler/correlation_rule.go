@@ -3,6 +3,7 @@ package handler
 import (
 	"archive/zip"
 	"bytes"
+	"errors"
 	"net/http"
 	"path/filepath"
 	"strconv"
@@ -48,11 +49,24 @@ func (h *CorrelationRuleHandler) Create(c *gin.Context) {
 	}
 
 	err := h.usecase.Create(c.Request.Context(), req)
-	audit.Record(c, audit_connectors.Event{Action: "correlation_rule.create"}, audit_domain.CORRELATION_RULE_CREATE_ATTEMPT, audit_domain.CORRELATION_RULE_CREATE_SUCCESS, err)
 	if err != nil {
+		audit.Record(c, audit_connectors.Event{
+			Action: "correlation_rule.create",
+			Status: "domain.StatusFailure",
+			ResourceType:"correlation_rule",
+			ResourceID:req.RuleName,
+		}, audit_domain.CORRELATION_RULE_CREATE_ATTEMPT, audit_domain.CORRELATION_RULE_CREATE_FAILURE, err)
+
 		writeCorrelationError(c, err)
 		return
 	}
+
+	audit.Record(c, audit_connectors.Event{
+		Action: "correlation_rule.create",
+		Status: "domain.StatusSuccess",
+		ResourceType:"correlation_rule",
+		ResourceID:req.RuleName,
+	}, audit_domain.CORRELATION_RULE_CREATE_ATTEMPT, audit_domain.CORRELATION_RULE_CREATE_SUCCESS, nil)
 	c.Status(http.StatusNoContent)
 }
 
@@ -68,19 +82,33 @@ func (h *CorrelationRuleHandler) Create(c *gin.Context) {
 // @Router      /correlation-rule/import [post]
 func (h *CorrelationRuleHandler) Import(c *gin.Context) {
 	var req dto.ImportCorrelationRulesRequest
+
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
+	events := make([]audit_connectors.Event, 0, len(req.Files))
+	for _, rule := range req.Files {
+		events = append(events, audit_connectors.Event{
+			Action:       "correlation_rule.import",
+			ResourceType: "correlation_rule",
+			ResourceID:   rule.Filename,
+		})
+	}
+
 	results := h.usecase.ImportRules(c.Request.Context(), req.Files)
 	approved := 0
-	for _, r := range results {
+	for i, r := range results {
 		if r.Approved {
+			events[i].Status="domain.StatusSuccess"
+			audit.Record(c, events[i], audit_domain.CORRELATION_RULE_CREATE_ATTEMPT, audit_domain.CORRELATION_RULE_CREATE_SUCCESS, nil)
 			approved++
+		}else{
+			events[i].Status="domain.StatusFailure"
+			audit.Record(c, events[i], audit_domain.CORRELATION_RULE_CREATE_ATTEMPT, audit_domain.CORRELATION_RULE_CREATE_FAILURE, errors.New(r.Error))
 		}
 	}
-	audit.Record(c, audit_connectors.Event{Action: "correlation_rule.import"}, audit_domain.CORRELATION_RULE_CREATE_ATTEMPT, audit_domain.CORRELATION_RULE_CREATE_SUCCESS, nil)
 	c.JSON(http.StatusOK, dto.ImportCorrelationRulesResponse{
 		Results:  results,
 		Approved: approved,
@@ -152,14 +180,22 @@ func (h *CorrelationRuleHandler) Export(c *gin.Context) {
 // @Router      /correlation-rule [put]
 func (h *CorrelationRuleHandler) Update(c *gin.Context) {
 	var req dto.UpdateCorrelationRuleRequest
+	event :=audit_connectors.Event{
+			Action: "correlation_rule.update",
+			ResourceType:"correlation_rule",
+			ResourceID:req.RuleName,
+	}
 	if err := c.ShouldBindJSON(&req); err != nil {
+		event.Status="domain.StatusFailure"
+		audit.Record(c, event, audit_domain.CORRELATION_RULE_UPDATE_ATTEMPT, audit_domain.CORRELATION_RULE_UPDATE_SUCCESS, err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	err := h.usecase.Update(c.Request.Context(), req)
-	audit.Record(c, audit_connectors.Event{Action: "correlation_rule.update"}, audit_domain.CORRELATION_RULE_UPDATE_ATTEMPT, audit_domain.CORRELATION_RULE_UPDATE_SUCCESS, err)
 	if err != nil {
+		event.Status="domain.StatusFailure"
+		audit.Record(c, event, audit_domain.CORRELATION_RULE_UPDATE_ATTEMPT, audit_domain.CORRELATION_RULE_UPDATE_SUCCESS, err)
 		if isNotFound(err) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "correlation rule not found"})
 			return
@@ -167,6 +203,8 @@ func (h *CorrelationRuleHandler) Update(c *gin.Context) {
 		writeCorrelationError(c, err)
 		return
 	}
+	event.Status="domain.StatusSuccess"
+	audit.Record(c, event, audit_domain.CORRELATION_RULE_UPDATE_ATTEMPT, audit_domain.CORRELATION_RULE_UPDATE_SUCCESS, err)
 	c.Status(http.StatusNoContent)
 }
 
@@ -198,11 +236,19 @@ func (h *CorrelationRuleHandler) ActivateDeactivate(c *gin.Context) {
 	if !active {
 		action = "correlation_rule.deactivate"
 	}
-	audit.Record(c, audit_connectors.Event{Action: action}, audit_domain.CORRELATION_RULE_UPDATE_ATTEMPT, audit_domain.CORRELATION_RULE_UPDATE_SUCCESS, err)
+	event:=audit_connectors.Event{
+		Action: action,
+		ResourceType:"correlation_rule",
+		ResourceID:relPath,
+	}
 	if err != nil {
+		event.Status="domain.StatusFailure"
+		audit.Record(c, event, audit_domain.CORRELATION_RULE_UPDATE_ATTEMPT, audit_domain.CORRELATION_RULE_UPDATE_FAILURE, err)
 		writeCorrelationError(c, err)
 		return
 	}
+	event.Status="domain.StatusSuccess"
+	audit.Record(c, event, audit_domain.CORRELATION_RULE_UPDATE_ATTEMPT, audit_domain.CORRELATION_RULE_UPDATE_SUCCESS, nil)
 	c.JSON(http.StatusOK, gin.H{"changed": changed})
 }
 
@@ -312,16 +358,27 @@ func (h *CorrelationRuleHandler) GetByID(c *gin.Context) {
 // @Router      /correlation-rule/{id} [delete]
 func (h *CorrelationRuleHandler) Delete(c *gin.Context) {
 	relPath := c.Query("relPath")
+
+	event:=audit_connectors.Event{
+		Action: "correlation_rule.delete",
+		ResourceType:"correlation_rule",
+		ResourceID:relPath,
+	}
+
 	if relPath == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "relPath is required"})
 		return
 	}
 
 	err := h.usecase.Delete(c.Request.Context(), relPath)
-	audit.Record(c, audit_connectors.Event{Action: "correlation_rule.delete"}, audit_domain.CORRELATION_RULE_DELETE_ATTEMPT, audit_domain.CORRELATION_RULE_DELETE_SUCCESS, err)
 	if err != nil {
+		event.Status="domain.StatusFailure"
+	audit.Record(c, event, audit_domain.CORRELATION_RULE_DELETE_ATTEMPT, audit_domain.CORRELATION_RULE_DELETE_FAILURE, err)
 		writeCorrelationError(c, err)
 		return
 	}
+
+	event.Status="domain.StatusSuccess"
+	audit.Record(c, event, audit_domain.CORRELATION_RULE_DELETE_ATTEMPT, audit_domain.CORRELATION_RULE_DELETE_SUCCESS, nil)
 	c.Status(http.StatusNoContent)
 }
