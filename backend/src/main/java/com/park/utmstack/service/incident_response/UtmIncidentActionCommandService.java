@@ -37,6 +37,9 @@ public class UtmIncidentActionCommandService {
      * <p>Command rows inherit immutability from their parent action: the shell
      * strings under seeded system presets (SHUTDOWN_SERVER, RUN_CMD, ...) cannot
      * be rewritten or added through the API by any role.
+     *
+     * @param incidentActionCommand the entity to save
+     * @return the persisted entity
      */
     public UtmIncidentActionCommand save(UtmIncidentActionCommand incidentActionCommand) throws Exception {
         final String ctx = CLASSNAME + ".save";

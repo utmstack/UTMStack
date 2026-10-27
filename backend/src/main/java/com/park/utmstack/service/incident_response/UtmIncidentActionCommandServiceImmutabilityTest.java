@@ -79,10 +79,10 @@ class UtmIncidentActionCommandServiceImmutabilityTest {
                 new Class<?>[]{UtmIncidentActionCommandRepository.class}, h);
     }
 
-    private static UtmIncidentAction action(long id, boolean editable) {
+    private static UtmIncidentAction action(long id, Boolean editable) {
         UtmIncidentAction a = new UtmIncidentAction();
         a.setId(id);
-        a.setActionCommand(editable ? "CUSTOM" : "SHUTDOWN_SERVER");
+        a.setActionCommand(Boolean.TRUE.equals(editable) ? "CUSTOM" : "SHUTDOWN_SERVER");
         a.setActionDescription("d");
         a.setCreatedUser("system");
         a.setActionEditable(editable);
@@ -188,5 +188,18 @@ class UtmIncidentActionCommandServiceImmutabilityTest {
 
         ApiException ex = assertThrows(ApiException.class, () -> svc.delete(404L));
         assertEquals(HttpStatus.NOT_FOUND, ex.getStatus());
+    }
+
+    @Test
+    void nullParentEditableFlagFailsClosed() {
+        Store store = new Store();
+        store.actions.put(5L, action(5L, null));
+        store.commands.put(11L, command(11L, 5L, "x"));
+        UtmIncidentActionCommandService svc =
+                new UtmIncidentActionCommandService(commandRepo(store), actionRepo(store));
+
+        ApiException ex = assertThrows(ApiException.class, () -> svc.delete(11L));
+        assertEquals(HttpStatus.FORBIDDEN, ex.getStatus());
+        assertFalse(store.deleteCalled);
     }
 }
