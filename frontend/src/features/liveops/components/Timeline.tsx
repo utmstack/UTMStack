@@ -10,11 +10,26 @@ const ROW: Record<string, number> = { high: 0, medium: 1, low: 2 }
 // Severity colours as the Alerts page shows them.
 const dot = (severity: string) => (SEV_META[severity as keyof typeof SEV_META] ?? SEV_META.low).bar
 
+/** Time window options, newest first; labels are plain (1h / 6h / 24h / 7d). */
+export type WindowKey = '1h' | '6h' | '24h' | '7d'
+export const WINDOW_OPTIONS: { key: WindowKey; label: string }[] = [
+  { key: '1h', label: '1h' },
+  { key: '6h', label: '6h' },
+  { key: '24h', label: '24h' },
+  { key: '7d', label: '7d' },
+]
+export const WINDOW_MS: Record<WindowKey, number> = {
+  '1h': 3_600_000,
+  '6h': 6 * 3_600_000,
+  '24h': 24 * 3_600_000,
+  '7d': 7 * 24 * 3_600_000,
+}
+
 export function Timeline({
   t,
   alerts,
-  hours,
-  onHours,
+  win,
+  onWin,
   selectedId,
   live,
   onSelect,
@@ -24,8 +39,8 @@ export function Timeline({
 }: {
   t: (k: string, o?: Record<string, unknown>) => string
   alerts: Alert[]
-  hours: number
-  onHours: (h: number) => void
+  win: WindowKey
+  onWin: (w: WindowKey) => void
   selectedId: string | null
   live: boolean
   onSelect: (id: string) => void
@@ -35,31 +50,32 @@ export function Timeline({
 }) {
   const [hover, setHover] = useState<Alert | null>(null)
   const now = Date.now()
-  const from = now - hours * 3_600_000
+  const from = now - WINDOW_MS[win]
   const pos = (iso: string) => ((new Date(iso).getTime() - from) / (now - from)) * 100
   const idx = alerts.findIndex((a) => a.id === selectedId)
   const ticks = useMemo(() => {
-    const step = hours <= 1 ? 10 * 60_000 : hours <= 6 ? 3_600_000 : 3 * 3_600_000
+    const span = WINDOW_MS[win]
+    const step = span <= 3_600_000 ? 10 * 60_000 : span <= 6 * 3_600_000 ? 3_600_000 : span <= 24 * 3_600_000 ? 3 * 3_600_000 : 12 * 3_600_000
     const out: { left: number; label: string }[] = []
-    for (let t = Math.ceil(from / step) * step; t < now; t += step) {
-      out.push({ left: ((t - from) / (now - from)) * 100, label: new Date(t).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) })
+    for (let tt = Math.ceil(from / step) * step; tt < now; tt += step) {
+      out.push({ left: ((tt - from) / (now - from)) * 100, label: new Date(tt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) })
     }
     return out
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hours, Math.floor(now / 60_000)])
+  }, [win, Math.floor(now / 60_000)])
 
   return (
     <div className="lo-panel rounded-xl px-3 pb-2 pt-2">
       <div className="flex items-center gap-2">
         <div className="flex rounded-md border border-border p-0.5">
-          {[1, 6, 24].map((h) => (
-            <button key={h} type="button" onClick={() => onHours(h)} className={cn('rounded px-2 py-0.5 text-[11.5px] font-medium', h === hours ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground')}>
-              {t('liveOps.timHours', { count: h })}
+          {WINDOW_OPTIONS.map((o) => (
+            <button key={o.key} type="button" onClick={() => onWin(o.key)} className={cn('rounded px-2 py-0.5 text-[11.5px] font-medium', o.key === win ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground')}>
+              {o.label}
             </button>
           ))}
         </div>
         <span className="text-[11.5px] text-muted-foreground">
-          {t('liveOps.timCount', { count: alerts.length, range: hours === 1 ? t('liveOps.timHour') : t('liveOps.timHoursUnit', { count: hours }) })}
+          {t('liveOps.timCount', { count: alerts.length, range: WINDOW_OPTIONS.find((o) => o.key === win)?.label ?? '' })}
         </span>
         <div className="ml-auto flex items-center gap-1">
           <button type="button" disabled={idx <= 0} onClick={() => idx > 0 && onSelect(alerts[idx - 1].id)} className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30" title={t('liveOps.timPrev')}>
