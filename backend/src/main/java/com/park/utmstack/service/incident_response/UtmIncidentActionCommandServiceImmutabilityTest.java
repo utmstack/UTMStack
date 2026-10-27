@@ -126,6 +126,21 @@ class UtmIncidentActionCommandServiceImmutabilityTest {
     }
 
     @Test
+    void reparentingPresetCommandRowIsRejectedWith403() {
+        Store store = new Store();
+        store.actions.put(1L, action(1L, false));   // preset
+        store.actions.put(20L, action(20L, true));  // analyst action
+        store.commands.put(10L, command(10L, 1L, "init 0"));
+        UtmIncidentActionCommandService svc =
+                new UtmIncidentActionCommandService(commandRepo(store), actionRepo(store));
+
+        UtmIncidentActionCommand incoming = command(10L, 20L, "init 0"); // same id, flipped parent
+        ApiException ex = assertThrows(ApiException.class, () -> svc.save(incoming));
+        assertEquals(HttpStatus.FORBIDDEN, ex.getStatus());
+        assertEquals(1L, store.commands.get(10L).getActionId(), "preset row must not be re-parented");
+    }
+
+    @Test
     void createCommandUnderSystemPresetIsRejectedWith403() {
         Store store = new Store();
         store.actions.put(1L, action(1L, false));

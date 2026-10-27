@@ -44,6 +44,11 @@ public class UtmIncidentActionCommandService {
     public UtmIncidentActionCommand save(UtmIncidentActionCommand incidentActionCommand) throws Exception {
         final String ctx = CLASSNAME + ".save";
         try {
+            if (incidentActionCommand.getId() != null) {
+                UtmIncidentActionCommand stored = incidentActionCommandRepository.findById(incidentActionCommand.getId())
+                        .orElseThrow(() -> new ApiException("Incident action command " + incidentActionCommand.getId() + " not found", HttpStatus.NOT_FOUND));
+                requireParentEditable(stored.getActionId());
+            }
             requireParentEditable(incidentActionCommand.getActionId());
             return incidentActionCommandRepository.save(incidentActionCommand);
         } catch (ApiException e) {
