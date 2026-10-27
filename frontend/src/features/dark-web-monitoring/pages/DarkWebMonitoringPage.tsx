@@ -1,26 +1,21 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type UIEvent } from 'react'
-import { createPortal } from 'react-dom'
 import { CalendarDays, ChevronDown, Download, Eye, FileText, Loader2, Search, SlidersHorizontal } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { Button } from '@/shared/components/ui/button'
-import { DEMO_RECORDS } from '../data/demo-records'
-import { DEMO_ORGANIZATION_BREACH_STATS } from '../data/demo-organization-stats'
+import { FloatingPanel } from '@/shared/components/ui/floating-panel'
 import { AdvancedExportOptionsDialog } from '../components/AdvancedExportOptionsDialog'
 import { BreachDetailsDrawer } from '../components/BreachDetailsDrawer'
 import { StatusPill } from '../components/StatusPill'
 import { CustomRangeExportDialog } from '../components/CustomRangeExportDialog'
 import { TimeRangeFilter, resolveTimeBounds, type TimeFilter } from '../components/TimeRangeFilter'
 import type { ExportAction } from '../components/export-types'
-import type {
-  BreachStatus,
-  DarkWebRecord,
-  LeakSurface,
-  OrganizationBreachStats,
-  OrganizationElementType,
-} from '../types'
+import { useDarkWebData } from '../hooks/use-dark-web-data'
+import { MASKED, buildExportRows, downloadCsv, printReportPdf } from '../lib/export'
+import { EMPTY_VALUE, STATUS_KEYS, formatDateShort, valueOrDash } from '../lib/format'
+import type { DarkWebRecord, LeakSurface, OrganizationElementType } from '../types'
 
-type StatusFilter = BreachStatus | 'all'
+type StatusFilter = 'all' | 'OPEN' | 'IN_MITIGATION' | 'COMPLETED'
 
 const PAGE_SIZE = 5
 const SURFACES: LeakSurface[] = ['domains', 'emails', 'ips', 'usernames', 'phones']
@@ -32,71 +27,14 @@ const SURFACE_TYPES: Record<LeakSurface, OrganizationElementType> = {
   usernames: 'USER',
   phones: 'PHONE',
 }
-const SURFACE_STATS_KEYS: Record<LeakSurface, keyof OrganizationBreachStats> = {
-  domains: 'totalDomainBreaches',
-  emails: 'totalEmailsBreaches',
-  ips: 'totalIpsBreaches',
-  usernames: 'totalUsernamesBreaches',
-  phones: 'totalPhonesBreaches',
-}
-const STATUS_KEYS: Record<BreachStatus, string> = {
-  OPEN: 'open',
-  IN_MITIGATION: 'mitigation',
-  COMPLETED: 'completed',
-}
-const EMPTY_VALUE = '—'
-
-function valueOrDash(value: string | null): string {
-  return value || EMPTY_VALUE
-}
 
 function getCredential(record: DarkWebRecord): string | null {
   return record.password ?? record.hashedPassword
 }
 
-function downloadCsv(filename: string, rows: string[][]) {
-  const csv = rows
-    .map((row) =>
-      row
-        .map((value) => `"${value.replace(/"/g, '""')}"`)
-        .join(','),
-    )
-    .join('\r\n')
-  const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }))
-  const link = document.createElement('a')
-  link.href = url
-  link.download = filename
-  link.click()
-  URL.revokeObjectURL(url)
-}
-
-function printPdf(title: string, rows: string[][]) {
-  const printWindow = window.open('', '_blank')
-  if (!printWindow) {
-    throw new Error('The report window was blocked by the browser.')
-  }
-  const escapeHtml = (value: string) =>
-    value.replace(/[&<>"']/g, (character) => ({
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#39;',
-    })[character] ?? character)
-  const header = rows[0] ?? []
-  const body = rows.slice(1)
-  printWindow.document.write(
-    `<!doctype html><html><head><title>${escapeHtml(title)}</title><style>body{font:12px Arial,sans-serif;margin:24px}h1{font-size:18px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #bbb;padding:6px;text-align:left;word-break:break-word}th{background:#eee}</style></head><body><h1>${escapeHtml(title)}</h1><table><thead><tr>${header.map((cell) => `<th>${escapeHtml(cell)}</th>`).join('')}</tr></thead><tbody>${body.map((row) => `<tr>${row.map((cell) => `<td>${escapeHtml(cell)}</td>`).join('')}</tr>`).join('')}</tbody></table><script>window.onload=()=>window.print()</script></body></html>`,
-  )
-  printWindow.document.close()
-}
-
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat(undefined, { dateStyle: 'short' }).format(new Date(value))
-}
-
 export function DarkWebMonitoringPage() {
   const { t } = useTranslation()
+  const { records, stats, loading, error, retry, setRecordStatus } = useDarkWebData()
   const [surface, setSurface] = useState<LeakSurface>('domains')
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState<StatusFilter>('all')
@@ -106,14 +44,11 @@ export function DarkWebMonitoringPage() {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
   const [loadingMore, setLoadingMore] = useState(false)
   const loadMoreTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const [allRecords, setAllRecords] = useState(DEMO_RECORDS)
   const [selectedRecordId, setSelectedRecordId] = useState<string | null>(null)
   const [reportMenuOpen, setReportMenuOpen] = useState(false)
   const [customRangeOpen, setCustomRangeOpen] = useState(false)
   const [advancedExportOpen, setAdvancedExportOpen] = useState(false)
   const reportButtonRef = useRef<HTMLButtonElement>(null)
-  const reportMenuRef = useRef<HTMLDivElement>(null)
-  const [reportMenuPosition, setReportMenuPosition] = useState<{ left: number; top: number } | null>(null)
 
   useEffect(() => {
     setVisibleCount(PAGE_SIZE)
@@ -124,32 +59,10 @@ export function DarkWebMonitoringPage() {
     }
   }, [employeesOnly, query, status, surface, time])
 
-  useEffect(() => {
-    if (!reportMenuOpen) return
-    const closeMenu = () => setReportMenuOpen(false)
-    const onMouseDown = (event: MouseEvent) => {
-      const target = event.target as Node
-      if (!reportButtonRef.current?.contains(target) && !reportMenuRef.current?.contains(target)) closeMenu()
-    }
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') closeMenu()
-    }
-    document.addEventListener('mousedown', onMouseDown)
-    document.addEventListener('keydown', onKeyDown)
-    window.addEventListener('scroll', closeMenu, true)
-    window.addEventListener('resize', closeMenu)
-    return () => {
-      document.removeEventListener('mousedown', onMouseDown)
-      document.removeEventListener('keydown', onKeyDown)
-      window.removeEventListener('scroll', closeMenu, true)
-      window.removeEventListener('resize', closeMenu)
-    }
-  }, [reportMenuOpen])
-
-  const records = useMemo(() => {
+  const filtered = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase()
     const bounds = resolveTimeBounds(time)
-    return allRecords.filter((record) => {
+    return records.filter((record) => {
       const matchesSurface = record.organizationElementType === SURFACE_TYPES[surface]
       const matchesStatus = status === 'all' || record.breachStatus === status
       const matchesEmployee = !employeesOnly || record.employee
@@ -172,70 +85,63 @@ export function DarkWebMonitoringPage() {
         ].some((value) => value?.toLowerCase().includes(normalizedQuery))
       return matchesSurface && matchesStatus && matchesEmployee && matchesTime && matchesQuery
     })
-  }, [allRecords, employeesOnly, query, status, surface, time])
+  }, [records, employeesOnly, query, status, surface, time])
 
-  const visibleRecords = records.slice(0, visibleCount)
-  const selectedRecord = selectedRecordId ? allRecords.find((record) => record.id === selectedRecordId) : undefined
-  const hasMoreRecords = visibleCount < records.length
-  const surfaceCounts = Object.fromEntries(
-    SURFACES.map((key) => [key, DEMO_ORGANIZATION_BREACH_STATS[SURFACE_STATS_KEYS[key]]]),
-  ) as Record<LeakSurface, number>
+  const visibleRecords = filtered.slice(0, visibleCount)
+  const selectedRecord = selectedRecordId ? records.find((record) => record.id === selectedRecordId) : undefined
+  const hasMoreRecords = visibleCount < filtered.length
+
+  const surfaceCounts = useMemo(() => {
+    const counts: Record<LeakSurface, number> = { domains: 0, emails: 0, ips: 0, usernames: 0, phones: 0 }
+    const surfaceOf: Record<OrganizationElementType, LeakSurface> = {
+      DOMAIN: 'domains',
+      EMAIL: 'emails',
+      IP: 'ips',
+      USER: 'usernames',
+      PHONE: 'phones',
+    }
+    for (const record of records) counts[surfaceOf[record.organizationElementType]] += 1
+    // The organization endpoint owns the headline numbers; fall back to the
+    // fetched records until it exists.
+    return {
+      domains: stats?.totalDomainBreaches ?? counts.domains,
+      emails: stats?.totalEmailsBreaches ?? counts.emails,
+      ips: stats?.totalIpsBreaches ?? counts.ips,
+      usernames: stats?.totalUsernamesBreaches ?? counts.usernames,
+      phones: stats?.totalPhonesBreaches ?? counts.phones,
+    }
+  }, [records, stats])
+
   const statusCounts = useMemo(
-    () => Object.fromEntries(STATUSES.map((key) => [key, key === 'all' ? DEMO_ORGANIZATION_BREACH_STATS.totalBreaches : allRecords.filter((record) => record.breachStatus === key).length])) as Record<StatusFilter, number>,
-    [allRecords],
+    () => ({
+      all: stats?.totalBreaches ?? records.length,
+      OPEN: records.filter((record) => record.breachStatus === 'OPEN').length,
+      IN_MITIGATION: records.filter((record) => record.breachStatus === 'IN_MITIGATION').length,
+      COMPLETED: records.filter((record) => record.breachStatus === 'COMPLETED').length,
+    }),
+    [records, stats],
   )
-  const employeeCount = DEMO_RECORDS.filter((record) => record.employee).length
-  const monitoredDomains = Array.from(new Set(
-    DEMO_RECORDS
-      .filter((record) => record.organizationElementType === 'DOMAIN')
-      .map((record) => record.organizationElement),
-  ))
+
+  const employeeCount = useMemo(() => records.filter((record) => record.employee).length, [records])
+  const monitoredDomains = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          records
+            .filter((record) => record.organizationElementType === 'DOMAIN')
+            .map((record) => record.organizationElement),
+        ),
+      ),
+    [records],
+  )
   const exposedSurfaceCount = SURFACES.filter((key) => surfaceCounts[key] > 0).length
+  const employeeShare = records.length > 0 ? (employeeCount / records.length) * 100 : 0
 
-  const exportRows = (items: DarkWebRecord[], maskSensitive = !reveal) => [
-    [
-      t('darkWebMonitoring.table.status'),
-      t('darkWebMonitoring.table.who'),
-      t('darkWebMonitoring.table.domain'),
-      t('darkWebMonitoring.table.email'),
-      t('darkWebMonitoring.table.ipAddress'),
-      t('darkWebMonitoring.table.username'),
-      t('darkWebMonitoring.table.password'),
-      t('darkWebMonitoring.table.hashedPassword'),
-      t('darkWebMonitoring.table.database'),
-      t('darkWebMonitoring.table.leakName'),
-      t('darkWebMonitoring.table.foundIn'),
-      t('darkWebMonitoring.table.source'),
-      t('darkWebMonitoring.table.compromisedData'),
-      t('darkWebMonitoring.table.organizationElement'),
-      t('darkWebMonitoring.table.breached'),
-      t('darkWebMonitoring.table.ingested'),
-    ],
-    ...items.map((record) => [
-      t(`darkWebMonitoring.status.${STATUS_KEYS[record.breachStatus]}`),
-      record.employee ? t('darkWebMonitoring.employee') : t('darkWebMonitoring.other'),
-      valueOrDash(record.domain),
-      valueOrDash(record.email),
-      valueOrDash(record.ipAddress),
-      valueOrDash(record.username),
-      maskSensitive ? (record.password ? '••••••••' : EMPTY_VALUE) : valueOrDash(record.password),
-      maskSensitive ? (record.hashedPassword ? '••••••••' : EMPTY_VALUE) : valueOrDash(record.hashedPassword),
-      valueOrDash(record.databaseName),
-      valueOrDash(record.leakName),
-      valueOrDash(record.foundIn),
-      valueOrDash(record.source),
-      valueOrDash(record.compromisedData),
-      record.organizationElement,
-      formatDate(record.timestamp),
-      formatDate(record.createdAt),
-    ]),
-  ]
-
-  const handleExport = () => downloadCsv('dark-web-monitoring-demo.csv', exportRows(records))
+  const handleExport = () => downloadCsv('dark-web-monitoring-demo.csv', buildExportRows(filtered, t, !reveal, formatDateShort))
   const handleReport = () =>
     downloadCsv('dark-web-monitoring-demo-report.csv', [
       [t('darkWebMonitoring.title'), t('darkWebMonitoring.demoNotice')],
-      [t('darkWebMonitoring.summary.records'), String(DEMO_RECORDS.length)],
+      [t('darkWebMonitoring.summary.records'), String(statusCounts.all)],
       [t('darkWebMonitoring.summary.employeeCredentials'), String(employeeCount)],
       [t('darkWebMonitoring.summary.open'), String(statusCounts.OPEN)],
       [t('darkWebMonitoring.summary.mitigation'), String(statusCounts.IN_MITIGATION)],
@@ -243,9 +149,12 @@ export function DarkWebMonitoringPage() {
     ])
   const handleDialogExport = (items: DarkWebRecord[], action: ExportAction, filename: string, maskSensitive: boolean): boolean => {
     try {
-      const rows = exportRows(items, maskSensitive)
-      if (action === 'CSV') downloadCsv(`${filename}.csv`, rows)
-      else printPdf(t('darkWebMonitoring.title'), rows)
+      const rows = buildExportRows(items, t, maskSensitive, formatDateShort)
+      if (action === 'CSV') {
+        downloadCsv(`${filename}.csv`, rows)
+      } else if (!printReportPdf(t('darkWebMonitoring.title'), rows)) {
+        toast.error(t('darkWebMonitoring.exportDialogs.exportFailed'))
+      }
       return true
     } catch {
       toast.error(t('darkWebMonitoring.exportDialogs.exportFailed'))
@@ -260,45 +169,62 @@ export function DarkWebMonitoringPage() {
     setReportMenuOpen(false)
     setAdvancedExportOpen(true)
   }
-  const toggleReportMenu = () => {
-    if (reportMenuOpen) {
-      setReportMenuOpen(false)
-      return
-    }
-    const rect = reportButtonRef.current?.getBoundingClientRect()
-    if (rect) {
-      setReportMenuPosition({
-        left: Math.max(8, Math.min(rect.right - 240, window.innerWidth - 248)),
-        top: rect.bottom + 6,
-      })
-      setReportMenuOpen(true)
-    }
-  }
   const loadMore = useCallback(() => {
     if (loadingMore || !hasMoreRecords) return
     setLoadingMore(true)
     loadMoreTimer.current = setTimeout(() => {
-      setVisibleCount((current) => Math.min(current + PAGE_SIZE, records.length))
+      setVisibleCount((current) => Math.min(current + PAGE_SIZE, filtered.length))
       setLoadingMore(false)
       loadMoreTimer.current = null
     }, 300)
-  }, [hasMoreRecords, loadingMore, records.length])
+  }, [hasMoreRecords, loadingMore, filtered.length])
   const handleTableScroll = (event: UIEvent<HTMLDivElement>) => {
     const element = event.currentTarget
     if (element.scrollHeight - element.scrollTop - element.clientHeight < 300) loadMore()
   }
 
+  if (loading) {
+    return (
+      <div className="flex min-h-full w-full flex-col gap-4 px-6 pb-6 pt-3">
+        <header className="flex flex-wrap items-start justify-between gap-4">
+          <div className="h-6 w-44 animate-pulse rounded bg-muted" />
+          <div className="h-8 w-28 animate-pulse rounded-md bg-muted" />
+        </header>
+        <div className="h-12 animate-pulse rounded-xl bg-muted/60" />
+        <div className="grid gap-4 lg:grid-cols-2">
+          <div className="h-40 animate-pulse rounded-xl bg-muted/60" />
+          <div className="h-40 animate-pulse rounded-xl bg-muted/60" />
+        </div>
+        <div role="status" className="flex items-center justify-center gap-3 py-16 text-sm text-muted-foreground">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          {t('darkWebMonitoring.loading')}
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex min-h-full w-full flex-col items-center justify-center gap-3 px-6" role="alert">
+        <p className="text-sm text-muted-foreground">{t('darkWebMonitoring.loadingFailed')}</p>
+        <Button size="sm" variant="outline" onClick={retry}>
+          {t('darkWebMonitoring.retry')}
+        </Button>
+      </div>
+    )
+  }
+
   return (
     <div className="flex min-h-full w-full flex-col gap-4 px-6 pb-6 pt-3">
       <header className="flex flex-wrap items-start justify-between gap-4">
-        <div>           
+        <div>
         </div>
         <button
           ref={reportButtonRef}
           type="button"
           aria-haspopup="menu"
           aria-expanded={reportMenuOpen}
-          onClick={toggleReportMenu}
+          onClick={() => setReportMenuOpen((current) => !current)}
           className="inline-flex h-8 items-center gap-2 rounded-md bg-primary px-3 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90"
         >
           <FileText size={14} />
@@ -307,13 +233,14 @@ export function DarkWebMonitoringPage() {
             <ChevronDown size={13} />
           </span>
         </button>
-        {reportMenuOpen && reportMenuPosition && createPortal(
-          <div
-            ref={reportMenuRef}
-            role="menu"
-            style={{ position: 'fixed', left: reportMenuPosition.left, top: reportMenuPosition.top }}
-            className="z-[70] w-60 rounded-lg border border-border bg-popover p-2 shadow-xl"
-          >
+        <FloatingPanel
+          open={reportMenuOpen}
+          onClose={() => setReportMenuOpen(false)}
+          triggerRef={reportButtonRef}
+          align="end"
+          className="z-[70] w-60 rounded-lg border border-border bg-popover p-2 shadow-xl"
+        >
+          <div role="menu">
             <div className="px-2 py-1.5">
               <div className="text-xs font-semibold">{t('darkWebMonitoring.reportMenu.title')}</div>
               <p className="mt-1 text-[10px] leading-relaxed text-muted-foreground">
@@ -351,21 +278,20 @@ export function DarkWebMonitoringPage() {
               <SlidersHorizontal size={14} className="shrink-0 text-muted-foreground" />
               {t('darkWebMonitoring.reportMenu.advancedOptions')}
             </button>
-          </div>,
-          document.body,
-        )}
+          </div>
+        </FloatingPanel>
       </header>
 
       {customRangeOpen && (
         <CustomRangeExportDialog
-          records={records}
+          records={filtered}
           onClose={() => setCustomRangeOpen(false)}
           onExport={handleDialogExport}
         />
       )}
       {advancedExportOpen && (
         <AdvancedExportOptionsDialog
-          records={records}
+          records={filtered}
           onClose={() => setAdvancedExportOpen(false)}
           onExport={handleDialogExport}
         />
@@ -374,11 +300,7 @@ export function DarkWebMonitoringPage() {
         <BreachDetailsDrawer
           record={selectedRecord}
           onClose={() => setSelectedRecordId(null)}
-          onStatusChange={(nextStatus) =>
-            setAllRecords((current) =>
-              current.map((item) => item.id === selectedRecord.id ? { ...item, breachStatus: nextStatus } : item),
-            )
-          }
+          onStatusChange={(nextStatus) => setRecordStatus(selectedRecord.id, nextStatus)}
         />
       )}
 
@@ -393,14 +315,14 @@ export function DarkWebMonitoringPage() {
           </div>
           <div className="mt-1 text-4xl font-semibold tabular-nums">{employeeCount}</div>
           <p className="mt-1 text-xs text-muted-foreground">
-            {((employeeCount / DEMO_RECORDS.length) * 100).toFixed(1)}% {t('darkWebMonitoring.summary.ofRecords', { count: DEMO_RECORDS.length })}
+            {employeeShare.toFixed(1)}% {t('darkWebMonitoring.summary.ofRecords', { count: records.length })}
           </p>
           <div className="mt-3 h-2 overflow-hidden rounded-full bg-muted">
-            <div className="h-full rounded-full bg-rose-500" style={{ width: `${(employeeCount / DEMO_RECORDS.length) * 100}%` }} />
+            <div className="h-full rounded-full bg-rose-500" style={{ width: `${employeeShare}%` }} />
           </div>
           <div className="mt-2 flex gap-4 text-[10px] text-muted-foreground">
             <span><span className="mr-1 inline-block h-1.5 w-1.5 rounded-full bg-rose-500" />{t('darkWebMonitoring.employee')} {employeeCount}</span>
-            <span><span className="mr-1 inline-block h-1.5 w-1.5 rounded-full bg-muted-foreground/50" />{t('darkWebMonitoring.other')} {DEMO_RECORDS.length - employeeCount}</span>
+            <span><span className="mr-1 inline-block h-1.5 w-1.5 rounded-full bg-muted-foreground/50" />{t('darkWebMonitoring.other')} {records.length - employeeCount}</span>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-4 p-4 sm:gap-6">
@@ -414,7 +336,9 @@ export function DarkWebMonitoringPage() {
               <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
                 {t(`darkWebMonitoring.summary.${key}`)}
               </div>
-              <div className={`mt-1 text-xl font-semibold tabular-nums ${color}`}>              {value.toLocaleString()}</div>
+              <div className={`mt-1 text-xl font-semibold tabular-nums ${color}`}>
+                {value.toLocaleString()}
+              </div>
             </div>
           ))}
         </div>
@@ -558,9 +482,7 @@ export function DarkWebMonitoringPage() {
                     <StatusPill
                       status={record.breachStatus}
                       label={t(`darkWebMonitoring.status.${STATUS_KEYS[record.breachStatus]}`)}
-                      onChange={(nextStatus) => setAllRecords((current) =>
-                        current.map((item) => item.id === record.id ? { ...item, breachStatus: nextStatus } : item),
-                      )}
+                      onChange={(nextStatus) => setRecordStatus(record.id, nextStatus)}
                     />
                   </td>
                   <td className="px-3 py-2.5">
@@ -572,15 +494,15 @@ export function DarkWebMonitoringPage() {
                   <td className="whitespace-nowrap px-3 py-2.5 font-mono">{valueOrDash(record.email)}</td>
                   <td className="whitespace-nowrap px-3 py-2.5 font-mono">{valueOrDash(record.ipAddress)}</td>
                   <td className="whitespace-nowrap px-3 py-2.5 font-mono">{valueOrDash(record.username)}</td>
-                  <td className="whitespace-nowrap px-3 py-2.5 font-mono text-muted-foreground">{reveal ? valueOrDash(getCredential(record)) : getCredential(record) ? '••••••••' : EMPTY_VALUE}</td>
+                  <td className="whitespace-nowrap px-3 py-2.5 font-mono text-muted-foreground">{reveal ? valueOrDash(getCredential(record)) : getCredential(record) ? MASKED : EMPTY_VALUE}</td>
                   <td className="whitespace-nowrap px-3 py-2.5">{valueOrDash(record.name)}</td>
                   <td className="whitespace-nowrap px-3 py-2.5 font-mono">{valueOrDash(record.phone)}</td>
                   <td className="whitespace-nowrap border-l border-border px-3 py-2.5 font-mono">{valueOrDash(record.databaseName)}</td>
                   <td className="whitespace-nowrap px-3 py-2.5">{valueOrDash(record.leakName)}</td>
                   <td className="whitespace-nowrap px-3 py-2.5">{valueOrDash(record.foundIn)}</td>
                   <td className="whitespace-nowrap px-3 py-2.5">{valueOrDash(record.source)}</td>
-                  <td className="whitespace-nowrap border-l border-border px-3 py-2.5 font-mono">{formatDate(record.timestamp)}</td>
-                  <td className="whitespace-nowrap px-3 py-2.5 font-mono">{formatDate(record.createdAt)}</td>
+                  <td className="whitespace-nowrap border-l border-border px-3 py-2.5 font-mono">{formatDateShort(record.timestamp)}</td>
+                  <td className="whitespace-nowrap px-3 py-2.5 font-mono">{formatDateShort(record.createdAt)}</td>
                 </tr>
               ))}
               {visibleRecords.length === 0 && (
@@ -594,9 +516,9 @@ export function DarkWebMonitoringPage() {
               {t('darkWebMonitoring.loadingMore')}
             </div>
           )}
-          {!hasMoreRecords && records.length > 0 && (
+          {!hasMoreRecords && filtered.length > 0 && (
             <div className="py-4 text-center text-[11px] text-muted-foreground">
-              {t('darkWebMonitoring.endOfResults', { count: records.length.toLocaleString() })}
+              {t('darkWebMonitoring.endOfResults', { count: filtered.length.toLocaleString() })}
             </div>
           )}
         </div>

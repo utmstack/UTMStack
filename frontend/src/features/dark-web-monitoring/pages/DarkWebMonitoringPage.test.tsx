@@ -2,33 +2,47 @@ import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { DEMO_RECORDS } from '../data/demo-records'
 import { DEMO_ORGANIZATION_BREACH_STATS } from '../data/demo-organization-stats'
+import { buildExportRows, downloadCsv, printReportPdf } from '../lib/export'
+import { formatDateMedium, neutralizeCsvCell, valueOrDash } from '../lib/format'
+import { TimeRangeFilter } from '../components/TimeRangeFilter'
 import { DarkWebMonitoringPage } from './DarkWebMonitoringPage'
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }))
 
+/**
+ * Renders the page and flushes the mock service, which resolves on a
+ * microtask, so the component has left its loading state.
+ */
+async function renderPage(): Promise<void> {
+  render(<DarkWebMonitoringPage />)
+  await act(async () => {
+    await Promise.resolve()
+  })
+}
+
 describe('DarkWebMonitoringPage demo', () => {
   it('keeps the demo statistics in the OrganizationBreachStats response shape', () => {
     expect(DEMO_ORGANIZATION_BREACH_STATS).toEqual({
       id: 10901,
       orgName: 'test01',
-      totalEmailsBreaches: 0,
-      totalPhonesBreaches: 0,
-      totalDomainBreaches: 73,
-      totalIpsBreaches: 0,
-      totalUsernamesBreaches: 1857,
-      totalBreaches: 1930,
+      totalEmailsBreaches: 2,
+      totalPhonesBreaches: 1,
+      totalDomainBreaches: 7,
+      totalIpsBreaches: 1,
+      totalUsernamesBreaches: 1,
+      totalBreaches: 15,
     })
   })
 
-  it('renders tab counts from organization breach statistics', () => {
-    render(<DarkWebMonitoringPage />)
+  it('renders tab counts from organization breach statistics', async () => {
+    await renderPage()
 
-    expect(screen.getAllByRole('button', { name: /darkWebMonitoring\.tabs\.domains.*73/ }).length).toBeGreaterThan(0)
-    expect(screen.getByRole('button', { name: /darkWebMonitoring\.tabs\.usernames.*1,857/ })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /darkWebMonitoring\.tabs\.ips.*0/ })).toBeInTheDocument()
-    expect(screen.getByText('1,930')).toBeInTheDocument()
+    expect(screen.getAllByRole('button', { name: /darkWebMonitoring\.tabs\.domains.*7/ }).length).toBeGreaterThan(0)
+    expect(screen.getByRole('button', { name: /darkWebMonitoring\.tabs\.usernames.*1/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /darkWebMonitoring\.tabs\.ips.*1/ })).toBeInTheDocument()
+    expect(screen.getByText('15')).toBeInTheDocument()
   })
 
   it('uses the API field names and status values in its demo records', () => {
@@ -50,8 +64,8 @@ describe('DarkWebMonitoringPage demo', () => {
     expect(record).not.toHaveProperty('ingestedAt')
   })
 
-  it('renders employee credential summary and monitored surfaces', () => {
-    render(<DarkWebMonitoringPage />)
+  it('renders employee credential summary and monitored surfaces', async () => {
+    await renderPage()
 
     expect(screen.getByText('darkWebMonitoring.summary.employeeCredentials')).toBeInTheDocument()
     expect(screen.getByText('darkWebMonitoring.surfaces.title')).toBeInTheDocument()
@@ -59,8 +73,8 @@ describe('DarkWebMonitoringPage demo', () => {
     expect(screen.getAllByText('test01.example').length).toBeGreaterThan(0)
   })
 
-  it('opens the report menu with its export options', () => {
-    render(<DarkWebMonitoringPage />)
+  it('opens the report menu with its export options', async () => {
+    await renderPage()
 
     fireEvent.click(screen.getByRole('button', { name: /darkWebMonitoring.report/ }))
 
@@ -71,8 +85,8 @@ describe('DarkWebMonitoringPage demo', () => {
     expect(screen.getByRole('menuitem', { name: 'darkWebMonitoring.reportMenu.advancedOptions' })).toBeInTheDocument()
   })
 
-  it('opens a breach details side panel when a table row is selected', () => {
-    render(<DarkWebMonitoringPage />)
+  it('opens a breach details side panel when a table row is selected', async () => {
+    await renderPage()
     const table = screen.getByRole('table')
     const row = within(table).getAllByText('taylor@test01.example')[0].closest('tr')
     if (!row) throw new Error('Expected a breach table row')
@@ -92,8 +106,8 @@ describe('DarkWebMonitoringPage demo', () => {
     expect(screen.queryByRole('dialog', { name: 'darkWebMonitoring.details.title' })).not.toBeInTheDocument()
   })
 
-  it('opens the custom range dialog and validates date selection', () => {
-    render(<DarkWebMonitoringPage />)
+  it('opens the custom range dialog and validates date selection', async () => {
+    await renderPage()
 
     fireEvent.click(screen.getByRole('button', { name: /darkWebMonitoring.report/ }))
     fireEvent.click(screen.getByRole('menuitem', { name: 'darkWebMonitoring.reportMenu.customRange' }))
@@ -111,8 +125,8 @@ describe('DarkWebMonitoringPage demo', () => {
     expect(selectButton).toBeEnabled()
   })
 
-  it('opens advanced export options and lets the user add a filter', () => {
-    render(<DarkWebMonitoringPage />)
+  it('opens advanced export options and lets the user add a filter', async () => {
+    await renderPage()
 
     fireEvent.click(screen.getByRole('button', { name: /darkWebMonitoring.report/ }))
     fireEvent.click(screen.getByRole('menuitem', { name: 'darkWebMonitoring.reportMenu.advancedOptions' }))
@@ -129,8 +143,8 @@ describe('DarkWebMonitoringPage demo', () => {
     expect(addedFilter).toHaveTextContent('DOMAIN')
   })
 
-  it('keeps table columns aligned with their group headers', () => {
-    render(<DarkWebMonitoringPage />)
+  it('keeps table columns aligned with their group headers', async () => {
+    await renderPage()
     const table = screen.getByRole('table')
     const headers = within(table).getAllByRole('columnheader')
 
@@ -155,10 +169,13 @@ describe('DarkWebMonitoringPage demo', () => {
     expect(within(table).getAllByRole('row')[2].querySelectorAll('td')).toHaveLength(15)
   })
 
-  it('loads more filtered records while scrolling the table', () => {
+  it('loads more filtered records while scrolling the table', async () => {
     vi.useFakeTimers()
     try {
       render(<DarkWebMonitoringPage />)
+      await act(async () => {
+        await Promise.resolve()
+      })
       const table = screen.getByRole('table')
       const scrollContainer = screen.getByLabelText('darkWebMonitoring.table.results')
 
@@ -188,8 +205,8 @@ describe('DarkWebMonitoringPage demo', () => {
     }
   })
 
-  it('masks secrets by default and reveals only after opting in', () => {
-    render(<DarkWebMonitoringPage />)
+  it('masks secrets by default and reveals only after opting in', async () => {
+    await renderPage()
 
     expect(screen.queryByText('Demo!4821')).not.toBeInTheDocument()
     expect(screen.getAllByText('••••••••').length).toBeGreaterThan(0)
@@ -199,8 +216,8 @@ describe('DarkWebMonitoringPage demo', () => {
     expect(screen.getByText('Demo!4821')).toBeInTheDocument()
   })
 
-  it('filters the table by status and surface tab', () => {
-    render(<DarkWebMonitoringPage />)
+  it('filters the table by status and surface tab', async () => {
+    await renderPage()
     const table = screen.getByRole('table')
 
     fireEvent.click(screen.getByRole('button', { name: /darkWebMonitoring.statusFilter.mitigation/ }))
@@ -213,8 +230,8 @@ describe('DarkWebMonitoringPage demo', () => {
     expect(within(table).queryByText('taylor@test01.example')).not.toBeInTheDocument()
   })
 
-  it('allows changing a row status from the colored status select', () => {
-    render(<DarkWebMonitoringPage />)
+  it('allows changing a row status from the colored status select', async () => {
+    await renderPage()
 
     const rowStatusButton = screen
       .getAllByRole('button', { name: /darkWebMonitoring.status.mitigation/ })
@@ -228,8 +245,8 @@ describe('DarkWebMonitoringPage demo', () => {
     expect(within(screen.getByRole('table')).getByText('taylor@test01.example')).toBeInTheDocument()
   })
 
-  it('searches the selected surface records', () => {
-    render(<DarkWebMonitoringPage />)
+  it('searches the selected surface records', async () => {
+    await renderPage()
     fireEvent.change(screen.getByPlaceholderText('darkWebMonitoring.search'), {
       target: { value: 'alex@test02.example' },
     })
@@ -237,5 +254,76 @@ describe('DarkWebMonitoringPage demo', () => {
     const table = within(screen.getByRole('table'))
     expect(table.getByText('alex@test02.example')).toBeInTheDocument()
     expect(table.queryByText('taylor@test01.example')).not.toBeInTheDocument()
+  })
+})
+
+describe('dark web monitoring format helpers', () => {
+  it('renders empty values as a dash and formats dates', () => {
+    expect(valueOrDash(null)).toBe('—')
+    expect(valueOrDash('')).toBe('—')
+    expect(valueOrDash('value')).toBe('value')
+    expect(formatDateMedium('2026-08-28T12:20:00Z')).toMatch(/2026/)
+  })
+
+  it('neutralizes formula-triggering CSV cells', () => {
+    expect(neutralizeCsvCell('=SUM(A1)')).toBe("'=SUM(A1)")
+    expect(neutralizeCsvCell('+cmd')).toBe("'+cmd")
+    expect(neutralizeCsvCell('@import')).toBe("'@import")
+    expect(neutralizeCsvCell('-1')).toBe("'-1")
+    expect(neutralizeCsvCell('safe text')).toBe('safe text')
+  })
+
+  it('builds export rows with masked or revealed secrets', () => {
+    const rows = buildExportRows(DEMO_RECORDS.slice(0, 1), (key) => key, true, formatDateMedium)
+    expect(rows[0][0]).toBe('darkWebMonitoring.table.status')
+    expect(rows[1][1]).toBe('darkWebMonitoring.employee')
+    expect(rows[1].some((cell) => cell === '••••••••')).toBe(true)
+  })
+})
+
+describe('dark web monitoring export', () => {
+  it('writes a CSV file with the given rows', () => {
+    const click = vi.fn()
+    const createObjectURL = vi.fn(() => 'blob:mock')
+    const revokeObjectURL = vi.fn()
+    Object.defineProperty(URL, 'createObjectURL', { value: createObjectURL, configurable: true })
+    Object.defineProperty(URL, 'revokeObjectURL', { value: revokeObjectURL, configurable: true })
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
+      click(this.download)
+    })
+
+    downloadCsv('demo.csv', [['a', 'b'], ['1', '2']])
+
+    expect(click).toHaveBeenCalledWith('demo.csv')
+    expect(revokeObjectURL).toHaveBeenCalled()
+  })
+
+  it('opens a print window for the PDF report', () => {
+    const openWindow = { document: { write: vi.fn(), close: vi.fn() } }
+    const openSpy = vi.spyOn(window, 'open').mockReturnValue(openWindow as unknown as Window)
+
+    expect(printReportPdf('Title', [['h'], ['v']])).toBe(true)
+    expect(openWindow.document.write).toHaveBeenCalled()
+
+    openSpy.mockRestore()
+  })
+})
+
+describe('TimeRangeFilter hour spinner', () => {
+  it('wraps hours at 24, not 60', () => {
+    render(<TimeRangeFilter value={{ kind: 'preset', preset: 'all' }} onChange={() => {}} />)
+    fireEvent.click(screen.getByRole('button', { name: /darkWebMonitoring\.time\.all/ }))
+
+    // Open the custom view and find the hour spinner (first one, max 24).
+    fireEvent.click(screen.getByRole('button', { name: 'darkWebMonitoring.time.custom' }))
+    const upButtons = screen.getAllByRole('button', { name: '↑' })
+    const hourUp = upButtons[0]
+    expect(hourUp).toBeInTheDocument()
+
+    // The displayed hour starts at 00; stepping up 25 times wraps to 01, not 25.
+    for (let i = 0; i < 25; i += 1) {
+      fireEvent.click(hourUp)
+    }
+    expect(screen.getByText('01')).toBeInTheDocument()
   })
 })

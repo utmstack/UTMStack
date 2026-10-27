@@ -1,1 +1,1 @@
-export type ExportAction = 'CSV' | 'PDF'
+export type { ExportAction } from '../lib/export'

@@ -503,6 +503,9 @@
       }
     },
     "loadingMore": "Weitere Ergebnisse werden geladen…",
+    "loading": "Lade Dark-Web-Monitoring-Daten…",
+    "loadingFailed": "Die Dark-Web-Monitoring-Daten konnten nicht geladen werden.",
+    "retry": "Erneut versuchen",
     "endOfResults": "Ende der Ergebnisse ({{count}} geladen).",
     "results": "Tabellenergebnisse",
     "table": {

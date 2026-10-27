@@ -503,6 +503,9 @@
       }
     },
     "loadingMore": "Chargement…",
+    "loading": "Chargement des données de surveillance du dark web…",
+    "loadingFailed": "Impossible de charger les données de surveillance du dark web.",
+    "retry": "Réessayer",
     "endOfResults": "Fin des résultats ({{count}} chargés).",
     "results": "Résultats du tableau",
     "table": {

@@ -503,6 +503,9 @@
       }
     },
     "loadingMore": "Loading more…",
+    "loading": "Loading dark web monitoring data…",
+    "loadingFailed": "Could not load dark web monitoring data.",
+    "retry": "Retry",
     "endOfResults": "End of results ({{count}} loaded).",
     "results": "Table results",
     "table": {

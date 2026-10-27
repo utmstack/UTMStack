@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/shared/components/ui/button'
 import type { BreachStatus, DarkWebRecord, OrganizationElementType } from '../types'
 import type { ExportAction } from './export-types'
+import { STATUS_KEYS } from '../lib/format'
 
 type ExportFilterField = 'organizationElementType' | 'breachStatus' | 'employee' | 'domain' | 'source'
 type ExportFilterOperator = 'equals' | 'contains' | 'notContains'
@@ -25,11 +26,6 @@ const FILTER_FIELDS: ExportFilterField[] = ['organizationElementType', 'breachSt
 const FILTER_OPERATORS: ExportFilterOperator[] = ['equals', 'contains', 'notContains']
 const ELEMENT_TYPES: OrganizationElementType[] = ['DOMAIN', 'EMAIL', 'IP', 'USER', 'PHONE']
 const BREACH_STATUSES: BreachStatus[] = ['OPEN', 'IN_MITIGATION', 'COMPLETED']
-const STATUS_KEYS: Record<BreachStatus, string> = {
-  OPEN: 'open',
-  IN_MITIGATION: 'mitigation',
-  COMPLETED: 'completed',
-}
 
 export function AdvancedExportOptionsDialog({ records, onClose, onExport }: AdvancedExportOptionsDialogProps) {
   const { t } = useTranslation()

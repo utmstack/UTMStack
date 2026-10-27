@@ -1,7 +1,7 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
+import { useRef, useState } from 'react'
 import { CalendarDays, ChevronDown, ChevronUp, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { FloatingPanel } from '@/shared/components/ui/floating-panel'
 
 export type TimePreset = 'all' | '15m' | '30m' | '1h' | '24h' | '7d' | '30d' | '90d' | '1y'
 export type TimeFilter = { kind: 'preset'; preset: TimePreset } | { kind: 'custom'; from: string; to: string }
@@ -78,57 +78,8 @@ export function TimeRangeFilter({
   const [from, setFrom] = useState<PanelTime>({ date: todayString(), h: 0, m: 0, s: 0 })
   const [to, setTo] = useState<PanelTime>({ date: todayString(), h: 23, m: 59, s: 59 })
   const triggerRef = useRef<HTMLButtonElement>(null)
-  const menuRef = useRef<HTMLDivElement>(null)
   const fromInputRef = useRef<HTMLInputElement>(null)
   const toInputRef = useRef<HTMLInputElement>(null)
-  const [panelPos, setPanelPos] = useState<{ left: number; top: number } | null>(null)
-
-  // Position the panel so it always fits the viewport: below the trigger by
-  // default, flipped above it when there is not enough room underneath.
-  useLayoutEffect(() => {
-    if (!open) {
-      setPanelPos(null)
-      return
-    }
-    const menu = menuRef.current
-    const trigger = triggerRef.current
-    if (!menu || !trigger) return
-    const rect = trigger.getBoundingClientRect()
-    const menuHeight = menu.offsetHeight
-    const left = Math.max(8, Math.min(rect.left, window.innerWidth - menu.offsetWidth - 8))
-    let top = rect.bottom + 4
-    if (top + menuHeight > window.innerHeight - 8) top = rect.top - 4 - menuHeight
-    setPanelPos({ left, top: Math.max(8, top) })
-  }, [open, view])
-
-  useEffect(() => {
-    if (!open) return
-    const close = () => {
-      setOpen(false)
-      setView('preset')
-    }
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') close()
-    }
-    const onMouseDown = (event: MouseEvent) => {
-      const target = event.target as Node
-      if (!triggerRef.current?.contains(target) && !menuRef.current?.contains(target)) close()
-    }
-    const onScroll = (event: Event) => {
-      if (menuRef.current?.contains(event.target as Node)) return
-      close()
-    }
-    document.addEventListener('mousedown', onMouseDown)
-    document.addEventListener('keydown', onKeyDown)
-    window.addEventListener('scroll', onScroll, true)
-    window.addEventListener('resize', close)
-    return () => {
-      document.removeEventListener('mousedown', onMouseDown)
-      document.removeEventListener('keydown', onKeyDown)
-      window.removeEventListener('scroll', onScroll, true)
-      window.removeEventListener('resize', close)
-    }
-  }, [open])
 
   const label = value.kind === 'custom'
     ? t('darkWebMonitoring.time.custom')
@@ -184,18 +135,15 @@ export function TimeRangeFilter({
         <span className="whitespace-nowrap">{label}</span>
         <ChevronDown size={12} />
       </button>
-      {open && createPortal(
-        <div
-          ref={menuRef}
-          onClick={(event) => event.stopPropagation()}
-          style={{
-            position: 'fixed',
-            left: panelPos?.left ?? Math.max(8, triggerRef.current?.getBoundingClientRect().left ?? 8),
-            top: panelPos?.top ?? (triggerRef.current?.getBoundingClientRect().bottom ?? 0) + 4,
-            maxHeight: 'calc(100vh - 16px)',
-          }}
-          className="z-[95] w-80 overflow-y-auto rounded-xl border border-border bg-popover p-3 shadow-2xl"
-        >
+      <FloatingPanel
+        open={open}
+        onClose={() => {
+          setOpen(false)
+          setView('preset')
+        }}
+        triggerRef={triggerRef}
+        className="z-[95] w-80 max-h-[calc(100vh-16px)] overflow-y-auto rounded-xl border border-border bg-popover p-3 shadow-2xl"
+      >
           {view === 'preset' ? (
             <div>
               <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-foreground">
@@ -275,9 +223,7 @@ export function TimeRangeFilter({
               </div>
             </div>
           )}
-        </div>,
-        document.body,
-      )}
+      </FloatingPanel>
     </>
   )
 }
@@ -317,18 +263,18 @@ function PanelTime({
         </button>
       </div>
       <div className="mt-2 flex items-start justify-center gap-3">
-        <TimeSpinner value={panel.h} onChange={(v) => set({ h: v })} />
+        <TimeSpinner value={panel.h} max={24} onChange={(v) => set({ h: v })} />
         <span className="pt-3.5 text-xs text-muted-foreground">:</span>
-        <TimeSpinner value={panel.m} onChange={(v) => set({ m: v })} />
+        <TimeSpinner value={panel.m} max={60} onChange={(v) => set({ m: v })} />
         <span className="pt-3.5 text-xs text-muted-foreground">:</span>
-        <TimeSpinner value={panel.s} onChange={(v) => set({ s: v })} />
+        <TimeSpinner value={panel.s} max={60} onChange={(v) => set({ s: v })} />
       </div>
     </div>
   )
 }
 
-function TimeSpinner({ value, onChange }: { value: number; onChange: (value: number) => void }) {
-  const step = (delta: number) => onChange((value + delta + 60) % 60)
+function TimeSpinner({ value, max, onChange }: { value: number; max: number; onChange: (value: number) => void }) {
+  const step = (delta: number) => onChange((((value + delta) % max) + max) % max)
   return (
     <div className="flex flex-col items-center gap-1">
       <button type="button" aria-label="↑" onClick={() => step(1)} className="rounded p-0.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">

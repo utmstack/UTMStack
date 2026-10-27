@@ -503,6 +503,9 @@
       }
     },
     "loadingMore": "Caricamento…",
+    "loading": "Caricamento dei dati di monitoraggio della dark web…",
+    "loadingFailed": "Impossibile caricare i dati di monitoraggio della dark web.",
+    "retry": "Riprova",
     "endOfResults": "Fine dei risultati ({{count}} caricati).",
     "results": "Risultati della tabella",
     "table": {

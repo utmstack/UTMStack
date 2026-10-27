@@ -3,7 +3,9 @@ import { createPortal } from 'react-dom'
 import { AlertCircle, CalendarDays, ChevronDown, Copy, Database, Eye, EyeOff, FileText, Globe2, Info, Layers3, ShieldAlert, UserRound, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { FloatingPanel } from '@/shared/components/ui/floating-panel'
 import type { BreachStatus, DarkWebRecord } from '../types'
+import { STATUS_KEYS, escapeHtml, formatDateMedium, valueOrDash } from '../lib/format'
 import { StatusPill } from './StatusPill'
 
 interface BreachDetailsDrawerProps {
@@ -12,22 +14,17 @@ interface BreachDetailsDrawerProps {
   onStatusChange?: (status: BreachStatus) => void
 }
 
-const STATUS_KEYS: Record<BreachStatus, string> = {
-  OPEN: 'open',
-  IN_MITIGATION: 'mitigation',
-  COMPLETED: 'completed',
-}
-
 type MitigationStepStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED'
 
 const MITIGATION_STEP_KEYS = ['immediateNextSteps', 'requestDataRemoval', 'ceaseAndDesist', 'courtOrder'] as const
 type MitigationStepKey = (typeof MITIGATION_STEP_KEYS)[number]
 const MITIGATION_STEP_STATUSES: MitigationStepStatus[] = ['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED']
 
+// Completion is a success state: green for COMPLETED, neutral for NOT_STARTED.
 const MITIGATION_STEP_STATUS_STYLES: Record<MitigationStepStatus, string> = {
-  NOT_STARTED: 'bg-green-500/10 text-green-400 ring-green-500/20 hover:bg-green-500/20',
+  NOT_STARTED: 'bg-muted text-muted-foreground ring-border hover:bg-muted/80',
   IN_PROGRESS: 'bg-amber-500/10 text-amber-400 ring-amber-500/20 hover:bg-amber-500/20',
-  COMPLETED: 'bg-red-500/10 text-red-400 ring-red-500/20 hover:bg-red-500/20',
+  COMPLETED: 'bg-green-500/10 text-green-400 ring-green-500/20 hover:bg-green-500/20',
 }
 
 const MITIGATION_STEP_IMAGES: Record<MitigationStepKey, string> = {
@@ -39,14 +36,6 @@ const MITIGATION_STEP_IMAGES: Record<MitigationStepKey, string> = {
     'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 80 80%27%3E%3Crect width=%2780%27 height=%2780%27 fill=%27%230e131a%27/%3E%3Crect x=%2714%27 y=%2718%27 width=%2748%27 height=%2742%27 rx=%273%27 fill=%27%23f8fafc%27/%3E%3Crect x=%2714%27 y=%2718%27 width=%2748%27 height=%276%27 fill=%27%23e2e8f0%27/%3E%3Crect x=%2720%27 y=%2730%27 width=%2736%27 height=%272%27 fill=%27%2394a3b8%27/%3E%3Crect x=%2720%27 y=%2736%27 width=%2736%27 height=%272%27 fill=%27%23cbd5e1%27/%3E%3Crect x=%2720%27 y=%2742%27 width=%2724%27 height=%272%27 fill=%27%23cbd5e1%27/%3E%3Crect x=%2730%27 y=%2752%27 width=%2716%27 height=%273%27 rx=%271%27 fill=%27%23dc2626%27/%3E%3Cpath d=%27M52 46l12 12-2 6-14-14z%27 fill=%27%23f59e0b%27/%3E%3Cpath d=%27M64 58l2.6-2.6 3 3-2.6 2.6z%27 fill=%27%23111827%27/%3E%3Cpath d=%27M52 46l-1.5-5.5L62 43z%27 fill=%27%2378350f%27/%3E%3C/svg%3E',
   courtOrder:
     'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 80 80%27%3E%3Crect width=%2780%27 height=%2780%27 fill=%27%2311151c%27/%3E%3Crect x=%2714%27 y=%2748%27 width=%2752%27 height=%278%27 rx=%272%27 fill=%27%231f2937%27/%3E%3Cpath d=%27M40 48l-8 14h16z%27 fill=%27%23243041%27/%3E%3Cpath d=%27M32 14h20l-4 18h-12z%27 fill=%27%23d97706%27/%3E%3Cpath d=%27M32 14h8l-4 18h-4z%27 fill=%27%23f59e0b%27/%3E%3Ccircle cx=%2740%27 cy=%2736%27 r=%274%27 fill=%27%2392400e%27/%3E%3Crect x=%2737%27 y=%2738%27 width=%276%27 height=%2714%27 fill=%27%23b45309%27/%3E%3Ccircle cx=%2762%27 cy=%2720%27 r=%277%27 fill=%27%23dc2626%27/%3E%3Ccircle cx=%2762%27 cy=%2720%27 r=%274%27 fill=%27%230f172a%27/%3E%3C/svg%3E',
-}
-
-function valueOrDash(value: string | null): string {
-  return value || '—'
-}
-
-function formatDate(value: string): string {
-  return new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(new Date(value))
 }
 
 export function BreachDetailsDrawer({ record, onClose, onStatusChange }: BreachDetailsDrawerProps) {
@@ -198,7 +187,7 @@ export function BreachDetailsDrawer({ record, onClose, onStatusChange }: BreachD
               </section>
 
               <section className="grid gap-x-6 gap-y-4 sm:grid-cols-2">
-                <DetailField icon={<CalendarDays size={13} />} label={t('darkWebMonitoring.details.lastSeen')} value={formatDate(record.timestamp)} />
+                <DetailField icon={<CalendarDays size={13} />} label={t('darkWebMonitoring.details.lastSeen')} value={formatDateMedium(record.timestamp)} />
                 <DetailField icon={<FileText size={13} />} label={t('darkWebMonitoring.table.leakName')} value={valueOrDash(record.leakName)} />
                 <DetailField icon={<Database size={13} />} label={t('darkWebMonitoring.table.database')} value={valueOrDash(record.databaseName)} />
                 <DetailField icon={<FileText size={13} />} label={t('darkWebMonitoring.table.foundIn')} value={valueOrDash(record.foundIn)} />
@@ -261,7 +250,7 @@ export function BreachDetailsDrawer({ record, onClose, onStatusChange }: BreachD
 
                 <div>
                   <h2 className="text-xl font-bold tracking-tight">{t('darkWebMonitoring.details.whyListed')}</h2>
-                  <p className="mt-3 leading-relaxed text-foreground/90" dangerouslySetInnerHTML={{ __html: t('darkWebMonitoring.details.whyListedBody', { type: subjectType.toLowerCase() }) }} />
+                  <p className="mt-3 leading-relaxed text-foreground/90" dangerouslySetInnerHTML={{ __html: t('darkWebMonitoring.details.whyListedBody', { type: escapeHtml(subjectType.toLowerCase()) }) }} />
                   <ul className="mt-3 space-y-2.5">
                     {([
                       'dataBreach',
@@ -311,40 +300,8 @@ function StepStatusSelect({
   onChange: (status: MitigationStepStatus) => void
 }) {
   const { t } = useTranslation()
-  const [position, setPosition] = useState<{ left: number; top: number } | null>(null)
+  const [open, setOpen] = useState(false)
   const triggerRef = useRef<HTMLButtonElement>(null)
-  const menuRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (!position) return
-    const close = () => setPosition(null)
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') close()
-    }
-    const onMouseDown = (event: MouseEvent) => {
-      const target = event.target as Node
-      if (!triggerRef.current?.contains(target) && !menuRef.current?.contains(target)) close()
-    }
-    document.addEventListener('mousedown', onMouseDown)
-    document.addEventListener('keydown', onKeyDown)
-    window.addEventListener('scroll', close, true)
-    window.addEventListener('resize', close)
-    return () => {
-      document.removeEventListener('mousedown', onMouseDown)
-      document.removeEventListener('keydown', onKeyDown)
-      window.removeEventListener('scroll', close, true)
-      window.removeEventListener('resize', close)
-    }
-  }, [position])
-
-  const toggle = () => {
-    if (position) {
-      setPosition(null)
-      return
-    }
-    const rect = triggerRef.current?.getBoundingClientRect()
-    if (rect) setPosition({ left: rect.left, top: rect.bottom + 4 })
-  }
 
   return (
     <>
@@ -352,24 +309,18 @@ function StepStatusSelect({
         ref={triggerRef}
         type="button"
         aria-haspopup="listbox"
-        aria-expanded={position !== null}
+        aria-expanded={open}
         onClick={(event) => {
           event.stopPropagation()
-          toggle()
+          setOpen((current) => !current)
         }}
         className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-2.5 py-1.5 text-[10px] font-medium ring-1 ring-inset ${MITIGATION_STEP_STATUS_STYLES[status]}`}
       >
         {t(`darkWebMonitoring.details.mitigationSteps.status.${status}`)}
         <ChevronDown size={11} />
       </button>
-      {position && createPortal(
-        <div
-          ref={menuRef}
-          role="listbox"
-          onClick={(event) => event.stopPropagation()}
-          style={{ position: 'fixed', left: position.left, top: position.top }}
-          className="z-[95] w-max min-w-40 rounded-md border border-border bg-popover py-1 shadow-lg"
-        >
+      <FloatingPanel open={open} onClose={() => setOpen(false)} triggerRef={triggerRef}>
+        <div role="listbox">
           {MITIGATION_STEP_STATUSES.map((option) => (
             <button
               key={option}
@@ -379,7 +330,7 @@ function StepStatusSelect({
               disabled={option === status}
               onClick={() => {
                 onChange(option)
-                setPosition(null)
+                setOpen(false)
               }}
               className="flex w-full items-center px-3 py-1.5 text-left hover:bg-muted disabled:opacity-50 disabled:hover:bg-transparent"
             >
@@ -388,9 +339,8 @@ function StepStatusSelect({
               </span>
             </button>
           ))}
-        </div>,
-        document.body,
-      )}
+        </div>
+      </FloatingPanel>
     </>
   )
 }
