@@ -480,9 +480,10 @@ const BUILDERS: Record<TemplateId, (a: Alert, t: (k: string, o?: Record<string, 
   privEsc(a, t) {
     const host = internalSide('host', a.target?.host ? a.target : a.adversary, a.dataSource)
     const userSide = a.adversary?.user ? { ...a.adversary, user: a.adversary.user } : undefined
-    const user: Party | undefined = userSide
+    const userName = userSide?.user ?? a.adversary?.ip ?? 'unknown user'
+    const user: Party = userSide
       ? { id: 'user', role: 'internal', kind: 'user', name: userSide.user, sub: userSide.host ?? userSide.ip, ip: userSide.ip, user: userSide.user }
-      : undefined
+      : { id: 'user', role: 'internal', kind: 'user', name: userName, sub: a.adversary?.host, ip: a.adversary?.ip }
     const n = (a.name ?? '').toLowerCase()
     const method = /uac bypass/.test(n)
       ? t('liveOps.dEvUac')
@@ -497,7 +498,7 @@ const BUILDERS: Record<TemplateId, (a: Alert, t: (k: string, o?: Record<string, 
               : t('liveOps.dEvDefault')
     const account = userSide?.user ?? a.target?.user ?? 'root'
     const captions: Caption[] = [
-      { at: 0, text: t('liveOps.capPe0', { host: host.name, user: userSide?.user ?? '' }) },
+      { at: 0, text: t('liveOps.capPe0', { host: host.name, user: userSide?.user ? t('liveOps.capPeUser', { user: userSide.user }) : '' }) },
       { at: 3000, text: t('liveOps.capPe1', { method }) },
       { at: 5800, text: t('liveOps.capPe2', { account }) },
       { at: 8400, text: `${t('liveOps.capAlertRaised', { name: a.name ?? '' })}${t('liveOps.capPe3')}` },
@@ -506,7 +507,7 @@ const BUILDERS: Record<TemplateId, (a: Alert, t: (k: string, o?: Record<string, 
       template: 'privEsc',
       title: t('liveOps.titlePe', { to: host.name, method }),
       duration: 10800,
-      parties: [...(user ? [user] : []), host],
+      parties: [user, host],
       captions,
       facts: { method, account },
     }

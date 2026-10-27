@@ -18,15 +18,13 @@ export function PrivEsc(props: SceneProps) {
   const steal = prog(t, 2600, 5200)
   const done = t > 5200
   const r = 16 + 10 * prog(t, 2600, 5200)
+
   return (
     <g>
       <Zone x={40} y={70} w={280} h={380} label={tr('liveOps.scHost', { name: host.name })} tone={tone.internal} />
       {user && (
         <g opacity={prog(t, 0, 600)}>
           <circle cx={U.x} cy={U.y} r={34} fill={tone.surface} stroke={tone.internal} strokeWidth={2.2} />
-          <text x={U.x} y={U.y + 56} textAnchor="middle" fill={tone.text} fontSize={13} fontWeight={600}>
-            {user.name}
-          </text>
           <text x={U.x} y={U.y + 74} textAnchor="middle" fill={tone.textMuted} fontSize={11}>
             {tr('liveOps.scNormalUser')}
           </text>

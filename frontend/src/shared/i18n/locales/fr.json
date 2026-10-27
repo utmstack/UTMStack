@@ -6310,6 +6310,7 @@
         "dEvExploit": "noyau exploité",
         "dEvDefault": "frontière de privilèges franchie",
         "capPe0": "Sur {{host}}, la session tourne en tant qu’utilisateur normal.{{user}}",
+        "capPeUser": ", {{user}}",
         "capPe1": "Il utilise {{method}} pour atteindre un niveau de privilège supérieur.",
         "capPe2": "Les commandes tournent maintenant en tant que {{account}} : contrôle total de l’hôte.",
         "capPe3": "Terminer la session élévée et auditer ce que {{account}} a pu toucher.",

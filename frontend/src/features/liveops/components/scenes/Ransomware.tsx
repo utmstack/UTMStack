@@ -13,12 +13,14 @@ export function Ransomware(props: SceneProps) {
   const f = scene.facts as { files: number; extensions: string[]; note: boolean }
   const host = party(scene, 'host')!
   const H0: Pt = { x: 150, y: 260 }
-  const per = 3300 / f.files
+  const per = 33 / f.files
   const last = f.files - 1
   const done = 600 + last * per + 700
   // Two columns inside the Files zone (350..710 x 70..450), rows spread 140..410.
   const rows = Math.ceil(f.files / 2)
-  const cell = (i: number) => ({ x: 370 + (i % 2) * 175, y: rows === 1 ? 275 : 140 + Math.floor(i / 2) * (270 / (rows - 1)) })
+  const cell = (i: number) => ({
+    x: 370 + (i % 2) * 175,
+    y: rows === 1 ? 275 : 140 + Math.floor(i / 2) * (170 / (rows - 1)) })
   const shadows = [130, 178, 226]
   return (
     <g>
@@ -35,7 +37,7 @@ export function Ransomware(props: SceneProps) {
         return (
           <g key={i} opacity={o}>
             <rect x={r.x} y={r.y - 35} width={130} height={70} rx={8} fill={enc ? tone.alertWash : tone.surface} stroke={ink} strokeWidth={enc ? 2 : 1.2} filter={enc && i === last ? glow : undefined} />
-            <text x={r.x + 12} y={r.y + 5} fill={enc ? tone.alertText : tone.textSoft} fontSize={11.5} fontFamily="JetBrains Mono, monospace" fontWeight={600}>
+            <text x={r.x + 12} y={r.y + 3} fill={enc ? tone.alertText : tone.textSoft} fontSize={11.5} fontFamily="JetBrains Mono, monospace" fontWeight={600}>
               {enc ? `report_${i + 1}.enc` : `report_${i + 1}.pdf`}
             </text>
             {enc && i === last && <Burst at={{ x: r.x + 65, y: r.y }} t={t} start={start + 700} tone={tone.alert} size={60} dur={800} />}

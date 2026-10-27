@@ -6310,6 +6310,7 @@
         "dEvExploit": "kernel explotado",
         "dEvDefault": "límite de privilegios cruzado",
         "capPe0": "En {{host}}, la sesión corre como un usuario normal.{{user}}",
+        "capPeUser": ", {{user}}",
         "capPe1": "Usa {{method}} para alcanzar un nivel de privilegio mayor.",
         "capPe2": "Los comandos ahora corren como {{account}}: control total del host.",
         "capPe3": "Terminar la sesión escalada y auditar lo que {{account}} pudo tocar.",

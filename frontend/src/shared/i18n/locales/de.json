@@ -6310,6 +6310,7 @@
         "dEvExploit": "Kernel ausgenutzt",
         "dEvDefault": "Berechtigungsgrenze überschritten",
         "capPe0": "Auf {{host}} läuft die Sitzung als normaler Benutzer.{{user}}",
+        "capPeUser": ", {{user}}",
         "capPe1": "Es nutzt {{method}}, um ein höheres Berechtigungslevel zu erreichen.",
         "capPe2": "Befehle laufen jetzt als {{account}}: Volle Kontrolle über den Host.",
         "capPe3": "Die erhöhte Sitzung beenden und prüfen, was {{account}} antasten konnte.",
