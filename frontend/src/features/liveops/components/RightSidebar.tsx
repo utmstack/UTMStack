@@ -112,9 +112,9 @@ export function RightSidebar({
               <Sparkles size={12} className="text-primary" /> {t('liveOps.askSocAi')}
             </div>
             <div className="mt-1.5 flex flex-col gap-1.5">
-              {['Explain this attack and tell me what to do next', 'Is this a false positive?', 'What else did this attacker do?'].map((q) => (
-                <button key={q} type="button" onClick={() => onAsk(q)} className="rounded-lg border border-border bg-muted/30 px-2.5 py-1.5 text-left text-[12px] text-foreground hover:border-primary/40 hover:bg-primary/10">
-                  {q}
+              {['askExplain', 'askFp', 'askAttacker'].map((k) => (
+                <button key={k} type="button" onClick={() => onAsk(t(`liveOps.${k}`))} className="rounded-lg border border-border bg-muted/30 px-2.5 py-1.5 text-left text-[12px] text-foreground hover:border-primary/40 hover:bg-primary/10">
+                  {t(`liveOps.${k}`)}
                 </button>
               ))}
             </div>
