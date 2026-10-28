@@ -385,6 +385,9 @@ type federationUsecase struct {
 	cipher      Cipher
 	refreshTTL  time.Duration
 	httpClient  *http.Client
+	// metadataClient is the stricter one: SAML metadata is fetched from a URL a
+	// tenant administrator typed.
+	metadataClient *http.Client
 }
 
 func NewFederationUsecase(
@@ -397,14 +400,15 @@ func NewFederationUsecase(
 	refreshTTL time.Duration,
 ) connectors.FederationUsecase {
 	return &federationUsecase{
-		idpRepo:     idpRepo,
-		userRepo:    userRepo,
-		rbacRepo:    rbacRepo,
-		refreshRepo: refreshRepo,
-		signer:      signer,
-		cipher:      cipher,
-		refreshTTL:  refreshTTL,
-		httpClient:  &http.Client{Timeout: 15 * time.Second},
+		idpRepo:        idpRepo,
+		userRepo:       userRepo,
+		rbacRepo:       rbacRepo,
+		refreshRepo:    refreshRepo,
+		signer:         signer,
+		cipher:         cipher,
+		refreshTTL:     refreshTTL,
+		httpClient:     &http.Client{Timeout: 15 * time.Second},
+		metadataClient: newIDPMetadataClient(),
 	}
 }
 
@@ -618,7 +622,7 @@ func (u *federationUsecase) buildSP(ctx context.Context, p *domain.IdentityProvi
 	if err != nil {
 		return nil, fmt.Errorf("parse metadata url: %w", err)
 	}
-	idpMeta, err := samlsp.FetchMetadata(ctx, u.httpClient, *metaURL)
+	idpMeta, err := samlsp.FetchMetadata(ctx, u.metadataClient, *metaURL)
 	if err != nil {
 		return nil, fmt.Errorf("fetch idp metadata: %w", err)
 	}

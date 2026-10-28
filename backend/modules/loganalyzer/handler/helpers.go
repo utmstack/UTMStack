@@ -22,7 +22,8 @@ func writeError(c *gin.Context, err error) {
 	case errors.Is(err, domain.ErrIDForbidden), errors.Is(err, domain.ErrIDRequired),
 		errors.Is(err, domain.ErrNameRequired), errors.Is(err, domain.ErrFieldRequired),
 		errors.Is(err, domain.ErrDatasetRequired), errors.Is(err, domain.ErrUnknownDataset),
-		errors.Is(err, common_models.ErrOperatorUnsupported):
+		errors.Is(err, common_models.ErrOperatorUnsupported),
+		errors.Is(err, common_models.ErrInvalidField):
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	default:
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

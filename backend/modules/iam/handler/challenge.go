@@ -29,10 +29,6 @@ func (h *AuthHandler) RequestPasswordReset(c *gin.Context) {
 	}
 	err := h.authUsecase.RequestPasswordReset(c.Request.Context(), input)
 	audit.Record(c, audit_connectors.Event{Action: "auth.reset_password.init"}, audit_domain.RESET_USER_PASSWORD_ATTEMPT, audit_domain.RESET_USER_PASSWORD_SUCCESS, err)
-	if errors.Is(err, domain.ErrTfaMailUnavailable) {
-		c.JSON(http.StatusServiceUnavailable, gin.H{"error": err.Error()})
-		return
-	}
 	if err != nil {
 		_ = catcher.Error("password reset init failed", err, nil)
 	}

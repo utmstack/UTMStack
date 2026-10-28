@@ -140,7 +140,12 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 		}
 		return string(t.SupportAccess), nil
 	}
-	userAuth := middleware.Authenticate(m.signer, apiKeyAuth, cfg.internalKey, supportOf)
+	internalPolicy, err := internalKeyPolicy(cfg.internalCIDRs)
+	if err != nil {
+		_ = catcher.Error("INTERNAL_KEY_ALLOWED_CIDRS is not a list of CIDRs", err, nil)
+		os.Exit(1)
+	}
+	userAuth := middleware.Authenticate(m.signer, apiKeyAuth, cfg.internalKey, supportOf, middleware.WithInternalPolicy(internalPolicy))
 
 	isEnterprise := func() bool { return m.billing.License().Current().IsEnterprise() }
 	enterprise := middleware.RequireEnterprise(isEnterprise)

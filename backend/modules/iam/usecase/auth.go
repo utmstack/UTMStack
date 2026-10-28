@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
@@ -381,11 +380,11 @@ func (u *authUsecase) RequestPasswordReset(ctx context.Context, input dto.ResetP
 	if user == nil || user.Status != domain.UserStatusActive || user.IdentityProviderID != nil {
 		return nil
 	}
-	// Whether the address exists stays unsaid, so probing cannot enumerate. That
-	// the instance has no mail server is not about this user at all, and hiding
-	// it only leaves someone waiting for a message that will never arrive.
+	// The answer is the same whether or not the address exists, and whether or
+	// not the mail went out: a failure only for accounts that exist would let
+	// anyone probe for them. It is logged here, where only the operator reads it.
 	if err := issueLinkChallenge(ctx, u.challengeRepo, u.mailer, user, domain.ChallengePasswordReset, resetTTL); err != nil {
-		return fmt.Errorf("%w: %v", domain.ErrTfaMailUnavailable, err)
+		_ = catcher.Error("password reset: the reset email could not be sent", err, nil)
 	}
 	return nil
 }

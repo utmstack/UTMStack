@@ -4,11 +4,12 @@ import (
 	"context"
 	"crypto/subtle"
 	"errors"
-	"github.com/google/uuid"
 	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/pkg/authz"
 	jwtpkg "github.com/utmstack/utmstack/backend/pkg/jwt"
 	"github.com/utmstack/utmstack/backend/pkg/tenancy"
@@ -148,7 +149,24 @@ func UserAuth(signer *jwtpkg.Signer) gin.HandlerFunc {
 	return Authenticate(signer, nil, "", nil)
 }
 
-func Authenticate(signer *jwtpkg.Signer, apiKeyAuth APIKeyAuthFunc, internalKey string, supportOf SupportOfFunc) gin.HandlerFunc {
+// AuthOption adjusts Authenticate.
+type AuthOption func(*authConfig)
+
+type authConfig struct {
+	internal *InternalPolicy
+}
+
+// WithInternalPolicy restricts where the internal key is honoured. Without it
+// the key is accepted on every route.
+func WithInternalPolicy(p InternalPolicy) AuthOption {
+	return func(a *authConfig) { a.internal = &p }
+}
+
+func Authenticate(signer *jwtpkg.Signer, apiKeyAuth APIKeyAuthFunc, internalKey string, supportOf SupportOfFunc, opts ...AuthOption) gin.HandlerFunc {
+	var cfg authConfig
+	for _, o := range opts {
+		o(&cfg)
+	}
 	return func(c *gin.Context) {
 		if token, ok := strings.CutPrefix(c.GetHeader("Authorization"), "Bearer "); ok && token != "" {
 			claims, err := signer.Verify(token)
@@ -174,7 +192,7 @@ func Authenticate(signer *jwtpkg.Signer, apiKeyAuth APIKeyAuthFunc, internalKey 
 			c.Next()
 			return
 		}
-		if HasInternalKey(c, internalKey) {
+		if HasInternalKey(c, internalKey) && internalAllowed(c, cfg.internal) {
 			c.Set("internal", true)
 			if !setActor(c, Actor{
 				Internal: true,
@@ -321,4 +339,24 @@ func abortAuthzErr(c *gin.Context, err error, msg string) {
 
 func AbortUnauthorized(c *gin.Context, msg string) {
 	c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": msg})
+}
+
+// internalAllowed applies the policy to a request that already proved it holds
+// the key. A refusal falls through to the other credentials and ends in 401,
+// and is logged because the usual cause is a service that was missed when the
+// allowlist was written.
+func internalAllowed(c *gin.Context, p *InternalPolicy) bool {
+	if p == nil {
+		return true
+	}
+	ok, why := p.Permits(c.Request, c.ClientIP())
+	if !ok {
+		catcher.Warn("internal key presented where it is not accepted and ignored", map[string]any{
+			"path":   c.Request.URL.Path,
+			"method": c.Request.Method,
+			"remote": c.ClientIP(),
+			"reason": why,
+		})
+	}
+	return ok
 }

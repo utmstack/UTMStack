@@ -79,6 +79,9 @@ func (r *chAnalyzerRepository) TopValues(ctx context.Context, dataset, dataType,
 	if err := rejectUnsupportedTextSearch(dataset, filters); err != nil {
 		return nil, err
 	}
+	if err := common_models.ValidateField(field); err != nil {
+		return nil, err
+	}
 	scope, filters = common_models.SplitTimeBounds(scope, filters)
 	f, err := common_models.ToStoreFilters(filters)
 	if err != nil {
@@ -251,6 +254,9 @@ func (r *chAnalyzerRepository) Search(ctx context.Context, req dto.SearchRequest
 	sortBy := req.SortBy
 	if sortBy == "" {
 		sortBy = "@timestamp"
+	}
+	if err := common_models.ValidateField(sortBy); err != nil {
+		return nil, err
 	}
 	order := store.Desc
 	if req.Order == "asc" {
