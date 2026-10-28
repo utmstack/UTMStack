@@ -323,10 +323,25 @@ public class ElasticsearchService {
             for (IndicesRecord index : indices) {
                 Optional<ElasticCluster> opt = getClusterStatus();
 
-                if (opt.isEmpty() || opt.get().getResume().getDiskUsedPercent() < 70)
+                if (opt.isEmpty())
                     break;
 
-                if (!indexPolicyService.isIndexRemovable(index.index())) {
+                float diskNow = opt.get().getResume().getDiskUsedPercent();
+
+                if (diskNow < 70)
+                    break;
+
+                // ISM only ever marks an index removable once it has aged into
+                // the delete state (30d in the default policy). On a fresh or
+                // high-volume install no index reaches that state before the
+                // disk fills, so gating the emergency delete on it made this
+                // safety net a no-op (the lab hit 100% twice). At/above the 85%
+                // emergency we delete the oldest data regardless of ISM state —
+                // that is the point of the crash-avoidance net and what the UI
+                // promises ("will delete the oldest logs"). Below 85% we keep
+                // respecting the lifecycle policy.
+                boolean emergency = diskNow >= 85;
+                if (!emergency && !indexPolicyService.isIndexRemovable(index.index())) {
                     log.info("{} Skipping index {} because it is not in a removable state", ctx, index.index());
                     continue;
                 }
