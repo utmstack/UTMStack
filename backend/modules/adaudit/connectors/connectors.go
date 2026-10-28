@@ -12,8 +12,7 @@ import (
 
 type ADUserRepository interface {
 	Upsert(ctx context.Context, users []domain.ADUser) error
-	List(ctx context.Context, f dto.ADUserFilter) ([]domain.ADUser, int64, error)
-	ListWithIdentity(ctx context.Context, f dto.ADUserFilter) ([]dto.UserRow, int64, error)
+	List(ctx context.Context, f dto.ADUserFilter) ([]dto.UserRow, int64, error)
 	Each(ctx context.Context, source string, fn func(domain.ADUser) error) error
 	Stats(ctx context.Context) (*dto.ADUserStats, error)
 	ResolveLinuxIdentity(ctx context.Context, tenantID, hostname, machineID string) (int64, error)

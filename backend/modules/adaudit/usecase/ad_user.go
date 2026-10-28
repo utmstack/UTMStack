@@ -116,7 +116,7 @@ func (u *adUserUsecase) Ingest(ctx context.Context, req dto.IngestRequest) (int,
 }
 
 func (u *adUserUsecase) List(ctx context.Context, f dto.ADUserFilter) (*database.List[dto.UserRow], error) {
-	items, total, err := u.repo.ListWithIdentity(ctx, f)
+	items, total, err := u.repo.List(ctx, f)
 	if err != nil {
 		return nil, err
 	}

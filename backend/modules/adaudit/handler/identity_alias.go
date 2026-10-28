@@ -12,6 +12,7 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/adaudit/repository"
 	"github.com/utmstack/utmstack/backend/modules/adaudit/usecase"
 	"github.com/utmstack/utmstack/backend/pkg/http/middleware"
+	"gorm.io/gorm"
 )
 
 type IdentityHandler struct {
@@ -29,6 +30,8 @@ func actorIdentity(c *gin.Context) string {
 	return "internal"
 }
 
+var ErrIdentityAssignConflict = errors.New("user is already assigned to another identity")
+
 func writeIdentityError(c *gin.Context, op string, err error) {
 	switch {
 	case errors.Is(err, usecase.ErrIdentityNameInvalid):
@@ -38,7 +41,9 @@ func writeIdentityError(c *gin.Context, op string, err error) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 	case errors.Is(err, repository.ErrIdentityNameTaken),
 		errors.Is(err, repository.ErrIdentityInUse),
-		errors.Is(err, repository.ErrTenantMismatch):
+		errors.Is(err, repository.ErrTenantMismatch),
+		errors.Is(err, ErrIdentityAssignConflict),
+		errors.Is(err, gorm.ErrDuplicatedKey):
 		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 	default:
 		_ = catcher.Error("adaudit: "+op+" failed", err, nil)
@@ -166,25 +171,19 @@ func (h *IdentityHandler) Assign(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "id is not a valid id"})
 		return
 	}
-	if c.Request.ContentLength == 0 {
-		if err := h.uc.Unassign(c.Request.Context(), userID, actorIdentity(c)); err != nil {
-			writeIdentityError(c, "assign", err)
+	var req dto.AssignIdentityRequest
+	if c.Request.ContentLength > 0 {
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "body must be a JSON object with an 'identityId' string"})
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{"assigned": true})
-		return
-	}
-	var req dto.AssignIdentityRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "identityId is not a valid id"})
-		return
 	}
 	if req.IdentityID == "" {
 		if err := h.uc.Unassign(c.Request.Context(), userID, actorIdentity(c)); err != nil {
 			writeIdentityError(c, "assign", err)
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{"assigned": true})
+		c.JSON(http.StatusOK, gin.H{"assigned": false})
 		return
 	}
 	aliasID, err := uuid.Parse(req.IdentityID)
@@ -193,6 +192,10 @@ func (h *IdentityHandler) Assign(c *gin.Context) {
 		return
 	}
 	if err := h.uc.Assign(c.Request.Context(), userID, aliasID, actorIdentity(c)); err != nil {
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			c.JSON(http.StatusConflict, gin.H{"error": ErrIdentityAssignConflict.Error()})
+			return
+		}
 		writeIdentityError(c, "assign", err)
 		return
 	}

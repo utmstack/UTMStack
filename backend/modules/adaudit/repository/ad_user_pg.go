@@ -251,40 +251,7 @@ func applyStatusQualified(q *gorm.DB, table, status string) *gorm.DB {
 	return q
 }
 
-func (r *pgADUserRepository) List(ctx context.Context, f dto.ADUserFilter) ([]domain.ADUser, int64, error) {
-	q := r.db.WithContext(ctx).Model(&domain.ADUser{})
-	if f.Source != "" {
-		q = q.Where("source = ?", f.Source)
-	}
-	if f.Status != "" {
-		// Status is a richer, derived filter; when present it supersedes the raw
-		// `active` flag so the two can't contradict each other.
-		q = applyStatus(q, f.Status)
-	} else if f.Active != nil {
-		q = q.Where("active = ?", *f.Active)
-	}
-	if f.Search != "" {
-		like := "%" + f.Search + "%"
-		q = q.Where("sam_account_name ILIKE ? OR sid ILIKE ? OR username ILIKE ?", like, like, like)
-	}
-
-	var total int64
-	if err := q.Count(&total).Error; err != nil {
-		return nil, 0, err
-	}
-
-	order := "sam_account_name ASC"
-	if f.Sort == "recent" {
-		order = "last_seen DESC NULLS LAST"
-	}
-	var items []domain.ADUser
-	if err := q.Order(order).Offset(f.Offset()).Limit(f.Limit()).Find(&items).Error; err != nil {
-		return nil, 0, err
-	}
-	return items, total, nil
-}
-
-func (r *pgADUserRepository) ListWithIdentity(ctx context.Context, f dto.ADUserFilter) ([]dto.UserRow, int64, error) {
+func (r *pgADUserRepository) List(ctx context.Context, f dto.ADUserFilter) ([]dto.UserRow, int64, error) {
 	q := r.db.WithContext(ctx).Model(&domain.ADUser{}).
 		Select("ad_user.*", "identity_alias.name AS identity").
 		Joins("LEFT JOIN identity_alias_assignment ON identity_alias_assignment.user_id = ad_user.id").
