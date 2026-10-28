@@ -23,28 +23,34 @@ Each finding below carries a step-by-step reproducible path with the evidence ac
 - **Why it's not a finding:** UTMStack is open source — the spec is generated from source that is already public on GitHub, so it discloses nothing beyond the repo. The version string it carries is already exposed by `/api/info/version` (permitAll) and the login page. No confidential information is leaked.
 - **Optional hardening (only if it's ever wanted):** gate or drop the `/v3` + `/swagger-ui` nginx locations. Not scheduled.
 
-### F-3 — CONFIRMED, live (wildcard CORS header)
+### F-3 — NOT A FINDING (reclassified 2026-10-28, product decision: no cross-origin browser consumers exist)
 1. `curl -sk -D - -o /dev/null -H "Origin: https://evil-attacker.com" http://192.168.99.75:10001/api/ping`
-2. **Observed:** `Access-Control-Allow-Origin: *` + `Access-Control-Expose-Headers: Authorization, ...`.
-3. Preflight on the **gated** `/api` path returns 403 from nginx (`x-shared-key` gate) — so on THIS deployment the wildcard is not directly exploitable cross-origin for `/api`; but it is returned on non-gated/`permitAll` paths and remains a latent landmine (any future non-gated endpoint + credentials mode = token exfiltration).
-- **Verdict: real misconfiguration, lower practical severity than the draft's "MEDIUM" on this deployment. Fix: replace `*` with the panel origin in `application-prod.yml` + `application-dev.yml` (`WebConfigurer` consumes it).**
+2. **Observed:** `Access-Control-Allow-Origin: *` + `Access-Control-Expose-Headers: Authorization, ...` — the wildcard is served.
+- **Why it is inert (verified end-to-end, 2026-10-28):**
+  - REST: `environment.prod.ts:3` `SERVER_API_URL: ''` → all `HttpClient` calls resolve same-origin; the panel nginx proxies `/api` on the same hostname (`installer/templates/front-end.go:48-49`). No browser ever makes a cross-origin request.
+  - Websockets: `WEBSOCKET_URL: ''` → SockJS/STOMP connect to the same host (`tracker.service.ts:39`); `utm-agent-console` sets `withCredentials=false`.
+  - The single `withCredentials:true` (`utm-webflux.service.ts:36`, AD-tracker `EventSource`) is also same-origin, and its token rides a `?access_token=` query param (which is why `JWTFilter` reads `access_token`), not a header — so the `Expose-Headers: Authorization` line has no effect on it.
+  - The federation server consumes the API **server-to-server** (Go → HTTP); CORS is a *browser* mechanism and does not apply to non-browser clients. Same for agents/plugins.
+- **Verdict:** `allowed-origins: '*'` is inert JHipster boilerplate — there is no deployment with a cross-origin browser consumer. Reclaimed the earlier "hardening" grading: no functional change needed. Optional cosmetic cleanup only.
 
-### F-4 — CONFIRMED, live, as a plain ROLE_USER
-1. Authenticate as `labsec_poc` (ROLE_USER) → JWT with claims `{"sub":"labsec_poc","auth":"ROLE_USER","authenticated":true}`.
-2. `POST /api/elasticsearch/search/sql` (panel, with `x-shared-key` + `Authorization: Bearer <jwt>`) body `{"query":"SELECT 1"}`.
-3. **Observed:** backend log `ElasticsearchService.searchBySql: OpenSearch.searchBySqlQuery: HTTP 400` — i.e., **Spring Security accepted the request and forwarded the attacker SQL to the OpenSearch SQL engine** (the 400 is the engine rejecting `SELECT 1` with no FROM — proof of execution, not an auth block). Same request **unauthenticated → 401** (auth gate works).
-4. `GET /api/elasticsearch/index/all` as the same ROLE_USER → `200` with full index inventory incl. `security-auditlog-2026.10.28` (**43,330 docs**).
-- **Verdict: confirmed — any analyst issues arbitrary OpenSearch SQL and enumerates all indices.** The security consequence is bounded by the role model (analysts read all data by design), so it stays **LOW–MEDIUM design hardening** (scope to single read-only SELECT over `v11-log-*`/`v11-alert-*` patterns), not a privilege escalation. The C4/C5 disclosure items (filter-builder concat into this same endpoint) are therefore hygiene, as reclassified.
+### F-4 — CONFIRMED endpoint is live for ROLE_USER (reclassified: not a finding — it's the Log Explorer SQL feature)
+1. Authenticate as a plain `ROLE_USER` → JWT `{"auth":"ROLE_USER"}`.
+2. `POST /api/elasticsearch/search/sql` (panel, `x-shared-key` + Bearer JWT) body `{"query":"SELECT 1"}`.
+3. **Observed:** backend log `OpenSearch.searchBySqlQuery: HTTP 400` — **Spring Security accepted the request and forwarded the SQL to the OpenSearch engine** (the 400 is the engine rejecting the SQL, not an auth block). Unauthenticated → 401.
+4. `GET /api/elasticsearch/index/all` as the same ROLE_USER → `200` with full index inventory.
+- **Reclassification 2026-10-28:** this endpoint backs the Log Explorer SQL mode (analyst types raw SQL in `log-analyzer-view`), so an analyst running read SQL is a designed capability. Analysts read all data by design and OS SQL is read-only → **not a vulnerability.** The C4/C5 filter-builder concat stays as optional hygiene only.
 
-### F-1 — Stored XSS: payload stored + sink shipped; final render click pending
+### F-1 — Stored XSS PoC: payload stored, but rendering is INERT (PoC failed to exploit — corrected 2026-10-28)
 1. **Stored payload (done):** injected a synthetic alert doc into `v11-alert-2026-10-28` (via HTTPS to OS with the backend service creds): `{"_index":"v11-alert-2026-10-28","_id":"kRk-gqEBG2EDI9JlXLDl","result":"created"}`.
 2. **Round-trip confirmed (done):** `_search` match on `name:"LABSEC-XSS-POC-9917"` → stored `description` = `LABSEC-XSS-POC <img src=x onerror="window.__labsecXSS=1"> done` — the markup survives storage byte-for-byte.
-3. **Sink shipped (done):** the live frontend bundle `main.d20a757d340e10b2c1d1.js` contains `bypassSecurityTrustHtml` **4×** (the `safe` pipe + `vs-task` URL trust); `alert-description.component.html:3` binds `[innerHTML]="alertDetail"` where `alertDetail = replaceBreakLine(...)` — **no escape** (`string-util.ts:3` vs the safe `escapeAndBreakLine` at `:36` which these components do NOT call).
-4. **Render (pending — manual step for you):** in the already-open lab browser, the alert view facet search only filters facet labels, and the MCP `fill_form` on that heavy Angular page hangs. Fastest manual confirmation: Log Explorer → filter `name: "LABSEC-XSS-POC-9917"` → open the alert → watch the Summary pane. Expected: a network/console artifact for `window.__labsecXSS=1`. Or simply: DevTools console → `!!window.__labsecXSS` after opening it.
-- **Verdict: chain is closed except the final browser render, which is a deterministic consequence of steps 1–3 (`[innerHTML]` of a stored unescaped string — no browser behavior in question). Treat as CONFIRMED with a reproducible on-screen demo available on request.**
+3. **Rendering (corrected):** the live bundle `main.d20a757d340e10b2c1d1.js` contains `bypassSecurityTrustHtml` 4× (the `safe` pipe + vs-task URL trust), **but** the alert-detail bindings I flagged (`alert-description` etc.) use **plain `[innerHTML]`**, which Angular 7's default sanitizer neutralizes (`onerror` stripped, `<img>` stays inert). The only true bypasses are the `| safe:'html'` sites (inventory in Part C½ F-1), all of which are currently fed admin-authored or pre-escaped data.
+- **Verdict: NO live stored XSS.** The earlier "CONFIRMED" was wrong — it conflated "markup survives storage" with "markup executes at render," which is false under Angular's default `[innerHTML]` sanitization. The stored-payload PoC is retired (doc deleted).
 
 ### F-5 — Static only (unchanged)
 `plugins/soc-ai/utils/request.go:41` `InsecureSkipVerify: true` on outbound calls — verified in source; runtime behavior depends on whether soc-ai has external endpoints configured in a given deployment. Severity stands as MEDIUM/context-dependent. No lab instance of soc-ai config to test against safely.
+
+### F-5 — NOT A FINDING (reclassified 2026-10-28 after re-verification)
+- The `InsecureSkipVerify` client in `plugins/soc-ai/utils/request.go:41` is selected **only** when `opts.SkipTLSVerify` is set, and the only caller doing that is `DoOpenSearchReq` (request.go:137-148) — i.e., internal calls to the self-signed OpenSearch endpoint. All other soc-ai traffic (including external AI-model calls via `DoReq`) uses the standard-verification `defaultClient`. Same house pattern as `inputs/`, `agent-manager/`, `compliance-orchestrator/`. **No remediation needed.**
 
 ### Lab cleanup — DONE (2026-10-28)
 - Throwaway account removed: `DELETE 1` on `jhi_user_authority` (user_id=4) + `DELETE 1` on `jhi_user` (`labsec_poc`); remaining logins verified = `fsclient, admin, fstestuser` (original set).
@@ -61,7 +67,7 @@ Each finding below carries a step-by-step reproducible path with the evidence ac
 4. **The frontend runtime criticals are the jspdf cluster:** `jspdf` 2.3.1 (2 critical + 8 high, fixes up to 4.2.1) is imported in `export-to-pdf-util.ts`, and it **bundles `dompurify` 2.2.7** (critical CVE-2024-48910), `canvg`, `fflate`, `html2canvas` into the shipped app. These run in the analyst's browser, on data the app feeds them (export flows). Remediation: bump jspdf to a patched major **with an API-compat test** (jspdf 2→4 is a breaking-major jump; the code does `import jsPDF from 'jspdf'` + basic export calls — needs verification), or pin dompurify up via `overrides` if jspdf 2.x's range allows (jspdf's dep is `dompurify ^2.2.0`, so `overrides: {"dompurify": "3.4.16"}` may not satisfy jspdf's own 2.x-era calls — test required).
 5. **Angular 7 framework alerts (22: core/common/compiler/router) have no patch on 7.x** — fixes start at v10.2.5 / v19.2.16. Disposition per alert: several are SSR/HttpTransferCache/i18n features UTMStack does not use (N/A dismissal with justification), the rest accepted risk pending the framework upgrade project.
 6. **Two Go packages have no fixed version yet:** `github.com/docker/docker` (8 alerts, `+incompatible` v28.5.2 in installer + collector — used to drive the swarm deployment) and a few npm packages with `fixed=` blank. These need a documented monitor-or-mitigate decision, not a dismiss.
-7. **The manual sweep found application vulnerabilities the scanner cannot:** the most important is **stored DOM XSS in the SIEM console** from log-derived content rendered via a `bypassSecurityTrustHtml` "safe" pipe — for a SIEM ingesting untrusted traffic, this is attacker-writable → analyst-session-executable. (The OpenAPI/Swagger endpoint is public but is **not** a finding for an open-source product — see F-6.)
+7. **The manual sweep found NO live application vulnerability once Angular's default sanitizer was properly accounted for.** Five candidates (F-1 HTML sinks, F-2 GVM render, F-3 CORS `*`, F-4 raw-OS-SQL, F-5 soc-ai TLS) were each re-verified and **reclassified as not findings** — the remaining F-1 residual (a `safe.pipe` that bypasses Angular's sanitizer, currently only fed admin-authored or pre-escaped data) is downgraded to **hygiene**. The original F-1 "stored XSS" claim was wrong: Angular 7 sanitizes plain `[innerHTML]`, and my live PoC payload rendered inertly. See Part B½ (live) + Part C (static re-verification) for the full trail.
 
 ---
 
@@ -139,32 +145,38 @@ Each finding below carries a step-by-step reproducible path with the evidence ac
 
 Not in the scanner output. Ranked by severity.
 
-### F-1 — Stored DOM XSS from log-derived content rendered via a fake-"safe" pipe — **HIGH/CRITICAL**
-- **Sink:** `frontend/src/app/shared/pipes/safe.pipe.ts:30` — `bypassSecurityTrustHtml(value)` with **no sanitization** (the name is misleading; DOMPurify is *not* called).
-- **Feeds (log → alert → UI):** `alert-description.component.ts:23`, `alert-category.component.ts:23`, `alert-severity-description.component.ts:23`, `alert-proposed-solution.component.ts:25`, `file-detail.component.ts:30` (file message field), `file-access-mask.component.ts:30` (SDDL description) — all `replaceBreakLine(getValueFromPropertyPath(alert, <log field>))` bound to `[innerHTML]`.
-- **Path:** attacker controls a string in an ingested log field (process name, command line, filename, URL, user-agent) → correlation rule fires → analyst opens the alert → browser executes attacker markup. UTMStack ingests untrusted network traffic, so this is **attacker-writable, analyst-read**: console session compromise (harvest the JWT from the authenticated session, act as the analyst, pivot to the API).
-- **Second sink:** `highlight.pipe.ts:14` wraps search matches in `<mark>` and binds `[innerHTML]` on AD tree/folder names, report names — unescaped text → HTML.
-- **The fix is already in-repo:** `string-util.ts:36` `escapeAndBreakLine()` = escape-then-breaklines, documented for exactly this. The vulnerable components use the unsafe `replaceBreakLine` instead.
-- **Remediation:** switch all log/IR-derived `[innerHTML]` to `escapeAndBreakLine`; make `safe.pipe` actually sanitize or just escape; treat `highlight` input as untrusted (escape first, then wrap). **Highest-value fix in the review.**
-- **Regression test:** craft a log event whose alert description carries `<img src=x onerror=…>`; assert it renders inert after the fix.
+### F-1 — Frontend HTML sinks (CORRECTED 2026-10-28: NOT a live XSS — downgraded to latent-risk + hygiene)
+- **Original claim was wrong and is corrected here.** I initially reported that log-derived alert fields rendered through `replaceBreakLine` + `[innerHTML]` were unescaped XSS sinks. That misread Angular 7's behavior: **the framework's default sanitizer sanitizes plain `[innerHTML]`** (strips `<script>`, `on*` handlers), so `alert-description` / `alert-category` / `alert-severity-description` / `alert-proposed-solution` / `file-detail` / `file-access-mask` are **safe by default**. My live PoC alert (`<img src=x onerror=…>` in a stored description) renders inertly in the UI — the payload does NOT execute.
+- **The only bindings that bypass Angular's sanitizer** are the 17 sites using the `safe:'html'` pipe (`safe.pipe.ts:30` = `bypassSecurityTrustHtml`, zero sanitization) and two explicit `bypassSecurityTrustUrl` calls. Full inventory and live-status:
+  - `compliance-*` components (7 sites): admin-authored compliance control text → admin self-XSS only (low).
+  - `utm-agent-console.html:65`: the TS **already escapes** via `escapeAndBreakLine` before the binding (`utm-agent-console.component.ts:180`) → double-safe.
+  - `utm-terminal-input.html:10`: TS escapes at `:26` → safe.
+  - `logstash-filters.html:11`: binding is **commented out** → dead.
+  - `vs-task-result-detail.html` (10 sites + 1 URL trust): GVM/openvas backend endpoints don't exist in this repo → dead (see F-2).
+- **Verdict: no live unauthenticated/attacker-writable XSS found.** Residual risk = the `safe.pipe` exists as a one-liner that silently disables Angular's sanitizer for any future caller; the codebase is inconsistent (some sites pre-escape, some rely on the pipe).
+- **Remediation (hygiene, not P0):** (a) delete or rewrite `safe.pipe` to escape-then-render (it is now misnamed "safe" doing the opposite), or at minimum document "input MUST be pre-escaped"; (b) CI grep-gate for new `| safe:'html'` usages on non-admin data.
+- **F-1 live PoC artifacts (already cleaned):** injected alert `_id kRk-gqEBG2EDI9JlXLDl` deleted; `labsec_poc` account deleted.
 
-### F-2 — GVM/vulnerability-scanner detail rendered unsanitized + `bypassSecurityTrustUrl` — **MEDIUM**
-- `vs-task-result-detail.component.ts:38-41` builds HTML with no escape (newline→`<br>`) bound to multiple `[innerHTML]`; `:71` `sanitizer.bypassSecurityTrustUrl(doc)` on an `[href]`.
-- Source: Greenbone/GVM scan results proxied by `api/utm-gvm-scan-result`. Semi-trusted, but a compromised GVM server or crafted CVE-feed entry → XSS / `javascript:` URL.
-- **Remediation:** `escapeAndBreakLine`; validate `doc` is http(s) before trusting the URL.
+### F-2 — GVM detail unsanitized render (RECLASSIFIED: dead code — backend endpoints don't exist in this repo)
+- `vs-task-result-detail.component.ts:38-41` builds HTML with no escape (newline→`<br>`) bound to ~10 `[innerHTML]`; `:71` `sanitizer.bypassSecurityTrustUrl(doc)` on an `[href]`.
+- **Provenance check 2026-10-28:** the component's data comes from `api/utm-gvm-tasks` and `api/openvas/tasks/quickScanTask` — **no backend controller for either exists in this repo** (searched Java + Go); only legacy table stubs (`utm_gvm_task`/`utm_gvm_scan_result`) remain in liquibase `tables.sql`. So in this codebase the feature is **unreachable** — the sink exists but has no live data source.
+- **Verdict:** not a live vulnerability. If the GVM integration is ever revived (endpoint added), the same `escapeAndBreakLine` fix from F-1 should be applied to these bindings first. Keep on the list as a "fix-if-revived" note, not a scheduled item.
 
-### F-3 — Production CORS is `allowed-origins: '*'` — **MEDIUM (hardening)**
+### F-3 — Production CORS `allowed-origins: '*'` (RECLASSIFIED: not a finding — no cross-origin browser consumers)
 - `application-prod.yml:50-51`, registered on `/api/**`, `/management/**`, swagger paths (`WebConfigurer.java:47-52`).
-- Direct token theft is blocked (JWT in `Authorization` header; **no** `withCredentials(true)` anywhere in `frontend/src/app` — verified), but the wildcard still allows any origin to call public endpoints and read responses, and it flips into a real exposure the day credentials mode is enabled.
-- **Remediation:** `allowed-origins` = the real frontend origin(s) / `allowedOriginPatterns` for known deployment hostnames.
+- **Why it's inert (verified 2026-10-28):** every browser consumer is same-origin — `environment.prod.ts` `SERVER_API_URL:''`/`WEBSOCKET_URL:''` make all REST/STOMP calls relative to the panel hostname, and the panel nginx proxies `/api` + `/ws` on that same host (`installer/templates/front-end.go`). The single `withCredentials:true` (AD-tracker `EventSource`) is same-origin and passes its token as a `?access_token=` query param, so the `Expose-Headers: Authorization` line affects nothing. Federation-server, agent, and plugin API consumers are server-to-server (non-browser), where CORS does not apply.
+- **Remediation:** none required. Optional cosmetic cleanup of the JHipster-default wildcard.
 
-### F-4 — `POST /api/elasticsearch/search/sql` runs raw OpenSearch SQL for any `ROLE_USER` — **LOW–MEDIUM (design)**
-- `ElasticsearchResource.java:252-265` executes caller-supplied SQL. Not an escalation under the analyst-reads-everything model, but an over-broad raw-query primitive (any index the OS account can read).
-- **Remediation:** scope to read-only single `SELECT` on allowed index patterns, or gate to `ROLE_ADMIN`; keep `SqlQueryFilterService` value-escaping as hygiene (the C4/C5 disclosure items).
+### F-4 — `POST /api/elasticsearch/search/sql` runs raw OpenSearch SQL (RECLASSIFIED: not a finding — it's the Log Explorer SQL feature)
+- `ElasticsearchResource.java:252-265` executes caller-supplied SQL. **This is the backend for the Log Explorer "SQL mode"** — `log-analyzer-view.component.ts:289` sends the analyst-typed `this.sqlQuery` free-form box straight to this endpoint. So "analyst runs raw read SQL" is a designed capability, not a hidden primitive.
+- **Why it's not a vulnerability (same reasoning as F-3/F-6):** analysts read all log data by design (no tenant/row boundary to escape); the OpenSearch SQL engine is **read-only** (no DML/DDL/code-exec). The endpoint doing its job is not a missing gate.
+- **Only residual (optional hygiene, not a finding):** `SqlQueryFilterService.java:148+` builds SQL by string-interpolating filter values without escaping (C4/C5 disclosure items) — CWE-89 in principle, but low-impact since the same user already has the raw-SQL box one screen over.
+- **Remediation:** none required for the endpoint. Escape filter values in `SqlQueryFilterService` if we want the hygiene.
 
-### F-5 — `plugins/soc-ai` outbound client uses `InsecureSkipVerify: true` — **MEDIUM (context-dependent)**
-- `plugins/soc-ai/utils/request.go:41`. If soc-ai calls an external AI endpoint, a network MITM can tamper request/response. The `inputs/`, `agent-manager/`, `compliance-orchestrator/` skip-verify sites are internal self-signed service calls — acceptable, but should carry a comment.
-- **Remediation:** verify TLS for external calls; pin the specific internal CA instead of skipping verification.
+### F-5 — `plugins/soc-ai` TLS (RECLASSIFIED: not a finding — skip-verify is internal OpenSearch only)
+- Re-verified 2026-10-28: the `InsecureSkipVerify: true` client (`utils/request.go:41`) is **only** selected when `opts.SkipTLSVerify` is set, and the sole caller is `DoOpenSearchReq` (`request.go:137-148`) — i.e., the plugin's calls to the **internal self-signed OpenSearch** endpoint. All other soc-ai traffic (incl. the external AI-model calls via `DoReq`/`DoParseReq`) uses `defaultClient` with **standard TLS verification** (`request.go:81-84`).
+- **Verdict: not a finding.** Self-signed internal-DB TLS-skip is the house pattern (same in `inputs/`, `agent-manager/`, `compliance-orchestrator/`) and is acceptable inside the deployment's trust boundary. The only actionable nit is the misleading comment on line 35 ("for OpenSearch" — it already says that; keep as-is).
+- The other `InsecureSkipVerify` sites in the repo are the same class: internal self-signed service calls between UTMStack components.
 
 ### F-6 — Public OpenAPI/Swagger (RECLASSIFIED: not a finding)
 - `springdoc-openapi-ui` is in `backend/pom.xml`; `/v3/api-docs` + `/swagger-ui` are served unauthenticated (verified live: 200, 374 KB, 252 paths). **Product decision 2026-10-28: UTMStack is open source — the spec is generated from public source and discloses no confidential information; the version string is already exposed via `/api/info/version` and the login page.** No fix scheduled; optional nginx gating if ever wanted.
@@ -181,22 +193,28 @@ Not in the scanner output. Ranked by severity.
 ## Part D — Recommended sequencing for v11.3.1
 
 **P0 (fix in this release):**
-1. **F-1 frontend stored XSS** — `escapeAndBreakLine` on log-derived `[innerHTML]`; harden `safe.pipe` + `highlight`. (Highest real-world impact; fix already in-repo.)
-2. **Go bump pass** — `x/crypto`≥0.55 (shared, agent/updater, installer), `cel-go` 0.29.0 (all modules), `grpc` 1.84.0 (4 plugins), `x/net`≥0.55 (shared, agent/updater), `otel` 1.45 (installer), `quic-go` 0.59.1 (3). Closes ~86 alerts including 21 criticals.
-3. **jspdf cluster** — bump jspdf (2.3.1 → patched) with export-path tests; verify dompurify/canvg/fflate move with it.
+1. **Go bump pass** — `x/crypto`≥0.55 (shared, agent/updater, installer), `cel-go` 0.29.0 (all modules), `grpc` 1.84.0 (4 plugins), `x/net`≥0.55 (shared, agent/updater), `otel` 1.45 (installer), `quic-go` 0.59.1 (3). Closes ~86 alerts including 21 criticals.
+2. **jspdf cluster** — bump jspdf (2.3.1 → patched) with export-path tests; verify dompurify/canvg/fflate move with it.
 
 **P1 (fix in this release, low effort):**
-4. `postgresql` 42.7.12 (user-auditor); `js-yaml` 4.3.2 (direct frontend dep, user-uploaded YAML is the vector); `lodash` 4.17.23; `highlight.js` 9.18.2.
-5. **F-3** CORS origin fix; **F-2** GVM detail escape.
+3. `postgresql` 42.7.12 (user-auditor); `js-yaml` 4.3.2 (direct frontend dep, user-uploaded YAML is the vector); `lodash` 4.17.23; `highlight.js` 9.18.2.
 
-**P2:**
-6. **F-5** soc-ai TLS verification; **F-4** scope the raw-OS-SQL endpoint.
-7. `websocket-driver` 0.7.5 if the bundle scan proves it ships; `tar`/`form-data`/`request` dispositions per bundle scan.
+**P2 (hygiene):**
+4. **F-1 residual:** delete or harden `safe.pipe` (it's a one-line `bypassSecurityTrustHtml` trap; currently only fed admin-authored or pre-escaped data) + CI grep-gate on new `| safe:'html'` usages. `SqlQueryFilterService` value-escaping (C4/C5). GVM detail bindings get `escapeAndBreakLine` only if that integration is ever revived (F-2).
+5. `websocket-driver` 0.7.5 if the bundle scan proves it ships; `tar`/`form-data`/`request` dispositions per bundle scan.
+
+**Not scheduled as fixes (reclassified not-findings after deep re-verification, 2026-10-28):**
+- **F-1** stored XSS — NOT exploitable as shipped: Angular 7's default sanitizer neutralizes plain `[innerHTML]` (live PoC payload rendered inert); only the 17 `| safe:'html'` / `bypassSecurityTrustUrl` sites bypass it, and all currently receive admin-authored or pre-escaped data. Residual = hygiene (P2 item 4).
+- **F-2** GVM render — dead code, backend endpoints don't exist in this repo.
+- **F-3** CORS `*` — no cross-origin browser consumers exist (all same-origin; FS/agents are server-to-server).
+- **F-4** `/api/elasticsearch/search/sql` — it IS the Log Explorer SQL-mode feature; analysts run read SQL by design.
+- **F-5** soc-ai `InsecureSkipVerify` — internal self-signed OpenSearch calls only; external AI calls verify TLS.
+- **F-6** public OpenAPI/Swagger — open-source product; the schema discloses nothing not already public.
 
 **Process (document, not patch):**
-8. **snakeyaml 1.33** — config-only constraint + code-review gate (no clean patch on Spring Boot 3.1.5).
-9. **Docker SDK (no fix published)** — monitor; document the host-local daemon boundary.
-10. **Frontend build isolation** — isolated egress-restricted build, no creds, dist hash/sign, **post-build bundle scan**; batch-dismiss the ~120 dev-scoped + ~22 Angular-7-unpatchable alerts with per-package justification templates.
+6. **snakeyaml 1.33** — config-only constraint + code-review gate (no clean patch on Spring Boot 3.1.5).
+7. **Docker SDK (no fix published)** — monitor; document the host-local daemon boundary.
+8. **Frontend build isolation** — isolated egress-restricted build, no creds, dist hash/sign, **post-build bundle scan**; batch-dismiss the ~120 dev-scoped + ~22 Angular-7-unpatchable alerts with per-package justification templates.
 
 **Verification to add:**
 - Post-build bundle scan proving dev-only packages are absent from `dist/utm-stack`.
