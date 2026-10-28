@@ -1,7 +1,7 @@
 import { flagEmoji } from '@/features/alerts/lib/alert-meta'
 import type { Alert } from '@/features/alerts/types/alert.types'
 
-export type TemplateId = 'bruteForce' | 'outbound' | 'lateral' | 'malware' | 'webAttack' | 'travel' | 'scan' | 'cloud' | 'ransomware' | 'persistence' | 'exfil' | 'defenseEvasion' | 'privEsc' | 'generic'
+export type TemplateId = 'bruteForce' | 'outbound' | 'lateral' | 'malware' | 'webAttack' | 'travel' | 'scan' | 'cloud' | 'ransomware' | 'persistence' | 'exfil' | 'defenseEvasion' | 'privEsc' | 'userExec' | 'softwareDeploy' | 'phishing' | 'processInjection' | 'credDump' | 'dataDestruction' | 'toolDownload' | 'c2tunnel' | 'generic'
 
 export type Role = 'attacker' | 'perimeter' | 'internal' | 'cloud' | 'external'
 export type NodeKind = 'globe' | 'firewall' | 'server' | 'dc' | 'workstation' | 'laptop' | 'web' | 'k8s' | 'cloud' | 'skull' | 'user' | 'sensor'
@@ -136,13 +136,21 @@ export function templateFor(a: Alert): TemplateId {
   if (/brute force|password spray|password guessing|mfa fatigue|logon failure|single sign-on logon errors|authentication.*(fail|error)|failed logon/.test(n)) return 'bruteForce'
   if (/pass the hash|lateral movement|smbv1|kerberoast|as-rep|logon type 3/.test(n)) return 'lateral'
   if (/hack tool|spyware and vulnerability|ips critical|exploit attempt|sqli|xss|injection|web attack/.test(n)) return 'webAttack'
-  if (/beaconing|malicious url|dns security|tor network|mining pool|out-of-band|ssh tunneling|wildfire|malware outbreak|c2|command.?(and|&)?control/.test(n)) return 'outbound'
+  if (/phishing|malicious (link|attachment|document|url)|spearphish|deceptive (link|attachment)/.test(n)) return 'phishing'
+  if (/process injection|inject.?(into|code into)|apc queue|remote thread/.test(n)) return 'processInjection'
+  if (/credential dumping|lsass|sam database|ntds|password store|keychain|credential theft|dump.?(password|credential)|os credential/.test(n)) return 'credDump'
+  if (/data destruction|disk (wipe|content)|file (deletion|delet)|shred|rm -rf|data loss|destructive|volume shadow/i.test(n)) return 'dataDestruction'
+  if (/ingress tool|tool transfer|tool (download|transfer)|downloaded (a )?tool|downloaded to|payload (download|transfer)/i.test(n)) return 'toolDownload'
+  if (/tunneling|protocol tunnel|dns tunnel|icmp tunnel|covert channel|data exfiltration over/.test(n)) return 'c2tunnel'
+  if (/beaconing|malicious url|dns security|tor network|mining pool|out-of-band|wildfire|malware outbreak|c2|command.?(and|&)?control/.test(n)) return 'outbound'
   if (/(aws|google|gcp|github|azure|o365|office)/.test(dt) || /inbox rule|forwarding rule|transport rule|external sharing|safe links|safe attachment|admin login/.test(n)) return 'cloud'
   if (n.includes('ransom') || n.includes('crypto') && n.includes('file') || n.includes('encryption') && n.includes('file') || /encrypted for impact/i.test(n)) return 'ransomware'
   if (/persistence|scheduled task|cron|crontab|launch (agent|daemon)|autorun|autostart|sshd? (config|key)|authorized (keys|users)|systemd|startup|registry run|winlogon/i.test(n)) return 'persistence'
   if (/exfil|staged (and )?exfil|data (leaving|transfer)|rclone|archive.*exfil|cloud storage|upload.*external|outbound transfer/i.test(n)) return 'exfil'
   if (/clear(ed|ing)? (windows )?(event )?log|audit log|impair|selinux|disable|turn(ed)? (off|down)|defender.*disabled|antivirus (protection )?(disabled|off)|security tool|tamper|xprotect|sip bypass|gatekeeper|log.*(clear|delet|remov)|wevtutil|shred|rm -rf.*log|kernel (module|removal)/i.test(n)) return 'defenseEvasion'
   if (/privilege escalation|uac bypass|token (impersonation|theft)|getsystem|suid|setgid|escalation|sudo (caching|cache)|dscl|root (account|kit|privilege)|sid history/i.test(n)) return 'privEsc'
+  if (/user execution|malicious (file|link|attachment|document)|drive-by|office application|opened a (malicious|phishing)|downloaded and (executed|ran)|macro (enabled|execution)/i.test(n)) return 'userExec'
+  if (/software deployment|deployment tool|pushed (to|software)|remote software install|mass install/i.test(n)) return 'softwareDeploy'
   if (/(wineventlog|windows|linux|macos|crowdstrike|defender|edr|osquery)/.test(dt)) return 'malware'
   return 'generic'
 }
@@ -482,7 +490,7 @@ const BUILDERS: Record<TemplateId, (a: Alert, t: (k: string, o?: Record<string, 
     const userSide = a.adversary?.user ? { ...a.adversary, user: a.adversary.user } : undefined
     const userName = userSide?.user ?? a.adversary?.ip ?? 'unknown user'
     const user: Party = userSide
-      ? { id: 'user', role: 'internal', kind: 'user', name: userSide.user, sub: userSide.host ?? userSide.ip, ip: userSide.ip, user: userSide.user }
+      ? { id: 'user', role: 'internal', kind: 'user', name: userSide.user!, sub: userSide.host ?? userSide.ip, ip: userSide.ip, user: userSide.user! }
       : { id: 'user', role: 'internal', kind: 'user', name: userName, sub: a.adversary?.host, ip: a.adversary?.ip }
     const n = (a.name ?? '').toLowerCase()
     const method = /uac bypass/.test(n)
@@ -510,6 +518,178 @@ const BUILDERS: Record<TemplateId, (a: Alert, t: (k: string, o?: Record<string, 
       parties: [user, host],
       captions,
       facts: { method, account },
+    }
+  },
+
+  userExec(a, t) {
+    const host = internalSide('host', a.target?.host ? a.target : a.adversary, a.dataSource)
+    const n = (a.name ?? '').toLowerCase()
+    const app = n.includes('office') || n.includes('excel') || n.includes('word') ? 'office.exe' : n.includes('browser') || n.includes('drive-by') ? 'browser.exe' : 'host application'
+    const file = n.includes('attachment') || n.includes('document') ? 'invoice_final.pdf' : n.includes('macro') ? 'report_macro.docm' : 'downloaded_file.exe'
+    const payload = n.includes('powershell') ? 'powershell.exe -enc' : n.includes('cmd') ? 'cmd.exe /c' : 'payload.exe'
+    const captions: Caption[] = [
+      { at: 0, text: t('liveOps.capUe0', { host: host.name, user: a.adversary?.user ? t('liveOps.capUeUser', { user: a.adversary.user }) : '' }) },
+      { at: 2600, text: t('liveOps.capUe1', { file }) },
+      { at: 5200, text: t('liveOps.capUe2', { app, payload }) },
+      { at: 8600, text: `${t('liveOps.capAlertRaised', { name: a.name ?? '' })}${t('liveOps.capUe3')}` },
+    ]
+    return {
+      template: 'userExec',
+      title: t('liveOps.titleUe', { file, to: host.name }),
+      duration: 10800,
+      parties: [host],
+      captions,
+      facts: { file, app, payload },
+    }
+  },
+
+  softwareDeploy(a, t) {
+    const src = internalSide('source', a.adversary, a.dataSource)
+    const tgt = internalSide('target', a.target, a.dataSource)
+    const n = (a.name ?? '').toLowerCase()
+    const tool = n.includes('sc.exe') ? 'sc.exe' : n.includes('psexec') ? 'PsExec' : n.includes('rdp') ? 'RDP copy' : 'management push'
+    const captions: Caption[] = [
+      { at: 0, text: t('liveOps.capSd0', { src: src.name, to: tgt.name }) },
+      { at: 2400, text: t('liveOps.capSd1', { tool }) },
+      { at: 5400, text: t('liveOps.capSd2', { to: tgt.name }) },
+      { at: 8400, text: `${t('liveOps.capAlertRaised', { name: a.name ?? '' })}${t('liveOps.capSd3')}` },
+    ]
+    return {
+      template: 'softwareDeploy',
+      title: t('liveOps.titleSd', { src: src.name, to: tgt.name }),
+      duration: 10800,
+      parties: [src, tgt],
+      captions,
+      facts: { tool, target: tgt.name },
+    }
+  },
+
+  phishing(a, t) {
+    const attacker = attackerParty(a.adversary)
+    const userSide = a.target?.user ? { ...a.target, user: a.target.user } : a.adversary?.user ? { ...a.adversary, user: a.adversary.user } : undefined
+    const user: Party = userSide
+      ? { id: 'user', role: 'internal', kind: 'user', name: userSide.user!, sub: userSide.host ?? userSide.ip, ip: userSide.ip, user: userSide.user! }
+      : { id: 'user', role: 'internal', kind: 'user', name: 'target user', sub: a.target?.host, ip: a.target?.ip }
+    const subject = 'Invoice #1042 — Payment Required'
+    const file = 'Invoice_1042_final.pdf.exe'
+    const captions: Caption[] = [
+      { at: 0, text: t('liveOps.capPh0', { name: attacker.name }) },
+      { at: 2400, text: t('liveOps.capPh1', { user: user.name }) },
+      { at: 4600, text: t('liveOps.capPh2', { file }) },
+      { at: 7800, text: `${t('liveOps.capAlertRaised', { name: a.name ?? '' })}${t('liveOps.capPh3', { user: user.name })}` },
+    ]
+    return {
+      template: 'phishing',
+      title: t('liveOps.titlePh', { user: user.name, from: attacker.name }),
+      duration: 10500,
+      parties: [attacker, user],
+      captions,
+      facts: { subject, file },
+    }
+  },
+
+  processInjection(a, t) {
+    const host = internalSide('host', a.target?.host ? a.target : a.adversary, a.dataSource)
+    const injector = 'exploit_loader.exe'
+    const victim = a.target?.host ?? 'svchost.exe'
+    const captions: Caption[] = [
+      { at: 0, text: t('liveOps.capPi0', { host: host.name, injector }) },
+      { at: 3000, text: t('liveOps.capPi1', { victim }) },
+      { at: 5400, text: t('liveOps.capPi2', { victim }) },
+      { at: 8400, text: `${t('liveOps.capAlertRaised', { name: a.name ?? '' })}${t('liveOps.capPi3')}` },
+    ]
+    return {
+      template: 'processInjection',
+      title: t('liveOps.titlePi', { injector, victim }),
+      duration: 10500,
+      parties: [host],
+      captions,
+      facts: { injector, victim },
+    }
+  },
+
+  credDump(a, t) {
+    const host = internalSide('host', a.target?.host ? a.target : a.adversary, a.dataSource)
+    const n = (a.name ?? '').toLowerCase()
+    const store = n.includes('lsass') ? 'LSASS memory' : n.includes('sam') ? 'SAM registry' : n.includes('ntds') ? 'NTDS.dit' : n.includes('keychain') ? 'Keychain' : n.includes('shadow') ? '/etc/shadow' : 'Credential store'
+    const count = hashNum(a.id, 40, 300)
+    const captions: Caption[] = [
+      { at: 0, text: t('liveOps.capCd0', { host: host.name }) },
+      { at: 2400, text: t('liveOps.capCd1', { store }) },
+      { at: 5200, text: t('liveOps.capCd2', { n: count }) },
+      { at: 8400, text: `${t('liveOps.capAlertRaised', { name: a.name ?? '' })}${t('liveOps.capCd3')}` },
+    ]
+    return {
+      template: 'credDump',
+      title: t('liveOps.titleCd', { store, host: host.name }),
+      duration: 10500,
+      parties: [host],
+      captions,
+      facts: { store, count },
+    }
+  },
+
+  dataDestruction(a, t) {
+    const host = internalSide('host', a.target?.host ? a.target : a.adversary, a.dataSource)
+    const items = hashNum(a.id, 6, 8)
+    const captions: Caption[] = [
+      { at: 0, text: t('liveOps.capDd0', { host: host.name }) },
+      { at: 2600, text: t('liveOps.capDd1', { n: items }) },
+      { at: 5600, text: t('liveOps.capDd2') },
+      { at: 8600, text: `${t('liveOps.capAlertRaised', { name: a.name ?? '' })}${t('liveOps.capDd3')}` },
+    ]
+    return {
+      template: 'dataDestruction',
+      title: t('liveOps.titleDd', { host: host.name }),
+      duration: 10500,
+      parties: [host],
+      captions,
+      facts: { items },
+    }
+  },
+
+  toolDownload(a, t) {
+    const src = attackerParty(a.adversary)
+    const tgt = internalSide('target', a.target, a.dataSource)
+    const n = (a.name ?? '').toLowerCase()
+    const tool = n.includes('powershell') ? 'tool.ps1' : n.includes('curl') || n.includes('wget') ? 'tool.sh' : 'payload.bin'
+    const folder = '/tmp'
+    const captions: Caption[] = [
+      { at: 0, text: t('liveOps.capTd0', { src: src.name, to: tgt.name }) },
+      { at: 2200, text: t('liveOps.capTd1', { folder: `${folder}/${tool}` }) },
+      { at: 4600, text: t('liveOps.capTd2', { tool }) },
+      { at: 8400, text: `${t('liveOps.capAlertRaised', { name: a.name ?? '' })}${t('liveOps.capTd3')}` },
+    ]
+    return {
+      template: 'toolDownload',
+      title: t('liveOps.titleTd', { src: src.name, to: tgt.name }),
+      duration: 10500,
+      parties: [src, tgt],
+      captions,
+      facts: { tool, folder },
+    }
+  },
+
+  c2tunnel(a, t) {
+    const src = internalSide('source', a.adversary, a.dataSource)
+    const dstName = a.target?.domain ?? a.target?.ip ?? t('liveOps.destUnknown')
+    const dst: Party = { id: 'destination', role: 'external', kind: 'skull', name: dstName, sub: a.target?.ip, ip: a.target?.ip }
+    const n = (a.name ?? '').toLowerCase()
+    const proto = n.includes('dns') ? 'DNS' : n.includes('icmp') ? 'ICMP' : n.includes('ssh') ? 'SSH' : n.includes('https') ? 'HTTPS' : 'TCP'
+    const bytes = hashNum(a.id + 't', 400, 3200) * 1024
+    const captions: Caption[] = [
+      { at: 0, text: t('liveOps.capCt0', { src: src.name, to: dstName }) },
+      { at: 1800, text: t('liveOps.capCt1', { proto }) },
+      { at: 4800, text: t('liveOps.capCt2', { proto }) },
+      { at: 8200, text: `${t('liveOps.capAlertRaised', { name: a.name ?? '' })}${t('liveOps.capCt3')}` },
+    ]
+    return {
+      template: 'c2tunnel',
+      title: t('liveOps.titleCt', { src: src.name, to: dstName, proto }),
+      duration: 10500,
+      parties: [src, dst],
+      captions,
+      facts: { proto, bytes },
     }
   },
 
