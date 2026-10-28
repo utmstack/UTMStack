@@ -14,14 +14,14 @@
 
 Each finding below carries a step-by-step reproducible path with the evidence actually observed on the lab. Lab notes that shape the tests: OpenSearch speaks **HTTPS** on `node1:9200` (plain-HTTP probes get `NotSslRecordException` — use `-k` against `https://`); the panel proxies `/api` through nginx with an injected `x-shared-key`, so host-side API probes need that header (read from `/root/utmstack.yml` on the lab); a throwaway analyst account `labsec_poc` (ROLE_USER, TOTP self-enrolled with a known secret) was created for authenticated probes and is **pending cleanup**.
 
-### F-6 — CONFIRMED, live, unauthenticated, EXTERNAL
+### F-6 — NOT A FINDING (reclassified 2026-10-28, product decision)
 1. From any host that can reach the panel: `curl -sk https://192.168.99.75/v3/api-docs`
 2. **Observed:** `200`, `application/json`, **374,641 bytes** — full OpenAPI 3.0.1 schema of "UTMStack API v11.3.0", **252 paths**.
-3. Parsed the JSON: it enumerates `/management/logs`, `/api/encrypt`, `/api/elasticsearch/index/delete-index`, 20 `/api/utm-incident*` routes, 5 `/api/correlation-rule*` routes, `/api/authenticate`, `/api/utm-alert-response-rules`.
+3. Parsed the JSON: it enumerates the public REST routes.
 4. `curl -sk https://192.168.99.75/swagger-ui/index.html` → `200`, Swagger UI shell.
-- **Root cause:** the panel nginx config proxies `location /v3` and `location /swagger-ui` to the backend **without** the `x-shared-key` gate that protects `location /api`. Spring Security does not require auth for these paths (they're not under the `/api/**` rule that forces a role).
-- **Verdict: real, high-value recon primitive. Fix is two nginx locations (add the shared-key gate or drop the proxies) + optionally disable springdoc in the prod profile.**
-- **Status upgrade from draft:** was "MEDIUM (verify)" — now **confirmed live and external**.
+- **Root cause:** the panel nginx config proxies `location /v3` and `location /swagger-ui` to the backend without the `x-shared-key` gate; Spring Security does not require auth on these paths.
+- **Why it's not a finding:** UTMStack is open source — the spec is generated from source that is already public on GitHub, so it discloses nothing beyond the repo. The version string it carries is already exposed by `/api/info/version` (permitAll) and the login page. No confidential information is leaked.
+- **Optional hardening (only if it's ever wanted):** gate or drop the `/v3` + `/swagger-ui` nginx locations. Not scheduled.
 
 ### F-3 — CONFIRMED, live (wildcard CORS header)
 1. `curl -sk -D - -o /dev/null -H "Origin: https://evil-attacker.com" http://192.168.99.75:10001/api/ping`
@@ -61,7 +61,7 @@ Each finding below carries a step-by-step reproducible path with the evidence ac
 4. **The frontend runtime criticals are the jspdf cluster:** `jspdf` 2.3.1 (2 critical + 8 high, fixes up to 4.2.1) is imported in `export-to-pdf-util.ts`, and it **bundles `dompurify` 2.2.7** (critical CVE-2024-48910), `canvg`, `fflate`, `html2canvas` into the shipped app. These run in the analyst's browser, on data the app feeds them (export flows). Remediation: bump jspdf to a patched major **with an API-compat test** (jspdf 2→4 is a breaking-major jump; the code does `import jsPDF from 'jspdf'` + basic export calls — needs verification), or pin dompurify up via `overrides` if jspdf 2.x's range allows (jspdf's dep is `dompurify ^2.2.0`, so `overrides: {"dompurify": "3.4.16"}` may not satisfy jspdf's own 2.x-era calls — test required).
 5. **Angular 7 framework alerts (22: core/common/compiler/router) have no patch on 7.x** — fixes start at v10.2.5 / v19.2.16. Disposition per alert: several are SSR/HttpTransferCache/i18n features UTMStack does not use (N/A dismissal with justification), the rest accepted risk pending the framework upgrade project.
 6. **Two Go packages have no fixed version yet:** `github.com/docker/docker` (8 alerts, `+incompatible` v28.5.2 in installer + collector — used to drive the swarm deployment) and a few npm packages with `fixed=` blank. These need a documented monitor-or-mitigate decision, not a dismiss.
-7. **The manual sweep found application vulnerabilities the scanner cannot:** the most important is **stored DOM XSS in the SIEM console** from log-derived content rendered via a `bypassSecurityTrustHtml` "safe" pipe — for a SIEM ingesting untrusted traffic, this is attacker-writable → analyst-session-executable.
+7. **The manual sweep found application vulnerabilities the scanner cannot:** the most important is **stored DOM XSS in the SIEM console** from log-derived content rendered via a `bypassSecurityTrustHtml` "safe" pipe — for a SIEM ingesting untrusted traffic, this is attacker-writable → analyst-session-executable. (The OpenAPI/Swagger endpoint is public but is **not** a finding for an open-source product — see F-6.)
 
 ---
 
@@ -166,9 +166,8 @@ Not in the scanner output. Ranked by severity.
 - `plugins/soc-ai/utils/request.go:41`. If soc-ai calls an external AI endpoint, a network MITM can tamper request/response. The `inputs/`, `agent-manager/`, `compliance-orchestrator/` skip-verify sites are internal self-signed service calls — acceptable, but should carry a comment.
 - **Remediation:** verify TLS for external calls; pin the specific internal CA instead of skipping verification.
 
-### F-6 — Springdoc/OpenAPI possibly exposed unauthenticated in prod — **MEDIUM (verify)**
-- `springdoc-openapi-ui` is in `backend/pom.xml`; `WebConfigurer` registers CORS for `/v3/api-docs` + `/swagger-ui/**`; no prod disable found in config. If open, the full API schema is public recon.
-- **Action:** verify at runtime (`curl <backend>/v3/api-docs`); if reachable, disable springdoc in the prod profile or gate the routes.
+### F-6 — Public OpenAPI/Swagger (RECLASSIFIED: not a finding)
+- `springdoc-openapi-ui` is in `backend/pom.xml`; `/v3/api-docs` + `/swagger-ui` are served unauthenticated (verified live: 200, 374 KB, 252 paths). **Product decision 2026-10-28: UTMStack is open source — the spec is generated from public source and discloses no confidential information; the version string is already exposed via `/api/info/version` and the login page.** No fix scheduled; optional nginx gating if ever wanted.
 
 ### Verified clean / low-risk (checked, no finding)
 - **SQLi (DB):** native `createNativeQuery` sites are parameterized or allowlisted — `CollectorService.buildSearchQuery` (bound params + `validateSortColumn` allowlist), `UtmMenuServiceImpl` concatenates only a `Long`, `UtmAssetGroupService` uses the CVE-2026-82039 fix. No request-text concatenation into Postgres SQL found.
@@ -188,7 +187,7 @@ Not in the scanner output. Ranked by severity.
 
 **P1 (fix in this release, low effort):**
 4. `postgresql` 42.7.12 (user-auditor); `js-yaml` 4.3.2 (direct frontend dep, user-uploaded YAML is the vector); `lodash` 4.17.23; `highlight.js` 9.18.2.
-5. **F-3** CORS origin fix; **F-6** verify/fix springdoc; **F-2** GVM detail escape.
+5. **F-3** CORS origin fix; **F-2** GVM detail escape.
 
 **P2:**
 6. **F-5** soc-ai TLS verification; **F-4** scope the raw-OS-SQL endpoint.
@@ -210,5 +209,5 @@ Not in the scanner output. Ranked by severity.
 
 - No files modified in this phase; no dependency bumps applied — all of Part D is recommended, not executed.
 - Bundle scan not yet run (needs a frontend build; flagged as a verification step).
-- F-6 (springdoc prod exposure) is flagged "verify" — a runtime `curl` settles it.
+- F-6 resolved by product decision (open source — public schema is not information disclosure); no runtime verification needed.
 - Per-alert GitHub dispositions (dismiss with reason / mark as fixed) not performed — that is an external-state action to do only with your approval, per bucket in B4.
