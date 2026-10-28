@@ -128,9 +128,18 @@ export interface FilterRow {
 // common_models.FilterType — field + operator + value.
 export interface FilterType {
   field: string
-  operator: FilterOperatorId
+  operator: FilterTypeOperator
   value: unknown
 }
+
+export type FilterTypeOperator =
+  | FilterOperatorId
+  | 'IS_NOT_ONE_OF_TERMS'
+  | 'IS_GREATER_THAN_OR_EQUALS'
+  | 'IS_LESS_THAN'
+  | 'IS_NOT_BETWEEN'
+  | 'DOES_NOT_START_WITH'
+  | 'DOES_NOT_END_WITH'
 
 // Persistent chip config stored on dashboard.filters (JSON blob). Describes a
 // single dropdown in the dashboard filter bar; the *value* the user picks is
@@ -277,4 +286,3 @@ export interface QueryResult {
   series?: { key: string; points: { at: string; count: number }[] }[]
   rows?: Record<string, unknown>[]
 }
-

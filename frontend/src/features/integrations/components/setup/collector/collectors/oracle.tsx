@@ -57,7 +57,7 @@ logger -p local5.info "Test Oracle Alert log message"`} />
 
 registerCollector({
   getName: () => 'ORACLE',
-  matches: (n) => n.includes('oracle'),
+  matches: (n) => n === 'oracle' || n === 'oracle-database',
   sections: [],
   render: (m) => <OracleGuide module={m} />,
 })

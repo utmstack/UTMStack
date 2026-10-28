@@ -10,7 +10,7 @@ export function CollectorGuideSection({ section }: CollectorGuideSectionProps) {
   const { t } = useTranslation()
 
   return (
-    <Section title={t(section.titleKey)}>
+    <Section title={t(section.titleKey)} step={section.step}>
       <p className="text-sm text-foreground/90 whitespace-pre-line">
         {t(section.bodyKey)}
       </p>

@@ -46,7 +46,7 @@ function SentinelOneGuide({ module: _module }: { module: Integration }) {
 
 registerCollector({
   getName: () => 'SENTINEL_ONE',
-  matches: (n) => n.includes('sentinel'),
+  matches: (n) => n === 'sentinel_one' || n === 'sentinel-one' || n === 'antivirus-sentinel-one',
   sections: [],
   render: (m) => <SentinelOneGuide module={m} />,
 })

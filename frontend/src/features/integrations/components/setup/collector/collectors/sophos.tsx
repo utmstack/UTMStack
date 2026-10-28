@@ -3,7 +3,7 @@ import { SophosGuide } from './SophosGuide'
 
 registerCollector({
   getName: () => 'SOPHOS',
-  matches: (n) => n.includes('sophos') && !n.includes('xg'),
+  matches: (n) => n === 'sophos' || n === 'sophos_central',
   sections: [],
   render: (m) => <SophosGuide module={m} />,
 })

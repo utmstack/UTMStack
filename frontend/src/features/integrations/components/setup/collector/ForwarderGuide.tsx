@@ -23,7 +23,6 @@ import { availableProtosFor, defaultPortFor, type Proto } from './protoCatalog'
 //   </ForwarderGuide>
 
 const SHARED = 'integrations.setup.collector.forwarder'
-const LOGINPUT_PORT = '50052'
 
 // The Forwarder runs on the UTMStack host; default the address to where the
 // user is browsing from (stripped of any port). In MSSP mode, when the operator
@@ -46,7 +45,7 @@ export function forwarderHost(): string {
 // don't need to change their imports.
 export { TONES, FlowNode, FlowEdge } from '@/shared/components/ui/flow-diagram'
 
-function FlowDiagram({ source, port, isMaster }: { source: string; port: string; isMaster: boolean }) {
+function FlowDiagram({ source, port }: { source: string; port: string }) {
   const { t } = useTranslation()
   return (
     <div className="mt-3 flex items-stretch justify-center gap-1 sm:gap-2">
@@ -57,17 +56,13 @@ function FlowDiagram({ source, port, isMaster }: { source: string; port: string;
         tone="neutral"
       />
       <FlowEdge label={t(`${SHARED}.diagram.flow1`)} />
-      {!isMaster && (
-        <>
-          <FlowNode
-            icon={<Forward size={20} />}
-            title={t(`${SHARED}.diagram.forwarder`)}
-            sub={t(`${SHARED}.diagram.forwarderSub`, { port })}
-            tone="accent"
-          />
-          <FlowEdge label={t(`${SHARED}.diagram.flow2`)} />
-        </>
-      )}
+      <FlowNode
+        icon={<Forward size={20} />}
+        title={t(`${SHARED}.diagram.forwarder`)}
+        sub={t(`${SHARED}.diagram.forwarderSub`, { port })}
+        tone="accent"
+      />
+      <FlowEdge label={t(`${SHARED}.diagram.flow2`)} />
       <FlowNode
         icon={<ShieldCheck size={20} />}
         title={t(`${SHARED}.diagram.utmstack`)}
@@ -75,59 +70,6 @@ function FlowDiagram({ source, port, isMaster }: { source: string; port: string;
         tone="brand"
       />
     </div>
-  )
-}
-
-// ── Master command (POST endpoint + auth header) ─────────────────────────────
-
-function MasterCommandSection(_: { selection: RemoteEnableSelection }) {
-  const { t } = useTranslation()
-  const [tab, setTab] = useState<'simple' | 'batch'>('simple')
-  const host = forwarderHost()
-  const simpleCmd = `curl -k -X POST https://${host}:${LOGINPUT_PORT}/v1/ingest \\
-  -H "Content-Type: application/json" \\
-  -H "Utm-Api-Key: <YOUR_API_KEY>" \\
-  -d '{
-    "dataType": "<data-type>",
-    "dataSource": "<data-source>",
-    "timestamp": "",
-    "raw": "<raw-log>"
-  }'`
-  const batchCmd = `curl -X POST https://${host}:${LOGINPUT_PORT}/v1/ingest \\
-  -H "Content-Type: application/json" \\
-  -H "Utm-Api-Key: <YOUR_API_KEY>" \\
-  -d '{
-    "logs": [
-      {
-        "dataType": "",
-        "dataSource": "",
-        "timestamp": "",
-        "raw": ""
-      },
-      {
-        "dataType": "",
-        "dataSource": "",
-        "timestamp": "",
-        "raw": ""
-      }
-    ]
-  }'`
-  return (
-    <Section title={t(`${SHARED}.instanceHeader.title`)} step={2}>
-      <p className="text-sm text-foreground/90">{t(`${SHARED}.instanceHeader.body`)}</p>
-      <div className="flex gap-0 border-b border-border mb-3">
-        {(['simple', 'batch'] as const).map((v) => (
-          <button
-            key={v}
-            onClick={() => setTab(v)}
-            className={cn('px-4 py-1.5 text-sm capitalize transition-colors', tab === v ? 'border-b-2 border-primary font-medium' : 'text-muted-foreground hover:text-foreground')}
-          >
-            {v === 'simple' ? t(`${SHARED}.instanceHeader.tabSimple`) : t(`${SHARED}.instanceHeader.tabBatch`)}
-          </button>
-        ))}
-      </div>
-      <CodeBlock code={tab === 'simple' ? simpleCmd : batchCmd} />
-    </Section>
   )
 }
 
@@ -240,8 +182,6 @@ export function ForwarderGuide({
   const [selection, setSelection] = useState<RemoteEnableSelection>(() => ({
     proto: initialProto,
     port: defaultPortFor(sourceType, initialProto) || port,
-    collector:null,
-    isMaster: false,
     apiKey: null,
   }))
 
@@ -264,7 +204,7 @@ export function ForwarderGuide({
     {
       header || (      <Section title={t(`${SHARED}.intro.title`)}>
         <p className="text-sm text-foreground/90">{t(`${SHARED}.intro.body`, { source })}</p>
-        <FlowDiagram source={source} port={port} isMaster={selection.isMaster} />
+        <FlowDiagram source={source} port={port} />
         <p className="mt-3 rounded-md bg-muted/40 px-3 py-2 text-[11px] text-muted-foreground">
           {t(`${SHARED}.noInstall`, { source })}
         </p>
@@ -280,18 +220,13 @@ export function ForwarderGuide({
         onRequestAddCollector={handleAddCollector}
       />
 
-      {selection.isMaster && <MasterCommandSection selection={selection} />}
+      {children}
 
-      {/* Vendor-specific steps (device-side config). Hidden in master mode — it targets the forwarder, not master. */}
-      {!selection.isMaster && children}
-
-      {!selection.isMaster && (
-        <div ref={installRef}>
-          <ForwarderInstallSection source={source} open={installOpen} onToggle={() => setInstallOpen((o) => !o)} />
-        </div>
-      )}
-      {!selection.isMaster && <ManualCommandSection sourceType={sourceType} selection={selection} />}
-      {!selection.isMaster && <ForwarderUninstallSection />}
+      <div ref={installRef}>
+        <ForwarderInstallSection source={source} open={installOpen} onToggle={() => setInstallOpen((o) => !o)} />
+      </div>
+      <ManualCommandSection sourceType={sourceType} selection={selection} />
+      <ForwarderUninstallSection />
     </div>
   )
 }

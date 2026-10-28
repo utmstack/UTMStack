@@ -46,7 +46,7 @@ function KasperskyGuide({ module: _module }: { module: Integration }) {
 
 registerCollector({
   getName: () => 'KASPERSKY',
-  matches: (n) => n.includes('kaspersky'),
+  matches: (n) => n === 'kaspersky' || n === 'antivirus-kaspersky',
   sections: [],
   render: (m) => <KasperskyGuide module={m} />,
 })

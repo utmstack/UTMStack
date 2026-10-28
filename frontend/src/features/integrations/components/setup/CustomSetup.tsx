@@ -20,7 +20,7 @@ export function CustomSetup({ integration }: { integration: Integration }) {
   const { t } = useTranslation()
   const name = integration.dataType || integration.moduleName?.toLowerCase() || 'my-integration'
 
-  const [selection, setSelection] = useState<RemoteEnableSelection>({ proto: 'udp', port: '7100', isMaster: false })
+  const [selection, setSelection] = useState<RemoteEnableSelection>({ proto: 'udp', port: '7100' })
   const { proto, port } = selection
 
   const isHttp = proto === 'http' || proto === 'https'

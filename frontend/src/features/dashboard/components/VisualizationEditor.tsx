@@ -266,7 +266,7 @@ function QuestionPanel({
   onChange: (updater: (b: BuilderState) => BuilderState) => void
 }) {
   const { t } = useTranslation()
-  const plots = chart === 'time' || chart === 'category'
+  const plots = chart === 'time' || chart === 'category' || builder.chartType === 'table'
 
   return (
     <>
@@ -315,7 +315,11 @@ function QuestionPanel({
 
       {plots && (
         <section className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4">
-          <SectionTitle>{t('dashboards.editor.breakdown.title')}</SectionTitle>
+          <SectionTitle>
+            {builder.chartType === 'table'
+              ? t('dashboards.editor.breakdown.topValuesTable')
+              : t('dashboards.editor.breakdown.title')}
+          </SectionTitle>
           <BreakdownToggle
             value={builder.breakdown}
             onChange={(breakdown) => onChange((b) => ({ ...b, breakdown }))}
@@ -337,19 +341,21 @@ function QuestionPanel({
                 {t('dashboards.editor.breakdown.splitHint')}
               </p>
             </>
-          ) : (
+          ) : chart === 'category' ? (
             <DimensionPicker
               value={builder.dimension}
               fields={groupableFields ?? []}
               loading={fieldsLoading}
               onChange={(next) => onChange((b) => ({ ...b, dimension: next }))}
             />
-          )}
+          ) : null}
 
-          <LimitInput
-            value={builder.limit}
-            onChange={(limit) => onChange((b) => ({ ...b, limit }))}
-          />
+          {(chart === 'time' || chart === 'category') && (
+            <LimitInput
+              value={builder.limit}
+              onChange={(limit) => onChange((b) => ({ ...b, limit }))}
+            />
+          )}
         </section>
       )}
 

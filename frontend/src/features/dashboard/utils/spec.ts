@@ -2,7 +2,6 @@ import { flattenDoc } from '@/shared/lib/flatten'
 import type {
   BuilderState,
   ChartTypeId,
-  FilterOperatorId,
   FilterRow,
   FilterType,
   IntervalId,
@@ -23,24 +22,30 @@ import type {
 // The filter vocabulary the UI speaks, in the store's own words. Anchored
 // matching is kept apart from "contains" because a prefix is not the same
 // question, and answering one as the other returns records nobody asked for.
-const OPS: Record<FilterOperatorId, SpecOp> = {
+const OPS: Record<FilterType['operator'], SpecOp> = {
   IS: 'eq',
   IS_NOT: 'not_eq',
   IS_ONE_OF_TERMS: 'in',
+  IS_NOT_ONE_OF_TERMS: 'not_in',
   IS_GREATER_THAN: 'gt',
+  IS_GREATER_THAN_OR_EQUALS: 'gte',
+  IS_LESS_THAN: 'lt',
   IS_LESS_THAN_OR_EQUALS: 'lte',
   IS_BETWEEN: 'between',
+  IS_NOT_BETWEEN: 'not_between',
   CONTAIN: 'contains',
   DOES_NOT_CONTAIN: 'not_contains',
   START_WITH: 'starts_with',
+  DOES_NOT_START_WITH: 'not_starts_with',
   ENDS_WITH: 'ends_with',
+  DOES_NOT_END_WITH: 'not_ends_with',
   EXIST: 'exists',
   DOES_NOT_EXIST: 'not_exists',
 }
 
 const VALUELESS = new Set<SpecOp>(['exists', 'not_exists'])
 
-function toSpecFilter(field: string, operator: FilterOperatorId, value: unknown): SpecFilter | null {
+function toSpecFilter(field: string, operator: FilterType['operator'], value: unknown): SpecFilter | null {
   const op = OPS[operator]
   if (!op || !field.trim()) return null
   if (VALUELESS.has(op)) return { field, op }
@@ -64,15 +69,25 @@ export function filterTypesToSpec(filters: FilterType[]): SpecFilter[] {
 }
 
 /**
- * Which shape of answer a chart type needs. A metric is one number, a table is
- * records; everything else plots a series, over time or over the top values of
- * a field. The map is drawn from records, so it asks for them.
+ * Older shipped dashboard definitions use `windows`, while Windows agent
+ * events are indexed under the canonical `wineventlog` data type.
+ */
+export function normalizeSpecDataType(spec: VizSpec): VizSpec {
+  if (spec.dataset !== 'logs' || spec.dataType !== 'windows') return spec
+  return { ...spec, dataType: 'wineventlog' }
+}
+
+/**
+ * Which shape of answer a chart type needs. A table can show raw records or
+ * grouped top values; everything else plots a series over time or categories.
+ * The map is drawn from records, so it asks for them.
  */
 export function specChartFor(chartType: ChartTypeId, breakdown: BuilderState['breakdown']): SpecChart {
   switch (chartType) {
     case 'metric':
       return 'metric'
     case 'table':
+      return breakdown === 'field' ? 'category' : 'table'
     case 'list':
     case 'region_map':
     case 'text':
@@ -109,7 +124,7 @@ export function builderToSpec(builder: BuilderState): VizSpec {
 export function specToBuilder(spec: VizSpec): Partial<BuilderState> {
   return {
     dataset: spec.dataset ?? '',
-    breakdown: spec.chart === 'time' ? 'time' : 'field',
+    breakdown: spec.chart === 'time' || spec.chart === 'table' ? 'time' : 'field',
     dimension: spec.dimension ?? null,
     interval: (spec.interval ?? '') as IntervalId,
     limit: spec.limit ?? null,

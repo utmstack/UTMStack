@@ -1,9 +1,11 @@
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import { ExternalLink, Filter, ListChecks, X } from 'lucide-react'
+import { ExternalLink, Filter, LayoutDashboard, ListChecks, X } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { useThemeContext } from '@/app/providers/ThemeProvider'
 import { Button } from '@/shared/components/ui/button'
+import { presetRange } from '@/shared/components/ui/time-range-picker'
 import { LogoTile } from '@/features/integrations/components/ui/LogoTile'
 import { KIND_META, ingestMeta, categoryLabel } from '@/features/integrations/constants'
 import { AgentSetup } from '@/features/integrations/components/setup/AgentSetup'
@@ -16,6 +18,7 @@ import { CrowdStrikeGuide } from '@/features/integrations/components/setup/cloud
 import { M365Guide, O365_GRAPH_FIELDS } from '@/features/integrations/components/setup/collector/collectors/M365Guide'
 import { SophosGuide } from '@/features/integrations/components/setup/collector/collectors/SophosGuide'
 import { CustomSetup } from '@/features/integrations/components/setup/CustomSetup'
+import { getIntegrationDashboardSearch } from '@/features/dashboard/utils/integration-dashboard-routing'
 import type { Integration } from '@/features/integrations/types'
 
 const isAWS = (name: string) =>
@@ -65,18 +68,39 @@ export function IntegrationDrawer({ integration: i, onClose }: IntegrationDrawer
   const { t } = useTranslation()
   const { theme } = useThemeContext()
   const navigate = useNavigate()
+  const [logFilterValue, setLogFilterValue] = useState('')
   const km = KIND_META[i.kind]
   const logo = theme === 'dark' && i.logoDark ? i.logoDark : i.logo
   const isCollectorGroup = km?.group === 'collectors'
-  const active = i.status === 'configured'
   // Deep-link to the rules/pipelines pages pre-filtered by this integration's dataType.
   const dtQuery = i.dataType ? `?dataType=${encodeURIComponent(i.dataType)}` : ''
   const rulesHref = `/alerting-rules${dtQuery}`
   const filtersHref = `/pipelines${dtQuery}`
 
+  useEffect(() => {
+    setLogFilterValue('')
+  }, [i.id])
+
   const viewEvents = () => {
-    if (!i.dataType) return
-    navigate(`/log-explorer?dataType=${encodeURIComponent(i.dataType)}`)
+    const sourceFilter = i.logFilterField && logFilterValue.trim()
+      ? [{ field: i.logFilterField, operator: 'IS_ONE_OF_TERMS' as const, value: [logFilterValue.trim()] }]
+      : []
+    navigate('/log-explorer', {
+      state: {
+        dashboardSearch: {
+          dataset: 'logs',
+          dataType: i.dataType,
+          filters: [...(i.logFilters ?? []), ...sourceFilter],
+          range: presetRange('24h'),
+        },
+      },
+    })
+  }
+
+  const openDashboard = () => {
+    navigate('/dashboards/list', {
+      state: { integrationDashboardSearch: getIntegrationDashboardSearch(i) },
+    })
   }
 
   return (
@@ -123,12 +147,28 @@ export function IntegrationDrawer({ integration: i, onClose }: IntegrationDrawer
           </div>
 
           <div className="mt-4 flex flex-wrap items-center gap-2">
-            {active && (
-              <Button size="sm" variant="outline" onClick={viewEvents} disabled={!i.dataType}>
-                <ExternalLink size={13} className="mr-1.5" />
-                {t('integrations.drawer.viewEvents')}
-              </Button>
+            <Button size="sm" variant="outline" onClick={openDashboard}>
+              <LayoutDashboard size={13} className="mr-1.5" />
+              {t('integrations.drawer.openDashboard')}
+            </Button>
+            {i.logFilterField && (
+              <input
+                value={logFilterValue}
+                onChange={(event) => setLogFilterValue(event.target.value)}
+                aria-label={i.logFilterField === 'dataSource' ? 'Log sender' : 'NetFlow exporter address'}
+                placeholder={i.logFilterField === 'dataSource' ? 'Sender (dataSource)' : 'Exporter address'}
+                className="h-9 min-w-40 rounded-md border border-border bg-background px-3 text-xs text-foreground"
+              />
             )}
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={viewEvents}
+              disabled={!!i.logFilterField && !logFilterValue.trim()}
+            >
+              <ExternalLink size={13} className="mr-1.5" />
+              {t('datasources.drawer.viewLogs')}
+            </Button>
             <Button
               size="sm"
               variant="ghost"

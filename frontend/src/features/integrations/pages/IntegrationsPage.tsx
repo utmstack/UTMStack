@@ -13,6 +13,7 @@ import { AddCustomIntegrationCard } from '@/features/integrations/components/Add
 import { CreateIntegrationDrawer } from '@/features/integrations/components/CreateIntegrationDrawer'
 import { KIND_META, categoryLabel } from '@/features/integrations/constants'
 import { SYSTEM_MODULES } from '@/features/integrations/constants/systemModules'
+import { INJECTED_MODULES } from '@/features/integrations/constants/injectedModules'
 import type {
   Integration,
   DeployKind,
@@ -30,21 +31,25 @@ const LOGO = (slug: string) => {
   return `/integrations/${slug}`
 }
 
+const INJECTED_BY_MODULE_NAME = new Map(
+  INJECTED_MODULES.map((integration) => [integration.moduleName ?? '', integration]),
+)
 
 function mapModuleToIntegration(module: IntegrationResponse, t: TFunction): Integration {
   const isSystem = module.systemOwner
   // System integrations: icon, description and category are owned by the frontend
   // (per-theme icons + i18n). Custom ones keep using the catalog row's own icon
   // and description, and group under 'custom'.
+  const injectedMeta = INJECTED_BY_MODULE_NAME.get(module.name)
   const meta = isSystem ? SYSTEM_MODULES[module.name] : undefined
-  const category = meta?.category ?? 'custom'
+  const category = meta?.category ?? injectedMeta?.category ?? 'custom'
 
   // Map the category to a known DeployKind; anything unknown falls back to
   // 'other' (Collector group) so a new integration never breaks the grid.
   const kind: DeployKind = (category in KIND_META ? category : 'other') as DeployKind
 
   const description = isSystem
-    ? t(`integrations.modules.${module.name}`, { defaultValue: module.description || '' })
+    ? t(`integrations.modules.${module.name}.description`, { defaultValue: module.description || '' })
     : module.description || ''
   // Resolve the logo + optional dark variant:
   //  - system module        → frontend-owned per-theme asset,
@@ -55,6 +60,9 @@ function mapModuleToIntegration(module: IntegrationResponse, t: TFunction): Inte
   if (meta) {
     logo = LOGO(meta.icon)
     logoDark = meta.iconDark ? LOGO(meta.iconDark) : undefined
+  } else if (isSystem && injectedMeta) {
+    logo = injectedMeta.logo
+    logoDark = injectedMeta.logoDark
   } else if (module.icon) {
     logo = LOGO(module.icon)
   } else {
@@ -64,7 +72,9 @@ function mapModuleToIntegration(module: IntegrationResponse, t: TFunction): Inte
 
   return {
     id: module.id,
-    name: isSystem ? t(`integrations.modules.${module.name}.name`, { defaultValue: module.name }) : module.name,
+    name: isSystem
+      ? t(`integrations.modules.${module.name}.name`, { defaultValue: displayModuleName(module.name) })
+      : module.name,
     moduleName: module.name,
     dataType: module.dataType,
     ingestType: module.ingestType,
@@ -76,9 +86,20 @@ function mapModuleToIntegration(module: IntegrationResponse, t: TFunction): Inte
     logo,
     logoDark,
     darkInvert: false,
+    ...(module.name.toUpperCase() === 'NETFLOW' ? { guideChannel: 'netflow' as const } : {}),
+    ...(module.name.toUpperCase() === 'NETFLOW' ? { logFilterField: 'log.exporter' as const } : {}),
     events24h: undefined,
     rate: undefined,
   }
+}
+
+function displayModuleName(moduleName: string): string {
+  return moduleName
+    .toLowerCase()
+    .split(/[_\s-]+/)
+    .filter(Boolean)
+    .map((part) => part[0].toUpperCase() + part.slice(1))
+    .join(' ')
 }
 
 // Pinned order for the three OS agents so they always lead the grid.
@@ -159,7 +180,35 @@ export function IntegrationsPage() {
   const [editing, setEditing] = useState<Integration | null>(null)
 
   const modules = integrations.integrations.data || []
-  const displayList = useMemo(() => modules.map((m) => mapModuleToIntegration(m, t)), [modules, t])
+  const displayList = useMemo(() => {
+    const injectedByName = new Map(INJECTED_MODULES.map((entry) => [entry.moduleName, entry]))
+    const catalog = modules.map((m) => {
+      const mapped = mapModuleToIntegration(m, t)
+      const guideMetadata = injectedByName.get(m.name)
+      return guideMetadata
+        ? {
+            ...mapped,
+            guideChannel: guideMetadata.guideChannel,
+            guideOnly: true,
+            logFilters: guideMetadata.logFilters,
+            logFilterField: guideMetadata.logFilterField,
+            guideSetting: guideMetadata.guideSetting,
+          }
+        : mapped
+    })
+    // Injected catalog cards are frontend-owned; dedupe against the backend
+    // list by moduleName so a future backend row for the same module never
+    // shows up twice (backend row wins — it carries the real id + dataType).
+    const backendModuleNames = new Set(modules.map((m) => m.name))
+    const injected = INJECTED_MODULES
+      .filter((i) => !backendModuleNames.has(i.moduleName ?? ''))
+      .map((i) => ({
+        ...i,
+        name: t(`integrations.modules.${i.moduleName}.name`, { defaultValue: i.name }),
+        description: t(`integrations.modules.${i.moduleName}.description`, { defaultValue: i.description }),
+      }))
+    return [...catalog, ...injected]
+  }, [modules, t])
 
   // The raw catalog row for the module being edited (for its actual stored icon).
   const editingModule = editing ? modules.find((m) => String(m.id) === editing.id) : undefined

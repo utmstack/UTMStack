@@ -128,10 +128,25 @@ export function DashboardPage() {
     const state = location.state as {
       selectDashboardId?: string;
       resumeEditing?: boolean;
+      integrationDashboardName?: string;
+      integrationDashboardNames?: string[];
+      integrationDashboardSearch?: string;
     } | null;
+    if (state?.integrationDashboardSearch) {
+      setSearch(state.integrationDashboardSearch);
+    } else if (state?.integrationDashboardNames || state?.integrationDashboardName) {
+      setSearch((state.integrationDashboardNames ?? [state.integrationDashboardName!])[0]);
+    }
     if (state?.selectDashboardId != null) {
       setSelectedId(state.selectDashboardId);
       pendingEditRef.current = state.resumeEditing !== false;
+    }
+    if (
+      state?.selectDashboardId != null ||
+      state?.integrationDashboardName ||
+      state?.integrationDashboardNames ||
+      state?.integrationDashboardSearch
+    ) {
       navigate(location.pathname, { replace: true, state: null });
     }
     // Only react to navigation-state changes, not every render.

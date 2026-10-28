@@ -37,7 +37,7 @@ function PaloAltoGuide({ module: _module }: { module: Integration }) {
 
 registerCollector({
   getName: () => 'PALO_ALTO',
-  matches: (n) => n.includes('palo'),
+  matches: (n) => n === 'palo_alto' || n === 'palo-alto' || n === 'firewall-paloalto',
   sections: [],
   render: (m) => <PaloAltoGuide module={m} />,
 })
