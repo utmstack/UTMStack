@@ -1,0 +1,69 @@
+/* Live Operations: the small motions around the stage (the scenes themselves are drawn frame by frame). */
+
+/* The wall behind everything: the console's own background (light or dark) with a barely visible
+ * grid that fades away towards the centre, where the scene plays. Layers, top first: a faint tint
+ * of the primary colour, the background itself covering the middle of the grid, then the grid. */
+.lo-wall {
+  background-color: var(--background);
+  background-image:
+    radial-gradient(ellipse 70% 60% at 50% 45%, color-mix(in oklab, var(--primary) 4%, transparent), transparent 75%),
+    radial-gradient(ellipse 70% 60% at 50% 45%, var(--background) 25%, color-mix(in oklab, var(--background) 60%, transparent) 55%, transparent 80%),
+    linear-gradient(color-mix(in oklab, var(--foreground) 3.5%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklab, var(--foreground) 3.5%, transparent) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 28px 28px, 28px 28px;
+}
+
+/* Panels floating over the wall: the console's cards, slightly see-through. */
+.lo-panel {
+  background: color-mix(in oklab, var(--card) 92%, transparent);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 12px 32px -14px rgb(0 0 0 / 0.35);
+}
+
+@keyframes lo-pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgb(244 63 94 / 0.6); }
+  50% { opacity: 0.55; box-shadow: 0 0 0 5px rgb(244 63 94 / 0); }
+}
+.lo-live-dot { animation: lo-pulse 1.4s ease-in-out infinite; }
+
+@keyframes lo-new {
+  0%, 100% { box-shadow: 0 0 0 0 rgb(56 189 248 / 0.7); }
+  50% { box-shadow: 0 0 0 5px rgb(56 189 248 / 0); }
+}
+.lo-new-dot { animation: lo-new 1.6s ease-in-out infinite; }
+
+@keyframes lo-slide-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: none; }
+}
+.lo-arrive { animation: lo-slide-in 0.45s ease-out both; }
+.lo-feed-item { transition: background-color 0.15s, border-color 0.15s; }
+
+@keyframes lo-fade-in {
+  from { opacity: 0; transform: translateY(3px); }
+  to { opacity: 1; transform: none; }
+}
+.lo-caption { animation: lo-fade-in 0.35s ease-out both; }
+
+/* A new alert's scene settles in, rather than replacing the last one in a single frame. */
+@keyframes lo-scene-in {
+  from { opacity: 0; transform: scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+.lo-scene { animation: lo-scene-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* Labels in the scene grow in from their own centre when they appear. */
+@keyframes lo-pop {
+  from { opacity: 0; transform: scale(0.82); }
+  60% { opacity: 1; transform: scale(1.04); }
+  to { opacity: 1; transform: none; }
+}
+.lo-pop { animation: lo-pop 0.32s cubic-bezier(0.22, 1, 0.36, 1) both; transform-box: fill-box; transform-origin: center; }
+
+.lo-stage svg text { user-select: none; }
+.lo-scrub { accent-color: rgb(56 189 248); }
+
+@media (prefers-reduced-motion: reduce) {
+  .lo-live-dot, .lo-new-dot, .lo-arrive, .lo-caption, .lo-scene, .lo-pop { animation: none; }
+}

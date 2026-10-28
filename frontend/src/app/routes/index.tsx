@@ -7,6 +7,7 @@ import { FederationGate, InstancePickerPage } from '@/features/federation'
 import { FederationAdminLayout } from '@/features/federation/components/FederationAdminLayout'
 import { FederationTeamPage } from '@/features/federation/pages/FederationTeamPage'
 import { HomePage } from '@/features/home/pages/HomePage'
+import { LiveOpsPage } from '@/features/liveops/pages/LiveOpsPage'
 import {
   DashboardPage,
   NewVisualizationPage,
@@ -111,6 +112,10 @@ export function AppRoutes() {
             </PlatformOnly>
           }
         />
+
+        {/*Live operations*/}
+        <Route path="live-operations" element={<LiveOpsPage />} />
+
         {/* Dashboards */}
         <Route path="dashboards" element={<Navigate to="/dashboards/list" replace />} />
         <Route path="dashboards/list" element={<DashboardPage />} />

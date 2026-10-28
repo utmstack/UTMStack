@@ -12,6 +12,8 @@ export interface Geolocation {
   city?: string
   latitude?: number
   longitude?: number
+  asn?: number
+  aso?: string
 }
 
 /** "Side" object — adversary / target. Only the fields the UI uses. */
@@ -20,6 +22,8 @@ export interface Side {
   host?: string
   user?: string
   domain?: string
+  url?: string
+  port?: number
   geolocation?: Geolocation
 }
 

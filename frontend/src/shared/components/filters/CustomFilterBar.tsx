@@ -35,6 +35,7 @@ export function CustomFilterBar({
   labels: FilterBarLabels
 }) {
   const [editing, setEditing] = useState<number | null>(null)
+  const [filterCount, setFilterCount] = useState<number>(0)
   const editRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -43,6 +44,16 @@ export function CustomFilterBar({
     document.addEventListener('mousedown', onDoc)
     return () => document.removeEventListener('mousedown', onDoc)
   }, [editing])
+
+  useEffect(()=>{
+    if(!!filters &&
+       filters.length > filterCount &&
+       filters!.length>0 && filters.at(-1)!.value==""
+      ){
+      setFilterCount(filters.length)
+      setEditing(filters.length-1)
+    }
+  },[filters])
 
 
   const {t} = useTranslation()
