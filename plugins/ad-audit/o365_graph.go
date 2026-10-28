@@ -54,13 +54,13 @@ func o365GraphDirectoryAudit(tenantID string, rec map[string]any, activity strin
 	}
 	et := graphTime(rec["activityDateTime"])
 	switch {
-	case o365OpCreate[activity]:
+	case userOpCreate[activity]:
 		applyCloudEvent(tenantID, "o365", upn, display, "", "create", et)
-	case o365OpDelete[activity]:
+	case userOpDelete[activity]:
 		applyCloudEvent(tenantID, "o365", upn, display, "", "delete", et)
-	case o365OpDisabled[activity]:
+	case userOpDisabled[activity]:
 		applyCloudEvent(tenantID, "o365", upn, display, "", "disabled", et)
-	case o365OpEnabled[activity]:
+	case userOpEnabled[activity]:
 		applyCloudEvent(tenantID, "o365", upn, display, "", "enabled", et)
 	}
 	return io.EOF

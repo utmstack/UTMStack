@@ -40,13 +40,13 @@ func handleAzure(event *plugins.Event) error {
 		}
 		et := azureTime(rec)
 		switch {
-		case o365OpCreate[operation]:
+		case userOpCreate[operation]:
 			applyCloudEvent(event.GetTenantId(), "azure", upn, upn, "", "create", et)
-		case o365OpDelete[operation]:
+		case userOpDelete[operation]:
 			applyCloudEvent(event.GetTenantId(), "azure", upn, upn, "", "delete", et)
-		case o365OpDisabled[operation]:
+		case userOpDisabled[operation]:
 			applyCloudEvent(event.GetTenantId(), "azure", upn, upn, "", "disabled", et)
-		case o365OpEnabled[operation]:
+		case userOpEnabled[operation]:
 			applyCloudEvent(event.GetTenantId(), "azure", upn, upn, "", "enabled", et)
 		}
 		return io.EOF

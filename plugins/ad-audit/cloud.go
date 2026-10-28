@@ -27,10 +27,10 @@ var (
 )
 
 var (
-	o365OpCreate   = map[string]bool{"Add user": true, "Create user": true}
-	o365OpDelete   = map[string]bool{"Delete user": true, "Delete a user": true}
-	o365OpDisabled = map[string]bool{"Set user as disabled": true}
-	o365OpEnabled  = map[string]bool{"Set user as enabled": true}
+	userOpCreate   = map[string]bool{"Add user": true, "Create user": true}
+	userOpDelete   = map[string]bool{"Delete user": true, "Delete a user": true}
+	userOpDisabled = map[string]bool{"Set user as disabled": true}
+	userOpEnabled  = map[string]bool{"Set user as enabled": true}
 )
 
 func strField(m map[string]any, k string) string {
