@@ -5,6 +5,9 @@ import {FederationDisabledGuard} from './federation/guards/federation-disabled.g
 import {
   FederationEmailConfigPageComponent
 } from './federation/pages/email-config/federation-email-config.page.component';
+import {
+  FederationTfaConfigPageComponent
+} from './federation/pages/tfa-config/federation-tfa-config.page.component';
 import {TeamMembersPageComponent} from './federation/pages/team-members/team-members.page.component';
 import {WelcomeComponent as FederationWelcomeComponent} from './federation/pages/welcome/welcome.component';
 import {ConfirmIdentityComponent} from './shared/components/auth/confirm-identity/confirm-identity.component';
@@ -171,6 +174,11 @@ const routes: Routes = [
       {
         path: 'email-config',
         component: FederationEmailConfigPageComponent,
+        data: {authorities: [ADMIN_ROLE]}
+      },
+      {
+        path: 'tfa-config',
+        component: FederationTfaConfigPageComponent,
         data: {authorities: [ADMIN_ROLE]}
       }
     ]
