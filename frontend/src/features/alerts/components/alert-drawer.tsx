@@ -1,5 +1,5 @@
-import { useMemo,useEffect, useState } from 'react'
-import { Flame, X } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { Flame, X, Loader2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
@@ -63,7 +63,6 @@ export function AlertDrawer({
   useSocAiFocus(useMemo(() => alertFocus(a), [a]))
   const [tab, setTab] = useState<Tab>('summary')
   const { loading: loadingRelated, viewRelatedLogs } = useRelatedLogs()
-  const thread = useAlertThreadEvents(a, tab === 'events')
   // `notes` stores only the analyst's own free text; any AI assessment block is
   // kept separate so the SOC AI note is preserved when the analyst saves.
   const [notes, setNotes] = useState(userNotePart(a.notes))
@@ -75,10 +74,8 @@ export function AlertDrawer({
   const stmLabel = t(`alerts.status.${statusKey(a)}`)
   const tags = a.tags ?? []
 
+  const thread = useAlertThreadEvents(a, true)
 
-  useEffect(()=>{
-    viewRelatedLogs(a)
-  },[a])
 
   return (
     <div
@@ -157,11 +154,19 @@ export function AlertDrawer({
               onClick={() => setTab(id)}
               className={cn(
                 'relative px-3 py-2.5 text-xs capitalize transition-colors',
-                tab === id ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+                tab === id ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
+                id === 'events' && thread.loading ? 'pointer-events-none cursor-not-allowed opacity-50':''
               )}
             >
               {id === 'events'
-                ? `${t('alerts.drawer.tabs.events')}${thread.events.length ? ` (${thread.events.length})` : ''}`
+                ? thread.loading? (
+                    <div className="flex gap-1 justify-center items-center">
+                     <small>{t('alerts.drawer.tabs.events')}</small>
+                      <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                    </div>
+
+
+                ) : `${t('alerts.drawer.tabs.events')}${thread.events.length ? ` (${thread.events.length})` : ''}`
                 : t(`alerts.drawer.tabs.${id}`)}
               {tab === id && <span className="absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-primary" />}
             </button>

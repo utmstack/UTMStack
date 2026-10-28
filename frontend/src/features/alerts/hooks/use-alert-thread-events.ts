@@ -48,7 +48,7 @@ export function useAlertThreadEvents(alert: Alert, enabled: boolean): AlertThrea
     return () => {
       cancelled = true
     }
-  }, [alert.id, echoes, enabled])
+  }, [alert.id,  enabled])
 
   const events = useMemo(() => {
     const seen = new Set<string>()

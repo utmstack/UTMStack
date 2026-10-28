@@ -76,8 +76,8 @@ export function logExplorerHref(user: ADUser): string {
     if (user.hostname) p['origin.host'] = user.hostname
   } else {
     p.dataType = 'wineventlog'
-    p.eventCode = '4720,4726,4624'
-    if (user.sid) p.eventDataTargetSid = user.sid
+    p['log.eventCode'] = '4720,4726,4624'
+    if (user.sid) p['log.eventDataTargetSid'] = user.sid
   }
   return `/log-explorer?${new URLSearchParams(p).toString()}`
 }
