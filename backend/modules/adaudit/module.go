@@ -9,15 +9,24 @@ import (
 )
 
 type Module struct {
-	handler *handler.ADUserHandler
-	uc      connectors.ADUserUsecase
+	handler  *handler.ADUserHandler
+	identity *handler.IdentityHandler
+	uc       connectors.ADUserUsecase
 }
 
 func NewModule(db *gorm.DB) *Module {
-	repo := repository.NewADUserRepository(db)
-	uc := usecase.NewADUserUsecase(repo)
-	return &Module{handler: handler.NewADUserHandler(uc), uc: uc}
+	adRepo := repository.NewADUserRepository(db)
+	identityRepo := repository.NewIdentityRepository(db)
+	uc := usecase.NewADUserUsecase(adRepo)
+	return &Module{
+		handler:  handler.NewADUserHandler(uc),
+		identity: handler.NewIdentityHandler(usecase.NewIdentityUsecase(identityRepo)),
+		uc:       uc,
+	}
 }
 
-func (m *Module) Handler() *handler.ADUserHandler      { return m.handler }
+func (m *Module) Handler() *handler.ADUserHandler { return m.handler }
+func (m *Module) Identity() *handler.IdentityHandler {
+	return m.identity
+}
 func (m *Module) GetUsecase() connectors.ADUserUsecase { return m.uc }
