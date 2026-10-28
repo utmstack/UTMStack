@@ -16,7 +16,7 @@ type ADUser struct {
 	MachineID        *string    `gorm:"column:machine_id;size:64;uniqueIndex:idx_aduser_linux,priority:2,where:source = 'linux'" json:"machineId,omitempty"`
 	UIDNumber        *uint32    `gorm:"column:uid_number;uniqueIndex:idx_aduser_linux,priority:3" json:"uidNumber,omitempty"`
 	Hostname         *string    `gorm:"column:hostname;size:255" json:"hostname,omitempty"`
-	Username         *string    `gorm:"column:username;size:255;uniqueIndex:idx_aduser_cloud,priority:2,where:source IN ('o365','azure','gcp','aws')" json:"username,omitempty"`
+	Username         *string    `gorm:"column:username;size:255;uniqueIndex:idx_aduser_cloud,priority:2,where:source = 'o365' OR source = 'azure' OR source = 'gcp' OR source = 'aws'" json:"username,omitempty"`
 	Active           bool       `gorm:"column:active;not null" json:"active"`
 	AccountCreatedAt *time.Time `gorm:"column:account_created_at" json:"accountCreatedAt,omitempty"`
 	LastLogon        *time.Time `gorm:"column:last_logon" json:"lastLogon,omitempty"`
