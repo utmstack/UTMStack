@@ -27,7 +27,7 @@ function CiscoMerakiGuide({ module: _module }: { module: Integration }) {
 
 registerCollector({
   getName: () => 'MERAKI',
-  matches: (n) => n.includes('meraki'),
+  matches: (n) => n === 'meraki' || n === 'cisco_meraki' || n === 'firewall_meraki',
   sections: [],
   render: (m) => <CiscoMerakiGuide module={m} />,
 })

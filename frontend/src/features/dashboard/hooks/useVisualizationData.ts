@@ -4,6 +4,7 @@ import { createQueryService } from '@/features/dashboard/service/query.service'
 import { resolveRangeToISO } from '@/features/dashboard/utils/datemath'
 import {
   filterTypesToSpec,
+  normalizeSpecDataType,
   parseSpec,
   resultToRows,
   specIsComplete,
@@ -30,12 +31,13 @@ export interface VisualizationData {
  * spec on the way out rather than stored with it.
  */
 export function scopeSpec(spec: VizSpec, fromISO: string, toISO: string, filters: FilterType[]): VizSpec {
+  const normalized = normalizeSpecDataType(spec)
   const bar = filterTypesToSpec(filters)
   return {
-    ...spec,
+    ...normalized,
     from: fromISO,
     to: toISO,
-    filters: bar.length > 0 ? [...(spec.filters ?? []), ...bar] : spec.filters,
+    filters: bar.length > 0 ? [...(normalized.filters ?? []), ...bar] : normalized.filters,
   }
 }
 
@@ -76,8 +78,12 @@ export function useVisualizationData(
       : [...VISUALIZATION_DATA_QUERY_KEYS.all, 'noop'],
     queryFn: async () => {
       if (!spec) return { rows: [], total: 0 }
-      const result = await service.run(spec)
-      const rows = resultToRows(result, spec)
+      const querySpec =
+        spec.chart === 'table' && spec.columns?.length && !spec.columns.includes('id')
+          ? { ...spec, columns: [...spec.columns, 'id'] }
+          : spec
+      const result = await service.run(querySpec)
+      const rows = resultToRows(result, querySpec)
       return { rows, total: result.total ?? rows.length }
     },
     enabled: visualization != null && spec != null,

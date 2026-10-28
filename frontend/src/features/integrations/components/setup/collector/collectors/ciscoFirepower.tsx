@@ -27,7 +27,7 @@ function CiscoFirepowerGuide({ module: _module }: { module: Integration }) {
 
 registerCollector({
   getName: () => 'FIRE_POWER',
-  matches: (n) => n.includes('firepower') || (n.includes('fire') && n.includes('power')),
+  matches: (n) => n === 'firepower' || n === 'cisco_firepower' || n === 'fire_power',
   sections: [],
   render: (m) => <CiscoFirepowerGuide module={m} />,
 })

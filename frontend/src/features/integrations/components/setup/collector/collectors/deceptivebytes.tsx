@@ -27,7 +27,7 @@ function DeceptiveBytesGuide({ module: _module }: { module: Integration }) {
 
 registerCollector({
   getName: () => 'DECEPTIVE_BYTES',
-  matches: (n) => n.includes('deceptive'),
+  matches: (n) => n === 'deceptivebytes' || n === 'deceptive_bytes' || n === 'deceptive-bytes',
   sections: [],
   render: (m) => <DeceptiveBytesGuide module={m} />,
 })
