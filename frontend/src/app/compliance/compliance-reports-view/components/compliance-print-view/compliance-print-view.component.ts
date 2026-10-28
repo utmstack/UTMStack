@@ -23,6 +23,8 @@ export class CompliancePrintViewComponent implements OnInit, OnDestroy {
   selected: number;
   fields: SortByType[];
   preparingPrint = true;
+  visualizationCount = 0;
+  loadedCount = 0;
 
   constructor(private reportsService: CpReportsService,
               private toastService: UtmToastService,
@@ -51,6 +53,12 @@ export class CompliancePrintViewComponent implements OnInit, OnDestroy {
             };
           });
         }),
+        tap((reports) => {
+          this.visualizationCount = reports.reduce((acc, r) => acc + (r.visualization ? r.visualization.length : 0), 0);
+          if (this.visualizationCount === 0) {
+            this.preparingPrint = false;
+          }
+        }),
         catchError((err: HttpErrorResponse) => {
           this.toastService.showError('Error',
             'Unable to retrieve the list of reports. Please try again or contact support.');
@@ -69,8 +77,11 @@ export class CompliancePrintViewComponent implements OnInit, OnDestroy {
     report.visualization = visualization;
   }
 
-  onVisualizationLoaded(){
-    this.preparingPrint = false;
+  onVisualizationRun(){
+    this.loadedCount += 1;
+    if (this.loadedCount >= this.visualizationCount) {
+      this.preparingPrint = false;
+    }
   }
 
   ngOnDestroy(): void {

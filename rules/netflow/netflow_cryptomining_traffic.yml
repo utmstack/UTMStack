@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.1.0
 
 dataTypes:
   - netflow
@@ -14,7 +14,21 @@ references:
   - https://attack.mitre.org/techniques/T1496/
   - https://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html
 description: |
-  Detects network connections to known cryptocurrency mining pool ports (Stratum protocol on 3333, 4444, 5555, 7777, 8888, 9999, 14444). Internal hosts connecting to mining pools indicate cryptojacking or unauthorized mining activity.
+  Detects an established TCP session from an internal host to a known
+  cryptocurrency mining pool port (Stratum: 3333, 4444, 5555, 7777, 8888, 9999,
+  14444, 14433, 45560) carrying a sustained volume of data, with additional
+  established connections from the same host nearby.
+
+  v1.1.0 (2026-10-28): tightened against false positives. v1.0.0 matched any
+  flow to these ports, so one-way SYN-ACK probes and 100-byte blips (e.g. a
+  dead pool IP answering or NAT artefacts) correlated into alerts. Now the
+  trigger requires a completed handshake (actionResult = success, i.e. the
+  TCP flags include ACK) AND > 10 KB transferred in the flow (a real Stratum
+  session streams job hashes; a probe carries none), and the correlation
+  requires further *established* flows from the host instead of any events.
+
+  Internal hosts connecting to mining pools indicate cryptojacking or
+  unauthorized mining activity.
 
   Next Steps:
   1. Identify the internal host connecting to mining pools
@@ -28,6 +42,9 @@ where: |
   exists("target.ip") &&
   oneOf("target.port", [3333, 4444, 5555, 7777, 8888, 9999, 14444, 14433, 45560]) &&
   equals("protocol", "TCP") &&
+  equals("actionResult", "success") &&
+  exists("event.totalBytes") &&
+  greaterThan("event.totalBytes", 10000) &&
   !inCIDR("target.ip", "10.0.0.0/8") &&
   !inCIDR("target.ip", "172.16.0.0/12") &&
   !inCIDR("target.ip", "192.168.0.0/16")

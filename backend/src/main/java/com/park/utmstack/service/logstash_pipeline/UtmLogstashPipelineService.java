@@ -25,8 +25,8 @@ import com.park.utmstack.web.rest.vm.UtmLogstashPipelineVM;
 import com.utmstack.opensearch_connector.parsers.TermAggregateParser;
 import com.utmstack.opensearch_connector.types.BucketAggregation;
 import org.elasticsearch.search.aggregations.Aggregations;
+import org.opensearch.client.json.JsonData;
 import org.opensearch.client.opensearch._types.FieldValue;
-import org.opensearch.client.opensearch._types.SortOrder;
 import org.opensearch.client.opensearch._types.aggregations.Aggregate;
 import org.opensearch.client.opensearch._types.aggregations.Aggregation;
 import org.opensearch.client.opensearch._types.aggregations.TermsAggregation;
@@ -330,29 +330,37 @@ public class UtmLogstashPipelineService {
 
         try {
             activeByServer.forEach((p) -> {
-                String dataType = p.getPipelineName();
+                // Evaluate ALL the module's data types. The previous code took
+                // findFirst() on a HashSet, which is an arbitrary order, so
+                // multi-filter modules were judged by an unrelated data type
+                // (#2985).
                 Set<UtmLogstashFilter> filters = p.getUtmModule() != null ? p.getUtmModule().getFilters() : null;
-                dataType = Optional.ofNullable(filters)
-                        .flatMap(fs -> fs.stream().findFirst())
-                        .map(f -> f.getDatatype().getDataType())
-                        .orElse(dataType);
-                StatisticDocument pipeLine = this.getStatisticsDataType(Constants.STATISTICS_INDEX_PATTERN, dataType);
+                List<String> dataTypes = Optional.ofNullable(filters)
+                        .map(fs -> fs.stream()
+                                .map(f -> f.getDatatype().getDataType())
+                                .filter(StringUtils::hasText)
+                                .distinct()
+                                .collect(Collectors.toList()))
+                        .filter(l -> !l.isEmpty())
+                        .orElse(List.of(p.getPipelineName()));
 
-                if (!Objects.isNull(pipeLine)) {
-                    p.setEventsOut(pipeLine.getCount());
+                StatisticDocument stats = this.getStatisticsDataType(Constants.STATISTICS_INDEX_PATTERN, dataTypes);
 
-                    Instant timestampDate = Instant.parse(pipeLine.getTimestamp());
+                // "Processed events" is the sum of this pipeline's OWN data
+                // over the last 24 h. When it has none, reset to 0 instead of
+                // keeping the stale stored value (#2985).
+                p.setEventsOut(stats != null && stats.getCount() != null ? stats.getCount() : 0L);
 
-                    Duration duration = Duration.between(timestampDate, Instant.now());
-                    long hoursDifference = duration.toHours();
-
+                if (stats == null || !StringUtils.hasText(stats.getTimestamp())) {
+                    p.setPipelineStatus(PipelineStatus.PIPELINE_STATUS_DOWN.get());
+                } else {
+                    Instant timestampDate = Instant.parse(stats.getTimestamp());
+                    long hoursDifference = Duration.between(timestampDate, Instant.now()).toHours();
                     if (hoursDifference > 6) {
                         p.setPipelineStatus(PipelineStatus.PIPELINE_STATUS_DOWN.get());
                     } else {
                         p.setPipelineStatus(PipelineStatus.PIPELINE_STATUS_UP.get());
                     }
-                } else {
-                    p.setPipelineStatus(PipelineStatus.PIPELINE_STATUS_DOWN.get());
                 }
             });
             utmLogstashPipelineRepository.saveAll(activeByServer);
@@ -451,16 +459,37 @@ public class UtmLogstashPipelineService {
         return true;
     }
 
-    public StatisticDocument getStatisticsDataType(String indexName, String dataTypeValue) {
+    public StatisticDocument getStatisticsDataType(String indexName, List<String> dataTypeValues) {
+        // Exact match on the keyword sub-field for every data type the
+        // pipeline can produce, plus a 24 h window, and a sum of count. A
+        // `match` on the text field split the value into tokens (e.g.
+        // "antivirus-kaspersky" -> "antivirus" OR "kaspersky") and returned
+        // another vendor's statistics; the sum replaces the "count of the
+        // single newest document" (#2985).
+        final String windowGte = DateTimeFormatter.ISO_INSTANT.format(Instant.now().minus(Duration.ofHours(24)));
         SearchRequest sr = SearchRequest.of(s -> s
                 .index(indexName)
-                .query(q -> q.match(m -> m.field("dataType").query(FieldValue.of(dataTypeValue))))
-                .sort(sort -> sort.field(f -> f.field("@timestamp").order(SortOrder.Desc)))
-                .size(1)
+                .query(q -> q.bool(b -> b
+                        .filter(f -> f.terms(t -> t.field(Constants.dataTypeKeyword)
+                                .terms(tv -> tv.value(dataTypeValues.stream()
+                                        .map(FieldValue::of)
+                                        .collect(Collectors.toList())))))
+                        .filter(f -> f.range(r -> r.field("@timestamp").gte(JsonData.of(windowGte))))))
+                .aggregations("sum_count", a -> a.sum(sm -> sm.field("count")))
+                .aggregations("max_ts", a -> a.max(mx -> mx.field("@timestamp")))
+                .size(0)
         );
 
         SearchResponse<StatisticDocument> response = elasticsearchService.search(sr, StatisticDocument.class);
 
-        return response.hits().hits().isEmpty() ? null : response.hits().hits().get(0).source();
+        Double sum = response.aggregations().get("sum_count").sum().value();
+        Double maxTs = response.aggregations().get("max_ts").max().value();
+        if (sum == null || maxTs == null || sum == 0.0) {
+            return null;
+        }
+        StatisticDocument doc = new StatisticDocument();
+        doc.setCount(Math.round(sum));
+        doc.setTimestamp(DateTimeFormatter.ISO_INSTANT.format(Instant.ofEpochMilli(maxTs.longValue())));
+        return doc;
     }
 }
