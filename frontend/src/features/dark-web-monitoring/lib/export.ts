@@ -1,4 +1,4 @@
-import { STATUS_KEYS, valueOrDash } from './format'
+import { STATUS_KEYS, escapeHtml, neutralizeCsvCell, valueOrDash } from './format'
 import type { DarkWebRecord } from '../types'
 
 /**
@@ -33,19 +33,8 @@ const EXPORT_HEADERS = [
 export const MASKED = '••••••••'
 
 function csvCell(value: string): string {
-  // Prefix formula-triggering characters so spreadsheet apps treat the cell as text.
-  const neutral = /^[=+@\-]/.test(value) ? `'${value}` : value
+  const neutral = neutralizeCsvCell(value)
   return /[",\n]/.test(neutral) ? `"${neutral.replace(/"/g, '""')}"` : neutral
-}
-
-function escapeHtml(value: string): string {
-  return value.replace(/[&<>"']/g, (character) => ({
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#39;',
-  })[character] ?? character)
 }
 
 export function downloadCsv(filename: string, rows: string[][]) {

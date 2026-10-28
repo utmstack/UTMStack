@@ -33,7 +33,7 @@ function getCredential(record: DarkWebRecord): string | null {
 }
 
 export function DarkWebMonitoringPage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { records, stats, loading, error, retry, setRecordStatus } = useDarkWebData()
   const [surface, setSurface] = useState<LeakSurface>('domains')
   const [query, setQuery] = useState('')
@@ -137,7 +137,7 @@ export function DarkWebMonitoringPage() {
   const exposedSurfaceCount = SURFACES.filter((key) => surfaceCounts[key] > 0).length
   const employeeShare = records.length > 0 ? (employeeCount / records.length) * 100 : 0
 
-  const handleExport = () => downloadCsv('dark-web-monitoring-demo.csv', buildExportRows(filtered, t, !reveal, formatDateShort))
+  const handleExport = () => downloadCsv('dark-web-monitoring-demo.csv', buildExportRows(filtered, t, !reveal, (value) => formatDateShort(value, i18n.language)))
   const handleReport = () =>
     downloadCsv('dark-web-monitoring-demo-report.csv', [
       [t('darkWebMonitoring.title'), t('darkWebMonitoring.demoNotice')],
@@ -149,13 +149,14 @@ export function DarkWebMonitoringPage() {
     ])
   const handleDialogExport = (items: DarkWebRecord[], action: ExportAction, filename: string, maskSensitive: boolean): boolean => {
     try {
-      const rows = buildExportRows(items, t, maskSensitive, formatDateShort)
+      const rows = buildExportRows(items, t, maskSensitive, (value) => formatDateShort(value, i18n.language))
       if (action === 'CSV') {
         downloadCsv(`${filename}.csv`, rows)
-      } else if (!printReportPdf(t('darkWebMonitoring.title'), rows)) {
-        toast.error(t('darkWebMonitoring.exportDialogs.exportFailed'))
+        return true
       }
-      return true
+      // The print window doubles as the PDF report; if the browser blocks the
+      // pop-up the report is not produced, so keep the dialog open for retry.
+      return printReportPdf(t('darkWebMonitoring.title'), rows)
     } catch {
       toast.error(t('darkWebMonitoring.exportDialogs.exportFailed'))
       return false
@@ -218,6 +219,8 @@ export function DarkWebMonitoringPage() {
     <div className="flex min-h-full w-full flex-col gap-4 px-6 pb-6 pt-3">
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
+          <h1 className="text-xl font-semibold">{t('darkWebMonitoring.title')}</h1>
+          <span className="text-xs text-muted-foreground">{t('darkWebMonitoring.subtitle')}</span>
         </div>
         <button
           ref={reportButtonRef}
@@ -501,8 +504,8 @@ export function DarkWebMonitoringPage() {
                   <td className="whitespace-nowrap px-3 py-2.5">{valueOrDash(record.leakName)}</td>
                   <td className="whitespace-nowrap px-3 py-2.5">{valueOrDash(record.foundIn)}</td>
                   <td className="whitespace-nowrap px-3 py-2.5">{valueOrDash(record.source)}</td>
-                  <td className="whitespace-nowrap border-l border-border px-3 py-2.5 font-mono">{formatDateShort(record.timestamp)}</td>
-                  <td className="whitespace-nowrap px-3 py-2.5 font-mono">{formatDateShort(record.createdAt)}</td>
+                  <td className="whitespace-nowrap border-l border-border px-3 py-2.5 font-mono">{formatDateShort(record.timestamp, i18n.language)}</td>
+                  <td className="whitespace-nowrap px-3 py-2.5 font-mono">{formatDateShort(record.createdAt, i18n.language)}</td>
                 </tr>
               ))}
               {visibleRecords.length === 0 && (

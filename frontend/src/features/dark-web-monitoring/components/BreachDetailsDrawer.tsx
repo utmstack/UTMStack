@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { FloatingPanel } from '@/shared/components/ui/floating-panel'
 import type { BreachStatus, DarkWebRecord } from '../types'
-import { STATUS_KEYS, escapeHtml, formatDateMedium, valueOrDash } from '../lib/format'
+import { STATUS_KEYS, escapeHtml, formatDateMedium, safeImageUrl, valueOrDash } from '../lib/format'
 import { StatusPill } from './StatusPill'
 
 interface BreachDetailsDrawerProps {
@@ -39,7 +39,7 @@ const MITIGATION_STEP_IMAGES: Record<MitigationStepKey, string> = {
 }
 
 export function BreachDetailsDrawer({ record, onClose, onStatusChange }: BreachDetailsDrawerProps) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [activeTab, setActiveTab] = useState<'information' | 'echoes'>('information')
   const [showSecrets, setShowSecrets] = useState(false)
   const [stepStatuses, setStepStatuses] = useState<Record<MitigationStepKey, MitigationStepStatus>>({
@@ -60,6 +60,8 @@ export function BreachDetailsDrawer({ record, onClose, onStatusChange }: BreachD
   const subject = record.organizationElement
   const subjectType = t(`darkWebMonitoring.exportDialogs.elementTypes.${record.organizationElementType}`)
   const inMitigation = record.breachStatus === 'IN_MITIGATION'
+  // Only render a record-supplied image when it is a safe http(s)/data:image source.
+  const evidenceUrl = safeImageUrl(record.imageUrl)
   const sensitiveValue = (value: string | null) =>
     value ? (showSecrets ? value : '••••••••') : '—'
 
@@ -145,9 +147,9 @@ export function BreachDetailsDrawer({ record, onClose, onStatusChange }: BreachD
                 </div>
               </div>
 
-              {record.imageUrl && (
+              {evidenceUrl && (
                 <div className="overflow-hidden rounded-xl border border-border bg-muted">
-                  <img src={record.imageUrl} alt={t('darkWebMonitoring.details.evidence')} className="max-h-80 w-full object-contain" />
+                  <img src={evidenceUrl} alt={t('darkWebMonitoring.details.evidence')} className="max-h-80 w-full object-contain" />
                 </div>
               )}
 
@@ -187,7 +189,7 @@ export function BreachDetailsDrawer({ record, onClose, onStatusChange }: BreachD
               </section>
 
               <section className="grid gap-x-6 gap-y-4 sm:grid-cols-2">
-                <DetailField icon={<CalendarDays size={13} />} label={t('darkWebMonitoring.details.lastSeen')} value={formatDateMedium(record.timestamp)} />
+                <DetailField icon={<CalendarDays size={13} />} label={t('darkWebMonitoring.details.lastSeen')} value={formatDateMedium(record.timestamp, i18n.language)} />
                 <DetailField icon={<FileText size={13} />} label={t('darkWebMonitoring.table.leakName')} value={valueOrDash(record.leakName)} />
                 <DetailField icon={<Database size={13} />} label={t('darkWebMonitoring.table.database')} value={valueOrDash(record.databaseName)} />
                 <DetailField icon={<FileText size={13} />} label={t('darkWebMonitoring.table.foundIn')} value={valueOrDash(record.foundIn)} />

@@ -2,14 +2,10 @@ import { useRef, useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { FloatingPanel } from '@/shared/components/ui/floating-panel'
+import { STATUS_KEYS } from '../lib/format'
 import type { BreachStatus } from '../types'
 
 const BREACH_STATUSES: BreachStatus[] = ['OPEN', 'IN_MITIGATION', 'COMPLETED']
-const STATUS_KEYS: Record<BreachStatus, string> = {
-  OPEN: 'open',
-  IN_MITIGATION: 'mitigation',
-  COMPLETED: 'completed',
-}
 const STATUS_STYLES: Record<BreachStatus, string> = {
   OPEN: 'bg-red-500/10 text-red-400 ring-red-500/20',
   IN_MITIGATION: 'bg-amber-500/10 text-amber-400 ring-amber-500/20',

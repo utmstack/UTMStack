@@ -2,10 +2,14 @@ import { createApiClient } from '@/shared/lib/api-client'
 import type { BreachStatus, DarkWebRecord, OrganizationBreachStats } from '../types'
 
 /**
- * HTTP client for the dark web monitoring API. The backend endpoints do not
- * exist yet, so the page fetches through `darkWebMonitoringService` (see
- * `services/index.ts`), which serves fake data until `USE_MOCK_DARK_WEB` is
- * unset. Once the API lands, flip the flag and these endpoints become live.
+ * HTTP client for the dark web monitoring API.
+ *
+ * The backend endpoints do not exist yet, so the page fetches through
+ * `darkWebMonitoringService` (see `services/index.ts`), which serves the mock
+ * until `USE_MOCK` is unset. The paths and shapes below are a *proposed*
+ * contract mirroring `types.ts`; before flipping the flag to live, align them
+ * with the actual backend implementation (route prefixes, verbs, payloads) —
+ * do not treat them as the final API.
  */
 const api = createApiClient()
 const BASE = '/dark-web'

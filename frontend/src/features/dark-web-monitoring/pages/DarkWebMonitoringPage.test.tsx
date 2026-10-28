@@ -2,13 +2,13 @@ import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { DEMO_RECORDS } from '../data/demo-records'
 import { DEMO_ORGANIZATION_BREACH_STATS } from '../data/demo-organization-stats'
-import { buildExportRows, downloadCsv, printReportPdf } from '../lib/export'
-import { formatDateMedium, neutralizeCsvCell, valueOrDash } from '../lib/format'
+import { buildExportRows, downloadCsv, MASKED, printReportPdf } from '../lib/export'
+import { formatDateMedium, neutralizeCsvCell, safeImageUrl, valueOrDash } from '../lib/format'
 import { TimeRangeFilter } from '../components/TimeRangeFilter'
 import { DarkWebMonitoringPage } from './DarkWebMonitoringPage'
 
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
+  useTranslation: () => ({ t: (key: string) => key, i18n: { language: 'en' } }),
 }))
 
 /**
@@ -59,6 +59,7 @@ describe('DarkWebMonitoringPage demo', () => {
     })
     expect(record).toHaveProperty('ipAddress', null)
     expect(record).toHaveProperty('hashedPassword', null)
+    expect(record).toHaveProperty('password', null)
     expect(record).toHaveProperty('databaseName')
     expect(record).not.toHaveProperty('status')
     expect(record).not.toHaveProperty('ingestedAt')
@@ -88,7 +89,7 @@ describe('DarkWebMonitoringPage demo', () => {
   it('opens a breach details side panel when a table row is selected', async () => {
     await renderPage()
     const table = screen.getByRole('table')
-    const row = within(table).getAllByText('taylor@test01.example')[0].closest('tr')
+    const row = within(table).getAllByText('user01@test01.example')[0].closest('tr')
     if (!row) throw new Error('Expected a breach table row')
 
     fireEvent.click(row)
@@ -97,10 +98,10 @@ describe('DarkWebMonitoringPage demo', () => {
     expect(details).toBeInTheDocument()
     expect(within(details).getByText('darkWebMonitoring.details.information')).toBeInTheDocument()
     expect(within(details).getByText('Synthetic demonstration breach')).toBeInTheDocument()
-    expect(within(details).getByText('••••••••')).toBeInTheDocument()
+    expect(within(details).getByText('user01@test01.example')).toBeInTheDocument()
 
     fireEvent.click(within(details).getByRole('button', { name: 'darkWebMonitoring.details.revealSecrets' }))
-    expect(within(details).getByText('Demo!4821')).toBeInTheDocument()
+    expect(within(details).queryByText('Demo!4821')).not.toBeInTheDocument()
 
     fireEvent.click(within(details).getByRole('button', { name: 'darkWebMonitoring.details.close' }))
     expect(screen.queryByRole('dialog', { name: 'darkWebMonitoring.details.title' })).not.toBeInTheDocument()
@@ -209,11 +210,11 @@ describe('DarkWebMonitoringPage demo', () => {
     await renderPage()
 
     expect(screen.queryByText('Demo!4821')).not.toBeInTheDocument()
-    expect(screen.getAllByText('••••••••').length).toBeGreaterThan(0)
+    expect(screen.queryByText('••••••••')).not.toBeInTheDocument()
 
     fireEvent.click(screen.getByLabelText('darkWebMonitoring.reveal'))
 
-    expect(screen.getByText('Demo!4821')).toBeInTheDocument()
+    expect(screen.queryByText('Demo!4821')).not.toBeInTheDocument()
   })
 
   it('filters the table by status and surface tab', async () => {
@@ -221,13 +222,13 @@ describe('DarkWebMonitoringPage demo', () => {
     const table = screen.getByRole('table')
 
     fireEvent.click(screen.getByRole('button', { name: /darkWebMonitoring.statusFilter.mitigation/ }))
-    expect(within(table).getAllByText('taylor@test01.example')).toHaveLength(2)
-    expect(within(table).queryByText('alex@test02.example')).not.toBeInTheDocument()
+    expect(within(table).getAllByText('user01@test01.example')).toHaveLength(1)
+    expect(within(table).queryByText('user03@test02.example')).not.toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: /darkWebMonitoring.statusFilter.all/ }))
     fireEvent.click(screen.getByRole('button', { name: /darkWebMonitoring.tabs.emails/ }))
-    expect(within(table).getByText('jordan@test01.example')).toBeInTheDocument()
-    expect(within(table).queryByText('taylor@test01.example')).not.toBeInTheDocument()
+    expect(within(table).getByText('user06@test01.example')).toBeInTheDocument()
+    expect(within(table).queryByText('user01@test01.example')).not.toBeInTheDocument()
   })
 
   it('allows changing a row status from the colored status select', async () => {
@@ -242,18 +243,18 @@ describe('DarkWebMonitoringPage demo', () => {
 
     expect(screen.getAllByRole('button', { name: /darkWebMonitoring.status.open/ }).length).toBeGreaterThan(0)
     fireEvent.click(screen.getByRole('button', { name: 'darkWebMonitoring.statusFilter.open' }))
-    expect(within(screen.getByRole('table')).getByText('taylor@test01.example')).toBeInTheDocument()
+    expect(within(screen.getByRole('table')).getByText('user01@test01.example')).toBeInTheDocument()
   })
 
   it('searches the selected surface records', async () => {
     await renderPage()
     fireEvent.change(screen.getByPlaceholderText('darkWebMonitoring.search'), {
-      target: { value: 'alex@test02.example' },
+      target: { value: 'user03@test02.example' },
     })
 
     const table = within(screen.getByRole('table'))
-    expect(table.getByText('alex@test02.example')).toBeInTheDocument()
-    expect(table.queryByText('taylor@test01.example')).not.toBeInTheDocument()
+    expect(table.getByText('user03@test02.example')).toBeInTheDocument()
+    expect(table.queryByText('user01@test01.example')).not.toBeInTheDocument()
   })
 })
 
@@ -265,6 +266,15 @@ describe('dark web monitoring format helpers', () => {
     expect(formatDateMedium('2026-08-28T12:20:00Z')).toMatch(/2026/)
   })
 
+  it('only allows http(s) and data:image image urls through safeImageUrl', () => {
+    expect(safeImageUrl('https://example.com/a.png')).toBe('https://example.com/a.png')
+    expect(safeImageUrl('http://example.com/a.png')).toBe('http://example.com/a.png')
+    expect(safeImageUrl('data:image/svg+xml,%3Csvg%3E')).toBe('data:image/svg+xml,%3Csvg%3E')
+    expect(safeImageUrl('data:text/html,<script>')).toBeNull()
+    expect(safeImageUrl('javascript:alert(1)')).toBeNull()
+    expect(safeImageUrl(null)).toBeNull()
+  })
+
   it('neutralizes formula-triggering CSV cells', () => {
     expect(neutralizeCsvCell('=SUM(A1)')).toBe("'=SUM(A1)")
     expect(neutralizeCsvCell('+cmd')).toBe("'+cmd")
@@ -274,10 +284,14 @@ describe('dark web monitoring format helpers', () => {
   })
 
   it('builds export rows with masked or revealed secrets', () => {
-    const rows = buildExportRows(DEMO_RECORDS.slice(0, 1), (key) => key, true, formatDateMedium)
-    expect(rows[0][0]).toBe('darkWebMonitoring.table.status')
-    expect(rows[1][1]).toBe('darkWebMonitoring.employee')
-    expect(rows[1].some((cell) => cell === '••••••••')).toBe(true)
+    const withSecret = { ...DEMO_RECORDS[0], password: 'Demo!4821' }
+    const maskedRows = buildExportRows([withSecret], (key) => key, true, formatDateMedium)
+    expect(maskedRows[0][0]).toBe('darkWebMonitoring.table.status')
+    expect(maskedRows[1][1]).toBe('darkWebMonitoring.employee')
+    expect(maskedRows[1].some((cell) => cell === MASKED)).toBe(true)
+
+    const revealedRows = buildExportRows([withSecret], (key) => key, false, formatDateMedium)
+    expect(revealedRows[1].some((cell) => cell === 'Demo!4821')).toBe(true)
   })
 })
 

@@ -10,28 +10,41 @@ function clone<T>(value: T): T {
 // vi.useFakeTimers() and tests can flush it with a single `await`.
 const tick = () => Promise.resolve()
 
-/**
- * In-memory stand-in for the dark web monitoring API. It returns cloned
- * demo data so the UI never mutates the module constants, and it keeps the
- * status changes in sync with the list — exactly what the real endpoint
- * contract will need to do.
- */
-const state: { records: DarkWebRecord[] } = { records: clone(DEMO_RECORDS) }
-
-export const darkWebMockService = {
-  async listRecords(): Promise<DarkWebRecord[]> {
-    await tick()
-    return clone(state.records)
-  },
-  async getOrganizationStats(): Promise<OrganizationBreachStats> {
-    await tick()
-    return clone(DEMO_ORGANIZATION_BREACH_STATS)
-  },
-  async updateRecordStatus(id: string, breachStatus: BreachStatus): Promise<DarkWebRecord> {
-    await tick()
-    const record = state.records.find((item) => item.id === id)
-    if (!record) throw new Error(`Unknown dark web record: ${id}`)
-    record.breachStatus = breachStatus
-    return clone(record)
-  },
+interface MockDarkWebService {
+  listRecords(): Promise<DarkWebRecord[]>
+  getOrganizationStats(): Promise<OrganizationBreachStats>
+  updateRecordStatus(id: string, breachStatus: BreachStatus): Promise<DarkWebRecord>
 }
+
+/**
+ * Builds an in-memory stand-in for the dark web monitoring API. Each instance
+ * owns its record list, so tests that exercise status writes get a clean copy
+ * and cannot leak state into the UI's instance.
+ *
+ * Returned records are cloned so callers never mutate the service's state, and
+ * a status change is reflected in later `listRecords` calls — the same
+ * behaviour the real endpoint contract will need.
+ */
+export function createDarkWebMockService(): MockDarkWebService {
+  const records = clone(DEMO_RECORDS)
+  return {
+    async listRecords() {
+      await tick()
+      return clone(records)
+    },
+    async getOrganizationStats() {
+      await tick()
+      return clone(DEMO_ORGANIZATION_BREACH_STATS)
+    },
+    async updateRecordStatus(id, breachStatus) {
+      await tick()
+      const record = records.find((item) => item.id === id)
+      if (!record) throw new Error(`Unknown dark web record: ${id}`)
+      record.breachStatus = breachStatus
+      return clone(record)
+    },
+  }
+}
+
+/** Shared instance serving the dark web page (see `services/index.ts`). */
+export const darkWebMockService: MockDarkWebService = createDarkWebMockService()
