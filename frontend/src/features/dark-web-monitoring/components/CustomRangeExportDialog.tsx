@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/shared/components/ui/button'
 import type { DarkWebRecord } from '../types'
 import type { ExportAction } from './export-types'
+import { parsePanelDate } from './TimeRangeFilter'
 
 interface CustomRangeExportDialogProps {
   records: DarkWebRecord[]
@@ -44,10 +45,14 @@ export function CustomRangeExportDialog({ records, onClose, onExport }: CustomRa
 
   const handleExport = () => {
     if (!from || !to || invalidRange) return
-    const fromTime = new Date(`${from}T00:00:00.000Z`).getTime()
-    const toTime = new Date(`${to}T23:59:59.999Z`).getTime()
+    // Local wall-clock bounds for the picked dates (a date-only input has no
+    // timezone; UTC would shift the day in non-UTC timezones).
+    const fromTime = parsePanelDate(from, 'start')
+    const toTime = parsePanelDate(to, 'end')
+    // Filter on the breached `timestamp` (what the user picked), not the
+    // ingested `createdAt` — and only over records already on the page.
     const matchingRecords = records.filter((record) => {
-      const timestamp = new Date(record.timestamp).getTime()
+      const timestamp = Date.parse(record.timestamp)
       return timestamp >= fromTime && timestamp <= toTime
     })
     if (onExport(matchingRecords, action, 'dark-web-monitoring-custom-range', true)) onClose()

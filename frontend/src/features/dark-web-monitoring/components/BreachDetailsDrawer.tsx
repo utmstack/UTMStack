@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { FloatingPanel } from '@/shared/components/ui/floating-panel'
 import type { BreachStatus, DarkWebRecord } from '../types'
-import { STATUS_KEYS, escapeHtml, formatDateMedium, safeImageUrl, valueOrDash } from '../lib/format'
+import { STATUS_KEYS, escapeHtml, formatDateMedium, safeHtml, safeImageUrl, valueOrDash } from '../lib/format'
 import { StatusPill } from './StatusPill'
 
 interface BreachDetailsDrawerProps {
@@ -51,7 +51,11 @@ export function BreachDetailsDrawer({ record, onClose, onStatusChange }: BreachD
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose()
+      if (event.key !== 'Escape') return
+      // A dropdown inside the drawer (status pill, mitigation step) handles the
+      // same Escape first; only close the drawer when nothing inner is open.
+      if (document.querySelector('[data-floating-panel]')) return
+      onClose()
     }
     document.addEventListener('keydown', onKeyDown)
     return () => document.removeEventListener('keydown', onKeyDown)
@@ -62,6 +66,8 @@ export function BreachDetailsDrawer({ record, onClose, onStatusChange }: BreachD
   const inMitigation = record.breachStatus === 'IN_MITIGATION'
   // Only render a record-supplied image when it is a safe http(s)/data:image source.
   const evidenceUrl = safeImageUrl(record.imageUrl)
+  // Interpolated record type, escaped once for the (sanitized) i18n markup below.
+  const subjectTypeLabel = escapeHtml(subjectType.toLowerCase())
   const sensitiveValue = (value: string | null) =>
     value ? (showSecrets ? value : '••••••••') : '—'
 
@@ -206,7 +212,7 @@ export function BreachDetailsDrawer({ record, onClose, onStatusChange }: BreachD
                       <Info size={14} className="mt-0.5 shrink-0 text-primary" />
                       <div>
                         <div className="mb-1 text-[10px] font-bold tracking-[0.14em] text-primary">{t('darkWebMonitoring.details.howTo')}</div>
-                        <p className="leading-relaxed text-foreground/90" dangerouslySetInnerHTML={{ __html: t('darkWebMonitoring.details.howToBody') }} />
+                        <p className="leading-relaxed text-foreground/90" dangerouslySetInnerHTML={{ __html: safeHtml(t('darkWebMonitoring.details.howToBody')) }} />
                       </div>
                     </div>
                     <button
@@ -252,7 +258,7 @@ export function BreachDetailsDrawer({ record, onClose, onStatusChange }: BreachD
 
                 <div>
                   <h2 className="text-xl font-bold tracking-tight">{t('darkWebMonitoring.details.whyListed')}</h2>
-                  <p className="mt-3 leading-relaxed text-foreground/90" dangerouslySetInnerHTML={{ __html: t('darkWebMonitoring.details.whyListedBody', { type: escapeHtml(subjectType.toLowerCase()) }) }} />
+                  <p className="mt-3 leading-relaxed text-foreground/90" dangerouslySetInnerHTML={{ __html: safeHtml(t('darkWebMonitoring.details.whyListedBody', { type: subjectTypeLabel })) }} />
                   <ul className="mt-3 space-y-2.5">
                     {([
                       'dataBreach',
@@ -261,7 +267,7 @@ export function BreachDetailsDrawer({ record, onClose, onStatusChange }: BreachD
                       'dnsHijack',
                       'misconfigured',
                     ] as const).map((reason) => (
-                      <li key={reason} className="flex gap-2 border-b border-border/60 pb-2.5 leading-relaxed text-foreground/80" dangerouslySetInnerHTML={{ __html: t(`darkWebMonitoring.details.listedReasons.${reason}`) }} />
+                      <li key={reason} className="flex gap-2 border-b border-border/60 pb-2.5 leading-relaxed text-foreground/80" dangerouslySetInnerHTML={{ __html: safeHtml(t(`darkWebMonitoring.details.listedReasons.${reason}`, { type: subjectTypeLabel })) }} />
                     ))}
                   </ul>
                 </div>

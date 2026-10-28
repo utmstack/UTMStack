@@ -36,6 +36,7 @@ export function FloatingPanel({
   return createPortal(
     <div
       ref={panelRef}
+      data-floating-panel
       style={{ position: 'fixed', left: position?.left ?? fallback.left, top: position?.top ?? fallback.top }}
       onClick={(event) => event.stopPropagation()}
       className={className}

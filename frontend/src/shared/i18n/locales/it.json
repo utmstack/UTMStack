@@ -395,7 +395,7 @@
         },
         "reportMenu": {
             "title": "Esporta informazioni",
-            "description": "Esporta i risultati degli ultimi sei mesi. Per scegliere un altro periodo, usa Intervallo personalizzato o Opzioni di esportazione avanzate.",
+            "description": "Esporta i risultati attualmente filtrati per tipo di elemento, superficie e opzioni. Per scegliere un altro periodo, usa Intervallo personalizzato o Opzioni di esportazione avanzate.",
             "exportCsv": "Esporta in CSV",
             "customRange": "Intervallo personalizzato",
             "advancedOptions": "Opzioni di esportazione avanzate",
@@ -476,11 +476,11 @@
             "whyListed": "Perché questo {{type}} è in elenco?",
             "whyListedBody": "Il tuo <strong>{{type}}</strong> è in elenco perché è stato trovato in violazioni dei dati o associato ad attività malevole. I motivi specifici possono includere:",
             "listedReasons": {
-                "dataBreach": "Il tuo dominio era incluso in una violazione dei dati, il che significa che potrebbe essere stato compromesso.",
-                "phishing": "Il tuo dominio è stato utilizzato in attacchi di phishing o spoofing, indicando un uso improprio.",
-                "forum": "Il tuo dominio è stato condiviso su forum di hacking, il che suggerisce che potrebbe essere preso di mira da criminali informatici.",
-                "dnsHijack": "Le impostazioni DNS del tuo dominio sono state sequestrate, il che può reindirizzare il traffico a siti malevoli.",
-                "misconfigured": "Il tuo dominio ha servizi configurati in modo errato, il che lo rende vulnerabile ad attacchi."
+                "dataBreach": "Il/L'{{type}} era incluso in una violazione dei dati, il che significa che potrebbe essere stato compromesso.",
+                "phishing": "Il/L'{{type}} è stato utilizzato in attacchi di phishing o spoofing, indicando un uso improprio.",
+                "forum": "Il/L'{{type}} è stato condiviso su forum di hacking, il che suggerisce che potrebbe essere preso di mira da criminali informatici.",
+                "dnsHijack": "Le impostazioni DNS dell'{{type}} sono state sequestrate, il che può reindirizzare il traffico a siti malevoli.",
+                "misconfigured": "Il/L'{{type}} ha servizi configurati in modo errato, il che lo/la rende vulnerabile ad attacchi."
             },
             "mitigationStepsTitle": "Passaggi di mitigazione",
             "mitigationSteps": {

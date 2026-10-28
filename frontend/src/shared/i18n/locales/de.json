@@ -395,7 +395,7 @@
         },
         "reportMenu": {
             "title": "Informationen exportieren",
-            "description": "Ergebnisse der letzten sechs Monate exportieren. Für einen anderen Zeitraum wählen Sie Benutzerdefinierter Zeitraum oder Erweiterte Exportoptionen.",
+            "description": "Die aktuell nach Elementtyp, Oberfläche und Optionen gefilterten Ergebnisse exportieren. Für einen anderen Zeitraum wählen Sie Benutzerdefinierter Zeitraum oder Erweiterte Exportoptionen.",
             "exportCsv": "Als CSV exportieren",
             "customRange": "Benutzerdefinierter Zeitraum",
             "advancedOptions": "Erweiterte Exportoptionen",
@@ -405,7 +405,7 @@
             "action": "Aktion",
             "cancel": "Abbrechen",
             "close": "Dialog schließen",
-            "exportFailed": "Der Bericht konnte nicht geöffnet oder exportiert werden. Erlaube Pop-ups und versuche es erneut.",
+            "exportFailed": "Der Bericht konnte nicht geöffnet oder exportiert werden. Bitte erlauben Sie Pop-ups und versuchen Sie es erneut.",
             "custom": {
                 "title": "Benutzerdefinierten Zeitraum festlegen",
                 "from": "Zeitraum von",
@@ -449,7 +449,7 @@
             }
         },
         "details": {
-            "title": "{{status}}er Datenverstoß für {{type}} gefunden: {{value}}",
+            "title": "{{status}}: Datenverstoß für {{type}} {{value}}",
             "close": "Details zum Datenverstoß schließen",
             "openRecord": "Details zum Datenverstoß für {{value}} öffnen",
             "information": "Informationen zum Datenverstoß",
@@ -476,11 +476,11 @@
             "whyListed": "Warum ist dieses {{type}} aufgeführt?",
             "whyListedBody": "Ihr <strong>{{type}}</strong> ist aufgeführt, weil er in Datenlecks gefunden wurde oder mit schädlicher Aktivität in Verbindung steht. Mögliche Gründe sind u. a.:",
             "listedReasons": {
-                "dataBreach": "Ihre Domain war Teil eines Datenlecks und wurde möglicherweise kompromittiert.",
-                "phishing": "Ihre Domain wurde in Phishing- oder Spoofing-Angriffen verwendet, was auf Missbrauch hindeutet.",
-                "forum": "Ihre Domain wurde auf Hacking-Foren geteilt, was darauf hindeutet, dass sie von Cyberkriminellen angegriffen werden könnte.",
-                "dnsHijack": "Die DNS-Einstellungen Ihrer Domain wurden übernommen, wodurch Verkehr zu schädlichen Websites umgeleitet werden kann.",
-                "misconfigured": "Ihre Domain hat schlecht konfigurierte Dienste, was sie anfällig für Angriffe macht."
+                "dataBreach": "Der/die/das {{type}} war Teil eines Datenlecks und wurde möglicherweise kompromittiert.",
+                "phishing": "Der/die/das {{type}} wurde in Phishing- oder Spoofing-Angriffen verwendet, was auf Missbrauch hindeutet.",
+                "forum": "Der/die/das {{type}} wurde auf Hacking-Foren geteilt, was darauf hindeutet, dass er/sie/es von Cyberkriminellen angegriffen werden könnte.",
+                "dnsHijack": "Die DNS-Einstellungen von dem {{type}} wurden übernommen, wodurch Verkehr zu schädlichen Websites umgeleitet werden kann.",
+                "misconfigured": "Der/die/das {{type}} hat schlecht konfigurierte Dienste, was ihn/sie/es anfällig für Angriffe macht."
             },
             "mitigationStepsTitle": "Mitigationsschritte",
             "mitigationSteps": {

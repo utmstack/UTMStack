@@ -8,25 +8,19 @@ import { AdvancedExportOptionsDialog } from '../components/AdvancedExportOptions
 import { BreachDetailsDrawer } from '../components/BreachDetailsDrawer'
 import { StatusPill } from '../components/StatusPill'
 import { CustomRangeExportDialog } from '../components/CustomRangeExportDialog'
-import { TimeRangeFilter, resolveTimeBounds, type TimeFilter } from '../components/TimeRangeFilter'
+import { TimeRangeFilter, type TimeFilter } from '../components/TimeRangeFilter'
 import type { ExportAction } from '../components/export-types'
 import { useDarkWebData } from '../hooks/use-dark-web-data'
 import { MASKED, buildExportRows, downloadCsv, printReportPdf } from '../lib/export'
 import { EMPTY_VALUE, STATUS_KEYS, formatDateShort, valueOrDash } from '../lib/format'
-import type { DarkWebRecord, LeakSurface, OrganizationElementType } from '../types'
+import { SURFACE_OF, filterRecords, paginateRecords } from '../lib/record-query'
+import type { DarkWebRecord, LeakSurface } from '../types'
 
 type StatusFilter = 'all' | 'OPEN' | 'IN_MITIGATION' | 'COMPLETED'
 
 const PAGE_SIZE = 5
 const SURFACES: LeakSurface[] = ['domains', 'emails', 'ips', 'usernames', 'phones']
 const STATUSES: StatusFilter[] = ['all', 'OPEN', 'IN_MITIGATION', 'COMPLETED']
-const SURFACE_TYPES: Record<LeakSurface, OrganizationElementType> = {
-  domains: 'DOMAIN',
-  emails: 'EMAIL',
-  ips: 'IP',
-  usernames: 'USER',
-  phones: 'PHONE',
-}
 
 function getCredential(record: DarkWebRecord): string | null {
   return record.password ?? record.hashedPassword
@@ -44,6 +38,7 @@ export function DarkWebMonitoringPage() {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
   const [loadingMore, setLoadingMore] = useState(false)
   const loadMoreTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const tableScrollRef = useRef<HTMLDivElement>(null)
   const [selectedRecordId, setSelectedRecordId] = useState<string | null>(null)
   const [reportMenuOpen, setReportMenuOpen] = useState(false)
   const [customRangeOpen, setCustomRangeOpen] = useState(false)
@@ -59,48 +54,18 @@ export function DarkWebMonitoringPage() {
     }
   }, [employeesOnly, query, status, surface, time])
 
-  const filtered = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase()
-    const bounds = resolveTimeBounds(time)
-    return records.filter((record) => {
-      const matchesSurface = record.organizationElementType === SURFACE_TYPES[surface]
-      const matchesStatus = status === 'all' || record.breachStatus === status
-      const matchesEmployee = !employeesOnly || record.employee
-      const matchesTime = new Date(record.createdAt).getTime() >= bounds.from && new Date(record.createdAt).getTime() <= bounds.to
-      const matchesQuery =
-        !normalizedQuery ||
-        [
-          record.domain,
-          record.email,
-          record.ipAddress,
-          record.username,
-          record.name,
-          record.phone,
-          record.organizationElement,
-          record.databaseName,
-          record.leakName,
-          record.foundIn,
-          record.source,
-          record.compromisedData,
-        ].some((value) => value?.toLowerCase().includes(normalizedQuery))
-      return matchesSurface && matchesStatus && matchesEmployee && matchesTime && matchesQuery
-    })
-  }, [records, employeesOnly, query, status, surface, time])
+  const filtered = useMemo(
+    () => filterRecords(records, { surface, status, employeesOnly, search: query, time }),
+    [records, employeesOnly, query, status, surface, time],
+  )
 
-  const visibleRecords = filtered.slice(0, visibleCount)
+  const visibleRecords = useMemo(() => paginateRecords(filtered, visibleCount), [filtered, visibleCount])
   const selectedRecord = selectedRecordId ? records.find((record) => record.id === selectedRecordId) : undefined
   const hasMoreRecords = visibleCount < filtered.length
 
   const surfaceCounts = useMemo(() => {
     const counts: Record<LeakSurface, number> = { domains: 0, emails: 0, ips: 0, usernames: 0, phones: 0 }
-    const surfaceOf: Record<OrganizationElementType, LeakSurface> = {
-      DOMAIN: 'domains',
-      EMAIL: 'emails',
-      IP: 'ips',
-      USER: 'usernames',
-      PHONE: 'phones',
-    }
-    for (const record of records) counts[surfaceOf[record.organizationElementType]] += 1
+    for (const record of records) counts[SURFACE_OF[record.organizationElementType]] += 1
     // The organization endpoint owns the headline numbers; fall back to the
     // fetched records until it exists.
     return {
@@ -155,8 +120,12 @@ export function DarkWebMonitoringPage() {
         return true
       }
       // The print window doubles as the PDF report; if the browser blocks the
-      // pop-up the report is not produced, so keep the dialog open for retry.
-      return printReportPdf(t('darkWebMonitoring.title'), rows)
+      // pop-up the report is not produced, so warn and keep the dialog open.
+      if (!printReportPdf(t('darkWebMonitoring.title'), rows)) {
+        toast.error(t('darkWebMonitoring.exportDialogs.exportFailed'))
+        return false
+      }
+      return true
     } catch {
       toast.error(t('darkWebMonitoring.exportDialogs.exportFailed'))
       return false
@@ -179,6 +148,15 @@ export function DarkWebMonitoringPage() {
       loadMoreTimer.current = null
     }, 300)
   }, [hasMoreRecords, loadingMore, filtered.length])
+
+  // Scroll drives loading while the table overflows; when the visible rows
+  // already fit the viewport there is no scrollbar, so keep loading until the
+  // table fills or everything is shown.
+  useEffect(() => {
+    const el = tableScrollRef.current
+    if (!el || el.scrollHeight <= 0 || el.scrollHeight > el.clientHeight) return
+    loadMore()
+  }, [filtered.length, visibleCount, loadMore])
   const handleTableScroll = (event: UIEvent<HTMLDivElement>) => {
     const element = event.currentTarget
     if (element.scrollHeight - element.scrollTop - element.clientHeight < 300) loadMore()
@@ -445,6 +423,7 @@ export function DarkWebMonitoringPage() {
         </div>
 
         <div
+          ref={tableScrollRef}
           aria-label={t('darkWebMonitoring.table.results')}
           onScroll={handleTableScroll}
           className="max-h-[65vh] overflow-auto"

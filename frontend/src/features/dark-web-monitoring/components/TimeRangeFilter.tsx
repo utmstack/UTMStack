@@ -30,14 +30,17 @@ const PRESET_KEYS: Record<TimePreset, string> = {
 const PRESET_ORDER: Exclude<TimePreset, 'all'>[] = ['15m', '30m', '1h', '24h', '7d', '30d', '90d', '1y']
 
 export function resolveTimeBounds(time: TimeFilter): { from: number; to: number } {
+  // Anchored at "now" so a preset never matches records ingested in the future.
+  const now = Date.now()
   if (time.kind === 'custom') {
     const from = Date.parse(time.from)
     const to = Date.parse(time.to)
-    return { from: Number.isNaN(from) ? 0 : from, to: Number.isNaN(to) ? Infinity : to }
+    // A bound that cannot be parsed (e.g. an emptied date input) collapses to
+    // "now" instead of widening the window to the entire range.
+    return { from: Number.isNaN(from) ? now : from, to: Number.isNaN(to) ? now : to }
   }
-  if (time.preset === 'all') return { from: 0, to: Infinity }
-  const now = Date.now()
-  return { from: now - PRESET_MINUTES[time.preset] * 60_000, to: Infinity }
+  if (time.preset === 'all') return { from: 0, to: now }
+  return { from: now - PRESET_MINUTES[time.preset] * 60_000, to: now }
 }
 
 interface PanelTime {
@@ -48,7 +51,15 @@ interface PanelTime {
 }
 
 function todayString(): string {
-  return new Date().toISOString().slice(0, 10)
+  // Local calendar date (toISOString is UTC and would be one day off near midnight).
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+/** Local wall-clock bounds for a date-picker value: `start` = 00:00:00, `end` = 23:59:59.999. */
+export function parsePanelDate(date: string, end: 'start' | 'end'): number {
+  const ms = Date.parse(`${date}T${end === 'end' ? '23:59:59.999' : '00:00:00.000'}`)
+  return Number.isNaN(ms) ? (end === 'end' ? Date.now() : 0) : ms
 }
 
 function parsePanelTime(iso: string): PanelTime {
@@ -100,7 +111,11 @@ export function TimeRangeFilter({
 
   const fromIso = panelToIso(from)
   const toIso = panelToIso(to)
-  const invalid = Date.parse(fromIso) > Date.parse(toIso)
+  const fromTime = Date.parse(fromIso)
+  const toTime = Date.parse(toIso)
+  // Invalid when the order is wrong OR either bound cannot be parsed (a cleared
+  // date input), so Select cannot apply a half-open "everything" range.
+  const invalid = Number.isNaN(fromTime) || Number.isNaN(toTime) || fromTime > toTime
 
   const pickPreset = (preset: TimePreset) => {
     onChange({ kind: 'preset', preset })

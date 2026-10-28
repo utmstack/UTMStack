@@ -30,12 +30,15 @@ export function formatDateMedium(value: string | null | undefined, locale?: stri
 }
 
 /**
- * Neutralizes CSV injection: cells that would be parsed as formulas by
- * spreadsheet applications (Excel, Google Sheets, Numbers) get a leading
- * single quote. The display value is unchanged; only the stored cell is.
+ * Neutralizes CSV injection: cells whose (trimmed) leading character would be
+ * parsed as a formula by spreadsheet applications (Excel, Google Sheets,
+ * Numbers) get a leading single quote. Whitespace and control characters
+ * before the trigger are stripped for the check so ` =SUM(...)` is caught too.
+ * The display value is unchanged; only the stored cell is.
  */
 export function neutralizeCsvCell(value: string): string {
-  return /^[=+@\-]/.test(value) ? `'${value}` : value
+  const lead = value.replace(/^[\s\u0000-\u001f]+/, '')
+  return /^[=+@-]/.test(lead) ? `'${value}` : value
 }
 
 /** HTML-escapes a data-derived value before it is interpolated into trusted locale markup. */
@@ -47,6 +50,25 @@ export function escapeHtml(value: string): string {
     '"': '&quot;',
     "'": '&#39;',
   })[character] ?? character)
+}
+
+/**
+ * Minimal allowlist sanitizer for i18n strings that embed markup (e.g.
+ * `<strong>` in the breach details copy). Only a fixed set of harmless inline
+ * tags survives, always without attributes; every other tag is escaped, so
+ * translated content can never inject scripts even if it were ever
+ * backend-supplied or tenant-editable.
+ */
+const ALLOWED_HTML_TAGS = new Set(['strong', 'em', 'b', 'i', 'code'])
+
+export function safeHtml(markup: string): string {
+  return markup
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/<\/?([a-zA-Z][a-zA-Z0-9]*)\b[^>]*>/g, (tag, name: string) => {
+      const lower = name.toLowerCase()
+      if (ALLOWED_HTML_TAGS.has(lower)) return tag.startsWith('</') ? `</${lower}>` : `<${lower}>`
+      return tag.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    })
 }
 
 /**

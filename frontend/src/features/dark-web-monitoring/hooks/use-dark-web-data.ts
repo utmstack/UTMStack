@@ -47,18 +47,17 @@ export function useDarkWebData(): DarkWebData {
   }, [attempt])
 
   const setRecordStatus = useCallback((id: string, status: BreachStatus) => {
-    let previous: BreachStatus | undefined
-    setRecords((current) => {
-      previous = current.find((record) => record.id === id)?.breachStatus
-      return current.map((record) => (record.id === id ? { ...record, breachStatus: status } : record))
-    })
+    // Capture the previous value from the current list, not from inside the
+    // state updater: React may not have run the updater by the time the API
+    // write rejects, and an optimistic write that loses its rollback would
+    // leave the UI showing a status the backend never accepted.
+    const previous: BreachStatus | undefined = records.find((record) => record.id === id)?.breachStatus
+    setRecords((current) => current.map((record) => (record.id === id ? { ...record, breachStatus: status } : record)))
     void darkWebMonitoringService.updateRecordStatus(id, status).catch(() => {
-      const rollback = previous
-      if (rollback) {
-        setRecords((current) => current.map((record) => (record.id === id ? { ...record, breachStatus: rollback } : record)))
-      }
+      if (!previous) return
+      setRecords((current) => current.map((record) => (record.id === id ? { ...record, breachStatus: previous } : record)))
     })
-  }, [])
+  }, [records])
 
   const retry = useCallback(() => setAttempt((current) => current + 1), [])
 

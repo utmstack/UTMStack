@@ -395,7 +395,7 @@
         },
         "reportMenu": {
             "title": "Exportar información",
-            "description": "Exporta los resultados de los últimos seis meses. Para usar otro período, elige Rango personalizado u Opciones avanzadas de exportación.",
+            "description": "Exporta los resultados filtrados por el tipo de elemento, la superficie y las opciones seleccionadas. Para usar otro período, elige Rango personalizado u Opciones avanzadas de exportación.",
             "exportCsv": "Exportar a CSV",
             "customRange": "Rango personalizado",
             "advancedOptions": "Opciones avanzadas de exportación",
@@ -476,11 +476,11 @@
             "whyListed": "¿Por qué está listado este {{type}}?",
             "whyListedBody": "Tu <strong>{{type}}</strong> está listado porque se encontró en brechas de datos o asociado a actividad maliciosa. Las razones específicas pueden incluir:",
             "listedReasons": {
-                "dataBreach": "Tu dominio se incluyó en una brecha de datos, lo que significa que pudo haber sido comprometido.",
-                "phishing": "Tu dominio se ha utilizado en ataques de phishing o suplantación, indicando un uso indebido.",
-                "forum": "Tu dominio se ha compartido en foros de hackers, lo que sugiere que puede estar siendo objetivo de ciberdelincuentes.",
-                "dnsHijack": "La configuración DNS de tu dominio fue secuestrada, lo que puede redirigir el tráfico a sitios maliciosos.",
-                "misconfigured": "Tu dominio tiene servicios mal configurados, lo que lo hace vulnerable a ataques."
+                "dataBreach": "El/la {{type}} se incluyó en una brecha de datos, lo que significa que pudo haber sido comprometido.",
+                "phishing": "El/la {{type}} se ha utilizado en ataques de phishing o suplantación, indicando un uso indebido.",
+                "forum": "El/la {{type}} se ha compartido en foros de hackers, lo que sugiere que puede estar siendo objetivo de ciberdelincuentes.",
+                "dnsHijack": "La configuración DNS del/la {{type}} fue secuestrada, lo que puede redirigir el tráfico a sitios maliciosos.",
+                "misconfigured": "El/la {{type}} tiene servicios mal configurados, lo que lo/la hace vulnerable a ataques."
             },
             "mitigationStepsTitle": "Pasos de mitigación",
             "mitigationSteps": {
@@ -522,7 +522,7 @@
             "username": "Usuario",
             "password": "Contraseña",
             "secret": "Secreto",
-            "hashedPassword": "Contraseña cifrada",
+            "hashedPassword": "Contraseña con hash",
             "name": "Nombre",
             "phone": "Teléfono",
             "database": "Base de datos",

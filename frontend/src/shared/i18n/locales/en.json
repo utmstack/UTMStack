@@ -395,7 +395,7 @@
         },
         "reportMenu": {
             "title": "Export information",
-            "description": "Export results from the past six months. To use a different period, choose Custom range or Advanced export options.",
+            "description": "Export the results currently filtered by the selected element type, surface and options. To use a different period, choose Custom range or Advanced export options.",
             "exportCsv": "Export to CSV",
             "customRange": "Custom range",
             "advancedOptions": "Advanced export options",
@@ -476,11 +476,11 @@
             "whyListed": "Why is this {{type}} listed?",
             "whyListedBody": "Your <strong>{{type}}</strong> is listed because it was found in data breaches or associated with malicious activity. Specific reasons may include:",
             "listedReasons": {
-                "dataBreach": "Your domain was included in a data breach, meaning it may have been compromised.",
-                "phishing": "Your domain has been used in phishing or spoofing attacks, indicating misuse.",
-                "forum": "Your domain has been shared on hacking forums, suggesting it may be targeted by cybercriminals.",
-                "dnsHijack": "Your domain's DNS settings were hijacked, which can redirect traffic to malicious sites.",
-                "misconfigured": "Your domain has poorly configured services, making it vulnerable to attacks."
+                "dataBreach": "The {{type}} was included in a data breach, meaning it may have been compromised.",
+                "phishing": "The {{type}} has been used in phishing or spoofing attacks, indicating misuse.",
+                "forum": "The {{type}} has been shared on hacking forums, suggesting it may be targeted by cybercriminals.",
+                "dnsHijack": "The DNS settings of the {{type}} were hijacked, which can redirect traffic to malicious sites.",
+                "misconfigured": "The {{type}} has poorly configured services, making it vulnerable to attacks."
             },
             "mitigationStepsTitle": "Mitigation steps",
             "mitigationSteps": {

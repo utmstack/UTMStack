@@ -3,7 +3,8 @@ import { describe, expect, it, vi } from 'vitest'
 import { DEMO_RECORDS } from '../data/demo-records'
 import { DEMO_ORGANIZATION_BREACH_STATS } from '../data/demo-organization-stats'
 import { buildExportRows, downloadCsv, MASKED, printReportPdf } from '../lib/export'
-import { formatDateMedium, neutralizeCsvCell, safeImageUrl, valueOrDash } from '../lib/format'
+import { formatDateMedium, neutralizeCsvCell, safeHtml, safeImageUrl, valueOrDash } from '../lib/format'
+import { resolveTimeBounds } from '../components/TimeRangeFilter'
 import { TimeRangeFilter } from '../components/TimeRangeFilter'
 import { DarkWebMonitoringPage } from './DarkWebMonitoringPage'
 
@@ -32,7 +33,7 @@ describe('DarkWebMonitoringPage demo', () => {
       totalDomainBreaches: 7,
       totalIpsBreaches: 1,
       totalUsernamesBreaches: 1,
-      totalBreaches: 15,
+      totalBreaches: 12,
     })
   })
 
@@ -42,7 +43,7 @@ describe('DarkWebMonitoringPage demo', () => {
     expect(screen.getAllByRole('button', { name: /darkWebMonitoring\.tabs\.domains.*7/ }).length).toBeGreaterThan(0)
     expect(screen.getByRole('button', { name: /darkWebMonitoring\.tabs\.usernames.*1/ })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /darkWebMonitoring\.tabs\.ips.*1/ })).toBeInTheDocument()
-    expect(screen.getByText('15')).toBeInTheDocument()
+    expect(screen.getByText('12')).toBeInTheDocument()
   })
 
   it('uses the API field names and status values in its demo records', () => {
@@ -206,6 +207,46 @@ describe('DarkWebMonitoringPage demo', () => {
     }
   })
 
+  it('auto-loads the remaining rows when the visible ones fit without scrolling', async () => {
+    vi.useFakeTimers()
+    try {
+      render(<DarkWebMonitoringPage />)
+      await act(async () => {
+        await Promise.resolve()
+      })
+      const table = screen.getByRole('table')
+      const scrollContainer = screen.getByLabelText('darkWebMonitoring.table.results')
+
+      // 7 domain records, 5 visible. jsdom reports no box geometry, so make the
+      // container short enough that its rows fit without a scrollbar.
+      expect(within(table).getAllByRole('row')).toHaveLength(7)
+      Object.defineProperties(scrollContainer, {
+        scrollHeight: { configurable: true, value: 100 },
+        clientHeight: { configurable: true, value: 500 },
+      })
+
+      // A filter change re-runs the "does it fit?" check and loads the rest.
+      const emailsTab = screen.getByRole('button', { name: 'darkWebMonitoring.tabs.emails2' })
+      fireEvent.click(emailsTab)
+      await act(async () => {
+        await Promise.resolve()
+      })
+      const domainsTab = screen.getByRole('button', { name: 'darkWebMonitoring.tabs.domains7' })
+      fireEvent.click(domainsTab)
+      await act(async () => {
+        await Promise.resolve()
+      })
+      act(() => {
+        vi.advanceTimersByTime(300)
+      })
+
+      expect(within(table).getAllByRole('row')).toHaveLength(9)
+      expect(screen.getByText('darkWebMonitoring.endOfResults', { exact: false })).toBeInTheDocument()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('masks secrets by default and reveals only after opting in', async () => {
     await renderPage()
 
@@ -280,7 +321,29 @@ describe('dark web monitoring format helpers', () => {
     expect(neutralizeCsvCell('+cmd')).toBe("'+cmd")
     expect(neutralizeCsvCell('@import')).toBe("'@import")
     expect(neutralizeCsvCell('-1')).toBe("'-1")
+    expect(neutralizeCsvCell('  =SUM(A1)')).toBe("'  =SUM(A1)")
     expect(neutralizeCsvCell('safe text')).toBe('safe text')
+  })
+
+  it('sanitizes i18n markup to an inline-tag allowlist', () => {
+    expect(safeHtml('a <strong>b</strong> c')).toBe('a <strong>b</strong> c')
+    expect(safeHtml('<img src=x onerror=alert(1)>')).toBe('&lt;img src=x onerror=alert(1)&gt;')
+    expect(safeHtml('<script>evil()</script>')).toBe('&lt;script&gt;evil()&lt;/script&gt;')
+  })
+
+  it('caps time presets at the current moment and collapses unparsed custom bounds', () => {
+    const before = Date.now()
+    const all = resolveTimeBounds({ kind: 'preset', preset: 'all' })
+    const day = resolveTimeBounds({ kind: 'preset', preset: '24h' })
+    const cleared = resolveTimeBounds({ kind: 'custom', from: '2026-01-01T00:00:00', to: '' })
+    const after = Date.now()
+    // Presets never match records ingested in the future: `to` is "now" at call time.
+    for (const bound of [all.to, day.to, cleared.to]) {
+      expect(bound).toBeGreaterThanOrEqual(before)
+      expect(bound).toBeLessThanOrEqual(after)
+    }
+    expect(all.from).toBe(0)
+    expect(day.from).toBe(day.to - 1440 * 60_000)
   })
 
   it('builds export rows with masked or revealed secrets', () => {

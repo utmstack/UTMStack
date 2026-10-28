@@ -395,7 +395,7 @@
         },
         "reportMenu": {
             "title": "Exporter les informations",
-            "description": "Exporter les résultats des six derniers mois. Pour choisir une autre période, utilisez Plage personnalisée ou Options d’exportation avancées.",
+            "description": "Exporter les résultats actuellement filtrés par type d’élément, surface et options. Pour choisir une autre période, utilisez Plage personnalisée ou Options d’exportation avancée.",
             "exportCsv": "Exporter en CSV",
             "customRange": "Plage personnalisée",
             "advancedOptions": "Options d’exportation avancées",
@@ -476,11 +476,11 @@
             "whyListed": "Pourquoi ce {{type}} est-il répertorié ?",
             "whyListedBody": "Votre <strong>{{type}}</strong> est répertorié car il a été retrouvé dans des fuites de données ou associé à une activité malveillante. Les raisons possibles incluent notamment :",
             "listedReasons": {
-                "dataBreach": "Votre domaine figurait dans une fuite de données, il a donc pu être compromis.",
-                "phishing": "Votre domaine a été utilisé dans des attaques de phishing ou de spoofing, ce qui indique un abus.",
-                "forum": "Votre domaine a été partagé sur des forums de hacking, ce qui suggère qu’il est ciblé par des cybercriminels.",
-                "dnsHijack": "Les paramètres DNS de votre domaine ont été détournés, ce qui peut rediriger le trafic vers des sites malveillants.",
-                "misconfigured": "Votre domaine possède des services mal configurés, ce qui le rend vulnérable aux attaques."
+                "dataBreach": "Le/La {{type}} figurait dans une fuite de données, il/elle a donc pu être compromis.",
+                "phishing": "Le/La {{type}} a été utilisé dans des attaques de phishing ou de spoofing, ce qui indique un abus.",
+                "forum": "Le/La {{type}} a été partagé sur des forums de hacking, ce qui suggère qu’il/elle est ciblé par des cybercriminels.",
+                "dnsHijack": "Les paramètres DNS du/de la {{type}} ont été détournés, ce qui peut rediriger le trafic vers des sites malveillants.",
+                "misconfigured": "Le/La {{type}} possède des services mal configurés, ce qui le/la rend vulnérable aux attaques."
             },
             "mitigationStepsTitle": "Étapes de mitigation",
             "mitigationSteps": {

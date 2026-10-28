@@ -395,7 +395,7 @@
         },
         "reportMenu": {
             "title": "Exportar informações",
-            "description": "Exporte os resultados dos últimos seis meses. Para usar outro período, escolha Intervalo personalizado ou Opções avançadas de exportação.",
+            "description": "Exporta os resultados atualmente filtrados pelo tipo de elemento, superfície e opções. Para usar outro período, escolha Intervalo personalizado ou Opções avançadas de exportação.",
             "exportCsv": "Exportar para CSV",
             "customRange": "Intervalo personalizado",
             "advancedOptions": "Opções avançadas de exportação",
@@ -476,11 +476,11 @@
             "whyListed": "Por que este {{type}} está listado?",
             "whyListedBody": "O seu <strong>{{type}}</strong> está listado porque foi encontrado em violações de dados ou associado a atividades maliciosas. Os motivos específicos podem incluir:",
             "listedReasons": {
-                "dataBreach": "Seu domínio foi incluído em uma violação de dados, o que significa que pode ter sido comprometido.",
-                "phishing": "Seu domínio foi usado em ataques de phishing ou spoofing, indicando uso indevido.",
-                "forum": "Seu domínio foi compartilhado em fóruns de hacking, sugerindo que pode estar sendo alvo de cibercriminosos.",
-                "dnsHijack": "As configurações DNS do seu domínio foram sequestradas, o que pode redirecionar o tráfego para sites maliciosos.",
-                "misconfigured": "Seu domínio possui serviços mal configurados, tornando-o vulnerável a ataques."
+                "dataBreach": "O/A {{type}} foi incluído em uma violação de dados, o que significa que pode ter sido comprometido.",
+                "phishing": "O/A {{type}} foi usado em ataques de phishing ou spoofing, indicando uso indevido.",
+                "forum": "O/A {{type}} foi compartilhado em fóruns de hacking, sugerindo que pode estar sendo alvo de cibercriminosos.",
+                "dnsHijack": "As configurações DNS do/a {{type}} foram sequestradas, o que pode redirecionar o tráfego para sites maliciosos.",
+                "misconfigured": "O/A {{type}} possui serviços mal configurados, tornando-o vulnerável a ataques."
             },
             "mitigationStepsTitle": "Etapas de mitigação",
             "mitigationSteps": {
