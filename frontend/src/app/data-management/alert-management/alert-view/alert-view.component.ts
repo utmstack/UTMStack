@@ -179,18 +179,19 @@ export class AlertViewComponent implements OnInit, OnDestroy {
         });
       } else {
         /**
-         * If does not exist any param filter, set default to EVENT
+         * No params: open the same view as Threat Management -> Alerts
+         * (?alertType=ALERT). This page always searches the alert index
+         * (dataNature = ALERT), so the previous EVENT default only hid the
+         * Status column / status selector without loading anything else
+         * (#2954 follow-up, #2996).
          */
-        this.dataType = EventDataTypeEnum.EVENT;
-        this.fields = EVENT_FIELDS;
+        this.dataType = EventDataTypeEnum.ALERT;
+        this.fields = ALERT_FIELDS;
         this.alertDataTypeBehavior.$alertDataType.next(this.dataType);
         /**
          * Emit default array filter
          */
         this.alertFiltersBehavior.$filters.next(this.filters);
-        // Direct load of /data/alert/view without ?alertType must still run the
-        // initial search: without this the table stays on "Loading..." forever
-        // because nothing else calls getAlert on this path (#2954).
         this.changeParamsByDataType(this.dataType).then(() => this.setDefaultParams());
       }
     });
