@@ -309,6 +309,7 @@
             "triage": "Triage",
             "report": "Report"
         },
+        "darkWebMonitoring": "Dark Web Monitoring",
         "compliance": "Compliance",
         "configure": "Configure",
         "dataSources": "Data Sources",
@@ -323,6 +324,215 @@
         "overview": "Overview",
         "liveOps": "Live Operations",
         "tenants": "Tenants"
+    },
+    "darkWebMonitoring": {
+        "title": "Dark Web Monitoring",
+        "subtitle": "Every dark-web record found for this organization, and the queue behind it.",
+        "back": "Dark web",
+        "report": "Report",
+        "demoNotice": "Demonstration data only — these records and metrics are synthetic.",
+        "export": "Export to CSV",
+        "search": "Search leaked data…",
+        "employeeOnly": "Show employees only",
+        "reveal": "Reveal secrets",
+        "empty": "No records match these filters.",
+        "previousPage": "Previous page",
+        "nextPage": "Next page",
+        "pageOf": "Page {{page}} of {{pages}}",
+        "employee": "Employee",
+        "other": "Other",
+        "summary": {
+            "employeeCredentials": "Employee credentials",
+            "ofRecords": "of {{count}} demo records — credentials linked to people in the organization.",
+            "records": "Records",
+            "open": "Open",
+            "mitigation": "In mitigation",
+            "completed": "Completed"
+        },
+        "surfaces": {
+            "title": "Monitored surfaces",
+            "exposed": "{{count}} of {{total}} exposed",
+            "monitoredCount": "{{count}} monitored",
+            "work": "Work this surface",
+            "notMonitored": "Not monitored",
+            "addAssets": "Add assets"
+        },
+        "tabs": {
+            "domains": "Domains",
+            "emails": "Personal emails",
+            "ips": "IPs",
+            "usernames": "Usernames",
+            "phones": "Phones"
+        },
+        "statusFilter": {
+            "all": "All",
+            "open": "Open",
+            "mitigation": "In mitigation",
+            "completed": "Completed"
+        },
+        "status": {
+            "open": "Open",
+            "mitigation": "In mitigation",
+            "completed": "Completed"
+        },
+        "time": {
+            "all": "Any time",
+            "last15m": "Last 15 minutes",
+            "last1h": "Last hour",
+            "last7d": "Last 7 days",
+            "last90d": "Last 90 days",
+            "last30m": "Last 30 minutes",
+            "last24h": "Last 24 hours",
+            "last30d": "Last 30 days",
+            "last1y": "Last year",
+            "custom": "Custom range",
+            "commonlyUsed": "Commonly used",
+            "timeFrom": "Time from",
+            "timeTo": "Time to",
+            "invalidRange": "Date range is invalid",
+            "cancel": "Cancel",
+            "select": "Select"
+        },
+        "reportMenu": {
+            "title": "Export information",
+            "description": "Export the results currently filtered by the selected element type, surface and options. To use a different period, choose Custom range or Advanced export options.",
+            "exportCsv": "Export to CSV",
+            "customRange": "Custom range",
+            "advancedOptions": "Advanced export options",
+            "demoOption": "This export option will be available when report settings are connected."
+        },
+        "exportDialogs": {
+            "action": "Action",
+            "cancel": "Cancel",
+            "close": "Close dialog",
+            "exportFailed": "Could not open or export the report. Allow pop-ups and try again.",
+            "custom": {
+                "title": "Custom Range Setting",
+                "from": "Time from",
+                "to": "Time to",
+                "invalidRange": "Date range is invalid",
+                "select": "Select"
+            },
+            "advanced": {
+                "title": "Advanced Export Options",
+                "employeesOnly": "Do you want to export employees only?",
+                "maskSensitive": "Do you want to mask sensitive data?",
+                "additionalFilters": "Additional filters",
+                "field": "Filter field",
+                "operator": "Filter operator",
+                "value": "Filter value",
+                "chooseValue": "Select a value",
+                "addFilter": "Add filter",
+                "addedFilters": "Added filters list",
+                "noFilters": "No additional filters added.",
+                "removeFilter": "Remove filter",
+                "export": "Export"
+            },
+            "fields": {
+                "organizationElementType": "Organization Element Type",
+                "breachStatus": "Breach status",
+                "employee": "Employee",
+                "domain": "Domain",
+                "source": "Source"
+            },
+            "operators": {
+                "equals": "is",
+                "contains": "contains",
+                "notContains": "does not contain"
+            },
+            "elementTypes": {
+                "DOMAIN": "Domain",
+                "EMAIL": "Email",
+                "IP": "IP address",
+                "USER": "Username",
+                "PHONE": "Phone"
+            }
+        },
+        "details": {
+            "title": "{{status}} breach found for {{type}}: {{value}}",
+            "close": "Close breach details",
+            "openRecord": "Open breach details for {{value}}",
+            "information": "Breach information",
+            "echoes": "Echoes",
+            "id": "ID",
+            "copyId": "Copy breach ID",
+            "copied": "Breach ID copied",
+            "copyFailed": "Could not copy breach ID",
+            "description": "Description",
+            "compromisedData": "Compromised data",
+            "revealSecrets": "Reveal sensitive data",
+            "hideSecrets": "Hide sensitive data",
+            "evidence": "Breach evidence",
+            "lastSeen": "Last seen",
+            "victimDomain": "Victim domain",
+            "distributionType": "Distribution type",
+            "address": "Address",
+            "vin": "VIN",
+            "noEchoes": "No echoes reported for this breach.",
+            "echoesCount": "{{count}} echoes reported for this breach.",
+            "howTo": "HOW TO",
+            "howToBody": "Click the button to change the status of this breach to <strong>Mitigation</strong> in order to view the resolution steps.",
+            "mitigateBreach": "In Mitigation",
+            "whyListed": "Why is this {{type}} listed?",
+            "whyListedBody": "Your <strong>{{type}}</strong> is listed because it was found in data breaches or associated with malicious activity. Specific reasons may include:",
+            "listedReasons": {
+                "dataBreach": "The {{type}} was included in a data breach, meaning it may have been compromised.",
+                "phishing": "The {{type}} has been used in phishing or spoofing attacks, indicating misuse.",
+                "forum": "The {{type}} has been shared on hacking forums, suggesting it may be targeted by cybercriminals.",
+                "dnsHijack": "The DNS settings of the {{type}} were hijacked, which can redirect traffic to malicious sites.",
+                "misconfigured": "The {{type}} has poorly configured services, making it vulnerable to attacks."
+            },
+            "mitigationStepsTitle": "Mitigation steps",
+            "mitigationSteps": {
+                "labels": {
+                    "immediateNextSteps": "Immediate next steps",
+                    "requestDataRemoval": "Request data removal",
+                    "ceaseAndDesist": "Cease and Desist Letter",
+                    "courtOrder": "Obtain a Court Order"
+                },
+                "descriptions": {
+                    "immediateNextSteps": "These are the immediate next steps you should take to mitigate the risk of this vulnerability.",
+                    "requestDataRemoval": "These are the steps you should take to request the removal of the data from the breached website.",
+                    "ceaseAndDesist": "A cease and desist letter is a powerful and simple way to protect one's rights",
+                    "courtOrder": "Obtain a Court Order to Remove Content"
+                },
+                "status": {
+                    "NOT_STARTED": "Not started",
+                    "IN_PROGRESS": "In progress",
+                    "COMPLETED": "Done"
+                }
+            }
+        },
+        "loadingMore": "Loading more…",
+        "loading": "Loading dark web monitoring data…",
+        "loadingFailed": "Could not load dark web monitoring data.",
+        "retry": "Retry",
+        "endOfResults": "End of results ({{count}} loaded).",
+        "results": "Table results",
+        "table": {
+            "state": "State",
+            "whatLeaked": "What leaked",
+            "whereFrom": "Where from",
+            "when": "When",
+            "status": "Status",
+            "who": "Who",
+            "domain": "Domain",
+            "email": "Email",
+            "ipAddress": "IP address",
+            "username": "Username",
+            "password": "Password",
+            "secret": "Secret",
+            "hashedPassword": "Hashed password",
+            "name": "Name",
+            "phone": "Phone",
+            "database": "Database",
+            "leakName": "Leak name",
+            "foundIn": "Found in",
+            "source": "Source",
+            "organizationElement": "Monitored asset",
+            "breached": "Breached",
+            "ingested": "Ingested"
+        }
     },
     "dashboards": {
         "title": "Dashboards",

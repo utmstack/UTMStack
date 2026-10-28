@@ -306,6 +306,7 @@
             "triage": "Triage",
             "report": "Rapport"
         },
+        "darkWebMonitoring": "Surveillance du dark web",
         "compliance": "Conformité",
         "configure": "Configurer",
         "dataSources": "Sources de données",
@@ -323,6 +324,215 @@
         "tenants": "Locataires",
         "openMenu": "Ouvrir le menu",
         "closeMenu": "Fermer le menu"
+    },
+    "darkWebMonitoring": {
+        "title": "Surveillance du dark web",
+        "subtitle": "Tous les enregistrements du dark web trouvés pour cette organisation et la file de traitement associée.",
+        "back": "Dark web",
+        "report": "Rapport",
+        "demoNotice": "Données de démonstration uniquement — ces enregistrements et métriques sont synthétiques.",
+        "export": "Exporter en CSV",
+        "search": "Rechercher des données divulguées…",
+        "employeeOnly": "Afficher uniquement les employés",
+        "reveal": "Révéler les secrets",
+        "empty": "Aucun enregistrement ne correspond à ces filtres.",
+        "previousPage": "Page précédente",
+        "nextPage": "Page suivante",
+        "pageOf": "Page {{page}} sur {{pages}}",
+        "employee": "Employé",
+        "other": "Autre",
+        "summary": {
+            "employeeCredentials": "Identifiants d'employés",
+            "ofRecords": "sur {{count}} enregistrements de démonstration — identifiants liés aux personnes de l'organisation.",
+            "records": "Enregistrements",
+            "open": "Ouverts",
+            "mitigation": "En cours d'atténuation",
+            "completed": "Terminés"
+        },
+        "surfaces": {
+            "title": "Surfaces surveillées",
+            "exposed": "{{count}} sur {{total}} exposées",
+            "monitoredCount": "{{count}} surveillés",
+            "work": "Traiter cette surface",
+            "notMonitored": "Non surveillés",
+            "addAssets": "Ajouter des actifs"
+        },
+        "tabs": {
+            "domains": "Domaines",
+            "emails": "E-mails personnels",
+            "ips": "Adresses IP",
+            "usernames": "Noms d'utilisateur",
+            "phones": "Téléphones"
+        },
+        "statusFilter": {
+            "all": "Tous",
+            "open": "Ouverts",
+            "mitigation": "En cours",
+            "completed": "Terminés"
+        },
+        "status": {
+            "open": "Ouvert",
+            "mitigation": "En cours",
+            "completed": "Terminé"
+        },
+        "time": {
+            "all": "Toutes périodes",
+            "last15m": "15 dernières minutes",
+            "last1h": "Dernière heure",
+            "last7d": "7 derniers jours",
+            "last90d": "90 derniers jours",
+            "last30m": "30 dernières minutes",
+            "last24h": "24 dernières heures",
+            "last30d": "30 derniers jours",
+            "last1y": "Dernière année",
+            "custom": "Plage personnalisée",
+            "commonlyUsed": "Utilisées fréquemment",
+            "timeFrom": "De",
+            "timeTo": "À",
+            "invalidRange": "La plage de dates est invalide",
+            "cancel": "Annuler",
+            "select": "Sélectionner"
+        },
+        "reportMenu": {
+            "title": "Exporter les informations",
+            "description": "Exporter les résultats actuellement filtrés par type d’élément, surface et options. Pour choisir une autre période, utilisez Plage personnalisée ou Options d’exportation avancée.",
+            "exportCsv": "Exporter en CSV",
+            "customRange": "Plage personnalisée",
+            "advancedOptions": "Options d’exportation avancées",
+            "demoOption": "Cette option sera disponible lorsque les paramètres de rapport seront connectés."
+        },
+        "exportDialogs": {
+            "action": "Action",
+            "cancel": "Annuler",
+            "close": "Fermer la fenêtre",
+            "exportFailed": "Impossible d’ouvrir ou d’exporter le rapport. Autorisez les fenêtres contextuelles puis réessayez.",
+            "custom": {
+                "title": "Paramètres de plage personnalisée",
+                "from": "Date de début",
+                "to": "Date de fin",
+                "invalidRange": "La plage de dates est invalide",
+                "select": "Sélectionner"
+            },
+            "advanced": {
+                "title": "Options d’exportation avancées",
+                "employeesOnly": "Exporter uniquement les employés ?",
+                "maskSensitive": "Masquer les données sensibles ?",
+                "additionalFilters": "Filtres supplémentaires",
+                "field": "Champ du filtre",
+                "operator": "Opérateur du filtre",
+                "value": "Valeur du filtre",
+                "chooseValue": "Choisir une valeur",
+                "addFilter": "Ajouter un filtre",
+                "addedFilters": "Liste des filtres ajoutés",
+                "noFilters": "Aucun filtre supplémentaire.",
+                "removeFilter": "Supprimer le filtre",
+                "export": "Exporter"
+            },
+            "fields": {
+                "organizationElementType": "Type d’élément de l’organisation",
+                "breachStatus": "Statut de la fuite",
+                "employee": "Employé",
+                "domain": "Domaine",
+                "source": "Source"
+            },
+            "operators": {
+                "equals": "est",
+                "contains": "contient",
+                "notContains": "ne contient pas"
+            },
+            "elementTypes": {
+                "DOMAIN": "Domaine",
+                "EMAIL": "E-mail",
+                "IP": "Adresse IP",
+                "USER": "Nom d’utilisateur",
+                "PHONE": "Téléphone"
+            }
+        },
+        "details": {
+            "title": "Fuite {{status}} détectée pour {{type}} : {{value}}",
+            "close": "Fermer les détails de la fuite",
+            "openRecord": "Ouvrir les détails de la fuite pour {{value}}",
+            "information": "Informations sur la fuite",
+            "echoes": "Réapparitions",
+            "id": "ID",
+            "copyId": "Copier l’ID de la fuite",
+            "copied": "ID de la fuite copié",
+            "copyFailed": "Impossible de copier l’ID de la fuite",
+            "description": "Description",
+            "compromisedData": "Données compromises",
+            "revealSecrets": "Afficher les données sensibles",
+            "hideSecrets": "Masquer les données sensibles",
+            "evidence": "Preuve de la fuite",
+            "lastSeen": "Dernière détection",
+            "victimDomain": "Domaine de la victime",
+            "distributionType": "Type de distribution",
+            "address": "Adresse",
+            "vin": "VIN",
+            "noEchoes": "Aucune réapparition signalée pour cette fuite.",
+            "echoesCount": "{{count}} réapparitions signalées pour cette fuite.",
+            "howTo": "COMMENT",
+            "howToBody": "Cliquez sur le bouton pour passer le statut de cette fuite à <strong>En mitigation</strong> afin d’afficher les étapes de résolution.",
+            "mitigateBreach": "En mitigation",
+            "whyListed": "Pourquoi ce {{type}} est-il répertorié ?",
+            "whyListedBody": "Votre <strong>{{type}}</strong> est répertorié car il a été retrouvé dans des fuites de données ou associé à une activité malveillante. Les raisons possibles incluent notamment :",
+            "listedReasons": {
+                "dataBreach": "Le/La {{type}} figurait dans une fuite de données, il/elle a donc pu être compromis.",
+                "phishing": "Le/La {{type}} a été utilisé dans des attaques de phishing ou de spoofing, ce qui indique un abus.",
+                "forum": "Le/La {{type}} a été partagé sur des forums de hacking, ce qui suggère qu’il/elle est ciblé par des cybercriminels.",
+                "dnsHijack": "Les paramètres DNS du/de la {{type}} ont été détournés, ce qui peut rediriger le trafic vers des sites malveillants.",
+                "misconfigured": "Le/La {{type}} possède des services mal configurés, ce qui le/la rend vulnérable aux attaques."
+            },
+            "mitigationStepsTitle": "Étapes de mitigation",
+            "mitigationSteps": {
+                "labels": {
+                    "immediateNextSteps": "Prochaines étapes immédiates",
+                    "requestDataRemoval": "Demander le retrait des données",
+                    "ceaseAndDesist": "Lettre de mise en demeure",
+                    "courtOrder": "Obtenir une injonction judiciaire"
+                },
+                "descriptions": {
+                    "immediateNextSteps": "Voici les prochaines étapes immédiates à prendre pour atténuer le risque de cette vulnérabilité.",
+                    "requestDataRemoval": "Voici les étapes à suivre pour demander le retrait des données du site concerné.",
+                    "ceaseAndDesist": "Une lettre de mise en demeure est un moyen puissant et simple de protéger ses droits.",
+                    "courtOrder": "Obtenez une injonction judiciaire pour faire retirer le contenu."
+                },
+                "status": {
+                    "NOT_STARTED": "Non démarré",
+                    "IN_PROGRESS": "En cours",
+                    "COMPLETED": "Terminé"
+                }
+            }
+        },
+        "loadingMore": "Chargement…",
+        "loading": "Chargement des données de surveillance du dark web…",
+        "loadingFailed": "Impossible de charger les données de surveillance du dark web.",
+        "retry": "Réessayer",
+        "endOfResults": "Fin des résultats ({{count}} chargés).",
+        "results": "Résultats du tableau",
+        "table": {
+            "state": "État",
+            "whatLeaked": "Données divulguées",
+            "whereFrom": "Origine",
+            "when": "Quand",
+            "status": "Statut",
+            "who": "Qui",
+            "domain": "Domaine",
+            "email": "E-mail",
+            "ipAddress": "Adresse IP",
+            "username": "Nom d'utilisateur",
+            "password": "Mot de passe",
+            "secret": "Secret",
+            "hashedPassword": "Mot de passe haché",
+            "name": "Nom",
+            "phone": "Téléphone",
+            "database": "Base de données",
+            "leakName": "Nom de la fuite",
+            "foundIn": "Trouvé dans",
+            "source": "Source",
+            "organizationElement": "Actif surveillé",
+            "breached": "Compromis le",
+            "ingested": "Reçu le"
+        }
     },
     "dashboards": {
         "title": "Tableaux de bord",

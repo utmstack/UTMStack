@@ -8,6 +8,12 @@
  */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Dark Web time filter: date inputs get their own calendar button, so hide the
+   native indicator to avoid a duplicated icon. */
+.dwm-date-input::-webkit-calendar-picker-indicator {
+  display: none;
+}
+
 @theme {
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
