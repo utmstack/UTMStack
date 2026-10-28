@@ -46,7 +46,7 @@ require (
 	github.com/quic-go/quic-go v0.59.1 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
-	github.com/threatwinds/go-sdk v1.1.37-0.20261022104547-4582af12105a
+	github.com/threatwinds/go-sdk v1.1.37-0.20261028123630-c472007022ff
 	github.com/tidwall/gjson v1.19.0 // indirect
 	github.com/tidwall/match v1.2.0 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect

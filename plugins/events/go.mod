@@ -3,7 +3,7 @@ module github.com/utmstack/UTMStack/plugins/events
 go 1.26.0
 
 require (
-	github.com/threatwinds/go-sdk v1.1.37-0.20261022104547-4582af12105a
+	github.com/threatwinds/go-sdk v1.1.37-0.20261028123630-c472007022ff
 	github.com/tidwall/gjson v1.20.0
 )
 

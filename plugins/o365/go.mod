@@ -5,7 +5,7 @@ go 1.26.0
 require (
 	github.com/fsnotify/fsnotify v1.10.1
 	github.com/google/uuid v1.6.0
-	github.com/threatwinds/go-sdk v1.1.37-0.20261022104547-4582af12105a
+	github.com/threatwinds/go-sdk v1.1.37-0.20261028123630-c472007022ff
 	github.com/utmstack/UTMStack/plugins/shared v0.0.0
 	gopkg.in/yaml.v3 v3.0.1
 )
