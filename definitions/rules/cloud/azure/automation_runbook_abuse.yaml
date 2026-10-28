@@ -7,7 +7,7 @@ impact:
   integrity: 3
   availability: 2
 category: Execution
-technique: ''
+technique: T1059 - Command and Scripting Interpreter
 adversary: origin
 references:
 - https://learn.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-schema

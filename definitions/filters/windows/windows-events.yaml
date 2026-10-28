@@ -244,6 +244,14 @@ pipeline:
             - log.data.ProcessName
           to: log.eventDataProcessName
 
+      # Object-access process COPIED to the canonical origin.file. A copy, not a rename: Windows rules read log.eventDataProcessName directly.
+      - grok:
+          source: log.eventDataProcessName
+          patterns:
+            - fieldName: origin.file
+              pattern: (?s)^.+$
+          where: exists("log.eventDataProcessName")
+
       - rename:
           from:
             - log.data.RestrictedAdminMode
@@ -480,6 +488,14 @@ pipeline:
           from:
             - log.data.ObjectName
           to: log.eventDataObjectName
+
+      # Object-access object name COPIED to the canonical target.path. A copy, not a rename: Windows rules read log.eventDataObjectName directly.
+      - grok:
+          source: log.eventDataObjectName
+          patterns:
+            - fieldName: target.path
+              pattern: (?s)^.+$
+          where: exists("log.eventDataObjectName")
 
       - rename:
           from:
@@ -3402,3 +3418,11 @@ pipeline:
             !oneOf("dataSource", ["", "unknown"]) &&
             exists("log.authenticationSource") &&
             equals("log.providerName", "AD FS") && (equals("log.eventCode", "342") || equals("log.eventCode", "516")) && contains("log.message", "token validation failed")
+
+      # log.eventName COPIED to the canonical action field (the copy keeps log.eventName for the rules that read it).
+      - grok:
+          source: log.eventName
+          patterns:
+            - fieldName: action
+              pattern: (?s)^.+$
+          where: exists("log.eventName")

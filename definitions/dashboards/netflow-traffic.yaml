@@ -1,0 +1,78 @@
+# Dashboard version v1.0.0
+#
+# Ported from the v11 gap-fill dashboards. Every field is one the netflow filter
+# (filters/netflow/netflow.yaml) fills as a canonical field: protocol, origin.ip,
+# origin.port, target.port. The ports need the intBytes cast to be real ports.
+# The v11 geolocation map is left out (see pfsense-firewall.yaml).
+name: "Network Traffic (NetFlow)"
+description: "Who talks to whom, over which protocols and ports."
+widgets:
+  - layout: { x: 0, y: 0, w: 6, h: 4 }
+    spec:
+      dataset: logs
+      dataType: netflow
+      chart: category
+      dimension: protocol
+      metric:
+        agg: count
+      limit: 10
+    config:
+      __builder:
+        chartType: pie
+        title: "Traffic by Protocol"
+
+  - layout: { x: 6, y: 0, w: 6, h: 4 }
+    spec:
+      dataset: logs
+      dataType: netflow
+      chart: category
+      dimension: origin.ip
+      metric:
+        agg: count
+      limit: 10
+    config:
+      __builder:
+        chartType: bar
+        title: "Top Talkers (Source IP)"
+
+  - layout: { x: 0, y: 4, w: 6, h: 4 }
+    spec:
+      dataset: logs
+      dataType: netflow
+      chart: category
+      dimension: target.port
+      metric:
+        agg: count
+      limit: 10
+    config:
+      __builder:
+        chartType: bar
+        title: "Top Destination Ports"
+
+  - layout: { x: 6, y: 4, w: 6, h: 4 }
+    spec:
+      dataset: logs
+      dataType: netflow
+      chart: category
+      dimension: origin.port
+      metric:
+        agg: count
+      limit: 10
+    config:
+      __builder:
+        chartType: bar
+        title: "Traffic by Source Port"
+
+  - layout: { x: 0, y: 8, w: 12, h: 4 }
+    spec:
+      dataset: logs
+      dataType: netflow
+      chart: time
+      metric:
+        agg: count
+      interval: 1h
+      limit: 10
+    config:
+      __builder:
+        chartType: line
+        title: "Flows Over Time"

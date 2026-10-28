@@ -7,6 +7,7 @@ impact:
   integrity: 3
   availability: 3
 category: System Integrity
+technique: T1486 - Data Encrypted for Impact
 adversary: origin
 references:
 - https://docs.aws.amazon.com/kms/latest/developerguide/importing-keys.html

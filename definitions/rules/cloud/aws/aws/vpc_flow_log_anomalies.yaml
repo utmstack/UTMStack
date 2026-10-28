@@ -7,6 +7,7 @@ impact:
   integrity: 2
   availability: 2
 category: Defense Evasion
+technique: T1562 - Impair Defenses
 adversary: origin
 references:
 - https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs.html

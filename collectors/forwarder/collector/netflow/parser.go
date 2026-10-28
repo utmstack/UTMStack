@@ -2,6 +2,7 @@ package netflow
 
 import (
 	"fmt"
+	"net"
 	"reflect"
 	"strings"
 
@@ -15,6 +16,18 @@ import (
 	"github.com/utmstack/UTMStack/collectors/forwarder/config"
 	"github.com/utmstack/UTMStack/collectors/forwarder/utils"
 )
+
+// netflowExporter strips the UDP source port from the "host:port" address the
+// collector reads, so dataSource identifies the exporter by host only. The port
+// is the exporter's ephemeral source port, not a property of the flow, and
+// leaving it in made every exporter look like a different source.
+func netflowExporter(remote string) string {
+	host, _, err := net.SplitHostPort(remote)
+	if err != nil {
+		return remote
+	}
+	return host
+}
 
 // processMessage converts a decoded netflow message to log entries and sends them to the queue.
 func processMessage(remote string, message interface{}, queue chan *plugins.Log) error {
@@ -58,7 +71,7 @@ func processMessage(remote string, message interface{}, queue chan *plugins.Log)
 		select {
 		case queue <- &plugins.Log{
 			DataType:   string(config.DataTypeNetflow),
-			DataSource: remote,
+			DataSource: netflowExporter(remote),
 			Raw:        msg,
 		}:
 		default:
