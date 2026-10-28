@@ -38,7 +38,7 @@ function landDots() {
 }
 
 export function Travel(props: SceneProps) {
-  const { scene, t } = props
+  const { scene, t, tr } = props
   const tone = usePalette()
   const glow = useGlow()
   const f = scene.facts as { user: string; km: number; gap: number; far?: { city?: string; country?: string; latitude?: number; longitude?: number }; home: { city: string; lat: number; lon: number } }
@@ -61,12 +61,12 @@ export function Travel(props: SceneProps) {
       ))}
       <Wire a={homeP} b={C} tone={tone.internal} t={t} bend={40} appear={400} />
       <Wire a={farP} b={C} tone={tone.alert} t={t} bend={40} appear={3200} />
-      {p1 > 0 && p1 < 1 && <Packet a={homeP} b={C} u={p1} tone={tone.internal} bend={40} label="✓ sign-in" />}
-      {p2 > 0 && p2 < 1 && <Packet a={farP} b={C} u={p2} tone={tone.alert} bend={40} label="✓ sign-in" />}
+      {p1 > 0 && p1 < 1 && <Packet a={homeP} b={C} u={p1} tone={tone.internal} bend={40} label={tr('liveOps.scSignIn')} />}
+      {p2 > 0 && p2 < 1 && <Packet a={farP} b={C} u={p2} tone={tone.alert} bend={40} label={tr('liveOps.scSignIn')} />}
       {arc > 0 && (
         <path d={`M${homeP.x},${homeP.y} Q${(homeP.x + farP.x) / 2},${Math.min(homeP.y, farP.y) - 40} ${farP.x},${farP.y}`} fill="none" stroke={tone.highlight} strokeWidth={2} strokeDasharray="1000" strokeDashoffset={1000 * (1 - arc)} />
       )}
-      {arc >= 1 && <Pill x={farP.x} y={farP.y + 52} text={`${f.km.toLocaleString()} km in ${f.gap} min`} tone={tone.highlight} />}
+      {arc >= 1 && <Pill x={farP.x} y={farP.y + 52} text={tr('liveOps.scKmInMin', { km: f.km.toLocaleString(), min: f.gap })} tone={tone.highlight} />}
       <g opacity={prog(t, 200, 600)}>
         <circle cx={homeP.x} cy={homeP.y} r={9} fill={tone.internal} filter={glow} />
         <Pill x={homeP.x} y={homeP.y + 26} text={`${f.home.city} · ${f.user}`} tone={tone.internal} small />
@@ -74,7 +74,7 @@ export function Travel(props: SceneProps) {
       <g opacity={prog(t, 3000, 3400)}>
         <circle cx={farP.x} cy={farP.y} r={9} fill={tone.alert} filter={glow} />
         <Burst at={farP} t={t} start={3200} tone={tone.alert} size={40} dur={900} />
-        <Pill x={farP.x} y={farP.y + 26} text={`${attacker.flag ?? ''} ${f.far?.city ?? 'abroad'} · ${attacker.name}`} tone={tone.alert} small />
+        <Pill x={farP.x} y={farP.y + 26} text={`${attacker.flag ?? ''} ${f.far?.city ?? tr('liveOps.scAbroad')} · ${attacker.name}`} tone={tone.alert} small />
       </g>
       <MachineNode party={cloud} at={C} t={t} r={30} state={t > 5000 ? 'targeted' : 'idle'} selected={props.selectedId === cloud.id} onSelect={sel(props, cloud)} />
       <AlertBell at={{ x: C.x + 170, y: C.y - 4 }} t={t} start={9200} />

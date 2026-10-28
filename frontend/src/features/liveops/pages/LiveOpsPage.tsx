@@ -1,27 +1,18 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { AlertTriangle, ExternalLink, List, PanelLeftClose, PanelRightClose, Radio, SlidersHorizontal, Sparkles } from 'lucide-react'
+import { AlertTriangle, Loader2, Radio } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { useTranslation } from 'react-i18next'
 import { useSocAi, useSocAiFocus } from '@/features/soc-ai'
 import { alertFocus } from '@/features/alerts/lib/alert-focus'
 import type { Alert } from '@/features/alerts/types/alert.types'
 import { alertsHttpService } from '@/features/alerts/services/alerts-http.service'
-import { buildScene, templateFor, type Party } from '../model'
+import { buildScene, type Party, tsMs } from '../model'
 import { Stage } from '../components/Stage'
 import { Timeline } from '../components/Timeline'
-import { SEV_META } from '@/features/alerts/lib/alert-meta'
+import { LeftSidebar } from '../components/LeftSidebar'
+import { RightSidebar } from '../components/RightSidebar'
+import { WINDOW_MS, type WindowKey } from '../components/Timeline'
 import '../liveops.css'
-
-// Severity and role colours as the rest of the console shows them (Alerts page, Adversary view).
-const sevBar = (severity: string) => (SEV_META[severity as keyof typeof SEV_META] ?? SEV_META.low).bar
-const ROLE_DOT: Record<string, string> = {
-  attacker: 'bg-red-500',
-  external: 'bg-red-500',
-  perimeter: 'bg-amber-500',
-  cloud: 'bg-violet-500',
-  internal: 'bg-primary',
-}
 
 // Where the floating pieces sit (px).
 const EDGE = 12
@@ -48,42 +39,19 @@ function useSize<T extends HTMLElement>() {
 }
 
 const isExternal = (ip?: string): ip is string => !!ip && !/^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|127\.)/.test(ip)
-
-function ago(iso: string | undefined, t: (k: string, o?: Record<string, unknown>) => string) {
-  if (!iso) return t('liveOps.agoJust')
-  const s = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 1000))
-  if (s < 60) return t('liveOps.agoJust')
-  if (s < 3600) return t('liveOps.agoMin', { count: Math.round(s / 60) })
-  return t('liveOps.agoH', { count: Math.round(s / 3600) })
-}
-
 /** The alert rule's description as plain text, folded to a few lines until opened. */
-function Description({ text }: { text: string }) {
-  const [open, setOpen] = useState(false)
-  const plain = text.replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim()
-  const long = plain.length > 200
-  return (
-    <div className="mt-1.5 text-[12px] leading-relaxed text-foreground/80">
-      <p className={cn(!open && long && 'line-clamp-4')}>{plain}</p>
-      {long && (
-        <button type="button" onClick={() => setOpen((o) => !o)} className="mt-0.5 text-[11.5px] font-medium text-primary hover:underline">
-          {open ? 'Less' : 'More'}
-        </button>
-      )}
-    </div>
-  )
-}
 
 export function LiveOpsPage() {
   const { t } = useTranslation()
-  const navigate = useNavigate()
   const soc = useSocAi()
   const [alerts, setAlerts] = useState<Alert[] | null>(null)
   const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [hours, setHours] = useState(6)
+  const [win, setWin] = useState<WindowKey>('6h')
   const [party, setParty] = useState<Party | null>(null)
   const [tick, setTick] = useState(0)
   const [error, setError] = useState('')
+  // True while the list is re-fetched after a window change; the interval polls don't set it.
+  const [loading, setLoading] = useState(false)
   // Each restart of the same alert gets a new run number, so its story plays again from the top.
   const [run, setRun] = useState(0)
   const [replaying, setReplaying] = useState(false)
@@ -96,35 +64,50 @@ export function LiveOpsPage() {
   const [wallRef, wall] = useSize<HTMLDivElement>()
   const [timelineRef, timelineSize] = useSize<HTMLDivElement>()
 
-  const refresh = useCallback(() =>
-    alertsHttpService
-      .list({ page: 0, size: 500, filters: [{ field: 'parentId', operator: 'IS', value: '' }] })
-      .then((r) => {
-        setAlerts(r.data)
-        setError('')
-      })
-      .catch((e: unknown) => setError(e instanceof Error ? e.message : String(e))), [])
+  // The single source: parent alerts inside the timeline window, re-read every 30 s and
+  // whenever the window changes. Counters, the alert list and the timeline all use it.
+  const refresh = useCallback(
+    (w: WindowKey) =>
+      alertsHttpService
+        .list({
+          page: 0,
+          size: 500,
+          filters: [
+            { field: 'parentId', operator: 'IS', value: '' },
+            { field: '@timestamp', operator: 'IS_BETWEEN', value: [new Date(Date.now() - WINDOW_MS[w]).toISOString(),new Date(Date.now()).toISOString()] },
+          ],
+        })
+        .then((r) => {
+          setAlerts(r.data)
+          setLoading(false)
+          setError('')
+        })
+        .catch((e: unknown) => {
+          setLoading(false)
+          setError(e instanceof Error ? e.message : String(e))
+        }),
+    [],
+  )
 
   useEffect(() => {
-    void refresh()
-    const id = setInterval(() => void refresh(), POLL_MS)
+    setLoading(true)
+    void refresh(win)
+    const id = setInterval(() => void refresh(win), POLL_MS)
     return () => clearInterval(id)
-  }, [refresh])
+  }, [win, refresh])
+
   useEffect(() => {
     const id = setInterval(() => setTick((x) => x + 1), 5_000)
     return () => clearInterval(id)
   }, [])
 
   const list = useMemo(
-    () => (alerts ?? []).map((a) => ({ ...a })).sort((a, b) => String(b['@timestamp'] ?? '').localeCompare(String(a['@timestamp'] ?? ''))),
+    () => (alerts ?? []).map((a) => ({ ...a })).sort((a, b) => tsMs(b['@timestamp']) - tsMs(a['@timestamp'])),
     [alerts],
   )
-  const windowAlerts = useMemo(
-    () => list.filter((a) => a['@timestamp'] && new Date(a['@timestamp']).getTime() >= Date.now() - hours * 3_600_000),
-    [list, hours, tick],
-  )
+  const windowAlerts = useMemo(() => list, [list, tick])
   const alert = list.find((a) => a.id === selectedId) ?? list[list.length - 1]
-  const scene = useMemo(() => (alert ? buildScene(alert) : null), [alert])
+  const scene = useMemo(() => (alert ? buildScene(alert, t) : null), [alert, t])
 
   useSocAiFocus(useMemo(() => (alert ? alertFocus(alert) : null), [alert]))
 
@@ -196,8 +179,13 @@ export function LiveOpsPage() {
   if (!alerts) {
     return (
       <div ref={wallRef} className="lo-wall @container relative h-full min-h-[560px] overflow-hidden text-foreground">
-        <div className="absolute inset-0 flex items-center justify-center text-sm text-muted-foreground">
-          {error ? <span className="flex items-center gap-2 text-red-600 dark:text-red-400"><AlertTriangle size={14} /> {t('liveOps.error', { msg: error })}</span> : t('liveOps.loading')}
+        <div className="absolute inset-0 flex items-center justify-center">
+          {error ? <span className="flex items-center gap-2 text-red-600 dark:text-red-400"><AlertTriangle size={14} /> {t('liveOps.error', { msg: error })}</span> : (
+            <span className="flex flex-col items-center gap-2.5">
+              <Loader2 size={36} className="animate-spin text-primary" />
+              <span className="text-[12px] font-medium text-muted-foreground">{t('liveOps.loading')}</span>
+            </span>
+          )}
         </div>
       </div>
     )
@@ -209,6 +197,14 @@ export function LiveOpsPage() {
         <Stage key={`${alert.id}:${run}`} alert={alert} scene={scene} templateLabel={t(`liveOps.kb.${scene.template}`)} area={area} selectedParty={party?.id} onSelectParty={setParty} onEnded={onSceneEnded} />
       ) : (
         <div className="absolute inset-0 flex items-center justify-center text-sm text-muted-foreground">{t('liveOps.empty')}</div>
+      )}
+
+      {/* Refetch in flight (window change): show it on the canvas even when it is empty. */}
+      {loading && (
+        <div className="absolute z-10 flex flex-col items-center justify-center gap-2.5" style={area}>
+          <Loader2 size={36} className="animate-spin text-primary" />
+          <span className="text-[12px] font-medium text-muted-foreground">{t('liveOps.loading')}</span>
+        </div>
       )}
 
       {/* Header */}
@@ -223,7 +219,7 @@ export function LiveOpsPage() {
         </div>
         <div className="hidden min-w-0 items-center gap-2 @min-[980px]:flex">
           {[
-            [t('liveOps.statLastHour'), list.filter((a) => a['@timestamp'] && new Date(a['@timestamp']).getTime() >= Date.now() - 3_600_000).length],
+            [t('liveOps.statLastHour'), list.filter((a) => a['@timestamp'] && Date.now() - tsMs(a['@timestamp']) < 3_600_000).length],
             [t('liveOps.statHigh'), list.filter((a) => a.severity === 'high').length],
             [t('liveOps.statOpen'), list.filter((a) => String(a.status).toLowerCase() === 'open').length],
             [t('liveOps.statAttackers'), new Set(list.map((a) => a.adversary?.ip).filter(isExternal)).size],
@@ -237,126 +233,39 @@ export function LiveOpsPage() {
       </div>
 
       {/* Incoming alerts (floating, folds away) */}
-      {leftOpen ? (
-        <div className="lo-panel absolute z-20 flex flex-col overflow-hidden rounded-xl" style={{ ...panelBox, left: EDGE, width: LEFT_W }}>
-          <div className="flex shrink-0 items-center gap-2 border-b border-border px-3 py-2">
-            <span className="text-[12px] font-semibold text-foreground">{t('liveOps.listTitle')}</span>
-            <span className="text-[11px] text-muted-foreground">{t('liveOps.listShown', { count: list.length })}</span>
-            <button type="button" onClick={() => setLeft(false)} className="ml-auto rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground" title={t('liveOps.listHide')}>
-              <PanelLeftClose size={14} />
-            </button>
-          </div>
-          <div className="min-h-0 flex-1 overflow-y-auto">
-            {list.slice(0, 200).map((a) => {
-              const sel = a.id === alert?.id
-              return (
-                <button
-                  key={a.id}
-                  type="button"
-                  onClick={() => show(a.id)}
-                  className={cn('relative flex w-full gap-2 border-b border-border/60 px-3 py-2 text-left transition-colors', sel ? 'bg-primary/15' : 'hover:bg-muted/60')}
-                  title={sel ? 'Play this alert again' : undefined}
-                >
-                  <span className={cn('mt-0.5 w-1 shrink-0 self-stretch rounded-full', sevBar(String(a.severity)))} />
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[12.5px] font-medium text-foreground">{a.name}</span>
-                    <span className="block truncate font-mono text-[10.5px] text-muted-foreground">
-                      {(a.adversary?.ip ?? a.adversary?.host ?? '?')} → {a.target?.host ?? a.target?.domain ?? a.target?.ip ?? a.dataSource ?? ''}
-                    </span>
-                    <span className="block text-[10.5px] text-muted-foreground">
-                      {t(`liveOps.kb.${templateFor(a)}`)} · {ago(a['@timestamp'], t)}
-                    </span>
-                  </span>
-                </button>
-              )
-            })}
-          </div>
-        </div>
-      ) : (
-        <button type="button" onClick={() => setLeft(true)} className="lo-panel absolute z-20 flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground hover:text-foreground" style={{ top: TOP, left: EDGE }} title={t('liveOps.listShow')}>
-          <List size={17} />
-        </button>
-      )}
+      <LeftSidebar
+        open={leftOpen}
+        panelBox={panelBox}
+        collapsedStyle={{ top: TOP, left: EDGE }}
+        width={LEFT_W}
+        alerts={windowAlerts}
+        selectedId={alert?.id ?? null}
+        onShow={show}
+        onOpen={() => setLeft(true)}
+        onClose={() => setLeft(false)}
+      />
 
       {/* Details (floating, folds away) */}
-      {rightOpen ? (
-        <div className="lo-panel absolute z-20 flex flex-col overflow-hidden rounded-xl" style={{ ...panelBox, right: EDGE, width: rightW }}>
-          {alert && scene ? (
-            <div className="min-h-0 flex-1 overflow-y-auto">
-              <div className="border-b border-border px-3 py-2.5">
-                <div className="flex items-center">
-                  <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{t('liveOps.onStage')}</span>
-                  <button type="button" onClick={() => setRight(false)} className="ml-auto rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground" title={t('liveOps.hideDetails')}>
-                    <PanelRightClose size={14} />
-                  </button>
-                </div>
-                <div className="mt-0.5 text-[13px] font-semibold leading-snug text-foreground">{alert.name}</div>
-                <div className="mt-0.5 text-[11.5px] text-muted-foreground">{scene.title}</div>
-                {alert.description && <Description key={alert.id} text={alert.description} />}
-                <div className="mt-1.5 flex flex-wrap gap-1.5 text-[11px] text-foreground/80">
-                  <span className="rounded border border-border px-1.5 py-0.5">{alert.status}</span>
-                  <span className="rounded border border-border px-1.5 py-0.5">{alert.category}</span>
-                  {alert.isIncident && <span className="rounded border border-red-500/40 px-1.5 py-0.5 text-red-600 dark:text-red-400">{t('liveOps.inIncident')}</span>}
-                </div>
-                <button type="button" onClick={() => navigate(
-                  `/threat-management/alerts`,
-                   {
-                      state: {
-                         socaiFilters: [{ field: 'id', operator: 'IS', value: alert.id }],
-                         socaiTime: '30d',
-                      }
-                   }
-                )} className="mt-2 flex items-center gap-1 text-[12px] text-primary hover:underline">
-                  {t('liveOps.openInAlerts')} <ExternalLink size={11} />
-                </button>
-              </div>
-
-              <div className="border-b border-border px-3 py-2.5">
-                <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{t('liveOps.involved')}</div>
-                <div className="mt-1.5 flex flex-col gap-1.5">
-                  {scene.parties.map((p) => (
-                    <div key={p.id} className={cn('flex items-center gap-2 rounded-lg border px-2 py-1.5', party?.id === p.id ? 'border-primary/60 bg-primary/10' : 'border-border bg-muted/30')}>
-                      <span className={cn('h-2 w-2 shrink-0 rounded-full', ROLE_DOT[p.role] ?? ROLE_DOT.internal)} />
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate text-[12px] font-medium text-foreground">
-                          {p.flag ? `${p.flag} ` : ''}
-                          {p.name}
-                        </span>
-                        {p.sub && <span className="block truncate font-mono text-[10.5px] text-muted-foreground">{p.sub}</span>}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="px-3 py-2.5">
-                <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                  <Sparkles size={12} className="text-primary" /> {t('liveOps.askSocAi')}
-                </div>
-                <div className="mt-1.5 flex flex-col gap-1.5">
-                  {['Explain this attack and tell me what to do next', 'Is this a false positive?', 'What else did this attacker do?'].map((q) => (
-                    <button key={q} type="button" onClick={() => ask(q)} className="rounded-lg border border-border bg-muted/30 px-2.5 py-1.5 text-left text-[12px] text-foreground hover:border-primary/40 hover:bg-primary/10">
-                      {q}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ) : null}
-        </div>
-      ) : (
-        <button type="button" onClick={openRight} className="lo-panel absolute z-20 flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground hover:text-foreground" style={{ top: TOP, right: EDGE }} title={t('liveOps.showDetails')}>
-          <SlidersHorizontal size={16} />
-        </button>
-      )}
+      <RightSidebar
+        open={rightOpen}
+        panelBox={panelBox}
+        collapsedStyle={{ top: TOP, right: EDGE }}
+        width={rightW}
+        alert={alert}
+        scene={scene}
+        selectedParty={party?.id ?? null}
+        onAsk={ask}
+        onOpen={openRight}
+        onClose={() => setRight(false)}
+      />
 
       {/* Timeline (floating) */}
       <div ref={timelineRef} className="absolute z-20" style={{ left: EDGE, right: EDGE, bottom: EDGE }}>
         <Timeline
           t={t}
           alerts={windowAlerts}
-          hours={hours}
-          onHours={setHours}
+          win={win}
+          onWin={setWin}
           selectedId={alert?.id ?? null}
           live={!replaying}
           onSelect={show}
