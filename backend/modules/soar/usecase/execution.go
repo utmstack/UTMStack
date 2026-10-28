@@ -198,9 +198,13 @@ func (u *executionUsecase) List(ctx context.Context, f dto.ExecutionFilters) (*d
 
 func (u *executionUsecase) StartManual(ctx context.Context, agent, command, triggeredBy string) (uuid.UUID, error) {
 
-	masked_command, cerr := u.vars.MaskSecrets(ctx, command)
-	if cerr != nil {
-		_ = catcher.Error("soar: command variable masking failed", cerr, map[string]any{})
+	masked_command := command
+	if u.vars != nil {
+		masked, cerr := u.vars.MaskSecrets(ctx, command)
+		if cerr != nil {
+			_ = catcher.Error("soar: command variable masking failed", cerr, map[string]any{})
+		}
+		masked_command = masked
 	}
 
 	e, err := u.repo.Create(ctx, &domain.SoarExecution{

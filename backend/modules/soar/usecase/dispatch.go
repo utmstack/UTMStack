@@ -159,9 +159,14 @@ func (d *Dispatcher) process(parent context.Context, exec domain.SoarExecution) 
 		return
 	}
 
-	// Transition to EXECUTING for visibility while the executor runs.
-	executing := domain.ExecutionStatusExecuting
-	_ = d.exec.UpdateStatus(ctx, exec.ID, connectors.ExecutionStatusUpdate{Status: &executing})
+	// The row has to read EXECUTING before the command goes out. Settling only
+	// applies to an EXECUTING row, so a command sent while the row still reads
+	// PENDING can never be closed: once its lease runs out the dispatcher claims
+	// it again and sends it again, indefinitely. Not sending is the safe side of
+	// a failed write — the row stays PENDING and is retried after the lease.
+	if !d.markExecuting(ctx, exec.ID) {
+		return
+	}
 
 	// dispatched_at is internal evidence, written once before the side effect
 	// goes out: if the worker dies between here and settle, the row proves the
@@ -194,6 +199,15 @@ func (d *Dispatcher) process(parent context.Context, exec domain.SoarExecution) 
 			_ = catcher.Error("soar dispatch: maybeComplete failed", err, map[string]any{"flowRun": *exec.FlowRunID})
 		}
 	}
+}
+
+func (d *Dispatcher) markExecuting(ctx context.Context, id uuid.UUID) bool {
+	executing := domain.ExecutionStatusExecuting
+	if err := d.exec.UpdateStatus(ctx, id, connectors.ExecutionStatusUpdate{Status: &executing}); err != nil {
+		_ = catcher.Error("soar dispatch: could not mark the execution as executing; not sending the command", err, map[string]any{"execution": id})
+		return false
+	}
+	return true
 }
 
 // runOnce handles the legacy manual path: run the shell executor once, no DAG.
