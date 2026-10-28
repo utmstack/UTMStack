@@ -115,12 +115,12 @@ func (u *adUserUsecase) Ingest(ctx context.Context, req dto.IngestRequest) (int,
 	return len(users), nil
 }
 
-func (u *adUserUsecase) List(ctx context.Context, f dto.ADUserFilter) (*database.List[domain.ADUser], error) {
-	items, total, err := u.repo.List(ctx, f)
+func (u *adUserUsecase) List(ctx context.Context, f dto.ADUserFilter) (*database.List[dto.UserRow], error) {
+	items, total, err := u.repo.ListWithIdentity(ctx, f)
 	if err != nil {
 		return nil, err
 	}
-	return &database.List[domain.ADUser]{Items: items, Total: total}, nil
+	return &database.List[dto.UserRow]{Items: items, Total: total}, nil
 }
 
 func (u *adUserUsecase) Each(ctx context.Context, source string, fn func(domain.ADUser) error) error {
