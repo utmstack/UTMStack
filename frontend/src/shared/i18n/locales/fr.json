@@ -1728,7 +1728,18 @@
             "between": "entre",
             "search": "recherche",
             "isOneOf": "est parmi",
-            "isNotOneOf": "n'est aucun de"
+            "isNotOneOf": "n'est aucun de",
+            "doesNotContain": "no contiene",
+            "startsWith": "empieza con",
+            "doesNotStartWith": "no empieza con",
+            "endsWith": "termina con",
+            "doesNotEndWith": "no termina con",
+            "doesNotExist": "no existe",
+            "notBetween": "no está entre",
+            "greaterThan": "es mayor que",
+            "greaterThanOrEquals": "es mayor o igual que",
+            "lessThan": "es menor que",
+            "lessThanOrEquals": "es menor o igual que"
         },
         "filters": {
             "label": "Filtres",
@@ -3696,6 +3707,10 @@
             "WINDOWS_FILE_AUDITING": {
                 "name": "Windows File Access Auditing",
                 "description": "Collect Windows file access audit events through the Windows Event Log and UTMStack agent."
+            },
+            "ELASTICsearch": {
+                "name": "ELASTICsearch",
+                "description": "Ingesta los registros de Elasticsearch para monitorear el motor de búsqueda y análisis y sus cargas de trabajo de aplicación."
             }
         },
         "edit": {
@@ -4855,7 +4870,8 @@
             "removeEntry": "Supprimer l’entrée",
             "addEntry": "Ajouter une entrée de pipeline",
             "collapse": "Replier",
-            "expand": "Déplier"
+            "expand": "Déplier",
+            "splitHint": "Vacío equivale a un espacio por defecto — en el YAML siempre aparece como fieldSplit: \" \"."
         },
         "allDataTypes": "Tous les types de données",
         "testPipeline": "Test pipeline"
