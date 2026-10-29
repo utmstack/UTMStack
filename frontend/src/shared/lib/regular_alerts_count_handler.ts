@@ -13,7 +13,7 @@ export const alertNotificationHandler = (
 
   const go_alerts = () => window.location.href='/threat-management/alerts'
 
-  toast(i18n.t('alerts.toast.newAlertsToast_title'), {
+  toast.info(i18n.t('alerts.toast.newAlertsToast_title'), {
     description: i18n.t('alerts.toast.newAlertsToast_count', { count: newCount }),
     action: go_alerts
       ? { label: i18n.t('alerts.toast.newAlertsToast_view'), onClick: go_alerts }

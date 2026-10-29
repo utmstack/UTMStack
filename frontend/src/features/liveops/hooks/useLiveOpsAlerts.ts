@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { alertsHttpService } from '@/features/alerts/services/alerts-http.service'
 import { WINDOW_MS, type LiveOpsData, type WindowKey } from '../liveops-data'
 
@@ -25,21 +25,23 @@ export function useLiveOpsAlerts(): LiveOpsData {
     { field: '@timestamp', operator: 'IS_BETWEEN', value: [new Date(Date.now() - WINDOW_MS[win]).toISOString(), new Date(Date.now()).toISOString()] },
   ]
 
-  // Batches 0..page in parallel; replaced on every load so a scroll-append and a
-  // poll never disagree about what is in the list.
+
+  const fetchAll = useCallback((silent: boolean) =>
+    alertsHttpService.list({ page, size: PAGE_SIZE, filters })
+      .then((r) => {
+        setAlerts(r.data)
+        setTotal(r.total)
+        setLoading(false)
+        if (!silent) setError('')
+      })
+      .catch((e: unknown) => {
+        setLoading(false)
+        if (!silent) setError(e instanceof Error ? e.message : String(e))
+      }), [win, page])
+
+  // One request: the single page in view. A poll or page change re-fetches it
+  // in place, so what is on screen is always exactly one batch.
   useEffect(() => {
-    const fetchAll = (silent: boolean) =>
-      Promise.all(Array.from({ length: page + 1 }, (_, p) => alertsHttpService.list({ page: p, size: PAGE_SIZE, filters })))
-        .then((rs) => {
-          setAlerts(rs.flatMap((r) => r.data))
-          setTotal(rs[0]?.total ?? 0)
-          setLoading(false)
-          if (!silent) setError('')
-        })
-        .catch((e: unknown) => {
-          setLoading(false)
-          if (!silent) setError(e instanceof Error ? e.message : String(e))
-        })
     setLoading(true)
     fetchAll(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps

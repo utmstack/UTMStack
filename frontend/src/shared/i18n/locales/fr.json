@@ -6193,6 +6193,9 @@
         }
     },
     "liveOps": {
+      "newAlerts": "Nouvelles alertes",
+      "newAlertsCount_one": "{{count}} nouvelle alerte",
+      "newAlertsCount_other": "{{count}} nouvelles alertes",
         "header": "Opérations en direct",
         "live": "EN DIRECT",
         "replay": "LECTURE",

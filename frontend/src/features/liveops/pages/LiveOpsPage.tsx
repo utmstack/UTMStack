@@ -4,7 +4,7 @@ import { cn } from '@/shared/lib/utils'
 import { useTranslation } from 'react-i18next'
 import { useSocAi, useSocAiFocus } from '@/features/soc-ai'
 import { alertFocus } from '@/features/alerts/lib/alert-focus'
-import { alertsHttpService } from '@/features/alerts/services/alerts-http.service'
+import { useAlertCount } from '@/features/alerts/hooks/use-alert-count'
 import { buildScene, type Party, tsMs } from '../model'
 import { Stage } from '../components/Stage'
 import { Timeline } from '../components/Timeline'
@@ -12,6 +12,7 @@ import { LeftSidebar } from '../components/LeftSidebar'
 import { RightSidebar } from '../components/RightSidebar'
 import { LiveOpsDataContext } from '../liveops-data'
 import { useLiveOpsAlerts } from '../hooks/useLiveOpsAlerts'
+import {NEW_ALERT_NOTIFICATION_INDEX, alertNotificationHandler} from '@/shared/lib/regular_alerts_count_handler'
 import '../liveops.css'
 
 // Where the floating pieces sit (px).
@@ -43,9 +44,9 @@ export function LiveOpsPage() {
   const soc = useSocAi()
   const data = useLiveOpsAlerts()
   const { alerts, total, page, loading, error } = data
-  const [openCount, setOpenCount] = useState<number | null>(null)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [party, setParty] = useState<Party | null>(null)
+  const rightScrollRef = useRef<HTMLDivElement | null>(null)
   const [tick, setTick] = useState(0)
   const [run, setRun] = useState(0)
   const [replaying, setReplaying] = useState(false)
@@ -62,6 +63,16 @@ export function LiveOpsPage() {
     return () => clearInterval(id)
   }, [])
 
+  const alert_ctx = useAlertCount()
+
+  useEffect(() => {
+    alert_ctx.removeHandler(NEW_ALERT_NOTIFICATION_INDEX)
+    return () => {
+      alert_ctx.registerHandler(alertNotificationHandler, NEW_ALERT_NOTIFICATION_INDEX)
+    }
+  }, [])
+
+
   const list = useMemo(
     () => (alerts ?? []).map((a) => ({ ...a })).sort((a, b) => tsMs(b['@timestamp']) - tsMs(a['@timestamp'])),
     [alerts],
@@ -72,7 +83,6 @@ export function LiveOpsPage() {
 
   useSocAiFocus(useMemo(() => (alert ? alertFocus(alert) : null), [alert]))
 
-  // A new alert on stage: start fresh.
   useEffect(() => {
     setParty(null)
   }, [alert?.id])
@@ -173,7 +183,6 @@ export function LiveOpsPage() {
         {loading && (
           <div className="absolute z-10 flex flex-col items-center justify-center gap-2.5" style={area}>
             <Loader2 size={36} className="animate-spin text-primary" />
-            <span className="text-[12px] font-medium text-muted-foreground">{t('liveOps.loading')}</span>
           </div>
         )}
 
@@ -186,11 +195,26 @@ export function LiveOpsPage() {
               <span className={cn('h-2 w-2 rounded-full', !replaying ? 'lo-live-dot bg-red-500' : 'bg-primary')} />
               {replaying ? t('liveOps.replay') : t('liveOps.live')}
             </span>
+            {alert_ctx.newCount > 0 && (
+              <button
+                type="button"
+                onClick={() => {
+                  data.goPage(0)
+                  setSelectedId(null)
+                  rightScrollRef.current?.scrollTo({ top: 0 })
+                }}
+                className="flex items-center gap-1.5 rounded-full bg-red-500/15 px-2.5 py-0.5 text-[11px] font-bold tracking-wide text-red-600 transition-colors hover:bg-red-500/30 dark:text-red-400"
+                title={t('liveOps.newAlerts')}
+              >
+                <AlertTriangle size={12} />
+                {t('liveOps.newAlertsCount', { count: alert_ctx.newCount })}
+              </button>
+            )}
           </div>
           <div className="hidden min-w-0 items-center gap-2 @min-[980px]:flex">
             {[
               [t('liveOps.statHigh'), list.filter((a) => a.severity === 'high').length],
-              [t('liveOps.statOpen'), openCount ?? list.filter((a) => String(a.status).toLowerCase() === 'open').length],
+              [t('liveOps.statOpen'), alert_ctx.count ?? list.filter((a) => String(a.status).toLowerCase() === 'open').length],
               [t('liveOps.statAttackers'), new Set(list.map((a) => a.adversary?.ip).filter(isExternal)).size],
               list.length < total ? [t('liveOps.statTotal'), total] : null,
             ]
@@ -228,6 +252,7 @@ export function LiveOpsPage() {
           onAsk={ask}
           onOpen={openRight}
           onClose={() => setRight(false)}
+          scrollRef={rightScrollRef}
         />
 
         {/* Timeline (floating) */}

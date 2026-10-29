@@ -6217,6 +6217,11 @@
         }
     },
     "liveOps": {
+      "newAlerts": "Новые алерты",
+      "newAlertsCount_one": "{{count}} новый алерт",
+      "newAlertsCount_few": "{{count}} новых алерта",
+            "newAlertsCount_many": "{{count}} алертов",
+            "newAlertsCount_other": "{{count}} новых алертов",
         "header": "Мониторинг онлайн",
         "live": "В ЭФИРЕ",
         "replay": "ВОСПРОИЗВЕДЕНИЕ",

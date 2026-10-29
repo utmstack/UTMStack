@@ -6193,6 +6193,9 @@
         }
     },
     "liveOps": {
+      "newAlerts": "Neue Alerts",
+      "newAlertsCount_one": "{{count}} neuer Alert",
+      "newAlertsCount_other": "{{count}} neue Alerts",
         "header": "Live-Betrieb",
         "live": "LIVE",
         "replay": "WIEDERGABE",

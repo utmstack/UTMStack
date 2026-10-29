@@ -8013,6 +8013,9 @@
         }
     },
     "liveOps": {
+      "newAlerts": "Nuevas alertas",
+      "newAlertsCount_one": "{{count}} nueva alerta",
+      "newAlertsCount_other": "{{count}} nuevas alertas",
         "header": "Operaciones en vivo",
         "live": "EN VIVO",
         "replay": "REPRODUCCIÓN",
