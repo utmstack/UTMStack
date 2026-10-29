@@ -147,19 +147,44 @@ export function modelDataTypes(model: FilterModel): string[] {
   return [...seen]
 }
 
-/** Serialize the structured model back to YAML the Event Processor accepts. */
+/** Serialize the structured model back to YAML the Event Processor accepts.
+ * js-yaml quotes scalars that need it (e.g. a lone space delimiter is emitted
+ * as `fieldSplit: " "`) so values round-trip exactly. */
 export function serializeFilter(model: FilterModel): string {
   const doc = {
     pipeline: model.entries.map((e) => ({
       dataTypes: e.dataTypes,
       order: e.order,
-      steps: e.steps.map((s) => ({ [s.kind]: pruneEmpty(s.config) })),
+      steps: e.steps.map((s) => ({ [s.kind]: stepBody(s) })),
     })),
   }
   return dump(doc, { indent: 2, lineWidth: -1, noRefs: true, quotingType: '"' })
 }
 
-/** Drop empty-string / empty-array / null keys so the emitted YAML stays clean. */
+/** Prune a step's config, applying the kv fieldSplit default.
+ *
+ * For a `kv` step, a missing/blank `fieldSplit` means "split on a space" — the
+ * Event Processor's default — so we emit `fieldSplit: " "` explicitly to keep
+ * the code view self-documenting. Any NON-blank value the user typed (including
+ * a multi-character or multi-space delimiter like `", "` or `"  "`) is preserved
+ * as-is; we never rewrite user data. Every other field (where, valueSplit,
+ * csv.separator, …) goes through `pruneEmpty` unchanged, so a stray
+ * whitespace-only value there is still dropped instead of leaking into the YAML. */
+function stepBody(step: Step): Record<string, unknown> {
+  const config = step.config
+  const out = pruneEmpty(config)
+  if (step.kind === 'kv') {
+    const fs = config.fieldSplit
+    // Only a truly blank value (missing / null / '') gets the space default;
+    // a typed space or multi-space delimiter is kept verbatim.
+    out.fieldSplit = typeof fs === 'string' && fs !== '' ? fs : ' '
+  }
+  return out
+}
+
+/** Drop empty-string / empty-array / null keys so the emitted YAML stays
+ * clean. Whitespace-only strings are dropped too — the single meaningful
+ * exception (kv fieldSplit) is re-added explicitly in `stepBody`. */
 function pruneEmpty(config: Record<string, unknown>): Record<string, unknown> {
   const out: Record<string, unknown> = {}
   for (const [k, v] of Object.entries(config)) {

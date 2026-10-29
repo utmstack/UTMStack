@@ -5090,6 +5090,7 @@
       "moveUp": "Move up",
       "moveDown": "Move down",
       "whereHint": "optional condition (CEL)",
+      "splitHint": "Blank defaults to a single space — the YAML always shows it as fieldSplit: \" \".",
       "addValue": "Add value",
       "addPattern": "Add pattern",
       "rawHint": "This processor is edited as raw YAML.",
