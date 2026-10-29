@@ -1,41 +1,22 @@
-// The Live Operations timeline: every alert of the chosen window as a marker (row by severity),
-// the one on stage marked, LIVE to follow new alerts, step back and forth, and replay the window.
+// The Live Operations timeline: every loaded alert as a marker (row by severity),
+// the one on stage marked, LIVE to follow new alerts, step back and forth, and replay.
+// Mouse: drag to pan, wheel to zoom at cursor.
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronLeft, ChevronRight, History, Square } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { SEV_META } from '@/features/alerts/lib/alert-meta'
 import type { Alert } from '@/features/alerts/types/alert.types'
 import { tsMs } from '../model'
+import { WINDOW_OPTIONS, WINDOW_MS } from '../liveops-data'
+import { useLiveOpsData } from '../liveops-data'
 
 const ROW: Record<string, number> = { high: 0, medium: 1, low: 2 }
-// Severity colours as the Alerts page shows them.
 const dot = (severity: string) => (SEV_META[severity as keyof typeof SEV_META] ?? SEV_META.low).bar
-
-/** Time window options, newest first; labels are plain (1h / 6h / 24h / 7d). */
-export type WindowKey = '1h' | '6h' | '24h' | '7d'
-export const WINDOW_OPTIONS: { key: WindowKey; label: string }[] = [
-  { key: '1h', label: '1h' },
-  { key: '6h', label: '6h' },
-  { key: '24h', label: '24h' },
-  { key: '7d', label: '7d' },
-]
-export const WINDOW_MS: Record<WindowKey, number> = {
-  '1h': 3_600_000,
-  '6h': 6 * 3_600_000,
-  '24h': 24 * 3_600_000,
-  '7d': 7 * 24 * 3_600_000,
-}
 
 export function Timeline({
   t,
-  alerts,
-  alertsCount,
-  win,
-  onWin,
   selectedId,
   live,
-  page,
-  pages,
   onPage,
   onSelect,
   onLive,
@@ -43,65 +24,64 @@ export function Timeline({
   onReplay,
 }: {
   t: (k: string, o?: Record<string, unknown>) => string
-  alerts: Alert[]
-  alertsCount:number,
-  win: WindowKey
-  onWin: (w: WindowKey) => void
   selectedId: string | null
   live: boolean
-  /** 0-based page of the window; the timeline shows only the current page. */
-  page: number
-  pages: number
+  /** 0-based batch jump. */
   onPage: (p: number) => void
   onSelect: (id: string) => void
   onLive: () => void
   replaying: boolean
   onReplay: () => void
 }) {
+  const { alerts, total, win, setWin, page, pages } = useLiveOpsData()
+  const list = alerts ?? []
   const [hover, setHover] = useState<Alert | null>(null)
   const now = Date.now()
-  // One page: the window itself. Several pages: the left edge is the oldest alert loaded,
-  // so the span covers exactly the visible list, not the whole window.
+
+  // Left edge = oldest loaded alert (cumulative list), full window if nothing loaded yet.
   const defFrom = useMemo(() => {
-    if (pages <= 1 || alerts.length === 0) return now - WINDOW_MS[win]
-    return Math.min(...alerts.map((a) => tsMs(a['@timestamp'] ?? '')).filter((x) => Number.isFinite(x)))
+    if (list.length === 0) return now - WINDOW_MS[win]
+    const min = Math.min(...list.map((a) => tsMs(a['@timestamp'] ?? '')).filter((x) => Number.isFinite(x)))
+    return Number.isFinite(min) ? min : now - WINDOW_MS[win]
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [alerts, page, pages, win, Math.floor(now / 60_000)])
-  // Mouse panning and zooming move the view; a data change snaps back to the default.
+  }, [list, win, Math.floor(now / 60_000)])
+
+  // Mouse pan/zoom: local view; snaps back to defFrom on data change.
   const [view, setView] = useState<[number, number] | null>(null)
   useEffect(() => setView(null), [defFrom])
   const vFrom = view?.[0] ?? defFrom
   const vTo = view?.[1] ?? now
   const from = vFrom
   const pos = (iso: string) => ((tsMs(iso) - from) / (vTo - from)) * 100
-  const idx = alerts.findIndex((a) => a.id === selectedId)
+  const idx = list.findIndex((a) => a.id === selectedId)
 
-  // Drag to pan (pointer capture-less: window listeners), wheel to zoom at the cursor.
   const laneRef = useRef<HTMLDivElement>(null)
   const viewRef = useRef<{ from: number; to: number; x: number; w: number } | null>(null)
   const draggedRef = useRef(false)
+
   useEffect(() => {
     const el = laneRef.current
     if (!el) return
     const onWheel = (e: WheelEvent) => {
       e.preventDefault()
-      const [f, t] = view ?? [defFrom, now]
-      const span = t - f
+      const [f, t2] = view ?? [defFrom, now]
+      const span = t2 - f
       const frac = (e.offsetX / el.clientWidth) || 0
       const anchor = f + frac * span
       const factor = Math.exp(e.deltaY * 0.0015)
-      let ns = Math.min(Math.max(span * factor, 60_000), now - defFrom)
+      const ns = Math.min(Math.max(span * factor, 60_000), now - defFrom)
       setView([anchor - frac * ns, anchor - frac * ns + ns])
     }
     el.addEventListener('wheel', onWheel, { passive: false })
     return () => el.removeEventListener('wheel', onWheel)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [view, defFrom])
+
   function startPan(e: React.MouseEvent) {
     if (e.button !== 0) return
     e.preventDefault()
-    const [f, t] = view ?? [defFrom, now]
-    viewRef.current = { from: f, to: t, x: e.clientX, w: laneRef.current?.clientWidth || 1 }
+    const [f, t2] = view ?? [defFrom, now]
+    viewRef.current = { from: f, to: t2, x: e.clientX, w: laneRef.current?.clientWidth || 1 }
     const move = (ev: MouseEvent) => {
       const v = viewRef.current
       if (!v) return
@@ -118,6 +98,7 @@ export function Timeline({
     window.addEventListener('mousemove', move)
     window.addEventListener('mouseup', up)
   }
+
   const ticks = useMemo(() => {
     const span = vTo - vFrom
     const step = span <= 3_600_000 ? 10 * 60_000 : span <= 6 * 3_600_000 ? 3_600_000 : span <= 24 * 3_600_000 ? 3 * 3_600_000 : 12 * 3_600_000
@@ -134,15 +115,15 @@ export function Timeline({
       <div className="flex items-center gap-2">
         <div className="flex rounded-md border border-border p-0.5">
           {WINDOW_OPTIONS.map((o) => (
-            <button key={o.key} type="button" onClick={() => onWin(o.key)} className={cn('rounded px-2 py-0.5 text-[11.5px] font-medium', o.key === win ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground')}>
+            <button key={o.key} type="button" onClick={() => setWin(o.key)} className={cn('rounded px-2 py-0.5 text-[11.5px] font-medium', o.key === win ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground')}>
               {o.label}
             </button>
           ))}
         </div>
         <span className="text-[11.5px] text-muted-foreground">
-          {t('liveOps.timCount', { count: alertsCount, range: WINDOW_OPTIONS.find((o) => o.key === win)?.label ?? '' })}
+          {t('liveOps.timCount', { count: total, range: WINDOW_OPTIONS.find((o) => o.key === win)?.label ?? '' })}
           {pages > 1 && <span className="ml-1.5 text-muted-foreground/70">· {t('liveOps.timPage', { p: page + 1, n: pages })}</span>}
-          <span className="ml-2 ">
+          <span className="ml-2">
             <button type="button" disabled={page <= 0} onClick={() => onPage(page - 1)} className="rounded-md border border-border p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30" title={t('liveOps.timPagePrev')}>
               <ChevronLeft size={16} />
             </button>
@@ -152,16 +133,16 @@ export function Timeline({
           </span>
         </span>
         <div className="ml-auto flex items-center gap-1">
-          <button type="button" disabled={idx <= 0} onClick={() => idx > 0 && onSelect(alerts[idx - 1].id)} className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30" title={t('liveOps.timPrev')}>
+          <button type="button" disabled={idx <= 0} onClick={() => idx > 0 && onSelect(list[idx - 1].id)} className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30" title={t('liveOps.timPrev')}>
             <ChevronLeft size={16} />
           </button>
-          <button type="button" disabled={idx < 0 || idx >= alerts.length - 1} onClick={() => idx >= 0 && idx < alerts.length - 1 && onSelect(alerts[idx + 1].id)} className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30" title={t('liveOps.timNext')}>
+          <button type="button" disabled={idx < 0 || idx >= list.length - 1} onClick={() => idx >= 0 && idx < list.length - 1 && onSelect(list[idx + 1].id)} className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30" title={t('liveOps.timNext')}>
             <ChevronRight size={16} />
           </button>
           <button type="button" onClick={onReplay} className={cn('flex items-center gap-1 rounded-md px-2 py-1 text-[11.5px] font-medium', replaying ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:bg-muted hover:text-foreground')} title={t('liveOps.replayTip')}>
             {replaying ? <Square size={12} /> : <History size={13} />} {replaying ? t('liveOps.timStop') : t('liveOps.timReplay')}
           </button>
-          <button type="button" onClick={onLive} className={cn('flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[11.5px] font-bold tracking-wide', live ? 'bg-red-500/15 text-red-600 dark:text-red-400' : 'border border-border text-muted-foreground hover:text-foreground')} title={t('liveOps.liveTip')}>
+          <button type="button" onClick={onLive} className={cn('flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[11px] font-bold tracking-wide', live ? 'bg-red-500/15 text-red-600 dark:text-red-400' : 'border border-border text-muted-foreground hover:text-foreground')} title={t('liveOps.liveTip')}>
             <span className={cn('h-2 w-2 rounded-full', live ? 'lo-live-dot bg-red-500' : 'bg-muted-foreground')} /> {t('liveOps.timLive')}
           </button>
         </div>
@@ -176,10 +157,10 @@ export function Timeline({
             {t.left < 95 && <span className="absolute top-[46px] -translate-x-1/2 whitespace-nowrap text-[10px] text-muted-foreground">{t.label}</span>}
           </div>
         ))}
-        {selectedId && idx >= 0 && <div className="absolute top-0 h-[52px] w-px bg-primary" style={{ left: `${pos(alerts[idx]['@timestamp'] ?? '')}%` }} />}
-        {alerts.map((a) => {
+        {selectedId && idx >= 0 && <div className="absolute top-0 h-[52px] w-px bg-primary" style={{ left: `${pos(list[idx]['@timestamp'] ?? '')}%` }} />}
+        {list.map((a) => {
           const selected = a.id === selectedId
-          const fresh = !!a['@timestamp'] && now - tsMs(a['@timestamp']) < 5*60_000
+          const fresh = !!a['@timestamp'] && now - tsMs(a['@timestamp']) < 5 * 60_000
           const off = a['@timestamp'] ? tsMs(a['@timestamp']) < vFrom || tsMs(a['@timestamp']) > vTo : true
           return (
             <button
