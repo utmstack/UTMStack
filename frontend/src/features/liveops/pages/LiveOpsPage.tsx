@@ -70,8 +70,6 @@ export function LiveOpsPage() {
   const PAGE = 3000
   const pages = Math.max(1, Math.ceil(total / PAGE))
 
-  // The single source: parent alerts inside the timeline window, one page of
-  // PAGE at a time, re-read every 30 s and whenever the window or page changes.
   const refresh = useCallback(
     (w: WindowKey, p: number) =>
       alertsHttpService
@@ -286,6 +284,7 @@ export function LiveOpsPage() {
         <Timeline
           t={t}
           alerts={windowAlerts}
+          alertsCount={total}
           win={win}
           onWin={(w) => {
             setWin(w)

@@ -1,6 +1,6 @@
 // The Live Operations timeline: every alert of the chosen window as a marker (row by severity),
 // the one on stage marked, LIVE to follow new alerts, step back and forth, and replay the window.
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronLeft, ChevronRight, History, Square } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { SEV_META } from '@/features/alerts/lib/alert-meta'
@@ -29,6 +29,7 @@ export const WINDOW_MS: Record<WindowKey, number> = {
 export function Timeline({
   t,
   alerts,
+  alertsCount,
   win,
   onWin,
   selectedId,
@@ -43,6 +44,7 @@ export function Timeline({
 }: {
   t: (k: string, o?: Record<string, unknown>) => string
   alerts: Alert[]
+  alertsCount:number,
   win: WindowKey
   onWin: (w: WindowKey) => void
   selectedId: string | null
@@ -60,23 +62,72 @@ export function Timeline({
   const now = Date.now()
   // One page: the window itself. Several pages: the left edge is the oldest alert loaded,
   // so the span covers exactly the visible list, not the whole window.
-  const from = useMemo(() => {
+  const defFrom = useMemo(() => {
     if (pages <= 1 || alerts.length === 0) return now - WINDOW_MS[win]
     return Math.min(...alerts.map((a) => tsMs(a['@timestamp'] ?? '')).filter((x) => Number.isFinite(x)))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [alerts, page, pages, win, Math.floor(now / 60_000)])
-  const pos = (iso: string) => ((tsMs(iso) - from) / (now - from)) * 100
+  // Mouse panning and zooming move the view; a data change snaps back to the default.
+  const [view, setView] = useState<[number, number] | null>(null)
+  useEffect(() => setView(null), [defFrom])
+  const vFrom = view?.[0] ?? defFrom
+  const vTo = view?.[1] ?? now
+  const from = vFrom
+  const pos = (iso: string) => ((tsMs(iso) - from) / (vTo - from)) * 100
   const idx = alerts.findIndex((a) => a.id === selectedId)
+
+  // Drag to pan (pointer capture-less: window listeners), wheel to zoom at the cursor.
+  const laneRef = useRef<HTMLDivElement>(null)
+  const viewRef = useRef<{ from: number; to: number; x: number; w: number } | null>(null)
+  const draggedRef = useRef(false)
+  useEffect(() => {
+    const el = laneRef.current
+    if (!el) return
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault()
+      const [f, t] = view ?? [defFrom, now]
+      const span = t - f
+      const frac = (e.offsetX / el.clientWidth) || 0
+      const anchor = f + frac * span
+      const factor = Math.exp(e.deltaY * 0.0015)
+      let ns = Math.min(Math.max(span * factor, 60_000), now - defFrom)
+      setView([anchor - frac * ns, anchor - frac * ns + ns])
+    }
+    el.addEventListener('wheel', onWheel, { passive: false })
+    return () => el.removeEventListener('wheel', onWheel)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view, defFrom])
+  function startPan(e: React.MouseEvent) {
+    if (e.button !== 0) return
+    e.preventDefault()
+    const [f, t] = view ?? [defFrom, now]
+    viewRef.current = { from: f, to: t, x: e.clientX, w: laneRef.current?.clientWidth || 1 }
+    const move = (ev: MouseEvent) => {
+      const v = viewRef.current
+      if (!v) return
+      const dt = ((v.x - ev.clientX) / v.w) * (v.to - v.from)
+      if (Math.abs(ev.clientX - v.x) > 3) draggedRef.current = true
+      setView([v.from + dt, v.to + dt])
+    }
+    const up = () => {
+      viewRef.current = null
+      window.removeEventListener('mousemove', move)
+      window.removeEventListener('mouseup', up)
+      window.setTimeout(() => (draggedRef.current = false), 0)
+    }
+    window.addEventListener('mousemove', move)
+    window.addEventListener('mouseup', up)
+  }
   const ticks = useMemo(() => {
-    const span = now - from
+    const span = vTo - vFrom
     const step = span <= 3_600_000 ? 10 * 60_000 : span <= 6 * 3_600_000 ? 3_600_000 : span <= 24 * 3_600_000 ? 3 * 3_600_000 : 12 * 3_600_000
     const out: { left: number; label: string }[] = []
-    for (let tt = Math.ceil(from / step) * step; tt < now; tt += step) {
-      out.push({ left: ((tt - from) / (now - from)) * 100, label: new Date(tt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) })
+    for (let tt = Math.ceil(vFrom / step) * step; tt < vTo; tt += step) {
+      out.push({ left: ((tt - vFrom) / span) * 100, label: new Date(tt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) })
     }
     return out
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [from, Math.floor(now / 60_000)])
+  }, [vFrom, vTo, Math.floor(now / 60_000)])
 
   return (
     <div className="lo-panel rounded-xl px-3 pb-2 pt-2">
@@ -89,16 +140,18 @@ export function Timeline({
           ))}
         </div>
         <span className="text-[11.5px] text-muted-foreground">
-          {t('liveOps.timCount', { count: alerts.length, range: WINDOW_OPTIONS.find((o) => o.key === win)?.label ?? '' })}
+          {t('liveOps.timCount', { count: alertsCount, range: WINDOW_OPTIONS.find((o) => o.key === win)?.label ?? '' })}
           {pages > 1 && <span className="ml-1.5 text-muted-foreground/70">· {t('liveOps.timPage', { p: page + 1, n: pages })}</span>}
+          <span className="ml-2 ">
+            <button type="button" disabled={page <= 0} onClick={() => onPage(page - 1)} className="rounded-md border border-border p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30" title={t('liveOps.timPagePrev')}>
+              <ChevronLeft size={16} />
+            </button>
+            <button type="button" disabled={page >= pages - 1} onClick={() => onPage(page + 1)} className="rounded-md border border-border p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30" title={t('liveOps.timPageNext')}>
+              <ChevronRight size={16} />
+            </button>
+          </span>
         </span>
         <div className="ml-auto flex items-center gap-1">
-          <button type="button" disabled={page <= 0} onClick={() => onPage(page - 1)} className="rounded-md border border-border p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30" title={t('liveOps.timPagePrev')}>
-            <ChevronLeft size={16} />
-          </button>
-          <button type="button" disabled={page >= pages - 1} onClick={() => onPage(page + 1)} className="rounded-md border border-border p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30" title={t('liveOps.timPageNext')}>
-            <ChevronRight size={16} />
-          </button>
           <button type="button" disabled={idx <= 0} onClick={() => idx > 0 && onSelect(alerts[idx - 1].id)} className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30" title={t('liveOps.timPrev')}>
             <ChevronLeft size={16} />
           </button>
@@ -114,7 +167,7 @@ export function Timeline({
         </div>
       </div>
 
-      <div className="relative mt-2 h-[58px] select-none" onMouseLeave={() => setHover(null)}>
+      <div ref={laneRef} className="relative mt-2 h-[58px] cursor-grab select-none active:cursor-grabbing" onMouseDown={startPan} onMouseLeave={() => setHover(null)}>
         {[0, 1, 2].map((r) => (
           <div key={r} className="absolute left-0 right-0 border-t border-dashed border-border/70" style={{ top: 10 + r * 16 }} />
         ))}
@@ -127,14 +180,15 @@ export function Timeline({
         {alerts.map((a) => {
           const selected = a.id === selectedId
           const fresh = !!a['@timestamp'] && now - tsMs(a['@timestamp']) < 5*60_000
+          const off = a['@timestamp'] ? tsMs(a['@timestamp']) < vFrom || tsMs(a['@timestamp']) > vTo : true
           return (
             <button
               key={a.id}
               type="button"
-              onClick={() => onSelect(a.id)}
+              onClick={() => !draggedRef.current && onSelect(a.id)}
               onMouseEnter={() => setHover(a)}
               className={cn('absolute -translate-x-1/2 -translate-y-1/2 rounded-full transition-transform hover:scale-150', dot(String(a.severity)), selected ? 'h-3.5 w-3.5 ring-2 ring-primary ring-offset-1 ring-offset-card' : 'h-2.5 w-2.5 opacity-85', fresh && 'lo-new-dot')}
-              style={{ left: `${pos(a['@timestamp'] ?? '')}%`, top: 10 + (ROW[String(a.severity)] ?? 2) * 16 }}
+              style={{ left: `${pos(a['@timestamp'] ?? '')}%`, top: 10 + (ROW[String(a.severity)] ?? 2) * 16, visibility: off ? 'hidden' : 'visible' }}
               aria-label={a['@timestamp'] ? t('liveOps.alertAt', { name: a.name, time: new Date(tsMs(a['@timestamp'])).toLocaleTimeString() }) : a.name}
             />
           )
