@@ -158,6 +158,30 @@ func (u *authUsecase) Login(ctx context.Context, input dto.LoginRequest, lc conn
 	return &dto.LoginResponse{TokenPair: *pair, User: dto.ToUserResponse(*user, false)}, nil
 }
 
+// EmptyLogin verifies the same credentials as Login and issues a token with no
+// claims: the password_token second factor. It ignores directory accounts and
+// TFA — the whole point is proving the password.
+func (u *authUsecase) EmptyLogin(ctx context.Context, input dto.LoginRequest, _ connectors.LoginContext) (*dto.EmptyLoginResponse, error) {
+	user, err := u.userRepo.FindByEmail(ctx, input.Login)
+	if err != nil {
+		return nil, err
+	}
+	if user == nil || user.IdentityProviderID != nil || user.PasswordHash == nil || *user.PasswordHash == "" {
+		return nil, domain.ErrInvalidCredentials
+	}
+	if err := bcrypt.CompareHashAndPassword([]byte(*user.PasswordHash), []byte(input.Password)); err != nil {
+		return nil, domain.ErrInvalidCredentials
+	}
+	if err := statusError(user.Status); err != nil {
+		return nil, err
+	}
+	token, err := u.signer.SignEmpty(5 * time.Minute)
+	if err != nil {
+		return nil, err
+	}
+	return &dto.EmptyLoginResponse{Token: token}, nil
+}
+
 // tryDirectory asks the tenant's LDAP providers whether these credentials are
 // theirs. It answers nil when none recognised them, which leaves the ordinary
 // failure path to say so.

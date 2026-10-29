@@ -4215,7 +4215,17 @@
       "cmdError": "Command error",
       "shellSelect": "Shell type",
       "noRemoteControl": "This agent was installed with remote control disabled. It refuses commands, and that can only be changed on the machine itself.",
-      "noRemoteControlShort": "Remote control disabled on this agent"
+      "noRemoteControlShort": "Remote control disabled on this agent",
+      "password": {
+        "title": "Authentication",
+        "hint": "Authenticate to run commands on this agent.",
+        "tfaPrompt": "Code: ",
+        "confirm": "OK",
+        "cancel": "Cancel",
+        "authError": "Authentication failed",
+        "authHint": "Authenticate to run commands on this agent.",
+        "authOk": "Authenticated."
+      }
     },
     "sensitivity": {
       "section": "Asset sensitivity",

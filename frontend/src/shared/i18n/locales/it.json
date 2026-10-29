@@ -3977,7 +3977,17 @@
       "cmdError": "Errore del comando",
       "shellSelect": "Tipo di shell",
       "noRemoteControl": "Questo agente è stato installato con il controllo remoto disattivato. Rifiuta i comandi, e questo si può cambiare solo sulla macchina stessa.",
-      "noRemoteControlShort": "Controllo remoto disattivato su questo agente"
+      "noRemoteControlShort": "Controllo remoto disattivato su questo agente",
+      "password": {
+        "title": "Autenticazione",
+        "hint": "Autenticarsi per eseguire comandi su questo agente.",
+        "tfaPrompt": "Codice: ",
+        "confirm": "OK",
+        "cancel": "Annulla",
+        "authError": "Autenticazione non riuscita",
+        "authHint": "Autenticarsi per eseguire comandi su questo agente.",
+        "authOk": "Autenticato."
+      }
     },
     "health": {
       "online": "online",

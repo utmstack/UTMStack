@@ -3977,7 +3977,17 @@
       "cmdError": "Erreur de commande",
       "shellSelect": "Type de shell",
       "noRemoteControl": "Cet agent a été installé avec le contrôle à distance désactivé. Il refuse les commandes, et cela ne peut être modifié que sur la machine elle-même.",
-      "noRemoteControlShort": "Contrôle à distance désactivé sur cet agent"
+      "noRemoteControlShort": "Contrôle à distance désactivé sur cet agent",
+      "password": {
+        "title": "Authentification",
+        "hint": "S'authentifier pour exécuter des commandes sur cet agent.",
+        "tfaPrompt": "Code: ",
+        "confirm": "OK",
+        "cancel": "Annuler",
+        "authError": "Échec de l'authentification",
+        "authHint": "S'authentifier pour exécuter des commandes sur cet agent.",
+        "authOk": "Authentifié."
+      }
     },
     "health": {
       "online": "en ligne",

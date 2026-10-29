@@ -5,6 +5,8 @@ import { cn } from '@/shared/lib/utils'
 import { runAgentCommand } from '../services/agent-console'
 import { VariablesManager } from './VariablesManager'
 import { ShellCommandInput } from './ShellCommandInput'
+import { useAuth } from '@/features/auth'
+import { authHttpService } from '@/features/auth/services/auth-http.service'
 
 const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n))
 
@@ -23,7 +25,11 @@ interface Line {
 /**
  * Interactive console (live response) for an agent datasource. Each command opens
  * a fresh WebSocket to the backend agent command stream and renders the streamed
- * output, terminal-style.
+ * output, terminal-style. The command line also enforces a second factor:
+ * before each command the prompt asks for the password and proves it via
+ * `POST /auth/empty_login` — a token with no claims, unaffected by 2FA. That
+ * token rides the WebSocket as `password_token` while the real session JWT
+ * stays the `token`. Typed characters render as '*', never in clear.
  */
 export function AgentConsole({
   agentId,
@@ -48,6 +54,7 @@ export function AgentConsole({
   variant?: 'docked' | 'inline'
 }) {
   const { t } = useTranslation()
+  const { user } = useAuth()
   const embedded = variant === 'inline'
   // Windows → analyst picks cmd/powershell (default cmd); Linux/other → bash fixed.
   const windows = isWindowsOs(osPlatform)
@@ -59,6 +66,13 @@ export function AgentConsole({
   const [history, setHistory] = useState<string[]>([])
   const [histIdx, setHistIdx] = useState(-1)
   const [varsOpen, setVarsOpen] = useState(false)
+  // 'off': no prompt active. 'password': the prompt is asking for the
+  // credential inline. Every command prompts, so the console opens on it.
+  const [authMode, setAuthMode] = useState<'off' | 'password'>('password')
+  const [authBusy, setAuthBusy] = useState(false)
+  // The command that triggered the password prompt — sent once the fresh
+  // login returns, then dropped.
+  const pendingCommandRef = useRef<string | null>(null)
   const [height, setHeight] = useState(() => clamp(Math.round(window.innerHeight * 0.42), 200, window.innerHeight - 80))
   const cancelRef = useRef<(() => void) | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -80,10 +94,12 @@ export function AgentConsole({
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight
   }, [lines, running])
 
+  // Focus the inline prompt — on open and after an authentication round trip
+  // (the input remounts between the two modes).
   useEffect(() => {
     inputRef.current?.focus()
     return () => cancelRef.current?.()
-  }, [])
+  }, [authMode])
 
   // Re-focus the inline prompt when a command finishes (the input remounts).
   useEffect(() => {
@@ -91,6 +107,52 @@ export function AgentConsole({
   }, [running])
 
   const append = (kind: Line['kind'], text: string) => setLines((l) => [...l, { kind, text }])
+
+  // Fire the pending command with the just-obtained password token.
+  const fireCommand = (command: string, passwordToken: string) => {
+    append('cmd', `${shell}> ${command}`)
+    setHistory((h) => [...h, command])
+    setHistIdx(-1)
+    setRunning(true)
+    cancelRef.current = runAgentCommand(
+      agentId,
+      { command, shell },
+      {
+        onOutput: (d) => {
+          append('out', d)
+          setRunning(false)
+        },
+        onError: (m) => append('err', m),
+        onDone: () => {
+          setRunning(false)
+          cancelRef.current = null
+          inputRef.current?.focus()
+        },
+      },
+      passwordToken,
+    )
+  }
+
+  // Prove the password via empty_login (no claims, no 2FA) and use the token
+  // ONCE — for the pending command. During this mode 'input' holds the secret.
+  const submitAuth = async () => {
+    const secret = input
+    if (!secret.trim() || authBusy) return
+    setAuthBusy(true)
+    try {
+      const res = await authHttpService.emptyLogin({ login: user?.email ?? '', password: secret })
+      setAuthMode('off')
+      setInput('')
+      const pending = pendingCommandRef.current
+      pendingCommandRef.current = null
+      if (pending) fireCommand(pending, res.token)
+    } catch (err) {
+      append('err', err instanceof Error ? err.message : t('datasources.console.password.authError'))
+      setInput('')
+    } finally {
+      setAuthBusy(false)
+    }
+  }
 
   // Insert a `$[variables.NAME]` reference at the caret in the command input.
   const insertToken = (variableName: string) => {
@@ -112,54 +174,47 @@ export function AgentConsole({
   }
 
   const run = () => {
+    // While the prompt asks for the credential, Enter submits it, not a command.
+    if (authMode !== 'off') {
+      void submitAuth()
+      return
+    }
     const command = input.trim()
     if (!command || running || offline || noRemoteControl) return
-    append('cmd', `${shell}> ${command}`)
-    setHistory((h) => [...h, command])
-    setHistIdx(-1)
+    // The password is requested for every command — hold the command pending
+    // and prompt. Nothing is sent until a fresh login returns a token.
+    pendingCommandRef.current = command
     setInput('')
-    setRunning(true)
-    cancelRef.current = runAgentCommand(
-      agentId,
-      { command, shell },
-      {
-        onOutput: (d) =>{
-          append('out', d);
-          setRunning(false);
-        },
-        onError: (m) => append('err', m),
-        onDone: () => {
-          setRunning(false)
-          cancelRef.current = null
-          inputRef.current?.focus()
-        },
-      },
-    )
+    setAuthMode('password')
   }
 
   const onKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault()
       run()
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault()
-      if (!history.length) return
-      const idx = histIdx < 0 ? history.length - 1 : Math.max(0, histIdx - 1)
-      setHistIdx(idx)
-      setInput(history[idx])
-    } else if (e.key === 'ArrowDown') {
-      e.preventDefault()
-      if (histIdx < 0) return
-      const idx = histIdx + 1
-      if (idx >= history.length) {
-        setHistIdx(-1)
-        setInput('')
-      } else {
+    } else if (authMode === 'off') {
+      if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        if (!history.length) return
+        const idx = histIdx < 0 ? history.length - 1 : Math.max(0, histIdx - 1)
         setHistIdx(idx)
         setInput(history[idx])
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault()
+        if (histIdx < 0) return
+        const idx = histIdx + 1
+        if (idx >= history.length) {
+          setHistIdx(-1)
+          setInput('')
+        } else {
+          setHistIdx(idx)
+          setInput(history[idx])
+        }
       }
     }
   }
+
+  const authing = authMode !== 'off'
 
   return (
     <>
@@ -231,7 +286,10 @@ export function AgentConsole({
           onClick={() => inputRef.current?.focus()}
           className="flex-1 cursor-text overflow-y-auto px-4 py-3 font-mono text-[12px] leading-relaxed text-foreground/80"
         >
-          {lines.length === 0 && <p className="mb-1 text-muted-foreground">{t('datasources.console.hint')}</p>}
+          {lines.length === 0 && !authing && <p className="mb-1 text-muted-foreground">{t('datasources.console.hint')}</p>}
+          {authing && lines.length === 0 && (
+            <p className="mb-1 text-muted-foreground">{t('datasources.console.password.authHint')}</p>
+          )}
           {lines.map((l, i) => (
             <pre
               key={i}
@@ -250,25 +308,48 @@ export function AgentConsole({
             </div>
           ) : (
             // The active prompt + input live inline at the bottom of the output,
-            // like a real terminal — not in a separate bar. Offline → disabled.
-            <div className={cn('mt-1 flex items-center gap-2', (offline || noRemoteControl) && 'opacity-50')}>
-              <span className="shrink-0 text-emerald-400">{shell}&gt;</span>
-              <ShellCommandInput
-                ref={inputRef}
-                value={input}
-                shell={shell}
-                onChange={setInput}
-                onKeyDown={onKey}
-                disabled={offline || noRemoteControl}
-                placeholder={
-                  noRemoteControl
-                    ? t('datasources.console.noRemoteControlShort')
-                    : offline
-                      ? t('datasources.console.disabled')
-                      : t('datasources.console.placeholder')
-                }
-              />
-            </div>
+            // like a real terminal — not in a separate bar.
+            authing ? (
+              <div className="mt-1 flex items-center gap-2">
+                <span className="shrink-0 text-amber-400">pwd&gt;</span>
+                <div className="relative min-w-0 flex-1">
+                  <div aria-hidden className="whitespace-pre overflow-hidden font-mono text-[12px] leading-relaxed text-zinc-100">
+                    {input.length ? '•'.repeat(input.length) : ' '}
+                  </div>
+                  <input
+                    ref={inputRef}
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={onKey}
+                    spellCheck={false}
+                    autoComplete="off"
+                    aria-label={t('datasources.console.password.title')}
+                    className="absolute inset-0 w-full bg-transparent font-mono text-[12px] leading-relaxed text-transparent caret-zinc-100 outline-none"
+                  />
+                </div>
+                {authBusy && <Loader2 size={12} className="shrink-0 animate-spin text-zinc-500" />}
+                <span className="shrink-0 text-[11px] text-muted-foreground">{t('datasources.console.password.title')}</span>
+              </div>
+            ) : (
+              <div className={cn('mt-1 flex items-center gap-2', (offline || noRemoteControl) && 'opacity-50')}>
+                <span className="shrink-0 text-emerald-400">{shell}&gt;</span>
+                <ShellCommandInput
+                  ref={inputRef}
+                  value={input}
+                  shell={shell}
+                  onChange={setInput}
+                  onKeyDown={onKey}
+                  disabled={offline || noRemoteControl}
+                  placeholder={
+                    noRemoteControl
+                      ? t('datasources.console.noRemoteControlShort')
+                      : offline
+                        ? t('datasources.console.disabled')
+                        : t('datasources.console.placeholder')
+                  }
+                />
+              </div>
+            )
           )}
         </div>
     </div>

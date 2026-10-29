@@ -102,6 +102,39 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// @Summary     Empty login
+// @Description Verifies credentials and issues a claimless password token.
+// @Tags        Auth
+// @Accept      json
+// @Produce     json
+// @Param       input body dto.LoginRequest true "Credentials"
+// @Success     200 {object} dto.EmptyLoginResponse
+// @Failure     401 {object} map[string]string
+// @Router      /auth/empty_login [post]
+func (h *AuthHandler) EmptyLogin(c *gin.Context) {
+	var input dto.LoginRequest
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "login and password are required"})
+		return
+	}
+	resp, err := h.authUsecase.EmptyLogin(c.Request.Context(), input, loginContext(c))
+	audit.Record(c, audit_connectors.Event{Action: "auth.empty_login", UserEmail: input.Login},
+		audit_domain.AUTH_ATTEMPT, audit_domain.AUTH_SUCCESS, err)
+	if err != nil {
+		switch {
+		case errors.Is(err, domain.ErrInvalidCredentials):
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
+		case errors.Is(err, domain.ErrUserInactive):
+			c.JSON(http.StatusForbidden, gin.H{"error": "user is deactivated"})
+		default:
+			_ = catcher.Error("empty login failed", err, nil)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "login failed"})
+		}
+		return
+	}
+	c.JSON(http.StatusOK, resp)
+}
+
 // @Summary     Refresh access token
 // @Tags        Auth
 // @Accept      json
