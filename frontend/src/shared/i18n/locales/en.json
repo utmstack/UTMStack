@@ -2165,6 +2165,10 @@
         "macCompat": "Requires macOS 11 (Big Sur) or later on Apple Silicon (M1/M2/M3 or newer). Intel-based Macs are not supported."
       },
       "collector": {
+        "guideUnavailableTitle": "Setup guide unavailable",
+        "guideUnavailableBody": "A setup guide for {{name}} has not been configured yet. Contact your administrator before enabling this integration.",
+        "genericSourceTitle": "Configure {{name}}",
+        "genericSourceBody": "Configure the source to send events to the selected UTMStack Collector using these connection details.",
         "howItWorksTitle": "How it works",
         "howItWorksBody": "{{name}} doesn't run a UTMStack agent. Instead, you install the UTMStack collector somewhere on the network that both your {{name}} device and UTMStack can reach. {{name}} sends syslog to the collector, the collector parses, normalizes, and forwards events into UTMStack.",
         "step1Title": "1 · Install the UTMStack collector",

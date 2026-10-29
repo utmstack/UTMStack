@@ -1922,6 +1922,10 @@
         "macCompat": "Requiere macOS 11 (Big Sur) o posterior en Apple Silicon (M1/M2/M3 o más reciente). Los Mac basados en Intel no son compatibles."
       },
       "collector": {
+        "guideUnavailableTitle": "Guía de configuración no disponible",
+        "guideUnavailableBody": "Todavía no se configuró una guía para {{name}}. Contacta al administrador antes de habilitar esta integración.",
+        "genericSourceTitle": "Configurar {{name}}",
+        "genericSourceBody": "Configura la fuente para enviar eventos al Collector de UTMStack seleccionado usando estos datos de conexión.",
         "howItWorksTitle": "Cómo funciona",
         "howItWorksBody": "{{name}} no ejecuta un agente de UTMStack. En su lugar, instalas el colector de UTMStack en algún lugar de la red que tanto tu dispositivo {{name}} como UTMStack puedan alcanzar. {{name}} envía syslog al colector, el colector analiza, normaliza y reenvía eventos a UTMStack.",
         "step1Title": "1 · Instalar el colector de UTMStack",
