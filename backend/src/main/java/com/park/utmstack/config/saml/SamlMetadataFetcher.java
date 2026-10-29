@@ -1,15 +1,21 @@
 package com.park.utmstack.config.saml;
 
 import com.park.utmstack.domain.idp_provider.IdentityProviderConfig;
+import com.park.utmstack.util.exceptions.SamlMetadataUrlInvalidException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrations;
 
+import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.UnknownHostException;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.util.concurrent.*;
+import java.util.function.Function;
 
 @Slf4j
 public class SamlMetadataFetcher {
@@ -30,6 +36,13 @@ public class SamlMetadataFetcher {
         CompletableFuture<RelyingPartyRegistration> future =
                 CompletableFuture.supplyAsync(() -> {
                     try {
+                        // Validate the persisted URL before Spring's SAML client resolves or
+                        // follows it, so a legacy/direct-DB row pointing at loopback or
+                        // link-local cannot make the backend issue an outbound request.
+                        // Note: re-resolving after the DNS check could not fully defeat a
+                        // TOCTOU rebinding attack, and Spring's SAML client does not expose
+                        // redirect control; this closes the unauthenticated fetch path.
+                        assertFetchableMetadataUrl(entity.getMetadataUrl());
                         return RelyingPartyRegistrations
                                 .fromMetadataLocation(entity.getMetadataUrl())
                                 .registrationId(entity.getName())
@@ -50,6 +63,78 @@ public class SamlMetadataFetcher {
             log.error("Metadata fetch failed for provider '{}': {}", entity.getName(), e.getMessage());
             return null;
         }
+    }
+
+    /**
+     * Validates that a persisted IdP metadata URL is fetchable: it must use the
+     * http or https scheme, carry a host, and resolve to a public address
+     * (rejects loopback, site-local, link-local, any-local and multicast).
+     * Resolution uses real DNS via {@link InetAddress#getByName}.
+     *
+     * @throws SamlMetadataUrlInvalidException if the URL is malformed, uses a
+     *                                        disallowed scheme, has no host, or
+     *                                        resolves to a non-public address
+     */
+    public static void assertFetchableMetadataUrl(String url) {
+        assertFetchableMetadataUrl(url, host -> {
+            try {
+                return InetAddress.getByName(host);
+            } catch (UnknownHostException e) {
+                throw new SamlMetadataUrlInvalidException("Unknown host: " + host);
+            }
+        });
+    }
+
+    /**
+     * Testable overload of {@link #assertFetchableMetadataUrl(String)} that accepts
+     * an injected resolver so unit tests can assert host rejection without performing
+     * real DNS lookups.
+     */
+    public static void assertFetchableMetadataUrl(String url, Function<String, InetAddress> resolver) {
+        if (url == null || url.trim().isEmpty()) {
+            throw new SamlMetadataUrlInvalidException("Metadata URL is required");
+        }
+
+        URL parsed;
+        try {
+            parsed = new URL(url);
+        } catch (MalformedURLException e) {
+            throw new SamlMetadataUrlInvalidException(
+                    "Invalid metadata URL format: " + e.getMessage());
+        }
+
+        String scheme = parsed.getProtocol() == null ? "" : parsed.getProtocol().toLowerCase();
+        if (!scheme.equals("http") && !scheme.equals("https")) {
+            throw new SamlMetadataUrlInvalidException(
+                    "Metadata URL must use the http or https scheme");
+        }
+
+        String host = parsed.getHost();
+        if (host == null || host.trim().isEmpty()) {
+            throw new SamlMetadataUrlInvalidException(
+                    "Metadata URL must include a host");
+        }
+
+        InetAddress address = resolver.apply(host);
+        if (!isFetchableHost(address)) {
+            throw new SamlMetadataUrlInvalidException(
+                    "Metadata URL host must be publicly resolvable");
+        }
+    }
+
+    /**
+     * Address-class check shared by the fetch-time validator and the API path:
+     * returns {@code true} when the address is a legitimate public target —
+     * i.e. NOT loopback, NOT site-local (RFC1918), NOT link-local
+     * (169.254/16, e.g. the cloud metadata endpoint), NOT any-local, and NOT
+     * multicast. Unit-testable without DNS.
+     */
+    public static boolean isFetchableHost(InetAddress address) {
+        return !address.isLoopbackAddress()
+                && !address.isSiteLocalAddress()
+                && !address.isLinkLocalAddress()
+                && !address.isAnyLocalAddress()
+                && !address.isMulticastAddress();
     }
 }
 
