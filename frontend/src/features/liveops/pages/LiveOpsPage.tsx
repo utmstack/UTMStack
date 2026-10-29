@@ -56,12 +56,6 @@ export function LiveOpsPage() {
   const [wallRef, wall] = useSize<HTMLDivElement>()
   const [timelineRef, timelineSize] = useSize<HTMLDivElement>()
 
-  // The open-alert total comes from the count endpoint, not the windowed list.
-  useEffect(() => {
-    alertsHttpService.countOpen().then(setOpenCount).catch(() => setOpenCount(null))
-    const id = setInterval(() => alertsHttpService.countOpen().then(setOpenCount).catch(() => setOpenCount(null)), 10_000)
-    return () => clearInterval(id)
-  }, [])
 
   useEffect(() => {
     const id = setInterval(() => setTick((x) => x + 1), 5_000)

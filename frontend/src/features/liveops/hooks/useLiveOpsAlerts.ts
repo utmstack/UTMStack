@@ -4,8 +4,6 @@ import { WINDOW_MS, type LiveOpsData, type WindowKey } from '../liveops-data'
 
 /** Batch size shared by the list sidebar and the timeline. */
 const PAGE_SIZE = 300
-/** How often the loaded batches are re-fetched while the page is open. */
-const POLL_MS = 10_000
 
 /**
  * The single fetch point for Live Operations: parent alerts inside the window,
@@ -44,8 +42,6 @@ export function useLiveOpsAlerts(): LiveOpsData {
         })
     setLoading(true)
     fetchAll(false)
-    const id = setInterval(() => fetchAll(true), POLL_MS)
-    return () => clearInterval(id)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [win, page])
 
