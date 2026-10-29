@@ -3961,7 +3961,17 @@
       "cmdError": "Erro de comando",
       "shellSelect": "Tipo de shell",
       "noRemoteControl": "Este agente foi instalado com o controlo remoto desativado. Recusa comandos, e isso só pode ser alterado na própria máquina.",
-      "noRemoteControlShort": "Controlo remoto desativado neste agente"
+      "noRemoteControlShort": "Controlo remoto desativado neste agente",
+      "password": {
+        "title": "Autenticação",
+        "hint": "Autentique-se para executar comandos neste agente.",
+        "tfaPrompt": "Código: ",
+        "confirm": "OK",
+        "cancel": "Cancelar",
+        "authError": "Falha na autenticação",
+        "authHint": "Autentique-se para executar comandos neste agente.",
+        "authOk": "Autenticado."
+      }
     },
     "sensitivity": {
       "section": "Sensibilidade do ativo",

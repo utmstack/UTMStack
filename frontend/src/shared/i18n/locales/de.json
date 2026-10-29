@@ -3977,7 +3977,17 @@
       "cmdError": "Befehlsfehler",
       "shellSelect": "Shell-Typ",
       "noRemoteControl": "Dieser Agent wurde mit deaktivierter Fernsteuerung installiert. Er lehnt Befehle ab; das lässt sich nur auf dem Rechner selbst ändern.",
-      "noRemoteControlShort": "Fernsteuerung für diesen Agenten deaktiviert"
+      "noRemoteControlShort": "Fernsteuerung für diesen Agenten deaktiviert",
+      "password": {
+        "title": "Authentifizierung",
+        "hint": "Authentifizieren, um Befehle auf diesem Agenten auszuführen.",
+        "tfaPrompt": "Code: ",
+        "confirm": "OK",
+        "cancel": "Abbrechen",
+        "authError": "Authentifizierung fehlgeschlagen",
+        "authHint": "Authentifizieren, um Befehle auf diesem Agenten auszuführen.",
+        "authOk": "Authentifiziert."
+      }
     },
     "health": {
       "online": "online",
