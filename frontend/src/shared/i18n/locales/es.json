@@ -4876,6 +4876,7 @@
       "moveUp": "Subir",
       "moveDown": "Bajar",
       "whereHint": "condición opcional (CEL)",
+      "splitHint": "Vacío equivale a un espacio por defecto — en el YAML siempre aparece como fieldSplit: \" \".",
       "addValue": "Agregar valor",
       "addPattern": "Agregar patrón",
       "rawHint": "Este processor se edita como YAML directo.",

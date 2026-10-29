@@ -147,24 +147,43 @@ export function modelDataTypes(model: FilterModel): string[] {
   return [...seen]
 }
 
-/** Serialize the structured model back to YAML the Event Processor accepts. */
+/** Serialize the structured model back to YAML the Event Processor accepts.
+ * js-yaml quotes scalars that need it (e.g. a lone space delimiter is emitted
+ * as `fieldSplit: " "`) so values round-trip exactly. */
 export function serializeFilter(model: FilterModel): string {
   const doc = {
     pipeline: model.entries.map((e) => ({
       dataTypes: e.dataTypes,
       order: e.order,
-      steps: e.steps.map((s) => ({ [s.kind]: pruneEmpty(s.config) })),
+      steps: e.steps.map((s) => ({ [s.kind]: pruneEmpty(normalizeStep(s)) })),
     })),
   }
   return dump(doc, { indent: 2, lineWidth: -1, noRefs: true, quotingType: '"' })
 }
 
-/** Drop empty-string / empty-array / null keys so the emitted YAML stays clean. */
+/** Normalize a step's config before it's written. For a `kv` step the
+ * `fieldSplit` default is a space — and the Event Processor treats an empty
+ * `fieldSplit` the same as `" "` — so we always emit it explicitly. That keeps
+ * the code view self-documenting (`fieldSplit: " "`) whether the user left the
+ * field blank, typed a single space, or nothing. Non-space separators are
+ * passed through untouched. */
+function normalizeStep(step: Step): Record<string, unknown> {
+  if (step.kind !== 'kv') return step.config
+  const fieldSplit = step.config.fieldSplit
+  if (fieldSplit == null || (typeof fieldSplit === 'string' && fieldSplit.trim() === '')) {
+    return { ...step.config, fieldSplit: ' ' }
+  }
+  return step.config
+}
+
+/** Drop empty-string / empty-array / null keys so the emitted YAML stays
+ * clean. Only strictly-empty strings are dropped — whitespace-only values are
+ * meaningful (e.g. kv fieldSplit " " splits on space) and must survive. */
 function pruneEmpty(config: Record<string, unknown>): Record<string, unknown> {
   const out: Record<string, unknown> = {}
   for (const [k, v] of Object.entries(config)) {
     if (v == null) continue
-    if (typeof v === 'string' && v.trim() === '') continue
+    if (typeof v === 'string' && v === '') continue
     if (Array.isArray(v) && v.length === 0) continue
     if (isRecord(v) && Object.keys(v).length === 0) continue
     out[k] = v
