@@ -14,6 +14,21 @@ import { Persistence } from './Persistence'
 import { Exfil } from './Exfil'
 import { DefenseEvasion } from './DefenseEvasion'
 import { PrivEsc } from './PrivEsc'
+import { UserExecution } from './UserExecution'
+import { SoftwareDeploy } from './SoftwareDeploy'
+import { Phishing } from './Phishing'
+import { ProcessInjection } from './ProcessInjection'
+import { CredDump } from './CredDump'
+import { DataDestruction } from './DataDestruction'
+import { ToolDownload } from './ToolDownload'
+import { C2Tunnel } from './C2Tunnel'
+import { IocMatch } from './IocMatch'
+import { PerimeterDetection } from './PerimeterDetection'
+import { AccountChange } from './AccountChange'
+import { KerberosTicket } from './KerberosTicket'
+import { PowerShellAbuse } from './PowerShellAbuse'
+import { ReverseShell } from './ReverseShell'
+import { VmEscape } from './VmEscape'
 import { Generic } from './Generic'
 
 export type { SceneProps }
@@ -33,5 +48,20 @@ export const SCENES: Record<Scene['template'], (p: SceneProps) => ReactElement> 
   exfil: Exfil,
   defenseEvasion: DefenseEvasion,
   privEsc: PrivEsc,
+  userExec: UserExecution,
+  softwareDeploy: SoftwareDeploy,
+  phishing: Phishing,
+  processInjection: ProcessInjection,
+  credDump: CredDump,
+  dataDestruction: DataDestruction,
+  toolDownload: ToolDownload,
+  c2tunnel: C2Tunnel,
+  iocMatch: IocMatch,
+  perimeterDetect: PerimeterDetection,
+  accountChange: AccountChange,
+  kerberosTicket: KerberosTicket,
+  powershellAbuse: PowerShellAbuse,
+  reverseShell: ReverseShell,
+  vmEscape: VmEscape,
   generic: Generic,
 }
