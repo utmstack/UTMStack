@@ -1,6 +1,7 @@
 import type {
   Integration,
   DeployKind,
+  IngestType,
   IntegrationGuideChannel,
   IntegrationLogFilter,
 } from '@/features/integrations/types'
@@ -54,38 +55,75 @@ const SEEDS: InjectedSeed[] = [
 ]
 
 interface GuideMetadata {
-  channel: IntegrationGuideChannel
+  channel?: IntegrationGuideChannel
+  ingestType: IngestType
   dataType?: string
+  forwarderDataType?: string
   defaultPort?: string
   filters?: IntegrationLogFilter[]
   filterField?: 'dataSource' | 'log.exporter'
   setting?: string
 }
 
+const SYSLOG_FORWARDER: GuideMetadata = {
+  channel: 'syslog',
+  ingestType: 'forwarder',
+  dataType: 'syslog',
+  forwarderDataType: 'syslog',
+  defaultPort: '7014/tcp',
+  filterField: 'dataSource',
+}
+
 const GUIDE_METADATA: Record<string, GuideMetadata> = {
-  DEFAULT: {
-    channel: 'syslog',
-    dataType: 'syslog',
-    defaultPort: '7014/tcp',
-    filterField: 'dataSource',
-  },
+  APACHE: SYSLOG_FORWARDER,
+  APACHE2: SYSLOG_FORWARDER,
+  ELASTICSEARCH: SYSLOG_FORWARDER,
+  HAPROXY: SYSLOG_FORWARDER,
+  KAFKA: SYSLOG_FORWARDER,
+  KIBANA: SYSLOG_FORWARDER,
+  LOGSTASH: SYSLOG_FORWARDER,
+  MONGODB: SYSLOG_FORWARDER,
+  MYSQL: SYSLOG_FORWARDER,
+  NATS: SYSLOG_FORWARDER,
   NGINX: {
     channel: 'linux-agent',
+    ingestType: 'agent',
     dataType: 'linux',
     filters: [{ field: 'log.syslogIdentifier', operator: 'IS_ONE_OF_TERMS', value: ['nginx'] }],
     setting: 'Configure Nginx access and error logs to be forwarded to the Linux journal or syslog.',
   },
-  SYSLOG: { channel: 'syslog', defaultPort: '7014/tcp', filterField: 'dataSource' },
-  NETFLOW: { channel: 'netflow', defaultPort: '2055/udp', filterField: 'log.exporter' },
+  OSQUERY: {
+    ingestType: 'agent',
+    setting: 'Install the UTMStack agent on the host and configure it to collect the osquery results.',
+  },
+  POSTGRESQL: SYSLOG_FORWARDER,
+  REDIS: SYSLOG_FORWARDER,
+  SYSLOG: SYSLOG_FORWARDER,
+  TRAEFIK: SYSLOG_FORWARDER,
+  NETFLOW: {
+    channel: 'netflow',
+    ingestType: 'forwarder',
+    dataType: 'netflow',
+    forwarderDataType: 'netflow',
+    defaultPort: '2055/udp',
+    filterField: 'log.exporter',
+  },
   JSON: {
     channel: 'syslog',
+    ingestType: 'forwarder',
     dataType: 'syslog',
+    forwarderDataType: 'syslog',
     defaultPort: '7014/tcp',
     filterField: 'dataSource',
     setting: 'The legacy JSON HTTP endpoint is not published in v12. This demo entry uses the supported syslog channel; send JSON text as a syslog message.',
   },
+  IIS: {
+    ingestType: 'agent',
+    setting: 'Install the Windows UTMStack agent on the IIS host and configure it to collect IIS log files.',
+  },
   WINDOWS_SQL_SERVER: {
     channel: 'windows-agent',
+    ingestType: 'agent',
     filters: [
       { field: 'log.providerName', operator: 'IS_ONE_OF_TERMS', value: ['MSSQLSERVER'] },
       { field: 'log.channel', operator: 'IS_ONE_OF_TERMS', value: ['Application'] },
@@ -94,6 +132,7 @@ const GUIDE_METADATA: Record<string, GuideMetadata> = {
   },
   WINDOWS_FILE_AUDITING: {
     channel: 'windows-agent',
+    ingestType: 'agent',
     filters: [
       { field: 'log.providerName', operator: 'IS_ONE_OF_TERMS', value: ['Microsoft-Windows-Security-Auditing'] },
       { field: 'log.channel', operator: 'IS_ONE_OF_TERMS', value: ['Security'] },
@@ -103,14 +142,18 @@ const GUIDE_METADATA: Record<string, GuideMetadata> = {
 }
 
 export const INJECTED_MODULES: Integration[] = SEEDS.map((s) => {
-  const guide = GUIDE_METADATA[s.moduleName] ?? GUIDE_METADATA.DEFAULT
+  const guide = GUIDE_METADATA[s.moduleName]
+  if (!guide) {
+    throw new Error(`Missing guide metadata for injected integration "${s.moduleName}"`)
+  }
+
   return {
     id: s.id,
     name: s.name,
     moduleName: s.moduleName,
     dataType: guide.dataType ?? s.dataType,
-    ingestType: 'forwarder',
-    kind: s.kind,
+    ingestType: guide.ingestType,
+    kind: guide.ingestType === 'agent' ? 'agents & syslog' : s.kind,
     status: 'available',
     description: guide.setting ?? '',
     category: s.category,
@@ -119,11 +162,46 @@ export const INJECTED_MODULES: Integration[] = SEEDS.map((s) => {
     guideOnly: true,
     defaultPort: guide.defaultPort ?? s.defaultPort,
     guideChannel: guide.channel,
+    forwarderDataType: guide.forwarderDataType,
     logFilters: guide.filters,
     logFilterField: guide.filterField,
-    guideSetting: guide.setting ?? `Configure ${s.name} to send its logs through the supported syslog channel.`,
+    guideSetting: guide.setting,
     events24h: undefined,
     rate: undefined,
     darkInvert: false,
   }
 })
+
+export function applyInjectedGuideMetadata(integration: Integration): Integration {
+  const moduleName = integration.moduleName?.toUpperCase()
+  const guide = moduleName ? GUIDE_METADATA[moduleName] : undefined
+  if (!guide) return integration
+
+  return {
+    ...integration,
+    ...(integration.dataType || !guide.dataType ? {} : { dataType: guide.dataType }),
+    ...(integration.ingestType ? {} : { ingestType: guide.ingestType }),
+    ...(guide.channel ? { guideChannel: guide.channel } : {}),
+    ...(guide.forwarderDataType ? { forwarderDataType: guide.forwarderDataType } : {}),
+    ...(integration.defaultPort || !guide.defaultPort ? {} : { defaultPort: guide.defaultPort }),
+    ...(guide.filters ? { logFilters: guide.filters } : {}),
+    ...(guide.filterField ? { logFilterField: guide.filterField } : {}),
+    ...(guide.setting ? { guideSetting: guide.setting } : {}),
+    guideOnly: true,
+  }
+}
+
+export function mergeInjectedIntegrations(
+  backendIntegrations: Integration[],
+  injectedIntegrations: Integration[] = INJECTED_MODULES,
+): Integration[] {
+  const backendModuleNames = new Set(
+    backendIntegrations.map((integration) => integration.moduleName?.toUpperCase()).filter(Boolean),
+  )
+  const normalizedBackend = backendIntegrations.map(applyInjectedGuideMetadata)
+  const missingInjected = injectedIntegrations.filter(
+    (integration) => !backendModuleNames.has(integration.moduleName?.toUpperCase()),
+  )
+
+  return [...normalizedBackend, ...missingInjected]
+}
