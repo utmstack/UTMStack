@@ -8008,6 +8008,1146 @@
             "failed": "No se pudo actualizar la configuración de contribución"
         }
     },
+    "field": {
+      "ip": "IP",
+      "host": "Host",
+      "user": "Usuario",
+      "port": "Puerto",
+      "domain": "Dominio",
+      "mac": "MAC",
+      "country": "País",
+      "city": "Ciudad",
+      "asn": "ASN",
+      "aso": "ASO"
+    }
+  },
+  "timeRange": {
+    "quick": "Rangos rápidos",
+    "relative": "Relativo",
+    "absolute": "Absoluto",
+    "last": "Últimos",
+    "apply": "Aplicar",
+    "allTime": "Todo el tiempo",
+    "from": "Desde",
+    "to": "Hasta",
+    "now": "ahora",
+    "units": {
+      "minutes": "minutos",
+      "hours": "horas",
+      "days": "días",
+      "weeks": "semanas",
+      "months": "meses"
+    },
+    "presets": {
+      "15m": "Últimos 15 minutos",
+      "1h": "Última hora",
+      "6h": "Últimas 6 horas",
+      "24h": "Últimas 24 horas",
+      "7d": "Últimos 7 días",
+      "30d": "Últimos 30 días"
+    }
+  },
+  "socAi": {
+    "title": "Configuración de SOC-AI",
+    "subtitle": "Configura el agente de IA que triagea alertas y potencia el asistente de operaciones.",
+    "section": {
+      "connection": "Modelo y conexión",
+      "auth": "Autenticación",
+      "behavior": "Comportamiento del triage",
+      "advanced": "Avanzado"
+    },
+    "usage": {
+      "title": "Uso",
+      "chat": "Chat completions (hoy)",
+      "unavailable": "El uso todavía no está disponible.",
+      "resetsIn": "Se reinicia en {{time}}"
+    },
+    "provider": {
+      "label": "Proveedor",
+      "hint": "Define el formato. Cualquiera distinto de Anthropic usa la API compatible con OpenAI."
+    },
+    "model": {
+      "label": "Modelo",
+      "hint": "Identificador del modelo del proveedor.",
+      "customOption": "Modelo personalizado…",
+      "customPlaceholder": "Ingresa un ID de modelo"
+    },
+    "url": {
+      "label": "URL de la API",
+      "hint": "Déjalo vacío para usar el endpoint por defecto del proveedor."
+    },
+    "apiKey": {
+      "label": "API key",
+      "hint": "Credencial enviada al proveedor.",
+      "setHint": "Hay una key guardada. Déjalo en blanco para mantenerla."
+    },
+    "authType": {
+      "label": "Tipo de autenticación",
+      "hint": "Cómo se envían las credenciales a tu gateway.",
+      "options": {
+        "apiKey": "API Key",
+        "bearer": "Bearer",
+        "customHeaders": "Cabeceras personalizadas",
+        "none": "Ninguna"
+      }
+    },
+    "authHeaderName": {
+      "label": "Nombre de cabecera de auth",
+      "hint": "Cabecera que lleva la key (p.ej. api-key para Azure)."
+    },
+    "authToken": {
+      "label": "Token Bearer",
+      "hint": "Credencial enviada al proveedor.",
+      "setHint": "Hay un token guardado. Déjalo en blanco para mantenerlo."
+    },
+    "customHeaders": {
+      "label": "Cabeceras personalizadas",
+      "hint": "Cabeceras extra en cada request. Los valores se cifran; \"*****\" mantiene el guardado.",
+      "keyPlaceholder": "Nombre de la cabecera",
+      "valuePlaceholder": "Valor",
+      "addRow": "Agregar cabecera",
+      "remove": "Quitar cabecera"
+    },
+    "maxTokens": {
+      "label": "Máx. tokens",
+      "hint": "Tokens máximos por respuesta del LLM."
+    },
+    "maxToolIterations": {
+      "label": "Máx. iteraciones de tools",
+      "hint": "Tope del bucle planear → tool → observar del agente."
+    },
+    "autoAnalyze": {
+      "label": "Analizar alertas automáticamente",
+      "hint": "Triagea las alertas entrantes en tiempo real."
+    },
+    "allowIncidents": {
+      "label": "Permitir gestionar incidentes",
+      "hint": "El agente de triage puede crear o actualizar incidentes cuando decide que una alerta lo amerita."
+    },
+    "changeAlertStatus": {
+      "label": "Cambiar estado de alerta",
+      "hint": "Permite al agente fijar el estado de una alerta en el triage."
+    },
+    "automaticIncidentCreation": {
+      "label": "Crear incidentes",
+      "hint": "Permite al agente abrir incidentes desde alertas triageadas."
+    },
+    "allowedWriteTools": {
+      "label": "Tools de escritura permitidas",
+      "hint": "Un nombre de tool MCP por línea que el agente puede usar (p.ej. alerts.update_status). Las notas siempre están permitidas."
+    },
+    "save": "Guardar configuración",
+    "saving": "Verificando y guardando…",
+    "saved": "Configuración de SOC-AI guardada",
+    "saveError": "No se pudo guardar la configuración",
+    "loadError": "No se pudo cargar la configuración",
+    "modelRequired": "El modelo es obligatorio",
+    "applyTags": {
+      "label": "Aplicar tags",
+      "hint": "Permite al agente etiquetar alertas durante el triage."
+    },
+    "note": {
+      "azure": "Pega el endpoint completo de tu deployment de Azure como URL; el modelo es el nombre del deployment. La auth usa la cabecera api-key.",
+      "ollama": "Apunta la URL a tu host de Ollama. No hace falta API key para una instancia local.",
+      "custom": "Cualquier endpoint compatible con OpenAI. Define la URL, la auth y las cabeceras extra que necesite tu gateway.",
+      "threatwinds": "Usa tu licencia de UTMStack automáticamente — no necesita API key. Se factura a través de tu suscripción de ThreatWinds."
+    },
+    "chat": {
+      "title": "Asistente SOC",
+      "dashboardCreateTitle": "Creador de paneles",
+      "empty": "Pregunta lo que quieras sobre tus alertas, detecciones o la consola — puedo investigar y actuar sobre el SIEM.",
+      "tryPrefix": "Prueba",
+      "suggestion": "¿cuántas alertas abiertas hay, agrupadas por adversario?",
+      "placeholder": "Escribe una pregunta…",
+      "ask": "Preguntar",
+      "send": "Enviar",
+      "collapse": "Contraer",
+      "expand": "Expandir",
+      "clear": "Limpiar conversación",
+      "close": "Cerrar",
+      "copy": "Copiar",
+      "copied": "Copiado",
+      "errorGeneric": "Algo salió mal.",
+      "errorUnreachable": "No se pudo contactar al asistente.",
+      "compacting": "Compactando contexto…",
+      "dashboardEditTitle": "Editor de paneles",
+      "editingDashboard": "Editando: {{name}}",
+      "soarEditTitle": "Editor de flujos SOAR",
+      "soarCreateTitle": "Crear flujo SOAR",
+      "editingFlow": "Editando flujo: {{name}}"
+    },
+    "focus": {
+      "alert": "Alerta",
+      "incident": "Incidente",
+      "remove": "Dejar de compartir con el asistente"
+    },
+    "inheritance": {
+      "inherited": "Siguiendo la configuración por defecto de la instancia. Si guardas aquí, este tenant pasa a tener la suya.",
+      "own": "Este tenant tiene su propia configuración.",
+      "revert": "Volver a la de la instancia",
+      "reverting": "Volviendo…",
+      "reverted": "Ahora sigue la configuración de la instancia"
+    },
+    "allowance": {
+      "title": "Consumo de IA hoy",
+      "ofLimit": "de {{limit}} peticiones",
+      "denied": "peticiones — la IA no está disponible para este tenant",
+      "hint": "Lo fija quien opera la instancia. Se reinicia a medianoche UTC."
+    }
+  },
+  "alerts": {
+    "title": "Alertas",
+    "matching": "{{count}} coincidentes",
+    "subtitle": "Prioriza lo que importa.",
+    "openNow": "abiertas ahora mismo.",
+    "view": {
+      "alerts": "Alertas",
+      "overview": "Resumen"
+    },
+    "toolbar": {
+      "searchPlaceholder": "Buscar por nombre de alerta…",
+      "allSeverities": "Todas las severidades",
+      "export": "Exportar CSV",
+      "refresh": "Actualizar"
+    },
+    "severity": {
+      "high": "Alta",
+      "medium": "Media",
+      "low": "Baja"
+    },
+    "status": {
+      "open": "Abierta",
+      "in_review": "En revisión",
+      "completed": "Completada",
+      "auto": "Revisión automática"
+    },
+    "statusTabs": {
+      "all": "Todas"
+    },
+    "overview": {
+      "overTime": "Alertas en el tiempo",
+      "matchingAlerts": "alertas coincidentes",
+      "noData": "Sin datos.",
+      "bySeverity": "Por severidad",
+      "byStatus": "Por estado"
+    },
+    "filters": {
+      "add": "Añadir filtro",
+      "clearAll": "Limpiar todo",
+      "filterValues": "Filtrar valores…",
+      "loadingValues": "Cargando valores…",
+      "noValues": "No se encontraron valores.",
+      "pickValue": "Elige un valor para añadir el filtro.",
+      "empty": "(vacío)",
+      "cancel": "Cancelar",
+      "addBtn": "Añadir"
+    },
+    "ops": {
+      "CONTAIN": "contiene",
+      "IS": "es",
+      "IS_NOT": "no es",
+      "EXIST": "existe",
+      "DOES_NOT_EXIST": "no existe"
+    },
+    "fields": {
+      "adversary_domain": "Dominio del adversario",
+      "adversary_geolocation_asn": "ASN del adversario",
+      "adversary_geolocation_aso": "ASO del adversario",
+      "adversary_geolocation_country": "País del adversario",
+      "adversary_host": "Host del adversario",
+      "adversary_ip": "IP del adversario",
+      "adversary_url": "URL del adversario",
+      "adversary_user": "Usuario del adversario",
+      "assignee": "Asignado a",
+      "category": "Categoría",
+      "dataSource": "Sensor",
+      "dataType": "Tipo de dato",
+      "description": "Descripción",
+      "id": "ID",
+      "impactScore": "Riesgo",
+      "impact_availability": "Disponibilidad",
+      "impact_confidentiality": "Confidencialidad",
+      "impact_integrity": "Integridad",
+      "incidentDetail_incidentName": "Nombre del incidente",
+      "incidentDetail_incidentId": "Id del incidente",
+      "isIncident": "Es incidente",
+      "name": "Nombre de la alerta",
+      "notes": "Notas",
+      "severity": "Severidad",
+      "status": "Estado",
+      "tags": "Etiquetas",
+      "target_domain": "Dominio del objetivo",
+      "target_geolocation_asn": "ASN del objetivo",
+      "target_geolocation_aso": "ASO del objetivo",
+      "target_geolocation_country": "País del objetivo",
+      "target_host": "Host del objetivo",
+      "target_ip": "IP del objetivo",
+      "target_url": "URL del objetivo",
+      "target_user": "Usuario del objetivo",
+      "technique": "Técnica"
+    },
+    "tagFilter": {
+      "tags": "Etiquetas",
+      "tag_one": "{{count}} etiqueta",
+      "tag_other": "{{count}} etiquetas",
+      "clearSelection": "Limpiar selección",
+      "noTags": "Sin etiquetas"
+    },
+    "bulk": {
+      "selected": "{{count}} seleccionadas",
+      "setStatus": "Cambiar estado",
+      "addTag": "Añadir etiqueta",
+      "noTags": "Sin etiquetas",
+      "addToIncident": "Añadir a incidente",
+      "clear": "Limpiar"
+    },
+    "tagEditor": {
+      "tag": "Etiqueta",
+      "noTagsYet": "Aún no hay etiquetas",
+      "createTag": "Crear etiqueta",
+      "newTagName": "Nombre de la etiqueta…",
+      "createApply": "Crear y aplicar etiqueta",
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "edit": "Editar etiqueta",
+      "delete": "Eliminar etiqueta",
+      "systemLocked": "Etiqueta del sistema (bloqueada)",
+      "alreadyExists": "Esa etiqueta ya existe.",
+      "color": "Color {{color}}",
+      "createRule": "Crear regla de etiquetado con esta etiqueta"
+    },
+    "table": {
+      "actions": "Acciones",
+      "alert": "Alerta",
+      "status": "Estado",
+      "technique": "Técnica",
+      "severity": "Severidad",
+      "risk": "Riesgo",
+      "echoes": "Ecos",
+      "time": "Hora",
+      "riskHint": "Puntuación de riesgo (0–100), coloreada por severidad",
+      "source": "Origen",
+      "adversary": "Adversario"
+    },
+    "row": {
+      "createRuleFromAlert": "Crear una etiqueta a partir de esta alerta",
+      "createIncident": "Crear incidente a partir de esta alerta",
+      "viewIncident": "Ver detalles del incidente",
+      "assignedTo": "Asignado a {{user}}",
+      "echoesTooltip": "{{count}} ecos — haz clic para expandir",
+      "echoesEmpty": "Sin ecos registrados"
+    },
+    "echoes": {
+      "title": "{{count}} ecos",
+      "close": "Cerrar",
+      "empty": "No hay ecos registrados para esta alerta.",
+      "loadError": "No se pudieron cargar los ecos."
+    },
+    "list": {
+      "loading": "Cargando alertas…",
+      "loadError": "No se pudieron cargar las alertas.",
+      "retry": "Reintentar",
+      "empty": "Ninguna alerta coincide con esta vista."
+    },
+    "badge": {
+      "incident": "Incidente",
+      "aiAssessed": "Evaluado por IA"
+    },
+    "drawer": {
+      "setStatus": "Cambiar estado",
+      "completeFalsePositive": "Completar + falso positivo",
+      "addToIncident": "Añadir a incidente",
+      "partOfIncident": "Parte de un incidente",
+      "tabs": {
+        "summary": "Resumen",
+        "parties": "Partes",
+        "events": "Eventos",
+        "history": "Historial"
+      },
+      "section": {
+        "description": "Descripción",
+        "solution": "Solución",
+        "references": "Referencias",
+        "details": "Detalles",
+        "yourNotes": "Tus notas",
+        "notes": "Notas"
+      },
+      "details": {
+        "severity": "Severidad",
+        "risk": "Riesgo",
+        "category": "Categoría",
+        "technique": "Técnica",
+        "sensor": "Sensor",
+        "dataType": "Tipo de dato",
+        "alertId": "ID de alerta",
+        "statusNote": "Nota de estado",
+        "assignee": "Asignado a"
+      },
+      "incidentDetail": {
+        "incident": "Incidente",
+        "id": "ID",
+        "createdBy": "Creado por",
+        "created": "Creado"
+      },
+      "notesPlaceholder": "Añade notas de investigación…",
+      "saveNotes": "Guardar notas",
+      "assignee": "Asignar",
+      "assign": "Asignar",
+      "unassign": "Quitar asignación",
+      "unassigned": "Sin asignar",
+      "loadingUsers": "Cargando usuarios…",
+      "observationLabel": "Observación",
+      "observationPlaceholder": "Añade una observación…",
+      "cancel": "Cancelar",
+      "continue": "Continuar"
+    },
+    "related": {
+      "sample": "Una muestra de hasta ~11 eventos que el motor almacenó en esta alerta. Usa «Ver todos los registros relacionados» para el conjunto completo y sin límite.",
+      "loadingEchoes": "Cargando los eventos de sus echoes…",
+      "sampleWithEchoes": "Los eventos guardados en esta alerta y en sus {{count}} echoes ({{read}} leídos). Usa «Ver todos los registros relacionados» para el conjunto completo y sin límite.",
+      "empty": "No hay eventos de muestra almacenados en esta alerta. Carga el conjunto correlacionado completo en el Explorador de registros.",
+      "viewAll": "Ver todos los registros relacionados"
+    },
+    "party": {
+      "source": "Origen / objetivo",
+      "adversary": "Adversario",
+      "noData": "Sin datos.",
+      "ip": "IP",
+      "host": "Host",
+      "user": "Usuario",
+      "domain": "Dominio",
+      "country": "País"
+    },
+    "history": {
+      "empty": "Sin historial registrado.",
+      "by": "por {{user}}",
+      "actions": {
+        "UPDATE_STATUS": "Estado actualizado",
+        "UPDATE_TAGS": "Etiquetas actualizadas",
+        "UPDATE_NOTES": "Notas actualizadas",
+        "UPDATE_SOLUTION": "Solución actualizada",
+        "MARK_AS_INCIDENT": "Marcada como incidente"
+      },
+      "detail": {
+        "statusTo": "Estado → {{status}}",
+        "tags": "Etiquetas: {{tags}}",
+        "aiAdded": "Evaluación de IA añadida",
+        "observationAdded": "Observación añadida",
+        "notesUpdated": "Notas actualizadas"
+      }
+    },
+    "ai": {
+      "title": "Evaluación de IA del SOC",
+      "risk": "riesgo {{risk}}",
+      "score": "{{score}}/100",
+      "generate": "Generar resumen con IA",
+      "hint": "SOC-AI investiga esta alerta y añade una evaluación.",
+      "generating": "Analizando la alerta… puede tardar un minuto.",
+      "ready": "Resumen de IA listo",
+      "failed": "No se pudo generar el resumen de IA",
+      "slow": "El resumen de IA está tardando más de lo esperado. Aparecerá en la alerta cuando esté listo."
+    },
+    "incident": {
+      "titleAdd_one": "Añadir {{count}} alerta a un incidente",
+      "titleAdd_other": "Añadir {{count}} alertas a un incidente",
+      "new": "Nuevo incidente",
+      "existing": "Incidente existente",
+      "nameLabel": "Nombre del incidente",
+      "namePlaceholder": "p. ej. Sospecha de intrusión de Scattered Spider",
+      "descriptionLabel": "Descripción",
+      "descriptionPlaceholder": "Resumen opcional…",
+      "pickLabel": "Elige un incidente",
+      "loading": "Cargando…",
+      "selectPlaceholder": "Selecciona un incidente…",
+      "willLink_one": "Se vinculará {{count}} alerta.",
+      "willLink_other": "Se vincularán {{count}} alertas.",
+      "cancel": "Cancelar",
+      "create": "Crear incidente",
+      "add": "Añadir a incidente"
+    },
+    "toast": {
+      "statusUpdated": "Estado actualizado",
+      "statusFailed": "No se pudo actualizar el estado",
+      "tagsUpdated": "Etiquetas actualizadas",
+      "tagsFailed": "No se pudieron actualizar las etiquetas",
+      "tagCreateFailed": "No se pudo crear la etiqueta",
+      "tagUpdated": "Etiqueta actualizada",
+      "tagUpdateFailed": "No se pudo actualizar la etiqueta",
+      "tagDeleted": "Etiqueta eliminada",
+      "tagDeleteFailed": "No se pudo eliminar la etiqueta",
+      "notesSaved": "Notas guardadas",
+      "notesFailed": "No se pudieron guardar las notas",
+      "exportFailed": "No se pudo exportar el CSV",
+      "noRelatedLogs": "No se encontraron registros relacionados con esta alerta",
+      "relatedLogsFailed": "No se pudieron cargar los registros relacionados",
+      "incidentCreated": "Incidente creado",
+      "alertsAdded": "Alertas añadidas al incidente",
+      "incidentFailed": "No se pudo guardar el incidente",
+      "assigned": "Alerta asignada",
+      "unassigned": "Alerta sin asignar",
+      "assignFailed": "No se pudo actualizar el asignado"
+    }
+  },
+  "incidents": {
+    "title": "Incidentes",
+    "subtitle": "Agrupa, triajea y resuelve alertas relacionadas como incidentes.",
+    "refresh": "Actualizar",
+    "count_one": "{{count}} incidente",
+    "count_other": "{{count}} incidentes",
+    "openNow": "abiertos ahora",
+    "empty": "No hay incidentes que coincidan.",
+    "loadError": "No se pudieron cargar los incidentes.",
+    "retry": "Reintentar",
+    "unassigned": "Sin asignar",
+    "unknownUser": "Desconocido",
+    "status": {
+      "open": "Abierto",
+      "in_review": "En revisión",
+      "completed": "Completado",
+      "merged": "Fusionado"
+    },
+    "sev": {
+      "high": "Alta",
+      "medium": "Media",
+      "low": "Baja",
+      "unknown": "Sin calificar"
+    },
+    "toolbar": {
+      "search": "Buscar incidentes…",
+      "create": "Crear incidente",
+      "allSeverities": "Todas las severidades",
+      "export": "Exportar CSV"
+    },
+    "statusTabs": {
+      "all": "Todos"
+    },
+    "filters": {
+      "add": "Añadir filtro",
+      "clearAll": "Limpiar todo",
+      "filterValues": "Filtrar valores…",
+      "loadingValues": "Cargando valores…",
+      "noValues": "No se encontraron valores.",
+      "pickValue": "Elige un valor para añadir el filtro.",
+      "empty": "(vacío)",
+      "cancel": "Cancelar",
+      "addBtn": "Añadir"
+    },
+    "ops": {
+      "IS": "es"
+    },
+    "layout": {
+      "table": "Tabla",
+      "board": "Tablero"
+    },
+    "table": {
+      "name": "Incidente",
+      "status": "Estado",
+      "severity": "Severidad",
+      "assignee": "Asignado",
+      "alerts": "Alertas",
+      "created": "Creado"
+    },
+    "drawer": {
+      "created": "Creado {{date}}",
+      "alertsCount": "{{count}} alertas",
+      "solutionPlaceholder": "Resolución / notas de remediación…",
+      "solutionHint": "Se guarda al pasar el incidente a Completado.",
+      "tabs": {
+        "overview": "Resumen",
+        "alerts": "Alertas",
+        "notes": "Notas",
+        "history": "Historial"
+      },
+      "section": {
+        "description": "Descripción",
+        "solution": "Solución",
+        "details": "Detalles"
+      },
+      "details": {
+        "id": "ID",
+        "status": "Estado",
+        "severity": "Severidad",
+        "assignee": "Asignado",
+        "created": "Creado",
+        "alerts": "Alertas vinculadas"
+      }
+    },
+    "alerts": {
+      "empty": "No hay alertas vinculadas a este incidente.",
+      "remove": "Desvincular alerta",
+      "removeConfirm": "¿Desvincular «{{name}}» de este incidente?",
+      "removed": "Alerta desvinculada",
+      "removeError": "No se pudo desvincular la alerta",
+      "loadingAlert": "Cargando alerta…",
+      "alertGone": "Esta alerta ya no está en el almacén — puede que la retención la haya eliminado.",
+      "alertFailed": "No se pudo cargar la alerta.",
+      "openInAlerts": "Abrir en Alertas"
+    },
+    "notes": {
+      "empty": "Aún no hay notas.",
+      "add": "Agregar nota",
+      "addError": "No se pudo agregar la nota",
+      "placeholder": "Escribe una nota…"
+    },
+    "history": {
+      "empty": "Aún no hay historial."
+    },
+    "toast": {
+      "statusChanged": "Estado del incidente actualizado",
+      "statusError": "No se pudo cambiar el estado",
+      "exportFailed": "No se pudo exportar el CSV"
+    },
+    "assign": {
+      "assign": "Asignar",
+      "search": "Buscar usuarios…",
+      "unassign": "Quitar asignación",
+      "noUsers": "Sin usuarios",
+      "assigned": "Asignado a {{user}}",
+      "unassigned": "Incidente sin asignar",
+      "error": "No se pudo cambiar el asignado",
+      "custom": "Asignar personalizado",
+      "customPlaceholder": "Escribe un usuario…"
+    },
+    "action": {
+      "INCIDENT_CREATED": "Incidente creado",
+      "INCIDENT_ALERT_ADD": "Alertas añadidas",
+      "INCIDENT_ALERT_STATUS_CHANGED": "Estado de alertas cambiado",
+      "INCIDENT_STATUS_CHANGE": "Estado cambiado",
+      "INCIDENT_NOTE_ADD": "Nota añadida",
+      "INCIDENT_NOTE_CHANGE": "Nota editada",
+      "INCIDENT_ASSIGNED": "Asignación cambiada"
+    },
+    "create": {
+      "title": "Crear incidente",
+      "stepIndicator": "Paso {{current}} de {{total}}",
+      "selectedCount": "{{count}} alertas seleccionadas",
+      "submit": "Crear",
+      "success": "Incidente creado",
+      "error": "No se pudo crear el incidente",
+      "details": {
+        "nameLabel": "Nombre",
+        "namePlaceholder": "Título corto y descriptivo",
+        "descriptionLabel": "Descripción",
+        "descriptionPlaceholder": "Contexto, alcance, notas iniciales…"
+      }
+    }
+  },
+  "parsingFilters": {
+    "title": "Pipelines",
+    "subtitle": "Pipelines YAML que se aplican a los logs mientras se parsean durante la ingesta.",
+    "new": "Nuevo pipeline",
+    "search": "Buscar pipelines…",
+    "refresh": "Refrescar",
+    "view": "Ver",
+    "system": "Sistema",
+    "user": "Personalizado",
+    "loading": "Cargando pipelines…",
+    "loadError": "No se pudieron cargar los pipelines.",
+    "retry": "Reintentar",
+    "empty": "Ningún pipeline coincide con esta vista.",
+    "tabs": {
+      "all": "Todos",
+      "active": "Activos",
+      "inactive": "Inactivos",
+      "system": "Sistema",
+      "user": "Personalizados"
+    },
+    "cols": {
+      "filter": "Pipeline",
+      "type": "Tipo",
+      "active": "Activo",
+      "dataTypes": "Tipos de dato",
+      "order": "Orden",
+      "moveUp": "Subir",
+      "moveDown": "Bajar",
+      "actions": "Acciones"
+    },
+    "editor": {
+      "titleNew": "Nuevo pipeline",
+      "titleEdit": "Editar pipeline",
+      "titleSystem": "Pipeline (sistema)",
+      "name": "Nombre",
+      "namePlaceholder": "Mi pipeline custom",
+      "nameHint": "Se guardará como {{file}}",
+      "namePending": "Elige un nombre — será el nombre del archivo.",
+      "content": "Contenido (pipeline YAML)",
+      "contentHint": "Una definición válida en pipeline: YAML.",
+      "readOnly": "Pipeline de sistema — solo lectura. Solo puedes activarlo o desactivarlo.",
+      "save": "Guardar",
+      "saving": "Guardando…",
+      "delete": "Eliminar",
+      "confirmDelete": "Confirmar eliminación",
+      "cancel": "Cancelar",
+      "test": "Test"
+    },
+    "toast": {
+      "saved": "Pipeline guardado",
+      "saveError": "No se pudo guardar el pipeline",
+      "deleted": "Pipeline eliminado",
+      "deleteError": "No se pudo eliminar el pipeline",
+      "activateError": "No se pudo cambiar el estado del pipeline",
+      "nameRequired": "El nombre es obligatorio",
+      "contentRequired": "El contenido es obligatorio",
+      "orderError": "No se pudo cambiar el orden del pipeline"
+    },
+    "visual": {
+      "visualTab": "Visual",
+      "codeTab": "Código",
+      "codeOnly": "Cambia a Código — este contenido no se puede mostrar de forma visual.",
+      "cantParse": "No se puede abrir el editor visual: {{error}}",
+      "dataTypes": "Tipos de dato",
+      "steps": "Pasos",
+      "noSteps": "Aún no hay pasos.",
+      "addStep": "Agregar paso:",
+      "removeStep": "Eliminar paso",
+      "moveUp": "Subir",
+      "moveDown": "Bajar",
+      "whereHint": "condición opcional (CEL)",
+      "splitHint": "Vacío equivale a un espacio por defecto — en el YAML siempre aparece como fieldSplit: \" \".",
+      "addValue": "Agregar valor",
+      "addPattern": "Agregar patrón",
+      "rawHint": "Este procesador se edita como YAML directo.",
+      "rawNotMap": "Debe ser un conjunto de campos clave: valor.",
+      "dataTypesPick": "Elegir tipos de dato",
+      "dataTypesSearch": "Buscar tipos de dato…",
+      "dataTypesNone": "Sin tipos de dato",
+      "dataTypesAdd": "Agregar \"{{value}}\"",
+      "insertPattern": "Insertar patrón regex",
+      "patternSearch": "Buscar patrones…",
+      "patternNone": "Sin patrones",
+      "newPattern": "Nuevo patrón…",
+      "createInsert": "Crear e insertar",
+      "patternCreated": "Patrón \"{{name}}\" creado",
+      "patternCreateError": "No se pudo crear el patrón",
+      "patternIdInvalid": "El ID debe empezar con letra o _ y usar solo letras, dígitos o _",
+      "patternDefRequired": "La definición es obligatoria",
+      "parameters": "Parámetros",
+      "paramsKey": "Clave",
+      "paramsValue": "Valor",
+      "entry": "Entrada {{n}}",
+      "order": "orden {{n}}",
+      "orderLabel": "Orden",
+      "removeEntry": "Eliminar entrada",
+      "addEntry": "Añadir entrada de pipeline",
+      "collapse": "Contraer",
+      "expand": "Expandir"
+    },
+    "allDataTypes": "Todos los tipos de dato",
+    "testPipeline": "Test pipeline"
+  },
+  "alertingRules": {
+    "title": "Reglas de Alertas",
+    "subtitle": "Reglas de correlación que convierten eventos en alertas. Actívalas, ajústalas o crea las tuyas.",
+    "new": "Nueva regla",
+    "refresh": "Actualizar",
+    "empty": "No hay reglas que coincidan.",
+    "loadError": "No se pudieron cargar las reglas.",
+    "retry": "Reintentar",
+    "deleteConfirm": "¿Eliminar la regla «{{name}}»?",
+    "adversary": {
+      "origin": "Origen",
+      "target": "Destino"
+    },
+    "state": {
+      "active": "Activa",
+      "inactive": "Inactiva"
+    },
+    "owner": {
+      "system": "Sistema",
+      "custom": "Personalizada"
+    },
+    "toolbar": {
+      "search": "Buscar reglas…",
+      "allCategories": "Todas las categorías",
+      "allAdversaries": "Todos los adversarios",
+      "allStates": "Todos los estados",
+      "allOwners": "Todos los orígenes",
+      "allDataTypes": "Todos los tipos"
+    },
+    "table": {
+      "name": "Regla",
+      "category": "Categoría",
+      "technique": "Técnica",
+      "adversary": "Adversario",
+      "impact": "Impacto",
+      "active": "Activa",
+      "dataTypes": "Tipos de dato",
+      "selectAll": "Seleccionar todo",
+      "selectRow": "Seleccionar {{name}}"
+    },
+    "export": {
+      "all": "Exportar todo",
+      "selected": "Exportar ({{count}})",
+      "error": "No se pudieron exportar las reglas"
+    },
+    "view": {
+      "description": "Descripción",
+      "details": "Detalles",
+      "impact": "Impacto (C·I·D)",
+      "dataTypes": "Tipos de dato",
+      "updated": "Actualizada",
+      "relPath": "Ruta",
+      "definition": "Condición (CEL)",
+      "correlationSteps": "Pasos de correlación",
+      "correlation": "Correlación",
+      "groupBy": "Agrupar por",
+      "deduplicateBy": "Deduplicar por",
+      "references": "Referencias"
+    },
+    "editor": {
+      "createTitle": "Nueva regla",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "export": "Exportar",
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "metadata": "Metadatos",
+      "name": "Nombre",
+      "confidentiality": "Confidencialidad",
+      "integrity": "Integridad",
+      "availability": "Disponibilidad",
+      "dataTypes": "Tipos de dato",
+      "dataTypesHint": "separados por coma",
+      "activeOnSave": "Activa",
+      "definitionSection": "Definición",
+      "where": "Condición (CEL)",
+      "whereHint": "Expresión CEL evaluada por evento",
+      "correlationSteps": "Pasos de correlación",
+      "correlationStepsHint": "array JSON",
+      "jsonArray": "array JSON",
+      "nameRequired": "El nombre es obligatorio",
+      "definitionRequired": "La condición es obligatoria",
+      "invalidJson": "Un campo de la definición tiene JSON inválido",
+      "addStep": "Agregar paso de correlación",
+      "step": "Paso {{n}}",
+      "removeStep": "Quitar paso",
+      "indexPattern": "Patrón de índice",
+      "within": "Ventana",
+      "count": "Cantidad",
+      "conditions": "Condiciones",
+      "field": "Campo",
+      "value": "Valor",
+      "addCondition": "Agregar condición",
+      "orGroup": "Grupo Or {{n}}",
+      "addOr": "Agregar grupo Or",
+      "removeOr": "Quitar",
+      "fieldsHint": "nombres de campo",
+      "referencesHint": "URLs",
+      "visual": "Visual",
+      "code": "Código",
+      "dataTypesPick": "Seleccionar…",
+      "dataTypesSearch": "Buscar tipos de dato…",
+      "dataTypesNone": "Sin tipos de dato",
+      "visualTab": "Visual",
+      "codeTab": "Código",
+      "yamlError": "No se puede aplicar el YAML: {{error}}",
+      "test": "Test"
+    },
+    "toast": {
+      "activated": "Regla activada",
+      "deactivated": "Regla desactivada",
+      "toggleError": "No se pudo cambiar el estado de la regla",
+      "deleted": "Regla eliminada",
+      "deleteError": "No se pudo eliminar la regla",
+      "created": "Regla creada",
+      "saved": "Regla guardada",
+      "saveError": "No se pudo guardar la regla"
+    },
+    "operator": {
+      "filter_term": "igual (term)",
+      "must_not_term": "distinto (term)",
+      "filter_match": "coincide (texto)",
+      "must_not_match": "no coincide (texto)"
+    },
+    "where": {
+      "matchPrefix": "Coincide con",
+      "all": "todas",
+      "any": "cualquiera",
+      "matchSuffix": "de estas condiciones:",
+      "negate": "Negar",
+      "listHint": "separado por comas",
+      "advanced": "Esta condición usa CEL avanzado — edítala en Código o reconstrúyela visualmente.",
+      "and": "Y",
+      "or": "O"
+    },
+    "celOp": {
+      "exists": "existe",
+      "equals": "igual a",
+      "equalsIgnoreCase": "igual (sin may.)",
+      "contains": "contiene",
+      "oneOf": "es uno de",
+      "containsAll": "contiene todos",
+      "startsWith": "empieza con",
+      "endsWith": "termina con",
+      "regexMatch": "regex",
+      "lessThan": "<",
+      "lessOrEqual": "≤",
+      "greaterThan": ">",
+      "greaterOrEqual": "≥",
+      "inCIDR": "en CIDR",
+      "isHour": "la hora es",
+      "isMinute": "el minuto es",
+      "isDayOfWeek": "el día es",
+      "isWeekend": "es fin de semana",
+      "isWorkDay": "es día hábil",
+      "isBetweenTime": "hora entre"
+    },
+    "import": {
+      "button": "Importar",
+      "error": "Falló la importación",
+      "resultTitle": "Resultados de la importación",
+      "approved": "Aprobadas",
+      "rejected": "Rechazadas",
+      "done": "Listo"
+    },
+    "test": "Test"
+  },
+  "regexPatterns": {
+    "title": "Expresiones regulares",
+    "subtitle": "Expresiones regulares reutilizables referenciadas por los filtros de parseo.",
+    "new": "Nuevo patrón",
+    "search": "Buscar patrones…",
+    "refresh": "Actualizar",
+    "view": "Ver",
+    "system": "Sistema",
+    "user": "Personalizado",
+    "loading": "Cargando patrones…",
+    "loadError": "No se pudieron cargar los patrones.",
+    "retry": "Reintentar",
+    "empty": "Ningún patrón coincide con esta vista.",
+    "tabs": {
+      "all": "Todos",
+      "system": "Sistema",
+      "user": "Personalizados"
+    },
+    "cols": {
+      "pattern": "Patrón",
+      "definition": "Definición",
+      "type": "Tipo"
+    },
+    "editor": {
+      "titleNew": "Nuevo patrón",
+      "patternId": "ID del patrón",
+      "patternIdHint": "Nombre único referenciado desde los filtros.",
+      "description": "Descripción",
+      "descriptionPlaceholder": "Qué reconoce este patrón (opcional)",
+      "definition": "Definición (regex)",
+      "definitionHint": "Una expresión regular. Puede referenciar otros patrones.",
+      "readOnly": "Patrón de sistema — solo lectura.",
+      "save": "Guardar",
+      "saving": "Guardando…",
+      "delete": "Eliminar",
+      "confirmDelete": "Confirmar eliminación",
+      "cancel": "Cancelar"
+    },
+    "toast": {
+      "saved": "Patrón guardado",
+      "saveError": "No se pudo guardar el patrón",
+      "deleted": "Patrón eliminado",
+      "deleteError": "No se pudo eliminar el patrón",
+      "patternIdRequired": "El ID del patrón es obligatorio",
+      "definitionRequired": "La definición es obligatoria"
+    }
+  },
+  "soar": {
+    "title": "SOAR",
+    "subtitle": "Flujos de respuesta automática: las condiciones coinciden con una alerta y los comandos corren en el agente.",
+    "comingSoon": "Próximamente",
+    "console": {
+      "loading": "Cargando agentes…",
+      "loadError": "No se pudieron cargar los agentes.",
+      "pickAgent": "Selecciona un agente",
+      "pickAgentHint": "Elige un agente de la lista para abrir su consola interactiva.",
+      "lockedAgent": "Control remoto deshabilitado"
+    },
+    "search": "Buscar flujos…",
+    "refresh": "Refrescar",
+    "new": "Nuevo flujo",
+    "view": "Ver",
+    "system": "Sistema",
+    "loading": "Cargando flujos…",
+    "loadError": "No se pudieron cargar los flujos.",
+    "retry": "Reintentar",
+    "empty": "Ningún flujo coincide con esta vista.",
+    "templates": {
+      "title": "Nuevo flujo",
+      "subtitle": "Elige una plantilla de acción o empieza desde cero.",
+      "loading": "Cargando plantillas…",
+      "loadError": "No se pudieron cargar las plantillas.",
+      "empty": "No hay plantillas disponibles.",
+      "cancel": "Cancelar",
+      "scratch": "Empezar desde cero"
+    },
+    "tabs": {
+      "flows": "Flujos",
+      "executions": "Historial de ejecuciones",
+      "all": "Todos",
+      "active": "Activos",
+      "inactive": "Inactivos",
+      "system": "Sistema",
+      "user": "Propios"
+    },
+    "cols": {
+      "flow": "Flujo",
+      "platform": "Plataforma",
+      "conditions": "Condiciones",
+      "commands": "Comandos",
+      "active": "Activo",
+      "lastRun": "Última ejecución",
+      "failedRuns_one": "{{count}} ejecución fallida",
+      "failedRuns_other": "{{count}} ejecuciones fallidas"
+    },
+    "operator": {
+      "IS": "es",
+      "IS_NOT": "no es",
+      "CONTAINS": "contiene",
+      "NOT_CONTAINS": "no contiene",
+      "EXISTS": "existe",
+      "NOT_EXISTS": "no existe",
+      "START_WITH": "comienza con",
+      "NOT_START_WITH": "no comienza con",
+      "ENDS_WITH": "termina con",
+      "NOT_ENDS_WITH": "no termina con",
+      "IS_ONE_OF": "es uno de",
+      "IS_NOT_ONE_OF": "no es uno de"
+    },
+    "toast": {
+      "created": "Flujo creado",
+      "saved": "Flujo guardado",
+      "saveError": "No se pudo guardar el flujo",
+      "deleted": "Flujo eliminado",
+      "deleteError": "No se pudo eliminar el flujo",
+      "activateError": "No se pudo cambiar el estado del flujo"
+    },
+    "editor": {
+      "createTitle": "Nuevo flujo",
+      "visualTab": "Visual",
+      "codeTab": "Código",
+      "name": "Nombre",
+      "description": "Descripción",
+      "conditions": "Condiciones",
+      "conditionsHint": "El flujo corre cuando una alerta cumple TODAS estas condiciones.",
+      "field": "campo",
+      "value": "valor",
+      "valueList": "valores separados por coma",
+      "addCondition": "Agregar condición",
+      "commands": "Comandos",
+      "commandsHint": "Se ejecutan en orden en el agente. Usa $(field.path) para valores de la alerta y $[variables.NAME] para variables guardadas.",
+      "addCommand": "Agregar comando",
+      "templatesButton": "Comandos comunes",
+      "templates": {
+        "isolate": "Aislar de la red",
+        "shutdown": "Apagar máquina",
+        "killProcess": "Matar proceso",
+        "logout": "Cerrar sesión",
+        "disableUser": "Deshabilitar usuario",
+        "blockIp": "Bloquear IP",
+        "restart": "Reiniciar la máquina",
+        "uninstall": "Desinstalar aplicación"
+      },
+      "connector": {
+        "always": "siempre",
+        "success": "si tuvo éxito",
+        "failure": "si falló"
+      },
+      "agentPlatform": "Plataforma del agente",
+      "shell": "Shell",
+      "shellAuto": "auto",
+      "whereToRun": "Dónde ejecutar",
+      "run": {
+        "all": "Todos los agentes",
+        "specific": "Un agente",
+        "except": "Todos excepto",
+        "allHint": "Se ejecuta en todos los agentes que coincidan con esta plataforma."
+      },
+      "selectAgentPlaceholder": "Selecciona un agente…",
+      "excludedAgentsHint": "escribe un hostname y presiona Enter",
+      "save": "Guardar",
+      "delete": "Eliminar",
+      "confirmDelete": "Confirmar eliminación",
+      "cancel": "Cancelar",
+      "yamlError": "No se puede aplicar el YAML: {{error}}",
+      "nameRequired": "El nombre es obligatorio",
+      "conditionsRequired": "Se requiere al menos una condición con campo",
+      "commandsRequired": "Se requiere al menos un comando",
+      "httpUrlInvalid": "El nodo HTTP \"{{id}}\" tiene una URL inválida — debe ser una URL http(s) válida.",
+      "httpBodyInvalid": "El cuerpo del nodo HTTP \"{{id}}\" no es JSON válido: {{error}}",
+      "incidentNameRequired": "El nodo de incidente \"{{id}}\" requiere un nombre.",
+      "mailToRequired": "El nodo de correo \"{{id}}\" requiere al menos un destinatario.",
+      "mailAddressInvalid": "El nodo de correo \"{{id}}\" tiene una dirección {{field}} no válida: {{address}}.",
+      "mailSubjectRequired": "El nodo de correo \"{{id}}\" requiere un asunto.",
+      "identityModalTitle": "Detalles del flujo",
+      "platformRequired": "La plataforma del agente es obligatoria",
+      "nameLabel": "Nombre",
+      "namePlaceholder": "Nombre del flujo",
+      "descriptionLabel": "Descripción",
+      "descriptionHint": "¿Qué hace este flujo? (opcional)",
+      "when": "Cuando",
+      "whenTitle": "Una alerta cumple todas estas condiciones",
+      "on": "En",
+      "onTitle": "El agente que coincide",
+      "thenRun": "Entonces ejecuta",
+      "thenTitle": "Estos comandos, en orden",
+      "selectField": "Elegir un campo…",
+      "selectPlatform": "Elegir una plataforma…",
+      "searchAgents": "Buscar agentes…",
+      "noAgents": "Sin agentes",
+      "insertInto": "Insertar en el comando {{n}}:",
+      "insertField": "Campo de alerta",
+      "variables": "Variables",
+      "canvas": {
+        "node": "Nodo",
+        "deleteNode": "Eliminar nodo",
+        "id": "ID",
+        "kind": "Tipo",
+        "executor": "Ejecutor",
+        "commandLabel": "Comando",
+        "paramsJson": "Parámetros (JSON)",
+        "dragToResize": "Arrastra para redimensionar",
+        "templatesLabel": "Plantillas",
+        "templatesNeedPlatform": "Selecciona primero la plataforma destino",
+        "handlesHint": "Arrastra desde el conector verde (abajo-izquierda) para on_success y desde el rojo (abajo-derecha) para on_error. Varias conexiones = paralelo. Varias conexiones a un mismo nodo = AND-join.",
+        "invalidJson": "JSON inválido",
+        "hidePalette": "Ocultar paleta",
+        "hideInspector": "Ocultar inspector",
+        "paletteLabel": "Paleta",
+        "nodeShort": "Nodo",
+        "showPanel": "Mostrar {{name}}",
+        "platform": "Plataforma",
+        "shell": "Shell",
+        "any": "cualquiera",
+        "auto": "auto",
+        "runOn": "Ejecutar en",
+        "runAutoTitle": "Se ejecuta en el host que generó la alerta",
+        "runSpecificTitle": "Fijar a un host (o una plantilla como $(alert.foo))",
+        "runExceptTitle": "Se ejecuta en el host que generó la alerta, excluyendo los de la lista",
+        "runAutoLabel": "fuente de alerta",
+        "runSpecificLabel": "un host",
+        "runExceptLabel": "todos excepto",
+        "runAutoHint": "Se ejecuta en <code>$(alert.dataSource)</code> — el host que generó la alerta.",
+        "pickHost": "elige un host…",
+        "orTemplateHint": "O escribe una plantilla — <code>$(alert.field)</code> se resuelve en cada ejecución.",
+        "addExclusion": "añadir exclusión",
+        "searchAgents": "buscar agentes…",
+        "noAgents": "sin agentes",
+        "insertField": "Insertar campo",
+        "alert": "Alerta",
+        "wholeOutput": "salida completa (edita la ruta)",
+        "noAncestorsHint": "Aún no hay ancestros de enriquecimiento — añade un nodo de enriquecimiento previo para exponer su salida aquí.",
+        "inserts": "inserta",
+        "conditionalHint": "Todas las condiciones deben coincidir. Coincidencia → rama de éxito (verde); fallo → rama de error (rojo).",
+        "http": {
+          "url": "URL",
+          "urlInvalid": "URL http(s) inválida.",
+          "method": "Método",
+          "body": "Cuerpo (JSON)",
+          "bodyInvalid": "JSON inválido",
+          "headers": "Encabezados HTTP",
+          "params": "Parámetros de consulta",
+          "key": "Clave",
+          "value": "Valor",
+          "addHeader": "Agregar encabezado",
+          "addParam": "Agregar parámetro"
     "liveOps": {
         "header": "Operaciones en vivo",
         "live": "EN VIVO",
