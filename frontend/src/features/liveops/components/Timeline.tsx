@@ -33,6 +33,9 @@ export function Timeline({
   onWin,
   selectedId,
   live,
+  page,
+  pages,
+  onPage,
   onSelect,
   onLive,
   replaying,
@@ -44,6 +47,10 @@ export function Timeline({
   onWin: (w: WindowKey) => void
   selectedId: string | null
   live: boolean
+  /** 0-based page of the window; the timeline shows only the current page. */
+  page: number
+  pages: number
+  onPage: (p: number) => void
   onSelect: (id: string) => void
   onLive: () => void
   replaying: boolean
@@ -51,11 +58,17 @@ export function Timeline({
 }) {
   const [hover, setHover] = useState<Alert | null>(null)
   const now = Date.now()
-  const from = now - WINDOW_MS[win]
+  // One page: the window itself. Several pages: the left edge is the oldest alert loaded,
+  // so the span covers exactly the visible list, not the whole window.
+  const from = useMemo(() => {
+    if (pages <= 1 || alerts.length === 0) return now - WINDOW_MS[win]
+    return Math.min(...alerts.map((a) => tsMs(a['@timestamp'] ?? '')).filter((x) => Number.isFinite(x)))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [alerts, page, pages, win, Math.floor(now / 60_000)])
   const pos = (iso: string) => ((tsMs(iso) - from) / (now - from)) * 100
   const idx = alerts.findIndex((a) => a.id === selectedId)
   const ticks = useMemo(() => {
-    const span = WINDOW_MS[win]
+    const span = now - from
     const step = span <= 3_600_000 ? 10 * 60_000 : span <= 6 * 3_600_000 ? 3_600_000 : span <= 24 * 3_600_000 ? 3 * 3_600_000 : 12 * 3_600_000
     const out: { left: number; label: string }[] = []
     for (let tt = Math.ceil(from / step) * step; tt < now; tt += step) {
@@ -63,7 +76,7 @@ export function Timeline({
     }
     return out
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [win, Math.floor(now / 60_000)])
+  }, [from, Math.floor(now / 60_000)])
 
   return (
     <div className="lo-panel rounded-xl px-3 pb-2 pt-2">
@@ -77,8 +90,15 @@ export function Timeline({
         </div>
         <span className="text-[11.5px] text-muted-foreground">
           {t('liveOps.timCount', { count: alerts.length, range: WINDOW_OPTIONS.find((o) => o.key === win)?.label ?? '' })}
+          {pages > 1 && <span className="ml-1.5 text-muted-foreground/70">· {t('liveOps.timPage', { p: page + 1, n: pages })}</span>}
         </span>
         <div className="ml-auto flex items-center gap-1">
+          <button type="button" disabled={page <= 0} onClick={() => onPage(page - 1)} className="rounded-md border border-border p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30" title={t('liveOps.timPagePrev')}>
+            <ChevronLeft size={16} />
+          </button>
+          <button type="button" disabled={page >= pages - 1} onClick={() => onPage(page + 1)} className="rounded-md border border-border p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30" title={t('liveOps.timPageNext')}>
+            <ChevronRight size={16} />
+          </button>
           <button type="button" disabled={idx <= 0} onClick={() => idx > 0 && onSelect(alerts[idx - 1].id)} className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30" title={t('liveOps.timPrev')}>
             <ChevronLeft size={16} />
           </button>

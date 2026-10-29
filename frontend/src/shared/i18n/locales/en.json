@@ -11049,7 +11049,11 @@
         "capVm1": "It tries to cross the hypervisor boundary.",
         "capVm2": "The process runs on the {{host}} host: the guest is no longer a cage.",
         "capVm3": "Panic the hypervisor, snapshot the guest and rebuild it.",
-        "titleVm": "Guest {{guest}} escaping to {{host}}"
+        "titleVm": "Guest {{guest}} escaping to {{host}}",
+        "statTotal": "Total",
+        "timPage": "Page {{p}}/{{n}}",
+        "timPagePrev": "Previous page",
+        "timPageNext": "Next page"
     },
     "scExec": "Execution",
     "scPayload": "→ malicious payload",

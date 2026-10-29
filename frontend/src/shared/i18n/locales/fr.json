@@ -6542,7 +6542,11 @@
         "capVm1": "Il tente de franchir la frontière de l’hyperviseur.",
         "capVm2": "Le processus tourne sur le hôte {{host}} : l’invité n’est plus une cage.",
         "capVm3": "Panic l’hyperviseur, snapshoter l’invité et le reconstruire.",
-        "titleVm": "Invité {{guest}} qui s’évade vers {{host}}"
+        "titleVm": "Invité {{guest}} qui s’évade vers {{host}}",
+        "statTotal": "Total",
+        "timPage": "Page {{p}}/{{n}}",
+        "timPagePrev": "Page précédente",
+        "timPageNext": "Page suivante"
     },
     "scExec": "Exécution",
     "scPayload": "→ charge malveillante",

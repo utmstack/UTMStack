@@ -6542,7 +6542,11 @@
         "capVm1": "Tenta di attraversare il confine dell’ippervizzatore.",
         "capVm2": "Il processo gira sull’host {{host}}: il guest non è più una gabbia.",
         "capVm3": "Panicare l’ippervizzatore, fare uno snapshot del guest e ricostruirlo.",
-        "titleVm": "Guest {{guest}} che evade su {{host}}"
+        "titleVm": "Guest {{guest}} che evade su {{host}}",
+        "statTotal": "Totale",
+        "timPage": "Pagina {{p}}/{{n}}",
+        "timPagePrev": "Pagina precedente",
+        "timPageNext": "Pagina successiva"
     },
     "scExec": "Esecuzione",
     "scPayload": "→ payload malevolo",

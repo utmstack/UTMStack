@@ -8362,7 +8362,11 @@
         "capVm1": "Intenta cruzar la frontera del hipervisor.",
         "capVm2": "El proceso corre en el host {{host}}: el invitado ya no es una jaula.",
         "capVm3": "Panicar el hipervisor, snapshotear al invitado y reconstruirlo.",
-        "titleVm": "Invitado {{guest}} escapando a {{host}}"
+        "titleVm": "Invitado {{guest}} escapando a {{host}}",
+        "statTotal": "Total",
+        "timPage": "Página {{p}}/{{n}}",
+        "timPagePrev": "Página anterior",
+        "timPageNext": "Página siguiente"
     },
     "scExec": "Ejecución",
     "scPayload": "→ payload malicioso",

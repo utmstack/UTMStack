@@ -45,6 +45,9 @@ export function LiveOpsPage() {
   const { t } = useTranslation()
   const soc = useSocAi()
   const [alerts, setAlerts] = useState<Alert[] | null>(null)
+  const [total, setTotal] = useState(0)
+  const [page, setPage] = useState(0)
+  const [openCount, setOpenCount] = useState<number | null>(null)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [win, setWin] = useState<WindowKey>('6h')
   const [party, setParty] = useState<Party | null>(null)
@@ -64,14 +67,17 @@ export function LiveOpsPage() {
   const [wallRef, wall] = useSize<HTMLDivElement>()
   const [timelineRef, timelineSize] = useSize<HTMLDivElement>()
 
-  // The single source: parent alerts inside the timeline window, re-read every 30 s and
-  // whenever the window changes. Counters, the alert list and the timeline all use it.
+  const PAGE = 3000
+  const pages = Math.max(1, Math.ceil(total / PAGE))
+
+  // The single source: parent alerts inside the timeline window, one page of
+  // PAGE at a time, re-read every 30 s and whenever the window or page changes.
   const refresh = useCallback(
-    (w: WindowKey) =>
+    (w: WindowKey, p: number) =>
       alertsHttpService
         .list({
-          page: 0,
-          size: 500,
+          page: p,
+          size: PAGE,
           filters: [
             { field: 'parentId', operator: 'IS', value:''  },
             { field: '@timestamp', operator: 'IS_BETWEEN', value: [new Date(Date.now() - WINDOW_MS[w]).toISOString(),new Date(Date.now()).toISOString()] },
@@ -79,6 +85,7 @@ export function LiveOpsPage() {
         })
         .then((r) => {
           setAlerts(r.data)
+          setTotal(r.total)
           setLoading(false)
           setError('')
         })
@@ -91,10 +98,17 @@ export function LiveOpsPage() {
 
   useEffect(() => {
     setLoading(true)
-    void refresh(win)
-    const id = setInterval(() => void refresh(win), POLL_MS)
+    void refresh(win, page)
+    const id = setInterval(() => void refresh(win, page), POLL_MS)
     return () => clearInterval(id)
-  }, [win, refresh])
+  }, [win, page, refresh])
+
+  // The open-alert total comes from the count endpoint, not the windowed list.
+  useEffect(() => {
+    alertsHttpService.countOpen().then(setOpenCount).catch(() => setOpenCount(null))
+    const id = setInterval(() => alertsHttpService.countOpen().then(setOpenCount).catch(() => setOpenCount(null)), POLL_MS)
+    return () => clearInterval(id)
+  }, [])
 
   useEffect(() => {
     const id = setInterval(() => setTick((x) => x + 1), 5_000)
@@ -145,7 +159,13 @@ export function LiveOpsPage() {
     const i = windowAlerts.findIndex((a) => a.id === alert.id)
     const next = windowAlerts[i - 1]
     if (next) setSelectedId(next.id)
+    else if (page > 0) setPage(page - 1)
     else setReplaying(false)
+  }
+
+  function goPage(p: number) {
+    setPage(p)
+    setReplaying(false)
   }
 
   useEffect(() => {
@@ -219,11 +239,13 @@ export function LiveOpsPage() {
         </div>
         <div className="hidden min-w-0 items-center gap-2 @min-[980px]:flex">
           {[
-            [t('liveOps.statLastHour'), list.filter((a) => a['@timestamp'] && Date.now() - tsMs(a['@timestamp']) < 3_600_000).length],
             [t('liveOps.statHigh'), list.filter((a) => a.severity === 'high').length],
-            [t('liveOps.statOpen'), list.filter((a) => String(a.status).toLowerCase() === 'open').length],
+            [t('liveOps.statOpen'), openCount ?? list.filter((a) => String(a.status).toLowerCase() === 'open').length],
             [t('liveOps.statAttackers'), new Set(list.map((a) => a.adversary?.ip).filter(isExternal)).size],
-          ].map(([k, v]) => (
+            list.length < total ? [t('liveOps.statTotal'), total] : null,
+          ]
+            .filter((s): s is [string, number] => s !== null)
+            .map(([k, v]) => (
             <div key={k} className="lo-panel shrink-0 rounded-lg px-2.5 py-1">
               <span className="text-[11px] text-muted-foreground">{k} </span>
               <span className="font-mono text-[13px] font-semibold text-foreground">{v}</span>
@@ -265,9 +287,16 @@ export function LiveOpsPage() {
           t={t}
           alerts={windowAlerts}
           win={win}
-          onWin={setWin}
+          onWin={(w) => {
+            setWin(w)
+            setPage(0)
+            setReplaying(false)
+          }}
           selectedId={alert?.id ?? null}
           live={!replaying}
+          page={page}
+          pages={pages}
+          onPage={goPage}
           onSelect={show}
           onLive={() => {
             setReplaying(false)

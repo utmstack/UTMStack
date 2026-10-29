@@ -6542,7 +6542,11 @@
         "capVm1": "Es versucht, die Hypervisor-Grenze zu überschreiten.",
         "capVm2": "Der Prozess läuft auf dem {{host}}-Host: der Gast ist keine Käfig mehr.",
         "capVm3": "Hypervisor panikieren, Gast snapshoten und neu aufbauen.",
-        "titleVm": "Gast {{guest}} entkommt zu {{host}}"
+        "titleVm": "Gast {{guest}} entkommt zu {{host}}",
+        "statTotal": "Gesamt",
+        "timPage": "Seite {{p}}/{{n}}",
+        "timPagePrev": "Vorherige Seite",
+        "timPageNext": "Nächste Seite"
     },
     "scExec": "Ausführung",
     "scPayload": "→ bösartiges Payload",
