@@ -20,9 +20,9 @@ describe('kv fieldSplit normalization', () => {
     expect(out).toContain('valueSplit: "="')
   })
 
-  it('normalizes a whitespace-only fieldSplit to a single space', () => {
-    const out = serializeKv({ source: 'log', fieldSplit: ' ', valueSplit: '=' })
-    expect(out).toContain('fieldSplit: " "')
+  it('preserves a multi-space fieldSplit verbatim (no silent rewrite)', () => {
+    const out = serializeKv({ source: 'log', fieldSplit: '  ', valueSplit: '=' })
+    expect(out).toContain('fieldSplit: "  "')
   })
 
   it('round-trips the space through parse', () => {
@@ -46,9 +46,10 @@ describe('kv fieldSplit normalization', () => {
     expect(cfg.valueSplit).toBe(':')
   })
 
-  it('still prunes empty strings for other keys (e.g. where)', () => {
-    const out = serializeKv({ source: 'log', fieldSplit: ' ', where: '' })
+  it('still prunes whitespace-only strings for OTHER keys (e.g. where)', () => {
+    const out = serializeKv({ source: 'log', fieldSplit: ' ', where: ' ' })
     expect(out).not.toContain('where')
+    expect(out).toContain('fieldSplit: " "')
   })
 
   it('quotes a csv separator too', () => {

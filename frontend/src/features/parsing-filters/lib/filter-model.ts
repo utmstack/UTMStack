@@ -155,35 +155,41 @@ export function serializeFilter(model: FilterModel): string {
     pipeline: model.entries.map((e) => ({
       dataTypes: e.dataTypes,
       order: e.order,
-      steps: e.steps.map((s) => ({ [s.kind]: pruneEmpty(normalizeStep(s)) })),
+      steps: e.steps.map((s) => ({ [s.kind]: stepBody(s) })),
     })),
   }
   return dump(doc, { indent: 2, lineWidth: -1, noRefs: true, quotingType: '"' })
 }
 
-/** Normalize a step's config before it's written. For a `kv` step the
- * `fieldSplit` default is a space — and the Event Processor treats an empty
- * `fieldSplit` the same as `" "` — so we always emit it explicitly. That keeps
- * the code view self-documenting (`fieldSplit: " "`) whether the user left the
- * field blank, typed a single space, or nothing. Non-space separators are
- * passed through untouched. */
-function normalizeStep(step: Step): Record<string, unknown> {
-  if (step.kind !== 'kv') return step.config
-  const fieldSplit = step.config.fieldSplit
-  if (fieldSplit == null || (typeof fieldSplit === 'string' && fieldSplit.trim() === '')) {
-    return { ...step.config, fieldSplit: ' ' }
+/** Prune a step's config, applying the kv fieldSplit default.
+ *
+ * For a `kv` step, a missing/blank `fieldSplit` means "split on a space" — the
+ * Event Processor's default — so we emit `fieldSplit: " "` explicitly to keep
+ * the code view self-documenting. Any NON-blank value the user typed (including
+ * a multi-character or multi-space delimiter like `", "` or `"  "`) is preserved
+ * as-is; we never rewrite user data. Every other field (where, valueSplit,
+ * csv.separator, …) goes through `pruneEmpty` unchanged, so a stray
+ * whitespace-only value there is still dropped instead of leaking into the YAML. */
+function stepBody(step: Step): Record<string, unknown> {
+  const config = step.config
+  const out = pruneEmpty(config)
+  if (step.kind === 'kv') {
+    const fs = config.fieldSplit
+    // Only a truly blank value (missing / null / '') gets the space default;
+    // a typed space or multi-space delimiter is kept verbatim.
+    out.fieldSplit = typeof fs === 'string' && fs !== '' ? fs : ' '
   }
-  return step.config
+  return out
 }
 
 /** Drop empty-string / empty-array / null keys so the emitted YAML stays
- * clean. Only strictly-empty strings are dropped — whitespace-only values are
- * meaningful (e.g. kv fieldSplit " " splits on space) and must survive. */
+ * clean. Whitespace-only strings are dropped too — the single meaningful
+ * exception (kv fieldSplit) is re-added explicitly in `stepBody`. */
 function pruneEmpty(config: Record<string, unknown>): Record<string, unknown> {
   const out: Record<string, unknown> = {}
   for (const [k, v] of Object.entries(config)) {
     if (v == null) continue
-    if (typeof v === 'string' && v === '') continue
+    if (typeof v === 'string' && v.trim() === '') continue
     if (Array.isArray(v) && v.length === 0) continue
     if (isRecord(v) && Object.keys(v).length === 0) continue
     out[k] = v

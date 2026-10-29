@@ -4663,7 +4663,7 @@
   },
   "incidents": {
     "title": "Incidentes",
-    "subtitle": "Agrupa, tría y resuelve alertas relacionadas como incidentes.",
+    "subtitle": "Agrupa, triajea y resuelve alertas relacionadas como incidentes.",
     "refresh": "Actualizar",
     "count_one": "{{count}} incidente",
     "count_other": "{{count}} incidentes",
@@ -4879,7 +4879,7 @@
       "splitHint": "Vacío equivale a un espacio por defecto — en el YAML siempre aparece como fieldSplit: \" \".",
       "addValue": "Agregar valor",
       "addPattern": "Agregar patrón",
-      "rawHint": "Este processor se edita como YAML directo.",
+      "rawHint": "Este procesador se edita como YAML directo.",
       "rawNotMap": "Debe ser un conjunto de campos clave: valor.",
       "dataTypesPick": "Elegir tipos de dato",
       "dataTypesSearch": "Buscar tipos de dato…",
@@ -5124,7 +5124,7 @@
   },
   "soar": {
     "title": "SOAR",
-    "subtitle": "Flujos de respuesta automática: las condiciones matchean una alerta y los comandos corren en el agente.",
+    "subtitle": "Flujos de respuesta automática: las condiciones coinciden con una alerta y los comandos corren en el agente.",
     "comingSoon": "Próximamente",
     "console": {
       "loading": "Cargando agentes…",
