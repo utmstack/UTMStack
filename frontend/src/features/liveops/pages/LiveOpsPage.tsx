@@ -73,7 +73,7 @@ export function LiveOpsPage() {
           page: 0,
           size: 500,
           filters: [
-            { field: 'parentId', operator: 'IS', value: '' },
+            { field: 'parentId', operator: 'IS', value:''  },
             { field: '@timestamp', operator: 'IS_BETWEEN', value: [new Date(Date.now() - WINDOW_MS[w]).toISOString(),new Date(Date.now()).toISOString()] },
           ],
         })

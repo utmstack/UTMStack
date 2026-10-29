@@ -1,7 +1,7 @@
 import { flagEmoji } from '@/features/alerts/lib/alert-meta'
 import type { Alert } from '@/features/alerts/types/alert.types'
 
-export type TemplateId = 'bruteForce' | 'outbound' | 'lateral' | 'malware' | 'webAttack' | 'travel' | 'scan' | 'cloud' | 'ransomware' | 'persistence' | 'exfil' | 'defenseEvasion' | 'privEsc' | 'userExec' | 'softwareDeploy' | 'phishing' | 'processInjection' | 'credDump' | 'dataDestruction' | 'toolDownload' | 'c2tunnel' | 'generic'
+export type TemplateId = 'bruteForce' | 'outbound' | 'lateral' | 'malware' | 'webAttack' | 'travel' | 'scan' | 'cloud' | 'ransomware' | 'persistence' | 'exfil' | 'defenseEvasion' | 'privEsc' | 'userExec' | 'softwareDeploy' | 'phishing' | 'processInjection' | 'credDump' | 'dataDestruction' | 'toolDownload' | 'c2tunnel' | 'iocMatch' | 'perimeterDetect' | 'accountChange' | 'kerberosTicket' | 'powershellAbuse' | 'reverseShell' | 'vmEscape' | 'generic'
 
 export type Role = 'attacker' | 'perimeter' | 'internal' | 'cloud' | 'external'
 export type NodeKind = 'globe' | 'firewall' | 'server' | 'dc' | 'workstation' | 'laptop' | 'web' | 'k8s' | 'cloud' | 'skull' | 'user' | 'sensor'
@@ -132,25 +132,32 @@ export function templateFor(a: Alert): TemplateId {
   const n = (a.name ?? '').toLowerCase()
   const dt = (a.dataType ?? '').toLowerCase()
   if (n.includes('impossible travel')) return 'travel'
-  if (n.includes('port scanning') || n.includes('nping')) return 'scan'
+  if (n.includes('port scanning') || /nping|hping/.test(n)) return 'scan'
   if (/brute force|password spray|password guessing|mfa fatigue|logon failure|single sign-on logon errors|authentication.*(fail|error)|failed logon/.test(n)) return 'bruteForce'
   if (/pass the hash|lateral movement|smbv1|kerberoast|as-rep|logon type 3/.test(n)) return 'lateral'
-  if (/hack tool|spyware and vulnerability|ips critical|exploit attempt|sqli|xss|injection|web attack/.test(n)) return 'webAttack'
-  if (/phishing|malicious (link|attachment|document|url)|spearphish|deceptive (link|attachment)/.test(n)) return 'phishing'
-  if (/process injection|inject.?(into|code into)|apc queue|remote thread/.test(n)) return 'processInjection'
-  if (/credential dumping|lsass|sam database|ntds|password store|keychain|credential theft|dump.?(password|credential)|os credential/.test(n)) return 'credDump'
+  if (/process injection|code injected into|apc queue|remote thread|shellcode/i.test(n)) return 'processInjection'
+  if (/hack tool|spyware and vulnerability|ips critical|exploit attempt|sqli|xss|cross site scripting|sql injection|injection|web (application )?attack/.test(n)) return 'webAttack'
+  if (/phishing|spearphish|deceptive (link|attachment)|malicious (link|attachment|document|url)|successful phishing|phishing detection/i.test(n)) return 'phishing'
+  if (/credential dumping|lsass|sam database|ntds|password store|keychain|credential theft|dump.?(password|credential)|os credential|\/etc\/shadow|\/etc\/passwd/.test(n)) return 'credDump'
   if (/data destruction|disk (wipe|content)|file (deletion|delet)|shred|rm -rf|data loss|destructive|volume shadow/i.test(n)) return 'dataDestruction'
   if (/ingress tool|tool transfer|tool (download|transfer)|downloaded (a )?tool|downloaded to|payload (download|transfer)/i.test(n)) return 'toolDownload'
   if (/tunneling|protocol tunnel|dns tunnel|icmp tunnel|covert channel|data exfiltration over/.test(n)) return 'c2tunnel'
+  if (/reverse shell|netcat|named pipe/i.test(n)) return 'reverseShell'
   if (/beaconing|malicious url|dns security|tor network|mining pool|out-of-band|wildfire|malware outbreak|c2|command.?(and|&)?control/.test(n)) return 'outbound'
   if (/(aws|google|gcp|github|azure|o365|office)/.test(dt) || /inbox rule|forwarding rule|transport rule|external sharing|safe links|safe attachment|admin login/.test(n)) return 'cloud'
   if (n.includes('ransom') || n.includes('crypto') && n.includes('file') || n.includes('encryption') && n.includes('file') || /encrypted for impact/i.test(n)) return 'ransomware'
   if (/persistence|scheduled task|cron|crontab|launch (agent|daemon)|autorun|autostart|sshd? (config|key)|authorized (keys|users)|systemd|startup|registry run|winlogon/i.test(n)) return 'persistence'
   if (/exfil|staged (and )?exfil|data (leaving|transfer)|rclone|archive.*exfil|cloud storage|upload.*external|outbound transfer/i.test(n)) return 'exfil'
-  if (/clear(ed|ing)? (windows )?(event )?log|audit log|impair|selinux|disable|turn(ed)? (off|down)|defender.*disabled|antivirus (protection )?(disabled|off)|security tool|tamper|xprotect|sip bypass|gatekeeper|log.*(clear|delet|remov)|wevtutil|shred|rm -rf.*log|kernel (module|removal)/i.test(n)) return 'defenseEvasion'
+  if (/clear(ed|ing)? (windows )?(event )?log|audit log|impair|selinux|disable|turn(ed)? (off|down)|defender.*disabled|antivirus (protection )?(disabled|off)|security tool|tamper|xprotect|sip bypass|gatekeeper|log.*(clear|delet|remov)|wevtutil|shred|rm -rf.*log|kernel (module|removal)|syslog.*disruption|log forwarding/i.test(n)) return 'defenseEvasion'
   if (/privilege escalation|uac bypass|token (impersonation|theft)|getsystem|suid|setgid|escalation|sudo (caching|cache)|dscl|root (account|kit|privilege)|sid history/i.test(n)) return 'privEsc'
   if (/user execution|malicious (file|link|attachment|document)|drive-by|office application|opened a (malicious|phishing)|downloaded and (executed|ran)|macro (enabled|execution)/i.test(n)) return 'userExec'
-  if (/software deployment|deployment tool|pushed (to|software)|remote software install|mass install/i.test(n)) return 'softwareDeploy'
+  if (/known malicious|malicious (ip|domain)|threat (feed|intel)|iocs? |ioc match|malicious ip/i.test(n) || /malicious ip|malicious domain/.test(n)) return 'iocMatch'
+  if (/golden ticket|silver ticket|kerberoast|as-rep|kerberos|certificate services|krbtgt/i.test(n)) return 'kerberosTicket'
+  if (/vm escape|virtual machine escape|hypervisor escape|container escape|esxi.*(escape|host compromise)|vmware tools.*(escape|compromis)/i.test(n)) return 'vmEscape'
+  if (/\b(ips|ids)\b|intrusion (prevention|detection)|intrusion alert|signature (match|detect)|priority [12] (or )?detection|ips de severidad|ips no bloqueada|web application attack|waf|web filtering|botnet|ip spoofing|ike fase|ike phase|evento de sistema/i.test(n)) return 'perimeterDetect'
+  if (/added to (a )?privileged group|administrators group|security group|group policy|new user account|account (created|added)|builtin administrator|guest account|directory services restore|setsdmpwd|lockout|kerberos policy|account policy|firewall rule|se.*privilege asignado|se.*privilege assigned|privilege (granted|asignado|added)/i.test(n)) return 'accountChange'
+  if (/powershell|amsi|base64|encoded (command|script)|empire framework/i.test(n)) return 'powershellAbuse'
+  if (/software deployment|deployment tool|pushed (to|software)|remote software install|mass install|windows service (installed|created)|service created.*windows root/i.test(n)) return 'softwareDeploy'
   if (/(wineventlog|windows|linux|macos|crowdstrike|defender|edr|osquery)/.test(dt)) return 'malware'
   return 'generic'
 }
@@ -690,6 +697,168 @@ const BUILDERS: Record<TemplateId, (a: Alert, t: (k: string, o?: Record<string, 
       parties: [src, dst],
       captions,
       facts: { proto, bytes },
+    }
+  },
+
+  powershellAbuse(a, t) {
+    const host = internalSide('host', a.target?.host ? a.target : a.adversary, a.dataSource)
+    const n = (a.name ?? '').toLowerCase()
+    const amsi = /amsi/.test(n)
+    const encoded = 'JABzAD0ATgBlAHcALQBPAGIAagBlAGMAdAAgAFMAdAByAGkAbgBnAFMAYwByAGkAYgB0AEUAbgBnAGkAbgBl'
+    const cmd = amsi ? 'powershell -enc … (AMSI off)' : 'powershell -enc …'
+    const captions: Caption[] = [
+      { at: 0, text: t('liveOps.capPs0', { host: host.name }) },
+      { at: 2200, text: t('liveOps.capPs1') },
+      { at: 4800, text: amsi ? t('liveOps.capPs2a') : t('liveOps.capPs2') },
+      { at: 8200, text: `${t('liveOps.capAlertRaised', { name: a.name ?? '' })}${t('liveOps.capPs3')}` },
+    ]
+    return {
+      template: 'powershellAbuse',
+      title: t('liveOps.titlePs2', { host: host.name }),
+      duration: 10400,
+      parties: [host],
+      captions,
+      facts: { encoded, cmd, amsi },
+    }
+  },
+
+  iocMatch(a, t) {
+    // For threat-feed hits the known-bad address is on `adversary`, the internal host on `target`.
+    const ioc = a.adversary?.domain ?? a.adversary?.ip ?? a.target?.domain ?? a.target?.ip ?? 'known bad address'
+    const src = internalSide('source', a.target, a.dataSource)
+    const n = (a.name ?? '').toLowerCase()
+    const kind = n.includes('domain') ? 'a known-bad domain' : n.includes('ip') ? 'a known-bad IP' : 'a known threat indicator'
+    const dst: Party = { id: 'destination', role: 'external', kind: 'skull', name: ioc, sub: a.adversary?.geolocation?.country ?? 'Threat feed hit', ip: a.adversary?.ip ?? a.target?.ip, flag: a.adversary?.geolocation?.countryCode ? flagEmoji(a.adversary.geolocation.countryCode) : undefined }
+    const captions: Caption[] = [
+      { at: 0, text: t('liveOps.capIoc0', { src: src.name, ioc }) },
+      { at: 2000, text: t('liveOps.capIoc1', { kind }) },
+      { at: 4200, text: t('liveOps.capIoc2', { ioc }) },
+      { at: 7800, text: `${t('liveOps.capAlertRaised', { name: a.name ?? '' })}${t('liveOps.capIoc3', { ioc })}` },
+    ]
+    return {
+      template: 'iocMatch',
+      title: t('liveOps.titleIoc', { src: src.name, ioc }),
+      duration: 10200,
+      parties: [src, dst],
+      captions,
+      facts: { ioc, kind },
+    }
+  },
+
+  perimeterDetect(a, t) {
+    const attacker = attackerParty(a.adversary)
+    const fw = perimeterParty(a) ?? { id: 'perimeter', role: 'perimeter' as const, kind: 'firewall' as const, name: a.dataSource ?? 'perimeter device' }
+    const n = (a.name ?? '').toLowerCase()
+    const blocked = /block|dropped|detenido|bloqueada|bloqueado/.test(n) || (a.events ?? []).some((e) => (e as Ev).actionResult === 'blocked' || (e as Ev).action === 'blocked')
+    const sig = n.includes('xss') ? 'XSS payload' : n.includes('sqli') || n.includes('injection') || n.includes('inyección') ? 'SQL injection payload' : n.includes('scan') || n.includes('sondeo') ? 'scanner probe' : n.includes('botnet') ? 'botnet callback' : 'IPS signature hit'
+    const hits = hashNum(a.id, 12, 240)
+    const captions: Caption[] = [
+      { at: 0, text: t('liveOps.capPd0', { name: attacker.name, sig }) },
+      { at: 2800, text: t('liveOps.capPd1', { fw: fw.name, sig }) },
+      { at: 5600, text: blocked ? t('liveOps.capPd2') : t('liveOps.capPd3', { fw: fw.name }) },
+      { at: 8000, text: `${t('liveOps.capAlertRaised', { name: a.name ?? '' })}${t('liveOps.capPd4', { name: attacker.name })}` },
+    ]
+    return {
+      template: 'perimeterDetect',
+      title: t('liveOps.titlePd', { sig, fw: fw.name }),
+      duration: 10200,
+      parties: [attacker, fw],
+      captions,
+      facts: { sig, blocked, hits },
+    }
+  },
+
+  accountChange(a, t) {
+    const host = internalSide('host', a.target?.host ? a.target : a.adversary, a.dataSource)
+    const n = (a.name ?? '').toLowerCase()
+    const who = a.adversary?.user ?? 'an admin session'
+    let what = 'an account setting'
+    let before = 'Normal state'
+    let after = 'Changed'
+    if (/privileged group|administrators group|security group|group policy/i.test(n)) { what = 'group membership'; before = 'Standard member'; after = 'Privileged group member' }
+    else if (/new user account|account (created|added)/i.test(n)) { what = 'the account list'; before = `Accounts: unchanged`; after = `New account: ${a.target?.user ?? who}` }
+    else if (/builtin administrator|guest account/i.test(n)) { what = 'the built-in accounts'; before = 'Disabled'; after = 'Enabled' }
+    else if (/directory services restore|dsrm|password set/i.test(n)) { what = 'the DC recovery password'; before = 'Rotated, unknown'; after = 'Reset to attacker-known value' }
+    else if (/lockout|kerberos policy|account policy/i.test(n)) { what = 'domain auth policy'; before = 'Standard thresholds'; after = 'Weakened thresholds' }
+    else if (/se.*privilege/i.test(n)) { what = 'a system privilege'; before = 'Default assignment'; after = 'Extra privilege granted' }
+    else if (/firewall rule/i.test(n)) { what = 'the host firewall ruleset'; before = 'Default deny inbound'; after = 'New rule added' }
+    else { what = 'an account setting'; before = 'Protected'; after = 'Weakened' }
+    const captions: Caption[] = [
+      { at: 0, text: t('liveOps.capAc0', { host: host.name, who }) },
+      { at: 2600, text: t('liveOps.capAc1', { what }) },
+      { at: 5400, text: t('liveOps.capAc2', { before, after }) },
+      { at: 8000, text: `${t('liveOps.capAlertRaised', { name: a.name ?? '' })}${t('liveOps.capAc3', { who })}` },
+    ]
+    return {
+      template: 'accountChange',
+      title: t('liveOps.titleAc', { what, host: host.name }),
+      duration: 10200,
+      parties: [host],
+      captions,
+      facts: { what, before, after },
+    }
+  },
+
+  kerberosTicket(a, t) {
+    const src = internalSide('source', a.adversary, a.dataSource)
+    const dc: Party = { id: 'dc', role: 'internal', kind: 'dc', name: a.target?.host ?? 'domain controller', sub: a.target?.ip }
+    const n = (a.name ?? '').toLowerCase()
+    const kind = n.includes('golden') ? 'forged from a stolen krbtgt' : n.includes('silver') || n.includes('certificate') ? 'forged service ticket' : n.includes('as-rep') ? 'reply without pre-auth' : 'stolen service ticket'
+    const ticket = n.includes('golden') ? 'krbtgt ticket' : n.includes('as-rep') ? 'AS-REP hash' : 'service ticket'
+    const services = ['cifs$', 'mssql$', 'www$']
+    const captions: Caption[] = [
+      { at: 0, text: t('liveOps.capKb0', { src: src.name, dc: dc.name }) },
+      { at: 2800, text: t('liveOps.capKb1', { kind, ticket }) },
+      { at: 5400, text: t('liveOps.capKb2', { services: services.join(', ') }) },
+      { at: 8200, text: `${t('liveOps.capAlertRaised', { name: a.name ?? '' })}${t('liveOps.capKb3')}` },
+    ]
+    return {
+      template: 'kerberosTicket',
+      title: t('liveOps.titleKb', { src: src.name, dc: dc.name }),
+      duration: 10600,
+      parties: [src, dc],
+      captions,
+      facts: { ticket, kind, services },
+    }
+  },
+
+  reverseShell(a, t) {
+    const attacker = attackerParty(a.adversary)
+    const host = internalSide('target', a.target, a.dataSource)
+    const n = (a.name ?? '').toLowerCase()
+    const port = Number(evLog((a.events ?? [])[0] as Ev).dstPort ?? (n.includes('named pipe') ? 4444 : 4444))
+    const captions: Caption[] = [
+      { at: 0, text: t('liveOps.capRs0', { host: host.name }) },
+      { at: 2000, text: t('liveOps.capRs1', { port, name: attacker.name }) },
+      { at: 4400, text: t('liveOps.capRs2') },
+      { at: 8200, text: `${t('liveOps.capAlertRaised', { name: a.name ?? '' })}${t('liveOps.capRs3', { host: host.name })}` },
+    ]
+    return {
+      template: 'reverseShell',
+      title: t('liveOps.titleRs', { host: host.name }),
+      duration: 10400,
+      parties: [attacker, host],
+      captions,
+      facts: { port },
+    }
+  },
+
+  vmEscape(a, t) {
+    const host = internalSide('host', a.target?.host ? a.target : a.adversary, a.dataSource)
+    const guest = a.target?.host ?? a.adversary?.host ?? 'guest-vm'
+    const captions: Caption[] = [
+      { at: 0, text: t('liveOps.capVm0', { guest }) },
+      { at: 2800, text: t('liveOps.capVm1') },
+      { at: 5600, text: t('liveOps.capVm2', { host: host.name }) },
+      { at: 8200, text: `${t('liveOps.capAlertRaised', { name: a.name ?? '' })}${t('liveOps.capVm3')}` },
+    ]
+    return {
+      template: 'vmEscape',
+      title: t('liveOps.titleVm', { guest, host: host.name }),
+      duration: 10400,
+      parties: [host],
+      captions,
+      facts: { guest },
     }
   },
 
