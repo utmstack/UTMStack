@@ -131,19 +131,25 @@ function baseName(path: unknown): string {
 export function templateFor(a: Alert): TemplateId {
   const n = (a.name ?? '').toLowerCase()
   const dt = (a.dataType ?? '').toLowerCase()
-  if (n.includes('impossible travel')) return 'travel'
-  if (n.includes('port scanning') || n.includes('nping')) return 'scan'
-  if (/brute force|password spray|password guessing|mfa fatigue|logon failure|single sign-on logon errors|authentication.*(fail|error)|failed logon/.test(n)) return 'bruteForce'
-  if (/pass the hash|lateral movement|smbv1|kerberoast|as-rep|logon type 3/.test(n)) return 'lateral'
+  // Threat-intelligence matches (IP/domain from a feed) are connections to a known-bad
+  // destination, whatever the vendor or data source — route them before the cloud rule,
+  // which would otherwise swallow every "Known Malicious IP" alert.
+  if (/known malicious|malicious (ip|domain|host|address)|internal host connecting|outbound.*malicious/.test(n)) return 'outbound'
+  if (/impossible travel|outside (expected|colombia)|login outside|activity outside|signin.*abroad|abnormal.*location/i.test(n)) return 'travel'
+  if (/brute force|password spray|password guessing|mfa fatigue|logon failure|single sign-on logon errors|authentication.*(fail|error)|failed logon|fuerza bruta/i.test(n)) return 'bruteForce'
+  if (/pass the hash|lateral movement|smbv1|kerberoast|as-rep|logon type 3|winrm|remote management|remote desktop|rdp|loopback|admin shares|\brdp\b/i.test(n)) return 'lateral'
   if (/golden ticket/.test(n)) return 'goldenTicket'
-  if (/hack tool|spyware and vulnerability|ips critical|exploit attempt|sqli|xss|injection|web attack/.test(n)) return 'webAttack'
-  if (/beaconing|malicious url|dns security|tor network|mining pool|out-of-band|ssh tunneling|wildfire|malware outbreak|c2|command.?(and|&)?control/.test(n)) return 'outbound'
-  if (/(aws|google|gcp|github|azure|o365|office)/.test(dt) || /inbox rule|forwarding rule|transport rule|external sharing|safe links|safe attachment|admin login/.test(n)) return 'cloud'
-  if (n.includes('ransom') || n.includes('crypto') && n.includes('file') || n.includes('encryption') && n.includes('file') || /encrypted for impact/i.test(n)) return 'ransomware'
-  if (/persistence|scheduled task|cron|crontab|launch (agent|daemon)|autorun|autostart|sshd? (config|key)|authorized (keys|users)|systemd|startup|registry run|winlogon/i.test(n)) return 'persistence'
-  if (/exfil|staged (and )?exfil|data (leaving|transfer)|rclone|archive.*exfil|cloud storage|upload.*external|outbound transfer/i.test(n)) return 'exfil'
-  if (/clear(ed|ing)? (windows )?(event )?log|audit log|impair|selinux|disable|turn(ed)? (off|down)|defender.*disabled|antivirus (protection )?(disabled|off)|security tool|tamper|xprotect|sip bypass|gatekeeper|log.*(clear|delet|remov)|wevtutil|shred|rm -rf.*log|kernel (module|removal)/i.test(n)) return 'defenseEvasion'
-  if (/privilege escalation|uac bypass|token (impersonation|theft)|getsystem|suid|setgid|escalation|sudo (caching|cache)|dscl|root (account|kit|privilege)|sid history/i.test(n)) return 'privEsc'
+  if (/credential dump|lsass|mimikatz|sekurlsa|etc\/(shadow|passwd)|dump (of )?(memory|credentials)|nanodump|rubeus/i.test(n)) return 'credentialDumping'
+  if (/reverse shell|netcat|\bnc\b.*listen|listener established|socket (reverse|back)|/dev/tcp/i.test(n)) return 'reverseShell'
+  if (/hack tool|spyware and vulnerability|ips (critical|signature|priority)|exploit attempt|sqli|xss|injection|web attack|waf|sondeo de rutas|inyecci|fuerza bruta sobre|sqlmap|nikto|vulnerability scan|cross.site|scripting/i.test(n)) return 'webAttack'
+  if (/nping|hping|port scanning|scanning ip|active scanning|ip block/i.test(n)) return 'scan'
+  if (/beaconing|malicious url|dns security|tor network|mining pool|out-of-band|ssh tunneling|wildfire|malware outbreak|\bc2\b|command.?(and|&)?control|botnet|unusual process network/i.test(n)) return 'outbound'
+  if (/(aws|google|gcp|github|azure|o365|office)/.test(dt) || /inbox rule|forwarding rule|transport rule|external sharing|safe links|safe attachment|admin login/i.test(n)) return 'cloud'
+  if (/exfil|staged (and )?exfil|data (leaving|transfer)|rclone|archive.*exfil|cloud storage|upload.*external|outbound transfer|mass file|mass item|message export|suspicious external sharing|data loss prevention/i.test(n)) return 'exfil'
+  if (n.includes('ransom') || (n.includes('crypto') && n.includes('file')) || (n.includes('encryption') && n.includes('file')) || /encrypted for impact/i.test(n)) return 'ransomware'
+  if (/persistence|scheduled task|cron|crontab|launch (agent|daemon)|autorun|autostart|sshd? (config|key)|authorized (keys|users)|systemd|startup|registry run|winlogon|kernel module|insmod|login item|secure boot/i.test(n)) return 'persistence'
+  if (/clear(ed|ing)? (windows )?(event |system )?log|audit (log|policy)|impair|selinux|disable|turn(ed)? (off|down)|defender.*disabled|antivirus (protection )?(disabled|off)|security tool|tamper|xprotect|sip bypass|gatekeeper|log.*(clear|delet|remov)|wevtutil|shred|rm -rf.*log|kernel (module|removal)/i.test(n)) return 'defenseEvasion'
+  if (/privilege escalation|uac bypass|token (impersonation|theft)|getsystem|suid|setgid|escalation|sudo (caching|cache)|dscl|root (account|kit|privilege)|sid history|added to (a )?(admin|privileged)|administrator group|guest account|tcc database|setcbprivilege|domain policy|vm escape|escape to host/i.test(n)) return 'privEsc'
   if (/(wineventlog|windows|linux|macos|crowdstrike|defender|edr|osquery)/.test(dt)) return 'malware'
   return 'generic'
 }
