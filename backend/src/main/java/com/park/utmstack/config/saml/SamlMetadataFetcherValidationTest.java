@@ -81,6 +81,23 @@ class SamlMetadataFetcherValidationTest {
                         "https://internal.example.com/m.xml", RESOLVER));
     }
 
+    @Test
+    void rejectsIpv6LinkLocal() {
+        assertThrows(SamlMetadataUrlInvalidException.class,
+                () -> SamlMetadataFetcher.assertFetchableMetadataUrl(
+                        "http://[fe80::1]/m.xml", RESOLVER));
+    }
+
+    @Test
+    void rejectsMulticastAndAnyLocal() {
+        assertThrows(SamlMetadataUrlInvalidException.class,
+                () -> SamlMetadataFetcher.assertFetchableMetadataUrl(
+                        "http://224.0.0.1/m.xml", RESOLVER));
+        assertThrows(SamlMetadataUrlInvalidException.class,
+                () -> SamlMetadataFetcher.assertFetchableMetadataUrl(
+                        "http://0.0.0.0/m.xml", RESOLVER));
+    }
+
     // --- REJECT: schemes and malformed URLs
 
     @Test
@@ -102,6 +119,21 @@ class SamlMetadataFetcherValidationTest {
         assertThrows(SamlMetadataUrlInvalidException.class,
                 () -> SamlMetadataFetcher.assertFetchableMetadataUrl(
                         "not a url", RESOLVER));
+    }
+
+    @Test
+    void rejectsNullOrEmptyUrl() {
+        assertThrows(SamlMetadataUrlInvalidException.class,
+                () -> SamlMetadataFetcher.assertFetchableMetadataUrl("", RESOLVER));
+        assertThrows(SamlMetadataUrlInvalidException.class,
+                () -> SamlMetadataFetcher.assertFetchableMetadataUrl(null, RESOLVER));
+    }
+
+    @Test
+    void rejectsUrlWithNoHost() {
+        assertThrows(SamlMetadataUrlInvalidException.class,
+                () -> SamlMetadataFetcher.assertFetchableMetadataUrl(
+                        "http:///m.xml", RESOLVER));
     }
 
     // --- ACCEPT: public addresses over http/https

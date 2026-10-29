@@ -36,12 +36,18 @@ public class SamlMetadataFetcher {
         CompletableFuture<RelyingPartyRegistration> future =
                 CompletableFuture.supplyAsync(() -> {
                     try {
-                        // Validate the persisted URL before Spring's SAML client resolves or
-                        // follows it, so a legacy/direct-DB row pointing at loopback or
-                        // link-local cannot make the backend issue an outbound request.
-                        // Note: re-resolving after the DNS check could not fully defeat a
-                        // TOCTOU rebinding attack, and Spring's SAML client does not expose
-                        // redirect control; this closes the unauthenticated fetch path.
+                        // Closes the direct-internal-IP fetch path (loopback/site-local/link-local/
+                        // any-local/multicast, plus non-http(s) schemes). Two documented residuals
+                        // remain because Spring's RelyingPartyRegistrations.fromMetadataLocation uses
+                        // its own static DefaultResourceLoader and we cannot inject a no-redirect,
+                        // address-pinned connection into it:
+                        //   (1) redirect-following — a public metadata_url that 302-redirects to an
+                        //       internal target will be followed; defeating this requires replacing
+                        //       fromMetadataLocation with a hand-rolled fetch that pins the resolved
+                        //       InetAddress and disables redirects (tracked follow-up, needs a live
+                        //       IdP to E2E-verify it does not break SAML login).
+                        //   (2) DNS rebinding (TOCTOU) — we resolve once here, Spring resolves again
+                        //       at fetch; a rebinding host could swap records between the two.
                         assertFetchableMetadataUrl(entity.getMetadataUrl());
                         return RelyingPartyRegistrations
                                 .fromMetadataLocation(entity.getMetadataUrl())
@@ -128,6 +134,10 @@ public class SamlMetadataFetcher {
      * i.e. NOT loopback, NOT site-local (RFC1918), NOT link-local
      * (169.254/16, e.g. the cloud metadata endpoint), NOT any-local, and NOT
      * multicast. Unit-testable without DNS.
+     *
+     * <p>Note: {@link InetAddress#isSiteLocalAddress()} is IPv4-only, so IPv6
+     * site-local {@code fec0::/64} is NOT rejected; that range is obsolete per
+     * RFC 3879 and unroutable, so this is accepted.
      */
     public static boolean isFetchableHost(InetAddress address) {
         return !address.isLoopbackAddress()
