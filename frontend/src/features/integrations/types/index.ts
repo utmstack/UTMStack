@@ -62,6 +62,8 @@ export interface Integration {
   defaultPort?: string;
   /** Frontend-only guide route for injected and channel-based integrations. */
   guideChannel?: IntegrationGuideChannel;
+  /** Forwarder configuration data type when it differs from the integration's log data type. */
+  forwarderDataType?: string;
   /** This entry is a presentation/demo fallback and has no catalog row of its own. */
   guideOnly?: boolean;
   /** Technology-specific filters passed to Log Explorer. */

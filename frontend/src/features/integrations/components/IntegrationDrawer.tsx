@@ -18,6 +18,7 @@ import { CrowdStrikeGuide } from '@/features/integrations/components/setup/cloud
 import { M365Guide, O365_GRAPH_FIELDS } from '@/features/integrations/components/setup/collector/collectors/M365Guide'
 import { SophosGuide } from '@/features/integrations/components/setup/collector/collectors/SophosGuide'
 import { CustomSetup } from '@/features/integrations/components/setup/CustomSetup'
+import { Section } from '@/features/integrations/components/ui/Section'
 import { getIntegrationDashboardSearch } from '@/features/dashboard/utils/integration-dashboard-routing'
 import type { Integration } from '@/features/integrations/types'
 
@@ -195,7 +196,17 @@ export function IntegrationDrawer({ integration: i, onClose }: IntegrationDrawer
         <div className="flex-1 overflow-y-auto bg-muted/20 p-6">
           <>
               {isCustom(i) && <CustomSetup integration={i} />}
-              {!isCustom(i) && isAgent(i) && <AgentSetup integration={i} />}
+              {!isCustom(i) && isAgent(i) && i.guideChannel && <CollectorSetup integration={i} />}
+              {!isCustom(i) && isAgent(i) && !i.guideChannel && (
+                <>
+                  <AgentSetup integration={i} />
+                  {i.guideSetting && (
+                    <Section title={i.name}>
+                      <p className="text-sm text-foreground/90">{i.guideSetting}</p>
+                    </Section>
+                  )}
+                </>
+              )}
               {!isCustom(i) && i.kind === 'cloud' && isAWS(i.name) && <AWSGuide integration={i} />}
               {!isCustom(i) && i.kind === 'cloud' && isAzure(i.name) && <AzureGuide integration={i} />}
               {!isCustom(i) && i.kind === 'cloud' && isGCP(i) && <GcpGuide integration={i} />}

@@ -4266,6 +4266,1815 @@
             "hint": "Lo fija quien opera la instancia. Se reinicia a medianoche UTC."
         }
     },
+    "tabs": {
+      "dashboards": "Tableros",
+      "visualizations": "Widgets",
+      "newDashboard": "Nuevo tablero",
+      "unsetDefault": "Quitar predeterminado",
+      "options": "Opciones"
+    },
+    "picker": {
+      "none": "Seleccionar tablero",
+      "search": "Buscar tableros…",
+      "new": "Nuevo tablero",
+      "setDefault": "Marcar como predeterminado",
+      "empty": "Sin tableros"
+    },
+    "empty": {
+      "title": "Aún no hay tableros",
+      "body": "Crea tu primer tablero para ver tus datos de seguridad de un vistazo.",
+      "cta": "Crear tablero"
+    },
+    "filters": {
+      "addTitle": "Añadir filtro",
+      "editTitle": "Editar filtro",
+      "removeTitle": "Eliminar filtro",
+      "removeConfirm": "¿Eliminar el filtro \"{{label}}\"? Esta acción no se puede deshacer.",
+      "remove": "Eliminar",
+      "editAria": "Editar filtro",
+      "removeAria": "Eliminar filtro",
+      "saving": "Guardando…",
+      "addChip": "Añadir filtro",
+      "chooseValue": "Choose…",
+      "selected": "selected",
+      "loading": "Loading values…",
+      "searchPlaceholder": "Search values…",
+      "noValues": "No values available.",
+      "loadError": "Could not load values.",
+      "clear": "Clear",
+      "editorTitle": "Dashboard filters",
+      "editorHint": "Add dropdown chips that filter every widget on this dashboard.",
+      "emptyEditor": "No filter chips yet. Add one to get started.",
+      "cancel": "Cancel",
+      "save": "Save",
+      "field": {
+        "dataset": "Data set",
+        "field": "Field",
+        "chooseField": "Choose a field…",
+        "label": "Label",
+        "labelPlaceholder": "e.g. Host",
+        "placeholder": "Placeholder",
+        "placeholderPlaceholder": "e.g. Pick a host",
+        "multiple": "Multiple",
+        "searchable": "Searchable"
+      }
+    },
+    "duplicate": {
+      "copyName": "{{name}} (copia)"
+    }
+  },
+  "settings": {
+    "title": "Configuración",
+    "license": "Licencia",
+    "notifications": "Notificaciones",
+    "connectionKey": "Clave de conexión",
+    "dataRetention": "Retención de datos",
+    "indices": "Índices",
+    "theme": "Tema",
+    "branding": "Marca",
+    "apiKeys": "Claves API",
+    "identityProviders": "Proveedores de identidad",
+    "email": "Configuración de correo",
+    "dateFormat": "Formato de fecha",
+    "language": "Idioma",
+    "auditLogs": "Registros de auditoría",
+    "about": "Acerca de",
+    "socAi": "SOC-AI",
+    "supportAccess": "Acceso de soporte",
+    "threatwinds": "Integración de ThreatWinds"
+  },
+  "topbar": {
+    "theme": {
+      "light": "Modo claro",
+      "dark": "Modo oscuro"
+    },
+    "manageLicense": "Gestionar licencia",
+    "profile": {
+      "profile": "Perfil",
+      "license": "Licencia",
+      "logout": "Cerrar sesión"
+    }
+  },
+  "notifications": {
+    "title": "Notificaciones",
+    "markAllRead": "Marcar todas como leídas",
+    "empty": "No tienes notificaciones.",
+    "viewAll": "Ver todas",
+    "markRead": "Marcar como leída",
+    "markUnread": "Marcar como no leída",
+    "delete": "Eliminar",
+    "subtitle": "{{total}} en total · {{unread}} sin leer",
+    "allCaughtUp": "Todo al día.",
+    "loadFailed": "No se pudieron cargar las notificaciones."
+  },
+  "pagination": {
+    "perPage": "Por página",
+    "pageOf": "Página {{page}} de {{total}}",
+    "previous": "Anterior",
+    "next": "Siguiente"
+  },
+  "license": {
+    "title": "Licencia",
+    "subtitle": "Tu edición, capacidades y archivo de licencia.",
+    "loading": "Cargando licencia…",
+    "loadError": "No se pudo cargar la información de la licencia.",
+    "statusLabel": "Estado",
+    "status": {
+      "community": "Community",
+      "active": "Activa",
+      "expiring": "Por expirar",
+      "expired": "Expirada"
+    },
+    "edition": "Edición",
+    "enterprise": "Enterprise",
+    "community": "Community",
+    "editionLine": "Edición {{edition}}",
+    "datasourceLimit": "Límite de datasources",
+    "unlimited": "Ilimitado",
+    "mssp": "MSSP / multi-tenant",
+    "enabled": "Activado",
+    "licenseType": "Tipo de licencia",
+    "instanceId": "ID de instancia",
+    "enterpriseUnlocked": "Funciones Enterprise desbloqueadas",
+    "validUntil": "Válida hasta",
+    "noExpiry": "Sin expiración",
+    "timeRemaining": "Tiempo restante",
+    "expiredAgo": "Expiró hace {{days}}d",
+    "daysShort": "{{days}}d",
+    "msspShort": "MSSP",
+    "communityEdition": "Edición Community",
+    "communityBlurb": "Gratuita y de código abierto. Sube una licencia Enterprise abajo para desbloquear multi-tenancy, SSO, mayores límites de datasources y cumplimiento avanzado.",
+    "upgrade": "Actualizar a Enterprise",
+    "uploadTitle": "Subir una licencia",
+    "uploadBlurb": "Instala o reemplaza el archivo LICENSE firmado. El servidor valida la firma y la expiración antes de aplicarlo. Solo admin.",
+    "installLicense": "Instalar licencia",
+    "chooseFile": "Seleccionar archivo",
+    "noFileSelected": "Ningún archivo seleccionado",
+    "toast": {
+      "installed": "Licencia instalada — edición {{edition}}.",
+      "adminRequired": "Se requieren privilegios de administrador para subir una licencia.",
+      "invalid": "Archivo de licencia inválido o expirado.",
+      "installFailed": "No se pudo instalar la licencia."
+    },
+    "ingestLimit": "Volumen de ingesta",
+    "notMetered": "Sin medición",
+    "gbPerMonth": "{{gb}} GB/mes"
+  },
+  "audit": {
+    "title": "Registro de auditoría",
+    "subtitle": "Registro de cada acción relevante para la seguridad.",
+    "totalEntries": "{{total}} entradas en total.",
+    "loadError": "No se pudo cargar el registro de auditoría",
+    "stats": {
+      "totalEntries": "Entradas totales",
+      "acrossAllTime": "De todo el tiempo",
+      "successRate": "Tasa de éxito",
+      "failuresOnPage_one": "{{count}} fallo en esta página",
+      "failuresOnPage_other": "{{count}} fallos en esta página",
+      "topAction": "Acción principal",
+      "onPage": "{{count}} en esta página",
+      "uniqueActors": "Actores únicos",
+      "includingSystem": "Incluyendo el sistema"
+    },
+    "filters": {
+      "title": "Filtros",
+      "clear": "Limpiar",
+      "last24h": "Últimas 24h",
+      "failuresOnly": "Solo fallos",
+      "authEvents": "Eventos de autenticación",
+      "actionPrefix": "Prefijo de acción",
+      "actionPlaceholder": "p.ej. auth., user.update",
+      "status": "Estado",
+      "any": "Cualquiera",
+      "resourceType": "Tipo de recurso",
+      "resourceTypePlaceholder": "user, alert…",
+      "resourceId": "ID de recurso",
+      "user": "Usuario",
+      "userPlaceholder": "login…"
+    },
+    "statusValue": {
+      "success": "Éxito",
+      "failure": "Fallo"
+    },
+    "table": {
+      "timestamp": "Fecha y hora",
+      "actor": "Actor",
+      "action": "Acción",
+      "resource": "Recurso",
+      "status": "Estado",
+      "ip": "IP",
+      "loading": "Cargando…",
+      "emptyTitle": "Ninguna entrada coincide con estos filtros.",
+      "emptyHint": "Prueba a limpiar los filtros o ampliar el rango de fechas.",
+      "system": "sistema",
+      "view": "Ver"
+    },
+    "drawer": {
+      "entry": "entrada #{{id}}",
+      "overview": "Resumen",
+      "raw": "JSON crudo",
+      "error": "Error",
+      "actor": "Actor",
+      "resource": "Recurso",
+      "ip": "IP",
+      "userAgent": "Agente de usuario",
+      "session": "Sesión",
+      "metadata": "Metadatos",
+      "copy": "Copiar",
+      "copied": "Copiado",
+      "copyJson": "Copiar JSON"
+    }
+  },
+  "team": {
+    "title": "Equipo",
+    "subtitle": "Gestiona los usuarios y sus roles.",
+    "tabs": {
+      "members": "Miembros",
+      "roles": "Roles y permisos"
+    },
+    "toast": {
+      "rolesLoadFailed": "No se pudieron cargar los roles",
+      "userLoadFailed": "No se pudo cargar el usuario",
+      "rolesUpdated": "Roles actualizados",
+      "userReactivated": "Usuario reactivado",
+      "userDeactivated": "Usuario desactivado",
+      "tfaReset": "Autenticación en dos pasos restablecida",
+      "invitationSent": "Invitación enviada",
+      "loginOrEmailInUse": "Ese usuario o correo ya está en uso",
+      "invalidRequest": "Solicitud inválida",
+      "noPermission": "No tienes permiso para hacer eso",
+      "userNotFound": "Usuario no encontrado",
+      "operationFailed": "La operación falló",
+      "emailInUse": "Ese correo ya está en uso",
+      "roleCreated": "Rol creado",
+      "roleUpdated": "Rol actualizado",
+      "roleDeleted": "Rol eliminado",
+      "roleNameInUse": "Ya existe un rol con ese identificador",
+      "roleImmutable": "Los roles del sistema no se pueden modificar",
+      "permissionsLoadFailed": "No se pudieron cargar los permisos",
+      "localUserCreated": "Usuario local creado"
+    },
+    "members": {
+      "searchPlaceholder": "Buscar por nombre o correo…",
+      "invite": "Invitar usuario",
+      "colUser": "Usuario",
+      "colRoles": "Roles",
+      "col2fa": "2FA",
+      "colStatus": "Estado",
+      "loading": "Cargando usuarios…",
+      "loadFailed": "No se pudieron cargar los usuarios.",
+      "retry": "Reintentar",
+      "noSearchMatch": "Ningún usuario coincide con tu búsqueda.",
+      "none": "Aún no hay usuarios.",
+      "noRole": "ninguno",
+      "on": "Sí",
+      "off": "No",
+      "countLabel_one": "{{count}} usuario · página {{page}} de {{pages}}",
+      "countLabel_other": "{{count}} usuarios · página {{page}} de {{pages}}",
+      "federated": "SSO"
+    },
+    "status": {
+      "inactive": "Inactivo",
+      "pendingPassword": "Contraseña pendiente",
+      "active": "Activo",
+      "pending": "Invitación pendiente",
+      "suspended": "Suspendido"
+    },
+    "drawer": {
+      "createdBy": "creado por {{actor}}",
+      "loading": "Cargando…",
+      "profileTitle": "Perfil",
+      "profileSubtitle": "Solo el usuario puede editar esto, desde su propio perfil.",
+      "name": "Nombre",
+      "username": "Usuario",
+      "email": "Correo",
+      "language": "Idioma",
+      "accountTitle": "Cuenta",
+      "status": "Estado",
+      "statusActive": "Activo",
+      "statusInactive": "Inactivo",
+      "tfa": "2FA",
+      "tfaEnabled": "Activada",
+      "tfaNotConfigured": "No configurado",
+      "resetTfa": "Restablecer",
+      "resetTfaHint": "Desactiva el 2FA de este usuario para que lo reconfigure en su próximo inicio de sesión",
+      "resetTfaConfirmTitle": "¿Restablecer la autenticación en dos pasos?",
+      "resetTfaConfirmBody": "Esto desactiva el 2FA de {{name}}. Iniciará sesión solo con su contraseña y podrá configurarlo de nuevo desde su perfil.",
+      "resetTfaConfirm": "Restablecer 2FA",
+      "pendingPasswordNote": "Aún usa la contraseña temporal (invitación no completada).",
+      "lastModified": "Modificado {{time}}",
+      "rolesTitle": "Roles",
+      "rolesSubtitle": "Los roles otorgan permisos de módulo. Un usuario puede tener más de uno.",
+      "noRoleWarning": "Sin rol asignado — el usuario no tendrá acceso a ningún módulo.",
+      "deactivate": "Desactivar",
+      "reactivate": "Reactivar",
+      "waitingInvite": "Esperando a que el usuario acepte la invitación.",
+      "cancel": "Cancelar",
+      "saving": "Guardando…",
+      "saveRoles": "Guardar roles",
+      "created": "creado {{time}}",
+      "pendingNote": "La invitación aún no se ha aceptado.",
+      "federatedNote": "Inicia sesión mediante un proveedor de identidad."
+    },
+    "invite": {
+      "title": "Invitar usuario",
+      "description": "La cuenta se crea inactiva. El usuario recibe un correo para establecer su contraseña y activarla.",
+      "username": "Usuario",
+      "usernameHint": "Al menos 3 caracteres.",
+      "email": "Correo",
+      "firstName": "Nombre",
+      "lastName": "Apellido",
+      "roles": "Roles",
+      "cancel": "Cancelar",
+      "sending": "Enviando…",
+      "send": "Enviar invitación",
+      "name": "Nombre",
+      "emailHint": "Es la dirección con la que iniciará sesión.",
+      "localDescription": "La cuenta se crea con una contraseña y se activa de inmediato. No se envía ningún correo.",
+      "modeInvite": "Invitar usuario",
+      "modeLocal": "Crear usuario local",
+      "passwordLabel": "Contraseña",
+      "passwordPlaceholder": "Establezca una contraseña segura",
+      "localUserNote": "Este usuario no recibirá un correo y será activado automáticamente.",
+      "createLocal": "Crear usuario",
+      "passwordRules": {
+        "length": "Al menos 8 caracteres",
+        "case": "Al menos una mayúscula y una minúscula",
+        "special": "Al menos un carácter especial"
+      },
+      "emailInvalid": "Introduzca una dirección de correo válida"
+    },
+    "rolePicker": {
+      "none": "No hay roles disponibles."
+    },
+    "roles": {
+      "loading": "Cargando roles…",
+      "loadFailed": "No se pudieron cargar los permisos de los roles.",
+      "readonlyNote": "Los roles y sus permisos los define el sistema y son de solo lectura. Asígnalos a los usuarios desde la pestaña Miembros.",
+      "permissionsCount_one": "{{count}} permiso",
+      "permissionsCount_other": "{{count}} permisos",
+      "modulesCount_one": "{{count}} módulo",
+      "modulesCount_other": "{{count}} módulos",
+      "matrixTitle": "Matriz de permisos",
+      "matrixSubtitle": "Lo que cada rol puede hacer, por módulo.",
+      "permission": "Permiso",
+      "systemNote": "Los roles del sistema vienen con la plataforma y no se pueden editar. Los que crees pertenecen a este tenant.",
+      "newRole": "Nuevo rol",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "systemBadge": "Sistema",
+      "createTitle": "Nuevo rol",
+      "editTitle": "Editar rol",
+      "editorSubtitle": "Elige qué puede hacer este rol. Un usuario puede tener más de uno.",
+      "nameLabel": "Identificador",
+      "nameHint": "Se usa en el código y en la API. Por ejemplo, ROLE_AUDITOR.",
+      "displayNameLabel": "Nombre visible",
+      "descriptionLabel": "Descripción",
+      "permissionsLabel": "Permisos",
+      "selectedCount": "{{count}} seleccionados",
+      "toggleAll": "todos",
+      "loadingPermissions": "Cargando permisos…",
+      "save": "Guardar rol",
+      "deleteConfirmTitle": "¿Eliminar este rol?",
+      "deleteConfirmBody": "Se eliminará {{name}}. Los usuarios que solo tengan este rol se quedarán sin acceso a los módulos."
+    },
+    "langDefault": "Predeterminado del sistema",
+    "relative": {
+      "justNow": "ahora mismo",
+      "minutesAgo": "hace {{count}} min",
+      "hoursAgo": "hace {{count}} h",
+      "daysAgo": "hace {{count}} d"
+    },
+    "roleNames": {
+      "ROLE_ADMIN": "Administrador",
+      "ROLE_USER": "Usuario"
+    },
+    "roleDescriptions": {
+      "ROLE_ADMIN": "Acceso total a todos los recursos",
+      "ROLE_USER": "Usuario estándar con acceso de lectura a nivel de módulo"
+    },
+    "actions": {
+      "read": "Lectura",
+      "write": "Escritura",
+      "delete": "Eliminación"
+    },
+    "resources": {
+      "adaudit": "Auditoría AD",
+      "alerts": "Alertas",
+      "audit": "Registro de auditoría",
+      "compliance": "Cumplimiento",
+      "config": "Configuración",
+      "dashboards": "Paneles",
+      "datasources": "Datasources",
+      "eventprocessing": "Procesamiento de eventos",
+      "idp": "Proveedores de identidad",
+      "incidents": "Incidentes",
+      "integrations": "Integraciones",
+      "loganalyzer": "Analizador de logs",
+      "opensearch": "OpenSearch",
+      "roles": "Roles",
+      "soar": "SOAR",
+      "users": "Usuarios",
+      "notifications": "Notificaciones",
+      "socai": "SOC AI",
+      "tenant": "Tenants",
+      "threatintel": "Inteligencia de amenazas"
+    }
+  },
+  "apiKeys": {
+    "title": "Claves API",
+    "subtitle": "Tokens de acceso programático para la API de UTMStack.",
+    "new": "Nueva clave API",
+    "searchPlaceholder": "Buscar por nombre o IP permitida…",
+    "refresh": "Actualizar",
+    "loading": "Cargando claves API…",
+    "loadFailed": "No se pudieron cargar las claves API.",
+    "retry": "Reintentar",
+    "noSearchMatch": "Ninguna clave API coincide con tu búsqueda.",
+    "empty": "Aún no hay claves API. Crea una para empezar.",
+    "anyIp": "Cualquier IP",
+    "never": "Nunca",
+    "count_one": "{{count}} clave · página {{page}} de {{pages}}",
+    "count_other": "{{count}} claves · página {{page}} de {{pages}}",
+    "enterprise": {
+      "title": "Las claves API son una función Enterprise",
+      "body": "Emite, restringe y rota claves API para acceso programático a la API de UTMStack. Esta capacidad está disponible en la edición Enterprise.",
+      "upgrade": "Actualizar a Enterprise",
+      "manageLicense": "Gestionar tu licencia"
+    },
+    "col": {
+      "name": "Nombre",
+      "allowedIps": "IPs permitidas",
+      "created": "Creada",
+      "lastRotated": "Última rotación",
+      "expires": "Expira",
+      "status": "Estado",
+      "actions": "Acciones"
+    },
+    "status": {
+      "active": "Activa",
+      "expiring": "Por expirar",
+      "expired": "Expirada"
+    },
+    "action": {
+      "rotate": "Rotar",
+      "edit": "Editar",
+      "delete": "Eliminar"
+    },
+    "dialog": {
+      "editTitle": "Editar clave API",
+      "newTitle": "Nueva clave API",
+      "name": "Nombre",
+      "namePlaceholder": "ci-pipeline",
+      "allowedIps": "IPs permitidas",
+      "allowedIpsHint": "Separadas por comas. Deja vacío para permitir cualquier IP.",
+      "expires": "Expira",
+      "expiresHint": "Deja vacío para una clave que nunca expira.",
+      "secretNote": "El token secreto se muestra una sola vez, justo tras la creación. Cópialo entonces — no se puede recuperar después (solo rotar).",
+      "cancel": "Cancelar",
+      "saving": "Guardando…",
+      "saveChanges": "Guardar cambios",
+      "createKey": "Crear clave"
+    },
+    "confirm": {
+      "deleteTitle": "Eliminar clave API",
+      "rotateTitle": "Rotar clave API",
+      "deleteBody": "¿Eliminar {{name}}? Cualquier cliente que la use perderá el acceso de inmediato. Esto no se puede deshacer.",
+      "rotateBody": "¿Rotar {{name}}? Se emite un nuevo secreto y el actual deja de funcionar de inmediato. El nuevo token se muestra una sola vez.",
+      "cancel": "Cancelar",
+      "working": "Procesando…",
+      "delete": "Eliminar",
+      "rotate": "Rotar"
+    },
+    "reveal": {
+      "title": "Clave API creada",
+      "note": "Copia este secreto ahora — para {{name}}. No se volverá a mostrar. Si lo pierdes, rota la clave.",
+      "copied": "Copiado",
+      "copy": "Copiar",
+      "done": "Listo"
+    },
+    "toast": {
+      "updated": "Clave API actualizada",
+      "secretIssueFailed": "Clave creada, pero no se pudo emitir el secreto. Usa Rotar para obtener uno.",
+      "deleted": "Clave API eliminada"
+    },
+    "error": {
+      "nameTaken": "Ya existe una clave API con ese nombre",
+      "enterpriseRequired": "Las claves API requieren la edición Enterprise",
+      "notFound": "Clave API no encontrada",
+      "invalidRequest": "Solicitud inválida",
+      "failed": "Operación fallida"
+    }
+  },
+  "idp": {
+    "title": "Proveedores de identidad",
+    "subtitle": "Inicio de sesión único SAML 2.0 para tu organización.",
+    "add": "Agregar proveedor",
+    "enterprise": {
+      "title": "El SSO es una función Enterprise",
+      "body": "Conecta un proveedor de identidad SAML 2.0 (Entra ID, Okta, Google Workspace…) para que tu equipo inicie sesión con tu IdP. El inicio de sesión único está disponible en la edición Enterprise.",
+      "upgrade": "Actualizar a Enterprise"
+    },
+    "loading": "Cargando proveedores de identidad…",
+    "loadFailed": "No se pudieron cargar los proveedores de identidad.",
+    "retry": "Reintentar",
+    "empty": {
+      "title": "No hay proveedores de identidad configurados",
+      "body": "Agrega un proveedor SAML 2.0 para que tu equipo inicie sesión con tu IdP corporativo."
+    },
+    "card": {
+      "enable": "Habilitar",
+      "disable": "Deshabilitar",
+      "active": "Activo",
+      "disabled": "Deshabilitado",
+      "metadataUrl": "URL de metadatos",
+      "spEntityId": "SP Entity ID",
+      "spAcsUrl": "SP ACS URL",
+      "loginUrl": "URL de inicio de sesión",
+      "copy": "Copiar",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "jit": "Alta",
+      "jitOn": "crea cuentas en el primer acceso",
+      "sync": "Roles",
+      "syncOn": "se reaplican en cada acceso"
+    },
+    "form": {
+      "addTitle": "Agregar proveedor de identidad",
+      "editTitle": "Editar proveedor de identidad",
+      "name": "Nombre",
+      "nameHint": "Único. Se usa en la URL de SSO.",
+      "providerType": "Tipo de proveedor",
+      "providerTypeHint": "Una etiqueta, p. ej. azure, okta, google.",
+      "metadataUrl": "URL de metadatos del IdP",
+      "spEntityId": "SP Entity ID",
+      "spAcsUrl": "SP ACS URL",
+      "certificate": "Certificado SP (PEM)",
+      "privateKey": "Llave privada SP (PEM)",
+      "privateKeyHintEdit": "Déjalo vacío para conservar la llave guardada.",
+      "privateKeyHintCreate": "Requerida. Se guarda cifrada; no se vuelve a mostrar.",
+      "privateKeyUnchanged": "•••••••• (sin cambios)",
+      "active": "Activo (mostrar en la página de inicio de sesión)",
+      "cancel": "Cancelar",
+      "saving": "Guardando…",
+      "save": "Guardar cambios",
+      "create": "Crear proveedor",
+      "issuer": "URL del emisor",
+      "issuerHint": "El descubrimiento se hace contra esta URL; el proveedor debe servir /.well-known/openid-configuration bajo ella.",
+      "clientId": "ID de cliente",
+      "redirectUrl": "URL de retorno",
+      "redirectUrlHint": "Registra exactamente esta URL en el proveedor.",
+      "host": "Servidor",
+      "port": "Puerto",
+      "startTls": "TLS",
+      "startTlsOn": "Usar StartTLS",
+      "bindDn": "DN de conexión",
+      "bindDnHint": "Una cuenta de servicio que pueda buscar en el directorio.",
+      "baseDn": "DN base",
+      "userFilter": "Filtro de usuario",
+      "userFilterHint": "Debe contener %s, donde se sustituye la dirección escrita al entrar.",
+      "emailAttribute": "Atributo de correo",
+      "nameAttribute": "Atributo de nombre",
+      "groupAttribute": "Atributo de grupo",
+      "provisioning": "Cuentas y roles",
+      "provisioningHint": "Qué ocurre cuando entra alguien por quien responde el directorio.",
+      "jit": "Crear la cuenta en el primer acceso",
+      "defaultRole": "Rol por defecto",
+      "defaultRoleHint": "Se concede cuando ningún grupo casa. Sin él, un acceso sin coincidencia se rechaza.",
+      "noDefaultRole": "Ninguno",
+      "groupsAttribute": "Atributo de grupos",
+      "groupsAttributeHint": "Dónde pone el proveedor la pertenencia a grupos.",
+      "syncRoles": "Reaplicar roles en cada acceso",
+      "syncRolesHint": "Los roles que no estén en el mapeo se quitan, para que un cambio en el directorio llegue hasta aquí. Sin esto, una degradación no llega nunca.",
+      "mappings": "Grupo a rol",
+      "mappingsHint": "Un grupo del directorio a la izquierda, el rol que concede a la derecha.",
+      "addMapping": "Añadir",
+      "noMappings": "Sin mapeos. Todos reciben el rol por defecto.",
+      "groupPlaceholder": "Analistas SOC",
+      "pickRole": "Elige un rol",
+      "secret.saml": "Clave privada del SP",
+      "secret.oidc": "Secreto de cliente",
+      "secret.ldap": "Contraseña de conexión",
+      "secretHintCreate": "Se guarda cifrada y no se vuelve a mostrar.",
+      "secretHintEdit": "Déjalo en blanco para conservar la guardada.",
+      "secretUnchanged": "sin cambios",
+      "errors": {
+        "required": "Este campo es obligatorio.",
+        "url": "Debe ser una URL http(s) válida.",
+        "httpsUrl": "Debe ser una URL https válida.",
+        "hostname": "Introduce un host o IP sin esquema (p. ej. ldap.ejemplo.com).",
+        "port": "El puerto debe ser un número entero entre 0 y 65535.",
+        "pemCertificate": "No parece un certificado PEM (faltan -----BEGIN/END CERTIFICATE-----).",
+        "pemKey": "No parece una clave privada PEM (faltan -----BEGIN/END PRIVATE KEY-----).",
+        "userFilterPlaceholder": "El filtro debe contener %s, donde se sustituye la dirección de inicio de sesión.",
+        "userFilterUnbalanced": "Hay paréntesis desequilibrados: la búsqueda no devolverá nada.",
+        "nameFormat": "Usa letras, números, puntos, guiones o guiones bajos (máx. 64). Aparece en la URL de SSO, por lo que no admite espacios.",
+        "redirectUrl": "Debe ser una URL https válida, o una URL http de loopback (localhost / 127.0.0.1 / [::1]).",
+        "entityId": "Debe ser una URI válida, p. ej. https://utmstack.example.com/sp."
+      }
+    },
+    "delete": {
+      "title": "Eliminar proveedor de identidad",
+      "body": "¿Eliminar {{name}}? Los usuarios ya no podrán iniciar sesión a través de él. Esto no se puede deshacer.",
+      "cancel": "Cancelar",
+      "deleting": "Eliminando…",
+      "confirm": "Eliminar"
+    },
+    "toast": {
+      "enabled": "Proveedor habilitado",
+      "disabled": "Proveedor deshabilitado",
+      "created": "Proveedor de identidad creado",
+      "updated": "Proveedor de identidad actualizado",
+      "deleted": "Proveedor de identidad eliminado",
+      "paidPlan": "El SSO SAML requiere un plan de pago",
+      "enterpriseRequired": "El SSO requiere la edición Enterprise",
+      "notFound": "Proveedor de identidad no encontrado",
+      "invalid": "Configuración inválida",
+      "failed": "La operación falló"
+    },
+    "providerType": {
+      "saml": "SAML 2.0",
+      "oidc": "OpenID Connect",
+      "ldap": "LDAP / Active Directory",
+      "comingSoon": "aún no disponible"
+    }
+  },
+  "userAuditor": {
+    "title": "Auditor de usuarios",
+    "subtitle": "Cuentas de Active Directory observadas en tus logs de seguridad de Windows — descubiertas a partir de eventos de creación, inicio de sesión y borrado.",
+    "export": "Exportar",
+    "accountsChip": "{{count}} cuentas",
+    "overview": {
+      "title": "Inventario de cuentas",
+      "active": "activas",
+      "disabled": "deshabilitadas",
+      "deleted": "borradas",
+      "seen24h": "{{count}} vistas en las últimas 24 horas",
+      "byDomain": "Por dominio"
+    },
+    "views": {
+      "all": "Todas las cuentas",
+      "windows": "Windows",
+      "linux": "Linux",
+      "active": "Activas",
+      "disabled": "Deshabilitadas",
+      "deleted": "Borradas",
+      "service": "Cuentas de servicio",
+      "stale": "Inactivas (30d+)"
+    },
+    "searchPlaceholder": "Buscar por nombre de cuenta o SID…",
+    "allTenants": "Todos los tenants",
+    "filters": {
+      "add": "Añadir filtro",
+      "clearAll": "Limpiar todo",
+      "filterValues": "Filtrar valores…",
+      "loadingValues": "Cargando valores…",
+      "noValues": "No se encontraron valores.",
+      "pickValue": "Elige un valor para añadir el filtro.",
+      "empty": "(vacío)",
+      "cancel": "Cancelar",
+      "addBtn": "Añadir"
+    },
+    "filterFields": {
+      "status": "Estado de ciclo de vida"
+    },
+    "ops": {
+      "is": "es"
+    },
+    "refresh": "Actualizar",
+    "layout": {
+      "list": "Lista",
+      "cards": "Tarjetas"
+    },
+    "list": {
+      "account": "Cuenta",
+      "identity": "Identidad",
+      "sid": "SID",
+      "status": "Estado",
+      "lastLogon": "Último inicio",
+      "lastSeen": "Última vez vista",
+      "tenant": "Tenant"
+    },
+    "status": {
+      "active": "Activa",
+      "disabled": "Deshabilitada",
+      "deleted": "Borrada"
+    },
+    "badge": {
+      "service": "servicio",
+      "stale": "inactiva"
+    },
+    "empty": "Ninguna cuenta coincide con esta vista.",
+    "loadError": "No se pudieron cargar las cuentas de AD.",
+    "retry": "Reintentar",
+    "card": {
+      "lastLogon": "Último inicio"
+    },
+    "pageInfo": "{{from}}–{{to}} de {{count}}",
+    "drawer": {
+      "tenantInline": "tenant {{id}}",
+      "serviceAccount": "cuenta de servicio",
+      "stale": "inactiva 30d+",
+      "viewInLogs": "Ver eventos en el Log Explorer",
+      "copySid": "Copiar SID",
+      "copyUid": "Copiar identidad",
+      "copied": "Copiado",
+      "identity": "Identidad",
+      "accountName": "Nombre de cuenta",
+      "domain": "Dominio",
+      "hostname": "Hostname",
+      "sid": "SID",
+      "uidNumber": "UID",
+      "machineId": "ID de máquina",
+      "tenant": "Tenant",
+      "adStatus": "Estado en AD",
+      "enabled": "Habilitada",
+      "disabled": "Deshabilitada",
+      "lifecycle": "Ciclo de vida",
+      "created": "Cuenta creada",
+      "lastLogon": "Último inicio de sesión",
+      "lastSeen": "Última vez vista en logs",
+      "deleted": "Cuenta borrada",
+      "noLifecycle": "Sin eventos de ciclo de vida."
+    },
+    "relative": {
+      "justNow": "ahora mismo",
+      "minutesAgo": "hace {{count}}m",
+      "hoursAgo": "hace {{count}}h",
+      "daysAgo": "hace {{count}}d"
+    },
+    "none": "—"
+  },
+  "connectionKey": {
+    "title": "Clave de conexión",
+    "subtitle1": "La clave que los agentes presentan al registrarse en esta instancia.",
+    "subtitleEmphasis": "Solo se usa para la instalación de agentes",
+    "subtitle2": "— no para colectores, integraciones ni la API. La gestiona el agent-manager.",
+    "status": {
+      "label": "Estado",
+      "loading": "Cargando…",
+      "unavailable": "Agent-manager no disponible",
+      "active": "Activa",
+      "unavailableHint": "No se pudo contactar al agent-manager para leer la clave.",
+      "activeHint": "Los agentes pueden registrarse con esta clave."
+    },
+    "token": {
+      "title": "Clave de conexión",
+      "subtitle": "Trata este valor como una credencial. Rotarla genera una nueva clave para futuras instalaciones de agentes — los agentes ya registrados siguen funcionando.",
+      "loadFailedTitle": "No se pudo cargar la clave de conexión",
+      "unavailableTitle": "Clave de conexión no disponible",
+      "loadFailedHint": "La clave la gestiona el agent-manager, que no respondió. Inténtalo de nuevo en un momento.",
+      "retry": "Reintentar",
+      "show": "Mostrar clave",
+      "hide": "Ocultar clave",
+      "copy": "Copiar",
+      "copied": "Copiado",
+      "regenerate": "Regenerar clave de conexión",
+      "confirmTitle": "¿Regenerar la clave?",
+      "confirmBody": "Las nuevas instalaciones de agentes necesitarán la nueva clave. Los agentes ya registrados seguirán funcionando. No se puede deshacer.",
+      "regenerating": "Regenerando…",
+      "confirmYes": "Sí, regenerar",
+      "cancel": "Cancelar"
+    },
+    "security": {
+      "title": "Recomendaciones de seguridad",
+      "subtitle": "Buenas prácticas para proteger esta credencial.",
+      "rotateTitle": "Rota cada 90 días",
+      "rotateBody": "Programa una rotación periódica. UTMStack puede enviarte un recordatorio por correo cuando la clave tenga más de 90 días.",
+      "rotateAction": "Configurar recordatorio",
+      "secretTitle": "Guárdala como secreto",
+      "secretBody": "No la subas al control de versiones. Usa tu gestor de secretos (Vault, AWS SM, etc.) e inyéctala en el momento de la instalación.",
+      "auditTitle": "Audita quién la obtuvo",
+      "auditBody": "Cada obtención y rotación queda registrada en el journal de auditoría de la aplicación.",
+      "auditAction": "Ver journal de auditoría"
+    },
+    "toast": {
+      "loadFailed": "No se pudo cargar la clave de conexión",
+      "rotated": "Clave de conexión rotada",
+      "rotateFailed": "No se pudo rotar la clave de conexión",
+      "copyFailed": "No se pudo copiar"
+    }
+  },
+  "dataRetention": {
+    "title": "Retención de datos",
+    "subtitle": "Cuánto se guarda cada conjunto de datos y cuándo sus registros dejan de ocupar disco local.",
+    "loading": "Cargando…",
+    "loadFailed": "No se pudo leer el almacén.",
+    "retry": "Reintentar",
+    "datasets": {
+      "logs": "Logs",
+      "alerts": "Alertas",
+      "statistics": "Estadísticas de ingesta"
+    },
+    "holding": "{{documents}} registros · {{size}}",
+    "since": "desde {{date}}",
+    "diskUsed": "Disco al {{pct}}%",
+    "keep": "Eliminar después de",
+    "keepHint": "Un registro se elimina esos días después de ocurrir, esté donde esté guardado.",
+    "cold": "Mover a almacenamiento frío tras",
+    "coldHint": "Los registros antiguos pasan al object storage y siguen siendo consultables. 0 los deja siempre en disco local.",
+    "coldUnavailable": "Configura el almacenamiento frío abajo para sacar los registros antiguos del disco local.",
+    "coldBeforeDelete": "Los registros deben moverse antes de eliminarse: usa menos días que la vida total, o 0.",
+    "tieredNote": "Este conjunto mueve registros a almacenamiento frío. Volver a solo disco local exige reconstruir la tabla, así que no se puede apagar aquí.",
+    "days": "días",
+    "save": "Guardar",
+    "saving": "Guardando…",
+    "toast": {
+      "saved": "Retención guardada",
+      "noPermission": "No tienes permiso para cambiar la retención",
+      "saveFailed": "No se pudo guardar la retención"
+    },
+    "coldStorage": {
+      "title": "Almacenamiento frío",
+      "hint": "Un object storage que el almacén trata como un segundo disco más lento. Los registros antiguos se mueven allí y se consultan desde el mismo sitio: no es un archivo y no hay que restaurar nada.",
+      "active": "En uso",
+      "inactive": "Sin configurar",
+      "writtenNotReady": "El bucket está configurado pero el almacén no lo ha tomado. Comprueba que el despliegue comparte el directorio de configuración del almacén.",
+      "endpoint": "URL del bucket",
+      "accessKey": "Access key",
+      "secretKey": "Secret key",
+      "bucketLocked": "Las credenciales se pueden cambiar cuando quieras. El bucket no, una vez hay registros dentro: las partes ya movidas lo llevan.",
+      "enable": "Activar almacenamiento frío",
+      "update": "Actualizar credenciales",
+      "toast": {
+        "saved": "Almacenamiento frío configurado",
+        "failed": "No se pudo configurar el almacenamiento frío"
+      },
+      "kind": "Tipo",
+      "kind_s3": "Almacén de objetos compatible con S3",
+      "kind_local": "Carpeta local o NFS",
+      "kind_azure": "Azure Blob Storage",
+      "accountUrl": "URL de la cuenta de almacenamiento",
+      "container": "Contenedor",
+      "accountName": "Nombre de la cuenta",
+      "accountKey": "Clave de la cuenta",
+      "useRole": "Usar el rol IAM del servidor en lugar de claves",
+      "s3Hint": "Funciona con AWS S3 y cualquier almacén compatible con S3: MinIO, Ceph, Wasabi, Cloudflare R2 o Google Cloud Storage (endpoint https://storage.googleapis.com/<bucket>/ con claves HMAC).",
+      "localHint": "Los registros pasan a la carpeta montada en /mnt/utmstack-cold dentro del almacén de eventos: un directorio normal en la carpeta de datos, o un recurso NFS montado en el host sobre <directorio de datos>/clickhouse/cold antes de iniciar el stack. No requiere credenciales.",
+      "changeWarning": "No migramos los datos que ya están en el destino actual. Se quedan allí y dejan de poder consultarse desde aquí hasta que copies a mano el destino anterior al nuevo."
+    },
+    "forbidden": {
+      "title": "Esta página es de la plataforma",
+      "body": "La retención se aplica a las tablas que comparten todos los tenants, así que solo un administrador de plataforma puede verla o cambiarla. Pídeselo a uno, o entra con una cuenta de plataforma."
+    }
+  },
+  "languageSettings": {
+    "title": "Idioma de la plataforma",
+    "subtitle": "Idioma por defecto para las pantallas pre-login, los correos del sistema y los usuarios nuevos. Cada usuario puede elegir el suyo en su perfil.",
+    "label": "Idioma por defecto",
+    "hint": "Se usa cuando un usuario no ha elegido su propio idioma.",
+    "save": "Guardar",
+    "saving": "Guardando…",
+    "saved": "Idioma de la plataforma actualizado",
+    "loadError": "No se pudo cargar la configuración de idioma",
+    "saveError": "No se pudo guardar la configuración de idioma"
+  },
+  "branding": {
+    "title": "Marca",
+    "subtitle": "Personaliza UTMStack con la identidad de tu organización — se aplica en todo: la pantalla de login, el menú lateral, los correos y los informes.",
+    "enterpriseRequired": "El white-label es una función Enterprise.",
+    "manageLicense": "Gestionar licencia",
+    "enable": {
+      "title": "White-label",
+      "description": "Reemplaza la marca UTMStack por la tuya en toda la plataforma.",
+      "label": "Activar white-label"
+    },
+    "identity": {
+      "title": "Identidad",
+      "productName": "Nombre del producto",
+      "productNameHint": "Se muestra en la barra de título, el menú lateral y los correos.",
+      "accent": "Color de acento",
+      "accentHint": "Color primario de botones, enlaces y estados activos.",
+      "custom": "Color personalizado"
+    },
+    "logos": {
+      "title": "Logos",
+      "hint": "PNG, SVG, WEBP, JPG o ICO. Hasta 5 MB.",
+      "logo": "Logo (claro)",
+      "logoDark": "Logo (oscuro)",
+      "favicon": "Favicon"
+    },
+    "reports": {
+      "title": "Recursos de informes",
+      "hint": "Incrustados en los informes PDF generados.",
+      "reportLogo": "Logo de informe",
+      "reportCover": "Portada de informe"
+    },
+    "asset": {
+      "upload": "Subir",
+      "replace": "Reemplazar"
+    },
+    "save": "Guardar cambios",
+    "saving": "Guardando…",
+    "saved": "Marca actualizada",
+    "saveError": "No se pudo guardar la marca",
+    "uploaded": "Imagen subida",
+    "uploadError": "No se pudo subir la imagen",
+    "loadError": "No se pudo cargar la marca",
+    "enterprise": {
+      "title": "La marca blanca es una función Enterprise",
+      "body": "Sustituye el nombre del producto, el logotipo y la portada de los informes por los tuyos, para que el panel y todo lo que genera lleven tu marca y no la de UTMStack.",
+      "upgrade": "Actualizar a Enterprise"
+    },
+    "restore": "Restaurar los valores de UTMStack",
+    "restored": "Marca restaurada a los valores de UTMStack"
+  },
+  "emailConfig": {
+    "title": "Configuración de correo",
+    "subtitle": "Servidor SMTP usado para enviar notificaciones de alertas, informes y correos de cuenta.",
+    "server": {
+      "title": "Servidor SMTP",
+      "host": "Host",
+      "hostHint": "Nombre del servidor SMTP.",
+      "port": "Puerto",
+      "encryption": "Cifrado",
+      "username": "Usuario",
+      "password": "Contraseña",
+      "passwordSetHint": "Hay una contraseña guardada. Déjalo vacío para conservarla, o escribe una nueva para cambiarla."
+    },
+    "encryptionOpt": {
+      "TLS": "TLS",
+      "SSL": "SSL",
+      "NONE": "Ninguno"
+    },
+    "sender": {
+      "title": "Remitente",
+      "from": "Dirección de origen",
+      "fromHint": "Dirección desde la que se envían los correos.",
+      "organization": "Nombre de la organización",
+      "organizationHint": "Se muestra en los correos de notificación de alertas e incidentes.",
+      "baseUrl": "URL base",
+      "baseUrlHint": "URL pública de esta instancia, usada en los enlaces de los correos."
+    },
+    "test": {
+      "button": "Enviar prueba",
+      "sending": "Enviando…",
+      "sentTo": "Se enviará un correo de prueba a {{email}}.",
+      "success": "Correo de prueba enviado a {{email}}",
+      "fail": "No se pudo enviar el correo de prueba",
+      "fromRequired": "Define una dirección de origen antes de probar"
+    },
+    "save": "Guardar cambios",
+    "saving": "Guardando…",
+    "saved": "Configuración de correo guardada",
+    "saveError": "No se pudo guardar la configuración",
+    "loadError": "No se pudo cargar la configuración",
+    "recipients": {
+      "alertsTitle": "Destinatarios de alertas",
+      "incidentsTitle": "Destinatarios de incidentes",
+      "to": "Para",
+      "cc": "CC",
+      "alertsHelper": "Direcciones avisadas cuando se generan nuevas alertas. Si lo dejas vacío, las alertas no se envían por correo.",
+      "incidentsHelper": "Direcciones avisadas cuando se crea un incidente. Si lo dejas vacío, los incidentes no se envían por correo.",
+      "add": "Añadir"
+    }
+  },
+  "dateFormat": {
+    "title": "Fecha y hora",
+    "subtitle": "Cómo se muestran los timestamps en toda la plataforma. Los logs siempre se almacenan en UTC.",
+    "timezone": {
+      "title": "Zona horaria",
+      "hint": "Los timestamps se muestran en esta zona horaria. Los datos se almacenan en UTC.",
+      "system": "Predeterminado del navegador",
+      "now": "Ahora: {{value}}"
+    },
+    "format": {
+      "title": "Formato de fecha",
+      "hint": "Estilo usado para fechas y horas."
+    },
+    "styles": {
+      "short": "Corto",
+      "medium": "Medio",
+      "long": "Largo",
+      "full": "Completo"
+    },
+    "save": "Guardar cambios",
+    "saving": "Guardando…",
+    "saved": "Configuración de fecha guardada",
+    "saveError": "No se pudo guardar la configuración",
+    "loadError": "No se pudo cargar la configuración"
+  },
+  "about": {
+    "title": "Acerca de esta instancia",
+    "subtitle": "Versión, licencia y estado del sistema de este despliegue de UTMStack.",
+    "loading": "Cargando información de la instancia…",
+    "edition": {
+      "enterprise": "Enterprise",
+      "community": "Community"
+    },
+    "fields": {
+      "hostname": "Servidor",
+      "instanceId": "ID de instancia",
+      "noInstanceMeta": "No hay metadatos de la instancia disponibles."
+    },
+    "license": {
+      "title": "Licencia",
+      "enterpriseMssp": "Enterprise · MSSP",
+      "datasources": "Datasources",
+      "communityLimited": "Límite Community",
+      "unlimited": "Ilimitado",
+      "expires": "Expira",
+      "managedNote": "La edición, los límites de datasources y la carga de licencia se gestionan en la página de Licencia.",
+      "view": "Ver licencia",
+      "ingest": "Volumen de ingesta",
+      "notMetered": "Sin medición",
+      "gbPerMonth": "{{gb}} GB/mes"
+    },
+    "services": {
+      "backend": {
+        "name": "Backend API",
+        "desc": "Gateway REST, autenticación y orquestación de módulos."
+      },
+      "opensearch": {
+        "name": "OpenSearch",
+        "desc": "Almacenamiento de logs y eventos.",
+        "detail": "{{nodes}} nodos · {{shards}} shards"
+      },
+      "unreachable": "Inaccesible"
+    },
+    "status": {
+      "up": "Saludable",
+      "degraded": "Degradado",
+      "down": "Caído",
+      "unknown": "Desconocido"
+    },
+    "health": {
+      "title": "Estado del sistema",
+      "allHealthy": "Todos los servicios saludables. Actualiza para revisar.",
+      "issues_one": "{{count}} servicio necesita atención.",
+      "issues_other": "{{count}} servicios necesitan atención.",
+      "refresh": "Actualizar"
+    },
+    "usage": {
+      "title": "Fuentes de datos",
+      "subtitle": "Fuentes de datos configuradas en esta instalación.",
+      "ofUnlimited": "de ilimitado",
+      "ofLimit": "de {{limit}}",
+      "overLimit": "Por encima del límite licenciado — los datos que excedan el tope están en riesgo.",
+      "configured": "configuradas"
+    },
+    "support": {
+      "title": "Soporte",
+      "docs": "Documentación",
+      "repo": "Repositorio en GitHub",
+      "issues": "Reportar un problema",
+      "website": "utmstack.com"
+    },
+    "legal": {
+      "title": "Legal",
+      "license": "Licencia",
+      "security": "Divulgación de seguridad",
+      "copyright": "© {{year}} UTMStack. Todos los derechos reservados."
+    }
+  },
+  "logExplorer": {
+    "title": "Explorador de logs",
+    "eventsIn": "eventos en",
+    "searching": "Buscando…",
+    "query": {
+      "allDataTypes": "Todos los tipos de dato",
+      "dataTypes": "Tipos de dato",
+      "exportCsv": "Exportar CSV",
+      "filterDataTypes": "Filtrar tipos de dato…",
+      "noDataTypes": "Sin tipos de dato",
+      "noDataTypesMatch": "Ningún tipo de dato coincide",
+      "noTextSearch": "Este origen no tiene campo de texto completo — filtra por campo",
+      "refresh": "Actualizar",
+      "run": "Ejecutar",
+      "search": "Buscar",
+      "searchPlaceholder": "Buscar en todos los campos…"
+    },
+    "time": {
+      "15m": "Últimos 15 minutos",
+      "1h": "Última hora",
+      "6h": "Últimas 6 horas",
+      "24h": "Últimas 24 horas",
+      "7d": "Últimos 7 días",
+      "30d": "Últimos 30 días"
+    },
+    "ops": {
+      "is": "es",
+      "isNot": "no es",
+      "contains": "contiene",
+      "exists": "existe",
+      "between": "entre",
+      "search": "busca",
+      "isOneOf": "es uno de",
+      "isNotOneOf": "no es ninguno de",
+      "doesNotContain": "no contiene",
+      "startsWith": "empieza con",
+      "doesNotStartWith": "no empieza con",
+      "endsWith": "termina con",
+      "doesNotEndWith": "no termina con",
+      "doesNotExist": "no existe",
+      "notBetween": "no está entre",
+      "greaterThan": "es mayor que",
+      "greaterThanOrEquals": "es mayor o igual que",
+      "lessThan": "es menor que",
+      "lessThanOrEquals": "es menor o igual que"
+    },
+    "filters": {
+      "label": "Filtros",
+      "clearAll": "Limpiar todo"
+    },
+    "fields": {
+      "title": "Campos",
+      "filterPlaceholder": "Filtrar campos…",
+      "none": "Sin campos",
+      "selected": "Campos seleccionados",
+      "available": "Campos disponibles",
+      "topValues_one": "Top {{count}} valor",
+      "topValues_other": "Top {{count}} valores",
+      "loading": "Cargando…",
+      "noValues": "Sin valores",
+      "addColumn": "Agregar como columna",
+      "removeColumn": "Quitar columna de la tabla",
+      "filterFor": "Filtrar por el valor",
+      "filterOut": "Excluir el valor",
+      "empty": "(vacío)"
+    },
+    "results": {
+      "dataTypesFailed": "No se pudieron cargar los tipos de dato.",
+      "endOfResults": "Cargados los {{count}} eventos",
+      "loadingMore": "Cargando más…",
+      "message": "Mensaje",
+      "none": "Ningún log coincide con esta consulta.",
+      "removeColumn": "Quitar {{field}}",
+      "retry": "Reintentar",
+      "searchFailed": "La búsqueda falló.",
+      "searching": "Buscando…",
+      "source": "Origen",
+      "time": "Hora",
+      "scope": "Buscado en {{dataset}} · {{dataType}}.",
+      "searchAllDataTypes": "Buscar en todos los tipos"
+    },
+    "detail": {
+      "fieldsCount_one": "{{count}} campo",
+      "fieldsCount_other": "{{count}} campos",
+      "copyJson": "Copiar JSON",
+      "copied": "Documento copiado",
+      "parsedFields": "Campos parseados",
+      "json": "JSON",
+      "filterFor": "Filtrar por",
+      "filterOut": "Excluir",
+      "surrounding": "Eventos alrededor",
+      "surroundingHint": "Mostrar eventos ±15 min alrededor de este, de la misma fuente"
+    },
+    "view": {
+      "table": "Tabla",
+      "chart": "Gráfico"
+    },
+    "chart": {
+      "aggregateOn": "Agregar por",
+      "per": "cada",
+      "topValues": "— top 20 valores",
+      "building": "Construyendo gráfico…",
+      "failed": "No se pudo construir el gráfico para este campo.",
+      "noData": "Sin datos para graficar."
+    },
+    "intervals": {
+      "minute": "Minuto",
+      "hour": "Hora",
+      "day": "Día",
+      "week": "Semana",
+      "month": "Mes",
+      "quarter": "Trimestre",
+      "year": "Año"
+    },
+    "toast": {
+      "exportFailed": "La exportación falló"
+    },
+    "builder": {
+      "add": "Agregar filtro",
+      "filterValues": "Filtrar valores…",
+      "loadingValues": "Cargando valores…",
+      "noValues": "Sin valores.",
+      "cancel": "Cancelar",
+      "confirm": "Agregar",
+      "pickValue": "Pick a value to add the filter."
+    },
+    "related": {
+      "nLogs_one": "{{count}} log",
+      "nLogs_other": "{{count}} logs",
+      "truncated": "Mostrando los primeros {{count}} logs relacionados (el conjunto completo es mayor)."
+    },
+    "saved": {
+      "title": "Guardadas",
+      "empty": "Aún no hay búsquedas guardadas",
+      "saveCurrent": "Guardar búsqueda actual",
+      "save": "Guardar",
+      "namePlaceholder": "Nombre de la búsqueda",
+      "delete": "Eliminar",
+      "saved": "Guardada «{{name}}»",
+      "loading": "Cargando…",
+      "loadFailed": "No se pudieron cargar las búsquedas guardadas",
+      "saveFailed": "No se pudo guardar la búsqueda",
+      "deleteFailed": "No se pudo eliminar la búsqueda",
+      "unreadable": "No se pudo leer esa búsqueda guardada"
+    }
+  },
+  "integrations": {
+    "title": "Integraciones",
+    "searchPlaceholder": "Buscar integraciones…",
+    "noMatch": "Ninguna integración coincide.",
+    "browseMarketplace": "Explorar marketplace",
+    "loading": "Cargando integraciones…",
+    "addCustom": {
+      "title": "Agregar integración personalizada",
+      "description": "Crear una nueva fuente personalizada",
+      "cta": "Crear"
+    },
+    "tabs": {
+      "all": "Todas",
+      "agents": "Agentes",
+      "collectors": "Colectores",
+      "cloud": "Cloud",
+      "custom": "Personalizada"
+    },
+    "kind": {
+      "agents & syslog": "Agente",
+      "device": "Colector",
+      "antivirus": "Colector",
+      "other": "Colector",
+      "custom": "Personalizada",
+      "cloud": "Cloud",
+      "utmstack modules": "Colector"
+    },
+    "status": {
+      "configured": "Configurada",
+      "available": "Disponible"
+    },
+    "card": {
+      "manage": "Gestionar →",
+      "setup": "Configurar →",
+      "eventsPerSec": "{{rate}} e/s",
+      "enabled": "Activado",
+      "setupShort": "Configurar"
+    },
+    "drawer": {
+      "manage": "Gestionar",
+      "openDashboard": "Abrir panel",
+      "viewEvents": "Ver eventos",
+      "documentation": "Documentación",
+      "getInstallCmd": "Obtener comando de instalación",
+      "setupCollector": "Configurar colector",
+      "connect": "Conectar",
+      "configureCustom": "Configurar fuente personalizada",
+      "eventsRate": "{{rate}} eventos/s · {{count}} en 24h",
+      "manageRules": "Reglas",
+      "manageFilters": "Filtros"
+    },
+    "setup": {
+      "agent": {
+        "howItWorksTitle": "Cómo funciona",
+        "howItWorksBody": "El agente {{name}} es un pequeño demonio que se ejecuta en el host y reenvía eventos locales a UTMStack sobre una conexión TLS autenticada. Se actualiza automáticamente e informa su estado de salud.",
+        "installTitle": "Instalar en {{name}}",
+        "installHint": "Ejecuta este comando en cada host {{name}} que desees monitorear. El token ya codifica tu workspace actual.",
+        "afterTitle": "Qué verás después de instalar",
+        "after1": "El host aparece bajo Fuentes de datos dentro de ~60 segundos después de que inicie el agente.",
+        "after2": "La telemetría comienza a fluir hacia el Log Explorer, limitada a tu workspace.",
+        "after3": "El agente auto-reporta CPU / memoria / estado del disco a UTMStack.",
+        "actionLabel": "Acción",
+        "platformLabel": "Plataforma",
+        "optionsLabel": "Opciones",
+        "skipCertValidation": "No validar el certificado TLS (servidor autofirmado)",
+        "noRemoteControl": "Deshabilitar la ejecución remota de comandos en este host",
+        "loadingToken": "Cargando token…",
+        "actions": {
+          "install": "Instalar",
+          "uninstall": "Desinstalar"
+        },
+        "prereqTitle": "Requisitos previos a la instalación",
+        "prereqBody": "El agente de UTMStack se comunica con el servidor a través de los siguientes puertos. Asegúrese de que estén abiertos entre el host y UTMStack antes de instalar:",
+        "sensitiveWarning": "El comando siguiente contiene un token de inscripción sensible — no lo comparta.",
+        "uninstall": {
+          "title": "Desinstalar el agente",
+          "body": "Ejecute esto en el host para detener y eliminar el agente de UTMStack y sus servicios. Utiliza la plataforma seleccionada anteriormente."
+        },
+        "macCompat": "Requiere macOS 11 (Big Sur) o posterior en Apple Silicon (M1/M2/M3 o más reciente). Los Mac basados en Intel no son compatibles."
+      },
+      "collector": {
+        "guideUnavailableTitle": "Guía de configuración no disponible",
+        "guideUnavailableBody": "Todavía no se configuró una guía para {{name}}. Contacta al administrador antes de habilitar esta integración.",
+        "genericSourceTitle": "Configurar {{name}}",
+        "genericSourceBody": "Configura la fuente para enviar eventos al Collector de UTMStack seleccionado usando estos datos de conexión.",
+        "howItWorksTitle": "Cómo funciona",
+        "howItWorksBody": "{{name}} no ejecuta un agente de UTMStack. En su lugar, instalas el colector de UTMStack en algún lugar de la red que tanto tu dispositivo {{name}} como UTMStack puedan alcanzar. {{name}} envía syslog al colector, el colector analiza, normaliza y reenvía eventos a UTMStack.",
+        "step1Title": "1 · Instalar el colector de UTMStack",
+        "step1Hint": "Ejecutar en un host Linux con acceso de red desde el dispositivo {{name}}.",
+        "step2Title": "2 · Configurar {{name}} para enviar syslog",
+        "step2Hint": "En el dispositivo {{name}}, apunta el reenvío de syslog a la dirección del colector en {{port}}.",
+        "vendorDocs": "Ver instrucciones específicas del proveedor",
+        "step3Title": "3 · Verificar",
+        "step3Body": "Dentro de algunos minutos deberías ver eventos de {{name}} bajo source: {{source}} en Log Explorer, y una nueva entrada en Fuentes de datos.",
+        "forwarder": {
+          "intro": {
+            "title": "Cómo funciona",
+            "body": "Los registros fluyen desde {{source}} hacia el UTMStack Collector, que los transmite de forma segura a UTMStack para correlación y alertas. No se instala nada en {{source}} — solo el Collector necesita ejecutarse en un host de tu red."
+          },
+          "diagram": {
+            "sourceSub": "tus registros",
+            "forwarder": "Collector",
+            "forwarderSub": "escucha en {{port}}",
+            "utmstack": "UTMStack",
+            "utmstackSub": "alertas y correlación",
+            "flow1": "registros",
+            "flow2": "seguro"
+          },
+          "noInstall": "No se instala nada en {{source}} — solo redirige sus registros al Collector.",
+          "install": {
+            "title": "Instalar el UTMStack Collector",
+            "body": "El Collector es un servicio Linux que recibe registros de tus dispositivos y los envía a UTMStack. Un solo Collector gestiona múltiples integraciones al mismo tiempo.",
+            "reuse": "¿Ya tienes un Collector en ejecución? Omite este paso — apunta {{source}} al existente usando el host y puerto indicados abajo."
+          },
+          "tls": {
+            "title": "Opcional — Habilitar cifrado TLS",
+            "intro": "Por defecto el listener acepta TCP/UDP sin cifrar. Para cifrar el tráfico syslog en tránsito, carga primero tus certificados y luego rehabilita el listener con el protocolo tls.",
+            "step1": "1 · Cargar tu certificado y clave (una vez por Collector)",
+            "step1Note": "Puedes agregar un certificado CA como tercer argumento. Si se omite, se usa el certificado hoja como CA.",
+            "step2": "2 · Rehabilitar el listener con TLS"
+          },
+          "httpsCerts": {
+            "title": "Carga el certificado TLS en el Collector",
+            "body": "Esta integración usa un listener HTTPS en el puerto {{port}}, por lo que el Collector necesita un certificado y una clave cargados antes de habilitarla:"
+          },
+          "uninstall": {
+            "title": "Opcional — Desinstalar el Collector",
+            "body": "Ejecuta este comando en el host donde está instalado el Collector para detener el servicio y eliminar todos sus archivos."
+          },
+          "instanceHeader": {
+            "title": "Cabecera de autorización",
+            "body": "Incluye esta cabecera Authorization en cada solicitud que envíes a la instancia. El secreto de la clave API solo se muestra una vez al generarla — cópialo entonces y pégalo en lugar del marcador de posición de abajo.",
+            "tabSimple": "Simple",
+            "tabBatch": "Lote"
+          },
+          "manualCommand": {
+            "title": "Optional — Enable via the command line instead",
+            "intro": "Prefer the terminal? SSH into the Collector host and run the command below — it matches whatever protocol and port you have selected above.",
+            "certStep": "1 · Load your certificate and key (once per Collector)",
+            "enableStep": "2 · Enable the integration"
+          }
+        },
+        "cisco": {
+          "source": "Cisco ASA",
+          "step1": {
+            "title": "Habilitar el listener Cisco ASA en el Collector",
+            "body": "En el host donde está instalado el Collector, ejecuta este comando para abrir el listener de registros Cisco ASA:",
+            "note": "Para usar TCP en lugar de UDP, reemplaza udp por tcp en el comando anterior."
+          },
+          "step2": {
+            "title": "Configurar Cisco ASA para reenviar registros",
+            "body": "En tu Cisco ASA, habilita <hl>syslog</hl> y apúntalo al host del Collector en el puerto {{port}}. Ejecuta estos comandos en modo EXEC privilegiado (reemplaza <interface> con el nombre de tu interfaz interna o de gestión):"
+          }
+        },
+        "ciscoSwitch": {
+          "source": "Cisco Switch",
+          "step1": {
+            "title": "Habilitar el listener Cisco Switch en el Collector",
+            "body": "En el host donde está instalado el Collector, ejecuta este comando para abrir el listener de registros Cisco Switch:",
+            "note": "Para usar TCP en lugar de UDP, reemplaza udp por tcp en el comando anterior."
+          },
+          "step2": {
+            "title": "Configurar el switch para reenviar registros",
+            "body": "En modo EXEC privilegiado de tu Cisco switch, habilita <hl>syslog</hl> y apúntalo al host del Collector en el puerto {{port}}:"
+          }
+        },
+        "ciscoMeraki": {
+          "source": "Cisco Meraki",
+          "step1": {
+            "title": "Habilitar el listener Cisco Meraki en el Collector",
+            "body": "En el host donde está instalado el Collector, ejecuta este comando para abrir el listener de registros Cisco Meraki:",
+            "note": "Para usar TCP en lugar de UDP, reemplaza udp por tcp en el comando anterior."
+          },
+          "step2": {
+            "title": "Configurar Meraki para reenviar registros",
+            "body": "En el Dashboard de Meraki, ve a <hl>Network-wide → Configure → General</hl>, desplázate a la sección Reporting y agrega un servidor syslog con la IP del Collector y el puerto {{port}}. Selecciona todos los roles que deseas reenviar."
+          }
+        },
+        "ciscoFirepower": {
+          "source": "Cisco Firepower",
+          "step1": {
+            "title": "Habilitar el listener Cisco Firepower en el Collector",
+            "body": "En el host donde está instalado el Collector, ejecuta este comando para abrir el listener de registros Cisco Firepower:",
+            "note": "Para usar TCP en lugar de UDP, reemplaza udp por tcp en el comando anterior."
+          },
+          "step2": {
+            "title": "Configurar Firepower para reenviar registros",
+            "body": "En Firepower Management Center (FMC), ve a <hl>Devices → Platform Settings</hl>, edita o crea una política y navega a <hl>Syslog → Syslog Servers</hl>. Agrega la IP del Collector con el puerto {{port}} (UDP), asigna la política a tus dispositivos y despliega."
+          }
+        },
+        "office365": {
+          "intro": {
+            "title": "Cómo funciona",
+            "body": "UTMStack se conecta a Microsoft 365 usando una app registrada en Azure AD y consulta la API de Actividad de Gestión de Office 365 para obtener eventos de auditoría y seguridad. No se instala ningún agente en tu tenant.",
+            "diagram": {
+              "source": "eventos de auditoría y seguridad",
+              "edge": "Management API",
+              "utmstackSub": "correlación y alertas"
+            },
+            "note": "UTMStack solo requiere permisos de lectura — no se solicitan permisos de escritura."
+          },
+          "appSection": "Registro de aplicación en Azure",
+          "steps": {
+            "azurePortal": {
+              "title": "Abrir Microsoft Entra ID",
+              "body": "Abre el <hl>Portal de Azure</hl> (portal.azure.com) y haz clic en <hl>Microsoft Entra ID</hl>."
+            },
+            "appRegistrations": {
+              "title": "Ir a Registros de aplicaciones",
+              "body": "En el menú izquierdo, haz clic en <hl>Registros de aplicaciones</hl>."
+            },
+            "registerApp": {
+              "title": "Registrar una nueva aplicación",
+              "body": "Haz clic en <hl>Nuevo registro</hl>. Nómbrala <hl>UTMStack O365 Agent</hl>, selecciona <hl>Solo cuentas en este directorio organizacional (Inquilino único)</hl> y haz clic en <hl>Registrar</hl>."
+            },
+            "clientSecret": {
+              "title": "Crear un secreto de cliente",
+              "body": "Ve a <hl>Certificados y secretos → Nuevo secreto de cliente</hl>. Añade una descripción, establece el vencimiento en <hl>730 días (24 meses)</hl> y haz clic en <hl>Agregar</hl>.",
+              "copyNote": "Copia el Valor del secreto inmediatamente — solo se muestra una vez y no se puede recuperar después."
+            },
+            "apiPermissions": {
+              "title": "Agregar permisos de Office 365 Management API",
+              "body": "Ve a <hl>Permisos de API → Agregar un permiso</hl> y busca <hl>Office 365 Management APIs</hl>."
+            },
+            "activityFeed": {
+              "title": "Conceder permisos de ActivityFeed",
+              "body": "Selecciona <hl>Permisos de aplicación</hl> y añade <hl>ActivityFeed.Read</hl> y <hl>ActivityFeed.ReadDlp</hl>. Haz clic en <hl>Conceder consentimiento de administrador</hl> y confirma."
+            },
+            "graphPermissions": {
+              "title": "Agregar permisos de Microsoft Graph",
+              "body": "De vuelta en <hl>Agregar un permiso</hl>, haz clic en <hl>Microsoft Graph</hl>."
+            },
+            "delegatedPermissions": {
+              "title": "Agregar permisos delegados de SecurityAlert",
+              "body": "Selecciona <hl>Permisos delegados</hl> y añade <hl>SecurityAlert.Read.All</hl> y <hl>SecurityAlert.ReadWrite.All</hl>. Haz clic en <hl>Conceder consentimiento de administrador</hl> y confirma."
+            },
+            "appPermissions": {
+              "title": "Agregar permisos de aplicación de SecurityAlert",
+              "body": "Selecciona <hl>Permisos de aplicación</hl> y añade <hl>SecurityAlert.Read.All</hl> y <hl>SecurityAlert.ReadWrite.All</hl>. Haz clic en <hl>Conceder consentimiento de administrador</hl> y confirma."
+            },
+            "noteIds": {
+              "title": "Copiar los IDs de la aplicación",
+              "body": "Ve a la <hl>Información general</hl> de la app y copia el <hl>ID de aplicación (cliente)</hl> y el <hl>ID de directorio (inquilino)</hl>. También necesitas el valor del secreto copiado en el paso 4."
+            }
+          },
+          "credentialsSection": "Credenciales",
+          "credentials": {
+            "title": "Conectar tu tenant de Microsoft 365",
+            "body": "Introduce los datos de los pasos anteriores. UTMStack verifica las credenciales antes de guardarlas. Puedes añadir múltiples grupos de configuración."
+          },
+          "fields": {
+            "tenantId": {
+              "label": "Tenant ID (ID de directorio)"
+            },
+            "clientId": {
+              "label": "Client ID (ID de aplicación)"
+            },
+            "clientSecret": {
+              "label": "Secreto de cliente"
+            },
+            "cloudEnv": {
+              "label": "Entorno de nube (opcional)",
+              "hint": "Commercial (por defecto), GCC, GCCHigh o DoD"
+            }
+          }
+        },
+        "github": {
+          "source": "GitHub",
+          "step1": {
+            "title": "Habilitar el listener de webhook de GitHub en el Collector",
+            "body": "En el host donde está instalado el Collector, ejecuta este comando para abrir el listener HTTPS de webhook para GitHub:",
+            "tokenNote": "El terminal imprimirá un token secreto — cópialo inmediatamente. No se volverá a mostrar."
+          },
+          "certWarning": {
+            "title": "GitHub requiere un certificado TLS firmado por una CA",
+            "body": "GitHub solo entrega webhooks a endpoints HTTPS con un certificado emitido por una CA pública (los certificados auto-firmados son rechazados). Asegúrate de que el host del Collector tenga un certificado de dominio válido antes de registrar el webhook."
+          },
+          "step2": {
+            "title": "Registrar el webhook en GitHub",
+            "body": "En tu repositorio u organización, ve a Settings → Webhooks → Add webhook y completa el formulario:",
+            "payloadUrl": "Payload URL",
+            "contentType": "Content type",
+            "secret": "Secret",
+            "secretHint": "Pega el <hl>token</hl> impreso por el Collector en el paso anterior.",
+            "events": "Which events",
+            "eventsHint": "Send me everything — o selecciona tipos de eventos específicos."
+          }
+        },
+        "aix": {
+          "source": "Servidor AIX",
+          "step1": {
+            "title": "Habilitar el listener AIX en el Collector",
+            "body": "En el host donde está instalado el Collector, ejecuta este comando para abrir el listener de registros AIX:",
+            "note": "Para usar TCP en lugar de UDP, reemplaza udp por tcp en el comando anterior."
+          },
+          "step2": {
+            "title": "Configurar AIX para reenviar registros",
+            "body": "En tu sistema AIX, configura el servicio <hl>syslog</hl> para redirigir sus registros al host del Collector en el puerto {{port}}. Consulta la documentación de IBM para la sintaxis exacta — varía entre versiones de AIX."
+          }
+        },
+        "as400": {
+          "intro": {
+            "title": "Cómo funciona",
+            "body": "El Colector AS/400 es un servicio Linux que se conecta directamente a tus sistemas AS/400 (IBM i) y extrae entradas del diario de seguridad, luego las envía de forma segura a UTMStack para correlación y alertas.",
+            "note": "No se instala nada en el AS/400 — el Colector se ejecuta en un host Linux que tenga acceso de red a tus sistemas AS/400.",
+            "diagram": {
+              "source": "tus diarios",
+              "edge1": "diarios",
+              "collector": "Colector AS/400",
+              "collectorSub": "extrae del AS/400",
+              "edge2": "seguro",
+              "utmstackSub": "alertas y correlación"
+            }
+          },
+          "install": {
+            "title": "Instalar el Colector AS/400",
+            "body": "Ejecuta este comando en un host Linux que pueda alcanzar tanto UTMStack como tus sistemas AS/400 por la red.",
+            "reuse": "¿Ya tienes el Colector AS/400 instalado? Omite este paso — solo agrega tus servidores al archivo de configuración en el siguiente paso."
+          },
+          "configure": {
+            "title": "Agregar tus servidores AS/400",
+            "body": "Edita as400-config.yaml en el directorio de instalación del colector y agrega cada sistema AS/400 que desees monitorear:",
+            "note": "Puedes listar múltiples servidores. El colector vigila este archivo y recarga automáticamente al guardar — sin necesidad de reinicio."
+          },
+          "journal": {
+            "title": "Habilitar el diario de auditoría en AS/400",
+            "body": "En cada sistema AS/400, asegúrate de que el diario de auditoría de seguridad <hl>QAUDJRN</hl> esté activo. Consulta la documentación de IBM para los pasos exactos — el procedimiento varía entre versiones de IBM i."
+          },
+          "uninstall": {
+            "title": "Opcional — Desinstalar el Colector",
+            "body": "Ejecuta este comando en el host donde está instalado el Colector AS/400 para detener el servicio y eliminar todos los archivos."
+          }
+        },
+        "bitdefender": {
+          "intro": {
+            "title": "Cómo funciona",
+            "body": "UTMStack se conecta a Bitdefender GravityZone usando tu clave API para configurar el Event Push Service. GravityZone envía entonces los eventos de seguridad directamente a UTMStack para correlación y alertas.",
+            "diagram": {
+              "source": "eventos de endpoints",
+              "edge": "Event Push Service",
+              "utmstackSub": "alertas y correlación"
+            },
+            "note": "No se instala nada en GravityZone — UTMStack se registra como destino de push usando credenciales de API de solo lectura."
+          },
+          "whitelist": {
+            "title": "Añadir IPs de Bitdefender a la whitelist",
+            "body": "Las siguientes IPs de Bitdefender GravityZone deben estar permitidas en tu firewall en el puerto 8000 para que el Event Push Service pueda alcanzar UTMStack:",
+            "note": "Añade estas IPs a tu firewall o grupo de seguridad antes de completar la configuración."
+          },
+          "apiSection": "Obtener credenciales API",
+          "api": {
+            "myAccount": {
+              "title": "Abrir Mi Cuenta",
+              "body": "En la consola de Bitdefender GravityZone, haz clic en <strong>My Account</strong>."
+            },
+            "accessUrl": {
+              "title": "Anotar la Access URL",
+              "body": "Desplázate hasta la sección <strong>Control Center API</strong> y guarda la Access URL — la introducirás en el formulario de credenciales. Luego abre la sección de claves API y haz clic en <strong>Add</strong>."
+            },
+            "createKey": {
+              "title": "Crear una clave API",
+              "body": "Escribe una descripción para la clave API, selecciona la opción <strong>Event Push Service API</strong> y haz clic en <strong>Save</strong>. Copia la clave generada."
+            }
+          },
+          "companySection": "Obtener IDs de empresa",
+          "company": {
+            "myCompany": {
+              "title": "Abrir Mi Empresa",
+              "body": "En la consola de GravityZone, haz clic en <strong>My Company</strong>."
+            },
+            "licensing": {
+              "title": "Anotar los IDs de empresa",
+              "body": "Abre la sección <strong>Licensing</strong> y guarda los Company IDs que quieres monitorizar — introdúcelos separados por comas en el formulario de credenciales."
+            }
+          },
+          "credentials": {
+            "title": "Introducir credenciales",
+            "body": "Rellena la Access URL, la clave API, la IP pública de UTMStack (donde GravityZone enviará los eventos) y los IDs de empresa a monitorizar. UTMStack verifica las credenciales antes de guardarlas."
+          },
+          "fields": {
+            "accessUrl": {
+              "label": "Access URL de GravityZone"
+            },
+            "connectionKey": {
+              "label": "Clave API"
+            },
+            "utmPublicIP": {
+              "label": "IP pública de UTMStack"
+            },
+            "companyIds": {
+              "label": "IDs de empresa (separados por comas)"
+            }
+          }
+        },
+        "netflow": {
+          "source": "Dispositivo de red",
+          "step1": {
+            "title": "Habilitar el listener de NetFlow en el Collector",
+            "body": "En el host donde está instalado el Collector, ejecuta este comando para abrir el colector NetFlow en el puerto 2055:",
+            "note": "NetFlow usa solo UDP — TCP y TLS no son compatibles con este protocolo."
+          },
+          "step2": {
+            "title": "Configurar el dispositivo para exportar NetFlow",
+            "body": "Apunta la exportación de NetFlow en tu router o firewall al host del Collector en el puerto <hl>{{port}} UDP</hl>. El ejemplo siguiente es para Cisco IOS — consulta la documentación de tu fabricante para otras plataformas:",
+            "note": "Reemplaza <interface> con el nombre de la interfaz donde se debe monitorizar el tráfico (p.ej. GigabitEthernet0/0). Aplica ingress/egress en cada interfaz relevante."
+          }
+        },
+        "sophos": {
+          "intro": {
+            "title": "Sophos Central — Plugin API",
+            "body": "Sophos Central proporciona APIs seguras para recuperar datos de eventos y alertas. UTMStack se conecta a esas APIs para centralizar la monitorización y mejorar la visibilidad de seguridad — sin agente ni collector.",
+            "diagram": {
+              "source": "API de Sophos Central",
+              "edge": "HTTPS API",
+              "utmstackSub": "Ingesta y correlaciona"
+            },
+            "note": "UTMStack consulta la API de Sophos Central periódicamente. Asegúrate de que las credenciales que crees tengan acceso de lectura a eventos y alertas."
+          },
+          "apiSection": "Generar credenciales API en Sophos Central",
+          "steps": {
+            "apiCredentials": {
+              "title": "Abrir la gestión de credenciales API",
+              "body": "En <hl>Sophos Central Admin</hl>, navega a <hl>Global Settings → API Credentials Management</hl>."
+            },
+            "addCredential": {
+              "title": "Crear una nueva credencial",
+              "body": "Haz clic en <hl>Add Credential</hl>. Proporciona un <hl>Nombre</hl> y una <hl>Descripción</hl>, selecciona el <hl>Rol</hl> apropiado y haz clic en <hl>Add</hl>."
+            },
+            "copyIds": {
+              "title": "Copiar el Client ID y el Client Secret",
+              "body": "Copia el <hl>Client ID</hl> y el <hl>Client Secret</hl> y guárdalos en un lugar seguro.",
+              "secretNote": "El Client Secret solo se muestra una vez. Guárdalo antes de cerrar este diálogo."
+            }
+          },
+          "credentialsSection": "Conectar con UTMStack",
+          "credentials": {
+            "title": "Añadir credenciales de Sophos Central",
+            "body": "Introduce las credenciales que acabas de crear. Puedes añadir más de una cuenta de Sophos haciendo clic en Añadir grupo de configuración."
+          },
+          "fields": {
+            "clientId": {
+              "label": "Client ID"
+            },
+            "apiKey": {
+              "label": "Client Secret / API Key"
+            }
+          }
+        },
+        "mikrotik": {
+          "source": "Router MikroTik",
+          "step1": {
+            "title": "Habilitar el listener de MikroTik en el Collector",
+            "body": "En el host donde está instalado el Collector, ejecuta este comando para abrir el listener syslog de MikroTik:",
+            "note": "Para usar TCP en lugar de UDP, reemplaza udp por tcp en el comando anterior."
+          },
+          "step2": {
+            "title": "Configurar MikroTik para reenviar registros",
+            "body": "En el router MikroTik, crea una <hl>acción de logging</hl> remota apuntando al host del Collector en el puerto {{port}} y asígnala a los topics relevantes. Ejecuta lo siguiente desde la CLI de RouterOS (Terminal en Winbox):",
+            "note": "También puedes configurarlo desde Winbox: System → Logging → pestaña Actions (añade una acción Remote) → luego la pestaña Rules (añade reglas apuntando a la nueva acción)."
+          }
+        },
+        "oracle": {
+          "source": "Servidor Oracle DB",
+          "step1": {
+            "title": "Habilitar la integración de Oracle en el Collector",
+            "body": "En el servidor donde está instalado el Collector, ejecuta el siguiente comando para comenzar a recibir logs de Oracle:",
+            "note": "El Collector comenzará a recibir eventos de syslog de Oracle en el puerto 7021."
+          },
+          "step2": {
+            "title": "Configurar rsyslog en el servidor Oracle",
+            "body": "Crea el archivo de configuración de rsyslog:",
+            "editBody": "Abre el archivo con tu editor preferido y añade la siguiente configuración. Reemplaza BASEDIR con la ruta de instalación de Oracle (p. ej., /u01/app/oracle) y <collector-ip> con la IP o nombre de host del Collector:",
+            "note": "Usa @@<collector-ip>:7021 en lugar de @ si prefieres entrega por TCP."
+          },
+          "step3": {
+            "title": "Reiniciar rsyslog",
+            "body": "Aplica la nueva configuración reiniciando el servicio rsyslog:"
+          },
+          "step4": {
+            "title": "Validar la configuración",
+            "body": "Envía mensajes de prueba para verificar que UTMStack está recibiendo eventos de las tres fuentes de logs de Oracle:",
+            "note": "Abre el Explorador de Logs y busca el texto del mensaje de prueba anterior para confirmar que llegaron."
+          }
+        },
+        "utmstack": {
+          "intro": {
+            "title": "Cómo funciona",
+            "body": "Esta integración automonitoriza tu despliegue de UTMStack. Un colector ligero instalado en el host de UTMStack lee los logs de los propios contenedores Docker de la plataforma y los envía de vuelta a UTMStack para correlación y alertas.",
+            "diagram": {
+              "source": "Logs de Docker",
+              "sourceSub": "Contenedores de UTMStack",
+              "edge1": "lee",
+              "collector": "Colector",
+              "collectorSub": "en el host",
+              "edge2": "ingesta",
+              "utmstackSub": "Correlaciona y alerta"
+            }
+          },
+          "requirements": {
+            "title": "Solo se ejecuta en el host de UTMStack",
+            "body": "Esta integración solo se puede instalar en una instancia de UTMStack que ejecute Ubuntu o una distribución de la familia Red Hat. Instala el colector directamente en el servidor de UTMStack."
+          },
+          "install": {
+            "title": "Instalar el colector",
+            "body": "En el host de UTMStack, elige tu sistema operativo y ejecuta el comando siguiente para descargar e instalar el colector de automonitorización:",
+            "sensitiveWarning": "Este comando contiene un token de conexión sensible. Trátalo como una contraseña y no lo compartas."
+          },
+          "after": {
+            "title": "Qué verás después de instalar",
+            "item1": "El colector se registra y aparece en Fuentes de datos.",
+            "item2": "Los logs de los contenedores de UTMStack empiezan a fluir en menos de un minuto.",
+            "item3": "Los eventos se pueden buscar en el Explorador de Logs bajo el tipo de dato utmstack."
+          },
+          "uninstall": {
+            "title": "Desinstalar el colector",
+            "body": "Para eliminar el colector de automonitorización del host de UTMStack, ejecuta:"
+          }
+        },
+        "endpoint": {
+          "title": "Detalles de conexión",
+          "hint": "Configure {{name}} para reenviar sus registros al Collector usando el host y el puerto indicados a continuación."
+        },
+        "syslog": {
+          "sections": {
+            "sendLogs": {
+              "title": "Enviar registros a UTMStack",
+              "body": "Configure su dispositivo para enviar mensajes syslog por UDP (514) o TCP (514) al agente de UTMStack."
+            },
+            "enableCollector": {
+              "title": "Habilitar el colector syslog",
+              "body": "Habilite el colector de registros y la integración syslog en el archivo de configuración donde está instalado su agente de UTMStack."
+            },
+            "activate": {
+              "title": "Activar",
+              "body": "Active el módulo de UTMStack para que los eventos comiencen a fluir en el Log Explorer."
+            }
+          }
+        },
+        "vmware": {
+          "source": "VMware ESXi",
+          "step1": {
+            "title": "Habilitar el listener de VMware en el Collector",
+            "body": "En el host donde está instalado el Collector, ejecute este comando para abrir el listener syslog de VMware ESXi. ESXi transmite por TCP:",
+            "note": "Para un canal cifrado use tls en lugar de tcp (cargue primero los certificados en el Collector)."
+          },
+          "step2": {
+            "title": "Apuntar el syslog de ESXi al Collector",
+            "body": "Abra una sesión SSH/ESXi Shell en el host (o use el vSphere Client: Host → Configure → Advanced System Settings → Syslog.global.logHost). Establezca el loghost remoto en <hl>{{host}}:{{port}}</hl> y recargue la configuración:",
+            "note": "En vSphere puede en cambio establecer Syslog.global.logHost con el mismo valor tcp://host:port en lugar de ejecutar esxcli."
+          },
+          "step3": {
+            "title": "Abrir el firewall de ESXi para syslog",
+            "body": "Permita el syslog saliente a través del firewall de ESXi para que el host pueda llegar al Collector:"
+          }
+        },
+        "eset": {
+          "source": "ESET Protect",
+          "step1": {
+            "title": "Habilitar el listener de ESET en el Collector",
+            "body": "En el host donde está instalado el Collector, ejecute este comando para abrir el listener syslog de ESET:",
+            "note": "Para usar TCP en lugar de UDP, reemplace udp por tcp en el comando anterior."
+          },
+          "console": {
+            "moreMenu": {
+              "title": "Abrir el menú More",
+              "body": "En la barra lateral de la consola ESET Protect, haga clic en el menú <hl>More</hl>."
+            },
+            "serverConfig": {
+              "title": "Abrir la configuración del servidor",
+              "body": "En More, abra la sección <hl>Server settings</hl> (Server configuration)."
+            },
+            "advanced": {
+              "title": "Expandir la configuración avanzada",
+              "body": "Haga clic en <hl>Advanced settings</hl> para expandir la lista completa de opciones de configuración."
+            },
+            "syslog": {
+              "title": "Configurar el servidor Syslog",
+              "body": "Desplácese hasta <hl>Syslog server</hl>, habilite <hl>Export logs to Syslog</hl> y establezca el destino en el host del Collector en el puerto {{port}} (UDP). ESET envía LEEF/syslog, que el Collector ingiere como el tipo de datos antivirus-esmc-eset."
+            }
+          }
+        },
+        "kaspersky": {
+          "source": "Kaspersky Security",
+          "step1": {
+            "title": "Habilitar el listener de Kaspersky en el Collector",
+            "body": "En el host donde está instalado el Collector, ejecute este comando para abrir el listener syslog de Kaspersky:",
+            "note": "Para usar TCP en lugar de UDP, reemplace udp por tcp en el comando anterior."
+          },
+          "console": {
+            "consoleSettings": {
+              "title": "Abrir Console settings → Integration",
+              "body": "En la barra lateral del Kaspersky Security Center, abra <hl>Console settings</hl> y haga clic en el submenú <hl>Integration</hl>."
+            },
+            "siem": {
+              "title": "Abrir la configuración de integración SIEM",
+              "body": "En Integration, seleccione <hl>SIEM</hl> y haga clic en el enlace <hl>Settings</hl> para abrir la configuración de exportación."
+            },
+            "configure": {
+              "title": "Configurar la exportación SIEM",
+              "body": "Habilite la exportación y configure Kaspersky para enviar eventos en formato <hl>Splunk (CEF)</hl> al host del Collector en el puerto {{port}} (UDP). El Collector los ingiere como el tipo de datos antivirus-kaspersky."
+            }
+          }
     "alerts": {
         "title": "Alertas",
         "matching": "{{count}} coincidentes",

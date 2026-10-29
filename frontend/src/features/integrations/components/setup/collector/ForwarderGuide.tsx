@@ -157,10 +157,14 @@ interface ForwarderGuideProps {
   source: string
   /** Forwarder port for this data type, e.g. "7016" (illustrative default shown in the diagram). */
   port: string
+  /** Stable initial port fallback when the data type has no catalog entry. */
+  defaultPort?: string
   /** The dataType shown in the connection details, e.g. "ibm-aix". */
   sourceType: string
   /** Initial protocol, when the device needs something other than the catalog's first entry (e.g. ESXi/SentinelOne are TCP-only in practice). */
   defaultProto?: Proto
+  /** Explicit protocol choices when this integration has a narrower catalog than its data type. */
+  availableProtos?: Proto[]
   /** Vendor-specific device-side config (how to point the device at the Forwarder). */
   header?: ReactNode
   onSetSelection?:(selection:RemoteEnableSelection)=>void
@@ -170,18 +174,24 @@ interface ForwarderGuideProps {
 export function ForwarderGuide({
   source,
   port,
+  defaultPort,
   sourceType,
   defaultProto,
+  availableProtos: configuredProtos,
   header,
   onSetSelection,
   children
 }: ForwarderGuideProps) {
   const { t } = useTranslation()
-  const availableProtos = useMemo(() => availableProtosFor(sourceType), [sourceType])
+  const availableProtos = useMemo(
+    () => configuredProtos ?? availableProtosFor(sourceType),
+    [sourceType, configuredProtos],
+  )
   const initialProto = defaultProto ?? availableProtos[0]
+  const fallbackPort = defaultPortFor(sourceType, initialProto) || defaultPort || port
   const [selection, setSelection] = useState<RemoteEnableSelection>(() => ({
     proto: initialProto,
-    port: defaultPortFor(sourceType, initialProto) || port,
+    port: fallbackPort,
     apiKey: null,
   }))
 
@@ -215,6 +225,7 @@ export function ForwarderGuide({
         dataType={sourceType}
         availableProtos={availableProtos}
         defaultProto={defaultProto}
+        defaultPort={fallbackPort}
         step={1}
         onSelectionChange={setSelection}
         onRequestAddCollector={handleAddCollector}
