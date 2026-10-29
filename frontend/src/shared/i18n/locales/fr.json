@@ -6331,6 +6331,7 @@
       "bruteForce": "Force brute",
       "outbound": "Connexion à une destination malveillante",
       "lateral": "Déplacement latéral",
+      "goldenTicket": "Golden ticket (Kerberos falsifié)",
       "malware": "Exécution malveillante sur un hôte",
       "webAttack": "Ataque web",
       "travel": "Voyage impossible",
@@ -6502,6 +6503,16 @@
     "capPe2": "Les commandes tournent maintenant en tant que {{account}} : contrôle total de l’hôte.",
     "capPe3": "Terminer la session élévée et auditer ce que {{account}} a pu toucher.",
     "titlePe": "Élévation de privilèges sur {{to}} via {{method}}",
+    "titleGt": "Golden ticket forgé par {{name}} contre {{to}}",
+    "capGt0": "{{name}} détient la clé KRBTGT du domaine et falsifie des tickets Kerberos pour {{account}}.",
+    "capGt1": "Il signe lui-même des TGT pour {{domain}} : {{forged}} tickets forgés à ce jour, aucun émis par le contrôleur de domaine.",
+    "capGt2": "{{account}} s'authentifie désormais partout dans {{domain}} avec un ticket que le DC n'a jamais accordé : le domaine est pris en main.",
+    "capGt3": "Réinitialiser deux fois le mot de passe KRBTGT pour invalider les tickets forgés, puis rechercher comment la clé a été volée.",
+    "scForgedTicket": "🎫 TGT forgé · {{account}}",
+    "scTicketUsed": "🔓 ticket accepté · {{account}}",
+    "scTgtLifetime": "Durée de vie du TGT supérieure à 10 ans",
+    "scKrbtgtKey": "signé avec la clé KRBTGT",
+    "scForgedTgts": "TGT forgés",
     "alertRaised": "Alerte levée"
   }
 }

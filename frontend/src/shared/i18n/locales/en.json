@@ -6330,6 +6330,7 @@
       "bruteForce": "Brute force",
       "outbound": "Connection to a malicious destination",
       "lateral": "Lateral movement",
+      "goldenTicket": "Golden ticket (forged Kerberos)",
       "malware": "Malicious execution on a host",
       "webAttack": "Web attack",
       "travel": "Impossible travel",
@@ -6501,6 +6502,16 @@
     "capPe2": "The commands now run as {{account}}: full control of the host.",
     "capPe3": "Terminate the escalated session and audit what {{account}} was able to touch.",
     "titlePe": "Privilege escalation to {{to}} via {{method}}",
+    "titleGt": "Golden ticket forged by {{name}} against {{to}}",
+    "capGt0": "{{name}} holds the domain's KRBTGT key and forges Kerberos tickets for {{account}}.",
+    "capGt1": "It signs TGTs for {{domain}} itself: {{forged}} forged tickets so far, none issued by the domain controller.",
+    "capGt2": "{{account}} now authenticates anywhere in {{domain}} with a ticket the DC never granted: full domain compromise.",
+    "capGt3": "Reset the KRBTGT password twice to invalidate the forged tickets, then hunt for how the key was stolen.",
+    "scForgedTicket": "🎫 forged TGT · {{account}}",
+    "scTicketUsed": "🔓 ticket accepted · {{account}}",
+    "scTgtLifetime": "TGT lifetime exceeds 10 years",
+    "scKrbtgtKey": "signed with the KRBTGT key",
+    "scForgedTgts": "Forged TGTs",
     "alertRaised": "Alert raised"
   }
 }

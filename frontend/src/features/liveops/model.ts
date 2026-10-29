@@ -1,7 +1,7 @@
 import { flagEmoji } from '@/features/alerts/lib/alert-meta'
 import type { Alert } from '@/features/alerts/types/alert.types'
 
-export type TemplateId = 'bruteForce' | 'outbound' | 'lateral' | 'malware' | 'webAttack' | 'travel' | 'scan' | 'cloud' | 'ransomware' | 'persistence' | 'exfil' | 'defenseEvasion' | 'privEsc' | 'generic'
+export type TemplateId = 'bruteForce' | 'outbound' | 'lateral' | 'goldenTicket' | 'credentialDumping' | 'reverseShell' | 'malware' | 'webAttack' | 'travel' | 'scan' | 'cloud' | 'ransomware' | 'persistence' | 'exfil' | 'defenseEvasion' | 'privEsc' | 'generic'
 
 export type Role = 'attacker' | 'perimeter' | 'internal' | 'cloud' | 'external'
 export type NodeKind = 'globe' | 'firewall' | 'server' | 'dc' | 'workstation' | 'laptop' | 'web' | 'k8s' | 'cloud' | 'skull' | 'user' | 'sensor'
@@ -135,6 +135,7 @@ export function templateFor(a: Alert): TemplateId {
   if (n.includes('port scanning') || n.includes('nping')) return 'scan'
   if (/brute force|password spray|password guessing|mfa fatigue|logon failure|single sign-on logon errors|authentication.*(fail|error)|failed logon/.test(n)) return 'bruteForce'
   if (/pass the hash|lateral movement|smbv1|kerberoast|as-rep|logon type 3/.test(n)) return 'lateral'
+  if (/golden ticket/.test(n)) return 'goldenTicket'
   if (/hack tool|spyware and vulnerability|ips critical|exploit attempt|sqli|xss|injection|web attack/.test(n)) return 'webAttack'
   if (/beaconing|malicious url|dns security|tor network|mining pool|out-of-band|ssh tunneling|wildfire|malware outbreak|c2|command.?(and|&)?control/.test(n)) return 'outbound'
   if (/(aws|google|gcp|github|azure|o365|office)/.test(dt) || /inbox rule|forwarding rule|transport rule|external sharing|safe links|safe attachment|admin login/.test(n)) return 'cloud'
@@ -251,6 +252,28 @@ const BUILDERS: Record<TemplateId, (a: Alert, t: (k: string, o?: Record<string, 
       parties: [from, to],
       captions,
       facts: { account, how },
+    }
+  },
+
+  goldenTicket(a, t) {
+    const src = a.adversary?.ip && isInternalIp(a.adversary.ip) ? internalSide('source', a.adversary, a.dataSource) : attackerParty(a.adversary)
+    const dc = internalSide('target', a.target, a.dataSource)
+    const domain = a.target?.domain ?? a.adversary?.domain ?? 'the domain'
+    const account = a.adversary?.user ?? a.target?.user ?? 'gsmith'
+    const forged = hashNum(a.id, 3, 7)
+    const captions: Caption[] = [
+      { at: 0, text: t('liveOps.capGt0', { name: src.name, account }) },
+      { at: 3000, text: t('liveOps.capGt1', { domain, forged }) },
+      { at: 6200, text: t('liveOps.capGt2', { account }) },
+      { at: 9000, text: `${t('liveOps.capAlertRaised', { name: a.name ?? '' })}${t('liveOps.capGt3')}` },
+    ]
+    return {
+      template: 'goldenTicket',
+      title: t('liveOps.titleGt', { name: src.name, to: dc.name }),
+      duration: 11800,
+      parties: [src, dc],
+      captions,
+      facts: { domain, account, forged, internal: src.role === 'internal' },
     }
   },
 

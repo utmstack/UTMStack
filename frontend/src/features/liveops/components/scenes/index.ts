@@ -4,6 +4,7 @@ import type { SceneProps } from './SceneProps'
 import { BruteForce } from './BruteForce'
 import { Outbound } from './Outbound'
 import { Lateral } from './Lateral'
+import { GoldenTicket } from './GoldenTicket'
 import { Malware } from './Malware'
 import { WebAttack } from './WebAttack'
 import { Travel } from './Travel'
@@ -23,6 +24,7 @@ export const SCENES: Record<Scene['template'], (p: SceneProps) => ReactElement> 
   bruteForce: BruteForce,
   outbound: Outbound,
   lateral: Lateral,
+  goldenTicket: GoldenTicket,
   malware: Malware,
   webAttack: WebAttack,
   travel: Travel,
