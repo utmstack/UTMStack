@@ -423,6 +423,11 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		Volumes: []string{
 			stack.ShmFolder + ":/dev/shm",
 		},
+		// web-pdf's /generate-pdf endpoint requires X-Utm-Internal-Key to
+		// match INTERNAL_KEY (C3 hardening); the backend sends it.
+		Environment: []string{
+			"INTERNAL_KEY=" + conf.InternalKey,
+		},
 		DependsOn: []string{
 			"backend",
 			"frontend",

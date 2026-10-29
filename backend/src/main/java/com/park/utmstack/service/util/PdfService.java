@@ -63,6 +63,9 @@ public class PdfService {
             HttpHeaders headers = new HttpHeaders();
             headers.add("Content-Type", "application/json");
             headers.add("Accept", "*/*");
+            // web-pdf gates /generate-pdf on the deployment internal key (C3
+            // hardening). The backend already carries INTERNAL_KEY in its env.
+            headers.add("X-Utm-Internal-Key", System.getenv("INTERNAL_KEY") == null ? "" : System.getenv("INTERNAL_KEY"));
             ResponseEntity<PdfServiceResponse> rs =
                     pdfRestTemplate.exchange(urlService, HttpMethod.GET, new HttpEntity<>(headers), PdfServiceResponse.class);
 
