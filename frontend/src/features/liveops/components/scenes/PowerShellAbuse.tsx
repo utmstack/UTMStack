@@ -22,7 +22,7 @@ export function PowerShellAbuse(props: SceneProps) {
       <Zone x={40} y={70} w={280} h={380} label={tr('liveOps.scHost', { name: host.name })} tone={tone.internal} />
       <Zone x={350} y={70} w={614} h={380} label={tr('liveOps.scTerminal')} tone={tone.muted} />
       {/* terminal window */}
-      <g opacity={ease(prog(t, 300, 900))} transform={`translate(${TL.x - 220},${TL.y - 80})`}>
+      <g opacity={ease(prog(t, 300, 900))} transform={`translate(${TL.x - 120},${TL.y - 80})`}>
         <rect width={440} height={180} rx={10} fill={tone.surface} stroke={ran ? tone.alert : tone.line} strokeWidth={ran ? 2.2 : 1.4} filter={ran ? glow : undefined} />
         <rect width={440} height={26} rx={10} fill={tone.surfaceAlt} />
         <circle cx={16} cy={13} r={4} fill={tone.textFaint} />
@@ -34,7 +34,7 @@ export function PowerShellAbuse(props: SceneProps) {
           {`> `}
         </text>
         <text x={30} y={56} fill={tone.highlight} fontSize={11} fontFamily="JetBrains Mono, monospace" opacity={blob}>
-          {f.encoded.slice(0, Math.floor(f.encoded.length * blob))}
+          {f.encoded.slice(0, Math.min(Math.floor(f.encoded.length * blob),60))}
         </text>
         {/* decoded command appearing char by char */}
         <text x={16} y={96} fill={ran ? tone.alertText : tone.textSoft} fontSize={12} fontFamily="JetBrains Mono, monospace" fontWeight={600}>
