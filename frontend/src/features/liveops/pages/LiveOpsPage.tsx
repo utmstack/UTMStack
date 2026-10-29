@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { AlertTriangle, Loader2, Radio } from 'lucide-react'
-import { cn } from '@/shared/lib/utils'
+import { AlertTriangle, Loader2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useSocAi, useSocAiFocus } from '@/features/soc-ai'
 import { alertFocus } from '@/features/alerts/lib/alert-focus'
@@ -8,6 +7,7 @@ import { useAlertCount } from '@/features/alerts/hooks/use-alert-count'
 import { buildScene, type Party, tsMs } from '../model'
 import { Stage } from '../components/Stage'
 import { Timeline } from '../components/Timeline'
+import { Header } from '../components/Header'
 import { LeftSidebar } from '../components/LeftSidebar'
 import { RightSidebar } from '../components/RightSidebar'
 import { LiveOpsDataContext } from '../liveops-data'
@@ -36,8 +36,6 @@ function useSize<T extends HTMLElement>() {
   }, [])
   return [ref, size] as const
 }
-
-const isExternal = (ip?: string): ip is string => !!ip && !/^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|127\.)/.test(ip)
 
 export function LiveOpsPage() {
   const { t } = useTranslation()
@@ -187,46 +185,18 @@ export function LiveOpsPage() {
         )}
 
         {/* Header */}
-        <div className="absolute z-30 flex h-10 items-center gap-3" style={{ top: EDGE, left: EDGE, right: EDGE }}>
-          <div className="flex shrink-0 items-center gap-2.5">
-            <Radio size={20} className="text-primary" />
-            <h1 className="text-[18px] font-semibold text-foreground">{t('liveOps.header')}</h1>
-            <span className={cn('flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-bold tracking-wide', !replaying ? 'bg-red-500/15 text-red-600 dark:text-red-400' : 'bg-primary/15 text-primary')}>
-              <span className={cn('h-2 w-2 rounded-full', !replaying ? 'lo-live-dot bg-red-500' : 'bg-primary')} />
-              {replaying ? t('liveOps.replay') : t('liveOps.live')}
-            </span>
-            {alert_ctx.newCount > 0 && (
-              <button
-                type="button"
-                onClick={() => {
-                  data.goPage(0)
-                  setSelectedId(null)
-                  rightScrollRef.current?.scrollTo({ top: 0 })
-                }}
-                className="flex items-center gap-1.5 rounded-full bg-red-500/15 px-2.5 py-0.5 text-[11px] font-bold tracking-wide text-red-600 transition-colors hover:bg-red-500/30 dark:text-red-400"
-                title={t('liveOps.newAlerts')}
-              >
-                <AlertTriangle size={12} />
-                {t('liveOps.newAlertsCount', { count: alert_ctx.newCount })}
-              </button>
-            )}
-          </div>
-          <div className="hidden min-w-0 items-center gap-2 @min-[980px]:flex">
-            {[
-              [t('liveOps.statHigh'), list.filter((a) => a.severity === 'high').length],
-              [t('liveOps.statOpen'), alert_ctx.count ?? list.filter((a) => String(a.status).toLowerCase() === 'open').length],
-              [t('liveOps.statAttackers'), new Set(list.map((a) => a.adversary?.ip).filter(isExternal)).size],
-              list.length < total ? [t('liveOps.statTotal'), total] : null,
-            ]
-              .filter((s): s is [string, number] => s !== null)
-              .map(([k, v]) => (
-              <div key={k} className="lo-panel shrink-0 rounded-lg px-2.5 py-1">
-                <span className="text-[11px] text-muted-foreground">{k} </span>
-                <span className="font-mono text-[13px] font-semibold text-foreground">{v}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+        <Header
+          replaying={replaying}
+          newCount={alert_ctx.newCount}
+          openCount={alert_ctx.count ?? list.filter((a) => String(a.status).toLowerCase() === 'open').length}
+          list={list}
+          total={total}
+          onNewAlerts={() => {
+            data.goPage(0)
+            setSelectedId(null)
+            rightScrollRef.current?.scrollTo({ top: 0 })
+          }}
+        />
 
         {/* Incoming alerts (floating, folds away) */}
         <LeftSidebar
