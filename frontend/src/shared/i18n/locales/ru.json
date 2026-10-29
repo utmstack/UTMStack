@@ -6217,7 +6217,7 @@
         }
     },
     "liveOps": {
-      "newAlerts": "Новые алерты",
+      "listNew": "Новый",
       "newAlertsCount_one": "{{count}} новый алерт",
       "newAlertsCount_few": "{{count}} новых алерта",
             "newAlertsCount_many": "{{count}} алертов",

@@ -15,7 +15,7 @@ interface AlertCountContextValue {
 
 const AlertCountContext = createContext<AlertCountContextValue | null>(null)
 
-const POLL_MS = 5000
+const POLL_MS = 10000
 
 export function AlertCountProvider({ children }: { children: ReactNode }) {
   const [count, setCount] = useState<number | null>(null)
@@ -68,7 +68,7 @@ export function AlertCountProvider({ children }: { children: ReactNode }) {
   }, [])
 
   return (
-    <AlertCountContext.Provider value={{ count, newCount, registerHandler, removeHandler }}>
+    <AlertCountContext.Provider value={{ count, newCount,  registerHandler, removeHandler }}>
       {children}
     </AlertCountContext.Provider>
   )

@@ -37,7 +37,9 @@ export function LeftSidebar({
 }) {
   const { t } = useTranslation()
   const { alerts, total, loading, loadMore } = useLiveOpsData()
+
   const list = alerts ?? []
+
 
   if (!open) {
     return (

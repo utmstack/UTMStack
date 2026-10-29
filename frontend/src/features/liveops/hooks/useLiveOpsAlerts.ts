@@ -49,7 +49,7 @@ export function useLiveOpsAlerts(): LiveOpsData {
 
   return {
     win,
-    setWin: (w) => {
+    setWin: (w:WindowKey) => {
       setWinState(w)
       setPage(0)
     },
@@ -60,7 +60,12 @@ export function useLiveOpsAlerts(): LiveOpsData {
     limit: PAGE_SIZE,
     loading,
     error,
-    goPage: (p) => setPage(Math.min(Math.max(p, 0), pages - 1)),
+    goPage: (p,forceRefresh=false) => {
+      if(forceRefresh && p == page){
+        fetchAll(false)
+      }
+      setPage(p)
+    },
     loadMore: () => {
       if (loading || page >= pages - 1) return
       setPage((p) => p + 1)

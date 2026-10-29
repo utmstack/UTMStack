@@ -6193,7 +6193,7 @@
         }
     },
     "liveOps": {
-      "newAlerts": "Novas alertas",
+      "listNew": "Nova",
       "newAlertsCount_one": "{{count}} nova alerta",
       "newAlertsCount_other": "{{count}} novas alertas",
         "header": "Operações ao vivo",

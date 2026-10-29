@@ -10700,7 +10700,7 @@
         }
     },
     "liveOps": {
-      "newAlerts": "New alerts",
+      "listNew": "New",
       "newAlertsCount_one": "{{count}} new alert",
       "newAlertsCount_other": "{{count}} new alerts",
         "header": "Live Operations",

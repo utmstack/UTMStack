@@ -8013,7 +8013,7 @@
         }
     },
     "liveOps": {
-      "newAlerts": "Nuevas alertas",
+      "listNew": "Nueva",
       "newAlertsCount_one": "{{count}} nueva alerta",
       "newAlertsCount_other": "{{count}} nuevas alertas",
         "header": "Operaciones en vivo",

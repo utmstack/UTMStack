@@ -72,11 +72,11 @@ export function LiveOpsPage() {
 
 
   const list = useMemo(
-    () => (alerts ?? []).map((a) => ({ ...a })).sort((a, b) => tsMs(b['@timestamp']) - tsMs(a['@timestamp'])),
+    () => (alerts ?? []).map((a:any) => ({ ...a })).sort((a:any,b:any) => tsMs(b['@timestamp']) - tsMs(a['@timestamp'])),
     [alerts],
   )
   const windowAlerts = useMemo(() => list, [list, tick])
-  const alert = list.find((a) => a.id === selectedId) ?? list[list.length - 1]
+  const alert = list.find((a:any) => a.id === selectedId) ?? list[list.length - 1]
   const scene = useMemo(() => (alert ? buildScene(alert, t) : null), [alert, t])
 
   useSocAiFocus(useMemo(() => (alert ? alertFocus(alert) : null), [alert]))
@@ -111,7 +111,7 @@ export function LiveOpsPage() {
 
   function onSceneEnded() {
     if (!replaying || !alert) return
-    const i = windowAlerts.findIndex((a) => a.id === alert.id)
+    const i = windowAlerts.findIndex((a:any) => a.id === alert.id)
     const next = windowAlerts[i - 1]
     if (next) setSelectedId(next.id)
     else if (page > 0) data.goPage(page - 1)
@@ -188,11 +188,11 @@ export function LiveOpsPage() {
         <Header
           replaying={replaying}
           newCount={alert_ctx.newCount}
-          openCount={alert_ctx.count ?? list.filter((a) => String(a.status).toLowerCase() === 'open').length}
+          openCount={alert_ctx.count ?? list.filter((a:any) => String(a.status).toLowerCase() === 'open').length}
           list={list}
           total={total}
           onNewAlerts={() => {
-            data.goPage(0)
+            data.goPage(0,true)
             setSelectedId(null)
             rightScrollRef.current?.scrollTo({ top: 0 })
           }}
@@ -244,7 +244,7 @@ export function LiveOpsPage() {
                 setReplaying(false)
                 return
               }
-              const first = [...windowAlerts].sort((a, b) => String(a['@timestamp'] ?? '').localeCompare(String(b['@timestamp'] ?? '')))[0]
+              const first = [...windowAlerts].sort((a:any,b:any) => String(a['@timestamp'] ?? '').localeCompare(String(b['@timestamp'] ?? '')))[0]
               if (first) {
                 setReplaying(true)
                 setSelectedId(first.id)

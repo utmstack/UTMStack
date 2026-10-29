@@ -43,8 +43,8 @@ export function Header({
           <button
             type="button"
             onClick={()=>{
-              setChecked(true)
               onNewAlerts()
+              setChecked(true)
             }}
             className="flex items-center gap-1.5 rounded-full bg-red-500/15 px-2.5 py-0.5 text-[11px] font-bold tracking-wide text-red-600 transition-colors hover:bg-red-500/30 dark:text-red-400"
             title={t('liveOps.newAlerts')}

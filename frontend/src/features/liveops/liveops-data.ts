@@ -32,7 +32,7 @@ export interface LiveOpsData {
   loading: boolean
   error: string
   /** Jump to batch p; re-fetches 0..p. */
-  goPage: (p: number) => void
+  goPage: (p: number,forceRefresh?:boolean) => void
   /** Load the next batch (infinite scroll). */
   loadMore: () => void
 }
