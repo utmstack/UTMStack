@@ -37,7 +37,12 @@ export class SafePipe implements PipeTransform {
       case 'resourceUrl':
         return this._sanitizer.bypassSecurityTrustResourceUrl(value);
       default:
-        return this._sanitizer.bypassSecurityTrustHtml(value);
+        // Untrusted fallback: escape rather than trust (a bare `| safe` must not
+        // bypass Angular's sanitizer). Explicit 'html' is for trusted/admin-authored
+        // content only.
+        return String(value == null ? '' : value)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
   }
 }

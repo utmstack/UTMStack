@@ -2,7 +2,7 @@ import {Component, Input, OnInit} from '@angular/core';
 import {ALERT_SEVERITY_DESCRIPTION_FIELD} from '../../../../../../shared/constants/alert/alert-field.constant';
 import {ADMIN_ROLE} from '../../../../../../shared/constants/global.constant';
 import {getValueFromPropertyPath} from '../../../../../../shared/util/get-value-object-from-property-path.util';
-import {replaceBreakLine} from '../../../../../../shared/util/string-util';
+import {escapeAndBreakLine} from '../../../../../../shared/util/string-util';
 
 @Component({
   selector: 'app-alert-severity-description',
@@ -20,7 +20,7 @@ export class AlertSeverityDescriptionComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.alertSeverityDetail = replaceBreakLine(getValueFromPropertyPath(this.alert, ALERT_SEVERITY_DESCRIPTION_FIELD, null));
+    this.alertSeverityDetail = escapeAndBreakLine(getValueFromPropertyPath(this.alert, ALERT_SEVERITY_DESCRIPTION_FIELD, null));
   }
 
   editSeverityDescription() {

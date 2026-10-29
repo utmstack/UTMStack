@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {getValueFromPropertyPath} from '../../../../../shared/util/get-value-object-from-property-path.util';
-import {replaceBreakLine} from '../../../../../shared/util/string-util';
+import {escapeAndBreakLine} from '../../../../../shared/util/string-util';
 import {ACCESS_MASK_CODES} from '../../const/file-acces-mask.constant';
 import {FileFieldEnum} from '../../enum/file-field.enum';
 import {FileAccessMaskCodeType} from '../../types/file-access-mask-code.type';
@@ -27,6 +27,6 @@ export class FileAccessMaskComponent implements OnInit {
   }
 
   convertDescToHtml(): string {
-    return replaceBreakLine(this.access.description);
+    return escapeAndBreakLine(this.access.description);
   }
 }
