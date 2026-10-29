@@ -4397,7 +4397,11 @@
             "incidentFailed": "Échec de l'enregistrement de l'incident",
             "assigned": "Alerte attribuée",
             "unassigned": "Alerte désattribuée",
-            "assignFailed": "Impossible de mettre à jour l'attribution"
+            "assignFailed": "Impossible de mettre à jour l'attribution",
+            "newAlertsToast_title": "Nouvelles alertes",
+            "newAlertsToast_count_one": "{{count}} nouvelle alerte",
+            "newAlertsToast_count_other": "{{count}} nouvelles alertes",
+            "newAlertsToast_view": "Voir"
         }
     },
     "incidents": {

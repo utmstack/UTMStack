@@ -9295,7 +9295,11 @@
             "incidentFailed": "Failed to save incident",
             "assigned": "Alert assigned",
             "unassigned": "Alert unassigned",
-            "assignFailed": "Could not update assignee"
+            "assignFailed": "Could not update assignee",
+            "newAlertsToast_title": "New alerts",
+            "newAlertsToast_count_one": "{{count}} new alert",
+            "newAlertsToast_count_other": "{{count}} new alerts",
+            "newAlertsToast_view": "View"
         }
     },
     "taggingRules": {

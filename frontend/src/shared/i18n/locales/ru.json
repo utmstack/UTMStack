@@ -4070,7 +4070,13 @@
             "incidentFailed": "Не удалось сохранить инцидент",
             "assigned": "Оповещение назначено",
             "unassigned": "Назначение снято",
-            "assignFailed": "Не удалось обновить исполнителя"
+            "assignFailed": "Не удалось обновить исполнителя",
+            "newAlertsToast_title": "Новые алерты",
+            "newAlertsToast_count_one": "{{count}} новый алерт",
+            "newAlertsToast_count_few": "{{count}} новых алерта",
+            "newAlertsToast_count_many": "{{count}} алертов",
+            "newAlertsToast_count_other": "{{count}} алерта",
+            "newAlertsToast_view": "Смотреть"
         }
     },
     "dataProcessing": {

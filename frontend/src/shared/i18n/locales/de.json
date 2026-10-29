@@ -4397,7 +4397,11 @@
             "incidentFailed": "Vorfall konnte nicht gespeichert werden",
             "assigned": "Alarm zugewiesen",
             "unassigned": "Alarmzuweisung aufgehoben",
-            "assignFailed": "Zuständiger konnte nicht aktualisiert werden"
+            "assignFailed": "Zuständiger konnte nicht aktualisiert werden",
+            "newAlertsToast_title": "Neue Alerts",
+            "newAlertsToast_count_one": "{{count}} neuer Alert",
+            "newAlertsToast_count_other": "{{count}} neue Alerts",
+            "newAlertsToast_view": "Ansehen"
         }
     },
     "incidents": {

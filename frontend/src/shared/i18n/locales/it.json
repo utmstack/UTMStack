@@ -4397,7 +4397,11 @@
             "incidentFailed": "Impossibile salvare l’incidente",
             "assigned": "Alert assegnato",
             "unassigned": "Assegnazione dell'alert rimossa",
-            "assignFailed": "Impossibile aggiornare l'assegnatario"
+            "assignFailed": "Impossibile aggiornare l'assegnatario",
+            "newAlertsToast_title": "Nuovi alert",
+            "newAlertsToast_count_one": "{{count}} nuovo alert",
+            "newAlertsToast_count_other": "{{count}} nuovi alert",
+            "newAlertsToast_view": "Visualizza"
         }
     },
     "incidents": {

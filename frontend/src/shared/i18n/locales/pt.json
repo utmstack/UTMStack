@@ -4545,7 +4545,11 @@
             "incidentFailed": "Falha ao salvar o incidente",
             "assigned": "Alerta atribuído",
             "unassigned": "Alerta sem responsável",
-            "assignFailed": "Não foi possível atualizar o responsável"
+            "assignFailed": "Não foi possível atualizar o responsável",
+            "newAlertsToast_title": "Novas alertas",
+            "newAlertsToast_count_one": "{{count}} nova alerta",
+            "newAlertsToast_count_other": "{{count}} novas alertas",
+            "newAlertsToast_view": "Ver"
         }
     },
     "incidents": {

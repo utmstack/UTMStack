@@ -6365,7 +6365,11 @@
             "incidentFailed": "No se pudo guardar el incidente",
             "assigned": "Alerta asignada",
             "unassigned": "Alerta sin asignar",
-            "assignFailed": "No se pudo actualizar el asignado"
+            "assignFailed": "No se pudo actualizar el asignado",
+            "newAlertsToast_title": "Nuevas alertas",
+            "newAlertsToast_count_one": "{{count}} nueva alerta",
+            "newAlertsToast_count_other": "{{count}} nuevas alertas",
+            "newAlertsToast_view": "Ver"
         }
     },
     "incidents": {
