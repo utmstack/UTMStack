@@ -90,4 +90,60 @@ class SqlQueryFilterServiceTest {
                 List.of(filter("status", OperatorType.IS, "ok")));
         assertEquals("SELECT WHERE (status = 'ok')  * FROM t", sql);
     }
+
+    @Test
+    void fieldWithSpaceAndBooleanOperatorIsRejected() {
+        assertThrows(IllegalArgumentException.class,
+                () -> service.applyFilters("SELECT * FROM t",
+                        List.of(filter("a OR b", OperatorType.IS, "v"))));
+    }
+
+    @Test
+    void dottedWindowsEventFieldIsAccepted() {
+        String sql = service.applyFilters("SELECT * FROM t",
+                List.of(filter("event.eventDataCommandLine", OperatorType.IS, "cmd")));
+        assertTrue(sql.contains("event.eventDataCommandLine = 'cmd'"),
+                "unexpected sql: " + sql);
+    }
+
+    @Test
+    void hyphenatedFieldIsAccepted() {
+        String sql = service.applyFilters("SELECT * FROM t",
+                List.of(filter("x-amz-acl", OperatorType.IS, "public-read")));
+        assertTrue(sql.contains("x-amz-acl = 'public-read'"),
+                "unexpected sql: " + sql);
+    }
+
+    @Test
+    void relativeTimestampWithNonNumericIntervalIsRejected() {
+        assertThrows(IllegalArgumentException.class,
+                () -> service.applyFilters("SELECT * FROM t",
+                        List.of(filter("@timestamp", OperatorType.IS_GREATER_THAN, "now-24xh"))));
+    }
+
+    @Test
+    void isInFieldsEmitsOrOfLikeClausesWithEscapedValue() {
+        String sql = service.applyFilters("SELECT * FROM t",
+                List.of(filter("*", OperatorType.IS_IN_FIELDS,
+                        List.of("o'brien", "host.name", "event.eventDataCommandLine"))));
+        assertTrue(sql.contains("(host.name LIKE '%o''brien%' OR event.eventDataCommandLine LIKE '%o''brien%')"),
+                "unexpected sql: " + sql);
+    }
+
+    @Test
+    void isInFieldsRejectsInvalidFieldElement() {
+        assertThrows(IllegalArgumentException.class,
+                () -> service.applyFilters("SELECT * FROM t",
+                        List.of(filter("*", OperatorType.IS_IN_FIELDS,
+                                List.of("v", "a OR b")))));
+    }
+
+    @Test
+    void isNotInFieldsEmitsAndOfNotLikeClauses() {
+        String sql = service.applyFilters("SELECT * FROM t",
+                List.of(filter("*", OperatorType.IS_NOT_IN_FIELDS,
+                        List.of("x", "f1", "f2"))));
+        assertTrue(sql.contains("(f1 NOT LIKE '%x%' AND f2 NOT LIKE '%x%')"),
+                "unexpected sql: " + sql);
+    }
 }

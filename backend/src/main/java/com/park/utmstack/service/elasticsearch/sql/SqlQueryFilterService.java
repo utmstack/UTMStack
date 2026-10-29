@@ -18,6 +18,7 @@ public class SqlQueryFilterService {
      * - Merges the generated WHERE with an existing WHERE if present.
      */
     public String applyFilters(String baseSql, List<FilterType> filters) {
+        // NOTE: baseSql (the visualization's sqlQuery) is intentionally raw read-only OpenSearch SQL — it is gated by @SqlSelectOnly upstream and the OS SQL engine is read-only; this service only sanitizes the FILTER conditions it appends.
         if (filters == null || filters.isEmpty()) {
             return baseSql;
         }
@@ -110,6 +111,9 @@ public class SqlQueryFilterService {
         if (value.startsWith("now-")) {
             // Example: now-24h, now-15m, now-7d
             String number = value.substring(4, value.length() - 1);
+            if (!number.matches("\\d+")) {
+                throw new IllegalArgumentException("Invalid time value: " + value);
+            }
             char unit = value.toLowerCase().charAt(value.length() - 1);
 
             String sqlUnit = switch (unit) {
@@ -135,12 +139,12 @@ public class SqlQueryFilterService {
      * All non-@timestamp operators are handled here.
      */
     private static final java.util.regex.Pattern FIELD_PATTERN =
-            java.util.regex.Pattern.compile("^[A-Za-z_][A-Za-z0-9_ .\\-]*$");
+            java.util.regex.Pattern.compile("^[A-Za-z_][A-Za-z0-9_\\-]*(?:\\.[A-Za-z_][A-Za-z0-9_\\-]*)*$");
 
     /**
      * Validates a user-supplied field name against an allowlist of identifier
-     * characters (letters, digits, underscore, space, dot, hyphen) so it cannot
-     * carry SQL metacharacters into the generated query.
+     * characters (letters, digits, underscore, dot, hyphen; no spaces) so it
+     * cannot carry SQL metacharacters into the generated query.
      */
     private void validateField(String field) {
         if (field == null || !FIELD_PATTERN.matcher(field).matches()) {
@@ -165,8 +169,13 @@ public class SqlQueryFilterService {
 
     private String toSqlCondition(FilterType f) {
 
+        // IS_IN_FIELDS / IS_NOT_IN_FIELDS use the filter's field as a wildcard label
+        // (e.g. "*"); the real field names are list elements and are validated there.
+        if (f.getOperator() != OperatorType.IS_IN_FIELDS
+                && f.getOperator() != OperatorType.IS_NOT_IN_FIELDS) {
+            validateField(f.getField());
+        }
         String field = f.getField();
-        validateField(field);
         Object rawValue = f.getValue();
         List<String> list = asList(rawValue); // safe conversion
 
@@ -260,12 +269,37 @@ public class SqlQueryFilterService {
 
             // ---------------------------------------------------------------------
             // Value in multiple fields
+            // The list is [value, field, field, ...]: the value must appear
+            // (substring) in ANY of the given fields — mirrors SearchUtil's
+            // IS_IN_FIELDS.
             // ---------------------------------------------------------------------
-            case IS_IN_FIELDS ->
-                    "'" + ev(0, list) + "' IN (" + String.join(", ", list) + ")";
+            case IS_IN_FIELDS -> {
+                if (list.size() < 2) {
+                    throw new IllegalArgumentException("IS_IN_FIELDS requires a value plus at least one field");
+                }
+                String needle = escapeValue(list.get(0));
+                yield "(" + list.stream()
+                        .skip(1)
+                        .map(v -> {
+                            validateField(v);
+                            return v + " LIKE '%" + needle + "%'";
+                        })
+                        .collect(Collectors.joining(" OR ")) + ")";
+            }
 
-            case IS_NOT_IN_FIELDS ->
-                    "'" + ev(0, list) + "' NOT IN (" + String.join(", ", list) + ")";
+            case IS_NOT_IN_FIELDS -> {
+                if (list.size() < 2) {
+                    throw new IllegalArgumentException("IS_NOT_IN_FIELDS requires a value plus at least one field");
+                }
+                String needle = escapeValue(list.get(0));
+                yield "(" + list.stream()
+                        .skip(1)
+                        .map(v -> {
+                            validateField(v);
+                            return v + " NOT LIKE '%" + needle + "%'";
+                        })
+                        .collect(Collectors.joining(" AND ")) + ")";
+            }
 
             // ---------------------------------------------------------------------
             default -> throw new IllegalArgumentException("Unsupported operator: " + f.getOperator());
