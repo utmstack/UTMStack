@@ -551,7 +551,7 @@ const BUILDERS: Record<TemplateId, (a: Alert, t: (k: string, o?: Record<string, 
   },
 
   softwareDeploy(a, t) {
-    const src = internalSide('source', a.adversary, a.dataSource)
+    const src = internalSide('attacker', a.adversary, a.dataSource)
     const tgt = internalSide('target', a.target, a.dataSource)
     const n = (a.name ?? '').toLowerCase()
     const tool = n.includes('sc.exe') ? 'sc.exe' : n.includes('psexec') ? 'PsExec' : n.includes('rdp') ? 'RDP copy' : 'management push'
