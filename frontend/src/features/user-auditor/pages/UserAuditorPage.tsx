@@ -25,6 +25,7 @@ import { SavedViewTabs } from '../components/saved-view-tabs'
 import { Toolbar } from '../components/toolbar'
 import { UserCard } from '../components/user-card'
 import { UserDrawer } from '../components/user-drawer'
+import { UserAuditorProvider, useUserAuditor } from '../context/user-auditor.context'
 
 const SIZE = 50
 
@@ -39,8 +40,17 @@ function LoadingRows() {
 }
 
 export function UserAuditorPage() {
+  return (
+    <UserAuditorProvider>
+      <UserAuditorPageContent />
+    </UserAuditorProvider>
+  )
+}
+
+function UserAuditorPageContent() {
   const { t } = useTranslation()
   const { hasPermission } = useAuth()
+  const { reloadIdentities } = useUserAuditor()
   const canManage = hasPermission('adaudit.write')
   const [view, setView] = useState<ViewId>('all')
   const [searchInput, setSearchInput] = useState('')
@@ -56,7 +66,6 @@ export function UserAuditorPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const [stats, setStats] = useState<ADUserStats | null>(null)
-  const [identities, setIdentities] = useState<{ id: string; name: string }[]>([])
   const [openUser, setOpenUser] = useState<ADUserWithIdentity | null>(null)
 
   const filterFields: FilterFieldDef[] = [
@@ -98,15 +107,6 @@ export function UserAuditorPage() {
     }
   }, [tenant])
 
-  // Identity aliases are best-effort too: the list works without them.
-  const loadIdentities = useCallback(async () => {
-    try {
-      setIdentities(await adAuditHttpService.identities() ?? [])
-    } catch {
-      setIdentities([])
-    }
-  }, [])
-
   const load = useCallback(async () => {
     setLoading(true)
     setError(false)
@@ -141,20 +141,16 @@ export function UserAuditorPage() {
     void loadStats()
   }, [loadStats])
 
-  useEffect(() => {
-    void loadIdentities()
-  }, [loadIdentities])
-
   const refresh = () => {
     if (page === 0) void load()
     else setPage(0)
     void loadStats()
-    void loadIdentities()
+    reloadIdentities()
   }
 
   const onUserChanged = (u: ADUserWithIdentity) => {
     setOpenUser(u)
-    loadIdentities()
+    reloadIdentities()
     setUsers((prev) => prev.map((x) => (x.id === u.id ? u : x)))
   }
 
@@ -187,7 +183,6 @@ export function UserAuditorPage() {
         tenants={stats?.tenants ?? []}
         onTenant={setTenant}
         identity={identity}
-        identities={identities}
         onIdentity={setIdentity}
         layout={layout}
         onLayoutChange={setLayout}
