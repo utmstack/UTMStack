@@ -97,7 +97,7 @@ export function UserDrawer({
             </button>
           </div>
 
-          <div className="mt-4 flex flex-wrap items-center gap-2">
+          <div className="mt-4 grid grid-cols-2 items-center gap-2">
             {logsHref && (
               <Button size="sm" variant="outline" asChild>
                 <Link to={logsHref}>
