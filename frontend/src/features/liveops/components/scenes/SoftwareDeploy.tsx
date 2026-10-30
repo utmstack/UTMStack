@@ -21,8 +21,8 @@ export function SoftwareDeploy(props: SceneProps) {
   const installed = t > stop + 400
   return (
     <g>
-      <Zone x={40} y={70} w={280} h={380} label={tr('liveOps.scHost', { name: src.name })} tone={tone.attacker} />
-      <Zone x={640} y={70} w={324} h={380} label={tr('liveOps.scHost', { name: tgt.name })} tone={tone.internal} />
+      <Zone x={40} y={70} w={280} h={380} label={tr('liveOps.scHost', { name: src?.name ?? 'unknow' })} tone={tone.attacker} />
+      <Zone x={640} y={70} w={324} h={380} label={tr('liveOps.scHost', { name: tgt?.name ?? 'unknow' })} tone={tone.internal} />
       <Wire a={S} b={T} tone={installed ? tone.alert : tone.attacker} t={t} />
       {pkts.map((p) => (
         <Packet key={p.i} a={S} b={T} u={p.u} tone={tone.attacker} r={5} label={p.u < 0.18 ? f.tool : undefined} />
