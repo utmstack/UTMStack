@@ -8,6 +8,7 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/adaudit/domain"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/modules/adaudit/connectors"
 	"github.com/utmstack/utmstack/backend/modules/adaudit/dto"
@@ -58,10 +59,11 @@ func (h *ADUserHandler) Ingest(c *gin.Context) {
 //	@Param			source		query		string	false	"Filter by source: windows | linux (omit for all)"
 //	@Param			active		query		bool	false	"Filter by active"
 //	@Param			status		query		string	false	"Lifecycle bucket: active|disabled|deleted|stale|service (overrides active)"
+//	@Param			identity	query		string	false	"Filter by identity alias uuid, or the literal 'none' for users without one"
 //	@Param			sort		query		string	false	"Sort: recent (last seen) or name (default)"
 //	@Param			page		query		int		false	"Page (0-based)"
 //	@Param			size		query		int		false	"Page size"
-//	@Success		200			{array}		domain.ADUser
+//	@Success		200			{array}		dto.UserRow
 //	@Header			200			{string}	X-Total-Count	"Total records"
 //	@Failure		400			{object}	map[string]string
 //	@Failure		500			{object}	map[string]string
@@ -75,6 +77,12 @@ func (h *ADUserHandler) List(c *gin.Context) {
 	if f.Source != "" && f.Source != "windows" && f.Source != "linux" && !domain.IsCloudSource(f.Source) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "source must be 'windows', 'linux', a cloud source, or omitted"})
 		return
+	}
+	if f.Identity != "" && f.Identity != "none" {
+		if _, err := uuid.Parse(f.Identity); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "identity must be a uuid or the literal 'none'"})
+			return
+		}
 	}
 	res, err := h.uc.List(c.Request.Context(), f)
 	if err != nil {

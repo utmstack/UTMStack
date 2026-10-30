@@ -1278,7 +1278,9 @@
             "disabled": "deaktiviert",
             "deleted": "gelöscht",
             "seen24h": "{{count}} in den letzten 24 Stunden gesehen",
-            "byDomain": "Nach Domäne"
+            "byDomain": "Nach Domäne",
+            "grouped": "{{count}} gruppiert",
+            "unassigned": "{{count}} nicht zugeordnet"
         },
         "views": {
             "all": "Alle Konten",
@@ -1288,7 +1290,11 @@
             "disabled": "Deaktiviert",
             "deleted": "Gelöscht",
             "service": "Dienstkonten",
-            "stale": "Inaktiv (30T+)"
+            "stale": "Inaktiv (30T+)",
+            "o365": "O365",
+            "azure": "Azure",
+            "gcp": "GCP",
+            "aws": "AWS"
         },
         "searchPlaceholder": "Nach Kontoname oder SID suchen…",
         "allTenants": "Alle Mandanten",
@@ -1321,7 +1327,9 @@
             "status": "Status",
             "lastLogon": "Letzte Anmeldung",
             "lastSeen": "Zuletzt gesehen",
-            "tenant": "Mandant"
+            "tenant": "Mandant",
+            "accountId": "Konto-ID",
+            "identityGroup": "Identitätsgruppe"
         },
         "status": {
             "active": "Aktiv",
@@ -1363,7 +1371,21 @@
             "lastLogon": "Letzte Anmeldung",
             "lastSeen": "Zuletzt in Logs gesehen",
             "deleted": "Konto gelöscht",
-            "noLifecycle": "Keine Lebenszyklus-Ereignisse aufgezeichnet."
+            "noLifecycle": "Keine Lebenszyklus-Ereignisse aufgezeichnet.",
+            "aliasGroup": "Identitätsgruppe",
+            "alias": {
+                "add": "Identitätsgruppe hinzufügen",
+                "search": "Gruppen suchen…",
+                "none": "Noch keine Gruppen",
+                "new": "Neue Gruppe",
+                "unassign": "Aus Gruppe entfernen",
+                "unassigned": "Keine Gruppe",
+                "newPlaceholder": "Name der neuen Gruppe (2–64 Zeichen)",
+                "createAndAssign": "Erstellen & zuordnen",
+                "nameTooShort": "Gruppenname muss 2–64 Zeichen haben",
+                "updated": "Identitätsgruppe aktualisiert",
+                "updateFailed": "Identitätsgruppe konnte nicht aktualisiert werden"
+            }
         },
         "relative": {
             "justNow": "gerade eben",
@@ -1371,7 +1393,9 @@
             "hoursAgo": "vor {{count}}h",
             "daysAgo": "vor {{count}}T"
         },
-        "none": "—"
+        "none": "—",
+        "allIdentities": "Alle Identitätsgruppen",
+        "noneIdentity": "Keine Identitätsgruppe"
     },
     "connectionKey": {
         "title": "Verbindungsschlüssel",
@@ -3708,7 +3732,7 @@
                 "name": "Windows File Access Auditing",
                 "description": "Collect Windows file access audit events through the Windows Event Log and UTMStack agent."
             },
-             "ELASTICsearch": {
+            "ELASTICsearch": {
                 "name": "ELASTICsearch",
                 "description": "Ingesta los registros de Elasticsearch para monitorear el motor de búsqueda y análisis y sus cargas de trabajo de aplicación."
             }
@@ -6219,9 +6243,6 @@
         }
     },
     "liveOps": {
-        "listNew": "Neu",
-        "newAlertsCount_one": "{{count}} neuer Alert",
-        "newAlertsCount_other": "{{count}} neue Alerts",
         "header": "Live-Betrieb",
         "live": "LIVE",
         "replay": "WIEDERGABE",
@@ -6516,6 +6537,9 @@
         "capCt2": "Befehle und Daten überschreiten die Grenze unsichtbar, auf {{proto}}.",
         "capCt3": "Tunnel kappen, Endpunkt blockieren und prüfen, was durchgegangen ist.",
         "titleCt": "{{src}} tunnelt C2 über {{proto}} zu {{to}}",
+        "listNew": "Neu",
+        "newAlertsCount_one": "{{count}} neuer Alert",
+        "newAlertsCount_other": "{{count}} neue Alerts",
         "netPerimeter": "Perimeter",
         "scDc": "Domain-Controller",
         "scObject": "Geändertes Objekt",

@@ -1,6 +1,6 @@
 import type { TFunction } from 'i18next'
 import { cn } from '@/shared/lib/utils'
-import type { ADUser } from '../types/ad-user.types'
+import type { ADUserWithIdentity } from '../types/ad-user.types'
 import {
   accountIdentity,
   accountName,
@@ -12,7 +12,7 @@ import {
 } from '../helpers/user-auditor-display'
 import { AccountAvatar } from './account-avatar'
 
-export function UserCard({ user, onOpen, t }: { user: ADUser; onOpen: () => void; t: TFunction }) {
+export function UserCard({ user, onOpen, t }: { user: ADUserWithIdentity; onOpen: () => void; t: TFunction }) {
   const status = statusOf(user)
   const identity = accountIdentity(user)
   return (
@@ -30,6 +30,13 @@ export function UserCard({ user, onOpen, t }: { user: ADUser; onOpen: () => void
             </span>
           </div>
           <div className="truncate font-mono text-[11px] text-muted-foreground">{accountScope(user)}</div>
+          {user.identity && (
+            <div className="mt-1">
+              <span className="rounded-md bg-sky-500/15 px-1.5 py-0.5 text-[10px] font-medium text-sky-700 ring-1 ring-sky-500/30 dark:text-sky-300">
+                {user.identity}
+              </span>
+            </div>
+          )}
           <div className="mt-1">
             <span className={cn('inline-flex items-center gap-1.5 text-[11px]', STATUS_TEXT[status])}>
               <span className={cn('h-1.5 w-1.5 rounded-full', STATUS_DOT[status])} />

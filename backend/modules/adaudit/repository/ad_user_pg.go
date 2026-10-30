@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 
+	"github.com/google/uuid"
+
 	"github.com/utmstack/utmstack/backend/modules/adaudit/connectors"
 	"github.com/utmstack/utmstack/backend/modules/adaudit/domain"
 	"github.com/utmstack/utmstack/backend/modules/adaudit/dto"
@@ -230,52 +232,72 @@ func (r *pgADUserRepository) ResolveLinuxIdentity(ctx context.Context, tenantID,
 }
 
 func applyStatus(q *gorm.DB, status string) *gorm.DB {
+	return applyStatusQualified(q, "ad_user", status)
+}
+
+func applyStatusQualified(q *gorm.DB, table, status string) *gorm.DB {
 	switch status {
 	case "active":
-		return q.Where("active = true AND account_deleted_at IS NULL")
+		return q.Where(table + ".active = true AND " + table + ".account_deleted_at IS NULL")
 	case "disabled":
-		return q.Where("active = false AND account_deleted_at IS NULL")
+		return q.Where(table + ".active = false AND " + table + ".account_deleted_at IS NULL")
 	case "deleted":
-		return q.Where("account_deleted_at IS NOT NULL")
+		return q.Where(table + ".account_deleted_at IS NOT NULL")
 	case "stale":
-		return q.Where("active = true AND account_deleted_at IS NULL AND last_logon IS NOT NULL AND last_logon < NOW() - INTERVAL '30 days'")
+		return q.Where(table + ".active = true AND " + table + ".account_deleted_at IS NULL AND " + table + ".last_logon IS NOT NULL AND " + table + ".last_logon < NOW() - INTERVAL '30 days'")
 	case "service":
-		return q.Where("account_deleted_at IS NULL AND sam_account_name ILIKE 'svc%' AND source = 'windows'")
+		return q.Where(table + ".account_deleted_at IS NULL AND " + table + ".sam_account_name ILIKE 'svc%' AND " + table + ".source = 'windows'")
 	}
 	return q
 }
 
-func (r *pgADUserRepository) List(ctx context.Context, f dto.ADUserFilter) ([]domain.ADUser, int64, error) {
-	q := r.db.WithContext(ctx).Model(&domain.ADUser{})
+func (r *pgADUserRepository) List(ctx context.Context, f dto.ADUserFilter) ([]dto.UserRow, int64, error) {
+	q := r.db.WithContext(ctx).Model(&domain.ADUser{}).
+		Select("ad_user.*", "identity_alias.name AS identity").
+		Joins("LEFT JOIN identity_alias_assignment ON identity_alias_assignment.user_id = ad_user.id").
+		Joins("LEFT JOIN identity_alias ON identity_alias.id = identity_alias_assignment.alias_id")
 	if f.Source != "" {
-		q = q.Where("source = ?", f.Source)
+		q = q.Where("ad_user.source = ?", f.Source)
 	}
 	if f.Status != "" {
-		// Status is a richer, derived filter; when present it supersedes the raw
-		// `active` flag so the two can't contradict each other.
-		q = applyStatus(q, f.Status)
+		q = applyStatusQualified(q, "ad_user", f.Status)
 	} else if f.Active != nil {
-		q = q.Where("active = ?", *f.Active)
+		q = q.Where("ad_user.active = ?", *f.Active)
 	}
 	if f.Search != "" {
-		like := "%" + f.Search + "%"
-		q = q.Where("sam_account_name ILIKE ? OR sid ILIKE ? OR username ILIKE ?", like, like, like)
+		like := "%" + escapeLike(f.Search) + "%"
+		q = q.Where("ad_user.sam_account_name ILIKE ? OR ad_user.sid ILIKE ? OR ad_user.username ILIKE ?", like, like, like)
 	}
+	q = applyIdentityFilter(q, f.Identity)
 
 	var total int64
 	if err := q.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	order := "sam_account_name ASC"
+	order := "ad_user.sam_account_name ASC NULLS LAST"
 	if f.Sort == "recent" {
-		order = "last_seen DESC NULLS LAST"
+		order = "ad_user.last_seen DESC NULLS LAST"
 	}
-	var items []domain.ADUser
-	if err := q.Order(order).Offset(f.Offset()).Limit(f.Limit()).Find(&items).Error; err != nil {
+	var items []dto.UserRow
+	if err := q.Order(order).Offset(f.Offset()).Limit(f.Limit()).Scan(&items).Error; err != nil {
 		return nil, 0, err
 	}
 	return items, total, nil
+}
+
+func applyIdentityFilter(q *gorm.DB, identity string) *gorm.DB {
+	if identity == "" {
+		return q
+	}
+	if identity == "none" {
+		return q.Where("NOT EXISTS (SELECT 1 FROM identity_alias_assignment x WHERE x.user_id = ad_user.id)")
+	}
+	id, err := uuid.Parse(identity)
+	if err != nil {
+		return q
+	}
+	return q.Where("EXISTS (SELECT 1 FROM identity_alias_assignment x WHERE x.user_id = ad_user.id AND x.alias_id = ?)", id)
 }
 
 func (r *pgADUserRepository) Stats(ctx context.Context) (*dto.ADUserStats, error) {
@@ -303,6 +325,12 @@ func (r *pgADUserRepository) Stats(ctx context.Context) (*dto.ADUserStats, error
 		return nil, err
 	}
 	if err := base().Where("last_seen IS NOT NULL AND last_seen > NOW() - INTERVAL '24 hours'").Count(&s.Seen24h).Error; err != nil {
+		return nil, err
+	}
+	if err := r.db.WithContext(ctx).Model(&domain.IdentityAlias{}).Count(&s.Identities).Error; err != nil {
+		return nil, err
+	}
+	if err := base().Where("NOT EXISTS (SELECT 1 FROM identity_alias_assignment x WHERE x.user_id = ad_user.id)").Count(&s.Unassigned).Error; err != nil {
 		return nil, err
 	}
 

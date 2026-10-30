@@ -1,14 +1,15 @@
 import { Link } from 'react-router-dom'
 import type { TFunction } from 'i18next'
-import { Copy, ExternalLink, Server, X } from 'lucide-react'
+import { Copy, ExternalLink, Server, UserCircle2, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
-import type { ADUser } from '../types/ad-user.types'
+import type { ADUserWithIdentity } from '../types/ad-user.types'
 import {
   accountIdentity,
   accountName,
   accountScope,
+  isCloudSource,
   isService,
   isStale,
   logExplorerHref,
@@ -17,17 +18,38 @@ import {
   statusOf,
 } from '../helpers/user-auditor-display'
 import { AccountAvatar } from './account-avatar'
+import { IdentityGroupPicker } from './identity-group-picker'
 import { Row, Section } from './section-row'
 import { Timeline } from './timeline'
 
-export function UserDrawer({ user, onClose, t }: { user: ADUser; onClose: () => void; t: TFunction }) {
+export function UserDrawer({
+  user,
+  canManage,
+  onClose,
+  onUserChanged,
+  t,
+}: {
+  user: ADUserWithIdentity
+  canManage: boolean
+  onClose: () => void
+  onUserChanged: (u: ADUserWithIdentity) => void
+  t: TFunction
+}) {
   const status = statusOf(user)
   const identity = accountIdentity(user)
+  const isCloud = isCloudSource(user.source)
+  const isLinux = user.source === 'linux'
+  const logsHref = logExplorerHref(user)
+
   const copyId = () => {
     void navigator.clipboard?.writeText(identity)
     toast.success(t('userAuditor.drawer.copied'))
   }
-  const isLinux = user.source === 'linux'
+
+  const onAliasChanged = (name: string | null) => {
+    onUserChanged({ ...user, identity: name })
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-stretch justify-end bg-black/40 backdrop-blur-sm" onClick={onClose}>
       <div
@@ -76,16 +98,22 @@ export function UserDrawer({ user, onClose, t }: { user: ADUser; onClose: () => 
           </div>
 
           <div className="mt-4 flex flex-wrap items-center gap-2">
-            <Button size="sm" variant="outline" asChild>
-              <Link to={logExplorerHref(user)}>
-                <ExternalLink size={14} className="mr-1.5" />
-                {t('userAuditor.drawer.viewInLogs')}
-              </Link>
-            </Button>
+            {logsHref && (
+              <Button size="sm" variant="outline" asChild>
+                <Link to={logsHref}>
+                  <ExternalLink size={14} className="mr-1.5" />
+                  {t('userAuditor.drawer.viewInLogs')}
+                </Link>
+              </Button>
+            )}
             <Button size="sm" variant="outline" onClick={copyId}>
               <Copy size={14} className="mr-1.5" />
-              {isLinux ? t('userAuditor.drawer.copyUid') : t('userAuditor.drawer.copySid')}
+              {isLinux || isCloud ? t('userAuditor.drawer.copyUid') : t('userAuditor.drawer.copySid')}
             </Button>
+            {canManage}
+            {canManage && (
+              <IdentityGroupPicker userId={user.id} current={user.identity ?? null} onChanged={onAliasChanged} />
+            )}
           </div>
         </header>
 
@@ -95,11 +123,11 @@ export function UserDrawer({ user, onClose, t }: { user: ADUser; onClose: () => 
               <Row k={t('userAuditor.drawer.accountName')}>
                 <span className="font-mono">{accountName(user)}</span>
               </Row>
-              <Row k={isLinux ? t('userAuditor.drawer.hostname') : t('userAuditor.drawer.domain')}>
-                <span className="font-mono">{accountScope(user)}</span>
-              </Row>
-              {isLinux ? (
+              {isLinux && (
                 <>
+                  <Row k={t('userAuditor.drawer.hostname')}>
+                    <span className="font-mono">{accountScope(user)}</span>
+                  </Row>
                   <Row k={t('userAuditor.drawer.uidNumber')}>
                     <span className="font-mono">{user.uidNumber ?? '—'}</span>
                   </Row>
@@ -107,16 +135,32 @@ export function UserDrawer({ user, onClose, t }: { user: ADUser; onClose: () => 
                     <span className="break-all font-mono">{user.machineId ?? '—'}</span>
                   </Row>
                 </>
-              ) : (
-                <Row k={t('userAuditor.drawer.sid')}>
-                  <span className="break-all font-mono">{user.sid ?? '—'}</span>
-                </Row>
+              )}
+              {user.source === 'windows' && (
+                <>
+                  <Row k={t('userAuditor.drawer.domain')}>
+                    <span className="font-mono">{accountScope(user)}</span>
+                  </Row>
+                  <Row k={t('userAuditor.drawer.sid')}>
+                    <span className="break-all font-mono">{user.sid ?? '—'}</span>
+                  </Row>
+                </>
               )}
               <Row k={t('userAuditor.drawer.tenant')}>
                 <span className="font-mono">{user.tenantId}</span>
               </Row>
               <Row k={t('userAuditor.drawer.adStatus')}>
                 {user.active ? t('userAuditor.drawer.enabled') : t('userAuditor.drawer.disabled')}
+              </Row>
+              <Row k={t('userAuditor.drawer.aliasGroup')}>
+                {user.identity ? (
+                  <span className="inline-flex items-center gap-1.5 text-xs">
+                    <UserCircle2 size={13} className="text-sky-600 dark:text-sky-400" />
+                    {user.identity}
+                  </span>
+                ) : (
+                  <span className="text-muted-foreground">{t('userAuditor.drawer.alias.unassigned')}</span>
+                )}
               </Row>
             </dl>
           </Section>
