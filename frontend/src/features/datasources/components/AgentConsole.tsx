@@ -66,13 +66,11 @@ export function AgentConsole({
   const [history, setHistory] = useState<string[]>([])
   const [histIdx, setHistIdx] = useState(-1)
   const [varsOpen, setVarsOpen] = useState(false)
-  // 'off': no prompt active. 'password': the prompt is asking for the
-  // credential inline. Every command prompts, so the console opens on it.
   const [authMode, setAuthMode] = useState<'off' | 'password'>('password')
   const [authBusy, setAuthBusy] = useState(false)
-  // The command that triggered the password prompt — sent once the fresh
-  // login returns, then dropped.
-  const pendingCommandRef = useRef<string | null>(null)
+  /** Claimless password token from `empty_login`, captured once and reused for
+   *  every subsequent command while the console is open. */
+  const passwordTokenRef = useRef<string | null>(null)
   const [height, setHeight] = useState(() => clamp(Math.round(window.innerHeight * 0.42), 200, window.innerHeight - 80))
   const cancelRef = useRef<(() => void) | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -108,8 +106,8 @@ export function AgentConsole({
 
   const append = (kind: Line['kind'], text: string) => setLines((l) => [...l, { kind, text }])
 
-  // Fire the pending command with the just-obtained password token.
-  const fireCommand = (command: string, passwordToken: string) => {
+  // Fire a command with the password token captured at auth time.
+  const fireCommand = (command: string) => {
     append('cmd', `${shell}> ${command}`)
     setHistory((h) => [...h, command])
     setHistIdx(-1)
@@ -129,23 +127,21 @@ export function AgentConsole({
           inputRef.current?.focus()
         },
       },
-      passwordToken,
+      passwordTokenRef.current ?? undefined,
     )
   }
 
-  // Prove the password via empty_login (no claims, no 2FA) and use the token
-  // ONCE — for the pending command. During this mode 'input' holds the secret.
+  // Prove the password via empty_login (no claims, no 2FA) ONCE; the token is
+  // stored and reused for every command. During this mode 'input' holds the secret.
   const submitAuth = async () => {
     const secret = input
     if (!secret.trim() || authBusy) return
     setAuthBusy(true)
     try {
       const res = await authHttpService.emptyLogin({ login: user?.email ?? '', password: secret })
+      passwordTokenRef.current = res.token
       setAuthMode('off')
       setInput('')
-      const pending = pendingCommandRef.current
-      pendingCommandRef.current = null
-      if (pending) fireCommand(pending, res.token)
     } catch (err) {
       append('err', err instanceof Error ? err.message : t('datasources.console.password.authError'))
       setInput('')
@@ -181,11 +177,8 @@ export function AgentConsole({
     }
     const command = input.trim()
     if (!command || running || offline || noRemoteControl) return
-    // The password is requested for every command — hold the command pending
-    // and prompt. Nothing is sent until a fresh login returns a token.
-    pendingCommandRef.current = command
     setInput('')
-    setAuthMode('password')
+    fireCommand(command)
   }
 
   const onKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
