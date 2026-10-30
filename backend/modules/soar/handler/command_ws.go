@@ -95,6 +95,26 @@ func (h *CommandWSHandler) authenticate(c *gin.Context) bool {
 	return false
 }
 
+// requirePasswordToken enforces the second factor: a fresh JWT named
+// password_token, signed by this backend, must accompany the request.
+func (h *CommandWSHandler) requirePasswordToken(c *gin.Context) bool {
+	raw := c.Query("password_token")
+	if raw == "" {
+		if header := c.GetHeader("X-Password-Token"); header != "" {
+			raw = header
+		}
+	}
+	if raw == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "missing password_token"})
+		return false
+	}
+	if _, err := h.signer.Verify(raw); err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid or expired password_token"})
+		return false
+	}
+	return true
+}
+
 type wsCommandRequest struct {
 	Command    string `json:"command"`
 	OriginType string `json:"originType"`
@@ -125,6 +145,10 @@ func (h *CommandWSHandler) CommandStream(c *gin.Context) {
 	}
 
 	if !h.authenticate(c) {
+		return
+	}
+
+	if !h.requirePasswordToken(c) {
 		return
 	}
 

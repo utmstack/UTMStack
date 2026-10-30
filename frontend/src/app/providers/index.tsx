@@ -48,9 +48,9 @@ export function AppProviders({ children }: { children: ReactNode }) {
           <AuthShell>
             <BillingProvider>
               <NotificationsProvider>
-                <DateFormatLoader />
-                {children}
-                <ThemedToaster />
+                  <DateFormatLoader />
+                  {children}
+                  <ThemedToaster />
               </NotificationsProvider>
             </BillingProvider>
           </AuthShell>

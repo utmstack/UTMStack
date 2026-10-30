@@ -31,12 +31,21 @@ export interface ConsoleHandlers {
  * then a "done" message, then closes. Returns a cancel fn that closes the socket.
  *
  * The JWT travels as a query param because browsers can't set WS headers; the
- * backend handler accepts `?token=` and verifies it.
+ * backend handler accepts `?token=` and verifies it. The second factor — a
+ * claimless `password_token` from `POST /auth/empty_login` proving the
+ * password — rides along as its own query param.
  */
-export function runAgentCommand(agentId: string, payload: CommandPayload, h: ConsoleHandlers): () => void {
+export function runAgentCommand(
+  agentId: string,
+  payload: CommandPayload,
+  h: ConsoleHandlers,
+  /** Fresh JWT from a password login of the current user; required by the backend. */
+  passwordToken?: string,
+): () => void {
   const token = getStoredTokens()?.access_token ?? ''
   const proto = window.location.protocol === 'https:' ? 'wss' : 'ws'
-  const url = `${proto}://${window.location.host}${API_URL}/soar/ws/command/${encodeURIComponent(agentId)}?token=${encodeURIComponent(token)}`
+  const pwd = passwordToken ? `&password_token=${encodeURIComponent(passwordToken)}` : ''
+  const url = `${proto}://${window.location.host}${API_URL}/soar/ws/command/${encodeURIComponent(agentId)}?token=${encodeURIComponent(token)}${pwd}`
 
   const ws = new WebSocket(url)
   let finished = false

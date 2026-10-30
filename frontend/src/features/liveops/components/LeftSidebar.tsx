@@ -1,9 +1,10 @@
 import { List, PanelLeftClose } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { useTranslation } from 'react-i18next'
-import type { Alert } from '@/features/alerts/types/alert.types'
 import { templateFor, tsMs } from '../model'
+import { useLiveOpsData } from '../liveops-data'
 import { SEV_META } from '@/features/alerts/lib/alert-meta'
+import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
 
 const sevBar = (severity: string) => (SEV_META[severity as keyof typeof SEV_META] ?? SEV_META.low).bar
 
@@ -20,7 +21,6 @@ export function LeftSidebar({
   panelBox,
   collapsedStyle,
   width,
-  alerts,
   selectedId,
   onShow,
   onOpen,
@@ -30,13 +30,16 @@ export function LeftSidebar({
   panelBox: { top: number; bottom: number }
   collapsedStyle: { top: number; left: number }
   width: number
-  alerts: Alert[]
   selectedId: string | null
   onShow: (id: string) => void
   onOpen: () => void
   onClose: () => void
 }) {
   const { t } = useTranslation()
+  const { alerts, total, loading, loadMore } = useLiveOpsData()
+
+  const list = alerts ?? []
+
 
   if (!open) {
     return (
@@ -50,13 +53,13 @@ export function LeftSidebar({
     <div className="lo-panel absolute z-20 flex flex-col overflow-hidden rounded-xl" style={{ ...panelBox, left: collapsedStyle.left, width }}>
       <div className="flex shrink-0 items-center gap-2 border-b border-border px-3 py-2">
         <span className="text-[12px] font-semibold text-foreground">{t('liveOps.listTitle')}</span>
-        <span className="text-[11px] text-muted-foreground">{t('liveOps.listShown', { count: alerts.length })}</span>
+        <span className="text-[11px] text-muted-foreground">{t('liveOps.listShown', { count: list.length })}</span>
         <button type="button" onClick={onClose} className="ml-auto rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground" title={t('liveOps.listHide')}>
           <PanelLeftClose size={14} />
         </button>
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto">
-        {alerts.map((a) => {
+        {list.map((a) => {
           const sel = a.id === selectedId
           return (
             <button
@@ -79,6 +82,7 @@ export function LeftSidebar({
             </button>
           )
         })}
+        <InfiniteScrollSentinel onReach={loadMore} hasMore={list.length < total} loading={loading} />
       </div>
     </div>
   )
