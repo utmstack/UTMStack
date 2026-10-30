@@ -1521,7 +1521,9 @@
             "disabled": "disabled",
             "deleted": "deleted",
             "seen24h": "{{count}} seen in the last 24 hours",
-            "byDomain": "By domain"
+            "byDomain": "By domain",
+            "grouped": "{{count}} grouped",
+            "unassigned": "{{count}} unassigned"
         },
         "views": {
             "all": "All accounts",
@@ -1531,7 +1533,11 @@
             "disabled": "Disabled",
             "deleted": "Deleted",
             "service": "Service accounts",
-            "stale": "Stale (30d+)"
+            "stale": "Stale (30d+)",
+            "o365": "O365",
+            "azure": "Azure",
+            "gcp": "GCP",
+            "aws": "AWS"
         },
         "searchPlaceholder": "Search by account name or SID…",
         "allTenants": "All tenants",
@@ -1564,7 +1570,9 @@
             "status": "Status",
             "lastLogon": "Last logon",
             "lastSeen": "Last seen",
-            "tenant": "Tenant"
+            "tenant": "Tenant",
+            "accountId": "Account ID",
+            "identityGroup": "Identity group"
         },
         "status": {
             "active": "Active",
@@ -1606,7 +1614,21 @@
             "lastLogon": "Last logon",
             "lastSeen": "Last seen in logs",
             "deleted": "Account deleted",
-            "noLifecycle": "No lifecycle events recorded."
+            "noLifecycle": "No lifecycle events recorded.",
+            "aliasGroup": "Identity group",
+            "alias": {
+                "add": "Add identity group",
+                "search": "Search groups…",
+                "none": "No groups yet",
+                "new": "New group",
+                "unassign": "Remove from group",
+                "unassigned": "No group",
+                "newPlaceholder": "New group name (2–64 chars)",
+                "createAndAssign": "Create & assign",
+                "nameTooShort": "Group name must be 2–64 characters",
+                "updated": "Identity group updated",
+                "updateFailed": "Could not update the identity group"
+            }
         },
         "relative": {
             "justNow": "just now",
@@ -1614,7 +1636,9 @@
             "hoursAgo": "{{count}}h ago",
             "daysAgo": "{{count}}d ago"
         },
-        "none": "—"
+        "none": "—",
+        "allIdentities": "All identity groups",
+        "noneIdentity": "No identity group"
     },
     "connectionKey": {
         "title": "Connection key",

@@ -1278,7 +1278,9 @@
             "disabled": "disabilitati",
             "deleted": "eliminati",
             "seen24h": "{{count}} visti nelle ultime 24 ore",
-            "byDomain": "Per dominio"
+            "byDomain": "Per dominio",
+            "grouped": "{{count}} raggruppati",
+            "unassigned": "{{count}} non assegnati"
         },
         "views": {
             "all": "Tutti gli account",
@@ -1288,7 +1290,11 @@
             "disabled": "Disabilitati",
             "deleted": "Eliminati",
             "service": "Account di servizio",
-            "stale": "Inattivi (30g+)"
+            "stale": "Inattivi (30g+)",
+            "o365": "O365",
+            "azure": "Azure",
+            "gcp": "GCP",
+            "aws": "AWS"
         },
         "searchPlaceholder": "Cerca per nome account o SID…",
         "allTenants": "Tutti i tenant",
@@ -1321,7 +1327,9 @@
             "status": "Stato",
             "lastLogon": "Ultimo accesso",
             "lastSeen": "Visto l’ultima volta",
-            "tenant": "Tenant"
+            "tenant": "Tenant",
+            "accountId": "ID account",
+            "identityGroup": "Gruppo identità"
         },
         "status": {
             "active": "Attivo",
@@ -1363,7 +1371,21 @@
             "lastLogon": "Ultimo accesso",
             "lastSeen": "Visto l’ultima volta nei log",
             "deleted": "Account eliminato",
-            "noLifecycle": "Nessun evento del ciclo di vita registrato."
+            "noLifecycle": "Nessun evento del ciclo di vita registrato.",
+            "aliasGroup": "Gruppo identità",
+            "alias": {
+                "add": "Aggiungi gruppo identità",
+                "search": "Cerca gruppi…",
+                "none": "Nessun gruppo ancora",
+                "new": "Nuovo gruppo",
+                "unassign": "Rimuovi dal gruppo",
+                "unassigned": "Nessun gruppo",
+                "newPlaceholder": "Nome del nuovo gruppo (2–64 caratteri)",
+                "createAndAssign": "Crea e assegna",
+                "nameTooShort": "Il nome deve avere da 2 a 64 caratteri",
+                "updated": "Gruppo identità aggiornato",
+                "updateFailed": "Impossibile aggiornare il gruppo identità"
+            }
         },
         "relative": {
             "justNow": "proprio ora",
@@ -1371,7 +1393,9 @@
             "hoursAgo": "{{count}}h fa",
             "daysAgo": "{{count}}g fa"
         },
-        "none": "—"
+        "none": "—",
+        "allIdentities": "Tutti i gruppi identità",
+        "noneIdentity": "Nessun gruppo identità"
     },
     "connectionKey": {
         "title": "Chiave di connessione",

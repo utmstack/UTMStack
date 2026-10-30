@@ -1,5 +1,5 @@
 import type { TFunction } from 'i18next'
-import { Clock } from 'lucide-react'
+import { Clock, UserMinus, Users } from 'lucide-react'
 import type { ADUserStats } from '../types/ad-user.types'
 
 export function OverviewCard({ stats, t }: { stats: ADUserStats | null; t: TFunction }) {
@@ -24,9 +24,19 @@ export function OverviewCard({ stats, t }: { stats: ADUserStats | null; t: TFunc
             {t('userAuditor.overview.deleted')}
           </span>
         </div>
-        <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
-          <Clock size={13} />
-          {t('userAuditor.overview.seen24h', { count: stats?.seen_24h ?? 0 })}
+        <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+          <span className="inline-flex items-center gap-2">
+            <Clock size={13} />
+            {t('userAuditor.overview.seen24h', { count: stats?.seen_24h ?? 0 })}
+          </span>
+          <span className="inline-flex items-center gap-2">
+            <Users size={13} />
+            {t('userAuditor.overview.grouped', { count: stats?.identities ?? 0 })}
+          </span>
+          <span className="inline-flex items-center gap-2">
+            <UserMinus size={13} />
+            {t('userAuditor.overview.unassigned', { count: stats?.unassigned ?? 0 })}
+          </span>
         </div>
       </div>
 
