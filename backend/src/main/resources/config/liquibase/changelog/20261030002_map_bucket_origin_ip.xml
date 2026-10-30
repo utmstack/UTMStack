@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20261030002_map_bucket_origin_ip" author="osmontero">
+        <comment>
+            Coordinate maps bucket on origin.ip. The installer's canonical
+            OpenSearch mapping (logIndexMappings) now pins origin.ip as type "ip"
+            (+ a .keyword sub-field) on every v11-log-* index, so the field is
+            consistently aggregatable as an IP. Bucket on the bare "origin.ip"
+            (the ip type is always aggregatable and returns buckets for ALL
+            existing docs), instead of "origin.ip.keyword" (a newly-added
+            multi-field sub-field that OpenSearch does NOT backfill for docs
+            indexed before it existed, so it returned 0 buckets on existing data
+            and the map showed "No data found").
+
+            Supersedes 20261015001 (which had switched to .keyword as a
+            cross-generation stopgap): that stopgap is no longer needed because
+            the mapping now defines the type explicitly rather than relying on
+            per-index inference.
+
+            Idempotent: only rows whose map bucket field is origin.ip.keyword
+            (the legacy stopgap value) are updated; re-running is a no-op once
+            the field is origin.ip. Coordinate maps only (chart_type filter) -
+            no id renumber/delete, so pinned compliance dashboards are preserved.
+        </comment>
+        <sql>UPDATE utm_visualization SET aggregation = jsonb_set(aggregation::jsonb, '{bucket,field}', to_jsonb('origin.ip'::text))::text WHERE chart_type = 'COORDINATE_MAP_CHART' AND aggregation::jsonb -&gt; 'bucket' -&gt;&gt; 'field' = 'origin.ip.keyword';</sql>
+        <!-- spaced-JSON variant (some stored rows serialize with a space after the colon) -->
+        <sql>UPDATE utm_visualization SET aggregation = REPLACE(aggregation, '"field": "origin.ip.keyword"', '"field": "origin.ip"') WHERE chart_type = 'COORDINATE_MAP_CHART' AND aggregation LIKE '%"field": "origin.ip.keyword"%';</sql>
+    </changeSet>
+
+</databaseChangeLog>
