@@ -3,12 +3,13 @@ package repository
 import (
 	"context"
 	"errors"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/utmstack/utmstack/backend/modules/adaudit/domain"
 	"github.com/utmstack/utmstack/backend/modules/adaudit/dto"
-	"github.com/utmstack/utmstack/backend/pkg/tenancy"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type identityRow struct {
@@ -21,8 +22,14 @@ var (
 	ErrIdentityNotFound  = errors.New("identity not found")
 	ErrIdentityInUse     = errors.New("identity still has assigned users")
 	ErrUserNotFound      = errors.New("user not found")
-	ErrTenantMismatch    = errors.New("user and identity belong to different tenants")
 )
+
+// escapeLike neutralizes % and _ in user input so it cannot be used to
+// pattern-enumerate names in ILIKE filters.
+func escapeLike(s string) string {
+	s = strings.NewReplacer(`\`, `\\`, `%`, `\%`, `_`, `\_`).Replace(s)
+	return s
+}
 
 type pgIdentityRepository struct{ db *gorm.DB }
 
@@ -46,7 +53,7 @@ func (r *pgIdentityRepository) List(ctx context.Context, search string) ([]dto.I
 		Select("identity_alias.id, identity_alias.name, identity_alias.created_at, COUNT(identity_alias_assignment.alias_id) AS count").
 		Joins("LEFT JOIN identity_alias_assignment ON identity_alias_assignment.alias_id = identity_alias.id")
 	if search != "" {
-		q = q.Where("identity_alias.name ILIKE ?", "%"+search+"%")
+		q = q.Where("identity_alias.name ILIKE ?", "%"+escapeLike(search)+"%")
 	}
 
 	var rows []identityRow
@@ -98,17 +105,21 @@ func (r *pgIdentityRepository) Delete(ctx context.Context, id uuid.UUID) (int, e
 	if _, err := r.Get(ctx, id); err != nil {
 		return 0, err
 	}
-	var assigned int64
-	if err := r.db.WithContext(ctx).Model(&domain.IdentityAliasAssignment{}).
-		Where("alias_id = ?", id).Count(&assigned).Error; err != nil {
-		return 0, err
-	}
-	if assigned > 0 {
-		return 0, ErrIdentityInUse
-	}
 
 	var deleted int64
 	if err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		// Count under a row lock: a concurrent Assign's insert blocks on it and
+		// then fails the FK after the alias is gone, so the in-use check is atomic.
+		var assigned int64
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
+			Model(&domain.IdentityAliasAssignment{}).
+			Where("alias_id = ?", id).Count(&assigned).Error; err != nil {
+			return err
+		}
+		if assigned > 0 {
+			return ErrIdentityInUse
+		}
+
 		res := tx.Model(&domain.IdentityAliasAssignment{}).Where("alias_id = ?", id).Delete(&domain.IdentityAliasAssignment{})
 		if res.Error != nil {
 			return res.Error
@@ -135,14 +146,11 @@ func (r *pgIdentityRepository) Assign(ctx context.Context, userID, aliasID uuid.
 	}
 
 	var alias domain.IdentityAlias
-	if err := r.db.WithContext(tenancy.WithAllTenantsRead(ctx)).First(&alias, "id = ?", aliasID).Error; err != nil {
+	if err := r.db.WithContext(ctx).First(&alias, "id = ?", aliasID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return ErrIdentityNotFound
 		}
 		return err
-	}
-	if alias.TenantID != user.TenantID {
-		return ErrTenantMismatch
 	}
 
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {

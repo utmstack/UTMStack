@@ -41,7 +41,6 @@ func writeIdentityError(c *gin.Context, op string, err error) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 	case errors.Is(err, repository.ErrIdentityNameTaken),
 		errors.Is(err, repository.ErrIdentityInUse),
-		errors.Is(err, repository.ErrTenantMismatch),
 		errors.Is(err, ErrIdentityAssignConflict),
 		errors.Is(err, gorm.ErrDuplicatedKey):
 		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})

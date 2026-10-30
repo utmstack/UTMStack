@@ -265,7 +265,7 @@ func (r *pgADUserRepository) List(ctx context.Context, f dto.ADUserFilter) ([]dt
 		q = q.Where("ad_user.active = ?", *f.Active)
 	}
 	if f.Search != "" {
-		like := "%" + f.Search + "%"
+		like := "%" + escapeLike(f.Search) + "%"
 		q = q.Where("ad_user.sam_account_name ILIKE ? OR ad_user.sid ILIKE ? OR ad_user.username ILIKE ?", like, like, like)
 	}
 	q = applyIdentityFilter(q, f.Identity)
