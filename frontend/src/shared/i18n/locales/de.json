@@ -3708,7 +3708,7 @@
                 "name": "Windows File Access Auditing",
                 "description": "Collect Windows file access audit events through the Windows Event Log and UTMStack agent."
             },
-            "ELASTICsearch": {
+             "ELASTICsearch": {
                 "name": "ELASTICsearch",
                 "description": "Ingesta los registros de Elasticsearch para monitorear el motor de búsqueda y análisis y sus cargas de trabajo de aplicación."
             }
@@ -3992,7 +3992,17 @@
             "cmdError": "Befehlsfehler",
             "shellSelect": "Shell-Typ",
             "noRemoteControl": "Dieser Agent wurde mit deaktivierter Fernsteuerung installiert. Er lehnt Befehle ab; das lässt sich nur auf dem Rechner selbst ändern.",
-            "noRemoteControlShort": "Fernsteuerung für diesen Agenten deaktiviert"
+            "noRemoteControlShort": "Fernsteuerung für diesen Agenten deaktiviert",
+            "password": {
+                "title": "Authentifizierung",
+                "hint": "Authentifizieren, um Befehle auf diesem Agenten auszuführen.",
+                "tfaPrompt": "Code: ",
+                "confirm": "OK",
+                "cancel": "Abbrechen",
+                "authError": "Authentifizierung fehlgeschlagen",
+                "authHint": "Authentifizieren, um Befehle auf diesem Agenten auszuführen.",
+                "authOk": "Authentifiziert."
+            }
         },
         "health": {
             "online": "online",
@@ -4412,7 +4422,11 @@
             "incidentFailed": "Vorfall konnte nicht gespeichert werden",
             "assigned": "Alarm zugewiesen",
             "unassigned": "Alarmzuweisung aufgehoben",
-            "assignFailed": "Zuständiger konnte nicht aktualisiert werden"
+            "assignFailed": "Zuständiger konnte nicht aktualisiert werden",
+            "newAlertsToast_title": "Neue Alerts",
+            "newAlertsToast_count_one": "{{count}} neuer Alert",
+            "newAlertsToast_count_other": "{{count}} neue Alerts",
+            "newAlertsToast_view": "Ansehen"
         }
     },
     "incidents": {
@@ -6205,6 +6219,9 @@
         }
     },
     "liveOps": {
+        "listNew": "Neu",
+        "newAlertsCount_one": "{{count}} neuer Alert",
+        "newAlertsCount_other": "{{count}} neue Alerts",
         "header": "Live-Betrieb",
         "live": "LIVE",
         "replay": "WIEDERGABE",
@@ -6558,7 +6575,12 @@
         "capVm1": "Es versucht, die Hypervisor-Grenze zu überschreiten.",
         "capVm2": "Der Prozess läuft auf dem {{host}}-Host: der Gast ist keine Käfig mehr.",
         "capVm3": "Hypervisor panikieren, Gast snapshoten und neu aufbauen.",
-        "titleVm": "Gast {{guest}} entkommt zu {{host}}"
+        "titleVm": "Gast {{guest}} entkommt zu {{host}}",
+        "statTotal": "Gesamt",
+        "timPage": "Seite {{p}}/{{n}}",
+        "timPagePrev": "Vorherige Seite",
+        "timPageNext": "Nächste Seite",
+        "newAlerts": "Neue Alerts"
     },
     "scExec": "Ausführung",
     "scPayload": "→ bösartiges Payload",
