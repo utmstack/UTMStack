@@ -3,7 +3,7 @@ module github.com/utmstack/UTMStack/plugins/crowdstrike
 go 1.26.0
 
 require (
-	github.com/crowdstrike/gofalcon v0.23.0
+	github.com/crowdstrike/gofalcon v0.24.0
 	github.com/fsnotify/fsnotify v1.10.1
 	github.com/google/uuid v1.6.0
 	github.com/threatwinds/go-sdk v1.1.37-0.20261028123630-c472007022ff
