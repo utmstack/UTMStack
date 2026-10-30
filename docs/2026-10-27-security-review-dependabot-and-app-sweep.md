@@ -44,10 +44,7 @@ Each finding below carries a step-by-step reproducible path with the evidence ac
 1. **Stored payload (done):** injected a synthetic alert doc into `v11-alert-2026-10-28` (via HTTPS to OS with the backend service creds): `{"_index":"v11-alert-2026-10-28","_id":"kRk-gqEBG2EDI9JlXLDl","result":"created"}`.
 2. **Round-trip confirmed (done):** `_search` match on `name:"LABSEC-XSS-POC-9917"` → stored `description` = `LABSEC-XSS-POC <img src=x onerror="window.__labsecXSS=1"> done` — the markup survives storage byte-for-byte.
 3. **Rendering (corrected):** the live bundle `main.d20a757d340e10b2c1d1.js` contains `bypassSecurityTrustHtml` 4× (the `safe` pipe + vs-task URL trust), **but** the alert-detail bindings I flagged (`alert-description` etc.) use **plain `[innerHTML]`**, which Angular 7's default sanitizer neutralizes (`onerror` stripped, `<img>` stays inert). The only true bypasses are the `| safe:'html'` sites (inventory in Part C½ F-1), all of which are currently fed admin-authored or pre-escaped data.
-- **Verdict: NO live stored XSS.** The earlier "CONFIRMED" was wrong — it conflated "markup survives storage" with "markup executes at render," which is false under Angular's default `[innerHTML]` sanitization. The stored-payload PoC is retired (doc deleted).
-
-### F-5 — Static only (unchanged)
-`plugins/soc-ai/utils/request.go:41` `InsecureSkipVerify: true` on outbound calls — verified in source; runtime behavior depends on whether soc-ai has external endpoints configured in a given deployment. Severity stands as MEDIUM/context-dependent. No lab instance of soc-ai config to test against safely.
+- **Verdict: NO live stored XSS.** The earlier "CONFIRMED" was wrong — it conflated "markup survives storage" with "markup executes at render," which is false under Angular's default `[innerHTML]` sanitization. The stored-payload PoC is retired (doc deleted). The follow-up hardening (P0.3) still shipped: log-derived `[innerHTML]` sources now pre-escape via `escapeAndBreakLine`, and `safe.pipe`'s default case no longer bypasses the sanitizer.
 
 ### F-5 — NOT A FINDING (reclassified 2026-10-28 after re-verification)
 - The `InsecureSkipVerify` client in `plugins/soc-ai/utils/request.go:41` is selected **only** when `opts.SkipTLSVerify` is set, and the only caller doing that is `DoOpenSearchReq` (request.go:137-148) — i.e., internal calls to the self-signed OpenSearch endpoint. All other soc-ai traffic (including external AI-model calls via `DoReq`) uses the standard-verification `defaultClient`. Same house pattern as `inputs/`, `agent-manager/`, `compliance-orchestrator/`. **No remediation needed.**
@@ -57,6 +54,27 @@ Each finding below carries a step-by-step reproducible path with the evidence ac
 - Poison alert doc deleted: `_doc/kRk-gqEBG2EDI9JlXLDl` → `{"result":"deleted"}`, post-delete `_search` on `name:"LABSEC-XSS-POC-9917"` → `hits.total.value: 0`.
 - No other lab state changed.
 
+### jspdf per-CVE reachability trace (why 2.5.2 is retained) — 2026-10-30
+UTMStack's ONLY jspdf import is `frontend/src/app/shared/util/export-to-pdf-util.ts`: `new jsPDF('p','mm','a4')` (literal), `addImage(fixedLocalAsset,'PNG')`, `addImage(canvas.toDataURL('image/png'),'PNG')`, `output('blob')`, `save(timestamp+'.pdf')`. No jspdf API takes attacker input. The browser webpack build ships `dist/jspdf.es.min.js` (not the node build). Per CVE:
+
+| jspdf CVE | Sev | Vuln path | Reachable in UTMStack? |
+|---|---|---|---|
+| CVE-2025-68428 | crit | **node build** `loadFile` → `fs` LFI | **No** — browser build has no `fs`; `loadFile` never called |
+| CVE-2026-31938 | crit | `output(options)` HTML injection (newwindow types) | **No** — `output('blob')` string literal only |
+| CVE-2026-31898 | high | `createAnnotation` color | **No** — not called |
+| CVE-2026-25940 | high | AcroForm RadioButton `appearanceState` | **No** — AcroForm not used |
+| CVE-2026-25755 | high | `addJS` PDF object injection | **No** — not called |
+| CVE-2026-25535 | high | `addImage` malicious **GIF** OOM | **No** — only `'PNG'` passed |
+| CVE-2026-24737 | high | AcroForm choice/radio JS | **No** — not used |
+| CVE-2026-24133 | high | `addImage` malicious **BMP** OOM | **No** — only `'PNG'` |
+| CVE-2026-24043 | med | `addMetadata` XMP injection | **No** — not called |
+| CVE-2026-24040 | med | `addJS` shared-state (node) | **No** — not called / browser build |
+| CVE-2025-57810 | high | `addImage` malicious **PNG** CPU DoS | **No** — PNG is a locally-drawn canvas, not attacker data |
+| CVE-2025-29907 | high | `addImage` malicious **data-url** CPU DoS | **No** — dataURL is locally generated |
+| CVE-2026-31898 / 25940 / 24737 (dupes) | — | — | — |
+
+Bundled optionals (dompurify 2.5.9, canvg 3.0.11) load ONLY via dynamic `import()` inside jspdf's `html`/`addSvgAsImage` plugins — UTMStack feeds a PNG, so neither executes. **Conclusion:** keeping jspdf 2.5.2 is a valid reachability disposition; the 12 package CVEs are closed off by the browser-build + fixed-asset + local-PNG + `output('blob')` combination. Revisit when the Angular framework upgrade makes jspdf 4.x buildable.
+
 ---
 
 ## Part A — Executive summary
@@ -64,7 +82,7 @@ Each finding below carries a step-by-step reproducible path with the evidence ac
 1. **The backlog is 332 alerts but only ~90 distinct packages, and the split is stark:** 236 are the frozen Angular 7 / Node 14 frontend lockfile, ~65 are Go modules (mostly the same 6 packages repeated per `go.mod`), 2 are Java (`snakeyaml` backend, `postgresql` user-auditor).
 2. **~60% of the alerts are development-scoped** (webpack/karma/node-sass/postcss toolchain). Those never execute in the shipped bundle or on the server — their control is a hardened isolated build, not patching.
 3. **The genuinely runtime-reachable, patchable cluster is Go, and it is one `go get` pass:** `x/crypto` (41 alerts, 21 critical — pinned low in **three** manifests: `shared` 0.42.0, `installer` 0.51.0, `agent/updater` 0.47.0; the rest of the repo is already ≥0.52), `cel-go` 0.28.1→0.29.0 (~20 modules, the rule-evaluation engine, hot path), `grpc` 1.81.1/1.83.x→1.84.0 (4 plugin modules; xDS CVEs not applicable — no xDS usage), `x/net` (shared 0.44.0, agent/updater 0.49.0 → 0.55.0), `otel` (installer 1.41.0 → 1.45.0), `quic-go` 0.59.0→0.59.1 (3 modules).
-4. **The frontend runtime criticals are the jspdf cluster:** `jspdf` 2.3.1 (2 critical + 8 high, fixes up to 4.2.1) is imported in `export-to-pdf-util.ts`, and it **bundles `dompurify` 2.2.7** (critical CVE-2024-48910), `canvg`, `fflate`, `html2canvas` into the shipped app. These run in the analyst's browser, on data the app feeds them (export flows). Remediation: bump jspdf to a patched major **with an API-compat test** (jspdf 2→4 is a breaking-major jump; the code does `import jsPDF from 'jspdf'` + basic export calls — needs verification), or pin dompurify up via `overrides` if jspdf 2.x's range allows (jspdf's dep is `dompurify ^2.2.0`, so `overrides: {"dompurify": "3.4.16"}` may not satisfy jspdf's own 2.x-era calls — test required).
+4. **The frontend runtime criticals are the jspdf cluster — resolved at 2.5.2 with a written reachability argument (not a version bump to patched).** `jspdf` 2.3.1 was imported in `export-to-pdf-util.ts`. jspdf 3.x/4.x (the patched majors) **cannot build under Angular 7/webpack 4** — jspdf 3.0.4's `fast-png@6` dep uses ES2022 class-field syntax webpack 4's parser rejects (verified build failure). The original premise that 3.x "drops dompurify/canvg" was wrong: those are `optionalDependencies`, present in both 2.5.2 and 3.0.4. At 2.5.2 they resolve at **patched** versions (dompurify 2.2.7→2.5.9, canvg→3.0.11, fflate→0.8.3) and **never execute** for UTMStack's PNG-only `addImage` usage. All 12 open jspdf package CVEs are **unreachable** in UTMStack's actual API usage (browser build not node; `addImage` fed only a fixed local asset + a locally-drawn canvas PNG; `output('blob')` literal; no AcroForm/`addJS`/`addMetadata`/`addSvgAsImage`/`html`). Per-CVE trace in Part B½. **Residual:** the 12 CVEs stay open on paper until the framework upgrade makes jspdf 4.x buildable.
 5. **Angular 7 framework alerts (22: core/common/compiler/router) have no patch on 7.x** — fixes start at v10.2.5 / v19.2.16. Disposition per alert: several are SSR/HttpTransferCache/i18n features UTMStack does not use (N/A dismissal with justification), the rest accepted risk pending the framework upgrade project.
 6. **Two Go packages have no fixed version yet:** `github.com/docker/docker` (8 alerts, `+incompatible` v28.5.2 in installer + collector — used to drive the swarm deployment) and a few npm packages with `fixed=` blank. These need a documented monitor-or-mitigate decision, not a dismiss.
 7. **The manual sweep found NO live application vulnerability once Angular's default sanitizer was properly accounted for.** Five candidates (F-1 HTML sinks, F-2 GVM render, F-3 CORS `*`, F-4 raw-OS-SQL, F-5 soc-ai TLS) were each re-verified and **reclassified as not findings** — the remaining F-1 residual (a `safe.pipe` that bypasses Angular's sanitizer, currently only fed admin-authored or pre-escaped data) is downgraded to **hygiene**. The original F-1 "stored XSS" claim was wrong: Angular 7 sanitizes plain `[innerHTML]`, and my live PoC payload rendered inertly. See Part B½ (live) + Part C (static re-verification) for the full trail.
@@ -193,23 +211,26 @@ Not in the scanner output. Ranked by severity.
 ## Part D — Recommended sequencing for v11.3.1
 
 **P0 (fix in this release):**
-1. **Go bump pass** — `x/crypto`≥0.55 (shared, agent/updater, installer), `cel-go` 0.29.0 (all modules), `grpc` 1.84.0 (4 plugins), `x/net`≥0.55 (shared, agent/updater), `otel` 1.45 (installer), `quic-go` 0.59.1 (3). Closes ~86 alerts including 21 criticals.
-2. **jspdf cluster** — bump jspdf (2.3.1 → patched) with export-path tests; verify dompurify/canvg/fflate move with it.
+1. **Go bump pass — DONE** (commits 2359e6be, 27a44fc5, f7d6e1b2, 4cb113e1, 2f4cdda2): `x/crypto` 0.55.0 (shared/agent/updater/installer + 4 grpc plugins), `cel-go` 0.29.0 (19 modules), `grpc` 1.84.0 (stats/soc-ai/geolocation/alerts), `x/net`≥0.55 (MVS floors 0.57/0.58), `otel` 1.45.0 (installer), `quic-go` 0.59.1 (3). ~86 Dependabot alerts closed incl. 21 x/crypto criticals. x/crypto is not exercised by current code (all `// indirect`; no `x/crypto/ssh` agent-constraint usage) but ships in every binary, so it was bumped anyway.
+2. **jspdf — 2.5.2 KEPT with written reachability analysis (security-approved).** 3.x/4.x are NOT buildable under Angular 7/webpack 4: jspdf 3.0.4's `fast-png@6` dep uses ES2022 class-field syntax webpack 4 cannot parse (verified build failure). The original "3.0.4 drops dompurify/canvg" premise was wrong — they are `optionalDependencies`, present in both 2.5.2 and 3.0.4. At 2.5.2: (a) the optional cluster resolves at PATCHED versions (dompurify 2.5.9, canvg 3.0.11, fflate 0.8.3) and never executes for UTMStack's PNG-only usage; (b) all 12 open jspdf package CVEs are unreachable in UTMStack's actual API usage — per-CVE trace in Part B½ (browser build not node; `addImage` fed only a fixed local asset + locally-drawn canvas PNG; `output('blob')` literal; no AcroForm/addJS/addMetadata/addSvgAsImage/html). **Residual accepted:** the 12 jspdf CVEs stay open on paper until the framework-upgrade project makes jspdf 4.x buildable; the reachability memo is the disposition.
+3. **F-1 frontend HTML-sink hardening — DONE** (502ace3285 + alert-history follow-up): 6 log-derived `[innerHTML]` components → `escapeAndBreakLine`; `highlight` pipe escape-first-then-wrap; `safe.pipe` default case now escapes (no more bare-`| safe` bypass footgun). Full 79-site `[innerHTML]` sweep found no missed exploitable sink. Node14 build green.
 
 **P1 (fix in this release, low effort):**
-3. `postgresql` 42.7.12 (user-auditor); `js-yaml` 4.3.2 (direct frontend dep, user-uploaded YAML is the vector); `lodash` 4.17.23; `highlight.js` 9.18.2.
+4. **DONE** — `postgresql` 42.7.12 (user-auditor, 008cc834); `js-yaml` 4.3.2 + `lodash` 4.17.23 + `highlight.js` 9.18.5 (b4f7847a).
+5. **DONE** — **C1** SAML fetch-time URL validation (eb8dd421 + e56017ca); **C4/C5** SqlQueryFilterService escape + field allowlist (f8f8ff9a + 7c2d6e77).
+6. **DONE** — **M2** bitdefender constant-time compare (fdc193fb); **C2** inputs-plugin internal-key allowlist (36a55d3b); **C3** web-pdf internal-key gate (9a6a317d).
 
-**P2 (hygiene):**
-4. **F-1 residual:** delete or harden `safe.pipe` (it's a one-line `bypassSecurityTrustHtml` trap; currently only fed admin-authored or pre-escaped data) + CI grep-gate on new `| safe:'html'` usages. `SqlQueryFilterService` value-escaping (C4/C5). GVM detail bindings get `escapeAndBreakLine` only if that integration is ever revived (F-2).
-5. `websocket-driver` 0.7.5 if the bundle scan proves it ships; `tar`/`form-data`/`request` dispositions per bundle scan.
+**P2 (hygiene / conditional):**
+7. `websocket-driver` 0.7.5 if the bundle scan proves it ships; `tar`/`form-data`/`request` dispositions per bundle scan.
+8. GVM detail bindings get `escapeAndBreakLine` only if that integration is ever revived (F-2, dead code).
 
 **Not scheduled as fixes (reclassified not-findings after deep re-verification, 2026-10-28):**
-- **F-1** stored XSS — NOT exploitable as shipped: Angular 7's default sanitizer neutralizes plain `[innerHTML]` (live PoC payload rendered inert); only the 17 `| safe:'html'` / `bypassSecurityTrustUrl` sites bypass it, and all currently receive admin-authored or pre-escaped data. Residual = hygiene (P2 item 4).
 - **F-2** GVM render — dead code, backend endpoints don't exist in this repo.
 - **F-3** CORS `*` — no cross-origin browser consumers exist (all same-origin; FS/agents are server-to-server).
 - **F-4** `/api/elasticsearch/search/sql` — it IS the Log Explorer SQL-mode feature; analysts run read SQL by design.
 - **F-5** soc-ai `InsecureSkipVerify` — internal self-signed OpenSearch calls only; external AI calls verify TLS.
 - **F-6** public OpenAPI/Swagger — open-source product; the schema discloses nothing not already public.
+- **F-1 original "stored XSS" claim — retracted** (Angular 7's default sanitizer neutralizes plain `[innerHTML]`; live PoC payload rendered inert). The hardening above (P0.3) is defense-in-depth + footgun removal, not a vuln fix.
 
 **Process (document, not patch):**
 6. **snakeyaml 1.33** — config-only constraint + code-review gate (no clean patch on Spring Boot 3.1.5).
