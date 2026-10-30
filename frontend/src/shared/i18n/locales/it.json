@@ -1329,7 +1329,7 @@
             "lastSeen": "Visto l’ultima volta",
             "tenant": "Tenant",
             "accountId": "ID account",
-            "identityGroup": "Gruppo identità"
+            "identityGroup": "Identità"
         },
         "status": {
             "active": "Attivo",
@@ -1372,19 +1372,19 @@
             "lastSeen": "Visto l’ultima volta nei log",
             "deleted": "Account eliminato",
             "noLifecycle": "Nessun evento del ciclo di vita registrato.",
-            "aliasGroup": "Gruppo identità",
+            "aliasGroup": "Identità",
             "alias": {
-                "add": "Aggiungi gruppo identità",
-                "search": "Cerca gruppi…",
-                "none": "Nessun gruppo ancora",
-                "new": "Nuovo gruppo",
-                "unassign": "Rimuovi dal gruppo",
-                "unassigned": "Nessun gruppo",
-                "newPlaceholder": "Nome del nuovo gruppo (2–64 caratteri)",
+                "add": "Aggiungi identità",
+                "search": "Cerca identità…",
+                "none": "Nessuna identità ancora",
+                "new": "Nuova identità",
+                "unassign": "Rimuovi identità",
+                "unassigned": "Nessuna identità",
+                "newPlaceholder": "Nome della nuova identità (2–64 caratteri)",
                 "createAndAssign": "Crea e assegna",
                 "nameTooShort": "Il nome deve avere da 2 a 64 caratteri",
-                "updated": "Gruppo identità aggiornato",
-                "updateFailed": "Impossibile aggiornare il gruppo identità"
+                "updated": "Identità aggiornata",
+                "updateFailed": "Impossibile aggiornare l’identità"
             }
         },
         "relative": {
@@ -1394,8 +1394,8 @@
             "daysAgo": "{{count}}g fa"
         },
         "none": "—",
-        "allIdentities": "Tutti i gruppi identità",
-        "noneIdentity": "Nessun gruppo identità"
+        "allIdentities": "Tutte le identità",
+        "noneIdentity": "Nessuna identità"
     },
     "connectionKey": {
         "title": "Chiave di connessione",

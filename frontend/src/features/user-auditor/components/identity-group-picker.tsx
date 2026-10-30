@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { Check, ChevronDown, Loader2, Plus, UserCircle2, X } from 'lucide-react'
+import { Check, ChevronDown, Loader2, Plus, Trash2, UserCircle2, X } from 'lucide-react'
+import { ConfirmDialog } from '@/shared/components/ui/confirm-dialog'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { adAuditHttpService } from '../services/ad-audit-http.service'
@@ -24,6 +25,8 @@ export function IdentityGroupPicker({
   const [custom, setCustom] = useState('')
   const [items, setItems] = useState<IdentityListItem[] | null>(null)
   const [busy, setBusy] = useState(false)
+  const [deleting, setDeleting] = useState<IdentityListItem | null>(null)
+  const [deleteBusy, setDeleteBusy] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
   // Load the alias list on open; search below filters client-side.
@@ -88,6 +91,23 @@ export function IdentityGroupPicker({
       .finally(() => setBusy(false))
   }
 
+  const confirmDelete = async () => {
+    if (!deleting) return
+    setDeleteBusy(true)
+    try {
+      await adAuditHttpService.deleteIdentity(deleting.id)
+      if (deleting.name === current) onChanged(null)
+      toast.success(t('userAuditor.drawer.alias.deleted'))
+    } catch {
+      toast.error(t('userAuditor.drawer.alias.deleteFailed'))
+    } finally {
+      setDeleteBusy(false)
+      setDeleting(null)
+      // Reload so counts refresh for the remaining rows.
+      void adAuditHttpService.identities().then((res) => setItems(res ?? [])).catch(() => {})
+    }
+  }
+
   const customTrimmed = custom.trim()
   const canCreateCustom = customTrimmed.length >= 2 && customTrimmed !== current
   const filtered = (items ?? []).filter((i) => (q ? i.name.toLowerCase().includes(q.toLowerCase()) : true))
@@ -104,7 +124,7 @@ export function IdentityGroupPicker({
         <ChevronDown size={12} className="opacity-60" />
       </button>
       {open && (
-        <div className="absolute left-0 top-full z-30 mt-1 w-64 rounded-md border border-border bg-popover py-1 shadow-lg">
+        <div className="absolute  top-full z-30 mt-1 w-64 rounded-md border border-border bg-popover py-1 shadow-lg">
           <div className="px-2 pb-1.5 pt-1">
             <input
               value={q}
@@ -132,17 +152,33 @@ export function IdentityGroupPicker({
               <div className="px-3 py-1.5 text-xs text-muted-foreground">{t('userAuditor.drawer.alias.none')}</div>
             )}
             {filtered.map((i) => (
-              <button
+              <div
                 key={i.id}
-                onClick={() => assign(i.id)}
-                disabled={busy}
-                className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-sm hover:bg-muted"
+                className="group flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-sm hover:bg-muted"
               >
-                <span className="truncate">
-                  {i.name} <span className="font-mono text-[10px] text-muted-foreground">{i.count}</span>
-                </span>
-                {i.name === current && <Check size={14} className="shrink-0 text-primary" />}
-              </button>
+                <button
+                  onClick={() => assign(i.id)}
+                  disabled={busy}
+                  className="flex min-w-0 flex-1 items-center justify-between gap-2 text-left disabled:opacity-50"
+                >
+                  <span className="truncate">
+                    {i.name} <span className="font-mono text-[10px] text-muted-foreground">{i.count}</span>
+                  </span>
+                  {i.name === current && <Check size={14} className="shrink-0 text-primary" />}
+                </button>
+                <button
+                  onClick={() => setDeleting(i)}
+                  disabled={busy || deleteBusy || i.count > 0}
+                  title={i.count > 0 ? undefined : t('userAuditor.drawer.alias.delete')}
+                  className={
+                    i.count > 0
+                      ? 'shrink-0 cursor-not-allowed text-muted-foreground opacity-0 transition-opacity group-hover:opacity-30'
+                      : 'shrink-0 text-muted-foreground opacity-0 transition-opacity hover:text-red-500 group-hover:opacity-100'
+                  }
+                >
+                  <Trash2 size={13} />
+                </button>
+              </div>
             ))}
           </div>
           <div className="mt-1 border-t border-border px-3 pb-2 pt-2">
@@ -169,6 +205,17 @@ export function IdentityGroupPicker({
           </div>
         </div>
       )}
+      <ConfirmDialog
+        open={deleting !== null}
+        title={t('userAuditor.drawer.alias.deleteTitle')}
+        body={t('userAuditor.drawer.alias.deleteBody', { name: deleting?.name ?? '', count: deleting?.count ?? 0 })}
+        confirmLabel={t('common.confirm.delete')}
+        cancelLabel={t('common.cancel')}
+        danger
+        busy={deleteBusy}
+        onClose={() => setDeleting(null)}
+        onConfirm={confirmDelete}
+      />
     </div>
   )
 }

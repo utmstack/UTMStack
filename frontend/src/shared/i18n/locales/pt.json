@@ -1329,7 +1329,7 @@
             "lastSeen": "Visto por último",
             "tenant": "Tenant",
             "accountId": "ID da conta",
-            "identityGroup": "Grupo de identidade"
+            "identityGroup": "Identidade"
         },
         "status": {
             "active": "Ativa",
@@ -1372,19 +1372,19 @@
             "lastSeen": "Visto por último nos logs",
             "deleted": "Conta excluída",
             "noLifecycle": "Sem eventos de ciclo de vida.",
-            "aliasGroup": "Grupo de identidade",
+            "aliasGroup": "Identidade",
             "alias": {
-                "add": "Adicionar grupo de identidade",
-                "search": "Pesquisar grupos…",
-                "none": "Ainda não há grupos",
-                "new": "Novo grupo",
-                "unassign": "Remover do grupo",
-                "unassigned": "Sem grupo",
-                "newPlaceholder": "Nome do novo grupo (2–64 caracteres)",
+                "add": "Adicionar identidade",
+                "search": "Pesquisar identidades…",
+                "none": "Ainda não há identidades",
+                "new": "Nova identidade",
+                "unassign": "Remover identidade",
+                "unassigned": "Sem identidade",
+                "newPlaceholder": "Nome da nova identidade (2–64 caracteres)",
                 "createAndAssign": "Criar e atribuir",
                 "nameTooShort": "O nome deve ter entre 2 e 64 caracteres",
-                "updated": "Grupo de identidade atualizado",
-                "updateFailed": "Não foi possível atualizar o grupo de identidade"
+                "updated": "Identidade atualizada",
+                "updateFailed": "Não foi possível atualizar a identidade"
             }
         },
         "relative": {
@@ -1394,8 +1394,8 @@
             "daysAgo": "há {{count}}d"
         },
         "none": "—",
-        "allIdentities": "Todos os grupos de identidade",
-        "noneIdentity": "Sem grupo de identidade"
+        "allIdentities": "Todas as identidades",
+        "noneIdentity": "Sem identidade"
     },
     "connectionKey": {
         "title": "Chave de conexão",

@@ -13,7 +13,7 @@ type IdentityAlias struct {
 	Name        string                    `gorm:"column:name;size:64;not null" json:"name"`
 	CreatedBy   string                    `gorm:"column:created_by;size:150;not null" json:"createdBy"`
 	CreatedAt   time.Time                 `gorm:"column:created_at;not null;default:now()" json:"createdAt"`
-	Assignments []IdentityAliasAssignment `gorm:"foreignKey:AliasID;references:ID;constraint:false" json:"-"`
+	Assignments []IdentityAliasAssignment `gorm:"foreignKey:AliasID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE" json:"-"`
 }
 
 func (IdentityAlias) TableName() string { return "identity_alias" }

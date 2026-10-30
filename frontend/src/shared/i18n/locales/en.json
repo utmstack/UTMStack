@@ -1572,7 +1572,7 @@
             "lastSeen": "Last seen",
             "tenant": "Tenant",
             "accountId": "Account ID",
-            "identityGroup": "Identity group"
+            "identityGroup": "Identity"
         },
         "status": {
             "active": "Active",
@@ -1615,9 +1615,9 @@
             "lastSeen": "Last seen in logs",
             "deleted": "Account deleted",
             "noLifecycle": "No lifecycle events recorded.",
-            "aliasGroup": "Identity group",
+            "aliasGroup": "Identity",
             "alias": {
-                "add": "Add identity group",
+                "add": "Add identity",
                 "search": "Search groups…",
                 "none": "No groups yet",
                 "new": "New group",
@@ -1626,8 +1626,13 @@
                 "newPlaceholder": "New group name (2–64 chars)",
                 "createAndAssign": "Create & assign",
                 "nameTooShort": "Group name must be 2–64 characters",
-                "updated": "Identity group updated",
-                "updateFailed": "Could not update the identity group"
+                "updated": "Identity updated",
+                "updateFailed": "Could not update the identity",
+                "delete": "Delete identity",
+                "deleteTitle": "Delete identity",
+                "deleteBody": "Delete \"{{name}}\"? Its {{count}} accounts will be unassigned. This cannot be undone.",
+                "deleted": "Identity deleted",
+                "deleteFailed": "Could not delete the identity"
             }
         },
         "relative": {
@@ -1637,8 +1642,8 @@
             "daysAgo": "{{count}}d ago"
         },
         "none": "—",
-        "allIdentities": "All identity groups",
-        "noneIdentity": "No identity group"
+        "allIdentities": "All identities",
+        "noneIdentity": "No identity"
     },
     "connectionKey": {
         "title": "Connection key",
