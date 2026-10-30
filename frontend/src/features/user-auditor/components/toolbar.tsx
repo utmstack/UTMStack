@@ -2,6 +2,7 @@ import type { TFunction } from 'i18next'
 import { ChevronDown, LayoutGrid, ListIcon, RefreshCw, Search, Server, Users } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { Input } from '@/shared/components/ui/input'
+import { useUserAuditor } from '../context/user-auditor.context'
 
 export function Toolbar({
   search,
@@ -10,7 +11,6 @@ export function Toolbar({
   tenants,
   onTenant,
   identity,
-  identities,
   onIdentity,
   layout,
   onLayoutChange,
@@ -24,7 +24,6 @@ export function Toolbar({
   tenants: string[]
   onTenant: (t: string) => void
   identity: string
-  identities: { id: string; name: string }[]
   onIdentity: (id: string) => void
   layout: 'list' | 'cards'
   onLayoutChange: (l: 'list' | 'cards') => void
@@ -32,6 +31,7 @@ export function Toolbar({
   loading: boolean
   t: TFunction
 }) {
+  const { identities } = useUserAuditor()
   return (
     <div className="mt-3 flex flex-wrap items-center gap-2">
       <div className="relative min-w-[280px] flex-1">

@@ -3,12 +3,13 @@ import { Check, ChevronDown, Loader2, Plus, Trash2, UserCircle2, X } from 'lucid
 import { ConfirmDialog } from '@/shared/components/ui/confirm-dialog'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { adAuditHttpService } from '../services/ad-audit-http.service'
+import { useUserAuditor } from '../context/user-auditor.context'
 import type { IdentityListItem } from '../types/ad-user.types'
 
 /**
  * Dropdown to assign a user to an existing identity group or create a new one.
- * Mirrors IncidentAssigneePicker from the incidents drawer, backed by /ad-audit/identities.
+ * Mirrors IncidentAssigneePicker from the incidents drawer, backed by the
+ * shared user-auditor context (/ad-audit/identities).
  */
 export function IdentityGroupPicker({
   userId,
@@ -20,31 +21,14 @@ export function IdentityGroupPicker({
   onChanged: (name: string | null) => void
 }) {
   const { t } = useTranslation()
+  const { identities, identitiesLoaded, assignIdentity, createIdentity, deleteIdentity } = useUserAuditor()
   const [open, setOpen] = useState(false)
   const [q, setQ] = useState('')
   const [custom, setCustom] = useState('')
-  const [items, setItems] = useState<IdentityListItem[] | null>(null)
   const [busy, setBusy] = useState(false)
   const [deleting, setDeleting] = useState<IdentityListItem | null>(null)
   const [deleteBusy, setDeleteBusy] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
-
-  // Load the alias list on open; search below filters client-side.
-  useEffect(() => {
-    if (!open) return
-    let cancelled = false
-    void adAuditHttpService
-      .identities()
-      .then((res) => {
-        if (!cancelled) setItems(res ?? [])
-      })
-      .catch(() => {
-        if (!cancelled) setItems([])
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [open])
 
   useEffect(() => {
     if (!open) return
@@ -53,49 +37,49 @@ export function IdentityGroupPicker({
     return () => document.removeEventListener('mousedown', onDoc)
   }, [open])
 
-  const assign = (id: string) => {
+  const assign = async (id: string) => {
     setBusy(true)
-    void adAuditHttpService
-      .assignIdentity(userId, id)
-      .then(() => {
-        const name = id ? items?.find((i) => i.id === id)?.name ?? null : null
-        setOpen(false)
-        setCustom('')
-        onChanged(name)
-        toast.success(t('userAuditor.drawer.alias.updated'))
-      })
-      .catch(() => toast.error(t('userAuditor.drawer.alias.updateFailed')))
-      .finally(() => setBusy(false))
+    try {
+      await assignIdentity(userId, id)
+      const name = id ? identities.find((i) => i.id === id)?.name ?? null : null
+      setOpen(false)
+      setCustom('')
+      onChanged(name)
+      toast.success(t('userAuditor.drawer.alias.updated'))
+    } catch {
+      toast.error(t('userAuditor.drawer.alias.updateFailed'))
+    } finally {
+      setBusy(false)
+    }
   }
 
-  const createAndAssign = () => {
+  const createAndAssign = async () => {
     const name = custom.trim()
     if (name.length < 2) {
       toast.error(t('userAuditor.drawer.alias.nameTooShort'))
       return
     }
     setBusy(true)
-    void adAuditHttpService
-      .createIdentity(name)
-      .then((res) => {
-        if (!res) throw new Error('no identity')
-        return adAuditHttpService.assignIdentity(userId, res.id)
-      })
-      .then(() => {
-        setOpen(false)
-        setCustom('')
-        onChanged(name)
-        toast.success(t('userAuditor.drawer.alias.updated'))
-      })
-      .catch(() => toast.error(t('userAuditor.drawer.alias.updateFailed')))
-      .finally(() => setBusy(false))
+    try {
+      const res = await createIdentity(name)
+      if (!res) throw new Error('no identity')
+      await assignIdentity(userId, res.id)
+      setOpen(false)
+      setCustom('')
+      onChanged(name)
+      toast.success(t('userAuditor.drawer.alias.updated'))
+    } catch {
+      toast.error(t('userAuditor.drawer.alias.updateFailed'))
+    } finally {
+      setBusy(false)
+    }
   }
 
   const confirmDelete = async () => {
     if (!deleting) return
     setDeleteBusy(true)
     try {
-      await adAuditHttpService.deleteIdentity(deleting.id)
+      await deleteIdentity(deleting.id)
       if (deleting.name === current) onChanged(null)
       toast.success(t('userAuditor.drawer.alias.deleted'))
     } catch {
@@ -103,14 +87,12 @@ export function IdentityGroupPicker({
     } finally {
       setDeleteBusy(false)
       setDeleting(null)
-      // Reload so counts refresh for the remaining rows.
-      void adAuditHttpService.identities().then((res) => setItems(res ?? [])).catch(() => {})
     }
   }
 
   const customTrimmed = custom.trim()
   const canCreateCustom = customTrimmed.length >= 2 && customTrimmed !== current
-  const filtered = (items ?? []).filter((i) => (q ? i.name.toLowerCase().includes(q.toLowerCase()) : true))
+  const filtered = identities.filter((i) => (q ? i.name.toLowerCase().includes(q.toLowerCase()) : true))
 
   return (
     <div className="relative" ref={ref}>
@@ -136,19 +118,19 @@ export function IdentityGroupPicker({
           </div>
           {current && (
             <button
-              onClick={() => assign('')}
+              onClick={() => void assign('')}
               className="flex w-full items-center gap-2 border-b border-border px-3 py-1.5 text-left text-xs text-muted-foreground hover:bg-muted"
             >
               <X size={12} /> {t('userAuditor.drawer.alias.unassign')}
             </button>
           )}
           <div className="max-h-56 overflow-y-auto">
-            {items === null && (
+            {!identitiesLoaded && (
               <div className="flex items-center gap-2 px-3 py-2 text-xs text-muted-foreground">
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
               </div>
             )}
-            {items !== null && filtered.length === 0 && (
+            {identitiesLoaded && filtered.length === 0 && (
               <div className="px-3 py-1.5 text-xs text-muted-foreground">{t('userAuditor.drawer.alias.none')}</div>
             )}
             {filtered.map((i) => (
@@ -157,7 +139,7 @@ export function IdentityGroupPicker({
                 className="group flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-sm hover:bg-muted"
               >
                 <button
-                  onClick={() => assign(i.id)}
+                  onClick={() => void assign(i.id)}
                   disabled={busy}
                   className="flex min-w-0 flex-1 items-center justify-between gap-2 text-left disabled:opacity-50"
                 >
@@ -189,12 +171,12 @@ export function IdentityGroupPicker({
               <input
                 value={custom}
                 onChange={(e) => setCustom(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && createAndAssign()}
+                onKeyDown={(e) => e.key === 'Enter' && void createAndAssign()}
                 placeholder={t('userAuditor.drawer.alias.newPlaceholder')}
                 className="h-7 min-w-0 flex-1 rounded-md border border-input bg-background px-2 text-xs focus-visible:border-ring focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               />
               <button
-                onClick={createAndAssign}
+                onClick={() => void createAndAssign()}
                 disabled={!canCreateCustom || busy}
                 title={t('userAuditor.drawer.alias.createAndAssign')}
                 className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground disabled:opacity-40"
