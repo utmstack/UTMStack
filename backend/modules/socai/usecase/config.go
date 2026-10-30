@@ -21,7 +21,7 @@ var ErrVerificationFailed = errors.New("connection verification failed")
 // threatWindsAIPath is the CM proxy path for the AI chat-completions endpoint
 // (see backend/modules/threatintel: same reverse-proxy target, same id/key auth).
 const threatWindsAIPath = "/proxy/api/ai/v1/chat/completions"
-const threatWindsDefaultModel = "silas-1.6"
+const threatWindsDefaultModel = "silas-1.7-pro"
 
 var ErrInstanceNotRegistered = errors.New("instance not registered yet — cannot use the ThreatWinds provider")
 
@@ -114,7 +114,12 @@ func (s *ConfigService) EnsureDefault() bool {
 		Model:             threatWindsDefaultModel,
 		URL:               strings.TrimRight(inst.Server, "/") + threatWindsAIPath,
 		AuthType:          "none",
-		CustomHeaders:     map[string]string{"id": idEnc, "key": keyEnc},
+		CustomHeaders:     map[string]string{
+			"id": idEnc,
+			"key": keyEnc,
+			"topk": "50",
+			"reasoning_effort":"minimal",
+		},
 		MaxTokens:         4096,
 		MaxToolIterations: 12,
 		AutoAnalyze:       false,
