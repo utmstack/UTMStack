@@ -48,9 +48,8 @@
             "scripts": [
               "node_modules/jquery/dist/jquery.min.js",
               "node_modules/tether/dist/js/tether.min.js",
-              "node_modules/popper.js/dist/popper.js",
+              "node_modules/popper.js/dist/umd/popper.min.js",
               "node_modules/bootstrap/dist/js/bootstrap.min.js",
-              "src/assets/vendor/animated-burguers/index.js",
               "node_modules/interactjs/dist/interact.js",
               "node_modules/echarts/dist/echarts.js",
               "node_modules/echarts-wordcloud/dist/echarts-wordcloud.js",
