@@ -6,6 +6,7 @@ import {AlertHistoryType} from '../../../../../shared/types/alert/alert-history.
 import {UtmAlertType} from '../../../../../shared/types/alert/utm-alert.type';
 import {ElasticFilterCommonType} from '../../../../../shared/types/filter/elastic-filter-common.type';
 import {TimeFilterType} from '../../../../../shared/types/time-filter.type';
+import {escapeAndBreakLine} from '../../../../../shared/util/string-util';
 import {AlertUpdateHistoryBehavior} from '../../behavior/alert-update-history.behavior';
 import {AlertHistoryActionEnum} from '../../enums/alert-history-action.enum';
 import {AlertHistoryService} from './alert-history.service';
@@ -64,7 +65,10 @@ export class AlertHistoryComponent implements OnInit {
       this.loadingMore = false;
       this.loading = false;
       this.alertUpdateHistoryBehavior.$refreshHistory.next(null);
-      this.items = response.body;
+      this.items = response.body.map(item => {
+        item.logMessage = escapeAndBreakLine(item.logMessage);
+        return item;
+      });
       this.totalItems = Number(response.headers.get('X-Total-Count'));
     });
   }
