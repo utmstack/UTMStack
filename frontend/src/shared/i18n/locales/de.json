@@ -1329,7 +1329,7 @@
             "lastSeen": "Zuletzt gesehen",
             "tenant": "Mandant",
             "accountId": "Konto-ID",
-            "identityGroup": "Identitätsgruppe"
+            "identityGroup": "Identität"
         },
         "status": {
             "active": "Aktiv",
@@ -1372,19 +1372,19 @@
             "lastSeen": "Zuletzt in Logs gesehen",
             "deleted": "Konto gelöscht",
             "noLifecycle": "Keine Lebenszyklus-Ereignisse aufgezeichnet.",
-            "aliasGroup": "Identitätsgruppe",
+            "aliasGroup": "Identität",
             "alias": {
-                "add": "Identitätsgruppe hinzufügen",
-                "search": "Gruppen suchen…",
-                "none": "Noch keine Gruppen",
-                "new": "Neue Gruppe",
-                "unassign": "Aus Gruppe entfernen",
-                "unassigned": "Keine Gruppe",
-                "newPlaceholder": "Name der neuen Gruppe (2–64 Zeichen)",
+                "add": "Identität hinzufügen",
+                "search": "Identitäten suchen…",
+                "none": "Noch keine Identitäten",
+                "new": "Neue Identität",
+                "unassign": "Zuweisung aufheben",
+                "unassigned": "Keine Identität",
+                "newPlaceholder": "Name der neuen Identität (2–64 Zeichen)",
                 "createAndAssign": "Erstellen & zuordnen",
-                "nameTooShort": "Gruppenname muss 2–64 Zeichen haben",
-                "updated": "Identitätsgruppe aktualisiert",
-                "updateFailed": "Identitätsgruppe konnte nicht aktualisiert werden"
+                "nameTooShort": "Name muss 2–64 Zeichen haben",
+                "updated": "Identität aktualisiert",
+                "updateFailed": "Identität konnte nicht aktualisiert werden"
             }
         },
         "relative": {
@@ -1394,8 +1394,8 @@
             "daysAgo": "vor {{count}}T"
         },
         "none": "—",
-        "allIdentities": "Alle Identitätsgruppen",
-        "noneIdentity": "Keine Identitätsgruppe"
+        "allIdentities": "Alle Identitäten",
+        "noneIdentity": "Keine Identität"
     },
     "connectionKey": {
         "title": "Verbindungsschlüssel",

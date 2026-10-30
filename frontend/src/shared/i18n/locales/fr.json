@@ -1329,7 +1329,7 @@
             "lastSeen": "Vu pour la dernière fois",
             "tenant": "Locataire",
             "accountId": "ID du compte",
-            "identityGroup": "Groupe d’identité"
+            "identityGroup": "Identité"
         },
         "status": {
             "active": "Actif",
@@ -1372,19 +1372,19 @@
             "lastSeen": "Vu pour la dernière fois dans les journaux",
             "deleted": "Compte supprimé",
             "noLifecycle": "Aucun événement de cycle de vie enregistré.",
-            "aliasGroup": "Groupe d’identité",
+            "aliasGroup": "Identité",
             "alias": {
-                "add": "Ajouter un groupe d’identité",
-                "search": "Rechercher des groupes…",
-                "none": "Aucun groupe pour l’instant",
-                "new": "Nouveau groupe",
-                "unassign": "Retirer du groupe",
-                "unassigned": "Aucun groupe",
-                "newPlaceholder": "Nom du nouveau groupe (2–64 caractères)",
+                "add": "Ajouter une identité",
+                "search": "Rechercher des identités…",
+                "none": "Aucune identité pour l’instant",
+                "new": "Nouvelle identité",
+                "unassign": "Retirer l’identité",
+                "unassigned": "Aucune identité",
+                "newPlaceholder": "Nom de la nouvelle identité (2–64 caractères)",
                 "createAndAssign": "Créer et assigner",
                 "nameTooShort": "Le nom doit compter de 2 à 64 caractères",
-                "updated": "Groupe d’identité mis à jour",
-                "updateFailed": "Impossible de mettre à jour le groupe d’identité"
+                "updated": "Identité mise à jour",
+                "updateFailed": "Impossible de mettre à jour l’identité"
             }
         },
         "relative": {
@@ -1394,8 +1394,8 @@
             "daysAgo": "il y a {{count}}j"
         },
         "none": "—",
-        "allIdentities": "Tous les groupes d’identité",
-        "noneIdentity": "Aucun groupe d’identité"
+        "allIdentities": "Toutes les identités",
+        "noneIdentity": "Aucune identité"
     },
     "connectionKey": {
         "title": "Clé de connexion",
