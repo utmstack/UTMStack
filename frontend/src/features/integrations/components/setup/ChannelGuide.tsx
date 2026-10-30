@@ -42,11 +42,9 @@ function GuideLayout({
 }
 
 function SyslogDeviceGuide({ integration }: { integration: Integration }) {
-  const { t } = useTranslation()
   const sourceType = integration.forwarderDataType || 'syslog'
   const port = defaultPortFor(sourceType, 'tcp') || '7014'
   const [selection, setSelection] = useState<RemoteEnableSelection>({ proto: 'tcp', port })
-  const host = selection.collector?.ip || '<collector-host>'
 
   return (
     <ForwarderGuide
@@ -56,28 +54,8 @@ function SyslogDeviceGuide({ integration }: { integration: Integration }) {
       defaultPort={port}
       defaultProto="tcp"
       onSetSelection={setSelection}
-    >
-      <Section title={`${integration.name} via Syslog`} step={2}>
-        <p className="text-sm text-foreground/90">
-          Configure the device to send syslog to the selected UTMStack Collector. TCP is recommended
-          for chatty devices; the UDP receiver uses a 2,048-byte message buffer and truncates longer
-          messages.
-        </p>
-        <CodeBlock
-          lang="config"
-          code={`Collector: ${host}
-Port:      ${selection.port || port}
-Protocol:  ${selection.proto.toUpperCase()}
-Format:    RFC 5424 or RFC 3164`}
-        />
-        <p className="text-xs text-muted-foreground">
-          {t('datasources.drawer.viewLogs')} will open Log Explorer for this integration's data type.
-        </p>
-        {integration.guideSetting && (
-          <p className="text-sm text-foreground/90">{integration.guideSetting}</p>
-        )}
-      </Section>
-    </ForwarderGuide>
+      children={null}
+    />
   )
 }
 
