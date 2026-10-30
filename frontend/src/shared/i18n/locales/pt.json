@@ -1728,7 +1728,18 @@
       "between": "entre",
       "search": "busca",
       "isOneOf": "é um de",
-      "isNotOneOf": "não é nenhum de"
+      "isNotOneOf": "não é nenhum de",
+      "doesNotContain": "no contiene",
+      "startsWith": "empieza con",
+      "doesNotStartWith": "no empieza con",
+      "endsWith": "termina con",
+      "doesNotEndWith": "no termina con",
+      "doesNotExist": "no existe",
+      "notBetween": "no está entre",
+      "greaterThan": "es mayor que",
+      "greaterThanOrEquals": "es mayor o igual que",
+      "lessThan": "es menor que",
+      "lessThanOrEquals": "es menor o igual que"
     },
     "filters": {
       "label": "Filtros",
@@ -3696,6 +3707,10 @@
       "WINDOWS_FILE_AUDITING": {
         "name": "Windows File Access Auditing",
         "description": "Collect Windows file access audit events through the Windows Event Log and UTMStack agent."
+      },
+      "ELASTICsearch": {
+        "name": "ELASTICsearch",
+        "description": "Ingesta los registros de Elasticsearch para monitorear el motor de búsqueda y análisis y sus cargas de trabajo de aplicación."
       }
     },
     "edit": {
@@ -4803,7 +4818,8 @@
       "removeEntry": "Remover entrada",
       "addEntry": "Adicionar entrada de pipeline",
       "collapse": "Recolher",
-      "expand": "Expandir"
+      "expand": "Expandir",
+      "splitHint": "Vacío equivale a un espacio por defecto — en el YAML siempre aparece como fieldSplit: \" \"."
     },
     "allDataTypes": "Todos os tipos de dado",
     "testPipeline": "Test pipeline"
@@ -6203,9 +6219,6 @@
     }
   },
   "liveOps": {
-    "listNew": "Nova",
-    "newAlertsCount_one": "{{count}} nova alerta",
-    "newAlertsCount_other": "{{count}} novas alertas",
     "header": "Operações ao vivo",
     "live": "AO VIVO",
     "replay": "REPRODUÇÃO",
@@ -6560,6 +6573,9 @@
     "capVm2": "O processo roda no host {{host}}: o convidado não é mais uma jaula.",
     "capVm3": "Panicar o hipervisor, fazer snapshot do convidado e reconstruí-lo.",
     "titleVm": "Convidado {{guest}} escapando para {{host}}",
+    "listNew": "Nova",
+    "newAlertsCount_one": "{{count}} nova alerta",
+    "newAlertsCount_other": "{{count}} novas alertas",
     "statTotal": "Total",
     "timPage": "Página {{p}}/{{n}}",
     "timPagePrev": "Página anterior",
