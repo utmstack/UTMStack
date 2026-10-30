@@ -136,9 +136,11 @@ export function UserAuditorPage() {
   useEffect(() => {
     void load()
   }, [load])
+
   useEffect(() => {
     void loadStats()
   }, [loadStats])
+
   useEffect(() => {
     void loadIdentities()
   }, [loadIdentities])
@@ -152,6 +154,7 @@ export function UserAuditorPage() {
 
   const onUserChanged = (u: ADUserWithIdentity) => {
     setOpenUser(u)
+    loadIdentities()
     setUsers((prev) => prev.map((x) => (x.id === u.id ? u : x)))
   }
 

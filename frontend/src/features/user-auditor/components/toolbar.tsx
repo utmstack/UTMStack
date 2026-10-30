@@ -69,7 +69,7 @@ export function Toolbar({
           className="h-9 appearance-none rounded-md border border-border bg-background pl-8 pr-7 text-xs text-foreground"
         >
           <option value="">{t('userAuditor.allIdentities')}</option>
-          <option value="none">{t('userAuditor.noneIdentity')}</option>
+          {( identities.length==0 &&  <option value="none">{t('userAuditor.noneIdentity')}</option>)}
           {identities.map((i) => (
             <option key={i.id} value={i.id}>
               {i.name}
