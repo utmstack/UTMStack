@@ -28,11 +28,12 @@ type IngestRequest struct {
 }
 
 type ADUserFilter struct {
-	Search string `form:"search"` // substring on samAccountName/sid
-	Source string `form:"source"` // "windows"|"linux"|"o365"|"azure"|"gcp"|"aws"|"" (all)
-	Active *bool  `form:"active"`
-	Status string `form:"status"` // active|disabled|deleted|stale|service — overrides Active when set
-	Sort   string `form:"sort"`   // recent (last_seen desc) | name (default, samAccountName asc)
+	Search   string `form:"search"` // substring on samAccountName/sid
+	Source   string `form:"source"` // "windows"|"linux"|"o365"|"azure"|"gcp"|"aws"|"" (all)
+	Active   *bool  `form:"active"`
+	Status   string `form:"status"`   // active|disabled|deleted|stale|service — overrides Active when set
+	Sort     string `form:"sort"`     // recent (last_seen desc) | name (default, samAccountName asc)
+	Identity string `form:"identity"` // a UUID filters to users assigned to that identity; the literal "none" to users without one
 	database.Params
 }
 
@@ -51,15 +52,17 @@ type SourceCount struct {
 }
 
 type ADUserStats struct {
-	Total    int64         `json:"total"`
-	Active   int64         `json:"active"`
-	Disabled int64         `json:"disabled"`
-	Deleted  int64         `json:"deleted"`
-	Stale    int64         `json:"stale"`
-	Service  int64         `json:"service"`
-	Seen24h  int64         `json:"seen_24h"`
-	BySource SourceCount   `json:"by_source"`
-	ByDomain []DomainCount `json:"by_domain"`
+	Total      int64         `json:"total"`
+	Active     int64         `json:"active"`
+	Disabled   int64         `json:"disabled"`
+	Deleted    int64         `json:"deleted"`
+	Stale      int64         `json:"stale"`
+	Service    int64         `json:"service"`
+	Seen24h    int64         `json:"seen_24h"`
+	Identities int64         `json:"identities"`
+	Unassigned int64         `json:"unassigned"`
+	BySource   SourceCount   `json:"by_source"`
+	ByDomain   []DomainCount `json:"by_domain"`
 }
 
 type ResolveLinuxIdentityRequest struct {

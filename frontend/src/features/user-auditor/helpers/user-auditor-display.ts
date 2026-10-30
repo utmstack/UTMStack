@@ -1,10 +1,15 @@
 import type { TFunction } from 'i18next'
+import { CLOUD_SOURCES } from '../types/ad-user.types'
 import type { ADUser } from '../types/ad-user.types'
 
 export const STALE_MS = 30 * 86_400_000
 
 export type ViewId = 'all' | ADUser['source']
-export const VIEW_IDS: ViewId[] = ['all', 'windows', 'linux']
+export const VIEW_IDS: ViewId[] = ['all', 'windows', 'linux', ...CLOUD_SOURCES]
+
+export function isCloudSource(source: ADUser['source']): boolean {
+  return (CLOUD_SOURCES as string[]).includes(source)
+}
 
 export type Status = 'active' | 'disabled' | 'deleted'
 
@@ -31,9 +36,10 @@ export function isService(u: ADUser): boolean {
   return u.source === 'windows' && /^svc/i.test(u.samAccountName ?? '')
 }
 
-/* Windows accounts key off SID + samAccountName; Linux accounts off username + uid@host. */
+/* Windows accounts key off SID + samAccountName; Linux accounts off username + uid@host; cloud accounts off username only. */
 export function accountName(u: ADUser): string {
-  return (u.source === 'linux' ? u.username : u.samAccountName) ?? '—'
+  if (u.source === 'linux' || isCloudSource(u.source)) return u.username ?? '—'
+  return u.samAccountName ?? '—'
 }
 export function accountIdentity(u: ADUser): string {
   if (u.source === 'linux') {
@@ -41,9 +47,11 @@ export function accountIdentity(u: ADUser): string {
     const host = u.hostname ?? ''
     return [uid, host].filter(Boolean).join(' · ') || '—'
   }
+  if (isCloudSource(u.source)) return u.username ?? '—'
   return u.sid ?? '—'
 }
 export function accountScope(u: ADUser): string {
+  if (isCloudSource(u.source)) return '—'
   return (u.source === 'linux' ? u.hostname : u.domain) ?? '—'
 }
 
@@ -68,7 +76,8 @@ export function absTimestamp(iso: string) {
   })
 }
 
-export function logExplorerHref(user: ADUser): string {
+export function logExplorerHref(user: ADUser): string | null {
+  if (isCloudSource(user.source)) return null // no dataType filter for cloud sources yet
   const p: Record<string, string> = { tenantId: user.tenantId, '@timestamp': '30d' }
   if (user.source === 'linux') {
     p.dataType = 'linux'

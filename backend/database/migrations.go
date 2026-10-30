@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	adaudit_domain "github.com/utmstack/utmstack/backend/modules/adaudit/domain"
-	threatintel_domain "github.com/utmstack/utmstack/backend/modules/threatintel/domain"
 	alerts_domain "github.com/utmstack/utmstack/backend/modules/alerts/domain"
 	appconfig_domain "github.com/utmstack/utmstack/backend/modules/appconfig/domain"
 	audit_domain "github.com/utmstack/utmstack/backend/modules/audit/domain"
@@ -20,6 +19,7 @@ import (
 	arr_domain "github.com/utmstack/utmstack/backend/modules/soar/domain"
 	socai_domain "github.com/utmstack/utmstack/backend/modules/socai/domain"
 	tenant_domain "github.com/utmstack/utmstack/backend/modules/tenant/domain"
+	threatintel_domain "github.com/utmstack/utmstack/backend/modules/threatintel/domain"
 	"github.com/utmstack/utmstack/backend/pkg/joblease"
 	"gorm.io/gorm"
 
@@ -69,6 +69,8 @@ func Models() []any {
 		dashboards_domain.DashboardFilter{},
 		loganalyzer_domain.SavedQuery{},
 		adaudit_domain.ADUser{},
+		adaudit_domain.IdentityAlias{},
+		adaudit_domain.IdentityAliasAssignment{},
 		threatintel_domain.AnalystConversation{},
 	}
 }

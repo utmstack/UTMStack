@@ -10,8 +10,13 @@ import type {
   FilterFieldDef,
   FilterOpDef,
 } from '@/shared/components/filters/custom-filter.types'
+import { useAuth } from '@/features/auth/services/auth.context'
 import { adAuditHttpService } from '../services/ad-audit-http.service'
-import type { ADUser, ADUserStats, ADUserStatus } from '../types/ad-user.types'
+import type {
+  ADUserStats,
+  ADUserStatus,
+  ADUserWithIdentity,
+} from '../types/ad-user.types'
 import { type ViewId } from '../helpers/user-auditor-display'
 import { buildUserColumns } from '../helpers/user-auditor-columns'
 import { UserAuditorHeader } from '../components/user-auditor-header'
@@ -35,20 +40,24 @@ function LoadingRows() {
 
 export function UserAuditorPage() {
   const { t } = useTranslation()
+  const { hasPermission } = useAuth()
+  const canManage = hasPermission('adaudit.write')
   const [view, setView] = useState<ViewId>('all')
   const [searchInput, setSearchInput] = useState('')
   const [search, setSearch] = useState('')
   const [tenant, setTenant] = useState('') // '' = all
+  const [identity, setIdentity] = useState('') // '' = all, 'none' = unassigned, else alias uuid
   const [layout, setLayout] = useState<'list' | 'cards'>('list')
   const [page, setPage] = useState(0)
   const [customFilters, setCustomFilters] = useState<CustomFilter[]>([])
 
-  const [users, setUsers] = useState<ADUser[]>([])
+  const [users, setUsers] = useState<ADUserWithIdentity[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const [stats, setStats] = useState<ADUserStats | null>(null)
-  const [openUser, setOpenUser] = useState<ADUser | null>(null)
+  const [identities, setIdentities] = useState<{ id: string; name: string }[]>([])
+  const [openUser, setOpenUser] = useState<ADUserWithIdentity | null>(null)
 
   const filterFields: FilterFieldDef[] = [
     { field: 'status', label: t('userAuditor.filterFields.status') },
@@ -79,7 +88,7 @@ export function UserAuditorPage() {
   // Any filter change resets to the first page.
   useEffect(() => {
     setPage(0)
-  }, [view, search, tenant, customFilters])
+  }, [view, search, tenant, identity, customFilters])
 
   const loadStats = useCallback(async () => {
     try {
@@ -88,6 +97,15 @@ export function UserAuditorPage() {
       // Overview is best-effort; the list below is the source of truth.
     }
   }, [tenant])
+
+  // Identity aliases are best-effort too: the list works without them.
+  const loadIdentities = useCallback(async () => {
+    try {
+      setIdentities(await adAuditHttpService.identities() ?? [])
+    } catch {
+      setIdentities([])
+    }
+  }, [])
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -100,6 +118,7 @@ export function UserAuditorPage() {
         source: view === 'all' ? undefined : view,
         status: statusFilter ? (statusFilter as ADUserStatus) : undefined,
         sort: 'recent',
+        identity: identity || undefined,
         page,
         size: SIZE,
       })
@@ -112,25 +131,41 @@ export function UserAuditorPage() {
     } finally {
       setLoading(false)
     }
-  }, [search, tenant, view, page, customFilters])
+  }, [search, tenant, identity, view, page, customFilters])
 
   useEffect(() => {
     void load()
   }, [load])
+
   useEffect(() => {
     void loadStats()
   }, [loadStats])
+
+  useEffect(() => {
+    void loadIdentities()
+  }, [loadIdentities])
 
   const refresh = () => {
     if (page === 0) void load()
     else setPage(0)
     void loadStats()
+    void loadIdentities()
+  }
+
+  const onUserChanged = (u: ADUserWithIdentity) => {
+    setOpenUser(u)
+    loadIdentities()
+    setUsers((prev) => prev.map((x) => (x.id === u.id ? u : x)))
   }
 
   const counts: Record<ViewId, number> = {
     all: stats?.total ?? 0,
     windows: stats?.by_source?.windows ?? 0,
     linux: stats?.by_source?.linux ?? 0,
+    o365: stats?.by_source?.o365 ?? 0,
+    azure: stats?.by_source?.azure ?? 0,
+    gcp: stats?.by_source?.gcp ?? 0,
+    aws: stats?.by_source?.aws ?? 0,
   }
 
   return (
@@ -151,6 +186,9 @@ export function UserAuditorPage() {
         tenant={tenant}
         tenants={stats?.tenants ?? []}
         onTenant={setTenant}
+        identity={identity}
+        identities={identities}
+        onIdentity={setIdentity}
         layout={layout}
         onLayoutChange={setLayout}
         onRefresh={refresh}
@@ -225,7 +263,15 @@ export function UserAuditorPage() {
         />
       )}
 
-      {openUser && <UserDrawer user={openUser} onClose={() => setOpenUser(null)} t={t} />}
+      {openUser && (
+        <UserDrawer
+          user={openUser}
+          canManage={canManage}
+          onClose={() => setOpenUser(null)}
+          onUserChanged={onUserChanged}
+          t={t}
+        />
+      )}
     </div>
   )
 }

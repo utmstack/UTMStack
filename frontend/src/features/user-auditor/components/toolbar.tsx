@@ -1,5 +1,5 @@
 import type { TFunction } from 'i18next'
-import { ChevronDown, LayoutGrid, ListIcon, RefreshCw, Search, Server } from 'lucide-react'
+import { ChevronDown, LayoutGrid, ListIcon, RefreshCw, Search, Server, Users } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { Input } from '@/shared/components/ui/input'
 
@@ -9,6 +9,9 @@ export function Toolbar({
   tenant,
   tenants,
   onTenant,
+  identity,
+  identities,
+  onIdentity,
   layout,
   onLayoutChange,
   onRefresh,
@@ -20,6 +23,9 @@ export function Toolbar({
   tenant: string
   tenants: string[]
   onTenant: (t: string) => void
+  identity: string
+  identities: { id: string; name: string }[]
+  onIdentity: (id: string) => void
   layout: 'list' | 'cards'
   onLayoutChange: (l: 'list' | 'cards') => void
   onRefresh: () => void
@@ -55,6 +61,23 @@ export function Toolbar({
           <ChevronDown size={12} className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 opacity-60" />
         </div>
       )}
+      <div className="relative">
+        <Users size={13} className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+        <select
+          value={identity}
+          onChange={(e) => onIdentity(e.target.value)}
+          className="h-9 appearance-none rounded-md border border-border bg-background pl-8 pr-7 text-xs text-foreground"
+        >
+          <option value="">{t('userAuditor.allIdentities')}</option>
+          {( identities.length==0 &&  <option value="none">{t('userAuditor.noneIdentity')}</option>)}
+          {identities.map((i) => (
+            <option key={i.id} value={i.id}>
+              {i.name}
+            </option>
+          ))}
+        </select>
+        <ChevronDown size={12} className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 opacity-60" />
+      </div>
       <div className="ml-auto flex items-center gap-1 rounded-md border border-border p-0.5">
         <button
           onClick={() => onLayoutChange('list')}

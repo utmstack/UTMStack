@@ -2,7 +2,7 @@ import type { TFunction } from 'i18next'
 import type { ColumnDef } from '@tanstack/react-table'
 import { ExternalLink } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
-import type { ADUser } from '../types/ad-user.types'
+import type { ADUserWithIdentity } from '../types/ad-user.types'
 import {
   accountIdentity,
   accountName,
@@ -19,7 +19,7 @@ import { AccountAvatar } from '../components/account-avatar'
 export const TH = 'whitespace-nowrap px-3 py-2 text-left align-middle font-medium'
 const TD = 'whitespace-nowrap px-3 py-2.5 align-middle'
 
-export function buildUserColumns(t: TFunction): ColumnDef<ADUser>[] {
+export function buildUserColumns(t: TFunction): ColumnDef<ADUserWithIdentity>[] {
   const muted = `${TD} font-mono text-[11px] text-muted-foreground`
   return [
     {
@@ -64,7 +64,7 @@ export function buildUserColumns(t: TFunction): ColumnDef<ADUser>[] {
     },
     {
       id: 'identity',
-      header: t('userAuditor.list.identity'),
+      header: t('userAuditor.list.accountId'),
       size: 260,
       minSize: 80,
       meta: {
@@ -73,6 +73,22 @@ export function buildUserColumns(t: TFunction): ColumnDef<ADUser>[] {
         cellProps: (u) => ({ title: accountIdentity(u) }),
       },
       cell: ({ row }) => <span className="block truncate">{accountIdentity(row.original)}</span>,
+    },
+    {
+      id: 'identityGroup',
+      header: t('userAuditor.list.identityGroup'),
+      size: 180,
+      minSize: 100,
+      meta: { headerClassName: TH, cellClassName: TD },
+      cell: ({ row }) => {
+        const group = (row.original as ADUserWithIdentity).identity
+        if (!group) return <span className="text-[11px] text-muted-foreground">—</span>
+        return (
+          <span className="rounded-md bg-sky-500/15 px-1.5 py-0.5 text-[11px] font-medium text-sky-700 ring-1 ring-sky-500/30 dark:text-sky-300">
+            {group}
+          </span>
+        )
+      },
     },
     {
       id: 'status',
