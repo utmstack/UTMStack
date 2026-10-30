@@ -1,6 +1,6 @@
 import type { TFunction } from 'i18next'
 import { CLOUD_SOURCES } from '../types/ad-user.types'
-import type { ADUser } from '../types/ad-user.types'
+import type { ADUser, ADUserSource } from '../types/ad-user.types'
 
 export const STALE_MS = 30 * 86_400_000
 
@@ -76,10 +76,21 @@ export function absTimestamp(iso: string) {
   })
 }
 
+const CLOUD_DATA_TYPE: Record<ADUserSource, string> = {
+  windows: '',
+  linux: '',
+  o365: 'o365,o365-graph',
+  azure: 'azure',
+  gcp: 'google',
+  aws: 'aws',
+}
+
 export function logExplorerHref(user: ADUser): string | null {
-  if (isCloudSource(user.source)) return null // no dataType filter for cloud sources yet
   const p: Record<string, string> = { tenantId: user.tenantId, '@timestamp': '30d' }
-  if (user.source === 'linux') {
+  if (isCloudSource(user.source)) {
+    p.dataType = CLOUD_DATA_TYPE[user.source]
+    if (user.username) p['origin.user'] = user.username
+  } else if (user.source === 'linux') {
     p.dataType = 'linux'
     if (user.username) p['origin.user'] = user.username
     if (user.hostname) p['origin.host'] = user.hostname
