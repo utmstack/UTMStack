@@ -1,9 +1,15 @@
 package handler
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+
+	"github.com/utmstack/utmstack/backend/modules/audit"
+	audit_connectors "github.com/utmstack/utmstack/backend/modules/audit/connectors"
+	audit_domain "github.com/utmstack/utmstack/backend/modules/audit/domain"
 	"github.com/utmstack/utmstack/backend/modules/soar/connectors"
 	"github.com/utmstack/utmstack/backend/modules/soar/dto"
 )
@@ -64,4 +70,40 @@ func (h *ExecutionHandler) Match(c *gin.Context) {
 		return
 	}
 	c.Status(http.StatusAccepted)
+}
+
+// @Summary     Manually trigger a flow
+// @Description Runs the flow now from a supplied alert JSON, without waiting for an alert match. Flow-level conditions are not evaluated; the run is recorded like any flow execution.
+// @Tags        SOAR Executions
+// @Security    BearerAuth
+// @Accept      json
+// @Produce     json
+// @Param       relPath path string true "Flow relPath"
+// @Param       input body dto.TriggerFlowRequest true "Alert payload (+ optional agent override)"
+// @Success     202 {object} dto.FlowTriggerResponse
+// @Failure     400 {object} map[string]string
+// @Failure     404 {object} map[string]string
+// @Failure     409 {object} map[string]string
+// @Failure     500 {object} map[string]string
+// @Router      /soar/rules/{relPath}/trigger [post]
+func (h *ExecutionHandler) Trigger(c *gin.Context) {
+	var req dto.TriggerFlowRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if len(req.Alert) == 0 {
+		req.Alert = json.RawMessage(`{}`)
+	}
+	flowRunID, err := h.usecase.StartFlow(c.Request.Context(), c.Param("relPath"), req.Alert, req.Agent, loginFromCtx(c))
+	ev := audit_connectors.Event{Action: "soar.flow.trigger", ResourceType: "soar_rule", ResourceID: c.Param("relPath")}
+	if flowRunID != uuid.Nil {
+		ev.ResourceID = flowRunID.String()
+	}
+	audit.Record(c, ev, audit_domain.SOAR_FLOW_TRIGGER_ATTEMPT, audit_domain.SOAR_FLOW_TRIGGER_SUCCESS, err)
+	if err != nil {
+		writeARRError(c, err)
+		return
+	}
+	c.JSON(http.StatusAccepted, dto.FlowTriggerResponse{FlowRunID: flowRunID})
 }

@@ -24,6 +24,7 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc, a
 	rg.PUT("/:relPath", write, rh.Update)
 	rg.DELETE("/:relPath", write, rh.Delete)
 	rg.PUT("/:relPath/enabled", write, rh.SetEnabled)
+	rg.POST("/:relPath/trigger", write, eh.Trigger)
 
 	g.GET("/rule-executions", read, eh.List)
 	g.POST("/rule-executions", middleware.RequireInternal(), eh.Match)
