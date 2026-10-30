@@ -110,21 +110,19 @@ func (r *pgIdentityRepository) Delete(ctx context.Context, id uuid.UUID) (int, e
 	if err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		// Count under a row lock: a concurrent Assign's insert blocks on it and
 		// then fails the FK after the alias is gone, so the in-use check is atomic.
-		var assigned int64
+		var assignedIds []string
 		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
 			Model(&domain.IdentityAliasAssignment{}).
-			Where("alias_id = ?", id).Count(&assigned).Error; err != nil {
+			Where("alias_id = ?", id).
+			Limit(1).
+			Pluck("alias_id",&assignedIds).Error; err != nil {
 			return err
 		}
-		if assigned > 0 {
+		if len(assignedIds) > 0 {
 			return ErrIdentityInUse
 		}
 
-		res := tx.Model(&domain.IdentityAliasAssignment{}).Where("alias_id = ?", id).Delete(&domain.IdentityAliasAssignment{})
-		if res.Error != nil {
-			return res.Error
-		}
-		res = tx.Delete(&domain.IdentityAlias{}, "id = ?", id)
+		res := tx.Delete(&domain.IdentityAlias{ID:id})
 		if res.Error != nil {
 			return res.Error
 		}
@@ -133,6 +131,7 @@ func (r *pgIdentityRepository) Delete(ctx context.Context, id uuid.UUID) (int, e
 	}); err != nil {
 		return 0, err
 	}
+
 	return int(deleted), nil
 }
 
