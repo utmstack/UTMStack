@@ -3660,6 +3660,10 @@
         "name": "Redis",
         "description": "Ingesta la actividad de registros y telemetría de Redis para monitorear el uso del almacén de datos en memoria y las cargas de trabajo en tiempo real."
       },
+      "ELASTICsearch": {
+        "name": "ELASTICsearch",
+        "description": "Ingesta los registros de Elasticsearch para monitorear el motor de búsqueda y análisis y sus cargas de trabajo de aplicación."
+      },
       "LOGSTASH": {
         "name": "Logstash",
         "description": "Ingesta los registros de las tuberías de Logstash para monitorear la tubería de procesamiento de datos y sus transformaciones de eventos."
@@ -3705,7 +3709,7 @@
         "description": "Collect Windows file access audit events through the Windows Event Log and UTMStack agent."
       },
       "ELASTICSEARCH": {
-        "name": "ELASTICsearch",
+        "name": "Elasticsearch",
         "description": "Ingesta los registros de Elasticsearch para monitorear el motor de búsqueda y análisis y sus cargas de trabajo de aplicación."
       }
     },
@@ -4575,7 +4579,7 @@
   },
   "incidents": {
     "title": "Incidentes",
-    "subtitle": "Agrupa, tría y resuelve alertas relacionadas como incidentes.",
+    "subtitle": "Agrupa, triajea y resuelve alertas relacionadas como incidentes.",
     "refresh": "Actualizar",
     "count_one": "{{count}} incidente",
     "count_other": "{{count}} incidentes",
@@ -4790,7 +4794,7 @@
       "whereHint": "condición opcional (CEL)",
       "addValue": "Agregar valor",
       "addPattern": "Agregar patrón",
-      "rawHint": "Este processor se edita como YAML directo.",
+      "rawHint": "Este procesador se edita como YAML directo.",
       "rawNotMap": "Debe ser un conjunto de campos clave: valor.",
       "dataTypesPick": "Elegir tipos de dato",
       "dataTypesSearch": "Buscar tipos de dato…",
@@ -4814,7 +4818,8 @@
       "removeEntry": "Eliminar entrada",
       "addEntry": "Añadir entrada de pipeline",
       "collapse": "Contraer",
-      "expand": "Expandir"
+      "expand": "Expandir",
+      "splitHint": "Vacío equivale a un espacio por defecto — en el YAML siempre aparece como fieldSplit: \" \"."
     },
     "allDataTypes": "Todos los tipos de dato",
     "testPipeline": "Test pipeline"
@@ -5035,7 +5040,7 @@
   },
   "soar": {
     "title": "SOAR",
-    "subtitle": "Flujos de respuesta automática: las condiciones matchean una alerta y los comandos corren en el agente.",
+    "subtitle": "Flujos de respuesta automática: las condiciones coinciden con una alerta y los comandos corren en el agente.",
     "comingSoon": "Próximamente",
     "console": {
       "loading": "Cargando agentes…",
@@ -6214,9 +6219,6 @@
     }
   },
   "liveOps": {
-    "listNew": "Nueva",
-    "newAlertsCount_one": "{{count}} nueva alerta",
-    "newAlertsCount_other": "{{count}} nuevas alertas",
     "header": "Operaciones en vivo",
     "live": "EN VIVO",
     "replay": "REPRODUCCIÓN",
@@ -6571,6 +6573,9 @@
     "capVm2": "El proceso corre en el host {{host}}: el invitado ya no es una jaula.",
     "capVm3": "Panicar el hipervisor, snapshotear al invitado y reconstruirlo.",
     "titleVm": "Invitado {{guest}} escapando a {{host}}",
+    "listNew": "Nueva",
+    "newAlertsCount_one": "{{count}} nueva alerta",
+    "newAlertsCount_other": "{{count}} nuevas alertas",
     "statTotal": "Total",
     "timPage": "Página {{p}}/{{n}}",
     "timPagePrev": "Página anterior",

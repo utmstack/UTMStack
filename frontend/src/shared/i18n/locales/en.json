@@ -3950,6 +3950,10 @@
       "WINDOWS_FILE_AUDITING": {
         "name": "Windows File Access Auditing",
         "description": "Collect Windows file access audit events through the Windows Event Log and UTMStack agent."
+      },
+      "ELASTICsearch": {
+        "name": "ELASTICsearch",
+        "description": "Ingesta los registros de Elasticsearch para monitorear el motor de búsqueda y análisis y sus cargas de trabajo de aplicación."
       }
     },
     "edit": {
@@ -5100,7 +5104,6 @@
       "moveUp": "Move up",
       "moveDown": "Move down",
       "whereHint": "optional condition (CEL)",
-      "splitHint": "Blank defaults to a single space — the YAML always shows it as fieldSplit: \" \".",
       "addValue": "Add value",
       "addPattern": "Add pattern",
       "rawHint": "This processor is edited as raw YAML.",
@@ -5127,7 +5130,8 @@
       "removeEntry": "Remove entry",
       "addEntry": "Add pipeline entry",
       "collapse": "Collapse",
-      "expand": "Expand"
+      "expand": "Expand",
+      "splitHint": "Blank defaults to a single space — the YAML always shows it as fieldSplit: \" \"."
     },
     "allDataTypes": "All data types",
     "testPipeline": "Test pipeline"
@@ -6215,9 +6219,6 @@
     }
   },
   "liveOps": {
-    "listNew": "New",
-    "newAlertsCount_one": "{{count}} new alert",
-    "newAlertsCount_other": "{{count}} new alerts",
     "header": "Live Operations",
     "live": "LIVE",
     "replay": "REPLAY",
@@ -6572,6 +6573,9 @@
     "capVm2": "The process runs on the {{host}} host: the guest is no longer a cage.",
     "capVm3": "Panic the hypervisor, snapshot the guest and rebuild it.",
     "titleVm": "Guest {{guest}} escaping to {{host}}",
+    "listNew": "New",
+    "newAlertsCount_one": "{{count}} new alert",
+    "newAlertsCount_other": "{{count}} new alerts",
     "statTotal": "Total",
     "timPage": "Page {{p}}/{{n}}",
     "timPagePrev": "Previous page",

@@ -492,7 +492,8 @@
         "intervalAuto": "Автоматически",
         "limit": "Сколько",
         "limitPlaceholder": "По умолчанию (50)",
-        "splitHint": "Необязательно: по одной линии на каждое значение поля."
+        "splitHint": "Необязательно: по одной линии на каждое значение поля.",
+        "topValuesTable": "Tabla de valores principales"
       },
       "editFilters": "Edit filters"
     },
@@ -521,7 +522,8 @@
       "widthLarge": "3 стлб",
       "heightNormal": "Обычная",
       "heightTall": "Высокая",
-      "incompleteSpec": "В этом виджете не хватает части вопроса."
+      "incompleteSpec": "В этом виджете не хватает части вопроса.",
+      "count": "Conteo"
     },
     "form": {
       "createTitle": "Новая панель",
@@ -1603,7 +1605,19 @@
       "exists": "существует",
       "between": "между",
       "search": "поиск",
-      "isOneOf": "один из"
+      "isOneOf": "один из",
+      "isNotOneOf": "no es ninguno de",
+      "doesNotContain": "no contiene",
+      "startsWith": "empieza con",
+      "doesNotStartWith": "no empieza con",
+      "endsWith": "termina con",
+      "doesNotEndWith": "no termina con",
+      "doesNotExist": "no existe",
+      "notBetween": "no está entre",
+      "greaterThan": "es mayor que",
+      "greaterThanOrEquals": "es mayor o igual que",
+      "lessThan": "es menor que",
+      "lessThanOrEquals": "es menor o igual que"
     },
     "filters": {
       "label": "Фильтры",
@@ -1757,7 +1771,8 @@
       "configureCustom": "Настроить пользовательский источник",
       "eventsRate": "{{rate}} событий/с · {{count}} за 24ч",
       "manageRules": "Правила",
-      "manageFilters": "Фильтры"
+      "manageFilters": "Фильтры",
+      "openDashboard": "Abrir panel"
     },
     "setup": {
       "agent": {
@@ -3574,6 +3589,10 @@
       "WINDOWS_FILE_AUDITING": {
         "name": "Windows File Access Auditing",
         "description": "Collect Windows file access audit events through the Windows Event Log and UTMStack agent."
+      },
+      "ELASTICsearch": {
+        "name": "ELASTICsearch",
+        "description": "Ingesta los registros de Elasticsearch para monitorear el motor de búsqueda y análisis y sus cargas de trabajo de aplicación."
       }
     },
     "edit": {
@@ -4661,7 +4680,8 @@
       "removeEntry": "Удалить запись",
       "addEntry": "Добавить запись пайплайна",
       "collapse": "Свернуть",
-      "expand": "Развернуть"
+      "expand": "Развернуть",
+      "splitHint": "Vacío equivale a un espacio por defecto — en el YAML siempre aparece como fieldSplit: \" \"."
     },
     "allDataTypes": "Все типы данных",
     "testPipeline": "Test pipeline"
@@ -6227,11 +6247,6 @@
     }
   },
   "liveOps": {
-    "listNew": "Новый",
-    "newAlertsCount_one": "{{count}} новый алерт",
-    "newAlertsCount_few": "{{count}} новых алерта",
-    "newAlertsCount_many": "{{count}} алертов",
-    "newAlertsCount_other": "{{count}} новых алертов",
     "header": "Мониторинг онлайн",
     "live": "В ЭФИРЕ",
     "replay": "ВОСПРОИЗВЕДЕНИЕ",
@@ -6586,6 +6601,11 @@
     "capVm2": "Процесс выполняется на хосте {{host}}: гость больше не клетка.",
     "capVm3": "Паниковать гипервизор, сделать снапшот гостя и пересобрать.",
     "titleVm": "Гость {{guest}} вырвался на {{host}}",
+    "listNew": "Новый",
+    "newAlertsCount_one": "{{count}} новый алерт",
+    "newAlertsCount_few": "{{count}} новых алерта",
+    "newAlertsCount_many": "{{count}} алертов",
+    "newAlertsCount_other": "{{count}} новых алертов",
     "statTotal": "Всего",
     "timPage": "Страница {{p}}/{{n}}",
     "timPagePrev": "Предыдущая страница",
