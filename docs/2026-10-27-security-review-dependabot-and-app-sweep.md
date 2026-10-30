@@ -249,4 +249,24 @@ Not in the scanner output. Ranked by severity.
 - No files modified in this phase; no dependency bumps applied — all of Part D is recommended, not executed.
 - Bundle scan not yet run (needs a frontend build; flagged as a verification step).
 - F-6 resolved by product decision (open source — public schema is not information disclosure); no runtime verification needed.
-- Per-alert GitHub dispositions (dismiss with reason / mark as fixed) not performed — that is an external-state action to do only with your approval, per bucket in B4.
+- Per-alert GitHub dispositions (dismiss with reason / mark as fixed) not performed - that is an external-state action to do only with your approval, per bucket in B4.
+
+---
+
+## Part F — End-to-end verification on lab 192.168.99.75 (2026-10-30)
+
+Each affected user-facing flow was driven through a real browser (Playwright headless Chromium) or the live API on the lab, against the fixes deployed as slim images (backend `utmstack-backend-local:v11.3.1fix`, frontend `utmstack-frontend-local:v11.3.1`). Throwaway analyst `labsec_e2e` (ROLE_USER + TOTP) was created for the runs and **deleted** afterward; both poison alert docs were deleted (confirmed 0 hits).
+
+| Item | E2E evidence (live) | Result |
+|---|---|---|
+| **C1** SAML fetch-time URL validation | Inserted a poisoned legacy row (valid encrypted SP keypair + cert, `metadata_url=http://127.0.0.1:9/...`) directly in `utm_identity_provider_config`; force-restarted backend. Startup log: `Metadata fetch failed for provider 'LABSEC-C1-LOOPBACK': SamlMetadataUrlInvalidException: Metadata URL host must be publicly resolvable`. **0** outbound connections to `127.0.0.1:9` (grep count 0). Row deleted after. | PASS — fetch-time validator rejects before any request; no over-blocking of the loader |
+| **C3** web-pdf internal-key gate | `GET /generate-pdf` with no `X-Utm-Internal-Key` → **401**; wrong key → **401**; backend's key → **408** (proceeds to render, fails on the fake token) — i.e. the gate passes with the correct key and the backend→web-pdf header path works end-to-end. | PASS |
+| **C4/C5** SqlQueryFilterService escape | **App-level:** `POST /api/utm-visualizations/run` (SQL viz) with `audit_cluster_name IS 'utmstack'` → **200, 5 rows**; with value `it's` → **200, 0 rows** (escaped, parses + executes, no match). **Raw-engine differential:** the same value **unescaped** (`= 'it's'`) → **400 ParserException** ("Illegal SQL expression"); **escaped** (`= 'it''s'`) → **200**. `SELECT 1` control → 200 with `[[1]]`. | PASS — quote-doubling is the difference between a parse failure and clean execution; the app emits the escaped form |
+| **F-1** stored-XSS hardening | Indexed a poison alert (`id` unique, `description` = `LINE1\nLINE2 <img src=x onerror=...> <script>...`), opened `/data/alert/detail/<id>` in the browser. `LINE2` and the literal `onerror` text are **visible** (description rendered, non-vacuous) and `window.__labsecXSS`/`__labsecScript` are **null**, no live `<img src=x>` / `<script>` in DOM. | PASS — payload stored, rendered inert as text, no handler executed |
+| **highlight** pipe (highlight.js 9.18.5) | Active Directory search for `a` → **59 `<mark>`** elements rendered (escape-first-then-wrap still marks matches). | PASS |
+| **js-yaml** 4.3.2 (rule YAML parse) | The exact installed lib parses a UTMStack-shaped rule with merge-keys/anchors (the CVE-2026 vector) correctly and throws a clean `YAMLException` on malformed input. (The rule-editor page itself throws a pre-existing `Unexpected token 'export'` on a lazy chunk — proven **not** a regression: the baseline v11.3.0 build reproduces the identical error.) | PASS (lib level; page error pre-existing & documented) |
+| **jspdf** 2.5.2 (PDF export) | Dashboard `Save to PDF` (captureScreen→jsPDF→html2canvas) runs in-browser with no JS errors (button reverts to idle; console clean); the bundled jspdf 2.5.2 also drives `new jsPDF`+`addImage(dataURL,'PNG')`+`output()` to a valid 3,771-byte `%PDF` (Node, exact app calls). The browser download event itself is flaky in headless Chromium (noted below). | PASS |
+
+**Not re-verified live (documented, not gaps in the fixes):** the dashboard `Save to PDF` download event is flaky in headless Chromium (the build completes and reverts the button; the isolated lib-level PDF generation proves jspdf 2.5.2 emits valid bytes). The M2 (bitdefender) and C2 (inputs gRPC) changes are Go plugin authz with no host-published port to probe from this box; they are covered by their unit/behavior-pinning tests and the security-review trace.
+
+**Lab state after this pass:** backend + web-pdf + frontend run the local fix images; the `labsec_e2e` user and both poison alert docs are removed; the OS SQL plugin is confirmed functional (`SELECT 1` → 200).

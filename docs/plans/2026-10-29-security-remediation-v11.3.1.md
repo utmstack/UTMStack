@@ -34,6 +34,26 @@ docker run --rm -v "C:\Users\osmon\.m2:/root/.m2" -v "D:\Projects\github.com\utm
 
 ---
 
+## Execution status (verified 2026-10-30)
+
+All tasks implemented, committed, and reviewed (implementer → spec → quality → security). E2E verified on lab 192.168.99.75 where a live path exists:
+
+| Task | Unit/build | Lab E2E |
+|---|---|---|
+| A Go deps | 23/23 modules build; alerts/collector tests = baseline (no new failures) | n/a (no host-exposed Go service to probe) |
+| B C1 SAML | 15/15 hermetic | **PASS** — poisoned loopback row rejected at fetch time (`SamlMetadataUrlInvalidException`), 0 outbound conns |
+| C C4/C5 SQL | 16/16 | **PASS** — `POST /api/utm-visualizations/run`: `it's` → 200/0 rows (escaped), unescaped control → 400 ParserException; app emits escaped form |
+| D M2 bitdefender | 5/5 behavior-pinning | n/a (plugin port not host-published) |
+| E C2 inputs gRPC | 13/13 driving real auth branch | n/a (plugin port not host-published) |
+| F C3 web-pdf | 10/10 + backend 67/67 | **PASS** — 401 no key / 401 wrong key / 408 with key (gate passes, render proceeds) |
+| G frontend deps | Node14 build green | **PASS** — js-yaml 4.3.2 lib (merge-key vector + clean throw); jspdf 2.5.2 valid `%PDF` via exact app calls; dashboard export runs clean in-browser |
+| H F-1 XSS | Node14 build green; 79-site `[innerHTML]` sweep | **PASS** — poison alert rendered inert (`LINE2`+`onerror` visible as text; `__labsecXSS`/`__labsecScript` null; no live markup) + highlight 59 `<mark>` |
+| I postgres 42.7.12 | compiles green | n/a (user-auditor internal) |
+
+Full E2E evidence: `docs/2026-10-27-security-review-dependabot-and-app-sweep.md` **Part F**.
+
+---
+
 ## Task A — Go dependency cluster (P0, ~86 Dependabot alerts)
 
 **Files (per module `go.mod`/`go.sum`):**
