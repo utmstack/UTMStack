@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate,Outlet } from 'react-router-dom'
 import { ProtectedRoute, useAuth } from '@/features/auth'
 import { TenantsPage } from '@/features/tenants/pages/TenantsPage'
 import { LoginPage } from '@/features/auth/pages/LoginPage'
@@ -51,12 +51,24 @@ import { LicensePage, useBilling } from '@/features/billing'
 import { NotificationsPage } from '@/features/notifications'
 import { ApiKeysPage } from '@/features/api-keys'
 import { DashboardLayout } from '@/shared/layouts/DashboardLayout'
+import { AlertCountProvider } from '@/features/alerts/hooks/use-alert-count'
+
+
+const AlertCountLayout = () => {
+  return (
+    <AlertCountProvider>
+      <Outlet />
+    </AlertCountProvider>
+  );
+};
+
 
 export function AppRoutes() {
   return (
     <Routes>
       <Route path="/auth/login" element={<LoginPage />} />
 
+  <Route element={<AlertCountLayout />}>
       {/* Federation: account pages that don't need an instance (authed only). */}
       {IS_FEDERATION && (
         <Route
@@ -232,8 +244,9 @@ export function AppRoutes() {
         {/* Legacy redirects */}
         <Route path="users" element={<Navigate to="/team" replace />} />
       </Route>
-
       <Route path="*" element={<Navigate to="/" replace />} />
+
+      </Route>
     </Routes>
   )
 }

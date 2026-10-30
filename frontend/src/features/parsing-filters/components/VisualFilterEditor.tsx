@@ -209,9 +209,10 @@ function StepFields({
         <>
           <TextField label="source" required value={str('source')} readOnly={readOnly} onChange={(v) => set('source', v)} />
           <div className="grid grid-cols-2 gap-3">
-            <TextField label="fieldSplit" value={str('fieldSplit')} readOnly={readOnly} onChange={(v) => set('fieldSplit', v)} />
-            <TextField label="valueSplit" value={str('valueSplit')} readOnly={readOnly} onChange={(v) => set('valueSplit', v)} />
+            <TextField label="fieldSplit" value={str('fieldSplit')} readOnly={readOnly} onChange={(v) => set('fieldSplit', v)} placeholder="space" />
+            <TextField label="valueSplit" value={str('valueSplit')} readOnly={readOnly} onChange={(v) => set('valueSplit', v)} placeholder="=" />
           </div>
+          <p className="-mt-2 text-[10px] text-muted-foreground">{t('parsingFilters.visual.splitHint')}</p>
           <WhereField value={str('where')} readOnly={readOnly} onChange={(v) => set('where', v)} />
         </>
       )
@@ -249,12 +250,14 @@ function TextField({
   value,
   required,
   readOnly,
+  placeholder,
   onChange,
 }: {
   label: string
   value: string
   required?: boolean
   readOnly?: boolean
+  placeholder?: string
   onChange: (v: string) => void
 }) {
   return (
@@ -266,6 +269,7 @@ function TextField({
       <Input
         value={value}
         readOnly={readOnly}
+        placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
         className="h-8 font-mono text-[12px]"
       />

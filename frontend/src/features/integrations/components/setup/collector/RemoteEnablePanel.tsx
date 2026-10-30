@@ -24,6 +24,7 @@ interface RemoteEnablePanelProps {
   dataType: string
   availableProtos: Proto[]
   defaultProto?: Proto
+  defaultPort?: string
   step?: number
   onSelectionChange?: (selection: RemoteEnableSelection) => void
   onRequestAddCollector?: () => void
@@ -133,6 +134,7 @@ export function RemoteEnablePanel({
   dataType,
   availableProtos,
   defaultProto,
+  defaultPort = '',
   step,
   onSelectionChange,
   onRequestAddCollector,
@@ -148,7 +150,7 @@ export function RemoteEnablePanel({
   const initialProto = defaultProto ?? availableProtos[0]
   const [collectorId, setCollectorId] = useState<number | null>(null)
   const [proto, setProto] = useState<Proto>(initialProto)
-  const [port, setPort] = useState(() => defaultPortFor(dataType, initialProto))
+  const [port, setPort] = useState(() => defaultPortFor(dataType, initialProto) || defaultPort)
   const httpDefaults = httpDefaultsFor(dataType)
   const [auth, setAuth] = useState<HttpAuth>(httpDefaults?.auth ?? '')
   const [path, setPath] = useState(httpDefaults?.path ?? '')
@@ -215,7 +217,7 @@ export function RemoteEnablePanel({
     if (data.configured) {
       const nextProto = (data.proto as Proto) || initialProto
       setProto(nextProto)
-      setPort(data.port || defaultPortFor(dataType, nextProto))
+      setPort(data.port || defaultPortFor(dataType, nextProto) || defaultPort)
       setAuth((data.auth as HttpAuth) ?? '')
       setPath(data.path ?? '')
       setSignatureHeader(data.signatureHeader ?? '')
@@ -223,11 +225,11 @@ export function RemoteEnablePanel({
     }
 
     setProto(initialProto)
-    setPort(defaultPortFor(dataType, initialProto))
+    setPort(defaultPortFor(dataType, initialProto) || defaultPort)
     setAuth(httpDefaults?.auth ?? '')
     setPath(httpDefaults?.path ?? '')
     setSignatureHeader(httpDefaults?.signatureHeader ?? '')
-  }, [collectorId, currentConfig.isSuccess, currentConfig.data])
+  }, [collectorId, currentConfig.isSuccess, currentConfig.data, defaultPort])
 
   if (!canManage) {
     return (
@@ -351,7 +353,7 @@ export function RemoteEnablePanel({
                 onChange={(e) => {
                   const next = e.target.value as Proto
                   setProto(next)
-                  setPort(defaultPortFor(dataType, next))
+                  setPort(defaultPortFor(dataType, next) || defaultPort)
                   setGeneratedSecret(null)
                 }}
                 disabled={availableProtos.length <= 1 || isConfigLocked}

@@ -16,6 +16,7 @@ type LoginContext struct {
 
 type AuthUsecase interface {
 	Login(ctx context.Context, input dto.LoginRequest, lc LoginContext) (*dto.LoginResponse, error)
+	EmptyLogin(ctx context.Context, input dto.LoginRequest, lc LoginContext) (*dto.EmptyLoginResponse, error)
 	Me(ctx context.Context, userID uuid.UUID) (*dto.UserResponse, error)
 	UpdateMe(ctx context.Context, userID uuid.UUID, input dto.UpdateMeRequest) (*dto.UserResponse, error)
 	ChangePassword(ctx context.Context, userID uuid.UUID, input dto.ChangePasswordRequest) error

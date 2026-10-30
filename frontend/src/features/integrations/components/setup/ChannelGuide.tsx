@@ -5,7 +5,9 @@ import type { ReactNode } from 'react'
 import { Section } from '@/features/integrations/components/ui/Section'
 import { CodeBlock } from '@/features/integrations/components/ui/CodeBlock'
 import { AgentSetup } from '@/features/integrations/components/setup/AgentSetup'
-import { forwarderHost } from '@/features/integrations/components/setup/collector/ForwarderGuide'
+import { ForwarderGuide } from '@/features/integrations/components/setup/collector/ForwarderGuide'
+import type { RemoteEnableSelection } from '@/features/integrations/components/setup/collector/RemoteEnablePanel'
+import { defaultPortFor } from '@/features/integrations/components/setup/collector/protoCatalog'
 import type { Integration, IntegrationGuideChannel } from '@/features/integrations/types'
 
 export function ChannelGuide({ integration }: { integration: Integration }) {
@@ -40,75 +42,58 @@ function GuideLayout({
 }
 
 function SyslogDeviceGuide({ integration }: { integration: Integration }) {
-  const { t } = useTranslation()
-  const [protocol, setProtocol] = useState<'tcp' | 'udp'>('tcp')
-  const host = forwarderHost()
+  const sourceType = integration.forwarderDataType || 'syslog'
+  const port = defaultPortFor(sourceType, 'tcp') || '7014'
+  const [selection, setSelection] = useState<RemoteEnableSelection>({ proto: 'tcp', port })
 
   return (
-    <GuideLayout title={`${integration.name} via Syslog`}>
-      <p className="text-sm text-foreground/90">
-        Configure the device to send syslog to the UTMStack Collector. TCP is recommended for chatty
-        devices; the UDP receiver uses a 2,048-byte message buffer and truncates longer messages.
-      </p>
-      <label className="block max-w-40 text-xs text-muted-foreground">
-        Protocol
-        <select
-          value={protocol}
-          onChange={(event) => setProtocol(event.target.value as 'tcp' | 'udp')}
-          className="mt-1 h-9 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground"
-        >
-          <option value="tcp">TCP (recommended)</option>
-          <option value="udp">UDP</option>
-        </select>
-      </label>
-      <CodeBlock
-        lang="config"
-        code={`Collector: ${host}
-Port:      7014
-Protocol:  ${protocol.toUpperCase()}
-Format:    RFC 5424 or RFC 3164`}
-      />
-      <p className="text-sm text-foreground/90">
-        For a device that only supports port 514, change the Collector's syslog UDP port with:
-      </p>
-      <CodeBlock code="utmstack_forwarder change-port syslog udp 514" />
-      <p className="text-xs text-muted-foreground">
-        Only do this on a Collector that is not running Cisco integrations; they may already use UDP
-        514. The command refuses a port that is busy. Changing a built-in port is not done with
-        <code className="mx-1 font-mono">enable-integration</code>.
-      </p>
-      <p className="text-xs text-muted-foreground">
-        {t('datasources.drawer.viewLogs')} will open Log Explorer for this integration's data type.
-      </p>
-      {integration.guideSetting && (
-        <p className="text-sm text-foreground/90">{integration.guideSetting}</p>
-      )}
-    </GuideLayout>
+    <ForwarderGuide
+      source={integration.name}
+      sourceType={sourceType}
+      port={selection.port || port}
+      defaultPort={port}
+      defaultProto="tcp"
+      onSetSelection={setSelection}
+      children={null}
+    />
   )
 }
 
 function NetflowExporterGuide({ integration }: { integration: Integration }) {
-  const host = forwarderHost()
+  const sourceType = integration.forwarderDataType || 'netflow'
+  const port = defaultPortFor(sourceType, 'udp') || '2055'
+  const [selection, setSelection] = useState<RemoteEnableSelection>({ proto: 'udp', port })
+  const host = selection.collector?.ip || '<collector-host>'
+
   return (
-    <GuideLayout title={`${integration.name} NetFlow exporter`}>
-      <p className="text-sm text-foreground/90">
-        Configure the exporter to send NetFlow over UDP to the UTMStack Collector:
-      </p>
-      <CodeBlock
-        lang="config"
-        code={`Collector: ${host}
-Port:      2055
+    <ForwarderGuide
+      source={integration.name}
+      sourceType={sourceType}
+      port={selection.port || port}
+      defaultPort={port}
+      defaultProto="udp"
+      onSetSelection={setSelection}
+    >
+      <Section title={`${integration.name} NetFlow exporter`} step={2}>
+        <p className="text-sm text-foreground/90">
+          Configure the exporter to send NetFlow over UDP to the selected UTMStack Collector:
+        </p>
+        <CodeBlock
+          lang="config"
+          code={`Collector: ${host}
+Port:      ${selection.port || port}
 Protocol:  UDP
 Version:   NetFlow v9 (where supported)`}
-      />
-      <p className="text-sm text-foreground/90">
-        Select the export version supported by the device and configure its source interface. Verify
-        that flows arrive in Log Explorer using the View logs button.
-      </p>
-      {integration.guideSetting && (
-        <p className="text-sm text-foreground/90">{integration.guideSetting}</p>
-      )}
-    </GuideLayout>
+        />
+        <p className="text-sm text-foreground/90">
+          Select the export version supported by the device and configure its source interface. Verify
+          that flows arrive in Log Explorer using the View logs button.
+        </p>
+        {integration.guideSetting && (
+          <p className="text-sm text-foreground/90">{integration.guideSetting}</p>
+        )}
+      </Section>
+    </ForwarderGuide>
   )
 }
 

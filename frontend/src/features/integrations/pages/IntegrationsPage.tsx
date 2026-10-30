@@ -13,7 +13,7 @@ import { AddCustomIntegrationCard } from '@/features/integrations/components/Add
 import { CreateIntegrationDrawer } from '@/features/integrations/components/CreateIntegrationDrawer'
 import { KIND_META, categoryLabel } from '@/features/integrations/constants'
 import { SYSTEM_MODULES } from '@/features/integrations/constants/systemModules'
-import { INJECTED_MODULES } from '@/features/integrations/constants/injectedModules'
+import { INJECTED_MODULES, mergeInjectedIntegrations } from '@/features/integrations/constants/injectedModules'
 import type {
   Integration,
   DeployKind,
@@ -32,7 +32,7 @@ const LOGO = (slug: string) => {
 }
 
 const INJECTED_BY_MODULE_NAME = new Map(
-  INJECTED_MODULES.map((integration) => [integration.moduleName ?? '', integration]),
+  INJECTED_MODULES.map((integration) => [(integration.moduleName ?? '').toUpperCase(), integration]),
 )
 
 function mapModuleToIntegration(module: IntegrationResponse, t: TFunction): Integration {
@@ -40,13 +40,15 @@ function mapModuleToIntegration(module: IntegrationResponse, t: TFunction): Inte
   // System integrations: icon, description and category are owned by the frontend
   // (per-theme icons + i18n). Custom ones keep using the catalog row's own icon
   // and description, and group under 'custom'.
-  const injectedMeta = INJECTED_BY_MODULE_NAME.get(module.name)
+  const injectedMeta = INJECTED_BY_MODULE_NAME.get(module.name.toUpperCase())
   const meta = isSystem ? SYSTEM_MODULES[module.name] : undefined
   const category = meta?.category ?? injectedMeta?.category ?? 'custom'
 
   // Map the category to a known DeployKind; anything unknown falls back to
   // 'other' (Collector group) so a new integration never breaks the grid.
-  const kind: DeployKind = (category in KIND_META ? category : 'other') as DeployKind
+  const kind: DeployKind = module.ingestType?.toLowerCase() === 'agent'
+    ? 'agents & syslog'
+    : (category in KIND_META ? category : 'other') as DeployKind
 
   const description = isSystem
     ? t(`integrations.modules.${module.name}.description`, { defaultValue: module.description || '' })
@@ -86,8 +88,6 @@ function mapModuleToIntegration(module: IntegrationResponse, t: TFunction): Inte
     logo,
     logoDark,
     darkInvert: false,
-    ...(module.name.toUpperCase() === 'NETFLOW' ? { guideChannel: 'netflow' as const } : {}),
-    ...(module.name.toUpperCase() === 'NETFLOW' ? { logFilterField: 'log.exporter' as const } : {}),
     events24h: undefined,
     rate: undefined,
   }
@@ -181,33 +181,23 @@ export function IntegrationsPage() {
 
   const modules = integrations.integrations.data || []
   const displayList = useMemo(() => {
-    const injectedByName = new Map(INJECTED_MODULES.map((entry) => [entry.moduleName, entry]))
-    const catalog = modules.map((m) => {
-      const mapped = mapModuleToIntegration(m, t)
-      const guideMetadata = injectedByName.get(m.name)
-      return guideMetadata
-        ? {
-            ...mapped,
-            guideChannel: guideMetadata.guideChannel,
-            guideOnly: true,
-            logFilters: guideMetadata.logFilters,
-            logFilterField: guideMetadata.logFilterField,
-            guideSetting: guideMetadata.guideSetting,
-          }
-        : mapped
+    const backend = modules.map((module) => mapModuleToIntegration(module, t))
+    const merged = mergeInjectedIntegrations(backend, INJECTED_MODULES)
+    const backendModuleNames = new Set(modules.map((module) => module.name.toUpperCase()))
+
+    return merged.map((integration) => {
+      if (backendModuleNames.has((integration.moduleName ?? '').toUpperCase())) {
+        return integration
+      }
+
+      return {
+        ...integration,
+        name: t(`integrations.modules.${integration.moduleName}.name`, { defaultValue: integration.name }),
+        description: t(`integrations.modules.${integration.moduleName}.description`, {
+          defaultValue: integration.description,
+        }),
+      }
     })
-    // Injected catalog cards are frontend-owned; dedupe against the backend
-    // list by moduleName so a future backend row for the same module never
-    // shows up twice (backend row wins — it carries the real id + dataType).
-    const backendModuleNames = new Set(modules.map((m) => m.name))
-    const injected = INJECTED_MODULES
-      .filter((i) => !backendModuleNames.has(i.moduleName ?? ''))
-      .map((i) => ({
-        ...i,
-        name: t(`integrations.modules.${i.moduleName}.name`, { defaultValue: i.name }),
-        description: t(`integrations.modules.${i.moduleName}.description`, { defaultValue: i.description }),
-      }))
-    return [...catalog, ...injected]
   }, [modules, t])
 
   // The raw catalog row for the module being edited (for its actual stored icon).

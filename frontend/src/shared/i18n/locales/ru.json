@@ -492,7 +492,8 @@
                 "intervalAuto": "Автоматически",
                 "limit": "Сколько",
                 "limitPlaceholder": "По умолчанию (50)",
-                "splitHint": "Необязательно: по одной линии на каждое значение поля."
+                "splitHint": "Необязательно: по одной линии на каждое значение поля.",
+                "topValuesTable": "Tabla de valores principales"
             },
             "editFilters": "Edit filters"
         },
@@ -521,7 +522,8 @@
             "widthLarge": "3 стлб",
             "heightNormal": "Обычная",
             "heightTall": "Высокая",
-            "incompleteSpec": "В этом виджете не хватает части вопроса."
+            "incompleteSpec": "В этом виджете не хватает части вопроса.",
+            "count": "Conteo"
         },
         "form": {
             "createTitle": "Новая панель",
@@ -1627,7 +1629,19 @@
             "exists": "существует",
             "between": "между",
             "search": "поиск",
-            "isOneOf": "один из"
+            "isOneOf": "один из",
+            "isNotOneOf": "no es ninguno de",
+            "doesNotContain": "no contiene",
+            "startsWith": "empieza con",
+            "doesNotStartWith": "no empieza con",
+            "endsWith": "termina con",
+            "doesNotEndWith": "no termina con",
+            "doesNotExist": "no existe",
+            "notBetween": "no está entre",
+            "greaterThan": "es mayor que",
+            "greaterThanOrEquals": "es mayor o igual que",
+            "lessThan": "es menor que",
+            "lessThanOrEquals": "es menor o igual que"
         },
         "filters": {
             "label": "Фильтры",
@@ -1781,7 +1795,8 @@
             "configureCustom": "Настроить пользовательский источник",
             "eventsRate": "{{rate}} событий/с · {{count}} за 24ч",
             "manageRules": "Правила",
-            "manageFilters": "Фильтры"
+            "manageFilters": "Фильтры",
+            "openDashboard": "Abrir panel"
         },
         "setup": {
             "agent": {
@@ -3598,6 +3613,10 @@
             "WINDOWS_FILE_AUDITING": {
                 "name": "Windows File Access Auditing",
                 "description": "Collect Windows file access audit events through the Windows Event Log and UTMStack agent."
+            },
+            "ELASTICsearch": {
+                "name": "ELASTICsearch",
+                "description": "Ingesta los registros de Elasticsearch para monitorear el motor de búsqueda y análisis y sus cargas de trabajo de aplicación."
             }
         },
         "edit": {
@@ -3764,7 +3783,17 @@
             "cmdError": "Ошибка команды",
             "shellSelect": "Тип оболочки",
             "noRemoteControl": "Этот агент установлен с отключённым удалённым управлением. Он отклоняет команды, и изменить это можно только на самой машине.",
-            "noRemoteControlShort": "Удалённое управление на этом агенте отключено"
+            "noRemoteControlShort": "Удалённое управление на этом агенте отключено",
+            "password": {
+                "title": "Аутентификация",
+                "hint": "Пройдите аутентификацию для выполнения команд на этом агенте.",
+                "tfaPrompt": "Код: ",
+                "confirm": "ОК",
+                "cancel": "Отмена",
+                "authError": "Ошибка аутентификации",
+                "authHint": "Пройдите аутентификацию для выполнения команд на этом агенте.",
+                "authOk": "Аутентифицирован."
+            }
         },
         "health": {
             "online": "в сети",
@@ -4094,7 +4123,13 @@
             "incidentFailed": "Не удалось сохранить инцидент",
             "assigned": "Оповещение назначено",
             "unassigned": "Назначение снято",
-            "assignFailed": "Не удалось обновить исполнителя"
+            "assignFailed": "Не удалось обновить исполнителя",
+            "newAlertsToast_title": "Новые алерты",
+            "newAlertsToast_count_one": "{{count}} новый алерт",
+            "newAlertsToast_count_few": "{{count}} новых алерта",
+            "newAlertsToast_count_many": "{{count}} алертов",
+            "newAlertsToast_count_other": "{{count}} алерта",
+            "newAlertsToast_view": "Смотреть"
         }
     },
     "dataProcessing": {
@@ -4669,7 +4704,8 @@
             "removeEntry": "Удалить запись",
             "addEntry": "Добавить запись пайплайна",
             "collapse": "Свернуть",
-            "expand": "Развернуть"
+            "expand": "Развернуть",
+            "splitHint": "Vacío equivale a un espacio por defecto — en el YAML siempre aparece como fieldSplit: \" \"."
         },
         "allDataTypes": "Все типы данных",
         "testPipeline": "Test pipeline"
@@ -6293,7 +6329,14 @@
             "credDump": "Утечка учётных данных",
             "dataDestruction": "Данные уничтожены",
             "toolDownload": "Инструмент загружен и запущен",
-            "c2tunnel": "C2 через туннель"
+            "c2tunnel": "C2 через туннель",
+            "iocMatch": "IOC угрозы обнаружен",
+            "perimeterDetect": "Обнаружение периметра/IDS",
+            "accountChange": "Изменение учётки или политики",
+            "kerberosTicket": "Злоупотребление билетами Kerberos",
+            "powershellAbuse": "Злоупотребление скриптами",
+            "reverseShell": "Обратный shell",
+            "vmEscape": "Взлом VM/гипервизора"
         },
         "replayTip": "Проиграть все события этого окна по порядку",
         "liveTip": "Следовать за новыми событиями по мере их поступления",
@@ -6521,7 +6564,77 @@
         "capCt1": "Полезная нагрузка спрятана в трафике {{proto}}.",
         "capCt2": "Команды и данные проходят границу невидимо, на {{proto}}.",
         "capCt3": "Оборвать туннель, заблокировать конечность и проверить, что прошло через него.",
-        "titleCt": "{{src}} протуннелил C2 через {{proto}} к {{to}}"
+        "titleCt": "{{src}} протуннелил C2 через {{proto}} к {{to}}",
+        "netPerimeter": "Периметр",
+        "scDc": "Контроллер домена",
+        "scObject": "Изменённый объект",
+        "scChangedBy": "изменено",
+        "scHighRisk": "высокорисковое изменение",
+        "scTktAsk": "запрос билета",
+        "scTktUses": "перепроверено на {{n}} сервисов",
+        "scTerminal": "Терминал",
+        "scRunning": "…выполняется",
+        "scAmsiOff": "⚠ AMSI отключён",
+        "scConn": "TCP {{port}}",
+        "scShellOn": "$ обратный shell",
+        "scHypervisor": "Гипервизор",
+        "scGuestVm": "гостевая VM",
+        "scConfined": "заперта в госте",
+        "scEscaped": "вышла на хост",
+        "scBoundary": "граница гостя нарушена",
+        "scFeedAsk": "фид? {{ioc}}",
+        "scFeedBad": "ХУДО",
+        "scFeedHit": "Разведка: {{kind}}",
+        "scDroppedAtFw": "✕ отброшено на {{fw}}",
+        "scTrafficStops": "трафик здесь останавливается",
+        "scSigHits": "Попадания по сигнатуре",
+        "capIoc0": "{{src}} соединяется с {{ioc}}.",
+        "capIoc1": "Разведка о угрозах помечает: {{kind}}.",
+        "capIoc2": "{{ioc}} в стоп-листе: соединение оборвано.",
+        "capIoc3": "Заблокировать {{ioc}} на периметре и проверить, что уже ушло из сети.",
+        "titleIoc": "{{src}} достигает известного {{ioc}}",
+        "capPd0": "{{name}} шлёт {{sig}} на периметр.",
+        "capPd1": "{{fw}} совпал с сигнатурой и сработал.",
+        "capPd2": "Трафик отброшен: периметр выдержал.",
+        "capPd3": "Трафик проходит через {{fw}}: сигнал информативный.",
+        "capPd4": "Проверить сигнатуру и заблокировать источник, если он не прекратил.",
+        "titlePd": "{{sig}} заблокировано на {{fw}}",
+        "capAc0": "{{who}} изменяет {{what}} на {{host}}.",
+        "capAc1": "{{what}} модифицирован.",
+        "capAc2": "{{before}} → {{after}}.",
+        "capAc3": "Подтвердить, что это было спланировано, или откатить изменение {{who}}.",
+        "titleAc": "{{what}} изменено на {{host}}",
+        "capKb0": "{{src}} запрашивает билеты Kerberos у {{dc}}.",
+        "capKb1": "Полученный {{ticket}} — это {{kind}}.",
+        "capKb2": "Он повторно использован на {{services}}: DC принимает каждый раз.",
+        "capKb3": "Сбросить пароль krbtgt и просмотреть выданные билеты за 48 ч.",
+        "titleKb": "{{src}} подделывает Kerberos-билеты через {{dc}}",
+        "capPs0": "На {{host}} запускается скрипт с закодированным содержимым.",
+        "capPs1": "Он декодирует команду и отключает сенсор антивируса (AMSI).",
+        "capPs2": "Декодированная команда выполняется: это полезная нагрузка, не скрипт.",
+        "capPs2a": "Сначала отключают AMSI, затем декодированная команда выполняется незаметно.",
+        "capPs3": "Заблокировать хеш, поискать другие машины с тем же скриптом.",
+        "titlePs2": "Закодированный скрипт выполняется на {{host}}",
+        "capRs0": "На {{host}} процесс открывает сокет наружу.",
+        "capRs1": "Он переподключается к {{name}} на порт {{port}}: обратный shell.",
+        "capRs2": "Появляется приглашение: атакующий теперь может печатать команды на хосте.",
+        "capRs3": "Оборвать соединение, изолировать {{host}} и посмотреть, что было введено.",
+        "titleRs": "Обратный shell открыт на {{host}}",
+        "capVm0": "Гостевая VM {{guest}} запускает процесс с хост-доступом.",
+        "capVm1": "Он пытается пересечь границу гипервизора.",
+        "capVm2": "Процесс выполняется на хосте {{host}}: гость больше не клетка.",
+        "capVm3": "Паниковать гипервизор, сделать снапшот гостя и пересобрать.",
+        "titleVm": "Гость {{guest}} вырвался на {{host}}",
+        "listNew": "Новый",
+        "newAlertsCount_one": "{{count}} новый алерт",
+        "newAlertsCount_few": "{{count}} новых алерта",
+        "newAlertsCount_many": "{{count}} алертов",
+        "newAlertsCount_other": "{{count}} новых алертов",
+        "statTotal": "Всего",
+        "timPage": "Страница {{p}}/{{n}}",
+        "timPagePrev": "Предыдущая страница",
+        "timPageNext": "Следующая страница",
+        "newAlerts": "Новые алерты"
     },
     "scExec": "Выполнение",
     "scPayload": "→ вредоносный полезный груз",

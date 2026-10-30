@@ -1,6 +1,7 @@
 import { ApiError, createApiClient } from '@/shared/lib/api-client'
 import type {
   ChangePasswordRequest,
+  EmptyLoginResponse,
   LoginRequest,
   LoginResponse,
   ResetPasswordFinishRequest,
@@ -21,6 +22,9 @@ export { ApiError as AuthHttpError }
 export const authHttpService = {
   /* ---- login / session lifecycle ---- */
   login: (input: LoginRequest) => api.post<LoginResponse>('/auth/login', input),
+  // Password proof for the agent command second factor: a token with no
+  // claims, ignoring TFA — the caller must already be a signed-in user.
+  emptyLogin: (input: LoginRequest) => api.post<EmptyLoginResponse>('/auth/empty_login', input),
   // Second factor: exchange the pre-auth token + code for a real token pair.
   verifyTfaCode: (input: TfaVerifyCodeRequest) =>
     api.post<LoginResponse>('/auth/tfa/verify-code', input),
