@@ -105,17 +105,21 @@ func TestLogIndexMappingsCanonical(t *testing.T) {
 	if typ(m["event"]) != "flat_object" {
 		t.Fatalf("event must be flat_object, got %v", typ(m["event"]))
 	}
-	// utm.* is the ONLY inferred bag: dynamic:true, known keys pinned keyword.
+	// utm.* is the ONLY inferred bag: a plain object left to full dynamic
+	// inference. No key may be pinned — a bare-keyword pin diverges from what
+	// OpenSearch infers in existing indices (text+.keyword), which is exactly
+	// the cross-index type drift the canonical mapping exists to eliminate,
+	// and it breaks terms aggs on the bare field (all shards failed -> 500).
+	// utm.* is therefore always aggregated via its inferred .keyword sub-field.
 	utm, ok := getObj("utm")
 	if !ok {
 		t.Fatalf("utm missing from log mapping")
 	}
-	if utm["dynamic"] != true {
-		t.Fatalf("utm must be dynamic:true (the one inferred bag), got %v", utm["dynamic"])
+	if _, hasPin := utm["properties"]; hasPin {
+		t.Fatalf("utm must not pin known keys (inferred bag per design), got: %v", utm)
 	}
-	utmProps, _ := utm["properties"].(map[string]any)
-	if len(utmProps) < 100 {
-		t.Fatalf("utm expected to pin the known keys, got only %d", len(utmProps))
+	if typ(utm) != "object" {
+		t.Fatalf("utm must be an object, got %v", typ(utm))
 	}
 	// log severity is text (string) — distinct from alert severity (long).
 	if typ(m["severity"]) != "text" {

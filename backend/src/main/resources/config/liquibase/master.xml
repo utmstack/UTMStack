@@ -619,6 +619,7 @@
   <include file="/config/liquibase/changelog/20261016001_fix_spaced_event_bag_remap.xml" relativeToChangelogFile="false"/>
   <include file="/config/liquibase/changelog/20261030001_backfill_gap_dashboard_grid_info.xml" relativeToChangelogFile="false"/>
   <include file="/config/liquibase/changelog/20261030002_map_bucket_origin_ip.xml" relativeToChangelogFile="false"/>
+  <include file="/config/liquibase/changelog/20261030003_utm_viz_keyword.xml" relativeToChangelogFile="false"/>
 
 </databaseChangeLog>
 
