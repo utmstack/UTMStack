@@ -30,8 +30,34 @@ logIndexMappings + alertIndexMappings, uncommitted in installer/services/search.
 3. `backend/.../liquibase/changelog/20261030003_utm_viz_keyword.xml` — new changeset.
 4. `backend/.../liquibase/master.xml` — include 20261030003.
 
-## Lab actions
-- Deploy stripped templates (log+alert) via PUT.
-- Reindex contaminated small indices (aws, o365) so utm.* = text+kw (remove my pin artifact).
-- Apply 20261030003 SQL to lab DB.
-- Verify: dash 13 0 x 500; viz 468 returns rows; o365 + aws utm.* = text+kw uniform.
+## Verification — DONE (2026-10-31)
+- **500 mechanism proven on a single index:** terms agg on BARE `utm.Workload` over a
+  text-inferred o365 index → `illegal_argument_exception: "Text fields are not optimised
+  for ... aggregations ... use a keyword field"` → the `/run` 500. `utm.Workload.keyword`
+  on the same index returns buckets (Exchange 34, AAD 25, ...).
+- **Pin proven shipped:** commit `0a6303a228` (176-key bare-keyword utm pin) IS in the
+  v11.3.0 tag; v11.2.16 has 0 occurrences. So v11.3.0 deployments = bare keyword, older =
+  inferred text+kw → the cross-generation drift.
+- **Migration applied to lab DB (20261030003 SQL, extracted verbatim):** viz 468 bucket
+  field `utm.Workload` → `utm.Workload.keyword`; 0 vizs left on bare utm.X; subBuckets
+  migrated too; `utm.responseElements.credentials.expiration` (date) preserved bare;
+  idempotent re-run = no-op; 0 customLabels touched.
+- **Templates deployed stripped** (live log template utm node = `{"type":"object"}`).
+- **Contaminated indices reindexed** to the canonical inferred shape (o365 10-30/10-31,
+  aws 10-30/10-31): all doc counts preserved (o365 69/178/54/28/6; aws-10-31 restored
+  after the in-flight reindex completed: 692,889), 0 failures, no `.new` scratch left.
+- **Full sweep: 204/204 utm-bucketed vizs → HTTP 200 (0 500s)** across o365, aws,
+  windows, azure, bitdefender, linux, vmware, meraki families, via the real backend
+  `/api/utm-visualizations/run`.
+- **Dash 13 browser render:** 0 x 500 over 3 attempts; "O365 Top 5 events by Source"
+  shows OneDrive/Exchange/AAD/SharePoint/PowerBI; AD Login map shows markers.
+- **Installer:** build green, all 6 mapping tests pass (canonical test now asserts utm
+  is the inferred bag with NO pin).
+
+## Residual (documented, not blocking)
+- Legacy bare-keyword utm indices (any v11.3.0 customer deployment) contribute EMPTY
+  buckets for `utm.X.keyword` until reindex/ILM roll-off — not an error. The reindex is
+  the convergence path (proven on the lab).
+- 36 of the 192 scanned fields are absent from every current lab index (no vendor data
+  yet); under the corrected template they infer text+kw on first sight, so `.keyword`
+  is correct for them too.
