@@ -4954,6 +4954,7 @@
         },
         "cols": {
             "flow": "Flow",
+            "actions": "Aktionen",
             "platform": "Plattform",
             "conditions": "Bedingungen",
             "commands": "Befehle",

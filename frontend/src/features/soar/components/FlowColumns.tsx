@@ -153,31 +153,15 @@ export function buildFlowColumns(
       ),
     },
     {
-      id: "view",
-      header: () => null,
-      size: 70,
-      minSize: 70,
-      enableResizing: false,
-      meta: { headerClassName: TH, cellClassName: `${TD} text-right` },
-      cell: ({ row }) => (
-        <div className="flex items-center justify-end gap-1.5">
-          {row.original.systemOwner && (
-            <Lock size={11} className="text-muted-foreground/60" />
-          )}
-          <span className="text-[11px] text-muted-foreground">
-            {t("soar.view")}
-          </span>
-        </div>
-      ),
-    },
-    {
       id: "trigger",
-      header: () => null,
-      size: 40,
-      minSize: 40,
+      header: t("soar.cols.actions"),
+      size: 140,
+      minSize: 90,
       enableResizing: false,
       meta: { headerClassName: TH, cellClassName: TD },
       cell: ({ row }) => (
+        <div className="flex items-center">
+
         <button
           onClick={(e) => {
             e.stopPropagation();
@@ -189,6 +173,19 @@ export function buildFlowColumns(
         >
           <Play size={13} />
         </button>
+
+
+        <div className="flex items-center justify-start gap-1.5">
+          {row.original.systemOwner && (
+            <Lock size={11} className="text-muted-foreground/60" />
+          )}
+          <span className="text-[11px] text-muted-foreground">
+            {t("soar.view")}
+          </span>
+        </div>
+
+
+        </div>
       ),
     },
   ];

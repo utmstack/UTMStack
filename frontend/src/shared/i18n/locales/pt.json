@@ -5102,6 +5102,7 @@
         },
         "cols": {
             "flow": "Fluxo",
+            "actions": "Ações",
             "platform": "Plataforma",
             "conditions": "Condições",
             "commands": "Comandos",

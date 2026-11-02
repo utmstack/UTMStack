@@ -4954,6 +4954,7 @@
         },
         "cols": {
             "flow": "Flusso",
+            "actions": "Azioni",
             "platform": "Piattaforma",
             "conditions": "Condizioni",
             "commands": "Comandi",

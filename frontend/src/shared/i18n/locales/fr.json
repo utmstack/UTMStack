@@ -4954,6 +4954,7 @@
         },
         "cols": {
             "flow": "Flux",
+            "actions": "Actions",
             "platform": "Plateforme",
             "conditions": "Conditions",
             "commands": "Commandes",

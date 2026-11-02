@@ -5471,6 +5471,7 @@
         },
         "cols": {
             "flow": "Flow",
+            "actions": "Actions",
             "platform": "Platform",
             "conditions": "Conditions",
             "commands": "Commands",
