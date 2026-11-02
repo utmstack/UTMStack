@@ -82,6 +82,7 @@
     "table-dragger": "^1.0.3",
     "tether": "^1.4.6",
     "tslib": "^1.14.1",
+    "websocket-driver": "^0.7.5",
     "webstomp-client": "^1.2.6",
     "zone.js": "~0.8.26"
   },
