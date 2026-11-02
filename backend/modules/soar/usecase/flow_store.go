@@ -21,8 +21,9 @@ type FlowListFilter struct {
 	Page int // 0-based
 	Size int
 
-	Name   string // case-insensitive partial on flow name
-	Search string // case-insensitive partial on flow name
+	Name    string // case-insensitive partial on flow name
+	Search  string // case-insensitive partial on flow name
+	RelPath string // case-insensitive partial on flow name
 
 	Active      *bool // enabled state
 	SystemOwner *bool // shipped with the product rather than written here
@@ -253,6 +254,11 @@ func flowMatches(sf *domain.StoredFlow, f FlowListFilter) bool {
 	if f.Name != "" && !strings.Contains(strings.ToLower(sf.Name), strings.ToLower(f.Name)) {
 		return false
 	}
+
+	if f.RelPath != "" && !strings.Contains(strings.ToLower(sf.RelPath), strings.ToLower(f.RelPath)) {
+		return false
+	}
+
 	if f.Search != "" && !strings.Contains(strings.ToLower(sf.Name), strings.ToLower(f.Search)) {
 		return false
 	}

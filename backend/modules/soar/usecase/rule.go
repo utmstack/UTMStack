@@ -70,6 +70,7 @@ func (u *ruleUsecase) List(ctx context.Context, f dto.RuleFilters) (*database.Li
 		Page:        f.Page,
 		Size:        f.Size,
 		Name:        f.RuleName,
+		RelPath:     f.RelPath,
 		Active:      f.RuleActive,
 		SystemOwner: f.SystemOwner,
 	})

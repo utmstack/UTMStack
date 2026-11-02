@@ -71,6 +71,7 @@ type RuleResponse struct {
 type RuleFilters struct {
 	ID                  int64  `form:"id.equals"`
 	RuleName            string `form:"name.contains"`
+	RelPath             string `form:"relPath.contains"`
 	RuleActive          *bool  `form:"active.equals"`
 	CreatedBy           string `form:"createdBy.equals"`
 	LastModifiedBy      string `form:"lastModifiedBy.equals"`
