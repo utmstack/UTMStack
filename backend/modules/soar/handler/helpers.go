@@ -23,6 +23,8 @@ func writeARRError(c *gin.Context, err error) {
 	switch {
 	case errors.Is(err, domain.ErrFlowNotFound):
 		c.JSON(http.StatusNotFound, gin.H{"error": "flow not found"})
+	case errors.Is(err, domain.ErrFlowNotStarted):
+		c.JSON(http.StatusConflict, gin.H{"error": "flow is not started"})
 	case errors.Is(err, domain.ErrSystemFlowContent):
 		c.JSON(http.StatusForbidden, gin.H{"error": "a flow the product ships is read-only"})
 	case errors.Is(err, domain.ErrVariableValueRequired):

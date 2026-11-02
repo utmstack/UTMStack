@@ -51,15 +51,39 @@ func (u *executionUsecase) HandleMatch(ctx context.Context, req dto.MatchRequest
 	if gjson.GetBytes(alertJSON, "parentId").String() != "" {
 		return nil
 	}
+	_, err := u.StartFlow(ctx, req.RulePath, alertJSON, "", "", false)
+	return err
+}
+
+// StartFlow enqueues one run of the flow at relPath from the raw alert JSON:
+// flow run row, then a root execution per root. The dispatcher does the rest.
+// agentOverride wins over alert.dataSource for shell roots; triggeredBy is the
+// audit login for manual runs (empty when the match plugin fired the flow).
+func (u *executionUsecase) StartFlow(ctx context.Context, relPath string, alertJSON []byte, agentOverride, triggeredBy string, manual bool) (uuid.UUID, error) {
+	if len(alertJSON) == 0 {
+		alertJSON = json.RawMessage(`{}`)
+	}
+	tenant := authz.TenantIDFromContext(ctx)
+	sf := u.flows.Get(tenant, relPath)
+	if sf == nil {
+		return uuid.Nil, domain.ErrFlowNotFound
+	}
+	if !manual && !sf.Active() {
+		return uuid.Nil, domain.ErrFlowNotStarted
+	}
+	flow := sf.Flow
+	if len(flow.Roots) == 0 || len(flow.Nodes) == 0 {
+		return uuid.Nil, domain.ErrFlowNotStarted
+	}
 	alertID := gjson.GetBytes(alertJSON, "id").String()
 	tenantUUID, tenantErr := uuid.Parse(tenant)
 	if tenantErr != nil {
-		return catcher.Error("soar: invalid tenant id in context", tenantErr, map[string]any{"tenant": tenant})
+		return uuid.Nil, catcher.Error("soar: invalid tenant id in context", tenantErr, map[string]any{"tenant": tenant})
 	}
 
 	run, err := u.runs.Create(ctx, &domain.SoarFlowRun{
 		TenantID:  tenantUUID,
-		RulePath:  req.RulePath,
+		RulePath:  relPath,
 		AlertID:   alertID,
 		AlertJSON: alertJSON,
 		MaxDepth:  flow.ResolvedMaxDepth(),
@@ -67,7 +91,7 @@ func (u *executionUsecase) HandleMatch(ctx context.Context, req dto.MatchRequest
 		StartedAt: time.Now().UTC(),
 	})
 	if err != nil {
-		return catcher.Error("soar: failed to create flow run", err, map[string]any{"rule": req.RulePath})
+		return uuid.Nil, catcher.Error("soar: failed to create flow run", err, map[string]any{"rule": relPath})
 	}
 
 	bag := NewRootContext(alertJSON)
@@ -75,66 +99,72 @@ func (u *executionUsecase) HandleMatch(ctx context.Context, req dto.MatchRequest
 	for _, rootID := range flow.Roots {
 		node, ok := flow.Nodes[rootID]
 		if !ok {
-			_ = catcher.Error("soar: root references missing node", nil, map[string]any{"rule": req.RulePath, "root": rootID})
+			_ = catcher.Error("soar: root references missing node", nil, map[string]any{"rule": relPath, "root": rootID})
 			continue
 		}
-		agent, resErr := u.resolveAgentForNode(ctx, flow, node, bag, alertJSON)
+		agent, resErr := u.resolveAgentForNode(ctx, flow, node, bag, alertJSON, agentOverride)
 		if resErr != nil {
-			_ = catcher.Error("soar: agent resolution failed", resErr, map[string]any{"rule": req.RulePath, "root": rootID})
+			_ = catcher.Error("soar: agent resolution failed", resErr, map[string]any{"rule": relPath, "root": rootID})
 			continue
 		}
 		params, ierr := InterpolateJSON(ctx, u.vars, bag, node.Params)
 		if ierr != nil {
-			_ = catcher.Error("soar: params interpolation failed", ierr, map[string]any{"rule": req.RulePath, "root": rootID})
+			_ = catcher.Error("soar: params interpolation failed", ierr, map[string]any{"rule": relPath, "root": rootID})
 			continue
 		}
 		command, ierr := Interpolate(ctx, u.vars, bag, node.Command, node.Shell)
 		if ierr != nil {
-			_ = catcher.Error("soar: command interpolation failed", ierr, map[string]any{"rule": req.RulePath, "root": rootID})
+			_ = catcher.Error("soar: command interpolation failed", ierr, map[string]any{"rule": relPath, "root": rootID})
 			continue
 		}
 
-		masked_command, cerr := u.vars.MaskSecrets(ctx, command)
-		if cerr != nil {
-			_ = catcher.Error("soar: command variable masking failed", cerr, map[string]any{"rule": req.RulePath, "root": rootID})
+		masked_command := command
+		if u.vars != nil {
+			if masked, cerr := u.vars.MaskSecrets(ctx, command); cerr == nil {
+				masked_command = masked
+			} else {
+				_ = catcher.Error("soar: command variable masking failed", cerr, map[string]any{"rule": relPath, "root": rootID})
+			}
 		}
 
 		exec := &domain.SoarExecution{
-			TenantID:  tenantUUID,
-			Origin:    domain.ExecutionOriginFlow,
-			FlowRunID: &run.ID,
-			RulePath:  req.RulePath,
-			AlertID:   alertID,
-			NodeID:    rootID,
-			Depth:     0,
-			Kind:      node.Kind,
-			Executor:  node.Executor,
-			Params:    params,
-			Context:   json.RawMessage(bag),
-			Command:   masked_command,
-			Shell:     node.Shell,
-			Agent:     agent,
-			Status:    domain.ExecutionStatusPending,
-			StartedAt: time.Now().UTC(),
+			TenantID:    tenantUUID,
+			Origin:      domain.ExecutionOriginFlow,
+			TriggeredBy: triggeredBy,
+			FlowRunID:   &run.ID,
+			RulePath:    relPath,
+			AlertID:     alertID,
+			NodeID:      rootID,
+			Depth:       0,
+			Kind:        node.Kind,
+			Executor:    node.Executor,
+			Params:      params,
+			Context:     json.RawMessage(bag),
+			Command:     masked_command,
+			Shell:       node.Shell,
+			Agent:       agent,
+			Status:      domain.ExecutionStatusPending,
+			StartedAt:   time.Now().UTC(),
 		}
 		if _, err := u.repo.Create(ctx, exec); err != nil {
-			return catcher.Error("soar: failed to enqueue root execution", err,
-				map[string]any{"rule": req.RulePath, "root": rootID})
+			return uuid.Nil, catcher.Error("soar: failed to enqueue root execution", err,
+				map[string]any{"rule": relPath, "root": rootID})
 		}
 	}
 	if u.notify != nil {
 		u.notify()
 	}
-	return nil
+	return run.ID, nil
 }
 
 // resolveAgentForNode picks the target agent for a shell node. Non-shell
-// executors return "" (no agent needed). Node.Agent wins when set; otherwise
-// we default to the box that raised the alert (alert.dataSource) — the common
-// "restart the service on the affected host" pattern. ExcludedAgents only
-// applies in the auto-resolve path: an explicit Agent is treated as an
-// operator override that bypasses the deny list.
-func (u *executionUsecase) resolveAgentForNode(ctx context.Context, _ domain.Flow, node domain.FlowNode, bag ContextBag, alertJSON []byte) (string, error) {
+// executors return "" (no agent needed). agentOverride (manual trigger) wins
+// when the node has no explicit Agent; otherwise Node.Agent wins when set;
+// otherwise we default to the box that raised the alert (alert.dataSource) —
+// the common "restart the service on the affected host" pattern.
+// ExcludedAgents only applies in the auto-resolve path: an explicit Agent (or
+// operator override) is treated as an override that bypasses the deny list.
+func (u *executionUsecase) resolveAgentForNode(ctx context.Context, _ domain.Flow, node domain.FlowNode, bag ContextBag, alertJSON []byte, agentOverride string) (string, error) {
 	if node.Executor != "shell" {
 		return "", nil
 	}
@@ -142,6 +172,9 @@ func (u *executionUsecase) resolveAgentForNode(ctx context.Context, _ domain.Flo
 		return Interpolate(ctx, u.vars, bag, node.Agent, "")
 	}
 	src := gjson.GetBytes(alertJSON, "dataSource").String()
+	if src == "" {
+		src = agentOverride
+	}
 	for _, x := range node.ExcludedAgents {
 		if x == src {
 			return "", nil // returns empty → shell executor fails with ErrAgentNotFound → on_error fires

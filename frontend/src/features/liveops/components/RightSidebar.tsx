@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { ExternalLink, PanelRightClose, SlidersHorizontal, Sparkles } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { useTranslation } from 'react-i18next'
+import { AlertResponseButton } from '@/features/alerts/components/alert-response-button'
 import {Description} from './Description'
 import type { Alert } from '@/features/alerts/types/alert.types'
 import type { Scene } from '../model'
@@ -107,6 +108,10 @@ export function RightSidebar({
                 </div>
               ))}
             </div>
+          </div>
+
+          <div className="border-b border-border px-3 py-2.5">
+            <AlertResponseButton alert={alert} extended />
           </div>
 
           <div className="px-3 py-2.5">

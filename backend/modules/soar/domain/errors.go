@@ -12,5 +12,6 @@ var (
 	ErrVariableValueRequired  = errors.New("a variable must have a value")
 	ErrIncidentRecordNotFound = errors.New("incident record not found")
 	ErrFlowNotFound           = errors.New("flow not found")
+	ErrFlowNotStarted         = errors.New("flow is not started; start it first")
 	ErrSystemFlowContent      = errors.New("system flow content is read-only")
 )
