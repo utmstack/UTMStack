@@ -10,40 +10,62 @@
 import { templateFor, type TemplateId } from '@/features/liveops/model'
 import type { Alert } from '@/features/alerts/types/alert.types'
 
-export function osOf(host?: string): 'windows' | 'macos' | undefined {
+export type Platform = 'windows' | 'linux' | 'macos' | undefined
+
+export function osOf(host?: string): Platform {
   const n = (host ?? '').toLowerCase()
   if (n.includes('windows') || /\b(wks|mbp)\b/.test(n)) return 'windows'
   if (n.includes('mac')) return 'macos'
+  if (n) return 'linux' // any named host without a windows/macos marker → linux
   return undefined
 }
 
-function flowTemplate(name: string): TemplateId | undefined {
+/** First `-` segment of a relpath: the template token. */
+export function flowTemplate(name: string): TemplateId | undefined {
   const i = name.indexOf('-')
   return (i > 0 ? name.slice(0, i) : undefined) as TemplateId | undefined
 }
 
-function platformMatches(flowPlatform: string, os: 'windows' | 'macos' | undefined): boolean {
-  if (os === 'windows') return flowPlatform.startsWith('win')
-  if (os === 'macos') return flowPlatform === 'darwin' || flowPlatform === 'macos'
+/** Second `-` segment of a relpath: the platform token (windows/linux/macos). */
+export function flowPlatform(name: string): string | undefined {
+  const parts = name.split('-')
+  return parts.length > 1 ? parts[1] : undefined
+}
+
+function platformMatches(platform: string | undefined, os: Platform): boolean {
+  if (os === 'windows') return platform?.startsWith('win') ?? false
+  if (os === 'macos') return platform === 'darwin' || platform === 'macos'
+  if (os === 'linux') return platform === 'linux'
   return true // OS unknown: accept any platform, run on the agent's host
 }
 
 /**
+ * Server-side `name.contains` query so the flow list comes back pre-narrowed:
+ * `${template}-${platform}` matches only relpaths of this alert's template on
+ * this OS — e.g. a linux alert fetches no windows flows.
+ */
+export function flowNameFilter(alert: Alert): { relPath: string; systemOwner: true } {
+  const template = templateFor(alert)
+  const os = osOf(alert.target?.host ?? alert.adversary?.host)
+  const platform = os ?? 'linux'
+  return { relPath: `${template}-${platform}`, systemOwner: true }
+}
+
+/**
  * @param alert  the alert to answer
- * @param flows  system flows (soarFlowsService.list({ systemOwner: true }));
- *               flow.name is the relpath without the .yaml suffix
+ * @param flows  flows returned for `flowNameFilter(alert)`; `flow.name` is the
+ *               relpath without the .yaml suffix
  * @returns the flow relpath to trigger, or null when no system flow covers
  *          the alert's template+platform
  */
 export function resolveCommonResponse(
   alert: Alert,
-  flows: { name: string }[],
+  flows: { relPath: string }[],
 ): string | null {
   const template = templateFor(alert)
   const os = osOf(alert.target?.host ?? alert.adversary?.host)
   const candidates = flows
-    .filter((f) => flowTemplate(f.name) === template && platformMatches(f.name, os))
-    // OS unknown → linux flows first (the common endpoint), then anything else
-    .sort((a, b) => Number(b.name.includes('linux')) - Number(a.name.includes('linux')))
-  return candidates.length ? candidates[0].name : null
+    .filter((f) => flowTemplate(f.relPath) === template && platformMatches(flowPlatform(f.relPath), os))
+    .sort((a, b) => Number(b.relPath.includes('linux')) - Number(a.relPath.includes('linux')))
+  return candidates.length ? candidates[0].relPath : null
 }

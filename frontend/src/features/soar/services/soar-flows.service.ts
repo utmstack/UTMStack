@@ -11,6 +11,7 @@ const BASE = '/soar/rules' // backend names flows "rules"; identity is relPath
 function listQuery(q: FlowListQuery): string {
   const p = new URLSearchParams()
   if (q.name) p.set('name.contains', q.name)
+  if (q.relPath) p.set('relPath.contains', q.relPath)
   if (q.active != null) p.set('active.equals', String(q.active))
   if (q.systemOwner != null) p.set('systemOwner.equals', String(q.systemOwner))
   p.set('page', String(q.page ?? 0))

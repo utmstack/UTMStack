@@ -1,12 +1,19 @@
 import { useCallback, useEffect, useState } from 'react'
 import { soarFlowsService } from '../services/soar-flows.service'
-import { resolveCommonResponse } from '../lib/common-response'
+import { resolveCommonResponse, flowNameFilter } from '../lib/common-response'
 import type { Flow } from '../types/soar.types'
 import type { Alert } from '@/features/alerts/types/alert.types'
 
+export interface CommonFlow {
+  /** Flow display name (from the flow definition). */
+  name: string
+  /** Relpath without the `.yaml` suffix — what the trigger endpoint expects. */
+  relPath: string
+}
+
 export interface UseCommonResponseResult {
-  /** The system flow relpath that answers this alert, null when none covers it. */
-  flow: string | null
+  /** The system flow that answers this alert, null when none covers it. */
+  flow: CommonFlow | null
   loading: boolean
   /**
    * Triggers a flow for the alert. The endpoint agent is extracted from the
@@ -30,7 +37,7 @@ export function useCommonResponse(alert: Alert | null | undefined): UseCommonRes
     let alive = true
     setLoading(true)
     soarFlowsService
-      .list({ page: 0, size: 1000, systemOwner: true })
+      .list({ page: 0, size: 20, ...flowNameFilter(alert) })
       .then(({ data }) => {
         if (alive) setFlows(data)
       })
@@ -45,7 +52,14 @@ export function useCommonResponse(alert: Alert | null | undefined): UseCommonRes
     }
   }, [alert?.id])
 
-  const flow = alert && !loading ? resolveCommonResponse(alert, flows) : null
+  const relPath = alert && !loading ? resolveCommonResponse(alert, flows) : null
+
+  console.log(relPath)
+
+  const flow = relPath ? (() => {
+    const f = flows.find((x) => x.relPath === relPath)
+    return { name: f?.name ?? relPath, relPath }
+  })() : null
 
   const trigger = useCallback(async (relPath: string, a: Alert) => {
     const agent = a.target?.host ?? a.dataSource ?? ''
