@@ -1,0 +1,23 @@
+# UTMStack system SOAR flow
+#
+# Standard response for the 'ransomware' liveops template. The relpath
+# 'ransomware-macos-host-isolate' is the resolver key (frontend common-response.ts matches
+# template + platform, linux preferred when the host is unknown).
+# The trigger is a placeholder on purpose: a broad condition would
+# auto-fire this on every alert, and these are destructive actions.
+#
+- name: 'Isolate host'
+  description: 'Ransomware encrypting files on the host. Bring the network interfaces down to stop the spread while the incident is handled.'
+  conditions:
+  - operator: IS
+    field: name
+    value: TODO-set-the-correlation-rule-that-triggers-this
+  roots:
+    - step_0
+  nodes:
+    step_0:
+        kind: executor
+        executor: shell
+        command: 'for i in $(networksetup -listallhardwareports | awk ''/Device:/ {print $3}''); do ifconfig $i down; done'
+        shell: sh
+        platform: macos

@@ -1,0 +1,33 @@
+# UTMStack system SOAR flow
+#
+# Standard response for the 'persistence' liveops template. The relpath
+# 'persistence-linux-host-remove-persistence' is the resolver key (frontend common-response.ts matches
+# template + platform, linux preferred when the host is unknown).
+# The trigger is a placeholder on purpose: a broad condition would
+# auto-fire this on every alert, and these are destructive actions.
+#
+- name: 'Remove persistence and disable user'
+  description: 'Adversary persistence on the host. Capture the cron jobs and systemd units as evidence, remove the cron jobs, then disable the account.'
+  conditions:
+  - operator: IS
+    field: name
+    value: TODO-set-the-correlation-rule-that-triggers-this
+  roots:
+    - step_0
+  nodes:
+    step_0:
+        kind: executor
+        executor: shell
+        command: 'crontab -l 2>/dev/null | tee /var/log/utmstack-persistence-evidence.txt ; systemctl list-unit-files --state=enabled 2>/dev/null | tee -a /var/log/utmstack-persistence-evidence.txt'
+        shell: sh
+        platform: ubuntu
+        onSuccess:
+          - step_1
+        onError:
+          - step_1
+    step_1:
+        kind: executor
+        executor: shell
+        command: 'crontab -r 2>/dev/null ; sudo usermod -s /sbin/nologin $(target.user) || sudo usermod -L $(target.user)'
+        shell: sh
+        platform: ubuntu
