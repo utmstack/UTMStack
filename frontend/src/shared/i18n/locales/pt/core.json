@@ -1,0 +1,164 @@
+{
+  "onboarding": {
+    "adminEmail": {
+      "title": "Defina o e-mail do administrador",
+      "subtitle": "Obrigatório antes de continuar",
+      "description": "Sua conta de administrador ainda usa o e-mail padrão. Defina um endereço real — ele é necessário para recuperação de senha, notificações e e-mails de alerta.",
+      "emailLabel": "Endereço de e-mail",
+      "save": "Salvar e continuar",
+      "saving": "Salvando…",
+      "success": "E-mail do administrador definido. Agora configure seu servidor de e-mail.",
+      "error": "Não foi possível salvar seu e-mail. Tente novamente."
+    }
+  },
+  "common": {
+    "appName": "UTMStack",
+    "language": "Idioma",
+    "actions": {
+      "save": "Salvar",
+      "cancel": "Cancelar",
+      "retry": "Tentar novamente",
+      "refresh": "Atualizar",
+      "delete": "Excluir",
+      "remove": "Remover",
+      "close": "Fechar",
+      "next": "Próximo",
+      "back": "Voltar"
+    },
+    "confirm": {
+      "delete": "Excluir",
+      "working": "Processando…"
+    },
+    "dateRange": {
+      "pick": "Escolher um intervalo",
+      "clear": "Limpar",
+      "done": "Concluir",
+      "apply": "Aplicar"
+    },
+    "loadingMore": "Carregando mais…",
+    "allLoaded": "Todos os {{count}} carregados",
+    "startFrom": {
+      "scratch": "Do zero",
+      "scratchHint": "Uma definição vazia preenchida por você.",
+      "copy": "De uma existente",
+      "copyHint": "Copia-se tudo exceto o identificador e o nome.",
+      "pickTitle": "Escolha o que copiar",
+      "back": "Voltar",
+      "count": "{{n}} disponíveis",
+      "search": "Buscar por nome",
+      "none": "Nada corresponde a essa busca"
+    },
+    "cancel": "Cancelar"
+  },
+  "nav": {
+    "home": "Início",
+    "dashboards": "Painéis",
+    "dashboardList": "Lista de painéis",
+    "visualizationList": "Widgets",
+    "newDashboard": "Novo painel",
+    "newVisualization": "Novo widget",
+    "threatManagement": "Gestão de ameaças",
+    "alerts": "Alertas",
+    "incidents": "Incidentes",
+    "adversaryView": "Visão de adversários",
+    "soar": "SOAR",
+    "flows": "Fluxos",
+    "executionHistory": "Histórico de execuções",
+    "interactiveConsole": "Console interativo",
+    "logExplorer": "Explorador de logs",
+    "userAuditor": "Auditor de usuários",
+    "threatIntelligence": "Inteligência de ameaças",
+    "threat-intel": {
+      "indicators": "Indicadores",
+      "analyzt": "Analista de IA",
+      "triage": "Triagem",
+      "report": "Relatório"
+    },
+    "compliance": "Conformidade",
+    "configure": "Configurar",
+    "dataSources": "Fontes de dados",
+    "integrations": "Integrações",
+    "alertingRules": "Regras de alerta",
+    "dataProcessing": "Processamento de dados",
+    "team": "Equipe",
+    "settings": "Configurações",
+    "back": "Voltar",
+    "parsingFilters": "Pipelines",
+    "regexPatterns": "Expressões regulares",
+    "taggingRules": "Regras de Marcação",
+    "overview": "Visão geral",
+    "tenants": "Tenants",
+    "openMenu": "Abrir menu",
+    "closeMenu": "Fechar menu",
+    "liveOps": "Operações ao vivo"
+  },
+  "topbar": {
+    "theme": {
+      "light": "Modo claro",
+      "dark": "Modo escuro"
+    },
+    "manageLicense": "Gerenciar licença",
+    "profile": {
+      "profile": "Perfil",
+      "license": "Licença",
+      "logout": "Sair"
+    }
+  },
+  "pagination": {
+    "perPage": "Por página",
+    "pageOf": "Página {{page}} de {{total}}",
+    "previous": "Anterior",
+    "next": "Próxima"
+  },
+  "timeRange": {
+    "quick": "Intervalos rápidos",
+    "relative": "Relativo",
+    "absolute": "Absoluto",
+    "last": "Últimos",
+    "apply": "Aplicar",
+    "allTime": "Todo o tempo",
+    "from": "De",
+    "to": "Até",
+    "now": "agora",
+    "units": {
+      "minutes": "minutos",
+      "hours": "horas",
+      "days": "dias",
+      "weeks": "semanas",
+      "months": "meses"
+    },
+    "presets": {
+      "15m": "Últimos 15 minutos",
+      "1h": "Última hora",
+      "6h": "Últimas 6 horas",
+      "24h": "Últimas 24 horas",
+      "7d": "Últimos 7 dias",
+      "30d": "Últimos 30 dias"
+    }
+  },
+  "dateFormat": {
+    "title": "Data e hora",
+    "subtitle": "Como os timestamps são exibidos em toda a plataforma. Os logs são sempre armazenados em UTC.",
+    "timezone": {
+      "title": "Fuso horário",
+      "hint": "Os timestamps são exibidos neste fuso horário. Os dados são armazenados em UTC.",
+      "system": "Padrão do navegador",
+      "now": "Agora: {{value}}"
+    },
+    "format": {
+      "title": "Formato de data",
+      "hint": "Estilo usado para datas e horas."
+    },
+    "styles": {
+      "short": "Curto",
+      "medium": "Médio",
+      "long": "Longo",
+      "full": "Completo"
+    },
+    "save": "Salvar alterações",
+    "saving": "Salvando…",
+    "saved": "Configurações de data salvas",
+    "saveError": "Não foi possível salvar as configurações",
+    "loadError": "Não foi possível carregar as configurações"
+  }
+}

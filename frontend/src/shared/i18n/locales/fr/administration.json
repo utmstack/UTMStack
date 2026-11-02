@@ -1,0 +1,303 @@
+{
+  "settings": {
+    "title": "Paramètres",
+    "license": "Licence",
+    "notifications": "Notifications",
+    "connectionKey": "Clé de connexion",
+    "dataRetention": "Rétention des données",
+    "indices": "Index",
+    "theme": "Thème",
+    "branding": "Marque",
+    "apiKeys": "Clés API",
+    "identityProviders": "Fournisseurs d\u0027identité",
+    "email": "Configuration e-mail",
+    "dateFormat": "Format de date",
+    "language": "Langue",
+    "auditLogs": "Journaux d\u0027audit",
+    "about": "À propos",
+    "socAi": "SOC-AI",
+    "supportAccess": "Accès support",
+    "threatwinds": "Intégration ThreatWinds"
+  },
+  "license": {
+    "title": "Licence",
+    "subtitle": "Votre édition, vos fonctionnalités et votre fichier de licence.",
+    "loading": "Chargement de la licence…",
+    "loadError": "Impossible de charger les informations de licence.",
+    "statusLabel": "Statut",
+    "status": {
+      "community": "Community",
+      "active": "Active",
+      "expiring": "Bientôt expirée",
+      "expired": "Expirée"
+    },
+    "edition": "Édition",
+    "enterprise": "Enterprise",
+    "community": "Community",
+    "editionLine": "Édition {{edition}}",
+    "datasourceLimit": "Limite de sources de données",
+    "unlimited": "Illimité",
+    "mssp": "MSSP / multi-locataire",
+    "enabled": "Activé",
+    "licenseType": "Type de licence",
+    "instanceId": "ID d\u0027instance",
+    "enterpriseUnlocked": "Fonctionnalités Enterprise débloquées",
+    "validUntil": "Valable jusqu\u0027au",
+    "noExpiry": "Pas d\u0027expiration",
+    "timeRemaining": "Temps restant",
+    "expiredAgo": "Expirée il y a {{days}}j",
+    "daysShort": "{{days}}j",
+    "msspShort": "MSSP",
+    "communityEdition": "Édition Community",
+    "communityBlurb": "Gratuite et open source. Téléchargez une licence Enterprise ci-dessous pour débloquer le multi-locataire, le SSO, des limites de sources de données plus élevées et la conformité avancée.",
+    "upgrade": "Passer à Enterprise",
+    "uploadTitle": "Télécharger une licence",
+    "uploadBlurb": "Installez ou remplacez le fichier LICENSE signé. Le serveur valide la signature et l\u0027expiration avant de l\u0027appliquer. Admin uniquement.",
+    "installLicense": "Installer la licence",
+    "chooseFile": "Choisir un fichier",
+    "noFileSelected": "Aucun fichier sélectionné",
+    "toast": {
+      "installed": "Licence installée — édition {{edition}}.",
+      "adminRequired": "Des privilèges d\u0027administrateur sont requis pour télécharger une licence.",
+      "invalid": "Fichier de licence invalide ou expiré.",
+      "installFailed": "Impossible d\u0027installer la licence."
+    },
+    "ingestLimit": "Volume d\u0027ingestion",
+    "notMetered": "Non mesuré",
+    "gbPerMonth": "{{gb}} Go/mois"
+  },
+  "languageSettings": {
+    "title": "Langue de la plateforme",
+    "subtitle": "Langue d\u0027interface par défaut pour les écrans de pré-connexion, les e-mails système et les nouveaux utilisateurs. Chaque utilisateur peut choisir la sienne dans son profil.",
+    "label": "Langue par défaut",
+    "hint": "Utilisée lorsqu\u0027un utilisateur n\u0027a pas choisi sa propre langue.",
+    "save": "Enregistrer",
+    "saving": "Enregistrement…",
+    "saved": "Langue de la plateforme mise à jour",
+    "loadError": "Impossible de charger le paramètre de langue",
+    "saveError": "Impossible d\u0027enregistrer le paramètre de langue"
+  },
+  "branding": {
+    "title": "Marque",
+    "subtitle": "Personnalisez UTMStack avec l’identité de votre organisation — appliquée partout : écran de connexion, barre latérale, e-mails et rapports.",
+    "enterpriseRequired": "Le white-label est une fonctionnalité Enterprise.",
+    "manageLicense": "Gérer la licence",
+    "enable": {
+      "title": "White-label",
+      "description": "Remplacez la marque UTMStack par la vôtre sur toute la plateforme.",
+      "label": "Activer le white-label"
+    },
+    "identity": {
+      "title": "Identité",
+      "productName": "Nom du produit",
+      "productNameHint": "Affiché dans la barre de titre, la barre latérale et les e-mails.",
+      "accent": "Couleur d’accent",
+      "accentHint": "Couleur principale des boutons, liens et états actifs.",
+      "custom": "Couleur personnalisée"
+    },
+    "logos": {
+      "title": "Logos",
+      "hint": "PNG, SVG, WEBP, JPG ou ICO. Jusqu’à 5 Mo.",
+      "logo": "Logo (clair)",
+      "logoDark": "Logo (sombre)",
+      "favicon": "Favicon"
+    },
+    "reports": {
+      "title": "Ressources de rapport",
+      "hint": "Intégrées dans les rapports PDF générés.",
+      "reportLogo": "Logo du rapport",
+      "reportCover": "Couverture du rapport"
+    },
+    "asset": {
+      "upload": "Téléverser",
+      "replace": "Remplacer"
+    },
+    "save": "Enregistrer les modifications",
+    "saving": "Enregistrement…",
+    "saved": "Marque mise à jour",
+    "saveError": "Impossible d’enregistrer la marque",
+    "uploaded": "Image téléversée",
+    "uploadError": "Impossible de téléverser l’image",
+    "loadError": "Impossible de charger la marque",
+    "enterprise": {
+      "title": "La marque blanche est une fonctionnalité Enterprise",
+      "body": "Remplacez le nom du produit, le logo et la couverture des rapports par les vôtres, afin que la console et tout ce qu\u0027elle génère portent votre marque plutôt que celle d\u0027UTMStack.",
+      "upgrade": "Passer à Enterprise"
+    },
+    "restore": "Rétablir les valeurs UTMStack",
+    "restored": "Marque rétablie aux valeurs UTMStack"
+  },
+  "emailConfig": {
+    "title": "Configuration e-mail",
+    "subtitle": "Serveur SMTP utilisé pour envoyer les notifications d’alertes, les rapports et les e-mails de compte.",
+    "server": {
+      "title": "Serveur SMTP",
+      "host": "Hôte",
+      "hostHint": "Nom d’hôte de votre serveur SMTP.",
+      "port": "Port",
+      "encryption": "Chiffrement",
+      "username": "Nom d’utilisateur",
+      "password": "Mot de passe",
+      "passwordSetHint": "Un mot de passe est enregistré. Laissez vide pour le conserver, ou saisissez-en un nouveau pour le modifier."
+    },
+    "encryptionOpt": {
+      "TLS": "TLS",
+      "SSL": "SSL",
+      "NONE": "Aucun"
+    },
+    "sender": {
+      "title": "Expéditeur",
+      "from": "Adresse d’expéditeur",
+      "fromHint": "Adresse depuis laquelle les e-mails sont envoyés.",
+      "organization": "Nom de l’organisation",
+      "organizationHint": "Affiché dans les e-mails de notification d’alertes et d’incidents.",
+      "baseUrl": "URL de base",
+      "baseUrlHint": "URL publique de cette instance, utilisée pour les liens dans les e-mails."
+    },
+    "test": {
+      "button": "Envoyer un test",
+      "sending": "Envoi…",
+      "sentTo": "Un e-mail de test sera envoyé à {{email}}.",
+      "success": "E-mail de test envoyé à {{email}}",
+      "fail": "Impossible d’envoyer l’e-mail de test",
+      "fromRequired": "Définissez une adresse d’expéditeur avant de tester"
+    },
+    "save": "Enregistrer les modifications",
+    "saving": "Enregistrement…",
+    "saved": "Configuration e-mail enregistrée",
+    "saveError": "Impossible d’enregistrer la configuration",
+    "loadError": "Impossible de charger la configuration",
+    "recipients": {
+      "alertsTitle": "Destinataires des alertes",
+      "incidentsTitle": "Destinataires des incidents",
+      "to": "À",
+      "cc": "Cc",
+      "alertsHelper": "Adresses prévenues lors de nouvelles alertes. Laissez vide et les alertes ne sont pas envoyées par e-mail.",
+      "incidentsHelper": "Adresses prévenues à la création d\u0027un incident. Laissez vide et les incidents ne sont pas envoyés par e-mail.",
+      "add": "Ajouter"
+    }
+  },
+  "about": {
+    "title": "À propos de cette instance",
+    "subtitle": "Version, licence et état du système de ce déploiement UTMStack.",
+    "loading": "Chargement des informations de l\u0027instance…",
+    "edition": {
+      "enterprise": "Enterprise",
+      "community": "Community"
+    },
+    "fields": {
+      "hostname": "Serveur",
+      "instanceId": "ID d\u0027instance",
+      "noInstanceMeta": "Aucune métadonnée d\u0027instance disponible."
+    },
+    "license": {
+      "title": "Licence",
+      "enterpriseMssp": "Enterprise · MSSP",
+      "datasources": "Datasources",
+      "communityLimited": "Limite Community",
+      "unlimited": "Illimité",
+      "expires": "Expire",
+      "managedNote": "L\u0027édition, les limites de datasources et l\u0027upload de licence sont gérés sur la page Licence.",
+      "view": "Voir la licence",
+      "ingest": "Volume d\u0027ingestion",
+      "notMetered": "Non mesuré",
+      "gbPerMonth": "{{gb}} Go/mois"
+    },
+    "services": {
+      "backend": {
+        "name": "Backend API",
+        "desc": "Passerelle REST, authentification et orchestration des modules."
+      },
+      "opensearch": {
+        "name": "OpenSearch",
+        "desc": "Stockage des logs et événements.",
+        "detail": "{{nodes}} nœuds · {{shards}} shards"
+      },
+      "unreachable": "Inaccessible"
+    },
+    "status": {
+      "up": "Sain",
+      "degraded": "Dégradé",
+      "down": "Hors service",
+      "unknown": "Inconnu"
+    },
+    "health": {
+      "title": "État du système",
+      "allHealthy": "Tous les services sont sains. Actualisez pour revérifier.",
+      "issues_one": "{{count}} service nécessite une attention.",
+      "issues_other": "{{count}} services nécessitent une attention.",
+      "refresh": "Actualiser"
+    },
+    "usage": {
+      "title": "Sources de données",
+      "subtitle": "Sources de données configurées dans ce déploiement.",
+      "ofUnlimited": "sur illimité",
+      "ofLimit": "sur {{limit}}",
+      "overLimit": "Au-delà de la limite sous licence — les données au-delà du plafond sont à risque.",
+      "configured": "configurées"
+    },
+    "support": {
+      "title": "Support",
+      "docs": "Documentation",
+      "repo": "Dépôt GitHub",
+      "issues": "Signaler un problème",
+      "website": "utmstack.com"
+    },
+    "legal": {
+      "title": "Mentions légales",
+      "license": "Licence",
+      "security": "Divulgation de sécurité",
+      "copyright": "© {{year}} UTMStack. Tous droits réservés."
+    }
+  },
+  "connectionKey": {
+    "title": "Clé de connexion",
+    "subtitle1": "La clé que les agents présentent lors de leur enregistrement sur cette instance.",
+    "subtitleEmphasis": "Elle sert uniquement à l\u0027installation des agents",
+    "subtitle2": "— pas pour les collecteurs, les intégrations ou l\u0027API. Elle est gérée par l\u0027agent-manager.",
+    "status": {
+      "label": "Statut",
+      "loading": "Chargement…",
+      "unavailable": "Agent-manager indisponible",
+      "active": "Active",
+      "unavailableHint": "Impossible de contacter l\u0027agent-manager pour lire la clé.",
+      "activeHint": "Les agents peuvent s\u0027enregistrer avec cette clé."
+    },
+    "token": {
+      "title": "Clé de connexion",
+      "subtitle": "Traitez cette valeur comme un identifiant. La faire tourner émet une nouvelle clé pour les futures installations d\u0027agents — les agents déjà enregistrés continuent de fonctionner.",
+      "loadFailedTitle": "Impossible de charger la clé de connexion",
+      "unavailableTitle": "Clé de connexion indisponible",
+      "loadFailedHint": "La clé est gérée par l\u0027agent-manager, qui n\u0027a pas répondu. Réessayez dans un instant.",
+      "retry": "Réessayer",
+      "show": "Afficher la clé",
+      "hide": "Masquer la clé",
+      "copy": "Copier",
+      "copied": "Copié",
+      "regenerate": "Régénérer la clé de connexion",
+      "confirmTitle": "Régénérer la clé ?",
+      "confirmBody": "Les nouvelles installations d\u0027agents auront besoin de la nouvelle clé. Les agents déjà enregistrés continuent de fonctionner. Action irréversible.",
+      "regenerating": "Régénération…",
+      "confirmYes": "Oui, régénérer",
+      "cancel": "Annuler"
+    },
+    "security": {
+      "title": "Recommandations de sécurité",
+      "subtitle": "Bonnes pratiques pour protéger cet identifiant.",
+      "rotateTitle": "Renouveler tous les 90 jours",
+      "rotateBody": "Planifiez une rotation récurrente. UTMStack peut vous envoyer un rappel par e-mail lorsque la clé a plus de 90 jours.",
+      "rotateAction": "Configurer un rappel",
+      "secretTitle": "Stockez-la comme un secret",
+      "secretBody": "Ne la committez pas dans le contrôle de version. Utilisez votre gestionnaire de secrets (Vault, AWS SM, etc.) et injectez-la au moment de l\u0027installation.",
+      "auditTitle": "Auditez qui l\u0027a récupérée",
+      "auditBody": "Chaque récupération et rotation est enregistrée dans le journal d\u0027audit de l\u0027application.",
+      "auditAction": "Voir le journal d\u0027audit"
+    },
+    "toast": {
+      "loadFailed": "Impossible de charger la clé de connexion",
+      "rotated": "Clé de connexion renouvelée",
+      "rotateFailed": "Impossible de renouveler la clé de connexion",
+      "copyFailed": "Impossible de copier"
+    }
+  }
+}

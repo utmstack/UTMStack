@@ -1,0 +1,522 @@
+{
+  "alerts": {
+    "title": "Оповещения",
+    "matching": "{{count}} совпадений",
+    "subtitle": "Расставьте приоритеты по важному.",
+    "openNow": "открыто прямо сейчас.",
+    "view": {
+      "alerts": "Оповещения",
+      "overview": "Обзор"
+    },
+    "toolbar": {
+      "searchPlaceholder": "Поиск по имени оповещения…",
+      "allSeverities": "Все уровни серьёзности",
+      "export": "Экспорт в CSV",
+      "refresh": "Обновить"
+    },
+    "severity": {
+      "high": "Высокий",
+      "medium": "Средний",
+      "low": "Низкий"
+    },
+    "status": {
+      "open": "Открыто",
+      "in_review": "На проверке",
+      "completed": "Завершено",
+      "auto": "Автоматическая проверка"
+    },
+    "statusTabs": {
+      "all": "Все"
+    },
+    "overview": {
+      "overTime": "Оповещения по времени",
+      "matchingAlerts": "совпадающих оповещений",
+      "noData": "Нет данных.",
+      "bySeverity": "По серьёзности",
+      "byStatus": "По статусу"
+    },
+    "filters": {
+      "add": "Добавить фильтр",
+      "clearAll": "Очистить всё",
+      "filterValues": "Фильтровать значения…",
+      "loadingValues": "Загрузка значений…",
+      "noValues": "Значения не найдены.",
+      "pickValue": "Выберите значение, чтобы добавить фильтр.",
+      "empty": "(пусто)",
+      "cancel": "Отмена",
+      "addBtn": "Добавить"
+    },
+    "ops": {
+      "CONTAIN": "содержит",
+      "IS": "равно",
+      "IS_NOT": "не равно",
+      "EXIST": "существует",
+      "DOES_NOT_EXIST": "не существует"
+    },
+    "fields": {
+      "adversary_domain": "Домен противника",
+      "adversary_geolocation_asn": "ASN противника",
+      "adversary_geolocation_aso": "ASO противника",
+      "adversary_geolocation_country": "Страна противника",
+      "adversary_host": "Хост противника",
+      "adversary_ip": "IP противника",
+      "adversary_url": "URL противника",
+      "adversary_user": "Пользователь противника",
+      "assignee": "Назначено",
+      "category": "Категория",
+      "dataSource": "Сенсор",
+      "dataType": "Тип данных",
+      "description": "Описание",
+      "id": "ID",
+      "impactScore": "Риск",
+      "impact_availability": "Доступность",
+      "impact_confidentiality": "Конфиденциальность",
+      "impact_integrity": "Целостность",
+      "incidentDetail_incidentName": "Название инцидента",
+      "incidentDetail_incidentId": "ID инцидента",
+      "isIncident": "Инцидент",
+      "name": "Название оповещения",
+      "notes": "Заметки",
+      "severity": "Серьёзность",
+      "status": "Статус",
+      "tags": "Теги",
+      "target_domain": "Домен цели",
+      "target_geolocation_asn": "ASN цели",
+      "target_geolocation_aso": "ASO цели",
+      "target_geolocation_country": "Страна цели",
+      "target_host": "Хост цели",
+      "target_ip": "IP цели",
+      "target_url": "URL цели",
+      "target_user": "Пользователь цели",
+      "technique": "Техника"
+    },
+    "tagFilter": {
+      "tags": "Теги",
+      "tag_one": "{{count}} тег",
+      "tag_few": "{{count}} тега",
+      "tag_many": "{{count}} тегов",
+      "tag_other": "{{count}} тега",
+      "clearSelection": "Очистить выбор",
+      "noTags": "Нет тегов"
+    },
+    "bulk": {
+      "selected": "Выбрано: {{count}}",
+      "setStatus": "Задать статус",
+      "addTag": "Добавить тег",
+      "noTags": "Нет тегов",
+      "addToIncident": "Добавить в инцидент",
+      "clear": "Очистить"
+    },
+    "tagEditor": {
+      "tag": "Тег",
+      "noTagsYet": "Тегов пока нет",
+      "createTag": "Создать тег",
+      "newTagName": "Имя нового тега…",
+      "createApply": "Создать и применить тег",
+      "save": "Сохранить",
+      "cancel": "Отмена",
+      "edit": "Изменить тег",
+      "delete": "Удалить тег",
+      "systemLocked": "Системный тег (заблокирован)",
+      "alreadyExists": "Такой тег уже существует.",
+      "color": "Цвет {{color}}",
+      "createRule": "Создать правило тегирования с этим тегом"
+    },
+    "table": {
+      "actions": "Действия",
+      "alert": "Оповещение",
+      "status": "Статус",
+      "technique": "Техника",
+      "severity": "Серьёзность",
+      "risk": "Риск",
+      "echoes": "Эхо",
+      "time": "Время",
+      "riskHint": "Оценка риска (0–100), окрашена по серьёзности",
+      "source": "Источник",
+      "adversary": "Противник"
+    },
+    "row": {
+      "createRuleFromAlert": "Создать тег из этого оповещения",
+      "createIncident": "Создать инцидент из этого оповещения",
+      "viewIncident": "Показать детали инцидента",
+      "assignedTo": "Назначено: {{user}}",
+      "echoesTooltip": "{{count}} эхо — нажмите для развёртывания",
+      "echoesEmpty": "Эхо не зарегистрировано"
+    },
+    "echoes": {
+      "title": "{{count}} эхо",
+      "close": "Закрыть",
+      "empty": "Для этого оповещения нет зарегистрированных эхо.",
+      "loadError": "Не удалось загрузить эхо."
+    },
+    "list": {
+      "loading": "Загрузка оповещений…",
+      "loadError": "Не удалось загрузить оповещения.",
+      "retry": "Повторить",
+      "empty": "Нет оповещений, соответствующих этому виду."
+    },
+    "badge": {
+      "incident": "Инцидент",
+      "aiAssessed": "Оценено ИИ"
+    },
+    "drawer": {
+      "setStatus": "Задать статус",
+      "completeFalsePositive": "Завершить + ложное срабатывание",
+      "addToIncident": "Добавить в инцидент",
+      "partOfIncident": "Часть инцидента",
+      "tabs": {
+        "summary": "Сводка",
+        "parties": "Стороны",
+        "events": "События",
+        "history": "История"
+      },
+      "section": {
+        "description": "Описание",
+        "solution": "Решение",
+        "references": "Ссылки",
+        "details": "Подробности",
+        "yourNotes": "Ваши заметки",
+        "notes": "Заметки"
+      },
+      "details": {
+        "severity": "Серьёзность",
+        "risk": "Риск",
+        "category": "Категория",
+        "technique": "Техника",
+        "sensor": "Сенсор",
+        "dataType": "Тип данных",
+        "alertId": "ID оповещения",
+        "statusNote": "Примечание к статусу",
+        "assignee": "Исполнитель"
+      },
+      "incidentDetail": {
+        "incident": "Инцидент",
+        "id": "ID",
+        "createdBy": "Создал",
+        "created": "Создано"
+      },
+      "notesPlaceholder": "Добавьте заметки по расследованию…",
+      "saveNotes": "Сохранить заметки",
+      "assignee": "Назначить",
+      "assign": "Назначить",
+      "unassign": "Снять назначение",
+      "unassigned": "Не назначено",
+      "loadingUsers": "Загрузка пользователей…",
+      "observationLabel": "Наблюдение",
+      "observationPlaceholder": "Добавить наблюдение…",
+      "cancel": "Отмена",
+      "continue": "Продолжить"
+    },
+    "related": {
+      "sample": "Выборка до ~11 событий, которые движок сохранил для этого оповещения. Используйте «Показать все связанные журналы» для полного набора без ограничений.",
+      "loadingEchoes": "Загрузка событий его эхо…",
+      "sampleWithEchoes": "События, сохранённые в этом оповещении и в его {{count}} эхо (прочитано {{read}}). Используйте «Показать все связанные журналы» для полного набора без ограничений.",
+      "empty": "Для этого оповещения нет сохранённых событий-образцов. Загрузите полный коррелированный набор в Обозревателе журналов.",
+      "viewAll": "Показать все связанные журналы"
+    },
+    "party": {
+      "source": "Источник / цель",
+      "adversary": "Противник",
+      "noData": "Нет данных.",
+      "ip": "IP",
+      "host": "Хост",
+      "user": "Пользователь",
+      "domain": "Домен",
+      "country": "Страна"
+    },
+    "history": {
+      "empty": "История не записана.",
+      "by": "пользователь {{user}}",
+      "actions": {
+        "UPDATE_STATUS": "Статус обновлён",
+        "UPDATE_TAGS": "Теги обновлены",
+        "UPDATE_NOTES": "Заметки обновлены",
+        "UPDATE_SOLUTION": "Решение обновлено",
+        "MARK_AS_INCIDENT": "Отмечено как инцидент"
+      },
+      "detail": {
+        "statusTo": "Статус → {{status}}",
+        "tags": "Теги: {{tags}}",
+        "aiAdded": "Добавлена оценка ИИ",
+        "observationAdded": "Добавлено наблюдение",
+        "notesUpdated": "Заметки обновлены"
+      }
+    },
+    "ai": {
+      "title": "Оценка ИИ SOC",
+      "risk": "риск: {{risk}}",
+      "score": "{{score}}/100",
+      "generate": "Создать сводку ИИ",
+      "hint": "SOC-AI исследует это оповещение и добавит оценку.",
+      "generating": "Анализ оповещения… это может занять минуту.",
+      "ready": "Сводка ИИ готова",
+      "failed": "Не удалось создать сводку ИИ",
+      "slow": "Сводка ИИ формируется дольше ожидаемого. Она появится в оповещении, когда будет готова."
+    },
+    "incident": {
+      "titleAdd_one": "Добавить {{count}} оповещение в инцидент",
+      "titleAdd_few": "Добавить {{count}} оповещения в инцидент",
+      "titleAdd_many": "Добавить {{count}} оповещений в инцидент",
+      "titleAdd_other": "Добавить {{count}} оповещений в инцидент",
+      "new": "Новый инцидент",
+      "existing": "Существующий инцидент",
+      "nameLabel": "Название инцидента",
+      "namePlaceholder": "напр. Предполагаемое вторжение Scattered Spider",
+      "descriptionLabel": "Описание",
+      "descriptionPlaceholder": "Необязательное краткое описание…",
+      "pickLabel": "Выберите инцидент",
+      "loading": "Загрузка…",
+      "selectPlaceholder": "Выберите инцидент…",
+      "willLink_one": "Будет связано {{count}} оповещение.",
+      "willLink_few": "Будут связаны {{count}} оповещения.",
+      "willLink_many": "Будут связаны {{count}} оповещений.",
+      "willLink_other": "Будут связаны {{count}} оповещений.",
+      "cancel": "Отмена",
+      "create": "Создать инцидент",
+      "add": "Добавить в инцидент"
+    },
+    "toast": {
+      "statusUpdated": "Статус обновлён",
+      "statusFailed": "Не удалось обновить статус",
+      "tagsUpdated": "Теги обновлены",
+      "tagsFailed": "Не удалось обновить теги",
+      "tagCreateFailed": "Не удалось создать тег",
+      "tagUpdated": "Тег обновлён",
+      "tagUpdateFailed": "Не удалось обновить тег",
+      "tagDeleted": "Тег удалён",
+      "tagDeleteFailed": "Не удалось удалить тег",
+      "notesSaved": "Заметки сохранены",
+      "notesFailed": "Не удалось сохранить заметки",
+      "exportFailed": "Не удалось экспортировать CSV",
+      "noRelatedLogs": "Связанные журналы для этого оповещения не найдены",
+      "relatedLogsFailed": "Не удалось загрузить связанные журналы",
+      "incidentCreated": "Инцидент создан",
+      "alertsAdded": "Оповещения добавлены в инцидент",
+      "incidentFailed": "Не удалось сохранить инцидент",
+      "assigned": "Оповещение назначено",
+      "unassigned": "Назначение снято",
+      "assignFailed": "Не удалось обновить исполнителя",
+      "newAlertsToast_title": "Новые алерты",
+      "newAlertsToast_count_one": "{{count}} новый алерт",
+      "newAlertsToast_count_few": "{{count}} новых алерта",
+      "newAlertsToast_count_many": "{{count}} алертов",
+      "newAlertsToast_count_other": "{{count}} алерта",
+      "newAlertsToast_view": "Смотреть"
+    }
+  },
+  "taggingRules": {
+    "title": "Правила тегирования",
+    "subtitle": "Автоматически тегировать оповещения, соответствующие условиям.",
+    "new": "Новое правило",
+    "refresh": "Обновить",
+    "empty": "Правил тегирования пока нет.",
+    "loadError": "Не удалось загрузить правила тегирования.",
+    "retry": "Повторить",
+    "deleteConfirm": "Удалить правило «{{name}}»? Будущие оповещения, соответствующие его условиям, перестанут тегироваться.",
+    "toolbar": {
+      "search": "Поиск по названию правила…",
+      "allTags": "Все теги"
+    },
+    "table": {
+      "rule": "Правило",
+      "tags": "Теги",
+      "conditions": "Условия",
+      "modifiedBy": "Кем изменено",
+      "modifiedDate": "Изменено"
+    },
+    "drawer": {
+      "createTitle": "Новое правило тегирования",
+      "edit": "Изменить",
+      "delete": "Удалить",
+      "save": "Сохранить",
+      "create": "Создать",
+      "cancel": "Отмена"
+    },
+    "form": {
+      "basics": "Основное",
+      "name": "Название правила",
+      "namePlaceholder": "например, Внутренний перебор SSH",
+      "description": "Описание",
+      "descriptionPlaceholder": "Зачем нужно это правило и что оно тегирует.",
+      "tags": "Применяемые теги",
+      "noTags": "Теги не выбраны.",
+      "addTag": "Добавить тег",
+      "removeTag": "Удалить",
+      "noCatalog": "В каталоге пока нет тегов.",
+      "createTag": "Создать тег",
+      "newTagName": "Название нового тега",
+      "conditions": "Условия (должны совпасть ВСЕ)",
+      "noConditions": "Требуется хотя бы одно условие.",
+      "addCondition": "Добавить условие",
+      "removeCondition": "Удалить условие",
+      "valuePlaceholder": "Значение",
+      "valueListPlaceholder": "Значения через запятую",
+      "incomplete": "Заполните название правила, описание, хотя бы один тег и завершите каждое условие."
+    },
+    "view": {
+      "description": "Описание",
+      "tags": "Теги",
+      "conditions": "Условия",
+      "audit": "Аудит",
+      "createdBy": "Кем создано",
+      "createdDate": "Создано",
+      "modifiedBy": "Кем изменено",
+      "modifiedDate": "Изменено"
+    },
+    "toast": {
+      "created": "Правило «{{name}}» создано.",
+      "updated": "Правило «{{name}}» обновлено.",
+      "deleted": "Правило «{{name}}» удалено.",
+      "createError": "Не удалось создать правило.",
+      "updateError": "Не удалось обновить правило.",
+      "deleteError": "Не удалось удалить правило."
+    },
+    "deleteTitle": "Удалить правило тегирования"
+  },
+  "incidents": {
+    "title": "Инциденты",
+    "subtitle": "Группируйте, сортируйте и закрывайте связанные оповещения как инциденты.",
+    "refresh": "Обновить",
+    "count_one": "{{count}} инцидент",
+    "count_few": "{{count}} инцидента",
+    "count_many": "{{count}} инцидентов",
+    "count_other": "{{count}} инцидента",
+    "openNow": "открыто сейчас",
+    "empty": "Нет подходящих инцидентов.",
+    "loadError": "Не удалось загрузить инциденты.",
+    "retry": "Повторить",
+    "unassigned": "Не назначен",
+    "unknownUser": "Неизвестно",
+    "status": {
+      "open": "Открыт",
+      "in_review": "На проверке",
+      "completed": "Завершён",
+      "merged": "Объединён"
+    },
+    "sev": {
+      "high": "Высокая",
+      "medium": "Средняя",
+      "low": "Низкая",
+      "unknown": "Без оценки"
+    },
+    "toolbar": {
+      "search": "Поиск инцидентов…",
+      "create": "Создать инцидент",
+      "allSeverities": "Все уровни серьёзности",
+      "export": "Экспорт в CSV"
+    },
+    "statusTabs": {
+      "all": "Все"
+    },
+    "filters": {
+      "add": "Добавить фильтр",
+      "clearAll": "Очистить всё",
+      "filterValues": "Фильтровать значения…",
+      "loadingValues": "Загрузка значений…",
+      "noValues": "Значения не найдены.",
+      "pickValue": "Выберите значение, чтобы добавить фильтр.",
+      "empty": "(пусто)",
+      "cancel": "Отмена",
+      "addBtn": "Добавить"
+    },
+    "ops": {
+      "IS": "равно"
+    },
+    "layout": {
+      "table": "Таблица",
+      "board": "Доска"
+    },
+    "table": {
+      "name": "Инцидент",
+      "status": "Статус",
+      "severity": "Важность",
+      "assignee": "Ответственный",
+      "alerts": "Оповещения",
+      "created": "Создан"
+    },
+    "drawer": {
+      "created": "Создан {{date}}",
+      "alertsCount": "{{count}} оповещений",
+      "solutionPlaceholder": "Решение / заметки по устранению…",
+      "solutionHint": "Сохраняется при переводе инцидента в «Завершён».",
+      "tabs": {
+        "overview": "Обзор",
+        "alerts": "Оповещения",
+        "notes": "Заметки",
+        "history": "История"
+      },
+      "section": {
+        "description": "Описание",
+        "solution": "Решение",
+        "details": "Детали"
+      },
+      "details": {
+        "id": "ID",
+        "status": "Статус",
+        "severity": "Важность",
+        "assignee": "Ответственный",
+        "created": "Создан",
+        "alerts": "Связанные оповещения"
+      }
+    },
+    "alerts": {
+      "empty": "К этому инциденту не привязаны оповещения.",
+      "remove": "Отвязать оповещение",
+      "removeConfirm": "Отвязать «{{name}}» от этого инцидента?",
+      "removed": "Оповещение отвязано",
+      "removeError": "Не удалось отвязать оповещение",
+      "loadingAlert": "Загрузка оповещения…",
+      "alertGone": "Этого оповещения больше нет в хранилище — возможно, его удалило хранение.",
+      "alertFailed": "Не удалось загрузить оповещение.",
+      "openInAlerts": "Открыть в оповещениях"
+    },
+    "notes": {
+      "empty": "Заметок пока нет.",
+      "add": "Добавить заметку",
+      "addError": "Не удалось добавить заметку",
+      "placeholder": "Напишите заметку…"
+    },
+    "history": {
+      "empty": "Истории пока нет."
+    },
+    "toast": {
+      "statusChanged": "Статус инцидента обновлён",
+      "statusError": "Не удалось изменить статус",
+      "exportFailed": "Не удалось экспортировать CSV"
+    },
+    "assign": {
+      "assign": "Назначить",
+      "search": "Поиск пользователей…",
+      "unassign": "Снять назначение",
+      "noUsers": "Нет пользователей",
+      "assigned": "Назначено {{user}}",
+      "unassigned": "Назначение снято",
+      "error": "Не удалось изменить ответственного",
+      "custom": "Назначить произвольно",
+      "customPlaceholder": "Введите логин…"
+    },
+    "action": {
+      "INCIDENT_CREATED": "Инцидент создан",
+      "INCIDENT_ALERT_ADD": "Оповещения добавлены",
+      "INCIDENT_ALERT_STATUS_CHANGED": "Статус оповещений изменён",
+      "INCIDENT_STATUS_CHANGE": "Статус изменён",
+      "INCIDENT_NOTE_ADD": "Заметка добавлена",
+      "INCIDENT_NOTE_CHANGE": "Заметка изменена",
+      "INCIDENT_ASSIGNED": "Назначение изменено"
+    },
+    "create": {
+      "title": "Создать инцидент",
+      "stepIndicator": "Шаг {{current}} из {{total}}",
+      "selectedCount": "Выбрано оповещений: {{count}}",
+      "submit": "Создать",
+      "success": "Инцидент создан",
+      "error": "Не удалось создать инцидент",
+      "details": {
+        "nameLabel": "Название",
+        "namePlaceholder": "Короткое описательное название",
+        "descriptionLabel": "Описание",
+        "descriptionPlaceholder": "Контекст, область, первичные заметки…"
+      }
+    }
+  }
+}

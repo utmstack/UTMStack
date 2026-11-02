@@ -1,0 +1,150 @@
+{
+  "socAi": {
+    "title": "Configurazione SOC-AI",
+    "subtitle": "Configura l\u0027agente AI che esegue il triage degli alert e alimenta l\u0027assistente operativo.",
+    "section": {
+      "connection": "Modello e connessione",
+      "auth": "Autenticazione",
+      "behavior": "Comportamento del triage degli alert",
+      "advanced": "Avanzate"
+    },
+    "usage": {
+      "title": "Utilizzo",
+      "chat": "Completamenti chat (oggi)",
+      "unavailable": "L\u0027utilizzo non è ancora disponibile.",
+      "resetsIn": "Si azzera tra {{time}}"
+    },
+    "provider": {
+      "label": "Provider",
+      "hint": "Seleziona il formato di trasmissione. Qualsiasi opzione diversa da Anthropic usa l\u0027API compatibile con OpenAI."
+    },
+    "model": {
+      "label": "Modello",
+      "hint": "Identificatore del modello esposto dal provider.",
+      "customOption": "Modello personalizzato…",
+      "customPlaceholder": "Inserisci un ID modello"
+    },
+    "url": {
+      "label": "URL API",
+      "hint": "Lascia vuoto per usare l\u0027endpoint predefinito del provider."
+    },
+    "apiKey": {
+      "label": "Chiave API",
+      "hint": "Credenziale inviata al provider.",
+      "setHint": "Una chiave è memorizzata. Lascia vuoto per mantenerla."
+    },
+    "authType": {
+      "label": "Tipo di autenticazione",
+      "hint": "Come vengono inviate le credenziali al tuo gateway.",
+      "options": {
+        "apiKey": "API Key",
+        "bearer": "Bearer",
+        "customHeaders": "Header personalizzati",
+        "none": "Nessuna"
+      }
+    },
+    "authHeaderName": {
+      "label": "Nome header di autenticazione",
+      "hint": "Header che trasporta la chiave (es. api-key per Azure)."
+    },
+    "authToken": {
+      "label": "Token Bearer",
+      "hint": "Credenziale inviata al provider.",
+      "setHint": "È memorizzato un token. Lascia vuoto per mantenerlo."
+    },
+    "customHeaders": {
+      "label": "Header personalizzati",
+      "hint": "Header aggiuntivi inviati a ogni richiesta. I valori sono cifrati; \"*****\" mantiene quello memorizzato.",
+      "keyPlaceholder": "Nome header",
+      "valuePlaceholder": "Valore",
+      "addRow": "Aggiungi header",
+      "remove": "Rimuovi header"
+    },
+    "maxTokens": {
+      "label": "Token massimi",
+      "hint": "Numero massimo di token per risposta dell\u0027LLM."
+    },
+    "maxToolIterations": {
+      "label": "Iterazioni massime degli strumenti",
+      "hint": "Limite al ciclo dell\u0027agente piano -\u003e strumento -\u003e osservazione."
+    },
+    "autoAnalyze": {
+      "label": "Analisi automatica degli alert",
+      "hint": "Esegui il triage degli alert in arrivo in tempo reale."
+    },
+    "allowIncidents": {
+      "label": "Consenti la gestione degli incident",
+      "hint": "L\u0027agente di triage può creare o aggiornare incident quando ritiene che un alert lo giustifichi."
+    },
+    "changeAlertStatus": {
+      "label": "Modifica stato degli alert",
+      "hint": "Consenti all\u0027agente di impostare lo stato di un alert durante il triage."
+    },
+    "automaticIncidentCreation": {
+      "label": "Crea incident",
+      "hint": "Consenti all\u0027agente di aprire incident dagli alert sottoposti a triage."
+    },
+    "allowedWriteTools": {
+      "label": "Strumenti di scrittura consentiti",
+      "hint": "Un nome di strumento MCP per riga che l\u0027agente di triage può usare (es. alerts.update_status). Le note sono sempre consentite."
+    },
+    "save": "Salva configurazione",
+    "saving": "Verifica e salvataggio in corso...",
+    "saved": "Configurazione SOC-AI salvata",
+    "saveError": "Impossibile salvare la configurazione",
+    "loadError": "Impossibile caricare la configurazione",
+    "modelRequired": "Il modello è obbligatorio",
+    "applyTags": {
+      "label": "Applica etichette",
+      "hint": "Consenti all\u0027agente di etichettare gli alert durante il triage."
+    },
+    "note": {
+      "azure": "Incolla l\u0027endpoint completo del tuo deployment Azure come URL; il modello è il nome del tuo deployment. L\u0027autenticazione usa l\u0027header api-key.",
+      "ollama": "Punta l\u0027URL al tuo host Ollama. Non è necessaria alcuna chiave API per un\u0027istanza locale.",
+      "custom": "Qualsiasi endpoint compatibile con OpenAI. Imposta l\u0027URL, l\u0027autenticazione e gli eventuali header aggiuntivi richiesti dal tuo gateway.",
+      "threatwinds": "Usa automaticamente la tua licenza UTMStack — non serve una API key. Fatturato tramite il tuo abbonamento ThreatWinds."
+    },
+    "chat": {
+      "title": "Assistente SOC",
+      "dashboardCreateTitle": "Creazione dashboard",
+      "empty": "Chiedi qualsiasi cosa sui tuoi alert, sulle rilevazioni o sulla console — posso investigare e agire sul SIEM.",
+      "tryPrefix": "Prova",
+      "suggestion": "quanti alert aperti, raggruppati per avversario?",
+      "placeholder": "Fai una domanda…",
+      "ask": "Chiedi",
+      "send": "Invia",
+      "collapse": "Comprimi",
+      "expand": "Espandi",
+      "clear": "Cancella conversazione",
+      "close": "Chiudi",
+      "copy": "Copia",
+      "copied": "Copiato",
+      "errorGeneric": "Si è verificato un errore.",
+      "errorUnreachable": "Impossibile raggiungere l\u0027assistente.",
+      "compacting": "Compattazione del contesto…",
+      "dashboardEditTitle": "Editor dashboard",
+      "editingDashboard": "Modifica di: {{name}}",
+      "soarEditTitle": "Editor di flussi SOAR",
+      "soarCreateTitle": "Crea un flusso SOAR",
+      "editingFlow": "Modifica del flusso: {{name}}"
+    },
+    "focus": {
+      "alert": "Avviso",
+      "incident": "Incidente",
+      "remove": "Smetti di condividere con l\u0027assistente"
+    },
+    "inheritance": {
+      "inherited": "Segue l\u0027impostazione predefinita dell\u0027istanza. Salvando, questo tenant avrà la propria.",
+      "own": "Questo tenant ha una configurazione propria.",
+      "revert": "Torna a quella dell\u0027istanza",
+      "reverting": "Ripristino…",
+      "reverted": "Ora segue l\u0027impostazione dell\u0027istanza"
+    },
+    "allowance": {
+      "title": "Consumo IA oggi",
+      "ofLimit": "di {{limit}} richieste",
+      "denied": "richieste — l\u0027IA non è disponibile per questo tenant",
+      "hint": "Deciso da chi gestisce l\u0027istanza. Si azzera a mezzanotte UTC."
+    }
+  }
+}

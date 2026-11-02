@@ -1,0 +1,55 @@
+{
+  "notifications": {
+    "title": "Notificações",
+    "markAllRead": "Marcar todas como lidas",
+    "empty": "Você não tem notificações.",
+    "viewAll": "Ver todas",
+    "markRead": "Marcar como lida",
+    "markUnread": "Marcar como não lida",
+    "delete": "Excluir",
+    "subtitle": "{{total}} no total · {{unread}} não lidas",
+    "allCaughtUp": "Tudo em dia.",
+    "loadFailed": "Não foi possível carregar as notificações."
+  },
+  "platformBroadcast": {
+    "button": "Aplicar a todos os inquilinos",
+    "action": {
+      "create": "Transmitir criação de {{resource}}",
+      "update": "Transmitir atualização de {{resource}}",
+      "delete": "Transmitir exclusão de {{resource}}",
+      "toggle": "Transmitir alternância de {{resource}}",
+      "enable": "Transmitir habilitação de {{resource}}",
+      "activate": "Transmitir ativação de {{resource}}",
+      "test": "Transmitir teste de {{resource}}",
+      "upload": "Transmitir ativo {{resource}}"
+    },
+    "resource": {
+      "pipeline": "pipeline",
+      "correlationRule": "regra de correlação",
+      "soarFlow": "fluxo SOAR",
+      "framework": "estrutura",
+      "control": "controle",
+      "smtp": "SMTP",
+      "idp": "provedor de identidade",
+      "branding": "marca"
+    },
+    "warning": {
+      "title": "Esta ação será executada em cada inquilino selecionado.",
+      "body": "Falhas por inquilino são relatadas após a execução e não são revertidas."
+    },
+    "allTenants": "Aplicar a todos os inquilinos",
+    "excludesDefault": "O inquilino da plataforma é excluído desta ação.",
+    "searchPlaceholder": "Buscar inquilinos…",
+    "loading": "Carregando inquilinos…",
+    "empty": "Nenhum inquilino corresponde.",
+    "targetCount": "Alvo: {{count}} inquilino(s).",
+    "platformTenant": "plataforma",
+    "confirm": "Aplicar a {{count}} inquilino(s)",
+    "result": {
+      "succeeded": "Bem-sucedidos",
+      "noneSucceeded": "Nenhum inquilino teve sucesso.",
+      "failed": "Falhados",
+      "noneFailed": "Sem falhas."
+    }
+  }
+}

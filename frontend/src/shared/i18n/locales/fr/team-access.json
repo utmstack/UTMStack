@@ -1,0 +1,338 @@
+{
+  "team": {
+    "title": "Équipe",
+    "subtitle": "Gérez les utilisateurs et leurs rôles.",
+    "tabs": {
+      "members": "Membres",
+      "roles": "Rôles et permissions"
+    },
+    "toast": {
+      "rolesLoadFailed": "Impossible de charger les rôles",
+      "userLoadFailed": "Impossible de charger l\u0027utilisateur",
+      "rolesUpdated": "Rôles mis à jour",
+      "userReactivated": "Utilisateur réactivé",
+      "userDeactivated": "Utilisateur désactivé",
+      "tfaReset": "Authentification à deux facteurs réinitialisée",
+      "invitationSent": "Invitation envoyée",
+      "loginOrEmailInUse": "Cet identifiant ou cet e-mail est déjà utilisé",
+      "invalidRequest": "Requête invalide",
+      "noPermission": "Vous n\u0027avez pas la permission de faire cela",
+      "userNotFound": "Utilisateur introuvable",
+      "operationFailed": "L\u0027opération a échoué",
+      "emailInUse": "Cet e-mail est déjà utilisé",
+      "roleCreated": "Rôle créé",
+      "roleUpdated": "Rôle mis à jour",
+      "roleDeleted": "Rôle supprimé",
+      "roleNameInUse": "Un rôle avec cet identifiant existe déjà",
+      "roleImmutable": "Les rôles système ne peuvent pas être modifiés",
+      "permissionsLoadFailed": "Impossible de charger les permissions",
+      "localUserCreated": "Utilisateur local créé"
+    },
+    "members": {
+      "searchPlaceholder": "Rechercher par nom ou e-mail…",
+      "invite": "Inviter un utilisateur",
+      "colUser": "Utilisateur",
+      "colRoles": "Rôles",
+      "col2fa": "2FA",
+      "colStatus": "Statut",
+      "loading": "Chargement des utilisateurs…",
+      "loadFailed": "Impossible de charger les utilisateurs.",
+      "retry": "Réessayer",
+      "noSearchMatch": "Aucun utilisateur ne correspond à votre recherche.",
+      "none": "Aucun utilisateur pour le moment.",
+      "noRole": "aucun",
+      "on": "Oui",
+      "off": "Non",
+      "countLabel_one": "{{count}} utilisateur · page {{page}} sur {{pages}}",
+      "countLabel_other": "{{count}} utilisateurs · page {{page}} sur {{pages}}",
+      "federated": "SSO"
+    },
+    "status": {
+      "inactive": "Inactif",
+      "pendingPassword": "Mot de passe en attente",
+      "active": "Actif",
+      "pending": "Invitation en attente",
+      "suspended": "Suspendu"
+    },
+    "drawer": {
+      "createdBy": "créé par {{actor}}",
+      "loading": "Chargement…",
+      "profileTitle": "Profil",
+      "profileSubtitle": "Seul l\u0027utilisateur peut modifier ces informations, depuis son propre profil.",
+      "name": "Nom",
+      "username": "Identifiant",
+      "email": "E-mail",
+      "language": "Langue",
+      "accountTitle": "Compte",
+      "status": "Statut",
+      "statusActive": "Actif",
+      "statusInactive": "Inactif",
+      "tfa": "2FA",
+      "tfaEnabled": "Activée",
+      "tfaNotConfigured": "Non configuré",
+      "resetTfa": "Réinitialiser",
+      "resetTfaHint": "Désactive la 2FA de cet utilisateur pour qu\u0027il la reconfigure à la prochaine connexion",
+      "resetTfaConfirmTitle": "Réinitialiser l\u0027authentification à deux facteurs ?",
+      "resetTfaConfirmBody": "Cela désactive la 2FA de {{name}}. Il se connectera uniquement avec son mot de passe et pourra la reconfigurer depuis son profil.",
+      "resetTfaConfirm": "Réinitialiser la 2FA",
+      "pendingPasswordNote": "Utilise encore le mot de passe temporaire (invitation non terminée).",
+      "lastModified": "Modifié {{time}}",
+      "rolesTitle": "Rôles",
+      "rolesSubtitle": "Les rôles accordent des permissions de module. Un utilisateur peut en avoir plusieurs.",
+      "noRoleWarning": "Aucun rôle attribué — l\u0027utilisateur n\u0027aura accès à aucun module.",
+      "deactivate": "Désactiver",
+      "reactivate": "Réactiver",
+      "waitingInvite": "En attente de l\u0027acceptation de l\u0027invitation par l\u0027utilisateur.",
+      "cancel": "Annuler",
+      "saving": "Enregistrement…",
+      "saveRoles": "Enregistrer les rôles",
+      "created": "créé {{time}}",
+      "pendingNote": "L\u0027invitation n\u0027a pas encore été acceptée.",
+      "federatedNote": "Se connecte via un fournisseur d\u0027identité."
+    },
+    "invite": {
+      "title": "Inviter un utilisateur",
+      "description": "Le compte est créé inactif. La personne reçoit un e-mail pour définir son mot de passe et l\u0027activer.",
+      "username": "Identifiant",
+      "usernameHint": "Au moins 3 caractères.",
+      "email": "E-mail",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "roles": "Rôles",
+      "cancel": "Annuler",
+      "sending": "Envoi…",
+      "send": "Envoyer l\u0027invitation",
+      "name": "Nom",
+      "emailHint": "C\u0027est l\u0027adresse utilisée pour se connecter.",
+      "localDescription": "Le compte est créé avec un mot de passe et activé immédiatement. Aucun e-mail n\u0027est envoyé.",
+      "modeInvite": "Inviter un utilisateur",
+      "modeLocal": "Créer un utilisateur local",
+      "passwordLabel": "Mot de passe",
+      "passwordPlaceholder": "Définir un mot de passe robuste",
+      "localUserNote": "Cet utilisateur ne recevra pas d\u0027e-mail et sera activé automatiquement.",
+      "createLocal": "Créer l\u0027utilisateur",
+      "passwordRules": {
+        "length": "Au moins 8 caractères",
+        "case": "Au moins une majuscule et une minuscule",
+        "special": "Au moins un caractère spécial"
+      },
+      "emailInvalid": "Veuillez saisir une adresse e-mail valide"
+    },
+    "rolePicker": {
+      "none": "Aucun rôle disponible."
+    },
+    "roles": {
+      "loading": "Chargement des rôles…",
+      "loadFailed": "Impossible de charger les permissions des rôles.",
+      "readonlyNote": "Les rôles et leurs permissions sont définis par le système et en lecture seule. Attribuez-les aux utilisateurs depuis l\u0027onglet Membres.",
+      "permissionsCount_one": "{{count}} permission",
+      "permissionsCount_other": "{{count}} permissions",
+      "modulesCount_one": "{{count}} module",
+      "modulesCount_other": "{{count}} modules",
+      "matrixTitle": "Matrice des permissions",
+      "matrixSubtitle": "Ce que chaque rôle peut faire, par module.",
+      "permission": "Permission",
+      "systemNote": "Les rôles système sont fournis avec la plateforme et ne sont pas modifiables. Ceux que vous créez appartiennent à ce locataire.",
+      "newRole": "Nouveau rôle",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "systemBadge": "Système",
+      "createTitle": "Nouveau rôle",
+      "editTitle": "Modifier le rôle",
+      "editorSubtitle": "Choisissez ce que ce rôle peut faire. Une personne peut en cumuler plusieurs.",
+      "nameLabel": "Identifiant",
+      "nameHint": "Utilisé dans le code et l\u0027API. Par exemple ROLE_AUDITOR.",
+      "displayNameLabel": "Nom affiché",
+      "descriptionLabel": "Description",
+      "permissionsLabel": "Permissions",
+      "selectedCount": "{{count}} sélectionnées",
+      "toggleAll": "toutes",
+      "loadingPermissions": "Chargement des permissions…",
+      "save": "Enregistrer le rôle",
+      "deleteConfirmTitle": "Supprimer ce rôle ?",
+      "deleteConfirmBody": "{{name}} sera supprimé. Les personnes qui n\u0027ont que ce rôle perdront l\u0027accès aux modules."
+    },
+    "langDefault": "Par défaut du système",
+    "relative": {
+      "justNow": "à l\u0027instant",
+      "minutesAgo": "il y a {{count}} min",
+      "hoursAgo": "il y a {{count}} h",
+      "daysAgo": "il y a {{count}} j"
+    },
+    "roleNames": {
+      "ROLE_ADMIN": "Administrateur",
+      "ROLE_USER": "Utilisateur"
+    },
+    "roleDescriptions": {
+      "ROLE_ADMIN": "Accès complet à toutes les ressources",
+      "ROLE_USER": "Utilisateur standard avec accès en lecture au niveau des modules"
+    },
+    "actions": {
+      "read": "Lecture",
+      "write": "Écriture",
+      "delete": "Suppression"
+    },
+    "resources": {
+      "adaudit": "Audit AD",
+      "alerts": "Alertes",
+      "audit": "Journal d\u0027audit",
+      "compliance": "Conformité",
+      "config": "Configuration",
+      "dashboards": "Tableaux de bord",
+      "datasources": "Datasources",
+      "eventprocessing": "Traitement des événements",
+      "idp": "Fournisseurs d\u0027identité",
+      "incidents": "Incidents",
+      "integrations": "Intégrations",
+      "loganalyzer": "Analyseur de logs",
+      "opensearch": "OpenSearch",
+      "roles": "Rôles",
+      "soar": "SOAR",
+      "users": "Utilisateurs",
+      "notifications": "Notifications",
+      "socai": "SOC AI",
+      "tenant": "Locataires",
+      "threatintel": "Renseignement sur les menaces"
+    }
+  },
+  "tenants": {
+    "title": "Locataires",
+    "new": "Nouveau locataire",
+    "subtitle": "Chaque client de cette instance, ce qu\u0027il détient et ce qu\u0027il vous laisse voir.",
+    "searchPlaceholder": "Rechercher par nom ou domaine…",
+    "loading": "Chargement des locataires…",
+    "loadFailed": "Impossible de charger les locataires.",
+    "retry": "Réessayer",
+    "none": "Aucun locataire pour le moment.",
+    "noSearchMatch": "Aucun locataire ne correspond à la recherche.",
+    "cancel": "Annuler",
+    "saving": "Enregistrement…",
+    "chips": {
+      "total": "locataires",
+      "active": "actifs",
+      "readable": "accessibles"
+    },
+    "status": {
+      "ACTIVE": "Actif",
+      "SUSPENDED": "Suspendu",
+      "TERMINATED": "Résilié"
+    },
+    "support": {
+      "NONE": "Aucun accès",
+      "READ": "Accès en lecture",
+      "FULL": "Accès complet",
+      "hint": "Accordé par le locataire, pas par vous. Seul son administrateur peut le changer."
+    },
+    "card": {
+      "edit": "Modifier",
+      "activate": "Activer",
+      "deactivate": "Désactiver",
+      "deletePermanent": "Supprimer définitivement",
+      "noAccess": "Ce locataire ne vous a pas donné accès.",
+      "loadingStats": "Lecture…",
+      "enter": "Entrer"
+    },
+    "stats": {
+      "users": "Utilisateurs",
+      "datasources": "Sources",
+      "openAlerts": "Alertes ouvertes",
+      "ai": "IA aujourd\u0027hui",
+      "noLimit": "sans plafond"
+    },
+    "fields": {
+      "name": "Nom",
+      "domain": "Domaine",
+      "domainHint": "Par où ce locataire est joint. Toute requête sur cet hôte entre dans ses données.",
+      "adminEmail": "E-mail de l\u0027administrateur",
+      "adminEmailHint": "Il reçoit une invitation pour définir son propre mot de passe.",
+      "status": "Statut",
+      "suspendedWarning": "Un locataire suspendu ne peut pas se connecter. Ses données sont conservées.",
+      "aiLimit": "Plafond de requêtes IA",
+      "aiLimitHint": "Un plafond opérationnel, par jour. Sans plafond, la consommation compte sur la licence de l\u0027instance.",
+      "aiLimitToggle": "Plafonner ce locataire"
+    },
+    "create": {
+      "title": "Nouveau locataire",
+      "subtitle": "Crée le locataire et invite son premier administrateur.",
+      "submit": "Créer le locataire"
+    },
+    "edit": {
+      "title": "Modifier le locataire",
+      "subtitle": "L\u0027accès support n\u0027est pas ici : seul le locataire peut l\u0027accorder.",
+      "submit": "Enregistrer"
+    },
+    "terminate": {
+      "title": "Désactiver ce locataire ?",
+      "body": "Plus personne chez {{name}} ne pourra se connecter. Les données sont conservées, c\u0027est donc réversible, mais le client est hors ligne dès maintenant.",
+      "confirmLabel": "Saisissez {{name}} pour confirmer",
+      "submit": "Désactiver"
+    },
+    "reactivate": {
+      "title": "Activer ce locataire ?",
+      "body": "{{name}} pourra se reconnecter. Les données conservées sont restaurées telles quelles.",
+      "submit": "Activer"
+    },
+    "deletePermanent": {
+      "title": "Supprimer ce locataire pour toujours ?",
+      "body": "Toute trace de {{name}} — utilisateurs, sources de données, tableaux de bord, alertes, intégrations — sera effacée. C\u0027est irréversible.",
+      "confirmLabel": "Saisissez {{name}} pour confirmer",
+      "submit": "Supprimer définitivement"
+    },
+    "toast": {
+      "created": "Locataire créé",
+      "updated": "Locataire mis à jour",
+      "terminated": "Locataire résilié",
+      "reactivated": "Locataire réactivé",
+      "permanentlyDeleted": "Locataire supprimé définitivement",
+      "domainInUse": "Ce domaine est déjà pris",
+      "noPermission": "Vous n\u0027avez pas la permission de faire cela",
+      "notFound": "Locataire introuvable",
+      "invalidRequest": "Requête invalide",
+      "operationFailed": "L\u0027opération a échoué"
+    },
+    "switcher": {
+      "aria": "Switch tenant",
+      "self": "Default tenant",
+      "create": "Create tenant"
+    }
+  },
+  "supportAccess": {
+    "title": "Accès support",
+    "intro": "Celui qui exploite cette instance ne peut pas regarder dans vos données sans votre accord. Rien n\u0027est accordé par défaut, et vous pouvez le retirer à tout moment.",
+    "loading": "Chargement…",
+    "loadFailed": "Impossible de lire le réglage actuel.",
+    "retry": "Réessayer",
+    "currentBadge": "actuel",
+    "save": "Enregistrer",
+    "saving": "Enregistrement…",
+    "levels": {
+      "NONE": {
+        "name": "Aucun accès",
+        "desc": "L\u0027exploitant voit que votre locataire existe, rien de plus. Toute requête vers vos données est refusée."
+      },
+      "READ": {
+        "name": "Lecture seule",
+        "desc": "L\u0027exploitant peut consulter vos alertes, vos logs et votre configuration pour vous aider. Il ne peut rien modifier : toute écriture est refusée, quel que soit son propre rôle."
+      },
+      "FULL": {
+        "name": "Accès complet",
+        "desc": "L\u0027exploitant peut agir dans votre locataire en tant qu\u0027administrateur : configuration, utilisateurs et flux de réponse."
+      }
+    },
+    "fullWarning": "L\u0027accès complet lui permet de modifier des choses en votre nom. Accordez-le le temps d\u0027une intervention, puis revenez en arrière.",
+    "revokeNote": "Tout ce que l\u0027exploitant fait ici est consigné dans votre journal d\u0027audit.",
+    "toast": {
+      "granted": "Accès support mis à jour",
+      "revoked": "Accès support retiré",
+      "forbidden": "Seul un administrateur de ce locataire peut changer cela",
+      "invalid": "Requête invalide",
+      "failed": "Impossible d\u0027enregistrer la modification"
+    }
+  },
+  "supportSession": {
+    "inside": "Vous travaillez à l’intérieur de {{name}}",
+    "readOnly": "lecture seule — les écritures sont refusées",
+    "full": "accès complet — les changements ici sont réels",
+    "leave": "Quitter"
+  }
+}

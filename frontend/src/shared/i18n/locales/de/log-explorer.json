@@ -1,0 +1,137 @@
+{
+  "logExplorer": {
+    "title": "Log-Explorer",
+    "eventsIn": "Ereignisse in",
+    "searching": "Suche…",
+    "query": {
+      "allDataTypes": "Alle Datentypen",
+      "dataTypes": "Datentypen",
+      "exportCsv": "CSV exportieren",
+      "filterDataTypes": "Datentypen filtern…",
+      "noDataTypes": "Keine Datentypen",
+      "noDataTypesMatch": "Keine passenden Datentypen",
+      "noTextSearch": "Diese Datenquelle hat kein Volltextfeld — nach Feld filtern",
+      "refresh": "Aktualisieren",
+      "run": "Ausführen",
+      "search": "Suchen",
+      "searchPlaceholder": "In allen Feldern suchen…"
+    },
+    "time": {
+      "15m": "Letzte 15 Minuten",
+      "1h": "Letzte Stunde",
+      "6h": "Letzte 6 Stunden",
+      "24h": "Letzte 24 Stunden",
+      "7d": "Letzte 7 Tage",
+      "30d": "Letzte 30 Tage"
+    },
+    "ops": {
+      "is": "ist",
+      "isNot": "ist nicht",
+      "contains": "enthält",
+      "exists": "existiert",
+      "between": "zwischen",
+      "search": "sucht",
+      "isOneOf": "ist eines von",
+      "isNotOneOf": "ist keines von"
+    },
+    "filters": {
+      "label": "Filter",
+      "clearAll": "Alle löschen"
+    },
+    "fields": {
+      "title": "Felder",
+      "filterPlaceholder": "Felder filtern…",
+      "none": "Keine Felder",
+      "selected": "Ausgewählte Felder",
+      "available": "Verfügbare Felder",
+      "topValues_one": "Top {{count}} Wert",
+      "topValues_other": "Top {{count}} Werte",
+      "loading": "Lädt…",
+      "noValues": "Keine Werte",
+      "addColumn": "Als Spalte hinzufügen",
+      "removeColumn": "Spalte aus Tabelle entfernen",
+      "filterFor": "Nach Wert filtern",
+      "filterOut": "Wert ausschließen",
+      "empty": "(leer)"
+    },
+    "results": {
+      "dataTypesFailed": "Datentypen konnten nicht geladen werden.",
+      "endOfResults": "Alle {{count}} Ereignisse geladen",
+      "loadingMore": "Mehr wird geladen…",
+      "message": "Nachricht",
+      "none": "Keine Logs entsprechen dieser Abfrage.",
+      "removeColumn": "{{field}} entfernen",
+      "retry": "Erneut versuchen",
+      "searchFailed": "Suche fehlgeschlagen.",
+      "searching": "Suche…",
+      "source": "Quelle",
+      "time": "Zeit",
+      "scope": "Durchsucht: {{dataset}} · {{dataType}}.",
+      "searchAllDataTypes": "Alle Datentypen durchsuchen"
+    },
+    "detail": {
+      "fieldsCount_one": "{{count}} Feld",
+      "fieldsCount_other": "{{count}} Felder",
+      "copyJson": "JSON kopieren",
+      "copied": "Dokument kopiert",
+      "parsedFields": "Geparste Felder",
+      "json": "JSON",
+      "filterFor": "Filtern nach",
+      "filterOut": "Ausschließen",
+      "surrounding": "Umliegende Ereignisse",
+      "surroundingHint": "Ereignisse ±15 Min. um dieses herum aus derselben Quelle anzeigen"
+    },
+    "view": {
+      "table": "Tabelle",
+      "chart": "Diagramm"
+    },
+    "chart": {
+      "aggregateOn": "Aggregieren nach",
+      "per": "pro",
+      "topValues": "— Top 20 Werte",
+      "building": "Diagramm wird erstellt…",
+      "failed": "Diagramm für dieses Feld konnte nicht erstellt werden.",
+      "noData": "Keine Daten für das Diagramm."
+    },
+    "intervals": {
+      "minute": "Minute",
+      "hour": "Stunde",
+      "day": "Tag",
+      "week": "Woche",
+      "month": "Monat",
+      "quarter": "Quartal",
+      "year": "Jahr"
+    },
+    "toast": {
+      "exportFailed": "Export fehlgeschlagen"
+    },
+    "builder": {
+      "add": "Filter hinzufügen",
+      "filterValues": "Werte filtern…",
+      "loadingValues": "Werte werden geladen…",
+      "noValues": "Keine Werte gefunden.",
+      "cancel": "Abbrechen",
+      "confirm": "Hinzufügen",
+      "pickValue": "Pick a value to add the filter."
+    },
+    "related": {
+      "nLogs_one": "{{count}} Log",
+      "nLogs_other": "{{count}} Logs",
+      "truncated": "Zeige die ersten {{count}} zugehörigen Logs (die vollständige Menge ist größer)."
+    },
+    "saved": {
+      "title": "Gespeichert",
+      "empty": "Noch keine gespeicherten Suchen",
+      "saveCurrent": "Aktuelle Suche speichern",
+      "save": "Speichern",
+      "namePlaceholder": "Name der Suche",
+      "delete": "Löschen",
+      "saved": "„{{name}}“ gespeichert",
+      "loading": "Wird geladen…",
+      "loadFailed": "Gespeicherte Suchen konnten nicht geladen werden",
+      "saveFailed": "Die Suche konnte nicht gespeichert werden",
+      "deleteFailed": "Die Suche konnte nicht gelöscht werden",
+      "unreadable": "Diese gespeicherte Suche konnte nicht gelesen werden"
+    }
+  }
+}

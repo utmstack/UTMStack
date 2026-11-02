@@ -1,0 +1,449 @@
+{
+  "threatIntel": {
+    "header": {
+      "matchedInEnv": "coincidencias en tu entorno",
+      "export": "Exportar IOCs",
+      "exporting": "Exportando…",
+      "noInstanceIocs": "Sin indicadores de instancia — mostrando datos genéricos",
+      "noInstanceIocsHint": "No se observaron indicadores en tus alertas — se muestran datos genéricos de feeds."
+    },
+    "overview": {
+      "title": "Coincidencias de IOCs",
+      "totalIndicators": "indicadores totales",
+      "families": {
+        "ip": "IP",
+        "url": "URL",
+        "domain": "Dominio",
+        "signatures": "Firmas"
+      }
+    },
+    "notConfigured": {
+      "title": "Threat Intelligence no está configurado",
+      "body": "Contacta a tu administrador para conectar una instancia de Cyber Mantra / ThreatWinds para este entorno."
+    },
+    "lookup": {
+      "title": "Busca cualquier indicador",
+      "placeholder": "Pega una IP, dominio, hash, URL o CVE — revisaremos feeds y tu entorno",
+      "button": "Buscar",
+      "busy": "Buscando…"
+    },
+    "tabs": {
+      "iocs": "IOCs",
+      "actors": "Actores de amenaza",
+      "feeds": "Feeds",
+      "analyst": "Analista de IA"
+    },
+    "toolbar": {
+      "searchPlaceholders": {
+        "iocs": "Busca IOC, etiqueta, fuente…",
+        "actors": "Busca actores, alias, técnicas…",
+        "feeds": "Busca feeds…"
+      },
+      "last24h": "Últimas 24 horas",
+      "filters": "Filtros",
+      "refresh": "Actualizar"
+    },
+    "iocs": {
+      "table": {
+        "type": "Tipo",
+        "indicator": "Indicador",
+        "reputation": "Reputación",
+        "tags": "Etiquetas",
+        "lastSeen": "Última vez visto"
+      },
+      "empty": "Sin coincidencias de IOCs.",
+      "loadingMore": "Cargando más…",
+      "loadedProgress": "Cargados {{loaded}} de {{total}}. Desplázate para más.",
+      "endOfResults": "Fin de resultados ({{loaded}} de {{total}})."
+    },
+    "drawer": {
+      "loading": "Cargando…",
+      "accuracy": "Precisión:",
+      "actions": {
+        "block": "Bloquear en perímetro",
+        "viewEvents": "Ver eventos coincidentes",
+        "externalLookup": "Búsqueda externa",
+        "trackCampaign": "Rastrear campaña",
+        "viewIocs": "Ver IOCs coincidentes",
+        "mitre": "MITRE ATT\u0026CK"
+      },
+      "sections": {
+        "timeline": "Cronología",
+        "networkOrigin": "Red / origen",
+        "associationsWithCount": "Asociaciones ({{count}})",
+        "geolocationsWithCount": "Geolocalizaciones ({{count}})",
+        "about": "Acerca de",
+        "activity": "Actividad"
+      },
+      "fields": {
+        "firstSeen": "Primera vez visto",
+        "lastSeen": "Última vez visto",
+        "country": "País",
+        "city": "Ciudad",
+        "aso": "ASO",
+        "asn": "ASN",
+        "reputation": "Reputación",
+        "accuracy": "Precisión",
+        "current": "Actual",
+        "best": "Mejor",
+        "worst": "Peor"
+      },
+      "aiBrief": "Resumen IA",
+      "noDescription": "No hay descripción disponible para este indicador.",
+      "lastObserved": "Última observación {{when}}."
+    },
+    "actors": {
+      "empty": "Sin actores encontrados."
+    },
+    "feeds": {
+      "empty": "Sin feeds configurados.",
+      "table": {
+        "name": "Feed",
+        "type": "Tipo",
+        "accuracy": "Precisión",
+        "header": "Fuentes",
+        "format": "Formato"
+      },
+      "download": "Descargar fuente",
+      "checksum": "Suma de verificación"
+    },
+    "entityTypes": {
+      "ip": "IP",
+      "hostname": "Host",
+      "domain": "Dominio",
+      "url": "URL",
+      "hash": "Hash",
+      "cve": "CVE",
+      "threat": "Amenaza",
+      "entity": "Entidad"
+    },
+    "reputation": {
+      "alarming": "Alarmante",
+      "suspicious": "Sospechoso",
+      "indefinable": "Indefinido",
+      "fair": "Aceptable",
+      "trustworthy": "Confiable"
+    },
+    "feedAccuracy": {
+      "level1": "Nivel 1",
+      "level2": "Nivel 2",
+      "level3": "Nivel 3"
+    },
+    "triage": {
+      "title": "Triage",
+      "subtitle": "Paste indicators, get verdicts",
+      "input": "Indicators",
+      "placeholder": "Paste IPs, domains, URLs or hashes — one per line, or comma separated.\nDefanged values (1.2.3[.]4, hxxp://) are accepted.",
+      "run": "Triage",
+      "stop": "Stop",
+      "reset": "Clear",
+      "parsed": "{{count}} unique indicators",
+      "capped": "Capped at {{max}} per run.",
+      "progress": "{{done}} of {{total}}",
+      "empty": "Paste indicators above to begin.",
+      "indicator": "Indicator",
+      "type": "Type",
+      "verdict": "Verdict",
+      "reputation": "Rep",
+      "accuracy": "Acc",
+      "tags": "Tags",
+      "lastSeen": "Last seen",
+      "exportCsv": "Export CSV",
+      "exportStix": "Export STIX",
+      "stixNote": "STIX export includes malicious and suspicious rows only.",
+      "open": "Open",
+      "notConfigured": "Threat intelligence is not configured — triage needs an upstream ThreatWinds instance.",
+      "summary": "Summary",
+      "v.malicious": "Malicious",
+      "v.suspicious": "Suspicious",
+      "v.benign": "Benign",
+      "v.unknown": "Unknown",
+      "v.notFound": "Not found",
+      "v.invalid": "Unrecognised"
+    },
+    "report": {
+      "title": "Reportar",
+      "subtitle": "Publicar un indicador en el grafo ThreatWinds",
+      "submit": "Reportar indicador",
+      "submitting": "Reportando…",
+      "error": {
+        "generic": "No se pudo enviar el indicador. Inténtalo de nuevo."
+      },
+      "value": {
+        "label": "Indicador",
+        "placeholder": "IP, dominio, URL, hash o dirección de correo"
+      },
+      "type": {
+        "label": "Tipo",
+        "placeholder": "Inferido del valor",
+        "inferred": "Inferido: {{type}}",
+        "inferenceFailed": "No se pudo inferir ningún tipo de este valor. Elige uno de la lista o escríbelo.",
+        "unknown": "«{{type}}» no es un tipo de entidad. Elige uno de la lista."
+      },
+      "tags": {
+        "label": "Etiquetas",
+        "placeholder": "phishing, robo-de-credenciales"
+      },
+      "description": {
+        "label": "Notas"
+      },
+      "reputation": {
+        "legend": "Reputación",
+        "hint": "Déjalo sin establecer si no has llegado a un veredicto.",
+        "alarming": "Alarmante",
+        "worrying": "Preocupante",
+        "concerning": "Sospechoso",
+        "indefinable": "Indefinible",
+        "adequate": "Adecuado",
+        "good": "Bueno",
+        "exceptional": "Excelente"
+      },
+      "associations": {
+        "legend": "Indicadores relacionados",
+        "add": "Añadir indicador relacionado",
+        "remove": "Eliminar",
+        "valuePlaceholder": "Valor relacionado",
+        "typePlaceholder": "Tipo (opcional)",
+        "modeLabel": "Relación",
+        "mode": {
+          "association": "Relacionado con",
+          "aggregation": "Parte de"
+        },
+        "visibilityConflict": "No comparte ningún grupo de visibilidad con el indicador de arriba. Se rechazaría todo el envío."
+      },
+      "attributes": {
+        "legend": "Detalles",
+        "hint": "Opcional. Lo que quede en blanco no se envía.",
+        "invalidHex": "Se esperan {{length}} caracteres hexadecimales.",
+        "invalidHexAny": "Solo se aceptan caracteres hexadecimales.",
+        "invalidNumber": "Se espera un número."
+      },
+      "correlate": {
+        "legend": "Correlacionar",
+        "hint": "Cada atributo marcado se publica como entidad propia, vinculada a esta.",
+        "count_one": "Crea {{count}} entidad vinculada.",
+        "count_other": "Crea {{count}} entidades vinculadas."
+      },
+      "scan": {
+        "notice": "Reportar esto también encola un análisis del destino."
+      },
+      "receipt": {
+        "title": "Enviado",
+        "noVerdict": "Sin veredicto",
+        "skipped": "No enviado, no se pudo inferir el tipo",
+        "pending": "Esperando a que el indicador aparezca en el corpus…",
+        "live": "Activo en el corpus — ver entidad",
+        "processing": "Siguiendo en proceso de ingestión. Aparecerá cuando el flujo se ponga al día.",
+        "another": "Reportar otro"
+      },
+      "visibility": {
+        "legend": "Visible para"
+      },
+      "example": "Probar ejemplo"
+    }
+  },
+  "adversaries": {
+    "title": "Vista de adversarios",
+    "subtitle": "Cada IP, host o usuario visto atacando tu entorno, con sus técnicas y objetivos.",
+    "countChip": "{{count}} adversarios",
+    "refresh": "Actualizar",
+    "search": "Buscar por IP, host, usuario, país, ASO…",
+    "empty": "Ningún adversario coincide.",
+    "loadError": "No se pudieron cargar los adversarios.",
+    "retry": "Reintentar",
+    "views": {
+      "all": "Todos",
+      "high": "Severidad alta",
+      "ip": "IPs",
+      "host": "Hosts",
+      "user": "Usuarios"
+    },
+    "threat": {
+      "critical": "Crítico",
+      "high": "Alto",
+      "medium": "Medio",
+      "low": "Bajo"
+    },
+    "kind": {
+      "ip": "IP",
+      "host": "Host",
+      "user": "Usuario"
+    },
+    "layout": {
+      "list": "Lista",
+      "cards": "Tarjetas"
+    },
+    "overview": {
+      "title": "Actividad de adversarios · últimas 24 horas",
+      "high": "severidad alta",
+      "countries": "países",
+      "alerts": "alertas",
+      "ago24": "hace 24h",
+      "ago12": "hace 12h",
+      "now": "ahora"
+    },
+    "col": {
+      "adversary": "Adversario",
+      "threat": "Amenaza",
+      "alerts": "Alertas",
+      "targets": "Objetivos",
+      "lastSeen": "Última vez",
+      "victims": "Víctimas"
+    },
+    "card": {
+      "alerts": "Alertas",
+      "techniques": "Técnicas",
+      "targets": "Objetivos"
+    },
+    "tabs": {
+      "profile": "Perfil",
+      "techniques": "Técnicas",
+      "targets": "Objetivos",
+      "alerts": "Alertas"
+    },
+    "drawer": {
+      "activity": "Actividad en 24 horas",
+      "identification": "Identificación",
+      "kindLabel": "Tipo",
+      "identifier": "Identificador",
+      "firstSeen": "Visto por primera vez",
+      "lastSeen": "Última vez",
+      "geolocation": "Geolocalización",
+      "country": "País",
+      "city": "Ciudad",
+      "topTechniques": "Técnicas principales",
+      "noTechniques": "Sin técnicas registradas.",
+      "targets": "Objetivos",
+      "noTargets": "Sin objetivos registrados.",
+      "recentAlerts": "Alertas recientes",
+      "noAlerts": "Sin alertas.",
+      "echoes": "{{count}} repeticiones"
+    },
+    "relative": {
+      "justNow": "ahora mismo",
+      "minutesAgo": "hace {{count}}m",
+      "hoursAgo": "hace {{count}}h",
+      "daysAgo": "hace {{count}}d"
+    },
+    "field": {
+      "ip": "IP",
+      "host": "Host",
+      "user": "Usuario",
+      "port": "Puerto",
+      "domain": "Dominio",
+      "mac": "MAC",
+      "country": "País",
+      "city": "Ciudad",
+      "asn": "ASN",
+      "aso": "ASO"
+    }
+  },
+  "tiAnalyst": {
+    "console": {
+      "subtitle": "Espacio del analista",
+      "model": "Modelo",
+      "resizeResults": "Redimensionar el panel de resultados",
+      "resizeHint": "Arrastrar para redimensionar · doble clic para restablecer"
+    },
+    "conv": {
+      "title": "Conversaciones",
+      "allConversations": "Todas las conversaciones",
+      "empty": "Aún no hay conversaciones.",
+      "new": "Nueva conversación",
+      "newTitle": "Título de la conversación",
+      "selectPrompt": "Seleccione una conversación o comience una.",
+      "running": "en curso",
+      "delete": "Eliminar {{title}}",
+      "unread_one": "{{count}} mensaje no leído",
+      "unread_other": "{{count}} mensajes no leídos",
+      "transcript": "Transcripción de la conversación"
+    },
+    "agent": {
+      "placeholder": "Investigar un indicador…",
+      "ask": "Preguntar al agente analista",
+      "intro": "Pregunte sobre cualquier indicador. El agente consulta ThreatWinds directamente y muestra su trabajo.",
+      "send": "Enviar",
+      "stop": "Detener",
+      "thinking": "reflexionando…",
+      "suggestionInvestigate": "Investiga 8.8.8.8 y dime si es malicioso",
+      "suggestionInfrastructure": "¿Qué infraestructura está relacionada con google.com?",
+      "suggestionCounts": "Muéstrame cuántas entidades existen por tipo"
+    },
+    "canvas": {
+      "title": "Resultados",
+      "empty": "Los resultados de esta conversación aparecen aquí.",
+      "tile": "Ordenar",
+      "closeAll": "Cerrar todo",
+      "pinOut": "Abrir {{title}} como panel",
+      "loading": "cargando…",
+      "failed": "no se pudo cargar",
+      "noRelations": "sin entidades relacionadas",
+      "noGeo": "sin geolocalización registrada",
+      "noResults": "sin coincidencias",
+      "matches": "{{total}} coincidencias",
+      "panelName": "{{title}} — {{kind}}",
+      "movePanel": "Mover {{title}}",
+      "resizePanel": "Redimensionar {{title}}",
+      "closePanel": "Cerrar {{title}}",
+      "collapse": "Reducir {{title}}",
+      "expand": "Expandir {{title}}",
+      "kind": {
+        "entity": "expediente",
+        "graph": "relaciones",
+        "geo": "geolocalización",
+        "search": "búsqueda"
+      }
+    },
+    "graph": {
+      "nodes_one": "{{count}} nodo",
+      "nodes_other": "{{count}} nodos",
+      "edges_one": "{{count}} arista",
+      "edges_other": "{{count}} aristas",
+      "clickToPivot": "clic para pivotar",
+      "malicious": "malicioso",
+      "unknown": "desconocido",
+      "benign": "inofensivo"
+    },
+    "entity": {
+      "reputation": "Reputación",
+      "accuracy": "Precisión",
+      "worst": "Peor",
+      "best": "Mejor",
+      "relations": "Grafo de relaciones",
+      "history": "Historial",
+      "geolocations": "Geolocalizaciones",
+      "associations": "Asociaciones",
+      "radius": "r={{radius}}m",
+      "askAgentBtn": "Preguntar al agente",
+      "askAgent": "Evalúa {{type}} {{value}} (entidad id {{id}}). ¿Es una amenaza?"
+    },
+    "tool": {
+      "querying": "consultando…",
+      "notRetained": "Resultado no conservado.",
+      "expand": "Mostrar solicitud y resultado",
+      "collapse": "Ocultar solicitud y resultado",
+      "noIntel": "«{{value}}» no tiene información de amenazas registrada.",
+      "noMatches": "Sin coincidencias.",
+      "matches": "{{items}} coincidencias para «{{query}}»",
+      "more": "+{{count}} más",
+      "reported": "Reportado al corpus compartido de ThreatWinds. La ingesta es asincrona, no es inmediatamente consultable.",
+      "skippedAssociations": "No registrado (tipo no inferible): {{values}}"
+    }
+  },
+  "threatwinds": {
+    "title": "Integración de ThreatWinds",
+    "subtitle": "Comparte los incidentes de esta instancia con el feed comunitario de ThreatWinds.",
+    "feeds": "Habilitar feeds",
+    "feedsHint": "Cuando está activado, los eventos se comprueban contra los feeds de inteligencia de ThreatWinds.",
+    "contribute": "Contribuir incidentes",
+    "contributeHint": "Cuando está activado, los incidentes de esta instancia se envían a ThreatWinds.",
+    "loading": "Cargando estado de la integración…",
+    "failed": "No se pudo cargar el estado de la integración de ThreatWinds.",
+    "retry": "Reintentar",
+    "toast": {
+      "enabled": "Contribución activada",
+      "disabled": "Contribución desactivada",
+      "failed": "No se pudo actualizar la configuración de contribución"
+    }
+  }
+}

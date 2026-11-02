@@ -1,0 +1,67 @@
+{
+  "audit": {
+    "title": "Registro de auditoría",
+    "subtitle": "Registro de cada acción relevante para la seguridad.",
+    "totalEntries": "{{total}} entradas en total.",
+    "loadError": "No se pudo cargar el registro de auditoría",
+    "stats": {
+      "totalEntries": "Entradas totales",
+      "acrossAllTime": "De todo el tiempo",
+      "successRate": "Tasa de éxito",
+      "failuresOnPage_one": "{{count}} fallo en esta página",
+      "failuresOnPage_other": "{{count}} fallos en esta página",
+      "topAction": "Acción principal",
+      "onPage": "{{count}} en esta página",
+      "uniqueActors": "Actores únicos",
+      "includingSystem": "Incluyendo el sistema"
+    },
+    "filters": {
+      "title": "Filtros",
+      "clear": "Limpiar",
+      "last24h": "Últimas 24h",
+      "failuresOnly": "Solo fallos",
+      "authEvents": "Eventos de autenticación",
+      "actionPrefix": "Prefijo de acción",
+      "actionPlaceholder": "p.ej. auth., user.update",
+      "status": "Estado",
+      "any": "Cualquiera",
+      "resourceType": "Tipo de recurso",
+      "resourceTypePlaceholder": "user, alert…",
+      "resourceId": "ID de recurso",
+      "user": "Usuario",
+      "userPlaceholder": "login…"
+    },
+    "statusValue": {
+      "success": "Éxito",
+      "failure": "Fallo"
+    },
+    "table": {
+      "timestamp": "Fecha y hora",
+      "actor": "Actor",
+      "action": "Acción",
+      "resource": "Recurso",
+      "status": "Estado",
+      "ip": "IP",
+      "loading": "Cargando…",
+      "emptyTitle": "Ninguna entrada coincide con estos filtros.",
+      "emptyHint": "Prueba a limpiar los filtros o ampliar el rango de fechas.",
+      "system": "sistema",
+      "view": "Ver"
+    },
+    "drawer": {
+      "entry": "entrada #{{id}}",
+      "overview": "Resumen",
+      "raw": "JSON crudo",
+      "error": "Error",
+      "actor": "Actor",
+      "resource": "Recurso",
+      "ip": "IP",
+      "userAgent": "Agente de usuario",
+      "session": "Sesión",
+      "metadata": "Metadatos",
+      "copy": "Copiar",
+      "copied": "Copiado",
+      "copyJson": "Copiar JSON"
+    }
+  }
+}

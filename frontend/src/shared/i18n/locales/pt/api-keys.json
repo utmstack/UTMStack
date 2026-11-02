@@ -1,0 +1,87 @@
+{
+  "apiKeys": {
+    "title": "Chaves de API",
+    "subtitle": "Tokens de acesso programático para a API do UTMStack.",
+    "new": "Nova chave de API",
+    "searchPlaceholder": "Pesquisar por nome ou IP permitido…",
+    "refresh": "Atualizar",
+    "loading": "Carregando chaves de API…",
+    "loadFailed": "Não foi possível carregar as chaves de API.",
+    "retry": "Tentar novamente",
+    "noSearchMatch": "Nenhuma chave de API corresponde à sua pesquisa.",
+    "empty": "Ainda não há chaves de API. Crie uma para começar.",
+    "anyIp": "Qualquer IP",
+    "never": "Nunca",
+    "count_one": "{{count}} chave · página {{page}} de {{pages}}",
+    "count_other": "{{count}} chaves · página {{page}} de {{pages}}",
+    "enterprise": {
+      "title": "As chaves de API são um recurso Enterprise",
+      "body": "Emita, restrinja e rotacione chaves de API para acesso programático à API do UTMStack. Esse recurso está disponível na edição Enterprise.",
+      "upgrade": "Atualizar para Enterprise",
+      "manageLicense": "Gerenciar sua licença"
+    },
+    "col": {
+      "name": "Nome",
+      "allowedIps": "IPs permitidos",
+      "created": "Criada",
+      "lastRotated": "Última rotação",
+      "expires": "Expira",
+      "status": "Status",
+      "actions": "Ações"
+    },
+    "status": {
+      "active": "Ativa",
+      "expiring": "Expirando",
+      "expired": "Expirada"
+    },
+    "action": {
+      "rotate": "Rotacionar",
+      "edit": "Editar",
+      "delete": "Excluir"
+    },
+    "dialog": {
+      "editTitle": "Editar chave de API",
+      "newTitle": "Nova chave de API",
+      "name": "Nome",
+      "namePlaceholder": "ci-pipeline",
+      "allowedIps": "IPs permitidos",
+      "allowedIpsHint": "Separados por vírgula. Deixe vazio para permitir qualquer IP.",
+      "expires": "Expira",
+      "expiresHint": "Deixe vazio para uma chave que nunca expira.",
+      "secretNote": "O token secreto é mostrado uma única vez, logo após a criação. Copie-o então — não pode ser recuperado depois (apenas rotacionado).",
+      "cancel": "Cancelar",
+      "saving": "Salvando…",
+      "saveChanges": "Salvar alterações",
+      "createKey": "Criar chave"
+    },
+    "confirm": {
+      "deleteTitle": "Excluir chave de API",
+      "rotateTitle": "Rotacionar chave de API",
+      "deleteBody": "Excluir {{name}}? Qualquer cliente que a utilize perderá o acesso imediatamente. Isso não pode ser desfeito.",
+      "rotateBody": "Rotacionar {{name}}? Um novo segredo é emitido e o atual para de funcionar imediatamente. O novo token é mostrado uma única vez.",
+      "cancel": "Cancelar",
+      "working": "Processando…",
+      "delete": "Excluir",
+      "rotate": "Rotacionar"
+    },
+    "reveal": {
+      "title": "Chave de API criada",
+      "note": "Copie este segredo agora — para {{name}}. Ele não será mostrado novamente. Se você perdê-lo, rotacione a chave.",
+      "copied": "Copiado",
+      "copy": "Copiar",
+      "done": "Concluído"
+    },
+    "toast": {
+      "updated": "Chave de API atualizada",
+      "secretIssueFailed": "Chave criada, mas o segredo não pôde ser emitido. Use Rotacionar para obter um.",
+      "deleted": "Chave de API excluída"
+    },
+    "error": {
+      "nameTaken": "Já existe uma chave de API com esse nome",
+      "enterpriseRequired": "As chaves de API exigem a edição Enterprise",
+      "notFound": "Chave de API não encontrada",
+      "invalidRequest": "Solicitação inválida",
+      "failed": "Falha na operação"
+    }
+  }
+}

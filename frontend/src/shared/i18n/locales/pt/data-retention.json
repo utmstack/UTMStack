@@ -1,0 +1,65 @@
+{
+  "dataRetention": {
+    "title": "Retenção de dados",
+    "subtitle": "How long each dataset is kept, and when its records stop costing local disk.",
+    "loading": "Carregando…",
+    "loadFailed": "Could not read the store.",
+    "retry": "Tentar novamente",
+    "datasets": {
+      "logs": "Logs",
+      "alerts": "Alerts",
+      "statistics": "Ingestion statistics"
+    },
+    "holding": "{{documents}} records · {{size}}",
+    "since": "since {{date}}",
+    "diskUsed": "Disk {{pct}}% used",
+    "keep": "Delete after",
+    "keepHint": "A record is deleted this many days after it happened, wherever it is stored by then.",
+    "cold": "Move to cold storage after",
+    "coldHint": "Older records move to object storage and stay queryable. 0 keeps everything on local disk.",
+    "coldUnavailable": "Set up cold storage below to move older records off local disk.",
+    "coldBeforeDelete": "Records have to move before they are deleted: use fewer days than the lifetime, or 0.",
+    "tieredNote": "This dataset moves records to cold storage. Going back to local-only needs the table rebuilt, so it cannot be turned off here.",
+    "days": "dias",
+    "save": "Salvar",
+    "saving": "Salvando…",
+    "toast": {
+      "saved": "Retention saved",
+      "noPermission": "You do not have permission to change retention",
+      "saveFailed": "Could not save the retention"
+    },
+    "coldStorage": {
+      "title": "Cold storage",
+      "hint": "An object store the event store treats as a second, slower disk. Older records move there and are still queried from the same place — it is not an archive and nothing has to be restored.",
+      "active": "In use",
+      "inactive": "Not set up",
+      "writtenNotReady": "The bucket is configured but the store has not picked it up. Check that the deployment shares the store\u0027s configuration directory.",
+      "endpoint": "Bucket URL",
+      "accessKey": "Access key",
+      "secretKey": "Secret key",
+      "bucketLocked": "The credentials can be changed at any time. The bucket cannot, once records live in it: the parts already moved carry it.",
+      "enable": "Enable cold storage",
+      "update": "Update credentials",
+      "toast": {
+        "saved": "Cold storage configured",
+        "failed": "Could not configure cold storage"
+      },
+      "kind": "Tipo",
+      "kind_s3": "Armazenamento de objetos compatível com S3",
+      "kind_local": "Pasta local ou NFS",
+      "kind_azure": "Azure Blob Storage",
+      "accountUrl": "URL da conta de armazenamento",
+      "container": "Contêiner",
+      "accountName": "Nome da conta",
+      "accountKey": "Chave da conta",
+      "useRole": "Usar a função IAM do servidor em vez de chaves",
+      "s3Hint": "Funciona com AWS S3 e qualquer armazenamento compatível com S3: MinIO, Ceph, Wasabi, Cloudflare R2 ou Google Cloud Storage (endpoint https://storage.googleapis.com/\u003cbucket\u003e/ com chaves HMAC).",
+      "localHint": "Os registros vão para a pasta montada em /mnt/utmstack-cold dentro do armazenamento de eventos: um diretório comum na pasta de dados, ou um compartilhamento NFS montado no host sobre \u003cdiretório de dados\u003e/clickhouse/cold antes de iniciar o stack. Não exige credenciais.",
+      "changeWarning": "Records already moved to the current destination are not migrated. They stay there and stop being readable from here until the old destination is copied across by hand."
+    },
+    "forbidden": {
+      "title": "Esta página é da plataforma",
+      "body": "A retenção se aplica às tabelas que todos os tenants compartilham, então só um administrador da plataforma pode lê-la ou alterá-la."
+    }
+  }
+}

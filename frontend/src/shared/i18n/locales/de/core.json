@@ -1,0 +1,164 @@
+{
+  "onboarding": {
+    "adminEmail": {
+      "title": "Administrator-E-Mail festlegen",
+      "subtitle": "Erforderlich, bevor Sie fortfahren",
+      "description": "Ihr Administratorkonto verwendet noch die Standard-E-Mail. Legen Sie eine echte Adresse fest — sie wird für Passwort-Wiederherstellung, Benachrichtigungen und Alarm-E-Mails benötigt.",
+      "emailLabel": "E-Mail-Adresse",
+      "save": "Speichern und fortfahren",
+      "saving": "Wird gespeichert…",
+      "success": "Administrator-E-Mail festgelegt. Konfigurieren Sie als Nächstes Ihren Mailserver.",
+      "error": "Ihre E-Mail konnte nicht gespeichert werden. Bitte versuchen Sie es erneut."
+    }
+  },
+  "common": {
+    "appName": "UTMStack",
+    "language": "Sprache",
+    "actions": {
+      "save": "Speichern",
+      "cancel": "Abbrechen",
+      "retry": "Wiederholen",
+      "refresh": "Aktualisieren",
+      "delete": "Löschen",
+      "remove": "Entfernen",
+      "close": "Schließen",
+      "next": "Weiter",
+      "back": "Zurück"
+    },
+    "confirm": {
+      "delete": "Löschen",
+      "working": "Wird ausgeführt…"
+    },
+    "dateRange": {
+      "pick": "Zeitraum wählen",
+      "clear": "Löschen",
+      "done": "Fertig",
+      "apply": "Übernehmen"
+    },
+    "loadingMore": "Mehr wird geladen…",
+    "allLoaded": "Alle {{count}} geladen",
+    "startFrom": {
+      "scratch": "Von Grund auf",
+      "scratchHint": "Eine leere Definition, die Sie selbst ausfüllen.",
+      "copy": "Von einer vorhandenen",
+      "copyHint": "Alles wird kopiert außer Kennung und Name.",
+      "pickTitle": "Wählen Sie die Vorlage",
+      "back": "Zurück",
+      "count": "{{n}} verfügbar",
+      "search": "Nach Name suchen",
+      "none": "Keine Treffer für diese Suche"
+    },
+    "cancel": "Abbrechen"
+  },
+  "nav": {
+    "home": "Startseite",
+    "dashboards": "Dashboards",
+    "dashboardList": "Dashboard-Liste",
+    "visualizationList": "Widgets",
+    "newDashboard": "Neues Dashboard",
+    "newVisualization": "Neues Widget",
+    "threatManagement": "Bedrohungsmanagement",
+    "alerts": "Warnungen",
+    "incidents": "Vorfälle",
+    "adversaryView": "Angreiferansicht",
+    "soar": "SOAR",
+    "flows": "Abläufe",
+    "executionHistory": "Ausführungsverlauf",
+    "interactiveConsole": "Interaktive Konsole",
+    "logExplorer": "Log-Explorer",
+    "userAuditor": "Benutzer-Auditor",
+    "threatIntelligence": "Bedrohungsanalyse",
+    "threat-intel": {
+      "indicators": "Indikatoren",
+      "analyzt": "KI-Analyst",
+      "triage": "Triage",
+      "report": "Bericht"
+    },
+    "compliance": "Compliance",
+    "configure": "Konfigurieren",
+    "dataSources": "Datenquellen",
+    "integrations": "Integrationen",
+    "alertingRules": "Warnregeln",
+    "dataProcessing": "Datenverarbeitung",
+    "team": "Team",
+    "settings": "Einstellungen",
+    "back": "Zurück",
+    "regexPatterns": "Reguläre Ausdrücke",
+    "taggingRules": "Tagging-Regeln",
+    "parsingFilters": "Pipelines",
+    "overview": "Übersicht",
+    "tenants": "Mandanten",
+    "openMenu": "Menü öffnen",
+    "closeMenu": "Menü schließen",
+    "liveOps": "Live-Betrieb"
+  },
+  "topbar": {
+    "theme": {
+      "light": "Heller Modus",
+      "dark": "Dunkler Modus"
+    },
+    "manageLicense": "Lizenz verwalten",
+    "profile": {
+      "profile": "Profil",
+      "license": "Lizenz",
+      "logout": "Abmelden"
+    }
+  },
+  "pagination": {
+    "perPage": "Pro Seite",
+    "pageOf": "Seite {{page}} von {{total}}",
+    "previous": "Zurück",
+    "next": "Weiter"
+  },
+  "timeRange": {
+    "quick": "Schnellbereiche",
+    "relative": "Relativ",
+    "absolute": "Absolut",
+    "last": "Letzte",
+    "apply": "Anwenden",
+    "allTime": "Gesamter Zeitraum",
+    "from": "Von",
+    "to": "Bis",
+    "now": "jetzt",
+    "units": {
+      "minutes": "Minuten",
+      "hours": "Stunden",
+      "days": "Tage",
+      "weeks": "Wochen",
+      "months": "Monate"
+    },
+    "presets": {
+      "15m": "Letzte 15 Minuten",
+      "1h": "Letzte Stunde",
+      "6h": "Letzte 6 Stunden",
+      "24h": "Letzte 24 Stunden",
+      "7d": "Letzte 7 Tage",
+      "30d": "Letzte 30 Tage"
+    }
+  },
+  "dateFormat": {
+    "title": "Datum \u0026 Uhrzeit",
+    "subtitle": "Wie Zeitstempel plattformweit angezeigt werden. Protokolle werden immer in UTC gespeichert.",
+    "timezone": {
+      "title": "Zeitzone",
+      "hint": "Zeitstempel werden in dieser Zeitzone angezeigt. Gespeicherte Daten bleiben in UTC.",
+      "system": "Browser-Standard",
+      "now": "Jetzt: {{value}}"
+    },
+    "format": {
+      "title": "Datumsformat",
+      "hint": "Stil für Datum und Uhrzeit."
+    },
+    "styles": {
+      "short": "Kurz",
+      "medium": "Mittel",
+      "long": "Lang",
+      "full": "Vollständig"
+    },
+    "save": "Änderungen speichern",
+    "saving": "Wird gespeichert…",
+    "saved": "Datumseinstellungen gespeichert",
+    "saveError": "Einstellungen konnten nicht gespeichert werden",
+    "loadError": "Einstellungen konnten nicht geladen werden"
+  }
+}

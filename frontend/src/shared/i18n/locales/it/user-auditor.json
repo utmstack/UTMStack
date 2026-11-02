@@ -1,0 +1,108 @@
+{
+  "userAuditor": {
+    "title": "Auditor utenti",
+    "subtitle": "Account di Active Directory osservati nei tuoi log di sicurezza di Windows — rilevati da eventi di creazione, accesso ed eliminazione.",
+    "export": "Esporta",
+    "accountsChip": "{{count}} account",
+    "overview": {
+      "title": "Inventario account",
+      "active": "attivi",
+      "disabled": "disabilitati",
+      "deleted": "eliminati",
+      "seen24h": "{{count}} visti nelle ultime 24 ore",
+      "byDomain": "Per dominio"
+    },
+    "views": {
+      "all": "Tutti gli account",
+      "windows": "Windows",
+      "linux": "Linux",
+      "active": "Attivi",
+      "disabled": "Disabilitati",
+      "deleted": "Eliminati",
+      "service": "Account di servizio",
+      "stale": "Inattivi (30g+)"
+    },
+    "searchPlaceholder": "Cerca per nome account o SID…",
+    "allTenants": "Tutti i tenant",
+    "filters": {
+      "add": "Aggiungi filtro",
+      "clearAll": "Cancella tutto",
+      "filterValues": "Filtra valori…",
+      "loadingValues": "Caricamento valori…",
+      "noValues": "Nessun valore trovato.",
+      "pickValue": "Scegli un valore per aggiungere il filtro.",
+      "empty": "(vuoto)",
+      "cancel": "Annulla",
+      "addBtn": "Aggiungi"
+    },
+    "filterFields": {
+      "status": "Stato del ciclo di vita"
+    },
+    "ops": {
+      "is": "è"
+    },
+    "refresh": "Aggiorna",
+    "layout": {
+      "list": "Elenco",
+      "cards": "Schede"
+    },
+    "list": {
+      "account": "Account",
+      "identity": "Identità",
+      "sid": "SID",
+      "status": "Stato",
+      "lastLogon": "Ultimo accesso",
+      "lastSeen": "Visto l’ultima volta",
+      "tenant": "Tenant"
+    },
+    "status": {
+      "active": "Attivo",
+      "disabled": "Disabilitato",
+      "deleted": "Eliminato"
+    },
+    "badge": {
+      "service": "servizio",
+      "stale": "inattivo"
+    },
+    "empty": "Nessun account corrisponde a questa vista.",
+    "loadError": "Impossibile caricare gli account AD.",
+    "retry": "Riprova",
+    "card": {
+      "lastLogon": "Ultimo accesso"
+    },
+    "pageInfo": "{{from}}–{{to}} di {{count}}",
+    "drawer": {
+      "tenantInline": "tenant {{id}}",
+      "serviceAccount": "account di servizio",
+      "stale": "inattivo 30g+",
+      "viewInLogs": "Vedi eventi nel Log Explorer",
+      "copySid": "Copia SID",
+      "copyUid": "Copia identità",
+      "copied": "Copiato",
+      "identity": "Identità",
+      "accountName": "Nome account",
+      "domain": "Dominio",
+      "hostname": "Hostname",
+      "sid": "SID",
+      "uidNumber": "UID",
+      "machineId": "ID macchina",
+      "tenant": "Tenant",
+      "adStatus": "Stato AD",
+      "enabled": "Abilitato",
+      "disabled": "Disabilitato",
+      "lifecycle": "Ciclo di vita",
+      "created": "Account creato",
+      "lastLogon": "Ultimo accesso",
+      "lastSeen": "Visto l’ultima volta nei log",
+      "deleted": "Account eliminato",
+      "noLifecycle": "Nessun evento del ciclo di vita registrato."
+    },
+    "relative": {
+      "justNow": "proprio ora",
+      "minutesAgo": "{{count}}m fa",
+      "hoursAgo": "{{count}}h fa",
+      "daysAgo": "{{count}}g fa"
+    },
+    "none": "—"
+  }
+}

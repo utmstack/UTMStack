@@ -1,0 +1,108 @@
+{
+  "userAuditor": {
+    "title": "Auditor de usuários",
+    "subtitle": "Contas do Active Directory observadas nos seus logs de segurança do Windows — descobertas a partir de eventos de criação, logon e exclusão.",
+    "export": "Exportar",
+    "accountsChip": "{{count}} contas",
+    "overview": {
+      "title": "Inventário de contas",
+      "active": "ativas",
+      "disabled": "desativadas",
+      "deleted": "excluídas",
+      "seen24h": "{{count}} vistas nas últimas 24 horas",
+      "byDomain": "Por domínio"
+    },
+    "views": {
+      "all": "Todas as contas",
+      "windows": "Windows",
+      "linux": "Linux",
+      "active": "Ativas",
+      "disabled": "Desativadas",
+      "deleted": "Excluídas",
+      "service": "Contas de serviço",
+      "stale": "Inativas (30d+)"
+    },
+    "searchPlaceholder": "Pesquisar por nome de conta ou SID…",
+    "allTenants": "Todos os tenants",
+    "filters": {
+      "add": "Adicionar filtro",
+      "clearAll": "Limpar tudo",
+      "filterValues": "Filtrar valores…",
+      "loadingValues": "Carregando valores…",
+      "noValues": "Nenhum valor encontrado.",
+      "pickValue": "Escolha um valor para adicionar o filtro.",
+      "empty": "(vazio)",
+      "cancel": "Cancelar",
+      "addBtn": "Adicionar"
+    },
+    "filterFields": {
+      "status": "Status do ciclo de vida"
+    },
+    "ops": {
+      "is": "é"
+    },
+    "refresh": "Atualizar",
+    "layout": {
+      "list": "Lista",
+      "cards": "Cartões"
+    },
+    "list": {
+      "account": "Conta",
+      "identity": "Identidade",
+      "sid": "SID",
+      "status": "Status",
+      "lastLogon": "Último logon",
+      "lastSeen": "Visto por último",
+      "tenant": "Tenant"
+    },
+    "status": {
+      "active": "Ativa",
+      "disabled": "Desativada",
+      "deleted": "Excluída"
+    },
+    "badge": {
+      "service": "serviço",
+      "stale": "inativa"
+    },
+    "empty": "Nenhuma conta corresponde a esta visão.",
+    "loadError": "Não foi possível carregar as contas do AD.",
+    "retry": "Tentar novamente",
+    "card": {
+      "lastLogon": "Último logon"
+    },
+    "pageInfo": "{{from}}–{{to}} de {{count}}",
+    "drawer": {
+      "tenantInline": "tenant {{id}}",
+      "serviceAccount": "conta de serviço",
+      "stale": "inativa 30d+",
+      "viewInLogs": "Ver eventos no Log Explorer",
+      "copySid": "Copiar SID",
+      "copyUid": "Copiar identidade",
+      "copied": "Copiado",
+      "identity": "Identidade",
+      "accountName": "Nome da conta",
+      "domain": "Domínio",
+      "hostname": "Hostname",
+      "sid": "SID",
+      "uidNumber": "UID",
+      "machineId": "ID da máquina",
+      "tenant": "Tenant",
+      "adStatus": "Status no AD",
+      "enabled": "Habilitada",
+      "disabled": "Desabilitada",
+      "lifecycle": "Ciclo de vida",
+      "created": "Conta criada",
+      "lastLogon": "Último logon",
+      "lastSeen": "Visto por último nos logs",
+      "deleted": "Conta excluída",
+      "noLifecycle": "Sem eventos de ciclo de vida."
+    },
+    "relative": {
+      "justNow": "agora mesmo",
+      "minutesAgo": "há {{count}}m",
+      "hoursAgo": "há {{count}}h",
+      "daysAgo": "há {{count}}d"
+    },
+    "none": "—"
+  }
+}

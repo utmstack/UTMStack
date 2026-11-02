@@ -1,0 +1,67 @@
+{
+  "audit": {
+    "title": "Journal d\u0027audit",
+    "subtitle": "Enregistrement de chaque action pertinente pour la sécurité.",
+    "totalEntries": "{{total}} entrées au total.",
+    "loadError": "Impossible de charger le journal d\u0027audit",
+    "stats": {
+      "totalEntries": "Total des entrées",
+      "acrossAllTime": "Sur toute la période",
+      "successRate": "Taux de réussite",
+      "failuresOnPage_one": "{{count}} échec sur cette page",
+      "failuresOnPage_other": "{{count}} échecs sur cette page",
+      "topAction": "Action principale",
+      "onPage": "{{count}} sur cette page",
+      "uniqueActors": "Acteurs uniques",
+      "includingSystem": "Y compris le système"
+    },
+    "filters": {
+      "title": "Filtres",
+      "clear": "Effacer",
+      "last24h": "Dernières 24h",
+      "failuresOnly": "Échecs uniquement",
+      "authEvents": "Événements d\u0027authentification",
+      "actionPrefix": "Préfixe d\u0027action",
+      "actionPlaceholder": "ex. auth., user.update",
+      "status": "Statut",
+      "any": "Tous",
+      "resourceType": "Type de ressource",
+      "resourceTypePlaceholder": "user, alert…",
+      "resourceId": "ID de ressource",
+      "user": "Utilisateur",
+      "userPlaceholder": "login…"
+    },
+    "statusValue": {
+      "success": "Réussite",
+      "failure": "Échec"
+    },
+    "table": {
+      "timestamp": "Horodatage",
+      "actor": "Acteur",
+      "action": "Action",
+      "resource": "Ressource",
+      "status": "Statut",
+      "ip": "IP",
+      "loading": "Chargement…",
+      "emptyTitle": "Aucune entrée ne correspond à ces filtres.",
+      "emptyHint": "Essayez d\u0027effacer les filtres ou d\u0027élargir la plage de dates.",
+      "system": "système",
+      "view": "Voir"
+    },
+    "drawer": {
+      "entry": "entrée #{{id}}",
+      "overview": "Aperçu",
+      "raw": "JSON brut",
+      "error": "Erreur",
+      "actor": "Acteur",
+      "resource": "Ressource",
+      "ip": "IP",
+      "userAgent": "Agent utilisateur",
+      "session": "Session",
+      "metadata": "Métadonnées",
+      "copy": "Copier",
+      "copied": "Copié",
+      "copyJson": "Copier le JSON"
+    }
+  }
+}

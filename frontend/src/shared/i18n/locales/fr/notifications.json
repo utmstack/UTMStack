@@ -1,0 +1,55 @@
+{
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Tout marquer comme lu",
+    "empty": "Vous n\u0027avez aucune notification.",
+    "viewAll": "Voir tout",
+    "markRead": "Marquer comme lu",
+    "markUnread": "Marquer comme non lu",
+    "delete": "Supprimer",
+    "subtitle": "{{total}} au total · {{unread}} non lues",
+    "allCaughtUp": "Tout est à jour.",
+    "loadFailed": "Impossible de charger les notifications."
+  },
+  "platformBroadcast": {
+    "button": "Appliquer à tous les locataires",
+    "action": {
+      "create": "Diffuser la création de {{resource}}",
+      "update": "Diffuser la mise à jour de {{resource}}",
+      "delete": "Diffuser la suppression de {{resource}}",
+      "toggle": "Diffuser le basculement de {{resource}}",
+      "enable": "Diffuser l\u0027activation de {{resource}}",
+      "activate": "Diffuser l\u0027activation de {{resource}}",
+      "test": "Diffuser le test {{resource}}",
+      "upload": "Diffuser l\u0027actif {{resource}}"
+    },
+    "resource": {
+      "pipeline": "pipeline",
+      "correlationRule": "règle de corrélation",
+      "soarFlow": "flux SOAR",
+      "framework": "cadre",
+      "control": "contrôle",
+      "smtp": "SMTP",
+      "idp": "fournisseur d\u0027identité",
+      "branding": "marque"
+    },
+    "warning": {
+      "title": "Cette action s\u0027exécutera sur chaque locataire sélectionné.",
+      "body": "Les échecs par locataire sont signalés après l\u0027exécution et ne sont pas annulés."
+    },
+    "allTenants": "Appliquer à tous les locataires",
+    "excludesDefault": "Le locataire de la plateforme est exclu de cette action.",
+    "searchPlaceholder": "Rechercher des locataires…",
+    "loading": "Chargement des locataires…",
+    "empty": "Aucun locataire ne correspond.",
+    "targetCount": "Ciblera {{count}} locataire(s).",
+    "platformTenant": "plateforme",
+    "confirm": "Appliquer à {{count}} locataire(s)",
+    "result": {
+      "succeeded": "Réussi",
+      "noneSucceeded": "Aucun locataire n\u0027a réussi.",
+      "failed": "Échoué",
+      "noneFailed": "Aucun échec."
+    }
+  }
+}

@@ -1,0 +1,303 @@
+{
+  "settings": {
+    "title": "Impostazioni",
+    "license": "Licenza",
+    "notifications": "Notifiche",
+    "connectionKey": "Chiave di connessione",
+    "dataRetention": "Conservazione dati",
+    "indices": "Indici",
+    "theme": "Tema",
+    "branding": "Brand",
+    "apiKeys": "Chiavi API",
+    "identityProviders": "Provider di identità",
+    "email": "Configurazione email",
+    "dateFormat": "Formato data",
+    "language": "Lingua",
+    "auditLogs": "Log di audit",
+    "about": "Informazioni",
+    "socAi": "SOC-AI",
+    "supportAccess": "Accesso di supporto",
+    "threatwinds": "Integrazione ThreatWinds"
+  },
+  "license": {
+    "title": "Licenza",
+    "subtitle": "La tua edizione, funzionalità e file di licenza.",
+    "loading": "Caricamento licenza…",
+    "loadError": "Impossibile caricare le informazioni sulla licenza.",
+    "statusLabel": "Stato",
+    "status": {
+      "community": "Community",
+      "active": "Attiva",
+      "expiring": "In scadenza",
+      "expired": "Scaduta"
+    },
+    "edition": "Edizione",
+    "enterprise": "Enterprise",
+    "community": "Community",
+    "editionLine": "Edizione {{edition}}",
+    "datasourceLimit": "Limite origini dati",
+    "unlimited": "Illimitato",
+    "mssp": "MSSP / multi-tenant",
+    "enabled": "Attivato",
+    "licenseType": "Tipo di licenza",
+    "instanceId": "ID istanza",
+    "enterpriseUnlocked": "Funzionalità Enterprise sbloccate",
+    "validUntil": "Valida fino al",
+    "noExpiry": "Nessuna scadenza",
+    "timeRemaining": "Tempo rimanente",
+    "expiredAgo": "Scaduta {{days}}g fa",
+    "daysShort": "{{days}}g",
+    "msspShort": "MSSP",
+    "communityEdition": "Edizione Community",
+    "communityBlurb": "Gratuita e open source. Carica una licenza Enterprise qui sotto per sbloccare multi-tenancy, SSO, limiti di origini dati più elevati e conformità avanzata.",
+    "upgrade": "Passa a Enterprise",
+    "uploadTitle": "Carica una licenza",
+    "uploadBlurb": "Installa o sostituisci il file LICENSE firmato. Il server verifica firma e scadenza prima di applicarlo. Solo admin.",
+    "installLicense": "Installa licenza",
+    "chooseFile": "Scegli file",
+    "noFileSelected": "Nessun file selezionato",
+    "toast": {
+      "installed": "Licenza installata — edizione {{edition}}.",
+      "adminRequired": "Sono richiesti privilegi di amministratore per caricare una licenza.",
+      "invalid": "File di licenza non valido o scaduto.",
+      "installFailed": "Impossibile installare la licenza."
+    },
+    "ingestLimit": "Volume di ingest",
+    "notMetered": "Non misurato",
+    "gbPerMonth": "{{gb}} GB/mese"
+  },
+  "languageSettings": {
+    "title": "Lingua della piattaforma",
+    "subtitle": "Lingua predefinita per le schermate pre-login, le email di sistema e i nuovi utenti. Ogni utente può comunque scegliere la propria nel profilo.",
+    "label": "Lingua predefinita",
+    "hint": "Usata quando un utente non ha scelto la propria lingua.",
+    "save": "Salva",
+    "saving": "Salvataggio…",
+    "saved": "Lingua della piattaforma aggiornata",
+    "loadError": "Impossibile caricare l\u0027impostazione della lingua",
+    "saveError": "Impossibile salvare l\u0027impostazione della lingua"
+  },
+  "branding": {
+    "title": "Brand",
+    "subtitle": "Personalizza UTMStack con l’identità della tua organizzazione — applicata ovunque: schermata di accesso, barra laterale, email e report.",
+    "enterpriseRequired": "Il white-label è una funzione Enterprise.",
+    "manageLicense": "Gestisci licenza",
+    "enable": {
+      "title": "White-label",
+      "description": "Sostituisci il marchio UTMStack con il tuo su tutta la piattaforma.",
+      "label": "Attiva il white-label"
+    },
+    "identity": {
+      "title": "Identità",
+      "productName": "Nome del prodotto",
+      "productNameHint": "Mostrato nella barra del titolo, nella barra laterale e nelle email.",
+      "accent": "Colore d’accento",
+      "accentHint": "Colore primario per pulsanti, link e stati attivi.",
+      "custom": "Colore personalizzato"
+    },
+    "logos": {
+      "title": "Loghi",
+      "hint": "PNG, SVG, WEBP, JPG o ICO. Fino a 5 MB.",
+      "logo": "Logo (chiaro)",
+      "logoDark": "Logo (scuro)",
+      "favicon": "Favicon"
+    },
+    "reports": {
+      "title": "Risorse report",
+      "hint": "Incorporate nei report PDF generati.",
+      "reportLogo": "Logo report",
+      "reportCover": "Copertina report"
+    },
+    "asset": {
+      "upload": "Carica",
+      "replace": "Sostituisci"
+    },
+    "save": "Salva modifiche",
+    "saving": "Salvataggio…",
+    "saved": "Brand aggiornato",
+    "saveError": "Impossibile salvare il brand",
+    "uploaded": "Immagine caricata",
+    "uploadError": "Impossibile caricare l’immagine",
+    "loadError": "Impossibile caricare il brand",
+    "enterprise": {
+      "title": "Il white label è una funzione Enterprise",
+      "body": "Sostituisci il nome del prodotto, il logo e la copertina dei report con i tuoi, così il pannello e tutto ciò che genera portano il tuo marchio invece di quello di UTMStack.",
+      "upgrade": "Passa a Enterprise"
+    },
+    "restore": "Ripristina i valori UTMStack",
+    "restored": "Marchio ripristinato ai valori UTMStack"
+  },
+  "emailConfig": {
+    "title": "Configurazione email",
+    "subtitle": "Server SMTP usato per inviare notifiche di avvisi, report ed email dell’account.",
+    "server": {
+      "title": "Server SMTP",
+      "host": "Host",
+      "hostHint": "Nome host del tuo server SMTP.",
+      "port": "Porta",
+      "encryption": "Crittografia",
+      "username": "Nome utente",
+      "password": "Password",
+      "passwordSetHint": "È salvata una password. Lascia vuoto per mantenerla o digitane una nuova per cambiarla."
+    },
+    "encryptionOpt": {
+      "TLS": "TLS",
+      "SSL": "SSL",
+      "NONE": "Nessuna"
+    },
+    "sender": {
+      "title": "Mittente",
+      "from": "Indirizzo mittente",
+      "fromHint": "Indirizzo da cui vengono inviate le email.",
+      "organization": "Nome organizzazione",
+      "organizationHint": "Mostrato nelle email di notifica di avvisi e incidenti.",
+      "baseUrl": "URL base",
+      "baseUrlHint": "URL pubblico di questa istanza, usato per i link nelle email."
+    },
+    "test": {
+      "button": "Invia test",
+      "sending": "Invio…",
+      "sentTo": "Verrà inviata un’email di prova a {{email}}.",
+      "success": "Email di prova inviata a {{email}}",
+      "fail": "Impossibile inviare l’email di prova",
+      "fromRequired": "Imposta un indirizzo mittente prima di testare"
+    },
+    "save": "Salva modifiche",
+    "saving": "Salvataggio…",
+    "saved": "Configurazione email salvata",
+    "saveError": "Impossibile salvare la configurazione",
+    "loadError": "Impossibile caricare la configurazione",
+    "recipients": {
+      "alertsTitle": "Destinatari degli avvisi",
+      "incidentsTitle": "Destinatari degli incidenti",
+      "to": "A",
+      "cc": "CC",
+      "alertsHelper": "Indirizzi avvisati quando vengono generati nuovi avvisi. Se lasci il campo vuoto, gli avvisi non vengono inviati per email.",
+      "incidentsHelper": "Indirizzi avvisati alla creazione di un incidente. Se lasci il campo vuoto, gli incidenti non vengono inviati per email.",
+      "add": "Aggiungi"
+    }
+  },
+  "about": {
+    "title": "Informazioni su questa istanza",
+    "subtitle": "Versione, licenza e stato del sistema di questo deployment UTMStack.",
+    "loading": "Caricamento delle informazioni dell\u0027istanza…",
+    "edition": {
+      "enterprise": "Enterprise",
+      "community": "Community"
+    },
+    "fields": {
+      "hostname": "Server",
+      "instanceId": "ID istanza",
+      "noInstanceMeta": "Nessun metadato dell\u0027istanza disponibile."
+    },
+    "license": {
+      "title": "Licenza",
+      "enterpriseMssp": "Enterprise · MSSP",
+      "datasources": "Datasources",
+      "communityLimited": "Limite Community",
+      "unlimited": "Illimitato",
+      "expires": "Scade",
+      "managedNote": "Edizione, limiti dei datasources e caricamento licenza si gestiscono nella pagina Licenza.",
+      "view": "Vedi licenza",
+      "ingest": "Volume di ingest",
+      "notMetered": "Non misurato",
+      "gbPerMonth": "{{gb}} GB/mese"
+    },
+    "services": {
+      "backend": {
+        "name": "Backend API",
+        "desc": "Gateway REST, autenticazione e orchestrazione dei moduli."
+      },
+      "opensearch": {
+        "name": "OpenSearch",
+        "desc": "Archiviazione di log ed eventi.",
+        "detail": "{{nodes}} nodi · {{shards}} shard"
+      },
+      "unreachable": "Irraggiungibile"
+    },
+    "status": {
+      "up": "Integro",
+      "degraded": "Degradato",
+      "down": "Non attivo",
+      "unknown": "Sconosciuto"
+    },
+    "health": {
+      "title": "Stato del sistema",
+      "allHealthy": "Tutti i servizi integri. Aggiorna per ricontrollare.",
+      "issues_one": "{{count}} servizio richiede attenzione.",
+      "issues_other": "{{count}} servizi richiedono attenzione.",
+      "refresh": "Aggiorna"
+    },
+    "usage": {
+      "title": "Origini dati",
+      "subtitle": "Origini dati configurate in questa installazione.",
+      "ofUnlimited": "di illimitato",
+      "ofLimit": "di {{limit}}",
+      "overLimit": "Oltre il limite della licenza — i dati oltre il limite sono a rischio.",
+      "configured": "configurate"
+    },
+    "support": {
+      "title": "Supporto",
+      "docs": "Documentazione",
+      "repo": "Repository GitHub",
+      "issues": "Segnala un problema",
+      "website": "utmstack.com"
+    },
+    "legal": {
+      "title": "Note legali",
+      "license": "Licenza",
+      "security": "Divulgazione di sicurezza",
+      "copyright": "© {{year}} UTMStack. Tutti i diritti riservati."
+    }
+  },
+  "connectionKey": {
+    "title": "Chiave di connessione",
+    "subtitle1": "La chiave che gli agenti presentano quando si registrano su questa istanza.",
+    "subtitleEmphasis": "Viene usata solo per l\u0027installazione degli agenti",
+    "subtitle2": "— non per i collector, le integrazioni o l\u0027API. È gestita dall\u0027agent-manager.",
+    "status": {
+      "label": "Stato",
+      "loading": "Caricamento…",
+      "unavailable": "Agent-manager non disponibile",
+      "active": "Attiva",
+      "unavailableHint": "Impossibile contattare l\u0027agent-manager per leggere la chiave.",
+      "activeHint": "Gli agenti possono registrarsi con questa chiave."
+    },
+    "token": {
+      "title": "Chiave di connessione",
+      "subtitle": "Tratta questo valore come una credenziale. Ruotarla emette una nuova chiave per le future installazioni degli agenti — gli agenti già registrati continuano a funzionare.",
+      "loadFailedTitle": "Impossibile caricare la chiave di connessione",
+      "unavailableTitle": "Chiave di connessione non disponibile",
+      "loadFailedHint": "La chiave è gestita dall\u0027agent-manager, che non ha risposto. Riprova tra un momento.",
+      "retry": "Riprova",
+      "show": "Mostra chiave",
+      "hide": "Nascondi chiave",
+      "copy": "Copia",
+      "copied": "Copiato",
+      "regenerate": "Rigenera chiave di connessione",
+      "confirmTitle": "Rigenerare la chiave?",
+      "confirmBody": "Le nuove installazioni degli agenti avranno bisogno della nuova chiave. Gli agenti già registrati continuano a funzionare. Operazione irreversibile.",
+      "regenerating": "Rigenerazione…",
+      "confirmYes": "Sì, rigenera",
+      "cancel": "Annulla"
+    },
+    "security": {
+      "title": "Raccomandazioni di sicurezza",
+      "subtitle": "Buone pratiche per proteggere questa credenziale.",
+      "rotateTitle": "Ruota ogni 90 giorni",
+      "rotateBody": "Pianifica una rotazione ricorrente. UTMStack può inviarti un promemoria via email quando la chiave ha più di 90 giorni.",
+      "rotateAction": "Configura promemoria",
+      "secretTitle": "Conservala come segreto",
+      "secretBody": "Non inserirla nel controllo di versione. Usa il tuo gestore di segreti (Vault, AWS SM, ecc.) e iniettala al momento dell\u0027installazione.",
+      "auditTitle": "Verifica chi l\u0027ha recuperata",
+      "auditBody": "Ogni recupero e rotazione è registrato nel log di audit dell\u0027applicazione.",
+      "auditAction": "Vedi log di audit"
+    },
+    "toast": {
+      "loadFailed": "Impossibile caricare la chiave di connessione",
+      "rotated": "Chiave di connessione ruotata",
+      "rotateFailed": "Impossibile ruotare la chiave di connessione",
+      "copyFailed": "Impossibile copiare"
+    }
+  }
+}

@@ -1,0 +1,266 @@
+{
+  "dataProcessing": {
+    "title": "Datenverarbeitung",
+    "subtitle": "Ingestion- und Verarbeitungsstatistiken: empfangene und (nach Stufe) verworfene Ereignisse sowie die wichtigsten Quellen und Typen.",
+    "ingestion": {
+      "title": "Ingestion",
+      "last24h": "letzte 24 Stunden",
+      "noData": "Keine Daten in diesem Zeitraum.",
+      "loadError": "Ingestion-Statistiken konnten nicht geladen werden.",
+      "groupBy": {
+        "dataSource": "Nach Datenquelle",
+        "dataType": "Nach Datentyp"
+      },
+      "status": {
+        "received": "Empfangen",
+        "parsing_dropped": "Verworfen (Parsing)",
+        "analysis_dropped": "Verworfen (Analyse)",
+        "correlation_dropped": "Verworfen (Korrelation)",
+        "all": "Alle Ereignisse"
+      }
+    },
+    "filters": {
+      "title": "Filter",
+      "new": "Neuer Filter",
+      "search": "Nach Pfad suchen…",
+      "refresh": "Aktualisieren",
+      "retry": "Erneut versuchen",
+      "empty": "Keine Filter passen.",
+      "loadError": "Filter konnten nicht geladen werden.",
+      "toggleError": "Filterstatus konnte nicht geändert werden",
+      "system": "System",
+      "custom": "Benutzerdefiniert",
+      "systemReadonly": "Systemfilter sind schreibgeschützt",
+      "view": "Ansehen",
+      "edit": "Bearbeiten",
+      "ownership": {
+        "all": "Alle",
+        "system": "System",
+        "custom": "Benutzerdefiniert"
+      },
+      "state": {
+        "all": "Alle",
+        "active": "Aktiv",
+        "inactive": "Inaktiv"
+      },
+      "col": {
+        "filter": "Filter",
+        "type": "Typ",
+        "active": "Aktiv",
+        "actions": "Aktionen"
+      },
+      "pageInfo": "{{from}}–{{to}} von {{count}}"
+    },
+    "editor": {
+      "createTitle": "Neuer Filter",
+      "editTitle": "Filter bearbeiten",
+      "viewTitle": "Filter ansehen",
+      "relPath": "Pfad",
+      "relPathHint": "Ordner + Datei, z. B. syslog/mein-filter.yaml",
+      "content": "Pipeline (YAML)",
+      "contentHint": "Schritte laufen in Reihenfolge: grok, rename, delete, dynamic-Plugins, …",
+      "save": "Speichern",
+      "saving": "Wird gespeichert…",
+      "saved": "Filter gespeichert",
+      "saveError": "Filter konnte nicht gespeichert werden",
+      "cancel": "Abbrechen",
+      "delete": "Löschen",
+      "deleteConfirm": "Diesen Filter löschen?",
+      "deleted": "Filter gelöscht",
+      "deleteError": "Filter konnte nicht gelöscht werden"
+    },
+    "kpi": {
+      "received": "Empfangen",
+      "dropped": "Verworfen",
+      "dropRate": "{{rate}}% Verwurfsrate",
+      "stored": "Gespeichert",
+      "throughput": "Durchsatz",
+      "perMin": "{{value}}/min",
+      "survival": "{{rate}}% behalten"
+    },
+    "section": {
+      "overTime": "Ereignisse im Zeitverlauf",
+      "top": "Top",
+      "dropReasons": "Verwurfsgründe"
+    },
+    "live": {
+      "auto": "Auto"
+    },
+    "pipeline": {
+      "title": "Ingestion-Pipeline",
+      "stages": {
+        "received": "Empfangen",
+        "parsed": "Geparst",
+        "analyzed": "Analysiert",
+        "stored": "Gespeichert"
+      }
+    },
+    "chart": {
+      "title": "Durchsatz über Zeit",
+      "received": "Empfangen",
+      "dropped": "Verworfen"
+    },
+    "donut": {
+      "title": "Verwurf-Zusammensetzung",
+      "dropped": "verworfen"
+    },
+    "breakdown": {
+      "title": "Top-Quellen \u0026 -Typen",
+      "bars": "Balken",
+      "treemap": "Treemap",
+      "showAll": "Alle {{count}} anzeigen",
+      "showLess": "Weniger anzeigen",
+      "lastSeen": "Zuletzt gesehen",
+      "ago": "vor {{time}}"
+    }
+  },
+  "parsingFilters": {
+    "title": "Pipelines",
+    "subtitle": "YAML-Pipelines, die auf Logs angewendet werden, während sie beim Ingestion geparst werden.",
+    "new": "Neue Pipeline",
+    "search": "Pipelines suchen…",
+    "refresh": "Aktualisieren",
+    "view": "Ansehen",
+    "system": "System",
+    "user": "Eigene",
+    "loading": "Pipelines werden geladen…",
+    "loadError": "Pipelines konnten nicht geladen werden.",
+    "retry": "Erneut versuchen",
+    "empty": "Keine Pipelines für diese Ansicht.",
+    "tabs": {
+      "all": "Alle",
+      "active": "Aktiv",
+      "inactive": "Inaktiv",
+      "system": "System",
+      "user": "Eigene"
+    },
+    "cols": {
+      "filter": "Pipeline",
+      "type": "Typ",
+      "active": "Aktiv",
+      "dataTypes": "Datentypen",
+      "order": "Reihenfolge",
+      "moveUp": "Nach oben",
+      "moveDown": "Nach unten",
+      "actions": "Aktionen"
+    },
+    "editor": {
+      "titleNew": "Neue Pipeline",
+      "titleEdit": "Pipeline bearbeiten",
+      "titleSystem": "Pipeline (System)",
+      "name": "Name",
+      "namePlaceholder": "Meine eigene Pipeline",
+      "nameHint": "Wird gespeichert als {{file}}",
+      "namePending": "Wählen Sie einen Namen — er wird zum Dateinamen.",
+      "content": "Inhalt (Pipeline-YAML)",
+      "contentHint": "Eine gültige pipeline:-YAML-Definition.",
+      "readOnly": "System-Pipeline — schreibgeschützt. Du kannst sie nur aktivieren oder deaktivieren.",
+      "save": "Speichern",
+      "saving": "Speichern…",
+      "delete": "Löschen",
+      "confirmDelete": "Löschen bestätigen",
+      "cancel": "Abbrechen",
+      "test": "Test"
+    },
+    "toast": {
+      "saved": "Pipeline gespeichert",
+      "saveError": "Pipeline konnte nicht gespeichert werden",
+      "deleted": "Pipeline gelöscht",
+      "deleteError": "Pipeline konnte nicht gelöscht werden",
+      "activateError": "Status der Pipeline konnte nicht geändert werden",
+      "nameRequired": "Name ist erforderlich",
+      "contentRequired": "Inhalt ist erforderlich",
+      "orderError": "Reihenfolge der Pipeline konnte nicht geändert werden"
+    },
+    "visual": {
+      "visualTab": "Visuell",
+      "codeTab": "Code",
+      "codeOnly": "Zum Code wechseln — dieser Inhalt kann nicht visuell dargestellt werden.",
+      "cantParse": "Visueller Editor kann nicht geöffnet werden: {{error}}",
+      "dataTypes": "Datentypen",
+      "steps": "Schritte",
+      "noSteps": "Noch keine Schritte.",
+      "addStep": "Schritt hinzufügen:",
+      "removeStep": "Schritt entfernen",
+      "moveUp": "Nach oben",
+      "moveDown": "Nach unten",
+      "whereHint": "optionale Bedingung (CEL)",
+      "addValue": "Wert hinzufügen",
+      "addPattern": "Muster hinzufügen",
+      "rawHint": "Dieser Prozessor wird als reines YAML bearbeitet.",
+      "rawNotMap": "Muss eine Menge von Schlüssel-Wert-Feldern sein.",
+      "dataTypesPick": "Datentypen wählen",
+      "dataTypesSearch": "Datentypen suchen…",
+      "dataTypesNone": "Keine Datentypen",
+      "dataTypesAdd": "„{{value}}“ hinzufügen",
+      "insertPattern": "Regex-Muster einfügen",
+      "patternSearch": "Muster suchen…",
+      "patternNone": "Keine Muster",
+      "newPattern": "Neues Muster…",
+      "createInsert": "Erstellen \u0026 einfügen",
+      "patternCreated": "Muster „{{name}}“ erstellt",
+      "patternCreateError": "Muster konnte nicht erstellt werden",
+      "patternIdInvalid": "Die Muster-ID muss mit einem Buchstaben oder _ beginnen und nur Buchstaben, Ziffern oder _ verwenden",
+      "patternDefRequired": "Definition ist erforderlich",
+      "parameters": "Parameter",
+      "paramsKey": "Schlüssel",
+      "paramsValue": "Wert",
+      "entry": "Eintrag {{n}}",
+      "order": "Reihenfolge {{n}}",
+      "orderLabel": "Reihenfolge",
+      "removeEntry": "Eintrag entfernen",
+      "addEntry": "Pipeline-Eintrag hinzufügen",
+      "collapse": "Zuklappen",
+      "expand": "Ausklappen"
+    },
+    "allDataTypes": "Alle Datentypen",
+    "testPipeline": "Test pipeline"
+  },
+  "regexPatterns": {
+    "title": "Reguläre Ausdrücke",
+    "subtitle": "Wiederverwendbare reguläre Ausdrücke, die von Parsing-Filtern referenziert werden.",
+    "new": "Neues Muster",
+    "search": "Muster suchen…",
+    "refresh": "Aktualisieren",
+    "view": "Ansehen",
+    "system": "System",
+    "user": "Benutzerdefiniert",
+    "loading": "Muster werden geladen…",
+    "loadError": "Muster konnten nicht geladen werden.",
+    "retry": "Wiederholen",
+    "empty": "Keine Muster entsprechen dieser Ansicht.",
+    "tabs": {
+      "all": "Alle",
+      "system": "System",
+      "user": "Benutzerdefiniert"
+    },
+    "cols": {
+      "pattern": "Muster",
+      "definition": "Definition",
+      "type": "Typ"
+    },
+    "editor": {
+      "titleNew": "Neues Muster",
+      "patternId": "Muster-ID",
+      "patternIdHint": "Eindeutiger Name, der von Filtern referenziert wird.",
+      "description": "Beschreibung",
+      "descriptionPlaceholder": "Was dieses Muster erkennt (optional)",
+      "definition": "Definition (Regex)",
+      "definitionHint": "Ein regulärer Ausdruck. Kann andere Muster referenzieren.",
+      "readOnly": "Systemmuster — schreibgeschützt.",
+      "save": "Speichern",
+      "saving": "Wird gespeichert…",
+      "delete": "Löschen",
+      "confirmDelete": "Löschen bestätigen",
+      "cancel": "Abbrechen"
+    },
+    "toast": {
+      "saved": "Muster gespeichert",
+      "saveError": "Muster konnte nicht gespeichert werden",
+      "deleted": "Muster gelöscht",
+      "deleteError": "Muster konnte nicht gelöscht werden",
+      "patternIdRequired": "Muster-ID ist erforderlich",
+      "definitionRequired": "Definition ist erforderlich"
+    }
+  }
+}

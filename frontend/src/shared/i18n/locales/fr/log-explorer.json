@@ -1,0 +1,137 @@
+{
+  "logExplorer": {
+    "title": "Explorateur de logs",
+    "eventsIn": "événements dans",
+    "searching": "Recherche…",
+    "query": {
+      "allDataTypes": "Tous les types de données",
+      "dataTypes": "Types de données",
+      "exportCsv": "Exporter CSV",
+      "filterDataTypes": "Filtrer les types de données…",
+      "noDataTypes": "Aucun type de données",
+      "noDataTypesMatch": "Aucun type de données correspondant",
+      "noTextSearch": "Cette source n’a pas de champ plein texte — filtrez par champ",
+      "refresh": "Actualiser",
+      "run": "Exécuter",
+      "search": "Rechercher",
+      "searchPlaceholder": "Rechercher dans tous les champs…"
+    },
+    "time": {
+      "15m": "15 dernières minutes",
+      "1h": "Dernière heure",
+      "6h": "6 dernières heures",
+      "24h": "24 dernières heures",
+      "7d": "7 derniers jours",
+      "30d": "30 derniers jours"
+    },
+    "ops": {
+      "is": "est",
+      "isNot": "n\u0027est pas",
+      "contains": "contient",
+      "exists": "existe",
+      "between": "entre",
+      "search": "recherche",
+      "isOneOf": "est parmi",
+      "isNotOneOf": "n\u0027est aucun de"
+    },
+    "filters": {
+      "label": "Filtres",
+      "clearAll": "Tout effacer"
+    },
+    "fields": {
+      "title": "Champs",
+      "filterPlaceholder": "Filtrer les champs…",
+      "none": "Aucun champ",
+      "selected": "Champs sélectionnés",
+      "available": "Champs disponibles",
+      "topValues_one": "Top {{count}} valeur",
+      "topValues_other": "Top {{count}} valeurs",
+      "loading": "Chargement…",
+      "noValues": "Aucune valeur",
+      "addColumn": "Ajouter comme colonne",
+      "removeColumn": "Retirer la colonne du tableau",
+      "filterFor": "Filtrer sur la valeur",
+      "filterOut": "Exclure la valeur",
+      "empty": "(vide)"
+    },
+    "results": {
+      "dataTypesFailed": "Impossible de charger les types de données.",
+      "endOfResults": "{{count}} événements chargés",
+      "loadingMore": "Chargement…",
+      "message": "Message",
+      "none": "Aucun log ne correspond à cette requête.",
+      "removeColumn": "Retirer {{field}}",
+      "retry": "Réessayer",
+      "searchFailed": "La recherche a échoué.",
+      "searching": "Recherche…",
+      "source": "Source",
+      "time": "Heure",
+      "scope": "Recherché dans {{dataset}} · {{dataType}}.",
+      "searchAllDataTypes": "Chercher dans tous les types"
+    },
+    "detail": {
+      "fieldsCount_one": "{{count}} champ",
+      "fieldsCount_other": "{{count}} champs",
+      "copyJson": "Copier le JSON",
+      "copied": "Document copié",
+      "parsedFields": "Champs analysés",
+      "json": "JSON",
+      "filterFor": "Filtrer sur",
+      "filterOut": "Exclure",
+      "surrounding": "Événements environnants",
+      "surroundingHint": "Afficher les événements ±15 min autour de celui-ci, provenant de la même source"
+    },
+    "view": {
+      "table": "Tableau",
+      "chart": "Graphique"
+    },
+    "chart": {
+      "aggregateOn": "Agréger sur",
+      "per": "par",
+      "topValues": "— top 20 valeurs",
+      "building": "Construction du graphique…",
+      "failed": "Impossible de construire le graphique pour ce champ.",
+      "noData": "Aucune donnée à afficher."
+    },
+    "intervals": {
+      "minute": "Minute",
+      "hour": "Heure",
+      "day": "Jour",
+      "week": "Semaine",
+      "month": "Mois",
+      "quarter": "Trimestre",
+      "year": "Année"
+    },
+    "toast": {
+      "exportFailed": "L\u0027export a échoué"
+    },
+    "builder": {
+      "add": "Ajouter un filtre",
+      "filterValues": "Filtrer les valeurs…",
+      "loadingValues": "Chargement des valeurs…",
+      "noValues": "Aucune valeur.",
+      "cancel": "Annuler",
+      "confirm": "Ajouter",
+      "pickValue": "Pick a value to add the filter."
+    },
+    "related": {
+      "nLogs_one": "{{count}} journal",
+      "nLogs_other": "{{count}} journaux",
+      "truncated": "Affichage des {{count}} premiers journaux liés (ensemble complet plus grand)."
+    },
+    "saved": {
+      "title": "Enregistrées",
+      "empty": "Aucune recherche enregistrée",
+      "saveCurrent": "Enregistrer la recherche actuelle",
+      "save": "Enregistrer",
+      "namePlaceholder": "Nom de la recherche",
+      "delete": "Supprimer",
+      "saved": "« {{name}} » enregistrée",
+      "loading": "Chargement…",
+      "loadFailed": "Impossible de charger les recherches enregistrées",
+      "saveFailed": "Impossible d\u0027enregistrer la recherche",
+      "deleteFailed": "Impossible de supprimer la recherche",
+      "unreadable": "Cette recherche enregistrée est illisible"
+    }
+  }
+}

@@ -1,0 +1,338 @@
+{
+  "team": {
+    "title": "Team",
+    "subtitle": "Gestisci gli utenti e i loro ruoli.",
+    "tabs": {
+      "members": "Membri",
+      "roles": "Ruoli e permessi"
+    },
+    "toast": {
+      "rolesLoadFailed": "Impossibile caricare i ruoli",
+      "userLoadFailed": "Impossibile caricare l\u0027utente",
+      "rolesUpdated": "Ruoli aggiornati",
+      "userReactivated": "Utente riattivato",
+      "userDeactivated": "Utente disattivato",
+      "tfaReset": "Autenticazione a due fattori reimpostata",
+      "invitationSent": "Invito inviato",
+      "loginOrEmailInUse": "Questo nome utente o email è già in uso",
+      "invalidRequest": "Richiesta non valida",
+      "noPermission": "Non hai il permesso di farlo",
+      "userNotFound": "Utente non trovato",
+      "operationFailed": "Operazione non riuscita",
+      "emailInUse": "Questa e-mail è già in uso",
+      "roleCreated": "Ruolo creato",
+      "roleUpdated": "Ruolo aggiornato",
+      "roleDeleted": "Ruolo eliminato",
+      "roleNameInUse": "Esiste già un ruolo con questo identificatore",
+      "roleImmutable": "I ruoli di sistema non possono essere modificati",
+      "permissionsLoadFailed": "Impossibile caricare i permessi",
+      "localUserCreated": "Utente locale creato"
+    },
+    "members": {
+      "searchPlaceholder": "Cerca per nome o e-mail…",
+      "invite": "Invita utente",
+      "colUser": "Utente",
+      "colRoles": "Ruoli",
+      "col2fa": "2FA",
+      "colStatus": "Stato",
+      "loading": "Caricamento utenti…",
+      "loadFailed": "Impossibile caricare gli utenti.",
+      "retry": "Riprova",
+      "noSearchMatch": "Nessun utente corrisponde alla ricerca.",
+      "none": "Nessun utente ancora.",
+      "noRole": "nessuno",
+      "on": "Sì",
+      "off": "No",
+      "countLabel_one": "{{count}} utente · pagina {{page}} di {{pages}}",
+      "countLabel_other": "{{count}} utenti · pagina {{page}} di {{pages}}",
+      "federated": "SSO"
+    },
+    "status": {
+      "inactive": "Inattivo",
+      "pendingPassword": "Password in sospeso",
+      "active": "Attivo",
+      "pending": "Invito in sospeso",
+      "suspended": "Sospeso"
+    },
+    "drawer": {
+      "createdBy": "creato da {{actor}}",
+      "loading": "Caricamento…",
+      "profileTitle": "Profilo",
+      "profileSubtitle": "Solo l\u0027utente può modificare questi dati, dal proprio profilo.",
+      "name": "Nome",
+      "username": "Nome utente",
+      "email": "Email",
+      "language": "Lingua",
+      "accountTitle": "Account",
+      "status": "Stato",
+      "statusActive": "Attivo",
+      "statusInactive": "Inattivo",
+      "tfa": "2FA",
+      "tfaEnabled": "Attiva",
+      "tfaNotConfigured": "Non configurato",
+      "resetTfa": "Reimposta",
+      "resetTfaHint": "Disattiva il 2FA di questo utente così potrà riconfigurarlo al prossimo accesso",
+      "resetTfaConfirmTitle": "Reimpostare l\u0027autenticazione a due fattori?",
+      "resetTfaConfirmBody": "Questo disattiva il 2FA di {{name}}. Accederà solo con la password e potrà riconfigurarlo dal proprio profilo.",
+      "resetTfaConfirm": "Reimposta 2FA",
+      "pendingPasswordNote": "Usa ancora la password temporanea (invito non completato).",
+      "lastModified": "Modificato {{time}}",
+      "rolesTitle": "Ruoli",
+      "rolesSubtitle": "I ruoli concedono permessi di modulo. Un utente può averne più di uno.",
+      "noRoleWarning": "Nessun ruolo assegnato — l\u0027utente non avrà accesso ai moduli.",
+      "deactivate": "Disattiva",
+      "reactivate": "Riattiva",
+      "waitingInvite": "In attesa che l\u0027utente accetti l\u0027invito.",
+      "cancel": "Annulla",
+      "saving": "Salvataggio…",
+      "saveRoles": "Salva ruoli",
+      "created": "creato {{time}}",
+      "pendingNote": "L\u0027invito non è ancora stato accettato.",
+      "federatedNote": "Accede tramite un provider di identità."
+    },
+    "invite": {
+      "title": "Invita utente",
+      "description": "L\u0027account viene creato inattivo. L\u0027utente riceve un\u0027e-mail per impostare la password e attivarlo.",
+      "username": "Nome utente",
+      "usernameHint": "Almeno 3 caratteri.",
+      "email": "Email",
+      "firstName": "Nome",
+      "lastName": "Cognome",
+      "roles": "Ruoli",
+      "cancel": "Annulla",
+      "sending": "Invio…",
+      "send": "Invia invito",
+      "name": "Nome",
+      "emailHint": "È l\u0027indirizzo con cui accederà.",
+      "localDescription": "L\u0027account viene creato con una password e attivato immediatamente. Non viene inviata alcuna e-mail.",
+      "modeInvite": "Invita utente",
+      "modeLocal": "Crea utente locale",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Imposta una password forte",
+      "localUserNote": "Questo utente non riceverà un\u0027e-mail e verrà attivato automaticamente.",
+      "createLocal": "Crea utente",
+      "passwordRules": {
+        "length": "Almeno 8 caratteri",
+        "case": "Almeno un carattere maiuscolo e uno minuscolo",
+        "special": "Almeno un carattere speciale"
+      },
+      "emailInvalid": "Inserisci un indirizzo e-mail valido"
+    },
+    "rolePicker": {
+      "none": "Nessun ruolo disponibile."
+    },
+    "roles": {
+      "loading": "Caricamento ruoli…",
+      "loadFailed": "Impossibile caricare i permessi dei ruoli.",
+      "readonlyNote": "I ruoli e i loro permessi sono definiti dal sistema e di sola lettura. Assegnali agli utenti dalla scheda Membri.",
+      "permissionsCount_one": "{{count}} permesso",
+      "permissionsCount_other": "{{count}} permessi",
+      "modulesCount_one": "{{count}} modulo",
+      "modulesCount_other": "{{count}} moduli",
+      "matrixTitle": "Matrice dei permessi",
+      "matrixSubtitle": "Cosa può fare ogni ruolo, per modulo.",
+      "permission": "Permesso",
+      "systemNote": "I ruoli di sistema fanno parte della piattaforma e non sono modificabili. Quelli che crei appartengono a questo tenant.",
+      "newRole": "Nuovo ruolo",
+      "edit": "Modifica",
+      "delete": "Elimina",
+      "systemBadge": "Sistema",
+      "createTitle": "Nuovo ruolo",
+      "editTitle": "Modifica ruolo",
+      "editorSubtitle": "Scegli cosa può fare questo ruolo. Un utente può averne più di uno.",
+      "nameLabel": "Identificatore",
+      "nameHint": "Usato nel codice e nell\u0027API. Ad esempio ROLE_AUDITOR.",
+      "displayNameLabel": "Nome visualizzato",
+      "descriptionLabel": "Descrizione",
+      "permissionsLabel": "Permessi",
+      "selectedCount": "{{count}} selezionati",
+      "toggleAll": "tutti",
+      "loadingPermissions": "Caricamento permessi…",
+      "save": "Salva ruolo",
+      "deleteConfirmTitle": "Eliminare questo ruolo?",
+      "deleteConfirmBody": "{{name}} verrà rimosso. Chi ha solo questo ruolo resterà senza accesso ai moduli."
+    },
+    "langDefault": "Predefinito di sistema",
+    "relative": {
+      "justNow": "proprio ora",
+      "minutesAgo": "{{count}} min fa",
+      "hoursAgo": "{{count}} h fa",
+      "daysAgo": "{{count}} g fa"
+    },
+    "roleNames": {
+      "ROLE_ADMIN": "Amministratore",
+      "ROLE_USER": "Utente"
+    },
+    "roleDescriptions": {
+      "ROLE_ADMIN": "Accesso completo a tutte le risorse",
+      "ROLE_USER": "Utente standard con accesso in lettura a livello di modulo"
+    },
+    "actions": {
+      "read": "Lettura",
+      "write": "Scrittura",
+      "delete": "Eliminazione"
+    },
+    "resources": {
+      "adaudit": "Audit AD",
+      "alerts": "Avvisi",
+      "audit": "Registro di audit",
+      "compliance": "Conformità",
+      "config": "Configurazione",
+      "dashboards": "Dashboard",
+      "datasources": "Datasources",
+      "eventprocessing": "Elaborazione eventi",
+      "idp": "Provider di identità",
+      "incidents": "Incidenti",
+      "integrations": "Integrazioni",
+      "loganalyzer": "Analizzatore di log",
+      "opensearch": "OpenSearch",
+      "roles": "Ruoli",
+      "soar": "SOAR",
+      "users": "Utenti",
+      "notifications": "Notifiche",
+      "socai": "SOC AI",
+      "tenant": "Tenant",
+      "threatintel": "Threat intelligence"
+    }
+  },
+  "tenants": {
+    "title": "Tenant",
+    "new": "Nuovo tenant",
+    "subtitle": "Ogni cliente su questa istanza, cosa ha e cosa ti lascia vedere.",
+    "searchPlaceholder": "Cerca per nome o dominio…",
+    "loading": "Caricamento tenant…",
+    "loadFailed": "Impossibile caricare i tenant.",
+    "retry": "Riprova",
+    "none": "Ancora nessun tenant.",
+    "noSearchMatch": "Nessun tenant corrisponde alla ricerca.",
+    "cancel": "Annulla",
+    "saving": "Salvataggio…",
+    "chips": {
+      "total": "tenant",
+      "active": "attivi",
+      "readable": "accessibili"
+    },
+    "status": {
+      "ACTIVE": "Attivo",
+      "SUSPENDED": "Sospeso",
+      "TERMINATED": "Terminato"
+    },
+    "support": {
+      "NONE": "Nessun accesso",
+      "READ": "Accesso in lettura",
+      "FULL": "Accesso completo",
+      "hint": "Lo concede il tenant, non tu. Solo il suo amministratore può cambiarlo."
+    },
+    "card": {
+      "edit": "Modifica",
+      "activate": "Attiva",
+      "deactivate": "Disattiva",
+      "deletePermanent": "Elimina definitivamente",
+      "noAccess": "Questo tenant non ti ha dato accesso.",
+      "loadingStats": "Lettura…",
+      "enter": "Entra"
+    },
+    "stats": {
+      "users": "Utenti",
+      "datasources": "Sorgenti",
+      "openAlerts": "Avvisi aperti",
+      "ai": "IA oggi",
+      "noLimit": "nessun limite"
+    },
+    "fields": {
+      "name": "Nome",
+      "domain": "Dominio",
+      "domainHint": "Da dove si raggiunge questo tenant. Ogni richiesta a questo host entra nei suoi dati.",
+      "adminEmail": "E-mail dell\u0027amministratore",
+      "adminEmailHint": "Riceve un invito per impostare la propria password.",
+      "status": "Stato",
+      "suspendedWarning": "Un tenant sospeso non può accedere. I suoi dati vengono conservati.",
+      "aiLimit": "Limite di richieste IA",
+      "aiLimitHint": "Un limite operativo, al giorno. Senza limite, consumano sulla licenza dell\u0027istanza.",
+      "aiLimitToggle": "Limita questo tenant"
+    },
+    "create": {
+      "title": "Nuovo tenant",
+      "subtitle": "Crea il tenant e invita il suo primo amministratore.",
+      "submit": "Crea tenant"
+    },
+    "edit": {
+      "title": "Modifica tenant",
+      "subtitle": "L\u0027accesso di supporto non è qui: può concederlo solo il tenant.",
+      "submit": "Salva modifiche"
+    },
+    "terminate": {
+      "title": "Disattivare questo tenant?",
+      "body": "Nessuno in {{name}} potrà più accedere. I dati restano, quindi è reversibile, ma il cliente resta fuori da subito.",
+      "confirmLabel": "Scrivi {{name}} per confermare",
+      "submit": "Disattiva"
+    },
+    "reactivate": {
+      "title": "Attivare questo tenant?",
+      "body": "{{name}} potrà accedere di nuovo. I dati conservati vengono ripristinati così come sono.",
+      "submit": "Attiva"
+    },
+    "deletePermanent": {
+      "title": "Eliminare questo tenant per sempre?",
+      "body": "Ogni traccia di {{name}} — utenti, sorgenti dati, dashboard, avvisi, integrazioni — sarà cancellata. Non si può annullare.",
+      "confirmLabel": "Scrivi {{name}} per confermare",
+      "submit": "Elimina per sempre"
+    },
+    "toast": {
+      "created": "Tenant creato",
+      "updated": "Tenant aggiornato",
+      "terminated": "Tenant terminato",
+      "reactivated": "Tenant riattivato",
+      "permanentlyDeleted": "Tenant eliminato definitivamente",
+      "domainInUse": "Questo dominio è già in uso",
+      "noPermission": "Non hai il permesso di farlo",
+      "notFound": "Tenant non trovato",
+      "invalidRequest": "Richiesta non valida",
+      "operationFailed": "Operazione fallita"
+    },
+    "switcher": {
+      "aria": "Switch tenant",
+      "self": "Default tenant",
+      "create": "Create tenant"
+    }
+  },
+  "supportAccess": {
+    "title": "Accesso di supporto",
+    "intro": "Chi gestisce questa istanza non può guardare dentro i tuoi dati se non glielo permetti. Qui non è concesso nulla per impostazione predefinita, e puoi revocarlo quando vuoi.",
+    "loading": "Caricamento…",
+    "loadFailed": "Impossibile leggere l\u0027impostazione attuale.",
+    "retry": "Riprova",
+    "currentBadge": "attuale",
+    "save": "Salva",
+    "saving": "Salvataggio…",
+    "levels": {
+      "NONE": {
+        "name": "Nessun accesso",
+        "desc": "L\u0027operatore vede che il tuo tenant esiste e nulla più. Ogni richiesta verso i tuoi dati viene rifiutata."
+      },
+      "READ": {
+        "name": "Sola lettura",
+        "desc": "L\u0027operatore può vedere avvisi, log e configurazione per aiutarti. Non può cambiare nulla: ogni scrittura viene rifiutata, qualunque sia il suo ruolo."
+      },
+      "FULL": {
+        "name": "Accesso completo",
+        "desc": "L\u0027operatore può agire nel tuo tenant come amministratore: configurazione, utenti e flussi di risposta."
+      }
+    },
+    "fullWarning": "L\u0027accesso completo gli permette di cambiare cose a tuo nome. Concedilo finché ti serve assistenza diretta, poi torna indietro.",
+    "revokeNote": "Tutto ciò che l\u0027operatore fa qui resta nel tuo registro di audit.",
+    "toast": {
+      "granted": "Accesso di supporto aggiornato",
+      "revoked": "Accesso di supporto revocato",
+      "forbidden": "Solo un amministratore di questo tenant può cambiarlo",
+      "invalid": "Richiesta non valida",
+      "failed": "Impossibile salvare la modifica"
+    }
+  },
+  "supportSession": {
+    "inside": "Stai lavorando dentro {{name}}",
+    "readOnly": "sola lettura — le scritture vengono rifiutate",
+    "full": "accesso completo — le modifiche qui sono reali",
+    "leave": "Esci"
+  }
+}

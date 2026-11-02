@@ -1,0 +1,87 @@
+{
+  "apiKeys": {
+    "title": "API keys",
+    "subtitle": "Programmatic access tokens for the UTMStack API.",
+    "new": "New API key",
+    "searchPlaceholder": "Search by name or allowed IP…",
+    "refresh": "Refresh",
+    "loading": "Loading API keys…",
+    "loadFailed": "Could not load API keys.",
+    "retry": "Retry",
+    "noSearchMatch": "No API keys match your search.",
+    "empty": "No API keys yet. Create one to get started.",
+    "anyIp": "Any IP",
+    "never": "Never",
+    "count_one": "{{count}} key · page {{page}} of {{pages}}",
+    "count_other": "{{count}} keys · page {{page}} of {{pages}}",
+    "enterprise": {
+      "title": "API keys are an Enterprise feature",
+      "body": "Issue, scope and rotate API keys for programmatic access to the UTMStack API. This capability is available on the Enterprise edition.",
+      "upgrade": "Upgrade to Enterprise",
+      "manageLicense": "Manage your license"
+    },
+    "col": {
+      "name": "Name",
+      "allowedIps": "Allowed IPs",
+      "created": "Created",
+      "lastRotated": "Last rotated",
+      "expires": "Expires",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Active",
+      "expiring": "Expiring",
+      "expired": "Expired"
+    },
+    "action": {
+      "rotate": "Rotate",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "dialog": {
+      "editTitle": "Edit API key",
+      "newTitle": "New API key",
+      "name": "Name",
+      "namePlaceholder": "ci-pipeline",
+      "allowedIps": "Allowed IPs",
+      "allowedIpsHint": "Comma-separated. Leave empty to allow any IP.",
+      "expires": "Expires",
+      "expiresHint": "Leave empty for a key that never expires.",
+      "secretNote": "The secret token is shown once, right after creation. Copy it then — it can’t be retrieved later (only rotated).",
+      "cancel": "Cancel",
+      "saving": "Saving…",
+      "saveChanges": "Save changes",
+      "createKey": "Create key"
+    },
+    "confirm": {
+      "deleteTitle": "Delete API key",
+      "rotateTitle": "Rotate API key",
+      "deleteBody": "Delete {{name}}? Any client using it will immediately lose access. This cannot be undone.",
+      "rotateBody": "Rotate {{name}}? A new secret is issued and the current one stops working immediately. The new token is shown once.",
+      "cancel": "Cancel",
+      "working": "Working…",
+      "delete": "Delete",
+      "rotate": "Rotate"
+    },
+    "reveal": {
+      "title": "API key created",
+      "note": "Copy this secret now — for {{name}}. It won’t be shown again. If you lose it, rotate the key.",
+      "copied": "Copied",
+      "copy": "Copy",
+      "done": "Done"
+    },
+    "toast": {
+      "updated": "API key updated",
+      "secretIssueFailed": "Key created, but the secret could not be issued. Use Rotate to get one.",
+      "deleted": "API key deleted"
+    },
+    "error": {
+      "nameTaken": "An API key with that name already exists",
+      "enterpriseRequired": "API keys require the Enterprise edition",
+      "notFound": "API key not found",
+      "invalidRequest": "Invalid request",
+      "failed": "Operation failed"
+    }
+  }
+}

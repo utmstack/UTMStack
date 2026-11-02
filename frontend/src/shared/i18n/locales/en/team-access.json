@@ -1,0 +1,338 @@
+{
+  "team": {
+    "title": "Team",
+    "subtitle": "Manage users and their roles.",
+    "tabs": {
+      "members": "Members",
+      "roles": "Roles \u0026 permissions"
+    },
+    "toast": {
+      "rolesLoadFailed": "Could not load roles",
+      "userLoadFailed": "Could not load user",
+      "rolesUpdated": "Roles updated",
+      "userReactivated": "User reactivated",
+      "userDeactivated": "User deactivated",
+      "tfaReset": "Two-factor authentication reset",
+      "invitationSent": "Invitation sent",
+      "loginOrEmailInUse": "That login or email is already in use",
+      "invalidRequest": "Invalid request",
+      "noPermission": "You do not have permission to do that",
+      "userNotFound": "User not found",
+      "operationFailed": "Operation failed",
+      "emailInUse": "That email is already in use",
+      "roleCreated": "Role created",
+      "roleUpdated": "Role updated",
+      "roleDeleted": "Role deleted",
+      "roleNameInUse": "A role with that identifier already exists",
+      "roleImmutable": "System roles cannot be modified",
+      "permissionsLoadFailed": "Could not load permissions",
+      "localUserCreated": "Local user created"
+    },
+    "members": {
+      "searchPlaceholder": "Search by name or email…",
+      "invite": "Invite user",
+      "colUser": "User",
+      "colRoles": "Roles",
+      "col2fa": "2FA",
+      "colStatus": "Status",
+      "loading": "Loading users…",
+      "loadFailed": "Could not load users.",
+      "retry": "Retry",
+      "noSearchMatch": "No users match your search.",
+      "none": "No users yet.",
+      "noRole": "none",
+      "on": "On",
+      "off": "Off",
+      "countLabel_one": "{{count}} user · page {{page}} of {{pages}}",
+      "countLabel_other": "{{count}} users · page {{page}} of {{pages}}",
+      "federated": "SSO"
+    },
+    "status": {
+      "inactive": "Inactive",
+      "pendingPassword": "Pending password",
+      "active": "Active",
+      "pending": "Pending invite",
+      "suspended": "Suspended"
+    },
+    "drawer": {
+      "createdBy": "created by {{actor}}",
+      "loading": "Loading…",
+      "profileTitle": "Profile",
+      "profileSubtitle": "Only the user can edit these — from their own profile.",
+      "name": "Name",
+      "username": "Username",
+      "email": "Email",
+      "language": "Language",
+      "accountTitle": "Account",
+      "status": "Status",
+      "statusActive": "Active",
+      "statusInactive": "Inactive",
+      "tfa": "2FA",
+      "tfaEnabled": "Enabled",
+      "tfaNotConfigured": "Not configured",
+      "resetTfa": "Reset",
+      "resetTfaHint": "Disable this user\u0027s 2FA so they can re-enroll at next login",
+      "resetTfaConfirmTitle": "Reset two-factor authentication?",
+      "resetTfaConfirmBody": "This disables 2FA for {{name}}. They\u0027ll sign in with just their password and can set it up again from their profile.",
+      "resetTfaConfirm": "Reset 2FA",
+      "pendingPasswordNote": "Still using the temporary password (invite not completed).",
+      "lastModified": "Last modified {{time}}",
+      "rolesTitle": "Roles",
+      "rolesSubtitle": "Roles grant module permissions. A user can hold more than one.",
+      "noRoleWarning": "No role assigned — the user will have no module access.",
+      "deactivate": "Deactivate",
+      "reactivate": "Reactivate",
+      "waitingInvite": "Waiting for the user to accept the invitation.",
+      "cancel": "Cancel",
+      "saving": "Saving…",
+      "saveRoles": "Save roles",
+      "created": "created {{time}}",
+      "pendingNote": "Invitation not accepted yet.",
+      "federatedNote": "Signs in through an identity provider."
+    },
+    "invite": {
+      "title": "Invite user",
+      "description": "The account is created inactive. The user receives an email to set their password and activate it.",
+      "username": "Username",
+      "usernameHint": "At least 3 characters.",
+      "email": "Email",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "roles": "Roles",
+      "cancel": "Cancel",
+      "sending": "Sending…",
+      "send": "Send invite",
+      "name": "Name",
+      "emailHint": "This is the address they sign in with.",
+      "localDescription": "The account is created with a password and activated immediately. No email is sent.",
+      "modeInvite": "Invite user",
+      "modeLocal": "Create local user",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Set a strong password",
+      "localUserNote": "This user will not receive an email and will be automatically activated.",
+      "createLocal": "Create user",
+      "passwordRules": {
+        "length": "At least 8 characters",
+        "case": "At least one uppercase and one lowercase letter",
+        "special": "At least one special character"
+      },
+      "emailInvalid": "Please enter a valid email address"
+    },
+    "rolePicker": {
+      "none": "No roles available."
+    },
+    "roles": {
+      "loading": "Loading roles…",
+      "loadFailed": "Could not load role permissions.",
+      "readonlyNote": "Roles and their permissions are defined by the system and are read-only. Assign them to users from the Members tab.",
+      "permissionsCount_one": "{{count}} permission",
+      "permissionsCount_other": "{{count}} permissions",
+      "modulesCount_one": "{{count}} module",
+      "modulesCount_other": "{{count}} modules",
+      "matrixTitle": "Permission matrix",
+      "matrixSubtitle": "What each role can do, by module.",
+      "permission": "Permission",
+      "systemNote": "System roles ship with the platform and cannot be edited. Roles you create belong to this tenant.",
+      "newRole": "New role",
+      "edit": "Edit",
+      "delete": "Delete",
+      "systemBadge": "System",
+      "createTitle": "New role",
+      "editTitle": "Edit role",
+      "editorSubtitle": "Pick what this role may do. A user can hold more than one role.",
+      "nameLabel": "Identifier",
+      "nameHint": "Used in code and in the API. ROLE_AUDITOR, for example.",
+      "displayNameLabel": "Display name",
+      "descriptionLabel": "Description",
+      "permissionsLabel": "Permissions",
+      "selectedCount": "{{count}} selected",
+      "toggleAll": "all",
+      "loadingPermissions": "Loading permissions…",
+      "save": "Save role",
+      "deleteConfirmTitle": "Delete this role?",
+      "deleteConfirmBody": "{{name}} will be removed. Users who hold only this role will be left without module access."
+    },
+    "langDefault": "System default",
+    "relative": {
+      "justNow": "just now",
+      "minutesAgo": "{{count}}m ago",
+      "hoursAgo": "{{count}}h ago",
+      "daysAgo": "{{count}}d ago"
+    },
+    "roleNames": {
+      "ROLE_ADMIN": "Administrator",
+      "ROLE_USER": "User"
+    },
+    "roleDescriptions": {
+      "ROLE_ADMIN": "Full access to all resources",
+      "ROLE_USER": "Standard user with module-level read access"
+    },
+    "actions": {
+      "read": "Read",
+      "write": "Write",
+      "delete": "Delete"
+    },
+    "resources": {
+      "adaudit": "AD Audit",
+      "alerts": "Alerts",
+      "audit": "Audit log",
+      "compliance": "Compliance",
+      "config": "Configuration",
+      "dashboards": "Dashboards",
+      "datasources": "Datasources",
+      "eventprocessing": "Event processing",
+      "idp": "Identity providers",
+      "incidents": "Incidents",
+      "integrations": "Integrations",
+      "loganalyzer": "Log analyzer",
+      "opensearch": "OpenSearch",
+      "roles": "Roles",
+      "soar": "SOAR",
+      "users": "Users",
+      "notifications": "Notifications",
+      "socai": "SOC AI",
+      "tenant": "Tenants",
+      "threatintel": "Threat intelligence"
+    }
+  },
+  "tenants": {
+    "title": "Tenants",
+    "new": "New tenant",
+    "subtitle": "Every customer running on this instance, what they hold and what they let you see.",
+    "searchPlaceholder": "Search by name or domain…",
+    "loading": "Loading tenants…",
+    "loadFailed": "Could not load tenants.",
+    "retry": "Retry",
+    "none": "No tenants yet.",
+    "noSearchMatch": "No tenants match your search.",
+    "cancel": "Cancel",
+    "saving": "Saving…",
+    "chips": {
+      "total": "tenants",
+      "active": "active",
+      "readable": "readable"
+    },
+    "status": {
+      "ACTIVE": "Active",
+      "SUSPENDED": "Suspended",
+      "TERMINATED": "Terminated"
+    },
+    "support": {
+      "NONE": "No access",
+      "READ": "Read access",
+      "FULL": "Full access",
+      "hint": "Granted by the tenant, not by you. Only their administrator can change it."
+    },
+    "card": {
+      "edit": "Edit",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "deletePermanent": "Delete permanently",
+      "noAccess": "This tenant has not granted you access.",
+      "loadingStats": "Reading…",
+      "enter": "Enter"
+    },
+    "stats": {
+      "users": "Users",
+      "datasources": "Sources",
+      "openAlerts": "Open alerts",
+      "ai": "AI today",
+      "noLimit": "no cap"
+    },
+    "fields": {
+      "name": "Name",
+      "domain": "Domain",
+      "domainHint": "How this tenant is reached. Every request on this host lands in their data.",
+      "adminEmail": "Administrator email",
+      "adminEmailHint": "They get an invitation to set their own password.",
+      "status": "Status",
+      "suspendedWarning": "Suspended tenants cannot sign in. Their data is kept.",
+      "aiLimit": "AI request cap",
+      "aiLimitHint": "An operational cap, per day. Uncapped, they spend against the instance licence.",
+      "aiLimitToggle": "Cap this tenant"
+    },
+    "create": {
+      "title": "New tenant",
+      "subtitle": "Creates the tenant and invites its first administrator.",
+      "submit": "Create tenant"
+    },
+    "edit": {
+      "title": "Edit tenant",
+      "subtitle": "Support access is not here: only the tenant can grant it.",
+      "submit": "Save changes"
+    },
+    "terminate": {
+      "title": "Deactivate this tenant?",
+      "body": "Nobody in {{name}} will be able to sign in. Their data is kept, so this is reversible, but it takes the customer offline now.",
+      "confirmLabel": "Type {{name}} to confirm",
+      "submit": "Deactivate"
+    },
+    "reactivate": {
+      "title": "Activate this tenant?",
+      "body": "{{name}} will be able to sign in again. Their preserved data is restored as-is.",
+      "submit": "Activate"
+    },
+    "deletePermanent": {
+      "title": "Delete this tenant forever?",
+      "body": "Every trace of {{name}} — users, data sources, dashboards, alerts, integrations — will be erased. This cannot be undone.",
+      "confirmLabel": "Type {{name}} to confirm",
+      "submit": "Delete forever"
+    },
+    "toast": {
+      "created": "Tenant created",
+      "updated": "Tenant updated",
+      "terminated": "Tenant terminated",
+      "reactivated": "Tenant reactivated",
+      "permanentlyDeleted": "Tenant permanently deleted",
+      "domainInUse": "That domain is already taken",
+      "noPermission": "You do not have permission to do that",
+      "notFound": "Tenant not found",
+      "invalidRequest": "Invalid request",
+      "operationFailed": "Operation failed"
+    },
+    "switcher": {
+      "aria": "Switch tenant",
+      "self": "Default tenant",
+      "create": "Create tenant"
+    }
+  },
+  "supportAccess": {
+    "title": "Support access",
+    "intro": "Whoever operates this instance cannot look inside your data unless you let them. Nothing here is granted by default, and you can take it back at any time.",
+    "loading": "Loading…",
+    "loadFailed": "Could not read the current setting.",
+    "retry": "Retry",
+    "currentBadge": "current",
+    "save": "Save",
+    "saving": "Saving…",
+    "levels": {
+      "NONE": {
+        "name": "No access",
+        "desc": "The operator sees that your tenant exists and nothing else. Requests into your data are refused."
+      },
+      "READ": {
+        "name": "Read only",
+        "desc": "The operator can look at your alerts, logs and configuration to help you. They cannot change anything — every write is refused, whatever their own role says."
+      },
+      "FULL": {
+        "name": "Full access",
+        "desc": "The operator can act inside your tenant as an administrator: change configuration, users and response flows."
+      }
+    },
+    "fullWarning": "Full access lets the operator change things on your behalf. Grant it while you need hands-on help, and drop back afterwards.",
+    "revokeNote": "Everything the operator does here is recorded in your audit log.",
+    "toast": {
+      "granted": "Support access updated",
+      "revoked": "Support access revoked",
+      "forbidden": "Only an administrator of this tenant can change this",
+      "invalid": "Invalid request",
+      "failed": "Could not save the change"
+    }
+  },
+  "supportSession": {
+    "inside": "You are working inside {{name}}",
+    "readOnly": "read only — writes are refused",
+    "full": "full access — changes here are real",
+    "leave": "Leave"
+  }
+}

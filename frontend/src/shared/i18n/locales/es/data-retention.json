@@ -1,0 +1,65 @@
+{
+  "dataRetention": {
+    "title": "Retención de datos",
+    "subtitle": "Cuánto se guarda cada conjunto de datos y cuándo sus registros dejan de ocupar disco local.",
+    "loading": "Cargando…",
+    "loadFailed": "No se pudo leer el almacén.",
+    "retry": "Reintentar",
+    "datasets": {
+      "logs": "Logs",
+      "alerts": "Alertas",
+      "statistics": "Estadísticas de ingesta"
+    },
+    "holding": "{{documents}} registros · {{size}}",
+    "since": "desde {{date}}",
+    "diskUsed": "Disco al {{pct}}%",
+    "keep": "Eliminar después de",
+    "keepHint": "Un registro se elimina esos días después de ocurrir, esté donde esté guardado.",
+    "cold": "Mover a almacenamiento frío tras",
+    "coldHint": "Los registros antiguos pasan al object storage y siguen siendo consultables. 0 los deja siempre en disco local.",
+    "coldUnavailable": "Configura el almacenamiento frío abajo para sacar los registros antiguos del disco local.",
+    "coldBeforeDelete": "Los registros deben moverse antes de eliminarse: usa menos días que la vida total, o 0.",
+    "tieredNote": "Este conjunto mueve registros a almacenamiento frío. Volver a solo disco local exige reconstruir la tabla, así que no se puede apagar aquí.",
+    "days": "días",
+    "save": "Guardar",
+    "saving": "Guardando…",
+    "toast": {
+      "saved": "Retención guardada",
+      "noPermission": "No tienes permiso para cambiar la retención",
+      "saveFailed": "No se pudo guardar la retención"
+    },
+    "coldStorage": {
+      "title": "Almacenamiento frío",
+      "hint": "Un object storage que el almacén trata como un segundo disco más lento. Los registros antiguos se mueven allí y se consultan desde el mismo sitio: no es un archivo y no hay que restaurar nada.",
+      "active": "En uso",
+      "inactive": "Sin configurar",
+      "writtenNotReady": "El bucket está configurado pero el almacén no lo ha tomado. Comprueba que el despliegue comparte el directorio de configuración del almacén.",
+      "endpoint": "URL del bucket",
+      "accessKey": "Access key",
+      "secretKey": "Secret key",
+      "bucketLocked": "Las credenciales se pueden cambiar cuando quieras. El bucket no, una vez hay registros dentro: las partes ya movidas lo llevan.",
+      "enable": "Activar almacenamiento frío",
+      "update": "Actualizar credenciales",
+      "toast": {
+        "saved": "Almacenamiento frío configurado",
+        "failed": "No se pudo configurar el almacenamiento frío"
+      },
+      "kind": "Tipo",
+      "kind_s3": "Almacén de objetos compatible con S3",
+      "kind_local": "Carpeta local o NFS",
+      "kind_azure": "Azure Blob Storage",
+      "accountUrl": "URL de la cuenta de almacenamiento",
+      "container": "Contenedor",
+      "accountName": "Nombre de la cuenta",
+      "accountKey": "Clave de la cuenta",
+      "useRole": "Usar el rol IAM del servidor en lugar de claves",
+      "s3Hint": "Funciona con AWS S3 y cualquier almacén compatible con S3: MinIO, Ceph, Wasabi, Cloudflare R2 o Google Cloud Storage (endpoint https://storage.googleapis.com/\u003cbucket\u003e/ con claves HMAC).",
+      "localHint": "Los registros pasan a la carpeta montada en /mnt/utmstack-cold dentro del almacén de eventos: un directorio normal en la carpeta de datos, o un recurso NFS montado en el host sobre \u003cdirectorio de datos\u003e/clickhouse/cold antes de iniciar el stack. No requiere credenciales.",
+      "changeWarning": "No migramos los datos que ya están en el destino actual. Se quedan allí y dejan de poder consultarse desde aquí hasta que copies a mano el destino anterior al nuevo."
+    },
+    "forbidden": {
+      "title": "Esta página es de la plataforma",
+      "body": "La retención se aplica a las tablas que comparten todos los tenants, así que solo un administrador de plataforma puede verla o cambiarla. Pídeselo a uno, o entra con una cuenta de plataforma."
+    }
+  }
+}

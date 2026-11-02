@@ -3,19 +3,21 @@ import { initReactI18next } from 'react-i18next'
 import LanguageDetector from 'i18next-browser-languagedetector'
 
 /**
- * Auto-register every locale file in ./locales. Adding a new language is just
- * dropping a `<code>.json` file here (and, optionally, a label below) — no code
- * changes elsewhere.
+ * Auto-register locale feature files from ./locales/<language>/*.json.
+ * Adding a language means adding a folder with the same feature files.
  */
-const localeModules = import.meta.glob('./locales/*.json', { eager: true }) as Record<
+const localeModules = import.meta.glob('./locales/*/*.json', { eager: true }) as Record<
   string,
   { default: Record<string, unknown> }
 >
 
 const resources: Record<string, { translation: Record<string, unknown> }> = {}
-for (const path in localeModules) {
-  const code = path.match(/\/([a-z-]+)\.json$/)?.[1]
-  if (code) resources[code] = { translation: localeModules[path].default }
+for (const [path, module] of Object.entries(localeModules)) {
+  const code = path.match(/^\.\/locales\/([a-z-]+)\/[^/]+\.json$/)?.[1]
+  if (!code) continue
+  const resource = resources[code] ?? { translation: {} }
+  Object.assign(resource.translation, module.default)
+  resources[code] = resource
 }
 
 /** Human labels for the language picker. Falls back to the code if unmapped. */

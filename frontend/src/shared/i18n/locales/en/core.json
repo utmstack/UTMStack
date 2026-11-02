@@ -1,0 +1,164 @@
+{
+  "onboarding": {
+    "adminEmail": {
+      "title": "Set your admin email",
+      "subtitle": "Required before you continue",
+      "description": "Your administrator account still uses the default email. Set a real address — it\u0027s needed for password recovery, notifications and alert emails.",
+      "emailLabel": "Email address",
+      "save": "Save and continue",
+      "saving": "Saving…",
+      "success": "Admin email set. Next, configure your mail server.",
+      "error": "Could not save your email. Please try again."
+    }
+  },
+  "common": {
+    "appName": "UTMStack",
+    "language": "Language",
+    "actions": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "retry": "Retry",
+      "refresh": "Refresh",
+      "delete": "Delete",
+      "remove": "Remove",
+      "close": "Close",
+      "next": "Next",
+      "back": "Back"
+    },
+    "confirm": {
+      "delete": "Delete",
+      "working": "Working…"
+    },
+    "dateRange": {
+      "pick": "Pick a range",
+      "clear": "Clear",
+      "done": "Done",
+      "apply": "Apply"
+    },
+    "loadingMore": "Loading more…",
+    "allLoaded": "All {{count}} loaded",
+    "startFrom": {
+      "scratch": "From scratch",
+      "scratchHint": "An empty definition you fill in yourself.",
+      "copy": "From an existing one",
+      "copyHint": "Everything is copied except the identifier and the name.",
+      "pickTitle": "Choose what to copy",
+      "back": "Back",
+      "count": "{{n}} available",
+      "search": "Search by name",
+      "none": "Nothing matches that search"
+    },
+    "cancel": "Cancel"
+  },
+  "nav": {
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "home": "Home",
+    "dashboards": "Dashboards",
+    "dashboardList": "Dashboard list",
+    "visualizationList": "Widget list",
+    "newDashboard": "New dashboard",
+    "newVisualization": "New widget",
+    "threatManagement": "Threat Management",
+    "alerts": "Alerts",
+    "taggingRules": "Tagging Rules",
+    "incidents": "Incidents",
+    "adversaryView": "Adversary View",
+    "soar": "SOAR",
+    "flows": "Flows",
+    "executionHistory": "Execution history",
+    "interactiveConsole": "Interactive Console",
+    "logExplorer": "Log Explorer",
+    "userAuditor": "User Auditor",
+    "threatIntelligence": "Threat Intelligence",
+    "threat-intel": {
+      "indicators": "Indicators",
+      "analyzt": "AI Analyst",
+      "triage": "Triage",
+      "report": "Report"
+    },
+    "compliance": "Compliance",
+    "configure": "Configure",
+    "dataSources": "Data Sources",
+    "integrations": "Integrations",
+    "alertingRules": "Alerting Rules",
+    "dataProcessing": "Data Processing",
+    "team": "Team",
+    "settings": "Settings",
+    "back": "Back",
+    "parsingFilters": "Pipelines",
+    "regexPatterns": "Regex Patterns",
+    "overview": "Overview",
+    "tenants": "Tenants",
+    "liveOps": "Live Operations"
+  },
+  "topbar": {
+    "theme": {
+      "light": "Light mode",
+      "dark": "Dark mode"
+    },
+    "manageLicense": "Manage license",
+    "profile": {
+      "profile": "Profile",
+      "license": "License",
+      "logout": "Log out"
+    }
+  },
+  "pagination": {
+    "perPage": "Per page",
+    "pageOf": "Page {{page}} of {{total}}",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "timeRange": {
+    "quick": "Quick ranges",
+    "relative": "Relative",
+    "absolute": "Absolute",
+    "last": "Last",
+    "apply": "Apply",
+    "allTime": "All time",
+    "from": "From",
+    "to": "To",
+    "now": "now",
+    "units": {
+      "minutes": "minutes",
+      "hours": "hours",
+      "days": "days",
+      "weeks": "weeks",
+      "months": "months"
+    },
+    "presets": {
+      "15m": "Last 15 minutes",
+      "1h": "Last 1 hour",
+      "6h": "Last 6 hours",
+      "24h": "Last 24 hours",
+      "7d": "Last 7 days",
+      "30d": "Last 30 days"
+    }
+  },
+  "dateFormat": {
+    "title": "Date \u0026 time",
+    "subtitle": "How timestamps are displayed across the platform. Logs are always stored in UTC.",
+    "timezone": {
+      "title": "Time zone",
+      "hint": "Timestamps are shown in this time zone. Stored data stays in UTC.",
+      "system": "Browser default",
+      "now": "Now: {{value}}"
+    },
+    "format": {
+      "title": "Date format",
+      "hint": "Style used for dates and times."
+    },
+    "styles": {
+      "short": "Short",
+      "medium": "Medium",
+      "long": "Long",
+      "full": "Full"
+    },
+    "save": "Save changes",
+    "saving": "Saving…",
+    "saved": "Date settings saved",
+    "saveError": "Could not save the settings",
+    "loadError": "Could not load the settings"
+  }
+}

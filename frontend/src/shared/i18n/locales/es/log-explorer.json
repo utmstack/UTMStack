@@ -1,0 +1,148 @@
+{
+  "logExplorer": {
+    "title": "Explorador de logs",
+    "eventsIn": "eventos en",
+    "searching": "Buscando…",
+    "query": {
+      "allDataTypes": "Todos los tipos de dato",
+      "dataTypes": "Tipos de dato",
+      "exportCsv": "Exportar CSV",
+      "filterDataTypes": "Filtrar tipos de dato…",
+      "noDataTypes": "Sin tipos de dato",
+      "noDataTypesMatch": "Ningún tipo de dato coincide",
+      "noTextSearch": "Este origen no tiene campo de texto completo — filtra por campo",
+      "refresh": "Actualizar",
+      "run": "Ejecutar",
+      "search": "Buscar",
+      "searchPlaceholder": "Buscar en todos los campos…"
+    },
+    "time": {
+      "15m": "Últimos 15 minutos",
+      "1h": "Última hora",
+      "6h": "Últimas 6 horas",
+      "24h": "Últimas 24 horas",
+      "7d": "Últimos 7 días",
+      "30d": "Últimos 30 días"
+    },
+    "ops": {
+      "is": "es",
+      "isNot": "no es",
+      "contains": "contiene",
+      "exists": "existe",
+      "between": "entre",
+      "search": "busca",
+      "isOneOf": "es uno de",
+      "isNotOneOf": "no es ninguno de",
+      "doesNotContain": "no contiene",
+      "startsWith": "empieza con",
+      "doesNotStartWith": "no empieza con",
+      "endsWith": "termina con",
+      "doesNotEndWith": "no termina con",
+      "doesNotExist": "no existe",
+      "notBetween": "no está entre",
+      "greaterThan": "es mayor que",
+      "greaterThanOrEquals": "es mayor o igual que",
+      "lessThan": "es menor que",
+      "lessThanOrEquals": "es menor o igual que"
+    },
+    "filters": {
+      "label": "Filtros",
+      "clearAll": "Limpiar todo"
+    },
+    "fields": {
+      "title": "Campos",
+      "filterPlaceholder": "Filtrar campos…",
+      "none": "Sin campos",
+      "selected": "Campos seleccionados",
+      "available": "Campos disponibles",
+      "topValues_one": "Top {{count}} valor",
+      "topValues_other": "Top {{count}} valores",
+      "loading": "Cargando…",
+      "noValues": "Sin valores",
+      "addColumn": "Agregar como columna",
+      "removeColumn": "Quitar columna de la tabla",
+      "filterFor": "Filtrar por el valor",
+      "filterOut": "Excluir el valor",
+      "empty": "(vacío)"
+    },
+    "results": {
+      "dataTypesFailed": "No se pudieron cargar los tipos de dato.",
+      "endOfResults": "Cargados los {{count}} eventos",
+      "loadingMore": "Cargando más…",
+      "message": "Mensaje",
+      "none": "Ningún log coincide con esta consulta.",
+      "removeColumn": "Quitar {{field}}",
+      "retry": "Reintentar",
+      "searchFailed": "La búsqueda falló.",
+      "searching": "Buscando…",
+      "source": "Origen",
+      "time": "Hora",
+      "scope": "Buscado en {{dataset}} · {{dataType}}.",
+      "searchAllDataTypes": "Buscar en todos los tipos"
+    },
+    "detail": {
+      "fieldsCount_one": "{{count}} campo",
+      "fieldsCount_other": "{{count}} campos",
+      "copyJson": "Copiar JSON",
+      "copied": "Documento copiado",
+      "parsedFields": "Campos parseados",
+      "json": "JSON",
+      "filterFor": "Filtrar por",
+      "filterOut": "Excluir",
+      "surrounding": "Eventos alrededor",
+      "surroundingHint": "Mostrar eventos ±15 min alrededor de este, de la misma fuente"
+    },
+    "view": {
+      "table": "Tabla",
+      "chart": "Gráfico"
+    },
+    "chart": {
+      "aggregateOn": "Agregar por",
+      "per": "cada",
+      "topValues": "— top 20 valores",
+      "building": "Construyendo gráfico…",
+      "failed": "No se pudo construir el gráfico para este campo.",
+      "noData": "Sin datos para graficar."
+    },
+    "intervals": {
+      "minute": "Minuto",
+      "hour": "Hora",
+      "day": "Día",
+      "week": "Semana",
+      "month": "Mes",
+      "quarter": "Trimestre",
+      "year": "Año"
+    },
+    "toast": {
+      "exportFailed": "La exportación falló"
+    },
+    "builder": {
+      "add": "Agregar filtro",
+      "filterValues": "Filtrar valores…",
+      "loadingValues": "Cargando valores…",
+      "noValues": "Sin valores.",
+      "cancel": "Cancelar",
+      "confirm": "Agregar",
+      "pickValue": "Pick a value to add the filter."
+    },
+    "related": {
+      "nLogs_one": "{{count}} log",
+      "nLogs_other": "{{count}} logs",
+      "truncated": "Mostrando los primeros {{count}} logs relacionados (el conjunto completo es mayor)."
+    },
+    "saved": {
+      "title": "Guardadas",
+      "empty": "Aún no hay búsquedas guardadas",
+      "saveCurrent": "Guardar búsqueda actual",
+      "save": "Guardar",
+      "namePlaceholder": "Nombre de la búsqueda",
+      "delete": "Eliminar",
+      "saved": "Guardada «{{name}}»",
+      "loading": "Cargando…",
+      "loadFailed": "No se pudieron cargar las búsquedas guardadas",
+      "saveFailed": "No se pudo guardar la búsqueda",
+      "deleteFailed": "No se pudo eliminar la búsqueda",
+      "unreadable": "No se pudo leer esa búsqueda guardada"
+    }
+  }
+}

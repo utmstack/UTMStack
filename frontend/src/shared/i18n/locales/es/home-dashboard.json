@@ -1,0 +1,439 @@
+{
+  "home": {
+    "hero": {
+      "title": "¿Qué te gustaría saber a partir de tus datos de seguridad?",
+      "placeholder": "Investiga a Scattered Spider, ¿nos aplica?, ¿nos han atacado alguna vez?, crea una regla de detección y mantenla ajustada.",
+      "send": "Enviar",
+      "suggestions": {
+        "threatHunt": "Caza de amenazas",
+        "observableTriage": "Triaje de observables",
+        "writeRule": "Escribir una regla",
+        "systemStatus": "Estado actual del sistema"
+      }
+    },
+    "kpis": {
+      "alerts24h": "Alertas (24 h)",
+      "openIncidents": "Incidentes abiertos",
+      "openIncidentsSub": "abiertos actualmente",
+      "highSeverity24h": "Severidad alta (24 h)",
+      "highSeveritySub": "de {{n}} alertas",
+      "activePlaybooks": "Playbooks activos",
+      "activePlaybooksSub": "habilitados"
+    },
+    "datasources": {
+      "title": "Fuentes de datos",
+      "viewAll": "Ver todo",
+      "ofTotal": "de {{n}}",
+      "datasources": "fuentes de datos",
+      "sendingData": "enviando datos",
+      "totalEvents": "Eventos totales",
+      "noData": "Sin datos de ingesta en esta ventana"
+    },
+    "span": {
+      "recent": "ventana reciente",
+      "days_one": "último {{count}} día",
+      "days_other": "últimos {{count}} días",
+      "hours": "últimas {{n}} h"
+    },
+    "mitre": {
+      "title": "Técnicas MITRE ATT\u0026CK principales",
+      "explore": "Explorar",
+      "empty": "Aún no hay alertas con técnica asignada"
+    },
+    "assets": {
+      "title": "Activos más atacados",
+      "viewAll": "Ver todo",
+      "asset": "Activo",
+      "alerts": "Alertas",
+      "empty": "No hay activos atacados en las alertas recientes"
+    },
+    "compliance": {
+      "title": "Puntuación de cumplimiento",
+      "reports": "Informes",
+      "empty": "Aún no se han generado informes de cumplimiento"
+    },
+    "health": {
+      "title": "Estado del sistema",
+      "details": "Detalles",
+      "services": {
+        "backend": "API del backend",
+        "opensearch": "Clúster de OpenSearch",
+        "socai": "Motor SOC-AI"
+      },
+      "detail": {
+        "noClusterInfo": "sin información del clúster",
+        "disabled": "deshabilitado",
+        "tools": "{{n}} herramientas",
+        "unreachable": "inaccesible",
+        "pending": "…"
+      }
+    }
+  },
+  "dashboards": {
+    "title": "Paneles",
+    "subtitle": "Explora y edita paneles interactivos.",
+    "list": {
+      "title": "Paneles",
+      "create": "Nuevo",
+      "searchPlaceholder": "Buscar paneles…",
+      "loading": "Cargando paneles…",
+      "empty": "Aún no hay paneles.",
+      "rename": "Renombrar",
+      "delete": "Eliminar"
+    },
+    "actions": {
+      "edit": "Editar",
+      "editWithAi": "Editar con IA"
+    },
+    "refresh": {
+      "title": "Actualización automática",
+      "options": {
+        "off": "Desactivado",
+        "10s": "10s",
+        "30s": "30s",
+        "1m": "1m",
+        "5m": "5m",
+        "15m": "15m"
+      }
+    },
+    "editor": {
+      "editing": "Edición",
+      "addWidget": "Agregar widget",
+      "save": "Guardar",
+      "discard": "Descartar",
+      "newTitle": "Nuevo widget",
+      "newSubtitle": "Elige un tipo de gráfico, selecciona una fuente de datos y dale forma visualmente. El SQL se genera automáticamente.",
+      "editTitle": "Editar widget",
+      "editSubtitle": "Ajusta la definición del gráfico. Los cambios se aplican en todos los lugares donde se usa este widget.",
+      "loading": "Cargando widget…",
+      "notFoundTitle": "Widget no encontrado",
+      "notFoundSubtitle": "Puede que haya sido eliminada o que no tengas acceso a ella.",
+      "backToDashboard": "Volver al panel",
+      "chartType": {
+        "title": "Tipo de gráfico"
+      },
+      "chartTypes": {
+        "bar": {
+          "label": "Barras",
+          "description": "Compara valores entre categorías."
+        },
+        "line": {
+          "label": "Línea",
+          "description": "Tendencias sobre un eje ordenado."
+        },
+        "area": {
+          "label": "Área",
+          "description": "Línea rellena — resalta el volumen."
+        },
+        "pie": {
+          "label": "Pastel",
+          "description": "Proporción del total por categoría."
+        },
+        "metric": {
+          "label": "Métrica",
+          "description": "Un único valor escalar."
+        },
+        "table": {
+          "label": "Tabla",
+          "description": "Filas agregadas."
+        },
+        "list": {
+          "label": "Lista",
+          "description": "Filas sin procesar y sin agregación."
+        },
+        "region_map": {
+          "label": "Mapa de coordenadas",
+          "description": "Coloca marcadores en un mapamundi usando coordenadas de latitud y longitud."
+        },
+        "text": {
+          "label": "Texto",
+          "description": "Texto libre o salida simple por fila."
+        }
+      },
+      "dataSource": {
+        "title": "¿Qué datos?",
+        "dataset": "Conjunto de datos",
+        "noDatasetHint": "Elige un conjunto de datos para habilitar condiciones y agrupación."
+      },
+      "widgetTitle": {
+        "label": "Título",
+        "placeholder": "Opcional — usa el tipo de gráfico por defecto"
+      },
+      "dataset": {
+        "placeholder": "Selecciona un conjunto de datos…",
+        "loading": "Cargando conjuntos de datos…"
+      },
+      "filters": {
+        "title": "Incluir solo eventos donde…",
+        "empty": "Sin condiciones: se incluyen todos los eventos del rango de tiempo.",
+        "add": "Agregar condición",
+        "remove": "Quitar",
+        "field": "Campo",
+        "fieldPlaceholder": "p. ej. host.name",
+        "operator": "Operador",
+        "value": "Valor",
+        "valuePlaceholder": "Valor",
+        "from": "Desde",
+        "to": "Hasta",
+        "noValue": "No se necesita valor",
+        "listPlaceholder": "Valores separados por coma"
+      },
+      "operators": {
+        "IS": "es",
+        "IS_NOT": "no es",
+        "IS_ONE_OF_TERMS": "es uno de",
+        "IS_GREATER_THAN": "es mayor que",
+        "IS_LESS_THAN_OR_EQUALS": "es menor o igual que",
+        "IS_BETWEEN": "está entre",
+        "CONTAIN": "contiene",
+        "DOES_NOT_CONTAIN": "no contiene",
+        "START_WITH": "empieza con",
+        "ENDS_WITH": "termina con",
+        "EXIST": "existe",
+        "DOES_NOT_EXIST": "no existe"
+      },
+      "dimension": {
+        "title": "Agrupar por",
+        "field": "Campo",
+        "placeholder": "Elige un campo para agrupar…"
+      },
+      "table": {
+        "hint": "Muestra todos los campos de los registros. Agrega columnas para elegir algunos.",
+        "columnsTitle": "Columnas",
+        "allColumns": "Se mostrarán todas las columnas. Agrega campos para elegir columnas específicas.",
+        "addColumn": "Agregar una columna…",
+        "removeColumn": "Quitar columna"
+      },
+      "chartPreview": {
+        "title": "Vista previa del gráfico",
+        "noQuery": "Elige un conjunto de datos para ver la vista previa.",
+        "error": "La consulta de vista previa falló."
+      },
+      "chartTypeChip": {
+        "label": "Gráfico:"
+      },
+      "chartTypeModal": {
+        "title": "Elige un tipo de gráfico",
+        "subtitle": "Elige cómo visualizar los datos. Puedes cambiarlo después.",
+        "confirm": "Continuar",
+        "swapTitle": "Cambiar tipo de gráfico",
+        "swapConfirm": "Aplicar"
+      },
+      "saveVisualization": "Guardar widget",
+      "fieldSelect": {
+        "loading": "Cargando campos…",
+        "choose": "Elige un campo…"
+      },
+      "toast": {
+        "notReady": "Elige un conjunto de datos, y un campo por el que desglosar, antes de guardar."
+      },
+      "breakdown": {
+        "title": "Desglosar por",
+        "topValuesTable": "Tabla de valores principales",
+        "time": "En el tiempo",
+        "field": "Valores más frecuentes",
+        "interval": "Tamaño del intervalo",
+        "intervalAuto": "Automático",
+        "limit": "Cuántos",
+        "limitPlaceholder": "Predeterminado (50)",
+        "splitHint": "Opcional: una línea por cada valor de este campo."
+      },
+      "editFilters": "Edit filters"
+    },
+    "grid": {
+      "empty": "Este panel aún no tiene widgets.",
+      "missingVisualization": "Widget no disponible",
+      "unknownVisualization": "Widget"
+    },
+    "widget": {
+      "renderError": "No se pudo renderizar este widget.",
+      "count": "Conteo",
+      "loading": "Cargando datos…",
+      "queryError": "No se pudieron cargar los datos del widget.",
+      "noData": "Sin datos para el rango de tiempo seleccionado.",
+      "regionMapEmpty": "No hay puntos con lat/lon válidos.",
+      "regionMapShapeHint": "El SQL debe devolver columnas de latitud y longitud (o un arreglo value [lat, lon, count]).",
+      "regionMapUnnamed": "(sin nombre)",
+      "regionMapValue": "valor: {{value}}",
+      "editAriaLabel": "Editar widget",
+      "removeAriaLabel": "Quitar widget",
+      "moveBack": "Mover atrás",
+      "moveForward": "Mover adelante",
+      "width": "Ancho",
+      "height": "Alto",
+      "widthSmall": "1 col",
+      "widthMedium": "2 cols",
+      "widthLarge": "3 cols",
+      "heightNormal": "Normal",
+      "heightTall": "Alto",
+      "incompleteSpec": "A este widget le falta parte de su pregunta."
+    },
+    "form": {
+      "createTitle": "Nuevo panel",
+      "renameTitle": "Editar panel",
+      "name": "Nombre",
+      "namePlaceholder": "p. ej. Vista general de red",
+      "description": "Descripción",
+      "descriptionPlaceholder": "Opcional",
+      "cancel": "Cancelar",
+      "create": "Crear",
+      "save": "Guardar"
+    },
+    "confirm": {
+      "deleteTitle": "Eliminar panel",
+      "delete": "¿Eliminar el panel «{{name}}»? Esta acción no se puede deshacer.",
+      "deleteWidgetsTitle": "Eliminar widgets",
+      "deleteWidgets_one": "¿Eliminar este widget? Esta acción no se puede deshacer.",
+      "deleteWidgets_other": "¿Eliminar {{count}} widgets? Esta acción no se puede deshacer.",
+      "dismissTitle": "Quitar panel",
+      "dismiss": "¿Quitar el panel predeterminado «{{name}}»? Después podrás crear uno nuevo a partir de él con \"Nuevo\" → \"Desde una existente\"."
+    },
+    "page": {
+      "noSelection": "Elige un panel de la lista o crea uno para comenzar.",
+      "loading": "Cargando widgets…"
+    },
+    "toast": {
+      "created": "Panel creado.",
+      "createFailed": "No se pudo crear el panel.",
+      "updated": "Panel actualizado.",
+      "updateFailed": "No se pudo actualizar el panel.",
+      "deleted": "Panel eliminado.",
+      "deleteFailed": "No se pudo eliminar el panel.",
+      "layoutSaved": "Distribución guardada.",
+      "layoutSaveFailed": "No se pudo guardar la distribución.",
+      "visualizationCreated": "Widget creado.",
+      "visualizationCreateFailed": "No se pudo crear el widget.",
+      "visualizationUpdated": "Widget actualizado.",
+      "visualizationUpdateFailed": "No se pudo actualizar el widget.",
+      "visualizationDeleted": "Widget eliminado.",
+      "visualizationDeleteFailed": "No se pudo eliminar el widget.",
+      "filterCreated": "Filtro creado.",
+      "filterUpdated": "Filtro actualizado.",
+      "filterDeleted": "Filtro eliminado.",
+      "filterCreateFailed": "No se pudo crear el filtro.",
+      "filterUpdateFailed": "No se pudo actualizar el filtro.",
+      "filterDeleteFailed": "No se pudo eliminar el filtro.",
+      "filtersSaved": "Filters saved.",
+      "filtersSaveFailed": "Could not save filters."
+    },
+    "newDashboard": {
+      "title": "Nuevo panel",
+      "subtitle": "Crea un panel en blanco. Podrás agregar widgets después de guardarlo.",
+      "modeManual": "Crear manualmente",
+      "modeAi": "Con IA",
+      "aiLocked": "Activa SOC-AI y configúralo para poder usar esto.",
+      "aiDescriptionLabel": "¿Qué querés que muestre este panel?",
+      "aiDescriptionPlaceholder": "ej. Logins fallidos por país, últimos 7 días",
+      "aiCreate": "Crear con IA",
+      "aiOpenerWithDetails": "Creá un panel llamado \"{{name}}\" que muestre: {{description}}"
+    },
+    "newVisualization": {
+      "title": "Nuevo widget",
+      "subtitle": "Define un gráfico reutilizable a partir de una consulta SQL y una configuración de ECharts.",
+      "sqlQuery": "Consulta SQL",
+      "sqlQueryPlaceholder": "SELECT bucket, count(*) FROM logs GROUP BY bucket",
+      "sqlQueryHint": "Usa los marcadores timeFilter, from y to (entre dobles llaves) para aplicar el selector de tiempo al renderizar.",
+      "config": "Configuración del gráfico (opción de ECharts, JSON)",
+      "configHint": "Debe ser JSON válido. Las filas del SQL se exponen como `dataset.source` — conecta tus series con `encode`.",
+      "configError": "JSON no válido: {{error}}"
+    },
+    "visualizationList": {
+      "title": "Widgets",
+      "subtitle": "{{count}} widget(s) disponible(s).",
+      "subtitleFiltered": "Mostrando {{shown}} de {{total}}.",
+      "create": "Nueva",
+      "searchPlaceholder": "Buscar widgets…",
+      "loading": "Cargando widgets…",
+      "empty": "Aún no hay widgets.",
+      "emptyFiltered": "Ningún widget coincide con los filtros actuales.",
+      "delete": "Eliminar",
+      "deleteTitle": "Eliminar widget",
+      "confirmDelete": "¿Eliminar el widget «{{name}}»? Esta acción no se puede deshacer.",
+      "filters": {
+        "search": "Buscar",
+        "chartType": "Tipo de gráfico",
+        "allChartTypes": "Todos los tipos de gráfico",
+        "source": "Fuente",
+        "allSources": "Todas las fuentes",
+        "createdAt": "Creada",
+        "modifiedAt": "Modificada",
+        "createdRangeTitle": "Rango personalizado — Creada",
+        "modifiedRangeTitle": "Rango personalizado — Modificada",
+        "pickRange": "Elegir un rango",
+        "datePresets": {
+          "all": "Todo el tiempo",
+          "today": "Hoy",
+          "last7": "Últimos 7 días",
+          "last30": "Últimos 30 días",
+          "lastYear": "Último año",
+          "custom": "Rango personalizado"
+        },
+        "clear": "Limpiar filtros"
+      },
+      "col": {
+        "name": "Nombre",
+        "chartType": "Tipo de gráfico",
+        "source": "Fuente",
+        "description": "Descripción",
+        "created": "Creada",
+        "modified": "Modificada"
+      }
+    },
+    "tabs": {
+      "dashboards": "Tableros",
+      "visualizations": "Widgets",
+      "newDashboard": "Nuevo tablero",
+      "unsetDefault": "Quitar predeterminado",
+      "options": "Opciones"
+    },
+    "picker": {
+      "none": "Seleccionar tablero",
+      "search": "Buscar tableros…",
+      "new": "Nuevo tablero",
+      "setDefault": "Marcar como predeterminado",
+      "empty": "Sin tableros"
+    },
+    "empty": {
+      "title": "Aún no hay tableros",
+      "body": "Crea tu primer tablero para ver tus datos de seguridad de un vistazo.",
+      "cta": "Crear tablero"
+    },
+    "filters": {
+      "addTitle": "Añadir filtro",
+      "editTitle": "Editar filtro",
+      "removeTitle": "Eliminar filtro",
+      "removeConfirm": "¿Eliminar el filtro \"{{label}}\"? Esta acción no se puede deshacer.",
+      "remove": "Eliminar",
+      "editAria": "Editar filtro",
+      "removeAria": "Eliminar filtro",
+      "saving": "Guardando…",
+      "addChip": "Añadir filtro",
+      "chooseValue": "Choose…",
+      "selected": "selected",
+      "loading": "Loading values…",
+      "searchPlaceholder": "Search values…",
+      "noValues": "No values available.",
+      "loadError": "Could not load values.",
+      "clear": "Clear",
+      "editorTitle": "Dashboard filters",
+      "editorHint": "Add dropdown chips that filter every widget on this dashboard.",
+      "emptyEditor": "No filter chips yet. Add one to get started.",
+      "cancel": "Cancel",
+      "save": "Save",
+      "field": {
+        "dataset": "Data set",
+        "field": "Field",
+        "chooseField": "Choose a field…",
+        "label": "Label",
+        "labelPlaceholder": "e.g. Host",
+        "placeholder": "Placeholder",
+        "placeholderPlaceholder": "e.g. Pick a host",
+        "multiple": "Multiple",
+        "searchable": "Searchable"
+      }
+    },
+    "duplicate": {
+      "copyName": "{{name}} (copia)"
+    }
+  }
+}

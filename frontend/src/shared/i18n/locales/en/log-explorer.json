@@ -1,0 +1,148 @@
+{
+  "logExplorer": {
+    "title": "Log explorer",
+    "eventsIn": "events in",
+    "searching": "Searching…",
+    "query": {
+      "allDataTypes": "All data types",
+      "dataTypes": "Data types",
+      "exportCsv": "Export CSV",
+      "filterDataTypes": "Filter data types…",
+      "noDataTypes": "No data types",
+      "noDataTypesMatch": "No matching data types",
+      "noTextSearch": "This data source has no full-text field — filter by field instead",
+      "refresh": "Refresh",
+      "run": "Run",
+      "search": "Search",
+      "searchPlaceholder": "Search across all fields…"
+    },
+    "time": {
+      "15m": "Last 15 minutes",
+      "1h": "Last 1 hour",
+      "6h": "Last 6 hours",
+      "24h": "Last 24 hours",
+      "7d": "Last 7 days",
+      "30d": "Last 30 days"
+    },
+    "ops": {
+      "is": "is",
+      "isNot": "is not",
+      "contains": "contains",
+      "exists": "exists",
+      "between": "between",
+      "search": "search",
+      "isOneOf": "is one of",
+      "isNotOneOf": "is not one of",
+      "doesNotContain": "does not contain",
+      "startsWith": "starts with",
+      "doesNotStartWith": "does not start with",
+      "endsWith": "ends with",
+      "doesNotEndWith": "does not end with",
+      "doesNotExist": "does not exist",
+      "notBetween": "not between",
+      "greaterThan": "is greater than",
+      "greaterThanOrEquals": "is greater than or equal to",
+      "lessThan": "is less than",
+      "lessThanOrEquals": "is less than or equal to"
+    },
+    "filters": {
+      "label": "Filters",
+      "clearAll": "Clear all"
+    },
+    "fields": {
+      "title": "Fields",
+      "filterPlaceholder": "Filter fields…",
+      "none": "No fields",
+      "selected": "Selected fields",
+      "available": "Available fields",
+      "topValues_one": "Top {{count}} value",
+      "topValues_other": "Top {{count}} values",
+      "loading": "Loading…",
+      "noValues": "No values",
+      "addColumn": "Add as column",
+      "removeColumn": "Remove column from table",
+      "filterFor": "Filter for value",
+      "filterOut": "Filter out value",
+      "empty": "(empty)"
+    },
+    "results": {
+      "dataTypesFailed": "Could not load data types.",
+      "endOfResults": "All {{count}} events loaded",
+      "loadingMore": "Loading more…",
+      "message": "Message",
+      "none": "No logs match this query.",
+      "removeColumn": "Remove {{field}}",
+      "retry": "Retry",
+      "searchFailed": "Search failed.",
+      "searching": "Searching…",
+      "source": "Source",
+      "time": "Time",
+      "scope": "Searched {{dataset}} · {{dataType}}.",
+      "searchAllDataTypes": "Search every data type"
+    },
+    "detail": {
+      "fieldsCount_one": "{{count}} field",
+      "fieldsCount_other": "{{count}} fields",
+      "copyJson": "Copy JSON",
+      "copied": "Document copied",
+      "parsedFields": "Parsed fields",
+      "json": "JSON",
+      "filterFor": "Filter for",
+      "filterOut": "Filter out",
+      "surrounding": "Surrounding events",
+      "surroundingHint": "Show events ±15 min around this one, from the same source"
+    },
+    "view": {
+      "table": "Table",
+      "chart": "Chart"
+    },
+    "chart": {
+      "aggregateOn": "Aggregate on",
+      "per": "per",
+      "topValues": "— top 20 values",
+      "building": "Building chart…",
+      "failed": "Could not build the chart for this field.",
+      "noData": "No data to chart."
+    },
+    "intervals": {
+      "minute": "Minute",
+      "hour": "Hour",
+      "day": "Day",
+      "week": "Week",
+      "month": "Month",
+      "quarter": "Quarter",
+      "year": "Year"
+    },
+    "toast": {
+      "exportFailed": "Export failed"
+    },
+    "builder": {
+      "add": "Add filter",
+      "filterValues": "Filter values…",
+      "loadingValues": "Loading values…",
+      "noValues": "No values found.",
+      "pickValue": "Pick a value to add the filter.",
+      "cancel": "Cancel",
+      "confirm": "Add"
+    },
+    "related": {
+      "nLogs_one": "{{count}} log",
+      "nLogs_other": "{{count}} logs",
+      "truncated": "Showing the first {{count}} related logs (the full set is larger)."
+    },
+    "saved": {
+      "title": "Saved",
+      "empty": "No saved searches yet",
+      "saveCurrent": "Save current search",
+      "save": "Save",
+      "namePlaceholder": "Search name",
+      "delete": "Delete",
+      "saved": "Saved “{{name}}”",
+      "loading": "Loading…",
+      "loadFailed": "Could not load saved searches",
+      "saveFailed": "Could not save the search",
+      "deleteFailed": "Could not delete the search",
+      "unreadable": "That saved search could not be read"
+    }
+  }
+}

@@ -1,0 +1,303 @@
+{
+  "settings": {
+    "title": "Settings",
+    "license": "License",
+    "notifications": "Notifications",
+    "connectionKey": "Connection Key",
+    "dataRetention": "Data Retention",
+    "indices": "Indices",
+    "theme": "Theme",
+    "branding": "Branding",
+    "apiKeys": "API Keys",
+    "identityProviders": "Identity Providers",
+    "email": "Email Configuration",
+    "dateFormat": "Date Format",
+    "language": "Language",
+    "auditLogs": "App Audit Logs",
+    "about": "About",
+    "socAi": "SOC-AI",
+    "supportAccess": "Support access",
+    "threatwinds": "ThreatWinds Integration"
+  },
+  "license": {
+    "title": "License",
+    "subtitle": "Your edition, capabilities, and license file.",
+    "loading": "Loading license…",
+    "loadError": "Could not load license information.",
+    "statusLabel": "Status",
+    "status": {
+      "community": "Community",
+      "active": "Active",
+      "expiring": "Expiring soon",
+      "expired": "Expired"
+    },
+    "edition": "Edition",
+    "enterprise": "Enterprise",
+    "community": "Community",
+    "editionLine": "{{edition}} edition",
+    "datasourceLimit": "Datasource limit",
+    "unlimited": "Unlimited",
+    "mssp": "MSSP / multi-tenant",
+    "enabled": "Enabled",
+    "licenseType": "License type",
+    "instanceId": "Instance ID",
+    "enterpriseUnlocked": "Enterprise features unlocked",
+    "validUntil": "Valid until",
+    "noExpiry": "No expiry",
+    "timeRemaining": "Time remaining",
+    "expiredAgo": "Expired {{days}}d ago",
+    "daysShort": "{{days}}d",
+    "msspShort": "MSSP",
+    "communityEdition": "Community edition",
+    "communityBlurb": "Free and open-source. Upload an Enterprise license below to unlock multi-tenancy, SSO, higher datasource limits, and advanced compliance.",
+    "upgrade": "Upgrade to Enterprise",
+    "uploadTitle": "Upload a license",
+    "uploadBlurb": "Install or replace the signed LICENSE file. The server validates the signature and expiry before applying it. Admin only.",
+    "installLicense": "Install license",
+    "chooseFile": "Choose file",
+    "noFileSelected": "No file selected",
+    "toast": {
+      "installed": "License installed — {{edition}} edition.",
+      "adminRequired": "Administrator privileges are required to upload a license.",
+      "invalid": "Invalid or expired license file.",
+      "installFailed": "Could not install the license."
+    },
+    "ingestLimit": "Ingest volume",
+    "notMetered": "Not metered",
+    "gbPerMonth": "{{gb}} GB/month"
+  },
+  "languageSettings": {
+    "title": "Platform language",
+    "subtitle": "Default UI language for pre-login screens, system emails and new users. Each user can still pick their own in their profile.",
+    "label": "Default language",
+    "hint": "Used when a user hasn\u0027t chosen their own language.",
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Platform language updated",
+    "loadError": "Could not load the language setting",
+    "saveError": "Could not save the language setting"
+  },
+  "branding": {
+    "title": "Branding",
+    "subtitle": "White-label UTMStack with your organization’s identity — applied everywhere: the login screen, sidebar, emails and reports.",
+    "enterpriseRequired": "White-labeling is an Enterprise feature.",
+    "manageLicense": "Manage license",
+    "enable": {
+      "title": "White-label",
+      "description": "Replace the UTMStack brand with your own across the platform.",
+      "label": "Enable white-labeling"
+    },
+    "identity": {
+      "title": "Identity",
+      "productName": "Product name",
+      "productNameHint": "Shown in the title bar, sidebar and emails.",
+      "accent": "Accent color",
+      "accentHint": "Primary color for buttons, links and active states.",
+      "custom": "Custom color"
+    },
+    "logos": {
+      "title": "Logos",
+      "hint": "PNG, SVG, WEBP, JPG or ICO. Up to 5 MB.",
+      "logo": "Logo (light)",
+      "logoDark": "Logo (dark)",
+      "favicon": "Favicon"
+    },
+    "reports": {
+      "title": "Report assets",
+      "hint": "Embedded in generated PDF reports.",
+      "reportLogo": "Report logo",
+      "reportCover": "Report cover"
+    },
+    "asset": {
+      "upload": "Upload",
+      "replace": "Replace"
+    },
+    "save": "Save changes",
+    "saving": "Saving…",
+    "saved": "Branding updated",
+    "saveError": "Could not save branding",
+    "uploaded": "Image uploaded",
+    "uploadError": "Could not upload image",
+    "loadError": "Could not load branding",
+    "enterprise": {
+      "title": "White-labelling is an Enterprise feature",
+      "body": "Replace the product name, logo and report cover with your own, so the panel and everything it generates carry your brand instead of UTMStack\u0027s.",
+      "upgrade": "Upgrade to Enterprise"
+    },
+    "restore": "Restore UTMStack defaults",
+    "restored": "Branding restored to the UTMStack defaults"
+  },
+  "emailConfig": {
+    "title": "Email configuration",
+    "subtitle": "SMTP server used to send alert notifications, reports and account emails.",
+    "server": {
+      "title": "SMTP server",
+      "host": "Host",
+      "hostHint": "Hostname of your SMTP server.",
+      "port": "Port",
+      "encryption": "Encryption",
+      "username": "Username",
+      "password": "Password",
+      "passwordSetHint": "A password is saved. Leave blank to keep it, or type a new one to change it."
+    },
+    "encryptionOpt": {
+      "TLS": "TLS",
+      "SSL": "SSL",
+      "NONE": "None"
+    },
+    "sender": {
+      "title": "Sender",
+      "from": "From address",
+      "fromHint": "Address emails are sent from.",
+      "organization": "Organization name",
+      "organizationHint": "Shown in alert and incident notification emails.",
+      "baseUrl": "Base URL",
+      "baseUrlHint": "Public URL of this instance, used for links in emails."
+    },
+    "test": {
+      "button": "Send test",
+      "sending": "Sending…",
+      "sentTo": "A test email will be sent to {{email}}.",
+      "success": "Test email sent to {{email}}",
+      "fail": "Could not send the test email",
+      "fromRequired": "Set a From address before testing"
+    },
+    "save": "Save changes",
+    "saving": "Saving…",
+    "saved": "Email configuration saved",
+    "saveError": "Could not save the configuration",
+    "loadError": "Could not load the configuration",
+    "recipients": {
+      "alertsTitle": "Alert recipients",
+      "incidentsTitle": "Incident recipients",
+      "to": "To",
+      "cc": "CC",
+      "alertsHelper": "Addresses notified when new alerts are raised. Leave empty and alerts are not emailed.",
+      "incidentsHelper": "Addresses notified when an incident is created. Leave empty and incidents are not emailed.",
+      "add": "Add"
+    }
+  },
+  "about": {
+    "title": "About this instance",
+    "subtitle": "Version, license, and system health for this UTMStack deployment.",
+    "loading": "Loading instance information…",
+    "edition": {
+      "enterprise": "Enterprise",
+      "community": "Community"
+    },
+    "fields": {
+      "hostname": "Server",
+      "instanceId": "Instance ID",
+      "noInstanceMeta": "No instance metadata available."
+    },
+    "license": {
+      "title": "License",
+      "enterpriseMssp": "Enterprise · MSSP",
+      "datasources": "Datasources",
+      "communityLimited": "Community limit",
+      "unlimited": "Unlimited",
+      "expires": "Expires",
+      "managedNote": "Edition, datasource limits and license upload are managed on the License page.",
+      "view": "View license",
+      "ingest": "Ingest volume",
+      "notMetered": "Not metered",
+      "gbPerMonth": "{{gb}} GB/month"
+    },
+    "services": {
+      "backend": {
+        "name": "Backend API",
+        "desc": "REST gateway, auth and module orchestration."
+      },
+      "opensearch": {
+        "name": "OpenSearch",
+        "desc": "Log and event storage backend.",
+        "detail": "{{nodes}} nodes · {{shards}} shards"
+      },
+      "unreachable": "Unreachable"
+    },
+    "status": {
+      "up": "Healthy",
+      "degraded": "Degraded",
+      "down": "Down",
+      "unknown": "Unknown"
+    },
+    "health": {
+      "title": "System health",
+      "allHealthy": "All services healthy. Refresh to recheck.",
+      "issues_one": "{{count}} service needs attention.",
+      "issues_other": "{{count}} services need attention.",
+      "refresh": "Refresh"
+    },
+    "usage": {
+      "title": "Data sources",
+      "subtitle": "Data sources configured in this deployment.",
+      "ofUnlimited": "of unlimited",
+      "ofLimit": "of {{limit}}",
+      "overLimit": "Over the licensed limit — data beyond the cap is at risk.",
+      "configured": "configured"
+    },
+    "support": {
+      "title": "Support",
+      "docs": "Documentation",
+      "repo": "GitHub repository",
+      "issues": "Report an issue",
+      "website": "utmstack.com"
+    },
+    "legal": {
+      "title": "Legal",
+      "license": "License",
+      "security": "Security disclosure",
+      "copyright": "© {{year}} UTMStack. All rights reserved."
+    }
+  },
+  "connectionKey": {
+    "title": "Connection key",
+    "subtitle1": "The key agents present when they register with this instance.",
+    "subtitleEmphasis": "It is only used for agent installation",
+    "subtitle2": "— not for collectors, integrations, or the API. It is managed by the agent-manager.",
+    "status": {
+      "label": "Status",
+      "loading": "Loading…",
+      "unavailable": "Agent-manager unavailable",
+      "active": "Active",
+      "unavailableHint": "Could not reach the agent-manager to read the key.",
+      "activeHint": "Agents can register using this key."
+    },
+    "token": {
+      "title": "Connection key",
+      "subtitle": "Treat this value as a credential. Rotating it issues a new key for future agent installations — agents already registered keep working.",
+      "loadFailedTitle": "Couldn’t load the connection key",
+      "unavailableTitle": "Connection key unavailable",
+      "loadFailedHint": "The key is managed by the agent-manager, which didn’t respond. Try again in a moment.",
+      "retry": "Retry",
+      "show": "Show key",
+      "hide": "Hide key",
+      "copy": "Copy",
+      "copied": "Copied",
+      "regenerate": "Regenerate connection key",
+      "confirmTitle": "Regenerate the key?",
+      "confirmBody": "New agent installations will need the new key. Agents already registered keep working. There\u0027s no undo.",
+      "regenerating": "Regenerating…",
+      "confirmYes": "Yes, regenerate",
+      "cancel": "Cancel"
+    },
+    "security": {
+      "title": "Security recommendations",
+      "subtitle": "Best practices for protecting this credential.",
+      "rotateTitle": "Rotate every 90 days",
+      "rotateBody": "Schedule a recurring rotation. UTMStack can email you a reminder when the key is older than 90 days.",
+      "rotateAction": "Set up reminder",
+      "secretTitle": "Store as a secret",
+      "secretBody": "Don\u0027t commit the key to source control. Use your secret manager (Vault, AWS SM, etc.) and inject it at install time.",
+      "auditTitle": "Audit who fetched it",
+      "auditBody": "Every fetch and rotation is recorded in the application audit log.",
+      "auditAction": "View audit log"
+    },
+    "toast": {
+      "loadFailed": "Could not load connection key",
+      "rotated": "Connection key rotated",
+      "rotateFailed": "Could not rotate connection key",
+      "copyFailed": "Could not copy"
+    }
+  }
+}

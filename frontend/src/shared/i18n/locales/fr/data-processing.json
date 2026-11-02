@@ -1,0 +1,266 @@
+{
+  "dataProcessing": {
+    "title": "Traitement des données",
+    "subtitle": "Statistiques d’ingestion et de traitement : événements reçus, rejetés par étape, et les principales sources et types.",
+    "ingestion": {
+      "title": "Ingestion",
+      "last24h": "dernières 24 heures",
+      "noData": "Aucune donnée sur cette fenêtre.",
+      "loadError": "Impossible de charger les statistiques d’ingestion.",
+      "groupBy": {
+        "dataSource": "Par source de données",
+        "dataType": "Par type de données"
+      },
+      "status": {
+        "received": "Reçus",
+        "parsing_dropped": "Rejetés (analyse syntaxique)",
+        "analysis_dropped": "Rejetés (analyse)",
+        "correlation_dropped": "Rejetés (corrélation)",
+        "all": "Tous les événements"
+      }
+    },
+    "filters": {
+      "title": "Filtres",
+      "new": "Nouveau filtre",
+      "search": "Rechercher par chemin…",
+      "refresh": "Actualiser",
+      "retry": "Réessayer",
+      "empty": "Aucun filtre ne correspond.",
+      "loadError": "Impossible de charger les filtres.",
+      "toggleError": "Impossible de changer l’état du filtre",
+      "system": "Système",
+      "custom": "Personnalisé",
+      "systemReadonly": "Les filtres système sont en lecture seule",
+      "view": "Voir",
+      "edit": "Modifier",
+      "ownership": {
+        "all": "Tous",
+        "system": "Système",
+        "custom": "Personnalisés"
+      },
+      "state": {
+        "all": "Tous",
+        "active": "Actifs",
+        "inactive": "Inactifs"
+      },
+      "col": {
+        "filter": "Filtre",
+        "type": "Type",
+        "active": "Actif",
+        "actions": "Actions"
+      },
+      "pageInfo": "{{from}}–{{to}} sur {{count}}"
+    },
+    "editor": {
+      "createTitle": "Nouveau filtre",
+      "editTitle": "Modifier le filtre",
+      "viewTitle": "Voir le filtre",
+      "relPath": "Chemin",
+      "relPathHint": "Dossier + fichier, p. ex. syslog/mon-filtre.yaml",
+      "content": "Pipeline (YAML)",
+      "contentHint": "Les étapes s’exécutent dans l’ordre : grok, rename, delete, plugins dynamic, …",
+      "save": "Enregistrer",
+      "saving": "Enregistrement…",
+      "saved": "Filtre enregistré",
+      "saveError": "Impossible d’enregistrer le filtre",
+      "cancel": "Annuler",
+      "delete": "Supprimer",
+      "deleteConfirm": "Supprimer ce filtre ?",
+      "deleted": "Filtre supprimé",
+      "deleteError": "Impossible de supprimer le filtre"
+    },
+    "kpi": {
+      "received": "Reçus",
+      "dropped": "Rejetés",
+      "dropRate": "{{rate}} % de rejet",
+      "stored": "Stockés",
+      "throughput": "Débit",
+      "perMin": "{{value}}/min",
+      "survival": "{{rate}}% conservés"
+    },
+    "section": {
+      "overTime": "Événements dans le temps",
+      "top": "Top",
+      "dropReasons": "Motifs de rejet"
+    },
+    "live": {
+      "auto": "Auto"
+    },
+    "pipeline": {
+      "title": "Pipeline d’ingestion",
+      "stages": {
+        "received": "Reçus",
+        "parsed": "Analysés (parse)",
+        "analyzed": "Analysés",
+        "stored": "Stockés"
+      }
+    },
+    "chart": {
+      "title": "Débit dans le temps",
+      "received": "Reçus",
+      "dropped": "Rejetés"
+    },
+    "donut": {
+      "title": "Composition des rejets",
+      "dropped": "rejetés"
+    },
+    "breakdown": {
+      "title": "Top sources et types",
+      "bars": "Barres",
+      "treemap": "Treemap",
+      "showAll": "Afficher les {{count}}",
+      "showLess": "Afficher moins",
+      "lastSeen": "Vu pour la dernière fois",
+      "ago": "il y a {{time}}"
+    }
+  },
+  "parsingFilters": {
+    "title": "Pipelines",
+    "subtitle": "Pipelines YAML appliqués aux logs lors de leur analyse à l\u0027ingestion.",
+    "new": "Nouveau pipeline",
+    "search": "Rechercher des pipelines…",
+    "refresh": "Actualiser",
+    "view": "Voir",
+    "system": "Système",
+    "user": "Personnalisé",
+    "loading": "Chargement des pipelines…",
+    "loadError": "Impossible de charger les pipelines.",
+    "retry": "Réessayer",
+    "empty": "Aucun pipeline ne correspond à cette vue.",
+    "tabs": {
+      "all": "Tous",
+      "active": "Actifs",
+      "inactive": "Inactifs",
+      "system": "Système",
+      "user": "Personnalisés"
+    },
+    "cols": {
+      "filter": "Pipeline",
+      "type": "Type",
+      "active": "Actif",
+      "dataTypes": "Types de données",
+      "order": "Ordre",
+      "moveUp": "Monter",
+      "moveDown": "Descendre",
+      "actions": "Actions"
+    },
+    "editor": {
+      "titleNew": "Nouveau pipeline",
+      "titleEdit": "Modifier le pipeline",
+      "titleSystem": "Pipeline (système)",
+      "name": "Nom",
+      "namePlaceholder": "Mon pipeline personnalisé",
+      "nameHint": "Sera enregistré sous {{file}}",
+      "namePending": "Choisissez un nom — il deviendra le nom du fichier.",
+      "content": "Contenu (YAML pipeline)",
+      "contentHint": "Une définition YAML pipeline: valide.",
+      "readOnly": "Pipeline système — en lecture seule. Vous pouvez seulement l\u0027activer ou le désactiver.",
+      "save": "Enregistrer",
+      "saving": "Enregistrement…",
+      "delete": "Supprimer",
+      "confirmDelete": "Confirmer la suppression",
+      "cancel": "Annuler",
+      "test": "Test"
+    },
+    "toast": {
+      "saved": "Pipeline enregistré",
+      "saveError": "Échec de l\u0027enregistrement du pipeline",
+      "deleted": "Pipeline supprimé",
+      "deleteError": "Échec de la suppression du pipeline",
+      "activateError": "Échec du changement d\u0027état du pipeline",
+      "nameRequired": "Le nom est requis",
+      "contentRequired": "Le contenu est requis",
+      "orderError": "Échec du changement d\u0027ordre du pipeline"
+    },
+    "visual": {
+      "visualTab": "Visuel",
+      "codeTab": "Code",
+      "codeOnly": "Passez au Code — ce contenu ne peut pas être affiché visuellement.",
+      "cantParse": "Impossible d\u0027ouvrir l\u0027éditeur visuel : {{error}}",
+      "dataTypes": "Types de données",
+      "steps": "Étapes",
+      "noSteps": "Aucune étape.",
+      "addStep": "Ajouter une étape :",
+      "removeStep": "Supprimer l\u0027étape",
+      "moveUp": "Monter",
+      "moveDown": "Descendre",
+      "whereHint": "condition optionnelle (CEL)",
+      "addValue": "Ajouter une valeur",
+      "addPattern": "Ajouter un motif",
+      "rawHint": "Ce processeur s\u0027édite en YAML brut.",
+      "rawNotMap": "Doit être un ensemble de champs clé : valeur.",
+      "dataTypesPick": "Choisir des types de données",
+      "dataTypesSearch": "Rechercher des types de données…",
+      "dataTypesNone": "Aucun type de données",
+      "dataTypesAdd": "Ajouter « {{value}} »",
+      "insertPattern": "Insérer un motif regex",
+      "patternSearch": "Rechercher des motifs…",
+      "patternNone": "Aucun motif",
+      "newPattern": "Nouveau motif…",
+      "createInsert": "Créer et insérer",
+      "patternCreated": "Motif « {{name}} » créé",
+      "patternCreateError": "Échec de la création du motif",
+      "patternIdInvalid": "L\u0027ID du motif doit commencer par une lettre ou _ et n\u0027utiliser que des lettres, chiffres ou _",
+      "patternDefRequired": "La définition est requise",
+      "parameters": "Paramètres",
+      "paramsKey": "Clé",
+      "paramsValue": "Valeur",
+      "entry": "Entrée {{n}}",
+      "order": "ordre {{n}}",
+      "orderLabel": "Ordre",
+      "removeEntry": "Supprimer l’entrée",
+      "addEntry": "Ajouter une entrée de pipeline",
+      "collapse": "Replier",
+      "expand": "Déplier"
+    },
+    "allDataTypes": "Tous les types de données",
+    "testPipeline": "Test pipeline"
+  },
+  "regexPatterns": {
+    "title": "Expressions régulières",
+    "subtitle": "Expressions régulières réutilisables référencées par les filtres d\u0027analyse.",
+    "new": "Nouveau motif",
+    "search": "Rechercher des motifs…",
+    "refresh": "Actualiser",
+    "view": "Voir",
+    "system": "Système",
+    "user": "Personnalisé",
+    "loading": "Chargement des motifs…",
+    "loadError": "Impossible de charger les motifs.",
+    "retry": "Réessayer",
+    "empty": "Aucun motif ne correspond à cette vue.",
+    "tabs": {
+      "all": "Tous",
+      "system": "Système",
+      "user": "Personnalisés"
+    },
+    "cols": {
+      "pattern": "Motif",
+      "definition": "Définition",
+      "type": "Type"
+    },
+    "editor": {
+      "titleNew": "Nouveau motif",
+      "patternId": "ID du motif",
+      "patternIdHint": "Nom unique référencé depuis les filtres.",
+      "description": "Description",
+      "descriptionPlaceholder": "Ce que ce motif reconnaît (facultatif)",
+      "definition": "Définition (regex)",
+      "definitionHint": "Une expression régulière. Peut référencer d\u0027autres motifs.",
+      "readOnly": "Motif système — en lecture seule.",
+      "save": "Enregistrer",
+      "saving": "Enregistrement…",
+      "delete": "Supprimer",
+      "confirmDelete": "Confirmer la suppression",
+      "cancel": "Annuler"
+    },
+    "toast": {
+      "saved": "Motif enregistré",
+      "saveError": "Échec de l\u0027enregistrement du motif",
+      "deleted": "Motif supprimé",
+      "deleteError": "Échec de la suppression du motif",
+      "patternIdRequired": "L\u0027ID du motif est requis",
+      "definitionRequired": "La définition est requise"
+    }
+  }
+}

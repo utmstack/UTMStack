@@ -1,5 +1,5 @@
 import 'react-i18next'
-import type en from './locales/en.json'
+import type en from './locales/en'
 
 // Make t() keys type-safe and autocompletable, derived from the base (en) locale.
 // A missing or misspelled key becomes a TypeScript error.

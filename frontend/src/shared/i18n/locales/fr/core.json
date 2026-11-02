@@ -1,0 +1,164 @@
+{
+  "onboarding": {
+    "adminEmail": {
+      "title": "Définir l\u0027e-mail de l\u0027administrateur",
+      "subtitle": "Requis avant de continuer",
+      "description": "Votre compte administrateur utilise encore l\u0027e-mail par défaut. Définissez une adresse réelle — elle est nécessaire pour la récupération du mot de passe, les notifications et les e-mails d\u0027alerte.",
+      "emailLabel": "Adresse e-mail",
+      "save": "Enregistrer et continuer",
+      "saving": "Enregistrement…",
+      "success": "E-mail de l\u0027administrateur défini. Configurez ensuite votre serveur de messagerie.",
+      "error": "Impossible d\u0027enregistrer votre e-mail. Veuillez réessayer."
+    }
+  },
+  "common": {
+    "appName": "UTMStack",
+    "language": "Langue",
+    "actions": {
+      "save": "Enregistrer",
+      "cancel": "Annuler",
+      "retry": "Réessayer",
+      "refresh": "Actualiser",
+      "delete": "Supprimer",
+      "remove": "Retirer",
+      "close": "Fermer",
+      "next": "Suivant",
+      "back": "Retour"
+    },
+    "confirm": {
+      "delete": "Supprimer",
+      "working": "En cours…"
+    },
+    "dateRange": {
+      "pick": "Choisir une plage",
+      "clear": "Effacer",
+      "done": "OK",
+      "apply": "Appliquer"
+    },
+    "loadingMore": "Chargement…",
+    "allLoaded": "{{count}} chargés",
+    "startFrom": {
+      "scratch": "De zéro",
+      "scratchHint": "Une définition vide que vous remplissez.",
+      "copy": "À partir d’une existante",
+      "copyHint": "Tout est copié sauf l’identifiant et le nom.",
+      "pickTitle": "Choisissez quoi copier",
+      "back": "Retour",
+      "count": "{{n}} disponibles",
+      "search": "Rechercher par nom",
+      "none": "Aucun résultat pour cette recherche"
+    },
+    "cancel": "Annuler"
+  },
+  "nav": {
+    "home": "Accueil",
+    "dashboards": "Tableaux de bord",
+    "dashboardList": "Liste des tableaux",
+    "visualizationList": "Widgets",
+    "newDashboard": "Nouveau tableau",
+    "newVisualization": "Nouveau widget",
+    "threatManagement": "Gestion des menaces",
+    "alerts": "Alertes",
+    "incidents": "Incidents",
+    "adversaryView": "Vue des adversaires",
+    "soar": "SOAR",
+    "flows": "Flux",
+    "executionHistory": "Historique d\u0027exécutions",
+    "interactiveConsole": "Console interactive",
+    "logExplorer": "Explorateur de logs",
+    "userAuditor": "Auditeur d\u0027utilisateurs",
+    "threatIntelligence": "Renseignement sur les menaces",
+    "threat-intel": {
+      "indicators": "Indicateurs",
+      "analyzt": "Analyste IA",
+      "triage": "Triage",
+      "report": "Rapport"
+    },
+    "compliance": "Conformité",
+    "configure": "Configurer",
+    "dataSources": "Sources de données",
+    "integrations": "Intégrations",
+    "alertingRules": "Règles d\u0027alerte",
+    "dataProcessing": "Traitement des données",
+    "team": "Équipe",
+    "settings": "Paramètres",
+    "back": "Retour",
+    "regexPatterns": "Expressions régulières",
+    "taggingRules": "Règles d\u0027étiquetage",
+    "parsingFilters": "Pipelines",
+    "overview": "Vue d\u0027ensemble",
+    "tenants": "Locataires",
+    "openMenu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu",
+    "liveOps": "Opérations en direct"
+  },
+  "topbar": {
+    "theme": {
+      "light": "Mode clair",
+      "dark": "Mode sombre"
+    },
+    "manageLicense": "Gérer la licence",
+    "profile": {
+      "profile": "Profil",
+      "license": "Licence",
+      "logout": "Se déconnecter"
+    }
+  },
+  "pagination": {
+    "perPage": "Par page",
+    "pageOf": "Page {{page}} sur {{total}}",
+    "previous": "Précédent",
+    "next": "Suivant"
+  },
+  "timeRange": {
+    "quick": "Plages rapides",
+    "relative": "Relatif",
+    "absolute": "Absolu",
+    "last": "Derniers",
+    "apply": "Appliquer",
+    "allTime": "Toute la période",
+    "from": "De",
+    "to": "À",
+    "now": "maintenant",
+    "units": {
+      "minutes": "minutes",
+      "hours": "heures",
+      "days": "jours",
+      "weeks": "semaines",
+      "months": "mois"
+    },
+    "presets": {
+      "15m": "15 dernières minutes",
+      "1h": "Dernière heure",
+      "6h": "6 dernières heures",
+      "24h": "24 dernières heures",
+      "7d": "7 derniers jours",
+      "30d": "30 derniers jours"
+    }
+  },
+  "dateFormat": {
+    "title": "Date et heure",
+    "subtitle": "Comment les horodatages sont affichés sur la plateforme. Les journaux sont toujours stockés en UTC.",
+    "timezone": {
+      "title": "Fuseau horaire",
+      "hint": "Les horodatages sont affichés dans ce fuseau horaire. Les données stockées restent en UTC.",
+      "system": "Par défaut du navigateur",
+      "now": "Maintenant : {{value}}"
+    },
+    "format": {
+      "title": "Format de date",
+      "hint": "Style utilisé pour les dates et heures."
+    },
+    "styles": {
+      "short": "Court",
+      "medium": "Moyen",
+      "long": "Long",
+      "full": "Complet"
+    },
+    "save": "Enregistrer les modifications",
+    "saving": "Enregistrement…",
+    "saved": "Paramètres de date enregistrés",
+    "saveError": "Impossible d’enregistrer les paramètres",
+    "loadError": "Impossible de charger les paramètres"
+  }
+}

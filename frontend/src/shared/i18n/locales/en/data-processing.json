@@ -1,0 +1,267 @@
+{
+  "dataProcessing": {
+    "title": "Data processing",
+    "subtitle": "Ingestion and processing statistics: events received, dropped by stage, and the top sources and types.",
+    "ingestion": {
+      "title": "Ingestion",
+      "last24h": "last 24 hours",
+      "noData": "No data in this window.",
+      "loadError": "Could not load ingestion stats.",
+      "groupBy": {
+        "dataSource": "By data source",
+        "dataType": "By data type"
+      },
+      "status": {
+        "received": "Received",
+        "parsing_dropped": "Dropped (parsing)",
+        "analysis_dropped": "Dropped (analysis)",
+        "correlation_dropped": "Dropped (correlation)",
+        "all": "All events"
+      }
+    },
+    "filters": {
+      "title": "Filters",
+      "new": "New filter",
+      "search": "Search by path…",
+      "refresh": "Refresh",
+      "retry": "Retry",
+      "empty": "No filters match.",
+      "loadError": "Could not load filters.",
+      "toggleError": "Could not change the filter state",
+      "system": "System",
+      "custom": "Custom",
+      "systemReadonly": "System filters are read-only",
+      "view": "View",
+      "edit": "Edit",
+      "ownership": {
+        "all": "All",
+        "system": "System",
+        "custom": "Custom"
+      },
+      "state": {
+        "all": "All",
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "col": {
+        "filter": "Filter",
+        "type": "Type",
+        "active": "Active",
+        "actions": "Actions"
+      },
+      "pageInfo": "{{from}}–{{to}} of {{count}}"
+    },
+    "editor": {
+      "createTitle": "New filter",
+      "editTitle": "Edit filter",
+      "viewTitle": "View filter",
+      "relPath": "Path",
+      "relPathHint": "Folder + file, e.g. syslog/my-filter.yaml",
+      "content": "Pipeline (YAML)",
+      "contentHint": "Steps run in order: grok, rename, delete, dynamic plugins, …",
+      "save": "Save",
+      "saving": "Saving…",
+      "saved": "Filter saved",
+      "saveError": "Could not save the filter",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "deleteConfirm": "Delete this filter?",
+      "deleted": "Filter deleted",
+      "deleteError": "Could not delete the filter"
+    },
+    "kpi": {
+      "received": "Received",
+      "dropped": "Dropped",
+      "dropRate": "{{rate}}% drop rate",
+      "stored": "Stored",
+      "throughput": "Throughput",
+      "perMin": "{{value}}/min",
+      "survival": "{{rate}}% kept"
+    },
+    "section": {
+      "overTime": "Events over time",
+      "top": "Top",
+      "dropReasons": "Drop reasons"
+    },
+    "live": {
+      "auto": "Auto"
+    },
+    "pipeline": {
+      "title": "Ingestion pipeline",
+      "stages": {
+        "received": "Received",
+        "parsed": "Parsed",
+        "analyzed": "Analyzed",
+        "stored": "Stored"
+      }
+    },
+    "chart": {
+      "title": "Throughput over time",
+      "received": "Received",
+      "dropped": "Dropped"
+    },
+    "donut": {
+      "title": "Drop composition",
+      "dropped": "dropped"
+    },
+    "breakdown": {
+      "title": "Top sources \u0026 types",
+      "bars": "Bars",
+      "treemap": "Treemap",
+      "showAll": "Show all {{count}}",
+      "showLess": "Show less",
+      "lastSeen": "Last seen",
+      "ago": "{{time}} ago"
+    }
+  },
+  "parsingFilters": {
+    "title": "Pipelines",
+    "subtitle": "YAML pipelines applied to logs as they\u0027re parsed during ingestion.",
+    "new": "New pipeline",
+    "search": "Search pipelines…",
+    "refresh": "Refresh",
+    "view": "View",
+    "system": "System",
+    "user": "Custom",
+    "loading": "Loading pipelines…",
+    "loadError": "Could not load pipelines.",
+    "retry": "Retry",
+    "empty": "No pipelines match this view.",
+    "tabs": {
+      "all": "All",
+      "active": "Active",
+      "inactive": "Inactive",
+      "system": "System",
+      "user": "Custom"
+    },
+    "cols": {
+      "filter": "Pipeline",
+      "type": "Type",
+      "active": "Active",
+      "dataTypes": "Data types",
+      "order": "Order",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "actions": "Actions"
+    },
+    "editor": {
+      "titleNew": "New pipeline",
+      "titleEdit": "Edit pipeline",
+      "titleSystem": "Pipeline (system)",
+      "name": "Name",
+      "namePlaceholder": "My custom pipeline",
+      "nameHint": "Will be saved as {{file}}",
+      "namePending": "Pick a name — it will become the filename.",
+      "content": "Content (pipeline YAML)",
+      "contentHint": "A valid pipeline: YAML definition.",
+      "readOnly": "System pipeline — read-only. You can only enable or disable it.",
+      "test": "Test",
+      "save": "Save",
+      "saving": "Saving…",
+      "delete": "Delete",
+      "confirmDelete": "Confirm delete",
+      "cancel": "Cancel"
+    },
+    "toast": {
+      "saved": "Pipeline saved",
+      "saveError": "Failed to save pipeline",
+      "deleted": "Pipeline deleted",
+      "deleteError": "Failed to delete pipeline",
+      "activateError": "Failed to change pipeline state",
+      "nameRequired": "Name is required",
+      "contentRequired": "Content is required",
+      "orderError": "Failed to reorder pipeline"
+    },
+    "visual": {
+      "visualTab": "Visual",
+      "codeTab": "Code",
+      "codeOnly": "Switch to Code — this content can\u0027t be shown visually.",
+      "cantParse": "Can\u0027t open the visual editor: {{error}}",
+      "dataTypes": "Data types",
+      "steps": "Steps",
+      "noSteps": "No steps yet.",
+      "addStep": "Add step:",
+      "removeStep": "Remove step",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "whereHint": "optional condition (CEL)",
+      "splitHint": "Blank defaults to a single space — the YAML always shows it as fieldSplit: \" \".",
+      "addValue": "Add value",
+      "addPattern": "Add pattern",
+      "rawHint": "This processor is edited as raw YAML.",
+      "rawNotMap": "Must be a set of key: value fields.",
+      "dataTypesPick": "Choose data types",
+      "dataTypesSearch": "Search data types…",
+      "dataTypesNone": "No data types",
+      "dataTypesAdd": "Add \"{{value}}\"",
+      "insertPattern": "Insert regex pattern",
+      "patternSearch": "Search patterns…",
+      "patternNone": "No patterns",
+      "newPattern": "New pattern…",
+      "createInsert": "Create \u0026 insert",
+      "patternCreated": "Pattern \"{{name}}\" created",
+      "patternCreateError": "Failed to create pattern",
+      "patternIdInvalid": "Pattern ID must start with a letter or _ and use only letters, digits or _",
+      "patternDefRequired": "Definition is required",
+      "parameters": "Parameters",
+      "paramsKey": "Key",
+      "paramsValue": "Value",
+      "entry": "Entry {{n}}",
+      "order": "order {{n}}",
+      "orderLabel": "Order",
+      "removeEntry": "Remove entry",
+      "addEntry": "Add pipeline entry",
+      "collapse": "Collapse",
+      "expand": "Expand"
+    },
+    "allDataTypes": "All data types",
+    "testPipeline": "Test pipeline"
+  },
+  "regexPatterns": {
+    "title": "Regex Patterns",
+    "subtitle": "Reusable regular expressions referenced by parsing filters.",
+    "new": "New pattern",
+    "search": "Search patterns…",
+    "refresh": "Refresh",
+    "view": "View",
+    "system": "System",
+    "user": "Custom",
+    "loading": "Loading patterns…",
+    "loadError": "Could not load patterns.",
+    "retry": "Retry",
+    "empty": "No patterns match this view.",
+    "tabs": {
+      "all": "All",
+      "system": "System",
+      "user": "Custom"
+    },
+    "cols": {
+      "pattern": "Pattern",
+      "definition": "Definition",
+      "type": "Type"
+    },
+    "editor": {
+      "titleNew": "New pattern",
+      "patternId": "Pattern ID",
+      "patternIdHint": "Unique name referenced from filters.",
+      "description": "Description",
+      "descriptionPlaceholder": "What this pattern matches (optional)",
+      "definition": "Definition (regex)",
+      "definitionHint": "A regular expression. Can reference other patterns.",
+      "readOnly": "System pattern — read-only.",
+      "save": "Save",
+      "saving": "Saving…",
+      "delete": "Delete",
+      "confirmDelete": "Confirm delete",
+      "cancel": "Cancel"
+    },
+    "toast": {
+      "saved": "Pattern saved",
+      "saveError": "Failed to save pattern",
+      "deleted": "Pattern deleted",
+      "deleteError": "Failed to delete pattern",
+      "patternIdRequired": "Pattern ID is required",
+      "definitionRequired": "Definition is required"
+    }
+  }
+}

@@ -1,0 +1,266 @@
+{
+  "dataProcessing": {
+    "title": "Elaborazione dati",
+    "subtitle": "Statistiche di ingestione ed elaborazione: eventi ricevuti, scartati per fase, e le principali origini e tipi.",
+    "ingestion": {
+      "title": "Ingestione",
+      "last24h": "ultime 24 ore",
+      "noData": "Nessun dato in questa finestra.",
+      "loadError": "Impossibile caricare le statistiche di ingestione.",
+      "groupBy": {
+        "dataSource": "Per origine dati",
+        "dataType": "Per tipo di dato"
+      },
+      "status": {
+        "received": "Ricevuti",
+        "parsing_dropped": "Scartati (parsing)",
+        "analysis_dropped": "Scartati (analisi)",
+        "correlation_dropped": "Scartati (correlazione)",
+        "all": "Tutti gli eventi"
+      }
+    },
+    "filters": {
+      "title": "Filtri",
+      "new": "Nuovo filtro",
+      "search": "Cerca per percorso…",
+      "refresh": "Aggiorna",
+      "retry": "Riprova",
+      "empty": "Nessun filtro corrisponde.",
+      "loadError": "Impossibile caricare i filtri.",
+      "toggleError": "Impossibile cambiare lo stato del filtro",
+      "system": "Sistema",
+      "custom": "Personalizzato",
+      "systemReadonly": "I filtri di sistema sono di sola lettura",
+      "view": "Visualizza",
+      "edit": "Modifica",
+      "ownership": {
+        "all": "Tutti",
+        "system": "Sistema",
+        "custom": "Personalizzati"
+      },
+      "state": {
+        "all": "Tutti",
+        "active": "Attivi",
+        "inactive": "Inattivi"
+      },
+      "col": {
+        "filter": "Filtro",
+        "type": "Tipo",
+        "active": "Attivo",
+        "actions": "Azioni"
+      },
+      "pageInfo": "{{from}}–{{to}} di {{count}}"
+    },
+    "editor": {
+      "createTitle": "Nuovo filtro",
+      "editTitle": "Modifica filtro",
+      "viewTitle": "Visualizza filtro",
+      "relPath": "Percorso",
+      "relPathHint": "Cartella + file, es. syslog/mio-filtro.yaml",
+      "content": "Pipeline (YAML)",
+      "contentHint": "I passaggi vengono eseguiti in ordine: grok, rename, delete, plugin dynamic, …",
+      "save": "Salva",
+      "saving": "Salvataggio…",
+      "saved": "Filtro salvato",
+      "saveError": "Impossibile salvare il filtro",
+      "cancel": "Annulla",
+      "delete": "Elimina",
+      "deleteConfirm": "Eliminare questo filtro?",
+      "deleted": "Filtro eliminato",
+      "deleteError": "Impossibile eliminare il filtro"
+    },
+    "kpi": {
+      "received": "Ricevuti",
+      "dropped": "Scartati",
+      "dropRate": "{{rate}}% di scarto",
+      "stored": "Archiviati",
+      "throughput": "Throughput",
+      "perMin": "{{value}}/min",
+      "survival": "{{rate}}% mantenuti"
+    },
+    "section": {
+      "overTime": "Eventi nel tempo",
+      "top": "Top",
+      "dropReasons": "Motivi di scarto"
+    },
+    "live": {
+      "auto": "Auto"
+    },
+    "pipeline": {
+      "title": "Pipeline di ingestione",
+      "stages": {
+        "received": "Ricevuti",
+        "parsed": "Analizzati (parse)",
+        "analyzed": "Analizzati",
+        "stored": "Archiviati"
+      }
+    },
+    "chart": {
+      "title": "Throughput nel tempo",
+      "received": "Ricevuti",
+      "dropped": "Scartati"
+    },
+    "donut": {
+      "title": "Composizione scarti",
+      "dropped": "scartati"
+    },
+    "breakdown": {
+      "title": "Top sorgenti e tipi",
+      "bars": "Barre",
+      "treemap": "Treemap",
+      "showAll": "Mostra tutti i {{count}}",
+      "showLess": "Mostra meno",
+      "lastSeen": "Visto l’ultima volta",
+      "ago": "{{time}} fa"
+    }
+  },
+  "parsingFilters": {
+    "title": "Pipeline",
+    "subtitle": "Pipeline YAML applicate ai log durante l\u0027analisi in fase di ingestione.",
+    "new": "Nuova pipeline",
+    "search": "Cerca pipeline…",
+    "refresh": "Aggiorna",
+    "view": "Vedi",
+    "system": "Sistema",
+    "user": "Personalizzato",
+    "loading": "Caricamento pipeline…",
+    "loadError": "Impossibile caricare le pipeline.",
+    "retry": "Riprova",
+    "empty": "Nessuna pipeline corrisponde a questa vista.",
+    "tabs": {
+      "all": "Tutti",
+      "active": "Attivi",
+      "inactive": "Inattivi",
+      "system": "Sistema",
+      "user": "Personalizzati"
+    },
+    "cols": {
+      "filter": "Pipeline",
+      "type": "Tipo",
+      "active": "Attivo",
+      "dataTypes": "Tipi di dati",
+      "order": "Ordine",
+      "moveUp": "Sposta su",
+      "moveDown": "Sposta giù",
+      "actions": "Azioni"
+    },
+    "editor": {
+      "titleNew": "Nuova pipeline",
+      "titleEdit": "Modifica pipeline",
+      "titleSystem": "Pipeline (sistema)",
+      "name": "Nome",
+      "namePlaceholder": "La mia pipeline personalizzata",
+      "nameHint": "Verrà salvato come {{file}}",
+      "namePending": "Scegli un nome — diventerà il nome del file.",
+      "content": "Contenuto (YAML pipeline)",
+      "contentHint": "Una definizione YAML pipeline: valida.",
+      "readOnly": "Pipeline di sistema — in sola lettura. Puoi solo abilitarla o disabilitarla.",
+      "save": "Salva",
+      "saving": "Salvataggio…",
+      "delete": "Elimina",
+      "confirmDelete": "Conferma eliminazione",
+      "cancel": "Annulla",
+      "test": "Test"
+    },
+    "toast": {
+      "saved": "Pipeline salvata",
+      "saveError": "Salvataggio della pipeline non riuscito",
+      "deleted": "Pipeline eliminata",
+      "deleteError": "Eliminazione della pipeline non riuscita",
+      "activateError": "Modifica dello stato della pipeline non riuscita",
+      "nameRequired": "Il nome è obbligatorio",
+      "contentRequired": "Il contenuto è obbligatorio",
+      "orderError": "Impossibile modificare l\u0027ordine della pipeline"
+    },
+    "visual": {
+      "visualTab": "Visuale",
+      "codeTab": "Codice",
+      "codeOnly": "Passa al Codice — questo contenuto non può essere mostrato visivamente.",
+      "cantParse": "Impossibile aprire l\u0027editor visuale: {{error}}",
+      "dataTypes": "Tipi di dati",
+      "steps": "Passaggi",
+      "noSteps": "Ancora nessun passaggio.",
+      "addStep": "Aggiungi passaggio:",
+      "removeStep": "Rimuovi passaggio",
+      "moveUp": "Su",
+      "moveDown": "Giù",
+      "whereHint": "condizione opzionale (CEL)",
+      "addValue": "Aggiungi valore",
+      "addPattern": "Aggiungi pattern",
+      "rawHint": "Questo processore si modifica come YAML grezzo.",
+      "rawNotMap": "Deve essere un insieme di campi chiave: valore.",
+      "dataTypesPick": "Scegli tipi di dati",
+      "dataTypesSearch": "Cerca tipi di dati…",
+      "dataTypesNone": "Nessun tipo di dato",
+      "dataTypesAdd": "Aggiungi \"{{value}}\"",
+      "insertPattern": "Inserisci pattern regex",
+      "patternSearch": "Cerca pattern…",
+      "patternNone": "Nessun pattern",
+      "newPattern": "Nuovo pattern…",
+      "createInsert": "Crea e inserisci",
+      "patternCreated": "Pattern \"{{name}}\" creato",
+      "patternCreateError": "Creazione del pattern non riuscita",
+      "patternIdInvalid": "L\u0027ID del pattern deve iniziare con una lettera o _ e usare solo lettere, cifre o _",
+      "patternDefRequired": "La definizione è obbligatoria",
+      "parameters": "Parametri",
+      "paramsKey": "Chiave",
+      "paramsValue": "Valore",
+      "entry": "Vocetta {{n}}",
+      "order": "ordine {{n}}",
+      "orderLabel": "Ordine",
+      "removeEntry": "Rimuovi vocetta",
+      "addEntry": "Aggiungi vocetta di pipeline",
+      "collapse": "Comprimi",
+      "expand": "Espandi"
+    },
+    "allDataTypes": "Tutti i tipi di dati",
+    "testPipeline": "Test pipeline"
+  },
+  "regexPatterns": {
+    "title": "Espressioni regolari",
+    "subtitle": "Espressioni regolari riutilizzabili referenziate dai filtri di parsing.",
+    "new": "Nuovo pattern",
+    "search": "Cerca pattern…",
+    "refresh": "Aggiorna",
+    "view": "Visualizza",
+    "system": "Sistema",
+    "user": "Personalizzato",
+    "loading": "Caricamento pattern…",
+    "loadError": "Impossibile caricare i pattern.",
+    "retry": "Riprova",
+    "empty": "Nessun pattern corrisponde a questa vista.",
+    "tabs": {
+      "all": "Tutti",
+      "system": "Sistema",
+      "user": "Personalizzati"
+    },
+    "cols": {
+      "pattern": "Pattern",
+      "definition": "Definizione",
+      "type": "Tipo"
+    },
+    "editor": {
+      "titleNew": "Nuovo pattern",
+      "patternId": "ID pattern",
+      "patternIdHint": "Nome univoco referenziato dai filtri.",
+      "description": "Descrizione",
+      "descriptionPlaceholder": "Cosa riconosce questo pattern (opzionale)",
+      "definition": "Definizione (regex)",
+      "definitionHint": "Un\u0027espressione regolare. Può referenziare altri pattern.",
+      "readOnly": "Pattern di sistema — sola lettura.",
+      "save": "Salva",
+      "saving": "Salvataggio…",
+      "delete": "Elimina",
+      "confirmDelete": "Conferma eliminazione",
+      "cancel": "Annulla"
+    },
+    "toast": {
+      "saved": "Pattern salvato",
+      "saveError": "Salvataggio del pattern non riuscito",
+      "deleted": "Pattern eliminato",
+      "deleteError": "Eliminazione del pattern non riuscita",
+      "patternIdRequired": "L\u0027ID pattern è obbligatorio",
+      "definitionRequired": "La definizione è obbligatoria"
+    }
+  }
+}
