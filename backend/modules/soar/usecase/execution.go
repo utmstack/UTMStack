@@ -51,7 +51,7 @@ func (u *executionUsecase) HandleMatch(ctx context.Context, req dto.MatchRequest
 	if gjson.GetBytes(alertJSON, "parentId").String() != "" {
 		return nil
 	}
-	_, err := u.StartFlow(ctx, req.RulePath, alertJSON, "", "")
+	_, err := u.StartFlow(ctx, req.RulePath, alertJSON, "", "",false)
 	return err
 }
 
@@ -59,7 +59,7 @@ func (u *executionUsecase) HandleMatch(ctx context.Context, req dto.MatchRequest
 // flow run row, then a root execution per root. The dispatcher does the rest.
 // agentOverride wins over alert.dataSource for shell roots; triggeredBy is the
 // audit login for manual runs (empty when the match plugin fired the flow).
-func (u *executionUsecase) StartFlow(ctx context.Context, relPath string, alertJSON []byte, agentOverride, triggeredBy string) (uuid.UUID, error) {
+func (u *executionUsecase) StartFlow(ctx context.Context, relPath string, alertJSON []byte, agentOverride, triggeredBy string, manual bool) (uuid.UUID, error) {
 	if len(alertJSON) == 0 {
 		alertJSON = json.RawMessage(`{}`)
 	}
@@ -68,7 +68,7 @@ func (u *executionUsecase) StartFlow(ctx context.Context, relPath string, alertJ
 	if sf == nil {
 		return uuid.Nil, domain.ErrFlowNotFound
 	}
-	if !sf.Active() {
+	if !manual && !sf.Active() {
 		return uuid.Nil, domain.ErrFlowNotStarted
 	}
 	flow := sf.Flow

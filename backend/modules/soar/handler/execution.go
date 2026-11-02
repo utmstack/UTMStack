@@ -95,7 +95,7 @@ func (h *ExecutionHandler) Trigger(c *gin.Context) {
 	if len(req.Alert) == 0 {
 		req.Alert = json.RawMessage(`{}`)
 	}
-	flowRunID, err := h.usecase.StartFlow(c.Request.Context(), c.Param("relPath"), req.Alert, req.Agent, loginFromCtx(c))
+	flowRunID, err := h.usecase.StartFlow(c.Request.Context(), c.Param("relPath"), req.Alert, req.Agent, loginFromCtx(c),true)
 	ev := audit_connectors.Event{Action: "soar.flow.trigger", ResourceType: "soar_rule", ResourceID: c.Param("relPath")}
 	if flowRunID != uuid.Nil {
 		ev.ResourceID = flowRunID.String()
