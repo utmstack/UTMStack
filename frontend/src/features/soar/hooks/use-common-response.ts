@@ -28,6 +28,22 @@ export interface UseCommonResponseResult {
  * data, finds the matching system SOAR flow and triggers it on the alert's
  * agent.
  */
+// Module cache: an alerts table renders one hook per row; they all resolve the
+// same template+platform filter, so fetch each filter key once per session.
+const flowsCache = new Map<string, Promise<Flow[]>>()
+
+function fetchFlows(filter: { relPath: string; systemOwner: true }): Promise<Flow[]> {
+  let p = flowsCache.get(filter.relPath)
+  if (!p) {
+    p = soarFlowsService
+      .list({ page: 0, size: 20, ...filter })
+      .then(({ data }) => data)
+      .catch(() => [] as Flow[])
+    flowsCache.set(filter.relPath, p)
+  }
+  return p
+}
+
 export function useCommonResponse(alert: Alert | null | undefined): UseCommonResponseResult {
   const [flows, setFlows] = useState<Flow[]>([])
   const [loading, setLoading] = useState(false)
@@ -36,13 +52,10 @@ export function useCommonResponse(alert: Alert | null | undefined): UseCommonRes
     if (!alert) return
     let alive = true
     setLoading(true)
-    soarFlowsService
-      .list({ page: 0, size: 20, ...flowNameFilter(alert) })
-      .then(({ data }) => {
+    // relPath filter pre-narrows server-side: only this alert's template+platform flows come back
+    fetchFlows(flowNameFilter(alert))
+      .then((data) => {
         if (alive) setFlows(data)
-      })
-      .catch(() => {
-        if (alive) setFlows([])
       })
       .finally(() => {
         if (alive) setLoading(false)
@@ -53,8 +66,6 @@ export function useCommonResponse(alert: Alert | null | undefined): UseCommonRes
   }, [alert?.id])
 
   const relPath = alert && !loading ? resolveCommonResponse(alert, flows) : null
-
-  console.log(relPath)
 
   const flow = relPath ? (() => {
     const f = flows.find((x) => x.relPath === relPath)
