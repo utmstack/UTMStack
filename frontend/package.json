@@ -76,7 +76,7 @@
     "ngx-webstorage": "^2.0.1",
     "popper.js": "^1.15.0",
     "rxjs": "~6.3.3",
-    "sass": "^1.32.13",
+    "sass": "1.32.13",
     "sockjs-client": "^1.4.0",
     "stompjs": "^2.3.3",
     "table-dragger": "^1.0.3",

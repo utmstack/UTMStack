@@ -62,3 +62,28 @@ in the install-time / dev-time dependency tree. The only disputed packages that 
 the jspdf cluster (jspdf + dompurify + canvg + html2canvas) — runtime PDF export,
 accepted-risk per the Part B½ reachability trace, to be closed in Part 2 when webpack 5
 makes jspdf 4.x buildable.
+
+## Task 1.6 exit verification — ACTUAL RESULT (2026-11-02)
+
+`npm ls` on the post-change tree (Node 14.16.1 docker, committed state = sass 1.32.13 +
+websocket-driver 0.7.5):
+
+- **websocket-driver → `0.7.5` in all three tree positions** (`sockjs-client@1.5.1 →
+  faye-websocket@0.11.3`, `webpack-dev-server → sockjs@0.3.19 → faye-websocket@0.10.0`,
+  and the hoisted root) — **the critical CVE is closed**. Lock diff was exactly
+  websocket-driver 0.7.4→0.7.5 + http-parser-js 0.5.3→0.5.10 (its transitive).
+- **`npm ls tar` → `2.2.2` still present** (dev tree via build-angular → node-sass@4.13.1
+  → node-gyp@3.8.0), plus `4.4.19` (pacote, npm-internal). The original "no 2.2.2"
+  expectation was wrong: removing our *direct* node-sass@4.14.1 does not evict
+  build-angular's nested node-sass@4.13.1. tar leaves the tree in Part 2 (build-angular
+  upgrade). Dismissal stands on the "not shipped" evidence above.
+- **`npm ls node-sass` → only the nested build-angular copy 4.13.1** (no direct 4.14.1).
+  It is inert: build-angular's `styles.js` passes `implementation: require('sass')`
+  (dart-sass) to sass-loader, so the nested node-sass is never invoked for our SCSS.
+- **`request@2.88.2` still listed** (less/protractor/node-sass chains) — expected,
+  dev-only, never bundled (marker scan above).
+- **Karma could not run in this environment**: the `node:14.16.1` docker image has no
+  browser binary, and a Windows `chrome.exe` cannot execute inside the Linux container.
+  The compile-time gate (full `ng build --prod` green on dart-sass, all SCSS recompiled)
+  and the behavioral gate (lab headless smoke — echarts object defined, 2 charts +
+  2 tables rendered, 0 pageerrors) are the evidence recorded here and in the lab.
