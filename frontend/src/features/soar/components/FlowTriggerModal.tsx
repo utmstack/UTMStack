@@ -82,7 +82,7 @@ export function FlowTriggerModal({ flow, onClose }: { flow: Flow; onClose: () =>
       await soarFlowsService.trigger(flow.relPath, payload as Alert, agent === AGENT_SAME ? '' : agent)
       toast.success(t('soar.trigger.ok', { name: flow.name }))
       onClose()
-    } catch {
+    } catch(e) {
       toast.error(t('soar.trigger.fail'))
     } finally {
       setRunning(false)
