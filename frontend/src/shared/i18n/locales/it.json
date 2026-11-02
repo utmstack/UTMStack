@@ -3867,6 +3867,7 @@
         },
         "title": "Origini dati",
         "total": "{{count}} in totale",
+        "exportPdf": "Esporta PDF",
         "subtitle": "Agenti, integrazioni e origini dirette che inviano eventi. Lo stato è derivato dall'ultima volta che ogni origine è stata vista.",
         "connectSource": "Collega un'origine",
         "loading": "Caricamento origini dati…",
@@ -3958,7 +3959,8 @@
             "labelsUpdated": "Labels aggiornati",
             "labelsFailed": "Impossibile aggiornare i labels",
             "deleted": "Origine eliminata",
-            "deleteFailed": "Eliminazione non riuscita"
+            "deleteFailed": "Eliminazione non riuscita",
+            "exportFailed": "Impossibile esportare il reporto"
         },
         "sensitivity": {
             "section": "Sensibilità dell'asset",
@@ -4032,6 +4034,20 @@
             "online": "online",
             "offline": "offline",
             "total": "totale"
+        },
+        "report": {
+            "title": "UTMStack — Reporto sui dati sorgente",
+            "generatedBy": "Generato da UTMStack",
+            "eventsReceived": "Eventi ricevuti",
+            "agents": "Agenti",
+            "integrations": "Integrazioni",
+            "direct": "Diretto",
+            "volume": "Volume ricevuto",
+            "list": "Tutte le fonti di dati",
+            "rowsNote": "righe",
+            "preparing": "Preparazione…",
+            "print": "Stampa / Salva come PDF",
+            "close": "Chiudi"
         }
     },
     "adversaries": {

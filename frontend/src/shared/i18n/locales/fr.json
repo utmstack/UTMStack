@@ -3867,6 +3867,7 @@
         },
         "title": "Sources de données",
         "total": "{{count}} au total",
+        "exportPdf": "Exporter en PDF",
         "subtitle": "Agents, intégrations et sources directes qui envoient des événements. Le statut est dérivé de la dernière fois que chaque source a été vue.",
         "connectSource": "Connecter une source",
         "loading": "Chargement des sources de données…",
@@ -3958,7 +3959,8 @@
             "labelsUpdated": "Labels mis à jour",
             "labelsFailed": "Échec de la mise à jour des labels",
             "deleted": "Source supprimée",
-            "deleteFailed": "Échec de la suppression"
+            "deleteFailed": "Échec de la suppression",
+            "exportFailed": "Échec de l'export du rapport"
         },
         "sensitivity": {
             "section": "Sensibilité de l'actif",
@@ -4032,6 +4034,20 @@
             "online": "en ligne",
             "offline": "hors ligne",
             "total": "total"
+        },
+        "report": {
+            "title": "UTMStack — Rapport des sources de données",
+            "generatedBy": "Généré par UTMStack",
+            "eventsReceived": "Événements reçus",
+            "agents": "Agents",
+            "integrations": "Intégrations",
+            "direct": "Direct",
+            "volume": "Volume reçu",
+            "list": "Toutes les sources de données",
+            "rowsNote": "lignes",
+            "preparing": "Préparation…",
+            "print": "Imprimer / Enregistrer en PDF",
+            "close": "Fermer"
         }
     },
     "adversaries": {

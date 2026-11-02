@@ -3867,6 +3867,7 @@
         },
         "title": "Datenquellen",
         "total": "{{count}} insgesamt",
+        "exportPdf": "Als PDF exportieren",
         "subtitle": "Agenten, Integrationen und direkte Quellen, die Ereignisse einspeisen. Der Status wird aus dem letzten Mal abgeleitet, an dem jede Quelle gesehen wurde.",
         "connectSource": "Quelle verbinden",
         "loading": "Datenquellen werden geladen…",
@@ -3958,7 +3959,8 @@
             "labelsUpdated": "Labels aktualisiert",
             "labelsFailed": "Labels konnten nicht aktualisiert werden",
             "deleted": "Datenquelle gelöscht",
-            "deleteFailed": "Löschen fehlgeschlagen"
+            "deleteFailed": "Löschen fehlgeschlagen",
+            "exportFailed": "Bericht konnte nicht exportiert werden"
         },
         "sensitivity": {
             "section": "Asset-Sensibilität",
@@ -4032,6 +4034,20 @@
             "online": "online",
             "offline": "offline",
             "total": "gesamt"
+        },
+        "report": {
+            "title": "UTMStack – Bericht zu Datenquellen",
+            "generatedBy": "Erstellt von UTMStack",
+            "eventsReceived": "Empfangene Ereignisse",
+            "agents": "Agenten",
+            "integrations": "Integrationen",
+            "direct": "Direkt",
+            "volume": "Empfangenes Volumen",
+            "list": "Alle Datenquellen",
+            "rowsNote": "Zeilen",
+            "preparing": "Wird vorbereitet…",
+            "print": "Drucken / Als PDF speichern",
+            "close": "Schließen"
         }
     },
     "adversaries": {

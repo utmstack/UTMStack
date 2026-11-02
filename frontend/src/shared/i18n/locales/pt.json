@@ -3867,6 +3867,7 @@
         },
         "title": "Fontes de dados",
         "total": "{{count}} no total",
+        "exportPdf": "Exportar PDF",
         "subtitle": "Agentes, integrações e fontes diretas que enviam eventos. O status é derivado da última vez que cada fonte foi vista.",
         "connectSource": "Conectar uma fonte",
         "loading": "Carregando fontes de dados…",
@@ -3958,7 +3959,8 @@
             "labelsUpdated": "Labels atualizados",
             "labelsFailed": "Falha ao atualizar os labels",
             "deleted": "Fonte excluída",
-            "deleteFailed": "Falha ao excluir"
+            "deleteFailed": "Falha ao excluir",
+            "exportFailed": "Falha ao exportar o relatório"
         },
         "console": {
             "section": "Console",
@@ -4032,6 +4034,20 @@
             "online": "online",
             "offline": "offline",
             "total": "total"
+        },
+        "report": {
+            "title": "UTMStack — Relatório de fontes de dados",
+            "generatedBy": "Gerado por UTMStack",
+            "eventsReceived": "Eventos recebidos",
+            "agents": "Agentes",
+            "integrations": "Integrações",
+            "direct": "Direto",
+            "volume": "Volume recebido",
+            "list": "Todas as fontes de dados",
+            "rowsNote": "linhas",
+            "preparing": "A preparar…",
+            "print": "Imprimir / Guardar como PDF",
+            "close": "Fechar"
         }
     },
     "adversaries": {
