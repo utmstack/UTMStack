@@ -1,5 +1,6 @@
 import { ApiError, createApiClient } from '@/shared/lib/api-client'
 import type { Flow, FlowListQuery, SaveFlowInput } from '../types/soar.types'
+import type {Alert} from '@/features/alerts/types/alert.types'
 
 const api = createApiClient()
 
@@ -23,6 +24,7 @@ export const soarFlowsService = {
   // Returns { data: Flow[], total } — total from X-Total-Count.
   list: (q: FlowListQuery = {}) => api.getPaged<Flow[]>(`${BASE}?${listQuery(q)}`, NO_CACHE),
   get: (relPath: string) => api.get<Flow>(`${BASE}/${encodeURIComponent(relPath)}`, NO_CACHE),
+  trigger: (relPath: string,alert:Alert,agent:string) => api.post<Flow>(`${BASE}/${encodeURIComponent(relPath)}/trigger`, {alert,agent}),
   create: (input: SaveFlowInput) => api.post<Flow>(BASE, input),
   update: (relPath: string, input: SaveFlowInput) =>
     api.put<Flow>(`${BASE}/${encodeURIComponent(relPath)}`, input),
