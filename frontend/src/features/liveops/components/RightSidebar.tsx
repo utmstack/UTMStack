@@ -1,7 +1,9 @@
 import { useNavigate } from 'react-router-dom'
-import { ExternalLink, PanelRightClose, SlidersHorizontal, Sparkles } from 'lucide-react'
+import { ExternalLink, PanelRightClose, SlidersHorizontal, Sparkles, Zap } from 'lucide-react'
+import { toast } from 'sonner'
 import { cn } from '@/shared/lib/utils'
 import { useTranslation } from 'react-i18next'
+import { useCommonResponse } from '@/features/soar/hooks/use-common-response'
 import {Description} from './Description'
 import type { Alert } from '@/features/alerts/types/alert.types'
 import type { Scene } from '../model'
@@ -43,6 +45,17 @@ export function RightSidebar({
 }) {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const { flow, loading, trigger } = useCommonResponse(alert)
+
+  const runResponse = async () => {
+    if (!alert || !flow) return
+    try {
+      await trigger(flow, alert)
+      toast.success(t('liveOps.responseDone'))
+    } catch {
+      toast.error(t('liveOps.responseError'))
+    }
+  }
 
   if (!open) {
     return (
@@ -107,6 +120,19 @@ export function RightSidebar({
                 </div>
               ))}
             </div>
+          </div>
+
+          <div className="border-b border-border px-3 py-2.5">
+            <button
+              type="button"
+              disabled={!flow || loading}
+              onClick={runResponse}
+              title={flow ?? t('liveOps.responseNone')}
+              className="flex w-full items-center gap-1.5 rounded-lg border border-primary/40 bg-primary/10 px-2.5 py-1.5 text-left text-[12px] font-medium text-foreground hover:bg-primary/20 disabled:opacity-40"
+            >
+              <Zap size={12} className="text-primary" />
+              {loading ? t('liveOps.responseFinding') : t('liveOps.runResponse')}
+            </button>
           </div>
 
           <div className="px-3 py-2.5">
