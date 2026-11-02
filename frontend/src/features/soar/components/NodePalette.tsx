@@ -94,7 +94,7 @@ function PrebuiltSection({
         className="flex w-full cursor-pointer items-center gap-2 px-2 py-1.5 text-[11px] hover:bg-muted"
       >
         <Terminal size={11} className="shrink-0 text-amber-500" />
-        <span className="min-w-0 flex-1 truncate text-left font-medium capitalize">{platform}</span>
+        <span className="min-w-0 flex-1 truncate text-left font-medium capitalize">{platform=='darwin'?'MacOS':platform}</span>
         <ChevronDown size={11} className={'shrink-0 opacity-60 transition-transform ' + (open ? 'rotate-180' : '')} />
       </button>
       {open && (

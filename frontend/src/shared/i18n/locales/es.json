@@ -5102,6 +5102,7 @@
         },
         "cols": {
             "flow": "Flujo",
+            "actions": "Acciones",
             "platform": "Plataforma",
             "conditions": "Condiciones",
             "commands": "Comandos",
@@ -5334,6 +5335,21 @@
             "failed24h": "Fallidas (24h)"
         },
         "neverRun": "nunca",
+        "trigger": {
+          "btn": "Activar flow",
+          "title": "Activar {{name}}",
+          "fromList": "Alerta almacenada",
+          "rawJson": "JSON de alerta en crudo",
+          "searchAlerts": "Buscar alertas",
+          "noAlerts": "No se encontraron alertas",
+          "showing": "{{shown}} de {{total}} mostrados",
+          "agent": "Agente",
+          "sameAsAlert": "Mismo agente que la alerta",
+          "run": "Activar flow",
+          "ok": "Flow {{name}} activado",
+          "fail": "No se pudo activar el flow",
+          "invalidJson": "JSON no válido"
+          },
         "create": {
             "title": "Nuevo flujo",
             "modeManual": "Crear manualmente",
@@ -6267,6 +6283,11 @@
         "showDetails": "Mostrar los detalles",
         "inIncident": "En un incidente",
         "openInAlerts": "Abrir en Alertas",
+        "runResponse": "Ejecutar respuesta",
+        "responseFinding": "Buscando una respuesta…",
+        "responseNone": "Ninguna flow del sistema cubre esta alerta",
+        "responseDone": "Respuesta activada",
+        "responseError": "No se pudo activar la respuesta",
         "involved": "Implicados",
         "askSocAi": "Preguntar a SOC-AI",
         "askExplain": "Explica este ataque y dime qué hacer a continuación",

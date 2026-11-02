@@ -1,5 +1,6 @@
 import { ApiError, createApiClient } from '@/shared/lib/api-client'
 import type { Flow, FlowListQuery, SaveFlowInput } from '../types/soar.types'
+import type {Alert} from '@/features/alerts/types/alert.types'
 
 const api = createApiClient()
 
@@ -10,6 +11,7 @@ const BASE = '/soar/rules' // backend names flows "rules"; identity is relPath
 function listQuery(q: FlowListQuery): string {
   const p = new URLSearchParams()
   if (q.name) p.set('name.contains', q.name)
+  if (q.relPath) p.set('relPath.contains', q.relPath)
   if (q.active != null) p.set('active.equals', String(q.active))
   if (q.systemOwner != null) p.set('systemOwner.equals', String(q.systemOwner))
   p.set('page', String(q.page ?? 0))
@@ -23,6 +25,7 @@ export const soarFlowsService = {
   // Returns { data: Flow[], total } — total from X-Total-Count.
   list: (q: FlowListQuery = {}) => api.getPaged<Flow[]>(`${BASE}?${listQuery(q)}`, NO_CACHE),
   get: (relPath: string) => api.get<Flow>(`${BASE}/${encodeURIComponent(relPath)}`, NO_CACHE),
+  trigger: (relPath: string,alert:Alert,agent:string) => api.post<Flow>(`${BASE}/${encodeURIComponent(relPath)}/trigger`, {alert,agent}),
   create: (input: SaveFlowInput) => api.post<Flow>(BASE, input),
   update: (relPath: string, input: SaveFlowInput) =>
     api.put<Flow>(`${BASE}/${encodeURIComponent(relPath)}`, input),

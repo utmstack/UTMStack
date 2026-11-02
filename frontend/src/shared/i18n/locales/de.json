@@ -4954,6 +4954,7 @@
         },
         "cols": {
             "flow": "Flow",
+            "actions": "Aktionen",
             "platform": "Plattform",
             "conditions": "Bedingungen",
             "commands": "Befehle",
@@ -5182,6 +5183,21 @@
             "failed24h": "Fehlgeschlagen (24 Std.)"
         },
         "neverRun": "nie",
+        "trigger": {
+          "btn": "Flow auslösen",
+          "title": "{{name}} auslösen",
+          "fromList": "Gespeicherte Warnung",
+          "rawJson": "Rohes Warnungs-JSON",
+          "searchAlerts": "Warnungen suchen",
+          "noAlerts": "Keine Warnungen gefunden",
+          "showing": "{{shown}} von {{total}} angezeigt",
+          "agent": "Agent",
+          "sameAsAlert": "Gleicher Agent wie die Warnung",
+          "run": "Flow auslösen",
+          "ok": "Flow {{name}} ausgelöst",
+          "fail": "Flow konnte nicht ausgelöst werden",
+          "invalidJson": "Ungültiges JSON"
+          },
         "create": {
             "title": "Neuer Flow",
             "modeManual": "Manuell erstellen",
@@ -6267,6 +6283,11 @@
         "showDetails": "Details anzeigen",
         "inIncident": "In einem Vorfall",
         "openInAlerts": "In Warnungen öffnen",
+        "runResponse": "Antwort ausführen",
+        "responseFinding": "Suche nach einer Antwort…",
+        "responseNone": "Kein Systemflow deckt diese Warnung ab",
+        "responseDone": "Antwort ausgelöst",
+        "responseError": "Antwort konnte nicht ausgelöst werden",
         "involved": "Betroffen",
         "askSocAi": "SOC-AI fragen",
         "askExplain": "Erkläre diesen Angriff und sag mir, was ich als Nächstes tun soll",

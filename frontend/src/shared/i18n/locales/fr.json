@@ -4954,6 +4954,7 @@
         },
         "cols": {
             "flow": "Flux",
+            "actions": "Actions",
             "platform": "Plateforme",
             "conditions": "Conditions",
             "commands": "Commandes",
@@ -5186,6 +5187,21 @@
             "failed24h": "Échecs (24 h)"
         },
         "neverRun": "jamais",
+        "trigger": {
+          "btn": "Déclencher le flux",
+          "title": "Déclencher {{name}}",
+          "fromList": "Alerte stockée",
+          "rawJson": "JSON d'alerte brut",
+          "searchAlerts": "Rechercher des alertes",
+          "noAlerts": "Aucune alerte trouvée",
+          "showing": "{{shown}} sur {{total}} affichés",
+          "agent": "Agent",
+          "sameAsAlert": "Même agent que l'alerte",
+          "run": "Déclencher le flux",
+          "ok": "Flux {{name}} déclenché",
+          "fail": "Impossible de déclencher le flux",
+          "invalidJson": "JSON non valide"
+          },
         "create": {
             "title": "Nouveau flux",
             "modeManual": "Créer manuellement",
@@ -6267,6 +6283,11 @@
         "showDetails": "Afficher les détails",
         "inIncident": "Dans un incident",
         "openInAlerts": "Ouvrir dans Alertes",
+        "runResponse": "Lancer la réponse",
+        "responseFinding": "Recherche d'une réponse…",
+        "responseNone": "Aucun flux système ne couvre cette alerte",
+        "responseDone": "Réponse déclenchée",
+        "responseError": "Impossible de déclencher la réponse",
         "involved": "Impliqués",
         "askSocAi": "Demander à SOC-AI",
         "askExplain": "Explique cette attaque et dis-moi quoi faire ensuite",

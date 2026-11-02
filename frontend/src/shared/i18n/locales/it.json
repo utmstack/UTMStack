@@ -4954,6 +4954,7 @@
         },
         "cols": {
             "flow": "Flusso",
+            "actions": "Azioni",
             "platform": "Piattaforma",
             "conditions": "Condizioni",
             "commands": "Comandi",
@@ -5186,6 +5187,21 @@
             "failed24h": "Fallite (24h)"
         },
         "neverRun": "mai",
+        "trigger": {
+          "btn": "Avvia flow",
+          "title": "Avvia {{name}}",
+          "fromList": "Avviso archiviato",
+          "rawJson": "JSON avviso grezzo",
+          "searchAlerts": "Cerca avvisi",
+          "noAlerts": "Nessun avviso trovato",
+          "showing": "{{shown}} di {{total}} mostrati",
+          "agent": "Agente",
+          "sameAsAlert": "Stesso agente dell'avviso",
+          "run": "Avvia flow",
+          "ok": "Flow {{name}} avviato",
+          "fail": "Impossibile avviare il flow",
+          "invalidJson": "JSON non valido"
+          },
         "create": {
             "title": "Nuovo flusso",
             "modeManual": "Crea manualmente",
@@ -6267,6 +6283,11 @@
         "showDetails": "Mostra i dettagli",
         "inIncident": "In un incidente",
         "openInAlerts": "Apri in Avvisi",
+        "runResponse": "Esegui risposta",
+        "responseFinding": "Ricerca di una risposta…",
+        "responseNone": "Nessun flusso di sistema copre questo avviso",
+        "responseDone": "Risposta attivata",
+        "responseError": "Impossibile attivare la risposta",
         "involved": "Coinvolti",
         "askSocAi": "Chiedi a SOC-AI",
         "askExplain": "Spiegami questo attacco e dimmi cosa fare dopo",

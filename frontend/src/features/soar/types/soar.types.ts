@@ -89,6 +89,7 @@ export interface SaveFlowInput {
 
 export interface FlowListQuery {
   name?: string
+  relPath?: string
   active?: boolean
   systemOwner?: boolean
   page?: number // 0-based
