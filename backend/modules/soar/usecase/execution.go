@@ -51,7 +51,7 @@ func (u *executionUsecase) HandleMatch(ctx context.Context, req dto.MatchRequest
 	if gjson.GetBytes(alertJSON, "parentId").String() != "" {
 		return nil
 	}
-	_, err := u.StartFlow(ctx, req.RulePath, alertJSON, "", "",false)
+	_, err := u.StartFlow(ctx, req.RulePath, alertJSON, "", "", false)
 	return err
 }
 
