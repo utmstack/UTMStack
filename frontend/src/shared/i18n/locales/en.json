@@ -5703,6 +5703,21 @@
             "failed24h": "Failed (24h)"
         },
         "neverRun": "never",
+        "trigger": {
+          "btn": "Trigger flow",
+          "title": "Trigger {{name}}",
+          "fromList": "Stored alert",
+          "rawJson": "Raw alert JSON",
+          "searchAlerts": "Search alerts",
+          "noAlerts": "No alerts found",
+          "showing": "{{shown}} of {{total}} shown",
+          "agent": "Agent",
+          "sameAsAlert": "Same agent as the alert",
+          "run": "Trigger flow",
+          "ok": "Flow {{name}} triggered",
+          "fail": "Could not trigger the flow",
+          "invalidJson": "Not valid JSON"
+          },
         "create": {
             "title": "New flow",
             "modeManual": "Create manually",

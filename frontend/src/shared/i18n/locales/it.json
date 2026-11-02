@@ -5186,6 +5186,21 @@
             "failed24h": "Fallite (24h)"
         },
         "neverRun": "mai",
+        "trigger": {
+          "btn": "Avvia flow",
+          "title": "Avvia {{name}}",
+          "fromList": "Avviso archiviato",
+          "rawJson": "JSON avviso grezzo",
+          "searchAlerts": "Cerca avvisi",
+          "noAlerts": "Nessun avviso trovato",
+          "showing": "{{shown}} di {{total}} mostrati",
+          "agent": "Agente",
+          "sameAsAlert": "Stesso agente dell'avviso",
+          "run": "Avvia flow",
+          "ok": "Flow {{name}} avviato",
+          "fail": "Impossibile avviare il flow",
+          "invalidJson": "JSON non valido"
+          },
         "create": {
             "title": "Nuovo flusso",
             "modeManual": "Crea manualmente",

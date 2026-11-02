@@ -5186,6 +5186,21 @@
             "failed24h": "Échecs (24 h)"
         },
         "neverRun": "jamais",
+        "trigger": {
+          "btn": "Déclencher le flux",
+          "title": "Déclencher {{name}}",
+          "fromList": "Alerte stockée",
+          "rawJson": "JSON d'alerte brut",
+          "searchAlerts": "Rechercher des alertes",
+          "noAlerts": "Aucune alerte trouvée",
+          "showing": "{{shown}} sur {{total}} affichés",
+          "agent": "Agent",
+          "sameAsAlert": "Même agent que l'alerte",
+          "run": "Déclencher le flux",
+          "ok": "Flux {{name}} déclenché",
+          "fail": "Impossible de déclencher le flux",
+          "invalidJson": "JSON non valide"
+          },
         "create": {
             "title": "Nouveau flux",
             "modeManual": "Créer manuellement",

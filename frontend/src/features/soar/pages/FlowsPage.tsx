@@ -8,6 +8,7 @@ import {
   AlertTriangle,
   Loader2,
   Lock,
+  Play,
   Plus,
   RefreshCw,
   Search,
@@ -30,6 +31,7 @@ import { FlowEditor } from "../components/FlowEditor";
 import { SoarCreateDialog } from "../components/SoarCreateDialog";
 import { useSocAi } from "@/features/soc-ai/SocAiProvider";
 import { StartFromModal } from "@/shared/components/StartFromModal";
+import { FlowTriggerModal } from "../components/FlowTriggerModal";
 import { copyOfFlow } from "../lib/duplicate";
 import type { Flow } from "../types/soar.types";
 
@@ -84,6 +86,7 @@ export function FlowsPage() {
   } | null>(null);
   const [starting, setStarting] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
+  const [triggering, setTriggering] = useState<Flow | null>(null);
   const { soarEditVersion } = useSocAi();
 
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -277,7 +280,7 @@ export function FlowsPage() {
           <div className="mt-3 flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card">
             <div className="min-h-0 flex-1 overflow-auto" ref={scrollRef}>
               <ResizableDataTable
-                columns={buildFlowColumns(t, stats, toggleActive)}
+                columns={buildFlowColumns(t, stats, toggleActive, setTriggering)}
                 data={items}
                 flexColumnId="flow"
                 storageKey="soar-flows-table-sizing"
@@ -349,6 +352,14 @@ export function FlowsPage() {
           }}
           onCopy={startFromFlow}
           onClose={() => setStarting(false)}
+        />
+      )}
+
+      {triggering && (
+        <FlowTriggerModal
+          key={triggering.relPath}
+          flow={triggering}
+          onClose={() => setTriggering(null)}
         />
       )}
 
@@ -464,6 +475,7 @@ function buildFlowColumns(
   t: TFunction,
   stats: Record<string, FlowStat>,
   onToggle: (f: Flow) => void,
+  onTrigger: (f: Flow) => void,
 ): ColumnDef<Flow>[] {
   const count = `${TD} font-mono text-[11px] text-muted-foreground`;
   return [
@@ -612,6 +624,27 @@ function buildFlowColumns(
             {t("soar.view")}
           </span>
         </div>
+      ),
+    },
+    {
+      id: "trigger",
+      header: () => null,
+      size: 40,
+      minSize: 40,
+      enableResizing: false,
+      meta: { headerClassName: TH, cellClassName: TD },
+      cell: ({ row }) => (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onTrigger(row.original);
+          }}
+          title={t("soar.trigger.btn")}
+          aria-label={t("soar.trigger.btn")}
+          className="mx-auto flex h-7 w-7 items-center justify-center rounded text-muted-foreground/60 transition hover:bg-background hover:text-primary"
+        >
+          <Play size={13} />
+        </button>
       ),
     },
   ];

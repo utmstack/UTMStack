@@ -5334,6 +5334,21 @@
             "failed24h": "Fallidas (24h)"
         },
         "neverRun": "nunca",
+        "trigger": {
+          "btn": "Activar flow",
+          "title": "Activar {{name}}",
+          "fromList": "Alerta almacenada",
+          "rawJson": "JSON de alerta en crudo",
+          "searchAlerts": "Buscar alertas",
+          "noAlerts": "No se encontraron alertas",
+          "showing": "{{shown}} de {{total}} mostrados",
+          "agent": "Agente",
+          "sameAsAlert": "Mismo agente que la alerta",
+          "run": "Activar flow",
+          "ok": "Flow {{name}} activado",
+          "fail": "No se pudo activar el flow",
+          "invalidJson": "JSON no válido"
+          },
         "create": {
             "title": "Nuevo flujo",
             "modeManual": "Crear manualmente",

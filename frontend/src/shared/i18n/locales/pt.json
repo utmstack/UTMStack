@@ -5334,6 +5334,21 @@
             "failed24h": "Falhas (24h)"
         },
         "neverRun": "nunca",
+        "trigger": {
+          "btn": "Acionar fluxo",
+          "title": "Acionar {{name}}",
+          "fromList": "Alerta armazenada",
+          "rawJson": "JSON de alerta bruto",
+          "searchAlerts": "Buscar alertas",
+          "noAlerts": "Nenhuma alerta encontrada",
+          "showing": "{{shown}} de {{total}} exibidos",
+          "agent": "Agente",
+          "sameAsAlert": "Mesmo agente que a alerta",
+          "run": "Acionar fluxo",
+          "ok": "Fluxo {{name}} acionado",
+          "fail": "Não foi possível acionar o fluxo",
+          "invalidJson": "JSON inválido"
+          },
         "create": {
             "title": "Novo fluxo",
             "modeManual": "Criar manualmente",
