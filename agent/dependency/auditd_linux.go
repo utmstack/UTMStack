@@ -17,7 +17,7 @@ import (
 
 // AuditdVersion is the UTMStack audit rules version.
 // Bump this when audit rules are updated to trigger rule redeployment.
-const AuditdVersion = "1.0.0"
+const AuditdVersion = "1.0.1"
 
 // auditRulesContent contains the UTMStack security audit rules.
 // These rules are deployed to /etc/audit/rules.d/50-utmstack.rules
@@ -33,8 +33,8 @@ const auditRulesContent = `## UTMStack SIEM Audit Rules
 -a always,exit -F arch=b32 -S execve -F auid>=1000 -F auid!=4294967295 -k utmstack_exec
 
 # Privilege escalation
--a always,exit -F arch=b64 -S setuid,setgid,setreuid,setregid,setresuid,setresgid -F auid>=1000 -k utmstack_priv
--a always,exit -F arch=b32 -S setuid,setgid,setreuid,setregid,setresuid,setresgid -F auid>=1000 -k utmstack_priv
+-a always,exit -F arch=b64 -S setuid,setgid,setreuid,setregid,setresuid,setresgid -F auid>=1000 -F auid!=4294967295 -k utmstack_priv
+-a always,exit -F arch=b32 -S setuid,setgid,setreuid,setregid,setresuid,setresgid -F auid>=1000 -F auid!=4294967295 -k utmstack_priv
 
 # Sensitive file access (Identity)
 -w /etc/shadow -p wa -k utmstack_sensitive
