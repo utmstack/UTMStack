@@ -1,0 +1,23 @@
+# UTMStack system SOAR flow
+#
+# Standard response for the 'exfil' liveops template. The relpath
+# 'exfil-windows-host-kill-process' is the resolver key (frontend common-response.ts matches
+# template + platform, linux preferred when the host is unknown).
+# The trigger is a placeholder on purpose: a broad condition would
+# auto-fire this on every alert, and these are destructive actions.
+#
+- name: 'Kill exfil process'
+  description: 'Data leaving the host. Capture the transfer process, then kill it.'
+  conditions:
+  - operator: IS
+    field: name
+    value: TODO-set-the-correlation-rule-that-triggers-this
+  roots:
+    - step_0
+  nodes:
+    step_0:
+        kind: executor
+        executor: shell
+        command: 'Get-Process -Name $(target.process) | Out-File C:\utmstack-exfil-evidence.txt -ErrorAction SilentlyContinue ; Stop-Process -Name $(target.process) -Force'
+        shell: powershell
+        platform: windows

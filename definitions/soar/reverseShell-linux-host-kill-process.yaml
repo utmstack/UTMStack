@@ -1,0 +1,23 @@
+# UTMStack system SOAR flow
+#
+# Standard response for the 'reverseShell' liveops template. The relpath
+# 'reverseShell-linux-host-kill-process' is the resolver key (frontend common-response.ts matches
+# template + platform, linux preferred when the host is unknown).
+# The trigger is a placeholder on purpose: a broad condition would
+# auto-fire this on every alert, and these are destructive actions.
+#
+- name: 'Kill reverse shell process'
+  description: 'Reverse shell running from the host. Capture the shell process as evidence, then kill it.'
+  conditions:
+  - operator: IS
+    field: name
+    value: TODO-set-the-correlation-rule-that-triggers-this
+  roots:
+    - step_0
+  nodes:
+    step_0:
+        kind: executor
+        executor: shell
+        command: 'ps aux | grep -v grep | grep ''$(target.process)'' | tee /var/log/utmstack-evidence.txt ; pkill -f ''$(target.process)'''
+        shell: sh
+        platform: ubuntu
