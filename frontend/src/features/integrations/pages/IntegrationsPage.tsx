@@ -31,6 +31,15 @@ const LOGO = (slug: string) => {
 }
 
 
+function displayModuleName(moduleName: string): string {
+  return moduleName
+    .toLowerCase()
+    .split(/[_\s-]+/)
+    .filter(Boolean)
+    .map((part) => part[0].toUpperCase() + part.slice(1))
+    .join(' ')
+}
+
 function mapModuleToIntegration(module: IntegrationResponse, t: TFunction): Integration {
   const isSystem = module.systemOwner
   // System integrations: icon, description and category are owned by the frontend
@@ -41,12 +50,10 @@ function mapModuleToIntegration(module: IntegrationResponse, t: TFunction): Inte
 
   // Map the category to a known DeployKind; anything unknown falls back to
   // 'other' (Collector group) so a new integration never breaks the grid.
-  const kind: DeployKind = module.ingestType?.toLowerCase() === 'agent'
-    ? 'agents & syslog'
-    : (category in KIND_META ? category : 'other') as DeployKind
+  const kind: DeployKind = (category in KIND_META ? category : 'other') as DeployKind
 
   const description = isSystem
-    ? t(`integrations.modules.${module.name}.description`, { defaultValue: module.description || '' })
+    ? t(`integrations.modules.${module.name}`, { defaultValue: module.description || '' })
     : module.description || ''
   // Resolve the logo + optional dark variant:
   //  - system module        → frontend-owned per-theme asset,
@@ -57,7 +64,7 @@ function mapModuleToIntegration(module: IntegrationResponse, t: TFunction): Inte
   if (meta) {
     logo = LOGO(meta.icon)
     logoDark = meta.iconDark ? LOGO(meta.iconDark) : undefined
-  }  else if (module.icon) {
+  } else if (module.icon) {
     logo = LOGO(module.icon)
   } else {
     logo = LOGO('custom.svg')
@@ -66,9 +73,7 @@ function mapModuleToIntegration(module: IntegrationResponse, t: TFunction): Inte
 
   return {
     id: module.id,
-    name: isSystem
-      ? t(`integrations.modules.${module.name}.name`, { defaultValue: displayModuleName(module.name) })
-      : module.name,
+    name: isSystem ? t(`integrations.modules.${module.name}.name`, { defaultValue: displayModuleName(module.name) }) : displayModuleName(module.name),
     moduleName: module.name,
     dataType: module.dataType,
     ingestType: module.ingestType,
@@ -85,14 +90,6 @@ function mapModuleToIntegration(module: IntegrationResponse, t: TFunction): Inte
   }
 }
 
-function displayModuleName(moduleName: string): string {
-  return moduleName
-    .toLowerCase()
-    .split(/[_\s-]+/)
-    .filter(Boolean)
-    .map((part) => part[0].toUpperCase() + part.slice(1))
-    .join(' ')
-}
 
 // Pinned order for the three OS agents so they always lead the grid.
 const AGENT_ORDER = ['WINDOWS_AGENT', 'LINUX_AGENT', 'MACOS']
