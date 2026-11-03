@@ -42,7 +42,7 @@ export class ElasticFilterTimeComponent implements OnInit, OnChanges, OnDestroy 
   @Input() isEmitter: boolean;
   @Output() timeFilterChange = new EventEmitter<TimeFilterType>();
 
-  @ViewChild('popover') popover!: NgbPopover;
+  @ViewChild('popover', {static: false}) popover!: NgbPopover;
 
 
   times: { time: ElasticTimeEnum, label: string } [] = [

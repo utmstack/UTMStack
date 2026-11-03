@@ -24,7 +24,7 @@ import {IncidentRuleType} from '../../type/incident-rule.type';
 export class IrCreateRuleComponent implements OnInit {
   @Input() alert;
   @Input() rule: IncidentRuleType;
-  @ViewChild('autocomplete') autocomplete: ElementRef;
+  @ViewChild('autocomplete', {static: false}) autocomplete: ElementRef;
   @Output() ruleCreated = new EventEmitter<boolean>();
   step = 1;
   stepCompleted: number[] = [];

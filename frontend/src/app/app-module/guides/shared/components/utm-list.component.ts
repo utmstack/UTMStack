@@ -18,7 +18,7 @@ export class UtmListComponent {
 
   @Input() items: any[];
 
-  @ContentChild(StepDirective, { read: TemplateRef })
+  @ContentChild(StepDirective, {static: false, read: TemplateRef })
   stepTemplateRef!: TemplateRef<unknown>;
   constructor() {
   }

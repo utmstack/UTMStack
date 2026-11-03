@@ -16,7 +16,7 @@ export class IdentityProviderModalComponent implements OnInit {
   @Input() editMode = false;
   @Input() providers: UtmIdentityProvider[] = [];
 
-  @ViewChild('providerForm') providerFormComponent!: ProviderFormComponent;
+  @ViewChild('providerForm', {static: false}) providerFormComponent!: ProviderFormComponent;
 
   selectedProvider?: UtmIdentityProvider;
   loading = false;

@@ -18,7 +18,7 @@ export class UtmCodeHighlightComponent implements OnInit, AfterViewInit {
   @Input() codeType: 'python' | 'java' | 'javascript' | 'golang' | 'bash' | 'powershell' | 'json' = 'python';
   @Input() code: string;
   @Input() showCopyCode = true;
-  @ViewChild('codeElement') codeElement: ElementRef;
+  @ViewChild('codeElement', {static: false}) codeElement: ElementRef;
   @Input() maskSecret: string;
   @Input() unmaskedSecret: string;
   private str: string;

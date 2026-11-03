@@ -10,7 +10,7 @@ import {TabType} from '../../type/tab.type';
 })
 export class TabContentComponent implements OnInit {
   @Input() tab: TabType;
-  @ViewChild(TabContentDirective)
+  @ViewChild(TabContentDirective, {static: false})
   contentContainer: TabContentDirective;
 
   constructor(private componentFactoryResolver: ComponentFactoryResolver) {

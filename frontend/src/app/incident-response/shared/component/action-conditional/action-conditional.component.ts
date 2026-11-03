@@ -22,7 +22,7 @@ export class ActionConditionalComponent implements OnInit {
   actionConditionalEnum = ActionConditionalEnum;
   @Input() option: { key: ActionConditionalEnum, value: string};
   @Output() optionChange = new EventEmitter<{ key: ActionConditionalEnum, value: string}>();
-  @ViewChild('dropTracker') dropTracker: NgbDropdown;
+  @ViewChild('dropTracker', {static: false}) dropTracker: NgbDropdown;
 
   constructor() { }
 

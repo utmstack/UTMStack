@@ -9,7 +9,7 @@ import {UtmToastService} from '../../../../../../alert/utm-toast.service';
   styleUrls: ['./utm-notification-assets.component.scss']
 })
 export class UtmNotificationAssetsComponent implements OnInit, OnDestroy {
-  @ViewChild('notify') iconDisplay: ElementRef;
+  @ViewChild('notify', {static: false}) iconDisplay: ElementRef;
   totalAssets = 0;
   prevTotalAssets = 0;
   interval: any;

@@ -9,7 +9,7 @@ import {Subject} from 'rxjs';
 })
 export class LogQueryFilterSelectorComponent implements OnInit, OnDestroy {
 
-  @ViewChild('popoverFilter') popFilter: NgbPopover;
+  @ViewChild('popoverFilter', {static: false}) popFilter: NgbPopover;
   destroy$ = new Subject<void>();
 
   constructor() {

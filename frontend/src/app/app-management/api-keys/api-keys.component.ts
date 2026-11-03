@@ -23,7 +23,7 @@ export class ApiKeysComponent implements OnInit {
   apiKeys: ApiKeyResponse[] = [];
   loading = false;
   generatedApiKey = '';
-  @ViewChild('generatedModal') generatedModal!: TemplateRef<any>;
+  @ViewChild('generatedModal', {static: false}) generatedModal!: TemplateRef<any>;
   generatedModalRef!: NgbModalRef;
   copied = false;
   readonly itemsPerPage = ITEMS_PER_PAGE;

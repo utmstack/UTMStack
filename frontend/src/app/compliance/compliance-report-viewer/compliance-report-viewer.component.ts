@@ -25,7 +25,7 @@ import {ComplianceResultViewComponent} from '../compliance-result-view/complianc
   styleUrls: ['./compliance-report-viewer.component.css']
 })
 export class ComplianceReportViewerComponent implements OnInit,  OnDestroy {
-  @ViewChild('compilanceRep') compilanceRep!: ComplianceResultViewComponent
+  @ViewChild('compilanceRep', {static: false}) compilanceRep!: ComplianceResultViewComponent
   admin = ADMIN_ROLE;
   sections$: Observable<ComplianceStandardSectionType[]>;
   standard: ComplianceStandardType;

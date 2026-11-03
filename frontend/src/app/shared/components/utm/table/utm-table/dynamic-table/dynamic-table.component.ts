@@ -9,7 +9,6 @@ import {
   ViewChild, ViewChildren,
   ViewContainerRef
 } from '@angular/core';
-import {container} from '@angular/core/src/render3';
 import {Subject} from 'rxjs';
 import {IndexPatternBehavior} from '../../../../../../log-analyzer/shared/behaviors/index-pattern.behavior';
 import {SortEvent} from '../../../../../directives/sortable/type/sort-event';
@@ -91,8 +90,8 @@ export class UtmDynamicTableComponent implements OnInit, OnChanges, OnDestroy {
   @Input() initialExpandedId?: number;
 
   @Input() editableColumn = true;
-  @ViewChild('container', {read: ViewContainerRef}) entry: ViewContainerRef;
-  @ViewChild('container') containerRef!: ElementRef<HTMLDivElement>;
+  @ViewChild('container', {static: false, read: ViewContainerRef}) entry: ViewContainerRef;
+  @ViewChild('container', {static: false}) containerRef!: ElementRef<HTMLDivElement>;
   viewDetail = -1;
   dataTypeEnum = ElasticDataTypesEnum;
   utmDateFormat = UtmDateFormatEnum;

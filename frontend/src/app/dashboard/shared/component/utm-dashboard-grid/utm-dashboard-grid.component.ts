@@ -16,7 +16,7 @@ export class UtmDashboardGridComponent implements OnInit, OnChanges {
   activeTimeGridster: number;
   windowHeight = window.innerHeight + 50;
   calculatingHeight = true;
-  @ViewChild('gridsterComponent') gridsterComponent: GridsterComponent;
+  @ViewChild('gridsterComponent', {static: false}) gridsterComponent: GridsterComponent;
 
   constructor() {
   }

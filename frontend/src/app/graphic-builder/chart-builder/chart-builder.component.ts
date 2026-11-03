@@ -70,7 +70,7 @@ export class ChartBuilderComponent implements OnInit, AfterViewChecked {
   private patternId: number;
   defaultTime = new ElasticFilterDefaultTime('now-24h', 'now');
 
-  @ViewChild(CodeEditorComponent) codeEditor: CodeEditorComponent;
+  @ViewChild(CodeEditorComponent, {static: false}) codeEditor: CodeEditorComponent;
   isSqlMode = false;
   errorMessage = '';
   sqlQuery = '';

@@ -35,7 +35,7 @@ export class UtmNotificationViewComponent implements OnInit, AfterViewInit, OnDe
     to: this.eventDate.timeTo.slice(0, 19)};
   destroy$ = new Subject<void>();
   loading: any;
-  @ViewChild('timeFilter') timeFilter: TimeFilterComponent;
+  @ViewChild('timeFilter', {static: false}) timeFilter: TimeFilterComponent;
   page: UtmNotification = {
     last: false,
     totalElements: 0,

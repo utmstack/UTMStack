@@ -35,9 +35,9 @@ export class UtmAgentConsoleComponent implements OnInit, OnChanges, AfterViewIni
   @Input() websocketCommand: IncidentCommandType;
   @Input() template: 'on-demand' | 'default' = 'default';
   @Output() close = new EventEmitter<boolean>();
-  @ViewChild('contentWrapper', {read: ElementRef}) contentWrapper!: ElementRef;
-  @ViewChild('commandInput') commandInput: ElementRef;
-  @ViewChild('passwordInput') passwordInput: ElementRef;
+  @ViewChild('contentWrapper', {static: false, read: ElementRef}) contentWrapper!: ElementRef;
+  @ViewChild('commandInput', {static: false}) commandInput: ElementRef;
+  @ViewChild('passwordInput', {static: false}) passwordInput: ElementRef;
   account: Account;
   commandInProgress = false;
   private token: string;

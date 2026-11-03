@@ -15,7 +15,7 @@ import {takeUntil} from 'rxjs/operators';
   styleUrls: ['./utm-notification-alert.component.css']
 })
 export class UtmNotificationAlertComponent implements OnInit, OnDestroy {
-  @ViewChild('iconBell') iconBell: ElementRef;
+  @ViewChild('iconBell', {static: false}) iconBell: ElementRef;
   totalAlerts = 10;
   prevTotal = 5;
   timeoutAlert: any;

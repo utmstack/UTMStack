@@ -11,14 +11,14 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "7.2.0",
-    "@angular/common": "7.2.0",
-    "@angular/compiler": "7.2.0",
-    "@angular/core": "7.2.0",
-    "@angular/forms": "7.2.0",
-    "@angular/platform-browser": "7.2.0",
-    "@angular/platform-browser-dynamic": "7.2.0",
-    "@angular/router": "7.2.0",
+    "@angular/animations": "~8.2.14",
+    "@angular/common": "~8.2.14",
+    "@angular/compiler": "~8.2.14",
+    "@angular/core": "~8.2.14",
+    "@angular/forms": "~8.2.14",
+    "@angular/platform-browser": "~8.2.14",
+    "@angular/platform-browser-dynamic": "~8.2.14",
+    "@angular/router": "~8.2.14",
     "@fortawesome/angular-fontawesome": "^0.3.0",
     "@fortawesome/fontawesome-svg-core": "^1.2.14",
     "@fortawesome/free-solid-svg-icons": "^5.7.1",
@@ -75,7 +75,7 @@
     "ngx-spinner": "^7.2.0",
     "ngx-webstorage": "^2.0.1",
     "popper.js": "^1.15.0",
-    "rxjs": "~6.3.3",
+    "rxjs": "~6.6.7",
     "sass": "1.32.13",
     "sockjs-client": "^1.4.0",
     "stompjs": "^2.3.3",
@@ -84,13 +84,13 @@
     "tslib": "^1.14.1",
     "websocket-driver": "^0.7.5",
     "webstomp-client": "^1.2.6",
-    "zone.js": "~0.8.26"
+    "zone.js": "~0.9.1"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^0.13.8",
-    "@angular/cli": "~7.3.6",
-    "@angular/compiler-cli": "~7.2.0",
-    "@angular/language-service": "~7.2.0",
+    "@angular-devkit/build-angular": "^0.803.29",
+    "@angular/cli": "~8.3.29",
+    "@angular/compiler-cli": "~8.2.14",
+    "@angular/language-service": "~8.2.14",
     "@types/echarts": "^4.1.8",
     "@types/highlight.js": "^9.12.0",
     "@types/jasmine": "~2.8.8",
@@ -107,6 +107,6 @@
     "protractor": "^7.0.0",
     "ts-node": "~7.0.0",
     "tslint": "~5.11.0",
-    "typescript": "~3.2.2"
+    "typescript": "^3.5.3"
   }
 }

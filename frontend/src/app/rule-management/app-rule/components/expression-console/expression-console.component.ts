@@ -15,7 +15,7 @@ export class ExpressionConsoleComponent implements ControlValueAccessor {
   @Input() variables: { as: string; ofType: string; get: string }[] = [];
   @Input() hideVariable = true;
   @Output() variablesChange = new EventEmitter<{ as: string; ofType: string; get: string }[]>();
-  @ViewChild('console', {}) consoleRef!: ElementRef<HTMLTextAreaElement>;
+  @ViewChild('console', {static: false}) consoleRef!: ElementRef<HTMLTextAreaElement>;
 
   @Output() touched = new EventEmitter<void>();
 
