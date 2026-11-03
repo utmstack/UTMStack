@@ -3872,6 +3872,20 @@
       "cards": "Tarjetas",
       "refresh": "Actualizar"
     },
+    "report": {
+      "optionsTitle": "Estado para el informe",
+      "statuses": { "all": "Todos los estados" },
+      "exportPdf": "Exportar PDF",
+      "title": "Informe de fuentes de datos",
+      "generatedAt": "Generado",
+      "sourceCount": "Fuentes: {{count}}",
+      "kind": "Tipo de fuente",
+      "discovered": "Descubierta",
+      "labels": "Etiquetas",
+      "noSources": "No hay fuentes de datos que coincidan con las opciones del informe.",
+      "popupBlocked": "Permite las ventanas emergentes para generar el informe PDF.",
+      "failed": "No se pudo generar el informe de fuentes de datos."
+    },
     "labels": {
       "filteredBy": "Filtrado por label",
       "add": "Agregar label…",

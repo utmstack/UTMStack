@@ -5,6 +5,7 @@ import {
   Apple,
   Cloud,
   Database,
+  Download,
   Layers,
   ListIcon,
   LayoutGrid,
@@ -40,6 +41,7 @@ import {
 } from '../services/datasources-http.service'
 import { AgentConsole } from '../components/AgentConsole'
 import { deriveStatus, statusLabel, STATUS_META, IDLE_MS } from '../lib/status'
+import { buildDatasourceReportHtml, filterDatasourceReport, type DatasourceReportStatus } from '../lib/report'
 import type {
   Datasource,
   IngestionBucket,
@@ -119,6 +121,8 @@ type TabId = (typeof TABS)[number]['id']
 export function DataSourcesPage() {
   const { t } = useTranslation()
   const [tab, setTab] = useState<TabId>('all')
+  const [reportStatus, setReportStatus] = useState<DatasourceReportStatus>('all')
+  const [reporting, setReporting] = useState(false)
   const [search, setSearch] = useState('')
   const [debounced, setDebounced] = useState('')
   const [labelFilter, setLabelFilter] = useState<string | null>(null)
@@ -150,16 +154,28 @@ export function DataSourcesPage() {
     setLoading(true)
     setError(false)
     try {
-      const res = await svc.list({
+      const filters = {
         page: page + 1,
         size: pageSize,
         search: debounced || undefined,
         kind: tab === 'all' || tab === 'offline' ? undefined : (tab as SourceKind),
         label: labelFilter ?? undefined,
-        staleBefore: tab === 'offline' ? new Date(Date.now() - IDLE_MS).toISOString() : undefined,
-      })
-      setSources((prev) => (page === 0 ? (res.items ?? []) : [...prev, ...(res.items ?? [])]))
-      setTotal(res.total_items ?? 0)
+      }
+      if (tab === 'offline') {
+        const [stale, neverSeen] = await Promise.all([
+          svc.list({ ...filters, staleBefore: new Date(Date.now() - IDLE_MS).toISOString() }),
+          svc.list({ ...filters, pingNull: true }),
+        ])
+        const offlineSources = [...(stale.items ?? []), ...(neverSeen.items ?? [])].sort(
+          (a, b) => (Date.parse(b.discoveredAt ?? '') || 0) - (Date.parse(a.discoveredAt ?? '') || 0),
+        )
+        setSources((prev) => (page === 0 ? offlineSources : [...prev, ...offlineSources]))
+        setTotal((stale.total_items ?? 0) + (neverSeen.total_items ?? 0))
+      } else {
+        const res = await svc.list(filters)
+        setSources((prev) => (page === 0 ? (res.items ?? []) : [...prev, ...(res.items ?? [])]))
+        setTotal(res.total_items ?? 0)
+      }
     } catch {
       setError(true)
       setSources([])
@@ -230,6 +246,73 @@ export function DataSourcesPage() {
 
   const events24h = (name: string) => stats[name]?.count ?? 0
 
+  const exportReport = async () => {
+    const printWindow = window.open('', '_blank')
+    if (!printWindow) {
+      toast.error(t('datasources.report.popupBlocked'))
+      return
+    }
+
+    setReporting(true)
+    try {
+      const allSources: Datasource[] = []
+      let requestedPage = 1
+      let totalPages = 1
+      while (requestedPage <= totalPages) {
+        const response = await svc.list({
+          page: requestedPage,
+          size: 500,
+          search: debounced || undefined,
+          kind: tab === 'all' || tab === 'offline' ? undefined : tab,
+          label: labelFilter ?? undefined,
+        })
+        allSources.push(...(response.items ?? []))
+        totalPages = Math.max(response.total_pages ?? 1, requestedPage)
+        requestedPage += 1
+      }
+
+      const reportSources = filterDatasourceReport(allSources, reportStatus, tab === 'offline')
+      const html = buildDatasourceReportHtml(
+        reportSources,
+        {
+          title: t('datasources.report.title'),
+          generatedAt: t('datasources.report.generatedAt'),
+          sourceCount: t('datasources.report.sourceCount'),
+          noSources: t('datasources.report.noSources'),
+          columns: {
+            name: t('datasources.cols.source'),
+            type: t('datasources.cols.type'),
+            kind: t('datasources.report.kind'),
+            status: t('datasources.cols.status'),
+            ip: 'IP',
+            lastSeen: t('datasources.cols.lastSeen'),
+            discovered: t('datasources.report.discovered'),
+            labels: t('datasources.report.labels'),
+          },
+          statuses: {
+            live: t('datasources.status.live'),
+            idle: t('datasources.status.idle'),
+            offline: t('datasources.status.offline'),
+          },
+          kinds: {
+            agent: t('datasources.kind.agent'),
+            puller: t('datasources.kind.puller'),
+            direct: t('datasources.kind.direct'),
+          },
+        },
+        `${t('datasources.report.generatedAt')}: ${new Date().toLocaleString()}`,
+      )
+      printWindow.document.open()
+      printWindow.document.write(html)
+      printWindow.document.close()
+    } catch {
+      printWindow.close()
+      toast.error(t('datasources.report.failed'))
+    } finally {
+      setReporting(false)
+    }
+  }
+
   return (
     <div className="w-full px-6 pb-6 pt-3">
       <Header total={total} />
@@ -256,6 +339,10 @@ export function DataSourcesPage() {
         onLayout={setLayout}
         onRefresh={refresh}
         loading={loading}
+        reportStatus={reportStatus}
+        onReportStatus={setReportStatus}
+        onExportReport={() => void exportReport()}
+        reporting={reporting}
       />
 
       {labelFilter && (
@@ -511,6 +598,10 @@ function Toolbar({
   onLayout,
   onRefresh,
   loading,
+  reportStatus,
+  onReportStatus,
+  onExportReport,
+  reporting,
 }: {
   search: string
   onSearch: (s: string) => void
@@ -518,6 +609,10 @@ function Toolbar({
   onLayout: (l: 'list' | 'cards') => void
   onRefresh: () => void
   loading: boolean
+  reportStatus: DatasourceReportStatus
+  onReportStatus: (status: DatasourceReportStatus) => void
+  onExportReport: () => void
+  reporting: boolean
 }) {
   const { t } = useTranslation()
   return (
@@ -526,6 +621,24 @@ function Toolbar({
         <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
         <Input placeholder={t('datasources.toolbar.searchPlaceholder')} value={search} onChange={(e) => onSearch(e.target.value)} className="h-9 pl-9" />
       </div>
+      <label className="text-xs text-muted-foreground" htmlFor="datasource-report-status">
+        {t('datasources.report.optionsTitle')}
+      </label>
+      <select
+        id="datasource-report-status"
+        value={reportStatus}
+        onChange={(event) => onReportStatus(event.target.value as DatasourceReportStatus)}
+        className="h-9 rounded-md border border-input bg-background px-3 text-xs text-foreground"
+      >
+        <option value="all">{t('datasources.report.statuses.all')}</option>
+        <option value="live">{t('datasources.status.live')}</option>
+        <option value="idle">{t('datasources.status.idle')}</option>
+        <option value="offline">{t('datasources.status.offline')}</option>
+      </select>
+      <Button variant="outline" size="sm" onClick={onExportReport} disabled={loading || reporting}>
+        {reporting ? <Loader2 size={14} className="mr-1.5 animate-spin" /> : <Download size={14} className="mr-1.5" />}
+        {t('datasources.report.exportPdf')}
+      </Button>
       <div className="ml-auto flex items-center gap-1 rounded-md border border-border p-0.5">
         <button onClick={() => onLayout('list')} title={t('datasources.toolbar.list')} className={cn('flex h-7 w-7 items-center justify-center rounded transition-colors', layout === 'list' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground')}>
           <ListIcon size={13} />

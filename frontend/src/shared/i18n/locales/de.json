@@ -3861,6 +3861,20 @@
       "cards": "Karten",
       "refresh": "Aktualisieren"
     },
+    "report": {
+      "optionsTitle": "Berichtsstatus",
+      "statuses": { "all": "Alle Status" },
+      "exportPdf": "PDF exportieren",
+      "title": "Bericht zu Datenquellen",
+      "generatedAt": "Erstellt",
+      "sourceCount": "Quellen: {{count}}",
+      "kind": "Quellentyp",
+      "discovered": "Entdeckt",
+      "labels": "Labels",
+      "noSources": "Keine Datenquellen entsprechen den ausgewählten Berichtsoptionen.",
+      "popupBlocked": "Erlauben Sie Pop-ups, um den PDF-Bericht zu erstellen.",
+      "failed": "Der Datenquellenbericht konnte nicht erstellt werden."
+    },
     "labels": {
       "filteredBy": "Gefiltert nach Label",
       "add": "Label hinzufügen…",

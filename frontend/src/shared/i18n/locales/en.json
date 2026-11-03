@@ -4115,6 +4115,20 @@
       "cards": "Cards",
       "refresh": "Refresh"
     },
+    "report": {
+      "optionsTitle": "Report status",
+      "statuses": { "all": "All statuses" },
+      "exportPdf": "Export PDF",
+      "title": "Data Sources Report",
+      "generatedAt": "Generated",
+      "sourceCount": "Sources: {{count}}",
+      "kind": "Source kind",
+      "discovered": "Discovered",
+      "labels": "Labels",
+      "noSources": "No data sources match the selected report options.",
+      "popupBlocked": "Allow pop-ups to generate the PDF report.",
+      "failed": "Could not generate the data sources report."
+    },
     "labels": {
       "filteredBy": "Filtered by label",
       "add": "Add label…",

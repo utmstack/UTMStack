@@ -3861,6 +3861,20 @@
       "cards": "Schede",
       "refresh": "Aggiorna"
     },
+    "report": {
+      "optionsTitle": "Stato del report",
+      "statuses": { "all": "Tutti gli stati" },
+      "exportPdf": "Esporta PDF",
+      "title": "Report delle origini dati",
+      "generatedAt": "Generato",
+      "sourceCount": "Origini: {{count}}",
+      "kind": "Tipo di origine",
+      "discovered": "Rilevata",
+      "labels": "Etichette",
+      "noSources": "Nessuna origine dati corrisponde alle opzioni del report selezionate.",
+      "popupBlocked": "Consenti i popup per generare il report PDF.",
+      "failed": "Impossibile generare il report delle origini dati."
+    },
     "labels": {
       "filteredBy": "Filtrato per label",
       "add": "Aggiungi label…",

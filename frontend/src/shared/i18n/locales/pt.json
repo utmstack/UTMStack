@@ -3861,6 +3861,20 @@
       "cards": "Cartões",
       "refresh": "Atualizar"
     },
+    "report": {
+      "optionsTitle": "Status do relatório",
+      "statuses": { "all": "Todos os status" },
+      "exportPdf": "Exportar PDF",
+      "title": "Relatório de fontes de dados",
+      "generatedAt": "Gerado",
+      "sourceCount": "Fontes: {{count}}",
+      "kind": "Tipo de fonte",
+      "discovered": "Descoberta",
+      "labels": "Etiquetas",
+      "noSources": "Nenhuma fonte de dados corresponde às opções de relatório selecionadas.",
+      "popupBlocked": "Permita pop-ups para gerar o relatório PDF.",
+      "failed": "Não foi possível gerar o relatório de fontes de dados."
+    },
     "labels": {
       "filteredBy": "Filtrado por label",
       "add": "Adicionar label…",
