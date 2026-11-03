@@ -19,7 +19,7 @@ export function IntegrationCard({ integration: i, onOpen }: IntegrationCardProps
   return (
     <button
       onClick={onOpen}
-      className="group relative flex h-[350px] w-full flex-col items-center justify-between rounded-lg border border-border bg-card p-5 text-center shadow-sm transition-all hover:border-foreground/20 hover:shadow-md"
+      className="group relative flex h-[390px] w-full flex-col items-center justify-between rounded-lg border border-border bg-card p-5 text-center shadow-sm transition-all hover:border-foreground/20 hover:shadow-md"
     >
       {i.ingestType && (
         <span
@@ -45,7 +45,7 @@ export function IntegrationCard({ integration: i, onOpen }: IntegrationCardProps
         <h6 className="mt-6 line-clamp-2 w-full text-base font-semibold leading-tight">{i.name}</h6>
 
         {i.description ? (
-          <p className="mt-2 line-clamp-4 w-full text-xs leading-relaxed text-muted-foreground">
+          <p className="mt-3 line-clamp-3 w-full text-xs leading-relaxed text-muted-foreground">
             {i.description}
           </p>
         ) : (
