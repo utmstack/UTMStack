@@ -11,7 +11,7 @@ require (
 	github.com/netsampler/goflow2 v1.3.8
 	github.com/spf13/cobra v1.10.2
 	github.com/tehmaze/netflow v0.0.0-20240303214733-8c13bb004068
-	github.com/threatwinds/go-sdk v1.1.31
+	github.com/threatwinds/go-sdk v1.1.38
 	github.com/threatwinds/logger v1.2.3
 	github.com/utmstack/UTMStack/shared v0.0.0
 	google.golang.org/grpc v1.84.0

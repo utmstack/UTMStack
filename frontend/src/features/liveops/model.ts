@@ -141,7 +141,7 @@ export function templateFor(a: Alert): TemplateId {
   if (/credential dumping|lsass|sam database|ntds|password store|keychain|credential theft|dump.?(password|credential)|os credential|\/etc\/shadow|\/etc\/passwd/.test(n)) return 'credDump'
   if (/data destruction|disk (wipe|content)|file (deletion|delet)|shred|rm -rf|data loss|destructive|volume shadow/i.test(n)) return 'dataDestruction'
   if (/ingress tool|tool transfer|tool (download|transfer)|downloaded (a )?tool|downloaded to|payload (download|transfer)/i.test(n)) return 'toolDownload'
-  if (/tunneling|protocol tunnel|dns tunnel|icmp tunnel|covert channel|data exfiltration over/.test(n)) return 'c2tunnel'
+  if (/tunneling|protocol tunnel|dns tunnel|icmp tunnel|covert channel|data exfiltration/.test(n)) return 'c2tunnel'
   if (/reverse shell|netcat|named pipe/i.test(n)) return 'reverseShell'
   if (/beaconing|malicious url|dns security|tor network|mining pool|out-of-band|wildfire|malware outbreak|c2|command.?(and|&)?control/.test(n)) return 'outbound'
   if (/(aws|google|gcp|github|azure|o365|office)/.test(dt) || /inbox rule|forwarding rule|transport rule|external sharing|safe links|safe attachment|admin login/.test(n)) return 'cloud'
