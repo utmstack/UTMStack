@@ -11,15 +11,15 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "~9.1.13",
-    "@angular/localize": "~9.1.13",
-    "@angular/common": "~9.1.13",
-    "@angular/compiler": "~9.1.13",
-    "@angular/core": "~9.1.13",
-    "@angular/forms": "~9.1.13",
-    "@angular/platform-browser": "~9.1.13",
-    "@angular/platform-browser-dynamic": "~9.1.13",
-    "@angular/router": "~9.1.13",
+    "@angular/animations": "~10.2.5",
+    "@angular/localize": "~10.2.5",
+    "@angular/common": "~10.2.5",
+    "@angular/compiler": "~10.2.5",
+    "@angular/core": "~10.2.5",
+    "@angular/forms": "~10.2.5",
+    "@angular/platform-browser": "~10.2.5",
+    "@angular/platform-browser-dynamic": "~10.2.5",
+    "@angular/router": "~10.2.5",
     "@fortawesome/angular-fontawesome": "^0.4.0",
     "@fortawesome/fontawesome-svg-core": "^1.2.14",
     "@fortawesome/free-solid-svg-icons": "^5.7.1",
@@ -85,13 +85,13 @@
     "tslib": "^1.14.1",
     "websocket-driver": "^0.7.5",
     "webstomp-client": "^1.2.6",
-    "zone.js": "~0.10.3"
+    "zone.js": "~0.11.4"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^0.901.15",
-    "@angular/cli": "~9.1.15",
-    "@angular/compiler-cli": "~9.1.13",
-    "@angular/language-service": "~9.1.13",
+    "@angular-devkit/build-angular": "^0.1002.4",
+    "@angular/cli": "~10.2.4",
+    "@angular/compiler-cli": "~10.2.5",
+    "@angular/language-service": "~10.2.5",
     "@types/echarts": "^4.1.8",
     "@types/highlight.js": "^9.12.0",
     "@types/jasmine": "~2.8.8",
@@ -108,6 +108,6 @@
     "protractor": "^7.0.0",
     "ts-node": "~7.0.0",
     "tslint": "~5.11.0",
-    "typescript": "~3.8.3"
+    "typescript": "~3.9.9"
   }
 }

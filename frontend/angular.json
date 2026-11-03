@@ -56,8 +56,7 @@
               "node_modules/leaflet/dist/leaflet.js",
               "node_modules/leaflet.heat/dist/leaflet-heat.js",
               "node_modules/table-dragger/dist/table-dragger.min.js"
-            ],
-            "es5BrowserSupport": true
+            ]
           },
           "configurations": {
             "production": {

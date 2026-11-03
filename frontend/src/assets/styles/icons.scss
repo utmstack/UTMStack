@@ -1,79 +1,79 @@
 @import "theme";
 
 .utm-icon-line {
-  mask: url(src/assets/icons/utm/line-chart.svg) no-repeat center;
-  -webkit-mask: url(src/assets/icons/utm/line-chart.svg) no-repeat center;
+  mask: url(../icons/utm/line-chart.svg) no-repeat center;
+  -webkit-mask: url(../icons/utm/line-chart.svg) no-repeat center;
 }
 
 .utm-icon-area-line {
-  mask: url(src/assets/icons/utm/area-chart.svg) no-repeat center;
-  -webkit-mask: url(src/assets/icons/utm/area-chart.svg) no-repeat center;
+  mask: url(../icons/utm/area-chart.svg) no-repeat center;
+  -webkit-mask: url(../icons/utm/area-chart.svg) no-repeat center;
 }
 
 .utm-icon-pie {
-  mask: url(src/assets/icons/utm/pie-chart.svg) no-repeat center;
-  -webkit-mask: url(src/assets/icons/utm/pie-chart.svg) no-repeat center;
+  mask: url(../icons/utm/pie-chart.svg) no-repeat center;
+  -webkit-mask: url(../icons/utm/pie-chart.svg) no-repeat center;
 }
 
 .utm-icon-bar {
-  mask: url(src/assets/icons/utm/bar-vertical-chart.svg) no-repeat center;
-  -webkit-mask: url(src/assets/icons/utm/bar-vertical-chart.svg) no-repeat center;
+  mask: url(../icons/utm/bar-vertical-chart.svg) no-repeat center;
+  -webkit-mask: url(../icons/utm/bar-vertical-chart.svg) no-repeat center;
 }
 
 .utm-icon-bar-horizontal {
-  mask: url(src/assets/icons/utm/bar-horizontal-chart.svg) no-repeat center;
-  -webkit-mask: url(src/assets/icons/utm/bar-horizontal-chart.svg) no-repeat center;
+  mask: url(../icons/utm/bar-horizontal-chart.svg) no-repeat center;
+  -webkit-mask: url(../icons/utm/bar-horizontal-chart.svg) no-repeat center;
 }
 
 .utm-icon-wordcloud {
-  mask: url(src/assets/icons/utm/tag-cloud.svg) no-repeat center;
-  -webkit-mask: url(src/assets/icons/utm/tag-cloud.svg) no-repeat center;
+  mask: url(../icons/utm/tag-cloud.svg) no-repeat center;
+  -webkit-mask: url(../icons/utm/tag-cloud.svg) no-repeat center;
 }
 
 .utm-icon-table {
-  mask: url(src/assets/icons/utm/table.svg) no-repeat center;
-  -webkit-mask: url(src/assets/icons/utm/table.svg) no-repeat center;
+  mask: url(../icons/utm/table.svg) no-repeat center;
+  -webkit-mask: url(../icons/utm/table.svg) no-repeat center;
 }
 
 .utm-icon-gauge {
-  mask: url(src/assets/icons/utm/gauge-chart.svg) no-repeat center;
-  -webkit-mask: url(src/assets/icons/utm/gauge-chart.svg) no-repeat center;
+  mask: url(../icons/utm/gauge-chart.svg) no-repeat center;
+  -webkit-mask: url(../icons/utm/gauge-chart.svg) no-repeat center;
 }
 
 .utm-icon-goal {
-  mask: url(src/assets/icons/utm/goal-chart.svg) no-repeat center;
-  -webkit-mask: url(src/assets/icons/utm/goal-chart.svg) no-repeat center;
+  mask: url(../icons/utm/goal-chart.svg) no-repeat center;
+  -webkit-mask: url(../icons/utm/goal-chart.svg) no-repeat center;
 }
 
 .utm-icon-metric {
-  mask: url(src/assets/icons/utm/metric.svg) no-repeat center;
-  -webkit-mask: url(src/assets/icons/utm/metric.svg) no-repeat center;
+  mask: url(../icons/utm/metric.svg) no-repeat center;
+  -webkit-mask: url(../icons/utm/metric.svg) no-repeat center;
 }
 
 .utm-icon-heatmap {
-  mask: url(src/assets/icons/utm/heatmap-chart.svg) no-repeat center;
-  -webkit-mask: url(src/assets/icons/utm/heatmap-chart.svg) no-repeat center;
+  mask: url(../icons/utm/heatmap-chart.svg) no-repeat center;
+  -webkit-mask: url(../icons/utm/heatmap-chart.svg) no-repeat center;
 }
 
 .utm-icon-marker {
-  mask: url(src/assets/icons/utm/marker.svg) no-repeat center;
-  -webkit-mask: url(src/assets/icons/utm/marker.svg) no-repeat center;
+  mask: url(../icons/utm/marker.svg) no-repeat center;
+  -webkit-mask: url(../icons/utm/marker.svg) no-repeat center;
 }
 
 .utm-icon-text {
-  mask: url(src/assets/icons/utm/text-format.svg) no-repeat center;
-  -webkit-mask: url(src/assets/icons/utm/text-format.svg) no-repeat center;
+  mask: url(../icons/utm/text-format.svg) no-repeat center;
+  -webkit-mask: url(../icons/utm/text-format.svg) no-repeat center;
 }
 
 
 .utm-icon-region-map {
-  mask: url(src/assets/icons/utm/region-map.svg) no-repeat center;
-  -webkit-mask: url(src/assets/icons/utm/region-map.svg) no-repeat center;
+  mask: url(../icons/utm/region-map.svg) no-repeat center;
+  -webkit-mask: url(../icons/utm/region-map.svg) no-repeat center;
 }
 
 .event-icon {
-  mask: url(src/assets/icons/utm/event-icon.svg) no-repeat center;
-  -webkit-mask: url(src/assets/icons/utm/event-icon.svg) no-repeat center;
+  mask: url(../icons/utm/event-icon.svg) no-repeat center;
+  -webkit-mask: url(../icons/utm/event-icon.svg) no-repeat center;
 }
 
 .utm-icon-xs {
@@ -119,16 +119,16 @@
   width: 20px;
   height: 20px;
   background-color: #1a2225;
-  mask: url(src/assets/icons/utm/_ionicons_svg_md-close.svg) no-repeat center;
-  -webkit-mask: url(src/assets/icons/utm/_ionicons_svg_md-close.svg) no-repeat center;
+  mask: url(../icons/utm/_ionicons_svg_md-close.svg) no-repeat center;
+  -webkit-mask: url(../icons/utm/_ionicons_svg_md-close.svg) no-repeat center;
 }
 
 .close-icon {
   width: 20px;
   height: 20px;
   background-color: $grey-color;
-  mask: url(src/assets/icons/utm/_ionicons_svg_md-close.svg) no-repeat center;
-  -webkit-mask: url(src/assets/icons/utm/_ionicons_svg_md-close.svg) no-repeat center;
+  mask: url(../icons/utm/_ionicons_svg_md-close.svg) no-repeat center;
+  -webkit-mask: url(../icons/utm/_ionicons_svg_md-close.svg) no-repeat center;
 }
 
 
