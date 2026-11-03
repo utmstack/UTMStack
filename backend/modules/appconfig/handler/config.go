@@ -127,7 +127,8 @@ func (h *Handler) CheckMail(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, dto.CheckMailResponse{Success: false, Message: err.Error()})
 		return
 	}
-	err := h.usecase.CheckMail(c.Request.Context(), configs)
+	user_mail,_ := c.Get("user_email")
+	err := h.usecase.CheckMail(c.Request.Context(), configs,user_mail.(string))
 	audit.Record(c, audit_connectors.Event{Action: "config.mail.checked", ResourceType: "config", ResourceID: "mail"},
 		audit_domain.CONFIG_CHANGED, audit_domain.CONFIG_CHANGED, err)
 	if err != nil {
