@@ -79,11 +79,36 @@ codelyzer 5.x (dev) is the last TSLint line.
 
 ## Stages (one commit each, build green + smoke before commit)
 
-- **S9: 8→9** — framework 9.1.13, ba 0.901.15, TS 3.8, zone 0.10.3. Bump the libs
-  whose peer caps at 8 (ng-bootstrap→6, ng-select→4, kolkov stays 1.x(<13 ok? kolkov 1.x
-  peer >=8<13 admits 9 so KEEP), gridster2→9, ng-jhipster→0.12, spinner→9, cookie→3,
-  translate→12/5, fontawesome→0.5, webstorage→3, infinite-scroll→8, ng-inline-svg→9).
-  Ivy is introduced in 9 (aot) — watch for template changes.
+- **S9: 8→9** — framework 9.1.13, ba 0.901.15, TS 3.8.3, zone 0.10.3.
+  **Measured breaks (2026-11-03):**
+  0. **`@angular/localize` is MANDATORY from Angular 9 onward** (canonical upgrade
+     step the original matrix missed): core@9's fesm5 references the `$localize`
+     global (9 sites) which type-checks (ambient) but is **undefined at runtime**
+     unless polyfills import the package → app crashes at bootstrap with
+     "$localize is not defined" and app-root never renders (compiles GREEN).
+     Fix: dep `~9.1.13` + `import '@angular/localize/init';` in polyfills.ts (after
+     zone.js). **The `/init` subpath is essential** — bare `import '@angular/localize'`
+     loads the tree-shakeable library entry (not in `sideEffects`) and webpack
+     drops it (main.js hash unchanged, crash persists); `init.js` is the
+     side-effect entry that runs `_global.$localize = $localize`.
+     **Every later stage (S10–S17) must bump @angular/localize to match
+     the framework major.**
+  1. `Renderer` (v1) removed from `@angular/core` — 4 files (register,
+     password-reset finish/init, password-strength-bar). Fix: `Renderer2`
+     (`setElementStyle`→`setStyle`, `setElementClass(el,c,false)`→`removeClass`);
+     the 3 `renderer.invokeElementMethod(el,'focus',[])` become `el.focus()`
+     (Renderer2 has no invokeElementMethod) and drop the now-unused ctor param.
+  2. **`ngx-gauge 1.0.0-beta.12` hard-blocks Stage 9** (its gauge.d.ts imports the
+     removed v1 `Renderer`). Bumped to **`1.0.0-beta.13`** (peer `^9.0.0`, uses
+     Renderer2, identical input API — verified from the published .d.ts). This is the
+     "verify ngx-gauge" item from the master matrix forcing itself early; the 1.0.0/1.1.0
+     *stable* releases are a rewritten API (thresholds/duration, no max/min/value/size)
+     and were NOT used.
+  3. kolkov stays 1.0.0 (peer `>=8 <9` admits 9) — no bump.
+  Libs whose peer caps at 8 (ng-bootstrap 5.3.1, ng-select 3.7.3, spinner 8.1.0,
+  ng-jhipster 0.11.5, fontawesome 0.4.0, gridster2 8.4.2, gauge beta.13) installed with
+  npm-6 peer *warnings*; they still compile against 9.1.13 (no AOT break). Bump them at
+  the stage their own API first breaks or where the master matrix stages them.
 - **S10: 9→10** — 10.2.5, ba 0.1002.4, TS 3.9.
 - **S11: 10→11** — 11.2.14, ba 0.1102.19, TS 4.1, zone 0.11.4. (monaco-editor 8.x line.)
 - **S12: 11→12** — 12.2.17, ba 12.2.18, TS 4.3. **webpack 5 lands — legacy flag

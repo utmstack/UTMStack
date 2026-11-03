@@ -1,4 +1,4 @@
-import {Component, ElementRef, Input, Renderer} from '@angular/core';
+import {Component, ElementRef, Input, Renderer2} from '@angular/core';
 
 @Component({
   selector: 'app-password-strength-bar',
@@ -18,7 +18,7 @@ import {Component, ElementRef, Input, Renderer} from '@angular/core';
 export class PasswordStrengthBarComponent {
   colors = ['#b71c1c', '#ef5350', '#c9ab00', '#7eb00a', '#4CAF50'];
 
-  constructor(private renderer: Renderer, private elementRef: ElementRef) {
+  constructor(private renderer: Renderer2, private elementRef: ElementRef) {
   }
 
   @Input()
@@ -27,14 +27,14 @@ export class PasswordStrengthBarComponent {
       const c = this.getColor(this.measureStrength(password));
       const element = this.elementRef.nativeElement;
       if (element.className) {
-        this.renderer.setElementClass(element, element.className, false);
+        this.renderer.removeClass(element, element.className);
       }
       const lis = element.getElementsByTagName('li');
       for (let i = 0; i < lis.length; i++) {
         if (i < c.idx) {
-          this.renderer.setElementStyle(lis[i], 'backgroundColor', c.col);
+          this.renderer.setStyle(lis[i], 'backgroundColor', c.col);
         } else {
-          this.renderer.setElementStyle(lis[i], 'backgroundColor', '#DDD');
+          this.renderer.setStyle(lis[i], 'backgroundColor', '#DDD');
         }
       }
     }

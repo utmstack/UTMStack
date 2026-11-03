@@ -11,14 +11,15 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "~8.2.14",
-    "@angular/common": "~8.2.14",
-    "@angular/compiler": "~8.2.14",
-    "@angular/core": "~8.2.14",
-    "@angular/forms": "~8.2.14",
-    "@angular/platform-browser": "~8.2.14",
-    "@angular/platform-browser-dynamic": "~8.2.14",
-    "@angular/router": "~8.2.14",
+    "@angular/animations": "~9.1.13",
+    "@angular/localize": "~9.1.13",
+    "@angular/common": "~9.1.13",
+    "@angular/compiler": "~9.1.13",
+    "@angular/core": "~9.1.13",
+    "@angular/forms": "~9.1.13",
+    "@angular/platform-browser": "~9.1.13",
+    "@angular/platform-browser-dynamic": "~9.1.13",
+    "@angular/router": "~9.1.13",
     "@fortawesome/angular-fontawesome": "^0.4.0",
     "@fortawesome/fontawesome-svg-core": "^1.2.14",
     "@fortawesome/free-solid-svg-icons": "^5.7.1",
@@ -67,7 +68,7 @@
     "ngx-draggable-resizer": "^1.0.4",
     "ngx-echarts": "^4.1.1",
     "ngx-flag-icon-css": "^1.0.1",
-    "ngx-gauge": "1.0.0-beta.12",
+    "ngx-gauge": "1.0.0-beta.13",
     "ngx-infinite-scroll": "^7.2.0",
     "ngx-json-viewer": "^2.4.0",
     "ngx-monaco-editor": "^7.0.0",
@@ -84,13 +85,13 @@
     "tslib": "^1.14.1",
     "websocket-driver": "^0.7.5",
     "webstomp-client": "^1.2.6",
-    "zone.js": "~0.9.1"
+    "zone.js": "~0.10.3"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^0.803.29",
-    "@angular/cli": "~8.3.29",
-    "@angular/compiler-cli": "~8.2.14",
-    "@angular/language-service": "~8.2.14",
+    "@angular-devkit/build-angular": "^0.901.15",
+    "@angular/cli": "~9.1.15",
+    "@angular/compiler-cli": "~9.1.13",
+    "@angular/language-service": "~9.1.13",
     "@types/echarts": "^4.1.8",
     "@types/highlight.js": "^9.12.0",
     "@types/jasmine": "~2.8.8",
@@ -107,6 +108,6 @@
     "protractor": "^7.0.0",
     "ts-node": "~7.0.0",
     "tslint": "~5.11.0",
-    "typescript": "^3.5.3"
+    "typescript": "~3.8.3"
   }
 }
