@@ -347,6 +347,10 @@ git commit --no-gpg-sign -m "chore(security): Part 1 exit state - criticals clos
 
 ## Phase 1 — Angular 7 → 8 (the one true break; 3–5 days)
 
+> **Expanded 2026-11-03 into a measured task plan:** `docs/plans/2026-11-03-angular8-upgrade.md`
+> (registry-verified targets, the 8 capped libs, the DI note, and 3 evidence-based
+> deviations from this phase's text — TS stays 3.2.2, no providedIn refactor, 7 libs bump now).
+
 - **Entry:** Phase 0 exit.
 - **Actions (all via `ng update @angular/cli @angular/core @angular/compiler @angular/compiler-cli @angular/common @angular/forms @angular/platform-browser @angular/platform-browser-dynamic @angular/router @angular/language-service` then hand-fixes):**
   1. Static providers: `@Injectable()` → `@Injectable({providedIn: 'root'})` for the ~service set (codemod `ng generate provider`/manual; 1486 .ts files but only `@Injectable` declarations change).
