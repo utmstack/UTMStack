@@ -13,7 +13,6 @@ import { AddCustomIntegrationCard } from '@/features/integrations/components/Add
 import { CreateIntegrationDrawer } from '@/features/integrations/components/CreateIntegrationDrawer'
 import { KIND_META, categoryLabel } from '@/features/integrations/constants'
 import { SYSTEM_MODULES } from '@/features/integrations/constants/systemModules'
-import { INJECTED_MODULES, mergeInjectedIntegrations } from '@/features/integrations/constants/injectedModules'
 import type {
   Integration,
   DeployKind,
@@ -31,18 +30,14 @@ const LOGO = (slug: string) => {
   return `/integrations/${slug}`
 }
 
-const INJECTED_BY_MODULE_NAME = new Map(
-  INJECTED_MODULES.map((integration) => [(integration.moduleName ?? '').toUpperCase(), integration]),
-)
 
 function mapModuleToIntegration(module: IntegrationResponse, t: TFunction): Integration {
   const isSystem = module.systemOwner
   // System integrations: icon, description and category are owned by the frontend
   // (per-theme icons + i18n). Custom ones keep using the catalog row's own icon
   // and description, and group under 'custom'.
-  const injectedMeta = INJECTED_BY_MODULE_NAME.get(module.name.toUpperCase())
   const meta = isSystem ? SYSTEM_MODULES[module.name] : undefined
-  const category = meta?.category ?? injectedMeta?.category ?? 'custom'
+  const category = meta?.category ?? 'custom'
 
   // Map the category to a known DeployKind; anything unknown falls back to
   // 'other' (Collector group) so a new integration never breaks the grid.
@@ -62,10 +57,7 @@ function mapModuleToIntegration(module: IntegrationResponse, t: TFunction): Inte
   if (meta) {
     logo = LOGO(meta.icon)
     logoDark = meta.iconDark ? LOGO(meta.iconDark) : undefined
-  } else if (isSystem && injectedMeta) {
-    logo = injectedMeta.logo
-    logoDark = injectedMeta.logoDark
-  } else if (module.icon) {
+  }  else if (module.icon) {
     logo = LOGO(module.icon)
   } else {
     logo = LOGO('custom.svg')
@@ -182,10 +174,9 @@ export function IntegrationsPage() {
   const modules = integrations.integrations.data || []
   const displayList = useMemo(() => {
     const backend = modules.map((module) => mapModuleToIntegration(module, t))
-    const merged = mergeInjectedIntegrations(backend, INJECTED_MODULES)
     const backendModuleNames = new Set(modules.map((module) => module.name.toUpperCase()))
 
-    return merged.map((integration) => {
+    return backend.map((integration) => {
       if (backendModuleNames.has((integration.moduleName ?? '').toUpperCase())) {
         return integration
       }
