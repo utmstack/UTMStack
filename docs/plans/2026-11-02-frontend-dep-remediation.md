@@ -348,8 +348,10 @@ git commit --no-gpg-sign -m "chore(security): Part 1 exit state - criticals clos
 ## Phase 1 — Angular 7 → 8 (the one true break; 3–5 days)
 
 > **Expanded 2026-11-03 into a measured task plan:** `docs/plans/2026-11-03-angular8-upgrade.md`
-> (registry-verified targets, the 8 capped libs, the DI note, and 3 evidence-based
-> deviations from this phase's text — TS stays 3.2.2, no providedIn refactor, 7 libs bump now).
+> (registry-verified targets, the capped libs, the DI note, and 3 evidence-based
+> deviations from this phase's text — TS 3.2.2→3.5.3 (v8 compiler floor), no providedIn
+> refactor, 7 libs bump now). DONE 2026-11-03 (commits 5841b46916 → 450c44e229, incl. the
+> child-query `{static}` regression fix 106b1faa8e); residual node-sass/tar@2.2.2 closed.
 
 - **Entry:** Phase 0 exit.
 - **Actions (all via `ng update @angular/cli @angular/core @angular/compiler @angular/compiler-cli @angular/common @angular/forms @angular/platform-browser @angular/platform-browser-dynamic @angular/router @angular/language-service` then hand-fixes):**

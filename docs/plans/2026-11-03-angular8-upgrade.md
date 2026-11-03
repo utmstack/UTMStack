@@ -38,7 +38,9 @@ move only in Phase 2's forward matrix: `angular-gridster2 8.4.2` (peer ^8), `ngx
 (peer ^8), `ng-inline-svg 8.6.0`, `ngx-echarts 4.2.2`, `ngx-infinite-scroll 7.2.0`,
 `ngx-json-viewer 2.4.0`, `ngx-monaco-editor 7.0.0`, `ngx-webstorage 2.0.1`,
 `ngx-flag-icon-css 1.0.1`, `ng2-tel-input 1.0.16`, `ng5-slider 1.2.6`,
-`ngx-cookie-service 2.4.0`, `ng6-toastr-notifications 1.0.4`.
+`ngx-cookie-service 2.4.0`.
+(`ng6-toastr-notifications 1.0.4` is NOT in this list — its peer is `^6.0.0` (registry-
+verified); it is the second accept-risk pin documented in Task 1.3 / phase1-notes.md.)
 
 **DI note (measured, not the plan's assumption):** only **35** `@Injectable()` classes lack
 `providedIn` (211 already use it). **Angular 8 does NOT require `providedIn`** — a
@@ -195,8 +197,10 @@ change; residual node-sass/tar closed; commit `chore(frontend): angular 8 baseli
 
 ## Deviations from the master plan's Phase-1 text (evidence-based, 2026-11-03)
 
-1. **`typescript ~3.8` → no bump (keep 3.2.2).** build-angular 0.803.29's TS peer is
-   `>=3.1 <3.6`; 3.8 would violate it. 3.2.2 already satisfies it.
+1. **`typescript` → `~3.5.3` (bumped, not "no bump").** build-angular 0.803.29's TS
+   *peer* is `>=3.1 <3.6`, but the Angular 8 **compiler** hard-requires `>=3.4.0 <3.6.0`
+   (build error: "The Angular Compiler requires TypeScript >=3.4.0 and <3.6.0 but 3.2.4
+   was found"). 3.5.3 satisfies both.
 2. **`@Injectable` → `providedIn` migration is NOT done.** Angular 8 does not require it and
    only 35 classes are affected (30 already module-registered). Forcing a 1486-file DI
    refactor for a single major bump is disproportionate risk. (Revisit at Phase 2 if a later
