@@ -12,6 +12,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/tidwall/gjson"
 
 	"github.com/utmstack/utmstack/backend/modules/soar/connectors"
 	"github.com/utmstack/utmstack/backend/modules/soar/domain"
@@ -455,8 +456,21 @@ func (d *Dispatcher) transitionChild(ctx context.Context, node domain.FlowNode, 
 		return
 	}
 	agent := node.Agent
-	if agent == "" && child.Agent != "" {
-		agent = child.Agent
+	if agent == "" {
+		// No explicit agent on the node: inherit the parent's resolved agent,
+		// else default to the box that raised the alert (same fallback as roots).
+		if parent.Agent != "" {
+			agent = parent.Agent
+		} else {
+			agent = gjson.Get(string(bag), "alert.dataSource").String()
+		}
+		// Deny list applies to the auto-resolve path only.
+		for _, x := range node.ExcludedAgents {
+			if x == agent {
+				agent = ""
+				break
+			}
+		}
 	}
 	if agent != "" {
 		if resolved, err := Interpolate(ctx, d.vars, bag, agent, ""); err == nil {
