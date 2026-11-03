@@ -1,10 +1,11 @@
 import { Radio, AlertTriangle } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { useTranslation } from 'react-i18next'
+import { useMemo, useState,useEffect } from 'react'
 import type { Alert } from '@/features/alerts/types/alert.types'
-import {useState,useEffect} from 'react'
+import { useAdversaries } from '@/features/adversaries/hooks/use-adversaries'
+import { WINDOW_MS, useLiveOpsData } from '../liveops-data'
 
-const isExternal = (ip?: string): ip is string => !!ip && !/^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[0-1])\.|127\.)/.test(ip)
 
 /** The floating LiveOps header: brand + LIVE chip, new-alert badge and the stat pills. */
 export function Header({
@@ -23,6 +24,15 @@ export function Header({
   onNewAlerts: () => void
 }) {
   const { t } = useTranslation()
+  const { win } = useLiveOpsData()
+  const adversaryFilters = useMemo(() => [
+    { field: '@timestamp', operator: 'IS_BETWEEN', value: [new Date(Date.now() - WINDOW_MS[win]).toISOString(), new Date(Date.now()).toISOString()] },
+  ], [win])
+  const { data: adversaries } = useAdversaries(adversaryFilters)
+  const attackerCount = useMemo(
+    () => adversaries? adversaries.length : 0,
+    [adversaries],
+  )
 
   const [checked,setChecked] =useState(false)
 
@@ -58,7 +68,7 @@ export function Header({
         {[
           [t('liveOps.statHigh'), list.filter((a) => a.severity === 'high').length],
           [t('liveOps.statOpen'), openCount],
-          [t('liveOps.statAttackers'), new Set(list.map((a) => a.adversary?.ip).filter(isExternal)).size],
+          [t('liveOps.statAttackers'), attackerCount],
           list.length < total ? [t('liveOps.statTotal'), total] : null,
         ]
           .filter((s): s is [string, number] => s !== null)
