@@ -256,8 +256,8 @@ func registerAppConfig(m *Module) {
 	Add(m, &mcp.Tool{
 		Name: "config.check_mail", Title: "Test SMTP configuration",
 	}, Gate{Permission: "config.write"},
-		func(ctx context.Context, _ *authz.Actor, in configCheckMailInput) (any, error) {
-			if err := uc.CheckMail(ctx, in.Configs); err != nil {
+		func(ctx context.Context, actor *authz.Actor, in configCheckMailInput) (any, error) {
+			if err := uc.CheckMail(ctx, in.Configs,actor.Email); err != nil {
 				return nil, err
 			}
 			return map[string]any{"ok": true}, nil

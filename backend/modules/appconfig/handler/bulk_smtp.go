@@ -62,35 +62,6 @@ func (h *BulkSMTPHandler) Update(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// Test godoc
-//
-//	@Summary		Bulk test SMTP config across tenants
-//	@Tags			Platform Config
-//	@Security		BearerAuth
-//	@Accept			json
-//	@Produce		json
-//	@Param			input	body		dto.BulkSMTPTestRequest	true	"Selector"
-//	@Success		200		{object}	common_models.BulkResult
-//	@Router			/platform/config/smtp/bulk/test [post]
-func (h *BulkSMTPHandler) Test(c *gin.Context) {
-	var req dto.BulkSMTPTestRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	tenantIDs, err := resolveTenants(c.Request.Context(), req.Selector, h.tenantLister)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	var result common_models.BulkResult
-	for _, tid := range tenantIDs {
-		ctx := authz.WithTenantID(c.Request.Context(), tid)
-		cfg := h.loadMailConfig(ctx)
-		result.Append(tid, h.uc.CheckMail(ctx, []domain.MailConfig{cfg}))
-	}
-	c.JSON(http.StatusOK, result)
-}
 
 func (h *BulkSMTPHandler) loadMailConfig(ctx context.Context) domain.MailConfig {
 	get := func(key string) string {

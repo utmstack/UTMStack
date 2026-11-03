@@ -29,5 +29,4 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc, e
 
 	ps := api.Group("/platform/config/smtp", userAuth, platform, middleware.RequirePermission("config.write"))
 	ps.POST("/bulk/update", m.BulkSMTPHandler().Update)
-	ps.POST("/bulk/test", m.BulkSMTPHandler().Test)
 }
