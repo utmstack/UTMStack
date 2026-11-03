@@ -109,8 +109,28 @@ codelyzer 5.x (dev) is the last TSLint line.
   ng-jhipster 0.11.5, fontawesome 0.4.0, gridster2 8.4.2, gauge beta.13) installed with
   npm-6 peer *warnings*; they still compile against 9.1.13 (no AOT break). Bump them at
   the stage their own API first breaks or where the master matrix stages them.
-- **S10: 9→10** — 10.2.5, ba 0.1002.4, TS 3.9.
+- **S10: 9→10** — 10.2.5, ba 0.1002.4, TS ~3.9.9, zone ~0.11.4, @angular/localize ~10.2.5.
+  **Measured breaks (2026-11-03):**
+  1. `angular.json`: `es5BrowserSupport` option removed from the schema → delete the key
+     (was `"es5BrowserSupport": true` in build options). "Schema validation failed ...
+     should NOT have additional properties(es5BrowserSupport)".
+  2. **SCSS `url()` resolution switched to file-relative** (build-angular 0.1002). 35
+     pre-existing `url(src/assets/...)` refs (34 in `src/assets/styles/icons.scss` mask
+     icons, 1 in welcome-to-utmstack `.webp`) now resolve to a doubled path and fail.
+     Fix: make them relative to the importing file — icons.scss (in `src/assets/styles/`)
+     → `url(../icons/utm/X.svg)`; welcome (in
+     `src/app/shared/components/getting-started/welcome-to-utmstack/`) →
+     `url(../../../../../assets/img/welcome_integration.webp)`. (icomoon `url(fonts/...)`
+     already file-relative — untouched.)
 - **S11: 10→11** — 11.2.14, ba 0.1102.19, TS 4.1, zone 0.11.4. (monaco-editor 8.x line.)
+- **S11: 10→11** — 11.2.14, ba 0.1102.19, TS 4.1, zone 0.11.4, @angular/localize ~11.2.14.
+  **Measured breaks (2026-11-03):**
+  1. TS 4.1 strictness: `date.pipe.ts` — Angular 11's `DatePipe.transform` gained a
+     `(value: null|undefined) => null` overload; our `: string` override is no longer
+     assignable (TS2416). Fix: mirror the base overloads + return `string | null`.
+  2. TS 4.1 strictness: `incident-related-alert.component.ts` `@Input() incidentId` used
+     in a field initializer before init (TS2729). Fix: `incidentId!: number`
+     (definite-assignment; the input is always bound by the parent).
 - **S12: 11→12** — 12.2.17, ba 12.2.18, TS 4.3. **webpack 5 lands — legacy flag
   no longer needed.** Angular 12 requires `tsconfig` target ES2017+, `useDefineForClassFields`
   off. **ESLint migration** (drop TSLint/codelyzer). ng-bootstrap 8, ng-select 8.

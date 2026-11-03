@@ -17,7 +17,7 @@ import {IncidentAlertType} from '../../../../shared/types/incident/incident-aler
   styleUrls: ['./incident-related-alert.component.css']
 })
 export class IncidentRelatedAlertComponent implements OnInit {
-  @Input() incidentId: number;
+  @Input() incidentId!: number;
   request = {
     page: 0,
     size: 10,
