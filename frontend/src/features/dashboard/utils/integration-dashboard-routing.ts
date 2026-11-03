@@ -5,6 +5,7 @@ export function getIntegrationDashboardSearch(
 ): string {
   const identity = `${integration.moduleName ?? ''} ${integration.dataType ?? ''} ${integration.name}`.toLowerCase()
 
+  if (identity.includes('file_classification') || identity.includes('file classification')) return 'File Classification'
   if (identity.includes('windows') || identity.includes('wineventlog')) return 'Windows'
   if (identity.includes('linux')) return 'Linux'
   if (identity.includes('macos') || identity.includes('mac os')) return 'macOS'
