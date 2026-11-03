@@ -106,13 +106,11 @@ export function UserDrawer({
                 </Link>
               </Button>
             )}
+            {user.identity && (
             <Button size="sm" variant="outline" onClick={copyId}>
               <Copy size={14} className="mr-1.5" />
               {isLinux || isCloud ? t('userAuditor.drawer.copyUid') : t('userAuditor.drawer.copySid')}
             </Button>
-            {canManage}
-            {canManage && (
-              <IdentityGroupPicker userId={user.id} current={user.identity ?? null} onChanged={onAliasChanged} />
             )}
           </div>
         </header>
@@ -153,14 +151,19 @@ export function UserDrawer({
                 {user.active ? t('userAuditor.drawer.enabled') : t('userAuditor.drawer.disabled')}
               </Row>
               <Row k={t('userAuditor.drawer.aliasGroup')}>
-                {user.identity ? (
+
+                {canManage && (
+                  <IdentityGroupPicker userId={user.id} current={user.identity ?? null} onChanged={onAliasChanged} />
+                )}
+
+                {!canManage && (user.identity ? (
                   <span className="inline-flex items-center gap-1.5 text-xs">
                     <UserCircle2 size={13} className="text-sky-600 dark:text-sky-400" />
                     {user.identity}
                   </span>
                 ) : (
                   <span className="text-muted-foreground">{t('userAuditor.drawer.alias.unassigned')}</span>
-                )}
+                ))}
               </Row>
             </dl>
           </Section>

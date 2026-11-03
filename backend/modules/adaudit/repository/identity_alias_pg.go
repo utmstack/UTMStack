@@ -48,6 +48,19 @@ func (r *pgIdentityRepository) Create(ctx context.Context, name, actor string) (
 	return &alias, nil
 }
 
+
+func (r *pgIdentityRepository) Update(ctx context.Context,id uuid.UUID, name, actor string) (*domain.IdentityAlias, error) {
+	alias := domain.IdentityAlias{ID:id,Name: name, UpdatedBy: actor}
+	if err := r.db.WithContext(ctx).Model(&alias).Updates(&alias).Error; err != nil {
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			return nil, ErrIdentityNameTaken
+		}
+		return nil, err
+	}
+	return &alias, nil
+}
+
+
 func (r *pgIdentityRepository) List(ctx context.Context, search string) ([]dto.IdentityListItem, error) {
 	q := r.db.WithContext(ctx).Model(&domain.IdentityAlias{}).
 		Select("identity_alias.id, identity_alias.name, identity_alias.created_at, COUNT(identity_alias_assignment.alias_id) AS count").

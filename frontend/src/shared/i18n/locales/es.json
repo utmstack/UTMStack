@@ -1382,6 +1382,10 @@
                 "unassigned": "Sin identidad",
                 "newPlaceholder": "Nombre de la nueva identidad (2–64 caracteres)",
                 "createAndAssign": "Crear y asignar",
+                "rename": "Renombrar identidad",
+                "renameConfirm": "Guardar nuevo nombre",
+                "renamed": "Identidad renombrada",
+                "renameFailed": "No se pudo renombrar la identidad",
                 "nameTooShort": "El nombre debe tener entre 2 y 64 caracteres",
                 "updated": "Identidad actualizada",
                 "updateFailed": "No se pudo actualizar la identidad"

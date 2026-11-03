@@ -40,6 +40,22 @@ func (u *identityUsecase) Create(ctx context.Context, name, actor string) (*dto.
 	return &dto.IdentityResponse{ID: alias.ID.String(), Name: alias.Name, CreatedAt: alias.CreatedAt}, nil
 }
 
+
+func (u *identityUsecase) Update(ctx context.Context,id uuid.UUID, name, actor string) (*dto.IdentityResponse, error) {
+	name = strings.TrimSpace(name)
+	if !domain.ValidIdentityName(name) {
+		return nil, ErrIdentityNameInvalid
+	}
+	alias, err := u.repo.Update(ctx,id, name, actor)
+	if err != nil {
+		if errors.Is(err, repository.ErrIdentityNameTaken) {
+			return nil, err
+		}
+		return nil, err
+	}
+	return &dto.IdentityResponse{ID: alias.ID.String(), Name: alias.Name, CreatedAt: alias.CreatedAt}, nil
+}
+
 func (u *identityUsecase) List(ctx context.Context, search string) ([]dto.IdentityListItem, error) {
 	return u.repo.List(ctx, search)
 }

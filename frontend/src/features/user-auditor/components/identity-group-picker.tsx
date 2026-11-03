@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Check, ChevronDown, Loader2, Plus, Trash2, UserCircle2, X } from 'lucide-react'
+import { Check, ChevronDown, Loader2, Plus, Pencil, Trash2, UserCircle2, X } from 'lucide-react'
 import { ConfirmDialog } from '@/shared/components/ui/confirm-dialog'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -21,11 +21,14 @@ export function IdentityGroupPicker({
   onChanged: (name: string | null) => void
 }) {
   const { t } = useTranslation()
-  const { identities, identitiesLoaded, assignIdentity, createIdentity, deleteIdentity } = useUserAuditor()
+  const { identities, identitiesLoaded, assignIdentity, createIdentity, deleteIdentity, renameIdentity } = useUserAuditor()
   const [open, setOpen] = useState(false)
   const [q, setQ] = useState('')
   const [custom, setCustom] = useState('')
   const [busy, setBusy] = useState(false)
+  const [renamingId, setRenamingId] = useState<string | null>(null)
+  const [renameValue, setRenameValue] = useState('')
+  const [renameBusy, setRenameBusy] = useState(false)
   const [deleting, setDeleting] = useState<IdentityListItem | null>(null)
   const [deleteBusy, setDeleteBusy] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -75,6 +78,27 @@ export function IdentityGroupPicker({
     }
   }
 
+  const confirmRename = async () => {
+    if (!renamingId) return
+    const name = renameValue.trim()
+    if (name.length < 2) {
+      toast.error(t('userAuditor.drawer.alias.nameTooShort'))
+      return
+    }
+    const old = identities.find((i) => i.id === renamingId)?.name
+    setRenameBusy(true)
+    try {
+      await renameIdentity(renamingId, name)
+      setRenamingId(null)
+      if (old === current) onChanged(name)
+      toast.success(t('userAuditor.drawer.alias.renamed'))
+    } catch {
+      toast.error(t('userAuditor.drawer.alias.renameFailed'))
+    } finally {
+      setRenameBusy(false)
+    }
+  }
+
   const confirmDelete = async () => {
     if (!deleting) return
     setDeleteBusy(true)
@@ -101,7 +125,7 @@ export function IdentityGroupPicker({
         disabled={busy}
         className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
       >
-        <UserCircle2 size={13} />
+        <UserCircle2 size={13} className="text-sky-600 dark:text-sky-400" />
         <span className="max-w-[160px] truncate">{current || t('userAuditor.drawer.alias.add')}</span>
         <ChevronDown size={12} className="opacity-60" />
       </button>
@@ -133,11 +157,41 @@ export function IdentityGroupPicker({
             {identitiesLoaded && filtered.length === 0 && (
               <div className="px-3 py-1.5 text-xs text-muted-foreground">{t('userAuditor.drawer.alias.none')}</div>
             )}
-            {filtered.map((i) => (
-              <div
-                key={i.id}
-                className="group flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-sm hover:bg-muted"
-              >
+            {filtered.map((i) =>
+              renamingId === i.id ? (
+                <div key={i.id} className="flex w-full items-center gap-1.5 px-3 py-1.5">
+                  <input
+                    value={renameValue}
+                    onChange={(e) => setRenameValue(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') void confirmRename()
+                      if (e.key === 'Escape') setRenamingId(null)
+                    }}
+                    autoFocus
+                    className="h-6 min-w-0 flex-1 rounded-md border border-input bg-background px-2 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  />
+                  <button
+                    onClick={() => void confirmRename()}
+                    disabled={renameBusy}
+                    title={t('userAuditor.drawer.alias.renameConfirm')}
+                    className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-primary disabled:opacity-50"
+                  >
+                    {renameBusy ? <Loader2 size={12} className="animate-spin" /> : <Check size={13} />}
+                  </button>
+                  <button
+                    onClick={() => setRenamingId(null)}
+                    disabled={renameBusy}
+                    title={t('common.cancel')}
+                    className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:text-foreground disabled:opacity-50"
+                  >
+                    <X size={13} />
+                  </button>
+                </div>
+              ) : (
+                <div
+                  key={i.id}
+                  className="group flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-sm hover:bg-muted"
+                >
                 <button
                   onClick={() => void assign(i.id)}
                   disabled={busy}
@@ -147,6 +201,17 @@ export function IdentityGroupPicker({
                     {i.name} <span className="font-mono text-[10px] text-muted-foreground">{i.count}</span>
                   </span>
                   {i.name === current && <Check size={14} className="shrink-0 text-primary" />}
+                </button>
+                <button
+                  onClick={() => {
+                    setRenamingId(i.id)
+                    setRenameValue(i.name)
+                  }}
+                  disabled={busy || renameBusy}
+                  title={t('userAuditor.drawer.alias.rename')}
+                  className="shrink-0 text-muted-foreground opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100"
+                >
+                  <Pencil size={13} />
                 </button>
                 <button
                   onClick={() => setDeleting(i)}
@@ -160,8 +225,9 @@ export function IdentityGroupPicker({
                 >
                   <Trash2 size={13} />
                 </button>
-              </div>
-            ))}
+                </div>
+              ),
+            )}
           </div>
           <div className="mt-1 border-t border-border px-3 pb-2 pt-2">
             <div className="mb-1.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
