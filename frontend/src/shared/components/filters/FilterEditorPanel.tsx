@@ -144,7 +144,7 @@ export function FilterEditorPanel({
         </select>
 
         {needsValue ? (
-          fetchValues ? (
+          fetchValues && !op?.freeText ? (
             <>
               <div className="relative">
                 <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />

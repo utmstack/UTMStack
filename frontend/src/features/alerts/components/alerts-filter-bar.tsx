@@ -25,7 +25,7 @@ export function AlertsFilterBar({
     [t],
   )
   const operators = useMemo<FilterOpDef[]>(
-    () => FILTER_OPS.map((o) => ({ id: o.id, label: `alerts.ops.${o.id}`, needsValue: o.needsValue })),
+    () => FILTER_OPS.map((o) => ({ id: o.id, label: `alerts.ops.${o.id}`, needsValue: o.needsValue, freeText: o.freeText })),
     [t],
   )
   const labels = useMemo(
