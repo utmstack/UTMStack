@@ -1,0 +1,115 @@
+# Phase 2 — Angular 8 → 17 (detailed task plan, measured 2026-11-03)
+
+> Expanded from `docs/plans/2026-11-02-frontend-dep-remediation.md` Part 2 Phase 2
+> per its gate. The framework/toolchain ladder below is **registry-measured**
+> (build-angular last-patch + its TS peer per major), not pre-estimated.
+
+**Goal:** Move `frontend/` from Angular 8.2 to **Angular 17.x (NgModule mode)** —
+webpack 5 (md4 gone, no legacy-provider flag), rxjs 7, zone.js 0.14, TS 5.2 —
+with every third-party lib at the master plan's matrix target or formally
+accept-risked, and a route-by-route visual diff explained.
+
+**Branch:** `fix/ir-role-model-v11.3.1` (Phase 1 closed at `1e53b79272`).
+NEVER stash the main checkout.
+
+**Method (per the master plan):** stage through majors 8→9→…→17, `ng update`-equivalent
+manual bumps at each stop, commit per major. Framework + build-angular + TS + rxjs +
+zone.js bump at EVERY stage (forced). Third-party libs bump **only when** (a) their
+`@angular/core` peer no longer admits the new major AND the build breaks, or (b) the
+master plan's 22-lib matrix explicitly stages them at that major. npm 6 warns (not
+fails) on peer mismatches, so a lib that still compiles can ride a few majors before
+it's forced — bump it then.
+
+**Build host:** Node 18.20 with `NODE_OPTIONS=--openssl-legacy-provider` for
+build-angular 0.803–0.1102 (webpack 4, majors 8/9/10/11). From **Angular 12
+(build-angular 12.x, webpack 5)** the flag is no longer needed. Install with npm 6
+(Node 14) to keep lockfileVersion 1.
+
+## Framework + toolchain ladder (registry-measured, 2026-11-03)
+
+| Major | @angular/* | cli | build-angular | TS (peer) | zone.js | rxjs |
+|---|---|---|---|---|---|---|
+| 8 (now) | 8.2.14 | 8.3.29 | 0.803.29 | ~3.5.3 (>=3.1 <3.6) | 0.9.1 | 6.6.7 |
+| 9 | 9.1.13 | 9.1.15 | 0.901.15 | ~3.8 (>=3.6 <3.9) | 0.10.3 | 6.6.7 |
+| 10 | 10.2.5 | 10.2.4 | 0.1002.4 | ~3.9 (>=3.9 <4.1) | 0.11.4 | 6.6.7 |
+| 11 | 11.2.14 | 11.2.19 | 0.1102.19 | ~4.1 (~4.0\|\|~4.1) | 0.11.4 | 6.6.7 |
+| 12 | 12.2.17 | 12.2.18 | 12.2.18 | ~4.3 (~4.2.3\|\|~4.3.2) | 0.11.4 | 6.6.7 |
+| 13 | 13.4.0 | 13.3.11 | 13.3.11 | ~4.6 (>=4.4.3 <4.7) | 0.11.5 | **7.8** |
+| 14 | 14.3.0 | 14.2.13 | 14.2.13 | ~4.8 (>=4.6.2 <4.9) | 0.11.5 | 7.8 |
+| 15 | 15.2.10 | 15.2.11 | 15.2.11 | ~4.9 (>=4.8.2 <5.0) | 0.12.0 | 7.8 |
+| 16 | 16.2.12 | 16.2.16 | 16.2.16 | ~5.1 (>=4.9.3 <5.2) | 0.13.0 | 7.8 |
+| 17 | 17.3.12 | 17.3.17 | 17.3.17 | ~5.4 (>=5.2 <5.5) | 0.14.0 | 7.8 |
+
+## Master plan 22-lib matrix — where each lib MUST move (Angular-compat floor)
+
+| Lib | Now | Angular floor (lowest major whose line it supports) | Target @17 | Bump-at |
+|---|---|---|---|---|
+| @ng-bootstrap/ng-bootstrap | 5.3.1 (^8) | 6.x(^9), 7.x(^11), 8.x(^12), 9.x(^13), 10(^14), 11-12(^15), 13-14(^16), 15(^17) | 15 | every major (peer tracks major) |
+| @ng-select/ng-select | 3.7.3 (<9) | 4.x(<10)... 8.x(^13), 10(^14), 11(^15), 12(^16), 13(^17) | 12 | ~every major |
+| @kolkov/angular-editor | 1.0.0 (<9) | 1.x(<13), 2.x(<14), 4.x(^14)... | 4 | 13, 14 |
+| @ngx-translate/core+http-loader | 11/4 | 12-13(^9-11), 14(^12), 15(^13)... | 15 / 8 | stepwise |
+| @fortawesome/angular-fontawesome | 0.4.0 (^8) | 0.6(^10),0.8(^11),0.9-0.11(^12-14),0.12-0.14(^15-17) | 0.14 | stepwise |
+| angular-gridster2 | 8.4.2 (^8) | 9-11(^9-11),12-13(^12),14(^13)... | 14 | stepwise |
+| ng-inline-svg | 8.6.0 (>=6) | 9-11(>=6), 12-15(^12)... | 14 | 12 |
+| ng-jhipster | 0.11.5 (^8.2.2) | 0.12(^9),0.13-0.14(^10-11),0.15-0.16(^12+) | 0.16 | stepwise |
+| ng2-tel-input | 1.0.16 (^6) | 2.x(^8)...2.5(^15) | 2.5 | 15 (per master plan) |
+| ng5-slider | 1.2.6 (>=5) | admits all | 1.4 | 17 (API: [(value)]->[value]+(valueChange)) |
+| ng6-toastr-notifications | 1.0.4 (^6) | no 8+ line | accept-risk pin | — |
+| ngx-cookie-service | 2.4.0 (>=4.2) | 3.x(^9)...17(^17) | 17 | stepwise |
+| ngx-drag-drop | 2.x | admits all | 14 | 17 |
+| ngx-draggable-resizer | 1.0.4 (~7.1) | no 8+ line | accept-risk pin | — |
+| ngx-echarts | 4.2.2 (>=6) | echarts 4→5 at 17 | 17 | 17 (echarts 4→5) |
+| echarts-gl/leaflet/stat/wordcloud | 1.1.x | match echarts-5 | matching | 17 |
+| echartslayer | 0.1.6 (old) | verify | verify/grep-usage | 17 |
+| ngx-flag-icon-css | 1.0.1 (>=2) | admits all | 1 | 17 |
+| ngx-gauge | 1.0.0-beta.12 (^8) | 9-14... | verify (hand-roll on echarts if dead) | 17 |
+| ngx-infinite-scroll | 7.2.0 (>=7) | 8-11(>=7),12-15... | 14 | stepwise |
+| ngx-json-viewer | 2.4.0 (>=5) | 3.x | 3 | 17 |
+| ngx-monaco-editor + monaco-editor | 7.0.0 / 0.20 | 8.x(^11), 11-18...; monaco 0.20→0.4x | 18 / 0.45+ | **12-17 (biggest: worker-loader→ESM workers)** |
+| ngx-sortable-2 | 1.0.1 (^4) | no 8+ line | accept-risk pin / verify | — |
+| ngx-spinner | 8.1.0 (^8) | 9(^9),10-12(^12),13-16(^16)... | 16 | stepwise |
+| ngx-webstorage | 2.0.1 (^5) | 3-5...14 | 14 | stepwise |
+| popper.js | 1.16.1 | bootstrap 4.6.2 uses v1 internally; verify no direct import | drop if unused | verify |
+| interactjs | 1.4-rc.13 | admits all | 1.10 | 17 (RC→stable) |
+| html2canvas | 1.0.0-rc.7 | admits all | 1.4.x | 17 (re-run PDF smoke) |
+
+**ESLint** replaces TSLint at the Angular 12 stage (angular-eslint; the
+codelyzer rules map to @angular-eslint recommended). TSLint is removed then —
+codelyzer 5.x (dev) is the last TSLint line.
+
+## Stages (one commit each, build green + smoke before commit)
+
+- **S9: 8→9** — framework 9.1.13, ba 0.901.15, TS 3.8, zone 0.10.3. Bump the libs
+  whose peer caps at 8 (ng-bootstrap→6, ng-select→4, kolkov stays 1.x(<13 ok? kolkov 1.x
+  peer >=8<13 admits 9 so KEEP), gridster2→9, ng-jhipster→0.12, spinner→9, cookie→3,
+  translate→12/5, fontawesome→0.5, webstorage→3, infinite-scroll→8, ng-inline-svg→9).
+  Ivy is introduced in 9 (aot) — watch for template changes.
+- **S10: 9→10** — 10.2.5, ba 0.1002.4, TS 3.9.
+- **S11: 10→11** — 11.2.14, ba 0.1102.19, TS 4.1, zone 0.11.4. (monaco-editor 8.x line.)
+- **S12: 11→12** — 12.2.17, ba 12.2.18, TS 4.3. **webpack 5 lands — legacy flag
+  no longer needed.** Angular 12 requires `tsconfig` target ES2017+, `useDefineForClassFields`
+  off. **ESLint migration** (drop TSLint/codelyzer). ng-bootstrap 8, ng-select 8.
+- **S13: 12→13** — 13.4.0, ba 13.3.11, TS 4.6, **rxjs 7.8** (rxjs 6→7 operator migration).
+- **S14: 13→14** — 14.3.0, ba 14.2.13, TS 4.8.
+- **S15: 14→15** — 15.2.10, ba 15.2.11, TS 4.9, zone 0.12. ng2-tel-input→2.5.
+- **S16: 15→16** — 16.2.12, ba 16.2.16, TS 5.1, zone 0.13.
+- **S17: 16→17** — 17.3.12, ba 17.3.17, TS 5.4, zone 0.14. Final lib sweep to
+  matrix targets (echarts 4→5 cluster, monaco 0.45, ng5-slider API, html2canvas 1.4,
+  interactjs 1.10). **ngx-echarts 17 + echarts-gl/leaflet/stat/wordcloud matching 5.x** —
+  the heaviest cluster; Log Explorer + all 9 map charts + dashboard scatter must be
+  visual-QA'd.
+
+## Exit (master plan): Angular 17 build green on Node 18+ (webpack 5, NO legacy flag),
+Karma green (compile gate = prod build; browser gate = lab smoke), visual baseline diff
+reviewed route-by-route, all 22 libs at target or accept-risked (ng6-toastr,
+ngx-draggable-resizer, ngx-sortable-2, echartslayer, ngx-gauge pending), commit per major.
+
+## Risk notes
+- **ngx-monaco-editor + monaco-editor** (Log Explorer + rule editor) is the single
+  biggest effort — worker loading changes 0.20→0.4x. Budget the most QA here.
+- **echarts 4→5** at S17 changes the chart API surface (bindGlobal removed); all 9
+  map charts + scatter + every dashboard chart must be re-verified visually.
+- **rxjs 6→7** at S13: mostly compatible, but `Observable.of`/`fromPromise` etc. are
+  gone (measured: 0 refs in Phase 1 scan, so low risk).
+- Each stage is independently buildable + smoke-able, so a break at stage N does not
+  corrupt stages < N (already committed).
