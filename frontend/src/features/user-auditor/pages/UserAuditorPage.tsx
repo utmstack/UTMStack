@@ -50,7 +50,7 @@ export function UserAuditorPage() {
 function UserAuditorPageContent() {
   const { t } = useTranslation()
   const { hasPermission } = useAuth()
-  const { reloadIdentities } = useUserAuditor()
+  const { reloadIdentities,identities } = useUserAuditor()
   const canManage = hasPermission('adaudit.write')
   const [view, setView] = useState<ViewId>('all')
   const [searchInput, setSearchInput] = useState('')
@@ -135,7 +135,7 @@ function UserAuditorPageContent() {
 
   useEffect(() => {
     void load()
-  }, [load])
+  }, [load,identities])
 
   useEffect(() => {
     void loadStats()

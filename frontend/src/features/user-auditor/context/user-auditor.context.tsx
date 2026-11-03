@@ -13,6 +13,7 @@ interface UserAuditorContextValue {
   reloadIdentities: () => void
   identityDetail: (id: string) => Promise<IdentityDetail>
   createIdentity: (name: string) => Promise<Identity | null>
+  renameIdentity: (id: string, name: string) => Promise<boolean>
   deleteIdentity: (id: string) => Promise<boolean>
   assignIdentity: (userId: string, identityId: string) => Promise<boolean>
 }
@@ -44,6 +45,15 @@ export function UserAuditorProvider({ children }: { children: ReactNode }) {
     [reloadIdentities],
   )
 
+  const renameIdentity = useCallback(
+    async (id: string, name: string) => {
+      const res = await adAuditHttpService.identityRename(id, name)
+      if (res) reloadIdentities()
+      return Boolean(res)
+    },
+    [reloadIdentities],
+  )
+
   const deleteIdentity = useCallback(
     async (id: string) => {
       const ok = await adAuditHttpService.deleteIdentity(id)
@@ -68,10 +78,11 @@ export function UserAuditorProvider({ children }: { children: ReactNode }) {
       reloadIdentities,
       identityDetail: (id) => adAuditHttpService.identityDetail(id),
       createIdentity,
+      renameIdentity,
       deleteIdentity,
       assignIdentity,
     }),
-    [identities, identitiesLoaded, reloadIdentities, createIdentity, deleteIdentity, assignIdentity],
+    [identities, identitiesLoaded, reloadIdentities, createIdentity, renameIdentity, deleteIdentity, assignIdentity],
   )
 
   return <UserAuditorContext.Provider value={value}>{children}</UserAuditorContext.Provider>

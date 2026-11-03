@@ -28,6 +28,7 @@ export const adAuditHttpService = {
   identities: (search?: string) =>
     api.get<IdentityListItem[]>(`/ad-audit/identities${search ? `?search=${encodeURIComponent(search)}` : ''}`),
   identityDetail: (id: string) => api.get<IdentityDetail>(`/ad-audit/identities/${id}`),
+  identityRename: (id: string,newName:string) => api.put<Identity>(`/ad-audit/identities/${id}`,{name:newName}),
   createIdentity: (name: string) => api.post<Identity>(`/ad-audit/identities`, { name }),
   deleteIdentity: (id: string) => api.delete<{ deleted: number }>(`/ad-audit/identities/${id}`),
   // Empty identityId unassigns the user (backend semantics).
