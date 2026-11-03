@@ -92,8 +92,8 @@ export const FILTER_FIELDS: { label: string; field: string }[] = [
   { label: 'Target ASO', field: 'target.geolocation.aso' },
 ]
 
-export const FILTER_OPS: { id: string; label: string; needsValue: boolean }[] = [
-  { id: 'CONTAIN', label: 'contains', needsValue: true },
+export const FILTER_OPS: { id: string; label: string; needsValue: boolean; freeText?: boolean }[] = [
+  { id: 'CONTAIN', label: 'contains', needsValue: true, freeText: true },
   { id: 'IS', label: 'is', needsValue: true },
   { id: 'IS_NOT', label: 'is not', needsValue: true },
   { id: 'EXIST', label: 'exists', needsValue: false },
