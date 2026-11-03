@@ -88,7 +88,7 @@ interface DashboardSearchSeed {
 const BUILDER_OPS: FilterOpDef[] = [
   { id: 'IS', label: 'is', needsValue: true },
   { id: 'IS_NOT', label: 'is not', needsValue: true },
-  { id: 'CONTAIN', label: 'contains', needsValue: true },
+  { id: 'CONTAIN', label: 'contains', needsValue: true, freeText:true },
   { id: 'EXIST', label: 'exists', needsValue: false },
 ]
 
