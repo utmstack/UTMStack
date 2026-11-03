@@ -17,6 +17,7 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	g.GET("/stats", middleware.RequirePermission("adaudit.read"), h.Stats)
 
 	g.POST("/identities", middleware.RequirePermission("adaudit.write"), m.Identity().Create)
+	g.PUT("/identities/:id", middleware.RequirePermission("adaudit.write"), m.Identity().Rename)
 	g.GET("/identities", middleware.RequirePermission("adaudit.read"), m.Identity().List)
 	g.GET("/identities/:id", middleware.RequirePermission("adaudit.read"), m.Identity().Detail)
 	g.DELETE("/identities/:id", middleware.RequirePermission("adaudit.write"), m.Identity().Delete)

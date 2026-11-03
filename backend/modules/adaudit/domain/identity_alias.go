@@ -12,7 +12,9 @@ type IdentityAlias struct {
 	TenantID    uuid.UUID                 `gorm:"column:tenant_id;size:36;not null;index:idx_identity_alias_tenant,priority:1" json:"tenantId"`
 	Name        string                    `gorm:"column:name;size:64;not null" json:"name"`
 	CreatedBy   string                    `gorm:"column:created_by;size:150;not null" json:"createdBy"`
+	UpdatedBy   string                    `gorm:"column:updated_by;size:150" json:"updatedBy"`
 	CreatedAt   time.Time                 `gorm:"column:created_at;not null;default:now()" json:"createdAt"`
+	UpdatedAt   time.Time                 `gorm:"column:updated_at;not null;default:now()" json:"updatedAt"`
 	Assignments []IdentityAliasAssignment `gorm:"foreignKey:AliasID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE" json:"-"`
 }
 

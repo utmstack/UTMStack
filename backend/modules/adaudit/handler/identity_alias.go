@@ -77,6 +77,42 @@ func (h *IdentityHandler) Create(c *gin.Context) {
 	c.JSON(http.StatusOK, res)
 }
 
+// Update godoc
+//
+//	@Summary		Rename an identity alias
+//	@Tags			AD Audit
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Param			input	body		dto.RenameIdentityRequest	true	"Alias name"
+//	@Success		200		{object}	dto.IdentityResponse
+//	@Failure		400		{object}	map[string]string
+//	@Failure		409		{object}	map[string]string
+//	@Failure		500		{object}	map[string]string
+//	@Router			/ad-audit/identities/{id} [put]
+func (h *IdentityHandler) Rename(c *gin.Context) {
+	var req dto.RenameIdentityRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "id is not a valid id"})
+		return
+	}
+
+	res, err := h.uc.Update(c.Request.Context(), id,req.Name, actorIdentity(c))
+	if err != nil {
+		writeIdentityError(c, "update", err)
+		return
+	}
+	c.JSON(http.StatusOK, res)
+}
+
+
+
 // List godoc
 //
 //	@Summary		List identity aliases

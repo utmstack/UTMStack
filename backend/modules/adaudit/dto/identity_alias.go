@@ -10,6 +10,10 @@ type CreateIdentityRequest struct {
 	Name string `json:"name"`
 }
 
+type RenameIdentityRequest struct {
+	Name string `json:"name"`
+}
+
 type IdentityResponse struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
