@@ -49,4 +49,5 @@ export const SYSTEM_MODULES: Record<string, SystemModuleMeta> = {
   DECEPTIVE_BYTES: { icon: 'deceptive-bytes.png', category: 'deception' },
   GITHUB: { icon: 'github.png', iconDark: 'github-dark.png', category: 'devops' },
   UTMSTACK: { icon: 'utmstack.svg', category: 'siem' },
+  FILE_CLASIFICATION:{ category: 'operating-system',icon: 'file-classification.svg' }
 }
