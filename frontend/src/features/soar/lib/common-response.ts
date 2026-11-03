@@ -46,8 +46,7 @@ function platformMatches(platform: string | undefined, os: Platform): boolean {
  */
 export function flowNameFilter(alert: Alert): { relPath: string; systemOwner: true } {
   const template = templateFor(alert)
-  const os = osOf(alert.target?.host ?? alert.adversary?.host)
-  const platform = os ?? 'linux'
+  const platform = alert.dataType
   return { relPath: `${template}-${platform}`, systemOwner: true }
 }
 
