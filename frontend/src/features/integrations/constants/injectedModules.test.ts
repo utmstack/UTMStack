@@ -14,7 +14,7 @@ describe('frontend-injected integration guides', () => {
         .map((integration) => integration.guideChannel)
         .filter((channel) => channel !== undefined),
     )
-    expect(channels).toEqual(new Set(['syslog', 'netflow', 'windows-agent', 'linux-agent']))
+    expect(channels).toEqual(new Set(['syslog', 'netflow', 'windows-agent', 'linux-agent', 'file-classification']))
   })
 
   it('assigns every injected integration an explicit ingest type', () => {
@@ -93,6 +93,7 @@ describe('frontend-injected integration guides', () => {
   it('filters nested Windows and Linux product fields with is-one-of', () => {
     const sqlServer = INJECTED_MODULES.find((integration) => integration.moduleName === 'WINDOWS_SQL_SERVER')
     const nginx = INJECTED_MODULES.find((integration) => integration.moduleName === 'NGINX')
+    const fileClassification = INJECTED_MODULES.find((integration) => integration.moduleName === 'FILE_CLASSIFICATION')
     expect(sqlServer?.logFilters).toContainEqual({
       field: 'log.providerName',
       operator: 'IS_ONE_OF_TERMS',
@@ -102,6 +103,17 @@ describe('frontend-injected integration guides', () => {
       field: 'log.syslogIdentifier',
       operator: 'IS_ONE_OF_TERMS',
       value: ['nginx'],
+    })
+    expect(fileClassification).toMatchObject({
+      name: 'File Classification',
+      dataType: 'wineventlog',
+      ingestType: 'agent',
+      guideChannel: 'file-classification',
+      logo: '/integrations/file-classification.svg',
+      logFilters: [
+        { field: 'log.providerName', operator: 'IS_ONE_OF_TERMS', value: ['Microsoft-Windows-Security-Auditing'] },
+        { field: 'log.channel', operator: 'IS_ONE_OF_TERMS', value: ['Security'] },
+      ],
     })
   })
 })

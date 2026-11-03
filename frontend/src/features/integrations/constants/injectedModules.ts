@@ -51,6 +51,7 @@ const SEEDS: InjectedSeed[] = [
   { id: '7a8b9c0d-1e2f-4a3b-4c5d-6e7f8a9b0c1d', name: 'JSON Input', moduleName: 'JSON', dataType: 'json-input', kind: 'other', category: 'other', icon: 'json.svg', defaultPort: '8080' },
   { id: '8b9c0d1e-2f3a-4b5c-8d9e-0f1a2b3c4d5e', name: 'SQL Server Event Logs', moduleName: 'WINDOWS_SQL_SERVER', dataType: 'wineventlog', kind: 'other', category: 'database', icon: 'windows.png', defaultPort: 'agent (local)' },
   { id: '9c0d1e2f-3a4b-5c6d-9e0f-1a2b3c4d5e6f', name: 'Windows File Access Auditing', moduleName: 'WINDOWS_FILE_AUDITING', dataType: 'wineventlog', kind: 'other', category: 'operating-system', icon: 'windows.png', defaultPort: 'agent (local)' },
+  { id: 'a17b2c3d-4e5f-4a6b-8c9d-0e1f2a3b4c5d', name: 'File Classification', moduleName: 'FILE_CLASSIFICATION', dataType: 'wineventlog', kind: 'other', category: 'operating-system', icon: 'file-classification.svg', defaultPort: 'agent (local)' },
   { id: 'ad1e2f3a-4b5c-6d7e-8f90-1a2b3c4d5e6f', name: 'NetFlow Exporter', moduleName: 'NETFLOW', dataType: 'netflow', kind: 'other', category: 'network', icon: 'netflow.svg', defaultPort: '2055/udp' },
 ]
 
@@ -138,6 +139,15 @@ const GUIDE_METADATA: Record<string, GuideMetadata> = {
       { field: 'log.channel', operator: 'IS_ONE_OF_TERMS', value: ['Security'] },
     ],
     setting: 'Enable File System auditing in Advanced Audit Policy and configure auditing entries on the folders to monitor.',
+  },
+  FILE_CLASSIFICATION: {
+    channel: 'file-classification',
+    ingestType: 'agent',
+    filters: [
+      { field: 'log.providerName', operator: 'IS_ONE_OF_TERMS', value: ['Microsoft-Windows-Security-Auditing'] },
+      { field: 'log.channel', operator: 'IS_ONE_OF_TERMS', value: ['Security'] },
+    ],
+    setting: 'Track access to and changes in classified files using built-in Windows file system auditing. No third-party software is required.',
   },
 }
 

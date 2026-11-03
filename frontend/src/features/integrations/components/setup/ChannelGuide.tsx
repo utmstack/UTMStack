@@ -6,6 +6,7 @@ import { Section } from '@/features/integrations/components/ui/Section'
 import { CodeBlock } from '@/features/integrations/components/ui/CodeBlock'
 import { AgentSetup } from '@/features/integrations/components/setup/AgentSetup'
 import { ForwarderGuide } from '@/features/integrations/components/setup/collector/ForwarderGuide'
+import { FileClassificationGuide } from '@/features/integrations/components/setup/FileClassificationGuide'
 import type { RemoteEnableSelection } from '@/features/integrations/components/setup/collector/RemoteEnablePanel'
 import { defaultPortFor } from '@/features/integrations/components/setup/collector/protoCatalog'
 import type { Integration, IntegrationGuideChannel } from '@/features/integrations/types'
@@ -23,6 +24,8 @@ export function ChannelGuide({ integration }: { integration: Integration }) {
       return <WindowsEventLogGuide integration={integration} />
     case 'linux-agent':
       return <LinuxJournalGuide integration={integration} />
+    case 'file-classification':
+      return <FileClassificationGuide />
   }
   return null
 }
