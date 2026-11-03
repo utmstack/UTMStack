@@ -19,7 +19,7 @@ export class LogstashFilterCreateComponent implements OnInit, OnChanges {
   @Input() pipeline: UtmPipeline;
   @Input() dataType: DataType;
   @Input() disable = false;
-  @ViewChild('editorContainer', {static: false}) editorContainer: any;
+  @ViewChild('editorContainer', {static: true}) editorContainer: any;
 
   types$: Observable<DataType[]>;
   daTypeRequest: {page: number, size: number} = {

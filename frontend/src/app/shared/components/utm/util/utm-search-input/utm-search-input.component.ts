@@ -10,7 +10,7 @@ export class UtmSearchInputComponent implements OnInit {
   @Input() placeholder: any;
   @Output() searchFor = new EventEmitter<string | number>();
   @Input() type: 'text' | 'password' | 'number' = 'text';
-  @ViewChild('searcherInput', {static: false}) searcherInput: ElementRef;
+  @ViewChild('searcherInput', {static: true}) searcherInput: ElementRef;
 
   typing: boolean;
   valueSearch: string;

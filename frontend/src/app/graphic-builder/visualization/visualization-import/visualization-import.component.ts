@@ -26,7 +26,7 @@ export class VisualizationImportComponent implements OnInit, AfterContentChecked
   pageStart = 0;
   pageEnd = 5;
   patterns: UtmIndexPattern[] = [];
-  @ViewChild('content', {static: false}) content: ElementRef;
+  @ViewChild('content', {static: true}) content: ElementRef;
   visResolve: VisualizationType;
   importing = false;
   validNames: boolean;

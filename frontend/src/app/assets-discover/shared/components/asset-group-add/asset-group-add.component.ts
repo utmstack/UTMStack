@@ -27,7 +27,7 @@ export class AssetGroupAddComponent implements OnInit {
   @Output() applyGroupEvent = new EventEmitter<AssetGroupType>();
   @Output() focus = new EventEmitter<boolean>();
 
-  @ViewChild('tagPopoverSpan', {static: false}) tagPopoverSpan: NgbPopover;
+  @ViewChild('tagPopoverSpan', {static: true}) tagPopoverSpan: NgbPopover;
   @ViewChild('tagPopoverButton', {static: false}) tagPopoverButton: NgbPopover;
   groups: AssetGroupType[];
   loading = false;
