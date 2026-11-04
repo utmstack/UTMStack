@@ -9,7 +9,7 @@ SIEM/XDR platform. Multi-language monorepo:
 | Directory | Language | Build |
 |---|---|---|
 | `backend/` | Java 17 (Spring Boot 3.1, JHipster 7.3) | Maven (`mvn`) |
-| `frontend/` | Angular 7 (TypeScript 3.2, Node 14) | Angular CLI + npm |
+| `frontend/` | Angular 15 (TypeScript 4.9, Node 14.20) | Angular CLI + npm |
 | `agent/` | Go 1.25.5 | `go build` (+ ldflags) |
 | `agent-manager/` | Go 1.25.5 | `go build` |
 | `utmstack-collector/` | Go 1.25.5 | `go build` (+ ldflags) |
@@ -35,17 +35,17 @@ mvn -B -Pprod clean package -s settings.xml           # Production WAR → targe
 - **`jib-maven-plugin` image mismatch** — `pom.xml` references `eclipse-temurin:11-jre-focal` but the backend requires Java 17. The `Dockerfile` correctly uses `eclipse-temurin:17`. Jib builds will fail or produce broken images.
 - **`proto-command.txt`** contains the protoc command for gRPC code generation.
 
-### Frontend (Angular 7)
+### Frontend (Angular 15)
 ```bash
 cd frontend
 npm install
 npm start                           # ng serve --host 0.0.0.0
-NODE_OPTIONS=--max_old_space_size=8192 npm run build   # ng build --prod
+NODE_OPTIONS=--max_old_space_size=8192 npm run build   # ng build --configuration production
 npm test                            # ng test (Karma + Jasmine)
-npm run lint                        # ng lint (TSLint, NOT ESLint)
+npm run lint                        # ng lint (ESLint, @angular-eslint)
 ```
-- **Node 14.16.1 required**. Newer Node breaks `node-sass@4`.
-- Linter is **TSLint** (`tslint.json`), not ESLint. Uses `codelyzer` rules.
+- **Node 14.20.0 required** (Angular CLI 15+ floor is v14.20 / v16.13 / v18.10). Node 14.20.0 keeps npm 6 → lockfileVersion 1; Node 16/18 rewrite the lock to v3 and break `npm ci`.
+- Linter is **ESLint** (`.eslintrc.json`, `@angular-eslint`), not TSLint.
 - Output: `dist/utm-stack`. Styles use SCSS (`angular.json`).
 - **Builds need 8 GB heap**: `NODE_OPTIONS=--max_old_space_size=8192`.
 - Frontend Dockerfile serves via nginx (see `frontend/nginx/`).
@@ -150,7 +150,7 @@ Images published to `ghcr.io/utmstack/utmstack/<image>:<tag>`.
 ### Reusable Workflows
 - `reusable-java.yml` — Maven build + Docker push
 - `reusable-golang.yml` — `go test ./...` + `go build` + Docker push
-- `reusable-node.yml` — Node 14.16.1, `npm install && npm run-script build`, Docker push
+- `reusable-node.yml` — Node 14.20.0, `npm install && npm run-script build`, Docker push
 - `reusable-sign-agent.yml` — Windows (jsign + GCP KMS) and macOS (codesign + notarytool) signing
 - `reusable-basic.yml` — Docker build only
 
@@ -182,8 +182,8 @@ Do not "enable" an input plugin by editing an order list, and do not debug a dea
 
 - **ldflags are mandatory** for `agent`, `utmstack-collector`, and `as400` — `REPLACE_KEY` is injected at build time. Without it, services cannot authenticate.
 - **Backend uses GitHub Packages** — `settings.xml` references `maven.pkg.github.com/utmstack/**`. Requires GitHub PAT in `$MAVEN_TK`.
-- **Frontend is Angular 7** — no standalone components, signals, or modern APIs. CLI v7.3.6.
-- **Node 14.16.1 required for frontend** — `npm install` on Node 16+ fails on `node-sass@4`.
+- **Frontend is Angular 15** — NgModule-based (no standalone components/signals by design). CLI v15, ESLint (`@angular-eslint`), dart-sass, webpack 5. `ng build --configuration production` (`--prod` was removed at 13).
+- **Node 14.20.0 required for frontend** — Angular CLI 15+ floor is v14.20 / v16.13 / v18.10; 14.20.0 is the only value that clears it AND keeps npm 6 (lockfileVersion 1). Node 16/18 rewrite the lock to v3.
 - **Frontend build needs 8 GB heap** — set `NODE_OPTIONS=--max_old_space_size=8192`.
 - **Installer build requires ldflags** — see `installer/build.sh` for `DEFAULT_BRANCH`, `INSTALLER_VERSION`, `REPLACE`, `PUBLIC_KEY`.
 - **Geolocation data must be downloaded** — event processor Docker build fails without `./geolocation/` CSV files from GCS.
