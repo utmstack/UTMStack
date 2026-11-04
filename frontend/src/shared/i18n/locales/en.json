@@ -3848,6 +3848,19 @@
       },
       "fieldsTitle": "Information captured",
       "fields": "Event Date\nEvent Name\nUser\nObject Type\nObject name (full path)\nProcess name (process interacting with the file)\nAction performed\nServer name\nHandler ID\nResource attribute\nDomain name\nLogon ID\nHost ID\nHost OS\nHost Architecture",
+      "images": {
+        "serverPolicySettings": "Audit File System policy settings with Success and Failure enabled",
+        "serverFolderProperties": "Folder Properties Security tab with the Advanced button",
+        "serverFolderAdvancedSecurity": "Advanced Security Settings Auditing tab",
+        "serverFolderAuditingEntry": "Auditing entry configured for a folder",
+        "desktopPolicyList": "Group Policy Editor with Audit object access selected",
+        "desktopPolicySettings": "Audit object access policy with Success and Failure selected",
+        "desktopFolderProperties": "File Properties Security tab",
+        "desktopFolderAdvancedSecurity": "Advanced Security Settings Auditing tab for a file",
+        "desktopFolderSelectPrincipal": "Select User dialog with Everyone entered",
+        "desktopFolderAuditingPermissions": "Auditing entry with file access permissions selected",
+        "events": "Windows Event Viewer showing file access event 4663"
+      },
       "policyImageAlt": "Windows Group Policy settings for auditing the file system",
       "server": {
         "policyTitle": "Auditing Windows Server — enable the Audit File System policy",

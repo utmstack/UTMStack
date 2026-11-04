@@ -3462,34 +3462,47 @@
     },
     "fileClassificationGuide": {
       "overview": {
-        "title": "Keep track of changes and access to classified information",
-        "body": "File Classification enables UTMStack's built-in file activity monitoring. It tracks changes and access attempts on selected files and folders through Windows auditing. No third-party software is required."
+        "title": "Отслеживайте изменения и доступ к конфиденциальной информации",
+        "body": "File Classification включает встроенный в UTMStack мониторинг активности файлов. С помощью аудита Windows отслеживаются изменения и попытки доступа к выбранным файлам и папкам. Стороннее программное обеспечение не требуется."
       },
       "agentInstall": {
-        "title": "Install the UTMStack Windows agent",
-        "body": "Install the UTMStack agent on every Windows host that generates the audit events. No third-party software is required.",
-        "button": "Windows agent installation"
+        "title": "Установите агент UTMStack для Windows",
+        "body": "Установите агент UTMStack на каждый компьютер Windows, который создает события аудита. Стороннее программное обеспечение не требуется.",
+        "button": "Установка агента Windows"
       },
-      "fieldsTitle": "Information captured",
-      "fields": "Event Date\nEvent Name\nUser\nObject Type\nObject name (full path)\nProcess name (process interacting with the file)\nAction performed\nServer name\nHandler ID\nResource attribute\nDomain name\nLogon ID\nHost ID\nHost OS\nHost Architecture",
-      "policyImageAlt": "Windows Group Policy settings for auditing the file system",
+      "fieldsTitle": "Собираемая информация",
+      "fields": "Дата события\nНазвание события\nПользователь\nТип объекта\nИмя объекта (полный путь)\nИмя процесса (процесс, взаимодействующий с файлом)\nВыполненное действие\nИмя сервера\nИдентификатор дескриптора\nАтрибут ресурса\nИмя домена\nИдентификатор входа\nИдентификатор узла\nОперационная система узла\nАрхитектура узла",
+      "images": {
+        "serverPolicySettings": "Параметры политики Audit File System с включенными Success и Failure",
+        "serverFolderProperties": "Вкладка «Безопасность» свойств папки с кнопкой «Дополнительно»",
+        "serverFolderAdvancedSecurity": "Вкладка «Аудит» в дополнительных параметрах безопасности",
+        "serverFolderAuditingEntry": "Запись аудита, настроенная для папки",
+        "desktopPolicyList": "Редактор групповых политик с выбранным параметром Audit object access",
+        "desktopPolicySettings": "Политика Audit object access с выбранными Success и Failure",
+        "desktopFolderProperties": "Вкладка «Безопасность» свойств файла",
+        "desktopFolderAdvancedSecurity": "Вкладка «Аудит» в дополнительных параметрах безопасности файла",
+        "desktopFolderSelectPrincipal": "Окно выбора пользователя с введенным Everyone",
+        "desktopFolderAuditingPermissions": "Запись аудита с выбранными разрешениями доступа к файлам",
+        "events": "Средство просмотра событий Windows с событием доступа к файлу 4663"
+      },
+      "policyImageAlt": "Параметры групповой политики Windows для аудита файловой системы",
       "server": {
-        "policyTitle": "Auditing Windows Server — enable the Audit File System policy",
-        "policySteps": "Open Group Policy Management and edit or create a policy for the target servers.\nNavigate to Computer Configuration → Policies → Windows Settings → Security Settings → Advanced Audit Policy Configuration → Audit Policies → Object Access.\nOpen Audit File System and enable the policy. Choose Success, Failure, or both according to your requirements.\nApply the policy to the servers you want to monitor.",
-        "folderTitle": "Configure auditing on files and folders",
-        "folderIntro": "Auditing must also be enabled on each file or folder you want to monitor.",
-        "folderSteps": "Right-click the file or folder, select Properties, then open the Security tab.\nSelect Advanced and open the Auditing tab.\nAdd an auditing entry for the users or groups to monitor. Choose successful attempts, failed attempts, or both, and specify whether the entry applies to this folder, its files, and subfolders."
+        "policyTitle": "Аудит Windows Server — включите политику Audit File System",
+        "policySteps": "Откройте Управление групповыми политиками и измените или создайте политику для целевых серверов.\nПерейдите в Конфигурация компьютера → Политики → Конфигурация Windows → Конфигурация безопасности → Расширенная конфигурация политики аудита → Политики аудита → Доступ к объектам.\nОткройте Audit File System и включите политику. В зависимости от требований выберите Success, Failure или оба варианта.\nПримените политику к серверам, которые нужно контролировать.",
+        "folderTitle": "Настройте аудит файлов и папок",
+        "folderIntro": "Аудит также необходимо включить для каждого файла или папки, которые нужно контролировать.",
+        "folderSteps": "Щелкните файл или папку правой кнопкой мыши, выберите Свойства и откройте вкладку Безопасность.\nНажмите Дополнительно и откройте вкладку Аудит.\nДобавьте запись аудита для пользователей или групп, которых нужно контролировать. Выберите успешные, неуспешные или оба типа попыток и укажите, применяется ли запись к этой папке, ее файлам и вложенным папкам."
       },
       "desktop": {
-        "policyTitle": "Auditing Windows Desktop — set the Audit object access policy",
-        "policySteps": "On the primary domain controller or a system with administration tools, open Group Policy Management by running gpmc.msc.\nCreate a new GPO or edit an existing one. To apply it across a domain, link the GPO to the domain.\nIn Group Policy Management Editor, navigate to Computer Configuration → Windows Settings → Security Settings → Local Policies → Audit Policy.\nOpen Audit object access and select Define these policy settings.\nSelect Success and Failure. Selecting both is recommended.\nApply the changes and close the policy dialog.\nTo apply the policy immediately, run Gpupdate /force in Command Prompt.",
-        "folderTitle": "Set auditing on the files you want to track",
-        "folderIntro": "After configuring the Group Policy, add an auditing entry to each file or folder. Auditing can be inherited by files and subfolders.",
-        "folderSteps": "In Windows Explorer, right-click the file or folder and select Properties.\nOpen the Security tab, select Advanced, then open the Auditing tab.\nSelect Add to create an auditing entry.\nSelect a principal and choose the users or groups whose activity you want to audit. Enter Everyone to include all users.\nChoose Success, Failure, or All as the audit type. All captures both successful and failed attempts.\nUnder Permissions, select the actions to audit. To track file reads, include Traverse folder / Execute file, List folder / Read data, Read attributes, and Read extended attributes.\nSelect Full control if you want to audit all activity on the file or folder.\nConfirm the entry, then apply the changes and close the open properties dialogs."
+        "policyTitle": "Аудит Windows Desktop — настройте политику Audit object access",
+        "policySteps": "На основном контроллере домена или компьютере с административными инструментами откройте Управление групповыми политиками, запустив gpmc.msc.\nСоздайте новый объект групповой политики (GPO) или измените существующий. Чтобы применить его ко всему домену, свяжите GPO с доменом.\nВ редакторе управления групповыми политиками перейдите в Конфигурация компьютера → Конфигурация Windows → Конфигурация безопасности → Локальные политики → Политика аудита.\nОткройте Audit object access и выберите Определить эти параметры политики.\nВыберите Success и Failure. Рекомендуется выбрать оба варианта.\nПримените изменения и закройте окно политики.\nЧтобы немедленно применить политику, выполните Gpupdate /force в командной строке.",
+        "folderTitle": "Настройте аудит файлов, за которыми нужно следить",
+        "folderIntro": "После настройки групповой политики добавьте запись аудита для каждого файла или папки. Параметры аудита могут наследоваться файлами и вложенными папками.",
+        "folderSteps": "В Проводнике щелкните файл или папку правой кнопкой мыши и выберите Свойства.\nОткройте вкладку Безопасность, нажмите Дополнительно, затем откройте вкладку Аудит.\nНажмите Добавить, чтобы создать запись аудита.\nВыберите субъект безопасности, а затем пользователей или группы, действия которых нужно проверять. Введите Everyone, чтобы включить всех пользователей.\nВыберите тип аудита Success, Failure или All. Вариант All регистрирует как успешные, так и неуспешные попытки.\nВ разделе Разрешения выберите действия для аудита. Чтобы отслеживать чтение файлов, включите Выполнение обхода папки / файла, Список папки / чтение данных, Чтение атрибутов и Чтение дополнительных атрибутов.\nВыберите Полный доступ, если нужно проверять все действия с файлом или папкой.\nПодтвердите запись, примените изменения и закройте открытые окна свойств."
       },
       "events": {
-        "title": "View file access events in Windows Event Viewer",
-        "body": "Open Event Viewer and navigate to Windows Logs → Security. Use Filter Current Log to find events 4656 and 4663. Event 4663 records file access; inspect Account Name to identify the user, Logged to see when it occurred, and Object Name for the full file path."
+        "title": "Просмотр событий доступа к файлам в средстве просмотра событий Windows",
+        "body": "Откройте средство просмотра событий и перейдите в Журналы Windows → Безопасность. Используйте Фильтр текущего журнала, чтобы найти события 4656 и 4663. Событие 4663 регистрирует доступ к файлу: поле Account Name указывает пользователя, Logged — время события, а Object Name — полный путь к файлу."
       }
     },
     "modules": {

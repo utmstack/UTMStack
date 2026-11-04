@@ -3584,34 +3584,47 @@
     },
     "fileClassificationGuide": {
       "overview": {
-        "title": "Keep track of changes and access to classified information",
-        "body": "File Classification enables UTMStack's built-in file activity monitoring. It tracks changes and access attempts on selected files and folders through Windows auditing. No third-party software is required."
+        "title": "Änderungen und Zugriffe auf klassifizierte Informationen nachverfolgen",
+        "body": "File Classification aktiviert die integrierte Überwachung von Dateiaktivitäten in UTMStack. Änderungen und Zugriffsversuche auf ausgewählten Dateien und Ordnern werden mithilfe der Windows-Überwachung erfasst. Drittanbieter-Software ist nicht erforderlich."
       },
       "agentInstall": {
-        "title": "Install the UTMStack Windows agent",
-        "body": "Install the UTMStack agent on every Windows host that generates the audit events. No third-party software is required.",
-        "button": "Windows agent installation"
+        "title": "UTMStack-Windows-Agent installieren",
+        "body": "Installieren Sie den UTMStack-Agenten auf jedem Windows-Host, der Überwachungsereignisse erzeugt. Drittanbieter-Software ist nicht erforderlich.",
+        "button": "Windows-Agent installieren"
       },
-      "fieldsTitle": "Information captured",
-      "fields": "Event Date\nEvent Name\nUser\nObject Type\nObject name (full path)\nProcess name (process interacting with the file)\nAction performed\nServer name\nHandler ID\nResource attribute\nDomain name\nLogon ID\nHost ID\nHost OS\nHost Architecture",
-      "policyImageAlt": "Windows Group Policy settings for auditing the file system",
+      "fieldsTitle": "Erfasste Informationen",
+      "fields": "Ereignisdatum\nEreignisname\nBenutzer\nObjekttyp\nObjektname (vollständiger Pfad)\nProzessname (Prozess, der mit der Datei interagiert)\nAusgeführte Aktion\nServername\nHandle-ID\nRessourcenattribut\nDomänenname\nAnmelde-ID\nHost-ID\nHostbetriebssystem\nHostarchitektur",
+      "images": {
+        "serverPolicySettings": "Einstellungen der Richtlinie Audit File System mit aktivierten Optionen Success und Failure",
+        "serverFolderProperties": "Registerkarte Sicherheit der Ordnereigenschaften mit der Schaltfläche Erweitert",
+        "serverFolderAdvancedSecurity": "Registerkarte Überwachung in den erweiterten Sicherheitseinstellungen",
+        "serverFolderAuditingEntry": "Für einen Ordner konfigurierte Überwachungseintragung",
+        "desktopPolicyList": "Gruppenrichtlinien-Editor mit ausgewählter Option Audit object access",
+        "desktopPolicySettings": "Richtlinie Audit object access mit ausgewählten Optionen Success und Failure",
+        "desktopFolderProperties": "Registerkarte Sicherheit der Dateieigenschaften",
+        "desktopFolderAdvancedSecurity": "Registerkarte Überwachung in den erweiterten Sicherheitseinstellungen einer Datei",
+        "desktopFolderSelectPrincipal": "Dialog zur Benutzerauswahl mit eingetragenem Everyone",
+        "desktopFolderAuditingPermissions": "Überwachungseintragung mit ausgewählten Dateizugriffsberechtigungen",
+        "events": "Windows-Ereignisanzeige mit dem Dateizugriffsereignis 4663"
+      },
+      "policyImageAlt": "Windows-Gruppenrichtlinieneinstellungen zur Überwachung des Dateisystems",
       "server": {
-        "policyTitle": "Auditing Windows Server — enable the Audit File System policy",
-        "policySteps": "Open Group Policy Management and edit or create a policy for the target servers.\nNavigate to Computer Configuration → Policies → Windows Settings → Security Settings → Advanced Audit Policy Configuration → Audit Policies → Object Access.\nOpen Audit File System and enable the policy. Choose Success, Failure, or both according to your requirements.\nApply the policy to the servers you want to monitor.",
-        "folderTitle": "Configure auditing on files and folders",
-        "folderIntro": "Auditing must also be enabled on each file or folder you want to monitor.",
-        "folderSteps": "Right-click the file or folder, select Properties, then open the Security tab.\nSelect Advanced and open the Auditing tab.\nAdd an auditing entry for the users or groups to monitor. Choose successful attempts, failed attempts, or both, and specify whether the entry applies to this folder, its files, and subfolders."
+        "policyTitle": "Windows Server überwachen — Richtlinie Audit File System aktivieren",
+        "policySteps": "Öffnen Sie die Gruppenrichtlinienverwaltung und bearbeiten oder erstellen Sie eine Richtlinie für die Zielserver.\nNavigieren Sie zu Computerkonfiguration → Richtlinien → Windows-Einstellungen → Sicherheitseinstellungen → Erweiterte Überwachungsrichtlinienkonfiguration → Überwachungsrichtlinien → Objektzugriff.\nÖffnen Sie Audit File System und aktivieren Sie die Richtlinie. Wählen Sie je nach Bedarf Success, Failure oder beides aus.\nWenden Sie die Richtlinie auf die Server an, die Sie überwachen möchten.",
+        "folderTitle": "Überwachung für Dateien und Ordner konfigurieren",
+        "folderIntro": "Die Überwachung muss auch für jede Datei und jeden Ordner aktiviert werden, die bzw. den Sie überwachen möchten.",
+        "folderSteps": "Klicken Sie mit der rechten Maustaste auf die Datei oder den Ordner, wählen Sie Eigenschaften und öffnen Sie dann die Registerkarte Sicherheit.\nWählen Sie Erweitert und öffnen Sie die Registerkarte Überwachung.\nFügen Sie für die zu überwachenden Benutzer oder Gruppen einen Überwachungseintrag hinzu. Wählen Sie erfolgreiche, fehlgeschlagene oder beide Arten von Versuchen und legen Sie fest, ob der Eintrag für diesen Ordner, seine Dateien und Unterordner gilt."
       },
       "desktop": {
-        "policyTitle": "Auditing Windows Desktop — set the Audit object access policy",
-        "policySteps": "On the primary domain controller or a system with administration tools, open Group Policy Management by running gpmc.msc.\nCreate a new GPO or edit an existing one. To apply it across a domain, link the GPO to the domain.\nIn Group Policy Management Editor, navigate to Computer Configuration → Windows Settings → Security Settings → Local Policies → Audit Policy.\nOpen Audit object access and select Define these policy settings.\nSelect Success and Failure. Selecting both is recommended.\nApply the changes and close the policy dialog.\nTo apply the policy immediately, run Gpupdate /force in Command Prompt.",
-        "folderTitle": "Set auditing on the files you want to track",
-        "folderIntro": "After configuring the Group Policy, add an auditing entry to each file or folder. Auditing can be inherited by files and subfolders.",
-        "folderSteps": "In Windows Explorer, right-click the file or folder and select Properties.\nOpen the Security tab, select Advanced, then open the Auditing tab.\nSelect Add to create an auditing entry.\nSelect a principal and choose the users or groups whose activity you want to audit. Enter Everyone to include all users.\nChoose Success, Failure, or All as the audit type. All captures both successful and failed attempts.\nUnder Permissions, select the actions to audit. To track file reads, include Traverse folder / Execute file, List folder / Read data, Read attributes, and Read extended attributes.\nSelect Full control if you want to audit all activity on the file or folder.\nConfirm the entry, then apply the changes and close the open properties dialogs."
+        "policyTitle": "Windows-Desktop überwachen — Richtlinie Audit object access konfigurieren",
+        "policySteps": "Öffnen Sie auf dem primären Domänencontroller oder einem System mit Verwaltungstools die Gruppenrichtlinienverwaltung, indem Sie gpmc.msc ausführen.\nErstellen Sie ein neues Gruppenrichtlinienobjekt (GPO) oder bearbeiten Sie ein vorhandenes. Um es domänenweit anzuwenden, verknüpfen Sie das GPO mit der Domäne.\nNavigieren Sie im Gruppenrichtlinienverwaltungs-Editor zu Computerkonfiguration → Windows-Einstellungen → Sicherheitseinstellungen → Lokale Richtlinien → Überwachungsrichtlinie.\nÖffnen Sie Audit object access und wählen Sie Diese Richtlinieneinstellungen definieren.\nWählen Sie Success und Failure aus. Es wird empfohlen, beide Optionen zu aktivieren.\nÜbernehmen Sie die Änderungen und schließen Sie das Richtlinienfenster.\nUm die Richtlinie sofort anzuwenden, führen Sie Gpupdate /force in der Eingabeaufforderung aus.",
+        "folderTitle": "Überwachung für die Dateien einrichten, die Sie nachverfolgen möchten",
+        "folderIntro": "Fügen Sie nach der Konfiguration der Gruppenrichtlinie jeder Datei bzw. jedem Ordner einen Überwachungseintrag hinzu. Die Überwachung kann an Dateien und Unterordner vererbt werden.",
+        "folderSteps": "Klicken Sie im Datei-Explorer mit der rechten Maustaste auf die Datei oder den Ordner und wählen Sie Eigenschaften.\nÖffnen Sie die Registerkarte Sicherheit, wählen Sie Erweitert und öffnen Sie anschließend die Registerkarte Überwachung.\nWählen Sie Hinzufügen, um einen Überwachungseintrag zu erstellen.\nWählen Sie einen Sicherheitsprinzipal und anschließend die Benutzer oder Gruppen aus, deren Aktivitäten Sie überwachen möchten. Geben Sie Everyone ein, um alle Benutzer einzuschließen.\nWählen Sie als Überwachungstyp Success, Failure oder All. All erfasst sowohl erfolgreiche als auch fehlgeschlagene Versuche.\nWählen Sie unter Berechtigungen die zu überwachenden Aktionen aus. Um Dateizugriffe zum Lesen zu erfassen, wählen Sie Ordner durchsuchen / Datei ausführen, Ordner auflisten / Daten lesen, Attribute lesen und Erweiterte Attribute lesen.\nWählen Sie Vollzugriff, wenn Sie alle Aktivitäten für die Datei oder den Ordner überwachen möchten.\nBestätigen Sie den Eintrag, übernehmen Sie die Änderungen und schließen Sie alle geöffneten Eigenschaftsfenster."
       },
       "events": {
-        "title": "View file access events in Windows Event Viewer",
-        "body": "Open Event Viewer and navigate to Windows Logs → Security. Use Filter Current Log to find events 4656 and 4663. Event 4663 records file access; inspect Account Name to identify the user, Logged to see when it occurred, and Object Name for the full file path."
+        "title": "Dateizugriffsereignisse in der Windows-Ereignisanzeige anzeigen",
+        "body": "Öffnen Sie die Ereignisanzeige und navigieren Sie zu Windows-Protokolle → Sicherheit. Verwenden Sie Aktuelles Protokoll filtern, um die Ereignisse 4656 und 4663 zu finden. Ereignis 4663 erfasst Dateizugriffe: Unter Account Name finden Sie den Benutzer, unter Logged den Zeitpunkt und unter Object Name den vollständigen Dateipfad."
       }
     },
     "modules": {

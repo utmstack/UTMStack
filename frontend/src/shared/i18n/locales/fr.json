@@ -3584,34 +3584,47 @@
     },
     "fileClassificationGuide": {
       "overview": {
-        "title": "Keep track of changes and access to classified information",
-        "body": "File Classification enables UTMStack's built-in file activity monitoring. It tracks changes and access attempts on selected files and folders through Windows auditing. No third-party software is required."
+        "title": "Suivez les modifications et les accès aux informations classifiées",
+        "body": "File Classification active la surveillance intégrée de l'activité des fichiers dans UTMStack. La solution suit les modifications et les tentatives d'accès aux fichiers et dossiers sélectionnés grâce à l'audit Windows. Aucun logiciel tiers n'est nécessaire."
       },
       "agentInstall": {
-        "title": "Install the UTMStack Windows agent",
-        "body": "Install the UTMStack agent on every Windows host that generates the audit events. No third-party software is required.",
-        "button": "Windows agent installation"
+        "title": "Installez l'agent UTMStack pour Windows",
+        "body": "Installez l'agent UTMStack sur chaque hôte Windows qui génère les événements d'audit. Aucun logiciel tiers n'est nécessaire.",
+        "button": "Installation de l'agent Windows"
       },
-      "fieldsTitle": "Information captured",
-      "fields": "Event Date\nEvent Name\nUser\nObject Type\nObject name (full path)\nProcess name (process interacting with the file)\nAction performed\nServer name\nHandler ID\nResource attribute\nDomain name\nLogon ID\nHost ID\nHost OS\nHost Architecture",
-      "policyImageAlt": "Windows Group Policy settings for auditing the file system",
+      "fieldsTitle": "Informations collectées",
+      "fields": "Date de l'événement\nNom de l'événement\nUtilisateur\nType d'objet\nNom de l'objet (chemin complet)\nNom du processus (processus qui interagit avec le fichier)\nAction effectuée\nNom du serveur\nID de handle\nAttribut de ressource\nNom de domaine\nID de session\nID de l'hôte\nSystème d'exploitation de l'hôte\nArchitecture de l'hôte",
+      "images": {
+        "serverPolicySettings": "Paramètres de la stratégie Audit File System avec Success et Failure activés",
+        "serverFolderProperties": "Onglet Sécurité des propriétés du dossier avec le bouton Avancé",
+        "serverFolderAdvancedSecurity": "Onglet Audit des paramètres de sécurité avancés",
+        "serverFolderAuditingEntry": "Entrée d'audit configurée pour un dossier",
+        "desktopPolicyList": "Éditeur de stratégie de groupe avec Audit object access sélectionné",
+        "desktopPolicySettings": "Stratégie Audit object access avec Success et Failure sélectionnés",
+        "desktopFolderProperties": "Onglet Sécurité des propriétés du fichier",
+        "desktopFolderAdvancedSecurity": "Onglet Audit des paramètres de sécurité avancés d'un fichier",
+        "desktopFolderSelectPrincipal": "Fenêtre de sélection d'utilisateur avec Everyone saisi",
+        "desktopFolderAuditingPermissions": "Entrée d'audit avec les autorisations d'accès aux fichiers sélectionnées",
+        "events": "Observateur d'événements Windows affichant l'événement d'accès au fichier 4663"
+      },
+      "policyImageAlt": "Paramètres de stratégie de groupe Windows pour l'audit du système de fichiers",
       "server": {
-        "policyTitle": "Auditing Windows Server — enable the Audit File System policy",
-        "policySteps": "Open Group Policy Management and edit or create a policy for the target servers.\nNavigate to Computer Configuration → Policies → Windows Settings → Security Settings → Advanced Audit Policy Configuration → Audit Policies → Object Access.\nOpen Audit File System and enable the policy. Choose Success, Failure, or both according to your requirements.\nApply the policy to the servers you want to monitor.",
-        "folderTitle": "Configure auditing on files and folders",
-        "folderIntro": "Auditing must also be enabled on each file or folder you want to monitor.",
-        "folderSteps": "Right-click the file or folder, select Properties, then open the Security tab.\nSelect Advanced and open the Auditing tab.\nAdd an auditing entry for the users or groups to monitor. Choose successful attempts, failed attempts, or both, and specify whether the entry applies to this folder, its files, and subfolders."
+        "policyTitle": "Audit Windows Server — activez la stratégie Audit File System",
+        "policySteps": "Ouvrez Gestion de stratégie de groupe et modifiez ou créez une stratégie pour les serveurs concernés.\nAccédez à Configuration ordinateur → Stratégies → Paramètres Windows → Paramètres de sécurité → Configuration avancée de la stratégie d'audit → Stratégies d'audit → Accès aux objets.\nOuvrez Audit File System et activez la stratégie. Choisissez Success, Failure ou les deux selon vos besoins.\nAppliquez la stratégie aux serveurs que vous souhaitez surveiller.",
+        "folderTitle": "Configurez l'audit des fichiers et des dossiers",
+        "folderIntro": "L'audit doit également être activé sur chaque fichier ou dossier à surveiller.",
+        "folderSteps": "Cliquez avec le bouton droit sur le fichier ou le dossier, sélectionnez Propriétés, puis ouvrez l'onglet Sécurité.\nSélectionnez Avancé et ouvrez l'onglet Audit.\nAjoutez une entrée d'audit pour les utilisateurs ou groupes à surveiller. Choisissez les tentatives réussies, échouées ou les deux, et indiquez si l'entrée s'applique à ce dossier, à ses fichiers et à ses sous-dossiers."
       },
       "desktop": {
-        "policyTitle": "Auditing Windows Desktop — set the Audit object access policy",
-        "policySteps": "On the primary domain controller or a system with administration tools, open Group Policy Management by running gpmc.msc.\nCreate a new GPO or edit an existing one. To apply it across a domain, link the GPO to the domain.\nIn Group Policy Management Editor, navigate to Computer Configuration → Windows Settings → Security Settings → Local Policies → Audit Policy.\nOpen Audit object access and select Define these policy settings.\nSelect Success and Failure. Selecting both is recommended.\nApply the changes and close the policy dialog.\nTo apply the policy immediately, run Gpupdate /force in Command Prompt.",
-        "folderTitle": "Set auditing on the files you want to track",
-        "folderIntro": "After configuring the Group Policy, add an auditing entry to each file or folder. Auditing can be inherited by files and subfolders.",
-        "folderSteps": "In Windows Explorer, right-click the file or folder and select Properties.\nOpen the Security tab, select Advanced, then open the Auditing tab.\nSelect Add to create an auditing entry.\nSelect a principal and choose the users or groups whose activity you want to audit. Enter Everyone to include all users.\nChoose Success, Failure, or All as the audit type. All captures both successful and failed attempts.\nUnder Permissions, select the actions to audit. To track file reads, include Traverse folder / Execute file, List folder / Read data, Read attributes, and Read extended attributes.\nSelect Full control if you want to audit all activity on the file or folder.\nConfirm the entry, then apply the changes and close the open properties dialogs."
+        "policyTitle": "Audit Windows Desktop — configurez la stratégie Audit object access",
+        "policySteps": "Sur le contrôleur de domaine principal ou un système équipé des outils d'administration, ouvrez Gestion de stratégie de groupe en exécutant gpmc.msc.\nCréez un objet de stratégie de groupe (GPO) ou modifiez-en un existant. Pour l'appliquer à un domaine, liez le GPO à celui-ci.\nDans l'Éditeur de gestion de stratégie de groupe, accédez à Configuration ordinateur → Paramètres Windows → Paramètres de sécurité → Stratégies locales → Stratégie d'audit.\nOuvrez Audit object access et sélectionnez Définir ces paramètres de stratégie.\nSélectionnez Success et Failure. Il est recommandé de sélectionner les deux.\nAppliquez les modifications et fermez la boîte de dialogue de la stratégie.\nPour appliquer immédiatement la stratégie, exécutez Gpupdate /force dans l'invite de commandes.",
+        "folderTitle": "Configurez l'audit des fichiers à surveiller",
+        "folderIntro": "Après avoir configuré la stratégie de groupe, ajoutez une entrée d'audit à chaque fichier ou dossier. L'audit peut être hérité par les fichiers et sous-dossiers.",
+        "folderSteps": "Dans l'Explorateur de fichiers, cliquez avec le bouton droit sur le fichier ou le dossier et sélectionnez Propriétés.\nOuvrez l'onglet Sécurité, sélectionnez Avancé, puis ouvrez l'onglet Audit.\nSélectionnez Ajouter pour créer une entrée d'audit.\nSélectionnez un principal, puis choisissez les utilisateurs ou groupes dont vous souhaitez auditer l'activité. Saisissez Everyone pour inclure tous les utilisateurs.\nChoisissez Success, Failure ou All comme type d'audit. All enregistre les tentatives réussies et échouées.\nSous Autorisations, sélectionnez les actions à auditer. Pour suivre les lectures de fichiers, incluez Parcourir le dossier / Exécuter le fichier, Lister le dossier / Lire les données, Lire les attributs et Lire les attributs étendus.\nSélectionnez Contrôle total pour auditer toute l'activité sur le fichier ou le dossier.\nConfirmez l'entrée, appliquez les modifications et fermez les fenêtres de propriétés ouvertes."
       },
       "events": {
-        "title": "View file access events in Windows Event Viewer",
-        "body": "Open Event Viewer and navigate to Windows Logs → Security. Use Filter Current Log to find events 4656 and 4663. Event 4663 records file access; inspect Account Name to identify the user, Logged to see when it occurred, and Object Name for the full file path."
+        "title": "Consultez les événements d'accès aux fichiers dans l'Observateur d'événements Windows",
+        "body": "Ouvrez l'Observateur d'événements et accédez à Journaux Windows → Sécurité. Utilisez Filtrer le journal actuel pour trouver les événements 4656 et 4663. L'événement 4663 enregistre l'accès au fichier : consultez Account Name pour identifier l'utilisateur, Logged pour connaître l'heure et Object Name pour afficher le chemin complet du fichier."
       }
     },
     "modules": {

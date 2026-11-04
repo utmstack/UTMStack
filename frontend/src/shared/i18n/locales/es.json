@@ -3605,6 +3605,19 @@
       },
       "fieldsTitle": "Información capturada",
       "fields": "Fecha del evento\nNombre del evento\nUsuario\nTipo de objeto\nNombre del objeto (ruta completa)\nNombre del proceso (proceso que interactúa con el archivo)\nAcción realizada\nNombre del servidor\nID del controlador\nAtributo del recurso\nNombre del dominio\nID de inicio de sesión\nID del host\nSistema operativo del host\nArquitectura del host",
+      "images": {
+        "serverPolicySettings": "Configuración de Audit File System con Success y Failure habilitados",
+        "serverFolderProperties": "Pestaña Seguridad de las propiedades de la carpeta con el botón Opciones avanzadas",
+        "serverFolderAdvancedSecurity": "Pestaña Auditoría de la configuración de seguridad avanzada",
+        "serverFolderAuditingEntry": "Entrada de auditoría configurada para una carpeta",
+        "desktopPolicyList": "Editor de directivas de grupo con Audit object access seleccionado",
+        "desktopPolicySettings": "Directiva Audit object access con Success y Failure seleccionados",
+        "desktopFolderProperties": "Pestaña Seguridad de las propiedades del archivo",
+        "desktopFolderAdvancedSecurity": "Pestaña Auditoría de la configuración de seguridad avanzada de un archivo",
+        "desktopFolderSelectPrincipal": "Cuadro de selección de usuario con Everyone escrito",
+        "desktopFolderAuditingPermissions": "Entrada de auditoría con permisos de acceso a archivos seleccionados",
+        "events": "Visor de eventos de Windows mostrando eventos de acceso a archivos 4663"
+      },
       "policyImageAlt": "Configuración de directiva de grupo de Windows para auditar el sistema de archivos",
       "server": {
         "policyTitle": "Auditoría en Windows Server — habilitar Audit File System",
