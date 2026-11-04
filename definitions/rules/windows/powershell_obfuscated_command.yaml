@@ -1,6 +1,4 @@
-# Rule version v1.3.0 (validated 2026-07-01 on v11, ported from there -- replaces
-# this repo's earlier v1.0.0 draft, which used the -EncodedCommand/-enc branch
-# this version explicitly removed after finding it too noisy in production)
+# Rule version v1.3.0 (validated 2026-07-01)
 dataTypes:
   - wineventlog
 name: 'Windows: Suspicious PowerShell (Encoded / Download Cradle / AMSI Bypass)'

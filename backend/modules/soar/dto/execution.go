@@ -38,6 +38,21 @@ type MatchRequest struct {
 	Alert    json.RawMessage `json:"alert"    binding:"required"`
 }
 
+// TriggerFlowRequest is the manual flow trigger. Alert is raw alert JSON (a
+// past alert's stored payload, or a minimal synthetic one) — it feeds the
+// $(alert.*) interpolation bag and agent auto-resolution. Agent optionally
+// overrides dataSource for shell roots. Flow-level Conditions are ignored:
+// a manual trigger means "run this flow now".
+type TriggerFlowRequest struct {
+	Alert json.RawMessage `json:"alert"`
+	Agent string          `json:"agent" binding:"max=150"`
+}
+
+// FlowTriggerResponse reports the run id so the caller can follow it.
+type FlowTriggerResponse struct {
+	FlowRunID uuid.UUID `json:"flowRunId"`
+}
+
 type ExecutionFilters struct {
 	Origin            domain.ExecutionOrigin   `form:"origin"`
 	RulePath          string                   `form:"rulePath"`

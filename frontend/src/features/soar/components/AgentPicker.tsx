@@ -17,7 +17,6 @@ interface Props {
   platform?: string
   agent?: string
   excludedAgents?: string[]
-  shell?: string
   readOnly?: boolean
   onChange: (patch: { platform?: string; agent?: string; excludedAgents?: string[]; shell?: string }) => void
 }
@@ -38,7 +37,7 @@ function scopeFrom(agent?: string, excluded?: string[]): Scope {
  *
  *  Platform is a UI-only filter (limits the agent list); the runtime uses
  *  `agent` + `excludedAgents`. */
-export function AgentPicker({ platform, agent, excludedAgents, shell, readOnly, onChange }: Props) {
+export function AgentPicker({ platform, agent, excludedAgents, readOnly, onChange }: Props) {
   const { t } = useTranslation()
   const [agents, setAgents] = useState<AgentOption[]>([])
   const [scope, setScope] = useState<Scope>(() => scopeFrom(agent, excludedAgents))
@@ -62,32 +61,12 @@ export function AgentPicker({ platform, agent, excludedAgents, shell, readOnly, 
       .catch(() => setAgents([]))
   }, [])
 
-  const platforms = useMemo(() => {
-    const seen = new Set<string>()
-    const out: string[] = []
-    for (const p of [...COMMON_PLATFORMS, ...agents.map((a) => a.platform), platform ?? '']) {
-      const v = p.trim()
-      if (v && !seen.has(v.toLowerCase())) {
-        seen.add(v.toLowerCase())
-        out.push(v)
-      }
-    }
-    return out
-  }, [agents, platform])
-
   const platformAgents = useMemo(() => {
     const p = (platform ?? '').trim().toLowerCase()
     if (!p) return agents
     const m = agents.filter((a) => a.platform && (a.platform.toLowerCase().includes(p) || p.includes(a.platform.toLowerCase())))
     return m.length ? m : agents
   }, [agents, platform])
-
-  const shells = shellsForPlatform(platform ?? '')
-
-  const onPlatformChange = (v: string) => {
-    const nextShell = shells.includes(shell ?? '') ? shell : defaultShellForPlatform(v)
-    onChange({ platform: v || undefined, shell: nextShell || undefined })
-  }
 
   const switchScope = (next: Scope) => {
     if (next === scope) return
@@ -101,25 +80,6 @@ export function AgentPicker({ platform, agent, excludedAgents, shell, readOnly, 
 
   return (
     <div className="space-y-2">
-      <div className="grid grid-cols-2 gap-2">
-        <Field label={t('soar.editor.canvas.platform')}>
-          <select value={platform ?? ''} disabled={readOnly} onChange={(e) => onPlatformChange(e.target.value)} className={SELECT + ' w-full'}>
-            <option value="">{t('soar.editor.canvas.any')}</option>
-            {platforms.map((p) => (
-              <option key={p} value={p}>{p}</option>
-            ))}
-          </select>
-        </Field>
-        <Field label={t('soar.editor.canvas.shell')}>
-          <select value={shell ?? ''} disabled={readOnly} onChange={(e) => onChange({ shell: e.target.value || undefined })} className={SELECT + ' w-full'}>
-            <option value="">{t('soar.editor.canvas.auto')}</option>
-            {shells.map((s) => (
-              <option key={s} value={s}>{s}</option>
-            ))}
-          </select>
-        </Field>
-      </div>
-
       <Field label={t('soar.editor.canvas.runOn')}>
         <div className="inline-flex w-full rounded-md border border-border p-0.5">
           {(['auto', 'specific', 'except'] as const).map((s) => (
@@ -206,6 +166,81 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     <div className="space-y-1">
       <label className="block text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{label}</label>
       {children}
+    </div>
+  )
+}
+
+export function platformsForAgents(agents: AgentOption[], platform?: string): string[] {
+  const seen = new Set<string>()
+  const out: string[] = []
+  for (const p of [...COMMON_PLATFORMS, ...agents.map((a) => a.platform), platform ?? '']) {
+    const v = p.trim()
+    if (v && !seen.has(v.toLowerCase())) {
+      seen.add(v.toLowerCase())
+      out.push(v)
+    }
+  }
+  return out
+}
+
+/** Platform + shell selects for `shell` nodes, shown above the command input.
+ *  Picking a platform falls back to its default shell when the current one
+ *  doesn't apply to the new platform. */
+export function PlatformShellPicker({
+  platform,
+  shell,
+  readOnly,
+  onChange,
+}: {
+  platform?: string
+  shell?: string
+  readOnly?: boolean
+  onChange: (patch: { platform?: string; shell?: string }) => void
+}) {
+  const { t } = useTranslation()
+  const [agents, setAgents] = useState<AgentOption[]>([])
+
+  useEffect(() => {
+    datasourcesHttpService
+      .list({ page: 1, size: 1000, kind: 'agent' })
+      .then((r) =>
+        setAgents(
+          (r.items ?? []).map((d) => ({
+            name: d.name,
+            platform: typeof d.metadata?.osPlatform === 'string' ? d.metadata.osPlatform : '',
+          })),
+        ),
+      )
+      .catch(() => setAgents([]))
+  }, [])
+
+  const platforms = useMemo(() => platformsForAgents(agents, platform), [agents, platform])
+  const shells = shellsForPlatform(platform ?? '')
+
+  const onPlatformChange = (v: string) => {
+    const nextShells = shellsForPlatform(v)
+    const nextShell = nextShells.includes(shell ?? '') ? shell : defaultShellForPlatform(v)
+    onChange({ platform: v || undefined, shell: nextShell || undefined })
+  }
+
+  return (
+    <div className="grid grid-cols-2 gap-2">
+      <Field label={t('soar.editor.canvas.platform')}>
+        <select value={platform ?? ''} disabled={readOnly} onChange={(e) => onPlatformChange(e.target.value)} className={SELECT + ' w-full'}>
+          <option value="">{t('soar.editor.canvas.any')}</option>
+          {platforms.map((p) => (
+            <option key={p} value={p}>{p}</option>
+          ))}
+        </select>
+      </Field>
+      <Field label={t('soar.editor.canvas.shell')}>
+        <select value={shell ?? ''} disabled={readOnly} onChange={(e) => onChange({ shell: e.target.value || undefined })} className={SELECT + ' w-full'}>
+          <option value="">{t('soar.editor.canvas.auto')}</option>
+          {shells.map((s) => (
+            <option key={s} value={s}>{s}</option>
+          ))}
+        </select>
+      </Field>
     </div>
   )
 }

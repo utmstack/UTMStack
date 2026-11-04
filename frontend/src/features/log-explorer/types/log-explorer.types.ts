@@ -5,10 +5,22 @@ export type FilterOperator =
   | 'IS'
   | 'IS_NOT'
   | 'IS_BETWEEN'
+  | 'IS_NOT_BETWEEN'
   | 'IS_IN_FIELDS'
   | 'IS_ONE_OF_TERMS' // used by the "related logs" deep-link (id in [...])
+  | 'IS_NOT_ONE_OF_TERMS'
+  | 'IS_GREATER_THAN'
+  | 'IS_GREATER_THAN_OR_EQUALS'
+  | 'IS_LESS_THAN'
+  | 'IS_LESS_THAN_OR_EQUALS'
   | 'CONTAIN'
+  | 'DOES_NOT_CONTAIN'
+  | 'START_WITH'
+  | 'DOES_NOT_START_WITH'
+  | 'ENDS_WITH'
+  | 'DOES_NOT_END_WITH'
   | 'EXIST'
+  | 'DOES_NOT_EXIST'
 
 /** A single search filter; a search body carries FilterType[]. */
 export interface FilterType {

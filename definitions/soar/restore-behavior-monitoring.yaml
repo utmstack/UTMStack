@@ -10,7 +10,12 @@
   - operator: IS
     field: name
     value: TODO-set-the-correlation-rule-that-triggers-this
-  commands:
-  - powershell Set-MpPreference -DisableBehaviorMonitoring $(if ("$(lastEvent.log.message)" -match '-DisableBehaviorMonitoring') { $false } else { $true })
-  shell: powershell
-  agentPlatform: windows
+  roots:
+    - step_0
+  nodes:
+    step_0:
+        kind: executor
+        executor: shell
+        command: powershell Set-MpPreference -DisableBehaviorMonitoring $(if ("$(lastEvent.log.message)" -match '-DisableBehaviorMonitoring') { $false } else { $true })
+        shell: powershell
+        platform: windows

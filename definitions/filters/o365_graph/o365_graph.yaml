@@ -1,0 +1,950 @@
+# Microsoft Graph filter, version 2.0.0
+
+# Normalizes the records the o365_graph plugin collects from Microsoft Graph.
+# The plugin sends each record's own JSON with no marker of where it came from,
+# so every record is recognised by keys only its source carries and tagged in
+# log.graphSource:
+#   security-alerts     /security/alerts_v2
+#   security-incidents  /security/incidents
+#   directory-audit     /auditLogs/directoryAudits
+#   sign-ins            /auditLogs/signIns
+#   risk-detections     /identityProtection/riskDetections
+#   risky-user          /beta/identityProtection/riskyUsers
+#   hunting             advanced hunting, EmailEvents table
+#   url-click           advanced hunting, UrlClickEvents table
+#   purview-audit       /security/auditLog/queries/{id}/records
+# A Purview audit record carries an Office 365 Management Activity record in
+# auditData. It is parsed into log.* so the activity keeps the field names,
+# drop list and outcome rules of the o365 filter (office365/o365.yaml).
+#
+# References:
+# https://learn.microsoft.com/en-us/graph/api/resources/security-alert
+# https://learn.microsoft.com/en-us/graph/api/resources/security-incident
+# https://learn.microsoft.com/en-us/graph/api/resources/directoryaudit
+# https://learn.microsoft.com/en-us/graph/api/resources/signin
+# https://learn.microsoft.com/en-us/graph/api/resources/riskdetection
+# https://learn.microsoft.com/en-us/graph/api/resources/riskyuser
+# https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-emailevents-table
+# https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-urlclickevents-table
+# https://learn.microsoft.com/en-us/graph/api/resources/security-auditlogrecord
+# https://learn.microsoft.com/en-us/entra/identity-platform/reference-error-codes
+
+pipeline:
+  - dataTypes: [o365-graph]
+    order: 37
+    steps:
+      - json:
+          source: raw
+      # Never trust markers supplied by the input record.
+      - delete:
+          fields:
+            - log.graphSource
+            - log.o365InboxForwardingChange
+            - log.o365MailboxForwardingSet
+            - log.o365SendOnBehalfChange
+            - log.forwardingAddress
+            - log.permissionGrantee
+            - log.accessRights
+      # Each source is recognised by keys only it carries. The conditions do not
+      # overlap, so their order does not matter.
+      - add:
+          function: string
+          params:
+            key: log.graphSource
+            value: security-alerts
+          where: exists("log.alertWebUrl") && exists("log.detectionSource")
+      - add:
+          function: string
+          params:
+            key: log.graphSource
+            value: security-incidents
+          where: exists("log.incidentWebUrl") && exists("log.displayName") && !exists("log.alertWebUrl")
+      - add:
+          function: string
+          params:
+            key: log.graphSource
+            value: directory-audit
+          where: exists("log.activityDisplayName") && exists("log.initiatedBy") && exists("log.targetResources")
+      - add:
+          function: string
+          params:
+            key: log.graphSource
+            value: sign-ins
+          where: exists("log.appDisplayName") && exists("log.status.errorCode") && exists("log.userPrincipalName")
+      - add:
+          function: string
+          params:
+            key: log.graphSource
+            value: risk-detections
+          where: exists("log.riskEventType") && exists("log.detectedDateTime")
+      - add:
+          function: string
+          params:
+            key: log.graphSource
+            value: risky-user
+          where: exists("log.riskLastUpdatedDateTime") && !exists("log.riskEventType")
+      - add:
+          function: string
+          params:
+            key: log.graphSource
+            value: hunting
+          where: exists("log.NetworkMessageId") && exists("log.EmailDirection")
+      - add:
+          function: string
+          params:
+            key: log.graphSource
+            value: url-click
+          where: exists("log.Url") && exists("log.ActionType") && exists("log.AccountUpn")
+      - add:
+          function: string
+          params:
+            key: log.graphSource
+            value: purview-audit
+          where: exists("log.auditLogRecordType") && exists("log.auditData")
+      # Purview: parse the Management Activity record into log.*, then remove the
+      # Graph copies of values the record already holds.
+      - json:
+          source: log.auditData
+          where: equals("log.graphSource", "purview-audit")
+      - delete:
+          fields:
+            - log.auditData
+            - log.operation
+            - log.service
+            - log.organizationId
+            - log.objectId
+          where: equals("log.graphSource", "purview-audit")
+      # Graph adds "<name>@odata.type" type notes next to some values. The json
+      # step removes "@" from top-level names, so they arrive as log.<name>odata.
+      - delete:
+          fields:
+            - log.odata
+            - log.Actorodata
+            - log.AzureActiveDirectoryEventTypeodata
+            - log.BillingTypeodata
+            - log.Ccodata
+            - log.DevicePropertiesodata
+            - log.EmailClusterIdodata
+            - log.EmailSizeodata
+            - log.ExtendedPropertiesodata
+            - log.ExtraPropertiesodata
+            - log.Foldersodata
+            - log.InternalLogonTypeodata
+            - log.IsClickedThroughodata
+            - log.IsFirstContactodata
+            - log.ListBaseTypeodata
+            - log.ListServerTemplateodata
+            - log.LogonTypeodata
+            - log.Messagesodata
+            - log.ModifiedPropertiesodata
+            - log.OperationCountodata
+            - log.OperationPropertiesodata
+            - log.Parametersodata
+            - log.RecordTypeodata
+            - log.RefreshEnforcementPolicyodata
+            - log.ResultsCountodata
+            - log.Targetodata
+            - log.Toodata
+            - log.UserTypeodata
+            - log.Versionodata
+      # The operations the o365 filter drops, including the collector's own
+      # AuditSearchCreated and AuditSearchCompleted records.
+      - drop:
+          where: equals("log.graphSource", "purview-audit") && oneOf("log.Operation", ['AINotesUpdate', 'AcceptedSharingLinkOnFolder', 'AccessRequestUpdated', 'AccessedOdataLink', 'AddCommentToIncident.', 'AddFormCoauthor', 'AddRemediatedData', 'AddTagsToIncident', 'AdminThreadMuted', 'AdminThreadUnmuted', 'AlertExcelDownloaded', 'AlertNotificationsRecipientAdded', 'AllowShareFormForCopy', 'AppPublishedToCatalog', 'AppUpdatedInCatalog', 'AppUpgraded', 'ApplyRecordLabel', 'ApproveDisposal', 'AssignUserToIncident', 'AuditSearchCancelled', 'AuditSearchCompleted', 'AuditSearchCreated', 'AuditSearchExportJobCompleted', 'AuditSearchExportJobCreated', 'AuditSearchExportResultsDownloaded', 'BackupItemAdded', 'BackupItemRemoved', 'BackupItemRestoreCompleted', 'BackupItemRestoreTriggered', 'BackupPolicyActivated', 'BackupPolicyPaused', 'BotAddedToTeam', 'BreakEnded', 'BurnJob', 'CanceledQuery', 'CaseUpdated', 'ChannelAdded', 'ChannelOwnerResponded', 'ChatRetrieved', 'ChatUpdated', 'ClassificationAdded', 'ClassificationDefinitionCreated', 'ClientViewSignaled', 'ClockedIn', 'ClockedOut', 'CloseConversation', 'CollectionCreated', 'CollectionHardDeleted', 'CollectionRenamed', 'CollectionSoftDeleted', 'CollectionUpdated', 'ComplianceManagerAutomationChange', 'ComplianceSettingChanged', 'ConnectToExcelWorkbook', 'ConnectorAdded', 'CopilotInteraction', 'Copy', 'Create', 'CreateComment', 'CreateCopilotPlugin', 'CreateCopilotPromptBook', 'CreateForm', 'CreateResponse', 'CreateTag', 'CreateUpdateRequest', 'CreateWorkingSet', 'CreateWorkingSetSearch', 'DataExport', 'DataShareCreated', 'DataShareDeleted', 'DeleteCopilotPlugin', 'DeleteCopilotPromptBook', 'DeleteSummaryLink', 'DeleteTag', 'DeleteWorkingSetSearch', 'DeletedResult', 'DisableCopilotPlugin', 'DisableCopilotPromptBook', 'DisallowShareFormForCopy', 'DocumentSensitivityMismatchDetected', 'DomainControllerCoverageExcelDownloaded', 'DownloadCopyOfLakeData', 'DownloadDocument', 'DownloadedReport', 'DraftRestoreTaskCreated', 'DraftRestoreTaskDeleted', 'DraftRestoreTaskEdited', 'EditUpdateRequest', 'EnableCopilotPlugin', 'EnableCopilotPromptBook', 'EntityCreated', 'ErrorRemediationJob', 'ExchangeDataProactivelyPreserved', 'ExecutedQuery', 'ExportForm', 'ExportJob', 'ExtendRetention', 'FailedValidation', 'FileCheckOutDiscarded', 'FileCheckedIn', 'FileCheckedOut', 'FileCopied', 'FileDeletedFirstStageRecycleBin', 'FileDeletedSecondStageRecycleBin', 'FileModifiedExtended', 'FileRecycled', 'FileRestored', 'FileSyncDownloadedFull', 'FileSyncUploadedFull', 'FileUpdateDescription', 'FileUploaded', 'FileVersionRecycled', 'FileVersionsAllMinorsRecycled', 'FileVersionsAllRecycled', 'FileVisited', 'FolderCopied', 'FolderCreated', 'FolderDeletedFirstStageRecycleBin', 'FolderDeletedSecondStageRecycleBin', 'FolderRecycled', 'FolderRestored', 'FolderSharingLinkShared', 'GenerateCopyOfLakeData', 'GetAllRestoreArtifactsInTask', 'GetBackupItem', 'GetRestoreTaskDetails', 'GetSummaryLink', 'GlossaryTermAssigned', 'GlossaryTermCreated', 'HoldRemoved', 'HoldUpdated', 'HubSiteJoined', 'HubSiteOrphanHubDeleted', 'HubSiteRegistered', 'InformationBarriersInsightsReportCompleted', 'InformationBarriersInsightsReportOneDriveSectionQueried', 'InformationBarriersInsightsReportSchedule', 'InformationBarriersInsightsReportSharePointSectionQueried', 'InviteSent', 'InviteeResponded', 'LabelContentExplorerAccessedItem', 'LegacyWorkflowEnabledSet', 'LinkedEntityCreated', 'ListAllBackupItemsInPolicies', 'ListAllBackupItemsInTenant', 'ListAllBackupItemsInWorkload', 'ListAllBackupPolicies', 'ListAllRestorePoints', 'ListAllRestoreTasks', 'ListColumnCreated', 'ListColumnUpdated', 'ListContentTypeCreated', 'ListContentTypeDeleted', 'ListContentTypeUpdated', 'ListCreated', 'ListForms', 'ListItemCreated', 'ListItemRecycled', 'ListItemRestored', 'LiveNotesUpdate', 'LockRecord', 'LogsCollection', 'ManagedSyncClientAllowed', 'MarkedMessageChanged', 'MeetingDetail', 'MeetingParticipantDetail', 'MessageCreatedHasLink', 'MessageCreatedNotification', 'MessageCreation', 'MessageDeleted', 'MessageDeletedNotification', 'MessageEditedHasLink', 'MessageHostedContentsListed', 'MessageRead', 'MessageUpdated', 'MessageUpdatedNotification', 'MonitoringAlertNotificationRecipientAdded', 'MonitoringAlertUpdated', 'MoveForm', 'MovedFormIntoCollection', 'MovedFormOutofCollection', 'NewAdaptiveScope', 'NewBackupPolicyCreated', 'NewComplianceTag', 'NewRetentionCompliancePolicy', 'NewsFeedEnabledSet', 'OffShiftDialogAccepted', 'OfficeOnDemandSet', 'OpenConversation', 'OpenShiftAdded', 'PagePrefetched', 'PageViewed', 'PageViewedExtended', 'PeopleResultsScopeSet', 'PerformedCardAction', 'PlanCopied', 'PlanListRead', 'PreviewForm', 'PreviewItemDownloaded', 'PreviewItemListed', 'PreviewModeEnabledSet', 'PreviewWorkingSetSearch', 'ProInvitation', 'ProjectCreated', 'ProjectListAccessed', 'PulseCancel', 'PulseCreate', 'PulseCreateDraft', 'PulseDeleteDraft', 'PulseExtendDeadline', 'PulseInvite', 'PulseShareResults', 'PulseSubmit', 'QuarantinePreview', 'QuarantineReleaseRequest', 'QuarantineReleaseRequestDeny', 'QuarantineViewHeader', 'RecordDelete', 'RelabelItem', 'RemediationActionAdded', 'RemediationActionUpdated', 'RemoveAdaptiveScope', 'RemoveComplianceTag', 'RemoveCuratedTopic', 'RemoveFormCoauthor', 'RemoveTagsFromIncident', 'RemovedSearchExported', 'RemovedSearchPreviewed', 'RemovedSearchResultsPurged', 'RemovedSearchResultsSentToZoom', 'ReportDownloaded', 'RequestAdded', 'RequestRespondedTo', 'RestoreTaskActivated', 'RestoreTaskCompleted', 'RoadmapAccessed', 'RoadmapCreated', 'RoadmapItemAccessed', 'RoadmapItemCreated', 'RunAntiVirusScan', 'ScheduleGroupAdded', 'ScheduleShared', 'SearchPermissionUpdated', 'SearchQueryPerformed', 'SearchRemoved', 'SearchReport', 'SearchReportRemoved', 'SearchResultsSentToZoom', 'SearchStopped', 'SearchUpdated', 'SearchViewed', 'Send', 'SensitivityLabelApplied', 'SensitivityLabelChanged', 'SensorActivationMethodConfigurationUpdated', 'SensorCreated', 'SensorDeploymentAccessKeyReceived', 'SensorDeploymentAccessKeyUpdated', 'SetAdvancedFeatures', 'SetRestrictiveRetentionUI', 'SharePointDataProactivelyPreserved', 'SharingInvitationRevoked', 'SharingInvitationUpdated', 'ShiftAdded', 'SiteAdminChangeRequest', 'SiteCollectionCreated', 'SiteCollectionQuotaModified', 'SiteColumnCreated', 'SiteColumnDeleted', 'SiteColumnUpdated', 'SiteContentTypeCreated', 'SiteContentTypeDeleted', 'SiteContentTypeUpdated', 'SoftDeleteSettingsUpdated', 'SubTaskCreated', 'SubmitResponse', 'SubmitUpdate', 'SubscribedToMessages', 'SupervisionRuleMatch', 'SupervisoryReviewTag', 'TabAdded', 'TabUpdated', 'TagFiles', 'TagJob', 'TaggingConfigurationUpdated', 'TaskAccessed', 'TaskAssigned', 'TaskCompleted', 'TaskCreated', 'TaskListCreated', 'TaskListRead', 'TaskRead', 'TeamCreated', 'ThreadAccessFailure', 'ThreadViewed', 'TimeClockEntryAdded', 'TimeOffAdded', 'UnlockRecord', 'Update', 'UpdateCopilotPlugin', 'UpdateCopilotPromptBook', 'UpdateCopilotSettings', 'UpdateIncidentStatus', 'UpdateResponse', 'UpdateTag', 'UpdateUsageReportsPrivacySetting', 'UpdateWorkingSetSearch', 'UpdatedPolicyConfigPriority', 'UploadedOrgData', 'UsagePolicyAcceptance', 'ViewBackupPolicyDetails', 'ViewDocument', 'ViewForm', 'ViewResponse', 'ViewResponses', 'ViewRuntimeForm', 'ViewUpdate', 'ViewedExplore', 'ViewedSearchExported', 'ViewedSearchPreviewed', 'WorkforceIntegrationAdded', 'WorkspaceCreated', 'updateddeviceconfiguration'])
+      # Purview: documented Name/Value parameter markers, as in the o365 filter.
+      # The inbox rule and send-on-behalf flags mean a setting was supplied,
+      # including clearing it. The mailbox flag needs a non-empty forwarding
+      # address: Exchange records a cleared address as an empty value.
+      - add:
+          function: string
+          params:
+            key: log.o365InboxForwardingChange
+            value: "true"
+          where: >-
+            equals("log.graphSource", "purview-audit") &&
+            equals("log.Workload", "Exchange") &&
+            oneOf("log.Operation", ["New-InboxRule", "Set-InboxRule"]) &&
+            (exists("log.Parameters.#(Name==ForwardTo).Name") ||
+             exists("log.Parameters.#(Name==ForwardAsAttachmentTo).Name") ||
+             exists("log.Parameters.#(Name==RedirectTo).Name"))
+      - add:
+          function: string
+          params:
+            key: log.o365MailboxForwardingSet
+            value: "true"
+          where: >-
+            equals("log.graphSource", "purview-audit") &&
+            equals("log.Workload", "Exchange") && equals("log.Operation", "Set-Mailbox") &&
+            (regexMatch("log.Parameters.#(Name==ForwardingAddress).Value", "(?s)^.+$") ||
+             regexMatch("log.Parameters.#(Name==ForwardingSmtpAddress).Value", "(?s)^.+$"))
+      - add:
+          function: string
+          params:
+            key: log.o365SendOnBehalfChange
+            value: "true"
+          where: >-
+            equals("log.graphSource", "purview-audit") &&
+            equals("log.Workload", "Exchange") && equals("log.Operation", "Set-Mailbox") &&
+            exists("log.Parameters.#(Name==GrantSendOnBehalfTo).Name")
+      # Purview: the forwarding destination and the mailbox permission grantee
+      # as plain fields, so rules can match and de-duplicate on them.
+      - grok:
+          source: log.Parameters.#(Name=="ForwardingSmtpAddress").Value
+          patterns:
+            - fieldName: log.forwardingAddress
+              pattern: (?s:.+)
+          where: >-
+            equals("log.graphSource", "purview-audit") &&
+            regexMatch("log.Parameters.#(Name==\"ForwardingSmtpAddress\").Value", "(?s)^.+$")
+      - grok:
+          source: log.Parameters.#(Name=="ForwardingAddress").Value
+          patterns:
+            - fieldName: log.forwardingAddress
+              pattern: (?s:.+)
+          where: >-
+            equals("log.graphSource", "purview-audit") && !exists("log.forwardingAddress") &&
+            regexMatch("log.Parameters.#(Name==\"ForwardingAddress\").Value", "(?s)^.+$")
+      - grok:
+          source: log.Parameters.#(Name=="ForwardTo").Value
+          patterns:
+            - fieldName: log.forwardingAddress
+              pattern: (?s:.+)
+          where: >-
+            equals("log.graphSource", "purview-audit") && !exists("log.forwardingAddress") &&
+            regexMatch("log.Parameters.#(Name==\"ForwardTo\").Value", "(?s)^.+$")
+      - grok:
+          source: log.Parameters.#(Name=="RedirectTo").Value
+          patterns:
+            - fieldName: log.forwardingAddress
+              pattern: (?s:.+)
+          where: >-
+            equals("log.graphSource", "purview-audit") && !exists("log.forwardingAddress") &&
+            regexMatch("log.Parameters.#(Name==\"RedirectTo\").Value", "(?s)^.+$")
+      - grok:
+          source: log.Parameters.#(Name=="ForwardAsAttachmentTo").Value
+          patterns:
+            - fieldName: log.forwardingAddress
+              pattern: (?s:.+)
+          where: >-
+            equals("log.graphSource", "purview-audit") && !exists("log.forwardingAddress") &&
+            regexMatch("log.Parameters.#(Name==\"ForwardAsAttachmentTo\").Value", "(?s)^.+$")
+      - grok:
+          source: log.Parameters.#(Name=="User").Value
+          patterns:
+            - fieldName: log.permissionGrantee
+              pattern: (?s:.+)
+          where: >-
+            equals("log.graphSource", "purview-audit") &&
+            oneOf("log.Operation", ["Add-MailboxPermission", "Add-RecipientPermission", "Add-MailboxFolderPermission"]) &&
+            regexMatch("log.Parameters.#(Name==\"User\").Value", "(?s)^.+$")
+      - grok:
+          source: log.Parameters.#(Name=="AccessRights").Value
+          patterns:
+            - fieldName: log.accessRights
+              pattern: (?s:.+)
+          where: >-
+            equals("log.graphSource", "purview-audit") &&
+            oneOf("log.Operation", ["Add-MailboxPermission", "Add-RecipientPermission", "Add-MailboxFolderPermission"]) &&
+            regexMatch("log.Parameters.#(Name==\"AccessRights\").Value", "(?s)^.+$")
+      # Event time: each source's own time of the activity.
+      - rename:
+          from:
+            - log.lastUpdateDateTime
+          to: deviceTime
+          where: oneOf("log.graphSource", ["security-alerts", "security-incidents"])
+      - rename:
+          from:
+            - log.activityDateTime
+          to: deviceTime
+          where: oneOf("log.graphSource", ["directory-audit", "risk-detections"])
+      - rename:
+          from:
+            - log.createdDateTime
+          to: deviceTime
+          where: oneOf("log.graphSource", ["sign-ins", "purview-audit"])
+      - rename:
+          from:
+            - log.riskLastUpdatedDateTime
+          to: deviceTime
+          where: equals("log.graphSource", "risky-user")
+      - rename:
+          from:
+            - log.Timestamp
+          to: deviceTime
+          where: oneOf("log.graphSource", ["hunting", "url-click"])
+      # Action: the vendor operation name where the source has one (as the o365
+      # filter does), otherwise a fixed verb. Alert and incident titles stay in
+      # log.title and log.displayName.
+      - rename:
+          from:
+            - log.activityDisplayName
+          to: action
+          where: equals("log.graphSource", "directory-audit")
+      - rename:
+          from:
+            - log.Operation
+          to: action
+          where: equals("log.graphSource", "purview-audit")
+      - add:
+          function: string
+          params:
+            key: action
+            value: security_alert
+          where: equals("log.graphSource", "security-alerts")
+      - add:
+          function: string
+          params:
+            key: action
+            value: security_incident
+          where: equals("log.graphSource", "security-incidents")
+      - add:
+          function: string
+          params:
+            key: action
+            value: login
+          where: equals("log.graphSource", "sign-ins")
+      - add:
+          function: string
+          params:
+            key: action
+            value: risk_detection
+          where: equals("log.graphSource", "risk-detections")
+      - add:
+          function: string
+          params:
+            key: action
+            value: user_risk_change
+          where: equals("log.graphSource", "risky-user")
+      - add:
+          function: string
+          params:
+            key: action
+            value: email_receive
+          where: equals("log.graphSource", "hunting") && equals("log.EmailDirection", "Inbound")
+      - add:
+          function: string
+          params:
+            key: action
+            value: email_send
+          where: equals("log.graphSource", "hunting") && oneOf("log.EmailDirection", ["Outbound", "Intra-org"])
+      - add:
+          function: string
+          params:
+            key: action
+            value: url_click
+          where: equals("log.graphSource", "url-click")
+      # Severity, on the scale the Azure filter uses for security alerts.
+      - add:
+          function: string
+          params:
+            key: severity
+            value: info
+          where: >-
+            (oneOf("log.graphSource", ["security-alerts", "security-incidents"]) && oneOf("log.severity", ["informational", "low"])) ||
+            (oneOf("log.graphSource", ["risk-detections", "risky-user"]) && equals("log.riskLevel", "low"))
+      - add:
+          function: string
+          params:
+            key: severity
+            value: warning
+          where: >-
+            (oneOf("log.graphSource", ["security-alerts", "security-incidents"]) && equals("log.severity", "medium")) ||
+            (oneOf("log.graphSource", ["risk-detections", "risky-user"]) && equals("log.riskLevel", "medium"))
+      - add:
+          function: string
+          params:
+            key: severity
+            value: error
+          where: >-
+            (oneOf("log.graphSource", ["security-alerts", "security-incidents"]) && equals("log.severity", "high")) ||
+            (oneOf("log.graphSource", ["risk-detections", "risky-user"]) && equals("log.riskLevel", "high"))
+      # Users. A user principal name is the account in sign-ins, risk records and
+      # Purview records (cleaner than the Purview UserId, which SharePoint writes
+      # as a claims string).
+      - rename:
+          from:
+            - log.userPrincipalName
+          to: origin.user
+          where: >-
+            oneOf("log.graphSource", ["sign-ins", "risk-detections", "risky-user", "purview-audit"]) &&
+            regexMatch("log.userPrincipalName", "(?s)^.+$")
+      - rename:
+          from:
+            - log.UserId
+          to: origin.user
+          where: >-
+            equals("log.graphSource", "purview-audit") && !exists("origin.user") &&
+            regexMatch("log.UserId", "(?s)^.+$")
+      - rename:
+          from:
+            - log.initiatedBy.user.userPrincipalName
+          to: origin.user
+          where: >-
+            equals("log.graphSource", "directory-audit") &&
+            regexMatch("log.initiatedBy.user.userPrincipalName", "(?s)^.+$")
+      # A change made by an application names the application as the actor.
+      - grok:
+          source: log.initiatedBy.app.displayName
+          patterns:
+            - fieldName: origin.user
+              pattern: (?s:.*)
+          where: >-
+            equals("log.graphSource", "directory-audit") && !exists("origin.user") &&
+            regexMatch("log.initiatedBy.app.displayName", "(?s)^.+$")
+      - rename:
+          from:
+            - log.AccountUpn
+          to: origin.user
+          where: equals("log.graphSource", "url-click") && regexMatch("log.AccountUpn", "(?s)^.+$")
+      # Directory changes: the affected account, group and object.
+      - grok:
+          source: log.targetResources.#(type=="User").userPrincipalName
+          patterns:
+            - fieldName: target.user
+              pattern: (?s:.*)
+          where: >-
+            equals("log.graphSource", "directory-audit") &&
+            regexMatch("log.targetResources.#(type==\"User\").userPrincipalName", "(?s)^.+$")
+      - grok:
+          source: log.targetResources.0.displayName
+          patterns:
+            - fieldName: log.targetDisplayName
+              pattern: (?s:.*)
+          where: >-
+            equals("log.graphSource", "directory-audit") &&
+            regexMatch("log.targetResources.0.displayName", "(?s)^.+$")
+      - grok:
+          source: log.targetResources.0.id
+          patterns:
+            - fieldName: log.targetId
+              pattern: (?s:.*)
+          where: >-
+            equals("log.graphSource", "directory-audit") &&
+            regexMatch("log.targetResources.0.id", "(?s)^.+$")
+      - grok:
+          source: log.targetResources.0.type
+          patterns:
+            - fieldName: log.targetType
+              pattern: (?s:.*)
+          where: >-
+            equals("log.graphSource", "directory-audit") &&
+            regexMatch("log.targetResources.0.type", "(?s)^.+$")
+      # Changed properties hold JSON text values ("\"Global Administrator\"");
+      # the quotes are left out of the copies.
+      - grok:
+          source: log.targetResources.0.modifiedProperties.#(displayName=="Role.DisplayName").newValue
+          patterns:
+            - fieldName: ""
+              pattern: '"'
+            - fieldName: log.roleName
+              pattern: '[^"]+'
+            - fieldName: ""
+              pattern: '"'
+          where: equals("log.graphSource", "directory-audit")
+      - grok:
+          source: log.targetResources.0.modifiedProperties.#(displayName=="Group.DisplayName").newValue
+          patterns:
+            - fieldName: ""
+              pattern: '"'
+            - fieldName: target.group
+              pattern: '[^"]+'
+            - fieldName: ""
+              pattern: '"'
+          where: equals("log.graphSource", "directory-audit")
+      - grok:
+          source: log.targetResources.0.modifiedProperties.#(displayName=="AppRole.Value").newValue
+          patterns:
+            - fieldName: ""
+              pattern: '"'
+            - fieldName: log.appRoleValue
+              pattern: '[^"]+'
+            - fieldName: ""
+              pattern: '"'
+          where: equals("log.graphSource", "directory-audit")
+      - grok:
+          source: log.targetResources.0.modifiedProperties.#(displayName=="DelegatedPermissionGrant.Scope").newValue
+          patterns:
+            - fieldName: ""
+              pattern: '"'
+            - fieldName: log.permissionScope
+              pattern: '[^"]+'
+            - fieldName: ""
+              pattern: '"'
+          where: equals("log.graphSource", "directory-audit")
+      - grok:
+          source: log.targetResources.0.modifiedProperties.#(displayName=="ServicePrincipal.ObjectID").newValue
+          patterns:
+            - fieldName: ""
+              pattern: '"'
+            - fieldName: log.clientServicePrincipalId
+              pattern: '[^"]+'
+            - fieldName: ""
+              pattern: '"'
+          where: equals("log.graphSource", "directory-audit")
+      # Security alerts: the entities Microsoft attached as evidence.
+      - grok:
+          source: log.evidence.#(userAccount.userPrincipalName%"*@*").userAccount.userPrincipalName
+          patterns:
+            - fieldName: target.user
+              pattern: (?s:.*)
+          where: equals("log.graphSource", "security-alerts")
+      - grok:
+          source: log.evidence.#(deviceDnsName%"?*").deviceDnsName
+          patterns:
+            - fieldName: target.host
+              pattern: (?s:.*)
+          where: equals("log.graphSource", "security-alerts")
+      - grok:
+          source: log.evidence.#(recipientEmailAddress%"*@*").recipientEmailAddress
+          patterns:
+            - fieldName: target.emailAddress
+              pattern: (?s:.*)
+          where: equals("log.graphSource", "security-alerts")
+      - grok:
+          source: log.evidence.#(p1Sender.emailAddress%"*@*").p1Sender.emailAddress
+          patterns:
+            - fieldName: origin.emailAddress
+              pattern: (?s:.*)
+          where: equals("log.graphSource", "security-alerts")
+      - grok:
+          source: log.evidence.#(url%"?*").url
+          patterns:
+            - fieldName: target.url
+              pattern: (?s:.*)
+          where: equals("log.graphSource", "security-alerts")
+      - grok:
+          source: log.evidence.#(fileDetails.fileName%"?*").fileDetails.fileName
+          patterns:
+            - fieldName: target.filename
+              pattern: (?s:.*)
+          where: equals("log.graphSource", "security-alerts")
+      - grok:
+          source: log.evidence.#(fileDetails.sha256%"?*").fileDetails.sha256
+          patterns:
+            - fieldName: target.sha256
+              pattern: (?s:.*)
+          where: equals("log.graphSource", "security-alerts")
+      # Email: sender on origin, recipient on target. The sending server address
+      # stays in log.SenderIPv4: every delivered message would otherwise be looked
+      # up in threat intelligence.
+      - rename:
+          from:
+            - log.SenderFromAddress
+          to: origin.emailAddress
+          where: equals("log.graphSource", "hunting") && regexMatch("log.SenderFromAddress", "(?s)^.+$")
+      - rename:
+          from:
+            - log.SenderDisplayName
+          to: origin.emailDisplayName
+          where: equals("log.graphSource", "hunting") && regexMatch("log.SenderDisplayName", "(?s)^.+$")
+      - rename:
+          from:
+            - log.Subject
+          to: origin.emailSubject
+          where: equals("log.graphSource", "hunting") && regexMatch("log.Subject", "(?s)^.+$")
+      - rename:
+          from:
+            - log.InternetMessageId
+          to: origin.email
+          where: equals("log.graphSource", "hunting") && regexMatch("log.InternetMessageId", "(?s)^.+$")
+      - rename:
+          from:
+            - log.SenderFromDomain
+          to: origin.domain
+          where: equals("log.graphSource", "hunting") && regexMatch("log.SenderFromDomain", "(?s)^.+$")
+      - rename:
+          from:
+            - log.RecipientEmailAddress
+          to: target.emailAddress
+          where: equals("log.graphSource", "hunting") && regexMatch("log.RecipientEmailAddress", "(?s)^.+$")
+      - rename:
+          from:
+            - log.RecipientDomain
+          to: target.domain
+          where: equals("log.graphSource", "hunting") && regexMatch("log.RecipientDomain", "(?s)^.+$")
+      # The internal side of a message is also an account.
+      - grok:
+          source: origin.emailAddress
+          patterns:
+            - fieldName: origin.user
+              pattern: (?s:.*)
+          where: equals("log.graphSource", "hunting") && oneOf("log.EmailDirection", ["Outbound", "Intra-org"])
+      - grok:
+          source: target.emailAddress
+          patterns:
+            - fieldName: target.user
+              pattern: (?s:.*)
+          where: equals("log.graphSource", "hunting") && oneOf("log.EmailDirection", ["Inbound", "Intra-org"])
+      - rename:
+          from:
+            - log.Url
+          to: target.url
+          where: equals("log.graphSource", "url-click") && regexMatch("log.Url", "(?s)^.+$")
+      # Purview: affected mailbox, site and file, as in the o365 filter.
+      - rename:
+          from:
+            - log.MailboxOwnerUPN
+          to: target.user
+          where: equals("log.graphSource", "purview-audit") && regexMatch("log.MailboxOwnerUPN", "(?s)^.+$")
+      - rename:
+          from:
+            - log.SiteUrl
+          to: target.url
+          where: equals("log.graphSource", "purview-audit") && regexMatch("log.SiteUrl", "(?s)^.+$")
+      - rename:
+          from:
+            - log.SourceRelativeUrl
+          to: target.path
+          where: equals("log.graphSource", "purview-audit") && regexMatch("log.SourceRelativeUrl", "(?s)^.+$")
+      - rename:
+          from:
+            - log.SourceFileName
+          to: target.filename
+          where: equals("log.graphSource", "purview-audit") && regexMatch("log.SourceFileName", "(?s)^.+$")
+      # Addresses. Only a valid address is copied; anything else stays where
+      # it arrived.
+      - rename:
+          from:
+            - log.ipAddress
+          to: origin.ip
+          where: >-
+            oneOf("log.graphSource", ["sign-ins", "risk-detections"]) &&
+            (inCIDR("log.ipAddress", "0.0.0.0/0") || inCIDR("log.ipAddress", "::/0"))
+      - rename:
+          from:
+            - log.initiatedBy.user.ipAddress
+          to: origin.ip
+          where: >-
+            equals("log.graphSource", "directory-audit") &&
+            (inCIDR("log.initiatedBy.user.ipAddress", "0.0.0.0/0") || inCIDR("log.initiatedBy.user.ipAddress", "::/0"))
+      - rename:
+          from:
+            - log.IPAddress
+          to: origin.ip
+          where: >-
+            equals("log.graphSource", "url-click") &&
+            (inCIDR("log.IPAddress", "0.0.0.0/0") || inCIDR("log.IPAddress", "::/0"))
+      - rename:
+          from:
+            - log.ClientIP
+          to: origin.ip
+          where: >-
+            equals("log.graphSource", "purview-audit") &&
+            (inCIDR("log.ClientIP", "0.0.0.0/0") || inCIDR("log.ClientIP", "::/0"))
+      - rename:
+          from:
+            - log.ClientIPAddress
+          to: origin.ip
+          where: >-
+            equals("log.graphSource", "purview-audit") && !exists("origin.ip") &&
+            (inCIDR("log.ClientIPAddress", "0.0.0.0/0") || inCIDR("log.ClientIPAddress", "::/0"))
+      - rename:
+          from:
+            - log.ActorIpAddress
+          to: origin.ip
+          where: >-
+            equals("log.graphSource", "purview-audit") && !exists("origin.ip") &&
+            (inCIDR("log.ActorIpAddress", "0.0.0.0/0") || inCIDR("log.ActorIpAddress", "::/0"))
+      # Exchange writes the client address with its port: 203.0.113.7:51234 or
+      # [2001:db8::7]:51234.
+      - grok:
+          source: log.ClientIP
+          patterns:
+            - fieldName: origin.ip
+              pattern: '[0-9]{1,3}(\.[0-9]{1,3}){3}'
+            - fieldName: ""
+              pattern: ':[0-9]+'
+          where: >-
+            equals("log.graphSource", "purview-audit") && !exists("origin.ip") &&
+            regexMatch("log.ClientIP", "^[0-9]{1,3}(\\.[0-9]{1,3}){3}:[0-9]+$")
+      - grok:
+          source: log.ClientIP
+          patterns:
+            - fieldName: ""
+              pattern: '\['
+            - fieldName: origin.ip
+              pattern: '[0-9A-Fa-f:.]+'
+            - fieldName: ""
+              pattern: '\]:[0-9]+'
+          where: >-
+            equals("log.graphSource", "purview-audit") && !exists("origin.ip") &&
+            regexMatch("log.ClientIP", "^\\[[0-9A-Fa-f:.]+\\]:[0-9]+$")
+      # A loopback or empty address is the service talking to itself.
+      - delete:
+          fields:
+            - origin.ip
+          where: >-
+            exists("origin.ip") &&
+            (!(inCIDR("origin.ip", "0.0.0.0/0") || inCIDR("origin.ip", "::/0")) ||
+             inCIDR("origin.ip", "127.0.0.0/8") || inCIDR("origin.ip", "::1/128") ||
+             inCIDR("origin.ip", "0.0.0.0/32") || inCIDR("origin.ip", "::/128"))
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where: exists("origin.ip")
+      # Sign-in device details.
+      - rename:
+          from:
+            - log.deviceDetail.operatingSystem
+          to: origin.operatingSystem
+          where: equals("log.graphSource", "sign-ins") && regexMatch("log.deviceDetail.operatingSystem", "(?s)^.+$")
+      - rename:
+          from:
+            - log.deviceDetail.displayName
+          to: origin.host
+          where: equals("log.graphSource", "sign-ins") && regexMatch("log.deviceDetail.displayName", "(?s)^.+$")
+      # Outcome: exactly success, failed or denied, or nothing. Detections,
+      # alerts, incidents and risk records get no outcome.
+      - delete:
+          fields:
+            - actionResult
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: equals("log.graphSource", "directory-audit") && equals("log.result", "success")
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failed
+          where: equals("log.graphSource", "directory-audit") && equals("log.result", "failure")
+      # A sign-in succeeded only with error code 0. Conditional Access and
+      # security defaults refusals (AADSTS53000-53003, 530032, 530034, 530035)
+      # are a policy decision; every other code is a sign-in that did not finish.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: equals("log.graphSource", "sign-ins") && equals("log.status.errorCode", 0)
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failed
+          where: >-
+            equals("log.graphSource", "sign-ins") && exists("log.status.errorCode") &&
+            !equals("log.status.errorCode", 0)
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: >-
+            equals("log.graphSource", "sign-ins") &&
+            oneOf("log.status.errorCode", [53000, 53001, 53002, 53003, 530032, 530034, 530035])
+      # A message reached a mailbox folder (Junk included) or was stopped.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: equals("log.graphSource", "hunting") && oneOf("log.DeliveryAction", ["Delivered", "Junked", "Replaced"])
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: equals("log.graphSource", "hunting") && equals("log.DeliveryAction", "Blocked")
+      # Safe Links: the click went through, or was stopped. Continuing past the
+      # warning page means the user reached the link.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: equals("log.graphSource", "url-click") && equals("log.ActionType", "ClickAllowed")
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: equals("log.graphSource", "url-click") && oneOf("log.ActionType", ["ClickBlocked", "ClickBlockedByTenantPolicy"])
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: equals("log.graphSource", "url-click") && oneOf("log.IsClickedThrough", [1, true, "1", "true", "True"])
+      # Purview: the outcome rules of the o365 filter. ResultStatus is
+      # workload-specific; partial, pending and unknown results remain unset.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: >-
+            equals("log.graphSource", "purview-audit") &&
+            !oneOf("log.RecordType", [1, 15, 41, 188, 189, 190, 191, 192, 193, 194, 231, 386, 387, 401, 402]) &&
+            oneOf("log.ResultStatus", ["Succeeded", "Success", "Successful"]) &&
+            !equals("action", "UserLoginFailed") &&
+            !(equals("log.RecordType", 40) && oneOf("action", ["AlertTriggered", "AlertEntityGenerated"]))
+      # ExchangeAdmin uses string True/False; these are not universal outcome codes.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: equals("log.graphSource", "purview-audit") && equals("log.RecordType", 1) && equals("log.ResultStatus", "True")
+      # Yammer admin sync records report TRUE for a completed operation.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: equals("log.graphSource", "purview-audit") && equals("log.RecordType", 22) && oneOf("log.ResultStatus", ["TRUE", "True"])
+      # STS HTTP success and UserLoggedIn alone do not prove completed authentication.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: >-
+            equals("log.graphSource", "purview-audit") &&
+            equals("log.RecordType", 15) &&
+            (equals("log.ErrorCode", 0) || equals("log.ErrorNumber", 0)) &&
+            (!exists("log.ErrorCode") || equals("log.ErrorCode", 0)) &&
+            (!exists("log.ErrorNumber") || equals("log.ErrorNumber", 0)) &&
+            (!exists("log.LogonError") || regexMatch("log.LogonError", "^$")) &&
+            (!exists("log.ResultStatus") || oneOf("log.ResultStatus", ["Succeeded", "Success", "Successful"])) &&
+            !equals("action", "UserLoginFailed")
+      # Planner defines its own result enum.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: >-
+            equals("log.graphSource", "purview-audit") &&
+            oneOf("log.RecordType", [188, 189, 190, 191, 192, 193, 194, 231, 386, 387, 401, 402]) &&
+            (equals("log.ResultStatus", 1) || equals("log.ResultStatus", "Success"))
+      # Safe Links in the audit log: 4/5 mean the user overrode the page and navigated.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: >-
+            equals("log.graphSource", "purview-audit") &&
+            equals("log.RecordType", 41) &&
+            (oneOf("log.URLClickAction", [4, 5]) || oneOf("log.UrlClickAction", [4, 5]))
+      # Teams, SharePoint and OneDrive write these records only after the operation happened.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: >-
+            equals("log.graphSource", "purview-audit") &&
+            !exists("log.ResultStatus") &&
+            ((equals("log.Workload", "MicrosoftTeams") && equals("action", "TeamsSessionStarted")) ||
+             (oneOf("log.Workload", ["SharePoint", "OneDrive"]) &&
+              !oneOf("log.RecordType", [11, 33]) &&
+              !oneOf("action", ["BaselineSecurityModeThirdPartyAppHPA", "ContentSecurityPolicyViolated", "FileMalwareDetected"]) &&
+              !regexMatch("action", "(?i)^dlp") &&
+              !regexMatch("action", "(Blocked|Denied|Failed|Failure|Violated|Detected|Partial)$")))
+      # Power BI and Fabric state the outcome in IsSuccess.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: equals("log.graphSource", "purview-audit") && equals("log.RecordType", 20) && oneOf("log.IsSuccess", [true, "true", "True"])
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failed
+          where: >-
+            equals("log.graphSource", "purview-audit") &&
+            !oneOf("log.RecordType", [41, 188, 189, 190, 191, 192, 193, 194, 231, 386, 387, 401, 402]) &&
+            (oneOf("log.ResultStatus", ["Failure", "Failed"]) ||
+             (equals("log.RecordType", 1) && equals("log.ResultStatus", "False")) ||
+             (equals("log.RecordType", 18) && equals("log.ResultStatus", "Error")))
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failed
+          where: equals("log.graphSource", "purview-audit") && equals("log.RecordType", 20) && oneOf("log.IsSuccess", [false, "false", "False"])
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failed
+          where: >-
+            equals("log.graphSource", "purview-audit") &&
+            equals("log.RecordType", 15) &&
+            (greaterThan("log.ErrorCode", 0) || regexMatch("log.LogonError", "(?s)^.+$"))
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failed
+          where: >-
+            equals("log.graphSource", "purview-audit") &&
+            oneOf("log.RecordType", [188, 189, 190, 191, 192, 193, 194, 231, 386, 387, 401, 402]) &&
+            (equals("log.ResultStatus", 2) || equals("log.ResultStatus", "Failure"))
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: >-
+            equals("log.graphSource", "purview-audit") &&
+            !oneOf("log.RecordType", [41, 188, 189, 190, 191, 192, 193, 194, 231, 386, 387, 401, 402]) &&
+            equals("log.ResultStatus", "Blocked")
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: >-
+            equals("log.graphSource", "purview-audit") &&
+            oneOf("log.RecordType", [188, 189, 190, 191, 192, 193, 194, 231, 386, 387, 401, 402]) &&
+            (equals("log.ResultStatus", 3) || equals("log.ResultStatus", "AuthorizationFailure"))
+      # These exact operation names describe prevented user access.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: >-
+            equals("log.graphSource", "purview-audit") &&
+            (oneOf("action", ["SharingInvitationBlocked", "UnmanagedSyncClientBlocked", "URLNavigationBlocked", "AccessRequestDenied"]) ||
+             (equals("log.RecordType", 41) && (equals("log.URLClickAction", 2) || equals("log.UrlClickAction", 2))))
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: equals("log.graphSource", "purview-audit") && equals("log.RecordType", 28) && equals("log.DeliveryAction", "Blocked")
+      # KmsiInterrupt is the expected "Keep me signed in" prompt, not a final result.
+      - delete:
+          fields:
+            - actionResult
+          where: >-
+            equals("log.graphSource", "purview-audit") &&
+            equals("log.RecordType", 15) &&
+            (equals("log.ErrorCode", 50140) || equals("log.ErrorNumber", 50140))
+      # A failed login wins even when its HTTP request or audit operation succeeded.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failed
+          where: equals("log.graphSource", "purview-audit") && equals("action", "UserLoginFailed")
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: >-
+            equals("log.graphSource", "purview-audit") &&
+            equals("log.RecordType", 15) &&
+            (oneOf("log.ErrorNumber", [53000, 53001, 53002, 53003, 530032, 530034, 530035]) ||
+             oneOf("log.ErrorCode", [53000, 53001, 53002, 53003, 530032, 530034, 530035]))

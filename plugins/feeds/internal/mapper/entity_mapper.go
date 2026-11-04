@@ -1,6 +1,7 @@
 package mapper
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -8,6 +9,8 @@ import (
 	"github.com/threatwinds/go-sdk/entities"
 	"github.com/utmstack/UTMStack/plugins/feeds/internal/models"
 )
+
+var ErrInvalidValue = errors.New("value is not valid for the entity type")
 
 type EntityMapper struct {
 	entityTypes map[string]bool
@@ -48,9 +51,7 @@ func normalizeKey(key string) string {
 func (m *EntityMapper) BuildEntity(entityType string, value any, context EntityEnrichmentContext) (*entities.Entity, string, error) {
 	validatedValue, hash, err := entities.ValidateValue(value, entityType)
 	if err != nil {
-		return nil, "", catcher.Error("validation failed for entity type", err, map[string]any{
-			"entity_type": entityType,
-		})
+		return nil, "", fmt.Errorf("%w (%s): %w", ErrInvalidValue, entityType, err)
 	}
 
 	attrs := entities.Attributes{}

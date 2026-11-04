@@ -10,7 +10,12 @@
   - operator: IS
     field: name
     value: TODO-set-the-correlation-rule-that-triggers-this
-  commands:
-  - powershell netsh advfirewall firewall set rule name=all new enable=yes
-  shell: powershell
-  agentPlatform: windows
+  roots:
+    - step_0
+  nodes:
+    step_0:
+        kind: executor
+        executor: shell
+        command: powershell netsh advfirewall firewall set rule name=all new enable=yes
+        shell: powershell
+        platform: windows

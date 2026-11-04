@@ -1,0 +1,143 @@
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
+id: sc-45.1
+family: sc
+familyName: System and Communications Protection
+name: System Time Synchronization | Synchronization with Authoritative Time Source
+scope: data
+statement: |-
+  Compare the internal system clocks [frequency] with [authoritative time source]; and synchronize the internal system clocks to the authoritative time source when the time difference is greater than [time period].
+remediation: |-
+  Measured: fails when a system reported that its clock could not synchronise with its time source during the window.
+  If it fails: fix the time source configuration or network access to it on the system in the failing check.
+source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY
+checks:
+  - key: win-time-sync-failed
+    name: 'Windows: the clock did not fail to synchronize with its time source'
+    dataType: wineventlog
+    filters:
+      - field: log.providerName
+        operator: IS
+        value: 'Microsoft-Windows-Time-Service'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '34'
+          - '36'
+          - '46'
+          - '50'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: linux-chrony-no-sources
+    name: 'Linux: chrony did not lose all its time sources'
+    dataType: linux
+    filters:
+      - field: log.syslogIdentifier
+        operator: IS
+        value: 'chronyd'
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'Can''t synchronise: no selectable sources'
+          - 'No suitable source for synchronisation'
+          - 'no majority'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: linux-ntpd-unsynchronized
+    name: 'Linux: ntpd did not run without usable time servers'
+    dataType: linux
+    filters:
+      - field: log.syslogIdentifier
+        operator: IS
+        value: 'ntpd'
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'no servers can be used'
+          - 'no server suitable for synchronization'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: cisco-switch-ntp-unsync
+    name: 'Cisco switch: NTP sync is never lost'
+    dataType: cisco-switch
+    filters:
+      - field: log.facility
+        operator: IS
+        value: 'NTP'
+      - field: log.facilityMnemonic
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'UNSYNC'
+          - 'PEERUNREACH'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: asa-ntp-auth-failed
+    name: 'Cisco ASA: NTP packets never fail authentication'
+    dataType: firewall-cisco-asa
+    filters:
+      - field: log.messageId
+        operator: IS
+        value: '610002'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: fgt-ntp-unreachable
+    name: 'FortiGate: NTP server never unreachable'
+    dataType: firewall-fortigate-traffic
+    filters:
+      - field: log.logid
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '0100032107'
+          - '0100032108'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: paloalto-ntp-sync-failed
+    name: 'Palo Alto: NTP synchronization never fails'
+    dataType: firewall-paloalto
+    filters:
+      - field: log.paSubtype
+        operator: IS
+        value: 'ntpd'
+      - field: log.eventid
+        operator: IS
+        value: 'auth'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: pfsense-ntp-unsynchronized
+    name: 'pfSense: the clock never reports unsynchronized'
+    dataType: firewall-pfsense
+    filters:
+      - field: log.eventType
+        operator: IS
+        value: 'ntpd'
+      - field: raw
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'TIME_ERROR'
+          - 'Clock Unsynchronized'
+          - 'no servers reachable'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: sonicwall-ntp-failure
+    name: 'SonicWall: NTP update never fails'
+    dataType: firewall-sonicwall
+    filters:
+      - field: log.eventCode
+        operator: IS
+        value: '1230'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: esxi-clock-lost-sync
+    name: 'VMware ESXi: the clock did not lose time synchronization'
+    dataType: vmware-esxi
+    filters:
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'esx.problem.clock.correction.adjtime.lostsync'
+          - 'esx.problem.clock.correction.adjtime.unsync'
+          - 'esx.problem.ntpd.clock.correction.error'
+          - 'esx.problem.clock.correction.step.unsync'
+          - 'esx.problem.clock.correction.delta.failed'
+    rule: THRESHOLD_MAX
+    ruleValue: 0

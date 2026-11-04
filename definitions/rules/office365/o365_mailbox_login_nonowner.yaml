@@ -1,0 +1,27 @@
+# Rule version v1.0.0 (gap-fill set, 2026-09-25)
+
+dataTypes:
+  - o365
+name: Microsoft 365 Mailbox Login by Non-Owner
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Credential Access
+technique: "T1078.004 - Valid Accounts: Cloud Accounts"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/purview/audit-logs-exchange-online
+description: |
+  Detects a successful MailboxLogin performed against a mailbox that is not the signing-in user's own, a common account-takeover and business-email-compromise step.
+
+  Next Steps:
+  1. Confirm the mailbox owner differs from the login identity
+  2. Review the source IP and user agent for PowerShell or non-browser access
+  3. Check for subsequent forwarding or inbox-rule creation
+  4. Reset the mailbox owner password and revoke sessions
+where: |
+  equals("action", "MailboxLogin") && equals("actionResult", "success")
+groupBy:
+  - adversary.ip
+  - adversary.user

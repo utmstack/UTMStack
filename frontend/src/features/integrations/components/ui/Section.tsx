@@ -21,7 +21,7 @@ export function Section({
     <div
       id={id}
       className={cn(
-        'rounded-lg border border-border bg-card p-4 scroll-mt-6',
+        'rounded-lg border border-border bg-card p-4 scroll-mt-6 ',
         isStep && 'border-l-[3px] border-l-primary/60',
         isWarning && 'border-l-[3px] border-l-amber-500/70',
       )}

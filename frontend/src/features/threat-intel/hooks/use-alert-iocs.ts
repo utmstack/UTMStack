@@ -20,6 +20,21 @@ const IOC_FIELD_MAP: { field: string; twAttr: string }[] = [
 
 const TOP_TOTAL = 1000
 
+// The SIEM stores ips as host:port / [ipv6]:port; the ThreatWinds ip attribute
+// rejects the port and brackets, 500ing the whole query. Keep the bare address.
+function normalizeIp(v: string): string {
+  let out = v
+  if (out.startsWith('[')) {
+    out = out.slice(1)
+    const close = out.indexOf(']')
+    if (close >= 0) out = out.slice(0, close)
+  } else {
+    const colon = out.lastIndexOf(':')
+    if (colon >= 0 && out.split(':').length === 2) out = out.slice(0, colon)
+  }
+  return out
+}
+
 export interface AlertIocs {
   byAttr: Record<string, string[]>
   total: number
@@ -45,9 +60,11 @@ export function useAlertIocs() {
       let total = 0
       for (const entry of flat) {
         if (total >= TOP_TOTAL) break
+        const value = entry.twAttr === 'ip' ? normalizeIp(entry.value) : entry.value
+        if (!value) continue
         const bucket = byAttr[entry.twAttr] ?? []
-        if (bucket.includes(entry.value)) continue
-        bucket.push(entry.value)
+        if (bucket.includes(value)) continue
+        bucket.push(value)
         byAttr[entry.twAttr] = bucket
         total++
       }

@@ -227,6 +227,7 @@ func handleAgentTask(w http.ResponseWriter, r *http.Request) {
 		History:       toHistory(req.History),
 		EnabledGroups: capabilities,
 		MaxIters:      maxIters,
+		Temperature:   0.3,
 	}, sink)
 }
 

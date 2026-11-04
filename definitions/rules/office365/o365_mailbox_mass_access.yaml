@@ -1,0 +1,37 @@
+# Rule version v1.1.0 (gap-fill set, 2026-09-25; per-identity volume threshold, 2026-09-29)
+
+dataTypes:
+  - o365
+name: Microsoft 365 Mailbox Mass Item Access
+impact:
+  confidentiality: 3
+  integrity: 1
+  availability: 1
+category: Collection
+technique: "T1114.003 - Email Collection from Remote System"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/purview/audit-log-investigate-accounts
+  - https://learn.microsoft.com/en-us/purview/audit-log-activities
+description: |
+  Detects one identity producing 2,000 or more MailItemsAccessed records within one hour. Exchange Online writes a MailItemsAccessed record whenever any client reads mail, and it groups the messages one client reads within two minutes into a single record, so ordinary mail use stays far below this volume. A volume this large points to automated mailbox scraping, a new client syncing the whole mailbox, or an application reading mail in bulk. One alert is raised per identity; repeats for the same identity are suppressed for seven days.
+
+  Next Steps:
+  1. Identify the accessing identity and application (UserId, ClientAppId, ClientInfoString)
+  2. Correlate with MailboxLogin and sign-in location
+  3. Review for subsequent export or sharing
+  4. Block the access and reset credentials if compromise is confirmed
+where: |
+  equals("action", "MailItemsAccessed") && equals("actionResult", "success") && exists("origin.user")
+afterEvents:
+  - with:
+      - field: origin.user
+        operator: filter_term
+        value: '{{.origin.user}}'
+      - field: action
+        operator: filter_term
+        value: 'MailItemsAccessed'
+    within: 1h
+    count: 2000
+deduplicateBy:
+  - adversary.user

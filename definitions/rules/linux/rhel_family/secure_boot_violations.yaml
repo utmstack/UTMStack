@@ -14,21 +14,9 @@ references:
   - https://attack.mitre.org/techniques/T1553/006/
   - https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/security_hardening/using-uefi-secure-boot_security-hardening
 description: |
-  Detects mokutil being used to disable Secure Boot validation, reset, or delete an enrolled key, and real
-  kernel-transport journald lines the kernel actually emits for signature-verification failures at module load
-  time (PKCS#7 signature not signed with a trusted key, module verification failed, Secure Boot forbids loading).
+  Detects violations of UEFI Secure Boot policy including unsigned kernel modules, tampering with MOK (Machine Owner Key) database, attempts to disable Secure Boot, or loading of unauthorized boot components. This indicates potential compromise of the boot chain integrity or attempts to bypass security controls.
 
-  Rewritten v2.0.0. Two categories were dropped as genuine, currently-uncloseable gaps rather than patched with
-  real field names:
-  - EFI variable modification (SecureBoot/PK/KEK/db/dbx, or writes under /sys/firmware/efi/efivars/) -- not
-    watched by this agent's audit rules today (would need a `-w` rule added to
-    agent/dependency/auditd_linux.go's auditRulesContent), and even then a raw byte-level EFI variable write
-    carries no field telling you WHICH variable changed without decoding the write's contents, which this
-    collector does not do.
-  - shim-emitted verification failures -- shim is the first-stage UEFI bootloader; it runs before Linux, before
-    journald exists, and does not log to it. There is no host-agent-observable signal for shim's own decisions at
-    all; this would need UEFI/firmware-level log collection, which is out of scope for this agent entirely.
-  RHEL-family only for the mokutil/GRUB angle; cannot be live-fire verified on the Debian-family V11-DEV-18 test VM.
+  The rule reads the kernel's module signature and lockdown messages from the journal, module loads that the audit collector saw fail with a key or signature error, and mokutil commands that change the MOK database or disable shim validation. Read-only mokutil commands such as --sb-state and --test-key do not match.
 
   Next Steps:
   1. Immediately isolate the affected system to prevent lateral movement
@@ -40,12 +28,33 @@ description: |
   7. Validate boot chain integrity and consider system restoration from known good backup
   8. Review and strengthen access controls for system administration
 where: |
-  (equals("action", "execve") && contains("origin.command", "mokutil") &&
-   (contains("origin.command", "--disable-validation") || contains("origin.command", "--reset") || contains("origin.command", "--delete"))) ||
-  (equals("log.TRANSPORT", "kernel") &&
-   (contains("log.message", "PKCS#7 signature not signed with a trusted key") ||
-    contains("log.message", "module verification failed") ||
-    contains("log.message", "Secure Boot forbids loading")))
-groupBy:
-  - adversary.host
-  - adversary.user
+  (
+    equals("log.syslogIdentifier", "kernel") &&
+    (
+      regexMatch("log.message", "^Loading of (unsigned module|module with unavailable key|module with unsupported crypto) is rejected") ||
+      contains("log.message", "PKCS#7 signature not signed with a trusted key") ||
+      contains("log.message", "module verification failed: signature and/or required key missing") ||
+      (startsWith("log.message", "Lockdown: ") &&
+       (contains("log.message", "unsigned module loading is restricted") ||
+        contains("log.message", "kexec of unsigned images is restricted")))
+    )
+  ) ||
+  (
+    oneOf("action", ["init_module", "finit_module"]) &&
+    oneOf("log.exit", ["EKEYREJECTED", "ENOKEY", "EBADMSG"])
+  ) ||
+  (
+    equals("action", "execve") &&
+    endsWith("origin.process", "/mokutil") &&
+    (contains("origin.command", "--disable-validation") || contains("origin.command", "--import") ||
+     contains("origin.command", "--delete") || contains("origin.command", "--reset"))
+  ) ||
+  (
+    equals("log.syslogIdentifier", "sudo") &&
+    regexMatch("log.message", "COMMAND=\\S*mokutil\\s.*--(disable-validation|import|delete|reset)")
+  )
+deduplicateBy:
+  - dataSource
+  - lastEvent.log.message
+  - lastEvent.origin.command
+  - lastEvent.log.kernmodule.name

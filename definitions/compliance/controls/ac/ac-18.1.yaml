@@ -1,0 +1,94 @@
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
+id: ac-18.1
+family: ac
+familyName: Access Control
+name: Wireless Access | Authentication and Encryption
+scope: data
+statement: |-
+  Protect wireless access to the system using authentication of [users; devices] and encryption.
+remediation: |-
+  Passes when wireless clients authenticate with enterprise authentication (802.1X / WPA-Enterprise) and the wireless controller or authentication server logs it.
+  If it fails: use enterprise authentication on the wireless networks and send the authentication logs to UTMStack.
+source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY
+checks:
+  - key: win-nps-wireless-access-granted
+    name: 'Windows: Network Policy Server grants wireless (802.1X) access'
+    dataType: wineventlog
+    filters:
+      - field: log.providerName
+        operator: IS
+        value: 'Microsoft-Windows-Security-Auditing'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '6272'
+      - field: log.data.NASPortType
+        operator: CONTAIN
+        value: '802.11'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-8021x-supplicant-success
+    name: 'Linux: 802.1X (enterprise Wi-Fi) authentications are recorded'
+    dataType: linux
+    filters:
+      - field: log.syslogIdentifier
+        operator: IS
+        value: 'wpa_supplicant'
+      - field: log.message
+        operator: CONTAIN
+        value: 'CTRL-EVENT-EAP-SUCCESS'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-radius-login-ok
+    name: 'Linux: RADIUS server accepted logins are recorded'
+    dataType: linux
+    filters:
+      - field: log.syslogIdentifier
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'radiusd'
+          - 'freeradius'
+      - field: log.message
+        operator: CONTAIN
+        value: 'Login OK'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: cisco-wlc-8021x-success
+    name: 'Cisco wireless controller: 802.1X client authentications are recorded'
+    dataType: cisco-switch
+    filters:
+      - field: log.facility
+        operator: IS
+        value: 'DOT1X'
+      - field: log.facilityMnemonic
+        operator: IS
+        value: 'SUCCESS'
+      - field: log.ciscoMsg
+        operator: CONTAIN
+        value: 'capwap'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fgt-wifi-8021x-success
+    name: 'FortiGate/FortiAP: 802.1X wireless authentications are recorded'
+    dataType: firewall-fortigate-traffic
+    filters:
+      - field: log.logid
+        operator: IS
+        value: '0104043630'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: meraki-8021x-success
+    name: 'Meraki: 802.1X wireless authentications are recorded'
+    dataType: firewall-meraki
+    filters:
+      - field: log.merakiGroup
+        operator: IS
+        value: 'events'
+      - field: log.type
+        operator: IS
+        value: '8021x_eap_success'
+      - field: log.radio
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1

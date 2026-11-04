@@ -132,7 +132,7 @@ function AS400Guide({ module: _module }: { module: Integration }) {
 
 registerCollector({
   getName: () => 'AS_400',
-  matches: (n) => n === 'as400' || n === 'as_400',
+  matches: (n) => n === 'as400' || n === 'as_400' || n === 'ibm i (as/400)',
   sections: [],
   render: (m) => <AS400Guide module={m} />,
 })

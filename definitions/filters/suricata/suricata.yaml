@@ -1,6 +1,5 @@
-# Suricata filter version 1.0.1
-# Based on https://suricata.readthedocs.io/en/latest/output/eve/eve-json-format.html (latest 8.0.0) (august 2025)
-# and real events log provided
+# Suricata filter version 1.1.1
+# Based on https://docs.suricata.io/en/latest/output/eve/eve-json-format.html
 # Support json format
 
 pipeline:
@@ -27,25 +26,35 @@ pipeline:
             - fieldName: log.suricataJson
               pattern: '{{.greedy}}'
 
+      # EVE's native format is JSON without a syslog envelope.
+      - json:
+          source: raw
+          where: regexMatch("raw", "^\\s*\\{")
+
       # Parse Suricata JSON logs
       - json:
           source: log.suricataJson
           where: regexMatch("log.suricataJson", "^\\{.*\\}$")
 
       # Rename fields to conversion v11 schema
+      # Parsers on go-sdk v1.1.35 or later keep "_" in EVE keys (src_ip) and older ones remove it
+      # (srcip), so these renames read both spellings.
       - rename:
           from:
             - log.destip
+            - log.dest_ip
           to: target.ip
 
       - rename:
           from:
             - log.destport
+            - log.dest_port
           to: target.port
 
       - rename:
           from:
             - log.flowid
+            - log.flow_id
           to: log.flowId
 
       - rename:
@@ -56,31 +65,37 @@ pipeline:
       - rename:
           from:
             - log.iniface
+            - log.in_iface
           to: log.inFace
 
       - rename:
           from:
             - log.srcip
+            - log.src_ip
           to: origin.ip
 
       - rename:
           from:
             - log.srcport
+            - log.src_port
           to: origin.port
 
       - rename:
           from:
             - log.txid
+            - log.tx_id
           to: log.txId
 
       - rename:
           from:
             - log.eventtype
+            - log.event_type
           to: log.eventType
 
       - rename:
           from:
             - log.appproto
+            - log.app_proto
           to: log.appProto
 
       - rename:
@@ -89,27 +104,113 @@ pipeline:
           to: protocol
 
     
-      # Adding severity field based on log.alert.severity
+      # EVE severity is the rule priority: 1 is highest, then 2 and 3.
       - add:
           function: "string"
           params:
             key: severity
-            value: "low"
+            value: "critical"
           where: equals("log.alert.severity", 1)
 
       - add:
           function: "string"
           params:
             key: severity
-            value: "medium"
+            value: "warning"
           where: equals("log.alert.severity", 2)
 
       - add:
           function: "string"
           params:
             key: severity
-            value: "high"
+            value: "info"
           where: equals("log.alert.severity", 3)
+
+      # actionResult is success, failed or denied, or stays empty when the record states no
+      # final outcome (IDS alerts, flow "new", dns, anomaly). The steps run success, then
+      # failed, then denied, so the last match wins and a drop always ends as denied.
+      # The alert's own action is not the final packet verdict: a second signature or a flow
+      # drop can override an alert marked allowed, so a permitted alert packet alone is not a
+      # successful connection. These steps read log.fileinfo before it is renamed below.
+      - delete:
+          fields: [actionResult]
+
+      # success: a flow both sides used. A TCP flow also needs the server's SYN-ACK (SYN in
+      # tcp_flags_tc) and the client's ACK (0x10 in tcp_flags_ts); a SYN answered by a reset
+      # is not a completed connection. EVE writes the flags as hex text, and nested EVE keys
+      # keep their characters. Suricata 8 firewall mode writes "accept", which counts as "pass".
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "success"
+          where: >-
+            !equals("log.verdict.action", "drop") && !equals("log.flow.action", "drop") &&
+            (greaterThan("log.flow.bytes_toserver", 0) || greaterThan("log.flow.bytestoserver", 0)) &&
+            (greaterThan("log.flow.bytes_toclient", 0) || greaterThan("log.flow.bytestoclient", 0)) &&
+            ((equals("log.eventType", "flow") &&
+              oneOf("log.flow.state", ["established", "closed", "bypassed"]) &&
+              (oneOf("log.flow.action", ["pass", "accept"]) || !exists("log.flow.action")) &&
+              (!equals("protocol", "TCP") ||
+               (regexMatch("log.tcp.tcp_flags_tc", "^[0-9a-fA-F]*[2367abefABEF]$") &&
+                regexMatch("log.tcp.tcp_flags_ts", "^[0-9a-fA-F]*[13579bdfBDF][0-9a-fA-F]$")))) ||
+             (equals("log.eventType", "alert") && oneOf("log.verdict.action", ["pass", "accept"])))
+
+      # success: application records that show the server answered. HTTP (and a file carried
+      # by HTTP) follows the response status: 2xx here, 4xx and 5xx below, 3xx stays empty.
+      # A file seen whole (state CLOSED) on another protocol, or a TLS record with a
+      # server-side value (certificate, JA3S, resumed session, negotiated version).
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "success"
+          where: >-
+            !equals("log.verdict.action", "drop") && !equals("log.flow.action", "drop") &&
+            ((oneOf("log.eventType", ["http", "fileinfo"]) &&
+              greaterOrEqual("log.http.status", 200) && lessThan("log.http.status", 300)) ||
+             (equals("log.eventType", "fileinfo") && !exists("log.http.status") &&
+              equals("log.fileinfo.state", "CLOSED")) ||
+             (equals("log.eventType", "tls") &&
+              (exists("log.tls.subject") || exists("log.tls.fingerprint") ||
+               exists("log.tls.serial") || exists("log.tls.ja3s.hash") ||
+               equals("log.tls.session_resumed", true) ||
+               (exists("log.tls.version") && !equals("log.tls.version", "UNDETERMINED")))))
+
+      # failed: a TCP connection the other side refused (client SYN without ACK, answered by
+      # a reset without SYN), and HTTP errors other than 401 and 403.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "failed"
+          where: >-
+            (equals("log.eventType", "flow") && equals("protocol", "TCP") &&
+             regexMatch("log.tcp.tcp_flags_ts", "^([0-9a-fA-F]*[02468aceACE])?[2367abefABEF]$") &&
+             regexMatch("log.tcp.tcp_flags_tc", "^[0-9a-fA-F]*[45cdCD]$")) ||
+            (oneOf("log.eventType", ["http", "fileinfo"]) &&
+             greaterOrEqual("log.http.status", 400) && lessThan("log.http.status", 600) &&
+             !oneOf("log.http.status", [401, 403]))
+
+      # denied: Suricata dropped the packet or flow (IPS drop record, drop verdict, flow drop),
+      # a reject rule reset the connection (the verdict lists the reject; up to Suricata 8 the
+      # key is reject-target, from 9 reject_target), a blocked alert without a final verdict,
+      # or the web server refused the request (401, 403).
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: "denied"
+          where: >-
+            equals("log.eventType", "drop") ||
+            equals("log.verdict.action", "drop") ||
+            equals("log.flow.action", "drop") ||
+            exists("log.verdict.reject") ||
+            exists("log.verdict.reject-target") ||
+            exists("log.verdict.reject_target") ||
+            (equals("log.eventType", "alert") && equals("log.alert.action", "blocked") &&
+             !exists("log.verdict.action") && !exists("log.flow.action")) ||
+            (oneOf("log.eventType", ["http", "fileinfo"]) && oneOf("log.http.status", [401, 403]))
 
       #.......................................................................
       # Add new eventtypes to logx structure, detected in real logs, present in suricata 7.0.0
@@ -122,48 +223,6 @@ pipeline:
           from:
             - log.fileinfo
           to: log.fileInfo
-
-      # Implementing action field used for established connections
-      - add:
-          function: "string"
-          params:
-            key: action
-            value: "success"
-          where: (equals("log.eventType", "tls") && exists("log.tls.sessionresumed")) ||
-            (equals("log.eventType", "dns") && equals("log.dns.type", "answer")) ||
-            (equals("log.eventType", "flow") && exists("origin.ip") && exists("target.ip") && greaterThan("log.flow.bytestoserver", 0) && greaterThan("log.flow.bytestoclient", 0)) ||
-            (equals("log.eventType", "ssh") && exists("log.ssh.server") && exists("log.ssh.client")) ||
-            (equals("log.eventType", "alert") && exists("origin.ip") && exists("target.ip") && equals("log.alert.action", "allowed") && greaterThan("log.flow.bytestoserver", 0) && greaterThan("log.flow.bytestoclient", 0)) ||
-            (equals("log.eventType", "http") && exists("origin.ip") && exists("target.ip") && exists("log.http.status")) ||
-            (equals("log.eventType", "ftp") && exists("origin.ip") && exists("target.ip") && exists("log.ftp.completioncode")) ||
-            (equals("log.eventType", "tftp") && exists("origin.ip") && exists("target.ip") && !equals("log.tftp.packet", "error")) ||
-            (equals("log.eventType", "smb") && exists("origin.ip") && exists("target.ip") && oneOf("log.smb.command", ["NEGOTIATE"]) && oneOf("log.smb.status", ["SUCCESS", "GRANTED", "CONNECTED"])) ||
-            (equals("log.eventType", "rdp") && exists("origin.ip") && exists("target.ip") && (equals("log.rdp.eventType", "connectresponse") || equals("log.rdp.eventType", "tlshandshake"))) ||
-            (equals("log.eventType", "rfb") && exists("origin.ip") && exists("target.ip") && equals("log.rfb.authentication.security-result", "OK")) ||
-            (equals("log.eventType", "mqtt") && exists("origin.ip") && exists("target.ip") && (equals("log.mqtt.connack.returncode", "0") ||  equals("log.mqtt.connack.returncode", "0x00"))) ||
-            (equals("log.eventType", "pgsql") && exists("origin.ip") && exists("target.ip") && (exists("log.pgsql.request.simplequery") ||  exists("log.pgsql.response.commandcompleted") || equals("log.pgsql.response.sslaccepted", "true") || equals("log.pgsql.response.accepted", "true") || exists("log.pgsql.response.authenticationmd5password"))) ||
-            ((equals("log.eventType", "ike") || equals("log.eventType", "ikev1") || equals("log.eventType", "ikev2")) && exists("origin.ip") && exists("target.ip")) ||
-            (equals("log.eventType", "modbus") && exists("origin.ip") && exists("target.ip")) ||
-            (equals("log.eventType", "sip") && exists("origin.ip") && exists("target.ip")) ||
-            (equals("log.eventType", "quic") && exists("origin.ip") && exists("target.ip")) ||
-            (equals("log.eventType", "fileinfo") && exists("origin.ip") && exists("target.ip")) ||
-            (equals("log.eventType", "snmp") && exists("origin.ip") && exists("target.ip")) ||
-            (equals("log.eventType", "dhcp") && exists("origin.ip") && exists("target.ip") && !equals("log.dhcp.assignedip", "0"))
-          
-
-      # Adding action result
-      - add:
-          function: string
-          params:
-            key: actionResult
-            value: "allowed"
-          where: 'exists("log.alert.action") && equals("log.alert.action", "allowed")'
-      - add:
-          function: string
-          params:
-            key: actionResult
-            value: "blocked"
-          where: 'exists("log.alert.action") && equals("log.alert.action", "blocked")'
 
       # Adding geolocation to origin.ip
       - dynamic:

@@ -1,0 +1,31 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365-graph
+name: Graph Domain Federation Settings Changed
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Persistence
+technique: "T1484.002 - Domain or Tenant Policy Modification: Trust Modification"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/entra/identity/monitoring-health/reference-audit-activities
+  - https://attack.mitre.org/techniques/T1484/002/
+description: |
+  The authentication of an Entra ID domain was switched, or its federation settings were changed. Whoever controls a domain's federation can sign in as any user of that domain without their password ("Golden SAML" and federated backdoors), so this change is rare and must always be confirmed.
+
+  One alert is raised per domain and kind of change; repeats are suppressed for seven days.
+
+  Next Steps:
+  1. Identify the domain (log.targetDisplayName) and the new settings in log.targetResources (issuer, signing certificate).
+  2. Confirm the change with the person who made it (origin user) and with the team that runs federation.
+  3. If it was not planned, restore the previous settings at once and review sign-ins to that domain.
+where: |
+  equals("log.graphSource", "directory-audit") &&
+  equals("actionResult", "success") &&
+  oneOf("action", ["Set domain authentication", "Set federation settings on domain"])
+deduplicateBy:
+  - lastEvent.log.targetDisplayName
+  - lastEvent.action

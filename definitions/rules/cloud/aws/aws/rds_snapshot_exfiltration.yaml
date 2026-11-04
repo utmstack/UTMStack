@@ -1,18 +1,17 @@
-# Rule version v1.0.0
-
+# Rule contract revision 2026-09-17; SDK v1.1.31.
 dataTypes:
-  - aws
+- aws
 name: AWS RDS Snapshot Sharing for Data Exfiltration
 impact:
   confidentiality: 3
   integrity: 2
   availability: 1
 category: Data Exfiltration
-technique: "T1537 - Transfer Data to Cloud Account"
+technique: T1537 - Transfer Data to Cloud Account
 adversary: origin
 references:
-  - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ShareSnapshot.html
-  - https://attack.mitre.org/techniques/T1537/
+- https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ShareSnapshot.html
+- https://attack.mitre.org/techniques/T1537/
 description: |
   Detects RDS snapshot sharing modifications that could be used for data exfiltration. Attackers may share database snapshots with external AWS accounts to exfiltrate sensitive data, or make snapshots public to download them from an attacker-controlled account.
 
@@ -26,11 +25,16 @@ description: |
   7. Check for other snapshot operations by the same principal
   8. Implement preventive SCPs to restrict snapshot sharing
 where: |
-  equals("log.eventSource", "rds.amazonaws.com") &&
-  oneOf("log.eventName", ["ModifyDBSnapshotAttribute", "ModifyDBClusterSnapshotAttribute"]) &&
-  equals("log.errorCode", "") &&
-  (contains("log.requestParameters", "attributeName\":\"restore") ||
-   contains("log.requestParameters", "all"))
+  equals("log.awsRecordType","cloudtrail") &&
+  (equals("log.eventSource","rds.amazonaws.com") &&
+  oneOf("log.eventName",["ModifyDBSnapshotAttribute", "ModifyDBClusterSnapshotAttribute"]) &&
+  equals("actionResult","success") &&
+  equals("log.requestParameters.attributeName","restore") &&
+  (greaterThan("log.requestParameters.valuesToAdd.#",0) ||
+  greaterThan("log.requestParameters.valuesToAdd.items.#",0)))
 groupBy:
-  - adversary.user
-  - lastEvent.log.requestParameters.dBSnapshotIdentifier
+- lastEvent.dataSource
+- lastEvent.log.awsAccountKeyType
+- lastEvent.log.awsAccountKey
+- adversary.user
+- lastEvent.log.requestParameters.dBSnapshotIdentifier

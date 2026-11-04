@@ -1,5 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+
+import { useListScrollReset } from '@/shared/hooks/use-list-scroll-reset'
 import type { TFunction } from "i18next";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
@@ -86,6 +88,9 @@ export function ExecutionsView() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
+  const scrollRef = useRef<HTMLDivElement>(null)
+  useListScrollReset(page, 0, scrollRef)
+
   useEffect(() => {
     const h = setTimeout(() => {
       setDebounced(search.trim());
@@ -132,6 +137,11 @@ export function ExecutionsView() {
       .catch(() => setError(true))
       .finally(() => setLoading(false));
   }, [query, page]);
+  // Refresh resets to page 0 first so a scrolled list replaces, not appends.
+  const handleRefresh = useCallback(() => {
+    if (page === 0) load();
+    else setPage(0);
+  }, [page, load]);
   useEffect(() => {
     load();
   }, [load]);
@@ -258,7 +268,7 @@ export function ExecutionsView() {
         <Button
           variant="outline"
           size="sm"
-          onClick={load}
+          onClick={handleRefresh}
           disabled={loading}
           title={t("soar.refresh")}
         >
@@ -267,7 +277,7 @@ export function ExecutionsView() {
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card">
-        <div className="min-h-0 flex-1 overflow-auto">
+        <div className="min-h-0 flex-1 overflow-auto" ref={scrollRef}>
           <ResizableDataTable
             columns={buildExecutionColumns(t, df, runFlows)}
             data={items}
@@ -331,7 +341,7 @@ function nodeLabelOf(e: Execution, flow: Flow | undefined, t: TFunction) {
   if (e.origin === "FLOW" && e.nodeId)
     return [ancestorPath(e.nodeId, flow?.nodes ?? {}), e.nodeId]
       .filter(Boolean)
-      .join(" ← ");
+      .join(" -> ");
   return e.origin === "MANUAL" ? t("soar.executions.manual") : "—";
 }
 
@@ -504,7 +514,7 @@ function ancestorPath(
     chain.unshift(next);
     cur = next;
   }
-  return chain.join(" ← ");
+  return chain.join(" -> ");
 }
 
 function parentIds(id: string, nodes: Record<string, FlowNode>): string[] {

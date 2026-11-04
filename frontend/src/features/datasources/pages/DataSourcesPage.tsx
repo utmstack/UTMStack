@@ -12,6 +12,7 @@ import {
   Network,
   Plus,
   RefreshCw,
+  Download,
   ScrollText,
   Search,
   Server,
@@ -40,14 +41,7 @@ import {
 } from '../services/datasources-http.service'
 import { AgentConsole } from '../components/AgentConsole'
 import { deriveStatus, statusLabel, STATUS_META, IDLE_MS } from '../lib/status'
-import type {
-  Datasource,
-  IngestionBucket,
-  ListResponse,
-  SourceKind,
-  TimelinePoint,
-  DatasourceCount,
-} from '../types/datasource.types'
+import { exportReportPdf } from '../lib/export-report'
 
 /* ─── Kind meta ───────────────────────────────────────────────────────── */
 
@@ -56,6 +50,15 @@ const KIND_META: Record<SourceKind, { label: string; icon: LucideIcon; tone: str
   puller: { label: 'Integration', icon: Cloud, tone: 'text-violet-500' },
   direct: { label: 'Direct', icon: Webhook, tone: 'text-emerald-500' },
 }
+
+import type {
+  Datasource,
+  IngestionBucket,
+  ListResponse,
+  SourceKind,
+  TimelinePoint,
+  DatasourceCount,
+} from '../types/datasource.types'
 
 function kindMeta(kind?: string) {
   return KIND_META[(kind as SourceKind) ?? 'direct'] ?? { label: kind ?? '—', icon: Database, tone: 'text-muted-foreground' }
@@ -232,7 +235,7 @@ export function DataSourcesPage() {
 
   return (
     <div className="w-full px-6 pb-6 pt-3">
-      <Header total={total} />
+      <Header total={total} onExport={() => exportReportPdf(t, (n) => events24h(n))} />
 
       <div className="mt-5 grid grid-cols-12 gap-4">
         <div className="col-span-12 lg:col-span-8">
@@ -332,19 +335,32 @@ export function DataSourcesPage() {
 
 /* ─── Header ───────────────────────────────────────────────────────────── */
 
-function Header({ total }: { total: number }) {
+function Header({ total, onExport }: { total: number; onExport: () => void }) {
   const { t } = useTranslation()
+  const [exporting, setExporting] = useState(false)
+  const runExport = async () => {
+    setExporting(true)
+    try { await onExport() } catch {
+      toast.error(t('datasources.toast.exportFailed'))
+    } finally { setExporting(false) }
+  }
   return (
     <header className="flex flex-wrap items-center justify-between gap-3">
       <div className="text-xs text-muted-foreground">
         <span className="font-medium text-foreground">{t('datasources.total', { count: total })}</span>
       </div>
-      <Button asChild size="sm">
+      <div className="flex items-center gap-2">
+        <Button variant="outline" size="sm" onClick={() => void runExport()} disabled={exporting}>
+          <Download size={14} className="mr-2" />
+          {exporting ? t('datasources.report.preparing') : t('datasources.exportPdf')}
+        </Button>
+        <Button asChild size="sm">
         <Link to="/integrations">
           <Plus size={14} className="mr-2" />
           {t('datasources.connectSource')}
         </Link>
       </Button>
+      </div>
     </header>
   )
 }

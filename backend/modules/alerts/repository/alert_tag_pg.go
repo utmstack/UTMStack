@@ -141,10 +141,11 @@ func (r *pgAlertTagRuleRepository) List(ctx context.Context, f dto.AlertTagRuleF
 
 	where, args := buildTagRuleWhere(f)
 
-
-	q := r.db.WithContext(ctx).Model(&domain.AlertTagRule{})
-
-	q.Where(where,args)
+	// Chainable API, not Raw: Raw bypasses the tenancy plugin (it hooks
+	// Query/Row, but Raw+Scan already has its SQL built by the time that runs,
+	// so an added tenant clause never reaches the query text) — this used to
+	// list every tenant's tagging rules.
+	q := r.db.WithContext(ctx).Model(&domain.AlertTagRule{}).Where(where, args...)
 
 	var total int64
 	if err := q.Count(&total).Error; err != nil {

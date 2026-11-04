@@ -7,7 +7,7 @@ import (
 
 func InstallTools(distro string) error {
 	switch distro {
-	case config.RequiredDistroUbuntu:
+	case config.RequiredDistroUbuntu, config.RequiredDistroDebian:
 		env := []string{"DEBIAN_FRONTEND=noninteractive"}
 		if err := utils.RunEnvCmd(env, "apt-get", "install", "-y", "cockpit"); err != nil {
 			return err

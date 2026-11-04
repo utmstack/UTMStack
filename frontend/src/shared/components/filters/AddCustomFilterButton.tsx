@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { ListFilter } from 'lucide-react'
 import { FilterEditorPanel } from './FilterEditorPanel'
+import { useTranslation } from 'react-i18next'
 import type {
   CustomFilter,
   FilterBarLabels,
@@ -24,6 +25,7 @@ export function AddCustomFilterButton({
 }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
+  const {t} = useTranslation()
 
   useEffect(() => {
     if (!open) return
@@ -38,7 +40,7 @@ export function AddCustomFilterButton({
         onClick={() => setOpen((v) => !v)}
         className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-border px-3 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
       >
-        <ListFilter size={12} /> {labels.add}
+        <ListFilter size={12} /> {t(labels.add)}
       </button>
       {open && (
         <div className="absolute left-0 top-full z-30 mt-1">

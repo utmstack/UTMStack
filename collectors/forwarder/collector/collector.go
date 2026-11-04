@@ -35,7 +35,7 @@ var (
 )
 
 func init() {
-	LogQueue = make(chan *plugins.Log, 1000)
+	LogQueue = make(chan *plugins.Log, 10000)
 }
 
 func StartAll(ctx context.Context) {

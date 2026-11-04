@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
@@ -157,6 +156,30 @@ func (u *authUsecase) Login(ctx context.Context, input dto.LoginRequest, lc conn
 	}
 	u.resetLimiter(lc.IP)
 	return &dto.LoginResponse{TokenPair: *pair, User: dto.ToUserResponse(*user, false)}, nil
+}
+
+// EmptyLogin verifies the same credentials as Login and issues a token with no
+// claims: the password_token second factor. It ignores directory accounts and
+// TFA — the whole point is proving the password.
+func (u *authUsecase) EmptyLogin(ctx context.Context, input dto.LoginRequest, _ connectors.LoginContext) (*dto.EmptyLoginResponse, error) {
+	user, err := u.userRepo.FindByEmail(ctx, input.Login)
+	if err != nil {
+		return nil, err
+	}
+	if user == nil || user.IdentityProviderID != nil || user.PasswordHash == nil || *user.PasswordHash == "" {
+		return nil, domain.ErrInvalidCredentials
+	}
+	if err := bcrypt.CompareHashAndPassword([]byte(*user.PasswordHash), []byte(input.Password)); err != nil {
+		return nil, domain.ErrInvalidCredentials
+	}
+	if err := statusError(user.Status); err != nil {
+		return nil, err
+	}
+	token, err := u.signer.SignEmpty(5 * time.Minute)
+	if err != nil {
+		return nil, err
+	}
+	return &dto.EmptyLoginResponse{Token: token}, nil
 }
 
 // tryDirectory asks the tenant's LDAP providers whether these credentials are
@@ -381,11 +404,11 @@ func (u *authUsecase) RequestPasswordReset(ctx context.Context, input dto.ResetP
 	if user == nil || user.Status != domain.UserStatusActive || user.IdentityProviderID != nil {
 		return nil
 	}
-	// Whether the address exists stays unsaid, so probing cannot enumerate. That
-	// the instance has no mail server is not about this user at all, and hiding
-	// it only leaves someone waiting for a message that will never arrive.
+	// The answer is the same whether or not the address exists, and whether or
+	// not the mail went out: a failure only for accounts that exist would let
+	// anyone probe for them. It is logged here, where only the operator reads it.
 	if err := issueLinkChallenge(ctx, u.challengeRepo, u.mailer, user, domain.ChallengePasswordReset, resetTTL); err != nil {
-		return fmt.Errorf("%w: %v", domain.ErrTfaMailUnavailable, err)
+		_ = catcher.Error("password reset: the reset email could not be sent", err, nil)
 	}
 	return nil
 }

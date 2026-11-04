@@ -1,0 +1,33 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365-graph
+name: Graph Malicious Email Delivered to Mailbox
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Initial Access
+technique: "T1566 - Phishing"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-emailevents-table
+  - https://attack.mitre.org/techniques/T1566/
+description: |
+  Microsoft Defender for Office 365 classified an inbound message as phishing or malware (log.ThreatTypes) but it was still delivered to the recipient's inbox or folders, for example because of an allow rule or a policy that only marks such mail. The user can open it.
+
+  One alert is raised per sender and threat type; repeats are suppressed for seven days.
+
+  Next Steps:
+  1. Find every recipient of the message (log.NetworkMessageId) and of other messages from the sender (origin emailAddress).
+  2. Remove the messages from the mailboxes (for example with Threat Explorer) and block the sender.
+  3. Check whether any recipient clicked a link or opened an attachment, and review the allow rule that let it through.
+where: |
+  equals("log.graphSource", "hunting") &&
+  equals("log.EmailDirection", "Inbound") &&
+  regexMatch("log.ThreatTypes", "(?i)(phish|malware)") &&
+  equals("log.DeliveryAction", "Delivered") &&
+  oneOf("log.DeliveryLocation", ["Inbox/folder", "On-premises/external"])
+deduplicateBy:
+  - adversary.emailAddress
+  - lastEvent.log.ThreatTypes

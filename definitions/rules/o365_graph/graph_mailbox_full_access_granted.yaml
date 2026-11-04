@@ -1,0 +1,33 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365-graph
+name: Graph Mailbox Full Access Granted
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Persistence
+technique: "T1098.002 - Account Manipulation: Additional Email Delegate Permissions"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/purview/audit-log-activities
+  - https://attack.mitre.org/techniques/T1098/002/
+description: |
+  A person was given full access to another mailbox with Add-MailboxPermission. Full access lets them read every message in it; attackers grant it to an account they control to keep reading a target's mail. The mailbox is in log.ObjectId and the account that received access in log.permissionGrantee. Changes made by Exchange's own service accounts (NT SERVICE, NT AUTHORITY) while it provisions system mailboxes are not reported.
+
+  One alert is raised per person granting access; repeats within seven days are suppressed, because administrators often grant access to many mailboxes in one session.
+
+  Next Steps:
+  1. Confirm with the mailbox owner and the person who made the change (origin user) that the access is needed.
+  2. Remove the permission if it is not justified.
+  3. Review the grantee's access to the mailbox (MailItemsAccessed) since the change.
+where: |
+  equals("log.graphSource", "purview-audit") &&
+  equals("actionResult", "success") &&
+  equals("action", "Add-MailboxPermission") &&
+  contains("log.accessRights", "FullAccess") &&
+  !startsWith("origin.user", "NT SERVICE\\") &&
+  !startsWith("origin.user", "NT AUTHORITY\\")
+deduplicateBy:
+  - adversary.user

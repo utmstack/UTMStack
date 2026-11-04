@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"errors"
+	"github.com/utmstack/utmstack/backend/pkg/common_models"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -59,7 +60,7 @@ func isSpecError(err error) bool {
 	for _, e := range []error{
 		domain.ErrDatasetRequired, domain.ErrUnknownDataset, domain.ErrUnknownChart,
 		domain.ErrDimensionRequired, domain.ErrUnknownAgg,
-		domain.ErrUnknownOp,
+		domain.ErrUnknownOp, common_models.ErrInvalidField,
 	} {
 		if errors.Is(err, e) {
 			return true

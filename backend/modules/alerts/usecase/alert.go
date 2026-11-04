@@ -67,6 +67,7 @@ func (u *alertUsecase) UpdateStatus(ctx context.Context, userEmail string, req d
 
 	tagFalsePositive := req.Status == domain.AlertStatusCompleted && req.AddFalsePositiveTag
 
+
 	return u.repo.UpdateStatus(ctx, req.AlertIDs, req.Status, req.StatusObservation,
 		tagFalsePositive, buildStatusEntries(oldAlerts, user, req))
 }
@@ -171,9 +172,13 @@ func buildStatusEntries(oldAlerts []domain.UtmAlert, user string, req dto.Update
 			"status":            string(req.Status),
 			"statusObservation": req.StatusObservation,
 		}
-		if old, ok := oldByID[id]; ok {
+        old, ok := oldByID[id]
+		if ok {
 			newVal["previousStatus"] = string(old.Status)
+		}else{
+			continue
 		}
+
 		newValJSON, _ := json.Marshal(newVal)
 
 		entries = append(entries, connectors.HistoryEntry{

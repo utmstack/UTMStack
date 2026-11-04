@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/utmstack/utmstack/backend/modules/audit"
@@ -13,11 +14,12 @@ import (
 )
 
 type DatasourceHandler struct {
-	uc connectors.DatasourceUsecase
+	uc    connectors.DatasourceUsecase
+	stats connectors.StatsReader
 }
 
-func NewDatasourceHandler(uc connectors.DatasourceUsecase) *DatasourceHandler {
-	return &DatasourceHandler{uc: uc}
+func NewDatasourceHandler(uc connectors.DatasourceUsecase, stats connectors.StatsReader) *DatasourceHandler {
+	return &DatasourceHandler{uc: uc, stats: stats}
 }
 
 // Count godoc
@@ -107,6 +109,50 @@ func (h *DatasourceHandler) UpdateSensitivity(c *gin.Context) {
 		return
 	}
 	c.Status(http.StatusNoContent)
+}
+
+// UsageReport godoc
+//
+//	@Summary     Per-tenant ingest volume for one day
+//	@Description Internal-only: the installer's daily usage-report job reads this and forwards it to Customer Manager. Defaults to today (UTC) when day is omitted.
+//	@Tags        Datasources
+//	@Security    InternalKey
+//	@Produce     json
+//	@Param       day query string false "YYYY-MM-DD, UTC"
+//	@Success     200 {array} dto.TenantUsageDTO
+//	@Failure     400 {object} map[string]string
+//	@Router      /datasources/usage-report [get]
+func (h *DatasourceHandler) UsageReport(c *gin.Context) {
+	day := time.Now().UTC()
+	if raw := c.Query("day"); raw != "" {
+		parsed, err := time.Parse("2006-01-02", raw)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "day must be YYYY-MM-DD"})
+			return
+		}
+		day = parsed
+	}
+
+	if h.stats == nil {
+		c.JSON(http.StatusOK, []dto.TenantUsageDTO{})
+		return
+	}
+
+	rows, err := h.stats.TenantUsageByDay(c.Request.Context(), day)
+	if err != nil {
+		writeError(c, "usage report", err)
+		return
+	}
+
+	out := make([]dto.TenantUsageDTO, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, dto.TenantUsageDTO{
+			TenantID:   r.TenantID.String(),
+			EventCount: r.EventCount,
+			Bytes:      r.Bytes,
+		})
+	}
+	c.JSON(http.StatusOK, out)
 }
 
 func (h *DatasourceHandler) Delete(c *gin.Context) {

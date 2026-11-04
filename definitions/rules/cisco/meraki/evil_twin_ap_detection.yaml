@@ -11,6 +11,7 @@ category: Wireless Security
 technique: "T1557 - Adversary-in-the-Middle"
 adversary: origin
 references:
+  - https://documentation.meraki.com/General_Administration/Monitoring_and_Reporting/Syslog_Event_Types_and_Log_Samples
   - https://documentation.meraki.com/MR/Monitoring_and_Reporting/Air_Marshal
   - https://attack.mitre.org/techniques/T1557/
 description: |
@@ -25,10 +26,9 @@ description: |
   6. Review network traffic from affected clients for signs of credential theft
 where: |
   equals("log.eventType", "airmarshal_events") &&
-  (equals("log.type", "ssid_spoofing") ||
-   equals("log.type", "rogue_ssid_detected") ||
-   (contains("log.message", "SSID Spoofing") || contains("log.message", "Evil Twin"))) &&
+  equals("log.type", "ssid_spoofing_detected") &&
   exists("log.bssid")
 groupBy:
+  - lastEvent.dataSource
+  - lastEvent.log.merakiType
   - lastEvent.log.bssid
-  - adversary.host

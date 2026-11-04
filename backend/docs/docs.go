@@ -12089,7 +12089,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "dataType": {
-                    "description": "wineventlog, o365, aws-cloudtrail… empty means every type in the dataset",
+                    "description": "wineventlog, o365, aws… empty means every type in the dataset",
                     "type": "string"
                 },
                 "dataset": {

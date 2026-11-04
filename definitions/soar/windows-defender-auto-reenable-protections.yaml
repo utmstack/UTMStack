@@ -10,7 +10,12 @@
   - operator: IS
     field: name
     value: TODO-set-the-correlation-rule-that-triggers-this
-  commands:
-  - powershell if ("$(lastEvent.log.message)" -match 'DisableRealtimeMonitoring') { Set-MpPreference -DisableRealtimeMonitoring $false }; if ("$(lastEvent.log.message)" -match 'DisableBehaviorMonitoring') { Set-MpPreference -DisableBehaviorMonitoring $false }; if ("$(lastEvent.log.message)" -match 'DisableIOAVProtection') { Set-MpPreference -DisableIOAVProtection $false }; if ("$(lastEvent.log.message)" -match 'DisableScriptScanning') { Set-MpPreference -DisableScriptScanning $false }; if ("$(lastEvent.log.message)" -match 'DisableCloudProtection') { Set-MpPreference -EnableNetworkProtection Enabled; Set-MpPreference -MAPSReporting Advanced }; if ("$(lastEvent.log.message)" -match 'Set-MpPreference\s+-ExclusionProcess\s+"?([a-zA-Z0-9\._-]+)"?') { Remove-MpPreference -ExclusionProcess $matches[1] }
-  shell: powershell
-  agentPlatform: windows
+  roots:
+    - step_0
+  nodes:
+    step_0:
+        kind: executor
+        executor: shell
+        command: powershell if ("$(lastEvent.log.message)" -match 'DisableRealtimeMonitoring') { Set-MpPreference -DisableRealtimeMonitoring $false }; if ("$(lastEvent.log.message)" -match 'DisableBehaviorMonitoring') { Set-MpPreference -DisableBehaviorMonitoring $false }; if ("$(lastEvent.log.message)" -match 'DisableIOAVProtection') { Set-MpPreference -DisableIOAVProtection $false }; if ("$(lastEvent.log.message)" -match 'DisableScriptScanning') { Set-MpPreference -DisableScriptScanning $false }; if ("$(lastEvent.log.message)" -match 'DisableCloudProtection') { Set-MpPreference -EnableNetworkProtection Enabled; Set-MpPreference -MAPSReporting Advanced }; if ("$(lastEvent.log.message)" -match 'Set-MpPreference\s+-ExclusionProcess\s+"?([a-zA-Z0-9\._-]+)"?') { Remove-MpPreference -ExclusionProcess $matches[1] }
+        shell: powershell
+        platform: windows

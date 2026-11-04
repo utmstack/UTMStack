@@ -32,4 +32,4 @@ where: |
   oneOf("log.activityType", ["exclusion_created", "whitelist_created", "exclusion_modified"])
 groupBy:
   - lastEvent.log.activityType
-  - adversary.host
+  - adversary.user

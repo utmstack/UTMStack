@@ -34,7 +34,7 @@ func main() {
 	if err := authService.Ping(ctx); err != nil {
 		_ = catcher.Error("cannot reach the auth cache", err, map[string]any{
 			"process": processName,
-			"redis":   cfg.RedisAddr,
+			"valkey":  cfg.ValkeyAddr,
 		})
 		time.Sleep(5 * time.Second)
 		os.Exit(1)

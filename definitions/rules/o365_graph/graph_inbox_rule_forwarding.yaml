@@ -1,0 +1,33 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365-graph
+name: Graph Inbox Rule Forwards Mail
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Collection
+technique: "T1114.003 - Email Collection: Email Forwarding Rule"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/purview/audit-log-activities
+  - https://attack.mitre.org/techniques/T1114/003/
+description: |
+  An inbox rule was created or changed to forward, redirect or forward as attachment the messages it matches (New-InboxRule or Set-InboxRule with ForwardTo, RedirectTo or ForwardAsAttachmentTo). This is a common step after a mailbox is taken over: the attacker keeps receiving the victim's mail, often only messages about payments or passwords. The destination is in log.forwardingAddress and the rule in log.ObjectId.
+
+  One alert is raised per rule and destination; repeats are suppressed for seven days.
+
+  Next Steps:
+  1. Read the rule conditions in log.Parameters and check where the mail goes.
+  2. Confirm with the mailbox owner that they created the rule.
+  3. If not, remove the rule, reset the password, revoke the user's sessions and review recent sign-ins.
+where: |
+  equals("log.graphSource", "purview-audit") &&
+  equals("actionResult", "success") &&
+  oneOf("action", ["New-InboxRule", "Set-InboxRule"]) &&
+  equals("log.o365InboxForwardingChange", "true") &&
+  regexMatch("log.forwardingAddress", "(?s)^.+$")
+deduplicateBy:
+  - lastEvent.log.ObjectId
+  - lastEvent.log.forwardingAddress

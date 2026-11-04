@@ -151,6 +151,21 @@ func (r *chStoreRepository) ColdStorageReady(ctx context.Context) (bool, error) 
 	return n > 0, nil
 }
 
+func (r *chStoreRepository) ColdDisk(ctx context.Context) (domain.ColdDiskInfo, error) {
+	var (
+		n        uint64
+		free     uint64
+		readOnly uint8
+	)
+	err := r.store.Conn.QueryRow(ctx,
+		"SELECT count(), max(free_space), max(is_read_only) FROM system.disks WHERE name = ?",
+		domain.ColdDisk).Scan(&n, &free, &readOnly)
+	if err != nil {
+		return domain.ColdDiskInfo{}, err
+	}
+	return domain.ColdDiskInfo{Present: n > 0, ReadOnly: readOnly > 0, FreeBytes: free}, nil
+}
+
 func (r *chStoreRepository) ReloadConfig(ctx context.Context) error {
 	return r.store.Conn.Exec(ctx, "SYSTEM RELOAD CONFIG")
 }

@@ -7,7 +7,7 @@ import { VariablesManager } from "@/features/datasources/components/VariablesMan
 import type { FlowNode } from "../types/soar.types";
 import { COMMAND_TEMPLATES, shellKindFor } from "../lib/command-templates";
 import { mailRecipientError } from "../lib/mail-node-validity";
-import { AgentPicker } from "./AgentPicker";
+import { AgentPicker, PlatformShellPicker } from "./AgentPicker";
 import { ConditionalParamsEditor } from "./ConditionalParamsEditor";
 import { HttpParamsEditor } from "./HttpParamsEditor";
 import { IncidentParamsEditor } from "./IncidentParamsEditor";
@@ -229,6 +229,12 @@ export function NodeInspector({
         </Field>
         {draftNode.executor === "shell" && (
           <>
+            <PlatformShellPicker
+              platform={draftNode.platform}
+              shell={draftNode.shell}
+              readOnly={readOnly}
+              onChange={updateDraft}
+            />
             <Field label={t("soar.editor.canvas.commandLabel")}>
               {!readOnly && (
                 <div className="mb-1 flex flex-wrap items-center gap-1.5">
@@ -237,6 +243,8 @@ export function NodeInspector({
                     onOpenChange={setTemplatesOpen}
                     onPick={(cmd) => insertIntoCommand(cmd, true)}
                     shellKind={shellKind}
+                    disabled={!draftNode.platform}
+                    disabledHint={t("soar.editor.canvas.templatesNeedPlatform")}
                   />
                   <InsertFieldMenu
                     nodes={nodes}
@@ -267,7 +275,6 @@ export function NodeInspector({
               platform={draftNode.platform}
               agent={draftNode.agent}
               excludedAgents={draftNode.excludedAgents}
-              shell={draftNode.shell}
               readOnly={readOnly}
               onChange={updateDraft}
             />
@@ -442,11 +449,15 @@ function TemplatesPopover({
   onOpenChange,
   onPick,
   shellKind,
+  disabled,
+  disabledHint,
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   onPick: (command: string) => void;
   shellKind: ReturnType<typeof shellKindFor>;
+  disabled?: boolean;
+  disabledHint?: string;
 }) {
   const { t } = useTranslation();
   const ref = useRef<HTMLDivElement>(null);
@@ -463,8 +474,10 @@ function TemplatesPopover({
     <div ref={ref} className="relative">
       <button
         type="button"
+        disabled={disabled}
+        title={disabled ? disabledHint : undefined}
         onClick={() => onOpenChange(!open)}
-        className="inline-flex items-center gap-1 rounded-md border border-border bg-card px-2 py-1 text-[10px] hover:bg-muted"
+        className="inline-flex items-center gap-1 rounded-md border border-border bg-card px-2 py-1 text-[10px] hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
       >
         <Zap size={11} /> {t("soar.editor.canvas.templatesLabel")}{" "}
         <ChevronDown size={10} className="opacity-60" />

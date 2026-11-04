@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.0.1
 
 dataTypes:
   - wineventlog
@@ -30,21 +30,27 @@ description: |
   7. Implement AES-only encryption for service accounts
   8. Enable Kerberos PAC validation on the targeted services
 where: |
+  !oneOf("dataSource", ["", "unknown"]) &&
+  exists("log.authenticationSource") &&
   equals("log.eventCode", "4769") &&
   equals("log.channel", "Security") &&
-  (
-    equals("log.eventDataTicketEncryptionType", "23") &&
-    !regexMatch("log.eventDataServiceName", "(?i)(krbtgt|\\$$)") &&
-    !oneOf("log.eventDataStatus", ["0", "6"]) &&
-    exists("origin.ip")
-  )
+  equals("log.eventDataTicketEncryptionType", "23") &&
+  !regexMatch("log.eventDataServiceName", "(?i)(krbtgt|\\$$)") &&
+  !oneOf("log.eventDataStatus", ["0", "6"])
 afterEvents:
   - with:
-      - field: origin.ip
+      - field: dataSource
         operator: filter_term
-        value: '{{.origin.ip}}'
+        value: '{{.dataSource}}'
+      - field: log.authenticationSource
+        operator: filter_term
+        value: '{{.log.authenticationSource}}'
+      - field: log.authenticationCandidate.silverTicketDetection
+        operator: filter_term
+        value: match
     within: 15m
     count: 5
 groupBy:
-  - adversary.ip
-  - adversary.host
+  - dataSource
+  - lastEvent.log.authenticationSource
+  - target.user

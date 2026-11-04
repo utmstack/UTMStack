@@ -8,7 +8,7 @@ import (
 
 type IngestUser struct {
 	TenantID         string     `json:"tenantId"`
-	Source           string     `json:"source,omitempty"` // "windows"|"linux"; defaults to "windows" if absent
+	Source           string     `json:"source,omitempty"` // "windows"|"linux"|"o365"|"azure"|"gcp"|"aws"; defaults to "windows" if absent
 	SID              string     `json:"sid,omitempty"`    // required when source=windows; enforced in usecase
 	SamAccountName   string     `json:"samAccountName,omitempty"`
 	Domain           string     `json:"domain,omitempty"`
@@ -28,11 +28,12 @@ type IngestRequest struct {
 }
 
 type ADUserFilter struct {
-	Search string `form:"search"` // substring on samAccountName/sid
-	Source string `form:"source"` // "windows"|"linux"|"" (all)
-	Active *bool  `form:"active"`
-	Status string `form:"status"` // active|disabled|deleted|stale|service — overrides Active when set
-	Sort   string `form:"sort"`   // recent (last_seen desc) | name (default, samAccountName asc)
+	Search   string `form:"search"` // substring on samAccountName/sid
+	Source   string `form:"source"` // "windows"|"linux"|"o365"|"azure"|"gcp"|"aws"|"" (all)
+	Active   *bool  `form:"active"`
+	Status   string `form:"status"`   // active|disabled|deleted|stale|service — overrides Active when set
+	Sort     string `form:"sort"`     // recent (last_seen desc) | name (default, samAccountName asc)
+	Identity string `form:"identity"` // a UUID filters to users assigned to that identity; the literal "none" to users without one
 	database.Params
 }
 
@@ -44,18 +45,24 @@ type DomainCount struct {
 type SourceCount struct {
 	Windows int64 `json:"windows"`
 	Linux   int64 `json:"linux"`
+	O365    int64 `json:"o365"`
+	Azure   int64 `json:"azure"`
+	GCP     int64 `json:"gcp"`
+	AWS     int64 `json:"aws"`
 }
 
 type ADUserStats struct {
-	Total    int64         `json:"total"`
-	Active   int64         `json:"active"`
-	Disabled int64         `json:"disabled"`
-	Deleted  int64         `json:"deleted"`
-	Stale    int64         `json:"stale"`
-	Service  int64         `json:"service"`
-	Seen24h  int64         `json:"seen_24h"`
-	BySource SourceCount   `json:"by_source"`
-	ByDomain []DomainCount `json:"by_domain"`
+	Total      int64         `json:"total"`
+	Active     int64         `json:"active"`
+	Disabled   int64         `json:"disabled"`
+	Deleted    int64         `json:"deleted"`
+	Stale      int64         `json:"stale"`
+	Service    int64         `json:"service"`
+	Seen24h    int64         `json:"seen_24h"`
+	Identities int64         `json:"identities"`
+	Unassigned int64         `json:"unassigned"`
+	BySource   SourceCount   `json:"by_source"`
+	ByDomain   []DomainCount `json:"by_domain"`
 }
 
 type ResolveLinuxIdentityRequest struct {

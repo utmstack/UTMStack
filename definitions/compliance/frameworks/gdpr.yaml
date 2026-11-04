@@ -1,40 +1,184 @@
-# GDPR (checklist). Articles (public EU law). 800-53 mapping best-effort.
+# Provenance: Regulation (EU) 2016/679 of 27 April 2016 (OJ L 119, 4.5.2016), consolidated English text on EUR-
+#   Lex. EU legislation, reuse permitted. Mapping to NIST SP 800-53 Rev 5 is UTMStack's own; NIST publishes no
+#   GDPR crosswalk.
+# GDPR checklist: the articles of Regulation (EU) 2016/679 that place an obligation on a controller or processor,
+# grouped by chapter and section. EU law, free to reuse; article titles are official, paragraph names are short summaries.
+# Controls come from the shared NIST SP 800-53 Rev 5 library; only security and breach items are checked from logs.
 key: gdpr
-name: GDPR (EU 2016/679)
-description: General Data Protection Regulation — articles relevant to security and monitoring.
-source: EU Regulation 2016/679 (public law). 800-53 mapping best-effort (review).
+name: GDPR — EU General Data Protection Regulation
+description: Obligations of controllers and processors under Regulation (EU) 2016/679, from the processing
+  principles to international transfers. Security of processing and breach handling are checked from logs and
+  alerts; the other obligations need a person to record their status.
+source: 'Regulation (EU) 2016/679, EUR-Lex (reuse permitted). Mapping to NIST SP 800-53 Rev 5 by UTMStack.'
 sections:
-- key: security-and-breach
-  name: Security & Breach (Arts. 5, 30, 32-34)
+- key: principles
+  name: 'Chapter II: Principles (Art. 5-11)'
   requirements:
+  - id: Art.5(1)(a)
+    name: Lawfulness, fairness and transparency
+    satisfiedBy: [pt-2, pt-5]
+  - id: Art.5(1)(b)
+    name: Purpose limitation
+    satisfiedBy: [pt-3]
+  - id: Art.5(1)(c)
+    name: Data minimisation
+    satisfiedBy: [si-12, sa-8]
+  - id: Art.5(1)(d)
+    name: Accuracy
+    satisfiedBy: [si-18, pm-22]
+  - id: Art.5(1)(e)
+    name: Storage limitation
+    satisfiedBy: [si-12]
   - id: Art.5(1)(f)
-    name: Integrity and confidentiality of personal data
-    satisfiedBy:
-    - sc-28
-    - sc-8
-    - ac-3
+    name: Integrity and confidentiality
+    satisfiedBy: [ac-3, si-7, cp-9]
+  - id: Art.5(2)
+    name: Accountability
+    satisfiedBy: [pm-18, pt-1]
+  - id: Art.6
+    name: Lawfulness of processing
+    satisfiedBy: [pt-2, pt-3]
+  - id: Art.7
+    name: Conditions for consent
+    satisfiedBy: [pt-4]
+  - id: Art.8
+    name: "Conditions applicable to child's consent in relation to information society services"
+    satisfiedBy: [pt-4]
+  - id: Art.9
+    name: Processing of special categories of personal data
+    satisfiedBy: [pt-7, pt-2]
+  - id: Art.10
+    name: Processing of personal data relating to criminal convictions and offences
+    satisfiedBy: [pt-7, pt-2]
+  - id: Art.11
+    name: Processing which does not require identification
+    satisfiedBy: [pt-5]
+- key: data-subject-rights
+  name: 'Chapter III: Rights of the data subject (Art. 12-22)'
+  requirements:
+  - id: Art.12
+    name: Transparent information, communication and modalities for the exercise of the rights of the data subject
+    satisfiedBy: [pt-5, pm-26]
+  - id: Art.13
+    name: Information to be provided where personal data are collected from the data subject
+    satisfiedBy: [pt-5]
+  - id: Art.14
+    name: Information to be provided where personal data have not been obtained from the data subject
+    satisfiedBy: [pt-5]
+  - id: Art.15
+    name: Right of access by the data subject
+    satisfiedBy: [pm-21, pt-5]
+  - id: Art.16
+    name: Right to rectification
+    satisfiedBy: [si-18, pm-22]
+  - id: Art.17
+    name: "Right to erasure ('right to be forgotten')"
+    satisfiedBy: [si-12, si-18]
+  - id: Art.18
+    name: Right to restriction of processing
+    satisfiedBy: [pt-3, si-18]
+  - id: Art.19
+    name: Notification obligation regarding rectification or erasure of personal data or restriction of processing
+    satisfiedBy: [pm-21, si-18]
+  - id: Art.20
+    name: Right to data portability
+    satisfiedBy: [pt-1]
+  - id: Art.21
+    name: Right to object
+    satisfiedBy: [pt-4, pt-3]
+  - id: Art.22
+    name: Automated individual decision-making, including profiling
+    satisfiedBy: [pt-3, ra-8]
+- key: controller-processor
+  name: 'Chapter IV, Section 1: General obligations of controller and processor (Art. 24-31)'
+  requirements:
+  - id: Art.24
+    name: Responsibility of the controller
+    satisfiedBy: [pm-1, pm-18]
+  - id: Art.25
+    name: Data protection by design and by default
+    satisfiedBy: [sa-8, sa-3]
+  - id: Art.26
+    name: Joint controllers
+    satisfiedBy: [ca-3, pm-18]
+  - id: Art.27
+    name: Representatives of controllers or processors not established in the Union
+    satisfiedBy: [pm-19]
+  - id: Art.28
+    name: Processor
+    satisfiedBy: [sa-4, sa-9]
+  - id: Art.29
+    name: Processing under the authority of the controller or processor
+    satisfiedBy: [ps-6, pl-4]
   - id: Art.30
     name: Records of processing activities
-    satisfiedBy:
-    - au-2
-    - au-3
-    - au-12
-  - id: Art.32
-    name: Security of processing
-    satisfiedBy:
-    - sc-28
-    - sc-13
-    - ac-3
-    - au-2
-    - si-4
-    - ia-2
-  - id: Art.33
-    name: Notification of a personal data breach to authority
-    satisfiedBy:
-    - ir-4
-    - ir-6
-    - au-6
+    satisfiedBy: [cm-12, cm-13]
+  - id: Art.31
+    name: Cooperation with the supervisory authority
+    satisfiedBy: [pm-19, pm-27]
+- key: security
+  name: 'Chapter IV, Section 2: Security of personal data (Art. 32-34)'
+  requirements:
+  - id: Art.32(1)(a)
+    name: Pseudonymisation and encryption of personal data
+    satisfiedBy: [sc-8, sc-13, sc-28, si-19]
+  - id: Art.32(1)(b)
+    name: Ongoing confidentiality, integrity, availability and resilience of processing systems and services
+    satisfiedBy: [ac-2, ac-7, au-2, au-6, au-9, si-3, si-4]
+  - id: Art.32(1)(c)
+    name: Timely restoration of availability and access to personal data after an incident
+    satisfiedBy: [cp-9, cp-10]
+  - id: Art.32(1)(d)
+    name: Regular testing, assessment and evaluation of the security measures
+    satisfiedBy: [ca-2, ca-8, ra-5]
+  - id: Art.32(2)
+    name: Level of security assessed against the risks of the processing
+    satisfiedBy: [ra-3]
+  - id: Art.32(4)
+    name: Persons with access to personal data process it only on instructions
+    satisfiedBy: [ps-6, pl-4]
+  - id: Art.33(1)
+    name: Notify a personal data breach to the supervisory authority within 72 hours
+    satisfiedBy: [ir-6, ir-8]
+  - id: Art.33(2)
+    name: Processor notifies the controller of a personal data breach without undue delay
+    satisfiedBy: [ir-6, sr-8]
+  - id: Art.33(5)
+    name: Document every personal data breach, its effects and the remedial action taken
+    satisfiedBy: [ir-5]
   - id: Art.34
-    name: Communication of a breach to the data subject
-    satisfiedBy:
-    - ir-6
+    name: Communication of a personal data breach to the data subject
+    satisfiedBy: [ir-6, ir-8]
+- key: dpia
+  name: 'Chapter IV, Section 3: Data protection impact assessment and prior consultation (Art. 35-36)'
+  requirements:
+  - id: Art.35
+    name: Data protection impact assessment
+    satisfiedBy: [ra-8, ra-3]
+  - id: Art.36
+    name: Prior consultation
+    satisfiedBy: [ra-8]
+- key: dpo
+  name: 'Chapter IV, Section 4: Data protection officer (Art. 37-39)'
+  requirements:
+  - id: Art.37
+    name: Designation of the data protection officer
+    satisfiedBy: [pm-19]
+  - id: Art.38
+    name: Position of the data protection officer
+    satisfiedBy: [pm-19, pm-3]
+  - id: Art.39
+    name: Tasks of the data protection officer
+    satisfiedBy: [pm-19, at-2]
+- key: transfers
+  name: 'Chapter V: Transfers of personal data to third countries or international organisations (Art. 44-49)'
+  requirements:
+  - id: Art.44
+    name: General principle for transfers
+    satisfiedBy: [cm-12, sa-9]
+  - id: Art.46
+    name: Transfers subject to appropriate safeguards
+    satisfiedBy: [sa-4, sa-9, ca-3]
+  - id: Art.49
+    name: Derogations for specific situations
+    satisfiedBy: [pt-2, pt-4]

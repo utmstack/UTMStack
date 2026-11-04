@@ -7,17 +7,24 @@ import type { LogDocument } from '@/features/log-explorer/types/log-explorer.typ
 import type { AlertEventItem } from '../types/alert.types'
 
 /**
- * The events the engine attached inline to the alert (a sample, capped at ~11),
- * rendered with the exact same table + Fields/JSON detail as the Log Explorer.
+ * The events the engine attached inline to the alert (a sample, capped at ~11)
+ * plus, when it has echoes, the events of those echoes, rendered with the exact same table + Fields/JSON detail as the Log Explorer.
  * The "View all related logs" button reproduces the engine's correlation search
  * (uncapped) in the Log Explorer.
  */
 export function AlertRelatedEvents({
   events,
+  echoes = 0,
+  echoesRead = 0,
+  loadingEchoes = false,
   onViewAll,
   loadingAll,
 }: {
   events: AlertEventItem[]
+  /** Echoes of the alert; their events are part of `events` once read. */
+  echoes?: number
+  echoesRead?: number
+  loadingEchoes?: boolean
   onViewAll: () => void
   loadingAll: boolean
 }) {
@@ -37,7 +44,13 @@ export function AlertRelatedEvents({
     <div className="space-y-3">
       <div className="flex items-start justify-between gap-3">
         <p className="text-[11px] leading-relaxed text-muted-foreground">
-          {events.length > 0 ? t('alerts.related.sample') : t('alerts.related.empty')}
+          {loadingEchoes
+            ? t('alerts.related.loadingEchoes')
+            : echoes > 0
+              ? t('alerts.related.sampleWithEchoes', { count: echoes, read: echoesRead })
+              : events.length > 0
+                ? t('alerts.related.sample')
+                : t('alerts.related.empty')}
         </p>
         <Button size="sm" variant="outline" onClick={onViewAll} disabled={loadingAll} className="shrink-0">
           {loadingAll ? <Loader2 size={13} className="mr-1.5 animate-spin" /> : <FileSearch size={13} className="mr-1.5" />}

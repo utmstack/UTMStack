@@ -34,7 +34,7 @@ where: |
     (equals("log.groupCategory", "SSL VPN") && contains("log.message", ["failed", "denied", "rejected"]))
   ) && exists("origin.ip")
 afterEvents:
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

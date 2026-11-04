@@ -11,7 +11,7 @@ import (
 
 const (
 	configFileName = "system_plugins_feeds.yaml"
-	pluginKey      = "feeds"
+	pluginKey      = "feeds_contribution"
 )
 
 // FeedsConfig is what the feeds plugin needs to know: whether this instance
@@ -19,15 +19,18 @@ const (
 // The two secrets are stored encrypted, and the plugin decrypts them with the
 // same instance key.
 type FeedsConfig struct {
-	Enabled   bool   `yaml:"enabled"`
-	APIKey    string `yaml:"api_key,omitempty"`
-	APISecret string `yaml:"api_secret,omitempty"`
+	FeedsEnabled    			FeedsField `yaml:"feeds"`
+	FeedsContributionEnabled    FeedsField `yaml:"feeds_contribution"`
+}
+
+type FeedsField struct{
+	Enabled 	bool `yaml:"enabled"`
 }
 
 // pluginsFile is the on-disk wrapper every plugin config shares —
 // plugins.<key>.* — so this file looks like the ones beside it.
 type pluginsFile struct {
-	Plugins map[string]FeedsConfig `yaml:"plugins"`
+	Plugins FeedsConfig `yaml:"plugins"`
 }
 
 // ConfigStore owns system_plugins_feeds.yaml. The plugin only reads it, which
@@ -86,15 +89,12 @@ func (s *ConfigStore) read() (*FeedsConfig, error) {
 	if err := yaml.Unmarshal(data, &pf); err != nil {
 		return nil, err
 	}
-	cfg, ok := pf.Plugins[pluginKey]
-	if !ok {
-		return nil, nil
-	}
+	cfg := pf.Plugins
 	return &cfg, nil
 }
 
 func (s *ConfigStore) write(cfg *FeedsConfig) error {
-	data, err := yaml.Marshal(pluginsFile{Plugins: map[string]FeedsConfig{pluginKey: *cfg}})
+	data, err := yaml.Marshal(pluginsFile{Plugins: *cfg})
 	if err != nil {
 		return err
 	}

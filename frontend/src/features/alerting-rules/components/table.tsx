@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { ReactNode, Ref } from 'react'
 import type { TFunction } from 'i18next'
 import type { ColumnDef } from '@tanstack/react-table'
 import { Crosshair, Lock } from 'lucide-react'
@@ -139,11 +139,11 @@ function buildRuleColumns({ t, selected, allChecked, someChecked, onToggleSelect
   ]
 }
 
-export function Table({ rules, selected, onToggleSelected, onSelectAll, onOpen, onToggle, t, footer }: { rules: CorrelationRule[]; selected: Set<string>; onToggleSelected: (relPath: string) => void; onSelectAll: (checked: boolean) => void; onOpen: (r: CorrelationRule) => void; onToggle: (r: CorrelationRule, next: boolean) => void; t: TFunction; footer?: ReactNode }) {
+export function Table({ rules, selected, onToggleSelected, onSelectAll, onOpen, onToggle, t, footer, scrollRef }: { rules: CorrelationRule[]; selected: Set<string>; onToggleSelected: (relPath: string) => void; onSelectAll: (checked: boolean) => void; onOpen: (r: CorrelationRule) => void; onToggle: (r: CorrelationRule, next: boolean) => void; t: TFunction; footer?: ReactNode; scrollRef?: Ref<HTMLDivElement> }) {
   const allChecked = rules.length > 0 && rules.every((r) => selected.has(r.relPath))
   const someChecked = !allChecked && rules.some((r) => selected.has(r.relPath))
   return (
-    <div className="mt-4 min-h-0 flex-1 overflow-auto rounded-xl border border-border">
+    <div className="mt-4 min-h-0 flex-1 overflow-auto rounded-xl border border-border" ref={scrollRef}>
       <ResizableDataTable
         columns={buildRuleColumns({ t, selected, allChecked, someChecked, onToggleSelected, onSelectAll, onToggle })}
         data={rules}

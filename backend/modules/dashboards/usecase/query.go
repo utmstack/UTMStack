@@ -12,6 +12,7 @@ import (
 
 	"github.com/utmstack/utmstack/backend/modules/dashboards/domain"
 	"github.com/utmstack/utmstack/backend/pkg/authz"
+	"github.com/utmstack/utmstack/backend/pkg/common_models"
 	"github.com/utmstack/utmstack/backend/pkg/tenancy"
 )
 
@@ -110,6 +111,11 @@ func (s *QueryService) Run(ctx context.Context, spec domain.Spec) (*Result, erro
 	if err != nil {
 		return nil, err
 	}
+	if spec.Dimension != "" {
+		if err := common_models.ValidateField(spec.Dimension); err != nil {
+			return nil, err
+		}
+	}
 
 	limit := spec.Limit
 	if limit <= 0 {
@@ -187,6 +193,11 @@ func toFilters(in []domain.Filter) ([]store.Filter, error) {
 		op, ok := ops[f.Op]
 		if !ok {
 			return nil, fmt.Errorf("%w: %s", domain.ErrUnknownOp, f.Op)
+		}
+		if op != store.OpSearch && op != store.OpNotSearch {
+			if err := common_models.ValidateField(f.Field); err != nil {
+				return nil, err
+			}
 		}
 		out = append(out, store.Filter{Field: f.Field, Op: op, Value: f.Value})
 	}

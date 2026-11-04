@@ -54,6 +54,10 @@ func (u *adUserUsecase) Ingest(ctx context.Context, req dto.IngestRequest) (int,
 			if !hasResolved && !hasProvisional {
 				continue
 			}
+		case "o365", "azure", "gcp", "aws":
+			if in.Username == nil || strings.TrimSpace(*in.Username) == "" {
+				continue
+			}
 		default:
 			continue
 		}
@@ -87,6 +91,16 @@ func (u *adUserUsecase) Ingest(ctx context.Context, req dto.IngestRequest) (int,
 			sid := strings.TrimSpace(in.SID)
 			ad.SID = &sid
 		}
+		if source == "o365" || source == "azure" || source == "gcp" || source == "aws" {
+			if ad.Username != nil {
+				un := strings.ToLower(strings.TrimSpace(*ad.Username))
+				ad.Username = &un
+			}
+			if ad.SamAccountName == nil && ad.Username != nil {
+				sa := *ad.Username
+				ad.SamAccountName = &sa
+			}
+		}
 
 		users = append(users, ad)
 	}
@@ -101,12 +115,12 @@ func (u *adUserUsecase) Ingest(ctx context.Context, req dto.IngestRequest) (int,
 	return len(users), nil
 }
 
-func (u *adUserUsecase) List(ctx context.Context, f dto.ADUserFilter) (*database.List[domain.ADUser], error) {
+func (u *adUserUsecase) List(ctx context.Context, f dto.ADUserFilter) (*database.List[dto.UserRow], error) {
 	items, total, err := u.repo.List(ctx, f)
 	if err != nil {
 		return nil, err
 	}
-	return &database.List[domain.ADUser]{Items: items, Total: total}, nil
+	return &database.List[dto.UserRow]{Items: items, Total: total}, nil
 }
 
 func (u *adUserUsecase) Each(ctx context.Context, source string, fn func(domain.ADUser) error) error {

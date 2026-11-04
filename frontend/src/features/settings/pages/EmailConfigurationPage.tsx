@@ -6,6 +6,7 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { EmailChipInput } from '@/shared/components/ui/email-chip-input'
+import { useAuth } from '@/features/auth'
 import { PlatformBroadcastButton, broadcast, BULK_PATHS } from '@/features/platform-broadcast'
 import { configHttpService } from '../services/config-http.service'
 
@@ -69,6 +70,7 @@ const EMPTY: Form = {
 
 export function EmailConfigurationPage() {
   const { t } = useTranslation()
+  const { user } = useAuth()
   const [form, setForm] = useState<Form>(EMPTY)
   const [initial, setInitial] = useState<Form>(EMPTY)
   const [passwordSet, setPasswordSet] = useState(false)
@@ -196,7 +198,7 @@ export function EmailConfigurationPage() {
       ])
       if (res.success) {
         setTest('success')
-        toast.success(t('emailConfig.test.success', { email: form.from }))
+        toast.success(t('emailConfig.test.success', { email: user?.email ?? '' }))
       } else {
         setTest('fail')
         toast.error(res.message || t('emailConfig.test.fail'))
@@ -346,7 +348,7 @@ export function EmailConfigurationPage() {
                 {test === 'sending' ? t('emailConfig.test.sending') : t('emailConfig.test.button')}
               </Button>
               {form.from && (
-                <span className="text-[11px] text-muted-foreground">{t('emailConfig.test.sentTo', { email: form.from })}</span>
+                <span className="text-[11px] text-muted-foreground">{t('emailConfig.test.sentTo', { email: user?.email ?? '' })}</span>
               )}
             </div>
             <div className="flex items-center gap-2">

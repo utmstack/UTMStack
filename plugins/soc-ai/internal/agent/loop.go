@@ -85,6 +85,7 @@ type RunTask struct {
 	EnabledGroups []string
 	AlwaysAllow   []string
 	MaxIters      int
+	Temperature   float64 // 0 = provider default
 }
 
 type RunResult struct {
@@ -112,6 +113,24 @@ func New(llm LLMClient, broker *ToolBroker, model string, maxTokens, contextWind
 }
 
 func (a *Agent) Broker() *ToolBroker { return a.broker }
+
+// QuickComplete runs a single, tool-free LLM completion — the non-agentic
+// fast path for a task that doesn't need investigation, like classifying an
+// alert that already carries its deterministic score. It never loops and
+// never offers tools, so it costs exactly one LLM call no matter what the
+// model answers.
+func (a *Agent) QuickComplete(ctx context.Context, system, input string) (string, error) {
+	resp, err := a.llm.Complete(ctx, CompletionRequest{
+		System:    system,
+		Messages:  []Message{{Role: RoleUser, Content: input}},
+		Model:     a.model,
+		MaxTokens: a.maxTokens,
+	})
+	if err != nil {
+		return "", err
+	}
+	return resp.Content, nil
+}
 
 func (a *Agent) Run(ctx context.Context, task RunTask, sink EventSink) (RunResult, error) {
 	specs, err := a.broker.ListSpecs(ctx)
@@ -172,11 +191,12 @@ func (a *Agent) Run(ctx context.Context, task RunTask, sink EventSink) (RunResul
 		}
 
 		resp, err := a.llm.Complete(ctx, CompletionRequest{
-			System:    task.System,
-			Messages:  msgs,
-			Tools:     stepTools,
-			Model:     a.model,
-			MaxTokens: a.maxTokens,
+			System:      task.System,
+			Messages:    msgs,
+			Tools:       stepTools,
+			Model:       a.model,
+			MaxTokens:   a.maxTokens,
+			Temperature: task.Temperature,
 		})
 		if err != nil {
 			_ = catcher.Error("llm completion failed", err, map[string]any{
@@ -273,11 +293,12 @@ func (a *Agent) Run(ctx context.Context, task RunTask, sink EventSink) (RunResul
 func (a *Agent) finalizeGracefully(ctx context.Context, task RunTask, msgs []Message, result RunResult, sink EventSink, prompt, fallbackMsg string) (RunResult, error) {
 	msgs = append(msgs, Message{Role: RoleUser, Content: prompt})
 	finalResp, ferr := a.llm.Complete(ctx, CompletionRequest{
-		System:    task.System,
-		Messages:  msgs,
-		Model:     a.model,
-		MaxTokens: a.maxTokens,
-	})
+			System:      task.System,
+			Messages:    msgs,
+			Model:       a.model,
+			MaxTokens:   a.maxTokens,
+			Temperature: task.Temperature,
+		})
 	if ferr != nil {
 		_ = catcher.Error("finalization llm call failed", ferr, map[string]any{
 			"process": "plugin_com.utmstack.soc-ai",

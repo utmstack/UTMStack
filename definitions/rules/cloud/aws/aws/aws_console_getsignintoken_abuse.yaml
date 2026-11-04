@@ -1,18 +1,17 @@
-# Rule version v1.0.0
-
+# Rule contract revision 2026-09-17; SDK v1.1.31.
 dataTypes:
-  - aws
+- aws
 name: AWS Console GetSigninToken Abuse
 impact:
   confidentiality: 3
   integrity: 2
   availability: 1
 category: Credential Access
-technique: "T1550.001 - Use Alternate Authentication Material: Application Access Token"
+technique: 'T1550.001 - Use Alternate Authentication Material: Application Access Token'
 adversary: origin
 references:
-  - https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_enable-console-custom-url.html
-  - https://attack.mitre.org/techniques/T1550/001/
+- https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_enable-console-custom-url.html
+- https://attack.mitre.org/techniques/T1550/001/
 description: |
   Detects GetSigninToken API calls which allow federated users to get a console sign-in token. Attackers abuse this to pivot from programmatic credentials to console access, potentially bypassing MFA requirements.
 
@@ -24,9 +23,13 @@ description: |
   5. Check if MFA was properly enforced on the original authentication
   6. If unauthorized, revoke the federated session immediately
 where: |
-  equals("log.eventSource", "signin.amazonaws.com") &&
+  equals("log.awsRecordType","cloudtrail") &&
+  (equals("log.eventSource", "signin.amazonaws.com") &&
   equals("log.eventName", "GetSigninToken") &&
-  equals("log.errorCode", "")
+  equals("actionResult","success"))
 groupBy:
-  - adversary.user
-  - lastEvent.log.sourceIPAddress
+- lastEvent.dataSource
+- lastEvent.log.awsAccountKeyType
+- lastEvent.log.awsAccountKey
+- adversary.user
+- lastEvent.log.sourceIPAddress

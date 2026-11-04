@@ -61,6 +61,9 @@ func (c *anthropicClient) Complete(ctx context.Context, req CompletionRequest) (
 	if req.System != "" {
 		payload["system"] = req.System
 	}
+	if req.Temperature > 0 {
+		payload["temperature"] = req.Temperature
+	}
 	if len(tools) > 0 {
 		payload["tools"] = tools
 	}

@@ -38,7 +38,7 @@ where: |
     exists("log.destinationUser") ||
     exists("log.endpointDeviceName")
   ) &&
-  exists("log.syslogHost")
+  exists("target.host")
 groupBy:
   - lastEvent.log.endpointDeviceName
-  - lastEvent.log.syslogHost
+  - target.host

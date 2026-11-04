@@ -20,6 +20,7 @@ import {
   type StatusTab,
 } from '../types/alert.types'
 import { useAlertsList } from '../hooks/use-alerts-list'
+import { useListScrollReset } from '@/shared/hooks/use-list-scroll-reset'
 import { useAlertStats } from '../hooks/use-alert-stats'
 import { useAlertTagCatalog } from '../hooks/use-alert-tag-catalog'
 import { useAlertMutations } from '../hooks/use-alert-mutations'
@@ -42,19 +43,99 @@ import { taggingRulesHttpService } from '../services/tagging-rules-http.service'
 import type { TaggingRule } from '../types/tagging-rule.types'
 import type { AlertTag } from '../types/alert.types'
 
+/**
+ * What a navigation seeded on the router state, resolved to the page's own
+ * initial filter + time range. Read synchronously at mount (not in an effect)
+ * so the first fetch already carries the filters — an effect-based seed raced
+ * the initial unseeded request and its late response clobbered the result.
+ */
+function readSeed(location: ReturnType<typeof useLocation>): {
+  filters: CustomFilter[]
+  range: TimeRange
+  queryFilters?: FilterType[]
+} | null {
+  const state = location.state as {
+    dashboardSearch?: { filters: FilterType[]; range: TimeRange }
+    socaiFilters?: (FilterType & { label?: string })[]
+    socaiTime?: string
+  } | null
+  if (state?.dashboardSearch) {
+    return {
+      filters: state.dashboardSearch.filters
+        .filter((filter) => filter.field !== TS)
+        .map((filter) => ({
+          field: filter.field,
+          label: filter.field,
+          operator:
+            filter.operator === 'IS_ONE_OF_TERMS'
+              ? 'IS'
+              : filter.operator === 'IS_NOT_ONE_OF_TERMS'
+                ? 'IS_NOT'
+                : filter.operator,
+          value: Array.isArray(filter.value) ? filter.value.join(', ') : String(filter.value ?? ''),
+        })),
+      range: state.dashboardSearch.range,
+      queryFilters: state.dashboardSearch.filters,
+    }
+  }
+  if (!state?.socaiFilters?.length) return null
+
+  // @timestamp filters drive the dedicated time picker, not the custom filter bar.
+  const tsFilter = state.socaiFilters.find((f) => f.field === TS && Array.isArray(f.value))
+  const rest = tsFilter ? state.socaiFilters.filter((f) => f !== tsFilter) : state.socaiFilters
+  const filters: CustomFilter[] = rest.map((f) => ({
+    field: f.field,
+    label: f.label ?? f.field,
+    operator: f.operator,
+    value: Array.isArray(f.value) ? f.value.join(', ') : String(f.value ?? ''),
+  }))
+
+  let range: TimeRange | null = null
+  if (tsFilter) {
+    const [from, to] = tsFilter.value as [string, string]
+    const m = /^now-(\d+[mhdwM])$/.exec(from)
+    range = m && to === 'now' ? presetRange(m[1]) : { from, to, interval: 'day' }
+  } else if (state.socaiTime) {
+    range = presetRange(state.socaiTime)
+  }
+  if (!range) range = presetRange('7d')
+
+  return { filters, range }
+}
+
 export function AlertsPage() {
   const { t } = useTranslation()
+
+  // Read the router state synchronously (before any useState initializer) so the
+  // seeded filters drive the very first fetch. Applying them in a post-mount
+  // useEffect raced the initial (unseeded) request and its late response could
+  // overwrite the filtered one — the classic "seeded, then it shows everything".
+  const location = useLocation()
+  const seeded = readSeed(location)
+
   const [view, setView] = useState<AlertsView>('alerts')
   const [statusTab, setStatusTab] = useState<StatusTab>('all')
   const [severity, setSeverity] = useState<SeverityKey | 'all'>('all')
-  const [range, setRange] = useState<TimeRange>(() => presetRange('7d'))
+  const [range, setRange] = useState<TimeRange>(() => seeded?.range ?? presetRange('7d'))
   const [search, setSearch] = useState('')
   const [debounced, setDebounced] = useState('')
   const [tagFilter, setTagFilter] = useState<string[]>([])
-  const [customFilters, setCustomFilters] = useState<CustomFilter[]>([])
+  const [dashboardSeedFilters, setDashboardSeedFilters] = useState<FilterType[] | null>(
+    () => seeded?.queryFilters ?? null,
+  )
+  const [customFilters, setCustomFiltersState] = useState<CustomFilter[]>(() => seeded?.filters ?? [])
+  const setCustomFilters = (
+    next: CustomFilter[] | ((previous: CustomFilter[]) => CustomFilter[]),
+  ) => {
+    setDashboardSeedFilters(null)
+    setCustomFiltersState(next)
+  }
 
   const [page, setPage] = useState(0)
   const [pageSize] = useState(50)
+
+  const scrollRef = useRef<HTMLDivElement>(null)
+  useListScrollReset(page, 0, scrollRef)
 
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [expandedEchoes, setExpandedEchoes] = useState<Set<string>>(new Set())
@@ -78,12 +159,9 @@ export function AlertsPage() {
       return next
     })
 
-  // SOC-AI chat navigation: seed the filters + time window the agent emitted.
-  const location = useLocation()
   const navigate = useNavigate()
   const { id: routeAlertName } = useParams<{ id: string }>()
   const pendingOpenNameRef = useRef<string | null>(null)
-  const seededRef = useRef(false)
 
   // Deep-link (/threat-management/alerts/:alertName): seed as name filter + open drawer once loaded.
   useEffect(() => {
@@ -100,28 +178,11 @@ export function AlertsPage() {
     navigate('/threat-management/alerts', { replace: true })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [routeAlertName,navigate,location])
+  // Drop the router state after the first seed so a later navigation (or a
+  // refresh that somehow keeps it) doesn't re-apply it over the user's edits.
+  // The filters themselves are already applied synchronously at mount.
   useEffect(() => {
-    const state = location.state as { socaiFilters?: FilterType[]; socaiTime?: string } | null
-    if (!state?.socaiFilters?.length || seededRef.current) return
-    seededRef.current = true
-    // @timestamp filters drive the dedicated time picker, not the custom filter bar.
-    const tsFilter = state.socaiFilters.find((f) => f.field === TS && Array.isArray(f.value))
-    const rest = tsFilter ? state.socaiFilters.filter((f) => f !== tsFilter) : state.socaiFilters
-    setCustomFilters(
-      rest.map((f) => ({
-        field: f.field,
-        label: f.field,
-        operator: f.operator,
-        value: Array.isArray(f.value) ? f.value.join(', ') : String(f.value ?? ''),
-      })),
-    )
-    if (tsFilter) {
-      const [from, to] = tsFilter.value as [string, string]
-      const m = /^now-(\d+[mhdwM])$/.exec(from)
-      setRange(m && to === 'now' ? presetRange(m[1]) : { from, to, interval: 'day' })
-    } else if (state.socaiTime) setRange(presetRange(state.socaiTime))
-    setPage(0)
-    // Drop the router state so a refresh doesn't re-seed over the user's edits.
+    if (!seeded) return
     navigate(location.pathname, { replace: true })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -137,18 +198,26 @@ export function AlertsPage() {
   // Scope filters (time + search). `parentId IS ''` hides deduplicated
   // child "echoes" — they roll up under their parent (matches the legacy default).
   const scopeFilters = useMemo<FilterType[]>(() => {
-    const f: FilterType[] = [{ field: 'parentId', operator: 'IS', value: '' }]
+    const f: FilterType[] = dashboardSeedFilters
+      ? []
+      : [{ field: 'parentId', operator: 'IS', value: '' }]
     const abs = resolveRange(range)
     if (abs.from) f.push({ field: TS, operator: 'IS_BETWEEN', value: [abs.from, abs.to] })
-    if (debounced) f.push({ field: 'name', operator: 'CONTAIN', value: debounced })
+    if (dashboardSeedFilters) {
+      f.push(...dashboardSeedFilters)
+    } else if (debounced) {
+      f.push({ field: 'name', operator: 'CONTAIN', value: debounced })
+    }
     // Tag selector: match alerts carrying ANY of the chosen tags (OR semantics).
     if (tagFilter.length) f.push({ field: 'tags', operator: 'IS_ONE_OF', value: tagFilter })
-    for (const cf of customFilters) {
-      const needsValue = FILTER_OPS.find((o) => o.id === cf.operator)?.needsValue ?? true
-      f.push({ field: cf.field, operator: cf.operator, value: needsValue ? cf.value : undefined })
+    if (!dashboardSeedFilters) {
+      for (const cf of customFilters) {
+        const needsValue = FILTER_OPS.find((o) => o.id === cf.operator)?.needsValue ?? true
+        f.push({ field: cf.field, operator: cf.operator, value: needsValue ? cf.value : undefined })
+      }
     }
     return f
-  }, [range.from, range.to, debounced, tagFilter, customFilters])
+  }, [range.from, range.to, debounced, tagFilter, customFilters, dashboardSeedFilters])
 
   // List filters add the tab (status) + severity refinement.
   const listFilters = useMemo<FilterType[]>(() => {
@@ -174,10 +243,11 @@ export function AlertsPage() {
   )
 
   const refresh = useCallback(() => {
-    setPage(0)
-    refreshList()
+    if (page === 0) refreshList()
+    else setPage(0)
     refreshStats()
-  }, [refreshList, refreshStats])
+
+  }, [page, refreshList, refreshStats])
 
   const socAiConfigured = useSocAiConfigured()
   const { applyStatus, applyTags, updateNotes, updateAssignee, exportCsv, generateAiSummary, aiGenerating } = useAlertMutations({
@@ -349,7 +419,7 @@ export function AlertsPage() {
             }
           }}
           >
-            <div className="min-h-0 flex-1 overflow-auto">
+            <div className="min-h-0 flex-1 overflow-auto" ref={scrollRef}>
               <ResizableDataTable
                 columns={alertColumns}
                 data={alerts}

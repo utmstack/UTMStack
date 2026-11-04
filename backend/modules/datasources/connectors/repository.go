@@ -17,8 +17,19 @@ type StatSource struct {
 	LastSeen   time.Time
 }
 
+// TenantUsage is one tenant's successfully-ingested volume for one UTC day —
+// the same "enqueue_success" count the rest of this file already reads, just
+// summed per tenant instead of per data source. Feeds the installer's daily
+// report to Customer Manager.
+type TenantUsage struct {
+	TenantID   uuid.UUID
+	EventCount int64
+	Bytes      int64
+}
+
 type StatsReader interface {
 	DistinctSources(ctx context.Context, from, to time.Time) ([]StatSource, error)
+	TenantUsageByDay(ctx context.Context, day time.Time) ([]TenantUsage, error)
 }
 
 type DatasourceRepository interface {

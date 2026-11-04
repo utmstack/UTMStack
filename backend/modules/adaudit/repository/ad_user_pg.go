@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 
+	"github.com/google/uuid"
+
 	"github.com/utmstack/utmstack/backend/modules/adaudit/connectors"
 	"github.com/utmstack/utmstack/backend/modules/adaudit/domain"
 	"github.com/utmstack/utmstack/backend/modules/adaudit/dto"
@@ -25,7 +27,7 @@ func NewADUserRepository(db *gorm.DB) connectors.ADUserRepository {
 	return &pgADUserRepository{db: db}
 }
 
-func splitByIdentity(users []domain.ADUser) (windows, linuxKeyed, linuxByAccount []domain.ADUser) {
+func splitByIdentity(users []domain.ADUser) (windows, linuxKeyed, linuxByAccount, cloud []domain.ADUser) {
 	for _, u := range users {
 		switch u.Source {
 		case "linux":
@@ -38,10 +40,14 @@ func splitByIdentity(users []domain.ADUser) (windows, linuxKeyed, linuxByAccount
 			if u.Source == "" {
 				u.Source = "windows"
 			}
-			windows = append(windows, u)
+			if domain.IsCloudSource(u.Source) {
+				cloud = append(cloud, u)
+			} else {
+				windows = append(windows, u)
+			}
 		}
 	}
-	return windows, linuxKeyed, linuxByAccount
+	return windows, linuxKeyed, linuxByAccount, cloud
 }
 
 func (r *pgADUserRepository) Upsert(ctx context.Context, users []domain.ADUser) error {
@@ -49,9 +55,9 @@ func (r *pgADUserRepository) Upsert(ctx context.Context, users []domain.ADUser) 
 		return nil
 	}
 
-	windowsBatch, linuxKeyed, linuxByAccount := splitByIdentity(users)
+	windows, linuxKeyed, linuxByAccount, cloud := splitByIdentity(users)
 
-	if len(windowsBatch) > 0 {
+	if len(windows) > 0 {
 		if err := r.db.WithContext(ctx).Clauses(clause.OnConflict{
 			Columns:     []clause.Column{{Name: "tenant_id"}, {Name: "sid"}},
 			TargetWhere: clause.Where{Exprs: []clause.Expression{clause.Expr{SQL: "source = 'windows'"}}},
@@ -59,8 +65,31 @@ func (r *pgADUserRepository) Upsert(ctx context.Context, users []domain.ADUser) 
 				"sam_account_name", "domain", "active",
 				"account_created_at", "last_logon", "account_deleted_at", "last_seen",
 			}),
-		}).Create(&windowsBatch).Error; err != nil {
+		}).Create(&windows).Error; err != nil {
 			return err
+		}
+	}
+
+	if len(cloud) > 0 {
+		bySource := map[string][]domain.ADUser{}
+		for _, u := range cloud {
+			bySource[u.Source] = append(bySource[u.Source], u)
+		}
+		for _, source := range domain.CloudSources {
+			batch := bySource[source]
+			if len(batch) == 0 {
+				continue
+			}
+			if err := r.db.WithContext(ctx).Clauses(clause.OnConflict{
+				Columns:     []clause.Column{{Name: "tenant_id"}, {Name: "username"}},
+				TargetWhere: clause.Where{Exprs: []clause.Expression{clause.Expr{SQL: "source = '" + source + "'"}}},
+				DoUpdates: clause.AssignmentColumns([]string{
+					"sam_account_name", "domain", "active",
+					"account_created_at", "last_logon", "account_deleted_at", "last_seen",
+				}),
+			}).Create(&batch).Error; err != nil {
+				return err
+			}
 		}
 	}
 
@@ -203,52 +232,72 @@ func (r *pgADUserRepository) ResolveLinuxIdentity(ctx context.Context, tenantID,
 }
 
 func applyStatus(q *gorm.DB, status string) *gorm.DB {
+	return applyStatusQualified(q, "ad_user", status)
+}
+
+func applyStatusQualified(q *gorm.DB, table, status string) *gorm.DB {
 	switch status {
 	case "active":
-		return q.Where("active = true AND account_deleted_at IS NULL")
+		return q.Where(table + ".active = true AND " + table + ".account_deleted_at IS NULL")
 	case "disabled":
-		return q.Where("active = false AND account_deleted_at IS NULL")
+		return q.Where(table + ".active = false AND " + table + ".account_deleted_at IS NULL")
 	case "deleted":
-		return q.Where("account_deleted_at IS NOT NULL")
+		return q.Where(table + ".account_deleted_at IS NOT NULL")
 	case "stale":
-		return q.Where("active = true AND account_deleted_at IS NULL AND last_logon IS NOT NULL AND last_logon < NOW() - INTERVAL '30 days'")
+		return q.Where(table + ".active = true AND " + table + ".account_deleted_at IS NULL AND " + table + ".last_logon IS NOT NULL AND " + table + ".last_logon < NOW() - INTERVAL '30 days'")
 	case "service":
-		return q.Where("account_deleted_at IS NULL AND sam_account_name ILIKE 'svc%' AND source = 'windows'")
+		return q.Where(table + ".account_deleted_at IS NULL AND " + table + ".sam_account_name ILIKE 'svc%' AND " + table + ".source = 'windows'")
 	}
 	return q
 }
 
-func (r *pgADUserRepository) List(ctx context.Context, f dto.ADUserFilter) ([]domain.ADUser, int64, error) {
-	q := r.db.WithContext(ctx).Model(&domain.ADUser{})
+func (r *pgADUserRepository) List(ctx context.Context, f dto.ADUserFilter) ([]dto.UserRow, int64, error) {
+	q := r.db.WithContext(ctx).Model(&domain.ADUser{}).
+		Select("ad_user.*", "identity_alias.name AS identity").
+		Joins("LEFT JOIN identity_alias_assignment ON identity_alias_assignment.user_id = ad_user.id").
+		Joins("LEFT JOIN identity_alias ON identity_alias.id = identity_alias_assignment.alias_id")
 	if f.Source != "" {
-		q = q.Where("source = ?", f.Source)
+		q = q.Where("ad_user.source = ?", f.Source)
 	}
 	if f.Status != "" {
-		// Status is a richer, derived filter; when present it supersedes the raw
-		// `active` flag so the two can't contradict each other.
-		q = applyStatus(q, f.Status)
+		q = applyStatusQualified(q, "ad_user", f.Status)
 	} else if f.Active != nil {
-		q = q.Where("active = ?", *f.Active)
+		q = q.Where("ad_user.active = ?", *f.Active)
 	}
 	if f.Search != "" {
-		like := "%" + f.Search + "%"
-		q = q.Where("sam_account_name ILIKE ? OR sid ILIKE ? OR username ILIKE ?", like, like, like)
+		like := "%" + escapeLike(f.Search) + "%"
+		q = q.Where("ad_user.sam_account_name ILIKE ? OR ad_user.sid ILIKE ? OR ad_user.username ILIKE ?", like, like, like)
 	}
+	q = applyIdentityFilter(q, f.Identity)
 
 	var total int64
 	if err := q.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	order := "sam_account_name ASC"
+	order := "ad_user.sam_account_name ASC NULLS LAST"
 	if f.Sort == "recent" {
-		order = "last_seen DESC NULLS LAST"
+		order = "ad_user.last_seen DESC NULLS LAST"
 	}
-	var items []domain.ADUser
-	if err := q.Order(order).Offset(f.Offset()).Limit(f.Limit()).Find(&items).Error; err != nil {
+	var items []dto.UserRow
+	if err := q.Order(order).Offset(f.Offset()).Limit(f.Limit()).Scan(&items).Error; err != nil {
 		return nil, 0, err
 	}
 	return items, total, nil
+}
+
+func applyIdentityFilter(q *gorm.DB, identity string) *gorm.DB {
+	if identity == "" {
+		return q
+	}
+	if identity == "none" {
+		return q.Where("NOT EXISTS (SELECT 1 FROM identity_alias_assignment x WHERE x.user_id = ad_user.id)")
+	}
+	id, err := uuid.Parse(identity)
+	if err != nil {
+		return q
+	}
+	return q.Where("EXISTS (SELECT 1 FROM identity_alias_assignment x WHERE x.user_id = ad_user.id AND x.alias_id = ?)", id)
 }
 
 func (r *pgADUserRepository) Stats(ctx context.Context) (*dto.ADUserStats, error) {
@@ -278,6 +327,12 @@ func (r *pgADUserRepository) Stats(ctx context.Context) (*dto.ADUserStats, error
 	if err := base().Where("last_seen IS NOT NULL AND last_seen > NOW() - INTERVAL '24 hours'").Count(&s.Seen24h).Error; err != nil {
 		return nil, err
 	}
+	if err := r.db.WithContext(ctx).Model(&domain.IdentityAlias{}).Count(&s.Identities).Error; err != nil {
+		return nil, err
+	}
+	if err := base().Where("NOT EXISTS (SELECT 1 FROM identity_alias_assignment x WHERE x.user_id = ad_user.id)").Count(&s.Unassigned).Error; err != nil {
+		return nil, err
+	}
 
 	var srcRows []sourceRow
 	if err := base().Select("source, COUNT(*) AS count").Group("source").Scan(&srcRows).Error; err != nil {
@@ -289,6 +344,14 @@ func (r *pgADUserRepository) Stats(ctx context.Context) (*dto.ADUserStats, error
 			s.BySource.Windows = row.Count
 		case "linux":
 			s.BySource.Linux = row.Count
+		case "o365":
+			s.BySource.O365 = row.Count
+		case "azure":
+			s.BySource.Azure = row.Count
+		case "gcp":
+			s.BySource.GCP = row.Count
+		case "aws":
+			s.BySource.AWS = row.Count
 		}
 	}
 

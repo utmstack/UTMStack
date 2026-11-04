@@ -1,18 +1,17 @@
-# Rule version v1.0.0
-
+# Rule contract revision 2026-09-17; SDK v1.1.31.
 dataTypes:
-  - aws
+- aws
 name: AWS S3 Bucket Versioning Suspended
 impact:
   confidentiality: 2
   integrity: 3
   availability: 3
 category: Impact
-technique: "T1490 - Inhibit System Recovery"
+technique: T1490 - Inhibit System Recovery
 adversary: origin
 references:
-  - https://docs.aws.amazon.com/AmazonS3/latest/userguide/Versioning.html
-  - https://attack.mitre.org/techniques/T1490/
+- https://docs.aws.amazon.com/AmazonS3/latest/userguide/Versioning.html
+- https://attack.mitre.org/techniques/T1490/
 description: |
   Detects when S3 bucket versioning is suspended via PutBucketVersioning. Disabling versioning is a cloud ransomware preparation technique that prevents recovery of overwritten or deleted objects from version history.
 
@@ -25,10 +24,15 @@ description: |
   6. Check if MFA Delete was configured on the bucket
   7. Review S3 bucket lifecycle policies for any recent changes
 where: |
-  equals("log.eventSource", "s3.amazonaws.com") &&
-  equals("log.eventName", "PutBucketVersioning") &&
-  equals("log.errorCode", "") &&
-  contains("log.requestParameters", "Suspended")
+  equals("log.awsRecordType","cloudtrail") &&
+  (equals("log.eventSource","s3.amazonaws.com") &&
+  oneOf("log.eventName",["PutBucketVersioning"]) &&
+  equals("actionResult","success") &&
+  (equals("log.requestParameters.VersioningConfiguration.Status","Suspended") ||
+  equals("log.requestParameters.versioningConfiguration.status","Suspended")))
 groupBy:
-  - adversary.user
-  - lastEvent.log.requestParameters.bucketName
+- lastEvent.dataSource
+- lastEvent.log.awsAccountKeyType
+- lastEvent.log.awsAccountKey
+- adversary.user
+- lastEvent.log.requestParameters.bucketName

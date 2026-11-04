@@ -61,6 +61,24 @@ func ConfigureVLAN(mainIface string, distro string) error {
 			return err
 		}
 
+	case config.RequiredDistroDebian:
+		err := utils.GenerateConfig(c, templates.VlanDebian, path.Join("/etc", "network", "interfaces.d", "vlan10"))
+		if err != nil {
+			return err
+		}
+
+		if err := utils.RunCmd("modprobe", "8021q"); err != nil {
+			return err
+		}
+
+		if err := os.WriteFile("/etc/modules-load.d/8021q.conf", []byte("8021q\n"), 0644); err != nil {
+			return err
+		}
+
+		if err := utils.RunCmd("ifup", "vlan10"); err != nil {
+			return err
+		}
+
 	case config.RequiredDistroRHEL:
 		err := utils.GenerateConfig(c, templates.VlanRedHat, "/etc/sysconfig/network-scripts/ifcfg-vlan10")
 		if err != nil {
@@ -94,6 +112,17 @@ func InstallVlan(distro string) error {
 		}
 
 		if err := utils.RunEnvCmd(env, "apt-get", "install", "-y", "vlan"); err != nil {
+			return err
+		}
+
+	case config.RequiredDistroDebian:
+		env := []string{"DEBIAN_FRONTEND=noninteractive"}
+
+		if err := utils.RunEnvCmd(env, "apt-get", "update", "-y"); err != nil {
+			return err
+		}
+
+		if err := utils.RunEnvCmd(env, "apt-get", "install", "-y", "vlan", "ifupdown"); err != nil {
 			return err
 		}
 

@@ -1,4 +1,4 @@
-# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
 id: ia-4
 family: ia
 familyName: Identification and Authentication
@@ -6,12 +6,742 @@ name: Identifier Management
 scope: data
 statement: |-
   Manage system identifiers by:
-    Receiving authorization from [personnel or roles] to assign an individual, group, role, service, or device identifier;
-    Selecting an identifier that identifies an individual, group, role, service, or device;
-    Assigning the identifier to the intended individual, group, role, service, or device; and
-    Preventing reuse of identifiers for [time period].
+  Receiving authorization from [personnel or roles] to assign an individual, group, role, service, or device identifier;
+  Selecting an identifier that identifies an individual, group, role, service, or device;
+  Assigning the identifier to the intended individual, group, role, service, or device; and
+  Preventing reuse of identifiers for [time period].
+remediation: |-
+  Passes when a connected source shows accounts (identifiers) being created or removed.
+  If it fails: enable account management auditing. If no account was created or removed in the window, set the status manually and note that.
 source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY
 checks:
-  - key: todo
-    name: 'TODO: define compliance check for this control'
-    todo: true            # Pending — evaluator shows "Not implemented", excluded from score
+  - key: win-account-create-delete
+    name: 'Windows: user account creation and deletion are recorded'
+    dataType: wineventlog
+    filters:
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '4720'
+          - '4726'
+      - field: target.user
+        operator: EXIST
+      - field: target.user
+        operator: NOT_ENDS_WITH
+        value: '$'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: win-account-lifecycle
+    name: 'Windows: user account changes are recorded'
+    dataType: wineventlog
+    filters:
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '4720'
+          - '4722'
+          - '4723'
+          - '4724'
+          - '4725'
+          - '4726'
+          - '4738'
+          - '4767'
+          - '4781'
+      - field: target.user
+        operator: EXIST
+      - field: target.user
+        operator: NOT_ENDS_WITH
+        value: '$'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-account-create-delete-tools
+    name: 'Linux: useradd and userdel runs are recorded'
+    dataType: linux
+    filters:
+      - field: log.syslogIdentifier
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'useradd'
+          - 'userdel'
+          - 'newusers'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-account-tools
+    name: 'Linux: account management commands are recorded'
+    dataType: linux
+    filters:
+      - field: log.syslogIdentifier
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'useradd'
+          - 'userdel'
+          - 'usermod'
+          - 'groupadd'
+          - 'groupdel'
+          - 'groupmod'
+          - 'gpasswd'
+          - 'chage'
+          - 'newusers'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-audit-account-changes
+    name: 'Linux: account and group changes are recorded (audit)'
+    dataType: linux
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'ADD_USER'
+          - 'DEL_USER'
+          - 'USER_MGMT'
+          - 'ADD_GROUP'
+          - 'DEL_GROUP'
+          - 'GRP_MGMT'
+          - 'ACCT_LOCK'
+          - 'ACCT_UNLOCK'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-audit-account-create-delete
+    name: 'Linux: account creation and deletion are recorded (audit)'
+    dataType: linux
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'ADD_USER'
+          - 'DEL_USER'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: macos-account-changes
+    name: 'macOS: local account changes made with sysadminctl are recorded'
+    dataType: macos
+    filters:
+      - field: origin.process
+        operator: IS
+        value: 'sysadminctl'
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'Creating user record'
+          - 'Deleting record for'
+          - 'Adding user to admin group'
+          - 'Removing user from admin group'
+          - 'Assigning UID'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: macos-account-create-delete
+    name: 'macOS: account creation and deletion commands are recorded'
+    dataType: macos
+    filters:
+      - field: origin.process
+        operator: IS
+        value: 'sudo'
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'sysadminctl -addUser'
+          - 'sysadminctl -deleteUser'
+          - 'dscl . -create /Users/'
+          - 'dscl . -delete /Users/'
+          - 'dscl . create /Users/'
+          - 'dscl . delete /Users/'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: macos-sysadminctl-create-delete
+    name: 'macOS: local accounts created or deleted with sysadminctl are recorded'
+    dataType: macos
+    filters:
+      - field: origin.process
+        operator: IS
+        value: 'sysadminctl'
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'Creating user record'
+          - 'Deleting record for'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-account-create-delete
+    name: 'Microsoft 365: user account creation and deletion are recorded'
+    dataType: o365
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Add user.'
+          - 'Delete user.'
+          - 'Hard Delete user.'
+          - 'New-Mailbox'
+          - 'Remove-Mailbox'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-account-lifecycle
+    name: 'Microsoft 365: user account creation, changes, disabling and deletion are recorded'
+    dataType: o365
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Add user.'
+          - 'Delete user.'
+          - 'Update user.'
+          - 'Disable account.'
+          - 'Enable account.'
+          - 'Hard Delete user.'
+          - 'Restore user.'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: azure-entra-account-create-delete
+    name: 'Azure: Entra ID user creation and deletion are recorded'
+    dataType: azure
+    filters:
+      - field: log.azureKind
+        operator: IS
+        value: 'audit'
+      - field: action
+        operator: IS_ONE_OF
+        value:
+          - 'Add user'
+          - 'Delete user'
+          - 'Hard delete user'
+          - 'Hard Delete user'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: azure-entra-account-lifecycle
+    name: 'Azure: Entra ID user creation, changes, disabling and deletion are recorded'
+    dataType: azure
+    filters:
+      - field: log.azureKind
+        operator: IS
+        value: 'audit'
+      - field: action
+        operator: IS_ONE_OF
+        value:
+          - 'Add user'
+          - 'Delete user'
+          - 'Update user'
+          - 'Hard delete user'
+          - 'Hard Delete user'
+          - 'Restore user'
+          - 'Disable account'
+          - 'Enable account'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-identity-create-delete
+    name: 'AWS: IAM and Identity Center users and roles created or deleted'
+    dataType: aws
+    filters:
+      - field: target.domain
+        operator: IS_ONE_OF
+        value:
+          - 'iam.amazonaws.com'
+          - 'identitystore.amazonaws.com'
+          - 'sso-directory.amazonaws.com'
+      - field: action
+        operator: IS_ONE_OF
+        value:
+          - 'CreateUser'
+          - 'DeleteUser'
+          - 'CreateRole'
+          - 'DeleteRole'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-identity-lifecycle
+    name: 'AWS: IAM and Identity Center user and role changes are recorded'
+    dataType: aws
+    filters:
+      - field: target.domain
+        operator: IS_ONE_OF
+        value:
+          - 'iam.amazonaws.com'
+          - 'identitystore.amazonaws.com'
+          - 'sso-directory.amazonaws.com'
+      - field: action
+        operator: IS_ONE_OF
+        value:
+          - 'CreateUser'
+          - 'DeleteUser'
+          - 'UpdateUser'
+          - 'CreateLoginProfile'
+          - 'DeleteLoginProfile'
+          - 'CreateRole'
+          - 'DeleteRole'
+          - 'UpdateRole'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: gcp-service-account-create-delete
+    name: 'Google Cloud: service accounts created or deleted'
+    dataType: google
+    filters:
+      - field: log.protoPayloadMethodName
+        operator: IS_ONE_OF
+        value:
+          - 'google.iam.admin.v1.CreateServiceAccount'
+          - 'google.iam.admin.v1.DeleteServiceAccount'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: gcp-service-account-lifecycle
+    name: 'Google Cloud: service account lifecycle changes are recorded'
+    dataType: google
+    filters:
+      - field: log.protoPayloadMethodName
+        operator: IS_ONE_OF
+        value:
+          - 'google.iam.admin.v1.CreateServiceAccount'
+          - 'google.iam.admin.v1.DeleteServiceAccount'
+          - 'google.iam.admin.v1.DisableServiceAccount'
+          - 'google.iam.admin.v1.EnableServiceAccount'
+          - 'google.iam.admin.v1.UpdateServiceAccount'
+          - 'google.iam.admin.v1.PatchServiceAccount'
+          - 'google.iam.admin.v1.UndeleteServiceAccount'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: gcp-workspace-user-create-delete
+    name: 'Google: Workspace users created or deleted'
+    dataType: google
+    filters:
+      - field: log.protoPayloadServiceName
+        operator: IS
+        value: 'admin.googleapis.com'
+      - field: log.protoPayloadMethodName
+        operator: IS_ONE_OF
+        value:
+          - 'google.admin.AdminService.createUser'
+          - 'google.admin.AdminService.deleteUser'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: gcp-workspace-user-lifecycle
+    name: 'Google: Workspace users created, deleted, suspended or restored'
+    dataType: google
+    filters:
+      - field: log.protoPayloadServiceName
+        operator: IS
+        value: 'admin.googleapis.com'
+      - field: log.protoPayloadMethodName
+        operator: IS_ONE_OF
+        value:
+          - 'google.admin.AdminService.createUser'
+          - 'google.admin.AdminService.deleteUser'
+          - 'google.admin.AdminService.undeleteUser'
+          - 'google.admin.AdminService.suspendUser'
+          - 'google.admin.AdminService.unsuspendUser'
+          - 'google.admin.AdminService.archiveUser'
+          - 'google.admin.AdminService.unarchiveUser'
+          - 'google.admin.AdminService.renameUser'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: eset-console-user-changes
+    name: 'ESET: console users or user groups created, changed or deleted'
+    dataType: antivirus-esmc-eset
+    filters:
+      - field: log.eventType
+        operator: IS
+        value: 'Audit_Event'
+      - field: log.domain
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Native user'
+          - 'User group'
+          - 'Domain group'
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Create'
+          - 'Delete'
+          - 'Edit'
+          - 'Modify'
+          - 'Update'
+          - 'Enable'
+          - 'Disable'
+          - 'Deactivate'
+          - 'Activate'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: eset-console-user-created-deleted
+    name: 'ESET: console users created or deleted'
+    dataType: antivirus-esmc-eset
+    filters:
+      - field: log.eventType
+        operator: IS
+        value: 'Audit_Event'
+      - field: log.domain
+        operator: IS
+        value: 'Native user'
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Create'
+          - 'Delete'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sentinelone-console-user-added-deleted
+    name: 'SentinelOne: console users are added or deleted'
+    dataType: antivirus-sentinel-one
+    filters:
+      - field: log.activityType
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '23'
+          - '25'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sentinelone-console-user-changes
+    name: 'SentinelOne: console users are added, deleted or given roles'
+    dataType: antivirus-sentinel-one
+    filters:
+      - field: log.activityType
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '23'
+          - '25'
+          - '37'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: cisco-switch-username-commands
+    name: 'Cisco switch: local account commands are recorded'
+    dataType: cisco-switch
+    filters:
+      - field: log.facility
+        operator: IS
+        value: 'PARSER'
+      - field: log.facilityMnemonic
+        operator: IS
+        value: 'CFGLOG_LOGGEDCMD'
+      - field: log.ciscoMsg
+        operator: CONTAIN
+        value: 'username '
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: crowdstrike-user-changes
+    name: 'CrowdStrike: Falcon console users created, changed or deleted'
+    dataType: crowdstrike
+    filters:
+      - field: log.eventOperationName
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'createUser'
+          - 'deleteUser'
+          - 'updateUser'
+          - 'deactivateUser'
+          - 'activateUser'
+          - 'grantUserRoles'
+          - 'revokeUserRoles'
+          - 'updateUserRoles'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: crowdstrike-user-created-deleted
+    name: 'CrowdStrike: Falcon console users created or deleted'
+    dataType: crowdstrike
+    filters:
+      - field: log.eventOperationName
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'createUser'
+          - 'deleteUser'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: asa-local-user-changes
+    name: 'Cisco ASA: local user database changes are recorded'
+    dataType: firewall-cisco-asa
+    filters:
+      - field: log.messageId
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '502101'
+          - '502102'
+          - '502103'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: asa-local-user-create-delete
+    name: 'Cisco ASA: local user creation or deletion is recorded'
+    dataType: firewall-cisco-asa
+    filters:
+      - field: log.messageId
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '502101'
+          - '502102'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fgt-account-changes
+    name: 'FortiGate: administrator and local user account changes are recorded'
+    dataType: firewall-fortigate-traffic
+    filters:
+      - field: log.logid
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '0100044544'
+          - '0100044545'
+          - '0100044546'
+          - '0100044547'
+      - field: log.cfgpath
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'system.admin'
+          - 'user.local'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fgt-account-create-delete
+    name: 'FortiGate: administrator and local user creation or deletion is recorded'
+    dataType: firewall-fortigate-traffic
+    filters:
+      - field: log.logid
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '0100044544'
+          - '0100044545'
+          - '0100044546'
+          - '0100044547'
+      - field: log.cfgpath
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'system.admin'
+          - 'user.local'
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Add'
+          - 'Delete'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: mikrotik-user-changes
+    name: 'MikroTik: user account changes are recorded'
+    dataType: firewall-mikrotik
+    filters:
+      - field: log.topics
+        operator: CONTAIN
+        value: 'system'
+      - field: log.message
+        operator: START_WITH
+        value: 'user '
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - ' added by '
+          - ' removed by '
+          - ' changed by '
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: mikrotik-user-create-delete
+    name: 'MikroTik: user creation or deletion is recorded'
+    dataType: firewall-mikrotik
+    filters:
+      - field: log.topics
+        operator: CONTAIN
+        value: 'system'
+      - field: log.message
+        operator: START_WITH
+        value: 'user '
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - ' added by '
+          - ' removed by '
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: paloalto-admin-account-changes
+    name: 'Palo Alto: administrator and local user account changes are recorded'
+    dataType: firewall-paloalto
+    filters:
+      - field: log.paType
+        operator: IS
+        value: 'CONFIG'
+      - field: log.path
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'mgt-config users'
+          - 'local-user-database user'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: paloalto-admin-account-create-delete
+    name: 'Palo Alto: administrator and local user creation or deletion is recorded'
+    dataType: firewall-paloalto
+    filters:
+      - field: log.paType
+        operator: IS
+        value: 'CONFIG'
+      - field: log.path
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'mgt-config users'
+          - 'local-user-database user'
+      - field: log.cmd
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'add'
+          - 'clone'
+          - 'delete'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: pfsense-user-changes
+    name: 'pfSense: local user account changes are recorded'
+    dataType: firewall-pfsense
+    filters:
+      - field: raw
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'Successfully created user'
+          - 'Successfully edited user'
+          - 'Successfully deleted user'
+          - 'Adding user:'
+          - 'Removing user:'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: pfsense-user-create-delete
+    name: 'pfSense: local user creation or deletion is recorded'
+    dataType: firewall-pfsense
+    filters:
+      - field: raw
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'Successfully created user'
+          - 'Successfully deleted user'
+          - 'Adding user:'
+          - 'Removing user:'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sonicwall-local-user-changes
+    name: 'SonicWall: local user account changes are recorded'
+    dataType: firewall-sonicwall
+    filters:
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '1333'
+          - '1334'
+          - '1335'
+          - '1337'
+          - '1338'
+          - '328'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sonicwall-local-user-create-delete
+    name: 'SonicWall: local user creation or deletion is recorded'
+    dataType: firewall-sonicwall
+    filters:
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '1333'
+          - '1335'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: github-org-member-add-remove
+    name: 'GitHub: organization members added or removed'
+    dataType: github
+    filters:
+      - field: log.action
+        operator: IS_ONE_OF
+        value:
+          - 'member_added'
+          - 'member_removed'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: github-org-membership
+    name: 'GitHub: organization members added, invited or removed'
+    dataType: github
+    filters:
+      - field: log.action
+        operator: IS_ONE_OF
+        value:
+          - 'member_added'
+          - 'member_removed'
+          - 'member_invited'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: as400-profile-disabled
+    name: 'IBM i (AS/400): user profiles being disabled are recorded'
+    dataType: ibm-as400
+    filters:
+      - field: log.messageId
+        operator: IS
+        value: 'CPF1393'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-graph-account-create-delete
+    name: 'Microsoft Graph: user account creation and deletion are recorded'
+    dataType: o365-graph
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Add user'
+          - 'Delete user'
+          - 'Hard delete user'
+          - 'Hard Delete user'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-graph-account-lifecycle
+    name: 'Microsoft Graph: user account changes are recorded'
+    dataType: o365-graph
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Add user'
+          - 'Delete user'
+          - 'Update user'
+          - 'Disable account'
+          - 'Enable account'
+          - 'Hard delete user'
+          - 'Hard Delete user'
+          - 'Restore user'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sophos-central-user-created
+    name: 'Sophos Central: new user accounts created in the Central directory are recorded'
+    dataType: sophos-central
+    filters:
+      - field: action
+        operator: IS
+        value: 'Event::Endpoint::UserAutoCreated'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: esxi-account-changes
+    name: 'VMware ESXi: local account changes are recorded'
+    dataType: vmware-esxi
+    filters:
+      - field: log.message
+        operator: CONTAIN
+        value: 'Account '
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'was created on host'
+          - 'was removed on host'
+          - 'was updated on host'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: esxi-account-create-delete
+    name: 'VMware ESXi: local account creation and removal are recorded'
+    dataType: vmware-esxi
+    filters:
+      - field: log.message
+        operator: CONTAIN
+        value: 'Account '
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'was created on host'
+          - 'was removed on host'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1

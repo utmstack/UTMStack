@@ -1,4 +1,4 @@
-# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Manual: set in the report.
 id: at-4
 family: at
 familyName: Awareness and Training
@@ -6,5 +6,8 @@ name: Training Records
 scope: governance
 statement: |-
   Document and monitor information security and privacy training activities, including security and privacy awareness training and specific role-based security and privacy training; and
-    Retain individual training records for [time period].
+  Retain individual training records for [time period].
+remediation: |-
+  Manual control: logs cannot show whether this is in place, so the report lists it as "Out of scope" until a person decides. Open the framework report, set this control's status (Compliant, Non-compliant or At risk) and write the justification.
+  Keep the evidence an auditor will ask for, for example training records: who was trained, on what, and when.
 source: NIST SP 800-53 Rev 5 (public domain)

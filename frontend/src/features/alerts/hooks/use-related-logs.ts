@@ -33,8 +33,8 @@ export function useRelatedLogs(): UseRelatedLogsResult {
             relatedLogs: {
               ids: r.ids,
               dataType: r.dataType,
-              timeFrom: r.timeFrom,
-              timeTo: r.timeTo,
+              timeFrom: 'now-30d',
+              timeTo: 'now',
               alertName: alert.name,
               truncated: r.truncated,
             },

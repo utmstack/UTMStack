@@ -4,6 +4,7 @@ import { createQueryService } from '@/features/dashboard/service/query.service'
 import { resolveRangeToISO } from '@/features/dashboard/utils/datemath'
 import {
   filterTypesToSpec,
+  normalizeSpecDataType,
   parseSpec,
   resultToRows,
   specIsComplete,
@@ -15,8 +16,8 @@ const EMPTY_FILTERS: FilterType[] = []
 
 export const VISUALIZATION_DATA_QUERY_KEYS = {
   all: ['visualization-data'] as const,
-  forViz: (vizId: string, fromISO: string, toISO: string, filtersKey: string) =>
-    [...VISUALIZATION_DATA_QUERY_KEYS.all, vizId, fromISO, toISO, filtersKey] as const,
+  forViz: (vizId: string, fromISO: string, toISO: string, filtersKey: string, specKey: string) =>
+    [...VISUALIZATION_DATA_QUERY_KEYS.all, vizId, fromISO, toISO, filtersKey, specKey] as const,
 }
 
 export interface VisualizationData {
@@ -30,12 +31,13 @@ export interface VisualizationData {
  * spec on the way out rather than stored with it.
  */
 export function scopeSpec(spec: VizSpec, fromISO: string, toISO: string, filters: FilterType[]): VizSpec {
+  const normalized = normalizeSpecDataType(spec)
   const bar = filterTypesToSpec(filters)
   return {
-    ...spec,
+    ...normalized,
     from: fromISO,
     to: toISO,
-    filters: bar.length > 0 ? [...(spec.filters ?? []), ...bar] : spec.filters,
+    filters: bar.length > 0 ? [...(normalized.filters ?? []), ...bar] : normalized.filters,
   }
 }
 
@@ -63,12 +65,25 @@ export function useVisualizationData(
 
   return useQuery<VisualizationData>({
     queryKey: visualization
-      ? VISUALIZATION_DATA_QUERY_KEYS.forViz(visualization.id, fromISO, toISO, filtersKey)
+      ? VISUALIZATION_DATA_QUERY_KEYS.forViz(
+          visualization.id,
+          fromISO,
+          toISO,
+          filtersKey,
+          // The saved spec decides what the backend queries. Without it in the
+          // key, editing a widget leaves the old data cached and staleTime
+          // keeps serving it after returning to the dashboard.
+          visualization.spec,
+        )
       : [...VISUALIZATION_DATA_QUERY_KEYS.all, 'noop'],
     queryFn: async () => {
       if (!spec) return { rows: [], total: 0 }
-      const result = await service.run(spec)
-      const rows = resultToRows(result, spec)
+      const querySpec =
+        spec.chart === 'table' && spec.columns?.length && !spec.columns.includes('id')
+          ? { ...spec, columns: [...spec.columns, 'id'] }
+          : spec
+      const result = await service.run(querySpec)
+      const rows = resultToRows(result, querySpec)
       return { rows, total: result.total ?? rows.length }
     },
     enabled: visualization != null && spec != null,

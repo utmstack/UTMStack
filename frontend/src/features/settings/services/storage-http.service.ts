@@ -1,7 +1,7 @@
 import { ApiError, createApiClient } from '@/shared/lib/api-client'
 import type {
   DatasetUsage,
-  ObjectStoreInput,
+  ColdTargetInput,
   Retention,
   StoreHealth,
   Tiering,
@@ -24,5 +24,5 @@ export const storageHttpService = {
   health: () => api.get<StoreHealth>('/storage/health'),
 
   tiering: () => api.get<Tiering>('/storage/tiering'),
-  enableTiering: (input: ObjectStoreInput) => api.put<Tiering>('/storage/tiering', input),
+  enableTiering: (input: ColdTargetInput) => api.put<Tiering>('/storage/tiering', input),
 }

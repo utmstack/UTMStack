@@ -1,7 +1,9 @@
 package common_models
 
 import (
+	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/threatwinds/go-sdk/store"
@@ -61,12 +63,46 @@ func asTime(v any) time.Time {
 	return time.Time{}
 }
 
+// ErrInvalidField is a field name the event store cannot be asked about.
+var ErrInvalidField = errors.New("invalid field name")
+
+const maxFieldLen = 256
+
+// ValidateField checks a field name that came from a caller before it reaches
+// the store, which writes it into the query text. A dotted name addresses a JSON
+// path, so no segment may be empty. Backticks and backslashes are what quoting
+// has to survive and nothing legitimate uses them; control characters have no
+// place in a name at all. Refusing them here also turns what would be a store
+// error, and a 500, into a 400 the caller can read.
+func ValidateField(field string) error {
+	if field == "" || len(field) > maxFieldLen {
+		return fmt.Errorf("%w: must be 1 to %d characters", ErrInvalidField, maxFieldLen)
+	}
+	for _, seg := range strings.Split(field, ".") {
+		if seg == "" {
+			return fmt.Errorf("%w: %q has an empty segment", ErrInvalidField, field)
+		}
+	}
+	for _, r := range field {
+		if r == '`' || r == '\\' || r < 0x20 || r == 0x7f {
+			return fmt.Errorf("%w: %q contains a character that is not allowed", ErrInvalidField, field)
+		}
+	}
+	return nil
+}
+
 func ToStoreFilters(in []FilterType) ([]store.Filter, error) {
 	out := make([]store.Filter, 0, len(in))
 	for _, f := range in {
 		op, ok := storeOps[f.Operator]
 		if !ok {
 			return nil, fmt.Errorf("%w: %s", ErrOperatorUnsupported, f.Operator)
+		}
+		// A text search names no column; the store searches its own.
+		if op != store.OpSearch && op != store.OpNotSearch {
+			if err := ValidateField(f.Field); err != nil {
+				return nil, err
+			}
 		}
 		out = append(out, store.Filter{Field: f.Field, Op: op, Value: f.Value})
 	}

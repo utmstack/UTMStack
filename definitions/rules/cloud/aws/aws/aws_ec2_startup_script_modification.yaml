@@ -1,18 +1,17 @@
-# Rule version v1.0.0
-
+# Rule contract revision 2026-09-17; SDK v1.1.31.
 dataTypes:
-  - aws
+- aws
 name: AWS EC2 Instance Startup Script Modified
 impact:
   confidentiality: 3
   integrity: 3
   availability: 2
 category: Execution
-technique: "T1059 - Command and Scripting Interpreter"
+technique: T1059 - Command and Scripting Interpreter
 adversary: origin
 references:
-  - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/user-data.html
-  - https://attack.mitre.org/techniques/T1059/
+- https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/user-data.html
+- https://attack.mitre.org/techniques/T1059/
 description: |
   Detects ModifyInstanceAttribute API calls targeting userData, which modifies the EC2 instance startup script. Attackers use this for persistent code execution with root/SYSTEM privileges on instance start.
 
@@ -24,10 +23,14 @@ description: |
   5. Examine the instance for signs of compromise
   6. If unauthorized, remove the userData and investigate the instance
 where: |
-  equals("log.eventSource", "ec2.amazonaws.com") &&
-  equals("log.eventName", "ModifyInstanceAttribute") &&
-  equals("log.errorCode", "") &&
-  contains("log.requestParameters", "userData")
+  equals("log.awsRecordType","cloudtrail") &&
+  (equals("log.eventSource","ec2.amazonaws.com") &&
+  oneOf("log.eventName",["ModifyInstanceAttribute"]) &&
+  equals("actionResult","success") &&
+  exists("log.requestParameters.userData"))
 groupBy:
-  - adversary.user
-  - lastEvent.log.requestParameters.instanceId
+- lastEvent.dataSource
+- lastEvent.log.awsAccountKeyType
+- lastEvent.log.awsAccountKey
+- adversary.user
+- lastEvent.log.requestParameters.instanceId

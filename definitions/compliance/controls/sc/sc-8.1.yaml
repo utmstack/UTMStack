@@ -1,0 +1,437 @@
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
+id: sc-8.1
+family: sc
+familyName: System and Communications Protection
+name: Transmission Confidentiality and Integrity | Cryptographic Protection
+scope: data
+statement: |-
+  Implement cryptographic mechanisms to [prevent unauthorized disclosure of information; detect changes to information] during transmission.
+remediation: |-
+  Measured: fails when firewalls allowed sessions using cleartext administrative or file-transfer protocols (telnet, FTP, rlogin/rsh, TFTP) during the window. Not evaluated without network device logs.
+  If it fails: replace those protocols with SSH, SFTP or FTPS and block the cleartext ports.
+source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY
+checks:
+  - key: win-cleartext-tcp-allowed
+    name: 'Windows: the host firewall allowed no FTP, Telnet or r-command connections'
+    dataType: wineventlog
+    filters:
+      - field: log.providerName
+        operator: IS
+        value: 'Microsoft-Windows-Security-Auditing'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '5156'
+      - field: log.eventDataProtocol
+        operator: IS
+        value: '6'
+      - field: log.eventDataDestPort
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '21'
+          - '23'
+          - '512'
+          - '513'
+          - '514'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: win-cleartext-tftp-allowed
+    name: 'Windows: the host firewall allowed no TFTP transfers'
+    dataType: wineventlog
+    filters:
+      - field: log.providerName
+        operator: IS
+        value: 'Microsoft-Windows-Security-Auditing'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '5156'
+      - field: log.eventDataProtocol
+        operator: IS
+        value: '17'
+      - field: log.eventDataDestPort
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '69'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: azure-defender-cleartext-inbound
+    name: 'Azure (Defender for Endpoint): devices must not accept telnet, FTP, TFTP or rexec/rlogin sessions'
+    dataType: azure
+    filters:
+      - field: log.category
+        operator: IS
+        value: 'AdvancedHunting-DeviceNetworkEvents'
+      - field: log.properties.ActionType
+        operator: IS
+        value: 'InboundConnectionAccepted'
+      - field: log.properties.LocalPort
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '21'
+          - '23'
+          - '69'
+          - '512'
+          - '513'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: azure-defender-cleartext-outbound
+    name: 'Azure (Defender for Endpoint): devices must not open telnet, FTP, TFTP or rexec/rlogin sessions'
+    dataType: azure
+    filters:
+      - field: log.category
+        operator: IS
+        value: 'AdvancedHunting-DeviceNetworkEvents'
+      - field: log.properties.ActionType
+        operator: IS
+        value: 'ConnectionSuccess'
+      - field: log.properties.RemotePort
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '21'
+          - '23'
+          - '69'
+          - '512'
+          - '513'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: aws-security-group-cleartext-open
+    name: 'AWS: a security group opened FTP or Telnet to the internet'
+    dataType: aws
+    filters:
+      - field: action
+        operator: IS
+        value: 'AuthorizeSecurityGroupIngress'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+      - field: log.correlationCandidate.securityGroupModifications
+        operator: IS
+        value: 'match'
+      - field: log.requestParameters.ipPermissions.items
+        operator: CONTAIN_ONE_OF
+        value:
+          - '"fromPort":20,"ipProtocol":"tcp","ipRanges":{"items":[{"cidrIp":"0.0.0.0'
+          - '"fromPort":21,"ipProtocol":"tcp","ipRanges":{"items":[{"cidrIp":"0.0.0.0'
+          - '"fromPort":23,"ipProtocol":"tcp","ipRanges":{"items":[{"cidrIp":"0.0.0.0'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: gcp-firewall-cleartext-allowed
+    name: 'Google: FTP, Telnet or r-command connections were allowed by a VPC firewall rule'
+    dataType: google
+    filters:
+      - field: log.jsonPayloadDisposition
+        operator: IS
+        value: 'ALLOWED'
+      - field: protocol
+        operator: IS
+        value: 'tcp'
+      - field: target.port
+        operator: IS_ONE_OF
+        value:
+          - '20'
+          - '21'
+          - '23'
+          - '512'
+          - '513'
+          - '514'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: gcp-firewall-rule-cleartext-open
+    name: 'Google: a VPC firewall rule opened FTP or Telnet to the internet'
+    dataType: google
+    filters:
+      - field: log.protoPayloadMethodName
+        operator: IS_ONE_OF
+        value:
+          - 'v1.compute.firewalls.insert'
+          - 'v1.compute.firewalls.patch'
+          - 'v1.compute.firewalls.update'
+      - field: log.protoPayload.request.sourceRanges
+        operator: CONTAIN
+        value: '0.0.0.0/0'
+      - field: log.protoPayload.request.alloweds
+        operator: CONTAIN_ONE_OF
+        value:
+          - '"20"'
+          - '"21"'
+          - '"23"'
+      - field: actionResult
+        operator: IS_NOT_ONE_OF
+        value:
+          - 'failed'
+          - 'denied'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: cisco-switch-telnet-login
+    name: 'Cisco switch: no Telnet logins to the switch'
+    dataType: cisco-switch
+    filters:
+      - field: log.facility
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'SEC_LOGIN'
+          - 'SECLOGIN'
+      - field: log.facilityMnemonic
+        operator: IS
+        value: 'LOGIN_SUCCESS'
+      - field: log.ciscoMsg
+        operator: CONTAIN
+        value: '[localport: 23]'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: asa-cleartext-inbound
+    name: 'Cisco ASA: no inbound FTP, Telnet, rexec/rlogin or TFTP connections built'
+    dataType: firewall-cisco-asa
+    filters:
+      - field: log.messageId
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '302013'
+          - '302015'
+      - field: log.direction
+        operator: IS
+        value: 'inbound'
+      - field: target.port
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '21'
+          - '23'
+          - '69'
+          - '512'
+          - '513'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: asa-cleartext-outbound
+    name: 'Cisco ASA: no outbound FTP, Telnet, rexec/rlogin or TFTP connections built'
+    dataType: firewall-cisco-asa
+    filters:
+      - field: log.messageId
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '302013'
+          - '302015'
+      - field: log.direction
+        operator: IS
+        value: 'outbound'
+      - field: origin.port
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '21'
+          - '23'
+          - '69'
+          - '512'
+          - '513'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: ftd-cleartext-allowed
+    name: 'Cisco FTD: no allowed FTP, Telnet, rexec/rlogin or TFTP connections'
+    dataType: firewall-cisco-firepower
+    filters:
+      - field: log.messageId
+        operator: IS
+        value: '430003'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+      - field: target.port
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '21'
+          - '23'
+          - '69'
+          - '512'
+          - '513'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: fgt-cleartext-allowed
+    name: 'FortiGate: no allowed FTP, Telnet, rexec/rlogin or TFTP sessions'
+    dataType: firewall-fortigate-traffic
+    filters:
+      - field: log.type
+        operator: IS
+        value: 'traffic'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+      - field: target.port
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '21'
+          - '23'
+          - '69'
+          - '512'
+          - '513'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: meraki-cleartext-allowed
+    name: 'Meraki: no allowed FTP, Telnet, rexec/rlogin or TFTP flows'
+    dataType: firewall-meraki
+    filters:
+      - field: log.merakiGroup
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'flows'
+          - 'firewall'
+          - 'cellular_firewall'
+          - 'vpn_firewall'
+          - 'ip_flow_start'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+      - field: target.port
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '21'
+          - '23'
+          - '69'
+          - '512'
+          - '513'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: mikrotik-telnet-ftp-login
+    name: 'MikroTik: no Telnet or FTP logins to the router'
+    dataType: firewall-mikrotik
+    filters:
+      - field: log.topics
+        operator: CONTAIN
+        value: 'account'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+      - field: log.service
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'telnet'
+          - 'ftp'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: paloalto-cleartext-allowed
+    name: 'Palo Alto: no allowed FTP, Telnet, rexec/rlogin or TFTP sessions'
+    dataType: firewall-paloalto
+    filters:
+      - field: log.paType
+        operator: IS
+        value: 'TRAFFIC'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+      - field: target.port
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '21'
+          - '23'
+          - '69'
+          - '512'
+          - '513'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: pfsense-cleartext-allowed
+    name: 'pfSense: no passed FTP, Telnet, rexec/rlogin or TFTP packets'
+    dataType: firewall-pfsense
+    filters:
+      - field: log.eventType
+        operator: IS
+        value: 'filterlog'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+      - field: target.port
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '21'
+          - '23'
+          - '69'
+          - '512'
+          - '513'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: sonicwall-cleartext-allowed
+    name: 'SonicWall: no allowed FTP, Telnet, rexec/rlogin or TFTP sessions'
+    dataType: firewall-sonicwall
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'success'
+      - field: target.port
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '21'
+          - '23'
+          - '69'
+          - '512'
+          - '513'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: sophos-xg-cleartext-allowed
+    name: 'Sophos Firewall: no allowed FTP, Telnet, rexec/rlogin or TFTP sessions'
+    dataType: firewall-sophos-xg
+    filters:
+      - field: log.type
+        operator: IS
+        value: 'Firewall'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+      - field: target.port
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '21'
+          - '23'
+          - '69'
+          - '512'
+          - '513'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: netflow-cleartext-tcp
+    name: 'NetFlow: no established FTP, Telnet or rexec/rlogin flows'
+    dataType: netflow
+    filters:
+      - field: protocol
+        operator: IS
+        value: 'TCP'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+      - field: target.port
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '21'
+          - '23'
+          - '512'
+          - '513'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: netflow-tftp-flows
+    name: 'NetFlow: no TFTP flows'
+    dataType: netflow
+    filters:
+      - field: protocol
+        operator: IS
+        value: 'UDP'
+      - field: target.port
+        operator: IS
+        value: '69'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: suricata-cleartext-flows
+    name: 'Suricata: no established FTP, Telnet, rexec/rlogin or TFTP flows'
+    dataType: suricata
+    filters:
+      - field: log.eventType
+        operator: IS
+        value: 'flow'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+      - field: target.port
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '21'
+          - '23'
+          - '69'
+          - '512'
+          - '513'
+    rule: THRESHOLD_MAX
+    ruleValue: 0

@@ -1,0 +1,23 @@
+# UTMStack system SOAR flow
+#
+# Standard response for the 'kerberosTicket' liveops template. The relpath
+# 'kerberosTicket-windows-target-disable-user' is the resolver key (frontend common-response.ts matches
+# template + platform, linux preferred when the host is unknown).
+# The trigger is a placeholder on purpose: a broad condition would
+# auto-fire this on every alert, and these are destructive actions.
+#
+- name: 'Disable compromised user'
+  description: 'Forged or stolen Kerberos ticket. Disable the account that presented it.'
+  conditions:
+  - operator: IS
+    field: name
+    value: TODO-set-the-correlation-rule-that-triggers-this
+  roots:
+    - step_0
+  nodes:
+    step_0:
+        kind: executor
+        executor: shell
+        command: 'net user $(target.user) /active:no'
+        shell: powershell
+        platform: windows

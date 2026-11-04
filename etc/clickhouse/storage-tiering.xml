@@ -26,6 +26,12 @@
   with years of data is not an operation anyone wants to run. Naming the volume
   "default" costs nothing today and keeps the upgrade path open.
 
+  The backend generates this file from Settings → Data retention. S3 is the
+  example below; for Azure Blob use <type>object_storage</type> with
+  <object_storage_type>azure_blob_storage</object_storage_type>, and for a local
+  folder or NFS share <type>local</type> with <path>/mnt/utmstack-cold/</path>.
+  See README.md.
+
   The cold volume's name is unconstrained; it is referenced only by the TTL
   clause, which is written at the same time.
 -->

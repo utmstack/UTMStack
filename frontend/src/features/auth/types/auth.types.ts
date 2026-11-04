@@ -56,6 +56,10 @@ export interface TfaVerifyCodeRequest {
   code: string
 }
 
+export interface EmptyLoginResponse {
+  token: string
+}
+
 export interface ChangePasswordRequest {
   current_password: string
   new_password: string

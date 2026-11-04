@@ -22,3 +22,10 @@ PREFIX=24
 VLAN=yes
 ONBOOT=yes
 `
+
+const VlanDebian string = `
+auto vlan10
+iface vlan10 inet static
+    address 10.21.199.3/24
+    vlan-raw-device {{ .Iface }}
+`

@@ -47,7 +47,7 @@ function EsetGuide({ module: _module }: { module: Integration }) {
 
 registerCollector({
   getName: () => 'ESET',
-  matches: (n) => n.includes('eset'),
+  matches: (n) => n === 'eset' || n === 'antivirus-esmc-eset',
   sections: [],
   render: (m) => <EsetGuide module={m} />,
 })

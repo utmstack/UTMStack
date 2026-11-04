@@ -17,17 +17,21 @@ type Module struct {
 	queryHandler         *handler.QueryHandler
 	dashboardHandler     *handler.DashboardHandler
 	visualizationHandler *handler.VisualizationHandler
+	dashboardFilterHandler *handler.DashboardFilterHandler
 	dashboardUC          connectors.DashboardUsecase
 	visualizationUC      connectors.VisualizationUsecase
+	dashboardFilterUC      connectors.DashboardFilterUsecase
 	dashboardBootstrap   *repository.DashboardBootstrap
 }
 
 func NewModule(db *gorm.DB, events usecase.Reader) *Module {
 	dashRepo := repository.NewDashboardRepository(db)
 	vizRepo := repository.NewVisualizationRepository(db)
+	filterRepo := repository.NewDashboardFilterRepository(db)
 
 	dashUC := usecase.NewDashboardUsecase(dashRepo)
 	vizUC := usecase.NewVisualizationUsecase(vizRepo)
+	filtUC := usecase.NewDashboardFilterUsecase(filterRepo)
 
 	dashboardBootstrap := repository.NewDashboardBootstrap(
 		env.String(repository.DashboardsSrcDirEnv, repository.DefaultDashboardsSrcDir, false), db)
@@ -35,9 +39,11 @@ func NewModule(db *gorm.DB, events usecase.Reader) *Module {
 	m := &Module{
 		dashboardHandler:     handler.NewDashboardHandler(dashUC),
 		visualizationHandler: handler.NewVisualizationHandler(vizUC),
+		dashboardFilterHandler: handler.NewDashboardFilterHandler(filtUC) ,
 		dashboardUC:          dashUC,
 		visualizationUC:      vizUC,
 		dashboardBootstrap:   dashboardBootstrap,
+		dashboardFilterUC:    filtUC,
 	}
 	if events != nil {
 		m.queryHandler = handler.NewQueryHandler(usecase.NewQueryService(events))
@@ -54,9 +60,16 @@ func (m *Module) Start(ctx context.Context) {
 }
 
 func (m *Module) GetDashboardHandler() *handler.DashboardHandler { return m.dashboardHandler }
+
 func (m *Module) GetVisualizationHandler() *handler.VisualizationHandler {
 	return m.visualizationHandler
 }
+
+func (m *Module) GetDashboardFilterHandler() *handler.DashboardFilterHandler {
+	return m.dashboardFilterHandler
+}
+
+
 
 func (m *Module) GetDashboardUsecase() connectors.DashboardUsecase { return m.dashboardUC }
 func (m *Module) GetVisualizationUsecase() connectors.VisualizationUsecase {

@@ -21,7 +21,10 @@ func TestSplitByIdentity(t *testing.T) {
 	windows := domain.ADUser{Source: "windows", SID: str("S-1-5-21-1")}
 	unlabelled := domain.ADUser{SID: str("S-1-5-21-2")}
 
-	win, linuxKeyed, byAccount := splitByIdentity([]domain.ADUser{keyed, machineWithoutUID, uidWithoutMachine, blankMachine, windows, unlabelled})
+	win, linuxKeyed, byAccount, cloud := splitByIdentity([]domain.ADUser{keyed, machineWithoutUID, uidWithoutMachine, blankMachine, windows, unlabelled})
+	if len(cloud) != 0 {
+		t.Fatalf("no cloud account was supplied, got %+v", cloud)
+	}
 
 	if len(linuxKeyed) != 1 || linuxKeyed[0].UIDNumber == nil || *linuxKeyed[0].UIDNumber != 1000 || *linuxKeyed[0].MachineID != "m-1" {
 		t.Fatalf("only the account with machine and uid is keyed, got %+v", linuxKeyed)

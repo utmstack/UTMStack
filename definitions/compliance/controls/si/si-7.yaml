@@ -1,14 +1,176 @@
-# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
 id: si-7
 family: si
 familyName: System and Information Integrity
 name: Software, Firmware, and Information Integrity
 scope: data
 statement: |-
-  Employ integrity verification tools to detect unauthorized changes to the following software, firmware, and information: [organization-defined software, firmware, and information] ; and
-    Take the following actions when unauthorized changes to the software, firmware, and information are detected: [organization-defined actions].
+  Employ integrity verification tools to detect unauthorized changes to the following software, firmware, and information: [organization-defined software, firmware, and information]; and
+  Take the following actions when unauthorized changes to the software, firmware, and information are detected: [organization-defined actions].
+remediation: |-
+  Passes when a connected source shows integrity-relevant changes: files, registry values or system binaries modified.
+  If it fails: enable file integrity monitoring (Windows object access auditing on critical folders and registry keys, Linux auditd watches, or the EDR file events).
 source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY
 checks:
-  - key: todo
-    name: 'TODO: define compliance check for this control'
-    todo: true            # Pending — evaluator shows "Not implemented", excluded from score
+  - key: win-object-write-access
+    name: 'Windows: write, delete and permission changes on audited files and registry keys are recorded'
+    dataType: wineventlog
+    filters:
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '4663'
+      - field: log.eventDataAccessList
+        operator: CONTAIN_ONE_OF
+        value:
+          - '%%4417'
+          - '%%4418'
+          - '%%4424'
+          - '%%1537'
+          - '%%1539'
+          - '%%1540'
+          - '%%4433'
+          - '%%4434'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: win-sysmon-file-registry-change
+    name: 'Windows: file and registry changes recorded by Sysmon are present'
+    dataType: wineventlog
+    filters:
+      - field: log.providerName
+        operator: IS
+        value: 'Microsoft-Windows-Sysmon'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '2'
+          - '11'
+          - '12'
+          - '13'
+          - '14'
+          - '15'
+          - '23'
+          - '26'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-audit-watched-file-write
+    name: 'Linux: writes to watched system files are recorded (audit)'
+    dataType: linux
+    filters:
+      - field: log.type
+        operator: IS
+        value: 'auditd'
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'open'
+          - 'openat'
+          - 'openat2'
+          - 'creat'
+          - 'rename'
+          - 'renameat'
+          - 'renameat2'
+          - 'unlink'
+          - 'unlinkat'
+          - 'rmdir'
+          - 'mkdir'
+          - 'mkdirat'
+          - 'chmod'
+          - 'fchmod'
+          - 'fchmodat'
+          - 'chown'
+          - 'fchown'
+          - 'fchownat'
+          - 'lchown'
+          - 'truncate'
+          - 'ftruncate'
+          - 'link'
+          - 'linkat'
+          - 'symlink'
+          - 'symlinkat'
+          - 'setxattr'
+          - 'lsetxattr'
+          - 'fsetxattr'
+          - 'removexattr'
+          - 'lremovexattr'
+          - 'fremovexattr'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-file-modifications
+    name: 'Microsoft 365: file modifications, deletions and renames are recorded'
+    dataType: o365
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'FileModified'
+          - 'FileDeleted'
+          - 'FileRenamed'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: azure-defender-file-registry-events
+    name: 'Azure: Defender for Endpoint file and registry change events are recorded'
+    dataType: azure
+    filters:
+      - field: log.category
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'AdvancedHunting-DeviceFileEvents'
+          - 'AdvancedHunting-DeviceRegistryEvents'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-s3-object-changes
+    name: 'AWS: S3 object writes and deletions are recorded (data events)'
+    dataType: aws
+    filters:
+      - field: log.eventCategory
+        operator: IS
+        value: 'Data'
+      - field: target.domain
+        operator: IS
+        value: 's3.amazonaws.com'
+      - field: action
+        operator: IS_ONE_OF
+        value:
+          - 'PutObject'
+          - 'DeleteObject'
+          - 'DeleteObjects'
+          - 'CopyObject'
+          - 'CompleteMultipartUpload'
+          - 'RestoreObject'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: gcp-gcs-object-changes
+    name: 'Google: Cloud Storage object writes and deletions are recorded'
+    dataType: google
+    filters:
+      - field: log.protoPayloadServiceName
+        operator: IS
+        value: 'storage.googleapis.com'
+      - field: log.protoPayloadMethodName
+        operator: IS_ONE_OF
+        value:
+          - 'storage.objects.create'
+          - 'storage.objects.delete'
+          - 'storage.objects.update'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-graph-purview-file-modifications
+    name: 'Microsoft Graph (Purview audit): file modifications, deletions and renames are recorded'
+    dataType: o365-graph
+    filters:
+      - field: log.operation
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'FileModified'
+          - 'FileDeleted'
+          - 'FileRenamed'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1

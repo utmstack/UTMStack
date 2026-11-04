@@ -15,7 +15,7 @@ references:
   - https://attack.mitre.org/techniques/T1567/
 description: |
   Detects unauthorized or suspicious external sharing activities in SharePoint and OneDrive that could indicate data exfiltration attempts or policy violations when sharing sensitive content with external parties.
-
+  
   Next Steps:
   1. Review the shared content and assess its sensitivity level
   2. Verify if the external sharing was authorized by data owners
@@ -36,11 +36,9 @@ where: |
     equals("action", "CompanyLinkCreated") ||
     equals("action", "AddedToSecureLink")
   ) &&
-  equals("actionResult", "Success") &&
+  equals("actionResult", "success") &&
   (
-    equals("log.TargetUserOrGroupType", "Guest") ||
-    contains("log.SiteUrl", "external") ||
-    contains("log.EventData", "AllowExternalSharing")
+    equals("log.TargetUserOrGroupType", "Guest")  
   )
 afterEvents:
   - with:

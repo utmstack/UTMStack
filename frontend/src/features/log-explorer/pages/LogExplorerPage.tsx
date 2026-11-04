@@ -14,16 +14,19 @@ export function LogExplorerPage() {
   const tabs = useLogExplorerTabs()
   const seededRef = useRef(false)
 
-  // Deep-link seed: any query param becomes a filter (?field=value; comma-list
-  // ?field=a,b,c → IS_ONE_OF_TERMS). Reserved: ?@timestamp=<preset-id> sets the
-  // range (e.g. 24h, 7d, 30d). No params → normal open, existing tabs shown.
+  // Deep-link seed: filter params become terms filters. Reserved: @timestamp
+  // selects a preset, while from/to carry an absolute range.
   useEffect(() => {
     if (seededRef.current) return
     const params = new URLSearchParams(location.search)
 
     let range = presetRange('30d')
     const filters: FilterType[] = []
+    const from = params.get('from')
+    const to = params.get('to')
+    if (from && to) range = { from, to, interval: 'hour' }
     for (const [field, raw] of params.entries()) {
+      if (field === 'from' || field === 'to') continue
       if (field === TS_FIELD) {
         range = presetRange(raw)
         continue
@@ -31,23 +34,22 @@ export function LogExplorerPage() {
       const values = raw.split(',').map((s) => s.trim()).filter(Boolean)
       if (values.length === 0) continue
       filters.push(
-        values.length === 1
-          ? { field, operator: 'IS', value: values[0] }
-          : { field, operator: 'IS_ONE_OF_TERMS', value: values }
+        { field, operator: 'IS_ONE_OF_TERMS', value: values }
       )
     }
 
-    if (filters.length === 0) return
+    if (filters.length === 0 && !(from && to)) return
 
     seededRef.current = true
     const first = filters[0]
-    const name =
-      filters.length === 1
+    const name = !first
+      ? 'Time range'
+      : filters.length === 1
         ? `${first.field}: ${Array.isArray(first.value) ? first.value.join(',') : String(first.value)}`
         : 'Filtered'
     tabs.addTab({
       name,
-      patternStr: 'v11-log-*',
+      patternStr: null,
       filters,
       range,
       columns: filters.map((f) => f.field),

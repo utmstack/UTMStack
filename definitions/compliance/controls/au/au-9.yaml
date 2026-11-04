@@ -1,4 +1,4 @@
-# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
 id: au-9
 family: au
 familyName: Audit and Accountability
@@ -6,9 +6,190 @@ name: Protection of Audit Information
 scope: data
 statement: |-
   Protect audit information and audit logging tools from unauthorized access, modification, and deletion; and
-    Alert [personnel or roles] upon detection of unauthorized access, modification, or deletion of audit information.
+  Alert [personnel or roles] upon detection of unauthorized access, modification, or deletion of audit information.
+remediation: |-
+  Passes when no connected source recorded an audit log being cleared or deleted during the window (Windows Security or System log cleared, a cloud trail or log store deleted).
+  If it fails: open the matching records, find who cleared the log and why. Clearing an audit log outside an approved procedure is a security incident.
 source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY
 checks:
-  - key: todo
-    name: 'TODO: define compliance check for this control'
-    todo: true            # Pending — evaluator shows "Not implemented", excluded from score
+  - key: win-event-log-cleared
+    name: 'Windows: no Security or other event log was cleared'
+    dataType: wineventlog
+    filters:
+      - field: log.providerName
+        operator: IS
+        value: 'Microsoft-Windows-Eventlog'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '1102'
+          - '104'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: linux-log-file-deleted
+    name: 'Linux: no audit or system log file deleted by a command'
+    dataType: linux
+    filters:
+      - field: action
+        operator: IS
+        value: 'execve'
+      - field: origin.process
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '/usr/bin/rm'
+          - '/bin/rm'
+          - '/usr/bin/shred'
+          - '/bin/shred'
+          - '/usr/bin/truncate'
+          - '/bin/truncate'
+          - '/usr/bin/unlink'
+          - '/bin/unlink'
+      - field: origin.command
+        operator: CONTAIN_ONE_OF
+        value:
+          - '/var/log/audit'
+          - '/var/log/wtmp'
+          - '/var/log/btmp'
+          - '/var/log/lastlog'
+          - '/var/log/secure'
+          - '/var/log/auth.log'
+          - '/var/log/messages'
+          - '/var/log/syslog'
+          - '/var/log/journal'
+          - '/var/run/utmp'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: linux-sudo-log-file-deleted
+    name: 'Linux: no audit or system log deleted through sudo'
+    dataType: linux
+    filters:
+      - field: log.syslogIdentifier
+        operator: IS
+        value: 'sudo'
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'COMMAND=/usr/bin/rm '
+          - 'COMMAND=/bin/rm '
+          - 'COMMAND=/usr/bin/shred '
+          - 'COMMAND=/bin/shred '
+          - 'COMMAND=/usr/bin/truncate '
+          - 'COMMAND=/bin/truncate '
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - '/var/log/audit'
+          - '/var/log/wtmp'
+          - '/var/log/btmp'
+          - '/var/log/lastlog'
+          - '/var/log/secure'
+          - '/var/log/auth.log'
+          - '/var/log/messages'
+          - '/var/log/syslog'
+          - '/var/log/journal'
+          - '/var/run/utmp'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: macos-log-erased
+    name: 'macOS: no system or audit log erased through sudo'
+    dataType: macos
+    filters:
+      - field: origin.process
+        operator: IS
+        value: 'sudo'
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'COMMAND=/usr/bin/log erase'
+          - 'COMMAND=/bin/rm '
+          - 'COMMAND=/usr/bin/truncate '
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'log erase'
+          - '/var/log'
+          - '/private/var/log'
+          - '/var/db/diagnostics'
+          - '/var/audit'
+          - '/private/var/audit'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: azure-log-workspace-purged
+    name: 'Azure: Log Analytics data must not be purged or the workspace deleted'
+    dataType: azure
+    filters:
+      - field: action
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'microsoft.operationalinsights/workspaces/purge/action'
+          - 'microsoft.operationalinsights/workspaces/delete'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: aws-cloudtrail-deleted
+    name: 'AWS: a CloudTrail trail or event data store was deleted'
+    dataType: aws
+    filters:
+      - field: action
+        operator: IS_ONE_OF
+        value:
+          - 'DeleteTrail'
+          - 'DeleteEventDataStore'
+      - field: log.eventSource
+        operator: IS
+        value: 'cloudtrail.amazonaws.com'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: gcp-logs-deleted
+    name: 'Google: a log or log bucket was deleted'
+    dataType: google
+    filters:
+      - field: log.protoPayloadMethodName
+        operator: IS_ONE_OF
+        value:
+          - 'google.logging.v2.LoggingServiceV2.DeleteLog'
+          - 'google.logging.v2.ConfigServiceV2.DeleteBucket'
+      - field: log.protoPayloadServiceName
+        operator: IS
+        value: 'logging.googleapis.com'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: asa-logging-cleared
+    name: 'Cisco ASA: the logging buffer is never cleared'
+    dataType: firewall-cisco-asa
+    filters:
+      - field: log.messageId
+        operator: IS
+        value: '111008'
+      - field: log.msg
+        operator: CONTAIN
+        value: 'clear logging'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: fgt-logs-deleted-by-admin
+    name: 'FortiGate: logs never deleted by an administrator'
+    dataType: firewall-fortigate-traffic
+    filters:
+      - field: log.logid
+        operator: IS
+        value: '0100032044'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: sonicwall-log-cleared
+    name: 'SonicWall: the event log is never cleared'
+    dataType: firewall-sonicwall
+    filters:
+      - field: log.eventCode
+        operator: IS
+        value: '5'
+    rule: THRESHOLD_MAX
+    ruleValue: 0

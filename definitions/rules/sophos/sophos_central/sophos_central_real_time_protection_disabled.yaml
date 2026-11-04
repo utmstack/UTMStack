@@ -1,19 +1,23 @@
-# Rule version v1.0.0
-
+# Sophos Central SIEM event review; impact ratings and history thresholds preserved.
 dataTypes:
-  - "sophos-central"
-name: "Real Time Protection disabled in Sophos Central"
+- sophos-central
+name: Sophos Central Real-Time Protection Disabled
 impact:
   confidentiality: 2
   integrity: 2
   availability: 1
-category: "Defense Evasion"
-technique: "T1562 - Impair Defenses"
+category: Defense Evasion
+technique: T1562 - Impair Defenses
 adversary: origin
 references:
-  - "https://www.makeuseof.com/real-time-protection/"
-description: "Real-time protection has been disabled, which can help malware and attacks go undetected"
-where: equals("log.type", "Event::Endpoint::SavDisabled")
+- https://docs.sophos.com/central/customer/help/en-us/ManageYourProducts/LogsReports/Logs/Events/ManagementEventTypes/
+description: Sophos reports disabled real-time protection. Review approved maintenance and device health before
+  concluding that an adversary impaired defenses.
+where: (equals("log.type", "Event::Endpoint::SavDisabled")) && !regexMatch("log.type","(?i)(clean|cleanedup|resolved|dismissed|cancelled|success)$")
 groupBy:
-  - adversary.host
-  - adversary.ip
+- lastEvent.dataSource
+- lastEvent.log.customerId
+- lastEvent.log.endpointId
+- lastEvent.log.type
+- target.host
+- target.ip

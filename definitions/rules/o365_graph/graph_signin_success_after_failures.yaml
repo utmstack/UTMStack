@@ -1,0 +1,45 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365-graph
+name: Graph Sign-In Succeeded After Repeated Password Failures
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Credential Access
+technique: "T1110.001 - Brute Force: Password Guessing"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/graph/api/resources/signin
+  - https://learn.microsoft.com/en-us/entra/identity-platform/reference-error-codes
+  - https://attack.mitre.org/techniques/T1110/001/
+description: |
+  A user signed in to Entra ID successfully after at least 20 sign-ins for the same account failed with a wrong password (error 50126) in the hour before. A run of failures followed by a success is how a guessed or sprayed password shows up. The threshold sits above what users who mistype their password produce on the busiest customer Office 365 tenants measured.
+
+  One alert is raised per user and address; repeats are suppressed for seven days.
+
+  Next Steps:
+  1. Compare the address of the success (origin ip) with the addresses of the failures.
+  2. Ask the user whether the sign-in was theirs.
+  3. If not, reset the password, revoke the user's sessions and review what the account did after the sign-in.
+where: |
+  equals("log.graphSource", "sign-ins") &&
+  equals("actionResult", "success") &&
+  exists("origin.user")
+correlation:
+  - within: 1h
+    count: 20
+    with:
+      - field: origin.user
+        operator: filter_term
+        value: '{{.origin.user}}'
+      - field: log.graphSource
+        operator: filter_term
+        value: sign-ins
+      - field: log.status.errorCode
+        operator: filter_term
+        value: '50126'
+deduplicateBy:
+  - adversary.user
+  - adversary.ip

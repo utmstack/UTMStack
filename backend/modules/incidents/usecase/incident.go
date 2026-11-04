@@ -77,6 +77,7 @@ func (u *incidentUsecase) Create(ctx context.Context, userEmail string, req dto.
 		AssignedTo:  strings.TrimSpace(req.IncidentAssignedTo),
 		CreatedDate: time.Now().UTC(),
 	}
+
 	if err := u.incidentRepo.Create(ctx, incident, alertRows(incident, req.AlertList)); err != nil {
 		u.audit.Log(ctx, audit_connectors.Event{
 			Action:       "incident.create.fail",
@@ -87,9 +88,15 @@ func (u *incidentUsecase) Create(ctx context.Context, userEmail string, req dto.
 		return nil, err
 	}
 
+
 	currentUser := resolveUser(userEmail)
 	if err := u.saveHistory(ctx, incident.ID, domain.ActionCreated, currentUser); err != nil {
 		catcher.Warn("incidents: failed to write history", map[string]any{"error": err.Error()})
+	}
+
+	err = u.alertsGateway.MarkAlertAsIncident(ctx, alertIDs, req.IncidentName, incident.ID.String(), incident.CreatedDate, currentUser)
+	if err!=nil{
+		catcher.Warn("incidents: failed to mark alerts as incident ", map[string]any{"error": err.Error()})
 	}
 
 	u.audit.Log(ctx, audit_connectors.Event{

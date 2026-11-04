@@ -1,0 +1,33 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365-graph
+name: Graph Identity Protection Risk Detected
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Credential Access
+technique: "T1078.004 - Valid Accounts: Cloud Accounts"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/graph/api/resources/riskdetection
+  - https://learn.microsoft.com/en-us/entra/id-protection/concept-identity-protection-risks
+  - https://attack.mitre.org/techniques/T1078/004/
+description: |
+  Microsoft Entra ID Protection raised a risk detection that is still open: either rated high, or one of the kinds that points to a compromised account whatever its level (leaked credentials, Microsoft threat intelligence, password spray, anomalous or forged tokens, malicious addresses, suspicious inbox forwarding or inbox rules, or an administrator confirming the compromise). The kind is in log.riskEventType.
+
+  One alert is raised per user and kind of detection; repeats are suppressed for seven days.
+
+  Next Steps:
+  1. Read the detection kind (log.riskEventType) and where it came from (origin ip, log.location).
+  2. Ask the user whether the activity was theirs.
+  3. If not, reset the password, revoke the user's sessions and check for new inbox rules, consents and registered sign-in methods.
+where: |
+  equals("log.graphSource", "risk-detections") &&
+  oneOf("log.riskState", ["atRisk", "confirmedCompromised"]) &&
+  (equals("log.riskLevel", "high") ||
+   oneOf("log.riskEventType", ["adminConfirmedUserCompromised", "leakedCredentials", "investigationsThreatIntelligence", "passwordSpray", "anomalousToken", "tokenIssuerAnomaly", "maliciousIPAddress", "malwareInfectedIPAddress", "suspiciousInboxForwarding", "mcasSuspiciousInboxManipulationRules"]))
+deduplicateBy:
+  - adversary.user
+  - lastEvent.log.riskEventType

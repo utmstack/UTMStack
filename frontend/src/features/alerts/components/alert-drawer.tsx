@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Flame, X } from 'lucide-react'
+import { Flame, X, Loader2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
@@ -9,6 +9,7 @@ import { SEV_BADGE, ST_META, TS, absTime, riskOf, sevKey, statusKey } from '../l
 import { combineUserNote, isAiNote, parseAiNote, userNotePart } from '../lib/ai-note'
 import { type Alert, type AlertTag } from '../types/alert.types'
 import { useRelatedLogs } from '../hooks/use-related-logs'
+import { useAlertThreadEvents } from '../hooks/use-alert-thread-events'
 import { alertFocus } from '../lib/alert-focus'
 import { Section } from './section'
 import { Row } from './row'
@@ -72,6 +73,9 @@ export function AlertDrawer({
   const smLabel = t(`alerts.severity.${sk}`)
   const stmLabel = t(`alerts.status.${statusKey(a)}`)
   const tags = a.tags ?? []
+
+  const thread = useAlertThreadEvents(a, true)
+
 
   return (
     <div
@@ -150,11 +154,19 @@ export function AlertDrawer({
               onClick={() => setTab(id)}
               className={cn(
                 'relative px-3 py-2.5 text-xs capitalize transition-colors',
-                tab === id ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+                tab === id ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
+                id === 'events' && thread.loading ? 'pointer-events-none cursor-not-allowed opacity-50':''
               )}
             >
               {id === 'events'
-                ? `${t('alerts.drawer.tabs.events')}${a.events?.length ? ` (${a.events.length})` : ''}`
+                ? thread.loading? (
+                    <div className="flex gap-1 justify-center items-center">
+                     <small>{t('alerts.drawer.tabs.events')}</small>
+                      <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                    </div>
+
+
+                ) : `${t('alerts.drawer.tabs.events')}${thread.events.length ? ` (${thread.events.length})` : ''}`
                 : t(`alerts.drawer.tabs.${id}`)}
               {tab === id && <span className="absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-primary" />}
             </button>
@@ -282,7 +294,14 @@ export function AlertDrawer({
             </div>
           )}
           {tab === 'events' && (
-            <AlertRelatedEvents events={a.events ?? []} onViewAll={() => void viewRelatedLogs(a)} loadingAll={loadingRelated} />
+            <AlertRelatedEvents
+              events={thread.events}
+              echoes={thread.echoes}
+              echoesRead={thread.echoesRead}
+              loadingEchoes={thread.loading}
+              onViewAll={() => void viewRelatedLogs(a)}
+              loadingAll={loadingRelated}
+            />
           )}
           {tab === 'history' && <HistoryTab alert={a} />}
         </div>

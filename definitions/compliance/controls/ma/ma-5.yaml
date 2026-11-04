@@ -1,15 +1,14 @@
-# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Manual: set in the report.
 id: ma-5
 family: ma
 familyName: Maintenance
 name: Maintenance Personnel
-scope: data
+scope: governance
 statement: |-
   Establish a process for maintenance personnel authorization and maintain a list of authorized maintenance organizations or personnel;
-    Verify that non-escorted personnel performing maintenance on the system possess the required access authorizations; and
-    Designate organizational personnel with required access authorizations and technical competence to supervise the maintenance activities of personnel who do not possess the required access authorizations.
+  Verify that non-escorted personnel performing maintenance on the system possess the required access authorizations; and
+  Designate organizational personnel with required access authorizations and technical competence to supervise the maintenance activities of personnel who do not possess the required access authorizations.
+remediation: |-
+  Manual control: logs cannot show whether this is in place, so the report lists it as "Out of scope" until a person decides. Open the framework report, set this control's status (Compliant, Non-compliant or At risk) and write the justification.
+  Keep the evidence an auditor will ask for, for example maintenance records, approvals and the list of authorised maintenance staff.
 source: NIST SP 800-53 Rev 5 (public domain)
-checks:
-  - key: todo
-    name: 'TODO: define compliance check for this control'
-    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

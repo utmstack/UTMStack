@@ -1,0 +1,30 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - wineventlog
+name: "Windows: Microsoft Defender Antivirus Protection Disabled"
+impact:
+  confidentiality: 1
+  integrity: 2
+  availability: 0
+category: Administrative Awareness
+technique: Antivirus protection disabled
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/defender-endpoint/troubleshoot-microsoft-defender-antivirus
+description: |
+  Microsoft Defender Antivirus reported that real-time protection (event 5001), scanning for malware and potentially unwanted software (event 5010) or scanning for viruses (event 5012) was turned off. Defender does not protect the computer until the setting is turned back on. This also happens, as expected, when another antivirus product takes over from Defender.
+
+  Other products that reuse these event numbers are ignored: the rule requires the Microsoft Defender Antivirus provider and its Operational channel. All occurrences on the same computer are grouped under one alert.
+
+  Requires collection of the "Microsoft-Windows-Windows Defender/Operational" channel.
+
+  Next Steps:
+  1. Confirm whether another approved antivirus product is installed or an administrator switched protection off on purpose.
+  2. If not, turn protection back on, find what switched it off, and scan the computer.
+where: |
+  oneOf("log.eventCode", [5001, 5010, 5012]) &&
+  equals("log.channel", "Microsoft-Windows-Windows Defender/Operational") &&
+  equals("log.providerName", "Microsoft-Windows-Windows Defender")
+groupBy:
+  - dataSource

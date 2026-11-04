@@ -1,4 +1,4 @@
-# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Manual: set in the report.
 id: at-3
 family: at
 familyName: Awareness and Training
@@ -6,8 +6,11 @@ name: Role-based Training
 scope: governance
 statement: |-
   Provide role-based security and privacy training to personnel with the following roles and responsibilities: [organization-defined roles and responsibilities]:
-      Before authorizing access to the system, information, or performing assigned duties, and [frequency] thereafter; and
-      When required by system changes;
-    Update role-based training content [frequency] and following [events] ; and
-    Incorporate lessons learned from internal or external security incidents or breaches into role-based training.
+  Before authorizing access to the system, information, or performing assigned duties, and [frequency] thereafter; and
+  When required by system changes;
+  Update role-based training content [frequency] and following [events]; and
+  Incorporate lessons learned from internal or external security incidents or breaches into role-based training.
+remediation: |-
+  Manual control: logs cannot show whether this is in place, so the report lists it as "Out of scope" until a person decides. Open the framework report, set this control's status (Compliant, Non-compliant or At risk) and write the justification.
+  Keep the evidence an auditor will ask for, for example training records: who was trained, on what, and when.
 source: NIST SP 800-53 Rev 5 (public domain)

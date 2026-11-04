@@ -1,12 +1,137 @@
-# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
 id: sc-45
 family: sc
 familyName: System and Communications Protection
 name: System Time Synchronization
 scope: data
-statement: Synchronize system clocks within and between systems and system components.
+statement: |-
+  Synchronize system clocks within and between systems and system components.
+remediation: |-
+  Passes when a connected source shows its clock being synchronised with a time source.
+  If it fails: configure time synchronisation against an authoritative source and log it.
 source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY
 checks:
-  - key: todo
-    name: 'TODO: define compliance check for this control'
-    todo: true            # Pending — evaluator shows "Not implemented", excluded from score
+  - key: win-time-sync
+    name: 'Windows: clock synchronization is recorded'
+    dataType: wineventlog
+    filters:
+      - field: log.providerName
+        operator: IS
+        value: 'Microsoft-Windows-Time-Service'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '35'
+          - '37'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-time-sync
+    name: 'Linux: clock synchronization is recorded'
+    dataType: linux
+    filters:
+      - field: log.syslogIdentifier
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'systemd-timesyncd'
+          - 'chronyd'
+          - 'ntpd'
+          - 'ntpdate'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: macos-time-sync
+    name: 'macOS: clock synchronization is recorded'
+    dataType: macos
+    filters:
+      - field: origin.process
+        operator: IS
+        value: 'timed'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: cisco-switch-ntp-sync
+    name: 'Cisco switch: NTP synchronization is recorded'
+    dataType: cisco-switch
+    filters:
+      - field: log.facility
+        operator: IS
+        value: 'NTP'
+      - field: log.facilityMnemonic
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'PEERSYNC'
+          - 'PEERREACH'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fgt-ntp-time-sync
+    name: 'FortiGate: NTP time synchronization is recorded'
+    dataType: firewall-fortigate-traffic
+    filters:
+      - field: log.logid
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '0100032141'
+          - '0100032105'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fortiweb-ntp-time-change
+    name: 'FortiWeb: NTP time changes are recorded'
+    dataType: firewall-fortiweb
+    filters:
+      - field: log.type
+        operator: IS
+        value: 'event'
+      - field: log.msg
+        operator: CONTAIN
+        value: 'ntp daemon changed time'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: mikrotik-ntp-time-change
+    name: 'MikroTik: NTP time changes are recorded'
+    dataType: firewall-mikrotik
+    filters:
+      - field: log.message
+        operator: CONTAIN
+        value: 'ntp change time'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: paloalto-ntp-sync
+    name: 'Palo Alto: NTP synchronization is recorded'
+    dataType: firewall-paloalto
+    filters:
+      - field: log.paSubtype
+        operator: IS
+        value: 'ntpd'
+      - field: log.eventid
+        operator: IS
+        value: 'sync'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: pfsense-ntpd-events
+    name: 'pfSense: NTP daemon events are recorded'
+    dataType: firewall-pfsense
+    filters:
+      - field: log.eventType
+        operator: IS
+        value: 'ntpd'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sonicwall-ntp-sync
+    name: 'SonicWall: NTP time updates are recorded'
+    dataType: firewall-sonicwall
+    filters:
+      - field: log.eventCode
+        operator: IS
+        value: '1231'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: esxi-time-sync
+    name: 'VMware ESXi: time synchronization is recorded'
+    dataType: vmware-esxi
+    filters:
+      - field: log.process
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'ntpd'
+          - 'ptpd'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1

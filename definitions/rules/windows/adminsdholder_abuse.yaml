@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.1.0
 
 dataTypes:
   - wineventlog
@@ -15,7 +15,7 @@ references:
   - https://adsecurity.org/?p=1906
   - https://docs.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/appendix-c--protected-accounts-and-groups-in-active-directory
 description: |
-  Detects modifications to the AdminSDHolder object which can be used for persistence by granting elevated privileges. The SDProp process propagates these permissions to protected groups every 60 minutes, making this a critical security event.
+  Detects modifications to the AdminSDHolder object which can be used for persistence by granting elevated privileges. The SDProp process propagates these permissions to protected groups every 60 minutes, making this a critical security event. It reads directory service change events (5136), whose ObjectDN field names the changed object; access events (4662) name objects by GUID and cannot identify AdminSDHolder. Changes made by SYSTEM (S-1-5-18) are excluded. One alert is raised per domain controller and account; repeats are suppressed for seven days.
 
   Next Steps:
   1. Immediately review the user account that performed the modification
@@ -26,16 +26,10 @@ description: |
   6. Audit recent administrative activities by the same user account
   7. Consider temporarily disabling the user account if unauthorized activity is suspected
 where: |
-  oneOf("log.eventCode", ["4662", "5136", "4670"]) && 
+  equals("log.eventCode", 5136) &&
   equals("log.channel", "Security") &&
-  (
-    contains("log.eventDataObjectName", "CN=AdminSDHolder,CN=System")
-  ) &&
-  (
-    oneOf("log.eventDataOperationType", ["Object Access", "Write Property"]) ||
-    oneOf("log.eventDataAccessMask", ["131072", "262144", "524288"])
-  ) &&
-  !equals("log.eventDataSubjectUserName", "SYSTEM")
-groupBy:
-  - lastEvent.log.eventDataObjectName
-  - lastEvent.log.eventDataSubjectUserName
+  contains("log.data.ObjectDN", "CN=AdminSDHolder,CN=System") &&
+  !equals("log.eventDataSubjectUserSid", "S-1-5-18")
+deduplicateBy:
+  - dataSource
+  - lastEvent.log.eventDataSubjectUserSid

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useQueries } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { LayoutDashboard, Loader2, Plus } from "lucide-react";
@@ -16,10 +17,13 @@ import {
 } from "@/features/dashboard/hooks/useDashboards";
 import { createDashboardsService } from "@/features/dashboard/service/dashboards.service";
 import {
+  VISUALIZATIONS_QUERY_KEYS,
   useVisualizations,
   useVisualizationMutations,
 } from "@/features/dashboard/hooks/useVisualizations";
+import { createVisualizationsService } from "@/features/dashboard/service/visualizations.service";
 import { useDashboardEditor } from "@/features/dashboard/hooks/useDashboardEditor";
+import { useDashboardFilters } from "@/features/dashboard/hooks/useDashboardFilters";
 import { DashboardGrid } from "@/features/dashboard/components/DashboardGrid";
 import { DashboardEditorBar } from "@/features/dashboard/components/DashboardEditorBar";
 import { DashboardFormDialog } from "@/features/dashboard/components/DashboardFormDialog";
@@ -45,6 +49,8 @@ import {
 import type {
   Dashboard,
   DashboardFilterChip,
+  DashboardFilter,
+  DashboardFilterCreateInput,
   FilterType,
   GridLayoutItem,
 } from "@/features/dashboard/types";
@@ -82,8 +88,31 @@ export function DashboardPage() {
     size: DEFAULT_PAGE_SIZE,
     name: search || undefined,
   });
-  const dashboardItems = dashboards.list.data?.data ?? [];
-  const noDashboards = dashboardItems.length === 0 && !search;
+  const rawDashboards = dashboards.list.data?.data ?? [];
+  const noDashboards = rawDashboards.length === 0 && !dashboards.list.isLoading && !search;
+
+  // Visualization counts per dashboard — widgets are separate rows, so one
+  // query each. Feeds the ordering and the card badges.
+  const countQueries = useQueries({
+    queries: rawDashboards.map((d) => ({
+      queryKey: VISUALIZATIONS_QUERY_KEYS.list({ dashboardId: d.id, page: 0, size: 1 }),
+      queryFn: () => vizService.listVisualizations({ dashboardId: d.id, page: 0, size: 1 }),
+      staleTime: 5 * 60 * 1000,
+    })),
+  });
+  const counts = useMemo(() => {
+    const m = new Map<string, number>();
+    rawDashboards.forEach((d, i) => m.set(d.id, countQueries[i]?.data?.total ?? 0));
+    return m;
+  }, [rawDashboards, countQueries]);
+  const dashboardItems = useMemo(
+    () =>
+      [...rawDashboards].sort((a, b) => {
+        const c = (counts.get(b.id) ?? 0) - (counts.get(a.id) ?? 0);
+        return c !== 0 ? c : a.name.localeCompare(b.name);
+      }),
+    [rawDashboards, counts],
+  );
 
   const selectedDashboard = useDashboard(selectedId);
   const navigate = useNavigate();
@@ -99,16 +128,32 @@ export function DashboardPage() {
     const state = location.state as {
       selectDashboardId?: string;
       resumeEditing?: boolean;
+      integrationDashboardName?: string;
+      integrationDashboardNames?: string[];
+      integrationDashboardSearch?: string;
     } | null;
+    if (state?.integrationDashboardSearch) {
+      setSearch(state.integrationDashboardSearch);
+    } else if (state?.integrationDashboardNames || state?.integrationDashboardName) {
+      setSearch((state.integrationDashboardNames ?? [state.integrationDashboardName!])[0]);
+    }
     if (state?.selectDashboardId != null) {
       setSelectedId(state.selectDashboardId);
       pendingEditRef.current = state.resumeEditing !== false;
+    }
+    if (
+      state?.selectDashboardId != null ||
+      state?.integrationDashboardName ||
+      state?.integrationDashboardNames ||
+      state?.integrationDashboardSearch
+    ) {
       navigate(location.pathname, { replace: true, state: null });
     }
     // Only react to navigation-state changes, not every render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.state]);
 
+  const vizService = useMemo(() => createVisualizationsService(), []);
   const visualizations = useVisualizations(
     selectedId != null
       ? { dashboardId: selectedId, page: 0, size: 500 }
@@ -126,9 +171,11 @@ export function DashboardPage() {
   const initialItems = useMemo(() => toGridItems(vizItems), [vizItems]);
   const editor = useDashboardEditor(initialItems);
 
+  const { list: filterList, createFilter, updateFilter, deleteFilter } = useDashboardFilters(selectedId);
+
   const chips = useMemo<DashboardFilterChip[]>(
-    () => parseChipConfig(selectedDashboard.data?.filters),
-    [selectedDashboard.data?.filters],
+    () => (filterList.data?.data ?? []).map(filterToChip),
+    [filterList.data],
   );
 
   // Reset chip *values* whenever the dashboard changes; chip *config* persists.
@@ -328,33 +375,49 @@ export function DashboardPage() {
     setSelectedId(id);
   };
 
-  const handleSaveFilters = (next: DashboardFilterChip[]) => {
+  const handleSaveFilters = async (next: DashboardFilterChip[]) => {
     const target = selectedDashboard.data;
     if (!target) return;
-    dashboards.updateDashboard.mutate(
-      {
-        id: target.id,
-        name: target.name,
-        description: target.description,
-        config: target.config,
-        filters: JSON.stringify(next),
-      },
-      {
-        onSuccess: () => {
-          toast.success(t("dashboards.toast.filtersSaved"));
-          // Drop any values whose chip was removed/renamed.
-          const validIds = new Set(next.map((c) => c.id));
-          setChipValues((prev) => {
-            const out: ChipValueMap = {};
-            for (const k of Object.keys(prev))
-              if (validIds.has(k)) out[k] = prev[k];
-            return out;
-          });
-        },
-        onError: (err) =>
-          toast.error(err.message ?? t("dashboards.toast.filtersSaveFailed")),
-      },
-    );
+    try {
+      const existing = filterList.data?.data ?? [];
+      const existingIds = new Set(existing.map((f) => f.id));
+      const nextIds = new Set(next.map((c) => c.id));
+
+      let created = 0;
+      let updated = 0;
+      let deleted = 0;
+
+      // Delete removed chips.
+      for (const f of existing) {
+        if (!nextIds.has(f.id)) {
+          await deleteFilter.mutateAsync(f.id);
+          deleted++;
+        }
+      }
+      // Create or update.
+      for (const chip of next) {
+        if (existingIds.has(chip.id)) {
+          await updateFilter.mutateAsync({ id: chip.id, ...chipToFilterInput(chip, target.id) });
+          updated++;
+        } else {
+          await createFilter.mutateAsync(chipToFilterInput(chip, target.id));
+          created++;
+        }
+      }
+
+      if (created > 0) toast.success(t("dashboards.toast.filterCreated"));
+      if (updated > 0) toast.success(t("dashboards.toast.filterUpdated"));
+      if (deleted > 0) toast.success(t("dashboards.toast.filterDeleted"));
+      // Drop any values whose chip was removed/renamed.
+      setChipValues((prev) => {
+        const out: ChipValueMap = {};
+        for (const k of Object.keys(prev))
+          if (nextIds.has(k)) out[k] = prev[k];
+        return out;
+      });
+    } catch (err) {
+      toast.error((err as Error).message ?? t("dashboards.toast.filtersSaveFailed"));
+    }
   };
 
   const backToList = () => {
@@ -437,6 +500,7 @@ export function DashboardPage() {
             <DashboardGallery
               dashboards={dashboardItems}
               loading={dashboards.list.isLoading}
+              counts={counts}
               search={search}
               onSearchChange={setSearch}
               onSelect={(id) => openFromTable(id)}
@@ -454,7 +518,7 @@ export function DashboardPage() {
             values={chipValues}
             onChange={setChipValues}
             editable={editor.editing}
-            savingChips={dashboards.updateDashboard.isPending}
+            savingChips={createFilter.isPending || updateFilter.isPending || deleteFilter.isPending}
             onSaveChips={handleSaveFilters}
           />
         )}
@@ -554,16 +618,27 @@ export function DashboardPage() {
 
 export default DashboardPage;
 
-function parseChipConfig(
-  json: string | undefined | null,
-): DashboardFilterChip[] {
-  if (!json) return [];
-  try {
-    const parsed = JSON.parse(json);
-    return Array.isArray(parsed) ? (parsed as DashboardFilterChip[]) : [];
-  } catch {
-    return [];
-  }
+function filterToChip(f: DashboardFilter): DashboardFilterChip {
+  return {
+    id: f.id,
+    field: f.field,
+    label: f.label || f.field,
+    placeholder: f.place_holder || undefined,
+    dataset: f.data_set,
+    multiple: f.type === "multiple",
+    searchable: f.type === "searchable",
+  };
+}
+
+function chipToFilterInput(chip: DashboardFilterChip, dashboardId: string): DashboardFilterCreateInput {
+  return {
+    dashboardId,
+    data_set: chip.dataset,
+    field: chip.field,
+    type: chip.multiple ? "multiple" : "searchable",
+    label: chip.label,
+    place_holder: chip.placeholder || "",
+  };
 }
 
 function chipsToFilters(

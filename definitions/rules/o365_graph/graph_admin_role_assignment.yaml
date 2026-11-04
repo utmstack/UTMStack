@@ -1,0 +1,33 @@
+# Rule version v1.1.0
+
+dataTypes:
+  - o365-graph
+name: Graph Admin Role Assignment Detected
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Privilege Escalation
+technique: "T1098.003 - Account Manipulation: Additional Cloud Roles"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/entra/identity/monitoring-health/reference-audit-activities
+  - https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/permissions-reference
+  - https://attack.mitre.org/techniques/T1098/003/
+description: |
+  An Entra ID administrator role, or eligibility for one, was granted to a user or a service principal. Attackers who gain an administrative session often give a second account or an application a privileged role so they keep control after the first account is cleaned up. Routine just-in-time activations of an existing eligibility are not reported.
+
+  One alert is raised per account that receives a role; further roles for the same account within seven days are suppressed, because administrators often grant several roles at once.
+
+  Next Steps:
+  1. Confirm with the person who made the change (origin user) that the assignment was planned and approved.
+  2. Check the account that received the role (target user, or log.targetDisplayName for an application) for recent sign-ins from unusual places.
+  3. Remove the role if it is not justified, and review what the account did with it.
+where: |
+  equals("log.graphSource", "directory-audit") &&
+  equals("actionResult", "success") &&
+  oneOf("action", ["Add member to role", "Add eligible member to role", "Add member to role scoped over Restricted Management Administrative Unit", "Add member to role in PIM completed (permanent)", "Add member to role in PIM completed (timebound)", "Add eligible member to role in PIM completed (permanent)", "Add eligible member to role in PIM completed (timebound)"]) &&
+  (regexMatch("log.roleName", "(?i)(administrator|partner tier[12] support|directory writers)") ||
+   (equals("log.targetType", "Role") && regexMatch("log.targetDisplayName", "(?i)(administrator|partner tier[12] support|directory writers)")))
+deduplicateBy:
+  - lastEvent.log.targetId

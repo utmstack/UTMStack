@@ -28,7 +28,7 @@ function PfSenseGuide({ module: _module }: { module: Integration }) {
 
 registerCollector({
   getName: () => 'PFSENSE',
-  matches: (n) => n.includes('pfsense'),
+  matches: (n) => n === 'pfsense' || n === 'firewall-pfsense',
   sections: [],
   render: (m) => <PfSenseGuide module={m} />,
 })

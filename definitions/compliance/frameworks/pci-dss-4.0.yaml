@@ -1,661 +1,834 @@
+# Provenance: PCI DSS v4.0.1 (PCI Security Standards Council, June 2024, copyright) for numbering and structure
+#   only, titles paraphrased. Mapping to NIST SP 800-53 Rev 5 controls by UTMStack; review before relying on it.
+# PCI DSS v4.0.1 requirement checklist (principal requirements 1-12, Appendices A1 and A2; A3 left out).
+# PCI DSS is copyright of the PCI Security Standards Council: only official identifiers are used; every title is
+# a short paraphrase in our own words and no requirement text is reproduced. satisfiedBy = shared NIST SP 800-53 Rev 5 library.
 key: pci-dss-4.0
-name: PCI DSS
-description: The PCI DSS (Payment Card Industry Data Security Standard) establishes a set of security requirements to protect payment card data and ensure the integrity of financial transactions. In a SIEM (Security Information and Event Management), PCI DSS compliance is achieved by collecting, monitoring, measuring, and retaining event logs related to the access, use, and security of payment data.
-source: Migrated from UTMStack v11
+name: PCI DSS v4.0.1
+description: Payment Card Industry Data Security Standard v4.0.1, every defined-approach requirement of the 12
+  principal requirements and Appendices A1 and A2 by its official number. Titles are our own short paraphrases;
+  the standard text is PCI SSC copyright and is not reproduced.
+source: 'PCI DSS v4.0.1 (PCI SSC copyright): numbering only, titles paraphrased. Mapping to NIST SP 800-53 Rev 5 by UTMStack.'
 sections:
-  - key: sec-801
-    name: Secure configuration of system components
-    requirements:
-      - id: pci-dss-4.0-req-1096
-        name: Windows 2.1 Access to critical files or specific directories
-        satisfiedBy:
-          - pci-dss-4.0-1096
-      - id: pci-dss-4.0-req-1097
-        name: Windows 2.1 User Accounts Created
-        satisfiedBy:
-          - pci-dss-4.0-1097
-      - id: pci-dss-4.0-req-1098
-        name: Windows 2.1 Additions to Security Groups
-        satisfiedBy:
-          - pci-dss-4.0-1098
-      - id: pci-dss-4.0-req-1099
-        name: Windows 2.1 Member Addition to a Security Local Group
-        satisfiedBy:
-          - pci-dss-4.0-1099
-      - id: pci-dss-4.0-req-1100
-        name: Windows 2.2 Registry Value Modification
-        satisfiedBy:
-          - pci-dss-4.0-1100
-      - id: pci-dss-4.0-req-1101
-        name: Windows 2.2 Service Installed
-        satisfiedBy:
-          - pci-dss-4.0-1101
-      - id: pci-dss-4.0-req-1102
-        name: Windows 2.1 Protected Object Permission Change
-        satisfiedBy:
-          - pci-dss-4.0-1102
-      - id: pci-dss-4.0-req-1103
-        name: Windows 2.2 Password Reset Attempts
-        satisfiedBy:
-          - pci-dss-4.0-1103
-      - id: pci-dss-4.0-req-1104
-        name: Windows 2.2 Process Creation
-        satisfiedBy:
-          - pci-dss-4.0-1104
-      - id: pci-dss-4.0-req-1105
-        name: Windows 2.2 Installation of Services
-        satisfiedBy:
-          - pci-dss-4.0-1105
-      - id: pci-dss-4.0-req-1106
-        name: Windows 2.2 Policy changes
-        satisfiedBy:
-          - pci-dss-4.0-1106
-      - id: pci-dss-4.0-req-1107
-        name: Windows 2.3 Cleaned Event Log
-        satisfiedBy:
-          - pci-dss-4.0-1107
-      - id: pci-dss-4.0-req-1108
-        name: Windows 2.3 User Account Attributes Changes
-        satisfiedBy:
-          - pci-dss-4.0-1108
-  - key: sec-802
-    name: Protection and Secure Management of Stored Account Data
-    requirements:
-      - id: pci-dss-4.0-req-1109
-        name: Windows 3.1 Protected Object Permission Change
-        satisfiedBy:
-          - pci-dss-4.0-1109
-      - id: pci-dss-4.0-req-1110
-        name: Windows 3.1 Policy changes
-        satisfiedBy:
-          - pci-dss-4.0-1110
-      - id: pci-dss-4.0-req-1111
-        name: Windows 3.1 Member Addition to a Security Local Group
-        satisfiedBy:
-          - pci-dss-4.0-1111
-      - id: pci-dss-4.0-req-1112
-        name: Windows 3.1 Local Security Group Member Removal
-        satisfiedBy:
-          - pci-dss-4.0-1112
-      - id: pci-dss-4.0-req-1113
-        name: Windows 3.1 Additions to Security Groups
-        satisfiedBy:
-          - pci-dss-4.0-1113
-      - id: pci-dss-4.0-req-1114
-        name: Windows 3.2 Access to critical files or specific directories
-        satisfiedBy:
-          - pci-dss-4.0-1114
-      - id: pci-dss-4.0-req-1115
-        name: Windows 3.2 Process Creation
-        satisfiedBy:
-          - pci-dss-4.0-1115
-      - id: pci-dss-4.0-req-1116
-        name: Windows 3.2 Cleaned Event Log
-        satisfiedBy:
-          - pci-dss-4.0-1116
-      - id: pci-dss-4.0-req-1117
-        name: Windows 3.3 Object Deletion
-        satisfiedBy:
-          - pci-dss-4.0-1117
-      - id: pci-dss-4.0-req-1118
-        name: Windows 3.3 Credential Access
-        satisfiedBy:
-          - pci-dss-4.0-1118
-      - id: pci-dss-4.0-req-1119
-        name: Windows 3.3 Audit File integrity Validation Failed
-        satisfiedBy:
-          - pci-dss-4.0-1119
-      - id: pci-dss-4.0-req-1120
-        name: Windows 3.4 Account Logon Success
-        satisfiedBy:
-          - pci-dss-4.0-1120
-      - id: pci-dss-4.0-req-1121
-        name: Windows 3.4 Account Authentication Using NTLM
-        satisfiedBy:
-          - pci-dss-4.0-1121
-      - id: pci-dss-4.0-req-1122
-        name: Windows 3.4 Kerberos Service Ticket
-        satisfiedBy:
-          - pci-dss-4.0-1122
-  - key: sec-803
-    name: Cardholder Data Protection During Transmission
-    requirements:
-      - id: pci-dss-4.0-req-1123
-        name: Windows 4.1 Protected Object Permission Change
-        satisfiedBy:
-          - pci-dss-4.0-1123
-      - id: pci-dss-4.0-req-1124
-        name: Windows 4.1 Policy changes
-        satisfiedBy:
-          - pci-dss-4.0-1124
-      - id: pci-dss-4.0-req-1125
-        name: Windows 4.1 Cleaned Event Log
-        satisfiedBy:
-          - pci-dss-4.0-1125
-      - id: pci-dss-4.0-req-1126
-        name: Windows 4.1 Member Addition to a Security Local Group
-        satisfiedBy:
-          - pci-dss-4.0-1126
-      - id: pci-dss-4.0-req-1127
-        name: Windows 4.1 Local Security Group Member Removal
-        satisfiedBy:
-          - pci-dss-4.0-1127
-      - id: pci-dss-4.0-req-1128
-        name: Windows 4.2 TLS protocol Errors
-        satisfiedBy:
-          - pci-dss-4.0-1128
-      - id: pci-dss-4.0-req-1129
-        name: Windows 4.2 Use of Elevated Privileges
-        satisfiedBy:
-          - pci-dss-4.0-1129
-      - id: pci-dss-4.0-req-1130
-        name: Windows 4.2 Scheduled Task Creation
-        satisfiedBy:
-          - pci-dss-4.0-1130
-  - key: sec-804
-    name: Malware and Phishing Protection
-    requirements:
-      - id: pci-dss-4.0-req-1131
-        name: Windows 5.1 Cleaned Event Log
-        satisfiedBy:
-          - pci-dss-4.0-1131
-      - id: pci-dss-4.0-req-1132
-        name: Windows 5.1 Policy changes
-        satisfiedBy:
-          - pci-dss-4.0-1132
-      - id: pci-dss-4.0-req-1133
-        name: Windows 5.3 Changes to Defender settings
-        satisfiedBy:
-          - pci-dss-4.0-1133
-      - id: pci-dss-4.0-req-1134
-        name: Windows 5.4 Process Creation
-        satisfiedBy:
-          - pci-dss-4.0-1134
-  - key: sec-805
-    name: Access Control Management
-    requirements:
-      - id: pci-dss-4.0-req-1147
-        name: Windows 7.1 Policy changes
-        satisfiedBy:
-          - pci-dss-4.0-1147
-      - id: pci-dss-4.0-req-1148
-        name: Windows 7.1 Cleaned Event Log
-        satisfiedBy:
-          - pci-dss-4.0-1148
-      - id: pci-dss-4.0-req-1149
-        name: Windows 7.2 User Accounts Created
-        satisfiedBy:
-          - pci-dss-4.0-1149
-      - id: pci-dss-4.0-req-1150
-        name: Windows 7.2 User Accounts Enabled
-        satisfiedBy:
-          - pci-dss-4.0-1150
-      - id: pci-dss-4.0-req-1151
-        name: Windows 7.2 Additions to Security Groups
-        satisfiedBy:
-          - pci-dss-4.0-1151
-      - id: pci-dss-4.0-req-1152
-        name: Windows 7.2 Member Addition to a Security Local Group
-        satisfiedBy:
-          - pci-dss-4.0-1152
-      - id: pci-dss-4.0-req-1153
-        name: Windows 7.2 Member Addition to a Security Local Group
-        satisfiedBy:
-          - pci-dss-4.0-1153
-      - id: pci-dss-4.0-req-1154
-        name: Windows 7.2 Local Security Group Member Removal
-        satisfiedBy:
-          - pci-dss-4.0-1154
-      - id: pci-dss-4.0-req-1155
-        name: Windows 7.2 Protected Object Permission Change
-        satisfiedBy:
-          - pci-dss-4.0-1155
-      - id: pci-dss-4.0-req-1156
-        name: Windows 7.2 Protected Object Access Operation
-        satisfiedBy:
-          - pci-dss-4.0-1156
-      - id: pci-dss-4.0-req-1157
-        name: Windows 7.2 Group Membership Enumerated
-        satisfiedBy:
-          - pci-dss-4.0-1157
-      - id: pci-dss-4.0-req-1158
-        name: Windows 7.3 Account Logon Success
-        satisfiedBy:
-          - pci-dss-4.0-1158
-      - id: pci-dss-4.0-req-1159
-        name: Windows 7.3 Account Logon Failure
-        satisfiedBy:
-          - pci-dss-4.0-1159
-      - id: pci-dss-4.0-req-1160
-        name: Windows 7.3 Account Authentication Using NTLM
-        satisfiedBy:
-          - pci-dss-4.0-1160
-      - id: pci-dss-4.0-req-1161
-        name: Windows 7.3 Kerberos ticket requests
-        satisfiedBy:
-          - pci-dss-4.0-1161
-  - key: sec-806
-    name: Secure Development and Maintenance of Systems and Software
-    requirements:
-      - id: pci-dss-4.0-req-1135
-        name: Windows 6.1 Special privileges assigned to new logon
-        satisfiedBy:
-          - pci-dss-4.0-1135
-      - id: pci-dss-4.0-req-1136
-        name: Windows 6.1 Process Creation
-        satisfiedBy:
-          - pci-dss-4.0-1136
-      - id: pci-dss-4.0-req-1137
-        name: Windows 6.1 Process Termination
-        satisfiedBy:
-          - pci-dss-4.0-1137
-      - id: pci-dss-4.0-req-1138
-        name: Windows 6.1 Protected Object Access Operation
-        satisfiedBy:
-          - pci-dss-4.0-1138
-      - id: pci-dss-4.0-req-1139
-        name: Windows 6.2 Cleaned Event Log
-        satisfiedBy:
-          - pci-dss-4.0-1139
-      - id: pci-dss-4.0-req-1140
-        name: Windows 6.2 User Accounts Created
-        satisfiedBy:
-          - pci-dss-4.0-1140
-      - id: pci-dss-4.0-req-1141
-        name: Windows 6.2 User Accounts Enabled
-        satisfiedBy:
-          - pci-dss-4.0-1141
-      - id: pci-dss-4.0-req-1142
-        name: Windows 6.3 Audit File integrity Validation Failed
-        satisfiedBy:
-          - pci-dss-4.0-1142
-      - id: pci-dss-4.0-req-1143
-        name: Windows Process Creation
-        satisfiedBy:
-          - pci-dss-4.0-1143
-      - id: pci-dss-4.0-req-1144
-        name: Windows 6.4 Additions to Security Groups
-        satisfiedBy:
-          - pci-dss-4.0-1144
-      - id: pci-dss-4.0-req-1145
-        name: Windows 6.4 Logins with explicit credentials
-        satisfiedBy:
-          - pci-dss-4.0-1145
-      - id: pci-dss-4.0-req-1146
-        name: Windows 6.5 Policy changes
-        satisfiedBy:
-          - pci-dss-4.0-1146
-  - key: sec-807
-    name: ' Implementation and maintenance of network security controls'
-    requirements:
-      - id: pci-dss-4.0-req-1053
-        name: Windows 1.2 Restoration of default security policies
-        satisfiedBy:
-          - pci-dss-4.0-1053
-      - id: pci-dss-4.0-req-1054
-        name: Windows 1.2 Registry Value Modification
-        satisfiedBy:
-          - pci-dss-4.0-1054
-      - id: pci-dss-4.0-req-1055
-        name: Windows 1.2 Access to critical files or specific directories
-        satisfiedBy:
-          - pci-dss-4.0-1055
-      - id: pci-dss-4.0-req-1056
-        name: Windows 1.1 Protected Object Permission Change
-        satisfiedBy:
-          - pci-dss-4.0-1056
-      - id: pci-dss-4.0-req-1057
-        name: Windows 1.2 Filtering Platform
-        satisfiedBy:
-          - pci-dss-4.0-1057
-      - id: pci-dss-4.0-req-1058
-        name: Windows 1.2 Kerberos ticket requests
-        satisfiedBy:
-          - pci-dss-4.0-1058
-      - id: pci-dss-4.0-req-1060
-        name: Windows 1.2 File System Transaction Status Changes
-        satisfiedBy:
-          - pci-dss-4.0-1060
-      - id: pci-dss-4.0-req-1061
-        name: Windows 1.2 Attempt to Access a Protected Object
-        satisfiedBy:
-          - pci-dss-4.0-1061
-      - id: pci-dss-4.0-req-1064
-        name: Windows 1.1 Firewall Exception List Changed
-        satisfiedBy:
-          - pci-dss-4.0-1064
-      - id: pci-dss-4.0-req-1065
-        name: Windows 1.1 Process Creation
-        satisfiedBy:
-          - pci-dss-4.0-1065
-      - id: pci-dss-4.0-req-1067
-        name: Windows 1.1 Cleaned Event Log
-        satisfiedBy:
-          - pci-dss-4.0-1067
-      - id: pci-dss-4.0-req-1068
-        name: Windows 1.1 Policy changes
-        satisfiedBy:
-          - pci-dss-4.0-1068
-      - id: pci-dss-4.0-req-1069
-        name: Windows 1.1 User Accounts Created
-        satisfiedBy:
-          - pci-dss-4.0-1069
-      - id: pci-dss-4.0-req-1070
-        name: Windows 1.1 User Accounts Enabled
-        satisfiedBy:
-          - pci-dss-4.0-1070
-      - id: pci-dss-4.0-req-1071
-        name: Windows 1.1 User Accounts Deleted
-        satisfiedBy:
-          - pci-dss-4.0-1071
-      - id: pci-dss-4.0-req-1072
-        name: Windows 1.1 Member Addition to a Security Local Group
-        satisfiedBy:
-          - pci-dss-4.0-1072
-      - id: pci-dss-4.0-req-1073
-        name: Windows 1.1 Local Security Group Member Removal
-        satisfiedBy:
-          - pci-dss-4.0-1073
-      - id: pci-dss-4.0-req-1075
-        name: Windows 1.1 Special privileges assigned to new logon
-        satisfiedBy:
-          - pci-dss-4.0-1075
-      - id: pci-dss-4.0-req-1076
-        name: Windows 1.1 Logins with explicit credentials
-        satisfiedBy:
-          - pci-dss-4.0-1076
-      - id: pci-dss-4.0-req-1079
-        name: Windows 1.1 Account Logon Success
-        satisfiedBy:
-          - pci-dss-4.0-1079
-      - id: pci-dss-4.0-req-1080
-        name: Windows 1.1 Account Logon Failure
-        satisfiedBy:
-          - pci-dss-4.0-1080
-      - id: pci-dss-4.0-req-1083
-        name: Windows 1.4 Connections and Port Assignments
-        satisfiedBy:
-          - pci-dss-4.0-1083
-      - id: pci-dss-4.0-req-1085
-        name: Windows 1.4 Account Locks
-        satisfiedBy:
-          - pci-dss-4.0-1085
-      - id: pci-dss-4.0-req-1087
-        name: Windows 1.4 User Accounts Enumeration
-        satisfiedBy:
-          - pci-dss-4.0-1087
-      - id: pci-dss-4.0-req-1091
-        name: Windows 1.5 Service Installed
-        satisfiedBy:
-          - pci-dss-4.0-1091
-      - id: pci-dss-4.0-req-1095
-        name: Windows 1.5  Additions to Security Groups
-        satisfiedBy:
-          - pci-dss-4.0-1095
-  - key: sec-808
-    name: 8. Authentication, Identification and Access Control
-    requirements:
-      - id: pci-dss-4.0-req-1162
-        name: Windows 8.2 User Accounts Created
-        satisfiedBy:
-          - pci-dss-4.0-1162
-      - id: pci-dss-4.0-req-1163
-        name: Windows 8.2 User Accounts Enabled
-        satisfiedBy:
-          - pci-dss-4.0-1163
-      - id: pci-dss-4.0-req-1164
-        name: Windows 8.2 Account Logon Success
-        satisfiedBy:
-          - pci-dss-4.0-1164
-      - id: pci-dss-4.0-req-1165
-        name: Windows 8.2 Account Logoff
-        satisfiedBy:
-          - pci-dss-4.0-1165
-      - id: pci-dss-4.0-req-1166
-        name: Windows 8.2 Logins with explicit credentials
-        satisfiedBy:
-          - pci-dss-4.0-1166
-      - id: pci-dss-4.0-req-1167
-        name: Windows 8.2 Special privileges assigned to new logon
-        satisfiedBy:
-          - pci-dss-4.0-1167
-      - id: pci-dss-4.0-req-1168
-        name: Windows 8.2 User Accounts Deleted
-        satisfiedBy:
-          - pci-dss-4.0-1168
-      - id: pci-dss-4.0-req-1169
-        name: Windows 8.2 User Account Attributes Changes
-        satisfiedBy:
-          - pci-dss-4.0-1169
-      - id: pci-dss-4.0-req-1171
-        name: Windows 8.3 Account Authentication Using NTLM
-        satisfiedBy:
-          - pci-dss-4.0-1171
-      - id: pci-dss-4.0-req-1172
-        name: Windows 8.3 Kerberos ticket requests
-        satisfiedBy:
-          - pci-dss-4.0-1172
-      - id: pci-dss-4.0-req-1173
-        name: Windows 8.3 Account Locks
-        satisfiedBy:
-          - pci-dss-4.0-1173
-  - key: sec-809
-    name: 10. Cardholder Data Recording and Monitoring
-    requirements:
-      - id: pci-dss-4.0-req-1174
-        name: Windows 10.2 Event Logging Service Shut Down
-        satisfiedBy:
-          - pci-dss-4.0-1174
-      - id: pci-dss-4.0-req-1175
-        name: Windows 10.2 Cleaned Event Log
-        satisfiedBy:
-          - pci-dss-4.0-1175
-      - id: pci-dss-4.0-req-1176
-        name: Windows 10.2 Policy changes
-        satisfiedBy:
-          - pci-dss-4.0-1176
-      - id: pci-dss-4.0-req-1177
-        name: Windows 10.2 Account Logon Failure
-        satisfiedBy:
-          - pci-dss-4.0-1177
-      - id: pci-dss-4.0-req-1178
-        name: Windows 10.2 Special privileges assigned to new logon
-        satisfiedBy:
-          - pci-dss-4.0-1178
-      - id: pci-dss-4.0-req-1179
-        name: Windows 10.2 User Accounts Created
-        satisfiedBy:
-          - pci-dss-4.0-1179
-      - id: pci-dss-4.0-req-1180
-        name: Windows 10.2 Additions to Security Groups
-        satisfiedBy:
-          - pci-dss-4.0-1180
-      - id: pci-dss-4.0-req-1181
-        name: Windows 10.2 Access to critical files or specific directories
-        satisfiedBy:
-          - pci-dss-4.0-1181
-      - id: pci-dss-4.0-req-1182
-        name: Windows 10.2 Protected Object Permission Change
-        satisfiedBy:
-          - pci-dss-4.0-1182
-      - id: pci-dss-4.0-req-1185
-        name: Windows 10.2 Account Authentication Using NTLM
-        satisfiedBy:
-          - pci-dss-4.0-1185
-      - id: pci-dss-4.0-req-1186
-        name: Windows 10.2 User Accounts Enabled
-        satisfiedBy:
-          - pci-dss-4.0-1186
-      - id: pci-dss-4.0-req-1187
-        name: Windows 10.2 User Accounts Deleted
-        satisfiedBy:
-          - pci-dss-4.0-1187
-      - id: pci-dss-4.0-req-1188
-        name: Windows 10.2 User Account Attributes Changes
-        satisfiedBy:
-          - pci-dss-4.0-1188
-      - id: pci-dss-4.0-req-1189
-        name: Windows 10.2 Account Locks
-        satisfiedBy:
-          - pci-dss-4.0-1189
-      - id: pci-dss-4.0-req-1190
-        name: Windows 10.2 Unlocked Account
-        satisfiedBy:
-          - pci-dss-4.0-1190
-      - id: pci-dss-4.0-req-1193
-        name: Windows 10.6 System Time Settings Changes
-        satisfiedBy:
-          - pci-dss-4.0-1193
-  - key: sec-810
-    name: 11. Network Security and Protection
-    requirements:
-      - id: pci-dss-4.0-req-1195
-        name: Windows 11.1 Policy changes
-        satisfiedBy:
-          - pci-dss-4.0-1195
-      - id: pci-dss-4.0-req-1196
-        name: Windows 11.1 Cleaned Event Log
-        satisfiedBy:
-          - pci-dss-4.0-1196
-      - id: pci-dss-4.0-req-1197
-        name: Windows 11.1 Additions to Security Groups
-        satisfiedBy:
-          - pci-dss-4.0-1197
-      - id: pci-dss-4.0-req-1198
-        name: Windows 11.1 Security Group Member Removal
-        satisfiedBy:
-          - pci-dss-4.0-1198
-      - id: pci-dss-4.0-req-1199
-        name: Windows 11.1 Member Addition to a Security Local Group
-        satisfiedBy:
-          - pci-dss-4.0-1199
-      - id: pci-dss-4.0-req-1200
-        name: Windows 11.1 Local Security Group Member Removal
-        satisfiedBy:
-          - pci-dss-4.0-1200
-      - id: pci-dss-4.0-req-1201
-        name: Windows 11.2 Event Logging Service Shut Down
-        satisfiedBy:
-          - pci-dss-4.0-1201
-      - id: pci-dss-4.0-req-1202
-        name: Windows 11.3 Error Reporting
-        satisfiedBy:
-          - pci-dss-4.0-1202
-      - id: pci-dss-4.0-req-1203
-        name: Windows 11.3 Account Logon Success
-        satisfiedBy:
-          - pci-dss-4.0-1203
-      - id: pci-dss-4.0-req-1204
-        name: Windows 11.3 Account Logon Failure
-        satisfiedBy:
-          - pci-dss-4.0-1204
-      - id: pci-dss-4.0-req-1205
-        name: Windows 11.3 Installation of Services
-        satisfiedBy:
-          - pci-dss-4.0-1205
-      - id: pci-dss-4.0-req-1206
-        name: Windows 11.3 Process Creation
-        satisfiedBy:
-          - pci-dss-4.0-1206
-      - id: pci-dss-4.0-req-1207
-        name: Windows 11.4 Account Locks
-        satisfiedBy:
-          - pci-dss-4.0-1207
-      - id: pci-dss-4.0-req-1208
-        name: Windows 11.5 Access to critical files or specific directories
-        satisfiedBy:
-          - pci-dss-4.0-1208
-      - id: pci-dss-4.0-req-1209
-        name: Windows 11.5 Attempt to Access a Protected Object
-        satisfiedBy:
-          - pci-dss-4.0-1209
-  - key: sec-811
-    name: 12. Security and Risk Management Policy
-    requirements:
-      - id: pci-dss-4.0-req-1210
-        name: Windows 12.1 Member Addition to a Security Local Group
-        satisfiedBy:
-          - pci-dss-4.0-1210
-      - id: pci-dss-4.0-req-1211
-        name: Windows 12.1 Cleaned Event Log
-        satisfiedBy:
-          - pci-dss-4.0-1211
-      - id: pci-dss-4.0-req-1212
-        name: Windows 12.1 Access to critical files or specific directories
-        satisfiedBy:
-          - pci-dss-4.0-1212
-      - id: pci-dss-4.0-req-1213
-        name: Windows 12.1 Attempt to Access a Protected Object
-        satisfiedBy:
-          - pci-dss-4.0-1213
-      - id: pci-dss-4.0-req-1214
-        name: Windows 12.2 Process Creation
-        satisfiedBy:
-          - pci-dss-4.0-1214
-      - id: pci-dss-4.0-req-1215
-        name: Windows 12.3 Process Termination
-        satisfiedBy:
-          - pci-dss-4.0-1215
-      - id: pci-dss-4.0-req-1216
-        name: Windows 12.4 User Accounts Created
-        satisfiedBy:
-          - pci-dss-4.0-1216
-      - id: pci-dss-4.0-req-1217
-        name: Windows 12.4 User Accounts Enabled
-        satisfiedBy:
-          - pci-dss-4.0-1217
-      - id: pci-dss-4.0-req-1219
-        name: Windows 12.6 Registry Value Modification
-        satisfiedBy:
-          - pci-dss-4.0-1219
-      - id: pci-dss-4.0-req-1220
-        name: Windows 12.6 Scheduled Task Creation
-        satisfiedBy:
-          - pci-dss-4.0-1220
-      - id: pci-dss-4.0-req-1221
-        name: Windows 12.10 Logins with explicit credentials
-        satisfiedBy:
-          - pci-dss-4.0-1221
-  - key: sec-812
-    name: A. Security and Separation in Multi-Tenant Environments
-    requirements:
-      - id: pci-dss-4.0-req-1222
-        name: Windows A1 Password Reset Attempts
-        satisfiedBy:
-          - pci-dss-4.0-1222
-      - id: pci-dss-4.0-req-1223
-        name: Windows A1 Account Logoff
-        satisfiedBy:
-          - pci-dss-4.0-1223
-      - id: pci-dss-4.0-req-1224
-        name: Windows A1 User Account Logoff
-        satisfiedBy:
-          - pci-dss-4.0-1224
-      - id: pci-dss-4.0-req-1225
-        name: Windows A1 Protected Object Permission Change
-        satisfiedBy:
-          - pci-dss-4.0-1225
-      - id: pci-dss-4.0-req-1226
-        name: Windows A1 Attempt to Access a Protected Object
-        satisfiedBy:
-          - pci-dss-4.0-1226
-      - id: pci-dss-4.0-req-1227
-        name: Windows A1 Network Access to shared resource
-        satisfiedBy:
-          - pci-dss-4.0-1227
-      - id: pci-dss-4.0-req-1228
-        name: Windows A1 User Account Attributes Changes
-        satisfiedBy:
-          - pci-dss-4.0-1228
-      - id: pci-dss-4.0-req-1229
-        name: Windows A1 Cleaned Event Log
-        satisfiedBy:
-          - pci-dss-4.0-1229
-      - id: pci-dss-4.0-req-1230
-        name: Windows A1 Logins with explicit credentials
-        satisfiedBy:
-          - pci-dss-4.0-1230
-      - id: pci-dss-4.0-req-1231
-        name: Windows A1 User Accounts Created
-        satisfiedBy:
-          - pci-dss-4.0-1231
+- key: req-1
+  name: 'Requirement 1: Install and maintain network security controls'
+  requirements:
+  - id: '1.1.1'
+    name: 'Network security policies and procedures are documented, current and known'
+    satisfiedBy: [sc-1]
+  - id: '1.1.2'
+    name: 'Roles and responsibilities for network security controls are documented and assigned'
+    satisfiedBy: [sc-1, ps-9]
+  - id: '1.2.1'
+    name: 'Configuration standards for network security control rulesets are defined and maintained'
+    satisfiedBy: [cm-2, cm-7]
+  - id: '1.2.2'
+    name: 'Changes to network connections and security control configurations follow change control'
+    satisfiedBy: [cm-3]
+  - id: '1.2.3'
+    name: 'An accurate network diagram is kept'
+    satisfiedBy: [pl-8, cm-8]
+  - id: '1.2.4'
+    name: 'An accurate data-flow diagram for account data is kept'
+    satisfiedBy: [cm-12, pl-8]
+  - id: '1.2.5'
+    name: 'Allowed services, protocols and ports are identified, approved and justified'
+    satisfiedBy: [cm-7]
+  - id: '1.2.6'
+    name: 'Services, protocols and ports judged insecure have extra security features'
+    satisfiedBy: [cm-7, sc-8]
+  - id: '1.2.7'
+    name: 'Network security control configurations are reviewed every six months'
+    satisfiedBy: [cm-2, cm-7]
+  - id: '1.2.8'
+    name: 'Network security control configuration files are protected and match the running setup'
+    satisfiedBy: [cm-5, cm-2]
+  - id: '1.3.1'
+    name: 'Inbound traffic to the cardholder data environment is limited to what is needed'
+    satisfiedBy: [sc-7.5]
+  - id: '1.3.2'
+    name: 'Outbound traffic from the cardholder data environment is limited to what is needed'
+    satisfiedBy: [sc-7.5]
+  - id: '1.3.3'
+    name: 'Wireless networks are separated from the cardholder data environment by security controls'
+    satisfiedBy: [sc-7.5, ac-18]
+  - id: '1.4.1'
+    name: 'Network security controls sit between trusted and untrusted networks'
+    satisfiedBy: [sc-7]
+  - id: '1.4.2'
+    name: 'Inbound traffic from untrusted to trusted networks is limited'
+    satisfiedBy: [sc-7.5]
+  - id: '1.4.3'
+    name: 'Anti-spoofing measures block forged source addresses'
+    satisfiedBy: [cm-2]
+  - id: '1.4.4'
+    name: 'Systems storing cardholder data cannot be reached directly from untrusted networks'
+    satisfiedBy: [sc-32, sc-7.5]
+  - id: '1.4.5'
+    name: 'Internal IP addresses and routing details are disclosed only to authorized parties'
+    satisfiedBy: [cm-2]
+  - id: '1.5.1'
+    name: 'Devices that connect to both untrusted networks and the cardholder data environment are secured'
+    satisfiedBy: [ac-19, ac-20, sc-7.7, cm-6, sc-7.12]
+- key: req-2
+  name: 'Requirement 2: Apply secure configurations to all system components'
+  requirements:
+  - id: '2.1.1'
+    name: 'Secure configuration policies and procedures are documented, current and known'
+    satisfiedBy: [cm-1]
+  - id: '2.1.2'
+    name: 'Roles and responsibilities for secure configuration are documented and assigned'
+    satisfiedBy: [cm-1, ps-9]
+  - id: '2.2.1'
+    name: 'Configuration standards for system components are developed, applied and kept current'
+    satisfiedBy: [cm-2, cm-6]
+  - id: '2.2.2'
+    name: 'Vendor default accounts are disabled, removed or given new passwords'
+    satisfiedBy: [ac-2, ia-5]
+  - id: '2.2.3'
+    name: 'Primary functions needing different security levels are kept apart or managed safely'
+    satisfiedBy: [sc-32, sc-3]
+  - id: '2.2.4'
+    name: 'Only needed services, protocols, daemons and functions are enabled'
+    satisfiedBy: [cm-7]
+  - id: '2.2.5'
+    name: 'Insecure services in use are justified and given extra protection'
+    satisfiedBy: [cm-7, sc-8]
+  - id: '2.2.6'
+    name: 'System security parameters are set to prevent misuse'
+    satisfiedBy: [cm-6]
+  - id: '2.2.7'
+    name: 'Non-console administrative access is encrypted with strong cryptography'
+    satisfiedBy: [sc-8, sc-13, sc-8.1]
+  - id: '2.3.1'
+    name: 'Wireless vendor defaults are changed at installation'
+    satisfiedBy: [ac-18, cm-2]
+  - id: '2.3.2'
+    name: 'Wireless encryption keys are changed when staff who know them leave or compromise is suspected'
+    satisfiedBy: [ac-18, sc-12]
+- key: req-3
+  name: 'Requirement 3: Protect stored account data'
+  requirements:
+  - id: '3.1.1'
+    name: 'Stored account data protection policies and procedures are documented, current and known'
+    satisfiedBy: [sc-1, mp-1]
+  - id: '3.1.2'
+    name: 'Roles and responsibilities for protecting stored account data are documented and assigned'
+    satisfiedBy: [sc-1, ps-9]
+  - id: '3.2.1'
+    name: 'Account data storage is kept to a minimum through retention and disposal rules'
+    satisfiedBy: [si-12, cm-12, mp-6]
+  - id: '3.3.1'
+    name: 'Sensitive authentication data is not kept after authorization'
+    satisfiedBy: [si-12, cm-12]
+  - id: '3.3.1.1'
+    name: 'Full track data is not kept after authorization'
+    satisfiedBy: [si-12]
+  - id: '3.3.1.2'
+    name: 'Card verification codes are not kept after authorization'
+    satisfiedBy: [si-12]
+  - id: '3.3.1.3'
+    name: 'PINs and PIN blocks are not kept after authorization'
+    satisfiedBy: [si-12]
+  - id: '3.3.2'
+    name: 'Sensitive authentication data held before authorization completes is encrypted'
+    satisfiedBy: [sc-28, sc-13]
+  - id: '3.3.3'
+    name: 'Issuers keep sensitive authentication data only for a real business need and protect it'
+    satisfiedBy: [si-12, sc-28]
+  - id: '3.4.1'
+    name: 'PAN is masked on screen unless a wider view is needed for the job'
+    satisfiedBy: [si-15]
+  - id: '3.4.2'
+    name: 'Remote-access technology stops PAN from being copied or moved without authorization'
+    satisfiedBy: [ac-20, sc-41]
+  - id: '3.5.1'
+    name: 'PAN is made unreadable wherever it is stored'
+    satisfiedBy: [sc-28, sc-13]
+  - id: '3.5.1.1'
+    name: 'Hashes that make PAN unreadable are keyed cryptographic hashes'
+    satisfiedBy: [sc-13, sc-28]
+  - id: '3.5.1.2'
+    name: 'Disk or partition encryption alone is used only for removable media or with added protection'
+    satisfiedBy: [sc-28, sc-13]
+  - id: '3.5.1.3'
+    name: 'Access to disk or partition encryption is managed apart from operating system logins'
+    satisfiedBy: [sc-28, sc-12]
+  - id: '3.6.1'
+    name: 'Procedures protect keys for stored account data from disclosure and misuse'
+    satisfiedBy: [sc-12]
+  - id: '3.6.1.1'
+    name: 'Service providers document their cryptographic architecture'
+    satisfiedBy: [sc-12, pl-8]
+  - id: '3.6.1.2'
+    name: 'Secret and private keys are stored only in approved protected forms'
+    satisfiedBy: [sc-12, sc-28]
+  - id: '3.6.1.3'
+    name: 'Cleartext key components are available to as few custodians as possible'
+    satisfiedBy: [sc-12]
+  - id: '3.6.1.4'
+    name: 'Keys are stored in as few places as possible'
+    satisfiedBy: [sc-12]
+  - id: '3.7.1'
+    name: 'Key management covers generating strong keys'
+    satisfiedBy: [sc-12]
+  - id: '3.7.2'
+    name: 'Key management covers distributing keys securely'
+    satisfiedBy: [sc-12]
+  - id: '3.7.3'
+    name: 'Key management covers storing keys securely'
+    satisfiedBy: [sc-12]
+  - id: '3.7.4'
+    name: 'Keys are changed at the end of their cryptoperiod'
+    satisfiedBy: [sc-12]
+  - id: '3.7.5'
+    name: 'Keys are retired or replaced when weakened, compromised or no longer needed'
+    satisfiedBy: [sc-12]
+  - id: '3.7.6'
+    name: 'Manual cleartext key operations use split knowledge and dual control'
+    satisfiedBy: [sc-12, ac-5]
+  - id: '3.7.7'
+    name: 'Unauthorized key substitution is prevented'
+    satisfiedBy: [sc-12]
+  - id: '3.7.8'
+    name: 'Key custodians formally accept their duties'
+    satisfiedBy: [sc-12, ps-6]
+  - id: '3.7.9'
+    name: 'Service providers give customers guidance on handling shared keys'
+    satisfiedBy: [sc-12, sa-5]
+- key: req-4
+  name: 'Requirement 4: Protect cardholder data with strong cryptography when it crosses open, public networks'
+  requirements:
+  - id: '4.1.1'
+    name: 'Policies and procedures for protecting data in transit are documented, current and known'
+    satisfiedBy: [sc-1]
+  - id: '4.1.2'
+    name: 'Roles and responsibilities for protecting data in transit are documented and assigned'
+    satisfiedBy: [sc-1, ps-9]
+  - id: '4.2.1'
+    name: 'Strong cryptography protects PAN sent over open, public networks'
+    satisfiedBy: [sc-8, sc-13, sc-17]
+  - id: '4.2.1.1'
+    name: 'An inventory of trusted keys and certificates is kept'
+    satisfiedBy: [sc-12, sc-17]
+  - id: '4.2.1.2'
+    name: 'Wireless networks carrying PAN or linked to the cardholder data environment use strong cryptography'
+    satisfiedBy: [ac-18, sc-40, ac-18.1]
+  - id: '4.2.2'
+    name: 'PAN sent through end-user messaging is protected with strong cryptography'
+    satisfiedBy: [sc-8, sc-13]
+- key: req-5
+  name: 'Requirement 5: Protect all systems and networks from malicious software'
+  requirements:
+  - id: '5.1.1'
+    name: 'Anti-malware policies and procedures are documented, current and known'
+    satisfiedBy: [si-1]
+  - id: '5.1.2'
+    name: 'Roles and responsibilities for anti-malware are documented and assigned'
+    satisfiedBy: [si-1, ps-9]
+  - id: '5.2.1'
+    name: 'Anti-malware is deployed on every system component at risk'
+    satisfiedBy: [si-3]
+  - id: '5.2.2'
+    name: 'Anti-malware detects known malware and removes, blocks or contains it'
+    satisfiedBy: [si-3]
+  - id: '5.2.3'
+    name: 'Systems judged not at risk from malware are re-evaluated periodically'
+    satisfiedBy: [ra-3]
+  - id: '5.2.3.1'
+    name: 'How often not-at-risk systems are re-evaluated is set by targeted risk analysis'
+    satisfiedBy: [ra-3]
+  - id: '5.3.1'
+    name: 'Anti-malware is kept current through automatic updates'
+    satisfiedBy: [si-3]
+  - id: '5.3.2'
+    name: 'Anti-malware runs periodic and real-time scans or continuous behavioral analysis'
+    satisfiedBy: [si-3]
+  - id: '5.3.2.1'
+    name: 'Periodic malware scan frequency is set by targeted risk analysis'
+    satisfiedBy: [ra-3]
+  - id: '5.3.3'
+    name: 'Removable media is scanned for malware when connected'
+    satisfiedBy: [si-3, mp-7]
+  - id: '5.3.4'
+    name: 'Anti-malware audit logs are enabled and retained'
+    satisfiedBy: [si-3, au-11]
+  - id: '5.3.5'
+    name: 'Users cannot turn off or change anti-malware without authorization'
+    satisfiedBy: [si-3, cm-6]
+  - id: '5.4.1'
+    name: 'Processes and automated tools detect and protect staff against phishing'
+    satisfiedBy: [si-8]
+- key: req-6
+  name: 'Requirement 6: Develop and maintain secure systems and software'
+  requirements:
+  - id: '6.1.1'
+    name: 'Secure systems and software policies and procedures are documented, current and known'
+    satisfiedBy: [sa-1, si-1]
+  - id: '6.1.2'
+    name: 'Roles and responsibilities for secure systems and software are documented and assigned'
+    satisfiedBy: [sa-1, ps-9]
+  - id: '6.2.1'
+    name: 'Bespoke and custom software is developed securely'
+    satisfiedBy: [sa-3, sa-8, sa-15]
+  - id: '6.2.2'
+    name: 'Software developers get secure development training every year'
+    satisfiedBy: [at-3]
+  - id: '6.2.3'
+    name: 'Bespoke and custom software is reviewed for vulnerabilities before release'
+    satisfiedBy: [sa-11]
+  - id: '6.2.3.1'
+    name: 'Manual code reviews are done by qualified people other than the author and approved'
+    satisfiedBy: [sa-11]
+  - id: '6.2.4'
+    name: 'Coding techniques prevent or reduce common software attacks'
+    satisfiedBy: [sa-8, sa-11, si-10]
+  - id: '6.3.1'
+    name: 'Security vulnerabilities are identified and ranked by risk'
+    satisfiedBy: [ra-5, si-5]
+  - id: '6.3.2'
+    name: 'An inventory of bespoke, custom and third-party software components is kept'
+    satisfiedBy: [cm-8]
+  - id: '6.3.3'
+    name: 'Security patches are installed, critical ones within one month'
+    satisfiedBy: [si-2]
+  - id: '6.4.1'
+    name: 'Public-facing web applications are protected from new threats by assessment or a web firewall'
+    satisfiedBy: [ra-5, si-4]
+  - id: '6.4.2'
+    name: 'An automated solution detects and blocks attacks on public-facing web applications'
+    satisfiedBy: [sc-7, si-4]
+  - id: '6.4.3'
+    name: 'Scripts on payment pages are authorized, integrity-checked and inventoried'
+    satisfiedBy: [sc-18, cm-8]
+  - id: '6.5.1'
+    name: 'Changes to production systems follow established change procedures'
+    satisfiedBy: [cm-3, cm-4]
+  - id: '6.5.2'
+    name: 'PCI DSS controls are confirmed in place after a significant change'
+    satisfiedBy: [cm-4, ca-2]
+  - id: '6.5.3'
+    name: 'Pre-production environments are kept apart from production'
+    satisfiedBy: [sc-32, cm-4]
+  - id: '6.5.4'
+    name: 'Production and pre-production duties are separated'
+    satisfiedBy: [ac-5, cm-5]
+  - id: '6.5.5'
+    name: 'Live PANs are not used in pre-production'
+    satisfiedBy: [pm-25]
+  - id: '6.5.6'
+    name: 'Test data and test accounts are removed before going live'
+    satisfiedBy: [sa-3, cm-4]
+- key: req-7
+  name: 'Requirement 7: Restrict access to system components and cardholder data to business need to know'
+  requirements:
+  - id: '7.1.1'
+    name: 'Access control policies and procedures are documented, current and known'
+    satisfiedBy: [ac-1]
+  - id: '7.1.2'
+    name: 'Roles and responsibilities for access control are documented and assigned'
+    satisfiedBy: [ac-1, ps-9]
+  - id: '7.2.1'
+    name: 'An access control model is defined'
+    satisfiedBy: [ac-1, ac-5]
+  - id: '7.2.2'
+    name: 'Access is granted by job function with least privilege'
+    satisfiedBy: [ac-2, ac-6]
+  - id: '7.2.3'
+    name: 'Required privileges are approved by authorized personnel'
+    satisfiedBy: [ac-1]
+  - id: '7.2.4'
+    name: 'User accounts and their privileges are reviewed every six months'
+    satisfiedBy: [ac-6.7]
+  - id: '7.2.5'
+    name: 'Application and system accounts get only the access they need'
+    satisfiedBy: [ac-2, ac-6]
+  - id: '7.2.5.1'
+    name: 'Access held by application and system accounts is reviewed periodically'
+    satisfiedBy: [ac-6.7]
+  - id: '7.2.6'
+    name: 'User access to query stored cardholder data is restricted'
+    satisfiedBy: [ac-3]
+  - id: '7.3.1'
+    name: 'An access control system limits access by need to know'
+    satisfiedBy: [ac-3]
+  - id: '7.3.2'
+    name: 'The access control system enforces the permissions assigned'
+    satisfiedBy: [ac-3, ac-6]
+  - id: '7.3.3'
+    name: 'The access control system denies everything by default'
+    satisfiedBy: [ac-1]
+- key: req-8
+  name: 'Requirement 8: Identify users and authenticate access to system components'
+  requirements:
+  - id: '8.1.1'
+    name: 'Identification and authentication policies and procedures are documented, current and known'
+    satisfiedBy: [ia-1, ac-1]
+  - id: '8.1.2'
+    name: 'Roles and responsibilities for identification and authentication are documented and assigned'
+    satisfiedBy: [ia-1, ps-9]
+  - id: '8.2.1'
+    name: 'Every user has a unique ID'
+    satisfiedBy: [ia-2, ia-4, ia-2.5]
+  - id: '8.2.2'
+    name: 'Shared or generic accounts are used only by exception and kept under control'
+    satisfiedBy: [ia-2.5]
+  - id: '8.2.3'
+    name: 'Service providers use unique credentials for each customer site'
+    satisfiedBy: [ia-5.1]
+  - id: '8.2.4'
+    name: 'Adding, removing and changing user IDs and credentials is authorized and controlled'
+    satisfiedBy: [ac-2, ia-4, ia-5]
+  - id: '8.2.5'
+    name: 'Access for people who leave is revoked immediately'
+    satisfiedBy: [ps-4, ac-2.3]
+  - id: '8.2.6'
+    name: 'Inactive user accounts are removed or disabled within 90 days'
+    satisfiedBy: [ac-2.3]
+  - id: '8.2.7'
+    name: 'Third-party remote access accounts are enabled only when needed and are watched'
+    satisfiedBy: [ac-2, ac-17, ma-4]
+  - id: '8.2.8'
+    name: 'Users must log in again after 15 minutes of idle time'
+    satisfiedBy: [ia-11]
+  - id: '8.3.1'
+    name: 'All user access is authenticated with at least one factor'
+    satisfiedBy: [ia-2]
+  - id: '8.3.2'
+    name: 'Authentication factors are unreadable in transit and in storage'
+    satisfiedBy: [ia-5.1, sc-8, sc-13]
+  - id: '8.3.3'
+    name: 'Identity is checked before an authentication factor is changed'
+    satisfiedBy: [ia-12]
+  - id: '8.3.4'
+    name: 'Failed authentication attempts are limited and lock the account'
+    satisfiedBy: [ac-7]
+  - id: '8.3.5'
+    name: 'First-use and reset passwords are unique and changed after first use'
+    satisfiedBy: [ia-5.1]
+  - id: '8.3.6'
+    name: 'Passwords meet minimum length and complexity'
+    satisfiedBy: [ia-5.1]
+  - id: '8.3.7'
+    name: 'New passwords cannot repeat any of the last four'
+    satisfiedBy: [ia-5.1]
+  - id: '8.3.8'
+    name: 'Authentication policies and procedures are documented and shared with all users'
+    satisfiedBy: [ia-1]
+  - id: '8.3.9'
+    name: 'Single-factor passwords are changed every 90 days or access is analyzed dynamically'
+    satisfiedBy: [ia-5.1]
+  - id: '8.3.10'
+    name: 'Service providers give customers guidance on password use'
+    satisfiedBy: [sa-5]
+  - id: '8.3.10.1'
+    name: 'Service provider customer passwords are changed every 90 days or analyzed dynamically'
+    satisfiedBy: [ia-5.1]
+  - id: '8.3.11'
+    name: 'Tokens, smart cards and certificates belong to one user and are not shared'
+    satisfiedBy: [pl-4]
+  - id: '8.4.1'
+    name: 'Multi-factor authentication protects non-console administrative access into the cardholder data environment'
+    satisfiedBy: [ia-2.1]
+  - id: '8.4.2'
+    name: 'Multi-factor authentication protects all non-console access into the cardholder data environment'
+    satisfiedBy: [ia-2.1, ia-2.2]
+  - id: '8.4.3'
+    name: 'Multi-factor authentication protects all remote network access from outside'
+    satisfiedBy: [ia-2.1, ia-2.2]
+  - id: '8.5.1'
+    name: 'Multi-factor authentication resists replay and bypass and needs every factor'
+    satisfiedBy: [ia-2.8, ia-2.1, ia-2.2]
+  - id: '8.6.1'
+    name: 'Interactive login with application and system accounts is controlled'
+    satisfiedBy: [ac-2, ia-2]
+  - id: '8.6.2'
+    name: 'Application and system account passwords are not hard-coded'
+    satisfiedBy: [sa-11, sa-15]
+  - id: '8.6.3'
+    name: 'Application and system account passwords are protected, complex and rotated'
+    satisfiedBy: [ia-5.1]
+- key: req-9
+  name: 'Requirement 9: Restrict physical access to cardholder data'
+  requirements:
+  - id: '9.1.1'
+    name: 'Physical security policies and procedures are documented, current and known'
+    satisfiedBy: [pe-1, mp-1]
+  - id: '9.1.2'
+    name: 'Roles and responsibilities for physical security are documented and assigned'
+    satisfiedBy: [pe-1, ps-9]
+  - id: '9.2.1'
+    name: 'Facility entry controls limit physical access to systems in the cardholder data environment'
+    satisfiedBy: [pe-2, pe-3]
+  - id: '9.2.1.1'
+    name: 'Entry to sensitive areas is watched by camera or access control and records are kept'
+    satisfiedBy: [pe-6]
+  - id: '9.2.2'
+    name: 'Publicly reachable network jacks are restricted'
+    satisfiedBy: [pe-4, ia-3]
+  - id: '9.2.3'
+    name: 'Physical access to wireless access points, network hardware and telecom lines is restricted'
+    satisfiedBy: [pe-4, pe-3]
+  - id: '9.2.4'
+    name: 'Consoles in sensitive areas are locked when not in use'
+    satisfiedBy: [pe-3]
+  - id: '9.3.1'
+    name: 'Staff physical access to the cardholder data environment is authorized and managed'
+    satisfiedBy: [pe-2]
+  - id: '9.3.1.1'
+    name: 'Staff access to sensitive areas is authorized by role and removed when they leave'
+    satisfiedBy: [pe-2, pe-3, ps-4]
+  - id: '9.3.2'
+    name: 'Visitor access to the cardholder data environment is authorized and managed'
+    satisfiedBy: [pe-2, pe-3]
+  - id: '9.3.3'
+    name: 'Visitor badges are handed back or switched off when visitors leave or the badge expires'
+    satisfiedBy: [pe-3]
+  - id: '9.3.4'
+    name: 'A visitor log is kept and retained'
+    satisfiedBy: [pe-8]
+  - id: '9.4.1'
+    name: 'Media holding cardholder data is physically secured'
+    satisfiedBy: [mp-4]
+  - id: '9.4.1.1'
+    name: 'Offline backup media holding cardholder data is stored securely'
+    satisfiedBy: [mp-4]
+  - id: '9.4.1.2'
+    name: 'Security of offline backup locations is reviewed every year'
+    satisfiedBy: [cp-6, mp-4]
+  - id: '9.4.2'
+    name: 'Media holding cardholder data is classified by sensitivity'
+    satisfiedBy: [ra-2, mp-3]
+  - id: '9.4.3'
+    name: 'Media holding cardholder data sent off site is secured and tracked'
+    satisfiedBy: [mp-5]
+  - id: '9.4.4'
+    name: 'Management approves media holding cardholder data before it leaves the facility'
+    satisfiedBy: [mp-5]
+  - id: '9.4.5'
+    name: 'An inventory log of electronic media holding cardholder data is kept'
+    satisfiedBy: [mp-4, cm-8]
+  - id: '9.4.5.1'
+    name: 'Electronic media inventories are checked every year'
+    satisfiedBy: [mp-4, cm-8]
+  - id: '9.4.6'
+    name: 'Paper records with cardholder data are destroyed when no longer needed'
+    satisfiedBy: [mp-6]
+  - id: '9.4.7'
+    name: 'Electronic media with cardholder data is destroyed or made unrecoverable when no longer needed'
+    satisfiedBy: [mp-6]
+  - id: '9.5.1'
+    name: 'Card-reading point-of-interaction devices are protected from tampering and swapping'
+    satisfiedBy: [sr-9, pe-3]
+  - id: '9.5.1.1'
+    name: 'An up-to-date list of point-of-interaction devices is kept'
+    satisfiedBy: [cm-8]
+  - id: '9.5.1.2'
+    name: 'Point-of-interaction devices are inspected periodically for tampering or swapping'
+    satisfiedBy: [sr-10, sr-9]
+  - id: '9.5.1.2.1'
+    name: 'How often point-of-interaction devices are inspected is set by targeted risk analysis'
+    satisfiedBy: [ra-3, sr-10]
+  - id: '9.5.1.3'
+    name: 'Staff at point-of-interaction locations are trained to spot device tampering'
+    satisfiedBy: [at-2, at-3]
+- key: req-10
+  name: 'Requirement 10: Log and monitor all access to system components and cardholder data'
+  requirements:
+  - id: '10.1.1'
+    name: 'Logging and monitoring policies and procedures are documented, current and known'
+    satisfiedBy: [au-1]
+  - id: '10.1.2'
+    name: 'Roles and responsibilities for logging and monitoring are documented and assigned'
+    satisfiedBy: [au-1, ps-9]
+  - id: '10.2.1'
+    name: 'Audit logs are turned on and active for all system components and cardholder data'
+    satisfiedBy: [au-2, au-12]
+  - id: '10.2.1.1'
+    name: 'Logging covers each individual user access to cardholder data'
+    satisfiedBy: [au-2, au-3]
+  - id: '10.2.1.2'
+    name: 'Logging covers every administrator action, including interactive use of system accounts'
+    satisfiedBy: [ac-6]
+  - id: '10.2.1.3'
+    name: 'Logging covers all access to audit logs'
+    satisfiedBy: [au-2, au-9]
+  - id: '10.2.1.4'
+    name: 'Logging covers invalid logical access attempts'
+    satisfiedBy: [ac-7, ac-3]
+  - id: '10.2.1.5'
+    name: 'Logging covers changes to accounts, privileges and authentication credentials'
+    satisfiedBy: [ia-5, ac-2, ac-6]
+  - id: '10.2.1.6'
+    name: 'Logging covers audit log creation, start, stop and pause'
+    satisfiedBy: [au-5]
+  - id: '10.2.1.7'
+    name: 'Logging covers creation and deletion of system-level objects'
+    satisfiedBy: [si-7, cm-11]
+  - id: '10.2.2'
+    name: 'Each audit log entry carries user, event type, time, outcome, origin and affected resource'
+    satisfiedBy: [au-3]
+  - id: '10.3.1'
+    name: 'Read access to audit logs is limited to those who need it'
+    satisfiedBy: [au-9.4]
+  - id: '10.3.2'
+    name: 'Audit log files are protected from change'
+    satisfiedBy: [au-9]
+  - id: '10.3.3'
+    name: 'Audit logs are promptly copied to a secure central log server'
+    satisfiedBy: [au-9, au-7]
+  - id: '10.3.4'
+    name: 'File integrity monitoring raises alerts when existing audit log data changes'
+    satisfiedBy: [au-9, si-7]
+  - id: '10.4.1'
+    name: 'Security events and logs of critical systems are reviewed daily'
+    satisfiedBy: [au-6]
+  - id: '10.4.1.1'
+    name: 'Automated tools carry out audit log reviews'
+    satisfiedBy: [au-6, si-4]
+  - id: '10.4.2'
+    name: 'Logs of all other system components are reviewed periodically'
+    satisfiedBy: [au-6]
+  - id: '10.4.2.1'
+    name: 'How often other component logs are reviewed is set by targeted risk analysis'
+    satisfiedBy: [ra-3]
+  - id: '10.4.3'
+    name: 'Exceptions and anomalies found in log reviews are dealt with'
+    satisfiedBy: [au-6, ir-4]
+  - id: '10.5.1'
+    name: 'Audit log history is kept for 12 months with the last three months at hand'
+    satisfiedBy: [au-11]
+  - id: '10.6.1'
+    name: 'System clocks are synchronized with time-synchronization technology'
+    satisfiedBy: [au-8, sc-45, sc-45.1]
+  - id: '10.6.2'
+    name: 'Systems are set up for correct and consistent time'
+    satisfiedBy: [au-8, sc-45, sc-45.1]
+  - id: '10.6.3'
+    name: 'Time synchronization settings and data are protected'
+    satisfiedBy: [au-8, sc-45]
+  - id: '10.7.1'
+    name: 'Service providers detect, alert on and fix failures of critical security control systems'
+    satisfiedBy: [au-5, ca-7, si-6]
+  - id: '10.7.2'
+    name: 'Failures of critical security control systems are detected, alerted on and fixed promptly'
+    satisfiedBy: [au-5, ca-7, si-6]
+  - id: '10.7.3'
+    name: 'Failures of critical security control systems get a prompt response'
+    satisfiedBy: [ir-4, si-6]
+- key: req-11
+  name: 'Requirement 11: Test the security of systems and networks regularly'
+  requirements:
+  - id: '11.1.1'
+    name: 'Security testing policies and procedures are documented, current and known'
+    satisfiedBy: [ca-1, ra-1]
+  - id: '11.1.2'
+    name: 'Roles and responsibilities for security testing are documented and assigned'
+    satisfiedBy: [ca-1, ps-9]
+  - id: '11.2.1'
+    name: 'Authorized and unauthorized wireless access points are found and managed'
+    satisfiedBy: [ac-18, cm-8]
+  - id: '11.2.2'
+    name: 'An inventory of authorized wireless access points with business reasons is kept'
+    satisfiedBy: [cm-8, ac-18]
+  - id: '11.3.1'
+    name: 'Internal vulnerability scans run every three months'
+    satisfiedBy: [ra-5]
+  - id: '11.3.1.1'
+    name: 'Lower-risk vulnerabilities from scans are handled per targeted risk analysis'
+    satisfiedBy: [ra-3, ra-7]
+  - id: '11.3.1.2'
+    name: 'Internal vulnerability scans are authenticated'
+    satisfiedBy: [ra-5.5]
+  - id: '11.3.1.3'
+    name: 'Internal vulnerability scans run after any significant change'
+    satisfiedBy: [cm-4]
+  - id: '11.3.2'
+    name: 'External vulnerability scans by an approved scanning vendor run every three months'
+    satisfiedBy: [sa-9, ca-2]
+  - id: '11.3.2.1'
+    name: 'External vulnerability scans run after any significant change'
+    satisfiedBy: [cm-4, sa-9]
+  - id: '11.4.1'
+    name: 'A penetration testing method is defined and followed'
+    satisfiedBy: [ca-8]
+  - id: '11.4.2'
+    name: 'Internal penetration tests run every year and after significant changes'
+    satisfiedBy: [ca-8]
+  - id: '11.4.3'
+    name: 'External penetration tests run every year and after significant changes'
+    satisfiedBy: [ca-8]
+  - id: '11.4.4'
+    name: 'Exploitable weaknesses found by penetration tests are fixed and retested'
+    satisfiedBy: [ca-5, ca-8]
+  - id: '11.4.5'
+    name: 'Segmentation controls are penetration tested every year and after changes'
+    satisfiedBy: [ca-8]
+  - id: '11.4.6'
+    name: 'Service providers penetration test segmentation controls every six months'
+    satisfiedBy: [ca-8]
+  - id: '11.4.7'
+    name: 'Multi-tenant service providers support their customers'' external penetration tests'
+    satisfiedBy: [ca-8, sa-9]
+  - id: '11.5.1'
+    name: 'Intrusion detection or prevention watches traffic at the edge of and inside the cardholder data environment'
+    satisfiedBy: [si-4]
+  - id: '11.5.1.1'
+    name: 'Service providers detect and respond to covert malware communication channels'
+    satisfiedBy: [si-4]
+  - id: '11.5.2'
+    name: 'A change-detection tool alerts on unauthorized changes to critical files'
+    satisfiedBy: [si-7]
+  - id: '11.6.1'
+    name: 'Unauthorized changes to payment page headers and scripts are detected'
+    satisfiedBy: [sc-18]
+- key: req-12
+  name: 'Requirement 12: Support information security with organizational policies and programs'
+  requirements:
+  - id: '12.1.1'
+    name: 'An overall information security policy is set, published, maintained and shared'
+    satisfiedBy: [pm-1]
+  - id: '12.1.2'
+    name: 'The information security policy is reviewed every year'
+    satisfiedBy: [pm-1]
+  - id: '12.1.3'
+    name: 'The security policy sets out everyone''s security roles and responsibilities'
+    satisfiedBy: [pm-1, ps-9]
+  - id: '12.1.4'
+    name: 'An executive is formally responsible for information security'
+    satisfiedBy: [pm-2]
+  - id: '12.2.1'
+    name: 'Acceptable use policies for end-user technologies are documented and applied'
+    satisfiedBy: [pl-4]
+  - id: '12.3.1'
+    name: 'Targeted risk analysis backs each requirement that allows a flexible frequency'
+    satisfiedBy: [ra-3]
+  - id: '12.3.2'
+    name: 'Targeted risk analysis backs each requirement met with the customized approach'
+    satisfiedBy: [ra-3]
+  - id: '12.3.3'
+    name: 'Cipher suites and protocols in use are documented and reviewed every year'
+    satisfiedBy: [sc-13]
+  - id: '12.3.4'
+    name: 'Hardware and software technologies in use are reviewed every year'
+    satisfiedBy: [sa-22, cm-8]
+  - id: '12.4.1'
+    name: 'Service provider executives own cardholder data protection and the PCI DSS program'
+    satisfiedBy: [pm-2]
+  - id: '12.4.2'
+    name: 'Service providers check every three months that staff follow security procedures'
+    satisfiedBy: [ca-2]
+  - id: '12.4.2.1'
+    name: 'Service provider quarterly procedure checks are documented'
+    satisfiedBy: [ca-2]
+  - id: '12.5.1'
+    name: 'An inventory of in-scope system components is kept current'
+    satisfiedBy: [cm-8]
+  - id: '12.5.2'
+    name: 'PCI DSS scope is documented and confirmed every year and after significant change'
+    satisfiedBy: [pl-2, cm-12]
+  - id: '12.5.2.1'
+    name: 'Service providers confirm PCI DSS scope every six months and after significant change'
+    satisfiedBy: [pl-2, cm-12]
+  - id: '12.5.3'
+    name: 'Service providers review scope impact after organizational changes'
+    satisfiedBy: [pl-2]
+  - id: '12.6.1'
+    name: 'A formal security awareness program is in place'
+    satisfiedBy: [at-2]
+  - id: '12.6.2'
+    name: 'The security awareness program is reviewed every year'
+    satisfiedBy: [at-1]
+  - id: '12.6.3'
+    name: 'Staff get security awareness training when hired and every year'
+    satisfiedBy: [at-2, at-4]
+  - id: '12.6.3.1'
+    name: 'Awareness training covers phishing and social engineering'
+    satisfiedBy: [at-2]
+  - id: '12.6.3.2'
+    name: 'Awareness training covers acceptable use of end-user technologies'
+    satisfiedBy: [at-2, pl-4]
+  - id: '12.7.1'
+    name: 'Staff who will access the cardholder data environment are screened before hire'
+    satisfiedBy: [ps-3]
+  - id: '12.8.1'
+    name: 'A list of third-party service providers is kept'
+    satisfiedBy: [sa-9]
+  - id: '12.8.2'
+    name: 'Written agreements with third-party service providers are kept'
+    satisfiedBy: [sa-9, sa-4]
+  - id: '12.8.3'
+    name: 'Third-party service providers are vetted before engagement'
+    satisfiedBy: [sa-9, sr-6]
+  - id: '12.8.4'
+    name: 'Third-party service provider PCI DSS compliance is monitored every year'
+    satisfiedBy: [sa-9, sr-6]
+  - id: '12.8.5'
+    name: 'Which requirements each third-party service provider covers is recorded'
+    satisfiedBy: [sa-9]
+  - id: '12.9.1'
+    name: 'Service providers accept in writing their responsibility for customer account data'
+    satisfiedBy: [sa-9]
+  - id: '12.9.2'
+    name: 'Service providers answer customer requests for compliance information'
+    satisfiedBy: [sa-9]
+  - id: '12.10.1'
+    name: 'An incident response plan exists and is ready to use'
+    satisfiedBy: [ir-8]
+  - id: '12.10.2'
+    name: 'The incident response plan is reviewed, updated and tested every year'
+    satisfiedBy: [ir-8, ir-3]
+  - id: '12.10.3'
+    name: 'Incident responders are available around the clock'
+    satisfiedBy: [ir-8, ir-7]
+  - id: '12.10.4'
+    name: 'Incident response staff are trained'
+    satisfiedBy: [ir-2]
+  - id: '12.10.4.1'
+    name: 'How often incident response staff are trained is set by targeted risk analysis'
+    satisfiedBy: [ir-2, ra-3]
+  - id: '12.10.5'
+    name: 'The incident response plan covers alerts from security monitoring systems'
+    satisfiedBy: [ir-4, ir-5, ir-8]
+  - id: '12.10.6'
+    name: 'The incident response plan evolves with lessons learned and industry changes'
+    satisfiedBy: [ir-8]
+  - id: '12.10.7'
+    name: 'Procedures deal with stored PAN found where it is not expected'
+    satisfiedBy: [ir-9, ir-8]
+- key: a1
+  name: 'Appendix A1: Extra requirements for multi-tenant service providers'
+  requirements:
+  - id: 'A1.1.1'
+    name: 'Provider and customer environments are logically separated'
+    satisfiedBy: [sc-32, sc-39]
+  - id: 'A1.1.2'
+    name: 'Each customer can reach only its own cardholder data and environment'
+    satisfiedBy: [ac-3, sc-4]
+  - id: 'A1.1.3'
+    name: 'Each customer can use only the resources allocated to it'
+    satisfiedBy: [sc-6]
+  - id: 'A1.1.4'
+    name: 'Logical separation is confirmed by penetration testing every six months'
+    satisfiedBy: [ca-8]
+  - id: 'A1.2.1'
+    name: 'Audit logging is enabled for each customer environment'
+    satisfiedBy: [au-2, au-12]
+  - id: 'A1.2.2'
+    name: 'Prompt forensic investigation is supported for every customer'
+    satisfiedBy: [ir-7, ir-8]
+  - id: 'A1.2.3'
+    name: 'Customers can report incidents and vulnerabilities and the provider deals with them'
+    satisfiedBy: [ir-6, ir-7]
+- key: a2
+  name: 'Appendix A2: Extra requirements for SSL or early TLS on card-present POS POI terminal connections'
+  requirements:
+  - id: 'A2.1.1'
+    name: 'Terminals still using SSL or early TLS are confirmed not exposed to known exploits'
+    satisfiedBy: [ra-5, sc-8]
+  - id: 'A2.1.2'
+    name: 'Service providers have a risk mitigation and migration plan for SSL and early TLS'
+    satisfiedBy: [ca-5, ra-7]
+  - id: 'A2.1.3'
+    name: 'Service providers offer a secure service option'
+    satisfiedBy: [sc-8, sc-13]

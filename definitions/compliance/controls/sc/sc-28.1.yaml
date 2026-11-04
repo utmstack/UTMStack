@@ -1,0 +1,141 @@
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
+id: sc-28.1
+family: sc
+familyName: System and Communications Protection
+name: Protection of Information at Rest | Cryptographic Protection
+scope: data
+statement: |-
+  Implement cryptographic mechanisms to prevent unauthorized disclosure and modification of the following information at rest on [system components or media]: [information].
+remediation: |-
+  Passes when a connected source reports storage encryption in use (BitLocker, FileVault, LUKS, cloud disk or key management encryption).
+  If it fails: enable full-disk or storage encryption and its event logging. That every system holding sensitive data is encrypted is shown with an encryption inventory, kept as evidence.
+source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY
+checks:
+  - key: win-bitlocker-volume-protected
+    name: 'Windows: BitLocker protects the system drive at startup or encrypts a volume'
+    dataType: wineventlog
+    filters:
+      - field: log.providerName
+        operator: IS
+        value: 'Microsoft-Windows-BitLocker-Driver'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '24711'
+          - '24660'
+          - '24577'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-luks-unit-started
+    name: 'Linux: disk encryption setup at boot is recorded'
+    dataType: linux
+    filters:
+      - field: log.syslogIdentifier
+        operator: IS
+        value: 'systemd'
+      - field: log.message
+        operator: CONTAIN
+        value: 'Cryptography Setup for'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-luks-volumes
+    name: 'Linux: encrypted (LUKS) volumes being opened are recorded'
+    dataType: linux
+    filters:
+      - field: log.syslogIdentifier
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'systemd-cryptsetup'
+          - 'cryptsetup'
+          - 'clevis'
+          - 'clevis-luks-askpass'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: macos-filevault-activity
+    name: 'macOS: FileVault activity is recorded'
+    dataType: macos
+    filters:
+      - field: log.subsystem
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'com.apple.filevault'
+          - 'com.apple.filevaultd'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: azure-cmk-disk-encryption
+    name: 'Azure: customer-managed key and disk encryption operations are recorded'
+    dataType: azure
+    filters:
+      - field: action
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'wrapkey'
+          - '/diskencryptionsets/write'
+          - '/encryptionscopes/write'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: azure-intune-encryption-state
+    name: 'Azure (Intune): device encryption state is reported'
+    dataType: azure
+    filters:
+      - field: log.category
+        operator: IS
+        value: 'Devices'
+      - field: log.properties.EncryptionStatusString
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-kms-key-use
+    name: 'AWS: KMS encryption keys are used or rotated'
+    dataType: aws
+    filters:
+      - field: target.domain
+        operator: IS
+        value: 'kms.amazonaws.com'
+      - field: action
+        operator: IS_ONE_OF
+        value:
+          - 'Decrypt'
+          - 'Encrypt'
+          - 'GenerateDataKey'
+          - 'GenerateDataKeyWithoutPlaintext'
+          - 'GenerateDataKeyPair'
+          - 'ReEncrypt'
+          - 'RotateKey'
+          - 'RotateKeyOnDemand'
+          - 'EnableKeyRotation'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: gcp-kms-key-use
+    name: 'Google: Cloud KMS keys are used or rotated'
+    dataType: google
+    filters:
+      - field: log.protoPayloadServiceName
+        operator: IS
+        value: 'cloudkms.googleapis.com'
+      - field: log.protoPayloadMethodName
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'Encrypt'
+          - 'Decrypt'
+          - 'CreateCryptoKeyVersion'
+          - 'UpdateCryptoKeyPrimaryVersion'
+          - 'CreateCryptoKey'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sophos-central-device-encryption
+    name: 'Sophos Central: device encryption state reported'
+    dataType: sophos-central
+    filters:
+      - field: action
+        operator: START_WITH
+        value: 'Event::Endpoint::Enc::'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1

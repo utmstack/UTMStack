@@ -34,7 +34,7 @@ type Check struct {
 	Key       string                     `yaml:"key" json:"key"`
 	Name      string                     `yaml:"name" json:"name"`
 	Dataset   Dataset                    `yaml:"dataset,omitempty" json:"dataset,omitempty"`
-	DataType  string                     `yaml:"dataType,omitempty" json:"dataType,omitempty"` // wineventlog, o365, aws-cloudtrail… empty means every type in the dataset
+	DataType  string                     `yaml:"dataType,omitempty" json:"dataType,omitempty"` // wineventlog, o365, aws… empty means every type in the dataset
 	Filters   []common_models.FilterType `yaml:"filters,omitempty" json:"filters,omitempty"`
 	Rule      CheckRule                  `yaml:"rule,omitempty" json:"rule,omitempty"`
 	RuleValue *int                       `yaml:"ruleValue,omitempty" json:"ruleValue,omitempty"`

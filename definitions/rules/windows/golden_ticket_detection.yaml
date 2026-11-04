@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.0.1
 
 dataTypes:
   - wineventlog
@@ -30,12 +30,14 @@ description: |
   7. Consider rebuilding the domain if compromise is confirmed
   8. Implement Kerberos armoring and constrained delegation
 where: |
+  !oneOf("dataSource", ["", "unknown"]) &&
+  exists("log.authenticationSource") &&
+  (
   (
     equals("log.eventCode", "4769") &&
     equals("log.channel", "Security") &&
     equals("log.eventDataServiceName", "krbtgt") &&
-    !equals("log.eventDataStatus", "0") &&
-    exists("origin.ip")
+    !equals("log.eventDataStatus", "0")
   ) ||
   (
     equals("log.eventCode", "4768") &&
@@ -51,13 +53,24 @@ where: |
     !regexMatch("log.eventDataSubjectUserName", "(?i)^(SYSTEM|LOCAL SERVICE|NETWORK SERVICE)$") &&
     !regexMatch("log.eventDataSubjectUserName", "(?i)\\$$")
   )
+  )
 afterEvents:
   - with:
-      - field: origin.host
+      - field: dataSource
         operator: filter_term
-        value: '{{.origin.host}}'
+        value: '{{.dataSource}}'
+      - field: log.authenticationSource
+        operator: filter_term
+        value: '{{.log.authenticationSource}}'
+      - field: log.authenticationCandidate.goldenTicketDetection
+        operator: filter_term
+        value: match
+      - field: log.eventCode
+        operator: filter_term
+        value: '{{.log.eventCode}}'
     within: 30m
     count: 3
 groupBy:
-  - adversary.host
+  - dataSource
+  - lastEvent.log.authenticationSource
   - target.user

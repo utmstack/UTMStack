@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.1.0
 
 dataTypes:
   - google
@@ -12,11 +12,12 @@ technique: "T1078 - Valid Accounts"
 adversary: origin
 references:
   - https://support.google.com/cloudidentity/answer/4580120?hl=en
-  - https://cloud.google.com/blog/products/identity-security/logs-based-security-alerting-in-google-cloud
+  - https://developers.google.com/workspace/admin/reports/v1/appendix/activity/login
+  - https://cloud.google.com/logging/docs/audit/gsuite-audit-logging
   - https://attack.mitre.org/techniques/T1078/
 description: |
-  Detects suspicious sign-in attempts to Google Cloud Identity, including logins from unfamiliar locations, unusual IP addresses, or after multiple failed attempts. These could indicate compromised credentials or unauthorized access attempts.
-  
+  Detects a successful Google Workspace or Cloud Identity sign-in that Google marked as suspicious. Google's login_success event carries an is_suspicious parameter, which is true when the sign-in had unusual characteristics, for example an unfamiliar IP address. A suspicious sign-in that succeeded can mean the account's credentials are in someone else's hands. Sign-ins that Google blocked are covered by the separate suspicious login rules.
+
   Next Steps:
   1. Verify the legitimacy of the login attempt with the user
   2. Check if the IP address is from a known malicious source
@@ -25,12 +26,9 @@ description: |
   5. If confirmed malicious, reset user credentials immediately
   6. Review access logs for any unauthorized activities
 where: |
-  equals("log.protoPayloadServiceName", "login.googleapis.com") && 
-  (
-    equals("log.protoPayload.metadata.event.type", "Suspicious Login") ||
-    (equals("log.protoPayload.metadata.event.type", "login") && equals("log.protoPayload.metadata.event.parameter.is_suspicious", true)) ||
-    equals("log.protoPayload.metadata.event.parameter.is_suspicious", true)
-  )
+  equals("log.protoPayloadServiceName", "login.googleapis.com") &&
+  equals("log.protoPayloadMethodName", "google.login.LoginService.loginSuccess") &&
+  exists('log.protoPayload.metadata.event.#(parameter.#(name=="is_suspicious").boolValue==true)')
 groupBy:
   - lastEvent.origin.user
   - adversary.ip

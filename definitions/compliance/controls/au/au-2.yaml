@@ -1,4 +1,4 @@
-# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
 id: au-2
 family: au
 familyName: Audit and Accountability
@@ -6,12 +6,380 @@ name: Event Logging
 scope: data
 statement: |-
   Identify the types of events that the system is capable of logging in support of the audit function: [event types];
-    Coordinate the event logging function with other organizational entities requiring audit-related information to guide and inform the selection criteria for events to be logged;
-    Specify the following event types for logging within the system: [organization-defined event types (subset of the event types defined in [AU-2a.](#au-2_smt.a)) along with the frequency of (or situation requiring) logging for each identified event type];
-    Provide a rationale for why the event types selected for logging are deemed to be adequate to support after-the-fact investigations of incidents; and
-    Review and update the event types selected for logging [frequency].
+  Coordinate the event logging function with other organizational entities requiring audit-related information to guide and inform the selection criteria for events to be logged;
+  Specify the following event types for logging within the system: [organization-defined event types (subset of the event types defined in [AU-2a.](#au-2_smt.a)) along with the frequency of (or situation requiring) logging for each identified event type];
+  Provide a rationale for why the event types selected for logging are deemed to be adequate to support after-the-fact investigations of incidents; and
+  Review and update the event types selected for logging [frequency].
+remediation: |-
+  Passes when at least one connected source sends security audit events (for example the Windows Security log, Linux audit records, cloud audit trails or firewall traffic logs).
+  If it fails: configure the source's audit policy so security events are produced, then connect it to UTMStack.
 source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY
 checks:
-  - key: todo
-    name: 'TODO: define compliance check for this control'
-    todo: true            # Pending — evaluator shows "Not implemented", excluded from score
+  - key: win-security-channel
+    name: 'Windows: Security event log records are collected'
+    dataType: wineventlog
+    filters:
+      - field: log.channel
+        operator: IS
+        value: 'Security'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-audit-records
+    name: 'Linux: audit records are collected'
+    dataType: linux
+    filters:
+      - field: log.type
+        operator: IS
+        value: 'auditd'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-auth-facility-messages
+    name: 'Linux: authentication and authorization messages are recorded'
+    dataType: linux
+    filters:
+      - field: log.syslogFacility
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '4'
+          - '10'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: macos-system-policy-events
+    name: 'macOS: Gatekeeper and system policy events are recorded'
+    dataType: macos
+    filters:
+      - field: log.subsystem
+        operator: START_WITH
+        value: 'com.apple.syspolicy'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-entra-audit-present
+    name: 'Microsoft 365: Entra ID sign-in and directory audit records are present'
+    dataType: o365
+    filters:
+      - field: log.Workload
+        operator: IS
+        value: 'AzureActiveDirectory'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-mailbox-audit-present
+    name: 'Microsoft 365: mailbox access audit (MailItemsAccessed) is present'
+    dataType: o365
+    filters:
+      - field: action
+        operator: IS
+        value: 'MailItemsAccessed'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: azure-audit-trail-present
+    name: 'Azure: control-plane, Entra ID, Key Vault or Kubernetes audit records are present'
+    dataType: azure
+    filters:
+      - field: log.azureKind
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'signin'
+          - 'audit'
+          - 'activity'
+          - 'eventgrid'
+          - 'keyvault'
+          - 'kubernetes'
+          - 'cloud-kubernetes'
+          - 'risk'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-cloudtrail-records
+    name: 'AWS: CloudTrail audit records are present'
+    dataType: aws
+    filters:
+      - field: log.awsRecordType
+        operator: IS
+        value: 'cloudtrail'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: gcp-audit-logs
+    name: 'Google Cloud: Cloud Audit Logs are present'
+    dataType: google
+    filters:
+      - field: log.logName
+        operator: CONTAIN
+        value: 'cloudaudit.googleapis.com'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: eset-audit-events
+    name: 'ESET: ESET PROTECT audit events'
+    dataType: antivirus-esmc-eset
+    filters:
+      - field: log.eventType
+        operator: IS
+        value: 'Audit_Event'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: kaspersky-ksc-audit
+    name: 'Kaspersky: Security Center audit events'
+    dataType: antivirus-kaspersky
+    filters:
+      - field: log.eventType
+        operator: START_WITH
+        value: 'KLAUD_EV_'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: cisco-switch-security-events
+    name: 'Cisco switch: login, SSH, configuration and port-security events are recorded'
+    dataType: cisco-switch
+    filters:
+      - field: log.facility
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'SEC_LOGIN'
+          - 'SECLOGIN'
+          - 'SSH'
+          - 'SYS'
+          - 'PARSER'
+          - 'AUTHMGR'
+          - 'DOT1X'
+          - 'PORT_SECURITY'
+          - 'SW_DAI'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: crowdstrike-falcon-audit
+    name: 'CrowdStrike: Falcon console audit events'
+    dataType: crowdstrike
+    filters:
+      - field: log.metadataEventType
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'AuthActivityAuditEvent'
+          - 'UserActivityAuditEvent'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: asa-security-events
+    name: 'Cisco ASA: authentication, command and threat events are recorded'
+    dataType: firewall-cisco-asa
+    filters:
+      - field: log.messageId
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '111008'
+          - '111010'
+          - '113004'
+          - '113005'
+          - '113012'
+          - '113015'
+          - '605004'
+          - '605005'
+          - '611101'
+          - '611102'
+          - '502101'
+          - '502102'
+          - '502103'
+          - '733100'
+          - '733101'
+          - '733102'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: ftd-security-events
+    name: 'Cisco FTD: intrusion, malware and management login events are recorded'
+    dataType: firewall-cisco-firepower
+    filters:
+      - field: log.messageId
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '430001'
+          - '430005'
+          - '113004'
+          - '113005'
+          - '605004'
+          - '605005'
+          - '611101'
+          - '611102'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fgt-event-logs
+    name: 'FortiGate: system, user and VPN event logs are recorded'
+    dataType: firewall-fortigate-traffic
+    filters:
+      - field: log.type
+        operator: IS
+        value: 'event'
+      - field: log.subtype
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'system'
+          - 'user'
+          - 'vpn'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fortiweb-attack-and-event-logs
+    name: 'FortiWeb: attack and event logs are recorded'
+    dataType: firewall-fortiweb
+    filters:
+      - field: log.type
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'attack'
+          - 'event'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: meraki-security-events
+    name: 'Meraki: security and authentication events are recorded'
+    dataType: firewall-meraki
+    filters:
+      - field: log.merakiGroup
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'security_event'
+          - 'ids-alerts'
+          - 'events'
+          - 'airmarshal_events'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: mikrotik-account-and-critical
+    name: 'MikroTik: login and critical system events are recorded'
+    dataType: firewall-mikrotik
+    filters:
+      - field: log.topics
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'account'
+          - 'critical'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: paloalto-system-config-logs
+    name: 'Palo Alto: system and configuration logs are recorded'
+    dataType: firewall-paloalto
+    filters:
+      - field: log.paType
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'SYSTEM'
+          - 'CONFIG'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sonicwall-security-events
+    name: 'SonicWall: security service and administrator/user login events are recorded'
+    dataType: firewall-sonicwall
+    filters:
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '608'
+          - '609'
+          - '794'
+          - '795'
+          - '809'
+          - '82'
+          - '83'
+          - '177'
+          - '1200'
+          - '1201'
+          - '1518'
+          - '1519'
+          - '14'
+          - '29'
+          - '30'
+          - '31'
+          - '32'
+          - '33'
+          - '199'
+          - '200'
+          - '236'
+          - '237'
+          - '238'
+          - '1080'
+          - '994'
+          - '995'
+          - '1382'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sophos-xg-event-logs
+    name: 'Sophos Firewall: event logs are recorded'
+    dataType: firewall-sophos-xg
+    filters:
+      - field: log.type
+        operator: IS
+        value: 'Event'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aix-auth-program-events
+    name: 'IBM AIX: sign-in and privilege program messages are recorded'
+    dataType: ibm-aix
+    filters:
+      - field: log.eventType
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'sshd'
+          - 'sudo'
+          - 'su'
+          - 'login'
+          - 'tsm'
+          - 'telnetd'
+          - 'ftpd'
+          - 'rlogind'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: as400-security-messages
+    name: 'IBM i (AS/400): sign-on and security messages are recorded'
+    dataType: ibm-as400
+    filters:
+      - field: log.messageId
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'CPIAD09'
+          - 'CPIAD02'
+          - 'CPF2234'
+          - 'CPF1393'
+          - 'CPF1397'
+          - 'CPI2283'
+          - 'CPI2284'
+          - 'CPI9014'
+          - 'CPI96C4'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-graph-directory-audit-present
+    name: 'Microsoft Graph: Entra directory audit records are received'
+    dataType: o365-graph
+    filters:
+      - field: log.loggedByService
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: suricata-alerts-anomalies
+    name: 'Suricata: alerts, anomalies and drops are recorded'
+    dataType: suricata
+    filters:
+      - field: log.eventType
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'alert'
+          - 'anomaly'
+          - 'drop'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: esxi-audit-events
+    name: 'VMware ESXi: host audit events are recorded'
+    dataType: vmware-esxi
+    filters:
+      - field: log.process
+        operator: IS
+        value: 'vobd'
+      - field: log.message
+        operator: CONTAIN
+        value: 'esx.audit.'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: esxi-hostd-events
+    name: 'VMware ESXi: host management events are recorded'
+    dataType: vmware-esxi
+    filters:
+      - field: log.process
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Hostd'
+          - 'hostd'
+      - field: log.message
+        operator: CONTAIN
+        value: 'Event '
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1

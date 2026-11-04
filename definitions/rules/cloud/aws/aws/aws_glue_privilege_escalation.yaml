@@ -1,18 +1,17 @@
-# Rule version v1.0.0
-
+# Rule contract revision 2026-09-17; SDK v1.1.31.
 dataTypes:
-  - aws
+- aws
 name: AWS Glue Development Endpoint Privilege Escalation
 impact:
   confidentiality: 3
   integrity: 3
   availability: 2
 category: Privilege Escalation
-technique: "T1078.004 - Valid Accounts: Cloud Accounts"
+technique: 'T1078.004 - Valid Accounts: Cloud Accounts'
 adversary: origin
 references:
-  - https://rhinosecuritylabs.com/aws/escalating-aws-iam-privileges-undocumented-codestar-api/
-  - https://attack.mitre.org/techniques/T1078/004/
+- https://rhinosecuritylabs.com/aws/escalating-aws-iam-privileges-undocumented-codestar-api/
+- https://attack.mitre.org/techniques/T1078/004/
 description: |
   Detects creation or modification of AWS Glue development endpoints which can be used for privilege escalation. An attacker can pass an IAM role to a Glue dev endpoint and then use it to execute code with that role's permissions, potentially escalating privileges.
 
@@ -24,9 +23,13 @@ description: |
   5. If unauthorized, delete the endpoint and investigate the passed role
   6. Review IAM policies to restrict Glue PassRole permissions
 where: |
-  equals("log.eventSource", "glue.amazonaws.com") &&
+  equals("log.awsRecordType","cloudtrail") &&
+  (equals("log.eventSource", "glue.amazonaws.com") &&
   oneOf("log.eventName", ["CreateDevEndpoint", "UpdateDevEndpoint"]) &&
-  equals("log.errorCode", "")
+  equals("actionResult","success"))
 groupBy:
-  - adversary.user
-  - lastEvent.log.eventName
+- lastEvent.dataSource
+- lastEvent.log.awsAccountKeyType
+- lastEvent.log.awsAccountKey
+- adversary.user
+- lastEvent.log.eventName

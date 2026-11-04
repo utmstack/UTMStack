@@ -106,5 +106,7 @@ server {
     }
 
     client_max_body_size 200M;
-    client_body_buffer_size 200M;
+    # A body larger than this goes to a temp file, so the limit is per request
+    # in memory: at 200M a few concurrent uploads outgrow the container.
+    client_body_buffer_size 2M;
 }`

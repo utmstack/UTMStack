@@ -135,6 +135,9 @@ func registerStoreQueries(m *Module, events *eventstore.Store) {
 			if sortBy == "" {
 				sortBy = "@timestamp"
 			}
+			if err := common_models.ValidateField(sortBy); err != nil {
+				return nil, err
+			}
 
 			rows, total, err := events.FetchPage(ctx, scope, f, store.Page{
 				Offset: (page - 1) * size,

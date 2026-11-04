@@ -37,7 +37,7 @@ end`} />
 
 registerCollector({
   getName: () => 'FORTIGATE',
-  matches: (n) => n.includes('fortigate') || n.includes('fortinet'),
+  matches: (n) => n === 'fortigate' || n === 'firewall_fortigate_traffic',
   sections: [],
   render: (m) => <FortigateGuide module={m} />,
 })

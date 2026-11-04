@@ -1,8 +1,11 @@
 /* Types mirror the backend adaudit DTOs (modules/adaudit/dto, domain.ADUser). */
 
-export type ADUserSource = 'windows' | 'linux'
+/* Cloud: windows | linux | o365 | azure | gcp | aws */
+export type ADUserSource = 'windows' | 'linux' | 'o365' | 'azure' | 'gcp' | 'aws'
 
-/** One user account observed in ingested Windows or Linux logs. */
+export const CLOUD_SOURCES: ADUserSource[] = ['o365', 'azure', 'gcp', 'aws']
+
+/** One user account observed in ingested Windows, Linux or cloud logs. */
 export interface ADUser {
   id: string
   tenantId: string
@@ -16,6 +19,7 @@ export interface ADUser {
   uidNumber?: number
   hostname?: string
   username?: string
+  /* Cloud-only fields */
   /* Shared lifecycle */
   active: boolean
   accountCreatedAt?: string
@@ -35,8 +39,29 @@ export interface ADUserListQuery {
   source?: ADUserSource
   status?: ADUserStatus
   sort?: ADUserSort
+  identity?: string // alias uuid, or the literal 'none'
   page?: number // zero-based
   size?: number
+}
+
+/** Row returned by GET /ad-audit/users: the account plus its assigned identity alias name (null when unassigned). */
+export type ADUserWithIdentity = ADUser & { identity?: string | null }
+
+/** GET /ad-audit/identities — an operator-named identity alias. */
+export interface Identity {
+  id: string
+  name: string
+  createdAt: string
+}
+
+/** GET /ad-audit/identities list item: the alias plus how many accounts it covers. */
+export interface IdentityListItem extends Identity {
+  count: number
+}
+
+/** GET /ad-audit/identities/:id — the alias and every account assigned to it. */
+export interface IdentityDetail extends Identity {
+  users: ADUserWithIdentity[]
 }
 
 export interface DomainCount {
@@ -47,6 +72,10 @@ export interface DomainCount {
 export interface SourceCount {
   windows: number
   linux: number
+  o365: number
+  azure: number
+  gcp: number
+  aws: number
 }
 
 /** GET /ad-audit/stats — inventory roll-up for the overview. */
@@ -58,6 +87,8 @@ export interface ADUserStats {
   stale: number
   service: number
   seen_24h: number
+  identities: number
+  unassigned: number
   by_source: SourceCount
   by_domain: DomainCount[]
   tenants: string[]

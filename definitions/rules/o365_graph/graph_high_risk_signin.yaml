@@ -1,0 +1,32 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365-graph
+name: Graph High-Risk Sign-In Succeeded
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Initial Access
+technique: "T1078.004 - Valid Accounts: Cloud Accounts"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/graph/api/resources/signin
+  - https://learn.microsoft.com/en-us/entra/id-protection/concept-identity-protection-risks
+  - https://attack.mitre.org/techniques/T1078/004/
+description: |
+  A sign-in succeeded although Microsoft Entra ID Protection rated it high risk (log.riskLevelDuringSignIn or log.riskLevelAggregated), for example a sign-in from an anonymizing service, with leaked credentials or with an unusual token. Risk levels need Entra ID P2; without it Microsoft reports them as hidden and this rule does not fire.
+
+  One alert is raised per user and address; repeats are suppressed for seven days.
+
+  Next Steps:
+  1. Review the risk reasons in log.riskEventTypes_v2 and where the sign-in came from (origin ip and location).
+  2. Ask the user whether it was them.
+  3. If not, reset the password, revoke the user's sessions and review what the account did after the sign-in.
+where: |
+  equals("log.graphSource", "sign-ins") &&
+  equals("actionResult", "success") &&
+  (equals("log.riskLevelDuringSignIn", "high") || equals("log.riskLevelAggregated", "high"))
+deduplicateBy:
+  - adversary.user
+  - adversary.ip

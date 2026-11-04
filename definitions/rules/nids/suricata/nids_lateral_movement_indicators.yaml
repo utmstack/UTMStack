@@ -16,7 +16,7 @@ references:
   - https://www.snort.org/rule_docs/
 description: |
   Detects indicators of lateral movement within the network including SMB/RDP scanning, authentication attempts across multiple systems, suspicious remote access patterns, and administrative tool usage. This rule identifies various lateral movement techniques including PsExec usage, WMI commands, RDP brute force attempts, SMB scanning, and connections to common administrative ports.
-
+  
   Next Steps:
   1. Investigate the source IP for other suspicious activities in the past 24 hours
   2. Check if the source host has legitimate administrative access to target systems

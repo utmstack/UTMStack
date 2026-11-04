@@ -24,9 +24,9 @@ description: |
   5. Remove the malicious plist file and associated executables
   6. Check for other LaunchAgent/LaunchDaemon persistence on the system
 where: |
-  contains("log.eventMessage", "PlistBuddy") &&
-  contains("log.eventMessage", "RunAtLoad") &&
-  contains("log.eventMessage", ["LaunchAgents", "LaunchDaemons"])
+  contains("log.message", "PlistBuddy") &&
+  contains("log.message", "RunAtLoad") &&
+  contains("log.message", ["LaunchAgents", "LaunchDaemons"])
 groupBy:
   - adversary.host
   - adversary.user

@@ -21,7 +21,7 @@
     "@tanstack/react-query": "^5.101.0",
     "@tanstack/react-table": "^8.21.3",
     "@xyflow/react": "^12.11.3",
-    "axios": "^1.7.7",
+    "axios": "^1.20.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
@@ -29,10 +29,8 @@
     "echarts-for-react": "^3.0.6",
     "i18next": "^26.3.1",
     "i18next-browser-languagedetector": "^8.2.1",
-    "js-yaml": "^4.1.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.468.0",
-    "mermaid": "^11.15.0",
     "prismjs": "^1.30.0",
     "react": "^19.0.0",
     "react-day-picker": "^10.0.1",
@@ -40,7 +38,7 @@
     "react-grid-layout": "^2.2.3",
     "react-i18next": "^17.0.8",
     "react-leaflet": "^5.0.0",
-    "react-router-dom": "^7.1.1",
+    "react-router-dom": "^7.18.4",
     "sonner": "^2.0.7",
     "tailwind-merge": "^2.6.0"
   },
@@ -57,16 +55,19 @@
     "@types/react-dom": "^19.0.2",
     "@types/react-grid-layout": "^2.1.0",
     "@vitejs/plugin-react": "^6.0.2",
-    "@vitest/ui": "^4.1.4",
+    "@vitest/ui": "^4.1.12",
     "eslint": "^9.17.0",
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.16",
     "globals": "^15.14.0",
+    "js-yaml": "^4.3.2",
     "jsdom": "^29.0.2",
+    "mermaid": "^11.17.2",
     "tailwindcss": "^4.0.0",
     "typescript": "~5.6.2",
     "typescript-eslint": "^8.18.2",
     "vite": "^8.0.16",
-    "vitest": "^4.1.4"
-  }
+    "vitest": "^4.1.12"
+  },
+  "overrides": {}
 }

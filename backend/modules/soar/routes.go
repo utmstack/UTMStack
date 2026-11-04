@@ -13,6 +13,7 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc, a
 
 	read := middleware.RequirePermission("soar.read")
 	write := middleware.RequirePermission("soar.write")
+	execute := middleware.RequirePermission("soar.execute")
 
 	g := api.Group("/soar", userAuth)
 
@@ -24,6 +25,7 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc, a
 	rg.PUT("/:relPath", write, rh.Update)
 	rg.DELETE("/:relPath", write, rh.Delete)
 	rg.PUT("/:relPath/enabled", write, rh.SetEnabled)
+	rg.POST("/:relPath/trigger", execute, eh.Trigger)
 
 	g.GET("/rule-executions", read, eh.List)
 	g.POST("/rule-executions", middleware.RequireInternal(), eh.Match)

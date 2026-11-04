@@ -122,30 +122,31 @@ func (h *Handler) Tiering(c *gin.Context) {
 
 // EnableTiering godoc
 //
-//	@Summary		Point cold storage at an object store
-//	@Description	Writes the bucket into the event store's configuration and makes it read it again. The bucket cannot be changed once records live in it, because the parts already moved carry it; the credentials can.
+//	@Summary		Point cold storage at an object store or a local folder
+//	@Description	Writes the bucket into the event store's configuration and makes it read it again. The destination can be changed at any time, but records already moved to the previous one are not migrated and stop being readable.
 //	@Tags			Storage
 //	@Security		BearerAuth
 //	@Accept			json
 //	@Produce		json
-//	@Param			input	body		dto.ObjectStoreRequest	true	"Bucket URL and credentials"
+//	@Param			input	body		dto.ColdTargetRequest	true	"Cold storage kind, and for s3 the bucket URL and credentials"
 //	@Success		200		{object}	dto.TieringResponse
 //	@Failure		400		{object}	map[string]string
 //	@Failure		409		{object}	map[string]string
 //	@Failure		503		{object}	map[string]string
 //	@Router			/storage/tiering [put]
 func (h *Handler) EnableTiering(c *gin.Context) {
-	var req dto.ObjectStoreRequest
+	var req dto.ColdTargetRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
+	target := req.ToDomain().Normalized()
 	got, err := h.uc.EnableTiering(c.Request.Context(), req.ToDomain())
-	// The endpoint is recorded and the credentials are not: the audit says
+	// The location is recorded and the credentials are not: the audit says
 	// where the records were sent, not how to read them.
 	audit.Record(c,
-		audit_connectors.Event{Action: "cold_storage.set", ResourceType: "object_store", ResourceID: req.Endpoint},
+		audit_connectors.Event{Action: "cold_storage.set", ResourceType: "cold_storage", ResourceID: target.Location()},
 		audit_domain.COLD_STORAGE_SET_ATTEMPT, audit_domain.COLD_STORAGE_SET_SUCCESS, err)
 	if err != nil {
 		writeError(c, err, "could not enable cold storage")
@@ -174,7 +175,7 @@ func isBadRequest(err error) bool {
 	for _, e := range []error{
 		domain.ErrUnknownDataset, domain.ErrKeepRequired, domain.ErrColdBeforeDelete,
 		domain.ErrColdNegative, domain.ErrEndpointRequired, domain.ErrEndpointNotURL,
-		domain.ErrEndpointNoBucket, domain.ErrCredentialsNeeded, domain.ErrCacheNegative,
+		domain.ErrEndpointNoBucket, domain.ErrCredentialsNeeded, domain.ErrKindUnknown, domain.ErrCacheNegative,
 		domain.ErrColdRefused,
 	} {
 		if errors.Is(err, e) {
@@ -186,7 +187,7 @@ func isBadRequest(err error) bool {
 
 func isConflict(err error) bool {
 	for _, e := range []error{
-		domain.ErrTieringRequired, domain.ErrTieringPermanent, domain.ErrEndpointLocked,
+		domain.ErrTieringRequired, domain.ErrTieringPermanent,
 	} {
 		if errors.Is(err, e) {
 			return true

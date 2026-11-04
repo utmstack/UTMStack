@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/threatwinds/go-sdk/catcher"
@@ -49,6 +50,9 @@ func (b *EntityBuilder) MapAndRegisterFieldsToEntities(
 		enrichmentCtx := b.buildEnrichmentContext(incident, alert, sideContext, event.ID, sourceType)
 		entity, entityID, err := b.entityMapper.BuildEntity(entityType, field.Value, enrichmentCtx)
 		if err != nil {
+			if errors.Is(err, mapper.ErrInvalidValue) {
+				continue
+			}
 			catcher.Error("failed to build entity", err, map[string]any{
 				"entity_type": entityType,
 				"field_path":  field.Path,

@@ -21,7 +21,6 @@ func NewBulkIDPHandler(uc connectors.IdentityProviderUsecase, tenantLister func(
 	return &BulkIDPHandler{uc: uc, tenantLister: tenantLister}
 }
 
-// ponytail: resolveTenants duplicated from eventprocessing — same package boundary, not worth a shared pkg
 func resolveIDPTenants(ctx context.Context, sel common_models.BulkTenantSelector, lister func(context.Context) ([]string, error)) ([]string, error) {
 	if sel.AllTenants {
 		return lister(ctx)

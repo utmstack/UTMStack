@@ -8,6 +8,7 @@ import (
 func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	dh := m.GetDashboardHandler()
 	vh := m.GetVisualizationHandler()
+	fh := m.GetDashboardFilterHandler()
 
 	read := middleware.RequirePermission("dashboards.read")
 	write := middleware.RequirePermission("dashboards.write")
@@ -18,6 +19,12 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	d.GET("", read, dh.List)
 	d.GET("/:id", read, dh.GetByID)
 	d.DELETE("/:id", write, dh.Delete)
+
+	f := d.Group("/filters", userAuth)
+	f.POST("", write, fh.Create)
+	f.PUT("", write, fh.Update)
+	f.GET("", read, fh.List)
+	f.DELETE("/:id", write, fh.Delete)
 
 	v := api.Group("/visualizations", userAuth)
 	v.POST("", write, vh.Create)

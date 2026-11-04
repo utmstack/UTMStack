@@ -1,18 +1,17 @@
-# Rule version v1.0.0
-
+# Rule contract revision 2026-09-17; SDK v1.1.31.
 dataTypes:
-  - aws
+- aws
 name: AWS TruffleHog Credential Scanning Detected
 impact:
   confidentiality: 3
   integrity: 1
   availability: 0
 category: Credential Access
-technique: "T1552 - Unsecured Credentials"
+technique: T1552 - Unsecured Credentials
 adversary: origin
 references:
-  - https://github.com/trufflesecurity/trufflehog
-  - https://attack.mitre.org/techniques/T1552/
+- https://github.com/trufflesecurity/trufflehog
+- https://attack.mitre.org/techniques/T1552/
 description: |
   Detects TruffleHog credential scanning tool activity in AWS CloudTrail logs identified by its characteristic user agent string. TruffleHog is used to scan for exposed secrets and credentials in AWS environments.
 
@@ -24,8 +23,12 @@ description: |
   5. Check for any credentials that may have been discovered and exfiltrated
   6. Review IAM policies to limit enumeration permissions
 where: |
-  contains("log.userAgent", "trufflehog") ||
-  contains("log.userAgent", "TruffleHog")
+  equals("log.awsRecordType","cloudtrail") &&
+  (contains("log.userAgent", "trufflehog") ||
+  contains("log.userAgent", "TruffleHog"))
 groupBy:
-  - adversary.user
-  - lastEvent.log.sourceIPAddress
+- lastEvent.dataSource
+- lastEvent.log.awsAccountKeyType
+- lastEvent.log.awsAccountKey
+- adversary.user
+- lastEvent.log.sourceIPAddress

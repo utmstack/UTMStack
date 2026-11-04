@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { AlertTriangle, Loader2, Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { Button } from '@/shared/components/ui/button'
 import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
+import { useListScrollReset } from '@/shared/hooks/use-list-scroll-reset'
 import { StatusTabs } from '@/shared/components/ui/status-tabs'
 import { ALL_TIME, resolveRange, type TimeRange } from '@/shared/components/ui/time-range-picker'
 import type { CustomFilter } from '@/shared/components/filters/custom-filter.types'
@@ -67,10 +68,14 @@ export function IncidentsPage() {
     isBoard,
   })
 
+  const scrollRef = useRef<HTMLDivElement>(null)
+  useListScrollReset(page, 0, scrollRef)
+
   const refreshAndSync = useIncidentSync(refresh, setOpen)
   const reload = () => {
+    if (page === 0) refresh()
+    else setPage(0)
     setRangeTick((n) => n + 1)
-    refresh()
   }
 
   const exportCsv = async () => {
@@ -193,7 +198,7 @@ export function IncidentsPage() {
         )
       ) : (
         <div className="mt-3 flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card">
-          <div className="min-h-0 flex-1 overflow-auto">
+          <div className="min-h-0 flex-1 overflow-auto" ref={scrollRef}>
             <IncidentsTable
               incidents={incidents}
               onOpen={setOpen}

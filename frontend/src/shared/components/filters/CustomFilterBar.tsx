@@ -2,6 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 import { X } from 'lucide-react'
 import { AddCustomFilterButton } from './AddCustomFilterButton'
 import { FilterEditorPanel } from './FilterEditorPanel'
+
+import { useTranslation } from 'react-i18next'
+
 import type {
   CustomFilter,
   FilterBarLabels,
@@ -32,6 +35,7 @@ export function CustomFilterBar({
   labels: FilterBarLabels
 }) {
   const [editing, setEditing] = useState<number | null>(null)
+  const [filterCount, setFilterCount] = useState<number>(0)
   const editRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -40,6 +44,19 @@ export function CustomFilterBar({
     document.addEventListener('mousedown', onDoc)
     return () => document.removeEventListener('mousedown', onDoc)
   }, [editing])
+
+  useEffect(()=>{
+    if(!!filters &&
+       filters.length > filterCount &&
+       filters!.length>0 && filters.at(-1)!.value==""
+      ){
+      setFilterCount(filters.length)
+      setEditing(filters.length-1)
+    }
+  },[filters])
+
+
+  const {t} = useTranslation()
 
   return (
     <div className="flex flex-wrap items-center gap-1.5">
@@ -56,9 +73,9 @@ export function CustomFilterBar({
                 disabled={!onUpdate}
                 className="inline-flex items-center gap-1.5 rounded hover:bg-primary/10 disabled:cursor-default disabled:hover:bg-transparent"
               >
-                <span className="text-muted-foreground">{f.label}</span>
-                <span className="text-[11px] text-muted-foreground/70">{op?.label ?? f.operator}</span>
-                {op?.needsValue && <span className="max-w-[200px] truncate font-mono font-medium">{f.value}</span>}
+                <span className="text-muted-foreground">{t(fields.find((x) => x.field === f.field)?.label ?? f.label)}</span>
+                <span className="text-[11px] text-muted-foreground/70">{t(op?.label ?? f.operator)}</span>
+                {op?.needsValue && <span className="max-w-[200px] truncate font-mono font-medium">{t(f.value)}</span>}
               </button>
               <button
                 onClick={() => {
@@ -95,7 +112,7 @@ export function CustomFilterBar({
           onClick={onClear}
           className="px-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground hover:underline"
         >
-          {labels.clearAll}
+          {t(labels.clearAll)}
         </button>
       )}
     </div>

@@ -27,7 +27,7 @@ description: |
   8. Implement RBAC to restrict mailbox export permissions
 where: |
   oneOf("action", ["New-MailboxExportRequest", "New-ComplianceSearchAction", "SearchExportDownloaded"]) &&
-  equals("actionResult", "Success")
+  equals("actionResult", "success")
 groupBy:
   - lastEvent.action
   - adversary.user

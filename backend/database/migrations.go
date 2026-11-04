@@ -19,6 +19,7 @@ import (
 	arr_domain "github.com/utmstack/utmstack/backend/modules/soar/domain"
 	socai_domain "github.com/utmstack/utmstack/backend/modules/socai/domain"
 	tenant_domain "github.com/utmstack/utmstack/backend/modules/tenant/domain"
+	threatintel_domain "github.com/utmstack/utmstack/backend/modules/threatintel/domain"
 	"github.com/utmstack/utmstack/backend/pkg/joblease"
 	"gorm.io/gorm"
 
@@ -65,8 +66,12 @@ func Models() []any {
 		datasources_domain.Datasource{},
 		dashboards_domain.Dashboard{},
 		dashboards_domain.Visualization{},
+		dashboards_domain.DashboardFilter{},
 		loganalyzer_domain.SavedQuery{},
 		adaudit_domain.ADUser{},
+		adaudit_domain.IdentityAlias{},
+		adaudit_domain.IdentityAliasAssignment{},
+		threatintel_domain.AnalystConversation{},
 	}
 }
 

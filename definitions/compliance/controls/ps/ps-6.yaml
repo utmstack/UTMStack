@@ -1,4 +1,4 @@
-# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Manual: set in the report.
 id: ps-6
 family: ps
 familyName: Personnel Security
@@ -6,8 +6,11 @@ name: Access Agreements
 scope: governance
 statement: |-
   Develop and document access agreements for organizational systems;
-    Review and update the access agreements [frequency] ; and
-    Verify that individuals requiring access to organizational information and systems:
-      Sign appropriate access agreements prior to being granted access; and
-      Re-sign access agreements to maintain access to organizational systems when access agreements have been updated or [frequency].
+  Review and update the access agreements [frequency]; and
+  Verify that individuals requiring access to organizational information and systems:
+  Sign appropriate access agreements prior to being granted access; and
+  Re-sign access agreements to maintain access to organizational systems when access agreements have been updated or [frequency].
+remediation: |-
+  Manual control: logs cannot show whether this is in place, so the report lists it as "Out of scope" until a person decides. Open the framework report, set this control's status (Compliant, Non-compliant or At risk) and write the justification.
+  Keep the evidence an auditor will ask for, for example screening, termination and transfer records, or signed access agreements.
 source: NIST SP 800-53 Rev 5 (public domain)

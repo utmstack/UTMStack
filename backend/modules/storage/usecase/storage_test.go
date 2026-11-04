@@ -12,6 +12,7 @@ import (
 type fakeStore struct {
 	retentions map[domain.Dataset]domain.Retention
 	ready      bool
+	disk       domain.ColdDiskInfo
 	reloaded   bool
 	reloadErr  error
 	adopted    []domain.Retention
@@ -48,9 +49,10 @@ func (f *fakeStore) AdoptTiering(_ context.Context, r domain.Retention) error {
 	return nil
 }
 
-func (f *fakeStore) Usage(context.Context) ([]domain.Usage, error)  { return nil, nil }
-func (f *fakeStore) Health(context.Context) (domain.Health, error)  { return domain.Health{}, nil }
-func (f *fakeStore) ColdStorageReady(context.Context) (bool, error) { return f.ready, nil }
+func (f *fakeStore) Usage(context.Context) ([]domain.Usage, error)         { return nil, nil }
+func (f *fakeStore) Health(context.Context) (domain.Health, error)         { return domain.Health{}, nil }
+func (f *fakeStore) ColdStorageReady(context.Context) (bool, error)        { return f.ready, nil }
+func (f *fakeStore) ColdDisk(context.Context) (domain.ColdDiskInfo, error) { return f.disk, nil }
 func (f *fakeStore) ReloadConfig(context.Context) error {
 	f.reloaded = true
 	if f.reloadErr != nil {
@@ -62,15 +64,15 @@ func (f *fakeStore) ReloadConfig(context.Context) error {
 
 type fakeConfig struct {
 	tiering domain.Tiering
-	written []domain.ObjectStore
+	written []domain.ColdTarget
 	undone  bool
 }
 
 func (f *fakeConfig) Read() (domain.Tiering, error) { return f.tiering, nil }
-func (f *fakeConfig) Write(o domain.ObjectStore) (func() error, error) {
+func (f *fakeConfig) Write(o domain.ColdTarget) (func() error, error) {
 	previous := f.tiering
 	f.written = append(f.written, o)
-	f.tiering = domain.Tiering{Configured: true, Endpoint: o.Endpoint}
+	f.tiering = domain.Tiering{Configured: true, Kind: o.Kind, Endpoint: o.Location()}
 	return func() error { f.tiering = previous; f.undone = true; return nil }, nil
 }
 
@@ -151,7 +153,7 @@ func TestARetentionThatMakesNoSenseNeverReachesTheStore(t *testing.T) {
 func TestEnablingWritesThenReloads(t *testing.T) {
 	s, st, cfg := newService()
 
-	got, err := s.EnableTiering(context.Background(), domain.ObjectStore{
+	got, err := s.EnableTiering(context.Background(), domain.ColdTarget{
 		Endpoint:  "https://s3.example.com/utmstack-cold",
 		AccessKey: "AKIA",
 		SecretKey: "s3cr3t",
@@ -173,30 +175,6 @@ func TestEnablingWritesThenReloads(t *testing.T) {
 	}
 }
 
-// Parts already moved carry the bucket they went to. Pointing the store
-// somewhere else leaves them unreadable, and nothing says so until a query
-// reaches that far back.
-func TestTheBucketCannotChangeOnceRecordsLiveInIt(t *testing.T) {
-	s, st, cfg := newService()
-	st.ready = true
-	cfg.tiering = domain.Tiering{Configured: true, Endpoint: "https://s3.example.com/old/"}
-	st.retentions[domain.DatasetLogs] = domain.Retention{
-		Dataset: domain.DatasetLogs, KeepDays: 365, ColdDays: 30,
-	}
-
-	_, err := s.EnableTiering(context.Background(), domain.ObjectStore{
-		Endpoint:  "https://s3.example.com/new/",
-		AccessKey: "AKIA",
-		SecretKey: "s3cr3t",
-	})
-	if !errors.Is(err, domain.ErrEndpointLocked) {
-		t.Fatalf("err = %v, want the bucket locked", err)
-	}
-	if len(cfg.written) != 0 {
-		t.Error("it wrote the new bucket anyway")
-	}
-}
-
 // Rotating the keys is the same bucket, and has to keep working.
 func TestCredentialsCanBeRotated(t *testing.T) {
 	s, st, cfg := newService()
@@ -206,7 +184,7 @@ func TestCredentialsCanBeRotated(t *testing.T) {
 		Dataset: domain.DatasetLogs, KeepDays: 365, ColdDays: 30,
 	}
 
-	if _, err := s.EnableTiering(context.Background(), domain.ObjectStore{
+	if _, err := s.EnableTiering(context.Background(), domain.ColdTarget{
 		Endpoint:  "https://s3.example.com/cold/",
 		AccessKey: "AKIA-NEW",
 		SecretKey: "rotated",
@@ -243,7 +221,7 @@ func TestABucketTheStoreRefusesIsTakenBackOut(t *testing.T) {
 	s, st, cfg := newService()
 	st.reloadErr = errors.New("Not found address of host: minio.internal")
 
-	_, err := s.EnableTiering(context.Background(), domain.ObjectStore{
+	_, err := s.EnableTiering(context.Background(), domain.ColdTarget{
 		Endpoint:  "http://minio.internal:9000/utmstack-cold/",
 		AccessKey: "AKIA",
 		SecretKey: "s3cr3t",
@@ -256,5 +234,102 @@ func TestABucketTheStoreRefusesIsTakenBackOut(t *testing.T) {
 	}
 	if !strings.Contains(err.Error(), "minio.internal") {
 		t.Errorf("err = %v, want it to carry what the store said", err)
+	}
+}
+
+// A folder or share needs no credentials and no address: the installer decides
+// where it is mounted.
+func TestALocalTargetNeedsNothingFromTheCaller(t *testing.T) {
+	s, st, cfg := newService()
+	st.disk = domain.ColdDiskInfo{Present: true, FreeBytes: 1 << 40}
+
+	got, err := s.EnableTiering(context.Background(), domain.ColdTarget{Kind: domain.KindLocal})
+	if err != nil {
+		t.Fatalf("EnableTiering: %v", err)
+	}
+	if got.Kind != domain.KindLocal || got.Endpoint != domain.LocalMount {
+		t.Errorf("got %+v, want the fixed mount", got)
+	}
+	if len(cfg.written) != 1 {
+		t.Fatalf("wrote %d files", len(cfg.written))
+	}
+}
+
+func TestAnUnknownKindIsRefused(t *testing.T) {
+	s, _, _ := newService()
+	if _, err := s.EnableTiering(context.Background(), domain.ColdTarget{Kind: "ftp"}); !errors.Is(err, domain.ErrKindUnknown) {
+		t.Fatalf("err = %v", err)
+	}
+}
+
+// A read-only or missing folder would pass the reload and only fail when the
+// first part tried to move, days later.
+func TestALocalFolderTheStoreCannotWriteIsRefused(t *testing.T) {
+	for name, disk := range map[string]domain.ColdDiskInfo{
+		"missing":   {},
+		"read-only": {Present: true, ReadOnly: true, FreeBytes: 1},
+	} {
+		t.Run(name, func(t *testing.T) {
+			s, st, _ := newService()
+			st.disk = disk
+			_, err := s.EnableTiering(context.Background(), domain.ColdTarget{Kind: domain.KindLocal})
+			if !errors.Is(err, domain.ErrLocalUnusable) {
+				t.Fatalf("err = %v", err)
+			}
+		})
+	}
+}
+
+func TestAzureNeedsAContainerAndAnAccount(t *testing.T) {
+	base := domain.ColdTarget{Kind: domain.KindAzure, Endpoint: "https://acct.blob.core.windows.net", Container: "cold", AccessKey: "acct", SecretKey: "key"}
+	if err := base.Validate(); err != nil {
+		t.Fatalf("valid target refused: %v", err)
+	}
+	noContainer := base
+	noContainer.Container = ""
+	if !errors.Is(noContainer.Validate(), domain.ErrContainerRequired) {
+		t.Error("missing container accepted")
+	}
+	noKey := base
+	noKey.SecretKey = ""
+	if !errors.Is(noKey.Validate(), domain.ErrAccountNeeded) {
+		t.Error("missing account key accepted")
+	}
+	if got := base.Normalized().Location(); got != "https://acct.blob.core.windows.net/cold" {
+		t.Errorf("location = %q", got)
+	}
+}
+
+func TestAnIAMRoleNeedsNoKeys(t *testing.T) {
+	o := domain.ColdTarget{Endpoint: "https://s3.eu-west-1.amazonaws.com/cold", UseRole: true}
+	if err := o.Validate(); err != nil {
+		t.Fatalf("role refused: %v", err)
+	}
+	if n := o.Normalized(); n.AccessKey != "" || n.SecretKey != "" {
+		t.Error("keys survived next to a role")
+	}
+}
+
+// Changing the destination is allowed even when records were moved to the old
+// one: the page warns that they are not migrated.
+func TestTheDestinationCanChangeEvenWithRecordsInTheOldOne(t *testing.T) {
+	s, st, cfg := newService()
+	st.ready = true
+	st.disk = domain.ColdDiskInfo{Present: true, FreeBytes: 1 << 40}
+	cfg.tiering = domain.Tiering{Configured: true, Kind: domain.KindS3, Endpoint: "https://s3.example.com/old/"}
+	st.retentions[domain.DatasetLogs] = domain.Retention{
+		Dataset: domain.DatasetLogs, KeepDays: 365, ColdDays: 30,
+	}
+
+	for _, target := range []domain.ColdTarget{
+		{Endpoint: "https://s3.example.com/new/", AccessKey: "a", SecretKey: "s"},
+		{Kind: domain.KindLocal},
+	} {
+		if _, err := s.EnableTiering(context.Background(), target); err != nil {
+			t.Fatalf("%s refused: %v", target.Kind, err)
+		}
+	}
+	if len(cfg.written) != 2 {
+		t.Errorf("wrote %d files, want both", len(cfg.written))
 	}
 }

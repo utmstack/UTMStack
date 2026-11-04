@@ -1,4 +1,4 @@
-# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Manual: set in the report.
 id: pm-28
 family: pm
 familyName: Program Management
@@ -6,10 +6,13 @@ name: Risk Framing
 scope: governance
 statement: |-
   Identify and document:
-      Assumptions affecting risk assessments, risk responses, and risk monitoring;
-      Constraints affecting risk assessments, risk responses, and risk monitoring;
-      Priorities and trade-offs considered by the organization for managing risk; and
-      Organizational risk tolerance;
-    Distribute the results of risk framing activities to [personnel] ; and
-    Review and update risk framing considerations [frequency].
+  Assumptions affecting risk assessments, risk responses, and risk monitoring;
+  Constraints affecting risk assessments, risk responses, and risk monitoring;
+  Priorities and trade-offs considered by the organization for managing risk; and
+  Organizational risk tolerance;
+  Distribute the results of risk framing activities to [personnel]; and
+  Review and update risk framing considerations [frequency].
+remediation: |-
+  Manual control: logs cannot show whether this is in place, so the report lists it as "Out of scope" until a person decides. Open the framework report, set this control's status (Compliant, Non-compliant or At risk) and write the justification.
+  Keep the evidence an auditor will ask for, for example the security programme documents, assigned roles and measures.
 source: NIST SP 800-53 Rev 5 (public domain)

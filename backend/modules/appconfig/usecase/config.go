@@ -158,7 +158,7 @@ func (s *service) SetString(ctx context.Context, key, value string, opts connect
 // success means the SMTP server accepted the message. The first failure is
 // returned with the offending index so the caller can identify which
 // configuration is broken.
-func (s *service) CheckMail(ctx context.Context, configs []domain.MailConfig) error {
+func (s *service) CheckMail(ctx context.Context, configs []domain.MailConfig, loggedUserEmail string) error {
 	if s.mailer == nil {
 		return fmt.Errorf("mailer not configured")
 	}
@@ -178,7 +178,7 @@ func (s *service) CheckMail(ctx context.Context, configs []domain.MailConfig) er
 			}
 		}
 		ec := toEmailConfig(cfg)
-		if err := s.mailer.SendMailWithConfig(ctx, &ec, []string{cfg.From}, nil, "Mail configuration test", body, nil); err != nil {
+		if err := s.mailer.SendMailWithConfig(ctx, &ec, []string{loggedUserEmail}, nil, "Mail configuration test", body, nil); err != nil {
 			return fmt.Errorf("config[%d] (%s:%d): %w", i, cfg.Host, cfg.Port, err)
 		}
 	}

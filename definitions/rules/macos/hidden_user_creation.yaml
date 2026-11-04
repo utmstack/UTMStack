@@ -23,13 +23,13 @@ description: |
   5. Disable and remove the unauthorized account
   6. Review system access logs for the hidden account
 where: |
-  (contains("log.eventMessage", "dscl") || contains("log.eventMessage", "sysadminctl") ||
-   contains("log.eventMessage", "dseditgroup")) &&
-  (contains("log.eventMessage", "IsHidden") ||
-   (contains("log.eventMessage", "create") && contains("log.eventMessage", "/Users/")) ||
-   (contains("log.eventMessage", "UniqueID") && contains("log.eventMessage", "create")) ||
-   contains("log.eventMessage", "hidden user") ||
-   regexMatch("log.eventMessage", "(?i)dscl.*create.*/Users/.*IsHidden.*1"))
+  (contains("log.message", "dscl") || contains("log.message", "sysadminctl") ||
+   contains("log.message", "dseditgroup")) &&
+  (contains("log.message", "IsHidden") ||
+   (contains("log.message", "create") && contains("log.message", "/Users/")) ||
+   (contains("log.message", "UniqueID") && contains("log.message", "create")) ||
+   contains("log.message", "hidden user") ||
+   regexMatch("log.message", "(?i)dscl.*create.*/Users/.*IsHidden.*1"))
 groupBy:
   - adversary.host
   - adversary.user

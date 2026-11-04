@@ -1,0 +1,27 @@
+# Rule version v1.0.0 (gap-fill set, 2026-09-25)
+
+dataTypes:
+  - o365
+name: Microsoft 365 Conditional Access Policy Disabled or Weakened
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 1
+category: Defense Evasion
+technique: "T1562 - Impair Defenses"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/entra/identity/conditional-access/overview
+description: |
+  Detects DisableConditionalAccessPolicy or UpdateConditionalAccessPolicy that removes or weakens conditional access, disabling the MFA and network gates protecting the tenant.
+
+  Next Steps:
+  1. Identify which policy changed and by whom
+  2. Review the policy diff for removed MFA or network conditions
+  3. Assess the acting identity for compromise
+  4. Restore the policy and review sign-ins during the weakened window
+where: |
+  oneOf("action", ["DisableConditionalAccessPolicy", "UpdateConditionalAccessPolicy"]) && equals("actionResult", "success")
+groupBy:
+  - lastEvent.log.Parameters
+  - adversary.user

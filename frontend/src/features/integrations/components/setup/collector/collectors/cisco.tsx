@@ -31,7 +31,7 @@ logging trap informational`} />
 
 registerCollector({
   getName: () => 'CISCO',
-  matches: (n) => n.includes('cisco') && !n.includes('switch') && !n.includes('meraki') && !n.includes('firepower'),
+  matches: (n) => n === 'cisco' || n === 'cisco_asa' || n === 'firewall_cisco_asa' || n === 'firewall-cisco-asa',
   sections: [],
   render: (m) => <CiscoAsaGuide module={m} />,
 })

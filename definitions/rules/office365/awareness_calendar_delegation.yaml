@@ -1,0 +1,27 @@
+# Rule version v1.1.2
+
+dataTypes:
+- o365
+name: Office 365 Calendar Delegate Changed
+description: |
+  A user was added to or removed from another mailbox owner’s calendar delegation. The operation can be routine scheduling administration, but changes who can manage calendar items.
+
+  Review the actor, affected object, change request and authorized owner. This alert reports an audited configuration change; it does not by itself establish compromise, an external recipient, or a currently enabled setting.
+category: Administrative Awareness
+technique: 'T1098.002 - Account Manipulation: Additional Email Delegate Permissions'
+adversary: origin
+impact:
+  confidentiality: 1
+  integrity: 1
+  availability: 0
+references:
+- https://learn.microsoft.com/en-us/purview/audit-log-activities
+- https://learn.microsoft.com/en-us/office/office-365-management-api/office-365-management-activity-api-schema
+where: |
+  equals("log.Workload", "Exchange") && equals("actionResult", "success") && equals("action", "UpdateCalendarDelegation")
+groupBy:
+- lastEvent.tenantId
+- lastEvent.log.OrganizationId
+- dataSource
+- adversary.user
+- lastEvent.action

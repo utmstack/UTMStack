@@ -1,58 +1,85 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ExternalLink } from 'lucide-react'
 import { Section } from '@/features/integrations/components/ui/Section'
 import { CodeBlock } from '@/features/integrations/components/ui/CodeBlock'
+import { ChannelGuide } from '@/features/integrations/components/setup/ChannelGuide'
+import { ForwarderGuide } from '@/features/integrations/components/setup/collector/ForwarderGuide'
+import type { RemoteEnableSelection } from './RemoteEnablePanel'
+import { availableProtosFor, defaultPortFor, type Proto } from './protoCatalog'
 import type { Integration } from '@/features/integrations/types'
 
-interface GenericCollectorGuideProps {
-  integration: Integration
+const ROOT = 'integrations.setup.collector'
+
+function getDefaultEndpoint(integration: Integration): { proto: Proto; port: string; protos: Proto[] } | null {
+  const dataType = integration.forwarderDataType || integration.dataType
+  if (!dataType) return null
+
+  const availableProtos = availableProtosFor(dataType)
+  const configuredDefault = integration.defaultPort?.match(/^(\d+)(?:\/(udp|tcp|tls|http|https))?$/i)
+  const configuredProto = configuredDefault?.[2]?.toLowerCase() as Proto | undefined
+  const configuredPort = Number(configuredDefault?.[1])
+  const validConfiguredPort = configuredPort > 0 && configuredPort <= 65535
+  const catalogProtos = availableProtos.filter((proto) => !!defaultPortFor(dataType, proto))
+
+  if (catalogProtos.length > 0) {
+    const proto = configuredProto && catalogProtos.includes(configuredProto)
+      ? configuredProto
+      : catalogProtos[0]
+    const port = defaultPortFor(dataType, proto) || (validConfiguredPort ? String(configuredPort) : '')
+    return port ? { proto, port, protos: catalogProtos } : null
+  }
+
+  if (!configuredProto || !validConfiguredPort) return null
+  return { proto: configuredProto, port: String(configuredPort), protos: [configuredProto] }
 }
 
-export function GenericCollectorGuide({ integration: i }: GenericCollectorGuideProps) {
+export function GenericCollectorGuide({ integration }: { integration: Integration }) {
   const { t } = useTranslation()
+  const endpoint = getDefaultEndpoint(integration)
+  const [selection, setSelection] = useState<RemoteEnableSelection>(() => ({
+    proto: endpoint?.proto ?? 'udp',
+    port: endpoint?.port ?? '',
+  }))
+
+  if (integration.guideChannel) {
+    return <ChannelGuide integration={integration} />
+  }
+
+  const forwarderDataType = integration.forwarderDataType || integration.dataType
+
+  if (integration.ingestType?.toLowerCase() === 'forwarder' && endpoint && forwarderDataType) {
+    const host = selection.collector?.ip || '<collector-host>'
+
+    return (
+      <ForwarderGuide
+        source={integration.name}
+        sourceType={forwarderDataType}
+        port={selection.port || endpoint.port}
+        defaultPort={endpoint.port}
+        defaultProto={endpoint.proto}
+        availableProtos={endpoint.protos}
+        onSetSelection={setSelection}
+      >
+        <Section title={t(`${ROOT}.genericSourceTitle`, { name: integration.name })} step={2}>
+          <p className="mb-2 text-sm text-foreground/90">
+            {t(`${ROOT}.genericSourceBody`, { name: integration.name })}
+          </p>
+          <CodeBlock
+            lang="config"
+            code={`Host:      ${host}
+Port:      ${selection.port || endpoint.port}
+Protocol:  ${selection.proto.toUpperCase()}`}
+          />
+        </Section>
+      </ForwarderGuide>
+    )
+  }
 
   return (
-    <div className="space-y-4">
-      <Section title={t('integrations.setup.collector.howItWorksTitle')}>
-        <p className="text-sm text-foreground/90">
-          {t('integrations.setup.collector.howItWorksBody', { name: i.name })}
-        </p>
-      </Section>
-
-      <Section title={t('integrations.setup.collector.step1Title')}>
-        <p className="mb-2 text-xs text-muted-foreground">
-          {t('integrations.setup.collector.step1Hint', { name: i.name })}
-        </p>
-        <CodeBlock
-          code={`curl -fsSL https://install.utmstack.com/collector.sh | sudo bash -s -- \\
-  --token=eyJ...workspace_id=acme...`}
-        />
-      </Section>
-
-      <Section title={t('integrations.setup.collector.step2Title', { name: i.name })}>
-        <p className="mb-2 text-xs text-muted-foreground">
-          {t('integrations.setup.collector.step2Hint', { name: i.name, port: i.defaultPort ?? '514/udp' })}
-        </p>
-        <CodeBlock
-          code={`# Example syslog target on ${i.name}:
-host:        utmstack-collector.local
-port:        ${i.defaultPort ?? '514/udp'}
-format:      RFC 5424
-facility:    local0`}
-        />
-        <a className="mt-2 inline-flex items-center gap-1 text-[11px] text-primary hover:underline" href="#">
-          {t('integrations.setup.collector.vendorDocs')} <ExternalLink size={10} />
-        </a>
-      </Section>
-
-      <Section title={t('integrations.setup.collector.step3Title')}>
-        <p className="text-sm text-foreground/90">
-          {t('integrations.setup.collector.step3Body', {
-            name: i.name,
-            source: i.name.toLowerCase().replace(/\s/g, '-'),
-          })}
-        </p>
-      </Section>
-    </div>
+    <Section title={t(`${ROOT}.guideUnavailableTitle`)}>
+      <p className="text-sm text-foreground/90">
+        {t(`${ROOT}.guideUnavailableBody`, { name: integration.name })}
+      </p>
+    </Section>
   )
 }

@@ -47,6 +47,7 @@ var pluginNames = map[string]string{
 	"AZURE":        "azure",
 	"GCP":          "gcp",
 	"O365":         "o365",
+	"O365_GRAPH":   "o365_graph",
 	"BITDEFENDER":  "bitdefender",
 	"CROWDSTRIKE":  "crowdstrike",
 	"SOPHOS":       "sophos",

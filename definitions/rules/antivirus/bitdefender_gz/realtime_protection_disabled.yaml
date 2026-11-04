@@ -1,33 +1,28 @@
-# Rule version v2.0.0
+# Rule version v3.0.0
 
 dataTypes:
-  - antivirus-bitdefender-gz
+- antivirus-bitdefender-gz
 name: Bitdefender GravityZone Real-Time Antimalware Disabled
 impact:
   confidentiality: 3
   integrity: 3
   availability: 2
 category: Defense Evasion
-technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+technique: 'T1562.001 - Impair Defenses: Disable or Modify Tools'
 adversary: origin
 references:
-  - https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
-  - https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html
-  - https://attack.mitre.org/techniques/T1562/001/
-description: |
-  Detects real-time (on-access) Antimalware protection being disabled on a Bitdefender GravityZone endpoint, from the vendor's own Product Modules Status event: malware_status = 0 means the on-access scanner is currently off.
+- https://www.bitdefender.com/business/support/en/77212-237089-event-types.html
+- https://www.bitdefender.com/business/support/en/77212-237090-syslog-events.html
+- https://attack.mitre.org/techniques/T1562/001/
+description: 'A Product Modules Status event reports real-time antimalware disabled. Confirm the applied policy, licensing, maintenance
+  state and actual endpoint protection status. The event does not identify the person responsible or establish tampering. Review related
+  protection events and restore expected coverage through the approved management process.
 
-  This is a narrow, high-fidelity signal. On-access scanning is Bitdefender's core defence; a machine running with it off cannot detect malware at execution time, only at scheduled scans.
-
-  Next Steps:
-  1. Correlate the deviceTime against the Control Center audit log for this endpoint's policy group. A legitimate change comes from a policy push; an unattributed change comes from local tampering.
-  2. Look for any threats that arrived during the disabled window: nothing between the disable event and the next enable event will have been caught by real-time scanning. Trigger a full on-demand scan through the console before trusting the endpoint again.
-  3. Check for concurrent antitampering events on the same target.host. A modules-status change plus an antitampering (Callback Evasion) event within minutes is the shape of an attacker with local admin trying to silence the agent.
-  4. Restore the module through GravityZone Control Center. Do not rely on the local agent to accept the re-enable; verify with the next modules-status event.
-  5. If the on-access module keeps going off despite a re-enable, treat the endpoint as tampered and consider reimaging.
-where: |
-  equals("log.BitdefenderGZModule", "modules") &&
-  (equals("log.malware_status", "0") ||
-   equals("log.BitdefenderGZMalwareStatus", "0"))
+  '
+where: "equals(\"log.BitdefenderGZModule\", \"modules\") &&\n(equals(\"log.malwarestatus\", \"0\") ||\n equals(\"log.BitdefenderGZMalwareStatus\"\
+  , \"0\"))\n"
 groupBy:
-  - target.host
+- lastEvent.dataSource
+- lastEvent.log.BitdefenderGZCompanyId
+- lastEvent.log.endpointKeyType
+- lastEvent.log.endpointKey

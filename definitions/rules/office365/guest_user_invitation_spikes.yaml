@@ -15,7 +15,7 @@ references:
   - https://attack.mitre.org/techniques/T1136/
 description: |
   Detects unusual spikes in guest user invitations which could indicate an attempt to establish persistence through external accounts or potential data exfiltration preparation by adding unauthorized external collaborators.
-
+  
   Next Steps:
   1. Review the user account initiating the invitations for any signs of compromise
   2. Verify the legitimacy of the invited external users and their business justification
@@ -32,7 +32,7 @@ where: |
     equals("action", "Add guest to group") ||
     equals("action", "Guest user invite redeemed")
   ) &&
-  equals("actionResult", "Success")
+  equals("actionResult", "success")
 afterEvents:
   - with:
       - field: origin.user

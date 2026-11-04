@@ -1,0 +1,27 @@
+# Rule version v1.0.0 (gap-fill set, 2026-09-25)
+
+dataTypes:
+  - o365
+name: Microsoft 365 CAS Mailbox Auto-Forward Set
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Collection
+technique: "T1114.003 - Email Collection"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/powershell/module/exchange/set-casmailbox
+description: |
+  Detects Set-CASMailbox establishing a ForwardingAddress or ForwardingSmtpAddress, redirecting mailbox mail externally at the CAS level to evade visible inbox rules.
+
+  Next Steps:
+  1. Identify the forwarding target address
+  2. Determine whether it is internal or external
+  3. Review the acting administrator identity
+  4. Remove the forwarding address and audit related mail
+where: |
+  equals("action", "Set-CASMailbox") && equals("actionResult", "success") && (contains("log.Parameters", "ForwardingAddress") || contains("log.Parameters", "ForwardingSmtpAddress"))
+groupBy:
+  - lastEvent.log.Parameters
+  - adversary.user

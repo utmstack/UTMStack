@@ -1,334 +1,274 @@
+# Provenance: UTMStack checklist, rebuilt from the UTMStack v11 "BANKING AUDIT" list. It is not the text of any
+#   regulator or standards body. Some requirements reflect public banking expectations (FFIEC IT Examination
+#   Handbook, Information Security booklet; Basel Committee Principles for operational resilience; SWIFT CSP
+#   control ids, cited by id only). No copyrighted text is reproduced.
+# UTMStack Banking Security Audit: a security-log audit checklist for financial institutions, written by UTMStack.
+# Not a regulator's text. All wording is UTMStack's own; public references (FFIEC, Basel, SWIFT CSP ids only) are in banking-audit.notes.json.
 key: banking-audit
-name: BANKING AUDIT
-description: Banking Audit focuses on ensuring that financial institutions meet stringent security, regulatory, and risk management requirements. By centralizing log collection, enabling real-time threat detection, and automating incident response.
-source: Migrated from UTMStack v11
+name: Banking Security Audit
+description: Security-log audit checklist for banks and other financial institutions. It covers what an internal
+  or external auditor checks about log collection and retention, monitoring, real-time alerting, incident evidence,
+  log protection and governance.
+source: 'UTMStack checklist built from the v11 Banking Audit list; not a regulator''s text. Informed by FFIEC, Basel and SWIFT CSP expectations (cited by id only).'
 sections:
-  - key: sec-701
-    name: Real-time Alerting and Monitoring
-    requirements:
-      - id: banking-audit-req-862
-        name: Windows Account Logon Success
-        satisfiedBy:
-          - banking-audit-862
-      - id: banking-audit-req-863
-        name: Windows Account Logon Failure
-        satisfiedBy:
-          - banking-audit-863
-      - id: banking-audit-req-864
-        name: Windows Policy changes
-        satisfiedBy:
-          - banking-audit-864
-      - id: banking-audit-req-865
-        name: Windows Access to critical files or specific directories
-        satisfiedBy:
-          - banking-audit-865
-      - id: banking-audit-req-866
-        name: Windows Audit Policy Change
-        satisfiedBy:
-          - banking-audit-866
-      - id: banking-audit-req-867
-        name: Windows User Accounts Created
-        satisfiedBy:
-          - banking-audit-867
-      - id: banking-audit-req-868
-        name: Windows User Accounts Enabled
-        satisfiedBy:
-          - banking-audit-868
-      - id: banking-audit-req-869
-        name: Windows User Password Reset Attempt
-        satisfiedBy:
-          - banking-audit-869
-      - id: banking-audit-req-881
-        name: Windows Filtering Platform
-        satisfiedBy:
-          - banking-audit-881
-      - id: banking-audit-req-882
-        name: Windows Protected Object Access Operation
-        satisfiedBy:
-          - banking-audit-882
-      - id: banking-audit-req-883
-        name: Windows Object Deletion
-        satisfiedBy:
-          - banking-audit-883
-      - id: banking-audit-req-884
-        name: Windows Attempt to Access a Protected Object
-        satisfiedBy:
-          - banking-audit-884
-      - id: banking-audit-req-885
-        name: Windows Cleaned Event Log
-        satisfiedBy:
-          - banking-audit-885
-      - id: banking-audit-req-886
-        name: Windows Critical Hardware Failure
-        satisfiedBy:
-          - banking-audit-886
-      - id: banking-audit-req-887
-        name: Windows Monitoring of Critical System Services Status
-        satisfiedBy:
-          - banking-audit-887
-      - id: banking-audit-req-888
-        name: Windows Special privileges assigned to new logon
-        satisfiedBy:
-          - banking-audit-888
-      - id: banking-audit-req-889
-        name: Windows Member Addition to a Security Local Group
-        satisfiedBy:
-          - banking-audit-889
-      - id: banking-audit-req-890
-        name: Windows Registry Value Modification
-        satisfiedBy:
-          - banking-audit-890
-      - id: banking-audit-req-891
-        name: ' Windows Account Authentication Using NTLM'
-        satisfiedBy:
-          - banking-audit-891
-      - id: banking-audit-req-892
-        name: Windows Logins with explicit credentials
-        satisfiedBy:
-          - banking-audit-892
-      - id: banking-audit-req-893
-        name: Windows User Accounts Deleted
-        satisfiedBy:
-          - banking-audit-893
-      - id: banking-audit-req-894
-        name: Windows Restoration of default security policies
-        satisfiedBy:
-          - banking-audit-894
-      - id: banking-audit-req-895
-        name: Windows Process Creation
-        satisfiedBy:
-          - banking-audit-895
-      - id: banking-audit-req-896
-        name: Windows Process Termination
-        satisfiedBy:
-          - banking-audit-896
-      - id: banking-audit-req-897
-        name: Windows Installation of Services
-        satisfiedBy:
-          - banking-audit-897
-      - id: banking-audit-req-898
-        name: Windows Access to Shared Resources
-        satisfiedBy:
-          - banking-audit-898
-      - id: banking-audit-req-900
-        name: Windows System Time Settings Changes
-        satisfiedBy:
-          - banking-audit-900
-      - id: banking-audit-req-901
-        name: Windows Certificate Configuration Changes
-        satisfiedBy:
-          - banking-audit-901
-      - id: banking-audit-req-902
-        name: Windows Account Locks
-        satisfiedBy:
-          - banking-audit-902
-      - id: banking-audit-req-903
-        name: Windows Kerberos ticket requests
-        satisfiedBy:
-          - banking-audit-903
-      - id: banking-audit-req-904
-        name: Windows Local Security Group Member Removal
-        satisfiedBy:
-          - banking-audit-904
-      - id: banking-audit-req-905
-        name: Windows Service Installed
-        satisfiedBy:
-          - banking-audit-905
-      - id: banking-audit-req-906
-        name: Windows PowerShell Remote Session Creation
-        satisfiedBy:
-          - banking-audit-906
-      - id: banking-audit-req-907
-        name: Windows Protected Object Permission Change
-        satisfiedBy:
-          - banking-audit-907
-      - id: banking-audit-req-908
-        name: Windows User Accounts Enumeration
-        satisfiedBy:
-          - banking-audit-908
-      - id: banking-audit-req-909
-        name: Windows Group Membership Enumerated
-        satisfiedBy:
-          - banking-audit-909
-  - key: sec-702
-    name: Correlation of Events
-    requirements:
-      - id: banking-audit-req-910
-        name: Windows Account Logon Success
-        satisfiedBy:
-          - banking-audit-910
-      - id: banking-audit-req-911
-        name: Windows Account Logon Failure
-        satisfiedBy:
-          - banking-audit-911
-      - id: banking-audit-req-912
-        name: Windows User Accounts Created
-        satisfiedBy:
-          - banking-audit-912
-      - id: banking-audit-req-913
-        name: Windows User Accounts Enabled
-        satisfiedBy:
-          - banking-audit-913
-      - id: banking-audit-req-914
-        name: Windows User Password Reset Attempt
-        satisfiedBy:
-          - banking-audit-914
-      - id: banking-audit-req-915
-        name: Windows Member Addition to a Security Local Group
-        satisfiedBy:
-          - banking-audit-915
-      - id: banking-audit-req-916
-        name: Windows Local Security Group Member Removal
-        satisfiedBy:
-          - banking-audit-916
-      - id: banking-audit-req-917
-        name: Windows Access to critical files or specific directories
-        satisfiedBy:
-          - banking-audit-917
-      - id: banking-audit-req-918
-        name: Windows User Account Attributes Changes
-        satisfiedBy:
-          - banking-audit-918
-      - id: banking-audit-req-919
-        name: Windows Special privileges assigned to new logon
-        satisfiedBy:
-          - banking-audit-919
-      - id: banking-audit-req-920
-        name: Windows Process Creation
-        satisfiedBy:
-          - banking-audit-920
-      - id: banking-audit-req-921
-        name: Windows Service Installed
-        satisfiedBy:
-          - banking-audit-921
-      - id: banking-audit-req-922
-        name: Windows Access to Shared Resources
-        satisfiedBy:
-          - banking-audit-922
-      - id: banking-audit-req-923
-        name: Windows User Accounts Deleted
-        satisfiedBy:
-          - banking-audit-923
-      - id: banking-audit-req-924
-        name: Windows Logins with explicit credentials
-        satisfiedBy:
-          - banking-audit-924
-      - id: banking-audit-req-925
-        name: Windows PowerShell Script Block Registration
-        satisfiedBy:
-          - banking-audit-925
-      - id: banking-audit-req-926
-        name: Windows Logging Unexpected System Shutdowns
-        satisfiedBy:
-          - banking-audit-926
-      - id: banking-audit-req-927
-        name: Windows Access to Shared Resources
-        satisfiedBy:
-          - banking-audit-927
-      - id: banking-audit-req-928
-        name: Windows Application Errors
-        satisfiedBy:
-          - banking-audit-928
-      - id: banking-audit-req-929
-        name: Windows Object Deletion
-        satisfiedBy:
-          - banking-audit-929
-  - key: sec-703
-    name: Log Collection and Monitoring
-    requirements:
-      - id: banking-audit-req-838
-        name: Windows Account Logon Success
-        satisfiedBy:
-          - banking-audit-838
-      - id: banking-audit-req-839
-        name: Windows  Account Logon Failure
-        satisfiedBy:
-          - banking-audit-839
-      - id: banking-audit-req-840
-        name: Windows Account Logoff
-        satisfiedBy:
-          - banking-audit-840
-      - id: banking-audit-req-841
-        name: Windows Logins with explicit credentials
-        satisfiedBy:
-          - banking-audit-841
-      - id: banking-audit-req-842
-        name: Windows Cleaned Event Log
-        satisfiedBy:
-          - banking-audit-842
-      - id: banking-audit-req-843
-        name: Windows Policy changes
-        satisfiedBy:
-          - banking-audit-843
-      - id: banking-audit-req-844
-        name: Windows User Accounts Created
-        satisfiedBy:
-          - banking-audit-844
-      - id: banking-audit-req-845
-        name: Windows Password Reset Attempts
-        satisfiedBy:
-          - banking-audit-845
-      - id: banking-audit-req-846
-        name: 'Windows User Accounts Deleted '
-        satisfiedBy:
-          - banking-audit-846
-      - id: banking-audit-req-847
-        name: Windows Protected Object Permission Change
-        satisfiedBy:
-          - banking-audit-847
-      - id: banking-audit-req-848
-        name: Windows Access to critical files or specific directories
-        satisfiedBy:
-          - banking-audit-848
-      - id: banking-audit-req-849
-        name: Windows Connection blocked by Windows Firewall
-        satisfiedBy:
-          - banking-audit-849
-      - id: banking-audit-req-850
-        name: Windows Changes in account status
-        satisfiedBy:
-          - banking-audit-850
-      - id: banking-audit-req-851
-        name: Windows Kerberos ticket requests
-        satisfiedBy:
-          - banking-audit-851
-      - id: banking-audit-req-852
-        name: Windows Use of Elevated Privileges
-        satisfiedBy:
-          - banking-audit-852
-      - id: banking-audit-req-853
-        name: Windows Registry Value Modification
-        satisfiedBy:
-          - banking-audit-853
-      - id: banking-audit-req-854
-        name: Windows Changes to Defender settings
-        satisfiedBy:
-          - banking-audit-854
-      - id: banking-audit-req-855
-        name: Windows PowerShell Script Block Registration
-        satisfiedBy:
-          - banking-audit-855
-      - id: banking-audit-req-856
-        name: Windows PowerShell Remote Session Creation
-        satisfiedBy:
-          - banking-audit-856
-      - id: banking-audit-req-857
-        name: Windows Installation of Services
-        satisfiedBy:
-          - banking-audit-857
-      - id: banking-audit-req-858
-        name: Windows Service Control Manager Log Information
-        satisfiedBy:
-          - banking-audit-858
-      - id: banking-audit-req-859
-        name: Windows Failed logon attempt
-        satisfiedBy:
-          - banking-audit-859
-      - id: banking-audit-req-860
-        name: Windows Credential Access
-        satisfiedBy:
-          - banking-audit-860
-      - id: banking-audit-req-861
-        name: Windows Member Addition to a Security Local Group
-        satisfiedBy:
-          - banking-audit-861
+- key: log-collection
+  name: Log collection and retention
+  requirements:
+  - id: BA-LC-01
+    name: A management-approved logging standard defines which systems and events are logged, who reviews them and how long logs are kept
+    satisfiedBy: [au-1]
+  - id: BA-LC-02
+    name: Security logs from servers, workstations, domain controllers, network devices and critical applications are collected centrally, and every connected source keeps sending
+    satisfiedBy: [au-12, au-7]
+  - id: BA-LC-03
+    name: Audit logs of the cloud and SaaS services the bank uses are collected, including file and object activity (for example Microsoft 365 file access, Amazon S3 object writes)
+    satisfiedBy: [au-12, au-2]
+  - id: BA-LC-04
+    name: The list of log sources is reconciled with the asset inventory at a set frequency so that no critical system is missing
+    satisfiedBy: [cm-8]
+  - id: BA-LC-05
+    name: Every event type the logging standard requires (logons, account and group changes, privilege use, policy changes, object access, process and service activity) is being logged
+    satisfiedBy: [au-2]
+  - id: BA-LC-06
+    name: Each log record shows the user, the host or network address, the event type, the time and the outcome
+    satisfiedBy: [au-3]
+  - id: BA-LC-07
+    name: Clock synchronisation with the bank's approved time source, and manual changes to system time, are recorded
+    satisfiedBy: [au-8, sc-45]
+  - id: BA-LC-08
+    name: The log retention period is formally approved and meets the bank's legal, regulatory and record-keeping obligations
+    satisfiedBy: [au-11, si-12]
+  - id: BA-LC-09
+    name: Systems stay synchronised with the approved time source; synchronisation failures are detected
+    satisfiedBy: [sc-45.1]
+- key: identity-authentication
+  name: Identity and authentication monitoring
+  requirements:
+  - id: BA-IA-01
+    name: Successful logons (including logons with explicit or alternate credentials) and logoffs are recorded with the user, the source and the logon method, so that sessions can be reconstructed
+    satisfiedBy: [ia-2, ac-12]
+  - id: BA-IA-02
+    name: Failed logons and account lockouts are recorded
+    satisfiedBy: [ac-7]
+  - id: BA-IA-03
+    name: Kerberos and NTLM authentication on domain controllers is recorded, so that remaining use of legacy NTLM can be found
+    satisfiedBy: [ia-2]
+  - id: BA-IA-04
+    name: Remote access sessions (VPN, remote desktop, SSH) and remote administration, including remote PowerShell, are recorded
+    satisfiedBy: [ac-17, ma-4]
+  - id: BA-IA-05
+    name: Multi-factor authentication is enforced for remote access, privileged accounts and access to payment systems
+    satisfiedBy: [ia-2.1, ia-2.2]
+  - id: BA-IA-06
+    name: Network logons use replay-resistant authentication (for example Kerberos rather than NTLM), and legacy NTLM is restricted
+    satisfiedBy: [ia-2.8]
+  - id: BA-IA-07
+    name: Password rules are enforced (minimum length, blocking of common or compromised passwords, protected storage and transmission)
+    satisfiedBy: [ia-5.1]
+  - id: BA-IA-08
+    name: Administrators sign in with individual accounts; shared built-in administrator accounts (root, the built-in Administrator, cloud root users) are not used to log on directly
+    satisfiedBy: [ia-2.5]
+- key: account-privilege
+  name: Account and privilege management
+  requirements:
+  - id: BA-AM-01
+    name: Creation, enabling, disabling, deletion and attribute changes of user accounts, and password resets, are recorded
+    satisfiedBy: [ac-2, ia-4, ia-5]
+  - id: BA-AM-02
+    name: Changes to administrator and other security group membership, and use of special or elevated privileges, are recorded
+    satisfiedBy: [ac-6, ac-2]
+  - id: BA-AM-03
+    name: Business owners review user access rights and privileges at least yearly and sign off the review
+    satisfiedBy: [ac-6.7]
+  - id: BA-AM-04
+    name: Access of leavers and movers is removed or changed promptly, and inactive or expired accounts are disabled automatically
+    satisfiedBy: [ps-4, ps-5, ac-2.3]
+  - id: BA-AM-05
+    name: Segregation of duties is enforced for critical banking functions, so no one person can both perform and approve, or both administer and audit, a critical activity
+    satisfiedBy: [ac-5]
+- key: data-access
+  name: Sensitive data access monitoring
+  requirements:
+  - id: BA-DA-01
+    name: Access to critical files, folders and network shares holding customer or financial data is recorded, including refused attempts
+    satisfiedBy: [ac-3, au-2]
+  - id: BA-DA-02
+    name: Permission changes on protected files, folders and directory objects are recorded
+    satisfiedBy: [cm-3]
+  - id: BA-DA-03
+    name: Deletion of files and objects in sensitive locations is recorded
+    satisfiedBy: [si-7]
+  - id: BA-DA-04
+    name: Unusual volumes of data leaving the bank are monitored and raise an alert
+    satisfiedBy: [si-4]
+- key: change-configuration
+  name: Change and configuration monitoring
+  requirements:
+  - id: BA-CC-01
+    name: Changes to security policy, group policy and audit policy, including resets to default policy, are recorded
+    satisfiedBy: [cm-6, cm-3]
+  - id: BA-CC-02
+    name: Production changes follow an approved change process, and changes seen in the logs are reconciled with approved change records
+    satisfiedBy: [cm-3, cm-4]
+  - id: BA-CC-03
+    name: Installation of new services, drivers and software on servers and workstations is recorded
+    satisfiedBy: [cm-11]
+  - id: BA-CC-04
+    name: Changes to the registry and to critical system files and programs are recorded
+    satisfiedBy: [si-7]
+  - id: BA-CC-05
+    name: Changes to certificates and to certificate services configuration are recorded
+    satisfiedBy: [cm-3, sc-17]
+  - id: BA-CC-06
+    name: Security patch installations are recorded, so that patching can be checked against the timeframes the bank has set
+    satisfiedBy: [si-2]
+  - id: BA-CC-07
+    name: Systems are scanned for vulnerabilities at a set frequency and findings are tracked to remediation
+    satisfiedBy: [ra-5]
+  - id: BA-CC-08
+    name: Backups of critical systems and data run and complete on schedule
+    satisfiedBy: [cp-9]
+  - id: BA-CC-09
+    name: Only approved software can run on payment systems and critical servers (application allowlisting)
+    satisfiedBy: [cm-7.5]
+- key: malware-endpoint
+  name: Malware and endpoint protection
+  requirements:
+  - id: BA-MW-01
+    name: Anti-malware or endpoint detection and response activity from servers and workstations is collected, so that hosts reporting no protection can be found
+    satisfiedBy: [si-3]
+  - id: BA-MW-02
+    name: Changes to anti-malware and host firewall settings (for example protection turned off or exclusions added) are recorded
+    satisfiedBy: [cm-6, si-3]
+  - id: BA-MW-03
+    name: Process creation with its command line, and PowerShell script activity, are recorded on servers and workstations
+    satisfiedBy: [au-2]
+  - id: BA-MW-04
+    name: Use of removable media and external devices is recorded
+    satisfiedBy: [mp-7]
+  - id: BA-MW-05
+    name: Email filtering events (spam, phishing and malware blocked or quarantined) are collected
+    satisfiedBy: [si-8]
+  - id: BA-MW-06
+    name: Anti-malware protection and host firewalls stay switched on, and detected malware is removed
+    satisfiedBy: [si-3, sc-7.12]
+- key: network-perimeter
+  name: Network and perimeter monitoring
+  requirements:
+  - id: BA-NP-01
+    name: Firewalls and other boundary devices at internet and third-party connections log the traffic they handle
+    satisfiedBy: [sc-7]
+  - id: BA-NP-02
+    name: Connections blocked by network and host firewalls are recorded
+    satisfiedBy: [ac-4]
+  - id: BA-NP-03
+    name: Intrusion detection or prevention alerts from the perimeter and internal network segments are collected and analysed
+    satisfiedBy: [si-4]
+  - id: BA-NP-04
+    name: Payment systems (for example the SWIFT environment) and other critical zones are separated from the general network, and their boundary firewalls deny traffic by default and allow only approved flows
+    satisfiedBy: [sc-7.5, pl-8]
+  - id: BA-NP-05
+    name: Cleartext administration and file-transfer protocols (telnet, FTP, rlogin, TFTP) are not allowed through the network
+    satisfiedBy: [sc-8.1]
+- key: alerting-correlation
+  name: Real-time alerting and event correlation
+  requirements:
+  - id: BA-RT-01
+    name: Detection rules correlate events from all sources in real time and generate alerts
+    satisfiedBy: [si-4]
+  - id: BA-RT-02
+    name: Monitoring runs around the clock without gaps in log flow or detection
+    satisfiedBy: [ca-7]
+  - id: BA-RT-03
+    name: Brute-force and password-spraying patterns, including failures followed by a success, raise an alert
+    satisfiedBy: [si-4, ac-7]
+  - id: BA-RT-04
+    name: Suspicious account activity, such as an account created, given privileges and used or deleted within a short time, raises an alert
+    satisfiedBy: [si-4, ac-2]
+  - id: BA-RT-05
+    name: Credential theft, lateral movement and internal discovery (for example credential dumping, pass-the-hash, account and group enumeration) raise an alert
+    satisfiedBy: [si-4]
+  - id: BA-RT-06
+    name: Unusual activity on payment system and other privileged operator accounts, such as logons outside business hours or from unexpected places, raises an alert
+    satisfiedBy: [si-4]
+  - id: BA-RT-07
+    name: Collected events are matched against threat intelligence (known malicious addresses, domains and file hashes)
+    satisfiedBy: [si-4, pm-16]
+  - id: BA-RT-08
+    name: Availability events on critical systems (unexpected shutdowns, stopped critical services, hardware errors, application crashes) are monitored
+    satisfiedBy: [ca-7]
+  - id: BA-RT-09
+    name: Alerts are reviewed and triaged within the response times the bank has defined
+    satisfiedBy: [au-6]
+  - id: BA-RT-10
+    name: Detection use cases are documented, linked to the bank's risks, and reviewed and tuned at least yearly
+    satisfiedBy: [pm-31]
+- key: incident-handling
+  name: Incident handling and evidence
+  requirements:
+  - id: BA-IH-01
+    name: An approved incident response plan covers cyber incidents affecting banking services, with roles, escalation paths and communication
+    satisfiedBy: [ir-8, ir-1]
+  - id: BA-IH-02
+    name: Security alerts are tracked as incidents in the monitoring platform
+    satisfiedBy: [ir-5]
+  - id: BA-IH-03
+    name: Incidents are handled to closure, with containment, eradication, recovery and lessons learned documented
+    satisfiedBy: [ir-4]
+  - id: BA-IH-04
+    name: Significant incidents are reported to senior management, regulators and, where required, customers within legal deadlines
+    satisfiedBy: [ir-6]
+  - id: BA-IH-05
+    name: Investigators can search and report on all retained logs from one place
+    satisfiedBy: [au-7]
+  - id: BA-IH-06
+    name: Log evidence for incidents is preserved unaltered for investigations and legal proceedings
+    satisfiedBy: [au-9, au-11]
+  - id: BA-IH-07
+    name: The incident response plan is tested at least yearly, and staff with incident duties are trained
+    satisfiedBy: [ir-3, ir-2]
+- key: log-protection
+  name: Audit log protection
+  requirements:
+  - id: BA-AP-01
+    name: Clearing of event logs and tampering with audit records are detected and raise an alert
+    satisfiedBy: [au-9]
+  - id: BA-AP-02
+    name: Failures of the logging process (logging stopped, events dropped, log storage full) are detected and raise an alert
+    satisfiedBy: [au-5, au-4]
+  - id: BA-AP-03
+    name: Logs are kept in a backed-up central store separate from the systems that produce them, and administrators of monitored systems cannot change or delete them
+    satisfiedBy: [cp-6, ac-5]
+  - id: BA-AP-04
+    name: Logs are encrypted in transit from their sources to the log platform
+    satisfiedBy: [sc-8]
+- key: governance-review
+  name: Governance and periodic review
+  requirements:
+  - id: BA-GR-01
+    name: The board approves an information security programme that includes security monitoring, assigns responsibility for it and provides enough resources
+    satisfiedBy: [pm-1, pm-2, pm-3]
+  - id: BA-GR-02
+    name: A designated reviewer performs and signs off a periodic review of security log reports, such as privileged activity and access to critical systems
+    satisfiedBy: [pm-14]
+  - id: BA-GR-03
+    name: Monitoring results (alert volumes, incidents, coverage gaps) are reported to senior management and the board at a set frequency
+    satisfiedBy: [pm-6]
+  - id: BA-GR-04
+    name: A cyber risk assessment of banking services is performed at least yearly and sets the logging and monitoring scope
+    satisfiedBy: [ra-3]
+  - id: BA-GR-05
+    name: Critical banking services are mapped to the systems, interconnections and third parties they depend on
+    satisfiedBy: [ra-9, pm-11]
+  - id: BA-GR-06
+    name: Third-party service providers, including cloud and managed security providers, are overseen, and contracts require security logging, incident notification and a right to audit
+    satisfiedBy: [sa-9, sr-6]
+  - id: BA-GR-07
+    name: Logging and monitoring are covered by the business continuity and disaster recovery plans, and these plans are tested
+    satisfiedBy: [cp-2, cp-4]
+  - id: BA-GR-08
+    name: Security monitoring is independently tested, including penetration tests that check whether attacks are detected
+    satisfiedBy: [ca-2, ca-8]
+  - id: BA-GR-09
+    name: Findings from audits, tests and reviews are tracked to remediation with owners and due dates
+    satisfiedBy: [ca-5, pm-4]

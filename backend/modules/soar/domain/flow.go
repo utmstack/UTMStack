@@ -26,12 +26,12 @@ type Flow struct {
 }
 
 type FlowNode struct {
-	Kind      NodeKind        `yaml:"kind"                     json:"kind"`
-	Executor  string          `yaml:"executor"                 json:"executor"`
-	Command   string          `yaml:"command,omitempty"        json:"command,omitempty"`
-	Shell     string          `yaml:"shell,omitempty"          json:"shell,omitempty"`
-	Platform  string          `yaml:"platform,omitempty"       json:"platform,omitempty"`
-	Agent     string          `yaml:"agent,omitempty"          json:"agent,omitempty"`
+	Kind     NodeKind `yaml:"kind"                     json:"kind"`
+	Executor string   `yaml:"executor"                 json:"executor"`
+	Command  string   `yaml:"command,omitempty"        json:"command,omitempty"`
+	Shell    string   `yaml:"shell,omitempty"          json:"shell,omitempty"`
+	Platform string   `yaml:"platform,omitempty"       json:"platform,omitempty"`
+	Agent    string   `yaml:"agent,omitempty"          json:"agent,omitempty"`
 	// ExcludedAgents lists hostnames that must not run this node, even when
 	// the resolved target (via Agent or the alert source) would otherwise pick
 	// them. Applied only when Agent is empty (auto-resolve mode).

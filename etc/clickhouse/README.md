@@ -106,6 +106,39 @@ Data on the cold volume is **still part of the table**. A query reaching into it
 is slower; it is not a restore. There is no thaw step and no separate archive to
 decide about in advance.
 
+## Kinds of cold storage
+
+The backend writes `config.d/utmstack-tiering.xml` for whichever kind is chosen
+in Settings → Data retention. The policy, volumes and TTLs are identical for all
+of them; only the `cold_disk` changes.
+
+| Kind | Disk | Needs |
+|---|---|---|
+| `s3` | `s3` | Bucket URL plus keys, or `useRole` to take credentials from the server's environment (IAM role). Covers AWS S3, MinIO, Ceph, Wasabi, Cloudflare R2 and Google Cloud Storage (`https://storage.googleapis.com/<bucket>/` with HMAC keys). |
+| `azure` | `object_storage` / `azure_blob_storage` | Storage account URL, container, account name and key. |
+| `local` | `local` | Nothing. A folder, or an NFS share mounted on the host. |
+
+The destination can be changed at any time, and nothing is migrated: parts
+already moved to the previous one keep pointing at it, so queries that reach
+that far back fail until the old destination is copied across by hand (same
+object names and the metadata under `/var/lib/clickhouse/disks/cold_disk/` for
+object stores; the same directory for a local disk). The page warns before it
+is saved.
+
+### Local folder and NFS
+
+The installer bind-mounts `<data dir>/clickhouse/cold` at `/mnt/utmstack-cold`
+in the ClickHouse container, and the `local` kind always points there. To use an
+NFS share, mount it on the host over that directory **before the stack starts**
+(or before enabling cold storage), with ownership that lets the ClickHouse user
+(uid 101) write.
+
+The backend refuses the kind if the server reports no cold disk or a read-only
+one. It cannot tell a plain folder from a share that failed to mount, so an NFS
+that is not mounted writes to the host's local disk without complaint; check the
+mount before enabling. A share that goes away later stalls merges and queries
+that reach cold data until it returns.
+
 ## Adding object storage later
 
 Supported, in place, without rebuilding tables — provided the volume naming rule

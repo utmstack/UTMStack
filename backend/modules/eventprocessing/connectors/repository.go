@@ -71,7 +71,7 @@ type PipelineRepository interface {
 	List(tenantId string) []domain.Pipeline
 	GetByRelPath(relPath string) *domain.Pipeline
 	Create(relPath string, content []byte, tenantId string) (*domain.Pipeline, error)
-	Update(relPath string, content []byte) (*domain.Pipeline, error)
+	Update(relPath string, content []byte, tenantId string) (*domain.Pipeline, error)
 	Delete(relPath string) error
 	SetEnabled(tenantId, relPath string, active bool) error
 }

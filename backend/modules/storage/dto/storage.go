@@ -80,16 +80,23 @@ func FromHealth(h domain.Health) HealthResponse {
 	return HealthResponse{Status: h.Status, DiskUsedPct: h.DiskUsedPct, Message: h.Message}
 }
 
-// ObjectStoreRequest carries the secret in and never comes back out.
-type ObjectStoreRequest struct {
-	Endpoint   string `json:"endpoint" binding:"required"`
-	AccessKey  string `json:"accessKey" binding:"required"`
-	SecretKey  string `json:"secretKey" binding:"required"`
+// ColdTargetRequest carries the secret in and never comes back out. Kind
+// defaults to s3; a local target takes no other field, and an s3 target with useRole takes no keys. For azure, accessKey is the account name and secretKey its key.
+type ColdTargetRequest struct {
+	Kind       string `json:"kind,omitempty"`
+	Endpoint   string `json:"endpoint"`
+	Container  string `json:"container,omitempty"`
+	UseRole    bool   `json:"useRole,omitempty"`
+	AccessKey  string `json:"accessKey"`
+	SecretKey  string `json:"secretKey"`
 	CacheBytes int64  `json:"cacheBytes,omitempty"`
 }
 
-func (o ObjectStoreRequest) ToDomain() domain.ObjectStore {
-	return domain.ObjectStore{
+func (o ColdTargetRequest) ToDomain() domain.ColdTarget {
+	return domain.ColdTarget{
+		Kind:       domain.ColdKind(o.Kind),
+		Container:  o.Container,
+		UseRole:    o.UseRole,
 		Endpoint:   o.Endpoint,
 		AccessKey:  o.AccessKey,
 		SecretKey:  o.SecretKey,
@@ -100,6 +107,7 @@ func (o ObjectStoreRequest) ToDomain() domain.ObjectStore {
 type TieringResponse struct {
 	Configured bool   `json:"configured"`
 	Ready      bool   `json:"ready"`
+	Kind       string `json:"kind,omitempty"`
 	Endpoint   string `json:"endpoint,omitempty"`
 	Policy     string `json:"policy,omitempty"`
 }
@@ -108,6 +116,7 @@ func FromTiering(t domain.Tiering) TieringResponse {
 	return TieringResponse{
 		Configured: t.Configured,
 		Ready:      t.Ready,
+		Kind:       string(t.Kind),
 		Endpoint:   t.Endpoint,
 		Policy:     t.Policy,
 	}

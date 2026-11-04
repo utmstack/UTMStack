@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 
@@ -48,6 +49,20 @@ func main() {
 				os.Exit(1)
 			}
 
+		case "--apply-memory":
+			dryRun := false
+			fs := flag.NewFlagSet("apply-memory", flag.ExitOnError)
+			fs.BoolVar(&dryRun, "dry-run", false, "validate and show the allocation without redeploying the stack")
+			if err := fs.Parse(os.Args[2:]); err != nil {
+				fmt.Printf("\nerror parsing flags: %v", err)
+				os.Exit(1)
+			}
+			err := ApplyMemory(dryRun)
+			if err != nil {
+				fmt.Printf("\nerror applying memory allocation: %v", err)
+				os.Exit(1)
+			}
+
 		default:
 			help()
 		}
@@ -70,4 +85,5 @@ func help() {
 	fmt.Printf("  --uninstall, -u                       Uninstall %s\n", name)
 	fmt.Printf("  --version, -v                         Show %s version\n", name)
 	fmt.Println("  --recalculate-memory                  Rebalance container memory limits against current VM resources and redeploy")
+	fmt.Println("  --apply-memory [--dry-run]              Apply manual memory limits from /utmstack/updates/memory-allocation.json and redeploy")
 }

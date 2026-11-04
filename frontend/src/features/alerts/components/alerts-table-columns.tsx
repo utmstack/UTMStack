@@ -5,6 +5,7 @@ import { cn } from '@/shared/lib/utils'
 import { TS, absTime, relativeTime, statusKey } from '../lib/alert-meta'
 import type { Alert, AlertTag } from '../types/alert.types'
 import { AlertSummaryCell, SeverityBadge, SeverityBar } from './alert-cells'
+import { AlertResponseButton } from './alert-response-button'
 import { AlertIncidentTarget } from './alert-incident-target'
 import { EchoesChip } from './echoes-chip'
 import { EndpointMini } from './endpoint-mini'
@@ -107,6 +108,15 @@ export function buildAlertColumns({
           <Tag size={13} />
         </button>
       ),
+    },
+    {
+      id: 'response',
+      header: () => null,
+      size: 38,
+      minSize: 38,
+      enableResizing: false,
+      meta: { headerClassName: TH, cellClassName: TD_ICON },
+      cell: ({ row }) => <AlertResponseButton alert={row.original} />,
     },
     {
       id: 'incident',

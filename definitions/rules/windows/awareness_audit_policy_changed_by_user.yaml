@@ -1,0 +1,33 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - wineventlog
+name: "Windows: Audit Policy Changed by a User Account"
+impact:
+  confidentiality: 1
+  integrity: 2
+  availability: 0
+category: Administrative Awareness
+technique: Audit policy change
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4719
+  - https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/audit-audit-policy-change
+description: |
+  An account signed in as a user changed the computer's audit policy (event 4719), for example with auditpol.exe or the local security policy editor. The audit policy decides which security events Windows records, so switching categories off hides later activity. Microsoft recommends investigating any change that was not planned. Windows always records this event.
+
+  Changes made by the system itself are left out: SYSTEM, LOCAL SERVICE, NETWORK SERVICE and computer accounts. Windows reapplies the audit policy from Group Policy under those accounts many times a day, so audit changes delivered through Group Policy are not reported here. Changes by the same account on the same computer are grouped under one alert.
+
+  Next Steps:
+  1. Check which audit categories were turned on or off, and confirm the change with the account that made it.
+  2. If auditing was reduced without approval, restore the audit policy and review that account's activity on the computer.
+where: |
+  equals("log.eventCode", 4719) &&
+  equals("log.channel", "Security") &&
+  equals("log.providerName", "Microsoft-Windows-Security-Auditing") &&
+  exists("log.eventDataSubjectUserSid") &&
+  !oneOf("log.eventDataSubjectUserSid", ["S-1-5-18", "S-1-5-19", "S-1-5-20"]) &&
+  !endsWith("log.eventDataSubjectUserName", "$")
+groupBy:
+  - dataSource
+  - lastEvent.log.eventDataSubjectUserSid

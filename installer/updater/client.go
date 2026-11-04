@@ -52,6 +52,7 @@ func GetUpdaterClient() *UpdaterClient {
 
 		go PollAndUpdateAdminEmail(cnf)
 		go StartHeartbeat(cnf)
+		go StartUsageReporting(cnf)
 
 		licenseBytes, err := os.ReadFile(config.LicenseFilePath)
 		if err != nil {

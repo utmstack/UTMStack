@@ -1,14 +1,13 @@
-# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Manual: set in the report.
 id: sc-31
 family: sc
 familyName: System and Communications Protection
 name: Covert Channel Analysis
-scope: data
+scope: governance
 statement: |-
   Perform a covert channel analysis to identify those aspects of communications within the system that are potential avenues for covert [storage | timing] channels; and
-    Estimate the maximum bandwidth of those channels.
+  Estimate the maximum bandwidth of those channels.
+remediation: |-
+  Manual control: logs cannot show whether this is in place, so the report lists it as "Out of scope" until a person decides. Open the framework report, set this control's status (Compliant, Non-compliant or At risk) and write the justification.
+  Keep the evidence an auditor will ask for, for example network or cryptography configuration evidence: diagrams, TLS settings, key management records.
 source: NIST SP 800-53 Rev 5 (public domain)
-checks:
-  - key: todo
-    name: 'TODO: define compliance check for this control'
-    todo: true            # Pending — evaluator shows "Not implemented", excluded from score

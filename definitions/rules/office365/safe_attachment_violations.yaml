@@ -26,7 +26,7 @@ description: |
   7. Consider implementing additional email security controls if gaps are identified
 where: |
   oneOf("action", ["Set-SafeAttachmentPolicy", "Remove-SafeAttachmentPolicy", "Disable-SafeAttachmentRule"]) &&
-  equals("actionResult", "Success")
+  equals("actionResult", "success")
 groupBy:
   - lastEvent.action
   - adversary.user

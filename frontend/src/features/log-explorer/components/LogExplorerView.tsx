@@ -78,10 +78,17 @@ interface RelatedLogsSeed {
   truncated?: boolean
 }
 
+interface DashboardSearchSeed {
+  dataset: string
+  dataType?: string
+  filters: FilterType[]
+  range: TimeRange
+}
+
 const BUILDER_OPS: FilterOpDef[] = [
   { id: 'IS', label: 'is', needsValue: true },
   { id: 'IS_NOT', label: 'is not', needsValue: true },
-  { id: 'CONTAIN', label: 'contains', needsValue: true },
+  { id: 'CONTAIN', label: 'contains', needsValue: true, freeText:true },
   { id: 'EXIST', label: 'exists', needsValue: false },
 ]
 
@@ -209,6 +216,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
         const ps = list.find((l) => l.dataset === (initial.dataset ?? DEFAULT_DATASET))?.dataTypes ?? []
         const state = location.state as {
           relatedLogs?: RelatedLogsSeed
+          dashboardSearch?: DashboardSearchSeed
           socaiFilters?: FilterType[]
           socaiTime?: string
         } | null
@@ -222,6 +230,17 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
             toast.info(t('logExplorer.related.truncated', { count: seed.ids.length }))
           }
           // Drop the router state so a refresh doesn't re-seed over the user's edits.
+          navigate(location.pathname, { replace: true })
+          setReadyToPersist(true)
+          return
+        }
+        if (state?.dashboardSearch && !seededRef.current) {
+          seededRef.current = true
+          setDataset(state.dashboardSearch.dataset)
+          setPattern(state.dashboardSearch.dataType ?? null)
+          setFilters(state.dashboardSearch.filters)
+          setRange(state.dashboardSearch.range)
+          setColumns(state.dashboardSearch.filters.map((filter) => filter.field))
           navigate(location.pathname, { replace: true })
           setReadyToPersist(true)
           return
@@ -320,7 +339,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
     if (appliedQuery.trim() && supportsTextSearch) {
       out.push({ field: 'raw', operator: 'IS_IN_FIELDS', value: appliedQuery.trim() })
     }
-    out.push(...filters)
+    out.push(...filters.filter((f)=>f.value!="" && f.value!=null))
     return out
   }, [range.from, range.to, appliedQuery, supportsTextSearch, filters])
 
@@ -483,9 +502,15 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
   }, [])
 
   // Adapters: CustomFilterBar works with CustomFilter; FilterType is the internal type.
-  // IS_ONE_OF_TERMS (array value) is excluded — rendered separately as terms chips.
-  const simpleFilters = useMemo(() => filters.filter((f) => f.operator !== 'IS_ONE_OF_TERMS'), [filters])
-  const termsFilters = useMemo(() => filters.filter((f) => f.operator === 'IS_ONE_OF_TERMS'), [filters])
+  // Terms filters are rendered separately from the simple filter editor.
+  const simpleFilters = useMemo(
+    () => filters.filter((f) => f.operator !== 'IS_ONE_OF_TERMS' && f.operator !== 'IS_NOT_ONE_OF_TERMS'),
+    [filters],
+  )
+  const termsFilters = useMemo(
+    () => filters.filter((f) => f.operator === 'IS_ONE_OF_TERMS' || f.operator === 'IS_NOT_ONE_OF_TERMS'),
+    [filters],
+  )
 
   const customFilters = useMemo(() => simpleFilters.map(toCustom), [simpleFilters])
 
@@ -593,7 +618,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
 
       <div className="mt-3 flex items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">
-          {!sqlMode && pattern && (
+          {!sqlMode  && (
             <CustomFilterBar
               filters={customFilters}
               onAdd={onBarAdd}
@@ -612,9 +637,15 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
               className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/5 py-1 pl-3 pr-1.5 text-xs"
             >
               <span className="font-mono text-muted-foreground">{f.field}</span>
-              <span className="text-[11px] text-muted-foreground/70">{t('logExplorer.ops.isOneOf')}</span>
+              <span className="text-[11px] text-muted-foreground/70">
+                {t(f.operator === 'IS_NOT_ONE_OF_TERMS' ? 'logExplorer.ops.isNotOneOf' : 'logExplorer.ops.isOneOf')}
+              </span>
               <span className="font-mono font-medium">
-                {Array.isArray(f.value) ? t('logExplorer.related.nLogs', { count: f.value.length }) : String(f.value)}
+                {Array.isArray(f.value)
+                  ? f.field === 'id' && f.value.length > 1
+                    ? t('logExplorer.related.nLogs', { count: f.value.length })
+                    : f.value.map(String).join(', ')
+                  : String(f.value)}
               </span>
               <button
                 onClick={() => removeFilter(filters.indexOf(f))}

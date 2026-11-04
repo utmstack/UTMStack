@@ -90,6 +90,10 @@ func (u *identityProviderUsecase) prepareSettings(
 		if blank(s.MetadataURL, s.SpEntityID, s.SpACSURL, s.SpCertificatePem) {
 			return nil, domain.ErrIDPSettingsInvalid
 		}
+		// Format first line; real X.509/PKCS8 parse stays at login time.
+		if err := validateSAMLFormat(s); err != nil {
+			return nil, err
+		}
 		kept, err := u.keepOrEncrypt(s.SpPrivateKeyPem, previous, func(p *domain.IdentityProviderConfig) string {
 			old, _ := samlSettings(p)
 			return old.SpPrivateKeyPem
@@ -111,6 +115,9 @@ func (u *identityProviderUsecase) prepareSettings(
 		if blank(s.Issuer, s.ClientID, s.RedirectURL) {
 			return nil, domain.ErrIDPSettingsInvalid
 		}
+		if err := validateOIDCFormat(s); err != nil {
+			return nil, err
+		}
 		kept, err := u.keepOrEncrypt(s.ClientSecret, previous, func(p *domain.IdentityProviderConfig) string {
 			old, _ := oidcSettings(p)
 			return old.ClientSecret
@@ -122,6 +129,7 @@ func (u *identityProviderUsecase) prepareSettings(
 			return nil, domain.ErrIDPSettingsInvalid
 		}
 		s.ClientSecret = kept
+
 		return json.Marshal(s)
 
 	case domain.ProviderLDAP:
@@ -134,6 +142,9 @@ func (u *identityProviderUsecase) prepareSettings(
 		if blank(s.Host, s.BindDN, s.BaseDN, s.UserFilter) || !strings.Contains(s.UserFilter, "%s") {
 			return nil, domain.ErrIDPSettingsInvalid
 		}
+		if err := validateLDAPFormat(s); err != nil {
+			return nil, err
+		}
 		kept, err := u.keepOrEncrypt(s.BindPassword, previous, func(p *domain.IdentityProviderConfig) string {
 			old, _ := ldapSettings(p)
 			return old.BindPassword
@@ -145,6 +156,7 @@ func (u *identityProviderUsecase) prepareSettings(
 			return nil, domain.ErrIDPSettingsInvalid
 		}
 		s.BindPassword = kept
+
 		return json.Marshal(s)
 	}
 	return nil, domain.ErrIDPTypeUnsupported
@@ -233,6 +245,13 @@ func (u *identityProviderUsecase) build(
 		return nil, domain.ErrIDPTypeUnsupported
 	}
 	if strings.TrimSpace(req.Name) == "" {
+		return nil, domain.ErrIDPInvalidInput
+	}
+	if previous == nil {
+		if len(req.Name) > 64 || !idpNameRe.MatchString(req.Name) {
+			return nil, domain.ErrIDPInvalidInput
+		}
+	} else if req.Name != previous.Name && (len(req.Name) > 64 || !idpNameRe.MatchString(req.Name)) {
 		return nil, domain.ErrIDPInvalidInput
 	}
 	settings, err := u.prepareSettings(kind, req.Settings, previous)
@@ -366,6 +385,9 @@ type federationUsecase struct {
 	cipher      Cipher
 	refreshTTL  time.Duration
 	httpClient  *http.Client
+	// metadataClient is the stricter one: SAML metadata is fetched from a URL a
+	// tenant administrator typed.
+	metadataClient *http.Client
 }
 
 func NewFederationUsecase(
@@ -378,14 +400,15 @@ func NewFederationUsecase(
 	refreshTTL time.Duration,
 ) connectors.FederationUsecase {
 	return &federationUsecase{
-		idpRepo:     idpRepo,
-		userRepo:    userRepo,
-		rbacRepo:    rbacRepo,
-		refreshRepo: refreshRepo,
-		signer:      signer,
-		cipher:      cipher,
-		refreshTTL:  refreshTTL,
-		httpClient:  &http.Client{Timeout: 15 * time.Second},
+		idpRepo:        idpRepo,
+		userRepo:       userRepo,
+		rbacRepo:       rbacRepo,
+		refreshRepo:    refreshRepo,
+		signer:         signer,
+		cipher:         cipher,
+		refreshTTL:     refreshTTL,
+		httpClient:     &http.Client{Timeout: 15 * time.Second},
+		metadataClient: newIDPMetadataClient(),
 	}
 }
 
@@ -599,7 +622,7 @@ func (u *federationUsecase) buildSP(ctx context.Context, p *domain.IdentityProvi
 	if err != nil {
 		return nil, fmt.Errorf("parse metadata url: %w", err)
 	}
-	idpMeta, err := samlsp.FetchMetadata(ctx, u.httpClient, *metaURL)
+	idpMeta, err := samlsp.FetchMetadata(ctx, u.metadataClient, *metaURL)
 	if err != nil {
 		return nil, fmt.Errorf("fetch idp metadata: %w", err)
 	}

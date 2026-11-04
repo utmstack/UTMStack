@@ -1,0 +1,65 @@
+# Dashboard version v1.0.0
+#
+# Ported from the v11 gap-fill dashboards. The GCP filter (filters/google/gcp.yaml)
+# lowercases severity to debug|info|warning|error|critical and sets action to the
+# lowercase HTTP method. The v11 geolocation map is left out (see pfsense-firewall.yaml).
+name: "GCP Activity"
+description: "Google Cloud activity by severity and operation."
+widgets:
+  - layout: { x: 0, y: 0, w: 6, h: 4 }
+    spec:
+      dataset: logs
+      dataType: google
+      chart: category
+      dimension: severity
+      metric:
+        agg: count
+      limit: 10
+    config:
+      __builder:
+        chartType: pie
+        title: "Events by Severity"
+
+  - layout: { x: 6, y: 0, w: 6, h: 4 }
+    spec:
+      dataset: logs
+      dataType: google
+      chart: category
+      dimension: action
+      metric:
+        agg: count
+      limit: 10
+    config:
+      __builder:
+        chartType: bar
+        title: "API Operations by Type"
+
+  - layout: { x: 0, y: 4, w: 12, h: 4 }
+    spec:
+      dataset: logs
+      dataType: google
+      chart: category
+      dimension: action
+      metric:
+        agg: count
+      filters:
+        - { field: severity, op: eq, value: error }
+      limit: 10
+    config:
+      __builder:
+        chartType: bar
+        title: "Operations Raising Errors"
+
+  - layout: { x: 0, y: 8, w: 12, h: 4 }
+    spec:
+      dataset: logs
+      dataType: google
+      chart: time
+      metric:
+        agg: count
+      interval: 1h
+      limit: 10
+    config:
+      __builder:
+        chartType: line
+        title: "GCP Activity Over Time"

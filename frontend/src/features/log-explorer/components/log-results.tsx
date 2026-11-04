@@ -149,10 +149,7 @@ function ResultRowImpl({
         )}
       </div>
       {expanded && (
-        <div
-          className="grid w-max min-w-full gap-x-3 border-b border-l-2 border-border/50 border-l-sky-500/50 bg-muted/15 px-4 last:border-b-0"
-          style={{ gridTemplateColumns: resolvedTableCols }}
-        >
+        <div className="border-b border-l-2 border-border/50 border-l-sky-500/50 bg-muted/15 px-4 last:border-b-0">
           <LogDetail doc={doc} onAdd={onAdd} onSurrounding={onSurrounding} />
         </div>
       )}

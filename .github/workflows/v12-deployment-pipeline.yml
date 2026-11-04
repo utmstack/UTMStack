@@ -385,6 +385,7 @@ jobs:
           - gcp
           - geolocation
           - o365
+          - o365_graph
           - sophos
           - stats
           - soc-ai

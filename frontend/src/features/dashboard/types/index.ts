@@ -128,8 +128,53 @@ export interface FilterRow {
 // common_models.FilterType — field + operator + value.
 export interface FilterType {
   field: string
-  operator: FilterOperatorId
+  operator: FilterTypeOperator
   value: unknown
+}
+
+export type FilterTypeOperator =
+  | FilterOperatorId
+  | 'IS_NOT_ONE_OF_TERMS'
+  | 'IS_GREATER_THAN_OR_EQUALS'
+  | 'IS_LESS_THAN'
+  | 'IS_NOT_BETWEEN'
+  | 'DOES_NOT_START_WITH'
+  | 'DOES_NOT_END_WITH'
+
+// Persistent chip config stored on dashboard.filters (JSON blob). Describes a
+// single dropdown in the dashboard filter bar; the *value* the user picks is
+// session-only (not persisted).
+export type DashboardFilterType = 'multiple' | 'searchable'
+
+export interface DashboardFilter {
+  id: string
+  dashboardId: string
+  data_set: string
+  field: string
+  type: DashboardFilterType
+  label?: string
+  place_holder?: string
+  createdDate?: string
+  modifiedDate?: string
+}
+
+export interface DashboardFilterCreateInput {
+  dashboardId: string
+  data_set: string
+  field: string
+  type: DashboardFilterType
+  label?: string
+  place_holder?: string
+}
+
+export interface DashboardFilterUpdateInput extends DashboardFilterCreateInput {
+  id: string
+}
+
+export interface DashboardFilterListParams {
+  dashboardId?: string
+  page?: number
+  size?: number
 }
 
 // Persistent chip config stored on dashboard.filters (JSON blob). Describes a
@@ -241,4 +286,3 @@ export interface QueryResult {
   series?: { key: string; points: { at: string; count: number }[] }[]
   rows?: Record<string, unknown>[]
 }
-

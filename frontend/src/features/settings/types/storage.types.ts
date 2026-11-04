@@ -28,16 +28,24 @@ export interface StoreHealth {
 
 /** Configured means a bucket is written; ready means the store has it. Only
  *  ready allows a dataset to move records there. */
+export type ColdKind = 's3' | 'azure' | 'local'
+
 export interface Tiering {
   configured: boolean
   ready: boolean
+  kind?: ColdKind
   endpoint?: string
   policy?: string
 }
 
-export interface ObjectStoreInput {
-  endpoint: string
-  accessKey: string
-  secretKey: string
+export interface ColdTargetInput {
+  kind: ColdKind
+  endpoint?: string
+  /** Azure only. */
+  container?: string
+  /** S3 only: take credentials from the server's environment instead of keys. */
+  useRole?: boolean
+  accessKey?: string
+  secretKey?: string
   cacheBytes?: number
 }

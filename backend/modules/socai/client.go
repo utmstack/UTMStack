@@ -21,6 +21,9 @@ type SocAIClient struct {
 }
 
 func NewSocAIClient(baseURL, internalKey string) *SocAIClient {
+	if baseURL == "" {
+		return nil
+	}
 	transport := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, //nolint:gosec // intentional — mirrors Java parity for internal cluster
 	}

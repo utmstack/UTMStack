@@ -1,16 +1,13 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import type { TFunction } from "i18next";
-import type { ColumnDef } from "@tanstack/react-table";
+import { useListScrollReset } from '@/shared/hooks/use-list-scroll-reset'
 import {
   AlertTriangle,
   Loader2,
-  Lock,
   Plus,
   RefreshCw,
   Search,
-  Terminal,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/shared/lib/utils";
@@ -18,48 +15,25 @@ import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { InfiniteScrollSentinel } from "@/shared/components/ui/infinite-scroll";
 import { ResizableDataTable } from "@/shared/components/ui/resizable-data-table";
-import {
-  PlatformBroadcastButton,
-  broadcast,
-  BULK_PATHS,
-} from "@/features/platform-broadcast";
 import { soarFlowsService } from "../services/soar-flows.service";
 import { soarExecutionsService } from "../services/soar-executions.service";
 import { FlowEditor } from "../components/FlowEditor";
 import { SoarCreateDialog } from "../components/SoarCreateDialog";
 import { useSocAi } from "@/features/soc-ai/SocAiProvider";
 import { StartFromModal } from "@/shared/components/StartFromModal";
+import { FlowTriggerModal } from "../components/FlowTriggerModal";
 import { copyOfFlow } from "../lib/duplicate";
+import { LIST_TABS, type FlowStat, type ListTab } from "../lib/flows-page-utils";
+import { FlowKpis } from "../components/FlowKpis";
+import { buildFlowColumns } from "../components/FlowColumns";
 import type { Flow } from "../types/soar.types";
 
-type ListTab = "all" | "active" | "inactive" | "system" | "user";
-const LIST_TABS: ListTab[] = ["all", "active", "inactive", "system", "user"];
-const TH = "whitespace-nowrap px-3 py-2.5 text-left align-middle font-medium";
-const TD = "whitespace-nowrap px-3 py-2.5 align-middle";
-const stopRowClick = (e: React.MouseEvent) => e.stopPropagation();
-
-function flowName(relPath: string): string {
-  return (relPath.split("/").pop() ?? relPath).replace(/\.ya?ml$/i, "");
-}
-
-// Per-flow runtime telemetry, aggregated client-side from the most recent
-// executions (flows themselves carry no run history). Keyed by rulePath = relPath.
-interface FlowStat {
-  last?: string;
-  runs: number;
-  failed: number;
-}
-
-function relativeTime(iso?: string): string {
-  if (!iso) return "—";
-  const diff = Date.now() - new Date(iso).getTime();
-  if (Number.isNaN(diff)) return "—";
-  const m = Math.round(diff / 60_000);
-  if (m < 1) return "now";
-  if (m < 60) return `${m}m`;
-  const h = Math.round(m / 60);
-  if (h < 24) return `${h}h`;
-  return `${Math.round(h / 24)}d`;
+function Center({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex items-center justify-center gap-2 px-6 py-16 text-sm text-muted-foreground">
+      {children}
+    </div>
+  );
 }
 
 export function FlowsPage() {
@@ -77,10 +51,18 @@ export function FlowsPage() {
   const [editing, setEditing] = useState<{
     flow?: Flow;
     creating: boolean;
+    initialName?: string;
+    initialDescription?: string;
+    initialMaxDepth?: number;
   } | null>(null);
   const [starting, setStarting] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
+  const [triggering, setTriggering] = useState<Flow | null>(null);
   const { soarEditVersion } = useSocAi();
+
+  const scrollRef = useRef<HTMLDivElement>(null)
+  useListScrollReset(page, 0, scrollRef)
+
   useEffect(() => {
     const relPath = (location.state as { selectFlowId?: string } | null)
       ?.selectFlowId;
@@ -154,6 +136,11 @@ export function FlowsPage() {
       .catch(() => setError(true))
       .finally(() => setLoading(false));
   }, [query, page]);
+  // Refresh resets to page 0 first so a scrolled list replaces, not appends.
+  const handleRefresh = useCallback(() => {
+    if (page === 0) load();
+    else setPage(0);
+  }, [page, load]);
   useEffect(() => {
     load();
   }, [load]);
@@ -248,7 +235,7 @@ export function FlowsPage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={load}
+              onClick={handleRefresh}
               disabled={loading}
               title={t("soar.refresh")}
             >
@@ -262,9 +249,9 @@ export function FlowsPage() {
           </div>
 
           <div className="mt-3 flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card">
-            <div className="min-h-0 flex-1 overflow-auto">
+            <div className="min-h-0 flex-1 overflow-auto" ref={scrollRef}>
               <ResizableDataTable
-                columns={buildFlowColumns(t, stats, toggleActive)}
+                columns={buildFlowColumns(t, stats, toggleActive, setTriggering)}
                 data={items}
                 flexColumnId="flow"
                 storageKey="soar-flows-table-sizing"
@@ -315,6 +302,9 @@ export function FlowsPage() {
         <FlowEditor
           flow={editing.flow}
           creating={editing.creating}
+          initialName={editing.initialName}
+          initialDescription={editing.initialDescription}
+          initialMaxDepth={editing.initialMaxDepth}
           onClose={() => setEditing(null)}
           onSaved={() => {
             setEditing(null);
@@ -336,325 +326,27 @@ export function FlowsPage() {
         />
       )}
 
+      {triggering && (
+        <FlowTriggerModal
+          key={triggering.relPath}
+          flow={triggering}
+          onClose={() => setTriggering(null)}
+        />
+      )}
+
       <SoarCreateDialog
         open={createOpen}
         onClose={() => setCreateOpen(false)}
-        onManual={() => {
+        onManual={(name, description, maxDepth) => {
           setCreateOpen(false);
-          setEditing({ creating: true });
+          setEditing({
+            creating: true,
+            initialName: name,
+            initialDescription: description,
+            initialMaxDepth: maxDepth,
+          });
         }}
       />
-    </div>
-  );
-}
-
-// At-a-glance runtime KPIs. Flows carry no execution telemetry, so these come from
-// cheap count queries (size:1, read total) against the flows + executions endpoints.
-function FlowKpis({ refreshKey }: { refreshKey: number }) {
-  const { t } = useTranslation();
-  const [k, setK] = useState<{
-    flows: number;
-    active: number;
-    runs24h: number;
-    failed24h: number;
-  } | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-    Promise.allSettled([
-      soarFlowsService.list({ page: 0, size: 1 }),
-      soarFlowsService.list({ page: 0, size: 1, active: true }),
-      soarExecutionsService.list({ page: 0, size: 1, startedAtFrom: since }),
-      soarExecutionsService.list({
-        page: 0,
-        size: 1,
-        status: "FAILED",
-        startedAtFrom: since,
-      }),
-    ]).then(([f, a, r, x]) => {
-      if (cancelled) return;
-      const tot = (res: PromiseSettledResult<{ total: number }>) =>
-        res.status === "fulfilled" ? res.value.total : 0;
-      setK({
-        flows: tot(f),
-        active: tot(a),
-        runs24h: tot(r),
-        failed24h: tot(x),
-      });
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [refreshKey]);
-
-  const cards = [
-    { key: "flows", n: k?.flows, tone: "text-foreground" },
-    {
-      key: "active",
-      n: k?.active,
-      tone: "text-emerald-600 dark:text-emerald-400",
-    },
-    { key: "runs24h", n: k?.runs24h, tone: "text-foreground" },
-    {
-      key: "failed24h",
-      n: k?.failed24h,
-      tone:
-        (k?.failed24h ?? 0) > 0
-          ? "text-red-600 dark:text-red-400"
-          : "text-foreground",
-    },
-  ];
-  return (
-    <div className="mb-3 grid shrink-0 grid-cols-2 gap-3 sm:grid-cols-4">
-      {cards.map((c) => (
-        <div
-          key={c.key}
-          className="rounded-lg border border-border bg-card px-4 py-3"
-        >
-          <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
-            {t(`soar.kpi.${c.key}`)}
-          </div>
-          <div
-            className={cn("mt-1 text-2xl font-semibold tabular-nums", c.tone)}
-          >
-            {c.n == null ? "—" : c.n.toLocaleString()}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// The distinct platforms across the flow's shell nodes — a DAG can span
-// several platforms now, so this is the set rather than a flow-level field
-// that no longer exists.
-function platformsOf(f: Flow): string[] {
-  return Array.from(
-    new Set(
-      Object.values(f.nodes ?? {})
-        .map((n) => n.platform?.trim())
-        .filter((p): p is string => !!p),
-    ),
-  );
-}
-
-function buildFlowColumns(
-  t: TFunction,
-  stats: Record<string, FlowStat>,
-  onToggle: (f: Flow) => void,
-): ColumnDef<Flow>[] {
-  const count = `${TD} font-mono text-[11px] text-muted-foreground`;
-  return [
-    {
-      id: "flow",
-      header: t("soar.cols.flow"),
-      size: 360,
-      minSize: 120,
-      meta: {
-        headerClassName: TH,
-        cellClassName: TD,
-        cellProps: (f) => ({ title: f.relPath }),
-      },
-      cell: ({ row }) => {
-        const f = row.original;
-        return (
-          <div className="flex min-w-0 items-center gap-2">
-            <Terminal size={14} className="shrink-0 text-muted-foreground" />
-            <div className="min-w-0">
-              <div className="truncate text-[13px]">
-                {f.name || flowName(f.relPath)}
-              </div>
-              {f.description && (
-                <div className="truncate text-[11px] text-muted-foreground">
-                  {f.description}
-                </div>
-              )}
-            </div>
-          </div>
-        );
-      },
-    },
-    {
-      id: "platform",
-      header: t("soar.cols.platform"),
-      size: 130,
-      minSize: 70,
-      meta: { headerClassName: TH, cellClassName: TD },
-      cell: ({ row }) => {
-        const platforms = platformsOf(row.original);
-        if (platforms.length === 0)
-          return <span className="text-[11px] text-muted-foreground">—</span>;
-        return (
-          <div className="flex flex-wrap gap-1">
-            {platforms.map((p) => (
-              <span
-                key={p}
-                className="inline-flex items-center gap-1 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]"
-              >
-                {p}
-              </span>
-            ))}
-          </div>
-        );
-      },
-    },
-    {
-      id: "conditions",
-      header: t("soar.cols.conditions"),
-      size: 100,
-      minSize: 70,
-      meta: { headerClassName: TH, cellClassName: count },
-      cell: ({ row }) => row.original.conditions?.length ?? 0,
-    },
-    {
-      id: "commands",
-      header: t("soar.cols.commands"),
-      size: 100,
-      minSize: 70,
-      meta: { headerClassName: TH, cellClassName: count },
-      cell: ({ row }) =>
-        row.original.nodes ? Object.keys(row.original.nodes).length : 0,
-    },
-    {
-      id: "lastRun",
-      header: t("soar.cols.lastRun"),
-      size: 140,
-      minSize: 90,
-      meta: {
-        headerClassName: TH,
-        cellClassName: `${TD} text-[11px]`,
-        cellProps: (f) => {
-          const last = stats[f.relPath]?.last;
-          return { title: last ? new Date(last).toLocaleString() : undefined };
-        },
-      },
-      cell: ({ row }) => {
-        const stat = stats[row.original.relPath];
-        if (!stat?.last)
-          return (
-            <span className="text-muted-foreground/50">
-              {t("soar.neverRun")}
-            </span>
-          );
-        return (
-          <div className="flex items-center gap-1.5">
-            <span className="font-mono text-muted-foreground">
-              {relativeTime(stat.last)}
-            </span>
-            {stat.failed > 0 && (
-              <span
-                className="rounded bg-red-500/15 px-1 py-0.5 text-[9px] font-semibold text-red-600 dark:text-red-400"
-                title={t("soar.cols.failedRuns", { count: stat.failed })}
-              >
-                {stat.failed} ✕
-              </span>
-            )}
-          </div>
-        );
-      },
-    },
-    {
-      id: "active",
-      header: t("soar.cols.active"),
-      size: 100,
-      minSize: 90,
-      enableResizing: false,
-      meta: {
-        headerClassName: `${TH} text-center`,
-        cellClassName: `${TD} text-center`,
-        cellProps: () => ({ onClick: stopRowClick }),
-      },
-      cell: ({ row }) => (
-        <div className="flex items-center justify-center">
-          <Toggle
-            checked={row.original.active}
-            onChange={() => onToggle(row.original)}
-            flow={row.original}
-          />
-        </div>
-      ),
-    },
-    {
-      id: "view",
-      header: () => null,
-      size: 70,
-      minSize: 70,
-      enableResizing: false,
-      meta: { headerClassName: TH, cellClassName: `${TD} text-right` },
-      cell: ({ row }) => (
-        <div className="flex items-center justify-end gap-1.5">
-          {row.original.systemOwner && (
-            <Lock size={11} className="text-muted-foreground/60" />
-          )}
-          <span className="text-[11px] text-muted-foreground">
-            {t("soar.view")}
-          </span>
-        </div>
-      ),
-    },
-  ];
-}
-
-function Toggle({
-  checked,
-  onChange,
-  flow,
-}: {
-  checked: boolean;
-  onChange: () => void;
-  flow: Flow;
-}) {
-  const { t } = useTranslation();
-  return (
-    <div
-      className="flex items-center gap-1.5"
-      onClick={(e) => e.stopPropagation()}
-    >
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        // The row opens the editor on click. Without stopping here, switching a
-        // flow on also opens it — two things from one press, and the panel lands
-        // on top of the row you were aiming at.
-        onClick={(e) => {
-          e.stopPropagation();
-          onChange();
-        }}
-        className={cn(
-          "relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors",
-          checked ? "bg-primary" : "bg-muted-foreground/30",
-        )}
-      >
-        <span
-          className={cn(
-            "inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform",
-            checked ? "translate-x-4" : "translate-x-0.5",
-          )}
-        />
-      </button>
-      <PlatformBroadcastButton
-        label={t("platformBroadcast.button")}
-        title={t("platformBroadcast.action.enable", {
-          resource: t("platformBroadcast.resource.soarFlow"),
-        })}
-        onBroadcast={(selector) =>
-          broadcast(BULK_PATHS.soarRules.enable, selector, {
-            relPath: flow.relPath,
-            enabled: !checked,
-          })
-        }
-        size="sm"
-      />
-    </div>
-  );
-}
-
-function Center({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex items-center justify-center gap-2 px-6 py-16 text-sm text-muted-foreground">
-      {children}
     </div>
   );
 }

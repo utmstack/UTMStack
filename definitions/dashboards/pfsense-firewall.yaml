@@ -1,0 +1,82 @@
+# Dashboard version v1.0.0
+#
+# Ported from the v11 gap-fill dashboards. Every field is one the pfSense filter
+# (filters/pfsense/pfsense_fw.yaml) fills as a canonical field: action, protocol,
+# origin.ip, target.ip. The v11 geolocation map is left out: the map widget reads
+# flat lat/lon keys and a logs table row keeps origin.geolocation nested.
+name: "pfSense Firewall"
+description: "What the pfSense firewall allows and blocks."
+widgets:
+  - layout: { x: 0, y: 0, w: 6, h: 4 }
+    spec:
+      dataset: logs
+      dataType: firewall-pfsense
+      chart: category
+      dimension: action
+      metric:
+        agg: count
+      limit: 10
+    config:
+      __builder:
+        chartType: pie
+        title: "Traffic by Action"
+
+  - layout: { x: 6, y: 0, w: 6, h: 4 }
+    spec:
+      dataset: logs
+      dataType: firewall-pfsense
+      chart: category
+      dimension: protocol
+      metric:
+        agg: count
+      limit: 10
+    config:
+      __builder:
+        chartType: bar
+        title: "Traffic by Protocol"
+
+  - layout: { x: 0, y: 4, w: 6, h: 4 }
+    spec:
+      dataset: logs
+      dataType: firewall-pfsense
+      chart: category
+      dimension: origin.ip
+      metric:
+        agg: count
+      filters:
+        - { field: action, op: eq, value: block }
+      limit: 10
+    config:
+      __builder:
+        chartType: bar
+        title: "Blocked Traffic by Source IP"
+
+  - layout: { x: 6, y: 4, w: 6, h: 4 }
+    spec:
+      dataset: logs
+      dataType: firewall-pfsense
+      chart: category
+      dimension: target.ip
+      metric:
+        agg: count
+      filters:
+        - { field: action, op: eq, value: block }
+      limit: 10
+    config:
+      __builder:
+        chartType: bar
+        title: "Blocked Traffic by Destination"
+
+  - layout: { x: 0, y: 8, w: 12, h: 4 }
+    spec:
+      dataset: logs
+      dataType: firewall-pfsense
+      chart: time
+      metric:
+        agg: count
+      interval: 1h
+      limit: 10
+    config:
+      __builder:
+        chartType: line
+        title: "Firewall Activity Over Time"

@@ -29,37 +29,7 @@ description: |
   6. Kill the suspicious process and quarantine the file
   7. Search for other instances of the same file across the environment
 where: |
-  (equals("log.eventCode", "4688") || equals("log.eventCode", "1")) &&
-  (
-    (
-      regexMatch("log.eventDataNewProcessName", "(?i)\\\\csrss\\.exe$") &&
-      !regexMatch("log.eventDataNewProcessName", "(?i)^C:\\\\Windows\\\\(System32|SysWOW64)\\\\csrss\\.exe$")
-    ) ||
-    (
-      regexMatch("log.eventDataNewProcessName", "(?i)\\\\services\\.exe$") &&
-      !regexMatch("log.eventDataNewProcessName", "(?i)^C:\\\\Windows\\\\System32\\\\services\\.exe$")
-    ) ||
-    (
-      regexMatch("log.eventDataNewProcessName", "(?i)\\\\smss\\.exe$") &&
-      !regexMatch("log.eventDataNewProcessName", "(?i)^C:\\\\Windows\\\\System32\\\\smss\\.exe$")
-    ) ||
-    (
-      regexMatch("log.eventDataNewProcessName", "(?i)\\\\wininit\\.exe$") &&
-      !regexMatch("log.eventDataNewProcessName", "(?i)^C:\\\\Windows\\\\System32\\\\wininit\\.exe$")
-    ) ||
-    (
-      regexMatch("log.eventDataNewProcessName", "(?i)\\\\explorer\\.exe$") &&
-      !regexMatch("log.eventDataNewProcessName", "(?i)^C:\\\\Windows\\\\explorer\\.exe$")
-    ) ||
-    (
-      regexMatch("log.eventDataNewProcessName", "(?i)\\\\svchost\\.exe$") &&
-      !regexMatch("log.eventDataNewProcessName", "(?i)^C:\\\\Windows\\\\(System32|SysWOW64)\\\\svchost\\.exe$")
-    ) ||
-    (
-      regexMatch("log.eventDataNewProcessName", "(?i)\\\\lsass\\.exe$") &&
-      !regexMatch("log.eventDataNewProcessName", "(?i)^C:\\\\Windows\\\\System32\\\\lsass\\.exe$")
-    )
-  )
+  (equals("log.eventCode","4688") || equals("log.eventCode","1")) && ((regexMatch("log.data.NewProcessName","svchost[.]exe$") && !regexMatch("log.data.NewProcessName","[Ww]indows.(System32|SysWOW64).svchost[.]exe$")) || (regexMatch("log.data.NewProcessName","lsass[.]exe$") && !regexMatch("log.data.NewProcessName","[Ww]indows.System32.lsass[.]exe$")) || (regexMatch("log.data.NewProcessName","services[.]exe$") && !regexMatch("log.data.NewProcessName","[Ww]indows.System32.services[.]exe$")) || (regexMatch("log.data.NewProcessName","csrss[.]exe$") && !regexMatch("log.data.NewProcessName","[Ww]indows.(System32|SysWOW64).csrss[.]exe$")) || (regexMatch("log.data.NewProcessName","explorer[.]exe$") && !regexMatch("log.data.NewProcessName","[Ww]indows.explorer[.]exe$")))
 groupBy:
-  - adversary.host
-  - target.user
+  - dataSource
+deduplicateBy: []

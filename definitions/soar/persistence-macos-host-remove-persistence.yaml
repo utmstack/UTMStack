@@ -1,0 +1,33 @@
+# UTMStack system SOAR flow
+#
+# Standard response for the 'persistence' liveops template. The relpath
+# 'persistence-macos-host-remove-persistence' is the resolver key (frontend common-response.ts matches
+# template + platform, linux preferred when the host is unknown).
+# The trigger is a placeholder on purpose: a broad condition would
+# auto-fire this on every alert, and these are destructive actions.
+#
+- name: 'Remove persistence and disable user'
+  description: 'Adversary persistence on the host. Capture the LaunchAgents as evidence, remove them, then lock the account.'
+  conditions:
+  - operator: IS
+    field: name
+    value: TODO-set-the-correlation-rule-that-triggers-this
+  roots:
+    - step_0
+  nodes:
+    step_0:
+        kind: executor
+        executor: shell
+        command: 'ls ~/Library/LaunchAgents /Library/LaunchAgents /Library/LaunchDaemons 2>/dev/null | tee /var/log/utmstack-persistence-evidence.txt'
+        shell: sh
+        platform: macos
+        onSuccess:
+          - step_1
+        onError:
+          - step_1
+    step_1:
+        kind: executor
+        executor: shell
+        command: 'sudo launchctl bootout gui/$(id -u $(target.user)) /Users/$(target.user)/Library/LaunchAgents/*.plist 2>/dev/null ; sudo pwpolicy -u $(target.user) -setstatus On'
+        shell: sh
+        platform: macos

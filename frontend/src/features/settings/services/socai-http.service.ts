@@ -22,9 +22,17 @@ export interface SocAiConfig {
   customHeaders: Record<string, string> // values masked ("*****")
   maxTokens: number
   maxToolIterations: number
+  /** Triage every new alert automatically. */
   autoAnalyze: boolean
-  /** Enabled permission groups (alerts, incidents, soar, …). */
-  capabilities: string[]
+  /**
+   * The triage agent may create/update incidents when it decides an alert
+   * warrants one. Every other tool group (dashboards, compliance,
+   * correlation, datasources, SOAR) only matters to the interactive chat,
+   * where a person is already driving the conversation, so it's granted
+   * unconditionally — configuring SOC-AI at all is the signal it's meant
+   * to be used.
+   */
+  allowIncidents: boolean
 }
 
 /** PUT /soc-ai/config body. Secrets sent as "*****" (or empty) keep the stored value. */
@@ -39,7 +47,7 @@ export interface SocAiConfigInput {
   maxTokens: number
   maxToolIterations: number
   autoAnalyze: boolean
-  capabilities: string[]
+  allowIncidents: boolean
 }
 
 /** GET /soc-ai/usage — what this tenant has spent today against its allowance. */

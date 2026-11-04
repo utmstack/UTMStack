@@ -25,28 +25,17 @@ func (s *FeedsService) Status() (dto.FeedsStatus, error) {
 		return dto.FeedsStatus{}, err
 	}
 	return dto.FeedsStatus{
-		Enabled:    cfg.Enabled,
-		Configured: cfg.APIKey != "" && cfg.APISecret != "",
+		FeedsEnabled:cfg.FeedsEnabled.Enabled ,
+		FeedsContributionEnabled:cfg.FeedsContributionEnabled.Enabled,
 	}, nil
 }
 
 // SetEnabled decides whether this instance's incidents leave it. Credentials
 // are kept either way, so turning it back on does not mean registering again.
-func (s *FeedsService) SetEnabled(enabled bool) error {
-	return s.store.Update(func(c *repository.FeedsConfig) { c.Enabled = enabled })
-}
-
-func (s *FeedsService) SaveCredentials(apiKey, apiSecret string) error {
-	key, err := s.cipher.Encrypt(apiKey)
-	if err != nil {
-		return err
-	}
-	sec, err := s.cipher.Encrypt(apiSecret)
-	if err != nil {
-		return err
-	}
+func (s *FeedsService) SetEnabled(feeds_status dto.FeedsToggleRequest) error {
 	return s.store.Update(func(c *repository.FeedsConfig) {
-		c.APIKey = key
-		c.APISecret = sec
+		c.FeedsEnabled.Enabled = feeds_status.FeedsEnabled
+		c.FeedsContributionEnabled.Enabled = feeds_status.FeedsContributionEnabled
 	})
 }
+

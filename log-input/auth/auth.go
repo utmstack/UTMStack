@@ -22,7 +22,7 @@ const (
 	keyPrefixCollector = "auth:collector:"
 	keyPrefixAPIKey    = "auth:apikey:v2:"
 
-	redisTimeout = 3 * time.Second
+	valkeyTimeout = 3 * time.Second
 )
 
 type Service struct {
@@ -36,9 +36,9 @@ type Service struct {
 func New(cfg *config.Config) *Service {
 	return &Service{
 		rdb: redis.NewClient(&redis.Options{
-			Addr:     cfg.RedisAddr,
-			Password: cfg.RedisPassword,
-			DB:       cfg.RedisDB,
+			Addr:     cfg.ValkeyAddr,
+			Password: cfg.ValkeyPassword,
+			DB:       cfg.ValkeyDB,
 		}),
 		cfg: cfg,
 		am:  newAgentManagerClient(cfg),
@@ -49,7 +49,7 @@ func New(cfg *config.Config) *Service {
 func (s *Service) Close() error { return s.rdb.Close() }
 
 func (s *Service) Ping(ctx context.Context) error {
-	cCtx, cancel := context.WithTimeout(ctx, redisTimeout)
+	cCtx, cancel := context.WithTimeout(ctx, valkeyTimeout)
 	defer cancel()
 	return s.rdb.Ping(cCtx).Err()
 }
@@ -129,10 +129,10 @@ func (s *Service) InternalKeyValid(key string) bool {
 	return subtle.ConstantTimeCompare([]byte(key), []byte(s.cfg.InternalKey)) == 1
 }
 
-// get reads a cached answer. An unreachable Redis reads as a miss so it cannot
-// authenticate anyone by accident.
+// get reads a cached answer. An unreachable Valkey reads as a miss so it
+// cannot authenticate anyone by accident.
 func (s *Service) get(ctx context.Context, key string) (string, bool) {
-	cCtx, cancel := context.WithTimeout(ctx, redisTimeout)
+	cCtx, cancel := context.WithTimeout(ctx, valkeyTimeout)
 	defer cancel()
 
 	v, err := s.rdb.Get(cCtx, key).Result()
@@ -149,7 +149,7 @@ func (s *Service) get(ctx context.Context, key string) (string, bool) {
 }
 
 func (s *Service) set(ctx context.Context, key, value string) {
-	cCtx, cancel := context.WithTimeout(ctx, redisTimeout)
+	cCtx, cancel := context.WithTimeout(ctx, valkeyTimeout)
 	defer cancel()
 
 	if err := s.rdb.Set(cCtx, key, value, s.cfg.AuthTTL).Err(); err != nil {
@@ -169,7 +169,7 @@ func connectorPrefix(typ string) (string, bool) {
 	return "", false
 }
 
-// hashed keeps the API key out of Redis: what is cached is that it was
+// hashed keeps the API key out of Valkey: what is cached is that it was
 // accepted, not the key.
 func hashed(s string) string {
 	sum := sha256.Sum256([]byte(s))

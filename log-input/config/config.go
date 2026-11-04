@@ -28,9 +28,9 @@ type Config struct {
 	// Lowering it strands messages already published to the higher subjects.
 	Shards int
 
-	RedisAddr     string
-	RedisPassword string
-	RedisDB       int
+	ValkeyAddr     string
+	ValkeyPassword string
+	ValkeyDB       int
 
 	AgentManager string
 	Backend      string
@@ -46,14 +46,14 @@ const (
 	defaultListenAddr     = "0.0.0.0:50051"
 	defaultHealthAddr     = "0.0.0.0:8080"
 	defaultHTTPListenAddr = "0.0.0.0:50052"
-	defaultShards       = 16
-	defaultTenant       = "ce66672c-e36d-4761-a8c8-90058fee1a24"
-	defaultAuthTTL      = 5 * time.Minute
-	defaultCertsFolder  = "/cert"
-	utmCertFileName     = "utm.crt"
-	utmCertFileKeyName  = "utm.key"
-	maxReasonableShards = 1024
-	minAuthTTL          = time.Second
+	defaultShards         = 16
+	defaultTenant         = "ce66672c-e36d-4761-a8c8-90058fee1a24"
+	defaultAuthTTL        = 5 * time.Minute
+	defaultCertsFolder    = "/cert"
+	utmCertFileName       = "utm.crt"
+	utmCertFileKeyName    = "utm.key"
+	maxReasonableShards   = 1024
+	minAuthTTL            = time.Second
 )
 
 func Load() (*Config, error) {
@@ -63,18 +63,18 @@ func Load() (*Config, error) {
 		ListenAddr:     envOr("LISTEN_ADDR", defaultListenAddr),
 		HealthAddr:     envOr("HEALTH_ADDR", defaultHealthAddr),
 		HTTPListenAddr: envOr("HTTP_LISTEN_ADDR", defaultHTTPListenAddr),
-		CertFile:      certs + "/" + utmCertFileName,
-		KeyFile:       certs + "/" + utmCertFileKeyName,
-		NATSURL:       os.Getenv("NATS_URL"),
-		Shards:        envInt("SHARDS", defaultShards),
-		RedisAddr:     os.Getenv("REDIS_ADDR"),
-		RedisPassword: os.Getenv("REDIS_PASSWORD"),
-		RedisDB:       envInt("REDIS_DB", 0),
-		AgentManager:  os.Getenv("AGENT_MANAGER"),
-		Backend:       os.Getenv("BACKEND"),
-		InternalKey:   os.Getenv("INTERNAL_KEY"),
-		DefaultTenant: envOr("DEFAULT_TENANT", defaultTenant),
-		AuthTTL:       envDuration("AUTH_TTL", defaultAuthTTL),
+		CertFile:       certs + "/" + utmCertFileName,
+		KeyFile:        certs + "/" + utmCertFileKeyName,
+		NATSURL:        os.Getenv("NATS_URL"),
+		Shards:         envInt("SHARDS", defaultShards),
+		ValkeyAddr:     os.Getenv("VALKEY_ADDR"),
+		ValkeyPassword: os.Getenv("VALKEY_PASSWORD"),
+		ValkeyDB:       envInt("VALKEY_DB", 0),
+		AgentManager:   os.Getenv("AGENT_MANAGER"),
+		Backend:        os.Getenv("BACKEND"),
+		InternalKey:    os.Getenv("INTERNAL_KEY"),
+		DefaultTenant:  envOr("DEFAULT_TENANT", defaultTenant),
+		AuthTTL:        envDuration("AUTH_TTL", defaultAuthTTL),
 	}
 
 	// Refused rather than defaulted: accepting a log with nowhere to put it
@@ -82,8 +82,8 @@ func Load() (*Config, error) {
 	if c.NATSURL == "" {
 		return nil, fmt.Errorf("NATS_URL is required")
 	}
-	if c.RedisAddr == "" {
-		return nil, fmt.Errorf("REDIS_ADDR is required")
+	if c.ValkeyAddr == "" {
+		return nil, fmt.Errorf("VALKEY_ADDR is required")
 	}
 	if c.AgentManager == "" {
 		return nil, fmt.Errorf("AGENT_MANAGER is required")

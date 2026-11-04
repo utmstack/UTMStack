@@ -14,6 +14,8 @@ export interface FilterOpDef {
   id: string
   label: string
   needsValue: boolean
+  /** Text-based operators (e.g. CONTAINS) take free input even when fetchValues is available. */
+  freeText?: boolean
 }
 
 export interface FilterValue {

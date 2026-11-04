@@ -10,7 +10,12 @@
   - operator: IS
     field: name
     value: TODO-set-the-correlation-rule-that-triggers-this
-  commands:
-  - 'for interface in $(ip link show | grep -E ''^[0-9]+:'' | grep -v ''lo:'' | awk -F: ''{print $2}'' | tr -d '' ''); do ip link set $interface down; done'
-  shell: sh
-  agentPlatform: linux
+  roots:
+    - step_0
+  nodes:
+    step_0:
+        kind: executor
+        executor: shell
+        command: 'for interface in $(ip link show | grep -E ''^[0-9]+:'' | grep -v ''lo:'' | awk -F: ''{print $2}'' | tr -d '' ''); do ip link set $interface down; done'
+        shell: sh
+        platform: linux

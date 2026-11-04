@@ -22,6 +22,7 @@ type config struct {
 
 	// Secrets
 	internalKey   string
+	internalCIDRs string
 	encryptionKey string
 
 	// gRPC: agent manager
@@ -68,6 +69,7 @@ func loadConfig() *config {
 		dbLogLevel: env.String("DB_LOG_LEVEL", "silent", false),
 
 		internalKey:   env.String("INTERNAL_KEY", "", false),
+		internalCIDRs: env.String("INTERNAL_KEY_ALLOWED_CIDRS", "", false),
 		encryptionKey: env.String("ENCRYPTION_KEY", "", false),
 
 		grpcAgentManagerHost: env.String("GRPC_AGENT_MANAGER_HOST", "agentmanager", false),

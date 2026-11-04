@@ -1,18 +1,17 @@
-# Rule version v1.0.0
-
+# Rule contract revision 2026-09-17; SDK v1.1.31.
 dataTypes:
-  - aws
+- aws
 name: AWS Backup Deletion for Impact
 impact:
   confidentiality: 1
   integrity: 3
   availability: 3
 category: Impact
-technique: "T1490 - Inhibit System Recovery"
+technique: T1490 - Inhibit System Recovery
 adversary: origin
 references:
-  - https://docs.aws.amazon.com/aws-backup/latest/devguide/API_Operations.html
-  - https://attack.mitre.org/techniques/T1490/
+- https://docs.aws.amazon.com/aws-backup/latest/devguide/API_Operations.html
+- https://attack.mitre.org/techniques/T1490/
 description: |
   Detects deletion of AWS Backup vaults, recovery points, or backup plans which could indicate an attacker attempting to prevent recovery after a destructive attack. Removing backups is a common precursor to ransomware or data destruction campaigns.
 
@@ -26,9 +25,13 @@ description: |
   7. Restore deleted recovery points from any cross-region or cross-account copies
   8. Enable MFA delete on backup vaults and implement SCPs to restrict backup deletion
 where: |
-  equals("log.eventSource", "backup.amazonaws.com") &&
+  equals("log.awsRecordType","cloudtrail") &&
+  (equals("log.eventSource", "backup.amazonaws.com") &&
   oneOf("log.eventName", ["DeleteBackupVault", "DeleteRecoveryPoint", "DeleteBackupPlan", "DeleteBackupVaultAccessPolicy", "DeleteBackupVaultLockConfiguration"]) &&
-  equals("log.errorCode", "")
+  equals("actionResult","success"))
 groupBy:
-  - adversary.user
-  - lastEvent.log.eventName
+- lastEvent.dataSource
+- lastEvent.log.awsAccountKeyType
+- lastEvent.log.awsAccountKey
+- adversary.user
+- lastEvent.log.eventName

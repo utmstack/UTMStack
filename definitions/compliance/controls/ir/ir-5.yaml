@@ -1,12 +1,19 @@
-# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
 id: ir-5
 family: ir
 familyName: Incident Response
 name: Incident Monitoring
 scope: data
-statement: Track and document incidents.
+statement: |-
+  Track and document incidents.
+remediation: |-
+  Passes when UTMStack is tracking security alerts: at least one alert was raised in the window.
+  If it fails and there really were no alerts, set the status manually and note that.
 source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY
 checks:
-  - key: todo
-    name: 'TODO: define compliance check for this control'
-    todo: true            # Pending — evaluator shows "Not implemented", excluded from score
+  - key: alerts-raised
+    name: 'Security alerts were raised and tracked'
+    dataset: alerts
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1

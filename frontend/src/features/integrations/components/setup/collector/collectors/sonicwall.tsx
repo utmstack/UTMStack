@@ -28,7 +28,7 @@ function SonicWallGuide({ module: _module }: { module: Integration }) {
 
 registerCollector({
   getName: () => 'SONIC_WALL',
-  matches: (n) => n.includes('sonic'),
+  matches: (n) => n === 'sonic_wall' || n === 'sonicwall',
   sections: [],
   render: (m) => <SonicWallGuide module={m} />,
 })

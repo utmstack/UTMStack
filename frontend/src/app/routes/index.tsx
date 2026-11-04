@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate,Outlet } from 'react-router-dom'
 import { ProtectedRoute, useAuth } from '@/features/auth'
 import { TenantsPage } from '@/features/tenants/pages/TenantsPage'
 import { LoginPage } from '@/features/auth/pages/LoginPage'
@@ -7,6 +7,7 @@ import { FederationGate, InstancePickerPage } from '@/features/federation'
 import { FederationAdminLayout } from '@/features/federation/components/FederationAdminLayout'
 import { FederationTeamPage } from '@/features/federation/pages/FederationTeamPage'
 import { HomePage } from '@/features/home/pages/HomePage'
+import { LiveOpsPage } from '@/features/liveops/pages/LiveOpsPage'
 import {
   DashboardPage,
   NewVisualizationPage,
@@ -24,6 +25,9 @@ import { InteractiveConsolePage } from '@/features/soar/pages/InteractiveConsole
 import { LogExplorerPage } from '@/features/log-explorer/pages/LogExplorerPage'
 import { UserAuditorPage } from '@/features/user-auditor/pages/UserAuditorPage'
 import { ThreatIntelPage } from '@/features/threat-intel/pages/ThreatIntelPage'
+import { ThreatIntelAnalystPage } from '@/features/threat-intel/pages/ThreatIntelAnalystPage'
+import { ThreatIntelReportPage } from '@/features/threat-intel/pages/ThreatIntelReportPage'
+import { TriagePage } from '@/features/threat-intel/pages/TriagePage'
 import { CompliancePage } from '@/features/compliance/pages/CompliancePage'
 import { FrameworkReportPage } from '@/features/compliance/pages/FrameworkReportPage'
 import { DataSourcesPage } from '@/features/datasources/pages/DataSourcesPage'
@@ -38,6 +42,7 @@ import { BrandingPage } from '@/features/branding'
 import { IdentityProvidersPage } from '@/features/settings/pages/IdentityProvidersPage'
 import { EmailConfigurationPage } from '@/features/settings/pages/EmailConfigurationPage'
 import { SocAiSettingsPage } from '@/features/settings/pages/SocAiSettingsPage'
+import { ThreatWindsPage } from '@/features/settings/pages/ThreatWindsPage'
 import { DateFormatPage } from '@/features/settings/pages/DateFormatPage'
 import { LanguagePage } from '@/features/settings/pages/LanguagePage'
 import { AboutPage } from '@/features/settings/pages/AboutPage'
@@ -46,12 +51,24 @@ import { LicensePage, useBilling } from '@/features/billing'
 import { NotificationsPage } from '@/features/notifications'
 import { ApiKeysPage } from '@/features/api-keys'
 import { DashboardLayout } from '@/shared/layouts/DashboardLayout'
+import { AlertCountProvider } from '@/features/alerts/hooks/use-alert-count'
+
+
+const AlertCountLayout = () => {
+  return (
+    <AlertCountProvider>
+      <Outlet />
+    </AlertCountProvider>
+  );
+};
+
 
 export function AppRoutes() {
   return (
     <Routes>
       <Route path="/auth/login" element={<LoginPage />} />
 
+  <Route element={<AlertCountLayout />}>
       {/* Federation: account pages that don't need an instance (authed only). */}
       {IS_FEDERATION && (
         <Route
@@ -106,6 +123,10 @@ export function AppRoutes() {
             </PlatformOnly>
           }
         />
+
+        {/*Live operations*/}
+        <Route path="live-operations" element={<LiveOpsPage />} />
+
         {/* Dashboards */}
         <Route path="dashboards" element={<Navigate to="/dashboards/list" replace />} />
         <Route path="dashboards/list" element={<DashboardPage />} />
@@ -132,6 +153,9 @@ export function AppRoutes() {
         <Route path="log-explorer" element={<LogExplorerPage />} />
         <Route path="user-auditor" element={<UserAuditorPage />} />
         <Route path="threat-intelligence" element={<ThreatIntelPage />} />
+        <Route path="threat-intelligence/analyst" element={<ThreatIntelAnalystPage />} />
+        <Route path="threat-intelligence/report" element={<ThreatIntelReportPage />} />
+        <Route path="threat-intelligence/triage" element={<TriagePage />} />
 
         {/* Compliance */}
         <Route path="compliance" element={<CompliancePage />} />
@@ -192,6 +216,15 @@ export function AppRoutes() {
         {/* Federation serves email config from its own admin chrome (top-level route). */}
         {!IS_FEDERATION && <Route path="settings/email" element={<EmailConfigurationPage />} />}
         <Route path="settings/soc-ai" element={<SocAiSettingsPage />} />
+        {/* The contribution switch is the platform's — it decides what leaves the install. */}
+        <Route
+          path="settings/threatwinds"
+          element={
+            <PlatformOnly>
+              <ThreatWindsPage />
+            </PlatformOnly>
+          }
+        />
         <Route path="settings/date-format" element={<DateFormatPage />} />
         <Route path="settings/language" element={<LanguagePage />} />
         <Route path="settings/audit-logs" element={<AuditPage />} />
@@ -211,8 +244,9 @@ export function AppRoutes() {
         {/* Legacy redirects */}
         <Route path="users" element={<Navigate to="/team" replace />} />
       </Route>
-
       <Route path="*" element={<Navigate to="/" replace />} />
+
+      </Route>
     </Routes>
   )
 }

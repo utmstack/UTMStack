@@ -1,4 +1,4 @@
-# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Manual: set in the report.
 id: sa-5
 family: sa
 familyName: System and Services Acquisition
@@ -6,13 +6,16 @@ name: System Documentation
 scope: governance
 statement: |-
   Obtain or develop administrator documentation for the system, system component, or system service that describes:
-      Secure configuration, installation, and operation of the system, component, or service;
-      Effective use and maintenance of security and privacy functions and mechanisms; and
-      Known vulnerabilities regarding configuration and use of administrative or privileged functions;
-    Obtain or develop user documentation for the system, system component, or system service that describes:
-      User-accessible security and privacy functions and mechanisms and how to effectively use those functions and mechanisms;
-      Methods for user interaction, which enables individuals to use the system, component, or service in a more secure manner and protect individual privacy; and
-      User responsibilities in maintaining the security of the system, component, or service and privacy of individuals;
-    Document attempts to obtain system, system component, or system service documentation when such documentation is either unavailable or nonexistent and take [actions] in response; and
-    Distribute documentation to [personnel or roles].
+  Secure configuration, installation, and operation of the system, component, or service;
+  Effective use and maintenance of security and privacy functions and mechanisms; and
+  Known vulnerabilities regarding configuration and use of administrative or privileged functions;
+  Obtain or develop user documentation for the system, system component, or system service that describes:
+  User-accessible security and privacy functions and mechanisms and how to effectively use those functions and mechanisms;
+  Methods for user interaction, which enables individuals to use the system, component, or service in a more secure manner and protect individual privacy; and
+  User responsibilities in maintaining the security of the system, component, or service and privacy of individuals;
+  Document attempts to obtain system, system component, or system service documentation when such documentation is either unavailable or nonexistent and take [actions] in response; and
+  Distribute documentation to [personnel or roles].
+remediation: |-
+  Manual control: logs cannot show whether this is in place, so the report lists it as "Out of scope" until a person decides. Open the framework report, set this control's status (Compliant, Non-compliant or At risk) and write the justification.
+  Keep the evidence an auditor will ask for, for example contracts, acquisition requirements, or development and testing records.
 source: NIST SP 800-53 Rev 5 (public domain)

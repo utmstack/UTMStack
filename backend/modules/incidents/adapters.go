@@ -2,7 +2,7 @@ package incidents
 
 import (
 	"context"
-
+	"time"
 	alerts_connectors "github.com/utmstack/utmstack/backend/modules/alerts/connectors"
 	alerts_domain "github.com/utmstack/utmstack/backend/modules/alerts/domain"
 	alerts_dto "github.com/utmstack/utmstack/backend/modules/alerts/dto"
@@ -27,4 +27,16 @@ func (a *alertsGatewayAdapter) UpdateAlertStatus(ctx context.Context, alertIDs [
 		Status:            alerts_domain.AlertStatus(status),
 		StatusObservation: observation,
 	})
+}
+
+
+
+func(a *alertsGatewayAdapter) MarkAlertAsIncident(ctx context.Context, alertIDs []string, incidentName string, incidentID string, createdAt time.Time, userEmail string) error{
+	req:= alerts_dto.ConvertToIncidentRequest{
+		AlertIDs      :alertIDs,
+		IncidentName  :incidentName,
+		IncidentID    :incidentID,
+		IncidentSource:"incidents",
+	}
+	return a.uc.ConvertToIncident(ctx, userEmail, req)
 }

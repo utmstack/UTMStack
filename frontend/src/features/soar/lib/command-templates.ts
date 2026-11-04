@@ -1,4 +1,4 @@
-import { isWindowsPlatform } from './alert-fields'
+import { defaultShellForPlatform, isWindowsPlatform } from './alert-fields'
 
 /** Starter snippets for the most common flow response actions, so a new shell
  *  node isn't a blank line. Each resolves to real syntax for the agent's
@@ -106,4 +106,36 @@ export const COMMAND_TEMPLATES: CommandTemplate[] = [
       return 'apt-get remove -y "<PACKAGE>"'
     },
   },
+  {
+    id: 'removeFile',
+    label: 'Remove file',
+    command: (shell) => {
+      if (shell === 'powershell') return 'Remove-Item -LiteralPath "<PATH>" -Force'
+      if (shell === 'cmd') return 'del /f /q "<PATH>"'
+      return 'rm -f "<PATH>"'
+    },
+  },
 ]
+
+/** Prebuilt shell-node presets grouped by platform, for the palette's
+ *  collapsible sections. Commands are resolved for the platform's default
+ *  shell so a drag creates a ready-to-run node. */
+export interface PrebuiltShellNode {
+  id: string
+  label: string
+  command: string
+  platform: string
+  shell: string
+}
+
+export function prebuiltShellNodes(platform: string): PrebuiltShellNode[] {
+  const shell = defaultShellForPlatform(platform)
+  const kind = shellKindFor(platform, shell)
+  return COMMAND_TEMPLATES.map((tpl) => ({
+    id: tpl.id,
+    label: tpl.label,
+    command: tpl.command(kind),
+    platform,
+    shell,
+  }))
+}

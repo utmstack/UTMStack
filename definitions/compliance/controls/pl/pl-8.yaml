@@ -1,4 +1,4 @@
-# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Manual: set in the report.
 id: pl-8
 family: pl
 familyName: Planning
@@ -6,10 +6,13 @@ name: Security and Privacy Architectures
 scope: governance
 statement: |-
   Develop security and privacy architectures for the system that:
-      Describe the requirements and approach to be taken for protecting the confidentiality, integrity, and availability of organizational information;
-      Describe the requirements and approach to be taken for processing personally identifiable information to minimize privacy risk to individuals;
-      Describe how the architectures are integrated into and support the enterprise architecture; and
-      Describe any assumptions about, and dependencies on, external systems and services;
-    Review and update the architectures [frequency] to reflect changes in the enterprise architecture; and
-    Reflect planned architecture changes in security and privacy plans, Concept of Operations (CONOPS), criticality analysis, organizational procedures, and procurements and acquisitions.
+  Describe the requirements and approach to be taken for protecting the confidentiality, integrity, and availability of organizational information;
+  Describe the requirements and approach to be taken for processing personally identifiable information to minimize privacy risk to individuals;
+  Describe how the architectures are integrated into and support the enterprise architecture; and
+  Describe any assumptions about, and dependencies on, external systems and services;
+  Review and update the architectures [frequency] to reflect changes in the enterprise architecture; and
+  Reflect planned architecture changes in security and privacy plans, Concept of Operations (CONOPS), criticality analysis, organizational procedures, and procurements and acquisitions.
+remediation: |-
+  Manual control: logs cannot show whether this is in place, so the report lists it as "Out of scope" until a person decides. Open the framework report, set this control's status (Compliant, Non-compliant or At risk) and write the justification.
+  Keep the evidence an auditor will ask for, for example the system security plan or signed rules-of-behaviour acknowledgements.
 source: NIST SP 800-53 Rev 5 (public domain)

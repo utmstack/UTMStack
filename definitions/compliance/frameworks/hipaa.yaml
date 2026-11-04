@@ -1,290 +1,231 @@
+# Provenance: 45 CFR 164.308, 164.310, 164.312, 164.314 and 164.316 as codified on eCFR (current as of
+#   2026-10-08; the January 2025 proposed rule is not final and is not used). US federal regulation, public
+#   domain. Control mapping guided by the NIST SP 800-66 Rev 2 crosswalk to SP 800-53 Rev 5 (public domain).
+# HIPAA Security Rule checklist: every standard and implementation specification of 45 CFR 164.308-164.316,
+# from the current codified text on eCFR (up to date as of 2026-10-08). US federal regulation, public domain.
+# Controls come from the shared NIST SP 800-53 Rev 5 library; mapping guided by NIST SP 800-66 Rev 2 (public domain).
 key: hipaa
-name: HIPAA
-description: HIPAA (Health Insurance Portability and Accountability Act) is a United States federal law designed to protect the privacy and security of patients' health information. It establishes national standards for the handling of protected health information (PHI) in electronic formats (ePHI) and regulates how covered entities (such as healthcare providers, insurers, and business associates) must ensure the confidentiality, integrity, and availability of this information. HIPAA also promotes the secure use of technology for health data sharing and establishes penalties for non-compliance.
-source: Migrated from UTMStack v11
+name: HIPAA Security Rule
+description: Administrative, physical and technical safeguards, organizational requirements and documentation
+  requirements for electronic protected health information under 45 CFR Part 164 Subpart C.
+source: '45 CFR 164.308-164.316, eCFR text current on 2026-10-08 (public domain). Mapping guided by NIST SP 800-66 Rev 2.'
 sections:
-  - key: sec-601
-    name: Log Collection and Monitoring
-    requirements:
-      - id: hipaa-req-655
-        name: Windows Account Logon Success
-        satisfiedBy:
-          - hipaa-655
-      - id: hipaa-req-657
-        name: Windows Account Logon Failure
-        satisfiedBy:
-          - hipaa-657
-      - id: hipaa-req-659
-        name: Windows Special privileges assigned to new logon
-        satisfiedBy:
-          - hipaa-659
-      - id: hipaa-req-660
-        name: Windows Event Log Service
-        satisfiedBy:
-          - hipaa-660
-      - id: hipaa-req-662
-        name: Windows Policy changes
-        satisfiedBy:
-          - hipaa-662
-      - id: hipaa-req-663
-        name: Windows Process Creation
-        satisfiedBy:
-          - hipaa-663
-      - id: hipaa-req-668
-        name: Windows User Accounts Created
-        satisfiedBy:
-          - hipaa-668
-      - id: hipaa-req-669
-        name: Windows Password Reset Attempts
-        satisfiedBy:
-          - hipaa-669
-      - id: hipaa-req-674
-        name: Windows Access to Shared Resources
-        satisfiedBy:
-          - hipaa-674
-      - id: hipaa-req-675
-        name: Windows Attempt to Access a Protected Object
-        satisfiedBy:
-          - hipaa-675
-      - id: hipaa-req-676
-        name: Windows Registry Value Modification
-        satisfiedBy:
-          - hipaa-676
-      - id: hipaa-req-677
-        name: Windows Protected Object Permission Change
-        satisfiedBy:
-          - hipaa-677
-      - id: hipaa-req-678
-        name: Windows Access to critical files or specific directories
-        satisfiedBy:
-          - hipaa-678
-      - id: hipaa-req-693
-        name: Windows Monitoring of Critical System Services Status
-        satisfiedBy:
-          - hipaa-693
-      - id: hipaa-req-694
-        name: Windows Process Termination
-        satisfiedBy:
-          - hipaa-694
-      - id: hipaa-req-695
-        name: Windows Restoration of default security policies
-        satisfiedBy:
-          - hipaa-695
-      - id: hipaa-req-696
-        name: Windows User Account Attributes Changes
-        satisfiedBy:
-          - hipaa-696
-      - id: hipaa-req-697
-        name: Windows Credential Access
-        satisfiedBy:
-          - hipaa-697
-      - id: hipaa-req-698
-        name: Windows Kerberos ticket requests
-        satisfiedBy:
-          - hipaa-698
-      - id: hipaa-req-699
-        name: Windows Kerberos pre-authentication failed
-        satisfiedBy:
-          - hipaa-699
-      - id: hipaa-req-721
-        name: Office 365 Account Logon Success
-        satisfiedBy:
-          - hipaa-721
-      - id: hipaa-req-722
-        name: Office 365 Account Logon Failure
-        satisfiedBy:
-          - hipaa-722
-      - id: hipaa-req-723
-        name: Office 365 File Accessed
-        satisfiedBy:
-          - hipaa-723
-      - id: hipaa-req-724
-        name: Office 365 OneDrive File Download
-        satisfiedBy:
-          - hipaa-724
-  - key: sec-602
-    name: Access Control and Authentication
-    requirements:
-      - id: hipaa-req-634
-        name: Windows Account Logon Success
-        satisfiedBy:
-          - hipaa-634
-      - id: hipaa-req-635
-        name: Windows Account Logon Failure
-        satisfiedBy:
-          - hipaa-635
-      - id: hipaa-req-637
-        name: Windows User Accounts Created
-        satisfiedBy:
-          - hipaa-637
-      - id: hipaa-req-639
-        name: Windows User Accounts Deleted
-        satisfiedBy:
-          - hipaa-639
-      - id: hipaa-req-644
-        name: Windows Protected Object Permission Change
-        satisfiedBy:
-          - hipaa-644
-      - id: hipaa-req-645
-        name: Windows Special privileges assigned to new logon
-        satisfiedBy:
-          - hipaa-645
-      - id: hipaa-req-646
-        name: Windows Member Addition to a Security Local Group
-        satisfiedBy:
-          - hipaa-646
-      - id: hipaa-req-647
-        name: Windows Local Security Group Member Removal
-        satisfiedBy:
-          - hipaa-647
-      - id: hipaa-req-649
-        name: Windows Registry Value Modification
-        satisfiedBy:
-          - hipaa-649
-      - id: hipaa-req-651
-        name: Windows Access to shared resource
-        satisfiedBy:
-          - hipaa-651
-      - id: hipaa-req-652
-        name: Windows Network Access to shared resource
-        satisfiedBy:
-          - hipaa-652
-      - id: hipaa-req-654
-        name: Windows Access to critical files or specific directories
-        satisfiedBy:
-          - hipaa-654
-      - id: hipaa-req-679
-        name: Windows Logins with explicit credentials
-        satisfiedBy:
-          - hipaa-679
-      - id: hipaa-req-680
-        name: Windows Process Creation
-        satisfiedBy:
-          - hipaa-680
-      - id: hipaa-req-681
-        name: Windows User Account Attributes Changes
-        satisfiedBy:
-          - hipaa-681
-      - id: hipaa-req-682
-        name: Windows Password Reset Attempts
-        satisfiedBy:
-          - hipaa-682
-      - id: hipaa-req-683
-        name: Windows Policy changes
-        satisfiedBy:
-          - hipaa-683
-      - id: hipaa-req-684
-        name: Windows Restoration of default security policies
-        satisfiedBy:
-          - hipaa-684
-      - id: hipaa-req-685
-        name: Windows Failed logon attempt
-        satisfiedBy:
-          - hipaa-685
-      - id: hipaa-req-686
-        name: Windows Audit Policy Change
-        satisfiedBy:
-          - hipaa-686
-      - id: hipaa-req-690
-        name: Windows PowerShell Script Block Registration
-        satisfiedBy:
-          - hipaa-690
-      - id: hipaa-req-691
-        name: Windows User Password Reset Attempt
-        satisfiedBy:
-          - hipaa-691
-      - id: hipaa-req-692
-        name: Windows Monitoring of Critical System Services Status
-        satisfiedBy:
-          - hipaa-692
-      - id: hipaa-req-725
-        name: AWS DescribeLogStreams Logs
-        satisfiedBy:
-          - hipaa-725
-      - id: hipaa-req-726
-        name: AWS DescribeLogGroups Logs
-        satisfiedBy:
-          - hipaa-726
-      - id: hipaa-req-727
-        name: AWS PutObject Logs
-        satisfiedBy:
-          - hipaa-727
-      - id: hipaa-req-728
-        name: AWS GetBucketAcl Logs
-        satisfiedBy:
-          - hipaa-728
-  - key: sec-604
-    name: Real-time Alerting and Monitoring
-    requirements:
-      - id: hipaa-req-700
-        name: Windows Network Access to shared resource
-        satisfiedBy:
-          - hipaa-700
-      - id: hipaa-req-701
-        name: Windows Account Logon Success
-        satisfiedBy:
-          - hipaa-701
-      - id: hipaa-req-702
-        name: Windows Account Logon Failure
-        satisfiedBy:
-          - hipaa-702
-      - id: hipaa-req-703
-        name: Windows Special privileges assigned to new logon
-        satisfiedBy:
-          - hipaa-703
-      - id: hipaa-req-704
-        name: Windows Logins with explicit credentials
-        satisfiedBy:
-          - hipaa-704
-      - id: hipaa-req-705
-        name: Windows Process Creation
-        satisfiedBy:
-          - hipaa-705
-      - id: hipaa-req-706
-        name: Windows Service Installed
-        satisfiedBy:
-          - hipaa-706
-      - id: hipaa-req-707
-        name: Windows User Accounts Created
-        satisfiedBy:
-          - hipaa-707
-      - id: hipaa-req-708
-        name: Windows User Accounts Deleted
-        satisfiedBy:
-          - hipaa-708
-      - id: hipaa-req-709
-        name: Windows Kerberos ticket requests
-        satisfiedBy:
-          - hipaa-709
-      - id: hipaa-req-710
-        name: Windows Cleaned Event Log
-        satisfiedBy:
-          - hipaa-710
-      - id: hipaa-req-711
-        name: Windows Policy changes
-        satisfiedBy:
-          - hipaa-711
-      - id: hipaa-req-712
-        name: Windows Registry Value Modification
-        satisfiedBy:
-          - hipaa-712
-      - id: hipaa-req-713
-        name: Windows Access to critical files or specific directories
-        satisfiedBy:
-          - hipaa-713
-      - id: hipaa-req-716
-        name: Windows Access to shared resource
-        satisfiedBy:
-          - hipaa-716
-      - id: hipaa-req-717
-        name: Windows Account Authentication Using NTLM
-        satisfiedBy:
-          - hipaa-717
-      - id: hipaa-req-719
-        name: Windows Service Control Manager Log Information
-        satisfiedBy:
-          - hipaa-719
-      - id: hipaa-req-720
-        name: Windows Alerts
-        satisfiedBy:
-          - hipaa-720
+- key: administrative
+  name: '§164.308 Administrative safeguards'
+  requirements:
+  - id: 164.308(a)(1)
+    name: Security management process
+    satisfiedBy: [pm-1, pm-9]
+  - id: 164.308(a)(1)(ii)(A)
+    name: Risk analysis (Required)
+    satisfiedBy: [ra-2, ra-3, ra-5]
+  - id: 164.308(a)(1)(ii)(B)
+    name: Risk management (Required)
+    satisfiedBy: [ra-7, pm-9, ca-5]
+  - id: 164.308(a)(1)(ii)(C)
+    name: Sanction policy (Required)
+    satisfiedBy: [ps-8]
+  - id: 164.308(a)(1)(ii)(D)
+    name: Information system activity review (Required)
+    satisfiedBy: [au-6, si-4]
+  - id: 164.308(a)(2)
+    name: Assigned security responsibility
+    satisfiedBy: [pm-2]
+  - id: 164.308(a)(3)
+    name: Workforce security
+    satisfiedBy: [ps-1, ac-1]
+  - id: 164.308(a)(3)(ii)(A)
+    name: Authorization and/or supervision (Addressable)
+    satisfiedBy: [ps-2, ps-6]
+  - id: 164.308(a)(3)(ii)(B)
+    name: Workforce clearance procedure (Addressable)
+    satisfiedBy: [ps-3]
+  - id: 164.308(a)(3)(ii)(C)
+    name: Termination procedures (Addressable)
+    satisfiedBy: [ps-4, ac-2.3]
+  - id: 164.308(a)(4)
+    name: Information access management
+    satisfiedBy: [ac-1]
+  - id: 164.308(a)(4)(ii)(A)
+    name: Isolating health care clearinghouse functions (Required)
+    satisfiedBy: [sc-32]
+  - id: 164.308(a)(4)(ii)(B)
+    name: Access authorization (Addressable)
+    satisfiedBy: [ac-1, ps-6]
+  - id: 164.308(a)(4)(ii)(C)
+    name: Access establishment and modification (Addressable)
+    satisfiedBy: [ac-1, ac-6.7]
+  - id: 164.308(a)(5)
+    name: Security awareness and training
+    satisfiedBy: [at-1, at-2, at-3]
+  - id: 164.308(a)(5)(ii)(A)
+    name: Security reminders (Addressable)
+    satisfiedBy: [at-2, si-5]
+  - id: 164.308(a)(5)(ii)(B)
+    name: Protection from malicious software (Addressable)
+    satisfiedBy: [si-3]
+  - id: 164.308(a)(5)(ii)(C)
+    name: Log-in monitoring (Addressable)
+    satisfiedBy: [ac-7, ia-2]
+  - id: 164.308(a)(5)(ii)(D)
+    name: Password management (Addressable)
+    satisfiedBy: [ia-5.1]
+  - id: 164.308(a)(6)
+    name: Security incident procedures
+    satisfiedBy: [ir-1, ir-8]
+  - id: 164.308(a)(6)(ii)
+    name: Response and reporting (Required)
+    satisfiedBy: [ir-4, ir-5, ir-6]
+  - id: 164.308(a)(7)
+    name: Contingency plan
+    satisfiedBy: [cp-1, cp-2]
+  - id: 164.308(a)(7)(ii)(A)
+    name: Data backup plan (Required)
+    satisfiedBy: [cp-9]
+  - id: 164.308(a)(7)(ii)(B)
+    name: Disaster recovery plan (Required)
+    satisfiedBy: [cp-2, cp-10]
+  - id: 164.308(a)(7)(ii)(C)
+    name: Emergency mode operation plan (Required)
+    satisfiedBy: [cp-2, cp-13]
+  - id: 164.308(a)(7)(ii)(D)
+    name: Testing and revision procedures (Addressable)
+    satisfiedBy: [cp-4, cp-2]
+  - id: 164.308(a)(7)(ii)(E)
+    name: Applications and data criticality analysis (Addressable)
+    satisfiedBy: [ra-9, ra-2]
+  - id: 164.308(a)(8)
+    name: Evaluation
+    satisfiedBy: [ca-2]
+  - id: 164.308(b)(1)
+    name: Business associate contracts and other arrangements
+    satisfiedBy: [sa-9, sr-6]
+  - id: 164.308(b)(3)
+    name: Written contract or other arrangement (Required)
+    satisfiedBy: [sa-4, sa-9]
+- key: physical
+  name: '§164.310 Physical safeguards'
+  requirements:
+  - id: 164.310(a)(1)
+    name: Facility access controls
+    satisfiedBy: [pe-1, pe-2, pe-3]
+  - id: 164.310(a)(2)(i)
+    name: Contingency operations (Addressable)
+    satisfiedBy: [cp-2, pe-3]
+  - id: 164.310(a)(2)(ii)
+    name: Facility security plan (Addressable)
+    satisfiedBy: [pe-1, pe-3, pe-6]
+  - id: 164.310(a)(2)(iii)
+    name: Access control and validation procedures (Addressable)
+    satisfiedBy: [pe-2, pe-3, pe-8, cm-5]
+  - id: 164.310(a)(2)(iv)
+    name: Maintenance records (Addressable)
+    satisfiedBy: [ma-2]
+  - id: 164.310(b)
+    name: Workstation use
+    satisfiedBy: [pl-4, pe-18]
+  - id: 164.310(c)
+    name: Workstation security
+    satisfiedBy: [pe-3, pe-18]
+  - id: 164.310(d)(1)
+    name: Device and media controls
+    satisfiedBy: [mp-1, mp-5, pe-16]
+  - id: 164.310(d)(2)(i)
+    name: Disposal (Required)
+    satisfiedBy: [mp-6, sr-12]
+  - id: 164.310(d)(2)(ii)
+    name: Media re-use (Required)
+    satisfiedBy: [mp-6]
+  - id: 164.310(d)(2)(iii)
+    name: Accountability (Addressable)
+    satisfiedBy: [cm-8, mp-5, pe-16]
+  - id: 164.310(d)(2)(iv)
+    name: Data backup and storage (Addressable)
+    satisfiedBy: [cp-9]
+- key: technical
+  name: '§164.312 Technical safeguards'
+  requirements:
+  - id: 164.312(a)(1)
+    name: Access control
+    satisfiedBy: [ac-3, ac-6]
+  - id: 164.312(a)(2)(i)
+    name: Unique user identification (Required)
+    satisfiedBy: [ia-2, ia-4, au-3, ia-2.5]
+  - id: 164.312(a)(2)(ii)
+    name: Emergency access procedure (Required)
+    satisfiedBy: [cp-2]
+  - id: 164.312(a)(2)(iii)
+    name: Automatic logoff (Addressable)
+    satisfiedBy: [ac-12]
+  - id: 164.312(a)(2)(iv)
+    name: Encryption and decryption (Addressable)
+    satisfiedBy: [sc-13, sc-28, sc-28.1]
+  - id: 164.312(b)
+    name: Audit controls
+    satisfiedBy: [au-2, au-12, au-6]
+  - id: 164.312(c)(1)
+    name: Integrity
+    satisfiedBy: [si-7]
+  - id: 164.312(c)(2)
+    name: Mechanism to authenticate electronic protected health information (Addressable)
+    satisfiedBy: [si-7]
+  - id: 164.312(d)
+    name: Person or entity authentication
+    satisfiedBy: [ia-2]
+  - id: 164.312(e)(1)
+    name: Transmission security
+    satisfiedBy: [sc-8, sc-8.1]
+  - id: 164.312(e)(2)(i)
+    name: Integrity controls (Addressable)
+    satisfiedBy: [sc-8]
+  - id: 164.312(e)(2)(ii)
+    name: Encryption (Addressable)
+    satisfiedBy: [sc-8, sc-13, sc-8.1]
+- key: organizational
+  name: '§164.314 Organizational requirements'
+  requirements:
+  - id: 164.314(a)(1)
+    name: Business associate contracts or other arrangements
+    satisfiedBy: [sa-4, sa-9]
+  - id: 164.314(a)(2)(i)
+    name: Business associate contracts (Required)
+    satisfiedBy: [sa-4, sa-9, sr-8]
+  - id: 164.314(a)(2)(ii)
+    name: Other arrangements (Required)
+    satisfiedBy: [ca-3, sa-9]
+  - id: 164.314(a)(2)(iii)
+    name: Business associate contracts with subcontractors (Required)
+    satisfiedBy: [sa-9, sr-3]
+  - id: 164.314(b)(1)
+    name: Requirements for group health plans
+    satisfiedBy: [ca-3, sa-9]
+  - id: 164.314(b)(2)(i)
+    name: Plan sponsor implements safeguards for the plan's ePHI (Required)
+    satisfiedBy: [sa-9]
+  - id: 164.314(b)(2)(ii)
+    name: Plan separation is supported by security measures (Required)
+    satisfiedBy: [sc-32]
+  - id: 164.314(b)(2)(iii)
+    name: Plan sponsor's agents agree to security measures (Required)
+    satisfiedBy: [sa-9, sr-3]
+  - id: 164.314(b)(2)(iv)
+    name: Plan sponsor reports security incidents to the plan (Required)
+    satisfiedBy: [ir-6, sr-8]
+- key: documentation
+  name: '§164.316 Policies and procedures and documentation requirements'
+  requirements:
+  - id: 164.316(a)
+    name: Policies and procedures
+    satisfiedBy: [pm-1]
+  - id: 164.316(b)(1)
+    name: Documentation
+    satisfiedBy: [pm-1, pl-2]
+  - id: 164.316(b)(2)(i)
+    name: Time limit (Required)
+    satisfiedBy: [si-12]
+  - id: 164.316(b)(2)(ii)
+    name: Availability (Required)
+    satisfiedBy: [pm-1, pl-2]
+  - id: 164.316(b)(2)(iii)
+    name: Updates (Required)
+    satisfiedBy: [pm-1, pl-2]

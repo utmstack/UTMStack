@@ -15,6 +15,7 @@ import (
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/threatwinds/go-sdk/store"
+	"github.com/threatwinds/go-sdk/store/cache"
 	ch "github.com/threatwinds/go-sdk/store/clickhouse"
 	"github.com/threatwinds/go-sdk/utils"
 	"github.com/tidwall/gjson"
@@ -35,9 +36,23 @@ const (
 
 	maxRetries        = 3
 	initialRetryDelay = 2 * time.Second
+
+	// How long a dedup/group key stays trusted without going back to
+	// ClickHouse. Only needs to outlive the ClickHouse write-visibility gap a
+	// burst can open, not the real correctness window — dedupWindow and the
+	// unbounded GroupBy lookup still own that; this is purely a fast path
+	// that keeps concurrent callers in the same burst from all missing each
+	// other's not-yet-visible insert.
+	fastPathTTL = 60 * time.Second
+
+	dedupCachePrefix = "alerts:dedup:"
+	groupCachePrefix = "alerts:group:"
 )
 
-var alertStore *ch.Driver
+var (
+	alertStore *ch.Driver
+	kv         *cache.Client
+)
 
 type IncidentDetail struct {
 	CreatedBy    string `json:"createdBy"`
@@ -90,6 +105,16 @@ func main() {
 		os.Exit(1)
 	}
 	defer alertStore.Close()
+
+	// A deployment without valkey.addr configured gets a nil *Client, and
+	// every call on it is a no-op/permanent miss — correlate() falls back to
+	// ClickHouse on every check, exactly as it did before this cache existed.
+	baseCfg := plugins.PluginCfg("com.utmstack")
+	kv = cache.New(cache.Config{
+		Addr:     baseCfg.Get("valkey.addr").String(),
+		Password: baseCfg.Get("valkey.password").String(),
+	})
+	defer kv.Close()
 
 	rules = newRuleCache()
 	notify = newNotifier()
@@ -201,12 +226,16 @@ func matchFilters(fields []string, alertString *string) []store.Filter {
 	return out
 }
 
-func deduplicationToken(alert *plugins.Alert, alertJSON string) string {
-	if len(alert.DeduplicateBy) == 0 {
+// fieldsToken digests one alert down to a stable key for whichever field set
+// identifies "the same group" — DeduplicateBy's or GroupBy's. Scoped to
+// tenant and rule name so two different rules, or the same rule in two
+// tenants, can never collide on the same key.
+func fieldsToken(fields []string, alert *plugins.Alert, alertJSON string) string {
+	if len(fields) == 0 {
 		return ""
 	}
 
-	filters := matchFilters(alert.DeduplicateBy, &alertJSON)
+	filters := matchFilters(fields, &alertJSON)
 	if len(filters) == 0 {
 		return ""
 	}
@@ -219,6 +248,18 @@ func deduplicationToken(alert *plugins.Alert, alertJSON string) string {
 
 	sum := sha256.Sum256([]byte(alert.TenantId + "\x00" + alert.Name + "\x00" + strings.Join(parts, "\x00")))
 	return hex.EncodeToString(sum[:])
+}
+
+func deduplicationToken(alert *plugins.Alert, alertJSON string) string {
+	return fieldsToken(alert.DeduplicateBy, alert, alertJSON)
+}
+
+// groupToken is the GroupBy equivalent of deduplicationToken — the key a
+// concurrent burst of alerts for the same rule and the same GroupBy values
+// all land on, which is what lets them find each other through the cache
+// instead of each one deciding on its own that no group exists yet.
+func groupToken(alert *plugins.Alert, alertJSON string) string {
+	return fieldsToken(alert.GroupBy, alert, alertJSON)
 }
 
 func isDuplicate(alert *plugins.Alert, alertJSON string) bool {
@@ -235,6 +276,16 @@ func isDuplicate(alert *plugins.Alert, alertJSON string) bool {
 
 	if len(alert.DeduplicateBy) == 0 {
 		return false
+	}
+
+	// A hot duplicate is exactly the case ClickHouse can be too slow to catch:
+	// the original alert's Insert may not be visible to a Count() yet. The
+	// cache is populated the moment that Insert actually succeeds (see
+	// newAlert), closing that window without waiting on ClickHouse at all.
+	if token := deduplicationToken(alert, alertJSON); token != "" {
+		if _, hit := kv.Get(context.Background(), dedupCachePrefix+token); hit {
+			return true
+		}
 	}
 
 	filters := matchFilters(alert.DeduplicateBy, &alertJSON)
@@ -288,6 +339,20 @@ func getPreviousAlertId(alert *plugins.Alert, alertJSON string) *string {
 	if len(filters) == 0 {
 		return nil
 	}
+
+	// The fast path: a group a burst already created or attached to in the
+	// last minute is found here, with no ClickHouse round trip at all — and
+	// Touch slides its window forward, so a group that keeps receiving events
+	// never falls out of cache mid-burst.
+	token := groupToken(alert, alertJSON)
+	cacheKey := groupCachePrefix + token
+	if token != "" {
+		if id, hit := kv.Get(context.Background(), cacheKey); hit && id != "" {
+			kv.Touch(context.Background(), cacheKey, fastPathTTL)
+			return utils.PointerOf(id)
+		}
+	}
+
 	filters = append(filters,
 		store.Filter{Field: "name", Op: store.OpEq, Value: alert.Name},
 		store.Filter{Field: "parentId", Op: store.OpEq, Value: ""},
@@ -304,12 +369,30 @@ func getPreviousAlertId(alert *plugins.Alert, alertJSON string) *string {
 
 		if err == nil {
 			if len(docs) == 0 {
+				if token == "" {
+					return nil
+				}
+				// ClickHouse agrees: as far as it can see, no group exists
+				// yet. This is exactly the moment the race used to live in —
+				// several concurrent callers reaching this same conclusion
+				// together — so the decision to become the root is made with
+				// an atomic claim instead of just acting on it. Whoever wins
+				// is the root; everyone else that was racing them finds the
+				// winner's id here instead of also creating one.
+				claimed, current, cerr := kv.Claim(context.Background(), cacheKey, alert.Id, fastPathTTL)
+				if cerr == nil && !claimed && current != "" {
+					return utils.PointerOf(current)
+				}
 				return nil
 			}
 
 			id := gjson.GetBytes(docs[0], "id").String()
 			if id == "" {
 				return nil
+			}
+
+			if token != "" {
+				kv.Set(context.Background(), cacheKey, id, fastPathTTL)
 			}
 
 			if gjson.GetBytes(docs[0], "status").String() == statusCompleted {
@@ -440,6 +523,9 @@ func newAlert(alert *plugins.Alert, alertJSON string, parentId *string, ruleSnap
 		cancel()
 
 		if err == nil {
+			if token != "" {
+				kv.Set(context.Background(), dedupCachePrefix+token, "1", fastPathTTL)
+			}
 			notify.Notify(alert.TenantId, a.Id, a.ParentId)
 			return nil
 		}

@@ -1,4 +1,4 @@
-# Reusable control (NIST 800-53 r5). TODO: define real check(s) against the data — placeholder, not evaluated.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
 id: cm-6
 family: cm
 familyName: Configuration Management
@@ -6,11 +6,451 @@ name: Configuration Settings
 scope: data
 statement: |-
   Establish and document configuration settings for components employed within the system that reflect the most restrictive mode consistent with operational requirements using [common secure configurations];
-    Implement the configuration settings;
-    Identify, document, and approve any deviations from established configuration settings for [system components] based on [operational requirements] ; and
-    Monitor and control changes to the configuration settings in accordance with organizational policies and procedures.
+  Implement the configuration settings;
+  Identify, document, and approve any deviations from established configuration settings for [system components] based on [operational requirements]; and
+  Monitor and control changes to the configuration settings in accordance with organizational policies and procedures.
+remediation: |-
+  Passes when a connected source shows changes to security settings (audit policy, antivirus settings, host firewall settings).
+  If it fails: enable auditing of those settings at the source.
 source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY
 checks:
-  - key: todo
-    name: 'TODO: define compliance check for this control'
-    todo: true            # Pending — evaluator shows "Not implemented", excluded from score
+  - key: win-defender-setting-change
+    name: 'Windows: Microsoft Defender setting changes are recorded'
+    dataType: wineventlog
+    filters:
+      - field: log.providerName
+        operator: IS
+        value: 'Microsoft-Windows-Windows Defender'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '5001'
+          - '5004'
+          - '5007'
+          - '5010'
+          - '5012'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: win-firewall-setting-change
+    name: 'Windows: host firewall rule and setting changes are recorded'
+    dataType: wineventlog
+    filters:
+      - field: log.providerName
+        operator: IS
+        value: 'Microsoft-Windows-Windows Firewall With Advanced Security'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '2002'
+          - '2003'
+          - '2004'
+          - '2005'
+          - '2006'
+          - '2008'
+          - '2033'
+          - '2052'
+          - '2097'
+          - '2099'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-audit-config-change
+    name: 'Linux: audit configuration changes are recorded'
+    dataType: linux
+    filters:
+      - field: log.configchange.op
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: linux-firewall-config-change
+    name: 'Linux: host firewall table changes are recorded'
+    dataType: linux
+    filters:
+      - field: log.netfiltercfg.op
+        operator: EXIST
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: macos-security-settings-authorized
+    name: 'macOS: changes to security settings authorized by an administrator are recorded'
+    dataType: macos
+    filters:
+      - field: actionResult
+        operator: IS
+        value: 'success'
+      - field: log.subsystem
+        operator: IS
+        value: 'com.apple.Authorization'
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - '''system.preferences.security'''
+          - '''com.apple.system-extensions.admin'''
+          - '''system.preferences.security.remotepair'''
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-security-policy-changes
+    name: 'Microsoft 365: audit, conditional access and threat policy changes are recorded'
+    dataType: o365
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Set-AdminAuditLogConfig'
+          - 'Set-ConditionalAccessPolicy'
+          - 'New-ConditionalAccessPolicy'
+          - 'Remove-ConditionalAccessPolicy'
+          - 'Add policy.'
+          - 'Update policy.'
+          - 'Delete policy.'
+          - 'Update authorization policy.'
+          - 'Set-MalwareFilterPolicy'
+          - 'New-MalwareFilterPolicy'
+          - 'Remove-MalwareFilterPolicy'
+          - 'Set-HostedContentFilterPolicy'
+          - 'New-HostedContentFilterPolicy'
+          - 'Set-HostedOutboundSpamFilterPolicy'
+          - 'New-HostedOutboundSpamFilterPolicy'
+          - 'Set-HostedConnectionFilterPolicy'
+          - 'Set-AntiPhishPolicy'
+          - 'New-AntiPhishPolicy'
+          - 'Remove-AntiPhishPolicy'
+          - 'Set-SafeLinksPolicy'
+          - 'New-SafeLinksPolicy'
+          - 'Set-SafeAttachmentPolicy'
+          - 'New-SafeAttachmentPolicy'
+          - 'Set-AtpPolicyForO365'
+          - 'Set-ATPProtectionPolicyRule'
+          - 'Set-EOPProtectionPolicyRule'
+          - 'Set-DkimSigningConfig'
+          - 'New-DkimSigningConfig'
+          - 'Set-MailboxAuditBypassAssociation'
+          - 'Enable Strong Authentication.'
+          - 'Disable Strong Authentication.'
+          - 'New-DlpCompliancePolicy'
+          - 'Set-DlpCompliancePolicy'
+          - 'Remove-DlpCompliancePolicy'
+          - 'New-DlpComplianceRule'
+          - 'Set-DlpComplianceRule'
+          - 'New-ProtectionAlert'
+          - 'Set-ProtectionAlert'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: azure-security-setting-changes
+    name: 'Azure: network security group, firewall rule, diagnostic and access policy changes are recorded'
+    dataType: azure
+    filters:
+      - field: log.azureKind
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'activity'
+          - 'eventgrid'
+          - 'audit'
+      - field: action
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'networksecuritygroups/write'
+          - 'networksecuritygroups/delete'
+          - 'securityrules/write'
+          - 'securityrules/delete'
+          - 'firewallrules/write'
+          - 'firewallrules/delete'
+          - 'firewallpolicies/write'
+          - 'azurefirewalls/write'
+          - 'diagnosticsettings/write'
+          - 'diagnosticsettings/delete'
+          - 'policyassignments/write'
+          - 'policyassignments/delete'
+          - 'accesspolicies/write'
+          - 'microsoft.security/pricings/write'
+          - 'microsoft.security/securitycontacts/write'
+          - 'conditional access policy'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: aws-security-config-changes
+    name: 'AWS: security setting changes (trail, KMS, bucket policy, Config, security groups, network ACLs) are recorded'
+    dataType: aws
+    filters:
+      - field: action
+        operator: IS_ONE_OF
+        value:
+          - 'CreateTrail'
+          - 'UpdateTrail'
+          - 'DeleteTrail'
+          - 'StartLogging'
+          - 'StopLogging'
+          - 'DisableKey'
+          - 'ScheduleKeyDeletion'
+          - 'PutBucketAcl'
+          - 'PutBucketPolicy'
+          - 'DeleteBucketPolicy'
+          - 'StopConfigurationRecorder'
+          - 'DeleteDeliveryChannel'
+          - 'PutDeliveryChannel'
+          - 'PutConfigurationRecorder'
+          - 'AuthorizeSecurityGroupIngress'
+          - 'AuthorizeSecurityGroupEgress'
+          - 'RevokeSecurityGroupIngress'
+          - 'RevokeSecurityGroupEgress'
+          - 'CreateSecurityGroup'
+          - 'DeleteSecurityGroup'
+          - 'ModifySecurityGroupRules'
+          - 'CreateNetworkAcl'
+          - 'CreateNetworkAclEntry'
+          - 'DeleteNetworkAcl'
+          - 'DeleteNetworkAclEntry'
+          - 'ReplaceNetworkAclEntry'
+          - 'ReplaceNetworkAclAssociation'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: gcp-security-config-changes
+    name: 'Google Cloud: firewall, Cloud Armor and logging configuration changes are recorded'
+    dataType: google
+    filters:
+      - field: log.protoPayloadMethodName
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'compute.firewalls.'
+          - 'compute.firewallPolicies.'
+          - 'compute.securityPolicies.'
+          - 'logging.v2.ConfigServiceV2.'
+      - field: log.logName
+        operator: CONTAIN
+        value: 'cloudaudit.googleapis.com%2Factivity'
+      - field: actionResult
+        operator: IS
+        value: 'success'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: bitdefender-module-status-change
+    name: 'Bitdefender: protection module status changed'
+    dataType: antivirus-bitdefender-gz
+    filters:
+      - field: log.BitdefenderGZModule
+        operator: IS
+        value: 'modules'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: eset-policy-change
+    name: 'ESET PROTECT: security policies are created or changed in the console'
+    dataType: antivirus-esmc-eset
+    filters:
+      - field: log.eventType
+        operator: IS
+        value: 'Audit_Event'
+      - field: log.domain
+        operator: CONTAIN
+        value: 'polic'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sentinelone-exclusion-change
+    name: 'SentinelOne: exclusion changed'
+    dataType: antivirus-sentinel-one
+    filters:
+      - field: log.activityType
+        operator: IS
+        value: '3016'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: cisco-switch-security-commands
+    name: 'Cisco switch: AAA, logging and access-list commands are recorded'
+    dataType: cisco-switch
+    filters:
+      - field: log.facility
+        operator: IS
+        value: 'PARSER'
+      - field: log.facilityMnemonic
+        operator: IS
+        value: 'CFGLOG_LOGGEDCMD'
+      - field: log.ciscoMsg
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'aaa '
+          - 'logging '
+          - 'access-list'
+          - 'snmp-server'
+          - 'ip ssh'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: crowdstrike-policy-toggled
+    name: 'CrowdStrike: policies enabled, disabled or deleted'
+    dataType: crowdstrike
+    filters:
+      - field: log.eventOperationName
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'enable_policy'
+          - 'disable_policy'
+          - 'delete_policy'
+          - 'remove_policy'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: asa-security-config-commands
+    name: 'Cisco ASA: access-list, AAA and logging configuration commands are recorded'
+    dataType: firewall-cisco-asa
+    filters:
+      - field: log.messageId
+        operator: IS
+        value: '111008'
+      - field: log.msg
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'access-list'
+          - 'access-group'
+          - 'aaa '
+          - 'logging '
+          - 'threat-detection'
+          - 'ip audit'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: fgt-security-policy-changes
+    name: 'FortiGate: firewall policy and security profile changes are recorded'
+    dataType: firewall-fortigate-traffic
+    filters:
+      - field: log.logid
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '0100044544'
+          - '0100044545'
+          - '0100044546'
+          - '0100044547'
+      - field: log.cfgpath
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'firewall.policy'
+          - 'firewall.proxy-policy'
+          - 'ips.sensor'
+          - 'antivirus.profile'
+          - 'webfilter.profile'
+          - 'application.list'
+          - 'dnsfilter.profile'
+          - 'log.setting'
+          - 'log.syslogd'
+          - 'log.fortianalyzer'
+          - 'system.global'
+          - 'vpn.ssl.settings'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: paloalto-security-policy-changes
+    name: 'Palo Alto: security policy and security profile changes are recorded'
+    dataType: firewall-paloalto
+    filters:
+      - field: log.paType
+        operator: IS
+        value: 'CONFIG'
+      - field: log.path
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'rulebase security'
+          - 'profiles virus'
+          - 'profiles spyware'
+          - 'profiles vulnerability'
+          - 'profiles url-filtering'
+          - 'profiles wildfire-analysis'
+          - 'log-settings'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: pfsense-rule-and-logging-changes
+    name: 'pfSense: firewall rule and logging setting changes are recorded'
+    dataType: firewall-pfsense
+    filters:
+      - field: raw
+        operator: CONTAIN
+        value: 'Configuration Change:'
+      - field: raw
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'Firewall: Rules'
+          - 'Firewall: NAT'
+          - 'System Logs'
+          - 'System: Advanced'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sonicwall-rule-and-cfs-changes
+    name: 'SonicWall: access rule and content filter policy changes are recorded'
+    dataType: firewall-sonicwall
+    filters:
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '440'
+          - '441'
+          - '442'
+          - '1599'
+          - '1600'
+          - '1601'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: github-branch-protection-changes
+    name: 'GitHub: branch protection rules created, changed or deleted'
+    dataType: github
+    filters:
+      - field: log.rule.name
+        operator: EXIST
+      - field: log.action
+        operator: IS_ONE_OF
+        value:
+          - 'created'
+          - 'edited'
+          - 'deleted'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: o365-graph-security-policy-changes
+    name: 'Microsoft Graph: conditional access, authorization and authentication method policy changes are recorded'
+    dataType: o365-graph
+    filters:
+      - field: action
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'conditional access policy'
+          - 'authorization policy'
+          - 'authentication methods policy'
+          - 'strong authentication'
+          - 'security defaults'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: sophos-central-protection-setting-change
+    name: 'Sophos Central: protection switched on or off by an administrator'
+    dataType: sophos-central
+    filters:
+      - field: action
+        operator: IS_ONE_OF_TERMS
+        value:
+          - 'Event::Endpoint::SavDisabled'
+          - 'Event::Endpoint::SavEnabled'
+          - 'Event::Endpoint::AapDisabledByAdmin'
+          - 'Event::Endpoint::AapEnabledByAdmin'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: edr-sensor-toggled
+    name: 'UTMStack EDR: protection sensor switched on or off'
+    dataType: utmstack_edr
+    filters:
+      - field: action
+        operator: IS
+        value: 'config_change'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1
+  - key: esxi-security-config-changes
+    name: 'VMware ESXi: firewall, SSH, shell and lockdown setting changes are recorded'
+    dataType: vmware-esxi
+    filters:
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'esx.audit.net.firewall.config.changed'
+          - 'esx.audit.ssh.enabled'
+          - 'esx.audit.ssh.disabled'
+          - 'esx.audit.shell.enabled'
+          - 'esx.audit.shell.disabled'
+          - 'esx.audit.lockdownmode'
+          - 'esx.audit.uw.secpolicy'
+          - 'esx.audit.esximage.hostacceptance.changed'
+          - 'esx.audit.dcui.enabled'
+          - 'esx.audit.dcui.disabled'
+          - 'Firewall configuration has changed'
+          - 'SSH access has been enabled'
+    rule: MIN_HITS_REQUIRED
+    ruleValue: 1

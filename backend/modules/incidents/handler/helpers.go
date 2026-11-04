@@ -19,6 +19,8 @@ func writeIncidentError(c *gin.Context, err error) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "incident not found"})
 	case errors.Is(err, domain.ErrAlertAlreadyLinked):
 		c.JSON(http.StatusConflict, gin.H{"error": "one or more alerts are already linked to an incident"})
+	case errors.Is(err, domain.ErrNameTaken):
+		c.JSON(http.StatusConflict, gin.H{"error": "an incident with this name already exists"})
 	default:
 		_ = catcher.Error("incident op failed", err, nil)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "operation failed"})

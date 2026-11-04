@@ -1,0 +1,25 @@
+# Rule contract revision 2026-09-25; SDK v1.1.36 (gap-fill set).
+dataTypes:
+- aws
+name: AWS GuardDuty Finding Filter Added
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Defense Evasion
+technique: T1685 - Disable or Modify Cloud Logs
+adversary: origin
+description: Identifies PutFilters adding a GuardDuty filter that suppresses specific finding types, blinding the account to particular compromise indicators.
+references:
+- https://docs.aws.amazon.com/guardduty/latest/APIReference/API_PutFilters.html
+where: |
+  equals("log.awsRecordType","cloudtrail") &&
+  (equals("log.eventSource", "guardduty.amazonaws.com") &&
+  equals("log.eventName", "PutFilters") &&
+  equals("actionResult","success"))
+groupBy:
+- lastEvent.dataSource
+- lastEvent.log.awsAccountKeyType
+- lastEvent.log.awsAccountKey
+- adversary.ip
+- adversary.user

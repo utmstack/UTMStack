@@ -1,0 +1,36 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - wineventlog
+name: "Windows: Domain Trust Created, Removed or Changed"
+impact:
+  confidentiality: 2
+  integrity: 2
+  availability: 1
+category: Administrative Awareness
+technique: Domain trust change
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4706
+  - https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4707
+  - https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4716
+description: |
+  A domain controller recorded that a trust to another domain was created (event 4706), removed (event 4707) or changed (event 4716). Trusts decide which accounts from other domains can reach resources in this domain. Microsoft recommends alerting on every trust change.
+
+  Automatic trust password resets are left out: Microsoft documents that a 4716 event whose actor is ANONYMOUS LOGON (S-1-5-7) is the system's scheduled trust password reset. Changes by the same account on the same domain controller are grouped under one alert.
+
+  Requires the "Audit Authentication Policy Change" success audit on domain controllers.
+
+  Next Steps:
+  1. Confirm the trusted domain, the trust direction and the account that made the change match a planned change.
+  2. If it was not planned, review the trust settings and the other activity of that account, and remove trusts nobody requested.
+where: |
+  equals("log.channel", "Security") &&
+  equals("log.providerName", "Microsoft-Windows-Security-Auditing") &&
+  (
+    oneOf("log.eventCode", [4706, 4707]) ||
+    (equals("log.eventCode", 4716) && !equals("log.eventDataSubjectUserSid", "S-1-5-7"))
+  )
+groupBy:
+  - dataSource
+  - lastEvent.log.eventDataSubjectUserSid

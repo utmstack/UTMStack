@@ -1,0 +1,33 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - wineventlog
+name: "Windows: Password, Lockout or Kerberos Policy Changed"
+impact:
+  confidentiality: 1
+  integrity: 1
+  availability: 0
+category: Administrative Awareness
+technique: Account policy change
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4739
+  - https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4713
+  - https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/audit-authentication-policy-change
+description: |
+  The account policy of a computer or domain changed (event 4739): password rules, account lockout, forced logoff or domain attributes. Or the domain's Kerberos policy changed (event 4713), which controls how long sign-in tickets last. Microsoft recommends alerting on any change to these settings. They are usually applied by the system when a Group Policy change reaches the computer, so the account shown is often SYSTEM.
+
+  Changes by the same account on the same computer are grouped under one alert.
+
+  Requires the "Audit Authentication Policy Change" success audit.
+
+  Next Steps:
+  1. Compare the changed values in the event with the approved password, lockout and Kerberos settings.
+  2. If the change was not planned, find which Group Policy object or administrator changed it and restore the approved values.
+where: |
+  oneOf("log.eventCode", [4739, 4713]) &&
+  equals("log.channel", "Security") &&
+  equals("log.providerName", "Microsoft-Windows-Security-Auditing")
+groupBy:
+  - dataSource
+  - lastEvent.log.eventDataSubjectUserSid

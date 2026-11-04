@@ -58,3 +58,21 @@ func TestDashboardToolSchemasUseStringIDs(t *testing.T) {
 		})
 	}
 }
+
+func TestRawMessageParamsAsObject(t *testing.T) {
+	schema, err := inputSchemaFor[soarRuleCreateInput]()
+	if err != nil {
+		t.Fatalf("inputSchemaFor: %v", err)
+	}
+	nodes := schema.Properties["nodes"]
+	if nodes == nil || nodes.AdditionalProperties == nil {
+		t.Fatalf("nodes schema missing additionalProperties: %+v", nodes)
+	}
+	params := nodes.AdditionalProperties.Properties["params"]
+	if params == nil {
+		t.Fatalf("flow node schema has no params property: %+v", nodes.AdditionalProperties)
+	}
+	if params.Type != "object" {
+		t.Fatalf("params type = %q (Types=%v), want \"object\" — json.RawMessage must not fall back to the raw []byte array schema", params.Type, params.Types)
+	}
+}

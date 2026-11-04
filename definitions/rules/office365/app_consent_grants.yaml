@@ -24,7 +24,7 @@ description: |
   5. If malicious, revoke the application consent and remove the app registration
   6. Consider implementing application consent policies to prevent unauthorized app installations
 where: |
-  equals("action", "Consent to application") && equals("actionResult", "Success")
+  equals("action", "Consent to application") && equals("actionResult", "success")
 groupBy:
   - lastEvent.log.appAccessContextClientAppId
   - adversary.user

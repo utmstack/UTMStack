@@ -20,7 +20,11 @@ export function LookupBar({ onSearch, onLookup, isPending, isLookupPending }: Lo
 
   const handleSubmit = () => {
     const trimmed = q.trim()
-    if (!trimmed) return
+    if (!trimmed) {
+      // Empty lookup resets to the initial (un-narrowed) query.
+      onSearch('')
+      return
+    }
     if (selectedType === 'any') {
       onSearch(trimmed)
     } else {

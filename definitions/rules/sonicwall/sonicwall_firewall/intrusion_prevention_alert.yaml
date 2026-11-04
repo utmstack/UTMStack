@@ -36,7 +36,7 @@ where: |
     contains("log.contentCategory", "Intrusion Prevention")
   ) && equals("actionResult", "denied")
 afterEvents:
-    with:
+  - with:
       - field: origin.ip
         operator: filter_term
         value: '{{.origin.ip}}'

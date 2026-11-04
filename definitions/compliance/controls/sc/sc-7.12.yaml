@@ -1,0 +1,147 @@
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Checked automatically.
+id: sc-7.12
+family: sc
+familyName: System and Communications Protection
+name: Boundary Protection | Host-based Protection
+scope: data
+statement: |-
+  Implement [host-based boundary protection mechanisms] at [system components].
+remediation: |-
+  Measured: fails when a host firewall was switched off or its service stopped on a connected system during the window. Not evaluated when no connected source reports host firewall state.
+  If it fails: turn the host firewall back on, find who turned it off and enforce it by policy.
+source: NIST SP 800-53 Rev 5 (public domain)
+strategy: ANY
+checks:
+  - key: win-firewall-profile-disabled
+    name: 'Windows: Windows Defender Firewall was not switched off for any network profile'
+    dataType: wineventlog
+    filters:
+      - field: log.providerName
+        operator: IS
+        value: 'Microsoft-Windows-Windows Firewall With Advanced Security'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '2003'
+          - '2082'
+      - field: log.data.SettingType
+        operator: IS
+        value: '1'
+      - field: log.data.SettingValue
+        operator: IS
+        value: '00000000'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: win-firewall-service-stopped
+    name: 'Windows: the Windows Defender Firewall service did not stop or fail to start'
+    dataType: wineventlog
+    filters:
+      - field: log.providerName
+        operator: IS
+        value: 'Microsoft-Windows-Security-Auditing'
+      - field: log.eventCode
+        operator: IS_ONE_OF_TERMS
+        value:
+          - '5025'
+          - '5030'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: linux-host-firewall-stopped
+    name: 'Linux: host firewall not switched off by a command'
+    dataType: linux
+    filters:
+      - field: action
+        operator: IS
+        value: 'execve'
+      - field: origin.command
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'ufw disable'
+          - 'systemctl stop firewalld'
+          - 'systemctl disable firewalld'
+          - 'systemctl mask firewalld'
+          - 'systemctl stop ufw'
+          - 'systemctl disable ufw'
+          - 'systemctl mask ufw'
+          - 'systemctl stop nftables'
+          - 'systemctl disable nftables'
+          - 'systemctl stop iptables'
+          - 'systemctl disable iptables'
+          - 'systemctl stop netfilter-persistent'
+          - 'service iptables stop'
+          - 'service firewalld stop'
+          - 'service ufw stop'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: linux-sudo-host-firewall-stopped
+    name: 'Linux: host firewall not switched off through sudo'
+    dataType: linux
+    filters:
+      - field: log.syslogIdentifier
+        operator: IS
+        value: 'sudo'
+      - field: log.message
+        operator: CONTAIN
+        value: 'COMMAND='
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'ufw disable'
+          - 'systemctl stop firewalld'
+          - 'systemctl disable firewalld'
+          - 'systemctl mask firewalld'
+          - 'systemctl stop ufw'
+          - 'systemctl disable ufw'
+          - 'systemctl mask ufw'
+          - 'systemctl stop nftables'
+          - 'systemctl disable nftables'
+          - 'systemctl stop iptables'
+          - 'systemctl disable iptables'
+          - 'systemctl stop netfilter-persistent'
+          - 'service iptables stop'
+          - 'service firewalld stop'
+          - 'service ufw stop'
+          - 'ufw --force disable'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: macos-app-firewall-disabled
+    name: 'macOS: application firewall not switched off'
+    dataType: macos
+    filters:
+      - field: origin.process
+        operator: IS
+        value: 'sudo'
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'socketfilterfw --setglobalstate off'
+          - 'com.apple.alf globalstate -int 0'
+          - 'pfctl -d'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: azure-defender-firewall-stopped
+    name: 'Azure (Defender for Endpoint): the Windows Firewall service must not be stopped'
+    dataType: azure
+    filters:
+      - field: log.azureKind
+        operator: IS
+        value: 'endpoint-event'
+      - field: action
+        operator: IS
+        value: 'FirewallServiceStopped'
+    rule: THRESHOLD_MAX
+    ruleValue: 0
+  - key: esxi-firewall-disabled
+    name: 'VMware ESXi: host firewall not disabled'
+    dataType: vmware-esxi
+    filters:
+      - field: log.message
+        operator: CONTAIN_ONE_OF
+        value:
+          - 'esx.audit.net.firewall.disabled'
+          - 'Firewall has been disabled'
+          - 'network firewall set --enabled false'
+          - 'network firewall set -e false'
+          - 'network firewall unload'
+    rule: THRESHOLD_MAX
+    ruleValue: 0

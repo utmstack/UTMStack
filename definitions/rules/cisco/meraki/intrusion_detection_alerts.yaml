@@ -25,11 +25,12 @@ description: |
   6. Review firewall rules and IPS signatures for potential tuning
   7. Document the incident and update threat intelligence feeds if applicable
 where: |
-  equals("log.eventType", "security_event") && 
+  oneOf("log.eventType", ["security_event", "ids-alerts"]) &&
   equals("log.alertType", "ids_alerted") &&
-  lessOrEqual("log.priority", 2) &&
-  exists("origin.ip") &&
-  exists("target.ip")
+  oneOf("log.priority", [1, 2]) &&
+  exists("origin.ip")
 groupBy:
+  - lastEvent.dataSource
+  - lastEvent.log.merakiType
   - lastEvent.log.signature
   - adversary.ip

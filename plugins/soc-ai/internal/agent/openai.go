@@ -55,6 +55,7 @@ type oaRequest struct {
 	Messages  []oaMessage `json:"messages"`
 	Tools     []oaTool    `json:"tools,omitempty"`
 	MaxTokens int         `json:"max_tokens,omitempty"`
+	Temperature *float64  `json:"temperature,omitempty"`
 }
 
 type oaResponse struct {
@@ -112,7 +113,12 @@ func (c *openaiClient) Complete(ctx context.Context, req CompletionRequest) (Com
 		tools = append(tools, oaTool{Type: "function", Function: oaToolDef{Name: t.Name, Description: t.Description, Parameters: params}})
 	}
 
-	body, err := json.Marshal(oaRequest{Model: req.Model, Messages: msgs, Tools: tools, MaxTokens: req.MaxTokens})
+	oreq := oaRequest{Model: req.Model, Messages: msgs, Tools: tools, MaxTokens: req.MaxTokens}
+	if req.Temperature > 0 {
+		t := req.Temperature
+		oreq.Temperature = &t
+	}
+	body, err := json.Marshal(oreq)
 	if err != nil {
 		return CompletionResponse{}, fmt.Errorf("marshal request: %w", err)
 	}

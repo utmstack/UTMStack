@@ -21,17 +21,20 @@ var ErrVerificationFailed = errors.New("connection verification failed")
 // threatWindsAIPath is the CM proxy path for the AI chat-completions endpoint
 // (see backend/modules/threatintel: same reverse-proxy target, same id/key auth).
 const threatWindsAIPath = "/proxy/api/ai/v1/chat/completions"
-const threatWindsDefaultModel = "silas-1.6"
+const threatWindsDefaultModel = "silas-1.7-pro"
 
 var ErrInstanceNotRegistered = errors.New("instance not registered yet — cannot use the ThreatWinds provider")
 
 const ensureDefaultRetryInterval = 30 * time.Second
 
-// defaultCapabilities: all read/write groups on by default EXCEPT soar —
-// SOAR rules can dispatch commands to agents, so it stays off until an admin
-// explicitly enables it in Settings -> SOC-AI. Must stay in sync with the
+// AllowIncidents is the only capability switch left in the UI; every other
+// tool group (dashboards, compliance, correlation, datasources, SOAR) is
+// granted unconditionally once the module is active — they only matter to
+// the interactive chat, where a person is already driving the conversation.
+// The actual tool-group list lives entirely in the plugin
+// (plugins/soc-ai/config.buildCapabilities); the backend only stores and
+// round-trips the one bit that's a real choice. Must stay in sync with the
 // group IDs in plugins/soc-ai/internal/agent/groups.go and SocAiSettingsPage.tsx.
-var defaultCapabilities = []string{"alerts", "incidents", "dashboards", "compliance", "correlation", "datasources"}
 
 // StartEnsureDefaultLoop provisions the default ThreatWinds config in the
 // background, retrying until it succeeds. A fresh install's backend can
@@ -111,11 +114,16 @@ func (s *ConfigService) EnsureDefault() bool {
 		Model:             threatWindsDefaultModel,
 		URL:               strings.TrimRight(inst.Server, "/") + threatWindsAIPath,
 		AuthType:          "none",
-		CustomHeaders:     map[string]string{"id": idEnc, "key": keyEnc},
+		CustomHeaders:     map[string]string{
+			"id": idEnc,
+			"key": keyEnc,
+			"topk": "50",
+			"reasoning_effort":"minimal",
+		},
 		MaxTokens:         4096,
 		MaxToolIterations: 12,
-		AutoAnalyze:       true,
-		Capabilities:      defaultCapabilities,
+		AutoAnalyze:       false,
+		AllowIncidents:    false,
 	}
 	if err := s.store.Save("", fc); err != nil {
 		catcher.Warn("socai: failed to save default ThreatWinds config", map[string]any{"error": err.Error()})
@@ -191,7 +199,7 @@ func (s *ConfigService) Get(ctx context.Context) (*dto.ConfigResponse, error) {
 		MaxTokens:         fc.MaxTokens,
 		MaxToolIterations: fc.MaxToolIterations,
 		AutoAnalyze:       fc.AutoAnalyze,
-		Capabilities:      fc.Capabilities,
+		AllowIncidents:    fc.AllowIncidents,
 	}, nil
 }
 
@@ -261,7 +269,12 @@ func (s *ConfigService) Update(ctx context.Context, req dto.ConfigRequest) (*dto
 		headersPlain = map[string]string{"id": inst.InstanceID, "key": inst.InstanceKey}
 	}
 
-	// 2. Verify the connection before writing anything.
+	// 2. Verify the connection before writing anything — but only reject the
+	// save over a REAL connection problem. A 429 here means the request was
+	// accepted and rate-limited, i.e. the connection itself is fine; refusing
+	// to save over that would mean a tenant that used up its daily AI quota
+	// could no longer change so much as a capability checkbox until the
+	// quota resets, even though nothing about the connection needs re-proving.
 	if s.connectionChanged(existing, req, url, authType, authHeaderName, apiKeyPlain, headersPlain) {
 		if err := s.verifier.Verify(ctx, verifier.Config{
 			Provider:       req.Provider,
@@ -272,7 +285,13 @@ func (s *ConfigService) Update(ctx context.Context, req dto.ConfigRequest) (*dto
 			AuthHeaderName: authHeaderName,
 			CustomHeaders:  headersPlain,
 		}); err != nil {
-			return nil, fmt.Errorf("%w: %v", ErrVerificationFailed, err)
+			if errors.Is(err, verifier.ErrRateLimited) {
+				_ = catcher.Error("soc-ai config saved without a fresh connection check: provider rate-limited", err, map[string]any{
+					"process": "backend", "tenant": tenantID,
+				})
+			} else {
+				return nil, fmt.Errorf("%w: %v", ErrVerificationFailed, err)
+			}
 		}
 	}
 
@@ -313,7 +332,7 @@ func (s *ConfigService) Update(ctx context.Context, req dto.ConfigRequest) (*dto
 		MaxTokens:         maxTokens,
 		MaxToolIterations: maxIters,
 		AutoAnalyze:       req.AutoAnalyze,
-		Capabilities:      req.Capabilities,
+		AllowIncidents:    req.AllowIncidents,
 	}
 
 	if err := s.store.Save(tenantID, fc); err != nil {

@@ -97,7 +97,12 @@ func (p *program) run() {
 		upstream.StartCollectorConfigStream(cnf, ctx)
 	})
 	p.goSafe("ProcessLogs", func() {
-		upstream.ProcessLogs(cnf, ctx, collectorpkg.LogQueue)
+		logProcessor, err := upstream.GetLogProcessor()
+		if err != nil {
+			utils.Logger.ErrorF("error initializing log processor: %v", err)
+			return
+		}
+		logProcessor.ProcessLogs(cnf, ctx)
 	})
 
 	if err := collectorpkg.SyncCollectorConfig(); err != nil {

@@ -43,7 +43,7 @@ esxcli network firewall refresh`
 
 registerCollector({
   getName: () => 'VMWARE',
-  matches: (n) => n.includes('vmware') || n.includes('esxi'),
+  matches: (n) => n === 'vmware' || n === 'esxi' || n === 'vmware-esxi',
   sections: [],
   render: (m) => <VMwareGuide module={m} />,
 })

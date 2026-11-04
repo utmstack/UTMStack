@@ -1,4 +1,4 @@
-# Rule version v1.0.0
+# Rule version v1.1.0
 
 dataTypes:
   - macos
@@ -14,7 +14,7 @@ references:
   - https://www.sentinelone.com/blog/macos-malware-researchers-how-to-bypass-xprotect-on-catalina/
   - https://attack.mitre.org/techniques/T1562/001/
 description: |
-  Detects attempts to evade or tamper with XProtect malware detection including modification of XProtect files, databases, or YARA rules. XProtect is Apple's built-in antimalware system, and attempts to bypass or disable it indicate potential malicious activity.
+  Detects attempts to evade or tamper with XProtect malware detection including modification of XProtect files, databases, or YARA rules. XProtect is Apple's built-in antimalware system, and attempts to bypass or disable it indicate potential malicious activity. XProtect's own service is recognised whatever the letter case of its name (macOS logs it as XprotectService). One alert is raised per Mac and process; repeats are suppressed for seven days.
 
   Next Steps:
   1. Immediately investigate the affected system and user account for signs of compromise
@@ -29,30 +29,34 @@ where: |
   (
     equals("log.subsystem", "com.apple.XProtectFramework") &&
     (
-      contains("log.eventMessage", "bypass") ||
-      contains("log.eventMessage", "evasion") ||
-      contains("log.eventMessage", "disable")
+      contains("log.message", "bypass") ||
+      contains("log.message", "evasion") ||
+      contains("log.message", "disable")
     )
   ) ||
   (
-    regexMatch("log.eventMessage", ".*XProtect\\.(yara|meta\\.plist|bundle).*") &&
+    regexMatch("origin.path", ".*/Library/Apple/System/Library/CoreServices/XProtect\\.bundle.*") &&
+    regexMatch("log.message", ".*(modify|write|delete).*")
+  ) ||
+  (
+    regexMatch("log.message", ".*XProtect\\.(yara|meta\\.plist|bundle).*") &&
     (
-      regexMatch("log.eventMessage", ".*(modify|tamper|delete).*") ||
-      !equals("log.process", "XProtectService")
+      regexMatch("log.message", ".*(modify|tamper|delete).*") ||
+      (exists("origin.process") && !equalsIgnoreCase("origin.process", "XProtectService"))
     )
   ) ||
   (
-    equals("log.process", "MRT") &&
-    (contains("log.eventMessage", "kill") || contains("log.eventMessage", "terminate") || contains("log.eventMessage", "stop"))
+    equals("origin.process", "MRT") &&
+    (contains("log.message", "kill") || contains("log.message", "terminate") || contains("log.message", "stop"))
   ) ||
   (
-    regexMatch("log.eventMessage", ".*gk\\.db.*") &&
-    regexMatch("log.eventMessage", ".*(modify|delete|truncate).*")
+    regexMatch("log.message", ".*gk\\.db.*") &&
+    regexMatch("log.message", ".*(modify|delete|truncate).*")
   ) ||
   (
     equals("log.subsystem", "com.apple.MRT") &&
-    (contains("log.eventMessage", "bypass") || contains("log.eventMessage", "disable") || contains("log.eventMessage", "fail"))
+    (contains("log.message", "bypass") || contains("log.message", "disable") || contains("log.message", "fail"))
   )
-groupBy:
-  - lastEvent.log.process
-  - adversary.host
+deduplicateBy:
+  - dataSource
+  - adversary.process

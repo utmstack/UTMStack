@@ -1,10 +1,13 @@
-# Reusable control (NIST 800-53 r5). Governance control — not provable from log data.
+# Generic control (NIST SP 800-53 Rev 5), shared by every framework. Manual: set in the report.
 id: mp-6
 family: mp
 familyName: Media Protection
 name: Media Sanitization
 scope: governance
 statement: |-
-  Sanitize [organization-defined system media] prior to disposal, release out of organizational control, or release for reuse using [organization-defined sanitization techniques and procedures] ; and
-    Employ sanitization mechanisms with the strength and integrity commensurate with the security category or classification of the information.
+  Sanitize [organization-defined system media] prior to disposal, release out of organizational control, or release for reuse using [organization-defined sanitization techniques and procedures]; and
+  Employ sanitization mechanisms with the strength and integrity commensurate with the security category or classification of the information.
+remediation: |-
+  Manual control: logs cannot show whether this is in place, so the report lists it as "Out of scope" until a person decides. Open the framework report, set this control's status (Compliant, Non-compliant or At risk) and write the justification.
+  Keep the evidence an auditor will ask for, for example media handling, marking, transport and sanitization records.
 source: NIST SP 800-53 Rev 5 (public domain)

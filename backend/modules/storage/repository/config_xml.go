@@ -40,12 +40,20 @@ type disks struct {
 
 type coldDisk struct {
 	Type            string `xml:"type"`
-	Endpoint        string `xml:"endpoint"`
-	AccessKeyID     string `xml:"access_key_id"`
-	SecretAccessKey string `xml:"secret_access_key"`
-	MetadataPath    string `xml:"metadata_path"`
-	CacheEnabled    bool   `xml:"cache_enabled"`
-	CacheMaxSize    int64  `xml:"data_cache_max_size"`
+	ObjectType      string `xml:"object_storage_type,omitempty"`
+	MetadataType    string `xml:"metadata_type,omitempty"`
+	StorageURL      string `xml:"storage_account_url,omitempty"`
+	ContainerName   string `xml:"container_name,omitempty"`
+	AccountName     string `xml:"account_name,omitempty"`
+	AccountKey      string `xml:"account_key,omitempty"`
+	EnvCredentials  bool   `xml:"use_environment_credentials,omitempty"`
+	Path            string `xml:"path,omitempty"`
+	Endpoint        string `xml:"endpoint,omitempty"`
+	AccessKeyID     string `xml:"access_key_id,omitempty"`
+	SecretAccessKey string `xml:"secret_access_key,omitempty"`
+	MetadataPath    string `xml:"metadata_path,omitempty"`
+	CacheEnabled    bool   `xml:"cache_enabled,omitempty"`
+	CacheMaxSize    int64  `xml:"data_cache_max_size,omitempty"`
 }
 
 type policies struct {
@@ -86,14 +94,21 @@ func (r *xmlConfigRepository) Read() (domain.Tiering, error) {
 	if err := xml.Unmarshal(data, &cfg); err != nil {
 		return domain.Tiering{}, err
 	}
-	endpoint := cfg.Storage.Disks.Cold.Endpoint
-	if endpoint == "" {
+	disk := cfg.Storage.Disks.Cold
+	kind, location := domain.ColdKind(disk.Type), disk.Endpoint
+	switch {
+	case kind == domain.KindLocal:
+		location = disk.Path
+	case disk.ObjectType == "azure_blob_storage":
+		kind, location = domain.KindAzure, disk.StorageURL+"/"+disk.ContainerName
+	}
+	if location == "" {
 		return domain.Tiering{}, nil
 	}
-	return domain.Tiering{Configured: true, Endpoint: endpoint, Policy: domain.PolicyName}, nil
+	return domain.Tiering{Configured: true, Kind: kind, Endpoint: location, Policy: domain.PolicyName}, nil
 }
 
-func (r *xmlConfigRepository) Write(o domain.ObjectStore) (func() error, error) {
+func (r *xmlConfigRepository) Write(o domain.ColdTarget) (func() error, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -113,15 +128,7 @@ func (r *xmlConfigRepository) Write(o domain.ObjectStore) (func() error, error) 
 	o = o.Normalized()
 	cfg := clickhouseConfig{
 		Storage: storageConfiguration{
-			Disks: disks{Cold: coldDisk{
-				Type:            "s3",
-				Endpoint:        o.Endpoint,
-				AccessKeyID:     o.AccessKey,
-				SecretAccessKey: o.SecretKey,
-				MetadataPath:    "/var/lib/clickhouse/disks/" + domain.ColdDisk + "/",
-				CacheEnabled:    true,
-				CacheMaxSize:    o.CacheBytes,
-			}},
+			Disks: disks{Cold: diskFor(o)},
 			Policies: policies{HotCold: hotCold{
 				Volumes: volumes{
 					Default: hotVolume{Disk: "default"},
@@ -164,4 +171,31 @@ func (r *xmlConfigRepository) Write(o domain.ObjectStore) (func() error, error) 
 		return nil, err
 	}
 	return undo, nil
+}
+
+func diskFor(o domain.ColdTarget) coldDisk {
+	cache := coldDisk{
+		MetadataPath: "/var/lib/clickhouse/disks/" + domain.ColdDisk + "/",
+		CacheEnabled: true,
+		CacheMaxSize: o.CacheBytes,
+	}
+	switch o.Kind {
+	case domain.KindLocal:
+		return coldDisk{Type: string(domain.KindLocal), Path: o.Endpoint}
+	case domain.KindAzure:
+		cache.Type = "object_storage"
+		cache.ObjectType = "azure_blob_storage"
+		cache.MetadataType = "local"
+		cache.StorageURL = o.Endpoint
+		cache.ContainerName = o.Container
+		cache.AccountName = o.AccessKey
+		cache.AccountKey = o.SecretKey
+		return cache
+	}
+	cache.Type = string(domain.KindS3)
+	cache.Endpoint = o.Endpoint
+	cache.AccessKeyID = o.AccessKey
+	cache.SecretAccessKey = o.SecretKey
+	cache.EnvCredentials = o.UseRole
+	return cache
 }

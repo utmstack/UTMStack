@@ -20,9 +20,9 @@ type Module struct {
 	datasourceUC         connectors.DatasourceUsecase
 }
 
-func NewModule(dsUC connectors.DatasourceUsecase, reconciler *usecase.StatsReconciler, agentClient *agentmanager.AgentManagerClient) *Module {
+func NewModule(dsUC connectors.DatasourceUsecase, reconciler *usecase.StatsReconciler, agentClient *agentmanager.AgentManagerClient, stats connectors.StatsReader) *Module {
 	m := &Module{
-		datasourceHandler:    handler.NewDatasourceHandler(dsUC),
+		datasourceHandler:    handler.NewDatasourceHandler(dsUC, stats),
 		connectionKeyHandler: handler.NewConnectionKeyHandler(agentClient),
 		reconciler:           reconciler,
 		datasourceUC:         dsUC,

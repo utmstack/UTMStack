@@ -1,0 +1,258 @@
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { AlertTriangle, Loader2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import { useSocAi, useSocAiFocus } from '@/features/soc-ai'
+import { alertFocus } from '@/features/alerts/lib/alert-focus'
+import { useAlertCount } from '@/features/alerts/hooks/use-alert-count'
+import { buildScene, type Party, tsMs } from '../model'
+import { Stage } from '../components/Stage'
+import { Timeline } from '../components/Timeline'
+import { Header } from '../components/Header'
+import { LeftSidebar } from '../components/LeftSidebar'
+import { RightSidebar } from '../components/RightSidebar'
+import { LiveOpsDataContext } from '../liveops-data'
+import { useLiveOpsAlerts } from '../hooks/useLiveOpsAlerts'
+import {NEW_ALERT_NOTIFICATION_INDEX, alertNotificationHandler} from '@/shared/lib/regular_alerts_count_handler'
+import '../liveops.css'
+
+// Where the floating pieces sit (px).
+const EDGE = 12
+const TOP = 62
+const LEFT_W = 250
+const RIGHT_W = 300
+/** The scene never gets narrower than this, so its labels stay readable; a side panel folds instead. */
+const MIN_SCENE = 620
+
+/** Width and height of an element, kept up to date. */
+function useSize<T extends HTMLElement>() {
+  const ref = useRef<T>(null)
+  const [size, setSize] = useState({ width: 0, height: 0 })
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const ro = new ResizeObserver(([e]) => setSize({ width: e.contentRect.width, height: e.contentRect.height }))
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+  return [ref, size] as const
+}
+
+export function LiveOpsPage() {
+  const { t } = useTranslation()
+  const soc = useSocAi()
+  const data = useLiveOpsAlerts()
+  const { alerts, total, page, loading, error } = data
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [party, setParty] = useState<Party | null>(null)
+  const rightScrollRef = useRef<HTMLDivElement | null>(null)
+  const [tick, setTick] = useState(0)
+  const [run, setRun] = useState(0)
+  const [replaying, setReplaying] = useState(false)
+  const [leftPref, setLeftPref] = useState<boolean | null>(null)
+  const [rightPref, setRightPref] = useState<boolean | null>(null)
+  const [lastOpened, setLastOpened] = useState<'left' | 'right'>('right')
+  const prefWidth = useRef(0)
+  const [wallRef, wall] = useSize<HTMLDivElement>()
+  const [timelineRef, timelineSize] = useSize<HTMLDivElement>()
+
+
+  useEffect(() => {
+    const id = setInterval(() => setTick((x) => x + 1), 5_000)
+    return () => clearInterval(id)
+  }, [])
+
+  const alert_ctx = useAlertCount()
+
+  useEffect(() => {
+    alert_ctx.removeHandler(NEW_ALERT_NOTIFICATION_INDEX)
+    return () => {
+      alert_ctx.registerHandler(alertNotificationHandler, NEW_ALERT_NOTIFICATION_INDEX)
+    }
+  }, [])
+
+
+  const list = useMemo(
+    () => (alerts ?? []).map((a:any) => ({ ...a })).sort((a:any,b:any) => tsMs(b['@timestamp']) - tsMs(a['@timestamp'])),
+    [alerts],
+  )
+  const windowAlerts = useMemo(() => list, [list, tick])
+  const alert = list.find((a:any) => a.id === selectedId) ?? list[list.length - 1]
+  const scene = useMemo(() => (alert ? buildScene(alert, t) : null), [alert, t])
+
+  useSocAiFocus(useMemo(() => (alert ? alertFocus(alert) : null), [alert]))
+
+  useEffect(() => {
+    setParty(null)
+  }, [alert?.id])
+
+  function setLeft(open: boolean) {
+    setLeftPref(open)
+    prefWidth.current = wall.width
+    if (open) setLastOpened('left')
+  }
+
+  function setRight(open: boolean) {
+    setRightPref(open)
+    prefWidth.current = wall.width
+    if (open) setLastOpened('right')
+  }
+
+  const openRight = () => setRight(true)
+
+  function show(id: string) {
+    setReplaying(false)
+    if (id === alert?.id) setRun((r) => r + 1)
+    else setSelectedId(id)
+  }
+
+  function ask(q: string) {
+    soc.submit(q, { openPanel: true })
+  }
+
+  function onSceneEnded() {
+    if (!replaying || !alert) return
+    const i = windowAlerts.findIndex((a:any) => a.id === alert.id)
+    const next = windowAlerts[i - 1]
+    if (next) setSelectedId(next.id)
+    else if (page > 0) data.goPage(page - 1)
+    else setReplaying(false)
+  }
+
+  function goPage(p: number) {
+    data.goPage(p)
+    setReplaying(false)
+  }
+
+  useEffect(() => {
+    if (Math.abs(wall.width - prefWidth.current) > 200) {
+      setLeftPref(null)
+      setRightPref(null)
+    }
+  }, [wall.width])
+  const rightW = RIGHT_W
+  const sceneWidth = (l: boolean, r: boolean) => wall.width - (l ? 2 * EDGE + LEFT_W : 64) - (r ? 2 * EDGE + rightW : 64)
+
+  const fits = (l: boolean, r: boolean) => wall.width === 0 || sceneWidth(l, r) >= MIN_SCENE
+  let rightOpen = rightPref ?? fits(false, true)
+  let leftOpen = leftPref ?? fits(true, rightOpen)
+  // Both panels do not fit next to a usable scene: the one opened last stays.
+  if (wall.width > 0 && leftOpen && rightOpen && sceneWidth(true, true) < MIN_SCENE) {
+    if (lastOpened === 'left') rightOpen = false
+    else leftOpen = false
+  }
+  // A lone panel that would still leave too little room floats over the scene instead of pushing it.
+  const roomFor = wall.width === 0 || sceneWidth(leftOpen, rightOpen) >= MIN_SCENE
+  const bottom = EDGE + (timelineSize.height || 104) + 10
+  const area = {
+    top: TOP,
+    bottom,
+    left: leftOpen && roomFor ? EDGE + LEFT_W + EDGE : 64 + EDGE,
+    right: rightOpen && roomFor ? EDGE + rightW + EDGE : 64 + EDGE,
+  }
+  const panelBox = { top: TOP, bottom }
+
+  const ctx = useMemo(() => ({ ...data, alerts: windowAlerts }), [data, windowAlerts])
+
+  if (!alerts) {
+    return (
+      <div ref={wallRef} className="lo-wall @container relative h-full min-h-[560px] overflow-hidden text-foreground">
+        <div className="absolute inset-0 flex items-center justify-center">
+          {error ? <span className="flex items-center gap-2 text-red-600 dark:text-red-400"><AlertTriangle size={14} /> {t('liveOps.error', { msg: error })}</span> : (
+            <span className="flex flex-col items-center gap-2.5">
+              <Loader2 size={36} className="animate-spin text-primary" />
+              <span className="text-[12px] font-medium text-muted-foreground">{t('liveOps.loading')}</span>
+            </span>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <LiveOpsDataContext.Provider value={ctx}>
+      <div ref={wallRef} className="lo-wall @container relative h-full min-h-[560px] overflow-hidden text-foreground">
+        {alert && scene ? (
+          <Stage key={`${alert.id}:${run}`} alert={alert} scene={scene} templateLabel={t(`liveOps.kb.${scene.template}`)} area={area} selectedParty={party?.id} onSelectParty={setParty} onEnded={onSceneEnded} />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center text-sm text-muted-foreground">{t('liveOps.empty')}</div>
+        )}
+
+        {/* Refetch in flight (window change): show it on the canvas even when it is empty. */}
+        {loading && (
+          <div className="absolute z-10 flex flex-col items-center justify-center gap-2.5" style={area}>
+            <Loader2 size={36} className="animate-spin text-primary" />
+          </div>
+        )}
+
+        {/* Header */}
+        <Header
+          replaying={replaying}
+          newCount={alert_ctx.newCount}
+          openCount={alert_ctx.count ?? list.filter((a:any) => String(a.status).toLowerCase() === 'open').length}
+          list={list}
+          total={total}
+          onNewAlerts={() => {
+            data.goPage(0,true)
+            setSelectedId(null)
+            rightScrollRef.current?.scrollTo({ top: 0 })
+          }}
+        />
+
+        {/* Incoming alerts (floating, folds away) */}
+        <LeftSidebar
+          open={leftOpen}
+          panelBox={panelBox}
+          collapsedStyle={{ top: TOP, left: EDGE }}
+          width={LEFT_W}
+          selectedId={alert?.id ?? null}
+          onShow={show}
+          onOpen={() => setLeft(true)}
+          onClose={() => setLeft(false)}
+        />
+
+        {/* Details (floating, folds away) */}
+        <RightSidebar
+          open={rightOpen}
+          panelBox={panelBox}
+          collapsedStyle={{ top: TOP, right: EDGE }}
+          width={rightW}
+          alert={alert}
+          scene={scene}
+          selectedParty={party?.id ?? null}
+          onAsk={ask}
+          onOpen={openRight}
+          onClose={() => setRight(false)}
+          scrollRef={rightScrollRef}
+        />
+
+        {/* Timeline (floating) */}
+        <div ref={timelineRef} className="absolute z-20" style={{ left: EDGE, right: EDGE, bottom: EDGE }}>
+          <Timeline
+            t={t}
+            selectedId={alert?.id ?? null}
+            live={!replaying}
+            onPage={goPage}
+            onSelect={show}
+            onLive={() => {
+              setReplaying(false)
+              const newest = list[0]
+              if (newest) setSelectedId(newest.id)
+            }}
+            replaying={replaying}
+            onReplay={() => {
+              if (replaying) {
+                setReplaying(false)
+                return
+              }
+              const first = [...windowAlerts].sort((a:any,b:any) => String(a['@timestamp'] ?? '').localeCompare(String(b['@timestamp'] ?? '')))[0]
+              if (first) {
+                setReplaying(true)
+                setSelectedId(first.id)
+              }
+            }}
+          />
+        </div>
+      </div>
+    </LiveOpsDataContext.Provider>
+  )
+}

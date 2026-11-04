@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"strings"
 	"testing"
 	"time"
 )
@@ -22,5 +24,25 @@ func TestDedupIsPerTenant(t *testing.T) {
 	}
 	if !dedupCheckAndMark(a, "DC01", "1") {
 		t.Error("a genuine repeat was not deduplicated")
+	}
+}
+
+func TestIngestUserAcceptsNumericUIDNumber(t *testing.T) {
+	for _, body := range []string{`{"uidNumber":1001}`, `{"uidNumber":"1001"}`} {
+		var u ingestUser
+		if err := json.Unmarshal([]byte(body), &u); err != nil {
+			t.Fatalf("%s: %v", body, err)
+		}
+		if u.UIDNumber == nil || *u.UIDNumber != "1001" {
+			t.Errorf("%s: uidNumber = %v, want 1001", body, u.UIDNumber)
+		}
+	}
+
+	out, err := json.Marshal(ingestUser{UIDNumber: func() *flexString { v := flexString("1001"); return &v }()})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(out), `"uidNumber":"1001"`) {
+		t.Errorf("uidNumber must stay a string on the wire, got %s", out)
 	}
 }

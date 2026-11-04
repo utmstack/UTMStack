@@ -67,6 +67,25 @@ func (s *Signer) Sign(userID uuid.UUID, email string, permissions, roles []strin
 	return signed, expiresAt, nil
 }
 
+func (s *Signer) SignEmpty( expiration time.Duration) (string,  error) {
+	now := time.Now()
+	expiresAt := now.Add(expiration)
+	claims := Claims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			IssuedAt:  jwt.NewNumericDate(now),
+			ExpiresAt: jwt.NewNumericDate(expiresAt),
+			Issuer:    Issuer,
+		},
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS512, claims)
+	signed, err := token.SignedString(s.secret)
+	if err != nil {
+		return "",  err
+	}
+	return signed,  nil
+}
+
+
 func (s *Signer) Verify(tokenStr string) (*Claims, error) {
 	parsed, err := jwt.ParseWithClaims(tokenStr, &Claims{}, func(t *jwt.Token) (any, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {

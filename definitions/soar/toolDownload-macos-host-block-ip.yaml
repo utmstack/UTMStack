@@ -1,0 +1,23 @@
+# UTMStack system SOAR flow
+#
+# Standard response for the 'toolDownload' liveops template. The relpath
+# 'toolDownload-macos-host-block-ip' is the resolver key (frontend common-response.ts matches
+# template + platform, linux preferred when the host is unknown).
+# The trigger is a placeholder on purpose: a broad condition would
+# auto-fire this on every alert, and these are destructive actions.
+#
+- name: 'Block threat IP'
+  description: 'Attack tool downloaded onto the host. Block the source IP in the pf firewall.'
+  conditions:
+  - operator: IS
+    field: name
+    value: TODO-set-the-correlation-rule-that-triggers-this
+  roots:
+    - step_0
+  nodes:
+    step_0:
+        kind: executor
+        executor: shell
+        command: 'echo ''block drop in proto tcp from $(adversary.ip) to any'' >> /etc/pf.utmstack.conf ; pfctl -f /etc/pf.utmstack.conf'
+        shell: sh
+        platform: macos

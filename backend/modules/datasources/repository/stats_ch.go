@@ -65,3 +65,49 @@ func (r *chStatsReader) DistinctSources(ctx context.Context, from, to time.Time)
 	}
 	return out, rows.Err()
 }
+
+// TenantUsageByDay sums the same "enqueue_success" counters DistinctSources
+// reads, grouped by tenant instead of by data source, for one UTC calendar
+// day. day's time-of-day is ignored — only its UTC date matters.
+func (r *chStatsReader) TenantUsageByDay(ctx context.Context, day time.Time) ([]connectors.TenantUsage, error) {
+	const q = `
+		SELECT tenantId, sum(count) AS events, sum(bytes) AS bytes
+		FROM statistics
+		WHERE type = ?
+		  AND toDate(` + "`@timestamp`" + `) = toDate(?)
+		GROUP BY tenantId`
+
+	rows, err := r.conn.Query(ctx, q, enqueueSuccessType, day.UTC())
+	if err != nil {
+		return nil, fmt.Errorf("datasources: reading tenant usage: %w", err)
+	}
+	defer func() { _ = rows.Close() }()
+
+	out := make([]connectors.TenantUsage, 0, 16)
+	var unparseable int
+	for rows.Next() {
+		var (
+			u      connectors.TenantUsage
+			tenant string
+			events uint64
+			bytes  uint64
+		)
+		if err := rows.Scan(&tenant, &events, &bytes); err != nil {
+			return nil, err
+		}
+		id, err := uuid.Parse(tenant)
+		if err != nil {
+			unparseable++
+			continue
+		}
+		u.TenantID = id
+		u.EventCount = int64(events)
+		u.Bytes = int64(bytes)
+		out = append(out, u)
+	}
+	if unparseable > 0 {
+		_ = catcher.Error("datasources: tenant usage carried unusable tenants", nil,
+			map[string]any{"rows": unparseable})
+	}
+	return out, rows.Err()
+}

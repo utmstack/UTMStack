@@ -1,0 +1,32 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365-graph
+name: Graph Mailbox Forwarding Set
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Collection
+technique: "T1114.003 - Email Collection: Email Forwarding Rule"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/purview/audit-log-activities
+  - https://attack.mitre.org/techniques/T1114/003/
+description: |
+  Set-Mailbox gave a mailbox a forwarding address (ForwardingSmtpAddress or ForwardingAddress), so every message it receives is also sent there. Attackers set forwarding on a compromised or targeted mailbox to keep reading its mail. The destination is in log.forwardingAddress and the mailbox in log.ObjectId. Clearing forwarding is not reported.
+
+  One alert is raised per mailbox and destination; repeats are suppressed for seven days.
+
+  Next Steps:
+  1. Check whether the destination address belongs to the organization or to an outside domain.
+  2. Confirm with the mailbox owner and the person who made the change (origin user).
+  3. If it was not authorized, remove the forwarding, review the actor's account and what mail left the mailbox.
+where: |
+  equals("log.graphSource", "purview-audit") &&
+  equals("actionResult", "success") &&
+  equals("action", "Set-Mailbox") &&
+  equals("log.o365MailboxForwardingSet", "true")
+deduplicateBy:
+  - lastEvent.log.ObjectId
+  - lastEvent.log.forwardingAddress

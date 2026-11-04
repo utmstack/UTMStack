@@ -1,247 +1,231 @@
+# macOS native JSON and forwarding-wrapper filter, version 3.2.0
 pipeline:
   - dataTypes: [macos]
     order: 21  # global pipeline order -- unique across all filters, customer-adjustable
     steps:
+      # Optional forwarding wrapper. Anchoring prevents payload text from
+      # overriding the source, and the message is captured exactly once.
+      - grok:
+          source: raw
+          patterns:
+            - fieldName: ''
+              pattern: '^\[utm_stack_agent_ds='
+            - fieldName: log.datasourceoverride
+              pattern: '[^\]\r\n]*'
+            - fieldName: ''
+              pattern: '\]-'
+            - fieldName: log.wrapperMessage
+              pattern: '(?s:.*)'
+          where: startsWith("raw", "[utm_stack_agent_ds=") && !exists("log.message")
       - json:
           source: raw
-
-      - rename:
-          from:
-            - log.activity_identifier
-          to: log.activityIdentifier
-
-      - rename:
-          from:
-            - log.process_identifier
-          to: log.processIdentifier
-
-      - rename:
-          from:
-            - log.store_category
-          to: log.storeCategory
-
-      - rename:
-          from:
-            - log.thread_identifier
-          to: log.threadIdentifier
-
-      - rename:
-          from:
-            - log.parent_activity_identifier
-          to: log.parentActivityIdentifier
-
-      - rename:
-          from:
-            - log.signpost_type
-          to: log.signpostType
-
-      - rename:
-          from:
-            - log.signpost_identifier
-          to: log.signpostIdentifier
-
-      - rename:
-          from:
-            - log.signpost_name
-          to: log.signpostName
-
-      - rename:
-          from:
-            - log.class_name
-          to: log.className
-
-      - rename:
-          from:
-            - log.message
-          to: log.eventMessage
-
-      - rename:
-          from:
-            - log.signing_id
-          to: log.signingId
-
-      - rename:
-          from:
-            - log.team_id
-          to: log.teamId
-
-      - rename:
-          from:
-            - log.is_platform_binary
-          to: log.isPlatformBinary
-
-      - add:
-          function: 'string'
-          params:
-            key: log.eventType
-            value: 'logEvent'
-
-      - rename:
-          from:
-            - log.host
-          to: origin.host
-
-      - add:
-          function: 'string'
-          params:
-            key: log.eventName
-            value: 'A process was executed'
-          where: equals("log.className", "es.exec")
-
-      - add:
-          function: 'string'
-          params:
-            key: log.eventName
-            value: 'A process forked a child process'
-          where: equals("log.className", "es.fork")
-
-      - add:
-          function: 'string'
-          params:
-            key: log.eventName
-            value: 'A signal was sent to a process'
-          where: equals("log.className", "es.signal")
-
-      - add:
-          function: 'string'
-          params:
-            key: log.eventName
-            value: 'A file was renamed'
-          where: equals("log.className", "es.rename")
-
-      - add:
-          function: 'string'
-          params:
-            key: log.eventName
-            value: 'A file was created'
-          where: equals("log.className", "es.create")
-
-      - add:
-          function: 'string'
-          params:
-            key: log.eventName
-            value: 'A file was deleted'
-          where: equals("log.className", "es.unlink")
-
-      - add:
-          function: 'string'
-          params:
-            key: log.eventName
-            value: 'An extended attribute was set on a file'
-          where: equals("log.className", "es.setextattr")
-
-      - add:
-          function: 'string'
-          params:
-            key: log.eventName
-            value: 'An extended attribute was removed from a file'
-          where: equals("log.className", "es.deleteextattr")
-
-      - add:
-          function: 'string'
-          params:
-            key: log.eventName
-            value: 'A kernel extension was loaded'
-          where: equals("log.className", "es.kextload")
-
-      - add:
-          function: 'string'
-          params:
-            key: log.eventName
-            value: 'A user manually overrode a Gatekeeper block'
-          where: equals("log.className", "es.gatekeeper_user_override")
-
-      - add:
-          function: 'string'
-          params:
-            key: log.eventName
-            value: 'A TCC (privacy) permission grant was modified'
-          where: equals("log.className", "es.tcc_modify")
-
-      - add:
-          function: 'string'
-          params:
-            key: log.eventName
-            value: 'A persistent login/launch item was registered'
-          where: equals("log.className", "es.btm_launch_item_add")
-
-      - add:
-          function: 'string'
-          params:
-            key: log.eventName
-            value: 'A local user account was created'
-          where: equals("log.className", "es.od_create_user")
-
-      - add:
-          function: 'string'
-          params:
-            key: log.eventName
-            value: 'A user was added to a local group'
-          where: equals("log.className", "es.od_group_add")
-
-      - add:
-          function: 'string'
-          params:
-            key: log.eventName
-            value: "A local group's membership was set"
-          where: equals("log.className", "es.od_group_set")
-
-      - add:
-          function: 'string'
-          params:
-            key: log.eventName
-            value: 'A local user account was enabled'
-          where: equals("log.className", "es.od_enable_user")
-
-      - add:
-          function: 'string'
-          params:
-            key: log.eventName
-            value: 'A local account password was changed'
-          where: equals("log.className", "es.od_modify_password")
-
-      - add:
-          function: 'string'
-          params:
-            key: log.eventName
-            value: 'A user attempted to switch to another user account (su)'
-          where: equals("log.className", "es.su")
-
-      - add:
-          function: 'string'
-          params:
-            key: log.eventName
-            value: 'A user executed a command with elevated privileges (sudo)'
-          where: equals("log.className", "es.sudo")
-
-      - add:
-          function: 'string'
-          params:
-            key: log.eventName
-            value: 'An incoming Screen Sharing connection was accepted'
-          where: equals("log.className", "es.screensharing_attach")
-
-      - add:
-          function: 'string'
-          params:
-            key: log.eventName
-            value: 'A process attached to another process via ptrace'
-          where: equals("log.className", "es.trace")
-
-      - add:
-          function: 'string'
-          params:
-            key: log.eventName
-            value: 'XProtect detected malware'
-          where: equals("log.className", "es.xp_malware_detected")
-
-      - add:
-          function: 'string'
-          params:
-            key: log.eventName
-            value: 'A filesystem or disk image was mounted'
-          where: equals("log.className", "es.mount")
-
-      # Drop unnecessary events
+          where: regexMatch("raw", "^\\s*\\{")
+      - json:
+          source: log.wrapperMessage
+          where: regexMatch("log.wrapperMessage", "^\\s*\\{")
+      - grok:
+          source: log.wrapperMessage
+          patterns:
+            - fieldName: log.message
+              pattern: '(?s:.*)'
+          where: exists("log.wrapperMessage") && !regexMatch("log.wrapperMessage", "^\\s*\\{")
+      # Normalize the legacy level before applying the existing noise policy.
+      - grok:
+          source: log.messageType
+          patterns:
+            - fieldName: log.level
+              pattern: '(?s:.*)'
+          where: '!exists("log.level")'
+      # All fields used by the drop predicate are now available.
       - drop:
           where: equals("log.level", "notice") && contains("log.subsystem", "com.apple.cloudkit") || contains("log.subsystem", "com.apple.CoreDuet") || oneOf("log.subsystem", ["com.apple.apsd", "com.apple.bluetooth", "com.apple.SkyLight", "com.apple.mDNSResponder", "com.apple.homed", "com.apple.identityservicesd", "com.apple.powerlogd", "com.apple.analyticsd", "com.apple.UIKit", "com.apple.runningboard", "com.apple.WiFiManager", "com.apple.xpc", "com.apple.cache_delete", "com.apple.spotlightindex"])
+
+      - rename:
+          from: [log.activity_identifier]
+          to: log.activityIdentifier
+      - rename:
+          from: [log.process_identifier]
+          to: log.processIdentifier
+      - rename:
+          from: [log.store_category]
+          to: log.storeCategory
+      - rename:
+          from: [log.thread_identifier]
+          to: log.threadIdentifier
+      - grok:
+          source: log.class_name
+          patterns:
+            - fieldName: log.className
+              pattern: '(?s:.*)'
+          where: '!exists("log.className")'
+      - grok:
+          source: log.eventMessage
+          patterns:
+            - fieldName: log.message
+              pattern: '(?s:.*)'
+          where: '!exists("log.message")'
+
+      # Native JSON preserves the vendor key (datasource_override); the
+      # forwarding-wrapper grok carrier is datasourceoverride. The native rename
+      # runs first, the wrapper rename second, so the wrapper wins when a wrapped
+      # payload carries both.
+      - rename:
+          from: [log.datasource_override]
+          to: dataSource
+          where: regexMatch("log.datasource_override", "^[^\\s]+$") && !equals("log.datasource_override", "unknown")
+      - rename:
+          from: [log.datasourceoverride]
+          to: dataSource
+          where: regexMatch("log.datasourceoverride", "^[^\\s]+$") && !equals("log.datasourceoverride", "unknown")
+      - grok:
+          source: dataSource
+          patterns:
+            - fieldName: origin.host
+              pattern: '(?s:.*)'
+          where: '!oneOf("dataSource", ["", "unknown"])'
+      - grok:
+          source: log.process
+          patterns:
+            - fieldName: origin.process
+              pattern: '(?s:.*)'
+          where: exists("log.process")
+      - grok:
+          source: log.processImagePath
+          patterns:
+            - fieldName: origin.path
+              pattern: '(?s:.*)'
+          where: exists("log.processImagePath")
+      - grok:
+          source: log.timestamp
+          patterns:
+            - fieldName: deviceTime
+              pattern: '(?s:.*)'
+          where: regexMatch("log.timestamp", "^\\d{4}-\\d{2}-\\d{2}T")
+      - add:
+          function: string
+          params:
+            key: severity
+            value: debug
+          where: equals("log.level", "debug")
+      - add:
+          function: string
+          params:
+            key: severity
+            value: info
+          where: equals("log.level", "info")
+      - add:
+          function: string
+          params:
+            key: severity
+            value: info
+          where: equals("log.level", "notice")
+      - add:
+          function: string
+          params:
+            key: severity
+            value: error
+          where: equals("log.level", "error")
+      - add:
+          function: string
+          params:
+            key: severity
+            value: critical
+          where: equals("log.level", "fault")
+
+      # actionResult only where the message text states a final outcome, and only
+      # success, failed or denied. A log level is not an outcome. The classes below
+      # do not overlap; the order is still success, failed, denied.
+      # authd granted an authorization right; TCC allowed access (authValue=2).
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: 'equals("log.subsystem", "com.apple.Authorization") && startsWith("log.message", "Succeeded authorizing right ")'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: success
+          where: 'equals("log.subsystem", "com.apple.TCC") && startsWith("log.message", "AUTHREQ_RESULT: ") && contains("log.message", " authValue=2,")'
+      # Wrong credentials, a refused or cancelled authorization, a rejected
+      # screen-lock password.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failed
+          where: 'equals("log.subsystem", "com.apple.opendirectoryd") && (startsWith("log.message", "Authentication failed for ") || startsWith("log.message", "Failed SecureToken authentication for "))'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failed
+          where: 'equals("log.subsystem", "com.apple.Authorization") && startsWith("log.message", "Failed to authorize right ")'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: failed
+          where: 'equals("origin.process", "loginwindow") && startsWith("log.message", "-[LWDefaultScreenLockUI authFailWithMessage:]") && contains("log.message", "INCORRECT password")'
+      # Refused by a control: TCC denial, sandbox and System Policy deny reports
+      # (kernel, or sandboxd under com.apple.sandbox.reporting), rejected sandbox
+      # approval requests, and launchd lookups denied by the sandbox.
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: 'equals("log.subsystem", "com.apple.TCC") && ((startsWith("log.message", "AUTHREQ_RESULT: ") && contains("log.message", " authValue=0,")) || endsWith("log.message", "; returning denied."))'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: '(equals("origin.process", "kernel") || equals("origin.path", "/kernel") || equals("log.subsystem", "com.apple.sandbox.reporting")) && regexMatch("log.message", "^(\\d+ duplicate reports? for )?(Sandbox|System Policy): (.+\\) )?deny\\(\\d+\\) ")'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: '(equals("origin.process", "kernel") || equals("origin.path", "/kernel")) && startsWith("log.message", "sandboxd rejected approval request from ")'
+      - add:
+          function: string
+          params:
+            key: actionResult
+            value: denied
+          where: 'equals("origin.process", "launchd") && startsWith("log.message", "denied lookup: ")'
+
+      # Only matching security candidates may satisfy historical thresholds.
+      # The raw contract tests check parity against the two rule predicates.
+      - delete:
+          fields: [log.correlationCandidate, log.wrapperMessage]
+      - add:
+          function: string
+          params:
+            key: log.correlationCandidate.endpointSecurity
+            value: match
+          where: |
+            !oneOf("dataSource", ["", "unknown"]) &&
+            (equals("log.subsystem", "com.apple.endpointsecurity") ||
+             contains("origin.process", "EndpointSecurity") ||
+             contains("log.message", "ES_EVENT_TYPE")) &&
+            (contains("log.message", "bypass") ||
+             contains("log.message", "failed authorization") ||
+             contains("log.message", "client disconnected") ||
+             contains("log.message", "authorization denied") ||
+             contains("log.message", "invalid client") ||
+             contains("log.message", "ES_RETURN_ERROR") ||
+             equals("log.level", "error") ||
+             contains("log.message", "memory leak detected"))
+      - add:
+          function: string
+          params:
+            key: log.correlationCandidate.ransomware
+            value: match
+          where: |
+            !oneOf("dataSource", ["", "unknown"]) &&
+            (  (contains("log.message", ["encrypted", "encrypt", ".locked", ".crypto", ".crypt"]) ||
+             regexMatch("log.message", "(?i)\\.(locky|cerber|wannacry|ryuk|maze|conti|lockbit)$")) &&
+            (contains("log.message", "rename") || contains("log.message", "modified") ||
+             contains("log.message", "write")))

@@ -24,8 +24,8 @@ description: |
   5. Isolate the system from the network if ransomware is suspected
   6. Ensure offsite or cloud backups are intact and accessible
 where: |
-  contains("log.eventMessage", "tmutil") &&
-  contains("log.eventMessage", "delete")
+  contains("log.message", "tmutil") &&
+  contains("log.message", "delete")
 groupBy:
   - adversary.host
   - adversary.user

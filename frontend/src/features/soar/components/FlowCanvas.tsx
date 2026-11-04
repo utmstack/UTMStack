@@ -29,6 +29,9 @@ import { DAGNode } from './nodes/DAGNode'
 import { TriggerNode } from './nodes/TriggerNode'
 import { computeLayeredLayout, TRIGGER_LAYOUT_ID } from './layeredLayout'
 
+// SAFETY: react-flow nodes carry `data` as an opaque bag; DAGNode/TriggerNode
+// declare their own narrower data shape on top of that. The cast bridges the
+// generic NodeTypes to our concrete node components.
 const NODE_TYPES: NodeTypes = { dag: DAGNode as unknown as NodeTypes[string], trigger: TriggerNode as unknown as NodeTypes[string] }
 const TRIGGER_ID = TRIGGER_LAYOUT_ID
 
@@ -86,6 +89,9 @@ function FlowCanvasInner({ roots, nodes, conditions, readOnly, onChange, onCondi
         id,
         type: 'dag',
         position: posFor(id),
+        // SAFETY: react-flow `data` is typed as Record<string, unknown>; the node
+        // component re-asserts it to its own prop shape. Spreading the FlowNode
+        // fields in is the whole contract — nothing else is read from `data`.
         data: { nodeId: id, ...n } as unknown as Record<string, unknown>,
         selected: id === selectedId,
         draggable: !readOnly,
@@ -277,7 +283,7 @@ function FlowCanvasInner({ roots, nodes, conditions, readOnly, onChange, onCondi
       if (readOnly) return
       const raw = event.dataTransfer.getData('application/soar-node')
       if (!raw) return
-      let payload: { executor: string; kind: NodeKind; paramsPlaceholder?: unknown }
+      let payload: { executor: string; kind: NodeKind; paramsPlaceholder?: unknown; command?: string; platform?: string; shell?: string }
       try {
         payload = JSON.parse(raw)
       } catch {
@@ -289,6 +295,9 @@ function FlowCanvasInner({ roots, nodes, conditions, readOnly, onChange, onCondi
         kind: payload.kind,
         executor: payload.executor,
         params: payload.paramsPlaceholder,
+        command: payload.command,
+        platform: payload.platform,
+        shell: payload.shell,
       }
       layoutRef.current[id] = position
       onChange({ roots, nodes: { ...nodes, [id]: newNode } })

@@ -6,11 +6,11 @@ import type { AdvancedSearchRequest } from '../domain/threat-intel.types'
 
 export function useTiSearchAdvanced() {
   return useMutation({
-    mutationFn: async (input: { body: AdvancedSearchRequest; limit?: number; page?: number }) =>{
+    mutationFn: async (input: { body: AdvancedSearchRequest; limit?: number; page?: number; fallback?: boolean }) =>{
       try{
         return await threatIntelHttpService.searchAdvanced(input.body, { limit: input.limit, page: input.page })
       }catch(e){
-        if(isNotFound(e)){
+        if(isNotFound(e) && input.fallback){
           const resp = await threatIntelHttpService.searchAdvanced({}, { limit: input.limit, page: input.page })
           resp.kind="empty"
           return resp

@@ -1,0 +1,23 @@
+# UTMStack system SOAR flow
+#
+# Standard response for the 'cloud' liveops template. The relpath
+# 'cloud-linux-host-block-ip' is the resolver key (frontend common-response.ts matches
+# template + platform, linux preferred when the host is unknown).
+# The trigger is a placeholder on purpose: a broad condition would
+# auto-fire this on every alert, and these are destructive actions.
+#
+- name: 'Block threat IP'
+  description: 'Suspicious activity in a cloud account. Block the source IP at the host firewall until the session is reviewed.'
+  conditions:
+  - operator: IS
+    field: name
+    value: TODO-set-the-correlation-rule-that-triggers-this
+  roots:
+    - step_0
+  nodes:
+    step_0:
+        kind: executor
+        executor: shell
+        command: 'iptables -I INPUT -s $(adversary.ip) -j DROP ; iptables -I FORWARD -s $(adversary.ip) -j DROP'
+        shell: sh
+        platform: ubuntu

@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AlertTriangle, Loader2, Plus, RefreshCw, Search, TagIcon } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { InfiniteScrollSentinel } from '@/shared/components/ui/infinite-scroll'
+import { useListScrollReset } from '@/shared/hooks/use-list-scroll-reset'
 import { ConfirmDialog } from '@/shared/components/ui/confirm-dialog'
 import { useTaggingRulesList } from '../hooks/use-tagging-rules-list'
 import { useTaggingRuleMutations } from '../hooks/use-tagging-rule-mutations'
@@ -27,6 +28,8 @@ export function TaggingRulesPage() {
   const [creating, setCreating] = useState(false)
   const [pendingDelete, setPendingDelete] = useState<TaggingRule | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const scrollRef = useRef<HTMLDivElement>(null)
+  useListScrollReset(page, 0, scrollRef)
 
   // Debounce the search box.
   useEffect(() => {
@@ -49,6 +52,12 @@ export function TaggingRulesPage() {
   )
 
   const { rules, total, loading, error, refresh } = useTaggingRulesList(params)
+  // Page owns the reset: the hook's load() runs with the current page, so
+  // refreshing while scrolled appends page N onto the old list.
+  const handleRefresh = () => {
+    if (page === 0) refresh()
+    else setPage(0)
+  }
   const { tagCatalog, createTag } = useAlertTagCatalog()
   const { createRule, updateRule, deleteRule } = useTaggingRuleMutations(refresh)
 
@@ -88,7 +97,7 @@ export function TaggingRulesPage() {
             <Plus size={14} className="mr-1.5" /> {t('taggingRules.new')}
           </Button>
           <button
-            onClick={refresh}
+            onClick={handleRefresh}
             title={t('taggingRules.refresh')}
             className="flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-muted hover:text-foreground"
           >
@@ -139,7 +148,7 @@ export function TaggingRulesPage() {
       ) : rules.length === 0 ? (
         <TaggingRulesEmptyCard>{t('taggingRules.empty')}</TaggingRulesEmptyCard>
       ) : (
-        <div className="min-h-0 flex-1 overflow-y-auto">
+        <div className="min-h-0 flex-1 overflow-y-auto" ref={scrollRef}>
           <TaggingRulesTable rules={rules} onOpen={setOpen} />
           <InfiniteScrollSentinel
             onReach={() => setPage((p) => p + 1)}

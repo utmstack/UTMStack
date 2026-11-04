@@ -44,7 +44,7 @@ end`} />
 
 registerCollector({
   getName: () => 'FORTIWEB',
-  matches: (n) => n.includes('fortiweb'),
+  matches: (n) => n === 'fortiweb' || n === 'firewall_fortiweb',
   sections: [],
   render: (m) => <FortiwebGuide module={m} />,
 })

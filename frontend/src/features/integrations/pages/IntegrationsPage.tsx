@@ -31,6 +31,15 @@ const LOGO = (slug: string) => {
 }
 
 
+function displayModuleName(moduleName: string): string {
+  return moduleName
+    .toLowerCase()
+    .split(/[_\s-]+/)
+    .filter(Boolean)
+    .map((part) => part[0].toUpperCase() + part.slice(1))
+    .join(' ')
+}
+
 function mapModuleToIntegration(module: IntegrationResponse, t: TFunction): Integration {
   const isSystem = module.systemOwner
   // System integrations: icon, description and category are owned by the frontend
@@ -64,7 +73,7 @@ function mapModuleToIntegration(module: IntegrationResponse, t: TFunction): Inte
 
   return {
     id: module.id,
-    name: isSystem ? t(`integrations.modules.${module.name}.name`, { defaultValue: module.name }) : module.name,
+    name: isSystem ? t(`integrations.modules.${module.name}.name`, { defaultValue: displayModuleName(module.name) }) : displayModuleName(module.name),
     moduleName: module.name,
     dataType: module.dataType,
     ingestType: module.ingestType,
@@ -80,6 +89,7 @@ function mapModuleToIntegration(module: IntegrationResponse, t: TFunction): Inte
     rate: undefined,
   }
 }
+
 
 // Pinned order for the three OS agents so they always lead the grid.
 const AGENT_ORDER = ['WINDOWS_AGENT', 'LINUX_AGENT', 'MACOS']
@@ -159,7 +169,24 @@ export function IntegrationsPage() {
   const [editing, setEditing] = useState<Integration | null>(null)
 
   const modules = integrations.integrations.data || []
-  const displayList = useMemo(() => modules.map((m) => mapModuleToIntegration(m, t)), [modules, t])
+  const displayList = useMemo(() => {
+    const backend = modules.map((module) => mapModuleToIntegration(module, t))
+    const backendModuleNames = new Set(modules.map((module) => module.name.toUpperCase()))
+
+    return backend.map((integration) => {
+      if (backendModuleNames.has((integration.moduleName ?? '').toUpperCase())) {
+        return integration
+      }
+
+      return {
+        ...integration,
+        name: t(`integrations.modules.${integration.moduleName}.name`, { defaultValue: integration.name }),
+        description: t(`integrations.modules.${integration.moduleName}.description`, {
+          defaultValue: integration.description,
+        }),
+      }
+    })
+  }, [modules, t])
 
   // The raw catalog row for the module being edited (for its actual stored icon).
   const editingModule = editing ? modules.find((m) => String(m.id) === editing.id) : undefined

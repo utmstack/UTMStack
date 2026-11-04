@@ -31,7 +31,7 @@ logging trap informational`} />
 
 registerCollector({
   getName: () => 'CISCO_SWITCH',
-  matches: (n) => n.includes('cisco') && n.includes('switch'),
+  matches: (n) => n === 'cisco_switch' || n === 'cisco-switch',
   sections: [],
   render: (m) => <CiscoSwitchGuide module={m} />,
 })

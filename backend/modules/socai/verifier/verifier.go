@@ -30,6 +30,15 @@ const (
 	toolProbePrompt  = "Health check: call the " + healthCheckName + " tool with ok set to true."
 )
 
+// ErrRateLimited marks a verification call that hit the provider's rate
+// limit rather than a real connection problem. The credentials and URL are
+// presumably fine — a 429 means they were accepted and something answered —
+// so the caller should not treat this the same as a bad key or an
+// unreachable host. In particular, saving a config change that doesn't
+// touch the connection at all must not become impossible just because the
+// tenant is out of AI quota for the day.
+var ErrRateLimited = errors.New("provider rate limit hit during connection check")
+
 var healthCheckSchema = map[string]any{
 	"type":       "object",
 	"properties": map[string]any{"ok": map[string]any{"type": "boolean"}},
@@ -88,6 +97,9 @@ func (v *Verifier) ping(ctx context.Context, c Config, url string) error {
 	if status == http.StatusUnauthorized || status == http.StatusForbidden {
 		return fmt.Errorf("authentication failed (%d): check the API key / auth headers", status)
 	}
+	if status == http.StatusTooManyRequests {
+		return fmt.Errorf("%w (%d): %s", ErrRateLimited, status, snippet(respBody))
+	}
 	return fmt.Errorf("LLM check failed (%d): %s", status, snippet(respBody))
 }
 
@@ -122,6 +134,9 @@ func (v *Verifier) toolProbe(ctx context.Context, c Config, url string) error {
 	status, respBody, err := v.do(ctx, url, headersFor(c), body)
 	if err != nil {
 		return fmt.Errorf("tool-calling check: %w", err)
+	}
+	if status == http.StatusTooManyRequests {
+		return fmt.Errorf("tool-calling check: %w (%d): %s", ErrRateLimited, status, snippet(respBody))
 	}
 	if status != http.StatusOK && status != http.StatusAccepted {
 		return fmt.Errorf("tool-calling not supported (%d): %s", status, snippet(respBody))

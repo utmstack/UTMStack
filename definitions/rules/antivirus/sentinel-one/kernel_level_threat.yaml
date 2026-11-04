@@ -27,7 +27,8 @@ description: |
 where: |
   regexMatch("log.eventDescription", "(?i)(kernel|rootkit|driver|ring.?0|system.?level)") &&
   contains("log.eventDescription", ["threat", "malicious", "exploit", "compromise",
-    "detect", "block", "prevent", "isolate"])
+    "detect", "block", "prevent", "isolate"]) &&
+  exists("target.host")
 groupBy:
   - lastEvent.log.eventDescription
-  - lastEvent.log.syslogHost
+  - target.host

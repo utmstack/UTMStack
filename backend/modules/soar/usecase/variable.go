@@ -135,7 +135,7 @@ func (u *variableUsecase) Delete(ctx context.Context, id uuid.UUID) error {
 	return u.repo.Delete(ctx, id)
 }
 
-func (u *variableUsecase) InterpolateCommand(ctx context.Context, cmd string) (string, error) {
+func (u *variableUsecase) InterpolateCommand(ctx context.Context, cmd, shell string) (string, error) {
 	matches := variableInterpolationRegex.FindAllStringSubmatch(cmd, -1)
 	if len(matches) == 0 {
 		return cmd, nil
@@ -163,7 +163,7 @@ func (u *variableUsecase) InterpolateCommand(ctx context.Context, cmd string) (s
 			}
 			value = plain
 		}
-		cmd = strings.ReplaceAll(cmd, "$[variables."+v.Name+"]", value)
+		cmd = strings.ReplaceAll(cmd, "$[variables."+v.Name+"]", escapeInterpolatedValue(value, shell))
 	}
 	return cmd, nil
 }

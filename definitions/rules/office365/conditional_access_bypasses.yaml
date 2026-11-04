@@ -26,7 +26,7 @@ description: |
   7. Monitor for additional suspicious activities from the same user or IP
 where: |
   (oneOf("action", ["UserLoggedIn", "UserLoginFailed"]) &&
-   (oneOf("log.ConditionalAccessStatus", ["failure", "notApplied"]) && equals("actionResult", "Succeeded"))) &&
+   (oneOf("log.ConditionalAccessStatus", ["failure", "notApplied"]) && equals("actionResult", "success"))) &&
   exists("origin.user") &&
   exists("origin.ip")
 afterEvents:

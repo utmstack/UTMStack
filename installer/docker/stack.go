@@ -22,8 +22,9 @@ type StackConfig struct {
 	ClickHouseSchema    string
 	ClickHouseConf      string
 	ClickHouseConfigD   string
+	ClickHouseCold      string
 	NATSData            string
-	RedisData           string
+	ValkeyData          string
 	Cert                string
 	EventsEngineWorkdir string
 	LocksDir            string
@@ -66,8 +67,11 @@ func GetStackConfig() *StackConfig {
 		// Server configuration the backend writes and ClickHouse reads: today
 		// the cold-storage declaration, which is why both mount it.
 		stackConfig.ClickHouseConfigD = utils.MakeDir(0777, cnf.DataDir, "clickhouse", "config.d")
+		// Backs a local cold disk: a plain folder, or an NFS share the operator
+		// mounts over it on the host.
+		stackConfig.ClickHouseCold = utils.MakeDir(0777, cnf.DataDir, "clickhouse", "cold")
 		stackConfig.NATSData = utils.MakeDir(0777, cnf.DataDir, "nats")
-		stackConfig.RedisData = utils.MakeDir(0777, cnf.DataDir, "redis")
+		stackConfig.ValkeyData = utils.MakeDir(0777, cnf.DataDir, "valkey")
 		stackConfig.LocksDir = utils.MakeDir(0777, cnf.DataDir, "locks")
 		stackConfig.ShmFolder = utils.MakeDir(0777, cnf.DataDir, "tmpfs")
 
@@ -76,7 +80,7 @@ func GetStackConfig() *StackConfig {
 			{Name: "clickhouse", Priority: 1, MinMemory: 5120, MaxMemory: 60 * 1024},
 			{Name: "log-input", Priority: 2, MinMemory: 256, MaxMemory: 1024},
 			{Name: "nats", Priority: 3, MinMemory: 256, MaxMemory: 2 * 1024},
-			{Name: "redis", Priority: 3, MinMemory: 128, MaxMemory: 1024},
+			{Name: "valkey", Priority: 3, MinMemory: 128, MaxMemory: 1024},
 			{Name: "backend", Priority: 3, MinMemory: 700, MaxMemory: 2 * 1024},
 			{Name: "postgres", Priority: 2, MinMemory: 500, MaxMemory: 2 * 1024},
 			{Name: "agentmanager", Priority: 3, MinMemory: 200, MaxMemory: 1024},
@@ -99,13 +103,19 @@ func GetStackConfig() *StackConfig {
 	return stackConfig
 }
 
-func balanceMemoryNow() (map[string]*system.ServiceConfig, error) {
+func totalSystemMemoryMB() (int, error) {
 	mem := sigar.Mem{}
 	if err := mem.Get(); err != nil {
+		return 0, err
+	}
+	return int(mem.Total / 1024 / 1024), nil
+}
+
+func balanceMemoryNow() (map[string]*system.ServiceConfig, error) {
+	total, err := totalSystemMemoryMB()
+	if err != nil {
 		return nil, fmt.Errorf("error getting memory: %v", err)
 	}
-	total := int(mem.Total/1024/1024) - system.SYSTEM_RESERVED_MEMORY
-
 	rsrcs, err := system.BalanceMemory(Services, total)
 	if err != nil {
 		return nil, fmt.Errorf("error balancing memory: %v", err)
@@ -129,7 +139,39 @@ func loadPersistedMemoryAllocation() (map[string]*system.ServiceConfig, bool) {
 		return nil, false
 	}
 
+	for _, svc := range Services {
+		if rsrcs[svc.Name] == nil {
+			fmt.Printf("warning: persisted memory allocation is missing %q (service list changed since it was written), recalculating\n", svc.Name)
+			return nil, false
+		}
+	}
+
 	return rsrcs, true
+}
+
+// ApplyMemory loads and validates the persisted allocation, then applies it to this
+// stack config. It never rewrites the file, so admin edits survive this call
+// and the next update.
+func (s *StackConfig) ApplyMemory() (map[string]*system.ServiceConfig, error) {
+	total, err := totalSystemMemoryMB()
+	if err != nil {
+		return nil, fmt.Errorf("error getting memory: %v", err)
+	}
+
+	rsrcs, ok := loadPersistedMemoryAllocation()
+	if !ok {
+		return nil, fmt.Errorf("no usable memory allocation at %s; fix the file or run --recalculate-memory to regenerate", config.MemoryAllocationPath)
+	}
+
+	if err := system.ValidateMemoryAllocation(rsrcs, Services, total); err != nil {
+		return nil, err
+	}
+
+	for _, svc := range Services {
+		s.ServiceResources[svc.Name] = rsrcs[svc.Name]
+	}
+
+	return rsrcs, nil
 }
 
 func RecalculateMemory() error {

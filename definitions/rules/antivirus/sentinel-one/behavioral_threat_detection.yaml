@@ -25,7 +25,7 @@ description: |
   6. Review SentinelOne console for additional threat details and recommended remediation actions
   7. Collect memory dumps if process injection or in-memory threats are suspected
   8. Check for persistence mechanisms that may have been established
-where: (regexMatch("log.eventDescription", "(?i)(behavioral|anomaly|suspicious behavior|abnormal|pattern detected|threat behavior|malicious activity)") || regexMatch("log.eventDescription", "(?i)(process injection|code injection|memory manipulation|hollowing)")) && exists("log.syslogHost") && exists("log.eventDescription")
+where: (regexMatch("log.eventDescription", "(?i)(behavioral|anomaly|suspicious behavior|abnormal|pattern detected|threat behavior|malicious activity)") || regexMatch("log.eventDescription", "(?i)(process injection|code injection|memory manipulation|hollowing)")) && exists("target.host") && exists("log.eventDescription")
 groupBy:
   - lastEvent.log.eventDescription
-  - lastEvent.log.syslogHost
+  - target.host

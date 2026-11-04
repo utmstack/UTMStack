@@ -15,10 +15,10 @@ import { OP_KEY, SELECT_CLS } from './log-explorer.constants'
 
 /* Explicit field/operator/value filter builder — pick a field, an operator, and
  * a value from the field's real existing values (fetched via top-x-values). */
-const BUILDER_OPS: { id: FilterOperator; label: string; needsValue: boolean }[] = [
+const BUILDER_OPS: { id: FilterOperator; label: string; needsValue: boolean; freeText?: boolean }[] = [
   { id: 'IS', label: 'is', needsValue: true },
   { id: 'IS_NOT', label: 'is not', needsValue: true },
-  { id: 'CONTAIN', label: 'contains', needsValue: true },
+  { id: 'CONTAIN', label: 'contains', needsValue: true, freeText: true },
   { id: 'EXIST', label: 'exists', needsValue: false },
 ]
 
@@ -62,11 +62,12 @@ export function AddFilterButton({
 
   const op = BUILDER_OPS.find((o) => o.id === operator)
   const needsValue = op?.needsValue ?? true
+  const freeText = op?.freeText ?? false
   const fieldDef = selectable.find((f) => f.name === field)
   const aggField = fieldDef?.type === 'text' && !field.endsWith('.keyword') ? `${field}.keyword` : field
 
   useEffect(() => {
-    if (!open || !needsValue || !field) return
+    if (!open || !needsValue || freeText || !field) return
     setLoadingValues(true)
     setValues([])
     svc
@@ -75,7 +76,7 @@ export function AddFilterButton({
       .catch(() => setValues([]))
       .finally(() => setLoadingValues(false))
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, field, needsValue])
+  }, [open, field, needsValue, freeText])
 
   const add = (value: string) => {
     onAdd({ field, operator, value: needsValue ? value : undefined })
@@ -106,8 +107,17 @@ export function AddFilterButton({
               ))}
             </select>
             {needsValue ? (
-              <>
-                <div className="relative">
+              freeText ? (
+                <>
+                  <Input value={vq} onChange={(e) => setVq(e.target.value)} placeholder={t('logExplorer.builder.filterValues')} className="h-8 text-xs" autoFocus onKeyDown={(e) => e.key === 'Enter' && vq && add(vq)} />
+                  <div className="flex justify-end gap-2 pt-1">
+                    <Button variant="outline" size="sm" onClick={() => setOpen(false)}>{t('logExplorer.builder.cancel')}</Button>
+                    <Button size="sm" disabled={!vq} onClick={() => add(vq)}>{t('logExplorer.builder.confirm')}</Button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="relative">
                   <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
                   <Input value={vq} onChange={(e) => setVq(e.target.value)} placeholder={t('logExplorer.builder.filterValues')} className="h-8 pl-8 text-xs" autoFocus />
                 </div>
@@ -126,6 +136,7 @@ export function AddFilterButton({
                   )}
                 </div>
               </>
+              )
             ) : (
               <div className="flex justify-end gap-2 pt-1">
                 <Button variant="outline" size="sm" onClick={() => setOpen(false)}>{t('logExplorer.builder.cancel')}</Button>

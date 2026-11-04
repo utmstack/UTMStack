@@ -6,6 +6,8 @@ export interface CollectorSection {
   titleKey: string
   bodyKey: string
   image?: string
+  /** Step number shown as the numbered badge (matches the Section step prop). */
+  step?: number
 }
 
 export interface Collector {

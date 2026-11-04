@@ -16,5 +16,5 @@ type Usecase interface {
 	Health(ctx context.Context) (domain.Health, error)
 
 	Tiering(ctx context.Context) (domain.Tiering, error)
-	EnableTiering(ctx context.Context, o domain.ObjectStore) (domain.Tiering, error)
+	EnableTiering(ctx context.Context, o domain.ColdTarget) (domain.Tiering, error)
 }

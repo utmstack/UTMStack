@@ -1,4 +1,4 @@
-# Rule version v1.0.1
+# Rule version v1.0.2
 
 dataTypes:
   - "linux"
@@ -15,29 +15,17 @@ description: "Identifies multiple SSH login failures followed by a successful on
 references:
   - "https://attack.mitre.org/tactics/TA0006/"
   - "https://attack.mitre.org/techniques/T1110/"
-# Uses the native auditd collector's USER_AUTH (PAM) records, not journald's
-# free-text sshd messages: journald's "session opened for user X" line only
-# carries X inside unstructured log.message text (no discrete field), and
-# origin.user for that path resolves to journald's _UID, which is the PID
-# that wrote the log line (sshd itself, running as root) -- not the account
-# being authenticated. USER_AUTH's userauth.acct/userauth.addr (mapped to
-# origin.user/origin.ip in definitions/filters/linux/linux.yaml) carry the
-# actual attempted account and real source IP. Confirmed against a real
-# failed-login test on V11-DEV-18.
-where: equals("action", "USER_AUTH") && equals("actionResult", "success") && exists("origin.user") && exists("origin.ip")
+where: |
+  contains("log.message", "Failed password") || (equals("action", "USER_AUTH") && contains("log.userauth.result", "fail"))
 afterEvents:
   - with:
-      - field: origin.user
+      - field: dataSource
         operator: filter_term
-        value: '{{.origin.user}}'
-      - field: origin.ip
-        operator: filter_term
-        value: '{{.origin.ip}}'
-      - field: actionResult
-        operator: filter_term
-        value: 'failed'
+        value: '{{.dataSource}}'
+      - field: log.message
+        operator: filter_match
+        value: 'Failed password'
     within: 15m
     count: 10
-groupBy:
-  - adversary.ip
-  - adversary.user
+deduplicateBy:
+  - dataSource

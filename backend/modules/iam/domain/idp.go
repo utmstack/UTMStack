@@ -32,7 +32,7 @@ type IdentityProviderConfig struct {
 	TenantID         uuid.UUID      `gorm:"column:tenant_id;type:uuid;not null;index;uniqueIndex:ux_idp_tenant_name,priority:1" json:"-"`
 	Name             string         `gorm:"column:name;size:64;not null;uniqueIndex:ux_idp_tenant_name,priority:2" json:"name"`
 	ProviderType     ProviderType   `gorm:"column:provider_type;size:16;not null;index" json:"providerType"`
-	Active           bool           `gorm:"column:active;not null;default:true" json:"active"`
+	Active           bool           `gorm:"column:active;not null" json:"active"`
 	Settings         datatypes.JSON `gorm:"column:settings;type:jsonb" json:"settings"`
 	JITProvisioning  bool           `gorm:"column:jit_provisioning;not null;default:false" json:"jitProvisioning"`
 	DefaultRoleID    *uuid.UUID     `gorm:"column:default_role_id;type:uuid" json:"defaultRoleId,omitempty"`

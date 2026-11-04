@@ -21,7 +21,7 @@ const ALL_TYPES: EntityType[] = [
 ]
 
 export interface FiltersState {
-  types: EntityType[]
+  type: EntityType | 'any'
   reputation: { min: number; max: number } | null
   accuracy: { min: number; max: number } | null
   tagsInclude: string[]
@@ -31,7 +31,7 @@ export interface FiltersState {
 }
 
 export const EMPTY_FILTERS: FiltersState = {
-  types: [],
+  type: 'any',
   reputation: null,
   accuracy: null,
   tagsInclude: [],
@@ -49,8 +49,8 @@ export function filtersToRequest(
   const filter: AdvancedCondition[] = [...(extra?.query?.filter ?? [])]
   const should: AdvancedCondition[] = [...(extra?.query?.should ?? [])]
 
-  if (state.types.length > 0) {
-    must.push({ terms: { type: state.types } })
+  if (state.type !== 'any') {
+    must.push({ term: { type: { value: state.type } } })
   }
   if (state.reputation !== null) {
     filter.push({
@@ -99,7 +99,7 @@ export function filtersToRequest(
 
 function countActive(state: FiltersState): number {
   let n = 0
-  if (state.types.length) n++
+  if (state.type !== 'any') n++
   if (state.reputation) n++
   if (state.accuracy) n++
   if (state.tagsInclude.length) n++
@@ -122,13 +122,6 @@ export function FiltersPanel({ value, onChange, onApply, onClear, onClose }: Fil
   const dateRangeValue: DateRangeValue = {
     from: value.dateFrom ? new Date(value.dateFrom) : null,
     to: value.dateTo ? new Date(value.dateTo) : null,
-  }
-
-  const toggleType = (t: EntityType) => {
-    const next = value.types.includes(t)
-      ? value.types.filter((x) => x !== t)
-      : [...value.types, t]
-    onChange({ ...value, types: next })
   }
 
   const setRepField = (field: 'min' | 'max', raw: string) => {
@@ -182,24 +175,17 @@ export function FiltersPanel({ value, onChange, onApply, onClear, onClose }: Fil
       </div>
 
       <div className="space-y-1">
-        <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Types</p>
-        <div className="flex flex-wrap gap-1.5">
+        <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Type</p>
+        <select
+          value={value.type}
+          onChange={(e) => onChange({ ...value, type: e.target.value as EntityType | 'any' })}
+          className="h-8 rounded-md border border-border bg-background px-2 text-xs"
+        >
+          <option value="any">Any type</option>
           {ALL_TYPES.map((t) => (
-            <button
-              key={t}
-              type="button"
-              onClick={() => toggleType(t)}
-              className={cn(
-                'rounded-full border px-2.5 py-0.5 text-xs transition-colors',
-                value.types.includes(t)
-                  ? 'border-fuchsia-500 bg-fuchsia-500/20 text-fuchsia-300'
-                  : 'border-border text-muted-foreground hover:border-fuchsia-400 hover:text-foreground',
-              )}
-            >
-              {t}
-            </button>
+            <option key={t} value={t}>{t}</option>
           ))}
-        </div>
+        </select>
       </div>
 
       <div className="grid grid-cols-2 gap-4">

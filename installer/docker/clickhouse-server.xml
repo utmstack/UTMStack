@@ -38,6 +38,19 @@
     <listen_host>0.0.0.0</listen_host>
     <listen_try>1</listen_try>
 
+    <!--
+      The image logs at trace, which on a quiet install already reached 2.9
+      million trace lines and a 1 GB clickhouse-server.log in three weeks, with
+      nothing in it a support case reads. Information keeps startup, merges that
+      fail, and every error; the size and count cap the directory at about a
+      gigabyte whatever the level.
+    -->
+    <logger>
+        <level>information</level>
+        <size>256M</size>
+        <count>4</count>
+    </logger>
+
     <metric_log remove="1"/>
     <trace_log remove="1"/>
     <text_log remove="1"/>

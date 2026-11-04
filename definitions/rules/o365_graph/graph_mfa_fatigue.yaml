@@ -1,0 +1,44 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - o365-graph
+name: Graph Repeated Multi-Factor Prompts Failed
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Credential Access
+technique: "T1621 - Multi-Factor Authentication Request Generation"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/graph/api/resources/signin
+  - https://learn.microsoft.com/en-us/entra/identity-platform/reference-error-codes
+  - https://attack.mitre.org/techniques/T1621/
+description: |
+  At least five Entra ID sign-ins for one user failed at the multi-factor step (error 500121, the user denied or did not answer the prompt) within an hour. An attacker who already has the password sends prompt after prompt until the user approves one. The reason for each failure is in log.status.additionalDetails.
+
+  One alert is raised per user; repeats are suppressed for seven days.
+
+  Next Steps:
+  1. Ask the user whether they were trying to sign in; if not, their password is known to someone else.
+  2. Reset the password and revoke the user's sessions.
+  3. Turn on number matching for push notifications and check the addresses the prompts came from (origin ip).
+where: |
+  equals("log.graphSource", "sign-ins") &&
+  equals("log.status.errorCode", 500121) &&
+  exists("origin.user")
+correlation:
+  - within: 1h
+    count: 5
+    with:
+      - field: origin.user
+        operator: filter_term
+        value: '{{.origin.user}}'
+      - field: log.graphSource
+        operator: filter_term
+        value: sign-ins
+      - field: log.status.errorCode
+        operator: filter_term
+        value: '500121'
+deduplicateBy:
+  - adversary.user

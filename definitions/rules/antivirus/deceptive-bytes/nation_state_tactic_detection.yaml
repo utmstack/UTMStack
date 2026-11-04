@@ -28,11 +28,11 @@ where: |
   oneOf("log.event_type", ["decoy_interaction", "honeypot_access", "deception_triggered"]) &&
   equals("log.threat_level", "critical") &&
   (equals("log.attack_sophistication", "advanced") || greaterOrEqual("log.threat_score", 85)) &&
-  (equals("log.apt_indicators", true) ||
-   equals("log.custom_malware", true) ||
-   equals("log.advanced_ttps", true) ||
+  (equals("log.apt_indicators", "true") ||
+   equals("log.custom_malware", "true") ||
+   equals("log.advanced_ttps", "true") ||
    greaterThan("log.targeted_decoys", 1) ||
-   equals("log.persistence_attempt", true))
+   equals("log.persistence_attempt", "true"))
 groupBy:
   - adversary.host
   - adversary.ip

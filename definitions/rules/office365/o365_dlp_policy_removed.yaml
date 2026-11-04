@@ -1,0 +1,27 @@
+# Rule version v1.0.0 (gap-fill set, 2026-09-25)
+
+dataTypes:
+  - o365
+name: Microsoft 365 DLP Policy Removed
+impact:
+  confidentiality: 3
+  integrity: 2
+  availability: 1
+category: Defense Evasion
+technique: "T1562 - Impair Defenses"
+adversary: origin
+references:
+  - https://learn.microsoft.com/en-us/purview/dlp-policy
+description: |
+  Detects Remove-DlpPolicy deleting a data-loss-prevention policy, removing the control that detects and blocks sensitive data leaving the tenant.
+
+  Next Steps:
+  1. Identify the removed policy and its scope
+  2. Determine whether removal was authorized
+  3. Review the acting identity
+  4. Recreate the DLP policy and audit data movement in the gap window
+where: |
+  equals("action", "Remove-DlpPolicy") && equals("actionResult", "success")
+groupBy:
+  - lastEvent.log.Parameters
+  - adversary.user
