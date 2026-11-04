@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 	"sync"
 	"time"
 
@@ -175,8 +176,8 @@ func (c *UpdaterClient) UpdateInstaller(version string) error {
 		return fmt.Errorf("error downloading installer: status %d", resp.StatusCode)
 	}
 
-	// Create temp file
-	tmpFile, err := os.CreateTemp("", "installer-*")
+	// Temp file must live next to the destination: rename can't cross filesystems.
+	tmpFile, err := os.CreateTemp(filepath.Dir(config.InstallerBinPath), ".installer-*")
 	if err != nil {
 		return fmt.Errorf("error creating temp file: %v", err)
 	}
