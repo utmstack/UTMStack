@@ -26,118 +26,118 @@ const routes: Routes = [
   {path: '', redirectTo: 'login', pathMatch: 'full'},
   {
     path: 'dashboard',
-    loadChildren: './dashboard/dashboard.module#UtmDashboardModule',
+    loadChildren: () => import('./dashboard/dashboard.module').then(m => m.UtmDashboardModule),
     canActivate: [UserRouteAccessService],
     data: {authorities: [USER_ROLE, ADMIN_ROLE]}
   },
   {
     path: 'data',
-    loadChildren: './data-management/data-management.module#DataManagementModule',
+    loadChildren: () => import('./data-management/data-management.module').then(m => m.DataManagementModule),
     canActivate: [UserRouteAccessService],
     data: {authorities: [ADMIN_ROLE, USER_ROLE]}
   },
  /* {
     path: 'explore',
-    loadChildren: './filebrowser/filebrowser.module#FileBrowserModule',
+    loadChildren: () => import('./filebrowser/filebrowser.module').then(m => m.FileBrowserModule),
     canActivate: [UserRouteAccessService],
     data: {authorities: [ADMIN_ROLE, USER_ROLE]}
   },*/
   {
     path: 'profile',
-    loadChildren: './account/account.module#UtmAccountModule',
+    loadChildren: () => import('./account/account.module').then(m => m.UtmAccountModule),
     canActivate: [UserRouteAccessService],
     data: {authorities: [ADMIN_ROLE, USER_ROLE]}
   },
   // {
   //   path: 'vulnerability-scanner',
-  //   loadChildren: './vulnerability-scanner/vulnerability-scanner.module#VulnerabilityScannerModule',
+  //   loadChildren: () => import('./vulnerability-scanner/vulnerability-scanner.module').then(m => m.VulnerabilityScannerModule),
   //   canActivate: [UserRouteAccessService, LiteModeRouteAccessService, ActiveModuleRouteAccessService],
   //   data: {authorities: [USER_ROLE, ADMIN_ROLE], module: UtmModulesEnum.VULNERABILITIES}
   // },
   {
     path: 'data-sources',
-    loadChildren: './assets-discover/assets-discover.module#AssetsDiscoverModule',
+    loadChildren: () => import('./assets-discover/assets-discover.module').then(m => m.AssetsDiscoverModule),
     canActivate: [UserRouteAccessService],
     data: {authorities: [USER_ROLE, ADMIN_ROLE]}
   },
   {
     path: 'management',
-    loadChildren: './admin/admin.module#AdminModule',
+    loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule),
     canActivate: [UserRouteAccessService],
     data: {authorities: [ADMIN_ROLE]}
   },
   {
     path: 'creator',
-    loadChildren: './graphic-builder/graphic-builder.module#GraphicBuilderModule',
+    loadChildren: () => import('./graphic-builder/graphic-builder.module').then(m => m.GraphicBuilderModule),
     canActivate: [UserRouteAccessService],
     data: {authorities: [USER_ROLE, ADMIN_ROLE]}
   },
   {
     path: 'app-management',
-    loadChildren: './app-management/app-management.module#AppManagementModule',
+    loadChildren: () => import('./app-management/app-management.module').then(m => m.AppManagementModule),
     canActivate: [UserRouteAccessService, FederationDisabledGuard],
     canActivateChild: [FederationDisabledGuard],
     data: {authorities: [USER_ROLE, ADMIN_ROLE]}
   },
   {
     path: 'integrations',
-    loadChildren: './app-module/app-module.module#AppModuleModule',
+    loadChildren: () => import('./app-module/app-module.module').then(m => m.AppModuleModule),
     canActivate: [UserRouteAccessService],
     data: {authorities: [USER_ROLE, ADMIN_ROLE]}
   },
   {
     path: 'variables',
-    loadChildren: './automation-variables/automation-variables.module#AutomationVariablesModule',
+    loadChildren: () => import('./automation-variables/automation-variables.module').then(m => m.AutomationVariablesModule),
     canActivate: [UserRouteAccessService],
     data: {authorities: [USER_ROLE, ADMIN_ROLE]}
   },
   {
     path: 'active-directory',
-    loadChildren: './active-directory/active-directory.module#ActiveDirectoryModule',
+    loadChildren: () => import('./active-directory/active-directory.module').then(m => m.ActiveDirectoryModule),
     canActivate: [UserRouteAccessService],
     data: {authorities: [USER_ROLE, ADMIN_ROLE]}
   },
   {
     path: 'discover',
-    loadChildren: './log-analyzer/log-analyzer.module#LogAnalyzerModule',
+    loadChildren: () => import('./log-analyzer/log-analyzer.module').then(m => m.LogAnalyzerModule),
     canActivate: [UserRouteAccessService],
     data: {authorities: [ADMIN_ROLE, USER_ROLE]}
   },
   {
     path: 'compliance',
-    loadChildren: './compliance/compliance.module#ComplianceModule',
+    loadChildren: () => import('./compliance/compliance.module').then(m => m.ComplianceModule),
     canActivate: [UserRouteAccessService],
     data: {authorities: [USER_ROLE, ADMIN_ROLE]}
   },
   {
     path: 'data-parsing',
-    loadChildren: './logstash/logstash.module#LogstashModule',
+    loadChildren: () => import('./logstash/logstash.module').then(m => m.LogstashModule),
     canActivate: [UserRouteAccessService],
     data: {authorities: [USER_ROLE, ADMIN_ROLE]}
   },
 
   {
     path: 'soar',
-    loadChildren: './incident-response/incident-response.module#IncidentResponseModule',
+    loadChildren: () => import('./incident-response/incident-response.module').then(m => m.IncidentResponseModule),
     canActivate: [UserRouteAccessService],
     data: {authorities: [USER_ROLE, ADMIN_ROLE]}
   },
 
   {
     path: 'incident',
-    loadChildren: './incident/incident.module#IncidentModule',
+    loadChildren: () => import('./incident/incident.module').then(m => m.IncidentModule),
     canActivate: [UserRouteAccessService],
     data: {authorities: [USER_ROLE, ADMIN_ROLE]}
   },
   // {
   //   path: 'reports',
-  //   loadChildren: './report/report.module#ReportModule',
+  //   loadChildren: () => import('./report/report.module').then(m => m.ReportModule),
   //   canActivate: [UserRouteAccessService],
   //   data: {authorities: [USER_ROLE, ADMIN_ROLE]}
   // },
   {
     path: 'iframe',
-    loadChildren: './data-management/alert-management/alert-management.module#AlertManagementModule',
+    loadChildren: () => import('./data-management/alert-management/alert-management.module').then(m => m.AlertManagementModule),
     canActivate: [UserRouteAccessService],
     data: {authorities: [USER_ROLE, ADMIN_ROLE]}
   },
@@ -149,13 +149,13 @@ const routes: Routes = [
   },
   {
     path: 'threat-intelligence',
-    loadChildren: './threatwind/threatwind.module#ThreatWindModule',
+    loadChildren: () => import('./threatwind/threatwind.module').then(m => m.ThreatWindModule),
     canActivate: [UserRouteAccessService],
     data: {authorities: [ADMIN_ROLE, USER_ROLE]}
   },
   {
     path: 'alerting-rules',
-    loadChildren: './rule-management/rule-management.module#RuleManagementModule',
+    loadChildren: () => import('./rule-management/rule-management.module').then(m => m.RuleManagementModule),
     canActivate: [UserRouteAccessService],
     data: {authorities: [ADMIN_ROLE, USER_ROLE]}
   },

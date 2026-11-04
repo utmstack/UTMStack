@@ -131,9 +131,47 @@ codelyzer 5.x (dev) is the last TSLint line.
   2. TS 4.1 strictness: `incident-related-alert.component.ts` `@Input() incidentId` used
      in a field initializer before init (TS2729). Fix: `incidentId!: number`
      (definite-assignment; the input is always bound by the parent).
-- **S12: 11→12** — 12.2.17, ba 12.2.18, TS 4.3. **webpack 5 lands — legacy flag
-  no longer needed.** Angular 12 requires `tsconfig` target ES2017+, `useDefineForClassFields`
-  off. **ESLint migration** (drop TSLint/codelyzer). ng-bootstrap 8, ng-select 8.
+- **S12: 11→12** — 12.2.17, ba 12.2.18, TS 4.3.5. **webpack 5 lands.**
+  **Measured breaks (2026-11-04):**
+  1. **webpack 5.50 still hashes with md4** (xxhash64 default is 5.54+) → Node 18
+     (OpenSSL 3) still fails without `--openssl-legacy-provider`; **S12 is
+     validated on Node 14 (OpenSSL 1.1, no flag needed — CI host)**. Node 18
+     no-flag builds only from S13 (build-angular 13.3.11 ships webpack 5.76+).
+  2. **tslib ^1.14.1 → ^2.3.0** (installs 2.9.1): TS 4.3 emits `__spreadArray`
+     (renamed from `__spreadArrays`); with `importHelpers: true` the v1 tslib
+     lacks it → dozens of webpack module errors.
+  3. **`SectionConfigType.id?: 0` → `id?: number`** (TS2367 ×5): the literal
+     `0` made every `section.id !== ApplicationConfigSectionEnum.X` "always
+     true" — a latent type bug TS 4.3 surfaces. All usages are numeric.
+  4. **critters (NEW in build-angular 12, index.html critical-CSS inliner)
+     strict-parses EVERY `<link rel=stylesheet>` in index.html** — including
+     `assets/icons/icomoon/styles.css` (a plain `.css` loaded from index.html,
+     never run through sass). Its `// padding: 5px;` SCSS-style comments
+     (L42-44, a fully commented-out `.icon-bordered` block) fail postcss:
+     "Unknown word padding" at `<css input>:42:5`. Fixed: `//` → `/* */`.
+     (The 11 angular.json style entries were scanned — intl-tel-input's 3 `//`
+     are inside a `/* */` block, safe.)
+  5. **lazy routes: string `loadChildren: './x/x.module#XModule'` →
+     `() => import('./x/x.module').then(m => m.XModule)`** (30 routes, 5 files).
+     webpack 5 no longer code-splits the string form: the bundle had 0
+     dynamic `import(` and 7 chunks total, so every lazy nav threw
+     "Cannot find module './dashboard/dashboard.module'" at runtime (silent —
+     0 pageerrors, empty router-outlet, bodyLen=0). The arrow form is what
+     webpack 5 can statically analyze (bundle went 7 → 37 chunks).
+     Companion: `tsconfig.json module: es2015 → es2020` — TS1323 forbids
+     dynamic `import()` under `es2015` modules. (target stays es5;
+     es5BrowserSupport was already removed at S10.)
+     NOTE: `ng build --prod` still works but is deprecated in 12 — S13 must
+     switch to `--configuration production` (--prod is removed in 13).
+  6. **ESLint migration** (drop TSLint/codelyzer): `@angular-eslint` 12.7.0
+     + eslint 7.32; `.eslintrc.json` maps the old tslint rules; angular.json
+     lint builder `:tslint` → `@angular-eslint/builder:lint`; tslint.json
+     deleted. `@typescript-eslint/no-non-null-assertion: warn` (21
+     pre-existing `!:` in src).
+  **No lib bumps forced at S12** (ng-bootstrap 5.3.1, ng-select 3.7.3 etc.
+  still compile against 12.2.17; npm-6 peer warnings only) — the master plan's
+  "ng-bootstrap 8, ng-select 8 at S12" was NOT needed to build; they ride
+  until their own line is required at a later stage.
 - **S13: 12→13** — 13.4.0, ba 13.3.11, TS 4.6, **rxjs 7.8** (rxjs 6→7 operator migration).
 - **S14: 13→14** — 14.3.0, ba 14.2.13, TS 4.8.
 - **S15: 14→15** — 15.2.10, ba 15.2.11, TS 4.9, zone 0.12. ng2-tel-input→2.5.

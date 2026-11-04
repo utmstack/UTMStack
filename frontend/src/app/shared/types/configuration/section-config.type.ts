@@ -1,6 +1,6 @@
 export class SectionConfigType {
   description?: string;
-  id?: 0;
+  id?: number;
   section?: string;
   shortName?: string;
 }

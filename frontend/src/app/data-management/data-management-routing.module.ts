@@ -8,19 +8,19 @@ import {ADMIN_ROLE, USER_ROLE} from '../shared/constants/global.constant';
 const routes: Routes = [
   {
     path: 'alert',
-    loadChildren: './alert-management/alert-management.module#AlertManagementModule',
+    loadChildren: () => import('./alert-management/alert-management.module').then(m => m.AlertManagementModule),
     canActivate: [UserRouteAccessService],
     data: {authorities: [USER_ROLE, ADMIN_ROLE]}
   },
   {
     path: 'file',
-    loadChildren: './file-management/file-management.module#FileManagementModule',
+    loadChildren: () => import('./file-management/file-management.module').then(m => m.FileManagementModule),
     canActivate: [UserRouteAccessService, ActiveModuleRouteAccessService],
     data: {authorities: [USER_ROLE, ADMIN_ROLE], module: UtmModulesEnum.FILE_INTEGRITY}
   },
   {
     path: 'adversary',
-    loadChildren: './adversary-management/adversary-management.module#AdversaryManagementModule',
+    loadChildren: () => import('./adversary-management/adversary-management.module').then(m => m.AdversaryManagementModule),
     canActivate: [UserRouteAccessService],
     data: {authorities: [USER_ROLE, ADMIN_ROLE]}
   }

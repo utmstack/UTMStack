@@ -9,13 +9,13 @@ const routes: Routes = [
   {path: '', redirectTo: 'visualization', pathMatch: 'full'},
   {
     path: 'visualization',
-    loadChildren: './visualization/visualization.module#VisualizationModule',
+    loadChildren: () => import('./visualization/visualization.module').then(m => m.VisualizationModule),
     canActivate: [UserRouteAccessService],
     data: {authorities: [USER_ROLE, ADMIN_ROLE]}
   },
   {
     path: 'builder',
-    loadChildren: './chart-builder/chart-builder.module#ChartBuilderModule',
+    loadChildren: () => import('./chart-builder/chart-builder.module').then(m => m.ChartBuilderModule),
     canActivate: [UserRouteAccessService],
     data: {authorities: [USER_ROLE, ADMIN_ROLE]}
   },
@@ -27,7 +27,7 @@ const routes: Routes = [
   },
   {
     path: 'dashboard',
-    loadChildren: './dashboard-builder/dashboard-builder.module#DashboardBuilderModule',
+    loadChildren: () => import('./dashboard-builder/dashboard-builder.module').then(m => m.DashboardBuilderModule),
     canActivate: [UserRouteAccessService],
     data: {authorities: [USER_ROLE, ADMIN_ROLE]}
   }
