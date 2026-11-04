@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"html/template"
 	"mime/multipart"
+	"mime/quotedprintable"
 	"net/smtp"
 	"net/textproto"
 	"strings"
@@ -137,8 +138,12 @@ func buildMessage(cfg *domain.EmailConfig, to []string, cc []string, subject, bo
 	if err != nil {
 		return nil, fmt.Errorf("create body part: %w", err)
 	}
-	if _, err := part.Write([]byte(body)); err != nil {
+	qp := quotedprintable.NewWriter(part)
+	if _, err := qp.Write([]byte(body)); err != nil {
 		return nil, fmt.Errorf("write body: %w", err)
+	}
+	if err := qp.Close(); err != nil {
+		return nil, fmt.Errorf("close body: %w", err)
 	}
 
 	for _, a := range attatchments {
