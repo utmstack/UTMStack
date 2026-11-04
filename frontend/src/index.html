@@ -13,6 +13,12 @@
   <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700"
         rel="stylesheet">
   <link href="assets/icons/icomoon/styles.css" rel="stylesheet" type="text/css">
+  <!-- intl-tel-input utils: loaded as a CLASSIC script (its intended delivery
+       mode). The library is an IIFE that registers intlTelInputUtils on
+       top-level `this`; as a classic script `this === window`, so the global
+       is set. (A webpack module import of it throws at bootstrap under
+       webpack 5.76 / Angular 13 — see intl-tel-input.utils.js stub.) -->
+  <script src="lib/intl-tel-input/utils.js"></script>
   <link href="assets/css/bootstrap_limitless.min.css" rel="stylesheet" type="text/css">
   <link href="assets/css/layout.min.css" rel="stylesheet" type="text/css">
   <link href="assets/css/components.min.css" rel="stylesheet" type="text/css">

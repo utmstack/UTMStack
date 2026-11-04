@@ -35,6 +35,11 @@
                 "glob": "**/*",
                 "input": "node_modules/monaco-editor/min/vs",
                 "output": "/assets/monaco/vs"
+              },
+              {
+                "glob": "utils.js",
+                "input": "node_modules/intl-tel-input/build/js",
+                "output": "/lib/intl-tel-input"
               }
             ],
             "styles": [
@@ -75,7 +80,6 @@
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
-              "extractCss": true,
               "namedChunks": false,
               "aot": true,
               "extractLicenses": true,

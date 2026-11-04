@@ -103,7 +103,8 @@ export class AuthServerProvider {
             'please try to login again. If the problem continues, contact the support team');
         }
       });
-      observer.next();
+      // rxjs 7: next() requires an argument (logout Observable emits null)
+      observer.next(null);
       observer.complete();
     });
   }

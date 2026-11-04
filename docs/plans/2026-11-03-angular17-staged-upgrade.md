@@ -172,7 +172,65 @@ codelyzer 5.x (dev) is the last TSLint line.
   still compile against 12.2.17; npm-6 peer warnings only) — the master plan's
   "ng-bootstrap 8, ng-select 8 at S12" was NOT needed to build; they ride
   until their own line is required at a later stage.
-- **S13: 12→13** — 13.4.0, ba 13.3.11, TS 4.6, **rxjs 7.8** (rxjs 6→7 operator migration).
+- **S13: 12→13** — 13.4.0, ba 13.3.11, TS ~4.6.4, **rxjs 7.8.2**,
+  @angular-eslint 13.5.0, custom-webpack 13.1.0, webpack 5.76.1.
+  **Measured breaks (2026-11-04):**
+  1. **`--prod` REMOVED in CLI 13** → build script + all invocations now use
+     `--configuration production`.
+  2. **ES5 differential loading removed** → tsconfig `target: es5 → es2017`,
+     `lib: es2018 → es2020` (the polyfills-es5 chunk disappears).
+  3. rxjs 6→7 — measured breaks (2026-11-04):
+     a. `next()`/`next(value)` now REQUIRES an argument (rxjs 7 tightened the
+        Subscriber signature). Of 67 arg-less `.next()` in src, 65 are on
+        `Subject<void>` (still valid); 2 are on `Subscriber<any>`/
+        `Subject<any>` → `observer.next()`/`this.destroy$.next()` in
+        auth-jwt.service.ts:106 + goal-view.component.ts:200. Fixed to
+        `.next(null)` (both emit nothing downstream — logout/destroy signals).
+     b. `forkJoin(...)` over an array of observables now infers `unknown[]`
+        (was `any[]` in rxjs 6) → `.filter` on the emitted value is TS2339.
+        2 sites: add-rule.component.ts:275 + import-rule.component.ts:159.
+        Fixed by annotating the subscribe/map param `(filteredDataTypes: any)`.
+     c. 1 `.toPromise()` (account.service) — deprecated but works in rxjs 7,
+        left as-is (0 removed-statics Observable.of/fromPromise/empty in src).
+  4. webpack 5.76.1 ≥5.54 → **Node 18 needs no `--openssl-legacy-provider`**
+     (verified by the S13 build running flag-free).
+  5. angular.json: `extractCss` REMOVED from the build schema (like
+     es5BrowserSupport was at S10) → schema validation fails. `aot`,
+     `namedChunks`, `vendorChunk` still valid in 13 (verified against the
+     13.3.11 browser schema.json: 41 properties).
+  6. `--prod` flag removed from the CLI at 13 → `package.json build` script
+     now `ng build --configuration production` (the production config already
+     existed; --prod was only deprecated-accepted at 12).
+  7. tsconfig: `target es5 → es2017`, `lib es2018 → es2020` (Angular 13
+     dropped ES5 differential loading — es5 target no longer builds).
+  8. **PITFALL (hit S13, affects S14–S17):** Angular 12+ keeps a persistent
+     webpack filesystem cache at `frontend/.angular/cache`, keyed on
+     angular.json / package.json / tsconfig — NOT on webpack.custom.js. Editing
+     the custom webpack config (aliases!) with the cache present is a SILENT
+     no-op: the build serves the stale compilation and the bundle hash stays
+     byte-identical. After any webpack.custom.js change: `rm -rf frontend/.angular`
+     (and `node_modules/.cache`) before rebuilding. Symptom check: main hash
+     unchanged across two builds that differ only in webpack.custom.js.
+  9. **intl-tel-input utils bootstrap crash (webpack 5.76):** ng2-tel-input
+     (root module) side-effect-imports `intl-tel-input/build/js/utils` — a
+     BARE IIFE `(function(){var aa=this; m("intlTelInputUtils",…)})();` whose
+     `this` comes from the bare call inside the file. webpack 5.50 (S12)
+     evaluated the module sloppy (`this === module.exports` object → attaches
+     harmlessly, global never set, plugin degrades gracefully — app booted);
+     webpack 5.76 (S13) evaluates it strict (`this === undefined`) →
+     `"intlTelInputUtils" in undefined` throws at bootstrap (root module =
+     app dies). PROVEN DEAD END: aliasing the import to a shim that
+     `require()`s the real file does NOT help — the IIFE's own `this` is
+     independent of the requiring module. Fix (no fork): (a) alias the
+     import to `intl-tel-input.utils.js` = `export {}` no-op stub (stops
+     webpack from evaluating the IIFE); (b) angular.json asset entry copies
+     `node_modules/intl-tel-input/build/js/utils.js` → `dist/lib/
+     intl-tel-input/utils.js`; (c) raw `<script src="lib/intl-tel-input/
+     utils.js">` in src/index.html — a classic script is sloppy
+     (`this === window`), so the IIFE sets `window.intlTelInputUtils`
+     (the library's README delivery mode; restores FULL tel-input
+     functionality, better than S12's degraded state). ng2-tel-input itself
+     never touches intlTelInputUtils (only the plugin reads it, guarded).
 - **S14: 13→14** — 14.3.0, ba 14.2.13, TS 4.8.
 - **S15: 14→15** — 15.2.10, ba 15.2.11, TS 4.9, zone 0.12. ng2-tel-input→2.5.
 - **S16: 15→16** — 16.2.12, ba 16.2.16, TS 5.1, zone 0.13.
