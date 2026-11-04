@@ -122,11 +122,26 @@ func (u *authUsecase) Login(ctx context.Context, input dto.LoginRequest, lc conn
 		return nil, err
 	}
 
-	if u.tfa != nil && u.preAuth != nil {
+	pair, err := u.issueTokenPair(ctx, user, lc)
+	if err != nil {
+		return nil, err
+	}
+	u.resetLimiter(lc.IP)
+
+	return u.ensureTFA(ctx, user, lc, pair)
+}
+
+func (u *authUsecase) ensureTFA(ctx context.Context, user *domain.User, lc connectors.LoginContext, pair *dto.TokenPair) (*dto.LoginResponse, error) {
+	var user_resp dto.UserResponse
+	if user != nil {
+		user_resp = dto.ToUserResponse(*user, false)
+	}
+	if u.tfa != nil && u.preAuth != nil && user != nil {
 		required, err := u.tfa.HasConfirmedFactor(ctx, user.ID)
 		if err != nil {
 			return nil, err
 		}
+
 		// A kill switch, not a mandate: the second factor is asked of whoever
 		// enrolled one, and development can turn the whole thing off. Forcing it
 		// on accounts that have no factor is what leaves a fresh install unable
@@ -142,7 +157,7 @@ func (u *authUsecase) Login(ctx context.Context, input dto.LoginRequest, lc conn
 			}
 			u.resetLimiter(lc.IP)
 			return &dto.LoginResponse{
-				User:         dto.ToUserResponse(*user, required),
+				User:         user_resp,
 				TfaRequired:  true,
 				TfaType:      factorType,
 				PreAuthToken: token,
@@ -150,12 +165,7 @@ func (u *authUsecase) Login(ctx context.Context, input dto.LoginRequest, lc conn
 		}
 	}
 
-	pair, err := u.issueTokenPair(ctx, user, lc)
-	if err != nil {
-		return nil, err
-	}
-	u.resetLimiter(lc.IP)
-	return &dto.LoginResponse{TokenPair: *pair, User: dto.ToUserResponse(*user, false)}, nil
+	return &dto.LoginResponse{TokenPair: *pair, User: user_resp}, nil
 }
 
 // EmptyLogin verifies the same credentials as Login and issues a token with no
@@ -203,11 +213,8 @@ func (u *authUsecase) tryDirectory(
 		return nil, err
 	}
 	u.resetLimiter(lc.IP)
-	resp := &dto.LoginResponse{TokenPair: *pair}
-	if user != nil {
-		resp.User = dto.ToUserResponse(*user, false)
-	}
-	return resp, nil
+
+	return u.ensureTFA(ctx, user, lc, pair)
 }
 
 func (u *authUsecase) recordFailure(ip string) {
