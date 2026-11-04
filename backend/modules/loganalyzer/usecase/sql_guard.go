@@ -14,7 +14,7 @@ var (
 
 var forbidden = []string{
 	"utmstack.", "system.", "information_schema", "default.",
-	"remote", "remotesecure", "cluster", "clusterallreplicas",
+	"remote", "remotesecure", "cluster", "clusterallreplicas", "statistics",
 	"url", "file", "s3", "hdfs", "mysql", "postgresql", "mongodb", "jdbc", "odbc",
 	"merge", "executable", "input", "dictionary",
 	"insert", "alter", "create", "drop", "attach", "detach", "truncate",
@@ -40,8 +40,12 @@ func ValidateSQL(sql string) error {
 	}
 
 	lower := strings.ToLower(stripped)
+	// Quoting can hide a forbidden token (e.g. `'utmstack'` or `` `utmstack` ``);
+	// match against the query with quotes stripped so quoted names are caught too.
+	matchable := strings.ReplaceAll(lower, "'", "")
+	matchable = strings.ReplaceAll(matchable, "`", "")
 	for _, tok := range forbidden {
-		if strings.Contains(lower, tok) {
+		if strings.Contains(matchable, tok) {
 			return fmt.Errorf("%q is not allowed here: the query may read the logs and alerts datasets and nothing else", strings.TrimSpace(tok))
 		}
 	}
