@@ -25,6 +25,7 @@ const (
 	RequiredMinCPUCores  = 2
 	RequiredMinDiskSpace = 30
 	RequiredDistroUbuntu = "ubuntu"
+	RequiredDistroDebian = "debian"
 	RequiredDistroRHEL   = "redhat"
 )
 

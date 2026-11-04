@@ -50,9 +50,9 @@ func CheckDistro() (string, error) {
 	info, _ := host.Info()
 
 	distro := info.Platform
-	if distro != config.RequiredDistroUbuntu && distro != config.RequiredDistroRHEL {
-		return "", fmt.Errorf("your Linux distribution (%s) is not supported. Supported distributions are: %s, %s",
-			distro, config.RequiredDistroUbuntu, config.RequiredDistroRHEL)
+	if distro != config.RequiredDistroUbuntu && distro != config.RequiredDistroDebian && distro != config.RequiredDistroRHEL {
+		return "", fmt.Errorf("your Linux distribution (%s) is not supported. Supported distributions are: %s, %s, %s",
+			distro, config.RequiredDistroUbuntu, config.RequiredDistroDebian, config.RequiredDistroRHEL)
 	}
 
 	return distro, nil

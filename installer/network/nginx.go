@@ -16,7 +16,7 @@ type NginxConfig struct {
 
 func InstallNginx(distro string) error {
 	switch distro {
-	case config.RequiredDistroUbuntu:
+	case config.RequiredDistroUbuntu, config.RequiredDistroDebian:
 		env := []string{"DEBIAN_FRONTEND=noninteractive"}
 
 		if err := utils.RunEnvCmd(env, "apt-get", "install", "-y", "nginx"); err != nil {
@@ -52,7 +52,7 @@ func ConfigureNginx(stack *docker.StackConfig, distro string) error {
 	}
 
 	switch distro {
-	case config.RequiredDistroUbuntu:
+	case config.RequiredDistroUbuntu, config.RequiredDistroDebian:
 		err = utils.GenerateConfig(c, templates.ProxyUbuntu, path.Join("/", "etc", "nginx", "sites-available", "default"))
 		if err != nil {
 			return err

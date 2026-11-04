@@ -10,7 +10,8 @@ import (
 
 func InstallDocker(distro string) error {
 	switch distro {
-	case config.RequiredDistroUbuntu:
+	case config.RequiredDistroUbuntu, config.RequiredDistroDebian:
+		dockerOS := distro
 		env := []string{"DEBIAN_FRONTEND=noninteractive"}
 
 		if err := utils.RunEnvCmd(env, "apt-get", "update"); err != nil {
@@ -25,7 +26,7 @@ func InstallDocker(distro string) error {
 			return err
 		}
 
-		if err := utils.RunEnvCmd(env, "curl", "-fsSL", "https://download.docker.com/linux/ubuntu/gpg", "-o", "/etc/apt/keyrings/docker.asc"); err != nil {
+		if err := utils.RunEnvCmd(env, "curl", "-fsSL", "https://download.docker.com/linux/"+dockerOS+"/gpg", "-o", "/etc/apt/keyrings/docker.asc"); err != nil {
 			return err
 		}
 
@@ -33,7 +34,7 @@ func InstallDocker(distro string) error {
 			return err
 		}
 
-		repoCmd := `echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null`
+		repoCmd := fmt.Sprintf(`echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/%s $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null`, dockerOS)
 		if err := utils.RunEnvCmd(env, "sh", "-c", repoCmd); err != nil {
 			return err
 		}
