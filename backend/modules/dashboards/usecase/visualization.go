@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -29,6 +30,10 @@ func (u *visualizationUsecase) Create(ctx context.Context, v *domain.Visualizati
 	if v.DashboardID == uuid.Nil {
 		return nil, domain.ErrDashboardIDRequired
 	}
+	if v.SystemOwner {
+		return nil, errors.New("system visualizations cannot be created by users")
+	}
+	v.SystemOwner = false
 	if err := sanitizeVisualization(v); err != nil {
 		return nil, err
 	}
