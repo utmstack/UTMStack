@@ -6,7 +6,8 @@ import { Section } from '@/features/integrations/components/ui/Section'
 import type { Integration } from '@/features/integrations/types'
 
 const ROOT = 'integrations.fileClassificationGuide'
-const POLICY_IMAGE = '/integrations/guides/collector/windows-faa/audit-file-system-group-policy.png'
+const GUIDE_IMAGES = '/integrations/guides/collector/windows-faa'
+const POLICY_IMAGE = `${GUIDE_IMAGES}/audit-file-system-group-policy.png`
 const WINDOWS_AGENT: Integration = {
   id: 'file-classification-windows-agent-guide',
   name: 'Windows Agent',
@@ -19,11 +20,33 @@ const WINDOWS_AGENT: Integration = {
   logo: '/integrations/windows.png',
 }
 
-function InstructionList({ text }: { text: string }) {
+function GuideImage({ src, alt }: { src: string; alt: string }) {
+  return (
+    <img
+      src={src}
+      alt={alt}
+      loading="lazy"
+      className="mx-auto mt-4 max-w-full rounded-md border border-border"
+    />
+  )
+}
+
+function InstructionList({
+  text,
+  images = [],
+}: {
+  text: string
+  images?: { afterStep: number; src: string; alt: string }[]
+}) {
   return (
     <ol className="list-decimal space-y-2 pl-5 text-sm text-foreground/90">
       {text.split('\n').map((instruction, index) => (
-        <li key={`${index}-${instruction}`}>{instruction}</li>
+        <li key={`${index}-${instruction}`}>
+          {instruction}
+          {images
+            .filter((image) => image.afterStep === index + 1)
+            .map((image) => <GuideImage key={image.src} src={image.src} alt={image.alt} />)}
+        </li>
       ))}
     </ol>
   )
@@ -65,30 +88,100 @@ export function FileClassificationGuide() {
       </Section>
 
       <Section title={t(`${ROOT}.server.policyTitle`)} step={1}>
-        <InstructionList text={t(`${ROOT}.server.policySteps`)} />
-        <img
-          src={POLICY_IMAGE}
-          alt={t(`${ROOT}.policyImageAlt`)}
-          className="mt-4 w-full max-w-2xl rounded-md border border-border"
+        <InstructionList
+          text={t(`${ROOT}.server.policySteps`)}
+          images={[
+            {
+              afterStep: 2,
+              src: POLICY_IMAGE,
+              alt: t(`${ROOT}.policyImageAlt`),
+            },
+            {
+              afterStep: 3,
+              src: `${GUIDE_IMAGES}/audit-file-system-policy-settings.png`,
+              alt: t(`${ROOT}.images.serverPolicySettings`),
+            },
+          ]}
         />
       </Section>
 
       <Section title={t(`${ROOT}.server.folderTitle`)} step={2}>
         <p className="mb-3 text-sm text-foreground/90">{t(`${ROOT}.server.folderIntro`)}</p>
-        <InstructionList text={t(`${ROOT}.server.folderSteps`)} />
+        <InstructionList
+          text={t(`${ROOT}.server.folderSteps`)}
+          images={[
+            {
+              afterStep: 1,
+              src: `${GUIDE_IMAGES}/server-folder-properties.png`,
+              alt: t(`${ROOT}.images.serverFolderProperties`),
+            },
+            {
+              afterStep: 2,
+              src: `${GUIDE_IMAGES}/server-folder-advanced-security.png`,
+              alt: t(`${ROOT}.images.serverFolderAdvancedSecurity`),
+            },
+            {
+              afterStep: 3,
+              src: `${GUIDE_IMAGES}/server-folder-auditing-entry.png`,
+              alt: t(`${ROOT}.images.serverFolderAuditingEntry`),
+            },
+          ]}
+        />
       </Section>
 
       <Section title={t(`${ROOT}.desktop.policyTitle`)} step={1}>
-        <InstructionList text={t(`${ROOT}.desktop.policySteps`)} />
+        <InstructionList
+          text={t(`${ROOT}.desktop.policySteps`)}
+          images={[
+            {
+              afterStep: 3,
+              src: `${GUIDE_IMAGES}/audit-object-access-policy-list.png`,
+              alt: t(`${ROOT}.images.desktopPolicyList`),
+            },
+            {
+              afterStep: 5,
+              src: `${GUIDE_IMAGES}/audit-object-access-policy-settings.png`,
+              alt: t(`${ROOT}.images.desktopPolicySettings`),
+            },
+          ]}
+        />
       </Section>
 
       <Section title={t(`${ROOT}.desktop.folderTitle`)} step={2}>
         <p className="mb-3 text-sm text-foreground/90">{t(`${ROOT}.desktop.folderIntro`)}</p>
-        <InstructionList text={t(`${ROOT}.desktop.folderSteps`)} />
+        <InstructionList
+          text={t(`${ROOT}.desktop.folderSteps`)}
+          images={[
+            {
+              afterStep: 1,
+              src: `${GUIDE_IMAGES}/desktop-folder-security-properties.png`,
+              alt: t(`${ROOT}.images.desktopFolderProperties`),
+            },
+            {
+              afterStep: 2,
+              src: `${GUIDE_IMAGES}/desktop-folder-advanced-security.png`,
+              alt: t(`${ROOT}.images.desktopFolderAdvancedSecurity`),
+            },
+            {
+              afterStep: 4,
+              src: `${GUIDE_IMAGES}/desktop-folder-select-principal.png`,
+              alt: t(`${ROOT}.images.desktopFolderSelectPrincipal`),
+            },
+            {
+              afterStep: 6,
+              src: `${GUIDE_IMAGES}/desktop-folder-auditing-permissions.png`,
+              alt: t(`${ROOT}.images.desktopFolderAuditingPermissions`),
+            },
+          ]}
+        />
       </Section>
 
       <Section title={t(`${ROOT}.events.title`)} step={3}>
         <p className="text-sm text-foreground/90">{t(`${ROOT}.events.body`)}</p>
+        <GuideImage
+          src={`${GUIDE_IMAGES}/event-viewer-file-access-log.png`}
+          alt={t(`${ROOT}.images.events`)}
+        />
       </Section>
     </div>
   )

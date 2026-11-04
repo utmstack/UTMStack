@@ -1517,8 +1517,6 @@
     "languageSettings": {
         "title": "Lingua della piattaforma",
         "subtitle": "Lingua predefinita per le schermate pre-login, le email di sistema e i nuovi utenti. Ogni utente può comunque scegliere la propria nel profilo.",
-        "label": "Lingua predefinita",
-        "hint": "Usata quando un utente non ha scelto la propria lingua.",
         "save": "Salva",
         "saving": "Salvataggio…",
         "saved": "Lingua della piattaforma aggiornata",
