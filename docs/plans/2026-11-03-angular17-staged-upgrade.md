@@ -251,7 +251,42 @@ codelyzer 5.x (dev) is the last TSLint line.
   3. angular.json: only `extractCss` removed from the 14 schema (already gone
      at S13); `aot`/`vendorChunk`/`namedChunks` still valid (verified against
      the 14.2.13 schema.json: 40 properties).
-- **S15: 14→15** — 15.2.10, ba 15.2.11, TS 4.9, zone 0.12. ng2-tel-input→2.5.
+  4. **npm-6 hoisting conflict (build crashes at SETUP, RC=127, before any
+     compile):** `Cannot find module 'ajv/dist/compile/codegen'` via
+     `ajv-keywords@5 → schema-utils → webpack-dev-server`. build-angular 15.2.11
+     pulls schema-utils 4.8.2 + ajv-keywords 5.1.0 (peer `ajv ^8.8.2`), but npm 6
+     hoisted **ajv 6.12.6** to top-level (eslint 7 depends on ajv ^6), so
+     ajv-keywords resolved the top-level ajv6 which has no `dist/compile/codegen`.
+     Fix: direct devDependency `"ajv": "^8.12.0"` → ajv8 hoists to top (satisfies
+     ajv-keywords/schema-utils), eslint 7 gets a nested ajv6. ajv is build-time
+     only (never bundled). Reinstall + verify top ajv=8.x before building.
+- **S15: 14→15** — 15.2.10, ba 15.2.11, TS ~4.9.5, zone 0.12.0.
+  **Measured breaks (2026-11-04):**
+  1. **npm-6 hoisting conflict (build crashes at SETUP, RC=127):** build-angular
+     15.2.11 pulls schema-utils 4.8.2 + ajv-keywords 5.1.0 (peer `ajv ^8`),
+     but npm 6 hoisted ajv 6.12.6 (eslint 7's dep) to top-level →
+     `ajv-keywords` resolved top ajv6 → `Cannot find module
+     'ajv/dist/compile/codegen'`. Fix: direct devDep `"ajv": "^8.12.0"` →
+     ajv8 hoists (top = 8.20.0), eslint 7 gets nested ajv 6.15.0. Build-time
+     only, never bundled.
+  2. **sass `~` prefix is dead (build-angular 15 switched sass-loader to
+     `api: 'modern'`, `webpackImporter: false` + custom
+     `getSassResolutionImporter`).** The legacy webpack importer that stripped
+     `~` is gone; the modern importer resolves bare requests via webpack's
+     enhanced-resolve (node_modules + project root via `preferRelative`).
+     Fix: strip `~` from all 11 `@import` targets (4 node_modules: bootstrap,
+     @ng-select, font-awesome, highlight.js; 7 project: src/assets/styles/{
+     theme,var,custom-elements}) across 6 scss files. No includePaths needed.
+  3. **CI Node floor raised:** Angular CLI 15 requires
+     "minimum Node.js version of either v14.20, v16.13 or v18.10" — the
+     pinned CI node 14.16.1 (reusable-node.yml) now REJECTS the build at
+     startup (compilation itself succeeds; the CLI version gate fires first).
+     Fix: bump reusable-node.yml `node-version` 14.16.1 → **14.20.0** (the only
+     Node that both clears the CLI floor AND keeps npm 6 / lockfileVersion 1;
+     16/18 = npm 8/9 = v3 lock break).
+  4. ng2-tel-input stays 1.0.16 (no template usage found — only module import;
+     its `intl-tel-input` side-effect import is stubbed by the S13 alias +
+     classic-script delivery).
 - **S16: 15→16** — 16.2.12, ba 16.2.16, TS 5.1, zone 0.13.
 - **S17: 16→17** — 17.3.12, ba 17.3.17, TS 5.4, zone 0.14. Final lib sweep to
   matrix targets (echarts 4→5 cluster, monaco 0.45, ng5-slider API, html2canvas 1.4,
