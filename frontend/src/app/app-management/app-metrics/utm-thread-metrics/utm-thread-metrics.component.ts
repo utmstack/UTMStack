@@ -35,7 +35,7 @@ export class UtmThreadMetricsComponent implements OnInit {
       threadDumpAll: 0
     };
 
-    if (this.threadData !== {}) {
+    if (this.threadData && this.threadData.length > 0) {
       this.threadData.forEach(value => {
         if (value.threadState === 'RUNNABLE') {
           this.threadStats.threadDumpRunnable += 1;

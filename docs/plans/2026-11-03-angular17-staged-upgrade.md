@@ -231,7 +231,26 @@ codelyzer 5.x (dev) is the last TSLint line.
      (the library's README delivery mode; restores FULL tel-input
      functionality, better than S12's degraded state). ng2-tel-input itself
      never touches intlTelInputUtils (only the plugin reads it, guarded).
-- **S14: 13→14** — 14.3.0, ba 14.2.13, TS 4.8.
+- **S14: 13→14** — 14.3.0, ba 14.2.13, cli 14.2.13, TS ~4.8.2 (4.8.4),
+  @angular-eslint 14.4.0, custom-webpack 14.1.0. zone.js stays 0.11.8
+  (14 peers `~0.11.4 || ~0.12.0`; 0.12 comes at S15).
+  **Measured breaks (2026-11-04), all TS 4.8:**
+  1. **TS2839 (new rule — object reference compares):**
+     a. `utm-thread-metrics.component.ts:38` `if (this.threadData !== {})`
+        (always true; `threadData` is an `any` array `.forEach`-ed) →
+        `if (this.threadData && this.threadData.length > 0)`.
+     b. `sddl-parser.util.ts:163` `if (this.aceTypes === {})` (always false;
+        `aceTypes` is a string map, ctor already calls `initialize()`) →
+        `if (Object.keys(this.aceTypes).length === 0)` (defensive re-init guard,
+        same intent, now actually checks emptiness).
+  2. **TS2345 Routes inference:** `rule-management.routing.module.ts` declared
+     `const routes = [...]` with NO `: Routes` annotation; TS 4.8 infers a
+     per-object union that Angular 14's `Routes` rejects. Fix: annotate
+     `const routes: Routes = [...]` + import `Routes` (the app's own
+     convention in app-routing.module.ts).
+  3. angular.json: only `extractCss` removed from the 14 schema (already gone
+     at S13); `aot`/`vendorChunk`/`namedChunks` still valid (verified against
+     the 14.2.13 schema.json: 40 properties).
 - **S15: 14→15** — 15.2.10, ba 15.2.11, TS 4.9, zone 0.12. ng2-tel-input→2.5.
 - **S16: 15→16** — 16.2.12, ba 16.2.16, TS 5.1, zone 0.13.
 - **S17: 16→17** — 17.3.12, ba 17.3.17, TS 5.4, zone 0.14. Final lib sweep to

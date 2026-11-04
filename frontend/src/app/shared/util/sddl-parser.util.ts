@@ -160,7 +160,7 @@ export class SDDLParser {
 
   parse(SDDL: string, separator: string = '<br>', separator2: string = '&nbsp;&nbsp;&nbsp;&nbsp;') {
     let retval = '';
-    if (this.aceTypes === {}) {
+    if (Object.keys(this.aceTypes).length === 0) {
       this.initialize();
     }
     let startindex = 0;
