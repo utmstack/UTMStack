@@ -11,7 +11,7 @@ const PAGE_SIZE = 300
  * this through the context instead of fetching on its own.
  */
 export function useLiveOpsAlerts(): LiveOpsData {
-  const [win, setWinState] = useState<WindowKey>('1h')
+  const [win, setWinState] = useState<WindowKey>('24h')
   const [alerts, setAlerts] = useState<LiveOpsData['alerts']>(null)
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(0)
