@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"regexp"
 	"strings"
-	"unicode"
 
 	"github.com/tidwall/gjson"
 
@@ -93,58 +92,25 @@ func Interpolate(ctx context.Context, vars connectors.VariableUsecase, bag Conte
 	return vars.InterpolateCommand(ctx, out, shell)
 }
 
-// escapeInterpolatedValue renders one substituted value as a self-contained
-// literal token for the target shell so a space, single quote or double quote
-// in the value cannot split the argument or terminate the admin's string.
-// Values that carry no such character are returned unchanged, which keeps
-// existing clean flows byte-identical.
-//
-// The template is trusted (admin-authored); only the substituted data is
-// escaped. Ceiling: this quotes the value as a bare argument, so a template
-// that already hand-wrapped $(...) in quotes would double them — authoring
-// convention is to reference $(...) as its own argument.
 func escapeInterpolatedValue(v, shell string) string {
-	// shell=="" means a non-command path (agent, params JSON): interpolate raw.
-	if shell == "" || v == "" || !needsQuoting(v, shell) {
-		return v
-	}
-	switch shell {
-	case "powershell":
-		return "'" + strings.ReplaceAll(v, "'", "''") + "'"
+	switch strings.ToLower(shell) {
+	case "powershell", "pwsh":
+		return escapePowerShell(v)
+
 	case "cmd":
 		return escapeCmdMeta(v)
+
 	default:
-		return "'" + strings.ReplaceAll(v, "'", "'\\''") + "'"
+		return escapePosix(v)
 	}
 }
 
-// needsQuoting reports whether an interpolated value must be escaped for the
-// target shell so it cannot split its argument or chain commands. cmd is
-// space-agnostic (it cannot quote) — only its metachars matter there.
-func needsQuoting(v, shell string) bool {
-	for _, r := range v {
-		if shell != "cmd" && unicode.IsSpace(r) {
-			return true
-		}
-		switch shell {
-		case "powershell":
-			switch r {
-			case '\'', '"', '$', '&', '|', '<', '>', ';', '(', ')':
-				return true
-			}
-		case "cmd":
-			switch r {
-			case '&', '|', '<', '>', '^', '"', '%':
-				return true
-			}
-		default:
-			switch r {
-			case '\'', '"', '&', '|', '<', '>', ';', '?', '*', '[', ']', '$', '#':
-				return true
-			}
-		}
-	}
-	return false
+func escapePosix(v string) string {
+	return "'" + strings.ReplaceAll(v, "'", "'\\''") + "'"
+}
+
+func escapePowerShell(v string) string {
+	return "'" + strings.ReplaceAll(v, "'", "''") + "'"
 }
 
 func escapeCmdMeta(v string) string {
@@ -152,16 +118,17 @@ func escapeCmdMeta(v string) string {
 	for i := 0; i < len(v); i++ {
 		c := v[i]
 		switch c {
-		case '&', '|', '<', '>', '^', '"', '%':
+		case '&', '|', '<', '>', '^', '"', '%', '!':
 			b.WriteByte('^')
 			b.WriteByte(c)
+		case '\n', '\r':
+			b.WriteByte(' ')
 		default:
 			b.WriteByte(c)
 		}
 	}
 	return b.String()
 }
-
 // InterpolateJSON is a shortcut for interpolating a JSON blob and returning it
 // as json.RawMessage. When input is empty, returns nil (nothing to write).
 func InterpolateJSON(ctx context.Context, vars connectors.VariableUsecase, bag ContextBag, input json.RawMessage) (json.RawMessage, error) {
