@@ -209,7 +209,7 @@ export function AlertsPage() {
       f.push({ field: 'name', operator: 'CONTAIN', value: debounced })
     }
     // Tag selector: match alerts carrying ANY of the chosen tags (OR semantics).
-    if (tagFilter.length) f.push({ field: 'tags', operator: 'IS_ONE_OF', value: tagFilter })
+    if (tagFilter.length) f.push({ field: 'tags', operator: 'CONTAIN_ONE_OF', value: tagFilter })
     if (!dashboardSeedFilters) {
       for (const cf of customFilters) {
         const needsValue = FILTER_OPS.find((o) => o.id === cf.operator)?.needsValue ?? true
