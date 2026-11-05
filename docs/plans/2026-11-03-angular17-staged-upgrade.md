@@ -370,7 +370,24 @@ codelyzer 5.x (dev) is the last TSLint line.
            `"alias": undefined` -> the member key and `"required": undefined`
            -> `false` across every d.ts carrying `ɵɵ*Declaration`. Both
            passes are idempotent no-ops once the tree is correct.
-- **S17: 16→17** — 17.3.12, ba 17.3.17, TS 5.4, zone 0.14. Final lib sweep to
+- **S16: 15→16 — DONE (commit a994f1a437, 51 files).** Verified: clean
+  CI-replica build green on Node 16.20.2 (full wipe -> `npm install` fires
+  the postinstall shim -> `BUILD_RC=0`, 0 TS/NG errors, 0 raw-VE `.decorators=[`
+  in the bundle, `main.343696e8e26a497a.js`); lab smoke all 9 routes
+  `ng=16.2.12` 0 pageerrors; ngx-toastr migration proven at runtime (real
+  `.ngx-toastr` toast "Query saved successfully" via log-analyzer Save-query,
+  ROLE_USER-reachable + reversible); intl-tel-input classic-script check
+  green (`window.intlTelInputUtils` = object + `.intl-tel-input` widget
+  initialized in AD notification phone box). Lab deploy: slim image
+  `utmstack-frontend-local:v11.3.1-ang16` (FROM the v11.3.1fix3 nginx
+  image, fresh dist). PITFALL HIT: building under MSYS2 bash rewrote
+  `--base-href /` to `<base href="C:/Program Files/MSYS2/">` (path
+  conversion) — every deep-route asset/lazy-chunk 404'd to the SPA
+  fallback (MIME text/html) while JS hashes stayed correct; rebuild under
+  PowerShell fixed it. `src/index.html` double-`<head>` is pre-existing
+  (S13 era, benign).
+- **S17: 16→17** — 17.3.12, ba 17.3.17, TS 5.4, zone 0.14. **REMOVE the ngcc shim + TS ~4.9.5 pin** (compiler-cli@17
+   deletes ngcc entirely; final lib sweep makes everything Ivy-native). Final lib sweep to
   matrix targets (echarts 4→5 cluster, monaco 0.45, ng5-slider API, html2canvas 1.4,
   interactjs 1.10). **ngx-echarts 17 + echarts-gl/leaflet/stat/wordcloud matching 5.x** —
   the heaviest cluster; Log Explorer + all 9 map charts + dashboard scatter must be
