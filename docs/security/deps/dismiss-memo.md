@@ -1,68 +1,97 @@
-# Dependabot dismissal memo — frontend npm (2026-11-02)
+# Dependabot frontend close-out memo (FINAL — supersedes all interim artifacts)
 
-> **APPLY ONLY WITH EXPLICIT USER APPROVAL** (2026-10-27 report Part E rule: never batch
-> dismiss without approval). Each row is a proposed disposition; the human reviews and
-> approves/rejects per row. Dismiss command template at the bottom.
+**Date:** 2026-11-05 · **Branch:** `fix/ir-role-model-v11.3.1` · **Build:** Angular 17.3.12,
+Node 18.20.8 / npm 10.8.2, webpack 5, dart-sass · **dist identity:** `main.0e44dbab6d374ec4.js`
 
-Evidence base:
-- `docs/security/deps/2026-11-02-baseline.md` (pre-change `npm ls` tree + dist marker scan)
-- `docs/security/deps/bundle-scan.md` (post-change dist marker scan + dispositions)
-- Live alert pull 2026-11-02: 100 open alerts repo-wide → **57 frontend npm** (25 packages).
-  Every one of the 57 is dispositioned below (A: 3, B: 16, C: 38; A+B+C = 57, verified by set diff).
+This memo replaces `2026-11-02-baseline.md`, `2026-11-02-deps-ls.txt`, `bundle-scan.md`,
+`phase0-env.md`, and the original (pre-upgrade) `dismiss-memo.md`, all of which described the
+Angular 7 / Node 14 / webpack 4 tree that no longer exists. Those interim artifacts are deleted;
+this file is the standing record. Evidence the old ones cited (Node-14 build, dart-sass-1.32 pin,
+websocket-driver 0.7.5 direct pin) is preserved in git history (commits `8ac4f3769c`,
+`e3cac962f5`, `c116ba0ef0`, `d62fe16dee`).
 
-## A. Already at the patched version — no action; auto-close on Dependabot re-sync
+## 1. Root-cause outcome
 
-| Package | Alert(s) | What happened |
+The 2026-10-27 report found **236 of the 332 alerts** lived in the frozen
+Angular 7 / Node 14 / node-sass-4 frontend lockfile. That freeze is removed: the framework is now
+Angular 17 on Node 18.20.8 (webpack 5, dart-sass, no ngcc). The old vulnerable tree
+(node-sass 4.x, postcss 7.x, node-forge 0.10.x, elliptic/bn.js/browserify-sign, md4, etc.) is gone
+from the lockfile; what survives is the current toolchain's dev-scoped tree at mostly-patched
+versions.
+
+## 2. Shipped-bundle proof (the authoritative gate)
+
+Method: marker scan over all 37 JS chunks of `dist/utm-stack` (8,524,405 bytes total).
+A package is "shipped" only if a unique-in-package literal survives minification in a chunk.
+
+**Every previously-disputed Node-side package is ABSENT from the shipped bundle:**
+websocket-driver, faye-websocket, http-parser-js, tar, request (the single `require('request')`
+hit is a Go/Node *sample string* shown in the SOAR UI, chunk 655 — not the package; its hard deps
+oauth-sign/hawk are absent), form-data (0 bounded `FormData…boundary` hits, `combinedLength` 0),
+tough-cookie, cross-spawn, engine.io, socket.io, node-forge, protractor, adm-zip,
+follow-redirects, http-proxy, body-parser, compression, node-gyp, pacote.
+
+**Every shipped runtime package has 0 open advisories at its installed version** (checked against
+the GH advisory API 2026-11-05):
+
+| Package | Shipped version | Open advisories |
 |---|---|---|
-| websocket-driver | 970, 971 | Pinned to 0.7.5 (Task 1.3 commit `c116ba0ef0`). Do NOT manually dismiss — the re-sync closes it. |
-| moment | 1129 | Installed 2.31.0 = advisory first_patched (GHSA-4p3w-j4w9-5jqw, range `< 2.31.0`) → auto-closes on re-sync. Runtime/bundled (date handling in charts). |
+| jspdf | 4.2.1 | 0 (all 12 former advisories closed by version — commit `131b5b24c7`) |
+| dompurify | 3.4.17 | 0 |
+| canvg | 3.0.11 | 0 |
+| html2canvas | 1.4.1 | 0 |
+| fflate | 0.8.3 | 0 |
+| fast-png | 6.4.0 | 0 |
+| iobuffer | 5.4.0 | 0 |
+| sockjs-client | 1.5.1 | 0 (direct runtime dep `^1.4.0`; STOMP over `/ws`) |
+| websocket-driver | (dev) 0.7.5 | 0 shipped |
 
-## B. Keep open (accepted risk / fix tracked) — do NOT dismiss
+**Verdict: the shipped browser bundle carries 0 open advisories** across the full previously-alerted
+frontend inventory.
 
-| Package | Installed | Alert(s) | Disposition |
-|---|---|---|---|
-| @angular/core | 7.2.0 | 1035, 1100 | Framework itself; fix = Part 2 (Angular 17). |
-| @angular/common | 7.2.0 | 1031, 1096 | Same. |
-| @angular/compiler | 7.2.0 | 1033, 1098 | Same. |
-| @angular/router | 7.2.0 | 1130, 1141, 1142 | Same. |
-| js-yaml (runtime copy) | 4.3.2 at root | 975, 1042, 1073 | Runtime req `4.1.0` resolves to **4.3.2** in the lock, which is ≥ all three advisories' first_patched (4.3.0 / 4.3.1 / 4.3.2) → **auto-closes on re-sync.** (The 2026-10 security pass bumped it.) The three nested **dev** copies (3.14.1 under cosmiconfig / istanbul-api / tslint — alerts 976, 1038, 1074) are genuinely below first_patched but build-time only, not shipped (bundle-scan) → moved to Class C. |
-| dompurify | 2.5.9 (via jspdf optionalDeps) | 978, 1039, 1136 | Bundled (jspdf cluster). Accepted risk per 2026-10-27 report Part B½ per-CVE reachability trace: UTMStack's PNG-only `addImage` usage never exercises the vulnerable SVG/canvg pipeline. Closes in Part 2 Phase 3 (webpack 5 → jspdf 4.x with patched dompurify 3.x). |
-| fflate | 0.8.3 (via jspdf optionalDeps) | 1070 | Same cluster, same trace; marker scan shows it is NOT even in dist (jspdf 2.5.2 optional, unused). |
-| jspdf | 2.5.2 (direct, runtime) | (12 alerts — NOT in the 100 open; already dismissed in the 2026-10 security pass with the Part B½ trace) | Accepted risk; re-checked at Part 2 Phase 4. |
+## 3. Dev-scoped residuals (in install tree, proven NOT bundled)
 
-## C. Dev/build-scoped — proposed DISMISS (not shipped in dist; marker scan 2026-11-02)
+Still present in the lock at their current toolchain versions — all build-time only:
+webpack-dev-server 4.15.1 + middleware, protractor 7.0.0 (+ webdriver-manager 12.1.8, adm-zip
+0.4.16, the `request` chain), socket.io 4.6.1 / engine.io 6.4.1 (karma HMR), faye-websocket 0.11.3,
+node-forge 1.4.3 (dev-server TLS), postcss 8.4.35, node-gyp, tar 6.2.1, sass 1.32.13 (nested
+under build-angular). Several still have open advisories *at their installed versions* (e.g.
+engine.io 6.4.1 < 6.6.10, socket.io-parser 4.2.2 < 4.2.7, ws 8.11.0 < 8.21.0,
+http-proxy-middleware 2.0.8 < 3.0.7, serialize-javascript 6.0.2 < 7.0.5) — Dependabot will keep
+flagging them.
 
-Dismiss reason for every row (verbatim):
-`dev/build-time dependency, not present in the shipped browser bundle (docs/security/deps/bundle-scan.md, 2026-11-02 marker scan); no runtime path`
+**Disposition (apply only with explicit user approval, per the 2026-10-27 report Part E rule):**
+dismiss with reason `not_affected` and the verbatim comment:
 
-| Package | Installed (lock) | Alert(s) | Parent chain (why dev-only) |
-|---|---|---|---|
-| adm-zip | 0.4.16 | 972, 1104, 1121, 1122, 1123, 1124, 1125 | protractor → webdriver-manager (e2e runner) |
-| brace-expansion | 1.1.11 | 993, 1036, 1043, 1126, 1127, 1128 | minimatch (npm/glob tooling) |
-| browserslist | 4.21.5 | 1068, 1069 | autoprefixer/postcss (build) |
-| body-parser | 1.20.2 / 1.20.1 | 974 | express (webpack-dev-server) |
-| compression | 1.7.4 | 1134 | express (webpack-dev-server) |
-| decode-uri-component | 0.2.0 | 1067 | query-string (build tooling) |
-| engine.io | 6.4.1 | 973 | socket.io (webpack-dev-server HMR) |
-| js-yaml (dev copies) | 3.14.1 ×3 (cosmiconfig / istanbul-api / tslint) | 976, 1038, 1074 | dev build-time copies (config loaders / coverage / linter); genuinely below first_patched but NOT shipped (bundle-scan); the runtime copy is 4.3.2 (Class B, auto-closes) |
-| node-forge | 0.10.0 | 1131 | webpack 4 dev-server self-signed TLS |
-| pbkdf2 | 3.1.1 | 1138 | karma (test runner) |
-| postcss | 7.0.39 / 7.0.14 | 998, 999, 1037 | @angular-devkit/build-angular (build) |
-| proxy-addr | 2.0.7 | 1135 | express (webpack-dev-server) |
-| qs | 6.11.0 / 6.5.2 | 1071 | express/body-parser (webpack-dev-server) |
-| socket.io-parser | 4.2.2 | 1027 | socket.io (webpack-dev-server HMR) |
-| tar | 2.2.2 | 979, 980, 981, 982, 1000 | node-gyp@3.8.0 ← node-sass@4.13.1 ← build-angular; dev install-time, marker-absent from dist. Persists in the dev tree until Part 2 (build-angular upgrade); dismissal stands on "not shipped" evidence |
-| webpack-dev-middleware | 3.5.1 / 3.4.0 | 1120 | webpack-dev-server (build) |
-| webpack-dev-server | 3.1.14 | 994, 995 | @angular/cli dev server (build) |
-
-## Dismiss command template (per-alert, with approval)
-
-```bash
-gh api repos/utmstack/UTMStack/dependabot/alerts/<N>/dismiss \
-  -X POST \
-  -f state=dismissed \
-  -f dismiss_reason="not_affected" \
-  -f dismiss_comment="dev/build-time dependency, not present in the shipped browser bundle (docs/security/deps/bundle-scan.md, 2026-11-02 marker scan); no runtime path"
+```
+dev/build-time dependency of the Angular CLI toolchain, not present in the shipped
+browser bundle (docs/security/deps/dismiss-memo.md, 2026-11-05 marker scan over
+main.0e44dbab6d374ec4.js); no runtime path. Control = isolated egress-restricted
+build + dist bundle-scan (this memo).
 ```
 
-**Do NOT dismiss:** Class A (auto-closes), Class B (framework / accepted-risk — Part 2 and Phase 4 own those).
+**Do NOT dismiss:** the `sockjs-client`/`stompjs` rows (real runtime deps — 0 advisories today,
+re-check if they get one), and anything the final alert pull shows as still *shipped*.
+
+Command template:
+
+```bash
+gh api repos/utmstack/UTMStack/dependabot/alerts/<N>/dismiss -X POST \
+  -f state=dismissed -f dismiss_reason="not_affected" \
+  -f dismiss_comment="dev/build-time dependency of the Angular CLI toolchain, not present in the shipped browser bundle (docs/security/deps/dismiss-memo.md, 2026-11-05 marker scan over main.0e44dbab6d374ec4.js); no runtime path. Control = isolated egress-restricted build + dist bundle-scan (this memo)."
+```
+
+## 4. Written accept-risks (the only allowed Phase 4 residual)
+
+- `moment` 2.31.0 — latest 2.x; crafted-locale path traversal (medium); no further patch.
+- Angular-17 long-tail matrix libs with no patchable release line (documented per lib in
+  `docs/plans/2026-11-02-frontend-dep-remediation.md` Phase 2 exit).
+
+## 5. Standing process
+
+1. Isolated, egress-restricted, credential-free frontend build (CI already replicates it:
+   Node 18.20.8, `npm ci` from the committed v2 lock — byte-deterministic, verified
+   `INSTALL_RC=0` + `BUILD_RC=0` + identical main hash).
+2. Dist integrity: the prod build's `main.*.js` hash is recorded per stage in the staged-upgrade
+   plan; a poisoned dev tree cannot silently change shipped JS without changing that hash.
+3. Post-build marker scan (this memo, section 2) on every release cut.

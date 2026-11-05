@@ -54,7 +54,7 @@ Each finding below carries a step-by-step reproducible path with the evidence ac
 - Poison alert doc deleted: `_doc/kRk-gqEBG2EDI9JlXLDl` → `{"result":"deleted"}`, post-delete `_search` on `name:"LABSEC-XSS-POC-9917"` → `hits.total.value: 0`.
 - No other lab state changed.
 
-### jspdf per-CVE reachability trace (why 2.5.2 is retained) — 2026-10-30
+### jspdf per-CVE reachability trace (why 2.5.2 was retained, 2026-10-30; superseded by 4.2.1 in Phase 3) — 2026-10-30
 UTMStack's ONLY jspdf import is `frontend/src/app/shared/util/export-to-pdf-util.ts`: `new jsPDF('p','mm','a4')` (literal), `addImage(fixedLocalAsset,'PNG')`, `addImage(canvas.toDataURL('image/png'),'PNG')`, `output('blob')`, `save(timestamp+'.pdf')`. No jspdf API takes attacker input. The browser webpack build ships `dist/jspdf.es.min.js` (not the node build). Per CVE:
 
 | jspdf CVE | Sev | Vuln path | Reachable in UTMStack? |
@@ -212,7 +212,7 @@ Not in the scanner output. Ranked by severity.
 
 **P0 (fix in this release):**
 1. **Go bump pass — DONE** (commits 2359e6be, 27a44fc5, f7d6e1b2, 4cb113e1, 2f4cdda2): `x/crypto` 0.55.0 (shared/agent/updater/installer + 4 grpc plugins), `cel-go` 0.29.0 (19 modules), `grpc` 1.84.0 (stats/soc-ai/geolocation/alerts), `x/net`≥0.55 (MVS floors 0.57/0.58), `otel` 1.45.0 (installer), `quic-go` 0.59.1 (3). ~86 Dependabot alerts closed incl. 21 x/crypto criticals. x/crypto is not exercised by current code (all `// indirect`; no `x/crypto/ssh` agent-constraint usage) but ships in every binary, so it was bumped anyway.
-2. **jspdf — 2.5.2 KEPT with written reachability analysis (security-approved).** 3.x/4.x are NOT buildable under Angular 7/webpack 4: jspdf 3.0.4's `fast-png@6` dep uses ES2022 class-field syntax webpack 4 cannot parse (verified build failure). The original "3.0.4 drops dompurify/canvg" premise was wrong — they are `optionalDependencies`, present in both 2.5.2 and 3.0.4. At 2.5.2: (a) the optional cluster resolves at PATCHED versions (dompurify 2.5.9, canvg 3.0.11, fflate 0.8.3) and never executes for UTMStack's PNG-only usage; (b) all 12 open jspdf package CVEs are unreachable in UTMStack's actual API usage — per-CVE trace in Part B½ (browser build not node; `addImage` fed only a fixed local asset + locally-drawn canvas PNG; `output('blob')` literal; no AcroForm/addJS/addMetadata/addSvgAsImage/html). **Residual accepted:** the 12 jspdf CVEs stay open on paper until the framework-upgrade project makes jspdf 4.x buildable; the reachability memo is the disposition.
+2. **jspdf — 2.5.2 KEPT with written reachability analysis (security-approved).** 3.x/4.x are NOT buildable under Angular 7/webpack 4: jspdf 3.0.4's `fast-png@6` dep uses ES2022 class-field syntax webpack 4 cannot parse (verified build failure). The original "3.0.4 drops dompurify/canvg" premise was wrong — they are `optionalDependencies`, present in both 2.5.2 and 3.0.4. At 2.5.2: (a) the optional cluster resolves at PATCHED versions (dompurify 2.5.9, canvg 3.0.11, fflate 0.8.3) and never executes for UTMStack's PNG-only usage; (b) all 12 open jspdf package CVEs are unreachable in UTMStack's actual API usage — per-CVE trace in Part B½ (browser build not node; `addImage` fed only a fixed local asset + locally-drawn canvas PNG; `output('blob')` literal; no AcroForm/addJS/addMetadata/addSvgAsImage/html). **SUPERSEDED 2026-11-05 (Phase 3, commit `131b5b24c7`):** the Angular 17 / webpack 5 migration made jspdf 4.x buildable, so jspdf was bumped `~2.5.2` -> `~4.2.1` and all 12 advisories are now CLOSED by version (programmatically verified 12/12, 0 remain; 2 were critical) rather than accepted-risk. The reachability trace above remains the record of *why* 2.5.2 was safe in the interim.
 3. **F-1 frontend HTML-sink hardening — DONE** (502ace3285 + alert-history follow-up): 6 log-derived `[innerHTML]` components → `escapeAndBreakLine`; `highlight` pipe escape-first-then-wrap; `safe.pipe` default case now escapes (no more bare-`| safe` bypass footgun). Full 79-site `[innerHTML]` sweep found no missed exploitable sink. Node14 build green.
 
 **P1 (fix in this release, low effort):**
@@ -243,6 +243,41 @@ Not in the scanner output. Ranked by severity.
 - jspdf export smoke test (PDF export from a dashboard) after the bump.
 
 ---
+
+### Part D½ — Remediation complete (2026-11-05, all phases executed on `fix/ir-role-model-v11.3.1`)
+
+The recommendations above have now been implemented (Part E's read-only note no longer holds
+for the items below). Final state, with the commit that closed each:
+
+- **Go bump pass (P0.1):** DONE — `2359e6be` / `27a44fc5` / `f7d6e1b2` / `4cb113e1` / `2f4cdda2`
+  (`x/crypto` 0.55.0, `cel-go` 0.29.0, `grpc` 1.84.0, `x/net`>=0.55, `otel` 1.45.0, `quic-go` 0.59.1;
+  ~86 alerts closed incl. the 21 x/crypto criticals).
+- **jspdf (P0.2):** DONE — `131b5b24c7` bumps `~2.5.2` -> `~4.2.1`; 12/12 advisories closed by version;
+  runtime E2E emits a valid `%PDF-1.3`.
+- **F-1 HTML-sink hardening (P0.3):** DONE — `502ace3285` + alert-history follow-up.
+- **postgresql 42.7.12 (P1.4):** DONE — `008cc834`. **js-yaml 4.3.2 / lodash 4.17.23 /
+  highlight.js 9.18.5 (P1.4):** DONE — `b4f7847a`.
+- **C1 SAML URL validation (P1.5):** DONE — `eb8dd421` + `e56017ca`. **C4/C5 SQL escape + allowlist
+  (P1.5):** DONE — `f8f8ff9a` + `7c2d6e77`. **M2 bitdefender constant-time (P1.6):** DONE —
+  `fdc193fb`. **C2 inputs internal-key (P1.6):** DONE — `36a55d3b`. **C3 web-pdf gate (P1.6):**
+  DONE — `9a6a317d`.
+- **Frontend framework (the durable fix for the 236-alert Node-14 freeze):** DONE — Angular 7 -> 17
+  staged S9-S17 (`065a99702f`..`bf5e811343`), Node 14.16 -> 18.20.8, webpack 4 -> 5, node-sass ->
+  dart-sass, ngcc shim removed. `docs/plans/2026-11-02-frontend-dep-remediation.md` Phase 0-4.
+
+  **Phase 4 final bundle scan (on the A17 + jspdf-4.2.1 dist, `main.0e44dbab6d374ec4.js`):** every
+  previously-disputed Node-side package is ABSENT from the shipped bundle, and every shipped runtime
+  package has 0 open advisories at its installed version (jspdf 4.2.1, dompurify 3.4.17, canvg 3.0.11,
+  html2canvas 1.4.1, fflate 0.8.3, fast-png 6.4.0, iobuffer 5.4.0, sockjs-client 1.5.1). **The shipped
+  browser bundle carries 0 open advisories** across the full previously-alerted inventory. Dev-scoped
+  packages that remain in the install tree (webpack-dev-server / protractor / socket.io chains) are
+  build-time only, proven not-bundled by the same marker scan; their control is the isolated-build +
+  dist-integrity process in the 'Process' block above.
+
+  **Remaining written accept-risks (Phase 4 exit allows only these):** `moment` 2.31.0 (latest 2.x,
+  path-traversal via crafted locale, no further patch) and any long-tail matrix lib with no patchable
+  version on Angular 17. Everything else in the 332-alert inventory is closed, dev-scoped, or
+  dismissed-with-justification.
 
 ## Part E — What I did not do (read-only)
 

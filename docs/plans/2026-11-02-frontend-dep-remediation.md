@@ -443,6 +443,23 @@ git commit --no-gpg-sign -m "chore(security): Part 1 exit state - criticals clos
 - **Entry:** Phase 3 exit.
 - **Actions:** final full bundle scan (all 332-alert inventory re-checked); GitHub dispositions (user approval gate, per Task 1.5 pattern); delete `docs/security/deps/` interim artifacts except the final memo; update the 2026-10-27 report's Part D to DONE-state with commit links; **release** as a v12-line (or v11.x-frontend-major, decided with user — the Angular 17 frontend changes the dist contract, so it wants its own release tag).
 - **Exit:** 0 open findings in the report except the written accept-risks (moment, any long-tail lib from the matrix); Part 2 documented complete.
+- **STATUS: IN PROGRESS (2026-11-05, scan+docs DONE; 2 user gates pending).** Final full
+   bundle scan executed on the shipped A17 + jspdf-4.2.1 dist
+   (main.0e44dbab6d374ec4.js, 37 chunks / 8,524,405 bytes): 0 open advisories across
+   the full previously-alerted frontend inventory - every disputed Node-side package
+   proven ABSENT by marker scan (the one require("request") hit is a SOAR UI sample
+   string, chunk 655; form-data 0 bounded FormData+boundary hits), and every shipped
+   runtime package has 0 open at its installed version (jspdf 4.2.1, dompurify 3.4.17,
+   canvg 3.0.11, html2canvas 1.4.1, fflate 0.8.3, fast-png 6.4.0, iobuffer 5.4.0,
+   sockjs-client 1.5.1 - the last is a direct runtime dep, stomp-over-sockjs). 236
+   frozen-tree alerts are structurally gone (node-sass/postcss-7/node-forge-0.10/
+   elliptic/md4 absent from the lock). Report Part D updated to DONE-state with
+   commit links + Part D½ added (docs/2026-10-27-security-review-...md); interim
+   docs/security/deps artifacts deleted, consolidated into the final dismiss-memo.md
+   (its dev-scope dismissal list is the user-approval gate below). PENDING user:
+   (a) GitHub Dependabot dispositions per the memo template; (b) release naming
+   (v12-line vs v11.x-frontend-major - the Angular 17 dist contract wants its own
+   tag).
 
 ## Effort roll-up
 | Phase | Est. |
