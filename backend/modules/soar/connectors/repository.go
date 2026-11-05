@@ -107,11 +107,6 @@ type FlowRunRepository interface {
 	MaybeComplete(ctx context.Context, id uuid.UUID) (bool, error)
 }
 
-type ResolveFilterRepository interface {
-	GetAgentPlatforms(ctx context.Context) ([]string, error)
-	GetUsers(ctx context.Context) ([]string, error)
-}
-
 type AgentRepository interface {
 	ListNamesByPlatform(ctx context.Context, platform string) ([]string, error)
 }

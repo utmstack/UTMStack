@@ -154,6 +154,8 @@ func (d *Dispatcher) process(parent context.Context, exec domain.SoarExecution) 
 		return
 	}
 
+	d.prepare(ctx, &exec)
+
 	flow := d.loadFlow(exec)
 	if flow == nil {
 		d.fail(ctx, exec.ID, domain.NonExecutionCauseUnknown)
@@ -211,8 +213,29 @@ func (d *Dispatcher) markExecuting(ctx context.Context, id uuid.UUID) bool {
 	return true
 }
 
+func (d *Dispatcher) prepare(ctx context.Context, exec *domain.SoarExecution) {
+	bag := ContextBag(exec.Context)
+	if c, err := Interpolate(ctx, d.vars, bag, exec.Command, exec.Shell); err == nil {
+		exec.Command = c
+	}
+	if len(exec.Params) > 0 {
+		p, err := InterpolateJSON(ctx, d.vars, bag, exec.Params)
+		if err == nil {
+			exec.Params = p
+		}
+	}
+	if s, err := Interpolate(ctx, d.vars, bag, exec.Shell, ""); err == nil {
+		exec.Shell = s
+	}
+}
+
 // runOnce handles the legacy manual path: run the shell executor once, no DAG.
 func (d *Dispatcher) runOnce(ctx context.Context, exec *domain.SoarExecution) error {
+	if d.vars != nil {
+		if c, err := d.vars.InterpolateCommand(ctx, exec.Command, exec.Shell); err == nil {
+			exec.Command = c
+		}
+	}
 	branch, output := d.invoke(ctx, exec)
 	return d.settle(ctx, exec, branch, output)
 }
@@ -440,17 +463,17 @@ func (d *Dispatcher) transitionChild(ctx context.Context, node domain.FlowNode, 
 	}
 	bag := MergeContexts(contribs)
 
-	command, err := Interpolate(ctx, d.vars, bag, node.Command, node.Shell)
+	command, err := Interpolate(ctx, nil, bag, node.Command, node.Shell)
 	if err != nil {
 		_ = catcher.Error("soar dispatch: command interpolation failed", err, map[string]any{"execution": child.ID})
 		return
 	}
-	params, err := InterpolateJSON(ctx, d.vars, bag, node.Params)
+	params, err := InterpolateJSON(ctx, nil, bag, node.Params)
 	if err != nil {
 		_ = catcher.Error("soar dispatch: params interpolation failed", err, map[string]any{"execution": child.ID})
 		return
 	}
-	shell, err := Interpolate(ctx, d.vars, bag, node.Shell, "")
+	shell, err := Interpolate(ctx, nil, bag, node.Shell, "")
 	if err != nil {
 		_ = catcher.Error("soar dispatch: shell interpolation failed", err, map[string]any{"execution": child.ID})
 		return
@@ -473,7 +496,7 @@ func (d *Dispatcher) transitionChild(ctx context.Context, node domain.FlowNode, 
 		}
 	}
 	if agent != "" {
-		if resolved, err := Interpolate(ctx, d.vars, bag, agent, ""); err == nil {
+		if resolved, err := Interpolate(ctx, nil, bag, agent, ""); err == nil {
 			agent = resolved
 		}
 	}

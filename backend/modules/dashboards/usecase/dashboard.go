@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"errors"
 	"strings"
 	"time"
 
@@ -24,9 +25,13 @@ func (u *dashboardUsecase) Create(ctx context.Context, d *domain.Dashboard, user
 	if d.ID != uuid.Nil {
 		return nil, domain.ErrIDForbidden
 	}
+	if d.SystemOwner {
+		return nil, errors.New("system dashboards cannot be created by users")
+	}
 	if strings.TrimSpace(d.Name) == "" {
 		return nil, domain.ErrNameRequired
 	}
+	d.SystemOwner = false
 	now := time.Now().UTC()
 	d.CreatedDate = now
 	d.ModifiedDate = now

@@ -178,19 +178,3 @@ func (h *RuleHandler) SetEnabled(c *gin.Context) {
 	}
 	c.Status(http.StatusNoContent)
 }
-
-// @Summary     Resolve filter values for alert response rules
-// @Tags        SOAR Rules
-// @Security    BearerAuth
-// @Produce     json
-// @Success     200 {object} dto.ResolveFilterValuesResponse
-// @Failure     500 {object} map[string]string
-// @Router      /soar/rules/resolve-filter-values [get]
-func (h *RuleHandler) ResolveFilterValues(c *gin.Context) {
-	resp, err := h.usecase.ResolveFilterValues(c.Request.Context())
-	if err != nil {
-		writeARRError(c, err)
-		return
-	}
-	c.JSON(http.StatusOK, resp)
-}

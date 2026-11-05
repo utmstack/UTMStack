@@ -20,7 +20,6 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc, a
 	rg := g.Group("/rules")
 	rg.POST("", write, rh.Create)
 	rg.GET("", read, rh.List)
-	rg.GET("/resolve-filter-values", read, rh.ResolveFilterValues)
 	rg.GET("/:relPath", read, rh.Get)
 	rg.PUT("/:relPath", write, rh.Update)
 	rg.DELETE("/:relPath", write, rh.Delete)

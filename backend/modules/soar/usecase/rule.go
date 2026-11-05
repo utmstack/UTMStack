@@ -14,12 +14,11 @@ import (
 )
 
 type ruleUsecase struct {
-	store   *FlowStore
-	resolve connectors.ResolveFilterRepository
+	store *FlowStore
 }
 
-func NewRuleUsecase(store *FlowStore, resolve connectors.ResolveFilterRepository) connectors.RuleUsecase {
-	return &ruleUsecase{store: store, resolve: resolve}
+func NewRuleUsecase(store *FlowStore) connectors.RuleUsecase {
+	return &ruleUsecase{store: store}
 }
 
 func (u *ruleUsecase) Create(ctx context.Context, req dto.CreateRuleRequest, createdBy string) (*dto.RuleResponse, error) {
@@ -79,18 +78,6 @@ func (u *ruleUsecase) List(ctx context.Context, f dto.RuleFilters) (*database.Li
 		items = append(items, *storedFlowToResponse(sf))
 	}
 	return &database.List[dto.RuleResponse]{Items: items, Total: int64(total)}, nil
-}
-
-func (u *ruleUsecase) ResolveFilterValues(ctx context.Context) (*dto.ResolveFilterValuesResponse, error) {
-	platforms, err := u.resolve.GetAgentPlatforms(ctx)
-	if err != nil {
-		return nil, err
-	}
-	users, err := u.resolve.GetUsers(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return &dto.ResolveFilterValuesResponse{AgentPlatforms: platforms, Users: users}, nil
 }
 
 func mapStoreErr(err error) error {

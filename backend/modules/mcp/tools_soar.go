@@ -232,14 +232,6 @@ func registerSOARRules(m *Module) {
 				"executor_types": m.deps.SOAR.GetExecutorTypes(),
 			}, nil
 		})
-
-	Add(m, &mcp.Tool{
-		Name: "soar.rule.resolve_filter_values", Title: "Suggest filter values for rule editor",
-		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
-	}, Gate{Permission: "soar.read"},
-		func(ctx context.Context, _ *authz.Actor, _ struct{}) (any, error) {
-			return uc.ResolveFilterValues(ctx)
-		})
 }
 
 // ---- soar.template.* -------------------------------------------------------
@@ -265,9 +257,8 @@ Follow these steps, showing results as you go:
 1. Call soar.rule.list to find existing flows that could be a starting point.
 2. If you will modify an existing flow, call soar.rule.get(rel_path) to read it.
 3. Call soar.variable.list to see available incident variables.
-4. Call soar.rule.resolve_filter_values to suggest valid filter fields/values.
-5. Draft the change and present it to the user before touching anything.
-6. Only after explicit user confirmation, apply it:
+4. Draft the change and present it to the user before touching anything.
+5. Only after explicit user confirmation, apply it:
    - new flow → soar.rule.create (full flow) and active=false;
    - existing flow → soar.rule.update with PARTIAL fields only: omit what does
      not change, use nodes to add/overwrite by id and deleted_nodes to remove.

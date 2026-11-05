@@ -46,6 +46,12 @@ export const AWS_SECTIONS: CloudGuideSection[] = [
     image: `${IMG}/cloud-watch-config.png`,
   },
   {
+    id: 'log-group',
+    titleKey: `${ROOT}.sections.logGroup.title`,
+    bodyKey: `${ROOT}.sections.logGroup.body`,
+    image: `${IMG}/trail-group.png`,
+  },
+  {
     id: 'permissions',
     titleKey: `${ROOT}.sections.permissions.title`,
     bodyKey: `${ROOT}.sections.permissions.body`,
@@ -69,5 +75,10 @@ export const AWS_FIELDS: CloudConfigField[] = [
     key: 'aws_default_region',
     labelKey: `${ROOT}.fields.region.label`,
     placeholder: 'us-east-1',
+  },
+  {
+    key: 'aws_log_group_name',
+    labelKey: `${ROOT}.fields.logGroupName.label`,
+    placeholder: 'utmstack',
   },
 ]
