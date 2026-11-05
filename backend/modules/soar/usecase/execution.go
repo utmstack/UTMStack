@@ -107,24 +107,15 @@ func (u *executionUsecase) StartFlow(ctx context.Context, relPath string, alertJ
 			_ = catcher.Error("soar: agent resolution failed", resErr, map[string]any{"rule": relPath, "root": rootID})
 			continue
 		}
-		params, ierr := InterpolateJSON(ctx, u.vars, bag, node.Params)
+		params, ierr := InterpolateJSON(ctx, nil, bag, node.Params)
 		if ierr != nil {
 			_ = catcher.Error("soar: params interpolation failed", ierr, map[string]any{"rule": relPath, "root": rootID})
 			continue
 		}
-		command, ierr := Interpolate(ctx, u.vars, bag, node.Command, node.Shell)
+		command, ierr := Interpolate(ctx, nil, bag, node.Command, node.Shell)
 		if ierr != nil {
 			_ = catcher.Error("soar: command interpolation failed", ierr, map[string]any{"rule": relPath, "root": rootID})
 			continue
-		}
-
-		masked_command := command
-		if u.vars != nil {
-			if masked, cerr := u.vars.MaskSecrets(ctx, command); cerr == nil {
-				masked_command = masked
-			} else {
-				_ = catcher.Error("soar: command variable masking failed", cerr, map[string]any{"rule": relPath, "root": rootID})
-			}
 		}
 
 		exec := &domain.SoarExecution{
@@ -140,7 +131,7 @@ func (u *executionUsecase) StartFlow(ctx context.Context, relPath string, alertJ
 			Executor:    node.Executor,
 			Params:      params,
 			Context:     json.RawMessage(bag),
-			Command:     masked_command,
+			Command:     command,
 			Shell:       node.Shell,
 			Agent:       agent,
 			Status:      domain.ExecutionStatusPending,

@@ -25,13 +25,14 @@ import (
 // re-applies secret masking to the derived line. Manual executions and rows
 // that already carry a command (shell nodes) are left untouched.
 func CommandSummary(ctx context.Context, vars connectors.VariableUsecase, e *domain.SoarExecution) {
-	if e.Origin != domain.ExecutionOriginFlow || strings.TrimSpace(e.Command) != "" {
+	if e.Origin != domain.ExecutionOriginFlow {
 		return
 	}
 	summary := summarizeNodeAction(e.Executor, e.Params)
 	if summary == "" {
-		return
+		summary = e.Command
 	}
+
 	if vars != nil {
 		if masked, err := vars.MaskSecrets(ctx, summary); err == nil {
 			summary = masked
