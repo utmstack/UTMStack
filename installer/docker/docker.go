@@ -43,7 +43,7 @@ func InstallDocker(distro string) error {
 			return err
 		}
 
-		if err := utils.RunEnvCmd(env, "apt-get", "install", "-y", "docker-ce", "docker-ce-cli", "containerd.io", "docker-compose", "docker-buildx-plugin", "docker-compose-plugin"); err != nil {
+		if err := utils.RunEnvCmd(env, "apt-get", "install", "-y", "docker-ce", "docker-ce-cli", "containerd.io", "docker-buildx-plugin", "docker-compose-plugin"); err != nil {
 			return err
 		}
 
