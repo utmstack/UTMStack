@@ -46,6 +46,12 @@ export const AWS_SECTIONS: CloudGuideSection[] = [
     image: `${IMG}/cloud-watch-config.png`,
   },
   {
+    id: 'log-group',
+    titleKey: `${ROOT}.sections.logGroup.title`,
+    bodyKey: `${ROOT}.sections.logGroup.body`,
+    image: `${IMG}/trail-group.png`,
+  },
+  {
     id: 'permissions',
     titleKey: `${ROOT}.sections.permissions.title`,
     bodyKey: `${ROOT}.sections.permissions.body`,
