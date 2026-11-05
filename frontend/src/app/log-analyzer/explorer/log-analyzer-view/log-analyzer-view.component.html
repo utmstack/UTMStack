@@ -73,9 +73,9 @@
     <div [ngStyle]="{'width': filterWidth +'px'}"
          mwlResizable
          [enableGhostResize]="true"
-         [resizeEdges]="{ bottom: false, right: true, top: false, left: false }"
          (resizeEnd)="onResize($event)"
          (resizing)="onResize($event)" class="field-view resizable-filter-container mr-2">
+         <div mwlResizeHandle [resizeEdges]="{ bottom: false, right: true, top: false, left: false }"></div>
       <app-log-analyzer-field (columnChange)="onColumnChange($event)"
                               [fieldSelected]="selectedFields"
                               [filters]="filters"

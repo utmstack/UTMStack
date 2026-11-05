@@ -18,10 +18,10 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          # 16.20.2: Angular CLI 16+ requires >= v16.13 (Node 14 dropped).
-          # npm 8.19.4 -> lockfileVersion 2 is canonical. Mirrors
+          # 18.20.8: Angular CLI 17 requires >= v18.13 (S17, 2026-11-05).
+          # npm 10 preserves the existing lockfileVersion 2. Mirrors
           # reusable-node.yml.
-          node-version: '16.20.2'
+          node-version: '18.20.8'
 
       - uses: actions/cache@v4
         with:

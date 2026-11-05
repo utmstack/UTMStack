@@ -386,13 +386,135 @@ codelyzer 5.x (dev) is the last TSLint line.
   fallback (MIME text/html) while JS hashes stayed correct; rebuild under
   PowerShell fixed it. `src/index.html` double-`<head>` is pre-existing
   (S13 era, benign).
-- **S17: 16→17** — 17.3.12, ba 17.3.17, TS 5.4, zone 0.14. **REMOVE the ngcc shim + TS ~4.9.5 pin** (compiler-cli@17
-   deletes ngcc entirely; final lib sweep makes everything Ivy-native). Final lib sweep to
-  matrix targets (echarts 4→5 cluster, monaco 0.45, ng5-slider API, html2canvas 1.4,
-  interactjs 1.10). **ngx-echarts 17 + echarts-gl/leaflet/stat/wordcloud matching 5.x** —
-  the heaviest cluster; Log Explorer + all 9 map charts + dashboard scatter must be
-  visual-QA'd.
-
+- **S17: 16->17 - DONE (commit pending this session).** Framework 17.3.12 /
+  cli+ba 17.3.17 / TS ~5.4.5 / zone ~0.14.10 / @angular-eslint 17.5.3 /
+  custom-webpack 17.0.2. **ngcc shim REMOVED** (A17 has no ngcc); final lib
+  sweep to the measured Ivy matrix (all tarball-verified Ivy; ng-bootstrap
+  11.0.1 = last Bootstrap-4 line, honors the no-Bootstrap-5 decision).
+  **Measured S17 breaks (all fixed, all root-caused to library changes, none to A17 itself):**
+  1. **zone.js 0.14** dropped the `./dist/zone` export-map path ->
+     `import "zone.js"` in polyfills.ts.
+  2. **`@ngx-translate/http-loader@17`** - the REAL boot-hang. `TranslateHttpLoader`
+     has a no-arg ctor that calls `inject(TRANSLATE_HTTP_LOADER_CONFIG)`;
+     `forRoot` defaultProviders never registers that token, so
+     `loader: {provide: TranslateLoader, useClass: TranslateHttpLoader}` threw
+     `NullInjectorError: No provider for InjectionToken TRANSLATE_HTTP_LOADER_CONFIG!`
+     on the FIRST HttpClient call (interceptor chain -> UtmToastService ->
+     TranslateService). `detect()` swallowed it via catchError, isOnlineApi$ never
+     hit /api/ping 200, and initTimezoneFormat first(val=>val===true) hung the
+     whole bootstrap SILENTLY (0 pageerrors, ng-version never set, "Preparing
+     your workspace" spinner forever; /api works fine from curl/python).
+     Fix: `{provide: TRANSLATE_HTTP_LOADER_CONFIG, useValue: {}}` in AppModule
+     providers; v17 defaults (/assets/i18n/ + .json) match the app i18n path.
+     **Lesson: a swallowed catchError in an APP_INITIALIZER dependency turns a
+     DI error into a silent infinite spinner - instrument the catch before
+     theorizing about interceptors/webstorage (first suspected bare
+     LocalStorageService providers, which was wrong).**
+  3. **angular-resizable-element 3->7**: `resizeEdges` moved off the
+     `[mwlResizable]` container onto the new `[mwlResizeHandle]` child directive
+     (confirmed via ɵdir metadata in 5.0.0/6.0.2/7.0.2 - none keep the container
+     API; v5 is DUAL/partial-Ivy so 7.0.2 is the only clean A17 line). All 11
+     split-pane templates migrated: `[resizeEdges]` moved to a child
+     `<div mwlResizeHandle [resizeEdges]="{ bottom: false, right: true, top:
+     false, left: false }"></div>` as first child + global CSS in styles.scss
+     (`[mwlResizeHandle]` = absolute right-edge strip, ew-resize, z-index 10).
+     ResizeEvent.rectangle unchanged (all 11 TS onResize handlers untouched).
+     Only 3 of 11 surfaced as NG8002 - the other 8 are in NO_ERRORS_SCHEMA
+     modules and would have broken SILENTLY at runtime; migrated all 11.
+  4. **echarts 4->5** (forced: every Ivy ngx-echarts line requires echarts>=5; first
+     Ivy ngx-echarts is 8.0.0). (a) `EChartOption`->`EChartsOption` in
+     chart-view.component.ts. (b) echarts-leaflet 1.1.0 (only release,
+     echarts-3/4-era UMD) calls `(m.default ?? m).extendComponentModel` on
+     `require("echarts/lib/echarts")`; in echarts 5 that path is a compat STUB
+     whose default is only `{init}` -> `m.extendComponentModel is not a
+     function` at IMPORT TIME -> whole app crashed at bootstrap. Fix:
+     webpack alias `echarts/lib/echarts` -> `node_modules/echarts/index.js`
+     (webpack.custom.js, the sanctioned alias mechanism, same pattern as the
+     S12 leaflet + S13 intl-tel-input aliases): the UMD factory then gets the
+     full echarts namespace (no `export default`, so `m.default` is undefined ->
+     falls through to `m` = full core with extendComponentModel/register
+     CoordinateSystem/util/graphic/matrix). The alias dedupes to the SAME core
+     that NgxEchartsModule.forRoot({echarts: () => import("echarts")}) and the
+     other main.ts extension imports use. Verified: "not supported anymore" stub
+     string absent from all dist chunks.
+  5. **ngx-monaco-editor 7->12**: default AMD baseUrl changed
+     `config.baseUrl || "/assets"` + `/monaco/vs` to
+     `(config.baseUrl || "./assets") + "/monaco-editor/min/vs"`; angular.json
+     asset glob output changed to `/assets/monaco-editor/min/vs` to match (a
+     loader.js at the wrong path = silent editor failure). monaco-editor 0.20
+     -> 0.24 (the last ngx-monaco-editor line peers ^0.24, so the plan's 0.45
+     target is unattainable without a different wrapper - accepted). (c)
+     monaco 0.24 typings = the ESM MODULE esm/vs/editor/editor.api.d.ts
+     (no ambient global `monaco`) -> `import * as monaco from "monaco-editor"`
+     in code-editor.component.ts. **RISK (verified OK in smoke):** that is a
+     VALUE import, so webpack bundles the ESM monaco while the editor loads the
+     AMD monaco from /assets - if the SQL completion provider registered on the
+     ESM instance it would be dead. Smoke PROVED completion works (suggestions
+     show "SELECT" + real custom fields origin.windowsScheduledTask etc), so
+     the provider registered on the right instance. (d) 0.24 made
+     CompletionItem.range REQUIRED - now computed via
+     model.getWordUntilPosition(position) + position.lineNumber.
+  6. **VE-only libs replaced (no Ivy version exists - A17 has no ngcc to compile
+     them):** ngx-sortable-2 -> ngx-sortable 2.1.0 (drop-in: same `ngx-sortable
+     selector, items/name inputs, @ContentChild(TemplateRef) itemTemplate -
+     template untouched beyond import path); ng2-tel-input -> NEW local Ivy
+     UtmTelInputDirective (same public API: selector [ng2TelInput],
+     ng2TelInputOptions input, hasError/ng2TelOutput/countryChange/intlTelInput
+     Object outputs; drives intl-tel-input v12 jQuery plugin - `import
+     "intl-tel-input"` + `import * as $ from "jquery"` in the directive, both
+     allowlisted in allowedCommonJsDependencies; the plugin patches the SAME
+     jquery module the directive imports (webpack dedupes), and lands in the
+     AD lazy chunk 459). ngx-flag-icon-css -> inline span with class
+     flag-icon + ngClass "flag-icon-" + countryCode.toLowerCase() (flag-icon-css
+     3.x was already a direct dep + in angular.json styles; .flag-icon-gb/
+     .flag-icon-us confirmed in the CSS). ngx-draggable-resizer -> DROPPED (dead
+     import in dashboard-builder.module.ts, zero template usage; its css removed
+     from angular.json).
+  7. **ngx-webstorage 2->13**: `Ng2Webstorage.forRoot()` ->
+     `NgxWebstorageModule.forRoot()` (root removed; LocalStorageService/
+     SessionStorageService names kept).
+  8. **ngx-echarts 4->17**: `NGX_ECHARTS_CONFIG` is NOT @Optional in v17 ->
+     `NgxEchartsModule.forRoot({echarts: () => import("echarts")})` mandatory
+     once (AppModule); directive inputs options/theme unchanged; dropped
+     `@types/echarts` (echarts 5 ships its own index.d.ts); `export =` in
+     echarts/index.d.ts + wordcloud default import -> tsconfig
+     allowSyntheticDefaultImports: true.
+  9. **ng-bootstrap 5->11** (11.0.1 = last Bootstrap-4 line that is fully Ivy;
+     12.x = Bootstrap 5; 10.x = VE-only DUAL): template codemod across 73
+     files - `[collectionSize]`->`[pageSize]`, `startViewMode=`->`startView=`
+     (datepicker), dropped `showNavigationBar=`/`selectionMode=` (removed in
+     v8). tooltipClass/popoverClass KEPT in v11 (verified via ɵdir dumps: both
+     still inputs; 207 + 50 usages untouched).
+   **VERIFIED (lab smoke on FINAL tree, main.1abf6bd72256cff4, DEPLOY_OK):**
+   all 9 routes ng=17.3.12 with 0 pageerrors (boot + dash-227 canvases = echarts
+   5 charts render); monaco SQL completion WORKS (suggestions include "SELECT" +
+   real custom fields origin.windowsScheduledTask etc) = no dual-instance bug;
+   toast "Query saved successfully" (test query auto-deleted); AD phone box
+   initializes (iti:true, utils:object); flag-icon spans render (flag-icon-us);
+   mwlResizeHandle present; ngb-pagination shows multi-page lists (page 1..4 +
+   prev/next on the alert list) = collectionSize intact. **REGRESSION CAUGHT +
+   FIXED during verification:** the ng-bootstrap codemod blindly renamed
+   [collectionSize]->[pageSize] (assumed the 16.x API), but 11.0.1 keeps BOTH as
+   distinct inputs -> 73 duplicate-[pageSize] bindings, pagination silently
+   broken (1 page only; hidden in NO_ERRORS_SCHEMA modules, build stayed green).
+   Reverted exactly 73/73 via a diff-verified inverse; re-verified: 0 collectionSize
+   / 0 stray pageSize deltas vs the S16 baseline.
+   **Build:** PowerShell prod build BUILD_RC=0, base href="/", 0 raw-VE across
+   37 chunks, monaco loader.js + editor.main.css at the v12 path, monaco CSS in
+   the styles bundle. Clean CI-replica (full wipe -> npm ci Node 18.20.8 / npm
+   10.8.2 -> build) was GREEN and byte-deterministic on the pre-pagination-fix
+   tree (main.8c8cc2a9b76e31ee, INSTALL_RC=0, 0 errors, lockfileVersion stays 2).
+   Re-run on the FINAL tree (after the pagination revert) was GREEN and
+   byte-identical to the smoke-passing PowerShell build
+   (main.1abf6bd72256cff4, INSTALL_RC=0, 0 errors, 0 raw-VE across 37 chunks). CI-replica dist re-verified: intl-tel-input plugin in
+   lazy chunk 459, registerCoordinateSystem(leaflet) present in main, echarts-5
+   compat stub absent.
+  **CI host:** Node 16.20.2 -> 18.20.8 (CLI 17 floor v18.13) in both workflows;
+  npm 10.8.2 preserves lockfileVersion 2 (verified). **legacy-peer-deps
+  RETAINED** (re-evaluated): 4 libs still pin core peers <17 - ng-bootstrap
+  ^13 (11.0.1), ng-inline-svg ^12, ng-jhipster ^10, ngx-monaco-editor ^12
+  (all = highest available Ivy line; ng-bootstrap capped by the Bootstrap-4
+  decision). Documented in .npmrc.
 ## Exit (master plan): Angular 17 build green on Node 18+ (webpack 5, NO legacy flag),
 Karma green (compile gate = prod build; browser gate = lab smoke), visual baseline diff
 reviewed route-by-route, all 22 libs at target or accept-risked (ng6-toastr,

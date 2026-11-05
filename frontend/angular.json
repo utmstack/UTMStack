@@ -26,7 +26,9 @@
             "polyfills": "src/polyfills.ts",
             "tsConfig": "src/tsconfig.app.json",
             "allowedCommonJsDependencies": [
-              "leaflet"
+              "leaflet",
+              "jquery",
+              "intl-tel-input"
             ],
             "assets": [
               "src/favicon.ico",
@@ -34,7 +36,7 @@
               {
                 "glob": "**/*",
                 "input": "node_modules/monaco-editor/min/vs",
-                "output": "/assets/monaco/vs"
+                "output": "/assets/monaco-editor/min/vs"
               },
               {
                 "glob": "utils.js",
@@ -44,9 +46,9 @@
             ],
             "styles": [
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "node_modules/monaco-editor/min/vs/editor/editor.main.css",
               "node_modules/magic-check/css/magic-check.min.css",
               "node_modules/animate.css/animate.css",
-              "node_modules/ngx-draggable-resizer/css/ngx-draggable-resizer.css",
               "src/assets/vendor/animated-burguers/burguer.css",
               "src/assets/vendor/checkbox/checkbox.min.css",
               "node_modules/intl-tel-input/build/css/intlTelInput.css",
@@ -63,8 +65,6 @@
               "node_modules/popper.js/dist/umd/popper.min.js",
               "node_modules/bootstrap/dist/js/bootstrap.min.js",
               "node_modules/interactjs/dist/interact.js",
-              "node_modules/echarts/dist/echarts.js",
-              "node_modules/echarts-wordcloud/dist/echarts-wordcloud.js",
               "node_modules/leaflet/dist/leaflet.js",
               "node_modules/leaflet.heat/dist/leaflet-heat.js",
               "node_modules/table-dragger/dist/table-dragger.min.js"

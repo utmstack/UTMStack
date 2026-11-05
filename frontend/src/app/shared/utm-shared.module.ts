@@ -8,12 +8,10 @@ import {TranslateModule} from '@ngx-translate/core';
 import {ResizableModule} from 'angular-resizable-element';
 import {InlineSVGModule} from 'ng-inline-svg';
 import { NgxEchartsModule } from 'ngx-echarts';
-import {NgxFlagIconCssModule} from 'ngx-flag-icon-css';
 import {InfiniteScrollModule} from 'ngx-infinite-scroll';
 import {NgxJsonViewerModule} from 'ngx-json-viewer';
 import {MonacoEditorModule} from 'ngx-monaco-editor';
-import {NgxSortableModule} from 'ngx-sortable-2';
-import {LocalStorageService} from 'ngx-webstorage';
+import {NgxSortableModule} from 'ngx-sortable';
 import {AssetsGroupAddModule} from '../assets-discover/shared/components/asset-group-add/assets-group-add.module';
 import {AssetsApplyNoteModule} from '../assets-discover/shared/components/assets-apply-note/assets-apply-note.module';
 import {AssetsApplyTypeModule} from '../assets-discover/shared/components/assets-apply-type/assets-apply-type.module';
@@ -207,6 +205,7 @@ import {UtmCollectorDetailComponent} from './components/utm/util/utm-collector-d
 import {UtmColorsOrderComponent} from './components/utm/util/utm-colors-order/utm-colors-order.component';
 import {UtmConsoleCheckComponent} from './components/utm/util/utm-console-check/utm-console-check.component';
 import {UtmCountryFlagComponent} from './components/utm/util/utm-country-flag/utm-country-flag.component';
+import {UtmTelInputDirective} from './components/utm/util/utm-tel-input/utm-tel-input.directive';
 import {
   UtmFileDragDropDirective
 } from './components/utm/util/utm-file-upload/shared/directives/utm-file-drag-drop.directive';
@@ -265,7 +264,6 @@ import {ScheduleConfigComponent} from './components/schedule-config/schedule-con
     RouterModule,
     NgSelectModule,
     NgxSortableModule,
-    NgxFlagIconCssModule,
     NgxJsonViewerModule,
     AssetsApplyTypeModule,
     AssetsApplyNoteModule,
@@ -273,7 +271,9 @@ import {ScheduleConfigComponent} from './components/schedule-config/schedule-con
     InfiniteScrollModule,
     NgxEchartsModule,
     ResizableModule,
-    MonacoEditorModule.forRoot(),
+    // v12 changed the default AMD base from '/assets' to './assets/monaco-editor/min/vs';
+    // point it at the app's asset glob (angular.json copies min/vs -> /assets/monaco/vs).
+    MonacoEditorModule.forRoot({baseUrl: '/assets'}),
     FederationModule
   ],
   declarations: [
@@ -324,6 +324,7 @@ import {ScheduleConfigComponent} from './components/schedule-config/schedule-con
     ModalConfirmationComponent,
     UtmTagInputComponent,
     UtmCountryFlagComponent,
+    UtmTelInputDirective,
     ConfirmIdentityComponent,
     UtmTableDetailComponent,
     UtmTableDetailViewComponent,
@@ -467,6 +468,7 @@ import {ScheduleConfigComponent} from './components/schedule-config/schedule-con
     ModalConfirmationComponent,
     UtmTagInputComponent,
     UtmCountryFlagComponent,
+    UtmTelInputDirective,
     UtmTableDetailComponent,
     UtmTableDetailViewComponent,
     UtmJsonDetailViewComponent,
@@ -544,7 +546,12 @@ import {ScheduleConfigComponent} from './components/schedule-config/schedule-con
     VersionUpdateBehavior,
     AuthServerProvider,
     NgbActiveModal,
-    LocalStorageService, ],
+    // S17 (ngx-webstorage 13): LocalStorageService/SessionStorageService are NO LONGER
+    // provided bare — v13 classes need a StorageStrategy ctor arg and must be created via
+    // NgxWebstorageModule.forRoot() factory providers (root scope). Declaring them here
+    // caused a NullInjectorError on every HttpClient call (AuthInterceptor injects them),
+    // which stalled bootstrap.
+    ],
   schemas: [NO_ERRORS_SCHEMA, CUSTOM_ELEMENTS_SCHEMA]
 })
 export class UtmSharedModule {

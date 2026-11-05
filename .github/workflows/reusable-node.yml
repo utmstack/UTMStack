@@ -19,11 +19,12 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          # 16.20.2: Angular CLI 16+ requires >= v16.13 (Node 14 is dropped
-          # entirely). 16.20.2 is the last Node 16 and ships npm 8.19.4, so
-          # lockfileVersion 2 is canonical — `npm ci` on Node 16 stays
-          # reproducible. (S15 and earlier ran on 14.20.0 / npm 6 / v1 lock.)
-          node-version: '16.20.2'
+          # 18.20.8: Angular CLI 17 requires >= v18.13 (S17, 2026-11-05).
+          # npm 10 on 18.x preserves the existing lockfileVersion 2 (verified:
+          # `npm install` on 18.20.8 rewrote no version field), so `npm ci` on
+          # Node 18 stays reproducible against the v2 lock. (S16 ran on
+          # 16.20.2 / npm 8; S15 and earlier on 14.20.0 / npm 6 / v1 lock.)
+          node-version: '18.20.8'
 
       - uses: actions/cache@v4
         with:

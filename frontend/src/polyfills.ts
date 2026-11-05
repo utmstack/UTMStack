@@ -55,7 +55,7 @@
 /***************************************************************************************************
  * Zone JS is required by default for Angular itself.
  */
-import 'zone.js/dist/zone'; // Included with Angular CLI.
+import 'zone.js'; // Included with Angular CLI. (zone.js 0.14 dropped the ./dist/zone export map path; the bare entry is the browser build)
 
 /**
  * @angular/localize is required for Angular 9+ (provides the $localize global

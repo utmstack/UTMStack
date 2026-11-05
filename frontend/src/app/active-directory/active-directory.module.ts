@@ -5,7 +5,6 @@ import {RouterModule} from '@angular/router';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {NgSelectModule} from '@ng-select/ng-select';
 import {ResizableModule} from 'angular-resizable-element';
-import {Ng2TelInputModule} from 'ng2-tel-input';
 import {NgxEchartsModule} from 'ngx-echarts';
 import {InfiniteScrollModule} from 'ngx-infinite-scroll';
 import {UtmDefinedChartsModule} from '../defined-charts/utm-defined-charts.module';
@@ -102,7 +101,6 @@ import {AdViewComponent} from './view/active-directory-view/active-directory-vie
     NgxEchartsModule,
     ReactiveFormsModule,
     NgSelectModule,
-    Ng2TelInputModule,
     FormsModule,
     UtmDefinedChartsModule,
     ActiveDirectorySharedModule,

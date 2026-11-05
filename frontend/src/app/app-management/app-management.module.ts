@@ -6,7 +6,7 @@ import {NgSelectModule} from '@ng-select/ng-select';
 import {InlineSVGModule} from 'ng-inline-svg';
 import {DndModule} from 'ngx-drag-drop';
 import {NgxGaugeModule} from 'ngx-gauge';
-import {NgxSortableModule} from 'ngx-sortable-2';
+import {NgxSortableModule} from 'ngx-sortable';
 import {ComplianceManagementModule} from '../compliance/compliance-management/compliance-management.module';
 import {NavBehavior} from '../shared/behaviors/nav.behavior';
 import {VersionUpdateBehavior} from '../shared/behaviors/version-update.behavior';

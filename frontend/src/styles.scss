@@ -912,6 +912,22 @@ h6 {
   }
 }
 
+// S17 (angular-resizable-element 7): [resizeEdges] moved off [mwlResizable] onto a
+// child [mwlResizeHandle] element; the directive listens for mousedown on ITS OWN
+// host, so position the (zero-size) handle as a grab strip on the container's right
+// edge. 6px wide + 4px bleed to the right matches the old container-edge grab zone.
+::ng-deep {
+  [mwlResizeHandle] {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: -4px;
+    width: 6px;
+    z-index: 10;
+    cursor: ew-resize;
+  }
+}
+
 i {
   &:active {
     zoom: 1.05;
