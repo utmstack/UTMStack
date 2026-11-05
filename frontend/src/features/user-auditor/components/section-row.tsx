@@ -9,11 +9,11 @@ export function Section({ title, children }: { title: string; children: ReactNod
   )
 }
 
-export function Row({ k, children }: { k: string; children: ReactNode }) {
+export function Row({ k, children, className }: { k: string; children: ReactNode; className?: string }) {
   return (
     <>
       <dt className="text-muted-foreground">{k}</dt>
-      <dd className="break-words">{children}</dd>
+      <dd className={`break-words ${className ?? ''}`}>{children}</dd>
     </>
   )
 }
