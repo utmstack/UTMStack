@@ -173,6 +173,12 @@ func (u *variableUsecase) MaskSecrets(ctx context.Context, output string) (strin
 	if err != nil {
 		return output, fmt.Errorf("MaskSecrets: %w", err)
 	}
+
+	matches := variableInterpolationRegex.FindAllStringSubmatch(output, -1)
+	for _, m := range matches {
+		output = strings.ReplaceAll(output, m[0], "****")
+	}
+
 	for _, v := range vars {
 		if !v.IsSecret || v.Value == "" {
 			continue
@@ -181,7 +187,7 @@ func (u *variableUsecase) MaskSecrets(ctx context.Context, output string) (strin
 		if decErr != nil || plain == "" {
 			continue
 		}
-		output = strings.ReplaceAll(output, plain, strings.Repeat("*", len(plain)))
+		output = strings.ReplaceAll(output, plain, "****")
 	}
 	return output, nil
 }
