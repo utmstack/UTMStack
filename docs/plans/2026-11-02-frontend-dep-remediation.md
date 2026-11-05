@@ -403,6 +403,16 @@ git commit --no-gpg-sign -m "chore(security): Part 1 exit state - criticals clos
 
   4. **ESLint** replaces TSLint at the 12+ stage (angular-eslint; codelyzer rules → eslint-plugin-jsx? no — `@angular-eslint` has the equivalents; tslint.json `codelyzer` rules map 1:1 to `@angular-eslint` recommended).
 - **Exit:** Angular 17 build green on **Node 18+** (webpack 5 — md4 gone, no legacy-provider flag needed), Karma green, **visual baseline diff reviewed route-by-route** (every difference explained or fixed), all 22 libs at target or formally accept-risked with a written line. Commit per major + one per library-cluster.
+- **STATUS: COMPLETE (2026-11-05).** S9-S17 all committed on `fix/ir-role-model-v11.3.1`
+   (S17 = `bf5e811343`). Final framework 17.3.12 / cli+ba 17.3.17 / TS ~5.4.5 /
+   Node 18.20.8. Clean CI-replica `npm ci`+build GREEN and byte-deterministic
+   (`main.1abf6bd72256cff4.js`, 0 raw-VE, lockfileVersion 2 preserved); lab smoke
+   SMOKE_PASS on the final tree (9 routes ng=17.3.12 0 pageerrors, echarts 5
+   charts, monaco SQL completion, toastr, AD phone, flags, resize handles,
+   multi-page pagination). Bootstrap stays 4.6.2 + ng-bootstrap 11.0.1 (last
+   Bootstrap-4 line) per decision; `legacy-peer-deps` retained for 4 sub-17 core
+   peers (documented in `frontend/.npmrc`). Per-stage detail in
+   `docs/plans/2026-11-03-angular17-staged-upgrade.md`.
 
 ## Phase 3 — Close the jspdf cluster (2–4 days)
 
