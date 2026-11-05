@@ -419,6 +419,24 @@ git commit --no-gpg-sign -m "chore(security): Part 1 exit state - criticals clos
 - **Entry:** Phase 2 exit (webpack 5 is what blocked jspdf 3/4 — `fast-png@6` ES2022 now parses).
 - **Actions:** `jspdf ~2.5.2` → `^2.5.2` re-evaluate: if 2.5.2's 12 CVEs are fixed in a 2.x patch, take it; otherwise `jspdf 4.x` + re-run `export-to-pdf-util.ts` (API: `new jsPDF()`, `addImage`, `output('blob')` — stable across 2→4) + the Part F½ in-browser PDF E2E (valid `%PDF`, real dashboard export). `dompurify/canvg/fflate/html2canvas` follow the lock diff; re-run the bundle scan.
 - **Exit:** 0 open jspdf-cluster alerts (or written accept-risk for any residual); PDF export E2E green.
+- **STATUS: COMPLETE (2026-11-05, after S17 = webpack 5 + Node 18).** `jspdf ~2.5.2`
+   -> `~4.2.1`. The 2.x line ended at 2.5.2 (no 2.x patch exists) and all 12 open
+   jspdf advisories are only fixed in 3.x/4.x - programmatically verified 12/12
+   CLOSED by 4.2.1 (0 remain; 2 were critical). Build blocker resolved: S17 put us
+   on webpack 5, which parses fast-png@6 ES2022 (the 2.5.2-pin rationale was
+   webpack 4 only). fast-png@6.4.0 = 0 advisories. API is a drop-in for our usage
+   (export-to-pdf-util.ts: import jsPDF, new jsPDF(p,mm,a4), addImage(PNG),
+   output(blob), save - exact ctor signature + members confirmed against 4.2.1
+   types). 4.2.1 also DROPS canvg/dompurify optionalDeps (we never used fromHTML)
+   and keeps fflate - cluster SHRINKS. Runtime E2E: the exact bundled 4.2.1 UMD
+   driven through the app call sequence in a real Chromium produced a valid
+   %PDF-1.3 (111,671 bytes, blob type application/pdf). NOTE: the server-side
+   Save-to-PDF dashboard button (exportToPdf -> /api/generate-pdf-report
+   web-pdf service) does NOT use client jspdf; the client path is
+   customize-export (captureScreen/pdfPreview) whose html2canvas-on-chart-grid
+   headless hang is the known pre-existing #2934 behavior, not a jspdf
+   regression. Clean CI-replica on the final Phase 3 tree: npm ci (lockfile
+   stays v2) + build 0 errors, deterministic.
 
 ## Phase 4 — Close-out (1–2 days)
 
