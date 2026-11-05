@@ -171,9 +171,11 @@ func (u *executionUsecase) resolveAgentForNode(ctx context.Context, _ domain.Flo
 	if node.Agent != "" {
 		return Interpolate(ctx, u.vars, bag, node.Agent, "")
 	}
-	src := gjson.GetBytes(alertJSON, "dataSource").String()
+	// A manual trigger's agent override wins; the alert's dataSource is
+	// only the fallback for when no override was supplied.
+	src := agentOverride
 	if src == "" {
-		src = agentOverride
+		src = gjson.GetBytes(alertJSON, "dataSource").String()
 	}
 	for _, x := range node.ExcludedAgents {
 		if x == src {
