@@ -81,8 +81,7 @@ On match it posts {rulePath, alert} to /soar/rule-executions which starts a
 flow run — you do not wire triggers yourself, only declare conditions. Typical:
 [{"operator":"IS","field":"name","value":"<exact alert name>"}]. Operators:
 IS, IS_NOT, CONTAINS, NOT_CONTAINS, EXISTS, NOT_EXISTS, START_WITH, NOT_START_WITH,
-ENDS_WITH, NOT_ENDS_WITH, IS_ONE_OF (value = string[]), IS_NOT_ONE_OF. Use
-soar.flow.resolve_filter_values for field suggestions. A rule only fires when
+ENDS_WITH, NOT_ENDS_WITH, IS_ONE_OF (value = string[]), IS_NOT_ONE_OF. A rule only fires when
 enabled — create with active:true or flip later with soar.flow.set_enabled.
 
 ## Branching on success/failure of a step
