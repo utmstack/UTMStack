@@ -29,15 +29,6 @@ import {UsedByComponent} from './components/used-by/used-by.component';
     AssetOsComponent,
     AssetNewScanComponent,
     ScannerExportVulnerabilitiesComponent],
-  entryComponents: [
-    AssetSeverityChartComponent,
-    AssetSeverityHelpComponent,
-    UsedByComponent,
-    AssetSaveReportComponent,
-    AssetCardDetailComponent,
-    AssetOsComponent,
-    AssetNewScanComponent,
-    ScannerExportVulnerabilitiesComponent],
   exports: [
     AssetSeverityChartComponent,
     AssetCardDetailComponent,

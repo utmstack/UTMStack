@@ -31,7 +31,6 @@ import {FileGenericFilterComponent} from './components/filters/file-generic-filt
     FileActiveFiltersComponent,
     FileSaveDataComponent,
     FileSddlViewComponent],
-  entryComponents: [FileSaveDataComponent],
   exports: [
     FileDataRenderComponent,
     FileFilterComponent,

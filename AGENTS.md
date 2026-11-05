@@ -9,7 +9,7 @@ SIEM/XDR platform. Multi-language monorepo:
 | Directory | Language | Build |
 |---|---|---|
 | `backend/` | Java 17 (Spring Boot 3.1, JHipster 7.3) | Maven (`mvn`) |
-| `frontend/` | Angular 15 (TypeScript 4.9, Node 14.20) | Angular CLI + npm |
+| `frontend/` | Angular 16 (TypeScript 5.1, Node 16.20) | Angular CLI + npm |
 | `agent/` | Go 1.25.5 | `go build` (+ ldflags) |
 | `agent-manager/` | Go 1.25.5 | `go build` |
 | `utmstack-collector/` | Go 1.25.5 | `go build` (+ ldflags) |
@@ -44,7 +44,7 @@ NODE_OPTIONS=--max_old_space_size=8192 npm run build   # ng build --configuratio
 npm test                            # ng test (Karma + Jasmine)
 npm run lint                        # ng lint (ESLint, @angular-eslint)
 ```
-- **Node 14.20.0 required** (Angular CLI 15+ floor is v14.20 / v16.13 / v18.10). Node 14.20.0 keeps npm 6 → lockfileVersion 1; Node 16/18 rewrite the lock to v3 and break `npm ci`.
+- **Node 16.20.2 required** (Angular CLI 16+ floor is v16.13 / v18.10 — Node 14 dropped). Node 16.20.2 = npm 8.19.4 → lockfileVersion 2 is canonical; do not rewrite it back to v1.
 - Linter is **ESLint** (`.eslintrc.json`, `@angular-eslint`), not TSLint.
 - Output: `dist/utm-stack`. Styles use SCSS (`angular.json`).
 - **Builds need 8 GB heap**: `NODE_OPTIONS=--max_old_space_size=8192`.
@@ -150,7 +150,7 @@ Images published to `ghcr.io/utmstack/utmstack/<image>:<tag>`.
 ### Reusable Workflows
 - `reusable-java.yml` — Maven build + Docker push
 - `reusable-golang.yml` — `go test ./...` + `go build` + Docker push
-- `reusable-node.yml` — Node 14.20.0, `npm install && npm run-script build`, Docker push
+- `reusable-node.yml` — Node 16.20.2, `npm install && npm run-script build`, Docker push
 - `reusable-sign-agent.yml` — Windows (jsign + GCP KMS) and macOS (codesign + notarytool) signing
 - `reusable-basic.yml` — Docker build only
 
@@ -182,8 +182,8 @@ Do not "enable" an input plugin by editing an order list, and do not debug a dea
 
 - **ldflags are mandatory** for `agent`, `utmstack-collector`, and `as400` — `REPLACE_KEY` is injected at build time. Without it, services cannot authenticate.
 - **Backend uses GitHub Packages** — `settings.xml` references `maven.pkg.github.com/utmstack/**`. Requires GitHub PAT in `$MAVEN_TK`.
-- **Frontend is Angular 15** — NgModule-based (no standalone components/signals by design). CLI v15, ESLint (`@angular-eslint`), dart-sass, webpack 5. `ng build --configuration production` (`--prod` was removed at 13).
-- **Node 14.20.0 required for frontend** — Angular CLI 15+ floor is v14.20 / v16.13 / v18.10; 14.20.0 is the only value that clears it AND keeps npm 6 (lockfileVersion 1). Node 16/18 rewrite the lock to v3.
+- **Frontend is Angular 16** — NgModule-based (no standalone components/signals by design). CLI v16, ESLint (`@angular-eslint`), dart-sass, webpack 5. `ng build --configuration production` (`--prod` was removed at 13).
+- **Node 16.20.2 required for frontend** — Angular CLI 16+ floor is v16.13 / v18.10 (Node 14 dropped at S16). npm 8.19.4 on 16.20.2 → lockfileVersion 2 is canonical for the frontend lock; S15 and earlier ran on 14.20.0 / npm 6 / v1.
 - **Frontend build needs 8 GB heap** — set `NODE_OPTIONS=--max_old_space_size=8192`.
 - **Installer build requires ldflags** — see `installer/build.sh` for `DEFAULT_BRANCH`, `INSTALLER_VERSION`, `REPLACE`, `PUBLIC_KEY`.
 - **Geolocation data must be downloaded** — event processor Docker build fails without `./geolocation/` CSV files from GCS.

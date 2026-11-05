@@ -51,11 +51,6 @@ import {ChartEventInTimeComponent} from './components/events/chart-event-in-time
     ChartAdMostActiveUserComponent,
     ChartAdUserChangesComponent,
     ChartAdInactiveAdminComponent, DataSourceInputComponent],
-  entryComponents: [ChartAlertDailyWeekComponent,
-    ChartAlertByStatusComponent,
-    ChartAdQuickInfoComponent,
-    ChartAdInactiveComponent,
-    ChartAdPermissionsComponent],
   imports: [
     CommonModule,
     UtmSharedModule,

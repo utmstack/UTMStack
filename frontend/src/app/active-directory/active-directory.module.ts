@@ -108,18 +108,6 @@ import {AdViewComponent} from './view/active-directory-view/active-directory-vie
     ActiveDirectorySharedModule,
     ResizableModule,
   ],
-  entryComponents: [
-    AdTrackerCreateComponent,
-    AdNotificationsConfigCreateComponent,
-    AdNotificationsConfigDeleteComponent,
-    AdNotificationsConfigCreateComponent,
-    AdNotificationsConfigDeleteComponent,
-    AdScheduleCreateComponent,
-    AdScheduleDeleteComponent,
-    AdReportDeleteComponent,
-    AdTrackerDeleteComponent,
-    AdReportCreateComponent
-  ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
   providers: [InputClassResolve]
 })

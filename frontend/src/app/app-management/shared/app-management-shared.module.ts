@@ -12,7 +12,6 @@ import {UtmSharedModule} from '../../shared/utm-shared.module';
     UtmSharedModule,
     NgSelectModule
   ],
-  entryComponents: [],
   exports: [],
   schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA]
 })

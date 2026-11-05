@@ -114,19 +114,6 @@ import {AlertEchoesTimelineService} from "./components/alert-echoes-timeline/ale
     AlertEchoesComponent,
     AlertActionSelectComponent
   ],
-  entryComponents: [
-    AlertStatusComponent,
-    AlertSeverityComponent,
-    AlertImpactComponent,
-    AlertCompleteComponent,
-    ActiveFiltersComponent,
-    RowToFiltersComponent,
-    AlertTagsManagementComponent,
-    AlertTagsCreateComponent,
-    AlertGenericFilterComponent,
-    AlertTagsApplyComponent,
-    ActiveFiltersComponent,
-    AlertRuleCreateComponent],
   exports: [
     AlertStatusComponent,
     AlertSeverityComponent,

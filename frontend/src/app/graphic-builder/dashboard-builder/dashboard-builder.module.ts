@@ -39,11 +39,6 @@ import {DashboardSaveComponent} from './dashboard-save/dashboard-save.component'
     FormsModule,
     AppManagementSharedModule
   ],
-  entryComponents: [
-    DashboardDeleteComponent,
-    DashboardSaveComponent,
-    DashboardFilterCreateComponent,
-    DashboardImportComponent],
   schemas: [NO_ERRORS_SCHEMA]
 })
 export class DashboardBuilderModule {

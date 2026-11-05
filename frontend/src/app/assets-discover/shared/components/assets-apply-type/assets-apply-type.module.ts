@@ -14,7 +14,6 @@ import {AssetsApplyTypeComponent} from './assets-apply-type.component';
     declarations: [
         AssetsApplyTypeComponent,
     ],
-    entryComponents: [],
     imports: [
         CommonModule,
         NgbModule,

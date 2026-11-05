@@ -10,7 +10,7 @@ import {TranslateHttpLoader} from '@ngx-translate/http-loader';
 import * as moment from 'moment';
 import {InlineSVGModule} from 'ng-inline-svg';
 import {Ng2TelInputModule} from 'ng2-tel-input';
-import {ToastrModule} from 'ng6-toastr-notifications';
+import {ToastrModule} from 'ngx-toastr';
 import {CookieService} from 'ngx-cookie-service';
 import {NgxEchartsModule} from 'ngx-echarts';
 import {NgxFlagIconCssModule} from 'ngx-flag-icon-css';

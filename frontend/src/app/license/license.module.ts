@@ -16,7 +16,6 @@ import {UtmLicenseComponent} from './utm-license/utm-license.component';
     ReactiveFormsModule,
     NgbTooltipModule
   ],
-  entryComponents: [UtmLicenseActivateComponent]
 })
 export class LicenseModule {
 }

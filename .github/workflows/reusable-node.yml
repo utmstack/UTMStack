@@ -19,11 +19,11 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          # 14.20.0 (not 14.16.1): Angular CLI 15+ requires >= v14.20 / v16.13 /
-          # v18.10. 14.20.0 is the only value that clears the CLI floor AND keeps
-          # npm 6 (lockfileVersion 1) — Node 16/18 ship npm 8/9 which rewrite the
-          # v1 lock to v3 and break `npm ci` here.
-          node-version: '14.20.0'
+          # 16.20.2: Angular CLI 16+ requires >= v16.13 (Node 14 is dropped
+          # entirely). 16.20.2 is the last Node 16 and ships npm 8.19.4, so
+          # lockfileVersion 2 is canonical — `npm ci` on Node 16 stays
+          # reproducible. (S15 and earlier ran on 14.20.0 / npm 6 / v1 lock.)
+          node-version: '16.20.2'
 
       - uses: actions/cache@v4
         with:

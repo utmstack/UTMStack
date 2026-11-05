@@ -34,9 +34,6 @@ import {UserMgmtUpdateComponent} from './user/user-update/user-management-update
     UserMgmtDetailComponent,
     UserMgmtDeleteDialogComponent,
   ],
-  entryComponents: [
-    UserMgmtDeleteDialogComponent
-  ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   providers: []
 })

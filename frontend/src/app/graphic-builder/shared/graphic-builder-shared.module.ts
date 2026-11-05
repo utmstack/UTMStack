@@ -43,10 +43,6 @@ import {UtmViewerComponent} from './components/viewer/utm-viewer/utm-viewer.comp
     FormsModule,
     NgxGaugeModule
   ],
-  entryComponents: [
-    ElasticFilterAddComponent,
-    ChartViewComponent
-  ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
   providers: []
 })

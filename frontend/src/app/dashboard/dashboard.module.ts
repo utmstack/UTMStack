@@ -47,7 +47,6 @@ import {DashboardResolverService} from "./shared/services/dashboard-resolver.ser
   providers: [
     DashboardResolverService
   ],
-  entryComponents: [DashboardExportPreviewComponent],
   exports: [
     DashboardViewComponent
   ],

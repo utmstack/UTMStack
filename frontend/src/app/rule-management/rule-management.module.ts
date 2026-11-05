@@ -105,12 +105,5 @@ import {MonacoEditorModule} from "ngx-monaco-editor";
       AssetManagerService,
       ImportRuleService
   ],
-   entryComponents: [
-       AddTypeComponent,
-       AddPatternComponent,
-       AddAssetComponent,
-       ImportRuleComponent,
-       RuleViewComponent,
-   ]
 })
 export class RuleManagementModule { }

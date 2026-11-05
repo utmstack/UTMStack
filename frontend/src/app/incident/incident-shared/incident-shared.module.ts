@@ -31,7 +31,6 @@ import {IncidentRelatedAlertComponent} from './component/incident-related-alert/
     IncidentNotesComponent, AddAlertToIncidentComponent,
     IncidentRelatedAlertComponent,
     ],
-  entryComponents: [CreateIncidentComponent, AddAlertToIncidentComponent],
   providers: [AlertIncidentStatusChangeBehavior]
 })
 export class IncidentSharedModule {

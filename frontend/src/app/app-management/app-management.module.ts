@@ -91,16 +91,6 @@ import { IdentityProviderModalComponent } from './identity-provider/shared/compo
     ProviderFormComponent,
     IdentityProviderModalComponent
   ],
-  entryComponents: [
-    IndexPatternHelpComponent,
-    IndexPatternDeleteComponent,
-    HealthDetailComponent,
-    MenuDeleteDialogComponent,
-    TokenActivateComponent,
-    ApiKeyModalComponent,
-    IndexDeleteComponent,
-    IdentityProviderModalComponent
-  ],
   imports: [
     CommonModule,
     AppManagementRoutingModule,

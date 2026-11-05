@@ -61,10 +61,6 @@ import {UtmCpStandardComponent} from './shared/components/utm-cp-standard/utm-cp
     NgxJsonViewerModule
   ],
   schemas: [NO_ERRORS_SCHEMA, CUSTOM_ELEMENTS_SCHEMA],
-  entryComponents: [
-    ComplianceResultParamsComponent,
-    DashboardFilterCreateComponent,
-    UtmCpStandardComponent],
   exports: [],
   providers: [
     TimeWindowsService

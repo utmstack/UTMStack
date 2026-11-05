@@ -67,10 +67,9 @@ export class VsSeverityResolverService {
   }
 
   public resolveSeverityClass(severity: string | number): string {
-    let sev = severity;
-    if (typeof severity === 'string') {
-      sev = Number.parseFloat(severity);
-    }
+    // TS 5.1: the `let sev = severity` + if-reassign pattern no longer narrows to
+    // number (string | number survives), breaking the < / >= / <= compares below.
+    let sev: number = typeof severity === 'string' ? Number.parseFloat(severity) : severity;
     if (sev === 0) {
       return 'badge-flat border-slate-300 text-slate-300';
     } else if (sev < 0) {

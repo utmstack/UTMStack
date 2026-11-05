@@ -40,7 +40,6 @@ import {IncidentResponseSharedModule} from './shared/incident-response-shared.mo
       TranslateModule,
       ReactiveFormsModule
     ],
-  entryComponents: [],
   providers: []
 })
 export class IncidentResponseModule {

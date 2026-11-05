@@ -54,6 +54,7 @@
               "node_modules/flag-icon-css/css/flag-icon.min.css",
               "node_modules/font-awesome/css/font-awesome.min.css",
               "node_modules/highlight.js/styles/github.css",
+              "node_modules/ngx-toastr/toastr.css",
               "src/styles.scss"
             ],
             "scripts": [

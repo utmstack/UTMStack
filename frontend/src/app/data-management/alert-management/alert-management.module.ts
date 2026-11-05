@@ -45,9 +45,6 @@ import {AlertManagementSharedModule} from './shared/alert-management-shared.modu
         IncidentSharedModule,
         InfiniteScrollModule
     ],
-  entryComponents: [
-    SaveAlertReportComponent,
-    AlertReportFilterComponent],
   providers: [NewAlertBehavior, AlertIncidentStatusChangeBehavior],
   schemas: [NO_ERRORS_SCHEMA, CUSTOM_ELEMENTS_SCHEMA]
 })

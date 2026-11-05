@@ -57,11 +57,6 @@ import {TabService} from './shared/services/tab.service';
     ResizableModule,
     InfiniteScrollModule
   ],
-  entryComponents: [
-    LogAnalyzerViewComponent,
-    LogAnalyzerQueryCreateComponent,
-    LogAnalyzerQueryDeleteComponent,
-  ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
   exports: [],
   providers: [TabService, InputClassResolve]

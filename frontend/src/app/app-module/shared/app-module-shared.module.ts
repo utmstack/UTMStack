@@ -27,7 +27,6 @@ import {NgSelectModule} from "@ng-select/ng-select";
   ],
   exports: [AppModuleActivateButtonComponent, AppModuleCardComponent,
     IntCreateGroupComponent],
-  entryComponents: [AppModuleActivateModalComponent, AppModuleChecksComponent, AppModuleDeactivateComponent, IntCreateGroupComponent]
 })
 export class AppModuleSharedModule {
 }

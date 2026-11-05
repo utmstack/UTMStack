@@ -287,7 +287,89 @@ codelyzer 5.x (dev) is the last TSLint line.
   4. ng2-tel-input stays 1.0.16 (no template usage found — only module import;
      its `intl-tel-input` side-effect import is stubbed by the S13 alias +
      classic-script delivery).
-- **S16: 15→16** — 16.2.12, ba 16.2.16, TS 5.1, zone 0.13.
+- **S16: 15→16** — 16.2.12, ba 16.2.16, cli 16.2.16, **TS ~4.9.5** (peer
+  `>=4.9.3 <5.2`; deliberately NOT 5.1 — 4.9.5 is the highest TS the ngcc@15
+  shim supports, see break 5), zone.js 0.13.3, webpack 5.94.0,
+  @angular-eslint 16.3.1, custom-webpack 16.0.1.
+  **Measured breaks (2026-11-04):**
+  1. **`entryComponents` REMOVED from the NgModule type** (Angular 16) →
+     TS2345 "not assignable to NgModule" on ~every module that declared it.
+     39 `entryComponents: [...]` statements removed across 39 files
+     (codemod, balanced-bracket, unit-tested 4/4; diff = 210 deletions, all
+     entryComponents array lines). Safe: Ivy (default since v9) auto-registers
+     declared components; entryComponents only mattered for View Engine /
+     dynamic `createComponent`, which this app does not rely on for
+     declared-in-same-module components (the 2 dynamic uses — log-analyzer
+     tab content, dtable-detail-resolver — are `@ViewChild`-anchored
+     directives, not entryComponents).
+  2. **ng6-toastr-notifications is UNBUILDABLE at 16**: it imports
+     `ReflectiveInjector` (v1 symbol removed from @angular/core in 16) — a
+     hard named-import error in its FESM. No version admits 16 (peer ^6.0.0,
+     last release 1.0.4). **Migrated to ngx-toastr 17.0.2** (peer
+     `>=16.0.0`), per the plan's own sanction ("replace on ngx-toastr if
+     incompatible"). Scope was contained: the ONLY consumer is
+     `UtmToastService` (app.module.ts + utm-toast.service.ts; no template/CSS
+     references toastr). Public `UtmToastService` method names kept identical
+     so the 94 call sites (showError x63, showSuccessBottom x17, showWarning
+     x7, showInfo x3, showSuccess x2, showSuccessProcess x2) are untouched.
+     Mapping: `successToastr(msg,title,opts)`→`success(...)`,
+     `customToastr(msg,null,{enableHTML,position})`→`show(...,{enableHtml,
+     positionClass})`, `position:'bottom-right'`→`positionClass:
+     'toast-bottom-right'`, `toastTimeout:N`→`timeOut:N`, default (no
+     position) = top-right = both libraries' default. `ToastrModule.forRoot()`
+     kept (ngx-toastr has forRoot(config?) — called with no config). ng6-toastr
+     removed from package.json.
+   3. **CI Node floor: Angular CLI 16 DROPS Node 14 entirely** (message: "The
+      Angular CLI requires a minimum of v16.13" — verified: Node 14.20.0 build
+      RC=3, compilation itself passes, gate fires first). **The v1-lock rule
+      ends at S15.** S16+ host = **Node 16.20.2** (last Node 16, npm 8.19.4)
+      → lockfileVersion 2 is canonical (npm 8 reads/writes v2; `npm ci` on CI
+      stays reproducible). Both workflows bumped 14.20.0 → 16.20.2
+      (reusable-node.yml, frontend-federation-build.yml) + AGENTS.md sync.
+      Verified: npm install on 16.20.2 (lockfileVersion 2), prod build green,
+      main hash IDENTICAL to the Node 18 build (702f53ddbe609fee).
+    4. **npm 8 ERESOLVE (the Node 16 host change surfaces it):** npm 8
+       enforces peer deps that npm 6 only warned about. `npm install` on
+       16.20.2 hard-fails on `@fortawesome/angular-fontawesome@0.4.0` (peers
+       `@angular/common ^8`, an Angular-8-era lib that rides until the S17
+       sweep). Fix: `frontend/.npmrc` with `legacy-peer-deps=true` (repo-scoped,
+       deterministic for CI + local) — restores npm 6's resolution behavior.
+       Re-evaluate the flag after the S17 lib sweep retires the old-line libs.
+    5. **Angular 16 removed in-build ngcc from the webpack builder** (the
+       JavaScriptTransformer now only exists under `src/tools/esbuild/`; the
+       CLI 16 `ngcc` bin is a no-op deprecation stub — verified by source
+       read: it prints the alert and `process.exit(0)`, no `main-ngcc.js`).
+       A clean install therefore leaves all ~20 View Engine deps raw: prod
+       build fails `TS2314 ModuleWithProviders<T>` on their `.d.ts` +
+       `NG6002`; a tree where only the JS is raw GREEN-BUILDS but ships raw
+       VE `.decorators=[` into prod -> silent bootstrap crash "JIT compiler
+       unavailable" (0 pageerrors, empty app-root). S15 only built because
+       its libs were still CLI-15-era in-place-compiled and ngcc ran
+       in-memory per-build.
+       **Fix (committed shim `ngcc-shim.cjs`, REMOVE AT S17):** TS pinned
+       ~4.9.5 (highest TS ngcc@15 supports — it monkey-patches `ts`, breaks
+       on 5.1+ with a `getExpandoInitializer` getter-only conflict); devDep
+       alias `@angular/compiler-cli-ngcc: npm:@angular/compiler-cli@15.2.10`;
+       `postinstall: node ngcc-shim.cjs` which (a) runs that ngcc, then
+       (b) repairs ngcc's d.ts output to A16-acceptable shape. No forks.
+       Two distinct A16-vs-ngcc@15 gates were hit, both proven from source:
+       (1) **UMD barrel gap** — ngcc@15 compiles the `.js` of UMD-layout
+           packages whose `typings` is a barrel (only `ngx-sortable-2`) but
+           leaves the per-class `.d.ts` without ɵ statics -> ngtsc rejects
+           the NgModule (NG6002) -> ~110-error cascade. The shim injects the
+           canonical in-class `static ɵfac/ɵmod/ɵcmp` (A16's
+           `ɵɵComponentDeclaration` needs 7+ type args; 1-arg = TS2707).
+       (2) **InputMap encoding gap** — ngcc@15 writes
+           `"prop": { "alias": undefined; "required": undefined; }` for
+           every input without an explicit `@Input('name')`. A16's
+           `readInputsType` (compiler-cli) resolves the binding name via
+           `readStringType(alias)`, and `undefined` reads as `null` -> the
+           element still matches by selector (0 NG8001) but NO input
+           binding resolves (178 NG8002 across ~40 components; skipLibCheck
+           silences the type error, so 0 TS). The shim rewrites
+           `"alias": undefined` -> the member key and `"required": undefined`
+           -> `false` across every d.ts carrying `ɵɵ*Declaration`. Both
+           passes are idempotent no-ops once the tree is correct.
 - **S17: 16→17** — 17.3.12, ba 17.3.17, TS 5.4, zone 0.14. Final lib sweep to
   matrix targets (echarts 4→5 cluster, monaco 0.45, ng5-slider API, html2canvas 1.4,
   interactjs 1.10). **ngx-echarts 17 + echarts-gl/leaflet/stat/wordcloud matching 5.x** —

@@ -52,9 +52,5 @@ import {WelcomeComponent} from './pages/welcome/welcome.component';
     FederationUserMenuComponent,
     FederationOverviewGridComponent
   ],
-  entryComponents: [
-    InstanceFormModalComponent,
-    TeamUserFormModalComponent
-  ]
 })
 export class FederationModule {}

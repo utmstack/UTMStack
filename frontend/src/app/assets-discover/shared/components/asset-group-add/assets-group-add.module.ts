@@ -14,7 +14,6 @@ import {AssetGroupAddComponent} from './asset-group-add.component';
     declarations: [
         AssetGroupAddComponent,
     ],
-    entryComponents: [],
     imports: [
         CommonModule,
         NgbModule,
