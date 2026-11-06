@@ -14,6 +14,8 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/iam/connectors"
 	"github.com/utmstack/utmstack/backend/modules/iam/domain"
 	"github.com/utmstack/utmstack/backend/modules/iam/dto"
+	"github.com/utmstack/utmstack/backend/pkg/authz"
+	"github.com/utmstack/utmstack/backend/pkg/http/middleware"
 )
 
 type UserHandler struct {
@@ -174,7 +176,8 @@ func (h *UserHandler) AssignRoles(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	err := h.userUsecase.AssignRoles(c.Request.Context(), id, input)
+	callerIsAdmin := authz.RequireAdmin(middleware.ActorFromGin(c)) == nil
+	err := h.userUsecase.AssignRoles(c.Request.Context(), id, input, callerIsAdmin)
 	audit.Record(c, audit_connectors.Event{Action: "user.roles_assign"}, audit_domain.USER_UPDATE_ATTEMPT, audit_domain.USER_UPDATE_SUCCESS, err)
 	if err != nil {
 		writeUserError(c, err)
@@ -213,6 +216,8 @@ func writeUserError(c *gin.Context, err error) {
 		c.JSON(http.StatusConflict, gin.H{"error": "login or email already in use"})
 	case errors.Is(err, domain.ErrInvalidRoleSubset):
 		c.JSON(http.StatusBadRequest, gin.H{"error": "one or more role names do not exist"})
+	case errors.Is(err, domain.ErrCannotGrantAdmin):
+		c.JSON(http.StatusForbidden, gin.H{"error": "only an administrator can grant the administrator role"})
 	default:
 		_ = catcher.Error("user op failed", err, nil)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "operation failed"})

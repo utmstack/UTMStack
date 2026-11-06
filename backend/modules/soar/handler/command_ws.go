@@ -26,7 +26,8 @@ type CommandWSHandler struct {
 	signer      *jwtpkg.Signer
 	variableUC  connectors.VariableUsecase
 	executionUC connectors.ExecutionUsecase
-	apiKeyAuth  middleware.APIKeyAuthFunc
+	apiKeyAuth   middleware.APIKeyAuthFunc
+	tenantActive middleware.TenantStatusFunc
 }
 
 func NewCommandWSHandler(
@@ -45,6 +46,14 @@ func NewCommandWSHandler(
 
 func (h *CommandWSHandler) SetAPIKeyAuth(f middleware.APIKeyAuthFunc) {
 	h.apiKeyAuth = f
+}
+
+// SetTenantStatusCheck wires ACC-F34's gate into the WS handshake: this
+// connection's own auth path calls middleware.EstablishActor directly instead
+// of middleware.Authenticate, so without this it would keep accepting a
+// suspended/terminated tenant's token or API key.
+func (h *CommandWSHandler) SetTenantStatusCheck(f middleware.TenantStatusFunc) {
+	h.tenantActive = f
 }
 
 func (h *CommandWSHandler) authenticate(c *gin.Context) bool {
@@ -77,7 +86,7 @@ func (h *CommandWSHandler) authenticate(c *gin.Context) bool {
 			Permissions: claims.Permissions,
 			SessionID:   claims.SessionID,
 			TenantID:    claims.TenantID,
-		})
+		}, h.tenantActive)
 	}
 
 	if h.apiKeyAuth != nil {
@@ -87,7 +96,7 @@ func (h *CommandWSHandler) authenticate(c *gin.Context) bool {
 				c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid api key"})
 				return false
 			}
-			return middleware.EstablishActor(c, *actor)
+			return middleware.EstablishActor(c, *actor, h.tenantActive)
 		}
 	}
 

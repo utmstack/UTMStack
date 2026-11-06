@@ -197,13 +197,20 @@ func (u *userUsecase) SetStatus(ctx context.Context, id uuid.UUID, status domain
 	return u.userRepo.UpdateStatus(ctx, id, status)
 }
 
-func (u *userUsecase) AssignRoles(ctx context.Context, id uuid.UUID, input dto.AssignRolesRequest) error {
+func (u *userUsecase) AssignRoles(ctx context.Context, id uuid.UUID, input dto.AssignRolesRequest, callerIsAdmin bool) error {
 	user, err := u.userRepo.FindByID(ctx, id)
 	if err != nil {
 		return err
 	}
 	if user == nil {
 		return domain.ErrUserNotFound
+	}
+	if !callerIsAdmin {
+		for _, name := range input.RoleNames {
+			if name == AdminRoleName {
+				return domain.ErrCannotGrantAdmin
+			}
+		}
 	}
 	roles, err := u.resolveRoles(ctx, input.RoleNames)
 	if err != nil {

@@ -55,7 +55,7 @@ type UserUsecase interface {
 	Create(ctx context.Context, input dto.CreateUserRequest, opts CreateUserOptions) (*dto.UserDetailResponse, error)
 	Update(ctx context.Context, id uuid.UUID, input dto.UpdateUserRequest) (*dto.UserDetailResponse, error)
 	SetStatus(ctx context.Context, id uuid.UUID, status domain.UserStatus) error
-	AssignRoles(ctx context.Context, id uuid.UUID, input dto.AssignRolesRequest) error
+	AssignRoles(ctx context.Context, id uuid.UUID, input dto.AssignRolesRequest, callerIsAdmin bool) error
 	ResetTfa(ctx context.Context, id uuid.UUID) error
 }
 

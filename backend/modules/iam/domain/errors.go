@@ -50,6 +50,11 @@ var (
 	ErrUserNotFound      = errors.New("user not found")
 	ErrEmailTaken        = errors.New("email is already in use")
 	ErrInvalidRoleSubset = errors.New("one or more roles do not exist")
+	// ErrCannotGrantAdmin guards ACC-F3: "users.write" lets a role manager edit
+	// anyone's roles, but granting the platform Administrator role is a
+	// privilege a caller cannot hand out unless they already hold it — otherwise
+	// any custom role with users.write is one self-assignment away from admin.
+	ErrCannotGrantAdmin = errors.New("only an administrator can grant the administrator role")
 )
 
 // Role & permission errors.

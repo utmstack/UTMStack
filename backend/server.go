@@ -43,6 +43,15 @@ import (
 func initHTTPServer(cfg *config) *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	engine := gin.New()
+	// Without this, Gin's default is to trust every proxy, so c.ClientIP() walks
+	// all the way back to whatever the caller wrote in X-Forwarded-For — a direct
+	// client can impersonate any address. The backend is never reachable except
+	// through nginx on the Docker overlay network (RFC1918), so only that hop is
+	// trusted; a real external attacker's RemoteAddr is a public IP, which Gin
+	// then uses as-is regardless of any X-Forwarded-For it sends.
+	if err := engine.SetTrustedProxies([]string{"10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"}); err != nil {
+		catcher.Error("could not set trusted proxies", err, nil)
+	}
 	engine.Use(gin.Recovery())
 	engine.Use(requestLogger())
 	catcher.Info(fmt.Sprintf("CORS init: devMode=%t (origins matching http://localhost will be allowed only when devMode=true)", cfg.devMode), nil)
@@ -145,7 +154,21 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 		_ = catcher.Error("INTERNAL_KEY_ALLOWED_CIDRS is not a list of CIDRs", err, nil)
 		os.Exit(1)
 	}
-	userAuth := middleware.Authenticate(m.signer, apiKeyAuth, cfg.internalKey, supportOf, middleware.WithInternalPolicy(internalPolicy))
+	// ACC-F34: a JWT's signature/expiry check never touches the DB, so without
+	// this, suspending or terminating a tenant has no effect on its users or API
+	// keys until every already-issued token happens to expire on its own.
+	tenantActive := func(ctx context.Context, tenantID string) (bool, error) {
+		tenantUUID, err := uuid.Parse(tenantID)
+		if err != nil {
+			return false, err
+		}
+		t, err := m.tenant.GetTenantUsecase().GetByID(ctx, tenantUUID)
+		if err != nil {
+			return false, err
+		}
+		return t.Status == tenant_domain.StatusActive, nil
+	}
+	userAuth := middleware.Authenticate(m.signer, apiKeyAuth, cfg.internalKey, supportOf, tenantActive, middleware.WithInternalPolicy(internalPolicy))
 
 	isEnterprise := func() bool { return m.billing.License().Current().IsEnterprise() }
 	enterprise := middleware.RequireEnterprise(isEnterprise)
@@ -187,7 +210,7 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 	appconfig.RegisterRoutes(api, m.appconfig, userAuth, enterprise, platform)
 	billing.RegisterRoutes(api, m.billing, userAuth)
 	alerts.RegisterRoutes(api, m.alerts, userAuth)
-	soar.RegisterRoutes(api, m.soar, userAuth, apiKeyAuth, platform)
+	soar.RegisterRoutes(api, m.soar, userAuth, apiKeyAuth, tenantActive, platform)
 	eventprocessing.RegisterRoutes(api, m.eventProcessing, userAuth, platform, tenantLister)
 	compliance.RegisterRoutes(api, m.compliance, userAuth, platform)
 	dashboards.RegisterRoutes(api, m.dashboards, userAuth)

@@ -170,16 +170,25 @@ func (u *authUsecase) ensureTFA(ctx context.Context, user *domain.User, lc conne
 
 // EmptyLogin verifies the same credentials as Login and issues a token with no
 // claims: the password_token second factor. It ignores directory accounts and
-// TFA — the whole point is proving the password.
-func (u *authUsecase) EmptyLogin(ctx context.Context, input dto.LoginRequest, _ connectors.LoginContext) (*dto.EmptyLoginResponse, error) {
+// TFA — the whole point is proving the password. It shares Login's IP limiter:
+// this is still a bcrypt compare against the stored hash, so without the same
+// lockout it would be an unlimited-attempt password oracle under a different
+// path.
+func (u *authUsecase) EmptyLogin(ctx context.Context, input dto.LoginRequest, lc connectors.LoginContext) (*dto.EmptyLoginResponse, error) {
+	if u.limiter != nil && lc.IP != "" && u.limiter.IsBlocked(lc.IP) {
+		return nil, domain.ErrLoginBlocked
+	}
+
 	user, err := u.userRepo.FindByEmail(ctx, input.Login)
 	if err != nil {
 		return nil, err
 	}
 	if user == nil || user.IdentityProviderID != nil || user.PasswordHash == nil || *user.PasswordHash == "" {
+		u.recordFailure(lc.IP)
 		return nil, domain.ErrInvalidCredentials
 	}
 	if err := bcrypt.CompareHashAndPassword([]byte(*user.PasswordHash), []byte(input.Password)); err != nil {
+		u.recordFailure(lc.IP)
 		return nil, domain.ErrInvalidCredentials
 	}
 	if err := statusError(user.Status); err != nil {
@@ -189,6 +198,7 @@ func (u *authUsecase) EmptyLogin(ctx context.Context, input dto.LoginRequest, _ 
 	if err != nil {
 		return nil, err
 	}
+	u.resetLimiter(lc.IP)
 	return &dto.EmptyLoginResponse{Token: token}, nil
 }
 
@@ -425,6 +435,10 @@ func (u *authUsecase) SetPasswordFromChallenge(ctx context.Context, input dto.Re
 	if err != nil {
 		return err
 	}
+	// The challenge was looked up across every tenant (see resolveLinkChallenge);
+	// from here on, the rest of this flow must act in the tenant that actually
+	// issued it, not whatever tenant the request's host happened to resolve to.
+	ctx = authz.WithTenantID(ctx, c.TenantID.String())
 	user, err := u.userRepo.FindByID(ctx, c.UserID)
 	if err != nil {
 		return err

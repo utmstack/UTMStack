@@ -19,6 +19,11 @@ func (s *stubStore) GetString(_ context.Context, key string) (string, bool, erro
 	return v, ok, nil
 }
 
+func (s *stubStore) GetOwnString(_ context.Context, key string) (string, bool, error) {
+	v, ok := s.values[key]
+	return v, ok, nil
+}
+
 func (s *stubStore) SetString(_ context.Context, _, _ string, _ appconfig_connectors.SetOpts) error {
 	return nil
 }
@@ -67,6 +72,50 @@ func TestResolveRecipients(t *testing.T) {
 				t.Errorf("cc: got %v want %v", cc, tc.wantCc)
 			}
 		})
+	}
+}
+
+// inheritingStubStore models the real appconfig Store's fallback behavior:
+// GetString sees the tenant's own value or, failing that, the platform
+// tenant's; GetOwnString only ever sees the tenant's own.
+type inheritingStubStore struct {
+	own, platform map[string]string
+}
+
+func (s *inheritingStubStore) GetString(_ context.Context, key string) (string, bool, error) {
+	if v, ok := s.own[key]; ok {
+		return v, true, nil
+	}
+	v, ok := s.platform[key]
+	return v, ok, nil
+}
+
+func (s *inheritingStubStore) GetOwnString(_ context.Context, key string) (string, bool, error) {
+	v, ok := s.own[key]
+	return v, ok, nil
+}
+
+func (s *inheritingStubStore) SetString(_ context.Context, _, _ string, _ appconfig_connectors.SetOpts) error {
+	return nil
+}
+
+// ACC-F33: a tenant that never configured its own notification recipients
+// must not have its incident mail silently sent to whatever the platform
+// tenant has configured — that would leak one tenant's incident details to
+// addresses only the platform's own admin chose.
+func TestResolveRecipientsDoesNotInheritFromPlatformTenant(t *testing.T) {
+	store := &inheritingStubStore{
+		own:      map[string]string{},
+		platform: map[string]string{ConfigKeyNotificationTo: "platform-admin@other-org.com"},
+	}
+	m := &incidentMailer{store: store}
+
+	to, cc, err := m.resolveRecipients(context.Background())
+	if err != nil {
+		t.Fatalf("unexpected err: %v", err)
+	}
+	if to != nil || cc != nil {
+		t.Fatalf("resolveRecipients leaked the platform tenant's row: to=%v cc=%v", to, cc)
 	}
 }
 

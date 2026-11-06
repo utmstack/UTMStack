@@ -34,6 +34,10 @@ type BrandNameProvider interface {
 
 type Store interface {
 	GetString(ctx context.Context, key string) (string, bool, error)
+	// GetOwnString reads only the acting tenant's own row, never the platform
+	// tenant's (ACC-F33) — for values a tenant must configure itself, such as
+	// who receives its incident notifications.
+	GetOwnString(ctx context.Context, key string) (string, bool, error)
 	SetString(ctx context.Context, key, value string, opts SetOpts) error
 }
 

@@ -122,6 +122,8 @@ func (h *AuthHandler) EmptyLogin(c *gin.Context) {
 		audit_domain.AUTH_ATTEMPT, audit_domain.AUTH_SUCCESS, err)
 	if err != nil {
 		switch {
+		case errors.Is(err, domain.ErrLoginBlocked):
+			c.JSON(http.StatusTooManyRequests, gin.H{"error": "too many failed attempts; try again later"})
 		case errors.Is(err, domain.ErrInvalidCredentials):
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
 		case errors.Is(err, domain.ErrUserInactive):
