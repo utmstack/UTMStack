@@ -22,6 +22,7 @@ var internalKeyRoutes = []string{
 	"/api/v1/datasources/usage-report",                             // installer's usage job
 	"/api/v1/api-keys/authenticate",                                // log-input
 	"/api/v1/branding/seed",                                        // installer
+	"/api/v1/storage",                                        		// storage
 }
 
 func internalKeyPolicy(cidrs string) (middleware.InternalPolicy, error) {
