@@ -141,7 +141,7 @@ func commandProcessor(path string, stream resultSender, cnf *config.Config, comm
 			result, errB = utils.ExecuteWithResult("powershell.exe", path, "-Command", command)
 		} else {
 			// Default to cmd.exe (also handles shell == "" or shell == "cmd")
-			result, errB = utils.ExecuteWithResult("cmd.exe", path, "/C", command)
+			result, errB = utils.ExecuteWithResultRaw("cmd.exe", path, "/C", command)
 		}
 	case "linux", "darwin":
 		if shell == "bash" {
