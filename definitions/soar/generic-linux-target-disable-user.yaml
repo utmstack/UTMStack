@@ -18,6 +18,6 @@
     step_0:
         kind: executor
         executor: shell
-        command: 'sudo usermod -s /sbin/nologin $(target.user) || sudo usermod -L $(target.user)'
+        command: 'sudo usermod -s /sbin/nologin $(alert.target.user) || sudo usermod -L $(alert.target.user)'
         shell: sh
         platform: ubuntu

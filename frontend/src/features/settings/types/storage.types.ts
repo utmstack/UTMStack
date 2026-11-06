@@ -3,6 +3,10 @@
 
 export type Dataset = 'logs' | 'alerts' | 'statistics'
 
+export interface RetentionEnabled {
+  enabled: boolean
+}
+
 export interface Retention {
   dataset: Dataset
   /** Whole lifetime: a record is deleted this many days after it happened. */

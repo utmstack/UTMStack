@@ -18,7 +18,7 @@
     step_0:
         kind: executor
         executor: shell
-        command: 'netsh advfirewall firewall add rule name="BlockIOC-$(adversary.ip)" dir=in action=block remoteip="$(adversary.ip)"'
+        command: 'netsh advfirewall firewall add rule name="BlockIOC-$(alert.adversary.ip)" dir=in action=block remoteip="$(alert.adversary.ip)"'
         shell: powershell
         platform: windows
         onSuccess:
@@ -28,6 +28,6 @@
     step_1:
         kind: executor
         executor: shell
-        command: 'netsh advfirewall firewall add rule name="BlockIOC-$(adversary.ip)-out" dir=out action=block remoteip="$(adversary.ip)"'
+        command: 'netsh advfirewall firewall add rule name="BlockIOC-$(alert.adversary.ip)-out" dir=out action=block remoteip="$(alert.adversary.ip)"'
         shell: powershell
         platform: windows

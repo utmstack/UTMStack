@@ -11,7 +11,7 @@
     step_0:
         kind: executor
         executor: shell
-        command: New-NetFirewallRule -DisplayName "Blocked_BruteForce_IP" -Direction Inbound -RemoteAddress "$(origin.ip)" -Action Block -Protocol Any -Profile Any -Enabled True
+        command: New-NetFirewallRule -DisplayName "Blocked_BruteForce_IP" -Direction Inbound -RemoteAddress "$(alert.origin.ip)" -Action Block -Protocol Any -Profile Any -Enabled True
         shell: powershell
         platform: windows
         onSuccess:
@@ -21,6 +21,6 @@
     step_1:
         kind: executor
         executor: shell
-        command: netsh advfirewall firewall add rule name="Block-Brute-Force-$(adversary.ip)" dir=in action=block remoteip="$(adversary.ip)" enable=yes
+        command: netsh advfirewall firewall add rule name="Block-Brute-Force-$(alert.adversary.ip)" dir=in action=block remoteip="$(alert.adversary.ip)" enable=yes
         shell: powershell
         platform: windows

@@ -11,7 +11,7 @@
     step_0:
         kind: executor
         executor: shell
-        command: sudo ufw insert 1 deny from $(adversary.ip) to any port 22 proto tcp ; sudo pkill -KILL -u $(target.user)
+        command: sudo ufw insert 1 deny from $(alert.adversary.ip) to any port 22 proto tcp ; sudo pkill -KILL -u $(alert.target.user)
         shell: sh
         platform: ubuntu
         onSuccess:
@@ -21,6 +21,6 @@
     step_1:
         kind: executor
         executor: shell
-        command: ufw deny from $(adversary.ip) to any
+        command: ufw deny from $(alert.adversary.ip) to any
         shell: sh
         platform: ubuntu

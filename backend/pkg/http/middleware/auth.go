@@ -25,11 +25,33 @@ type Actor = authz.Actor
 
 type SupportOfFunc func(ctx context.Context, tenantID string) (string, error)
 
-func EstablishActor(c *gin.Context, a Actor) bool { return setActor(c, a, nil) }
+// TenantStatusFunc reports whether a tenant is still usable (ACTIVE), as
+// opposed to SUSPENDED or TERMINATED. It is consulted on every authenticated
+// request that resolves to a real tenant: a suspended/terminated tenant's
+// users and API keys otherwise keep working for the lifetime of their
+// already-issued JWTs, since token verification is a pure signature/expiry
+// check with no DB lookup (ACC-F34).
+type TenantStatusFunc func(ctx context.Context, tenantID string) (active bool, err error)
 
-func setActor(c *gin.Context, a Actor, supportOf SupportOfFunc) bool {
+func EstablishActor(c *gin.Context, a Actor, tenantActive TenantStatusFunc) bool {
+	return setActor(c, a, nil, tenantActive)
+}
+
+func setActor(c *gin.Context, a Actor, supportOf SupportOfFunc, tenantActive TenantStatusFunc) bool {
 	if !a.Internal && !resolveTenancy(c, &a, supportOf) {
 		return false
+	}
+
+	if !a.Internal && a.TenantID != "" && tenantActive != nil {
+		active, err := tenantActive(c.Request.Context(), a.TenantID)
+		if err != nil {
+			AbortUnauthorized(c, "could not verify tenant status")
+			return false
+		}
+		if !active {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "this tenant has been suspended or terminated"})
+			return false
+		}
 	}
 
 	c.Set("user_id", a.UserID)
@@ -145,8 +167,8 @@ func ActorFromGin(c *gin.Context) *authz.Actor {
 
 type APIKeyAuthFunc func(ctx context.Context, apiKey, clientIP string) (*Actor, error)
 
-func UserAuth(signer *jwtpkg.Signer) gin.HandlerFunc {
-	return Authenticate(signer, nil, "", nil)
+func UserAuth(signer *jwtpkg.Signer, tenantActive TenantStatusFunc) gin.HandlerFunc {
+	return Authenticate(signer, nil, "", nil, tenantActive)
 }
 
 // AuthOption adjusts Authenticate.
@@ -162,7 +184,7 @@ func WithInternalPolicy(p InternalPolicy) AuthOption {
 	return func(a *authConfig) { a.internal = &p }
 }
 
-func Authenticate(signer *jwtpkg.Signer, apiKeyAuth APIKeyAuthFunc, internalKey string, supportOf SupportOfFunc, opts ...AuthOption) gin.HandlerFunc {
+func Authenticate(signer *jwtpkg.Signer, apiKeyAuth APIKeyAuthFunc, internalKey string, supportOf SupportOfFunc, tenantActive TenantStatusFunc, opts ...AuthOption) gin.HandlerFunc {
 	var cfg authConfig
 	for _, o := range opts {
 		o(&cfg)
@@ -186,7 +208,7 @@ func Authenticate(signer *jwtpkg.Signer, apiKeyAuth APIKeyAuthFunc, internalKey 
 				Permissions: claims.Permissions,
 				SessionID:   claims.SessionID,
 				TenantID:    claims.TenantID,
-			}, supportOf) {
+			}, supportOf, tenantActive) {
 				return
 			}
 			c.Next()
@@ -197,7 +219,7 @@ func Authenticate(signer *jwtpkg.Signer, apiKeyAuth APIKeyAuthFunc, internalKey 
 			if !setActor(c, Actor{
 				Internal: true,
 				TenantID: c.GetHeader(TenantHeader),
-			}, supportOf) {
+			}, supportOf, tenantActive) {
 				return
 			}
 			c.Next()
@@ -205,12 +227,12 @@ func Authenticate(signer *jwtpkg.Signer, apiKeyAuth APIKeyAuthFunc, internalKey 
 		}
 		if apiKeyAuth != nil {
 			if apiKey := c.GetHeader("Utm-Api-Key"); apiKey != "" {
-				actor, err := apiKeyAuth(c.Request.Context(), apiKey, c.ClientIP())
+				actor, err := apiKeyAuth(c.Request.Context(), apiKey, ClientIP(c))
 				if err != nil || actor == nil {
 					AbortUnauthorized(c, "invalid api key")
 					return
 				}
-				if !setActor(c, *actor, supportOf) {
+				if !setActor(c, *actor, supportOf, tenantActive) {
 					return
 				}
 				c.Next()
@@ -349,12 +371,12 @@ func internalAllowed(c *gin.Context, p *InternalPolicy) bool {
 	if p == nil {
 		return true
 	}
-	ok, why := p.Permits(c.Request, c.ClientIP())
+	ok, why := p.Permits(c.Request, ClientIP(c))
 	if !ok {
 		catcher.Warn("internal key presented where it is not accepted and ignored", map[string]any{
 			"path":   c.Request.URL.Path,
 			"method": c.Request.Method,
-			"remote": c.ClientIP(),
+			"remote": ClientIP(c),
 			"reason": why,
 		})
 	}

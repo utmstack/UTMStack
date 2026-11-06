@@ -16,6 +16,6 @@
     step_0:
         kind: executor
         executor: shell
-        command: firewall-cmd --zone=public --add-rich-rule='rule family="ipv4" source address="$(adversary.ip)" drop' --permanent && firewall-cmd --reload
+        command: firewall-cmd --zone=public --add-rich-rule='rule family="ipv4" source address="$(alert.adversary.ip)" drop' --permanent && firewall-cmd --reload
         shell: sh
         platform: rhel

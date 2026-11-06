@@ -130,7 +130,6 @@ const TOOL_LABELS: Record<string, string> = {
   'soar.rule.get': 'Loading automation rule',
   'soar.rule.list': 'Listing automation rules',
   'soar.rule.set_enabled': 'Toggling automation rule',
-  'soar.rule.resolve_filter_values': 'Resolving filter values',
   'soar.variable.create': 'Creating variable',
   'soar.variable.update': 'Updating variable',
   'soar.variable.delete': 'Deleting variable',

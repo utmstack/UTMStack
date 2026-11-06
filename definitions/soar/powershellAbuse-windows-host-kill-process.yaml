@@ -12,7 +12,7 @@
     step_0:
         kind: executor
         executor: shell
-        command: taskkill /F /PID $(log.winlogEventDataProcessId) ; taskkill /F /IM $(log.winlogEventDataProcessName)
+        command: taskkill /F /PID $(alert.log.winlogEventDataProcessId) ; taskkill /F /IM $(alert.log.winlogEventDataProcessName)
         shell: powershell
         platform: windows
         onSuccess:
@@ -22,6 +22,6 @@
     step_1:
         kind: executor
         executor: shell
-        command: taskkill /F /IM (Split-Path -Path "$(adversary.process)" -Leaf)
+        command: taskkill /F /IM (Split-Path -Path "$(alert.adversary.process)" -Leaf)
         shell: powershell
         platform: windows

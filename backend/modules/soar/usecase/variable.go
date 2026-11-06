@@ -104,6 +104,15 @@ func (u *variableUsecase) plainValue(v *domain.SoarVariable, req dto.UpdateVaria
 	if !v.IsSecret {
 		return v.Value, nil
 	}
+	// SOAR-F4: the variable is secret and the caller sent no real new value
+	// (empty, or the masked placeholder echoed back) — that's the "keep the
+	// existing secret unchanged while editing name/description" case, and it's
+	// only safe to auto-decrypt for when the result STAYS secret (re-encrypted
+	// right back). Unticking IsSecret here would hand the plaintext back in
+	// the response instead.
+	if !req.IsSecret {
+		return "", domain.ErrVariableUnsecretNeedsValue
+	}
 	plain, err := u.cipher.Decrypt(v.Value)
 	if err != nil {
 		return "", fmt.Errorf("variableUsecase.Update: decrypt stored value: %w", err)

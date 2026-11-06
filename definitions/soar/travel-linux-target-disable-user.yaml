@@ -16,6 +16,6 @@
     step_0:
         kind: executor
         executor: shell
-        command: usermod --expiredate 1 $(target.user)
+        command: usermod --expiredate 1 $(alert.target.user)
         shell: sh
         platform: linux

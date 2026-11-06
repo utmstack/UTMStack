@@ -180,7 +180,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	factorRepo := iam_repository.NewTfaFactorRepository(db, cipher)
 	challengeMailer := iam_repository.NewChallengeMailer(mailMod.Service(), mailMod.ConfigRepo(), brand)
 
-	tfaUsecase := iam_usecase.NewTfaUsecase(userRepo, refreshRepo, factorRepo, challengeRepo, challengeMailer, signer, preAuthSigner, refreshTokenTTL, brand)
+	tfaUsecase := iam_usecase.NewTfaUsecase(userRepo, refreshRepo, factorRepo, challengeRepo, challengeMailer, signer, preAuthSigner, refreshTokenTTL, brand, limiter)
 	idpRepo := iam_repository.NewIdentityProviderRepository(db)
 	federationUsecase := iam_usecase.NewFederationUsecase(idpRepo, userRepo, rbacRepo, refreshRepo, signer, cipher, refreshTokenTTL)
 	authUsecase := iam_usecase.NewAuthUsecase(userRepo, rbacRepo, refreshRepo, challengeRepo, signer, limiter, refreshTokenTTL, challengeMailer, tfaUsecase, federationUsecase, preAuthSigner, cfg.tfaEnabled)
@@ -277,7 +277,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		env.String("INTEGRATIONS_CONFIG_DIR", "/workdir/pipeline", false),
 		env.String("UPDATES_DIR", "/updates", false), aiQuota, joblease.New(db))
 	adauditMod := adaudit.NewModule(db)
-	storageMod := storage.NewModule(events, env.String("CLICKHOUSE_CONFIG_DIR", "/clickhouse-conf", false))
+	storageMod := storage.NewModule(events, env.String("CLICKHOUSE_CONFIG_DIR", "/clickhouse-conf", false),cfg.dataRetentionEnabled)
 	threatintelMod := threatintel.NewModule(
 		env.String("UPDATES_DIR", "/updates", false),
 		env.String("INTEGRATIONS_CONFIG_DIR", "/workdir/pipeline", false),

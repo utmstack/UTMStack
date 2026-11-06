@@ -16,6 +16,6 @@
     step_0:
         kind: executor
         executor: shell
-        command: chsh -s /usr/bin/false $(target.user)
+        command: chsh -s /usr/bin/false $(alert.target.user)
         shell: sh
         platform: macos

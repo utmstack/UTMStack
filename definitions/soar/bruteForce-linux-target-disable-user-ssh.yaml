@@ -12,7 +12,7 @@
     step_0:
         kind: executor
         executor: shell
-        command: sudo ufw insert 1 deny from $(adversary.ip) to any port 22 proto tcp ; sudo usermod --expiredate 1 $(target.user) ; sudo shutdown -h now
+        command: sudo ufw insert 1 deny from $(alert.adversary.ip) to any port 22 proto tcp ; sudo usermod --expiredate 1 $(alert.target.user) ; sudo shutdown -h now
         shell: sh
         platform: ubuntu
         onSuccess:
@@ -22,7 +22,7 @@
     step_1:
         kind: executor
         executor: shell
-        command: usermod -s /sbin/nologin $(adversary.user)
+        command: usermod -s /sbin/nologin $(alert.adversary.user)
         shell: sh
         platform: ubuntu
         onSuccess:
@@ -42,6 +42,6 @@
     step_3:
         kind: executor
         executor: shell
-        command: pkill -KILL -u $(target.user)
+        command: pkill -KILL -u $(alert.target.user)
         shell: sh
         platform: ubuntu

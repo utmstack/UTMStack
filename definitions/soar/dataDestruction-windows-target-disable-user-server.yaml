@@ -12,7 +12,7 @@
     step_0:
         kind: executor
         executor: shell
-        command: taskkill /F /IM "$(target.process)" ; logoff $(target.user) ; net user "$(target.user)" /active:no
+        command: taskkill /F /IM "$(alert.target.process)" ; logoff $(alert.target.user) ; net user "$(alert.target.user)" /active:no
         shell: powershell
         platform: windows
         onSuccess:
@@ -22,7 +22,7 @@
     step_1:
         kind: executor
         executor: shell
-        command: taskkill /F /IM (Split-Path -Path "$(adversary.process)" -Leaf)
+        command: taskkill /F /IM (Split-Path -Path "$(alert.adversary.process)" -Leaf)
         shell: powershell
         platform: windows
         onSuccess:
@@ -32,7 +32,7 @@
     step_2:
         kind: executor
         executor: shell
-        command: net user $(adversary.user) /active:no
+        command: net user $(alert.adversary.user) /active:no
         shell: powershell
         platform: windows
         onSuccess:
@@ -42,6 +42,6 @@
     step_3:
         kind: executor
         executor: shell
-        command: logoff $(target.user)
+        command: logoff $(alert.target.user)
         shell: powershell
         platform: windows

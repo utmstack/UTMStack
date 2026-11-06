@@ -78,6 +78,8 @@ func (h *TfaHandler) VerifyLoginCode(c *gin.Context) {
 
 func (h *TfaHandler) writeErr(c *gin.Context, err error) {
 	switch {
+	case errors.Is(err, domain.ErrLoginBlocked):
+		c.JSON(http.StatusTooManyRequests, gin.H{"error": "too many failed attempts; try again later"})
 	case errors.Is(err, domain.ErrTfaInvalidCode), errors.Is(err, domain.ErrTfaInvalidPreAuth):
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 	case errors.Is(err, domain.ErrTfaMailUnavailable):

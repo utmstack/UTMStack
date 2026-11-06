@@ -38,6 +38,7 @@ import { DataProcessingPage } from '@/features/data-processing/pages/DataProcess
 import { TeamPage } from '@/features/team/pages/TeamPage'
 import { ConnectionKeyPage } from '@/features/settings/pages/ConnectionKeyPage'
 import { DataRetentionPage } from '@/features/settings/pages/DataRetentionPage'
+import { useStorageEnabled } from '@/features/settings/services/storage-enabled.context'
 import { BrandingPage } from '@/features/branding'
 import { IdentityProvidersPage } from '@/features/settings/pages/IdentityProvidersPage'
 import { EmailConfigurationPage } from '@/features/settings/pages/EmailConfigurationPage'
@@ -193,7 +194,9 @@ export function AppRoutes() {
           path="settings/data-retention"
           element={
             <PlatformOnly>
-              <DataRetentionPage />
+              <StorageGate>
+                <DataRetentionPage />
+              </StorageGate>
             </PlatformOnly>
           }
         />
@@ -272,6 +275,17 @@ function PlatformOnly({
   const mssp = useMSSP()
   if (isLoading || (requiresMSSP && mssp === 'pending')) return null
   if (!isPlatformAdmin || (requiresMSSP && !mssp)) return <Navigate to="/home" replace />
+  return <>{children}</>
+}
+
+/**
+ * Holds the data-retention page while /storage/enabled is unknown, then sends
+ * anyone back home when the feature is switched off instance-wide.
+ */
+function StorageGate({ children }: { children: React.ReactNode }) {
+  const { enabled, isLoading } = useStorageEnabled()
+  if (isLoading) return null
+  if (!enabled) return <Navigate to="/home" replace />
   return <>{children}</>
 }
 

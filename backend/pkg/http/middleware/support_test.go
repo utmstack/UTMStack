@@ -24,7 +24,7 @@ func cross(t *testing.T, method string, host string, support string, a Actor) (*
 	c.Set(HostTenantKey, host)
 	c.Set(HostSupportKey, support)
 
-	if !setActor(c, a, nil) {
+	if !setActor(c, a, nil, nil) {
 		return nil, false
 	}
 	return ActorFromGin(c), true
@@ -42,7 +42,7 @@ func crossByHeader(t *testing.T, method, target, support string, a Actor) (*auth
 
 	supportOf := func(context.Context, string) (string, error) { return support, nil }
 
-	if !setActor(c, a, supportOf) {
+	if !setActor(c, a, supportOf, nil) {
 		return nil, false
 	}
 	return ActorFromGin(c), true

@@ -3,6 +3,7 @@ module github.com/utmstack/UTMStack/plugins/alerts
 go 1.25.5
 
 require (
+	github.com/alicebob/miniredis/v2 v2.39.0
 	github.com/threatwinds/go-sdk v1.1.37-0.20261028123630-c472007022ff
 	github.com/tidwall/gjson v1.20.0
 	google.golang.org/protobuf v1.36.12
@@ -51,6 +52,7 @@ require (
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.3.1 // indirect
+	github.com/yuin/gopher-lua v1.1.1 // indirect
 	go.mongodb.org/mongo-driver/v2 v2.6.0 // indirect
 	go.opentelemetry.io/otel v1.44.0 // indirect
 	go.opentelemetry.io/otel/trace v1.44.0 // indirect

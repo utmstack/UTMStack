@@ -16,6 +16,6 @@
     step_0:
         kind: executor
         executor: shell
-        command: echo "block in from $(adversary.ip) to any" | pfctl -f -
+        command: echo "block in from $(alert.adversary.ip) to any" | pfctl -f -
         shell: sh
         platform: macos

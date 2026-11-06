@@ -5,7 +5,7 @@ import (
 	"github.com/utmstack/utmstack/backend/pkg/http/middleware"
 )
 
-func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc, apiKeyAuth middleware.APIKeyAuthFunc, platform gin.HandlerFunc) {
+func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc, apiKeyAuth middleware.APIKeyAuthFunc, tenantActive middleware.TenantStatusFunc, platform gin.HandlerFunc) {
 	rh := m.GetRuleHandler()
 	eh := m.GetExecutionHandler()
 	vh := m.GetVariableHandler()
@@ -37,6 +37,7 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc, a
 	vg.DELETE("/:id", write, vh.Delete)
 
 	m.commandWSHandler.SetAPIKeyAuth(apiKeyAuth)
+	m.commandWSHandler.SetTenantStatusCheck(tenantActive)
 	api.GET("/soar/ws/command/:agentId", m.commandWSHandler.CommandStream)
 
 	// Platform-admin bulk endpoints (rules only).

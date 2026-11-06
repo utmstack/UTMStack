@@ -15,9 +15,12 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/storage/dto"
 )
 
-type Handler struct{ uc connectors.Usecase }
+type Handler struct{
+	uc 		connectors.Usecase
+	enabled bool
+}
 
-func New(uc connectors.Usecase) *Handler { return &Handler{uc: uc} }
+func New(uc connectors.Usecase,enabled bool) *Handler { return &Handler{uc: uc, enabled:enabled} }
 
 // Retentions godoc
 //
@@ -36,6 +39,21 @@ func (h *Handler) Retentions(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, dto.FromRetentions(out))
 }
+
+// Retentions godoc
+//
+//	@Summary		Whether retention module is active or not
+//	@Description	Whether retention nodule is active or not
+//	@Tags			Storage
+//	@Security		BearerAuth
+//	@Produce		json
+//	@Success		200	{array}	dto.RetentionResponse
+//	@Router			/storage/enabled [get]
+func (h *Handler) Enabled(c *gin.Context) {
+	c.JSON(http.StatusOK, dto.RetentionEnabledResponse{Enabled:h.enabled})
+}
+
+
 
 // SetRetention godoc
 //

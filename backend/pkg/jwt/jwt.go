@@ -19,8 +19,21 @@ type Claims struct {
 	// Platform marks the instance operator, so a browser can hide what only
 	// they may reach. The server still decides; this is for the UI.
 	Platform bool `json:"platform,omitempty"`
+	// Purpose marks a token minted for one specific narrow use (e.g. the SOAR
+	// console's password re-proof) rather than as a general access token.
+	// Without this, any token this signer produces — a plain access token
+	// included — carries the same shape and verifies the same way, so a
+	// caller's own ordinary access token could stand in for a purpose-built
+	// one (SOAR-F4b).
+	Purpose string `json:"purpose,omitempty"`
 	jwt.RegisteredClaims
 }
+
+// PurposePasswordProof marks the SOAR console's "prove you still know the
+// password" second factor (SignEmpty). RequirePurpose rejects anything else,
+// including a normal access token, which would otherwise pass Verify just as
+// well since it's signed with the same secret and method.
+const PurposePasswordProof = "password_proof"
 
 func (c *Claims) UserID() (uuid.UUID, error) {
 	if c.Subject == "" {
@@ -67,11 +80,17 @@ func (s *Signer) Sign(userID uuid.UUID, email string, permissions, roles []strin
 	return signed, expiresAt, nil
 }
 
-func (s *Signer) SignEmpty( expiration time.Duration) (string,  error) {
+// SignEmpty issues a narrow-purpose token proving the holder just re-entered
+// userID's password (e.g. the SOAR console's second factor) — Subject and
+// Purpose are what let RequirePurpose tell this apart from a normal access
+// token for the same or any other user (SOAR-F4b).
+func (s *Signer) SignEmpty(userID uuid.UUID, expiration time.Duration) (string, error) {
 	now := time.Now()
 	expiresAt := now.Add(expiration)
 	claims := Claims{
+		Purpose: PurposePasswordProof,
 		RegisteredClaims: jwt.RegisteredClaims{
+			Subject:   userID.String(),
 			IssuedAt:  jwt.NewNumericDate(now),
 			ExpiresAt: jwt.NewNumericDate(expiresAt),
 			Issuer:    Issuer,
@@ -80,9 +99,26 @@ func (s *Signer) SignEmpty( expiration time.Duration) (string,  error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS512, claims)
 	signed, err := token.SignedString(s.secret)
 	if err != nil {
-		return "",  err
+		return "", err
 	}
-	return signed,  nil
+	return signed, nil
+}
+
+// RequirePurpose verifies tokenStr and checks it both carries the given
+// Purpose and belongs to userID — a plain access token (Purpose == "") or a
+// genuine password-proof token for a different user is rejected either way.
+func (s *Signer) RequirePurpose(tokenStr, purpose string, userID uuid.UUID) (*Claims, error) {
+	claims, err := s.Verify(tokenStr)
+	if err != nil {
+		return nil, err
+	}
+	if claims.Purpose != purpose {
+		return nil, errors.New("token purpose mismatch")
+	}
+	if got, err := claims.UserID(); err != nil || got != userID {
+		return nil, errors.New("token does not belong to this user")
+	}
+	return claims, nil
 }
 
 

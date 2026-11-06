@@ -28,6 +28,6 @@
     step_1:
         kind: executor
         executor: shell
-        command: 'crontab -r 2>/dev/null ; sudo usermod -s /sbin/nologin $(target.user) || sudo usermod -L $(target.user)'
+        command: 'crontab -r 2>/dev/null ; sudo usermod -s /sbin/nologin $(alert.target.user) || sudo usermod -L $(alert.target.user)'
         shell: sh
         platform: ubuntu

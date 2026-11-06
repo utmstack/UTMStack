@@ -28,6 +28,6 @@
     step_1:
         kind: executor
         executor: shell
-        command: 'sudo launchctl bootout gui/$(id -u $(target.user)) /Users/$(target.user)/Library/LaunchAgents/*.plist 2>/dev/null ; sudo pwpolicy -u $(target.user) -setstatus On'
+        command: 'sudo launchctl bootout gui/$(id -u $(alert.target.user)) /Users/$(alert.target.user)/Library/LaunchAgents/*.plist 2>/dev/null ; sudo pwpolicy -u $(alert.target.user) -setstatus On'
         shell: sh
         platform: macos

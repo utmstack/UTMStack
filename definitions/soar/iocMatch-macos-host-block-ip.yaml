@@ -18,6 +18,6 @@
     step_0:
         kind: executor
         executor: shell
-        command: 'echo ''block drop in from $(adversary.ip) to any'' >> /etc/pf.utmstack.conf ; echo ''block drop out to $(adversary.ip)'' >> /etc/pf.utmstack.conf ; pfctl -f /etc/pf.utmstack.conf'
+        command: 'echo ''block drop in from $(alert.adversary.ip) to any'' >> /etc/pf.utmstack.conf ; echo ''block drop out to $(alert.adversary.ip)'' >> /etc/pf.utmstack.conf ; pfctl -f /etc/pf.utmstack.conf'
         shell: sh
         platform: macos

@@ -6,6 +6,11 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/storage/domain"
 )
 
+
+type RetentionEnabledResponse struct {
+	Enabled  bool `json:"enabled" binding:"required"`
+}
+
 type RetentionRequest struct {
 	Dataset  string `json:"dataset" binding:"required"`
 	KeepDays int    `json:"keepDays"`

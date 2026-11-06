@@ -3,6 +3,7 @@ import type {
   DatasetUsage,
   ColdTargetInput,
   Retention,
+  RetentionEnabled,
   StoreHealth,
   Tiering,
 } from '../types/storage.types'
@@ -17,6 +18,7 @@ export { ApiError as StorageHttpError }
  */
 export const storageHttpService = {
   retention: () => api.get<Retention[]>('/storage/retention'),
+  retention_enabled: () => api.get<RetentionEnabled>('/storage/enabled'),
   setRetention: (r: Pick<Retention, 'dataset' | 'keepDays' | 'coldDays'>) =>
     api.put<Retention>('/storage/retention', r),
 

@@ -105,7 +105,7 @@ func registerIAMUsers(m *Module) {
 		Name: "iam.user.assign_roles", Title: "Assign roles to user",
 	}, Gate{Permission: "users.write"},
 		func(ctx context.Context, actor *authz.Actor, in iamUserAssignRolesInput) (any, error) {
-			if err := uc.AssignRoles(ctx, in.ID, dto.AssignRolesRequest{RoleNames: in.RoleNames}); err != nil {
+			if err := uc.AssignRoles(ctx, in.ID, dto.AssignRolesRequest{RoleNames: in.RoleNames}, authz.RequireAdmin(actor) == nil); err != nil {
 				return nil, err
 			}
 			return map[string]any{"id": in.ID, "role_names": in.RoleNames}, nil

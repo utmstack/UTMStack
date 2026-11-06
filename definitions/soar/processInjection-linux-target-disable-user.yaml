@@ -16,7 +16,7 @@
     step_0:
         kind: executor
         executor: shell
-        command: sudo usermod --expiredate 1 $(target.user)
+        command: sudo usermod --expiredate 1 $(alert.target.user)
         shell: sh
         platform: ubuntu
         onSuccess:
@@ -26,6 +26,6 @@
     step_1:
         kind: executor
         executor: shell
-        command: usermod -s /sbin/nologin $(adversary.user)
+        command: usermod -s /sbin/nologin $(alert.adversary.user)
         shell: sh
         platform: ubuntu

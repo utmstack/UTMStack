@@ -6,7 +6,7 @@ import (
 	"github.com/utmstack/utmstack/backend/pkg/http/middleware"
 )
 
-func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
+func RegisterRoutes(api *gin.RouterGroup, m *Module, authM, userAuth gin.HandlerFunc) {
 	h := m.Handler()
 	if h == nil {
 		return
@@ -15,7 +15,12 @@ func RegisterRoutes(api *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc) {
 	read := middleware.RequirePermission("storage.read")
 	write := middleware.RequirePermission("storage.write")
 
-	g := api.Group("/storage", userAuth, middleware.RequirePlatform())
+
+
+	g := api.Group("/storage", authM, middleware.RequirePlatform())
+
+	// always uses user auth middleware
+	api.GET("/storage/enabled", userAuth,read, h.Enabled)
 
 	g.GET("/retention", read, h.Retentions)
 	g.PUT("/retention", write, h.SetRetention)
