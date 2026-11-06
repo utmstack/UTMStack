@@ -151,6 +151,10 @@ message CommandResult {
   string result = 2;
   google.protobuf.Timestamp executed_at = 3;
   string cmd_id = 4;
+  // Process exit code, 0 = success. An agent built before this field existed
+  // never sets it, which decodes as 0 — the same "assume success" behavior
+  // SOAR already had, so an unpatched agent doesn't regress.
+  int32 exit_code = 5;
 }
 
 message ListAgentsCommandsResponse {

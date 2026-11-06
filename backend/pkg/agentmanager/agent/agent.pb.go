@@ -955,11 +955,15 @@ func (x *UtmCommand) GetShell() string {
 }
 
 type CommandResult struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	AgentId       string                 `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
-	Result        string                 `protobuf:"bytes,2,opt,name=result,proto3" json:"result,omitempty"`
-	ExecutedAt    *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=executed_at,json=executedAt,proto3" json:"executed_at,omitempty"`
-	CmdId         string                 `protobuf:"bytes,4,opt,name=cmd_id,json=cmdId,proto3" json:"cmd_id,omitempty"`
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	AgentId    string                 `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
+	Result     string                 `protobuf:"bytes,2,opt,name=result,proto3" json:"result,omitempty"`
+	ExecutedAt *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=executed_at,json=executedAt,proto3" json:"executed_at,omitempty"`
+	CmdId      string                 `protobuf:"bytes,4,opt,name=cmd_id,json=cmdId,proto3" json:"cmd_id,omitempty"`
+	// Process exit code, 0 = success. An agent built before this field existed
+	// never sets it, which decodes as 0 — the same "assume success" behavior
+	// SOAR already had, so an unpatched agent doesn't regress.
+	ExitCode      int32 `protobuf:"varint,5,opt,name=exit_code,json=exitCode,proto3" json:"exit_code,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1020,6 +1024,13 @@ func (x *CommandResult) GetCmdId() string {
 		return x.CmdId
 	}
 	return ""
+}
+
+func (x *CommandResult) GetExitCode() int32 {
+	if x != nil {
+		return x.ExitCode
+	}
+	return 0
 }
 
 type ListAgentsCommandsResponse struct {
@@ -1276,13 +1287,14 @@ const file_agent_proto_rawDesc = "" +
 	"originType\x12\x1b\n" +
 	"\torigin_id\x18\x06 \x01(\tR\boriginId\x12\x16\n" +
 	"\x06reason\x18\a \x01(\tR\x06reason\x12\x14\n" +
-	"\x05shell\x18\b \x01(\tR\x05shell\"\x96\x01\n" +
+	"\x05shell\x18\b \x01(\tR\x05shell\"\xb3\x01\n" +
 	"\rCommandResult\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12\x16\n" +
 	"\x06result\x18\x02 \x01(\tR\x06result\x12;\n" +
 	"\vexecuted_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"executedAt\x12\x15\n" +
-	"\x06cmd_id\x18\x04 \x01(\tR\x05cmdId\"[\n" +
+	"\x06cmd_id\x18\x04 \x01(\tR\x05cmdId\x12\x1b\n" +
+	"\texit_code\x18\x05 \x01(\x05R\bexitCode\"[\n" +
 	"\x1aListAgentsCommandsResponse\x12'\n" +
 	"\x04rows\x18\x01 \x03(\v2\x13.agent.AgentCommandR\x04rows\x12\x14\n" +
 	"\x05total\x18\x02 \x01(\x05R\x05total\"\xa1\x03\n" +
