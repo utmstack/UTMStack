@@ -6,8 +6,7 @@
     "start": "ng serve --host 0.0.0.0",
     "build": "ng build --configuration production --base-href /",
     "test": "ng test",
-    "lint": "ng lint",
-    "e2e": "ng e2e"
+    "lint": "ng lint"
   },
   "private": true,
   "dependencies": {
@@ -95,19 +94,19 @@
     "@angular/language-service": "~17.3.12",
     "@types/highlight.js": "^9.12.0",
     "@types/jasmine": "~2.8.8",
-    "@types/jasminewd2": "~2.0.3",
     "@types/node": "~18.19.130",
-    "ajv": "^8.12.0",
+    "ajv": "^8.20.0",
     "eslint": "^8.57.0",
     "jasmine-core": "~2.99.1",
     "jasmine-spec-reporter": "~4.2.1",
-    "karma": "^6.4.1",
+    "karma": "^6.4.4",
     "karma-chrome-launcher": "~2.2.0",
     "karma-coverage-istanbul-reporter": "~2.0.1",
     "karma-jasmine": "~1.1.2",
     "karma-jasmine-html-reporter": "^0.2.2",
-    "protractor": "^7.0.0",
-    "ts-node": "~7.0.0",
     "typescript": "~5.4.5"
+  },
+  "overrides": {
+    "es5-ext": ">=0.10.63"
   }
 }
