@@ -181,6 +181,9 @@ func gcpRequestTarget(log map[string]any, method string) string {
 		return ""
 	}
 	if name, _ := rm["name"].(string); name != "" {
+		if sa, ok := gcpServiceAccountEmail(name); ok {
+			return sa
+		}
 		if wp, ok := gcpWorkforceSubjectEmail(name); ok {
 			return wp
 		}
@@ -199,7 +202,7 @@ func gcpServiceAccountEmail(s string) (string, bool) {
 		return "", false
 	}
 	projectIdx := strings.Index(s, "projects/")
-	if projectIdx < 0 {
+	if projectIdx < 0 || projectIdx+9 > idx {
 		return "", false
 	}
 	project := s[projectIdx+9 : idx]
@@ -218,7 +221,7 @@ func gcpWorkforceSubjectEmail(resource string) (string, bool) {
 		return "", false
 	}
 	pIdx := strings.Index(resource, "projects/")
-	if pIdx < 0 {
+	if pIdx < 0 || pIdx+9 > wpIdx {
 		return "", false
 	}
 	project := strings.TrimSpace(resource[pIdx+9 : wpIdx])
@@ -242,7 +245,7 @@ func gcpWorkforceSubjectFromParent(parent, subject string) string {
 	}
 	wpIdx := strings.Index(parent, "/workforcePools/")
 	wppIdx := strings.Index(parent, "/workforcePoolProviders/")
-	if wpIdx < 0 || wppIdx < 0 {
+	if wpIdx < 0 || wppIdx < wpIdx+len("/workforcePools/") {
 		return ""
 	}
 	pool := strings.TrimSpace(parent[wpIdx+len("/workforcePools/") : wppIdx])

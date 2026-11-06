@@ -50,7 +50,8 @@ func (r *pgIdentityRepository) Create(ctx context.Context, name, actor string) (
 }
 
 func (r *pgIdentityRepository) Update(ctx context.Context, id uuid.UUID, name, actor string) (*domain.IdentityAlias, error) {
-	if _, err := r.Get(ctx, id); err != nil {
+	existing, err := r.Get(ctx, id)
+	if err != nil {
 		return nil, err
 	}
 	alias := domain.IdentityAlias{ID: id, Name: name, UpdatedBy: actor}
@@ -64,7 +65,9 @@ func (r *pgIdentityRepository) Update(ctx context.Context, id uuid.UUID, name, a
 	if res.RowsAffected == 0 {
 		return nil, ErrIdentityNotFound
 	}
-	return &alias, nil
+	existing.Name = name
+	existing.UpdatedBy = actor
+	return existing, nil
 }
 
 func (r *pgIdentityRepository) List(ctx context.Context, search string) ([]dto.IdentityListItem, error) {

@@ -122,9 +122,11 @@ func dedupByIdentity(users []domain.ADUser) []domain.ADUser {
 	byKey := make(map[string]domain.ADUser, len(users))
 	for _, u := range users {
 		key := identityKey(u)
-		if _, seen := byKey[key]; !seen {
-			order = append(order, key)
+		if prev, seen := byKey[key]; seen {
+			byKey[key] = mergeObservation(prev, u)
+			continue
 		}
+		order = append(order, key)
 		byKey[key] = u
 	}
 	mergeProvisionalLinux(&order, &byKey)
@@ -135,6 +137,44 @@ func dedupByIdentity(users []domain.ADUser) []domain.ADUser {
 		}
 	}
 	return deduped
+}
+
+func mergeObservation(prev, later domain.ADUser) domain.ADUser {
+	m := later
+	if m.SamAccountName == nil {
+		m.SamAccountName = prev.SamAccountName
+	}
+	if m.Domain == nil {
+		m.Domain = prev.Domain
+	}
+	if m.SID == nil {
+		m.SID = prev.SID
+	}
+	if m.MachineID == nil {
+		m.MachineID = prev.MachineID
+	}
+	if m.UIDNumber == nil {
+		m.UIDNumber = prev.UIDNumber
+	}
+	if m.Hostname == nil {
+		m.Hostname = prev.Hostname
+	}
+	if m.Username == nil {
+		m.Username = prev.Username
+	}
+	if m.AccountCreatedAt == nil {
+		m.AccountCreatedAt = prev.AccountCreatedAt
+	}
+	if m.LastLogon == nil {
+		m.LastLogon = prev.LastLogon
+	}
+	if m.AccountDeletedAt == nil {
+		m.AccountDeletedAt = prev.AccountDeletedAt
+	}
+	if m.LastSeen == nil {
+		m.LastSeen = prev.LastSeen
+	}
+	return m
 }
 
 func mergeProvisionalLinux(order *[]string, byKey *map[string]domain.ADUser) {
@@ -154,19 +194,11 @@ func mergeProvisionalLinux(order *[]string, byKey *map[string]domain.ADUser) {
 		if !ok {
 			continue
 		}
-		if u.AccountCreatedAt == nil {
-			u.AccountCreatedAt = p.AccountCreatedAt
+		if u.AccountCreatedAt == nil || u.LastLogon == nil || u.LastSeen == nil || u.AccountDeletedAt == nil {
+			(*byKey)[key] = mergeObservation(p, u)
+		} else {
+			(*byKey)[key] = u
 		}
-		if u.LastLogon == nil {
-			u.LastLogon = p.LastLogon
-		}
-		if u.LastSeen == nil {
-			u.LastSeen = p.LastSeen
-		}
-		if u.AccountDeletedAt == nil {
-			u.AccountDeletedAt = p.AccountDeletedAt
-		}
-		(*byKey)[key] = u
 		delete(*byKey, pkey)
 	}
 }
