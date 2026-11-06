@@ -516,7 +516,9 @@ codelyzer 5.x (dev) is the last TSLint line.
   (all = highest available Ivy line; ng-bootstrap capped by the Bootstrap-4
   decision). Documented in .npmrc.
 ## Exit (master plan): Angular 17 build green on Node 18+ (webpack 5, NO legacy flag),
-Karma green (compile gate = prod build; browser gate = lab smoke), visual baseline diff
+Karma GENUINELY green (7/7, ng test --watch=false --browsers=ChromeHeadless on the
+   A17 tree: test.ts require.context -> explicit spec imports, zone.js/testing,
+   @types/node 18, 5 stub specs rewritten with real DI TestBeds), visual baseline diff
 reviewed route-by-route, all 22 libs at target or accept-risked (ng6-toastr,
 ngx-draggable-resizer, ngx-sortable-2, echartslayer, ngx-gauge pending), commit per major.
 

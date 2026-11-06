@@ -456,7 +456,17 @@ git commit --no-gpg-sign -m "chore(security): Part 1 exit state - criticals clos
    elliptic/md4 absent from the lock). Report Part D updated to DONE-state with
    commit links + Part D½ added (docs/2026-10-27-security-review-...md); interim
    docs/security/deps artifacts deleted, consolidated into the final dismiss-memo.md
-   (its dev-scope dismissal list is the user-approval gate below). PENDING user:
+   (its dev-scope dismissal list is the user-approval gate below). **Karma is now
+   GENUINELY GREEN** (7/7 specs, `ng test --watch=false --browsers=ChromeHeadless` on the
+   A17 tree) - no longer the "compile gate = prod build" substitute: test.ts
+   require.context -> explicit spec imports + zone.js/testing + @types/node 18, and the
+   5 Angular-7-era stub specs rewritten with real DI TestBeds. Route-by-route visual
+   diff vs the committed Phase 0 baseline reviewed: login 0.00%, every other route
+   4-23% = live-data variance (alert badge / timestamps / dashboard counts), no
+   layout regression. Two final same-major runtime bumps closed the last fixable open
+   advisories: lodash ~4.17.23 -> ~4.18.1, moment-timezone ^0.5.21 -> ^0.5.35
+   (resolves 0.5.48); both verified through a clean CI-replica build + lab SMOKE_PASS.
+   PENDING user:
    (a) GitHub Dependabot dispositions per the memo template; (b) release naming
    (v12-line vs v11.x-frontend-major - the Angular 17 dist contract wants its own
    tag).

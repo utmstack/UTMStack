@@ -1,5 +1,6 @@
 import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 
+import {SafePipe} from '../../../../pipes/safe.pipe';
 import {UtmOnlineDocumentationComponent} from './utm-online-documentation.component';
 
 describe('UtmOnlineDocumentationComponent', () => {
@@ -8,9 +9,9 @@ describe('UtmOnlineDocumentationComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ UtmOnlineDocumentationComponent ]
+      declarations: [UtmOnlineDocumentationComponent, SafePipe] // [href]="onlineDoc|safe:'url'"
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {
