@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"bytes"
 	"errors"
 	"os/exec"
 
@@ -15,9 +16,12 @@ func ExecuteWithResult(c string, dir string, arg ...string) (string, bool) {
 		cmd.Err = nil
 	}
 
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+
 	out, err := cmd.Output()
 	if err != nil {
-		return string(out) + err.Error(), true
+		return string(out) + stderr.String() + err.Error(), true
 	}
 
 	if string(out[:]) == "" {
