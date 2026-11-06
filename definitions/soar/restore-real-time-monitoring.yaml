@@ -16,6 +16,6 @@
     step_0:
         kind: executor
         executor: shell
-        command: powershell Set-MpPreference -DisableRealtimeMonitoring $(if ("$(lastEvent.log.message)" -match '-DisableRealtimeMonitoring') { $false } else { $true })
+        command: powershell Set-MpPreference -DisableRealtimeMonitoring $(if ("$(alert.lastEvent.log.message)" -match '-DisableRealtimeMonitoring') { $false } else { $true })
         shell: powershell
         platform: windows

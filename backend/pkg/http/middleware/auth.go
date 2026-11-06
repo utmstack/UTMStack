@@ -227,7 +227,7 @@ func Authenticate(signer *jwtpkg.Signer, apiKeyAuth APIKeyAuthFunc, internalKey 
 		}
 		if apiKeyAuth != nil {
 			if apiKey := c.GetHeader("Utm-Api-Key"); apiKey != "" {
-				actor, err := apiKeyAuth(c.Request.Context(), apiKey, c.ClientIP())
+				actor, err := apiKeyAuth(c.Request.Context(), apiKey, ClientIP(c))
 				if err != nil || actor == nil {
 					AbortUnauthorized(c, "invalid api key")
 					return
@@ -371,12 +371,12 @@ func internalAllowed(c *gin.Context, p *InternalPolicy) bool {
 	if p == nil {
 		return true
 	}
-	ok, why := p.Permits(c.Request, c.ClientIP())
+	ok, why := p.Permits(c.Request, ClientIP(c))
 	if !ok {
 		catcher.Warn("internal key presented where it is not accepted and ignored", map[string]any{
 			"path":   c.Request.URL.Path,
 			"method": c.Request.Method,
-			"remote": c.ClientIP(),
+			"remote": ClientIP(c),
 			"reason": why,
 		})
 	}

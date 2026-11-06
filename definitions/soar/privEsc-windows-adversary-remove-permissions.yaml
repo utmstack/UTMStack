@@ -16,6 +16,6 @@
     step_0:
         kind: executor
         executor: shell
-        command: powershell Get-LocalGroup ^| Where-Object { $_.Name -ne "Users" } ^| ForEach-Object { Remove-LocalGroupMember -Group $_.Name -Member "$(adversary.user)" -ErrorAction SilentlyContinue }
+        command: powershell Get-LocalGroup ^| Where-Object { $_.Name -ne "Users" } ^| ForEach-Object { Remove-LocalGroupMember -Group $_.Name -Member "$(alert.adversary.user)" -ErrorAction SilentlyContinue }
         shell: powershell
         platform: windows

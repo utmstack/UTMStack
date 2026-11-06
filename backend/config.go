@@ -1,6 +1,10 @@
 package main
 
-import "github.com/utmstack/utmstack/backend/pkg/env"
+import (
+	"time"
+
+	"github.com/utmstack/utmstack/backend/pkg/env"
+)
 
 type config struct {
 	// Server
@@ -24,6 +28,12 @@ type config struct {
 	internalKey   string
 	internalCIDRs string
 	encryptionKey string
+
+	// Trusted reverse proxy (ACC-F11): the Swarm service whose own nginx is
+	// the only thing that ever connects to this backend directly. Resolved by
+	// name, not by a CIDR, so trust stays pinned to that one service.
+	trustedProxyHost    string
+	trustedProxyRefresh time.Duration
 
 	// gRPC: agent manager
 	grpcAgentManagerHost string
@@ -71,6 +81,9 @@ func loadConfig() *config {
 		internalKey:   env.String("INTERNAL_KEY", "", false),
 		internalCIDRs: env.String("INTERNAL_KEY_ALLOWED_CIDRS", "", false),
 		encryptionKey: env.String("ENCRYPTION_KEY", "", false),
+
+		trustedProxyHost:    env.String("TRUSTED_PROXY_HOST", "frontend", false),
+		trustedProxyRefresh: time.Duration(env.Int("TRUSTED_PROXY_REFRESH_SECONDS", 30, false)) * time.Second,
 
 		grpcAgentManagerHost: env.String("GRPC_AGENT_MANAGER_HOST", "agentmanager", false),
 		grpcAgentManagerPort: env.Int("GRPC_AGENT_MANAGER_PORT", 9000, false),

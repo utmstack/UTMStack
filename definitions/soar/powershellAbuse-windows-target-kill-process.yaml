@@ -13,7 +13,7 @@
     step_0:
         kind: executor
         executor: shell
-        command: taskkill /F /IM "$(target.process)" ; Remove-Item -LiteralPath "$(target.file)" -Force -Recurse ; net user "$(target.user)" /active:no
+        command: taskkill /F /IM "$(alert.target.process)" ; Remove-Item -LiteralPath "$(alert.target.file)" -Force -Recurse ; net user "$(alert.target.user)" /active:no
         shell: powershell
         platform: windows
         onSuccess:
@@ -23,7 +23,7 @@
     step_1:
         kind: executor
         executor: shell
-        command: Remove-Item -LiteralPath "$(adversary.path)" -Force -Recurse
+        command: Remove-Item -LiteralPath "$(alert.adversary.path)" -Force -Recurse
         shell: powershell
         platform: windows
         onSuccess:
@@ -33,6 +33,6 @@
     step_2:
         kind: executor
         executor: shell
-        command: net user $(adversary.user) /active:no
+        command: net user $(alert.adversary.user) /active:no
         shell: powershell
         platform: windows

@@ -13,6 +13,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/pquerna/otp"
+	"github.com/pquerna/otp/hotp"
 	"github.com/pquerna/otp/totp"
 	"golang.org/x/crypto/bcrypt"
 
@@ -21,12 +22,19 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/iam/domain"
 	"github.com/utmstack/utmstack/backend/modules/iam/dto"
 	"github.com/utmstack/utmstack/backend/pkg/jwt"
+	"github.com/utmstack/utmstack/backend/pkg/ratelimit"
 )
 
 const (
 	tfaEmailResendCool   = 28 * time.Second
 	tfaChallengeTTL      = 10 * time.Minute
 	tfaLoginChallengeTTL = 5 * time.Minute
+
+	// Must match totp.Validate's own hardcoded defaults (pquerna/otp/totp) —
+	// acceptCode re-derives the matched counter itself instead of calling
+	// Validate, so the window it accepts has to stay identical.
+	totpPeriod = 30
+	totpSkew   = 1
 )
 
 type tfaUsecase struct {
@@ -39,6 +47,7 @@ type tfaUsecase struct {
 	preAuth       *jwt.PreAuthSigner
 	refreshTTL    time.Duration
 	brand         appconfig_connectors.BrandNameProvider
+	limiter       *ratelimit.LoginLimiter
 }
 
 func NewTfaUsecase(
@@ -51,6 +60,7 @@ func NewTfaUsecase(
 	preAuth *jwt.PreAuthSigner,
 	refreshTTL time.Duration,
 	brand appconfig_connectors.BrandNameProvider,
+	limiter *ratelimit.LoginLimiter,
 ) connectors.TfaUsecase {
 	return &tfaUsecase{
 		userRepo:      userRepo,
@@ -62,8 +72,16 @@ func NewTfaUsecase(
 		preAuth:       preAuth,
 		refreshTTL:    refreshTTL,
 		brand:         brand,
+		limiter:       limiter,
 	}
 }
+
+// tfaLimiterKey scopes the limiter to this user's TFA code attempts,
+// separately from Login's IP-keyed budget: the pre-auth token already
+// identifies exactly one account, so keying on it (not the caller's IP) stops
+// a brute force regardless of how many source addresses it's spread across
+// (ACC-F6).
+func tfaLimiterKey(userID uuid.UUID) string { return "tfa:" + userID.String() }
 
 func (u *tfaUsecase) HasConfirmedFactor(ctx context.Context, userID uuid.UUID) (bool, error) {
 	factors, err := u.factorRepo.ListByUser(ctx, userID)
@@ -143,6 +161,12 @@ func (u *tfaUsecase) VerifyLoginCode(ctx context.Context, input dto.TfaVerifyCod
 	if err != nil {
 		return nil, domain.ErrTfaInvalidPreAuth
 	}
+
+	key := tfaLimiterKey(userID)
+	if u.limiter != nil && u.limiter.IsBlocked(key) {
+		return nil, domain.ErrLoginBlocked
+	}
+
 	user, err := u.userRepo.FindByID(ctx, userID)
 	if err != nil {
 		return nil, err
@@ -151,27 +175,29 @@ func (u *tfaUsecase) VerifyLoginCode(ctx context.Context, input dto.TfaVerifyCod
 		return nil, domain.ErrInvalidCredentials
 	}
 
-	factor, err := u.acceptCode(ctx, user.ID, input.Code)
-	if err != nil {
+	if err := u.acceptCode(ctx, user.ID, input.Code); err != nil {
+		if u.limiter != nil {
+			u.limiter.RecordFailure(key)
+		}
 		return nil, err
+	}
+	if u.limiter != nil {
+		u.limiter.Reset(key)
 	}
 
 	pair, err := IssueTokenPair(ctx, u.userRepo, u.refreshRepo, u.signer, u.refreshTTL, user, lc)
 	if err != nil {
 		return nil, err
 	}
-	if factor != nil {
-		_ = u.factorRepo.MarkUsed(ctx, factor.ID, time.Now().UTC())
-	}
 	_ = u.challengeRepo.Delete(ctx, domain.ChallengeTfaLogin, user.ID)
 
 	return &dto.LoginResponse{TokenPair: *pair, User: dto.ToUserResponse(*user, true)}, nil
 }
 
-func (u *tfaUsecase) acceptCode(ctx context.Context, userID uuid.UUID, code string) (*domain.TfaFactor, error) {
+func (u *tfaUsecase) acceptCode(ctx context.Context, userID uuid.UUID, code string) error {
 	factors, err := u.factorRepo.ListByUser(ctx, userID)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	for _, f := range factors {
 		if f.ConfirmedAt == nil {
@@ -179,36 +205,74 @@ func (u *tfaUsecase) acceptCode(ctx context.Context, userID uuid.UUID, code stri
 		}
 		switch f.Type {
 		case domain.TfaFactorTotp:
-			if totp.Validate(code, f.Secret) {
-				return &f, nil
+			// ACC-F6: totp.Validate is a pure function — the same code stays
+			// valid, and keeps re-validating, for its whole ~90s window. Only
+			// accepting a counter strictly newer than the last one this factor
+			// consumed makes every code single-use.
+			if counter, ok := acceptTOTPOnce(code, f.Secret, f.LastUsedAt); ok {
+				return u.factorRepo.MarkUsed(ctx, f.ID, time.Unix(int64(counter)*totpPeriod, 0).UTC())
 			}
 		case domain.TfaFactorRecovery:
 			if bcrypt.CompareHashAndPassword([]byte(f.Secret), []byte(code)) == nil {
-				if err := u.factorRepo.Delete(ctx, f.ID); err != nil {
-					return nil, err
-				}
-				return nil, nil
+				return u.factorRepo.Delete(ctx, f.ID)
 			}
 		}
 	}
 
 	c, err := u.challengeRepo.Get(ctx, domain.ChallengeTfaLogin, userID)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	if c == nil {
-		return nil, domain.ErrTfaInvalidCode
+		return domain.ErrTfaInvalidCode
 	}
 	if !c.ExpiresAt.After(time.Now().UTC()) {
-		return nil, domain.ErrChallengeExpired
+		return domain.ErrChallengeExpired
 	}
 	if subtle.ConstantTimeCompare([]byte(c.Secret), []byte(code)) != 1 {
-		return nil, domain.ErrTfaInvalidCode
+		return domain.ErrTfaInvalidCode
 	}
+	// The email challenge row itself is the single-use guard here (deleted by
+	// VerifyLoginCode once the whole flow succeeds) — no counter to track.
 	if c.FactorID == nil {
-		return nil, nil
+		return nil
 	}
-	return u.factorRepo.FindByID(ctx, *c.FactorID)
+	return u.factorRepo.MarkUsed(ctx, *c.FactorID, time.Now().UTC())
+}
+
+// acceptTOTPOnce checks code against the same ±totpSkew window
+// totp.Validate(code, secret) would (so legitimate clock drift still works),
+// but only accepts a counter strictly greater than the one lastUsedAt maps
+// to — rejecting a replay of a code already accepted this window or any
+// earlier one (ACC-F6). Returns the matched counter so the caller can persist
+// it as the new high-water mark.
+func acceptTOTPOnce(code, secret string, lastUsedAt *time.Time) (counter uint64, ok bool) {
+	var minCounter uint64
+	if lastUsedAt != nil {
+		minCounter = uint64(lastUsedAt.Unix())/totpPeriod + 1
+	}
+
+	now := uint64(time.Now().UTC().Unix()) / totpPeriod
+	found := false
+	var best uint64
+	for i := -int(totpSkew); i <= int(totpSkew); i++ {
+		c := int64(now) + int64(i)
+		if c < 0 || uint64(c) < minCounter {
+			continue
+		}
+		candidate := uint64(c)
+		valid, err := hotp.ValidateCustom(code, candidate, secret, hotp.ValidateOpts{
+			Digits:    otp.DigitsSix,
+			Algorithm: otp.AlgorithmSHA1,
+		})
+		if err != nil || !valid {
+			continue
+		}
+		if !found || candidate > best {
+			best, found = candidate, true
+		}
+	}
+	return best, found
 }
 
 func (u *tfaUsecase) Enroll(ctx context.Context, userID uuid.UUID, input dto.TfaEnrollmentRequest) (*dto.TfaEnrollmentResponse, error) {

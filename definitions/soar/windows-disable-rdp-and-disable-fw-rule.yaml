@@ -16,6 +16,6 @@
     step_0:
         kind: executor
         executor: shell
-        command: powershell Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name 'fDenyTSConnections' -Value 1 -Force; if ("$(lastEvent.log.message)" -match 'name=\"(.+?)\"') { Remove-NetFirewallRule -DisplayName $matches[1] -ErrorAction SilentlyContinue }
+        command: powershell Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name 'fDenyTSConnections' -Value 1 -Force; if ("$(alert.lastEvent.log.message)" -match 'name=\"(.+?)\"') { Remove-NetFirewallRule -DisplayName $matches[1] -ErrorAction SilentlyContinue }
         shell: powershell
         platform: windows

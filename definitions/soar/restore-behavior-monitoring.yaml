@@ -16,6 +16,6 @@
     step_0:
         kind: executor
         executor: shell
-        command: powershell Set-MpPreference -DisableBehaviorMonitoring $(if ("$(lastEvent.log.message)" -match '-DisableBehaviorMonitoring') { $false } else { $true })
+        command: powershell Set-MpPreference -DisableBehaviorMonitoring $(if ("$(alert.lastEvent.log.message)" -match '-DisableBehaviorMonitoring') { $false } else { $true })
         shell: powershell
         platform: windows

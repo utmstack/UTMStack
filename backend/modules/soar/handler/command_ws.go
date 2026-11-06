@@ -91,7 +91,7 @@ func (h *CommandWSHandler) authenticate(c *gin.Context) bool {
 
 	if h.apiKeyAuth != nil {
 		if apiKey := c.GetHeader("Utm-Api-Key"); apiKey != "" {
-			actor, err := h.apiKeyAuth(c.Request.Context(), apiKey, c.ClientIP())
+			actor, err := h.apiKeyAuth(c.Request.Context(), apiKey, middleware.ClientIP(c))
 			if err != nil || actor == nil {
 				c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid api key"})
 				return false
@@ -104,9 +104,19 @@ func (h *CommandWSHandler) authenticate(c *gin.Context) bool {
 	return false
 }
 
-// requirePasswordToken enforces the second factor: a fresh JWT named
-// password_token, signed by this backend, must accompany the request.
-func (h *CommandWSHandler) requirePasswordToken(c *gin.Context) bool {
+// requirePasswordToken enforces the second factor: a fresh JWT proving actor
+// just re-entered their own password, signed by this backend, must accompany
+// the request.
+//
+// SOAR-F4b: this used to call the plain jwtpkg.Signer.Verify, which only
+// checks signature/expiry — it has no notion of "token type", so a normal
+// access token (which actor already has, just to reach this handler at all)
+// verifies exactly as well as a genuine password-proof token, defeating the
+// whole point of asking again. RequirePurpose additionally checks the
+// token's Purpose claim and that its Subject is actor's own user ID, so
+// neither a plain access token nor another user's password-proof token
+// passes.
+func (h *CommandWSHandler) requirePasswordToken(c *gin.Context, actor *authz.Actor) bool {
 	raw := c.Query("password_token")
 	if raw == "" {
 		if header := c.GetHeader("X-Password-Token"); header != "" {
@@ -117,7 +127,11 @@ func (h *CommandWSHandler) requirePasswordToken(c *gin.Context) bool {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "missing password_token"})
 		return false
 	}
-	if _, err := h.signer.Verify(raw); err != nil {
+	if actor == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "missing authorization context"})
+		return false
+	}
+	if _, err := h.signer.RequirePurpose(raw, jwtpkg.PurposePasswordProof, actor.UserID); err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid or expired password_token"})
 		return false
 	}
@@ -157,11 +171,11 @@ func (h *CommandWSHandler) CommandStream(c *gin.Context) {
 		return
 	}
 
-	if !h.requirePasswordToken(c) {
+	actor := middleware.ActorFromGin(c)
+	if !h.requirePasswordToken(c, actor) {
 		return
 	}
 
-	actor := middleware.ActorFromGin(c)
 	if err := authz.RequirePermission(actor, "soar.write"); err != nil {
 		c.JSON(http.StatusForbidden, gin.H{"error": "missing required permission: soar.write"})
 		return

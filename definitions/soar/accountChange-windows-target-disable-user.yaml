@@ -18,7 +18,7 @@
     step_0:
         kind: executor
         executor: shell
-        command: net user "$(target.user)" /active:no
+        command: net user "$(alert.target.user)" /active:no
         shell: powershell
         platform: windows
         onSuccess:
@@ -28,6 +28,6 @@
     step_1:
         kind: executor
         executor: shell
-        command: net user $(adversary.user) /active:no
+        command: net user $(alert.adversary.user) /active:no
         shell: powershell
         platform: windows

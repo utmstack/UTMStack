@@ -222,22 +222,30 @@ func (u *executionUsecase) List(ctx context.Context, f dto.ExecutionFilters) (*d
 	return &database.List[dto.ExecutionResponse]{Items: items, Total: total}, nil
 }
 
+// StartManual records a console-triggered command. The caller (command_ws.go)
+// has already substituted any $[variables.NAME] secret for real dispatch to
+// the agent before calling this — `command` here is that same, already-
+// interpolated string, which still has the real secret value inline.
+//
+// SOAR-F6: this used to mask it (MaskSecrets) before storing, but
+// MaskSecrets's own first pass also blanks any *unmasked* `$[variables.NAME]`
+// placeholder it finds to "****" — and since this value was already
+// substituted, no such placeholder remains, so that pass was a no-op; its
+// second pass (replacing the real secret's plaintext) is what actually fired,
+// baking "****" into the persisted row in place of the real value. That is
+// merely cosmetic for the row's own `Command` column today (manual rows are
+// never re-read for re-dispatch — they're created straight into EXECUTING,
+// bypassing the pending-dispatch queue), but it was also wrong were any
+// retry/resume path to ever reuse this field in the future, and it threw the
+// real value away for no benefit: CommandSummary (list/get display) now masks
+// every origin's `Command`, not just flow ones, so storing it raw here does
+// not leak anything that display masking won't catch.
 func (u *executionUsecase) StartManual(ctx context.Context, agent, command, triggeredBy string) (uuid.UUID, error) {
-
-	masked_command := command
-	if u.vars != nil {
-		masked, cerr := u.vars.MaskSecrets(ctx, command)
-		if cerr != nil {
-			_ = catcher.Error("soar: command variable masking failed", cerr, map[string]any{})
-		}
-		masked_command = masked
-	}
-
 	e, err := u.repo.Create(ctx, &domain.SoarExecution{
 		Origin:      domain.ExecutionOriginManual,
 		TriggeredBy: triggeredBy,
 		Agent:       agent,
-		Command:     masked_command,
+		Command:     command,
 		Executor:    "shell",
 		Kind:        domain.NodeKindExecutor,
 		NodeID:      "manual",

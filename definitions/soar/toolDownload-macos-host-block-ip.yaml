@@ -18,6 +18,6 @@
     step_0:
         kind: executor
         executor: shell
-        command: 'echo ''block drop in proto tcp from $(adversary.ip) to any'' >> /etc/pf.utmstack.conf ; pfctl -f /etc/pf.utmstack.conf'
+        command: 'echo ''block drop in proto tcp from $(alert.adversary.ip) to any'' >> /etc/pf.utmstack.conf ; pfctl -f /etc/pf.utmstack.conf'
         shell: sh
         platform: macos

@@ -28,6 +28,6 @@
     step_1:
         kind: executor
         executor: shell
-        command: 'schtasks /delete /tn "$(target.process)" /f 2>$null ; net user $(target.user) /active:no'
+        command: 'schtasks /delete /tn "$(alert.target.process)" /f 2>$null ; net user $(alert.target.user) /active:no'
         shell: powershell
         platform: windows

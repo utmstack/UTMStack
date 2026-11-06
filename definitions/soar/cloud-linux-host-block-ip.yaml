@@ -18,6 +18,6 @@
     step_0:
         kind: executor
         executor: shell
-        command: 'iptables -I INPUT -s $(adversary.ip) -j DROP ; iptables -I FORWARD -s $(adversary.ip) -j DROP'
+        command: 'iptables -I INPUT -s $(alert.adversary.ip) -j DROP ; iptables -I FORWARD -s $(alert.adversary.ip) -j DROP'
         shell: sh
         platform: ubuntu

@@ -18,6 +18,6 @@
     step_0:
         kind: executor
         executor: shell
-        command: 'netsh advfirewall firewall add rule name="BlockToolDownload-$(adversary.ip)" dir=in action=block remoteip="$(adversary.ip)"'
+        command: 'netsh advfirewall firewall add rule name="BlockToolDownload-$(alert.adversary.ip)" dir=in action=block remoteip="$(alert.adversary.ip)"'
         shell: powershell
         platform: windows

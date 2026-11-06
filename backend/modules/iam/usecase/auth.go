@@ -194,7 +194,7 @@ func (u *authUsecase) EmptyLogin(ctx context.Context, input dto.LoginRequest, lc
 	if err := statusError(user.Status); err != nil {
 		return nil, err
 	}
-	token, err := u.signer.SignEmpty(5 * time.Minute)
+	token, err := u.signer.SignEmpty(user.ID, 5*time.Minute)
 	if err != nil {
 		return nil, err
 	}

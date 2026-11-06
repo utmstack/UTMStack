@@ -29,6 +29,8 @@ func writeARRError(c *gin.Context, err error) {
 		c.JSON(http.StatusForbidden, gin.H{"error": "a flow the product ships is read-only"})
 	case errors.Is(err, domain.ErrVariableValueRequired):
 		c.JSON(http.StatusBadRequest, gin.H{"error": "a variable must have a value"})
+	case errors.Is(err, domain.ErrVariableUnsecretNeedsValue):
+		c.JSON(http.StatusBadRequest, gin.H{"error": "unmarking a variable as secret requires supplying its new value"})
 	case errors.Is(err, domain.ErrRuleNameTaken):
 		c.JSON(http.StatusConflict, gin.H{"error": "rule name already in use"})
 	case errors.Is(err, domain.ErrSystemRuleReadOnly):

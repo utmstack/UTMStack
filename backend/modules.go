@@ -180,7 +180,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	factorRepo := iam_repository.NewTfaFactorRepository(db, cipher)
 	challengeMailer := iam_repository.NewChallengeMailer(mailMod.Service(), mailMod.ConfigRepo(), brand)
 
-	tfaUsecase := iam_usecase.NewTfaUsecase(userRepo, refreshRepo, factorRepo, challengeRepo, challengeMailer, signer, preAuthSigner, refreshTokenTTL, brand)
+	tfaUsecase := iam_usecase.NewTfaUsecase(userRepo, refreshRepo, factorRepo, challengeRepo, challengeMailer, signer, preAuthSigner, refreshTokenTTL, brand, limiter)
 	idpRepo := iam_repository.NewIdentityProviderRepository(db)
 	federationUsecase := iam_usecase.NewFederationUsecase(idpRepo, userRepo, rbacRepo, refreshRepo, signer, cipher, refreshTokenTTL)
 	authUsecase := iam_usecase.NewAuthUsecase(userRepo, rbacRepo, refreshRepo, challengeRepo, signer, limiter, refreshTokenTTL, challengeMailer, tfaUsecase, federationUsecase, preAuthSigner, cfg.tfaEnabled)

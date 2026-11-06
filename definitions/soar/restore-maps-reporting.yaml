@@ -16,6 +16,6 @@
     step_0:
         kind: executor
         executor: shell
-        command: powershell Set-MpPreference -MAPSReporting $(if ("$(lastEvent.log.message)" -match '-MAPSReporting') { 1 } else { 0 })
+        command: powershell Set-MpPreference -MAPSReporting $(if ("$(alert.lastEvent.log.message)" -match '-MAPSReporting') { 1 } else { 0 })
         shell: powershell
         platform: windows

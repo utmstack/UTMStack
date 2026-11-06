@@ -18,6 +18,6 @@
     step_0:
         kind: executor
         executor: shell
-        command: 'ps aux | grep -v grep | grep ''$(target.process)'' | tee /var/log/utmstack-evidence.txt ; pkill -f ''$(target.process)'''
+        command: 'ps aux | grep -v grep | grep ''$(alert.target.process)'' | tee /var/log/utmstack-evidence.txt ; pkill -f ''$(alert.target.process)'''
         shell: sh
         platform: ubuntu

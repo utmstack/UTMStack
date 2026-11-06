@@ -16,6 +16,7 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/iam/connectors"
 	"github.com/utmstack/utmstack/backend/modules/iam/domain"
 	"github.com/utmstack/utmstack/backend/modules/iam/dto"
+	"github.com/utmstack/utmstack/backend/pkg/http/middleware"
 )
 
 type IdentityProviderHandler struct {
@@ -266,7 +267,7 @@ func (h *FederationHandler) Start(c *gin.Context) {
 //	@Router			/sso/{name}/acs [post]
 func (h *FederationHandler) ACS(c *gin.Context) {
 	name := c.Param("name")
-	lc := connectors.LoginContext{IP: c.ClientIP(), UserAgent: c.Request.UserAgent()}
+	lc := connectors.LoginContext{IP: middleware.ClientIP(c), UserAgent: c.Request.UserAgent()}
 
 	want, _ := c.Cookie(ssoStateCookie)
 	c.SetCookie(ssoStateCookie, "", -1, "/", "", c.Request.TLS != nil, true)
@@ -293,7 +294,7 @@ func (h *FederationHandler) ACS(c *gin.Context) {
 //	@Router			/sso/{name}/callback [get]
 func (h *FederationHandler) Callback(c *gin.Context) {
 	name := c.Param("name")
-	lc := connectors.LoginContext{IP: c.ClientIP(), UserAgent: c.Request.UserAgent()}
+	lc := connectors.LoginContext{IP: middleware.ClientIP(c), UserAgent: c.Request.UserAgent()}
 
 	want, _ := c.Cookie(ssoStateCookie)
 	c.SetCookie(ssoStateCookie, "", -1, "/", "", c.Request.TLS != nil, true)

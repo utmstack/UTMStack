@@ -40,18 +40,18 @@ import (
 	"github.com/utmstack/utmstack/backend/pkg/http/middleware"
 )
 
-func initHTTPServer(cfg *config) *gin.Engine {
+func initHTTPServer(cfg *config, appCtx context.Context) *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	engine := gin.New()
-	// Without this, Gin's default is to trust every proxy, so c.ClientIP() walks
-	// all the way back to whatever the caller wrote in X-Forwarded-For — a direct
-	// client can impersonate any address. The backend is never reachable except
-	// through nginx on the Docker overlay network (RFC1918), so only that hop is
-	// trusted; a real external attacker's RemoteAddr is a public IP, which Gin
-	// then uses as-is regardless of any X-Forwarded-For it sends.
-	if err := engine.SetTrustedProxies([]string{"10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"}); err != nil {
-		catcher.Error("could not set trusted proxies", err, nil)
-	}
+	// Gin's own SetTrustedProxies trusts a CIDR against a mutable, unsynchronized
+	// engine field — fine for a value set once at startup, not for one refreshed
+	// at runtime from a background goroutine while requests are being served
+	// (confirmed as a real data race). middleware.ResolveClientIP/ClientIP do the
+	// same "which hop do I trust" job via an atomically-swapped set instead, kept
+	// pinned to the "frontend" Swarm service's own nginx — never a CIDR, which
+	// would also trust every other container on the same network (ACC-F11).
+	go middleware.WatchTrustedProxy(appCtx, cfg.trustedProxyHost, cfg.trustedProxyRefresh)
+	engine.Use(middleware.ResolveClientIP())
 	engine.Use(gin.Recovery())
 	engine.Use(requestLogger())
 	catcher.Info(fmt.Sprintf("CORS init: devMode=%t (origins matching http://localhost will be allowed only when devMode=true)", cfg.devMode), nil)
@@ -100,7 +100,7 @@ func requestLogger() gin.HandlerFunc {
 				"path":       c.Request.URL.Path,
 				"status":     status,
 				"latency_ms": time.Since(start).Milliseconds(),
-				"client_ip":  c.ClientIP(),
+				"client_ip":  middleware.ClientIP(c),
 			})
 		}
 	}

@@ -18,6 +18,6 @@
     step_0:
         kind: executor
         executor: shell
-        command: 'Get-Process -Name $(target.process) | Out-File C:\utmstack-revshell-evidence.txt -ErrorAction SilentlyContinue ; Stop-Process -Name $(target.process) -Force'
+        command: 'Get-Process -Name $(alert.target.process) | Out-File C:\utmstack-revshell-evidence.txt -ErrorAction SilentlyContinue ; Stop-Process -Name $(alert.target.process) -Force'
         shell: powershell
         platform: windows

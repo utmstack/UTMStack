@@ -48,7 +48,7 @@ func NewAuthHandler(authUsecase connectors.AuthUsecase, uploadDir string) *AuthH
 
 func loginContext(c *gin.Context) connectors.LoginContext {
 	return connectors.LoginContext{
-		IP:        c.ClientIP(),
+		IP:        middleware.ClientIP(c),
 		UserAgent: c.Request.UserAgent(),
 	}
 }
