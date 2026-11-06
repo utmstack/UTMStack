@@ -55,37 +55,60 @@ tooling) carry an open advisory in the shipped bundle. The complete production-s
 ship and run (framework / echarts / highlight.js), 6 are locked-major or non-executed. Section 4 is
 the exhaustive written accept-risk list the plan's Phase 4 exit requires.
 
-## 3. Dev-scoped residuals (in install tree, proven NOT bundled)
+## 3. Dev-scoped residuals — post fix pass (2026-11-06, commit `12317c981f`)
 
-Still present in the lock at their current toolchain versions — all build-time only:
-webpack-dev-server 4.15.1 + middleware, protractor 7.0.0 (+ webdriver-manager 12.1.8, adm-zip
-0.4.16, the `request` chain), socket.io 4.6.1 / engine.io 6.4.1 (karma HMR), faye-websocket 0.11.3,
-node-forge 1.4.3 (dev-server TLS), postcss 8.4.35, node-gyp, tar 6.2.1, sass 1.32.13 (nested
-under build-angular). Several still have open advisories *at their installed versions* (e.g.
-engine.io 6.4.1 < 6.6.10, socket.io-parser 4.2.2 < 4.2.7, ws 8.11.0 < 8.21.0,
-http-proxy-middleware 2.0.8 < 3.0.7, serialize-javascript 6.0.2 < 7.0.5) — Dependabot will keep
-flagging them.
+The user chose to **fix** the dev-scoped alerts rather than only dismiss them. What the
+fix pass removed/patched:
 
-**Disposition (apply only with explicit user approval, per the 2026-10-27 report Part E rule):**
-dismiss with reason `not_affected` and the verbatim comment:
+- **Protractor EOL scaffolding deleted** (dep + `e2e/` folder + `ng e2e` script +
+  `utm-stack-e2e` architect target in angular.json + `.eslintrc` ignore entry). Protractor
+  7.0.0 is EOL/incompatible with Angular 17 and its `@angular-devkit/build-angular:protractor`
+  builder no longer exists. It owned the entire dev-scoped critical/high family:
+  `request 2.88.2` -> `form-data 2.3.3` / `tough-cookie 2.5.0`, `adm-zip 0.4.16`, `xml2js`,
+  `selenium-webdriver`, `webdriver-manager`, `glob 7`, `minimatch 3`, `tmp` (one copy),
+  `jasminewd2`. All gone from the lock.
+- **Unused `ts-node ~7.0.0` removed.**
+- **Same-major dev bumps:** `karma 6.4.4`, `ajv 8.20.0`.
+- **`overrides: es5-ext >= 0.10.63`** — patched the one prod-tree dev-adjacent residual
+  (pulled by stompjs's *optional* websocket branch, proven not shipped).
+- **Same-range dev float** (parents' ranges already admitted the patch): `socket.io 4.8.4`,
+  `engine.io`, `socket.io-parser 4.8.x`, `ws 8.21.3`, `flatted 3.4.4`, `ansi-regex 5/6`,
+  `semver 6.3.1/7.7.x` dev copies.
+
+Result: `npm audit --json` full scope **83 -> 61**. Every one of the 61 remaining is locked to
+the **`@angular-devkit/build-angular@17.3.17` / `@angular/cli@17.3.17` pinned subtree** (or the
+Angular framework itself / echarts / highlight.js — sections 2 and 4): e.g. `webpack-dev-server
+4.15.1`, `vite 5`, `piscina`, `tar` (via `@npmcli/pacote`), `node-gyp` (via `@npmcli/run-script`),
+the `sigstore`/`@tufjs` npm-integrity chain, `@typescript-eslint 7` (via `@angular-eslint 17.5.3`),
+`serialize-javascript`, `picomatch`, `postcss`, `copy-webpack-plugin`, `uuid`, `sockjs`, `ajv`
+(nested copies), `brace-expansion`, `cacache`, `glob`, `minimatch` (npm-cli copies). Their fixes are
+all semver-**major** (build-angular 19.2.x / cli 11+) — i.e. they clear only when the framework
+moves past Angular 17, which the "stop at 17" locked decision defers.
+
+**Disposition of the 61 (apply only with explicit user approval):** they are dev/build-time
+tooling, proven not shipped (section 2 marker scan), so `not_affected` dismissal with this comment:
 
 ```
-dev/build-time dependency of the Angular CLI toolchain, not present in the shipped
-browser bundle (docs/security/deps/dismiss-memo.md, 2026-11-05 marker scan over
-main.0e44dbab6d374ec4.js); no runtime path. Control = isolated egress-restricted
-build + dist bundle-scan (this memo).
+dev/build-time dependency of the Angular CLI 17 toolchain (pinned by
+@angular-devkit/build-angular@17.3.17); not present in the shipped browser bundle
+(docs/security/deps/dismiss-memo.md, marker scan over main.581f7606268e344d.js);
+no runtime path. Fix requires the framework-major move past Angular 17 (follow-on).
 ```
 
-**Do NOT dismiss:** the `sockjs-client`/`stompjs` rows (real runtime deps — 0 advisories today,
-re-check if they get one), and anything the final alert pull shows as still *shipped*.
+**Do NOT dismiss:** section 4's shipped accept-risks (@angular framework / echarts /
+highlight.js) — those stay open with their written lines.
 
 Command template:
 
 ```bash
 gh api repos/utmstack/UTMStack/dependabot/alerts/<N>/dismiss -X POST \
   -f state=dismissed -f dismiss_reason="not_affected" \
-  -f dismiss_comment="dev/build-time dependency of the Angular CLI toolchain, not present in the shipped browser bundle (docs/security/deps/dismiss-memo.md, 2026-11-05 marker scan over main.0e44dbab6d374ec4.js); no runtime path. Control = isolated egress-restricted build + dist bundle-scan (this memo)."
+  -f dismiss_comment="dev/build-time dependency of the Angular CLI 17 toolchain (pinned by @angular-devkit/build-angular@17.3.17); not present in the shipped browser bundle (docs/security/deps/dismiss-memo.md, marker scan over main.581f7606268e344d.js); no runtime path. Fix requires the framework-major move past Angular 17 (follow-on)."
 ```
+
+> At disposition time, re-pull the live open list and dismiss **by package + advisory**, not by
+> a memorized number (numbers shift as commits/re-syncs land). The shipped accept-risks in
+> section 4 are never dismissed.
 
 ## 4. Written accept-risks — EXHAUSTIVE (the only allowed Phase 4 residual)
 
