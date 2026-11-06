@@ -277,7 +277,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		env.String("INTEGRATIONS_CONFIG_DIR", "/workdir/pipeline", false),
 		env.String("UPDATES_DIR", "/updates", false), aiQuota, joblease.New(db))
 	adauditMod := adaudit.NewModule(db)
-	storageMod := storage.NewModule(events, env.String("CLICKHOUSE_CONFIG_DIR", "/clickhouse-conf", false))
+	storageMod := storage.NewModule(events, env.String("CLICKHOUSE_CONFIG_DIR", "/clickhouse-conf", false),cfg.dataRetentionEnabled)
 	threatintelMod := threatintel.NewModule(
 		env.String("UPDATES_DIR", "/updates", false),
 		env.String("INTEGRATIONS_CONFIG_DIR", "/workdir/pipeline", false),

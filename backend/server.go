@@ -169,6 +169,7 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 		return t.Status == tenant_domain.StatusActive, nil
 	}
 	userAuth := middleware.Authenticate(m.signer, apiKeyAuth, cfg.internalKey, supportOf, tenantActive, middleware.WithInternalPolicy(internalPolicy))
+	internalAuth := middleware.RequireInternal()
 
 	isEnterprise := func() bool { return m.billing.License().Current().IsEnterprise() }
 	enterprise := middleware.RequireEnterprise(isEnterprise)
@@ -220,7 +221,14 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 	notifications.RegisterRoutes(api, m.notifications, userAuth)
 	socai.RegisterRoutes(api, m.socAI, userAuth)
 	threatintel.RegisterRoutes(api, m.threatIntel, userAuth)
-	storage.RegisterRoutes(api, m.storage, userAuth)
+
+	// if data retention is disable that module gets internal only
+	if cfg.dataRetentionEnabled {
+		storage.RegisterRoutes(api, m.storage, userAuth,userAuth)
+	}else{
+		storage.RegisterRoutes(api, m.storage, internalAuth,userAuth)
+	}
+
 	datasources.RegisterRoutes(api, m.datasources, userAuth)
 	adaudit.RegisterRoutes(api, m.adaudit, userAuth)
 	if m.mcp != nil {
