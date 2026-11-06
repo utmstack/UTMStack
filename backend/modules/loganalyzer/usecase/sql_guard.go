@@ -10,6 +10,13 @@ var (
 	reStartsWithSelect = regexp.MustCompile(`(?is)^\s*(with|select)\b`)
 	reLineComment      = regexp.MustCompile(`--`)
 	reBlockComment     = regexp.MustCompile(`/\*`)
+	// ClickHouse treats whitespace around a schema-qualifying dot as
+	// insignificant (`` `utmstack` . `logs` `` parses identically to
+	// `utmstack.logs`), so a token like "utmstack." must be matched after
+	// collapsing that whitespace away — otherwise inserting a space before or
+	// after the dot slips the qualified name past a plain substring check
+	// (CFG-F27).
+	reDotSpacing = regexp.MustCompile(`\s*\.\s*`)
 )
 
 var forbidden = []string{
@@ -40,10 +47,13 @@ func ValidateSQL(sql string) error {
 	}
 
 	lower := strings.ToLower(stripped)
-	// Quoting can hide a forbidden token (e.g. `'utmstack'` or `` `utmstack` ``);
-	// match against the query with quotes stripped so quoted names are caught too.
+	// Quoting can hide a forbidden token (e.g. `'utmstack'`, `` `utmstack` ``, or
+	// `"utmstack"` — ClickHouse accepts all three as identifier quoting); match
+	// against the query with quotes stripped so quoted names are caught too.
 	matchable := strings.ReplaceAll(lower, "'", "")
 	matchable = strings.ReplaceAll(matchable, "`", "")
+	matchable = strings.ReplaceAll(matchable, `"`, "")
+	matchable = reDotSpacing.ReplaceAllString(matchable, ".")
 	for _, tok := range forbidden {
 		if strings.Contains(matchable, tok) {
 			return fmt.Errorf("%q is not allowed here: the query may read the logs and alerts datasets and nothing else", strings.TrimSpace(tok))

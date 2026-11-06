@@ -142,11 +142,14 @@ func (u *authUsecase) ensureTFA(ctx context.Context, user *domain.User, lc conne
 			return nil, err
 		}
 
-		// A kill switch, not a mandate: the second factor is asked of whoever
-		// enrolled one, and development can turn the whole thing off. Forcing it
-		// on accounts that have no factor is what leaves a fresh install unable
-		// to sign in — the code goes to a mail server nobody has configured yet.
-		if required && u.tfaEnabled {
+		// required already means "this specific account enrolled a confirmed
+		// factor" — u.tfaEnabled must never veto that (ACC-F5): it used to, which
+		// let dev/rc builds (APP_TFA_ENABLED=false, installer/docker/compose.go)
+		// skip a real user's own TOTP/email factor and hand back a full session
+		// from the password alone. The flag has nothing left to gate: nobody
+		// without a confirmed factor ever reaches this branch regardless of its
+		// value, so there is no "fresh install locked out" case it protects.
+		if required {
 			factorType, err := u.tfa.IssueLoginChallenge(ctx, user)
 			if err != nil {
 				return nil, err

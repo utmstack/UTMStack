@@ -28,11 +28,19 @@ var ErrAgentOffline = errors.New("soar shell: agent offline")
 // ErrAgentNotFound signals that no agent matched the requested hostname.
 var ErrAgentNotFound = errors.New("soar shell: agent not found")
 
+// agentManagerClient is the slice of *agentmanager.AgentManagerClient that
+// Shell actually needs — narrowed to an interface so a test can fake the
+// agent-manager round trip instead of needing a real gRPC connection.
+type agentManagerClient interface {
+	ProcessCommand(ctx context.Context, cmd *agent.UtmCommand) (*agent.CommandResult, error)
+	ListAgents(ctx context.Context, searchQuery string) ([]*agent.Agent, int32, error)
+}
+
 // Shell runs the node's command on a UTMStack endpoint agent via the
 // agent-manager gRPC bidi stream. Output is the raw stdout — enrichment nodes
 // get it as JSON when it parses.
 type Shell struct {
-	agent *agentmanager.AgentManagerClient
+	agent agentManagerClient
 }
 
 func NewShell(client *agentmanager.AgentManagerClient) *Shell { return &Shell{agent: client} }
@@ -78,6 +86,16 @@ func (s *Shell) Execute(ctx context.Context, exec *domain.SoarExecution) (json.R
 
 	result := res.GetResult()
 	exec.Result = result
+
+	// SOAR-F2: a nonzero exit code is a real failure — exec.Result above
+	// already carries the command's output (including the agent's own
+	// stderr/error text) for diagnostics, but returning here lets the
+	// dispatcher (dispatch.go's invoke/settle) record ExecutionStatusFailed
+	// and take the error branch edge instead of silently treating this as
+	// EXECUTED/success.
+	if res.GetExitCode() != 0 {
+		return nil, fmt.Errorf("soar shell: command exited with status %d", res.GetExitCode())
+	}
 
 	// Enrichment shells get their output surfaced as JSON when the stdout
 	// parses. Non-JSON output is fine — dispatcher won't record it.
