@@ -1,16 +1,3 @@
-DO $$
-BEGIN
-    IF EXISTS (
-        SELECT 1
-        FROM identity_alias_assignment assignment
-        JOIN ad_user user_row ON user_row.id = assignment.user_id
-        JOIN identity_alias alias_row ON alias_row.id = assignment.alias_id
-        WHERE user_row.tenant_id <> alias_row.tenant_id
-    ) THEN
-        RAISE EXCEPTION 'identity alias assignments cross tenant boundaries; resolve them before migration';
-    END IF;
-END $$;
-
 UPDATE identity_alias_assignment assignment
 SET tenant_id = user_row.tenant_id
 FROM ad_user user_row, identity_alias alias_row

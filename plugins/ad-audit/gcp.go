@@ -180,6 +180,11 @@ func gcpRequestTarget(log map[string]any, method string) string {
 	if !ok {
 		return ""
 	}
+	if method == "google.iam.admin.v1.CreateServiceAccount" {
+		if email, ok := gcpCreateServiceAccountEmail(proto, rm); ok {
+			return email
+		}
+	}
 	if name, _ := rm["name"].(string); name != "" {
 		if sa, ok := gcpServiceAccountEmail(name); ok {
 			return sa
@@ -194,6 +199,28 @@ func gcpRequestTarget(log map[string]any, method string) string {
 		return gcpWorkforceSubjectFromParent(parent, subj)
 	}
 	return ""
+}
+
+func gcpCreateServiceAccountEmail(proto, rm map[string]any) (string, bool) {
+	if resp, ok := proto["response"].(map[string]any); ok {
+		if email, _ := resp["email"].(string); email != "" {
+			return strings.ToLower(strings.TrimSpace(email)), true
+		}
+	}
+	parent, _ := rm["name"].(string)
+	accountID, _ := rm["accountId"].(string)
+	if accountID == "" {
+		return "", false
+	}
+	prefix := "projects/"
+	if !strings.HasPrefix(parent, prefix) {
+		return "", false
+	}
+	project := strings.TrimSpace(strings.TrimPrefix(parent, prefix))
+	if project == "" || strings.Contains(project, "/") {
+		return "", false
+	}
+	return strings.ToLower(accountID) + "@" + strings.ToLower(project) + ".iam.gserviceaccount.com", true
 }
 
 func gcpServiceAccountEmail(s string) (string, bool) {

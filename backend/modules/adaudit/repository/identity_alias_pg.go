@@ -50,12 +50,18 @@ func (r *pgIdentityRepository) Create(ctx context.Context, name, actor string) (
 }
 
 func (r *pgIdentityRepository) Update(ctx context.Context, id uuid.UUID, name, actor string) (*domain.IdentityAlias, error) {
-	existing, err := r.Get(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-	alias := domain.IdentityAlias{ID: id, Name: name, UpdatedBy: actor}
-	res := r.db.WithContext(ctx).Model(&alias).Updates(&alias)
+	alias := domain.IdentityAlias{}
+	res := r.db.WithContext(ctx).
+		Model(&domain.IdentityAlias{}).
+		Where("id = ?", id).
+	Clauses(clause.Returning{
+			Columns: []clause.Column{
+				{Name: "id"}, {Name: "name"},
+				{Name: "created_by"}, {Name: "updated_by"},
+				{Name: "created_at"}, {Name: "updated_at"},
+			},
+		}).
+		Updates(&domain.IdentityAlias{Name: name, UpdatedBy: actor})
 	if res.Error != nil {
 		if errors.Is(res.Error, gorm.ErrDuplicatedKey) {
 			return nil, ErrIdentityNameTaken
@@ -65,9 +71,7 @@ func (r *pgIdentityRepository) Update(ctx context.Context, id uuid.UUID, name, a
 	if res.RowsAffected == 0 {
 		return nil, ErrIdentityNotFound
 	}
-	existing.Name = name
-	existing.UpdatedBy = actor
-	return existing, nil
+	return &alias, nil
 }
 
 func (r *pgIdentityRepository) List(ctx context.Context, search string) ([]dto.IdentityListItem, error) {
