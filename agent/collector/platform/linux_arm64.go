@@ -118,32 +118,27 @@ func (l *LinuxSystemArm64) runJournalctl(ctx context.Context, host string, enque
 		}
 	}()
 
-	// Read stdout (log entries)
-	scanner := bufio.NewScanner(stdout)
-	for scanner.Scan() {
-		line := scanner.Text()
-
+	// Read stdout (log entries). See readJournalLines (ING-F6): unlike
+	// bufio.Scanner, it never drops an entry for being long, nor kills the
+	// rest of the stream because one was.
+	if err := readJournalLines(stdout, func(line string) {
 		validatedLog, _, err := entities.ValidateString(line, false)
 		if err != nil {
 			utils.Logger.ErrorF("error validating log: %v", err)
-			continue
+			return
 		}
-
 		if err := enqueue(&plugins.Log{
 			DataType:   string(config.DataTypeLinuxAgent),
 			DataSource: host,
 			Raw:        validatedLog,
 		}); err != nil {
 			utils.Logger.ErrorF("failed to persist journald log, not advancing cursor: %v", err)
-			continue
+			return
 		}
-
 		if cursor := extractJournaldCursor(line); cursor != "" {
 			l.cursor.set(cursor)
 		}
-	}
-
-	if err := scanner.Err(); err != nil {
+	}); err != nil {
 		utils.Logger.ErrorF("error reading journalctl output: %v", err)
 	}
 

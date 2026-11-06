@@ -24,7 +24,14 @@ const (
 	FramingOctetCounting
 )
 
-// detectFramingMethod determines whether the message uses octet counting or newline framing.
+// detectFramingMethod determines whether the message uses octet counting or
+// newline framing. Only a leading digit means RFC 5425 octet counting;
+// everything else — syslog's '<', JSON's '{'/'[' (ING-F5: Suricata EVE sends
+// one JSON object per line over this same TCP port), or any other byte — is
+// read as a newline-delimited line. This used to return an error for
+// anything but '<' or a digit, and that error closed the whole TCP
+// connection (see readLoop), so one line this listener didn't recognize took
+// every log still in flight on that connection down with it.
 func detectFramingMethod(reader *bufio.Reader) (FramingMethod, error) {
 	firstByte, err := reader.Peek(1)
 	if err != nil {
@@ -35,11 +42,7 @@ func detectFramingMethod(reader *bufio.Reader) (FramingMethod, error) {
 		return FramingOctetCounting, nil
 	}
 
-	if firstByte[0] == '<' {
-		return FramingNewline, nil
-	}
-
-	return 0, fmt.Errorf("unknown framing method, first byte: 0x%02x", firstByte[0])
+	return FramingNewline, nil
 }
 
 // readOctetCountingFrame reads a syslog message using octet counting framing (RFC 5425).
