@@ -60,6 +60,9 @@ type config struct {
 	// AI clients at /api/v1/mcp. Auth/permissions/audit reuse the REST stack.
 	mcpEnabled bool
 	mcpVersion string
+
+	// Data Retention Enabled
+	dataRetentionEnabled bool
 }
 
 func loadConfig() *config {
@@ -103,5 +106,7 @@ func loadConfig() *config {
 		mcpEnabled: env.Bool("MCP_ENABLED", true),
 
 		mcpVersion: env.String("MCP_SERVER_VERSION", "v1", false),
+
+		dataRetentionEnabled: env.Bool("MCP_ENABLED", true),
 	}
 }
