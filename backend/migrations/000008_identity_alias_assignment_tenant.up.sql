@@ -1,5 +1,5 @@
 UPDATE identity_alias_assignment assignment
-SET tenant_id = user_row.tenant_id
+SET tenant_id = user_row.tenant_id::uuid
 FROM ad_user user_row, identity_alias alias_row
 WHERE assignment.user_id = user_row.id
   AND assignment.alias_id = alias_row.id
