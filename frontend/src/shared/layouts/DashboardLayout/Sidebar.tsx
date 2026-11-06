@@ -50,6 +50,7 @@ import { cn } from '@/shared/lib/utils'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/components/ui/tooltip'
 import { useAuth } from '@/features/auth'
 import { useBilling } from '@/features/billing'
+import { useStorageEnabled } from '@/features/settings/services/storage-enabled.context'
 import { useSupportTenant } from '@/shared/lib/current-tenant'
 import { IS_FEDERATION } from '@/shared/config/mode'
 
@@ -271,7 +272,8 @@ export function Sidebar() {
   const toggleSection = (id: string) => {
     setClosedSections((prev) => {
       const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
       return next
     })
   }
@@ -279,7 +281,8 @@ export function Sidebar() {
   const toggleGroup = (id: string) => {
     setClosedGroups((prev) => {
       const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
       return next
     })
   }
@@ -518,10 +521,14 @@ function SettingsSidebar({
   const { t } = useTranslation()
   const { isAdmin, isPlatformAdmin } = useAuth()
   const { license } = useBilling()
+  const { enabled: storageEnabled } = useStorageEnabled()
   const supportTenant = useSupportTenant()
   const items = settingsItems.filter((item) => {
+    if (item.to === '/settings/data-retention')
+      return storageEnabled && isPlatformAdmin && supportTenant === null
     if (item.platformOnly) return isPlatformAdmin && supportTenant === null
     if (item.tenantOnly) return isAdmin && !isPlatformAdmin && license?.mssp === true
+    if (item.to === '/settings/data-retention') return storageEnabled
     return true
   })
   const backLabel = t('nav.back')
