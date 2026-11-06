@@ -9,10 +9,10 @@ import (
 )
 
 var (
-	awsOpCreate   = map[string]bool{"CreateUser": true, "ProvisionAccount": true}
+	awsOpCreate   = map[string]bool{"CreateUser": true}
 	awsOpDelete   = map[string]bool{"DeleteUser": true}
-	awsOpDisabled = map[string]bool{"DeactivateUser": true}
-	awsOpEnabled  = map[string]bool{"ActivateUser": true}
+	awsOpDisabled = map[string]bool{"DeleteLoginProfile": true}
+	awsOpEnabled  = map[string]bool{"CreateLoginProfile": true}
 )
 
 func handleAWS(event *plugins.Event) error {
@@ -63,8 +63,10 @@ func awsLifecycleUPN(rec map[string]any) string {
 	if !ok {
 		return ""
 	}
-	if name, _ := params["userName"].(string); name != "" {
-		return strings.ToLower(strings.TrimSpace(name))
+	for _, key := range []string{"userName", "UserName"} {
+		if name, _ := params[key].(string); name != "" {
+			return strings.ToLower(strings.TrimSpace(name))
+		}
 	}
 	if name, _ := params["userLoginName"].(string); name != "" {
 		return strings.ToLower(strings.TrimSpace(name))
