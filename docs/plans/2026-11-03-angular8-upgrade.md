@@ -111,7 +111,7 @@ recorded — webpack 4 md4 on OpenSSL 3). Node 14 also builds (no flag) as the C
 - [x] **Step 2: Install with npm 6 (Node 14) to keep the v1 lock, then build on Node 18** — done
 - [x] **Step 3: Fix compile errors** — done (TS floor + 49 child queries + 2 dead imports)
 - [x] **Step 4: Confirm the residual node-sass/tar closed** — verified (node-sass ABSENT top-level, tar 2.2.2 gone)
-- [ ] **Step 5: Commit (framework + fixes together)**
+- [x] **Step 5: Commit (framework + fixes together)** — done (`5841b46916`)
 
 ## Task 1.2: Bump the 7 capped libs to their Angular-8 lines  [DONE 2026-11-03, corrected]
 
@@ -154,7 +154,7 @@ For each lib, set the spec to the target, `npm install`, rebuild, and fix the na
 Rebuild after each lib (or in one batch if the build isolates errors cleanly). Fix only what
 the build names.
 
-- [ ] **Commit:** `chore(frontend): angular-8 peer-lib baseline (ng-bootstrap/ng-select/kolkov/codelyzer/ng-jhipster/spinner/fontawesome)`
+- [x] **Commit:** `chore(frontend): angular-8 peer-lib baseline (ng-bootstrap/ng-select/kolkov/codelyzer/ng-jhipster/spinner/fontawesome)` — done (`32081d6271`)
 
 ## Task 1.3: ngx-draggable-resizer accept-risk pin
 
@@ -169,7 +169,7 @@ the build names.
   `CanDeactivateConfigGuard`, `DialogService`: grep their class name across `src/` to find how
   they're provided (component `providers`, a factory, `APP_INITIALIZER`, or unused). If any is
   genuinely unprovided AND injected, add the provider; if unused, leave it (dead code, note it).
-- [ ] **Commit** if any change was needed.
+- [x] **Commit** if any change was needed. — none needed: the grep found every one of the 5 classes already provided (module `providers`/`providedIn`), so there was nothing to commit; verified re-grep 2026-11-06 still shows all 5 resolve.
 
 ## Task 1.5: Full build + lab smoke + visual baseline diff
 
@@ -188,8 +188,8 @@ the build names.
 
 ## Task 1.6: Phase 1 exit
 
-- [ ] Build green (Node 18 legacy + Node 14), lab smoke 0 pageerrors, visual diff explained,
-  `npm ls node-sass` empty, residual tar 2.2.2 gone. Commit
+- [x] Build green (Node 18 legacy + Node 14), lab smoke 0 pageerrors, visual diff explained,
+  `npm ls node-sass` empty, residual tar 2.2.2 gone. Commit — done (exit state `450c44e229`)
   `chore(frontend): angular 8 baseline`. Update the master plan's Phase 1 checkboxes + exit.
 
 **Exit (per master plan):** build green; visual baseline diff = zero *material* (unexplained)
