@@ -10,7 +10,6 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/adaudit/connectors"
 	"github.com/utmstack/utmstack/backend/modules/adaudit/domain"
 	"github.com/utmstack/utmstack/backend/modules/adaudit/dto"
-	"github.com/utmstack/utmstack/backend/modules/adaudit/repository"
 )
 
 var (
@@ -32,25 +31,18 @@ func (u *identityUsecase) Create(ctx context.Context, name, actor string) (*dto.
 	}
 	alias, err := u.repo.Create(ctx, name, actor)
 	if err != nil {
-		if errors.Is(err, repository.ErrIdentityNameTaken) {
-			return nil, err
-		}
 		return nil, err
 	}
 	return &dto.IdentityResponse{ID: alias.ID.String(), Name: alias.Name, CreatedAt: alias.CreatedAt}, nil
 }
 
-
-func (u *identityUsecase) Update(ctx context.Context,id uuid.UUID, name, actor string) (*dto.IdentityResponse, error) {
+func (u *identityUsecase) Update(ctx context.Context, id uuid.UUID, name, actor string) (*dto.IdentityResponse, error) {
 	name = strings.TrimSpace(name)
 	if !domain.ValidIdentityName(name) {
 		return nil, ErrIdentityNameInvalid
 	}
-	alias, err := u.repo.Update(ctx,id, name, actor)
+	alias, err := u.repo.Update(ctx, id, name, actor)
 	if err != nil {
-		if errors.Is(err, repository.ErrIdentityNameTaken) {
-			return nil, err
-		}
 		return nil, err
 	}
 	return &dto.IdentityResponse{ID: alias.ID.String(), Name: alias.Name, CreatedAt: alias.CreatedAt}, nil

@@ -20,6 +20,7 @@ type identityRow struct {
 var (
 	ErrIdentityNameTaken = errors.New("an identity with this name already exists")
 	ErrIdentityNotFound  = errors.New("identity not found")
+	ErrTenantMismatch    = errors.New("identity is not available in this tenant")
 	ErrIdentityInUse     = errors.New("identity still has assigned users")
 	ErrUserNotFound      = errors.New("user not found")
 )
@@ -48,18 +49,23 @@ func (r *pgIdentityRepository) Create(ctx context.Context, name, actor string) (
 	return &alias, nil
 }
 
-
-func (r *pgIdentityRepository) Update(ctx context.Context,id uuid.UUID, name, actor string) (*domain.IdentityAlias, error) {
-	alias := domain.IdentityAlias{ID:id,Name: name, UpdatedBy: actor}
-	if err := r.db.WithContext(ctx).Model(&alias).Updates(&alias).Error; err != nil {
-		if errors.Is(err, gorm.ErrDuplicatedKey) {
+func (r *pgIdentityRepository) Update(ctx context.Context, id uuid.UUID, name, actor string) (*domain.IdentityAlias, error) {
+	if _, err := r.Get(ctx, id); err != nil {
+		return nil, err
+	}
+	alias := domain.IdentityAlias{ID: id, Name: name, UpdatedBy: actor}
+	res := r.db.WithContext(ctx).Model(&alias).Updates(&alias)
+	if res.Error != nil {
+		if errors.Is(res.Error, gorm.ErrDuplicatedKey) {
 			return nil, ErrIdentityNameTaken
 		}
-		return nil, err
+		return nil, res.Error
+	}
+	if res.RowsAffected == 0 {
+		return nil, ErrIdentityNotFound
 	}
 	return &alias, nil
 }
-
 
 func (r *pgIdentityRepository) List(ctx context.Context, search string) ([]dto.IdentityListItem, error) {
 	q := r.db.WithContext(ctx).Model(&domain.IdentityAlias{}).
@@ -128,14 +134,14 @@ func (r *pgIdentityRepository) Delete(ctx context.Context, id uuid.UUID) (int, e
 			Model(&domain.IdentityAliasAssignment{}).
 			Where("alias_id = ?", id).
 			Limit(1).
-			Pluck("alias_id",&assignedIds).Error; err != nil {
+			Pluck("alias_id", &assignedIds).Error; err != nil {
 			return err
 		}
 		if len(assignedIds) > 0 {
 			return ErrIdentityInUse
 		}
 
-		res := tx.Delete(&domain.IdentityAlias{ID:id})
+		res := tx.Delete(&domain.IdentityAlias{ID: id})
 		if res.Error != nil {
 			return res.Error
 		}
@@ -165,18 +171,31 @@ func (r *pgIdentityRepository) Assign(ctx context.Context, userID, aliasID uuid.
 		return err
 	}
 
+	assignment, err := assignmentForUser(user, alias, actor)
+	if err != nil {
+		return err
+	}
+
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		res := tx.Model(&domain.IdentityAliasAssignment{}).Where("user_id = ?", userID).Delete(&domain.IdentityAliasAssignment{})
 		if res.Error != nil {
 			return res.Error
 		}
-		assignment := domain.IdentityAliasAssignment{
-			AliasID:    aliasID,
-			UserID:     userID,
-			AssignedBy: actor,
-		}
 		return tx.Create(&assignment).Error
 	})
+}
+
+func assignmentForUser(user domain.ADUser, alias domain.IdentityAlias, actor string) (domain.IdentityAliasAssignment, error) {
+	if user.TenantID != alias.TenantID {
+		return domain.IdentityAliasAssignment{}, ErrTenantMismatch
+	}
+
+	return domain.IdentityAliasAssignment{
+		AliasID:    alias.ID,
+		UserID:     user.ID,
+		TenantID:   user.TenantID,
+		AssignedBy: actor,
+	}, nil
 }
 
 func (r *pgIdentityRepository) Unassign(ctx context.Context, userID uuid.UUID, actor string) error {

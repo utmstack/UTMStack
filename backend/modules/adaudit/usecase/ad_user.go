@@ -109,10 +109,87 @@ func (u *adUserUsecase) Ingest(ctx context.Context, req dto.IngestRequest) (int,
 		_ = catcher.Error("adaudit: dropped users that named no tenant", nil, map[string]any{"dropped": skipped})
 	}
 
+	users = dedupByIdentity(users)
+
 	if err := u.repo.Upsert(ctx, users); err != nil {
 		return 0, err
 	}
 	return len(users), nil
+}
+
+func dedupByIdentity(users []domain.ADUser) []domain.ADUser {
+	order := make([]string, 0, len(users))
+	byKey := make(map[string]domain.ADUser, len(users))
+	for _, u := range users {
+		key := identityKey(u)
+		if _, seen := byKey[key]; !seen {
+			order = append(order, key)
+		}
+		byKey[key] = u
+	}
+	mergeProvisionalLinux(&order, &byKey)
+	deduped := make([]domain.ADUser, 0, len(order))
+	for _, k := range order {
+		if u, ok := byKey[k]; ok {
+			deduped = append(deduped, u)
+		}
+	}
+	return deduped
+}
+
+func mergeProvisionalLinux(order *[]string, byKey *map[string]domain.ADUser) {
+	for _, key := range *order {
+		u := (*byKey)[key]
+		if u.Source != "linux" || u.MachineID == nil || *u.MachineID == "" || u.UIDNumber == nil {
+			continue
+		}
+		if u.Hostname == nil || u.Username == nil {
+			continue
+		}
+		pkey := "l\x00" + u.TenantID.String() + "\x00" + *u.Hostname + "\x00" + *u.Username
+		if pkey == key {
+			continue
+		}
+		p, ok := (*byKey)[pkey]
+		if !ok {
+			continue
+		}
+		if u.AccountCreatedAt == nil {
+			u.AccountCreatedAt = p.AccountCreatedAt
+		}
+		if u.LastLogon == nil {
+			u.LastLogon = p.LastLogon
+		}
+		if u.LastSeen == nil {
+			u.LastSeen = p.LastSeen
+		}
+		if u.AccountDeletedAt == nil {
+			u.AccountDeletedAt = p.AccountDeletedAt
+		}
+		(*byKey)[key] = u
+		delete(*byKey, pkey)
+	}
+}
+
+func identityKey(u domain.ADUser) string {
+	switch u.Source {
+	case "windows":
+		return "w\x00" + u.TenantID.String() + "\x00" + strPtr(u.SID)
+	case "linux":
+		if u.MachineID != nil && *u.MachineID != "" && u.UIDNumber != nil {
+			return "l\x00" + u.TenantID.String() + "\x00" + *u.MachineID + "\x00" + strconv.FormatUint(uint64(*u.UIDNumber), 10)
+		}
+		return "l\x00" + u.TenantID.String() + "\x00" + strPtr(u.Hostname) + "\x00" + strPtr(u.Username)
+	default:
+		return "c\x00" + u.TenantID.String() + "\x00" + u.Source + "\x00" + strPtr(u.Username)
+	}
+}
+
+func strPtr(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
 }
 
 func (u *adUserUsecase) List(ctx context.Context, f dto.ADUserFilter) (*database.List[dto.UserRow], error) {

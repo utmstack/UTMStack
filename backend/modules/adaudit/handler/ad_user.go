@@ -117,8 +117,9 @@ func (h *ADUserHandler) Stats(c *gin.Context) {
 // Sync godoc
 //
 //	@Summary		Export all AD users (internal)
-//	@Description	Internal endpoint the ad-audit plugin calls at startup to seed its in-memory cache.
-//	@Description	Accepts an optional `source` filter so the plugin can seed its Windows and Linux
+//	@Description	Internal endpoint the ad-audit plugin calls at startup to seed its in-memory cache,
+//	@Description	emitting users as ndjson. Accepts an optional `source` filter so the plugin can
+//	@Description	seed its Windows and Linux fleets separately.
 //	@Tags			AD Audit
 //	@Produce		json
 //	@Param			source	query		string	false	"Filter by source: windows | linux (omit for all)"
@@ -149,7 +150,7 @@ func (h *ADUserHandler) Sync(c *gin.Context) {
 //	@Summary		Resolve provisional Linux user rows (internal)
 //	@Description	Internal endpoint the ad-audit plugin calls once it learns the
 //	@Description	machine-id for a host that already has provisional Linux user rows
-//	@Description	(machine_id IS NULL).
+//	@Description	(machine_id IS NULL), so those rows fold into the real account identity.
 //	@Tags			AD Audit
 //	@Accept			json
 //	@Produce		json

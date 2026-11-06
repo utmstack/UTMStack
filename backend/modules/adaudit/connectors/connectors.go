@@ -28,7 +28,7 @@ type ADUserUsecase interface {
 
 type IdentityRepository interface {
 	Create(ctx context.Context, name, actor string) (*domain.IdentityAlias, error)
-	Update(ctx context.Context,id uuid.UUID, name, actor string) (*domain.IdentityAlias, error)
+	Update(ctx context.Context, id uuid.UUID, name, actor string) (*domain.IdentityAlias, error)
 	List(ctx context.Context, search string) ([]dto.IdentityListItem, error)
 	Get(ctx context.Context, id uuid.UUID) (*domain.IdentityAlias, error)
 	Users(ctx context.Context, id uuid.UUID) ([]dto.UserRow, error)
@@ -39,7 +39,7 @@ type IdentityRepository interface {
 
 type IdentityUsecase interface {
 	Create(ctx context.Context, name, actor string) (*dto.IdentityResponse, error)
-	Update(ctx context.Context,id uuid.UUID, name, actor string) (*dto.IdentityResponse, error)
+	Update(ctx context.Context, id uuid.UUID, name, actor string) (*dto.IdentityResponse, error)
 	List(ctx context.Context, search string) ([]dto.IdentityListItem, error)
 	Detail(ctx context.Context, id uuid.UUID) (*dto.IdentityDetail, error)
 	Delete(ctx context.Context, id uuid.UUID) (int, error)
