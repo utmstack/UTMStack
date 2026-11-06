@@ -13,13 +13,15 @@ import (
 )
 
 type fakeDashboardRepo struct {
-	row   *domain.Dashboard
-	saved bool
-	del   bool
+	row       *domain.Dashboard
+	saved     bool
+	lastSaved *domain.Dashboard
+	del       bool
 }
 
-func (f *fakeDashboardRepo) Save(context.Context, *domain.Dashboard) error {
+func (f *fakeDashboardRepo) Save(_ context.Context, d *domain.Dashboard) error {
 	f.saved = true
+	f.lastSaved = d
 	return nil
 }
 func (f *fakeDashboardRepo) FindByID(context.Context, uuid.UUID) (*domain.Dashboard, error) {
@@ -96,5 +98,32 @@ func TestUpdatingAnOwnDashboardWorks(t *testing.T) {
 	}
 	if !repo.saved {
 		t.Error("the write did not reach the repository")
+	}
+}
+
+// DSH-F29: TenantID has json:"-", so the struct an update handler binds from
+// the request body always carries uuid.Nil for it — repo.Save (a full GORM
+// Save) must not be allowed to write that zero value over the dashboard's
+// real tenant.
+func TestUpdatingADashboardPreservesItsTenant(t *testing.T) {
+	realTenant := uuid.MustParse("5d2cd427-0000-4000-8000-00000000000b")
+	repo := &fakeDashboardRepo{row: &domain.Dashboard{ID: someID, TenantID: realTenant, Name: "Mine"}}
+	uc := NewDashboardUsecase(repo)
+
+	// Simulates what c.ShouldBindJSON produces: TenantID left at its zero
+	// value, since the client can never set it.
+	incoming := &domain.Dashboard{ID: someID, Name: "Renamed"}
+	if incoming.TenantID != uuid.Nil {
+		t.Fatalf("test setup: incoming.TenantID = %v, want uuid.Nil", incoming.TenantID)
+	}
+
+	if _, err := uc.Update(context.Background(), incoming, "someone"); err != nil {
+		t.Fatalf("Update: %v", err)
+	}
+	if repo.lastSaved == nil {
+		t.Fatal("the write did not reach the repository")
+	}
+	if repo.lastSaved.TenantID != realTenant {
+		t.Fatalf("saved TenantID = %v, want the dashboard's real tenant %v", repo.lastSaved.TenantID, realTenant)
 	}
 }

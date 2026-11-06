@@ -55,7 +55,15 @@ func (u *dashboardUsecase) Update(ctx context.Context, d *domain.Dashboard, user
 	if existing.SystemOwner {
 		return nil, domain.ErrSystemOwned
 	}
-	// Preserve creation metadata; never let an update rewrite it.
+	// Preserve creation metadata; never let an update rewrite it. TenantID has
+	// json:"-" (a request can never name it), so after binding it is always
+	// uuid.Nil on the incoming struct — and repo.Save does a full GORM Save,
+	// which writes every field as given, zero value included. Without this,
+	// every update stamps tenant_id back to uuid.Nil (DSH-F29): the write
+	// still succeeds (it matches its own row under the WHERE tenant_id=...
+	// the tenancy callback adds), but the dashboard becomes permanently
+	// invisible afterward, orphaned under a tenant nothing queries for.
+	d.TenantID = existing.TenantID
 	d.CreatedDate = existing.CreatedDate
 	d.SystemOwner = existing.SystemOwner
 	d.ModifiedDate = time.Now().UTC()
