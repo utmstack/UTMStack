@@ -198,7 +198,7 @@ func runAuthenticate(t *testing.T, req *http.Request) (*httptest.ResponseRecorde
 	engine := gin.New()
 
 	var sawTenant string
-	engine.Use(Authenticate(nil, nil, testInternalKey, nil))
+	engine.Use(Authenticate(nil, nil, testInternalKey, nil, nil))
 	engine.GET("/x", func(c *gin.Context) {
 		sawTenant = authz.TenantIDFromContext(c.Request.Context())
 		c.Status(http.StatusOK)

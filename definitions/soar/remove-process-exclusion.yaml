@@ -16,6 +16,6 @@
     step_0:
         kind: executor
         executor: shell
-        command: powershell Remove-MpPreference -ExclusionProcess $(if ("$(lastEvent.log.message)" -match '-ExclusionProcess') { '"evil.exe"' } else { '"Not A Process"' })
+        command: powershell Remove-MpPreference -ExclusionProcess $(if ("$(alert.lastEvent.log.message)" -match '-ExclusionProcess') { '"evil.exe"' } else { '"Not A Process"' })
         shell: powershell
         platform: windows

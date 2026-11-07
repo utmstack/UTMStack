@@ -116,6 +116,27 @@ func (s *service) GetString(ctx context.Context, key string) (string, bool, erro
 	return row.Value, true, nil
 }
 
+// GetOwnString is GetString but never falls back to the platform tenant's row
+// (ACC-F33): used for values whose whole point is "nobody configured this" vs.
+// "the platform configured this", such as incident notification recipients.
+func (s *service) GetOwnString(ctx context.Context, key string) (string, bool, error) {
+	row, err := s.repo.GetOwn(ctx, key)
+	if err != nil {
+		return "", false, err
+	}
+	if row == nil || row.Value == "" {
+		return "", false, nil
+	}
+	if row.IsSecret {
+		plain, err := s.cipher.Decrypt(row.Value)
+		if err != nil {
+			return "", false, err
+		}
+		return plain, true, nil
+	}
+	return row.Value, true, nil
+}
+
 // SetString persists a value onto an existing seeded parameter (used by the mail
 // provider when saving SMTP settings). Unknown keys are rejected since
 // parameters are seeded, never created here.

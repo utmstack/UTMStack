@@ -61,10 +61,15 @@ func (r *pgADUserRepository) Upsert(ctx context.Context, users []domain.ADUser) 
 		if err := r.db.WithContext(ctx).Clauses(clause.OnConflict{
 			Columns:     []clause.Column{{Name: "tenant_id"}, {Name: "sid"}},
 			TargetWhere: clause.Where{Exprs: []clause.Expression{clause.Expr{SQL: "source = 'windows'"}}},
-			DoUpdates: clause.AssignmentColumns([]string{
-				"sam_account_name", "domain", "active",
-				"account_created_at", "last_logon", "account_deleted_at", "last_seen",
-			}),
+			DoUpdates: clause.Set{
+				{Column: clause.Column{Name: "sam_account_name"}, Value: clause.Column{Table: "excluded", Name: "sam_account_name"}},
+				{Column: clause.Column{Name: "domain"}, Value: clause.Column{Table: "excluded", Name: "domain"}},
+				{Column: clause.Column{Name: "active"}, Value: clause.Column{Table: "excluded", Name: "active"}},
+				{Column: clause.Column{Name: "account_created_at"}, Value: clause.Expr{SQL: "COALESCE(excluded.account_created_at, ad_user.account_created_at)"}},
+				{Column: clause.Column{Name: "last_logon"}, Value: clause.Expr{SQL: "COALESCE(excluded.last_logon, ad_user.last_logon)"}},
+				{Column: clause.Column{Name: "account_deleted_at"}, Value: clause.Expr{SQL: "COALESCE(excluded.account_deleted_at, ad_user.account_deleted_at)"}},
+				{Column: clause.Column{Name: "last_seen"}, Value: clause.Expr{SQL: "COALESCE(excluded.last_seen, ad_user.last_seen)"}},
+			},
 		}).Create(&windows).Error; err != nil {
 			return err
 		}
@@ -83,10 +88,15 @@ func (r *pgADUserRepository) Upsert(ctx context.Context, users []domain.ADUser) 
 			if err := r.db.WithContext(ctx).Clauses(clause.OnConflict{
 				Columns:     []clause.Column{{Name: "tenant_id"}, {Name: "username"}},
 				TargetWhere: clause.Where{Exprs: []clause.Expression{clause.Expr{SQL: "source = '" + source + "'"}}},
-				DoUpdates: clause.AssignmentColumns([]string{
-					"sam_account_name", "domain", "active",
-					"account_created_at", "last_logon", "account_deleted_at", "last_seen",
-				}),
+				DoUpdates: clause.Set{
+					{Column: clause.Column{Name: "sam_account_name"}, Value: clause.Column{Table: "excluded", Name: "sam_account_name"}},
+					{Column: clause.Column{Name: "domain"}, Value: clause.Column{Table: "excluded", Name: "domain"}},
+					{Column: clause.Column{Name: "active"}, Value: clause.Column{Table: "excluded", Name: "active"}},
+					{Column: clause.Column{Name: "account_created_at"}, Value: clause.Expr{SQL: "COALESCE(excluded.account_created_at, ad_user.account_created_at)"}},
+					{Column: clause.Column{Name: "last_logon"}, Value: clause.Expr{SQL: "COALESCE(excluded.last_logon, ad_user.last_logon)"}},
+					{Column: clause.Column{Name: "account_deleted_at"}, Value: clause.Expr{SQL: "COALESCE(excluded.account_deleted_at, ad_user.account_deleted_at)"}},
+					{Column: clause.Column{Name: "last_seen"}, Value: clause.Expr{SQL: "COALESCE(excluded.last_seen, ad_user.last_seen)"}},
+				},
 			}).Create(&batch).Error; err != nil {
 				return err
 			}
@@ -104,10 +114,15 @@ func (r *pgADUserRepository) Upsert(ctx context.Context, users []domain.ADUser) 
 		if err := r.db.WithContext(ctx).Clauses(clause.OnConflict{
 			Columns:     []clause.Column{{Name: "tenant_id"}, {Name: "machine_id"}, {Name: "uid_number"}},
 			TargetWhere: clause.Where{Exprs: []clause.Expression{clause.Expr{SQL: "source = 'linux'"}}},
-			DoUpdates: clause.AssignmentColumns([]string{
-				"username", "hostname", "active",
-				"account_created_at", "last_logon", "account_deleted_at", "last_seen",
-			}),
+			DoUpdates: clause.Set{
+				{Column: clause.Column{Name: "username"}, Value: clause.Expr{SQL: "COALESCE(excluded.username, ad_user.username)"}},
+				{Column: clause.Column{Name: "hostname"}, Value: clause.Expr{SQL: "COALESCE(excluded.hostname, ad_user.hostname)"}},
+				{Column: clause.Column{Name: "active"}, Value: clause.Column{Table: "excluded", Name: "active"}},
+				{Column: clause.Column{Name: "account_created_at"}, Value: clause.Expr{SQL: "COALESCE(excluded.account_created_at, ad_user.account_created_at)"}},
+				{Column: clause.Column{Name: "last_logon"}, Value: clause.Expr{SQL: "COALESCE(excluded.last_logon, ad_user.last_logon)"}},
+				{Column: clause.Column{Name: "account_deleted_at"}, Value: clause.Expr{SQL: "COALESCE(excluded.account_deleted_at, ad_user.account_deleted_at)"}},
+				{Column: clause.Column{Name: "last_seen"}, Value: clause.Expr{SQL: "COALESCE(excluded.last_seen, ad_user.last_seen)"}},
+			},
 		}).Create(&linuxKeyed).Error; err != nil {
 			return err
 		}
@@ -166,11 +181,19 @@ func (r *pgADUserRepository) upsertByAccount(ctx context.Context, u *domain.ADUs
 	}
 
 	updates := map[string]any{
-		"active":             u.Active,
-		"account_created_at": u.AccountCreatedAt,
-		"last_logon":         u.LastLogon,
-		"account_deleted_at": u.AccountDeletedAt,
-		"last_seen":          u.LastSeen,
+		"active": u.Active,
+	}
+	if u.AccountCreatedAt != nil {
+		updates["account_created_at"] = *u.AccountCreatedAt
+	}
+	if u.LastLogon != nil {
+		updates["last_logon"] = *u.LastLogon
+	}
+	if u.AccountDeletedAt != nil {
+		updates["account_deleted_at"] = *u.AccountDeletedAt
+	}
+	if u.LastSeen != nil {
+		updates["last_seen"] = *u.LastSeen
 	}
 	// Filling in what the row lacks is only safe while the row has no machine
 	// id yet: with one, the (machine, uid) pair could already belong to another.

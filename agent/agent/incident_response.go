@@ -129,6 +129,7 @@ func commandProcessor(path string, stream resultSender, cnf *config.Config, comm
 					AgentId:    strconv.Itoa(int(cnf.AgentID)),
 					ExecutedAt: timestamppb.Now(),
 					CmdId:      cmdId,
+					ExitCode:   1,
 				},
 			},
 		})
@@ -140,7 +141,7 @@ func commandProcessor(path string, stream resultSender, cnf *config.Config, comm
 			result, errB = utils.ExecuteWithResult("powershell.exe", path, "-Command", command)
 		} else {
 			// Default to cmd.exe (also handles shell == "" or shell == "cmd")
-			result, errB = utils.ExecuteWithResult("cmd.exe", path, "/C", command)
+			result, errB = utils.ExecuteWithResultRaw("cmd.exe", path, "/C", command)
 		}
 	case "linux", "darwin":
 		if shell == "bash" {
@@ -160,9 +161,13 @@ func commandProcessor(path string, stream resultSender, cnf *config.Config, comm
 		utils.Logger.LogF(100, "Result when executing the command %s: %s", command, result)
 	}
 
+	exitCode := int32(0)
+	if errB {
+		exitCode = 1
+	}
 	if err := stream.Send(&BidirectionalStream{
 		StreamMessage: &BidirectionalStream_Result{
-			Result: &CommandResult{Result: result, AgentId: strconv.Itoa(int(cnf.AgentID)), ExecutedAt: timestamppb.Now(), CmdId: cmdId},
+			Result: &CommandResult{Result: result, AgentId: strconv.Itoa(int(cnf.AgentID)), ExecutedAt: timestamppb.Now(), CmdId: cmdId, ExitCode: exitCode},
 		},
 	}); err != nil {
 		return err

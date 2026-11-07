@@ -16,6 +16,6 @@
     step_0:
         kind: executor
         executor: shell
-        command: powershell net user $(adversary.user) /active:no
+        command: powershell net user $(alert.adversary.user) /active:no
         shell: powershell
         platform: windows

@@ -279,11 +279,18 @@ func isDuplicate(alert *plugins.Alert, alertJSON string) bool {
 	}
 
 	// A hot duplicate is exactly the case ClickHouse can be too slow to catch:
-	// the original alert's Insert may not be visible to a Count() yet. The
-	// cache is populated the moment that Insert actually succeeds (see
-	// newAlert), closing that window without waiting on ClickHouse at all.
-	if token := deduplicationToken(alert, alertJSON); token != "" {
-		if _, hit := kv.Get(context.Background(), dedupCachePrefix+token); hit {
+	// the original alert's Insert may not be visible to a Count() yet. A plain
+	// check-then-set on the cache still leaves a window open, though: two
+	// matching events arriving together can both read "no entry yet" before
+	// either one writes it, and both go on to insert (ALR-F19). Claim the slot
+	// atomically instead — the same pattern already used below in
+	// getPreviousAlertId for the GroupBy root-alert race — so whoever loses the
+	// claim is immediately treated as the duplicate, with no ClickHouse round
+	// trip needed to decide that.
+	token := deduplicationToken(alert, alertJSON)
+	if token != "" {
+		claimed, _, err := kv.Claim(context.Background(), dedupCachePrefix+token, alert.Id, fastPathTTL)
+		if err == nil && !claimed {
 			return true
 		}
 	}

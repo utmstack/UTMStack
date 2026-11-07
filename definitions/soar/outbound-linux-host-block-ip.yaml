@@ -16,6 +16,6 @@
     step_0:
         kind: executor
         executor: shell
-        command: iptables -A OUTPUT -d $(adversary.ip) -j DROP
+        command: iptables -A OUTPUT -d $(alert.adversary.ip) -j DROP
         shell: sh
         platform: linux

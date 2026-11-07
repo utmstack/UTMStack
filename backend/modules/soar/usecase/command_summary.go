@@ -22,16 +22,23 @@ import (
 //
 // Params were already interpolated by the dispatcher, so a secret the user
 // inlined in the node config appears here in plain text. `vars` (may be nil)
-// re-applies secret masking to the derived line. Manual executions and rows
-// that already carry a command (shell nodes) are left untouched.
+// re-applies secret masking to the derived line.
+//
+// SOAR-F3: this used to return immediately for non-flow (manual/console)
+// executions, skipping the masking call below entirely — a secret variable
+// used in an interactive console command stayed in clear in `e.Command` for
+// every reader of the execution history (including the viewer role and the
+// MCP mirror, which both go through ExecutionUsecase.List same as the REST
+// handler). Masking now always runs; only the flow-specific node-to-summary
+// rendering is skipped for manual rows, since they have no flow node params.
 func CommandSummary(ctx context.Context, vars connectors.VariableUsecase, e *domain.SoarExecution) {
-	if e.Origin != domain.ExecutionOriginFlow || strings.TrimSpace(e.Command) != "" {
-		return
+	summary := e.Command
+	if e.Origin == domain.ExecutionOriginFlow {
+		if s := summarizeNodeAction(e.Executor, e.Params); s != "" {
+			summary = s
+		}
 	}
-	summary := summarizeNodeAction(e.Executor, e.Params)
-	if summary == "" {
-		return
-	}
+
 	if vars != nil {
 		if masked, err := vars.MaskSecrets(ctx, summary); err == nil {
 			summary = masked

@@ -276,10 +276,81 @@ func (r *chAnalyzerRepository) Search(ctx context.Context, req dto.SearchRequest
 		docs = []json.RawMessage{}
 	}
 	if req.Dataset == "alerts" {
+		if page == 0 {
+			docs, total, err = r.includeRootsWithRecentEchoes(ctx, scope, docs, total, size-len(docs), sortBy, order)
+			if err != nil {
+				return nil, err
+			}
+		}
 		docs = r.enrichEchoCounts(ctx, scope, docs)
 	}
 	return &dto.SearchResponse{Data: docs, Total: total}, nil
 }
+
+// includeRootsWithRecentEchoes closes ALR-F18: the root alert's own
+// `@timestamp` is frozen at first occurrence, so a root that is still
+// actively firing — but is itself older than the requested window — never
+// passes the time filter above, and neither do its echoes (they only ever
+// surface through GET /{id}/echoes, keyed by the root's id). A root that has
+// a fresh echo inside [scope.From, scope.To] belongs in this result the same
+// as one whose own timestamp falls in range.
+//
+// Scope: only applied to page 0 (room is clamped to what's left of the page
+// size) — getting this fully correct across every page would mean sorting a
+// result assembled from two separate queries by an arbitrary caller-chosen
+// field, which the store's Filter model (AND-only, no OR/nesting, per
+// store.Filter's doc comment) can't express as one query. Page 0 is what an
+// analyst actually looks at after narrowing the time range, which is the
+// scenario the finding describes; deeper pages keep the old behavior.
+func (r *chAnalyzerRepository) includeRootsWithRecentEchoes(ctx context.Context, scope store.Scope, docs []json.RawMessage, total int64, room int, sortBy string, order store.SortOrder) ([]json.RawMessage, int64, error) {
+	if room <= 0 || (scope.From.IsZero() && scope.To.IsZero()) {
+		// No time window requested: every root's own timestamp already
+		// passes it, so a child-only match couldn't add anything.
+		return docs, total, nil
+	}
+
+	present := make(map[string]bool, len(docs))
+	for _, raw := range docs {
+		var m struct {
+			ID string `json:"id"`
+		}
+		if json.Unmarshal(raw, &m) == nil && m.ID != "" {
+			present[m.ID] = true
+		}
+	}
+
+	buckets, err := r.store.TopValues(ctx, scope, "parentId",
+		[]store.Filter{{Field: "parentId", Op: store.OpNotEq, Value: ""}}, maxActiveRootLookup)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	missing := make([]string, 0, len(buckets))
+	for _, b := range buckets {
+		if b.Key != "" && b.Count > 0 && !present[b.Key] {
+			missing = append(missing, b.Key)
+		}
+	}
+	if len(missing) == 0 {
+		return docs, total, nil
+	}
+	if len(missing) > room {
+		missing = missing[:room]
+	}
+
+	unbounded := scope
+	unbounded.From, unbounded.To = time.Time{}, time.Time{}
+	extra, _, err := r.store.FetchPage(ctx, unbounded,
+		[]store.Filter{{Field: "id", Op: store.OpIn, Value: missing}},
+		store.Page{Limit: len(missing), SortBy: sortBy, Order: order})
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return append(docs, extra...), total + int64(len(extra)), nil
+}
+
+const maxActiveRootLookup = 10000
 
 func (r *chAnalyzerRepository) enrichEchoCounts(ctx context.Context, scope store.Scope, docs []json.RawMessage) []json.RawMessage {
 	if len(docs) == 0 {

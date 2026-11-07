@@ -107,24 +107,15 @@ func (u *executionUsecase) StartFlow(ctx context.Context, relPath string, alertJ
 			_ = catcher.Error("soar: agent resolution failed", resErr, map[string]any{"rule": relPath, "root": rootID})
 			continue
 		}
-		params, ierr := InterpolateJSON(ctx, u.vars, bag, node.Params)
+		params, ierr := InterpolateJSON(ctx, nil, bag, node.Params)
 		if ierr != nil {
 			_ = catcher.Error("soar: params interpolation failed", ierr, map[string]any{"rule": relPath, "root": rootID})
 			continue
 		}
-		command, ierr := Interpolate(ctx, u.vars, bag, node.Command, node.Shell)
+		command, ierr := Interpolate(ctx, nil, bag, node.Command, node.Shell)
 		if ierr != nil {
 			_ = catcher.Error("soar: command interpolation failed", ierr, map[string]any{"rule": relPath, "root": rootID})
 			continue
-		}
-
-		masked_command := command
-		if u.vars != nil {
-			if masked, cerr := u.vars.MaskSecrets(ctx, command); cerr == nil {
-				masked_command = masked
-			} else {
-				_ = catcher.Error("soar: command variable masking failed", cerr, map[string]any{"rule": relPath, "root": rootID})
-			}
 		}
 
 		exec := &domain.SoarExecution{
@@ -140,7 +131,7 @@ func (u *executionUsecase) StartFlow(ctx context.Context, relPath string, alertJ
 			Executor:    node.Executor,
 			Params:      params,
 			Context:     json.RawMessage(bag),
-			Command:     masked_command,
+			Command:     command,
 			Shell:       node.Shell,
 			Agent:       agent,
 			Status:      domain.ExecutionStatusPending,
@@ -171,9 +162,11 @@ func (u *executionUsecase) resolveAgentForNode(ctx context.Context, _ domain.Flo
 	if node.Agent != "" {
 		return Interpolate(ctx, u.vars, bag, node.Agent, "")
 	}
-	src := gjson.GetBytes(alertJSON, "dataSource").String()
+	// A manual trigger's agent override wins; the alert's dataSource is
+	// only the fallback for when no override was supplied.
+	src := agentOverride
 	if src == "" {
-		src = agentOverride
+		src = gjson.GetBytes(alertJSON, "dataSource").String()
 	}
 	for _, x := range node.ExcludedAgents {
 		if x == src {
@@ -229,22 +222,30 @@ func (u *executionUsecase) List(ctx context.Context, f dto.ExecutionFilters) (*d
 	return &database.List[dto.ExecutionResponse]{Items: items, Total: total}, nil
 }
 
+// StartManual records a console-triggered command. The caller (command_ws.go)
+// has already substituted any $[variables.NAME] secret for real dispatch to
+// the agent before calling this — `command` here is that same, already-
+// interpolated string, which still has the real secret value inline.
+//
+// SOAR-F6: this used to mask it (MaskSecrets) before storing, but
+// MaskSecrets's own first pass also blanks any *unmasked* `$[variables.NAME]`
+// placeholder it finds to "****" — and since this value was already
+// substituted, no such placeholder remains, so that pass was a no-op; its
+// second pass (replacing the real secret's plaintext) is what actually fired,
+// baking "****" into the persisted row in place of the real value. That is
+// merely cosmetic for the row's own `Command` column today (manual rows are
+// never re-read for re-dispatch — they're created straight into EXECUTING,
+// bypassing the pending-dispatch queue), but it was also wrong were any
+// retry/resume path to ever reuse this field in the future, and it threw the
+// real value away for no benefit: CommandSummary (list/get display) now masks
+// every origin's `Command`, not just flow ones, so storing it raw here does
+// not leak anything that display masking won't catch.
 func (u *executionUsecase) StartManual(ctx context.Context, agent, command, triggeredBy string) (uuid.UUID, error) {
-
-	masked_command := command
-	if u.vars != nil {
-		masked, cerr := u.vars.MaskSecrets(ctx, command)
-		if cerr != nil {
-			_ = catcher.Error("soar: command variable masking failed", cerr, map[string]any{})
-		}
-		masked_command = masked
-	}
-
 	e, err := u.repo.Create(ctx, &domain.SoarExecution{
 		Origin:      domain.ExecutionOriginManual,
 		TriggeredBy: triggeredBy,
 		Agent:       agent,
-		Command:     masked_command,
+		Command:     command,
 		Executor:    "shell",
 		Kind:        domain.NodeKindExecutor,
 		NodeID:      "manual",

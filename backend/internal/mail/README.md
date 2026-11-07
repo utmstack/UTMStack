@@ -45,7 +45,7 @@ Reads/writes each field as a separate entry in the application config store (see
 | --- | --- |
 | `Host`, `Port` | SMTP server address. Required. |
 | `Username`, `Password` | Credentials used when `SmtpAuth == "true"`. |
-| `SmtpAuth` | String flag (`"true"`/`"false"`). When true, `smtp.PlainAuth` is used. |
+| `SmtpAuth` | Not a plain boolean: holds whatever the settings page's encryption choice wrote (`"TLS"`/`"SSL"`/`"NONE"`, or `"true"`/`"false"` from other callers). Auth is on unless this is empty, `"none"` or `"false"` (case-insensitive) — see `smtpAuth()`. |
 | `From` | Sender address. Falls back to `Username` if empty. |
 | `Orgname` | Emitted as the `X-Organization` header when present. |
 | `BaseUrl` | Base URL for links rendered into templates. |
@@ -68,5 +68,5 @@ err := mail.SendMail(ctx, []string{"user@example.com"}, "<p>hello</p>", nil)
 ## Behavior notes
 
 - `SendMail` fails fast if `Host`/`Port` are empty or `addresses` is empty.
-- Auth is skipped entirely when `SmtpAuth != "true"` or `Username` is empty — useful for relays that accept unauthenticated submissions on the internal network.
+- Auth is skipped entirely when `SmtpAuth` is empty/`"none"`/`"false"` or `Username` is empty — useful for relays that accept unauthenticated submissions on the internal network.
 - Transport is plain `net/smtp.SendMail`; STARTTLS/SSL negotiation is whatever the server advertises during `SendMail`. There is no implicit TLS wrapper.

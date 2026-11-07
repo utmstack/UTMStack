@@ -38,7 +38,7 @@ func initDatabase(cfg *config) *gorm.DB {
 
 	db := connectWithRetry(dsn, gormLogLevel(cfg.dbLogLevel))
 
-	if err := database.MigrateDatabase(db, "file://migrations"); err != nil {
+	if err := database.MigrateDatabase(db, "file://migrations/pre","file://migrations/post"); err != nil {
 		_ = catcher.Error("failed to migrate database", err, nil)
 		panic(err)
 	}

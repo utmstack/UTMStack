@@ -28,7 +28,7 @@ func Record(c *gin.Context, ev connectors.Event, attemptType, successType domain
 		ev.EventType = successType
 		ev.Status = domain.StatusSuccess
 	}
-	ev.IP = c.ClientIP()
+	ev.IP = middleware.ClientIP(c)
 	ev.UserAgent = c.Request.UserAgent()
 	// Only when the caller did not name someone themselves: on the login route
 	// there is no actor yet, and the address typed is the only identity there is.

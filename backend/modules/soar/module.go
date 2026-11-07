@@ -55,7 +55,6 @@ func NewModule(
 		filepath.Join(flowsRoot, usecase.UserSubdir),
 	)
 
-	resolveRepo := repository.NewResolveFilterRepository(db)
 	executionRepo := repository.NewExecutionRepository(db)
 	flowRunRepo := repository.NewFlowRunRepository(db)
 
@@ -86,7 +85,7 @@ func NewModule(
 	agentRepo := repository.NewAgentRepository(db)
 	agentUC := usecase.NewAgentUsecase(agentRepo)
 
-	ruleUC := usecase.NewRuleUsecase(flowStore, resolveRepo)
+	ruleUC := usecase.NewRuleUsecase(flowStore)
 	executionUC := usecase.NewExecutionUsecase(executionRepo, flowRunRepo, flowStore, agentUC, variableUC, dispatcher.Kick)
 
 	return &Module{

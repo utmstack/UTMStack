@@ -16,6 +16,6 @@
     step_0:
         kind: executor
         executor: shell
-        command: usermod -s /sbin/nologin $(target.user)
+        command: usermod -s /sbin/nologin $(alert.target.user)
         shell: sh
         platform: linux

@@ -11,7 +11,7 @@ import (
 func runWithPolicy(t *testing.T, p InternalPolicy, path, remote string) int {
 	t.Helper()
 	engine := gin.New()
-	engine.Use(Authenticate(nil, nil, testInternalKey, nil, WithInternalPolicy(p)))
+	engine.Use(Authenticate(nil, nil, testInternalKey, nil, nil, WithInternalPolicy(p)))
 	engine.Any("/*any", func(c *gin.Context) { c.Status(http.StatusOK) })
 
 	req := httptest.NewRequest(http.MethodGet, path, nil)

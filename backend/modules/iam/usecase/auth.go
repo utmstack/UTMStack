@@ -122,16 +122,34 @@ func (u *authUsecase) Login(ctx context.Context, input dto.LoginRequest, lc conn
 		return nil, err
 	}
 
-	if u.tfa != nil && u.preAuth != nil {
+	pair, err := u.issueTokenPair(ctx, user, lc)
+	if err != nil {
+		return nil, err
+	}
+	u.resetLimiter(lc.IP)
+
+	return u.ensureTFA(ctx, user, lc, pair)
+}
+
+func (u *authUsecase) ensureTFA(ctx context.Context, user *domain.User, lc connectors.LoginContext, pair *dto.TokenPair) (*dto.LoginResponse, error) {
+	var user_resp dto.UserResponse
+	if user != nil {
+		user_resp = dto.ToUserResponse(*user, false)
+	}
+	if u.tfa != nil && u.preAuth != nil && user != nil {
 		required, err := u.tfa.HasConfirmedFactor(ctx, user.ID)
 		if err != nil {
 			return nil, err
 		}
-		// A kill switch, not a mandate: the second factor is asked of whoever
-		// enrolled one, and development can turn the whole thing off. Forcing it
-		// on accounts that have no factor is what leaves a fresh install unable
-		// to sign in — the code goes to a mail server nobody has configured yet.
-		if required && u.tfaEnabled {
+
+		// required already means "this specific account enrolled a confirmed
+		// factor" — u.tfaEnabled must never veto that (ACC-F5): it used to, which
+		// let dev/rc builds (APP_TFA_ENABLED=false, installer/docker/compose.go)
+		// skip a real user's own TOTP/email factor and hand back a full session
+		// from the password alone. The flag has nothing left to gate: nobody
+		// without a confirmed factor ever reaches this branch regardless of its
+		// value, so there is no "fresh install locked out" case it protects.
+		if required {
 			factorType, err := u.tfa.IssueLoginChallenge(ctx, user)
 			if err != nil {
 				return nil, err
@@ -142,7 +160,7 @@ func (u *authUsecase) Login(ctx context.Context, input dto.LoginRequest, lc conn
 			}
 			u.resetLimiter(lc.IP)
 			return &dto.LoginResponse{
-				User:         dto.ToUserResponse(*user, required),
+				User:         user_resp,
 				TfaRequired:  true,
 				TfaType:      factorType,
 				PreAuthToken: token,
@@ -150,35 +168,40 @@ func (u *authUsecase) Login(ctx context.Context, input dto.LoginRequest, lc conn
 		}
 	}
 
-	pair, err := u.issueTokenPair(ctx, user, lc)
-	if err != nil {
-		return nil, err
-	}
-	u.resetLimiter(lc.IP)
-	return &dto.LoginResponse{TokenPair: *pair, User: dto.ToUserResponse(*user, false)}, nil
+	return &dto.LoginResponse{TokenPair: *pair, User: user_resp}, nil
 }
 
 // EmptyLogin verifies the same credentials as Login and issues a token with no
 // claims: the password_token second factor. It ignores directory accounts and
-// TFA — the whole point is proving the password.
-func (u *authUsecase) EmptyLogin(ctx context.Context, input dto.LoginRequest, _ connectors.LoginContext) (*dto.EmptyLoginResponse, error) {
+// TFA — the whole point is proving the password. It shares Login's IP limiter:
+// this is still a bcrypt compare against the stored hash, so without the same
+// lockout it would be an unlimited-attempt password oracle under a different
+// path.
+func (u *authUsecase) EmptyLogin(ctx context.Context, input dto.LoginRequest, lc connectors.LoginContext) (*dto.EmptyLoginResponse, error) {
+	if u.limiter != nil && lc.IP != "" && u.limiter.IsBlocked(lc.IP) {
+		return nil, domain.ErrLoginBlocked
+	}
+
 	user, err := u.userRepo.FindByEmail(ctx, input.Login)
 	if err != nil {
 		return nil, err
 	}
 	if user == nil || user.IdentityProviderID != nil || user.PasswordHash == nil || *user.PasswordHash == "" {
+		u.recordFailure(lc.IP)
 		return nil, domain.ErrInvalidCredentials
 	}
 	if err := bcrypt.CompareHashAndPassword([]byte(*user.PasswordHash), []byte(input.Password)); err != nil {
+		u.recordFailure(lc.IP)
 		return nil, domain.ErrInvalidCredentials
 	}
 	if err := statusError(user.Status); err != nil {
 		return nil, err
 	}
-	token, err := u.signer.SignEmpty(5 * time.Minute)
+	token, err := u.signer.SignEmpty(user.ID, 5*time.Minute)
 	if err != nil {
 		return nil, err
 	}
+	u.resetLimiter(lc.IP)
 	return &dto.EmptyLoginResponse{Token: token}, nil
 }
 
@@ -203,11 +226,8 @@ func (u *authUsecase) tryDirectory(
 		return nil, err
 	}
 	u.resetLimiter(lc.IP)
-	resp := &dto.LoginResponse{TokenPair: *pair}
-	if user != nil {
-		resp.User = dto.ToUserResponse(*user, false)
-	}
-	return resp, nil
+
+	return u.ensureTFA(ctx, user, lc, pair)
 }
 
 func (u *authUsecase) recordFailure(ip string) {
@@ -418,6 +438,10 @@ func (u *authUsecase) SetPasswordFromChallenge(ctx context.Context, input dto.Re
 	if err != nil {
 		return err
 	}
+	// The challenge was looked up across every tenant (see resolveLinkChallenge);
+	// from here on, the rest of this flow must act in the tenant that actually
+	// issued it, not whatever tenant the request's host happened to resolve to.
+	ctx = authz.WithTenantID(ctx, c.TenantID.String())
 	user, err := u.userRepo.FindByID(ctx, c.UserID)
 	if err != nil {
 		return err

@@ -16,6 +16,6 @@
     step_0:
         kind: executor
         executor: shell
-        command: powershell Set-MpPreference -PUAProtection $(if ("$(lastEvent.log.message)" -match '-PUAProtection') { '"Enabled"' } else { '"Disabled"' })
+        command: powershell Set-MpPreference -PUAProtection $(if ("$(alert.lastEvent.log.message)" -match '-PUAProtection') { '"Enabled"' } else { '"Disabled"' })
         shell: powershell
         platform: windows

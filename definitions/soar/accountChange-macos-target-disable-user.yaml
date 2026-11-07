@@ -18,6 +18,6 @@
     step_0:
         kind: executor
         executor: shell
-        command: 'sudo pwpolicy -u $(target.user) -setstatus On'
+        command: 'sudo pwpolicy -u $(alert.target.user) -setstatus On'
         shell: sh
         platform: macos

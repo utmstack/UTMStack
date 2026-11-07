@@ -333,13 +333,10 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
     const out: FilterType[] = []
     const abs = pinned ?? resolveRange(range)
     if (abs.from) out.push({ field: TS, operator: 'IS_BETWEEN', value: [abs.from, abs.to] })
-    // Free text reads the record as it arrived, which only some datasets keep.
-    // Sending it at a dataset that has no such column is an error, so the box
-    // is disabled there rather than the text being dropped on the floor.
     if (appliedQuery.trim() && supportsTextSearch) {
       out.push({ field: 'raw', operator: 'IS_IN_FIELDS', value: appliedQuery.trim() })
     }
-    out.push(...filters.filter((f)=>f.value!="" && f.value!=null))
+    out.push(...filters.filter((f)=>f.operator == 'EXIST' || (f.value!="" && f.value!=null)))
     return out
   }, [range.from, range.to, appliedQuery, supportsTextSearch, filters])
 

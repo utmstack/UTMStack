@@ -29,6 +29,7 @@ func ValidIdentityName(name string) bool {
 type IdentityAliasAssignment struct {
 	AliasID    uuid.UUID `gorm:"column:alias_id;type:uuid;primaryKey" json:"aliasId"`
 	UserID     uuid.UUID `gorm:"column:user_id;type:uuid;primaryKey;uniqueIndex:idx_identity_alias_assignment_user" json:"userId"`
+	TenantID   uuid.UUID `gorm:"column:tenant_id;type:uuid;not null;index:idx_identity_alias_assignment_tenant" json:"-"`
 	AssignedBy string    `gorm:"column:assigned_by;size:150;not null" json:"assignedBy"`
 	AssignedAt time.Time `gorm:"column:assigned_at;not null;default:now()" json:"assignedAt"`
 }

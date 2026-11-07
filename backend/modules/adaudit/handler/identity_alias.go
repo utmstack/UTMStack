@@ -36,6 +36,8 @@ func writeIdentityError(c *gin.Context, op string, err error) {
 	switch {
 	case errors.Is(err, usecase.ErrIdentityNameInvalid):
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	case errors.Is(err, repository.ErrTenantMismatch):
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	case errors.Is(err, repository.ErrIdentityNotFound),
 		errors.Is(err, repository.ErrUserNotFound):
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
@@ -103,15 +105,13 @@ func (h *IdentityHandler) Rename(c *gin.Context) {
 		return
 	}
 
-	res, err := h.uc.Update(c.Request.Context(), id,req.Name, actorIdentity(c))
+	res, err := h.uc.Update(c.Request.Context(), id, req.Name, actorIdentity(c))
 	if err != nil {
 		writeIdentityError(c, "update", err)
 		return
 	}
 	c.JSON(http.StatusOK, res)
 }
-
-
 
 // List godoc
 //
@@ -207,7 +207,7 @@ func (h *IdentityHandler) Assign(c *gin.Context) {
 		return
 	}
 	var req dto.AssignIdentityRequest
-	if c.Request.ContentLength > 0 {
+	if c.Request.ContentLength != 0 {
 		if err := c.ShouldBindJSON(&req); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "body must be a JSON object with an 'identityId' string"})
 			return

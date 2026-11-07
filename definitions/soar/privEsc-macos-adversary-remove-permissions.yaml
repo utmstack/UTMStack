@@ -16,6 +16,6 @@
     step_0:
         kind: executor
         executor: shell
-        command: for grp in $(id -nG $(adversary.user) | tr ' ' '\n' | grep -v -E "^($(adversary.user)|staff|everyone)$"); do dseditgroup -o edit -d $(adversary.user) -t user "$grp" 2>/dev/null; done
+        command: for grp in $(id -nG $(alert.adversary.user) | tr ' ' '\n' | grep -v -E "^($(alert.adversary.user)|staff|everyone)$"); do dseditgroup -o edit -d $(alert.adversary.user) -t user "$grp" 2>/dev/null; done
         shell: sh
         platform: macos

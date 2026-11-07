@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"html/template"
+	"io"
 	"mime/multipart"
 	"net/smtp"
 	"net/textproto"
@@ -74,8 +75,15 @@ func (s *mailService) SendTemplateMail(ctx context.Context, to []string, subject
 	return s.SendMail(ctx, to, nil, subject, buf.String(), nil)
 }
 
+// smtpAuth decides whether to authenticate. SmtpAuth is not always the
+// literal string "true": the settings page stores the chosen encryption
+// ("TLS"/"SSL"/"NONE") under this same field, so any value other than
+// empty/"none"/"false" means "auth on" — this must match toEmailConfig's
+// interpretation (backend/modules/appconfig/usecase/config.go) or the
+// config-test button and the real send path disagree on whether to log in.
 func smtpAuth(cfg *domain.EmailConfig) smtp.Auth {
-	if !strings.EqualFold(cfg.SmtpAuth, "true") || cfg.Username == "" {
+	v := strings.ToLower(strings.TrimSpace(cfg.SmtpAuth))
+	if v == "" || v == "none" || v == "false" || cfg.Username == "" {
 		return nil
 	}
 	return smtp.PlainAuth("", cfg.Username, cfg.Password, cfg.Host)
@@ -101,6 +109,20 @@ func trimAddresses(in []string) []string {
 		}
 	}
 	return out
+}
+
+// writeBase64Wrapped base64-encodes src and wraps it at 76 columns (RFC 2045)
+// with CRLF.
+func writeBase64Wrapped(w io.Writer, src []byte) error {
+	enc := base64.StdEncoding.EncodeToString(src)
+	for len(enc) > 76 {
+		if _, err := io.WriteString(w, enc[:76]+"\r\n"); err != nil {
+			return err
+		}
+		enc = enc[76:]
+	}
+	_, err := io.WriteString(w, enc)
+	return err
 }
 
 func buildMessage(cfg *domain.EmailConfig, to []string, cc []string, subject, body string, attatchments []domain.Attatchment) ([]byte, error) {
@@ -132,12 +154,19 @@ func buildMessage(cfg *domain.EmailConfig, to []string, cc []string, subject, bo
 
 	bodyHeader := textproto.MIMEHeader{}
 	bodyHeader.Set("Content-Type", "text/html; charset=UTF-8")
-	bodyHeader.Set("Content-Transfer-Encoding", "quoted-printable")
+	// base64, not quoted-printable: QP escapes every literal "=" as "=3D" and
+	// forces a soft line break every 76 characters, which lands inside the
+	// activation/reset links (their query string always has a literal "=", and
+	// the token padding can add more) — a client or tool that doesn't fully
+	// reassemble those soft breaks is left with a broken, "="-less URL (ACC-F29).
+	// Short bodies with no links (e.g. the config-test mail) never hit the
+	// 76-column wrap, which is why only the link-carrying mails showed it.
+	bodyHeader.Set("Content-Transfer-Encoding", "base64")
 	part, err := writer.CreatePart(bodyHeader)
 	if err != nil {
 		return nil, fmt.Errorf("create body part: %w", err)
 	}
-	if _, err := part.Write([]byte(body)); err != nil {
+	if err := writeBase64Wrapped(part, []byte(body)); err != nil {
 		return nil, fmt.Errorf("write body: %w", err)
 	}
 

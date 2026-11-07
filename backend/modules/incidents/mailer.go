@@ -54,7 +54,11 @@ func (m *incidentMailer) SendIncidentCreated(ctx context.Context, incident domai
 }
 
 // resolveRecipients reads the two configured lists. There is no fallback: an
-// address gets incident mail because somebody put it here.
+// address gets incident mail because somebody put it here — in particular,
+// this must read only the acting tenant's own row (GetOwnString), never the
+// platform tenant's (ACC-F33): the shared GetString inherits across tenants,
+// which would mail a tenant's incident to whatever address the platform
+// happens to have configured, even though nobody in that tenant set it.
 func (m *incidentMailer) resolveRecipients(ctx context.Context) (to []string, cc []string, err error) {
 	return readList(ctx, m.store, ConfigKeyNotificationTo),
 		readList(ctx, m.store, ConfigKeyNotificationCc),
@@ -66,7 +70,7 @@ func readList(ctx context.Context, store appconfig_connectors.Store, key string)
 	if store == nil {
 		return nil
 	}
-	v, ok, err := store.GetString(ctx, key)
+	v, ok, err := store.GetOwnString(ctx, key)
 	if err != nil || !ok || strings.TrimSpace(v) == "" {
 		return nil
 	}

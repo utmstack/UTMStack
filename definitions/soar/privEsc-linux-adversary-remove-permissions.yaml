@@ -16,6 +16,6 @@
     step_0:
         kind: executor
         executor: shell
-        command: for grp in $(id -nG $(adversary.user) | tr ' ' '\n' | grep -v "^$(adversary.user)$"); do gpasswd -d $(adversary.user) "$grp"; done
+        command: for grp in $(id -nG $(alert.adversary.user) | tr ' ' '\n' | grep -v "^$(alert.adversary.user)$"); do gpasswd -d $(alert.adversary.user) "$grp"; done
         shell: sh
         platform: linux

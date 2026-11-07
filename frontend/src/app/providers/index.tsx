@@ -6,6 +6,7 @@ import { AuthProvider } from '@/features/auth'
 import { FederationAuthProvider } from '@/features/federation'
 import { IS_FEDERATION } from '@/shared/config/mode'
 import { BillingProvider } from '@/features/billing'
+import { StorageEnabledProvider } from '@/features/settings/services/storage-enabled.context'
 import { BrandingProvider } from '@/features/branding'
 import { NotificationsProvider } from '@/features/notifications'
 import { createApiClient } from '@/shared/lib/api-client'
@@ -46,6 +47,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
       <BrandingProvider>
         <TooltipProvider delayDuration={0}>
           <AuthShell>
+            <StorageEnabledProvider>
             <BillingProvider>
               <NotificationsProvider>
                   <DateFormatLoader />
@@ -53,6 +55,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
                   <ThemedToaster />
               </NotificationsProvider>
             </BillingProvider>
+            </StorageEnabledProvider>
           </AuthShell>
         </TooltipProvider>
       </BrandingProvider>

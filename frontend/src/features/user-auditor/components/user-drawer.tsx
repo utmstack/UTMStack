@@ -118,8 +118,8 @@ export function UserDrawer({
         <div className="flex-1 space-y-4 overflow-y-auto bg-muted/20 p-6">
           <Section title={t('userAuditor.drawer.identity')}>
             <dl className="grid grid-cols-[150px_1fr] gap-y-2 text-xs">
-              <Row k={t('userAuditor.drawer.accountName')}>
-                <span className="font-mono">{accountName(user)}</span>
+              <Row k={t('userAuditor.drawer.accountName')} className="overflow-x-auto">
+                <span className="font-mono "> {accountName(user)}</span>
               </Row>
               {isLinux && (
                 <>

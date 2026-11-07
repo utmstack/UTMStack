@@ -16,6 +16,6 @@
     step_0:
         kind: executor
         executor: shell
-        command: if ("$(lastEvent.log.message)" -match '-ExclusionProcess\s+([^\s]+)') { Remove-MpPreference -ExclusionProcess $matches[1] }; if ("$(lastEvent.log.message)" -match '-ExclusionPath\s+([^\s]+)') { Remove-MpPreference -ExclusionPath $matches[1] }
+        command: if ("$(alert.lastEvent.log.message)" -match '-ExclusionProcess\s+([^\s]+)') { Remove-MpPreference -ExclusionProcess $matches[1] }; if ("$(alert.lastEvent.log.message)" -match '-ExclusionPath\s+([^\s]+)') { Remove-MpPreference -ExclusionPath $matches[1] }
         shell: powershell
         platform: windows

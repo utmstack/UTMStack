@@ -24,6 +24,48 @@ type LogProcessor struct {
 	connErrWritten bool
 	ackErrWritten  bool
 	sendErrWritten bool
+
+	// inFlight tracks logs sent on the current connection whose ack hasn't
+	// arrived yet. Without it, replayUnprocessed (every 15s) resends anything
+	// still marked unprocessed in the DB — which includes a log that was sent
+	// moments ago and is simply waiting on a slightly slow ack, not lost. That
+	// duplicate send is what ING-F2 reports as "the server stores each log
+	// several times". A log only needs replaying once its connection dies
+	// without ever acking it, which resetInFlight below accounts for.
+	inFlightMu sync.Mutex
+	inFlight   map[string]struct{}
+}
+
+func (l *LogProcessor) markInFlight(id string) {
+	l.inFlightMu.Lock()
+	defer l.inFlightMu.Unlock()
+	if l.inFlight == nil {
+		l.inFlight = make(map[string]struct{})
+	}
+	l.inFlight[id] = struct{}{}
+}
+
+func (l *LogProcessor) clearInFlight(id string) {
+	l.inFlightMu.Lock()
+	defer l.inFlightMu.Unlock()
+	delete(l.inFlight, id)
+}
+
+func (l *LogProcessor) isInFlight(id string) bool {
+	l.inFlightMu.Lock()
+	defer l.inFlightMu.Unlock()
+	_, ok := l.inFlight[id]
+	return ok
+}
+
+// resetInFlight is called once per new connection: whatever was in flight on
+// the previous (now-dead) connection will never get an ack on it, so those
+// logs become eligible for replay again — correctly, since the connection
+// that carried them is gone.
+func (l *LogProcessor) resetInFlight() {
+	l.inFlightMu.Lock()
+	defer l.inFlightMu.Unlock()
+	l.inFlight = make(map[string]struct{})
 }
 
 var (
@@ -94,6 +136,7 @@ func (l *LogProcessor) ProcessLogs(cnf *config.Config, ctx context.Context) {
 			continue
 		}
 		l.connErrWritten = false
+		l.resetInFlight()
 
 		// Create context only after successful client creation to avoid leaks
 		ctxEof, cancelEof := context.WithCancel(context.Background())
@@ -116,6 +159,7 @@ func (l *LogProcessor) handleAcknowledgements(plClient plugins.Integration_Proce
 			}
 
 			l.ackErrWritten = false
+			l.clearInFlight(ack.LastId)
 
 			err = l.db.Update(&models.Log{}, "id", ack.LastId, "processed", true)
 			if err != nil {
@@ -172,6 +216,7 @@ func (l *LogProcessor) processLogs(plClient plugins.Integration_ProcessLogClient
 				cancel()
 				return
 			}
+			l.markInFlight(newLog.Id)
 			l.sendErrWritten = false
 		}
 	}
@@ -229,6 +274,13 @@ func (l *LogProcessor) replayUnprocessed() {
 
 	if found {
 		for _, log := range unprocessed {
+			// ING-F2: "unprocessed" also includes a log sent moments ago that
+			// is simply waiting on its ack — replaying it here duplicates it
+			// on the server. Only resend what isn't currently in flight on
+			// this connection.
+			if l.isInFlight(log.ID) {
+				continue
+			}
 			LogQueue <- &plugins.Log{
 				Id:         log.ID,
 				Raw:        log.Log,

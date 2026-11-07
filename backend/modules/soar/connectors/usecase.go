@@ -17,7 +17,6 @@ type RuleUsecase interface {
 	Delete(ctx context.Context, relPath string) error
 	SetEnabled(ctx context.Context, relPath string, enabled bool) error
 	List(ctx context.Context, f dto.RuleFilters) (*database.List[dto.RuleResponse], error)
-	ResolveFilterValues(ctx context.Context) (*dto.ResolveFilterValuesResponse, error)
 }
 
 type ExecutionUsecase interface {
@@ -26,7 +25,7 @@ type ExecutionUsecase interface {
 	// StartFlow enqueues a flow run from raw alert JSON without alert matching.
 	// The manual-trigger path; agentOverride wins over alert.dataSource for
 	// shell roots. agentOverride is empty when the caller supplies no hint.
-	StartFlow(ctx context.Context, relPath string, alertJSON []byte, agentOverride, triggeredBy string,manual bool) (uuid.UUID, error)
+	StartFlow(ctx context.Context, relPath string, alertJSON []byte, agentOverride, triggeredBy string, manual bool) (uuid.UUID, error)
 	StartManual(ctx context.Context, agent, command, triggeredBy string) (uuid.UUID, error)
 	FinishManual(ctx context.Context, id uuid.UUID, status domain.ExecutionStatus, result string) error
 }

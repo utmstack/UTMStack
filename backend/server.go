@@ -40,9 +40,18 @@ import (
 	"github.com/utmstack/utmstack/backend/pkg/http/middleware"
 )
 
-func initHTTPServer(cfg *config) *gin.Engine {
+func initHTTPServer(cfg *config, appCtx context.Context) *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	engine := gin.New()
+	// Gin's own SetTrustedProxies trusts a CIDR against a mutable, unsynchronized
+	// engine field — fine for a value set once at startup, not for one refreshed
+	// at runtime from a background goroutine while requests are being served
+	// (confirmed as a real data race). middleware.ResolveClientIP/ClientIP do the
+	// same "which hop do I trust" job via an atomically-swapped set instead, kept
+	// pinned to the "frontend" Swarm service's own nginx — never a CIDR, which
+	// would also trust every other container on the same network (ACC-F11).
+	go middleware.WatchTrustedProxy(appCtx, cfg.trustedProxyHost, cfg.trustedProxyRefresh)
+	engine.Use(middleware.ResolveClientIP())
 	engine.Use(gin.Recovery())
 	engine.Use(requestLogger())
 	catcher.Info(fmt.Sprintf("CORS init: devMode=%t (origins matching http://localhost will be allowed only when devMode=true)", cfg.devMode), nil)
@@ -91,7 +100,7 @@ func requestLogger() gin.HandlerFunc {
 				"path":       c.Request.URL.Path,
 				"status":     status,
 				"latency_ms": time.Since(start).Milliseconds(),
-				"client_ip":  c.ClientIP(),
+				"client_ip":  middleware.ClientIP(c),
 			})
 		}
 	}
@@ -145,7 +154,22 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 		_ = catcher.Error("INTERNAL_KEY_ALLOWED_CIDRS is not a list of CIDRs", err, nil)
 		os.Exit(1)
 	}
-	userAuth := middleware.Authenticate(m.signer, apiKeyAuth, cfg.internalKey, supportOf, middleware.WithInternalPolicy(internalPolicy))
+	// ACC-F34: a JWT's signature/expiry check never touches the DB, so without
+	// this, suspending or terminating a tenant has no effect on its users or API
+	// keys until every already-issued token happens to expire on its own.
+	tenantActive := func(ctx context.Context, tenantID string) (bool, error) {
+		tenantUUID, err := uuid.Parse(tenantID)
+		if err != nil {
+			return false, err
+		}
+		t, err := m.tenant.GetTenantUsecase().GetByID(ctx, tenantUUID)
+		if err != nil {
+			return false, err
+		}
+		return t.Status == tenant_domain.StatusActive, nil
+	}
+	userAuth := middleware.Authenticate(m.signer, apiKeyAuth, cfg.internalKey, supportOf, tenantActive, middleware.WithInternalPolicy(internalPolicy))
+	internalAuth := middleware.RequireInternal()
 
 	isEnterprise := func() bool { return m.billing.License().Current().IsEnterprise() }
 	enterprise := middleware.RequireEnterprise(isEnterprise)
@@ -187,7 +211,7 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 	appconfig.RegisterRoutes(api, m.appconfig, userAuth, enterprise, platform)
 	billing.RegisterRoutes(api, m.billing, userAuth)
 	alerts.RegisterRoutes(api, m.alerts, userAuth)
-	soar.RegisterRoutes(api, m.soar, userAuth, apiKeyAuth, platform)
+	soar.RegisterRoutes(api, m.soar, userAuth, apiKeyAuth, tenantActive, platform)
 	eventprocessing.RegisterRoutes(api, m.eventProcessing, userAuth, platform, tenantLister)
 	compliance.RegisterRoutes(api, m.compliance, userAuth, platform)
 	dashboards.RegisterRoutes(api, m.dashboards, userAuth)
@@ -197,7 +221,14 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 	notifications.RegisterRoutes(api, m.notifications, userAuth)
 	socai.RegisterRoutes(api, m.socAI, userAuth)
 	threatintel.RegisterRoutes(api, m.threatIntel, userAuth)
-	storage.RegisterRoutes(api, m.storage, userAuth)
+
+	// if data retention is disable that module gets internal only
+	if cfg.dataRetentionEnabled {
+		storage.RegisterRoutes(api, m.storage, userAuth,userAuth)
+	}else{
+		storage.RegisterRoutes(api, m.storage, internalAuth,userAuth)
+	}
+
 	datasources.RegisterRoutes(api, m.datasources, userAuth)
 	adaudit.RegisterRoutes(api, m.adaudit, userAuth)
 	if m.mcp != nil {
