@@ -75,7 +75,7 @@ func Models() []any {
 	}
 }
 
-func MigrateDatabase(db *gorm.DB, migrationsURL string) error {
+func MigrateDatabase(db *gorm.DB, preMigrationsURL, postMigrationsURL string) error {
 	if err := db.Exec(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`).Error; err != nil {
 		catcher.Warn("could not create uuid-ossp extension", map[string]any{"error": err.Error()})
 	}
@@ -95,6 +95,18 @@ func MigrateDatabase(db *gorm.DB, migrationsURL string) error {
 		}
 	}
 
+	tables, err := db.Migrator().GetTables()
+	if err != nil {
+		return err
+	}
+
+	if len(tables) > 0 {
+		err := runSQLMigrations(db, preMigrationsURL, "pre_schema_migrations", "pre-AutoMigrate")
+		if err != nil {
+			return err
+		}
+	}
+
 	models := Models()
 	if len(models) > 0 {
 		catcher.Info("running GORM AutoMigrate...", nil)
@@ -104,10 +116,10 @@ func MigrateDatabase(db *gorm.DB, migrationsURL string) error {
 		catcher.Info("GORM AutoMigrate complete", nil)
 	}
 
-	if migrationsURL == "" {
+	if postMigrationsURL == "" {
 		return nil
 	}
-	return runSQLMigrations(db, migrationsURL, "schema_migrations", "post-AutoMigrate")
+	return runSQLMigrations(db, postMigrationsURL, "post_schema_migrations", "post-AutoMigrate")
 }
 
 func runSQLMigrations(db *gorm.DB, migrationsURL, table, stage string) error {
