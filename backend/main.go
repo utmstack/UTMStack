@@ -83,6 +83,7 @@ func main() {
 	if err := modules.soar.Start(appCtx); err != nil {
 		_ = catcher.Error("soar flow bootstrap failed", err, nil)
 	}
+	modules.storage.Start(appCtx)
 
 	engine := initHTTPServer(cfg, appCtx)
 	registerRoutes(engine, modules, cfg)
