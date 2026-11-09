@@ -200,3 +200,312 @@ PARTITION BY toYYYYMM(`@timestamp`)
 ORDER BY (tenantId, type, dataSource, dataType, `@timestamp`)
 TTL toDateTime(`@timestamp`) + INTERVAL 1095 DAY DELETE
 SETTINGS ttl_only_drop_parts = 1;
+
+
+-- ============================================================================
+-- Behavioral profiling.
+--
+-- All three tables below are maintained by ClickHouse itself; the pipeline
+-- never writes to them by hand.
+--
+--   user_daily_activity   incremental MV on logs. One row per (tenant, user,
+--                         day): login count, event count, the distinct login
+--                         IPs, circular sin/cos sums of login hours and the
+--                         last login row. This compressed memory outlives the
+--                         730-day TTL of logs, so profiles keep working after
+--                         raw data has rotated.
+--   user_behavior_profile refreshable MV (REFRESH EVERY 1 HOUR) over the last
+--                         90 days of user_daily_activity. One row per user:
+--                         mean / stddevSampStable of daily counts, p95,
+--                         circular hour mean (sin/cos) and spread, topK(10)
+--                         login IPs, last known geo. ReplacingMergeTree: each
+--                         refresh replaces the whole table atomically, so a
+--                         reader (the user-behavioral plugin) never sees a
+--                         half-computed row. No TTL: a user that leaves the
+--                         90-day window simply has no row in the next
+--                         refresh.
+--   user_profile_history  refreshable MV (REFRESH EVERY 1 DAY APPEND) that
+--                         snapshots the profile once a day. Long-term memory:
+--                         a dormant user that returns is judged against these
+--                         rows instead of "no profile at all".
+--
+-- The login predicate is written twice (the exploration view and the
+-- incremental MV) because a ClickHouse MV only fires on inserts into its own
+-- FROM table, so it cannot delegate the predicate to the view. Both copies
+-- must stay in sync with definitions/filters:
+--
+--   wineventlog  log.eventCode 4624 ONLY windows-events.yaml:673
+--   linux        syslogIdentifier sshd/sshd-session actionResult success, or
+--                auditd action USER_LOGIN actionResult success  linux.yaml:927,936,534
+--   azure        log.azureKind 'signin'      azure-eventhub.yaml:2947
+--   o365         log.RecordType 15 actionResult success (UserLoginFailed is an attack)
+--   aws          log.eventSource 'signin.amazonaws.com' + ConsoleLogin aws.yaml:512
+--   google       log.protoPayloadServiceName 'login.googleapis.com' gcp.yaml:527, 543
+--
+-- Events without origin.ip (windows and linux filters do not set it) still
+-- feed the volume metric; hour, IP and geo judgments only apply to rows that
+-- carry an ip. Geolocation (origin.geolocation.*) is only present on rows
+-- from filters that run the geo transform (azure, o365, aws, gcp); every geo
+-- judgment degrades silently when it is absent.
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS utmstack.user_daily_activity
+(
+    `tenantId`        LowCardinality(String),
+    `day`             Date,
+    `user`            String,
+    `login_count`     UInt64,
+    `event_count`     UInt64,
+    `login_ips`       Array(String),
+    `sin_sum`         Float64,
+    `cos_sum`         Float64,
+    `last_login_at`   DateTime64(3, 'UTC'),
+    `last_login_ip`   String,
+    `last_login_country` String
+)
+ENGINE = MergeTree
+PARTITION BY toYYYYMM(`day`)
+ORDER BY (tenantId, user, day)
+TTL `day` + INTERVAL 1095 DAY DELETE
+SETTINGS ttl_only_drop_parts = 1;
+
+-- Every event of a known user, annotated with its login status. A plain view
+-- for ad-hoc exploration and reporting; the incremental MV does NOT read it
+-- (a MV only fires on inserts into its own FROM table) and duplicates the
+-- predicate — keep the two in sync.
+CREATE VIEW IF NOT EXISTS utmstack.user_activity_rows AS
+SELECT
+    `tenantId`,
+    toStartOfDay(`@timestamp`) AS `day`,
+    `@timestamp`               AS `ts`,
+    toString(`origin`.`user`)  AS `user`,
+    toString(`origin`.`ip`)    AS `ip`,
+    toString(`origin`.`geolocation`.`countryCode`) AS `geo_country_code`,
+    (
+         (dataType = 'wineventlog'
+          AND toString(`log`.`eventCode`) = '4624')
+      OR (dataType = 'linux'
+          AND ((toString(`log`.`syslogIdentifier`) IN ('sshd', 'sshd-session')
+                AND `actionResult` = 'success')
+               OR (toString(`log`.`syslogIdentifier`) = 'auditd'
+                   AND toString(`action`) = 'USER_LOGIN'
+                   AND `actionResult` = 'success')))
+      OR (dataType = 'azure'
+          AND lower(toString(`log`.`azureKind`)) = 'signin')
+      OR (dataType = 'o365'
+          AND toString(`log`.`RecordType`) = '15'
+          AND `actionResult` = 'success')
+      OR (dataType = 'aws'
+          AND toString(`log`.`eventSource`) = 'signin.amazonaws.com'
+          AND toString(`log`.`eventName`) = 'ConsoleLogin')
+      OR (dataType = 'google'
+          AND toString(`log`.`protoPayloadServiceName`) = 'login.googleapis.com')
+    ) AS `is_login`
+FROM utmstack.logs
+WHERE toString(`origin`.`user`) != '';
+
+-- Incremental: fires on every insert block into logs, so
+-- user_daily_activity is updated at write time, with zero latency. The login
+-- predicate is inlined as a subquery that computes is_login once per row.
+CREATE MATERIALIZED VIEW IF NOT EXISTS utmstack.user_daily_activity_mv
+TO utmstack.user_daily_activity
+AS SELECT
+    `tenantId`,
+    toStartOfDay(`@timestamp`) AS `day`,
+    toString(`origin`.`user`)  AS `user`,
+    countIf(`is_login`)        AS `login_count`,
+    count()                    AS `event_count`,
+    groupUniqArrayIf(toString(`origin`.`ip`),
+                     toString(`origin`.`ip`) != '')          AS `login_ips`,
+    sumIf(sin(toInt32(toHour(`@timestamp`)) * 3.141592653589793 / 12),
+          `is_login` AND toString(`origin`.`ip`) != '')      AS `sin_sum`,
+    sumIf(cos(toInt32(toHour(`@timestamp`)) * 3.141592653589793 / 12),
+          `is_login` AND toString(`origin`.`ip`) != '')      AS `cos_sum`,
+    maxIf(`@timestamp`,
+          `is_login` AND toString(`origin`.`ip`) != '')      AS `last_login_at`,
+    anyIf(toString(`origin`.`ip`),
+          `is_login` AND toString(`origin`.`ip`) != '')      AS `last_login_ip`,
+    anyIf(toString(`origin`.`geolocation`.`countryCode`),
+          `is_login` AND toString(`origin`.`ip`) != ''
+              AND toString(`origin`.`geolocation`.`countryCode`) != '')
+                                       AS `last_login_country`
+FROM (
+    SELECT
+        `tenantId`,
+        `@timestamp`,
+        `origin`,
+        (
+             (dataType = 'wineventlog'
+              AND toString(`log`.`eventCode`) = '4624')
+          OR (dataType = 'linux'
+              AND ((toString(`log`.`syslogIdentifier`) IN ('sshd', 'sshd-session')
+                    AND `actionResult` = 'success')
+                   OR (toString(`log`.`syslogIdentifier`) = 'auditd'
+                       AND toString(`action`) = 'USER_LOGIN'
+                       AND `actionResult` = 'success')))
+          OR (dataType = 'azure'
+              AND lower(toString(`log`.`azureKind`)) = 'signin')
+          OR (dataType = 'o365'
+              AND toString(`log`.`RecordType`) = '15'
+              AND `actionResult` = 'success')
+          OR (dataType = 'aws'
+              AND toString(`log`.`eventSource`) = 'signin.amazonaws.com'
+              AND toString(`log`.`eventName`) = 'ConsoleLogin')
+          OR (dataType = 'google'
+              AND toString(`log`.`protoPayloadServiceName`) = 'login.googleapis.com')
+        ) AS `is_login`
+    FROM utmstack.logs
+    WHERE toString(`origin`.`user`) != ''
+)
+GROUP BY `tenantId`, toStartOfDay(`@timestamp`), toString(`origin`.`user`);
+
+CREATE TABLE IF NOT EXISTS utmstack.user_behavior_profile
+(
+    `tenantId`         LowCardinality(String),
+    `user`             String,
+    `login_day_mean`   Float64,
+    `login_day_std`    Float64,
+    `event_day_mean`   Float64,
+    `event_day_std`    Float64,
+    `event_day_p95`    UInt64,
+    `hour_sin`         Float64,
+    `hour_cos`         Float64,
+    `hour_std`         Float64,
+    `top_ips`          Array(String),
+    `main_ip_lat`      Float64,
+    `main_ip_lon`      Float64,
+    `last_login_at`    DateTime64(3, 'UTC'),
+    `last_login_ip`    String,
+    `last_login_country` String,
+    `min_samples_ok`   Bool,
+    `updated_at`       DateTime64(3, 'UTC')
+)
+ENGINE = ReplacingMergeTree(`updated_at`)
+PARTITION BY toYYYYMM(`updated_at`)
+ORDER BY (tenantId, user)
+SETTINGS ttl_only_drop_parts = 1;
+
+-- Hourly: recompute the 90-day statistics for every user and atomically
+-- replace the profile. The login hour is circular (00:00 and 23:00 are one
+-- hour apart), so the mean hour lives in the atan2 of the mean sin/cos and
+-- its spread is the circular standard deviation sqrt(-2 ln R), where R is
+-- the mean resultant length. stddevSampStable (not stddevSamp) is used on
+-- the daily counts: the plain variant is documented as numerically unstable
+-- on wide windows.
+--
+-- top_ips is the topK(10) login IP of the window. main_ip_lat / main_ip_lon
+-- are left as 0: login events do not carry coordinates on windows/linux
+-- sources, and the impossible-travel judgment only runs when both the last
+-- login and the incoming event carry coordinates; the plugin derives the
+-- missing coordinate from last_login_country + last_login_ip using the same
+-- geolocation lookup it applies to the event.
+--
+-- Users with no login rows are excluded so the circular mean never divides
+-- by zero, and hour_std is guarded against the all-hours-cancel case
+-- (R = 0 -> ln(0) = -inf). A user who starts logging in gets a row at the
+-- next refresh.
+CREATE MATERIALIZED VIEW IF NOT EXISTS utmstack.user_behavior_profile_mv
+REFRESH EVERY 1 HOUR TO utmstack.user_behavior_profile AS
+WITH base AS (
+    SELECT
+        tenantId,
+        user,
+        sum(login_count)          AS logins_total,
+        uniqExact(day)            AS days_active,
+        avg(login_count)          AS login_day_mean,
+        stddevSampStable(login_count) AS login_day_std,
+        avg(event_count)          AS event_day_mean,
+        stddevSampStable(event_count) AS event_day_std,
+        quantile(0.95)(event_count) AS event_day_p95,
+        sum(sin_sum)              AS sin_total,
+        sum(cos_sum)              AS cos_total,
+        max(last_login_at)        AS last_login_at,
+        anyIf(last_login_ip, last_login_ip != '')      AS last_login_ip,
+        anyIf(last_login_country, last_login_country != '') AS last_login_country
+    FROM utmstack.user_daily_activity
+    WHERE day >= toStartOfDay(now()) - INTERVAL 89 DAY
+    GROUP BY tenantId, user
+    HAVING logins_total > 0
+),
+top AS (
+    SELECT tenantId, user, topK(10)(ip) AS top_ips
+    FROM (
+        SELECT tenantId, user, arrayJoin(login_ips) AS ip
+        FROM utmstack.user_daily_activity
+        WHERE day >= toStartOfDay(now()) - INTERVAL 89 DAY
+          AND notEmpty(login_ips)
+    )
+    GROUP BY tenantId, user
+)
+SELECT
+    b.tenantId,
+    b.user,
+    b.login_day_mean,
+    if(b.days_active >= 2, b.login_day_std, 0)   AS login_day_std,
+    b.event_day_mean,
+    if(b.days_active >= 2, b.event_day_std, 0)   AS event_day_std,
+    toUInt64(b.event_day_p95)                     AS event_day_p95,
+    b.sin_total / b.logins_total                  AS hour_sin,
+    b.cos_total / b.logins_total                  AS hour_cos,
+    -- Circular std: sqrt(-2 ln R), R the mean resultant length. Guarded
+    -- against R = 0 (logins that cancel on the clock) which would be -inf.
+    if(hypot(b.sin_total, b.cos_total) > 0,
+       sqrt(-2 * ln(hypot(b.sin_total, b.cos_total) / b.logins_total)), 0) AS hour_std,
+    t.top_ips,
+    0 AS main_ip_lat,
+    0 AS main_ip_lon,
+    b.last_login_at,
+    b.last_login_ip,
+    b.last_login_country,
+    (b.logins_total >= 20 AND b.days_active >= 14) AS min_samples_ok,
+    now64(3) AS updated_at
+FROM base AS b
+LEFT JOIN top AS t ON t.tenantId = b.tenantId AND t.user = b.user;
+
+CREATE TABLE IF NOT EXISTS utmstack.user_profile_history
+(
+    `tenantId`           LowCardinality(String),
+    `user`               String,
+    `snapshotted_at`     Date,
+    `login_day_mean`     Float64,
+    `login_day_std`      Float64,
+    `event_day_mean`     Float64,
+    `event_day_std`      Float64,
+    `event_day_p95`      UInt64,
+    `hour_sin`           Float64,
+    `hour_cos`           Float64,
+    `hour_std`           Float64,
+    `top_ips`            Array(String),
+    `main_ip_lat`        Float64,
+    `main_ip_lon`        Float64,
+    `last_login_at`      DateTime64(3, 'UTC'),
+    `last_login_ip`      String,
+    `last_login_country` String
+)
+ENGINE = MergeTree
+PARTITION BY toYYYYMM(`snapshotted_at`)
+ORDER BY (tenantId, user, snapshotted_at)
+TTL `snapshotted_at` + INTERVAL 1095 DAY DELETE
+SETTINGS ttl_only_drop_parts = 1;
+
+CREATE MATERIALIZED VIEW IF NOT EXISTS utmstack.user_profile_history_mv
+REFRESH EVERY 1 DAY APPEND TO utmstack.user_profile_history AS
+SELECT
+    tenantId,
+    user,
+    toStartOfDay(now()) AS snapshotted_at,
+    login_day_mean,
+    login_day_std,
+    event_day_mean,
+    event_day_std,
+    toUInt64(event_day_p95) AS event_day_p95,
+    hour_sin,
+    hour_cos,
+    hour_std,
+    top_ips,
+    main_ip_lat,
+    main_ip_lon,
+    last_login_at,
+    last_login_ip,
+    last_login_country
+FROM utmstack.user_behavior_profile;
