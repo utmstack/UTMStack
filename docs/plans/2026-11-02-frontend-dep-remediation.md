@@ -443,7 +443,8 @@ git commit --no-gpg-sign -m "chore(security): Part 1 exit state - criticals clos
 - **Entry:** Phase 3 exit.
 - **Actions:** final full bundle scan (all 332-alert inventory re-checked); GitHub dispositions (user approval gate, per Task 1.5 pattern); delete `docs/security/deps/` interim artifacts except the final memo; update the 2026-10-27 report's Part D to DONE-state with commit links; **release** as a v12-line (or v11.x-frontend-major, decided with user — the Angular 17 frontend changes the dist contract, so it wants its own release tag).
 - **Exit:** 0 open findings in the report except the written accept-risks (moment, any long-tail lib from the matrix); Part 2 documented complete.
-- **STATUS: IN PROGRESS (2026-11-05, scan+docs DONE; 2 user gates pending).** Final full
+- **STATUS: COMPLETE — all actions done, release pending (2026-11-09).** Implementation and
+    verification all finished on `fix/ir-role-model-v11.3.1` (PR #3067). Final full
    bundle scan executed on the shipped A17 + jspdf-4.2.1 dist
    (main.0e44dbab6d374ec4.js, 37 chunks / 8,524,405 bytes): 0 open advisories across
    the full previously-alerted frontend inventory - every disputed Node-side package
@@ -466,10 +467,16 @@ git commit --no-gpg-sign -m "chore(security): Part 1 exit state - criticals clos
    layout regression. Two final same-major runtime bumps closed the last fixable open
    advisories: lodash ~4.17.23 -> ~4.18.1, moment-timezone ^0.5.21 -> ^0.5.35
    (resolves 0.5.48); both verified through a clean CI-replica build + lab SMOKE_PASS.
-   PENDING user:
-   (a) GitHub Dependabot dispositions per the memo template; (b) release naming
-   (v12-line vs v11.x-frontend-major - the Angular 17 dist contract wants its own
-   tag).
+   Both user gates answered 2026-11-09:
+   (a) "can we fix dev-scoped too" -> dev-scope FIX pass applied
+   (12317c981f + c848c09255: protractor EOL scaffolding removed - owned the
+   request/form-data/tough-cookie/adm-zip critical+high family - ts-node
+   dropped, karma 6.4.4, ajv 8.20.0, es5-ext override, dev-chain float;
+   npm audit full scope 83 -> 61, every remainder locked to build-angular/cli
+   17 majors with written accept-risk lines in the memo); the not_affected
+   dismissal of the toolchain-locked remainder runs post-merge on explicit go.
+   (b) release = v11.x frontend-major -> **v11.4.0**, tagged on the #3067 merge.
+   REMAINING: merge #3067 to v11 + tag/release v11.4.0.
 
 ## Effort roll-up
 | Phase | Est. |
