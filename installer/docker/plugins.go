@@ -70,7 +70,7 @@ func SetPluginsConfigs(conf *config.Config, stack *StackConfig) error {
 	analysisPipeline := PluginsConfig{}
 	analysisPipeline.Plugins = make(map[string]PluginConfig)
 	analysisPipeline.Plugins["analysis"] = PluginConfig{
-		Order: []string{"com.utmstack.events", "cel", "feeds", "com.utmstack.ad-audit"},
+		Order: []string{"com.utmstack.events", "cel", "feeds", "com.utmstack.ad-audit", "com.utmstack.user-behavioral"},
 	}
 
 	correlationPipeline := PluginsConfig{}
@@ -154,7 +154,55 @@ func SetPluginsConfigs(conf *config.Config, stack *StackConfig) error {
 		return fmt.Errorf("error seeding feeds plugin config: %w", err)
 	}
 
+	behavioralPath := filepath.Join(pipelineDir, "system_plugins_user_behavioral.yaml")
+	if err := seedBehavioralConfig(behavioralPath); err != nil {
+		return fmt.Errorf("error seeding user-behavioral plugin config: %w", err)
+	}
+
 	return nil
+}
+
+type behavioralFile struct {
+	Plugins map[string]behavioralCfg `yaml:"plugins"`
+}
+
+type behavioralCfg struct {
+	ZScoreLimit            float64 `yaml:"z_score_limit,omitempty"`
+	ScanInterval           string  `yaml:"scan_interval,omitempty"`
+	ImpactMedium           int     `yaml:"impact_medium,omitempty"`
+	ImpactHigh             int     `yaml:"impact_high,omitempty"`
+	MaxConcurrentJudgments int     `yaml:"max_concurrent_judgments,omitempty"`
+	CountCacheTTL          string  `yaml:"count_cache_ttl,omitempty"`
+}
+
+func seedBehavioralConfig(path string) error {
+	var bf behavioralFile
+	if _, err := os.Stat(path); err == nil {
+		if err := utils.ReadYAML(path, &bf); err != nil {
+			return fmt.Errorf("error reading %s: %w", path, err)
+		}
+	}
+	if bf.Plugins == nil {
+		bf.Plugins = map[string]behavioralCfg{}
+	}
+
+	changed := false
+	if _, ok := bf.Plugins["user_behavioral"]; !ok {
+		bf.Plugins["user_behavioral"] = behavioralCfg{
+			ZScoreLimit:            3.0,
+			ScanInterval:           "5m",
+			ImpactMedium:           2,
+			ImpactHigh:             3,
+			MaxConcurrentJudgments: 32,
+			CountCacheTTL:          "1m",
+		}
+		changed = true
+	}
+
+	if !changed {
+		return nil
+	}
+	return utils.WriteYAML(path, bf)
 }
 
 func seedFeedsConfig(path string) error {
