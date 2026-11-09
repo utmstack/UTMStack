@@ -54,12 +54,13 @@ func RegisterRoutes(api *gin.RouterGroup, module *Module, userAuth gin.HandlerFu
 	tfaGroup.POST("/disable", tfa.Disable)
 
 	keyGroup := api.Group("/api-keys", userAuth)
-	keyGroup.POST("", enterprise, apiKeys.Create)
-	keyGroup.GET("", apiKeys.List)
-	keyGroup.GET("/:id", apiKeys.Get)
-	keyGroup.PUT("/:id", apiKeys.Update)
-	keyGroup.DELETE("/:id", apiKeys.Delete)
-	keyGroup.POST("/:id/generate", enterprise, apiKeys.Generate)
+	keyGroup.POST("",middleware.RequirePermission("apikey.write"), enterprise, apiKeys.Create)
+	keyGroup.GET("",middleware.RequirePermission("apikey.read"), apiKeys.List)
+	keyGroup.GET("/:id",middleware.RequirePermission("apikey.read"), apiKeys.Get)
+	keyGroup.PUT("/:id", middleware.RequirePermission("apikey.write"), apiKeys.Update)
+	keyGroup.DELETE("/:id",middleware.RequirePermission("apikey.write"), apiKeys.Delete)
+
+	keyGroup.POST("/:id/generate",middleware.RequirePermission("apikey.write"), enterprise, apiKeys.Generate)
 	keyGroup.POST("/authenticate", middleware.RequireInternal(), apiKeys.Authenticate)
 
 	idp := module.GetIDPHandler()
