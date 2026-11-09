@@ -18,6 +18,7 @@ import { SavedSearches, type SavedSearchState } from './SavedSearches'
 import { HistogramStrip } from './HistogramStrip'
 import { ChartPanel } from './ChartPanel'
 import { OP_KEY, TS } from './log-explorer.constants'
+import { resolveDashboardDataType } from '../domain/dashboard-search'
 import {
   logExplorerHttpService as svc,
   LogExplorerHttpError,
@@ -213,7 +214,8 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
         )
         if (cancelled) return
         setSources(list)
-        const ps = list.find((l) => l.dataset === (initial.dataset ?? DEFAULT_DATASET))?.dataTypes ?? []
+        const initialDataTypes =
+          list.find((l) => l.dataset === (initial.dataset ?? DEFAULT_DATASET))?.dataTypes ?? []
         const state = location.state as {
           relatedLogs?: RelatedLogsSeed
           dashboardSearch?: DashboardSearchSeed
@@ -223,7 +225,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
         const seed = state?.relatedLogs
         if (seed?.ids?.length && !seededRef.current) {
           seededRef.current = true
-          setPattern(ps.find((p) => p === seed.dataType) ?? null)
+          setPattern(initialDataTypes.find((p) => p === seed.dataType) ?? null)
           setFilters([{ field: 'id', operator: 'IS_ONE_OF_TERMS', value: seed.ids }])
           setRange({ from: seed.timeFrom, to: seed.timeTo, interval: 'hour' })
           if (seed.truncated) {
@@ -236,11 +238,19 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
         }
         if (state?.dashboardSearch && !seededRef.current) {
           seededRef.current = true
-          setDataset(state.dashboardSearch.dataset)
-          setPattern(state.dashboardSearch.dataType ?? null)
-          setFilters(state.dashboardSearch.filters)
+          const dashboardSearch = state.dashboardSearch
+          const targetDataTypes =
+            list.find((source) => source.dataset === dashboardSearch.dataset)?.dataTypes ?? []
+          const resolved = resolveDashboardDataType(
+            dashboardSearch.filters,
+            dashboardSearch.dataType,
+            targetDataTypes,
+          )
+          setDataset(dashboardSearch.dataset)
+          setPattern(resolved.dataType)
+          setFilters(resolved.filters)
           setRange(state.dashboardSearch.range)
-          setColumns(state.dashboardSearch.filters.map((filter) => filter.field))
+          setColumns(resolved.filters.map((filter) => filter.field))
           navigate(location.pathname, { replace: true })
           setReadyToPersist(true)
           return
@@ -258,7 +268,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
         // Default: resolve the tab's saved data type against the live ones.
         const target = initial.patternStr
         // A saved tab keeps its data type; anything else starts on all of them.
-        setPattern(target ? (ps.find((p) => p === target) ?? null) : null)
+        setPattern(target ? (initialDataTypes.find((p) => p === target) ?? null) : null)
         setReadyToPersist(true)
       })
       .catch(() => {
