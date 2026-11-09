@@ -15,14 +15,16 @@ import (
 )
 
 const (
-	DatasetLogs   = store.Dataset("logs")
-	DatasetAlerts = store.Dataset("alerts")
-	DatasetStats  = store.Dataset("statistics")
+	DatasetLogs        = store.Dataset("logs")
+	DatasetAlerts      = store.Dataset("alerts")
+	DatasetStats       = store.Dataset("statistics")
+	DatasetUserHistory = store.Dataset("user_profile_history")
 )
 
 type Store struct {
 	*clickhouse.Driver
-	Conn driver.Conn
+	history *clickhouse.Driver
+	Conn    driver.Conn
 }
 
 func New() (*Store, error) {
@@ -70,11 +72,34 @@ func New() (*Store, error) {
 		return nil, err
 	}
 
-	return &Store{Driver: d, Conn: conn}, nil
+	// The history table is keyed by snapshotted_at, not @timestamp, so it needs
+	// its own driver for the retention math to pick the right column.
+	h, err := clickhouse.New(clickhouse.Config{
+		Conn:         conn,
+		Database:     env.String("CLICKHOUSE_DB", "utmstack", false),
+		Tables:       map[store.Dataset]string{DatasetUserHistory: "user_profile_history"},
+		TenantColumn: "tenantId",
+		TimeColumn:   "snapshotted_at",
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &Store{Driver: d, history: h, Conn: conn}, nil
+}
+
+// DriverFor returns the clickhouse driver that owns the given dataset. The
+// history dataset has its own driver because its time column differs from the
+// log tables; everything else shares the main one.
+func (s *Store) DriverFor(ds store.Dataset) *clickhouse.Driver {
+	if ds == DatasetUserHistory {
+		return s.history
+	}
+	return s.Driver
 }
 
 func (s *Store) TableName(d store.Dataset) string {
-	name := map[store.Dataset]string{DatasetLogs: "logs", DatasetAlerts: "alerts", DatasetStats: "statistics"}[d]
+	name := map[store.Dataset]string{DatasetLogs: "logs", DatasetAlerts: "alerts", DatasetStats: "statistics", DatasetUserHistory: "user_profile_history"}[d]
 	db := env.String("CLICKHOUSE_DB", "utmstack", false)
 	return db + "." + name
 }
@@ -90,7 +115,7 @@ func (s *Store) PurgeTenant(ctx context.Context, tenantID string) error {
 	if _, err := uuid.Parse(tenantID); err != nil {
 		return fmt.Errorf("purge: invalid tenant id: %w", err)
 	}
-	for _, d := range []store.Dataset{DatasetLogs, DatasetAlerts, DatasetStats} {
+	for _, d := range []store.Dataset{DatasetLogs, DatasetAlerts, DatasetStats, DatasetUserHistory} {
 		sql := fmt.Sprintf("ALTER TABLE %s DELETE WHERE tenantId = '%s'", s.TableName(d), tenantID)
 		if err := s.Conn.Exec(ctx, sql); err != nil {
 			return fmt.Errorf("purge %s: %w", d, err)

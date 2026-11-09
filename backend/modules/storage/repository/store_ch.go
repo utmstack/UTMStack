@@ -20,9 +20,10 @@ func NewStoreRepository(s *eventstore.Store) connectors.StoreRepository {
 }
 
 var datasets = map[domain.Dataset]store.Dataset{
-	domain.DatasetLogs:   eventstore.DatasetLogs,
-	domain.DatasetAlerts: eventstore.DatasetAlerts,
-	domain.DatasetStats:  eventstore.DatasetStats,
+	domain.DatasetLogs:        eventstore.DatasetLogs,
+	domain.DatasetAlerts:      eventstore.DatasetAlerts,
+	domain.DatasetStats:       eventstore.DatasetStats,
+	domain.DatasetUserProfile: eventstore.DatasetUserHistory,
 }
 
 func (r *chStoreRepository) Retention(ctx context.Context, d domain.Dataset) (domain.Retention, error) {
@@ -31,7 +32,7 @@ func (r *chStoreRepository) Retention(ctx context.Context, d domain.Dataset) (do
 		return domain.Retention{}, domain.ErrUnknownDataset
 	}
 
-	got, err := r.store.Retention(ctx, ds)
+	got, err := r.store.DriverFor(ds).Retention(ctx, ds)
 	if err != nil {
 		return domain.Retention{}, err
 	}
@@ -67,7 +68,7 @@ func (r *chStoreRepository) SetRetention(ctx context.Context, want domain.Retent
 		}
 	}
 
-	return r.store.SetRetention(ctx, ds, toStore(want))
+	return r.store.DriverFor(ds).SetRetention(ctx, ds, toStore(want))
 }
 
 func (r *chStoreRepository) AdoptTiering(ctx context.Context, want domain.Retention) error {
@@ -75,7 +76,7 @@ func (r *chStoreRepository) AdoptTiering(ctx context.Context, want domain.Retent
 	if !ok {
 		return domain.ErrUnknownDataset
 	}
-	return r.store.EnableTiering(ctx, ds, domain.PolicyName, toStore(want))
+	return r.store.DriverFor(ds).EnableTiering(ctx, ds, domain.PolicyName, toStore(want))
 }
 
 func (r *chStoreRepository) Usage(ctx context.Context) ([]domain.Usage, error) {
@@ -83,6 +84,11 @@ func (r *chStoreRepository) Usage(ctx context.Context) ([]domain.Usage, error) {
 	if err != nil {
 		return nil, err
 	}
+	hRows, err := r.store.DriverFor(eventstore.DatasetUserHistory).Usage(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rows = append(rows, hRows...)
 
 	byDataset := make(map[domain.Dataset]*domain.Usage, len(rows))
 	for _, u := range rows {

@@ -21,9 +21,10 @@ type fakeStore struct {
 
 func newFakeStore() *fakeStore {
 	return &fakeStore{retentions: map[domain.Dataset]domain.Retention{
-		domain.DatasetLogs:   {Dataset: domain.DatasetLogs, KeepDays: 730},
-		domain.DatasetAlerts: {Dataset: domain.DatasetAlerts, KeepDays: 730},
-		domain.DatasetStats:  {Dataset: domain.DatasetStats, KeepDays: 1095},
+		domain.DatasetLogs:        {Dataset: domain.DatasetLogs, KeepDays: 730},
+		domain.DatasetAlerts:      {Dataset: domain.DatasetAlerts, KeepDays: 730},
+		domain.DatasetStats:       {Dataset: domain.DatasetStats, KeepDays: 1095},
+		domain.DatasetUserProfile: {Dataset: domain.DatasetUserProfile, KeepDays: 1095},
 	}}
 }
 
@@ -92,6 +93,25 @@ func TestMovingToColdStorageNeedsColdStorage(t *testing.T) {
 	})
 	if !errors.Is(err, domain.ErrTieringRequired) {
 		t.Fatalf("err = %v, want cold storage required", err)
+	}
+}
+
+func TestRetentionsCoversEveryDataset(t *testing.T) {
+	s, _, _ := newService()
+
+	got, err := s.Retentions(context.Background())
+	if err != nil {
+		t.Fatalf("Retentions: %v", err)
+	}
+	seen := map[domain.Dataset]bool{}
+	for _, r := range got {
+		seen[r.Dataset] = true
+	}
+	want := []domain.Dataset{domain.DatasetLogs, domain.DatasetAlerts, domain.DatasetStats, domain.DatasetUserProfile}
+	for _, d := range want {
+		if !seen[d] {
+			t.Errorf("Retentions missing dataset %s; got %v", d, got)
+		}
 	}
 }
 

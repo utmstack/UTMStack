@@ -8,16 +8,19 @@ import (
 type Dataset string
 
 const (
-	DatasetLogs   Dataset = "logs"
-	DatasetAlerts Dataset = "alerts"
-	DatasetStats  Dataset = "statistics"
+	DatasetLogs        Dataset = "logs"
+	DatasetAlerts      Dataset = "alerts"
+	DatasetStats       Dataset = "statistics"
+	DatasetUserProfile Dataset = "user_profile_history"
 )
 
-func Datasets() []Dataset { return []Dataset{DatasetLogs, DatasetAlerts, DatasetStats} }
+func Datasets() []Dataset {
+	return []Dataset{DatasetLogs, DatasetAlerts, DatasetStats, DatasetUserProfile}
+}
 
 func (d Dataset) Valid() bool {
 	switch d {
-	case DatasetLogs, DatasetAlerts, DatasetStats:
+	case DatasetLogs, DatasetAlerts, DatasetStats, DatasetUserProfile:
 		return true
 	}
 	return false
@@ -37,9 +40,10 @@ func (r Retention) Keep() time.Duration { return time.Duration(r.KeepDays) * Day
 func (r Retention) Cold() time.Duration { return time.Duration(r.ColdDays) * Day }
 
 var defaults = map[Dataset]int{
-	DatasetLogs:   730,
-	DatasetAlerts: 730,
-	DatasetStats:  1095,
+	DatasetLogs:        730,
+	DatasetAlerts:      730,
+	DatasetStats:       1095,
+	DatasetUserProfile: 1095,
 }
 
 func DefaultRetention(d Dataset) Retention {
