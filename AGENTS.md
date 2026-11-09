@@ -120,7 +120,7 @@ endpoint agent ──gRPC──▶ agent-manager ──▶ backend (Java REST AP
 ## Testing
 
 - **Go**: `go test -v ./...` in each module directory. CI runs this via `reusable-golang.yml` before build.
-- **Frontend**: `npm test` (Karma + Jasmine). Note: `e2e` script exists but uses Protractor (deprecated).
+- **Frontend**: `npm test` (Karma + Jasmine, ChromeHeadless). The Protractor `e2e` scaffolding was removed with the Angular 17 upgrade (protractor is EOL and incompatible with 17; nothing in CI ran it).
 - **Backend**: No separate `src/test/` tree. Tests live in `src/main/java/` alongside production code.
 - **Go deps check**: `bash .github/scripts/go-deps.sh --check --discover` (discovers all `go.mod` files, checks for outdated direct deps and out-of-sync `go.sum`).
 
