@@ -1,9 +1,9 @@
 module github.com/utmstack/UTMStack/installer
 
-go 1.26.0
+go 1.26.10
 
 require (
-	github.com/cloudfoundry/gosigar v1.3.127
+	github.com/cloudfoundry/gosigar v1.3.131
 	github.com/docker/docker v28.5.2+incompatible
 	github.com/kardianos/service v1.3.0
 	github.com/shirou/gopsutil/v3 v3.24.5
@@ -74,12 +74,12 @@ require (
 	go.opentelemetry.io/otel/trace v1.45.0 // indirect
 	go.uber.org/mock v0.6.0 // indirect
 	golang.org/x/arch v0.23.0 // indirect
-	golang.org/x/crypto v0.55.0 // indirect
-	golang.org/x/net v0.57.0 // indirect
-	golang.org/x/sys v0.48.0 // indirect
-	golang.org/x/text v0.41.0 // indirect
+	golang.org/x/crypto v0.58.0 // indirect
+	golang.org/x/net v0.62.0 // indirect
+	golang.org/x/sys v0.49.0 // indirect
+	golang.org/x/text v0.43.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
-	google.golang.org/protobuf v1.36.11 // indirect
+	google.golang.org/protobuf v1.36.12 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	gotest.tools/v3 v3.5.2 // indirect
 )

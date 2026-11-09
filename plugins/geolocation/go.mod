@@ -3,9 +3,9 @@ module github.com/utmstack/UTMStack/plugins/geolocation
 go 1.25.5
 
 require (
-	github.com/threatwinds/go-sdk v1.1.38
-	github.com/tidwall/gjson v1.19.0
-	github.com/tidwall/sjson v1.2.5
+	github.com/threatwinds/go-sdk v1.1.39
+	github.com/tidwall/gjson v1.20.2
+	github.com/tidwall/sjson v1.2.9
 )
 
 require (
@@ -37,7 +37,7 @@ require (
 	github.com/quic-go/qpack v0.6.0 // indirect
 	github.com/quic-go/quic-go v0.59.1 // indirect
 	github.com/tidwall/match v1.2.0 // indirect
-	github.com/tidwall/pretty v1.2.1 // indirect
+	github.com/tidwall/pretty v1.3.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.3.1 // indirect
 	go.mongodb.org/mongo-driver/v2 v2.6.0 // indirect
