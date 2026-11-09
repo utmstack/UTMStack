@@ -257,6 +257,7 @@ CREATE TABLE IF NOT EXISTS utmstack.user_daily_activity
     `login_count`     UInt64,
     `event_count`     UInt64,
     `login_ips`       Array(String),
+    `ip_login_count`  UInt64,
     `sin_sum`         Float64,
     `cos_sum`         Float64,
     `last_login_at`   DateTime64(3, 'UTC'),
@@ -316,7 +317,8 @@ AS SELECT
     countIf(`is_login`)        AS `login_count`,
     count()                    AS `event_count`,
     groupUniqArrayIf(toString(`origin`.`ip`),
-                     toString(`origin`.`ip`) != '')          AS `login_ips`,
+                     `is_login` AND toString(`origin`.`ip`) != '')   AS `login_ips`,
+    countIf(`is_login` AND toString(`origin`.`ip`) != '') AS `ip_login_count`,
     sumIf(sin(toInt32(toHour(`@timestamp`)) * 3.141592653589793 / 12),
           `is_login` AND toString(`origin`.`ip`) != '')      AS `sin_sum`,
     sumIf(cos(toInt32(toHour(`@timestamp`)) * 3.141592653589793 / 12),
@@ -372,6 +374,7 @@ CREATE TABLE IF NOT EXISTS utmstack.user_behavior_profile
     `hour_cos`         Float64,
     `hour_std`         Float64,
     `top_ips`          Array(String),
+    `ip_login_count`   UInt64,
     `main_ip_lat`      Float64,
     `main_ip_lon`      Float64,
     `last_login_at`    DateTime64(3, 'UTC'),
@@ -394,16 +397,18 @@ SETTINGS ttl_only_drop_parts = 1;
 -- on wide windows.
 --
 -- top_ips is the topK(10) login IP of the window. main_ip_lat / main_ip_lon
--- are left as 0: login events do not carry coordinates on windows/linux
--- sources, and the impossible-travel judgment only runs when both the last
--- login and the incoming event carry coordinates; the plugin derives the
--- missing coordinate from last_login_country + last_login_ip using the same
--- geolocation lookup it applies to the event.
+-- are left as 0: logins only carry a country code, and the impossible-travel
+-- judgment only runs when both the last login and the incoming event carry
+-- coordinates; the plugin derives the missing coordinate from
+-- last_login_country + last_login_ip using the same geolocation lookup it
+-- applies to the event.
 --
 -- Users with no login rows are excluded so the circular mean never divides
 -- by zero, and hour_std is guarded against the all-hours-cancel case
 -- (R = 0 -> ln(0) = -inf). A user who starts logging in gets a row at the
--- next refresh.
+-- next refresh. Local logins carry no IP, so the circular hour statistics
+-- divide by ip_login_count, the subset of logins with an IP; when none have
+-- one, hour_std is 0 and the hour judgment stays off for that user.
 CREATE MATERIALIZED VIEW IF NOT EXISTS utmstack.user_behavior_profile_mv
 REFRESH EVERY 1 HOUR TO utmstack.user_behavior_profile AS
 WITH base AS (
@@ -419,6 +424,7 @@ WITH base AS (
         quantile(0.95)(event_count) AS event_day_p95,
         sum(sin_sum)              AS sin_total,
         sum(cos_sum)              AS cos_total,
+        sum(ip_login_count)       AS ip_logins,
         max(last_login_at)        AS last_login_at,
         anyIf(last_login_ip, last_login_ip != '')      AS last_login_ip,
         anyIf(last_login_country, last_login_country != '') AS last_login_country
@@ -445,13 +451,14 @@ SELECT
     b.event_day_mean,
     if(b.days_active >= 2, b.event_day_std, 0)   AS event_day_std,
     toUInt64(b.event_day_p95)                     AS event_day_p95,
-    b.sin_total / b.logins_total                  AS hour_sin,
-    b.cos_total / b.logins_total                  AS hour_cos,
+    b.sin_total / b.ip_logins                   AS hour_sin,
+    b.cos_total / b.ip_logins                   AS hour_cos,
     -- Circular std: sqrt(-2 ln R), R the mean resultant length. Guarded
     -- against R = 0 (logins that cancel on the clock) which would be -inf.
-    if(hypot(b.sin_total, b.cos_total) > 0,
-       sqrt(-2 * ln(hypot(b.sin_total, b.cos_total) / b.logins_total)), 0) AS hour_std,
+    if(b.ip_logins > 0 AND hypot(b.sin_total, b.cos_total) > 0,
+       sqrt(-2 * ln(hypot(b.sin_total, b.cos_total) / b.ip_logins)), 0) AS hour_std,
     t.top_ips,
+    b.ip_logins AS ip_login_count,
     0 AS main_ip_lat,
     0 AS main_ip_lon,
     b.last_login_at,
@@ -476,6 +483,7 @@ CREATE TABLE IF NOT EXISTS utmstack.user_profile_history
     `hour_cos`           Float64,
     `hour_std`           Float64,
     `top_ips`            Array(String),
+    `ip_login_count`     UInt64,
     `main_ip_lat`        Float64,
     `main_ip_lon`        Float64,
     `last_login_at`      DateTime64(3, 'UTC'),
@@ -503,6 +511,7 @@ SELECT
     hour_cos,
     hour_std,
     top_ips,
+    ip_login_count,
     main_ip_lat,
     main_ip_lon,
     last_login_at,

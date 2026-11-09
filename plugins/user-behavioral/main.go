@@ -16,6 +16,7 @@ import (
 	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/threatwinds/go-sdk/store"
 	ch "github.com/threatwinds/go-sdk/store/clickhouse"
+	"github.com/tidwall/gjson"
 )
 
 const (
@@ -40,29 +41,32 @@ var (
 
 var judgeSem chan struct{}
 
-type countCache struct {
-	sync.Mutex
-	at   time.Time
-	vals map[string]int64
+type cacheEntry struct {
+	n    int64
+	from time.Time
 }
 
-var volumeCountCache = countCache{vals: map[string]int64{}}
+type countCache struct {
+	sync.Mutex
+	entries map[string]cacheEntry
+}
+
+var volumeCountCache = countCache{entries: map[string]cacheEntry{}}
 
 func (c *countCache) get(key string, now time.Time) (int64, bool) {
 	c.Lock()
 	defer c.Unlock()
-	if c.at.IsZero() || c.at.Add(countCacheTTL).Before(now) {
+	e, ok := c.entries[key]
+	if !ok || now.Sub(e.from) > countCacheTTL {
 		return 0, false
 	}
-	n, ok := c.vals[key]
-	return n, ok
+	return e.n, true
 }
 
 func (c *countCache) set(key string, n int64, now time.Time) {
 	c.Lock()
 	defer c.Unlock()
-	c.at = now
-	c.vals[key] = n
+	c.entries[key] = cacheEntry{n: n, from: now}
 }
 
 var (
@@ -76,26 +80,33 @@ var (
 )
 
 func loadBehavioralConfig() {
-	b := plugins.PluginCfg("user_behavioral")
+	applyBehavioralCfg(plugins.PluginCfg("user_behavioral"))
+}
+
+func applyBehavioralCfg(b gjson.Result) {
 	if v := b.Get("z_score_limit").Float(); v > 0 {
 		zScoreLimit = v
 	}
 	if v := b.Get("scan_interval").String(); v != "" {
-		if d, err := time.ParseDuration(v); err == nil {
+		if d, err := time.ParseDuration(v); err == nil && d > 0 {
 			scanInterval = d
 		}
 	}
-	if v := b.Get("impact_medium").Int(); v >= 0 && v <= 3 {
-		impactMedium = uint32(v)
+	if b.Get("impact_medium").Exists() {
+		if v := b.Get("impact_medium").Int(); v >= 0 && v <= 3 {
+			impactMedium = uint32(v)
+		}
 	}
-	if v := b.Get("impact_high").Int(); v >= 0 && v <= 3 {
-		impactHigh = uint32(v)
+	if b.Get("impact_high").Exists() {
+		if v := b.Get("impact_high").Int(); v >= 0 && v <= 3 {
+			impactHigh = uint32(v)
+		}
 	}
 	if v := b.Get("max_concurrent_judgments").Int(); v > 0 {
 		maxJudgeConns = int(v)
 	}
 	if v := b.Get("count_cache_ttl").String(); v != "" {
-		if d, err := time.ParseDuration(v); err == nil {
+		if d, err := time.ParseDuration(v); err == nil && d > 0 {
 			countCacheTTL = d
 		}
 	}
