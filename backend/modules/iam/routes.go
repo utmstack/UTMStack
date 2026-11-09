@@ -14,7 +14,7 @@ func RegisterRoutes(api *gin.RouterGroup, module *Module, userAuth gin.HandlerFu
 
 	authGroup := api.Group("/auth")
 	authGroup.POST("/login", auth.Login)
-	authGroup.POST("/empty_login", auth.EmptyLogin)
+	authGroup.POST("/empty_login",userAuth, auth.EmptyLogin)
 	authGroup.POST("/refresh", auth.Refresh)
 	authGroup.POST("/tfa/verify-code", tfa.VerifyLoginCode)
 

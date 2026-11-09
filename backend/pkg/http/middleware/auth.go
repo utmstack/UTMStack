@@ -5,7 +5,6 @@ import (
 	"crypto/subtle"
 	"errors"
 	"net/http"
-	"slices"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -204,7 +203,7 @@ func Authenticate(signer *jwtpkg.Signer, apiKeyAuth APIKeyAuthFunc, internalKey 
 				return
 			}
 
-			if slices.Contains(claims.Audience,jwt.ConsoleOnlyAudience) {
+			if claims.Purpose ==jwt.PurposePasswordProof {
 				AbortUnauthorized(c, "invalid token")
 				return
 			}

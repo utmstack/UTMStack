@@ -9,7 +9,6 @@ import (
 )
 
 const Issuer = "utmstack-backend"
-const ConsoleOnlyAudience= "console"
 
 type Claims struct {
 	Email       string    `json:"email,omitempty"`
@@ -95,7 +94,6 @@ func (s *Signer) SignEmpty(userID uuid.UUID, expiration time.Duration) (string, 
 			IssuedAt:  jwt.NewNumericDate(now),
 			ExpiresAt: jwt.NewNumericDate(expiresAt),
 			Issuer:    Issuer,
-			Audience:  []string{ConsoleOnlyAudience},
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS512, claims)
