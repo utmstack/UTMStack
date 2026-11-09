@@ -92,7 +92,6 @@ type UpdateUserRequest struct {
 	Email   string             `json:"email,omitempty" binding:"omitempty,email"`
 	Name    string             `json:"name,omitempty"`
 	LangKey string             `json:"lang_key,omitempty"`
-	Status  *domain.UserStatus `json:"status,omitempty"`
 }
 
 type AssignRolesRequest struct {
