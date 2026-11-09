@@ -176,9 +176,6 @@ func (u *userUsecase) Update(ctx context.Context, id uuid.UUID, input dto.Update
 	if input.LangKey != "" {
 		user.LangKey = input.LangKey
 	}
-	if input.Status != nil {
-		user.Status = *input.Status
-	}
 
 	if err := u.userRepo.Update(ctx, user); err != nil {
 		return nil, err
