@@ -1,0 +1,37 @@
+{
+  "root": true,
+  "ignorePatterns": ["projects/**/*", "dist/**/*"],
+  "overrides": [
+    {
+      "files": ["*.ts"],
+      "parserOptions": {
+        "project": ["tsconfig.json"],
+        "createDefaultProgram": true
+      },
+      "extends": [
+        "eslint:recommended",
+        "@angular-eslint/recommended"
+      ],
+      "rules": {
+        "@angular-eslint/use-lifecycle-interface": "error",
+        "@angular-eslint/component-class-suffix": "error",
+        "@angular-eslint/directive-class-suffix": "error",
+        "@angular-eslint/no-output-on-prefix": "error",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-non-null-assertion": "warn",
+        "@typescript-eslint/no-inferrable-types": ["error", { "ignoreParameters": true }],
+        "max-len": ["warn", { "code": 140 }],
+        "no-console": ["error", { "allow": ["warn", "error"] }],
+        "no-empty": "off",
+        "no-fallthrough": "error",
+        "no-restricted-imports": ["error", { "name": "rxjs/Rx" }],
+        "no-use-before-define": "error",
+        "quotes": ["error", "single", { "avoidEscape": true }]
+      }
+    },
+    {
+      "files": ["*.html"],
+      "extends": ["plugin:@angular-eslint/template/recommended"]
+    }
+  ]
+}

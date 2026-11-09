@@ -18,7 +18,10 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '14.16.1'
+          # 18.20.8: Angular CLI 17 requires >= v18.13 (S17, 2026-11-05).
+          # npm 10 preserves the existing lockfileVersion 2. Mirrors
+          # reusable-node.yml.
+          node-version: '18.20.8'
 
       - uses: actions/cache@v4
         with:

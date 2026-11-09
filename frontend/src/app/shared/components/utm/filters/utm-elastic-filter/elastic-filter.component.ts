@@ -24,8 +24,8 @@ export class ElasticFilterComponent implements OnInit, OnDestroy {
   @Input() template: 'default' | 'log-explorer' = 'default';
   @Input() filters: ElasticFilterType[] = [];
   @Input() defaultTime: ElasticFilterDefaultTime;
-  @ViewChild('popoverFilter') popoverFilter: NgbPopover;
-  @ViewChild('popoverQuery') popoverQuery: NgbPopover;
+  @ViewChild('popoverFilter', {static: false}) popoverFilter: NgbPopover;
+  @ViewChild('popoverQuery', {static: false}) popoverQuery: NgbPopover;
   operators: OperatorsType[] = FILTER_OPERATORS;
   operatorEnum = ElasticOperatorsEnum;
   filterSelected: ElasticFilterType;

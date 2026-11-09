@@ -84,14 +84,6 @@ import {AssetGenericFilterService} from "./shared/services/asset-generic-filter.
     AssetEditAliasComponent,
     SourceDataTypeConfigComponent,
     CollectorsViewComponent],
-  entryComponents: [
-    AssetSaveReportComponent,
-    AssetViewHelpComponent,
-    AssetSoftwareAddComponent,
-    AssetGroupCreateComponent,
-    AssetCreateComponent,
-    AssetDetailComponent,
-    SourceDataTypeConfigComponent],
     imports: [
         CommonModule,
         AssetsDiscoverRoutingModule,

@@ -8,7 +8,7 @@ import {find} from 'lodash';
   styleUrls: ['./utm-tag-input.component.scss']
 })
 export class UtmTagInputComponent implements OnInit {
-  @ViewChild('tagInput') tagInputRef: ElementRef;
+  @ViewChild('tagInput', {static: true}) tagInputRef: ElementRef;
   @Input() tags: string[] = [];
   @Output() tagsChange = new EventEmitter<string[]>();
   form: FormGroup;

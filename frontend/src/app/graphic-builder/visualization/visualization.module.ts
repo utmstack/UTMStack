@@ -13,7 +13,6 @@ import {VisualizationSharedModule} from './visualization-shared.module';
 
 @NgModule({
   declarations: [],
-  entryComponents: [],
   imports: [
     CommonModule,
     NgxEchartsModule,

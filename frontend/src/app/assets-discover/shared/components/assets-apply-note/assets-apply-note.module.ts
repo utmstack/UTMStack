@@ -13,7 +13,6 @@ import {AssetsApplyNoteComponent} from './assets-apply-note.component';
     declarations: [
         AssetsApplyNoteComponent,
     ],
-    entryComponents: [],
     imports: [
         CommonModule,
         NgbModule,

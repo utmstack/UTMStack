@@ -18,7 +18,7 @@ export class SettingsComponent implements OnInit {
   success: string;
   settingsAccount: User;
   languages: any[];
-  @ViewChild('emailInput') emailInput: NgModel;
+  @ViewChild('emailInput', {static: false}) emailInput: NgModel;
 
   constructor(private accountService: AccountService,
               public activeModal: NgbActiveModal,

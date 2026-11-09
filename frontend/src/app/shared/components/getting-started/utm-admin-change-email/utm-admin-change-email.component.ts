@@ -18,7 +18,7 @@ export class UtmAdminChangeEmailComponent implements OnInit {
   @Input() account: any;
   @Output() setupSuccess = new EventEmitter<boolean>();
   @Input() gettingStarted: boolean;
-  @ViewChild('currentPasswordInput') currentPasswordInput: NgModel;
+  @ViewChild('currentPasswordInput', {static: false}) currentPasswordInput: NgModel;
   saving = false;
   formEmail: FormGroup;
   doNotMatch: string;

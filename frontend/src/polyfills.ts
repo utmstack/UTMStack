@@ -55,7 +55,19 @@
 /***************************************************************************************************
  * Zone JS is required by default for Angular itself.
  */
-import 'zone.js/dist/zone'; // Included with Angular CLI.
+import 'zone.js'; // Included with Angular CLI. (zone.js 0.14 dropped the ./dist/zone export map path; the bare entry is the browser build)
+
+/**
+ * @angular/localize is required for Angular 9+ (provides the $localize global
+ * that @angular/core references at bootstrap; without it the app throws
+ * "$localize is not defined" before app-root renders).
+ *
+ * MUST be the /init entry: the plain '@angular/localize' import is the
+ * tree-shakeable library (not in sideEffects) and is silently dropped by
+ * webpack, so $localize is never defined. '@angular/localize/init' runs
+ * `_global.$localize = $localize` as a side effect.
+ */
+import '@angular/localize/init';
 
 
 /***************************************************************************************************

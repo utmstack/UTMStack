@@ -2,6 +2,7 @@ package com.park.utmstack.service.idp_provider;
 
 
 import com.park.utmstack.config.Constants;
+import com.park.utmstack.config.saml.SamlMetadataFetcher;
 import com.park.utmstack.domain.idp_provider.IdentityProviderConfig;
 import com.park.utmstack.repository.idp_provider.IdentityProviderConfigRepository;
 import com.park.utmstack.service.dto.idp_provider.dto.*;
@@ -193,11 +194,8 @@ public class IdentityProviderService {
             return false;
         }
 
-        return !address.isLoopbackAddress()
-                && !address.isSiteLocalAddress()
-                && !address.isLinkLocalAddress()
-                && !address.isAnyLocalAddress()
-                && !address.isMulticastAddress();
+        // Same rejection set as the fetch-time validator.
+        return SamlMetadataFetcher.isFetchableHost(address);
     }
 
 }

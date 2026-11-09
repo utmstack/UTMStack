@@ -17,7 +17,7 @@ export class UtmNotificationAdComponent implements OnInit, OnDestroy {
     objectType?: string
     timestamp?: any
   }[] = [];
-  @ViewChild('adChanges') adChanges: ElementRef;
+  @ViewChild('adChanges', {static: false}) adChanges: ElementRef;
   total = 0;
   private interval: any;
   newEvents = false;

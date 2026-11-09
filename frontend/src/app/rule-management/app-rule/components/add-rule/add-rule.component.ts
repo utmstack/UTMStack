@@ -271,7 +271,7 @@ export class AddRuleComponent implements OnInit, OnDestroy {
               map(res => res.body.length > 0 ? res.body[0] : null)
             )
           )
-        ).subscribe(filteredDataTypes => {
+        ).subscribe((filteredDataTypes: any) => {
           const dataTypes = filteredDataTypes.filter(dt => !!dt);
           this.rule = {
             ...$event[0],

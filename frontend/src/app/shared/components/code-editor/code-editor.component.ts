@@ -112,16 +112,27 @@ export class CodeEditorComponent implements OnInit, OnDestroy, ControlValueAcces
     }
 
     this.completionProvider = monaco.languages.registerCompletionItemProvider('sql', {
-      provideCompletionItems: () => {
+      provideCompletionItems: (model: monaco.editor.ITextModel, position: monaco.Position) => {
         const allKeywords = Array.from(new Set([
           ...SQL_KEYWORDS,
           ...(this.customKeywords || [])
         ]));
+        // monaco 0.24 made CompletionItem.range required (0.20 defaulted it).
+        // getWordUntilPosition reads from line start to the caret (single line),
+        // so the position's own line number bounds the range; replace that word.
+        const word = model.getWordUntilPosition(position);
+        const range: monaco.IRange = {
+          startLineNumber: position.lineNumber,
+          startColumn: word.startColumn,
+          endLineNumber: position.lineNumber,
+          endColumn: word.endColumn
+        };
 
         const suggestions: monaco.languages.CompletionItem[] = allKeywords.map(k => ({
           label: k,
           kind: monaco.languages.CompletionItemKind.Text,
-          insertText: k
+          insertText: k,
+          range
         }));
 
         return { suggestions };

@@ -29,13 +29,6 @@ import {ResizableModule} from "angular-resizable-element";
     VisualizationSelectComponent,
     VisualizationHeaderComponent
   ],
-  entryComponents: [
-    VisualizationDeleteComponent,
-    VisualizationCreateComponent,
-    VisualizationSaveComponent,
-    VisualizationImportComponent,
-    VisualizationChangeNameComponent,
-    VisualizationSelectComponent],
   imports: [
     CommonModule,
     UtmSharedModule,

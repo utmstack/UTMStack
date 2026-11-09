@@ -86,7 +86,6 @@ import {MetricAggregationComponent} from './chart-property-builder/metric-agrega
     ChartActionComponent,
     ListColumnsComponent,
   ],
-  entryComponents: [],
   imports: [
     CommonModule,
     ChartBuilderRoutingModule,

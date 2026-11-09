@@ -26,7 +26,6 @@ import {LogstashRoutingModule} from './logstash-routing.module';
     ReactiveFormsModule,
     MonacoEditorModule
   ],
-  entryComponents: [LogstashFilterCreateComponent]
 })
 export class LogstashModule {
 }

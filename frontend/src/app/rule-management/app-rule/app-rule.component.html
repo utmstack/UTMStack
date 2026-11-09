@@ -17,9 +17,9 @@
     <div class="d-flex flex-column w-100 flex-nowrap m-0 align-items-start h-100 m-h-0">
         <div class="d-flex flex-grow-1 align-items-stretch w-100 h-100 m-h-0">
           <div [enableGhostResize]="true"
-               [resizeEdges]="{ bottom: false, right: true, top: false, left: false }"
                class="alert-filter-container resizable-filter-container mr-2"
                mwlResizable>
+               <div mwlResizeHandle [resizeEdges]="{ bottom: false, right: true, top: false, left: false }"></div>
               <div class="card h-100">
                   <div class="card-header header-elements-sm-inline p-2 bg-white card-header-title">
                       <label class="card-title">Filters</label>

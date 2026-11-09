@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20261030001_backfill_gap_dashboard_grid_info" author="osmontero">
+        <comment>
+            Dashboards 403 (pfSense Firewall), 404 (Network Traffic NetFlow) and 405
+            (GCP Activity) were seeded by changeset 20261012002 with dv_order /
+            dv_width / dv_height / dv_top / dv_left set, but dv_grid_info was left
+            NULL. Every code path that does JSON.parse(visualization.gridInfo)
+            (utm-dashboard-grid.calcGridHeight, dashboard-resolver,
+            dashboard-create) threw on those rows, so opening those dashboards in
+            the editor / customize-export crashed with
+            "Cannot read properties of null (reading 'y')" and
+            "Cannot read properties of undefined (reading 'slice')".
+
+            The seed also stored dv_height = 529.2 (a pixel value equal to 8 gridster
+            rows), but the intended items are 4 rows tall (dv_top steps 0,4,8,12, which
+            only tiles without overlap at 4 rows). Backfill dv_grid_info from the
+            numeric columns using the dashboard gridster pixel scale (full-width item
+            2012px = 30 cols -> 67.07px/col; 4 rows x 65px -> 259.6px):
+                cols = GREATEST(1, ROUND(dv_width / 67.07))   -- 529.2->8, 933.6->14, 2012->30
+                rows = 4                                       -- 2 x 4-row items per 8-row band
+                x      = dv_left                               -- already gridster units
+                y      = dv_top                                -- already gridster units
+                id     = uuid (gridster item identity)
+            and normalize dv_height to 259.6 (4 rows) so the stored geometry is
+            internally consistent. This yields bands 0-4, 4-8, 8-12, 12-16 with no
+            overlap, eliminating the gridster "Can't be placed in the bounds" warnings.
+
+            Idempotent: the dv_height fix only touches the exact legacy value (529.2);
+            the grid_info backfill only touches rows with NULL/empty dv_grid_info.
+            Re-running is a no-op once corrected.
+        </comment>
+        <sql>UPDATE utm_dashboard_visualization SET dv_height = 259.6 WHERE id_dashboard IN (403, 404, 405) AND dv_height = 529.2;</sql>
+        <sql>
+            UPDATE utm_dashboard_visualization
+            SET dv_grid_info = json_build_object(
+                    'cols', GREATEST(1, ROUND(dv_width / 67.07)),
+                    'id',   gen_random_uuid()::text,
+                    'rows', 4,
+                    'x',    dv_left,
+                    'y',    dv_top
+                )::text
+            WHERE id_dashboard IN (403, 404, 405)
+              AND (dv_grid_info IS NULL OR dv_grid_info = '' OR dv_grid_info = 'null');
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

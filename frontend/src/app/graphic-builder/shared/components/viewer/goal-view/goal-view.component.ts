@@ -197,7 +197,8 @@ export class GoalViewComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.refreshService.stopInterval();
-    this.destroy$.next();
+    // rxjs 7: next() requires an argument (destroy$ is Subject<any>)
+    this.destroy$.next(null);
     this.destroy$.complete();
   }
 

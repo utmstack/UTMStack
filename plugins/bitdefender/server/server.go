@@ -1,6 +1,7 @@
 package server
 
 import (
+	"crypto/subtle"
 	"crypto/tls"
 	"encoding/json"
 	"net/http"
@@ -39,7 +40,7 @@ func GetLogs() http.HandlerFunc {
 			var isAuth bool
 			for _, groupConf := range conf.ModuleGroups {
 				moduleConfig := config.GetBDGZModuleConfig(groupConf)
-				if utils.GenerateAuthCode(moduleConfig.ConnectionKey) == r.Header.Get("authorization") {
+				if authMatches(moduleConfig.ConnectionKey, r.Header.Get("authorization")) {
 					isAuth = true
 				}
 			}
@@ -75,6 +76,14 @@ func GetLogs() http.HandlerFunc {
 			_ = catcher.Error("bitdefender module disabled", nil, map[string]any{"process": "plugin_com.utmstack.bitdefender"})
 		}
 	}
+}
+
+// authMatches reports whether the authorization header equals the Basic-auth
+// code derived from connectionKey, comparing in constant time (M2: the prior
+// == compare leaked timing; subtle.ConstantTimeCompare is length-agnostic —
+// unequal lengths return 0, so a wrong-length header fails auth).
+func authMatches(connectionKey, authorization string) bool {
+	return subtle.ConstantTimeCompare([]byte(utils.GenerateAuthCode(connectionKey)), []byte(authorization)) == 1
 }
 
 func StartServer() {

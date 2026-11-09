@@ -5,7 +5,7 @@
 @import "functions/get";
 @import "theme";
 @import "var";
-@import "~bootstrap/scss/mixins/breakpoints";
+@import "bootstrap/scss/mixins/breakpoints";
 .svg-icon {
     @include svg-icon-size(get($svg-icon-sizes, md));
     @include svg-icon-color($text-muted);

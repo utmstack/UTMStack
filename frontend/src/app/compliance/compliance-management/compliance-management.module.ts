@@ -36,14 +36,6 @@ import {UtmCpStandardComponent} from './utm-cp-standard/utm-cp-standard.componen
     UtmCpImportComponent,
     UtmCpControlConfigComponent,
     UtmCpControlConfigDeleteComponent],
-  entryComponents: [
-    UtmCpReportDeleteComponent,
-    UtmCpStandardDeleteComponent,
-    UtmCpStandardSectionDeleteComponent,
-    UtmCpExportComponent,
-    UtmCpImportComponent,
-    UtmCpControlConfigDeleteComponent
-  ],
   exports: [CpStandardManagementComponent, UtmCpStandardComponent],
   providers: [InputClassResolve],
   schemas: [NO_ERRORS_SCHEMA, CUSTOM_ELEMENTS_SCHEMA],

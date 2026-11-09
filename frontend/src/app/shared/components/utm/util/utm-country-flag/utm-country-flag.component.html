@@ -2,6 +2,6 @@
       [ngbTooltip]="country?country:null"
       placement="top"
       tooltipClass="utm-tooltip-top">
-<flag-icon [country]="countryCode"></flag-icon>
+<span class="flag-icon" [ngClass]="'flag-icon-' + countryCode.toLowerCase()"></span>
   <span class="ml-2" *ngIf="showCountry">{{country}}</span>
 </span>

@@ -25,7 +25,7 @@ export class UtmNotificationComponent implements OnInit, AfterViewInit, OnDestro
   unreadNotificationsCount$: Observable<number>;
   loadingMore = false;
   request = {page: 0, size: 5, sort: 'createdAt,DESC', status: NotificationStatus[NotificationStatus.ACTIVE] };
-  @ViewChild('dropNotification') dropNotification: NgbDropdown;
+  @ViewChild('dropNotification', {static: true}) dropNotification: NgbDropdown;
   total = 0;
   destroy$ = new Subject<void>();
 

@@ -30,8 +30,8 @@ export class AlertApplyIncidentComponent implements OnInit {
   @Input() actions: any[];
 
   @Output() markAsIncident = new EventEmitter<string>();
-  @ViewChild('incidentPopoverSpan') incidentPopoverSpan: NgbPopover;
-  @ViewChild('incidentPopoverButton') incidentPopoverButton: NgbPopover;
+  @ViewChild('incidentPopoverSpan', {static: false}) incidentPopoverSpan: NgbPopover;
+  @ViewChild('incidentPopoverButton', {static: false}) incidentPopoverButton: NgbPopover;
   creating: any;
   isIncident: boolean;
   incidentName: string;

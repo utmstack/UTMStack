@@ -10,7 +10,7 @@ import {TableSkeletonInterface} from '../../type/table-skeleton';
 export class UtmDtableDetailResolverComponent implements OnInit {
   @Input() row;
   @Input() component: Type<any>;
-  @ViewChild(TableDetailContentDirective) contentContainer: TableDetailContentDirective;
+  @ViewChild(TableDetailContentDirective, {static: true}) contentContainer: TableDetailContentDirective;
 
   constructor(private componentFactoryResolver: ComponentFactoryResolver) {
   }

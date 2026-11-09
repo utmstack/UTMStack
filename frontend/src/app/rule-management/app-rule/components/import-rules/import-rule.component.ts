@@ -149,7 +149,7 @@ export class ImportRuleComponent implements OnInit, OnDestroy {
             )
           )
         ).pipe(
-          map(filteredDataTypes => ({
+          map((filteredDataTypes: any) => ({
             ...file,
             confidentiality: file.impact.confidentiality || 0,
             integrity: file.impact.integrity || 0,

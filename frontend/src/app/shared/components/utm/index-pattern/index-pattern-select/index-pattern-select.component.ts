@@ -18,7 +18,7 @@ export class IndexPatternSelectComponent implements OnInit {
   @Input() template: 'default' | 'log-explorer' = 'default';
   @Output() indexPatternInitialized = new EventEmitter<string[]>();
   order: 'asc' | 'desc' = 'asc';
-  @ViewChild('popover') popover: NgbPopover;
+  @ViewChild('popover', {static: false}) popover: NgbPopover;
   indexPatternList = [];
 
   constructor(public activeModal: NgbActiveModal,

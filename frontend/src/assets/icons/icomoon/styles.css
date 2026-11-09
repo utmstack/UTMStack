@@ -39,9 +39,9 @@
 }
 
 .icon-bordered {
-	// padding: 5px;
-	// border: 2px solid;
-	// border-radius: 50%;
+	/* padding: 5px; */
+	/* border: 2px solid; */
+	/* border-radius: 50%; */
 }
 
 .icon-home:before{content:"\e900";}

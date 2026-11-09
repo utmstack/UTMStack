@@ -6,6 +6,7 @@ import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.dto.incident_response.UtmIncidentActionCommandCriteria;
 import com.park.utmstack.service.incident_response.UtmIncidentActionCommandQueryService;
 import com.park.utmstack.service.incident_response.UtmIncidentActionCommandService;
+import com.park.utmstack.util.exceptions.ApiException;
 import com.park.utmstack.web.rest.util.HeaderUtil;
 import com.park.utmstack.web.rest.util.PaginationUtil;
 import org.slf4j.Logger;
@@ -50,6 +51,10 @@ public class UtmIncidentActionCommandResource {
             if (incidentActionCommand.getId() != null)
                 throw new Exception("A new incident action command cannot already have an ID");
             return ResponseEntity.ok(incidentActionCommandService.save(incidentActionCommand));
+        } catch (ApiException e) {
+            // Intentional 4xx from the service guard (system preset immutability) —
+            // rethrow so GlobalExceptionHandler returns its status (403/404/400), not 500 (#2909 pattern).
+            throw e;
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
@@ -66,6 +71,10 @@ public class UtmIncidentActionCommandResource {
             if (incidentActionCommand.getId() == null)
                 throw new Exception("The incident action command identifier is null");
             return ResponseEntity.ok(incidentActionCommandService.save(incidentActionCommand));
+        } catch (ApiException e) {
+            // Intentional 4xx from the service guard (system preset immutability) —
+            // rethrow so GlobalExceptionHandler returns its status (403/404/400), not 500 (#2909 pattern).
+            throw e;
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
@@ -97,6 +106,10 @@ public class UtmIncidentActionCommandResource {
         try {
             incidentActionCommandService.delete(id);
             return ResponseEntity.ok().build();
+        } catch (ApiException e) {
+            // Intentional 4xx from the service guard (system preset immutability) —
+            // rethrow so GlobalExceptionHandler returns its status (403/404/400), not 500 (#2909 pattern).
+            throw e;
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);

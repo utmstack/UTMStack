@@ -8,7 +8,7 @@ import {TemplateSelectorDirective} from '../../directives/template-selector/temp
 })
 export class AppFilterComponent<T extends {id: number}> {
   @Input() list: T[] | null = null;
-  @ContentChild(TemplateSelectorDirective, {read: TemplateRef})
+  @ContentChild(TemplateSelectorDirective, {static: false, read: TemplateRef})
   templateRef: TemplateRef<{$implicit: T, index: number}>;
 
   constructor() { }

@@ -18,9 +18,6 @@ import {RegisterComponent} from './register/register.component';
     ActivateComponent,
     RegisterComponent,
   ],
-  entryComponents: [
-    ActivateComponent,
-    RegisterComponent],
   exports: [
     ActivateComponent,
     RegisterComponent],

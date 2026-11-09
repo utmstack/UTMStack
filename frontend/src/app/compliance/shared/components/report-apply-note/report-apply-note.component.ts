@@ -13,7 +13,7 @@ import {NgbPopover} from "@ng-bootstrap/ng-bootstrap";
 export class ReportApplyNoteComponent implements OnInit, OnChanges {
   @Input() report: ComplianceReportType;
   @Input() showNote: boolean;
-  @ViewChild('notePopover') notePopover!: NgbPopover;
+  @ViewChild('notePopover', {static: false}) notePopover!: NgbPopover;
   @Output() applyNote = new EventEmitter<string>();
   note: string;
   creating = false;

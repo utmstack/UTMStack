@@ -32,16 +32,16 @@ func NewMiddlewares(authService *LogAuthService) *Middlewares {
 	}
 }
 
-func (m *Middlewares) GrpcAuth(ctx context.Context, req any, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
-	if err := m.authFromContext(ctx); err != nil {
+func (m *Middlewares) GrpcAuth(ctx context.Context, req any, si *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
+	if err := m.authFromContext(ctx, si.FullMethod); err != nil {
 		return nil, err
 	}
 
 	return handler(ctx, req)
 }
 
-func (m *Middlewares) GrpcStreamAuth(srv any, ss grpc.ServerStream, _ *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
-	if err := m.authFromContext(ss.Context()); err != nil {
+func (m *Middlewares) GrpcStreamAuth(srv any, ss grpc.ServerStream, si *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+	if err := m.authFromContext(ss.Context(), si.FullMethod); err != nil {
 		return err
 	}
 	return handler(srv, ss)
@@ -98,7 +98,24 @@ func (m *Middlewares) GitHubAuth() gin.HandlerFunc {
 	}
 }
 
-func (m *Middlewares) authFromContext(ctx context.Context) error {
+// internalKeyMethods: the ONLY gRPC methods a bare internal-key may invoke.
+// The internal key is a deployment-wide machine-to-machine credential; it must
+// never authorize the data plane (ProcessLog) — only health. Mirrors the
+// InternalKeyRoutes() pattern in agent-manager. (C2 hardening.)
+var internalKeyMethods = map[string]struct{}{
+	"/grpc.health.v1.Health/Check": {},
+}
+
+// internalKeyPermitted reports whether a bare internal-key may invoke the given
+// gRPC method. It is the security-relevant decision for the internal-key branch
+// and is factored out so it can be tested in isolation without a live
+// agent-manager or plugin config.
+func internalKeyPermitted(fullMethod string) bool {
+	_, ok := internalKeyMethods[fullMethod]
+	return ok
+}
+
+func (m *Middlewares) authFromContext(ctx context.Context, fullMethod string) error {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		return status.Error(codes.Internal, "metadata is not provided")
@@ -126,6 +143,12 @@ func (m *Middlewares) authFromContext(ctx context.Context) error {
 			return status.Error(codes.PermissionDenied, "invalid connection key")
 		}
 	} else if len(authInternalKey) > 0 {
+		// Reject non-allowlisted methods BEFORE touching the key, so a bare
+		// internal-key can never reach the data plane (ProcessLog).
+		if !internalKeyPermitted(fullMethod) {
+			return status.Error(codes.PermissionDenied, "internal-key not permitted for this method")
+		}
+
 		internalKey := plugins.PluginCfg("com.utmstack").Get("internalKey").String()
 		if subtle.ConstantTimeCompare([]byte(internalKey), []byte(authInternalKey[0])) != 1 {
 			return status.Error(codes.PermissionDenied, "internal key does not match")

@@ -29,9 +29,6 @@ import {UtmReportSectionCreateComponent} from './shared/component/utm-report-sec
     ReportParamDateLimitComponent,
     ReportParamFileIntegrityComponent,
     ReportCustomViewComponent],
-  entryComponents: [UtmReportCreateComponent,
-    UtmReportSectionCreateComponent,
-    ReportCustomExportModalComponent],
   imports: [
     CommonModule,
     ReportRoutingModule,

@@ -17,9 +17,9 @@
          (resizing)="onResize($event)"
          [enableGhostResize]="true"
          [ngStyle]="{'width':filterWidth+'px'}"
-         [resizeEdges]="{ bottom: false, right: true, top: false, left: false }"
          class="resizable-filter-container mr-2"
          mwlResizable>
+         <div mwlResizeHandle [resizeEdges]="{ bottom: false, right: true, top: false, left: false }"></div>
       <app-file-filter (filterChange)="onFilterChange($event)"
                        (filterReset)="onFilterReset($event)"></app-file-filter>
 

@@ -18,6 +18,7 @@ public class SqlQueryFilterService {
      * - Merges the generated WHERE with an existing WHERE if present.
      */
     public String applyFilters(String baseSql, List<FilterType> filters) {
+        // NOTE: baseSql (the visualization's sqlQuery) is intentionally raw read-only OpenSearch SQL — it is gated by @SqlSelectOnly upstream and the OS SQL engine is read-only; this service only sanitizes the FILTER conditions it appends.
         if (filters == null || filters.isEmpty()) {
             return baseSql;
         }
@@ -110,6 +111,9 @@ public class SqlQueryFilterService {
         if (value.startsWith("now-")) {
             // Example: now-24h, now-15m, now-7d
             String number = value.substring(4, value.length() - 1);
+            if (!number.matches("\\d+")) {
+                throw new IllegalArgumentException("Invalid time value: " + value);
+            }
             char unit = value.toLowerCase().charAt(value.length() - 1);
 
             String sqlUnit = switch (unit) {
@@ -123,7 +127,7 @@ public class SqlQueryFilterService {
         }
 
         // Absolute timestamp value
-        return "'" + value + "'";
+        return "'" + escapeValue(value) + "'";
     }
 
     // -------------------------------------------------------------------------
@@ -134,8 +138,43 @@ public class SqlQueryFilterService {
      * Maps a FilterType to a SQL condition string.
      * All non-@timestamp operators are handled here.
      */
+    private static final java.util.regex.Pattern FIELD_PATTERN =
+            java.util.regex.Pattern.compile("^[A-Za-z_][A-Za-z0-9_\\-]*(?:\\.[A-Za-z_][A-Za-z0-9_\\-]*)*$");
+
+    /**
+     * Validates a user-supplied field name against an allowlist of identifier
+     * characters (letters, digits, underscore, dot, hyphen; no spaces) so it
+     * cannot carry SQL metacharacters into the generated query.
+     */
+    private void validateField(String field) {
+        if (field == null || !FIELD_PATTERN.matcher(field).matches()) {
+            throw new IllegalArgumentException("Invalid SQL field: " + field);
+        }
+    }
+
+    /**
+     * Escapes single quotes by doubling them, the standard SQL string-literal escape.
+     */
+    private String escapeValue(String v) {
+        return v == null ? "" : v.replace("'", "''");
+    }
+
+    /**
+     * Convenience wrapper: escaped view of the n-th list value for interpolation
+     * inside a single-quoted SQL literal.
+     */
+    private String ev(int i, List<String> list) {
+        return escapeValue(list.get(i));
+    }
+
     private String toSqlCondition(FilterType f) {
 
+        // IS_IN_FIELDS / IS_NOT_IN_FIELDS use the filter's field as a wildcard label
+        // (e.g. "*"); the real field names are list elements and are validated there.
+        if (f.getOperator() != OperatorType.IS_IN_FIELDS
+                && f.getOperator() != OperatorType.IS_NOT_IN_FIELDS) {
+            validateField(f.getField());
+        }
         String field = f.getField();
         Object rawValue = f.getValue();
         List<String> list = asList(rawValue); // safe conversion
@@ -145,25 +184,25 @@ public class SqlQueryFilterService {
             // ---------------------------------------------------------------------
             // Equality
             // ---------------------------------------------------------------------
-            case IS -> field + " = '" + list.get(0) + "'";
+            case IS -> field + " = '" + ev(0, list) + "'";
 
-            case IS_NOT -> field + " <> '" + list.get(0) + "'";
+            case IS_NOT -> field + " <> '" + ev(0, list) + "'";
 
             // ---------------------------------------------------------------------
             // Text contains
             // ---------------------------------------------------------------------
-            case CONTAIN -> field + " LIKE '%" + list.get(0) + "%'";
+            case CONTAIN -> field + " LIKE '%" + ev(0, list) + "%'";
 
-            case DOES_NOT_CONTAIN -> field + " NOT LIKE '%" + list.get(0) + "%'";
+            case DOES_NOT_CONTAIN -> field + " NOT LIKE '%" + ev(0, list) + "%'";
 
             case CONTAIN_ONE_OF ->
                     "(" + list.stream()
-                            .map(v -> field + " LIKE '%" + v + "%'")
+                            .map(v -> field + " LIKE '%" + escapeValue(v) + "%'")
                             .collect(Collectors.joining(" OR ")) + ")";
 
             case DOES_NOT_CONTAIN_ONE_OF ->
                     "(" + list.stream()
-                            .map(v -> field + " NOT LIKE '%" + v + "%'")
+                            .map(v -> field + " NOT LIKE '%" + escapeValue(v) + "%'")
                             .collect(Collectors.joining(" AND ")) + ")";
 
             // ---------------------------------------------------------------------
@@ -180,7 +219,7 @@ public class SqlQueryFilterService {
 
             case IS_ONE_OF_TERMS_OR ->
                     "(" + list.stream()
-                            .map(v -> field + " = '" + v + "'")
+                            .map(v -> field + " = '" + escapeValue(v) + "'")
                             .collect(Collectors.joining(" OR ")) + ")";
 
             // ---------------------------------------------------------------------
@@ -197,45 +236,70 @@ public class SqlQueryFilterService {
                 if (list.size() != 2) {
                     throw new IllegalArgumentException("IS_BETWEEN requires exactly 2 values");
                 }
-                yield field + " BETWEEN '" + list.get(0) + "' AND '" + list.get(1) + "'";
+                yield field + " BETWEEN '" + ev(0, list) + "' AND '" + ev(1, list) + "'";
             }
 
             case IS_NOT_BETWEEN -> {
                 if (list.size() != 2) {
                     throw new IllegalArgumentException("IS_NOT_BETWEEN requires exactly 2 values");
                 }
-                yield field + " NOT BETWEEN '" + list.get(0) + "' AND '" + list.get(1) + "'";
+                yield field + " NOT BETWEEN '" + ev(0, list) + "' AND '" + ev(1, list) + "'";
             }
 
             case IS_GREATER_THAN ->
-                    field + " > '" + list.get(0) + "'";
+                    field + " > '" + ev(0, list) + "'";
 
             case IS_LESS_THAN_OR_EQUALS ->
-                    field + " <= '" + list.get(0) + "'";
+                    field + " <= '" + ev(0, list) + "'";
 
             // ---------------------------------------------------------------------
             // Starts / ends with
             // ---------------------------------------------------------------------
             case START_WITH ->
-                    field + " LIKE '" + list.get(0) + "%'";
+                    field + " LIKE '" + ev(0, list) + "%'";
 
             case NOT_START_WITH ->
-                    field + " NOT LIKE '" + list.get(0) + "%'";
+                    field + " NOT LIKE '" + ev(0, list) + "%'";
 
             case ENDS_WITH ->
-                    field + " LIKE '%" + list.get(0) + "'";
+                    field + " LIKE '%" + ev(0, list) + "'";
 
             case NOT_ENDS_WITH ->
-                    field + " NOT LIKE '%" + list.get(0) + "'";
+                    field + " NOT LIKE '%" + ev(0, list) + "'";
 
             // ---------------------------------------------------------------------
             // Value in multiple fields
+            // The list is [value, field, field, ...]: the value must appear
+            // (substring) in ANY of the given fields — mirrors SearchUtil's
+            // IS_IN_FIELDS.
             // ---------------------------------------------------------------------
-            case IS_IN_FIELDS ->
-                    "'" + list.get(0) + "' IN (" + String.join(", ", list) + ")";
+            case IS_IN_FIELDS -> {
+                if (list.size() < 2) {
+                    throw new IllegalArgumentException("IS_IN_FIELDS requires a value plus at least one field");
+                }
+                String needle = escapeValue(list.get(0));
+                yield "(" + list.stream()
+                        .skip(1)
+                        .map(v -> {
+                            validateField(v);
+                            return v + " LIKE '%" + needle + "%'";
+                        })
+                        .collect(Collectors.joining(" OR ")) + ")";
+            }
 
-            case IS_NOT_IN_FIELDS ->
-                    "'" + list.get(0) + "' NOT IN (" + String.join(", ", list) + ")";
+            case IS_NOT_IN_FIELDS -> {
+                if (list.size() < 2) {
+                    throw new IllegalArgumentException("IS_NOT_IN_FIELDS requires a value plus at least one field");
+                }
+                String needle = escapeValue(list.get(0));
+                yield "(" + list.stream()
+                        .skip(1)
+                        .map(v -> {
+                            validateField(v);
+                            return v + " NOT LIKE '%" + needle + "%'";
+                        })
+                        .collect(Collectors.joining(" AND ")) + ")";
+            }
 
             // ---------------------------------------------------------------------
             default -> throw new IllegalArgumentException("Unsupported operator: " + f.getOperator());
@@ -248,7 +312,7 @@ public class SqlQueryFilterService {
      */
     private String joinQuoted(List<String> values) {
         return values.stream()
-                .map(v -> "'" + v + "'")
+                .map(v -> "'" + escapeValue(v) + "'")
                 .collect(Collectors.joining(", "));
     }
 

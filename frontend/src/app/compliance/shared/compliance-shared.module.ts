@@ -122,17 +122,6 @@ import {ComplianceStatusLabelPipe} from './pipes/compliance-status-label.pipe';
     AlertManagementSharedModule
   ],
   schemas: [NO_ERRORS_SCHEMA, CUSTOM_ELEMENTS_SCHEMA],
-  entryComponents: [
-    UtmSaveAsComplianceComponent,
-    UtmCpStandardSelectComponent,
-    UtmCpStSectionSelectComponent,
-    UtmCpStandardCreateComponent,
-    UtmCpStandardSectionCreateComponent,
-    UtmComplianceCreateComponent,
-    UtmComplianceScheduleCreateComponent,
-    UtmComplianceScheduleDeleteComponent,
-    UtmComplianceControlCreateComponent
-  ],
     exports: [
         UtmSaveAsComplianceComponent,
         UtmCpStandardSelectComponent,

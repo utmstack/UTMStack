@@ -32,7 +32,7 @@ const routes: Routes = [
       {path: '', redirectTo: 'connection-key', pathMatch: 'full'},
       /*{
         path: 'license',
-        loadChildren: '../license/license.module#LicenseModule',
+        loadChildren: () => import('../license/license.module').then(m => m.LicenseModule),
         canActivate: [UserRouteAccessService, SaasRouteAccessService],
         data: {authorities: [ADMIN_ROLE]}
       },*/

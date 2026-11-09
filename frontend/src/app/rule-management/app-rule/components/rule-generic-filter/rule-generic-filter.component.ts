@@ -1,6 +1,5 @@
 import {HttpResponse} from '@angular/common/http';
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {errorHandler} from '@angular/platform-browser/src/browser';
 import { of } from 'rxjs';
 import {catchError} from 'rxjs/operators';
 import {AssetFiltersBehavior} from '../../../../assets-discover/shared/behavior/asset-filters.behavior';

@@ -1,5 +1,5 @@
 import {HttpErrorResponse} from '@angular/common/http';
-import {AfterViewInit, Component, ElementRef, OnInit, Renderer} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnInit} from '@angular/core';
 import {NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {ModalService} from '../../core/modal/modal.service';
 import {LoginComponent} from '../../shared/components/auth/login/login.component';
@@ -25,8 +25,7 @@ export class RegisterComponent implements OnInit, AfterViewInit {
   constructor(
     private loginModalService: ModalService,
     private registerService: Register,
-    private elementRef: ElementRef,
-    private renderer: Renderer
+    private elementRef: ElementRef
   ) {
   }
 
@@ -36,7 +35,8 @@ export class RegisterComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    this.renderer.invokeElementMethod(this.elementRef.nativeElement.querySelector('#login'), 'focus', []);
+    const el = this.elementRef.nativeElement.querySelector('#login') as HTMLInputElement;
+    if (el) { el.focus(); }
   }
 
   register() {

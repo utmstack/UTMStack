@@ -1,7 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {UtmFieldType} from '../../../shared/types/table/utm-field.type';
 import {getValueFromPropertyPath} from '../../../shared/util/get-value-object-from-property-path.util';
-import {replaceBreakLine} from '../../../shared/util/string-util';
+import {escapeAndBreakLine} from '../../../shared/util/string-util';
 import {FILE_FIELDS} from '../shared/const/file-field.constant';
 import {FileFieldEnum} from '../shared/enum/file-field.enum';
 
@@ -27,6 +27,6 @@ export class FileDetailComponent implements OnInit {
 
 
   getEventMessage() {
-    return replaceBreakLine(getValueFromPropertyPath(this.file, this.fileFieldEnum.FILE_MESSAGE_FIELD, null));
+    return escapeAndBreakLine(getValueFromPropertyPath(this.file, this.fileFieldEnum.FILE_MESSAGE_FIELD, null));
   }
 }

@@ -14,9 +14,9 @@
          (resizing)="onResize($event)"
          [enableGhostResize]="true"
          [ngStyle]="{'width':filterWidth+'px'}"
-         [resizeEdges]="{ bottom: false, right: true, top: false, left: false }"
          class="resizable-filter-container mr-2 h-100 m-h-0"
          mwlResizable>
+         <div mwlResizeHandle [resizeEdges]="{ bottom: false, right: true, top: false, left: false }"></div>
       <div class="card h-100 m-h-0">
         <div class="card-header header-elements-sm-inline p-2 bg-white card-header-title">
           <label class="card-title">Filters</label>

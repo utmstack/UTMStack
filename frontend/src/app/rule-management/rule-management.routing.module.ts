@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import {RouterModule} from '@angular/router';
+import {RouterModule, Routes} from '@angular/router';
 import {UserRouteAccessService} from '../core/auth/user-route-access-service';
 import {ADMIN_ROLE, USER_ROLE} from '../shared/constants/global.constant';
 import {AppCorrelationManagementComponent} from './app-correlation-management/app-correlation-management.component';
@@ -15,7 +15,7 @@ import {TypesResolverService} from "./app-correlation-management/services/types.
 import {PatternsResolverService} from "./app-correlation-management/services/patterns.resolver.service";
 import {AssetsResolverService} from "./app-correlation-management/services/assets.resolver.service";
 
-const routes = [
+const routes: Routes = [
   {path: '', redirectTo: 'rules', pathMatch: 'full'},
   {
     path: 'rules',

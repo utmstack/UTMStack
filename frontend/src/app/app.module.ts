@@ -1,4 +1,4 @@
-import {HTTP_INTERCEPTORS, HttpClient, HttpClientModule} from '@angular/common/http';
+import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
 import {APP_INITIALIZER, CUSTOM_ELEMENTS_SCHEMA, Injector, NgModule} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {BrowserModule} from '@angular/platform-browser';
@@ -6,17 +6,15 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {RouterModule} from '@angular/router';
 import {NgbDatepickerConfig, NgbModalConfig, NgbTooltipConfig} from '@ng-bootstrap/ng-bootstrap';
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
-import {TranslateHttpLoader} from '@ngx-translate/http-loader';
+import {TRANSLATE_HTTP_LOADER_CONFIG, TranslateHttpLoader} from '@ngx-translate/http-loader';
 import * as moment from 'moment';
 import {InlineSVGModule} from 'ng-inline-svg';
-import {Ng2TelInputModule} from 'ng2-tel-input';
-import {ToastrModule} from 'ng6-toastr-notifications';
+import {ToastrModule} from 'ngx-toastr';
 import {CookieService} from 'ngx-cookie-service';
 import {NgxEchartsModule} from 'ngx-echarts';
-import {NgxFlagIconCssModule} from 'ngx-flag-icon-css';
 import {InfiniteScrollModule} from 'ngx-infinite-scroll';
 import {NgxSpinnerModule} from 'ngx-spinner';
-import {LocalStorageService, Ng2Webstorage, SessionStorageService} from 'ngx-webstorage';
+import {LocalStorageService, NgxWebstorageModule, SessionStorageService} from 'ngx-webstorage';
 import {first} from 'rxjs/operators';
 import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
@@ -79,33 +77,39 @@ export function initTimezoneFormat(apiChecker: ApiServiceCheckerService,
     ReactiveFormsModule,
     HttpClientModule,
     TranslateModule.forRoot({
-        loader: {
-          provide: TranslateLoader,
-          useFactory: (http: HttpClient) => {
-            return new TranslateHttpLoader(http);
-          },
-          deps: [HttpClient]
-        }
-      },
-    ),
+      // http-loader 17: TranslateHttpLoader injects HttpClient itself (no-arg ctor)
+      loader: {provide: TranslateLoader, useClass: TranslateHttpLoader},
+    }),
     UtmSharedModule,
     UtmDashboardModule,
     UtmstackCoreModule,
     ToastrModule.forRoot(),
     InfiniteScrollModule,
-    NgxEchartsModule,
+    // v17: the directive's NGX_ECHARTS_CONFIG token is NOT @Optional — forRoot()
+    // must be called exactly once (root) or every `echarts` element throws
+    // NullInjectorError. We pass the default echarts loader explicitly: it
+    // lazy-imports the bundled 'echarts' core, the SAME singleton that main.ts's
+    // extension imports (echarts-leaflet, echarts-wordcloud, effectScatter,
+    // macarons theme) register on — so every extension is visible to the charts.
+    NgxEchartsModule.forRoot({echarts: () => import('echarts')}),
     NgxSpinnerModule,
-    Ng2TelInputModule,
-    NgxFlagIconCssModule,
-    Ng2Webstorage.forRoot(),
+    NgxWebstorageModule.forRoot(),
     AlertManagementSharedModule,
   ],
   providers: [
-    LocalStorageService,
+    // S17 (ngx-webstorage 13): LocalStorageService/SessionStorageService are provided
+    // by NgxWebstorageModule.forRoot() (above) via factory — do NOT re-declare them
+    // bare here; v13 classes require a StorageStrategy ctor arg and the bare form
+    // throws NullInjectorError on every HttpClient call.
     CookieService,
     AuthServerProvider,
-    SessionStorageService,
     HttpCancelService,
+    // S17 (@ngx-translate/http-loader 17): TranslateHttpLoader's ctor calls
+    // inject(TRANSLATE_HTTP_LOADER_CONFIG); forRoot's defaultProviders never register
+    // that token, so without this the first HttpClient call (TranslateService ->
+    // TranslateHttpLoader) throws NullInjectorError. Providing it lets the loader
+    // read its config (defaults: /assets/i18n/ prefix, .json suffix).
+    {provide: TRANSLATE_HTTP_LOADER_CONFIG, useValue: {}},
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,

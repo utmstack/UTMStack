@@ -7,13 +7,13 @@ const routes: Routes = [
   {path: '', redirectTo: 'assets-discovery'},
   {
     path: 'config',
-    loadChildren: './scanner-config/scanner-config.module#ScannerConfigModule',
+    loadChildren: () => import('./scanner-config/scanner-config.module').then(m => m.ScannerConfigModule),
     canActivate: [UserRouteAccessService],
     data: {authorities: [USER_ROLE, ADMIN_ROLE]}
   },
   {
     path: 'assets-discovery',
-    loadChildren: './assets-discovery/assets-discovery.module#AssetsDiscoveryModule',
+    loadChildren: () => import('./assets-discovery/assets-discovery.module').then(m => m.AssetsDiscoveryModule),
     canActivate: [UserRouteAccessService],
     data: {authorities: [USER_ROLE, ADMIN_ROLE]}
   },

@@ -51,13 +51,6 @@ import {RouterModule} from "@angular/router";
     AgentInfoComponent,
     InteractiveConsoleComponent],
 
-  entryComponents: [
-    IrJobCreateComponent,
-    IrActionCreateComponent,
-    IrCreateRuleComponent,
-    ActionTerminalComponent,
-    NewPlaybookComponent
-  ],
 
   exports: [
     IrJobCreateComponent,

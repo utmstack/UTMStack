@@ -30,7 +30,6 @@ import {TaskResultComponent} from './task-result/task-result.component';
     VulnerabilityDetailComponent,
     TaskResultComponent
   ],
-  entryComponents: [VulnerabilityDetailComponent],
   imports: [
     CommonModule,
     NgbModule,

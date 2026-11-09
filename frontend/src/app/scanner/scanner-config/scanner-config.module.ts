@@ -73,22 +73,6 @@ import {TaskListComponent} from './task/task-list/task-list.component';
     TaskDetailComponent,
     TaskStatusComponent,
     TargetDetailComponent],
-  entryComponents: [
-    TaskCreateComponent,
-    CredentialCreateComponent,
-    PortCreateComponent,
-    ScheduleCreateComponent,
-    CredentialDeleteComponent,
-    ScheduleDeleteComponent,
-    PortDeleteComponent,
-    PortRangeListComponent,
-    PortRangeDeleteComponent,
-    PortRangeDeleteComponent,
-    PortRangeCreateComponent,
-    TargetDeleteComponent,
-    TaskDeleteComponent,
-    TargetCreateComponent
-  ],
   exports: [TargetCreateComponent],
   providers: [InputClassResolve]
 })

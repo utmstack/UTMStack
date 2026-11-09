@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, OnInit, Renderer} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnInit} from '@angular/core';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {UtmToastService} from '../../../../alert/utm-toast.service';
 
@@ -18,7 +18,7 @@ export class PasswordResetInitComponent implements OnInit, AfterViewInit {
 
   constructor(
     private passwordResetInitService: PasswordResetInitService,
-    private elementRef: ElementRef, private renderer: Renderer,
+    private elementRef: ElementRef,
     public activeModal: NgbActiveModal,
     private utmToast: UtmToastService
   ) {
@@ -29,7 +29,8 @@ export class PasswordResetInitComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    this.renderer.invokeElementMethod(this.elementRef.nativeElement.querySelector('#email'), 'focus', []);
+    const el = this.elementRef.nativeElement.querySelector('#email') as HTMLInputElement;
+    if (el) { el.focus(); }
   }
 
   requestReset() {

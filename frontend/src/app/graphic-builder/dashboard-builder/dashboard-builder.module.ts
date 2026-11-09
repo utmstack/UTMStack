@@ -4,7 +4,6 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {NgSelectModule} from '@ng-select/ng-select';
 import {GridsterModule} from 'angular-gridster2';
-import {NgxDraggableResizerModule} from 'ngx-draggable-resizer';
 import {AppManagementSharedModule} from '../../app-management/shared/app-management-shared.module';
 import {UtmSharedModule} from '../../shared/utm-shared.module';
 import {GraphicBuilderSharedModule} from '../shared/graphic-builder-shared.module';
@@ -30,7 +29,6 @@ import {DashboardSaveComponent} from './dashboard-save/dashboard-save.component'
     DashboardBuilderRoutingModule,
     UtmSharedModule,
     NgbModule,
-    NgxDraggableResizerModule,
     GridsterModule,
     GraphicBuilderSharedModule,
     VisualizationSharedModule,
@@ -39,11 +37,6 @@ import {DashboardSaveComponent} from './dashboard-save/dashboard-save.component'
     FormsModule,
     AppManagementSharedModule
   ],
-  entryComponents: [
-    DashboardDeleteComponent,
-    DashboardSaveComponent,
-    DashboardFilterCreateComponent,
-    DashboardImportComponent],
   schemas: [NO_ERRORS_SCHEMA]
 })
 export class DashboardBuilderModule {
