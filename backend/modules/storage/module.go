@@ -19,7 +19,7 @@ type Module struct {
 	localCold bool
 }
 
-func NewModule(events *eventstore.Store, configDir string, enabled,localCold bool) *Module {
+func NewModule(events *eventstore.Store, configDir string, enabled, localCold bool) *Module {
 	if events == nil {
 		return &Module{}
 	}
@@ -27,7 +27,7 @@ func NewModule(events *eventstore.Store, configDir string, enabled,localCold boo
 		repository.NewStoreRepository(events),
 		repository.NewConfigRepository(configDir),
 	)
-	return &Module{uc: uc, handler: handler.New(uc, enabled), localCold:localCold}
+	return &Module{uc: uc, handler: handler.New(uc, enabled), localCold: localCold}
 }
 
 func (m *Module) Handler() *handler.Handler { return m.handler }
