@@ -105,21 +105,43 @@ func TestLogIndexMappingsCanonical(t *testing.T) {
 	if typ(m["event"]) != "flat_object" {
 		t.Fatalf("event must be flat_object, got %v", typ(m["event"]))
 	}
-	// utm.* is the ONLY inferred bag: a plain object left to full dynamic
-	// inference. No key may be pinned — a bare-keyword pin diverges from what
-	// OpenSearch infers in existing indices (text+.keyword), which is exactly
-	// the cross-index type drift the canonical mapping exists to eliminate,
-	// and it breaks terms aggs on the bare field (all shards failed -> 500).
-	// utm.* is therefore always aggregated via its inferred .keyword sub-field.
+	// utm.* is the ONLY bag whose leaves are not standardized Event fields, so
+	// the installer pins them explicitly: object + dynamic:false + known keys
+	// keyword. A bare {"type":"object"} inherits the template root's
+	// dynamic:false (the installer wraps logIndexMappings in
+	// "mappings":{"dynamic":false,"properties":...}) and the leaves are then
+	// never indexed — terms aggs return empty and rule correlations on utm.*
+	// match nothing. Pinning keeps utm.X keyword (and therefore aggregatable
+	// on the bare path) on every index generation.
 	utm, ok := getObj("utm")
 	if !ok {
 		t.Fatalf("utm missing from log mapping")
 	}
-	if _, hasPin := utm["properties"]; hasPin {
-		t.Fatalf("utm must not pin known keys (inferred bag per design), got: %v", utm)
-	}
 	if typ(utm) != "object" {
 		t.Fatalf("utm must be an object, got %v", typ(utm))
+	}
+	if dyn, hasDyn := utm["dynamic"]; !hasDyn || dyn != false {
+		t.Fatalf("utm must be dynamic:false (closed pin), got %v", utm)
+	}
+	utmProps, ok := utm["properties"].(map[string]any)
+	if !ok || len(utmProps) < 100 {
+		t.Fatalf("utm expected to pin the known keys (>=100), got: %v", utmProps)
+	}
+	// chart-referenced leaves must be keyword (aggregatable on the bare path).
+	for _, leaf := range []string{"eventCode", "providerName", "Workload", "task", "userDomain"} {
+		leafNode, ok := utmProps[leaf]
+		if !ok {
+			t.Fatalf("utm.%s missing from pin", leaf)
+		}
+		if typ(leafNode) != "keyword" {
+			t.Fatalf("utm.%s must be keyword, got %v", leaf, typ(leafNode))
+		}
+	}
+	// the one non-keyword leaf: an ISO-8601 timestamp pinned date (aggregatable as-is).
+	expProps := utmProps["responseElements"].(map[string]any)["properties"].(map[string]any)
+	expCreds := expProps["credentials"].(map[string]any)["properties"].(map[string]any)
+	if typ(expCreds["expiration"]) != "date" {
+		t.Fatalf("utm.responseElements.credentials.expiration must be date, got %v", typ(expCreds["expiration"]))
 	}
 	// log severity is text (string) — distinct from alert severity (long).
 	if typ(m["severity"]) != "text" {
