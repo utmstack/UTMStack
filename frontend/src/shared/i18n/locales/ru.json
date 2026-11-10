@@ -5502,7 +5502,8 @@
             "country": "Страна",
             "city": "Город",
             "asn": "ASN",
-            "aso": "ASO"
+            "aso": "ASO",
+            "no_target": "Без цели"
         }
     },
     "socAi": {
