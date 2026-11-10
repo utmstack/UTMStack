@@ -8,6 +8,8 @@ import { getChartIcon } from '@/features/dashboard/components/chart-icon'
 import { parseBuilderConfig } from '@/features/dashboard/utils/builder-config'
 import { parseLayout } from '@/features/dashboard/utils/layout'
 import { GRID_COLS } from '@/features/dashboard/constants'
+import { useAvailableDataTypes } from '@/features/log-explorer/services/useAvailableDataTypes'
+import { dashboardDataType } from '@/features/dashboard/utils/dashboard-data-type'
 import type { ChartTypeId, Dashboard, Visualization } from '@/features/dashboard/types'
 
 export function DashboardGallery({
@@ -28,6 +30,12 @@ export function DashboardGallery({
   onCreate: () => void
 }) {
   const { t } = useTranslation()
+  const { dataTypes, isReady } = useAvailableDataTypes()
+
+  const renderList = useMemo(()=>{
+    console.log(dashboards)
+    return dashboards
+  },[dataTypes,dashboards])
 
   return (
     <div className="flex h-full flex-col gap-4">
@@ -58,15 +66,22 @@ export function DashboardGallery({
             {t('dashboards.list.loading')}
           </div>
         )}
-        {!loading && dashboards.length === 0 && (
+        {!loading && renderList.length === 0 && (
           <div className="py-10 text-center text-xs text-muted-foreground">
             {t('dashboards.list.empty')}
           </div>
         )}
-        {!loading && dashboards.length > 0 && (
+        {!loading && isReady && renderList.length > 0 && (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-            {dashboards.map((d) => (
-              <DashboardCard key={d.id} dashboard={d} count={counts.get(d.id) ?? 0} onSelect={onSelect} />
+            {renderList.map((d) => (
+              <DashboardCard
+                key={d.id}
+                dashboard={d}
+                count={counts.get(d.id) ?? 0}
+                onSelect={onSelect}
+                dataTypes={dataTypes}
+                dataTypesReady={isReady}
+              />
             ))}
           </div>
         )}
@@ -77,12 +92,31 @@ export function DashboardGallery({
 
 // Editing/deleting a dashboard only happens from inside it (DashboardPreviewHeader)
 // — the gallery is browse-only, so a card is just its preview + metadata, no actions.
-function DashboardCard({ dashboard: d, count, onSelect }: { dashboard: Dashboard; count: number; onSelect: (id: string) => void }) {
+function DashboardCard({
+  dashboard: d,
+  count,
+  onSelect,
+  dataTypes,
+  dataTypesReady,
+}: {
+  dashboard: Dashboard
+  count: number
+  onSelect: (id: string) => void
+  dataTypes: string[]
+  dataTypesReady: boolean
+}) {
   const { t } = useTranslation()
   const modified = d.modifiedDate ? new Date(d.modifiedDate).toLocaleString() : '—'
   // The mini preview's queries are already cached by the per-dashboard count
   // queries, so this hook usually resolves from cache.
+
   const visualizations = useVisualizations({ dashboardId: d.id, page: 0, size: 50 })
+
+  // A dashboard whose (single, shared) data type is no longer in the store is
+  // dead weight in the list — hide it. Mixed/untyped dashboards always show.
+  const dataType = dashboardDataType(visualizations.data?.data ?? [])
+
+  if (dataTypesReady && dataType != null && !dataTypes.includes(dataType)) return null
 
   return (
     <div
