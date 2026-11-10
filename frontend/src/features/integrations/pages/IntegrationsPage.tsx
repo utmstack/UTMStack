@@ -73,7 +73,9 @@ function mapModuleToIntegration(module: IntegrationResponse, t: TFunction): Inte
 
   return {
     id: module.id,
-    name: isSystem ? t(`integrations.modules.${module.name}.name`, { defaultValue: displayModuleName(module.name) }) : displayModuleName(module.name),
+    name: isSystem
+      ? t(`integrations.modules.${module.name}.name`, { defaultValue: meta?.displayName ?? displayModuleName(module.name) })
+      : displayModuleName(module.name),
     moduleName: module.name,
     dataType: module.dataType,
     ingestType: module.ingestType,
