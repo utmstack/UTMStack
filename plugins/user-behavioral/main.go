@@ -225,8 +225,8 @@ func isLogin(event *plugins.Event) bool {
 	}
 	switch event.DataType {
 	case "wineventlog":
-		code := event.Log["eventCode"].GetStringValue()
-		return code == "4624"
+		code := event.Log["eventCode"]
+		return code.GetStringValue() == "4624" || code.GetNumberValue() == 4624
 	case "linux":
 		id := event.Log["syslogIdentifier"].GetStringValue()
 		if id == "sshd" || id == "sshd-session" {
