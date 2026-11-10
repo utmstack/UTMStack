@@ -109,7 +109,7 @@ func loadConfig() *config {
 		mcpVersion: env.String("MCP_SERVER_VERSION", "v1", false),
 
 		dataRetentionEnabled: env.Bool("DATA_RETENTION_ENABLED", true),
-		coldStorageRetention: env.Bool("CLICKHOUSE_LOCAL_COLDSTORAGE", true),
+		coldStorageRetention: env.Bool("CLICKHOUSE_LOCAL_COLDSTORAGE", false),
 
 	}
 }

@@ -275,6 +275,26 @@ func TestALocalTargetNeedsNothingFromTheCaller(t *testing.T) {
 	}
 }
 
+// The local mount exists for the data to live there: enabling it also gives
+// every dataset a TTL so records leave the hot disk after a day and die at
+// 720, not sit on it forever.
+func TestEnsuringLocalColdAlsoAdoptsTieredRetentions(t *testing.T) {
+	s, st, _ := newService()
+	st.disk = domain.ColdDiskInfo{Present: true, FreeBytes: 1 << 40}
+
+	if err := s.EnsureLocalCold(context.Background()); err != nil {
+		t.Fatalf("EnsureLocalCold: %v", err)
+	}
+	if len(st.adopted) != len(domain.Datasets()) {
+		t.Fatalf("adopted %d datasets, want all %d", len(st.adopted), len(domain.Datasets()))
+	}
+	for _, d := range domain.Datasets() {
+		if got := st.retentions[d]; got.KeepDays != 720 || got.ColdDays != 1 {
+			t.Errorf("%s = %+v, want keep 720 / cold at 1", d, got)
+		}
+	}
+}
+
 func TestAnUnknownKindIsRefused(t *testing.T) {
 	s, _, _ := newService()
 	if _, err := s.EnableTiering(context.Background(), domain.ColdTarget{Kind: "ftp"}); !errors.Is(err, domain.ErrKindUnknown) {
