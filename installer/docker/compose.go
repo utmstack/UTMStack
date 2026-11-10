@@ -357,7 +357,7 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		Image: utils.PointerOf[string]("clickhouse/clickhouse-server:25.8"),
 		Volumes: []string{
 			stack.ClickHouseData + ":/var/lib/clickhouse",
-			// Run on first boot only; this is what creates the tables.
+			// Runs on every start (CLICKHOUSE_ALWAYS_RUN_INITDB_SCRIPTS=1).
 			stack.ClickHouseSchema + ":/docker-entrypoint-initdb.d:ro",
 			stack.ClickHouseConf + "/" + settingsFileName + ":/etc/clickhouse-server/users.d/" + settingsFileName + ":ro",
 			// Read-only here and writable in the backend: one writer, one reader.
@@ -367,6 +367,7 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		Environment: []string{
 			"CLICKHOUSE_DB=utmstack",
 			"CLICKHOUSE_PASSWORD=" + conf.Password,
+			"CLICKHOUSE_ALWAYS_RUN_INITDB_SCRIPTS=1",
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{

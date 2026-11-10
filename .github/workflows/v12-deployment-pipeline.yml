@@ -392,6 +392,7 @@ jobs:
           - crowdstrike
           - feeds
           - ad-audit
+          - user-behavioral
           - soar
           - playground
           - rule-flood-guard
