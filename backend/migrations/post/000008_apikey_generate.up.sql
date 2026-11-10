@@ -13,6 +13,11 @@ ON CONFLICT DO NOTHING;
 
 
 INSERT INTO role_permission (role_id, permission_name)
+SELECT '00000000-0000-0000-0000-00000000a001', 'apikey.read'
+ON CONFLICT DO NOTHING;
+
+
+INSERT INTO role_permission (role_id, permission_name)
 SELECT '00000000-0000-0000-0000-00000000a002', 'apikey.read'
 ON CONFLICT DO NOTHING;
 
