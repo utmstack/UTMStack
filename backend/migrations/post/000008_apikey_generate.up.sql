@@ -3,7 +3,7 @@
 -- already run on every live install, so the new row lands here instead.
 -- Idempotent on both fresh and upgraded databases.
 INSERT INTO permissions (name, description) VALUES
-    ('apikey.write', 'Generate api keys')
+    ('apikey.write', 'Generate api keys'),
     ('apikey.read', 'Make an apikey list')
 ON CONFLICT (name) DO NOTHING;
 
