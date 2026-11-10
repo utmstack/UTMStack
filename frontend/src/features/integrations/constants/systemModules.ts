@@ -10,6 +10,8 @@ export interface SystemModuleMeta {
   iconDark?: string
   /** Grid grouping. The catalog row no longer carries it — see the note above. */
   category: string
+  /** Display label; falls back to the i18n key, then the module name. */
+  displayName?: string
 }
 
 export const SYSTEM_MODULES: Record<string, SystemModuleMeta> = {
@@ -18,7 +20,7 @@ export const SYSTEM_MODULES: Record<string, SystemModuleMeta> = {
   MACOS: { icon: 'macos.png', iconDark: 'macos-dark.png', category: 'operating-system' },
   VMWARE: { icon: 'vmware.svg', category: 'virtualization' },
   NETFLOW: { icon: 'netflow.svg', category: 'network' },
-  AWS_IAM_USER: { icon: 'aws.png', iconDark: 'aws-dark.png', category: 'cloud' },
+  AWS_IAM_USER: { icon: 'aws.png', iconDark: 'aws-dark.png', category: 'cloud', displayName: 'AWS Cloudwatch' },
   AZURE: { icon: 'azure.svg', category: 'cloud' },
   O365: { icon: 'm365.svg', category: 'cloud' },
   O365_GRAPH: { icon: 'm365.svg', category: 'cloud' },
