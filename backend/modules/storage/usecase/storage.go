@@ -136,7 +136,8 @@ func (s *service) EnsureLocalCold(ctx context.Context) error {
 		return fmt.Errorf("cold storage already configured: %s", t.Kind)
 	}
 
-	_, err = s.EnableTiering(ctx, domain.ColdTarget{Kind: domain.KindLocal})
+	// ensured cols will rewrite the saving path
+	_, err = s.EnableTiering(ctx, domain.ColdTarget{Kind: domain.KindLocal,Endpoint:domain.AlternativeLocalMount})
 	return err
 }
 

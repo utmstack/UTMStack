@@ -16,7 +16,8 @@ const (
 
 	// LocalMount is where the installer mounts the directory that backs a local
 	// cold disk, so a folder or an NFS share is whatever the host put there.
-	LocalMount = "/utmstack/clickhouse/snapshot"
+	LocalMount = "/mnt/utmstack-cold/"
+	AlternativeLocalMount = "/utmstack/clickhouse/snapshots"
 )
 
 type ColdKind string
@@ -76,6 +77,9 @@ func (o ColdTarget) Normalized() ColdTarget {
 
 	switch o.Kind {
 	case KindLocal:
+		if o.Endpoint != "" {
+			return ColdTarget{Kind: KindLocal, Endpoint: o.Endpoint}
+		}
 		return ColdTarget{Kind: KindLocal, Endpoint: LocalMount}
 	case KindAzure:
 		o.Endpoint = strings.TrimRight(o.Endpoint, "/")
