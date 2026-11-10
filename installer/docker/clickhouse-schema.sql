@@ -451,8 +451,8 @@ SELECT
     b.event_day_mean,
     if(b.days_active >= 2, b.event_day_std, 0)   AS event_day_std,
     toUInt64(b.event_day_p95)                     AS event_day_p95,
-    b.sin_total / b.ip_logins                   AS hour_sin,
-    b.cos_total / b.ip_logins                   AS hour_cos,
+    if(b.ip_logins > 0, b.sin_total / b.ip_logins, 0) AS hour_sin,
+    if(b.ip_logins > 0, b.cos_total / b.ip_logins, 0) AS hour_cos,
     -- Circular std: sqrt(-2 ln R), R the mean resultant length. Guarded
     -- against R = 0 (logins that cancel on the clock) which would be -inf.
     if(b.ip_logins > 0 AND hypot(b.sin_total, b.cos_total) > 0,
