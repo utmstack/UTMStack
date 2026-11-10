@@ -481,6 +481,25 @@ func cswFields(event map[string]any) map[string]any {
 	return out
 }
 
+// Since the utm rename, cs_switch.yml copies event.ciscoMsg to utm.ciscoMsg (grok) and deletes
+// event.ciscoMsg, so the stored document carries that text only at the new path; the filter
+// does not move event.msg, which the rules still read. expected.json predates the move and
+// records the ciscoMsg values under event.ciscoMsg; applying this map to the recorded fields
+// models the flip and leaves every other path, such as event.msg or event.messageId, as-is.
+var cswMovedFields = map[string]string{"event.ciscoMsg": "utm.ciscoMsg"}
+
+func cswFlippedFields(fields map[string]any) map[string]any {
+	flipped := make(map[string]any, len(fields))
+	for k, v := range fields {
+		if to, ok := cswMovedFields[k]; ok {
+			flipped[to] = v
+		} else {
+			flipped[k] = v
+		}
+	}
+	return flipped
+}
+
 type cswCase struct {
 	LogObject bool           `json:"logObject"`
 	Fields    map[string]any `json:"fields"`
@@ -692,6 +711,7 @@ func TestCiscoSwitchExtractionModel(t *testing.T) {
 			t.Errorf("%s: log object present=%t", name, ok)
 		}
 		got := cswFields(stored[name])
+		want.Fields = cswFlippedFields(want.Fields)
 		keys := map[string]bool{}
 		for k := range got {
 			keys[k] = true

@@ -34,22 +34,22 @@ where: |
   exists("event.authenticationSource") &&
   (
   (
-    equals("event.eventCode", "4769") &&
+    equals("utm.eventCode", "4769") &&
     equals("event.channel", "Security") &&
-    equals("event.eventDataServiceName", "krbtgt") &&
-    !equals("event.eventDataStatus", "0")
+    equals("utm.eventDataServiceName", "krbtgt") &&
+    !equals("utm.eventDataStatus", "0")
   ) ||
   (
-    equals("event.eventCode", "4768") &&
+    equals("utm.eventCode", "4768") &&
     equals("event.channel", "Security") &&
-    !oneOf("event.eventDataTicketEncryptionType", ["18", "17"]) &&
+    !oneOf("utm.eventDataTicketEncryptionType", ["18", "17"]) &&
     exists("target.user") &&
     !regexMatch("target.user", "(?i)\\$$")
   ) ||
   (
-    equals("event.eventCode", "4672") &&
+    equals("utm.eventCode", "4672") &&
     equals("event.channel", "Security") &&
-    contains("event.eventDataPrivilegeList", "SeTcbPrivilege") &&
+    contains("utm.eventDataPrivilegeList", "SeTcbPrivilege") &&
     !regexMatch("event.eventDataSubjectUserName", "(?i)^(SYSTEM|LOCAL SERVICE|NETWORK SERVICE)$") &&
     !regexMatch("event.eventDataSubjectUserName", "(?i)\\$$")
   )
@@ -66,9 +66,9 @@ afterEvents:
       - field: event.authenticationCandidate.goldenTicketDetection.keyword
         operator: filter_term
         value: match
-      - field: event.eventCode
+      - field: utm.eventCode
         operator: filter_term
-        value: '{{.event.eventCode}}'
+        value: '{{.utm.eventCode}}'
     within: 30m
     count: 3
 groupBy:

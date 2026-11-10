@@ -33,13 +33,13 @@ description: |
 where: |
   !oneOf("dataSource", ["", "unknown"]) &&
   exists("event.authenticationSource") &&
-  equals("event.eventCode", "4769") &&
+  equals("utm.eventCode", "4769") &&
   equals("event.channel", "Security") &&
-  equals("event.eventDataTicketEncryptionType", "23") &&
-  !regexMatch("event.eventDataServiceName", "(?i)\\$$") &&
-  !equals("event.eventDataServiceName", "krbtgt") &&
-  !oneOf("event.eventDataTicketOptions", ["1082195968", "1082130432"]) &&
-  exists("event.eventDataServiceName")
+  equals("utm.eventDataTicketEncryptionType", "23") &&
+  !regexMatch("utm.eventDataServiceName", "(?i)\\$$") &&
+  !equals("utm.eventDataServiceName", "krbtgt") &&
+  !oneOf("utm.eventDataTicketOptions", ["1082195968", "1082130432"]) &&
+  exists("utm.eventDataServiceName")
 afterEvents:
   - indexPattern: v11-log-wineventlog-*
     with:

@@ -18,10 +18,10 @@ references:
 - https://learn.microsoft.com/en-us/purview/audit-log-activities
 - https://learn.microsoft.com/en-us/office/office-365-management-api/office-365-management-activity-api-schema
 where: |
-  equals("event.Workload", "Exchange") && equals("actionResult", "success") && equals("action", "UpdateCalendarDelegation")
+  equals("utm.Workload", "Exchange") && equals("actionResult", "success") && equals("action", "UpdateCalendarDelegation")
 groupBy:
 - lastEvent.tenantId
-- lastEvent.event.OrganizationId
+- lastEvent.utm.OrganizationId
 - dataSource
 - adversary.user
 - lastEvent.action

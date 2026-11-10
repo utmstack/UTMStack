@@ -32,11 +32,11 @@ description: |
 where: |
   !oneOf("dataSource", ["", "unknown"]) &&
   exists("event.authenticationSource") &&
-  equals("event.eventCode", "4769") &&
+  equals("utm.eventCode", "4769") &&
   equals("event.channel", "Security") &&
-  equals("event.eventDataTicketEncryptionType", "23") &&
-  !regexMatch("event.eventDataServiceName", "(?i)(krbtgt|\\$$)") &&
-  !oneOf("event.eventDataStatus", ["0", "6"])
+  equals("utm.eventDataTicketEncryptionType", "23") &&
+  !regexMatch("utm.eventDataServiceName", "(?i)(krbtgt|\\$$)") &&
+  !oneOf("utm.eventDataStatus", ["0", "6"])
 afterEvents:
   - indexPattern: v11-log-wineventlog-*
     with:

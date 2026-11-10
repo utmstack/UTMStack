@@ -34,13 +34,13 @@ where: |
     oneOf("event.syslogIdentifier", ["k3s", "rke2", "crio"])
   ) &&
   (
-    (contains("event.message", "is forbidden: User ") &&
-     !contains("event.message", "system:node:") &&
-     !contains("event.message", "system:kube-")) ||
-    contains("event.message", "unable to validate against any security context constraint") ||
-    contains("event.message", "violates PodSecurity") ||
-    (contains("event.message", "admission webhook ") && contains("event.message", " denied the request")) ||
-    contains("event.message", "RBAC DENY:")
+    (contains("utm.message", "is forbidden: User ") &&
+     !contains("utm.message", "system:node:") &&
+     !contains("utm.message", "system:kube-")) ||
+    contains("utm.message", "unable to validate against any security context constraint") ||
+    contains("utm.message", "violates PodSecurity") ||
+    (contains("utm.message", "admission webhook ") && contains("utm.message", " denied the request")) ||
+    contains("utm.message", "RBAC DENY:")
   )
 deduplicateBy:
   - dataSource

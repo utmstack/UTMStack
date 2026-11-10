@@ -1075,3 +1075,9 @@ pipeline:
             - fieldName: utm.osType
               pattern: (?s)^.+$
           where: exists("event.osType")
+      - delete:
+          fields:
+          - event.agentVersion
+          - event.host.os.version
+          - event.message
+          - event.osType

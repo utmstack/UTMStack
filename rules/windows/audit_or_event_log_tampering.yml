@@ -13,7 +13,7 @@ description: Detects clearing of event logs (event 104) or command-line tamperin
 references:
   - https://attack.mitre.org/techniques/T1562/002/
 where: |
-  (equals("event.eventCode", "104")) || (equals("event.eventCode", 4688) && regexMatch("event.data.CommandLine", "(?i)(auditpol.*/clear|auditpol.*/set.*(success|failure):disable|wevtutil.*(cl |clear-log)|Clear-EventLog|fsutil.*usn.*deletejournal|Remove-EventLog)"))
+  (equals("utm.eventCode", "104")) || (equals("utm.eventCode", 4688) && regexMatch("event.data.CommandLine", "(?i)(auditpol.*/clear|auditpol.*/set.*(success|failure):disable|wevtutil.*(cl |clear-log)|Clear-EventLog|fsutil.*usn.*deletejournal|Remove-EventLog)"))
 groupBy:
   - dataSource
 deduplicateBy: []

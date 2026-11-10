@@ -27,8 +27,8 @@ description: |
   8. Document all affected systems and remediation actions taken
 where: |
   exists("event.devid") && !equals("event.devid", "") && exists("event.vd") && !equals("event.vd", "") &&
-  (equals("event.type", "utm") && equals("event.subtype", "virus") &&
-  equals("event.eventtype", "infected") && equals("actionResult", "denied") &&
+  (equals("event.type", "utm") && equals("utm.subtype", "virus") &&
+  equals("utm.eventtype", "infected") && equals("actionResult", "denied") &&
   exists("origin.ip"))
 afterEvents:
 - indexPattern: v11-log-firewall-fortigate-traffic-*

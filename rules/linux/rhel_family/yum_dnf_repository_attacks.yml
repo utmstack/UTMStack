@@ -33,12 +33,12 @@ where: |
   (
     oneOf("event.syslogIdentifier", ["dnf", "yum", "dnf-automatic", "yum-cron", "packagekitd", "PackageKit", "microdnf"]) &&
     (
-      contains("event.message", "GPG signature verification error") ||
-      contains("event.message", "GPG check FAILED") ||
-      contains("event.message", "Bad GPG signature") ||
-      (contains("event.message", "Public key for ") && contains("event.message", " is not installed")) ||
-      (contains("event.message", "The GPG keys listed for the ") && contains("event.message", " are not correct")) ||
-      contains("event.message", "Key imported successfully")
+      contains("utm.message", "GPG signature verification error") ||
+      contains("utm.message", "GPG check FAILED") ||
+      contains("utm.message", "Bad GPG signature") ||
+      (contains("utm.message", "Public key for ") && contains("utm.message", " is not installed")) ||
+      (contains("utm.message", "The GPG keys listed for the ") && contains("utm.message", " are not correct")) ||
+      contains("utm.message", "Key imported successfully")
     )
   ) ||
   (
@@ -53,9 +53,9 @@ where: |
   ) ||
   (
     equals("event.syslogIdentifier", "sudo") &&
-    regexMatch("event.message", "COMMAND=\\S*(dnf|yum|microdnf|rpm|rpmkeys|yum-config-manager)\\s.*(--nogpgcheck|--nosignature|--add-repo|--import)")
+    regexMatch("utm.message", "COMMAND=\\S*(dnf|yum|microdnf|rpm|rpmkeys|yum-config-manager)\\s.*(--nogpgcheck|--nosignature|--add-repo|--import)")
   )
 deduplicateBy:
   - dataSource
-  - lastEvent.event.message
+  - lastEvent.utm.message
   - lastEvent.origin.command

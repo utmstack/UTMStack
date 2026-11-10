@@ -14,13 +14,13 @@ references:
   - "https://attack.mitre.org/tactics/TA0006/"
   - "https://attack.mitre.org/techniques/T1110/"
 where: |
-  equals("event.eventCode", 4625) &&
+  equals("utm.eventCode", 4625) &&
   !oneOf("dataSource", ["", "unknown"]) &&
   exists("event.authenticationSource")
 afterEvents:
   - indexPattern: v11-log-wineventlog-*
     with:
-      - field: event.eventCode
+      - field: utm.eventCode
         operator: filter_term
         value: 4625
       - field: dataSource.keyword

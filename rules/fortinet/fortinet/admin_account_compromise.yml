@@ -28,7 +28,7 @@ where: |
   exists("event.devid") && !equals("event.devid", "") && exists("event.vd") && !equals("event.vd", "") &&
   (equals("event.logid", "0100032001") &&
   equals("event.type", "event") &&
-  equals("event.subtype", "system") &&
+  equals("utm.subtype", "system") &&
   equals("event.logdesc", "Admin login successful") &&
   exists("origin.ip") && exists("origin.user"))
 afterEvents:
@@ -52,7 +52,7 @@ afterEvents:
   - field: event.type
     operator: filter_term
     value: event
-  - field: event.subtype
+  - field: utm.subtype
     operator: filter_term
     value: system
   - field: event.logid

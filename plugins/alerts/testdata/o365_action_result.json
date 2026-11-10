@@ -140,7 +140,7 @@
         "preserve": {
             "event.ResultStatus": "Success",
             "event.ErrorCode": "50126",
-            "event.LogonError": "InvalidUserNameOrPassword"
+            "utm.LogonError": "InvalidUserNameOrPassword"
         }
     },
     {
@@ -175,7 +175,7 @@
         "result": "failed",
         "preserve": {
             "event.ResultStatus": "Succeeded",
-            "event.LogonError": "AuthenticationFailed"
+            "utm.LogonError": "AuthenticationFailed"
         }
     },
     {
@@ -470,7 +470,7 @@
         "result": "failed",
         "preserve": {
             "event.ErrorNumber": "0",
-            "event.LogonError": "FlowTokenExpired",
+            "utm.LogonError": "FlowTokenExpired",
             "event.ResultStatus": "Success"
         }
     },

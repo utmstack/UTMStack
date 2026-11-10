@@ -30,10 +30,10 @@ description: |
 where: |
   !oneOf("dataSource", ["", "unknown"]) &&
   exists("event.authenticationSource") &&
-  equals("event.eventCode", "4768") &&
+  equals("utm.eventCode", "4768") &&
   equals("event.channel", "Security") &&
-  equals("event.eventDataTicketEncryptionType", "23") &&
-  equals("event.eventDataPreAuthType", "0") &&
+  equals("utm.eventDataTicketEncryptionType", "23") &&
+  equals("utm.eventDataPreAuthType", "0") &&
   !regexMatch("target.user", "(?i)\\$$") &&
   exists("target.user")
 afterEvents:

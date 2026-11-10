@@ -30,7 +30,7 @@ where: |
    equals("event.messageId", "611102")) && 
   exists("origin.ip") &&
   (regexMatch("event.reason", "(?i)(invalid|failed|rejected|authentication)") ||
-   regexMatch("event.msg", "(?i)(authentication.*failed|invalid.*password)"))
+   regexMatch("utm.msg", "(?i)(authentication.*failed|invalid.*password)"))
 afterEvents:
   - indexPattern: v11-log-firewall-cisco-asa-*
     with:

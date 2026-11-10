@@ -25,7 +25,7 @@ description: |
   6. Review any recent privilege escalation or account compromise indicators
 where: |
   (oneOf("action", ["Set-AdminAuditLogConfig", "Remove-AdminAuditLogConfig", "Disable-OrganizationCustomization", "Set-OrganizationConfig"]) ||
-  (equals("event.Workload", "Exchange") && contains("event.ObjectId", "AdminAuditLog")) ||
+  (equals("utm.Workload", "Exchange") && contains("utm.ObjectId", "AdminAuditLog")) ||
   (contains("event.Parameters", "UnifiedAuditLogIngestionEnabled") && contains("event.Parameters", "false"))) &&
   exists("origin.user") &&
   equals("actionResult", "success")

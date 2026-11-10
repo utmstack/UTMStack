@@ -26,7 +26,7 @@ description: |
 where: |
   regexMatch("event.message", "(?i)MS Web Services Client Protocol") ||
   (regexMatch("event.message", "(?i)authentication of user") && regexMatch("event.message", "(?i)PowerCLI")) ||
-  (regexMatch("event.process", "(?i)vimsvc") && regexMatch("event.message", "(?i)Auth") && regexMatch("event.message", "(?i)User")) ||
+  (regexMatch("utm.process", "(?i)vimsvc") && regexMatch("event.message", "(?i)Auth") && regexMatch("event.message", "(?i)User")) ||
   (regexMatch("event.message", "(?i)Syslog\\.global\\.log") && regexMatch("event.message", "(?i)Set-VMHost")) ||
   regexMatch("event.message", "(?i)Get-VMHostSysLogServer")
 groupBy:

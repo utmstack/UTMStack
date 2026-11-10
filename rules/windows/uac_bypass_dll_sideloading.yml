@@ -16,7 +16,7 @@ references:
   - "https://attack.mitre.org/tactics/TA0004/"
   - "https://attack.mitre.org/techniques/T1548/002/"
 where: |
-  equals("event.eventCode", 4663) && regexMatch("event.eventDataObjectName", "(wow64log.dll|comctl32.dll|DismCore.dll|OskSupport.dll|duser.dll|Accessibility.ni.dll)$") && regexMatch("event.eventDataProcessName", "(dllhost.exe|eventvwr.exe|computerdefaults.exe|sdclt.exe|fodhelper.exe|wsreset.exe|slui.exe)") && !regexMatch("event.eventDataObjectName", "(System32|SysWOW64|SoftwareDistribution|WinSxS)")
+  equals("utm.eventCode", 4663) && regexMatch("event.eventDataObjectName", "(wow64log.dll|comctl32.dll|DismCore.dll|OskSupport.dll|duser.dll|Accessibility.ni.dll)$") && regexMatch("event.eventDataProcessName", "(dllhost.exe|eventvwr.exe|computerdefaults.exe|sdclt.exe|fodhelper.exe|wsreset.exe|slui.exe)") && !regexMatch("event.eventDataObjectName", "(System32|SysWOW64|SoftwareDistribution|WinSxS)")
 groupBy:
   - dataSource
 deduplicateBy: []

@@ -32,7 +32,7 @@ where: |
   (contains("event.message", "vpxuser") &&
    (contains("event.message", "shell") ||
     contains("event.message", "command"))) ||
-  (equals("event.process", "vpxd") &&
+  (equals("utm.process", "vpxd") &&
    (equals("severity", "error") ||
     contains("event.message", "unauthorized") ||
     contains("event.message", "permission denied"))) ||

@@ -2642,3 +2642,8 @@ pipeline:
             - fieldName: utm.subtype
               pattern: (?s)^.+$
           where: exists("event.subtype")
+      - delete:
+          fields:
+          - event.eventtype
+          - event.policyid
+          - event.subtype

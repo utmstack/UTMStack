@@ -31,12 +31,12 @@ where: |
   (
     equals("event.syslogIdentifier", "kernel") &&
     (
-      regexMatch("event.message", "^Loading of (unsigned module|module with unavailable key|module with unsupported crypto) is rejected") ||
-      contains("event.message", "PKCS#7 signature not signed with a trusted key") ||
-      contains("event.message", "module verification failed: signature and/or required key missing") ||
-      (startsWith("event.message", "Lockdown: ") &&
-       (contains("event.message", "unsigned module loading is restricted") ||
-        contains("event.message", "kexec of unsigned images is restricted")))
+      regexMatch("utm.message", "^Loading of (unsigned module|module with unavailable key|module with unsupported crypto) is rejected") ||
+      contains("utm.message", "PKCS#7 signature not signed with a trusted key") ||
+      contains("utm.message", "module verification failed: signature and/or required key missing") ||
+      (startsWith("utm.message", "Lockdown: ") &&
+       (contains("utm.message", "unsigned module loading is restricted") ||
+        contains("utm.message", "kexec of unsigned images is restricted")))
     )
   ) ||
   (
@@ -51,10 +51,10 @@ where: |
   ) ||
   (
     equals("event.syslogIdentifier", "sudo") &&
-    regexMatch("event.message", "COMMAND=\\S*mokutil\\s.*--(disable-validation|import|delete|reset)")
+    regexMatch("utm.message", "COMMAND=\\S*mokutil\\s.*--(disable-validation|import|delete|reset)")
   )
 deduplicateBy:
   - dataSource
-  - lastEvent.event.message
+  - lastEvent.utm.message
   - lastEvent.origin.command
   - lastEvent.event.kernmodule.name

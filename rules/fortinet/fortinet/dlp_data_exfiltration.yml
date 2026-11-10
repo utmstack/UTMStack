@@ -25,10 +25,10 @@ description: |
   6. Contact the user if needed to understand the context of the attempted data transfer
   7. Consider implementing additional access controls if unauthorized access to suspected
 where: |
-  equals("event.type", "utm") && equals("event.subtype", "dlp") &&
+  equals("event.type", "utm") && equals("utm.subtype", "dlp") &&
   exists("event.devid") && !equals("event.devid", "") && exists("event.vd") && !equals("event.vd", "") &&
   (exists("origin.ip") &&
-  ((equals("event.subtype", "dlp") && oneOf("action", ["block", "blocked"])) ||
+  ((equals("utm.subtype", "dlp") && oneOf("action", ["block", "blocked"])) ||
    contains("event.msg", "DLP sensor") ||
    contains("event.msg", "sensitive data detected") ||
    (exists("event.dlpprofile") && equals("event.dlpaction", "block")) ||

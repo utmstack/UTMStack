@@ -317,3 +317,6 @@ pipeline:
             - fieldName: utm.process
               pattern: (?s)^.+$
           where: exists("event.process")
+      - delete:
+          fields:
+          - event.process

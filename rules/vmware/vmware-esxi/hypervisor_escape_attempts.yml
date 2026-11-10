@@ -28,7 +28,7 @@ description: |
   8. Consider forensic imaging of affected virtual machines before remediation
 where: |
   (regexMatch("event.message", "(?i)(vmx|vmware-vmx)") && regexMatch("event.message", "(?i)(escape|breakout|privilege|escalat|host access|unauthorized)")) ||
-  (regexMatch("event.process", "(?i)vmx") && equals("severity", "error")) ||
+  (regexMatch("utm.process", "(?i)vmx") && equals("severity", "error")) ||
   (regexMatch("event.message", "(?i)vpxuser") && regexMatch("event.message", "(?i)(failed|denied|unauthorized)")) ||
   (regexMatch("event.message", "(?i)CVE-2024-37085")) ||
   (regexMatch("event.message", "(?i)VMCI") && regexMatch("event.message", "(?i)(backdoor|socket|unauthorized)"))

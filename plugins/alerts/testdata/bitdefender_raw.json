@@ -730,7 +730,7 @@
     "dataSource": "collector-test",
     "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|new-incident|3|BitdefenderGZModule=new-incident BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test eventType=AntiMalware cefSeverity=9 cefExtension=x",
     "expected": {
-      "event.eventType": "new-incident",
+      "utm.eventType": "new-incident",
       "event.cefSeverity": "3",
       "severity": "info"
     },
@@ -742,7 +742,7 @@
     "dataSource": "collector-test",
     "raw": "CEF:0|Bitdefender|GravityZone|6.60|170000|new-incident|3|BitdefenderGZModule=new-incident BitdefenderGZCompanyId=company-test deviceExternalId=endpoint-test dvc=192.0.2.10 dvchost=workstation-test msg=eventType\\=AntiMalware cefSeverity\\=9",
     "expected": {
-      "event.eventType": "new-incident",
+      "utm.eventType": "new-incident",
       "event.cefSeverity": "3",
       "severity": "info"
     },

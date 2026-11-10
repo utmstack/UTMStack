@@ -32,4 +32,4 @@ groupBy:
 - lastEvent.event.awsAccountKeyType
 - lastEvent.event.awsAccountKey
 - adversary.user
-- lastEvent.event.requestParameters.userName
+- lastEvent.utm.requestParameters.userName

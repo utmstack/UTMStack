@@ -41,7 +41,7 @@ func TestFortiGateSDKHistory(t *testing.T) {
 		if strings.HasSuffix(r.URL.Path, "/_mapping") {
 			// Text fields exercise the SDK's .keyword mapping resolution; IP and
 			// keyword fields exercise exact mappings without that suffix.
-			_, _ = io.WriteString(w, `{"v11-log-firewall-fortigate-traffic-test":{"mappings":{"properties":{"@timestamp":{"type":"date"},"dataSource":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"origin":{"properties":{"ip":{"type":"ip"},"user":{"type":"text","fields":{"keyword":{"type":"keyword"}}}}},"event":{"properties":{"devid":{"type":"keyword"},"vd":{"type":"keyword"},"type":{"type":"keyword"},"subtype":{"type":"keyword"},"logid":{"type":"keyword"},"correlationCandidate":{"properties":{"vpnAuthFailure":{"type":"keyword"},"ipsCritical":{"type":"keyword"},"dlp":{"type":"keyword"},"virusOutbreak":{"type":"keyword"}}}}}}}}}`)
+			_, _ = io.WriteString(w, `{"v11-log-firewall-fortigate-traffic-test":{"mappings":{"properties":{"@timestamp":{"type":"date"},"dataSource":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"origin":{"properties":{"ip":{"type":"ip"},"user":{"type":"text","fields":{"keyword":{"type":"keyword"}}}}},"event":{"properties":{"devid":{"type":"keyword"},"vd":{"type":"keyword"},"type":{"type":"keyword"},"subtype":{"type":"keyword"},"logid":{"type":"keyword"},"correlationCandidate":{"properties":{"vpnAuthFailure":{"type":"keyword"},"ipsCritical":{"type":"keyword"},"dlp":{"type":"keyword"},"virusOutbreak":{"type":"keyword"}}}}},"utm":{"properties":{"subtype":{"type":"keyword"},"eventtype":{"type":"keyword"},"policyid":{"type":"keyword"}}}}}}}`)
 			return
 		}
 		if r.URL.Path != "/v11-log-firewall-fortigate-traffic-*/_search" {
@@ -193,7 +193,7 @@ func TestFortiGateSDKHistory(t *testing.T) {
 				check("different_account", mutate(prior, "origin.user", "other-user"), search.Count, false)
 				check("successful_login_is_not_failed_history", mutate(parse(fixture.Raw), "@timestamp", time.Now().Add(-time.Minute).UTC().Format(time.RFC3339Nano)), search.Count, false)
 				check("different_event_type", mutate(prior, "event.type", "traffic"), search.Count, false)
-				check("different_event_subtype", mutate(prior, "event.subtype", "vpn"), search.Count, false)
+				check("different_event_subtype", mutate(prior, "utm.subtype", "vpn"), search.Count, false)
 			} else {
 				marker := "event.correlationCandidate." + fortiMarkers[test.rule]
 				check("unmarked_history", mutate(prior, marker, nil), search.Count, false)

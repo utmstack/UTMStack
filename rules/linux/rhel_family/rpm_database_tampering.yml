@@ -43,17 +43,17 @@ where: |
     !equals("event.uid", "0")
   ) ||
   (
-    contains("event.message", "rpmdb") &&
+    contains("utm.message", "rpmdb") &&
     (
-      contains("event.message", "corrupt") ||
-      contains("event.message", "checksum") ||
-      contains("event.message", "mismatch") ||
-      contains("event.message", "damaged header") ||
-      contains("event.message", "DB_RUNRECOVERY")
+      contains("utm.message", "corrupt") ||
+      contains("utm.message", "checksum") ||
+      contains("utm.message", "mismatch") ||
+      contains("utm.message", "damaged header") ||
+      contains("utm.message", "DB_RUNRECOVERY")
     )
   )
 deduplicateBy:
   - dataSource
   - lastEvent.event.comm
   - lastEvent.origin.command
-  - lastEvent.event.message
+  - lastEvent.utm.message

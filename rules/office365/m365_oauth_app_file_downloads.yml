@@ -25,7 +25,7 @@ description: |
   6. Check for other users who consented to the same application
   7. Review the downloaded file contents for sensitivity
 where: |
-  (equals("event.Workload", "MicrosoftDefenderForCloudApps") && contains("event.Parameters", "Suspicious OAuth app file download")) ||
+  (equals("utm.Workload", "MicrosoftDefenderForCloudApps") && contains("event.Parameters", "Suspicious OAuth app file download")) ||
   (contains("action", "AppFileDownloaded") && contains("event.Parameters", "OAuth"))
 groupBy:
   - lastEvent.event.Parameters

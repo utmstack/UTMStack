@@ -16,7 +16,7 @@ references:
   - "https://attack.mitre.org/tactics/TA0001/"
   - "https://attack.mitre.org/techniques/T1133/"
 where: |
-  equals("event.eventCode", 4663) && contains("event.eventDataProcessName", "dns.exe") && !regexMatch("event.eventDataObjectName", "(dns[.]log$|[.]dns$|Windows.System32.dns.)") && regexMatch("event.eventDataObjectName", "[.](dll|exe|bat|ps1|vbs)$")
+  equals("utm.eventCode", 4663) && contains("event.eventDataProcessName", "dns.exe") && !regexMatch("event.eventDataObjectName", "(dns[.]log$|[.]dns$|Windows.System32.dns.)") && regexMatch("event.eventDataObjectName", "[.](dll|exe|bat|ps1|vbs)$")
 groupBy:
   - dataSource
 deduplicateBy: []

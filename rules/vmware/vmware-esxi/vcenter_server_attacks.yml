@@ -37,7 +37,7 @@ where: |
    contains("event.message", "password reset") ||
    contains("event.message", "VIB install") ||
    contains("event.message", "authentication failed") ||
-   (equals("event.process", "vpxd") && equals("severity", "error"))) &&
+   (equals("utm.process", "vpxd") && equals("severity", "error"))) &&
   exists("origin.hostname")
 afterEvents:
   - indexPattern: v11-log-vmware-esxi-*

@@ -43,19 +43,18 @@ func TestWindowsAwarenessRules(t *testing.T) {
 			t.Fatal(err)
 		}
 		rule.Normalize()
-		rules[strings.TrimPrefix(p, "../../")] = rule
+		rules[strings.TrimPrefix(filepath.ToSlash(p), "../../")] = rule
 	}
+	// Run the awareness fixtures through the modeled Windows filter (the full
+	// winParse pipeline, which coerces grok sources and deletes the moved event
+	// fields) rather than the generic normalizer, so utm.* is populated exactly
+	// as the production EventProcessor does for wineventlog.
+	cfg := winConfig(t)
 	cache := plugins.NewCELCache("windows-awareness-test")
 	covered := map[string]bool{}
 	for _, f := range fixtures {
 		t.Run(f.Name, func(t *testing.T) {
-			out, issues, err := normalize("../..", f, cache)
-			if err != nil {
-				t.Fatal(err)
-			}
-			for _, issue := range issues {
-				t.Error(issue)
-			}
+			out := winParse(t, cfg, *f.Raw, f.DataSource, cache)
 			for path, rule := range rules {
 				matched, err := cache.Eval(rule.Where, out)
 				if err != nil {

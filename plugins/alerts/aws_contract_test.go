@@ -168,7 +168,14 @@ func awsParseMode(t *testing.T, cfg *plugins.Config, raw string, dataSource stri
 					}
 					str, ok := v.(string)
 					if !ok {
-						t.Fatalf("non-string grok source %s", src)
+						// The real grok plugin reads the source with gjson .String(),
+						// which coerces non-strings (bool->"true"/"false", number->literal,
+						// object/array->compact JSON) rather than erroring. Model that here.
+						b, e := json.Marshal(v)
+						if e != nil {
+							t.Fatalf("grok source %s unmarshalable: %v", src, e)
+						}
+						str = string(b)
 					}
 					r := awsRegex(t, g, cfg)
 					m := r.FindStringSubmatch(str)

@@ -26,7 +26,7 @@ description: |
   7. Document the incident and notify the security team if this is part of a larger campaign
 where: |
   exists("event.devid") && !equals("event.devid", "") && exists("event.vd") && !equals("event.vd", "") &&
-  (equals("event.type", "utm") && equals("event.subtype", "ips") &&
+  (equals("event.type", "utm") && equals("utm.subtype", "ips") &&
   oneOf("event.severity", ["critical", "high"]) &&
   equals("actionResult", "denied") && exists("origin.ip"))
 afterEvents:

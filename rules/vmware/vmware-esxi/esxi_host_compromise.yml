@@ -40,7 +40,7 @@ where: |
    contains("event.message", "Unable to read partition table") ||
    contains("event.message", "logging service disabled") ||
    contains("event.message", "log events removed") ||
-   (equals("event.process", "vmkernel") && contains("event.message", "SCSI sense")) ||
+   (equals("utm.process", "vmkernel") && contains("event.message", "SCSI sense")) ||
    (contains("event.eventInfo", "ransom") || contains("event.eventInfo", "encrypt"))) &&
   exists("origin.hostname")
 groupBy:

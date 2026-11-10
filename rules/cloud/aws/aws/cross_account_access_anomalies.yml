@@ -28,8 +28,8 @@ where: |
   oneOf("event.eventName",["AssumeRole"]) &&
   equals("actionResult","success") &&
   regexMatch("event.userIdentity.accountId","^[0-9]{12}$") &&
-  regexMatch("event.responseElements.assumedRoleUser.arn","^arn:[^:]+:sts::[0-9]{12}:assumed-role/.+$") &&
-  !regexMatch("event.responseElements.assumedRoleUser.arn","^arn:[^:]+:sts::" + safe("event.userIdentity.accountId", "") + ":assumed-role/"))) &&
+  regexMatch("utm.responseElements.assumedRoleUser.arn","^arn:[^:]+:sts::[0-9]{12}:assumed-role/.+$") &&
+  !regexMatch("utm.responseElements.assumedRoleUser.arn","^arn:[^:]+:sts::" + safe("event.userIdentity.accountId", "") + ":assumed-role/"))) &&
   exists("dataSource") &&
   !equals("dataSource","") &&
   exists("event.awsAccountKeyType") &&

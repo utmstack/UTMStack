@@ -18,7 +18,7 @@ where: |
   (equals("event.eventSource","iam.amazonaws.com") &&
   oneOf("event.eventName",["AttachRolePolicy", "AttachUserPolicy"]) &&
   equals("actionResult","success") &&
-  regexMatch("event.requestParameters.policyArn","^arn:(aws|aws-cn|aws-us-gov):iam::aws:policy/(AdministratorAccess|IAMFullAccess)$"))) &&
+  regexMatch("utm.requestParameters.policyArn","^arn:(aws|aws-cn|aws-us-gov):iam::aws:policy/(AdministratorAccess|IAMFullAccess)$"))) &&
   exists("dataSource") &&
   !equals("dataSource","") &&
   exists("event.awsAccountKeyType") &&
@@ -56,6 +56,6 @@ groupBy:
 - lastEvent.dataSource
 - lastEvent.event.awsAccountKeyType
 - lastEvent.event.awsAccountKey
-- lastEvent.event.requestParameters.roleArn
+- lastEvent.utm.requestParameters.roleArn
 - lastEvent.event.userIdentity.arn
 technique: T1098 - Account Manipulation

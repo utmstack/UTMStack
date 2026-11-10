@@ -29,10 +29,10 @@ where: |
   (equals("event.eventSource", "sts.amazonaws.com") &&
   equals("event.eventName", "AssumeRole") &&
   equals("actionResult","success") &&
-  equals("event.userIdentity.sessionContext.attributes.mfaAuthenticated", "false") &&
+  equals("utm.userIdentity.sessionContext.attributes.mfaAuthenticated", "false") &&
   !equals("event.userIdentity.type", "AWSService") &&
-  !contains("event.userAgent", "aws-sdk") &&
-  !contains("event.userAgent", "Botocore"))) &&
+  !contains("utm.userAgent", "aws-sdk") &&
+  !contains("utm.userAgent", "Botocore"))) &&
   exists("dataSource") &&
   !equals("dataSource","") &&
   exists("event.awsAccountKeyType") &&

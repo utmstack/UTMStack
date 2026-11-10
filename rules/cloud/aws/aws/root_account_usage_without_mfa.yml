@@ -30,7 +30,7 @@ where: |
   equals("event.awsRecordType","cloudtrail") &&
   (equals("event.userIdentity.type","Root") &&
   equals("actionResult","success") &&
-  (equals("event.userIdentity.sessionContext.attributes.mfaAuthenticated","false") ||
+  (equals("utm.userIdentity.sessionContext.attributes.mfaAuthenticated","false") ||
   (equals("event.eventName","ConsoleLogin") &&
   equals("event.additionalEventData.MFAUsed","No"))))
 groupBy:

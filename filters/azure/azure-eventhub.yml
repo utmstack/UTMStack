@@ -3458,3 +3458,7 @@ pipeline:
         - fieldName: utm.resourceId
           pattern: (?s)^.+$
       where: exists("event.resourceId")
+  - delete:
+      fields:
+      - event.message
+      - event.resourceId

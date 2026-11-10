@@ -26,11 +26,11 @@ description: |
   2. If it was not planned, review the trust settings and the other activity of that account, and remove trusts nobody requested.
 where: |
   equals("event.channel", "Security") &&
-  equals("event.providerName", "Microsoft-Windows-Security-Auditing") &&
+  equals("utm.providerName", "Microsoft-Windows-Security-Auditing") &&
   (
-    oneOf("event.eventCode", [4706, 4707]) ||
-    (equals("event.eventCode", 4716) && !equals("event.eventDataSubjectUserSid", "S-1-5-7"))
+    oneOf("utm.eventCode", [4706, 4707]) ||
+    (equals("utm.eventCode", 4716) && !equals("utm.eventDataSubjectUserSid", "S-1-5-7"))
   )
 groupBy:
   - dataSource
-  - lastEvent.event.eventDataSubjectUserSid
+  - lastEvent.utm.eventDataSubjectUserSid

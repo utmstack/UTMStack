@@ -233,15 +233,25 @@ func normalize(root string, f Fixture, cache *plugins.CELCache) (string, []strin
 						source = "raw"
 					}
 					if v, ok := valueAt(draft, source); ok {
-						if str, ok := v.(string); ok {
-							if f.Raw != nil && g.Patterns[0].Pattern != "(?s:.*)" && strings.ContainsAny(str, "\r\n") {
-								return "", issues, fmt.Errorf("raw model does not support multiline copy grok")
+						str, ok := v.(string)
+						if !ok {
+							// The real grok plugin reads the source with gjson .String(),
+							// which coerces non-strings (bool->"true"/"false", number->literal,
+							// object/array->compact JSON) rather than skipping them. Model that
+							// so the utm-copy groks reproduce the production document.
+							b, e := json.Marshal(v)
+							if e != nil {
+								return "", issues, fmt.Errorf("grok source %s unmarshalable: %v", source, e)
 							}
-							if f.Raw != nil && g.Patterns[0].Pattern == "{{.greedy}}" && cfg.Patterns["greedy"] != "" && cfg.Patterns["greedy"] != ".*" {
-								return "", issues, fmt.Errorf("raw model does not support custom greedy pattern")
-							}
-							put(draft, g.Patterns[0].FieldName, str, false)
+							str = string(b)
 						}
+						if f.Raw != nil && g.Patterns[0].Pattern != "(?s:.*)" && strings.ContainsAny(str, "\r\n") {
+							return "", issues, fmt.Errorf("raw model does not support multiline copy grok")
+						}
+						if f.Raw != nil && g.Patterns[0].Pattern == "{{.greedy}}" && cfg.Patterns["greedy"] != "" && cfg.Patterns["greedy"] != ".*" {
+							return "", issues, fmt.Errorf("raw model does not support custom greedy pattern")
+						}
+						put(draft, g.Patterns[0].FieldName, str, false)
 					}
 				case "drop":
 					return "", issues, fmt.Errorf("fixture dropped")

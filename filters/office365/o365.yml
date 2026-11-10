@@ -513,3 +513,29 @@ pipeline:
         - fieldName: utm.appAccessContextClientAppId
           pattern: (?s)^.+$
       where: exists("event.appAccessContextClientAppId")
+  - delete:
+      fields:
+      - event.ActorContextId
+      - event.AppPoolName
+      - event.CorrelationId
+      - event.DetectionMethod
+      - event.EventData
+      - event.ExternalAccess
+      - event.ItemType
+      - event.LogonError
+      - event.ObjectId
+      - event.OrganizationId
+      - event.OrganizationName
+      - event.OriginatingServer
+      - event.P2Sender
+      - event.Platform
+      - event.Recipients
+      - event.RequestId
+      - event.SourceFileExtension
+      - event.Subject
+      - event.TargetUserOrGroupName
+      - event.TargetUserOrGroupType
+      - event.UserType
+      - event.Verdict
+      - event.Workload
+      - event.appAccessContextClientAppId

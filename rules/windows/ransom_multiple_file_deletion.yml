@@ -18,9 +18,9 @@ description: "Detects potential ransomware activity by monitoring multiple file 
 references:
   - "https://attack.mitre.org/tactics/TA0040/"
 where: |
-  equals("event.eventCode", 4663) &&
+  equals("utm.eventCode", 4663) &&
   exists("origin.user") &&
-  oneOf("event.eventDataAccessMask", ["2", "4", "6"]) &&
+  oneOf("utm.eventDataAccessMask", ["2", "4", "6"]) &&
   !(regexMatch("event.eventDataProcessName", "(?i).*(trustedinstaller|svchost|wuauclt|msiexec|windows10upgrade|setuphost|tiworker|dism).*")) &&
   regexMatch("event.eventDataObjectName", "(?i).*\\\\(users|documents|desktop|downloads|pictures|videos|music)\\\\.*") &&
   !(regexMatch("event.eventDataObjectName", "(?i).*(\\\\windows\\\\|\\\\program files|\\\\programdata\\\\|\\\\temp\\\\|\\\\appdata\\\\local\\\\temp|\\\\softwaredistribution\\\\|\\\\winsxs\\\\|\\\\logs\\\\|\\\\prefetch\\\\).*")) &&
@@ -29,7 +29,7 @@ where: |
 afterEvents:
     - indexPattern: v11-log-wineventlog-*
       with:
-        - field: event.eventCode
+        - field: utm.eventCode
           operator: filter_term
           value: "4663"
         - field: dataSource.keyword
@@ -38,9 +38,9 @@ afterEvents:
         - field: origin.user.keyword
           operator: filter_term
           value: "{{.origin.user}}"
-        - field: event.eventDataAccessMask
+        - field: utm.eventDataAccessMask
           operator: filter_term
-          value: "{{.event.eventDataAccessMask}}"
+          value: "{{.utm.eventDataAccessMask}}"
       within: 5m
       count: 50
 deduplicateBy:

@@ -38,5 +38,5 @@ afterEvents:
     within: 1h
     count: 5
 groupBy:
-  - lastEvent.event.appAccessContextClientAppId
+  - lastEvent.utm.appAccessContextClientAppId
   - adversary.ip

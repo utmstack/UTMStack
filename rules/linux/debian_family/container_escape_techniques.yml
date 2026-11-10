@@ -25,14 +25,14 @@ description: |
   6. Isolate the affected container host and investigate for lateral movement
   7. Audit container images for vulnerabilities or backdoors
 where: |
-  (contains("event.message", "docker.sock") && contains("event.message", "mount")) ||
-  (contains("event.message", "nsenter") && contains("event.message", "--target")) ||
-  (contains("event.message", "release_agent") && contains("event.message", "cgroup")) ||
-  (contains("event.message", "--privileged") && contains("event.message", "docker")) ||
-  (contains("event.message", "/proc/1/root") || contains("event.message", "/proc/1/ns")) ||
-  (contains("event.message", "CAP_SYS_ADMIN") && contains("event.message", "container")) ||
-  (contains("event.message", "mount") && contains("event.message", "/dev/") &&
-   (contains("event.message", "container") || contains("event.message", "docker")))
+  (contains("utm.message", "docker.sock") && contains("utm.message", "mount")) ||
+  (contains("utm.message", "nsenter") && contains("utm.message", "--target")) ||
+  (contains("utm.message", "release_agent") && contains("utm.message", "cgroup")) ||
+  (contains("utm.message", "--privileged") && contains("utm.message", "docker")) ||
+  (contains("utm.message", "/proc/1/root") || contains("utm.message", "/proc/1/ns")) ||
+  (contains("utm.message", "CAP_SYS_ADMIN") && contains("utm.message", "container")) ||
+  (contains("utm.message", "mount") && contains("utm.message", "/dev/") &&
+   (contains("utm.message", "container") || contains("utm.message", "docker")))
 groupBy:
   - origin.host
   - origin.user

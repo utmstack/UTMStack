@@ -458,3 +458,6 @@ pipeline:
             - fieldName: utm.ciscoMsg
               pattern: (?s)^.+$
           where: exists("event.ciscoMsg")
+      - delete:
+          fields:
+          - event.ciscoMsg

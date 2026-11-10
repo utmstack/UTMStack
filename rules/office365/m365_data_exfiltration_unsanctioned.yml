@@ -26,7 +26,7 @@ description: |
   7. Consider implementing session controls for risky applications
 where: |
   (contains("action", "DlpRuleMatch") && contains("event.Parameters", "UnsanctionedApp")) ||
-  (equals("event.Workload", "MicrosoftDefenderForCloudApps") && contains("event.Parameters", "exfiltration"))
+  (equals("utm.Workload", "MicrosoftDefenderForCloudApps") && contains("event.Parameters", "exfiltration"))
 groupBy:
   - lastEvent.event.Parameters
   - adversary.user

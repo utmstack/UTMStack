@@ -25,7 +25,7 @@ description: |
   6. Validate that the operation aligns with organizational data governance policies
 where: |
   (oneOf("action", ["SiteGeoMoveScheduled", "SiteGeoMoveCompleted", "SiteGeoMoveCancelled", "AllowedDataLocationAdded", "GeoQuotaAllocated", "MigrationJobCompleted"]) ||
-  (equals("event.Workload", "OneDrive") && contains("target.filename", "cross-geo")) ||
+  (equals("utm.Workload", "OneDrive") && contains("target.filename", "cross-geo")) ||
   (contains("target.path", "geo")) ||
   (contains("event.Parameters", "DataLocation") || contains("event.Parameters", "PreferredDataLocation"))) &&
   exists("origin.user") &&

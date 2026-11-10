@@ -54,12 +54,12 @@ where: |
   ) ||
   (
     equals("event.syslogIdentifier", "audit") &&
-    startsWith("event.message", "MAC_STATUS ") &&
-    contains("event.message", " enforcing=0 old_enforcing=1 ")
+    startsWith("utm.message", "MAC_STATUS ") &&
+    contains("utm.message", " enforcing=0 old_enforcing=1 ")
   ) ||
   (
     equals("event.syslogIdentifier", "sudo") &&
-    regexMatch("event.message", "COMMAND=\\S*setenforce\\s+(0|[Pp]ermissive)(\\s|$)")
+    regexMatch("utm.message", "COMMAND=\\S*setenforce\\s+(0|[Pp]ermissive)(\\s|$)")
   )
 deduplicateBy:
   - dataSource
@@ -67,4 +67,4 @@ deduplicateBy:
   - lastEvent.event.avc.tcontext
   - lastEvent.event.avc.tclass
   - lastEvent.event.macstatus.enforcing
-  - lastEvent.event.message
+  - lastEvent.utm.message

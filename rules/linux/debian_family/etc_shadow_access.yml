@@ -23,11 +23,11 @@ description: |
   5. Force password resets for all accounts if credential theft is confirmed
   6. Investigate the compromise vector and check for lateral movement
 where: |
-  (contains("event.message", "/etc/shadow") || contains("event.message", "/etc/passwd")) &&
-  (contains("event.message", "read") || contains("event.message", "open") ||
-   contains("event.message", "cat ") || contains("event.message", "copy") ||
-   contains("event.message", "modified") || contains("event.message", "changed") ||
-   contains("event.message", "write")) &&
+  (contains("utm.message", "/etc/shadow") || contains("utm.message", "/etc/passwd")) &&
+  (contains("utm.message", "read") || contains("utm.message", "open") ||
+   contains("utm.message", "cat ") || contains("utm.message", "copy") ||
+   contains("utm.message", "modified") || contains("utm.message", "changed") ||
+   contains("utm.message", "write")) &&
   !(contains("event.process", "passwd") || contains("event.process", "useradd") ||
     contains("event.process", "usermod") || contains("event.process", "groupadd") ||
     contains("event.process", "chpasswd") || contains("event.process", "login"))

@@ -28,21 +28,20 @@ func contractPaths(d protoreflect.MessageDescriptor, prefix string, out map[stri
 }
 
 // The documented Draft lifecycle finalizes after every step has run. Unknown
-// top-level scratch namespaces are permitted only with unconditional whole-root
-// cleanup as the final step of that same stage. Children of known schema namespaces are never
-// exempted, even if a cleanup happens to name them.
+// top-level scratch namespaces are permitted when an unconditional whole-root
+// delete later in the same stage cleans them up. Children of known schema
+// namespaces are never exempted, even if a cleanup happens to name them.
 func contractTemporaryRoots(steps []*plugins.Step, eventPaths map[string]bool) map[string]bool {
 	out := map[string]bool{}
-	if len(steps) == 0 {
-		return out
-	}
-	cleanup := steps[len(steps)-1].Delete
-	if cleanup == nil || cleanup.Where != "" {
-		return out
-	}
-	for _, p := range cleanup.Fields {
-		if p != "" && !strings.Contains(p, ".") && !eventPaths[p] {
-			out[p] = true
+	for _, step := range steps {
+		cleanup := step.Delete
+		if cleanup == nil || cleanup.Where != "" {
+			continue
+		}
+		for _, p := range cleanup.Fields {
+			if p != "" && !strings.Contains(p, ".") && !eventPaths[p] {
+				out[p] = true
+			}
 		}
 	}
 	return out
@@ -70,7 +69,7 @@ func TestFilterAndRuleContracts(t *testing.T) {
 	eventPath := func(p string) bool {
 		p = strings.TrimSuffix(p, ".keyword")
 		p = arrayIndex.ReplaceAllString(p, "$1")
-		return eventPaths[p] || strings.HasPrefix(p, "event.") || strings.HasPrefix(p, "compliance.")
+		return eventPaths[p] || strings.HasPrefix(p, "event.") || strings.HasPrefix(p, "compliance.") || strings.HasPrefix(p, "utm.")
 	}
 	alertPath := func(p string) bool {
 		p = strings.TrimSuffix(p, ".keyword")
@@ -236,7 +235,7 @@ func TestContractTemporaryRoots(t *testing.T) {
 	}{
 		{"final whole root", []*plugins.Step{{Delete: &plugins.Delete{Fields: []string{"scratch", "origin.hostname", "origin", "raw"}}}}, true},
 		{"conditional", []*plugins.Step{{Delete: &plugins.Delete{Fields: []string{"scratch"}, Where: "false"}}}, false},
-		{"not final", []*plugins.Step{{Delete: &plugins.Delete{Fields: []string{"scratch"}}}, {}}, false},
+		{"cleanup before final", []*plugins.Step{{Delete: &plugins.Delete{Fields: []string{"scratch"}}}, {}}, true},
 		{"no cleanup", nil, false},
 	} {
 		t.Run(tc.name, func(t *testing.T) {

@@ -35,11 +35,11 @@ where: |
     contains("event.ExceptionInfo", "DLP")
   ) &&
   (
-    equals("event.Workload", "Exchange") ||
-    equals("event.Workload", "SharePoint") ||
-    equals("event.Workload", "OneDrive") ||
-    equals("event.Workload", "Teams") ||
-    equals("event.Workload", "SecurityComplianceCenter")
+    equals("utm.Workload", "Exchange") ||
+    equals("utm.Workload", "SharePoint") ||
+    equals("utm.Workload", "OneDrive") ||
+    equals("utm.Workload", "Teams") ||
+    equals("utm.Workload", "SecurityComplianceCenter")
   ) &&
   !equals("actionResult", "failed")
 groupBy:

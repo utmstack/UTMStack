@@ -52,4 +52,4 @@ deduplicateBy:
 - lastEvent.event.awsAccountKey
 - lastEvent.event.sourceIPAddress
 - lastEvent.event.userIdentity.arn
-- lastEvent.event.awsRegion
+- lastEvent.utm.awsRegion

@@ -1486,3 +1486,10 @@ pipeline:
         - fieldName: utm.src_host
           pattern: (?s)^.+$
       where: exists("event.src_host")
+  - delete:
+      fields:
+      - event.deviceIps
+      - event.eventType
+      - event.priority
+      - event.product
+      - event.src_host

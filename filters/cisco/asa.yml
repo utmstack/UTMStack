@@ -5803,3 +5803,6 @@ pipeline:
             - fieldName: utm.msg
               pattern: (?s)^.+$
           where: exists("event.msg")
+      - delete:
+          fields:
+          - event.msg

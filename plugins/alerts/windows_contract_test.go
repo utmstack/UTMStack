@@ -152,7 +152,14 @@ func winParse(t *testing.T, cfg *plugins.Config, raw string, dataSource string, 
 					}
 					str, ok := v.(string)
 					if !ok {
-						t.Fatalf("non-string grok source %s", src)
+						// The real grok plugin reads the source with gjson .String(),
+						// which coerces non-strings (bool->"true"/"false", number->literal,
+						// object/array->compact JSON) rather than erroring. Model that here.
+						b, e := json.Marshal(v)
+						if e != nil {
+							t.Fatalf("grok source %s unmarshalable: %v", src, e)
+						}
+						str = string(b)
 					}
 					r := winRegex(t, g, cfg)
 					m := r.FindStringSubmatch(str)
@@ -411,7 +418,7 @@ func TestWindowsSDKHistory(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		if strings.HasSuffix(r.URL.Path, "/_mapping") {
-			_, _ = w.Write([]byte(`{"v11-log-wineventlog-test":{"mappings":{"properties":{"@timestamp":{"type":"date"},"dataSource":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"event":{"properties":{"authenticationSource":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"eventCode":{"type":"long"},"eventDataTicketEncryptionType":{"type":"long"},"eventDataPreAuthType":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"authenticationCandidate":{"properties":{"kerberoastingDetection":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"asrepRoastingDetection":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"silverTicketDetection":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"goldenTicketDetection":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"adfsAuthenticationAnomalies":{"type":"text","fields":{"keyword":{"type":"keyword"}}}}}}},"target":{"properties":{"user":{"type":"text","fields":{"keyword":{"type":"keyword"}}}}}}}}}`))
+			_, _ = w.Write([]byte(`{"v11-log-wineventlog-test":{"mappings":{"properties":{"@timestamp":{"type":"date"},"dataSource":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"utm":{"properties":{"eventCode":{"type":"long"},"eventDataTicketEncryptionType":{"type":"long"},"eventDataPreAuthType":{"type":"text","fields":{"keyword":{"type":"keyword"}}}}},"event":{"properties":{"authenticationSource":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"authenticationCandidate":{"properties":{"kerberoastingDetection":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"asrepRoastingDetection":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"silverTicketDetection":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"goldenTicketDetection":{"type":"text","fields":{"keyword":{"type":"keyword"}}},"adfsAuthenticationAnomalies":{"type":"text","fields":{"keyword":{"type":"keyword"}}}}}}},"target":{"properties":{"user":{"type":"text","fields":{"keyword":{"type":"keyword"}}}}}}}}}`))
 			return
 		}
 		requests++
@@ -461,9 +468,10 @@ func TestWindowsSDKHistory(t *testing.T) {
 				r := rules[name]
 				for _, search := range r.Correlation {
 					previous := mutate(trigger, "@timestamp", time.Now().Add(-time.Minute).UTC().Format(time.RFC3339Nano))
-					// Success-after-failures searches 4625, not the triggering 4624.
+					// Success-after-failures searches utm.eventCode=4625, not the
+					// triggering 4624.
 					for _, term := range search.With {
-						if term.Field == "event.eventCode" && term.Value.GetStringValue() == "" {
+						if term.Field == "utm.eventCode" && term.Value.GetStringValue() == "" {
 							var failedRaw map[string]any
 							if e := json.Unmarshal([]byte(f.Raw), &failedRaw); e != nil {
 								t.Fatal(e)

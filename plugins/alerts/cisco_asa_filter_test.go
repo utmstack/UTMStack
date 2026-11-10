@@ -596,6 +596,25 @@ func asaFields(event map[string]any) map[string]any {
 	return out
 }
 
+// Since the utm rename, the filter's message lives at utm.msg: asa.yml copies event.msg there
+// (grok) and then deletes event.msg, so the stored document carries the message at the new
+// path. expected.json predates the move and records the values under event.msg; applying this
+// map to the recorded fields models that flip and leaves every other path, such as
+// event.messageId or event.facility, as-is.
+var asaMovedFields = map[string]string{"event.msg": "utm.msg"}
+
+func asaFlippedFields(fields map[string]any) map[string]any {
+	flipped := make(map[string]any, len(fields))
+	for k, v := range fields {
+		if to, ok := asaMovedFields[k]; ok {
+			flipped[to] = v
+		} else {
+			flipped[k] = v
+		}
+	}
+	return flipped
+}
+
 var asaGeoPath = regexp.MustCompile(`^(origin\.geolocation|target\.geolocation|event\.[A-Za-z0-9]+Geolocation)(\.|$)`)
 
 type asaCase struct {
@@ -712,6 +731,7 @@ func TestCiscoASAExtractionModel(t *testing.T) {
 			t.Errorf("%s: log object present=%t", name, ok)
 		}
 		got := asaFields(stored[name])
+		want.Fields = asaFlippedFields(want.Fields)
 		keys := map[string]bool{}
 		for k := range got {
 			keys[k] = true
@@ -1063,8 +1083,9 @@ func TestCiscoASARuleContract(t *testing.T) {
 		t.Errorf("IPS condition must be exists(\"origin.ip\") && (...) without event.action: %s", ips)
 	}
 	vpn := rules["multiple_failed_vpn_attempts"].Where
-	if !strings.Contains(vpn, `regexMatch("event.msg", `) || strings.Contains(vpn, `"event.message"`) {
-		t.Errorf("VPN condition must read event.msg: %s", vpn)
+	if !strings.Contains(vpn, `regexMatch("utm.msg", "(?i)(authentication.*failed|invalid.*password)")`) ||
+		strings.Contains(vpn, `"event.msg"`) || strings.Contains(vpn, `"event.message"`) {
+		t.Errorf("VPN condition must read utm.msg: %s", vpn)
 	}
 }
 
@@ -1088,8 +1109,9 @@ var asaRuleCases = []struct {
 	{"ips_signature_matches", "event.action value that no step writes", `"event":{"messageId":420997,"action":"ips_alert"},"origin":{"ip":"198.51.100.7"}`, false},
 	{"ips_signature_matches", "unrelated connection with an address", `"event":{"messageId":302013},"origin":{"ip":"198.51.100.7"}`, false},
 	{"multiple_failed_vpn_attempts", "113015 with address and failing reason", `"event":{"messageId":113015,"reason":"Invalid password"},"origin":{"ip":"198.51.100.7","user":"alice"}`, true},
-	{"multiple_failed_vpn_attempts", "109034 failure text in event.msg", `"event":{"messageId":109034,"msg":"Authentication failed for network user alice from 198.51.100.7/51234 to 192.0.2.10/443"},"origin":{"ip":"198.51.100.7"}`, true},
-	{"multiple_failed_vpn_attempts", "611102 failure text in event.msg", `"event":{"messageId":611102,"msg":"User authentication failed: IP address: 198.51.100.7, Uname: alice"},"origin":{"ip":"198.51.100.7"}`, true},
+	{"multiple_failed_vpn_attempts", "109034 failure text in utm.msg", `"event":{"messageId":109034},"utm":{"msg":"Authentication failed for network user alice from 198.51.100.7/51234 to 192.0.2.10/443"},"origin":{"ip":"198.51.100.7"}`, true},
+	{"multiple_failed_vpn_attempts", "611102 failure text in utm.msg", `"event":{"messageId":611102},"utm":{"msg":"User authentication failed: IP address: 198.51.100.7, Uname: alice"},"origin":{"ip":"198.51.100.7"}`, true},
+	{"multiple_failed_vpn_attempts", "109034 failure text only in event.msg", `"event":{"messageId":109034,"msg":"Authentication failed for network user alice"},"origin":{"ip":"198.51.100.7"}`, false},
 	{"multiple_failed_vpn_attempts", "109034 failure text only in event.message", `"event":{"messageId":109034,"message":"Authentication failed for network user alice"},"origin":{"ip":"198.51.100.7"}`, false},
 	{"multiple_failed_vpn_attempts", "113015 as this filter stores it, address in target.ip (D01)", `"event":{"messageId":113015,"reason":"Invalid password"},"target":{"ip":"198.51.100.7"}`, false},
 	{"multiple_failed_vpn_attempts", "failure text on an unlisted message", `"event":{"messageId":113005,"msg":"authentication failed"},"origin":{"ip":"198.51.100.7"}`, false},

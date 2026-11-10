@@ -30,7 +30,7 @@ description: |
   for seven days.
 where: |
   exists("event.devid") && !equals("event.devid", "") && exists("event.vd") && !equals("event.vd", "") &&
-  (equals("event.type", "event") && equals("event.subtype", "vpn") &&
+  (equals("event.type", "event") && equals("utm.subtype", "vpn") &&
   (equals("action", "ssl-login-fail") || equals("event.logid", "0101039426")) &&
   exists("origin.ip"))
 afterEvents:

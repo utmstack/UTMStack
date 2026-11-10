@@ -25,8 +25,8 @@ description: |
   6. Consider revoking any suspicious certificates issued
   7. Validate Certificate Authority security configurations and access controls
 where: |
-  oneOf("event.eventCode", [4886, 4887]) &&
-  equals("event.providerName", "Microsoft-Windows-Security-Auditing") &&
+  oneOf("utm.eventCode", [4886, 4887]) &&
+  equals("utm.providerName", "Microsoft-Windows-Security-Auditing") &&
   (endsWith("event.data.Requester", "$") || contains("event.data.Requester", "ANONYMOUS LOGON"))
 deduplicateBy:
   - dataSource

@@ -23,12 +23,15 @@
       "dataSource": "ws01",
       "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Security\",\"computer\":\"ws01.example.test\",\"recordId\":1000,\"data\":{\"MemberName\":\"-\",\"MemberSid\":\"S-1-5-21-4444444444-5555555555-6666666666-1003\",\"PrivilegeList\":\"-\",\"TargetDomainName\":\"Builtin\",\"TargetSid\":\"S-1-5-32-544\",\"TargetUserName\":\"Administradores\",\"SubjectDomainName\":\"EXAMPLE\",\"SubjectLogonId\":999,\"SubjectUserName\":\"WS01$\",\"SubjectUserSid\":\"S-1-5-18\"},\"eventCode\":4732}",
       "expected": {
-        "event.eventDataTargetSid": "S-1-5-32-544",
-        "event.eventDataSubjectUserSid": "S-1-5-18",
+        "utm.eventDataTargetSid": "S-1-5-32-544",
+        "utm.eventDataSubjectUserSid": "S-1-5-18",
         "target.user": "Administradores",
         "event.data.MemberSid": "S-1-5-21-4444444444-5555555555-6666666666-1003"
       },
-      "absent": [],
+      "absent": [
+        "event.eventDataTargetSid",
+        "event.eventDataSubjectUserSid"
+      ],
       "rules": {
         "rules/windows/awareness_privileged_group_member_added.yml": true
       }
@@ -40,10 +43,12 @@
       "dataSource": "dc01",
       "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"recordId\":1000,\"data\":{\"MemberName\":\"CN=bob,CN=Users,DC=example,DC=test\",\"MemberSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1200\",\"PrivilegeList\":\"-\",\"TargetDomainName\":\"EXAMPLE\",\"TargetSid\":\"S-1-5-21-1111111111-2222222222-3333333333-512\",\"TargetUserName\":\"Domain Admins\",\"SubjectDomainName\":\"EXAMPLE\",\"SubjectLogonId\":3031,\"SubjectUserName\":\"alice.admin\",\"SubjectUserSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1104\"},\"eventCode\":4728}",
       "expected": {
-        "event.eventDataTargetSid": "S-1-5-21-1111111111-2222222222-3333333333-512",
+        "utm.eventDataTargetSid": "S-1-5-21-1111111111-2222222222-3333333333-512",
         "origin.user": "alice.admin"
       },
-      "absent": [],
+      "absent": [
+        "event.eventDataTargetSid"
+      ],
       "rules": {
         "rules/windows/awareness_privileged_group_member_added.yml": true
       }
@@ -174,9 +179,11 @@
       "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"recordId\":1000,\"data\":{\"SubjectDomainName\":\"EXAMPLE\",\"SubjectLogonId\":3031,\"SubjectUserName\":\"alice.admin\",\"SubjectUserSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1104\",\"TargetDomainName\":\"EXAMPLE\",\"TargetSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1201\",\"TargetUserName\":\"carol\",\"SamAccountName\":\"carol\",\"PrimaryGroupId\":\"513\",\"UserAccountControl\":\"%%2080\"},\"eventCode\":4720}",
       "expected": {
         "target.user": "carol",
-        "event.eventDataTargetSid": "S-1-5-21-1111111111-2222222222-3333333333-1201"
+        "utm.eventDataTargetSid": "S-1-5-21-1111111111-2222222222-3333333333-1201"
       },
-      "absent": [],
+      "absent": [
+        "event.eventDataTargetSid"
+      ],
       "rules": {
         "rules/windows/awareness_user_account_created.yml": true
       }
@@ -200,9 +207,11 @@
       "dataSource": "ws01",
       "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Security\",\"computer\":\"ws01.example.test\",\"recordId\":1000,\"data\":{\"SubjectDomainName\":\"EXAMPLE\",\"SubjectLogonId\":999,\"SubjectUserName\":\"WS01$\",\"SubjectUserSid\":\"S-1-5-18\",\"TargetDomainName\":\"WS01\",\"TargetSid\":\"S-1-5-21-4444444444-5555555555-6666666666-501\",\"TargetUserName\":\"Invitado\"},\"eventCode\":4722}",
       "expected": {
-        "event.eventDataTargetSid": "S-1-5-21-4444444444-5555555555-6666666666-501"
+        "utm.eventDataTargetSid": "S-1-5-21-4444444444-5555555555-6666666666-501"
       },
-      "absent": [],
+      "absent": [
+        "event.eventDataTargetSid"
+      ],
       "rules": {
         "rules/windows/awareness_builtin_admin_or_guest_enabled.yml": true
       }
@@ -484,10 +493,12 @@
       "raw": "{\"timestamp\":\"2026-09-24T12:00:00Z\",\"provider_name\":\"Microsoft-Windows-Security-Auditing\",\"channel\":\"Security\",\"computer\":\"dc01.example.test\",\"recordId\":1000,\"data\":{\"SubjectDomainName\":\"EXAMPLE\",\"SubjectLogonId\":3031,\"SubjectUserName\":\"alice.admin\",\"SubjectUserSid\":\"S-1-5-21-1111111111-2222222222-3333333333-1104\",\"AppCorrelationID\":\"-\",\"AttributeLDAPDisplayName\":\"versionNumber\",\"AttributeSyntaxOID\":\"2.5.5.9\",\"AttributeValue\":\"65538\",\"DSName\":\"example.test\",\"DSType\":\"%%14676\",\"ObjectClass\":\"groupPolicyContainer\",\"ObjectDN\":\"CN={31B2F340-016D-11D2-945F-00C04FB984F9},CN=POLICIES,CN=SYSTEM,DC=EXAMPLE,DC=TEST\",\"ObjectGUID\":\"{11111111-2222-3333-4444-555555555555}\",\"OpCorrelationID\":\"{66666666-7777-8888-9999-000000000000}\",\"OperationType\":\"%%14674\"},\"eventCode\":5136}",
       "expected": {
         "event.data.ObjectClass": "groupPolicyContainer",
-        "event.eventDataOperationType": "%%14674",
+        "utm.eventDataOperationType": "%%14674",
         "event.data.ObjectDN": "CN={31B2F340-016D-11D2-945F-00C04FB984F9},CN=POLICIES,CN=SYSTEM,DC=EXAMPLE,DC=TEST"
       },
-      "absent": [],
+      "absent": [
+        "event.eventDataOperationType"
+      ],
       "rules": {
         "rules/windows/awareness_group_policy_object_changed.yml": true
       }

@@ -28,16 +28,16 @@ description: |
 where: |
   (equals("action", "UserLoginFailed") || equals("action", "UserLoggedIn")) &&
   (contains("event.Parameters", "MFA") ||
-   contains("event.LogonError", "MfaDenied") ||
-   contains("event.LogonError", "MfaIncomplete") ||
-   equals("event.LogonError", "InvalidStrongAuthenticationMethod"))
+   contains("utm.LogonError", "MfaDenied") ||
+   contains("utm.LogonError", "MfaIncomplete") ||
+   equals("utm.LogonError", "InvalidStrongAuthenticationMethod"))
 afterEvents:
   - indexPattern: v11-log-o365-*
     with:
       - field: origin.user
         operator: filter_term
         value: '{{.origin.user}}'
-      - field: event.LogonError
+      - field: utm.LogonError
         operator: filter_match
         value: 'Mfa'
     within: 15m

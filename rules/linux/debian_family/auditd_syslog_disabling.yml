@@ -23,12 +23,12 @@ description: |
   5. Check for other defense evasion techniques on the host
   6. Investigate the attack chain that led to disabling logging
 where: |
-  (contains("event.message", "systemctl") || contains("event.message", "service")) &&
-  (contains("event.message", "stop") || contains("event.message", "disable") ||
-   contains("event.message", "mask") || contains("event.message", "kill")) &&
-  (contains("event.message", "auditd") || contains("event.message", "rsyslog") ||
-   contains("event.message", "syslog-ng") || contains("event.message", "journald") ||
-   contains("event.message", "syslog")) &&
-  !(contains("event.message", "restart") || contains("event.message", "reload"))
+  (contains("utm.message", "systemctl") || contains("utm.message", "service")) &&
+  (contains("utm.message", "stop") || contains("utm.message", "disable") ||
+   contains("utm.message", "mask") || contains("utm.message", "kill")) &&
+  (contains("utm.message", "auditd") || contains("utm.message", "rsyslog") ||
+   contains("utm.message", "syslog-ng") || contains("utm.message", "journald") ||
+   contains("utm.message", "syslog")) &&
+  !(contains("utm.message", "restart") || contains("utm.message", "reload"))
 deduplicateBy:
   - dataSource

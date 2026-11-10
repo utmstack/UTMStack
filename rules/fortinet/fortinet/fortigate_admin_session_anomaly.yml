@@ -26,7 +26,7 @@ description: |
 where: |
   equals("event.logid", "0100032001") &&
   equals("event.type", "event") &&
-  equals("event.subtype", "system") &&
+  equals("utm.subtype", "system") &&
   equals("event.logdesc", "Admin login successful") &&
   exists("origin.ip") &&
   !inCIDR("origin.ip", "10.0.0.0/8") &&

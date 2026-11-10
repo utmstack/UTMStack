@@ -94,7 +94,7 @@
     "match": true,
     "deduplicateKeys": [
       "dataSource",
-      "lastEvent.event.message"
+      "lastEvent.utm.message"
     ]
   },
   {
@@ -104,7 +104,7 @@
     "match": true,
     "deduplicateKeys": [
       "dataSource",
-      "lastEvent.event.message"
+      "lastEvent.utm.message"
     ]
   },
   {
@@ -126,7 +126,7 @@
     "match": true,
     "deduplicateKeys": [
       "dataSource",
-      "lastEvent.event.message"
+      "lastEvent.utm.message"
     ]
   },
   {
@@ -136,7 +136,7 @@
     "match": true,
     "deduplicateKeys": [
       "dataSource",
-      "lastEvent.event.message"
+      "lastEvent.utm.message"
     ]
   },
   {
@@ -146,7 +146,7 @@
     "match": true,
     "deduplicateKeys": [
       "dataSource",
-      "lastEvent.event.message"
+      "lastEvent.utm.message"
     ]
   },
   {
@@ -234,7 +234,7 @@
     "match": true,
     "deduplicateKeys": [
       "dataSource",
-      "lastEvent.event.message",
+      "lastEvent.utm.message",
       "lastEvent.origin.command"
     ]
   },
@@ -303,7 +303,7 @@
     "deduplicateKeys": [
       "dataSource",
       "lastEvent.origin.command",
-      "lastEvent.event.message"
+      "lastEvent.utm.message"
     ]
   },
   {
@@ -319,7 +319,7 @@
     "match": true,
     "deduplicateKeys": [
       "dataSource",
-      "lastEvent.event.message",
+      "lastEvent.utm.message",
       "lastEvent.origin.command"
     ]
   },
@@ -330,7 +330,7 @@
     "match": true,
     "deduplicateKeys": [
       "dataSource",
-      "lastEvent.event.message",
+      "lastEvent.utm.message",
       "lastEvent.origin.command"
     ]
   },
@@ -341,7 +341,7 @@
     "match": true,
     "deduplicateKeys": [
       "dataSource",
-      "lastEvent.event.message",
+      "lastEvent.utm.message",
       "lastEvent.origin.command"
     ]
   },
@@ -406,7 +406,7 @@
     "match": true,
     "deduplicateKeys": [
       "dataSource",
-      "lastEvent.event.message",
+      "lastEvent.utm.message",
       "lastEvent.origin.command"
     ]
   },

@@ -51,5 +51,5 @@ groupBy:
 - lastEvent.event.awsAccountKeyType
 - lastEvent.event.awsAccountKey
 - lastEvent.event.sourceIPAddress
-- lastEvent.event.userIdentity.principalId
+- lastEvent.utm.userIdentity.principalId
 technique: T1098 - Account Manipulation

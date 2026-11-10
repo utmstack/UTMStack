@@ -27,7 +27,7 @@ description: |
 where: |
   !oneOf("dataSource", ["", "unknown"]) &&
   exists("event.authenticationSource") &&
-  equals("event.providerName", "AD FS") && (equals("event.eventCode", "342") || equals("event.eventCode", "516")) && contains("event.message", "token validation failed")
+  equals("utm.providerName", "AD FS") && (equals("utm.eventCode", "342") || equals("utm.eventCode", "516")) && contains("utm.message", "token validation failed")
 afterEvents:
   - indexPattern: v11-log-wineventlog-*
     with:
@@ -40,9 +40,9 @@ afterEvents:
       - field: event.authenticationCandidate.adfsAuthenticationAnomalies.keyword
         operator: filter_term
         value: match
-      - field: event.eventCode
+      - field: utm.eventCode
         operator: filter_term
-        value: '{{.event.eventCode}}'
+        value: '{{.utm.eventCode}}'
     within: 10m
     count: 10
 groupBy:

@@ -34,5 +34,5 @@ groupBy:
 - lastEvent.dataSource
 - lastEvent.event.awsAccountKeyType
 - lastEvent.event.awsAccountKey
-- lastEvent.event.requestParameters.bucketName
-- lastEvent.event.userIdentity.accessKeyId
+- lastEvent.utm.requestParameters.bucketName
+- lastEvent.utm.userIdentity.accessKeyId

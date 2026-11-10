@@ -780,3 +780,37 @@ pipeline:
         - fieldName: utm.userIdentity.sessionContext.sessionIssuer.userName
           pattern: (?s)^.+$
       where: exists("event.userIdentity.sessionContext.sessionIssuer.userName")
+  - delete:
+      fields:
+      - event.additionalEventData.AuthenticationMethod
+      - event.additionalEventData.CipherSuite
+      - event.awsRegion
+      - event.eventCategory
+      - event.eventID
+      - event.eventType
+      - event.insightDetails.eventName
+      - event.managementEvent
+      - event.readOnly
+      - event.recipientAccountId
+      - event.requestID
+      - event.requestParameters.Host
+      - event.requestParameters.bucketName
+      - event.requestParameters.key
+      - event.requestParameters.logGroupName
+      - event.requestParameters.policyArn
+      - event.requestParameters.roleArn
+      - event.requestParameters.roleName
+      - event.requestParameters.roleSessionName
+      - event.requestParameters.userName
+      - event.responseElements.ConsoleLogin
+      - event.responseElements.assumedRoleUser.arn
+      - event.responseElements.credentials.accessKeyId
+      - event.responseElements.credentials.expiration
+      - event.responseElements.x
+      - event.tlsDetails.tlsVersion
+      - event.userAgent
+      - event.userIdentity.accessKeyId
+      - event.userIdentity.invokedBy
+      - event.userIdentity.principalId
+      - event.userIdentity.sessionContext.attributes.mfaAuthenticated
+      - event.userIdentity.sessionContext.sessionIssuer.userName

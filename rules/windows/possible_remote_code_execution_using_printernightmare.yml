@@ -16,7 +16,7 @@ description: "Adversaries may exploit remote services to gain unauthorized acces
 references:
   - "https://attack.mitre.org/techniques/T1210/"
 where: |
-  equals("event.eventCode", 4663) && regexMatch("event.eventDataObjectName", "[Ww]indows.System32.spool.drivers") && regexMatch("event.eventDataObjectName", "[.](dll|exe)$") && !contains("event.eventDataProcessName", "spoolsv.exe")
+  equals("utm.eventCode", 4663) && regexMatch("event.eventDataObjectName", "[Ww]indows.System32.spool.drivers") && regexMatch("event.eventDataObjectName", "[.](dll|exe)$") && !contains("event.eventDataProcessName", "spoolsv.exe")
 groupBy:
   - dataSource
 deduplicateBy: []

@@ -24,8 +24,8 @@ description: |
   6. Review IAM policies to limit enumeration permissions
 where: |
   equals("event.awsRecordType","cloudtrail") &&
-  (contains("event.userAgent", "trufflehog") ||
-  contains("event.userAgent", "TruffleHog"))
+  (contains("utm.userAgent", "trufflehog") ||
+  contains("utm.userAgent", "TruffleHog"))
 groupBy:
 - lastEvent.dataSource
 - lastEvent.event.awsAccountKeyType
