@@ -1708,7 +1708,8 @@
         "datasets": {
             "logs": "Logs",
             "alerts": "Alerts",
-            "statistics": "Ingestion statistics"
+            "statistics": "Ingestion statistics",
+            "user_profile_history": "User profile history"
         },
         "holding": "{{documents}} records · {{size}}",
         "since": "since {{date}}",
