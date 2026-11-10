@@ -271,22 +271,14 @@ func judge(ctx context.Context, srv plugins.Analysis_AnalyzeServer, event *plugi
 	if source == "profile" && !p.MinSamplesOK {
 		return nil
 	}
-	prefix := ""
-	if source == "history" {
-		prefix = "vs profile snapshot " + p.SnapshottedAt + ": "
-	}
-
 	var details []string
 
 	if anomalousHour(p, atTime) {
-		details = append(details, "unusual hour: logged in at "+
-			prefix+atTime.Format("15:04")+
-			fmt.Sprintf(", usual mean %.1fh (spread %.1fh)", hourMean(p), hourSpread(p)))
+		details = append(details, hourAnomalyDetail(atTime, p))
 	}
 
 	if ip := event.Origin.Ip; ip != "" && len(p.TopIPs) > 0 && !knownIP(ip, p.TopIPs) {
-		details = append(details, "unfamiliar IP: "+prefix+fmt.Sprintf(
-			"logged in from %s, not among the usual %d source IPs", ip, len(p.TopIPs)))
+		details = append(details, ipAnomalyDetail(ip))
 	}
 
 	if source == "profile" && p.EventDayMean > 0 {
@@ -299,9 +291,7 @@ func judge(ctx context.Context, srv plugins.Analysis_AnalyzeServer, event *plugi
 			})
 		} else if ok {
 			if todayVolumeExceeded(float64(n), *p) {
-				details = append(details, fmt.Sprintf(
-					"abnormal volume: %d events today vs usual %.1f/day (p95 %d)",
-					n, p.EventDayMean, p.EventDayP95))
+				details = append(details, volumeAnomalyDetail(n, p.EventDayMean))
 			}
 		}
 	}
@@ -310,22 +300,36 @@ func judge(ctx context.Context, srv plugins.Analysis_AnalyzeServer, event *plugi
 		return err
 	}
 	if impact := loginSeverity(len(details)); impact > 0 {
-		desc := prefix + describeAnomaly(event.Origin.User, source, len(details), details)
+		desc := describeAnomaly(event.Origin.User, source, p.SnapshottedAt, details)
 		return sendAlert(srv, event, "User Behavior Anomaly", desc, impact)
 	}
 	return nil
 }
 
-func criteriaTotalFor(source string) int {
-	if source == "history" {
-		return 2
-	}
-	return 3
+func hourAnomalyDetail(at time.Time, p *profile) string {
+	minutes := int(math.Round(hourMean(p)*60)) % (24 * 60)
+	return fmt.Sprintf("Logged in at %s, outside the usual login time around %02d:%02d UTC.",
+		at.Format("15:04 MST"), minutes/60, minutes%60)
 }
 
-func describeAnomaly(user, source string, hit int, details []string) string {
-	return fmt.Sprintf("%s matches %d of %d behavioral criteria: %s.",
-		user, hit, criteriaTotalFor(source), strings.Join(details, "; "))
+func ipAnomalyDetail(ip string) string {
+	return fmt.Sprintf("Logged in from %s, an unfamiliar source IP address.", ip)
+}
+
+func volumeAnomalyDetail(count int64, mean float64) string {
+	return fmt.Sprintf("%d events were recorded today (UTC), compared with a usual average of %.1f per day.", count, mean)
+}
+
+func describeAnomaly(user, source, snapshot string, details []string) string {
+	prefix := fmt.Sprintf("User %s: ", user)
+	if source == "history" {
+		if snapshot != "" {
+			prefix += fmt.Sprintf("Compared with the profile snapshot from %s. ", snapshot)
+		} else {
+			prefix += "Compared with the user's historical profile. "
+		}
+	}
+	return prefix + strings.Join(details, " ")
 }
 
 func loginSeverity(criteria int) uint32 {
