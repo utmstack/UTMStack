@@ -25,9 +25,9 @@ const (
 	datasetProfile    store.Dataset = "userBehaviorProfile"
 	datasetLogs       store.Dataset = "logs"
 	datasetHistory    store.Dataset = "userProfileHistory"
-	defaultTable                    = "utmstack.user_behavior_profile"
-	defaultLogsTbl                  = "utmstack.logs"
-	defaultHistoryTbl               = "utmstack.user_profile_history"
+	defaultTable                    = "user_behavior_profile"
+	defaultLogsTbl                  = "logs"
+	defaultHistoryTbl               = "user_profile_history"
 )
 
 var (
@@ -252,7 +252,19 @@ func isLogin(event *plugins.Event) bool {
 func judge(ctx context.Context, srv plugins.Analysis_AnalyzeServer, event *plugins.Event) error {
 	now := time.Now()
 	atTime := eventTime(event, now)
-	p, source, found := loadProfileOrHistory(ctx, event.TenantId, event.Origin.User)
+	p, source, found, readErr := loadProfileOrHistory(ctx, event.TenantId, event.Origin.User)
+	if readErr != nil {
+		message := "user-behavioral: profile read failed"
+		if source == "history" {
+			message = "user-behavioral: history read failed"
+		}
+		catcher.Warn(message, map[string]any{
+			"process": pluginName,
+			"tenant":  event.TenantId,
+			"user":    event.Origin.User,
+			"error":   readErr.Error(),
+		})
+	}
 	if !found || p == nil {
 		return ctx.Err()
 	}
@@ -269,7 +281,7 @@ func judge(ctx context.Context, srv plugins.Analysis_AnalyzeServer, event *plugi
 	if anomalousHour(p, atTime) {
 		details = append(details, "unusual hour: logged in at "+
 			prefix+atTime.Format("15:04")+
-			fmt.Sprintf(", usual mean %.1fh (spread %.1fh)", hourMean(p), p.HourStd))
+			fmt.Sprintf(", usual mean %.1fh (spread %.1fh)", hourMean(p), hourSpread(p)))
 	}
 
 	if ip := event.Origin.Ip; ip != "" && len(p.TopIPs) > 0 && !knownIP(ip, p.TopIPs) {
@@ -278,7 +290,14 @@ func judge(ctx context.Context, srv plugins.Analysis_AnalyzeServer, event *plugi
 	}
 
 	if source == "profile" && p.EventDayMean > 0 {
-		if n, ok := volumeCount(ctx, event); ok {
+		if n, ok, countErr := volumeCount(ctx, event); countErr != nil {
+			catcher.Warn("user-behavioral: volume count failed; abnormal-volume criterion unavailable", map[string]any{
+				"process": pluginName,
+				"tenant":  event.TenantId,
+				"user":    event.Origin.User,
+				"error":   countErr.Error(),
+			})
+		} else if ok {
 			if todayVolumeExceeded(float64(n), *p) {
 				details = append(details, fmt.Sprintf(
 					"abnormal volume: %d events today vs usual %.1f/day (p95 %d)",
@@ -292,7 +311,7 @@ func judge(ctx context.Context, srv plugins.Analysis_AnalyzeServer, event *plugi
 	}
 	if impact := loginSeverity(len(details)); impact > 0 {
 		desc := prefix + describeAnomaly(event.Origin.User, source, len(details), details)
-		return sendAlert(srv, event, "UserBehaviorAnomaly", desc, impact)
+		return sendAlert(srv, event, "User Behavior Anomaly", desc, impact)
 	}
 	return nil
 }
@@ -325,20 +344,20 @@ func utcDayStart(now time.Time) time.Time {
 	return time.Date(u.Year(), u.Month(), u.Day(), 0, 0, 0, 0, time.UTC)
 }
 
-func volumeCount(ctx context.Context, event *plugins.Event) (int64, bool) {
+func volumeCount(ctx context.Context, event *plugins.Event) (int64, bool, error) {
 	key := event.TenantId + "\x00" + event.Origin.User
 	now := time.Now()
 	if n, ok := volumeCountCache.get(key, now); ok {
-		return n, true
+		return n, true, nil
 	}
 	n, err := logsStore.Count(ctx,
 		store.Scope{Tenant: event.TenantId, Dataset: datasetLogs, From: utcDayStart(now), To: now},
 		[]store.Filter{{Field: "origin.user", Op: store.OpEq, Value: event.Origin.User}})
 	if err != nil {
-		return 0, false
+		return 0, false, err
 	}
 	volumeCountCache.set(key, n, now)
-	return n, true
+	return n, true, nil
 }
 
 func todayVolumeExceeded(n float64, p profile) bool {
@@ -359,24 +378,19 @@ func eventTime(event *plugins.Event, fallback time.Time) time.Time {
 	return t.UTC()
 }
 
-func loadProfileOrHistory(ctx context.Context, tenant, user string) (*profile, string, bool) {
+func loadProfileOrHistory(ctx context.Context, tenant, user string) (*profile, string, bool, error) {
 	p, found, err := loadProfile(ctx, tenant, user)
 	if err != nil || found {
-		return p, "profile", found
+		return p, "profile", found, err
 	}
 	h, err := loadHistory(ctx, tenant, user)
 	if err != nil {
-		catcher.Warn("user-behavioral: history read failed", map[string]any{
-			"process": pluginName,
-			"tenant":  tenant,
-			"user":    user,
-		})
-		return nil, "", false
+		return nil, "history", false, err
 	}
 	if h == nil {
-		return nil, "", false
+		return nil, "", false, nil
 	}
-	return h, "history", true
+	return h, "history", true, nil
 }
 
 func loadHistory(ctx context.Context, tenant, user string) (*profile, error) {
@@ -437,7 +451,11 @@ func anomalousHour(p *profile, at time.Time) bool {
 	if p.HourStd <= 0 {
 		return false
 	}
-	return dist > zScoreLimit*p.HourStd
+	return dist > zScoreLimit*hourSpread(p)
+}
+
+func hourSpread(p *profile) float64 {
+	return p.HourStd * 12 / math.Pi
 }
 
 func hourMean(p *profile) float64 {
@@ -488,6 +506,13 @@ func sameSubnet24(a, b string) bool {
 
 func sendAlert(srv plugins.Analysis_AnalyzeServer, event *plugins.Event, name, desc string, impact uint32) error {
 	now := time.Now().UTC().Format(time.RFC3339Nano)
+	severity := "low"
+	switch impact {
+	case 2:
+		severity = "medium"
+	case 3:
+		severity = "high"
+	}
 	alert := &plugins.Alert{
 		Id:          uuid.NewString(),
 		Timestamp:   now,
@@ -499,6 +524,7 @@ func sendAlert(srv plugins.Analysis_AnalyzeServer, event *plugins.Event, name, d
 		DataType:    event.DataType,
 		Category:    "User Behavioral Profiling",
 		Description: desc,
+		Severity:    severity,
 		Impact:      &plugins.Impact{Confidentiality: impact},
 		ImpactScore: impact,
 		Adversary:   event.Origin,
