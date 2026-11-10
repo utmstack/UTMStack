@@ -127,6 +127,11 @@ type profile struct {
 }
 
 func main() {
+	mode := plugins.GetCfg("plugin_" + pluginName).Env.Mode
+	if mode != "worker" {
+		return
+	}
+
 	cfg := plugins.PluginCfg("clickhouse")
 	loadBehavioralConfig()
 	judgeSem = make(chan struct{}, maxJudgeConns)
