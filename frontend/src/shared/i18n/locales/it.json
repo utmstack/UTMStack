@@ -4147,7 +4147,8 @@
             "country": "Paese",
             "city": "Città",
             "asn": "ASN",
-            "aso": "ASO"
+            "aso": "ASO",
+            "no_target": "Nessun obiettivo"
         }
     },
     "timeRange": {
