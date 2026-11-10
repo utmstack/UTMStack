@@ -17,4 +17,9 @@ type Usecase interface {
 
 	Tiering(ctx context.Context) (domain.Tiering, error)
 	EnableTiering(ctx context.Context, o domain.ColdTarget) (domain.Tiering, error)
+
+	// EnsureLocalCold turns on the local cold mount when nothing is
+	// configured yet. A configured cold storage of any kind, or an unusable
+	// mount, leaves the configuration untouched and reports why.
+	EnsureLocalCold(ctx context.Context) error
 }

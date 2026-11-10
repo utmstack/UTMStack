@@ -127,6 +127,19 @@ func (s *service) EnableTiering(ctx context.Context, o domain.ColdTarget) (domai
 	}, nil
 }
 
+func (s *service) EnsureLocalCold(ctx context.Context) error {
+	t, err := s.config.Read()
+	if err != nil {
+		return err
+	}
+	if t.Configured {
+		return fmt.Errorf("cold storage already configured: %s", t.Kind)
+	}
+
+	_, err = s.EnableTiering(ctx, domain.ColdTarget{Kind: domain.KindLocal})
+	return err
+}
+
 func (s *service) waitForColdStorage(ctx context.Context) (bool, error) {
 	var lastErr error
 	for i := 0; i < 5; i++ {
