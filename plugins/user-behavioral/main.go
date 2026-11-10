@@ -528,6 +528,7 @@ func sendAlert(srv plugins.Analysis_AnalyzeServer, event *plugins.Event, name, d
 		DataType:    event.DataType,
 		Category:    "User Behavioral Profiling",
 		Description: desc,
+		References:  []string{"https://d3fend.mitre.org/technique/d3f:UserBehaviorAnalysis/"},
 		Severity:    severity,
 		Impact:      &plugins.Impact{Confidentiality: impact},
 		ImpactScore: impact,
