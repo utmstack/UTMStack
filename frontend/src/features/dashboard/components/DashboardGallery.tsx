@@ -33,7 +33,6 @@ export function DashboardGallery({
   const { dataTypes, isReady } = useAvailableDataTypes()
 
   const renderList = useMemo(()=>{
-    console.log(dashboards)
     return dashboards
   },[dataTypes,dashboards])
 
