@@ -16,7 +16,7 @@ const (
 
 	// LocalMount is where the installer mounts the directory that backs a local
 	// cold disk, so a folder or an NFS share is whatever the host put there.
-	LocalMount = "/mnt/utmstack-cold/"
+	LocalMount            = "/mnt/utmstack-cold/"
 	AlternativeLocalMount = "/utmstack/clickhouse/snapshots"
 )
 
