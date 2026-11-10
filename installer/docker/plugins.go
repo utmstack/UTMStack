@@ -168,7 +168,6 @@ type behavioralFile struct {
 
 type behavioralCfg struct {
 	ZScoreLimit            float64 `yaml:"z_score_limit,omitempty"`
-	ScanInterval           string  `yaml:"scan_interval,omitempty"`
 	ImpactMedium           int     `yaml:"impact_medium,omitempty"`
 	ImpactHigh             int     `yaml:"impact_high,omitempty"`
 	MaxConcurrentJudgments int     `yaml:"max_concurrent_judgments,omitempty"`
@@ -190,7 +189,6 @@ func seedBehavioralConfig(path string) error {
 	if _, ok := bf.Plugins["user_behavioral"]; !ok {
 		bf.Plugins["user_behavioral"] = behavioralCfg{
 			ZScoreLimit:            3.0,
-			ScanInterval:           "5m",
 			ImpactMedium:           2,
 			ImpactHigh:             3,
 			MaxConcurrentJudgments: 32,

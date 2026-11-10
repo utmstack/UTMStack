@@ -32,11 +32,11 @@ const (
 
 var (
 	zScoreLimit   = 3.0
-	scanInterval  = 5 * time.Minute
 	impactMedium  = uint32(2)
 	impactHigh    = uint32(3)
 	maxJudgeConns = 32
 	countCacheTTL = time.Minute
+	judgeTimeout  = 15 * time.Second
 )
 
 var judgeSem chan struct{}
@@ -70,13 +70,9 @@ func (c *countCache) set(key string, n int64, now time.Time) {
 }
 
 var (
-	sendMu       sync.RWMutex
-	sendServer   plugins.Analysis_AnalyzeServer
 	profileStore store.Store
 	logsStore    store.Store
 	historyStore store.Store
-	tenantNames  sync.Map
-	volumeFired  sync.Map
 )
 
 func loadBehavioralConfig() {
@@ -86,11 +82,6 @@ func loadBehavioralConfig() {
 func applyBehavioralCfg(b gjson.Result) {
 	if v := b.Get("z_score_limit").Float(); v > 0 {
 		zScoreLimit = v
-	}
-	if v := b.Get("scan_interval").String(); v != "" {
-		if d, err := time.ParseDuration(v); err == nil && d > 0 {
-			scanInterval = d
-		}
 	}
 	if b.Get("impact_medium").Exists() {
 		if v := b.Get("impact_medium").Int(); v >= 0 && v <= 3 {
@@ -200,77 +191,32 @@ func main() {
 		time.Sleep(5 * time.Second)
 		os.Exit(1)
 	}
-
-	go volumeScanLoop()
-}
-
-func volumeScanLoop() {
-	ticker := time.NewTicker(scanInterval)
-	defer ticker.Stop()
-	for range ticker.C {
-		ctx, cancel := context.WithTimeout(context.Background(), 4*time.Minute)
-		scanVolume(ctx)
-		cancel()
-	}
-}
-
-func scanVolume(ctx context.Context) {
-	now := time.Now()
-	bucket := scanBucket(now)
-	pruneVolumeFired(bucket)
-	rows, err := profileStore.FetchN(ctx, store.Scope{Tenant: store.AllTenants, Dataset: datasetProfile},
-		[]store.Filter{{Field: "min_samples_ok", Op: store.OpEq, Value: 1},
-			{Field: "event_day_mean", Op: store.OpGt, Value: 0}}, 10000)
-	if err != nil {
-		catcher.Warn("user-behavioral: volume scan failed", map[string]any{"process": pluginName, "error": err.Error()})
-		return
-	}
-	for _, raw := range rows {
-		var p profile
-		if err := json.Unmarshal(raw, &p); err != nil {
-			continue
-		}
-		if p.EventDayMean == 0 {
-			continue
-		}
-		key := p.TenantId + "\x00" + p.User
-		if !scanDue(&volumeFired, key, bucket) {
-			continue
-		}
-		n, err := logsStore.Count(ctx,
-			store.Scope{Tenant: p.TenantId, Dataset: datasetLogs, From: utcDayStart(now), To: now},
-			[]store.Filter{{Field: "origin.user", Op: store.OpEq, Value: p.User}})
-		if err != nil {
-			continue
-		}
-		if todayVolumeExceeded(float64(n), p) {
-			if sendScanAlert(p, n) {
-				volumeFired.Store(key, bucket)
-			}
-		}
-	}
 }
 
 func analyze(event *plugins.Event, srv plugins.Analysis_AnalyzeServer) error {
-	if event.TenantName != "" {
-		tenantNames.Store(event.TenantId, event.TenantName)
-	}
-	sendMu.Lock()
-	sendServer = srv
-	sendMu.Unlock()
 	if !isLogin(event) {
 		return nil
 	}
 
-	go func() {
-		judgeSem <- struct{}{}
-		defer func() { <-judgeSem }()
-		ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
-		defer cancel()
-		judge(ctx, srv, event)
-	}()
+	ctx, cancel := context.WithTimeout(srv.Context(), judgeTimeout)
+	defer cancel()
 
-	return nil
+	select {
+	case judgeSem <- struct{}{}:
+		defer func() { <-judgeSem }()
+	case <-ctx.Done():
+		return ctx.Err()
+	}
+
+	err := judge(ctx, srv, event)
+	if err != nil {
+		_ = catcher.Error("user-behavioral: failed to judge login", err, map[string]any{
+			"process": pluginName,
+			"tenant":  event.TenantId,
+			"user":    event.Origin.User,
+		})
+	}
+	return err
 }
 
 func isLogin(event *plugins.Event) bool {
@@ -303,15 +249,15 @@ func isLogin(event *plugins.Event) bool {
 	}
 }
 
-func judge(ctx context.Context, srv plugins.Analysis_AnalyzeServer, event *plugins.Event) {
+func judge(ctx context.Context, srv plugins.Analysis_AnalyzeServer, event *plugins.Event) error {
 	now := time.Now()
 	atTime := eventTime(event, now)
 	p, source, found := loadProfileOrHistory(ctx, event.TenantId, event.Origin.User)
 	if !found || p == nil {
-		return
+		return ctx.Err()
 	}
 	if source == "profile" && !p.MinSamplesOK {
-		return
+		return nil
 	}
 	prefix := ""
 	if source == "history" {
@@ -341,10 +287,14 @@ func judge(ctx context.Context, srv plugins.Analysis_AnalyzeServer, event *plugi
 		}
 	}
 
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	if impact := loginSeverity(len(details)); impact > 0 {
 		desc := prefix + describeAnomaly(event.Origin.User, source, len(details), details)
-		_ = sendAlert(srv, event, "UserBehaviorAnomaly", desc, impact)
+		return sendAlert(srv, event, "UserBehaviorAnomaly", desc, impact)
 	}
+	return nil
 }
 
 func criteriaTotalFor(source string) int {
@@ -370,31 +320,9 @@ func loginSeverity(criteria int) uint32 {
 	}
 }
 
-func pruneVolumeFired(current string) {
-	volumeFired.Range(func(k, v any) bool {
-		if b, ok := v.(string); ok && b != current {
-			volumeFired.Delete(k)
-		}
-		return true
-	})
-}
-
-func scanDue(fired *sync.Map, key, bucket string) bool {
-	if v, ok := fired.Load(key); ok && v == bucket {
-		return false
-	}
-	return true
-}
-
 func utcDayStart(now time.Time) time.Time {
 	u := now.UTC()
 	return time.Date(u.Year(), u.Month(), u.Day(), 0, 0, 0, 0, time.UTC)
-}
-
-func scanBucket(now time.Time) string {
-	u := now.UTC()
-	start := time.Date(u.Year(), u.Month(), u.Day(), (u.Hour()/6)*6, 0, 0, 0, time.UTC)
-	return start.Format("2006-01-02T15")
 }
 
 func volumeCount(ctx context.Context, event *plugins.Event) (int64, bool) {
@@ -556,33 +484,6 @@ func sameSubnet24(a, b string) bool {
 		return false
 	}
 	return pa[0] == pb[0] && pa[1] == pb[1] && pa[2] == pb[2]
-}
-
-func sendScanAlert(p profile, n int64) bool {
-	now := time.Now().UTC().Format(time.RFC3339Nano)
-	tenantName, _ := tenantNames.Load(p.TenantId)
-	alert := &plugins.Alert{
-		Id:         uuid.NewString(),
-		Timestamp:  now,
-		LastUpdate: now,
-		Name:       "UserEventVolumeAnomaly",
-		TenantId:   p.TenantId,
-		TenantName: fmt.Sprint(tenantName),
-		DataType:   "utmstack",
-		Category:   "User Behavioral Profiling",
-		Description: fmt.Sprintf("%s generated %d events today, far above their 90-day daily norm (mean %.1f, p95 %d).",
-			p.User, n, p.EventDayMean, p.EventDayP95),
-		Impact:      &plugins.Impact{Confidentiality: impactMedium},
-		ImpactScore: impactMedium,
-		Adversary:   &plugins.Side{User: p.User},
-	}
-	sendMu.RLock()
-	srv := sendServer
-	sendMu.RUnlock()
-	if srv == nil {
-		return false
-	}
-	return srv.Send(alert) == nil
 }
 
 func sendAlert(srv plugins.Analysis_AnalyzeServer, event *plugins.Event, name, desc string, impact uint32) error {
