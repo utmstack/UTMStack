@@ -15,13 +15,14 @@
         <!-- Build properties -->
         <maven.version>3.3.9</maven.version>
         <java.version>17</java.version>
-        <!-- SnakeYAML is pinned to the 2.x line (managed by Spring Boot 3.1+).
-             1.33 (the old pin) carries CVE-2022-1471 / GHSA-rp8v-2264-3x87, a
-             critical deserialization RCE, and is not safe to ship. 2.2 is the
-             lowest 2.x with all known CVEs fixed at the time of this change.
-             The app uses snakeyaml only through Spring (application.yml); there
-             are no direct `org.yaml.snakeyaml` references in the code. -->
-        <snakeyaml.version>2.2</snakeyaml.version>
+        <!-- CVE-2022-1471 / GHSA-rp8v-2264-3x87 (snakeyaml RCE): the 1.33 pin is
+             the only version compatible with Spring Boot 3.1.5's
+             OriginTrackedYamlLoader. The loader fix for snakeyaml 2.x landed in
+             Spring 5.3.31 / 6.0.11, which Boot 2.7.14 / 3.1.5 do not use, so a
+             snakeyaml-2 bump crashes the app at startup with
+             NoSuchMethodError Representer.<init>(). Closing this CVE requires
+             a Spring Boot major upgrade (3.2+), tracked separately. -->
+        <snakeyaml.version>1.33</snakeyaml.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
