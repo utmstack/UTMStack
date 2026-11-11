@@ -156,6 +156,18 @@ func (u *incidentUsecase) CreateOrAdd(ctx context.Context, req dto.CreateInciden
 
 	created,err:=u.incidentRepo.CreateOrInsert(ctx,incident,alertRows(incident, req.AlertList))
 	if err!=nil{
+
+		u.audit.Log(ctx, audit_connectors.Event{
+			Action:     "incident.create.error",
+			EventType:  audit_domain.INCIDENT_CREATION_SUCCESS,
+			Status:     audit_domain.StatusFailure,
+			ResourceID: incident.ID.String(),
+			Metadata: map[string]any{
+				"alertCount": len(req.AlertList),
+				"severity":   incident.Severity,
+			},
+		})
+
 		return nil,err
 	}
 

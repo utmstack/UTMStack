@@ -12,6 +12,7 @@ import (
 	incidentsdomain "github.com/utmstack/utmstack/backend/modules/incidents/domain"
 	incidentsdto "github.com/utmstack/utmstack/backend/modules/incidents/dto"
 	soardomain "github.com/utmstack/utmstack/backend/modules/soar/domain"
+	alert_domain "github.com/utmstack/utmstack/backend/modules/incidents/domain"
 )
 
 // IncidentOpener is the narrow slice of the incidents usecase that the SOAR
@@ -64,7 +65,8 @@ func (i *Incident) Execute(ctx context.Context, exec *soardomain.SoarExecution) 
 		alertName = exec.AlertID
 	}
 	severity := strings.ToLower(gjson.Get(src, "alert.severity").String())
-	if severity == "" {
+
+	if severity == "" || !alert_domain.IncidentSeverity(severity).Valid() {
 		severity = "low"
 	}
 
