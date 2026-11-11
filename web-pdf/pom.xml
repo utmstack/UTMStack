@@ -15,11 +15,12 @@
     <description>webToPdf</description>
     <properties>
        <java.version>11</java.version>
-       <!-- Spring Boot 2.7.14 manages snakeyaml 1.30, which carries the
-            critical deserialization RCE CVE-2022-1471 (GHSA-rp8v-2264-3x87).
-            Spring Framework 5.3.26+ is compatible with snakeyaml 2.x, so pin
-            the 2.x line here (2.2 = all known CVEs fixed). -->
-       <snakeyaml.version>2.2</snakeyaml.version>
+       <!-- snakeyaml stays at the Spring-Boot-2.7.14-managed 1.30. A 2.x bump
+            crashes the app at startup (OriginTrackedYamlLoader calls the no-arg
+            Representer() ctor snakeyaml 2.0 removed; the loader fix needs
+            Spring 5.3.31/6.0.11, which Boot 2.7.14 does not use).
+            CVE-2022-1471 (snakeyaml RCE) is closed by a Spring Boot upgrade,
+            tracked separately. -->
     </properties>
     <dependencies>
        <dependency>
