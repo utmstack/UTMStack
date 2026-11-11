@@ -1,0 +1,245 @@
+name: "Amazon Web Services"
+description: "AWS CloudTrail activity: API calls, errors, identities and alerts."
+widgets:
+  # Row 1 (y 0-3): single numbers.
+  - layout: { x: 0, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: aws }
+    config:
+      __builder:
+        chartType: metric
+        title: "Total logs"
+
+  - layout: { x: 3, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: aws }
+        - { field: actionResult, op: in, value: [failed, denied] }
+    config:
+      __builder:
+        chartType: metric
+        title: "Failed or denied API calls"
+
+  - layout: { x: 6, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: aws }
+        - { field: log.eventName, op: in, value: [ConsoleLogin] }
+    config:
+      __builder:
+        chartType: metric
+        title: "Failed console sign-ins"
+
+  - layout: { x: 9, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: alerts
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: aws }
+    config:
+      __builder:
+        chartType: metric
+        title: "Alerts"
+
+  # Row 2 (y 3-10): volume over time plus config group breakdown.
+  - layout: { x: 0, y: 3, w: 7, h: 7 }
+    spec:
+      dataset: logs
+      chart: time
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: aws }
+    config:
+      __builder:
+        chartType: area
+        title: "Log volume over time"
+
+  - layout: { x: 7, y: 3, w: 5, h: 7 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: dataSource
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: aws }
+    config:
+      __builder:
+        chartType: bar
+        title: "Logs by config group"
+
+  # Row 3 (y 10-16): top API calls and identities.
+  - layout: { x: 0, y: 10, w: 3, h: 6 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: log.eventName
+      metric:
+        agg: count
+      limit: 25
+      filters:
+        - { field: dataType, op: eq, value: aws }
+    config:
+      __builder:
+        chartType: bar
+        title: "Top API calls"
+
+  - layout: { x: 3, y: 10, w: 3, h: 6 }
+    spec:
+      dataset: logs
+      chart: time
+      dimension: log.eventName
+      metric:
+        agg: count
+      limit: 5
+      filters:
+        - { field: dataType, op: eq, value: aws }
+        - { field: log.eventName, op: exists }
+    config:
+      __builder:
+        chartType: line
+        title: "API calls over time (top 5)"
+
+  - layout: { x: 6, y: 10, w: 3, h: 6 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: log.userIdentityArn
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: aws }
+        - { field: log.userIdentityArn, op: exists }
+    config:
+      __builder:
+        chartType: bar
+        title: "Top users and roles"
+
+  - layout: { x: 9, y: 10, w: 3, h: 6 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: log.sourceIPAddress
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: aws }
+        - { field: log.sourceIPAddress, op: exists }
+    config:
+      __builder:
+        chartType: bar
+        title: "Top source IP addresses"
+
+  # Row 4 (y 16-22): services, regions and errors.
+  - layout: { x: 0, y: 16, w: 4, h: 6 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: log.eventSource
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: aws }
+        - { field: log.eventSource, op: exists }
+    config:
+      __builder:
+        chartType: bar
+        title: "Top AWS services"
+
+  - layout: { x: 4, y: 16, w: 4, h: 6 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: log.ErrorNumber
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: aws }
+    config:
+      __builder:
+        chartType: bar
+        title: "Top error codes"
+
+  - layout: { x: 8, y: 16, w: 4, h: 6 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: log.awsRegion
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: aws }
+        - { field: log.awsRegion, op: exists }
+    config:
+      __builder:
+        chartType: bar
+        title: "Logs by region"
+
+  # Row 5 (y 22-28): alert breakdowns.
+  - layout: { x: 0, y: 22, w: 6, h: 6 }
+    spec:
+      dataset: alerts
+      chart: category
+      dimension: name
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: aws }
+    config:
+      __builder:
+        chartType: bar
+        title: "Alerts by rule"
+
+  - layout: { x: 6, y: 22, w: 6, h: 6 }
+    spec:
+      dataset: alerts
+      chart: category
+      dimension: severity
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: aws }
+    config:
+      __builder:
+        chartType: bar
+        title: "Alerts by severity"
+
+  # Row 6 (y 28-35): the latest logs, as a table.
+  - layout: { x: 0, y: 28, w: 12, h: 7 }
+    spec:
+      dataset: logs
+      chart: table
+      metric:
+        agg: count
+      columns: ["@timestamp", "dataSource", "log.eventName", "log.userIdentityArn", "log.sourceIPAddress", "log.eventSource", "actionResult"]
+      limit: 20
+      filters:
+        - { field: dataType, op: eq, value: aws }
+    config:
+      __builder:
+        chartType: table
+        title: "Latest logs"

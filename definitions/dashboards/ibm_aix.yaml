@@ -1,0 +1,43 @@
+name: "ibm-aix"
+description: "IBM AIX activity: system, authentication and process events."
+widgets:
+  - layout: { x: 0, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: ibm-aix }
+    config:
+      __builder:
+        chartType: metric
+        title: "Total logs"
+
+  - layout: { x: 3, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: ibm-aix }
+        - { field: origin.command, op: exists }
+    config:
+      __builder:
+        chartType: metric
+        title: "Sudo commands"
+
+  - layout: { x: 6, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: ibm-aix }
+        - { field: origin.ip, op: exists }
+    config:
+      __builder:
+        chartType: metric
+        title: "Connections from remote IPs"

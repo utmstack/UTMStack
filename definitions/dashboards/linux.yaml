@@ -1,0 +1,242 @@
+name: "linux"
+description: "Linux activity: authentication, processes and system events."
+widgets:
+  - layout: { x: 0, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: linux }
+    config:
+      __builder:
+        chartType: metric
+        title: "Total logs"
+
+  - layout: { x: 3, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: linux }
+        - { field: action, op: eq, value: USER_AUTH }
+        - { field: actionResult, op: eq, value: failed }
+    config:
+      __builder:
+        chartType: metric
+        title: "Failed logins"
+
+  - layout: { x: 6, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: linux }
+        - { field: action, op: eq, value: USER_CMD }
+    config:
+      __builder:
+        chartType: metric
+        title: "Sudo commands"
+
+  - layout: { x: 9, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: alerts
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: linux }
+    config:
+      __builder:
+        chartType: metric
+        title: "Alerts"
+
+  - layout: { x: 0, y: 3, w: 5, h: 7 }
+    spec:
+      dataset: logs
+      chart: time
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: linux }
+    config:
+      __builder:
+        chartType: area
+        title: "Log volume over time"
+
+  - layout: { x: 5, y: 3, w: 4, h: 7 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: dataSource
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: linux }
+    config:
+      __builder:
+        chartType: bar
+        title: "Logs by host"
+
+  - layout: { x: 9, y: 3, w: 3, h: 7 }
+    spec:
+      dataset: logs
+      chart: table
+      metric:
+        agg: count
+      limit: 25
+      columns: ["log.syslogIdentifier"]
+      filters:
+        - { field: dataType, op: eq, value: linux }
+        - { field: log.syslogIdentifier, op: exists }
+    config:
+      __builder:
+        chartType: table
+        title: "Top programs in the system log"
+
+  - layout: { x: 0, y: 10, w: 3, h: 6 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: log.syslogIdentifier
+      metric:
+        agg: count
+      limit: 5
+      filters:
+        - { field: dataType, op: eq, value: linux }
+        - { field: log.syslogIdentifier, op: exists }
+    config:
+      __builder:
+        chartType: line
+        title: "System log programs over time (top 5)"
+
+  - layout: { x: 3, y: 10, w: 3, h: 6 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: origin.user
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: linux }
+        - { field: action, op: eq, value: USER_AUTH }
+        - { field: actionResult, op: eq, value: failed }
+    config:
+      __builder:
+        chartType: bar
+        title: "Failed logins by account"
+
+  - layout: { x: 6, y: 10, w: 3, h: 6 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: origin.ip
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: linux }
+        - { field: action, op: eq, value: USER_AUTH }
+        - { field: actionResult, op: eq, value: failed }
+    config:
+      __builder:
+        chartType: bar
+        title: "Failed logins by source IP"
+
+  - layout: { x: 9, y: 10, w: 3, h: 6 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: action
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: log.type, op: in, value: ["auditd"] }
+    config:
+      __builder:
+        chartType: bar
+        title: "Audit events by type"
+
+  - layout: { x: 0, y: 16, w: 3, h: 6 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: origin.process
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: linux }
+        - { field: action, op: eq, value: execve }
+    config:
+      __builder:
+        chartType: table
+        title: "Most started programs"
+
+  - layout: { x: 3, y: 16, w: 3, h: 6 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: origin.command
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: linux }
+        - { field: action, op: eq, value: USER_CMD }
+    config:
+      __builder:
+        chartType: table
+        title: "Commands run with sudo"
+
+  - layout: { x: 6, y: 16, w: 3, h: 6 }
+    spec:
+      dataset: alerts
+      chart: category
+      dimension: name
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: linux }
+    config:
+      __builder:
+        chartType: bar
+        title: "Alerts by rule"
+
+  - layout: { x: 9, y: 16, w: 3, h: 6 }
+    spec:
+      dataset: alerts
+      chart: category
+      dimension: severity
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: linux }
+    config:
+      __builder:
+        chartType: bar
+        title: "Alerts by severity"
+
+  - layout: { x: 0, y: 22, w: 12, h: 8 }
+    spec:
+      dataset: logs
+      chart: table
+      metric:
+        agg: count
+      limit: 20
+      columns: ["@timestamp", "dataSource", "log.syslogIdentifier", "action", "origin.user", "origin.command", "log.message"]
+      filters:
+        - { field: dataType, op: eq, value: linux }
+    config:
+      __builder:
+        chartType: table
+        title: "Latest logs"

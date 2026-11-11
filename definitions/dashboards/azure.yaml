@@ -1,0 +1,238 @@
+name: "microsoft-azure"
+description: "Azure activity: operations, sign-ins, identities and alerts."
+widgets:
+  - layout: { x: 0, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: azure }
+    config:
+      __builder:
+        chartType: metric
+        title: "Total logs"
+
+  - layout: { x: 3, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: azure }
+        - { field: actionResult, op: in, value: ["failed", "failure"] }
+    config:
+      __builder:
+        chartType: metric
+        title: "Failed operations"
+
+  - layout: { x: 6, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: azure }
+    config:
+      __builder:
+        chartType: metric
+        title: "Failed sign-ins"
+
+  - layout: { x: 9, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: alerts
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: azure }
+    config:
+      __builder:
+        chartType: metric
+        title: "Alerts"
+
+  - layout: { x: 0, y: 3, w: 7, h: 5 }
+    spec:
+      dataset: logs
+      chart: time
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: azure }
+    config:
+      __builder:
+        chartType: area
+        title: "Log volume over time"
+
+  - layout: { x: 7, y: 3, w: 5, h: 5 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: dataSource
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: azure }
+    config:
+      __builder:
+        chartType: bar
+        title: "Logs by config group"
+
+  - layout: { x: 0, y: 8, w: 4, h: 5 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: log.operationName
+      metric:
+        agg: count
+      limit: 25
+      filters:
+        - { field: dataType, op: eq, value: azure }
+        - { field: log.operationName, op: exists }
+    config:
+      __builder:
+        chartType: table
+        title: "Top operations"
+
+  - layout: { x: 4, y: 8, w: 4, h: 5 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: log.operationName
+      metric:
+        agg: count
+      limit: 5
+      filters:
+        - { field: dataType, op: eq, value: azure }
+    config:
+      __builder:
+        chartType: line
+        title: "Operations over time (top 5)"
+
+  - layout: { x: 8, y: 8, w: 4, h: 5 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: origin.user
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: azure }
+        - { field: origin.user, op: exists }
+    config:
+      __builder:
+        chartType: table
+        title: "Top users making changes"
+
+  - layout: { x: 0, y: 13, w: 4, h: 6 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: origin.geolocation.country
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: azure }
+        - { field: origin.geolocation.country, op: exists }
+    config:
+      __builder:
+        chartType: bar
+        title: "Top countries"
+
+  - layout: { x: 4, y: 13, w: 4, h: 6 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: origin.ip
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: azure }
+        - { field: origin.ip, op: exists }
+    config:
+      __builder:
+        chartType: table
+        title: "Top source IP addresses"
+
+  - layout: { x: 8, y: 13, w: 4, h: 6 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: log.resourceProvider
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: azure }
+        - { field: log.resourceProvider, op: exists }
+    config:
+      __builder:
+        chartType: bar
+        title: "Top resource providers"
+
+  - layout: { x: 0, y: 19, w: 4, h: 6 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: log.category
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: azure }
+        - { field: log.category, op: exists }
+    config:
+      __builder:
+        chartType: bar
+        title: "Logs by category"
+
+  - layout: { x: 4, y: 19, w: 4, h: 6 }
+    spec:
+      dataset: alerts
+      chart: category
+      dimension: name
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: azure }
+    config:
+      __builder:
+        chartType: bar
+        title: "Alerts by rule"
+
+  - layout: { x: 8, y: 19, w: 4, h: 6 }
+    spec:
+      dataset: alerts
+      chart: time
+      dimension: severity
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: azure }
+    config:
+      __builder:
+        chartType: bar
+        title: "Alerts by severity"
+
+  - layout: { x: 0, y: 25, w: 12, h: 8 }
+    spec:
+      dataset: logs
+      chart: table
+      metric:
+        agg: count
+      limit: 20
+      columns: ["@timestamp", "dataSource", "log.operationName", "actionResult", "target.user", "origin.ip", "log.category"]
+      filters:
+        - { field: dataType, op: eq, value: azure }
+    config:
+      __builder:
+        chartType: table
+        title: "Latest logs"

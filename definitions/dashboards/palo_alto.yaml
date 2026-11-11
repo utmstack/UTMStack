@@ -1,0 +1,166 @@
+name: "palo-alto"
+description: "Palo Alto firewall traffic, threats and alerts: volume, drops and detections."
+widgets:
+  - layout: { x: 0, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: firewall-paloalto }
+    config:
+      __builder:
+        chartType: metric
+        title: "Total logs"
+
+  - layout: { x: 3, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: firewall-paloalto }
+        - { field: raw, op: contains, value: ",TRAFFIC," }
+        - { field: raw, op: not_contains, value: " ,TRAFFIC,end," }
+        - { field: raw, op: not_contains, value: ",TRAFFIC,start," }
+    config:
+      __builder:
+        chartType: metric
+        title: "Denied or dropped sessions"
+
+  - layout: { x: 6, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: firewall-paloalto }
+        - { field: raw, op: contains, value: ",TRAFFIC," }
+        - { field: raw, op: not_contains, value: " ,THREAT,url," }
+        - { field: raw, op: not_contains, value: ",THREAT,file," }
+    config:
+      __builder:
+        chartType: metric
+        title: "Threat detections"
+
+  - layout: { x: 9, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: alerts
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: firewall-paloalto }
+    config:
+      __builder:
+        chartType: metric
+        title: "Alerts"
+
+  - layout: { x: 0, y: 3, w: 6, h: 6 }
+    spec:
+      dataset: logs
+      chart: time
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: firewall-paloalto }
+    config:
+      __builder:
+        chartType: area
+        title: "Log volume over time"
+
+  - layout: { x: 6, y: 3, w: 6, h: 6 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: dataSource
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: firewall-paloalto }
+    config:
+      __builder:
+        chartType: bar
+        title: "Logs by firewall IP"
+
+  - layout: { x: 0, y: 9, w: 6, h: 6 }
+    spec:
+      dataset: logs
+      chart: time
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: firewall-paloalto }
+        - { field: raw, op: contains, value: ",TRAFFIC" }
+        - { field: raw, op: not_contains, value: ",TRAFFIC,end," }
+        - { field: raw, op: not_contains, value: ",TRAFFIC,start," }
+    config:
+      __builder:
+        chartType: line
+        title: "Denied or dropped sessions over time"
+
+  - layout: { x: 6, y: 9, w: 6, h: 6 }
+    spec:
+      dataset: logs
+      chart: time
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: firewall-paloalto }
+        - { field: raw, op: contains, value: ",THREAT," }
+        - { field: raw, op: not_contains, value: ",THREAT,url," }
+        - { field: raw, op: not_contains, value: ",THREAT,file," }
+        - { field: raw, op: not_contains, value: ",THREAT,data," }
+        - { field: raw, op: not_contains, value: ",THREAT,dlp" }
+    config:
+      __builder:
+        chartType: line
+        title: "Threat detections over time"
+
+  - layout: { x: 0, y: 15, w: 6, h: 6 }
+    spec:
+      dataset: alerts
+      chart: category
+      dimension: name
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: firewall-paloalto }
+    config:
+      __builder:
+        chartType: bar
+        title: "Alerts by rule"
+
+  - layout: { x: 6, y: 15, w: 6, h: 6 }
+    spec:
+      dataset: alerts
+      chart: category
+      dimension: severity
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: firewall-paloalto }
+    config:
+      __builder:
+        chartType: bar
+        title: "Alerts by severity"
+
+  - layout: { x: 0, y: 21, w: 12, h: 8 }
+    spec:
+      dataset: logs
+      chart: table
+      metric:
+        agg: count
+      limit: 20
+      columns: ["@timestamp", dataSource, raw]
+      filters:
+        - { field: dataType, op: eq, value: firewall-paloalto }
+    config:
+      __builder:
+        chartType: table
+        title: "Latest logs"

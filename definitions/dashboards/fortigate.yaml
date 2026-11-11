@@ -1,0 +1,244 @@
+name: "fortigate"
+description: "FortiGate firewall activity: traffic, policy hits, detections and failed logins."
+widgets:
+  - layout: { x: 0, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: firewall-fortigate-traffic }
+    config:
+      __builder:
+        chartType: metric
+        title: "Total logs"
+
+  - layout: { x: 3, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: firewall-fortigate-traffic }
+        - { field: log.type, op: in, value: ["traffic"] }
+        - { field: action, op: in, value: ["deny"] }
+    config:
+      __builder:
+        chartType: metric
+        title: "Denied traffic"
+
+  - layout: { x: 6, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: firewall-fortigate-traffic }
+        - { field: log.subtype, op: in, value: ["ips", "virus", "anomaly"] }
+    config:
+      __builder:
+        chartType: metric
+        title: "Intrusion, virus and anomaly detections"
+
+  - layout: { x: 9, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: alerts
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: firewall-fortigate-traffic }
+    config:
+      __builder:
+        chartType: metric
+        title: "Alerts"
+
+  - layout: { x: 0, y: 3, w: 7, h: 6 }
+    spec:
+      dataset: logs
+      chart: time
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: firewall-fortigate-traffic }
+    config:
+      __builder:
+        chartType: area
+        title: "Log volume over time"
+
+  - layout: { x: 7, y: 3, w: 5, h: 6 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: dataSource
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: firewall-fortigate-traffic }
+    config:
+      __builder:
+        chartType: bar
+        title: "Logs by firewall IP"
+
+  - layout: { x: 0, y: 9, w: 3, h: 7 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: log.logid
+      metric:
+        agg: count
+      limit: 25
+      filters:
+        - { field: dataType, op: eq, value: firewall-fortigate-traffic }
+        - { field: log.logid, op: exists }
+    config:
+      __builder:
+        chartType: table
+        title: "Top event types"
+
+  - layout: { x: 3, y: 9, w: 3, h: 7 }
+    spec:
+      dataset: logs
+      chart: time
+      dimension: log.logid
+      metric:
+        agg: count
+      limit: 5
+      filters:
+        - { field: dataType, op: eq, value: firewall-fortigate-traffic }
+    config:
+      __builder:
+        chartType: line
+        title: "Event types over time (top 5)"
+
+  - layout: { x: 6, y: 9, w: 3, h: 7 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: log.policyid
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: firewall-fortigate-traffic }
+        - { field: log.type, op: in, value: ["traffic"] }
+        - { field: log.policyid, op: exists }
+    config:
+      __builder:
+        chartType: bar
+        title: "Top firewall policies (ID)"
+
+  - layout: { x: 9, y: 9, w: 3, h: 7 }
+    spec:
+      dataset: logs
+      chart: time
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: firewall-fortigate-traffic }
+        - { field: log.type, op: in, value: ["traffic"] }
+    config:
+      __builder:
+        chartType: bar
+        title: "Top applications"
+
+  - layout: { x: 0, y: 16, w: 4, h: 6 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: origin.port
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: firewall-fortigate-traffic }
+        - { field: log.type, op: in, value: ["traffic"] }
+        - { field: action, op: in, value: ["deny"] }
+        - { field: target.port, op: exists }
+    config:
+      __builder:
+        chartType: bar
+        title: "Denied traffic by destination port"
+
+  - layout: { x: 4, y: 16, w: 4, h: 6 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: origin.geolocation.country
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: firewall-fortigate-traffic }
+        - { field: log.type, op: in, value: ["traffic"] }
+        - { field: action, op: in, value: ["deny"] }
+        - { field: origin.geolocation.country, op: exists }
+    config:
+      __builder:
+        chartType: bar
+        title: "Denied traffic by source country"
+
+  - layout: { x: 8, y: 16, w: 4, h: 6 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: log.userDisplayName
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: firewall-fortigate-traffic }
+        - { field: log.logid, op: in, value: ["0100032002", "0101039426", "0102043009"] }
+    config:
+      __builder:
+        chartType: bar
+        title: "Failed logins by user"
+
+  - layout: { x: 0, y: 22, w: 6, h: 6 }
+    spec:
+      dataset: alerts
+      chart: category
+      dimension: name
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: firewall-fortigate-traffic }
+    config:
+      __builder:
+        chartType: bar
+        title: "Alerts by rule"
+
+  - layout: { x: 6, y: 22, w: 6, h: 6 }
+    spec:
+      dataset: alerts
+      chart: category
+      dimension: severity
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: firewall-fortigate-traffic }
+    config:
+      __builder:
+        chartType: bar
+        title: "Alerts by severity"
+
+  - layout: { x: 0, y: 28, w: 12, h: 8 }
+    spec:
+      dataset: logs
+      chart: table
+      metric:
+        agg: count
+      limit: 20
+      columns: ["@timestamp", "dataSource", "log.logid", "log.subtype", "action", "origin.ip", "target.ip", "target.port"]
+      filters:
+        - { field: dataType, op: eq, value: firewall-fortigate-traffic }
+    config:
+      __builder:
+        chartType: table
+        title: "Latest logs"

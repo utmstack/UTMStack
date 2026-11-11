@@ -1,0 +1,193 @@
+name: "File Classification"
+description: "Windows file activity: access, creation, deletion, permission changes and SMB events."
+widgets:
+  # Row 1 (y 0-2): single numbers.
+  - layout: { x: 0, y: 0, w: 4, h: 2 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: wineventlog }
+        - { field: log.eventCode, op: in, value: ["4670", "5145", "5140", "5142", "5143", "5144", "5168", "4656", "4658", "4659", "4660", "4663", "4664", "4985", "5051"] }
+    config:
+      __builder:
+        chartType: metric
+        title: "Total logs"
+
+  - layout: { x: 4, y: 0, w: 4, h: 2 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: wineventlog }
+        - { field: log.eventCode, op: in, value: ["4656", "4663", "4658"] }
+    config:
+      __builder:
+        chartType: metric
+        title: "File & Folder Access"
+
+  - layout: { x: 8, y: 0, w: 4, h: 2 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: log.eventCode, op: eq, value: "4670" }
+        - { field: dataType, op: eq, value: wineventlog }
+    config:
+      __builder:
+        chartType: metric
+        title: "File & Folder Permission Changes"
+
+  # Row 2 (y 2-4).
+  - layout: { x: 0, y: 2, w: 4, h: 2 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: log.eventCode, op: eq, value: "4664" }
+        - { field: dataType, op: eq, value: wineventlog }
+    config:
+      __builder:
+        chartType: metric
+        title: "File & Folder Creation"
+
+  - layout: { x: 4, y: 2, w: 4, h: 2 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: wineventlog }
+        - { field: log.eventCode, op: in, value: ["4659", "4660"] }
+    config:
+      __builder:
+        chartType: metric
+        title: "File & Folder Deletion"
+
+  - layout: { x: 8, y: 2, w: 4, h: 2 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: log.eventCode, op: eq, value: "5051" }
+        - { field: dataType, op: eq, value: wineventlog }
+    config:
+      __builder:
+        chartType: metric
+        title: "File Virtualization Activity"
+
+  # Row 3 (y 4-6).
+  - layout: { x: 0, y: 4, w: 3, h: 2 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: log.eventCode, op: eq, value: "5168" }
+        - { field: dataType, op: eq, value: wineventlog }
+    config:
+      __builder:
+        chartType: metric
+        title: "SMB Security Events"
+
+  - layout: { x: 3, y: 4, w: 3, h: 2 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: log.eventCode, op: in, value: ["5142", "5143", "5144"] }
+        - { field: dataType, op: eq, value: wineventlog }
+    config:
+      __builder:
+        chartType: metric
+        title: "Shared Resource Management"
+
+  - layout: { x: 6, y: 4, w: 3, h: 2 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: log.eventCode, op: in, value: ["5140", "5145"] }
+        - { field: dataType, op: eq, value: wineventlog }
+    config:
+      __builder:
+        chartType: metric
+        title: "Shared Resource Access"
+
+  - layout: { x: 9, y: 4, w: 3, h: 2 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: log.eventCode, op: eq, value: "4985" }
+        - { field: dataType, op: eq, value: wineventlog }
+    config:
+      __builder:
+        chartType: metric
+        title: "File System Transaction Activity"
+
+  # Row 4 (y 6-12): timeline plus host breakdown.
+  - layout: { x: 0, y: 6, w: 8, h: 6 }
+    spec:
+      dataset: logs
+      chart: time
+      metric:
+        agg: count
+      filters:
+        - { field: log.eventCode, op: in, value: ["4670", "5145", "5140", "5142", "5143", "5144", "5168", "4656", "4658", "4659", "4660", "4663", "4664", "4985", "5051"] }
+        - { field: dataType, op: eq, value: wineventlog }
+    config:
+      __builder:
+        chartType: line
+        title: "File Activity Timeline"
+
+  - layout: { x: 8, y: 6, w: 4, h: 6 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: origin.host
+      metric:
+        agg: count
+      limit: 8
+      filters:
+        - { field: log.eventCode, op: in, value: ["4670", "5145", "5140", "5142", "5143", "5144", "5168", "4656", "4658", "4659", "4660", "4663", "4664", "4985", "5051"] }
+        - { field: dataType, op: eq, value: wineventlog }
+    config:
+      __builder:
+        chartType: bar
+        title: "Top File Activity by Host"
+
+  # Row 5 (y 12-20): the latest matching logs, as a table.
+  - layout: { x: 0, y: 12, w: 12, h: 8 }
+    spec:
+      dataset: logs
+      chart: table
+      metric:
+        agg: count
+      columns: ["@timestamp", "dataSource", "log.eventName", "log.userDisplayName", "log.process", "action"]
+      limit: 25
+      filters:
+        - { field: log.eventCode, op: in, value: ["4670", "5145", "5140", "5142", "5143", "5144", "5168", "4656", "4658", "4659", "4660", "4663", "4664", "4985", "5051"] }
+        - { field: dataType, op: eq, value: wineventlog }
+    config:
+      __builder:
+        chartType: table
+        title: "Latest logs"
