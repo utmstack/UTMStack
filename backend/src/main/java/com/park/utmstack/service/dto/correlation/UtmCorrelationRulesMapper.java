@@ -57,7 +57,7 @@ public class UtmCorrelationRulesMapper {
             entity.setRuleReferences(dto.getReferences());
             entity.setRuleDefinition(dto.getDefinition());
             entity.setDataTypes(dto.getDataTypes());
-            entity.setRuleActive(dto.getRuleActive() == null || dto.getRuleActive());
+            entity.setRuleActive(dto.getRuleActive());
             entity.setSystemOwner(dto.getSystemOwner());
             entity.setRuleAdversary(dto.getAdversary());
             entity.setRuleLastUpdate(Instant.now(Clock.systemUTC()));

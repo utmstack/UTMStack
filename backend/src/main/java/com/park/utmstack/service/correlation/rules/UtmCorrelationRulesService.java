@@ -80,6 +80,10 @@ public class UtmCorrelationRulesService {
             rule.setSystemOwner(true);
         }
 
+        if (rule.getRuleActive() == null) {
+            rule.setRuleActive(false);
+        }
+
         rule.setDataTypes(this.saveDataTypes(rule));
         rule.setRuleLastUpdate(Instant.now(Clock.systemUTC()));
         return utmCorrelationRulesRepository.save(rule);
@@ -121,6 +125,9 @@ public class UtmCorrelationRulesService {
             throw new BadRequestException(ctx + ": System's rules can't be updated.");
         }
         correlationRule.setDataTypes(this.saveDataTypes(correlationRule));
+        if (correlationRule.getRuleActive() == null) {
+            correlationRule.setRuleActive(optionalCorrelationRule.get().getRuleActive());
+        }
         correlationRule.setRuleLastUpdate(Instant.now(Clock.systemUTC()));
         utmCorrelationRulesRepository.save(correlationRule);
     }
