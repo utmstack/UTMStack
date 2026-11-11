@@ -212,7 +212,7 @@ public class DefinitionSyncService implements CommandLineRunner {
                         ruleDto.setDeduplicateBy(ruleYaml.getDeduplicateBy());
                         ruleDto.setAfterEvents(ruleYaml.getAfterEvents());
                         ruleDto.setSystemOwner(true);
-                        ruleDto.setRuleActive(ruleOpt.isPresent() ? ruleOpt.get().getRuleActive() : true);
+                        ruleDto.setRuleActive(ruleOpt.isPresent() ? ruleOpt.get().getRuleActive() : false);
 
                         if (ruleYaml.getImpact() != null) {
                             ruleDto.setConfidentiality(ruleYaml.getImpact().getConfidentiality());
