@@ -3,10 +3,10 @@ package schema
 import "github.com/threatwinds/go-sdk/plugins"
 
 type IncidentDetail struct {
-	CreatedBy    string `json:"createdBy"`
-	Observation  string `json:"observation"`
-	CreationDate string `json:"creationDate"`
-	Source       string `json:"source"`
+	CreatedBy    string `json:"createdBy,omitempty"`
+	Observation  string `json:"observation,omitempty"`
+	CreationDate string `json:"creationDate,omitempty"`
+	Source       string `json:"source,omitempty"`
 }
 
 type AlertFields struct {
