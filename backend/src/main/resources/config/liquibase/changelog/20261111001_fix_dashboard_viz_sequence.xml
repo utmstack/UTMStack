@@ -28,9 +28,6 @@
       user rows left in the low range.
     -->
     <changeSet id="20261111001_fix_dashboard_viz_sequence" author="osmontero">
-        <preConditions onFail="MARK_RAN">
-            <sqlcheck expectedResult="utm_dashboard_visualization_id_seq"/>
-        </preConditions>
         <comment>Reserve utm_dashboard_visualization ids >= 1000000 for user rows; renumber existing user rows off the system range (#3056).</comment>
         <sql dbms="postgresql" splitStatements="true" stripComments="true">
             <![CDATA[
