@@ -62,10 +62,11 @@ const isCustom = (i: Integration) => i.systemOwner === false
 
 interface IntegrationDrawerProps {
   integration: Integration
+  dataTypes:string[]
   onClose: () => void
 }
 
-export function IntegrationDrawer({ integration: i, onClose }: IntegrationDrawerProps) {
+export function IntegrationDrawer({ integration: i, onClose,dataTypes }: IntegrationDrawerProps) {
   const { t } = useTranslation()
   const { theme } = useThemeContext()
   const navigate = useNavigate()
@@ -147,6 +148,7 @@ export function IntegrationDrawer({ integration: i, onClose }: IntegrationDrawer
             </button>
           </div>
 
+          { dataTypes.includes(i.dataType ?? '') && (
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <Button size="sm" variant="outline" onClick={openDashboard}>
               <LayoutDashboard size={13} className="mr-1.5" />
@@ -188,6 +190,8 @@ export function IntegrationDrawer({ integration: i, onClose }: IntegrationDrawer
               {t('integrations.drawer.manageFilters')}
             </Button>
           </div>
+          )
+          }
         </header>
 
         {/* The setup guide is how an integration gets configured, so it cannot be

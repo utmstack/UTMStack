@@ -1460,7 +1460,8 @@
         "datasets": {
             "logs": "Logs",
             "alerts": "Alerts",
-            "statistics": "Ingestion statistics"
+            "statistics": "Ingestion statistics",
+            "user_profile_history": "Cronologia del profilo utente"
         },
         "holding": "{{documents}} records · {{size}}",
         "since": "since {{date}}",
@@ -1517,8 +1518,6 @@
     "languageSettings": {
         "title": "Lingua della piattaforma",
         "subtitle": "Lingua predefinita per le schermate pre-login, le email di sistema e i nuovi utenti. Ogni utente può comunque scegliere la propria nel profilo.",
-        "label": "Lingua predefinita",
-        "hint": "Usata quando un utente non ha scelto la propria lingua.",
         "save": "Salva",
         "saving": "Salvataggio…",
         "saved": "Lingua della piattaforma aggiornata",
@@ -3745,7 +3744,39 @@
             "title": "Modifica integrazione"
         },
         "allCategories": "Tutte le categorie",
-        "customOnly": "Personalizzato"
+        "customOnly": "Personalizzato",
+        "fileClassificationGuide": {
+            "overview": {
+                "title": "Tieni traccia delle modifiche e degli accessi alle informazioni classificate",
+                "body": "File Classification abilita il monitoraggio integrato dell’attività dei file di UTMStack. Traccia le modifiche e i tentativi di accesso sui file e sulle cartelle selezionati tramite l’audit di Windows. Non è richiesto software di terze parti."
+            },
+            "agentInstall": {
+                "title": "Installare l’agente Windows di UTMStack",
+                "body": "Installa l’agente UTMStack su ogni host Windows che genera gli eventi di audit. Non è richiesto software di terze parti.",
+                "button": "Installazione dell’agente Windows"
+            },
+            "fieldsTitle": "Informazioni catturate",
+            "fields": "Data dell’evento\nNome dell’evento\nUtente\nTipo di oggetto\nNome dell’oggetto (percorso completo)\nNome del processo (processo che interagisce con il file)\nAzione eseguita\nNome del server\nID handler\nAttributo della risorsa\nNome del dominio\nID di logon\nID host\nSistema operativo dell’host\nArchitettura dell’host",
+            "policyImageAlt": "Impostazioni delle strategie di gruppo di Windows per l’audit del file system",
+            "server": {
+                "policyTitle": "Audit di Windows Server — abilitare la politica di audit del file system",
+                "policySteps": "Apri Gestione strategie di gruppo e modifica o crea una strategia per i server di destinazione.\nVai a Configurazione computer → Strategie → Impostazioni di Windows → Impostazioni di sicurezza → Configurazione politica di audit avanzata → Politiche di audit → Accesso agli oggetti.\nApri Audit del file system e abilita la strategia. Scegli Esito positivo, Esito negativo o entrambi secondo i tuoi requisiti.\nApplica la strategia ai server che vuoi monitorare.",
+                "folderTitle": "Configurare l’audit su file e cartelle",
+                "folderIntro": "L’audit deve essere abilitato anche su ciascun file o cartella che vuoi monitorare.",
+                "folderSteps": "Fai clic destro sul file o sulla cartella, scegli Proprietà, poi apri la scheda Sicurezza.\nSeleziona Avanzate e apri la scheda Audit.\nAggiungi una voce di audit per gli utenti o i gruppi da monitorare. Scegli esiti positivi, negativi o entrambi, e specifica se la voce si applica a questa cartella, ai suoi file e sottocartelle."
+            },
+            "desktop": {
+                "policyTitle": "Audit di Windows Desktop — impostare la politica di audit dell’accesso agli oggetti",
+                "policySteps": "Sul controller di dominio primario o su un sistema con strumenti di amministrazione, apri Gestione strategie di gruppo eseguendo gpmc.msc.\nCrea un nuovo GPO o modifica uno esistente. Per applicarlo a un dominio, associa il GPO al dominio.\nNell’Editor di gestione strategie di gruppo, vai a Configurazione computer → Impostazioni di Windows → Impostazioni di sicurezza → Politiche locali → Politica di audit.\nApri Audit dell’accesso agli oggetti e seleziona Definisce le impostazioni di questa politica.\nSeleziona Esito positivo e Esito negativo. Si consiglia di selezionarli entrambi.\nApplica le modifiche e chiudi la finestra della politica.\nPer applicare la politica immediatamente, esegui Gpupdate /force nel Prompt dei comandi.",
+                "folderTitle": "Impostare l’audit sui file da tracciare",
+                "folderIntro": "Dopo aver configurato la strategia di gruppo, aggiungi una voce di audit a ciascun file o cartella. L’audit può essere ereditato da file e sottocartelle.",
+                "folderSteps": "Esplora File, fai clic destro sul file o sulla cartella e scegli Proprietà.\nApri la scheda Sicurezza, seleziona Avanzate, poi apri la scheda Audit.\nSeleziona Aggiungi per creare una voce di audit.\nSeleziona un principale e scegli gli utenti o i gruppi la cui attività vuoi auditare. Inserisci Everyone per includere tutti gli utenti.\nScegli Esito positivo, Esito negativo o Tutti come tipo di audit. Tutti cattura sia gli esiti positivi che negativi.\nSotto Autorizzazioni, seleziona le azioni da auditare. Per tracciare le letture dei file, includi Percorri cartella / Esegui file, Elenca cartella / Leggi dati, Leggi attributi e Leggi attributi estesi.\nSeleziona Controllo completo se vuoi auditare tutta l’attività sul file o sulla cartella.\nConferma la voce, applica le modifiche e chiudi le finestre delle proprietà aperte."
+            },
+            "events": {
+                "title": "Visualizzare gli eventi di accesso ai file in Visualizzatore eventi di Windows",
+                "body": "Apri Visualizzatore eventi e vai a Log di Windows → Sicurezza. Usa Filtra log corrente per trovare gli eventi 4656 e 4663. L’evento 4663 registra l’accesso al file: ispeziona Nome account per identificare l’utente, Registrato per vedere quando si è verificato e Nome oggetto per il percorso completo del file."
+            }
+        }
     },
     "dataProcessing": {
         "title": "Elaborazione dati",
@@ -5209,20 +5240,20 @@
         },
         "neverRun": "mai",
         "trigger": {
-          "btn": "Avvia flow",
-          "title": "Avvia {{name}}",
-          "fromList": "Avviso archiviato",
-          "rawJson": "JSON avviso grezzo",
-          "searchAlerts": "Cerca avvisi",
-          "noAlerts": "Nessun avviso trovato",
-          "showing": "{{shown}} di {{total}} mostrati",
-          "agent": "Agente",
-          "sameAsAlert": "Stesso agente dell'avviso",
-          "run": "Avvia flow",
-          "ok": "Flow {{name}} avviato",
-          "fail": "Impossibile avviare il flow",
-          "invalidJson": "JSON non valido"
-          },
+            "btn": "Avvia flow",
+            "title": "Avvia {{name}}",
+            "fromList": "Avviso archiviato",
+            "rawJson": "JSON avviso grezzo",
+            "searchAlerts": "Cerca avvisi",
+            "noAlerts": "Nessun avviso trovato",
+            "showing": "{{shown}} di {{total}} mostrati",
+            "agent": "Agente",
+            "sameAsAlert": "Stesso agente dell'avviso",
+            "run": "Avvia flow",
+            "ok": "Flow {{name}} avviato",
+            "fail": "Impossibile avviare il flow",
+            "invalidJson": "JSON non valido"
+        },
         "create": {
             "title": "Nuovo flusso",
             "modeManual": "Crea manualmente",

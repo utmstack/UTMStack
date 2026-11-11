@@ -1708,7 +1708,8 @@
         "datasets": {
             "logs": "Logs",
             "alerts": "Alerts",
-            "statistics": "Ingestion statistics"
+            "statistics": "Ingestion statistics",
+            "user_profile_history": "User profile history"
         },
         "holding": "{{documents}} records · {{size}}",
         "since": "since {{date}}",
@@ -3993,7 +3994,39 @@
             "title": "Edit integration"
         },
         "allCategories": "All categories",
-        "customOnly": "Custom"
+        "customOnly": "Custom",
+        "fileClassificationGuide": {
+            "overview": {
+                "title": "Keep track of changes and access to classified information",
+                "body": "File Classification enables UTMStack's built-in file activity monitoring. It tracks changes and access attempts on selected files and folders through Windows auditing. No third-party software is required."
+            },
+            "agentInstall": {
+                "title": "Install the UTMStack Windows agent",
+                "body": "Install the UTMStack agent on every Windows host that generates the audit events. No third-party software is required.",
+                "button": "Windows agent installation"
+            },
+            "fieldsTitle": "Information captured",
+            "fields": "Event Date\nEvent Name\nUser\nObject Type\nObject name (full path)\nProcess name (process interacting with the file)\nAction performed\nServer name\nHandler ID\nResource attribute\nDomain name\nLogon ID\nHost ID\nHost OS\nHost Architecture",
+            "policyImageAlt": "Windows Group Policy settings for auditing the file system",
+            "server": {
+                "policyTitle": "Auditing Windows Server — enable the Audit File System policy",
+                "policySteps": "Open Group Policy Management and edit or create a policy for the target servers.\nNavigate to Computer Configuration → Policies → Windows Settings → Security Settings → Advanced Audit Policy Configuration → Audit Policies → Object Access.\nOpen Audit File System and enable the policy. Choose Success, Failure, or both according to your requirements.\nApply the policy to the servers you want to monitor.",
+                "folderTitle": "Configure auditing on files and folders",
+                "folderIntro": "Auditing must also be enabled on each file or folder you want to monitor.",
+                "folderSteps": "Right-click the file or folder, select Properties, then open the Security tab.\nSelect Advanced and open the Auditing tab.\nAdd an auditing entry for the users or groups to monitor. Choose successful attempts, failed attempts, or both, and specify whether the entry applies to this folder, its files, and subfolders."
+            },
+            "desktop": {
+                "policyTitle": "Auditing Windows Desktop — set the Audit object access policy",
+                "policySteps": "On the primary domain controller or a system with administration tools, open Group Policy Management by running gpmc.msc.\nCreate a new GPO or edit an existing one. To apply it across a domain, link the GPO to the domain.\nIn Group Policy Management Editor, navigate to Computer Configuration → Windows Settings → Security Settings → Local Policies → Audit Policy.\nOpen Audit object access and select Define these policy settings.\nSelect Success and Failure. Selecting both is recommended.\nApply the changes and close the policy dialog.\nTo apply the policy immediately, run Gpupdate /force in Command Prompt.",
+                "folderTitle": "Set auditing on the files you want to track",
+                "folderIntro": "After configuring the Group Policy, add an auditing entry to each file or folder. Auditing can be inherited by files and subfolders.",
+                "folderSteps": "In Windows Explorer, right-click the file or folder and select Properties.\nOpen the Security tab, select Advanced, then open the Auditing tab.\nSelect Add to create an auditing entry.\nSelect a principal and choose the users or groups whose activity you want to audit. Enter Everyone to include all users.\nChoose Success, Failure, or All as the audit type. All captures both successful and failed attempts.\nUnder Permissions, select the actions to audit. To track file reads, include Traverse folder / Execute file, List folder / Read data, Read attributes, and Read extended attributes.\nSelect Full control if you want to audit all activity on the file or folder.\nConfirm the entry, then apply the changes and close the open properties dialogs."
+            },
+            "events": {
+                "title": "View file access events in Windows Event Viewer",
+                "body": "Open Event Viewer and navigate to Windows Logs → Security. Use Filter Current Log to find events 4656 and 4663. Event 4663 records file access; inspect Account Name to identify the user, Logged to see when it occurred, and Object Name for the full file path."
+            }
+        }
     },
     "dataProcessing": {
         "title": "Data processing",
@@ -5726,20 +5759,20 @@
         },
         "neverRun": "never",
         "trigger": {
-          "btn": "Trigger flow",
-          "title": "Trigger {{name}}",
-          "fromList": "Stored alert",
-          "rawJson": "Raw alert JSON",
-          "searchAlerts": "Search alerts",
-          "noAlerts": "No alerts found",
-          "showing": "{{shown}} of {{total}} shown",
-          "agent": "Agent",
-          "sameAsAlert": "Same agent as the alert",
-          "run": "Trigger flow",
-          "ok": "Flow {{name}} triggered",
-          "fail": "Could not trigger the flow",
-          "invalidJson": "Not valid JSON"
-          },
+            "btn": "Trigger flow",
+            "title": "Trigger {{name}}",
+            "fromList": "Stored alert",
+            "rawJson": "Raw alert JSON",
+            "searchAlerts": "Search alerts",
+            "noAlerts": "No alerts found",
+            "showing": "{{shown}} of {{total}} shown",
+            "agent": "Agent",
+            "sameAsAlert": "Same agent as the alert",
+            "run": "Trigger flow",
+            "ok": "Flow {{name}} triggered",
+            "fail": "Could not trigger the flow",
+            "invalidJson": "Not valid JSON"
+        },
         "create": {
             "title": "New flow",
             "modeManual": "Create manually",

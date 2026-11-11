@@ -1460,7 +1460,8 @@
         "datasets": {
             "logs": "Logs",
             "alerts": "Alerts",
-            "statistics": "Ingestion statistics"
+            "statistics": "Ingestion statistics",
+            "user_profile_history": "Benutzerprofilverlauf"
         },
         "holding": "{{documents}} records · {{size}}",
         "since": "since {{date}}",
@@ -3745,7 +3746,39 @@
             "title": "Integration bearbeiten"
         },
         "allCategories": "Alle Kategorien",
-        "customOnly": "Benutzerdefiniert"
+        "customOnly": "Benutzerdefiniert",
+        "fileClassificationGuide": {
+            "overview": {
+                "title": "Änderungen und Zugriffe auf klassifizierte Informationen verfolgen",
+                "body": "File Classification aktiviert die integrierte Dateiakktivitätsüberwachung von UTMStack. Sie erfasst Änderungen und Zugriffsversuche auf ausgewählte Dateien und Ordner über Windows-Auditing. Es ist keine Drittanbieter-Software erforderlich."
+            },
+            "agentInstall": {
+                "title": "UTMStack-Windows-Agent installieren",
+                "body": "Installiere den UTMStack-Agenten auf jedem Windows-Host, der die Audit-Events erzeugt. Es ist keine Drittanbieter-Software erforderlich.",
+                "button": "Windows-Agent-Installation"
+            },
+            "fieldsTitle": "Erfasste Informationen",
+            "fields": "Ereignisdatum\nEreignisname\nBenutzer\nObjekttyp\nObjektname (vollständiger Pfad)\nProzessname (Prozess, der mit der Datei interagiert)\nDurchgeführte Aktion\nServername\nHandler-ID\nRessourcenattribut\nDomainname\nAnmelde-ID\nHost-ID\nBetriebssystem des Hosts\nArchitektur des Hosts",
+            "policyImageAlt": "Windows-Gruppenrichtlinie-Einstellungen für das Auditieren des Dateisystems",
+            "server": {
+                "policyTitle": "Windows Server auditieren — Richtlinie „Dateisystem auditieren“ aktivieren",
+                "policySteps": "Öffne die Gruppenrichtlinienverwaltung und bearbeite oder erstelle eine Richtlinie für die Zielserver.\nGehe zu Computerkonfiguration → Richtlinien → Windows-Einstellungen → Sicherheitseinstellungen → Erweiterte Auditrichtlinieneinstellungen → Auditrichtlinien → Objektzugriff.\nÖffne „Dateisystem auditieren“ und aktiviere die Richtlinie. Wähle je nach Anforderungen Erfolg, Fehler oder beide.\nWende die Richtlinie auf die Server an, die du überwachen möchtest.",
+                "folderTitle": "Auditing für Dateien und Ordner konfigurieren",
+                "folderIntro": "Auditing muss auch für jede Datei oder jeden Ordner aktiviert werden, den du überwachen möchtest.",
+                "folderSteps": "Klicke mit der rechten Maustaste auf die Datei oder den Ordner, wähle Eigenschaften und öffne den Sicherheitstab.\nWähle Erweitert und öffne den Audit-Tabs.\nFüge einen Audit-Eintrag für die Benutzer oder Gruppen hinzu, die überwacht werden sollen. Wähle erfolgreiche, fehlgeschlagene oder beide Versuche und gib an, ob der Eintrag auf diesen Ordner, seine Dateien und Unterordner angewendet wird."
+            },
+            "desktop": {
+                "policyTitle": "Windows Desktop auditieren — Richtlinie „Objektzugriff auditieren“ festlegen",
+                "policySteps": "Auf dem primären Domaincontroller oder einem System mit Verwaltungswerkzeugen die Gruppenrichtlinienverwaltung über gpmc.msc öffnen.\nEine neue GPO erstellen oder eine vorhandene bearbeiten. Um sie in einer Domäne anzuwenden, die GPO mit der Domäne verknüpfen.\nIm Gruppenrichtlinienverwaltungs-Editor navigieren zu Computerkonfiguration → Windows-Einstellungen → Sicherheitseinstellungen → Lokale Richtlinien → Auditrichtlinie.\n„Objektzugriff auditieren“ öffnen und „Diese Richtlinieneinstellungen definieren“ auswählen.\nErfolg und Fehler auswählen. Es wird empfohlen, beide auszuwählen.\nÄnderungen anwenden und den Richtliendiagnalog schließen.\nUm die Richtlinie sofort anzuwenden, in der Eingabeaufforderung Gpupdate /force ausführen.",
+                "folderTitle": "Auditing für die Dateien festlegen, die du verfolgen möchtest",
+                "folderIntro": "Nach der Konfiguration der Gruppenrichtlinie einen Audit-Eintrag zu jeder Datei oder jedem Ordner hinzufügen. Auditing kann von Dateien und Unterordner vererbt werden.",
+                "folderSteps": "Im Windows-Explorer mit der rechten Maustaste auf die Datei oder den Ordner klicken und Eigenschaften auswählen.\nDen Sicherheitstab öffnen, Erweitert wählen und dann den Audit-Tabs öffnen.\n„Hinzufügen“ wählen, um einen Audit-Eintrag zu erstellen.\nEinen Principal auswählen und die Benutzer oder Gruppen wählen, deren Aktivität auditert werden soll. Für alle Benutzer „Everyone“ eingeben.\nErfolg, Fehler oder Alle als Audit-Typ wählen. Alle erfasst sowohl erfolgreiche als auch fehlgeschlagene Versuche.\nUnter Berechtigungen die zu auditierenden Aktionen wählen. Um Datei-Lesevorgänge zu verfolgen, „Ordner durchsuchen / Datei ausführen“, „Ordner enumerieren / Daten lesen“, „Attribute lesen“ und „Erweiterte Attribute lesen“ einschließen.\n„Vollständige Kontrolle“ wählen, um alle Aktivitäten auf der Datei oder dem Ordner zu auditieren.\nDen Eintrag bestätigen, die Änderungen anwenden und die geöffneten Eigenschaftsdialoge schließen."
+            },
+            "events": {
+                "title": "Dateizugriffs-Events im Windows-Ereignisanzeiger anzeigen",
+                "body": "Ereignisanzeiger öffnen und zu Windows-Protokolle → Sicherheit navigieren. Über „Aktuelles Protokoll filtern“ die Events 4656 und 4663 finden. Event 4663 erfasst Dateizugriff: „Kontoname“ zeigt den Benutzer, „Erfasst“ wann es auftrat, „Objektname“ den vollständigen Dateipfad."
+            }
+        }
     },
     "dataProcessing": {
         "title": "Datenverarbeitung",
@@ -5205,20 +5238,20 @@
         },
         "neverRun": "nie",
         "trigger": {
-          "btn": "Flow auslösen",
-          "title": "{{name}} auslösen",
-          "fromList": "Gespeicherte Warnung",
-          "rawJson": "Rohes Warnungs-JSON",
-          "searchAlerts": "Warnungen suchen",
-          "noAlerts": "Keine Warnungen gefunden",
-          "showing": "{{shown}} von {{total}} angezeigt",
-          "agent": "Agent",
-          "sameAsAlert": "Gleicher Agent wie die Warnung",
-          "run": "Flow auslösen",
-          "ok": "Flow {{name}} ausgelöst",
-          "fail": "Flow konnte nicht ausgelöst werden",
-          "invalidJson": "Ungültiges JSON"
-          },
+            "btn": "Flow auslösen",
+            "title": "{{name}} auslösen",
+            "fromList": "Gespeicherte Warnung",
+            "rawJson": "Rohes Warnungs-JSON",
+            "searchAlerts": "Warnungen suchen",
+            "noAlerts": "Keine Warnungen gefunden",
+            "showing": "{{shown}} von {{total}} angezeigt",
+            "agent": "Agent",
+            "sameAsAlert": "Gleicher Agent wie die Warnung",
+            "run": "Flow auslösen",
+            "ok": "Flow {{name}} ausgelöst",
+            "fail": "Flow konnte nicht ausgelöst werden",
+            "invalidJson": "Ungültiges JSON"
+        },
         "create": {
             "title": "Neuer Flow",
             "modeManual": "Manuell erstellen",

@@ -1460,7 +1460,8 @@
         "datasets": {
             "logs": "Logs",
             "alerts": "Alertas",
-            "statistics": "Estadísticas de ingesta"
+            "statistics": "Estadísticas de ingesta",
+            "user_profile_history": "Historial del perfil de usuario"
         },
         "holding": "{{documents}} registros · {{size}}",
         "since": "desde {{date}}",
@@ -3745,7 +3746,39 @@
             "title": "Editar integración"
         },
         "allCategories": "Todas las categorías",
-        "customOnly": "Personalizadas"
+        "customOnly": "Personalizadas",
+        "fileClassificationGuide": {
+            "overview": {
+                "title": "Controla los cambios y el acceso a la información clasificada",
+                "body": "File Classification habilita la supervisión integrada de actividad en archivos de UTMStack. Registra cambios e intentos de acceso en archivos y carpetas seleccionados mediante la auditoría de Windows. No se requiere software de terceros."
+            },
+            "agentInstall": {
+                "title": "Instalar el agente de UTMStack para Windows",
+                "body": "Instala el agente de UTMStack en cada equipo Windows que genere eventos de auditoría. No se requiere software de terceros.",
+                "button": "Instalación del agente de Windows"
+            },
+            "fieldsTitle": "Información capturada",
+            "fields": "Fecha del evento\nNombre del evento\nUsuario\nTipo de objeto\nNombre del objeto (ruta completa)\nNombre del proceso (proceso que interactúa con el archivo)\nAcción realizada\nNombre del servidor\nID del controlador\nAtributo del recurso\nNombre del dominio\nID de inicio de sesión\nID del host\nSistema operativo del host\nArquitectura del host",
+            "policyImageAlt": "Configuración de directiva de grupo de Windows para auditar el sistema de archivos",
+            "server": {
+                "policyTitle": "Auditoría en Windows Server — habilitar Audit File System",
+                "policySteps": "Abre Administración de directivas de grupo y edita o crea una directiva para los servidores de destino.\nVe a Configuración del equipo → Directivas → Configuración de Windows → Configuración de seguridad → Configuración de directiva de auditoría avanzada → Directivas de auditoría → Acceso a objetos.\nAbre Audit File System y habilita la directiva. Selecciona Success, Failure o ambas opciones según tus requisitos.\nAplica la directiva a los servidores que quieras supervisar.",
+                "folderTitle": "Configurar auditoría en archivos y carpetas",
+                "folderIntro": "También debes habilitar la auditoría en cada archivo o carpeta que quieras supervisar.",
+                "folderSteps": "Haz clic derecho en el archivo o carpeta, selecciona Propiedades y abre la pestaña Seguridad.\nSelecciona Opciones avanzadas y abre la pestaña Auditoría.\nAgrega una entrada de auditoría para los usuarios o grupos que quieras supervisar. Elige intentos correctos, fallidos o ambos, y especifica si la entrada se aplica a esta carpeta, sus archivos y subcarpetas."
+            },
+            "desktop": {
+                "policyTitle": "Auditoría en Windows Desktop — configurar Audit object access",
+                "policySteps": "En el controlador de dominio principal o en un sistema con herramientas de administración, abre Administración de directivas de grupo ejecutando gpmc.msc.\nCrea un GPO nuevo o edita uno existente. Para aplicarlo a un dominio, vincula el GPO al dominio.\nEn el Editor de administración de directivas de grupo, ve a Configuración del equipo → Configuración de Windows → Configuración de seguridad → Directivas locales → Directiva de auditoría.\nAbre Audit object access y selecciona Definir esta configuración de directiva.\nSelecciona Success y Failure. Se recomienda seleccionar ambas opciones.\nAplica los cambios y cierra el cuadro de diálogo de la directiva.\nPara aplicar la directiva inmediatamente, ejecuta Gpupdate /force en el Símbolo del sistema.",
+                "folderTitle": "Configurar auditoría en los archivos que quieres supervisar",
+                "folderIntro": "Después de configurar la directiva de grupo, agrega una entrada de auditoría a cada archivo o carpeta. La auditoría puede heredarse en archivos y subcarpetas.",
+                "folderSteps": "En el Explorador de archivos, haz clic derecho en el archivo o carpeta y selecciona Propiedades.\nAbre la pestaña Seguridad, selecciona Opciones avanzadas y luego abre la pestaña Auditoría.\nSelecciona Agregar para crear una entrada de auditoría.\nSelecciona un principal y elige los usuarios o grupos cuya actividad quieras auditar. Escribe Everyone para incluir a todos los usuarios.\nElige Success, Failure o All como tipo de auditoría. All captura tanto intentos correctos como fallidos.\nEn Permisos, selecciona las acciones que quieras auditar. Para registrar lecturas de archivos, incluye Recorrer carpeta / Ejecutar archivo, Enumerar carpeta / Leer datos, Leer atributos y Leer atributos extendidos.\nSelecciona Control total si quieres auditar toda la actividad en el archivo o carpeta.\nConfirma la entrada, aplica los cambios y cierra los cuadros de propiedades abiertos."
+            },
+            "events": {
+                "title": "Consultar eventos de acceso a archivos en el Visor de eventos de Windows",
+                "body": "Abre el Visor de eventos y ve a Registros de Windows → Seguridad. Usa Filtrar registro actual para encontrar los eventos 4656 y 4663. El evento 4663 registra el acceso al archivo: revisa Account Name para identificar al usuario, Logged para conocer la hora y Object Name para ver la ruta completa."
+            }
+        }
     },
     "dataProcessing": {
         "title": "Procesamiento de datos",
@@ -5357,20 +5390,20 @@
         },
         "neverRun": "nunca",
         "trigger": {
-          "btn": "Activar flow",
-          "title": "Activar {{name}}",
-          "fromList": "Alerta almacenada",
-          "rawJson": "JSON de alerta en crudo",
-          "searchAlerts": "Buscar alertas",
-          "noAlerts": "No se encontraron alertas",
-          "showing": "{{shown}} de {{total}} mostrados",
-          "agent": "Agente",
-          "sameAsAlert": "Mismo agente que la alerta",
-          "run": "Activar flow",
-          "ok": "Flow {{name}} activado",
-          "fail": "No se pudo activar el flow",
-          "invalidJson": "JSON no válido"
-          },
+            "btn": "Activar flow",
+            "title": "Activar {{name}}",
+            "fromList": "Alerta almacenada",
+            "rawJson": "JSON de alerta en crudo",
+            "searchAlerts": "Buscar alertas",
+            "noAlerts": "No se encontraron alertas",
+            "showing": "{{shown}} de {{total}} mostrados",
+            "agent": "Agente",
+            "sameAsAlert": "Mismo agente que la alerta",
+            "run": "Activar flow",
+            "ok": "Flow {{name}} activado",
+            "fail": "No se pudo activar el flow",
+            "invalidJson": "JSON no válido"
+        },
         "create": {
             "title": "Nuevo flujo",
             "modeManual": "Crear manualmente",

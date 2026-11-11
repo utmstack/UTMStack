@@ -1,0 +1,240 @@
+name: "o365"
+description: "Microsoft 365 activity: sign-ins, operations, users, services and alerts."
+widgets:
+
+  - layout: { x: 0, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: o365 }
+    config:
+      __builder:
+        chartType: metric
+        title: "Total logs"
+
+  - layout: { x: 3, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: o365 }
+        - { field: action, op: in, value: [UserLoginFailed] }
+    config:
+      __builder:
+        chartType: metric
+        title: "Failed sign-ins"
+
+  - layout: { x: 6, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: o365 }
+        - { field: action, op: in, value: ["[New-InboxRule", Set-InboxRule, UpdateInboxRules] }
+    config:
+      __builder:
+        chartType: metric
+        title: "Inbox rule changes"
+
+  - layout: { x: 9, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: alerts
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: o365 }
+    config:
+      __builder:
+        chartType: metric
+        title: "Alerts"
+
+  - layout: { x: 0, y: 3, w: 7, h: 7 }
+    spec:
+      dataset: logs
+      chart: time
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: o365 }
+    config:
+      __builder:
+        chartType: area
+        title: "Log volume over time"
+
+  - layout: { x: 7, y: 3, w: 5, h: 7 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: dataSource
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: o365 }
+    config:
+      __builder:
+        chartType: bar
+        title: "Logs by Microsoft 365 tenant"
+
+  - layout: { x: 0, y: 10, w: 3, h: 7 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: action
+      metric:
+        agg: count
+      limit: 25
+      filters:
+        - { field: dataType, op: eq, value: o365 }
+    config:
+      __builder:
+        chartType: table
+        title: "Top operations"
+
+  - layout: { x: 3, y: 10, w: 3, h: 7 }
+    spec:
+      dataset: logs
+      chart: time
+      dimension: action
+      metric:
+        agg: count
+      limit: 5
+      filters:
+        - { field: dataType, op: eq, value: o365 }
+    config:
+      __builder:
+        chartType: line
+        title: "Operations over time (top 5)"
+
+  - layout: { x: 6, y: 10, w: 3, h: 7 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: origin.user
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: o365 }
+        - { field: origin.user, op: exists }
+    config:
+      __builder:
+        chartType: table
+        title: "Top users"
+
+  - layout: { x: 9, y: 10, w: 3, h: 7 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: log.Workload
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: o365 }
+        - { field: log.Workload, op: exists }
+    config:
+      __builder:
+        chartType: bar
+        title: "Logs by Microsoft 365 service"
+
+  - layout: { x: 0, y: 17, w: 4, h: 7 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: origin.geolocation.country
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: o365 }
+        - { field: origin.geolocation.country, op: exists }
+    config:
+      __builder:
+        chartType: bar
+        title: "Top countries"
+
+  - layout: { x: 4, y: 17, w: 4, h: 7 }
+    spec:
+      dataset: logs
+      chart: table
+      metric:
+        agg: count
+      limit: 10
+      columns: ["origin.ip"]
+      filters:
+        - { field: dataType, op: eq, value: o365 }
+        - { field: origin.ip, op: exists }
+    config:
+      __builder:
+        chartType: table
+        title: "Top source IP addresses"
+
+  - layout: { x: 8, y: 17, w: 4, h: 7 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: log.LogonError
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: o365 }
+        - { field: action, op: in, value: [UserLoginFailed] }
+        - { field: log.LogonError, op: exists }
+    config:
+      __builder:
+        chartType: bar
+        title: "Sign-in failure reasons"
+
+  - layout: { x: 0, y: 24, w: 6, h: 8 }
+    spec:
+      dataset: alerts
+      chart: category
+      dimension: name
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: o365 }
+    config:
+      __builder:
+        chartType: bar
+        title: "Alerts by rule"
+
+  - layout: { x: 6, y: 24, w: 6, h: 8 }
+    spec:
+      dataset: alerts
+      chart: category
+      dimension: severity
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: o365 }
+    config:
+      __builder:
+        chartType: bar
+        title: "Alerts by severity"
+
+  - layout: { x: 0, y: 32, w: 12, h: 9 }
+    spec:
+      dataset: logs
+      chart: table
+      metric:
+        agg: count
+      limit: 20
+      columns: ["@timestamp", "dataSource", "action", "origin.user", "origin.ip", "log.Workload", "actionResult", "origin.geolocation.country"]
+      filters:
+        - { field: dataType, op: eq, value: o365 }
+    config:
+      __builder:
+        chartType: table
+        title: "Latest logs"

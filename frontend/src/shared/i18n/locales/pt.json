@@ -1460,7 +1460,8 @@
         "datasets": {
             "logs": "Logs",
             "alerts": "Alerts",
-            "statistics": "Ingestion statistics"
+            "statistics": "Ingestion statistics",
+            "user_profile_history": "Histórico do perfil do usuário"
         },
         "holding": "{{documents}} records · {{size}}",
         "since": "since {{date}}",
@@ -3745,7 +3746,39 @@
             "title": "Editar integração"
         },
         "allCategories": "Todas as categorias",
-        "customOnly": "Personalizado"
+        "customOnly": "Personalizado",
+        "fileClassificationGuide": {
+            "overview": {
+                "title": "Acompanhe as alterações e o acesso a informações classificadas",
+                "body": "File Classification habilita o monitoramento embutido de atividade de arquivos do UTMStack. Registra alterações e tentativas de acesso em arquivos e pastas selecionados por meio da auditoria do Windows. Não é necessário software de terceiros."
+            },
+            "agentInstall": {
+                "title": "Instalar o agente do Windows do UTMStack",
+                "body": "Instale o agente do UTMStack em cada host Windows que gera os eventos de auditoria. Não é necessário software de terceiros.",
+                "button": "Instalação do agente do Windows"
+            },
+            "fieldsTitle": "Informações capturadas",
+            "fields": "Data do evento\nNome do evento\nUsuário\nTipo de objeto\nNome do objeto (caminho completo)\nNome do processo (processo que interage com o arquivo)\nAção executada\nNome do servidor\nID do manipulador\nAtributo do recurso\nNome do domínio\nID de logon\nID do host\nSistema operacional do host\nArquitetura do host",
+            "policyImageAlt": "Configurações de Diretiva do Grupo do Windows para auditoria do sistema de arquivos",
+            "server": {
+                "policyTitle": "Auditoria no Windows Server — habilitar a política Auditoria do sistema de arquivos",
+                "policySteps": "Abra o Gerenciamento de Diretiva do Grupo e edite ou crie uma diretiva para os servidores de destino.\nVá para Configuração do computador → Diretivas → Configurações do Windows → Configurações de segurança → Configuração de política de auditoria avançada → Políticas de auditoria → Acesso a objetos.\nAbra Auditoria do sistema de arquivos e habilite a diretiva. Escolha Sucesso, Falha ou ambos conforme seus requisitos.\nAplique a diretiva aos servidores que você deseja monitorar.",
+                "folderTitle": "Configurar auditoria em arquivos e pastas",
+                "folderIntro": "A auditoria também deve ser habilitada em cada arquivo ou pasta que você deseja monitorar.",
+                "folderSteps": "Clique com o botão direito no arquivo ou pasta, selecione Propriedades e abra a aba Segurança.\nSelecione Avançado e abra a aba Auditoria.\nAdicione uma entrada de auditoria para os usuários ou grupos a monitorar. Escolha tentativas bem-sucedidas, malsucedidas ou ambas e especifique se a entrada se aplica a esta pasta, seus arquivos e subpastas."
+            },
+            "desktop": {
+                "policyTitle": "Auditoria no Windows Desktop — definir a política Auditoria de acesso a objetos",
+                "policySteps": "No controlador de domínio primário ou em um sistema com ferramentas de administração, abra o Gerenciamento de Diretiva do Grupo executando gpmc.msc.\nCrie um GPO novo ou edite um existente. Para aplicá-lo em um domínio, vincule o GPO ao domínio.\nNo Editor de Gerenciamento de Diretiva do Grupo, vá para Configuração do computador → Configurações do Windows → Configurações de segurança → Políticas locais → Política de auditoria.\nAbra Auditoria de acesso a objetos e selecione Definir estas configurações de política.\nSelecione Sucesso e Falha. Selecionar ambos é recomendado.\nAplique as alterações e feche o diálogo da diretiva.\nPara aplicar a diretiva imediatamente, execute Gpupdate /force no Prompt de Comando.",
+                "folderTitle": "Definir auditoria nos arquivos que você deseja rastrear",
+                "folderIntro": "Após configurar a Diretiva do Grupo, adicione uma entrada de auditoria a cada arquivo ou pasta. A auditoria pode ser herdada por arquivos e subpastas.",
+                "folderSteps": "No Explorador de Arquivos, clique com o botão direito no arquivo ou pasta e selecione Propriedades.\nAbra a aba Segurança, selecione Avançado e depois abra a aba Auditoria.\nSelecione Adicionar para criar uma entrada de auditoria.\nSelecione um principal e escolha os usuários ou grupos cuja atividade você deseja auditar. Digite Everyone para incluir todos os usuários.\nEscolha Sucesso, Falha ou Tudo como tipo de auditoria. Tudo captura tanto tentativas bem-sucedidas quanto malsucedidas.\nEm Permissões, selecione as ações a auditar. Para rastrear leituras de arquivos, inclua Percorrer pasta / Executar arquivo, Listar pasta / Ler dados, Ler atributos e Ler atributos estendidos.\nSelecione Controle total se você deseja auditar toda a atividade no arquivo ou pasta.\nConfirme a entrada, aplique as alterações e feche os diálogos de propriedades abertos."
+            },
+            "events": {
+                "title": "Visualizar eventos de acesso a arquivos no Visualizador de Eventos do Windows",
+                "body": "Abra o Visualizador de Eventos e vá para Registros do Windows → Segurança. Use Filtrar registro atual para localizar os eventos 4656 e 4663. O evento 4663 registra o acesso ao arquivo: inspecione Nome da conta para identificar o usuário, Registrado para ver quando ocorreu e Nome do objeto para o caminho completo do arquivo."
+            }
+        }
     },
     "dataProcessing": {
         "title": "Processamento de dados",
@@ -5357,20 +5390,20 @@
         },
         "neverRun": "nunca",
         "trigger": {
-          "btn": "Acionar fluxo",
-          "title": "Acionar {{name}}",
-          "fromList": "Alerta armazenada",
-          "rawJson": "JSON de alerta bruto",
-          "searchAlerts": "Buscar alertas",
-          "noAlerts": "Nenhuma alerta encontrada",
-          "showing": "{{shown}} de {{total}} exibidos",
-          "agent": "Agente",
-          "sameAsAlert": "Mesmo agente que a alerta",
-          "run": "Acionar fluxo",
-          "ok": "Fluxo {{name}} acionado",
-          "fail": "Não foi possível acionar o fluxo",
-          "invalidJson": "JSON inválido"
-          },
+            "btn": "Acionar fluxo",
+            "title": "Acionar {{name}}",
+            "fromList": "Alerta armazenada",
+            "rawJson": "JSON de alerta bruto",
+            "searchAlerts": "Buscar alertas",
+            "noAlerts": "Nenhuma alerta encontrada",
+            "showing": "{{shown}} de {{total}} exibidos",
+            "agent": "Agente",
+            "sameAsAlert": "Mesmo agente que a alerta",
+            "run": "Acionar fluxo",
+            "ok": "Fluxo {{name}} acionado",
+            "fail": "Não foi possível acionar o fluxo",
+            "invalidJson": "JSON inválido"
+        },
         "create": {
             "title": "Novo fluxo",
             "modeManual": "Criar manualmente",
