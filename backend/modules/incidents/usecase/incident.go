@@ -117,6 +117,73 @@ func (u *incidentUsecase) Create(ctx context.Context, userEmail string, req dto.
 	return incident, nil
 }
 
+
+func (u *incidentUsecase) CreateOrAdd(ctx context.Context, req dto.CreateIncidentRequest) (*domain.Incident, error){
+
+	u.audit.Log(ctx, audit_connectors.Event{
+		Action:    "incident.create.attempt",
+		EventType: audit_domain.INCIDENT_CREATION_ATTEMPT,
+		Status:    audit_domain.StatusSuccess,
+	})
+
+	if len(req.AlertList) == 0 {
+		return nil, fmt.Errorf("at least one alert is required")
+	}
+	if err := validateAlertList(req.AlertList); err != nil {
+		return nil, err
+	}
+
+	alertIDs := make([]string, len(req.AlertList))
+	for i, item := range req.AlertList {
+		alertIDs[i] = item.AlertID
+	}
+	existing, err := u.alertRepo.FindByAlertIDs(ctx, alertIDs)
+	if err != nil {
+		return nil, err
+	}
+	if len(existing) > 0 {
+		return nil, domain.ErrAlertAlreadyLinked
+	}
+
+	incident := &domain.Incident{
+		Name:        req.IncidentName,
+		Description: req.IncidentDescription,
+		Status:      domain.StatusOpen,
+		Severity:    maxRequestedSeverity(req.AlertList),
+		AssignedTo:  strings.TrimSpace(req.IncidentAssignedTo),
+		CreatedDate: time.Now().UTC(),
+	}
+
+	created,err:=u.incidentRepo.CreateOrInsert(ctx,incident,alertRows(incident, req.AlertList))
+	if err!=nil{
+		return nil,err
+	}
+
+	err = u.alertsGateway.MarkAlertAsIncident(ctx, alertIDs, req.IncidentName, incident.ID.String(), incident.CreatedDate, "system")
+	if err!=nil{
+		catcher.Warn("incidents: failed to mark alerts as incident ", map[string]any{"error": err.Error()})
+	}
+
+	u.audit.Log(ctx, audit_connectors.Event{
+		Action:     "incident.create.success",
+		EventType:  audit_domain.INCIDENT_CREATION_SUCCESS,
+		Status:     audit_domain.StatusSuccess,
+		ResourceID: incident.ID.String(),
+		Metadata: map[string]any{
+			"alertCount": len(req.AlertList),
+			"severity":   incident.Severity,
+		},
+	})
+
+	if created {
+		if err := u.mailer.SendIncidentCreated(ctx, *incident); err != nil {
+			catcher.Warn("incidents: mail notification failed", map[string]any{"error": err.Error()})
+		}
+	}
+
+	return incident,nil
+}
+
 func (u *incidentUsecase) AddAlerts(ctx context.Context, userEmail string, req dto.AddAlertsRequest) (*domain.Incident, error) {
 	u.audit.Log(ctx, audit_connectors.Event{
 		Action:    "incident.alert.add.attempt",
