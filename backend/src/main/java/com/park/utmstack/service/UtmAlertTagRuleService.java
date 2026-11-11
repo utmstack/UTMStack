@@ -263,6 +263,15 @@ public class UtmAlertTagRuleService {
                 Long groupId = (Long) entry.getValue().get("id");
                 String groupName = (String) entry.getValue().get("name");
 
+                // A network-scan mapping row can carry a null asset name; skip
+                // it instead of NPE-ing the whole 30s asset-group assignment
+                // (which previously broke alert auto-review on every run).
+                if (assetName == null || groupId == null || groupName == null) {
+                    log.warn("{}: skipping asset-group mapping with null value (assetName={}, groupId={}, groupName={})",
+                            ctx, assetName, groupId, groupName);
+                    continue;
+                }
+
                 scriptBuilder.append(String.format(
                         """
                                   if (ctx._source.dataSource == '%s') {
