@@ -57,7 +57,7 @@ export function AlertIncidentTarget({
         <Target size={13} />
       </button>
       {open && (
-        <div className="absolute left-0 top-full z-40 mt-1 w-64 rounded-md border border-border bg-popover p-3 shadow-lg">
+        <div className="absolute left-0 top-full z-40 mt-1  rounded-md border border-border bg-popover p-3 shadow-lg">
           <div className="mb-2 flex items-center gap-1.5 text-xs font-medium text-red-600 dark:text-red-300">
             <Flame size={12} /> {t('alerts.drawer.partOfIncident')}
           </div>
