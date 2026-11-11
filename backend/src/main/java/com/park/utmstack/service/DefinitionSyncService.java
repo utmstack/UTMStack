@@ -18,7 +18,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Service;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.ConstraintViolation;
@@ -47,6 +49,21 @@ public class DefinitionSyncService implements CommandLineRunner {
     private final UtmLogstashFilterService filterService;
     private final Validator validator;
 
+    /**
+     * YAML parser that NEVER instantiates arbitrary Java objects. A bare
+     * {@code new Yaml()} uses the unsafe default {@code Constructor}, which can
+     * build any Java class from a {@code !!java...} tag — the core of
+     * CVE-2022-1471 (snakeyaml RCE). These files are trusted (baked in by the
+     * installer) so the unsafe constructor was never reachable in practice, but
+     * SafeConstructor removes the risk entirely and is the CVE's recommended
+     * mitigation. SafeConstructor handles plain maps/lists/scalars identically,
+     * so parsing behavior is unchanged (no Java type tags or YAML dates are used
+     * in the filter/rule files).
+     */
+    private static Yaml safeYaml() {
+        return new Yaml(new SafeConstructor(new LoaderOptions()));
+    }
+
     @Override
     @Transactional
     public void run(String... args) {
@@ -72,7 +89,7 @@ public class DefinitionSyncService implements CommandLineRunner {
             return foundFilters;
         }
 
-        Yaml yaml = new Yaml();
+        Yaml yaml = safeYaml();
 
         try (Stream<Path> paths = Files.walk(filtersPath)) {
             paths.filter(path -> Files.isRegularFile(path) && isYamlFile(path)).forEach(path -> {
@@ -167,7 +184,7 @@ public class DefinitionSyncService implements CommandLineRunner {
             return foundRules;
         }
 
-        Yaml yaml = new Yaml();
+        Yaml yaml = safeYaml();
         try (Stream<Path> paths = Files.walk(rulesPath)) {
 
             paths.filter(path -> Files.isRegularFile(path) && isYamlFile(path)).forEach(path -> {
@@ -260,7 +277,7 @@ public class DefinitionSyncService implements CommandLineRunner {
         if (map.containsKey("correlation") && !map.containsKey("afterEvents")) {
             map.put("afterEvents", map.remove("correlation"));
         }
-        Yaml yaml = new Yaml();
+        Yaml yaml = safeYaml();
         String dump = yaml.dump(map);
         return yaml.loadAs(dump, RuleYaml.class);
     }
