@@ -1,0 +1,69 @@
+{
+    "title": "Reglas de etiquetado",
+    "subtitle": "Etiqueta automáticamente las alertas que cumplan las condiciones.",
+    "new": "Nueva regla",
+    "refresh": "Actualizar",
+    "empty": "Aún no hay reglas de etiquetado.",
+    "loadError": "No se pudieron cargar las reglas de etiquetado.",
+    "retry": "Reintentar",
+    "deleteConfirm": "¿Eliminar la regla \"{{name}}\"? Las alertas futuras que cumplan sus condiciones dejarán de etiquetarse.",
+    "toolbar": {
+        "search": "Buscar por nombre de regla…",
+        "allTags": "Todas las etiquetas"
+    },
+    "table": {
+        "rule": "Regla",
+        "tags": "Etiquetas",
+        "conditions": "Condiciones",
+        "modifiedBy": "Modificado por",
+        "modifiedDate": "Modificado"
+    },
+    "drawer": {
+        "createTitle": "Nueva regla de etiquetado",
+        "edit": "Editar",
+        "delete": "Eliminar",
+        "save": "Guardar",
+        "create": "Crear",
+        "cancel": "Cancelar"
+    },
+    "form": {
+        "basics": "Datos básicos",
+        "name": "Nombre de la regla",
+        "namePlaceholder": "p. ej. Fuerza bruta SSH interna",
+        "description": "Descripción",
+        "descriptionPlaceholder": "Por qué existe esta regla y qué etiqueta.",
+        "tags": "Etiquetas a aplicar",
+        "noTags": "No hay etiquetas seleccionadas.",
+        "addTag": "Agregar etiqueta",
+        "removeTag": "Quitar",
+        "noCatalog": "Aún no hay etiquetas en el catálogo.",
+        "createTag": "Crear etiqueta",
+        "newTagName": "Nombre de la nueva etiqueta",
+        "conditions": "Condiciones (deben cumplirse TODAS)",
+        "noConditions": "Se requiere al menos una condición.",
+        "addCondition": "Agregar condición",
+        "removeCondition": "Quitar condición",
+        "valuePlaceholder": "Valor",
+        "valueListPlaceholder": "Valores separados por comas",
+        "incomplete": "Completa el nombre de la regla, la descripción, al menos una etiqueta y todas las condiciones."
+    },
+    "view": {
+        "description": "Descripción",
+        "tags": "Etiquetas",
+        "conditions": "Condiciones",
+        "audit": "Auditoría",
+        "createdBy": "Creado por",
+        "createdDate": "Creado",
+        "modifiedBy": "Modificado por",
+        "modifiedDate": "Modificado"
+    },
+    "toast": {
+        "created": "Regla \"{{name}}\" creada.",
+        "updated": "Regla \"{{name}}\" actualizada.",
+        "deleted": "Regla \"{{name}}\" eliminada.",
+        "createError": "No se pudo crear la regla.",
+        "updateError": "No se pudo actualizar la regla.",
+        "deleteError": "No se pudo eliminar la regla."
+    },
+    "deleteTitle": "Eliminar regla de etiquetado"
+}

@@ -1,0 +1,73 @@
+{
+    "title": "About this instance",
+    "subtitle": "Version, license, and system health for this UTMStack deployment.",
+    "loading": "Loading instance information…",
+    "edition": {
+        "enterprise": "Enterprise",
+        "community": "Community"
+    },
+    "fields": {
+        "hostname": "Server",
+        "instanceId": "Instance ID",
+        "noInstanceMeta": "No instance metadata available."
+    },
+    "license": {
+        "title": "License",
+        "enterpriseMssp": "Enterprise · MSSP",
+        "datasources": "Datasources",
+        "communityLimited": "Community limit",
+        "unlimited": "Unlimited",
+        "expires": "Expires",
+        "managedNote": "Edition, datasource limits and license upload are managed on the License page.",
+        "view": "View license",
+        "ingest": "Ingest volume",
+        "notMetered": "Not metered",
+        "gbPerMonth": "{{gb}} GB/month"
+    },
+    "services": {
+        "backend": {
+            "name": "Backend API",
+            "desc": "REST gateway, auth and module orchestration."
+        },
+        "opensearch": {
+            "name": "OpenSearch",
+            "desc": "Log and event storage backend.",
+            "detail": "{{nodes}} nodes · {{shards}} shards"
+        },
+        "unreachable": "Unreachable"
+    },
+    "status": {
+        "up": "Healthy",
+        "degraded": "Degraded",
+        "down": "Down",
+        "unknown": "Unknown"
+    },
+    "health": {
+        "title": "System health",
+        "allHealthy": "All services healthy. Refresh to recheck.",
+        "issues_one": "{{count}} service needs attention.",
+        "issues_other": "{{count}} services need attention.",
+        "refresh": "Refresh"
+    },
+    "usage": {
+        "title": "Data sources",
+        "subtitle": "Data sources configured in this deployment.",
+        "ofUnlimited": "of unlimited",
+        "ofLimit": "of {{limit}}",
+        "overLimit": "Over the licensed limit — data beyond the cap is at risk.",
+        "configured": "configured"
+    },
+    "support": {
+        "title": "Support",
+        "docs": "Documentation",
+        "repo": "GitHub repository",
+        "issues": "Report an issue",
+        "website": "utmstack.com"
+    },
+    "legal": {
+        "title": "Legal",
+        "license": "License",
+        "security": "Security disclosure",
+        "copyright": "© {{year}} UTMStack. All rights reserved."
+    }
+}

@@ -1,0 +1,26 @@
+{
+    "quick": "Intervalos rápidos",
+    "relative": "Relativo",
+    "absolute": "Absoluto",
+    "last": "Últimos",
+    "apply": "Aplicar",
+    "allTime": "Todo o tempo",
+    "from": "De",
+    "to": "Até",
+    "now": "agora",
+    "units": {
+        "minutes": "minutos",
+        "hours": "horas",
+        "days": "dias",
+        "weeks": "semanas",
+        "months": "meses"
+    },
+    "presets": {
+        "15m": "Últimos 15 minutos",
+        "1h": "Última hora",
+        "6h": "Últimas 6 horas",
+        "24h": "Últimas 24 horas",
+        "7d": "Últimos 7 dias",
+        "30d": "Últimos 30 dias"
+    }
+}

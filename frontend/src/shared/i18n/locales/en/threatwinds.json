@@ -1,0 +1,16 @@
+{
+    "title": "ThreatWinds Integration",
+    "subtitle": "Share this instance's incidents with the ThreatWinds community feed.",
+    "feeds": "Enable feeds",
+    "feedsHint": "When on, events are checked against ThreatWinds intelligence feeds.",
+    "contribute": "Contribute incidents",
+    "contributeHint": "When on, incidents from this instance are sent to ThreatWinds.",
+    "loading": "Loading integration status…",
+    "failed": "Could not load the ThreatWinds integration status.",
+    "retry": "Retry",
+    "toast": {
+        "enabled": "Contribution enabled",
+        "disabled": "Contribution disabled",
+        "failed": "Could not update the contribution setting"
+    }
+}

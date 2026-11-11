@@ -1,0 +1,20 @@
+{
+    "title": "Paramètres",
+    "license": "Licence",
+    "notifications": "Notifications",
+    "connectionKey": "Clé de connexion",
+    "dataRetention": "Rétention des données",
+    "indices": "Index",
+    "theme": "Thème",
+    "branding": "Marque",
+    "apiKeys": "Clés API",
+    "identityProviders": "Fournisseurs d'identité",
+    "email": "Configuration e-mail",
+    "dateFormat": "Format de date",
+    "language": "Langue",
+    "auditLogs": "Journaux d'audit",
+    "about": "À propos",
+    "socAi": "SOC-AI",
+    "supportAccess": "Accès support",
+    "threatwinds": "Intégration ThreatWinds"
+}

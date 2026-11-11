@@ -1,0 +1,115 @@
+{
+    "title": "Data processing",
+    "subtitle": "Ingestion and processing statistics: events received, dropped by stage, and the top sources and types.",
+    "ingestion": {
+        "title": "Ingestion",
+        "last24h": "last 24 hours",
+        "noData": "No data in this window.",
+        "loadError": "Could not load ingestion stats.",
+        "groupBy": {
+            "dataSource": "By data source",
+            "dataType": "By data type"
+        },
+        "status": {
+            "received": "Received",
+            "parsing_dropped": "Dropped (parsing)",
+            "analysis_dropped": "Dropped (analysis)",
+            "correlation_dropped": "Dropped (correlation)",
+            "all": "All events"
+        }
+    },
+    "filters": {
+        "title": "Filters",
+        "new": "New filter",
+        "search": "Search by path…",
+        "refresh": "Refresh",
+        "retry": "Retry",
+        "empty": "No filters match.",
+        "loadError": "Could not load filters.",
+        "toggleError": "Could not change the filter state",
+        "system": "System",
+        "custom": "Custom",
+        "systemReadonly": "System filters are read-only",
+        "view": "View",
+        "edit": "Edit",
+        "ownership": {
+            "all": "All",
+            "system": "System",
+            "custom": "Custom"
+        },
+        "state": {
+            "all": "All",
+            "active": "Active",
+            "inactive": "Inactive"
+        },
+        "col": {
+            "filter": "Filter",
+            "type": "Type",
+            "active": "Active",
+            "actions": "Actions"
+        },
+        "pageInfo": "{{from}}–{{to}} of {{count}}"
+    },
+    "editor": {
+        "createTitle": "New filter",
+        "editTitle": "Edit filter",
+        "viewTitle": "View filter",
+        "relPath": "Path",
+        "relPathHint": "Folder + file, e.g. syslog/my-filter.yaml",
+        "content": "Pipeline (YAML)",
+        "contentHint": "Steps run in order: grok, rename, delete, dynamic plugins, …",
+        "save": "Save",
+        "saving": "Saving…",
+        "saved": "Filter saved",
+        "saveError": "Could not save the filter",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "deleteConfirm": "Delete this filter?",
+        "deleted": "Filter deleted",
+        "deleteError": "Could not delete the filter"
+    },
+    "kpi": {
+        "received": "Received",
+        "dropped": "Dropped",
+        "dropRate": "{{rate}}% drop rate",
+        "stored": "Stored",
+        "throughput": "Throughput",
+        "perMin": "{{value}}/min",
+        "survival": "{{rate}}% kept"
+    },
+    "section": {
+        "overTime": "Events over time",
+        "top": "Top",
+        "dropReasons": "Drop reasons"
+    },
+    "live": {
+        "auto": "Auto"
+    },
+    "pipeline": {
+        "title": "Ingestion pipeline",
+        "stages": {
+            "received": "Received",
+            "parsed": "Parsed",
+            "analyzed": "Analyzed",
+            "stored": "Stored"
+        }
+    },
+    "chart": {
+        "title": "Throughput over time",
+        "received": "Received",
+        "dropped": "Dropped"
+    },
+    "donut": {
+        "title": "Drop composition",
+        "dropped": "dropped"
+    },
+    "breakdown": {
+        "title": "Top sources & types",
+        "bars": "Bars",
+        "treemap": "Treemap",
+        "showAll": "Show all {{count}}",
+        "showLess": "Show less",
+        "lastSeen": "Last seen",
+        "ago": "{{time}} ago"
+    }
+}

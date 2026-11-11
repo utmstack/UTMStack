@@ -1,0 +1,97 @@
+{
+    "title": "Vista avversari",
+    "subtitle": "Ogni IP, host o utente visto attaccare il tuo ambiente, con tecniche e obiettivi.",
+    "countChip": "{{count}} avversari",
+    "refresh": "Aggiorna",
+    "search": "Cerca per IP, host, utente, paese, ASO…",
+    "empty": "Nessun avversario corrisponde.",
+    "loadError": "Impossibile caricare gli avversari.",
+    "retry": "Riprova",
+    "views": {
+        "all": "Tutti",
+        "high": "Severità alta",
+        "ip": "IP",
+        "host": "Host",
+        "user": "Utenti"
+    },
+    "threat": {
+        "critical": "Critico",
+        "high": "Alto",
+        "medium": "Medio",
+        "low": "Basso"
+    },
+    "kind": {
+        "ip": "IP",
+        "host": "Host",
+        "user": "Utente"
+    },
+    "layout": {
+        "list": "Elenco",
+        "cards": "Schede"
+    },
+    "overview": {
+        "title": "Attività degli avversari · ultime 24 ore",
+        "high": "severità alta",
+        "countries": "paesi",
+        "alerts": "avvisi",
+        "ago24": "24h fa",
+        "ago12": "12h fa",
+        "now": "ora"
+    },
+    "col": {
+        "adversary": "Avversario",
+        "threat": "Minaccia",
+        "alerts": "Avvisi",
+        "targets": "Obiettivi",
+        "lastSeen": "Visto l’ultima volta",
+        "victims": "Vittime"
+    },
+    "card": {
+        "alerts": "Avvisi",
+        "techniques": "Tecniche",
+        "targets": "Obiettivi"
+    },
+    "tabs": {
+        "profile": "Profilo",
+        "techniques": "Tecniche",
+        "targets": "Obiettivi",
+        "alerts": "Avvisi"
+    },
+    "drawer": {
+        "activity": "Attività in 24 ore",
+        "identification": "Identificazione",
+        "kindLabel": "Tipo",
+        "identifier": "Identificatore",
+        "firstSeen": "Visto la prima volta",
+        "lastSeen": "Visto l’ultima volta",
+        "geolocation": "Geolocalizzazione",
+        "country": "Paese",
+        "city": "Città",
+        "topTechniques": "Tecniche principali",
+        "noTechniques": "Nessuna tecnica registrata.",
+        "targets": "Obiettivi",
+        "noTargets": "Nessun obiettivo registrato.",
+        "recentAlerts": "Avvisi recenti",
+        "noAlerts": "Nessun avviso.",
+        "echoes": "{{count}} ripetizioni"
+    },
+    "relative": {
+        "justNow": "proprio ora",
+        "minutesAgo": "{{count}}m fa",
+        "hoursAgo": "{{count}}h fa",
+        "daysAgo": "{{count}}g fa"
+    },
+    "field": {
+        "ip": "IP",
+        "host": "Host",
+        "user": "Utente",
+        "port": "Porta",
+        "domain": "Dominio",
+        "mac": "MAC",
+        "country": "Paese",
+        "city": "Città",
+        "asn": "ASN",
+        "aso": "ASO",
+        "no_target": "Nessun obiettivo"
+    }
+}

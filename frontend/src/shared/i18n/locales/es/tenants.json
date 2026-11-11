@@ -1,0 +1,101 @@
+{
+    "title": "Tenants",
+    "new": "Nuevo tenant",
+    "subtitle": "Cada cliente que corre en esta instancia, lo que tiene y lo que te deja ver.",
+    "searchPlaceholder": "Buscar por nombre o dominio…",
+    "loading": "Cargando tenants…",
+    "loadFailed": "No se pudieron cargar los tenants.",
+    "retry": "Reintentar",
+    "none": "Todavía no hay tenants.",
+    "noSearchMatch": "Ningún tenant coincide con la búsqueda.",
+    "cancel": "Cancelar",
+    "saving": "Guardando…",
+    "chips": {
+        "total": "tenants",
+        "active": "activos",
+        "readable": "con acceso"
+    },
+    "status": {
+        "ACTIVE": "Activo",
+        "SUSPENDED": "Suspendido",
+        "TERMINATED": "Terminado"
+    },
+    "support": {
+        "NONE": "Sin acceso",
+        "READ": "Acceso de lectura",
+        "FULL": "Acceso total",
+        "hint": "Lo concede el tenant, no tú. Solo su administrador puede cambiarlo."
+    },
+    "card": {
+        "edit": "Editar",
+        "activate": "Activar",
+        "deactivate": "Desactivar",
+        "deletePermanent": "Eliminar permanentemente",
+        "noAccess": "Este tenant no te ha dado acceso.",
+        "loadingStats": "Leyendo…",
+        "enter": "Entrar"
+    },
+    "stats": {
+        "users": "Usuarios",
+        "datasources": "Fuentes",
+        "openAlerts": "Alertas abiertas",
+        "ai": "IA hoy",
+        "noLimit": "sin tope"
+    },
+    "fields": {
+        "name": "Nombre",
+        "domain": "Dominio",
+        "domainHint": "Por dónde se llega a este tenant. Toda petición a ese host entra en sus datos.",
+        "adminEmail": "Correo del administrador",
+        "adminEmailHint": "Recibe una invitación para poner su propia contraseña.",
+        "status": "Estado",
+        "suspendedWarning": "Un tenant suspendido no puede iniciar sesión. Sus datos se conservan.",
+        "aiLimit": "Tope de peticiones de IA",
+        "aiLimitHint": "Un tope operativo, por día. Sin tope, gastan contra la licencia de la instancia.",
+        "aiLimitToggle": "Poner tope a este tenant"
+    },
+    "create": {
+        "title": "Nuevo tenant",
+        "subtitle": "Crea el tenant e invita a su primer administrador.",
+        "submit": "Crear tenant"
+    },
+    "edit": {
+        "title": "Editar tenant",
+        "subtitle": "El acceso de soporte no está aquí: solo el tenant puede concederlo.",
+        "submit": "Guardar cambios"
+    },
+    "terminate": {
+        "title": "¿Desactivar este tenant?",
+        "body": "Nadie de {{name}} podrá iniciar sesión. Sus datos se conservan, así que es reversible, pero deja al cliente fuera ahora mismo.",
+        "confirmLabel": "Escribe {{name}} para confirmar",
+        "submit": "Desactivar"
+    },
+    "reactivate": {
+        "title": "¿Activar este tenant?",
+        "body": "{{name}} podrá iniciar sesión de nuevo. Sus datos conservados se restauran tal cual.",
+        "submit": "Activar"
+    },
+    "deletePermanent": {
+        "title": "¿Eliminar este tenant para siempre?",
+        "body": "Todo rastro de {{name}} — usuarios, fuentes de datos, dashboards, alertas, integraciones — será borrado. Esto no se puede deshacer.",
+        "confirmLabel": "Escribe {{name}} para confirmar",
+        "submit": "Eliminar para siempre"
+    },
+    "toast": {
+        "created": "Tenant creado",
+        "updated": "Tenant actualizado",
+        "terminated": "Tenant terminado",
+        "reactivated": "Tenant reactivado",
+        "permanentlyDeleted": "Tenant eliminado permanentemente",
+        "domainInUse": "Ese dominio ya está en uso",
+        "noPermission": "No tienes permiso para hacer eso",
+        "notFound": "Tenant no encontrado",
+        "invalidRequest": "Petición inválida",
+        "operationFailed": "La operación falló"
+    },
+    "switcher": {
+        "aria": "Switch tenant",
+        "self": "Default tenant",
+        "create": "Create tenant"
+    }
+}

@@ -1,0 +1,65 @@
+{
+    "title": "Log de auditoria",
+    "subtitle": "Registro de cada ação relevante para a segurança.",
+    "totalEntries": "{{total}} entradas no total.",
+    "loadError": "Não foi possível carregar o log de auditoria",
+    "stats": {
+        "totalEntries": "Entradas totais",
+        "acrossAllTime": "De todo o período",
+        "successRate": "Taxa de sucesso",
+        "failuresOnPage_one": "{{count}} falha nesta página",
+        "failuresOnPage_other": "{{count}} falhas nesta página",
+        "topAction": "Ação principal",
+        "onPage": "{{count}} nesta página",
+        "uniqueActors": "Atores únicos",
+        "includingSystem": "Incluindo o sistema"
+    },
+    "filters": {
+        "title": "Filtros",
+        "clear": "Limpar",
+        "last24h": "Últimas 24h",
+        "failuresOnly": "Apenas falhas",
+        "authEvents": "Eventos de autenticação",
+        "actionPrefix": "Prefixo da ação",
+        "actionPlaceholder": "ex. auth., user.update",
+        "status": "Status",
+        "any": "Qualquer",
+        "resourceType": "Tipo de recurso",
+        "resourceTypePlaceholder": "user, alert…",
+        "resourceId": "ID do recurso",
+        "user": "Usuário",
+        "userPlaceholder": "login…"
+    },
+    "statusValue": {
+        "success": "Sucesso",
+        "failure": "Falha"
+    },
+    "table": {
+        "timestamp": "Data e hora",
+        "actor": "Ator",
+        "action": "Ação",
+        "resource": "Recurso",
+        "status": "Status",
+        "ip": "IP",
+        "loading": "Carregando…",
+        "emptyTitle": "Nenhuma entrada corresponde a estes filtros.",
+        "emptyHint": "Tente limpar os filtros ou ampliar o intervalo de datas.",
+        "system": "sistema",
+        "view": "Ver"
+    },
+    "drawer": {
+        "entry": "entrada #{{id}}",
+        "overview": "Visão geral",
+        "raw": "JSON bruto",
+        "error": "Erro",
+        "actor": "Ator",
+        "resource": "Recurso",
+        "ip": "IP",
+        "userAgent": "Agente de usuário",
+        "session": "Sessão",
+        "metadata": "Metadados",
+        "copy": "Copiar",
+        "copied": "Copiado",
+        "copyJson": "Copiar JSON"
+    }
+}

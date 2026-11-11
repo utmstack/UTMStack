@@ -1,0 +1,50 @@
+{
+    "title": "Brand",
+    "subtitle": "Personalizza UTMStack con l’identità della tua organizzazione — applicata ovunque: schermata di accesso, barra laterale, email e report.",
+    "enterpriseRequired": "Il white-label è una funzione Enterprise.",
+    "manageLicense": "Gestisci licenza",
+    "enable": {
+        "title": "White-label",
+        "description": "Sostituisci il marchio UTMStack con il tuo su tutta la piattaforma.",
+        "label": "Attiva il white-label"
+    },
+    "identity": {
+        "title": "Identità",
+        "productName": "Nome del prodotto",
+        "productNameHint": "Mostrato nella barra del titolo, nella barra laterale e nelle email.",
+        "accent": "Colore d’accento",
+        "accentHint": "Colore primario per pulsanti, link e stati attivi.",
+        "custom": "Colore personalizzato"
+    },
+    "logos": {
+        "title": "Loghi",
+        "hint": "PNG, SVG, WEBP, JPG o ICO. Fino a 5 MB.",
+        "logo": "Logo (chiaro)",
+        "logoDark": "Logo (scuro)",
+        "favicon": "Favicon"
+    },
+    "reports": {
+        "title": "Risorse report",
+        "hint": "Incorporate nei report PDF generati.",
+        "reportLogo": "Logo report",
+        "reportCover": "Copertina report"
+    },
+    "asset": {
+        "upload": "Carica",
+        "replace": "Sostituisci"
+    },
+    "save": "Salva modifiche",
+    "saving": "Salvataggio…",
+    "saved": "Brand aggiornato",
+    "saveError": "Impossibile salvare il brand",
+    "uploaded": "Immagine caricata",
+    "uploadError": "Impossibile caricare l’immagine",
+    "loadError": "Impossibile caricare il brand",
+    "enterprise": {
+        "title": "Il white label è una funzione Enterprise",
+        "body": "Sostituisci il nome del prodotto, il logo e la copertina dei report con i tuoi, così il pannello e tutto ciò che genera portano il tuo marchio invece di quello di UTMStack.",
+        "upgrade": "Passa a Enterprise"
+    },
+    "restore": "Ripristina i valori UTMStack",
+    "restored": "Marchio ripristinato ai valori UTMStack"
+}

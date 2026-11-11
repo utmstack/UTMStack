@@ -1,0 +1,243 @@
+{
+    "header": {
+        "matchedInEnv": "совпадения в вашей среде",
+        "export": "Экспортировать IOCs",
+        "exporting": "Экспортирование…",
+        "noInstanceIocs": "Нет индикаторов среды — показаны общие данные",
+        "noInstanceIocsHint": "В ваших оповещениях не обнаружено индикаторов — отображаются общие данные из фидов."
+    },
+    "overview": {
+        "title": "Совпадения IOC",
+        "totalIndicators": "всего индикаторов",
+        "families": {
+            "ip": "IP",
+            "url": "URL",
+            "domain": "Домен",
+            "signatures": "Сигнатуры"
+        }
+    },
+    "notConfigured": {
+        "title": "Threat Intelligence не настроен",
+        "body": "Свяжитесь с администратором для подключения экземпляра Cyber Mantra / ThreatWinds к этой среде."
+    },
+    "lookup": {
+        "title": "Поиск любого индикатора",
+        "placeholder": "Вставьте IP, доменное имя, хеш, URL или CVE — мы проверим feed и вашу среду",
+        "button": "Поиск",
+        "busy": "Поиск…"
+    },
+    "tabs": {
+        "iocs": "IOCs",
+        "actors": "Угрозы",
+        "feeds": "Feeds",
+        "analyst": "ИИ-аналитик"
+    },
+    "toolbar": {
+        "searchPlaceholders": {
+            "iocs": "Поиск по значению IOC, тегу, источнику…",
+            "actors": "Поиск по актёрам, алиасам, техникам…",
+            "feeds": "Поиск по feeds…"
+        },
+        "last24h": "Последние 24 часа",
+        "filters": "Фильтры",
+        "refresh": "Обновить"
+    },
+    "iocs": {
+        "table": {
+            "type": "Тип",
+            "indicator": "Индикатор",
+            "reputation": "Репутация",
+            "tags": "Теги",
+            "lastSeen": "Последний просмотр"
+        },
+        "empty": "Нет совпадений IOC.",
+        "loadingMore": "Загрузка…",
+        "loadedProgress": "Загружено {{loaded}} из {{total}}. Прокрутите для других.",
+        "endOfResults": "Конец результатов ({{loaded}} из {{total}})."
+    },
+    "drawer": {
+        "loading": "Загрузка…",
+        "accuracy": "Точность:",
+        "actions": {
+            "block": "Заблокировать на периметре",
+            "viewEvents": "Просмотреть совпадающие события",
+            "externalLookup": "Внешний поиск",
+            "trackCampaign": "Отслеживать кампанию",
+            "viewIocs": "Просмотреть совпадающие IOCs",
+            "mitre": "MITRE ATT&CK"
+        },
+        "sections": {
+            "timeline": "Временная шкала",
+            "networkOrigin": "Сеть / происхождение",
+            "associationsWithCount": "Ассоциации ({{count}})",
+            "geolocationsWithCount": "Геолокации ({{count}})",
+            "about": "О программе",
+            "activity": "Активность"
+        },
+        "fields": {
+            "firstSeen": "Впервые обнаружено",
+            "lastSeen": "Последний просмотр",
+            "country": "Страна",
+            "city": "Город",
+            "aso": "ASO",
+            "asn": "ASN",
+            "reputation": "Репутация",
+            "accuracy": "Точность",
+            "current": "Текущее",
+            "best": "Лучшее",
+            "worst": "Худшее"
+        },
+        "aiBrief": "Резюме ИИ",
+        "noDescription": "Описание не доступно для этого индикатора.",
+        "lastObserved": "Последний просмотр {{when}}."
+    },
+    "actors": {
+        "empty": "Угрозы не найдены."
+    },
+    "feeds": {
+        "empty": "Нет настроенных feeds.",
+        "table": {
+            "name": "Feed",
+            "type": "Тип",
+            "accuracy": "Точность",
+            "header": "Источники",
+            "format": "Формат"
+        },
+        "download": "Скачать источник",
+        "checksum": "Контрольная сумма"
+    },
+    "entityTypes": {
+        "ip": "IP",
+        "hostname": "Хост",
+        "domain": "Доменное имя",
+        "url": "URL",
+        "hash": "Hash",
+        "cve": "CVE",
+        "threat": "Угроза",
+        "entity": "Сущность"
+    },
+    "reputation": {
+        "alarming": "Тревожная",
+        "suspicious": "Подозрительная",
+        "indefinable": "Неопределённая",
+        "fair": "Приемлемая",
+        "trustworthy": "Надёжная"
+    },
+    "feedAccuracy": {
+        "level1": "Уровень 1",
+        "level2": "Уровень 2",
+        "level3": "Уровень 3"
+    },
+    "triage": {
+        "title": "Triage",
+        "subtitle": "Paste indicators, get verdicts",
+        "input": "Indicators",
+        "placeholder": "Paste IPs, domains, URLs or hashes — one per line, or comma separated.\nDefanged values (1.2.3[.]4, hxxp://) are accepted.",
+        "run": "Triage",
+        "stop": "Stop",
+        "reset": "Clear",
+        "parsed": "{{count}} unique indicators",
+        "capped": "Capped at {{max}} per run.",
+        "progress": "{{done}} of {{total}}",
+        "empty": "Paste indicators above to begin.",
+        "indicator": "Indicator",
+        "type": "Type",
+        "verdict": "Verdict",
+        "reputation": "Rep",
+        "accuracy": "Acc",
+        "tags": "Tags",
+        "lastSeen": "Last seen",
+        "exportCsv": "Export CSV",
+        "exportStix": "Export STIX",
+        "stixNote": "STIX export includes malicious and suspicious rows only.",
+        "open": "Open",
+        "notConfigured": "Threat intelligence is not configured — triage needs an upstream ThreatWinds instance.",
+        "summary": "Summary",
+        "v.malicious": "Malicious",
+        "v.suspicious": "Suspicious",
+        "v.benign": "Benign",
+        "v.unknown": "Unknown",
+        "v.notFound": "Not found",
+        "v.invalid": "Unrecognised"
+    },
+    "report": {
+        "title": "Сообщение",
+        "subtitle": "Опубликовать индикатор в графе ThreatWinds",
+        "submit": "Отправить индикатор",
+        "submitting": "Отправка…",
+        "error": {
+            "generic": "Не удалось отправить индикатор. Попробуйте ещё раз."
+        },
+        "value": {
+            "label": "Индикатор",
+            "placeholder": "IP, домен, URL, хеш или e-mail"
+        },
+        "type": {
+            "label": "Тип",
+            "placeholder": "Определяется из значения",
+            "inferred": "Определён: {{type}}",
+            "inferenceFailed": "Не удалось определить тип по этому значению. Выберите его из списка или введите.",
+            "unknown": "«{{type}}» — не тип сущности. Выберите из списка."
+        },
+        "tags": {
+            "label": "Метки",
+            "placeholder": "phishing, кража-учётных-данных"
+        },
+        "description": {
+            "label": "Заметки"
+        },
+        "reputation": {
+            "legend": "Репутация",
+            "hint": "Оставьте пустым, если вы не приняли решения.",
+            "alarming": "Опасный",
+            "worrying": "Тревожный",
+            "concerning": "Подозрительный",
+            "indefinable": "Неопределённый",
+            "adequate": "Приемлемый",
+            "good": "Хороший",
+            "exceptional": "Отличный"
+        },
+        "associations": {
+            "legend": "Связанные индикаторы",
+            "add": "Добавить связанный индикатор",
+            "remove": "Удалить",
+            "valuePlaceholder": "Связанное значение",
+            "typePlaceholder": "Тип (необязательно)",
+            "modeLabel": "Связь",
+            "mode": {
+                "association": "Связан с",
+                "aggregation": "Часть"
+            },
+            "visibilityConflict": "Не имеет общей группы видимости с индикатором выше. Всё сообщение будет отклонено."
+        },
+        "attributes": {
+            "legend": "Детали",
+            "hint": "Необязательно. Пустые поля не отправляются.",
+            "invalidHex": "Ожидается {{length}} шестнадцатеричных символов.",
+            "invalidHexAny": "Только шестнадцатеричные символы.",
+            "invalidNumber": "Ожидается число."
+        },
+        "correlate": {
+            "legend": "Скоррелировать",
+            "hint": "Каждый отмеченный атрибут публикуется как отдельная сущность, связанная с этой.",
+            "count_one": "Создаёт {{count}} связанную сущность.",
+            "count_other": "Создаёт {{count}} связанных сущностей."
+        },
+        "scan": {
+            "notice": "Также ставит сканирование цели в очередь."
+        },
+        "receipt": {
+            "title": "Отправлено",
+            "noVerdict": "Решение не принято",
+            "skipped": "Не отправлено, тип не удалось определить",
+            "pending": "Ожидание появления индикатора в корпусе…",
+            "live": "Присутствует в корпусе — посмотреть сущность",
+            "processing": "Ещё обрабатывается. Появится, когда загрузка догонит очередь.",
+            "another": "Отправить ещё"
+        },
+        "visibility": {
+            "legend": "Видимо для"
+        },
+        "example": "Попробовать пример"
+    }
+}

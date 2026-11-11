@@ -1,0 +1,25 @@
+{
+    "title": "Date et heure",
+    "subtitle": "Comment les horodatages sont affichés sur la plateforme. Les journaux sont toujours stockés en UTC.",
+    "timezone": {
+        "title": "Fuseau horaire",
+        "hint": "Les horodatages sont affichés dans ce fuseau horaire. Les données stockées restent en UTC.",
+        "system": "Par défaut du navigateur",
+        "now": "Maintenant : {{value}}"
+    },
+    "format": {
+        "title": "Format de date",
+        "hint": "Style utilisé pour les dates et heures."
+    },
+    "styles": {
+        "short": "Court",
+        "medium": "Moyen",
+        "long": "Long",
+        "full": "Complet"
+    },
+    "save": "Enregistrer les modifications",
+    "saving": "Enregistrement…",
+    "saved": "Paramètres de date enregistrés",
+    "saveError": "Impossible d’enregistrer les paramètres",
+    "loadError": "Impossible de charger les paramètres"
+}

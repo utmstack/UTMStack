@@ -1,0 +1,33 @@
+{
+    "title": "Support-Zugriff",
+    "intro": "Wer diese Instanz betreibt, kann nicht in Ihre Daten sehen, solange Sie es nicht erlauben. Hier ist nichts voreingestellt, und Sie können es jederzeit zurücknehmen.",
+    "loading": "Wird geladen…",
+    "loadFailed": "Die aktuelle Einstellung konnte nicht gelesen werden.",
+    "retry": "Erneut versuchen",
+    "currentBadge": "aktuell",
+    "save": "Speichern",
+    "saving": "Wird gespeichert…",
+    "levels": {
+        "NONE": {
+            "name": "Kein Zugriff",
+            "desc": "Der Betreiber sieht, dass Ihr Mandant existiert — mehr nicht. Zugriffe auf Ihre Daten werden abgelehnt."
+        },
+        "READ": {
+            "name": "Nur lesen",
+            "desc": "Der Betreiber kann Ihre Alarme, Logs und Konfiguration ansehen, um zu helfen. Ändern kann er nichts: jeder Schreibzugriff wird abgelehnt, unabhängig von seiner eigenen Rolle."
+        },
+        "FULL": {
+            "name": "Voller Zugriff",
+            "desc": "Der Betreiber kann in Ihrem Mandanten als Administrator handeln: Konfiguration, Benutzer und Response-Abläufe ändern."
+        }
+    },
+    "fullWarning": "Voller Zugriff erlaubt Änderungen in Ihrem Namen. Gewähren Sie ihn, solange Sie direkte Hilfe brauchen, und nehmen Sie ihn danach zurück.",
+    "revokeNote": "Alles, was der Betreiber hier tut, steht in Ihrem Audit-Log.",
+    "toast": {
+        "granted": "Support-Zugriff aktualisiert",
+        "revoked": "Support-Zugriff entzogen",
+        "forbidden": "Das kann nur ein Administrator dieses Mandanten ändern",
+        "invalid": "Ungültige Anfrage",
+        "failed": "Die Änderung konnte nicht gespeichert werden"
+    }
+}

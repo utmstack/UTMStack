@@ -1,0 +1,73 @@
+{
+    "title": "Informazioni su questa istanza",
+    "subtitle": "Versione, licenza e stato del sistema di questo deployment UTMStack.",
+    "loading": "Caricamento delle informazioni dell'istanza…",
+    "edition": {
+        "enterprise": "Enterprise",
+        "community": "Community"
+    },
+    "fields": {
+        "hostname": "Server",
+        "instanceId": "ID istanza",
+        "noInstanceMeta": "Nessun metadato dell'istanza disponibile."
+    },
+    "license": {
+        "title": "Licenza",
+        "enterpriseMssp": "Enterprise · MSSP",
+        "datasources": "Datasources",
+        "communityLimited": "Limite Community",
+        "unlimited": "Illimitato",
+        "expires": "Scade",
+        "managedNote": "Edizione, limiti dei datasources e caricamento licenza si gestiscono nella pagina Licenza.",
+        "view": "Vedi licenza",
+        "ingest": "Volume di ingest",
+        "notMetered": "Non misurato",
+        "gbPerMonth": "{{gb}} GB/mese"
+    },
+    "services": {
+        "backend": {
+            "name": "Backend API",
+            "desc": "Gateway REST, autenticazione e orchestrazione dei moduli."
+        },
+        "opensearch": {
+            "name": "OpenSearch",
+            "desc": "Archiviazione di log ed eventi.",
+            "detail": "{{nodes}} nodi · {{shards}} shard"
+        },
+        "unreachable": "Irraggiungibile"
+    },
+    "status": {
+        "up": "Integro",
+        "degraded": "Degradato",
+        "down": "Non attivo",
+        "unknown": "Sconosciuto"
+    },
+    "health": {
+        "title": "Stato del sistema",
+        "allHealthy": "Tutti i servizi integri. Aggiorna per ricontrollare.",
+        "issues_one": "{{count}} servizio richiede attenzione.",
+        "issues_other": "{{count}} servizi richiedono attenzione.",
+        "refresh": "Aggiorna"
+    },
+    "usage": {
+        "title": "Origini dati",
+        "subtitle": "Origini dati configurate in questa installazione.",
+        "ofUnlimited": "di illimitato",
+        "ofLimit": "di {{limit}}",
+        "overLimit": "Oltre il limite della licenza — i dati oltre il limite sono a rischio.",
+        "configured": "configurate"
+    },
+    "support": {
+        "title": "Supporto",
+        "docs": "Documentazione",
+        "repo": "Repository GitHub",
+        "issues": "Segnala un problema",
+        "website": "utmstack.com"
+    },
+    "legal": {
+        "title": "Note legali",
+        "license": "Licenza",
+        "security": "Divulgazione di sicurezza",
+        "copyright": "© {{year}} UTMStack. Tutti i diritti riservati."
+    }
+}

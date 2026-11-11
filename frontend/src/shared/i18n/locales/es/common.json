@@ -1,0 +1,39 @@
+{
+    "appName": "UTMStack",
+    "language": "Idioma",
+    "actions": {
+        "save": "Guardar",
+        "cancel": "Cancelar",
+        "retry": "Reintentar",
+        "refresh": "Actualizar",
+        "delete": "Eliminar",
+        "remove": "Quitar",
+        "close": "Cerrar",
+        "next": "Siguiente",
+        "back": "Atrás"
+    },
+    "confirm": {
+        "delete": "Eliminar",
+        "working": "Procesando…"
+    },
+    "dateRange": {
+        "pick": "Elegir un rango",
+        "clear": "Limpiar",
+        "done": "Listo",
+        "apply": "Aplicar"
+    },
+    "loadingMore": "Cargando más…",
+    "allLoaded": "Cargados los {{count}}",
+    "startFrom": {
+        "scratch": "Desde cero",
+        "scratchHint": "Una definición vacía que rellenas tú.",
+        "copy": "Desde una existente",
+        "copyHint": "Se copia todo salvo el identificador y el nombre.",
+        "pickTitle": "Elige cuál copiar",
+        "back": "Volver",
+        "count": "{{n}} disponibles",
+        "search": "Buscar por nombre",
+        "none": "Nada coincide con esa búsqueda"
+    },
+    "cancel": "Cancelar"
+}

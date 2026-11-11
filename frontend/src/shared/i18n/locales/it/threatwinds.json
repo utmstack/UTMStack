@@ -1,0 +1,16 @@
+{
+    "title": "Integrazione ThreatWinds",
+    "subtitle": "Condividi gli incidenti di questa istanza con il feed comunitario ThreatWinds.",
+    "feeds": "Abilita i feed",
+    "feedsHint": "Quando attivo, gli eventi vengono confrontati con i feed di intelligence di ThreatWinds.",
+    "contribute": "Contribuisci incidenti",
+    "contributeHint": "Quando attivo, gli incidenti di questa istanza vengono inviati a ThreatWinds.",
+    "loading": "Caricamento stato integrazione…",
+    "failed": "Impossibile caricare lo stato dell'integrazione ThreatWinds.",
+    "retry": "Riprova",
+    "toast": {
+        "enabled": "Contribuzione attivata",
+        "disabled": "Contribuzione disattivata",
+        "failed": "Impossibile aggiornare l'impostazione di contribuzione"
+    }
+}

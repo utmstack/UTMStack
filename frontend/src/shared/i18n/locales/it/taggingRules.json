@@ -1,0 +1,69 @@
+{
+    "title": "Regole di etichettatura",
+    "subtitle": "Etichetta automaticamente gli alert che soddisfano le condizioni.",
+    "new": "Nuova regola",
+    "refresh": "Aggiorna",
+    "empty": "Nessuna regola di etichettatura.",
+    "loadError": "Impossibile caricare le regole di etichettatura.",
+    "retry": "Riprova",
+    "deleteConfirm": "Eliminare la regola \"{{name}}\"? Gli alert futuri che soddisfano le sue condizioni non verranno più etichettati.",
+    "toolbar": {
+        "search": "Cerca per nome regola…",
+        "allTags": "Tutte le etichette"
+    },
+    "table": {
+        "rule": "Regola",
+        "tags": "Etichette",
+        "conditions": "Condizioni",
+        "modifiedBy": "Modificato da",
+        "modifiedDate": "Modificato"
+    },
+    "drawer": {
+        "createTitle": "Nuova regola di etichettatura",
+        "edit": "Modifica",
+        "delete": "Elimina",
+        "save": "Salva",
+        "create": "Crea",
+        "cancel": "Annulla"
+    },
+    "form": {
+        "basics": "Informazioni di base",
+        "name": "Nome regola",
+        "namePlaceholder": "es. Brute-force SSH interno",
+        "description": "Descrizione",
+        "descriptionPlaceholder": "Perché esiste questa regola e cosa etichetta.",
+        "tags": "Etichette da applicare",
+        "noTags": "Nessuna etichetta selezionata.",
+        "addTag": "Aggiungi etichetta",
+        "removeTag": "Rimuovi",
+        "noCatalog": "Nessuna etichetta nel catalogo.",
+        "createTag": "Crea etichetta",
+        "newTagName": "Nome nuova etichetta",
+        "conditions": "Condizioni (devono essere soddisfatte TUTTE)",
+        "noConditions": "È richiesta almeno una condizione.",
+        "addCondition": "Aggiungi condizione",
+        "removeCondition": "Rimuovi condizione",
+        "valuePlaceholder": "Valore",
+        "valueListPlaceholder": "Valori separati da virgola",
+        "incomplete": "Compila il nome della regola, la descrizione, almeno un'etichetta e completa ogni condizione."
+    },
+    "view": {
+        "description": "Descrizione",
+        "tags": "Etichette",
+        "conditions": "Condizioni",
+        "audit": "Audit",
+        "createdBy": "Creato da",
+        "createdDate": "Creato",
+        "modifiedBy": "Modificato da",
+        "modifiedDate": "Modificato"
+    },
+    "toast": {
+        "created": "Regola \"{{name}}\" creata.",
+        "updated": "Regola \"{{name}}\" aggiornata.",
+        "deleted": "Regola \"{{name}}\" eliminata.",
+        "createError": "Impossibile creare la regola.",
+        "updateError": "Impossibile aggiornare la regola.",
+        "deleteError": "Impossibile eliminare la regola."
+    },
+    "deleteTitle": "Elimina regola di tagging"
+}

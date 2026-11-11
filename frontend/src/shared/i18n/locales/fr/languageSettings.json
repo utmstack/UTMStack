@@ -1,0 +1,11 @@
+{
+    "title": "Langue de la plateforme",
+    "subtitle": "Langue d'interface par défaut pour les écrans de pré-connexion, les e-mails système et les nouveaux utilisateurs. Chaque utilisateur peut choisir la sienne dans son profil.",
+    "label": "Langue par défaut",
+    "hint": "Utilisée lorsqu'un utilisateur n'a pas choisi sa propre langue.",
+    "save": "Enregistrer",
+    "saving": "Enregistrement…",
+    "saved": "Langue de la plateforme mise à jour",
+    "loadError": "Impossible de charger le paramètre de langue",
+    "saveError": "Impossible d'enregistrer le paramètre de langue"
+}

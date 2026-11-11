@@ -1,0 +1,20 @@
+{
+    "title": "Настройки",
+    "license": "Лицензия",
+    "notifications": "Уведомления",
+    "connectionKey": "Ключ подключения",
+    "dataRetention": "Хранение данных",
+    "indices": "Индексы",
+    "theme": "Тема",
+    "apiKeys": "API-ключи",
+    "identityProviders": "Поставщики удостоверений",
+    "email": "Настройка эл. почты",
+    "dateFormat": "Формат даты",
+    "auditLogs": "Журнал аудита",
+    "about": "О системе",
+    "branding": "Брендинг",
+    "language": "Язык",
+    "socAi": "SOC-AI",
+    "supportAccess": "Доступ поддержки",
+    "threatwinds": "Интеграция ThreatWinds"
+}

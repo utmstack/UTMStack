@@ -1,0 +1,65 @@
+{
+    "title": "Audit-Protokoll",
+    "subtitle": "Aufzeichnung jeder sicherheitsrelevanten Aktion.",
+    "totalEntries": "{{total}} Einträge insgesamt.",
+    "loadError": "Audit-Protokoll konnte nicht geladen werden",
+    "stats": {
+        "totalEntries": "Einträge gesamt",
+        "acrossAllTime": "Über die gesamte Zeit",
+        "successRate": "Erfolgsrate",
+        "failuresOnPage_one": "{{count}} Fehler auf dieser Seite",
+        "failuresOnPage_other": "{{count}} Fehler auf dieser Seite",
+        "topAction": "Häufigste Aktion",
+        "onPage": "{{count}} auf dieser Seite",
+        "uniqueActors": "Eindeutige Akteure",
+        "includingSystem": "Einschließlich System"
+    },
+    "filters": {
+        "title": "Filter",
+        "clear": "Löschen",
+        "last24h": "Letzte 24h",
+        "failuresOnly": "Nur Fehler",
+        "authEvents": "Authentifizierungsereignisse",
+        "actionPrefix": "Aktionspräfix",
+        "actionPlaceholder": "z. B. auth., user.update",
+        "status": "Status",
+        "any": "Beliebig",
+        "resourceType": "Ressourcentyp",
+        "resourceTypePlaceholder": "user, alert…",
+        "resourceId": "Ressourcen-ID",
+        "user": "Benutzer",
+        "userPlaceholder": "login…"
+    },
+    "statusValue": {
+        "success": "Erfolg",
+        "failure": "Fehler"
+    },
+    "table": {
+        "timestamp": "Zeitstempel",
+        "actor": "Akteur",
+        "action": "Aktion",
+        "resource": "Ressource",
+        "status": "Status",
+        "ip": "IP",
+        "loading": "Wird geladen…",
+        "emptyTitle": "Keine Einträge entsprechen diesen Filtern.",
+        "emptyHint": "Versuchen Sie, die Filter zu löschen oder den Datumsbereich zu erweitern.",
+        "system": "System",
+        "view": "Anzeigen"
+    },
+    "drawer": {
+        "entry": "Eintrag #{{id}}",
+        "overview": "Übersicht",
+        "raw": "Roh-JSON",
+        "error": "Fehler",
+        "actor": "Akteur",
+        "resource": "Ressource",
+        "ip": "IP",
+        "userAgent": "User-Agent",
+        "session": "Sitzung",
+        "metadata": "Metadaten",
+        "copy": "Kopieren",
+        "copied": "Kopiert",
+        "copyJson": "JSON kopieren"
+    }
+}

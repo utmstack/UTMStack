@@ -1,0 +1,144 @@
+{
+    "title": "Incidents",
+    "subtitle": "Group, triage and resolve related alerts as incidents.",
+    "refresh": "Refresh",
+    "count_one": "{{count}} incident",
+    "count_other": "{{count}} incidents",
+    "openNow": "open now",
+    "empty": "No incidents match.",
+    "loadError": "Could not load incidents.",
+    "retry": "Retry",
+    "unassigned": "Unassigned",
+    "unknownUser": "Unknown",
+    "status": {
+        "open": "Open",
+        "in_review": "In review",
+        "completed": "Completed",
+        "merged": "Merged"
+    },
+    "sev": {
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low",
+        "unknown": "Unrated"
+    },
+    "toolbar": {
+        "search": "Search incidents…",
+        "create": "Create incident",
+        "allSeverities": "All severities",
+        "export": "Export CSV"
+    },
+    "statusTabs": {
+        "all": "All"
+    },
+    "filters": {
+        "add": "Add filter",
+        "clearAll": "Clear all",
+        "filterValues": "Filter values…",
+        "loadingValues": "Loading values…",
+        "noValues": "No values found.",
+        "pickValue": "Pick a value to add the filter.",
+        "empty": "(empty)",
+        "cancel": "Cancel",
+        "addBtn": "Add"
+    },
+    "ops": {
+        "IS": "is"
+    },
+    "create": {
+        "title": "Create incident",
+        "stepIndicator": "Step {{current}} of {{total}}",
+        "selectedCount": "{{count}} alerts selected",
+        "submit": "Create",
+        "success": "Incident created",
+        "error": "Could not create the incident",
+        "details": {
+            "nameLabel": "Name",
+            "namePlaceholder": "Short, descriptive title",
+            "descriptionLabel": "Description",
+            "descriptionPlaceholder": "Context, scope, initial notes…"
+        }
+    },
+    "layout": {
+        "table": "Table",
+        "board": "Board"
+    },
+    "table": {
+        "name": "Incident",
+        "status": "Status",
+        "severity": "Severity",
+        "assignee": "Assignee",
+        "alerts": "Alerts",
+        "created": "Created"
+    },
+    "drawer": {
+        "created": "Created {{date}}",
+        "alertsCount": "{{count}} alerts",
+        "solutionPlaceholder": "Resolution / remediation notes…",
+        "solutionHint": "Saved when you move the incident to Completed.",
+        "tabs": {
+            "overview": "Overview",
+            "alerts": "Alerts",
+            "notes": "Notes",
+            "history": "History"
+        },
+        "section": {
+            "description": "Description",
+            "solution": "Solution",
+            "details": "Details"
+        },
+        "details": {
+            "id": "ID",
+            "status": "Status",
+            "severity": "Severity",
+            "assignee": "Assignee",
+            "created": "Created",
+            "alerts": "Linked alerts"
+        }
+    },
+    "alerts": {
+        "empty": "No alerts linked to this incident.",
+        "remove": "Unlink alert",
+        "removeConfirm": "Unlink “{{name}}” from this incident?",
+        "removed": "Alert unlinked",
+        "removeError": "Could not unlink the alert",
+        "loadingAlert": "Loading alert…",
+        "alertGone": "This alert is no longer in the store — retention may have dropped it.",
+        "alertFailed": "Could not load the alert.",
+        "openInAlerts": "Open in Alerts"
+    },
+    "notes": {
+        "empty": "No notes yet.",
+        "add": "Add note",
+        "addError": "Could not add the note",
+        "placeholder": "Write a note…"
+    },
+    "history": {
+        "empty": "No history yet."
+    },
+    "toast": {
+        "statusChanged": "Incident status updated",
+        "statusError": "Could not change the status",
+        "exportFailed": "Failed to export CSV"
+    },
+    "assign": {
+        "assign": "Assign",
+        "search": "Search users…",
+        "unassign": "Unassign",
+        "noUsers": "No users",
+        "assigned": "Assigned to {{user}}",
+        "unassigned": "Incident unassigned",
+        "error": "Could not change the assignee",
+        "custom": "Assign custom",
+        "customPlaceholder": "Type a login…"
+    },
+    "action": {
+        "INCIDENT_CREATED": "Incident created",
+        "INCIDENT_ALERT_ADD": "Alerts added",
+        "INCIDENT_ALERT_STATUS_CHANGED": "Alert status changed",
+        "INCIDENT_STATUS_CHANGE": "Status changed",
+        "INCIDENT_NOTE_ADD": "Note added",
+        "INCIDENT_NOTE_CHANGE": "Note edited",
+        "INCIDENT_ASSIGNED": "Assignee changed"
+    }
+}

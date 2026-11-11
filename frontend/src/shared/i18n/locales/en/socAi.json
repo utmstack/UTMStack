@@ -1,0 +1,148 @@
+{
+    "title": "SOC-AI Configuration",
+    "subtitle": "Configure the AI agent that triages alerts and powers the operations assistant.",
+    "section": {
+        "connection": "Model & connection",
+        "auth": "Authentication",
+        "behavior": "Alert triage behavior",
+        "advanced": "Advanced"
+    },
+    "usage": {
+        "title": "Usage",
+        "chat": "Chat completions (today)",
+        "unavailable": "Usage isn't available yet.",
+        "resetsIn": "Resets in {{time}}"
+    },
+    "provider": {
+        "label": "Provider",
+        "hint": "Selects the wire format. Anything other than Anthropic uses the OpenAI-compatible API."
+    },
+    "model": {
+        "label": "Model",
+        "hint": "Model identifier exposed by the provider.",
+        "customOption": "Custom model…",
+        "customPlaceholder": "Enter a model ID"
+    },
+    "url": {
+        "label": "API URL",
+        "hint": "Leave empty to use the provider's default endpoint."
+    },
+    "apiKey": {
+        "label": "API key",
+        "hint": "Credential sent to the provider.",
+        "setHint": "A key is stored. Leave blank to keep it."
+    },
+    "authType": {
+        "label": "Authentication type",
+        "hint": "How credentials are sent to your gateway.",
+        "options": {
+            "apiKey": "API Key",
+            "bearer": "Bearer",
+            "customHeaders": "Custom Headers",
+            "none": "None"
+        }
+    },
+    "authHeaderName": {
+        "label": "Auth header name",
+        "hint": "Header carrying the key (e.g. api-key for Azure)."
+    },
+    "authToken": {
+        "label": "Bearer token",
+        "hint": "Credential sent to the provider.",
+        "setHint": "A token is stored. Leave blank to keep it."
+    },
+    "customHeaders": {
+        "label": "Custom headers",
+        "hint": "Extra headers sent with every request. Values are encrypted; \"*****\" keeps the stored one.",
+        "keyPlaceholder": "Header name",
+        "valuePlaceholder": "Value",
+        "addRow": "Add header",
+        "remove": "Remove header"
+    },
+    "maxTokens": {
+        "label": "Max tokens",
+        "hint": "Maximum tokens per LLM response."
+    },
+    "maxToolIterations": {
+        "label": "Max tool iterations",
+        "hint": "Cap on the agent's plan -> tool -> observe loop."
+    },
+    "autoAnalyze": {
+        "label": "Auto-analyze alerts",
+        "hint": "Triage incoming alerts in real time."
+    },
+    "allowIncidents": {
+        "label": "Allow managing incidents",
+        "hint": "The triage agent may create or update incidents when it decides an alert warrants one."
+    },
+    "changeAlertStatus": {
+        "label": "Change alert status",
+        "hint": "Let the agent set an alert's status during triage."
+    },
+    "automaticIncidentCreation": {
+        "label": "Create incidents",
+        "hint": "Let the agent open incidents from triaged alerts."
+    },
+    "allowedWriteTools": {
+        "label": "Allowed write tools",
+        "hint": "One MCP tool name per line the triage agent may use (e.g. alerts.update_status). Notes are always allowed."
+    },
+    "save": "Save configuration",
+    "saving": "Verifying & saving...",
+    "saved": "SOC-AI configuration saved",
+    "saveError": "Failed to save configuration",
+    "loadError": "Failed to load configuration",
+    "modelRequired": "Model is required",
+    "applyTags": {
+        "label": "Apply tags",
+        "hint": "Let the agent tag alerts during triage."
+    },
+    "note": {
+        "azure": "Paste your full Azure deployment endpoint as the URL; the model is your deployment name. Auth uses the api-key header.",
+        "ollama": "Point the URL at your Ollama host. No API key is needed for a local instance.",
+        "custom": "Any OpenAI-compatible endpoint. Set the URL, auth and any extra headers your gateway needs.",
+        "threatwinds": "Uses your UTMStack license automatically — no API key needed. Billed through your ThreatWinds subscription."
+    },
+    "chat": {
+        "title": "SOC Assistant",
+        "dashboardCreateTitle": "Dashboard builder",
+        "empty": "Ask anything about your alerts, detections or the console — I can investigate and act on the SIEM.",
+        "tryPrefix": "Try",
+        "suggestion": "how many open alerts, grouped by adversary?",
+        "placeholder": "Ask a question…",
+        "ask": "Ask",
+        "send": "Send",
+        "collapse": "Collapse",
+        "expand": "Expand",
+        "clear": "Clear conversation",
+        "close": "Close",
+        "copy": "Copy",
+        "copied": "Copied",
+        "errorGeneric": "Something went wrong.",
+        "errorUnreachable": "Failed to reach the assistant.",
+        "compacting": "Compacting context…",
+        "dashboardEditTitle": "Dashboard editor",
+        "editingDashboard": "Editing: {{name}}",
+        "soarEditTitle": "SOAR flow editor",
+        "soarCreateTitle": "Create SOAR flow",
+        "editingFlow": "Editing flow: {{name}}"
+    },
+    "focus": {
+        "alert": "Alert",
+        "incident": "Incident",
+        "remove": "Stop sharing with the assistant"
+    },
+    "inheritance": {
+        "inherited": "Following the instance default. Saving here gives this tenant its own configuration.",
+        "own": "This tenant has its own configuration.",
+        "revert": "Follow the instance default",
+        "reverting": "Reverting…",
+        "reverted": "Now following the instance default"
+    },
+    "allowance": {
+        "title": "AI allowance today",
+        "ofLimit": "of {{limit}} requests",
+        "denied": "requests — the AI is not available to this tenant",
+        "hint": "Set by whoever runs the instance. It resets at midnight UTC."
+    }
+}

@@ -1,0 +1,69 @@
+{
+    "title": "Tagging-Regeln",
+    "subtitle": "Alarme, die Bedingungen erfüllen, automatisch taggen.",
+    "new": "Neue Regel",
+    "refresh": "Aktualisieren",
+    "empty": "Noch keine Tagging-Regeln.",
+    "loadError": "Tagging-Regeln konnten nicht geladen werden.",
+    "retry": "Erneut versuchen",
+    "deleteConfirm": "Regel „{{name}}“ löschen? Künftige Alarme, die ihre Bedingungen erfüllen, werden nicht mehr getaggt.",
+    "toolbar": {
+        "search": "Nach Regelname suchen…",
+        "allTags": "Alle Tags"
+    },
+    "table": {
+        "rule": "Regel",
+        "tags": "Tags",
+        "conditions": "Bedingungen",
+        "modifiedBy": "Geändert von",
+        "modifiedDate": "Geändert"
+    },
+    "drawer": {
+        "createTitle": "Neue Tagging-Regel",
+        "edit": "Bearbeiten",
+        "delete": "Löschen",
+        "save": "Speichern",
+        "create": "Erstellen",
+        "cancel": "Abbrechen"
+    },
+    "form": {
+        "basics": "Grundlagen",
+        "name": "Regelname",
+        "namePlaceholder": "z. B. Interner SSH-Brute-Force",
+        "description": "Beschreibung",
+        "descriptionPlaceholder": "Warum diese Regel existiert und was sie taggt.",
+        "tags": "Anzuwendende Tags",
+        "noTags": "Keine Tags ausgewählt.",
+        "addTag": "Tag hinzufügen",
+        "removeTag": "Entfernen",
+        "noCatalog": "Noch keine Tags im Katalog.",
+        "createTag": "Tag erstellen",
+        "newTagName": "Name des neuen Tags",
+        "conditions": "Bedingungen (ALLE müssen zutreffen)",
+        "noConditions": "Mindestens eine Bedingung ist erforderlich.",
+        "addCondition": "Bedingung hinzufügen",
+        "removeCondition": "Bedingung entfernen",
+        "valuePlaceholder": "Wert",
+        "valueListPlaceholder": "Kommagetrennte Werte",
+        "incomplete": "Füllen Sie Regelname, Beschreibung, mindestens ein Tag aus und vervollständigen Sie jede Bedingung."
+    },
+    "view": {
+        "description": "Beschreibung",
+        "tags": "Tags",
+        "conditions": "Bedingungen",
+        "audit": "Audit",
+        "createdBy": "Erstellt von",
+        "createdDate": "Erstellt",
+        "modifiedBy": "Geändert von",
+        "modifiedDate": "Geändert"
+    },
+    "toast": {
+        "created": "Regel „{{name}}“ erstellt.",
+        "updated": "Regel „{{name}}“ aktualisiert.",
+        "deleted": "Regel „{{name}}“ gelöscht.",
+        "createError": "Regel konnte nicht erstellt werden.",
+        "updateError": "Regel konnte nicht aktualisiert werden.",
+        "deleteError": "Regel konnte nicht gelöscht werden."
+    },
+    "deleteTitle": "Tagging-Regel löschen"
+}

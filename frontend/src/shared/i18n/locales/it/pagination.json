@@ -1,0 +1,6 @@
+{
+    "perPage": "Per pagina",
+    "pageOf": "Pagina {{page}} di {{total}}",
+    "previous": "Precedente",
+    "next": "Successiva"
+}

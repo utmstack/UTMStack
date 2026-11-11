@@ -1,0 +1,148 @@
+{
+    "title": "Configuração do SOC-AI",
+    "subtitle": "Configure o agente de IA que faz triagem de alertas e alimenta o assistente de operações.",
+    "section": {
+        "connection": "Modelo e conexão",
+        "auth": "Autenticação",
+        "behavior": "Comportamento da triagem",
+        "advanced": "Avançado"
+    },
+    "usage": {
+        "title": "Uso",
+        "chat": "Conclusões de chat (hoje)",
+        "unavailable": "O uso ainda não está disponível.",
+        "resetsIn": "Reinicia em {{time}}"
+    },
+    "provider": {
+        "label": "Provedor",
+        "hint": "Define o formato. Qualquer um além do Anthropic usa a API compatível com OpenAI."
+    },
+    "model": {
+        "label": "Modelo",
+        "hint": "Identificador do modelo do provedor.",
+        "customOption": "Modelo personalizado…",
+        "customPlaceholder": "Digite um ID de modelo"
+    },
+    "url": {
+        "label": "URL da API",
+        "hint": "Deixe vazio para usar o endpoint padrão do provedor."
+    },
+    "apiKey": {
+        "label": "Chave de API",
+        "hint": "Credencial enviada ao provedor.",
+        "setHint": "Há uma chave salva. Deixe em branco para mantê-la."
+    },
+    "authType": {
+        "label": "Tipo de autenticação",
+        "hint": "Como as credenciais são enviadas ao seu gateway.",
+        "options": {
+            "apiKey": "API Key",
+            "bearer": "Bearer",
+            "customHeaders": "Cabeçalhos personalizados",
+            "none": "Nenhuma"
+        }
+    },
+    "authHeaderName": {
+        "label": "Nome do cabeçalho de auth",
+        "hint": "Cabeçalho que carrega a chave (ex.: api-key para Azure)."
+    },
+    "authToken": {
+        "label": "Token Bearer",
+        "hint": "Credencial enviada ao provedor.",
+        "setHint": "Um token está salvo. Deixe em branco para mantê-lo."
+    },
+    "customHeaders": {
+        "label": "Cabeçalhos personalizados",
+        "hint": "Cabeçalhos extras enviados em cada requisição. Os valores são criptografados; \"*****\" mantém o salvo.",
+        "keyPlaceholder": "Nome do cabeçalho",
+        "valuePlaceholder": "Valor",
+        "addRow": "Adicionar cabeçalho",
+        "remove": "Remover cabeçalho"
+    },
+    "maxTokens": {
+        "label": "Máx. tokens",
+        "hint": "Tokens máximos por resposta do LLM."
+    },
+    "maxToolIterations": {
+        "label": "Máx. iterações de tools",
+        "hint": "Limite do loop planejar → tool → observar do agente."
+    },
+    "autoAnalyze": {
+        "label": "Analisar alertas automaticamente",
+        "hint": "Faz triagem dos alertas recebidos em tempo real."
+    },
+    "allowIncidents": {
+        "label": "Permitir gerenciar incidentes",
+        "hint": "O agente de triagem pode criar ou atualizar incidentes quando decide que um alerta o justifica."
+    },
+    "changeAlertStatus": {
+        "label": "Alterar status do alerta",
+        "hint": "Permite ao agente definir o status de um alerta na triagem."
+    },
+    "automaticIncidentCreation": {
+        "label": "Criar incidentes",
+        "hint": "Permite ao agente abrir incidentes a partir de alertas triados."
+    },
+    "allowedWriteTools": {
+        "label": "Tools de escrita permitidas",
+        "hint": "Um nome de tool MCP por linha que o agente pode usar (ex.: alerts.update_status). Notas são sempre permitidas."
+    },
+    "save": "Salvar configuração",
+    "saving": "Verificando e salvando…",
+    "saved": "Configuração do SOC-AI salva",
+    "saveError": "Falha ao salvar a configuração",
+    "loadError": "Falha ao carregar a configuração",
+    "modelRequired": "O modelo é obrigatório",
+    "applyTags": {
+        "label": "Aplicar tags",
+        "hint": "Permite ao agente marcar alertas com tags durante a triagem."
+    },
+    "note": {
+        "azure": "Cole o endpoint completo do seu deployment do Azure como URL; o modelo é o nome do deployment. A auth usa o cabeçalho api-key.",
+        "ollama": "Aponte a URL para o seu host do Ollama. Não é necessária API key para uma instância local.",
+        "custom": "Qualquer endpoint compatível com OpenAI. Defina a URL, a auth e os cabeçalhos extras que seu gateway precisar.",
+        "threatwinds": "Usa sua licença UTMStack automaticamente — não precisa de API key. Cobrado através da sua assinatura ThreatWinds."
+    },
+    "chat": {
+        "title": "Assistente SOC",
+        "dashboardCreateTitle": "Criador de painéis",
+        "empty": "Pergunte o que quiser sobre seus alertas, detecções ou o console — posso investigar e agir no SIEM.",
+        "tryPrefix": "Tente",
+        "suggestion": "quantos alertas abertos há, agrupados por adversário?",
+        "placeholder": "Digite uma pergunta…",
+        "ask": "Perguntar",
+        "send": "Enviar",
+        "collapse": "Recolher",
+        "expand": "Expandir",
+        "clear": "Limpar conversa",
+        "close": "Fechar",
+        "copy": "Copiar",
+        "copied": "Copiado",
+        "errorGeneric": "Algo deu errado.",
+        "errorUnreachable": "Não foi possível contatar o assistente.",
+        "compacting": "Compactando contexto…",
+        "dashboardEditTitle": "Editor de painéis",
+        "editingDashboard": "Editando: {{name}}",
+        "soarEditTitle": "Editor de fluxos SOAR",
+        "soarCreateTitle": "Criar fluxo SOAR",
+        "editingFlow": "Editando fluxo: {{name}}"
+    },
+    "focus": {
+        "alert": "Alerta",
+        "incident": "Incidente",
+        "remove": "Parar de compartilhar com o assistente"
+    },
+    "inheritance": {
+        "inherited": "Seguindo o padrão da instância. Salvar aqui dá a este tenant a própria configuração.",
+        "own": "Este tenant tem a própria configuração.",
+        "revert": "Voltar ao padrão da instância",
+        "reverting": "Revertendo…",
+        "reverted": "Agora segue o padrão da instância"
+    },
+    "allowance": {
+        "title": "Consumo de IA hoje",
+        "ofLimit": "de {{limit}} requisições",
+        "denied": "requisições — a IA não está disponível para este tenant",
+        "hint": "Definido por quem opera a instância. Reinicia à meia-noite UTC."
+    }
+}

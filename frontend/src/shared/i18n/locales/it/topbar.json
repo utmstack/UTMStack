@@ -1,0 +1,12 @@
+{
+    "theme": {
+        "light": "Modalità chiara",
+        "dark": "Modalità scura"
+    },
+    "manageLicense": "Gestisci licenza",
+    "profile": {
+        "profile": "Profilo",
+        "license": "Licenza",
+        "logout": "Esci"
+    }
+}

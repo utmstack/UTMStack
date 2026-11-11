@@ -1,0 +1,367 @@
+{
+    "title": "Панели",
+    "subtitle": "Просмотр и редактирование интерактивных панелей.",
+    "list": {
+        "title": "Панели",
+        "create": "Создать",
+        "searchPlaceholder": "Поиск панелей…",
+        "loading": "Загрузка панелей…",
+        "empty": "Панелей пока нет.",
+        "rename": "Переименовать",
+        "delete": "Удалить"
+    },
+    "actions": {
+        "edit": "Редактировать",
+        "editWithAi": "Изменить с помощью ИИ"
+    },
+    "refresh": {
+        "title": "Автообновление",
+        "options": {
+            "off": "Выкл",
+            "10s": "10 с",
+            "30s": "30 с",
+            "1m": "1 мин",
+            "5m": "5 мин",
+            "15m": "15 мин"
+        }
+    },
+    "editor": {
+        "editing": "Редактирование",
+        "addWidget": "Добавить виджет",
+        "save": "Сохранить",
+        "discard": "Отменить",
+        "newTitle": "Новый виджет",
+        "newSubtitle": "Выберите тип диаграммы и источник данных, настройте её визуально. SQL-запрос будет создан автоматически.",
+        "editTitle": "Редактирование виджета",
+        "editSubtitle": "Настройте определение диаграммы. Изменения будут применены везде, где используется этот виджет.",
+        "loading": "Загрузка виджета…",
+        "notFoundTitle": "Виджет не найден",
+        "notFoundSubtitle": "Возможно, она была удалена или у вас нет к ней доступа.",
+        "backToDashboard": "Вернуться к панели",
+        "chartType": {
+            "title": "Тип диаграммы"
+        },
+        "chartTypes": {
+            "bar": {
+                "label": "Столбцы",
+                "description": "Сравнение значений по категориям."
+            },
+            "line": {
+                "label": "Линия",
+                "description": "Тренды по упорядоченной оси."
+            },
+            "area": {
+                "label": "Область",
+                "description": "Заполненная линия — подчёркивает объём."
+            },
+            "pie": {
+                "label": "Круговая",
+                "description": "Доля от целого по категориям."
+            },
+            "metric": {
+                "label": "Метрика",
+                "description": "Одиночное скалярное значение."
+            },
+            "table": {
+                "label": "Таблица",
+                "description": "Агрегированные строки."
+            },
+            "list": {
+                "label": "Список",
+                "description": "Исходные строки без агрегации."
+            },
+            "region_map": {
+                "label": "Карта координат",
+                "description": "Размещение меток на карте мира по координатам широты и долготы."
+            },
+            "text": {
+                "label": "Текст",
+                "description": "Свободный текст или построчный вывод."
+            }
+        },
+        "dataSource": {
+            "title": "Какие данные?",
+            "dataset": "Набор данных",
+            "noDatasetHint": "Выберите набор данных, чтобы включить условия и группировку."
+        },
+        "widgetTitle": {
+            "label": "Заголовок",
+            "placeholder": "Необязательно — по умолчанию тип диаграммы"
+        },
+        "dataset": {
+            "placeholder": "Выберите набор данных…",
+            "loading": "Загрузка наборов данных…"
+        },
+        "filters": {
+            "title": "Включать только события, где…",
+            "empty": "Без условий — включаются все события за выбранный период.",
+            "add": "Добавить условие",
+            "remove": "Удалить",
+            "field": "Поле",
+            "fieldPlaceholder": "напр. host.name",
+            "operator": "Оператор",
+            "value": "Значение",
+            "valuePlaceholder": "Значение",
+            "from": "От",
+            "to": "До",
+            "noValue": "Значение не требуется",
+            "listPlaceholder": "Значения через запятую"
+        },
+        "operators": {
+            "IS": "равно",
+            "IS_NOT": "не равно",
+            "IS_ONE_OF_TERMS": "одно из",
+            "IS_GREATER_THAN": "больше чем",
+            "IS_LESS_THAN_OR_EQUALS": "меньше или равно",
+            "IS_BETWEEN": "в диапазоне",
+            "CONTAIN": "содержит",
+            "DOES_NOT_CONTAIN": "не содержит",
+            "START_WITH": "начинается с",
+            "ENDS_WITH": "заканчивается на",
+            "EXIST": "существует",
+            "DOES_NOT_EXIST": "не существует"
+        },
+        "dimension": {
+            "title": "Группировать по",
+            "field": "Поле",
+            "placeholder": "Выберите поле для группировки…"
+        },
+        "table": {
+            "hint": "Показывает все поля записей. Добавьте столбцы, чтобы выбрать нужные.",
+            "columnsTitle": "Столбцы",
+            "allColumns": "Будут показаны все столбцы. Добавьте поля, чтобы выбрать конкретные.",
+            "addColumn": "Добавить столбец…",
+            "removeColumn": "Удалить столбец"
+        },
+        "chartPreview": {
+            "title": "Предпросмотр диаграммы",
+            "noQuery": "Выберите набор данных, чтобы увидеть предпросмотр.",
+            "error": "Запрос предпросмотра завершился ошибкой."
+        },
+        "chartTypeChip": {
+            "label": "Диаграмма:"
+        },
+        "chartTypeModal": {
+            "title": "Выберите тип диаграммы",
+            "subtitle": "Выберите способ визуализации данных. Это можно изменить позже.",
+            "confirm": "Продолжить",
+            "swapTitle": "Изменить тип диаграммы",
+            "swapConfirm": "Применить"
+        },
+        "saveVisualization": "Сохранить виджет",
+        "fieldSelect": {
+            "loading": "Загрузка полей…",
+            "choose": "Выберите поле…"
+        },
+        "toast": {
+            "notReady": "Перед сохранением выберите набор данных и поле для разбивки."
+        },
+        "breakdown": {
+            "title": "Разбивка по",
+            "time": "По времени",
+            "field": "Частые значения",
+            "interval": "Размер интервала",
+            "intervalAuto": "Автоматически",
+            "limit": "Сколько",
+            "limitPlaceholder": "По умолчанию (50)",
+            "splitHint": "Необязательно: по одной линии на каждое значение поля.",
+            "topValuesTable": "Tabla de valores principales"
+        },
+        "editFilters": "Edit filters"
+    },
+    "grid": {
+        "empty": "В этой панели пока нет виджетов.",
+        "missingVisualization": "Виджет недоступен",
+        "unknownVisualization": "Виджет"
+    },
+    "widget": {
+        "renderError": "Не удалось отобразить этот виджет.",
+        "loading": "Загрузка данных…",
+        "queryError": "Не удалось загрузить данные виджета.",
+        "noData": "Нет данных за выбранный диапазон времени.",
+        "regionMapEmpty": "Нет точек с корректными широтой/долготой.",
+        "regionMapShapeHint": "SQL должен возвращать столбцы широты и долготы (или массив value [lat, lon, count]).",
+        "regionMapUnnamed": "(без названия)",
+        "regionMapValue": "значение: {{value}}",
+        "editAriaLabel": "Редактировать виджет",
+        "removeAriaLabel": "Удалить виджет",
+        "moveBack": "Переместить назад",
+        "moveForward": "Переместить вперёд",
+        "width": "Ширина",
+        "height": "Высота",
+        "widthSmall": "1 стлб",
+        "widthMedium": "2 стлб",
+        "widthLarge": "3 стлб",
+        "heightNormal": "Обычная",
+        "heightTall": "Высокая",
+        "incompleteSpec": "В этом виджете не хватает части вопроса.",
+        "count": "Conteo"
+    },
+    "form": {
+        "createTitle": "Новая панель",
+        "renameTitle": "Редактировать панель",
+        "name": "Название",
+        "namePlaceholder": "напр. Обзор сети",
+        "description": "Описание",
+        "descriptionPlaceholder": "Необязательно",
+        "cancel": "Отмена",
+        "create": "Создать",
+        "save": "Сохранить"
+    },
+    "confirm": {
+        "deleteTitle": "Удалить панель",
+        "delete": "Удалить панель «{{name}}»? Это действие нельзя отменить.",
+        "deleteWidgetsTitle": "Удалить виджеты",
+        "deleteWidgets_one": "Удалить этот виджет? Это действие нельзя отменить.",
+        "deleteWidgets_other": "Удалить виджетов: {{count}}? Это действие нельзя отменить.",
+        "dismissTitle": "Убрать панель",
+        "dismiss": "Удалить панель по умолчанию «{{name}}»? Позже вы сможете создать новую на её основе через «Создать» → «На основе существующего»."
+    },
+    "page": {
+        "noSelection": "Выберите панель из списка или создайте новую, чтобы начать.",
+        "loading": "Загрузка виджетов…"
+    },
+    "toast": {
+        "created": "Панель создана.",
+        "createFailed": "Не удалось создать панель.",
+        "updated": "Панель обновлена.",
+        "updateFailed": "Не удалось обновить панель.",
+        "deleted": "Панель удалена.",
+        "deleteFailed": "Не удалось удалить панель.",
+        "layoutSaved": "Макет сохранён.",
+        "layoutSaveFailed": "Не удалось сохранить макет.",
+        "visualizationCreated": "Виджет создан.",
+        "visualizationCreateFailed": "Не удалось создать виджет.",
+        "visualizationUpdated": "Виджет обновлён.",
+        "visualizationUpdateFailed": "Не удалось обновить виджет.",
+        "visualizationDeleted": "Виджет удалён.",
+        "visualizationDeleteFailed": "Не удалось удалить виджет.",
+        "filterCreated": "Фильтр создан.",
+        "filterUpdated": "Фильтр обновлён.",
+        "filterDeleted": "Фильтр удалён.",
+        "filterCreateFailed": "Не удалось создать фильтр.",
+        "filterUpdateFailed": "Не удалось обновить фильтр.",
+        "filterDeleteFailed": "Не удалось удалить фильтр.",
+        "filtersSaved": "Filters saved.",
+        "filtersSaveFailed": "Could not save filters."
+    },
+    "newDashboard": {
+        "title": "Новая панель",
+        "subtitle": "Создайте пустую панель. Виджеты можно добавить после сохранения.",
+        "modeManual": "Создать вручную",
+        "modeAi": "С помощью ИИ",
+        "aiLocked": "Включите SOC-AI и настройте его, чтобы использовать эту функцию.",
+        "aiDescriptionLabel": "Что должна показывать эта панель?",
+        "aiDescriptionPlaceholder": "например, Неудачные входы по странам, последние 7 дней",
+        "aiCreate": "Создать с помощью ИИ",
+        "aiOpenerWithDetails": "Создай панель с названием «{{name}}», показывающую: {{description}}"
+    },
+    "newVisualization": {
+        "title": "Новый виджет",
+        "subtitle": "Определите переиспользуемую диаграмму из SQL-запроса и конфигурации ECharts.",
+        "sqlQuery": "SQL-запрос",
+        "sqlQueryPlaceholder": "SELECT bucket, count(*) FROM logs GROUP BY bucket",
+        "sqlQueryHint": "Используйте плейсхолдеры timeFilter, from и to (в двойных фигурных скобках), чтобы выбор времени применялся при рендеринге.",
+        "config": "Конфигурация диаграммы (опция ECharts, JSON)",
+        "configHint": "Должен быть корректный JSON. Строки SQL доступны как `dataset.source` — свяжите серии через `encode`.",
+        "configError": "Некорректный JSON: {{error}}"
+    },
+    "visualizationList": {
+        "title": "Виджеты",
+        "subtitle": "Доступно виджетов: {{count}}.",
+        "subtitleFiltered": "Показано {{shown}} из {{total}}.",
+        "create": "Создать",
+        "searchPlaceholder": "Поиск виджетов…",
+        "loading": "Загрузка виджетов…",
+        "empty": "Виджетов пока нет.",
+        "emptyFiltered": "Нет виджетов, соответствующих текущим фильтрам.",
+        "delete": "Удалить",
+        "deleteTitle": "Удалить виджет",
+        "confirmDelete": "Удалить виджет «{{name}}»? Это действие нельзя отменить.",
+        "filters": {
+            "search": "Поиск",
+            "chartType": "Тип диаграммы",
+            "allChartTypes": "Все типы диаграмм",
+            "source": "Источник",
+            "allSources": "Все источники",
+            "createdAt": "Создана",
+            "modifiedAt": "Изменена",
+            "createdRangeTitle": "Произвольный диапазон — Создание",
+            "modifiedRangeTitle": "Произвольный диапазон — Изменение",
+            "pickRange": "Выбрать диапазон",
+            "datePresets": {
+                "all": "Всё время",
+                "today": "Сегодня",
+                "last7": "За 7 дней",
+                "last30": "За 30 дней",
+                "lastYear": "За год",
+                "custom": "Произвольный"
+            },
+            "clear": "Сбросить фильтры"
+        },
+        "col": {
+            "name": "Название",
+            "chartType": "Тип диаграммы",
+            "source": "Источник",
+            "description": "Описание",
+            "created": "Создана",
+            "modified": "Изменена"
+        }
+    },
+    "tabs": {
+        "dashboards": "Дашборды",
+        "visualizations": "Виджеты",
+        "newDashboard": "Новый дашборд",
+        "unsetDefault": "Убрать по умолчанию",
+        "options": "Параметры"
+    },
+    "picker": {
+        "none": "Выбрать дашборд",
+        "search": "Поиск дашбордов…",
+        "new": "Новый дашборд",
+        "setDefault": "Сделать по умолчанию",
+        "empty": "Нет дашбордов"
+    },
+    "empty": {
+        "title": "Дашбордов пока нет",
+        "body": "Создайте первый дашборд, чтобы видеть данные безопасности с одного взгляда.",
+        "cta": "Создать дашборд"
+    },
+    "filters": {
+        "addTitle": "Добавить фильтр",
+        "editTitle": "Изменить фильтр",
+        "removeTitle": "Удалить фильтр",
+        "removeConfirm": "Удалить фильтр «{{label}}»? Это действие нельзя отменить.",
+        "remove": "Удалить",
+        "editAria": "Изменить фильтр",
+        "removeAria": "Удалить фильтр",
+        "saving": "Сохранение…",
+        "addChip": "Добавить фильтр",
+        "chooseValue": "Choose…",
+        "selected": "selected",
+        "loading": "Loading values…",
+        "searchPlaceholder": "Search values…",
+        "noValues": "No values available.",
+        "loadError": "Could not load values.",
+        "clear": "Clear",
+        "editorTitle": "Dashboard filters",
+        "editorHint": "Add dropdown chips that filter every widget on this dashboard.",
+        "emptyEditor": "No filter chips yet. Add one to get started.",
+        "cancel": "Cancel",
+        "save": "Save",
+        "field": {
+            "dataset": "Data set",
+            "field": "Field",
+            "chooseField": "Choose a field…",
+            "label": "Label",
+            "labelPlaceholder": "e.g. Host",
+            "placeholder": "Placeholder",
+            "placeholderPlaceholder": "e.g. Pick a host",
+            "multiple": "Multiple",
+            "searchable": "Searchable"
+        }
+    },
+    "duplicate": {
+        "copyName": "{{name}} (копия)"
+    }
+}

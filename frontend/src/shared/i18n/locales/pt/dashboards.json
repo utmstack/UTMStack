@@ -1,0 +1,367 @@
+{
+    "title": "Painéis",
+    "subtitle": "Navegue e edite painéis interativos.",
+    "list": {
+        "title": "Painéis",
+        "create": "Novo",
+        "searchPlaceholder": "Pesquisar painéis…",
+        "loading": "Carregando painéis…",
+        "empty": "Ainda não há painéis.",
+        "rename": "Renomear",
+        "delete": "Excluir"
+    },
+    "actions": {
+        "edit": "Editar",
+        "editWithAi": "Editar com IA"
+    },
+    "refresh": {
+        "title": "Atualização automática",
+        "options": {
+            "off": "Desativado",
+            "10s": "10s",
+            "30s": "30s",
+            "1m": "1m",
+            "5m": "5m",
+            "15m": "15m"
+        }
+    },
+    "editor": {
+        "editing": "Edição",
+        "addWidget": "Adicionar widget",
+        "save": "Salvar",
+        "discard": "Descartar",
+        "newTitle": "Novo widget",
+        "newSubtitle": "Escolha um tipo de gráfico, selecione uma fonte de dados e modele-o visualmente. O SQL é gerado automaticamente.",
+        "editTitle": "Editar widget",
+        "editSubtitle": "Ajuste a definição do gráfico. As alterações são aplicadas em todos os lugares em que este widget é usado.",
+        "loading": "Carregando widget…",
+        "notFoundTitle": "Widget não encontrado",
+        "notFoundSubtitle": "Pode ter sido excluída ou você não tem acesso a ela.",
+        "backToDashboard": "Voltar para o painel",
+        "chartType": {
+            "title": "Tipo de gráfico"
+        },
+        "chartTypes": {
+            "bar": {
+                "label": "Barras",
+                "description": "Compare valores entre categorias."
+            },
+            "line": {
+                "label": "Linha",
+                "description": "Tendências sobre um eixo ordenado."
+            },
+            "area": {
+                "label": "Área",
+                "description": "Linha preenchida — destaca o volume."
+            },
+            "pie": {
+                "label": "Pizza",
+                "description": "Proporção do total por categoria."
+            },
+            "metric": {
+                "label": "Métrica",
+                "description": "Um único valor escalar."
+            },
+            "table": {
+                "label": "Tabela",
+                "description": "Linhas agregadas."
+            },
+            "list": {
+                "label": "Lista",
+                "description": "Linhas brutas, sem agregação."
+            },
+            "region_map": {
+                "label": "Mapa de coordenadas",
+                "description": "Posicione marcadores em um mapa-múndi usando coordenadas lat/lon."
+            },
+            "text": {
+                "label": "Texto",
+                "description": "Texto livre ou saída simples por linha."
+            }
+        },
+        "dataSource": {
+            "title": "Quais dados?",
+            "dataset": "Conjunto de dados",
+            "noDatasetHint": "Escolha um conjunto de dados para habilitar condições e agrupamento."
+        },
+        "widgetTitle": {
+            "label": "Título",
+            "placeholder": "Opcional — padrão é o tipo de gráfico"
+        },
+        "dataset": {
+            "placeholder": "Selecione um conjunto de dados…",
+            "loading": "Carregando conjuntos de dados…"
+        },
+        "filters": {
+            "title": "Incluir apenas eventos onde…",
+            "empty": "Sem condições — todos os eventos do intervalo de tempo são incluídos.",
+            "add": "Adicionar condição",
+            "remove": "Remover",
+            "field": "Campo",
+            "fieldPlaceholder": "ex.: host.name",
+            "operator": "Operador",
+            "value": "Valor",
+            "valuePlaceholder": "Valor",
+            "from": "De",
+            "to": "Até",
+            "noValue": "Nenhum valor necessário",
+            "listPlaceholder": "Valores separados por vírgula"
+        },
+        "operators": {
+            "IS": "é",
+            "IS_NOT": "não é",
+            "IS_ONE_OF_TERMS": "é um de",
+            "IS_GREATER_THAN": "é maior que",
+            "IS_LESS_THAN_OR_EQUALS": "é menor ou igual a",
+            "IS_BETWEEN": "está entre",
+            "CONTAIN": "contém",
+            "DOES_NOT_CONTAIN": "não contém",
+            "START_WITH": "começa com",
+            "ENDS_WITH": "termina com",
+            "EXIST": "existe",
+            "DOES_NOT_EXIST": "não existe"
+        },
+        "dimension": {
+            "title": "Agrupar por",
+            "field": "Campo",
+            "placeholder": "Escolha um campo para agrupar…"
+        },
+        "table": {
+            "hint": "Mostra todos os campos dos registros. Adicione colunas para escolher alguns.",
+            "columnsTitle": "Colunas",
+            "allColumns": "Todas as colunas serão exibidas. Adicione campos para escolher colunas específicas.",
+            "addColumn": "Adicionar uma coluna…",
+            "removeColumn": "Remover coluna"
+        },
+        "chartPreview": {
+            "title": "Pré-visualização do gráfico",
+            "noQuery": "Escolha um conjunto de dados para ver a pré-visualização.",
+            "error": "A consulta de pré-visualização falhou."
+        },
+        "chartTypeChip": {
+            "label": "Gráfico:"
+        },
+        "chartTypeModal": {
+            "title": "Escolha um tipo de gráfico",
+            "subtitle": "Escolha como visualizar os dados. Você pode alterar isso depois.",
+            "confirm": "Continuar",
+            "swapTitle": "Alterar tipo de gráfico",
+            "swapConfirm": "Aplicar"
+        },
+        "saveVisualization": "Salvar widget",
+        "fieldSelect": {
+            "loading": "Carregando campos…",
+            "choose": "Escolha um campo…"
+        },
+        "toast": {
+            "notReady": "Escolha um conjunto de dados e um campo para detalhar antes de salvar."
+        },
+        "breakdown": {
+            "title": "Detalhar por",
+            "topValuesTable": "Tabela de valores principais",
+            "time": "Ao longo do tempo",
+            "field": "Valores mais frequentes",
+            "interval": "Tamanho do intervalo",
+            "intervalAuto": "Automático",
+            "limit": "Quantos",
+            "limitPlaceholder": "Padrão (50)",
+            "splitHint": "Opcional: uma linha por valor deste campo."
+        },
+        "editFilters": "Edit filters"
+    },
+    "grid": {
+        "empty": "Este painel ainda não tem widgets.",
+        "missingVisualization": "Widget indisponível",
+        "unknownVisualization": "Widget"
+    },
+    "widget": {
+        "renderError": "Não foi possível renderizar este widget.",
+        "count": "Contagem",
+        "loading": "Carregando dados…",
+        "queryError": "Não foi possível carregar os dados do widget.",
+        "noData": "Sem dados para o intervalo de tempo selecionado.",
+        "regionMapEmpty": "Nenhum ponto com lat/lon válidos.",
+        "regionMapShapeHint": "O SQL deve retornar colunas de latitude e longitude (ou um array value [lat, lon, count]).",
+        "regionMapUnnamed": "(sem nome)",
+        "regionMapValue": "valor: {{value}}",
+        "editAriaLabel": "Editar widget",
+        "removeAriaLabel": "Remover widget",
+        "moveBack": "Mover para trás",
+        "moveForward": "Mover para frente",
+        "width": "Largura",
+        "height": "Altura",
+        "widthSmall": "1 col",
+        "widthMedium": "2 cols",
+        "widthLarge": "3 cols",
+        "heightNormal": "Normal",
+        "heightTall": "Alto",
+        "incompleteSpec": "Falta parte da pergunta deste widget."
+    },
+    "form": {
+        "createTitle": "Novo painel",
+        "renameTitle": "Editar painel",
+        "name": "Nome",
+        "namePlaceholder": "ex.: Visão geral da rede",
+        "description": "Descrição",
+        "descriptionPlaceholder": "Opcional",
+        "cancel": "Cancelar",
+        "create": "Criar",
+        "save": "Salvar"
+    },
+    "confirm": {
+        "deleteTitle": "Excluir painel",
+        "delete": "Excluir o painel \"{{name}}\"? Esta ação não pode ser desfeita.",
+        "deleteWidgetsTitle": "Excluir widgets",
+        "deleteWidgets_one": "Excluir este widget? Esta ação não pode ser desfeita.",
+        "deleteWidgets_other": "Excluir {{count}} widgets? Esta ação não pode ser desfeita.",
+        "dismissTitle": "Remover painel",
+        "dismiss": "Remover o painel padrão \"{{name}}\"? Você poderá criar um novo a partir dele depois com \"Novo\" → \"De uma existente\"."
+    },
+    "page": {
+        "noSelection": "Escolha um painel na lista ou crie um para começar.",
+        "loading": "Carregando widgets…"
+    },
+    "toast": {
+        "created": "Painel criado.",
+        "createFailed": "Não foi possível criar o painel.",
+        "updated": "Painel atualizado.",
+        "updateFailed": "Não foi possível atualizar o painel.",
+        "deleted": "Painel excluído.",
+        "deleteFailed": "Não foi possível excluir o painel.",
+        "layoutSaved": "Layout salvo.",
+        "layoutSaveFailed": "Não foi possível salvar o layout.",
+        "visualizationCreated": "Widget criado.",
+        "visualizationCreateFailed": "Não foi possível criar o widget.",
+        "visualizationUpdated": "Widget atualizado.",
+        "visualizationUpdateFailed": "Não foi possível atualizar o widget.",
+        "visualizationDeleted": "Widget excluído.",
+        "visualizationDeleteFailed": "Não foi possível excluir o widget.",
+        "filterCreated": "Filtro criado.",
+        "filterUpdated": "Filtro atualizado.",
+        "filterDeleted": "Filtro excluído.",
+        "filterCreateFailed": "Não foi possível criar o filtro.",
+        "filterUpdateFailed": "Não foi possível atualizar o filtro.",
+        "filterDeleteFailed": "Não foi possível excluir o filtro.",
+        "filtersSaved": "Filters saved.",
+        "filtersSaveFailed": "Could not save filters."
+    },
+    "newDashboard": {
+        "title": "Novo painel",
+        "subtitle": "Crie um painel em branco. Você pode adicionar widgets depois de salvá-lo.",
+        "modeManual": "Criar manualmente",
+        "modeAi": "Usando IA",
+        "aiLocked": "Ative o SOC-AI e configure-o para usar isso.",
+        "aiDescriptionLabel": "O que este painel deve mostrar?",
+        "aiDescriptionPlaceholder": "ex. Logins com falha por país, últimos 7 dias",
+        "aiCreate": "Criar com IA",
+        "aiOpenerWithDetails": "Crie um painel chamado \"{{name}}\" mostrando: {{description}}"
+    },
+    "newVisualization": {
+        "title": "Novo widget",
+        "subtitle": "Defina um gráfico reutilizável a partir de uma consulta SQL e de uma configuração de ECharts.",
+        "sqlQuery": "Consulta SQL",
+        "sqlQueryPlaceholder": "SELECT bucket, count(*) FROM logs GROUP BY bucket",
+        "sqlQueryHint": "Use os marcadores timeFilter, from e to (entre chaves duplas) para que o seletor de tempo seja aplicado na renderização.",
+        "config": "Configuração do gráfico (opção do ECharts, JSON)",
+        "configHint": "Deve ser um JSON válido. As linhas do SQL ficam expostas como `dataset.source` — conecte suas séries com `encode`.",
+        "configError": "JSON inválido: {{error}}"
+    },
+    "visualizationList": {
+        "title": "Widgets",
+        "subtitle": "{{count}} widget(s) disponível(eis).",
+        "subtitleFiltered": "Exibindo {{shown}} de {{total}}.",
+        "create": "Nova",
+        "searchPlaceholder": "Pesquisar widgets…",
+        "loading": "Carregando widgets…",
+        "empty": "Ainda não há widgets.",
+        "emptyFiltered": "Nenhum widget corresponde aos filtros atuais.",
+        "delete": "Excluir",
+        "deleteTitle": "Excluir widget",
+        "confirmDelete": "Excluir o widget \"{{name}}\"? Esta ação não pode ser desfeita.",
+        "filters": {
+            "search": "Pesquisar",
+            "chartType": "Tipo de gráfico",
+            "allChartTypes": "Todos os tipos de gráfico",
+            "source": "Fonte",
+            "allSources": "Todas as fontes",
+            "createdAt": "Criada",
+            "modifiedAt": "Modificada",
+            "createdRangeTitle": "Intervalo personalizado — Criação",
+            "modifiedRangeTitle": "Intervalo personalizado — Modificação",
+            "pickRange": "Escolher um intervalo",
+            "datePresets": {
+                "all": "Todo o período",
+                "today": "Hoje",
+                "last7": "Últimos 7 dias",
+                "last30": "Últimos 30 dias",
+                "lastYear": "Último ano",
+                "custom": "Intervalo personalizado"
+            },
+            "clear": "Limpar filtros"
+        },
+        "col": {
+            "name": "Nome",
+            "chartType": "Tipo de gráfico",
+            "source": "Fonte",
+            "description": "Descrição",
+            "created": "Criada",
+            "modified": "Modificada"
+        }
+    },
+    "tabs": {
+        "dashboards": "Painéis",
+        "visualizations": "Widgets",
+        "newDashboard": "Novo painel",
+        "unsetDefault": "Remover padrão",
+        "options": "Opções"
+    },
+    "picker": {
+        "none": "Selecionar painel",
+        "search": "Buscar painéis…",
+        "new": "Novo painel",
+        "setDefault": "Definir como padrão",
+        "empty": "Sem painéis"
+    },
+    "empty": {
+        "title": "Ainda não há painéis",
+        "body": "Crie seu primeiro painel para ver seus dados de segurança rapidamente.",
+        "cta": "Criar painel"
+    },
+    "filters": {
+        "addTitle": "Adicionar filtro",
+        "editTitle": "Editar filtro",
+        "removeTitle": "Remover filtro",
+        "removeConfirm": "Remover o filtro \"{{label}}\"? Esta ação não pode ser desfeita.",
+        "remove": "Remover",
+        "editAria": "Editar filtro",
+        "removeAria": "Remover filtro",
+        "saving": "Salvando…",
+        "addChip": "Adicionar filtro",
+        "chooseValue": "Choose…",
+        "selected": "selected",
+        "loading": "Loading values…",
+        "searchPlaceholder": "Search values…",
+        "noValues": "No values available.",
+        "loadError": "Could not load values.",
+        "clear": "Clear",
+        "editorTitle": "Dashboard filters",
+        "editorHint": "Add dropdown chips that filter every widget on this dashboard.",
+        "emptyEditor": "No filter chips yet. Add one to get started.",
+        "cancel": "Cancel",
+        "save": "Save",
+        "field": {
+            "dataset": "Data set",
+            "field": "Field",
+            "chooseField": "Choose a field…",
+            "label": "Label",
+            "labelPlaceholder": "e.g. Host",
+            "placeholder": "Placeholder",
+            "placeholderPlaceholder": "e.g. Pick a host",
+            "multiple": "Multiple",
+            "searchable": "Searchable"
+        }
+    },
+    "duplicate": {
+        "copyName": "{{name}} (cópia)"
+    }
+}
