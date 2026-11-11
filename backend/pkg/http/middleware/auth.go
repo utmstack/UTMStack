@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/pkg/authz"
+	"github.com/utmstack/utmstack/backend/pkg/jwt"
 	jwtpkg "github.com/utmstack/utmstack/backend/pkg/jwt"
 	"github.com/utmstack/utmstack/backend/pkg/tenancy"
 )
@@ -201,6 +202,12 @@ func Authenticate(signer *jwtpkg.Signer, apiKeyAuth APIKeyAuthFunc, internalKey 
 				AbortUnauthorized(c, "invalid token subject")
 				return
 			}
+
+			if claims.Purpose ==jwt.PurposePasswordProof {
+				AbortUnauthorized(c, "invalid token")
+				return
+			}
+
 			if !setActor(c, Actor{
 				UserID:      userID,
 				Email:       claims.Email,
