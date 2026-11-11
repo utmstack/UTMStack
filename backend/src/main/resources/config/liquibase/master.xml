@@ -621,6 +621,7 @@
   <include file="/config/liquibase/changelog/20261030002_map_bucket_origin_ip.xml" relativeToChangelogFile="false"/>
   <include file="/config/liquibase/changelog/20261030003_utm_viz_keyword.xml" relativeToChangelogFile="false"/>
   <include file="/config/liquibase/changelog/20261109001_utm_viz_bare_keyword.xml" relativeToChangelogFile="false"/>
+  <include file="/config/liquibase/changelog/20261111001_fix_dashboard_viz_sequence.xml" relativeToChangelogFile="false"/>
 
 </databaseChangeLog>
 

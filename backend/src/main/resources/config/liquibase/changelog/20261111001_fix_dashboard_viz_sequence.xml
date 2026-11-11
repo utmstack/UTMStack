@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <!--
+      Fixes #3056: crash loop on upgrade for instances whose user-created
+      dashboard-visualization rows occupy the low-id range that system
+      changesets insert (e.g. 20261012002_add_gap_dashboards uses 1584-1600).
+
+      utm_dashboard_visualization_id_seq shares its range (from 1) with system
+      rows, unlike utm_dashboard_id_seq / utm_visualization_id_seq, which are
+      reserved to >= 1000000 for user data. This changeset:
+
+        1. Renumbers every user-dashboard row (id_dashboard >= 1000000) that
+           still sits in the low range (< 1000000) to fresh ids in the
+           reserved >= 1000000 range. Each row gets max(1000000, global_max+1)
+           + (row_number - 1) in original-id order, so the new ids are
+           distinct, ordered, all >= 1000000, and never collide with existing
+           rows.
+        2. Advances the sequence past every existing id, so future user inserts
+           cannot collide with the renumbered rows either.
+
+      No table references utm_dashboard_visualization.id (the FKs to
+      id_visualization / id_dashboard were dropped in 20250127001), so
+      reassigning the primary key is safe. Idempotent: a second run finds no
+      user rows left in the low range.
+    -->
+    <changeSet id="20261111001_fix_dashboard_viz_sequence" author="osmontero">
+        <preConditions onFail="MARK_RAN">
+            <sqlcheck expectedResult="utm_dashboard_visualization_id_seq"/>
+        </preConditions>
+        <comment>Reserve utm_dashboard_visualization ids >= 1000000 for user rows; renumber existing user rows off the system range (#3056).</comment>
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+                -- The CTEs (base, targets) are fully evaluated BEFORE the
+                -- data-modifying UPDATE, freezing max(id) and the row set.
+                -- Each user row in the low range is renumbered to a fresh id
+                -- in the reserved >= 1000000 range, in original-id order, so
+                -- the new ids are distinct, above every existing id (no
+                -- collision), and all >= 1000000 in one pass. Re-running the
+                -- changeset finds no user rows left in the low range and is a
+                -- no-op.
+                WITH base AS (
+                    SELECT GREATEST(1000000, COALESCE((SELECT max(id) FROM utm_dashboard_visualization), 999999) + 1) AS b
+                ),
+                targets AS (
+                    SELECT id AS old_id,
+                           ROW_NUMBER() OVER (ORDER BY id) AS i
+                      FROM utm_dashboard_visualization
+                     WHERE id_dashboard >= 1000000 AND id < 1000000
+                )
+                UPDATE utm_dashboard_visualization AS dv
+                   SET id = base.b + targets.i - 1
+                  FROM targets, base
+                 WHERE dv.id = targets.old_id;
+
+                SELECT setval('utm_dashboard_visualization_id_seq',
+                               GREATEST(1000000, COALESCE((SELECT max(id) FROM utm_dashboard_visualization), 999999)), false);
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>
