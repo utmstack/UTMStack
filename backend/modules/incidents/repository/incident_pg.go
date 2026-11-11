@@ -80,6 +80,44 @@ func (r *pgIncidentRepository) Create(ctx context.Context, incident *domain.Inci
 	})
 }
 
+func (r *pgIncidentRepository) CreateOrInsert(ctx context.Context, incident *domain.Incident, alerts []domain.IncidentAlert) (bool,error){
+	tenant := tenantFromCtx(ctx)
+	if incident.TenantID == uuid.Nil {
+		incident.TenantID = tenant
+	}
+
+	var created bool = false
+	err:= r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("incident_name = ?", incident.Name).First(incident).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				if err := tx.Create(incident).Error; err != nil {
+					if isNameTaken(err) {
+						return domain.ErrNameTaken
+					}
+					return err
+				}
+				created=true
+				return insertAlerts(tx, incident, alerts, tenant)
+			}
+			return  err
+		}
+
+		incident.Status = domain.StatusOpen
+		if err:=tx.Save(incident).Error;err!=nil{
+			return err
+		}
+		return insertAlerts(tx, incident, alerts, tenant)
+
+	})
+
+	if err!=nil{
+		return false,err
+	}
+
+
+	return created, nil
+}
+
 func isNameTaken(err error) bool {
 	var pgErr *pgconn.PgError
 	return errors.As(err, &pgErr) && pgErr.Code == pgCodeUniqueViolation && pgErr.ConstraintName == incidentNameConstraint

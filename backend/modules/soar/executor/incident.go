@@ -18,10 +18,8 @@ import (
 // incident executor consumes. Keeps this package free of the broader incidents
 // import and lets tests swap in a fake.
 type IncidentOpener interface {
-	Create(ctx context.Context, userEmail string, req incidentsdto.CreateIncidentRequest) (*incidentsdomain.Incident, error)
-	AddAlerts(ctx context.Context, userEmail string, req incidentsdto.AddAlertsRequest) (*incidentsdomain.Incident, error)
-	ChangeStatus(ctx context.Context, userEmail string, req incidentsdto.ChangeStatusRequest) (*incidentsdomain.Incident, error)
-	List(ctx context.Context, query incidentsdto.IncidentListQuery) ([]incidentsdomain.Incident, int64, error)
+
+	CreateOrAdd(ctx context.Context,req incidentsdto.CreateIncidentRequest) (*incidentsdomain.Incident, error)
 }
 
 // Incident opens an incident and links the alert that fired the flow. Params
@@ -82,32 +80,8 @@ func (i *Incident) Execute(ctx context.Context, exec *soardomain.SoarExecution) 
 		req.IncidentDescription = &desc
 	}
 
-	// check if incident already exists
-	query := incidentsdto.IncidentListQuery{Page:1,Size:1,IncidentName:&req.IncidentName}
-	list,total, err := i.client.List(ctx,query)
-	if total > 0 {
-		existing_incident := list[0]
 
-		add_req:= incidentsdto.AddAlertsRequest{
-			IncidentID:existing_incident.ID,
-			AlertList: req.AlertList,
-		}
-
-		if _,err:=i.client.AddAlerts(ctx,"soar flow",add_req); err!=nil{
-			return nil, fmt.Errorf("soar incident: create: %w", err)
-		}
-
-		changes_req := incidentsdto.ChangeStatusRequest{
-			IncidentID:existing_incident.ID,
-			IncidentStatus:string(incidentsdomain.StatusOpen),
-		}
-		if _,err:=i.client.ChangeStatus(ctx,"soar flow",changes_req); err!=nil{
-			return nil, fmt.Errorf("soar incident: create: %w", err)
-		}
-		return nil, nil
-	}
-
-	inc, err := i.client.Create(ctx, "", req)
+	inc, err := i.client.CreateOrAdd(ctx, req)
 	if err != nil {
 		return nil, fmt.Errorf("soar incident: create: %w", err)
 	}

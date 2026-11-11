@@ -11,6 +11,7 @@ import (
 
 type IncidentUsecase interface {
 	Create(ctx context.Context, userEmail string, req dto.CreateIncidentRequest) (*domain.Incident, error)
+	CreateOrAdd(ctx context.Context,req dto.CreateIncidentRequest) (*domain.Incident, error)
 	AddAlerts(ctx context.Context, userEmail string, req dto.AddAlertsRequest) (*domain.Incident, error)
 	ChangeStatus(ctx context.Context, userEmail string, req dto.ChangeStatusRequest) (*domain.Incident, error)
 	Assign(ctx context.Context, userEmail string, req dto.AssignRequest) (*domain.Incident, error)
