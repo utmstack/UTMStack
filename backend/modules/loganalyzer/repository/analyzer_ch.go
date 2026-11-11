@@ -277,7 +277,7 @@ func (r *chAnalyzerRepository) Search(ctx context.Context, req dto.SearchRequest
 	}
 	if req.Dataset == "alerts" {
 		if page == 0 {
-			docs, total, err = r.includeRootsWithRecentEchoes(ctx, scope, docs, total, size-len(docs), sortBy, order)
+			docs, total, err = r.includeRootsWithRecentEchoes(ctx, scope, f, docs, total, size-len(docs), sortBy, order)
 			if err != nil {
 				return nil, err
 			}
@@ -302,7 +302,7 @@ func (r *chAnalyzerRepository) Search(ctx context.Context, req dto.SearchRequest
 // store.Filter's doc comment) can't express as one query. Page 0 is what an
 // analyst actually looks at after narrowing the time range, which is the
 // scenario the finding describes; deeper pages keep the old behavior.
-func (r *chAnalyzerRepository) includeRootsWithRecentEchoes(ctx context.Context, scope store.Scope, docs []json.RawMessage, total int64, room int, sortBy string, order store.SortOrder) ([]json.RawMessage, int64, error) {
+func (r *chAnalyzerRepository) includeRootsWithRecentEchoes(ctx context.Context, scope store.Scope, f []store.Filter, docs []json.RawMessage, total int64, room int, sortBy string, order store.SortOrder) ([]json.RawMessage, int64, error) {
 	if room <= 0 || (scope.From.IsZero() && scope.To.IsZero()) {
 		// No time window requested: every root's own timestamp already
 		// passes it, so a child-only match couldn't add anything.
@@ -340,8 +340,8 @@ func (r *chAnalyzerRepository) includeRootsWithRecentEchoes(ctx context.Context,
 
 	unbounded := scope
 	unbounded.From, unbounded.To = time.Time{}, time.Time{}
-	extra, _, err := r.store.FetchPage(ctx, unbounded,
-		[]store.Filter{{Field: "id", Op: store.OpIn, Value: missing}},
+	rootFilters := append([]store.Filter{{Field: "id", Op: store.OpIn, Value: missing}}, f...)
+	extra, _, err := r.store.FetchPage(ctx, unbounded, rootFilters,
 		store.Page{Limit: len(missing), SortBy: sortBy, Order: order})
 	if err != nil {
 		return nil, 0, err
