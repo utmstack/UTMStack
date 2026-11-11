@@ -1,0 +1,97 @@
+{
+    "title": "Adversary view",
+    "subtitle": "Every IP, host or user seen attacking your environment, with their techniques and targets.",
+    "countChip": "{{count}} adversaries",
+    "refresh": "Refresh",
+    "search": "Search by IP, host, user, country, ASO…",
+    "empty": "No adversaries match.",
+    "loadError": "Could not load adversaries.",
+    "retry": "Retry",
+    "views": {
+        "all": "All",
+        "high": "High severity",
+        "ip": "IPs",
+        "host": "Hosts",
+        "user": "Users"
+    },
+    "threat": {
+        "critical": "Critical",
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low"
+    },
+    "kind": {
+        "ip": "IP",
+        "host": "Host",
+        "user": "User"
+    },
+    "layout": {
+        "list": "List",
+        "cards": "Cards"
+    },
+    "overview": {
+        "title": "Adversary activity · last 24 hours",
+        "high": "high severity",
+        "countries": "countries",
+        "alerts": "alerts",
+        "ago24": "24h ago",
+        "ago12": "12h ago",
+        "now": "now"
+    },
+    "col": {
+        "adversary": "Adversary",
+        "threat": "Threat",
+        "alerts": "Alerts",
+        "targets": "Targets",
+        "lastSeen": "Last seen",
+        "victims": "Victims"
+    },
+    "card": {
+        "alerts": "Alerts",
+        "techniques": "Techniques",
+        "targets": "Targets"
+    },
+    "tabs": {
+        "profile": "Profile",
+        "techniques": "Techniques",
+        "targets": "Targets",
+        "alerts": "Alerts"
+    },
+    "drawer": {
+        "activity": "Activity over 24 hours",
+        "identification": "Identification",
+        "kindLabel": "Type",
+        "identifier": "Identifier",
+        "firstSeen": "First seen",
+        "lastSeen": "Last seen",
+        "geolocation": "Geolocation",
+        "country": "Country",
+        "city": "City",
+        "topTechniques": "Top techniques",
+        "noTechniques": "No techniques recorded.",
+        "targets": "Targets",
+        "noTargets": "No targets recorded.",
+        "recentAlerts": "Recent alerts",
+        "noAlerts": "No alerts.",
+        "echoes": "{{count}} echoes"
+    },
+    "relative": {
+        "justNow": "just now",
+        "minutesAgo": "{{count}}m ago",
+        "hoursAgo": "{{count}}h ago",
+        "daysAgo": "{{count}}d ago"
+    },
+    "field": {
+        "ip": "IP",
+        "host": "Host",
+        "user": "User",
+        "port": "Port",
+        "domain": "Domain",
+        "mac": "MAC",
+        "country": "Country",
+        "city": "City",
+        "asn": "ASN",
+        "aso": "ASO",
+        "no_target": "No target"
+    }
+}

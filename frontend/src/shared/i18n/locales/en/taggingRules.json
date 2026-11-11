@@ -1,0 +1,69 @@
+{
+    "title": "Tagging Rules",
+    "subtitle": "Automatically tag alerts that match conditions.",
+    "new": "New rule",
+    "refresh": "Refresh",
+    "empty": "No tagging rules yet.",
+    "loadError": "Could not load tagging rules.",
+    "retry": "Retry",
+    "deleteConfirm": "Delete the rule \"{{name}}\"? Future alerts matching its conditions will stop being tagged.",
+    "toolbar": {
+        "search": "Search by rule name…",
+        "allTags": "All tags"
+    },
+    "table": {
+        "rule": "Rule",
+        "tags": "Tags",
+        "conditions": "Conditions",
+        "modifiedBy": "Modified by",
+        "modifiedDate": "Modified"
+    },
+    "drawer": {
+        "createTitle": "New tagging rule",
+        "edit": "Edit",
+        "delete": "Delete",
+        "save": "Save",
+        "create": "Create",
+        "cancel": "Cancel"
+    },
+    "form": {
+        "basics": "Basics",
+        "name": "Rule name",
+        "namePlaceholder": "e.g. Internal SSH brute-force",
+        "description": "Description",
+        "descriptionPlaceholder": "Why this rule exists and what it tags.",
+        "tags": "Tags to apply",
+        "noTags": "No tags selected.",
+        "addTag": "Add tag",
+        "removeTag": "Remove",
+        "noCatalog": "No tags in the catalog yet.",
+        "createTag": "Create tag",
+        "newTagName": "New tag name",
+        "conditions": "Conditions (ALL must match)",
+        "noConditions": "At least one condition is required.",
+        "addCondition": "Add condition",
+        "removeCondition": "Remove condition",
+        "valuePlaceholder": "Value",
+        "valueListPlaceholder": "Comma-separated values",
+        "incomplete": "Fill in the rule name, description, at least one tag and complete every condition."
+    },
+    "view": {
+        "description": "Description",
+        "tags": "Tags",
+        "conditions": "Conditions",
+        "audit": "Audit",
+        "createdBy": "Created by",
+        "createdDate": "Created",
+        "modifiedBy": "Modified by",
+        "modifiedDate": "Modified"
+    },
+    "toast": {
+        "created": "Rule \"{{name}}\" created.",
+        "updated": "Rule \"{{name}}\" updated.",
+        "deleted": "Rule \"{{name}}\" deleted.",
+        "createError": "Failed to create rule.",
+        "updateError": "Failed to update rule.",
+        "deleteError": "Failed to delete rule."
+    },
+    "deleteTitle": "Delete tagging rule"
+}

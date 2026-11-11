@@ -1,0 +1,139 @@
+{
+    "title": "User auditor",
+    "subtitle": "Active Directory accounts observed in your Windows security logs — discovered from create, logon and delete events.",
+    "export": "Export",
+    "accountsChip": "{{count}} accounts",
+    "overview": {
+        "title": "Account inventory",
+        "active": "active",
+        "disabled": "disabled",
+        "deleted": "deleted",
+        "seen24h": "{{count}} seen in the last 24 hours",
+        "byDomain": "By domain",
+        "grouped": "{{count}} grouped",
+        "unassigned": "{{count}} unassigned"
+    },
+    "views": {
+        "all": "All accounts",
+        "windows": "Windows",
+        "linux": "Linux",
+        "active": "Active",
+        "disabled": "Disabled",
+        "deleted": "Deleted",
+        "service": "Service accounts",
+        "stale": "Stale (30d+)",
+        "o365": "O365",
+        "azure": "Azure",
+        "gcp": "GCP",
+        "aws": "AWS"
+    },
+    "searchPlaceholder": "Search by account name or SID…",
+    "allTenants": "All tenants",
+    "filters": {
+        "add": "Add filter",
+        "clearAll": "Clear all",
+        "filterValues": "Filter values…",
+        "loadingValues": "Loading values…",
+        "noValues": "No values found.",
+        "pickValue": "Pick a value to add the filter.",
+        "empty": "(empty)",
+        "cancel": "Cancel",
+        "addBtn": "Add"
+    },
+    "filterFields": {
+        "status": "Lifecycle status"
+    },
+    "ops": {
+        "is": "is"
+    },
+    "refresh": "Refresh",
+    "layout": {
+        "list": "List",
+        "cards": "Cards"
+    },
+    "list": {
+        "account": "Account",
+        "identity": "Identity",
+        "sid": "SID",
+        "status": "Status",
+        "lastLogon": "Last logon",
+        "lastSeen": "Last seen",
+        "tenant": "Tenant",
+        "accountId": "Account ID",
+        "identityGroup": "Identity"
+    },
+    "status": {
+        "active": "Active",
+        "disabled": "Disabled",
+        "deleted": "Deleted"
+    },
+    "badge": {
+        "service": "service",
+        "stale": "stale"
+    },
+    "empty": "No accounts match this view.",
+    "loadError": "Could not load AD accounts.",
+    "retry": "Retry",
+    "card": {
+        "lastLogon": "Last logon"
+    },
+    "pageInfo": "{{from}}–{{to}} of {{count}}",
+    "drawer": {
+        "tenantInline": "tenant {{id}}",
+        "serviceAccount": "service account",
+        "stale": "stale 30d+",
+        "viewInLogs": "View events in Log Explorer",
+        "copySid": "Copy SID",
+        "copyUid": "Copy identity",
+        "copied": "Copied",
+        "identity": "Identity",
+        "accountName": "Account name",
+        "domain": "Domain",
+        "hostname": "Hostname",
+        "sid": "SID",
+        "uidNumber": "UID",
+        "machineId": "Machine ID",
+        "tenant": "Tenant",
+        "adStatus": "AD status",
+        "enabled": "Enabled",
+        "disabled": "Disabled",
+        "lifecycle": "Lifecycle",
+        "created": "Account created",
+        "lastLogon": "Last logon",
+        "lastSeen": "Last seen in logs",
+        "deleted": "Account deleted",
+        "noLifecycle": "No lifecycle events recorded.",
+        "aliasGroup": "Identity",
+        "alias": {
+            "add": "Add identity",
+            "search": "Search groups…",
+            "none": "No groups yet",
+            "new": "New group",
+            "unassign": "Remove from group",
+            "unassigned": "No group",
+            "newPlaceholder": "New group name (2–64 chars)",
+            "createAndAssign": "Create & assign",
+            "rename": "Rename identity",
+            "renameConfirm": "Save new name",
+            "renamed": "Identity renamed",
+            "renameFailed": "Could not rename the identity",
+            "nameTooShort": "Group name must be 2–64 characters",
+            "updated": "Identity updated",
+            "updateFailed": "Could not update the identity",
+            "delete": "Delete identity",
+            "deleteTitle": "Delete identity",
+            "deleteBody": "Delete \"{{name}}\"? Its {{count}} accounts will be unassigned. This cannot be undone.",
+            "deleted": "Identity deleted",
+            "deleteFailed": "Could not delete the identity"
+        }
+    },
+    "relative": {
+        "justNow": "just now",
+        "minutesAgo": "{{count}}m ago",
+        "hoursAgo": "{{count}}h ago",
+        "daysAgo": "{{count}}d ago"
+    },
+    "none": "—",
+    "allIdentities": "All identities",
+    "noneIdentity": "No identity"
+}

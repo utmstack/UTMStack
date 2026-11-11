@@ -1,0 +1,12 @@
+{
+    "title": "Benachrichtigungen",
+    "markAllRead": "Alle als gelesen markieren",
+    "empty": "Sie haben keine Benachrichtigungen.",
+    "viewAll": "Alle anzeigen",
+    "markRead": "Als gelesen markieren",
+    "markUnread": "Als ungelesen markieren",
+    "delete": "Löschen",
+    "subtitle": "{{total}} insgesamt · {{unread}} ungelesen",
+    "allCaughtUp": "Alles erledigt.",
+    "loadFailed": "Benachrichtigungen konnten nicht geladen werden."
+}

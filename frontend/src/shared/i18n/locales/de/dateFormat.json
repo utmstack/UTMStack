@@ -1,0 +1,25 @@
+{
+    "title": "Datum & Uhrzeit",
+    "subtitle": "Wie Zeitstempel plattformweit angezeigt werden. Protokolle werden immer in UTC gespeichert.",
+    "timezone": {
+        "title": "Zeitzone",
+        "hint": "Zeitstempel werden in dieser Zeitzone angezeigt. Gespeicherte Daten bleiben in UTC.",
+        "system": "Browser-Standard",
+        "now": "Jetzt: {{value}}"
+    },
+    "format": {
+        "title": "Datumsformat",
+        "hint": "Stil für Datum und Uhrzeit."
+    },
+    "styles": {
+        "short": "Kurz",
+        "medium": "Mittel",
+        "long": "Lang",
+        "full": "Vollständig"
+    },
+    "save": "Änderungen speichern",
+    "saving": "Wird gespeichert…",
+    "saved": "Datumseinstellungen gespeichert",
+    "saveError": "Einstellungen konnten nicht gespeichert werden",
+    "loadError": "Einstellungen konnten nicht geladen werden"
+}

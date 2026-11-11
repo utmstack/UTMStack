@@ -1,0 +1,192 @@
+{
+    "limitBanner": {
+        "title": "Datenquellen-Limit überschritten.",
+        "message": "Sie haben {{count}} Datenquellen, aber Ihre Lizenz deckt {{limit}} ab. Logs von Datenquellen über dem Limit werden verworfen.",
+        "cta": "Lizenz verwalten",
+        "dismiss": "Ausblenden"
+    },
+    "title": "Datenquellen",
+    "total": "{{count}} insgesamt",
+    "exportPdf": "Als PDF exportieren",
+    "subtitle": "Agenten, Integrationen und direkte Quellen, die Ereignisse einspeisen. Der Status wird aus dem letzten Mal abgeleitet, an dem jede Quelle gesehen wurde.",
+    "connectSource": "Quelle verbinden",
+    "loading": "Datenquellen werden geladen…",
+    "loadFailed": "Datenquellen konnten nicht geladen werden.",
+    "retry": "Erneut versuchen",
+    "none": "Keine Quellen entsprechen dieser Ansicht.",
+    "ingestion": {
+        "title": "Ingestion",
+        "received": "empfangene Ereignisse",
+        "none": "Keine Ingestion in den letzten 24 Stunden.",
+        "ago24h": "vor 24h",
+        "now": "jetzt"
+    },
+    "usage": {
+        "title": "Datenquellen",
+        "ofUnlimited": "von unbegrenzt",
+        "ofLimit": "von {{limit}}",
+        "overLimit": "Über dem lizenzierten Limit — Daten über dem Limit sind gefährdet.",
+        "configured": "konfiguriert"
+    },
+    "tabs": {
+        "all": "Alle",
+        "agent": "Agenten",
+        "puller": "Integrationen",
+        "direct": "Direkt",
+        "offline": "Offline"
+    },
+    "toolbar": {
+        "searchPlaceholder": "Nach Name suchen…",
+        "list": "Liste",
+        "cards": "Karten",
+        "refresh": "Aktualisieren"
+    },
+    "labels": {
+        "filteredBy": "Gefiltert nach Label",
+        "add": "Label hinzufügen…",
+        "addFirst": "Ein Label hinzufügen…",
+        "hint": "Geben Sie ein Label ein und drücken Sie Enter, um es hinzuzufügen. Änderungen werden automatisch gespeichert."
+    },
+    "status": {
+        "live": "Aktiv",
+        "idle": "Inaktiv",
+        "offline": "Offline"
+    },
+    "kind": {
+        "agent": "Agent",
+        "puller": "Integration",
+        "direct": "Direkt"
+    },
+    "cols": {
+        "source": "Quelle",
+        "type": "Typ",
+        "status": "Status",
+        "events24h": "Ereignisse 24h",
+        "lastSeen": "Zuletzt gesehen"
+    },
+    "time": {
+        "justNow": "gerade eben",
+        "minutesAgo": "vor {{count}}m",
+        "hoursAgo": "vor {{count}}h",
+        "daysAgo": "vor {{count}}T"
+    },
+    "drawer": {
+        "loading": "Lädt…",
+        "loadFailed": "Datenquelle konnte nicht geladen werden.",
+        "statsIdentity": "Statistik & Identität",
+        "metadata": "Metadaten",
+        "labelsSection": "Labels",
+        "dangerZone": "Gefahrenzone",
+        "rows": {
+            "events24h": "Ereignisse 24h",
+            "lastSeen": "Zuletzt gesehen",
+            "discovered": "Entdeckt",
+            "kind": "Quellart",
+            "dataType": "Datentyp",
+            "ip": "IP",
+            "id": "ID"
+        },
+        "dangerText": "Das Löschen entfernt diese Quelle aus dem Register. Historische Ereignisse bleiben im Log-Explorer durchsuchbar; sendet die Quelle weiter Daten, wird sie erneut erkannt.",
+        "delete": "Datenquelle löschen",
+        "confirmDelete": "Löschen bestätigen",
+        "cancel": "Abbrechen",
+        "viewLogs": "Logs anzeigen",
+        "trend": "Aufnahmetrend",
+        "noTrend": "In diesem Zeitfenster keine Ereignisse empfangen",
+        "logGap": "Letztes Ereignis {{since}} — mögliche Log-Lücke"
+    },
+    "toast": {
+        "labelsUpdated": "Labels aktualisiert",
+        "labelsFailed": "Labels konnten nicht aktualisiert werden",
+        "deleted": "Datenquelle gelöscht",
+        "deleteFailed": "Löschen fehlgeschlagen",
+        "exportFailed": "Bericht konnte nicht exportiert werden"
+    },
+    "sensitivity": {
+        "section": "Asset-Sensibilität",
+        "hint": "Geschäftskritikalität (CIA, 0–3) dieses Assets. Alarme, die auf seinen Host/seine IP zielen, werden damit gewichtet.",
+        "saved": "Sensibilität aktualisiert",
+        "failed": "Sensibilität konnte nicht aktualisiert werden",
+        "save": "Speichern",
+        "confidentiality": "Vertraulichkeit",
+        "integrity": "Integrität",
+        "availability": "Verfügbarkeit",
+        "levels": {
+            "0": "Keine",
+            "1": "Niedrig",
+            "2": "Mittel",
+            "3": "Hoch"
+        }
+    },
+    "console": {
+        "section": "Konsole",
+        "sectionHint": "Befehle auf diesem Host über dessen Agenten ausführen (Live-Response).",
+        "open": "Konsole öffnen",
+        "close": "Schließen",
+        "hint": "Befehl eingeben und mit Enter auf dem Agenten ausführen.",
+        "running": "Wird ausgeführt…",
+        "placeholder": "Befehl eingeben…",
+        "offline": "Dieser Agent scheint offline zu sein — er reagiert möglicherweise nicht auf Befehle.",
+        "vars": {
+            "button": "Variablen",
+            "title": "Befehlsvariablen",
+            "subtitle": "In Befehlen referenzieren als",
+            "add": "Neue Variable",
+            "name": "Name",
+            "value": "Wert",
+            "description": "Beschreibung",
+            "isSecret": "Geheim (verschlüsselt, in der Ausgabe maskiert)",
+            "secret": "geheim",
+            "secretHint": "Leer lassen, um den gespeicherten Wert beizubehalten.",
+            "save": "Speichern",
+            "cancel": "Abbrechen",
+            "edit": "Bearbeiten",
+            "delete": "Löschen",
+            "loading": "Wird geladen…",
+            "empty": "Noch keine Variablen.",
+            "saved": "Variable gespeichert",
+            "deleted": "Variable gelöscht",
+            "nameRequired": "Name ist erforderlich",
+            "loadError": "Variablen konnten nicht geladen werden",
+            "saveError": "Variable konnte nicht gespeichert werden",
+            "deleteError": "Variable konnte nicht gelöscht werden",
+            "insert": "Einfügen",
+            "valueRequired": "Ein Wert ist erforderlich"
+        },
+        "disabled": "Agent offline — Befehle sind deaktiviert",
+        "connError": "Verbindungsfehler",
+        "cmdError": "Befehlsfehler",
+        "shellSelect": "Shell-Typ",
+        "noRemoteControl": "Dieser Agent wurde mit deaktivierter Fernsteuerung installiert. Er lehnt Befehle ab; das lässt sich nur auf dem Rechner selbst ändern.",
+        "noRemoteControlShort": "Fernsteuerung für diesen Agenten deaktiviert",
+        "password": {
+            "title": "Authentifizierung",
+            "hint": "Authentifizieren, um Befehle auf diesem Agenten auszuführen.",
+            "tfaPrompt": "Code: ",
+            "confirm": "OK",
+            "cancel": "Abbrechen",
+            "authError": "Authentifizierung fehlgeschlagen",
+            "authHint": "Authentifizieren, um Befehle auf diesem Agenten auszuführen.",
+            "authOk": "Authentifiziert."
+        }
+    },
+    "health": {
+        "online": "online",
+        "offline": "offline",
+        "total": "gesamt"
+    },
+    "report": {
+        "title": "UTMStack – Bericht zu Datenquellen",
+        "generatedBy": "Erstellt von UTMStack",
+        "eventsReceived": "Empfangene Ereignisse",
+        "agents": "Agenten",
+        "integrations": "Integrationen",
+        "direct": "Direkt",
+        "volume": "Empfangenes Volumen",
+        "list": "Alle Datenquellen",
+        "rowsNote": "Zeilen",
+        "preparing": "Wird vorbereitet…",
+        "print": "Drucken / Als PDF speichern",
+        "close": "Schließen"
+    }
+}

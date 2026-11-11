@@ -1,0 +1,33 @@
+{
+    "title": "Support access",
+    "intro": "Whoever operates this instance cannot look inside your data unless you let them. Nothing here is granted by default, and you can take it back at any time.",
+    "loading": "Loading…",
+    "loadFailed": "Could not read the current setting.",
+    "retry": "Retry",
+    "currentBadge": "current",
+    "save": "Save",
+    "saving": "Saving…",
+    "levels": {
+        "NONE": {
+            "name": "No access",
+            "desc": "The operator sees that your tenant exists and nothing else. Requests into your data are refused."
+        },
+        "READ": {
+            "name": "Read only",
+            "desc": "The operator can look at your alerts, logs and configuration to help you. They cannot change anything — every write is refused, whatever their own role says."
+        },
+        "FULL": {
+            "name": "Full access",
+            "desc": "The operator can act inside your tenant as an administrator: change configuration, users and response flows."
+        }
+    },
+    "fullWarning": "Full access lets the operator change things on your behalf. Grant it while you need hands-on help, and drop back afterwards.",
+    "revokeNote": "Everything the operator does here is recorded in your audit log.",
+    "toast": {
+        "granted": "Support access updated",
+        "revoked": "Support access revoked",
+        "forbidden": "Only an administrator of this tenant can change this",
+        "invalid": "Invalid request",
+        "failed": "Could not save the change"
+    }
+}

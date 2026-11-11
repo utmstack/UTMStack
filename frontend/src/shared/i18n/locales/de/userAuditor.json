@@ -1,0 +1,134 @@
+{
+    "title": "Benutzer-Auditor",
+    "subtitle": "Active-Directory-Konten, die in deinen Windows-Sicherheitsprotokollen beobachtet wurden — erkannt aus Erstellungs-, Anmelde- und Löschereignissen.",
+    "export": "Exportieren",
+    "accountsChip": "{{count}} Konten",
+    "overview": {
+        "title": "Konteninventar",
+        "active": "aktiv",
+        "disabled": "deaktiviert",
+        "deleted": "gelöscht",
+        "seen24h": "{{count}} in den letzten 24 Stunden gesehen",
+        "byDomain": "Nach Domäne",
+        "grouped": "{{count}} gruppiert",
+        "unassigned": "{{count}} nicht zugeordnet"
+    },
+    "views": {
+        "all": "Alle Konten",
+        "windows": "Windows",
+        "linux": "Linux",
+        "active": "Aktiv",
+        "disabled": "Deaktiviert",
+        "deleted": "Gelöscht",
+        "service": "Dienstkonten",
+        "stale": "Inaktiv (30T+)",
+        "o365": "O365",
+        "azure": "Azure",
+        "gcp": "GCP",
+        "aws": "AWS"
+    },
+    "searchPlaceholder": "Nach Kontoname oder SID suchen…",
+    "allTenants": "Alle Mandanten",
+    "filters": {
+        "add": "Filter hinzufügen",
+        "clearAll": "Alle löschen",
+        "filterValues": "Werte filtern…",
+        "loadingValues": "Werte werden geladen…",
+        "noValues": "Keine Werte gefunden.",
+        "pickValue": "Wähle einen Wert, um den Filter hinzuzufügen.",
+        "empty": "(leer)",
+        "cancel": "Abbrechen",
+        "addBtn": "Hinzufügen"
+    },
+    "filterFields": {
+        "status": "Lebenszyklus-Status"
+    },
+    "ops": {
+        "is": "ist"
+    },
+    "refresh": "Aktualisieren",
+    "layout": {
+        "list": "Liste",
+        "cards": "Karten"
+    },
+    "list": {
+        "account": "Konto",
+        "identity": "Kennung",
+        "sid": "SID",
+        "status": "Status",
+        "lastLogon": "Letzte Anmeldung",
+        "lastSeen": "Zuletzt gesehen",
+        "tenant": "Mandant",
+        "accountId": "Konto-ID",
+        "identityGroup": "Identität"
+    },
+    "status": {
+        "active": "Aktiv",
+        "disabled": "Deaktiviert",
+        "deleted": "Gelöscht"
+    },
+    "badge": {
+        "service": "Dienst",
+        "stale": "inaktiv"
+    },
+    "empty": "Keine Konten entsprechen dieser Ansicht.",
+    "loadError": "AD-Konten konnten nicht geladen werden.",
+    "retry": "Erneut versuchen",
+    "card": {
+        "lastLogon": "Letzte Anmeldung"
+    },
+    "pageInfo": "{{from}}–{{to}} von {{count}}",
+    "drawer": {
+        "tenantInline": "Mandant {{id}}",
+        "serviceAccount": "Dienstkonto",
+        "stale": "inaktiv 30T+",
+        "viewInLogs": "Ereignisse im Log Explorer ansehen",
+        "copySid": "SID kopieren",
+        "copyUid": "Kennung kopieren",
+        "copied": "Kopiert",
+        "identity": "Identität",
+        "accountName": "Kontoname",
+        "domain": "Domäne",
+        "hostname": "Hostname",
+        "sid": "SID",
+        "uidNumber": "UID",
+        "machineId": "Maschinen-ID",
+        "tenant": "Mandant",
+        "adStatus": "AD-Status",
+        "enabled": "Aktiviert",
+        "disabled": "Deaktiviert",
+        "lifecycle": "Lebenszyklus",
+        "created": "Konto erstellt",
+        "lastLogon": "Letzte Anmeldung",
+        "lastSeen": "Zuletzt in Logs gesehen",
+        "deleted": "Konto gelöscht",
+        "noLifecycle": "Keine Lebenszyklus-Ereignisse aufgezeichnet.",
+        "aliasGroup": "Identität",
+        "alias": {
+            "add": "Identität hinzufügen",
+            "search": "Identitäten suchen…",
+            "none": "Noch keine Identitäten",
+            "new": "Neue Identität",
+            "unassign": "Zuweisung aufheben",
+            "unassigned": "Keine Identität",
+            "newPlaceholder": "Name der neuen Identität (2–64 Zeichen)",
+            "createAndAssign": "Erstellen & zuordnen",
+            "rename": "Identität umbenennen",
+            "renameConfirm": "Neuen Namen speichern",
+            "renamed": "Identität umbenannt",
+            "renameFailed": "Identität konnte nicht umbenannt werden",
+            "nameTooShort": "Name muss 2–64 Zeichen haben",
+            "updated": "Identität aktualisiert",
+            "updateFailed": "Identität konnte nicht aktualisiert werden"
+        }
+    },
+    "relative": {
+        "justNow": "gerade eben",
+        "minutesAgo": "vor {{count}}m",
+        "hoursAgo": "vor {{count}}h",
+        "daysAgo": "vor {{count}}T"
+    },
+    "none": "—",
+    "allIdentities": "Alle Identitäten",
+    "noneIdentity": "Keine Identität"
+}

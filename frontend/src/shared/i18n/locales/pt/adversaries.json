@@ -1,0 +1,97 @@
+{
+    "title": "Visão de adversários",
+    "subtitle": "Cada IP, host ou usuário visto atacando seu ambiente, com suas técnicas e alvos.",
+    "countChip": "{{count}} adversários",
+    "refresh": "Atualizar",
+    "search": "Pesquisar por IP, host, usuário, país, ASO…",
+    "empty": "Nenhum adversário corresponde.",
+    "loadError": "Não foi possível carregar os adversários.",
+    "retry": "Tentar novamente",
+    "views": {
+        "all": "Todos",
+        "high": "Severidade alta",
+        "ip": "IPs",
+        "host": "Hosts",
+        "user": "Usuários"
+    },
+    "threat": {
+        "critical": "Crítico",
+        "high": "Alto",
+        "medium": "Médio",
+        "low": "Baixo"
+    },
+    "kind": {
+        "ip": "IP",
+        "host": "Host",
+        "user": "Usuário"
+    },
+    "layout": {
+        "list": "Lista",
+        "cards": "Cartões"
+    },
+    "overview": {
+        "title": "Atividade de adversários · últimas 24 horas",
+        "high": "severidade alta",
+        "countries": "países",
+        "alerts": "alertas",
+        "ago24": "há 24h",
+        "ago12": "há 12h",
+        "now": "agora"
+    },
+    "col": {
+        "adversary": "Adversário",
+        "threat": "Ameaça",
+        "alerts": "Alertas",
+        "targets": "Alvos",
+        "lastSeen": "Visto por último",
+        "victims": "Vítimas"
+    },
+    "card": {
+        "alerts": "Alertas",
+        "techniques": "Técnicas",
+        "targets": "Alvos"
+    },
+    "tabs": {
+        "profile": "Perfil",
+        "techniques": "Técnicas",
+        "targets": "Alvos",
+        "alerts": "Alertas"
+    },
+    "drawer": {
+        "activity": "Atividade em 24 horas",
+        "identification": "Identificação",
+        "kindLabel": "Tipo",
+        "identifier": "Identificador",
+        "firstSeen": "Visto pela primeira vez",
+        "lastSeen": "Visto por último",
+        "geolocation": "Geolocalização",
+        "country": "País",
+        "city": "Cidade",
+        "topTechniques": "Principais técnicas",
+        "noTechniques": "Nenhuma técnica registrada.",
+        "targets": "Alvos",
+        "noTargets": "Nenhum alvo registrado.",
+        "recentAlerts": "Alertas recentes",
+        "noAlerts": "Sem alertas.",
+        "echoes": "{{count}} repetições"
+    },
+    "relative": {
+        "justNow": "agora mesmo",
+        "minutesAgo": "há {{count}}m",
+        "hoursAgo": "há {{count}}h",
+        "daysAgo": "há {{count}}d"
+    },
+    "field": {
+        "ip": "IP",
+        "host": "Host",
+        "user": "Usuário",
+        "port": "Porta",
+        "domain": "Domínio",
+        "mac": "MAC",
+        "country": "País",
+        "city": "Cidade",
+        "asn": "ASN",
+        "aso": "ASO",
+        "no_target": "Sem alvo"
+    }
+}

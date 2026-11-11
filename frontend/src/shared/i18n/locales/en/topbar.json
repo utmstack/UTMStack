@@ -1,0 +1,12 @@
+{
+    "theme": {
+        "light": "Light mode",
+        "dark": "Dark mode"
+    },
+    "manageLicense": "Manage license",
+    "profile": {
+        "profile": "Profile",
+        "license": "License",
+        "logout": "Log out"
+    }
+}

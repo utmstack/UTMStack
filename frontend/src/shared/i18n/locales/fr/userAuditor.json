@@ -1,0 +1,134 @@
+{
+    "title": "Auditeur d’utilisateurs",
+    "subtitle": "Comptes Active Directory observés dans vos journaux de sécurité Windows — découverts à partir d’événements de création, de connexion et de suppression.",
+    "export": "Exporter",
+    "accountsChip": "{{count}} comptes",
+    "overview": {
+        "title": "Inventaire des comptes",
+        "active": "actifs",
+        "disabled": "désactivés",
+        "deleted": "supprimés",
+        "seen24h": "{{count}} vus au cours des dernières 24 heures",
+        "byDomain": "Par domaine",
+        "grouped": "{{count}} groupés",
+        "unassigned": "{{count}} non assignés"
+    },
+    "views": {
+        "all": "Tous les comptes",
+        "windows": "Windows",
+        "linux": "Linux",
+        "active": "Actifs",
+        "disabled": "Désactivés",
+        "deleted": "Supprimés",
+        "service": "Comptes de service",
+        "stale": "Inactifs (30j+)",
+        "o365": "O365",
+        "azure": "Azure",
+        "gcp": "GCP",
+        "aws": "AWS"
+    },
+    "searchPlaceholder": "Rechercher par nom de compte ou SID…",
+    "allTenants": "Tous les locataires",
+    "filters": {
+        "add": "Ajouter un filtre",
+        "clearAll": "Tout effacer",
+        "filterValues": "Filtrer les valeurs…",
+        "loadingValues": "Chargement des valeurs…",
+        "noValues": "Aucune valeur trouvée.",
+        "pickValue": "Choisissez une valeur pour ajouter le filtre.",
+        "empty": "(vide)",
+        "cancel": "Annuler",
+        "addBtn": "Ajouter"
+    },
+    "filterFields": {
+        "status": "Statut du cycle de vie"
+    },
+    "ops": {
+        "is": "est"
+    },
+    "refresh": "Actualiser",
+    "layout": {
+        "list": "Liste",
+        "cards": "Cartes"
+    },
+    "list": {
+        "account": "Compte",
+        "identity": "Identité",
+        "sid": "SID",
+        "status": "Statut",
+        "lastLogon": "Dernière connexion",
+        "lastSeen": "Vu pour la dernière fois",
+        "tenant": "Locataire",
+        "accountId": "ID du compte",
+        "identityGroup": "Identité"
+    },
+    "status": {
+        "active": "Actif",
+        "disabled": "Désactivé",
+        "deleted": "Supprimé"
+    },
+    "badge": {
+        "service": "service",
+        "stale": "inactif"
+    },
+    "empty": "Aucun compte ne correspond à cette vue.",
+    "loadError": "Impossible de charger les comptes AD.",
+    "retry": "Réessayer",
+    "card": {
+        "lastLogon": "Dernière connexion"
+    },
+    "pageInfo": "{{from}}–{{to}} sur {{count}}",
+    "drawer": {
+        "tenantInline": "locataire {{id}}",
+        "serviceAccount": "compte de service",
+        "stale": "inactif 30j+",
+        "viewInLogs": "Voir les événements dans le Log Explorer",
+        "copySid": "Copier le SID",
+        "copyUid": "Copier l’identité",
+        "copied": "Copié",
+        "identity": "Identité",
+        "accountName": "Nom du compte",
+        "domain": "Domaine",
+        "hostname": "Nom d’hôte",
+        "sid": "SID",
+        "uidNumber": "UID",
+        "machineId": "ID de machine",
+        "tenant": "Locataire",
+        "adStatus": "Statut AD",
+        "enabled": "Activé",
+        "disabled": "Désactivé",
+        "lifecycle": "Cycle de vie",
+        "created": "Compte créé",
+        "lastLogon": "Dernière connexion",
+        "lastSeen": "Vu pour la dernière fois dans les journaux",
+        "deleted": "Compte supprimé",
+        "noLifecycle": "Aucun événement de cycle de vie enregistré.",
+        "aliasGroup": "Identité",
+        "alias": {
+            "add": "Ajouter une identité",
+            "search": "Rechercher des identités…",
+            "none": "Aucune identité pour l’instant",
+            "new": "Nouvelle identité",
+            "unassign": "Retirer l’identité",
+            "unassigned": "Aucune identité",
+            "newPlaceholder": "Nom de la nouvelle identité (2–64 caractères)",
+            "createAndAssign": "Créer et assigner",
+            "rename": "Renommer l’identité",
+            "renameConfirm": "Enregistrer le nouveau nom",
+            "renamed": "Identité renommée",
+            "renameFailed": "Impossible de renommer l’identité",
+            "nameTooShort": "Le nom doit compter de 2 à 64 caractères",
+            "updated": "Identité mise à jour",
+            "updateFailed": "Impossible de mettre à jour l’identité"
+        }
+    },
+    "relative": {
+        "justNow": "à l’instant",
+        "minutesAgo": "il y a {{count}}m",
+        "hoursAgo": "il y a {{count}}h",
+        "daysAgo": "il y a {{count}}j"
+    },
+    "none": "—",
+    "allIdentities": "Toutes les identités",
+    "noneIdentity": "Aucune identité"
+}

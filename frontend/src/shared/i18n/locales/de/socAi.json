@@ -1,0 +1,148 @@
+{
+    "title": "SOC-AI-Konfiguration",
+    "subtitle": "Konfigurieren Sie den KI-Agenten, der Alarme triagiert und den Betriebsassistenten antreibt.",
+    "section": {
+        "connection": "Modell & Verbindung",
+        "auth": "Authentifizierung",
+        "behavior": "Verhalten der Alarm-Triage",
+        "advanced": "Erweitert"
+    },
+    "usage": {
+        "title": "Nutzung",
+        "chat": "Chat-Vervollständigungen (heute)",
+        "unavailable": "Die Nutzung ist noch nicht verfügbar.",
+        "resetsIn": "Zurücksetzung in {{time}}"
+    },
+    "provider": {
+        "label": "Anbieter",
+        "hint": "Bestimmt das Wire-Format. Alles außer Anthropic nutzt die OpenAI-kompatible API."
+    },
+    "model": {
+        "label": "Modell",
+        "hint": "Vom Anbieter bereitgestellte Modellkennung.",
+        "customOption": "Benutzerdefiniertes Modell…",
+        "customPlaceholder": "Modell-ID eingeben"
+    },
+    "url": {
+        "label": "API-URL",
+        "hint": "Leer lassen, um den Standard-Endpunkt des Anbieters zu verwenden."
+    },
+    "apiKey": {
+        "label": "API-Schlüssel",
+        "hint": "An den Anbieter gesendete Anmeldedaten.",
+        "setHint": "Ein Schlüssel ist gespeichert. Leer lassen, um ihn beizubehalten."
+    },
+    "authType": {
+        "label": "Authentifizierungstyp",
+        "hint": "Wie Anmeldedaten an Ihr Gateway gesendet werden.",
+        "options": {
+            "apiKey": "API-Schlüssel",
+            "bearer": "Bearer",
+            "customHeaders": "Benutzerdefinierte Header",
+            "none": "Keine"
+        }
+    },
+    "authHeaderName": {
+        "label": "Name des Auth-Headers",
+        "hint": "Header, der den Schlüssel trägt (z. B. api-key für Azure)."
+    },
+    "authToken": {
+        "label": "Bearer-Token",
+        "hint": "Anmeldedaten, die an den Anbieter gesendet werden.",
+        "setHint": "Ein Token ist gespeichert. Leer lassen, um es beizubehalten."
+    },
+    "customHeaders": {
+        "label": "Benutzerdefinierte Header",
+        "hint": "Zusätzliche Header, die in jede Anfrage einfließen. Werte werden verschlüsselt; „*****“ behält den gespeicherten Wert.",
+        "keyPlaceholder": "Headername",
+        "valuePlaceholder": "Wert",
+        "addRow": "Header hinzufügen",
+        "remove": "Header entfernen"
+    },
+    "maxTokens": {
+        "label": "Max. Tokens",
+        "hint": "Maximale Anzahl Tokens pro LLM-Antwort."
+    },
+    "maxToolIterations": {
+        "label": "Max. Tool-Iterationen",
+        "hint": "Obergrenze für die Plan -> Tool -> Beobachten-Schleife des Agenten."
+    },
+    "autoAnalyze": {
+        "label": "Alarme automatisch analysieren",
+        "hint": "Eingehende Alarme in Echtzeit triagieren."
+    },
+    "allowIncidents": {
+        "label": "Vorfälle verwalten erlauben",
+        "hint": "Der Triage-Agent darf Vorfälle erstellen oder aktualisieren, wenn er entscheidet, dass ein Alarm dies rechtfertigt."
+    },
+    "changeAlertStatus": {
+        "label": "Alarmstatus ändern",
+        "hint": "Dem Agenten erlauben, den Status eines Alarms während der Triage zu setzen."
+    },
+    "automaticIncidentCreation": {
+        "label": "Vorfälle erstellen",
+        "hint": "Dem Agenten erlauben, aus triagierten Alarmen Vorfälle zu eröffnen."
+    },
+    "allowedWriteTools": {
+        "label": "Erlaubte Schreib-Tools",
+        "hint": "Ein MCP-Tool-Name pro Zeile, den der Triage-Agent verwenden darf (z. B. alerts.update_status). Notizen sind immer erlaubt."
+    },
+    "save": "Konfiguration speichern",
+    "saving": "Wird überprüft & gespeichert...",
+    "saved": "SOC-AI-Konfiguration gespeichert",
+    "saveError": "Konfiguration konnte nicht gespeichert werden",
+    "loadError": "Konfiguration konnte nicht geladen werden",
+    "modelRequired": "Modell ist erforderlich",
+    "applyTags": {
+        "label": "Tags anwenden",
+        "hint": "Dem Agenten erlauben, Alarme während der Triage zu taggen."
+    },
+    "note": {
+        "azure": "Fügen Sie Ihren vollständigen Azure-Deployment-Endpunkt als URL ein; das Modell ist Ihr Deployment-Name. Die Authentifizierung verwendet den api-key-Header.",
+        "ollama": "Richten Sie die URL auf Ihren Ollama-Host. Für eine lokale Instanz ist kein API-Schlüssel erforderlich.",
+        "custom": "Jeder OpenAI-kompatible Endpunkt. Legen Sie die URL, die Authentifizierung und alle zusätzlichen Header fest, die Ihr Gateway benötigt.",
+        "threatwinds": "Nutzt automatisch Ihre UTMStack-Lizenz — kein API-Schlüssel nötig. Wird über Ihr ThreatWinds-Abonnement abgerechnet."
+    },
+    "chat": {
+        "title": "SOC-Assistent",
+        "dashboardCreateTitle": "Dashboard-Ersteller",
+        "empty": "Fragen Sie alles über Ihre Alarme, Erkennungen oder die Konsole — ich kann das SIEM untersuchen und darin handeln.",
+        "tryPrefix": "Versuchen",
+        "suggestion": "Wie viele offene Alarme, gruppiert nach Angreifer?",
+        "placeholder": "Eine Frage stellen…",
+        "ask": "Fragen",
+        "send": "Senden",
+        "collapse": "Einklappen",
+        "expand": "Ausklappen",
+        "clear": "Konversation löschen",
+        "close": "Schließen",
+        "copy": "Kopieren",
+        "copied": "Kopiert",
+        "errorGeneric": "Etwas ist schiefgelaufen.",
+        "errorUnreachable": "Der Assistent konnte nicht erreicht werden.",
+        "compacting": "Kontext wird komprimiert…",
+        "dashboardEditTitle": "Dashboard-Editor",
+        "editingDashboard": "Bearbeite: {{name}}",
+        "soarEditTitle": "SOAR-Flow-Editor",
+        "soarCreateTitle": "SOAR-Flow erstellen",
+        "editingFlow": "Bearbeite Flow: {{name}}"
+    },
+    "focus": {
+        "alert": "Warnung",
+        "incident": "Vorfall",
+        "remove": "Nicht mehr mit dem Assistenten teilen"
+    },
+    "inheritance": {
+        "inherited": "Folgt der Instanzvorgabe. Speichern gibt diesem Mandanten eine eigene Konfiguration.",
+        "own": "Dieser Mandant hat eine eigene Konfiguration.",
+        "revert": "Der Instanzvorgabe folgen",
+        "reverting": "Wird zurückgesetzt…",
+        "reverted": "Folgt jetzt der Instanzvorgabe"
+    },
+    "allowance": {
+        "title": "KI-Kontingent heute",
+        "ofLimit": "von {{limit}} Anfragen",
+        "denied": "Anfragen — die KI steht diesem Mandanten nicht zur Verfügung",
+        "hint": "Vom Betreiber der Instanz festgelegt. Zurücksetzung um Mitternacht UTC."
+    }
+}

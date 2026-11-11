@@ -1,0 +1,97 @@
+{
+    "title": "Angreifer-Ansicht",
+    "subtitle": "Jede IP, jeder Host oder Benutzer, der Ihre Umgebung angreift, mit Techniken und Zielen.",
+    "countChip": "{{count}} Angreifer",
+    "refresh": "Aktualisieren",
+    "search": "Nach IP, Host, Benutzer, Land, ASO suchen…",
+    "empty": "Keine Angreifer gefunden.",
+    "loadError": "Angreifer konnten nicht geladen werden.",
+    "retry": "Erneut versuchen",
+    "views": {
+        "all": "Alle",
+        "high": "Hohe Schwere",
+        "ip": "IPs",
+        "host": "Hosts",
+        "user": "Benutzer"
+    },
+    "threat": {
+        "critical": "Kritisch",
+        "high": "Hoch",
+        "medium": "Mittel",
+        "low": "Niedrig"
+    },
+    "kind": {
+        "ip": "IP",
+        "host": "Host",
+        "user": "Benutzer"
+    },
+    "layout": {
+        "list": "Liste",
+        "cards": "Karten"
+    },
+    "overview": {
+        "title": "Angreifer-Aktivität · letzte 24 Stunden",
+        "high": "hohe Schwere",
+        "countries": "Länder",
+        "alerts": "Alarme",
+        "ago24": "vor 24h",
+        "ago12": "vor 12h",
+        "now": "jetzt"
+    },
+    "col": {
+        "adversary": "Angreifer",
+        "threat": "Bedrohung",
+        "alerts": "Alarme",
+        "targets": "Ziele",
+        "lastSeen": "Zuletzt gesehen",
+        "victims": "Opfer"
+    },
+    "card": {
+        "alerts": "Alarme",
+        "techniques": "Techniken",
+        "targets": "Ziele"
+    },
+    "tabs": {
+        "profile": "Profil",
+        "techniques": "Techniken",
+        "targets": "Ziele",
+        "alerts": "Alarme"
+    },
+    "drawer": {
+        "activity": "Aktivität in 24 Stunden",
+        "identification": "Identifikation",
+        "kindLabel": "Typ",
+        "identifier": "Bezeichner",
+        "firstSeen": "Zuerst gesehen",
+        "lastSeen": "Zuletzt gesehen",
+        "geolocation": "Geolokalisierung",
+        "country": "Land",
+        "city": "Stadt",
+        "topTechniques": "Top-Techniken",
+        "noTechniques": "Keine Techniken erfasst.",
+        "targets": "Ziele",
+        "noTargets": "Keine Ziele erfasst.",
+        "recentAlerts": "Aktuelle Alarme",
+        "noAlerts": "Keine Alarme.",
+        "echoes": "{{count}} Wiederholungen"
+    },
+    "relative": {
+        "justNow": "gerade eben",
+        "minutesAgo": "vor {{count}}m",
+        "hoursAgo": "vor {{count}}h",
+        "daysAgo": "vor {{count}}T"
+    },
+    "field": {
+        "ip": "IP",
+        "host": "Host",
+        "user": "Benutzer",
+        "port": "Port",
+        "domain": "Domain",
+        "mac": "MAC",
+        "country": "Land",
+        "city": "Stadt",
+        "asn": "ASN",
+        "aso": "ASO",
+        "no_target": "Kein Ziel"
+    }
+}

@@ -1,0 +1,11 @@
+{
+    "title": "Idioma da plataforma",
+    "subtitle": "Idioma padrão para as telas de pré-login, e-mails do sistema e novos usuários. Cada usuário ainda pode escolher o seu no perfil.",
+    "label": "Idioma padrão",
+    "hint": "Usado quando um usuário não escolheu o próprio idioma.",
+    "save": "Salvar",
+    "saving": "Salvando…",
+    "saved": "Idioma da plataforma atualizado",
+    "loadError": "Não foi possível carregar a configuração de idioma",
+    "saveError": "Não foi possível salvar a configuração de idioma"
+}

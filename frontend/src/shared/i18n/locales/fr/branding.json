@@ -1,0 +1,50 @@
+{
+    "title": "Marque",
+    "subtitle": "Personnalisez UTMStack avec l’identité de votre organisation — appliquée partout : écran de connexion, barre latérale, e-mails et rapports.",
+    "enterpriseRequired": "Le white-label est une fonctionnalité Enterprise.",
+    "manageLicense": "Gérer la licence",
+    "enable": {
+        "title": "White-label",
+        "description": "Remplacez la marque UTMStack par la vôtre sur toute la plateforme.",
+        "label": "Activer le white-label"
+    },
+    "identity": {
+        "title": "Identité",
+        "productName": "Nom du produit",
+        "productNameHint": "Affiché dans la barre de titre, la barre latérale et les e-mails.",
+        "accent": "Couleur d’accent",
+        "accentHint": "Couleur principale des boutons, liens et états actifs.",
+        "custom": "Couleur personnalisée"
+    },
+    "logos": {
+        "title": "Logos",
+        "hint": "PNG, SVG, WEBP, JPG ou ICO. Jusqu’à 5 Mo.",
+        "logo": "Logo (clair)",
+        "logoDark": "Logo (sombre)",
+        "favicon": "Favicon"
+    },
+    "reports": {
+        "title": "Ressources de rapport",
+        "hint": "Intégrées dans les rapports PDF générés.",
+        "reportLogo": "Logo du rapport",
+        "reportCover": "Couverture du rapport"
+    },
+    "asset": {
+        "upload": "Téléverser",
+        "replace": "Remplacer"
+    },
+    "save": "Enregistrer les modifications",
+    "saving": "Enregistrement…",
+    "saved": "Marque mise à jour",
+    "saveError": "Impossible d’enregistrer la marque",
+    "uploaded": "Image téléversée",
+    "uploadError": "Impossible de téléverser l’image",
+    "loadError": "Impossible de charger la marque",
+    "enterprise": {
+        "title": "La marque blanche est une fonctionnalité Enterprise",
+        "body": "Remplacez le nom du produit, le logo et la couverture des rapports par les vôtres, afin que la console et tout ce qu'elle génère portent votre marque plutôt que celle d'UTMStack.",
+        "upgrade": "Passer à Enterprise"
+    },
+    "restore": "Rétablir les valeurs UTMStack",
+    "restored": "Marque rétablie aux valeurs UTMStack"
+}

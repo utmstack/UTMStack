@@ -1,0 +1,85 @@
+{
+    "title": "API-Schlüssel",
+    "subtitle": "Programmatische Zugriffstoken für die UTMStack-API.",
+    "new": "Neuer API-Schlüssel",
+    "searchPlaceholder": "Nach Name oder erlaubter IP suchen…",
+    "refresh": "Aktualisieren",
+    "loading": "API-Schlüssel werden geladen…",
+    "loadFailed": "API-Schlüssel konnten nicht geladen werden.",
+    "retry": "Erneut versuchen",
+    "noSearchMatch": "Keine API-Schlüssel entsprechen deiner Suche.",
+    "empty": "Noch keine API-Schlüssel. Erstelle einen, um zu beginnen.",
+    "anyIp": "Beliebige IP",
+    "never": "Nie",
+    "count_one": "{{count}} Schlüssel · Seite {{page}} von {{pages}}",
+    "count_other": "{{count}} Schlüssel · Seite {{page}} von {{pages}}",
+    "enterprise": {
+        "title": "API-Schlüssel sind eine Enterprise-Funktion",
+        "body": "Erstelle, beschränke und rotiere API-Schlüssel für den programmatischen Zugriff auf die UTMStack-API. Diese Funktion ist in der Enterprise-Edition verfügbar.",
+        "upgrade": "Auf Enterprise upgraden",
+        "manageLicense": "Lizenz verwalten"
+    },
+    "col": {
+        "name": "Name",
+        "allowedIps": "Erlaubte IPs",
+        "created": "Erstellt",
+        "lastRotated": "Zuletzt rotiert",
+        "expires": "Läuft ab",
+        "status": "Status",
+        "actions": "Aktionen"
+    },
+    "status": {
+        "active": "Aktiv",
+        "expiring": "Läuft bald ab",
+        "expired": "Abgelaufen"
+    },
+    "action": {
+        "rotate": "Rotieren",
+        "edit": "Bearbeiten",
+        "delete": "Löschen"
+    },
+    "dialog": {
+        "editTitle": "API-Schlüssel bearbeiten",
+        "newTitle": "Neuer API-Schlüssel",
+        "name": "Name",
+        "namePlaceholder": "ci-pipeline",
+        "allowedIps": "Erlaubte IPs",
+        "allowedIpsHint": "Durch Kommas getrennt. Leer lassen, um jede IP zu erlauben.",
+        "expires": "Läuft ab",
+        "expiresHint": "Leer lassen für einen Schlüssel, der nie abläuft.",
+        "secretNote": "Das geheime Token wird nur einmal angezeigt, direkt nach der Erstellung. Kopiere es dann — es kann später nicht abgerufen (nur rotiert) werden.",
+        "cancel": "Abbrechen",
+        "saving": "Wird gespeichert…",
+        "saveChanges": "Änderungen speichern",
+        "createKey": "Schlüssel erstellen"
+    },
+    "confirm": {
+        "deleteTitle": "API-Schlüssel löschen",
+        "rotateTitle": "API-Schlüssel rotieren",
+        "deleteBody": "{{name}} löschen? Jeder Client, der ihn verwendet, verliert sofort den Zugriff. Dies kann nicht rückgängig gemacht werden.",
+        "rotateBody": "{{name}} rotieren? Ein neues Geheimnis wird ausgestellt und das aktuelle funktioniert sofort nicht mehr. Das neue Token wird nur einmal angezeigt.",
+        "cancel": "Abbrechen",
+        "working": "Wird verarbeitet…",
+        "delete": "Löschen",
+        "rotate": "Rotieren"
+    },
+    "reveal": {
+        "title": "API-Schlüssel erstellt",
+        "note": "Kopiere dieses Geheimnis jetzt — für {{name}}. Es wird nicht erneut angezeigt. Wenn du es verlierst, rotiere den Schlüssel.",
+        "copied": "Kopiert",
+        "copy": "Kopieren",
+        "done": "Fertig"
+    },
+    "toast": {
+        "updated": "API-Schlüssel aktualisiert",
+        "secretIssueFailed": "Schlüssel erstellt, aber das Geheimnis konnte nicht ausgestellt werden. Verwende Rotieren, um eines zu erhalten.",
+        "deleted": "API-Schlüssel gelöscht"
+    },
+    "error": {
+        "nameTaken": "Ein API-Schlüssel mit diesem Namen existiert bereits",
+        "enterpriseRequired": "API-Schlüssel erfordern die Enterprise-Edition",
+        "notFound": "API-Schlüssel nicht gefunden",
+        "invalidRequest": "Ungültige Anfrage",
+        "failed": "Vorgang fehlgeschlagen"
+    }
+}

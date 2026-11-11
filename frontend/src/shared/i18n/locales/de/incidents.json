@@ -1,0 +1,144 @@
+{
+    "title": "Vorfälle",
+    "subtitle": "Verwandte Alarme als Vorfälle gruppieren, triagieren und lösen.",
+    "refresh": "Aktualisieren",
+    "count_one": "{{count}} Vorfall",
+    "count_other": "{{count}} Vorfälle",
+    "openNow": "derzeit offen",
+    "empty": "Keine passenden Vorfälle.",
+    "loadError": "Vorfälle konnten nicht geladen werden.",
+    "retry": "Erneut",
+    "unassigned": "Nicht zugewiesen",
+    "unknownUser": "Unbekannt",
+    "status": {
+        "open": "Offen",
+        "in_review": "In Prüfung",
+        "completed": "Abgeschlossen",
+        "merged": "Zusammengeführt"
+    },
+    "sev": {
+        "high": "Hoch",
+        "medium": "Mittel",
+        "low": "Niedrig",
+        "unknown": "Unbewertet"
+    },
+    "toolbar": {
+        "search": "Vorfälle suchen…",
+        "create": "Vorfall erstellen",
+        "allSeverities": "Alle Schweregrade",
+        "export": "CSV exportieren"
+    },
+    "statusTabs": {
+        "all": "Alle"
+    },
+    "filters": {
+        "add": "Filter hinzufügen",
+        "clearAll": "Alle löschen",
+        "filterValues": "Werte filtern…",
+        "loadingValues": "Werte werden geladen…",
+        "noValues": "Keine Werte gefunden.",
+        "pickValue": "Wähle einen Wert, um den Filter hinzuzufügen.",
+        "empty": "(leer)",
+        "cancel": "Abbrechen",
+        "addBtn": "Hinzufügen"
+    },
+    "ops": {
+        "IS": "ist"
+    },
+    "layout": {
+        "table": "Tabelle",
+        "board": "Board"
+    },
+    "table": {
+        "name": "Vorfall",
+        "status": "Status",
+        "severity": "Schweregrad",
+        "assignee": "Zugewiesen",
+        "alerts": "Alarme",
+        "created": "Erstellt"
+    },
+    "drawer": {
+        "created": "Erstellt {{date}}",
+        "alertsCount": "{{count}} Alarme",
+        "solutionPlaceholder": "Lösung / Behebungsnotizen…",
+        "solutionHint": "Wird gespeichert, wenn der Vorfall auf Abgeschlossen gesetzt wird.",
+        "tabs": {
+            "overview": "Übersicht",
+            "alerts": "Alarme",
+            "notes": "Notizen",
+            "history": "Verlauf"
+        },
+        "section": {
+            "description": "Beschreibung",
+            "solution": "Lösung",
+            "details": "Details"
+        },
+        "details": {
+            "id": "ID",
+            "status": "Status",
+            "severity": "Schweregrad",
+            "assignee": "Zugewiesen",
+            "created": "Erstellt",
+            "alerts": "Verknüpfte Alarme"
+        }
+    },
+    "alerts": {
+        "empty": "Keine Alarme mit diesem Vorfall verknüpft.",
+        "remove": "Alarm trennen",
+        "removeConfirm": "„{{name}}“ von diesem Vorfall trennen?",
+        "removed": "Alarm getrennt",
+        "removeError": "Alarm konnte nicht getrennt werden",
+        "loadingAlert": "Alarm wird geladen…",
+        "alertGone": "Dieser Alarm ist nicht mehr im Speicher — die Aufbewahrung hat ihn möglicherweise gelöscht.",
+        "alertFailed": "Der Alarm konnte nicht geladen werden.",
+        "openInAlerts": "In Alarmen öffnen"
+    },
+    "notes": {
+        "empty": "Noch keine Notizen.",
+        "add": "Notiz hinzufügen",
+        "addError": "Notiz konnte nicht hinzugefügt werden",
+        "placeholder": "Notiz schreiben…"
+    },
+    "history": {
+        "empty": "Noch kein Verlauf."
+    },
+    "toast": {
+        "statusChanged": "Vorfallstatus aktualisiert",
+        "statusError": "Status konnte nicht geändert werden",
+        "exportFailed": "CSV-Export fehlgeschlagen"
+    },
+    "assign": {
+        "assign": "Zuweisen",
+        "search": "Benutzer suchen…",
+        "unassign": "Zuweisung aufheben",
+        "noUsers": "Keine Benutzer",
+        "assigned": "Zugewiesen an {{user}}",
+        "unassigned": "Zuweisung aufgehoben",
+        "error": "Zuweisung konnte nicht geändert werden",
+        "custom": "Benutzerdefiniert zuweisen",
+        "customPlaceholder": "Login eingeben…"
+    },
+    "action": {
+        "INCIDENT_CREATED": "Vorfall erstellt",
+        "INCIDENT_ALERT_ADD": "Alarme hinzugefügt",
+        "INCIDENT_ALERT_STATUS_CHANGED": "Alarmstatus geändert",
+        "INCIDENT_STATUS_CHANGE": "Status geändert",
+        "INCIDENT_NOTE_ADD": "Notiz hinzugefügt",
+        "INCIDENT_NOTE_CHANGE": "Notiz bearbeitet",
+        "INCIDENT_ASSIGNED": "Zuweisung geändert"
+    },
+    "create": {
+        "title": "Vorfall erstellen",
+        "stepIndicator": "Schritt {{current}} von {{total}}",
+        "selectedCount": "{{count}} Warnungen ausgewählt",
+        "submit": "Erstellen",
+        "success": "Vorfall erstellt",
+        "error": "Vorfall konnte nicht erstellt werden",
+        "details": {
+            "nameLabel": "Name",
+            "namePlaceholder": "Kurzer, prägnanter Titel",
+            "descriptionLabel": "Beschreibung",
+            "descriptionPlaceholder": "Kontext, Umfang, erste Notizen…"
+        }
+    }
+}

@@ -1,0 +1,144 @@
+{
+    "title": "Incidentes",
+    "subtitle": "Agrupa, tría y resuelve alertas relacionadas como incidentes.",
+    "refresh": "Actualizar",
+    "count_one": "{{count}} incidente",
+    "count_other": "{{count}} incidentes",
+    "openNow": "abiertos ahora",
+    "empty": "No hay incidentes que coincidan.",
+    "loadError": "No se pudieron cargar los incidentes.",
+    "retry": "Reintentar",
+    "unassigned": "Sin asignar",
+    "unknownUser": "Desconocido",
+    "status": {
+        "open": "Abierto",
+        "in_review": "En revisión",
+        "completed": "Completado",
+        "merged": "Fusionado"
+    },
+    "sev": {
+        "high": "Alta",
+        "medium": "Media",
+        "low": "Baja",
+        "unknown": "Sin calificar"
+    },
+    "toolbar": {
+        "search": "Buscar incidentes…",
+        "create": "Crear incidente",
+        "allSeverities": "Todas las severidades",
+        "export": "Exportar CSV"
+    },
+    "statusTabs": {
+        "all": "Todos"
+    },
+    "filters": {
+        "add": "Añadir filtro",
+        "clearAll": "Limpiar todo",
+        "filterValues": "Filtrar valores…",
+        "loadingValues": "Cargando valores…",
+        "noValues": "No se encontraron valores.",
+        "pickValue": "Elige un valor para añadir el filtro.",
+        "empty": "(vacío)",
+        "cancel": "Cancelar",
+        "addBtn": "Añadir"
+    },
+    "ops": {
+        "IS": "es"
+    },
+    "layout": {
+        "table": "Tabla",
+        "board": "Tablero"
+    },
+    "table": {
+        "name": "Incidente",
+        "status": "Estado",
+        "severity": "Severidad",
+        "assignee": "Asignado",
+        "alerts": "Alertas",
+        "created": "Creado"
+    },
+    "drawer": {
+        "created": "Creado {{date}}",
+        "alertsCount": "{{count}} alertas",
+        "solutionPlaceholder": "Resolución / notas de remediación…",
+        "solutionHint": "Se guarda al pasar el incidente a Completado.",
+        "tabs": {
+            "overview": "Resumen",
+            "alerts": "Alertas",
+            "notes": "Notas",
+            "history": "Historial"
+        },
+        "section": {
+            "description": "Descripción",
+            "solution": "Solución",
+            "details": "Detalles"
+        },
+        "details": {
+            "id": "ID",
+            "status": "Estado",
+            "severity": "Severidad",
+            "assignee": "Asignado",
+            "created": "Creado",
+            "alerts": "Alertas vinculadas"
+        }
+    },
+    "alerts": {
+        "empty": "No hay alertas vinculadas a este incidente.",
+        "remove": "Desvincular alerta",
+        "removeConfirm": "¿Desvincular «{{name}}» de este incidente?",
+        "removed": "Alerta desvinculada",
+        "removeError": "No se pudo desvincular la alerta",
+        "loadingAlert": "Cargando alerta…",
+        "alertGone": "Esta alerta ya no está en el almacén — puede que la retención la haya eliminado.",
+        "alertFailed": "No se pudo cargar la alerta.",
+        "openInAlerts": "Abrir en Alertas"
+    },
+    "notes": {
+        "empty": "Aún no hay notas.",
+        "add": "Agregar nota",
+        "addError": "No se pudo agregar la nota",
+        "placeholder": "Escribe una nota…"
+    },
+    "history": {
+        "empty": "Aún no hay historial."
+    },
+    "toast": {
+        "statusChanged": "Estado del incidente actualizado",
+        "statusError": "No se pudo cambiar el estado",
+        "exportFailed": "No se pudo exportar el CSV"
+    },
+    "assign": {
+        "assign": "Asignar",
+        "search": "Buscar usuarios…",
+        "unassign": "Quitar asignación",
+        "noUsers": "Sin usuarios",
+        "assigned": "Asignado a {{user}}",
+        "unassigned": "Incidente sin asignar",
+        "error": "No se pudo cambiar el asignado",
+        "custom": "Asignar personalizado",
+        "customPlaceholder": "Escribe un usuario…"
+    },
+    "action": {
+        "INCIDENT_CREATED": "Incidente creado",
+        "INCIDENT_ALERT_ADD": "Alertas añadidas",
+        "INCIDENT_ALERT_STATUS_CHANGED": "Estado de alertas cambiado",
+        "INCIDENT_STATUS_CHANGE": "Estado cambiado",
+        "INCIDENT_NOTE_ADD": "Nota añadida",
+        "INCIDENT_NOTE_CHANGE": "Nota editada",
+        "INCIDENT_ASSIGNED": "Asignación cambiada"
+    },
+    "create": {
+        "title": "Crear incidente",
+        "stepIndicator": "Paso {{current}} de {{total}}",
+        "selectedCount": "{{count}} alertas seleccionadas",
+        "submit": "Crear",
+        "success": "Incidente creado",
+        "error": "No se pudo crear el incidente",
+        "details": {
+            "nameLabel": "Nombre",
+            "namePlaceholder": "Título corto y descriptivo",
+            "descriptionLabel": "Descripción",
+            "descriptionPlaceholder": "Contexto, alcance, notas iniciales…"
+        }
+    }
+}

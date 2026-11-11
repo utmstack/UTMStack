@@ -1,0 +1,12 @@
+{
+    "title": "Notifications",
+    "markAllRead": "Mark all read",
+    "empty": "You have no notifications.",
+    "viewAll": "View all",
+    "markRead": "Mark as read",
+    "markUnread": "Mark as unread",
+    "delete": "Delete",
+    "subtitle": "{{total}} total · {{unread}} unread",
+    "allCaughtUp": "All caught up.",
+    "loadFailed": "Could not load notifications."
+}

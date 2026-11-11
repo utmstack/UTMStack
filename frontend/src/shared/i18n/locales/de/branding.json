@@ -1,0 +1,50 @@
+{
+    "title": "Branding",
+    "subtitle": "Versehen Sie UTMStack mit der Identität Ihrer Organisation — überall angewendet: Login-Bildschirm, Seitenleiste, E-Mails und Berichte.",
+    "enterpriseRequired": "White-Labeling ist eine Enterprise-Funktion.",
+    "manageLicense": "Lizenz verwalten",
+    "enable": {
+        "title": "White-Label",
+        "description": "Ersetzen Sie die UTMStack-Marke plattformweit durch Ihre eigene.",
+        "label": "White-Labeling aktivieren"
+    },
+    "identity": {
+        "title": "Identität",
+        "productName": "Produktname",
+        "productNameHint": "Wird in der Titelleiste, Seitenleiste und in E-Mails angezeigt.",
+        "accent": "Akzentfarbe",
+        "accentHint": "Primärfarbe für Schaltflächen, Links und aktive Zustände.",
+        "custom": "Eigene Farbe"
+    },
+    "logos": {
+        "title": "Logos",
+        "hint": "PNG, SVG, WEBP, JPG oder ICO. Bis zu 5 MB.",
+        "logo": "Logo (hell)",
+        "logoDark": "Logo (dunkel)",
+        "favicon": "Favicon"
+    },
+    "reports": {
+        "title": "Bericht-Assets",
+        "hint": "In generierte PDF-Berichte eingebettet.",
+        "reportLogo": "Bericht-Logo",
+        "reportCover": "Bericht-Deckblatt"
+    },
+    "asset": {
+        "upload": "Hochladen",
+        "replace": "Ersetzen"
+    },
+    "save": "Änderungen speichern",
+    "saving": "Wird gespeichert…",
+    "saved": "Branding aktualisiert",
+    "saveError": "Branding konnte nicht gespeichert werden",
+    "uploaded": "Bild hochgeladen",
+    "uploadError": "Bild konnte nicht hochgeladen werden",
+    "loadError": "Branding konnte nicht geladen werden",
+    "enterprise": {
+        "title": "White-Labeling ist eine Enterprise-Funktion",
+        "body": "Ersetzen Sie Produktname, Logo und Berichtsdeckblatt durch Ihre eigenen, damit die Konsole und alles, was sie erzeugt, Ihre Marke trägt statt der von UTMStack.",
+        "upgrade": "Auf Enterprise upgraden"
+    },
+    "restore": "UTMStack-Standard wiederherstellen",
+    "restored": "Branding auf die UTMStack-Standardwerte zurückgesetzt"
+}

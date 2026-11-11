@@ -1,0 +1,20 @@
+{
+    "title": "Settings",
+    "license": "License",
+    "notifications": "Notifications",
+    "connectionKey": "Connection Key",
+    "dataRetention": "Data Retention",
+    "indices": "Indices",
+    "theme": "Theme",
+    "branding": "Branding",
+    "apiKeys": "API Keys",
+    "identityProviders": "Identity Providers",
+    "email": "Email Configuration",
+    "dateFormat": "Date Format",
+    "language": "Language",
+    "auditLogs": "App Audit Logs",
+    "about": "About",
+    "socAi": "SOC-AI",
+    "supportAccess": "Support access",
+    "threatwinds": "ThreatWinds Integration"
+}

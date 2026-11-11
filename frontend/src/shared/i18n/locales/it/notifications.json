@@ -1,0 +1,12 @@
+{
+    "title": "Notifiche",
+    "markAllRead": "Segna tutte come lette",
+    "empty": "Non hai notifiche.",
+    "viewAll": "Vedi tutte",
+    "markRead": "Segna come letta",
+    "markUnread": "Segna come non letta",
+    "delete": "Elimina",
+    "subtitle": "{{total}} in totale · {{unread}} non lette",
+    "allCaughtUp": "Tutto in ordine.",
+    "loadFailed": "Impossibile caricare le notifiche."
+}

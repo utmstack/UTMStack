@@ -1,0 +1,192 @@
+{
+    "limitBanner": {
+        "title": "Limite de datasources excedido.",
+        "message": "Você tem {{count}} datasources, mas sua licença cobre {{limit}}. Os logs dos datasources além do limite estão sendo descartados.",
+        "cta": "Gerenciar licença",
+        "dismiss": "Dispensar"
+    },
+    "title": "Fontes de dados",
+    "total": "{{count}} no total",
+    "exportPdf": "Exportar PDF",
+    "subtitle": "Agentes, integrações e fontes diretas que enviam eventos. O status é derivado da última vez que cada fonte foi vista.",
+    "connectSource": "Conectar uma fonte",
+    "loading": "Carregando fontes de dados…",
+    "loadFailed": "Não foi possível carregar as fontes de dados.",
+    "retry": "Tentar novamente",
+    "none": "Nenhuma fonte corresponde a esta visão.",
+    "ingestion": {
+        "title": "Ingestão",
+        "received": "eventos recebidos",
+        "none": "Sem ingestão nas últimas 24 horas.",
+        "ago24h": "há 24h",
+        "now": "agora"
+    },
+    "usage": {
+        "title": "Fontes de dados",
+        "ofUnlimited": "de ilimitado",
+        "ofLimit": "de {{limit}}",
+        "overLimit": "Acima do limite licenciado — os dados além do limite estão em risco.",
+        "configured": "configuradas"
+    },
+    "tabs": {
+        "all": "Todas",
+        "agent": "Agentes",
+        "puller": "Integrações",
+        "direct": "Diretas",
+        "offline": "Offline"
+    },
+    "toolbar": {
+        "searchPlaceholder": "Buscar por nome…",
+        "list": "Lista",
+        "cards": "Cartões",
+        "refresh": "Atualizar"
+    },
+    "labels": {
+        "filteredBy": "Filtrado por label",
+        "add": "Adicionar label…",
+        "addFirst": "Adicionar um label…",
+        "hint": "Digite um label e pressione Enter para adicioná-lo. As alterações são salvas automaticamente."
+    },
+    "status": {
+        "live": "Ativa",
+        "idle": "Inativa",
+        "offline": "Offline"
+    },
+    "kind": {
+        "agent": "Agente",
+        "puller": "Integração",
+        "direct": "Direta"
+    },
+    "cols": {
+        "source": "Fonte",
+        "type": "Tipo",
+        "status": "Status",
+        "events24h": "Eventos 24h",
+        "lastSeen": "Visto por último"
+    },
+    "time": {
+        "justNow": "agora mesmo",
+        "minutesAgo": "há {{count}}m",
+        "hoursAgo": "há {{count}}h",
+        "daysAgo": "há {{count}}d"
+    },
+    "drawer": {
+        "loading": "Carregando…",
+        "loadFailed": "Não foi possível carregar a fonte de dados.",
+        "statsIdentity": "Stats e identidade",
+        "metadata": "Metadata",
+        "labelsSection": "Labels",
+        "dangerZone": "Zona de perigo",
+        "rows": {
+            "events24h": "Eventos 24h",
+            "lastSeen": "Visto por último",
+            "discovered": "Descoberta",
+            "kind": "Tipo de origem",
+            "dataType": "Tipo de dado",
+            "ip": "IP",
+            "id": "ID"
+        },
+        "dangerText": "Excluir remove esta fonte do registro. Os eventos históricos continuam pesquisáveis no Log Explorer; se a fonte continuar enviando dados, será redescoberta.",
+        "delete": "Excluir fonte",
+        "confirmDelete": "Confirmar exclusão",
+        "cancel": "Cancelar",
+        "viewLogs": "Ver logs",
+        "trend": "Tendência de ingestão",
+        "noTrend": "Nenhum evento recebido nesta janela",
+        "logGap": "Último evento {{since}} — possível interrupção de logs"
+    },
+    "toast": {
+        "labelsUpdated": "Labels atualizados",
+        "labelsFailed": "Falha ao atualizar os labels",
+        "deleted": "Fonte excluída",
+        "deleteFailed": "Falha ao excluir",
+        "exportFailed": "Falha ao exportar o relatório"
+    },
+    "console": {
+        "section": "Console",
+        "sectionHint": "Execute comandos neste host através do seu agente (resposta ao vivo).",
+        "open": "Abrir console",
+        "close": "Fechar",
+        "hint": "Digite um comando e pressione Enter para executá-lo no agente.",
+        "running": "Executando…",
+        "placeholder": "Digite um comando…",
+        "offline": "Este agente parece estar offline — pode não responder aos comandos.",
+        "vars": {
+            "button": "Variáveis",
+            "title": "Variáveis de comandos",
+            "subtitle": "Use-as nos comandos como",
+            "add": "Nova variável",
+            "name": "Nome",
+            "value": "Valor",
+            "description": "Descrição",
+            "isSecret": "Secreto (criptografado, mascarado na saída)",
+            "secret": "secreto",
+            "secretHint": "Deixe em branco para manter o valor salvo.",
+            "save": "Salvar",
+            "cancel": "Cancelar",
+            "edit": "Editar",
+            "delete": "Excluir",
+            "loading": "Carregando…",
+            "empty": "Ainda não há variáveis.",
+            "saved": "Variável salva",
+            "deleted": "Variável excluída",
+            "nameRequired": "O nome é obrigatório",
+            "loadError": "Falha ao carregar as variáveis",
+            "saveError": "Falha ao salvar a variável",
+            "deleteError": "Falha ao excluir a variável",
+            "insert": "Inserir",
+            "valueRequired": "O valor é obrigatório"
+        },
+        "disabled": "Agente offline — os comandos estão desabilitados",
+        "connError": "Erro de conexão",
+        "cmdError": "Erro de comando",
+        "shellSelect": "Tipo de shell",
+        "noRemoteControl": "Este agente foi instalado com o controlo remoto desativado. Recusa comandos, e isso só pode ser alterado na própria máquina.",
+        "noRemoteControlShort": "Controlo remoto desativado neste agente",
+        "password": {
+            "title": "Autenticação",
+            "hint": "Autentique-se para executar comandos neste agente.",
+            "tfaPrompt": "Código: ",
+            "confirm": "OK",
+            "cancel": "Cancelar",
+            "authError": "Falha na autenticação",
+            "authHint": "Autentique-se para executar comandos neste agente.",
+            "authOk": "Autenticado."
+        }
+    },
+    "sensitivity": {
+        "section": "Sensibilidade do ativo",
+        "hint": "Criticidade de negócio (CIA, 0–3) deste ativo. Alertas direcionados ao seu host/IP são ponderados por esses valores.",
+        "saved": "Sensibilidade atualizada",
+        "failed": "Falha ao atualizar a sensibilidade",
+        "save": "Salvar",
+        "confidentiality": "Confidencialidade",
+        "integrity": "Integridade",
+        "availability": "Disponibilidade",
+        "levels": {
+            "0": "Nenhuma",
+            "1": "Baixa",
+            "2": "Média",
+            "3": "Alta"
+        }
+    },
+    "health": {
+        "online": "online",
+        "offline": "offline",
+        "total": "total"
+    },
+    "report": {
+        "title": "UTMStack — Relatório de fontes de dados",
+        "generatedBy": "Gerado por UTMStack",
+        "eventsReceived": "Eventos recebidos",
+        "agents": "Agentes",
+        "integrations": "Integrações",
+        "direct": "Direto",
+        "volume": "Volume recebido",
+        "list": "Todas as fontes de dados",
+        "rowsNote": "linhas",
+        "preparing": "A preparar…",
+        "print": "Imprimir / Guardar como PDF",
+        "close": "Fechar"
+    }
+}

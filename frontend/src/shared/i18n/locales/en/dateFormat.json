@@ -1,0 +1,25 @@
+{
+    "title": "Date & time",
+    "subtitle": "How timestamps are displayed across the platform. Logs are always stored in UTC.",
+    "timezone": {
+        "title": "Time zone",
+        "hint": "Timestamps are shown in this time zone. Stored data stays in UTC.",
+        "system": "Browser default",
+        "now": "Now: {{value}}"
+    },
+    "format": {
+        "title": "Date format",
+        "hint": "Style used for dates and times."
+    },
+    "styles": {
+        "short": "Short",
+        "medium": "Medium",
+        "long": "Long",
+        "full": "Full"
+    },
+    "save": "Save changes",
+    "saving": "Saving…",
+    "saved": "Date settings saved",
+    "saveError": "Could not save the settings",
+    "loadError": "Could not load the settings"
+}

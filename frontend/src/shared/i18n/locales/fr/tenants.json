@@ -1,0 +1,101 @@
+{
+    "title": "Locataires",
+    "new": "Nouveau locataire",
+    "subtitle": "Chaque client de cette instance, ce qu'il détient et ce qu'il vous laisse voir.",
+    "searchPlaceholder": "Rechercher par nom ou domaine…",
+    "loading": "Chargement des locataires…",
+    "loadFailed": "Impossible de charger les locataires.",
+    "retry": "Réessayer",
+    "none": "Aucun locataire pour le moment.",
+    "noSearchMatch": "Aucun locataire ne correspond à la recherche.",
+    "cancel": "Annuler",
+    "saving": "Enregistrement…",
+    "chips": {
+        "total": "locataires",
+        "active": "actifs",
+        "readable": "accessibles"
+    },
+    "status": {
+        "ACTIVE": "Actif",
+        "SUSPENDED": "Suspendu",
+        "TERMINATED": "Résilié"
+    },
+    "support": {
+        "NONE": "Aucun accès",
+        "READ": "Accès en lecture",
+        "FULL": "Accès complet",
+        "hint": "Accordé par le locataire, pas par vous. Seul son administrateur peut le changer."
+    },
+    "card": {
+        "edit": "Modifier",
+        "activate": "Activer",
+        "deactivate": "Désactiver",
+        "deletePermanent": "Supprimer définitivement",
+        "noAccess": "Ce locataire ne vous a pas donné accès.",
+        "loadingStats": "Lecture…",
+        "enter": "Entrer"
+    },
+    "stats": {
+        "users": "Utilisateurs",
+        "datasources": "Sources",
+        "openAlerts": "Alertes ouvertes",
+        "ai": "IA aujourd'hui",
+        "noLimit": "sans plafond"
+    },
+    "fields": {
+        "name": "Nom",
+        "domain": "Domaine",
+        "domainHint": "Par où ce locataire est joint. Toute requête sur cet hôte entre dans ses données.",
+        "adminEmail": "E-mail de l'administrateur",
+        "adminEmailHint": "Il reçoit une invitation pour définir son propre mot de passe.",
+        "status": "Statut",
+        "suspendedWarning": "Un locataire suspendu ne peut pas se connecter. Ses données sont conservées.",
+        "aiLimit": "Plafond de requêtes IA",
+        "aiLimitHint": "Un plafond opérationnel, par jour. Sans plafond, la consommation compte sur la licence de l'instance.",
+        "aiLimitToggle": "Plafonner ce locataire"
+    },
+    "create": {
+        "title": "Nouveau locataire",
+        "subtitle": "Crée le locataire et invite son premier administrateur.",
+        "submit": "Créer le locataire"
+    },
+    "edit": {
+        "title": "Modifier le locataire",
+        "subtitle": "L'accès support n'est pas ici : seul le locataire peut l'accorder.",
+        "submit": "Enregistrer"
+    },
+    "terminate": {
+        "title": "Désactiver ce locataire ?",
+        "body": "Plus personne chez {{name}} ne pourra se connecter. Les données sont conservées, c'est donc réversible, mais le client est hors ligne dès maintenant.",
+        "confirmLabel": "Saisissez {{name}} pour confirmer",
+        "submit": "Désactiver"
+    },
+    "reactivate": {
+        "title": "Activer ce locataire ?",
+        "body": "{{name}} pourra se reconnecter. Les données conservées sont restaurées telles quelles.",
+        "submit": "Activer"
+    },
+    "deletePermanent": {
+        "title": "Supprimer ce locataire pour toujours ?",
+        "body": "Toute trace de {{name}} — utilisateurs, sources de données, tableaux de bord, alertes, intégrations — sera effacée. C'est irréversible.",
+        "confirmLabel": "Saisissez {{name}} pour confirmer",
+        "submit": "Supprimer définitivement"
+    },
+    "toast": {
+        "created": "Locataire créé",
+        "updated": "Locataire mis à jour",
+        "terminated": "Locataire résilié",
+        "reactivated": "Locataire réactivé",
+        "permanentlyDeleted": "Locataire supprimé définitivement",
+        "domainInUse": "Ce domaine est déjà pris",
+        "noPermission": "Vous n'avez pas la permission de faire cela",
+        "notFound": "Locataire introuvable",
+        "invalidRequest": "Requête invalide",
+        "operationFailed": "L'opération a échoué"
+    },
+    "switcher": {
+        "aria": "Switch tenant",
+        "self": "Default tenant",
+        "create": "Create tenant"
+    }
+}
