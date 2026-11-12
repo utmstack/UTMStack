@@ -4,9 +4,12 @@ go 1.25.5
 
 require (
 	github.com/google/uuid v1.6.0
-	github.com/threatwinds/go-sdk v1.1.37-0.20261028123630-c472007022ff
+	github.com/threatwinds/go-sdk v1.1.40-0.20261111193348-bb49d6af9f6c
+	github.com/tidwall/gjson v1.19.0
 	google.golang.org/protobuf v1.36.12
 )
+
+require github.com/opensearch-project/opensearch-go/v4 v4.6.0 // indirect
 
 require (
 	cel.dev/expr v0.25.2 // indirect
@@ -45,7 +48,6 @@ require (
 	github.com/quic-go/quic-go v0.59.1 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
-	github.com/tidwall/gjson v1.19.0 // indirect
 	github.com/tidwall/match v1.2.0 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
