@@ -8,7 +8,8 @@ import (
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/threatwinds/go-sdk/store"
-	ch "github.com/threatwinds/go-sdk/store/clickhouse"
+	"github.com/threatwinds/go-sdk/store/factory"
+	"github.com/utmstack/UTMStack/plugins/rule-flood-guard/internal/storecfg"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -19,36 +20,29 @@ const (
 	defaultAlertsTable = "alerts"
 )
 
-var alertStore *ch.Driver
+var alertStore store.Store
 
 func main() {
 	initialCfg, configPath := loadConfig()
 
-	cfg := plugins.PluginCfg("clickhouse")
-	table := cfg.Get("alertsTable").String()
-	if table == "" {
-		table = defaultAlertsTable
-	}
-
-	var err error
-	alertStore, err = ch.New(ch.Config{
-		Addr:     []string{cfg.Get("host").String() + ":" + cfg.Get("port").String()},
-		Database: cfg.Get("database").String(),
-		Username: cfg.Get("user").String(),
-		Password: cfg.Get("password").String(),
-		Tables: map[store.Dataset]string{
-			datasetAlerts: table,
-		},
-		TenantColumn:   "tenantId",
-		TimeColumn:     "@timestamp",
-		DataTypeColumn: "dataType",
+	cfg, err := storecfg.New(plugins.PluginCfg("store"), plugins.PluginCfg("clickhouse"), map[string]storecfg.Table{
+		string(datasetAlerts): {ConfigKey: "alertsTable", Default: defaultAlertsTable},
 	})
+	if err == nil {
+		cfg, err = storecfg.ClickHousePrimary(cfg)
+	}
+	if err != nil {
+		_ = catcher.Error("rule-flood-guard: invalid alert store configuration", err, map[string]any{"process": "plugin_" + pluginID})
+		os.Exit(1)
+	}
+	built, err := factory.New(cfg, factory.Options{})
 	if err != nil {
 		_ = catcher.Error("rule-flood-guard: cannot build the alert store", err, map[string]any{"process": "plugin_" + pluginID})
 		time.Sleep(5 * time.Second)
 		os.Exit(1)
 	}
-	defer alertStore.Close()
+	defer built.Close()
+	alertStore = built.Store
 
 	client := newBackendClient(initialCfg.BackendURL, initialCfg.InternalKey)
 	holder := newConfigHolder(initialCfg)
