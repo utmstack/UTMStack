@@ -29,6 +29,7 @@ require (
 	github.com/swaggo/swag v1.16.6
 	github.com/threatwinds/go-sdk v1.1.37-0.20261028123630-c472007022ff
 	github.com/tidwall/gjson v1.20.0
+	github.com/utmstack/UTMStack/upgrade v0.0.0
 	github.com/utmstack/license-manager-sdk v0.1.0
 	golang.org/x/crypto v0.58.0
 	golang.org/x/sys v0.49.0
@@ -177,3 +178,5 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20261026165753-2ffab32bce7e // indirect
 	gorm.io/driver/mysql v1.5.6 // indirect
 )
+
+replace github.com/utmstack/UTMStack/upgrade => ../upgrade
