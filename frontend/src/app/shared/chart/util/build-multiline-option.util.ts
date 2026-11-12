@@ -40,7 +40,7 @@ export function buildMultilineObject(data: MultilineResponse): Promise<any> {
         right: '40px'
       },
       calculable: true,
-      legend: new Legend(true, buildMultilineLegend(data),
+      legend: new Legend(true, buildMultilineSeries(data).map(s => s.name),
         'scroll', 'horizontal',
         'top', 'center',
         10, 0, 12, 12),
@@ -103,7 +103,9 @@ export function formatCategories(data: MultilineResponse) {
 export function buildMultilineLegend(data: MultilineResponse): string[] {
   const legend: string[] = [];
   for (const leg of data.series) {
-    legend.push(leg.serie);
+    // Backend serializes the name as "serie"; keep a fallback so a missing
+    // name can never be undefined (echarts 6 setOption throws on undefined).
+    legend.push(leg.serie || `Serie ${legend.length + 1}`);
   }
   return legend;
 }
@@ -113,7 +115,7 @@ export function buildMultilineSeries(data: MultilineResponse): MultilineSerie[] 
   for (const leg of data.series) {
     serie.push(
       {
-        name: leg.serie,
+        name: leg.serie || `Serie ${serie.length + 1}`,
         type: 'line',
         smooth: true,
         // itemStyle: {

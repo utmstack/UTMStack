@@ -8,6 +8,7 @@ import com.park.utmstack.domain.shared_types.EventsByObjectsInTimeType;
 import com.park.utmstack.domain.shared_types.static_dashboard.*;
 import com.park.utmstack.service.elasticsearch.ElasticsearchService;
 import com.park.utmstack.service.elasticsearch.SearchUtil;
+import com.park.utmstack.util.enums.AlertSeverityEnum;
 import com.park.utmstack.util.enums.AlertStatus;
 import com.park.utmstack.util.exceptions.DashboardOverviewException;
 import com.utmstack.opensearch_connector.parsers.DateHistogramAggregateParser;
@@ -116,7 +117,7 @@ public class OverviewService {
 
             SearchRequest rq = SearchRequest.of(s -> s.size(0).query(SearchUtil.toQuery(this.getDefaultFilters(List.of(from, to))))
                 .index(Constants.SYS_INDEX_PATTERN.get(SystemIndexPattern.ALERTS))
-                .aggregations(AGG_NAME, agg -> agg.terms(t -> t.field(Constants.alertSeverityLabel)
+                .aggregations(AGG_NAME, agg -> agg.terms(t -> t.field(Constants.alertSeverity)
                     .size(top).order(List.of(Map.of("_count", SortOrder.Desc))))));
 
             SearchResponse<String> rs = elasticsearchService.search(rq, String.class);
@@ -129,8 +130,19 @@ public class OverviewService {
             PieType result = new PieType();
 
             buckets.forEach(bucket -> {
-                result.addData(bucket.getKey());
-                result.addValue(new PieValue(bucket.getDocCount().intValue(), bucket.getKey()));
+                // Aggregate on the numeric severity code (1/2/3), which is
+                // mapped identically (long) on every alert-index generation.
+                // The old "severityLabel.keyword" field was generation-dependent
+                // (text+keyword on pre-10-30 indices, bare keyword after the
+                // standardized mapping), so it returned empty buckets for new
+                // data. Map the code back to the display label so the chart
+                // colors and the click-to-filter (which use "Low"/"Medium"/"High")
+                // keep working. Mirrors countAlertsByStatus (numeric -> name).
+                String label = AlertSeverityEnum.getByCode(Integer.parseInt(bucket.getKey()))
+                    .map(AlertSeverityEnum::getName)
+                    .orElse(bucket.getKey());
+                result.addData(label);
+                result.addValue(new PieValue(bucket.getDocCount().intValue(), label));
             });
 
             return result;

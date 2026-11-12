@@ -1,5 +1,6 @@
 package com.park.utmstack.domain.shared_types;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -40,6 +41,15 @@ public class EventsByObjectsInTimeType {
 
         public Metadata(String series) {
             this.series = series;
+        }
+
+        // Serialize the series name under the key "serie" so it matches the
+        // frontend MultilineResponse shape (series: { serie, values }[]).
+        // Without this getter Jackson omits the name entirely, so the client
+        // read leg.serie === undefined and echarts 6 crashed in setOption.
+        @JsonProperty("serie")
+        public String getSeries() {
+            return series;
         }
 
         public void addValue(Long val) {
