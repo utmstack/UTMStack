@@ -1,5 +1,6 @@
 import {Component, HostListener, OnInit, Renderer2} from '@angular/core';
 import {Router} from '@angular/router';
+import {TranslateService} from '@ngx-translate/core';
 import {catchError, delay, distinctUntilChanged, filter, map, skip, takeUntil, tap} from 'rxjs/operators';
 import {AccountService} from './core/auth/account.service';
 import {ApiServiceCheckerService} from './core/auth/api-checker-service';
@@ -46,11 +47,16 @@ export class AppComponent implements OnInit {
     private checkForUpdatesService: AppVersionService,
     private versionTypeService: VersionInfoService,
     private federationInstanceState: FederationInstanceStateService,
-    private federationModeService: FederationModeService) {
+    private federationModeService: FederationModeService,
+    private translate: TranslateService) {
     this.federationActive$ = this.federationModeService.active$;
 
-    // @ngx-translate 18: setDefaultLang() was removed; the default lang is set
-    // via provideTranslateService({lang:'en'}) in AppModule instead.
+    // @ngx-translate 18: setDefaultLang() was removed. The language is set here
+    // (lazily, after the injector is ready) rather than via
+    // provideTranslateService({lang:'en'}) — that form triggers use(lang) in the
+    // root TranslateService CONSTRUCTOR, forcing an eager bootstrap load that
+    // threw NG0200. This mirrors the v17 setDefaultLang('en') behavior.
+    this.translate.use('en');
 
     this.menuBehavior.$menu.subscribe(men => {
       this.menu = men;
