@@ -4,7 +4,7 @@ go 1.25.5
 
 require (
 	github.com/fsnotify/fsnotify v1.10.1
-	github.com/threatwinds/go-sdk v1.1.37-0.20261028123630-c472007022ff
+	github.com/threatwinds/go-sdk v1.1.40-0.20261111193348-bb49d6af9f6c
 	github.com/tidwall/gjson v1.20.0
 	google.golang.org/protobuf v1.36.12
 	gopkg.in/yaml.v3 v3.0.1
@@ -34,6 +34,7 @@ require (
 	github.com/mattn/go-isatty v0.0.22 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
+	github.com/opensearch-project/opensearch-go/v4 v4.6.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.3.1 // indirect
 	github.com/quic-go/qpack v0.6.0 // indirect
 	github.com/quic-go/quic-go v0.59.1 // indirect
