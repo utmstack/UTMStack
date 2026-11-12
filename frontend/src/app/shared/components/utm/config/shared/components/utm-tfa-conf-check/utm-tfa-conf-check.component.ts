@@ -3,7 +3,7 @@ import {DomSanitizer} from '@angular/platform-browser';
 import {AccountService} from '../../../../../../../core/auth/account.service';
 import {ModalService} from '../../../../../../../core/modal/modal.service';
 import {UtmToastService} from '../../../../../../alert/utm-toast.service';
-import {TfaInitResponse, TfaService} from '../../../../../../services/tfa/tfa.service';
+import {TfaInitResponse, TfaMethod, TfaService} from '../../../../../../services/tfa/tfa.service';
 import {SectionConfigParamType} from '../../../../../../types/configuration/section-config-param.type';
 import {UtmTfaVerificationComponent} from '../../../../../utm-tfa-verification/utm-tfa-verification.component';
 
@@ -54,20 +54,34 @@ export class UtmTfaConfCheckComponent implements OnInit {
   }
 
   openModal(response: TfaInitResponse) {
+    const tfaMethod = this.config.find(conf => conf.confParamShort === 'utmstack.tfa.method').confParamValue as TfaMethod;
     const modalSource = this.modalService.open(UtmTfaVerificationComponent, {
       centered: true,
       size: 'sm'
     });
 
-    modalSource.componentInstance.method = this.config.find(conf => conf.confParamShort === 'utmstack.tfa.method').confParamValue;
+    modalSource.componentInstance.method = tfaMethod;
     modalSource.componentInstance.qrCodeUrl = response.delivery.target ?
       this.sanitizer.bypassSecurityTrustUrl(`data:image/png;base64,${response.delivery.target}`) : null;
     modalSource.componentInstance.expiresInSeconds = response.expiresInSeconds;
 
     modalSource.result.then((result) => {
       if (result) {
-        console.log('TFA verification successful');
-        this.isChecked.next(true);
+        // Persist the newly-verified TFA secret. Without this the secret is
+        // cached + verified server-side but discarded when the setup state
+        // expires, leaving the old (possibly compromised) factor in force.
+        this.tfaService.completeTfa({ method: tfaMethod, enable: true }).subscribe(
+          () => {
+            this.isChecked.next(true);
+            this.utmToastService.showSuccess('TFA configuration verified and saved');
+          },
+          (error) => {
+            console.error('TFA complete failed', error);
+            this.isChecked.next(false);
+            this.utmToastService.showError('Error saving TFA configuration',
+              'The code was verified but could not be saved. Please try again.');
+          }
+        );
       }
     });
   }
