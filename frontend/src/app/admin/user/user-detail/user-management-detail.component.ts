@@ -4,8 +4,9 @@ import {ActivatedRoute} from '@angular/router';
 import {User} from '../../../core/user/user.model';
 
 @Component({
-  selector: 'app-user-mgmt-detail',
-  templateUrl: './user-management-detail.component.html'
+    standalone: false,
+    selector: 'app-user-mgmt-detail',
+    templateUrl: './user-management-detail.component.html',
 })
 export class UserMgmtDetailComponent implements OnInit {
   user: User;

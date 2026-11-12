@@ -3,9 +3,10 @@ import {DomSanitizer} from '@angular/platform-browser';
 import {JhiBase64Service} from '../../../../../shared/jhi/jhi.util';
 
 @Component({
-  selector: 'app-utm-input-file-upload',
-  templateUrl: './utm-input-file-upload.component.html',
-  styleUrls: ['./utm-input-file-upload.component.scss']
+    standalone: false,
+    selector: 'app-utm-input-file-upload',
+    templateUrl: './utm-input-file-upload.component.html',
+    styleUrls: ['./utm-input-file-upload.component.scss'],
 })
 export class UtmInputFileUploadComponent implements OnInit {
   @Input() acceptTypes: string;

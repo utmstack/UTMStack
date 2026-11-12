@@ -2,9 +2,10 @@ import {AfterViewInit, Component, OnInit} from '@angular/core';
 import {FederationConnectionService} from '../../../app-management/connection-key/shared/services/federation-connection.service';
 
 @Component({
-  selector: 'app-guide-json',
-  templateUrl: './guide-json.component.html',
-  styleUrls: ['./guide-json.component.scss']
+    standalone: false,
+    selector: 'app-guide-json',
+    templateUrl: './guide-json.component.html',
+    styleUrls: ['./guide-json.component.scss'],
 })
 export class GuideJsonComponent implements OnInit, AfterViewInit {
   instance = window.location.host;

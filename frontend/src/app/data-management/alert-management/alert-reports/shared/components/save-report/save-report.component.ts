@@ -11,9 +11,10 @@ import {AlertReportService} from '../../services/report.service';
 
 
 @Component({
-  selector: 'app-save-report',
-  templateUrl: './save-report.component.html',
-  styleUrls: ['./save-report.component.scss']
+    standalone: false,
+    selector: 'app-save-report',
+    templateUrl: './save-report.component.html',
+    styleUrls: ['./save-report.component.scss'],
 })
 export class SaveAlertReportComponent implements OnInit {
   @Input() filters: ElasticFilterType[];

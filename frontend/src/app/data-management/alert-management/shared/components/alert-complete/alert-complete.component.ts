@@ -11,9 +11,10 @@ import {AlertRulesService} from '../../services/alert-rules.service';
 import {AlertRuleCreateComponent} from '../alert-rule-create/alert-rule-create.component';
 
 @Component({
-  selector: 'app-alert-complete',
-  templateUrl: './alert-complete.component.html',
-  styleUrls: ['./alert-complete.component.scss']
+    standalone: false,
+    selector: 'app-alert-complete',
+    templateUrl: './alert-complete.component.html',
+    styleUrls: ['./alert-complete.component.scss'],
 })
 export class AlertCompleteComponent implements OnInit {
   @Input() alertsIDs: string[] = [];

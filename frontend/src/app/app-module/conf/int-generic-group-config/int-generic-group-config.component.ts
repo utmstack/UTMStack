@@ -19,9 +19,10 @@ import {IntegrationConfig} from './int-config-types/integration-config';
 import {IntegrationConfigFactory} from './int-config-types/IntegrationConfigFactory';
 
 @Component({
-  selector: 'app-int-generic-group-config',
-  templateUrl: './int-generic-group-config.component.html',
-  styleUrls: ['./int-generic-group-config.component.css']
+    standalone: false,
+    selector: 'app-int-generic-group-config',
+    templateUrl: './int-generic-group-config.component.html',
+    styleUrls: ['./int-generic-group-config.component.css'],
 })
 export class IntGenericGroupConfigComponent implements OnInit, OnChanges, OnDestroy {
   @Input() serverId: number;

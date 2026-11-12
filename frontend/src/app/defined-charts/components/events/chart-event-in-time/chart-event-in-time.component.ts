@@ -15,9 +15,10 @@ import {TimeFilterType} from '../../../../shared/types/time-filter.type';
 import {TimeFilterBehavior} from "../../../../shared/behaviors/time-filter.behavior";
 
 @Component({
-  selector: 'app-chart-event-in-time',
-  templateUrl: './chart-event-in-time.component.html',
-  styleUrls: ['./chart-event-in-time.component.scss']
+    standalone: false,
+    selector: 'app-chart-event-in-time',
+    templateUrl: './chart-event-in-time.component.html',
+    styleUrls: ['./chart-event-in-time.component.scss'],
 })
 export class ChartEventInTimeComponent implements OnInit, OnDestroy {
   @Input() refreshInterval;

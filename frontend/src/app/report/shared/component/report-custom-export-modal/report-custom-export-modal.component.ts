@@ -6,9 +6,10 @@ import {ReportService} from '../../service/report.service';
 import {ReportType} from '../../type/report.type';
 
 @Component({
-  selector: 'app-report-custom-export-modal',
-  templateUrl: './report-custom-export-modal.component.html',
-  styleUrls: ['./report-custom-export-modal.component.css']
+    standalone: false,
+    selector: 'app-report-custom-export-modal',
+    templateUrl: './report-custom-export-modal.component.html',
+    styleUrls: ['./report-custom-export-modal.component.css'],
 })
 export class ReportCustomExportModalComponent implements OnInit {
   @Input() report: ReportType;

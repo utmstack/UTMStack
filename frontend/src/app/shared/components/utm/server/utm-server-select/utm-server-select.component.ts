@@ -1,13 +1,14 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {NgbActiveModal, NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {UtmServerService} from '../../../../../app-module/shared/services/utm-server.service';
 import {UtmServerType} from '../../../../../app-module/shared/type/utm-server.type';
 
 @Component({
-  selector: 'app-utm-server-select',
-  templateUrl: './utm-server-select.component.html',
-  styleUrls: ['./utm-server-select.component.css']
+    standalone: false,
+    selector: 'app-utm-server-select',
+    templateUrl: './utm-server-select.component.html',
+    styleUrls: ['./utm-server-select.component.css'],
 })
 export class UtmServerSelectComponent implements OnInit {
   @Input() server: UtmServerType;

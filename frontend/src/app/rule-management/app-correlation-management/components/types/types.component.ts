@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgbActiveModal, NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
@@ -20,9 +20,10 @@ import {itemsPerPage} from '../../services/types.resolver.service';
 import {AddTypeComponent} from './components/add-type.component';
 
 @Component({
-  selector: 'app-assets',
-  templateUrl: './types.component.html',
-  styleUrls: ['./types.component.scss']
+    standalone: false,
+    selector: 'app-assets',
+    templateUrl: './types.component.html',
+    styleUrls: ['./types.component.scss'],
 })
 export class TypesComponent implements OnInit, OnDestroy {
 

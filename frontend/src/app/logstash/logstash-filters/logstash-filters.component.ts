@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, Input, OnInit} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {UtmToastService} from '../../shared/alert/utm-toast.service';
@@ -12,9 +12,10 @@ import {LogstashFilterType} from '../shared/types/logstash-filter.type';
 import {UtmPipeline} from '../shared/types/logstash-stats.type';
 
 @Component({
-  selector: 'app-logstash-filters',
-  templateUrl: './logstash-filters.component.html',
-  styleUrls: ['./logstash-filters.component.scss']
+    standalone: false,
+    selector: 'app-logstash-filters',
+    templateUrl: './logstash-filters.component.html',
+    styleUrls: ['./logstash-filters.component.scss'],
 })
 export class LogstashFiltersComponent implements OnInit {
   @Input() pipeline: UtmPipeline;

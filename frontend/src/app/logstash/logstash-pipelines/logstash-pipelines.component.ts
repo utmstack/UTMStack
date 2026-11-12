@@ -7,9 +7,10 @@ import {SVG_MODULE_MAP} from '../shared/const/logstash.const';
 import {UtmLogstashPipeline, UtmPipeline} from '../shared/types/logstash-stats.type';
 
 @Component({
-  selector: 'app-logstash-pipelines',
-  templateUrl: './logstash-pipelines.component.html',
-  styleUrls: ['./logstash-pipelines.component.scss']
+    standalone: false,
+    selector: 'app-logstash-pipelines',
+    templateUrl: './logstash-pipelines.component.html',
+    styleUrls: ['./logstash-pipelines.component.scss'],
 })
 export class LogstashPipelinesComponent implements OnInit, OnDestroy, AfterViewChecked {
   logstashPipelines: UtmLogstashPipeline;

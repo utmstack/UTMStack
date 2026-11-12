@@ -4,9 +4,10 @@ import {TimeFilterType} from '../../../../shared/types/time-filter.type';
 import {TreeObjectBehavior} from '../../behavior/tree-object.behvior';
 
 @Component({
-  selector: 'app-active-directory-event',
-  templateUrl: './active-directory-event.component.html',
-  styleUrls: ['./active-directory-event.component.scss']
+    standalone: false,
+    selector: 'app-active-directory-event',
+    templateUrl: './active-directory-event.component.html',
+    styleUrls: ['./active-directory-event.component.scss'],
 })
 export class AdEventComponent implements OnInit {
   @Input() objectId: any;

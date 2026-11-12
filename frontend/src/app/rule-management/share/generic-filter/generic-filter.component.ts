@@ -6,9 +6,10 @@ import {FilterService} from '../../services/filter.service';
 
 
 @Component({
-  selector: 'app-generic-filter',
-  templateUrl: './generic-filter.component.html',
-  styleUrls: ['./generic-filter.component.css']
+    standalone: false,
+    selector: 'app-generic-filter',
+    templateUrl: './generic-filter.component.html',
+    styleUrls: ['./generic-filter.component.css'],
 })
 export class GenericFilterComponent<T extends UtmFieldType> implements OnInit, AfterViewInit, OnDestroy {
   @Input() fieldFilter: T;

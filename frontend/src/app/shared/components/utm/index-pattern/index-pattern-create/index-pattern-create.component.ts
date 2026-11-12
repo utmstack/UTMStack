@@ -1,4 +1,4 @@
-import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {filterFieldDataType} from '../../../../../graphic-builder/shared/util/elasticsearch/elastic-field.util';
@@ -12,9 +12,10 @@ import {ElasticsearchIndexInfoType} from '../../../../types/elasticsearch/elasti
 import {UtmIndexPattern} from '../../../../types/index-pattern/utm-index-pattern';
 
 @Component({
-  selector: 'app-index-pattern-create',
-  templateUrl: './index-pattern-create.component.html',
-  styleUrls: ['./index-pattern-create.component.scss']
+    standalone: false,
+    selector: 'app-index-pattern-create',
+    templateUrl: './index-pattern-create.component.html',
+    styleUrls: ['./index-pattern-create.component.scss'],
 })
 export class IndexPatternCreateComponent implements OnInit {
   @Output() indexPatternCreated = new EventEmitter<UtmIndexPattern>();

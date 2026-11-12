@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
@@ -12,9 +12,10 @@ import {DashboardFilterType} from '../../../shared/types/filter/dashboard-filter
 import {UtmIndexPattern} from '../../../shared/types/index-pattern/utm-index-pattern';
 
 @Component({
-  selector: 'app-dashboard-filter-create',
-  templateUrl: './dashboard-filter-create.component.html',
-  styleUrls: ['./dashboard-filter-create.component.css']
+    standalone: false,
+    selector: 'app-dashboard-filter-create',
+    templateUrl: './dashboard-filter-create.component.html',
+    styleUrls: ['./dashboard-filter-create.component.css'],
 })
 export class DashboardFilterCreateComponent implements OnInit {
   @Input() filter: DashboardFilterType;

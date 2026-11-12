@@ -11,10 +11,11 @@ import {UtmModulesEnum} from '../../enum/utm-module.enum';
 import {UtmModuleType} from '../../type/utm-module.type';
 
 @Component({
-  selector: 'app-app-module-card',
-  templateUrl: './app-module-card.component.html',
-  styleUrls: ['./app-module-card.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    standalone: false,
+    selector: 'app-app-module-card',
+    templateUrl: './app-module-card.component.html',
+    styleUrls: ['./app-module-card.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppModuleCardComponent implements OnInit, OnDestroy {
 

@@ -11,9 +11,10 @@ import {ALERT_DETAIL_ROUTE} from '../../../constants/app-routes.constant';
 import {PasswordResetInitComponent} from '../password-reset/init/password-reset-init.component';
 
 @Component({
-  selector: 'app-confirm-identity',
-  templateUrl: './confirm-identity.component.html',
-  styleUrls: ['./confirm-identity.component.scss']
+    standalone: false,
+    selector: 'app-confirm-identity',
+    templateUrl: './confirm-identity.component.html',
+    styleUrls: ['./confirm-identity.component.scss'],
 })
 export class ConfirmIdentityComponent implements OnInit {
   authenticationError: boolean;

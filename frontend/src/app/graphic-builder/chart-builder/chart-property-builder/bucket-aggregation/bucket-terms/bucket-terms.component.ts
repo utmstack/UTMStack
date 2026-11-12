@@ -8,9 +8,10 @@ import {MetricDataBehavior} from '../../shared/behaviors/metric-data.behavior';
 import {getErrorCountForm} from '../../shared/functions/form-error-count';
 
 @Component({
-  selector: 'app-bucket-terms',
-  templateUrl: './bucket-terms.component.html',
-  styleUrls: ['./bucket-terms.component.scss']
+    standalone: false,
+    selector: 'app-bucket-terms',
+    templateUrl: './bucket-terms.component.html',
+    styleUrls: ['./bucket-terms.component.scss'],
 })
 export class BucketTermsComponent implements OnInit {
   @Input() mode: string;

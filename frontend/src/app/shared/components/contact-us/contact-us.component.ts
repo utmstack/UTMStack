@@ -2,9 +2,10 @@ import {Component, OnInit} from '@angular/core';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-  selector: 'app-contact-us',
-  templateUrl: './contact-us.component.html',
-  styleUrls: ['./contact-us.component.scss']
+    standalone: false,
+    selector: 'app-contact-us',
+    templateUrl: './contact-us.component.html',
+    styleUrls: ['./contact-us.component.scss'],
 })
 export class ContactUsComponent implements OnInit {
 

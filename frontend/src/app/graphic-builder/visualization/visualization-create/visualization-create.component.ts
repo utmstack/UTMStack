@@ -10,9 +10,10 @@ import {CHART_TYPES} from '../../shared/const/chart-type.const';
 import {VisualizationQueryParamsEnum} from '../../shared/enums/visualization-query-params.enum';
 
 @Component({
-  selector: 'app-visualization-create',
-  templateUrl: './visualization-create.component.html',
-  styleUrls: ['./visualization-create.component.scss']
+    standalone: false,
+    selector: 'app-visualization-create',
+    templateUrl: './visualization-create.component.html',
+    styleUrls: ['./visualization-create.component.scss'],
 })
 export class VisualizationCreateComponent implements OnInit {
   @Input() callback: RouteCallbackEnum;

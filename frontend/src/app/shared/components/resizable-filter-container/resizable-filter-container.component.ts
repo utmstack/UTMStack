@@ -1,9 +1,10 @@
 import {Component, EventEmitter, HostListener, Input, OnInit, Output} from '@angular/core';
 
 @Component({
-  selector: 'app-resizable-filter-container',
-  templateUrl: './resizable-filter-container.component.html',
-  styleUrls: ['./resizable-filter-container.component.scss']
+    standalone: false,
+    selector: 'app-resizable-filter-container',
+    templateUrl: './resizable-filter-container.component.html',
+    styleUrls: ['./resizable-filter-container.component.scss'],
 })
 export class ResizableFilterContainerComponent implements OnInit {
 

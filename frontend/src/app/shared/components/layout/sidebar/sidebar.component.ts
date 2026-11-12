@@ -10,9 +10,10 @@ import {SYSTEM_MENU_ICONS_PATH} from '../../../constants/menu_icons.constants';
 import {UtmRunModeService} from '../../../services/active-modules/utm-run-mode.service';
 
 @Component({
-  selector: 'app-sidebar',
-  templateUrl: './sidebar.component.html',
-  styleUrls: ['./sidebar.component.scss']
+    standalone: false,
+    selector: 'app-sidebar',
+    templateUrl: './sidebar.component.html',
+    styleUrls: ['./sidebar.component.scss'],
 })
 export class SidebarComponent implements OnInit {
   roleAdmin = ADMIN_ROLE;

@@ -25,9 +25,10 @@ import {CollectorFieldFilterEnum} from "../shared/enums/collector-field-filter.e
 import {UtmModuleCollectorService} from "../../app-module/shared/services/utm-module-collector.service";
 
 @Component({
-  selector: 'app-asset-groups',
-  templateUrl: './asset-groups.component.html',
-  styleUrls: ['./asset-groups.component.scss']
+    standalone: false,
+    selector: 'app-asset-groups',
+    templateUrl: './asset-groups.component.html',
+    styleUrls: ['./asset-groups.component.scss'],
 })
 export class AssetGroupsComponent implements OnInit, OnDestroy {
   assetGroups: AssetGroupType[];

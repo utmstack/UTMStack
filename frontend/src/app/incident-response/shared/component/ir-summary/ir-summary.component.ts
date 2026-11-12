@@ -8,9 +8,10 @@ import {IncidentResponseAssetService} from '../../services/incident-response-ass
 import {IncidentResponseJobService} from '../../services/incident-response-job.service';
 
 @Component({
-  selector: 'app-ir-summary',
-  templateUrl: './ir-summary.component.html',
-  styleUrls: ['./ir-summary.component.scss']
+    standalone: false,
+    selector: 'app-ir-summary',
+    templateUrl: './ir-summary.component.html',
+    styleUrls: ['./ir-summary.component.scss'],
 })
 export class IrSummaryComponent implements OnInit {
   @Input() formRule: FormGroup;

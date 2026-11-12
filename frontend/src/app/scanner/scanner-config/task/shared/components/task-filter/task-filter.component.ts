@@ -4,9 +4,10 @@ import {SEVERITY_VALUE, STATUS_TASK} from '../../../../../shared/const/task-stat
 import {ScannerSeverityEnum} from '../../../../../shared/enums/scanner-severity.enum';
 
 @Component({
+    standalone: false,
     selector: 'app-task-filter',
     templateUrl: './task-filter.component.html',
-    styleUrls: ['./task-filter.component.scss']
+    styleUrls: ['./task-filter.component.scss'],
 })
 export class TaskFilterComponent implements OnInit {
     @Output() taskFilterChange = new EventEmitter<any>();

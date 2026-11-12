@@ -1,9 +1,10 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 
 @Component({
-  selector: 'app-active-directory-dashboard',
-  templateUrl: './active-directory-dashboard.component.html',
-  styleUrls: ['./active-directory-dashboard.component.scss']
+    standalone: false,
+    selector: 'app-active-directory-dashboard',
+    templateUrl: './active-directory-dashboard.component.html',
+    styleUrls: ['./active-directory-dashboard.component.scss'],
 })
 export class AdDashboardComponent implements OnInit, OnDestroy {
   pdfExport = false;

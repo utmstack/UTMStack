@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {AbstractControl, FormArray, FormBuilder, FormGroup} from '@angular/forms';
 import {Observable, of} from 'rxjs';
@@ -16,9 +16,10 @@ import {getOperator} from "../../../../shared/util/query-params-to-filter.util";
 
 
 @Component({
-  selector: 'app-after-event',
-  templateUrl: './add-after-event.component.html',
-  styleUrls: ['./add-after-event.component.css']
+    standalone: false,
+    selector: 'app-after-event',
+    templateUrl: './add-after-event.component.html',
+    styleUrls: ['./add-after-event.component.css'],
 })
 export class AddAfterEventComponent implements OnInit {
   @Input() form: FormGroup;

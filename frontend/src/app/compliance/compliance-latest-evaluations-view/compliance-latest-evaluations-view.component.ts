@@ -1,4 +1,4 @@
-import {HttpErrorResponse} from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -21,10 +21,11 @@ import {ComplianceControlLatestEvaluationType} from '../shared/type/compliance-c
 import {ComplianceStandardSectionType} from '../shared/type/compliance-standard-section.type';
 
 @Component({
-  selector: 'app-compliance-latest-evaluations-view',
-  templateUrl: './compliance-latest-evaluations-view.component.html',
-  styleUrls: ['./compliance-latest-evaluations-view.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    standalone: false,
+    selector: 'app-compliance-latest-evaluations-view',
+    templateUrl: './compliance-latest-evaluations-view.component.html',
+    styleUrls: ['./compliance-latest-evaluations-view.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ComplianceLatestEvaluationsViewComponent implements OnInit, OnChanges, OnDestroy {
   @Input() section: ComplianceStandardSectionType;

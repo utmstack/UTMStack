@@ -14,9 +14,10 @@ import {ReportService} from '../shared/service/report.service';
 import {ReportType} from '../shared/type/report.type';
 
 @Component({
-  selector: 'app-report-template-result',
-  templateUrl: './report-template-result.component.html',
-  styleUrls: ['./report-template-result.component.scss']
+    standalone: false,
+    selector: 'app-report-template-result',
+    templateUrl: './report-template-result.component.html',
+    styleUrls: ['./report-template-result.component.scss'],
 })
 export class ReportTemplateResultComponent implements OnInit {
   reportId: number;

@@ -2,9 +2,10 @@ import {Component, ContentChild, Input, OnInit, TemplateRef} from '@angular/core
 import {TemplateSelectorDirective} from '../../directives/template-selector/template-selector.directive';
 
 @Component({
-  selector: 'app-filter',
-  templateUrl: './app-filter.component.html',
-  styleUrls: ['./app-filter.component.scss']
+    standalone: false,
+    selector: 'app-filter',
+    templateUrl: './app-filter.component.html',
+    styleUrls: ['./app-filter.component.scss'],
 })
 export class AppFilterComponent<T extends {id: number}> {
   @Input() list: T[] | null = null;

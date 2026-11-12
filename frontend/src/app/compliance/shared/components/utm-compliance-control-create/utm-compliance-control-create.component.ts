@@ -9,9 +9,10 @@ import {ComplianceControlType} from '../../type/compliance-control.type';
 import {ComplianceQueryType} from '../../type/compliance-query.type';
 
 @Component({
-  selector: 'app-utm-compliance-control-create',
-  templateUrl: './utm-compliance-control-create.component.html',
-  styleUrls: ['./utm-compliance-control-create.component.scss']
+    standalone: false,
+    selector: 'app-utm-compliance-control-create',
+    templateUrl: './utm-compliance-control-create.component.html',
+    styleUrls: ['./utm-compliance-control-create.component.scss'],
 })
 export class UtmComplianceControlCreateComponent implements OnInit {
   @Input() control: ComplianceControlType;

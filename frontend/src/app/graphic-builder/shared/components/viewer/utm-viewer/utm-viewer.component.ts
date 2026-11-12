@@ -3,10 +3,11 @@ import {VisualizationType} from '../../../../../shared/chart/types/visualization
 import {ChartTypeEnum} from '../../../../../shared/enums/chart-type.enum';
 
 @Component({
-  selector: 'app-utm-viewer',
-  templateUrl: './utm-viewer.component.html',
-  styleUrls: ['./utm-viewer.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    standalone: false,
+    selector: 'app-utm-viewer',
+    templateUrl: './utm-viewer.component.html',
+    styleUrls: ['./utm-viewer.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UtmViewerComponent implements OnInit {
   @Input() chartId: number;

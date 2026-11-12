@@ -5,9 +5,10 @@ import {TaskModel} from '../../../shared/model/task.model';
 import {TaskService} from '../shared/services/task.service';
 
 @Component({
-  selector: 'app-task-delete',
-  templateUrl: './task-delete.component.html',
-  styleUrls: ['./task-delete.component.scss']
+    standalone: false,
+    selector: 'app-task-delete',
+    templateUrl: './task-delete.component.html',
+    styleUrls: ['./task-delete.component.scss'],
 })
 export class TaskDeleteComponent implements OnInit {
   @Input() task: TaskModel;

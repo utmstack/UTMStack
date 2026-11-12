@@ -6,9 +6,10 @@ import {RegexPattern} from '../../../../models/rule.model';
 import {PatternManagerService} from '../../../services/pattern-manager.service';
 
 @Component({
-  selector: 'app-add-pattern',
-  templateUrl: './add-pattern.component.html',
-  styleUrls: ['./add-pattern.component.scss']
+    standalone: false,
+    selector: 'app-add-pattern',
+    templateUrl: './add-pattern.component.html',
+    styleUrls: ['./add-pattern.component.scss'],
 })
 export class AddPatternComponent implements OnInit {
 

@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {AccountService} from '../../core/auth/account.service';
 import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
@@ -12,9 +12,10 @@ import {IncidentCommandType} from '../../shared/types/incident/incident-command.
 import {IncidentResponseJobService} from '../shared/services/incident-response-job.service';
 
 @Component({
-  selector: 'app-incident-response-view',
-  templateUrl: './incident-response-view.component.html',
-  styleUrls: ['./incident-response-view.component.scss']
+    standalone: false,
+    selector: 'app-incident-response-view',
+    templateUrl: './incident-response-view.component.html',
+    styleUrls: ['./incident-response-view.component.scss'],
 })
 export class IncidentResponseViewComponent implements OnInit, OnDestroy {
   manageCommands: any;

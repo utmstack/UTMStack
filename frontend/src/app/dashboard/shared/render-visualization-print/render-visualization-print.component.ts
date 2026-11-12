@@ -3,9 +3,10 @@ import {UtmDashboardVisualizationType} from '../../../shared/chart/types/dashboa
 import {ChartTypeEnum} from '../../../shared/enums/chart-type.enum';
 
 @Component({
-  selector: 'app-render-visualization-print',
-  templateUrl: './render-visualization-print.component.html',
-  styleUrls: ['./render-visualization-print.component.scss']
+    standalone: false,
+    selector: 'app-render-visualization-print',
+    templateUrl: './render-visualization-print.component.html',
+    styleUrls: ['./render-visualization-print.component.scss'],
 })
 export class RenderVisualizationPrintComponent implements OnInit {
   @Input() visualizationRender: UtmDashboardVisualizationType[];

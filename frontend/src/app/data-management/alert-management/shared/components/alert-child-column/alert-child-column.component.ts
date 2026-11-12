@@ -2,9 +2,10 @@ import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {UtmAlertType} from 'src/app/shared/types/alert/utm-alert.type';
 
 @Component({
-  selector: 'app-alert-child-column',
-  templateUrl: './alert-child-column.component.html',
-  styleUrls: ['./alert-child-column.component.scss']
+    standalone: false,
+    selector: 'app-alert-child-column',
+    templateUrl: './alert-child-column.component.html',
+    styleUrls: ['./alert-child-column.component.scss'],
 })
 export class AlertChildColumnComponent  {
 

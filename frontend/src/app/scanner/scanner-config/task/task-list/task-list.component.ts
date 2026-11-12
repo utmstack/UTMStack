@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
@@ -22,9 +22,10 @@ import {TaskDeleteComponent} from '../task-delete/task-delete.component';
 import {JhiParseLinks} from '../../../../shared/jhi/jhi.util';
 
 @Component({
-  selector: 'app-task-list',
-  templateUrl: './task-list.component.html',
-  styleUrls: ['./task-list.component.scss']
+    standalone: false,
+    selector: 'app-task-list',
+    templateUrl: './task-list.component.html',
+    styleUrls: ['./task-list.component.scss'],
 })
 export class TaskListComponent implements OnInit, OnDestroy {
   fields: SortByType[] = [

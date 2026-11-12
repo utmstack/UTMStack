@@ -2,9 +2,10 @@ import {Component, Input, OnInit} from '@angular/core';
 import {UtmModulesEnum} from '../../shared/enum/utm-module.enum';
 
 @Component({
-  selector: 'app-guide-cisco',
-  templateUrl: './guide-cisco.component.html',
-  styleUrls: ['./guide-cisco.component.scss']
+    standalone: false,
+    selector: 'app-guide-cisco',
+    templateUrl: './guide-cisco.component.html',
+    styleUrls: ['./guide-cisco.component.scss'],
 })
 export class GuideCiscoComponent implements OnInit {
   @Input() integrationId: number;

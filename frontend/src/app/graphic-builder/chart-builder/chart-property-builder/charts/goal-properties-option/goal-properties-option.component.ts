@@ -9,9 +9,10 @@ import {MetricDataBehavior} from '../../shared/behaviors/metric-data.behavior';
 import {extractMetricLabel} from '../../shared/functions/visualization-util';
 
 @Component({
-  selector: 'app-goal-properties-option',
-  templateUrl: './goal-properties-option.component.html',
-  styleUrls: ['./goal-properties-option.component.scss']
+    standalone: false,
+    selector: 'app-goal-properties-option',
+    templateUrl: './goal-properties-option.component.html',
+    styleUrls: ['./goal-properties-option.component.scss'],
 })
 export class GoalPropertiesOptionComponent implements OnInit {
   @Input() visualization: VisualizationType;

@@ -7,9 +7,10 @@ import {AdTrackerService} from '../shared/services/ad-tracker.service';
 import {AdTrackerType} from '../shared/type/ad-tracker.type';
 
 @Component({
-  selector: 'app-active-directory-tracker-create',
-  templateUrl: './ad-tracker-create.component.html',
-  styleUrls: ['./ad-tracker-create.component.scss']
+    standalone: false,
+    selector: 'app-active-directory-tracker-create',
+    templateUrl: './ad-tracker-create.component.html',
+    styleUrls: ['./ad-tracker-create.component.scss'],
 })
 export class AdTrackerCreateComponent implements OnInit {
   @Input() targetTracking: ActiveDirectoryTreeType[];

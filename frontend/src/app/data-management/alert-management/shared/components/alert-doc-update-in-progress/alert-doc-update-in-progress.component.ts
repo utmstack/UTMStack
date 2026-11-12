@@ -2,9 +2,10 @@ import {Component, OnInit} from '@angular/core';
 import {AlertUpdateSolutionBehavior} from '../../behavior/alert-update-solution.behavior';
 
 @Component({
-  selector: 'app-alert-doc-update-in-progress',
-  templateUrl: './alert-doc-update-in-progress.component.html',
-  styleUrls: ['./alert-doc-update-in-progress.component.scss']
+    standalone: false,
+    selector: 'app-alert-doc-update-in-progress',
+    templateUrl: './alert-doc-update-in-progress.component.html',
+    styleUrls: ['./alert-doc-update-in-progress.component.scss'],
 })
 export class AlertDocUpdateInProgressComponent implements OnInit {
   updateDocSolStatus: 'init' | 'error' | 'done';

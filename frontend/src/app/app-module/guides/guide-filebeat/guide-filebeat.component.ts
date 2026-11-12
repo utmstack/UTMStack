@@ -3,9 +3,10 @@ import {UtmModulesEnum} from '../../shared/enum/utm-module.enum';
 import {FilebeatCommands} from "../guide-filebeat-generic/guide-filebeat-generic.component";
 
 @Component({
-  selector: 'app-guide-filebeat',
-  templateUrl: './guide-filebeat.component.html',
-  styleUrls: ['./guide-filebeat.component.scss']
+    standalone: false,
+    selector: 'app-guide-filebeat',
+    templateUrl: './guide-filebeat.component.html',
+    styleUrls: ['./guide-filebeat.component.scss'],
 })
 export class GuideFilebeatComponent implements OnInit {
   @Input() integrationId: number;

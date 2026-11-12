@@ -5,9 +5,10 @@ import {ChartTypeEnum} from '../../../../../shared/enums/chart-type.enum';
 import {AXIS_LINE_STYLE, AXIS_TYPE} from '../../../../shared/const/chart/axis-properties.const';
 
 @Component({
-  selector: 'app-chart-axis-option',
-  templateUrl: './chart-axis-option.component.html',
-  styleUrls: ['./chart-axis-option.component.scss']
+    standalone: false,
+    selector: 'app-chart-axis-option',
+    templateUrl: './chart-axis-option.component.html',
+    styleUrls: ['./chart-axis-option.component.scss'],
 })
 export class ChartAxisOptionComponent implements OnInit {
   /**

@@ -4,9 +4,10 @@ import {NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import {V11_ALERT_FIELDS} from '../../../../shared/constants/alert/v11-alert-fields.constants';
 
 @Component({
-  selector: 'app-action-terminal',
-  templateUrl: './action-terminal.component.html',
-  styleUrls: ['./action-terminal.component.scss']
+    standalone: false,
+    selector: 'app-action-terminal',
+    templateUrl: './action-terminal.component.html',
+    styleUrls: ['./action-terminal.component.scss'],
 })
 export class ActionTerminalComponent implements OnInit {
   @Input() action: any;

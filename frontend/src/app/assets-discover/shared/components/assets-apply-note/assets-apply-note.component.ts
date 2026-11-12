@@ -4,9 +4,10 @@ import {UtmNetScanService} from '../../services/utm-net-scan.service';
 import {NetScanType} from '../../types/net-scan.type';
 
 @Component({
-  selector: 'app-assets-apply-note',
-  templateUrl: './assets-apply-note.component.html',
-  styleUrls: ['./assets-apply-note.component.scss']
+    standalone: false,
+    selector: 'app-assets-apply-note',
+    templateUrl: './assets-apply-note.component.html',
+    styleUrls: ['./assets-apply-note.component.scss'],
 })
 export class AssetsApplyNoteComponent implements OnInit {
   @Input() asset: NetScanType;

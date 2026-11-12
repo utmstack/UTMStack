@@ -5,9 +5,10 @@ import {UtmModuleGroupConfService} from '../../shared/services/utm-module-group-
 import {UtmModuleGroupConfType} from '../../shared/type/utm-module-group-conf.type';
 
 @Component({
-  selector: 'app-int-azure-eventhub',
-  templateUrl: './int-azure-eventhub.component.html',
-  styleUrls: ['./int-azure-eventhub.component.css']
+    standalone: false,
+    selector: 'app-int-azure-eventhub',
+    templateUrl: './int-azure-eventhub.component.html',
+    styleUrls: ['./int-azure-eventhub.component.css'],
 })
 export class IntAzureEventhubComponent implements OnInit {
   azureForm: FormGroup;

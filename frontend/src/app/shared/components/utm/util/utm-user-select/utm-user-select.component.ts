@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {delay} from 'rxjs/operators';
 import {User} from '../../../../../core/user/user.model';
@@ -8,9 +8,10 @@ import {SortEvent} from '../../../../directives/sortable/type/sort-event';
 import {SortByType} from '../../../../types/sort-by.type';
 
 @Component({
-  selector: 'app-utm-user-select',
-  templateUrl: './utm-user-select.component.html',
-  styleUrls: ['./utm-user-select.component.css']
+    standalone: false,
+    selector: 'app-utm-user-select',
+    templateUrl: './utm-user-select.component.html',
+    styleUrls: ['./utm-user-select.component.css'],
 })
 export class UtmUserSelectComponent implements OnInit {
   users: User[];

@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
@@ -13,9 +13,10 @@ import {AdScheduleDeleteComponent} from '../ad-schedule-delete/ad-schedule-delet
 import {JhiParseLinks} from '../../../../shared/jhi/jhi.util';
 
 @Component({
-  selector: 'app-active-directory-schedule-list',
-  templateUrl: './ad-schedule-list.component.html',
-  styleUrls: ['./ad-schedule-list.component.scss']
+    standalone: false,
+    selector: 'app-active-directory-schedule-list',
+    templateUrl: './ad-schedule-list.component.html',
+    styleUrls: ['./ad-schedule-list.component.scss'],
 })
 export class AdScheduleListComponent implements OnInit {
   fields: SortByType[] = [

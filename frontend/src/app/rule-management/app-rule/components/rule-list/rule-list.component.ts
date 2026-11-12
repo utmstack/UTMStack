@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
@@ -22,9 +22,10 @@ import {RuleViewComponent} from '../rule-view/rule-view.component';
 
 
 @Component({
-  selector: 'app-rule-list',
-  templateUrl: './rule-list.component.html',
-  styleUrls: ['./rule-list.component.css']
+    standalone: false,
+    selector: 'app-rule-list',
+    templateUrl: './rule-list.component.html',
+    styleUrls: ['./rule-list.component.css'],
 })
 export class RuleListComponent implements OnInit, OnDestroy {
 

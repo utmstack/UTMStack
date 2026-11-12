@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, Input, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
 import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
@@ -17,9 +17,10 @@ import {LogAnalyzerService} from '../../services/log-analyzer.service';
 import {LogAnalyzerChartResponseType} from '../../type/log-analyzer-field-detail.type';
 
 @Component({
-  selector: 'app-analyzer-bar-chart',
-  templateUrl: './analyzer-bar-chart.component.html',
-  styleUrls: ['./analyzer-bar-chart.component.scss']
+    standalone: false,
+    selector: 'app-analyzer-bar-chart',
+    templateUrl: './analyzer-bar-chart.component.html',
+    styleUrls: ['./analyzer-bar-chart.component.scss'],
 })
 export class AnalyzerBarChartComponent implements OnInit {
   @Input() pattern: string;

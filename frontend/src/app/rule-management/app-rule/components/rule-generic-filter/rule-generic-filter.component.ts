@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import { of } from 'rxjs';
 import {catchError} from 'rxjs/operators';
@@ -16,9 +16,10 @@ import {ElasticFilterType} from '../../../../shared/types/filter/elastic-filter.
 
 
 @Component({
-  selector: 'app-rule-generic-filter',
-  templateUrl: './rule-generic-filter.component.html',
-  styleUrls: ['./rule-generic-filter.component.scss']
+    standalone: false,
+    selector: 'app-rule-generic-filter',
+    templateUrl: './rule-generic-filter.component.html',
+    styleUrls: ['./rule-generic-filter.component.scss'],
 })
 export class RuleGenericFilterComponent implements OnInit {
   @Input() fieldFilter: ElasticFilterType;

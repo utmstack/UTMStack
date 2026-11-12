@@ -12,9 +12,10 @@ import {UtmIdentityProvider} from './shared/models/utm-identity-provider.model';
 import {UtmIdentityProviderService} from './shared/services/utm-identity-provider.service';
 
 @Component({
-  selector: 'app-identity-provider-config',
-  templateUrl: './identity-provider.component.html',
-  styleUrls: ['./identity-provider.component.scss']
+    standalone: false,
+    selector: 'app-identity-provider-config',
+    templateUrl: './identity-provider.component.html',
+    styleUrls: ['./identity-provider.component.scss'],
 })
 export class IdentityProviderComponent implements OnInit {
   providers: UtmIdentityProvider[] = [];

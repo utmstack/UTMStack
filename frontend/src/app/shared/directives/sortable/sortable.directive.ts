@@ -4,13 +4,14 @@ import {SortDirection} from './type/sort-direction.type';
 import {SortEvent} from './type/sort-event';
 
 @Directive({
-  selector: 'th[appColumnSortable]',
-  host: {
-    '[class.utm-table-sort-desc]': 'direction=== "asc"',
-    '[class.utm-table-sort-asc]': 'direction=== "desc"',
-    '[class.utm-table-sort-none]': 'direction === ""',
-    '(click)': 'rotate()'
-  }
+    standalone: false,
+    selector: 'th[appColumnSortable]',
+    host: {
+        '[class.utm-table-sort-desc]': 'direction=== "asc"',
+        '[class.utm-table-sort-asc]': 'direction=== "desc"',
+        '[class.utm-table-sort-none]': 'direction === ""',
+        '(click)': 'rotate()'
+    },
 })
 
 export class SortableDirective implements OnChanges {

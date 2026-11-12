@@ -6,9 +6,10 @@ import {Step} from '../shared/step';
 import {FILEBEAT_STEPS} from './filebeat.steps';
 
 @Component({
-  selector: 'app-guide-filebeat-generic',
-  templateUrl: './guide-filebeat-generic.component.html',
-  styleUrls: ['./guide-filebeat-generic.component.css']
+    standalone: false,
+    selector: 'app-guide-filebeat-generic',
+    templateUrl: './guide-filebeat-generic.component.html',
+    styleUrls: ['./guide-filebeat-generic.component.css'],
 })
 export class GuideFilebeatGenericComponent implements OnInit {
   @Input() integrationId: number;

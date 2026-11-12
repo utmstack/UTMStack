@@ -8,9 +8,10 @@ import {FileFieldEnum} from '../../../enum/file-field.enum';
 import {FileAccessMaskCodeType} from '../../../types/file-access-mask-code.type';
 
 @Component({
-  selector: 'app-file-filter',
-  templateUrl: './file-filter.component.html',
-  styleUrls: ['./file-filter.component.scss']
+    standalone: false,
+    selector: 'app-file-filter',
+    templateUrl: './file-filter.component.html',
+    styleUrls: ['./file-filter.component.scss'],
 })
 export class FileFilterComponent implements OnInit {
   fieldFilters: UtmFieldType[] = FILE_FILTER_FIELDS;

@@ -11,9 +11,10 @@ import {MetricDataBehavior} from '../../shared/behaviors/metric-data.behavior';
 import {extractMetricLabel} from '../../shared/functions/visualization-util';
 
 @Component({
-  selector: 'app-metric-properties-option',
-  templateUrl: './metric-properties-option.component.html',
-  styleUrls: ['./metric-properties-option.component.scss']
+    standalone: false,
+    selector: 'app-metric-properties-option',
+    templateUrl: './metric-properties-option.component.html',
+    styleUrls: ['./metric-properties-option.component.scss'],
 })
 export class MetricPropertiesOptionComponent implements OnInit {
   @Input() visualization: VisualizationType;

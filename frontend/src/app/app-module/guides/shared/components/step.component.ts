@@ -2,7 +2,8 @@ import {Component, Directive, Input, TemplateRef} from '@angular/core';
 import {Step} from '../step';
 
 @Directive({
-  selector: 'ng-template[stepTemplateRef]'
+    standalone: false,
+    selector: 'ng-template[stepTemplateRef]',
 })
 
 export class StepDirective {
@@ -11,15 +12,16 @@ export class StepDirective {
 }
 
 @Component({
-  selector: 'app-step',
-  template: `
+    standalone: false,
+    selector: 'app-step',
+    template: `
       <p class="step-guide">
         <span class="step_number">
           <ng-content select ="[stepNumber]"></ng-content>
         </span>
         <ng-content></ng-content>
       </p>
-  `
+  `,
 })
 
 export class StepComponent {

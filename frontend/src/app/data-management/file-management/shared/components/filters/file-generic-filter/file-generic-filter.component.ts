@@ -8,9 +8,10 @@ import {UtmFieldType} from '../../../../../../shared/types/table/utm-field.type'
 import {FileFiltersBehavior} from '../../../behavior/file-filters.behavior';
 
 @Component({
+    standalone: false,
     selector: 'app-file-generic-filter',
     templateUrl: './file-generic-filter.component.html',
-    styleUrls: ['./file-generic-filter.component.scss']
+    styleUrls: ['./file-generic-filter.component.scss'],
 })
 export class FileGenericFilterComponent implements OnInit {
     @Output() filterGenericChange = new EventEmitter<ElasticFilterType>();

@@ -4,9 +4,10 @@ import {NgxSpinnerService} from 'ngx-spinner';
 import {ActiveDirectoryDashboardService} from '../../../../shared/services/charts-overview/active-directory-dashboard.service';
 
 @Component({
-  selector: 'app-chart-ad-quick-info',
-  templateUrl: './chart-ad-quick-info.component.html',
-  styleUrls: ['./chart-ad-quick-info.component.scss']
+    standalone: false,
+    selector: 'app-chart-ad-quick-info',
+    templateUrl: './chart-ad-quick-info.component.html',
+    styleUrls: ['./chart-ad-quick-info.component.scss'],
 })
 export class ChartAdQuickInfoComponent implements OnInit, OnDestroy {
   @Input() refreshInterval;

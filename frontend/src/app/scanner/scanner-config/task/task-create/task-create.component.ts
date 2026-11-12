@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {NgbActiveModal, NgbModal} from '@ng-bootstrap/ng-bootstrap';
@@ -19,9 +19,10 @@ import {ScannerService} from '../shared/services/scanner.service';
 import {TaskService} from '../shared/services/task.service';
 
 @Component({
-  selector: 'app-task-create',
-  templateUrl: './task-create.component.html',
-  styleUrls: ['./task-create.component.scss']
+    standalone: false,
+    selector: 'app-task-create',
+    templateUrl: './task-create.component.html',
+    styleUrls: ['./task-create.component.scss'],
 })
 export class TaskCreateComponent implements OnInit {
   @Output() taskCreated = new EventEmitter<string>();

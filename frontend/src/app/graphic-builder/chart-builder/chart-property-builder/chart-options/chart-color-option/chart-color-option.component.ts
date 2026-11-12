@@ -4,9 +4,10 @@ import {Color} from '../../../../../shared/chart/types/charts/chart-properties/c
 import {UTM_COLOR_THEME} from '../../../../../shared/constants/utm-color.const';
 
 @Component({
-  selector: 'app-chart-color-option',
-  templateUrl: './chart-color-option.component.html',
-  styleUrls: ['./chart-color-option.component.scss']
+    standalone: false,
+    selector: 'app-chart-color-option',
+    templateUrl: './chart-color-option.component.html',
+    styleUrls: ['./chart-color-option.component.scss'],
 })
 export class ChartColorOptionComponent implements OnInit {
   @Output() colorOptionChange = new EventEmitter<Color | string[]>();

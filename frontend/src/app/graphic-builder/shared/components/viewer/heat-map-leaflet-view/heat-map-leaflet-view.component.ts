@@ -1,4 +1,4 @@
-import {HttpClient} from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import * as L from 'leaflet';
 import 'leaflet.heat/dist/leaflet-heat.js';
@@ -6,9 +6,10 @@ import {VisualizationType} from '../../../../../shared/chart/types/visualization
 import {ChartTypeEnum} from '../../../../../shared/enums/chart-type.enum';
 
 @Component({
-  selector: 'app-heat-map-leaflet-view',
-  templateUrl: './heat-map-leaflet-view.component.html',
-  styleUrls: ['./heat-map-leaflet-view.component.scss']
+    standalone: false,
+    selector: 'app-heat-map-leaflet-view',
+    templateUrl: './heat-map-leaflet-view.component.html',
+    styleUrls: ['./heat-map-leaflet-view.component.scss'],
 })
 export class HeatMapLeafletViewComponent implements OnInit {
   @Input() building: boolean;

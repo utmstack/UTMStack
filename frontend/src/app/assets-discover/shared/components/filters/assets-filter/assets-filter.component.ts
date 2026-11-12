@@ -3,9 +3,10 @@ import {ElasticFilterType} from '../../../../../shared/types/filter/elastic-filt
 import {ASSETS_FIELDS_FILTERS} from '../../../const/asset-field.const';
 
 @Component({
-  selector: 'app-assets-filter',
-  templateUrl: './assets-filter.component.html',
-  styleUrls: ['./assets-filter.component.css']
+    standalone: false,
+    selector: 'app-assets-filter',
+    templateUrl: './assets-filter.component.html',
+    styleUrls: ['./assets-filter.component.css'],
 })
 export class AssetsFilterComponent implements OnInit {
   @Output() filterChange = new EventEmitter<ElasticFilterType>();

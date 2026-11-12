@@ -5,9 +5,10 @@ import {ChartTypeEnum} from '../../../../../shared/enums/chart-type.enum';
 import {InputClassResolve} from '../../../../../shared/util/input-class-resolve';
 
 @Component({
-  selector: 'app-chart-map-tiles-option',
-  templateUrl: './chart-map-tiles-option.component.html',
-  styleUrls: ['./chart-map-tiles-option.component.scss']
+    standalone: false,
+    selector: 'app-chart-map-tiles-option',
+    templateUrl: './chart-map-tiles-option.component.html',
+    styleUrls: ['./chart-map-tiles-option.component.scss'],
 })
 export class ChartMapTilesOptionComponent implements OnInit {
   @Output() mapTilesOption = new EventEmitter<LeafletTilesType[]>();

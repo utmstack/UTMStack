@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
@@ -37,10 +37,11 @@ import {NetScanType} from '../shared/types/net-scan.type';
 import {SourceDataTypeConfigComponent} from '../source-data-type-config/source-data-type-config.component';
 
 @Component({
-  selector: 'app-assets-view',
-  templateUrl: './assets-view.component.html',
-  styleUrls: ['./assets-view.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    standalone: false,
+    selector: 'app-assets-view',
+    templateUrl: './assets-view.component.html',
+    styleUrls: ['./assets-view.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AssetsViewComponent implements OnInit, OnDestroy {
 

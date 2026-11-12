@@ -10,9 +10,10 @@ import {ReportSectionType} from '../../type/report-section.type';
 import {ReportType} from '../../type/report.type';
 
 @Component({
-  selector: 'app-utm-report-create',
-  templateUrl: './utm-report-create.component.html',
-  styleUrls: ['./utm-report-create.component.scss']
+    standalone: false,
+    selector: 'app-utm-report-create',
+    templateUrl: './utm-report-create.component.html',
+    styleUrls: ['./utm-report-create.component.scss'],
 })
 export class UtmReportCreateComponent implements OnInit {
   @Input() report: ReportType;

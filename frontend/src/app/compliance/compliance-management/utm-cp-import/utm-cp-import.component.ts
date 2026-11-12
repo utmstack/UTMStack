@@ -5,9 +5,10 @@ import {CpReportsService} from '../../shared/services/cp-reports.service';
 import {ComplianceReportType} from '../../shared/type/compliance-report.type';
 
 @Component({
-  selector: 'app-utm-cp-import',
-  templateUrl: './utm-cp-import.component.html',
-  styleUrls: ['./utm-cp-import.component.scss']
+    standalone: false,
+    selector: 'app-utm-cp-import',
+    templateUrl: './utm-cp-import.component.html',
+    styleUrls: ['./utm-cp-import.component.scss'],
 })
 export class UtmCpImportComponent implements OnInit {
   @Output() reportsImported = new EventEmitter<string>();

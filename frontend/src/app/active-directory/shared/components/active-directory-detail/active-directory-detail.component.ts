@@ -5,9 +5,10 @@ import {ActiveDirectoryLocalGroupType} from '../../types/active-directory-local-
 import {ActiveDirectoryType} from '../../types/active-directory.type';
 
 @Component({
-  selector: 'app-active-directory-detail',
-  templateUrl: './active-directory-detail.component.html',
-  styleUrls: ['./active-directory-detail.component.scss']
+    standalone: false,
+    selector: 'app-active-directory-detail',
+    templateUrl: './active-directory-detail.component.html',
+    styleUrls: ['./active-directory-detail.component.scss'],
 })
 export class AdDetailComponent implements OnInit {
   @Input() adInfo: any;

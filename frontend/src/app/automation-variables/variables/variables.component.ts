@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, OnInit} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {UtmToastService} from '../../shared/alert/utm-toast.service';
@@ -12,9 +12,10 @@ import {IncidentResponseVariableService} from '../../shared/services/incidents/i
 import {IncidentVariableType} from '../../shared/types/incident/incident-variable.type';
 
 @Component({
-  selector: 'app-variables',
-  templateUrl: './variables.component.html',
-  styleUrls: ['./variables.component.scss']
+    standalone: false,
+    selector: 'app-variables',
+    templateUrl: './variables.component.html',
+    styleUrls: ['./variables.component.scss'],
 })
 export class VariablesComponent implements OnInit {
   loading = true;

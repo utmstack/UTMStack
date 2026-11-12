@@ -1,9 +1,10 @@
 import {Component, OnInit} from '@angular/core';
 
 @Component({
-  selector: 'app-rule-file-management',
-  templateUrl: './rule-file-management.component.html',
-  styleUrls: ['./rule-file-management.component.css']
+    standalone: false,
+    selector: 'app-rule-file-management',
+    templateUrl: './rule-file-management.component.html',
+    styleUrls: ['./rule-file-management.component.css'],
 })
 export class RuleFileManagementComponent implements OnInit {
   height = window.innerHeight + 250;

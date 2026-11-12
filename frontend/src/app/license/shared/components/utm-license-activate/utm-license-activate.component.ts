@@ -1,4 +1,4 @@
-import {HttpErrorResponse} from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
@@ -8,9 +8,10 @@ import {CheckLicenseService} from '../../../../shared/services/license/check-lic
 import {InputClassResolve} from '../../../../shared/util/input-class-resolve';
 
 @Component({
-  selector: 'app-utm-license-activate',
-  templateUrl: './utm-license-activate.component.html',
-  styleUrls: ['./utm-license-activate.component.scss']
+    standalone: false,
+    selector: 'app-utm-license-activate',
+    templateUrl: './utm-license-activate.component.html',
+    styleUrls: ['./utm-license-activate.component.scss'],
 })
 export class UtmLicenseActivateComponent implements OnInit {
   @Output() licenseChecked = new EventEmitter<boolean>();

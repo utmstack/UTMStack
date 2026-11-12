@@ -4,9 +4,10 @@ import {UtmRolloverService} from './shared/service/utm-rollover.service';
 import {UtmRolloverType} from './shared/type/utm-rollover.type';
 
 @Component({
-  selector: 'app-rollover-config',
-  templateUrl: './rollover-config.component.html',
-  styleUrls: ['./rollover-config.component.scss']
+    standalone: false,
+    selector: 'app-rollover-config',
+    templateUrl: './rollover-config.component.html',
+    styleUrls: ['./rollover-config.component.scss'],
 })
 export class RolloverConfigComponent implements OnInit {
   loading = true;

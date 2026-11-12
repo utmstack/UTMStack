@@ -2,14 +2,15 @@ import {Component, ElementRef, EventEmitter, forwardRef, HostListener, Input, Ou
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
-  selector: 'app-expression-console',
-  templateUrl: './expression-console.component.html',
-  styleUrls: ['./expression-console.component.scss'],
-  providers: [{
-    provide: NG_VALUE_ACCESSOR,
-    useExisting: forwardRef(() => ExpressionConsoleComponent),
-    multi: true
-  }]
+    standalone: false,
+    selector: 'app-expression-console',
+    templateUrl: './expression-console.component.html',
+    styleUrls: ['./expression-console.component.scss'],
+    providers: [{
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => ExpressionConsoleComponent),
+            multi: true
+        }],
 })
 export class ExpressionConsoleComponent implements ControlValueAccessor {
   @Input() variables: { as: string; ofType: string; get: string }[] = [];

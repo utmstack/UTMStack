@@ -10,10 +10,11 @@ import {
 } from '../../../../../models/rule.constant';
 
 @Component({
+    standalone: false,
     selector: 'app-rule-field',
     templateUrl: './rule-field.component.html',
     styleUrls: ['./rule-field.component.css'],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RuleFieldComponent {
     @Input() rule!: Rule;

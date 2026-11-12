@@ -5,9 +5,10 @@ import {VersionInfoService} from '../../shared/services/version/version-info.ser
 import {AppVersionInfo} from '../../shared/types/updates/updates.type';
 
 @Component({
-  selector: 'app-utm-api-doc',
-  templateUrl: './utm-api-doc.component.html',
-  styleUrls: ['./utm-api-doc.component.scss']
+    standalone: false,
+    selector: 'app-utm-api-doc',
+    templateUrl: './utm-api-doc.component.html',
+    styleUrls: ['./utm-api-doc.component.scss'],
 })
 export class UtmApiDocComponent implements OnInit, OnDestroy {
 

@@ -4,9 +4,10 @@ import {NetScanType} from '../../types/net-scan.type';
 import {AssetsStatusEnum} from "../../enums/assets-status.enum";
 
 @Component({
-  selector: 'app-asset-status',
-  templateUrl: './asset-status.component.html',
-  styleUrls: ['./asset-status.component.scss']
+    standalone: false,
+    selector: 'app-asset-status',
+    templateUrl: './asset-status.component.html',
+    styleUrls: ['./asset-status.component.scss'],
 })
 export class AssetStatusComponent implements OnInit, OnChanges {
   @Input() asset: NetScanType;

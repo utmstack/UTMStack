@@ -7,9 +7,10 @@ import {LocationService, SelectOption} from '../../../services/location.service'
 import {ConfigDataTypeEnum, SectionConfigParamType} from '../../../types/configuration/section-config-param.type';
 
 @Component({
-  selector: 'app-utm-instance-info',
-  templateUrl: './utm-instance-info.component.html',
-  styleUrls: ['./utm-instance-info.component.css']
+    standalone: false,
+    selector: 'app-utm-instance-info',
+    templateUrl: './utm-instance-info.component.html',
+    styleUrls: ['./utm-instance-info.component.css'],
 })
 export class UtmInstanceInfoComponent implements OnInit {
   @Input() formConfigs: SectionConfigParamType[] | null = null;

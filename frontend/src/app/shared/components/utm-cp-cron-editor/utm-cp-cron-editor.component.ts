@@ -13,10 +13,11 @@ export const CUSTOM_CONTROL_VALUE_ACCESSOR: any = {
 };
 
 @Component({
-  selector: 'app-utm-cp-cron-editor',
-  templateUrl: './utm-cp-cron-editor.component.html',
-  styleUrls: ['./utm-cp-cron-editor.component.scss'],
-  providers: [CUSTOM_CONTROL_VALUE_ACCESSOR],
+    standalone: false,
+    selector: 'app-utm-cp-cron-editor',
+    templateUrl: './utm-cp-cron-editor.component.html',
+    styleUrls: ['./utm-cp-cron-editor.component.scss'],
+    providers: [CUSTOM_CONTROL_VALUE_ACCESSOR],
 })
 export class UtmCpCronEditorComponent implements ControlValueAccessor, OnInit {
   form: FormGroup;

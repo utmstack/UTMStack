@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
@@ -12,9 +12,10 @@ import {CredentialDeleteComponent} from '../credential-delete/credential-delete.
 import {CredentialService} from '../shared/services/credential.service';
 
 @Component({
-  selector: 'app-credential-list',
-  templateUrl: './credential-list.component.html',
-  styleUrls: ['./credential-list.component.scss']
+    standalone: false,
+    selector: 'app-credential-list',
+    templateUrl: './credential-list.component.html',
+    styleUrls: ['./credential-list.component.scss'],
 })
 export class CredentialListComponent implements OnInit {
   credentials: CredentialModel[] = [];

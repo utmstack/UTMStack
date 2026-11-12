@@ -5,9 +5,10 @@ import {
 } from "../../../app-management/connection-key/shared/services/federation-connection.service";
 
 @Component({
-  selector: 'app-guide-macos-agent',
-  templateUrl: './guide-macos-agent.component.html',
-  styleUrls: ['./guide-macos-agent.component.css']
+    standalone: false,
+    selector: 'app-guide-macos-agent',
+    templateUrl: './guide-macos-agent.component.html',
+    styleUrls: ['./guide-macos-agent.component.css'],
 })
 export class GuideMacosAgentComponent implements OnInit {
   @Input() integrationId: number;

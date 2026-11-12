@@ -5,9 +5,10 @@ import {EventDataTypeEnum} from '../../alert-management/shared/enums/event-data-
 import {AdversaryAlerts} from '../models';
 
 @Component({
-  selector: 'app-adversary-alerts-graph',
-  templateUrl: './adversary-alerts-graph.component.html',
-  styleUrls: ['./adversary-alerts-graph.component.scss']
+    standalone: false,
+    selector: 'app-adversary-alerts-graph',
+    templateUrl: './adversary-alerts-graph.component.html',
+    styleUrls: ['./adversary-alerts-graph.component.scss'],
 })
 export class AdversaryAlertsGraphComponent implements OnChanges {
   @Input() data!: AdversaryAlerts[];

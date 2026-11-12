@@ -5,9 +5,10 @@ import {UtmConfigEmailCheckService} from '../../../../../../services/config/utm-
 import {SectionConfigParamType} from '../../../../../../types/configuration/section-config-param.type';
 
 @Component({
-  selector: 'app-utm-email-conf-check',
-  templateUrl: './utm-email-conf-check.component.html',
-  styleUrls: ['./utm-email-conf-check.component.css']
+    standalone: false,
+    selector: 'app-utm-email-conf-check',
+    templateUrl: './utm-email-conf-check.component.html',
+    styleUrls: ['./utm-email-conf-check.component.css'],
 })
 export class UtmEmailConfCheckComponent implements OnInit {
   @Input() validConfig: boolean;

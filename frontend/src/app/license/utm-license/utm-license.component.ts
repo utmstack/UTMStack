@@ -6,9 +6,10 @@ import {UtmClientType} from '../../shared/types/license/utm-client.type';
 import {UtmLicenseActivateComponent} from '../shared/components/utm-license-activate/utm-license-activate.component';
 
 @Component({
-  selector: 'app-utm-license',
-  templateUrl: './utm-license.component.html',
-  styleUrls: ['./utm-license.component.scss']
+    standalone: false,
+    selector: 'app-utm-license',
+    templateUrl: './utm-license.component.html',
+    styleUrls: ['./utm-license.component.scss'],
 })
 export class UtmLicenseComponent implements OnInit {
   client: UtmClientType;

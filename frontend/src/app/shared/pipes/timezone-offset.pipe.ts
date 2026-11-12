@@ -2,7 +2,8 @@ import { Pipe, PipeTransform } from '@angular/core';
 import * as moment from 'moment-timezone';
 
 @Pipe({
-  name: 'timezoneOffset'
+    standalone: false,
+    name: 'timezoneOffset',
 })
 export class TimezoneOffsetPipe implements PipeTransform {
 

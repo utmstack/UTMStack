@@ -10,9 +10,10 @@ import {ACTIONS, PLATFORM} from './constants';
 import {OracleSteps} from './oracle.steps';
 
 @Component({
+    standalone: false,
     selector: 'app-guide-oracle',
     templateUrl: './oracle.component.html',
-    styleUrls: ['./oracle.component.css']
+    styleUrls: ['./oracle.component.css'],
 })
 export class OracleComponent implements OnInit {
     @Input() integrationId: number;

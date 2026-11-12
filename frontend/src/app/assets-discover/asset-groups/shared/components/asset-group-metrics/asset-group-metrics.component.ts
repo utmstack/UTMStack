@@ -5,9 +5,10 @@ import {AssetMetricEnum} from '../../../../shared/components/asset-metrics/share
 import {AssetGroupType} from '../../type/asset-group.type';
 
 @Component({
-  selector: 'app-asset-group-metrics',
-  templateUrl: './asset-group-metrics.component.html',
-  styleUrls: ['./asset-group-metrics.component.scss']
+    standalone: false,
+    selector: 'app-asset-group-metrics',
+    templateUrl: './asset-group-metrics.component.html',
+    styleUrls: ['./asset-group-metrics.component.scss'],
 })
 export class AssetGroupMetricsComponent implements OnInit {
   @Input() group: AssetGroupType;

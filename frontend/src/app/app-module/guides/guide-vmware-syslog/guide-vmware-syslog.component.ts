@@ -5,9 +5,10 @@ import {VMWARE_STEPS} from './vmware.steps';
 import {PLATFORMS} from '../shared/constant';
 
 @Component({
-  selector: 'app-guide-vmware-syslog',
-  templateUrl: './guide-vmware-syslog.component.html',
-  styleUrls: ['./guide-vmware-syslog.component.scss']
+    standalone: false,
+    selector: 'app-guide-vmware-syslog',
+    templateUrl: './guide-vmware-syslog.component.html',
+    styleUrls: ['./guide-vmware-syslog.component.scss'],
 })
 export class GuideVmwareSyslogComponent implements OnInit {
   @Input() integrationId: number;

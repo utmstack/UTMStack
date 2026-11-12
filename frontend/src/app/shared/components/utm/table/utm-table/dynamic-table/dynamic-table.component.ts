@@ -22,9 +22,10 @@ import {
 import {SUMMARY_COLUMNS} from './summary-fields';
 
 @Component({
-  selector: 'app-dynamic-table',
-  templateUrl: './dynamic-table.component.html',
-  styleUrls: ['./dynamic-table.component.scss']
+    standalone: false,
+    selector: 'app-dynamic-table',
+    templateUrl: './dynamic-table.component.html',
+    styleUrls: ['./dynamic-table.component.scss'],
 })
 export class UtmDynamicTableComponent implements OnInit, OnChanges, OnDestroy {
 

@@ -6,12 +6,13 @@ import {DataType} from '../../../../models/rule.model';
 import {DataTypeService} from '../../../../services/data-type.service';
 import {uniqueStringValidator} from "../../../../app-rule/validators/customs.validators";
 import {debounceTime, map, tap} from "rxjs/operators";
-import {HttpResponse} from "@angular/common/http";
+import { HttpResponse } from "@angular/common/http";
 
 @Component({
-  selector: 'app-add-type',
-  templateUrl: './add-type.component.html',
-  styleUrls: ['./add-type.component.scss']
+    standalone: false,
+    selector: 'app-add-type',
+    templateUrl: './add-type.component.html',
+    styleUrls: ['./add-type.component.scss'],
 })
 export class AddTypeComponent implements OnInit {
 

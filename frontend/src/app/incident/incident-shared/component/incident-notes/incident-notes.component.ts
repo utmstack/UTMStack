@@ -5,9 +5,10 @@ import {IncidentNoteType} from '../../../../shared/types/incident/incident-note.
 import {UtmIncidentNoteService} from '../../services/utm-incident-note.service';
 
 @Component({
-  selector: 'app-incident-notes',
-  templateUrl: './incident-notes.component.html',
-  styleUrls: ['./incident-notes.component.scss']
+    standalone: false,
+    selector: 'app-incident-notes',
+    templateUrl: './incident-notes.component.html',
+    styleUrls: ['./incident-notes.component.scss'],
 })
 export class IncidentNotesComponent implements OnInit, OnDestroy {
   @Input() incidentId: number;

@@ -5,9 +5,10 @@ import {LogAnalyzerQueryService} from '../../shared/services/log-analyzer-query.
 import {LogAnalyzerQueryType} from '../../shared/type/log-analyzer-query.type';
 
 @Component({
-  selector: 'app-log-analyzer-query-delete',
-  templateUrl: './log-analyzer-query-delete.component.html',
-  styleUrls: ['./log-analyzer-query-delete.component.scss']
+    standalone: false,
+    selector: 'app-log-analyzer-query-delete',
+    templateUrl: './log-analyzer-query-delete.component.html',
+    styleUrls: ['./log-analyzer-query-delete.component.scss'],
 })
 export class LogAnalyzerQueryDeleteComponent implements OnInit {
   @Input() query: LogAnalyzerQueryType;

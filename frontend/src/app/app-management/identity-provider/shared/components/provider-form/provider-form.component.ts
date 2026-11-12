@@ -3,9 +3,10 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ProviderType, UtmIdentityProvider } from '../../models/utm-identity-provider.model';
 
 @Component({
-  selector: 'app-provider-form',
-  templateUrl: './provider-form.component.html',
-  styleUrls: ['./provider-form.component.scss']
+    standalone: false,
+    selector: 'app-provider-form',
+    templateUrl: './provider-form.component.html',
+    styleUrls: ['./provider-form.component.scss'],
 })
 export class ProviderFormComponent implements OnInit {
   @Input() provider?: UtmIdentityProvider;

@@ -4,9 +4,10 @@ import {AlertTags} from '../../../../shared/types/alert/alert-tag.type';
 import {AlertTagService} from '../../shared/services/alert-tag.service';
 
 @Component({
-  selector: 'app-alert-tags-create',
-  templateUrl: './alert-tags-create.component.html',
-  styleUrls: ['./alert-tags-create.component.scss']
+    standalone: false,
+    selector: 'app-alert-tags-create',
+    templateUrl: './alert-tags-create.component.html',
+    styleUrls: ['./alert-tags-create.component.scss'],
 })
 export class AlertTagsCreateComponent implements OnInit {
   name: string;

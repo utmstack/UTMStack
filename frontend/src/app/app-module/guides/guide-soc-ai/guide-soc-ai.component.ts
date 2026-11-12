@@ -26,9 +26,10 @@ interface ProviderField {
 }
 
 @Component({
-  selector: 'app-guide-soc-ai',
-  templateUrl: './guide-soc-ai.component.html',
-  styleUrls: ['./guide-soc-ai.component.css']
+    standalone: false,
+    selector: 'app-guide-soc-ai',
+    templateUrl: './guide-soc-ai.component.html',
+    styleUrls: ['./guide-soc-ai.component.css'],
 })
 export class GuideSocAiComponent implements OnInit {
   @Input() integrationId: number;

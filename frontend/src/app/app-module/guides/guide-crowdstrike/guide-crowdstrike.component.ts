@@ -4,9 +4,10 @@ import {Step} from '../shared/step';
 import {CROWDSTRIKE_STEPS} from './crowdstrike.steps';
 
 @Component({
-  selector: 'app-guide-crowdstrike',
-  templateUrl: './guide-crowdstrike.component.html',
-  styleUrls: ['./guide-crowdstrike.component.css']
+    standalone: false,
+    selector: 'app-guide-crowdstrike',
+    templateUrl: './guide-crowdstrike.component.html',
+    styleUrls: ['./guide-crowdstrike.component.css'],
 })
 export class GuideCrowdstrikeComponent implements OnInit {
   @Input() integrationId: number;

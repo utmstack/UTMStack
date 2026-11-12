@@ -15,9 +15,10 @@ import {AlertManagementService} from '../../../services/alert-management.service
 import {AlertCompleteComponent} from '../../alert-complete/alert-complete.component';
 
 @Component({
-  selector: 'app-alert-apply-status',
-  templateUrl: './alert-apply-status.component.html',
-  styleUrls: ['./alert-apply-status.component.scss']
+    standalone: false,
+    selector: 'app-alert-apply-status',
+    templateUrl: './alert-apply-status.component.html',
+    styleUrls: ['./alert-apply-status.component.scss'],
 })
 export class AlertApplyStatusComponent implements OnInit {
   @Input() statusFilter: number;

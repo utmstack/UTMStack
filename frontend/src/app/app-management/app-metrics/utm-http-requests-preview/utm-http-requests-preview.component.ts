@@ -1,9 +1,10 @@
 import {Component, Input, OnInit} from '@angular/core';
 
 @Component({
-  selector: 'app-utm-http-requests-preview',
-  templateUrl: './utm-http-requests-preview.component.html',
-  styleUrls: ['./utm-http-requests-preview.component.css']
+    standalone: false,
+    selector: 'app-utm-http-requests-preview',
+    templateUrl: './utm-http-requests-preview.component.html',
+    styleUrls: ['./utm-http-requests-preview.component.css'],
 })
 export class UtmHttpRequestsPreviewComponent implements OnInit {
   @Input() httpPreview: {

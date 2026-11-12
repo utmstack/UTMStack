@@ -3,13 +3,14 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {ModalService} from '../../../../../core/modal/modal.service';
 import {PasswordResetFinishService} from './password-reset-finish.service';
-import {HttpResponse} from "@angular/common/http";
+import { HttpResponse } from "@angular/common/http";
 
 
 @Component({
-  selector: 'app-password-reset-finish',
-  templateUrl: './password-reset-finish.component.html',
-  styleUrls: ['./password-reset-finish-component.scss']
+    standalone: false,
+    selector: 'app-password-reset-finish',
+    templateUrl: './password-reset-finish.component.html',
+    styleUrls: ['./password-reset-finish-component.scss'],
 })
 export class PasswordResetFinishComponent implements OnInit, AfterViewInit {
   confirmPassword: string;

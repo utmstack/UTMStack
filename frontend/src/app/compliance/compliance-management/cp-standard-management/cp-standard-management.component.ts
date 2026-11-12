@@ -14,9 +14,10 @@ import {UtmCpExportComponent} from '../utm-cp-export/utm-cp-export.component';
 import {UtmCpImportComponent} from '../utm-cp-import/utm-cp-import.component';
 
 @Component({
-  selector: 'app-cp-standard-management',
-  templateUrl: './cp-standard-management.component.html',
-  styleUrls: ['./cp-standard-management.component.scss']
+    standalone: false,
+    selector: 'app-cp-standard-management',
+    templateUrl: './cp-standard-management.component.html',
+    styleUrls: ['./cp-standard-management.component.scss'],
 })
 export class CpStandardManagementComponent implements OnInit {
   standard: ComplianceStandardType;

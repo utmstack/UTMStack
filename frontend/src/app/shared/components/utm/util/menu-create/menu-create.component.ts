@@ -12,9 +12,10 @@ import {ContactUsComponent} from '../../../contact-us/contact-us.component';
 import {MenuIconSelectComponent} from '../menu-icon-select/menu-icon-select.component';
 
 @Component({
-  selector: 'app-menu-create',
-  templateUrl: './menu-create.component.html',
-  styleUrls: ['./menu-create.component.scss']
+    standalone: false,
+    selector: 'app-menu-create',
+    templateUrl: './menu-create.component.html',
+    styleUrls: ['./menu-create.component.scss'],
 })
 export class MenuCreateComponent implements OnInit {
   @Input() btnText = 'Add';

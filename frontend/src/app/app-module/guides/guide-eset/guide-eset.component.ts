@@ -6,9 +6,10 @@ import {Step} from '../shared/step';
 import {ESET_STEPS} from './eset-steps';
 
 @Component({
-  selector: 'app-guide-eset',
-  templateUrl: './guide-eset.component.html',
-  styleUrls: ['./guide-eset.component.css']
+    standalone: false,
+    selector: 'app-guide-eset',
+    templateUrl: './guide-eset.component.html',
+    styleUrls: ['./guide-eset.component.css'],
 })
 export class GuideEsetComponent implements OnInit {
   @Input() integrationId: number;

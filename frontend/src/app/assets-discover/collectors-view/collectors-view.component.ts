@@ -29,9 +29,10 @@ import {NetScanType} from '../shared/types/net-scan.type';
 import {SourceDataTypeConfigComponent} from '../source-data-type-config/source-data-type-config.component';
 
 @Component({
-  selector: 'app-collectors-view',
-  templateUrl: './collectors-view.component.html',
-  styleUrls: ['./collectors-view.component.scss']
+    standalone: false,
+    selector: 'app-collectors-view',
+    templateUrl: './collectors-view.component.html',
+    styleUrls: ['./collectors-view.component.scss'],
 })
 export class CollectorsViewComponent implements OnInit, OnDestroy {
   assets: NetScanType[] = [];

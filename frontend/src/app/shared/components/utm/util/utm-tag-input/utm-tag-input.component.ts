@@ -3,9 +3,10 @@ import {FormBuilder, FormGroup} from '@angular/forms';
 import {find} from 'lodash';
 
 @Component({
-  selector: 'app-utm-tag-input',
-  templateUrl: './utm-tag-input.component.html',
-  styleUrls: ['./utm-tag-input.component.scss']
+    standalone: false,
+    selector: 'app-utm-tag-input',
+    templateUrl: './utm-tag-input.component.html',
+    styleUrls: ['./utm-tag-input.component.scss'],
 })
 export class UtmTagInputComponent implements OnInit {
   @ViewChild('tagInput', {static: true}) tagInputRef: ElementRef;

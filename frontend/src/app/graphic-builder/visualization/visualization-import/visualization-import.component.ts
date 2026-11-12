@@ -8,9 +8,10 @@ import {UtmIndexPattern} from '../../../shared/types/index-pattern/utm-index-pat
 import {VisualizationService} from '../shared/services/visualization.service';
 
 @Component({
-  selector: 'app-visualization-import',
-  templateUrl: './visualization-import.component.html',
-  styleUrls: ['./visualization-import.component.scss']
+    standalone: false,
+    selector: 'app-visualization-import',
+    templateUrl: './visualization-import.component.html',
+    styleUrls: ['./visualization-import.component.scss'],
 })
 export class VisualizationImportComponent implements OnInit, AfterContentChecked {
   @Output() visualizationImported = new EventEmitter<string>();

@@ -3,9 +3,10 @@ import {CpReportsService} from '../../services/cp-reports.service';
 import {ComplianceReportType} from '../../type/compliance-report.type';
 
 @Component({
-  selector: 'app-utm-report-info-view',
-  templateUrl: './utm-report-info-view.component.html',
-  styleUrls: ['./utm-report-info-view.component.scss']
+    standalone: false,
+    selector: 'app-utm-report-info-view',
+    templateUrl: './utm-report-info-view.component.html',
+    styleUrls: ['./utm-report-info-view.component.scss'],
 })
 export class UtmReportInfoViewComponent implements OnInit {
   @Input() complianceReports: ComplianceReportType[];

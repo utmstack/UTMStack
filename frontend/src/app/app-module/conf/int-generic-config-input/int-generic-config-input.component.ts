@@ -5,9 +5,10 @@ import {UtmModuleGroupConfType} from '../../shared/type/utm-module-group-conf.ty
 
 
 @Component({
-  selector: 'app-int-generic-config-input',
-  templateUrl: './int-generic-config-input.component.html',
-  styleUrls: ['./int-generic-config-input.component.scss']
+    standalone: false,
+    selector: 'app-int-generic-config-input',
+    templateUrl: './int-generic-config-input.component.html',
+    styleUrls: ['./int-generic-config-input.component.scss'],
 })
 export class IntGenericConfigInputComponent implements OnInit {
   @Input() groupId: number;

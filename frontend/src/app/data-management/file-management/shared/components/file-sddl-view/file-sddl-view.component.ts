@@ -4,9 +4,10 @@ import {SDDLParser} from '../../../../../shared/util/sddl-parser.util';
 import {FileFieldEnum} from '../../enum/file-field.enum';
 
 @Component({
-  selector: 'app-file-sddl-view',
-  templateUrl: './file-sddl-view.component.html',
-  styleUrls: ['./file-sddl-view.component.scss']
+    standalone: false,
+    selector: 'app-file-sddl-view',
+    templateUrl: './file-sddl-view.component.html',
+    styleUrls: ['./file-sddl-view.component.scss'],
 })
 export class FileSddlViewComponent implements OnInit {
   @Input() file: any;

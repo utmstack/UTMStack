@@ -5,9 +5,10 @@ import {VisualMap} from '../../../../../shared/chart/types/charts/chart-properti
 import {UtmScatterMapOptionType} from '../../../../../shared/chart/types/charts/scatter/utm-scatter-map-option.type';
 
 @Component({
-  selector: 'app-scatter-map-properties-option',
-  templateUrl: './scatter-map-properties-option.component.html',
-  styleUrls: ['./scatter-map-properties-option.component.scss']
+    standalone: false,
+    selector: 'app-scatter-map-properties-option',
+    templateUrl: './scatter-map-properties-option.component.html',
+    styleUrls: ['./scatter-map-properties-option.component.scss'],
 })
 export class ScatterMapPropertiesOptionComponent implements OnInit {
   @Output() scatterMapOptions = new EventEmitter<UtmScatterMapOptionType>();

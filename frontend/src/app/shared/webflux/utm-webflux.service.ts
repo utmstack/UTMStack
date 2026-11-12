@@ -1,4 +1,4 @@
-import {HttpClient} from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import {Injectable, NgZone} from '@angular/core';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {SERVER_API_URL} from '../../app.constants';

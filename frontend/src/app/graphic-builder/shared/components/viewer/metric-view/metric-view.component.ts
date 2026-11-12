@@ -22,10 +22,11 @@ import {resolveDefaultVisualizationTime} from '../../../util/visualization/visua
 
 
 @Component({
-  selector: 'app-metric-view',
-  templateUrl: './metric-view.component.html',
-  styleUrls: ['./metric-view.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    standalone: false,
+    selector: 'app-metric-view',
+    templateUrl: './metric-view.component.html',
+    styleUrls: ['./metric-view.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MetricViewComponent implements OnInit, OnDestroy {
   data: MetricResponse[];

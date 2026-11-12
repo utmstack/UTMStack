@@ -5,9 +5,10 @@ import {TargetModel} from '../../../shared/model/target.model';
 import {TargetService} from '../shared/services/target.service';
 
 @Component({
-  selector: 'app-target-delete',
-  templateUrl: './target-delete.component.html',
-  styleUrls: ['./target-delete.component.scss']
+    standalone: false,
+    selector: 'app-target-delete',
+    templateUrl: './target-delete.component.html',
+    styleUrls: ['./target-delete.component.scss'],
 })
 export class TargetDeleteComponent implements OnInit {
   @Input() target: TargetModel;

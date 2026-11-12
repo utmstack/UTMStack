@@ -3,9 +3,10 @@ import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {SectionConfigType} from '../../../../types/configuration/section-config.type';
 
 @Component({
-  selector: 'app-app-config-delete-confirm',
-  templateUrl: './app-config-delete-confirm.component.html',
-  styleUrls: ['./app-config-delete-confirm.component.css']
+    standalone: false,
+    selector: 'app-app-config-delete-confirm',
+    templateUrl: './app-config-delete-confirm.component.html',
+    styleUrls: ['./app-config-delete-confirm.component.css'],
 })
 export class AppConfigDeleteConfirmComponent implements OnInit {
   @Output() acceptDelete = new EventEmitter<boolean>();

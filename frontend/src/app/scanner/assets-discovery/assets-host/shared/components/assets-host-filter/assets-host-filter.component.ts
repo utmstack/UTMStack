@@ -4,9 +4,10 @@ import {SEVERITY_VALUE} from '../../../../../shared/const/task-status.const';
 import {ScannerSeverityEnum} from '../../../../../shared/enums/scanner-severity.enum';
 
 @Component({
-  selector: 'app-assets-host-filter',
-  templateUrl: './assets-host-filter.component.html',
-  styleUrls: ['./assets-host-filter.component.scss']
+    standalone: false,
+    selector: 'app-assets-host-filter',
+    templateUrl: './assets-host-filter.component.html',
+    styleUrls: ['./assets-host-filter.component.scss'],
 })
 export class AssetsHostFilterComponent implements OnInit {
   filter = {};

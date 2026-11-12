@@ -2,9 +2,10 @@ import {Component, Input, OnInit} from '@angular/core';
 import {ActiveDirectoryFolderAcl} from '../../types/active-directory-folder-acl';
 
 @Component({
-  selector: 'app-ad-folder-list',
-  templateUrl: './ad-folder-list.component.html',
-  styleUrls: ['./ad-folder-list.component.scss']
+    standalone: false,
+    selector: 'app-ad-folder-list',
+    templateUrl: './ad-folder-list.component.html',
+    styleUrls: ['./ad-folder-list.component.scss'],
 })
 export class AdFolderListComponent implements OnInit {
   @Input() folders: ActiveDirectoryFolderAcl[] = [];

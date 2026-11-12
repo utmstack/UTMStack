@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {NavigationStart, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
@@ -15,9 +15,10 @@ import {query} from "@angular/animations";
 import {data} from "../../../active-directory/offline.data";
 
 @Component({
-  selector: 'app-log-analyzer-query-list',
-  templateUrl: './log-analyzer-query-list.component.html',
-  styleUrls: ['./log-analyzer-query-list.component.scss']
+    standalone: false,
+    selector: 'app-log-analyzer-query-list',
+    templateUrl: './log-analyzer-query-list.component.html',
+    styleUrls: ['./log-analyzer-query-list.component.scss'],
 })
 export class LogAnalyzerQueryListComponent implements OnInit, OnDestroy {
   fields: SortByType[] = [

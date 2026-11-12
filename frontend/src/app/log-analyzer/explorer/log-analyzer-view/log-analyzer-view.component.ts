@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, HostListener, Input, OnDestroy, OnInit, Type} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
@@ -40,9 +40,10 @@ import {QueryRunBehavior} from '../../shared/behaviors/query-run.behavior';
 import {LogAnalyzerQueryType} from '../../shared/type/log-analyzer-query.type';
 
 @Component({
-  selector: 'app-log-analyzer-view',
-  templateUrl: './log-analyzer-view.component.html',
-  styleUrls: ['./log-analyzer-view.component.scss']
+    standalone: false,
+    selector: 'app-log-analyzer-view',
+    templateUrl: './log-analyzer-view.component.html',
+    styleUrls: ['./log-analyzer-view.component.scss'],
 })
 export class LogAnalyzerViewComponent implements OnInit, OnDestroy {
   @Input() data: LogAnalyzerQueryType;

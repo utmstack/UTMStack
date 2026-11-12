@@ -9,14 +9,15 @@ import {AssetFieldFilterEnum} from '../../enums/asset-field-filter.enum';
 import {UtmAssetGroupService} from '../../services/utm-asset-group.service';
 import {UtmNetScanService} from '../../services/utm-net-scan.service';
 import {UtmModuleCollectorService} from "../../../../app-module/shared/services/utm-module-collector.service";
-import {HttpResponse} from "@angular/common/http";
+import { HttpResponse } from "@angular/common/http";
 import {CollectorFieldFilterEnum} from "../../enums/collector-field-filter.enum";
 import {GroupTypeEnum} from "../../enums/group-type.enum";
 
 @Component({
-  selector: 'app-asset-group-add',
-  templateUrl: './asset-group-add.component.html',
-  styleUrls: ['./asset-group-add.component.css']
+    standalone: false,
+    selector: 'app-asset-group-add',
+    templateUrl: './asset-group-add.component.html',
+    styleUrls: ['./asset-group-add.component.css'],
 })
 export class AssetGroupAddComponent implements OnInit {
   @Input() typeFormat: 'icon' | 'button';

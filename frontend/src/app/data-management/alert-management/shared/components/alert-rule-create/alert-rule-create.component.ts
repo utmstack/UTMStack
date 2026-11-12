@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {AbstractControl, FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {NgbActiveModal, NgbModal} from '@ng-bootstrap/ng-bootstrap';
@@ -57,9 +57,10 @@ import {AlertActionRefreshService} from "../../services/alert-action-refresh.ser
 import {MAX_SEARCH_RESULTS} from "../../../../../shared/constants/global.constant";
 
 @Component({
-  selector: 'app-alert-rule-create',
-  templateUrl: './alert-rule-create.component.html',
-  styleUrls: ['./alert-rule-create.component.scss']
+    standalone: false,
+    selector: 'app-alert-rule-create',
+    templateUrl: './alert-rule-create.component.html',
+    styleUrls: ['./alert-rule-create.component.scss'],
 })
 export class AlertRuleCreateComponent implements OnInit, OnDestroy {
   @Input() alert: UtmAlertType;

@@ -3,7 +3,7 @@ import {NgModule} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {NgSelectModule} from '@ng-select/ng-select';
-import {TranslateModule} from '@ngx-translate/core';
+import {TranslatePipe} from '@ngx-translate/core';
 import {AlertManagementSharedModule} from '../data-management/alert-management/shared/alert-management-shared.module';
 import {UtmSharedModule} from '../shared/utm-shared.module';
 import {
@@ -37,7 +37,7 @@ import {IncidentResponseSharedModule} from './shared/incident-response-shared.mo
       NgSelectModule,
       FormsModule,
       AlertManagementSharedModule,
-      TranslateModule,
+      TranslatePipe,
       ReactiveFormsModule
     ],
   providers: []

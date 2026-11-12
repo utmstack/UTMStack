@@ -3,9 +3,10 @@ import {VsSeverityResolverService} from '../../../../../shared/services/scan/vs-
 import {AssetActiveFilterType} from '../../../types/asset-active-filter.type';
 
 @Component({
-  selector: 'app-asset-report-active-filter',
-  templateUrl: './asset-report-active-filter.component.html',
-  styleUrls: ['./asset-report-active-filter.component.scss']
+    standalone: false,
+    selector: 'app-asset-report-active-filter',
+    templateUrl: './asset-report-active-filter.component.html',
+    styleUrls: ['./asset-report-active-filter.component.scss'],
 })
 export class AssetReportActiveFilterComponent implements OnInit {
   @Input() filterActive: AssetActiveFilterType;

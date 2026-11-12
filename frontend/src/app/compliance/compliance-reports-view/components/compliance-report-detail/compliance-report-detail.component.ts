@@ -15,9 +15,10 @@ import {ComplianceStatusEnum} from '../../../shared/enums/compliance-status.enum
 import {UtmDashboardVisualizationType} from '../../../../shared/chart/types/dashboard/utm-dashboard-visualization.type';
 
 @Component({
-  selector: 'app-compliance-report-detail',
-  templateUrl: './compliance-report-detail.component.html',
-  styleUrls: ['./compliance-report-detail.component.css']
+    standalone: false,
+    selector: 'app-compliance-report-detail',
+    templateUrl: './compliance-report-detail.component.html',
+    styleUrls: ['./compliance-report-detail.component.css'],
 })
 export class ComplianceReportDetailComponent implements OnInit {
   request = {

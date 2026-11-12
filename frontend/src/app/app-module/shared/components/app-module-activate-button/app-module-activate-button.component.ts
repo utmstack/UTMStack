@@ -13,9 +13,10 @@ import {AppModuleChecksComponent} from '../app-module-checks/app-module-checks.c
 import {AppModuleDeactivateComponent} from '../app-module-deactivate/app-module-deactivate.component';
 
 @Component({
-  selector: 'app-app-module-activate-button',
-  templateUrl: './app-module-activate-button.component.html',
-  styleUrls: ['./app-module-activate-button.component.css']
+    standalone: false,
+    selector: 'app-app-module-activate-button',
+    templateUrl: './app-module-activate-button.component.html',
+    styleUrls: ['./app-module-activate-button.component.css'],
 })
 export class AppModuleActivateButtonComponent implements OnInit, OnDestroy {
   @Input() performPreAction = false;

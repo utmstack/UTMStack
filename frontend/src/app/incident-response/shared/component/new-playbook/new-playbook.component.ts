@@ -9,10 +9,11 @@ import {PlaybookService} from '../../services/playbook.service';
 import {IncidentActionType} from '../../type/incident-action.type';
 
 @Component({
-  selector: 'app-incident-response-command-create',
-  templateUrl: './new-playbook.component.html',
-  styleUrls: ['./new-playbook.component.scss'],
-  providers: [PlaybookService]
+    standalone: false,
+    selector: 'app-incident-response-command-create',
+    templateUrl: './new-playbook.component.html',
+    styleUrls: ['./new-playbook.component.scss'],
+    providers: [PlaybookService],
 })
 export class NewPlaybookComponent implements OnInit, AfterViewInit {
   @Input() action: IncidentActionType;

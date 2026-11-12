@@ -6,9 +6,10 @@ import {FILE_FIELDS} from '../shared/const/file-field.constant';
 import {FileFieldEnum} from '../shared/enum/file-field.enum';
 
 @Component({
-  selector: 'app-file-detail',
-  templateUrl: './file-detail.component.html',
-  styleUrls: ['./file-detail.component.scss']
+    standalone: false,
+    selector: 'app-file-detail',
+    templateUrl: './file-detail.component.html',
+    styleUrls: ['./file-detail.component.scss'],
 })
 export class FileDetailComponent implements OnInit {
   @Input() file: any;

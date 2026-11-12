@@ -6,7 +6,8 @@ import {DomSanitizer, SafeHtml, SafeResourceUrl, SafeScript, SafeStyle, SafeUrl}
  * Sanitize HTML
  */
 @Pipe({
-  name: 'safe'
+    standalone: false,
+    name: 'safe',
 })
 export class SafePipe implements PipeTransform {
   /**

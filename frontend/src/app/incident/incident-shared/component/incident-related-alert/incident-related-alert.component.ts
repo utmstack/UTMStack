@@ -12,9 +12,10 @@ import {AlertTags} from '../../../../shared/types/alert/alert-tag.type';
 import {IncidentAlertType} from '../../../../shared/types/incident/incident-alert.type';
 
 @Component({
-  selector: 'app-incident-related-alert',
-  templateUrl: './incident-related-alert.component.html',
-  styleUrls: ['./incident-related-alert.component.css']
+    standalone: false,
+    selector: 'app-incident-related-alert',
+    templateUrl: './incident-related-alert.component.html',
+    styleUrls: ['./incident-related-alert.component.css'],
 })
 export class IncidentRelatedAlertComponent implements OnInit {
   @Input() incidentId!: number;

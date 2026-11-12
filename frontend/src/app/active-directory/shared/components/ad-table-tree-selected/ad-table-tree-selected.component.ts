@@ -4,9 +4,10 @@ import {getTreeIcon} from '../../functions/ad-util.function';
 import {ActiveDirectoryTreeType} from '../../types/active-directory-tree.type';
 
 @Component({
-  selector: 'app-ad-table-tree-selected',
-  templateUrl: './ad-table-tree-selected.component.html',
-  styleUrls: ['./ad-table-tree-selected.component.scss']
+    standalone: false,
+    selector: 'app-ad-table-tree-selected',
+    templateUrl: './ad-table-tree-selected.component.html',
+    styleUrls: ['./ad-table-tree-selected.component.scss'],
 })
 export class AdTableTreeSelectedComponent implements OnInit {
   @Input() rows: ActiveDirectoryTreeType[];

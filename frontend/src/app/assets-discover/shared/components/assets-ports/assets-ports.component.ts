@@ -2,9 +2,10 @@ import {Component, Input, OnInit} from '@angular/core';
 import {NetScanPortsType} from '../../types/net-scan-ports.type';
 
 @Component({
-  selector: 'app-assets-ports',
-  templateUrl: './assets-ports.component.html',
-  styleUrls: ['./assets-ports.component.scss']
+    standalone: false,
+    selector: 'app-assets-ports',
+    templateUrl: './assets-ports.component.html',
+    styleUrls: ['./assets-ports.component.scss'],
 })
 export class AssetsPortsComponent implements OnInit {
   @Input() ports: NetScanPortsType[];

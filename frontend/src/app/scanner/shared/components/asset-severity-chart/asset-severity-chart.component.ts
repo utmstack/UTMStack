@@ -2,9 +2,10 @@ import {Component, Input, OnInit} from '@angular/core';
 import {VsSeverityResolverService} from '../../../../shared/services/scan/vs-severity-resolver.service';
 
 @Component({
-  selector: 'app-asset-severity-chart',
-  templateUrl: './asset-severity-chart.component.html',
-  styleUrls: ['./asset-severity-chart.component.scss']
+    standalone: false,
+    selector: 'app-asset-severity-chart',
+    templateUrl: './asset-severity-chart.component.html',
+    styleUrls: ['./asset-severity-chart.component.scss'],
 })
 export class AssetSeverityChartComponent implements OnInit {
   @Input() severity: string;

@@ -6,9 +6,10 @@ import {SectionConfigParamType} from '../../../../types/configuration/section-co
 
 
 @Component({
-  selector: 'app-config-params',
-  templateUrl: './app-config-params.component.html',
-  styleUrls: ['./app-config-params.scss']
+    standalone: false,
+    selector: 'app-config-params',
+    templateUrl: './app-config-params.component.html',
+    styleUrls: ['./app-config-params.scss'],
 })
 export class AppConfigParamsComponent implements OnInit {
   @Input() sectionConfigId: number;

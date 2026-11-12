@@ -2,9 +2,10 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import {QUERY_SUGGESTIONS, QuerySuggestion} from './query-suggestions.constants';
 
 @Component({
-  selector: 'app-query-suggestions',
-  templateUrl: './query-suggestions.component.html',
-  styleUrls: ['./query-suggestions.component.scss']
+    standalone: false,
+    selector: 'app-query-suggestions',
+    templateUrl: './query-suggestions.component.html',
+    styleUrls: ['./query-suggestions.component.scss'],
 })
 export class QuerySuggestionsComponent {
 

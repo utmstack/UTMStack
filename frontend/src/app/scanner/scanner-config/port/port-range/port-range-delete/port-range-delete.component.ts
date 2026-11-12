@@ -5,9 +5,10 @@ import {PortRangeModel} from '../../../../shared/model/port-range.model';
 import {PortRangeService} from '../shared/services/port-range.service';
 
 @Component({
-  selector: 'app-port-range-delete',
-  templateUrl: './port-range-delete.component.html',
-  styleUrls: ['./port-range-delete.component.scss']
+    standalone: false,
+    selector: 'app-port-range-delete',
+    templateUrl: './port-range-delete.component.html',
+    styleUrls: ['./port-range-delete.component.scss'],
 })
 export class PortRangeDeleteComponent implements OnInit {
   @Input() portRange: PortRangeModel;

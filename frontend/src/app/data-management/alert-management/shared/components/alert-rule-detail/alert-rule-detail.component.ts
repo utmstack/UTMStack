@@ -7,9 +7,10 @@ import { BehaviorSubject } from 'rxjs';
 import{ElasticFilterType} from 'src/app/shared/types/filter/elastic-filter.type'
 
 @Component({
-  selector: 'app-alert-rule-detail',
-  templateUrl: './alert-rule-detail.component.html',
-  styleUrls: ['./alert-rule-detail.component.scss']
+    standalone: false,
+    selector: 'app-alert-rule-detail',
+    templateUrl: './alert-rule-detail.component.html',
+    styleUrls: ['./alert-rule-detail.component.scss'],
 })
 export class AlertRuleDetailComponent implements OnInit {
   @Input() rule: AlertRuleType;

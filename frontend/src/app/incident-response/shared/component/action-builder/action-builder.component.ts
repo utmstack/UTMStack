@@ -12,9 +12,10 @@ import {ActionConditionalEnum} from '../action-conditional/action-conditional.co
 import {ActionTerminalComponent} from '../action-terminal/action-terminal.component';
 
 @Component({
-  selector: 'app-action-builder',
-  templateUrl: './action-builder.component.html',
-  styleUrls: ['./action-builder.component.scss']
+    standalone: false,
+    selector: 'app-action-builder',
+    templateUrl: './action-builder.component.html',
+    styleUrls: ['./action-builder.component.scss'],
 })
 export class ActionBuilderComponent implements OnInit, OnDestroy {
 

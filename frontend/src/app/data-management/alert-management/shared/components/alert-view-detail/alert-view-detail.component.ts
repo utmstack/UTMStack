@@ -30,9 +30,10 @@ import {EventDataTypeEnum} from '../../enums/event-data-type.enum';
 import {AlertFieldService} from '../../services/alert-field.service';
 
 @Component({
-  selector: 'app-alert-view-detail',
-  templateUrl: './alert-view-detail.component.html',
-  styleUrls: ['./alert-view-detail.component.scss']
+    standalone: false,
+    selector: 'app-alert-view-detail',
+    templateUrl: './alert-view-detail.component.html',
+    styleUrls: ['./alert-view-detail.component.scss'],
 })
 export class AlertViewDetailComponent implements OnInit {
   @Input() alert: UtmAlertType;

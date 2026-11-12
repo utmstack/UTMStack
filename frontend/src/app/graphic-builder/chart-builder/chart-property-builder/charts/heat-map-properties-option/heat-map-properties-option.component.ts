@@ -11,9 +11,10 @@ import {HeatMapPropertiesType} from '../../../../../shared/chart/types/charts/he
 import {UTM_COLOR_THEME} from '../../../../../shared/constants/utm-color.const';
 
 @Component({
-  selector: 'app-heat-map-properties-option',
-  templateUrl: './heat-map-properties-option.component.html',
-  styleUrls: ['./heat-map-properties-option.component.scss']
+    standalone: false,
+    selector: 'app-heat-map-properties-option',
+    templateUrl: './heat-map-properties-option.component.html',
+    styleUrls: ['./heat-map-properties-option.component.scss'],
 })
 export class HeatMapPropertiesOptionComponent implements OnInit {
   @Output() heatMapOptionChange = new EventEmitter<HeatMapPropertiesType>();

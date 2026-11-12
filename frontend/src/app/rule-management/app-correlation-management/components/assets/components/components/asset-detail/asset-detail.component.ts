@@ -3,10 +3,11 @@ import {Asset, Rule} from 'src/app/rule-management/models/rule.model';
 import {IncidentSeverityEnum} from '../../../../../../../shared/enums/incident/incident-severity.enum';
 
 @Component({
+    standalone: false,
     selector: 'app-asset-detail',
     templateUrl: './asset-detail.component.html',
     styleUrls: ['./asset-detail.component.css'],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AssetDetailComponent {
     @Input() asset!: Asset;

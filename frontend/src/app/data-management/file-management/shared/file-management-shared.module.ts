@@ -3,7 +3,7 @@ import {NgModule} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {NgSelectModule} from '@ng-select/ng-select';
-import {TranslateModule} from '@ngx-translate/core';
+import {TranslatePipe} from '@ngx-translate/core';
 import {InfiniteScrollModule} from 'ngx-infinite-scroll';
 import {NgxJsonViewerModule} from 'ngx-json-viewer';
 import {IncidentResponseSharedModule} from '../../../incident-response/shared/incident-response-shared.module';
@@ -38,7 +38,7 @@ import {FileGenericFilterComponent} from './components/filters/file-generic-filt
   ],
   imports: [
     CommonModule,
-    TranslateModule,
+    TranslatePipe,
     UtmSharedModule,
     FormsModule,
     NgbModule,

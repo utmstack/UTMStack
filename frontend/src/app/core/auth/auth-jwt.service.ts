@@ -1,4 +1,4 @@
-import {HttpClient, HttpResponse} from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {Router} from '@angular/router';
 import {LocalStorageService, SessionStorageService} from 'ngx-webstorage';

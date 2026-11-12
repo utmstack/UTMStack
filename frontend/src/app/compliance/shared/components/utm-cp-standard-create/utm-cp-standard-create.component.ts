@@ -7,9 +7,10 @@ import {CpStandardService} from '../../services/cp-standard.service';
 import {ComplianceStandardType} from '../../type/compliance-standard.type';
 
 @Component({
-  selector: 'app-utm-cp-standard-create',
-  templateUrl: './utm-cp-standard-create.component.html',
-  styleUrls: ['./utm-cp-standard-create.component.scss']
+    standalone: false,
+    selector: 'app-utm-cp-standard-create',
+    templateUrl: './utm-cp-standard-create.component.html',
+    styleUrls: ['./utm-cp-standard-create.component.scss'],
 })
 export class UtmCpStandardCreateComponent implements OnInit {
   @Input() standard: ComplianceStandardType;

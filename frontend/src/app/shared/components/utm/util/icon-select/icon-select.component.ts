@@ -3,9 +3,10 @@ import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {ICONMOON} from '../../../../constants/iconmoon.const';
 
 @Component({
-  selector: 'app-icon-select',
-  templateUrl: './icon-select.component.html',
-  styleUrls: ['./icon-select.component.scss']
+    standalone: false,
+    selector: 'app-icon-select',
+    templateUrl: './icon-select.component.html',
+    styleUrls: ['./icon-select.component.scss'],
 })
 export class IconSelectComponent implements OnInit {
   @Output() iconChange = new EventEmitter<string>();

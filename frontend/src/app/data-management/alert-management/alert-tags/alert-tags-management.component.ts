@@ -8,9 +8,10 @@ import {AlertTagService} from '../shared/services/alert-tag.service';
 import {AlertTagsCreateComponent} from './alert-tags-create/alert-tags-create.component';
 
 @Component({
-  selector: 'app-alert-tags',
-  templateUrl: './alert-tags-management.component.html',
-  styleUrls: ['./alert-tags-management.component.scss']
+    standalone: false,
+    selector: 'app-alert-tags',
+    templateUrl: './alert-tags-management.component.html',
+    styleUrls: ['./alert-tags-management.component.scss'],
 })
 export class AlertTagsManagementComponent implements OnInit {
   tags: AlertTags[] = [];

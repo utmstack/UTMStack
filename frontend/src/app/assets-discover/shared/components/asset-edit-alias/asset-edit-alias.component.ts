@@ -6,9 +6,10 @@ import {UtmNetScanService} from '../../services/utm-net-scan.service';
 import {NetScanType} from '../../types/net-scan.type';
 
 @Component({
-  selector: 'app-asset-edit-alias',
-  templateUrl: './asset-edit-alias.component.html',
-  styleUrls: ['./asset-edit-alias.component.css']
+    standalone: false,
+    selector: 'app-asset-edit-alias',
+    templateUrl: './asset-edit-alias.component.html',
+    styleUrls: ['./asset-edit-alias.component.css'],
 })
 export class AssetEditAliasComponent implements OnInit {
   @Input() asset: NetScanType;

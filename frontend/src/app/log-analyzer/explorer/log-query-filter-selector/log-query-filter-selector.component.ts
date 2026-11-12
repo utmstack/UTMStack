@@ -3,9 +3,10 @@ import {NgbPopover} from '@ng-bootstrap/ng-bootstrap';
 import {Subject} from 'rxjs';
 
 @Component({
-  selector: 'app-log-query-filter-selector',
-  templateUrl: './log-query-filter-selector.component.html',
-  styleUrls: ['./log-query-filter-selector.component.scss']
+    standalone: false,
+    selector: 'app-log-query-filter-selector',
+    templateUrl: './log-query-filter-selector.component.html',
+    styleUrls: ['./log-query-filter-selector.component.scss'],
 })
 export class LogQueryFilterSelectorComponent implements OnInit, OnDestroy {
 

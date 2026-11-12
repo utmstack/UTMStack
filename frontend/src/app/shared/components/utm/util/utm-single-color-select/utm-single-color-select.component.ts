@@ -3,9 +3,10 @@ import {ColorType} from '../color-select/color.type';
 import {COLORS} from '../color-select/colors.const';
 
 @Component({
-  selector: 'app-utm-single-color-select',
-  templateUrl: './utm-single-color-select.component.html',
-  styleUrls: ['./utm-single-color-select.component.scss']
+    standalone: false,
+    selector: 'app-utm-single-color-select',
+    templateUrl: './utm-single-color-select.component.html',
+    styleUrls: ['./utm-single-color-select.component.scss'],
 })
 export class UtmSingleColorSelectComponent implements OnInit {
   @Output() singleColorChange = new EventEmitter<string>();

@@ -5,8 +5,8 @@ import {BrowserModule} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {RouterModule} from '@angular/router';
 import {NgbDatepickerConfig, NgbModalConfig, NgbTooltipConfig} from '@ng-bootstrap/ng-bootstrap';
-import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
-import {TRANSLATE_HTTP_LOADER_CONFIG, TranslateHttpLoader} from '@ngx-translate/http-loader';
+import {provideTranslateService} from '@ngx-translate/core';
+import {provideTranslateHttpLoader} from '@ngx-translate/http-loader';
 import * as moment from 'moment';
 import {InlineSVGModule} from 'ng-inline-svg';
 import {ToastrModule} from 'ngx-toastr';
@@ -14,7 +14,7 @@ import {CookieService} from 'ngx-cookie-service';
 import {NgxEchartsModule} from 'ngx-echarts';
 import {InfiniteScrollModule} from 'ngx-infinite-scroll';
 import {NgxSpinnerModule} from 'ngx-spinner';
-import {LocalStorageService, NgxWebstorageModule, SessionStorageService} from 'ngx-webstorage';
+import {LocalStorageService, SessionStorageService, provideNgxWebstorage, withLocalStorage, withSessionStorage} from 'ngx-webstorage';
 import {first} from 'rxjs/operators';
 import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
@@ -76,10 +76,6 @@ export function initTimezoneFormat(apiChecker: ApiServiceCheckerService,
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
-    TranslateModule.forRoot({
-      // http-loader 17: TranslateHttpLoader injects HttpClient itself (no-arg ctor)
-      loader: {provide: TranslateLoader, useClass: TranslateHttpLoader},
-    }),
     UtmSharedModule,
     UtmDashboardModule,
     UtmstackCoreModule,
@@ -93,23 +89,25 @@ export function initTimezoneFormat(apiChecker: ApiServiceCheckerService,
     // register on — so every extension is visible to the charts.
     NgxEchartsModule.forRoot({echarts: () => import('echarts')}),
     NgxSpinnerModule,
-    NgxWebstorageModule.forRoot(),
     AlertManagementSharedModule,
   ],
   providers: [
-    // S17 (ngx-webstorage 13): LocalStorageService/SessionStorageService are provided
-    // by NgxWebstorageModule.forRoot() (above) via factory — do NOT re-declare them
-    // bare here; v13 classes require a StorageStrategy ctor arg and the bare form
-    // throws NullInjectorError on every HttpClient call.
+    // ngx-webstorage 20: NgxWebstorageModule was removed. Root registration is now
+    // the provideNgxWebstorage(...features) environment provider (must be in
+    // `providers`, not `imports`), which registers the LocalStorageService /
+    // SessionStorageService singletons the interceptors inject.
+    provideNgxWebstorage(withLocalStorage(), withSessionStorage()),
+    // @ngx-translate/core 18: TranslateModule was removed. The service + HTTP
+    // loader are registered as bare providers. provideTranslateHttpLoader()
+    // supplies both the TranslateLoader class and its TRANSLATE_HTTP_LOADER_CONFIG
+    // token (default prefix /assets/i18n/, suffix .json), which TranslateHttpLoader's
+    // ctor injects. `lang:'en'` is the v18 replacement for the old
+    // TranslateService.setDefaultLang('en') call in AppComponent.
+    provideTranslateService({lang: 'en'}),
+    provideTranslateHttpLoader(),
     CookieService,
     AuthServerProvider,
     HttpCancelService,
-    // S17 (@ngx-translate/http-loader 17): TranslateHttpLoader's ctor calls
-    // inject(TRANSLATE_HTTP_LOADER_CONFIG); forRoot's defaultProviders never register
-    // that token, so without this the first HttpClient call (TranslateService ->
-    // TranslateHttpLoader) throws NullInjectorError. Providing it lets the loader
-    // read its config (defaults: /assets/i18n/ prefix, .json suffix).
-    {provide: TRANSLATE_HTTP_LOADER_CONFIG, useValue: {}},
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,

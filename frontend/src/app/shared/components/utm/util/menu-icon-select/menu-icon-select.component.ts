@@ -3,9 +3,10 @@ import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {MENU_ICONS, MENU_ICONS_PATH} from '../../../../constants/menu_icons.constants';
 
 @Component({
-  selector: 'app-icon-select',
-  templateUrl: './menu-icon-select.component.html',
-  styleUrls: ['./menu-icon-select.component.scss']
+    standalone: false,
+    selector: 'app-icon-select',
+    templateUrl: './menu-icon-select.component.html',
+    styleUrls: ['./menu-icon-select.component.scss'],
 })
 export class MenuIconSelectComponent implements OnInit {
   @Output() iconChange = new EventEmitter<string>();

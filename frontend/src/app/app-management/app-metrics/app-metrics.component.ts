@@ -3,9 +3,10 @@ import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {JhiMetricsService} from './metrics.service';
 
 @Component({
-  selector: 'app-app-metrics',
-  templateUrl: './app-metrics.component.html',
-  styleUrls: ['./app-metrics.component.scss']
+    standalone: false,
+    selector: 'app-app-metrics',
+    templateUrl: './app-metrics.component.html',
+    styleUrls: ['./app-metrics.component.scss'],
 })
 export class AppMetricsComponent implements OnInit, OnDestroy {
   metrics: any = {};

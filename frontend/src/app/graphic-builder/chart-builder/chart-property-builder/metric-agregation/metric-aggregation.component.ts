@@ -14,9 +14,10 @@ import {getErrorCountFormArray} from '../shared/functions/form-error-count';
 import {filterFieldAgg} from '../shared/functions/util-field';
 
 @Component({
-  selector: 'app-metric-aggregation',
-  templateUrl: './metric-aggregation.component.html',
-  styleUrls: ['./metric-aggregation.component.scss']
+    standalone: false,
+    selector: 'app-metric-aggregation',
+    templateUrl: './metric-aggregation.component.html',
+    styleUrls: ['./metric-aggregation.component.scss'],
 })
 export class MetricAggregationComponent implements OnInit {
   @Input() allowMultiMetric: boolean;

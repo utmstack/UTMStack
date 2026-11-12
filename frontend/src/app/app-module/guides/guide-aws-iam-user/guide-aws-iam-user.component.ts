@@ -2,9 +2,10 @@ import {Component, Input, OnInit} from '@angular/core';
 import {UtmModulesEnum} from '../../shared/enum/utm-module.enum';
 
 @Component({
-  selector: 'app-guide-aws-iam-user',
-  templateUrl: './guide-aws-iam-user.component.html',
-  styleUrls: ['./guide-aws-iam-user.component.scss']
+    standalone: false,
+    selector: 'app-guide-aws-iam-user',
+    templateUrl: './guide-aws-iam-user.component.html',
+    styleUrls: ['./guide-aws-iam-user.component.scss'],
 })
 export class GuideAwsIamUserComponent implements OnInit {
   @Input() integrationId: number;

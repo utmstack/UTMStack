@@ -6,9 +6,10 @@ import {AppRestartApiService} from './app-restart-api.service';
 import {AppStatusType} from './app-status.type';
 
 @Component({
-  selector: 'app-app-restart-api',
-  templateUrl: './app-restart-api.component.html',
-  styleUrls: ['./app-restart-api.component.scss']
+    standalone: false,
+    selector: 'app-app-restart-api',
+    templateUrl: './app-restart-api.component.html',
+    styleUrls: ['./app-restart-api.component.scss'],
 })
 export class AppRestartApiComponent implements OnInit {
   show = false;

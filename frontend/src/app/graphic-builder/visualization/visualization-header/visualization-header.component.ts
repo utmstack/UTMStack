@@ -4,9 +4,10 @@ import {UTM_CHART_ICONS} from '../../../shared/constants/icons-chart.const';
 import {UtmIndexPattern} from '../../../shared/types/index-pattern/utm-index-pattern';
 
 @Component({
-  selector: 'app-visualization-header',
-  templateUrl: './visualization-header.component.html',
-  styleUrls: ['./visualization-header.component.scss']
+    standalone: false,
+    selector: 'app-visualization-header',
+    templateUrl: './visualization-header.component.html',
+    styleUrls: ['./visualization-header.component.scss'],
 })
 export class VisualizationHeaderComponent implements OnInit {
   @Input() chartType: string;

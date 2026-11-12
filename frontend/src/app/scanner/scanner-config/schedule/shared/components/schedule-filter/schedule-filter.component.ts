@@ -2,9 +2,10 @@ import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {TimeFilterType} from '../../../../../../shared/types/time-filter.type';
 
 @Component({
-  selector: 'app-schedule-filter',
-  templateUrl: './schedule-filter.component.html',
-  styleUrls: ['./schedule-filter.component.scss']
+    standalone: false,
+    selector: 'app-schedule-filter',
+    templateUrl: './schedule-filter.component.html',
+    styleUrls: ['./schedule-filter.component.scss'],
 })
 export class ScheduleFilterComponent implements OnInit {
   @Output() scheduleFilterChange = new EventEmitter<any>();

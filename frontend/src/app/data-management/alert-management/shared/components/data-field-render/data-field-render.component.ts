@@ -19,9 +19,10 @@ import {extractValueFromObjectByPath} from '../../../../../shared/util/get-value
 import {EventDataTypeEnum} from '../../enums/event-data-type.enum';
 
 @Component({
-  selector: 'app-data-field-render',
-  templateUrl: './data-field-render.component.html',
-  styleUrls: ['./data-field-render.component.scss']
+    standalone: false,
+    selector: 'app-data-field-render',
+    templateUrl: './data-field-render.component.html',
+    styleUrls: ['./data-field-render.component.scss'],
 })
 export class DataFieldRenderComponent implements OnInit {
   @Input() data: UtmAlertType;

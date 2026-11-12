@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
@@ -13,9 +13,10 @@ import {ScheduleService} from '../shared/services/schedule.service';
 import {JhiParseLinks} from '../../../../shared/jhi/jhi.util';
 
 @Component({
-  selector: 'app-schedule-list',
-  templateUrl: './schedule-list.component.html',
-  styleUrls: ['./schedule-list.component.scss']
+    standalone: false,
+    selector: 'app-schedule-list',
+    templateUrl: './schedule-list.component.html',
+    styleUrls: ['./schedule-list.component.scss'],
 })
 export class ScheduleListComponent implements OnInit {
   fields: SortByType[] = [

@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
@@ -17,9 +17,10 @@ import {AssetHostDetailService} from '../shared/services/asset-host-detail.servi
 import {AssetsService} from '../shared/services/assets.service';
 
 @Component({
-  selector: 'app-assets-host-detail',
-  templateUrl: './assets-host-detail.component.html',
-  styleUrls: ['./assets-host-detail.component.scss']
+    standalone: false,
+    selector: 'app-assets-host-detail',
+    templateUrl: './assets-host-detail.component.html',
+    styleUrls: ['./assets-host-detail.component.scss'],
 })
 export class AssetsHostDetailComponent implements OnInit {
   details: AssetDetailModel[];

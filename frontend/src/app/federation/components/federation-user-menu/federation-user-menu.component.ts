@@ -10,9 +10,10 @@ import {
 } from '../../../shared/components/layout/header/shared/notification/utm-notification-user-setting/settings/settings.component';
 
 @Component({
-  selector: 'app-federation-user-menu',
-  templateUrl: './federation-user-menu.component.html',
-  styleUrls: ['./federation-user-menu.component.scss']
+    standalone: false,
+    selector: 'app-federation-user-menu',
+    templateUrl: './federation-user-menu.component.html',
+    styleUrls: ['./federation-user-menu.component.scss'],
 })
 export class FederationUserMenuComponent {
   constructor(private router: Router,

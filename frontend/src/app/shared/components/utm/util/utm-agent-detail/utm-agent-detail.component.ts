@@ -7,9 +7,10 @@ import {UtmAgentManagerService} from '../../../../services/agent/utm-agent-manag
 import {AgentStatusEnum, AgentType} from '../../../../types/agent/agent.type';
 
 @Component({
-  selector: 'app-utm-agent-detail',
-  templateUrl: './utm-agent-detail.component.html',
-  styleUrls: ['./utm-agent-detail.component.scss']
+    standalone: false,
+    selector: 'app-utm-agent-detail',
+    templateUrl: './utm-agent-detail.component.html',
+    styleUrls: ['./utm-agent-detail.component.scss'],
 })
 export class UtmAgentDetailComponent implements OnInit {
   @Input() agent: AgentType;

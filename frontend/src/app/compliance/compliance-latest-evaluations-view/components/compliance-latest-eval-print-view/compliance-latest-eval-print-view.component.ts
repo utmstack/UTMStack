@@ -11,10 +11,11 @@ import {ComplianceControlLatestEvaluationType} from '../../../shared/type/compli
 
 
 @Component({
-  selector: 'app-compliance-latest-eval-print-view',
-  templateUrl: './compliance-latest-eval-print-view.component.html',
-  styleUrls: ['./compliance-latest-eval-print-view.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    standalone: false,
+    selector: 'app-compliance-latest-eval-print-view',
+    templateUrl: './compliance-latest-eval-print-view.component.html',
+    styleUrls: ['./compliance-latest-eval-print-view.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ComplianceLatestEvalPrintViewComponent implements OnInit, OnDestroy {
   controls$: Observable<ComplianceControlLatestEvaluationType[]>;

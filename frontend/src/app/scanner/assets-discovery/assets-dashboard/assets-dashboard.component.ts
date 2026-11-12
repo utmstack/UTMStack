@@ -12,9 +12,10 @@ import {AssetsService} from '../shared/services/assets.service';
 import {AssetDashboardService} from './shared/services/asset-dashboard.service';
 
 @Component({
-  selector: 'app-assets-dashboard',
-  templateUrl: './assets-dashboard.component.html',
-  styleUrls: ['./assets-dashboard.component.scss']
+    standalone: false,
+    selector: 'app-assets-dashboard',
+    templateUrl: './assets-dashboard.component.html',
+    styleUrls: ['./assets-dashboard.component.scss'],
 })
 export class AssetsDashboardComponent implements OnInit {
   multilineOption: any;

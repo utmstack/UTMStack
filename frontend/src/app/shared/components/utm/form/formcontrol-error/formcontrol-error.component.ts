@@ -2,9 +2,10 @@ import {Component, Input, OnInit} from '@angular/core';
 import {AbstractControl} from '@angular/forms';
 
 @Component({
-  selector: 'app-formcontrol-error',
-  templateUrl: './formcontrol-error.component.html',
-  styleUrls: ['./formcontrol-error.component.scss']
+    standalone: false,
+    selector: 'app-formcontrol-error',
+    templateUrl: './formcontrol-error.component.html',
+    styleUrls: ['./formcontrol-error.component.scss'],
 })
 export class FormcontrolErrorComponent implements OnInit {
   @Input() formcontrol: AbstractControl;

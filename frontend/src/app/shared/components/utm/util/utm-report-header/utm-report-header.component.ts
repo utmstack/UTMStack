@@ -4,9 +4,10 @@ import * as moment from 'moment';
 import {ThemeChangeBehavior} from '../../../../behaviors/theme-change.behavior';
 
 @Component({
-  selector: 'app-utm-report-header',
-  templateUrl: './utm-report-header.component.html',
-  styleUrls: ['./utm-report-header.component.scss']
+    standalone: false,
+    selector: 'app-utm-report-header',
+    templateUrl: './utm-report-header.component.html',
+    styleUrls: ['./utm-report-header.component.scss'],
 })
 export class UtmReportHeaderComponent implements OnInit {
   @Input() reportName: string;

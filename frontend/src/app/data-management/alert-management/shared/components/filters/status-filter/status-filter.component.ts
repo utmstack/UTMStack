@@ -14,9 +14,10 @@ import {EventDataTypeEnum} from '../../../enums/event-data-type.enum';
 import {getCurrentAlertStatus} from '../../../util/alert-util-function';
 
 @Component({
-  selector: 'app-status-filter',
-  templateUrl: './status-filter.component.html',
-  styleUrls: ['./status-filter.component.scss']
+    standalone: false,
+    selector: 'app-status-filter',
+    templateUrl: './status-filter.component.html',
+    styleUrls: ['./status-filter.component.scss'],
 })
 export class StatusFilterComponent implements OnInit, OnDestroy {
   @Input() dataNature: DataNatureTypeEnum;

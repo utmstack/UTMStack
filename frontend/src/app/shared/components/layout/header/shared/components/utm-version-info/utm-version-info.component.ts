@@ -4,9 +4,10 @@ import {AppVersionService} from '../../../../../../services/version/app-version.
 import {AppVersionInfo} from '../../../../../../types/updates/updates.type';
 
 @Component({
-  selector: 'app-utm-version-info',
-  templateUrl: './utm-version-info.component.html',
-  styleUrls: ['./utm-version-info.component.css']
+    standalone: false,
+    selector: 'app-utm-version-info',
+    templateUrl: './utm-version-info.component.html',
+    styleUrls: ['./utm-version-info.component.css'],
 })
 export class UtmVersionInfoComponent {
  @Input('version') versionInfo: AppVersionInfo;

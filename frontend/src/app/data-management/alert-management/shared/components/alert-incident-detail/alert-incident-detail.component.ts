@@ -5,9 +5,10 @@ import {UtmAlertType} from '../../../../../shared/types/alert/utm-alert.type';
 import {UtmIncidentType} from '../../../../../shared/types/incident/utm-incident.type';
 
 @Component({
-  selector: 'app-alert-incident-detail',
-  templateUrl: './alert-incident-detail.component.html',
-  styleUrls: ['./alert-incident-detail.component.scss']
+    standalone: false,
+    selector: 'app-alert-incident-detail',
+    templateUrl: './alert-incident-detail.component.html',
+    styleUrls: ['./alert-incident-detail.component.scss'],
 })
 export class AlertIncidentDetailComponent implements OnInit {
   @Input() alert: UtmAlertType;

@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, OnDestroy, OnInit} from '@angular/core';
 
 import {ActivatedRoute, Router} from '@angular/router';
@@ -17,9 +17,10 @@ import {UserMgmtUpdateComponent} from '../user-update/user-management-update.com
 import {JhiAlertService, JhiEventManager, JhiParseLinks} from '../../../shared/jhi/jhi.util';
 
 @Component({
-  selector: 'app-user-mgmt',
-  templateUrl: './user-management.component.html',
-  styleUrls: ['./user-management.component.scss']
+    standalone: false,
+    selector: 'app-user-mgmt',
+    templateUrl: './user-management.component.html',
+    styleUrls: ['./user-management.component.scss'],
 })
 export class UserMgmtComponent implements OnInit, OnDestroy {
   currentAccount: any;

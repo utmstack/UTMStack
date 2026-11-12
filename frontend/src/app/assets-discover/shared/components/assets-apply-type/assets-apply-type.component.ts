@@ -9,9 +9,10 @@ import {UtmNetScanService} from '../../services/utm-net-scan.service';
 import {AssetType} from '../../types/asset-type';
 
 @Component({
-  selector: 'app-assets-apply-type',
-  templateUrl: './assets-apply-type.component.html',
-  styleUrls: ['./assets-apply-type.component.scss']
+    standalone: false,
+    selector: 'app-assets-apply-type',
+    templateUrl: './assets-apply-type.component.html',
+    styleUrls: ['./assets-apply-type.component.scss'],
 })
 export class AssetsApplyTypeComponent implements OnInit {
   @Input() typeFormat: 'icon' | 'button';

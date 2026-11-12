@@ -3,9 +3,10 @@ import {FederationConnectionService} from '../../../app-management/connection-ke
 import {UtmModulesEnum} from '../../shared/enum/utm-module.enum';
 
 @Component({
-  selector: 'app-guide-linux-agent',
-  templateUrl: './guide-linux-agent.component.html',
-  styleUrls: ['./guide-linux-agent.component.css']
+    standalone: false,
+    selector: 'app-guide-linux-agent',
+    templateUrl: './guide-linux-agent.component.html',
+    styleUrls: ['./guide-linux-agent.component.css'],
 })
 export class GuideLinuxAgentComponent implements OnInit {
   @Input() integrationId: number;

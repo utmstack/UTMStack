@@ -8,8 +8,9 @@ import {ActivateService} from './activate.service';
 
 
 @Component({
-  selector: 'app-activate',
-  templateUrl: './activate.component.html'
+    standalone: false,
+    selector: 'app-activate',
+    templateUrl: './activate.component.html',
 })
 export class ActivateComponent implements OnInit {
   error: string;

@@ -1,6 +1,5 @@
 import {Component, HostListener, OnInit, Renderer2} from '@angular/core';
 import {Router} from '@angular/router';
-import {TranslateService} from '@ngx-translate/core';
 import {catchError, delay, distinctUntilChanged, filter, map, skip, takeUntil, tap} from 'rxjs/operators';
 import {AccountService} from './core/auth/account.service';
 import {ApiServiceCheckerService} from './core/auth/api-checker-service';
@@ -17,6 +16,7 @@ import {EMPTY, Observable} from "rxjs";
 import {AppVersionService} from './shared/services/version/app-version.service';
 
 @Component({
+  standalone: false,
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
@@ -37,7 +37,6 @@ export class AppComponent implements OnInit {
   federationActive$: Observable<boolean>;
 
   constructor(
-    private translate: TranslateService,
     private menuBehavior: MenuBehavior,
     private themeChangeBehavior: ThemeChangeBehavior,
     private utmAppThemeService: UtmAppThemeService,
@@ -50,7 +49,8 @@ export class AppComponent implements OnInit {
     private federationModeService: FederationModeService) {
     this.federationActive$ = this.federationModeService.active$;
 
-    this.translate.setDefaultLang('en');
+    // @ngx-translate 18: setDefaultLang() was removed; the default lang is set
+    // via provideTranslateService({lang:'en'}) in AppModule instead.
 
     this.menuBehavior.$menu.subscribe(men => {
       this.menu = men;

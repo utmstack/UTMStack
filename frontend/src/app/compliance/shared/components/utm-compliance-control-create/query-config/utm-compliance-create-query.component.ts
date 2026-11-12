@@ -12,9 +12,10 @@ import {
 import {ComplianceQueryType} from '../../../type/compliance-query.type';
 
 @Component({
-  selector: 'app-utm-compliance-create-query',
-  templateUrl: './utm-compliance-create-query.component.html',
-  styleUrls: ['./utm-compliance-create-query.component.css']
+    standalone: false,
+    selector: 'app-utm-compliance-create-query',
+    templateUrl: './utm-compliance-create-query.component.html',
+    styleUrls: ['./utm-compliance-create-query.component.css'],
 })
 export class UtmComplianceCreateQueryComponent implements OnInit {
 

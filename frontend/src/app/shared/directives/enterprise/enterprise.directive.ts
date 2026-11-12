@@ -4,7 +4,8 @@ import { takeUntil } from 'rxjs/operators';
 import { EnterpriseFeatures, VersionInfoService, VersionType } from 'src/app/shared/services/version/version-info.service';
 
 @Directive({
-  selector: '[appIsEnterpriseModule]'
+    standalone: false,
+    selector: '[appIsEnterpriseModule]',
 })
 export class IsEnterpriseModuleDirective implements OnInit, OnDestroy {
   @Input('appIsEnterpriseModule') module: string;

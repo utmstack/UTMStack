@@ -4,9 +4,10 @@ import {minLengthArray, urlValidator} from "../../../custom-validators";
 import {Rule} from "../../../models/rule.model";
 
 @Component({
-  selector: 'app-references',
-  templateUrl: './add-reference.component.html',
-  styleUrls: ['./add-reference.component.css']
+    standalone: false,
+    selector: 'app-references',
+    templateUrl: './add-reference.component.html',
+    styleUrls: ['./add-reference.component.css'],
 })
 export class AddReferenceComponent implements OnInit {
   @Input() formGroup: FormGroup;

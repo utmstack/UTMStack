@@ -24,9 +24,10 @@ import {rebuildVisualizationFilterTime} from '../../../util/chart-filter/chart-f
 import {resolveDefaultVisualizationTime} from '../../../util/visualization/visualization-render.util';
 
 @Component({
-  selector: 'app-map-view',
-  templateUrl: './map-view.component.html',
-  styleUrls: ['./map-view.component.scss']
+    standalone: false,
+    selector: 'app-map-view',
+    templateUrl: './map-view.component.html',
+    styleUrls: ['./map-view.component.scss'],
 })
 export class MapViewComponent implements OnInit, AfterViewInit, OnDestroy {
   mapId = UUID.UUID();

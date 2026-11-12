@@ -3,9 +3,10 @@ import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {SectionConfigParamType} from '../../types/configuration/section-config-param.type';
 
 @Component({
-  selector: 'app-email-setting-notification',
-  templateUrl: './email-setting-notification.component.html',
-  styleUrls: ['./email-setting-notification.component.scss']
+    standalone: false,
+    selector: 'app-email-setting-notification',
+    templateUrl: './email-setting-notification.component.html',
+    styleUrls: ['./email-setting-notification.component.scss'],
 })
 export class EmailSettingNotificationComponent implements OnInit {
   @Output() action = new EventEmitter<string>();

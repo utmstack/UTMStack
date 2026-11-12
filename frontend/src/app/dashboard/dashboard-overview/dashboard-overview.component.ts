@@ -30,9 +30,10 @@ import {UtmIndexPatternFields} from '../../shared/types/index-pattern/utm-index-
 import {buildFormatInstantFromDate} from '../../shared/util/utm-time.util';
 
 @Component({
-  selector: 'app-dashboard-overview',
-  templateUrl: './dashboard-overview.component.html',
-  styleUrls: ['./dashboard-overview.component.scss']
+    standalone: false,
+    selector: 'app-dashboard-overview',
+    templateUrl: './dashboard-overview.component.html',
+    styleUrls: ['./dashboard-overview.component.scss'],
 })
 export class DashboardOverviewComponent implements OnInit, OnDestroy {
   pdfExport = false;

@@ -1,4 +1,4 @@
-import {HttpClient, HttpResponse} from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {UtmModulesService} from '../../../app-module/shared/services/utm-modules.service';

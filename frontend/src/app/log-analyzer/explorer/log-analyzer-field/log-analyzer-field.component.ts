@@ -14,9 +14,10 @@ import {IndexPatternBehavior} from '../../shared/behaviors/index-pattern.behavio
 import {LogAnalyzerDataChangeType} from '../../shared/type/log-analyzer-data-change.type';
 
 @Component({
-  selector: 'app-log-analyzer-field',
-  templateUrl: './log-analyzer-field.component.html',
-  styleUrls: ['./log-analyzer-field.component.scss']
+    standalone: false,
+    selector: 'app-log-analyzer-field',
+    templateUrl: './log-analyzer-field.component.html',
+    styleUrls: ['./log-analyzer-field.component.scss'],
 })
 export class LogAnalyzerFieldComponent implements OnInit, OnDestroy {
   @Input() fieldSelected: ElasticSearchFieldInfoType[];

@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, OnInit} from '@angular/core';
 import {FormBuilder} from '@angular/forms';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
@@ -16,9 +16,10 @@ import {AlertTagService} from '../shared/services/alert-tag.service';
 import {AlertRuleType} from './alert-rule.type';
 
 @Component({
-  selector: 'app-rules',
-  templateUrl: './alert-rules.component.html',
-  styleUrls: ['./alert-rules.component.scss']
+    standalone: false,
+    selector: 'app-rules',
+    templateUrl: './alert-rules.component.html',
+    styleUrls: ['./alert-rules.component.scss'],
 })
 export class AlertRulesComponent implements OnInit {
   loading = true;

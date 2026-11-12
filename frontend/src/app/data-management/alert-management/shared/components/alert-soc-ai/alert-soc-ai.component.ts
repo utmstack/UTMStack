@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, Input, OnDestroy, OnInit, ChangeDetectorRef} from '@angular/core';
 import {throwError, timer} from 'rxjs';
 import {mergeMap, retryWhen, tap} from 'rxjs/operators';
@@ -12,9 +12,10 @@ import {AlertSocAiService} from '../../services/alert-soc-ai.service';
 import {IndexSocAiStatus, SocAiType} from './soc-ai.type';
 
 @Component({
-  selector: 'app-alert-soc-ai',
-  templateUrl: './alert-soc-ai.component.html',
-  styleUrls: ['./alert-soc-ai.component.css']
+    standalone: false,
+    selector: 'app-alert-soc-ai',
+    templateUrl: './alert-soc-ai.component.html',
+    styleUrls: ['./alert-soc-ai.component.css'],
 })
 export class AlertSocAiComponent implements OnInit, OnDestroy {
   @Input() alertID: string;

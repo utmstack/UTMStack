@@ -9,9 +9,10 @@ import {
 } from '../../../services/login-provider.service';
 
 @Component({
-  selector: 'app-login-providers',
-  templateUrl: './login-providers.component.html',
-  styleUrls: ['./login-providers.component.scss']
+    standalone: false,
+    selector: 'app-login-providers',
+    templateUrl: './login-providers.component.html',
+    styleUrls: ['./login-providers.component.scss'],
 })
 export class LoginProvidersComponent implements OnInit {
 

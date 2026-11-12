@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
@@ -14,9 +14,10 @@ import {TargetDeleteComponent} from '../target-delete/target-delete.component';
 import {JhiParseLinks} from '../../../../shared/jhi/jhi.util';
 
 @Component({
-  selector: 'app-target-list',
-  templateUrl: './target-list.component.html',
-  styleUrls: ['./target-list.component.scss']
+    standalone: false,
+    selector: 'app-target-list',
+    templateUrl: './target-list.component.html',
+    styleUrls: ['./target-list.component.scss'],
 })
 export class TargetListComponent implements OnInit {
   fields: SortByType[] = [

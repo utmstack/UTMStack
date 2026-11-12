@@ -4,10 +4,11 @@ import * as moment from 'moment';
 import {setMaxDateToday} from '../../../../util/datepicker-util';
 
 @Component({
-  selector: 'app-date-range',
-  templateUrl: './date-range.component.html',
-  styleUrls: ['./date-range.component.scss'],
-  providers: [{provide: NgbDateAdapter, useClass: NgbDateNativeAdapter}]
+    standalone: false,
+    selector: 'app-date-range',
+    templateUrl: './date-range.component.html',
+    styleUrls: ['./date-range.component.scss'],
+    providers: [{ provide: NgbDateAdapter, useClass: NgbDateNativeAdapter }],
 })
 export class DateRangeComponent implements OnInit {
   @Output() dateRange = new EventEmitter<{ timeFrom: string, timeTo: string }>();

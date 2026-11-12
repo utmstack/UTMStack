@@ -7,9 +7,10 @@ import {ElasticFilterCommonType} from '../../../../shared/types/filter/elastic-f
 import {TimeFilterType} from '../../../../shared/types/time-filter.type';
 
 @Component({
-  selector: 'app-chart-ad-permissions',
-  templateUrl: './chart-ad-permissions.component.html',
-  styleUrls: ['./chart-ad-permissions.component.scss']
+    standalone: false,
+    selector: 'app-chart-ad-permissions',
+    templateUrl: './chart-ad-permissions.component.html',
+    styleUrls: ['./chart-ad-permissions.component.scss'],
 })
 export class ChartAdPermissionsComponent implements OnInit, OnDestroy {
   @Input() refreshInterval;

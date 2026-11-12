@@ -14,7 +14,8 @@ import {AccountService} from '../../../core/auth/account.service';
  * ```
  */
 @Directive({
-  selector: '[appHasAnyAuthority]'
+    standalone: false,
+    selector: '[appHasAnyAuthority]',
 })
 export class HasAnyAuthorityDirective {
   private authorities: string[];

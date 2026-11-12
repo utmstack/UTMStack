@@ -9,9 +9,10 @@ import {IncidentVariableType} from '../../../../types/incident/incident-variable
 
 
 @Component({
-  selector: 'app-ir-variable-create',
-  templateUrl: './ir-variable-create.component.html',
-  styleUrls: ['./ir-variable-create.component.scss']
+    standalone: false,
+    selector: 'app-ir-variable-create',
+    templateUrl: './ir-variable-create.component.html',
+    styleUrls: ['./ir-variable-create.component.scss'],
 })
 export class IrVariableCreateComponent implements OnInit {
   @Input() incidentVariable: IncidentVariableType;

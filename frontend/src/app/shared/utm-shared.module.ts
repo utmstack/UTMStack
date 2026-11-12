@@ -4,7 +4,7 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
 import {NgbActiveModal, NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {NgSelectModule} from '@ng-select/ng-select';
-import {TranslateModule} from '@ngx-translate/core';
+import {TranslatePipe} from '@ngx-translate/core';
 import {ResizableModule} from 'angular-resizable-element';
 import {InlineSVGModule} from 'ng-inline-svg';
 import { NgxEchartsModule } from 'ngx-echarts';
@@ -258,7 +258,7 @@ import {ScheduleConfigComponent} from './components/schedule-config/schedule-con
     InlineSVGModule,
     CommonModule,
     ReactiveFormsModule,
-    TranslateModule,
+    TranslatePipe,
     NgbModule,
     FormsModule,
     RouterModule,

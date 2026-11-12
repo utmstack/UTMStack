@@ -12,9 +12,10 @@ import {LogAnalyzerService} from '../../../../shared/services/log-analyzer.servi
 import {LogAnalyzerFieldDetailType} from '../../../../shared/type/log-analyzer-field-detail.type';
 
 @Component({
-  selector: 'app-log-analyzer-field-detail',
-  templateUrl: './log-analyzer-field-detail.component.html',
-  styleUrls: ['./log-analyzer-field-detail.component.scss']
+    standalone: false,
+    selector: 'app-log-analyzer-field-detail',
+    templateUrl: './log-analyzer-field-detail.component.html',
+    styleUrls: ['./log-analyzer-field-detail.component.scss'],
 })
 export class LogAnalyzerFieldDetailComponent implements OnInit, OnDestroy {
   @Input() field: ElasticSearchFieldInfoType;

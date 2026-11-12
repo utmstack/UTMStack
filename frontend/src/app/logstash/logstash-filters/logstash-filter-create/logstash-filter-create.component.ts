@@ -8,9 +8,10 @@ import {LogstashFilterType} from '../../shared/types/logstash-filter.type';
 import {UtmPipeline} from '../../shared/types/logstash-stats.type';
 
 @Component({
-  selector: 'app-logstash-filter-create',
-  templateUrl: './logstash-filter-create.component.html',
-  styleUrls: ['./logstash-filter-create.component.scss']
+    standalone: false,
+    selector: 'app-logstash-filter-create',
+    templateUrl: './logstash-filter-create.component.html',
+    styleUrls: ['./logstash-filter-create.component.scss'],
 })
 export class LogstashFilterCreateComponent implements OnInit, OnChanges {
   @Output() filterEditClose = new EventEmitter<LogstashFilterType>();

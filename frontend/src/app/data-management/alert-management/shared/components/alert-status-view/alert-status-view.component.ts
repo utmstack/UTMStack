@@ -3,9 +3,10 @@ import {AUTOMATIC_REVIEW, CLOSED, IGNORED, OPEN, REVIEW} from '../../../../../sh
 import {resolveStatusStyle} from '../../util/alert-util-function';
 
 @Component({
-  selector: 'app-alert-status-view',
-  templateUrl: './alert-status-view.component.html',
-  styleUrls: ['./alert-status-view.component.scss']
+    standalone: false,
+    selector: 'app-alert-status-view',
+    templateUrl: './alert-status-view.component.html',
+    styleUrls: ['./alert-status-view.component.scss'],
 })
 export class AlertStatusViewComponent implements OnInit {
   @Input() status: number;

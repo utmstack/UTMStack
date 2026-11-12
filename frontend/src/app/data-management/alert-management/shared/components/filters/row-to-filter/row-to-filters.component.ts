@@ -10,9 +10,10 @@ import {extractValueFromObjectByPath} from '../../../../../../shared/util/get-va
 import {AlertFiltersBehavior} from '../../../behavior/alert-filters.behavior';
 
 @Component({
-  selector: 'app-row-to-filters',
-  templateUrl: './row-to-filters.component.html',
-  styleUrls: ['./row-to-filters.component.scss']
+    standalone: false,
+    selector: 'app-row-to-filters',
+    templateUrl: './row-to-filters.component.html',
+    styleUrls: ['./row-to-filters.component.scss'],
 })
 export class RowToFiltersComponent implements OnInit {
   @Input() alert: any;

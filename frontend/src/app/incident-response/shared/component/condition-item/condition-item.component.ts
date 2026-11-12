@@ -12,9 +12,10 @@ import {ElasticSearchIndexService} from '../../../../shared/services/elasticsear
 import {ElasticSearchFieldInfoType} from '../../../../shared/types/elasticsearch/elastic-search-field-info.type';
 
 @Component({
-  selector: 'app-condition-item',
-  templateUrl: './condition-item.component.html',
-  styleUrls: ['./condition-item.component.scss']
+    standalone: false,
+    selector: 'app-condition-item',
+    templateUrl: './condition-item.component.html',
+    styleUrls: ['./condition-item.component.scss'],
 })
 export class ConditionItemComponent implements OnInit {
   @Input() group: FormGroup;

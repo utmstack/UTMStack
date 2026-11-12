@@ -1,8 +1,9 @@
 import {Component, ElementRef, Input, Renderer2} from '@angular/core';
 
 @Component({
-  selector: 'app-password-strength-bar',
-  template: `
+    standalone: false,
+    selector: 'app-password-strength-bar',
+    template: `
         <div id="strength">
             <small>Password strength:</small>
             <ul id="strengthBar">
@@ -13,7 +14,7 @@ import {Component, ElementRef, Input, Renderer2} from '@angular/core';
                 <li class="point"></li>
             </ul>
         </div>`,
-  styleUrls: ['password-strength-bar.scss']
+    styleUrls: ['password-strength-bar.scss'],
 })
 export class PasswordStrengthBarComponent {
   colors = ['#b71c1c', '#ef5350', '#c9ab00', '#7eb00a', '#4CAF50'];

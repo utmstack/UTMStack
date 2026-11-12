@@ -6,9 +6,10 @@ import {UtmNetScanService} from '../../services/utm-net-scan.service';
 import {AssetFilterType} from '../../types/asset-filter.type';
 
 @Component({
-  selector: 'app-asset-save-report',
-  templateUrl: './asset-save-report.component.html',
-  styleUrls: ['./asset-save-report.component.scss']
+    standalone: false,
+    selector: 'app-asset-save-report',
+    templateUrl: './asset-save-report.component.html',
+    styleUrls: ['./asset-save-report.component.scss'],
 })
 export class AssetSaveReportComponent implements OnInit {
   @Input() assetFilters: AssetFilterType;

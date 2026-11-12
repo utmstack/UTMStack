@@ -8,9 +8,10 @@ import {UtmModulesService} from '../../services/utm-modules.service';
 import {UtmModuleType} from '../../type/utm-module.type';
 
 @Component({
-  selector: 'app-app-module-activate-modal',
-  templateUrl: './app-module-activate-modal.component.html',
-  styleUrls: ['./app-module-activate-modal.component.scss']
+    standalone: false,
+    selector: 'app-app-module-activate-modal',
+    templateUrl: './app-module-activate-modal.component.html',
+    styleUrls: ['./app-module-activate-modal.component.scss'],
 })
 export class AppModuleActivateModalComponent implements OnInit {
   modules: UtmModuleType[];

@@ -9,9 +9,10 @@ import {
 } from '@angular/core';
 
 @Component({
-  selector: 'app-utm-selectable-list',
-  templateUrl: './selectable-list.component.html',
-  styleUrls: ['./selectable-list.component.css']
+    standalone: false,
+    selector: 'app-utm-selectable-list',
+    templateUrl: './selectable-list.component.html',
+    styleUrls: ['./selectable-list.component.css'],
 })
 export class SelectableListComponent implements OnChanges {
   @Input() items: {id: any, name: string; selected: boolean }[] = [];

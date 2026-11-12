@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
@@ -34,9 +34,10 @@ import {FileQueryParamEnum} from '../shared/enum/file-query-param.enum';
 import {MAX_SEARCH_RESULTS} from "../../../shared/constants/global.constant";
 
 @Component({
-  selector: 'app-file-view',
-  templateUrl: './file-view.component.html',
-  styleUrls: ['./file-view.component.scss']
+    standalone: false,
+    selector: 'app-file-view',
+    templateUrl: './file-view.component.html',
+    styleUrls: ['./file-view.component.scss'],
 })
 export class FileViewComponent implements OnInit {
   files: any[] = [];

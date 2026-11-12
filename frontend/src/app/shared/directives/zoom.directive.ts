@@ -1,7 +1,8 @@
 import {Directive, HostListener} from '@angular/core';
 
 @Directive({
-  selector: '[appZoom]'
+    standalone: false,
+    selector: '[appZoom]',
 })
 export class ZoomDirective {
   private i = 1;

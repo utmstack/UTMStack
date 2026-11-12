@@ -6,9 +6,10 @@ import {Step} from "../shared/step";
 import {SOPHOS_STEPS} from "./sophos.steps";
 
 @Component({
-  selector: 'app-guide-sophos',
-  templateUrl: './guide-sophos.component.html',
-  styleUrls: ['./guide-sophos.component.css']
+    standalone: false,
+    selector: 'app-guide-sophos',
+    templateUrl: './guide-sophos.component.html',
+    styleUrls: ['./guide-sophos.component.css'],
 })
 export class GuideSophosComponent implements OnInit {
   @Input() integrationId: number;

@@ -24,10 +24,11 @@ import {deleteNullValues} from '../../../../shared/util/object-util';
 import {TimeFilterBehavior} from "../../../../shared/behaviors/time-filter.behavior";
 
 @Component({
-  selector: 'app-chart-alert-by-category',
-  templateUrl: './chart-alert-by-category.component.html',
-  styleUrls: ['./chart-alert-by-category.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    standalone: false,
+    selector: 'app-chart-alert-by-category',
+    templateUrl: './chart-alert-by-category.component.html',
+    styleUrls: ['./chart-alert-by-category.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChartAlertByCategoryComponent implements OnInit, OnDestroy {
   @Output() loaded = new EventEmitter<void>();

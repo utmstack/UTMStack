@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, OnDestroy, OnInit, QueryList, ViewChildren} from '@angular/core';
 import {SortableDirective} from '../../../../shared/directives/sortable/sortable.directive';
 import {SortEvent} from '../../../../shared/directives/sortable/type/sort-event';
@@ -6,9 +6,10 @@ import {DataSourceInputService} from './services/data-source-input.service';
 import {UtmDataInputStatus} from './type/data-source-input.type';
 
 @Component({
-  selector: 'app-data-source-input',
-  templateUrl: './data-source-input.component.html',
-  styleUrls: ['./data-source-input.component.css']
+    standalone: false,
+    selector: 'app-data-source-input',
+    templateUrl: './data-source-input.component.html',
+    styleUrls: ['./data-source-input.component.css'],
 })
 export class DataSourceInputComponent implements OnInit, OnDestroy {
   data: DataSourceInput[] = [];

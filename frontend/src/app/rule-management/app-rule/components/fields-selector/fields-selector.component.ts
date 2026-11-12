@@ -10,9 +10,10 @@ import {Rule} from '../../../models/rule.model';
 
 
 @Component({
-  selector: 'app-fields-selector',
-  templateUrl: './fields-selector.component.html',
-  styleUrls: ['./fields-selector.component.css']
+    standalone: false,
+    selector: 'app-fields-selector',
+    templateUrl: './fields-selector.component.html',
+    styleUrls: ['./fields-selector.component.css'],
 })
 export class FieldsSelectorComponent implements OnInit {
   @Input() formGroup: FormGroup;

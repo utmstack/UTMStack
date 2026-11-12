@@ -5,9 +5,10 @@ import {CredentialModel} from '../../../shared/model/credential.model';
 import {CredentialService} from '../shared/services/credential.service';
 
 @Component({
-  selector: 'app-credential-delete',
-  templateUrl: './credential-delete.component.html',
-  styleUrls: ['./credential-delete.component.scss']
+    standalone: false,
+    selector: 'app-credential-delete',
+    templateUrl: './credential-delete.component.html',
+    styleUrls: ['./credential-delete.component.scss'],
 })
 export class CredentialDeleteComponent implements OnInit {
   @Input() credential: CredentialModel;

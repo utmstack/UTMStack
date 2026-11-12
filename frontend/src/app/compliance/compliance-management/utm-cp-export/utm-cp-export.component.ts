@@ -5,9 +5,10 @@ import {CpReportsService} from '../../shared/services/cp-reports.service';
 import {ComplianceReportType} from '../../shared/type/compliance-report.type';
 
 @Component({
-  selector: 'app-utm-cp-export',
-  templateUrl: './utm-cp-export.component.html',
-  styleUrls: ['./utm-cp-export.component.scss']
+    standalone: false,
+    selector: 'app-utm-cp-export',
+    templateUrl: './utm-cp-export.component.html',
+    styleUrls: ['./utm-cp-export.component.scss'],
 })
 export class UtmCpExportComponent implements OnInit {
   @Input() standardId: number;

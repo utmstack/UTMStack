@@ -2,9 +2,10 @@ import {Component, Input, OnInit} from '@angular/core';
 import {UtmModulesEnum} from '../../shared/enum/utm-module.enum';
 
 @Component({
-  selector: 'app-guide-vulnerabilities',
-  templateUrl: './guide-vulnerabilities.component.html',
-  styleUrls: ['./guide-vulnerabilities.component.css']
+    standalone: false,
+    selector: 'app-guide-vulnerabilities',
+    templateUrl: './guide-vulnerabilities.component.html',
+    styleUrls: ['./guide-vulnerabilities.component.css'],
 })
 export class GuideVulnerabilitiesComponent implements OnInit {
   @Input() integrationId: number;

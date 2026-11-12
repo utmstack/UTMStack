@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {AfterViewInit, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {EMPTY, Observable, Subject} from 'rxjs';
 import {catchError, filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
@@ -14,9 +14,10 @@ import {AssetGenericFilterService} from '../../../services/asset-generic-filter.
 import {AssetFilterType} from '../../../types/asset-filter.type';
 
 @Component({
-  selector: 'app-asset-generic-filter',
-  templateUrl: './asset-generic-filter.component.html',
-  styleUrls: ['./asset-generic-filter.component.scss']
+    standalone: false,
+    selector: 'app-asset-generic-filter',
+    templateUrl: './asset-generic-filter.component.html',
+    styleUrls: ['./asset-generic-filter.component.scss'],
 })
 export class AssetGenericFilterComponent implements OnInit, AfterViewInit {
   @Input() fieldFilter: ElasticFilterType;

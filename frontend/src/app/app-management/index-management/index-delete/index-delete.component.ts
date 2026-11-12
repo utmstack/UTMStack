@@ -4,9 +4,10 @@ import {UtmToastService} from '../../../shared/alert/utm-toast.service';
 import {ElasticSearchIndexService} from '../../../shared/services/elasticsearch/elasticsearch-index.service';
 
 @Component({
-  selector: 'app-index-delete',
-  templateUrl: './index-delete.component.html',
-  styleUrls: ['./index-delete.component.css']
+    standalone: false,
+    selector: 'app-index-delete',
+    templateUrl: './index-delete.component.html',
+    styleUrls: ['./index-delete.component.css'],
 })
 export class IndexDeleteComponent implements OnInit {
   @Input() indexes: string[];

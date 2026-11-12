@@ -3,9 +3,10 @@ import {MenuBehavior} from '../../../../../../behaviors/menu.behavior';
 import {ADMIN_ROLE} from '../../../../../../constants/global.constant';
 
 @Component({
-  selector: 'app-utm-menu-burger',
-  templateUrl: './utm-menu-burger.component.html',
-  styleUrls: ['./utm-menu-burger.component.css']
+    standalone: false,
+    selector: 'app-utm-menu-burger',
+    templateUrl: './utm-menu-burger.component.html',
+    styleUrls: ['./utm-menu-burger.component.css'],
 })
 export class UtmMenuBurgerComponent implements OnInit {
   roleAdmin = ADMIN_ROLE;

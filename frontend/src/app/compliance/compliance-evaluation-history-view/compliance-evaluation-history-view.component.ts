@@ -8,9 +8,10 @@ import {ComplianceControlEvaluationHistoryType} from '../shared/type/compliance-
 import {ComplianceControlLatestEvaluationType} from '../shared/type/compliance-control-latest-evaluation.type';
 
 @Component({
-  selector: 'app-compliance-evaluation-history-view',
-  templateUrl: './compliance-evaluation-history-view.component.html',
-  styleUrls: ['./compliance-evaluation-history-view.component.scss']
+    standalone: false,
+    selector: 'app-compliance-evaluation-history-view',
+    templateUrl: './compliance-evaluation-history-view.component.html',
+    styleUrls: ['./compliance-evaluation-history-view.component.scss'],
 })
 export class ComplianceEvaluationHistoryViewComponent implements OnInit, OnDestroy {
   controlId: number;

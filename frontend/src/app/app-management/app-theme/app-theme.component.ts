@@ -5,9 +5,10 @@ import {UtmAppThemeService} from '../../shared/services/theme/utm-app-theme.serv
 import {AppThemeType} from '../../shared/types/theme/app-theme.type';
 
 @Component({
-  selector: 'app-app-theme',
-  templateUrl: './app-theme.component.html',
-  styleUrls: ['./app-theme.component.scss']
+    standalone: false,
+    selector: 'app-app-theme',
+    templateUrl: './app-theme.component.html',
+    styleUrls: ['./app-theme.component.scss'],
 })
 export class AppThemeComponent implements OnInit {
   themeImages: AppThemeType[];

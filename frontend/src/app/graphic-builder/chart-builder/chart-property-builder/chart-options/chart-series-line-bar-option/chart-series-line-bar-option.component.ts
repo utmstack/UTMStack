@@ -8,9 +8,10 @@ import {MetricDataBehavior} from '../../shared/behaviors/metric-data.behavior';
 import {extractLabelFromMetric} from '../../shared/functions/visualization-util';
 
 @Component({
-  selector: 'app-chart-series-line-bar-option',
-  templateUrl: './chart-series-line-bar-option.component.html',
-  styleUrls: ['./chart-series-line-bar-option.component.scss']
+    standalone: false,
+    selector: 'app-chart-series-line-bar-option',
+    templateUrl: './chart-series-line-bar-option.component.html',
+    styleUrls: ['./chart-series-line-bar-option.component.scss'],
 })
 export class ChartSeriesLineBarOptionComponent implements OnInit {
   @Output() seriesOptions = new EventEmitter<SeriesLine>();

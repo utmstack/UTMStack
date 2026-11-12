@@ -23,9 +23,10 @@ import {Subject} from 'rxjs';
 import {filter, map, takeUntil, tap} from 'rxjs/operators';
 
 @Component({
-  selector: 'app-compliance-result-view',
-  templateUrl: './compliance-result-view.component.html',
-  styleUrls: ['./compliance-result-view.component.scss']
+    standalone: false,
+    selector: 'app-compliance-result-view',
+    templateUrl: './compliance-result-view.component.html',
+    styleUrls: ['./compliance-result-view.component.scss'],
 })
 export class ComplianceResultViewComponent implements OnInit, OnDestroy {
   @Input() showExport = true;

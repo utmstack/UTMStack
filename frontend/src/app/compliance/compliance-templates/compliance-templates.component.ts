@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
@@ -14,9 +14,10 @@ import {ComplianceStandardSectionType} from '../shared/type/compliance-standard-
 import {ComplianceStandardType} from '../shared/type/compliance-standard.type';
 
 @Component({
-  selector: 'app-compliance-templates',
-  templateUrl: './compliance-templates.component.html',
-  styleUrls: ['./compliance-templates.component.scss']
+    standalone: false,
+    selector: 'app-compliance-templates',
+    templateUrl: './compliance-templates.component.html',
+    styleUrls: ['./compliance-templates.component.scss'],
 })
 export class ComplianceTemplatesComponent implements OnInit {
   reports: ComplianceReportType[] = [];

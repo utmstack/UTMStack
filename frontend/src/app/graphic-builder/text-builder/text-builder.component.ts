@@ -13,9 +13,10 @@ import {VisualizationSaveComponent} from '../visualization/visualization-save/vi
 import {DashboardStatusEnum} from "../dashboard-builder/shared/enums/dashboard-status.enum";
 
 @Component({
-  selector: 'app-text-builder',
-  templateUrl: './text-builder.component.html',
-  styleUrls: ['./text-builder.component.scss']
+    standalone: false,
+    selector: 'app-text-builder',
+    templateUrl: './text-builder.component.html',
+    styleUrls: ['./text-builder.component.scss'],
 })
 export class TextBuilderComponent implements OnInit {
   visualization: VisualizationType;

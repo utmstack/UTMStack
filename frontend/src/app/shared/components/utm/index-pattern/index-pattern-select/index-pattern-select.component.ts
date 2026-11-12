@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {NgbActiveModal, NgbModal, NgbPopover} from '@ng-bootstrap/ng-bootstrap';
 import {IndexPatternService} from '../../../../services/elasticsearch/index-pattern.service';
@@ -6,9 +6,10 @@ import {UtmIndexPattern} from '../../../../types/index-pattern/utm-index-pattern
 import {IndexPatternCreateComponent} from '../index-pattern-create/index-pattern-create.component';
 
 @Component({
-  selector: 'app-index-pattern-select',
-  templateUrl: './index-pattern-select.component.html',
-  styleUrls: ['./index-pattern-select.component.css']
+    standalone: false,
+    selector: 'app-index-pattern-select',
+    templateUrl: './index-pattern-select.component.html',
+    styleUrls: ['./index-pattern-select.component.css'],
 })
 export class IndexPatternSelectComponent implements OnInit {
   patterns: UtmIndexPattern[];

@@ -8,9 +8,10 @@ import {FilterService} from '../services/filter.service';
 
 
 @Component({
+    standalone: false,
     selector: 'app-rules',
     templateUrl: './app-rule.component.html',
-    styleUrls: ['./app-rule.component.css']
+    styleUrls: ['./app-rule.component.css'],
 })
 export class AppRuleComponent implements OnInit {
 

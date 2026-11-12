@@ -9,9 +9,10 @@ import {
 } from '../../../../shared/const/chart/legend-properties.const';
 
 @Component({
-  selector: 'app-chart-legend-option',
-  templateUrl: './chart-legend-option.component.html',
-  styleUrls: ['./chart-legend-option.component.scss']
+    standalone: false,
+    selector: 'app-chart-legend-option',
+    templateUrl: './chart-legend-option.component.html',
+    styleUrls: ['./chart-legend-option.component.scss'],
 })
 export class ChartLegendOptionComponent implements OnInit {
   @Input() legend: Legend;

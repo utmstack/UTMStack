@@ -8,9 +8,10 @@ import {SectionConfigParamType} from '../../../../../../types/configuration/sect
 import {UtmTfaVerificationComponent} from '../../../../../utm-tfa-verification/utm-tfa-verification.component';
 
 @Component({
-  selector: 'app-utm-tfa-conf-check',
-  templateUrl: './utm-tfa-conf-check.component.html',
-  styleUrls: ['./utm-tfa-conf-check.component.css']
+    standalone: false,
+    selector: 'app-utm-tfa-conf-check',
+    templateUrl: './utm-tfa-conf-check.component.html',
+    styleUrls: ['./utm-tfa-conf-check.component.css'],
 })
 export class UtmTfaConfCheckComponent implements OnInit {
   @Input() validConfig: boolean;

@@ -38,15 +38,16 @@ import {VisualizationService} from '../visualization/shared/services/visualizati
 import {VisualizationSaveComponent} from '../visualization/visualization-save/visualization-save.component';
 
 import {DashboardStatusEnum} from '../dashboard-builder/shared/enums/dashboard-status.enum';
-import {HttpResponse} from "@angular/common/http";
+import { HttpResponse } from "@angular/common/http";
 import {IndexPatternService} from "../../shared/services/elasticsearch/index-pattern.service";
 import {map} from "rxjs/operators";
 
 
 @Component({
-  selector: 'app-chart-builder',
-  templateUrl: './chart-builder.component.html',
-  styleUrls: ['./chart-builder.component.scss']
+    standalone: false,
+    selector: 'app-chart-builder',
+    templateUrl: './chart-builder.component.html',
+    styleUrls: ['./chart-builder.component.scss'],
 })
 export class ChartBuilderComponent implements OnInit, AfterViewChecked {
   chart: ChartTypeEnum;

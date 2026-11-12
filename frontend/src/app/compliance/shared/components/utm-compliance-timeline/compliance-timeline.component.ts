@@ -3,9 +3,10 @@ import {ComplianceStatusExtendedEnum, getComplianceStatusLabel} from '../../enum
 import {ComplianceControlEvaluationHistoryType} from '../../type/compliance-control-evaluation-history.type';
 
 @Component({
-  selector: 'app-compliance-timeline',
-  templateUrl: './compliance-timeline.component.html',
-  styleUrls: ['./compliance-timeline.component.scss']
+    standalone: false,
+    selector: 'app-compliance-timeline',
+    templateUrl: './compliance-timeline.component.html',
+    styleUrls: ['./compliance-timeline.component.scss'],
 })
 export class ComplianceTimelineComponent implements OnInit {
   @Input() evaluations: ComplianceControlEvaluationHistoryType[];

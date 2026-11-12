@@ -6,9 +6,10 @@ import {InputClassResolve} from '../../../../../shared/util/input-class-resolve'
 import {getErrorCountForm} from '../../shared/functions/form-error-count';
 
 @Component({
-  selector: 'app-bucket-date-histogram',
-  templateUrl: './bucket-date-histogram.component.html',
-  styleUrls: ['./bucket-date-histogram.component.scss']
+    standalone: false,
+    selector: 'app-bucket-date-histogram',
+    templateUrl: './bucket-date-histogram.component.html',
+    styleUrls: ['./bucket-date-histogram.component.scss'],
 })
 export class BucketDateHistogramComponent implements OnInit {
   intervals: BucketDateHistogramInterval[] = TIME_INTERVAL;

@@ -12,9 +12,10 @@ import {ApiKeyResponse} from './shared/models/ApiKeyResponse';
 import {ApiKeysService} from './shared/service/api-keys.service';
 
 @Component({
-  selector: 'app-api-keys',
-  templateUrl: './api-keys.component.html',
-  styleUrls: ['./api-keys.component.scss']
+    standalone: false,
+    selector: 'app-api-keys',
+    templateUrl: './api-keys.component.html',
+    styleUrls: ['./api-keys.component.scss'],
 })
 export class ApiKeysComponent implements OnInit {
 

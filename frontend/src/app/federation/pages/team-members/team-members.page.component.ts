@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Subject} from 'rxjs';
 import {UtmToastService} from '../../../shared/alert/utm-toast.service';
 import {
@@ -13,9 +13,10 @@ import {TeamUserFormModalComponent} from '../../components/team-user-form-modal/
 const DEFAULT_PAGE_SIZE = 20;
 
 @Component({
-  selector: 'app-team-members-page',
-  templateUrl: './team-members.page.component.html',
-  styleUrls: ['./team-members.page.component.scss']
+    standalone: false,
+    selector: 'app-team-members-page',
+    templateUrl: './team-members.page.component.html',
+    styleUrls: ['./team-members.page.component.scss'],
 })
 export class TeamMembersPageComponent implements OnInit, OnDestroy {
   users: TeamUser[] = [];

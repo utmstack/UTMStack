@@ -5,9 +5,10 @@ import {AdNotificationConfService} from '../shared/services/ad-notification-conf
 import {AdNotificationConfType} from '../shared/type/ad-notification-conf.type';
 
 @Component({
-  selector: 'app-ad-notifications-config-create',
-  templateUrl: './ad-notifications-config-create.component.html',
-  styleUrls: ['./ad-notifications-config-create.component.scss']
+    standalone: false,
+    selector: 'app-ad-notifications-config-create',
+    templateUrl: './ad-notifications-config-create.component.html',
+    styleUrls: ['./ad-notifications-config-create.component.scss'],
 })
 export class AdNotificationsConfigCreateComponent implements OnInit {
   @Input() notifyConfig: any;

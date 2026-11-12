@@ -5,9 +5,10 @@ import {TIME_DASHBOARD_REFRESH} from "../../../../constants/time-refresh.const";
 
 export const TIME_REFRESH = 'TIME_REFRESH';
 @Component({
-  selector: 'app-refresh-filter',
-  templateUrl: 'refresh-filter.component.html',
-  styleUrls: ['refresh-filter.component.css']
+    standalone: false,
+    selector: 'app-refresh-filter',
+    templateUrl: 'refresh-filter.component.html',
+    styleUrls: ['refresh-filter.component.css'],
 })
 export class RefreshFilterComponent implements OnInit {
   show = false;

@@ -5,9 +5,10 @@ import {CpStandardService} from '../../../shared/services/cp-standard.service';
 import {ComplianceStandardType} from '../../../shared/type/compliance-standard.type';
 
 @Component({
-  selector: 'app-utm-cp-standard-delete',
-  templateUrl: './utm-cp-standard-delete.component.html',
-  styleUrls: ['./utm-cp-standard-delete.component.scss']
+    standalone: false,
+    selector: 'app-utm-cp-standard-delete',
+    templateUrl: './utm-cp-standard-delete.component.html',
+    styleUrls: ['./utm-cp-standard-delete.component.scss'],
 })
 export class UtmCpStandardDeleteComponent implements OnInit {
   @Input() standard: ComplianceStandardType;

@@ -6,9 +6,10 @@ import {UtmClientService} from '../../../../../../services/license/utm-client.se
 import {isSubdomainOfUtmstack} from '../../../../../../util/url.util';
 
 @Component({
-  selector: 'app-utm-license-info',
-  templateUrl: './utm-license-info.component.html',
-  styleUrls: ['./utm-license-info.component.scss']
+    standalone: false,
+    selector: 'app-utm-license-info',
+    templateUrl: './utm-license-info.component.html',
+    styleUrls: ['./utm-license-info.component.scss'],
 })
 export class UtmLicenseInfoComponent implements OnInit {
   license: 'ENTERPRISE' | 'FREE';

@@ -3,9 +3,10 @@ import {Router} from '@angular/router';
 import {AssetModel} from '../../../../shared/model/assets/asset.model';
 
 @Component({
-  selector: 'app-asset-host-table',
-  templateUrl: './asset-host-table.component.html',
-  styleUrls: ['./asset-host-table.component.scss']
+    standalone: false,
+    selector: 'app-asset-host-table',
+    templateUrl: './asset-host-table.component.html',
+    styleUrls: ['./asset-host-table.component.scss'],
 })
 export class AssetHostTableComponent implements OnInit {
   @Input() assets: AssetModel[];

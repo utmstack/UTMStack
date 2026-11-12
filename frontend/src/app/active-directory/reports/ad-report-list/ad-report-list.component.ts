@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
@@ -14,9 +14,10 @@ import {AdReportType} from '../shared/type/ad-report.type';
 import {JhiParseLinks} from '../../../shared/jhi/jhi.util';
 
 @Component({
+    standalone: false,
     selector: 'app-ad-reports-list',
     templateUrl: './ad-report-list.component.html',
-    styleUrls: ['./ad-report-list.component.scss']
+    styleUrls: ['./ad-report-list.component.scss'],
 })
 export class AdReportListComponent implements OnInit {
     fields: SortByType[] = [

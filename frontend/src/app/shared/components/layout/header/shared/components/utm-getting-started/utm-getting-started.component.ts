@@ -20,9 +20,10 @@ import {isSubdomainOfUtmstack} from '../../../../../../util/url.util';
 
 
 @Component({
-  selector: 'app-utm-getting-started',
-  templateUrl: './utm-getting-started.component.html',
-  styleUrls: ['./utm-getting-started.component.scss']
+    standalone: false,
+    selector: 'app-utm-getting-started',
+    templateUrl: './utm-getting-started.component.html',
+    styleUrls: ['./utm-getting-started.component.scss'],
 })
 export class UtmGettingStartedComponent implements OnInit, OnDestroy {
   steps: GettingStartedType[] = [];
@@ -154,8 +155,9 @@ export class UtmGettingStartedComponent implements OnInit, OnDestroy {
 
 
 @Component({
-  selector: 'app-modal-getting-started',
-  template: `
+    standalone: false,
+    selector: 'app-modal-getting-started',
+    template: `
     <app-utm-modal-header [name]="name" *ngIf="name" [showCloseButton]="false"></app-utm-modal-header>
     <div class="modal-body" *ngIf="step">
       <ng-container [ngSwitch]="step" class="">
@@ -222,8 +224,9 @@ export class GettingStartedModalComponent implements OnInit {
 }
 
 @Component({
-  selector: 'app-modal-getting-started-complete',
-  template: `
+    standalone: false,
+    selector: 'app-modal-getting-started-complete',
+    template: `
     <app-utm-modal-header [name]="'Getting started completed'" [showCloseButton]="false"></app-utm-modal-header>
     <div class="modal-body">
       <div class="d-flex justify-content-center align-items-center">

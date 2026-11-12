@@ -21,9 +21,10 @@ import {AdversaryAlerts} from '../models';
 import {AdversaryAlertService} from '../services/adversary-alert-.service';
 
 @Component({
-  selector: 'app-adversary-view',
-  templateUrl: './adversary-view.component.html',
-  styleUrls: ['./adversary-view.component.scss']
+    standalone: false,
+    selector: 'app-adversary-view',
+    templateUrl: './adversary-view.component.html',
+    styleUrls: ['./adversary-view.component.scss'],
 })
 export class AdversaryViewComponent implements OnInit {
 

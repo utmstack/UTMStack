@@ -2,9 +2,10 @@ import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core'
 import {UtmToastService} from '../../../../alert/utm-toast.service';
 
 @Component({
-  selector: 'app-utm-secret-view',
-  templateUrl: './utm-secret-view.component.html',
-  styleUrls: ['./utm-secret-view.component.scss']
+    standalone: false,
+    selector: 'app-utm-secret-view',
+    templateUrl: './utm-secret-view.component.html',
+    styleUrls: ['./utm-secret-view.component.scss'],
 })
 export class UtmSecretViewComponent implements OnInit, OnChanges {
   @Input() secret: string;

@@ -2,9 +2,10 @@ import {Component, Input, OnInit} from '@angular/core';
 import {UtmModulesEnum} from '../../shared/enum/utm-module.enum';
 
 @Component({
-  selector: 'app-guide-netflow',
-  templateUrl: './guide-netflow.component.html',
-  styleUrls: ['./guide-netflow.component.css']
+    standalone: false,
+    selector: 'app-guide-netflow',
+    templateUrl: './guide-netflow.component.html',
+    styleUrls: ['./guide-netflow.component.css'],
 })
 export class GuideNetflowComponent implements OnInit {
   @Input() integrationId: number;

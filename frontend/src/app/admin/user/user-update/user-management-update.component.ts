@@ -7,9 +7,10 @@ import { ContactUsComponent } from "../../../shared/components/contact-us/contac
 import { DEMO_URL } from "../../../shared/constants/global.constant";
 
 @Component({
-  selector: "app-user-mgmt-update",
-  templateUrl: "./user-management-update.component.html",
-  styleUrls: ["./user-managment-update.component.scss"],
+    standalone: false,
+    selector: "app-user-mgmt-update",
+    templateUrl: "./user-management-update.component.html",
+    styleUrls: ["./user-managment-update.component.scss"],
 })
 export class UserMgmtUpdateComponent implements OnInit {
   @Input() user: User;

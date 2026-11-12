@@ -6,9 +6,10 @@ import {ComplianceScheduleService} from '../../services/compliance-schedule.serv
 
 
 @Component({
-  selector: 'app-dashboard-delete',
-  templateUrl: './utm-compliance-schedule-delete.component.html',
-  styleUrls: ['./utm-compliance-schedule-delete.component.scss']
+    standalone: false,
+    selector: 'app-dashboard-delete',
+    templateUrl: './utm-compliance-schedule-delete.component.html',
+    styleUrls: ['./utm-compliance-schedule-delete.component.scss'],
 })
 export class UtmComplianceScheduleDeleteComponent implements OnInit {
   @Input() complianceSchedule: any;

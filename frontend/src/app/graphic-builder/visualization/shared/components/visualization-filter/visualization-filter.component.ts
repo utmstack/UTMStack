@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {DataNatureTypeEnum} from '../../../../../shared/enums/nature-data.enum';
 import {IndexPatternService} from '../../../../../shared/services/elasticsearch/index-pattern.service';
@@ -7,9 +7,10 @@ import {TimeFilterType} from '../../../../../shared/types/time-filter.type';
 import {CHART_TYPES} from '../../../../shared/const/chart-type.const';
 
 @Component({
-  selector: 'app-visualization-filter',
-  templateUrl: './visualization-filter.component.html',
-  styleUrls: ['./visualization-filter.component.scss']
+    standalone: false,
+    selector: 'app-visualization-filter',
+    templateUrl: './visualization-filter.component.html',
+    styleUrls: ['./visualization-filter.component.scss'],
 })
 export class VisualizationFilterComponent implements OnInit {
   @Output() visFilterChange = new EventEmitter<any>();

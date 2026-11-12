@@ -7,9 +7,10 @@ import {PortModel} from '../../../../shared/model/port.model';
 import {PortRangeService} from '../shared/services/port-range.service';
 
 @Component({
-  selector: 'app-port-range-edit',
-  templateUrl: './port-range-create.component.html',
-  styleUrls: ['./port-range-create.component.scss']
+    standalone: false,
+    selector: 'app-port-range-edit',
+    templateUrl: './port-range-create.component.html',
+    styleUrls: ['./port-range-create.component.scss'],
 })
 export class PortRangeCreateComponent implements OnInit {
   @Input() port: PortModel;

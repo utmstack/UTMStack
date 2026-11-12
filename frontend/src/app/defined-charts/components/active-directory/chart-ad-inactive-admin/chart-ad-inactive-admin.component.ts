@@ -10,9 +10,10 @@ import {ElasticFilterCommonType} from '../../../../shared/types/filter/elastic-f
 import {TimeFilterType} from '../../../../shared/types/time-filter.type';
 
 @Component({
-  selector: 'app-chart-ad-inactive-admin',
-  templateUrl: './chart-ad-inactive-admin.component.html',
-  styleUrls: ['./chart-ad-inactive-admin.component.scss']
+    standalone: false,
+    selector: 'app-chart-ad-inactive-admin',
+    templateUrl: './chart-ad-inactive-admin.component.html',
+    styleUrls: ['./chart-ad-inactive-admin.component.scss'],
 })
 export class ChartAdInactiveAdminComponent implements OnInit, OnDestroy {
   daysInactiveAdmin = 15;

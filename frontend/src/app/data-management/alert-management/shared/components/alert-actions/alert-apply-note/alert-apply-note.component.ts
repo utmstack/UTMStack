@@ -7,9 +7,10 @@ import {AlertManagementService} from '../../../services/alert-management.service
 import {getID, setAlertPropertyValue} from '../../../util/alert-util-function';
 
 @Component({
-  selector: 'app-alert-apply-note',
-  templateUrl: './alert-apply-note.component.html',
-  styleUrls: ['./alert-apply-note.component.scss']
+    standalone: false,
+    selector: 'app-alert-apply-note',
+    templateUrl: './alert-apply-note.component.html',
+    styleUrls: ['./alert-apply-note.component.scss'],
 })
 export class AlertApplyNoteComponent implements OnInit, OnChanges {
   @Input() alert: any;

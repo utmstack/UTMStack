@@ -9,9 +9,10 @@ import {ChartTypeEnum} from '../../shared/enums/chart-type.enum';
 import {UtmRenderVisualization} from '../shared/services/utm-render-visualization.service';
 
 @Component({
-  selector: 'app-dashboard-log-sources',
-  templateUrl: './dashboard-log-sources.component.html',
-  styleUrls: ['./dashboard-log-sources.component.css']
+    standalone: false,
+    selector: 'app-dashboard-log-sources',
+    templateUrl: './dashboard-log-sources.component.html',
+    styleUrls: ['./dashboard-log-sources.component.css'],
 })
 export class DashboardLogSourcesComponent implements OnInit {
   pdfExport = false;

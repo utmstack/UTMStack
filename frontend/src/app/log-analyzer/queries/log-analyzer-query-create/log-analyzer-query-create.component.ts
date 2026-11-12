@@ -12,9 +12,10 @@ import {TabService} from "../../shared/services/tab.service";
 import {map} from "rxjs/operators";
 
 @Component({
-  selector: 'app-log-analyzer-query-create',
-  templateUrl: './log-analyzer-query-create.component.html',
-  styleUrls: ['./log-analyzer-query-create.component.scss']
+    standalone: false,
+    selector: 'app-log-analyzer-query-create',
+    templateUrl: './log-analyzer-query-create.component.html',
+    styleUrls: ['./log-analyzer-query-create.component.scss'],
 })
 export class LogAnalyzerQueryCreateComponent implements OnInit {
   queryForm: FormGroup;

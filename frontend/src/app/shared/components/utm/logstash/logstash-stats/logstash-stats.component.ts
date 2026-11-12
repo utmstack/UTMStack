@@ -3,9 +3,10 @@ import {UtmLogstashPipeline} from '../../../../../logstash/shared/types/logstash
 import {convertBytesToGB} from '../../../../util/bytes.util';
 
 @Component({
-  selector: 'app-logstash-stats',
-  templateUrl: './logstash-stats.component.html',
-  styleUrls: ['./logstash-stats.component.scss']
+    standalone: false,
+    selector: 'app-logstash-stats',
+    templateUrl: './logstash-stats.component.html',
+    styleUrls: ['./logstash-stats.component.scss'],
 })
 export class LogstashStatsComponent implements OnInit {
   @Input() logstashPipelines: UtmLogstashPipeline;

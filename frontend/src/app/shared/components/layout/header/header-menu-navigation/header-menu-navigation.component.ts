@@ -13,9 +13,10 @@ import {OpenAlertsService} from '../../../../../data-management/alert-management
 import {UtmToastService} from '../../../../alert/utm-toast.service';
 
 @Component({
-  selector: 'app-header-menu-navigation',
-  templateUrl: './header-menu-navigation.component.html',
-  styleUrls: ['./header-menu-navigation.component.scss']
+    standalone: false,
+    selector: 'app-header-menu-navigation',
+    templateUrl: './header-menu-navigation.component.html',
+    styleUrls: ['./header-menu-navigation.component.scss'],
 })
 export class HeaderMenuNavigationComponent implements OnInit, OnDestroy {
   menus: Menu[] = [];

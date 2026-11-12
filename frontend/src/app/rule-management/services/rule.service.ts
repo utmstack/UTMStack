@@ -1,4 +1,4 @@
-import {HttpClient, HttpHeaders, HttpParams, HttpResponse} from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams, HttpResponse } from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {Observable, of} from 'rxjs';
 import {catchError, delay} from 'rxjs/operators';

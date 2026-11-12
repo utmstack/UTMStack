@@ -1,9 +1,10 @@
 import {Component, OnInit} from '@angular/core';
 
 @Component({
-  selector: 'app-threatwind',
-  templateUrl: './threatwind.component.html',
-  styleUrls: ['./threatwind.component.css']
+    standalone: false,
+    selector: 'app-threatwind',
+    templateUrl: './threatwind.component.html',
+    styleUrls: ['./threatwind.component.css'],
 })
 export class ThreatwindComponent implements OnInit {
 

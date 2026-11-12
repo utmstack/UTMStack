@@ -1,4 +1,4 @@
-import {HttpErrorResponse} from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -17,10 +17,11 @@ import {ComplianceReportType} from '../../type/compliance-report.type';
 import {ComplianceStandardSectionType} from '../../type/compliance-standard-section.type';
 
 @Component({
-  selector: 'app-utm-cp-section',
-  templateUrl: './utm-cp-section.component.html',
-  styleUrls: ['./utm-cp-section.component.css', ],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    standalone: false,
+    selector: 'app-utm-cp-section',
+    templateUrl: './utm-cp-section.component.html',
+    styleUrls: ['./utm-cp-section.component.css',],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UtmCpSectionComponent implements OnInit, OnChanges {
 

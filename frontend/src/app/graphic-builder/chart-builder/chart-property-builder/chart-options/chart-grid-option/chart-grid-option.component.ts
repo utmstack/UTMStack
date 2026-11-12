@@ -4,9 +4,10 @@ import {Grid} from '../../../../../shared/chart/types/charts/chart-properties/gr
 import {GRID_POSITION_LEFT, GRID_POSITION_TOP} from '../../../../shared/const/chart/grid-properties.const';
 
 @Component({
-  selector: 'app-chart-grid-option',
-  templateUrl: './chart-grid-option.component.html',
-  styleUrls: ['./chart-grid-option.component.scss']
+    standalone: false,
+    selector: 'app-chart-grid-option',
+    templateUrl: './chart-grid-option.component.html',
+    styleUrls: ['./chart-grid-option.component.scss'],
 })
 export class ChartGridOptionComponent implements OnInit {
   // @Input() gridOption: Grid;

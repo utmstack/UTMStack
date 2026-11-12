@@ -5,9 +5,10 @@ import {IndexPatternService} from '../../../shared/services/elasticsearch/index-
 import {UtmIndexPattern} from '../../../shared/types/index-pattern/utm-index-pattern';
 
 @Component({
-  selector: 'app-index-pattern-delete',
-  templateUrl: './index-pattern-delete.component.html',
-  styleUrls: ['./index-pattern-delete.component.scss']
+    standalone: false,
+    selector: 'app-index-pattern-delete',
+    templateUrl: './index-pattern-delete.component.html',
+    styleUrls: ['./index-pattern-delete.component.scss'],
 })
 export class IndexPatternDeleteComponent implements OnInit {
   @Input() indexPattern: UtmIndexPattern;

@@ -10,9 +10,10 @@ import {SectionConfigParamType} from '../../shared/types/configuration/section-c
 import {ApplicationConfigSectionEnum, SectionConfigType} from '../../shared/types/configuration/section-config.type';
 
 @Component({
-  selector: 'app-app-config',
-  templateUrl: './app-config.component.html',
-  styleUrls: ['./app-config.component.scss']
+    standalone: false,
+    selector: 'app-app-config',
+    templateUrl: './app-config.component.html',
+    styleUrls: ['./app-config.component.scss'],
 })
 export class AppConfigComponent implements OnInit, OnDestroy {
   sections: SectionConfigType[] = [];

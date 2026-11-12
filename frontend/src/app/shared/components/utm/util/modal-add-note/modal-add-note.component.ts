@@ -6,9 +6,10 @@ import {ComplianceReportType} from '../../../../../compliance/shared/type/compli
 import {UtmToastService} from '../../../../alert/utm-toast.service';
 
 @Component({
-  selector: 'app-modal-add-note',
-  templateUrl: './modal-add-note.component.html',
-  styleUrls: ['./modal-add-note.component.scss']
+    standalone: false,
+    selector: 'app-modal-add-note',
+    templateUrl: './modal-add-note.component.html',
+    styleUrls: ['./modal-add-note.component.scss'],
 })
 export class ModalAddNoteComponent implements OnInit {
   @Input() report: ComplianceReportType;

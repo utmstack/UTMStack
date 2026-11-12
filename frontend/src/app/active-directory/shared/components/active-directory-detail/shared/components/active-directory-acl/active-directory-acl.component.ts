@@ -3,9 +3,10 @@ import {UtmDateFormatEnum} from '../../../../../../../shared/enums/utm-date-form
 import {ActiveDirectoryType} from '../../../../../types/active-directory.type';
 
 @Component({
-  selector: 'app-active-directory-acl',
-  templateUrl: './active-directory-acl.component.html',
-  styleUrls: ['./active-directory-acl.component.scss']
+    standalone: false,
+    selector: 'app-active-directory-acl',
+    templateUrl: './active-directory-acl.component.html',
+    styleUrls: ['./active-directory-acl.component.scss'],
 })
 export class ActiveDirectoryAclComponent implements OnInit {
   @Input() adInfo: ActiveDirectoryType;

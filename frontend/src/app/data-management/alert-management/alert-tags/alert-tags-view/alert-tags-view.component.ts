@@ -1,9 +1,10 @@
 import {Component, Input, OnInit} from '@angular/core';
 
 @Component({
-  selector: 'app-alert-tags',
-  templateUrl: './alert-tags-view.component.html',
-  styleUrls: ['./alert-tags-view.component.scss']
+    standalone: false,
+    selector: 'app-alert-tags',
+    templateUrl: './alert-tags-view.component.html',
+    styleUrls: ['./alert-tags-view.component.scss'],
 })
 export class AlertTagsViewComponent implements OnInit {
 

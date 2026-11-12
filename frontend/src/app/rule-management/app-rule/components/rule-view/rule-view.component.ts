@@ -4,9 +4,10 @@ import {mapRuleToYaml} from '../../../../shared/components/utm/util/utm-file-upl
 import {Rule} from '../../../models/rule.model';
 
 @Component({
-  selector: 'app-rule-view',
-  templateUrl: './rule-view.component.html',
-  styleUrls: ['./rule-view.component.scss'],
+    standalone: false,
+    selector: 'app-rule-view',
+    templateUrl: './rule-view.component.html',
+    styleUrls: ['./rule-view.component.scss'],
 })
 export class RuleViewComponent {
   @Input() rowDocument: Rule;

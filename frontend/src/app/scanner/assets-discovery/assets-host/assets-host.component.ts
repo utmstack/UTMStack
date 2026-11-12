@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
@@ -14,9 +14,10 @@ import {AssetsService} from '../shared/services/assets.service';
 import {JhiParseLinks} from '../../../shared/jhi/jhi.util';
 
 @Component({
-  selector: 'app-assets-host',
-  templateUrl: './assets-host.component.html',
-  styleUrls: ['./assets-host.component.scss']
+    standalone: false,
+    selector: 'app-assets-host',
+    templateUrl: './assets-host.component.html',
+    styleUrls: ['./assets-host.component.scss'],
 })
 export class AssetsHostComponent implements OnInit {
   totalItems: any;

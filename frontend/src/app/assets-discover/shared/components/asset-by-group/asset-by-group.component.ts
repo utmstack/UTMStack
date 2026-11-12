@@ -12,9 +12,10 @@ import {AssetFilterType} from '../../types/asset-filter.type';
 import {NetScanType} from '../../types/net-scan.type';
 
 @Component({
-  selector: 'app-asset-by-group',
-  templateUrl: './asset-by-group.component.html',
-  styleUrls: ['./asset-by-group.component.scss']
+    standalone: false,
+    selector: 'app-asset-by-group',
+    templateUrl: './asset-by-group.component.html',
+    styleUrls: ['./asset-by-group.component.scss'],
 })
 export class AssetByGroupComponent implements OnInit {
   @Input() group: AssetGroupType;

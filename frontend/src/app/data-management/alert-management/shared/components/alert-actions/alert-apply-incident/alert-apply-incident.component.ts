@@ -14,9 +14,10 @@ import {AlertManagementService} from '../../../services/alert-management.service
 import {AlertActionType} from '../../alert-action-select/alert-action-select.component';
 
 @Component({
-  selector: 'app-alert-apply-incident',
-  templateUrl: './alert-apply-incident.component.html',
-  styleUrls: ['./alert-apply-incident.component.scss']
+    standalone: false,
+    selector: 'app-alert-apply-incident',
+    templateUrl: './alert-apply-incident.component.html',
+    styleUrls: ['./alert-apply-incident.component.scss'],
 })
 export class AlertApplyIncidentComponent implements OnInit {
   @Input() alert: UtmAlertType;

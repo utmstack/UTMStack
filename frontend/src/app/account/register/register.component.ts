@@ -1,4 +1,4 @@
-import {HttpErrorResponse} from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import {AfterViewInit, Component, ElementRef, OnInit} from '@angular/core';
 import {NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {ModalService} from '../../core/modal/modal.service';
@@ -9,8 +9,9 @@ import {EMAIL_ALREADY_USED_TYPE, LOGIN_ALREADY_USED_TYPE} from '../../shared/con
 import {Register} from './register.service';
 
 @Component({
-  selector: 'app-register',
-  templateUrl: './register.component.html'
+    standalone: false,
+    selector: 'app-register',
+    templateUrl: './register.component.html',
 })
 export class RegisterComponent implements OnInit, AfterViewInit {
   confirmPassword: string;

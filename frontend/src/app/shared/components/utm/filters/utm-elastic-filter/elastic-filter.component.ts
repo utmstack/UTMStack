@@ -13,9 +13,10 @@ import {ElasticFilterDefaultTime} from '../elastic-filter-time/elastic-filter-ti
 import {UtmFilterBehavior} from './shared/behavior/utm-filter.behavior';
 
 @Component({
-  selector: 'app-utm-elastic-filter',
-  templateUrl: './elastic-filter.component.html',
-  styleUrls: ['./elastic-filter.component.scss']
+    standalone: false,
+    selector: 'app-utm-elastic-filter',
+    templateUrl: './elastic-filter.component.html',
+    styleUrls: ['./elastic-filter.component.scss'],
 })
 export class ElasticFilterComponent implements OnInit, OnDestroy {
   @Output() filterChange = new EventEmitter<ElasticFilterType[]>();

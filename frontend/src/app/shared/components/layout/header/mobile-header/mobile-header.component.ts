@@ -8,9 +8,10 @@ import {ADMIN_ROLE} from '../../../../constants/global.constant';
 import {ActiveAdModuleActiveService} from '../../../../services/active-modules/active-ad-module.service';
 
 @Component({
-  selector: 'app-mobile-header',
-  templateUrl: './mobile-header.component.html',
-  styleUrls: ['./mobile-header.component.scss']
+    standalone: false,
+    selector: 'app-mobile-header',
+    templateUrl: './mobile-header.component.html',
+    styleUrls: ['./mobile-header.component.scss'],
 })
 export class MobileHeaderComponent implements OnInit {
   isCollapsed = false;

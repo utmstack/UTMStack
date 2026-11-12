@@ -2,9 +2,10 @@ import {Component, Input, OnInit} from '@angular/core';
 import {UtmDateFormatEnum} from '../../../shared/enums/utm-date-format.enum';
 
 @Component({
-  selector: 'app-utm-system-metrics',
-  templateUrl: './utm-system-metrics.component.html',
-  styleUrls: ['./utm-system-metrics.component.scss']
+    standalone: false,
+    selector: 'app-utm-system-metrics',
+    templateUrl: './utm-system-metrics.component.html',
+    styleUrls: ['./utm-system-metrics.component.scss'],
 })
 export class UtmSystemMetricsComponent implements OnInit {
   /**

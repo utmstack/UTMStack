@@ -4,9 +4,10 @@ import {ComplianceControlEvaluationHistoryType} from '../../shared/type/complian
 import {ComplianceQueryEvaluationType} from '../../shared/type/compliance-query-evaluation.type';
 
 @Component({
-  selector: 'app-compliance-query-evaluations-view',
-  templateUrl: './compliance-query-evaluations-view.component.html',
-  styleUrls: ['./compliance-query-evaluations-view.component.scss']
+    standalone: false,
+    selector: 'app-compliance-query-evaluations-view',
+    templateUrl: './compliance-query-evaluations-view.component.html',
+    styleUrls: ['./compliance-query-evaluations-view.component.scss'],
 })
 export class ComplianceQueryEvaluationsViewComponent {
   @Input() evaluation: ComplianceControlEvaluationHistoryType;

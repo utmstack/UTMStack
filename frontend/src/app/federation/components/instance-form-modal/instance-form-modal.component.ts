@@ -11,9 +11,10 @@ interface InstanceFormValue {
 }
 
 @Component({
-  selector: 'app-federation-instance-form-modal',
-  templateUrl: './instance-form-modal.component.html',
-  styleUrls: ['./instance-form-modal.component.scss']
+    standalone: false,
+    selector: 'app-federation-instance-form-modal',
+    templateUrl: './instance-form-modal.component.html',
+    styleUrls: ['./instance-form-modal.component.scss'],
 })
 export class InstanceFormModalComponent {
   @Input() instance: FederationInstance | null = null;

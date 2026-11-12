@@ -5,9 +5,10 @@ import {DashboardBehavior} from '../../shared/behaviors/dashboard.behavior';
 import {Menu} from '../../shared/types/menu/menu.model';
 
 @Component({
-  selector: 'app-dashboard-view',
-  templateUrl: './dashboard-view.component.html',
-  styleUrls: ['./dashboard-view.component.scss']
+    standalone: false,
+    selector: 'app-dashboard-view',
+    templateUrl: './dashboard-view.component.html',
+    styleUrls: ['./dashboard-view.component.scss'],
 })
 export class DashboardViewComponent implements OnInit {
   height: number;

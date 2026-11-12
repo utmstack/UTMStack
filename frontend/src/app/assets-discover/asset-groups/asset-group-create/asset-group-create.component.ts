@@ -5,9 +5,10 @@ import {UtmAssetGroupService} from '../../shared/services/utm-asset-group.servic
 import {AssetGroupType} from '../shared/type/asset-group.type';
 
 @Component({
-  selector: 'app-asset-group-create',
-  templateUrl: './asset-group-create.component.html',
-  styleUrls: ['./asset-group-create.component.scss']
+    standalone: false,
+    selector: 'app-asset-group-create',
+    templateUrl: './asset-group-create.component.html',
+    styleUrls: ['./asset-group-create.component.scss'],
 })
 export class AssetGroupCreateComponent implements OnInit {
   @Output() addGroup: EventEmitter<AssetGroupType> = new EventEmitter();

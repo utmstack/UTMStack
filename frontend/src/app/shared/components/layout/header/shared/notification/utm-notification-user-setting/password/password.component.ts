@@ -10,9 +10,10 @@ import {ContactUsComponent} from '../../../../../../contact-us/contact-us.compon
 import {PasswordService} from './password.service';
 
 @Component({
-  selector: 'app-password',
-  templateUrl: './password.component.html',
-  styleUrls: ['password.component.scss']
+    standalone: false,
+    selector: 'app-password',
+    templateUrl: './password.component.html',
+    styleUrls: ['password.component.scss'],
 })
 export class PasswordComponent implements OnInit {
   doNotMatch: string;

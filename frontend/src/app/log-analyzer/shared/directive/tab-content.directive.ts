@@ -1,7 +1,8 @@
 import {Directive, ViewContainerRef} from '@angular/core';
 
 @Directive({
-  selector: '[appTabContent]'
+    standalone: false,
+    selector: '[appTabContent]',
 })
 export class TabContentDirective {
 

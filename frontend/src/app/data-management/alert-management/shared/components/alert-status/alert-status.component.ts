@@ -25,9 +25,10 @@ import {getStatusName} from '../../util/alert-util-function';
 import {AlertCompleteComponent} from '../alert-complete/alert-complete.component';
 
 @Component({
-  selector: 'app-alert-status',
-  templateUrl: './alert-status.component.html',
-  styleUrls: ['./alert-status.component.scss']
+    standalone: false,
+    selector: 'app-alert-status',
+    templateUrl: './alert-status.component.html',
+    styleUrls: ['./alert-status.component.scss'],
 })
 export class AlertStatusComponent implements OnInit {
   @Input() alert: UtmAlertType;

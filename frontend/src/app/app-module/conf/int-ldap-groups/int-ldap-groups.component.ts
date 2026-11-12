@@ -6,9 +6,10 @@ import {UtmModuleGroupConfType} from '../../shared/type/utm-module-group-conf.ty
 
 
 @Component({
-  selector: 'app-int-ldap-groups',
-  templateUrl: './int-ldap-groups.component.html',
-  styleUrls: ['./int-ldap-groups.component.scss']
+    standalone: false,
+    selector: 'app-int-ldap-groups',
+    templateUrl: './int-ldap-groups.component.html',
+    styleUrls: ['./int-ldap-groups.component.scss'],
 })
 export class IntLdapGroupsComponent implements OnInit {
   ldapForm: FormGroup;

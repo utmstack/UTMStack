@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, OnInit} from '@angular/core';
 import {FormBuilder} from '@angular/forms';
 import {ActivatedRoute} from '@angular/router';
@@ -20,9 +20,10 @@ import {IncidentResponseRuleService} from '../shared/services/incident-response-
 import {IncidentRuleType} from '../shared/type/incident-rule.type';
 
 @Component({
-  selector: 'app-incident-response-automation',
-  templateUrl: './incident-response-automation.component.html',
-  styleUrls: ['./incident-response-automation.component.scss']
+    standalone: false,
+    selector: 'app-incident-response-automation',
+    templateUrl: './incident-response-automation.component.html',
+    styleUrls: ['./incident-response-automation.component.scss'],
 })
 export class IncidentResponseAutomationComponent implements OnInit {
   loading = true;

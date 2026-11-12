@@ -5,9 +5,10 @@ import {PortModel} from '../../../shared/model/port.model';
 import {PortService} from '../shared/services/port.service';
 
 @Component({
-  selector: 'app-port-delete',
-  templateUrl: './port-delete.component.html',
-  styleUrls: ['./port-delete.component.scss']
+    standalone: false,
+    selector: 'app-port-delete',
+    templateUrl: './port-delete.component.html',
+    styleUrls: ['./port-delete.component.scss'],
 })
 export class PortDeleteComponent implements OnInit {
   @Input() port: PortModel;

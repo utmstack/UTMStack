@@ -2,9 +2,10 @@ import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {TimeFilterType} from '../../../../../../shared/types/time-filter.type';
 
 @Component({
-  selector: 'app-target-filter',
-  templateUrl: './target-filter.component.html',
-  styleUrls: ['./target-filter.component.scss']
+    standalone: false,
+    selector: 'app-target-filter',
+    templateUrl: './target-filter.component.html',
+    styleUrls: ['./target-filter.component.scss'],
 })
 export class TargetFilterComponent implements OnInit {
   @Output() targetFilterChange = new EventEmitter<any>();

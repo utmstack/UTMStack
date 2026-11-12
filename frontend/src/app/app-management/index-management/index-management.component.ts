@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, OnInit} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
@@ -10,9 +10,10 @@ import {UtmAccountModule} from "../../account/account.module";
 import {UtmToastService} from "../../shared/alert/utm-toast.service";
 
 @Component({
-  selector: 'app-index-management',
-  templateUrl: './index-management.component.html',
-  styleUrls: ['./index-management.component.scss']
+    standalone: false,
+    selector: 'app-index-management',
+    templateUrl: './index-management.component.html',
+    styleUrls: ['./index-management.component.scss'],
 })
 export class IndexManagementComponent implements OnInit {
   searching: any;

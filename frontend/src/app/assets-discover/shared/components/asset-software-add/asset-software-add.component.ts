@@ -7,9 +7,10 @@ import {AssetSoftwareService} from '../../services/asset-software.service';
 import {NetScanSoftwares} from '../../types/net-scan-softwares';
 
 @Component({
-  selector: 'app-asset-software-add',
-  templateUrl: './asset-software-add.component.html',
-  styleUrls: ['./asset-software-add.component.css']
+    standalone: false,
+    selector: 'app-asset-software-add',
+    templateUrl: './asset-software-add.component.html',
+    styleUrls: ['./asset-software-add.component.css'],
 })
 export class AssetSoftwareAddComponent implements OnInit {
   @Output() softwareCreated = new EventEmitter<NetScanSoftwares>();
