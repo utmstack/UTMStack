@@ -2,7 +2,6 @@ import {HttpResponse} from '@angular/common/http';
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {JhiParseLinks} from 'ng-jhipster';
 import {ScheduleService} from '../../../../scanner/scanner-config/schedule/shared/services/schedule.service';
 import {UsedByComponent} from '../../../../scanner/shared/components/used-by/used-by.component';
 import {ScheduleModel} from '../../../../scanner/shared/model/schedule.model';
@@ -11,6 +10,7 @@ import {SortEvent} from '../../../../shared/directives/sortable/type/sort-event'
 import {SortByType} from '../../../../shared/types/sort-by.type';
 import {AdScheduleCreateComponent} from '../ad-schedule-create/ad-schedule-create.component';
 import {AdScheduleDeleteComponent} from '../ad-schedule-delete/ad-schedule-delete.component';
+import {JhiParseLinks} from '../../../../shared/jhi/jhi.util';
 
 @Component({
   selector: 'app-active-directory-schedule-list',

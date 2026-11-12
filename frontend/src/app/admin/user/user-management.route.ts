@@ -1,6 +1,5 @@
 import {Injectable} from '@angular/core';
 import {ActivatedRouteSnapshot, CanActivate, Resolve, RouterStateSnapshot, Routes} from '@angular/router';
-import {JhiResolvePagingParams} from 'ng-jhipster';
 import {AccountService} from '../../core/auth/account.service';
 import {User} from '../../core/user/user.model';
 import {UserService} from '../../core/user/user.service';
@@ -8,6 +7,7 @@ import {UserMgmtDetailComponent} from './user-detail/user-management-detail.comp
 
 import {UserMgmtComponent} from './user-list/user-management.component';
 import {UserMgmtUpdateComponent} from './user-update/user-management-update.component';
+import {JhiResolvePagingParams} from '../../shared/jhi/jhi.util';
 
 @Injectable({providedIn: 'root'})
 export class UserResolve implements CanActivate {

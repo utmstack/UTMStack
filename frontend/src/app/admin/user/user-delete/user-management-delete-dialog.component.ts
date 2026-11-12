@@ -1,10 +1,10 @@
 import {Component} from '@angular/core';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {JhiEventManager} from 'ng-jhipster';
 import {User} from '../../../core/user/user.model';
 import {UserService} from '../../../core/user/user.service';
 import {UtmToastService} from '../../../shared/alert/utm-toast.service';
 import {HttpErrorResponse, HttpResponse} from "@angular/common/http";
+import {JhiEventManager} from '../../../shared/jhi/jhi.util';
 
 @Component({
   selector: 'app-ser-mgmt-delete-dialog',

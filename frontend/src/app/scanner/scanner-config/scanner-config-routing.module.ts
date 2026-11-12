@@ -1,6 +1,5 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
-import {JhiResolvePagingParams} from 'ng-jhipster';
 import {UserRouteAccessService} from '../../core/auth/user-route-access-service';
 import {ADMIN_ROLE, USER_ROLE} from '../../shared/constants/global.constant';
 import {CredentialListComponent} from './credential/credential-list/credential-list.component';
@@ -9,6 +8,7 @@ import {ScannerConfigComponent} from './scanner-config.component';
 import {ScheduleListComponent} from './schedule/schedule-list/schedule-list.component';
 import {TargetListComponent} from './target/target-list/target-list.component';
 import {TaskListComponent} from './task/task-list/task-list.component';
+import {JhiResolvePagingParams} from '../../shared/jhi/jhi.util';
 
 
 const routes: Routes = [

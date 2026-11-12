@@ -1,11 +1,11 @@
 import {HttpResponse} from '@angular/common/http';
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {JhiParseLinks} from 'ng-jhipster';
 import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
 import {TimeFilterType} from '../../shared/types/time-filter.type';
 import {resolveRangeByTime} from '../../shared/util/resolve-date';
 import {UtmAuditsService} from './audits.service';
 import {UtmAudit} from './shared/type/audit.model';
+import {JhiParseLinks} from '../../shared/jhi/jhi.util';
 
 @Component({
   selector: 'app-audits',

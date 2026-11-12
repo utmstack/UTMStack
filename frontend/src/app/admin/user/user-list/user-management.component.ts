@@ -3,7 +3,6 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {JhiAlertService, JhiEventManager, JhiParseLinks} from 'ng-jhipster';
 import {delay} from 'rxjs/operators';
 import {AccountService} from '../../../core/auth/account.service';
 import {User} from '../../../core/user/user.model';
@@ -15,6 +14,7 @@ import {SortEvent} from '../../../shared/directives/sortable/type/sort-event';
 import {SortByType} from '../../../shared/types/sort-by.type';
 import {UserMgmtDeleteDialogComponent} from '../user-delete/user-management-delete-dialog.component';
 import {UserMgmtUpdateComponent} from '../user-update/user-management-update.component';
+import {JhiAlertService, JhiEventManager, JhiParseLinks} from '../../../shared/jhi/jhi.util';
 
 @Component({
   selector: 'app-user-mgmt',
