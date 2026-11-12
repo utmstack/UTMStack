@@ -15,8 +15,9 @@ import (
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/threatwinds/go-sdk/store"
-	ch "github.com/threatwinds/go-sdk/store/clickhouse"
+	"github.com/threatwinds/go-sdk/store/factory"
 	"github.com/tidwall/gjson"
+	"github.com/utmstack/UTMStack/plugins/user-behavioral/internal/storecfg"
 )
 
 const (
@@ -123,74 +124,71 @@ func main() {
 		return
 	}
 
-	cfg := plugins.PluginCfg("clickhouse")
 	loadBehavioralConfig()
 	judgeSem = make(chan struct{}, maxJudgeConns)
 
-	logsTable := cfg.Get("logsTable").String()
-	if logsTable == "" {
-		logsTable = defaultLogsTbl
+	cfg, err := storecfg.New(plugins.PluginCfg("store"), plugins.PluginCfg("clickhouse"), map[string]storecfg.Table{
+		string(datasetProfile): {Default: defaultTable},
+		string(datasetLogs):    {ConfigKey: "logsTable", Default: defaultLogsTbl},
+		string(datasetHistory): {Default: defaultHistoryTbl},
+	})
+	if err == nil {
+		cfg, err = storecfg.ClickHousePrimary(cfg)
+	}
+	if err != nil {
+		_ = catcher.Error("invalid behavioral store configuration", err, map[string]any{"process": pluginName})
+		os.Exit(1)
 	}
 
-	var err error
-	profileStore, err = ch.New(ch.Config{
-		Addr:     []string{cfg.Get("host").String() + ":" + cfg.Get("port").String()},
-		Database: cfg.Get("database").String(),
-		Username: cfg.Get("user").String(),
-		Password: cfg.Get("password").String(),
-		Tables: map[store.Dataset]string{
-			datasetProfile: defaultTable,
-		},
-		TenantColumn: "tenantId",
-		TimeColumn:   "updated_at",
-	})
+	profile, err := newBehaviorStore(cfg, datasetProfile, defaultTable, "updated_at", "")
 	if err != nil {
 		_ = catcher.Error("failed to build the profile store", err, map[string]any{"process": pluginName})
-		time.Sleep(5 * time.Second)
 		os.Exit(1)
 	}
+	defer profile.Close()
+	profileStore = profile.Store
 
-	logsStore, err = ch.New(ch.Config{
-		Addr:     []string{cfg.Get("host").String() + ":" + cfg.Get("port").String()},
-		Database: cfg.Get("database").String(),
-		Username: cfg.Get("user").String(),
-		Password: cfg.Get("password").String(),
-		Tables: map[store.Dataset]string{
-			datasetLogs: logsTable,
-		},
-		TenantColumn:   "tenantId",
-		TimeColumn:     "@timestamp",
-		DataTypeColumn: "dataType",
-	})
+	logs, err := newBehaviorStore(cfg, datasetLogs, defaultLogsTbl, "@timestamp", "dataType")
 	if err != nil {
 		_ = catcher.Error("failed to build the logs store", err, map[string]any{"process": pluginName})
-		time.Sleep(5 * time.Second)
+		_ = profile.Close()
 		os.Exit(1)
 	}
+	defer logs.Close()
+	logsStore = logs.Store
 
-	historyStore, err = ch.New(ch.Config{
-		Addr:     []string{cfg.Get("host").String() + ":" + cfg.Get("port").String()},
-		Database: cfg.Get("database").String(),
-		Username: cfg.Get("user").String(),
-		Password: cfg.Get("password").String(),
-		Tables: map[store.Dataset]string{
-			datasetHistory: defaultHistoryTbl,
-		},
-		TenantColumn: "tenantId",
-		TimeColumn:   "snapshotted_at",
-	})
+	history, err := newBehaviorStore(cfg, datasetHistory, defaultHistoryTbl, "snapshotted_at", "")
 	if err != nil {
 		_ = catcher.Error("failed to build the history store", err, map[string]any{"process": pluginName})
-		time.Sleep(5 * time.Second)
+		_ = logs.Close()
+		_ = profile.Close()
 		os.Exit(1)
 	}
+	defer history.Close()
+	historyStore = history.Store
 
 	err = plugins.InitAnalysisPlugin(pluginName, analyze)
 	if err != nil {
 		_ = catcher.Error("failed to initialize analysis plugin", err, map[string]any{"process": pluginName})
 		time.Sleep(5 * time.Second)
+		_ = history.Close()
+		_ = logs.Close()
+		_ = profile.Close()
 		os.Exit(1)
 	}
+}
+
+func newBehaviorStore(cfg factory.Config, dataset store.Dataset, defaultTable, timeColumn, dataTypeColumn string) (*factory.Built, error) {
+	ch := *cfg.Primary.ClickHouse
+	table := ch.Tables[string(dataset)]
+	if table == "" {
+		table = defaultTable
+	}
+	ch.Tables = map[string]string{string(dataset): table}
+	ch.TimeColumn = timeColumn
+	ch.DataTypeColumn = dataTypeColumn
+	cfg.Primary.ClickHouse = &ch
+	return factory.New(cfg, factory.Options{})
 }
 
 func analyze(event *plugins.Event, srv plugins.Analysis_AnalyzeServer) error {
@@ -220,30 +218,30 @@ func analyze(event *plugins.Event, srv plugins.Analysis_AnalyzeServer) error {
 }
 
 func isLogin(event *plugins.Event) bool {
-	if event.Origin == nil || event.Origin.User == "" {
+	if event == nil || event.Origin == nil || event.Origin.User == "" {
 		return false
 	}
 	switch event.DataType {
 	case "wineventlog":
-		code := event.Log["eventCode"]
+		code := event.Event["eventCode"]
 		return code.GetStringValue() == "4624" || code.GetNumberValue() == 4624
 	case "linux":
-		id := event.Log["syslogIdentifier"].GetStringValue()
+		id := event.Event["syslogIdentifier"].GetStringValue()
 		if id == "sshd" || id == "sshd-session" {
 			return event.ActionResult == "success"
 		}
 		return id == "auditd" && event.Action == "USER_LOGIN" &&
 			event.ActionResult == "success"
 	case "azure":
-		return strings.EqualFold(event.Log["azureKind"].GetStringValue(), "signin")
+		return strings.EqualFold(event.Event["azureKind"].GetStringValue(), "signin")
 	case "o365":
-		return event.Log["RecordType"].GetStringValue() == "15" &&
+		return event.Event["RecordType"].GetStringValue() == "15" &&
 			event.ActionResult == "success"
 	case "aws":
-		return event.Log["eventSource"].GetStringValue() == "signin.amazonaws.com" &&
-			event.Log["eventName"].GetStringValue() == "ConsoleLogin"
+		return event.Event["eventSource"].GetStringValue() == "signin.amazonaws.com" &&
+			event.Event["eventName"].GetStringValue() == "ConsoleLogin"
 	case "google":
-		return event.Log["protoPayloadServiceName"].GetStringValue() == "login.googleapis.com"
+		return event.Event["protoPayloadServiceName"].GetStringValue() == "login.googleapis.com"
 	default:
 		return false
 	}
