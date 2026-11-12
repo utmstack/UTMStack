@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/utmstack/UTMStack/upgrade"
 	adaudit_domain "github.com/utmstack/utmstack/backend/modules/adaudit/domain"
 	alerts_domain "github.com/utmstack/utmstack/backend/modules/alerts/domain"
 	appconfig_domain "github.com/utmstack/utmstack/backend/modules/appconfig/domain"
@@ -75,16 +76,26 @@ func Models() []any {
 	}
 }
 
-func MigrateDatabase(db *gorm.DB, preMigrationsURL, postMigrationsURL string) error {
+// UpgradeOptions carries the extra inputs the v11 -> v12 converter needs that
+// the main connection does not provide.
+type UpgradeOptions struct {
+	AgentmanagerDSN string
+	IntegrationsDir string
+	TenantDomain    string
+	RulesDir        string
+	PipelineDir     string
+	PipelinesDir    string
+}
+
+func MigrateDatabase(db *gorm.DB, preMigrationsURL, postMigrationsURL string, opts UpgradeOptions) error {
 	if err := db.Exec(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`).Error; err != nil {
 		catcher.Warn("could not create uuid-ossp extension", map[string]any{"error": err.Error()})
 	}
 
-	// ponytail: v11 soar_executions rows predate the DAG columns. GORM
-	// AutoMigrate can't add NOT NULL columns without a default when the table
-	// already has rows, so we pre-create them here with DEFAULT ''. New inserts
-	// override the default; legacy rows keep empty strings, which is what the
-	// DAG dispatcher already tolerates for terminal history.
+	// v11 soar_executions rows predate the DAG columns; GORM AutoMigrate can't
+	// add NOT NULL columns without a default to a non-empty table, so pre-create
+	// them with DEFAULT ''. New inserts override it; legacy rows keep the empty
+	// string the DAG dispatcher already tolerates.
 	for _, stmt := range []string{
 		`ALTER TABLE IF EXISTS soar_executions ADD COLUMN IF NOT EXISTS node_id  varchar(150) NOT NULL DEFAULT ''`,
 		`ALTER TABLE IF EXISTS soar_executions ADD COLUMN IF NOT EXISTS kind     varchar(20)  NOT NULL DEFAULT ''`,
@@ -119,7 +130,15 @@ func MigrateDatabase(db *gorm.DB, preMigrationsURL, postMigrationsURL string) er
 	if postMigrationsURL == "" {
 		return nil
 	}
-	return runSQLMigrations(db, postMigrationsURL, "post_schema_migrations", "post-AutoMigrate")
+	if err := runSQLMigrations(db, postMigrationsURL, "post_schema_migrations", "post-AutoMigrate"); err != nil {
+		return err
+	}
+
+	// run the v11 -> v12 converter, which needs the database connection and some extra inputs
+	if err := upgrade.Run(db, opts.AgentmanagerDSN, opts.IntegrationsDir, opts.TenantDomain, opts.RulesDir, opts.PipelineDir, opts.PipelinesDir); err != nil {
+		return err
+	}
+	return upgrade.CleanupOrphans(db)
 }
 
 func runSQLMigrations(db *gorm.DB, migrationsURL, table, stage string) error {
