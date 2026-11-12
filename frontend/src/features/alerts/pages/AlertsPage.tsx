@@ -1,3 +1,4 @@
+import { useDateFormat } from '@/shared/lib/datetime'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AlertTriangle, Loader2 } from 'lucide-react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
@@ -104,6 +105,7 @@ function readSeed(location: ReturnType<typeof useLocation>): {
 }
 
 export function AlertsPage() {
+  useDateFormat()
   const { t } = useTranslation()
 
   // Read the router state synchronously (before any useState initializer) so the

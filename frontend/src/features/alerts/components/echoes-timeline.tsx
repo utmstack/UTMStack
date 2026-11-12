@@ -1,3 +1,4 @@
+import { useDateFormat, parseTimestamp } from '@/shared/lib/datetime'
 import { useMemo } from 'react'
 import { AlertTriangle, Loader2, Radio, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -7,13 +8,14 @@ import { TS, absTime } from '../lib/alert-meta'
 import { useAlertEchoes } from '../hooks/use-alert-echoes'
 
 interface TooltipParam {
-  data: [string, string, string]
+  data: [number, string, string]
 }
 
 /* Inline panel rendered as a sibling of an expanded AlertRow. Styled as a
  * message-style card: the cyan Radio icon (matching the table chip) sits at
  * top-center, the scatter timeline sits below it. */
 export function EchoesTimeline({ parentId, onClose }: { parentId: string; onClose: () => void }) {
+  const { prefs, formatTime } = useDateFormat()
   const { t } = useTranslation()
   const { echoes, total, page, pageSize, setPage, setPageSize, loading, error } =
     useAlertEchoes(parentId)
@@ -21,23 +23,23 @@ export function EchoesTimeline({ parentId, onClose }: { parentId: string; onClos
   const option = useMemo(
     () => ({
       grid: { left: 12, right: 12, top: 8, bottom: 26, containLabel: false },
-      xAxis: { type: 'time', axisLabel: { fontSize: 10 } },
+      xAxis: { type: 'time', axisLabel: { fontSize: 10, formatter: (value: number) => formatTime(value) } },
       yAxis: { type: 'category', data: [''], show: false },
       tooltip: {
         trigger: 'item',
         formatter: (p: TooltipParam) =>
-          `<b>${p.data[2] || '—'}</b><br/>${absTime(p.data[0])}`,
+          `<b>${p.data[2] || '—'}</b><br/>${absTime(new Date(p.data[0]).toISOString())}`,
       },
       series: [
         {
           type: 'scatter',
           symbolSize: 9,
           itemStyle: { color: '#06b6d4', opacity: 0.85 },
-          data: echoes.map((e) => [e[TS] ?? '', '', e.name ?? '—']),
+          data: echoes.map((e) => [parseTimestamp(e[TS] ?? '').getTime(), '', e.name ?? '—']),
         },
       ],
     }),
-    [echoes],
+    [echoes, prefs, formatTime],
   )
 
   return (

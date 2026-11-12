@@ -1,3 +1,4 @@
+import { formatDateTime, parseTimestamp } from '@/shared/lib/datetime'
 export const TS = '@timestamp'
 
 export const SELECT_CLS =
@@ -26,8 +27,5 @@ export const OP_KEY: Record<string, string> = {
 }
 
 export function chartTimeLabel(c: string) {
-  const d = new Date(c)
-  return Number.isNaN(d.getTime())
-    ? c
-    : d.toLocaleString(undefined, { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+  return Number.isNaN(parseTimestamp(c).getTime()) ? c : formatDateTime(c)
 }
