@@ -150,13 +150,6 @@
                                              [visualization]="visualization">
                 </app-table-properties-option>
               </ng-container>
-              <ng-container *ngSwitchCase="chartTypeEnum.TAG_CLOUD_CHART">
-                <app-tag-cloud-properties-option (tagCloudOptions)="onTagOptionsChange($event)"
-                                                 *ngIf="visualization.chartConfig"
-                                                 [mode]="mode"
-                                                 [visualization]="visualization">
-                </app-tag-cloud-properties-option>
-              </ng-container>
               <ng-container *ngSwitchCase="chartTypeEnum.LINE_CHART">
                 <app-line-bar-properties-option (lineOptions)="onLineOptionsChange($event)"
                                                 *ngIf="visualization.chartConfig"

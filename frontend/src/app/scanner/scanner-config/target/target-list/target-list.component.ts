@@ -2,7 +2,6 @@ import {HttpResponse} from '@angular/common/http';
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {JhiParseLinks} from 'ng-jhipster';
 import {ITEMS_PER_PAGE} from '../../../../shared/constants/pagination.constants';
 import {SortEvent} from '../../../../shared/directives/sortable/type/sort-event';
 import {SortByType} from '../../../../shared/types/sort-by.type';
@@ -12,6 +11,7 @@ import {ScheduleService} from '../../schedule/shared/services/schedule.service';
 import {TargetService} from '../shared/services/target.service';
 import {TargetCreateComponent} from '../target-create/target-create.component';
 import {TargetDeleteComponent} from '../target-delete/target-delete.component';
+import {JhiParseLinks} from '../../../../shared/jhi/jhi.util';
 
 @Component({
   selector: 'app-target-list',

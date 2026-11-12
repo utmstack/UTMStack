@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {DomSanitizer} from '@angular/platform-browser';
-import {JhiBase64Service} from 'ng-jhipster';
+import {JhiBase64Service} from '../../../../../shared/jhi/jhi.util';
 
 @Component({
   selector: 'app-utm-input-file-upload',

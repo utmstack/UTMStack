@@ -2,7 +2,6 @@ import {HttpResponse} from '@angular/common/http';
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {JhiParseLinks} from 'ng-jhipster';
 import {AccountService} from '../../../../core/auth/account.service';
 import {ITEMS_PER_PAGE} from '../../../../shared/constants/pagination.constants';
 import {SortEvent} from '../../../../shared/directives/sortable/type/sort-event';
@@ -14,6 +13,7 @@ import {PortCreateComponent} from '../port-create/port-create.component';
 import {PortDeleteComponent} from '../port-delete/port-delete.component';
 import {PortRangeListComponent} from '../port-range/port-range-list/port-range-list.component';
 import {PortService} from '../shared/services/port.service';
+import {JhiParseLinks} from '../../../../shared/jhi/jhi.util';
 
 
 @Component({

@@ -39,5 +39,9 @@ public class ResponseUtil {
     public static <T> ResponseEntity<T> buildNotFoundResponse(String msg) {
         return buildErrorResponse(HttpStatus.NOT_FOUND, msg);
     }
+
+    public static <T> ResponseEntity<T> buildForbiddenResponse(String msg) {
+        return buildErrorResponse(HttpStatus.FORBIDDEN, msg);
+    }
 }
 

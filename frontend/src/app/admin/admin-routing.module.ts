@@ -1,11 +1,11 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
-import {JhiResolvePagingParams} from 'ng-jhipster';
 import {UserRouteAccessService} from '../core/auth/user-route-access-service';
 import {ADMIN_ROLE} from '../shared/constants/global.constant';
 import {UserMgmtComponent} from './user/user-list/user-management.component';
 import {UserMgmtResolve} from './user/user-management.route';
 import {UserMgmtUpdateComponent} from './user/user-update/user-management-update.component';
+import {JhiResolvePagingParams} from '../shared/jhi/jhi.util';
 
 
 const routes: Routes = [

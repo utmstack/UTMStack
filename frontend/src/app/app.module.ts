@@ -89,8 +89,8 @@ export function initTimezoneFormat(apiChecker: ApiServiceCheckerService,
     // must be called exactly once (root) or every `echarts` element throws
     // NullInjectorError. We pass the default echarts loader explicitly: it
     // lazy-imports the bundled 'echarts' core, the SAME singleton that main.ts's
-    // extension imports (echarts-leaflet, echarts-wordcloud, effectScatter,
-    // macarons theme) register on — so every extension is visible to the charts.
+    // extension imports (echarts-leaflet, effectScatter, macarons theme)
+    // register on — so every extension is visible to the charts.
     NgxEchartsModule.forRoot({echarts: () => import('echarts')}),
     NgxSpinnerModule,
     NgxWebstorageModule.forRoot(),

@@ -1,6 +1,5 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
-import {JhiResolvePagingParams} from 'ng-jhipster';
 import {UserRouteAccessService} from '../core/auth/user-route-access-service';
 import {ADMIN_ROLE, USER_ROLE} from '../shared/constants/global.constant';
 import {AdComponent} from './active-directory.component';
@@ -13,6 +12,7 @@ import {AdReportListComponent} from './reports/ad-report-list/ad-report-list.com
 import {AdScheduleListComponent} from './reports/schedule/ad-schedule-list/ad-schedule-list.component';
 import {AdTrackerListComponent} from './tracker/ad-tracker-list/ad-tracker-list.component';
 import {AdViewComponent} from './view/active-directory-view/active-directory-view.component';
+import {JhiResolvePagingParams} from '../shared/jhi/jhi.util';
 
 
 const routes: Routes = [

@@ -59,7 +59,9 @@ public class PdfService {
                 .queryParam("accessType", accessType)
                 .build().toUriString();
         try {
-            log.info("Requesting PDF creation to URL : {}", urlService);
+            // The accessKey is required by web-pdf for the headless browser session;
+            // mask it so the secret does not appear in logs.
+            log.info("Requesting PDF creation to URL : {}", urlService.replaceAll("(?i)accessKey=[^&]+", "accessKey=***"));
             HttpHeaders headers = new HttpHeaders();
             headers.add("Content-Type", "application/json");
             headers.add("Accept", "*/*");

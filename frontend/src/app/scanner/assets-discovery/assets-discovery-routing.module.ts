@@ -1,12 +1,12 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
-import {JhiResolvePagingParams} from 'ng-jhipster';
 import {UserRouteAccessService} from '../../core/auth/user-route-access-service';
 import {ADMIN_ROLE, USER_ROLE} from '../../shared/constants/global.constant';
 import {AssetsDashboardComponent} from './assets-dashboard/assets-dashboard.component';
 import {AssetsHostDetailComponent} from './assets-host-detail/assets-host-detail.component';
 import {AssetsHostComponent} from './assets-host/assets-host.component';
 import {TaskResultComponent} from './task-result/task-result.component';
+import {JhiResolvePagingParams} from '../../shared/jhi/jhi.util';
 
 const routes: Routes = [
   {path: '', redirectTo: 'dashboard'},

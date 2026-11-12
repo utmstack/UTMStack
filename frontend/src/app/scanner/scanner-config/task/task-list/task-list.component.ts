@@ -3,7 +3,6 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import * as moment from 'moment';
-import {JhiParseLinks} from 'ng-jhipster';
 import {LocalStorageService} from 'ngx-webstorage';
 import {ContactUsComponent} from '../../../../shared/components/contact-us/contact-us.component';
 import {DEMO_URL} from '../../../../shared/constants/global.constant';
@@ -20,6 +19,7 @@ import {TaskElementViewResolverService} from '../shared/services/task-element-vi
 import {TaskService} from '../shared/services/task.service';
 import {TaskCreateComponent} from '../task-create/task-create.component';
 import {TaskDeleteComponent} from '../task-delete/task-delete.component';
+import {JhiParseLinks} from '../../../../shared/jhi/jhi.util';
 
 @Component({
   selector: 'app-task-list',

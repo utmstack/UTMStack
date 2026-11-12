@@ -2,7 +2,6 @@ import {HttpResponse} from '@angular/common/http';
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {JhiParseLinks} from 'ng-jhipster';
 import {LocalStorageService} from 'ngx-webstorage';
 import {ITEMS_PER_PAGE} from '../../../shared/constants/pagination.constants';
 import {SortEvent} from '../../../shared/directives/sortable/type/sort-event';
@@ -12,6 +11,7 @@ import {AssetSaveReportComponent} from '../../shared/components/asset-save-repor
 import {AssetSeverityHelpComponent} from '../../shared/components/asset-severity-help/asset-severity-help.component';
 import {AssetModel} from '../../shared/model/assets/asset.model';
 import {AssetsService} from '../shared/services/assets.service';
+import {JhiParseLinks} from '../../../shared/jhi/jhi.util';
 
 @Component({
   selector: 'app-assets-host',

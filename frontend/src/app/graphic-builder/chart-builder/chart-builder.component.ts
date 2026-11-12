@@ -13,7 +13,6 @@ import {UtmGoalOption} from '../../shared/chart/types/charts/goal/utm-goal-optio
 import {HeatMapPropertiesType} from '../../shared/chart/types/charts/heatmap/heat-map-properties.type';
 import {UtmMetricOptions} from '../../shared/chart/types/charts/metric/utm-metric-options';
 import {UtmScatterMapOptionType} from '../../shared/chart/types/charts/scatter/utm-scatter-map-option.type';
-import {UtmTagCloudOptionType} from '../../shared/chart/types/charts/tag-cloud/utm-tag-cloud-option.type';
 import {MetricAggregationType} from '../../shared/chart/types/metric/metric-aggregation.type';
 import {MetricBucketsType} from '../../shared/chart/types/metric/metric-buckets.type';
 import {VisualizationType} from '../../shared/chart/types/visualization.type';
@@ -269,11 +268,6 @@ export class ChartBuilderComponent implements OnInit, AfterViewChecked {
   }
 
   onTableOptionChange($event: any) {
-    this.configChange = true;
-    this.visualization.chartConfig = $event;
-  }
-
-  onTagOptionsChange($event: UtmTagCloudOptionType) {
     this.configChange = true;
     this.visualization.chartConfig = $event;
   }
