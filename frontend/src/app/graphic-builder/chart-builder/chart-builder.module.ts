@@ -48,7 +48,6 @@ import {PiePropertiesOptionsComponent} from './chart-property-builder/charts/pie
 import {ScatterMapPropertiesOptionComponent} from './chart-property-builder/charts/scatter-map-properties-option/scatter-map-properties-option.component';
 import {TablePropertiesOptionComponent} from './chart-property-builder/charts/table-properties-option/table-properties-option.component';
 // tslint:disable-next-line:max-line-length
-import {TagCloudPropertiesOptionComponent} from './chart-property-builder/charts/tag-cloud-properties-option/tag-cloud-properties-option.component';
 import {ListColumnsComponent} from './chart-property-builder/list-columns/list-columns.component';
 import {MetricAggregationComponent} from './chart-property-builder/metric-agregation/metric-aggregation.component';
 
@@ -74,7 +73,6 @@ import {MetricAggregationComponent} from './chart-property-builder/metric-agrega
     GaugeRangeColorComponent,
     GoalPropertiesOptionComponent,
     TablePropertiesOptionComponent,
-    TagCloudPropertiesOptionComponent,
     LineBarPropertiesOptionComponent,
     ChartMarkOptionComponent,
     ChartSeriesLineBarOptionComponent,

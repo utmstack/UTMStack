@@ -29,11 +29,6 @@ export const CHART_TYPES: ChartType[] = [
     description: 'Assign continuous variable to each axis'
   },
   {
-    name: 'Tag cloud',
-    type: ChartTypeEnum.TAG_CLOUD_CHART,
-    description: 'A group of word, sized according to their importance'
-  },
-  {
     name: 'Table',
     type: ChartTypeEnum.TABLE_CHART,
     description: 'Display values in a aggregated table'

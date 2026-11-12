@@ -35,8 +35,7 @@ export class ChartToolboxOptionComponent implements OnInit {
     });
     this.toolboxOptionChange.emit(this.formToolboxOption.value);
     if (this.chartType === this.chartEnum.PIE_CHART ||
-      this.chartType === this.chartEnum.GAUGE_CHART ||
-      this.chartType === this.chartEnum.TAG_CLOUD_CHART
+      this.chartType === this.chartEnum.GAUGE_CHART
     ) {
       this.formToolboxOption.get(['feature', 'magicType', 'show']).setValue(false);
       this.formToolboxOption.get(['feature', 'dataZoom', 'show']).setValue(false);

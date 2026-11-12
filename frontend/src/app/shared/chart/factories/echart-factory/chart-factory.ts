@@ -6,7 +6,6 @@ import {Heatmap} from './charts/heatmap';
 import {LineBar} from './charts/line-bar';
 import {Pie} from './charts/pie';
 import {ScatterMap} from './charts/scatter-map';
-import {TagCloud} from './charts/tag-cloud';
 import {Factory} from './factory';
 
 export class ChartFactory implements Factory {
@@ -17,8 +16,6 @@ export class ChartFactory implements Factory {
         return new Pie().buildChart(data, visualization, toExport);
       case  ChartTypeEnum.GAUGE_CHART:
         return new Gauge().buildChart(data, visualization);
-      case  ChartTypeEnum.TAG_CLOUD_CHART:
-        return new TagCloud().buildChart(data, visualization);
       case  ChartTypeEnum.LINE_CHART:
         return new LineBar().buildChart(data, visualization);
       case  ChartTypeEnum.AREA_LINE_CHART:

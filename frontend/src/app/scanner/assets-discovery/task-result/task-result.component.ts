@@ -15,8 +15,6 @@ import {PieSeverityClassDef} from '../shared/chart/pie-severity-class.def';
 import {WordCloudDef} from '../shared/chart/word-cloud.def';
 import {AssetHostDetailDashboardService} from '../shared/services/asset-host-detail-dashboard.service';
 import {AssetHostDetailService} from '../shared/services/asset-host-detail.service';
-// @ts-ignore
-require('echarts-wordcloud');
 
 @Component({
   selector: 'app-assets-host-detail',
