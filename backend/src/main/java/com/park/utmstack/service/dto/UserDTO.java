@@ -55,6 +55,15 @@ public class UserDTO implements AuditableDTO {
 
     private Set<String> authorities;
 
+    /**
+     * TFA secret (e.g. base32 TOTP seed). Intentionally excluded from JSON
+     * serialization — the TFA enrollment flow already delivers the secret to
+     * the user via the QR code (see {@code TfaEnrollmentResource}), so echoing
+     * it on {@code GET /api/account} would let any authenticated principal read
+     * their (or, for an admin reading another account, another user's) second
+     * factor seed and generate valid codes.
+     */
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private String tfaSecret;
 
     public UserDTO() {

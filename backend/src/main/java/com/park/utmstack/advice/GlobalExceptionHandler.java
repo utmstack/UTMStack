@@ -71,6 +71,18 @@ public class GlobalExceptionHandler {
         return ResponseUtil.buildErrorResponse(ex.getStatus(), ex.getMessage());
     }
 
+    /**
+     * Authorization failures (e.g. a request whose token is valid but lacks the
+     * required authority) must surface as 403, not fall through to the generic
+     * 500 handler below.
+     */
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    public ResponseEntity<?> handleAccessDenied(org.springframework.security.access.AccessDeniedException e,
+                                                 HttpServletRequest request) {
+        log.debug("Access denied: {} {}", request.getMethod(), request.getRequestURI(), e);
+        return ResponseUtil.buildForbiddenResponse(e.getMessage());
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleGenericException(Exception e, HttpServletRequest request) {
         return ResponseUtil.buildInternalServerErrorResponse(e.getMessage());

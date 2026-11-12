@@ -85,6 +85,7 @@ public class User extends AbstractAuditingEntity implements Serializable {
     private Instant resetDate = null;
 
     @Column(name = "tfa_secret")
+    @JsonIgnore
     private String tfaSecret;
 
     @Column(name = "tfa_method")
