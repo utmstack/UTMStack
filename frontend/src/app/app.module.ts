@@ -101,9 +101,11 @@ export function initTimezoneFormat(apiChecker: ApiServiceCheckerService,
     // loader are registered as bare providers. provideTranslateHttpLoader()
     // supplies both the TranslateLoader class and its TRANSLATE_HTTP_LOADER_CONFIG
     // token (default prefix /assets/i18n/, suffix .json), which TranslateHttpLoader's
-    // ctor injects. `lang:'en'` is the v18 replacement for the old
-    // TranslateService.setDefaultLang('en') call in AppComponent.
-    provideTranslateService({lang: 'en'}),
+    // ctor injects. We deliberately do NOT pass `lang` here: with `lang` set, the
+    // root TranslateService calls use(lang) in its CONSTRUCTOR (v18), forcing an
+    // eager translation load during bootstrap that throws NG0200. Instead the
+    // language is set lazily in AppComponent (the v17 setDefaultLang('en') spot).
+    provideTranslateService(),
     provideTranslateHttpLoader(),
     CookieService,
     AuthServerProvider,
