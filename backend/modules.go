@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 	"github.com/google/uuid"
 	iam_handler "github.com/utmstack/utmstack/backend/modules/iam/handler"
 	"github.com/utmstack/utmstack/backend/pkg/joblease"
@@ -32,6 +31,7 @@ import (
 	ns_repository "github.com/utmstack/utmstack/backend/modules/datasources/repository"
 	ns_usecase "github.com/utmstack/utmstack/backend/modules/datasources/usecase"
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing"
+	ep_repository "github.com/utmstack/utmstack/backend/modules/eventprocessing/repository"
 	"github.com/utmstack/utmstack/backend/modules/iam"
 	iam_repository "github.com/utmstack/utmstack/backend/modules/iam/repository"
 	iam_usecase "github.com/utmstack/utmstack/backend/modules/iam/usecase"
@@ -48,7 +48,6 @@ import (
 	tenant_connectors "github.com/utmstack/utmstack/backend/modules/tenant/connectors"
 	tenant_domain "github.com/utmstack/utmstack/backend/modules/tenant/domain"
 	tenant_dto "github.com/utmstack/utmstack/backend/modules/tenant/dto"
-	ep_repository "github.com/utmstack/utmstack/backend/modules/eventprocessing/repository"
 	"github.com/utmstack/utmstack/backend/modules/threatintel"
 	"github.com/utmstack/utmstack/backend/pkg/agentmanager"
 	"github.com/utmstack/utmstack/backend/pkg/env"
@@ -94,7 +93,7 @@ type modules struct {
 	signer          *jwtpkg.Signer
 }
 
-func initModules(db *gorm.DB, cfg *config) *modules {
+func initModules(db *gorm.DB, events *eventstore.Store, cfg *config) *modules {
 	if cfg.jwtSecret == "" {
 		cfg.jwtSecret = cfg.internalKey
 	}
@@ -117,10 +116,6 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	limiter := ratelimit.NewLoginLimiter(loginMaxFailures, loginBlockTTL, loginWindowTTL)
 	auditMod := audit.NewModule(db, joblease.New(db), env.Int("AUDIT_RETENTION_DAYS", 365, false))
 
-	events, err := eventstore.New()
-	if err != nil {
-		_ = catcher.Error("could not reach the event store; dashboards will not answer", err, nil)
-	}
 	// The dev licence is read only in dev mode, so a production build cannot be
 	// talked into one by setting an environment variable.
 	devLicense := ""
@@ -225,7 +220,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	dsUC := ns_usecase.NewDatasourceUsecase(dsRepo, eventProcessingMod.GetAssetProjectionUsecase())
 	// Discovery from ingestion needs the event store, not OpenSearch: the
 	// statistics it reads moved there with the rest of the pipeline.
-	statsReader := ns_repository.NewStatsReader(eventConn(events))
+	statsReader := ns_repository.NewStatsReader(events)
 	var dsReconciler *ns_usecase.StatsReconciler
 	if statsReader != nil {
 		dsReconciler = ns_usecase.NewStatsReconciler(dsRepo, statsReader, joblease.New(db))
@@ -246,7 +241,9 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 	rulesUserDir := filepath.Join(env.String(ep_repository.RulesDirEnv, ep_repository.DefaultRulesDir, false), ep_repository.UserSubdir)
 	pipelinesUserDir := filepath.Join(env.String(ep_repository.PipelinesDirEnv, ep_repository.DefaultPipelinesDir, false), ep_repository.UserSubdir)
 	extraPurgers = append(extraPurgers,
-		func(_ context.Context, id uuid.UUID) error { return os.RemoveAll(filepath.Join(rulesUserDir, id.String())) },
+		func(_ context.Context, id uuid.UUID) error {
+			return os.RemoveAll(filepath.Join(rulesUserDir, id.String()))
+		},
 		func(_ context.Context, id uuid.UUID) error {
 			return os.RemoveAll(filepath.Join(pipelinesUserDir, id.String()))
 		},
@@ -277,7 +274,7 @@ func initModules(db *gorm.DB, cfg *config) *modules {
 		env.String("INTEGRATIONS_CONFIG_DIR", "/workdir/pipeline", false),
 		env.String("UPDATES_DIR", "/updates", false), aiQuota, joblease.New(db))
 	adauditMod := adaudit.NewModule(db)
-	storageMod := storage.NewModule(events, env.String("CLICKHOUSE_CONFIG_DIR", "/clickhouse-conf", false),cfg.dataRetentionEnabled,cfg.coldStorageRetention)
+	storageMod := storage.NewModule(events, env.String("CLICKHOUSE_CONFIG_DIR", "/clickhouse-conf", false), cfg.dataRetentionEnabled, cfg.coldStorageRetention)
 	threatintelMod := threatintel.NewModule(
 		env.String("UPDATES_DIR", "/updates", false),
 		env.String("INTEGRATIONS_CONFIG_DIR", "/workdir/pipeline", false),
@@ -372,14 +369,4 @@ func uploadFilePath(dir, url string) string {
 	u := strings.TrimPrefix(url, "/")
 	u = strings.TrimPrefix(u, "uploads/")
 	return filepath.Join(dir, u)
-}
-
-// eventConn is the store's connection, or nil when there is no store. The
-// reconciler is then not built and datasources simply stop being discovered
-// from ingestion, which an install without ClickHouse cannot do anyway.
-func eventConn(s *eventstore.Store) driver.Conn {
-	if s == nil {
-		return nil
-	}
-	return s.Conn
 }
