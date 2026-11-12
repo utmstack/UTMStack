@@ -89,7 +89,7 @@
     "@angular-eslint/eslint-plugin": "^17.5.3",
     "@angular-eslint/eslint-plugin-template": "^17.5.3",
     "@angular-eslint/template-parser": "^17.5.3",
-    "@angular/cli": "~17.3.17",
+    "@angular/cli": "~22.2.6",
     "@angular/compiler-cli": "~17.3.12",
     "@angular/language-service": "~17.3.12",
     "@types/jasmine": "~2.8.8",
