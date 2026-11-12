@@ -4,10 +4,12 @@ go 1.25.5
 
 require (
 	github.com/alicebob/miniredis/v2 v2.39.0
-	github.com/threatwinds/go-sdk v1.1.37-0.20261028123630-c472007022ff
+	github.com/threatwinds/go-sdk v1.1.40-0.20261111193348-bb49d6af9f6c
 	github.com/tidwall/gjson v1.20.0
 	google.golang.org/protobuf v1.36.12
 )
+
+require github.com/opensearch-project/opensearch-go/v4 v4.6.0 // indirect
 
 require (
 	cel.dev/expr v0.25.2 // indirect
