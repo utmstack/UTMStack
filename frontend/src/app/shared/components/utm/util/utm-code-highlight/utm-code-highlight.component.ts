@@ -1,12 +1,12 @@
 import {AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
-import * as hljs from 'highlight.js';
-import * as bash from 'highlight.js/lib/languages/bash.js';
-import * as golang from 'highlight.js/lib/languages/go.js';
-import * as java from 'highlight.js/lib/languages/java.js';
-import * as javascript from 'highlight.js/lib/languages/javascript.js';
-import * as json from 'highlight.js/lib/languages/json.js';
-import * as powershell from 'highlight.js/lib/languages/powershell.js';
-import * as python from 'highlight.js/lib/languages/python.js';
+import hljs from 'highlight.js';
+import bash from 'highlight.js/lib/languages/bash.js';
+import golang from 'highlight.js/lib/languages/go.js';
+import java from 'highlight.js/lib/languages/java.js';
+import javascript from 'highlight.js/lib/languages/javascript.js';
+import json from 'highlight.js/lib/languages/json.js';
+import powershell from 'highlight.js/lib/languages/powershell.js';
+import python from 'highlight.js/lib/languages/python.js';
 import {UtmToastService} from '../../../../alert/utm-toast.service';
 
 @Component({
