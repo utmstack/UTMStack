@@ -255,8 +255,8 @@ public class UtmAlertTagRuleService {
                 return;
             }
 
-            StringBuilder scriptBuilder = new StringBuilder();
-            scriptBuilder.append("if (ctx._source.containsKey('dataSource') && ctx._source.dataSource != null) {\n");
+            StringBuilder innerBlocks = new StringBuilder();
+            int validMappings = 0;
 
             for (Map.Entry<String, Map<String, Object>> entry : assetGroups.entrySet()) {
                 String assetName = entry.getKey();
@@ -272,7 +272,8 @@ public class UtmAlertTagRuleService {
                     continue;
                 }
 
-                scriptBuilder.append(String.format(
+                validMappings++;
+                innerBlocks.append(String.format(
                         """
                                   if (ctx._source.dataSource == '%s') {
                                     ctx._source.assetGroupId = %dL;
@@ -285,8 +286,17 @@ public class UtmAlertTagRuleService {
                 ));
             }
 
-            scriptBuilder.append("}");
-            String script = scriptBuilder.toString();
+            if (validMappings == 0) {
+                // Every mapping row was null-valued. Sending the outer guard with an
+                // empty body ("if (...) { }") is a Painless "extraneous if block"
+                // compile error, so skip the updateByQuery entirely.
+                log.debug("{}: no valid asset-group mappings to apply, skipping update", ctx);
+                return;
+            }
+
+            String script = "if (ctx._source.containsKey('dataSource') && ctx._source.dataSource != null) {\n"
+                    + innerBlocks
+                    + "}";
 
 
             List<FilterType> filters = new ArrayList<>();

@@ -75,6 +75,7 @@ public final class Constants {
     public static final String alertTags = "tags";
     public static final String alertIsIncident = "isIncident";
     public static final String alertNameKeyword = "name.keyword";
+    public static final String alertSeverity = "severity";
     public static final String alertSeverityLabel = "severityLabel.keyword";
     public static final String alertCategoryKeyword = "category.keyword";
     public static final String alertDataSourceKeyword = "dataSource.keyword";
