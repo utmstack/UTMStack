@@ -23,6 +23,13 @@ type config struct {
 	dbUser     string
 	dbPass     string
 	dbLogLevel string
+	dbAgent    string // second database on the same Postgres (agentmanager)
+
+	// v11 -> v12 upgrade
+	integrationsDir string
+	tenantDomain    string
+	rulesDir        string
+	pipelineDir     string
 
 	// Secrets
 	internalKey   string
@@ -81,6 +88,13 @@ func loadConfig() *config {
 		dbUser:     env.String("DB_USER", "postgres", false),
 		dbPass:     env.String("DB_PASS", "", false),
 		dbLogLevel: env.String("DB_LOG_LEVEL", "silent", false),
+		dbAgent:    env.String("DB_NAME_AGENT", "agentmanager", false),
+
+		integrationsDir: env.String("INTEGRATIONS_CONFIG_DIR", "/workdir/pipeline", false),
+		tenantDomain:    env.String("UTMSTACK_DEFAULT_DOMAIN", "", false),
+		rulesDir:        env.String("EVENT_PROCESSING_RULES_DIR", "/workdir/rules", false),
+		pipelineDir:     env.String("EVENT_PROCESSING_PIPELINE_DIR", "/workdir/pipeline", false),
+		pipelinesDir:    env.String("EVENT_PROCESSING_PIPELINES_DIR", "/workdir/pipeline/filters", false),
 
 		internalKey:   env.String("INTERNAL_KEY", "", false),
 		internalCIDRs: env.String("INTERNAL_KEY_ALLOWED_CIDRS", "", false),
@@ -110,6 +124,5 @@ func loadConfig() *config {
 
 		dataRetentionEnabled: env.Bool("DATA_RETENTION_ENABLED", true),
 		coldStorageRetention: env.Bool("CLICKHOUSE_LOCAL_COLDSTORAGE", false),
-
 	}
 }
