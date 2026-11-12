@@ -3,9 +3,10 @@ import {ElasticFilterDefaultTime} from '../../../../shared/components/utm/filter
 import {TimeFilterType} from '../../../../shared/types/time-filter.type';
 
 @Component({
-  selector: 'app-report-param-date-limit',
-  templateUrl: './report-param-date-limit.component.html',
-  styleUrls: ['./report-param-date-limit.component.css']
+    standalone: false,
+    selector: 'app-report-param-date-limit',
+    templateUrl: './report-param-date-limit.component.html',
+    styleUrls: ['./report-param-date-limit.component.css'],
 })
 export class ReportParamDateLimitComponent implements OnInit {
   @Input() defaultTime: ElasticFilterDefaultTime = new ElasticFilterDefaultTime('now-7d', 'now');

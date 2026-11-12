@@ -6,9 +6,10 @@ import {ScheduleModel} from '../../../shared/model/schedule.model';
 import {ScheduleService} from '../shared/services/schedule.service';
 
 @Component({
-  selector: 'app-schedule-delete',
-  templateUrl: './schedule-delete.component.html',
-  styleUrls: ['./schedule-delete.component.scss']
+    standalone: false,
+    selector: 'app-schedule-delete',
+    templateUrl: './schedule-delete.component.html',
+    styleUrls: ['./schedule-delete.component.scss'],
 })
 export class ScheduleDeleteComponent implements OnInit {
   @Input() schedule: ScheduleModel;

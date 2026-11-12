@@ -15,9 +15,10 @@ interface TeamUserFormValue {
 }
 
 @Component({
-  selector: 'app-federation-team-user-form-modal',
-  templateUrl: './team-user-form-modal.component.html',
-  styleUrls: ['./team-user-form-modal.component.scss']
+    standalone: false,
+    selector: 'app-federation-team-user-form-modal',
+    templateUrl: './team-user-form-modal.component.html',
+    styleUrls: ['./team-user-form-modal.component.scss'],
 })
 export class TeamUserFormModalComponent implements OnInit {
   @Input() user: TeamUser | null = null;

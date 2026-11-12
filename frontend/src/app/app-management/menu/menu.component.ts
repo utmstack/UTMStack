@@ -23,9 +23,10 @@ interface MenuListItem {
 }
 
 @Component({
-  selector: 'app-menu',
-  templateUrl: './menu.component.html',
-  styleUrls: ['./menu.component.scss']
+    standalone: false,
+    selector: 'app-menu',
+    templateUrl: './menu.component.html',
+    styleUrls: ['./menu.component.scss'],
 })
 export class MenuComponent implements OnInit {
   private currentDraggableEvent: DragEvent;

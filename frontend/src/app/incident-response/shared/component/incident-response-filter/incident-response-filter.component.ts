@@ -5,9 +5,10 @@ import {IncidentResponseActionService} from '../../services/incident-response-ac
 import {IncidentActionType} from '../../type/incident-action.type';
 
 @Component({
-  selector: 'app-incident-response-filter',
-  templateUrl: './incident-response-filter.component.html',
-  styleUrls: ['./incident-response-filter.component.scss']
+    standalone: false,
+    selector: 'app-incident-response-filter',
+    templateUrl: './incident-response-filter.component.html',
+    styleUrls: ['./incident-response-filter.component.scss'],
 })
 export class IncidentResponseFilterComponent implements OnInit {
   @Output() irFilterChange = new EventEmitter<any>();

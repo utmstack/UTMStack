@@ -2,9 +2,10 @@ import {Component, Input, OnInit} from '@angular/core';
 import {IncidentResponseStatusEnum} from '../../../../shared/enums/incident-response/incident-response-status.enum';
 
 @Component({
-  selector: 'app-incident-response-status',
-  templateUrl: './incident-response-status.component.html',
-  styleUrls: ['./incident-response-status.component.scss']
+    standalone: false,
+    selector: 'app-incident-response-status',
+    templateUrl: './incident-response-status.component.html',
+    styleUrls: ['./incident-response-status.component.scss'],
 })
 export class IncidentResponseStatusComponent implements OnInit {
   @Input() status: IncidentResponseStatusEnum;

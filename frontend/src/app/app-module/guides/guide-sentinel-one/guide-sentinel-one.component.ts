@@ -7,9 +7,10 @@ import {SENTINELSTEPS} from './sentinel.steps';
 import {PLATFORMS} from "../shared/constant";
 
 @Component({
-  selector: 'app-guide-sentinel-one',
-  templateUrl: './guide-sentinel-one.component.html',
-  styleUrls: ['./guide-sentinel-one.component.css']
+    standalone: false,
+    selector: 'app-guide-sentinel-one',
+    templateUrl: './guide-sentinel-one.component.html',
+    styleUrls: ['./guide-sentinel-one.component.css'],
 })
 export class GuideSentinelOneComponent implements OnInit {
   @Input() integrationId: number;

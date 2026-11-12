@@ -2,9 +2,10 @@ import {Component, Input, OnInit} from '@angular/core';
 import {NetScanSoftwares} from '../../types/net-scan-softwares';
 
 @Component({
-  selector: 'app-asset-softwares',
-  templateUrl: './asset-softwares.component.html',
-  styleUrls: ['./asset-softwares.component.scss']
+    standalone: false,
+    selector: 'app-asset-softwares',
+    templateUrl: './asset-softwares.component.html',
+    styleUrls: ['./asset-softwares.component.scss'],
 })
 export class AssetSoftwaresComponent implements OnInit {
   @Input() softwares: NetScanSoftwares[];

@@ -10,9 +10,10 @@ import {ElasticDataTypesEnum} from '../../../shared/enums/elastic-data-types.enu
 import {UtmDashboardService} from '../shared/services/utm-dashboard.service';
 
 @Component({
-  selector: 'app-dashboard-import',
-  templateUrl: './dashboard-import.component.html',
-  styleUrls: ['./dashboard-import.component.scss']
+    standalone: false,
+    selector: 'app-dashboard-import',
+    templateUrl: './dashboard-import.component.html',
+    styleUrls: ['./dashboard-import.component.scss'],
 })
 export class DashboardImportComponent implements OnInit {
   step = 1;

@@ -5,9 +5,10 @@ import {IncidentRuleType} from '../../type/incident-rule.type';
 import {IraHistoryType} from '../../type/ira-history.type';
 
 @Component({
-  selector: 'app-ira-history',
-  templateUrl: './ira-history.component.html',
-  styleUrls: ['./ira-history.component.css']
+    standalone: false,
+    selector: 'app-ira-history',
+    templateUrl: './ira-history.component.html',
+    styleUrls: ['./ira-history.component.css'],
 })
 export class IraHistoryComponent implements OnInit {
   @Input() incidentRule: IncidentRuleType;

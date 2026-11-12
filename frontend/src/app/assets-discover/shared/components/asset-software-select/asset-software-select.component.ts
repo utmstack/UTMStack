@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
@@ -8,9 +8,10 @@ import {NetScanSoftwares} from '../../types/net-scan-softwares';
 import {AssetSoftwareAddComponent} from '../asset-software-add/asset-software-add.component';
 
 @Component({
-  selector: 'app-asset-software-select',
-  templateUrl: './asset-software-select.component.html',
-  styleUrls: ['./asset-software-select.component.css']
+    standalone: false,
+    selector: 'app-asset-software-select',
+    templateUrl: './asset-software-select.component.html',
+    styleUrls: ['./asset-software-select.component.css'],
 })
 export class AssetSoftwareSelectComponent implements OnInit {
   softwares: NetScanSoftwares[];

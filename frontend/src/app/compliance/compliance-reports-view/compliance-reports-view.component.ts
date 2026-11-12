@@ -1,4 +1,4 @@
-import {HttpErrorResponse} from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -20,10 +20,11 @@ import {ComplianceStandardSectionType} from '../shared/type/compliance-standard-
 import {ComplianceStatusEnum} from '../shared/enums/compliance-status.enum';
 
 @Component({
-  selector: 'app-compliance-reports-view',
-  templateUrl: './compliance-reports-view.component.html',
-  styleUrls: ['./compliance-reports-view.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    standalone: false,
+    selector: 'app-compliance-reports-view',
+    templateUrl: './compliance-reports-view.component.html',
+    styleUrls: ['./compliance-reports-view.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ComplianceReportsViewComponent implements OnInit, OnChanges, OnDestroy {
   @Input() section: ComplianceStandardSectionType;

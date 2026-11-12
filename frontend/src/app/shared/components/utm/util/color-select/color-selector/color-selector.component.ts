@@ -4,9 +4,10 @@ import {ColorType} from '../color.type';
 import {COLORS} from '../colors.const';
 
 @Component({
-  selector: 'app-color-selector',
-  templateUrl: './color-selector.component.html',
-  styleUrls: ['./color-selector.component.scss']
+    standalone: false,
+    selector: 'app-color-selector',
+    templateUrl: './color-selector.component.html',
+    styleUrls: ['./color-selector.component.scss'],
 })
 export class ColorSelectorComponent implements OnInit {
   @Input() multiple: boolean;

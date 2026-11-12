@@ -1,9 +1,10 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 
 @Component({
-  selector: 'app-alert-actions-content',
-  templateUrl: './alert-actions-content.component.html',
-  styleUrls: ['./alert-actions-content.component.scss']
+    standalone: false,
+    selector: 'app-alert-actions-content',
+    templateUrl: './alert-actions-content.component.html',
+    styleUrls: ['./alert-actions-content.component.scss'],
 })
 export class AlertActionsContentComponent  {
 

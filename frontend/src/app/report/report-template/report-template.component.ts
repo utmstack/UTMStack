@@ -15,9 +15,10 @@ import {ReportSectionType} from '../shared/type/report-section.type';
 import {ReportType} from '../shared/type/report.type';
 
 @Component({
-  selector: 'app-report-template',
-  templateUrl: './report-template.component.html',
-  styleUrls: ['./report-template.component.scss']
+    standalone: false,
+    selector: 'app-report-template',
+    templateUrl: './report-template.component.html',
+    styleUrls: ['./report-template.component.scss'],
 })
 export class ReportTemplateComponent implements OnInit {
   loadingTemplates: any;

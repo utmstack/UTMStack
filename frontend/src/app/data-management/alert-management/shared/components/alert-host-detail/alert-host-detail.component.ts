@@ -8,10 +8,11 @@ import {AlertFieldService} from '../../services/alert-field.service';
 import {isEmpty} from "rxjs/operators";
 
 @Component({
-  selector: 'app-alert-host-detail',
-  templateUrl: './alert-host-detail.component.html',
-  styleUrls: ['./alert-host-detail.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    standalone: false,
+    selector: 'app-alert-host-detail',
+    templateUrl: './alert-host-detail.component.html',
+    styleUrls: ['./alert-host-detail.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AlertHostDetailComponent implements OnInit {
   @Input() alert: UtmAlertType;

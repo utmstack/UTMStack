@@ -7,9 +7,10 @@ import {AlertRuleCreateComponent} from '../../alert-rule-create/alert-rule-creat
 import { FALSE_POSITIVE_OBJECT } from 'src/app/shared/constants/alert/alert-field.constant';
 
 @Component({
-  selector: 'app-alert-tags-apply',
-  templateUrl: './alert-tags-apply.component.html',
-  styleUrls: ['./alert-tags-apply.component.scss'],
+    standalone: false,
+    selector: 'app-alert-tags-apply',
+    templateUrl: './alert-tags-apply.component.html',
+    styleUrls: ['./alert-tags-apply.component.scss'],
 })
 export class AlertTagsApplyComponent implements OnInit, OnChanges {
   @Input() showTagsLabel: boolean;

@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
@@ -16,9 +16,10 @@ import {AdTrackerCreateComponent} from '../../tracker/ad-tracker-create/ad-track
 import {AdTrackerType} from '../../tracker/shared/type/ad-tracker.type';
 
 @Component({
-  selector: 'app-ad-user-detail',
-  templateUrl: './ad-user-detail.component.html',
-  styleUrls: ['./ad-user-detail.component.scss']
+    standalone: false,
+    selector: 'app-ad-user-detail',
+    templateUrl: './ad-user-detail.component.html',
+    styleUrls: ['./ad-user-detail.component.scss'],
 })
 export class AdUserDetailComponent implements OnInit {
   adInfos: ActiveDirectoryType[] = [];

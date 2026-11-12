@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
@@ -17,9 +17,10 @@ import {JhiParseLinks} from '../../../../shared/jhi/jhi.util';
 
 
 @Component({
-  selector: 'app-port-list',
-  templateUrl: './port-list.component.html',
-  styleUrls: ['./port-list.component.scss']
+    standalone: false,
+    selector: 'app-port-list',
+    templateUrl: './port-list.component.html',
+    styleUrls: ['./port-list.component.scss'],
 })
 export class PortListComponent implements OnInit {
   ports: PortModel[] = [];

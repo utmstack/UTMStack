@@ -24,9 +24,10 @@ import {UtmDashboardService} from '../shared/services/utm-dashboard.service';
 import {buildDashboardUrl} from '../shared/util/get-menu-url';
 
 @Component({
-  selector: 'app-dashboard-save',
-  templateUrl: './dashboard-save.component.html',
-  styleUrls: ['./dashboard-save.component.scss']
+    standalone: false,
+    selector: 'app-dashboard-save',
+    templateUrl: './dashboard-save.component.html',
+    styleUrls: ['./dashboard-save.component.scss'],
 })
 export class DashboardSaveComponent implements OnInit {
   @Input() grid: GridsterItem[];

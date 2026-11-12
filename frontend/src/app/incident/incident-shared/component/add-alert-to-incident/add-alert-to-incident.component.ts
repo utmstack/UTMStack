@@ -28,9 +28,10 @@ import {getValueFromPropertyPath} from '../../../../shared/util/get-value-object
 import {InputClassResolve} from '../../../../shared/util/input-class-resolve';
 
 @Component({
-  selector: 'app-add-alert-to-incident',
-  templateUrl: './add-alert-to-incident.component.html',
-  styleUrls: ['./add-alert-to-incident.component.css']
+    standalone: false,
+    selector: 'app-add-alert-to-incident',
+    templateUrl: './add-alert-to-incident.component.html',
+    styleUrls: ['./add-alert-to-incident.component.css'],
 })
 export class AddAlertToIncidentComponent implements OnInit {
   @Input() alerts: any[];

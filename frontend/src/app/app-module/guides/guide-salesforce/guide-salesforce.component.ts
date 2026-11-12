@@ -4,9 +4,10 @@ import {URL_REGEX} from '../../../shared/constants/regex-const';
 import {UtmModulesEnum} from '../../shared/enum/utm-module.enum';
 
 @Component({
+    standalone: false,
     selector: 'app-guide-salesforce',
     templateUrl: './guide-salesforce.component.html',
-    styleUrls: ['./guide-salesforce.component.css']
+    styleUrls: ['./guide-salesforce.component.css'],
 })
 export class GuideSalesforceComponent implements OnInit {
     @Input() integrationId: number;

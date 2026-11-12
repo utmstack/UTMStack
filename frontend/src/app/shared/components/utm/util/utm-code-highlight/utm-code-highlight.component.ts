@@ -10,9 +10,10 @@ import python from 'highlight.js/lib/languages/python.js';
 import {UtmToastService} from '../../../../alert/utm-toast.service';
 
 @Component({
-  selector: 'app-utm-code-highlight',
-  templateUrl: './utm-code-highlight.component.html',
-  styleUrls: ['./utm-code-highlight.component.css']
+    standalone: false,
+    selector: 'app-utm-code-highlight',
+    templateUrl: './utm-code-highlight.component.html',
+    styleUrls: ['./utm-code-highlight.component.css'],
 })
 export class UtmCodeHighlightComponent implements OnInit, AfterViewInit {
   @Input() codeType: 'python' | 'java' | 'javascript' | 'golang' | 'bash' | 'powershell' | 'json' = 'python';

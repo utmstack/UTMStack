@@ -1,9 +1,10 @@
 import {Component, Input, OnInit} from '@angular/core';
 
 @Component({
-  selector: 'app-asset-os',
-  templateUrl: './asset-os.component.html',
-  styleUrls: ['./asset-os.component.scss']
+    standalone: false,
+    selector: 'app-asset-os',
+    templateUrl: './asset-os.component.html',
+    styleUrls: ['./asset-os.component.scss'],
 })
 export class AssetOsComponent implements OnInit {
   @Input() assetOS: string;

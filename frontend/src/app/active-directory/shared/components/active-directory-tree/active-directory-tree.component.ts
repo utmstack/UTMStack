@@ -13,9 +13,10 @@ import {arrayToTree, TreeItem} from './shared/functions/array-to-tree.function';
 
 // import * as Tree from
 @Component({
-  selector: 'app-active-directory-tree',
-  templateUrl: './active-directory-tree.component.html',
-  styleUrls: ['./active-directory-tree.component.scss']
+    standalone: false,
+    selector: 'app-active-directory-tree',
+    templateUrl: './active-directory-tree.component.html',
+    styleUrls: ['./active-directory-tree.component.scss'],
 })
 export class AdTreeComponent implements OnInit {
   tree: TreeItem[] = [];

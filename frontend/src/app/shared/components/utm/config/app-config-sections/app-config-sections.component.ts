@@ -22,9 +22,10 @@ import {AppConfigDeleteConfirmComponent} from '../app-config-delete-confirm/app-
 
 
 @Component({
-  selector: 'app-config-sections',
-  templateUrl: './app-config-sections.component.html',
-  styleUrls: ['./app-config-sections.component.css']
+    standalone: false,
+    selector: 'app-config-sections',
+    templateUrl: './app-config-sections.component.html',
+    styleUrls: ['./app-config-sections.component.css'],
 })
 export class AppConfigSectionsComponent implements OnInit, OnDestroy {
 

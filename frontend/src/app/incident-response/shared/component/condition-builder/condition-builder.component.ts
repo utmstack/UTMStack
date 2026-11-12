@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, Input, OnInit} from '@angular/core';
 import {AbstractControl, FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {of} from 'rxjs';
@@ -11,9 +11,10 @@ import {ElasticSearchFieldInfoType} from '../../../../shared/types/elasticsearch
 import {IncidentRuleType} from '../../type/incident-rule.type';
 
 @Component({
-  selector: 'app-condition-builder',
-  templateUrl: './condition-builder.component.html',
-  styleUrls: ['./condition-builder.component.scss']
+    standalone: false,
+    selector: 'app-condition-builder',
+    templateUrl: './condition-builder.component.html',
+    styleUrls: ['./condition-builder.component.scss'],
 })
 export class ConditionBuilderComponent implements OnInit {
 

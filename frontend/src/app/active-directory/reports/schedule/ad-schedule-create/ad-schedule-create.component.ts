@@ -8,9 +8,10 @@ import {InputClassResolve} from '../../../../shared/util/input-class-resolve';
 import {timePeriodValidator} from '../../../../shared/util/schedule-time-period-validator';
 
 @Component({
-  selector: 'app-active-directory-schedule-create',
-  templateUrl: './ad-schedule-create.component.html',
-  styleUrls: ['./ad-schedule-create.component.scss']
+    standalone: false,
+    selector: 'app-active-directory-schedule-create',
+    templateUrl: './ad-schedule-create.component.html',
+    styleUrls: ['./ad-schedule-create.component.scss'],
 })
 export class AdScheduleCreateComponent implements OnInit, AfterContentChecked {
   @Input() schedule: ScheduleModel;

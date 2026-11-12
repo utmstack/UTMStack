@@ -28,9 +28,10 @@ import {ComplianceScheduleFilterType} from '../../type/compliance-schedule-filte
 import {ComplianceScheduleType} from '../../type/compliance-schedule.type';
 
 @Component({
-  selector: 'app-utm-compliance-schedule-create',
-  templateUrl: './utm-compliance-schedule-create.component.html',
-  styleUrls: ['./utm-compliance-schedule-create.component.scss']
+    standalone: false,
+    selector: 'app-utm-compliance-schedule-create',
+    templateUrl: './utm-compliance-schedule-create.component.html',
+    styleUrls: ['./utm-compliance-schedule-create.component.scss'],
 })
 export class UtmComplianceScheduleCreateComponent implements OnInit, OnDestroy {
   @Input() report: ComplianceScheduleType;

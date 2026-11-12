@@ -6,9 +6,10 @@ import {InputClassResolve} from '../../../shared/util/input-class-resolve';
 import {FederationConnectionService} from '../shared/services/federation-connection.service';
 
 @Component({
-  selector: 'app-token-activate',
-  templateUrl: './token-activate.component.html',
-  styleUrls: ['./token-activate.component.css']
+    standalone: false,
+    selector: 'app-token-activate',
+    templateUrl: './token-activate.component.html',
+    styleUrls: ['./token-activate.component.css'],
 })
 export class TokenActivateComponent implements OnInit {
   @Input() enable = true;

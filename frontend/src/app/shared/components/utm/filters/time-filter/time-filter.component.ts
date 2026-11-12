@@ -8,9 +8,10 @@ import {DateRangeComponent} from '../date-range/date-range.component';
 
 
 @Component({
-  selector: 'app-filter-time',
-  templateUrl: './time-filter.component.html',
-  styleUrls: ['./time-filter.component.scss'],
+    standalone: false,
+    selector: 'app-filter-time',
+    templateUrl: './time-filter.component.html',
+    styleUrls: ['./time-filter.component.scss'],
 })
 export class TimeFilterComponent implements OnInit {
   @Input() timeDefault: TimeFilterType;

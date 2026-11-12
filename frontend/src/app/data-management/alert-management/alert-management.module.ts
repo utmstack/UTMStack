@@ -3,7 +3,7 @@ import {CUSTOM_ELEMENTS_SCHEMA, NgModule, NO_ERRORS_SCHEMA} from '@angular/core'
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {NgSelectModule} from '@ng-select/ng-select';
-import {TranslateModule} from '@ngx-translate/core';
+import {TranslatePipe} from '@ngx-translate/core';
 import {ResizableModule} from 'angular-resizable-element';
 import {InfiniteScrollModule} from 'ngx-infinite-scroll';
 import {NgxJsonViewerModule} from 'ngx-json-viewer';
@@ -39,7 +39,7 @@ import {AlertManagementSharedModule} from './shared/alert-management-shared.modu
         AlertManagementSharedModule,
         NgxJsonViewerModule,
         ResizableModule,
-        TranslateModule,
+        TranslatePipe,
         NgSelectModule,
         ReactiveFormsModule,
         IncidentSharedModule,

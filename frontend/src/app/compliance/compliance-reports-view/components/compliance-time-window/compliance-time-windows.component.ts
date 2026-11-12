@@ -6,10 +6,11 @@ import { ComplianceReportType } from '../../../shared/type/compliance-report.typ
 
 
 @Component({
-  selector: 'app-compliance-time',
-  templateUrl: './compliance-time-windows.component.html',
-  styleUrls: ['./compliance-time-windows.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    standalone: false,
+    selector: 'app-compliance-time',
+    templateUrl: './compliance-time-windows.component.html',
+    styleUrls: ['./compliance-time-windows.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ComplianceTimeWindowsComponent implements OnInit, OnDestroy {
   @Input() report: ComplianceReportType;

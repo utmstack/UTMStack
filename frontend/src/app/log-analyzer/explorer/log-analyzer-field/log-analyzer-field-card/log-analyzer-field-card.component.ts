@@ -8,9 +8,10 @@ import {ElasticSearchFieldInfoType} from '../../../../shared/types/elasticsearch
 import {ElasticFilterType} from '../../../../shared/types/filter/elastic-filter.type';
 
 @Component({
-  selector: 'app-log-analyzer-field-card',
-  templateUrl: './log-analyzer-field-card.component.html',
-  styleUrls: ['./log-analyzer-field-card.component.scss']
+    standalone: false,
+    selector: 'app-log-analyzer-field-card',
+    templateUrl: './log-analyzer-field-card.component.html',
+    styleUrls: ['./log-analyzer-field-card.component.scss'],
 })
 export class LogAnalyzerFieldCardComponent implements OnInit {
   @Input() field: ElasticSearchFieldInfoType;

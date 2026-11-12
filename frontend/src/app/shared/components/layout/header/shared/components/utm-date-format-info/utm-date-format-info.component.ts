@@ -4,9 +4,10 @@ import {TimezoneFormatService} from '../../../../../../services/utm-timezone.ser
 import {DatePipeDefaultOptions} from '../../../../../../types/date-pipe-default-options';
 
 @Component({
-  selector: 'app-utm-date-format-info',
-  templateUrl: './utm-date-format-info.component.html',
-  styleUrls: ['./utm-date-format-info.component.scss']
+    standalone: false,
+    selector: 'app-utm-date-format-info',
+    templateUrl: './utm-date-format-info.component.html',
+    styleUrls: ['./utm-date-format-info.component.scss'],
 })
 export class UtmDateFormatInfoComponent implements OnInit {
   dateFormat: DatePipeDefaultOptions;

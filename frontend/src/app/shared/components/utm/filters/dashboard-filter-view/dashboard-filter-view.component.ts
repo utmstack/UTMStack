@@ -7,9 +7,10 @@ export enum DashboardFilterLayout {
   Default
 }
 @Component({
-  selector: 'app-dashboard-filter-view',
-  templateUrl: './dashboard-filter-view.component.html',
-  styleUrls: ['./dashboard-filter-view.component.css']
+    standalone: false,
+    selector: 'app-dashboard-filter-view',
+    templateUrl: './dashboard-filter-view.component.html',
+    styleUrls: ['./dashboard-filter-view.component.css'],
 })
 export class DashboardFilterViewComponent implements OnInit {
   @Input() filters: DashboardFilterType[];

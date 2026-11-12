@@ -18,9 +18,10 @@ import {calcTableDimension} from '../../shared/util/screen.util';
 import {CheckEmailConfigService, ParamShortType} from "../../shared/services/util/check-email-config.service";
 
 @Component({
-  selector: 'app-incident-management',
-  templateUrl: './incident-management.component.html',
-  styleUrls: ['./incident-management.component.scss']
+    standalone: false,
+    selector: 'app-incident-management',
+    templateUrl: './incident-management.component.html',
+    styleUrls: ['./incident-management.component.scss'],
 })
 export class IncidentManagementComponent implements OnInit, OnDestroy {
   incidents: UtmIncidentType[];

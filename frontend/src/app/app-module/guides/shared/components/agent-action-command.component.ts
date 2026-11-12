@@ -7,8 +7,9 @@ import {replaceCommandTokens} from '../../../../shared/util/replace-command-toke
 import {UtmModulesEnum} from '../../../shared/enum/utm-module.enum';
 
 @Component({
-  selector: 'app-agent-action-command',
-  template: `
+    standalone: false,
+    selector: 'app-agent-action-command',
+    template: `
     <div class="flex-container mt-2 mb-3">
       <ng-select [items]="platforms"
                  (change)="platformEmitter.emit($event)"
@@ -45,7 +46,7 @@ import {UtmModulesEnum} from '../../../shared/enum/utm-module.enum';
       <app-utm-code-view *ngFor="let command of commands" class="" [code]=command></app-utm-code-view>
     </ng-container>
   `,
-  styles: [`
+    styles: [`
     .flex-container {
       display: flex;
     }
@@ -55,7 +56,7 @@ import {UtmModulesEnum} from '../../../shared/enum/utm-module.enum';
       margin-right: 10px;
     }
   `],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 
 export class AgentActionCommandComponent implements OnInit{

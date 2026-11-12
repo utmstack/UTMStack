@@ -2,7 +2,8 @@ import {Directive, ElementRef, Input, Renderer2} from '@angular/core';
 import {AppLogTypeEnum} from '../../../app-management/app-logs/shared/enum/app-log-type.enum';
 
 @Directive({
-  selector: '[appBadgeType]'
+    standalone: false,
+    selector: '[appBadgeType]',
 })
 export class BadgeTypeDirective {
 

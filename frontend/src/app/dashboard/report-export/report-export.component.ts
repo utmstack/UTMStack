@@ -14,9 +14,10 @@ import {ChartTypeEnum} from '../../shared/enums/chart-type.enum';
 import {UtmRenderVisualization} from '../shared/services/utm-render-visualization.service';
 
 @Component({
-  selector: 'app-report-export',
-  templateUrl: './report-export.component.html',
-  styleUrls: ['./report-export.component.scss']
+    standalone: false,
+    selector: 'app-report-export',
+    templateUrl: './report-export.component.html',
+    styleUrls: ['./report-export.component.scss'],
 })
 export class ReportExportComponent implements OnInit, AfterViewInit {
   dashboardId: number;

@@ -3,8 +3,9 @@ import {Subject} from 'rxjs';
 import {debounceTime, distinctUntilChanged, takeUntil} from 'rxjs/operators';
 
 @Component({
-  selector: 'app-team-members-search',
-  templateUrl: './team-members-search.component.html'
+    standalone: false,
+    selector: 'app-team-members-search',
+    templateUrl: './team-members-search.component.html',
 })
 export class TeamMembersSearchComponent implements OnInit, OnDestroy {
   @Input() placeholder = 'Search by name, login or email';

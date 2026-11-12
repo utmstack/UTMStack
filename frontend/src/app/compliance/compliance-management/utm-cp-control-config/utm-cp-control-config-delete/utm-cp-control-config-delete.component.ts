@@ -5,9 +5,10 @@ import {CpControlConfigService} from '../../../shared/services/cp-control-config
 import {ComplianceControlType} from '../../../shared/type/compliance-control.type';
 
 @Component({
-  selector: 'app-utm-cp-control-config-delete',
-  templateUrl: './utm-cp-control-config-delete.component.html',
-  styleUrls: ['./utm-cp-control-config-delete.component.scss']
+    standalone: false,
+    selector: 'app-utm-cp-control-config-delete',
+    templateUrl: './utm-cp-control-config-delete.component.html',
+    styleUrls: ['./utm-cp-control-config-delete.component.scss'],
 })
 export class UtmCpControlConfigDeleteComponent implements OnInit {
   @Input() control: ComplianceControlType;

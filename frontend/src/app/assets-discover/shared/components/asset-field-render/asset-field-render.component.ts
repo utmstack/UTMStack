@@ -5,9 +5,10 @@ import {AssetFieldEnum} from '../../enums/asset-field.enum';
 import {NetScanType} from '../../types/net-scan.type';
 
 @Component({
-  selector: 'app-asset-field-render',
-  templateUrl: './asset-field-render.component.html',
-  styleUrls: ['./asset-field-render.component.scss']
+    standalone: false,
+    selector: 'app-asset-field-render',
+    templateUrl: './asset-field-render.component.html',
+    styleUrls: ['./asset-field-render.component.scss'],
 })
 export class AssetFieldRenderComponent implements OnInit {
   @Input() data: NetScanType;

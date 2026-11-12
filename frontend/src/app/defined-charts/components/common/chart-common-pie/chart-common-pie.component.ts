@@ -21,10 +21,11 @@ import {TimeFilterType} from '../../../../shared/types/time-filter.type';
 import {TimeFilterBehavior} from "../../../../shared/behaviors/time-filter.behavior";
 
 @Component({
-  selector: 'app-chart-common-pie',
-  templateUrl: './chart-common-pie.component.html',
-  styleUrls: ['./chart-common-pie.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    standalone: false,
+    selector: 'app-chart-common-pie',
+    templateUrl: './chart-common-pie.component.html',
+    styleUrls: ['./chart-common-pie.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChartCommonPieComponent implements OnInit, OnDestroy {
   @Input() type: RefreshType;

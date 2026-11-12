@@ -3,9 +3,10 @@ import {FederationConnectionService} from '../../../app-management/connection-ke
 import {UtmModulesEnum} from '../../shared/enum/utm-module.enum';
 
 @Component({
-  selector: 'app-guide-winlogbeat',
-  templateUrl: './guide-winlogbeat.component.html',
-  styleUrls: ['./guide-winlogbeat.component.scss']
+    standalone: false,
+    selector: 'app-guide-winlogbeat',
+    templateUrl: './guide-winlogbeat.component.html',
+    styleUrls: ['./guide-winlogbeat.component.scss'],
 })
 export class GuideWinlogbeatComponent implements OnInit {
   @Input() integrationId: number;

@@ -2,9 +2,10 @@ import {ChangeDetectionStrategy, Component, Input, OnChanges, OnInit, SimpleChan
 import {UtmModuleCollectorType} from '../../../../app-module/shared/type/utm-module-collector.type';
 
 @Component({
-  selector: 'app-collector-status',
-  templateUrl: './collector-status.component.html',
-  styleUrls: ['./collector-status.component.scss']
+    standalone: false,
+    selector: 'app-collector-status',
+    templateUrl: './collector-status.component.html',
+    styleUrls: ['./collector-status.component.scss'],
 })
 export class CollectorStatusComponent implements OnInit {
   @Input() collector: UtmModuleCollectorType;

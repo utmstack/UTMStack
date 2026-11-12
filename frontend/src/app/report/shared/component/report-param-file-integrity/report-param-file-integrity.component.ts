@@ -4,9 +4,10 @@ import {ElasticFilterDefaultTime} from '../../../../shared/components/utm/filter
 import {TimeFilterType} from '../../../../shared/types/time-filter.type';
 
 @Component({
-  selector: 'app-report-param-file-integrity',
-  templateUrl: './report-param-file-integrity.component.html',
-  styleUrls: ['./report-param-file-integrity.component.css']
+    standalone: false,
+    selector: 'app-report-param-file-integrity',
+    templateUrl: './report-param-file-integrity.component.html',
+    styleUrls: ['./report-param-file-integrity.component.css'],
 })
 export class ReportParamFileIntegrityComponent implements OnInit {
   @Input() defaultTime: ElasticFilterDefaultTime = new ElasticFilterDefaultTime('now-7d', 'now');

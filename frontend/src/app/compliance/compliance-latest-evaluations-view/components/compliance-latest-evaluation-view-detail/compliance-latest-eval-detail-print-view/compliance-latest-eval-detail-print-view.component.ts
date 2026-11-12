@@ -1,4 +1,4 @@
-import {HttpErrorResponse} from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {EMPTY, Observable} from 'rxjs';
@@ -11,9 +11,10 @@ import {CpControlConfigService} from '../../../../shared/services/cp-control-con
 import {ComplianceControlLatestEvaluationType} from '../../../../shared/type/compliance-control-latest-evaluation.type';
 
 @Component({
-  selector: 'app-compliance-detail-print-view',
-  templateUrl: './compliance-latest-eval-detail-print-view.component.html',
-  styleUrls: ['./compliance-latest-eval-detail-print-view.component.scss']
+    standalone: false,
+    selector: 'app-compliance-detail-print-view',
+    templateUrl: './compliance-latest-eval-detail-print-view.component.html',
+    styleUrls: ['./compliance-latest-eval-detail-print-view.component.scss'],
 })
 export class ComplianceLatestEvalDetailPrintViewComponent implements OnInit {
   reportId: number;

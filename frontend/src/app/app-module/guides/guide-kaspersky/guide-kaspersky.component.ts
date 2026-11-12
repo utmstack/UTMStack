@@ -6,9 +6,10 @@ import {KASP_STEPS} from './kasp-steps';
 import {PLATFORMS} from "../shared/constant";
 
 @Component({
-  selector: 'app-guide-kaspersky',
-  templateUrl: './guide-kaspersky.component.html',
-  styleUrls: ['./guide-kaspersky.component.css']
+    standalone: false,
+    selector: 'app-guide-kaspersky',
+    templateUrl: './guide-kaspersky.component.html',
+    styleUrls: ['./guide-kaspersky.component.css'],
 })
 export class GuideKasperskyComponent implements OnInit {
   @Input() integrationId: number;

@@ -11,9 +11,10 @@ import {PortRangeCreateComponent} from '../port-range-create/port-range-create.c
 import {PortRangeDeleteComponent} from '../port-range-delete/port-range-delete.component';
 
 @Component({
-  selector: 'app-port-range-list',
-  templateUrl: './port-range-list.component.html',
-  styleUrls: ['./port-range-list.component.scss']
+    standalone: false,
+    selector: 'app-port-range-list',
+    templateUrl: './port-range-list.component.html',
+    styleUrls: ['./port-range-list.component.scss'],
 })
 export class PortRangeListComponent implements OnInit {
   @Input() port: PortModel;

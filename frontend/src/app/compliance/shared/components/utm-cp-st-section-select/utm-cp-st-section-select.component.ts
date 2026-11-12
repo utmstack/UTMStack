@@ -7,9 +7,10 @@ import {ComplianceStandardSectionType} from '../../type/compliance-standard-sect
 import {UtmCpStandardSectionCreateComponent} from '../utm-cp-standard-section-create/utm-cp-standard-section-create.component';
 
 @Component({
-  selector: 'app-utm-cp-st-section-select',
-  templateUrl: './utm-cp-st-section-select.component.html',
-  styleUrls: ['./utm-cp-st-section-select.component.scss']
+    standalone: false,
+    selector: 'app-utm-cp-st-section-select',
+    templateUrl: './utm-cp-st-section-select.component.html',
+    styleUrls: ['./utm-cp-st-section-select.component.scss'],
 })
 export class UtmCpStSectionSelectComponent implements OnInit {
   standardsSection: ComplianceStandardSectionType[];

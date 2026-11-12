@@ -7,9 +7,10 @@ import {AssetMapFilterFieldEnum} from '../../../enums/asset-map-filter-field.enu
 import {AssetFilterType} from '../../../types/asset-filter.type';
 
 @Component({
-  selector: 'app-asset-filter-applying',
-  templateUrl: './asset-filter-applying.component.html',
-  styleUrls: ['./asset-filter-applying.component.scss']
+    standalone: false,
+    selector: 'app-asset-filter-applying',
+    templateUrl: './asset-filter-applying.component.html',
+    styleUrls: ['./asset-filter-applying.component.scss'],
 })
 export class AssetFilterApplyingComponent implements OnInit {
   @Input() assetsFilters: AssetFilterType;

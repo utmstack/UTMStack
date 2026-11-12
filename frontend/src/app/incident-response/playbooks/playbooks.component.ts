@@ -15,10 +15,11 @@ import {PlaybookService} from '../shared/services/playbook.service';
 import {NewPlaybookComponent} from "../shared/component/new-playbook/new-playbook.component";
 
 @Component({
-  selector: 'app-playbooks',
-  templateUrl: './playbooks.component.html',
-  styleUrls: ['./playbooks.component.scss'],
-  providers: [PlaybookService]
+    standalone: false,
+    selector: 'app-playbooks',
+    templateUrl: './playbooks.component.html',
+    styleUrls: ['./playbooks.component.scss'],
+    providers: [PlaybookService],
 })
 export class PlaybooksComponent implements OnInit, AfterViewInit, OnDestroy {
   loading = true;

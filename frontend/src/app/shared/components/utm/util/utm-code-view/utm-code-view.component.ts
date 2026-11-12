@@ -2,9 +2,10 @@ import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core'
 import {UtmToastService} from '../../../../alert/utm-toast.service';
 
 @Component({
+    standalone: false,
     selector: 'app-utm-code-view',
     templateUrl: './utm-code-view.component.html',
-    styleUrls: ['./utm-code-view.component.scss']
+    styleUrls: ['./utm-code-view.component.scss'],
 })
 export class UtmCodeViewComponent implements OnInit, OnChanges {
     @Input() code: string;

@@ -4,9 +4,10 @@ import {LeafletMapType} from '../../../../../shared/chart/types/map/leaflet/leaf
 import {InputClassResolve} from '../../../../../shared/util/input-class-resolve';
 
 @Component({
-  selector: 'app-map-leaflet-options',
-  templateUrl: './map-leaflet-options.component.html',
-  styleUrls: ['./map-leaflet-options.component.scss']
+    standalone: false,
+    selector: 'app-map-leaflet-options',
+    templateUrl: './map-leaflet-options.component.html',
+    styleUrls: ['./map-leaflet-options.component.scss'],
 })
 export class MapLeafletOptionsComponent implements OnInit {
   @Output() mapLeafletOptions = new EventEmitter<LeafletMapType>();

@@ -6,9 +6,10 @@ import {ComplianceStandardType} from '../../type/compliance-standard.type';
 import {UtmCpStandardCreateComponent} from '../utm-cp-standard-create/utm-cp-standard-create.component';
 
 @Component({
-  selector: 'app-utm-cp-standard-select',
-  templateUrl: './utm-cp-standard-select.component.html',
-  styleUrls: ['./utm-cp-standard-select.component.scss']
+    standalone: false,
+    selector: 'app-utm-cp-standard-select',
+    templateUrl: './utm-cp-standard-select.component.html',
+    styleUrls: ['./utm-cp-standard-select.component.scss'],
 })
 export class UtmCpStandardSelectComponent implements OnInit {
   standards: ComplianceStandardType[];

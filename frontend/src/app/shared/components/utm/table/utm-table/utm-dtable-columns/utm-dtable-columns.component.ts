@@ -6,10 +6,11 @@ import {IndexFieldController} from '../../../../../../log-analyzer/shared/behavi
 import {UtmFieldType} from '../../../../../types/table/utm-field.type';
 
 @Component({
-  selector: 'app-utm-dtable-columns',
-  templateUrl: './utm-dtable-columns.component.html',
-  styleUrls: ['./utm-dtable-columns.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    standalone: false,
+    selector: 'app-utm-dtable-columns',
+    templateUrl: './utm-dtable-columns.component.html',
+    styleUrls: ['./utm-dtable-columns.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UtmDtableColumnsComponent implements OnInit, OnChanges {
   /**

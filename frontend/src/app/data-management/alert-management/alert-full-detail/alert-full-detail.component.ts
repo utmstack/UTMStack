@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {DomSanitizer} from '@angular/platform-browser';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -40,9 +40,10 @@ import {AlertTagService} from '../shared/services/alert-tag.service';
 import {finalize} from "rxjs/operators";
 
 @Component({
-  selector: 'app-alert-full-detail',
-  templateUrl: './alert-full-detail.component.html',
-  styleUrls: ['./alert-full-detail.component.scss']
+    standalone: false,
+    selector: 'app-alert-full-detail',
+    templateUrl: './alert-full-detail.component.html',
+    styleUrls: ['./alert-full-detail.component.scss'],
 })
 export class AlertFullDetailComponent implements OnInit {
   alert: UtmAlertType;

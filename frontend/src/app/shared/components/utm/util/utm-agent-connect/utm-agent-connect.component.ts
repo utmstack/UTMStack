@@ -7,9 +7,10 @@ import {Observable, of} from "rxjs";
 import {catchError, map} from "rxjs/operators";
 
 @Component({
-  selector: 'app-utm-agent-connect',
-  templateUrl: './utm-agent-connect.component.html',
-  styleUrls: ['./utm-agent-connect.component.css']
+    standalone: false,
+    selector: 'app-utm-agent-connect',
+    templateUrl: './utm-agent-connect.component.html',
+    styleUrls: ['./utm-agent-connect.component.css'],
 })
 export class UtmAgentConnectComponent implements OnInit, OnChanges {
   @Input() hostname: string;

@@ -3,9 +3,10 @@ import {AlertRuleType} from '../../../alert-rules/alert-rule.type';
 import {AlertRulesService} from '../../services/alert-rules.service';
 
 @Component({
-  selector: 'app-alert-rule-tag-related',
-  templateUrl: './alert-rule-tag-related.component.html',
-  styleUrls: ['./alert-rule-tag-related.component.scss']
+    standalone: false,
+    selector: 'app-alert-rule-tag-related',
+    templateUrl: './alert-rule-tag-related.component.html',
+    styleUrls: ['./alert-rule-tag-related.component.scss'],
 })
 export class AlertRuleTagRelatedComponent implements OnInit {
   @Input() tagsId: number[];

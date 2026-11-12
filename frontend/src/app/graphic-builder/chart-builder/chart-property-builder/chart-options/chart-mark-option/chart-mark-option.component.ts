@@ -3,9 +3,10 @@ import {FormArray, FormBuilder, FormGroup} from '@angular/forms';
 import {SeriesMark} from '../../../../../shared/chart/types/charts/chart-properties/series/series-properties/marks/series-mark';
 
 @Component({
-  selector: 'app-chart-mark-option',
-  templateUrl: './chart-mark-option.component.html',
-  styleUrls: ['./chart-mark-option.component.scss']
+    standalone: false,
+    selector: 'app-chart-mark-option',
+    templateUrl: './chart-mark-option.component.html',
+    styleUrls: ['./chart-mark-option.component.scss'],
 })
 export class ChartMarkOptionComponent implements OnInit {
   @Input() markType: 'point' | 'line';

@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, OnInit} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {UtmToastService} from '../../shared/alert/utm-toast.service';
@@ -10,9 +10,10 @@ import {IncidentResponseActionService} from '../shared/services/incident-respons
 import {IncidentActionType} from '../shared/type/incident-action.type';
 
 @Component({
-  selector: 'app-incident-response-command',
-  templateUrl: './incident-response-command.component.html',
-  styleUrls: ['./incident-response-command.component.scss']
+    standalone: false,
+    selector: 'app-incident-response-command',
+    templateUrl: './incident-response-command.component.html',
+    styleUrls: ['./incident-response-command.component.scss'],
 })
 export class IncidentResponseCommandComponent implements OnInit {
   actions: IncidentActionType[] = [];

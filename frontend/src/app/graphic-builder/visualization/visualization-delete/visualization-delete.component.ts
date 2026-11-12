@@ -5,9 +5,10 @@ import {VisualizationType} from '../../../shared/chart/types/visualization.type'
 import {VisualizationService} from '../shared/services/visualization.service';
 
 @Component({
-  selector: 'app-visualization-delete',
-  templateUrl: './visualization-delete.component.html',
-  styleUrls: ['./visualization-delete.component.scss']
+    standalone: false,
+    selector: 'app-visualization-delete',
+    templateUrl: './visualization-delete.component.html',
+    styleUrls: ['./visualization-delete.component.scss'],
 })
 export class VisualizationDeleteComponent implements OnInit {
   @Input() visualization: VisualizationType;

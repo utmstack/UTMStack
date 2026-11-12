@@ -19,9 +19,10 @@ import {getValueFromPropertyPath} from '../../../../../shared/util/get-value-obj
 import {AlertFieldService} from '../../services/alert-field.service';
 
 @Component({
-  selector: 'app-alert-entity-display',
-  templateUrl: './alert-entity-display.component.html',
-  styleUrls: ['./alert-entity-display.component.css']
+    standalone: false,
+    selector: 'app-alert-entity-display',
+    templateUrl: './alert-entity-display.component.html',
+    styleUrls: ['./alert-entity-display.component.css'],
 })
 export class AlertEntityDisplayComponent implements OnInit, OnChanges {
   ALERT_ADVERSARY_IP_FIELD = ALERT_ADVERSARY_IP_FIELD;

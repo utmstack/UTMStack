@@ -12,9 +12,10 @@ import {UTM_COLOR_THEME} from '../../../../../shared/constants/utm-color.const';
 import {ChartTypeEnum} from '../../../../../shared/enums/chart-type.enum';
 
 @Component({
-  selector: 'app-line-bar-properties-option',
-  templateUrl: './line-bar-properties-option.component.html',
-  styleUrls: ['./line-bar-properties-option.component.scss']
+    standalone: false,
+    selector: 'app-line-bar-properties-option',
+    templateUrl: './line-bar-properties-option.component.html',
+    styleUrls: ['./line-bar-properties-option.component.scss'],
 })
 export class LineBarPropertiesOptionComponent implements OnInit {
   @Input() visualization: VisualizationType;

@@ -14,9 +14,10 @@ import {CpReportsService} from '../../services/cp-reports.service';
 import {ComplianceReportType} from '../../type/compliance-report.type';
 
 @Component({
-  selector: 'app-utm-save-as-compliance',
-  templateUrl: './utm-save-as-compliance.component.html',
-  styleUrls: ['./utm-save-as-compliance.component.scss']
+    standalone: false,
+    selector: 'app-utm-save-as-compliance',
+    templateUrl: './utm-save-as-compliance.component.html',
+    styleUrls: ['./utm-save-as-compliance.component.scss'],
 })
 export class UtmSaveAsComplianceComponent implements OnInit {
   @Input() filters: ElasticFilterType[];

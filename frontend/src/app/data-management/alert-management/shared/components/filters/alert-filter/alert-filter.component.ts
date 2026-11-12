@@ -15,9 +15,10 @@ import {AlertDataTypeBehavior} from '../../../behavior/alert-data-type.behavior'
 import {EventDataTypeEnum} from '../../../enums/event-data-type.enum';
 
 @Component({
-  selector: 'app-alert-filter',
-  templateUrl: './alert-filter.component.html',
-  styleUrls: ['./alert-filter.component.scss']
+    standalone: false,
+    selector: 'app-alert-filter',
+    templateUrl: './alert-filter.component.html',
+    styleUrls: ['./alert-filter.component.scss'],
 })
 export class AlertFilterComponent implements OnInit, OnDestroy {
 

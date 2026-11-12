@@ -9,9 +9,10 @@ import {ComplianceStandardSectionType} from '../../shared/type/compliance-standa
 import {UtmCpReportDeleteComponent} from './utm-cp-report-delete/utm-cp-report-delete.component';
 
 @Component({
-  selector: 'app-utm-cp-reports',
-  templateUrl: './utm-cp-reports.component.html',
-  styleUrls: ['./utm-cp-reports.component.scss']
+    standalone: false,
+    selector: 'app-utm-cp-reports',
+    templateUrl: './utm-cp-reports.component.html',
+    styleUrls: ['./utm-cp-reports.component.scss'],
 })
 export class UtmCpReportsComponent implements OnInit {
   section: ComplianceStandardSectionType;

@@ -9,9 +9,10 @@ import {ElasticFilterCommonType} from '../../../../shared/types/filter/elastic-f
 import {TimeFilterType} from '../../../../shared/types/time-filter.type';
 
 @Component({
-  selector: 'app-chart-ad-admin-vs-user',
-  templateUrl: './chart-ad-admin-vs-user.component.html',
-  styleUrls: ['./chart-ad-admin-vs-user.component.scss']
+    standalone: false,
+    selector: 'app-chart-ad-admin-vs-user',
+    templateUrl: './chart-ad-admin-vs-user.component.html',
+    styleUrls: ['./chart-ad-admin-vs-user.component.scss'],
 })
 export class ChartAdAdminVsUserComponent implements OnInit, OnDestroy {
   @Input() refreshInterval;

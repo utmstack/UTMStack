@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, Input, OnInit} from '@angular/core';
 import {UtmToastService} from '../../../../../shared/alert/utm-toast.service';
 import {
@@ -20,9 +20,10 @@ import {EventDataTypeEnum} from '../../enums/event-data-type.enum';
 import {MAX_SEARCH_RESULTS} from "../../../../../shared/constants/global.constant";
 
 @Component({
-  selector: 'app-alert-echoes',
-  templateUrl: './alert-echoes.component.html',
-  styleUrls: ['./alert-echoes.component.scss']
+    standalone: false,
+    selector: 'app-alert-echoes',
+    templateUrl: './alert-echoes.component.html',
+    styleUrls: ['./alert-echoes.component.scss'],
 })
 export class AlertEchoesComponent implements OnInit {
 

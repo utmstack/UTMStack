@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, isDevMode, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
@@ -19,9 +19,10 @@ import {UtmDashboardService} from '../shared/services/utm-dashboard.service';
 import {buildDashboardUrl} from '../shared/util/get-menu-url';
 
 @Component({
-  selector: 'app-dashboard-list',
-  templateUrl: './dashboard-list.component.html',
-  styleUrls: ['./dashboard-list.component.scss']
+    standalone: false,
+    selector: 'app-dashboard-list',
+    templateUrl: './dashboard-list.component.html',
+    styleUrls: ['./dashboard-list.component.scss'],
 })
 export class DashboardListComponent implements OnInit {
   fields: SortByType[] = [

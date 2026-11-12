@@ -8,9 +8,10 @@ import {
 } from '../../../../shared/const/chart/visual-map-properties.const';
 
 @Component({
-  selector: 'app-chart-visual-map-option',
-  templateUrl: './chart-visual-map-option.component.html',
-  styleUrls: ['./chart-visual-map-option.component.scss']
+    standalone: false,
+    selector: 'app-chart-visual-map-option',
+    templateUrl: './chart-visual-map-option.component.html',
+    styleUrls: ['./chart-visual-map-option.component.scss'],
 })
 export class ChartVisualMapOptionComponent implements OnInit {
   @Output() visualMapOptionChange = new EventEmitter<VisualMap>();

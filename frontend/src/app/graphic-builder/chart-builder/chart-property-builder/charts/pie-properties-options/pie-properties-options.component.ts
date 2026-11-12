@@ -9,9 +9,10 @@ import {UTM_COLOR_THEME} from '../../../../../shared/constants/utm-color.const';
 import {ChartTypeEnum} from '../../../../../shared/enums/chart-type.enum';
 
 @Component({
-  selector: 'app-pie-properties-options',
-  templateUrl: './pie-properties-options.component.html',
-  styleUrls: ['./pie-properties-options.component.scss']
+    standalone: false,
+    selector: 'app-pie-properties-options',
+    templateUrl: './pie-properties-options.component.html',
+    styleUrls: ['./pie-properties-options.component.scss'],
 })
 export class PiePropertiesOptionsComponent implements OnInit {
   @Output() pieOptions = new EventEmitter<UtmPieOptionType>();

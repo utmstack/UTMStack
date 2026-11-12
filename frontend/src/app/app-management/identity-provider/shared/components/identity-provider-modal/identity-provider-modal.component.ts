@@ -1,4 +1,4 @@
-import {HttpErrorResponse} from "@angular/common/http";
+import { HttpErrorResponse } from "@angular/common/http";
 import {Component, Input, OnInit, ViewChild} from '@angular/core';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {UtmToastService} from '../../../../../shared/alert/utm-toast.service';
@@ -7,9 +7,10 @@ import {UtmIdentityProviderService} from '../../services/utm-identity-provider.s
 import {ProviderFormComponent} from '../provider-form/provider-form.component';
 
 @Component({
-  selector: 'app-identity-provider-modal',
-  templateUrl: './identity-provider-modal.component.html',
-  styleUrls: ['./identity-provider-modal.component.scss']
+    standalone: false,
+    selector: 'app-identity-provider-modal',
+    templateUrl: './identity-provider-modal.component.html',
+    styleUrls: ['./identity-provider-modal.component.scss'],
 })
 export class IdentityProviderModalComponent implements OnInit {
   @Input() provider?: UtmIdentityProvider;

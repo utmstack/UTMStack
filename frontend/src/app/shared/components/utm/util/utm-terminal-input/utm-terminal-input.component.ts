@@ -2,9 +2,10 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {escapeAndBreakLine} from '../../../../util/string-util';
 
 @Component({
-  selector: 'app-utm-terminal-input',
-  templateUrl: './utm-terminal-input.component.html',
-  styleUrls: ['./utm-terminal-input.component.scss']
+    standalone: false,
+    selector: 'app-utm-terminal-input',
+    templateUrl: './utm-terminal-input.component.html',
+    styleUrls: ['./utm-terminal-input.component.scss'],
 })
 export class UtmTerminalInputComponent implements OnInit {
   /**

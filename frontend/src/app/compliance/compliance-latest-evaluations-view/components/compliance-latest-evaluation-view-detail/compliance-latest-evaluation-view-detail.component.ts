@@ -9,9 +9,10 @@ import {ComplianceStatusExtendedEnum} from '../../../shared/enums/compliance-sta
 import {ComplianceControlLatestEvaluationType} from '../../../shared/type/compliance-control-latest-evaluation.type';
 
 @Component({
-  selector: 'app-compliance-latest-evaluation-view-detail',
-  templateUrl: './compliance-latest-evaluation-view-detail.component.html',
-  styleUrls: ['./compliance-latest-evaluation-view-detail.component.css']
+    standalone: false,
+    selector: 'app-compliance-latest-evaluation-view-detail',
+    templateUrl: './compliance-latest-evaluation-view-detail.component.html',
+    styleUrls: ['./compliance-latest-evaluation-view-detail.component.css'],
 })
 export class ComplianceLatestEvaluationViewDetailComponent implements OnInit {
   @Input() control: ComplianceControlLatestEvaluationType;

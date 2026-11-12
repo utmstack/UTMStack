@@ -5,9 +5,10 @@ import {DEMO_URL} from '../../../../shared/constants/global.constant';
 import {ActiveDirectoryDashboardService} from '../../../../shared/services/charts-overview/active-directory-dashboard.service';
 
 @Component({
-  selector: 'app-chart-ad-inactive',
-  templateUrl: './chart-ad-inactive.component.html',
-  styleUrls: ['./chart-ad-inactive.component.scss']
+    standalone: false,
+    selector: 'app-chart-ad-inactive',
+    templateUrl: './chart-ad-inactive.component.html',
+    styleUrls: ['./chart-ad-inactive.component.scss'],
 })
 export class ChartAdInactiveComponent implements OnInit, OnDestroy {
   @Input() refreshInterval;

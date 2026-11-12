@@ -1,4 +1,4 @@
-import {HttpErrorResponse} from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {FormBuilder, FormGroup, NgModel, Validators} from '@angular/forms';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
@@ -10,9 +10,10 @@ import {isSubdomainOfUtmstack} from '../../../util/url.util';
 import {PasswordService} from '../../layout/header/shared/notification/utm-notification-user-setting/password/password.service';
 
 @Component({
-  selector: 'app-utm-admin-change-email',
-  templateUrl: './utm-admin-change-email.component.html',
-  styleUrls: ['./utm-admin-change-email.component.css']
+    standalone: false,
+    selector: 'app-utm-admin-change-email',
+    templateUrl: './utm-admin-change-email.component.html',
+    styleUrls: ['./utm-admin-change-email.component.css'],
 })
 export class UtmAdminChangeEmailComponent implements OnInit {
   @Input() account: any;

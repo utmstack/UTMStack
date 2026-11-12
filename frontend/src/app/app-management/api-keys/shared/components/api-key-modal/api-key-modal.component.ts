@@ -1,4 +1,4 @@
-import {HttpErrorResponse} from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import {Component, Input, OnInit} from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
@@ -8,9 +8,10 @@ import {ApiKeyResponse} from '../../models/ApiKeyResponse';
 import { ApiKeysService } from '../../service/api-keys.service';
 
 @Component({
-  selector: 'app-api-key-modal',
-  templateUrl: './api-key-modal.component.html',
-  styleUrls: ['./api-key-modal.component.scss']
+    standalone: false,
+    selector: 'app-api-key-modal',
+    templateUrl: './api-key-modal.component.html',
+    styleUrls: ['./api-key-modal.component.scss'],
 })
 export class ApiKeyModalComponent implements OnInit {
 

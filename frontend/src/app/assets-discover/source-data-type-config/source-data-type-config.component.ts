@@ -6,9 +6,10 @@ import {UtmToastService} from '../../shared/alert/utm-toast.service';
 import {ModalConfirmationComponent} from '../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
 
 @Component({
-  selector: 'app-source-data-type-config',
-  templateUrl: './source-data-type-config.component.html',
-  styleUrls: ['./source-data-type-config.component.scss']
+    standalone: false,
+    selector: 'app-source-data-type-config',
+    templateUrl: './source-data-type-config.component.html',
+    styleUrls: ['./source-data-type-config.component.scss'],
 })
 export class SourceDataTypeConfigComponent implements OnInit {
   @Output() refreshDataInput = new EventEmitter<boolean>();

@@ -3,9 +3,10 @@ import {AssetFieldFilterEnum} from '../../../enums/asset-field-filter.enum';
 import {UtmNetScanService} from '../../../services/utm-net-scan.service';
 
 @Component({
-  selector: 'app-asset-filter-is-alive',
-  templateUrl: './asset-filter-is-alive.component.html',
-  styleUrls: ['./asset-filter-is-alive.component.scss']
+    standalone: false,
+    selector: 'app-asset-filter-is-alive',
+    templateUrl: './asset-filter-is-alive.component.html',
+    styleUrls: ['./asset-filter-is-alive.component.scss'],
 })
 export class AssetFilterIsAliveComponent implements OnInit {
   @Output() filterAliveChange = new EventEmitter<{ prop: AssetFieldFilterEnum, values: boolean }>();

@@ -7,9 +7,10 @@ import {UtmFieldType} from '../../../../../shared/types/table/utm-field.type';
 import {MAX_SEARCH_RESULTS} from "../../../../../shared/constants/global.constant";
 
 @Component({
-  selector: 'app-file-save-data',
-  templateUrl: './file-save-data.component.html',
-  styleUrls: ['./file-save-data.component.scss']
+    standalone: false,
+    selector: 'app-file-save-data',
+    templateUrl: './file-save-data.component.html',
+    styleUrls: ['./file-save-data.component.scss'],
 })
 export class FileSaveDataComponent implements OnInit {
   @Input() filters: ElasticFilterType[];

@@ -14,9 +14,10 @@ import {UtmHealthType} from '../../../../../../types/utm-health.type';
 import {getElasticClusterHealth} from '../../../../../../util/elastic-health.util';
 
 @Component({
-  selector: 'app-utm-vault-status',
-  templateUrl: './utm-vault-status.component.html',
-  styleUrls: ['./utm-vault-status.component.scss']
+    standalone: false,
+    selector: 'app-utm-vault-status',
+    templateUrl: './utm-vault-status.component.html',
+    styleUrls: ['./utm-vault-status.component.scss'],
 })
 export class UtmVaultStatusComponent implements OnInit, OnDestroy {
   @Input() version: 'mobile' | 'desktop';

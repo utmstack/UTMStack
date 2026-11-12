@@ -6,9 +6,10 @@ import {PasswordComponent} from './password/password.component';
 import {SettingsComponent} from './settings/settings.component';
 
 @Component({
-  selector: 'app-utm-notification-user-setting',
-  templateUrl: './utm-notification-user-setting.component.html',
-  styleUrls: ['./utm-notification-user-setting.component.css']
+    standalone: false,
+    selector: 'app-utm-notification-user-setting',
+    templateUrl: './utm-notification-user-setting.component.html',
+    styleUrls: ['./utm-notification-user-setting.component.css'],
 })
 export class UtmNotificationUserSettingComponent implements OnInit {
 

@@ -11,10 +11,11 @@ import { ComplianceReportType } from '../../../shared/type/compliance-report.typ
 
 
 @Component({
-  selector: 'app-compliance-print-view',
-  templateUrl: './compliance-print-view.component.html',
-  styleUrls: ['./compliance-print-view.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    standalone: false,
+    selector: 'app-compliance-print-view',
+    templateUrl: './compliance-print-view.component.html',
+    styleUrls: ['./compliance-print-view.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CompliancePrintViewComponent implements OnInit, OnDestroy {
   @Input() section: ComplianceStandardSectionType;

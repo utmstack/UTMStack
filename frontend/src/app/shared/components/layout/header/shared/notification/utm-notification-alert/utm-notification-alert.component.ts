@@ -10,9 +10,10 @@ import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
 
 @Component({
-  selector: 'app-utm-notification-alert',
-  templateUrl: './utm-notification-alert.component.html',
-  styleUrls: ['./utm-notification-alert.component.css']
+    standalone: false,
+    selector: 'app-utm-notification-alert',
+    templateUrl: './utm-notification-alert.component.html',
+    styleUrls: ['./utm-notification-alert.component.css'],
 })
 export class UtmNotificationAlertComponent implements OnInit, OnDestroy {
   @ViewChild('iconBell', {static: false}) iconBell: ElementRef;

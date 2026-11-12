@@ -5,9 +5,10 @@ import {AdReportService} from '../shared/services/ad-report.service';
 import {AdReportType} from '../shared/type/ad-report.type';
 
 @Component({
-  selector: 'app-ad-report-delete',
-  templateUrl: './ad-report-delete.component.html',
-  styleUrls: ['./ad-report-delete.component.scss']
+    standalone: false,
+    selector: 'app-ad-report-delete',
+    templateUrl: './ad-report-delete.component.html',
+    styleUrls: ['./ad-report-delete.component.scss'],
 })
 export class AdReportDeleteComponent implements OnInit {
   @Input() adReport: AdReportType;

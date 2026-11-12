@@ -8,9 +8,10 @@ import {ElasticFilterCommonType} from '../../../../shared/types/filter/elastic-f
 import {TimeFilterType} from '../../../../shared/types/time-filter.type';
 
 @Component({
-  selector: 'app-chart-ad-most-active-user',
-  templateUrl: './chart-ad-most-active-user.component.html',
-  styleUrls: ['./chart-ad-most-active-user.component.scss']
+    standalone: false,
+    selector: 'app-chart-ad-most-active-user',
+    templateUrl: './chart-ad-most-active-user.component.html',
+    styleUrls: ['./chart-ad-most-active-user.component.scss'],
 })
 export class ChartAdMostActiveUserComponent implements OnInit, OnDestroy {
   @Input() refreshInterval;

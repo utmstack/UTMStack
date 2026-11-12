@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, HostListener, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
@@ -59,9 +59,10 @@ import {getCurrentAlertStatus, getStatusName} from '../shared/util/alert-util-fu
 import {ElasticDataTypesEnum} from "../../../shared/enums/elastic-data-types.enum";
 
 @Component({
-  selector: 'app-alert-view',
-  templateUrl: './alert-view.component.html',
-  styleUrls: ['./alert-view.component.scss']
+    standalone: false,
+    selector: 'app-alert-view',
+    templateUrl: './alert-view.component.html',
+    styleUrls: ['./alert-view.component.scss'],
 })
 export class AlertViewComponent implements OnInit, OnDestroy {
   private lastRequest:Subscription|null = null

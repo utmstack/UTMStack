@@ -2,9 +2,10 @@ import {Component, Input, OnInit} from '@angular/core';
 import {TargetModel} from '../../../shared/model/target.model';
 
 @Component({
-  selector: 'app-target-detail',
-  templateUrl: './target-detail.component.html',
-  styleUrls: ['./target-detail.component.scss']
+    standalone: false,
+    selector: 'app-target-detail',
+    templateUrl: './target-detail.component.html',
+    styleUrls: ['./target-detail.component.scss'],
 })
 export class TargetDetailComponent implements OnInit {
   @Input() target: TargetModel;

@@ -3,9 +3,10 @@ import {AgentSidebarService} from './agent-sidebar.service';
 import {AgentStatusEnum} from "../../../../shared/types/agent/agent.type";
 
 @Component({
-  selector: 'app-agent-sidebar',
-  templateUrl: './agent-sidebar.component.html',
-  styleUrls: ['./agent-sidebar.component.scss']
+    standalone: false,
+    selector: 'app-agent-sidebar',
+    templateUrl: './agent-sidebar.component.html',
+    styleUrls: ['./agent-sidebar.component.scss'],
 })
 export class AgentSidebarComponent implements OnInit {
   searching: any;

@@ -2,9 +2,10 @@ import {AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, EventEmit
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-  selector: 'app-utm-modal-header',
-  templateUrl: './utm-modal-header.component.html',
-  styleUrls: ['./utm-modal-header.component.scss']
+    standalone: false,
+    selector: 'app-utm-modal-header',
+    templateUrl: './utm-modal-header.component.html',
+    styleUrls: ['./utm-modal-header.component.scss'],
 })
 export class UtmModalHeaderComponent implements OnInit, AfterViewChecked, AfterViewInit {
   @Input() name: string;

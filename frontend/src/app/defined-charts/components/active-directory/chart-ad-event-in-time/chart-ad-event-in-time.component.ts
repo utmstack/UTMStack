@@ -8,9 +8,10 @@ import {ElasticFilterCommonType} from '../../../../shared/types/filter/elastic-f
 import {TimeFilterType} from '../../../../shared/types/time-filter.type';
 
 @Component({
-  selector: 'app-chart-ad-event-in-time',
-  templateUrl: './chart-ad-event-in-time.component.html',
-  styleUrls: ['./chart-ad-event-in-time.component.scss']
+    standalone: false,
+    selector: 'app-chart-ad-event-in-time',
+    templateUrl: './chart-ad-event-in-time.component.html',
+    styleUrls: ['./chart-ad-event-in-time.component.scss'],
 })
 export class ChartAdEventInTimeComponent implements OnInit, OnDestroy {
   @Input() refreshInterval;

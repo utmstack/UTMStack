@@ -10,9 +10,10 @@ import {CpReportsService} from '../shared/services/cp-reports.service';
 import {ComplianceReportType} from '../shared/type/compliance-report.type';
 
 @Component({
-  selector: 'app-compliance-custom-view',
-  templateUrl: './compliance-custom-view.component.html',
-  styleUrls: ['./compliance-custom-view.component.scss']
+    standalone: false,
+    selector: 'app-compliance-custom-view',
+    templateUrl: './compliance-custom-view.component.html',
+    styleUrls: ['./compliance-custom-view.component.scss'],
 })
 export class ComplianceCustomViewComponent implements OnInit {
   printFormat = false;

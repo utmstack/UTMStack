@@ -5,9 +5,10 @@ import {ModalConfirmationComponent} from '../../shared/components/utm/util/modal
 import {FederationConnectionService} from './shared/services/federation-connection.service';
 
 @Component({
-  selector: 'app-connection-key',
-  templateUrl: './connection-key.component.html',
-  styleUrls: ['./connection-key.component.scss']
+    standalone: false,
+    selector: 'app-connection-key',
+    templateUrl: './connection-key.component.html',
+    styleUrls: ['./connection-key.component.scss'],
 })
 export class ConnectionKeyComponent implements OnInit {
   saving = false;

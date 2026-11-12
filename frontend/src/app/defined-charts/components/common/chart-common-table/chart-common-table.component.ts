@@ -28,10 +28,11 @@ import {TimeFilterType} from '../../../../shared/types/time-filter.type';
 import {TimeFilterBehavior} from "../../../../shared/behaviors/time-filter.behavior";
 
 @Component({
-  selector: 'app-chart-common-table',
-  templateUrl: './chart-common-table.component.html',
-  styleUrls: ['./chart-common-table.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    standalone: false,
+    selector: 'app-chart-common-table',
+    templateUrl: './chart-common-table.component.html',
+    styleUrls: ['./chart-common-table.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChartCommonTableComponent implements OnInit, OnDestroy {
   @Input() type: RefreshType;

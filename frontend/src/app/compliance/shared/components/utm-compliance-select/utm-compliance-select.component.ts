@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
 import {SortEvent} from '../../../../shared/directives/sortable/type/sort-event';
@@ -12,9 +12,10 @@ import {ComplianceStandardSectionType} from '../../type/compliance-standard-sect
 import {ComplianceStandardType} from '../../type/compliance-standard.type';
 
 @Component({
-  selector: 'app-utm-compliance-select',
-  templateUrl: './utm-compliance-select.component.html',
-  styleUrls: ['./utm-compliance-select.component.scss']
+    standalone: false,
+    selector: 'app-utm-compliance-select',
+    templateUrl: './utm-compliance-select.component.html',
+    styleUrls: ['./utm-compliance-select.component.scss'],
 })
 export class UtmComplianceSelectComponent implements OnInit {
   @Input() idReport: number;

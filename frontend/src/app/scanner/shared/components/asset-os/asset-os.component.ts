@@ -3,9 +3,10 @@ import {AssetModel} from '../../model/assets/asset.model';
 import {AssetSoResolverService} from '../../providers/asset-so-resolver.service';
 
 @Component({
-  selector: 'app-asset-os',
-  templateUrl: './asset-os.component.html',
-  styleUrls: ['./asset-os.component.scss']
+    standalone: false,
+    selector: 'app-asset-os',
+    templateUrl: './asset-os.component.html',
+    styleUrls: ['./asset-os.component.scss'],
 })
 export class AssetOsComponent implements OnInit {
   @Input() asset: AssetModel;

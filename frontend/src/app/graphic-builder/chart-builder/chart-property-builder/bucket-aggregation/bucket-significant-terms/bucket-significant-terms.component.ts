@@ -5,9 +5,10 @@ import {InputClassResolve} from '../../../../../shared/util/input-class-resolve'
 import {getErrorCountForm} from '../../shared/functions/form-error-count';
 
 @Component({
-  selector: 'app-bucket-significant-terms',
-  templateUrl: './bucket-significant-terms.component.html',
-  styleUrls: ['./bucket-significant-terms.component.scss']
+    standalone: false,
+    selector: 'app-bucket-significant-terms',
+    templateUrl: './bucket-significant-terms.component.html',
+    styleUrls: ['./bucket-significant-terms.component.scss'],
 })
 export class BucketSignificantTermsComponent implements OnInit {
   @Output() termSigBucketChange = new EventEmitter<BucketTermsType>();

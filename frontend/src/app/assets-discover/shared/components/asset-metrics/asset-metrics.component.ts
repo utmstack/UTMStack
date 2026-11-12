@@ -8,9 +8,10 @@ import {NetScanType} from '../../types/net-scan.type';
 import {AssetMetricEnum} from './shared/enums/asset-metric.enum';
 
 @Component({
-  selector: 'app-asset-metrics',
-  templateUrl: './asset-metrics.component.html',
-  styleUrls: ['./asset-metrics.component.scss']
+    standalone: false,
+    selector: 'app-asset-metrics',
+    templateUrl: './asset-metrics.component.html',
+    styleUrls: ['./asset-metrics.component.scss'],
 })
 export class AssetMetricsComponent implements OnInit {
   @Input() asset: NetScanType;

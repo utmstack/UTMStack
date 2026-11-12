@@ -9,9 +9,10 @@ import {FederationInstanceStateService} from '../../services/federation-instance
 import {FederationInstancesService} from '../../services/federation-instances.service';
 
 @Component({
-  selector: 'app-federation-welcome',
-  templateUrl: './welcome.component.html',
-  styleUrls: ['./welcome.component.scss']
+    standalone: false,
+    selector: 'app-federation-welcome',
+    templateUrl: './welcome.component.html',
+    styleUrls: ['./welcome.component.scss'],
 })
 export class WelcomeComponent {
   readonly hasInstances$: Observable<boolean> = this.instanceState.instances$

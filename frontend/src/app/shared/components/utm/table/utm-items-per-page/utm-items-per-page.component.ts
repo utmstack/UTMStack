@@ -2,9 +2,10 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {ITEMS_PER_PAGE} from '../../../../constants/pagination.constants';
 
 @Component({
-  selector: 'app-utm-items-per-page',
-  templateUrl: './utm-items-per-page.component.html',
-  styleUrls: ['./utm-items-per-page.component.scss']
+    standalone: false,
+    selector: 'app-utm-items-per-page',
+    templateUrl: './utm-items-per-page.component.html',
+    styleUrls: ['./utm-items-per-page.component.scss'],
 })
 export class UtmItemsPerPageComponent implements OnInit {
   itemsPerPage: number[] = [10, 15, 25, 35, 50, 75, 100];

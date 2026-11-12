@@ -3,7 +3,8 @@ import {NgControl} from '@angular/forms';
 import {Subscription} from 'rxjs';
 
 @Directive({
-  selector: '[appUtmInputError]'
+    standalone: false,
+    selector: '[appUtmInputError]',
 })
 export class UtmInputErrorDirective implements OnInit, OnDestroy {
   @Input() label: string;

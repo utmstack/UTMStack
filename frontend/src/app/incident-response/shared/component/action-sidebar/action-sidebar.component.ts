@@ -6,9 +6,10 @@ import {ActionTerminalComponent} from '../action-terminal/action-terminal.compon
 import {ActionSidebarService} from './action-sidebar.service';
 
 @Component({
-  selector: 'app-action-sidebar',
-  templateUrl: './action-sidebar.component.html',
-  styleUrls: ['./action-sidebar.component.scss']
+    standalone: false,
+    selector: 'app-action-sidebar',
+    templateUrl: './action-sidebar.component.html',
+    styleUrls: ['./action-sidebar.component.scss'],
 })
 export class ActionSidebarComponent implements OnInit, OnDestroy {
 

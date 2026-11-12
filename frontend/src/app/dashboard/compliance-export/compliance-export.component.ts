@@ -22,9 +22,10 @@ import {UtmRenderVisualization} from '../shared/services/utm-render-visualizatio
 
 
 @Component({
-  selector: 'app-compliance-export',
-  templateUrl: './compliance-export.component.html',
-  styleUrls: ['./compliance-export.component.scss']
+    standalone: false,
+    selector: 'app-compliance-export',
+    templateUrl: './compliance-export.component.html',
+    styleUrls: ['./compliance-export.component.scss'],
 })
 export class ComplianceExportComponent implements OnInit, AfterViewInit {
   dashboardId: number;

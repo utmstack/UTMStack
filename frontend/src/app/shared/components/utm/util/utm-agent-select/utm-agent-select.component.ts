@@ -3,9 +3,10 @@ import {UtmAgentManagerService} from '../../../../services/agent/utm-agent-manag
 import {AgentStatusEnum, AgentType} from '../../../../types/agent/agent.type';
 
 @Component({
-  selector: 'app-utm-agent-select',
-  templateUrl: './utm-agent-select.component.html',
-  styleUrls: ['./utm-agent-select.component.css']
+    standalone: false,
+    selector: 'app-utm-agent-select',
+    templateUrl: './utm-agent-select.component.html',
+    styleUrls: ['./utm-agent-select.component.css'],
 })
 export class UtmAgentSelectComponent implements OnInit {
   @Input() onlyWithCommands = false;

@@ -13,10 +13,11 @@ import {ChartSerieValueType} from '../../../../shared/types/chart-reponse/chart-
 import {TimeFilterBehavior} from "../../../../shared/behaviors/time-filter.behavior";
 
 @Component({
-  selector: 'app-chart-alert-daily-week',
-  templateUrl: './chart-alert-daily-week.component.html',
-  styleUrls: ['./chart-alert-daily-week.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    standalone: false,
+    selector: 'app-chart-alert-daily-week',
+    templateUrl: './chart-alert-daily-week.component.html',
+    styleUrls: ['./chart-alert-daily-week.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChartAlertDailyWeekComponent implements OnInit, OnDestroy {
   @Output() loaded = new EventEmitter<void>();

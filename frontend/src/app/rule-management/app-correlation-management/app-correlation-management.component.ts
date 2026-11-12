@@ -5,9 +5,10 @@ import {Actions, RouteValues} from './models/config.type';
 import {ConfigService} from './services/config.service';
 
 @Component({
-  selector: 'app-correlation-management',
-  templateUrl: './app-correlation-management.component.html',
-  styleUrls: ['./app-correlation-management.component.scss']
+    standalone: false,
+    selector: 'app-correlation-management',
+    templateUrl: './app-correlation-management.component.html',
+    styleUrls: ['./app-correlation-management.component.scss'],
 })
 export class AppCorrelationManagementComponent implements OnInit {
 

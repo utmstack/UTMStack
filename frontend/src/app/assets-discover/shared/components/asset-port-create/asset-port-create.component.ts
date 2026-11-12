@@ -4,9 +4,10 @@ import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
 import {NetScanPortsType} from '../../types/net-scan-ports.type';
 
 @Component({
-  selector: 'app-asset-port-create',
-  templateUrl: './asset-port-create.component.html',
-  styleUrls: ['./asset-port-create.component.css']
+    standalone: false,
+    selector: 'app-asset-port-create',
+    templateUrl: './asset-port-create.component.html',
+    styleUrls: ['./asset-port-create.component.css'],
 })
 export class AssetPortCreateComponent implements OnInit {
   formPort: FormGroup;

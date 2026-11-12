@@ -5,9 +5,10 @@ import {AssetActiveFilterType} from '../../types/asset-active-filter.type';
 import {OmpReportService} from './shared/services/omp-report.service';
 
 @Component({
-  selector: 'app-asset-save-report',
-  templateUrl: './asset-save-report.component.html',
-  styleUrls: ['./asset-save-report.component.scss']
+    standalone: false,
+    selector: 'app-asset-save-report',
+    templateUrl: './asset-save-report.component.html',
+    styleUrls: ['./asset-save-report.component.scss'],
 })
 export class AssetSaveReportComponent implements OnInit {
   saving = false;

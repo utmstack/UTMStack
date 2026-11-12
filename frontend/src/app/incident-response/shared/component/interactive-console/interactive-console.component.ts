@@ -7,9 +7,10 @@ import {IncidentCommandType} from '../../../../shared/types/incident/incident-co
 import {AgentSidebarService} from '../agent-sidebar/agent-sidebar.service';
 
 @Component({
-  selector: 'app-interactive-console',
-  templateUrl: './interactive-console.component.html',
-  styleUrls: ['./interactive-console.component.scss']
+    standalone: false,
+    selector: 'app-interactive-console',
+    templateUrl: './interactive-console.component.html',
+    styleUrls: ['./interactive-console.component.scss'],
 })
 export class InteractiveConsoleComponent implements OnInit {
 

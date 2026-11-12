@@ -7,9 +7,10 @@ import {FederationInstance} from '../../domain/federation-instance.model';
 import {FederationInstanceStateService} from '../../services/federation-instance-state.service';
 
 @Component({
-  selector: 'app-federation-sidebar-instances',
-  templateUrl: './federation-sidebar-instances.component.html',
-  styleUrls: ['./federation-sidebar-instances.component.scss']
+    standalone: false,
+    selector: 'app-federation-sidebar-instances',
+    templateUrl: './federation-sidebar-instances.component.html',
+    styleUrls: ['./federation-sidebar-instances.component.scss'],
 })
 export class FederationSidebarInstancesComponent implements OnInit, OnDestroy {
   iconPath = SYSTEM_MENU_ICONS_PATH;

@@ -15,8 +15,9 @@ import {
 } from '../../../../incident/incident-shared/const/incident-status.constant';
 
 @Component({
-  selector: 'app-modal-complete-incident',
-  template: `
+    standalone: false,
+    selector: 'app-modal-complete-incident',
+    template: `
     <app-utm-modal-header [name]="'Complete incident'" class="w-100"
                           (closeModal)="activeModal.close()"></app-utm-modal-header>
     <div class="container-fluid p-3">
@@ -60,9 +61,10 @@ export class CompleteIncidentModalComponent {
 }
 
 @Component({
-  selector: 'app-incident-status',
-  templateUrl: './incident-status.component.html',
-  styleUrls: ['./incident-status.component.css']
+    standalone: false,
+    selector: 'app-incident-status',
+    templateUrl: './incident-status.component.html',
+    styleUrls: ['./incident-status.component.css'],
 })
 export class IncidentStatusComponent implements OnInit, OnChanges {
   @Input() incident: UtmIncidentType;

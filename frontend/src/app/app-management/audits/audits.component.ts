@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
 import {TimeFilterType} from '../../shared/types/time-filter.type';
@@ -8,9 +8,10 @@ import {UtmAudit} from './shared/type/audit.model';
 import {JhiParseLinks} from '../../shared/jhi/jhi.util';
 
 @Component({
-  selector: 'app-audits',
-  templateUrl: './audits.component.html',
-  styleUrls: ['./audits.component.scss']
+    standalone: false,
+    selector: 'app-audits',
+    templateUrl: './audits.component.html',
+    styleUrls: ['./audits.component.scss'],
 })
 export class AuditsComponent implements OnInit, OnDestroy {
   audits: UtmAudit[];

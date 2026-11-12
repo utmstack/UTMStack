@@ -6,9 +6,10 @@ import { flattenToKeyValueArray,
 import {UtmFilterBehavior} from '../../../../filters/utm-elastic-filter/shared/behavior/utm-filter.behavior';
 
 @Component({
-  selector: 'app-analyzer-table-view',
-  templateUrl: './utm-table-detail-view.component.html',
-  styleUrls: ['./utm-table-detail-view.component.scss']
+    standalone: false,
+    selector: 'app-analyzer-table-view',
+    templateUrl: './utm-table-detail-view.component.html',
+    styleUrls: ['./utm-table-detail-view.component.scss'],
 })
 export class UtmTableDetailViewComponent implements OnInit {
   @Input() rowDocument: any;

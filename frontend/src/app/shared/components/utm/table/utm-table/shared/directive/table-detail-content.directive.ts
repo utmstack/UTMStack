@@ -1,7 +1,8 @@
 import {Directive, ViewContainerRef} from '@angular/core';
 
 @Directive({
-  selector: '[appTableDetailContent]'
+    standalone: false,
+    selector: '[appTableDetailContent]',
 })
 export class TableDetailContentDirective {
 

@@ -23,10 +23,11 @@ import {normalizeString} from '../../shared/util/string-util';
 import {RenderLayoutService} from '../shared/services/render-layout.service';
 
 @Component({
-  selector: 'app-dashboard-render',
-  templateUrl: './dashboard-render.component.html',
-  styleUrls: ['./dashboard-render.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    standalone: false,
+    selector: 'app-dashboard-render',
+    templateUrl: './dashboard-render.component.html',
+    styleUrls: ['./dashboard-render.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardRenderComponent implements OnInit, OnDestroy, AfterViewInit {
   dashboardId: number;

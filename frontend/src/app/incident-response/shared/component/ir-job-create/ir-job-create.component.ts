@@ -11,9 +11,10 @@ import {IncidentActionType} from '../../type/incident-action.type';
 import {IncidentJobType} from '../../type/incident-job.type';
 
 @Component({
-  selector: 'app-ir-job-create',
-  templateUrl: './ir-job-create.component.html',
-  styleUrls: ['./ir-job-create.component.scss']
+    standalone: false,
+    selector: 'app-ir-job-create',
+    templateUrl: './ir-job-create.component.html',
+    styleUrls: ['./ir-job-create.component.scss'],
 })
 export class IrJobCreateComponent implements OnInit {
   @Input() host: string;

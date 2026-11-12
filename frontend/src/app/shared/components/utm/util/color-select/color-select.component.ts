@@ -3,9 +3,10 @@ import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ColorSelectorComponent} from './color-selector/color-selector.component';
 
 @Component({
-  selector: 'app-color-select',
-  templateUrl: './color-select.component.html',
-  styleUrls: ['./color-select.component.scss']
+    standalone: false,
+    selector: 'app-color-select',
+    templateUrl: './color-select.component.html',
+    styleUrls: ['./color-select.component.scss'],
 })
 export class ColorSelectComponent implements OnInit {
   @Input() multiple: boolean;

@@ -2,9 +2,10 @@ import {Component, Input, OnInit} from '@angular/core';
 import {AssetModel} from '../../model/assets/asset.model';
 
 @Component({
-  selector: 'app-asset-card-detail',
-  templateUrl: './asset-card-detail.component.html',
-  styleUrls: ['./asset-card-detail.component.scss']
+    standalone: false,
+    selector: 'app-asset-card-detail',
+    templateUrl: './asset-card-detail.component.html',
+    styleUrls: ['./asset-card-detail.component.scss'],
 })
 export class AssetCardDetailComponent implements OnInit {
   @Input() asset: AssetModel;

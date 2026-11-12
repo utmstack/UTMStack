@@ -8,9 +8,10 @@ import {PortService} from '../shared/services/port.service';
 
 
 @Component({
-  selector: 'app-port-create',
-  templateUrl: './port-create.component.html',
-  styleUrls: ['./port-create.component.scss']
+    standalone: false,
+    selector: 'app-port-create',
+    templateUrl: './port-create.component.html',
+    styleUrls: ['./port-create.component.scss'],
 })
 export class PortCreateComponent implements OnInit {
   @Output() portCreated = new EventEmitter<string>();

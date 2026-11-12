@@ -1,9 +1,10 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 
 @Component({
-  selector: 'app-utm-colors-order',
-  templateUrl: './utm-colors-order.component.html',
-  styleUrls: ['./utm-colors-order.component.scss']
+    standalone: false,
+    selector: 'app-utm-colors-order',
+    templateUrl: './utm-colors-order.component.html',
+    styleUrls: ['./utm-colors-order.component.scss'],
 })
 export class UtmColorsOrderComponent implements OnInit {
   @Input() colors: string[];

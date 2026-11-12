@@ -1,9 +1,10 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 
 @Component({
-  selector: 'app-utm-mail-list',
-  templateUrl: './utm-mail-list.component.html',
-  styleUrls: ['./utm-mail-list.component.scss']
+    standalone: false,
+    selector: 'app-utm-mail-list',
+    templateUrl: './utm-mail-list.component.html',
+    styleUrls: ['./utm-mail-list.component.scss'],
 })
 export class UtmMailListComponent implements OnInit {
   @Input() mails: string;

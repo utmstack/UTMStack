@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
@@ -9,9 +9,10 @@ import {UtmDashboardType} from '../../../../shared/chart/types/dashboard/utm-das
 import {SortEvent} from '../../../../shared/directives/sortable/type/sort-event';
 
 @Component({
-  selector: 'app-utm-dashboard-select',
-  templateUrl: './utm-dashboard-select.component.html',
-  styleUrls: ['./utm-dashboard-select.component.scss']
+    standalone: false,
+    selector: 'app-utm-dashboard-select',
+    templateUrl: './utm-dashboard-select.component.html',
+    styleUrls: ['./utm-dashboard-select.component.scss'],
 })
 export class UtmDashboardSelectComponent implements OnInit {
   loading = true;

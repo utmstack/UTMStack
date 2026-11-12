@@ -5,9 +5,10 @@ import {getValueFromPropertyPath} from '../../../../../shared/util/get-value-obj
 import {escapeAndBreakLine} from '../../../../../shared/util/string-util';
 
 @Component({
-  selector: 'app-alert-proposed-solution',
-  templateUrl: './alert-proposed-solution.component.html',
-  styleUrls: ['./alert-proposed-solution.component.scss']
+    standalone: false,
+    selector: 'app-alert-proposed-solution',
+    templateUrl: './alert-proposed-solution.component.html',
+    styleUrls: ['./alert-proposed-solution.component.scss'],
 })
 export class AlertProposedSolutionComponent implements OnInit {
   @Input() alert: object;

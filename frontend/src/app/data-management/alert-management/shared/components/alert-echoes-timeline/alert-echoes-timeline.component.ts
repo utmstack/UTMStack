@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {UtmToastService} from '../../../../../shared/alert/utm-toast.service';
 import {
@@ -19,9 +19,10 @@ import {MAX_SEARCH_RESULTS} from "../../../../../shared/constants/global.constan
 
 
 @Component({
-  selector: 'app-alert-echoes-timeline',
-  templateUrl: './alert-echoes-timeline.component.html',
-  styleUrls: ['./alert-echoes-timeline.component.scss']
+    standalone: false,
+    selector: 'app-alert-echoes-timeline',
+    templateUrl: './alert-echoes-timeline.component.html',
+    styleUrls: ['./alert-echoes-timeline.component.scss'],
 })
 export class AlertEchoesTimelineComponent implements OnInit {
 

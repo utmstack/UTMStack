@@ -11,9 +11,10 @@ import {getErrorCountFormArray} from '../shared/functions/form-error-count';
 import {filterFieldAgg} from '../shared/functions/util-field';
 
 @Component({
-  selector: 'app-list-columns',
-  templateUrl: './list-columns.component.html',
-  styleUrls: ['./list-columns.component.scss']
+    standalone: false,
+    selector: 'app-list-columns',
+    templateUrl: './list-columns.component.html',
+    styleUrls: ['./list-columns.component.scss'],
 })
 export class ListColumnsComponent implements OnInit {
   @Input() mode: string;

@@ -4,9 +4,10 @@ import {DataZoom} from '../../../../../shared/chart/types/charts/chart-propertie
 import {DATA_ZOOM_ORIENT} from '../../../../shared/const/chart/datazoom-properties.const';
 
 @Component({
-  selector: 'app-chart-data-zoom',
-  templateUrl: './chart-data-zoom.component.html',
-  styleUrls: ['./chart-data-zoom.component.scss']
+    standalone: false,
+    selector: 'app-chart-data-zoom',
+    templateUrl: './chart-data-zoom.component.html',
+    styleUrls: ['./chart-data-zoom.component.scss'],
 })
 export class ChartDataZoomComponent implements OnInit {
   @Output() dataZoomOption = new EventEmitter<DataZoom>();

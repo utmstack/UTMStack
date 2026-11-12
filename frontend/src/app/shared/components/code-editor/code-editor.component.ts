@@ -38,16 +38,17 @@ const SQL_KEYWORDS = [
 ];
 
 @Component({
-  selector: 'app-code-editor',
-  templateUrl: './code-editor.component.html',
-  styleUrls: ['./code-editor.component.scss'],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => CodeEditorComponent),
-      multi: true
-    }
-  ]
+    standalone: false,
+    selector: 'app-code-editor',
+    templateUrl: './code-editor.component.html',
+    styleUrls: ['./code-editor.component.scss'],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => CodeEditorComponent),
+            multi: true
+        }
+    ],
 })
 export class CodeEditorComponent implements OnInit, OnDestroy, ControlValueAccessor {
   @Input() showFullEditor = true;

@@ -7,9 +7,10 @@ import {IncidentResponseActionService} from '../../services/incident-response-ac
 import {IncidentActionType} from '../../type/incident-action.type';
 
 @Component({
-  selector: 'app-incident-response-command-create',
-  templateUrl: './ir-action-create.component.html',
-  styleUrls: ['./ir-action-create.component.scss']
+    standalone: false,
+    selector: 'app-incident-response-command-create',
+    templateUrl: './ir-action-create.component.html',
+    styleUrls: ['./ir-action-create.component.scss'],
 })
 export class IrActionCreateComponent implements OnInit {
   @Input() action: IncidentActionType;

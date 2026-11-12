@@ -14,9 +14,10 @@ import {PortService} from '../../port/shared/services/port.service';
 import {TargetService} from '../shared/services/target.service';
 
 @Component({
-  selector: 'app-target-create',
-  templateUrl: './target-create.component.html',
-  styleUrls: ['./target-create.component.scss']
+    standalone: false,
+    selector: 'app-target-create',
+    templateUrl: './target-create.component.html',
+    styleUrls: ['./target-create.component.scss'],
 })
 export class TargetCreateComponent implements OnInit, AfterViewChecked {
   @Input() target: TargetModel;

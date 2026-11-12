@@ -2,9 +2,10 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {TimeFilterType} from '../../../../shared/types/time-filter.type';
 
 @Component({
-  selector: 'app-active-directory-filter',
-  templateUrl: './active-directory-filter.component.html',
-  styleUrls: ['./active-directory-filter.component.scss']
+    standalone: false,
+    selector: 'app-active-directory-filter',
+    templateUrl: './active-directory-filter.component.html',
+    styleUrls: ['./active-directory-filter.component.scss'],
 })
 export class ActiveDirectoryFilterComponent implements OnInit {
   @Output() adFilterChange = new EventEmitter<any>();

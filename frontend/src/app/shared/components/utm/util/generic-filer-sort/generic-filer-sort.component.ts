@@ -1,9 +1,10 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 
 @Component({
-  selector: 'app-generic-filer-sort',
-  templateUrl: './generic-filer-sort.component.html',
-  styleUrls: ['./generic-filer-sort.component.scss']
+    standalone: false,
+    selector: 'app-generic-filer-sort',
+    templateUrl: './generic-filer-sort.component.html',
+    styleUrls: ['./generic-filer-sort.component.scss'],
 })
 export class GenericFilerSortComponent implements OnInit {
   valuesSorts: AlertGenericFilerSort[] =

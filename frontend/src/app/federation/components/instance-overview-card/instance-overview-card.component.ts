@@ -29,9 +29,10 @@ const SEVERITY_ORDER: ReadonlyArray<AlertSeveritySerie> = ['High', 'Medium', 'Lo
 const STATUS_ORDER: ReadonlyArray<AlertStatusSerie> = ['Open', 'In review', 'Completed'];
 
 @Component({
-  selector: 'app-instance-overview-card',
-  templateUrl: './instance-overview-card.component.html',
-  styleUrls: ['./instance-overview-card.component.scss']
+    standalone: false,
+    selector: 'app-instance-overview-card',
+    templateUrl: './instance-overview-card.component.html',
+    styleUrls: ['./instance-overview-card.component.scss'],
 })
 export class InstanceOverviewCardComponent implements OnChanges {
   @Input() entry!: CountAlertsByStatusEntry;

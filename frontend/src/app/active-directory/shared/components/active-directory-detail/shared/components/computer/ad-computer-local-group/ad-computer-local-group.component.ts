@@ -2,9 +2,10 @@ import {Component, Input, OnInit} from '@angular/core';
 import {ActiveDirectoryLocalGroupType} from '../../../../../../types/active-directory-local-group.type';
 
 @Component({
-  selector: 'app-ad-computer-local-group',
-  templateUrl: './ad-computer-local-group.component.html',
-  styleUrls: ['./ad-computer-local-group.component.scss']
+    standalone: false,
+    selector: 'app-ad-computer-local-group',
+    templateUrl: './ad-computer-local-group.component.html',
+    styleUrls: ['./ad-computer-local-group.component.scss'],
 })
 export class AdComputerLocalGroupComponent implements OnInit {
   @Input() localGroups: ActiveDirectoryLocalGroupType[];

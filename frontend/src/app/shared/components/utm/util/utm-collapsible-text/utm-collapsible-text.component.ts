@@ -1,9 +1,10 @@
 import {Component, Input, OnInit} from '@angular/core';
 
 @Component({
-  selector: 'app-utm-collapsible-text',
-  templateUrl: './utm-collapsible-text.component.html',
-  styleUrls: ['./utm-collapsible-text.component.scss']
+    standalone: false,
+    selector: 'app-utm-collapsible-text',
+    templateUrl: './utm-collapsible-text.component.html',
+    styleUrls: ['./utm-collapsible-text.component.scss'],
 })
 export class UtmCollapsibleTextComponent implements OnInit {
   @Input() text: string = '';

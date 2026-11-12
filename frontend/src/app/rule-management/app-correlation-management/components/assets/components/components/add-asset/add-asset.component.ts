@@ -6,9 +6,10 @@ import {Asset} from '../../../../../../models/rule.model';
 import {AssetManagerService} from '../../../../../services/asset-manager.service';
 
 @Component({
-  selector: 'app-add-asset',
-  templateUrl: './add-asset.component.html',
-  styleUrls: ['./add-asset.component.scss']
+    standalone: false,
+    selector: 'app-add-asset',
+    templateUrl: './add-asset.component.html',
+    styleUrls: ['./add-asset.component.scss'],
 })
 export class AddAssetComponent implements OnInit {
 

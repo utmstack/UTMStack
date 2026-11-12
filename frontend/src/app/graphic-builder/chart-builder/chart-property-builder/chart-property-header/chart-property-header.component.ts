@@ -1,9 +1,10 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 
 @Component({
-  selector: 'app-chart-property-header',
-  templateUrl: './chart-property-header.component.html',
-  styleUrls: ['./chart-property-header.component.scss']
+    standalone: false,
+    selector: 'app-chart-property-header',
+    templateUrl: './chart-property-header.component.html',
+    styleUrls: ['./chart-property-header.component.scss'],
 })
 export class ChartPropertyHeaderComponent implements OnInit {
   @Output() propertySetting = new EventEmitter<string>();

@@ -5,9 +5,10 @@ import {AgentType} from '../../shared/types/agent/agent.type';
 import {AgentSidebarService} from '../shared/component/agent-sidebar/agent-sidebar.service';
 
 @Component({
-  selector: 'app-console-interactive',
-  templateUrl: './interactive-console.component.html',
-  styleUrls: ['./interactive-console.component.scss']
+    standalone: false,
+    selector: 'app-console-interactive',
+    templateUrl: './interactive-console.component.html',
+    styleUrls: ['./interactive-console.component.scss'],
 })
 export class InteractiveConsoleComponent implements OnInit {
 

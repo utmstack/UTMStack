@@ -12,9 +12,10 @@ import {EventDataTypeEnum} from '../../../enums/event-data-type.enum';
 import {resolveFieldNameByFilter} from '../../../util/alert-util-function';
 
 @Component({
-  selector: 'app-active-filters',
-  templateUrl: './active-filters.component.html',
-  styleUrls: ['./active-filters.component.scss']
+    standalone: false,
+    selector: 'app-active-filters',
+    templateUrl: './active-filters.component.html',
+    styleUrls: ['./active-filters.component.scss'],
 })
 export class ActiveFiltersComponent implements OnInit {
   @Input() filters: ElasticFilterType[] = [];

@@ -23,7 +23,8 @@ import 'intl-tel-input';
  * `invalidPhone`, which gates the "Add Phone" button. Do not "fix" the naming.
  */
 @Directive({
-  selector: '[ng2TelInput]',
+    standalone: false,
+    selector: '[ng2TelInput]',
 })
 export class UtmTelInputDirective implements OnInit, OnDestroy {
   @Input() ng2TelInputOptions: any;

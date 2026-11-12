@@ -11,9 +11,10 @@ import {ComplianceStandardSectionType} from '../../shared/type/compliance-standa
 import {UtmCpControlConfigDeleteComponent} from './utm-cp-control-config-delete/utm-cp-control-config-delete.component';
 
 @Component({
-  selector: 'app-utm-cp-control-config',
-  templateUrl: './utm-cp-control-config.component.html',
-  styleUrls: ['./utm-cp-control-config.component.scss']
+    standalone: false,
+    selector: 'app-utm-cp-control-config',
+    templateUrl: './utm-cp-control-config.component.html',
+    styleUrls: ['./utm-cp-control-config.component.scss'],
 })
 export class UtmCpControlConfigComponent implements OnInit {
   section: ComplianceStandardSectionType;

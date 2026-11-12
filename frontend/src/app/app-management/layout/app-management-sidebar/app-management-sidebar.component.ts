@@ -9,9 +9,10 @@ import {VersionType} from '../../../shared/services/version/version-info.service
 import {isSubdomainOfUtmstack} from '../../../shared/util/url.util';
 
 @Component({
-  selector: 'app-management-builder-sidebar',
-  templateUrl: './app-management-sidebar.component.html',
-  styleUrls: ['./app-management-sidebar.component.scss']
+    standalone: false,
+    selector: 'app-management-builder-sidebar',
+    templateUrl: './app-management-sidebar.component.html',
+    styleUrls: ['./app-management-sidebar.component.scss'],
 })
 export class AppManagementSidebarComponent implements OnInit, OnDestroy {
   adminAuth = ADMIN_ROLE;

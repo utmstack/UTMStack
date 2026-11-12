@@ -6,9 +6,10 @@ import {SortByType} from '../../../shared/types/sort-by.type';
 import {AdNotificationsConfigCreateComponent} from '../ad-notifications-config-create/ad-notifications-config-create.component';
 
 @Component({
-  selector: 'app-ad-notifications-config-list',
-  templateUrl: './ad-notifications-config-list.component.html',
-  styleUrls: ['./ad-notifications-config-list.component.scss']
+    standalone: false,
+    selector: 'app-ad-notifications-config-list',
+    templateUrl: './ad-notifications-config-list.component.html',
+    styleUrls: ['./ad-notifications-config-list.component.scss'],
 })
 export class AdNotificationsConfigListComponent implements OnInit {
   notifications: any[] = [];

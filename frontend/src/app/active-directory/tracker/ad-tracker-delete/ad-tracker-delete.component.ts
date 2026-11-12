@@ -5,9 +5,10 @@ import {AdTrackerService} from '../shared/services/ad-tracker.service';
 import {AdTrackerType} from '../shared/type/ad-tracker.type';
 
 @Component({
-  selector: 'app-ad-tracker-delete',
-  templateUrl: './ad-tracker-delete.component.html',
-  styleUrls: ['./ad-tracker-delete.component.scss']
+    standalone: false,
+    selector: 'app-ad-tracker-delete',
+    templateUrl: './ad-tracker-delete.component.html',
+    styleUrls: ['./ad-tracker-delete.component.scss'],
 })
 export class AdTrackerDeleteComponent implements OnInit {
   @Input() tracker: AdTrackerType;

@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {IndexPatternService} from '../../../../../shared/services/elasticsearch/index-pattern.service';
 import {UtmIndexPattern} from '../../../../../shared/types/index-pattern/utm-index-pattern';
@@ -6,9 +6,10 @@ import {ComplianceQueryType} from '../../../type/compliance-query.type';
 
 
 @Component({
-  selector: 'app-utm-compliance-query-list',
-  templateUrl: './utm-compliance-query-list.component.html',
-  styleUrls: ['./utm-compliance-query-list.component.scss']
+    standalone: false,
+    selector: 'app-utm-compliance-query-list',
+    templateUrl: './utm-compliance-query-list.component.html',
+    styleUrls: ['./utm-compliance-query-list.component.scss'],
 })
 export class UtmComplianceQueryListComponent implements OnInit {
   // tslint:disable-next-line:variable-name

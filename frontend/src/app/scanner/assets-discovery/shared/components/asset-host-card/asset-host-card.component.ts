@@ -3,9 +3,10 @@ import {AssetModel} from '../../../../shared/model/assets/asset.model';
 
 
 @Component({
-  selector: 'app-asset-host-card',
-  templateUrl: './asset-host-card.component.html',
-  styleUrls: ['./asset-host-card.component.scss']
+    standalone: false,
+    selector: 'app-asset-host-card',
+    templateUrl: './asset-host-card.component.html',
+    styleUrls: ['./asset-host-card.component.scss'],
 })
 export class AssetHostCardComponent implements OnInit {
   @Input() asset: AssetModel;

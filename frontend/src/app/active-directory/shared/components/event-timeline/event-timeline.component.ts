@@ -12,9 +12,10 @@ import {WinlogbeatEventType} from '../../types/winlogbeat-event.type';
 import {Event} from "../../../../shared/types/event/event";
 
 @Component({
-  selector: 'app-event-timeline',
-  templateUrl: './event-timeline.component.html',
-  styleUrls: ['./event-timeline.component.scss']
+    standalone: false,
+    selector: 'app-event-timeline',
+    templateUrl: './event-timeline.component.html',
+    styleUrls: ['./event-timeline.component.scss'],
 })
 export class EventTimelineComponent implements OnInit, AfterViewInit {
   @Input() events: string[];

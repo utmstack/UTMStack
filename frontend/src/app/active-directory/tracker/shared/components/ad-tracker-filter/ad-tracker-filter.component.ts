@@ -3,9 +3,10 @@ import {ActivatedRoute} from '@angular/router';
 import {TimeFilterType} from '../../../../../shared/types/time-filter.type';
 
 @Component({
-  selector: 'app-ad-tracker-filter',
-  templateUrl: './ad-tracker-filter.component.html',
-  styleUrls: ['./ad-tracker-filter.component.scss']
+    standalone: false,
+    selector: 'app-ad-tracker-filter',
+    templateUrl: './ad-tracker-filter.component.html',
+    styleUrls: ['./ad-tracker-filter.component.scss'],
 })
 export class AdTrackerFilterComponent implements OnInit {
   @Output() trackerFilterChange = new EventEmitter<any>();

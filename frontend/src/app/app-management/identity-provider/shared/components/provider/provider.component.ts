@@ -2,9 +2,10 @@ import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {PROVIDER_ICONS, ProviderType, UtmIdentityProvider} from '../../models/utm-identity-provider.model';
 
 @Component({
-  selector: 'app-provider-card',
-  templateUrl: './provider.component.html',
-  styleUrls: ['./provider.component.scss']
+    standalone: false,
+    selector: 'app-provider-card',
+    templateUrl: './provider.component.html',
+    styleUrls: ['./provider.component.scss'],
 })
 export class ProviderComponent {
   @Input() provider: UtmIdentityProvider;

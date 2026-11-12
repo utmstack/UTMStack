@@ -3,9 +3,10 @@ import {ElasticFilterDefaultTime} from '../../../../shared/components/utm/filter
 import {TimeFilterType} from '../../../../shared/types/time-filter.type';
 
 @Component({
-  selector: 'app-report-param-date-range',
-  templateUrl: './report-param-date-range.component.html',
-  styleUrls: ['./report-param-date-range.component.css']
+    standalone: false,
+    selector: 'app-report-param-date-range',
+    templateUrl: './report-param-date-range.component.html',
+    styleUrls: ['./report-param-date-range.component.css'],
 })
 export class ReportParamDateRangeComponent implements OnInit {
   @Input() defaultTime: ElasticFilterDefaultTime = new ElasticFilterDefaultTime('now-7d', 'now');

@@ -3,9 +3,10 @@ import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {TfaMethod, TfaService} from '../../services/tfa/tfa.service';
 
 @Component({
-  selector: 'app-utm-tfa-verification',
-  templateUrl: './utm-tfa-verification.component.html',
-  styleUrls: ['./utm-tfa-verification.component.css']
+    standalone: false,
+    selector: 'app-utm-tfa-verification',
+    templateUrl: './utm-tfa-verification.component.html',
+    styleUrls: ['./utm-tfa-verification.component.css'],
 })
 export class UtmTfaVerificationComponent {
 

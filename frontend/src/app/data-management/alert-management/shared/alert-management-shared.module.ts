@@ -4,7 +4,7 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {NgSelectModule} from '@ng-select/ng-select';
-import {TranslateModule} from '@ngx-translate/core';
+import {TranslatePipe} from '@ngx-translate/core';
 import {InlineSVGModule} from 'ng-inline-svg';
 import {InfiniteScrollModule} from 'ngx-infinite-scroll';
 import {NgxJsonViewerModule} from 'ngx-json-viewer';
@@ -160,7 +160,7 @@ import {AlertEchoesTimelineService} from "./components/alert-echoes-timeline/ale
   ],
     imports: [
         CommonModule,
-        TranslateModule,
+        TranslatePipe,
         UtmSharedModule,
         FormsModule,
         NgbModule,

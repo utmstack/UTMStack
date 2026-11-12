@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup} from '@angular/forms';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
@@ -21,9 +21,10 @@ interface RuleList {
 }
 
 @Component({
-  selector: 'app-import-rule',
-  templateUrl: './import-rule.component.html',
-  styleUrls: ['./import-rule.component.scss'],
+    standalone: false,
+    selector: 'app-import-rule',
+    templateUrl: './import-rule.component.html',
+    styleUrls: ['./import-rule.component.scss'],
 })
 export class ImportRuleComponent implements OnInit, OnDestroy {
   RULE_FORM = AddRuleStepEnum;

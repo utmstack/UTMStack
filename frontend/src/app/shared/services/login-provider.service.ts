@@ -1,4 +1,4 @@
-import {HttpClient} from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {UtmIdentityProvider} from '../../app-management/identity-provider/shared/models/utm-identity-provider.model';
 import {SERVER_API_URL} from '../../app.constants';

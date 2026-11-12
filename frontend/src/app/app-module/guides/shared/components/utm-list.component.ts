@@ -3,15 +3,16 @@ import {Step} from '../step';
 import {StepDirective} from './step.component';
 
 @Component({
-  selector: 'app-utm-list',
-  template: `
+    standalone: false,
+    selector: 'app-utm-list',
+    template: `
     <ng-container *ngFor="let item of items">
       <ng-template
         [ngTemplateOutlet]="stepTemplateRef"
         [ngTemplateOutletContext]="{ $implicit: item }">
       </ng-template>
     </ng-container>
-  `
+  `,
 })
 
 export class UtmListComponent {

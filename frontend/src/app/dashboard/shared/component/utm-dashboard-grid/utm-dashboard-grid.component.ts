@@ -3,9 +3,10 @@ import {GridsterComponent, GridsterConfig} from 'angular-gridster2';
 import {UtmDashboardVisualizationType} from '../../../../shared/chart/types/dashboard/utm-dashboard-visualization.type';
 
 @Component({
-  selector: 'app-utm-dashboard-grid',
-  templateUrl: './utm-dashboard-grid.component.html',
-  styleUrls: ['./utm-dashboard-grid.component.scss']
+    standalone: false,
+    selector: 'app-utm-dashboard-grid',
+    templateUrl: './utm-dashboard-grid.component.html',
+    styleUrls: ['./utm-dashboard-grid.component.scss'],
 })
 export class UtmDashboardGridComponent implements OnInit, OnChanges {
   @Input() options: GridsterConfig;

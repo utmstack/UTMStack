@@ -11,9 +11,10 @@ import {ActiveDirectoryTreeType} from '../../shared/types/active-directory-tree.
 import {AdTrackerCreateComponent} from '../../tracker/ad-tracker-create/ad-tracker-create.component';
 
 @Component({
-  selector: 'app-active-directory-view',
-  templateUrl: './active-directory-view.component.html',
-  styleUrls: ['./active-directory-view.component.scss']
+    standalone: false,
+    selector: 'app-active-directory-view',
+    templateUrl: './active-directory-view.component.html',
+    styleUrls: ['./active-directory-view.component.scss'],
 })
 export class AdViewComponent implements OnInit, AfterViewChecked {
   object: ActiveDirectoryTreeType;

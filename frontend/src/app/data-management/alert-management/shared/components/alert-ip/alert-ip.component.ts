@@ -17,9 +17,10 @@ import {getValueFromPropertyPath} from '../../../../../shared/util/get-value-obj
 import {isPrivateIP} from '../../../../../shared/util/ip.util';
 
 @Component({
-  selector: 'app-alert-ip',
-  templateUrl: './alert-ip.component.html',
-  styleUrls: ['./alert-ip.component.scss']
+    standalone: false,
+    selector: 'app-alert-ip',
+    templateUrl: './alert-ip.component.html',
+    styleUrls: ['./alert-ip.component.scss'],
 })
 export class AlertIpComponent implements OnInit, OnChanges {
   @Input() alert: any;

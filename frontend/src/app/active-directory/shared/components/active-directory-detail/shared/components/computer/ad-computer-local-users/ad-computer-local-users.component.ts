@@ -3,9 +3,10 @@ import {ActiveDirectoryLocalUserType} from '../../../../../../types/active-direc
 import {ActiveDirectoryType} from '../../../../../../types/active-directory.type';
 
 @Component({
-  selector: 'app-ad-computer-local-users',
-  templateUrl: './ad-computer-local-users.component.html',
-  styleUrls: ['./ad-computer-local-users.component.scss']
+    standalone: false,
+    selector: 'app-ad-computer-local-users',
+    templateUrl: './ad-computer-local-users.component.html',
+    styleUrls: ['./ad-computer-local-users.component.scss'],
 })
 export class AdComputerLocalUsersComponent implements OnInit {
   @Input() adInfo: ActiveDirectoryType;

@@ -19,9 +19,10 @@ import {AlertReportService} from './shared/services/report.service';
 import {MAX_SEARCH_RESULTS} from "../../../shared/constants/global.constant";
 
 @Component({
-  selector: 'app-alert-saved-reports',
-  templateUrl: './alert-reports.component.html',
-  styleUrls: ['./alert-reports.component.scss']
+    standalone: false,
+    selector: 'app-alert-saved-reports',
+    templateUrl: './alert-reports.component.html',
+    styleUrls: ['./alert-reports.component.scss'],
 })
 export class AlertReportsComponent implements OnInit {
   reports: AlertReportType[] = [];

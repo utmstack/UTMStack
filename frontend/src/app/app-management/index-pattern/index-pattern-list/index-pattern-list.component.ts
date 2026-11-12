@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, OnInit} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 // tslint:disable-next-line:max-line-length
@@ -14,9 +14,10 @@ import {IndexPatternDeleteComponent} from '../index-pattern-delete/index-pattern
 import {IndexPatternHelpComponent} from '../shared/components/index-pattern-help/index-pattern-help.component';
 
 @Component({
-  selector: 'app-index-pattern-list',
-  templateUrl: './index-pattern-list.component.html',
-  styleUrls: ['./index-pattern-list.component.scss']
+    standalone: false,
+    selector: 'app-index-pattern-list',
+    templateUrl: './index-pattern-list.component.html',
+    styleUrls: ['./index-pattern-list.component.scss'],
 })
 export class IndexPatternListComponent implements OnInit {
   patterns: UtmIndexPattern[] = [];

@@ -10,9 +10,10 @@ import {IncidentActionType} from '../../type/incident-action.type';
 import {IncidentJobType} from '../../type/incident-job.type';
 
 @Component({
-  selector: 'app-ir-execute-command',
-  templateUrl: './ir-execute-command.component.html',
-  styleUrls: ['./ir-execute-command.component.scss']
+    standalone: false,
+    selector: 'app-ir-execute-command',
+    templateUrl: './ir-execute-command.component.html',
+    styleUrls: ['./ir-execute-command.component.scss'],
 })
 export class IrExecuteCommandComponent implements OnInit {
   @Input() originType: IncidentOriginTypeEnum = IncidentOriginTypeEnum.USER_EXECUTION;

@@ -5,9 +5,10 @@ import {ReportFormatEnum} from '../../../../shared/enums/report-format.enum';
 import {AssetHostDetailService} from '../../../assets-discovery/shared/services/asset-host-detail.service';
 
 @Component({
-  selector: 'app-scanner-export-vulnerabilities',
-  templateUrl: './scanner-export-vulnerabilities.component.html',
-  styleUrls: ['./scanner-export-vulnerabilities.component.scss']
+    standalone: false,
+    selector: 'app-scanner-export-vulnerabilities',
+    templateUrl: './scanner-export-vulnerabilities.component.html',
+    styleUrls: ['./scanner-export-vulnerabilities.component.scss'],
 })
 export class ScannerExportVulnerabilitiesComponent implements OnInit {
   @Input() reportId: string;

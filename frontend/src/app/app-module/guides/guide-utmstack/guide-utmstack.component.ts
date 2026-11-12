@@ -9,9 +9,10 @@ import {Step} from '../shared/step';
 import {UtmstackSteps} from './utmstack.steps';
 
 @Component({
+    standalone: false,
     selector: 'app-guide-utmstack',
     templateUrl: './guide-utmstack.component.html',
-    styleUrls: ['./guide-utmstack.component.css']
+    styleUrls: ['./guide-utmstack.component.css'],
 })
 export class GuideUtmstackComponent implements OnInit {
     @Input() integrationId: number;

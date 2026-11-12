@@ -1,9 +1,10 @@
 import {Component, HostListener, OnInit} from '@angular/core';
 
 @Component({
-  selector: 'app-utm-scroll-top',
-  templateUrl: './utm-scroll-top.component.html',
-  styleUrls: ['./utm-scroll-top.component.css']
+    standalone: false,
+    selector: 'app-utm-scroll-top',
+    templateUrl: './utm-scroll-top.component.html',
+    styleUrls: ['./utm-scroll-top.component.css'],
 })
 export class UtmScrollTopComponent implements OnInit {
   isScrolled = false;

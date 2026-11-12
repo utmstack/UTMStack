@@ -5,9 +5,10 @@ import {FileFieldEnum} from '../../../enum/file-field.enum';
 import {resolveFileFieldNameByFilter} from '../../../util/file-util-functions';
 
 @Component({
-  selector: 'app-file-active-filters',
-  templateUrl: './file-active-filters.component.html',
-  styleUrls: ['./file-active-filters.component.scss']
+    standalone: false,
+    selector: 'app-file-active-filters',
+    templateUrl: './file-active-filters.component.html',
+    styleUrls: ['./file-active-filters.component.scss'],
 })
 export class FileActiveFiltersComponent implements OnInit {
   @Input() filters: ElasticFilterType[] = [];

@@ -10,9 +10,10 @@ import {ReportService} from '../shared/service/report.service';
 import {ReportType} from '../shared/type/report.type';
 
 @Component({
-  selector: 'app-report-custom-view',
-  templateUrl: './report-custom-view.component.html',
-  styleUrls: ['./report-custom-view.component.css']
+    standalone: false,
+    selector: 'app-report-custom-view',
+    templateUrl: './report-custom-view.component.html',
+    styleUrls: ['./report-custom-view.component.css'],
 })
 export class ReportCustomViewComponent implements OnInit {
   printFormat = false;

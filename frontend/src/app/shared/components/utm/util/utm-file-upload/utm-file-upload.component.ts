@@ -3,9 +3,10 @@ import * as yaml from 'js-yaml';
 import {UtmToastService} from '../../../../alert/utm-toast.service';
 
 @Component({
-  selector: 'app-utm-file-upload',
-  templateUrl: './utm-file-upload.component.html',
-  styleUrls: ['./utm-file-upload.component.scss']
+    standalone: false,
+    selector: 'app-utm-file-upload',
+    templateUrl: './utm-file-upload.component.html',
+    styleUrls: ['./utm-file-upload.component.scss'],
 })
 export class UtmFileUploadComponent implements OnInit {
   files: any[] = [];

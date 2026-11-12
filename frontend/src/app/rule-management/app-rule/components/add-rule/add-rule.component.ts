@@ -12,9 +12,10 @@ import {RuleService} from '../../../services/rule.service';
 import {minWordsValidator} from '../../validators/customs.validators';
 
 @Component({
-  selector: 'app-add-rule',
-  templateUrl: './add-rule.component.html',
-  styleUrls: ['./add-rule.component.scss'],
+    standalone: false,
+    selector: 'app-add-rule',
+    templateUrl: './add-rule.component.html',
+    styleUrls: ['./add-rule.component.scss'],
 })
 export class AddRuleComponent implements OnInit, OnDestroy {
   RULE_FORM = AddRuleStepEnum;

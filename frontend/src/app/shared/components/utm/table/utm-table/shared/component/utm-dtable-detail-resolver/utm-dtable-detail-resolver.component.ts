@@ -3,9 +3,10 @@ import {TableDetailContentDirective} from '../../directive/table-detail-content.
 import {TableSkeletonInterface} from '../../type/table-skeleton';
 
 @Component({
-  selector: 'app-utm-dtable-detail-resolver',
-  templateUrl: './utm-dtable-detail-resolver.component.html',
-  styleUrls: ['./utm-dtable-detail-resolver.component.scss']
+    standalone: false,
+    selector: 'app-utm-dtable-detail-resolver',
+    templateUrl: './utm-dtable-detail-resolver.component.html',
+    styleUrls: ['./utm-dtable-detail-resolver.component.scss'],
 })
 export class UtmDtableDetailResolverComponent implements OnInit {
   @Input() row;

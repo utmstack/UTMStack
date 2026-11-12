@@ -26,9 +26,10 @@ import {IncidentCommandType} from '../../../../types/incident/incident-command.t
 import {escapeAndBreakLine} from '../../../../util/string-util';
 
 @Component({
-  selector: 'app-utm-agent-console',
-  templateUrl: './utm-agent-console.component.html',
-  styleUrls: ['./utm-agent-console.component.scss']
+    standalone: false,
+    selector: 'app-utm-agent-console',
+    templateUrl: './utm-agent-console.component.html',
+    styleUrls: ['./utm-agent-console.component.scss'],
 })
 export class UtmAgentConsoleComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   @Input() hostname: string;

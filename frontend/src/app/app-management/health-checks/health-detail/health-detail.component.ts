@@ -3,9 +3,10 @@ import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {UtmHealthService} from '../health-checks.service';
 
 @Component({
-  selector: 'app-health-detail',
-  templateUrl: './health-detail.component.html',
-  styleUrls: ['./health-detail.component.scss']
+    standalone: false,
+    selector: 'app-health-detail',
+    templateUrl: './health-detail.component.html',
+    styleUrls: ['./health-detail.component.scss'],
 })
 export class HealthDetailComponent implements OnInit {
   currentHealth: any;

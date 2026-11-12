@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import * as moment from 'moment';
@@ -11,9 +11,10 @@ import {AlertReportType} from '../../../shared/types/alert/alert-report.type';
 import {AlertReportService} from '../alert-reports/shared/services/report.service';
 
 @Component({
-  selector: 'app-alert-report-view',
-  templateUrl: './alert-report-view.component.html',
-  styleUrls: ['./alert-report-view.component.scss']
+    standalone: false,
+    selector: 'app-alert-report-view',
+    templateUrl: './alert-report-view.component.html',
+    styleUrls: ['./alert-report-view.component.scss'],
 })
 export class AlertReportViewComponent implements OnInit {
   reportId: any;

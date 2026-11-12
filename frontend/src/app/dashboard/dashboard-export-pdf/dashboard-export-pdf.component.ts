@@ -19,9 +19,10 @@ import {UtmRenderVisualization} from '../shared/services/utm-render-visualizatio
 
 
 @Component({
-  selector: 'app-dashboard-export-pdf',
-  templateUrl: './dashboard-export-pdf.component.html',
-  styleUrls: ['./dashboard-export-pdf.component.scss']
+    standalone: false,
+    selector: 'app-dashboard-export-pdf',
+    templateUrl: './dashboard-export-pdf.component.html',
+    styleUrls: ['./dashboard-export-pdf.component.scss'],
 })
 export class DashboardExportPdfComponent implements OnInit, OnDestroy {
   dashboardId: number;

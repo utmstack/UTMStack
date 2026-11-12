@@ -8,9 +8,10 @@ import {calculateMidpoint, getZoomLevel} from '../../../../../shared/util/map.ut
 import {getLocationFromAlert} from '../../util/alert-util-function';
 
 @Component({
-  selector: 'app-alert-map-location',
-  templateUrl: './alert-map-location.component.html',
-  styleUrls: ['./alert-map-location.component.scss']
+    standalone: false,
+    selector: 'app-alert-map-location',
+    templateUrl: './alert-map-location.component.html',
+    styleUrls: ['./alert-map-location.component.scss'],
 })
 export class AlertMapLocationComponent implements OnInit, OnDestroy {
   map: any;

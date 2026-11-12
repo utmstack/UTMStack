@@ -2,9 +2,10 @@ import {Component, Input, OnInit} from '@angular/core';
 import {AgentStatusEnum, AgentType} from '../../../../shared/types/agent/agent.type';
 
 @Component({
-  selector: 'app-agent-info',
-  templateUrl: './agent-info.component.html',
-  styleUrls: ['./agent-info.component.scss']
+    standalone: false,
+    selector: 'app-agent-info',
+    templateUrl: './agent-info.component.html',
+    styleUrls: ['./agent-info.component.scss'],
 })
 export class AgentInfoComponent implements OnInit {
   @Input() agent: AgentType;

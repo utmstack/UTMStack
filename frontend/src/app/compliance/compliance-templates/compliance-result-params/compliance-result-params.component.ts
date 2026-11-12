@@ -11,9 +11,10 @@ import {ComplianceRequestTypeEnum} from '../../shared/enums/compliance-request-t
 import {ComplianceReportType} from '../../shared/type/compliance-report.type';
 
 @Component({
-  selector: 'app-compliance-result-params',
-  templateUrl: './compliance-result-params.component.html',
-  styleUrls: ['./compliance-result-params.component.scss']
+    standalone: false,
+    selector: 'app-compliance-result-params',
+    templateUrl: './compliance-result-params.component.html',
+    styleUrls: ['./compliance-result-params.component.scss'],
 })
 export class ComplianceResultParamsComponent implements OnInit {
   @Input() template?: ComplianceReportType;

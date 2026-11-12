@@ -16,9 +16,10 @@ import {resolveIcon} from '../../../../../util/elastic-fields.util';
 import {OperatorService} from '../shared/util/operator.service';
 
 @Component({
-  selector: 'app-elastic-filter-add',
-  templateUrl: './elastic-filter-add.component.html',
-  styleUrls: ['./elastic-filter-add.component.scss']
+    standalone: false,
+    selector: 'app-elastic-filter-add',
+    templateUrl: './elastic-filter-add.component.html',
+    styleUrls: ['./elastic-filter-add.component.scss'],
 })
 export class ElasticFilterAddComponent implements OnInit {
   /**

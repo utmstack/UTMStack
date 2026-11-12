@@ -15,9 +15,10 @@ import {TabType} from '../../shared/type/tab.type';
 import {LogAnalyzerViewComponent} from '../log-analyzer-view/log-analyzer-view.component';
 
 @Component({
-  selector: 'app-log-analyzer-tabs',
-  templateUrl: './log-analyzer-tabs.component.html',
-  styleUrls: ['./log-analyzer-tabs.component.scss']
+    standalone: false,
+    selector: 'app-log-analyzer-tabs',
+    templateUrl: './log-analyzer-tabs.component.html',
+    styleUrls: ['./log-analyzer-tabs.component.scss'],
 })
 export class LogAnalyzerTabsComponent implements OnInit, OnDestroy {
   tabs$: Observable<TabType[]>;

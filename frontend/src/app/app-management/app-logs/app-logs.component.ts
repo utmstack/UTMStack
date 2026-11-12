@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, OnInit} from '@angular/core';
 import {ElasticFilterDefaultTime} from '../../shared/components/utm/filters/elastic-filter-time/elastic-filter-time.component';
 import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
@@ -10,9 +10,10 @@ import {AppLogTypeEnum} from './shared/enum/app-log-type.enum';
 import {AppLogType} from './shared/type/app-log.type';
 
 @Component({
-  selector: 'app-app-logs',
-  templateUrl: './app-logs.component.html',
-  styleUrls: ['./app-logs.component.css']
+    standalone: false,
+    selector: 'app-app-logs',
+    templateUrl: './app-logs.component.html',
+    styleUrls: ['./app-logs.component.css'],
 })
 export class AppLogsComponent implements OnInit {
   logs: any[] = [];

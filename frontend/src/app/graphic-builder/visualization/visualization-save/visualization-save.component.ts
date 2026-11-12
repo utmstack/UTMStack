@@ -13,9 +13,10 @@ import {cleanVisualizationData} from '../../shared/util/visualization/visualizat
 import {VisualizationService} from '../shared/services/visualization.service';
 
 @Component({
-  selector: 'app-visualization-save',
-  templateUrl: './visualization-save.component.html',
-  styleUrls: ['./visualization-save.component.scss']
+    standalone: false,
+    selector: 'app-visualization-save',
+    templateUrl: './visualization-save.component.html',
+    styleUrls: ['./visualization-save.component.scss'],
 })
 export class VisualizationSaveComponent implements OnInit {
   @Input() callback: RouteCallbackEnum;

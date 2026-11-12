@@ -7,9 +7,10 @@ import {CredentialModel} from '../../../shared/model/credential.model';
 import {CredentialService} from '../shared/services/credential.service';
 
 @Component({
-  selector: 'app-credential-create',
-  templateUrl: './credential-create.component.html',
-  styleUrls: ['./credential-create.component.scss']
+    standalone: false,
+    selector: 'app-credential-create',
+    templateUrl: './credential-create.component.html',
+    styleUrls: ['./credential-create.component.scss'],
 })
 export class CredentialCreateComponent implements OnInit {
   @Input() credential: CredentialModel;

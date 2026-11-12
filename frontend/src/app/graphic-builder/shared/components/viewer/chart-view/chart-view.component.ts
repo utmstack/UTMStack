@@ -21,9 +21,11 @@ import {RunVisualizationService} from '../../../services/run-visualization.servi
 import {UtmChartClickActionService} from '../../../services/utm-chart-click-action.service';
 import {rebuildVisualizationFilterTime} from '../../../util/chart-filter/chart-filter.util';
 import {resolveDefaultVisualizationTime} from '../../../util/visualization/visualization-render.util';
-import EChartOption = echarts.EChartsOption;
+import type {EChartsOption} from 'echarts';
+type EChartOption = EChartsOption;
 
 @Component({
+  standalone: false,
   selector: 'app-chart-view',
   templateUrl: './chart-view.component.html',
   styleUrls: ['./chart-view.component.scss'],

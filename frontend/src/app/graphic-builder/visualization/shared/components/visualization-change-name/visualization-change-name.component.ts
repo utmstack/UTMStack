@@ -8,9 +8,10 @@ import {InputClassResolve} from '../../../../../shared/util/input-class-resolve'
 import {VisualizationService} from '../../services/visualization.service';
 
 @Component({
-  selector: 'app-visualization-change-name',
-  templateUrl: './visualization-change-name.component.html',
-  styleUrls: ['./visualization-change-name.component.scss']
+    standalone: false,
+    selector: 'app-visualization-change-name',
+    templateUrl: './visualization-change-name.component.html',
+    styleUrls: ['./visualization-change-name.component.scss'],
 })
 export class VisualizationChangeNameComponent implements OnInit {
   @Input() visualization: VisualizationType;

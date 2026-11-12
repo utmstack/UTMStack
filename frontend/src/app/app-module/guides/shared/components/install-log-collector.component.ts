@@ -7,8 +7,9 @@ import {UtmModulesEnum} from '../../../shared/enum/utm-module.enum';
 import {generate} from 'rxjs';
 
 @Component({
-  selector: 'app-install-log-collector',
-  template: `
+    standalone: false,
+    selector: 'app-install-log-collector',
+    template: `
     <div class="flex-container mt-2 mb-3">
       <ng-select [items]="platforms"
                  bindLabel="name"
@@ -30,7 +31,7 @@ import {generate} from 'rxjs';
       <app-utm-code-view class="" [code]="generateCommand()"></app-utm-code-view>
     </ng-container>
   `,
-  styles: [`
+    styles: [`
     .flex-container {
       display: flex;
     }
@@ -40,7 +41,7 @@ import {generate} from 'rxjs';
       margin-right: 10px;
     }
   `],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 
 export class InstallLogCollectorComponent {

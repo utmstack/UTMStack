@@ -24,9 +24,10 @@ import {rebuildVisualizationFilterTime} from '../../../util/chart-filter/chart-f
 import {resolveDefaultVisualizationTime} from '../../../util/visualization/visualization-render.util';
 
 @Component({
-  selector: 'app-goal-view',
-  templateUrl: './goal-view.component.html',
-  styleUrls: ['./goal-view.component.scss']
+    standalone: false,
+    selector: 'app-goal-view',
+    templateUrl: './goal-view.component.html',
+    styleUrls: ['./goal-view.component.scss'],
 })
 export class GoalViewComponent implements OnInit, OnDestroy {
   data$: Observable<MetricResponse[]>;

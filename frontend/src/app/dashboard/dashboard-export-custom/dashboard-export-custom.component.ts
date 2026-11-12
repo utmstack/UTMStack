@@ -9,9 +9,10 @@ import {captureScreen, pdfPreview} from '../../shared/util/export-to-pdf-util';
 import {UtmRenderVisualization} from '../shared/services/utm-render-visualization.service';
 
 @Component({
-  selector: 'app-dashboard-export-custom',
-  templateUrl: './dashboard-export-custom.component.html',
-  styleUrls: ['./dashboard-export-custom.component.scss']
+    standalone: false,
+    selector: 'app-dashboard-export-custom',
+    templateUrl: './dashboard-export-custom.component.html',
+    styleUrls: ['./dashboard-export-custom.component.scss'],
 })
 export class DashboardExportCustomComponent implements OnInit {
   dashboardId: number;

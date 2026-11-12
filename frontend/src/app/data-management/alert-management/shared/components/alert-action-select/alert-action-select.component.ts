@@ -41,9 +41,10 @@ export interface AlertAction {
 }
 
 @Component({
-  selector: 'app-alert-action-select',
-  templateUrl: './alert-action-select.component.html',
-  styleUrls: ['./alert-action-select.component.css']
+    standalone: false,
+    selector: 'app-alert-action-select',
+    templateUrl: './alert-action-select.component.html',
+    styleUrls: ['./alert-action-select.component.css'],
 })
 export class AlertActionSelectComponent implements OnInit, OnDestroy {
 

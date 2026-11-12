@@ -30,7 +30,7 @@ import {UtmIncidentType} from '../../../../shared/types/incident/utm-incident.ty
 import {getValueFromPropertyPath} from '../../../../shared/util/get-value-object-from-property-path.util';
 import {InputClassResolve} from '../../../../shared/util/input-class-resolve';
 import {createElementPrefix} from '../../../../shared/util/string-util';
-import {HttpErrorResponse} from "@angular/common/http";
+import { HttpErrorResponse } from "@angular/common/http";
 import {AssetGroupType} from "../../../../assets-discover/asset-groups/shared/type/asset-group.type";
 import {
   ModalConfirmationComponent
@@ -39,9 +39,10 @@ import {ModalService} from "../../../../core/modal/modal.service";
 import {Router} from "@angular/router";
 
 @Component({
-  selector: 'app-create-incident',
-  templateUrl: './create-incident.component.html',
-  styleUrls: ['./create-incident.component.scss']
+    standalone: false,
+    selector: 'app-create-incident',
+    templateUrl: './create-incident.component.html',
+    styleUrls: ['./create-incident.component.scss'],
 })
 export class CreateIncidentComponent implements OnInit {
   @Input() alerts: any[];

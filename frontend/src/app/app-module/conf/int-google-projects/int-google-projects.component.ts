@@ -6,9 +6,10 @@ import {UtmModuleGroupConfType} from '../../shared/type/utm-module-group-conf.ty
 
 
 @Component({
-  selector: 'app-int-google-projects',
-  templateUrl: './int-google-projects.component.html',
-  styleUrls: ['./int-google-projects.component.css']
+    standalone: false,
+    selector: 'app-int-google-projects',
+    templateUrl: './int-google-projects.component.html',
+    styleUrls: ['./int-google-projects.component.css'],
 })
 export class IntGoogleProjectsComponent implements OnInit {
   googleForm: FormGroup;

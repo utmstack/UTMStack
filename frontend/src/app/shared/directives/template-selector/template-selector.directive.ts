@@ -1,7 +1,8 @@
 import { Directive } from '@angular/core';
 
 @Directive({
-  selector: 'ng-template[appTemplateSelector]'
+    standalone: false,
+    selector: 'ng-template[appTemplateSelector]',
 })
 export class TemplateSelectorDirective {
 

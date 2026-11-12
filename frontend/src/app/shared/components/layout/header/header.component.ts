@@ -15,9 +15,10 @@ import {AppVersionInfo} from '../../../types/updates/updates.type';
 const FEDERATION_WELCOME_ROUTE = '/federation/welcome';
 
 @Component({
-  selector: 'app-header',
-  templateUrl: './header.component.html',
-  styleUrls: ['./header.component.scss']
+    standalone: false,
+    selector: 'app-header',
+    templateUrl: './header.component.html',
+    styleUrls: ['./header.component.scss'],
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   user: User;

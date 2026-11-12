@@ -26,9 +26,10 @@ import {IncidentRuleType} from '../shared/type/incident-rule.type';
 import {minLengthArray} from "../../rule-management/custom-validators";
 
 @Component({
-  selector: 'app-playbook-builder',
-  templateUrl: './playbook-builder.component.html',
-  styleUrls: ['./playbook-builder.component.scss']
+    standalone: false,
+    selector: 'app-playbook-builder',
+    templateUrl: './playbook-builder.component.html',
+    styleUrls: ['./playbook-builder.component.scss'],
 })
 export class PlaybookBuilderComponent implements OnInit, OnDestroy {
 

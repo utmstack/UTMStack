@@ -10,9 +10,10 @@ import {containsVariable} from '../../validators/customs.validators';
 
 
 @Component({
-  selector: 'app-variables',
-  templateUrl: './add-variable.component.html',
-  styleUrls: ['./add-variable.component.css']
+    standalone: false,
+    selector: 'app-variables',
+    templateUrl: './add-variable.component.html',
+    styleUrls: ['./add-variable.component.css'],
 })
 export class AddVariableComponent implements OnInit {
   @Input() formGroup: FormGroup;

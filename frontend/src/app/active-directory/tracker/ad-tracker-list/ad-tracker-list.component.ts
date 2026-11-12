@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
@@ -13,9 +13,10 @@ import {AdTrackerService} from '../shared/services/ad-tracker.service';
 import {AdTrackerType} from '../shared/type/ad-tracker.type';
 
 @Component({
-  selector: 'app-active-directory-tracker-list',
-  templateUrl: './ad-tracker-list.component.html',
-  styleUrls: ['./ad-tracker-list.component.scss']
+    standalone: false,
+    selector: 'app-active-directory-tracker-list',
+    templateUrl: './ad-tracker-list.component.html',
+    styleUrls: ['./ad-tracker-list.component.scss'],
 })
 export class AdTrackerListComponent implements OnInit {
   trackers: AdTrackerType[] = [];

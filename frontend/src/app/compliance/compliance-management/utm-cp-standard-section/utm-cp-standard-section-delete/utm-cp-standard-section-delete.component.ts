@@ -5,9 +5,10 @@ import {CpStandardSectionService} from '../../../shared/services/cp-standard-sec
 import {ComplianceStandardSectionType} from '../../../shared/type/compliance-standard-section.type';
 
 @Component({
-  selector: 'app-utm-cp-standard-section-delete',
-  templateUrl: './utm-cp-standard-section-delete.component.html',
-  styleUrls: ['./utm-cp-standard-section-delete.component.scss']
+    standalone: false,
+    selector: 'app-utm-cp-standard-section-delete',
+    templateUrl: './utm-cp-standard-section-delete.component.html',
+    styleUrls: ['./utm-cp-standard-section-delete.component.scss'],
 })
 export class UtmCpStandardSectionDeleteComponent implements OnInit {
   @Input() standardSection: ComplianceStandardSectionType;

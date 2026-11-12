@@ -2,9 +2,10 @@ import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {TimeFilterType} from '../../../../../../shared/types/time-filter.type';
 
 @Component({
-  selector: 'app-port-filter',
-  templateUrl: './port-filter.component.html',
-  styleUrls: ['./port-filter.component.scss']
+    standalone: false,
+    selector: 'app-port-filter',
+    templateUrl: './port-filter.component.html',
+    styleUrls: ['./port-filter.component.scss'],
 })
 export class PortFilterComponent implements OnInit {
   @Output() portFilterChange = new EventEmitter<any>();

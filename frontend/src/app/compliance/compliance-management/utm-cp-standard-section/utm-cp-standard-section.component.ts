@@ -10,9 +10,10 @@ import {ComplianceStandardType} from '../../shared/type/compliance-standard.type
 import {UtmCpStandardSectionDeleteComponent} from './utm-cp-standard-section-delete/utm-cp-standard-section-delete.component';
 
 @Component({
-  selector: 'app-utm-cp-standard-section',
-  templateUrl: './utm-cp-standard-section.component.html',
-  styleUrls: ['./utm-cp-standard-section.component.scss']
+    standalone: false,
+    selector: 'app-utm-cp-standard-section',
+    templateUrl: './utm-cp-standard-section.component.html',
+    styleUrls: ['./utm-cp-standard-section.component.scss'],
 })
 export class UtmCpStandardSectionComponent implements OnInit {
   standard: ComplianceStandardType;

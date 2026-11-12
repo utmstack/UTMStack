@@ -1,9 +1,10 @@
 import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 
 @Component({
-  selector: 'app-countdown',
-  templateUrl: './countdown.component.html',
-  styleUrls: ['./countdown.component.css']
+    standalone: false,
+    selector: 'app-countdown',
+    templateUrl: './countdown.component.html',
+    styleUrls: ['./countdown.component.css'],
 })
 export class CountdownComponent implements OnInit, OnDestroy {
   @Input() duration = 300;

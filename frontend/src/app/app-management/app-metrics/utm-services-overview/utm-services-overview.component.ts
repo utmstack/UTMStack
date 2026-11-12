@@ -2,9 +2,10 @@ import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core'
 
 
 @Component({
-  selector: 'app-utm-services-overview',
-  templateUrl: './utm-services-overview.component.html',
-  styleUrls: ['./utm-services-overview.component.scss']
+    standalone: false,
+    selector: 'app-utm-services-overview',
+    templateUrl: './utm-services-overview.component.html',
+    styleUrls: ['./utm-services-overview.component.scss'],
 })
 export class UtmServicesOverviewComponent implements OnInit, OnChanges {
   @Input() serviceData: Map<string, Map<string, { max: number, mean: number, count: number }>>;

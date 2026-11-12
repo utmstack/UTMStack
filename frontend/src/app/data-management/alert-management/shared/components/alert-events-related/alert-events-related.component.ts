@@ -8,9 +8,10 @@ import {UtmFieldType} from '../../../../../shared/types/table/utm-field.type';
 import {MAX_SEARCH_RESULTS} from "../../../../../shared/constants/global.constant";
 
 @Component({
-  selector: 'app-alert-events-related',
-  templateUrl: './alert-events-related.component.html',
-  styleUrls: ['./alert-events-related.component.scss']
+    standalone: false,
+    selector: 'app-alert-events-related',
+    templateUrl: './alert-events-related.component.html',
+    styleUrls: ['./alert-events-related.component.scss'],
 })
 export class AlertEventsRelatedComponent implements OnInit {
 

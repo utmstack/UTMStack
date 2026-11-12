@@ -4,9 +4,10 @@ import {UtmNetScanService} from '../../../../../../../assets-discover/shared/ser
 import {UtmToastService} from '../../../../../../alert/utm-toast.service';
 
 @Component({
-  selector: 'app-utm-notification-assets',
-  templateUrl: './utm-notification-assets.component.html',
-  styleUrls: ['./utm-notification-assets.component.scss']
+    standalone: false,
+    selector: 'app-utm-notification-assets',
+    templateUrl: './utm-notification-assets.component.html',
+    styleUrls: ['./utm-notification-assets.component.scss'],
 })
 export class UtmNotificationAssetsComponent implements OnInit, OnDestroy {
   @ViewChild('notify', {static: false}) iconDisplay: ElementRef;

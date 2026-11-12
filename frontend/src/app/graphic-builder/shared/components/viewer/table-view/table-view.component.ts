@@ -35,9 +35,10 @@ import {rebuildVisualizationFilterTime} from '../../../util/chart-filter/chart-f
 import {resolveDefaultVisualizationTime} from '../../../util/visualization/visualization-render.util';
 
 @Component({
-  selector: 'app-table-view',
-  templateUrl: './table-view.component.html',
-  styleUrls: ['./table-view.component.scss']
+    standalone: false,
+    selector: 'app-table-view',
+    templateUrl: './table-view.component.html',
+    styleUrls: ['./table-view.component.scss'],
 })
 export class TableViewComponent implements OnInit, OnChanges, OnDestroy {
   /**

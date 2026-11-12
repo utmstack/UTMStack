@@ -4,9 +4,10 @@ import {ElasticHealthService} from '../../../shared/services/elasticsearch/elast
 import {ElasticHealthType} from '../../../shared/types/elasticsearch/elastic-health.type';
 
 @Component({
-  selector: 'app-health-cluster',
-  templateUrl: './health-cluster.component.html',
-  styleUrls: ['./health-cluster.component.css']
+    standalone: false,
+    selector: 'app-health-cluster',
+    templateUrl: './health-cluster.component.html',
+    styleUrls: ['./health-cluster.component.css'],
 })
 export class HealthClusterComponent implements OnInit {
   clusterHealth: ElasticHealthType;

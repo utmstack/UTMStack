@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, EventEmitter, Input, isDevMode, OnInit, Output} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {CpStandardBehavior} from '../../shared/behavior/cp-standard.behavior';
@@ -9,9 +9,10 @@ import {UtmCpExportComponent} from '../utm-cp-export/utm-cp-export.component';
 import {UtmCpStandardDeleteComponent} from './utm-cp-standard-delete/utm-cp-standard-delete.component';
 
 @Component({
-  selector: 'app-utm-cp-standard',
-  templateUrl: './utm-cp-standard.component.html',
-  styleUrls: ['./utm-cp-standard.component.scss']
+    standalone: false,
+    selector: 'app-utm-cp-standard',
+    templateUrl: './utm-cp-standard.component.html',
+    styleUrls: ['./utm-cp-standard.component.scss'],
 })
 export class UtmCpStandardComponent implements OnInit {
   standards: ComplianceStandardType[] = [];

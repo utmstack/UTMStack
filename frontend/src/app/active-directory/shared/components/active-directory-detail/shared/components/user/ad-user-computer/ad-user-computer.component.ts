@@ -3,9 +3,10 @@ import {ActiveDirectoryUserComputer} from '../../../../../../types/active-direct
 import {ActiveDirectoryType} from '../../../../../../types/active-directory.type';
 
 @Component({
-  selector: 'app-ad-user-computer',
-  templateUrl: './ad-user-computer.component.html',
-  styleUrls: ['./ad-user-computer.component.scss']
+    standalone: false,
+    selector: 'app-ad-user-computer',
+    templateUrl: './ad-user-computer.component.html',
+    styleUrls: ['./ad-user-computer.component.scss'],
 })
 export class AdUserComputerComponent implements OnInit {
   @Input() adInfo: ActiveDirectoryType;

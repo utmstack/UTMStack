@@ -9,9 +9,10 @@ import {UtmModuleGroupService} from '../../services/utm-module-group.service';
 import {UtmModuleGroupType} from '../../type/utm-module-group.type';
 
 @Component({
-  selector: 'app-int-create-group',
-  templateUrl: './int-create-group.component.html',
-  styleUrls: ['./int-create-group.component.css']
+    standalone: false,
+    selector: 'app-int-create-group',
+    templateUrl: './int-create-group.component.html',
+    styleUrls: ['./int-create-group.component.css'],
 })
 export class IntCreateGroupComponent implements OnInit {
   @Input() group: UtmModuleGroupType;

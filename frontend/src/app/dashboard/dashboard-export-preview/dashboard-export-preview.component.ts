@@ -3,9 +3,10 @@ import {Router} from '@angular/router';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-  selector: 'app-dashboard-export-preview',
-  templateUrl: './dashboard-export-preview.component.html',
-  styleUrls: ['./dashboard-export-preview.component.scss']
+    standalone: false,
+    selector: 'app-dashboard-export-preview',
+    templateUrl: './dashboard-export-preview.component.html',
+    styleUrls: ['./dashboard-export-preview.component.scss'],
 })
 export class DashboardExportPreviewComponent implements OnInit {
   @Input() pdf: any;

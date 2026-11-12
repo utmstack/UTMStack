@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, OnInit} from '@angular/core';
 import {UtmToastService} from '../../../../shared/alert/utm-toast.service';
 import {ScheduleService} from '../../../scanner-config/schedule/shared/services/schedule.service';
@@ -7,9 +7,10 @@ import {TaskService} from '../../../scanner-config/task/shared/services/task.ser
 import {TargetModel} from '../../model/target.model';
 
 @Component({
-  selector: 'app-asset-new-scan',
-  templateUrl: './asset-new-scan.component.html',
-  styleUrls: ['./asset-new-scan.component.scss']
+    standalone: false,
+    selector: 'app-asset-new-scan',
+    templateUrl: './asset-new-scan.component.html',
+    styleUrls: ['./asset-new-scan.component.scss'],
 })
 export class AssetNewScanComponent implements OnInit {
   loadingTarget = true;

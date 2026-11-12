@@ -4,9 +4,10 @@ import {searchEventType} from '../../../../../../constants/active-directory-even
 import {ActiveAdModuleActiveService} from '../../../../../../services/active-modules/active-ad-module.service';
 
 @Component({
-  selector: 'app-utm-notification-ad',
-  templateUrl: './utm-notification-ad.component.html',
-  styleUrls: ['./utm-notification-ad.component.scss']
+    standalone: false,
+    selector: 'app-utm-notification-ad',
+    templateUrl: './utm-notification-ad.component.html',
+    styleUrls: ['./utm-notification-ad.component.scss'],
 })
 export class UtmNotificationAdComponent implements OnInit, OnDestroy {
   adEvents: {

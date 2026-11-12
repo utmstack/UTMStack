@@ -6,9 +6,10 @@ import {UtmModuleGroupConfType} from '../../shared/type/utm-module-group-conf.ty
 
 
 @Component({
-  selector: 'app-int-aws-groups',
-  templateUrl: './int-aws-groups.component.html',
-  styleUrls: ['./int-aws-groups.component.scss']
+    standalone: false,
+    selector: 'app-int-aws-groups',
+    templateUrl: './int-aws-groups.component.html',
+    styleUrls: ['./int-aws-groups.component.scss'],
 })
 export class IntAwsGroupsComponent implements OnInit {
   awsGroup: { name: string, module: string };

@@ -12,9 +12,10 @@ import {ComplianceReportType} from '../../type/compliance-report.type';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 
 @Component({
-  selector: 'app-utm-compliance-create',
-  templateUrl: './utm-compliance-create.component.html',
-  styleUrls: ['./utm-compliance-create.component.scss']
+    standalone: false,
+    selector: 'app-utm-compliance-create',
+    templateUrl: './utm-compliance-create.component.html',
+    styleUrls: ['./utm-compliance-create.component.scss'],
 })
 export class UtmComplianceCreateComponent implements OnInit {
   @Input() report: ComplianceReportType;

@@ -6,8 +6,9 @@ import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {ADMIN_ROLE} from "../../../constants/global.constant";
 
 @Component({
-  selector: 'app-incident-variable-select',
-  template: `
+    standalone: false,
+    selector: 'app-incident-variable-select',
+    template: `
     <div class="w-100">
       <h6 class="font-weight-semibold mb-2">Variables</h6>
       <ul class="w-100" *ngIf="variables && variables.length>0">
@@ -26,7 +27,7 @@ import {ADMIN_ROLE} from "../../../constants/global.constant";
         <span class="text-blue-800 cursor-pointer" (click)="createVariable()"><i class="icon-plus2 mr-1"></i> Create variable</span>
       </div>
     </div>
-  `
+  `,
 })
 
 export class IncidentVariableSelectComponent implements OnInit {

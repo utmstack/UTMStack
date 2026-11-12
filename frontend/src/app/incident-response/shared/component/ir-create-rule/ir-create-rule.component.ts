@@ -17,9 +17,10 @@ import {IncidentResponseRuleService} from '../../services/incident-response-rule
 import {IncidentRuleType} from '../../type/incident-rule.type';
 
 @Component({
-  selector: 'app-ir-create-rule',
-  templateUrl: './ir-create-rule.component.html',
-  styleUrls: ['./ir-create-rule.component.scss']
+    standalone: false,
+    selector: 'app-ir-create-rule',
+    templateUrl: './ir-create-rule.component.html',
+    styleUrls: ['./ir-create-rule.component.scss'],
 })
 export class IrCreateRuleComponent implements OnInit {
   @Input() alert;

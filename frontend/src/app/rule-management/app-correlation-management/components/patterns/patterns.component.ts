@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {NgbActiveModal, NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
@@ -20,9 +20,10 @@ import {PatternManagerService} from '../../services/pattern-manager.service';
 import {AddPatternComponent} from './components/add-pattern.component';
 
 @Component({
-  selector: 'app-pattern-manager',
-  templateUrl: './patterns.component.html',
-  styleUrls: ['./patterns.component.scss']
+    standalone: false,
+    selector: 'app-pattern-manager',
+    templateUrl: './patterns.component.html',
+    styleUrls: ['./patterns.component.scss'],
 })
 export class PatternsComponent implements OnInit, OnDestroy {
 

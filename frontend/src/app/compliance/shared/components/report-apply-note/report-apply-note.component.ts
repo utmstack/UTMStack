@@ -6,9 +6,10 @@ import {filter} from "rxjs/operators";
 import {NgbPopover} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
-  selector: 'app-report-apply-note',
-  templateUrl: './report-apply-note.component.html',
-  styleUrls: ['./report-apply-note.component.scss']
+    standalone: false,
+    selector: 'app-report-apply-note',
+    templateUrl: './report-apply-note.component.html',
+    styleUrls: ['./report-apply-note.component.scss'],
 })
 export class ReportApplyNoteComponent implements OnInit, OnChanges {
   @Input() report: ComplianceReportType;

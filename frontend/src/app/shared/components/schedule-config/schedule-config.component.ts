@@ -3,16 +3,17 @@ import {NG_VALUE_ACCESSOR} from '@angular/forms';
 import {ScheduleConfig} from "./schedule-config.validator";
 
 @Component({
-  selector: 'app-utm-schedule-config',
-  templateUrl: './schedule-config.component.html',
-  styleUrls: ['./schedule-config.component.scss'],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => ScheduleConfigComponent),
-      multi: true
-    }
-  ]
+    standalone: false,
+    selector: 'app-utm-schedule-config',
+    templateUrl: './schedule-config.component.html',
+    styleUrls: ['./schedule-config.component.scss'],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => ScheduleConfigComponent),
+            multi: true
+        }
+    ],
 })
 export class ScheduleConfigComponent implements OnInit {
   @Input() initialConfig: ScheduleConfig = {

@@ -15,9 +15,10 @@ import {AdReportService} from '../shared/services/ad-report.service';
 import {AdReportType} from '../shared/type/ad-report.type';
 
 @Component({
-  selector: 'app-ad-report-create',
-  templateUrl: './ad-report-create.component.html',
-  styleUrls: ['./ad-report-create.component.scss']
+    standalone: false,
+    selector: 'app-ad-report-create',
+    templateUrl: './ad-report-create.component.html',
+    styleUrls: ['./ad-report-create.component.scss'],
 })
 export class AdReportCreateComponent implements OnInit {
   @Input() data: ActiveDirectoryTreeType[];

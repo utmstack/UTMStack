@@ -8,9 +8,10 @@ import {ScheduleModel} from '../../../shared/model/schedule.model';
 import {ScheduleService} from '../shared/services/schedule.service';
 
 @Component({
-  selector: 'app-schedule-create',
-  templateUrl: './schedule-create.component.html',
-  styleUrls: ['./schedule-create.component.scss']
+    standalone: false,
+    selector: 'app-schedule-create',
+    templateUrl: './schedule-create.component.html',
+    styleUrls: ['./schedule-create.component.scss'],
 })
 export class ScheduleCreateComponent implements OnInit, AfterContentChecked {
   @Input() schedule: ScheduleModel;

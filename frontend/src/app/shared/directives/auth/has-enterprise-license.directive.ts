@@ -3,7 +3,8 @@ import {LicenceChangeBehavior} from '../../behaviors/licence-change.behavior';
 import {UtmClientService} from '../../services/license/utm-client.service';
 
 @Directive({
-  selector: '[appEnterpriseLicence]'
+    standalone: false,
+    selector: '[appEnterpriseLicence]',
 })
 export class HasEnterpriseLicenseDirective {
   private licenseType: string;

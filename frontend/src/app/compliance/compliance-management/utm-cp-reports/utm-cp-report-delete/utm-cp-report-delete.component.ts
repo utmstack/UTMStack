@@ -5,9 +5,10 @@ import {CpReportsService} from '../../../shared/services/cp-reports.service';
 import {ComplianceReportType} from '../../../shared/type/compliance-report.type';
 
 @Component({
-  selector: 'app-utm-cp-report-delete',
-  templateUrl: './utm-cp-report-delete.component.html',
-  styleUrls: ['./utm-cp-report-delete.component.scss']
+    standalone: false,
+    selector: 'app-utm-cp-report-delete',
+    templateUrl: './utm-cp-report-delete.component.html',
+    styleUrls: ['./utm-cp-report-delete.component.scss'],
 })
 export class UtmCpReportDeleteComponent implements OnInit {
   @Input() report: ComplianceReportType;

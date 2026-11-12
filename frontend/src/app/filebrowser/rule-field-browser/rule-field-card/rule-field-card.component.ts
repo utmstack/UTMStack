@@ -4,9 +4,10 @@ import {ElasticDataTypesEnum} from '../../../shared/enums/elastic-data-types.enu
 import {ElasticSearchFieldInfoType} from '../../../shared/types/elasticsearch/elastic-search-field-info.type';
 
 @Component({
-  selector: 'app-rule-field-card',
-  templateUrl: './rule-field-card.component.html',
-  styleUrls: ['./rule-field-card.component.css']
+    standalone: false,
+    selector: 'app-rule-field-card',
+    templateUrl: './rule-field-card.component.html',
+    styleUrls: ['./rule-field-card.component.css'],
 })
 export class RuleFieldCardComponent implements OnInit {
   @Input() field: ElasticSearchFieldInfoType;

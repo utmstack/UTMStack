@@ -1,4 +1,4 @@
-import {HttpErrorResponse} from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {LocalStorageService} from 'ngx-webstorage';
@@ -9,10 +9,11 @@ import {CpStandardService} from '../../services/cp-standard.service';
 import {ComplianceStandardType} from '../../type/compliance-standard.type';
 
 @Component({
-  selector: 'app-utm-cp-standard-select',
-  templateUrl: './utm-cp-standard.component.html',
-  styleUrls: ['./utm-cp-standard.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    standalone: false,
+    selector: 'app-utm-cp-standard-select',
+    templateUrl: './utm-cp-standard.component.html',
+    styleUrls: ['./utm-cp-standard.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UtmCpStandardComponent implements OnInit {
   @Input() standardId: number;

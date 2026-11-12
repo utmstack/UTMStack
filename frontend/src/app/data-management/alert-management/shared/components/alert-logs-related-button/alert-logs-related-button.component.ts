@@ -12,9 +12,10 @@ import {ElasticDataService} from '../../../../../shared/services/elasticsearch/e
 const LOG_ID_FIELD = 'id';
 
 @Component({
-  selector: 'app-alert-logs-related-action',
-  templateUrl: './alert-logs-related-button.component.html',
-  styleUrls: ['./alert-logs-related-button.component.css']
+    standalone: false,
+    selector: 'app-alert-logs-related-action',
+    templateUrl: './alert-logs-related-button.component.html',
+    styleUrls: ['./alert-logs-related-button.component.css'],
 })
 export class AlertLogsRelatedButtonComponent implements OnInit {
 

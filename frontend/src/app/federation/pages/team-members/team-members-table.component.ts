@@ -2,9 +2,10 @@ import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {TeamUser} from '../../domain/team-user.model';
 
 @Component({
-  selector: 'app-team-members-table',
-  templateUrl: './team-members-table.component.html',
-  styleUrls: ['./team-members-table.component.scss']
+    standalone: false,
+    selector: 'app-team-members-table',
+    templateUrl: './team-members-table.component.html',
+    styleUrls: ['./team-members-table.component.scss'],
 })
 export class TeamMembersTableComponent {
   @Input() users: TeamUser[] = [];

@@ -30,9 +30,10 @@ import {filter, map, switchMap, takeUntil, tap} from "rxjs/operators";
 import {TimeFilterBehavior} from "../../../../shared/behaviors/time-filter.behavior";
 
 @Component({
-  selector: 'app-chart-alert-by-status',
-  templateUrl: './chart-alert-by-status.component.html',
-  styleUrls: ['./chart-alert-by-status.component.scss']
+    standalone: false,
+    selector: 'app-chart-alert-by-status',
+    templateUrl: './chart-alert-by-status.component.html',
+    styleUrls: ['./chart-alert-by-status.component.scss'],
 })
 export class ChartAlertByStatusComponent implements OnInit, OnDestroy {
   @Output() loaded = new EventEmitter<void>();

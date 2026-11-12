@@ -5,9 +5,10 @@ import {VisualizationType} from '../../../../../shared/chart/types/visualization
 import {ChartTypeEnum} from '../../../../../shared/enums/chart-type.enum';
 
 @Component({
-  selector: 'app-table-properties-option',
-  templateUrl: './table-properties-option.component.html',
-  styleUrls: ['./table-properties-option.component.scss']
+    standalone: false,
+    selector: 'app-table-properties-option',
+    templateUrl: './table-properties-option.component.html',
+    styleUrls: ['./table-properties-option.component.scss'],
 })
 export class TablePropertiesOptionComponent implements OnInit {
   @Input() visualization: VisualizationType;

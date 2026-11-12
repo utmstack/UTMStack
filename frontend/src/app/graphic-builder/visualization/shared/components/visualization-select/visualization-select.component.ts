@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {VisualizationType} from '../../../../../shared/chart/types/visualization.type';
@@ -12,9 +12,10 @@ import {VisualizationCreateComponent} from '../../../visualization-create/visual
 import {VisualizationService} from '../../services/visualization.service';
 
 @Component({
-  selector: 'app-visualization-select',
-  templateUrl: './visualization-select.component.html',
-  styleUrls: ['./visualization-select.component.scss']
+    standalone: false,
+    selector: 'app-visualization-select',
+    templateUrl: './visualization-select.component.html',
+    styleUrls: ['./visualization-select.component.scss'],
 })
 export class VisualizationSelectComponent implements OnInit {
   @Input() emitOnSelect: boolean;

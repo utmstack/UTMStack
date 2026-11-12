@@ -6,9 +6,10 @@ import {UtmHealthService} from './health-checks.service';
 import {HealthDetailComponent} from './health-detail/health-detail.component';
 
 @Component({
-  selector: 'app-health-checks',
-  templateUrl: './health-checks.component.html',
-  styleUrls: ['./health-checks.component.scss']
+    standalone: false,
+    selector: 'app-health-checks',
+    templateUrl: './health-checks.component.html',
+    styleUrls: ['./health-checks.component.scss'],
 })
 export class HealthChecksComponent implements OnInit {
   healthData: any;

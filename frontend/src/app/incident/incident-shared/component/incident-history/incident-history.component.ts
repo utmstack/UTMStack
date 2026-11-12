@@ -11,9 +11,10 @@ import {resolveInstantDate} from '../../../../shared/util/utm-time.util';
 import {UtmIncidentHistoryService} from '../../services/utm-incident-history.service';
 
 @Component({
-  selector: 'app-incident-history',
-  templateUrl: './incident-history.component.html',
-  styleUrls: ['./incident-history.component.scss']
+    standalone: false,
+    selector: 'app-incident-history',
+    templateUrl: './incident-history.component.html',
+    styleUrls: ['./incident-history.component.scss'],
 })
 export class IncidentHistoryComponent implements OnInit {
   @Input() incident: UtmIncidentType;

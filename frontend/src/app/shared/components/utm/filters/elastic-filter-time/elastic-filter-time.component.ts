@@ -21,9 +21,10 @@ import {setMaxDateToday} from '../../../../util/datepicker-util';
 import {buildFormatInstantFromDate, resolveInstantDate, resolveUTCDate} from '../../../../util/utm-time.util';
 
 @Component({
-  selector: 'app-elastic-filter-time',
-  templateUrl: './elastic-filter-time.component.html',
-  styleUrls: ['./elastic-filter-time.component.scss']
+    standalone: false,
+    selector: 'app-elastic-filter-time',
+    templateUrl: './elastic-filter-time.component.html',
+    styleUrls: ['./elastic-filter-time.component.scss'],
 })
 export class ElasticFilterTimeComponent implements OnInit, OnChanges, OnDestroy {
   @Input() invertContent: boolean;

@@ -12,9 +12,10 @@ import {AlertHistoryActionEnum} from '../../enums/alert-history-action.enum';
 import {AlertHistoryService} from './alert-history.service';
 
 @Component({
-  selector: 'app-alert-history',
-  templateUrl: './alert-history.component.html',
-  styleUrls: ['./alert-history.component.scss']
+    standalone: false,
+    selector: 'app-alert-history',
+    templateUrl: './alert-history.component.html',
+    styleUrls: ['./alert-history.component.scss'],
 })
 export class AlertHistoryComponent implements OnInit {
   @Input() alert: UtmAlertType;

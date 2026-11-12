@@ -4,9 +4,10 @@ import {UtmDateFormatEnum} from '../../../shared/enums/utm-date-format.enum';
 import {UtmThreadDetailComponent} from './utm-thread-detail/utm-thread-detail.component';
 
 @Component({
-  selector: 'app-utm-thread-metrics',
-  templateUrl: './utm-thread-metrics.component.html',
-  styleUrls: ['./utm-thread-metrics.component.scss']
+    standalone: false,
+    selector: 'app-utm-thread-metrics',
+    templateUrl: './utm-thread-metrics.component.html',
+    styleUrls: ['./utm-thread-metrics.component.scss'],
 })
 export class UtmThreadMetricsComponent implements OnInit {
 

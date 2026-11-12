@@ -4,9 +4,10 @@ import {AccountService} from '../../../core/auth/account.service';
 import {ThemeChangeBehavior} from '../../behaviors/theme-change.behavior';
 
 @Component({
-  selector: 'app-not-found',
-  templateUrl: './not-found.component.html',
-  styleUrls: ['./not-found.component.scss']
+    standalone: false,
+    selector: 'app-not-found',
+    templateUrl: './not-found.component.html',
+    styleUrls: ['./not-found.component.scss'],
 })
 export class NotFoundComponent implements OnInit {
   isLogged: boolean;

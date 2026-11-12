@@ -5,9 +5,10 @@ import {Step} from '../shared/step';
 import {SYSLOGSTEPS} from './syslog.steps';
 
 @Component({
-  selector: 'app-guide-syslog',
-  templateUrl: './guide-syslog.component.html',
-  styleUrls: ['./guide-syslog.component.scss']
+    standalone: false,
+    selector: 'app-guide-syslog',
+    templateUrl: './guide-syslog.component.html',
+    styleUrls: ['./guide-syslog.component.scss'],
 })
 export class GuideSyslogComponent implements OnInit {
   @Input() integrationId: number;

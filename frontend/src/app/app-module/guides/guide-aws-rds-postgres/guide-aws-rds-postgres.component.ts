@@ -2,9 +2,10 @@ import {Component, Input, OnInit} from '@angular/core';
 import {UtmModulesEnum} from '../../shared/enum/utm-module.enum';
 
 @Component({
-  selector: 'app-guide-aws-rds-postgres',
-  templateUrl: './guide-aws-rds-postgres.component.html',
-  styleUrls: ['./guide-aws-rds-postgres.component.scss']
+    standalone: false,
+    selector: 'app-guide-aws-rds-postgres',
+    templateUrl: './guide-aws-rds-postgres.component.html',
+    styleUrls: ['./guide-aws-rds-postgres.component.scss'],
 })
 export class GuideAwsRdsPostgresComponent implements OnInit {
   @Input() integrationId: number;

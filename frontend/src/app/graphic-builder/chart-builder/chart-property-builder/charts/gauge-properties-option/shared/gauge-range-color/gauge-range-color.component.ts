@@ -1,9 +1,10 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 
 @Component({
-  selector: 'app-gauge-range-color',
-  templateUrl: './gauge-range-color.component.html',
-  styleUrls: ['./gauge-range-color.component.scss']
+    standalone: false,
+    selector: 'app-gauge-range-color',
+    templateUrl: './gauge-range-color.component.html',
+    styleUrls: ['./gauge-range-color.component.scss'],
 })
 export class GaugeRangeColorComponent implements OnInit {
   @Output() rangeColorChange = new EventEmitter<[number, string][]>();

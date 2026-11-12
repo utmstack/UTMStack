@@ -17,10 +17,11 @@ import {ComponentType, NotificationRefreshService} from '../../service/notificat
 import {NotificationService} from '../../service/notification.service';
 
 @Component({
-  selector: 'app-utm-notification-view',
-  templateUrl: 'utm-notification-view.component.html',
-  styleUrls: ['utm-notification-view.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    standalone: false,
+    selector: 'app-utm-notification-view',
+    templateUrl: 'utm-notification-view.component.html',
+    styleUrls: ['utm-notification-view.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UtmNotificationViewComponent implements OnInit, AfterViewInit, OnDestroy {
   eventDate: TimeFilterType = resolveRangeByTime('week');

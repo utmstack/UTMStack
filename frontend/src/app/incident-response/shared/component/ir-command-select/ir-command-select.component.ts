@@ -4,9 +4,10 @@ import {IncidentResponseActionService} from '../../services/incident-response-ac
 import {IncidentActionType} from '../../type/incident-action.type';
 
 @Component({
-  selector: 'app-ir-command-select',
-  templateUrl: './ir-command-select.component.html',
-  styleUrls: ['./ir-command-select.component.scss']
+    standalone: false,
+    selector: 'app-ir-command-select',
+    templateUrl: './ir-command-select.component.html',
+    styleUrls: ['./ir-command-select.component.scss'],
 })
 export class IrCommandSelectComponent implements OnInit {
   actions: IncidentActionType[] = [];

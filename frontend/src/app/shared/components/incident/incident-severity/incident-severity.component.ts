@@ -2,10 +2,11 @@ import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 import {IncidentSeverityEnum} from '../../../enums/incident/incident-severity.enum';
 
 @Component({
-  selector: 'app-incident-severity',
-  templateUrl: './incident-severity.component.html',
-  styleUrls: ['./incident-severity.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    standalone: false,
+    selector: 'app-incident-severity',
+    templateUrl: './incident-severity.component.html',
+    styleUrls: ['./incident-severity.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IncidentSeverityComponent {
   label: string;

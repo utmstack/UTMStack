@@ -1,9 +1,10 @@
 import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 
 @Component({
-  selector: 'app-utm-search-input',
-  templateUrl: './utm-search-input.component.html',
-  styleUrls: ['./utm-search-input.component.scss']
+    standalone: false,
+    selector: 'app-utm-search-input',
+    templateUrl: './utm-search-input.component.html',
+    styleUrls: ['./utm-search-input.component.scss'],
 })
 export class UtmSearchInputComponent implements OnInit {
   @Input() searching;

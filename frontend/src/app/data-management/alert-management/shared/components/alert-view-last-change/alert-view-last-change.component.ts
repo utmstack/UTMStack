@@ -8,9 +8,10 @@ import {getID} from '../../util/alert-util-function';
 import {AlertHistoryService} from '../alert-history/alert-history.service';
 
 @Component({
-  selector: 'app-alert-view-last-change',
-  templateUrl: './alert-view-last-change.component.html',
-  styleUrls: ['./alert-view-last-change.component.scss']
+    standalone: false,
+    selector: 'app-alert-view-last-change',
+    templateUrl: './alert-view-last-change.component.html',
+    styleUrls: ['./alert-view-last-change.component.scss'],
 })
 export class AlertViewLastChangeComponent implements OnInit, OnDestroy {
   @Input() action: AlertHistoryActionEnum;

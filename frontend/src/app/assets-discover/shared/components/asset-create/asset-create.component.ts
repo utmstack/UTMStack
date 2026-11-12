@@ -12,9 +12,10 @@ import {AssetType} from '../../types/asset-type';
 import {NetScanType} from '../../types/net-scan.type';
 
 @Component({
-  selector: 'app-asset-create',
-  templateUrl: './asset-create.component.html',
-  styleUrls: ['./asset-create.component.css']
+    standalone: false,
+    selector: 'app-asset-create',
+    templateUrl: './asset-create.component.html',
+    styleUrls: ['./asset-create.component.css'],
 })
 export class AssetCreateComponent implements OnInit {
   formAsset: FormGroup;

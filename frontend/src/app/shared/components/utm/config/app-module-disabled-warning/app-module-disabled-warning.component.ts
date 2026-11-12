@@ -4,9 +4,10 @@ import {UtmModulesService} from '../../../../../app-module/shared/services/utm-m
 import {UtmRunModeService} from '../../../../services/active-modules/utm-run-mode.service';
 
 @Component({
-  selector: 'app-app-module-disabled-warning',
-  templateUrl: './app-module-disabled-warning.component.html',
-  styleUrls: ['./app-module-disabled-warning.component.css']
+    standalone: false,
+    selector: 'app-app-module-disabled-warning',
+    templateUrl: './app-module-disabled-warning.component.html',
+    styleUrls: ['./app-module-disabled-warning.component.css'],
 })
 export class AppModuleDisabledWarningComponent implements OnInit {
   @Input() module: UtmModulesEnum;

@@ -1,4 +1,4 @@
-import {HttpErrorResponse} from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import {ViewChild, Component, HostListener, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal, NgbModalOptions} from '@ng-bootstrap/ng-bootstrap';
@@ -20,9 +20,10 @@ import {ComplianceStandardType} from '../shared/type/compliance-standard.type';
 import {ComplianceResultViewComponent} from '../compliance-result-view/compliance-result-view.component';
 
 @Component({
-  selector: 'app-compliance-report-viewer',
-  templateUrl: './compliance-report-viewer.component.html',
-  styleUrls: ['./compliance-report-viewer.component.css']
+    standalone: false,
+    selector: 'app-compliance-report-viewer',
+    templateUrl: './compliance-report-viewer.component.html',
+    styleUrls: ['./compliance-report-viewer.component.css'],
 })
 export class ComplianceReportViewerComponent implements OnInit,  OnDestroy {
   @ViewChild('compilanceRep', {static: false}) compilanceRep!: ComplianceResultViewComponent

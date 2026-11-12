@@ -10,9 +10,10 @@ import {AS400STEPS} from './as400.steps';
 import {ACTIONS, PLATFORM} from './constants';
 
 @Component({
+    standalone: false,
     selector: 'app-guide-as400',
     templateUrl: './guide-as400.component.html',
-    styleUrls: ['./guide-as400.component.css']
+    styleUrls: ['./guide-as400.component.css'],
 })
 export class GuideAs400Component implements OnInit {
     @Input() integrationId: number;

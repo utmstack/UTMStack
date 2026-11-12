@@ -5,7 +5,8 @@ import {TimezoneFormatService} from '../services/utm-timezone.service';
 import {DatePipeDefaultOptions} from '../types/date-pipe-default-options';
 
 @Pipe({
-  name: 'date'
+    standalone: false,
+    name: 'date',
 })
 export class UtmDatePipe extends DatePipe implements PipeTransform {
   options: DatePipeDefaultOptions;

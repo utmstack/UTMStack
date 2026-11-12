@@ -2,9 +2,10 @@ import {Component, Input, OnInit} from '@angular/core';
 import {DomSanitizer} from '@angular/platform-browser';
 
 @Component({
-  selector: 'app-utm-pdf-preview',
-  templateUrl: './utm-pdf-preview.component.html',
-  styleUrls: ['./utm-pdf-preview.component.scss']
+    standalone: false,
+    selector: 'app-utm-pdf-preview',
+    templateUrl: './utm-pdf-preview.component.html',
+    styleUrls: ['./utm-pdf-preview.component.scss'],
 })
 export class UtmPdfPreviewComponent implements OnInit {
   /**

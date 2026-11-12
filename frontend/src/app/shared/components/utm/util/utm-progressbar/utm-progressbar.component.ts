@@ -1,9 +1,10 @@
 import {Component, Input, OnInit} from '@angular/core';
 
 @Component({
-  selector: 'app-utm-progressbar',
-  templateUrl: './utm-progressbar.component.html',
-  styleUrls: ['./utm-progressbar.component.css']
+    standalone: false,
+    selector: 'app-utm-progressbar',
+    templateUrl: './utm-progressbar.component.html',
+    styleUrls: ['./utm-progressbar.component.css'],
 })
 export class UtmProgressbarComponent implements OnInit {
   @Input() value: number;

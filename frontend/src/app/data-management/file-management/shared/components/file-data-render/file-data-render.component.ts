@@ -5,9 +5,10 @@ import {extractValueFromObjectByPath} from '../../../../../shared/util/get-value
 import {FileFieldEnum} from '../../enum/file-field.enum';
 
 @Component({
-  selector: 'app-file-data-render',
-  templateUrl: './file-data-render.component.html',
-  styleUrls: ['./file-data-render.component.scss']
+    standalone: false,
+    selector: 'app-file-data-render',
+    templateUrl: './file-data-render.component.html',
+    styleUrls: ['./file-data-render.component.scss'],
 })
 export class FileDataRenderComponent implements OnInit {
   @Input() file: any;

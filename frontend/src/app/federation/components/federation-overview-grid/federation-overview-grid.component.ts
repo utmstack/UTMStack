@@ -16,9 +16,10 @@ import {
 } from '../../../shared/components/utm/util/modal-confirmation/modal-confirmation.component';
 
 @Component({
-  selector: 'app-federation-overview-grid',
-  templateUrl: './federation-overview-grid.component.html',
-  styleUrls: ['./federation-overview-grid.component.scss']
+    standalone: false,
+    selector: 'app-federation-overview-grid',
+    templateUrl: './federation-overview-grid.component.html',
+    styleUrls: ['./federation-overview-grid.component.scss'],
 })
 export class FederationOverviewGridComponent implements OnInit, OnDestroy {
   entries: CountAlertsByStatusEntry[] = [];

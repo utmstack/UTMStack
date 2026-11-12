@@ -1,7 +1,8 @@
 import {Pipe, PipeTransform} from '@angular/core';
 
 @Pipe({
-  name: 'highlight'
+    standalone: false,
+    name: 'highlight',
 })
 export class HighlightPipe implements PipeTransform {
   transform(text: string, search?: string, cssClass: string = 'text-white bg-primary-300'): string {

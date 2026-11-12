@@ -1,9 +1,10 @@
 import {Component, Input, OnInit} from '@angular/core';
 
 @Component({
-  selector: 'app-utm-country-flag',
-  templateUrl: './utm-country-flag.component.html',
-  styleUrls: ['./utm-country-flag.component.scss']
+    standalone: false,
+    selector: 'app-utm-country-flag',
+    templateUrl: './utm-country-flag.component.html',
+    styleUrls: ['./utm-country-flag.component.scss'],
 })
 export class UtmCountryFlagComponent implements OnInit {
   /**

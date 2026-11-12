@@ -9,9 +9,10 @@ import {ChartTypeEnum} from '../../../../../shared/enums/chart-type.enum';
 import {AXIS_LINE_STYLE} from '../../../../shared/const/chart/axis-properties.const';
 
 @Component({
-  selector: 'app-gauge-properties-option',
-  templateUrl: './gauge-properties-option.component.html',
-  styleUrls: ['./gauge-properties-option.component.scss']
+    standalone: false,
+    selector: 'app-gauge-properties-option',
+    templateUrl: './gauge-properties-option.component.html',
+    styleUrls: ['./gauge-properties-option.component.scss'],
 })
 export class GaugePropertiesOptionComponent implements OnInit {
   @Output() gaugeOptions = new EventEmitter<UtmGaugeOptionType>();

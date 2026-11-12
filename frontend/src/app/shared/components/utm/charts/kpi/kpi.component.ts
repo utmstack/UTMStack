@@ -1,9 +1,10 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 
 @Component({
-  selector: 'app-kpi',
-  templateUrl: './kpi.component.html',
-  styleUrls: ['./kpi.component.scss']
+    standalone: false,
+    selector: 'app-kpi',
+    templateUrl: './kpi.component.html',
+    styleUrls: ['./kpi.component.scss'],
 })
 export class KpiComponent implements OnInit {
   @Input() label: string;

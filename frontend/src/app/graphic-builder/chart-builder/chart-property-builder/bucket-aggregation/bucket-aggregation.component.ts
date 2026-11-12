@@ -16,9 +16,10 @@ import {getErrorCountFormArray} from '../shared/functions/form-error-count';
 import {filterFieldAgg} from '../shared/functions/util-field';
 
 @Component({
-  selector: 'app-bucket-aggregation',
-  templateUrl: './bucket-aggregation.component.html',
-  styleUrls: ['./bucket-aggregation.component.scss']
+    standalone: false,
+    selector: 'app-bucket-aggregation',
+    templateUrl: './bucket-aggregation.component.html',
+    styleUrls: ['./bucket-aggregation.component.scss'],
 })
 export class BucketAggregationComponent implements OnInit {
   @Input() mode: string;

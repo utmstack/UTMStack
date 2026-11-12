@@ -14,9 +14,10 @@ import {extractQueryParamsForNavigation} from '../../../util/query-params-to-fil
 
 
 @Component({
-  selector: 'app-totp',
-  templateUrl: './totp.component.html',
-  styleUrls: ['./totp.component.scss']
+    standalone: false,
+    selector: 'app-totp',
+    templateUrl: './totp.component.html',
+    styleUrls: ['./totp.component.scss'],
 })
 export class TotpComponent implements OnInit, OnDestroy {
   form: any = {};

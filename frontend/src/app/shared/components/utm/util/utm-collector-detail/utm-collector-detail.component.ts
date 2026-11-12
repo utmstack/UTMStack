@@ -4,9 +4,10 @@ import {AgentStatusEnum, AgentType} from '../../../../types/agent/agent.type';
 import {UtmModuleCollectorType} from "../../../../../app-module/shared/type/utm-module-collector.type";
 
 @Component({
-  selector: 'app-utm-collector-detail',
-  templateUrl: './utm-collector-detail.component.html',
-  styleUrls: ['./utm-collector-detail.component.scss']
+    standalone: false,
+    selector: 'app-utm-collector-detail',
+    templateUrl: './utm-collector-detail.component.html',
+    styleUrls: ['./utm-collector-detail.component.scss'],
 })
 export class UtmCollectorDetailComponent implements OnInit {
   @Input() agent: UtmModuleCollectorType;

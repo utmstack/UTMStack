@@ -9,9 +9,10 @@ import {ElasticFilterType} from '../../../../../types/filter/elastic-filter.type
 import {ChangeFilterValueService} from '../../services/change-filter-value.service';
 
 @Component({
-  selector: 'app-dashboard-filter-select',
-  templateUrl: './dashboard-filter-select.component.html',
-  styleUrls: ['./dashboard-filter-select.component.css']
+    standalone: false,
+    selector: 'app-dashboard-filter-select',
+    templateUrl: './dashboard-filter-select.component.html',
+    styleUrls: ['./dashboard-filter-select.component.css'],
 })
 export class DashboardFilterSelectComponent implements OnInit, OnChanges, OnDestroy {
   @Input() filter: DashboardFilterType;

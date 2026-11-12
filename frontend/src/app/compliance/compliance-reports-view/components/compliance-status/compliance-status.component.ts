@@ -12,10 +12,11 @@ import {ComplianceReportType} from '../../../shared/type/compliance-report.type'
 export type ComplianceStatus = 'complaint' | 'non_complaint';
 
 @Component({
-  selector: 'app-compliance-status',
-  templateUrl: './compliance-status.component.html',
-  styleUrls: ['./compliance-status.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    standalone: false,
+    selector: 'app-compliance-status',
+    templateUrl: './compliance-status.component.html',
+    styleUrls: ['./compliance-status.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ComplianceStatusComponent implements OnInit {
   @Input() template: 'default' | 'dropdown' = 'default';

@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {NgbActiveModal, NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
@@ -20,9 +20,10 @@ import {AddAssetComponent} from './components/components/add-asset/add-asset.com
 import {IncidentSeverityEnum} from '../../../../shared/enums/incident/incident-severity.enum';
 
 @Component({
-  selector: 'app-assets',
-  templateUrl: './assets.component.html',
-  styleUrls: ['./assets.component.scss']
+    standalone: false,
+    selector: 'app-assets',
+    templateUrl: './assets.component.html',
+    styleUrls: ['./assets.component.scss'],
 })
 export class AssetsComponent implements OnInit, OnDestroy {
 

@@ -27,9 +27,10 @@ import {UtmDashboardService} from '../shared/services/utm-dashboard.service';
 import {DashboardDraftType} from '../shared/types/dashboard-draft.type';
 
 @Component({
-  selector: 'app-dashboard-create',
-  templateUrl: './dashboard-create.component.html',
-  styleUrls: ['./dashboard-create.component.scss']
+    standalone: false,
+    selector: 'app-dashboard-create',
+    templateUrl: './dashboard-create.component.html',
+    styleUrls: ['./dashboard-create.component.scss'],
 })
 export class DashboardCreateComponent implements OnInit, OnDestroy, AfterViewInit {
   loadingDashboard = false;

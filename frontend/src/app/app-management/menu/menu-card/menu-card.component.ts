@@ -6,9 +6,10 @@ import {Menu} from '../../../shared/types/menu/menu.model';
 import {MenuDeleteDialogComponent} from '../menu-delete/menu-delete-dialog.component';
 
 @Component({
-  selector: 'app-menu-card',
-  templateUrl: './menu-card.component.html',
-  styleUrls: ['./menu-card.component.scss']
+    standalone: false,
+    selector: 'app-menu-card',
+    templateUrl: './menu-card.component.html',
+    styleUrls: ['./menu-card.component.scss'],
 })
 export class MenuCardComponent implements OnInit {
 

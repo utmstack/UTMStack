@@ -25,9 +25,10 @@ import {ComplianceStandardType} from '../shared/type/compliance-standard.type';
 
 
 @Component({
+    standalone: false,
     selector: 'app-compliance-schedule',
     templateUrl: './compliance-schedule.component.html',
-    styleUrls: ['./compliance-schedule.component.scss']
+    styleUrls: ['./compliance-schedule.component.scss'],
 })
 export class ComplianceScheduleComponent implements OnInit, OnDestroy {
     standard: ComplianceStandardType;

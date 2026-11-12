@@ -6,9 +6,10 @@ import {FileFieldEnum} from '../../enum/file-field.enum';
 import {FileAccessMaskCodeType} from '../../types/file-access-mask-code.type';
 
 @Component({
-  selector: 'app-file-access-mask',
-  templateUrl: './file-access-mask.component.html',
-  styleUrls: ['./file-access-mask.component.scss']
+    standalone: false,
+    selector: 'app-file-access-mask',
+    templateUrl: './file-access-mask.component.html',
+    styleUrls: ['./file-access-mask.component.scss'],
 })
 export class FileAccessMaskComponent implements OnInit {
   @Input() file: any;

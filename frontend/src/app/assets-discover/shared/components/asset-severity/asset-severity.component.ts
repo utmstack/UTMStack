@@ -6,9 +6,10 @@ import {AssetSeverityEnum} from '../../enums/asset-severity.enum';
 import {NetScanType} from '../../types/net-scan.type';
 
 @Component({
-  selector: 'app-asset-severity',
-  templateUrl: './asset-severity.component.html',
-  styleUrls: ['./asset-severity.component.scss']
+    standalone: false,
+    selector: 'app-asset-severity',
+    templateUrl: './asset-severity.component.html',
+    styleUrls: ['./asset-severity.component.scss'],
 })
 export class AssetSeverityComponent implements OnInit {
   @Input() asset: NetScanType;

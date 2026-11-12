@@ -17,9 +17,10 @@ import {UtmAdminChangeEmailComponent} from '../utm-admin-change-email/utm-admin-
 import {UtmInstanceInfoComponent} from '../utm-instance-info/utm-instance-info.component';
 
 @Component({
-  selector: 'app-welcome-to-utmstack',
-  templateUrl: './welcome-to-utmstack.component.html',
-  styleUrls: ['./welcome-to-utmstack.component.scss']
+    standalone: false,
+    selector: 'app-welcome-to-utmstack',
+    templateUrl: './welcome-to-utmstack.component.html',
+    styleUrls: ['./welcome-to-utmstack.component.scss'],
 })
 export class WelcomeToUtmstackComponent implements OnInit {
   private unsubscriber: Subject<void> = new Subject<void>();

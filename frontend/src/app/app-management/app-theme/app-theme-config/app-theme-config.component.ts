@@ -6,9 +6,10 @@ import {UtmAppThemeService} from '../../../shared/services/theme/utm-app-theme.s
 import {AppThemeType} from '../../../shared/types/theme/app-theme.type';
 
 @Component({
-  selector: 'app-app-theme-config',
-  templateUrl: './app-theme-config.component.html',
-  styleUrls: ['./app-theme-config.component.css']
+    standalone: false,
+    selector: 'app-app-theme-config',
+    templateUrl: './app-theme-config.component.html',
+    styleUrls: ['./app-theme-config.component.css'],
 })
 export class AppThemeConfigComponent implements OnInit {
   @Input() theme: AppThemeType;

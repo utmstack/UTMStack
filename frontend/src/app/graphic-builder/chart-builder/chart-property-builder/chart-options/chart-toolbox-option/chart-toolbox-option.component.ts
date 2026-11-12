@@ -10,9 +10,10 @@ import {
 } from '../../../../shared/const/chart/toolbox-properties.const';
 
 @Component({
-  selector: 'app-chart-toolbox-option',
-  templateUrl: './chart-toolbox-option.component.html',
-  styleUrls: ['./chart-toolbox-option.component.scss']
+    standalone: false,
+    selector: 'app-chart-toolbox-option',
+    templateUrl: './chart-toolbox-option.component.html',
+    styleUrls: ['./chart-toolbox-option.component.scss'],
 })
 export class ChartToolboxOptionComponent implements OnInit {
   @Input() chartType: ChartTypeEnum;

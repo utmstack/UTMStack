@@ -4,9 +4,10 @@ import {FieldDataService} from '../../shared/services/elasticsearch/field-data.s
 import {ElasticSearchFieldInfoType} from '../../shared/types/elasticsearch/elastic-search-field-info.type';
 
 @Component({
-  selector: 'app-rule-field-browser',
-  templateUrl: './rule-field-browser.component.html',
-  styleUrls: ['./rule-field-browser.component.css']
+    standalone: false,
+    selector: 'app-rule-field-browser',
+    templateUrl: './rule-field-browser.component.html',
+    styleUrls: ['./rule-field-browser.component.css'],
 })
 export class RuleFieldBrowserComponent implements OnInit {
   fields: ElasticSearchFieldInfoType[] = [];

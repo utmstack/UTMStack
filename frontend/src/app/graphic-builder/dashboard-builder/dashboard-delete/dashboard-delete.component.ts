@@ -6,9 +6,10 @@ import {MenuService} from '../../../shared/services/menu/menu.service';
 import {UtmDashboardService} from '../shared/services/utm-dashboard.service';
 
 @Component({
-  selector: 'app-dashboard-delete',
-  templateUrl: './dashboard-delete.component.html',
-  styleUrls: ['./dashboard-delete.component.scss']
+    standalone: false,
+    selector: 'app-dashboard-delete',
+    templateUrl: './dashboard-delete.component.html',
+    styleUrls: ['./dashboard-delete.component.scss'],
 })
 export class DashboardDeleteComponent implements OnInit {
   @Input() dashboard: any;

@@ -1,4 +1,4 @@
-import {HttpResponse} from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {Component, isDevMode, OnInit, QueryList, ViewChildren} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
@@ -21,9 +21,10 @@ import {VisualizationImportComponent} from '../visualization-import/visualizatio
 import {UtmToastService} from "../../../shared/alert/utm-toast.service";
 
 @Component({
-  selector: 'app-visualization-list',
-  templateUrl: './visualization-list.component.html',
-  styleUrls: ['./visualization-list.component.scss']
+    standalone: false,
+    selector: 'app-visualization-list',
+    templateUrl: './visualization-list.component.html',
+    styleUrls: ['./visualization-list.component.scss'],
 })
 export class VisualizationListComponent implements OnInit {
   @ViewChildren(SortableDirective) headers: QueryList<SortableDirective>;

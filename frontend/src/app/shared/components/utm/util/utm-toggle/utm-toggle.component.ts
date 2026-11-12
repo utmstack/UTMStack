@@ -1,9 +1,10 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 
 @Component({
-  selector: 'app-utm-toggle',
-  templateUrl: './utm-toggle.component.html',
-  styleUrls: ['./utm-toggle.component.scss']
+    standalone: false,
+    selector: 'app-utm-toggle',
+    templateUrl: './utm-toggle.component.html',
+    styleUrls: ['./utm-toggle.component.scss'],
 })
 export class UtmToggleComponent implements OnInit {
   @Input() active: boolean;

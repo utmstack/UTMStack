@@ -16,9 +16,10 @@ import {AlertFilterManagementService} from '../../../services/alert-filter-manag
 import {resolveFieldNameByFilter} from '../../../util/alert-util-function';
 
 @Component({
-  selector: 'app-filter-applied',
-  templateUrl: './filter-applied.component.html',
-  styleUrls: ['./filter-applied.component.scss']
+    standalone: false,
+    selector: 'app-filter-applied',
+    templateUrl: './filter-applied.component.html',
+    styleUrls: ['./filter-applied.component.scss'],
 })
 export class FilterAppliedComponent implements OnInit {
   @Input() dataType: EventDataTypeEnum;

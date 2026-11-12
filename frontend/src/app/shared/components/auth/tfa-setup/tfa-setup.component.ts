@@ -9,9 +9,10 @@ import {ThemeChangeBehavior} from '../../../behaviors/theme-change.behavior';
 import {TfaMethod, TfaService, TfaStage} from '../../../services/tfa/tfa.service';
 
 @Component({
-  selector: 'app-tfa-setup',
-  templateUrl: './tfa-setup.component.html',
-  styleUrls: ['./tfa-setup.component.scss']
+    standalone: false,
+    selector: 'app-tfa-setup',
+    templateUrl: './tfa-setup.component.html',
+    styleUrls: ['./tfa-setup.component.scss'],
 })
 export class TfaSetupComponent implements OnInit, OnDestroy {
 

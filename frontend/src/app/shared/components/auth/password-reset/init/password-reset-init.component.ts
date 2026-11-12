@@ -5,9 +5,10 @@ import {UtmToastService} from '../../../../alert/utm-toast.service';
 import {PasswordResetInitService} from './password-reset-init.service';
 
 @Component({
-  selector: 'app-password-reset-init',
-  templateUrl: './password-reset-init.component.html',
-  styleUrls: ['./password-reset-init.scss']
+    standalone: false,
+    selector: 'app-password-reset-init',
+    templateUrl: './password-reset-init.component.html',
+    styleUrls: ['./password-reset-init.scss'],
 })
 export class PasswordResetInitComponent implements OnInit, AfterViewInit {
   error: string;

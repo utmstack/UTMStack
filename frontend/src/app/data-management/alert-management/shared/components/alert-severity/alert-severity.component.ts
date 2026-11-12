@@ -2,9 +2,10 @@ import {Component, Input, OnInit} from '@angular/core';
 import {HIGH, HIGH_TEXT, LOW, LOW_TEXT, MEDIUM, MEDIUM_TEXT} from '../../../../../shared/constants/alert/alert-severity.constant';
 
 @Component({
-  selector: 'app-alert-severity',
-  templateUrl: './alert-severity.component.html',
-  styleUrls: ['./alert-severity.component.scss']
+    standalone: false,
+    selector: 'app-alert-severity',
+    templateUrl: './alert-severity.component.html',
+    styleUrls: ['./alert-severity.component.scss'],
 })
 export class AlertSeverityComponent implements OnInit {
   @Input() severity: string | number;

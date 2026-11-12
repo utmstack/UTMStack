@@ -3,9 +3,10 @@ import {ALERT_TAGS_FIELD} from '../../../../shared/constants/alert/alert-field.c
 import {getValueFromPropertyPath} from '../../../../shared/util/get-value-object-from-property-path.util';
 
 @Component({
-  selector: 'app-alert-tags-render',
-  templateUrl: './alert-tags-render.component.html',
-  styleUrls: ['./alert-tags-render.component.scss']
+    standalone: false,
+    selector: 'app-alert-tags-render',
+    templateUrl: './alert-tags-render.component.html',
+    styleUrls: ['./alert-tags-render.component.scss'],
 })
 export class AlertTagsRenderComponent implements OnInit {
   @Input() icon: any;

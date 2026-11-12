@@ -4,9 +4,10 @@ import {IP_HOSTNAME_REGEX, URL_REGEX} from '../../../shared/constants/regex-cons
 import {UtmModulesEnum} from '../../shared/enum/utm-module.enum';
 
 @Component({
-  selector: 'app-guide-bitdefender',
-  templateUrl: './guide-bitdefender.component.html',
-  styleUrls: ['./guide-bitdefender.component.css']
+    standalone: false,
+    selector: 'app-guide-bitdefender',
+    templateUrl: './guide-bitdefender.component.html',
+    styleUrls: ['./guide-bitdefender.component.css'],
 })
 export class GuideBitdefenderComponent implements OnInit {
   @Input() integrationId: number;

@@ -6,9 +6,10 @@ import {UtmModuleCheckType} from '../../type/utm-module-check.type';
 import {UtmModuleType} from '../../type/utm-module.type';
 
 @Component({
-  selector: 'app-app-module-checks',
-  templateUrl: './app-module-checks.component.html',
-  styleUrls: ['./app-module-checks.component.scss']
+    standalone: false,
+    selector: 'app-app-module-checks',
+    templateUrl: './app-module-checks.component.html',
+    styleUrls: ['./app-module-checks.component.scss'],
 })
 export class AppModuleChecksComponent implements OnInit {
   @Input() module: UtmModuleType;

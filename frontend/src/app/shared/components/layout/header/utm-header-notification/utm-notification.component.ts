@@ -15,10 +15,11 @@ import {NotificationService} from '../../../../../app-management/utm-notificatio
 import {UtmToastService} from '../../../../alert/utm-toast.service';
 
 @Component({
-  selector: 'app-utm-notification',
-  templateUrl: 'utm-notification.component.html',
-  styleUrls: ['utm-notification.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    standalone: false,
+    selector: 'app-utm-notification',
+    templateUrl: 'utm-notification.component.html',
+    styleUrls: ['utm-notification.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UtmNotificationComponent implements OnInit, AfterViewInit, OnDestroy {
   notifications$: Observable<NotificationDTO[]>;

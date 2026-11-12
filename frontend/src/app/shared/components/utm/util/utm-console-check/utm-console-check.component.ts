@@ -4,9 +4,10 @@ import {AgentStatusEnum, AgentType} from '../../../../types/agent/agent.type';
 import {IncidentCommandType} from '../../../../types/incident/incident-command.type';
 
 @Component({
-  selector: 'app-utm-console-check',
-  templateUrl: './utm-console-check.component.html',
-  styleUrls: ['./utm-console-check.component.css']
+    standalone: false,
+    selector: 'app-utm-console-check',
+    templateUrl: './utm-console-check.component.html',
+    styleUrls: ['./utm-console-check.component.css'],
 })
 export class UtmConsoleCheckComponent implements OnInit {
   @Input() hostname: string;

@@ -1,7 +1,8 @@
 import {Directive, EventEmitter, HostBinding, HostListener, Output} from '@angular/core';
 
 @Directive({
-  selector: '[appUtmFileDragDrop]'
+    standalone: false,
+    selector: '[appUtmFileDragDrop]',
 })
 export class UtmFileDragDropDirective {
   // tslint:disable-next-line:no-output-on-prefix

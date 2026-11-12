@@ -21,9 +21,10 @@ import {AlertFiltersBehavior} from '../../../behavior/alert-filters.behavior';
 import {AlertUpdateTagBehavior} from '../../../behavior/alert-update-tag.behavior';
 
 @Component({
-  selector: 'app-alert-generic-filter',
-  templateUrl: './alert-generic-filter.component.html',
-  styleUrls: ['./alert-generic-filter.component.scss']
+    standalone: false,
+    selector: 'app-alert-generic-filter',
+    templateUrl: './alert-generic-filter.component.html',
+    styleUrls: ['./alert-generic-filter.component.scss'],
 })
 export class AlertGenericFilterComponent implements OnInit, AfterViewInit, OnDestroy {
   @Output() filterGenericChange = new EventEmitter<ElasticFilterType>();
