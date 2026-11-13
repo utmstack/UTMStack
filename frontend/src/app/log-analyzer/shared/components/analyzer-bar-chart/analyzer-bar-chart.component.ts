@@ -70,7 +70,15 @@ export class AnalyzerBarChartComponent implements OnInit {
       this.fields = field.filter(value => value.type !== ElasticDataTypesEnum.TEXT || value.name.includes('.keyword'));
       this.field = this.fields[0];
       this.loading = false;
-      this.getFieldTopValue();
+      // Only request the chart once the current filters (at least the @timestamp
+      // range) are known. Without this guard the async fields response re-triggers
+      // getFieldTopValue() with an empty filter set, so the CHART tab plotted the
+      // whole index while the TABLE tab and the record counter respected the active
+      // range (issue #2966). The $logFilter BehaviorSubject subscription in
+      // ngOnInit is the primary trigger and re-fires on every filter change.
+      if (this.filters && this.filters.length > 0) {
+        this.getFieldTopValue();
+      }
     });
   }
 

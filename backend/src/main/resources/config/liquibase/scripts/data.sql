@@ -16880,7 +16880,7 @@ $$
 			 (303,'Alerts: Azure','data/alert/view?dataType.keyword=IS->azure&alertType=ALERT',300,1,NULL,1,false,false,NULL,'AZURE'),
 			 (304,'Alerts: Office365','data/alert/view?dataType.keyword=IS->o365&alertType=ALERT',300,1,NULL,2,false,false,NULL,'O365'),
 			 (305,'Alerts: AWS','data/alert/view?dataType.keyword=IS->aws&alertType=ALERT',300,1,NULL,3,false,false,NULL,'AWS'),
-			 (306,'Alerts: Network flow','data/alert/view?dataType.keyword=IS->network_flow&alertType=ALERT',300,1,NULL,4,true,false,NULL,NULL),
+			 (306,'Alerts: Network flow','data/alert/view?dataType.keyword=IS->netflow&alertType=ALERT',300,1,NULL,4,true,false,NULL,NULL),
 			 (310,'Alerts: Windows','data/alert/view?dataType.keyword=IS->wineventlog&alertType=ALERT',300,1,NULL,7,true,false,NULL,NULL),
 			 (314,'Tagging rules','/data/alert/alert-rule-management',300,1,NULL,1,true,true,NULL,NULL),
 			 (315,'Alerts: False Positives','/data/alert/view?alertType=FALSE_POSITIVE',300,1,NULL,8,true,false,NULL,NULL),
