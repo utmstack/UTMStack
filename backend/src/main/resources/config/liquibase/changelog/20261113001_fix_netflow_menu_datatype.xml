@@ -22,9 +22,9 @@
         <comment>Point the "Alerts: Network flow" menu at dataType=netflow (the value the agent/filter/rules actually emit) - #2955.</comment>
         <sql dbms="postgresql" splitStatements="true" stripComments="true">
             UPDATE utm_menu
-               SET url = 'data/alert/view?dataType.keyword=IS->netflow&alertType=ALERT'
+               SET url = 'data/alert/view?dataType.keyword=IS->netflow&amp;alertType=ALERT'
              WHERE id = 306
-               AND url = 'data/alert/view?dataType.keyword=IS->network_flow&alertType=ALERT';
+               AND url = 'data/alert/view?dataType.keyword=IS->network_flow&amp;alertType=ALERT';
         </sql>
     </changeSet>
 </databaseChangeLog>
