@@ -2,51 +2,43 @@ import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import LanguageDetector from 'i18next-browser-languagedetector'
 
-const localeLoaders = import.meta.glob('./locales/**/*.json', {
-  query: '?raw',
+const localeLoaders = import.meta.glob('./locales/*/index.ts', {
   import: 'default',
-}) as Record<string, () => Promise<string>>
+}) as Record<string, () => Promise<Record<string, unknown>>>
 
 const supported = new Set<string>()
-const byLanguage: Record<string, string[]> = {}
-for (const path in localeLoaders) {
-  const match = path.match(/\/locales\/([a-z-]+)(?:\/(\w+))?\.json$/)
-  if (!match) continue
-  supported.add(match[1])
-  ;(byLanguage[match[1]] ??= []).push(path)
-}
+for (const path in localeLoaders) supported.add(path.match(/\/(\w+)\/index\.ts$/)![1])
 
-/** Load one language's domain files and merge them into a single bundle. */
+/** One language's merged domain bundle: each domain file becomes its own key (t('alerts.title')). */
 async function loadLanguage(code: string): Promise<Record<string, unknown>> {
-  const translation: Record<string, unknown> = {}
-  for (const path of byLanguage[code] ?? []) {
-    let json: Record<string, unknown>
-    try {
-      json = JSON.parse(await localeLoaders[path]())
-    } catch {
-      console.error('i18n: bad JSON in locale file', path)
-      continue
-    }
-    const match = path.match(/\/locales\/[a-z-]+\/(\w+)\.json$/)
-    if (match) translation[match[1]] = json
-    else Object.assign(translation, json)
-  }
-  return translation
+  const loader = localeLoaders[`./locales/${code}/index.ts`]
+  if (!loader) throw new Error(`i18n: no locale barrel for ${code}`)
+  return await loader()
 }
 
-/** Minimal i18next backend: fetches a language on demand, merges into 'translation'. */
+/** Minimal i18next backend: v26 core calls read() per namespace (loadLanguageResources is v19-era, never invoked). */
+const cache = new Map<string, Promise<Record<string, unknown>>>()
 const lazyBackend = {
   type: 'backend' as const,
   init() {},
-  loadLanguageResources(lngs: string[], _nspaces: string, cb: (err: null) => void) {
-    Promise.all(
-      lngs.filter(lng => supported.has(lng)).map(async lng => ({ lng, data: await loadLanguage(lng) })),
-    )
-      .then(results => {
-        for (const { lng, data } of results) i18n.addResourceBundle(lng, 'translation', data, true, true)
+
+  // v26 core calls read(lng, ns) once per hierarchy level and consumes the returned Promise (2-arg form).
+  read(lngs: string | string[], _ns: string): Promise<Record<string, unknown>> {
+    const lng = Array.isArray(lngs) ? lngs[0] : lngs
+    if (!supported.has(lng)) return Promise.resolve({})
+    let p = cache.get(lng)
+    if (!p) {
+      p = loadLanguage(lng).catch((err) => {
+        cache.delete(lng)
+        console.error('i18n: failed to load language', err)
+        return {} as Record<string, unknown>
       })
-      .catch(err => console.error('i18n: failed to load language', err))
-      .finally(() => cb(null))
+      cache.set(lng, p)
+    }
+    return p
+  },
+  create(_lngs: string[], _ns: string, cb: (err: null) => void) {
+    cb(null)
   },
 }
 

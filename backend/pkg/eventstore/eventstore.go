@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/threatwinds/go-sdk/catcher"
@@ -44,18 +45,34 @@ func New() (*Store, error) {
 		return nil, err
 	}
 
-	built, err := factory.New(cfg, factory.Options{
-		OnSecondaryError: func(op string, err error) {
-		},
-	})
-	ctx := context.Background()
-	store := &Store{Store: built.Store, built: built}
+	retry_intervals := []uint32{5,10,15}
 
-	err = store.initTables(ctx)
+	var store *Store
+	for _, wait_time := range retry_intervals{
+
+		built, err := factory.New(cfg, factory.Options{
+			OnSecondaryError: func(op string, err error) {
+				catcher.Error(fmt.Sprintf("secondary storage %s start error: ",op),err,nil )
+			},
+		})
+
+		ctx := context.Background()
+		store = &Store{Store: built.Store, built: built}
+
+		err = store.initTables(ctx)
+		if err == nil{
+			break
+		}
+		catcher.Log(fmt.Sprintf("clickhouse not ready retrying on %d s, reason: ",wait_time), map[string]any{"error":err})
+		time.Sleep(time.Second*time.Duration(wait_time))
+	}
+
 
 	if err != nil {
 		return nil, err
 	}
+
+	catcher.Info("✅ clickhouse ready — migrations complete", nil)
 	return store, nil
 
 }
@@ -101,7 +118,7 @@ func (s *Store) initTables(ctx context.Context) error {
 	}
 	if h.Status != store.HealthOK {
 		catcher.Log("CH unhealthy , skipping table init", map[string]any{"status": h.Status})
-		return nil
+		return fmt.Errorf("CH unhealthy")
 	}
 
 
