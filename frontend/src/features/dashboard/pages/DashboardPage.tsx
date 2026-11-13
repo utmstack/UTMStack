@@ -46,6 +46,8 @@ import {
   serializeLayout,
   toGridItems,
 } from "@/features/dashboard/utils/layout";
+import { dashboardDataType } from "@/features/dashboard/utils/dashboard-data-type";
+import { resolveRangeToISO } from "@/features/dashboard/utils/datemath";
 import type {
   Dashboard,
   DashboardFilterChip,
@@ -187,6 +189,30 @@ export function DashboardPage() {
     () => chipsToFilters(chips, chipValues),
     [chips, chipValues],
   );
+
+  // The one data type all widgets share (mixed/untyped → null). Enables the
+  // "show logs / show alerts" shortcuts on the filter bar.
+  const dashDataType = useMemo(
+    () => dashboardDataType(vizItems),
+    [vizItems],
+  );
+
+  const openRelated = (target: "logs" | "alerts") => {
+    if (!dashDataType) return;
+    const { fromISO, toISO } = resolveRangeToISO(time.from, time.to);
+    const seed = {
+      dataset: target === "alerts" ? "alerts" : "logs",
+      dataType: dashDataType,
+      filters: [
+        { field: "dataType", operator: "IS_ONE_OF_TERMS" as const, value: [dashDataType] },
+        ...activeFilters,
+      ],
+      range: { from: fromISO, to: toISO, interval: time.interval },
+    };
+    navigate(target === "alerts" ? "/threat-management/alerts" : "/log-explorer", {
+      state: { dashboardSearch: seed },
+    });
+  };
 
   // Once the selected dashboard resolves after a table "Edit" click, drop into edit mode.
   useEffect(() => {
@@ -512,7 +538,7 @@ export function DashboardPage() {
 
       {inPreview &&
         previewDashboard &&
-        (chips.length > 0 || editor.editing) && (
+        (chips.length > 0 || editor.editing || dashDataType) && (
           <DashboardFilterBar
             chips={chips}
             values={chipValues}
@@ -520,6 +546,9 @@ export function DashboardPage() {
             editable={editor.editing}
             savingChips={createFilter.isPending || updateFilter.isPending || deleteFilter.isPending}
             onSaveChips={handleSaveFilters}
+            dataType={dashDataType}
+            onViewLogs={() => openRelated("logs")}
+            onViewAlerts={() => openRelated("alerts")}
           />
         )}
 

@@ -277,7 +277,9 @@
         "remove": "Remove",
         "editAria": "Edit filter",
         "removeAria": "Remove filter",
-        "saving": "Saving…"
+        "saving": "Saving…",
+        "viewLogs": "Logs",
+        "viewAlerts": "Alerts"
     },
     "newDashboard": {
         "title": "New dashboard",
