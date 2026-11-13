@@ -30,6 +30,7 @@ type config struct {
 	tenantDomain    string
 	rulesDir        string
 	pipelineDir     string
+	pipelinesDir    string
 
 	// Secrets
 	internalKey   string
