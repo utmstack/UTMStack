@@ -4,12 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"reflect"
 	"time"
 
 	"github.com/utmstack/utmstack/backend/modules/loganalyzer/domain"
 
-	"github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/threatwinds/go-sdk/store"
 
 	"github.com/utmstack/utmstack/backend/modules/loganalyzer/connectors"
@@ -24,16 +22,8 @@ var datasets = map[string]store.Dataset{
 	"alerts": eventstore.DatasetAlerts,
 }
 
-type Reader interface {
-	DescribeFields(ctx context.Context, s store.Scope) ([]store.Field, error)
-	FetchPage(ctx context.Context, s store.Scope, filters []store.Filter, page store.Page) ([]json.RawMessage, int64, error)
-	TopValues(ctx context.Context, s store.Scope, field string, filters []store.Filter, n int) ([]store.Bucket, error)
-	Timeline(ctx context.Context, s store.Scope, filters []store.Filter, interval store.Interval) ([]store.Point, error)
-	Count(ctx context.Context, s store.Scope, filters []store.Filter) (int64, error)
-}
-
 type chAnalyzerRepository struct {
-	store  Reader
+	store  store.Reader
 	events *eventstore.Store
 }
 
@@ -41,7 +31,7 @@ func NewAnalyzerRepository(events *eventstore.Store) connectors.AnalyzerReposito
 	if events == nil {
 		return nil
 	}
-	return &chAnalyzerRepository{store: events, events: events}
+	return &chAnalyzerRepository{store: events.GetReader(), events: events}
 }
 
 // rejectUnsupportedTextSearch turns a question the dataset cannot answer into a
@@ -442,45 +432,12 @@ func (r *chAnalyzerRepository) SearchSQL(ctx context.Context, sql string, page, 
 		size = maxSearchSize
 	}
 
-	scoped := scopedSQL(sql, r.events.TableName(eventstore.DatasetLogs), r.events.TableName(eventstore.DatasetAlerts), page, size)
+	scoped := common_models.ScopeSQL(sql, tenant, r.events.TableName(eventstore.DatasetLogs), r.events.TableName(eventstore.DatasetAlerts), page, size)
 
-	qctx := clickhouse.Context(ctx, clickhouse.WithSettings(clickhouse.Settings{
-		"readonly":             1,
-		"max_execution_time":   30,
-		"max_result_rows":      maxSearchSize,
-		"result_overflow_mode": "break",
-	}))
-
-	rows, err := r.events.Conn.Query(qctx, scoped, tenant, tenant)
+	rows, err := r.events.Query(ctx, scoped)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 
-	out := make([]json.RawMessage, 0, size)
-	cols := rows.Columns()
-	types := rows.ColumnTypes()
-
-	for rows.Next() {
-		ptrs := make([]any, len(cols))
-		for i := range ptrs {
-			ptrs[i] = reflect.New(types[i].ScanType()).Interface()
-		}
-		if err := rows.Scan(ptrs...); err != nil {
-			return nil, err
-		}
-		doc := make(map[string]any, len(cols))
-		for i, c := range cols {
-			doc[c] = reflect.ValueOf(ptrs[i]).Elem().Interface()
-		}
-		raw, err := json.Marshal(doc)
-		if err != nil {
-			continue
-		}
-		out = append(out, raw)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return &dto.SearchResponse{Data: out, Total: int64(len(out))}, nil
+	return &dto.SearchResponse{Data: rows, Total: int64(len(rows))}, nil
 }

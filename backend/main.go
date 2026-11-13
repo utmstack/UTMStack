@@ -8,6 +8,7 @@ import (
 	"syscall"
 
 	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/utmstack/utmstack/backend/pkg/eventstore"
 	// _ "github.com/utmstack/utmstack/backend/docs"
 	"github.com/utmstack/utmstack/backend/pkg/env"
 )
@@ -36,7 +37,14 @@ func main() {
 	appCtx, appCancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer appCancel()
 
-	modules := initModules(db, cfg)
+	events, err := eventstore.New()
+	if err != nil {
+		_ = catcher.Error("could not reach the event store; dashboards will not answer", err, nil)
+		return
+	}
+	defer events.Close()
+
+	modules := initModules(db, events, cfg)
 
 	adminEmail := env.String("UTMSTACK_ADMIN_EMAIL", "admin", false)
 	created, err := modules.tenant.GetBootstrapUsecase().EnsureDefaultTenant(
