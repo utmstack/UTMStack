@@ -17,8 +17,10 @@ import (
 	"github.com/threatwinds/go-sdk/store"
 	"github.com/threatwinds/go-sdk/store/cache"
 	ch "github.com/threatwinds/go-sdk/store/clickhouse"
+	"github.com/threatwinds/go-sdk/store/factory"
 	"github.com/threatwinds/go-sdk/utils"
 	"github.com/tidwall/gjson"
+	"github.com/utmstack/UTMStack/plugins/alerts/internal/storecfg"
 
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -50,8 +52,10 @@ const (
 )
 
 var (
-	alertStore *ch.Driver
-	kv         *cache.Client
+	alertStore  store.Store
+	groupStore  store.Store
+	dedupReader store.Reader
+	kv          *cache.Client
 )
 
 type IncidentDetail struct {
@@ -74,37 +78,78 @@ type AlertFields struct {
 	plugins.Alert
 }
 
+func (a *AlertFields) MarshalJSON() ([]byte, error) {
+	raw, err := utils.ProtoMessageToString(&a.Alert)
+	if err != nil {
+		return nil, err
+	}
+
+	var document map[string]json.RawMessage
+	if err := json.Unmarshal([]byte(*raw), &document); err != nil {
+		return nil, err
+	}
+
+	metadata, err := json.Marshal(struct {
+		Timestamp         string         `json:"@timestamp"`
+		Status            string         `json:"status"`
+		StatusObservation string         `json:"statusObservation"`
+		IsIncident        bool           `json:"isIncident"`
+		IncidentDetail    IncidentDetail `json:"incidentDetail"`
+		Solution          string         `json:"solution"`
+		Tags              []string       `json:"tags,omitempty"`
+		Notes             string         `json:"notes"`
+		TagRulesApplied   []string       `json:"tagRulesApplied,omitempty"`
+	}{
+		Timestamp:         a.Timestamp,
+		Status:            a.Status,
+		StatusObservation: a.StatusObservation,
+		IsIncident:        a.IsIncident,
+		IncidentDetail:    a.IncidentDetail,
+		Solution:          a.Solution,
+		Tags:              a.Tags,
+		Notes:             a.Notes,
+		TagRulesApplied:   a.TagRulesApplied,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	var extra map[string]json.RawMessage
+	if err := json.Unmarshal(metadata, &extra); err != nil {
+		return nil, err
+	}
+	for key, value := range extra {
+		document[key] = value
+	}
+	return json.Marshal(document)
+}
+
 var (
 	rules  *ruleCache
 	notify *notifier
 )
 
 func main() {
-	cfg := plugins.PluginCfg("clickhouse")
-	table := cfg.Get("alertsTable").String()
-	if table == "" {
-		table = defaultAlertsTable
-	}
-
-	var err error
-	alertStore, err = ch.New(ch.Config{
-		Addr:     []string{cfg.Get("host").String() + ":" + cfg.Get("port").String()},
-		Database: cfg.Get("database").String(),
-		Username: cfg.Get("user").String(),
-		Password: cfg.Get("password").String(),
-		Tables: map[store.Dataset]string{
-			datasetAlerts: table,
-		},
-		TenantColumn:   "tenantId",
-		TimeColumn:     "@timestamp",
-		DataTypeColumn: "dataType",
+	cfg, err := storecfg.New(plugins.PluginCfg("store"), plugins.PluginCfg("clickhouse"), map[string]storecfg.Table{
+		string(datasetAlerts): {ConfigKey: "alertsTable", Default: defaultAlertsTable},
 	})
 	if err != nil {
-		_ = catcher.Error("cannot build the alert store", err, map[string]any{"process": processName})
+		_ = catcher.Error("cannot parse the alert store configuration", err, map[string]any{"process": processName})
+		os.Exit(1)
+	}
+	opts := factory.Options{
+		OnSecondaryError: func(op string, err error) {
+			_ = catcher.Error("secondary alert store failed", err, map[string]any{"process": processName, "operation": op})
+		},
+	}
+	stores, err := openAlertStores(cfg, opts, factory.New)
+	if err != nil {
+		_ = catcher.Error("cannot build the alert stores", err, map[string]any{"process": processName})
 		time.Sleep(5 * time.Second)
 		os.Exit(1)
 	}
-	defer alertStore.Close()
+	defer stores.Close()
+	alertStore, groupStore, dedupReader = stores.write, stores.group, stores.dedup
 
 	// A deployment without valkey.addr configured gets a nil *Client, and
 	// every call on it is a no-op/permanent miss — correlate() falls back to
@@ -312,7 +357,7 @@ func isDuplicate(alert *plugins.Alert, alertJSON string) bool {
 	ctx, cancel := context.WithTimeout(context.Background(), searchTimeout)
 	defer cancel()
 
-	n, err := alertStore.Count(ctx, scope, filters)
+	n, err := dedupReader.Count(ctx, scope, filters)
 	if err != nil {
 		// Treating a failed lookup as "not a duplicate" keeps a store problem
 		// from swallowing alerts; the cost is a possible duplicate.
@@ -371,7 +416,7 @@ func getPreviousAlertId(alert *plugins.Alert, alertJSON string) *string {
 
 	for retry := 0; retry < maxRetries; retry++ {
 		ctx, cancel := context.WithTimeout(context.Background(), searchTimeout)
-		docs, err := alertStore.FetchN(ctx, scope, filters, 1)
+		docs, err := groupStore.FetchN(ctx, scope, filters, 1)
 		cancel()
 
 		if err == nil {

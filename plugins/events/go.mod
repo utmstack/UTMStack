@@ -3,9 +3,11 @@ module github.com/utmstack/UTMStack/plugins/events
 go 1.26.0
 
 require (
-	github.com/threatwinds/go-sdk v1.1.37-0.20261028123630-c472007022ff
+	github.com/threatwinds/go-sdk v1.1.40-0.20261113141239-c6b6629b28d5
 	github.com/tidwall/gjson v1.20.0
 )
+
+require github.com/opensearch-project/opensearch-go/v4 v4.6.0 // indirect
 
 require (
 	cel.dev/expr v0.25.2 // indirect

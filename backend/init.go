@@ -35,10 +35,22 @@ func initDatabase(cfg *config) *gorm.DB {
 		"host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		cfg.dbHost, cfg.dbPort, cfg.dbUser, cfg.dbPass, cfg.dbName,
 	)
+	agentmanagerDSN := fmt.Sprintf(
+		"host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		cfg.dbHost, cfg.dbPort, cfg.dbUser, cfg.dbPass, cfg.dbAgent,
+	)
 
 	db := connectWithRetry(dsn, gormLogLevel(cfg.dbLogLevel))
 
-	if err := database.MigrateDatabase(db, "file://migrations/pre","file://migrations/post"); err != nil {
+	up := database.UpgradeOptions{
+		AgentmanagerDSN: agentmanagerDSN,
+		IntegrationsDir: cfg.integrationsDir,
+		TenantDomain:    cfg.tenantDomain,
+		RulesDir:        cfg.rulesDir,
+		PipelineDir:     cfg.pipelineDir,
+		PipelinesDir:    cfg.pipelinesDir,
+	}
+	if err := database.MigrateDatabase(db, "file://migrations/pre", "file://migrations/post", up); err != nil {
 		_ = catcher.Error("failed to migrate database", err, nil)
 		panic(err)
 	}

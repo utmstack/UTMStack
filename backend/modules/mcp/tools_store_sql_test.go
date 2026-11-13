@@ -3,20 +3,24 @@ package mcp
 import (
 	"strings"
 	"testing"
+
+	loganalyzer_usecase "github.com/utmstack/utmstack/backend/modules/loganalyzer/usecase"
+	"github.com/utmstack/utmstack/backend/pkg/common_models"
 )
 
 const (
 	testLogs   = "utmstack.logs"
 	testAlerts = "utmstack.alerts"
+	testTenant = "8f1c1b8e-0000-4000-8000-00000000000a"
 )
 
 func TestStoreSQLScopesTheBareDatasetNames(t *testing.T) {
-	got, err := storeScopedSQL("SELECT dataSource, count() FROM logs GROUP BY dataSource;", testLogs, testAlerts, 1, 50)
-	if err != nil {
-		t.Fatalf("a plain query over the scoped datasets must pass: %v", err)
-	}
-	if !strings.Contains(got, "WITH logs AS (SELECT * FROM utmstack.logs WHERE tenantId = ?)") {
+	got := common_models.ScopeSQL("SELECT dataSource, count() FROM logs GROUP BY dataSource;", testTenant, testLogs, testAlerts, 1, 50)
+	if !strings.Contains(got, "WITH logs AS (SELECT * FROM utmstack.logs WHERE tenantId = '") {
 		t.Fatalf("query was not wrapped in the tenant-scoped CTEs: %s", got)
+	}
+	if !strings.Contains(got, testTenant) {
+		t.Fatalf("the session tenant is missing from the CTEs: %s", got)
 	}
 }
 
@@ -30,7 +34,7 @@ func TestStoreSQLRefusesWhatWalksAroundTheTenantScope(t *testing.T) {
 		"comment":          "SELECT * FROM logs -- and more",
 		"not a select":     "DROP TABLE logs",
 	} {
-		if _, err := storeScopedSQL(query, testLogs, testAlerts, 1, 50); err == nil {
+		if err := loganalyzer_usecase.ValidateSQL(query); err == nil {
 			t.Errorf("%s: %q should have been refused", name, query)
 		}
 	}

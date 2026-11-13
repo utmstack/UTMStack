@@ -7,7 +7,7 @@ import (
 
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/store"
-	ch "github.com/threatwinds/go-sdk/store/clickhouse"
+	"github.com/threatwinds/go-sdk/store/factory"
 	"github.com/utmstack/UTMStack/plugins/feeds/config"
 	"github.com/utmstack/UTMStack/plugins/feeds/internal/models"
 )
@@ -17,21 +17,15 @@ const datasetAlerts = store.Dataset("alerts")
 // AlertClient reads alerts an incident refers to. Read-only: this plugin
 // enriches incidents from alerts and never writes one.
 type AlertClient struct {
-	store *ch.Driver
+	store store.Store
+	built *factory.Built
 }
 
 func NewAlertClient(cfg *config.TWConfig) (*AlertClient, error) {
-	d, err := ch.New(ch.Config{
-		Addr:     []string{cfg.ClickHouseHost + ":" + cfg.ClickHousePort},
-		Database: cfg.ClickHouseDatabase,
-		Username: cfg.ClickHouseUser,
-		Password: cfg.ClickHousePassword,
-		Tables: map[store.Dataset]string{
-			datasetAlerts: cfg.AlertsTable,
+	built, err := factory.New(cfg.Store, factory.Options{
+		OnSecondaryError: func(op string, err error) {
+			_ = catcher.Error("secondary alert store failed", err, map[string]any{"operation": op})
 		},
-		TenantColumn:   "tenantId",
-		TimeColumn:     "@timestamp",
-		DataTypeColumn: "dataType",
 	})
 	if err != nil {
 		return nil, catcher.Error("failed to create the alert store", err, nil)
@@ -39,10 +33,10 @@ func NewAlertClient(cfg *config.TWConfig) (*AlertClient, error) {
 
 	catcher.Info("alert store connected successfully", nil)
 
-	return &AlertClient{store: d}, nil
+	return &AlertClient{store: built.Store, built: built}, nil
 }
 
-func (c *AlertClient) Close() error { return c.store.Close() }
+func (c *AlertClient) Close() error { return c.built.Close() }
 
 // GetAlertByID looks an alert up across every tenant, which the scope has to
 // name explicitly. An incident carries no tenant of its own, so there is none

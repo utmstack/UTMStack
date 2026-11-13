@@ -2,106 +2,133 @@ package eventstore
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-	"time"
+	"os"
 
-	chdriver "github.com/ClickHouse/clickhouse-go/v2"
-	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 	"github.com/google/uuid"
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/store"
 	"github.com/threatwinds/go-sdk/store/clickhouse"
-
+	"github.com/threatwinds/go-sdk/store/factory"
 	"github.com/utmstack/utmstack/backend/pkg/env"
 )
 
 const (
-	DatasetLogs        = store.Dataset("logs")
-	DatasetAlerts      = store.Dataset("alerts")
-	DatasetStats       = store.Dataset("statistics")
-	DatasetUserHistory = store.Dataset("user_profile_history")
+	DatasetLogs        store.Dataset = "logs"
+	DatasetAlerts      store.Dataset = "alerts"
+	DatasetStats       store.Dataset = "statistics"
+	DatasetUserHistory store.Dataset = "user_profile_history"
+	MigrationPah       string        = "file://migrations/clickhouse"
 )
 
 type Store struct {
-	*clickhouse.Driver
-	history *clickhouse.Driver
-	Conn    driver.Conn
+	store.Store
+	built *factory.Built
 }
 
 func New() (*Store, error) {
-	host := env.String("CLICKHOUSE_HOST", "", false)
-	if host == "" {
+
+	config_path := env.String("STORAGE_CONFIG_PATH", "", false)
+	if config_path == "" {
 		return nil, nil
 	}
 
-	conn, err := chdriver.Open(&chdriver.Options{
-		Addr: []string{host + ":" + env.String("CLICKHOUSE_PORT", "9000", false)},
-		Auth: chdriver.Auth{
-			Database: env.String("CLICKHOUSE_DB", "utmstack", false),
-			Username: env.String("CLICKHOUSE_USER", "default", false),
-			Password: env.String("CLICKHOUSE_PASSWORD", "", false),
-		},
-		DialTimeout: 10 * time.Second,
-	})
+	raw, err := os.ReadFile(config_path)
+	if err != nil {
+		return nil, err
+	}
+	cfg, err := factory.Parse(raw)
+
 	if err != nil {
 		return nil, err
 	}
 
-	d, err := clickhouse.New(clickhouse.Config{
-		Conn:     conn,
-		Database: env.String("CLICKHOUSE_DB", "utmstack", false),
-		Tables: map[store.Dataset]string{
-			DatasetLogs:   "logs",
-			DatasetAlerts: "alerts",
-			DatasetStats:  "statistics",
+	built, err := factory.New(cfg, factory.Options{
+		OnSecondaryError: func(op string, err error) {
 		},
-		TextColumns: map[store.Dataset]string{
-			DatasetLogs: "raw",
-		},
-		// Statistics is absent on purpose: it has no id column, and it is
-		// counted rather than paged through, so it never pays the cost this
-		// avoids.
-		IDColumns: map[store.Dataset]string{
-			DatasetLogs:   "id",
-			DatasetAlerts: "id",
-		},
-		TenantColumn:   "tenantId",
-		DataTypeColumn: "dataType",
-		TimeColumn:     "@timestamp",
 	})
+	ctx := context.Background()
+	store := &Store{Store: built.Store, built: built}
+
+	err = store.initTables(ctx)
+
 	if err != nil {
 		return nil, err
 	}
+	return store, nil
 
-	// The history table is keyed by snapshotted_at, not @timestamp, so it needs
-	// its own driver for the retention math to pick the right column.
-	h, err := clickhouse.New(clickhouse.Config{
-		Conn:         conn,
-		Database:     env.String("CLICKHOUSE_DB", "utmstack", false),
-		Tables:       map[store.Dataset]string{DatasetUserHistory: "user_profile_history"},
-		TenantColumn: "tenantId",
-		TimeColumn:   "snapshotted_at",
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	return &Store{Driver: d, history: h, Conn: conn}, nil
 }
 
-// DriverFor returns the clickhouse driver that owns the given dataset. The
-// history dataset has its own driver because its time column differs from the
-// log tables; everything else shares the main one.
-func (s *Store) DriverFor(ds store.Dataset) *clickhouse.Driver {
-	if ds == DatasetUserHistory {
-		return s.history
+func (s *Store) GetReader() store.Reader {
+	return s
+}
+
+func (s *Store) GetWritter() store.Reader {
+	return s
+}
+
+func (s *Store) GetAdmin() store.Reader {
+	return s
+}
+
+func (s *Store) Close() {
+	s.built.Close()
+}
+
+
+
+func (s *Store) initTables(ctx context.Context) error {
+	db := env.String("CLICKHOUSE_DB", "utmstack", false)
+
+
+	args := map[string]string{
+		"db":db,
+		"logs":string(DatasetLogs),
+		"alerts":string(DatasetAlerts),
+		"stats":string(DatasetStats),
+		"user_profile":string(DatasetUserHistory),
 	}
-	return s.Driver
+
+	d, ok := s.Store.(*clickhouse.Driver)
+	if !ok {
+		catcher.Log("Clickhouse not configured", map[string]any{})
+		return nil // not CH, nothing to create
+	}
+	h, err := d.Health(ctx)
+	if err != nil {
+		return err
+	}
+	if h.Status != store.HealthOK {
+		catcher.Log("CH unhealthy , skipping table init", map[string]any{"status": h.Status})
+		return nil
+	}
+
+
+
+	migrations, err := loadMigrations("migrations/clickhouse",args)
+	if err != nil {
+		return err
+	}
+
+	catcher.Info("running clickhouse migrations",nil)
+	for _, q := range migrations {
+		if err := d.Exec(ctx, q.Content); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (s *Store) TableName(d store.Dataset) string {
 	name := map[store.Dataset]string{DatasetLogs: "logs", DatasetAlerts: "alerts", DatasetStats: "statistics", DatasetUserHistory: "user_profile_history"}[d]
 	db := env.String("CLICKHOUSE_DB", "utmstack", false)
 	return db + "." + name
+}
+
+// makes sql queries into the reader storage
+func (s *Store) Query(ctx context.Context, sql string) ([]json.RawMessage, error) {
+	return s.GetReader().FetchQuery(ctx, store.Scope{Tenant: store.AllTenants}, sql)
 }
 
 // PurgeTenant deletes all rows scoped to the given tenant across every
@@ -116,8 +143,7 @@ func (s *Store) PurgeTenant(ctx context.Context, tenantID string) error {
 		return fmt.Errorf("purge: invalid tenant id: %w", err)
 	}
 	for _, d := range []store.Dataset{DatasetLogs, DatasetAlerts, DatasetStats, DatasetUserHistory} {
-		sql := fmt.Sprintf("ALTER TABLE %s DELETE WHERE tenantId = '%s'", s.TableName(d), tenantID)
-		if err := s.Conn.Exec(ctx, sql); err != nil {
+		if _, err := s.Drop(ctx, store.Scope{Tenant: tenantID, Dataset: d}); err != nil {
 			return fmt.Errorf("purge %s: %w", d, err)
 		}
 	}
