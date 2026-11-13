@@ -13,7 +13,8 @@ import (
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/threatwinds/go-sdk/store"
-	ch "github.com/threatwinds/go-sdk/store/clickhouse"
+	"github.com/threatwinds/go-sdk/store/factory"
+	"github.com/utmstack/UTMStack/plugins/stats/internal/storecfg"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -53,37 +54,30 @@ type statsEntry struct {
 var statisticsQueue chan statsEntry
 var statsMap map[statsKey]*statsValue
 var statsLock sync.Mutex
-var statsStore *ch.Driver
+var statsStore store.Store
 
 func main() {
 	statisticsQueue = make(chan statsEntry, runtime.NumCPU()*100)
 	statsMap = make(map[statsKey]*statsValue)
 
-	cfg := plugins.PluginCfg("clickhouse")
-	table := cfg.Get("statisticsTable").String()
-	if table == "" {
-		table = defaultStatsTable
-	}
-
-	var err error
-	statsStore, err = ch.New(ch.Config{
-		Addr:     []string{cfg.Get("host").String() + ":" + cfg.Get("port").String()},
-		Database: cfg.Get("database").String(),
-		Username: cfg.Get("user").String(),
-		Password: cfg.Get("password").String(),
-		Tables: map[store.Dataset]string{
-			datasetStats: table,
-		},
-		TenantColumn:   "tenantId",
-		TimeColumn:     "@timestamp",
-		DataTypeColumn: "dataType",
+	cfg, err := storecfg.New(plugins.PluginCfg("store"), plugins.PluginCfg("clickhouse"), map[string]storecfg.Table{
+		string(datasetStats): {ConfigKey: "statisticsTable", Default: defaultStatsTable},
 	})
+	if err == nil {
+		cfg, err = storecfg.ClickHousePrimary(cfg)
+	}
+	if err != nil {
+		_ = catcher.Error("failed to parse the statistics store", err, map[string]any{"process": processName})
+		os.Exit(1)
+	}
+	built, err := factory.New(cfg, factory.Options{})
 	if err != nil {
 		_ = catcher.Error("failed to build the statistics store", err, map[string]any{"process": processName})
 		time.Sleep(5 * time.Second)
 		os.Exit(1)
 	}
-	defer statsStore.Close()
+	defer built.Close()
+	statsStore = built.Store
 
 	ctx, cancel := context.WithCancel(context.Background())
 

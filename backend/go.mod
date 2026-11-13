@@ -27,7 +27,6 @@ require (
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.1
 	github.com/swaggo/swag v1.16.6
-	github.com/threatwinds/go-sdk v1.1.37-0.20261028123630-c472007022ff
 	github.com/tidwall/gjson v1.20.0
 	github.com/utmstack/UTMStack/upgrade v0.0.0
 	github.com/utmstack/license-manager-sdk v0.1.0
@@ -50,9 +49,14 @@ require (
 	github.com/go-asn1-ber/asn1-ber v1.5.8 // indirect
 	github.com/go-jose/go-jose/v4 v4.1.4 // indirect
 	github.com/google/flatbuffers v25.12.19+incompatible // indirect
+	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
+	github.com/opensearch-project/opensearch-go/v4 v4.6.0 // indirect
+	github.com/threatwinds/go-sdk v1.1.40-0.20261111193348-bb49d6af9f6c // indirect
 	github.com/zeebo/xxh3 v1.1.0 // indirect
 	go.opentelemetry.io/otel/log v1.47.0 // indirect
+	go.yaml.in/yaml/v2 v2.4.4 // indirect
 	golang.org/x/exp v0.0.0-20260813180055-c1d0aacb2297 // indirect
+	sigs.k8s.io/yaml v1.6.0 // indirect
 )
 
 require (

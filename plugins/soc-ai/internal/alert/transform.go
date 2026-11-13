@@ -2,6 +2,7 @@ package alert
 
 import (
 	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/threatwinds/go-sdk/utils"
 	"github.com/utmstack/UTMStack/plugins/soc-ai/config"
 	"github.com/utmstack/UTMStack/plugins/soc-ai/schema"
 
@@ -49,8 +50,11 @@ func Clean(alert schema.AlertFields) schema.AlertFields {
 			anonymized = append(anonymized, "lastEvent.target.email")
 		}
 
-		if alert.LastEvent.Log != nil {
-			for key, val := range alert.LastEvent.Log {
+		if alert.LastEvent.Event != nil {
+			for key, val := range alert.LastEvent.Event {
+				if val == nil {
+					continue
+				}
 				switch v := val.Kind.(type) {
 				case *structpb.Value_StringValue:
 					original := v.StringValue
@@ -60,8 +64,8 @@ func Clean(alert schema.AlertFields) schema.AlertFields {
 						cleaned = re.ReplaceAllString(cleaned, pattern.FakeValue)
 					}
 					if cleaned != original {
-						alert.LastEvent.Log[key] = structpb.NewStringValue(cleaned)
-						anonymized = append(anonymized, "lastEvent.log."+key)
+						alert.LastEvent.Event[key] = structpb.NewStringValue(cleaned)
+						anonymized = append(anonymized, "lastEvent."+utils.EventKey()+"."+key)
 					}
 				default:
 					continue

@@ -2,6 +2,8 @@ package config
 
 import (
 	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/threatwinds/go-sdk/store/factory"
+	"github.com/utmstack/UTMStack/plugins/feeds/internal/storecfg"
 )
 
 const defaultAlertsTable = "alerts"
@@ -16,6 +18,7 @@ type TWConfig struct {
 	ClickHouseUser     string
 	ClickHousePassword string
 	AlertsTable        string
+	Store              factory.Config
 }
 
 func GetTWConfig() (*TWConfig, error) {
@@ -25,6 +28,12 @@ func GetTWConfig() (*TWConfig, error) {
 	table := chCfg.Get("alertsTable").String()
 	if table == "" {
 		table = defaultAlertsTable
+	}
+	storeConfig, err := storecfg.New(plugins.PluginCfg("store"), chCfg, map[string]storecfg.Table{
+		"alerts": {ConfigKey: "alertsTable", Default: defaultAlertsTable},
+	})
+	if err != nil {
+		return nil, err
 	}
 
 	cfg := &TWConfig{
@@ -37,6 +46,7 @@ func GetTWConfig() (*TWConfig, error) {
 		ClickHouseUser:     chCfg.Get("user").String(),
 		ClickHousePassword: chCfg.Get("password").String(),
 		AlertsTable:        table,
+		Store:              storeConfig,
 	}
 
 	return cfg, nil

@@ -4,10 +4,13 @@ go 1.25.5
 
 require (
 	github.com/fsnotify/fsnotify v1.10.1
-	github.com/threatwinds/go-sdk v1.1.37-0.20261028123630-c472007022ff
+	github.com/threatwinds/go-sdk v1.1.40-0.20261113141239-c6b6629b28d5
+	github.com/tidwall/gjson v1.19.0
 	google.golang.org/protobuf v1.36.12
 	gopkg.in/yaml.v3 v3.0.1
 )
+
+require github.com/opensearch-project/opensearch-go/v4 v4.6.0 // indirect
 
 require (
 	cel.dev/expr v0.25.2 // indirect
@@ -47,7 +50,6 @@ require (
 	github.com/quic-go/quic-go v0.59.1 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
-	github.com/tidwall/gjson v1.19.0 // indirect
 	github.com/tidwall/match v1.2.0 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect

@@ -2,9 +2,11 @@ package repository
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/threatwinds/go-sdk/store"
+	"github.com/threatwinds/go-sdk/store/clickhouse"
 
 	"github.com/utmstack/utmstack/backend/modules/storage/connectors"
 	"github.com/utmstack/utmstack/backend/modules/storage/domain"
@@ -32,7 +34,7 @@ func (r *chStoreRepository) Retention(ctx context.Context, d domain.Dataset) (do
 		return domain.Retention{}, domain.ErrUnknownDataset
 	}
 
-	got, err := r.store.DriverFor(ds).Retention(ctx, ds)
+	got, err := r.store.Retention(ctx, ds)
 	if err != nil {
 		return domain.Retention{}, err
 	}
@@ -68,7 +70,7 @@ func (r *chStoreRepository) SetRetention(ctx context.Context, want domain.Retent
 		}
 	}
 
-	return r.store.DriverFor(ds).SetRetention(ctx, ds, toStore(want))
+	return r.store.SetRetention(ctx, ds, toStore(want))
 }
 
 func (r *chStoreRepository) AdoptTiering(ctx context.Context, want domain.Retention) error {
@@ -76,7 +78,7 @@ func (r *chStoreRepository) AdoptTiering(ctx context.Context, want domain.Retent
 	if !ok {
 		return domain.ErrUnknownDataset
 	}
-	return r.store.DriverFor(ds).EnableTiering(ctx, ds, domain.PolicyName, toStore(want))
+	return r.chDriver().EnableTiering(ctx, ds, domain.PolicyName, toStore(want))
 }
 
 func (r *chStoreRepository) Usage(ctx context.Context) ([]domain.Usage, error) {
@@ -84,7 +86,7 @@ func (r *chStoreRepository) Usage(ctx context.Context) ([]domain.Usage, error) {
 	if err != nil {
 		return nil, err
 	}
-	hRows, err := r.store.DriverFor(eventstore.DatasetUserHistory).Usage(ctx)
+	hRows, err := r.store.Usage(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -124,14 +126,25 @@ func (r *chStoreRepository) Usage(ctx context.Context) ([]domain.Usage, error) {
 // span reads how far back a dataset goes from the part metadata rather than the
 // records, so it costs nothing on a table with years in it.
 func (r *chStoreRepository) span(ctx context.Context, d domain.Dataset) (time.Time, time.Time, error) {
-	var oldest, newest time.Time
-	err := r.store.Conn.QueryRow(ctx,
-		"SELECT min(min_time), max(max_time) FROM system.parts WHERE database = currentDatabase() AND table = ? AND active",
-		string(d)).Scan(&oldest, &newest)
+	rows, err := r.store.Query(ctx,
+		"SELECT formatDateTime(min(min_time), '%Y-%m-%dT%H:%M:%SZ') AS oldest, formatDateTime(max(max_time), '%Y-%m-%dT%H:%M:%SZ') AS newest FROM system.parts WHERE database = currentDatabase() AND table = '"+string(d)+"' AND active")
 	if err != nil {
 		return time.Time{}, time.Time{}, err
 	}
-	return oldest.UTC(), newest.UTC(), nil
+	if len(rows) == 0 {
+		return time.Time{}, time.Time{}, nil
+	}
+	var span struct {
+		Oldest *time.Time `json:"oldest"`
+		Newest *time.Time `json:"newest"`
+	}
+	if err := json.Unmarshal(rows[0], &span); err != nil {
+		return time.Time{}, time.Time{}, err
+	}
+	if span.Oldest == nil || span.Newest == nil {
+		return time.Time{}, time.Time{}, nil
+	}
+	return span.Oldest.UTC(), span.Newest.UTC(), nil
 }
 
 func (r *chStoreRepository) Health(ctx context.Context) (domain.Health, error) {
@@ -147,33 +160,65 @@ func (r *chStoreRepository) Health(ctx context.Context) (domain.Health, error) {
 }
 
 func (r *chStoreRepository) ColdStorageReady(ctx context.Context) (bool, error) {
-	var n uint64
-	err := r.store.Conn.QueryRow(ctx,
-		"SELECT count() FROM system.storage_policies WHERE policy_name = ? AND volume_name = ?",
-		domain.PolicyName, domain.ColdVolume).Scan(&n)
+	rows, err := r.store.Query(ctx,
+		"SELECT count() AS n FROM system.storage_policies WHERE policy_name = '"+domain.PolicyName+"' AND volume_name = '"+domain.ColdVolume+"'")
 	if err != nil {
 		return false, err
 	}
-	return n > 0, nil
+	if len(rows) == 0 {
+		return false, nil
+	}
+	var row struct {
+		N uint64 `json:"n"`
+	}
+	if err := json.Unmarshal(rows[0], &row); err != nil {
+		return false, err
+	}
+	return row.N > 0, nil
 }
 
 func (r *chStoreRepository) ColdDisk(ctx context.Context) (domain.ColdDiskInfo, error) {
-	var (
-		n        uint64
-		free     uint64
-		readOnly uint8
-	)
-	err := r.store.Conn.QueryRow(ctx,
-		"SELECT count(), max(free_space), max(is_read_only) FROM system.disks WHERE name = ?",
-		domain.ColdDisk).Scan(&n, &free, &readOnly)
+	rows, err := r.store.Query(ctx,
+		"SELECT count() AS n, max(free_space) AS free, max(is_read_only) AS ro FROM system.disks WHERE name = '"+domain.ColdDisk+"'")
 	if err != nil {
 		return domain.ColdDiskInfo{}, err
 	}
-	return domain.ColdDiskInfo{Present: n > 0, ReadOnly: readOnly > 0, FreeBytes: free}, nil
+	if len(rows) == 0 {
+		return domain.ColdDiskInfo{}, nil
+	}
+	var row struct {
+		N    uint64  `json:"n"`
+		Free *uint64 `json:"free"`
+		Ro   *uint8  `json:"ro"`
+	}
+	if err := json.Unmarshal(rows[0], &row); err != nil {
+		return domain.ColdDiskInfo{}, err
+	}
+	free := uint64(0)
+	if row.Free != nil {
+		free = *row.Free
+	}
+	ro := uint8(0)
+	if row.Ro != nil {
+		ro = *row.Ro
+	}
+	return domain.ColdDiskInfo{Present: row.N > 0, ReadOnly: ro > 0, FreeBytes: free}, nil
 }
 
 func (r *chStoreRepository) ReloadConfig(ctx context.Context) error {
-	return r.store.Conn.Exec(ctx, "SYSTEM RELOAD CONFIG")
+	d := r.chDriver()
+	if d == nil {
+		return nil
+	}
+	return d.Exec(ctx, "SYSTEM RELOAD CONFIG")
+}
+
+// chDriver is the ClickHouse engine behind the store, or nil when it is not
+// configured: EnableTiering and Exec exist only on the driver, not on the
+// store interfaces.
+func (r *chStoreRepository) chDriver() *clickhouse.Driver {
+	d, _ := r.store.Store.(*clickhouse.Driver)
+	return d
 }
 
 func toStore(r domain.Retention) store.Retention {

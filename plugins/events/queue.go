@@ -9,8 +9,9 @@ import (
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/threatwinds/go-sdk/plugins"
 	"github.com/threatwinds/go-sdk/store"
-	ch "github.com/threatwinds/go-sdk/store/clickhouse"
+	"github.com/threatwinds/go-sdk/store/factory"
 	"github.com/tidwall/gjson"
+	"github.com/utmstack/UTMStack/plugins/events/internal/storecfg"
 )
 
 const (
@@ -36,84 +37,69 @@ func addToQueue(l string) {
 	logs <- l
 }
 
-func startQueue(ctx context.Context) {
-	writer := connect()
-
+func startQueue(ctx context.Context) <-chan struct{} {
+	writer, built := connect()
+	done := make(chan struct{})
 	go func() {
-		ticker := time.NewTicker(flushInterval)
-		defer ticker.Stop()
-
-		pending := 0
-		flush := func() {
-			if pending == 0 {
-				return
-			}
-			if err := writer.Flush(ctx); err != nil {
-				_ = catcher.Error("failed to write logs", err, map[string]any{
-					"process": processName,
-					"rows":    pending,
-				})
-			}
-			pending = 0
-		}
-
-		for {
-			select {
-			case <-ctx.Done():
-				flush()
-				_ = writer.Close(context.WithoutCancel(ctx))
-				return
-
-			case l := <-logs:
-				tenant := gjson.Get(l, "tenantId").String()
-				if tenant == "" {
-					_ = catcher.Error("dropping log with no tenant", nil, map[string]any{
-						"process": processName,
-						"id":      gjson.Get(l, "id").String(),
-					})
-					continue
-				}
-
-				scope := store.Scope{Tenant: tenant, Dataset: datasetLogs}
-				if err := writer.Write(scope, []byte(l)); err != nil {
-					_ = catcher.Error("failed to queue log", err, map[string]any{"process": processName})
-					continue
-				}
-
-				if pending++; pending >= flushThreshold {
-					flush()
-				}
-
-			case <-ticker.C:
-				flush()
-			}
-		}
+		defer close(done)
+		defer built.Close()
+		runQueue(ctx, logs, writer)
 	}()
+	return done
 }
 
-func connect() store.BulkWriter {
-	cfg := plugins.PluginCfg("clickhouse")
-
-	table := cfg.Get("logsTable").String()
-	if table == "" {
-		table = defaultLogsTable
+func runQueue(ctx context.Context, queue <-chan string, writer store.BulkWriter) {
+	ticker := time.NewTicker(flushInterval)
+	defer ticker.Stop()
+	pending := 0
+	flush := func(flushCtx context.Context) {
+		if pending == 0 {
+			return
+		}
+		if err := writer.Flush(flushCtx); err != nil {
+			_ = catcher.Error("failed to write logs", err, map[string]any{"process": processName, "rows": pending})
+		}
+		pending = 0
 	}
+	for {
+		select {
+		case <-ctx.Done():
+			closeCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 30*time.Second)
+			flush(closeCtx)
+			_ = writer.Close(closeCtx)
+			cancel()
+			return
+		case l := <-queue:
+			tenant := gjson.Get(l, "tenantId").String()
+			if tenant == "" {
+				_ = catcher.Error("dropping log with no tenant", nil, map[string]any{"process": processName, "id": gjson.Get(l, "id").String()})
+				continue
+			}
+			scope := store.Scope{Tenant: tenant, Dataset: datasetLogs}
+			if err := writer.Write(scope, []byte(l)); err != nil {
+				_ = catcher.Error("failed to queue log", err, map[string]any{"process": processName})
+				continue
+			}
+			if pending++; pending >= flushThreshold {
+				flush(ctx)
+			}
+		case <-ticker.C:
+			flush(ctx)
+		}
+	}
+}
 
-	driver, err := ch.New(ch.Config{
-		Addr:     []string{cfg.Get("host").String() + ":" + cfg.Get("port").String()},
-		Database: cfg.Get("database").String(),
-		Username: cfg.Get("user").String(),
-		Password: cfg.Get("password").String(),
-		Tables: map[store.Dataset]string{
-			datasetLogs: cfg.Get("logsTable").String(),
-		},
-		TenantColumn:   "tenantId",
-		TimeColumn:     "@timestamp",
-		DataTypeColumn: "dataType",
-		// A row ClickHouse still refuses after BulkWriter's own retries and
-		// bisection is one this batch was never going to write — logged with
-		// its own content and the real error, instead of vanishing into the
-		// "rows: N" count a whole failed Flush used to be the only trace of.
+func connect() (store.BulkWriter, *factory.Built) {
+	cfg, err := storecfg.New(plugins.PluginCfg("store"), plugins.PluginCfg("clickhouse"), map[string]storecfg.Table{
+		string(datasetLogs): {ConfigKey: "logsTable", Default: defaultLogsTable},
+	})
+	if err == nil {
+		cfg, err = storecfg.ClickHousePrimary(cfg)
+	}
+	if err != nil {
+		panic(err)
+	}
+	built, err := factory.New(cfg, factory.Options{
 		OnReject: func(row []byte, err error) {
 			_ = catcher.Error("dropped a log ClickHouse will not accept", err, map[string]any{
 				"process": processName,
@@ -128,11 +114,12 @@ func connect() store.BulkWriter {
 		panic(err)
 	}
 
-	writer, err := driver.BulkWriter(datasetLogs)
+	writer, err := built.Store.BulkWriter(datasetLogs)
 	if err != nil {
+		_ = built.Close()
 		_ = catcher.Error("cannot open the log writer", err, map[string]any{"process": processName})
 		time.Sleep(5 * time.Second)
 		panic(err)
 	}
-	return writer
+	return writer, built
 }
