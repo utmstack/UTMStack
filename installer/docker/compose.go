@@ -206,11 +206,7 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		"DB_HOST=postgres",
 		"DB_PORT=5432",
 		"DB_NAME=utmstack",
-		"CLICKHOUSE_HOST=clickhouse",
-		"CLICKHOUSE_PORT=9000",
-		"CLICKHOUSE_DB=utmstack",
-		"CLICKHOUSE_USER=default",
-		"CLICKHOUSE_PASSWORD=" + conf.Password,
+		"STORAGE_CONFIG_PATH=/var/lib/storage/storage.yaml",
 		"INTERNAL_KEY=" + conf.InternalKey,
 		"ENCRYPTION_KEY=" + conf.InternalKey,
 		"GRPC_AGENT_MANAGER_HOST=agentmanager",
@@ -244,6 +240,7 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		Volumes: []string{
 			conf.UpdatesFolder + ":/updates",
 			utils.MakeDir(0777, conf.DataDir, "uploads") + ":/uploads",
+			utils.MakeDir(0777, conf.DataDir, "storage") + ":/var/lib/storage",
 			utils.MakeDir(0777, stack.EventsEngineWorkdir, "soar") + ":/workdir/soar",
 			utils.MakeDir(0777, stack.EventsEngineWorkdir, "compliance") + ":/workdir/compliance",
 			// Shared with the event-processor: the backend authors the rules and
