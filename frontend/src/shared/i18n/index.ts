@@ -2,36 +2,18 @@ import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import LanguageDetector from 'i18next-browser-languagedetector'
 
-const localeLoaders = import.meta.glob('./locales/**/*.json', {
-  query: '?raw',
+const localeLoaders = import.meta.glob('./locales/*/index.ts', {
   import: 'default',
-}) as Record<string, () => Promise<string>>
+}) as Record<string, () => Promise<Record<string, unknown>>>
 
 const supported = new Set<string>()
-const byLanguage: Record<string, string[]> = {}
-for (const path in localeLoaders) {
-  const match = path.match(/\/locales\/([a-z-]+)(?:\/(\w+))?\.json$/)
-  if (!match) continue
-  supported.add(match[1])
-  ;(byLanguage[match[1]] ??= []).push(path)
-}
+for (const path in localeLoaders) supported.add(path.match(/\/(\w+)\/index\.ts$/)![1])
 
-/** Load one language's domain files and merge them into a single bundle. */
+/** One language's merged domain bundle: each domain file becomes its own key (t('alerts.title')). */
 async function loadLanguage(code: string): Promise<Record<string, unknown>> {
-  const translation: Record<string, unknown> = {}
-  for (const path of byLanguage[code] ?? []) {
-    let json: Record<string, unknown>
-    try {
-      json = JSON.parse(await localeLoaders[path]())
-    } catch {
-      console.error('i18n: bad JSON in locale file', path)
-      continue
-    }
-    const match = path.match(/\/locales\/[a-z-]+\/(\w+)\.json$/)
-    if (match) translation[match[1]] = json
-    else Object.assign(translation, json)
-  }
-  return translation
+  const loader = localeLoaders[`./locales/${code}/index.ts`]
+  if (!loader) throw new Error(`i18n: no locale barrel for ${code}`)
+  return await loader()
 }
 
 /** Minimal i18next backend: v26 core calls read() per namespace (loadLanguageResources is v19-era, never invoked). */
