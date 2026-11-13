@@ -34,19 +34,29 @@ async function loadLanguage(code: string): Promise<Record<string, unknown>> {
   return translation
 }
 
-/** Minimal i18next backend: fetches a language on demand, merges into 'translation'. */
+/** Minimal i18next backend: v26 core calls read() per namespace (loadLanguageResources is v19-era, never invoked). */
+const cache = new Map<string, Promise<Record<string, unknown>>>()
 const lazyBackend = {
   type: 'backend' as const,
   init() {},
-  loadLanguageResources(lngs: string[], _nspaces: string, cb: (err: null) => void) {
-    Promise.all(
-      lngs.filter(lng => supported.has(lng)).map(async lng => ({ lng, data: await loadLanguage(lng) })),
-    )
-      .then(results => {
-        for (const { lng, data } of results) i18n.addResourceBundle(lng, 'translation', data, true, true)
+
+  // v26 core calls read(lng, ns) once per hierarchy level and consumes the returned Promise (2-arg form).
+  read(lngs: string | string[], _ns: string): Promise<Record<string, unknown>> {
+    const lng = Array.isArray(lngs) ? lngs[0] : lngs
+    if (!supported.has(lng)) return Promise.resolve({})
+    let p = cache.get(lng)
+    if (!p) {
+      p = loadLanguage(lng).catch((err) => {
+        cache.delete(lng)
+        console.error('i18n: failed to load language', err)
+        return {} as Record<string, unknown>
       })
-      .catch(err => console.error('i18n: failed to load language', err))
-      .finally(() => cb(null))
+      cache.set(lng, p)
+    }
+    return p
+  },
+  create(_lngs: string[], _ns: string, cb: (err: null) => void) {
+    cb(null)
   },
 }
 
