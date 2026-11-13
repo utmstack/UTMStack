@@ -504,7 +504,14 @@ public class ElasticsearchService {
                     var topHits = latestAgg.topHits();
                     if (topHits != null && !topHits.hits().hits().isEmpty()) {
                         var src = topHits.hits().hits().get(0).source();
-                        if (src != null) entry.put("last_echo", src.to(Map.class));
+                        // Convert the echo source to plain Java (String/Number/Boolean/
+                        // List/Map/null). src.to(Map.class) yields a Map whose values are
+                        // jakarta.json value objects (JsonStringValue etc.), which Jackson
+                        // serializes as {"chars","string","valueType"} wrappers. The frontend
+                        // then runs last_echo["@timestamp"] | date on an object and logs
+                        // "Unable to convert [object Object] into a date", leaving the
+                        // "Last Echo" column blank (issue #2964).
+                        if (src != null) entry.put("last_echo", toPlainValue(src.toJson()));
                     }
                 }
                 out.put(bucket.key(), entry);
@@ -512,6 +519,40 @@ public class ElasticsearchService {
             return out;
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Recursively converts a {@link jakarta.json.JsonValue} tree into plain Java
+     * types (String, Long/Double, Boolean, List, Map, null) so that Jackson can
+     * serialize it directly instead of as a wrapper object. Used for the alert
+     * "last_echo" payload (issue #2964).
+     */
+    private static Object toPlainValue(jakarta.json.JsonValue v) {
+        if (v == null || v.getValueType() == jakarta.json.JsonValue.ValueType.NULL) return null;
+        switch (v.getValueType()) {
+            case STRING:
+                return ((jakarta.json.JsonString) v).getString();
+            case NUMBER:
+                jakarta.json.JsonNumber n = (jakarta.json.JsonNumber) v;
+                return n.isIntegral() ? (Object) n.longValue() : (Object) n.bigDecimalValue();
+            case TRUE:
+            case FALSE:
+                return v.getValueType() == jakarta.json.JsonValue.ValueType.TRUE;
+            case OBJECT: {
+                jakarta.json.JsonObject o = (jakarta.json.JsonObject) v;
+                Map<String, Object> m = new LinkedHashMap<>();
+                for (Map.Entry<String, jakarta.json.JsonValue> e : o.entrySet()) m.put(e.getKey(), toPlainValue(e.getValue()));
+                return m;
+            }
+            case ARRAY: {
+                jakarta.json.JsonArray a = (jakarta.json.JsonArray) v;
+                List<Object> l = new ArrayList<>(a.size());
+                for (jakarta.json.JsonValue e : a) l.add(toPlainValue(e));
+                return l;
+            }
+            default:
+                return v.toString();
         }
     }
 
