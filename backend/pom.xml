@@ -96,6 +96,21 @@
                 <artifactId>snakeyaml</artifactId>
                 <version>${snakeyaml.version}</version>
             </dependency>
+            <!-- CVE close-out: jhipster-dependencies:7.3.1 pins the whole Spring stack to
+                 Boot 2.5.5 (EOL: CVE-2022-22965 Spring4Shell, CVE-2022-29952 spring-web RCE,
+                 netty 4.1.68, jackson 2.12.5, tomcat-embed 9.0.53, security 5.5.2). Import the
+                 Boot 2.7.18 BOM FIRST so its managed versions win the conflict and lift the stack
+                 to 2.7.x (spring 5.3.31, security 5.7.11, jackson 2.13.5, netty 4.1.101,
+                 tomcat-embed 9.0.83, undertow 2.2.28, logback 1.2.12) while jhipster-framework
+                 7.3.1 and the snakeyaml 1.33 pin remain unchanged. This is a patch-line upgrade
+                 within Boot 2.x, not the breaking 3.x line the pom's dead 3.1.5 property implies. -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>2.7.18</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>tech.jhipster</groupId>
                 <artifactId>jhipster-dependencies</artifactId>
