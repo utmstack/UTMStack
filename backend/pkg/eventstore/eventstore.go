@@ -19,6 +19,7 @@ const (
 	DatasetAlerts      store.Dataset = "alerts"
 	DatasetStats       store.Dataset = "statistics"
 	DatasetUserHistory store.Dataset = "user_profile_history"
+	MigrationPah       string        = "file://migrations/clickhouse"
 )
 
 type Store struct {
@@ -75,8 +76,19 @@ func (s *Store) Close() {
 	s.built.Close()
 }
 
+
+
 func (s *Store) initTables(ctx context.Context) error {
 	db := env.String("CLICKHOUSE_DB", "utmstack", false)
+
+
+	args := map[string]string{
+		"db":db,
+		"logs":string(DatasetLogs),
+		"alerts":string(DatasetAlerts),
+		"stats":string(DatasetStats),
+		"user_profile":string(DatasetUserHistory),
+	}
 
 	d, ok := s.Store.(*clickhouse.Driver)
 	if !ok {
@@ -92,49 +104,16 @@ func (s *Store) initTables(ctx context.Context) error {
 		return nil
 	}
 
-	statements := []string{
-		"CREATE DATABASE IF NOT EXISTS " + db,
 
-		// DatasetLogs — has id, dataType, raw, @timestamp
-		"CREATE TABLE IF NOT EXISTS " + db + "." + string(DatasetLogs) + ` (
-               id String, tenantId String, dataType String,
-               "@timestamp" DateTime64(3), raw String
-           ) ENGINE = MergeTree
-           PARTITION BY toYYYYMM("@timestamp")
-           ORDER BY (tenantId, toUnixTimestamp("@timestamp"), id)`,
 
-		// DatasetAlerts — id, no raw
-		"CREATE TABLE IF NOT EXISTS " + db + `.` + string(DatasetAlerts) + ` (
-               id String, tenantId String, dataType String,
-               "@timestamp" DateTime64(3)
-           ) ENGINE = MergeTree
-			PARTITION BY toYYYYMM("@timestamp")
-           ORDER BY (tenantId, toUnixTimestamp("@timestamp"), id)
-           `,
-
-		// DatasetStats
-		"CREATE TABLE IF NOT EXISTS " + db + `.` + string(DatasetStats) + ` (
-               tenantId String, type String, topic String, dataSource String, dataType String, batchId String,
-               count UInt64, bytes UInt64,
-               "@timestamp" DateTime64(3)
-           ) ENGINE = MergeTree
-           PARTITION BY toYYYYMM("@timestamp")
-           ORDER BY (tenantId, topic, dataSource, dataType, toUnixTimestamp64Milli("@timestamp"))`,
-
-		// DatasetUserHistory
-		"CREATE TABLE IF NOT EXISTS " + db + `.` + string(DatasetUserHistory) + ` (
-			   tenantId String,
-			   user_id String,
-			   profile String,
-			   snapshotted_at DateTime64(3),
-			   "@timestamp" DateTime64(3) MATERIALIZED snapshotted_at
-			) ENGINE = MergeTree
-			PARTITION BY toYYYYMM("@timestamp")
-           ORDER BY (tenantId, toUnixTimestamp("@timestamp"))
-   `,
+	migrations, err := loadMigrations("migrations/clickhouse",args)
+	if err != nil {
+		return err
 	}
-	for _, q := range statements {
-		if err := d.Exec(ctx, q); err != nil {
+
+	catcher.Info("running clickhouse migrations",nil)
+	for _, q := range migrations {
+		if err := d.Exec(ctx, q.Content); err != nil {
 			return err
 		}
 	}
