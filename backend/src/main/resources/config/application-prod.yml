@@ -5,14 +5,6 @@ logging:
         com.park.utmstack: info
 
 spring:
-    main:
-        # The JHipster 7.3.1 securityConfiguration (a @Configuration with a
-        # self-reference via @PostConstruct -> WebSecurityCustomizer) relies on
-        # circular bean references. Spring Boot 2.6+ disables those by default,
-        # which made the backend crash-loop on the Boot 2.7.18 CVE upgrade
-        # ("dependencies of some beans ... form a cycle: securityConfiguration").
-        # Allow them so the app boots; this is the documented mitigation.
-        allow-circular-references: true
     devtools:
         restart:
             enabled: false
