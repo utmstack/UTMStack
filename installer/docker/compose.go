@@ -293,6 +293,7 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 			"GIN_MODE=release",
 			"MODE=worker",
 			"NATS_URL=nats://nats:4222",
+			"UTM_EVENT_KEY=log",
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
@@ -335,6 +336,7 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 			"GIN_MODE=release",
 			"MODE=manager",
 			"NODE_NAME=manager",
+			"UTM_EVENT_KEY=log",
 		},
 		Logging: &dLogging,
 		Deploy: &Deploy{
