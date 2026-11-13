@@ -39,6 +39,7 @@ var (
 	InstanceConfigPath     = filepath.Join(GetConfig().UpdatesFolder, "instance-config.yml")
 	ServiceLogPath         = filepath.Join(GetConfig().UpdatesFolder, "logs", "utmstack-updater.log")
 	VersionFilePath        = filepath.Join(GetConfig().UpdatesFolder, "version.json")
+	OldVersionFilePath     = filepath.Join(GetConfig().UpdatesFolder, "version-old.json")
 	LicenseFilePath        = filepath.Join(GetConfig().UpdatesFolder, "LICENSE")
 	PendingUpdatesPath     = filepath.Join(GetConfig().UpdatesFolder, "pending-updates.json")
 	MemoryAllocationPath   = filepath.Join(GetConfig().UpdatesFolder, "memory-allocation.json")
