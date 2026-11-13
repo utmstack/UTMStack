@@ -6,7 +6,6 @@ require (
 	cloud.google.com/go/pubsub v1.52.0
 	github.com/Azure/azure-sdk-for-go/sdk/messaging/azeventhubs/v2 v2.0.2
 	github.com/Azure/azure-sdk-for-go/sdk/storage/azblob v1.8.3
-	github.com/ClickHouse/clickhouse-go/v2 v2.50.0
 	github.com/aws/aws-sdk-go-v2/config v1.33.14
 	github.com/aws/aws-sdk-go-v2/credentials v1.20.14
 	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.91.1
@@ -27,6 +26,7 @@ require (
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.1
 	github.com/swaggo/swag v1.16.6
+	github.com/threatwinds/go-sdk v1.1.40-0.20261113141239-c6b6629b28d5
 	github.com/tidwall/gjson v1.20.0
 	github.com/utmstack/UTMStack/upgrade v0.0.0
 	github.com/utmstack/license-manager-sdk v0.1.0
@@ -44,6 +44,7 @@ require (
 require (
 	github.com/Azure/azure-sdk-for-go/sdk/storage/internal v0.1.0 // indirect
 	github.com/Azure/go-ntlmssp v0.1.1 // indirect
+	github.com/ClickHouse/clickhouse-go/v2 v2.50.0 // indirect
 	github.com/apache/arrow-go/v18 v18.7.0 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.26 // indirect
 	github.com/go-asn1-ber/asn1-ber v1.5.8 // indirect
@@ -51,7 +52,6 @@ require (
 	github.com/google/flatbuffers v25.12.19+incompatible // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/opensearch-project/opensearch-go/v4 v4.6.0 // indirect
-	github.com/threatwinds/go-sdk v1.1.40-0.20261111193348-bb49d6af9f6c // indirect
 	github.com/zeebo/xxh3 v1.1.0 // indirect
 	go.opentelemetry.io/otel/log v1.47.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.4 // indirect
