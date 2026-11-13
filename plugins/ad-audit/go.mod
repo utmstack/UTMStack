@@ -2,7 +2,7 @@ module github.com/utmstack/UTMStack/plugins/ad-audit
 
 go 1.25.5
 
-require github.com/threatwinds/go-sdk v1.1.40-0.20261111193348-bb49d6af9f6c
+require github.com/threatwinds/go-sdk v1.1.40-0.20261113141239-c6b6629b28d5
 
 require (
 	cel.dev/expr v0.25.2 // indirect
