@@ -44,7 +44,7 @@ public class RestTemplateService {
             return rest.exchange(url, HttpMethod.GET, requestEntity, type);
         } catch (RestClientResponseException e) {
             String msg = ctx + ": " + e.getMessage();
-            return ResponseEntity.status(e.getRawStatusCode()).headers(
+            return ResponseEntity.status(e.getStatusCode()).headers(
                 HeaderUtil.createFailureAlert("", "", msg)).body(null);
         }
     }
@@ -66,7 +66,7 @@ public class RestTemplateService {
             return rest.exchange(url, HttpMethod.GET, requestEntity, type);
         } catch (RestClientResponseException e) {
             String msg = ctx + ": " + e.getMessage();
-            return ResponseEntity.status(e.getRawStatusCode()).headers(
+            return ResponseEntity.status(e.getStatusCode()).headers(
                 HeaderUtil.createFailureAlert("", "", msg)).body(null);
         }
     }
@@ -77,7 +77,7 @@ public class RestTemplateService {
             return rest.getForEntity(url, String.class);
         } catch (RestClientResponseException e) {
             String msg = ctx + ": " + e.getMessage();
-            return ResponseEntity.status(e.getRawStatusCode()).headers(
+            return ResponseEntity.status(e.getStatusCode()).headers(
                 HeaderUtil.createFailureAlert("", "", msg)).body(null);
         }
     }
@@ -91,7 +91,7 @@ public class RestTemplateService {
             return ResponseEntity.ok(om.readValue(rs.getBody(), type));
         } catch (RestClientResponseException e) {
             String msg = ctx + ": " + e.getMessage();
-            return ResponseEntity.status(e.getRawStatusCode()).headers(
+            return ResponseEntity.status(e.getStatusCode()).headers(
                 HeaderUtil.createFailureAlert("", "", msg)).body(null);
         }
     }
@@ -105,7 +105,7 @@ public class RestTemplateService {
             return ResponseEntity.ok(om.readValue(rs.getBody(), p));
         } catch (RestClientResponseException e) {
             String msg = ctx + ": " + e.getMessage();
-            return ResponseEntity.status(e.getRawStatusCode()).headers(
+            return ResponseEntity.status(e.getStatusCode()).headers(
                 HeaderUtil.createFailureAlert("", "", msg)).body(null);
         }
     }
@@ -117,7 +117,7 @@ public class RestTemplateService {
             return rest.exchange(url, HttpMethod.HEAD, requestEntity, String.class);
         } catch (RestClientResponseException e) {
             String msg = ctx + ": " + e.getMessage();
-            return ResponseEntity.status(e.getRawStatusCode()).headers(
+            return ResponseEntity.status(e.getStatusCode()).headers(
                 HeaderUtil.createFailureAlert("", "", msg)).body(null);
         } catch (ResourceAccessException e) {
             String msg = ctx + ": " + e.getMessage();
@@ -133,7 +133,7 @@ public class RestTemplateService {
             return rest.exchange(url, HttpMethod.POST, requestEntity, type);
         } catch (RestClientResponseException e) {
             String msg = ctx + ": " + e.getMessage();
-            return ResponseEntity.status(e.getRawStatusCode()).headers(
+            return ResponseEntity.status(e.getStatusCode()).headers(
                 HeaderUtil.createFailureAlert("", "", msg)).body(null);
         }
     }
@@ -145,7 +145,7 @@ public class RestTemplateService {
             return rest.exchange(url, HttpMethod.PUT, requestEntity, type);
         } catch (RestClientResponseException e) {
             String msg = ctx + ": " + e.getMessage() + ": " + e.getResponseBodyAsString();
-            return ResponseEntity.status(e.getRawStatusCode()).headers(
+            return ResponseEntity.status(e.getStatusCode()).headers(
                 HeaderUtil.createFailureAlert("", "", msg)).body(null);
         }
     }
@@ -157,7 +157,7 @@ public class RestTemplateService {
             return rest.exchange(url, HttpMethod.GET, requestEntity, p);
         } catch (RestClientResponseException e) {
             String msg = ctx + ": " + e.getMessage() + ": " + e.getResponseBodyAsString();
-            return ResponseEntity.status(e.getRawStatusCode()).headers(
+            return ResponseEntity.status(e.getStatusCode()).headers(
                 HeaderUtil.createFailureAlert("", "", msg)).body(null);
         }
     }
@@ -170,7 +170,7 @@ public class RestTemplateService {
             return rt.exchange(url, HttpMethod.GET, requestEntity, p);
         } catch (RestClientResponseException e) {
             String msg = ctx + ": " + e.getMessage() + ": " + e.getResponseBodyAsString();
-            return ResponseEntity.status(e.getRawStatusCode()).headers(
+            return ResponseEntity.status(e.getStatusCode()).headers(
                 HeaderUtil.createFailureAlert("", "", msg)).body(null);
         }
     }

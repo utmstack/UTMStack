@@ -2,8 +2,8 @@ package com.park.utmstack.domain.application_modules.validators;
 
 import com.park.utmstack.domain.application_modules.validators.impl.ModuleConfigurationValidator;
 
-import javax.validation.Constraint;
-import javax.validation.Payload;
+import jakarta.validation.Constraint;
+import jakarta.validation.Payload;
 import java.lang.annotation.*;
 
 @Documented

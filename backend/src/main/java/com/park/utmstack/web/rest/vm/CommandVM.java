@@ -1,6 +1,6 @@
 package com.park.utmstack.web.rest.vm;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 
 public class CommandVM {
     @NotBlank

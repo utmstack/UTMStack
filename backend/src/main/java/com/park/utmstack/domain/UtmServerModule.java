@@ -3,7 +3,7 @@ package com.park.utmstack.domain;
 
 import com.park.utmstack.service.dto.auditable.AuditableDTO;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.Map;
 

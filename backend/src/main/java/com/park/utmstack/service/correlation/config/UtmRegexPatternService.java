@@ -4,7 +4,7 @@ import com.park.utmstack.domain.correlation.config.UtmDataTypes;
 import com.park.utmstack.domain.correlation.config.UtmRegexPattern;
 import com.park.utmstack.repository.correlation.config.UtmDataTypesRepository;
 import com.park.utmstack.repository.correlation.config.UtmRegexPatternRepository;
-import io.undertow.util.BadRequestException;
+import com.park.utmstack.util.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;

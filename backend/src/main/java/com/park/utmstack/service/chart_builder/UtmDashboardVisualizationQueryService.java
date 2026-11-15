@@ -42,7 +42,7 @@ public class UtmDashboardVisualizationQueryService extends QueryService<UtmDashb
     }
 
     private Specification<UtmDashboardVisualization> createSpecification(UtmDashboardVisualizationCriteria criteria) {
-        Specification<UtmDashboardVisualization> specification = Specification.where(null);
+        Specification<UtmDashboardVisualization> specification = Specification.where((Specification<UtmDashboardVisualization>) null);
         if (criteria != null) {
             if (criteria.getId() != null) {
                 specification = specification.and(buildSpecification(criteria.getId(), UtmDashboardVisualization_.id));

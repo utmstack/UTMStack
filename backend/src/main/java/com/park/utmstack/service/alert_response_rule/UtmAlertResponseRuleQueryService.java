@@ -57,7 +57,7 @@ public class UtmAlertResponseRuleQueryService extends QueryService<UtmAlertRespo
     }
 
     private Specification<UtmAlertResponseRule> createSpecification(UtmAlertResponseRuleCriteria criteria) {
-        Specification<UtmAlertResponseRule> specification = Specification.where(null);
+        Specification<UtmAlertResponseRule> specification = Specification.where((Specification<UtmAlertResponseRule>) null);
         if (criteria != null) {
             if (criteria.getId() != null) {
                 specification = specification.and(buildSpecification(criteria.getId(), UtmAlertResponseRule_.id));

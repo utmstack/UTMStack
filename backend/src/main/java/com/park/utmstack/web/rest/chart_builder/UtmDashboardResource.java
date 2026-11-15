@@ -25,8 +25,8 @@ import org.springframework.web.bind.annotation.*;
 import tech.jhipster.config.JHipsterConstants;
 import tech.jhipster.web.util.ResponseUtil;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import java.net.URI;
 import java.time.Instant;
 import java.time.LocalDateTime;

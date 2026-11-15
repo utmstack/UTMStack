@@ -78,7 +78,9 @@ public class PdfService {
                         ? errorBody.getMessage()
                         : "Unknown error returned from PDF service";
 
-                throw new ApiException(message, rs.getStatusCode());
+                // Spring 6: ResponseEntity.getStatusCode() returns HttpStatusCode; ApiException
+                // stores HttpStatus, so convert via the int code.
+                throw new ApiException(message, HttpStatus.valueOf(rs.getStatusCode().value()));
             }
 
             PdfServiceResponse body = rs.getBody();

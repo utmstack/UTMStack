@@ -3,7 +3,7 @@ package com.park.utmstack.domain.network_scan;
 
 import com.park.utmstack.service.dto.network_scan.NetworkScanDTO;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 
 /**

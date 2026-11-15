@@ -40,7 +40,7 @@ public class UtmComplianceStandardQueryService extends QueryService<UtmComplianc
     }
 
     private Specification<UtmComplianceStandard> createSpecification(UtmComplianceStandardCriteria criteria) {
-        Specification<UtmComplianceStandard> specification = Specification.where(null);
+        Specification<UtmComplianceStandard> specification = Specification.where((Specification<UtmComplianceStandard>) null);
         if (criteria != null) {
             if (criteria.getId() != null) {
                 specification = specification.and(buildSpecification(criteria.getId(), UtmComplianceStandard_.id));

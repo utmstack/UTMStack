@@ -13,8 +13,9 @@ public class LocaleConfiguration implements WebMvcConfigurer {
 
     @Bean(name = "localeResolver")
     public LocaleResolver localeResolver() {
-        AngularCookieLocaleResolver cookieLocaleResolver = new AngularCookieLocaleResolver();
-        cookieLocaleResolver.setCookieName("NG_TRANSLATE_LANG_KEY");
+        // Spring 7: the cookie name is set in the constructor (setCookieName was removed).
+        AngularCookieLocaleResolver cookieLocaleResolver =
+            new AngularCookieLocaleResolver("NG_TRANSLATE_LANG_KEY");
         return cookieLocaleResolver;
     }
 

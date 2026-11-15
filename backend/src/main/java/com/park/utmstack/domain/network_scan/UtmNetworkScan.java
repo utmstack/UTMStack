@@ -11,10 +11,10 @@ import com.park.utmstack.service.dto.agent_manager.AgentStatusEnum;
 import com.park.utmstack.service.dto.network_scan.NetworkScanDTO;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.http.conn.util.InetAddressUtils;
+import org.apache.hc.core5.net.InetAddressUtils;
 
-import javax.persistence.*;
-import javax.validation.constraints.Size;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -133,7 +133,8 @@ public class UtmNetworkScan implements Serializable {
     @JoinColumn(name = "asset_type_id", referencedColumnName = "id", insertable = false, updatable = false)
     private UtmAssetTypes assetType;
 
-    @OneToMany(mappedBy = "scanId", fetch = FetchType.LAZY)
+    @OneToMany
+    @JoinColumn(name = "scan_id", insertable = false, updatable = false)
     private List<UtmPorts> ports = new ArrayList<>();
 
     @OneToMany(mappedBy = "asset", fetch = FetchType.LAZY)

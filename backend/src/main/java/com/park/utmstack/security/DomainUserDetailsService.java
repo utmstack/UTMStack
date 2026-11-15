@@ -2,7 +2,6 @@ package com.park.utmstack.security;
 
 import com.park.utmstack.domain.User;
 import com.park.utmstack.repository.UserRepository;
-import org.hibernate.validator.internal.constraintvalidators.hv.EmailValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
@@ -15,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -24,6 +24,10 @@ import java.util.stream.Collectors;
 public class DomainUserDetailsService implements UserDetailsService {
 
     private final Logger log = LoggerFactory.getLogger(DomainUserDetailsService.class);
+
+    /** Simple email shape check replacing the removed Hibernate-Validator EmailValidator. */
+    private static final Pattern EMAIL_PATTERN =
+        Pattern.compile("^[A-Za-z0-9+_.!%$&'/^`#=?{}~|\\-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
 
     private final UserRepository userRepository;
 
@@ -36,7 +40,10 @@ public class DomainUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(final String login) {
         log.debug("Authenticating {}", login);
 
-        if (new EmailValidator().isValid(login, null)) {
+        // Hibernate Validator 9 (Boot 4.1.2) dropped the internal EmailValidator we used to
+        // distinguish email login from username login; validate with an equivalent RFC-ish
+        // email pattern instead (the old EmailValidator was pattern-based too).
+        if (EMAIL_PATTERN.matcher(login).matches()) {
             return userRepository.findOneWithAuthoritiesByEmail(login)
                 .map(user -> createSpringSecurityUser(login, user))
                 .orElseThrow(() -> new UsernameNotFoundException("User with email " + login + " was not found in the database"));

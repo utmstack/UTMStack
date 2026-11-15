@@ -1,7 +1,6 @@
 package com.park.utmstack.repository;
 
 import com.park.utmstack.domain.UtmAlertTagRule;
-import org.hibernate.jpa.TypedParameterValue;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -27,13 +26,13 @@ public interface UtmAlertTagRuleRepository extends JpaRepository<UtmAlertTagRule
         "and (:isActive is null or uatr.rule_active = :isActive) " +
         "and (:isDeleted is null or uatr.rule_deleted = :isDeleted) " +
         "and (:tagIds is null or (cast(string_to_array(cast(:tagIds as varchar) , ',') as int[]) && cast(string_to_array(uatr.rule_applied_tags , ',') as int[])))")
-    Page<UtmAlertTagRule> findByFilter(@Param("id") TypedParameterValue id,
-                                       @Param("name") TypedParameterValue name,
-                                       @Param("conditionField") TypedParameterValue conditionField,
-                                       @Param("conditionValue") TypedParameterValue conditionValue,
-                                       @Param("tagIds") TypedParameterValue tagIds,
-                                       @Param("isActive") TypedParameterValue isActive,
-                                       @Param("isDeleted") TypedParameterValue isDeleted,
+    Page<UtmAlertTagRule> findByFilter(@Param("id") Long id,
+                                       @Param("name") String name,
+                                       @Param("conditionField") String conditionField,
+                                       @Param("conditionValue") String conditionValue,
+                                       @Param("tagIds") String tagIds,
+                                       @Param("isActive") Boolean isActive,
+                                       @Param("isDeleted") Boolean isDeleted,
                                        Pageable pageable);
 
     List<UtmAlertTagRule> findAllByIdIn(List<Long> ids);

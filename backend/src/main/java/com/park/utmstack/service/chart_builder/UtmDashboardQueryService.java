@@ -42,7 +42,7 @@ public class UtmDashboardQueryService extends QueryService<UtmDashboard> {
     }
 
     private Specification<UtmDashboard> createSpecification(UtmDashboardCriteria criteria) {
-        Specification<UtmDashboard> specification = Specification.where(null);
+        Specification<UtmDashboard> specification = Specification.where((Specification<UtmDashboard>) null);
         if (criteria != null) {
             if (criteria.getId() != null) {
                 specification = specification.and(buildSpecification(criteria.getId(), UtmDashboard_.id));

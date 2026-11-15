@@ -3,8 +3,8 @@ package com.park.utmstack.validation.saml.impl;
 import com.park.utmstack.util.saml.PemUtils;
 import com.park.utmstack.validation.saml.ValidPrivateKey;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
 public class ValidPrivateKeyValidator implements ConstraintValidator<ValidPrivateKey, String> {
 

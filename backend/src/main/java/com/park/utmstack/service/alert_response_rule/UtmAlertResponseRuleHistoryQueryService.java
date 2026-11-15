@@ -42,7 +42,7 @@ public class UtmAlertResponseRuleHistoryQueryService extends QueryService<UtmAle
     }
 
     private Specification<UtmAlertResponseRuleHistory> createSpecification(UtmAlertResponseRuleHistoryCriteria criteria) {
-        Specification<UtmAlertResponseRuleHistory> specification = Specification.where(null);
+        Specification<UtmAlertResponseRuleHistory> specification = Specification.where((Specification<UtmAlertResponseRuleHistory>) null);
         if (criteria != null) {
             if (criteria.getId() != null) {
                 specification = specification.and(buildSpecification(criteria.getId(), UtmAlertResponseRuleHistory_.id));

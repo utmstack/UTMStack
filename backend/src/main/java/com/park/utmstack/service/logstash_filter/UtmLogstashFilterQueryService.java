@@ -49,7 +49,7 @@ public class UtmLogstashFilterQueryService extends QueryService<UtmLogstashFilte
     }
 
     private Specification<UtmLogstashFilter> createSpecification(UtmLogstashFilterCriteria criteria) {
-        Specification<UtmLogstashFilter> specification = Specification.where(null);
+        Specification<UtmLogstashFilter> specification = Specification.where((Specification<UtmLogstashFilter>) null);
         if (criteria != null) {
             if (criteria.getId() != null) {
                 specification = specification.and(buildSpecification(criteria.getId(), UtmLogstashFilter_.id));

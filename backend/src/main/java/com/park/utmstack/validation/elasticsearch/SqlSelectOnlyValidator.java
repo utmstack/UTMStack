@@ -1,7 +1,7 @@
 package com.park.utmstack.validation.elasticsearch;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

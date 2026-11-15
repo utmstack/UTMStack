@@ -35,7 +35,7 @@ public class UtmAlertResponseActionTemplateQueryService extends QueryService<Utm
     }
 
     private Specification<UtmAlertResponseActionTemplate> createSpecification(UtmAlertResponseActionTemplateCriteria criteria) {
-        Specification<UtmAlertResponseActionTemplate> specification = Specification.where(null);
+        Specification<UtmAlertResponseActionTemplate> specification = Specification.where((Specification<UtmAlertResponseActionTemplate>) null);
         if (criteria != null) {
             if (criteria.getId() != null) {
                 specification = specification.and(buildSpecification(criteria.getId(), UtmAlertResponseActionTemplate_.id));

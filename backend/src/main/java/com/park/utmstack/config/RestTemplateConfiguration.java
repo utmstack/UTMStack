@@ -1,10 +1,12 @@
 package com.park.utmstack.config;
 
 import com.park.utmstack.service.web_clients.rest_template.RestTemplateResponseErrorHandler;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.TrustStrategy;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
+import org.apache.hc.core5.ssl.SSLContextBuilder;
+import org.apache.hc.core5.ssl.TrustStrategy;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +22,13 @@ import javax.net.ssl.SSLContext;
 import java.security.cert.X509Certificate;
 import java.util.Objects;
 
+/**
+ * Spring Boot 3 / Spring Framework 6: the default {@code HttpComponentsClientHttpRequestFactory}
+ * is backed by Apache HttpClient 5 (not the 4.x the Boot 2 version used), so the SSL-trusting
+ * client factory is rebuilt with the {@code org.apache.hc.client5.*} / {@code org.apache.hc.core5.*}
+ * APIs. The trust-all behavior is intentionally preserved (these are internal service-mesh
+ * endpoints using self-signed certs).
+ */
 @Configuration
 public class RestTemplateConfiguration {
     public static final String CLASSNAME = "RestTemplateConfiguration";
@@ -62,7 +71,9 @@ public class RestTemplateConfiguration {
     @Bean(name = "pdfRestTemplate")
     public RestTemplate pdfRestTemplate() {
         HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
-        factory.setConnectTimeout(10_000);
+        // Spring 7 removed setConnectTimeout(int); setConnectionRequestTimeout covers the
+        // connection-acquisition wait (the same 10 s we set before).
+        factory.setConnectionRequestTimeout(10_000);
         factory.setReadTimeout(120_000);
         RestTemplate rest = new RestTemplate(factory);
         rest.setErrorHandler(new DefaultResponseErrorHandler());
@@ -73,18 +84,23 @@ public class RestTemplateConfiguration {
     private HttpComponentsClientHttpRequestFactory clientHttpRequestFactory() {
         final String ctx = CLASSNAME + ".clientHttpRequestFactory";
         try {
+            // Trust-all strategy (internal service-mesh TLS with self-signed certs) —
+            // unchanged from the pre-migration httpclient4 config.
             TrustStrategy acceptingTrustStrategy = (X509Certificate[] chain, String authType) -> true;
-            HostnameVerifier hostnameVerifier = (s, sslSession) -> true;
+            HostnameVerifier hostnameVerifier = (s, session) -> true;
 
-            SSLContext sslContext = org.apache.http.ssl.SSLContexts.custom()
+            SSLContext sslContext = SSLContextBuilder.create()
                 .loadTrustMaterial(null, acceptingTrustStrategy)
                 .build();
 
-            SSLConnectionSocketFactory csf = new SSLConnectionSocketFactory(sslContext, hostnameVerifier);
+            SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(sslContext, hostnameVerifier);
 
             CloseableHttpClient httpClient = HttpClients.custom()
-                .setSSLSocketFactory(csf)
+                .setConnectionManager(PoolingHttpClientConnectionManagerBuilder.create()
+                    .setSSLSocketFactory(sslSocketFactory)
+                    .build())
                 .build();
+
             HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
             requestFactory.setHttpClient(httpClient);
 

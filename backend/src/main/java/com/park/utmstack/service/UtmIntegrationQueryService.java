@@ -74,7 +74,7 @@ public class UtmIntegrationQueryService extends QueryService<UtmIntegration> {
      * Function to convert UtmIntegrationCriteria to a {@link Specification}
      */
     private Specification<UtmIntegration> createSpecification(UtmIntegrationCriteria criteria) {
-        Specification<UtmIntegration> specification = Specification.where(null);
+        Specification<UtmIntegration> specification = Specification.where((Specification<UtmIntegration>) null);
         if (criteria != null) {
             if (criteria.getId() != null) {
                 specification = specification.and(buildSpecification(criteria.getId(), UtmIntegration_.id));

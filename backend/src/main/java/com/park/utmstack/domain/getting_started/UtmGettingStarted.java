@@ -2,11 +2,26 @@ package com.park.utmstack.domain.getting_started;
 
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
+import org.springframework.data.domain.Persistable;
 
 @Entity
 @Table(name = "utm_getting_started")
-public class UtmGettingStarted {
+public class UtmGettingStarted implements Persistable<Long> {
+    // Hibernate 6.6 (Boot 3.4.5): track whether loaded from DB so save() uses persist() for
+    // new (app-assigned-id) instances instead of merge(), which throws on 6.6.
+    private transient boolean isNew = true;
+
+    @jakarta.persistence.PostLoad
+    void utmstackOnLoad() {
+        this.isNew = false;
+    }
+
+    @Override
+    public boolean isNew() {
+        return this.isNew;
+    }
+
     @Id
     @GenericGenerator(name = "CustomIdentityGenerator", strategy = "com.park.utmstack.util.CustomIdentityGenerator")
     @GeneratedValue(generator = "CustomIdentityGenerator")

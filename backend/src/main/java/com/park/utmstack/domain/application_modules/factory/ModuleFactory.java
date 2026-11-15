@@ -5,7 +5,7 @@ import com.park.utmstack.domain.application_modules.factory.impl.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;

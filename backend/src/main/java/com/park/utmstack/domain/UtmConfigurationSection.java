@@ -4,7 +4,7 @@ package com.park.utmstack.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.park.utmstack.domain.shared_types.enums.SectionType;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 
 /**

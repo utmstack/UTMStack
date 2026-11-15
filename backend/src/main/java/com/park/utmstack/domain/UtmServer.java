@@ -4,7 +4,7 @@ package com.park.utmstack.domain;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.park.utmstack.domain.application_modules.UtmModule;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;

@@ -3,8 +3,8 @@ package com.park.utmstack.service.dto.compliance;
 import com.park.utmstack.domain.compliance.enums.EvaluationRule;
 import lombok.Data;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 @Data
 public class UtmComplianceQueryConfigDto {

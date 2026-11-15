@@ -7,14 +7,14 @@ import com.park.utmstack.service.dto.notification.NotificationDTO;
 import com.park.utmstack.service.dto.notification.UtmNotificationMapper;
 import com.park.utmstack.service.notification.UtmNotificationService;
 import lombok.extern.slf4j.Slf4j;
-import org.springdoc.api.annotations.ParameterObject;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 
 @RestController

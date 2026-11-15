@@ -2,12 +2,27 @@ package com.park.utmstack.domain.collector;
 
 import com.park.utmstack.domain.network_scan.UtmAssetGroup;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
+import org.springframework.data.domain.Persistable;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "utm_collectors")
-public class UtmCollector {
+public class UtmCollector implements Persistable<Long> {
+
+    // Hibernate 6.6 (Boot 3.4.5): track whether loaded from DB so save() uses persist() for
+    // new (app-assigned-id) instances instead of merge(), which throws on 6.6.
+    private transient boolean isNew = true;
+
+    @jakarta.persistence.PostLoad
+    void utmstackOnLoad() {
+        this.isNew = false;
+    }
+
+    @Override
+    public boolean isNew() {
+        return this.isNew;
+    }
 
     @Id
     private Long id;

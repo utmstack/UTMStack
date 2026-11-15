@@ -57,7 +57,7 @@ public class UtmAlertTagQueryService extends QueryService<UtmAlertTag> {
      * Function to convert UtmAlertTagCriteria to a {@link Specification}
      */
     private Specification<UtmAlertTag> createSpecification(UtmAlertTagCriteria criteria) {
-        Specification<UtmAlertTag> specification = Specification.where(null);
+        Specification<UtmAlertTag> specification = Specification.where((Specification<UtmAlertTag>) null);
         if (criteria != null) {
             if (criteria.getId() != null) {
                 specification = specification.and(buildSpecification(criteria.getId(), UtmAlertTag_.id));

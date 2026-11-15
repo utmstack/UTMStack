@@ -74,7 +74,7 @@ public class UtmIncidentAlertQueryService extends QueryService<UtmIncidentAlert>
      * Function to convert UtmIncidentAlertCriteria to a {@link Specification}
      */
     private Specification<UtmIncidentAlert> createSpecification(UtmIncidentAlertCriteria criteria) {
-        Specification<UtmIncidentAlert> specification = Specification.where(null);
+        Specification<UtmIncidentAlert> specification = Specification.where((Specification<UtmIncidentAlert>) null);
         if (criteria != null) {
             if (criteria.getId() != null) {
                 specification = specification.and(buildSpecification(criteria.getId(), UtmIncidentAlert_.id));

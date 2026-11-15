@@ -9,8 +9,8 @@ import com.park.utmstack.service.dto.application_modules.GroupConfigurationDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
 @Component
 @RequiredArgsConstructor

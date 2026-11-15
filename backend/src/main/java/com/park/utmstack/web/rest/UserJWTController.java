@@ -35,12 +35,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.util.Base64Utils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import java.util.Map;
 
 import static com.park.utmstack.config.Constants.ADMIN_EMAIL;
@@ -167,7 +169,9 @@ public class UserJWTController {
             UtmFederationServiceClient fsToken = fsClientRepository.findByFsClientToken(token)
                     .orElseThrow(() -> new InvalidConnectionKeyException("Unrecognized connection key"));
 
-            String[] tokenInfo = new String(Base64Utils.decodeFromUrlSafeString(fsToken.getFsClientToken())).split("\\|");
+            // Spring's Base64Utils.decodeFromUrlSafeString = URL-safe, no padding (UTF-8).
+            // Byte-identical to the encoder in UtmFederationServiceClientService.
+            String[] tokenInfo = new String(Base64.getUrlDecoder().decode(fsToken.getFsClientToken()), StandardCharsets.UTF_8).split("\\|");
 
             if (tokenInfo.length != 2)
                 throw new InvalidConnectionKeyException("Connection key is corrupt, length is invalid");

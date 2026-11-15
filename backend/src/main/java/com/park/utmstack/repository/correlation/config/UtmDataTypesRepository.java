@@ -26,7 +26,7 @@ public interface UtmDataTypesRepository extends JpaRepository<UtmDataTypes, Long
 
     List<UtmDataTypes> findAllByIncludedFalse();
 
-    @Query("select dt from UtmDataTypes dt where dt.systemOwner is false and dt.dataType not in (select ds.dataType from UtmDataInputStatus ds)")
+    @Query("select dt from UtmDataTypes dt where dt.systemOwner = false and dt.dataType not in (select ds.dataType from UtmDataInputStatus ds)")
     List<UtmDataTypes> findOrphanDataSourceConfigurations();
 
 }

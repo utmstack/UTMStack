@@ -7,7 +7,7 @@ import com.park.utmstack.domain.application_modules.enums.ModuleName;
 import com.park.utmstack.domain.logstash_filter.UtmLogstashFilter;
 import lombok.Data;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;

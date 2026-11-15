@@ -31,7 +31,7 @@ public class EventProcessorManagerService {
         final String ctx = CLASSNAME + ".updateModule";
 
         String url = UriComponentsBuilder
-                .fromHttpUrl(EVENT_PROCESSOR_BASE_URL + "/api/v1/modules-config")
+                .fromUriString(EVENT_PROCESSOR_BASE_URL + "/api/v1/modules-config")
                 .queryParam("nameShort", module.getModuleName())
                 .toUriString();
 

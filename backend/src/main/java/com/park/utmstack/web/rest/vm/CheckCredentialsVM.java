@@ -1,6 +1,6 @@
 package com.park.utmstack.web.rest.vm;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * Body of POST /api/check-credentials. The password used to travel in the query

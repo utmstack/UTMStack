@@ -2,7 +2,7 @@ package com.park.utmstack.domain.shared_types;
 
 import com.park.utmstack.domain.chart_builder.types.query.FilterType;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 public class CsvExportingParams {

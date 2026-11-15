@@ -89,7 +89,7 @@ public class UtmConfigurationParameterQueryService extends QueryService<UtmConfi
      * Function to convert UtmConfigurationParameterCriteria to a {@link Specification}
      */
     private Specification<UtmConfigurationParameter> createSpecification(UtmConfigurationParameterCriteria criteria) {
-        Specification<UtmConfigurationParameter> specification = Specification.where(null);
+        Specification<UtmConfigurationParameter> specification = Specification.where((Specification<UtmConfigurationParameter>) null);
         if (criteria != null) {
             if (criteria.getId() != null) {
                 specification = specification.and(buildSpecification(criteria.getId(), UtmConfigurationParameter_.id));

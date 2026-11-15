@@ -1,6 +1,6 @@
 package com.park.utmstack.domain.index_policy;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 public class PolicySettings {
     @NotNull

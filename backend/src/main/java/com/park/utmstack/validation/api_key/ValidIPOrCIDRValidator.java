@@ -1,8 +1,8 @@
 package com.park.utmstack.validation.api_key;
 
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import java.util.regex.Pattern;
 
 public class ValidIPOrCIDRValidator implements ConstraintValidator<ValidIPOrCIDR, String> {
