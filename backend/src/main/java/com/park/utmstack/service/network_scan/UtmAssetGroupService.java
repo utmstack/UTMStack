@@ -87,7 +87,10 @@ public class UtmAssetGroupService {
 
         Query countQuery = em.createNativeQuery(String.format("SELECT count(*) FROM (%1$s) AS total", query));
         setQueryParams(countQuery, params);
-        BigInteger count = (BigInteger) countQuery.getSingleResult();
+        // Hibernate 7 returns the native count(*) scalar as Long (Hibernate 6 returned
+        // BigInteger); accept both so this does not ClassCastException on the
+        // Sources-groups page (issue #2908 follow-up).
+        Number count = (Number) countQuery.getSingleResult();
 
         Query dataQuery = em.createNativeQuery(queryWithPaginationAndSort, UtmAssetGroup.class);
         setQueryParams(dataQuery, params);
