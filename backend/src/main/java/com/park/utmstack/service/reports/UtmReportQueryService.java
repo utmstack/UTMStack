@@ -77,7 +77,7 @@ public class UtmReportQueryService extends QueryService<UtmReport> {
      * Function to convert UtmReportsCriteria to a {@link Specification}
      */
     private Specification<UtmReport> createSpecification(UtmReportCriteria criteria) {
-        Specification<UtmReport> specification = Specification.where((Specification<UtmReport>) null);
+        Specification<UtmReport> specification = Specification.unrestricted();
         if (criteria != null) {
             if (criteria.getId() != null) {
                 specification = specification.and(buildSpecification(criteria.getId(), UtmReport_.id));

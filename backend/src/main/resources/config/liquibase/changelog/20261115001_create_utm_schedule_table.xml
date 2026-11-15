@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <!--
+      The UtmSchedule entity (domain/UtmSchedule.java, @Table utm_schedule, added in the
+      v10 backend) has a full live REST controller (UtmScheduleResource), service, and
+      repository, but no changeset or installer step ever creates the utm_schedule table.
+      Every /api/utm-schedules call fails with 'relation "utm_schedule" does not exist'.
+
+      Create the table to match the entity mapping exactly (id bigserial identity, per
+      @GeneratedValue(IDENTITY); all other columns per @Column). Idempotent via
+      IF NOT EXISTS so existing installs that created it out-of-band are unaffected.
+    -->
+    <changeSet id="20261115001_create_utm_schedule_table" author="osmontero">
+        <comment>Create the utm_schedule table (entity existed since v10 with no DDL) so /api/utm-schedules works.</comment>
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            CREATE TABLE IF NOT EXISTS utm_schedule (
+                id              BIGSERIAL PRIMARY KEY,
+                name            VARCHAR(100) NOT NULL,
+                jhi_comment     VARCHAR(255),
+                first_time      BIGINT,
+                period          BIGINT,
+                period_month    BIGINT,
+                duration        BIGINT,
+                timezone        VARCHAR(255),
+                initial_offset  BIGINT,
+                creation_time   BIGINT,
+                modification_time BIGINT
+            );
+        </sql>
+    </changeSet>
+</databaseChangeLog>

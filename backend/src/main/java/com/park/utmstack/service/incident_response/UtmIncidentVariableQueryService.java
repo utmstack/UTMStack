@@ -77,7 +77,7 @@ public class UtmIncidentVariableQueryService extends QueryService<UtmIncidentVar
      * Function to convert UtmIncidentVariableCriteria to a {@link Specification}
      */
     private Specification<UtmIncidentVariable> createSpecification(UtmIncidentVariableCriteria criteria) {
-        Specification<UtmIncidentVariable> specification = Specification.where((Specification<UtmIncidentVariable>) null);
+        Specification<UtmIncidentVariable> specification = Specification.unrestricted();
         if (criteria != null) {
             if (criteria.getId() != null) {
                 specification = specification.and(buildSpecification(criteria.getId(), UtmIncidentVariable_.id));

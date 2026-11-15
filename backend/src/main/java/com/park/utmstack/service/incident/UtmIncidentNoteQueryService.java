@@ -77,7 +77,7 @@ public class UtmIncidentNoteQueryService extends QueryService<UtmIncidentNote> {
      * Function to convert UtmIncidentNoteCriteria to a {@link Specification}
      */
     private Specification<UtmIncidentNote> createSpecification(UtmIncidentNoteCriteria criteria) {
-        Specification<UtmIncidentNote> specification = Specification.where((Specification<UtmIncidentNote>) null);
+        Specification<UtmIncidentNote> specification = Specification.unrestricted();
         if (criteria != null) {
             if (criteria.getId() != null) {
                 specification = specification.and(buildSpecification(criteria.getId(), UtmIncidentNote_.id));

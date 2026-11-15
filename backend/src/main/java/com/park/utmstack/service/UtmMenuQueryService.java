@@ -57,7 +57,7 @@ public class UtmMenuQueryService extends QueryService<UtmMenu> {
      * Function to convert UtmMenuCriteria to a {@link Specification}
      */
     private Specification<UtmMenu> createSpecification(UtmMenuCriteria criteria) {
-        Specification<UtmMenu> specification = Specification.where((Specification<UtmMenu>) null);
+        Specification<UtmMenu> specification = Specification.unrestricted();
         if (criteria != null) {
             if (criteria.getId() != null) {
                 specification = specification.and(buildSpecification(criteria.getId(), UtmMenu_.id));

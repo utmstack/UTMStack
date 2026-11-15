@@ -77,7 +77,7 @@ public class UtmIncidentActionCommandQueryService extends QueryService<UtmIncide
      * Function to convert UtmIncidentActionCommandCriteria to a {@link Specification}
      */
     private Specification<UtmIncidentActionCommand> createSpecification(UtmIncidentActionCommandCriteria criteria) {
-        Specification<UtmIncidentActionCommand> specification = Specification.where((Specification<UtmIncidentActionCommand>) null);
+        Specification<UtmIncidentActionCommand> specification = Specification.unrestricted();
         if (criteria != null) {
             if (criteria.getId() != null) {
                 specification = specification.and(buildSpecification(criteria.getId(), UtmIncidentActionCommand_.id));

@@ -65,6 +65,13 @@ public class UtmDataTypes implements Serializable, Persistable<Long>{
     @Column(name = "system_owner", nullable = false)
     private Boolean systemOwner;
 
+    // @JsonIgnore (not @Transient): the module association is a lazy ManyToOne and this
+    // entity is serialized inside response DTOs (e.g. UtmCorrelationRulesDTO.dataTypes)
+    // outside the Hibernate session (open-in-view is disabled). Without the annotation,
+    // Jackson initializes the uninitialized proxy during serialization and fails with
+    // "Could not initialize proxy [UtmModule] - no session". Consumers only need the
+    // scalar dataType fields; module_id stays mapped for ORM usage.
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "module_id")
     private com.park.utmstack.domain.application_modules.UtmModule module;

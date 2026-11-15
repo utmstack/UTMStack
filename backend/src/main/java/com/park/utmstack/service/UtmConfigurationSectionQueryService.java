@@ -51,7 +51,7 @@ public class UtmConfigurationSectionQueryService extends QueryService<UtmConfigu
      * Function to convert UtmConfigurationSectionCriteria to a {@link Specification}
      */
     private Specification<UtmConfigurationSection> createSpecification(UtmConfigurationSectionCriteria criteria) {
-        Specification<UtmConfigurationSection> specification = Specification.where((Specification<UtmConfigurationSection>) null);
+        Specification<UtmConfigurationSection> specification = Specification.unrestricted();
 
         BooleanFilter sectionActiveFilter = new BooleanFilter();
         sectionActiveFilter.setEquals(true);

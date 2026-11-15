@@ -61,7 +61,10 @@ public class UtmConfigurationParameterQueryService extends QueryService<UtmConfi
         final Specification<UtmConfigurationParameter> specification = createSpecification(criteria);
         Page<UtmConfigurationParameter> result = utmConfigurationParameterRepository.findAll(specification, page);
 
-        if (criteria.getSectionId().getEquals().equals(Constants.TFA_SETTING_ID)) {
+        // Guard: getSectionId() is null when no sectionId filter is supplied (the common
+        // list-all case), which NPE'd the whole endpoint before.
+        if (criteria.getSectionId() != null && criteria.getSectionId().getEquals() != null
+                && criteria.getSectionId().getEquals().equals(Constants.TFA_SETTING_ID)) {
             User user = userService.getCurrentUserLogin();
             result.getContent().forEach(utmConfigurationParameter -> {
                 if(utmConfigurationParameter.getConfParamShort().equals(Constants.PROP_TFA_METHOD)){
@@ -89,7 +92,7 @@ public class UtmConfigurationParameterQueryService extends QueryService<UtmConfi
      * Function to convert UtmConfigurationParameterCriteria to a {@link Specification}
      */
     private Specification<UtmConfigurationParameter> createSpecification(UtmConfigurationParameterCriteria criteria) {
-        Specification<UtmConfigurationParameter> specification = Specification.where((Specification<UtmConfigurationParameter>) null);
+        Specification<UtmConfigurationParameter> specification = Specification.unrestricted();
         if (criteria != null) {
             if (criteria.getId() != null) {
                 specification = specification.and(buildSpecification(criteria.getId(), UtmConfigurationParameter_.id));

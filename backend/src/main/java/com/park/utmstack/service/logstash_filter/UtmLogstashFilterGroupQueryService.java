@@ -77,7 +77,7 @@ public class UtmLogstashFilterGroupQueryService extends QueryService<UtmLogstash
      * Function to convert UtmLogstashFilterGroupCriteria to a {@link Specification}
      */
     private Specification<UtmLogstashFilterGroup> createSpecification(UtmLogstashFilterGroupCriteria criteria) {
-        Specification<UtmLogstashFilterGroup> specification = Specification.where((Specification<UtmLogstashFilterGroup>) null);
+        Specification<UtmLogstashFilterGroup> specification = Specification.unrestricted();
         if (criteria != null) {
             if (criteria.getId() != null) {
                 specification = specification.and(buildSpecification(criteria.getId(), UtmLogstashFilterGroup_.id));

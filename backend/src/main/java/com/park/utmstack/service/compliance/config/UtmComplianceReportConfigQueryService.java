@@ -39,7 +39,7 @@ public class UtmComplianceReportConfigQueryService extends QueryService<UtmCompl
     }
 
     private Specification<UtmComplianceReportConfig> createSpecification(UtmComplianceReportConfigCriteria criteria) {
-        Specification<UtmComplianceReportConfig> specification = Specification.where((Specification<UtmComplianceReportConfig>) null);
+        Specification<UtmComplianceReportConfig> specification = Specification.unrestricted();
         if (criteria != null) {
             if (criteria.getId() != null) {
                 specification = specification.and(buildSpecification(criteria.getId(), UtmComplianceReportConfig_.id));

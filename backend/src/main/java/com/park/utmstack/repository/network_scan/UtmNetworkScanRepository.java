@@ -42,7 +42,7 @@ public interface UtmNetworkScanRepository extends JpaRepository<UtmNetworkScan, 
         "AND ((:dataTypes) IS NULL OR dti.dataType IN (:dataTypes) OR dts.dataType IN (:dataTypes))" +
         "AND ((:ports) IS NULL OR ns.id IN (SELECT DISTINCT ins.id FROM UtmNetworkScan ins INNER JOIN UtmPorts p ON ins.id = p.scanId WHERE p.port IN :ports))")*/
 @Query("SELECT DISTINCT ns FROM UtmNetworkScan ns " +
-        "WHERE (:assetIpMacName IS NULL OR (ns.assetIp LIKE :assetIpMacName OR lower(ns.assetMac) LIKE lower(:assetIpMacName) OR lower(ns.assetName) LIKE lower(:assetIpMacName))) " +
+        "WHERE (:assetIpMacName IS NULL OR (ns.assetIp LIKE cast(:assetIpMacName as string) OR lower(ns.assetMac) LIKE lower(cast(:assetIpMacName as string)) OR lower(ns.assetName) LIKE lower(cast(:assetIpMacName as string)))) " +
         "AND (:hasAssetOs = false OR ns.assetOs IN :assetOs) " +
         "AND (:hasAssetType = false OR ns.assetTypeId IN (SELECT types.id FROM UtmAssetTypes types WHERE types.typeName IN :assetType)) " +
         "AND (:hasGroups = false OR ns.groupId IN (SELECT group.id FROM UtmAssetGroup group WHERE group.groupName IN :groups)) " +
@@ -124,7 +124,7 @@ public interface UtmNetworkScanRepository extends JpaRepository<UtmNetworkScan, 
 
     List<UtmNetworkScan> findAllByIsAgentTrue();
 
-    @Query("select n from UtmNetworkScan n where lower(n.assetName) = lower(:assetName)")
+    @Query("select n from UtmNetworkScan n where lower(n.assetName) = lower(cast(:assetName as string))")
     Optional<UtmNetworkScan> findByAssetName(@Param("assetName") String assetName);
 
     List<UtmNetworkScan> findAllByUpdateLevelIsNullOrUpdateLevelIn(List<UpdateLevel> updateLevels);
