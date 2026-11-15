@@ -76,18 +76,7 @@ func Models() []any {
 	}
 }
 
-// UpgradeOptions carries the extra inputs the v11 -> v12 converter needs that
-// the main connection does not provide.
-type UpgradeOptions struct {
-	AgentmanagerDSN string
-	IntegrationsDir string
-	TenantDomain    string
-	RulesDir        string
-	PipelineDir     string
-	PipelinesDir    string
-}
-
-func MigrateDatabase(db *gorm.DB, preMigrationsURL, postMigrationsURL string, opts UpgradeOptions) error {
+func MigrateDatabase(db *gorm.DB, preMigrationsURL, postMigrationsURL string, opts upgrade.Config) error {
 	if err := db.Exec(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`).Error; err != nil {
 		catcher.Warn("could not create uuid-ossp extension", map[string]any{"error": err.Error()})
 	}
@@ -135,7 +124,7 @@ func MigrateDatabase(db *gorm.DB, preMigrationsURL, postMigrationsURL string, op
 	}
 
 	// run the v11 -> v12 converter, which needs the database connection and some extra inputs
-	if err := upgrade.Run(db, opts.AgentmanagerDSN, opts.IntegrationsDir, opts.TenantDomain, opts.RulesDir, opts.PipelineDir, opts.PipelinesDir); err != nil {
+	if err := upgrade.Run(db, opts); err != nil {
 		return err
 	}
 	return upgrade.CleanupOrphans(db)

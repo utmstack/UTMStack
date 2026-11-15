@@ -29,8 +29,9 @@ type config struct {
 	integrationsDir string
 	tenantDomain    string
 	rulesDir        string
-	pipelineDir     string
-	pipelinesDir    string
+	engineDir       string
+	filtersDir      string
+	versionOldFile  string
 
 	// Secrets
 	internalKey   string
@@ -94,8 +95,9 @@ func loadConfig() *config {
 		integrationsDir: env.String("INTEGRATIONS_CONFIG_DIR", "/workdir/pipeline", false),
 		tenantDomain:    env.String("UTMSTACK_DEFAULT_DOMAIN", "", false),
 		rulesDir:        env.String("EVENT_PROCESSING_RULES_DIR", "/workdir/rules", false),
-		pipelineDir:     env.String("EVENT_PROCESSING_PIPELINE_DIR", "/workdir/pipeline", false),
-		pipelinesDir:    env.String("EVENT_PROCESSING_PIPELINES_DIR", "/workdir/pipeline/filters", false),
+		engineDir:       env.String("EVENT_PROCESSING_PIPELINE_DIR", "/workdir/pipeline", false),
+		filtersDir:      env.String("EVENT_PROCESSING_PIPELINES_DIR", "/workdir/pipeline/filters", false),
+		versionOldFile:  env.String("VERSION_OLD_FILE", "/updates/version-old.json", false),
 
 		internalKey:   env.String("INTERNAL_KEY", "", false),
 		internalCIDRs: env.String("INTERNAL_KEY_ALLOWED_CIDRS", "", false),
