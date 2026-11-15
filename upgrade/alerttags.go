@@ -4,14 +4,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/google/uuid"
 	"github.com/threatwinds/go-sdk/catcher"
 	"gorm.io/gorm"
-)
-
-var (
-	alertTagNamespace     = uuid.MustParse("402218d7-f216-56d0-a6bc-be7414c8aff9")
-	alertTagRuleNamespace = uuid.MustParse("d65b0f32-73f4-5340-acf5-ae4df2dbaba0")
 )
 
 type v11AlertTag struct {
@@ -54,7 +48,7 @@ func convertAlertTags(db *gorm.DB) (map[int64]string, error) {
 				continue
 			}
 		}
-		v12ID := uuid.NewSHA1(alertTagNamespace, []byte(strconv.FormatInt(t.ID, 10))).String()
+		v12ID := id5(alertTagNamespace, t.ID)
 		if err := db.Exec(
 			`INSERT INTO alert_tag (id, tenant_id, tag_name, tag_color, system_owner)
 			 VALUES (?, ?, ?, ?, ?)
@@ -106,7 +100,7 @@ func convertAlertTagRules(db *gorm.DB, tagIDs map[int64]string) (int, error) {
 				rule_applied_tags = EXCLUDED.rule_applied_tags,
 				rule_active = EXCLUDED.rule_active,
 				rule_deleted = EXCLUDED.rule_deleted`,
-			uuid.NewSHA1(alertTagRuleNamespace, []byte(strconv.FormatInt(r.ID, 10))).String(), defaultTenantID,
+			id5(alertTagRuleNamespace, r.ID), defaultTenantID,
 			r.RuleName, r.RuleDesc, r.RuleCond, applied, r.RuleActive, r.RuleDeleted,
 		).Error; err != nil {
 			return 0, err

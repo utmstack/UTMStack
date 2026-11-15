@@ -73,9 +73,7 @@ type tenantEntry struct {
 	PipelineOrder     []string `yaml:"pipelineOrder,omitempty"`
 }
 
-// defaultTenantYAMLName must match the event-engine's DefaultTenantName.
-const defaultTenantYAMLName = "Default"
-
+// event-engine tenants.yaml name is in constants.go as eventEngineTenantName.
 var (
 	ruleSlugNonAlnum = regexp.MustCompile(`[^a-z0-9]+`)
 	// v11 field prefixes utm.* / event.* are log.* in v12; the rest of the
@@ -94,12 +92,13 @@ func ruleSlug(name string) string {
 	return s
 }
 
-func jsonAnySlice(s *string) []any {
+func jsonAnySlice(s *string, src string) []any {
 	if s == nil || strings.TrimSpace(*s) == "" {
 		return nil
 	}
 	var out []any
 	if err := json.Unmarshal([]byte(*s), &out); err != nil {
+		catcher.Warn("v11 upgrade: JSON parse failed, field discarded", map[string]any{"field": src, "error": err.Error()})
 		return nil
 	}
 	if len(out) == 0 {
@@ -108,12 +107,13 @@ func jsonAnySlice(s *string) []any {
 	return out
 }
 
-func jsonStrSlice(s *string) []string {
+func jsonStrSlice(s *string, src string) []string {
 	if s == nil || strings.TrimSpace(*s) == "" {
 		return nil
 	}
 	var out []string
 	if err := json.Unmarshal([]byte(*s), &out); err != nil {
+		catcher.Warn("v11 upgrade: JSON parse failed, field discarded", map[string]any{"field": src, "error": err.Error()})
 		return nil
 	}
 	if len(out) == 0 {
@@ -160,7 +160,7 @@ func addDisabledRule(path, id string) error {
 		}
 	}
 	if entry == nil {
-		tf.Tenants = append(tf.Tenants, tenantEntry{ID: defaultTenantID.String(), Name: defaultTenantYAMLName})
+		tf.Tenants = append(tf.Tenants, tenantEntry{ID: defaultTenantID.String(), Name: eventEngineTenantName})
 		entry = &tf.Tenants[len(tf.Tenants)-1]
 	}
 	for _, r := range entry.DisabledRules {
@@ -184,7 +184,7 @@ func addDisabledRule(path, id string) error {
 	return os.Rename(tmp, path)
 }
 
-func convertCorrelationRules(db *gorm.DB, rulesDir, pipelineDir string) error {
+func convertCorrelationRules(db *gorm.DB, rulesDir, engineDir string) error {
 	if !tableExists(db, "utm_correlation_rules") {
 		logSkipTable("utm_correlation_rules")
 		return nil
@@ -213,22 +213,22 @@ func convertCorrelationRules(db *gorm.DB, rulesDir, pipelineDir string) error {
 			Category:    row.RuleCategory,
 			Technique:   row.RuleTechnique,
 			Adversary:   row.RuleAdversary,
-			References:  jsonAnySlice(row.RuleReferencesDef),
+			References:  jsonAnySlice(row.RuleReferencesDef, row.RuleName+".references"),
 			Description: strFrom(row.RuleDescription),
 			Where:       fieldPrefixRe.ReplaceAllString(row.RuleDefinitionDef, "log."),
 			TenantId:    defaultTenantID.String(),
 		}
 		if row.RuleAfterEventsDef != nil && strings.TrimSpace(*row.RuleAfterEventsDef) != "" {
-			if corr := jsonAnySlice(row.RuleAfterEventsDef); corr != nil {
+			if corr := jsonAnySlice(row.RuleAfterEventsDef, row.RuleName+".afterEvents"); corr != nil {
 				rewriteCorrelationFields(corr)
 				rule.Correlation = corr
 			}
 		}
 		if row.RuleGroupByDef != nil {
-			rule.GroupBy = rewriteStrings(jsonStrSlice(row.RuleGroupByDef))
+			rule.GroupBy = rewriteStrings(jsonStrSlice(row.RuleGroupByDef, row.RuleName+".groupBy"))
 		}
 		if row.RuleDeduplicateByDef != nil {
-			rule.DeduplicateBy = rewriteStrings(jsonStrSlice(row.RuleDeduplicateByDef))
+			rule.DeduplicateBy = rewriteStrings(jsonStrSlice(row.RuleDeduplicateByDef, row.RuleName+".deduplicateBy"))
 		}
 
 		identity := ruleSlug(row.RuleName) + "-" + defaultTenantID.String()
@@ -251,7 +251,7 @@ func convertCorrelationRules(db *gorm.DB, rulesDir, pipelineDir string) error {
 		}
 
 		if !row.RuleActive {
-			if err := addDisabledRule(filepath.Join(pipelineDir, "tenants.yaml"), identity); err != nil {
+			if err := addDisabledRule(filepath.Join(engineDir, "tenants.yaml"), identity); err != nil {
 				return err
 			}
 			disabled++
@@ -268,10 +268,11 @@ func rewriteStrings(in []string) []string {
 	if len(in) == 0 {
 		return nil
 	}
+	out := make([]string, len(in))
 	for i, s := range in {
-		in[i] = fieldPrefixRe.ReplaceAllString(s, "log.")
+		out[i] = fieldPrefixRe.ReplaceAllString(s, "log.")
 	}
-	return in
+	return out
 }
 
 func splitDataTypes(s string) []string {

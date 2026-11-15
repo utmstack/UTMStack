@@ -45,13 +45,18 @@ func convertFederation(db *gorm.DB, amdb *sql.DB) error {
 
 	tenantID := defaultTenantID.String()
 	inserted := 0
-	for _, token := range tokens {
-		if err := gdb.Exec(`INSERT INTO connection_keys (tenant_id, key, created_at, updated_at)
-			VALUES (?, ?, now(), now())
-			ON CONFLICT (tenant_id) DO NOTHING`, tenantID, token).Error; err != nil {
-			return err
+	if err := gdb.Transaction(func(tx *gorm.DB) error {
+		for _, token := range tokens {
+			if err := tx.Exec(`INSERT INTO connection_keys (tenant_id, key, created_at, updated_at)
+				VALUES (?, ?, now(), now())
+				ON CONFLICT (tenant_id) DO NOTHING`, tenantID, token).Error; err != nil {
+				return err
+			}
+			inserted++
 		}
-		inserted++
+		return nil
+	}); err != nil {
+		return err
 	}
 
 	catcher.Info("v11 upgrade: federation tokens converted", map[string]any{"tokens": inserted})

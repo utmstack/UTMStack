@@ -44,7 +44,7 @@ func injectPipelineEntryFields(entries []map[string]any) {
 	}
 }
 
-func convertLogstashFilters(db *gorm.DB, pipelinesDir, pipelineDir string) error {
+func convertLogstashFilters(db *gorm.DB, filtersDir, engineDir string) error {
 	if !tableExists(db, "utm_logstash_filter") {
 		logSkipTable("utm_logstash_filter")
 		return nil
@@ -71,15 +71,7 @@ func convertLogstashFilters(db *gorm.DB, pipelinesDir, pipelineDir string) error
 		injectPipelineEntryFields(pf.Pipeline)
 
 		identity := ruleSlug(row.FilterName) + "-" + defaultTenantID.String()
-		// Defensive: if pipelinesDir is relative or empty, resolve it against CWD
-		// (matches what the test expects)
-		resolvedPipelines := pipelinesDir
-		if !filepath.IsAbs(resolvedPipelines) {
-			if resolvedPipelines == "" {
-				resolvedPipelines = "."
-			}
-		}
-		target := filepath.Join(resolvedPipelines, "user", defaultTenantID.String(), identity+".yaml")
+		target := filepath.Join(filtersDir, "user", defaultTenantID.String(), identity+".yaml")
 		if _, err := os.Stat(target); err == nil {
 			skipped++
 			catcher.Info("v11 upgrade: pipeline filter file already exists, skipping", map[string]any{"filter": row.FilterName, "file": target})
@@ -98,7 +90,7 @@ func convertLogstashFilters(db *gorm.DB, pipelinesDir, pipelineDir string) error
 		}
 
 		if !row.IsActive {
-			if err := addDisabledPipeline(filepath.Join(pipelineDir, "tenants.yaml"), identity); err != nil {
+			if err := addDisabledPipeline(filepath.Join(engineDir, "tenants.yaml"), identity); err != nil {
 				return err
 			}
 			disabled++
@@ -130,7 +122,7 @@ func addDisabledPipeline(path, id string) error {
 		}
 	}
 	if entry == nil {
-		tf.Tenants = append(tf.Tenants, tenantEntry{ID: defaultTenantID.String(), Name: defaultTenantYAMLName})
+		tf.Tenants = append(tf.Tenants, tenantEntry{ID: defaultTenantID.String(), Name: eventEngineTenantName})
 		entry = &tf.Tenants[len(tf.Tenants)-1]
 	}
 	for _, r := range entry.DisabledPipelines {

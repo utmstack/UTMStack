@@ -12,7 +12,7 @@ import (
 // and views still built over v11 tables. It is a no-op on a base that was
 // never a v11 install.
 func CleanupOrphans(db *gorm.DB) error {
-	if !isV11(db) {
+	if !tableExists(db, "jhi_user") {
 		return nil
 	}
 
