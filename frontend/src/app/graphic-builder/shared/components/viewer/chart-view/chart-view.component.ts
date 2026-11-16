@@ -43,7 +43,9 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   @Input() timeByDefault: any;
   @Input() exportFormat: boolean;
   @Output() runned = new EventEmitter<string>();
-  loadingOption: boolean;
+  // Starts true so the spinner shows from mount until the first run finishes
+  // (non-building tiles only run once the dashboard filter arrives — see map-view).
+  loadingOption = true;
   data$: Observable<any[]>;
   chartFactory = new ChartFactory();
   echartOption: EChartOption;
