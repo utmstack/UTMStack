@@ -1,20 +1,10 @@
 package upgrade
 
 import (
-	"strconv"
 	"strings"
 
-	"github.com/google/uuid"
 	"github.com/threatwinds/go-sdk/catcher"
 	"gorm.io/gorm"
-)
-
-var userUUIDNamespace = uuid.MustParse("8f3c9a1e-7b2d-4e6a-9c1f-5d8e0a3b7c21")
-
-const (
-	roleAdminID   = "00000000-0000-0000-0000-00000000a001"
-	roleAnalystID = "00000000-0000-0000-0000-00000000a002"
-	roleViewerID  = "00000000-0000-0000-0000-00000000a003"
 )
 
 type v11User struct {
@@ -33,7 +23,7 @@ type v11User struct {
 // Deriving from the id (not the login) keeps the user and user_role
 // converters independent: jhi_user_authority only carries the numeric user_id.
 func v11UserUUID(v11ID int64) string {
-	return uuid.NewSHA1(userUUIDNamespace, []byte(strconv.FormatInt(v11ID, 10))).String()
+	return id5(userNamespace, v11ID)
 }
 
 func mapRoleID(authority string) string {
@@ -48,6 +38,10 @@ func mapRoleID(authority string) string {
 }
 
 func convertUsers(db *gorm.DB) error {
+	if !tableExists(db, "jhi_user") {
+		logSkipTable("jhi_user")
+		return nil
+	}
 	var src []v11User
 	if err := db.Raw(`SELECT id, login, password_hash, first_name, last_name,
 		email, image_url, activated, lang_key FROM jhi_user ORDER BY id`).Scan(&src).Error; err != nil {
@@ -55,36 +49,41 @@ func convertUsers(db *gorm.DB) error {
 	}
 
 	inserted := 0
-	for _, u := range src {
-		email := strFrom(u.Email)
-		if email == "" {
-			email = u.Login
-		}
-		name := strings.TrimSpace(strFrom(u.FirstName) + " " + strFrom(u.LastName))
-		if name == "" {
-			name = u.Login
-		}
-		status := "inactive"
-		if u.Activated {
-			status = "active"
-		}
+	if err := db.Transaction(func(tx *gorm.DB) error {
+		for _, u := range src {
+			email := strFrom(u.Email)
+			if email == "" {
+				email = u.Login
+			}
+			name := strings.TrimSpace(strFrom(u.FirstName) + " " + strFrom(u.LastName))
+			if name == "" {
+				name = u.Login
+			}
+			status := "inactive"
+			if u.Activated {
+				status = "active"
+			}
 
-		if err := db.Exec(
-			`INSERT INTO "user" (id, tenant_id, email, name, password_hash, status, lang_key, image_url)
-			 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-			 ON CONFLICT (id) DO UPDATE SET
-				tenant_id = EXCLUDED.tenant_id,
-				email = EXCLUDED.email,
-				name = EXCLUDED.name,
-				password_hash = EXCLUDED.password_hash,
-				status = EXCLUDED.status,
-				lang_key = EXCLUDED.lang_key,
-				image_url = EXCLUDED.image_url`,
-			v11UserUUID(u.ID), defaultTenantID, email, name, u.PasswordHash, status, strFrom(u.LangKey), strFrom(u.ImageURL),
-		).Error; err != nil {
-			return err
+			if err := tx.Exec(
+				`INSERT INTO "user" (id, tenant_id, email, name, password_hash, status, lang_key, image_url)
+				 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+				 ON CONFLICT (id) DO UPDATE SET
+					tenant_id = EXCLUDED.tenant_id,
+					email = EXCLUDED.email,
+					name = EXCLUDED.name,
+					password_hash = EXCLUDED.password_hash,
+					status = EXCLUDED.status,
+					lang_key = EXCLUDED.lang_key,
+					image_url = EXCLUDED.image_url`,
+				v11UserUUID(u.ID), defaultTenantID, email, name, u.PasswordHash, status, strFrom(u.LangKey), strFrom(u.ImageURL),
+			).Error; err != nil {
+				return err
+			}
+			inserted++
 		}
-		inserted++
+		return nil
+	}); err != nil {
+		return err
 	}
 
 	roles, err := convertUserRoles(db)
@@ -113,16 +112,21 @@ func convertUserRoles(db *gorm.DB) (int, error) {
 	}
 
 	inserted := 0
-	for _, a := range src {
-		if err := db.Exec(
-			`INSERT INTO user_role (user_id, role_id, tenant_id)
-			 VALUES (?, ?, ?)
-			 ON CONFLICT (user_id, role_id) DO NOTHING`,
-			v11UserUUID(a.UserID), mapRoleID(a.AuthorityName), defaultTenantID,
-		).Error; err != nil {
-			return 0, err
+	if err := db.Transaction(func(tx *gorm.DB) error {
+		for _, a := range src {
+			if err := tx.Exec(
+				`INSERT INTO user_role (user_id, role_id, tenant_id)
+				 VALUES (?, ?, ?)
+				 ON CONFLICT (user_id, role_id) DO NOTHING`,
+				v11UserUUID(a.UserID), mapRoleID(a.AuthorityName), defaultTenantID,
+			).Error; err != nil {
+				return err
+			}
+			inserted++
 		}
-		inserted++
+		return nil
+	}); err != nil {
+		return 0, err
 	}
 	return inserted, nil
 }

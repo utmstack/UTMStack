@@ -3,15 +3,11 @@ package upgrade
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"strconv"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/threatwinds/go-sdk/catcher"
 	"gorm.io/gorm"
 )
-
-var apiKeyNamespace = uuid.MustParse("1f52d62b-6fdb-b2db-ca5e-fd519a49fafd")
 
 type v11APIKey struct {
 	ID          int64
@@ -25,11 +21,12 @@ type v11APIKey struct {
 }
 
 func apiKeyID(v11ID int64) string {
-	return uuid.NewSHA1(apiKeyNamespace, []byte(strconv.FormatInt(v11ID, 10))).String()
+	return id5(apiKeyNamespace, v11ID)
 }
 
 func convertAPIKeys(db *gorm.DB) error {
 	if !tableExists(db, "api_keys_v11") {
+		logSkipTable("api_keys_v11")
 		return nil
 	}
 
@@ -40,19 +37,24 @@ func convertAPIKeys(db *gorm.DB) error {
 	}
 
 	count := 0
-	for _, k := range src {
-		userID := v11UserUUID(k.UserID)
-		if err := db.Exec(
-			`INSERT INTO api_keys (id, user_id, tenant_id, name, key_hash, allowed_ip, created_at, generated_at, expires_at)
-			 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-			 ON CONFLICT (id) DO NOTHING`,
-			apiKeyID(k.ID), userID, defaultTenantID, k.Name,
-			hashSHA256(k.APIKey), strFrom(k.AllowedIP),
-			k.CreatedAt, k.GeneratedAt, k.ExpiresAt,
-		).Error; err != nil {
-			return err
+	if err := db.Transaction(func(tx *gorm.DB) error {
+		for _, k := range src {
+			userID := v11UserUUID(k.UserID)
+			if err := tx.Exec(
+				`INSERT INTO api_keys (id, user_id, tenant_id, name, key_hash, allowed_ip, created_at, generated_at, expires_at)
+				 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+				 ON CONFLICT (id) DO NOTHING`,
+				apiKeyID(k.ID), userID, defaultTenantID, k.Name,
+				hashSHA256(k.APIKey), strFrom(k.AllowedIP),
+				k.CreatedAt, k.GeneratedAt, k.ExpiresAt,
+			).Error; err != nil {
+				return err
+			}
+			count++
 		}
-		count++
+		return nil
+	}); err != nil {
+		return err
 	}
 
 	catcher.Info("v11 upgrade: api_keys converted", map[string]any{"keys": count})

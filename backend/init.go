@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/utmstack/UTMStack/upgrade"
 	"github.com/utmstack/utmstack/backend/database"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -42,13 +43,14 @@ func initDatabase(cfg *config) *gorm.DB {
 
 	db := connectWithRetry(dsn, gormLogLevel(cfg.dbLogLevel))
 
-	up := database.UpgradeOptions{
+	up := upgrade.Config{
 		AgentmanagerDSN: agentmanagerDSN,
 		IntegrationsDir: cfg.integrationsDir,
 		TenantDomain:    cfg.tenantDomain,
 		RulesDir:        cfg.rulesDir,
-		PipelineDir:     cfg.pipelineDir,
-		PipelinesDir:    cfg.pipelinesDir,
+		EngineDir:       cfg.engineDir,
+		FiltersDir:      cfg.filtersDir,
+		VersionOldFile:  cfg.versionOldFile,
 	}
 	if err := database.MigrateDatabase(db, "file://migrations/pre", "file://migrations/post", up); err != nil {
 		_ = catcher.Error("failed to migrate database", err, nil)

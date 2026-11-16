@@ -8,13 +8,6 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-const (
-	defaultTenantIDStr = "ce66672c-e36d-4761-a8c8-90058fee1a24"
-	defaultTenantName  = "UTMStack"
-)
-
-var defaultTenantID = uuid.MustParse(defaultTenantIDStr)
-
 // tenantRow is the v12 tenant table shape, re-declared here so the upgrade
 // module has no dependency on the backend.
 type tenantRow struct {
@@ -32,7 +25,7 @@ func (tenantRow) TableName() string { return "tenant" }
 func ensureDefaultTenant(db *gorm.DB, domain string) error {
 	tenant := tenantRow{
 		ID:            defaultTenantID,
-		Name:          defaultTenantName,
+		Name:          defaultTenantDBName,
 		Domain:        domain,
 		Status:        "ACTIVE",
 		SupportAccess: "NONE",

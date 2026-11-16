@@ -1,20 +1,11 @@
 package upgrade
 
 import (
-	"strconv"
 	"strings"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/threatwinds/go-sdk/catcher"
 	"gorm.io/gorm"
-)
-
-var (
-	incidentNamespace        = uuid.MustParse("ffa82061-9bd3-56c0-8f37-e34e33e2f9d0")
-	incidentAlertNamespace   = uuid.MustParse("b685a259-ebac-589d-9425-cfc09cf2e9b9")
-	incidentHistoryNamespace = uuid.MustParse("c7c9699c-a814-5e85-ba9d-ad11ddac670d")
-	incidentNoteNamespace    = uuid.MustParse("351bf618-4905-5df6-bf66-2e7280a205d0")
 )
 
 type v11Incident struct {
@@ -67,35 +58,40 @@ func convertIncidents(db *gorm.DB) error {
 	}
 
 	count := 0
-	for _, i := range src {
-		desc := strFromPtr(i.Description)
-		var descPtr *string
-		if desc != "" {
-			descPtr = &desc
-		}
-		var solPtr *string
-		if s := strFromPtr(i.Solution); s != "" {
-			solPtr = &s
-		}
-		assigned := strFrom(i.AssignedTo)
+	if err := db.Transaction(func(tx *gorm.DB) error {
+		for _, i := range src {
+			desc := strFrom(i.Description)
+			var descPtr *string
+			if desc != "" {
+				descPtr = &desc
+			}
+			var solPtr *string
+			if s := strFrom(i.Solution); s != "" {
+				solPtr = &s
+			}
+			assigned := strFrom(i.AssignedTo)
 
-		if err := db.Exec(
-			`INSERT INTO incident (id, tenant_id, incident_name, incident_description, incident_status, incident_severity, incident_assigned_to, incident_solution, incident_created_date)
-			 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-			 ON CONFLICT (id) DO UPDATE SET
-				tenant_id = EXCLUDED.tenant_id,
-				incident_name = EXCLUDED.incident_name,
-				incident_description = EXCLUDED.incident_description,
-				incident_status = EXCLUDED.incident_status,
-				incident_severity = EXCLUDED.incident_severity,
-				incident_assigned_to = EXCLUDED.incident_assigned_to,
-				incident_solution = EXCLUDED.incident_solution`,
-			incidentUUID(i.ID), defaultTenantID, i.Name, descPtr,
-			socStatus(i.Status), socSeverity(i.Severity), assigned, solPtr, i.CreatedDate,
-		).Error; err != nil {
-			return err
+			if err := tx.Exec(
+				`INSERT INTO incident (id, tenant_id, incident_name, incident_description, incident_status, incident_severity, incident_assigned_to, incident_solution, incident_created_date)
+				 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+				 ON CONFLICT (id) DO UPDATE SET
+					tenant_id = EXCLUDED.tenant_id,
+					incident_name = EXCLUDED.incident_name,
+					incident_description = EXCLUDED.incident_description,
+					incident_status = EXCLUDED.incident_status,
+					incident_severity = EXCLUDED.incident_severity,
+					incident_assigned_to = EXCLUDED.incident_assigned_to,
+					incident_solution = EXCLUDED.incident_solution`,
+				incidentUUID(i.ID), defaultTenantID, i.Name, descPtr,
+				socStatus(i.Status), socSeverity(i.Severity), assigned, solPtr, i.CreatedDate,
+			).Error; err != nil {
+				return err
+			}
+			count++
 		}
-		count++
+		return nil
+	}); err != nil {
+		return err
 	}
 
 	alerts, err := convertIncidentAlerts(db)
@@ -118,7 +114,7 @@ func convertIncidents(db *gorm.DB) error {
 }
 
 func incidentUUID(v11ID int64) string {
-	return uuid.NewSHA1(incidentNamespace, []byte(strconv.FormatInt(v11ID, 10))).String()
+	return id5(incidentNamespace, v11ID)
 }
 
 func convertIncidentAlerts(db *gorm.DB) (int, error) {
@@ -134,23 +130,28 @@ func convertIncidentAlerts(db *gorm.DB) (int, error) {
 	}
 
 	count := 0
-	for _, a := range src {
-		if err := db.Exec(
-			`INSERT INTO incident_alert (id, tenant_id, incident_id, alert_id, alert_name, alert_severity, alert_status)
-			 VALUES (?, ?, ?, ?, ?, ?, ?)
-			 ON CONFLICT (id) DO UPDATE SET
-				tenant_id = EXCLUDED.tenant_id,
-				incident_id = EXCLUDED.incident_id,
-				alert_name = EXCLUDED.alert_name,
-				alert_severity = EXCLUDED.alert_severity,
-				alert_status = EXCLUDED.alert_status`,
-			uuid.NewSHA1(incidentAlertNamespace, []byte(strconv.FormatInt(a.ID, 10))).String(), defaultTenantID,
-			incidentUUID(a.IncidentID), a.AlertID, a.AlertName,
-			socSeverity(a.AlertSeverity), socAlertStatus(a.AlertStatus),
-		).Error; err != nil {
-			return 0, err
+	if err := db.Transaction(func(tx *gorm.DB) error {
+		for _, a := range src {
+			if err := tx.Exec(
+				`INSERT INTO incident_alert (id, tenant_id, incident_id, alert_id, alert_name, alert_severity, alert_status)
+				 VALUES (?, ?, ?, ?, ?, ?, ?)
+				 ON CONFLICT (id) DO UPDATE SET
+					tenant_id = EXCLUDED.tenant_id,
+					incident_id = EXCLUDED.incident_id,
+					alert_name = EXCLUDED.alert_name,
+					alert_severity = EXCLUDED.alert_severity,
+					alert_status = EXCLUDED.alert_status`,
+				id5(incidentAlertNamespace, a.ID), defaultTenantID,
+				incidentUUID(a.IncidentID), a.AlertID, a.AlertName,
+				socSeverity(a.AlertSeverity), socAlertStatus(a.AlertStatus),
+			).Error; err != nil {
+				return err
+			}
+			count++
 		}
-		count++
+		return nil
+	}); err != nil {
+		return 0, err
 	}
 	return count, nil
 }
@@ -168,26 +169,31 @@ func convertIncidentHistory(db *gorm.DB) (int, error) {
 	}
 
 	count := 0
-	for _, h := range src {
-		action := socHistoryAction(h.ActionType)
-		if action == "" {
-			continue
+	if err := db.Transaction(func(tx *gorm.DB) error {
+		for _, h := range src {
+			action := socHistoryAction(h.ActionType)
+			if action == "" {
+				continue
+			}
+			if err := tx.Exec(
+				`INSERT INTO incident_history (id, tenant_id, incident_id, action, action_created_date, action_created_by)
+				 VALUES (?, ?, ?, ?, ?, ?)
+				 ON CONFLICT (id) DO UPDATE SET
+					tenant_id = EXCLUDED.tenant_id,
+					incident_id = EXCLUDED.incident_id,
+					action = EXCLUDED.action,
+					action_created_date = EXCLUDED.action_created_date,
+					action_created_by = EXCLUDED.action_created_by`,
+				id5(incidentHistoryNamespace, h.ID), defaultTenantID,
+				incidentUUID(h.IncidentID), action, h.ActionDate, h.CreatedBy,
+			).Error; err != nil {
+				return err
+			}
+			count++
 		}
-		if err := db.Exec(
-			`INSERT INTO incident_history (id, tenant_id, incident_id, action, action_created_date, action_created_by)
-			 VALUES (?, ?, ?, ?, ?, ?)
-			 ON CONFLICT (id) DO UPDATE SET
-				tenant_id = EXCLUDED.tenant_id,
-				incident_id = EXCLUDED.incident_id,
-				action = EXCLUDED.action,
-				action_created_date = EXCLUDED.action_created_date,
-				action_created_by = EXCLUDED.action_created_by`,
-			uuid.NewSHA1(incidentHistoryNamespace, []byte(strconv.FormatInt(h.ID, 10))).String(), defaultTenantID,
-			incidentUUID(h.IncidentID), action, h.ActionDate, h.CreatedBy,
-		).Error; err != nil {
-			return 0, err
-		}
-		count++
+		return nil
+	}); err != nil {
+		return 0, err
 	}
 	return count, nil
 }
@@ -205,22 +211,27 @@ func convertIncidentNotes(db *gorm.DB) (int, error) {
 	}
 
 	count := 0
-	for _, n := range src {
-		if err := db.Exec(
-			`INSERT INTO incident_note (id, tenant_id, incident_id, note_text, note_send_date, note_send_by)
-			 VALUES (?, ?, ?, ?, ?, ?)
-			 ON CONFLICT (id) DO UPDATE SET
-				tenant_id = EXCLUDED.tenant_id,
-				incident_id = EXCLUDED.incident_id,
-				note_text = EXCLUDED.note_text,
-				note_send_date = EXCLUDED.note_send_date,
-				note_send_by = EXCLUDED.note_send_by`,
-			uuid.NewSHA1(incidentNoteNamespace, []byte(strconv.FormatInt(n.ID, 10))).String(), defaultTenantID,
-			incidentUUID(n.IncidentID), n.NoteText, n.NoteSendDate, strFrom(n.NoteSendBy),
-		).Error; err != nil {
-			return 0, err
+	if err := db.Transaction(func(tx *gorm.DB) error {
+		for _, n := range src {
+			if err := tx.Exec(
+				`INSERT INTO incident_note (id, tenant_id, incident_id, note_text, note_send_date, note_send_by)
+				 VALUES (?, ?, ?, ?, ?, ?)
+				 ON CONFLICT (id) DO UPDATE SET
+					tenant_id = EXCLUDED.tenant_id,
+					incident_id = EXCLUDED.incident_id,
+					note_text = EXCLUDED.note_text,
+					note_send_date = EXCLUDED.note_send_date,
+					note_send_by = EXCLUDED.note_send_by`,
+				id5(incidentNoteNamespace, n.ID), defaultTenantID,
+				incidentUUID(n.IncidentID), n.NoteText, n.NoteSendDate, strFrom(n.NoteSendBy),
+			).Error; err != nil {
+				return err
+			}
+			count++
 		}
-		count++
+		return nil
+	}); err != nil {
+		return 0, err
 	}
 	return count, nil
 }
@@ -277,11 +288,4 @@ func socHistoryAction(v11 string) string {
 	default:
 		return strings.TrimSpace(v11)
 	}
-}
-
-func strFromPtr(s *string) string {
-	if s == nil {
-		return ""
-	}
-	return *s
 }
