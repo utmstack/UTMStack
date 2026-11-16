@@ -133,11 +133,19 @@ public class UtmNetworkScan implements Serializable {
     @JoinColumn(name = "asset_type_id", referencedColumnName = "id", insertable = false, updatable = false)
     private UtmAssetTypes assetType;
 
+    // @JsonIgnore: raw-entity list serializes outside the session (open-in-view off);
+    // ports reach the frontend via NetworkScanDTO (built in-session), not the entity.
     @OneToMany
     @JoinColumn(name = "scan_id", insertable = false, updatable = false)
+    @JsonIgnore
     private List<UtmPorts> ports = new ArrayList<>();
 
+    // @JsonIgnore: UtmAssetMetrics is fetched via /utm-asset-metrics and the
+    // DTO path (NetworkScanDTO), never from the raw entity. Serializing this
+    // LAZY mappedBy back-ref outside the session (open-in-view off) throws
+    // LazyInitializationException once scan rows exist.
     @OneToMany(mappedBy = "asset", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<UtmAssetMetrics> metrics;
 
     @OneToOne
