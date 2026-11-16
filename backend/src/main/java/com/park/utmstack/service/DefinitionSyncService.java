@@ -13,6 +13,7 @@ import com.park.utmstack.service.dto.correlation.UtmCorrelationRulesDTO;
 import com.park.utmstack.service.dto.correlation.UtmCorrelationRulesMapper;
 import com.park.utmstack.service.dto.correlation.RuleYaml;
 import com.park.utmstack.service.logstash_filter.UtmLogstashFilterService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,6 +63,23 @@ public class DefinitionSyncService implements CommandLineRunner {
      */
     private static Yaml safeYaml() {
         return new Yaml(new SafeConstructor(new LoaderOptions()));
+    }
+
+    /**
+     * Binds a plain YAML-parsed map (from {@link #safeYaml()} — only Map/List/scalars,
+     * no Java type tags) into the {@link RuleYaml} DTO. Under snakeyaml 2.x (Boot 4)
+     * {@code SafeConstructor.loadAs} refuses to construct arbitrary POJOs, so the bean
+     * mapping is delegated to Jackson, which only sets properties on the concrete target
+     * type — no arbitrary-class instantiation, no deserialization risk.
+     */
+    private static final ObjectMapper RULE_MAPPER = new ObjectMapper()
+            .configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+    private RuleYaml mapToRuleYaml(Map<String, Object> map) {
+        if (map.containsKey("correlation") && !map.containsKey("afterEvents")) {
+            map.put("afterEvents", map.remove("correlation"));
+        }
+        return RULE_MAPPER.convertValue(map, RuleYaml.class);
     }
 
     @Override
@@ -271,15 +289,6 @@ public class DefinitionSyncService implements CommandLineRunner {
             log.error("Error walking rules directory: {}", e.getMessage());
         }
         return foundRules;
-    }
-
-    private RuleYaml mapToRuleYaml(Map<String, Object> map) {
-        if (map.containsKey("correlation") && !map.containsKey("afterEvents")) {
-            map.put("afterEvents", map.remove("correlation"));
-        }
-        Yaml yaml = safeYaml();
-        String dump = yaml.dump(map);
-        return yaml.loadAs(dump, RuleYaml.class);
     }
 
     /**
