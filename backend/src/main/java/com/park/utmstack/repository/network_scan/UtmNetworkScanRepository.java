@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.QueryHint;
+import jakarta.persistence.QueryHint;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -42,7 +42,7 @@ public interface UtmNetworkScanRepository extends JpaRepository<UtmNetworkScan, 
         "AND ((:dataTypes) IS NULL OR dti.dataType IN (:dataTypes) OR dts.dataType IN (:dataTypes))" +
         "AND ((:ports) IS NULL OR ns.id IN (SELECT DISTINCT ins.id FROM UtmNetworkScan ins INNER JOIN UtmPorts p ON ins.id = p.scanId WHERE p.port IN :ports))")*/
 @Query("SELECT DISTINCT ns FROM UtmNetworkScan ns " +
-        "WHERE (:assetIpMacName IS NULL OR (ns.assetIp LIKE :assetIpMacName OR lower(ns.assetMac) LIKE lower(:assetIpMacName) OR lower(ns.assetName) LIKE lower(:assetIpMacName))) " +
+        "WHERE (:assetIpMacName IS NULL OR (ns.assetIp LIKE cast(:assetIpMacName as string) OR lower(ns.assetMac) LIKE lower(cast(:assetIpMacName as string)) OR lower(ns.assetName) LIKE lower(cast(:assetIpMacName as string)))) " +
         "AND (:hasAssetOs = false OR ns.assetOs IN :assetOs) " +
         "AND (:hasAssetType = false OR ns.assetTypeId IN (SELECT types.id FROM UtmAssetTypes types WHERE types.typeName IN :assetType)) " +
         "AND (:hasGroups = false OR ns.groupId IN (SELECT group.id FROM UtmAssetGroup group WHERE group.groupName IN :groups)) " +
@@ -64,7 +64,6 @@ public interface UtmNetworkScanRepository extends JpaRepository<UtmNetworkScan, 
         "     ))" +
         "AND (:hasPorts = false OR ns.id IN (" +
         "   SELECT p.scanId FROM UtmPorts p WHERE p.port IN :ports))")
-    @QueryHints(@QueryHint(name = org.hibernate.jpa.QueryHints.HINT_PASS_DISTINCT_THROUGH, value = "false"))
     Page<UtmNetworkScan> searchByFilters(@Param("assetIpMacName") String assetIpMacName,
                                          @Param("assetOs") List<String> assetOs,
                                          @Param("hasAssetOs") boolean hasAssetOs,
@@ -125,7 +124,7 @@ public interface UtmNetworkScanRepository extends JpaRepository<UtmNetworkScan, 
 
     List<UtmNetworkScan> findAllByIsAgentTrue();
 
-    @Query("select n from UtmNetworkScan n where lower(n.assetName) = lower(:assetName)")
+    @Query("select n from UtmNetworkScan n where lower(n.assetName) = lower(cast(:assetName as string))")
     Optional<UtmNetworkScan> findByAssetName(@Param("assetName") String assetName);
 
     List<UtmNetworkScan> findAllByUpdateLevelIsNullOrUpdateLevelIn(List<UpdateLevel> updateLevels);
@@ -139,7 +138,7 @@ public interface UtmNetworkScanRepository extends JpaRepository<UtmNetworkScan, 
         "or asset.asset_name in (select src.source from sources src)) and asset.is_agent is false")
     void deleteAllAssetsByDataType(@Param("types") List<String> types);
 
-    @Query("select distinct n.assetOsPlatform from UtmNetworkScan n where n.assetOsPlatform is not null and n.isAgent is true")
+    @Query("select distinct n.assetOsPlatform from UtmNetworkScan n where n.assetOsPlatform is not null and n.isAgent = true")
     List<String> findAgentsOsPlatform();
 
     @Query(nativeQuery = true, value = "select n.asset_name from utm_network_scan n where n.asset_name is not null and n.is_agent is true and n.asset_alive is true and n.asset_status <> 'MISSING' and n.asset_os_platform = :platform")

@@ -1,6 +1,6 @@
 package com.park.utmstack.web.rest.vm;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 public class GettingStartedInit {
     @NotNull

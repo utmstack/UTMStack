@@ -77,7 +77,7 @@ public class LogAnalyzerQueryService extends QueryService<LogAnalyzerQuery> {
      * Function to convert LogAnalyzerQueryCriteria to a {@link Specification}
      */
     private Specification<LogAnalyzerQuery> createSpecification(LogAnalyzerQueryCriteria criteria) {
-        Specification<LogAnalyzerQuery> specification = Specification.where(null);
+        Specification<LogAnalyzerQuery> specification = Specification.unrestricted();
         if (criteria != null) {
             if (criteria.getId() != null) {
                 specification = specification.and(buildSpecification(criteria.getId(), LogAnalyzerQuery_.id));

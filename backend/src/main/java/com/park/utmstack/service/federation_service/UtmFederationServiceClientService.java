@@ -10,7 +10,8 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Base64Utils;
+import java.util.Base64;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Service Implementation for managing UtmFederationServiceClient.
@@ -55,7 +56,10 @@ public class UtmFederationServiceClientService {
             userService.createFederationServiceUser(fsPassword);
 
             String token = String.join("|", instanceName, CipherUtil.encrypt(fsPassword, System.getenv(Constants.ENV_ENCRYPTION_KEY)));
-            token = Base64Utils.encodeToUrlSafeString(token.getBytes());
+            // Spring's Base64Utils.encodeToUrlSafeString = URL-safe, NO padding (it used
+            // Charset.defaultCharset(); pin UTF-8 explicitly). Byte-identical, so stored
+            // tokens keep decoding.
+            token = Base64.getUrlEncoder().withoutPadding().encodeToString(token.getBytes(StandardCharsets.UTF_8));
 
             UtmFederationServiceClient fsClient = new UtmFederationServiceClient();
             fsClient.setId(1L);

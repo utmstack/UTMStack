@@ -1,7 +1,7 @@
 package com.park.utmstack.config;
 
 import io.swagger.v3.oas.models.parameters.Parameter;
-import org.springdoc.core.customizers.OpenApiCustomiser;
+import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import io.swagger.v3.oas.models.media.StringSchema;
@@ -10,7 +10,7 @@ import io.swagger.v3.oas.models.media.StringSchema;
 public class SwaggerHeaderConfig {
 
     @Bean
-    public OpenApiCustomiser addBypassTFAHeader() {
+    public OpenApiCustomizer addBypassTFAHeader() {
         return openApi -> openApi.getPaths().values().forEach(pathItem ->
                 pathItem.readOperations().forEach(operation -> {
                     Parameter header = new Parameter()

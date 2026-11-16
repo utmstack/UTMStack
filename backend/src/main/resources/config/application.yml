@@ -68,7 +68,8 @@ spring:
     open-in-view: false
     properties:
       hibernate.jdbc.time_zone: UTC
-      hibernate.id.new_generator_mappings: true
+      # hibernate.id.new_generator_mappings (Hibernate 5) removed in 6.x; its 'true' value
+      # was the H5 default and H6 uses the new-generator behavior unconditionally.
       hibernate.connection.provider_disables_autocommit: true
       hibernate.cache.use_second_level_cache: false
       hibernate.cache.use_query_cache: false
@@ -81,8 +82,13 @@ spring:
     hibernate:
       ddl-auto: none
       naming:
-        physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
-        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+        # Boot 3 removed SpringPhysicalNamingStrategy; CamelCaseToUnderscoresNamingStrategy is
+        # its behavior-identical Hibernate 6 replacement (camelCase field -> snake_case column,
+        # which several entities rely on since not every field has an explicit @Column(name=...)).
+        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+        # Boot 4 relocated SpringImplicitNamingStrategy: org.springframework.boot.orm.jpa.hibernate
+        # (Boot 3) -> org.springframework.boot.hibernate (spring-boot-hibernate artifact).
+        implicit-strategy: org.springframework.boot.hibernate.SpringImplicitNamingStrategy
   messages:
     basename: i18n/messages
   main:

@@ -5,7 +5,7 @@ import com.park.utmstack.domain.UtmConfigurationParameter;
 import com.park.utmstack.domain.mail_sender.MailConfig;
 import org.springframework.stereotype.Service;
 
-import javax.mail.internet.InternetAddress;
+import jakarta.mail.internet.InternetAddress;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 

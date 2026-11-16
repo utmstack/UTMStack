@@ -4,9 +4,10 @@ package com.park.utmstack.domain.chart_builder;
 import com.park.utmstack.domain.shared_types.enums.DashboardType;
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import jakarta.persistence.*;
+import org.springframework.data.domain.Persistable;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.HashSet;
@@ -17,9 +18,27 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "utm_dashboard")
-public class UtmDashboard implements Serializable {
+public class UtmDashboard implements Serializable, Persistable<Long>{
 
     private static final long serialVersionUID = 1L;
+
+    // Hibernate 6.6 (Boot 3.4.5) changed merge() so that save() on an entity whose id is
+    // pre-assigned by the app (this app assigns ids from a sequence / fixed value before
+    // persisting) throws ObjectOptimisticLockingFailureException. Tracking whether the instance
+    // was loaded from the DB (via @PostLoad) makes Spring Data call persist() for new instances
+    // and merge() for existing ones - the pre-6.6 behavior.
+    private transient boolean isNew = true;
+
+    @jakarta.persistence.PostLoad
+    void utmstackOnLoad() {
+        this.isNew = false;
+    }
+
+    @Override
+    public boolean isNew() {
+        return this.isNew;
+    }
+
 
     @Id
     @GenericGenerator(name = "CustomIdentityGenerator", strategy = "com.park.utmstack.util.CustomIdentityGenerator")

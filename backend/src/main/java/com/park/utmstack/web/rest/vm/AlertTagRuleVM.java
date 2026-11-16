@@ -8,8 +8,8 @@ import com.park.utmstack.domain.UtmAlertTagRule;
 import com.park.utmstack.domain.chart_builder.types.query.FilterType;
 import org.springframework.util.CollectionUtils;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;

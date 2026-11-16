@@ -23,10 +23,13 @@ public interface UtmCorrelationRulesRepository extends JpaRepository<UtmCorrelat
     @Query(nativeQuery = true, value = "SELECT nextval('utm_correlation_rules_id_seq')")
     Long getNextId();
 
+    // Hibernate 7 sends bare nullable JPQL String params to PostgreSQL untyped
+    // ("could not determine data type of parameter $1"); cast(:p as string) types them as
+    // varchar. A null cast stays null, so the IS NULL guards behave exactly as before.
     @Query(value = "SELECT DISTINCT cr FROM UtmCorrelationRules cr " +
             "LEFT JOIN cr.dataTypes dt " +
             "WHERE " +
-            "(:ruleName IS NULL OR (cr.ruleName LIKE :ruleName OR lower(cr.ruleName) LIKE lower(:ruleName))) " +
+            "(:ruleName IS NULL OR (cr.ruleName LIKE cast(:ruleName as string) OR lower(cr.ruleName) LIKE lower(cast(:ruleName as string)))) " +
             "AND ((:ruleConfidentiality) IS NULL OR cr.ruleConfidentiality IN (:ruleConfidentiality)) " +
             "AND ((:ruleIntegrity) IS NULL OR cr.ruleIntegrity IN (:ruleIntegrity)) " +
             "AND ((:ruleAvailability) IS NULL OR cr.ruleAvailability IN (:ruleAvailability)) " +
@@ -36,7 +39,7 @@ public interface UtmCorrelationRulesRepository extends JpaRepository<UtmCorrelat
             "AND ((:ruleActive) IS NULL OR cr.ruleActive IN (:ruleActive)) " +
             "AND ((:systemOwner) IS NULL OR cr.systemOwner IN (:systemOwner)) " +
             "AND ((:ruleSearch) IS NULL OR " +
-            "(cr.ruleName LIKE :ruleSearch OR lower(cr.ruleName) LIKE lower(:ruleSearch))) " +
+            "(cr.ruleName LIKE cast(:ruleSearch as string) OR lower(cr.ruleName) LIKE lower(cast(:ruleSearch as string)))) " +
             "AND ((cast(:ruleInitDate as timestamp) is null) or (cast(:ruleEndDate as timestamp) is null) or (cr.ruleLastUpdate BETWEEN :ruleInitDate AND :ruleEndDate)) " +
             "AND ((:dataTypes) IS NULL OR dt.dataType IN (:dataTypes))")
     Page<UtmCorrelationRules> searchByFilters(@Param("ruleName") String ruleName,

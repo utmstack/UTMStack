@@ -3,8 +3,8 @@ package com.park.utmstack.domain.chart_builder;
 
 import com.park.utmstack.domain.chart_builder.types.query.FilterType;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.List;
 

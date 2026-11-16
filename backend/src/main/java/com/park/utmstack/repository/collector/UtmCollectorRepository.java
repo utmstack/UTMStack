@@ -18,7 +18,7 @@ import java.util.Optional;
 public interface UtmCollectorRepository extends JpaRepository<UtmCollector, Long>, JpaSpecificationExecutor<UtmCollector> {
 
     @Query(value = "SELECT ns FROM UtmCollector ns WHERE" +
-            "(:assetIpMacName IS NULL OR (ns.ip LIKE :assetIpMacName OR lower(ns.hostname) LIKE lower(:assetIpMacName))) " +
+            "(:assetIpMacName IS NULL OR (ns.ip LIKE cast(:assetIpMacName as string) OR lower(ns.hostname) LIKE lower(cast(:assetIpMacName as string)))) " +
             "AND ((:groups) IS NULL OR ns.groupId IN (SELECT group.id FROM UtmAssetGroup group WHERE group.groupName IN :groups)) " +
             "AND ((cast(:initDate as timestamp) is null) or (cast(:endDate as timestamp) is null) or (ns.lastSeen BETWEEN :initDate AND :endDate)) ")
     Page<UtmCollector> searchByFilters(@Param("assetIpMacName") String assetIpMacName,

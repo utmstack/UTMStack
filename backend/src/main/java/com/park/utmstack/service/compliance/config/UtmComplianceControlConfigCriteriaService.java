@@ -32,7 +32,7 @@ public class UtmComplianceControlConfigCriteriaService extends QueryService<UtmC
     }
 
     private Specification<UtmComplianceControlConfig> createSpecification(UtmComplianceControlConfigCriteria criteria) {
-        Specification<UtmComplianceControlConfig> specification = Specification.where(null);
+        Specification<UtmComplianceControlConfig> specification = Specification.unrestricted();
         if (criteria != null) {
             if (criteria.getId() != null) {
                 specification = specification.and(buildSpecification(criteria.getId(), UtmComplianceControlConfig_.id));

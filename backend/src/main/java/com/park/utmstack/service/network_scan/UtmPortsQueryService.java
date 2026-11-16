@@ -77,7 +77,7 @@ public class UtmPortsQueryService extends QueryService<UtmPorts> {
      * Function to convert UtmOpenPortCriteria to a {@link Specification}
      */
     private Specification<UtmPorts> createSpecification(UtmPortsCriteria criteria) {
-        Specification<UtmPorts> specification = Specification.where(null);
+        Specification<UtmPorts> specification = Specification.unrestricted();
         if (criteria != null) {
             if (criteria.getId() != null) {
                 specification = specification.and(buildSpecification(criteria.getId(), UtmPorts_.id));

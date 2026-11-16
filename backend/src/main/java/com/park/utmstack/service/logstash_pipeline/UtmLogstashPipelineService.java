@@ -24,7 +24,6 @@ import com.park.utmstack.util.exceptions.ApiException;
 import com.park.utmstack.web.rest.vm.UtmLogstashPipelineVM;
 import com.utmstack.opensearch_connector.parsers.TermAggregateParser;
 import com.utmstack.opensearch_connector.types.BucketAggregation;
-import org.elasticsearch.search.aggregations.Aggregations;
 import org.opensearch.client.json.JsonData;
 import org.opensearch.client.opensearch._types.FieldValue;
 import org.opensearch.client.opensearch._types.aggregations.Aggregate;

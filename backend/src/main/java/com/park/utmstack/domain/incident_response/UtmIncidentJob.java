@@ -3,8 +3,8 @@ package com.park.utmstack.domain.incident_response;
 
 import com.park.utmstack.domain.incident_response.enums.IncidentJobStatus;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
 

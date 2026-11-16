@@ -70,7 +70,7 @@ public class NetworkScanService {
                 apiBaseUrl = apiBaseUrl.substring(0, apiBaseUrl.length() - 1);
             final String URL = apiBaseUrl + "/api/v1/checks/ping";
             ResponseEntity<String> rs = restTemplate.get(URL, String.class);
-            return rs != null && rs.getStatusCodeValue() == 200;
+            return rs != null && rs.getStatusCode().value() == 200;
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage() + ". Localized message: " + e.getLocalizedMessage();
             eventService.createEvent(msg, ApplicationEventType.ERROR);

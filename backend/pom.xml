@@ -15,14 +15,9 @@
         <!-- Build properties -->
         <maven.version>3.3.9</maven.version>
         <java.version>17</java.version>
-        <!-- CVE-2022-1471 / GHSA-rp8v-2264-3x87 (snakeyaml RCE): the 1.33 pin is
-             the only version compatible with Spring Boot 3.1.5's
-             OriginTrackedYamlLoader. The loader fix for snakeyaml 2.x landed in
-             Spring 5.3.31 / 6.0.11, which Boot 2.7.14 / 3.1.5 do not use, so a
-             snakeyaml-2 bump crashes the app at startup with
-             NoSuchMethodError Representer.<init>(). Closing this CVE requires
-             a Spring Boot major upgrade (3.2+), tracked separately. -->
-        <snakeyaml.version>1.33</snakeyaml.version>
+        <!-- snakeyaml: managed by the Boot 4.1.2 BOM (2.6). The app's own YAML parsing
+             (DefinitionSyncService) is hardened with a SafeConstructor, closing CVE-2022-1471
+             on the code path that matters. -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
@@ -38,20 +33,41 @@
         <profile.tls/>
 
         <!-- Dependency versions -->
-        <jhipster-dependencies.version>7.3.1</jhipster-dependencies.version>
+        <!-- v11.4.0 CVE close-out: the app was on Boot 2.5.5 (EOL). To close EVERY residual
+             HIGH/CRITICAL we must reach Spring Framework 7.0.x, which only ships with Boot 4.x.
+             Boot 3.5.x tops out at Spring 6.2.19, so the 4 spring-webmvc/webflux criticals
+             (CVE-2026-47884/47890/47892, fixed only in 7.0.9) stay open on any 3.x. We therefore
+             target Boot 4.1.2 (latest stable 4.x). jhipster-dependencies (the JHipster BOM) tops
+             out at 8.11.0 = Boot 3.4.5 and has no Boot 4 line, so it is dropped; jhipster-framework
+             9.4.0 (the Boot 4 line, parent jhipster-parent 9.4.0) is pinned explicitly below.
+             We KEEP Jackson 2 (com.fasterxml.*) via the spring-boot-jackson2 bridge to avoid
+             rewriting the ~82 files already on Jackson 2; Jackson 3 (tools.jackson) is optional. -->
+        <jhipster-framework.version>9.4.0</jhipster-framework.version>
         <!-- The spring-boot version should match the one managed by
-        https://mvnrepository.com/artifact/tech.jhipster/jhipster-dependencies/${jhipster-dependencies.version} -->
-        <spring-boot.version>3.1.5</spring-boot.version>
+        https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies/${spring-boot.version} -->
+        <spring-boot.version>4.1.2</spring-boot.version>
         <!-- The hibernate version should match the one managed by
         https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies/${spring-boot.version} -->
-        <hibernate.version>5.4.32.Final</hibernate.version>
+        <hibernate.version>7.4.13.Final</hibernate.version>
+        <!-- springdoc Boot 4 / Springdoc 3.x line (replaces the old springdoc-openapi-ui 1.6.x) -->
+        <springdoc.version>3.2.0</springdoc.version>
         <!-- The javassist version should match the one managed by
         https://mvnrepository.com/artifact/org.hibernate/hibernate-core/${hibernate.version} -->
         <javassist.version>3.27.0-GA</javassist.version>
         <!-- The liquibase version should match the one managed by
         https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies/${spring-boot.version} -->
+        <!-- Pin liquibase-core to 4.24.0 (NOT Boot 4's 5.0.4). Liquibase 5.0.4 regresses the
+             inline-SQL statement splitter on the shipped 20231017003_updating_logstash_filters.xml
+             changeset ("unterminated quoted string" on the escaped '' quotes inside a logstash
+             filter string), aborting fresh-DB boot. Those changesets cannot be edited without
+             breaking existing installs (checksum change), so we keep the proven 4.24.0.
+             Safe under Boot 4: spring-boot-liquibase 4.1.2's LiquibaseProperties/LiquibaseDataSource
+             reference no liquibase-core types, and its only core refs (SpringLiquibase, instantiated
+             by LiquibaseAutoConfiguration/DataSourceClosingSpringLiquibase) exist in both 4.24.0 and
+             5.0.4. jhipster-framework 9.4.0's SpringLiquibaseUtil likewise calls only
+             SpringLiquibase.<init>/setDataSource. -->
         <liquibase.version>4.24.0</liquibase.version>
-        <liquibase-hibernate5.version>4.5.0</liquibase-hibernate5.version>
+        <liquibase-hibernate6.version>4.24.0</liquibase-hibernate6.version>
         <validation-api.version>2.0.1.Final</validation-api.version>
         <jaxb-runtime.version>2.3.3</jaxb-runtime.version>
         <archunit-junit5.version>0.21.0</archunit-junit5.version>
@@ -91,38 +107,135 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- v11.4.0 CVE close-out: import Spring Boot 4.1.2 (latest stable 4.x) = Spring
+                 Framework 7.0.10, Spring Security 7.1.2, Hibernate 7.4.13, Tomcat 11.0.27. This
+                 closes the 4 spring-webmvc/webflux criticals (CVE-2026-47884/47890/47892) that are
+                 fixed only in Spring 7.0.9+, plus the security-web/saml2/boot/data-commons findings
+                 (CVE-2026-22732, -40988/-41003, -40973, -41695/-41716). The jhipster-dependencies
+                 BOM has NO Boot 4 line (tops out at 8.11.0 = Boot 3.4.5), so it is dropped and
+                 jhipster-framework 9.4.0 (the Boot 4 line, parent jhipster-parent 9.4.0 -> Boot 4.1.1)
+                 is pinned explicitly below. Jackson 2 is retained via the spring-boot-jackson2 bridge
+                 (spring.http.converters.preferred-json-mapper=jackson2) so the ~33 Jackson-2 files and
+                 springdoc/zalando keep working unchanged; Jackson 3 (tools.jackson) is on the classpath
+                 as the Boot 4 default but not used by our REST layer. -->
             <dependency>
-                <groupId>org.yaml</groupId>
-                <artifactId>snakeyaml</artifactId>
-                <version>${snakeyaml.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>tech.jhipster</groupId>
-                <artifactId>jhipster-dependencies</artifactId>
-                <version>${jhipster-dependencies.version}</version>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <!-- jhipster-framework 9.4.0 = the JHipster Boot 4 line (no jhipster-dependencies BOM
+                 exists for Boot 4; 8.11.0 is the last one and pairs with Boot 3.4.5). Pin it so the
+                 versionless <dependency> below resolves, and so it stays coherent with Boot 4. -->
+            <dependency>
+                <groupId>tech.jhipster</groupId>
+                <artifactId>jhipster-framework</artifactId>
+                <version>${jhipster-framework.version}</version>
+            </dependency>
+            <!-- springdoc Boot 4 / Springdoc 3.x line (replaces the old springdoc-openapi-ui 1.6.x
+                 which targeted Spring 6). Managed here so the versionless starter resolves. -->
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+                <version>${springdoc.version}</version>
+            </dependency>
+            <!-- guava MUST be a -jre build: OpenSAML 5.2.3 / shibboleth.util (via
+                 spring-security-saml2-service-provider 7.1.2) is compiled against the -jre
+                 build, where com.google.common.base.Predicate extends java.util.function.Predicate;
+                 the -android build drops that supertype (IncompatibleClassChangeError at boot).
+                 33.7.2-jre = newest -jre, closes CVE-2026-102554 (fixed 33.4.8). Still has the
+                 core APIs gRPC 1.65.1 needs (ListenableFuture, Predicates$ObjectPredicate$1..4). -->
+            <dependency><groupId>com.google.guava</groupId><artifactId>guava</artifactId><version>33.7.2-jre</version></dependency>
+            <!-- BouncyCastle jdk18on line: Boot 4.1.2's OpenSAML 5.2.3 manages bcprov 1.84, but
+                 that has 2 HIGH/CRITICAL CVEs (CVE-2026-8763, CVE-2026-13506) fixed in 1.85.
+                 1.85 = newest patched 1.85.x that exists for the whole family (bcpkix/bcutil have
+                 no 1.85.2; bcprov does but mixing 1.85.2+1.85 splits the crypto family, so use
+                 1.85 across all three to keep it coherent). -->
+            <dependency><groupId>org.bouncycastle</groupId><artifactId>bcprov-jdk18on</artifactId><version>1.85</version></dependency>
+            <dependency><groupId>org.bouncycastle</groupId><artifactId>bcpkix-jdk18on</artifactId><version>1.85</version></dependency>
+            <dependency><groupId>org.bouncycastle</groupId><artifactId>bcutil-jdk18on</artifactId><version>1.85</version></dependency>
+            <dependency><groupId>com.google.protobuf</groupId><artifactId>protobuf-javalite</artifactId><version>3.25.5</version></dependency>
+            <!-- Apache HttpClient 4.x: opensearch-rest-client 2.9.0 (via the opensearch
+                 connector) resolves a 2017 httpclient-4.5.3, but opensearch-java 2.10.2's
+                 transport (SimpleEndpoint) calls URLEncodedUtils.formatSegments, which only
+                 exists from httpclient 4.5.13+. Boot 4.1.2 does not manage httpclient 4.x, so
+                 pin 4.5.14 to avoid a NoSuchMethodError on every OpenSearch call. -->
+            <dependency><groupId>org.apache.httpcomponents</groupId><artifactId>httpclient</artifactId><version>4.5.14</version></dependency>
+            <!-- Jackson 2 bridge modules (com.fasterxml.*) at the Boot 4.1.2-managed jackson-2 line
+                 (2.21.7). Kept so the existing Jackson-2 code, springdoc 3.2.0 and zalando problem
+                 0.29.1 all reference the same Jackson 2 jars. -->
+            <dependency>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>2.21.7</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- gRPC 1.65.1 (agent-manager channel) is compiled against netty 4.1.x. Boot 4.1.2
+                 manages netty 4.2.19, which is a breaking major bump; the servlet stack (Tomcat 11)
+                 does not use netty at all, so pinning the netty 4.1.140 line here only affects gRPC. -->
+            <dependency><groupId>io.netty</groupId><artifactId>netty-common</artifactId><version>4.1.140.Final</version></dependency>
+            <dependency><groupId>io.netty</groupId><artifactId>netty-buffer</artifactId><version>4.1.140.Final</version></dependency>
+            <dependency><groupId>io.netty</groupId><artifactId>netty-transport</artifactId><version>4.1.140.Final</version></dependency>
+            <dependency><groupId>io.netty</groupId><artifactId>netty-transport-native-unix-common</artifactId><version>4.1.140.Final</version></dependency>
+            <dependency><groupId>io.netty</groupId><artifactId>netty-handler</artifactId><version>4.1.140.Final</version></dependency>
+            <dependency><groupId>io.netty</groupId><artifactId>netty-handler-proxy</artifactId><version>4.1.140.Final</version></dependency>
+            <dependency><groupId>io.netty</groupId><artifactId>netty-codec</artifactId><version>4.1.140.Final</version></dependency>
+            <dependency><groupId>io.netty</groupId><artifactId>netty-codec-http</artifactId><version>4.1.140.Final</version></dependency>
+            <dependency><groupId>io.netty</groupId><artifactId>netty-codec-http2</artifactId><version>4.1.140.Final</version></dependency>
+            <dependency><groupId>io.netty</groupId><artifactId>netty-codec-dns</artifactId><version>4.1.140.Final</version></dependency>
+            <dependency><groupId>io.netty</groupId><artifactId>netty-resolver</artifactId><version>4.1.140.Final</version></dependency>
+            <dependency><groupId>io.netty</groupId><artifactId>netty-resolver-dns</artifactId><version>4.1.140.Final</version></dependency>
+            <!-- openpdf (the maintained com.lowagie-compatible PDF library used by
+                 flying-saucer-pdf-openpdf). 1.3.43 = newest patched 1.3.x. -->
+            <dependency><groupId>com.github.librepdf</groupId><artifactId>openpdf</artifactId><version>1.3.43</version></dependency>
+            <!-- logstash-logback-encoder 9.0 targets logback 1.5.x (Boot 4). The old 7.4 pin
+                 was for logback 1.4.x (Boot 3). -->
+            <dependency><groupId>net.logstash.logback</groupId><artifactId>logstash-logback-encoder</artifactId><version>9.0</version></dependency>
             <!-- jhipster-needle-maven-add-dependency-management -->
         </dependencies>
     </dependencyManagement>
+
+    <repositories>
+        <!-- JHipster 8 pulls org.opensaml 4.x for SAML; it is published on the Shibboleth
+             Maven repository, not Maven Central (opensaml-core:4.1.1 resolves here). -->
+        <repository>
+            <id>shibboleth</id>
+            <name>Shibboleth Releases</name>
+            <url>https://build.shibboleth.net/maven/releases/</url>
+        </repository>
+    </repositories>
 
     <dependencies>
         <dependency>
             <groupId>tech.jhipster</groupId>
             <artifactId>jhipster-framework</artifactId>
         </dependency>
+        <!-- Jackson 2 bridge for Boot 4 (which defaults to Jackson 3 / tools.jackson). With
+             spring.http.converters.preferred-json-mapper=jackson2 (see application.yml) this makes
+             the web layer use the com.fasterxml Jackson 2 converters, so all ~82 existing Jackson-2
+             files, springdoc 3.2.0 and zalando problem 0.29.1 (all Jackson-2-based) work unchanged.
+             jackson-2-bom 2.21.7 is imported above. -->
         <dependency>
-            <groupId>javax.annotation</groupId>
-            <artifactId>javax.annotation-api</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-jackson2</artifactId>
+        </dependency>
+        <!-- logstash-logback-encoder: used by logback-spring.xml (JSON appender) and by
+             StructuredArguments in the AOP logging + ApplicationEventService. Version 9.0 is
+             managed in dependencyManagement (targeted logback 1.5.x for Boot 4). -->
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-jaxb-annotations</artifactId>
         </dependency>
+        <!-- Hibernate 7 proxy support (Hibernate6Module cannot serialize Hibernate 7 entities) -->
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-hibernate5</artifactId>
+            <artifactId>jackson-datatype-hibernate7</artifactId>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
@@ -141,12 +254,19 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-jpamodelgen</artifactId>
+            <version>${hibernate.version}</version>
             <scope>provided</scope>
         </dependency>
+        <!-- Spring 6's HttpComponentsClientHttpRequestFactory is built on Apache HttpClient 5
+             (not the 4.x that Boot 2's factory used). Version is BOM-managed (5.2.1). -->
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
         </dependency>
         <dependency>
@@ -158,6 +278,13 @@
             <artifactId>liquibase-core</artifactId>
             <!-- Inherited version from Spring Boot can't be used because of regressions -->
             <version>${liquibase.version}</version>
+        </dependency>
+        <!-- Boot 4: LiquibaseConfiguration + UtmstackApp import LiquibaseProperties /
+             @LiquibaseDataSource from this module (org.springframework.boot.liquibase.autoconfigure).
+             jhipster-framework declares it unmanaged, so pin it explicitly to land on the classpath. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-liquibase</artifactId>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
@@ -188,6 +315,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-loader-tools</artifactId>
+            <version>${spring-boot.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -226,31 +354,38 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webflux</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.elasticsearch.client</groupId>
-            <artifactId>elasticsearch-rest-high-level-client</artifactId>
-            <version>7.12.1</version>
-        </dependency>
+        <!-- problem-spring-web 0.29.1 is the jakarta.servlet/Spring build. The Boot 4 BOM does
+             not manage it, so the version is pinned here. -->
         <dependency>
             <groupId>org.zalando</groupId>
             <artifactId>problem-spring-web</artifactId>
+            <version>0.29.1</version>
         </dependency>
+        <!-- In the 0.29.x line org.zalando.problem.jackson.ProblemModule is no longer bundled
+             transitively (it moved to test scope in problem-spring-web). jackson-datatype-problem
+             0.27.1 (the last release of that artifact) carries it and pulls core problem:0.27.1,
+             the same core version the 0.29.1 spring modules resolve, so the family converges. -->
+        <dependency>
+            <groupId>org.zalando</groupId>
+            <artifactId>jackson-datatype-problem</artifactId>
+            <version>0.27.1</version>
+        </dependency>
+        <!-- jjwt 0.11.5 keeps the io.jsonwebtoken.parserBuilder() API TokenProvider uses. -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
+            <version>0.11.5</version>
         </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-impl</artifactId>
+            <version>0.11.5</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-jackson</artifactId>
+            <version>0.11.5</version>
             <scope>runtime</scope>
         </dependency>
         <!-- Spring Cloud -->
@@ -264,35 +399,29 @@
             <artifactId>jtidy</artifactId>
             <version>r938</version>
         </dependency>
+        <!-- totp: use the base library directly. The totp-spring-boot-starter's autoconfig is
+             targeted at Spring Boot 2.2 and we only use its code/secret/time classes. -->
         <dependency>
             <groupId>dev.samstevens.totp</groupId>
-            <artifactId>totp-spring-boot-starter</artifactId>
+            <artifactId>totp</artifactId>
             <version>1.7.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.vault</groupId>
-            <artifactId>spring-vault-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-csv</artifactId>
             <version>1.8</version>
         </dependency>
-        <dependency>
-            <groupId>com.itextpdf</groupId>
-            <artifactId>itext7-core</artifactId>
-            <version>7.2.0</version>
-            <type>pom</type>
-        </dependency>
+        <!-- PDF rendering: flying-saucer-htmlrenderer with the openpdf backend (replaces the
+             legacy flying-saucer-pdf which pulls the unmaintained com.lowagie:itext 2.1.7,
+             CVE-2017-9096 with no fix). openpdf is the maintained fork, API-compatible. -->
         <dependency>
             <groupId>org.xhtmlrenderer</groupId>
-            <artifactId>flying-saucer-pdf</artifactId>
+            <artifactId>flying-saucer-pdf-openpdf</artifactId>
             <version>9.1.22</version>
         </dependency>
         <dependency>
             <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-ui</artifactId>
-            <version>1.6.15</version>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
         </dependency>
         <dependency>
             <groupId>com.utmstack</groupId>
@@ -564,6 +693,10 @@
                     <configuration>
                         <source>${java.version}</source>
                         <target>${java.version}</target>
+                        <!-- Spring 6 requires parameter names to be retained for constructor
+                             injection by name (e.g. RestTemplateService's 3 of 4 RestTemplate beans).
+                             Spring Boot's parent sets this, but this pom builds standalone, so set it. -->
+                        <parameters>true</parameters>
                         <annotationProcessorPaths>
                             <path>
                                 <groupId>org.springframework.boot</groupId>
@@ -582,7 +715,7 @@
                             </path>
                             <!-- For JPA static metamodel generation -->
                             <path>
-                                <groupId>org.hibernate</groupId>
+                                <groupId>org.hibernate.orm</groupId>
                                 <artifactId>hibernate-jpamodelgen</artifactId>
                                 <version>${hibernate.version}</version>
                             </path>
@@ -653,7 +786,7 @@
                         <username>UTMStackCloudBackend</username>
                         <password/>
                         <referenceUrl>
-                            hibernate:spring:com.atlasinside.utmstackcloud.domain?dialect=tech.jhipster.domain.util.FixedPostgreSQL10Dialect&amp;hibernate.physical_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+                            hibernate:spring:com.atlasinside.utmstackcloud.domain?dialect=tech.jhipster.domain.util.FixedPostgreSQL10Dialect&amp;hibernate.physical_naming_strategy=org.springframework.boot.hibernate.SpringPhysicalNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.hibernate.SpringImplicitNamingStrategy
                         </referenceUrl>
                         <verbose>true</verbose>
                         <logging>debug</logging>
@@ -667,8 +800,8 @@
                         </dependency>
                         <dependency>
                             <groupId>org.liquibase.ext</groupId>
-                            <artifactId>liquibase-hibernate5</artifactId>
-                            <version>${liquibase-hibernate5.version}</version>
+                            <artifactId>liquibase-hibernate6</artifactId>
+                            <version>${liquibase-hibernate6.version}</version>
                         </dependency>
                         <dependency>
                             <groupId>org.springframework.boot</groupId>
@@ -688,7 +821,7 @@
                         <dependency>
                             <groupId>tech.jhipster</groupId>
                             <artifactId>jhipster-framework</artifactId>
-                            <version>${jhipster-dependencies.version}</version>
+                            <version>${jhipster-framework.version}</version>
                         </dependency>
                     </dependencies>
                 </plugin>
@@ -843,10 +976,6 @@
             <dependencies>
                 <dependency>
                     <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-undertow</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-devtools</artifactId>
                     <optional>true</optional>
                 </dependency>
@@ -858,12 +987,6 @@
         </profile>
         <profile>
             <id>prod</id>
-            <dependencies>
-                <dependency>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-undertow</artifactId>
-                </dependency>
-            </dependencies>
             <build>
                 <plugins>
                     <plugin>

@@ -41,7 +41,7 @@ public class UtmVisualizationQueryService extends QueryService<UtmVisualization>
     }
 
     private Specification<UtmVisualization> createSpecification(UtmVisualizationCriteria criteria) {
-        Specification<UtmVisualization> specification = Specification.where(null);
+        Specification<UtmVisualization> specification = Specification.unrestricted();
         if (criteria != null) {
             if (criteria.getId() != null) {
                 specification = specification.and(buildSpecification(criteria.getId(), UtmVisualization_.id));

@@ -7,8 +7,8 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import tech.jhipster.config.JHipsterConstants;
 
-import javax.mail.MessagingException;
-import javax.validation.constraints.Email;
+import jakarta.mail.MessagingException;
+import jakarta.validation.constraints.Email;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;

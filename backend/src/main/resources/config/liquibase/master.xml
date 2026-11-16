@@ -623,6 +623,7 @@
   <include file="/config/liquibase/changelog/20261109001_utm_viz_bare_keyword.xml" relativeToChangelogFile="false"/>
   <include file="/config/liquibase/changelog/20261111001_fix_dashboard_viz_sequence.xml" relativeToChangelogFile="false"/>
   <include file="/config/liquibase/changelog/20261113001_fix_netflow_menu_datatype.xml" relativeToChangelogFile="false"/>
+  <include file="/config/liquibase/changelog/20261115001_create_utm_schedule_table.xml" relativeToChangelogFile="false"/>
 
 </databaseChangeLog>
 

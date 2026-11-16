@@ -27,7 +27,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 import java.io.ByteArrayOutputStream;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -245,7 +245,7 @@ public class UtmNetworkScanService {
 
             String query = String.format(sb.toString(), prop.getPropertyName(), prop.getFromTable(), StringUtils.hasText(value) ? value.toLowerCase() : null, prop.getJoinTable());
 
-            javax.persistence.Query q = em.createQuery(query);
+            jakarta.persistence.Query q = em.createQuery(query);
             if (StringUtils.hasText(value)) {
                 if (prop == PropertyFilter.ALIVE) {
                     q.setParameter("value", Boolean.parseBoolean(value));

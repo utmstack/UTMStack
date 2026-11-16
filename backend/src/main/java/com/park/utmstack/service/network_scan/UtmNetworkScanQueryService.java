@@ -77,7 +77,7 @@ public class UtmNetworkScanQueryService extends QueryService<UtmNetworkScan> {
      * Function to convert UtmNetworkScanCriteria to a {@link Specification}
      */
     private Specification<UtmNetworkScan> createSpecification(UtmNetworkScanCriteria criteria) {
-        Specification<UtmNetworkScan> specification = Specification.where(null);
+        Specification<UtmNetworkScan> specification = Specification.unrestricted();
         if (criteria != null) {
             if (criteria.getId() != null) {
                 specification = specification.and(buildSpecification(criteria.getId(), UtmNetworkScan_.id));

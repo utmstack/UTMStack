@@ -5,9 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Type;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
@@ -41,7 +40,6 @@ public class IdentityProviderConfig {
      * Service Provider private key in PEM format
      * Used to sign AuthnRequests and other outgoing SAML messages
      */
-    @Type(type = "text")
     @Column(name = "sp_private_key_pem", nullable = false, columnDefinition = "TEXT")
     private String spPrivateKeyPem;
 
@@ -49,7 +47,6 @@ public class IdentityProviderConfig {
      * Service Provider public certificate in PEM format
      * Shared with IdP so it can validate signed requests from the SP
      */
-    @Type(type = "text")
     @Column(name = "sp_certificate_pem", nullable = false, columnDefinition = "TEXT")
     private String spCertificatePem;
 

@@ -18,10 +18,6 @@ import com.park.utmstack.util.enums.AlertStatus;
 import com.park.utmstack.util.events.RulesEvaluationEndEvent;
 import com.park.utmstack.web.rest.vm.AlertTagRuleFilterVM;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.jpa.TypedParameterValue;
-import org.hibernate.type.BooleanType;
-import org.hibernate.type.LongType;
-import org.hibernate.type.StringType;
 import org.opensearch.client.opensearch._types.query_dsl.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,16 +81,13 @@ public class UtmAlertTagRuleService {
     public Page<UtmAlertTagRule> findByFilter(AlertTagRuleFilterVM filters, Pageable pageable) throws Exception {
         final String ctx = CLASSNAME + ".findByFilter";
         try {
-            TypedParameterValue id = new TypedParameterValue(new LongType(), filters.getId());
-            TypedParameterValue name = new TypedParameterValue(new StringType(), filters.getName());
-            TypedParameterValue conditionField = new TypedParameterValue(new StringType(), filters.getConditionField());
-            TypedParameterValue conditionValue = new TypedParameterValue(new StringType(), filters.getConditionValue());
-            TypedParameterValue tagIds = CollectionUtils.isEmpty(filters.getTagIds()) ? null : new TypedParameterValue(new StringType(), StringUtils.collectionToCommaDelimitedString(filters.getTagIds()));
-            TypedParameterValue isActive = new TypedParameterValue(new BooleanType(), filters.getRuleActive());
-            TypedParameterValue isDeleted = new TypedParameterValue(new BooleanType(), filters.getRuleDeleted());
+            // Hibernate 6 removed org.hibernate.jpa.TypedParameterValue; pass the raw
+            // values and let the JPA native query bind them (nulls are bound as SQL NULL,
+            // which the query's "(:x is null or ...)" guards handle).
+            String tagIds = CollectionUtils.isEmpty(filters.getTagIds()) ? null : StringUtils.collectionToCommaDelimitedString(filters.getTagIds());
 
-            return alertTagRuleRepository.findByFilter(id, name, conditionField,
-                    conditionValue, tagIds, isActive, isDeleted, pageable);
+            return alertTagRuleRepository.findByFilter(filters.getId(), filters.getName(), filters.getConditionField(),
+                    filters.getConditionValue(), tagIds, filters.getRuleActive(), filters.getRuleDeleted(), pageable);
         } catch (Exception e) {
             throw new Exception(ctx + ": " + e.getMessage());
         }

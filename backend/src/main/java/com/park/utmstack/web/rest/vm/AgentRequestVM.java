@@ -1,7 +1,7 @@
 package com.park.utmstack.web.rest.vm;
 
 import com.park.utmstack.service.grpc.AgentRequest;
-import javax.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 
 /*
 * Use this class when you need to update agent's attributes.

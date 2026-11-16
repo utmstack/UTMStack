@@ -14,8 +14,11 @@ import java.util.Optional;
 
 public interface UtmTenantConfigRepository extends JpaRepository<UtmTenantConfig, Long>, JpaSpecificationExecutor<UtmTenantConfig> {
 
+    // Hibernate 7 sends bare nullable JPQL String params to PostgreSQL untyped
+    // ("could not determine data type of parameter $1"); cast(:search as string) types
+    // them as varchar. A null cast stays null, so the IS NULL guard behaves as before.
     @Query(value = "SELECT t FROM UtmTenantConfig t WHERE" +
-            "(:search IS NULL OR ((t.assetName LIKE :search OR lower(t.assetName) LIKE lower(:search))))")
+            "(:search IS NULL OR ((t.assetName LIKE cast(:search as string) OR lower(t.assetName) LIKE lower(cast(:search as string)))))")
     Page<UtmTenantConfig> searchByFilters(@Param("search") String search,
                                           Pageable pageable);
 

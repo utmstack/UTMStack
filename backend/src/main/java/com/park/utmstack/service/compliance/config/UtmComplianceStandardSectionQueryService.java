@@ -41,7 +41,7 @@ public class UtmComplianceStandardSectionQueryService extends QueryService<UtmCo
     }
 
     private Specification<UtmComplianceStandardSection> createSpecification(UtmComplianceStandardSectionCriteria criteria) {
-        Specification<UtmComplianceStandardSection> specification = Specification.where(null);
+        Specification<UtmComplianceStandardSection> specification = Specification.unrestricted();
         if (criteria != null) {
             if (criteria.getId() != null) {
                 specification = specification.and(buildSpecification(criteria.getId(), UtmComplianceStandardSection_.id));

@@ -14,7 +14,7 @@ public class ApiKeyConfigurer extends SecurityConfigurerAdapter<DefaultSecurityF
     }
 
     @Override
-    public void configure(HttpSecurity http) throws Exception {
+    public void configure(HttpSecurity http) {
         http.addFilterAfter(apiKeyFilter, JWTFilter.class);
     }
 }

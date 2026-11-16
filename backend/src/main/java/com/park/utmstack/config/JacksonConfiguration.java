@@ -1,6 +1,6 @@
 package com.park.utmstack.config;
 
-import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
+import com.fasterxml.jackson.datatype.hibernate7.Hibernate7Module;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.context.annotation.Bean;
@@ -26,11 +26,12 @@ public class JacksonConfiguration {
     }
 
     /*
-     * Support for Hibernate types in Jackson.
+     * Support for Hibernate types in Jackson. Hibernate 7 needs the hibernate7
+     * datatype module (the hibernate6 one cannot serialize Hibernate 7 entities).
      */
     @Bean
-    public Hibernate5Module hibernate5Module() {
-        return new Hibernate5Module();
+    public Hibernate7Module hibernate7Module() {
+        return new Hibernate7Module();
     }
 
     /*

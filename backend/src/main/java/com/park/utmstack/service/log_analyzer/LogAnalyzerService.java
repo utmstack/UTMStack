@@ -157,7 +157,11 @@ public class LogAnalyzerService {
             SearchRequest.Builder srb = new SearchRequest.Builder();
             srb.query(SearchUtil.toQuery(filters)).index(indexPattern).size(0);
 
-            if (fieldDataType.equalsIgnoreCase("date")) {
+            // A chart-view request that omits fieldDataType used to NPE here (and again
+            // below); treat a missing type as a non-date terms aggregation.
+            boolean isDate = "date".equalsIgnoreCase(fieldDataType);
+
+            if (isDate) {
                 srb.aggregations(CHART_VIEW_AGG, a -> a.dateHistogram(h -> h
                     .calendarInterval(interval != null ? interval : CalendarInterval.Month)
                     .format("yyyy-MM-dd HH:mm:ss").field(field).minDocCount(1)));
@@ -169,7 +173,7 @@ public class LogAnalyzerService {
             Aggregate agg = elasticsearchService.search(srb.build(), Object.class).aggregations().get(CHART_VIEW_AGG);
             ChartView retValue = new ChartView();
 
-            if (fieldDataType.equalsIgnoreCase("date")) {
+            if (isDate) {
                 List<DateHistogramBucket> buckets = agg.dateHistogram().buckets().array();
                 if (CollectionUtils.isEmpty(buckets))
                     return retValue;

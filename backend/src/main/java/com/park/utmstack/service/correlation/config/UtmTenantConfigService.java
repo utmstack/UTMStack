@@ -2,7 +2,7 @@ package com.park.utmstack.service.correlation.config;
 
 import com.park.utmstack.domain.correlation.config.UtmTenantConfig;
 import com.park.utmstack.repository.correlation.config.UtmTenantConfigRepository;
-import io.undertow.util.BadRequestException;
+import com.park.utmstack.util.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;

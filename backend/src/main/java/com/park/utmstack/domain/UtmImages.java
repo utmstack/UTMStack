@@ -3,7 +3,7 @@ package com.park.utmstack.domain;
 
 import com.park.utmstack.domain.shared_types.enums.ImageShortName;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 
 /**

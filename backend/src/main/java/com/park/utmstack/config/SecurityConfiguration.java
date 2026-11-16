@@ -10,40 +10,43 @@ import com.park.utmstack.security.jwt.JWTConfigurer;
 import com.park.utmstack.security.jwt.TokenProvider;
 import com.park.utmstack.security.saml.Saml2LoginFailureHandler;
 import com.park.utmstack.security.saml.Saml2LoginSuccessHandler;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.filter.CorsFilter;
 import org.zalando.problem.spring.web.advice.security.SecurityProblemSupport;
 
-
-import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletResponse;
-
-
+/**
+ * Spring Security 6 (Spring Boot 3) configuration. Migrated from the JHipster 7
+ * {@code WebSecurityConfigurerAdapter} style: the http rules now live in a
+ * {@link SecurityFilterChain} bean using the lambda DSL, method security uses
+ * {@link EnableMethodSecurity}, and the {@link AuthenticationManager} is built
+ * explicitly with a {@link DaoAuthenticationProvider} (Security 6 removed
+ * {@code AuthenticationManagerBuilder}).
+ */
 @Configuration
 @RequiredArgsConstructor
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
+@EnableMethodSecurity(prePostEnabled = true, securedEnabled = true)
 @Import(SecurityProblemSupport.class)
-public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+public class SecurityConfiguration {
 
-    private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final UserDetailsService userDetailsService;
     private final TokenProvider tokenProvider;
     private final CorsFilter corsFilter;
@@ -51,121 +54,109 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final ApiKeyFilter apiKeyFilter;
     private final UserRepository userRepository;
 
-
-    @PostConstruct
-    public void init() {
-        try {
-            authenticationManagerBuilder
-                    .userDetailsService(userDetailsService)
-                    .passwordEncoder(passwordEncoder());
-        } catch (Exception e) {
-            throw new BeanInitializationException("Security configuration failed", e);
-        }
-    }
-
-    @Override
-    @Bean
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
-    }
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return web -> web.ignoring()
-                .antMatchers(HttpMethod.OPTIONS, "/**")
-                .antMatchers("/swagger-ui/**")
-                .antMatchers("/i18n/**");
+    public AuthenticationManager authenticationManager() {
+        // Spring Security 7: DaoAuthenticationProvider has no no-arg constructor; it is built
+        // with the UserDetailsService. It is an AuthenticationProvider, not an
+        // AuthenticationManager, so wrap it in a ProviderManager.
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder());
+        return new ProviderManager(provider);
     }
 
-    @Override
-    public void configure(HttpSecurity http) throws Exception {
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return web -> web.ignoring()
+                .requestMatchers(HttpMethod.OPTIONS, "/**")
+                .requestMatchers("/swagger-ui/**")
+                .requestMatchers("/i18n/**");
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf()
-                .disable()
+                .csrf(csrf -> csrf.disable())
                 .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling()
-                .authenticationEntryPoint((request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED))
-                .accessDeniedHandler((request, response, accessDeniedException) -> response.sendError(HttpServletResponse.SC_FORBIDDEN))
-                .and()
-                .headers()
-                // Same-origin only: the panel frames its own PDF/report views,
-                // nothing else needs to frame backend responses.
-                .frameOptions()
-                .sameOrigin()
-                .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .authorizeRequests()
-                .antMatchers("/api/authenticate").permitAll()
-                .antMatchers("/api/authenticateFederationServiceManager").permitAll()
-                .antMatchers("/api/ping").permitAll()
-                .antMatchers("/api/date-format").permitAll()
-                .antMatchers("/api/v1/mode").permitAll()
-                .antMatchers("/api/healthcheck").permitAll()
-                .antMatchers("/api/releaseInfo").permitAll()
-                .antMatchers("/api/account/reset-password/init").permitAll()
-                .antMatchers("/api/account/reset-password/finish").permitAll()
-                .antMatchers("/api/images/all").permitAll()
-                .antMatchers("/api/info/version").permitAll()
-                .antMatchers("/api/enrollment/**").hasAnyAuthority(AuthoritiesConstants.PRE_VERIFICATION_USER)
-                .antMatchers("/api/tfa/verify-code").hasAnyAuthority(AuthoritiesConstants.PRE_VERIFICATION_USER, AuthoritiesConstants.USER, AuthoritiesConstants.ADMIN)
-                .antMatchers("/api/tfa/refresh").hasAnyAuthority(AuthoritiesConstants.PRE_VERIFICATION_USER, AuthoritiesConstants.USER, AuthoritiesConstants.ADMIN)
-                .antMatchers("/api/tfa/**").hasAnyAuthority(AuthoritiesConstants.ADMIN, AuthoritiesConstants.USER)
-                // Incident-response dispatch: security analysts (ROLE_USER) execute
-                // IR actions, not just platform admins.
-                .antMatchers("/api/utm-incident-jobs").hasAnyAuthority(AuthoritiesConstants.ADMIN, AuthoritiesConstants.USER)
-                .antMatchers("/api/utm-incident-jobs/**").hasAnyAuthority(AuthoritiesConstants.ADMIN, AuthoritiesConstants.USER)
-                .antMatchers("/api/utm-incident-variables/**").hasAuthority(AuthoritiesConstants.ADMIN)
-                .antMatchers(HttpMethod.GET, "/api/utm-incident-variables").hasAnyAuthority()
-                .antMatchers("/api/custom-reports/**").denyAll()
-                // ---- admin-only surfaces (audit: default was allow for ROLE_USER) ----
-                // Agent/collector enrollment master credential + federation key issuance.
-                .antMatchers("/api/federation-service/**").hasAuthority(AuthoritiesConstants.ADMIN)
-                // IdP / SAML configuration (create, update, delete, list).
-                .antMatchers("/api/identity-providers/**").hasAuthority(AuthoritiesConstants.ADMIN)
-                // Login page lists SSO providers before authentication; the payload is
-                // trimmed to IdentityProviderPublicDto. Everything else is admin-only.
-                .antMatchers(HttpMethod.GET, "/api/utm-providers").permitAll()
-                .antMatchers("/api/utm-providers/**").hasAuthority(AuthoritiesConstants.ADMIN)
-                // Alert-response automation rules can execute OS commands on agents.
-                .antMatchers("/api/utm-alert-response-rules").hasAuthority(AuthoritiesConstants.ADMIN)
-                .antMatchers("/api/utm-alert-response-rules/**").hasAuthority(AuthoritiesConstants.ADMIN)
-                .antMatchers("/api/utm-alert-response-action-templates").hasAuthority(AuthoritiesConstants.ADMIN)
-                // Instance-wide configuration parameters (includes TFA + mail settings).
-                .antMatchers(HttpMethod.PUT, "/api/utm-configuration-parameters").hasAuthority(AuthoritiesConstants.ADMIN)
-                // TFA enrollment completion (writes TFA enable/method, returns full token).
-                .antMatchers("/api/tfa/complete").hasAuthority(AuthoritiesConstants.ADMIN)
-                // OpenSearch index management (destructive).
-                .antMatchers("/api/elasticsearch/index/delete-index").hasAuthority(AuthoritiesConstants.ADMIN)
-                // Encryption endpoint (encryption oracle).
-                .antMatchers("/api/encrypt").hasAuthority(AuthoritiesConstants.ADMIN)
-                .antMatchers("/api/**").hasAnyAuthority(AuthoritiesConstants.ADMIN, AuthoritiesConstants.USER)
-                .antMatchers("/ws/topic").hasAuthority(AuthoritiesConstants.ADMIN)
-                .antMatchers("/ws/**").permitAll()
-                .antMatchers("/management/info").permitAll()
-                // Runtime log level: TRACE on the wrong logger dumps request bodies
-                // and tokens into the logs.
-                .antMatchers("/management/logs").hasAuthority(AuthoritiesConstants.ADMIN)
-                .antMatchers("/management/**").hasAnyAuthority(AuthoritiesConstants.ADMIN, AuthoritiesConstants.USER)
-                .and()
-                .saml2Login()
-                .successHandler(new Saml2LoginSuccessHandler(tokenProvider,
-                                                              userRepository))
-                .failureHandler(new Saml2LoginFailureHandler())
-                .and()
-                .apply(securityConfigurerAdapterForJwt())
-                .and()
-                .apply(securityConfigurerAdapterForInternalApiKey())
-                .and()
-                .apply(securityConfigurerAdapterForApiKey())    ;
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED))
+                        .accessDeniedHandler((request, response, accessDeniedException) -> response.sendError(HttpServletResponse.SC_FORBIDDEN)))
+                .headers(headers -> headers
+                        // Same-origin only: the panel frames its own PDF/report views,
+                        // nothing else needs to frame backend responses.
+                        .frameOptions(frame -> frame.sameOrigin()))
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/authenticate").permitAll()
+                        .requestMatchers("/api/authenticateFederationServiceManager").permitAll()
+                        .requestMatchers("/api/ping").permitAll()
+                        .requestMatchers("/api/date-format").permitAll()
+                        .requestMatchers("/api/v1/mode").permitAll()
+                        .requestMatchers("/api/healthcheck").permitAll()
+                        .requestMatchers("/api/releaseInfo").permitAll()
+                        .requestMatchers("/api/account/reset-password/init").permitAll()
+                        .requestMatchers("/api/account/reset-password/finish").permitAll()
+                        .requestMatchers("/api/images/all").permitAll()
+                        .requestMatchers("/api/info/version").permitAll()
+                        .requestMatchers("/api/enrollment/**").hasAnyAuthority(AuthoritiesConstants.PRE_VERIFICATION_USER)
+                        .requestMatchers("/api/tfa/verify-code").hasAnyAuthority(AuthoritiesConstants.PRE_VERIFICATION_USER, AuthoritiesConstants.USER, AuthoritiesConstants.ADMIN)
+                        .requestMatchers("/api/tfa/refresh").hasAnyAuthority(AuthoritiesConstants.PRE_VERIFICATION_USER, AuthoritiesConstants.USER, AuthoritiesConstants.ADMIN)
+                        .requestMatchers("/api/tfa/**").hasAnyAuthority(AuthoritiesConstants.ADMIN, AuthoritiesConstants.USER)
+                        // Incident-response dispatch: security analysts (ROLE_USER) execute
+                        // IR actions, not just platform admins.
+                        .requestMatchers("/api/utm-incident-jobs").hasAnyAuthority(AuthoritiesConstants.ADMIN, AuthoritiesConstants.USER)
+                        .requestMatchers("/api/utm-incident-jobs/**").hasAnyAuthority(AuthoritiesConstants.ADMIN, AuthoritiesConstants.USER)
+                        .requestMatchers("/api/utm-incident-variables/**").hasAuthority(AuthoritiesConstants.ADMIN)
+                        // Original (Security 5) used zero-arg .hasAnyAuthority() here = "any authenticated user"
+                        // (subpaths above are admin-only). Security 6's zero-arg form throws "authorities
+                        // cannot be empty" at bean-construction, so the DSL equivalent is .authenticated().
+                        .requestMatchers(HttpMethod.GET, "/api/utm-incident-variables").authenticated()
+                        .requestMatchers("/api/custom-reports/**").denyAll()
+                        // ---- admin-only surfaces (audit: default was allow for ROLE_USER) ----
+                        // Agent/collector enrollment master credential + federation key issuance.
+                        .requestMatchers("/api/federation-service/**").hasAuthority(AuthoritiesConstants.ADMIN)
+                        // IdP / SAML configuration (create, update, delete, list).
+                        .requestMatchers("/api/identity-providers/**").hasAuthority(AuthoritiesConstants.ADMIN)
+                        // Login page lists SSO providers before authentication; the payload is
+                        // trimmed to IdentityProviderPublicDto. Everything else is admin-only.
+                        .requestMatchers(HttpMethod.GET, "/api/utm-providers").permitAll()
+                        .requestMatchers("/api/utm-providers/**").hasAuthority(AuthoritiesConstants.ADMIN)
+                        // Alert-response automation rules can execute OS commands on agents.
+                        .requestMatchers("/api/utm-alert-response-rules").hasAuthority(AuthoritiesConstants.ADMIN)
+                        .requestMatchers("/api/utm-alert-response-rules/**").hasAuthority(AuthoritiesConstants.ADMIN)
+                        .requestMatchers("/api/utm-alert-response-action-templates").hasAuthority(AuthoritiesConstants.ADMIN)
+                        // Instance-wide configuration parameters (includes TFA + mail settings).
+                        .requestMatchers(HttpMethod.PUT, "/api/utm-configuration-parameters").hasAuthority(AuthoritiesConstants.ADMIN)
+                        // TFA enrollment completion (writes TFA enable/method, returns full token).
+                        .requestMatchers("/api/tfa/complete").hasAuthority(AuthoritiesConstants.ADMIN)
+                        // OpenSearch index management (destructive).
+                        .requestMatchers("/api/elasticsearch/index/delete-index").hasAuthority(AuthoritiesConstants.ADMIN)
+                        // Encryption endpoint (encryption oracle).
+                        .requestMatchers("/api/encrypt").hasAuthority(AuthoritiesConstants.ADMIN)
+                        .requestMatchers("/api/**").hasAnyAuthority(AuthoritiesConstants.ADMIN, AuthoritiesConstants.USER)
+                        .requestMatchers("/ws/topic").hasAuthority(AuthoritiesConstants.ADMIN)
+                        .requestMatchers("/ws/**").permitAll()
+                        .requestMatchers("/management/info").permitAll()
+                        // Runtime log level: TRACE on the wrong logger dumps request bodies
+                        // and tokens into the logs.
+                        .requestMatchers("/management/logs").hasAuthority(AuthoritiesConstants.ADMIN)
+                        .requestMatchers("/management/**").hasAnyAuthority(AuthoritiesConstants.ADMIN, AuthoritiesConstants.USER));
 
+        // In Spring Security 6, saml2Login() and apply(configurer) return the configurer, not
+        // HttpSecurity, so they cannot be chained after authorizeHttpRequests(). Call them as
+        // separate statements; each still registers on the same HttpSecurity builder.
+        http.saml2Login(saml -> saml
+                .successHandler(new Saml2LoginSuccessHandler(tokenProvider, userRepository))
+                .failureHandler(new Saml2LoginFailureHandler()));
+        http.apply(securityConfigurerAdapterForJwt());
+        http.apply(securityConfigurerAdapterForInternalApiKey());
+        http.apply(securityConfigurerAdapterForApiKey());
 
+        return http.build();
     }
 
     private JWTConfigurer securityConfigurerAdapterForJwt() {
@@ -180,10 +171,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         return new ApiKeyConfigurer(apiKeyFilter);
     }
 
-
     @Bean
     public Saml2LoginFailureHandler saml2LoginFailureHandler() {
         return new Saml2LoginFailureHandler();
     }
-
 }

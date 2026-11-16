@@ -4,8 +4,8 @@ package com.park.utmstack.domain.application_modules;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.park.utmstack.domain.network_scan.UtmAssetGroup;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;

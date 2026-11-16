@@ -2,7 +2,7 @@ package com.park.utmstack.domain.correlation.rules;
 
 import com.park.utmstack.domain.correlation.config.UtmDataTypes;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.time.Clock;
 import java.time.Instant;

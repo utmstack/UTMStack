@@ -23,10 +23,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.ContentCachingResponseWrapper;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
@@ -80,7 +80,11 @@ public class ApiKeyFilter extends OncePerRequestFilter {
         String ipAddress = request.getRemoteAddr();
         var key = getApiKey(apiKey);
 
-        var wrappedRequest = new ContentCachingRequestWrapper(request);
+        // Spring 7: ContentCachingRequestWrapper now requires a content cache limit
+        // (previously the single-arg constructor cached the whole body). Use a large
+        // limit to preserve the prior "cache the whole request" behavior for API-key
+        // request logging.
+        var wrappedRequest = new ContentCachingRequestWrapper(request, 1024 * 1024);
         var wrappedResponse = new ContentCachingResponseWrapper(response);
 
         UsernamePasswordAuthenticationToken authentication;

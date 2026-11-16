@@ -8,7 +8,7 @@ import com.park.utmstack.repository.network_scan.UtmNetworkScanRepository;
 import com.park.utmstack.service.UtmDataInputStatusService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.network_scan.DataSourceConstants;
-import io.undertow.util.BadRequestException;
+import com.park.utmstack.util.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;

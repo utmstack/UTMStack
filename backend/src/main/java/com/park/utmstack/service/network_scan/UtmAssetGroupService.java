@@ -20,8 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -87,7 +87,10 @@ public class UtmAssetGroupService {
 
         Query countQuery = em.createNativeQuery(String.format("SELECT count(*) FROM (%1$s) AS total", query));
         setQueryParams(countQuery, params);
-        BigInteger count = (BigInteger) countQuery.getSingleResult();
+        // Hibernate 7 returns the native count(*) scalar as Long (Hibernate 6 returned
+        // BigInteger); accept both so this does not ClassCastException on the
+        // Sources-groups page (issue #2908 follow-up).
+        Number count = (Number) countQuery.getSingleResult();
 
         Query dataQuery = em.createNativeQuery(queryWithPaginationAndSort, UtmAssetGroup.class);
         setQueryParams(dataQuery, params);

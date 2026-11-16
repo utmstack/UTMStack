@@ -74,7 +74,7 @@ public class UtmServerModuleQueryService extends QueryService<UtmServerModule> {
      * Function to convert UtmServerModuleCriteria to a {@link Specification}
      */
     private Specification<UtmServerModule> createSpecification(UtmServerModuleCriteria criteria) {
-        Specification<UtmServerModule> specification = Specification.where(null);
+        Specification<UtmServerModule> specification = Specification.unrestricted();
         if (criteria != null) {
             if (criteria.getId() != null) {
                 specification = specification.and(buildSpecification(criteria.getId(), UtmServerModule_.id));

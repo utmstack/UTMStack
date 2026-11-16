@@ -3,7 +3,7 @@ package com.park.utmstack.service.dto.idp_provider.dto;
 import com.park.utmstack.domain.idp_provider.IdentityProviderConfig;
 import org.springframework.data.jpa.domain.Specification;
 
-import javax.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Predicate;
 
 /**
  * Specification builder for IdentityProviderConfig.

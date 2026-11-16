@@ -74,7 +74,7 @@ public class UtmIncidentHistoryQueryService extends QueryService<UtmIncidentHist
      * Function to convert UtmIncidentHistoryCriteria to a {@link Specification}
      */
     private Specification<UtmIncidentHistory> createSpecification(UtmIncidentHistoryCriteria criteria) {
-        Specification<UtmIncidentHistory> specification = Specification.where(null);
+        Specification<UtmIncidentHistory> specification = Specification.unrestricted();
         if (criteria != null) {
             if (criteria.getId() != null) {
                 specification = specification.and(buildSpecification(criteria.getId(), UtmIncidentHistory_.id));

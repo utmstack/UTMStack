@@ -2,8 +2,8 @@ package com.park.utmstack.validation.saml;
 
 import com.park.utmstack.validation.saml.impl.ValidCertificateValidator;
 
-import javax.validation.Constraint;
-import javax.validation.Payload;
+import jakarta.validation.Constraint;
+import jakarta.validation.Payload;
 import java.lang.annotation.*;
 
 @Target({ElementType.FIELD})

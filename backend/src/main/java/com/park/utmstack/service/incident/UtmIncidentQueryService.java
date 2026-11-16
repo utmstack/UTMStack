@@ -109,7 +109,7 @@ public class UtmIncidentQueryService extends QueryService<UtmIncident> {
      * Function to convert UtmIncidentCriteria to a {@link Specification}
      */
     private Specification<UtmIncident> createSpecification(UtmIncidentCriteria criteria) {
-        Specification<UtmIncident> specification = Specification.where(null);
+        Specification<UtmIncident> specification = Specification.unrestricted();
         if (criteria != null) {
             if (criteria.getId() != null) {
                 specification = specification.and(buildRangeSpecification(criteria.getId(), UtmIncident_.id));

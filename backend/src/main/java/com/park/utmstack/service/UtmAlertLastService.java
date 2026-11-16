@@ -33,7 +33,7 @@ public class UtmAlertLastService {
             if (opt.isEmpty())
                 lastAlertRepository.save(new UtmAlertLast(Instant.now().atZone(ZoneOffset.UTC).toInstant()));
         } catch (Exception e) {
-            log.error(ctx + ": Fail to set the initial date for processing alerts");
+            log.error(ctx + ": Fail to set the initial date for processing alerts", e);
         }
     }
 }

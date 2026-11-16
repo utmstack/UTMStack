@@ -18,7 +18,8 @@ import org.hibernate.annotations.GenericGenerator;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
+import org.springframework.data.domain.Persistable;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -28,9 +29,27 @@ import java.util.Map;
  */
 @Entity
 @Table(name = "utm_compliance_report_config")
-public class UtmComplianceReportConfig implements Serializable, AuditableDTO {
+public class UtmComplianceReportConfig implements Serializable, AuditableDTO, Persistable<Long>{
 
     private static final long serialVersionUID = 1L;
+
+    // Hibernate 6.6 (Boot 3.4.5) changed merge() so that save() on an entity whose id is
+    // pre-assigned by the app (this app assigns ids from a sequence / fixed value before
+    // persisting) throws ObjectOptimisticLockingFailureException. Tracking whether the instance
+    // was loaded from the DB (via @PostLoad) makes Spring Data call persist() for new instances
+    // and merge() for existing ones - the pre-6.6 behavior.
+    private transient boolean isNew = true;
+
+    @jakarta.persistence.PostLoad
+    void utmstackOnLoad() {
+        this.isNew = false;
+    }
+
+    @Override
+    public boolean isNew() {
+        return this.isNew;
+    }
+
 
     @Id
     @GenericGenerator(name = "CustomIdentityGenerator", strategy = "com.park.utmstack.util.CustomIdentityGenerator")

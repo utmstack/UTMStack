@@ -77,7 +77,7 @@ public class UtmDataInputStatusQueryService extends QueryService<UtmDataInputSta
      * Function to convert UtmDataInputStatusCriteria to a {@link Specification}
      */
     private Specification<UtmDataInputStatus> createSpecification(UtmDataInputStatusCriteria criteria) {
-        Specification<UtmDataInputStatus> specification = Specification.where(null);
+        Specification<UtmDataInputStatus> specification = Specification.unrestricted();
         if (criteria != null) {
             if (criteria.getId() != null) {
                 specification = specification.and(buildStringSpecification(criteria.getId(), UtmDataInputStatus_.id));
