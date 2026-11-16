@@ -39,7 +39,7 @@ export class GoalViewComponent implements OnInit, OnDestroy {
   @Output() runned = new EventEmitter<string>();
   @Input() width: string;
   @Input() height: string;
-  runningChart: boolean;
+  runningChart = true;
   goals: UtmGoalOption[] = [];
   GOAL_CHART = ChartTypeEnum.GOAL_CHART;
   error: boolean;

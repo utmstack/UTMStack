@@ -39,7 +39,7 @@ export class MetricViewComponent implements OnInit, OnDestroy {
   @Input() width: string;
   @Input() timeByDefault: any;
   @Input() chartId: number;
-  runningChart: boolean;
+  runningChart = true;
   error = false;
   kpis: KpiValues[] = [];
   METRIC_CHART = ChartTypeEnum.METRIC_CHART;

@@ -57,7 +57,7 @@ export class TableViewComponent implements OnInit, OnChanges, OnDestroy {
    */
   @Input() exportFormat: boolean;
   @Output() runned = new EventEmitter<string>();
-  @Input() loadingOption = false;
+  @Input() loadingOption = true;
   @Input() chart: ChartTypeEnum;
   @Input() width: string;
   @Input() height: string;
