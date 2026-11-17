@@ -13,6 +13,7 @@ import { usersHttpService } from "../services/team-http.service";
 import type { Role, UserDetail } from "../types/team.types";
 import { Avatar, StatusBadge } from "./avatar";
 import { RolePicker } from "./role-picker";
+import { RemoveUserDialog } from "./remove-user-dialog";
 
 export function MemberDrawer({
   userId,
@@ -31,6 +32,7 @@ export function MemberDrawer({
   const [busy, setBusy] = useState(false);
   const [roleNames, setRoleNames] = useState<string[]>([]);
   const [confirmResetTfa, setConfirmResetTfa] = useState(false);
+  const [confirmRemove, setConfirmRemove] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -260,6 +262,28 @@ export function MemberDrawer({
                 <span className="text-[11px] text-muted-foreground">
                   {t("team.drawer.waitingInvite")}
                 </span>
+              ) : user.status === "inactive" ? (
+                <div className="flex items-center justify-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-red-500 hover:bg-red-500/10"
+                    disabled={busy}
+                    onClick={() => setConfirmRemove(true)}
+                  >
+                    <UserX size={13} className="mr-1.5" />
+                    {t("team.drawer.remove")}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={busy}
+                    onClick={() => void setActivated(true)}
+                  >
+                    <UserCheck size={13} className="mr-1.5" />
+                    {t("team.drawer.reactivate")}
+                  </Button>
+                </div>
               ) : (
                 <Button
                   variant="outline"
@@ -284,6 +308,17 @@ export function MemberDrawer({
                 </Button>
               </div>
             </footer>
+
+            {confirmRemove && (
+              <RemoveUserDialog
+                user={user}
+                onClose={() => setConfirmRemove(false)}
+                onRemoved={() => {
+                  onChanged();
+                  onClose();
+                }}
+              />
+            )}
 
             {confirmResetTfa && (
               <div
