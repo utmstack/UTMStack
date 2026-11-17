@@ -20,7 +20,6 @@ const (
 	DatasetAlerts      store.Dataset = "alerts"
 	DatasetStats       store.Dataset = "statistics"
 	DatasetUserHistory store.Dataset = "user_profile_history"
-	MigrationPah       string        = "file://migrations/clickhouse"
 )
 
 type Store struct {
@@ -93,20 +92,7 @@ func (s *Store) Close() {
 	s.built.Close()
 }
 
-
-
 func (s *Store) initTables(ctx context.Context) error {
-	db := env.String("CLICKHOUSE_DB", "utmstack", false)
-
-
-	args := map[string]string{
-		"db":db,
-		"logs":string(DatasetLogs),
-		"alerts":string(DatasetAlerts),
-		"stats":string(DatasetStats),
-		"user_profile":string(DatasetUserHistory),
-	}
-
 	d, ok := s.Store.(*clickhouse.Driver)
 	if !ok {
 		catcher.Log("Clickhouse not configured", map[string]any{})
@@ -121,19 +107,6 @@ func (s *Store) initTables(ctx context.Context) error {
 		return fmt.Errorf("CH unhealthy")
 	}
 
-
-
-	migrations, err := loadMigrations("migrations/clickhouse",args)
-	if err != nil {
-		return err
-	}
-
-	catcher.Info("running clickhouse migrations",nil)
-	for _, q := range migrations {
-		if err := d.Exec(ctx, q.Content); err != nil {
-			return err
-		}
-	}
 	return nil
 }
 

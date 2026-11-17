@@ -468,6 +468,18 @@ SELECT
     now64(3) AS updated_at
 FROM base AS b
 LEFT JOIN top AS t ON t.tenantId = b.tenantId AND t.user = b.user;
+-- adding and fullfilling snapshoted_at column into @timestamp
+ALTER TABLE IF EXISTS utmstack.user_profile_history
+    ADD COLUMN IF NOT EXISTS `@timestamp` DateTime64(3) MATERIALIZED snapshotted_at,
+    MATERIALIZE COLUMN `@timestamp`
+SETTINGS mutations_sync = 1;
+
+-- setting timestamp as orderby ttl adn partitionby
+ALTER TABLE IF EXISTS utmstack.user_profile_history
+    MODIFY ORDER BY (tenantId, user, `@timestamp`),
+    MODIFY TTL `@timestamp` + INTERVAL 1095 DAY DELETE,
+    MODIFY SETTING ttl_only_drop_parts = 1;
+
 
 CREATE TABLE IF NOT EXISTS utmstack.user_profile_history
 (
@@ -488,13 +500,17 @@ CREATE TABLE IF NOT EXISTS utmstack.user_profile_history
     `main_ip_lon`        Float64,
     `last_login_at`      DateTime64(3, 'UTC'),
     `last_login_ip`      String,
-    `last_login_country` String
+    `last_login_country` String,
+  	`@timestamp`         DateTime64(3) MATERIALIZED snapshotted_at
 )
 ENGINE = MergeTree
-PARTITION BY toYYYYMM(`snapshotted_at`)
-ORDER BY (tenantId, user, snapshotted_at)
-TTL `snapshotted_at` + INTERVAL 1095 DAY DELETE
+PARTITION BY toYYYYMM(`@timestamp`)
+ORDER BY (tenantId, user, `@timestamp`)
+TTL `@timestamp` + INTERVAL 1095 DAY DELETE
 SETTINGS ttl_only_drop_parts = 1;
+
+
+
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS utmstack.user_profile_history_mv
 REFRESH EVERY 1 DAY APPEND TO utmstack.user_profile_history AS
