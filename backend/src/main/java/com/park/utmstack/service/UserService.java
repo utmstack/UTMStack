@@ -11,6 +11,7 @@ import com.park.utmstack.security.SecurityUtils;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.dto.UserDTO;
 import com.park.utmstack.service.util.RandomUtil;
+import com.park.utmstack.util.CipherUtil;
 import com.park.utmstack.util.exceptions.CurrentUserLoginNotFoundException;
 import com.park.utmstack.web.rest.errors.BadRequestAlertException;
 import com.park.utmstack.web.rest.errors.InvalidPasswordException;
@@ -253,9 +254,85 @@ public class UserService {
             User user = userRepository.findOneByLogin(userLogin)
                 .orElseThrow(() -> new NoSuchElementException(String.format("User %1$s not found", userLogin)));
             user.setTfaMethod(tfaMethod);
-            user.setTfaSecret(tfaSecret);
+            user.setTfaSecret(encryptTfaSecret(tfaSecret, encryptionKey()));
 
             userRepository.save(user);
+    }
+
+    /**
+     * Encrypts a TFA secret at rest so it is never stored (or backed up) as the
+     * raw seed. TOTP/Email seeds are base32 and the house cipher output is
+     * base64, so the {@code enc::} prefix makes "encrypted" unambiguous and lets
+     * readers distinguish legacy plaintext rows. Re-encrypting an already
+     * encrypted value is a no-op (the migration runner relies on this).
+     */
+    public static String encryptTfaSecret(String secret, String key) {
+        if (secret == null || secret.isBlank() || isEncryptedTfaSecret(secret)) {
+            return secret;
+        }
+        return Constants.TFA_SECRET_ENCRYPTED_PREFIX + CipherUtil.encrypt(secret, key);
+    }
+
+    /**
+     * Decrypts a stored TFA secret for use in code generation. Values without
+     * the {@code enc::} prefix are legacy plaintext seeds and are returned
+     * as-is, so TFA keeps working even before the one-time migration has run.
+     */
+    public static String decryptTfaSecret(String stored, String key) {
+        if (stored == null || !isEncryptedTfaSecret(stored)) {
+            return stored;
+        }
+        return CipherUtil.decrypt(stored.substring(Constants.TFA_SECRET_ENCRYPTED_PREFIX.length()), key);
+    }
+
+    /**
+     * Instance convenience for the TFA code-generation read path: resolves the
+     * encryption key (failing fast if it is not configured) and decrypts.
+     */
+    public String resolveTfaSecret(String stored) {
+        return decryptTfaSecret(stored, encryptionKey());
+    }
+
+    public static boolean isEncryptedTfaSecret(String stored) {
+        return stored != null && stored.startsWith(Constants.TFA_SECRET_ENCRYPTED_PREFIX);
+    }
+
+    private String encryptionKey() {
+        String key = System.getenv(Constants.ENV_ENCRYPTION_KEY);
+        if (!StringUtils.hasText(key)) {
+            throw new IllegalStateException(CLASS_NAME + ": " + Constants.ENV_ENCRYPTION_KEY + " is not configured");
+        }
+        return key;
+    }
+
+    /**
+     * One-time migration: re-encrypts legacy plaintext TFA secrets at rest.
+     * Rows already carrying the {@code enc::} prefix are skipped, so the runner
+     * is idempotent and safe to execute on every boot. Per-row failures are
+     * logged and skipped so a single bad row cannot block startup; the lazy
+     * plaintext fallback in {@link #decryptTfaSecret(String, String)} keeps
+     * those users' TFA functional until the row migrates.
+     *
+     * @return the number of rows migrated
+     */
+    public int migrateLegacyTfaSecrets() {
+        String key = encryptionKey();
+        int migrated = 0;
+        for (User user : userRepository.findAll()) {
+            String stored = user.getTfaSecret();
+            if (stored == null || stored.isBlank() || isEncryptedTfaSecret(stored)) {
+                continue;
+            }
+            try {
+                user.setTfaSecret(encryptTfaSecret(stored, key));
+                userRepository.save(user);
+                migrated++;
+            } catch (Exception e) {
+                log.error(CLASS_NAME + ".migrateLegacyTfaSecrets: failed to encrypt secret for user {}: {}",
+                        user.getLogin(), e.getMessage());
+            }
+        }
+        return migrated;
     }
 
     public void deleteUser(String login) {

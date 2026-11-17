@@ -97,7 +97,7 @@ public class TotpTfaService implements TfaMethodService {
     @Override
     public void generateChallenge(User user) {
         cache.clear(user.getLogin(), TfaMethod.TOTP);
-        String secret = user.getTfaSecret();
+        String secret = userService.resolveTfaSecret(user.getTfaSecret());
         TfaSetupState state = new TfaSetupState(secret, System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(Constants.EXPIRES_IN_SECONDS_TOTP));
         cache.storeState(user.getLogin(), TfaMethod.TOTP, state);
     }
