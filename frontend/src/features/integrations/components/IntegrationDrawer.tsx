@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+
+import { FileClassificationGuide } from '@/features/integrations/components/setup/FileClassificationGuide'
 import { useNavigate } from 'react-router-dom'
 import { ExternalLink, Filter, LayoutDashboard, ListChecks, X } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
@@ -201,7 +203,12 @@ export function IntegrationDrawer({ integration: i, onClose,dataTypes }: Integra
           <>
               {isCustom(i) && <CustomSetup integration={i} />}
               {!isCustom(i) && isAgent(i) && i.guideChannel && <CollectorSetup integration={i} />}
-              {!isCustom(i) && isAgent(i) && !i.guideChannel && (
+              {!isCustom(i) && isAgent(i) && !i.guideChannel && i.moduleName=='FILE_CLASSIFICATION' && (
+                <FileClassificationGuide />
+              )}
+              {!isCustom(i) && isAgent(i) && !i.guideChannel &&
+                 i.moduleName!='FILE_CLASSIFICATION' &&
+                (
                 <>
                   <AgentSetup integration={i} />
                   {i.guideSetting && (
