@@ -64,6 +64,7 @@ const (
 	USER_UPDATE_SUCCESS             ApplicationEventType = "USER_UPDATE_SUCCESS"
 	USER_DELETE_ATTEMPT             ApplicationEventType = "USER_DELETE_ATTEMPT"
 	USER_DELETE_SUCCESS             ApplicationEventType = "USER_DELETE_SUCCESS"
+	USER_DELETE_FAIL                ApplicationEventType = "USER_DELETE_FAIL"
 	PASSWORD_CHANGE_ATTEMPT         ApplicationEventType = "PASSWORD_CHANGE_ATTEMPT"
 	PASSWORD_CHANGE_SUCCESS         ApplicationEventType = "PASSWORD_CHANGE_SUCCESS"
 	IDP_CONFIG_CREATE_ATTEMPT       ApplicationEventType = "IDP_CONFIG_CREATE_ATTEMPT"

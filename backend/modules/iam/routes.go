@@ -40,6 +40,7 @@ func RegisterRoutes(api *gin.RouterGroup, module *Module, userAuth gin.HandlerFu
 	userGroup.DELETE("/:id", middleware.RequirePermission("users.delete"), users.Deactivate)
 	userGroup.PUT("/:id/roles", middleware.RequirePermission("users.write"), users.AssignRoles)
 	userGroup.POST("/:id/tfa/disable", middleware.RequirePermission("users.write"), users.ResetTfa)
+	userGroup.DELETE("/:id/remove", middleware.RequirePermission("users.delete"), users.Remove)
 
 	roleGroup := api.Group("/roles", userAuth)
 	roleGroup.GET("", middleware.RequirePermission("roles.read"), roles.List)

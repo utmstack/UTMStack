@@ -22,6 +22,7 @@ import {
 import type { PageInfo, Role, UserListItem } from "../types/team.types";
 import { MemberDrawer } from "../components/member-drawer";
 import { InviteDialog } from "../components/invite-dialog";
+import { RemoveUserDialog } from "../components/remove-user-dialog";
 import { buildMemberColumns } from "../components/member-columns";
 import { RolesView } from "../components/roles-view";
 
@@ -122,6 +123,7 @@ function MembersView({ roles }: { roles: Role[] }) {
   const [debounced, setDebounced] = useState("");
 
   const [openId, setOpenId] = useState<string | null>(null);
+  const [removeTarget, setRemoveTarget] = useState<UserListItem | null>(null);
   const [inviteOpen, setInviteOpen] = useState(false);
 
   // Debounce the search box, and reset to page 1 when the query changes.
@@ -181,7 +183,7 @@ function MembersView({ roles }: { roles: Role[] }) {
 
       <div className="mt-3 overflow-x-auto overflow-y-hidden rounded-xl border border-border bg-card">
         <ResizableDataTable
-          columns={buildMemberColumns(t)}
+          columns={buildMemberColumns(t, (u) => setRemoveTarget(u))}
           data={users ?? []}
           flexColumnId="user"
           storageKey="team-members-table-sizing"
@@ -236,6 +238,13 @@ function MembersView({ roles }: { roles: Role[] }) {
           roles={roles}
           onClose={() => setOpenId(null)}
           onChanged={() => void load()}
+        />
+      )}
+      {removeTarget && (
+        <RemoveUserDialog
+          user={removeTarget}
+          onClose={() => setRemoveTarget(null)}
+          onRemoved={() => void load()}
         />
       )}
       {inviteOpen && (
