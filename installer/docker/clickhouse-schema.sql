@@ -489,11 +489,12 @@ CREATE TABLE IF NOT EXISTS utmstack.user_profile_history
     `last_login_at`      DateTime64(3, 'UTC'),
     `last_login_ip`      String,
     `last_login_country` String
+	  `@timestamp`         DateTime64(3) MATERIALIZED snapshotted_at
 )
 ENGINE = MergeTree
-PARTITION BY toYYYYMM(`snapshotted_at`)
-ORDER BY (tenantId, user, snapshotted_at)
-TTL `snapshotted_at` + INTERVAL 1095 DAY DELETE
+PARTITION BY toYYYYMM(`@timestamp`)
+ORDER BY (tenantId, user, `@timestamp`)
+TTL `@timestamp` + INTERVAL 1095 DAY DELETE
 SETTINGS ttl_only_drop_parts = 1;
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS utmstack.user_profile_history_mv
