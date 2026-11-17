@@ -273,7 +273,7 @@ func (u *userUsecase) RemoveUser(ctx context.Context, userID uuid.UUID) error{
 	if err!=nil{
 		return err
 	}
-	if user.Status != domain.UserStatusInactive {
+	if user.Status != domain.UserStatusInactive && user.Status != domain.UserStatusPending {
 		return errors.New("User must be deactivated first")
 	}
 	return u.userRepo.RemoveUser(ctx,userID)
