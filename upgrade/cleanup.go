@@ -7,15 +7,12 @@ import (
 	"gorm.io/gorm"
 )
 
-// CleanupOrphans drops what a v11 conversion leaves behind in the utmstack
+// cleanupOrphans drops what a v11 conversion leaves behind in the utmstack
 // database: tables only v11 created, sequences whose owning table was dropped,
-// and views still built over v11 tables. It is a no-op on a base that was
-// never a v11 install.
-func CleanupOrphans(db *gorm.DB) error {
-	if !tableExists(db, "jhi_user") {
-		return nil
-	}
-
+// and views still built over v11 tables. Run calls it only after every
+// converter succeeded in the same invocation, so it never deletes v11 source
+// tables that were not converted.
+func cleanupOrphans(db *gorm.DB) error {
 	tables, err := v11TableList(db)
 	if err != nil {
 		return err

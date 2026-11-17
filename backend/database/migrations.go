@@ -123,11 +123,9 @@ func MigrateDatabase(db *gorm.DB, preMigrationsURL, postMigrationsURL string, op
 		return err
 	}
 
-	// run the v11 -> v12 converter, which needs the database connection and some extra inputs
-	if err := upgrade.Run(db, opts); err != nil {
-		return err
-	}
-	return upgrade.CleanupOrphans(db)
+	// run the v11 -> v12 converter, which needs the database connection and some extra inputs.
+	// The orphan cleanup lives inside Run so it can only fire after a complete conversion.
+	return upgrade.Run(db, opts)
 }
 
 func runSQLMigrations(db *gorm.DB, migrationsURL, table, stage string) error {
