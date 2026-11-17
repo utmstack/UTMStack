@@ -37,14 +37,18 @@ func (r *pgUserRepository) FindByID(ctx context.Context, id uuid.UUID) (*domain.
 
 func (r *pgUserRepository) RemoveUser(ctx context.Context, userID uuid.UUID) error{
 	var u domain.User
-	result := r.db.WithContext(ctx).Where("id = ?", userID).Delete(&u)
-	if err:=result.Error; err != nil {
-		return  err
-	}
-	if result.RowsAffected == 0 {
-	    return gorm.ErrRecordNotFound
-	}
-	return  nil
+	err := r.db.WithContext(ctx).Transaction(func (tx *gorm.DB) error{
+		result:=tx.Where("id = ?", userID).First(&u)
+		if result.Error!=nil{
+			return result.Error
+		}
+		if u.Status != domain.UserStatusInactive && u.Status != domain.UserStatusPending {
+			return errors.New("User must be deactivated first")
+		}
+		result = tx.Where("id = ?", userID).Delete(&u)
+		return result.Error
+	})
+	return  err
 }
 
 func (r *pgUserRepository) FindByEmail(ctx context.Context, email string) (*domain.User, error) {

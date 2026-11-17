@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"errors"
 
 	"github.com/google/uuid"
 	"github.com/threatwinds/go-sdk/catcher"
@@ -269,13 +268,6 @@ func roleDigests(roles []domain.Role) []dto.RoleDigest {
 }
 
 func (u *userUsecase) RemoveUser(ctx context.Context, userID uuid.UUID) error{
-	user,err := u.userRepo.FindByID(ctx,userID)
-	if err!=nil{
-		return err
-	}
-	if user.Status != domain.UserStatusInactive && user.Status != domain.UserStatusPending {
-		return errors.New("User must be deactivated first")
-	}
 	return u.userRepo.RemoveUser(ctx,userID)
 }
 
