@@ -68,6 +68,8 @@ export function AppRoutes() {
   return (
     <Routes>
       <Route path="/auth/login" element={<LoginPage />} />
+      {/* Backend-issued invite/reset link path; the key param drives the reset form. */}
+      <Route path="/reset/finish" element={<LoginPage />} />
 
   <Route element={<AlertCountLayout />}>
       {/* Federation: account pages that don't need an instance (authed only). */}
