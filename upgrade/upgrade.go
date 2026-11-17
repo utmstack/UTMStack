@@ -18,9 +18,11 @@ type Config struct {
 }
 
 // Run performs the one-time v11 -> v12 conversion. The installer's
-// version-old.json decides v11 origin; jhi_user (dropped by CleanupOrphans)
-// decides the conversion already ran, so reboots never re-upsert v11 values
-// over edited v12 data.
+// version-old.json decides v11 origin; jhi_user (dropped by the cleanup at
+// the end of Run) decides the conversion already ran, so reboots never
+// re-upsert v11 values over edited v12 data. Cleanup only runs when every
+// converter above it succeeded in this same invocation: an aborted or
+// skipped Run must never drop v11 source tables it did not convert.
 func Run(db *gorm.DB, cnf Config) error {
 	if !isV11FromFile(cnf.VersionOldFile) {
 		return nil
@@ -72,5 +74,5 @@ func Run(db *gorm.DB, cnf Config) error {
 		return err
 	}
 
-	return nil
+	return cleanupOrphans(db)
 }
