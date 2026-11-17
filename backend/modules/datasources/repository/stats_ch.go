@@ -98,7 +98,7 @@ func (r *chStatsReader) TenantUsageByDay(ctx context.Context, day time.Time) ([]
 		GROUP BY tenantId`,
 		r.store.TableName(eventstore.DatasetStats),
 		enqueueSuccessType,
-		day.UTC().Format(time.RFC3339))
+		day.UTC().Format("2006-01-02"))
 
 	rows, err := r.store.Query(ctx, q)
 	if err != nil {
