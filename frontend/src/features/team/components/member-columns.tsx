@@ -1,7 +1,7 @@
 import type { TFunction } from "i18next";
 import type { ColumnDef } from "@tanstack/react-table";
 import { KeyRound, Pencil, ShieldCheck, ShieldOff, Trash2 } from "lucide-react";
-import { fullName } from "../lib/team-utils";
+import { fullName, isRemovable } from "../lib/team-utils";
 import type { UserListItem } from "../types/team.types";
 import { Avatar, StatusBadge } from "./avatar";
 import { RoleBadge } from "./role-badge";
@@ -106,7 +106,7 @@ export function buildMemberColumns(t: TFunction, onRemove: (u: UserListItem) => 
               e.stopPropagation();
               onRemove(row.original);
             }}
-            disabled={row.original.status !== "inactive"}
+            disabled={!isRemovable(row.original)}
             title={t("team.drawer.remove")}
             className="flex h-7 w-7 items-center justify-center rounded-md hover:bg-red-500/10 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-40"
           >

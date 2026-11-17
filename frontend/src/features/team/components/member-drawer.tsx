@@ -258,11 +258,7 @@ export function MemberDrawer({
                   <UserX size={13} className="mr-1.5" />
                   {t("team.drawer.deactivate")}
                 </Button>
-              ) : isPending ? (
-                <span className="text-[11px] text-muted-foreground">
-                  {t("team.drawer.waitingInvite")}
-                </span>
-              ) : user.status === "inactive" ? (
+              ) : isPending || user.status === "inactive" ? (
                 <div className="flex items-center justify-center gap-2">
                   <Button
                     variant="outline"
