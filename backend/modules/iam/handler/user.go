@@ -157,6 +157,27 @@ func (h *UserHandler) Deactivate(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
+// @Summary     Remove user
+// @Tags        Users
+// @Security    BearerAuth
+// @Param       id path int true "User ID"
+// @Success     204 "Removed"
+// @Router      /users/{id}/remove [delete]
+func (h *UserHandler) Remove(c *gin.Context) {
+	id, ok := pathID(c, "id")
+	if !ok {
+		return
+	}
+	err := h.userUsecase.RemoveUser(c.Request.Context(), id)
+	if err != nil {
+		writeUserError(c, err)
+		audit.Record(c, audit_connectors.Event{Action: "user.remove"}, audit_domain.USER_DELETE_ATTEMPT, audit_domain.USER_DELETE_FAIL, err)
+		return
+	}
+	audit.Record(c, audit_connectors.Event{Action: "user.remove"}, audit_domain.USER_DELETE_ATTEMPT, audit_domain.USER_DELETE_SUCCESS, nil)
+	c.Status(http.StatusNoContent)
+}
+
 // @Summary     Assign roles to user
 // @Tags        Users
 // @Security    BearerAuth
