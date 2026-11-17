@@ -4,8 +4,8 @@ go 1.25.5
 
 require (
 	github.com/threatwinds/go-sdk v1.1.40-0.20261113141239-c6b6629b28d5
-	github.com/tidwall/gjson v1.20.0
-	github.com/tidwall/sjson v1.2.5
+	github.com/tidwall/gjson v1.20.4
+	github.com/tidwall/sjson v1.2.9
 )
 
 require (
@@ -37,7 +37,7 @@ require (
 	github.com/quic-go/qpack v0.6.0 // indirect
 	github.com/quic-go/quic-go v0.59.1 // indirect
 	github.com/tidwall/match v1.2.0 // indirect
-	github.com/tidwall/pretty v1.2.1 // indirect
+	github.com/tidwall/pretty v1.3.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.3.1 // indirect
 	go.mongodb.org/mongo-driver/v2 v2.6.0 // indirect

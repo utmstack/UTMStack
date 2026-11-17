@@ -9,7 +9,7 @@ require (
 	github.com/fsnotify/fsnotify v1.10.1
 	github.com/google/uuid v1.6.0
 	github.com/threatwinds/go-sdk v1.1.40-0.20261113141239-c6b6629b28d5
-	golang.org/x/crypto v0.58.0
+	golang.org/x/crypto v0.59.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -59,8 +59,8 @@ require (
 	golang.org/x/arch v0.27.0 // indirect
 	golang.org/x/exp v0.0.0-20260813180055-c1d0aacb2297 // indirect
 	golang.org/x/net v0.62.0 // indirect
-	golang.org/x/sys v0.49.0 // indirect
-	golang.org/x/text v0.43.0 // indirect
+	golang.org/x/sys v0.50.0 // indirect
+	golang.org/x/text v0.44.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260526163538-3dc84a4a5aaa // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260526163538-3dc84a4a5aaa // indirect
 	google.golang.org/grpc v1.82.0 // indirect

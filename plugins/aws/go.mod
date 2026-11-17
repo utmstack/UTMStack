@@ -3,20 +3,20 @@ module github.com/utmstack/UTMStack/plugins/aws
 go 1.26.0
 
 require (
-	github.com/aws/aws-sdk-go-v2 v1.47.6
-	github.com/aws/aws-sdk-go-v2/config v1.33.14
-	github.com/aws/aws-sdk-go-v2/credentials v1.20.14
+	github.com/aws/aws-sdk-go-v2 v1.48.0
+	github.com/aws/aws-sdk-go-v2/config v1.33.19
+	github.com/aws/aws-sdk-go-v2/credentials v1.21.1
 	github.com/fsnotify/fsnotify v1.10.1
 	github.com/google/uuid v1.6.0
 	github.com/threatwinds/go-sdk v1.1.40-0.20261113141239-c6b6629b28d5
-	github.com/utmstack/UTMStack/plugins/shared v0.0.0-00010101000000-000000000000
+	github.com/utmstack/UTMStack/plugins/shared v0.0.0-20261111125819-65751db51384
 )
 
 replace github.com/utmstack/UTMStack/plugins/shared => ../shared
 
 require (
-	github.com/aws/aws-sdk-go-v2/internal/v4a v1.5.9 // indirect
-	github.com/aws/aws-sdk-go-v2/service/signin v1.12.2 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/v4a v1.5.12 // indirect
+	github.com/aws/aws-sdk-go-v2/service/signin v1.13.1 // indirect
 	github.com/bytedance/gopkg v0.1.4 // indirect
 	github.com/goccy/go-yaml v1.19.2 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
@@ -35,17 +35,17 @@ require (
 require (
 	cel.dev/expr v0.25.2 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
-	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.26 // indirect
-	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.20.6 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/configsources v1.5.9 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.8.9 // indirect
-	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.91.1
-	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.13.24 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.14.9 // indirect
-	github.com/aws/aws-sdk-go-v2/service/sso v1.39.2 // indirect
-	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.44.2 // indirect
-	github.com/aws/aws-sdk-go-v2/service/sts v1.51.7 // indirect
-	github.com/aws/smithy-go v1.28.8 // indirect
+	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.27 // indirect
+	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.20.9 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/configsources v1.5.12 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.8.12 // indirect
+	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.92.2
+	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.13.25 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.14.12 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sso v1.39.5 // indirect
+	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.44.5 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sts v1.52.0 // indirect
+	github.com/aws/smithy-go v1.28.9 // indirect
 	github.com/bytedance/sonic v1.15.2 // indirect
 	github.com/bytedance/sonic/loader v0.5.1 // indirect
 	github.com/cloudwego/base64x v0.1.7 // indirect
@@ -70,11 +70,11 @@ require (
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.3.1 // indirect
 	golang.org/x/arch v0.27.0 // indirect
-	golang.org/x/crypto v0.58.0 // indirect
+	golang.org/x/crypto v0.59.0 // indirect
 	golang.org/x/exp v0.0.0-20260603202125-055de637280b // indirect
-	golang.org/x/net v0.60.0 // indirect
-	golang.org/x/sys v0.49.0 // indirect
-	golang.org/x/text v0.43.0 // indirect
+	golang.org/x/net v0.62.0 // indirect
+	golang.org/x/sys v0.50.0 // indirect
+	golang.org/x/text v0.44.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260526163538-3dc84a4a5aaa // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260526163538-3dc84a4a5aaa // indirect
 	google.golang.org/grpc v1.81.1 // indirect
