@@ -488,8 +488,8 @@ CREATE TABLE IF NOT EXISTS utmstack.user_profile_history
     `main_ip_lon`        Float64,
     `last_login_at`      DateTime64(3, 'UTC'),
     `last_login_ip`      String,
-    `last_login_country` String
-	  `@timestamp`         DateTime64(3) MATERIALIZED snapshotted_at
+    `last_login_country` String,
+	`@timestamp`         DateTime64(3) MATERIALIZED snapshotted_at
 )
 ENGINE = MergeTree
 PARTITION BY toYYYYMM(`@timestamp`)
