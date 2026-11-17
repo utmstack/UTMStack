@@ -495,21 +495,17 @@ CREATE TABLE IF NOT EXISTS utmstack.user_profile_history
 )
 ENGINE = MergeTree
 PARTITION BY toYYYYMM(`@timestamp`)
-ORDER BY (tenantId, user, snapshotted_at , `@timestamp`)
+ORDER BY (tenantId, user, `@timestamp`)
 TTL `@timestamp` + INTERVAL 1095 DAY DELETE
 SETTINGS ttl_only_drop_parts = 1;
 
 -- adding and fullfilling snapshoted_at column into @timestamp
 ALTER TABLE utmstack.user_profile_history
-    ADD COLUMN IF NOT EXISTS `@timestamp` DateTime64(3) MATERIALIZED snapshotted_at,
+    ADD COLUMN IF NOT EXISTS `@timestamp` DateTime64(3) MATERIALIZED snapshotted_at;
+
+ALTER TABLE utmstack.user_profile_history
     MATERIALIZE COLUMN `@timestamp`
 SETTINGS mutations_sync = 1;
-
--- setting timestamp as orderby ttl adn partitionby
-ALTER TABLE utmstack.user_profile_history
-    MODIFY ORDER BY (tenantId, user, snapshotted_at, `@timestamp`),
-    MODIFY TTL `@timestamp` + INTERVAL 1095 DAY DELETE,
-    MODIFY SETTING ttl_only_drop_parts = 1;
 
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS utmstack.user_profile_history_mv
