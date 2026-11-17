@@ -1,8 +1,6 @@
-import { useTranslation, Trans } from 'react-i18next'
+import { useTranslation  } from 'react-i18next'
 import { registerCollector } from '../registry'
-import { ForwarderGuide, forwarderHost } from '../ForwarderGuide'
-import { Section } from '@/features/integrations/components/ui/Section'
-import { CodeBlock } from '@/features/integrations/components/ui/CodeBlock'
+import { ForwarderGuide  } from '../ForwarderGuide'
 import type { Integration } from '@/features/integrations/types'
 
 const ROOT = 'integrations.setup.collector.fortigate'
@@ -10,27 +8,10 @@ const PORT = '7005'
 
 function FortigateGuide({ module: _module }: { module: Integration }) {
   const { t } = useTranslation()
-  const host = forwarderHost()
 
   return (
     <ForwarderGuide source={t(`${ROOT}.source`)} port={PORT} sourceType="firewall-fortigate-traffic">
-      <Section title={t(`${ROOT}.step2.title`)} step={2}>
-        <p className="mb-2 text-sm text-foreground/90">
-          <Trans
-            i18nKey={`${ROOT}.step2.body`}
-            values={{ port: PORT }}
-            components={{ hl: <strong className="font-semibold text-primary" /> }}
-          />
-        </p>
-        <CodeBlock lang="config" code={`config log syslogd setting
-    set status enable
-    set server ${host}
-    set port ${PORT}
-    set mode udp
-    set format default
-end`} />
-        <p className="mt-2 text-[11px] text-muted-foreground">{t(`${ROOT}.step2.note`)}</p>
-      </Section>
+    <></>
     </ForwarderGuide>
   )
 }
