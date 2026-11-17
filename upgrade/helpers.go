@@ -53,7 +53,7 @@ func isV11FromFile(path string) bool {
 		catcher.Warn("v11 upgrade: version-old.json invalid", map[string]any{"path": path, "error": err.Error()})
 		return false
 	}
-	return strings.HasPrefix(strings.TrimSpace(v.Version), "11.")
+	return strings.HasPrefix(strings.TrimSpace(v.Version), "v11.")
 }
 
 func connectAgentmanager(dsn string) (*sql.DB, error) {

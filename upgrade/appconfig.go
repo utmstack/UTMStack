@@ -43,6 +43,15 @@ func convertAppConfig(db *gorm.DB) error {
 			}
 			seen[key] = true
 
+			// v11 stored one comma-separated list per audience; v12 reads the
+			// four pre-seeded recipient keys, so the old names are remapped.
+			switch key {
+			case "utmstack.alert.addressToNotifyAlerts":
+				key = "utmstack.alerts.notification_to"
+			case "utmstack.alert.addressToNotifyIncidents":
+				key = "utmstack.incidents.notification_to"
+			}
+
 			value := strFrom(c.Value)
 			isSecret := strings.EqualFold(strFrom(c.Datatype), "password")
 			if isSecret && value == "*****" {
