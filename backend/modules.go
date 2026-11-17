@@ -59,8 +59,8 @@ import (
 )
 
 const (
-	accessTokenTTL   = 1 * time.Hour
-	refreshTokenTTL  = 30 * 24 * time.Hour
+	accessTokenTTL   = 5 * time.Minute
+	refreshTokenTTL  = 20 * time.Minute
 	loginMaxFailures = 9
 	loginBlockTTL    = 10 * time.Minute
 	loginWindowTTL   = 10 * time.Minute
