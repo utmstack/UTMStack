@@ -1,25 +1,42 @@
 package database
 
 import (
+	"encoding/json"
+	"os"
+	"strings"
+
+	"github.com/utmstack/UTMStack/agent-manager/config"
 	"github.com/utmstack/UTMStack/agent-manager/models"
 )
 
-// v12 adds NOT-NULL columns without a default to tables that carry rows in a
-// v11 agentmanager DB; GORM cannot add those to a non-empty table, so main.go
-// would exit(1) and agent-manager crash-loops. Pre-create them with a safe
-// non-volatile default before Migrate. v11 agents keep the empty tenant (their
-// re-enrolment is a separate follow-up); the column only needs to exist so the
-// schema matches the v12 model.
-var v11DefensiveColumns = []string{
-	`ALTER TABLE IF EXISTS agents ADD COLUMN IF NOT EXISTS tenant_id text NOT NULL DEFAULT ''`,
-	`ALTER TABLE IF EXISTS collectors ADD COLUMN IF NOT EXISTS tenant_id text NOT NULL DEFAULT ''`,
+// migratedFromV11 reports whether the database was migrated from v11 by reading the version-old.json file
+func migratedFromV11() bool {
+	data, err := os.ReadFile("/updates/version-old.json")
+	if err != nil {
+		return false
+	}
+	var v struct {
+		Version string `json:"version"`
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return false
+	}
+	return strings.HasPrefix(strings.TrimSpace(v.Version), "v11.")
+}
+
+// v11TenantColumn is a list of SQL statements to add the tenant_id column to the agents and collectors tables if they are missing
+var v11TenantColumn = []string{
+	`ALTER TABLE IF EXISTS agents ADD COLUMN IF NOT EXISTS tenant_id text NOT NULL DEFAULT '` + config.DefaultTenantID + `'`,
+	`ALTER TABLE IF EXISTS collectors ADD COLUMN IF NOT EXISTS tenant_id text NOT NULL DEFAULT '` + config.DefaultTenantID + `'`,
 }
 
 func MigrateDatabase() error {
 	db := GetDB()
-	for _, stmt := range v11DefensiveColumns {
-		if err := db.GormDB().Exec(stmt).Error; err != nil {
-			return err
+	if migratedFromV11() {
+		for _, stmt := range v11TenantColumn {
+			if err := db.GormDB().Exec(stmt).Error; err != nil {
+				return err
+			}
 		}
 	}
 	return db.Migrate(
