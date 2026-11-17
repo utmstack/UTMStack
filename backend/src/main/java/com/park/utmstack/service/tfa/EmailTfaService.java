@@ -93,7 +93,7 @@ public class EmailTfaService implements TfaMethodService {
 
     @Override
     public void generateChallenge(User user) {
-        String secret = user.getTfaSecret();
+        String secret = userService.resolveTfaSecret(user.getTfaSecret());
         String code = tfaService.generateCode(secret);
 
         TfaSetupState state = new TfaSetupState(secret, System.currentTimeMillis() + (Constants.EXPIRES_IN_SECONDS_EMAIL * 4) * 1000 * 10);

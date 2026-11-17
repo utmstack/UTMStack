@@ -96,6 +96,8 @@ public final class Constants {
     public static final String ENV_DB_PASS = "DB_PASS";
     public static final String ENV_DB_USER = "DB_USER";
     public static final String ENV_ENCRYPTION_KEY = "ENCRYPTION_KEY";
+    /** Prefix marking an encrypted TFA secret at rest (see UserService#encryptTfaSecret). */
+    public static final String TFA_SECRET_ENCRYPTED_PREFIX = "enc::";
     public static final String ENV_EVENT_PROCESSOR_HOST = "EVENT_PROCESSOR_HOST";
     public static final String ENV_EVENT_PROCESSOR_PORT = "EVENT_PROCESSOR_PORT";
     public static final String ENV_GRPC_AGENT_MANAGER_HOST = "GRPC_AGENT_MANAGER_HOST";
