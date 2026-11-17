@@ -49,7 +49,6 @@ export function isRemovable(u: UserBase): boolean {
 }
 
 export function fullName(u: UserBase): string {
-  console.log(u, u.name)
   return u.name?.trim() || u.email || "";
 }
 
