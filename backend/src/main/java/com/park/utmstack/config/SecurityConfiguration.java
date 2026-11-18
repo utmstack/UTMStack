@@ -12,9 +12,9 @@ import com.park.utmstack.security.saml.Saml2LoginFailureHandler;
 import com.park.utmstack.security.saml.Saml2LoginSuccessHandler;
 import com.park.utmstack.service.tfa.TfaService;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -42,7 +42,6 @@ import org.zalando.problem.spring.web.advice.security.SecurityProblemSupport;
  * {@code AuthenticationManagerBuilder}).
  */
 @Configuration
-@RequiredArgsConstructor
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true, securedEnabled = true)
 @Import(SecurityProblemSupport.class)
@@ -55,6 +54,29 @@ public class SecurityConfiguration {
     private final ApiKeyFilter apiKeyFilter;
     private final UserRepository userRepository;
     private final TfaService tfaService;
+
+    /**
+     * #3042: the SAML success handler needs TfaService, but TfaService
+     * transitively depends on UserService -> PasswordEncoder, and PasswordEncoder
+     * is a @Bean in THIS class — a circular reference that Spring Boot 4 rejects.
+     * The TfaService dependency is only used at SAML login time, so it is injected
+     * lazily to break the cycle at construction.
+     */
+    public SecurityConfiguration(UserDetailsService userDetailsService,
+                                 TokenProvider tokenProvider,
+                                 CorsFilter corsFilter,
+                                 InternalApiKeyProvider internalApiKeyProvider,
+                                 ApiKeyFilter apiKeyFilter,
+                                 UserRepository userRepository,
+                                 @Lazy TfaService tfaService) {
+        this.userDetailsService = userDetailsService;
+        this.tokenProvider = tokenProvider;
+        this.corsFilter = corsFilter;
+        this.internalApiKeyProvider = internalApiKeyProvider;
+        this.apiKeyFilter = apiKeyFilter;
+        this.userRepository = userRepository;
+        this.tfaService = tfaService;
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
