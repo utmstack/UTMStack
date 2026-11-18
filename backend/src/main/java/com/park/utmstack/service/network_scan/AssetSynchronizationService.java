@@ -45,50 +45,57 @@ public class AssetSynchronizationService {
         log.info("[{}] Starting unified asset synchronization cycle", correlationId);
 
         try {
-            Map<String, StatisticDocument> statsMap = sourceActivityProvider.fetchLatestSourceActivity();
-            if (statsMap.isEmpty()) {
-                log.debug("[{}] No new activity detected in data sources", correlationId);
-                return;
-            }
-
             Map<String, AgentDTO> agentsMap = loadAgents();
+            // Full current alive-state map for ALL data types, used both for
+            // processing new activity and for the sweep below (#2986).
             Map<String, UtmDataInputStatus> statusMap = buildDataInputStatusMap();
 
-            Map<String, UtmNetworkScan> assetsNameMap = buildNetworkAssetsNameMap(
-                    new ArrayList<>(statsMap.values()
-                            .stream()
-                            .map(StatisticDocument::getDataSource)
-                            .collect(Collectors.toSet())));
+            Map<String, StatisticDocument> statsMap = sourceActivityProvider.fetchLatestSourceActivity();
+            if (!statsMap.isEmpty()) {
+                Map<String, UtmNetworkScan> assetsNameMap = buildNetworkAssetsNameMap(
+                        new ArrayList<>(statsMap.values()
+                                .stream()
+                                .map(StatisticDocument::getDataSource)
+                                .collect(Collectors.toSet())));
 
-            Map<String, UtmNetworkScan> assetsNameIpMap = buildNetworkAssetsIpMap(
-                    new ArrayList<>(statsMap.values()
-                            .stream()
-                            .map(StatisticDocument::getDataSource)
-                            .collect(Collectors.toSet())));
+                Map<String, UtmNetworkScan> assetsNameIpMap = buildNetworkAssetsIpMap(
+                        new ArrayList<>(statsMap.values()
+                                .stream()
+                                .map(StatisticDocument::getDataSource)
+                                .collect(Collectors.toSet())));
 
-            List<UtmDataInputStatus> statusToSave = new ArrayList<>();
-            List<UtmNetworkScan> assetsToSave = new ArrayList<>();
+                List<UtmDataInputStatus> statusToSave = new ArrayList<>();
+                List<UtmNetworkScan> assetsToSave = new ArrayList<>();
 
-            for (String sourceName : statsMap.keySet()) {
+                for (String sourceName : statsMap.keySet()) {
 
-                StatisticDocument stat = statsMap.get(sourceName);
-                UtmDataInputStatus status = processDataInputStatus(stat, statusMap);
-                statusToSave.add(status);
+                    StatisticDocument stat = statsMap.get(sourceName);
+                    UtmDataInputStatus status = processDataInputStatus(stat, statusMap);
+                    statusToSave.add(status);
 
-                UtmNetworkScan asset = processNetworkAsset(stat.getDataSource(), agentsMap, assetsNameMap, assetsNameIpMap, statusMap);
-                assetsToSave.add(asset);
+                    UtmNetworkScan asset = processNetworkAsset(stat.getDataSource(), agentsMap, assetsNameMap, assetsNameIpMap, statusMap);
+                    assetsToSave.add(asset);
+                }
+
+                if (!statusToSave.isEmpty()) {
+                    dataInputStatusRepository.saveAll(statusToSave);
+                }
+
+                if (!assetsToSave.isEmpty()) {
+                    networkScanRepository.saveAll(assetsToSave);
+                }
             }
 
-            if (!statusToSave.isEmpty()) {
-                dataInputStatusRepository.saveAll(statusToSave);
-            }
+            // #2986: a source that STOPS sending never produces new activity, so the
+            // loop above (which only touches sources with new docs) never re-evaluates
+            // it and asset_alive stays frozen at true. Sweep all data-source-managed
+            // assets that currently report alive and flip the ones whose data types
+            // are all isDown() in the status table; agent/scanner-managed assets
+            // (no UtmDataInputStatus rows) are left untouched.
+            int swept = sweepStaleDataSourceAssets(statusMap, correlationId);
 
-            if (!assetsToSave.isEmpty()) {
-                networkScanRepository.saveAll(assetsToSave);
-            }
-
-            log.info("[{}] Asset synchronization cycle completed - {} status updated, {} assets synced",
-                    correlationId, statusToSave.size(), assetsToSave.size());
+            log.info("[{}] Asset synchronization cycle completed - swept {} stale data-source asset(s)",
+                    correlationId, swept);
 
         } catch (Exception e) {
             log.error("[{}] Critical error during asset synchronization: {}", correlationId, e.getMessage(), e);
@@ -99,6 +106,49 @@ public class AssetSynchronizationService {
         return dataInputStatusService.findDataInputStatus()
                 .stream()
                 .collect(Collectors.toMap(UtmDataInputStatus::getId, Function.identity()));
+    }
+
+    /**
+     * #2986: re-evaluates asset_alive for every data-source-managed asset that
+     * currently reports alive. A source that stops sending produces no new
+     * activity docs, so the per-activity loop never re-touches it and its
+     * asset_alive flag is frozen at true (it never shows as Disconnected).
+     * Flips the asset to disconnected when none of its UtmDataInputStatus rows
+     * is up. Agent-managed assets (no data-input rows / isAgent) are untouched.
+     */
+    private int sweepStaleDataSourceAssets(Map<String, UtmDataInputStatus> statusMap, String correlationId) {
+        if (statusMap.isEmpty()) {
+            return 0;
+        }
+        List<UtmNetworkScan> assets = networkScanRepository
+                .findAllByUpdateLevelIsNullOrUpdateLevelIn(List.of(UpdateLevel.DATASOURCE));
+        if (assets == null || assets.isEmpty()) {
+            return 0;
+        }
+        int flipped = 0;
+        for (UtmNetworkScan asset : assets) {
+            if (asset.getAssetAlive() == null || !asset.getAssetAlive()) {
+                continue;
+            }
+            if (asset.getIsAgent() != null && asset.getIsAgent()) {
+                continue;
+            }
+            // Only act on assets that actually have data-input status rows; a
+            // source that never ingested has no rows and is not "disconnected".
+            List<UtmDataInputStatus> rows = statusMap.values().stream()
+                    .filter(s -> s.getSource() != null
+                            && (s.getSource().equalsIgnoreCase(asset.getAssetName())
+                                || s.getSource().equalsIgnoreCase(asset.getAssetIp())))
+                    .toList();
+            if (!rows.isEmpty() && rows.stream().allMatch(UtmDataInputStatus::isDown)) {
+                asset.assetAlive(false);
+                asset.setModifiedAt(LocalDateTime.now().toInstant(ZoneOffset.UTC));
+                networkScanRepository.save(asset);
+                flipped++;
+                log.info("[{}] Marked data-source asset '{}' disconnected (no data type up)", correlationId, asset.getAssetName());
+            }
+        }
+        return flipped;
     }
 
     private Map<String, UtmNetworkScan> buildNetworkAssetsNameMap(List<String> sourcesKeys) {
