@@ -127,7 +127,7 @@ func (r *chStoreRepository) Usage(ctx context.Context) ([]domain.Usage, error) {
 // records, so it costs nothing on a table with years in it.
 func (r *chStoreRepository) span(ctx context.Context, d domain.Dataset) (time.Time, time.Time, error) {
 	rows, err := r.store.Query(ctx,
-		"SELECT formatDateTime(min(min_time), '%Y-%m-%dT%H:%M:%SZ') AS oldest, formatDateTime(max(max_time), '%Y-%m-%dT%H:%M:%SZ') AS newest FROM system.parts WHERE database = currentDatabase() AND table = '"+string(d)+"' AND active")
+		"SELECT formatDateTime(min(min_time), '%Y-%m-%dT%H:%i:%SZ') AS oldest, formatDateTime(max(max_time), '%Y-%m-%dT%H:%i:%SZ') AS newest FROM system.parts WHERE database = currentDatabase() AND table = '"+string(d)+"' AND active")
 	if err != nil {
 		return time.Time{}, time.Time{}, err
 	}
