@@ -44,13 +44,15 @@ export class ComplianceStatusComponent implements OnInit {
       if (visualizationType) {
         this.visualization.emit(visualizationType);
         this.vis = visualizationType.visualization;
-      }
-      const time = visualizationType.visualization.filterType.find(filterType => filterType.field === '@timestamp');
-      if (time) {
-        this.timeWindowsService.changeTimeWindows({
-          reportId: value.id,
-          time: time.value[0]
-        });
+        const time = visualizationType.visualization.filterType
+          ? visualizationType.visualization.filterType.find(filterType => filterType.field === '@timestamp')
+          : undefined;
+        if (time) {
+          this.timeWindowsService.changeTimeWindows({
+            reportId: value.id,
+            time: time.value[0]
+          });
+        }
       }
     }
   }
