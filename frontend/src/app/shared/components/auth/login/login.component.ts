@@ -10,6 +10,7 @@ import {AccountService} from '../../../../core/auth/account.service';
 import {ApiServiceCheckerService} from '../../../../core/auth/api-checker-service';
 import {StateStorageService} from '../../../../core/auth/state-storage.service';
 import {LoginService} from '../../../../core/login/login.service';
+import {AuthServerProvider} from '../../../../core/auth/auth-jwt.service';
 import {UtmToastService} from '../../../alert/utm-toast.service';
 import {TfaMethod} from '../../../services/tfa/tfa.service';
 import {MenuBehavior} from '../../../behaviors/menu.behavior';
@@ -54,6 +55,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     private themeChangeBehavior: ThemeChangeBehavior,
     private spinner: NgxSpinnerService,
     private stateStorageService: StateStorageService,
+    private authServerProvider: AuthServerProvider,
     private apiServiceCheckerService: ApiServiceCheckerService
   ) {
     this.credentials = {};
