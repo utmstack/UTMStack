@@ -43,5 +43,6 @@ func MigrateDatabase() error {
 		&models.Agent{}, &models.AgentCommand{}, &models.LastSeen{}, &models.Collector{},
 		&models.ConnectionKey{}, &models.Recovery{}, &models.RecoveryTarget{},
 		&models.CollectorIntegrationConfig{}, &models.AgentConfigRevision{}, &models.AgentConfig{},
+		&models.AgentEdrStatus{},
 	)
 }
