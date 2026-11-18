@@ -29,6 +29,7 @@ import {ElasticDataTypesEnum} from '../../../shared/enums/elastic-data-types.enu
 import {ElasticOperatorsEnum} from '../../../shared/enums/elastic-operators.enum';
 import {DataNatureTypeEnum} from '../../../shared/enums/nature-data.enum';
 import {ElasticDataService} from '../../../shared/services/elasticsearch/elastic-data.service';
+import {AlertEchoEventsService} from '../shared/services/alert-echo-events.service';
 import {AlertTags} from '../../../shared/types/alert/alert-tag.type';
 import {AlertStatusEnum, UtmAlertType} from '../../../shared/types/alert/utm-alert.type';
 import {ElasticFilterType} from '../../../shared/types/filter/elastic-filter.type';
@@ -96,6 +97,7 @@ export class AlertFullDetailComponent implements OnInit {
   alertDetailTabEnum = AlertDetailTabEnum;
 
   constructor(private elasticDataService: ElasticDataService,
+              private echoEventsService: AlertEchoEventsService,
               private router: Router,
               private spinner: NgxSpinnerService,
               public sanitizer: DomSanitizer,
@@ -164,11 +166,16 @@ export class AlertFullDetailComponent implements OnInit {
           // "related events" panel. The echoes are separate v11-alert-* docs
           // linked by parentId and are NOT fetched here (searchAlert has no
           // includeChildren), so their events never reach this.alert.events.
-          // Always load any echo children and merge their events in BEFORE
-          // filterEvent is built so the count AND the event search both include
-          // the echoes' events. For a plain alert with no echoes the child query
-          // returns empty and the data is unchanged.
-          this.loadEchoEvents(() => {
+          // Merge any echo children's events in BEFORE filterEvent is built so
+          // the count AND the event search both include the echoes' events.
+          // For a plain alert with no echoes the child query returns empty and
+          // the data is unchanged.
+          this.echoEventsService.mergeEchoEvents(this.alert, merged => {
+            this.logs = merged;
+            this.countRelatedEvents = merged.length;
+            if (merged.length) {
+              this.log = merged.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0] || null;
+            }
             this.filterEvent = [{
               field: 'id',
               operator: ElasticOperatorsEnum.IS_ONE_OF,
@@ -182,45 +189,6 @@ export class AlertFullDetailComponent implements OnInit {
           this.spinner.hide('alertDetail');
         }
       });
-  }
-
-
-  // #2937: load the echo alerts (children of this alert, linked by parentId) and
-  // merge their events into this.alert.events so the related-events table shows
-  // the full attack sequence, not just the parent alert's events. Falls back to
-  // the callback unchanged if no children are found, so a plain alert renders as
-  // before.
-  loadEchoEvents(done: () => void) {
-    this.elasticDataService.search(1, 100, 100, DataNatureTypeEnum.ALERT, [{
-      field: 'parentId',
-      operator: ElasticOperatorsEnum.IS,
-      value: this.alert.id
-    }]).subscribe({
-      next: response => {
-        const children = response.body || [];
-        const existing = this.alert.events || [];
-        const merged = [...existing];
-        children.forEach(child => {
-          const evs = child && Array.isArray(child.events) ? child.events : [];
-          evs.forEach(ev => {
-            // de-duplicate on event id (echoes may share events with the parent)
-            if (ev && ev.id && merged.some(m => m && m.id === ev.id)) return;
-            merged.push(ev);
-          });
-        });
-        this.alert.events = merged;
-        this.logs = merged;
-        this.countRelatedEvents = merged.length;
-        if (merged.length) {
-          this.log = merged.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0] || null;
-        }
-        done();
-      },
-      error: () => {
-        // If the children lookup fails, still render the parent's own events.
-        done();
-      }
-    });
   }
 
 

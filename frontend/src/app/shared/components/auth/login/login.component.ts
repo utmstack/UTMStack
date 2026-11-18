@@ -81,12 +81,33 @@ export class LoginComponent implements OnInit, OnDestroy {
               // tfaExpiry so we land on the verification screen instead of
               // straight into the app (#3042 SAML TFA bypass).
               if (params.tfa) {
-                this.authServerProvider.tfaMethod = params.tfa as TfaMethod;
-                this.authServerProvider.tfaExpireTimeInSec = Number(params.tfaExpiry || 0);
-                this.loginService.loginWithToken(params.token, true).then(() => {
-                  this.loadingLogin = false;
-                  this.router.navigate(['/totp']);
-                });
+                // #3042: validate the server-issued TFA params before storing
+                // them in AuthServerProvider, so a tampered link cannot inject
+                // an arbitrary method string or a negative/NaN expiry. The real
+                // second-factor check uses the server-stored method
+                // (TfaResource.verifyCode reads user.getTfaMethod()); these are
+                // display-only for the /totp screen.
+                const method = params.tfa as TfaMethod;
+                const knownMethod = (Object.values(TfaMethod) as string[]).includes(method);
+                if (knownMethod) {
+                  this.authServerProvider.tfaMethod = method;
+                  const expiry = Number(params.tfaExpiry);
+                  this.authServerProvider.tfaExpireTimeInSec =
+                    Number.isFinite(expiry) && expiry > 0 ? expiry : 300;
+                  this.loginService.loginWithToken(params.token, true).then(() => {
+                    this.loadingLogin = false;
+                    this.router.navigate(['/totp']);
+                  });
+                } else {
+                  // Unknown method: don't store it in auth state. Proceed with a
+                  // straight token login; if TFA is genuinely required the server
+                  // will reject the un-verified session, so no bypass is possible.
+                  this.loginService.loginWithToken(params.token, true).then(() => {
+                    this.loadingLogin = false;
+                    this.isInternalNavigation = true;
+                    this.startInternalNavigation(params);
+                  });
+                }
               } else {
                 this.loginService.loginWithToken(params.token, true).then(() => {
                   this.loadingLogin = false;
