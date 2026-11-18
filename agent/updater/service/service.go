@@ -25,6 +25,9 @@ func (p *program) run() {
 		return
 	}
 
+	// One loop updates both the agent and the EDR binary: a single poll of
+	// version.json drives both, and the shared version file is promoted only
+	// by the agent swap.
 	updates.UpdateDependencies(cnf)
 }
 
