@@ -81,10 +81,16 @@ public class UtmDashboardResource {
                 SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new UtmEntityCreationException("Missing user login")));
             utmDashboard.setCreatedDate(LocalDateTime.now().toInstant(ZoneOffset.UTC));
 
-            // Set the next system sequence value only if the environment is dev
-            if (Arrays.asList(env.getActiveProfiles()).contains(JHipsterConstants.SPRING_PROFILE_DEVELOPMENT)) {
+            // systemOwner is an internal flag the REST API must never let a caller
+            // set from the body (#3040): it drives system-sync deletion and the
+            // system id sequence, so a spoofed true lets a user dashboard escape
+            // system cleanup / pollute the sequence. Derive it server-side only.
+            boolean inDev = Arrays.asList(env.getActiveProfiles()).contains(JHipsterConstants.SPRING_PROFILE_DEVELOPMENT);
+            if (inDev) {
                 utmDashboard.setId(utmDashboardService.getSystemSequenceNextValue());
                 utmDashboard.setSystemOwner(true);
+            } else {
+                utmDashboard.setSystemOwner(false);
             }
 
             result = utmDashboardService.save(utmDashboard);
@@ -125,7 +131,21 @@ public class UtmDashboardResource {
             utmDashboard.setUserModified(
                 SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new UtmEntityCreationException("Missing user login")));
             utmDashboard.setModifiedDate(Instant.now());
-            utmDashboard.setSystemOwner(utmDashboard.getSystemOwner() == null ? utmDashboard.getId() < 1000000 : utmDashboard.getSystemOwner());
+            // Preserve the existing systemOwner value server-side (#3040): the
+            // body's systemOwner is ignored so a caller cannot flag an existing
+            // user dashboard as system-owned (or clear it). If the dashboard
+            // does not exist return 404 rather than falling back to the low-id
+            // "system" heuristic (which would let a caller attach system
+            // ownership to an arbitrary id). A null persisted value (legacy)
+            // is treated as false.
+            Optional<UtmDashboard> existing = utmDashboardService.findOne(utmDashboard.getId());
+            if (existing.isEmpty()) {
+                String msg = ctx + ": dashboard " + utmDashboard.getId() + " not found";
+                log.error(msg);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).headers(
+                    HeaderUtil.createFailureAlert(ENTITY_NAME, null, msg)).body(null);
+            }
+            utmDashboard.setSystemOwner(Boolean.TRUE.equals(existing.get().getSystemOwner()));
 
             result = utmDashboardService.save(utmDashboard);
             return ResponseEntity.ok().headers(

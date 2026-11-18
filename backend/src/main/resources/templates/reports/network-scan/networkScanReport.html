@@ -47,7 +47,7 @@
                 <td style="width: 23%;" th:text="${asset.getAssetStatus() != null ? asset.getAssetStatus() : '-'}"></td>
                 <td style="font-weight: bold; width: 10%;" th:text="'Severity:'"></td>
                 <td style="width: 23%;"
-                    th:text="${asset.getAssetSeverity() != null ? asset.getAssetSeverity() : '-'}"></td>
+                    th:text="${asset.getAssetSeverityMetric() != null and asset.getAssetSeverityMetric() > -1 ? asset.getAssetSeverityMetric() : '-'}"></td>
             </tr>
             <tr style="font-family:Roboto, sans-serif;font-size: 11px">
                 <td style="font-weight: bold; width: 10%;" th:text="'Type:'"></td>

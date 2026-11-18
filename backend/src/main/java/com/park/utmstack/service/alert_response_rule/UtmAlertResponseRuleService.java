@@ -227,7 +227,14 @@ public class UtmAlertResponseRuleService implements ApplicationRunner {
 
                     exe.setAlertId(UtilJson.read("$.id", matchAsJson));
                     exe.setRuleId(rule.getId());
-                    exe.setCommand(buildCommand(rule.getRuleCmd(), matchAsJson));
+                    try {
+                        exe.setCommand(buildCommand(rule.getRuleCmd(), matchAsJson));
+                    } catch (UnsafeCommandValueException e) {
+                        // A single alert with an unsafe field value must not abort the
+                        // whole batch; skip just this alert (#2836).
+                        log.warn(ctx + ": skipping alert " + UtilJson.read("$.id", matchAsJson) + "; unsafe interpolated value (" + e.getMessage() + ")");
+                        continue;
+                    }
                     exe.setExecutionStatus(RuleExecutionStatus.PENDING);
                     alertResponseRuleExecutionRepository.save(exe);
                 }
@@ -268,6 +275,43 @@ public class UtmAlertResponseRuleService implements ApplicationRunner {
         }
     }
 
+    /**
+     * #2836: alert/enrichment field values are attacker-influenced and are
+     * interpolated into a command the agent runs through a real shell
+     * (sh/bash/cmd/powershell). A value containing shell metacharacters
+     * (&, |, ;, $, backticks, quotes, newlines, ...) would break out of the
+     * intended command. Rather than trying to be a correct per-shell quoting
+     * library (which risks silently misquoting admin-authored commands), we
+     * allow-list interpolated values to characters that cannot change command
+     * semantics in any of the supported shells, and fail closed otherwise.
+     */
+    /**
+     * #2836 follow-up (round 2): the value must be a single, lean shell token.
+     *  - Charset: alphanumerics plus the small set of symbols that appear in
+     *    real alert values (CVE ids, hashes, version strings, usernames) and
+     *    that cannot alter shell parsing. '/' (paths), ':' (URL scheme, path),
+     *    '=' (VAR= assignment), and space are all excluded.
+     *  - No whitespace anywhere and no leading '-' (option injection).
+     *  A value like "/etc/passwd", "../../secret", "a b", "a -v" or
+     *    "PATH=/tmp" therefore fails and the alert is skipped (fail-closed)
+     *    rather than interpolated into the agent command.
+     */
+    private static final Pattern SAFE_INTERPOLATED_VALUE =
+            Pattern.compile("^[A-Za-z0-9._+@-]*$");
+
+    private static boolean isSafeInterpolatedValue(String v) {
+        if (v == null || v.isEmpty()) {
+            return true; // interpolates as nothing
+        }
+        if (v.chars().anyMatch(c -> Character.isWhitespace(c) || c == '/' || c == ':' || c == '=')) {
+            return false;
+        }
+        if (v.startsWith("-")) {
+            return false;
+        }
+        return SAFE_INTERPOLATED_VALUE.matcher(v).matches();
+    }
+
     private String buildCommand(String rawCommand, String alertJson) {
         final String ctx = CLASSNAME + ".buildCommand";
         try {
@@ -281,14 +325,28 @@ public class UtmAlertResponseRuleService implements ApplicationRunner {
             while (matcher.find()) {
                 String fieldName = matcher.group(1);
                 Object value = UtilJson.read(String.format("$.%s", fieldName), alertJson);
+                String valueStr = value == null ? "" : value.toString();
+                if (!isSafeInterpolatedValue(valueStr)) {
+                    throw new UnsafeCommandValueException(ctx + ": refusing to interpolate alert field '"
+                            + fieldName + "' into the response command: value contains characters that are not shell-safe (#2836)");
+                }
                 output.append(rawCommand, lastIndex, matcher.start());
-                output.append(value);
+                output.append(valueStr);
                 lastIndex = matcher.end();
             }
             output.append(rawCommand.substring(lastIndex));
             return output.toString();
+        } catch (UnsafeCommandValueException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(ctx + ": " + e.getLocalizedMessage());
+        }
+    }
+
+    /** Raised when an interpolated alert value is rejected as shell-unsafe. */
+    static class UnsafeCommandValueException extends RuntimeException {
+        UnsafeCommandValueException(String message) {
+            super(message);
         }
     }
 

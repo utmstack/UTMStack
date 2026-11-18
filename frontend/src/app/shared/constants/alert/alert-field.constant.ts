@@ -423,7 +423,7 @@ export const ALERT_FIELDS: UtmFieldType[] = [
   {
     label: 'Tags',
     field: ALERT_TAGS_FIELD,
-    type: ElasticDataTypesEnum.STRING,
+    type: ElasticDataTypesEnum.KEYWORD,
     visible: false,
   },
   {
@@ -563,7 +563,7 @@ export const ALERT_FILTERS_FIELDS: UtmFieldType[] = [
   {
     label: 'Tags',
     field: ALERT_TAGS_FIELD,
-    type: ElasticDataTypesEnum.STRING,
+    type: ElasticDataTypesEnum.KEYWORD,
     visible: true,
   },
   {
@@ -794,7 +794,7 @@ export const EVENT_FIELDS: UtmFieldType[] = [
   {
     label: 'Tags',
     field: ALERT_TAGS_FIELD,
-    type: ElasticDataTypesEnum.STRING,
+    type: ElasticDataTypesEnum.KEYWORD,
     visible: false,
   },
   {
@@ -917,7 +917,7 @@ export const EVENT_FILTERS_FIELDS: UtmFieldType[] = [
   {
     label: 'Tags',
     field: ALERT_TAGS_FIELD,
-    type: ElasticDataTypesEnum.STRING,
+    type: ElasticDataTypesEnum.KEYWORD,
     visible: true,
   }
 ];
@@ -1073,7 +1073,7 @@ export const INCIDENT_FIELDS: UtmFieldType[] = [
   {
     label: 'Tags',
     field: ALERT_TAGS_FIELD,
-    type: ElasticDataTypesEnum.STRING,
+    type: ElasticDataTypesEnum.KEYWORD,
     visible: false,
   },
   {
@@ -1226,7 +1226,7 @@ export const INCIDENT_FILTERS_FIELDS: UtmFieldType[] = [
   {
     label: 'Tags',
     field: ALERT_TAGS_FIELD,
-    type: ElasticDataTypesEnum.STRING,
+    type: ElasticDataTypesEnum.KEYWORD,
     visible: true,
   }
 ];
@@ -1607,7 +1607,7 @@ export const ALERTS_CHILDREN_FIELDS: UtmFieldType[] = [
   {
     label: 'Tags',
     field: ALERT_TAGS_FIELD,
-    type: ElasticDataTypesEnum.STRING,
+    type: ElasticDataTypesEnum.KEYWORD,
     visible: false,
   },
   {

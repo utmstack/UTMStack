@@ -21,6 +21,9 @@ import {
   ALERT_INCIDENT_MODULE_FIELD,
   ALERT_INCIDENT_OBSERVATION_FIELD,
   ALERT_INCIDENT_USER_FIELD, ALERT_NAME_FIELD,
+  ALERT_IMPACT_FIELD,
+  ALERT_INCIDENT_ID_FIELD,
+  ALERT_INCIDENT_NAME_FIELD,
   ALERT_NOTE_FIELD,
   ALERT_OBSERVATION_FIELD,
   ALERT_REFERENCE_FIELD,
@@ -99,7 +102,10 @@ export class AlertRuleCreateComponent implements OnInit, OnDestroy {
     ALERT_SEVERITY_DESCRIPTION_FIELD,
     ALERT_CATEGORY_DESCRIPTION_FIELD,
     ALERT_ID_FIELD,
-    ALERT_DESCRIPTION_FIELD];
+    ALERT_DESCRIPTION_FIELD,
+    ALERT_INCIDENT_ID_FIELD,
+    ALERT_INCIDENT_NAME_FIELD,
+    ALERT_IMPACT_FIELD];
   filters: ElasticFilterType[] = [];
   formRule: FormGroup;
   exist: boolean;
@@ -325,7 +331,7 @@ export class AlertRuleCreateComponent implements OnInit, OnDestroy {
   addNewTag() {
     const modalRef = this.modalService.open(AlertTagsCreateComponent, {centered: true, size: 'sm'});
     modalRef.componentInstance.addTag.subscribe((tag) => {
-      this.utmToastService.showSuccessBottom('Tag ' + tag.name + ' created');
+      this.utmToastService.showSuccessBottom('Tag ' + tag.tagName + ' created');
       this.getTags();
       this.selected.push(tag);
       this.formRule.get('tags').setValue(this.selected);

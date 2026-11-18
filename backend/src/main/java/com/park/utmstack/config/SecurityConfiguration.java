@@ -10,6 +10,7 @@ import com.park.utmstack.security.jwt.JWTConfigurer;
 import com.park.utmstack.security.jwt.TokenProvider;
 import com.park.utmstack.security.saml.Saml2LoginFailureHandler;
 import com.park.utmstack.security.saml.Saml2LoginSuccessHandler;
+import com.park.utmstack.service.tfa.TfaService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -53,6 +54,7 @@ public class SecurityConfiguration {
     private final InternalApiKeyProvider internalApiKeyProvider;
     private final ApiKeyFilter apiKeyFilter;
     private final UserRepository userRepository;
+    private final TfaService tfaService;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -150,7 +152,7 @@ public class SecurityConfiguration {
         // HttpSecurity, so they cannot be chained after authorizeHttpRequests(). Call them as
         // separate statements; each still registers on the same HttpSecurity builder.
         http.saml2Login(saml -> saml
-                .successHandler(new Saml2LoginSuccessHandler(tokenProvider, userRepository))
+                .successHandler(new Saml2LoginSuccessHandler(tokenProvider, userRepository, tfaService))
                 .failureHandler(new Saml2LoginFailureHandler()));
         http.apply(securityConfigurerAdapterForJwt());
         http.apply(securityConfigurerAdapterForInternalApiKey());

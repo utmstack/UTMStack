@@ -29,6 +29,7 @@ import {ElasticDataTypesEnum} from '../../../shared/enums/elastic-data-types.enu
 import {ElasticOperatorsEnum} from '../../../shared/enums/elastic-operators.enum';
 import {DataNatureTypeEnum} from '../../../shared/enums/nature-data.enum';
 import {ElasticDataService} from '../../../shared/services/elasticsearch/elastic-data.service';
+import {AlertEchoEventsService} from '../shared/services/alert-echo-events.service';
 import {AlertTags} from '../../../shared/types/alert/alert-tag.type';
 import {AlertStatusEnum, UtmAlertType} from '../../../shared/types/alert/utm-alert.type';
 import {ElasticFilterType} from '../../../shared/types/filter/elastic-filter.type';
@@ -96,6 +97,7 @@ export class AlertFullDetailComponent implements OnInit {
   alertDetailTabEnum = AlertDetailTabEnum;
 
   constructor(private elasticDataService: ElasticDataService,
+              private echoEventsService: AlertEchoEventsService,
               private router: Router,
               private spinner: NgxSpinnerService,
               public sanitizer: DomSanitizer,
@@ -160,15 +162,28 @@ export class AlertFullDetailComponent implements OnInit {
 
           this.relatedTagsRules = this.alert.tagRulesApplied;
 
-          this.filterEvent = [{
-            field: 'id',
-            operator: ElasticOperatorsEnum.IS_ONE_OF,
-            value: [...this.alert.events].reverse().slice(0, 100)
-          }];
-
-          this.resolveDataType().then(type => this.dataType = type);
-
-          this.searchEventByAlert();
+          // #2937: an alert with echoes shows only its OWN embedded events in the
+          // "related events" panel. The echoes are separate v11-alert-* docs
+          // linked by parentId and are NOT fetched here (searchAlert has no
+          // includeChildren), so their events never reach this.alert.events.
+          // Merge any echo children's events in BEFORE filterEvent is built so
+          // the count AND the event search both include the echoes' events.
+          // For a plain alert with no echoes the child query returns empty and
+          // the data is unchanged.
+          this.echoEventsService.mergeEchoEvents(this.alert, merged => {
+            this.logs = merged;
+            this.countRelatedEvents = merged.length;
+            if (merged.length) {
+              this.log = merged.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0] || null;
+            }
+            this.filterEvent = [{
+              field: 'id',
+              operator: ElasticOperatorsEnum.IS_ONE_OF,
+              value: [...(this.alert.events || [])].reverse().slice(0, 100)
+            }];
+            this.resolveDataType().then(type => this.dataType = type);
+            this.searchEventByAlert();
+          });
         },
         error: () => {
           this.spinner.hide('alertDetail');

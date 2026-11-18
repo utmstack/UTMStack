@@ -10,7 +10,9 @@ import {AccountService} from '../../../../core/auth/account.service';
 import {ApiServiceCheckerService} from '../../../../core/auth/api-checker-service';
 import {StateStorageService} from '../../../../core/auth/state-storage.service';
 import {LoginService} from '../../../../core/login/login.service';
+import {AuthServerProvider} from '../../../../core/auth/auth-jwt.service';
 import {UtmToastService} from '../../../alert/utm-toast.service';
+import {TfaMethod} from '../../../services/tfa/tfa.service';
 import {MenuBehavior} from '../../../behaviors/menu.behavior';
 import {ThemeChangeBehavior} from '../../../behaviors/theme-change.behavior';
 import {ADMIN_DEFAULT_EMAIL, ADMIN_ROLE, DEMO_URL, USER_ROLE} from '../../../constants/global.constant';
@@ -53,6 +55,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     private themeChangeBehavior: ThemeChangeBehavior,
     private spinner: NgxSpinnerService,
     private stateStorageService: StateStorageService,
+    private authServerProvider: AuthServerProvider,
     private apiServiceCheckerService: ApiServiceCheckerService
   ) {
     this.credentials = {};
@@ -73,11 +76,45 @@ export class LoginComponent implements OnInit, OnDestroy {
         if (params) {
           this.activatedRoute.queryParams.subscribe(params => {
             if (params.token) {
+              // SAML (and any ?token=) login: the backend issues only a
+              // pre-verification token when TFA is configured, appending tfa +
+              // tfaExpiry so we land on the verification screen instead of
+              // straight into the app (#3042 SAML TFA bypass).
+              if (params.tfa) {
+                // #3042: validate the server-issued TFA params before storing
+                // them in AuthServerProvider, so a tampered link cannot inject
+                // an arbitrary method string or a negative/NaN expiry. The real
+                // second-factor check uses the server-stored method
+                // (TfaResource.verifyCode reads user.getTfaMethod()); these are
+                // display-only for the /totp screen.
+                const method = params.tfa as TfaMethod;
+                const knownMethod = (Object.values(TfaMethod) as string[]).includes(method);
+                if (knownMethod) {
+                  this.authServerProvider.tfaMethod = method;
+                  const expiry = Number(params.tfaExpiry);
+                  this.authServerProvider.tfaExpireTimeInSec =
+                    Number.isFinite(expiry) && expiry > 0 ? expiry : 300;
+                  this.loginService.loginWithToken(params.token, true).then(() => {
+                    this.loadingLogin = false;
+                    this.router.navigate(['/totp']);
+                  });
+                } else {
+                  // #3042: unknown method — fail CLOSED. Do NOT store the
+                  // pre-verification token and do NOT enter the app; the user
+                  // must re-authenticate. The server is authoritative for
+                  // whether TFA is required, so this cannot be a bypass, and it
+                  // prevents a tampered/buggy link from landing an un-verified
+                  // session in the UI.
+                  this.loadingLogin = false;
+                  this.utmToast.showError('Login fail', 'Second-factor authentication required. Please sign in again.');
+                }
+              } else {
                 this.loginService.loginWithToken(params.token, true).then(() => {
-                this.loadingLogin = false;
-                this.isInternalNavigation = true;
-                this.startInternalNavigation(params);
-              });
+                  this.loadingLogin = false;
+                  this.isInternalNavigation = true;
+                  this.startInternalNavigation(params);
+                });
+              }
             } else if (params.key) {
               this.loadingLogin = false;
               this.isInternalNavigation = true;

@@ -4,6 +4,7 @@ import com.park.utmstack.config.Constants;
 import com.park.utmstack.domain.User;
 import com.park.utmstack.repository.UserRepository;
 import com.park.utmstack.security.jwt.TokenProvider;
+import com.park.utmstack.service.tfa.TfaService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -36,6 +37,7 @@ public class Saml2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final TokenProvider tokenProvider;
     private final UserRepository userRepository;
+    private final TfaService tfaService;
 
 
     @Override
@@ -64,7 +66,14 @@ public class Saml2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        String token = tokenProvider.createToken(auth, false, true);
+        // #3042: SAML proves possession of the IdP session (like a password), not the
+        // second factor. If TFA is enabled instance-wide and this user has one
+        // configured, mint only a pre-verification token, seed the verification
+        // challenge, and route the browser to the TFA verification screen - the same
+        // posture as /api/authenticate. A full token must never be issued here.
+        boolean tfaEnabled = Boolean.parseBoolean(Constants.CFG.get(Constants.PROP_TFA_ENABLE));
+        boolean hasTfa = StringUtils.hasText(user.getTfaMethod());
+        String token = tokenProvider.createToken(auth, false, !tfaEnabled || !hasTfa);
 
         URI redirectUri = UriComponentsBuilder.fromUriString(frontBaseUrl)
                 .path("/")
@@ -72,7 +81,19 @@ public class Saml2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 .build()
                 .toUri();
 
-        log.info("SAML2 login successful for user: {}", username);
+        if (tfaEnabled && hasTfa) {
+            long expires = tfaService.generateChallenge(user);
+            redirectUri = UriComponentsBuilder.fromUriString(frontBaseUrl)
+                    .path("/login")
+                    .queryParam("token", token)
+                    .queryParam("tfa", user.getTfaMethod())
+                    .queryParam("tfaExpiry", expires)
+                    .build()
+                    .toUri();
+            log.info("SAML2 login successful for user {} - TFA verification required", username);
+        } else {
+            log.info("SAML2 login successful for user: {}", username);
+        }
         response.sendRedirect(redirectUri.toString());
     }
 

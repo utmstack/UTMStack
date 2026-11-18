@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors} from '@angular/forms';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
@@ -122,8 +122,27 @@ export class CreateIncidentComponent implements OnInit {
       incidentName: ['', [Validators.required]],
       incidentDescription: ['', [Validators.required]],
       incidentAssignedTo: [],
-      alertList: [null, [Validators.required]]
+      alertList: [null, [Validators.required, this.nonEmptyArrayValidator()]]
     });
+  }
+
+  /**
+   * #2969: Angular's Validators.minLength does NOT apply to array control
+   * values, so [null, [Validators.required, Validators.minLength(1)]] passed
+   * for an empty array and the "Create" button stayed enabled with no alerts
+   * selected. This validator rejects null/undefined AND empty arrays.
+   */
+  private nonEmptyArrayValidator(): (control: AbstractControl) => ValidationErrors | null {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const v = control.value;
+      if (v == null) {
+        return null; // required validator handles null
+      }
+      if (Array.isArray(v) && v.length === 0) {
+        return {'notEmpty': true};
+      }
+      return null;
+    };
   }
 
   getUsers() {
@@ -159,13 +178,16 @@ export class CreateIncidentComponent implements OnInit {
       this.addAsIncident(res.body);
       this.utmToastService.showSuccessBottom('Incident created successfully');
     }, (error: HttpErrorResponse) => {
-      let message = 'Han error occurred while creating incident, please contact your administrator';
+      let message = 'An error occurred while creating incident, please contact your administrator';
       this.creating = false;
       const ruleName: string = this.formIncident.get('incidentName').value;
       this.formIncident.get('incidentName').setValue(ruleName.replace(this.irPrefix, ''));
+      const backendError = error.headers ? error.headers.get('x-utmstack-error') : null;
       if (error.status === 409) {
-        message = error.headers.get('x-utmstack-error');
+        message = backendError || message;
         this.incidentService.showDialog(message);
+      } else if (error.status >= 400 && error.status < 500 && backendError) {
+        this.utmToastService.showError('Error creating incident', backendError);
       } else {
         this.utmToastService.showError('Error creating incident', message);
       }

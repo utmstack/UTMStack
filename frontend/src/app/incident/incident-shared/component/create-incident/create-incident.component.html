@@ -131,7 +131,7 @@
     <!--      <i class="icon-arrow-right22"></i>-->
     <!--    </button>-->
     <button (click)="createIncident()" *ngIf="step===2"
-            [disabled]="creating"
+            [disabled]="creating || !formIncident.valid"
             class="btn utm-button utm-button-primary ml-2">
       <i [ngClass]="creating?'icon-spinner2 spinner':'icon-make-group'"></i>
       Create Incident&nbsp;

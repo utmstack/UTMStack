@@ -171,7 +171,7 @@ export class AddAlertToIncidentComponent implements OnInit {
         this.incidentService.showDialog(error.headers.get('x-utmstack-error'));
       } else {
         this.utmToastService.showError('Error creating incident',
-          'Han error occurred while creating incident, please contact your administrator');
+          'An error occurred while creating incident, please contact your administrator');
       }
     });
   }

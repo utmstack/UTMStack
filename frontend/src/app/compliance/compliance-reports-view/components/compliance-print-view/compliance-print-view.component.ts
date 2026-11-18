@@ -55,7 +55,17 @@ export class CompliancePrintViewComponent implements OnInit, OnDestroy {
           });
         }),
         tap((reports) => {
-          this.visualizationCount = reports.reduce((acc, r) => acc + (r.visualization ? r.visualization.length : 0), 0);
+          // Count the evidence visualizations that will actually render: one per
+          // report whose dashboard has a TABLE/LIST viz (that's what
+          // app-compliance-status picks and what the template renders, firing
+          // onVisualizationRun once each). r.visualization is not populated yet
+          // at this point (it's set later by the template), so count from
+          // r.dashboard — the field the backend actually returns.
+          this.visualizationCount = reports.reduce((acc, r) => {
+            const hasEvidence = (r.dashboard || []).some(v =>
+              v && v.visualization && (v.visualization.chartType === 'TABLE_CHART' || v.visualization.chartType === 'LIST_CHART'));
+            return acc + (hasEvidence ? 1 : 0);
+          }, 0);
           if (this.visualizationCount === 0) {
             this.preparingPrint = false;
           }
