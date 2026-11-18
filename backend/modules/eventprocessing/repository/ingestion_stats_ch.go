@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing/connectors"
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing/dto"
@@ -32,7 +31,7 @@ var groupColumns = map[string]string{
 	"dataType":   "`dataType`",
 }
 
-const tsFormat = "'%Y-%m-%dT%H:%M:%SZ'"
+const tsFormat = "'%Y-%m-%dT%H:%i:%SZ'"
 
 func (r *chIngestionStatsRepository) TotalsByField(ctx context.Context, field string, q connectors.IngestionStatsQuery, top int) ([]dto.IngestionStatsBucket, dto.IngestionTotals, error) {
 	col, ok := groupColumns[field]
@@ -191,10 +190,10 @@ func (r *chIngestionStatsRepository) predicate(ctx context.Context, q connectors
 	}
 
 	if !q.From.IsZero() {
-		parts = append(parts, "`@timestamp` >= "+chQuote(q.From.UTC().Format(time.RFC3339)))
+		parts = append(parts, "`@timestamp` >= "+chQuote(q.From.UTC().Format("2006-01-02 15:04:05")))
 	}
 	if !q.To.IsZero() {
-		parts = append(parts, "`@timestamp` <= "+chQuote(q.To.UTC().Format(time.RFC3339)))
+		parts = append(parts, "`@timestamp` <= "+chQuote(q.To.UTC().Format("2006-01-02 15:04:05")))
 	}
 	if q.Type != "" {
 		parts = append(parts, "type = "+chQuote(q.Type))
