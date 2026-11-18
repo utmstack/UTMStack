@@ -1,0 +1,50 @@
+{
+    "title": "Clave de conexión",
+    "subtitle1": "La clave que los agentes presentan al registrarse en esta instancia.",
+    "subtitleEmphasis": "Solo se usa para la instalación de agentes",
+    "subtitle2": "— no para colectores, integraciones ni la API. La gestiona el agent-manager.",
+    "status": {
+        "label": "Estado",
+        "loading": "Cargando…",
+        "unavailable": "Agent-manager no disponible",
+        "active": "Activa",
+        "unavailableHint": "No se pudo contactar al agent-manager para leer la clave.",
+        "activeHint": "Los agentes pueden registrarse con esta clave."
+    },
+    "token": {
+        "title": "Clave de conexión",
+        "subtitle": "Trata este valor como una credencial. Rotarla genera una nueva clave para futuras instalaciones de agentes — los agentes ya registrados siguen funcionando.",
+        "loadFailedTitle": "No se pudo cargar la clave de conexión",
+        "unavailableTitle": "Clave de conexión no disponible",
+        "loadFailedHint": "La clave la gestiona el agent-manager, que no respondió. Inténtalo de nuevo en un momento.",
+        "retry": "Reintentar",
+        "show": "Mostrar clave",
+        "hide": "Ocultar clave",
+        "copy": "Copiar",
+        "copied": "Copiado",
+        "regenerate": "Regenerar clave de conexión",
+        "confirmTitle": "¿Regenerar la clave?",
+        "confirmBody": "Las nuevas instalaciones de agentes necesitarán la nueva clave. Los agentes ya registrados seguirán funcionando. No se puede deshacer.",
+        "regenerating": "Regenerando…",
+        "confirmYes": "Sí, regenerar",
+        "cancel": "Cancelar"
+    },
+    "security": {
+        "title": "Recomendaciones de seguridad",
+        "subtitle": "Buenas prácticas para proteger esta credencial.",
+        "rotateTitle": "Rota cada 90 días",
+        "rotateBody": "Programa una rotación periódica. UTMStack puede enviarte un recordatorio por correo cuando la clave tenga más de 90 días.",
+        "rotateAction": "Configurar recordatorio",
+        "secretTitle": "Guárdala como secreto",
+        "secretBody": "No la subas al control de versiones. Usa tu gestor de secretos (Vault, AWS SM, etc.) e inyéctala en el momento de la instalación.",
+        "auditTitle": "Audita quién la obtuvo",
+        "auditBody": "Cada obtención y rotación queda registrada en el journal de auditoría de la aplicación.",
+        "auditAction": "Ver journal de auditoría"
+    },
+    "toast": {
+        "loadFailed": "No se pudo cargar la clave de conexión",
+        "rotated": "Clave de conexión rotada",
+        "rotateFailed": "No se pudo rotar la clave de conexión",
+        "copyFailed": "No se pudo copiar"
+    }
+}

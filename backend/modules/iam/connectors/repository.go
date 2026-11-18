@@ -30,6 +30,7 @@ type UserRepository interface {
 	FindPermissionsByUserID(ctx context.Context, userID uuid.UUID) ([]string, error)
 	FindRolesByUserID(ctx context.Context, userID uuid.UUID) ([]domain.Role, error)
 	FindRolesByUserIDs(ctx context.Context, userIDs []uuid.UUID) (map[uuid.UUID][]domain.Role, error)
+	RemoveUser(ctx context.Context, userID uuid.UUID) error
 }
 
 type ChallengeRepository interface {

@@ -1,0 +1,101 @@
+{
+    "title": "Mandanten",
+    "new": "Neuer Mandant",
+    "subtitle": "Jeder Kunde auf dieser Instanz, was er hat und was er Sie sehen lässt.",
+    "searchPlaceholder": "Nach Name oder Domain suchen…",
+    "loading": "Mandanten werden geladen…",
+    "loadFailed": "Mandanten konnten nicht geladen werden.",
+    "retry": "Erneut versuchen",
+    "none": "Noch keine Mandanten.",
+    "noSearchMatch": "Kein Mandant passt zur Suche.",
+    "cancel": "Abbrechen",
+    "saving": "Wird gespeichert…",
+    "chips": {
+        "total": "Mandanten",
+        "active": "aktiv",
+        "readable": "mit Zugriff"
+    },
+    "status": {
+        "ACTIVE": "Aktiv",
+        "SUSPENDED": "Gesperrt",
+        "TERMINATED": "Beendet"
+    },
+    "support": {
+        "NONE": "Kein Zugriff",
+        "READ": "Lesezugriff",
+        "FULL": "Voller Zugriff",
+        "hint": "Wird vom Mandanten gewährt, nicht von Ihnen. Nur dessen Administrator kann das ändern."
+    },
+    "card": {
+        "edit": "Bearbeiten",
+        "activate": "Aktivieren",
+        "deactivate": "Deaktivieren",
+        "deletePermanent": "Endgültig löschen",
+        "noAccess": "Dieser Mandant hat Ihnen keinen Zugriff gewährt.",
+        "loadingStats": "Wird gelesen…",
+        "enter": "Betreten"
+    },
+    "stats": {
+        "users": "Benutzer",
+        "datasources": "Quellen",
+        "openAlerts": "Offene Alarme",
+        "ai": "KI heute",
+        "noLimit": "kein Limit"
+    },
+    "fields": {
+        "name": "Name",
+        "domain": "Domain",
+        "domainHint": "Worüber dieser Mandant erreicht wird. Jede Anfrage an diesen Host landet in seinen Daten.",
+        "adminEmail": "E-Mail des Administrators",
+        "adminEmailHint": "Er erhält eine Einladung, um ein eigenes Passwort zu setzen.",
+        "status": "Status",
+        "suspendedWarning": "Gesperrte Mandanten können sich nicht anmelden. Ihre Daten bleiben erhalten.",
+        "aiLimit": "Limit für KI-Anfragen",
+        "aiLimitHint": "Ein operatives Limit pro Tag. Ohne Limit zählt die Nutzung gegen die Instanzlizenz.",
+        "aiLimitToggle": "Diesen Mandanten begrenzen"
+    },
+    "create": {
+        "title": "Neuer Mandant",
+        "subtitle": "Legt den Mandanten an und lädt seinen ersten Administrator ein.",
+        "submit": "Mandant anlegen"
+    },
+    "edit": {
+        "title": "Mandant bearbeiten",
+        "subtitle": "Der Support-Zugriff steht nicht hier: nur der Mandant kann ihn gewähren.",
+        "submit": "Änderungen speichern"
+    },
+    "terminate": {
+        "title": "Diesen Mandanten deaktivieren?",
+        "body": "Niemand aus {{name}} kann sich mehr anmelden. Die Daten bleiben erhalten, es ist also umkehrbar — aber der Kunde ist ab sofort offline.",
+        "confirmLabel": "Zum Bestätigen {{name}} eingeben",
+        "submit": "Deaktivieren"
+    },
+    "reactivate": {
+        "title": "Diesen Mandanten aktivieren?",
+        "body": "{{name}} kann sich wieder anmelden. Die aufbewahrten Daten werden unverändert wiederhergestellt.",
+        "submit": "Aktivieren"
+    },
+    "deletePermanent": {
+        "title": "Diesen Mandanten für immer löschen?",
+        "body": "Jede Spur von {{name}} — Benutzer, Datenquellen, Dashboards, Alarme, Integrationen — wird gelöscht. Das lässt sich nicht rückgängig machen.",
+        "confirmLabel": "Zum Bestätigen {{name}} eingeben",
+        "submit": "Für immer löschen"
+    },
+    "toast": {
+        "created": "Mandant angelegt",
+        "updated": "Mandant aktualisiert",
+        "terminated": "Mandant beendet",
+        "reactivated": "Mandant reaktiviert",
+        "permanentlyDeleted": "Mandant endgültig gelöscht",
+        "domainInUse": "Diese Domain ist bereits vergeben",
+        "noPermission": "Dazu fehlt Ihnen die Berechtigung",
+        "notFound": "Mandant nicht gefunden",
+        "invalidRequest": "Ungültige Anfrage",
+        "operationFailed": "Vorgang fehlgeschlagen"
+    },
+    "switcher": {
+        "aria": "Switch tenant",
+        "self": "Default tenant",
+        "create": "Create tenant"
+    }
+}

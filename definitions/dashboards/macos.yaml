@@ -1,0 +1,202 @@
+name: "macos"
+description: "macOS activity: logins, processes, log levels and alerts."
+widgets:
+  - layout: { x: 0, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: macos }
+    config:
+      __builder:
+        chartType: metric
+        title: "Total logs"
+
+  - layout: { x: 3, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: macos }
+        - { field: log.level, op: in, value: ["error", "fault"] }
+    config:
+      __builder:
+        chartType: metric
+        title: "Errors and faults"
+
+  - layout: { x: 6, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: macos }
+        - { field: log.subsystem, op: in, value: ["com", "apple", "TCC"] }
+    config:
+      __builder:
+        chartType: metric
+        title: "Privacy permission logs"
+
+  - layout: { x: 9, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: alerts
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: macos }
+    config:
+      __builder:
+        chartType: metric
+        title: "Alerts"
+
+  - layout: { x: 0, y: 3, w: 8, h: 6 }
+    spec:
+      dataset: logs
+      chart: time
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: macos }
+    config:
+      __builder:
+        chartType: area
+        title: "Log volume over time"
+
+  - layout: { x: 8, y: 3, w: 4, h: 6 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: dataSource
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: macos }
+    config:
+      __builder:
+        chartType: bar
+        title: "Logs by Mac"
+
+  - layout: { x: 0, y: 9, w: 4, h: 6 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: log.process
+      metric:
+        agg: count
+      limit: 25
+      filters:
+        - { field: dataType, op: eq, value: macos }
+    config:
+      __builder:
+        chartType: table
+        title: "Top processes"
+
+  - layout: { x: 4, y: 9, w: 4, h: 6 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: log.process
+      metric:
+        agg: count
+      limit: 5
+      filters:
+        - { field: dataType, op: eq, value: macos }
+    config:
+      __builder:
+        chartType: line
+        title: "Processes over time (top 5)"
+
+  - layout: { x: 8, y: 9, w: 4, h: 6 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: log.subsystem
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: macos }
+        - { field: log.subsystem, op: not_eq, value: null }
+    config:
+      __builder:
+        chartType: bar
+        title: "Logs by subsystem"
+
+  - layout: { x: 0, y: 15, w: 3, h: 6 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: log.process
+      metric:
+        agg: count
+      limit: 6
+      filters:
+        - { field: dataType, op: eq, value: macos }
+        - { field: log.level, op: in, value: ["error", "fault"] }
+    config:
+      __builder:
+        chartType: pie
+        title: "Logs by level"
+
+  - layout: { x: 3, y: 15, w: 3, h: 6 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: log.process
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: macos }
+        - { field: log.level, op: in, value: ["error", "fault"] }
+    config:
+      __builder:
+        chartType: bar
+        title: "Errors and faults by process"
+
+  - layout: { x: 6, y: 15, w: 3, h: 6 }
+    spec:
+      dataset: alerts
+      chart: category
+      dimension: name
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: macos }
+    config:
+      __builder:
+        chartType: bar
+        title: "Alerts by rule"
+
+  - layout: { x: 9, y: 15, w: 3, h: 6 }
+    spec:
+      dataset: alerts
+      chart: category
+      dimension: severity
+      metric:
+        agg: count
+    config:
+      __builder:
+        chartType: bar
+        title: "Alerts by severity"
+
+  - layout: { x: 0, y: 21, w: 12, h: 8 }
+    spec:
+      dataset: logs
+      chart: table
+      metric:
+        agg: count
+      limit: 20
+      columns: ["@timestamp", "dataSource", "log.process", "log.subsystem", "log.level"]
+    config:
+      __builder:
+        chartType: table
+        title: "Latest logs"

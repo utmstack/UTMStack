@@ -1,0 +1,33 @@
+{
+    "title": "Accesso di supporto",
+    "intro": "Chi gestisce questa istanza non può guardare dentro i tuoi dati se non glielo permetti. Qui non è concesso nulla per impostazione predefinita, e puoi revocarlo quando vuoi.",
+    "loading": "Caricamento…",
+    "loadFailed": "Impossibile leggere l'impostazione attuale.",
+    "retry": "Riprova",
+    "currentBadge": "attuale",
+    "save": "Salva",
+    "saving": "Salvataggio…",
+    "levels": {
+        "NONE": {
+            "name": "Nessun accesso",
+            "desc": "L'operatore vede che il tuo tenant esiste e nulla più. Ogni richiesta verso i tuoi dati viene rifiutata."
+        },
+        "READ": {
+            "name": "Sola lettura",
+            "desc": "L'operatore può vedere avvisi, log e configurazione per aiutarti. Non può cambiare nulla: ogni scrittura viene rifiutata, qualunque sia il suo ruolo."
+        },
+        "FULL": {
+            "name": "Accesso completo",
+            "desc": "L'operatore può agire nel tuo tenant come amministratore: configurazione, utenti e flussi di risposta."
+        }
+    },
+    "fullWarning": "L'accesso completo gli permette di cambiare cose a tuo nome. Concedilo finché ti serve assistenza diretta, poi torna indietro.",
+    "revokeNote": "Tutto ciò che l'operatore fa qui resta nel tuo registro di audit.",
+    "toast": {
+        "granted": "Accesso di supporto aggiornato",
+        "revoked": "Accesso di supporto revocato",
+        "forbidden": "Solo un amministratore di questo tenant può cambiarlo",
+        "invalid": "Richiesta non valida",
+        "failed": "Impossibile salvare la modifica"
+    }
+}

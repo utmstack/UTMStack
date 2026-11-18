@@ -2,14 +2,12 @@ package repository
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/ClickHouse/clickhouse-go/v2"
-	"github.com/threatwinds/go-sdk/store"
 
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing/connectors"
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing/dto"
@@ -20,15 +18,6 @@ import (
 
 var ErrNoTenantScope = errors.New("eventprocessing: no tenant in scope")
 
-// The statistics dataset is already aggregated: the stats plugin writes one row
-// per (tenant, topic, source, data type) every cycle with how many events and
-// bytes it saw. Answering "how much was ingested" is therefore a sum over those
-// counters, and the store's reader only counts records — so these three reads
-// go to SQL directly, the same escape hatch the log explorer's SQL mode uses.
-//
-// Everything that varies is a bound parameter. The only text interpolated into
-// a statement is the grouping column and the bucket size, and both come from a
-// whitelist below rather than from the request.
 type chIngestionStatsRepository struct {
 	store *eventstore.Store
 }
@@ -43,13 +32,15 @@ var groupColumns = map[string]string{
 	"dataType":   "`dataType`",
 }
 
+const tsFormat = "'%Y-%m-%dT%H:%M:%SZ'"
+
 func (r *chIngestionStatsRepository) TotalsByField(ctx context.Context, field string, q connectors.IngestionStatsQuery, top int) ([]dto.IngestionStatsBucket, dto.IngestionTotals, error) {
 	col, ok := groupColumns[field]
 	if !ok {
 		return nil, dto.IngestionTotals{}, fmt.Errorf("eventprocessing: cannot group ingestion by %q", field)
 	}
 
-	where, args, err := r.predicate(ctx, q)
+	where, err := r.predicate(ctx, q)
 	if err != nil {
 		return nil, dto.IngestionTotals{}, err
 	}
@@ -57,91 +48,71 @@ func (r *chIngestionStatsRepository) TotalsByField(ctx context.Context, field st
 		top = 100
 	}
 
-	sql := fmt.Sprintf(`SELECT %s AS k, sum(count) AS events, sum(bytes) AS bytes, max(`+"`@timestamp`"+`) AS last
-		FROM %s WHERE %s GROUP BY k ORDER BY events DESC LIMIT ?`,
-		col, r.store.TableName(eventstore.DatasetStats), where)
+	sql := fmt.Sprintf(`SELECT %s AS key, sum(count) AS count, sum(bytes) AS bytes, formatDateTime(max(`+"`@timestamp`"+`), %s) AS lastSeen
+		FROM %s WHERE %s GROUP BY key ORDER BY count DESC LIMIT %d`,
+		col, tsFormat, r.store.TableName(eventstore.DatasetStats), where, top)
 
-	rows, err := r.store.Conn.Query(readOnly(ctx), sql, append(args, top)...)
+	rows, err := r.fetch(ctx, sql)
 	if err != nil {
 		return nil, dto.IngestionTotals{}, err
 	}
-	defer rows.Close()
-
-	buckets := make([]dto.IngestionStatsBucket, 0, top)
-	for rows.Next() {
-		var (
-			key           string
-			events, bytes uint64
-			last          time.Time
-		)
-		if err := rows.Scan(&key, &events, &bytes, &last); err != nil {
+	buckets := make([]dto.IngestionStatsBucket, 0, len(rows))
+	for _, row := range rows {
+		var b dto.IngestionStatsBucket
+		if err := json.Unmarshal(row, &b); err != nil {
 			return nil, dto.IngestionTotals{}, err
 		}
-		if key == "" {
-			continue
-		}
-		buckets = append(buckets, dto.IngestionStatsBucket{
-			Key:      key,
-			Count:    int64(events),
-			Bytes:    int64(bytes),
-			LastSeen: last.UTC().Format(time.RFC3339),
-		})
-	}
-	if err := rows.Err(); err != nil {
-		return nil, dto.IngestionTotals{}, err
+		buckets = append(buckets, b)
 	}
 
 	// The total is the whole window, not the sum of the top N shown.
-	totals, err := r.totals(ctx, where, args)
+	totals, err := r.totals(ctx, where)
 	if err != nil {
 		return nil, dto.IngestionTotals{}, err
 	}
 	return buckets, totals, nil
 }
 
-func (r *chIngestionStatsRepository) totals(ctx context.Context, where string, args []any) (dto.IngestionTotals, error) {
-	sql := fmt.Sprintf("SELECT sum(count), sum(bytes) FROM %s WHERE %s",
-		r.store.TableName(eventstore.DatasetStats), where)
+func (r *chIngestionStatsRepository) totals(ctx context.Context, where string) (dto.IngestionTotals, error) {
+	sql := fmt.Sprintf(`SELECT coalesce(sum(count), 0) AS events, coalesce(sum(bytes), 0) AS bytes
+		FROM %s WHERE %s`, r.store.TableName(eventstore.DatasetStats), where)
 
-	var events, bytes uint64
-	if err := r.store.Conn.QueryRow(readOnly(ctx), sql, args...).Scan(&events, &bytes); err != nil {
+	rows, err := r.fetch(ctx, sql)
+	if err != nil {
 		return dto.IngestionTotals{}, err
 	}
-	return dto.IngestionTotals{Events: int64(events), Bytes: int64(bytes)}, nil
+	var t dto.IngestionTotals
+	if len(rows) > 0 {
+		if err := json.Unmarshal(rows[0], &t); err != nil {
+			return dto.IngestionTotals{}, err
+		}
+	}
+	return t, nil
 }
 
 func (r *chIngestionStatsRepository) Timeline(ctx context.Context, q connectors.IngestionStatsQuery, interval string) ([]dto.TimelinePoint, error) {
-	where, args, err := r.predicate(ctx, q)
+	where, err := r.predicate(ctx, q)
 	if err != nil {
 		return nil, err
 	}
 
-	sql := fmt.Sprintf(`SELECT %s AS t, sum(count) AS events, sum(bytes) AS bytes
-		FROM %s WHERE %s GROUP BY t ORDER BY t`,
-		bucketExpr(interval), r.store.TableName(eventstore.DatasetStats), where)
+	sql := fmt.Sprintf(`SELECT formatDateTime(%s, %s) AS timestamp, sum(count) AS count, sum(bytes) AS bytes
+		FROM %s WHERE %s GROUP BY timestamp ORDER BY timestamp`,
+		bucketExpr(interval), tsFormat, r.store.TableName(eventstore.DatasetStats), where)
 
-	rows, err := r.store.Conn.Query(readOnly(ctx), sql, args...)
+	rows, err := r.fetch(ctx, sql)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
-
-	points := make([]dto.TimelinePoint, 0)
-	for rows.Next() {
-		var (
-			at            time.Time
-			events, bytes uint64
-		)
-		if err := rows.Scan(&at, &events, &bytes); err != nil {
+	points := make([]dto.TimelinePoint, 0, len(rows))
+	for _, row := range rows {
+		var p dto.TimelinePoint
+		if err := json.Unmarshal(row, &p); err != nil {
 			return nil, err
 		}
-		points = append(points, dto.TimelinePoint{
-			Timestamp: at.UTC().Format(time.RFC3339),
-			Count:     int64(events),
-			Bytes:     int64(bytes),
-		})
+		points = append(points, p)
 	}
-	return points, rows.Err()
+	return points, nil
 }
 
 func (r *chIngestionStatsRepository) TimelineByField(ctx context.Context, field string, q connectors.IngestionStatsQuery, interval string, top int) ([]dto.TimelineSeries, error) {
@@ -159,93 +130,91 @@ func (r *chIngestionStatsRepository) TimelineByField(ctx context.Context, field 
 	if len(leaders) == 0 {
 		return []dto.TimelineSeries{}, nil
 	}
-	keys := make([]string, 0, len(leaders))
+	quoted := make([]string, 0, len(leaders))
 	for _, b := range leaders {
-		keys = append(keys, b.Key)
+		quoted = append(quoted, chQuote(b.Key))
 	}
 
-	where, args, err := r.predicate(ctx, q)
+	where, err := r.predicate(ctx, q)
 	if err != nil {
 		return nil, err
 	}
 
-	sql := fmt.Sprintf(`SELECT %s AS k, %s AS t, sum(count) AS events, sum(bytes) AS bytes
-		FROM %s WHERE %s AND %s IN (?) GROUP BY k, t ORDER BY k, t`,
-		col, bucketExpr(interval), r.store.TableName(eventstore.DatasetStats), where, col)
+	sql := fmt.Sprintf(`SELECT %s AS key, formatDateTime(%s, %s) AS timestamp, sum(count) AS count, sum(bytes) AS bytes
+		FROM %s WHERE %s AND %s IN (%s) GROUP BY key, timestamp ORDER BY key, timestamp`,
+		col, bucketExpr(interval), tsFormat, r.store.TableName(eventstore.DatasetStats), where, col, strings.Join(quoted, ", "))
 
-	rows, err := r.store.Conn.Query(readOnly(ctx), sql, append(args, keys)...)
+	rows, err := r.fetch(ctx, sql)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 
-	byKey := make(map[string][]dto.TimelinePoint, len(keys))
-	for rows.Next() {
-		var (
-			key           string
-			at            time.Time
-			events, bytes uint64
-		)
-		if err := rows.Scan(&key, &at, &events, &bytes); err != nil {
+	byKey := make(map[string][]dto.TimelinePoint, len(leaders))
+	for _, row := range rows {
+		var p struct {
+			Key string `json:"key"`
+			dto.TimelinePoint
+		}
+		if err := json.Unmarshal(row, &p); err != nil {
 			return nil, err
 		}
-		byKey[key] = append(byKey[key], dto.TimelinePoint{
-			Timestamp: at.UTC().Format(time.RFC3339),
-			Count:     int64(events),
-			Bytes:     int64(bytes),
-		})
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
+		byKey[p.Key] = append(byKey[p.Key], p.TimelinePoint)
 	}
 
 	// Ordered by how much each line carries, like the buckets it came from.
-	out := make([]dto.TimelineSeries, 0, len(keys))
-	for _, k := range keys {
-		out = append(out, dto.TimelineSeries{Key: k, Points: byKey[k]})
+	out := make([]dto.TimelineSeries, 0, len(leaders))
+	for _, b := range leaders {
+		out = append(out, dto.TimelineSeries{Key: b.Key, Points: byKey[b.Key]})
 	}
 	return out, nil
 }
 
-// predicate builds the WHERE every read shares. The tenant is a bound
-// parameter and comes from the session: a caller cannot name one.
-func (r *chIngestionStatsRepository) predicate(ctx context.Context, q connectors.IngestionStatsQuery) (string, []any, error) {
-	parts := make([]string, 0, 5)
-	args := make([]any, 0, 5)
+// fetch runs a read through the store: the query already carries the tenant
+// predicate from predicate(), so Store.Query's AllTenants scope applies.
+func (r *chIngestionStatsRepository) fetch(ctx context.Context, sql string) ([]json.RawMessage, error) {
+	return r.store.Query(ctx, sql)
+}
+
+// predicate builds the WHERE every read shares. The tenant comes from the
+// session: a caller cannot name one.
+func (r *chIngestionStatsRepository) predicate(ctx context.Context, q connectors.IngestionStatsQuery) (string, error) {
+	parts := make([]string, 0, 4)
 
 	tenant := authz.TenantIDFromContext(ctx)
 	switch {
 	case tenant != "":
-		parts = append(parts, "tenantId = ?")
-		args = append(args, tenant)
+		parts = append(parts, "tenantId = "+chQuote(tenant))
 	case tenancy.Enabled():
-		return "", nil, ErrNoTenantScope
+		return "", ErrNoTenantScope
 	default:
 		// A single-tenant install reads everything it holds, which is its own.
-		_ = store.AllTenants
 	}
 
 	if !q.From.IsZero() {
-		parts = append(parts, "`@timestamp` >= ?")
-		args = append(args, q.From.UTC())
+		parts = append(parts, "`@timestamp` >= "+chQuote(q.From.UTC().Format(time.RFC3339)))
 	}
 	if !q.To.IsZero() {
-		parts = append(parts, "`@timestamp` <= ?")
-		args = append(args, q.To.UTC())
+		parts = append(parts, "`@timestamp` <= "+chQuote(q.To.UTC().Format(time.RFC3339)))
 	}
 	if q.Type != "" {
-		parts = append(parts, "type = ?")
-		args = append(args, q.Type)
+		parts = append(parts, "type = "+chQuote(q.Type))
 	}
 	if q.DataSource != "" {
-		parts = append(parts, "`dataSource` = ?")
-		args = append(args, q.DataSource)
+		parts = append(parts, "`dataSource` = "+chQuote(q.DataSource))
 	}
 
 	if len(parts) == 0 {
-		return "1", args, nil
+		return "1", nil
 	}
-	return strings.Join(parts, " AND "), args, nil
+	return strings.Join(parts, " AND "), nil
+}
+
+// chQuote turns a value into a ClickHouse string literal: backslash and quote
+// are the two characters that can end a literal early.
+func chQuote(s string) string {
+	s = strings.ReplaceAll(s, `\`, `\\`)
+	s = strings.ReplaceAll(s, `'`, `\'`)
+	return "'" + s + "'"
 }
 
 // bucketExpr turns a bucket size into the expression that groups by it. The
@@ -282,13 +251,4 @@ func parseBucket(interval string) (int, string) {
 		return 1, "HOUR"
 	}
 	return n, unit
-}
-
-// readOnly is the same guard the analyzer's SQL mode runs under: a read that
-// cannot write, cannot run forever, and cannot drag the whole table back.
-func readOnly(ctx context.Context) context.Context {
-	return clickhouse.Context(ctx, clickhouse.WithSettings(clickhouse.Settings{
-		"readonly":           1,
-		"max_execution_time": 30,
-	}))
 }

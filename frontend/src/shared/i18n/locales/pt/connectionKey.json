@@ -1,0 +1,50 @@
+{
+    "title": "Chave de conexão",
+    "subtitle1": "A chave que os agentes apresentam ao se registrar nesta instância.",
+    "subtitleEmphasis": "É usada apenas para a instalação de agentes",
+    "subtitle2": "— não para coletores, integrações ou a API. É gerenciada pelo agent-manager.",
+    "status": {
+        "label": "Status",
+        "loading": "Carregando…",
+        "unavailable": "Agent-manager indisponível",
+        "active": "Ativa",
+        "unavailableHint": "Não foi possível contatar o agent-manager para ler a chave.",
+        "activeHint": "Os agentes podem se registrar com esta chave."
+    },
+    "token": {
+        "title": "Chave de conexão",
+        "subtitle": "Trate este valor como uma credencial. Rotacioná-la emite uma nova chave para futuras instalações de agentes — os agentes já registrados continuam funcionando.",
+        "loadFailedTitle": "Não foi possível carregar a chave de conexão",
+        "unavailableTitle": "Chave de conexão indisponível",
+        "loadFailedHint": "A chave é gerenciada pelo agent-manager, que não respondeu. Tente novamente em instantes.",
+        "retry": "Tentar novamente",
+        "show": "Mostrar chave",
+        "hide": "Ocultar chave",
+        "copy": "Copiar",
+        "copied": "Copiado",
+        "regenerate": "Regenerar chave de conexão",
+        "confirmTitle": "Regenerar a chave?",
+        "confirmBody": "As novas instalações de agentes precisarão da nova chave. Os agentes já registrados continuam funcionando. Não há como desfazer.",
+        "regenerating": "Regenerando…",
+        "confirmYes": "Sim, regenerar",
+        "cancel": "Cancelar"
+    },
+    "security": {
+        "title": "Recomendações de segurança",
+        "subtitle": "Boas práticas para proteger esta credencial.",
+        "rotateTitle": "Rotacione a cada 90 dias",
+        "rotateBody": "Agende uma rotação recorrente. O UTMStack pode enviar um lembrete por e-mail quando a chave tiver mais de 90 dias.",
+        "rotateAction": "Configurar lembrete",
+        "secretTitle": "Armazene como segredo",
+        "secretBody": "Não faça commit no controle de versão. Use seu gerenciador de segredos (Vault, AWS SM, etc.) e injete-a no momento da instalação.",
+        "auditTitle": "Audite quem a obteve",
+        "auditBody": "Cada obtenção e rotação é registrada no log de auditoria da aplicação.",
+        "auditAction": "Ver log de auditoria"
+    },
+    "toast": {
+        "loadFailed": "Não foi possível carregar a chave de conexão",
+        "rotated": "Chave de conexão rotacionada",
+        "rotateFailed": "Não foi possível rotacionar a chave de conexão",
+        "copyFailed": "Não foi possível copiar"
+    }
+}

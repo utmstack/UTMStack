@@ -1,0 +1,297 @@
+{
+    "title": "Alertas",
+    "matching": "{{count}} correspondentes",
+    "subtitle": "Priorize o que importa.",
+    "openNow": "abertos agora.",
+    "view": {
+        "alerts": "Alertas",
+        "overview": "Visão geral"
+    },
+    "toolbar": {
+        "searchPlaceholder": "Buscar por nome do alerta…",
+        "allSeverities": "Todas as severidades",
+        "export": "Exportar CSV",
+        "refresh": "Atualizar"
+    },
+    "severity": {
+        "high": "Alta",
+        "medium": "Média",
+        "low": "Baixa"
+    },
+    "status": {
+        "open": "Aberto",
+        "in_review": "Em revisão",
+        "completed": "Concluído",
+        "auto": "Revisão automática"
+    },
+    "statusTabs": {
+        "all": "Todos"
+    },
+    "overview": {
+        "overTime": "Alertas ao longo do tempo",
+        "matchingAlerts": "alertas correspondentes",
+        "noData": "Sem dados.",
+        "bySeverity": "Por severidade",
+        "byStatus": "Por estado"
+    },
+    "filters": {
+        "add": "Adicionar filtro",
+        "clearAll": "Limpar tudo",
+        "filterValues": "Filtrar valores…",
+        "loadingValues": "Carregando valores…",
+        "noValues": "Nenhum valor encontrado.",
+        "pickValue": "Escolha um valor para adicionar o filtro.",
+        "empty": "(vazio)",
+        "cancel": "Cancelar",
+        "addBtn": "Adicionar"
+    },
+    "ops": {
+        "CONTAIN": "contém",
+        "IS": "é",
+        "IS_NOT": "não é",
+        "EXIST": "existe",
+        "DOES_NOT_EXIST": "não existe"
+    },
+    "fields": {
+        "adversary_domain": "Domínio do adversário",
+        "adversary_geolocation_asn": "ASN do adversário",
+        "adversary_geolocation_aso": "ASO do adversário",
+        "adversary_geolocation_country": "País do adversário",
+        "adversary_host": "Host do adversário",
+        "adversary_ip": "IP do adversário",
+        "adversary_url": "URL do adversário",
+        "adversary_user": "Utilizador do adversário",
+        "assignee": "Atribuído a",
+        "category": "Categoria",
+        "dataSource": "Sensor",
+        "dataType": "Tipo de dado",
+        "description": "Descrição",
+        "id": "ID",
+        "impactScore": "Risco",
+        "impact_availability": "Disponibilidade",
+        "impact_confidentiality": "Confidencialidade",
+        "impact_integrity": "Integridade",
+        "incidentDetail_incidentName": "Nome do incidente",
+        "incidentDetail_incidentId": "Id do incidente",
+        "isIncident": "É incidente",
+        "name": "Nome do alerta",
+        "notes": "Notas",
+        "severity": "Severidade",
+        "status": "Estado",
+        "tags": "Etiquetas",
+        "target_domain": "Domínio do alvo",
+        "target_geolocation_asn": "ASN do alvo",
+        "target_geolocation_aso": "ASO do alvo",
+        "target_geolocation_country": "País do alvo",
+        "target_host": "Host do alvo",
+        "target_ip": "IP do alvo",
+        "target_url": "URL do alvo",
+        "target_user": "Utilizador do alvo",
+        "technique": "Técnica"
+    },
+    "tagFilter": {
+        "tags": "Etiquetas",
+        "tag_one": "{{count}} etiqueta",
+        "tag_other": "{{count}} etiquetas",
+        "clearSelection": "Limpar seleção",
+        "noTags": "Sem etiquetas"
+    },
+    "bulk": {
+        "selected": "{{count}} selecionados",
+        "setStatus": "Definir estado",
+        "addTag": "Adicionar etiqueta",
+        "noTags": "Sem etiquetas",
+        "addToIncident": "Adicionar a incidente",
+        "clear": "Limpar"
+    },
+    "tagEditor": {
+        "tag": "Etiqueta",
+        "noTagsYet": "Ainda não há etiquetas",
+        "createTag": "Criar etiqueta",
+        "newTagName": "Nome da nova etiqueta…",
+        "createApply": "Criar e aplicar etiqueta",
+        "save": "Salvar",
+        "cancel": "Cancelar",
+        "edit": "Editar etiqueta",
+        "delete": "Excluir etiqueta",
+        "systemLocked": "Etiqueta do sistema (bloqueada)",
+        "alreadyExists": "Essa etiqueta já existe.",
+        "color": "Cor {{color}}",
+        "createRule": "Criar regra de marcação com esta etiqueta"
+    },
+    "table": {
+        "actions": "Ações",
+        "alert": "Alerta",
+        "status": "Estado",
+        "technique": "Técnica",
+        "severity": "Severidade",
+        "risk": "Risco",
+        "echoes": "Ecos",
+        "time": "Hora",
+        "riskHint": "Pontuação de risco (0–100), colorida por severidade",
+        "source": "Origem",
+        "adversary": "Adversário"
+    },
+    "row": {
+        "createRuleFromAlert": "Criar uma tag a partir deste alerta",
+        "createIncident": "Criar incidente a partir deste alerta",
+        "viewIncident": "Ver detalhes do incidente",
+        "assignedTo": "Atribuído a {{user}}",
+        "echoesTooltip": "{{count}} ecos — clique para expandir",
+        "echoesEmpty": "Sem ecos registrados"
+    },
+    "echoes": {
+        "title": "{{count}} ecos",
+        "close": "Fechar",
+        "empty": "Nenhum eco registrado para este alerta.",
+        "loadError": "Não foi possível carregar os ecos."
+    },
+    "list": {
+        "loading": "Carregando alertas…",
+        "loadError": "Não foi possível carregar os alertas.",
+        "retry": "Tentar novamente",
+        "empty": "Nenhum alerta corresponde a esta visão."
+    },
+    "badge": {
+        "incident": "Incidente",
+        "aiAssessed": "Avaliado por IA"
+    },
+    "drawer": {
+        "setStatus": "Definir estado",
+        "completeFalsePositive": "Concluir + falso positivo",
+        "addToIncident": "Adicionar a incidente",
+        "partOfIncident": "Parte de um incidente",
+        "tabs": {
+            "summary": "Resumo",
+            "parties": "Partes",
+            "events": "Eventos",
+            "history": "Histórico"
+        },
+        "section": {
+            "description": "Descrição",
+            "solution": "Solução",
+            "references": "Referências",
+            "details": "Detalhes",
+            "yourNotes": "Suas notas",
+            "notes": "Notas"
+        },
+        "details": {
+            "severity": "Severidade",
+            "risk": "Risco",
+            "category": "Categoria",
+            "technique": "Técnica",
+            "sensor": "Sensor",
+            "dataType": "Tipo de dado",
+            "alertId": "ID do alerta",
+            "statusNote": "Nota de estado",
+            "assignee": "Responsável"
+        },
+        "incidentDetail": {
+            "incident": "Incidente",
+            "id": "ID",
+            "createdBy": "Criado por",
+            "created": "Criado"
+        },
+        "notesPlaceholder": "Adicione notas de investigação…",
+        "saveNotes": "Salvar notas",
+        "assignee": "Atribuir",
+        "assign": "Atribuir",
+        "unassign": "Remover atribuição",
+        "unassigned": "Sem responsável",
+        "loadingUsers": "Carregando usuários…",
+        "observationLabel": "Observação",
+        "observationPlaceholder": "Adicionar uma observação…",
+        "cancel": "Cancelar",
+        "continue": "Continuar"
+    },
+    "related": {
+        "sample": "Uma amostra de até ~11 eventos que o mecanismo armazenou neste alerta. Use «Ver todos os registros relacionados» para o conjunto completo e sem limite.",
+        "loadingEchoes": "Carregando os eventos dos seus ecos…",
+        "sampleWithEchoes": "Os eventos guardados neste alerta e nos seus {{count}} ecos ({{read}} lidos). Use «Ver todos os registros relacionados» para o conjunto completo e sem limite.",
+        "empty": "Nenhum evento de amostra armazenado neste alerta. Carregue o conjunto correlacionado completo no Explorador de registros.",
+        "viewAll": "Ver todos os registros relacionados"
+    },
+    "party": {
+        "source": "Origem / alvo",
+        "adversary": "Adversário",
+        "noData": "Sem dados.",
+        "ip": "IP",
+        "host": "Host",
+        "user": "Usuário",
+        "domain": "Domínio",
+        "country": "País"
+    },
+    "history": {
+        "empty": "Nenhum histórico registrado.",
+        "by": "por {{user}}",
+        "actions": {
+            "UPDATE_STATUS": "Estado atualizado",
+            "UPDATE_TAGS": "Etiquetas atualizadas",
+            "UPDATE_NOTES": "Notas atualizadas",
+            "UPDATE_SOLUTION": "Solução atualizada",
+            "MARK_AS_INCIDENT": "Marcado como incidente"
+        },
+        "detail": {
+            "statusTo": "Estado → {{status}}",
+            "tags": "Etiquetas: {{tags}}",
+            "aiAdded": "Avaliação de IA adicionada",
+            "observationAdded": "Observação adicionada",
+            "notesUpdated": "Notas atualizadas"
+        }
+    },
+    "ai": {
+        "title": "Avaliação de IA do SOC",
+        "risk": "risco {{risk}}",
+        "score": "{{score}}/100",
+        "generate": "Gerar resumo de IA",
+        "hint": "O SOC-AI investiga este alerta e adiciona uma avaliação.",
+        "generating": "Analisando o alerta… pode levar um minuto.",
+        "ready": "Resumo de IA pronto",
+        "failed": "Não foi possível gerar o resumo de IA",
+        "slow": "O resumo de IA está demorando mais que o esperado. Ele aparecerá no alerta quando estiver pronto."
+    },
+    "incident": {
+        "titleAdd_one": "Adicionar {{count}} alerta a um incidente",
+        "titleAdd_other": "Adicionar {{count}} alertas a um incidente",
+        "new": "Novo incidente",
+        "existing": "Incidente existente",
+        "nameLabel": "Nome do incidente",
+        "namePlaceholder": "ex.: Suspeita de intrusão de Scattered Spider",
+        "descriptionLabel": "Descrição",
+        "descriptionPlaceholder": "Resumo opcional…",
+        "pickLabel": "Escolha um incidente",
+        "loading": "Carregando…",
+        "selectPlaceholder": "Selecione um incidente…",
+        "willLink_one": "{{count}} alerta será vinculado.",
+        "willLink_other": "{{count}} alertas serão vinculados.",
+        "cancel": "Cancelar",
+        "create": "Criar incidente",
+        "add": "Adicionar a incidente"
+    },
+    "toast": {
+        "statusUpdated": "Estado atualizado",
+        "statusFailed": "Falha ao atualizar o estado",
+        "tagsUpdated": "Etiquetas atualizadas",
+        "tagsFailed": "Falha ao atualizar as etiquetas",
+        "tagCreateFailed": "Falha ao criar a etiqueta",
+        "tagUpdated": "Etiqueta atualizada",
+        "tagUpdateFailed": "Falha ao atualizar a etiqueta",
+        "tagDeleted": "Etiqueta excluída",
+        "tagDeleteFailed": "Falha ao excluir a etiqueta",
+        "notesSaved": "Notas salvas",
+        "notesFailed": "Falha ao salvar as notas",
+        "exportFailed": "Falha ao exportar o CSV",
+        "noRelatedLogs": "Nenhum registro relacionado encontrado para este alerta",
+        "relatedLogsFailed": "Falha ao carregar os registros relacionados",
+        "incidentCreated": "Incidente criado",
+        "alertsAdded": "Alertas adicionados ao incidente",
+        "incidentFailed": "Falha ao salvar o incidente",
+        "assigned": "Alerta atribuído",
+        "unassigned": "Alerta sem responsável",
+        "assignFailed": "Não foi possível atualizar o responsável",
+        "newAlertsToast_title": "Novas alertas",
+        "newAlertsToast_count_one": "{{count}} nova alerta",
+        "newAlertsToast_count_other": "{{count}} novas alertas",
+        "newAlertsToast_view": "Ver"
+    }
+}

@@ -31,6 +31,7 @@ export const usersHttpService = {
   create: (input: CreateUserRequest) => api.post<UserDetail>('/users', input),
   update: (id: string, input: UpdateUserRequest) => api.put<UserDetail>(`/users/${id}`, input),
   deactivate: (id: string) => api.delete<void>(`/users/${id}`),
+  remove: (id: string) => api.delete<void>(`/users/${id}/remove`),
   assignRoles: (id: string, role_names: string[]) =>
     api.put<void>(`/users/${id}/roles`, { role_names } satisfies AssignRolesRequest),
   // Admin reset of a user's 2FA (e.g. lost authenticator). The user re-enrolls at

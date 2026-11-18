@@ -1,0 +1,69 @@
+{
+    "title": "Regras de Marcação",
+    "subtitle": "Marque automaticamente alertas que correspondam às condições.",
+    "new": "Nova regra",
+    "refresh": "Atualizar",
+    "empty": "Ainda não há regras de marcação.",
+    "loadError": "Não foi possível carregar as regras de marcação.",
+    "retry": "Tentar novamente",
+    "deleteConfirm": "Excluir a regra \"{{name}}\"? Os próximos alertas que corresponderem às suas condições deixarão de ser marcados.",
+    "toolbar": {
+        "search": "Buscar pelo nome da regra…",
+        "allTags": "Todas as etiquetas"
+    },
+    "table": {
+        "rule": "Regra",
+        "tags": "Etiquetas",
+        "conditions": "Condições",
+        "modifiedBy": "Modificado por",
+        "modifiedDate": "Modificado"
+    },
+    "drawer": {
+        "createTitle": "Nova regra de marcação",
+        "edit": "Editar",
+        "delete": "Excluir",
+        "save": "Salvar",
+        "create": "Criar",
+        "cancel": "Cancelar"
+    },
+    "form": {
+        "basics": "Informações básicas",
+        "name": "Nome da regra",
+        "namePlaceholder": "ex.: Força bruta SSH interno",
+        "description": "Descrição",
+        "descriptionPlaceholder": "Por que esta regra existe e o que ela marca.",
+        "tags": "Etiquetas a aplicar",
+        "noTags": "Nenhuma etiqueta selecionada.",
+        "addTag": "Adicionar etiqueta",
+        "removeTag": "Remover",
+        "noCatalog": "Ainda não há etiquetas no catálogo.",
+        "createTag": "Criar etiqueta",
+        "newTagName": "Nome da nova etiqueta",
+        "conditions": "Condições (TODAS devem corresponder)",
+        "noConditions": "É necessária pelo menos uma condição.",
+        "addCondition": "Adicionar condição",
+        "removeCondition": "Remover condição",
+        "valuePlaceholder": "Valor",
+        "valueListPlaceholder": "Valores separados por vírgula",
+        "incomplete": "Preencha o nome da regra, a descrição, ao menos uma etiqueta e complete todas as condições."
+    },
+    "view": {
+        "description": "Descrição",
+        "tags": "Etiquetas",
+        "conditions": "Condições",
+        "audit": "Auditoria",
+        "createdBy": "Criado por",
+        "createdDate": "Criado",
+        "modifiedBy": "Modificado por",
+        "modifiedDate": "Modificado"
+    },
+    "toast": {
+        "created": "Regra \"{{name}}\" criada.",
+        "updated": "Regra \"{{name}}\" atualizada.",
+        "deleted": "Regra \"{{name}}\" excluída.",
+        "createError": "Falha ao criar a regra.",
+        "updateError": "Falha ao atualizar a regra.",
+        "deleteError": "Falha ao excluir a regra."
+    },
+    "deleteTitle": "Excluir regra de marcação"
+}

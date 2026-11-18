@@ -4,9 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"reflect"
 
-	"github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/threatwinds/go-sdk/store"
 
@@ -224,47 +222,26 @@ func registerStoreQueries(m *Module, events *eventstore.Store) {
 				page = 1
 			}
 			size = clampPageSize(size)
+			if err := loganalyzer_usecase.ValidateSQL(in.Query); err != nil {
+				return nil, err
+			}
 
-			scoped, err := storeScopedSQL(in.Query,
+			scoped := common_models.ScopeSQL(in.Query, tenant,
 				events.TableName(eventstore.DatasetLogs),
 				events.TableName(eventstore.DatasetAlerts),
 				page, size)
+
+			rows, err := events.Query(ctx, scoped)
 			if err != nil {
 				return nil, err
 			}
-
-			qctx := clickhouse.Context(ctx, clickhouse.WithSettings(clickhouse.Settings{
-				"readonly":             1,
-				"max_execution_time":   30,
-				"max_result_rows":      uint64(size),
-				"result_overflow_mode": "break",
-			}))
-
-			rows, err := events.Conn.Query(qctx, scoped, tenant, tenant)
-			if err != nil {
-				return nil, err
-			}
-			defer func() { _ = rows.Close() }()
-
-			hits := make([]map[string]any, 0)
-			cols := rows.Columns()
-			types := rows.ColumnTypes()
-			for rows.Next() {
-				ptrs := make([]any, len(cols))
-				for i := range ptrs {
-					ptrs[i] = reflect.New(types[i].ScanType()).Interface()
-				}
-				if err := rows.Scan(ptrs...); err != nil {
-					return nil, err
-				}
-				doc := make(map[string]any, len(cols))
-				for i, c := range cols {
-					doc[c] = reflect.ValueOf(ptrs[i]).Elem().Interface()
+			hits := make([]map[string]any, 0, len(rows))
+			for _, raw := range rows {
+				var doc map[string]any
+				if err := json.Unmarshal(raw, &doc); err != nil {
+					continue
 				}
 				hits = append(hits, doc)
-			}
-			if err := rows.Err(); err != nil {
-				return nil, err
 			}
 			return map[string]any{"hits": hits, "total": int64(len(hits))}, nil
 		})
@@ -369,29 +346,6 @@ func rowsToMaps(rows []json.RawMessage) []map[string]any {
 		out = append(out, doc)
 	}
 	return out
-}
-
-// storeScopedSQL wraps a caller-supplied SELECT with logs/alerts CTEs already
-// scoped to the current tenant — the same trick loganalyzer uses to keep the
-// SQL surface safe.
-//
-// The CTEs only shadow the bare names `logs` and `alerts`. A query that names
-// the physical table (utmstack.logs), a system table or a table function would
-// walk around them, so the query first goes through the same guard the
-// log explorer applies before it runs anything.
-func storeScopedSQL(query, logsTable, alertsTable string, page, size int) (string, error) {
-	if err := loganalyzer_usecase.ValidateSQL(query); err != nil {
-		return "", err
-	}
-	if page < 1 {
-		page = 1
-	}
-	q := trimTrailingSemicolons(query)
-	return fmt.Sprintf(
-		"WITH logs AS (SELECT * FROM %s WHERE tenantId = ?), alerts AS (SELECT * FROM %s WHERE tenantId = ?) "+
-			"SELECT * FROM (%s) LIMIT %d OFFSET %d",
-		logsTable, alertsTable, q, size, (page-1)*size,
-	), nil
 }
 
 func trimTrailingSemicolons(q string) string {

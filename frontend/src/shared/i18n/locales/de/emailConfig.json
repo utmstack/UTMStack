@@ -1,0 +1,50 @@
+{
+    "title": "E-Mail-Konfiguration",
+    "subtitle": "SMTP-Server zum Versenden von Alarm-Benachrichtigungen, Berichten und Konto-E-Mails.",
+    "server": {
+        "title": "SMTP-Server",
+        "host": "Host",
+        "hostHint": "Hostname Ihres SMTP-Servers.",
+        "port": "Port",
+        "encryption": "Verschlüsselung",
+        "username": "Benutzername",
+        "password": "Passwort",
+        "passwordSetHint": "Ein Passwort ist gespeichert. Leer lassen, um es zu behalten, oder ein neues eingeben, um es zu ändern."
+    },
+    "encryptionOpt": {
+        "TLS": "TLS",
+        "SSL": "SSL",
+        "NONE": "Keine"
+    },
+    "sender": {
+        "title": "Absender",
+        "from": "Absenderadresse",
+        "fromHint": "Adresse, von der E-Mails gesendet werden.",
+        "organization": "Organisationsname",
+        "organizationHint": "Wird in Alarm- und Vorfall-Benachrichtigungs-E-Mails angezeigt.",
+        "baseUrl": "Basis-URL",
+        "baseUrlHint": "Öffentliche URL dieser Instanz, für Links in E-Mails verwendet."
+    },
+    "test": {
+        "button": "Test senden",
+        "sending": "Wird gesendet…",
+        "sentTo": "Eine Test-E-Mail wird an {{email}} gesendet.",
+        "success": "Test-E-Mail an {{email}} gesendet",
+        "fail": "Test-E-Mail konnte nicht gesendet werden",
+        "fromRequired": "Legen Sie vor dem Test eine Absenderadresse fest"
+    },
+    "save": "Änderungen speichern",
+    "saving": "Wird gespeichert…",
+    "saved": "E-Mail-Konfiguration gespeichert",
+    "saveError": "Konfiguration konnte nicht gespeichert werden",
+    "loadError": "Konfiguration konnte nicht geladen werden",
+    "recipients": {
+        "alertsTitle": "Empfänger für Alarme",
+        "incidentsTitle": "Empfänger für Vorfälle",
+        "to": "An",
+        "cc": "CC",
+        "alertsHelper": "Adressen, die bei neuen Alarmen benachrichtigt werden. Bleibt das Feld leer, werden Alarme nicht per E-Mail versendet.",
+        "incidentsHelper": "Adressen, die bei einem neuen Vorfall benachrichtigt werden. Bleibt das Feld leer, werden Vorfälle nicht per E-Mail versendet.",
+        "add": "Hinzufügen"
+    }
+}

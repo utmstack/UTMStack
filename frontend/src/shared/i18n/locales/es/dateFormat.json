@@ -1,0 +1,25 @@
+{
+    "title": "Fecha y hora",
+    "subtitle": "Cómo se muestran los timestamps en toda la plataforma. Los logs siempre se almacenan en UTC.",
+    "timezone": {
+        "title": "Zona horaria",
+        "hint": "Los timestamps se muestran en esta zona horaria. Los datos se almacenan en UTC.",
+        "system": "Predeterminado del navegador",
+        "now": "Ahora: {{value}}"
+    },
+    "format": {
+        "title": "Formato de fecha",
+        "hint": "Estilo usado para fechas y horas."
+    },
+    "styles": {
+        "short": "Corto",
+        "medium": "Medio",
+        "long": "Largo",
+        "full": "Completo"
+    },
+    "save": "Guardar cambios",
+    "saving": "Guardando…",
+    "saved": "Configuración de fecha guardada",
+    "saveError": "No se pudo guardar la configuración",
+    "loadError": "No se pudo cargar la configuración"
+}

@@ -1,0 +1,148 @@
+{
+    "title": "Configuration SOC-AI",
+    "subtitle": "Configurez l'agent IA qui trie les alertes et alimente l'assistant des opérations.",
+    "section": {
+        "connection": "Modèle et connexion",
+        "auth": "Authentification",
+        "behavior": "Comportement de tri des alertes",
+        "advanced": "Avancé"
+    },
+    "usage": {
+        "title": "Utilisation",
+        "chat": "Complétions de chat (aujourd'hui)",
+        "unavailable": "L'utilisation n'est pas encore disponible.",
+        "resetsIn": "Réinitialisation dans {{time}}"
+    },
+    "provider": {
+        "label": "Fournisseur",
+        "hint": "Sélectionne le format d'échange. Tout autre fournisseur qu'Anthropic utilise l'API compatible OpenAI."
+    },
+    "model": {
+        "label": "Modèle",
+        "hint": "Identifiant du modèle exposé par le fournisseur.",
+        "customOption": "Modèle personnalisé…",
+        "customPlaceholder": "Saisissez un identifiant de modèle"
+    },
+    "url": {
+        "label": "URL de l'API",
+        "hint": "Laissez vide pour utiliser le point de terminaison par défaut du fournisseur."
+    },
+    "apiKey": {
+        "label": "Clé d'API",
+        "hint": "Identifiant envoyé au fournisseur.",
+        "setHint": "Une clé est enregistrée. Laissez vide pour la conserver."
+    },
+    "authType": {
+        "label": "Type d'authentification",
+        "hint": "Comment les identifiants sont envoyés à votre passerelle.",
+        "options": {
+            "apiKey": "Clé API",
+            "bearer": "Bearer",
+            "customHeaders": "En-têtes personnalisés",
+            "none": "Aucune"
+        }
+    },
+    "authHeaderName": {
+        "label": "Nom de l'en-tête d'authentification",
+        "hint": "En-tête transportant la clé (par ex. api-key pour Azure)."
+    },
+    "authToken": {
+        "label": "Jeton Bearer",
+        "hint": "Identifiant envoyé au fournisseur.",
+        "setHint": "Un jeton est enregistré. Laissez vide pour le conserver."
+    },
+    "customHeaders": {
+        "label": "En-têtes personnalisés",
+        "hint": "En-têtes supplémentaires envoyés à chaque requête. Les valeurs sont chiffrées ; « ***** » conserve celle enregistrée.",
+        "keyPlaceholder": "Nom de l'en-tête",
+        "valuePlaceholder": "Valeur",
+        "addRow": "Ajouter un en-tête",
+        "remove": "Supprimer l'en-tête"
+    },
+    "maxTokens": {
+        "label": "Tokens maximum",
+        "hint": "Nombre maximum de tokens par réponse du LLM."
+    },
+    "maxToolIterations": {
+        "label": "Itérations d'outils maximum",
+        "hint": "Limite de la boucle planification -> outil -> observation de l'agent."
+    },
+    "autoAnalyze": {
+        "label": "Analyser automatiquement les alertes",
+        "hint": "Trier les alertes entrantes en temps réel."
+    },
+    "allowIncidents": {
+        "label": "Autoriser la gestion des incidents",
+        "hint": "L'agent de tri peut créer ou mettre à jour des incidents lorsqu'il juge qu'une alerte le justifie."
+    },
+    "changeAlertStatus": {
+        "label": "Modifier le statut des alertes",
+        "hint": "Permettre à l'agent de définir le statut d'une alerte lors du tri."
+    },
+    "automaticIncidentCreation": {
+        "label": "Créer des incidents",
+        "hint": "Permettre à l'agent d'ouvrir des incidents à partir des alertes triées."
+    },
+    "allowedWriteTools": {
+        "label": "Outils d'écriture autorisés",
+        "hint": "Un nom d'outil MCP par ligne que l'agent de tri peut utiliser (par ex. alerts.update_status). Les notes sont toujours autorisées."
+    },
+    "save": "Enregistrer la configuration",
+    "saving": "Vérification et enregistrement...",
+    "saved": "Configuration SOC-AI enregistrée",
+    "saveError": "Échec de l'enregistrement de la configuration",
+    "loadError": "Échec du chargement de la configuration",
+    "modelRequired": "Le modèle est requis",
+    "applyTags": {
+        "label": "Appliquer des étiquettes",
+        "hint": "Permettre à l'agent d'étiqueter les alertes lors du tri."
+    },
+    "note": {
+        "azure": "Collez l'URL complète de votre point de terminaison de déploiement Azure ; le modèle est le nom de votre déploiement. L'authentification utilise l'en-tête api-key.",
+        "ollama": "Pointez l'URL vers votre hôte Ollama. Aucune clé d'API n'est nécessaire pour une instance locale.",
+        "custom": "Tout point de terminaison compatible OpenAI. Définissez l'URL, l'authentification et les en-têtes supplémentaires requis par votre passerelle.",
+        "threatwinds": "Utilise automatiquement votre licence UTMStack — aucune clé API requise. Facturé via votre abonnement ThreatWinds."
+    },
+    "chat": {
+        "title": "Assistant SOC",
+        "dashboardCreateTitle": "Créateur de tableau de bord",
+        "empty": "Posez n'importe quelle question sur vos alertes, vos détections ou la console — je peux enquêter et agir sur le SIEM.",
+        "tryPrefix": "Essayez",
+        "suggestion": "combien d'alertes ouvertes, regroupées par adversaire ?",
+        "placeholder": "Posez une question…",
+        "ask": "Demander",
+        "send": "Envoyer",
+        "collapse": "Réduire",
+        "expand": "Agrandir",
+        "clear": "Effacer la conversation",
+        "close": "Fermer",
+        "copy": "Copier",
+        "copied": "Copié",
+        "errorGeneric": "Une erreur s'est produite.",
+        "errorUnreachable": "Impossible de joindre l'assistant.",
+        "compacting": "Compactage du contexte…",
+        "dashboardEditTitle": "Éditeur de tableau de bord",
+        "editingDashboard": "Modification : {{name}}",
+        "soarEditTitle": "Éditeur de flux SOAR",
+        "soarCreateTitle": "Créer un flux SOAR",
+        "editingFlow": "Modification du flux : {{name}}"
+    },
+    "focus": {
+        "alert": "Alerte",
+        "incident": "Incident",
+        "remove": "Ne plus partager avec l'assistant"
+    },
+    "inheritance": {
+        "inherited": "Suit la valeur par défaut de l'instance. Enregistrer donne à ce locataire sa propre configuration.",
+        "own": "Ce locataire a sa propre configuration.",
+        "revert": "Suivre la valeur par défaut de l'instance",
+        "reverting": "Rétablissement…",
+        "reverted": "Suit désormais la valeur par défaut de l'instance"
+    },
+    "allowance": {
+        "title": "Consommation d'IA aujourd'hui",
+        "ofLimit": "sur {{limit}} requêtes",
+        "denied": "requêtes — l'IA n'est pas disponible pour ce locataire",
+        "hint": "Défini par l'exploitant de l'instance. Réinitialisé à minuit UTC."
+    }
+}

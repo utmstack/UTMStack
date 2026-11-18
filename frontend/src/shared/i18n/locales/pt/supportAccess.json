@@ -1,0 +1,33 @@
+{
+    "title": "Acesso de suporte",
+    "intro": "Quem opera esta instância não consegue olhar dentro dos seus dados sem a sua permissão. Nada aqui é concedido por padrão, e você pode retirar quando quiser.",
+    "loading": "Carregando…",
+    "loadFailed": "Não foi possível ler a configuração atual.",
+    "retry": "Tentar novamente",
+    "currentBadge": "atual",
+    "save": "Salvar",
+    "saving": "Salvando…",
+    "levels": {
+        "NONE": {
+            "name": "Sem acesso",
+            "desc": "O operador vê que o seu tenant existe e nada mais. Qualquer requisição aos seus dados é recusada."
+        },
+        "READ": {
+            "name": "Somente leitura",
+            "desc": "O operador pode ver seus alertas, logs e configuração para ajudar. Não pode mudar nada: toda escrita é recusada, seja qual for a função dele."
+        },
+        "FULL": {
+            "name": "Acesso total",
+            "desc": "O operador pode agir dentro do seu tenant como administrador: configuração, usuários e fluxos de resposta."
+        }
+    },
+    "fullWarning": "O acesso total permite que ele mude coisas em seu nome. Conceda enquanto precisar de ajuda direta e volte atrás depois.",
+    "revokeNote": "Tudo o que o operador fizer aqui fica registrado no seu log de auditoria.",
+    "toast": {
+        "granted": "Acesso de suporte atualizado",
+        "revoked": "Acesso de suporte revogado",
+        "forbidden": "Só um administrador deste tenant pode mudar isso",
+        "invalid": "Requisição inválida",
+        "failed": "Não foi possível salvar a alteração"
+    }
+}

@@ -1,0 +1,26 @@
+{
+    "quick": "Quick ranges",
+    "relative": "Relative",
+    "absolute": "Absolute",
+    "last": "Last",
+    "apply": "Apply",
+    "allTime": "All time",
+    "from": "From",
+    "to": "To",
+    "now": "now",
+    "units": {
+        "minutes": "minutes",
+        "hours": "hours",
+        "days": "days",
+        "weeks": "weeks",
+        "months": "months"
+    },
+    "presets": {
+        "15m": "Last 15 minutes",
+        "1h": "Last 1 hour",
+        "6h": "Last 6 hours",
+        "24h": "Last 24 hours",
+        "7d": "Last 7 days",
+        "30d": "Last 30 days"
+    }
+}

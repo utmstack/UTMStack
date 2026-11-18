@@ -1,0 +1,12 @@
+{
+    "title": "Notifications",
+    "markAllRead": "Tout marquer comme lu",
+    "empty": "Vous n'avez aucune notification.",
+    "viewAll": "Voir tout",
+    "markRead": "Marquer comme lu",
+    "markUnread": "Marquer comme non lu",
+    "delete": "Supprimer",
+    "subtitle": "{{total}} au total · {{unread}} non lues",
+    "allCaughtUp": "Tout est à jour.",
+    "loadFailed": "Impossible de charger les notifications."
+}

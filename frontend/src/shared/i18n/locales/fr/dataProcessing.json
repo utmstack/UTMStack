@@ -1,0 +1,115 @@
+{
+    "title": "Traitement des données",
+    "subtitle": "Statistiques d’ingestion et de traitement : événements reçus, rejetés par étape, et les principales sources et types.",
+    "ingestion": {
+        "title": "Ingestion",
+        "last24h": "dernières 24 heures",
+        "noData": "Aucune donnée sur cette fenêtre.",
+        "loadError": "Impossible de charger les statistiques d’ingestion.",
+        "groupBy": {
+            "dataSource": "Par source de données",
+            "dataType": "Par type de données"
+        },
+        "status": {
+            "received": "Reçus",
+            "parsing_dropped": "Rejetés (analyse syntaxique)",
+            "analysis_dropped": "Rejetés (analyse)",
+            "correlation_dropped": "Rejetés (corrélation)",
+            "all": "Tous les événements"
+        }
+    },
+    "filters": {
+        "title": "Filtres",
+        "new": "Nouveau filtre",
+        "search": "Rechercher par chemin…",
+        "refresh": "Actualiser",
+        "retry": "Réessayer",
+        "empty": "Aucun filtre ne correspond.",
+        "loadError": "Impossible de charger les filtres.",
+        "toggleError": "Impossible de changer l’état du filtre",
+        "system": "Système",
+        "custom": "Personnalisé",
+        "systemReadonly": "Les filtres système sont en lecture seule",
+        "view": "Voir",
+        "edit": "Modifier",
+        "ownership": {
+            "all": "Tous",
+            "system": "Système",
+            "custom": "Personnalisés"
+        },
+        "state": {
+            "all": "Tous",
+            "active": "Actifs",
+            "inactive": "Inactifs"
+        },
+        "col": {
+            "filter": "Filtre",
+            "type": "Type",
+            "active": "Actif",
+            "actions": "Actions"
+        },
+        "pageInfo": "{{from}}–{{to}} sur {{count}}"
+    },
+    "editor": {
+        "createTitle": "Nouveau filtre",
+        "editTitle": "Modifier le filtre",
+        "viewTitle": "Voir le filtre",
+        "relPath": "Chemin",
+        "relPathHint": "Dossier + fichier, p. ex. syslog/mon-filtre.yaml",
+        "content": "Pipeline (YAML)",
+        "contentHint": "Les étapes s’exécutent dans l’ordre : grok, rename, delete, plugins dynamic, …",
+        "save": "Enregistrer",
+        "saving": "Enregistrement…",
+        "saved": "Filtre enregistré",
+        "saveError": "Impossible d’enregistrer le filtre",
+        "cancel": "Annuler",
+        "delete": "Supprimer",
+        "deleteConfirm": "Supprimer ce filtre ?",
+        "deleted": "Filtre supprimé",
+        "deleteError": "Impossible de supprimer le filtre"
+    },
+    "kpi": {
+        "received": "Reçus",
+        "dropped": "Rejetés",
+        "dropRate": "{{rate}} % de rejet",
+        "stored": "Stockés",
+        "throughput": "Débit",
+        "perMin": "{{value}}/min",
+        "survival": "{{rate}}% conservés"
+    },
+    "section": {
+        "overTime": "Événements dans le temps",
+        "top": "Top",
+        "dropReasons": "Motifs de rejet"
+    },
+    "live": {
+        "auto": "Auto"
+    },
+    "pipeline": {
+        "title": "Pipeline d’ingestion",
+        "stages": {
+            "received": "Reçus",
+            "parsed": "Analysés (parse)",
+            "analyzed": "Analysés",
+            "stored": "Stockés"
+        }
+    },
+    "chart": {
+        "title": "Débit dans le temps",
+        "received": "Reçus",
+        "dropped": "Rejetés"
+    },
+    "donut": {
+        "title": "Composition des rejets",
+        "dropped": "rejetés"
+    },
+    "breakdown": {
+        "title": "Top sources et types",
+        "bars": "Barres",
+        "treemap": "Treemap",
+        "showAll": "Afficher les {{count}}",
+        "showLess": "Afficher moins",
+        "lastSeen": "Vu pour la dernière fois",
+        "ago": "il y a {{time}}"
+    }
+}

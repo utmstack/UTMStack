@@ -64,6 +64,16 @@ export function AdversariesSankey({ data }: { data: AdversaryResponse[] }) {
   const labelColor = theme === 'dark' ? '#f8fafc' : '#0f172a'
   const graph = useMemo(() => buildSankey(data), [data])
 
+  graph.nodes=graph.nodes.map(n=>{
+    if(n.label.startsWith("adversaries.")){
+      return {
+        ...n,
+        label:t(n.label)
+      }
+    }
+    return n
+  })
+
   const fieldLabels = useMemo(
     () => ({
       ip: t('adversaries.field.ip'),
@@ -85,15 +95,15 @@ export function AdversariesSankey({ data }: { data: AdversaryResponse[] }) {
       tooltip: {
         trigger: 'item',
         triggerOn: 'mousemove',
-        extraCssText: 'max-width:620px;',
+        extraCssText: 'padding-right:13px;padding-left:13px;',
         formatter: (p: {
           dataType: string
           name: string
           data: { source?: string; target?: string; value?: number; side?: Side; label?: string }
         }) => {
           if (p.dataType === 'edge') {
-            const src = p.data.source?.slice(2) ?? ''
-            const tgt = p.data.target?.slice(2) ?? ''
+            const src = t(p.data.source?.slice(2) ?? '')
+            const tgt = t(p.data.target?.slice(2) ?? '')
             return `${escapeHtml(src)} → ${escapeHtml(tgt)}<br/><b>${p.data.value ?? 0}</b>`
           }
           const label = p.data.label ?? p.name?.slice(2) ?? ''

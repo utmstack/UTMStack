@@ -1,0 +1,67 @@
+{
+    "title": "Журнал аудита",
+    "subtitle": "Запись всех действий, связанных с безопасностью.",
+    "totalEntries": "всего записей: {{total}}.",
+    "loadError": "Не удалось загрузить журнал аудита",
+    "stats": {
+        "totalEntries": "Всего записей",
+        "acrossAllTime": "За всё время",
+        "successRate": "Доля успешных",
+        "failuresOnPage_one": "{{count}} сбой на этой странице",
+        "failuresOnPage_few": "{{count}} сбоя на этой странице",
+        "failuresOnPage_many": "{{count}} сбоев на этой странице",
+        "failuresOnPage_other": "{{count}} сбоев на этой странице",
+        "topAction": "Частое действие",
+        "onPage": "{{count}} на этой странице",
+        "uniqueActors": "Уникальных пользователей",
+        "includingSystem": "Включая систему"
+    },
+    "filters": {
+        "title": "Фильтры",
+        "clear": "Очистить",
+        "last24h": "За 24 ч",
+        "failuresOnly": "Только сбои",
+        "authEvents": "События входа",
+        "actionPrefix": "Префикс действия",
+        "actionPlaceholder": "напр. auth., user.update",
+        "status": "Статус",
+        "any": "Любой",
+        "resourceType": "Тип ресурса",
+        "resourceTypePlaceholder": "user, alert…",
+        "resourceId": "ID ресурса",
+        "user": "Пользователь",
+        "userPlaceholder": "логин…"
+    },
+    "statusValue": {
+        "success": "Успех",
+        "failure": "Сбой"
+    },
+    "table": {
+        "timestamp": "Время",
+        "actor": "Субъект",
+        "action": "Действие",
+        "resource": "Ресурс",
+        "status": "Статус",
+        "ip": "IP",
+        "loading": "Загрузка…",
+        "emptyTitle": "Нет записей аудита по этим фильтрам.",
+        "emptyHint": "Попробуйте очистить фильтры или расширить диапазон дат.",
+        "system": "система",
+        "view": "Открыть"
+    },
+    "drawer": {
+        "entry": "запись №{{id}}",
+        "overview": "Обзор",
+        "raw": "Сырой JSON",
+        "error": "Ошибка",
+        "actor": "Субъект",
+        "resource": "Ресурс",
+        "ip": "IP",
+        "userAgent": "User agent",
+        "session": "Сеанс",
+        "metadata": "Метаданные",
+        "copy": "Копировать",
+        "copied": "Скопировано",
+        "copyJson": "Копировать JSON"
+    }
+}

@@ -2,20 +2,44 @@ import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import LanguageDetector from 'i18next-browser-languagedetector'
 
-/**
- * Auto-register every locale file in ./locales. Adding a new language is just
- * dropping a `<code>.json` file here (and, optionally, a label below) — no code
- * changes elsewhere.
- */
-const localeModules = import.meta.glob('./locales/*.json', { eager: true }) as Record<
-  string,
-  { default: Record<string, unknown> }
->
+const localeLoaders = import.meta.glob('./locales/*/index.ts', {
+  import: 'default',
+}) as Record<string, () => Promise<Record<string, unknown>>>
 
-const resources: Record<string, { translation: Record<string, unknown> }> = {}
-for (const path in localeModules) {
-  const code = path.match(/\/([a-z-]+)\.json$/)?.[1]
-  if (code) resources[code] = { translation: localeModules[path].default }
+const supported = new Set<string>()
+for (const path in localeLoaders) supported.add(path.match(/\/(\w+)\/index\.ts$/)![1])
+
+/** One language's merged domain bundle: each domain file becomes its own key (t('alerts.title')). */
+async function loadLanguage(code: string): Promise<Record<string, unknown>> {
+  const loader = localeLoaders[`./locales/${code}/index.ts`]
+  if (!loader) throw new Error(`i18n: no locale barrel for ${code}`)
+  return await loader()
+}
+
+/** Minimal i18next backend: v26 core calls read() per namespace (loadLanguageResources is v19-era, never invoked). */
+const cache = new Map<string, Promise<Record<string, unknown>>>()
+const lazyBackend = {
+  type: 'backend' as const,
+  init() {},
+
+  // v26 core calls read(lng, ns) once per hierarchy level and consumes the returned Promise (2-arg form).
+  read(lngs: string | string[], _ns: string): Promise<Record<string, unknown>> {
+    const lng = Array.isArray(lngs) ? lngs[0] : lngs
+    if (!supported.has(lng)) return Promise.resolve({})
+    let p = cache.get(lng)
+    if (!p) {
+      p = loadLanguage(lng).catch((err) => {
+        cache.delete(lng)
+        console.error('i18n: failed to load language', err)
+        return {} as Record<string, unknown>
+      })
+      cache.set(lng, p)
+    }
+    return p
+  },
+  create(_lngs: string[], _ns: string, cb: (err: null) => void) {
+    cb(null)
+  },
 }
 
 /** Human labels for the language picker. Falls back to the code if unmapped. */
@@ -34,7 +58,7 @@ export interface SupportedLanguage {
   label: string
 }
 
-export const SUPPORTED_LANGUAGES: SupportedLanguage[] = Object.keys(resources)
+export const SUPPORTED_LANGUAGES: SupportedLanguage[] = [...supported]
   .sort()
   .map((code) => ({ code, label: LANGUAGE_LABELS[code] ?? code }))
 
@@ -52,11 +76,12 @@ const hadStoredLanguage =
 
 void i18n
   .use(LanguageDetector)
+  .use(lazyBackend)
   .use(initReactI18next)
   .init({
-    resources,
+    // No upfront `resources`: the backend loads the active (and fallback) language.
     fallbackLng: FALLBACK_LANGUAGE,
-    supportedLngs: Object.keys(resources),
+    supportedLngs: [...supported],
     nonExplicitSupportedLngs: true, // 'es-ES' → 'es'
     interpolation: { escapeValue: false }, // React already escapes
     detection: {
@@ -81,7 +106,7 @@ export async function bootstrapPlatformLanguage(): Promise<void> {
     if (!res.ok) return
     const data = (await res.json()) as { language?: string }
     const lang = data.language
-    if (lang && resources[lang]) await i18n.changeLanguage(lang)
+    if (lang && supported.has(lang)) await i18n.changeLanguage(lang)
   } catch {
     // Backend not reachable yet (offline / boot): keep the detected language.
   }

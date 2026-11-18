@@ -57,6 +57,7 @@ type UserUsecase interface {
 	SetStatus(ctx context.Context, id uuid.UUID, status domain.UserStatus) error
 	AssignRoles(ctx context.Context, id uuid.UUID, input dto.AssignRolesRequest, callerIsAdmin bool) error
 	ResetTfa(ctx context.Context, id uuid.UUID) error
+	RemoveUser(ctx context.Context, userID uuid.UUID) error
 }
 
 type RoleUsecase interface {

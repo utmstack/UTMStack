@@ -127,6 +127,30 @@ func (s *service) EnableTiering(ctx context.Context, o domain.ColdTarget) (domai
 	}, nil
 }
 
+func (s *service) EnsureLocalCold(ctx context.Context) error {
+	t, err := s.config.Read()
+	if err != nil {
+		return err
+	}
+	if t.Configured {
+		return fmt.Errorf("cold storage already configured: %s", t.Kind)
+	}
+
+	// ensured cols will rewrite the saving path
+	if _, err := s.EnableTiering(ctx, domain.ColdTarget{Kind: domain.KindLocal, Endpoint: domain.AlternativeLocalMount}); err != nil {
+		return err
+	}
+
+	// The local mount exists for the data to live there: keep everything for
+	// 720 days and move it off the hot disk after one day.
+	for _, d := range domain.Datasets() {
+		if err := s.store.AdoptTiering(ctx, domain.Retention{Dataset: d, KeepDays: 720, ColdDays: 1}); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (s *service) waitForColdStorage(ctx context.Context) (bool, error) {
 	var lastErr error
 	for i := 0; i < 5; i++ {

@@ -9,7 +9,7 @@ import (
 )
 
 func logStr(event *plugins.Event, key string) string {
-	log := event.GetLog()
+	log := event.GetEvent()
 	if log == nil || log[key] == nil {
 		return ""
 	}
@@ -17,7 +17,7 @@ func logStr(event *plugins.Event, key string) string {
 }
 
 func logNumStr(event *plugins.Event, key string) string {
-	log := event.GetLog()
+	log := event.GetEvent()
 	if log == nil || log[key] == nil {
 		return ""
 	}

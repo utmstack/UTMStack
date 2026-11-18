@@ -1,0 +1,75 @@
+{
+    "title": "Об этом экземпляре",
+    "subtitle": "Версия, лицензия и состояние системы этого развёртывания UTMStack.",
+    "loading": "Загрузка информации об экземпляре…",
+    "edition": {
+        "enterprise": "Enterprise",
+        "community": "Community"
+    },
+    "fields": {
+        "hostname": "Сервер",
+        "instanceId": "ID экземпляра",
+        "noInstanceMeta": "Метаданные экземпляра недоступны."
+    },
+    "license": {
+        "title": "Лицензия",
+        "enterpriseMssp": "Enterprise · MSSP",
+        "datasources": "Datasources",
+        "communityLimited": "Лимит Community",
+        "unlimited": "Без ограничений",
+        "expires": "Истекает",
+        "managedNote": "Редакция, лимиты datasources и загрузка лицензии управляются на странице «Лицензия».",
+        "view": "Открыть лицензию",
+        "ingest": "Объём приёма",
+        "notMetered": "Без учёта",
+        "gbPerMonth": "{{gb}} ГБ/месяц"
+    },
+    "services": {
+        "backend": {
+            "name": "Backend API",
+            "desc": "REST-шлюз, аутентификация и оркестрация модулей."
+        },
+        "opensearch": {
+            "name": "OpenSearch",
+            "desc": "Хранилище логов и событий.",
+            "detail": "{{nodes}} узлов · {{shards}} шардов"
+        },
+        "unreachable": "Недоступно"
+    },
+    "status": {
+        "up": "В норме",
+        "degraded": "Снижено",
+        "down": "Недоступно",
+        "unknown": "Неизвестно"
+    },
+    "health": {
+        "title": "Состояние системы",
+        "allHealthy": "Все сервисы в норме. Обновите для повторной проверки.",
+        "issues_one": "{{count}} сервис требует внимания.",
+        "issues_few": "{{count}} сервиса требуют внимания.",
+        "issues_many": "{{count}} сервисов требуют внимания.",
+        "issues_other": "{{count}} сервисов требуют внимания.",
+        "refresh": "Обновить"
+    },
+    "usage": {
+        "title": "Источники данных",
+        "subtitle": "Источники данных, настроенные в этой установке.",
+        "ofUnlimited": "из неограниченного",
+        "ofLimit": "из {{limit}}",
+        "overLimit": "Превышен лицензионный лимит — данные сверх лимита под угрозой.",
+        "configured": "настроено"
+    },
+    "support": {
+        "title": "Поддержка",
+        "docs": "Документация",
+        "repo": "Репозиторий GitHub",
+        "issues": "Сообщить о проблеме",
+        "website": "utmstack.com"
+    },
+    "legal": {
+        "title": "Юридическая информация",
+        "license": "Лицензия",
+        "security": "Сообщение об уязвимости",
+        "copyright": "© {{year}} UTMStack. Все права защищены."
+    }
+}

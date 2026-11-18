@@ -13,6 +13,7 @@ import { AddCustomIntegrationCard } from '@/features/integrations/components/Add
 import { CreateIntegrationDrawer } from '@/features/integrations/components/CreateIntegrationDrawer'
 import { KIND_META, categoryLabel } from '@/features/integrations/constants'
 import { SYSTEM_MODULES } from '@/features/integrations/constants/systemModules'
+import { useAvailableDataTypes } from '@/features/log-explorer/services/useAvailableDataTypes'
 import type {
   Integration,
   DeployKind,
@@ -170,6 +171,8 @@ export function IntegrationsPage() {
   const [createDrawerOpen, setCreateDrawerOpen] = useState(false)
   const [editing, setEditing] = useState<Integration | null>(null)
 
+  const { dataTypes, isReady } = useAvailableDataTypes()
+
   const modules = integrations.integrations.data || []
   const displayList = useMemo(() => {
     const backend = modules.map((module) => mapModuleToIntegration(module, t))
@@ -230,7 +233,7 @@ export function IntegrationsPage() {
   return (
     <div className="w-full px-6 py-6">
       {/* Loading overlay */}
-      {integrations.isLoading && (
+      {integrations.isLoading || !isReady && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-card/60 backdrop-blur-sm">
           <div className="flex items-center gap-3 rounded-lg border border-border bg-card px-4 py-3">
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -306,6 +309,7 @@ export function IntegrationsPage() {
 
       {openLive && (
         <IntegrationDrawer
+          dataTypes={dataTypes}
           integration={openLive}
           onClose={() => setOpen(null)}
         />

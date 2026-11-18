@@ -1,0 +1,146 @@
+{
+    "title": "Инциденты",
+    "subtitle": "Группируйте, сортируйте и закрывайте связанные оповещения как инциденты.",
+    "refresh": "Обновить",
+    "count_one": "{{count}} инцидент",
+    "count_few": "{{count}} инцидента",
+    "count_many": "{{count}} инцидентов",
+    "count_other": "{{count}} инцидента",
+    "openNow": "открыто сейчас",
+    "empty": "Нет подходящих инцидентов.",
+    "loadError": "Не удалось загрузить инциденты.",
+    "retry": "Повторить",
+    "unassigned": "Не назначен",
+    "unknownUser": "Неизвестно",
+    "status": {
+        "open": "Открыт",
+        "in_review": "На проверке",
+        "completed": "Завершён",
+        "merged": "Объединён"
+    },
+    "sev": {
+        "high": "Высокая",
+        "medium": "Средняя",
+        "low": "Низкая",
+        "unknown": "Без оценки"
+    },
+    "toolbar": {
+        "search": "Поиск инцидентов…",
+        "create": "Создать инцидент",
+        "allSeverities": "Все уровни серьёзности",
+        "export": "Экспорт в CSV"
+    },
+    "statusTabs": {
+        "all": "Все"
+    },
+    "filters": {
+        "add": "Добавить фильтр",
+        "clearAll": "Очистить всё",
+        "filterValues": "Фильтровать значения…",
+        "loadingValues": "Загрузка значений…",
+        "noValues": "Значения не найдены.",
+        "pickValue": "Выберите значение, чтобы добавить фильтр.",
+        "empty": "(пусто)",
+        "cancel": "Отмена",
+        "addBtn": "Добавить"
+    },
+    "ops": {
+        "IS": "равно"
+    },
+    "layout": {
+        "table": "Таблица",
+        "board": "Доска"
+    },
+    "table": {
+        "name": "Инцидент",
+        "status": "Статус",
+        "severity": "Важность",
+        "assignee": "Ответственный",
+        "alerts": "Оповещения",
+        "created": "Создан"
+    },
+    "drawer": {
+        "created": "Создан {{date}}",
+        "alertsCount": "{{count}} оповещений",
+        "solutionPlaceholder": "Решение / заметки по устранению…",
+        "solutionHint": "Сохраняется при переводе инцидента в «Завершён».",
+        "tabs": {
+            "overview": "Обзор",
+            "alerts": "Оповещения",
+            "notes": "Заметки",
+            "history": "История"
+        },
+        "section": {
+            "description": "Описание",
+            "solution": "Решение",
+            "details": "Детали"
+        },
+        "details": {
+            "id": "ID",
+            "status": "Статус",
+            "severity": "Важность",
+            "assignee": "Ответственный",
+            "created": "Создан",
+            "alerts": "Связанные оповещения"
+        }
+    },
+    "alerts": {
+        "empty": "К этому инциденту не привязаны оповещения.",
+        "remove": "Отвязать оповещение",
+        "removeConfirm": "Отвязать «{{name}}» от этого инцидента?",
+        "removed": "Оповещение отвязано",
+        "removeError": "Не удалось отвязать оповещение",
+        "loadingAlert": "Загрузка оповещения…",
+        "alertGone": "Этого оповещения больше нет в хранилище — возможно, его удалило хранение.",
+        "alertFailed": "Не удалось загрузить оповещение.",
+        "openInAlerts": "Открыть в оповещениях"
+    },
+    "notes": {
+        "empty": "Заметок пока нет.",
+        "add": "Добавить заметку",
+        "addError": "Не удалось добавить заметку",
+        "placeholder": "Напишите заметку…"
+    },
+    "history": {
+        "empty": "Истории пока нет."
+    },
+    "toast": {
+        "statusChanged": "Статус инцидента обновлён",
+        "statusError": "Не удалось изменить статус",
+        "exportFailed": "Не удалось экспортировать CSV"
+    },
+    "assign": {
+        "assign": "Назначить",
+        "search": "Поиск пользователей…",
+        "unassign": "Снять назначение",
+        "noUsers": "Нет пользователей",
+        "assigned": "Назначено {{user}}",
+        "unassigned": "Назначение снято",
+        "error": "Не удалось изменить ответственного",
+        "custom": "Назначить произвольно",
+        "customPlaceholder": "Введите логин…"
+    },
+    "action": {
+        "INCIDENT_CREATED": "Инцидент создан",
+        "INCIDENT_ALERT_ADD": "Оповещения добавлены",
+        "INCIDENT_ALERT_STATUS_CHANGED": "Статус оповещений изменён",
+        "INCIDENT_STATUS_CHANGE": "Статус изменён",
+        "INCIDENT_NOTE_ADD": "Заметка добавлена",
+        "INCIDENT_NOTE_CHANGE": "Заметка изменена",
+        "INCIDENT_ASSIGNED": "Назначение изменено"
+    },
+    "create": {
+        "title": "Создать инцидент",
+        "stepIndicator": "Шаг {{current}} из {{total}}",
+        "selectedCount": "Выбрано оповещений: {{count}}",
+        "submit": "Создать",
+        "success": "Инцидент создан",
+        "error": "Не удалось создать инцидент",
+        "details": {
+            "nameLabel": "Название",
+            "namePlaceholder": "Короткое описательное название",
+            "descriptionLabel": "Описание",
+            "descriptionPlaceholder": "Контекст, область, первичные заметки…"
+        }
+    }
+}

@@ -1,0 +1,248 @@
+name: "PfSense Firewall"
+description: "Firewall activity: blocked connections, top talkers, rules and alerts."
+widgets:
+  # Row 1 (y 0-4): single numbers.
+  - layout: { x: 0, y: 0, w: 3, h: 4 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: firewall-pfsense }
+    config:
+      __builder:
+        chartType: metric
+        title: "Total logs"
+
+  - layout: { x: 3, y: 0, w: 3, h: 4 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: firewall-pfsense }
+        - { field: actionResult, op: eq, value: blocked }
+    config:
+      __builder:
+        chartType: metric
+        title: "Blocked connections"
+
+  - layout: { x: 6, y: 0, w: 3, h: 4 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: firewall-pfsense }
+        - { field: actionResult, op: eq, value: blocked }
+        - { field: origin.geolocation.country, op: exists }
+    config:
+      __builder:
+        chartType: metric
+        title: "Blocked from public IPs"
+
+  - layout: { x: 9, y: 0, w: 3, h: 4 }
+    spec:
+      dataset: alerts
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: firewall-pfsense }
+    config:
+      __builder:
+        chartType: metric
+        title: "Alerts"
+
+  # Row 2 (y 4-11): volume over time plus firewall IP breakdown.
+  - layout: { x: 0, y: 4, w: 8, h: 7 }
+    spec:
+      dataset: logs
+      chart: time
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: firewall-pfsense }
+    config:
+      __builder:
+        chartType: area
+        title: "Log volume over time"
+
+  - layout: { x: 8, y: 4, w: 4, h: 7 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: dataSource
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: firewall-pfsense }
+    config:
+      __builder:
+        chartType: bar
+        title: "Logs by firewall IP"
+
+  # Row 3 (y 11-17): top talkers.
+  - layout: { x: 0, y: 11, w: 3, h: 6 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: log.eventType
+      metric:
+        agg: count
+      limit: 25
+      filters:
+        - { field: dataType, op: eq, value: firewall-pfsense }
+        - { field: log.eventType, op: exists }
+    config:
+      __builder:
+        chartType: bar
+        title: "Top programs"
+
+  - layout: { x: 3, y: 11, w: 3, h: 6 }
+    spec:
+      dataset: logs
+      chart: time
+      dimension: log.eventType
+      metric:
+        agg: count
+      limit: 5
+      filters:
+        - { field: dataType, op: eq, value: firewall-pfsense }
+        - { field: log.eventType, op: exists }
+    config:
+      __builder:
+        chartType: line
+        title: "Programs over time (top 5)"
+
+  - layout: { x: 6, y: 11, w: 3, h: 6 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: origin.ip
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: firewall-pfsense }
+        - { field: origin.ip, op: exists }
+    config:
+      __builder:
+        chartType: bar
+        title: "Top source IPs"
+
+  - layout: { x: 9, y: 11, w: 3, h: 6 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: target.port
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: firewall-pfsense }
+        - { field: target.port, op: exists }
+    config:
+      __builder:
+        chartType: bar
+        title: "Top destination ports"
+
+  # Row 4 (y 17-23): more breakdowns.
+  - layout: { x: 0, y: 17, w: 4, h: 6 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: origin.geolocation.country
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: firewall-pfsense }
+        - { field: origin.geolocation.country, op: exists }
+    config:
+      __builder:
+        chartType: bar
+        title: "Top source countries"
+
+  - layout: { x: 4, y: 17, w: 4, h: 6 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: log.realInterface
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: firewall-pfsense }
+        - { field: log.realInterface, op: exists }
+    config:
+      __builder:
+        chartType: bar
+        title: "Top interfaces"
+
+  - layout: { x: 8, y: 17, w: 4, h: 6 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: log.tracker
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: firewall-pfsense }
+        - { field: log.tracker, op: exists }
+    config:
+      __builder:
+        chartType: bar
+        title: "Top firewall rules (tracking ID)"
+
+  # Row 5 (y 23-30): alert breakdowns.
+  - layout: { x: 0, y: 23, w: 6, h: 7 }
+    spec:
+      dataset: alerts
+      chart: category
+      dimension: name
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: firewall-pfsense }
+    config:
+      __builder:
+        chartType: bar
+        title: "Alerts by rule"
+
+  - layout: { x: 6, y: 23, w: 6, h: 7 }
+    spec:
+      dataset: alerts
+      chart: category
+      dimension: severity
+      metric:
+        agg: count
+      limit: 50
+      filters:
+        - { field: dataType, op: eq, value: firewall-pfsense }
+    config:
+      __builder:
+        chartType: bar
+        title: "Alerts by severity"
+
+  # Row 6 (y 30-39): the latest logs, as a table.
+  - layout: { x: 0, y: 30, w: 12, h: 9 }
+    spec:
+      dataset: logs
+      chart: table
+      metric:
+        agg: count
+      columns: ["@timestamp", "dataSource", "log.eventType", "action", "log.realInterface", "target.ip", "target.host", "target.port"]
+      limit: 20
+      filters:
+        - { field: dataType, op: eq, value: firewall-pfsense }
+    config:
+      __builder:
+        chartType: table
+        title: "Latest logs"

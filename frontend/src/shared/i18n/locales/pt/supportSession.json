@@ -1,0 +1,6 @@
+{
+    "inside": "Você está trabalhando dentro de {{name}}",
+    "readOnly": "somente leitura — as escritas são recusadas",
+    "full": "acesso total — o que mudar aqui é real",
+    "leave": "Sair"
+}

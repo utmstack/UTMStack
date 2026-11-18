@@ -1,7 +1,7 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
-import { ChevronDown, Filter, Loader2, Pencil, Trash2, X } from 'lucide-react'
+import { AlertTriangle, ChevronDown, FileText, Filter, Loader2, Pencil, Trash2, X } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { ConfirmDialog } from '@/shared/components/ui/confirm-dialog'
 import { useFieldValues } from '@/features/dashboard/hooks/useDatasets'
@@ -27,6 +27,9 @@ export function DashboardFilterBar({
   editable = false,
   onSaveChips,
   savingChips = false,
+  dataType,
+  onViewLogs,
+  onViewAlerts,
 }: {
   chips: DashboardFilterChip[]
   values: ChipValueMap
@@ -34,6 +37,10 @@ export function DashboardFilterBar({
   editable?: boolean
   onSaveChips?: (next: DashboardFilterChip[]) => void
   savingChips?: boolean
+  /** Set when every widget on the dashboard shares one data type — enables the nav buttons. */
+  dataType?: string | null
+  onViewLogs?: () => void
+  onViewAlerts?: () => void
 }) {
   const { t } = useTranslation()
   // Anchor + mode for the single-chip editor popover. `chip=null` → add mode,
@@ -44,7 +51,7 @@ export function DashboardFilterBar({
   >(null)
   const [pendingDelete, setPendingDelete] = useState<DashboardFilterChip | null>(null)
 
-  if (chips.length === 0 && !editable) return null
+  if (chips.length === 0 && !editable && !dataType) return null
 
   const setValue = (id: string, next: string | string[] | null) => {
     if (next === null || (Array.isArray(next) && next.length === 0) || next === '') {
@@ -103,6 +110,12 @@ export function DashboardFilterBar({
           {t('dashboards.filters.saving')}
         </span>
       )}
+      {dataType && (
+        <div className="ml-auto flex items-center gap-2">
+          <NavigateButton icon={<FileText size={12} />} label={t('dashboards.filters.viewLogs')} onClick={onViewLogs} />
+          <NavigateButton icon={<AlertTriangle size={12} />} label={t('dashboards.filters.viewAlerts')} onClick={onViewAlerts} />
+        </div>
+      )}
 
       {popover && (
         <ChipEditorPopover
@@ -125,6 +138,28 @@ export function DashboardFilterBar({
         onConfirm={confirmRemove}
       />
     </div>
+  )
+}
+
+function NavigateButton({
+  icon,
+  label,
+  onClick,
+}: {
+  icon: ReactNode
+  label: string
+  onClick?: () => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex h-8 items-center gap-1.5 rounded-md border border-input bg-background px-2 text-xs text-muted-foreground transition-colors hover:border-primary/60 hover:text-foreground"
+      title={label}
+    >
+      {icon}
+      {label}
+    </button>
   )
 }
 

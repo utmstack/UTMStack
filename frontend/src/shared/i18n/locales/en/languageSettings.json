@@ -1,0 +1,11 @@
+{
+    "title": "Platform language",
+    "subtitle": "Default UI language for pre-login screens, system emails and new users. Each user can still pick their own in their profile.",
+    "label": "Default language",
+    "hint": "Used when a user hasn't chosen their own language.",
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Platform language updated",
+    "loadError": "Could not load the language setting",
+    "saveError": "Could not save the language setting"
+}

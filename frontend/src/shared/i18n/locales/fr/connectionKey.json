@@ -1,0 +1,50 @@
+{
+    "title": "Clé de connexion",
+    "subtitle1": "La clé que les agents présentent lors de leur enregistrement sur cette instance.",
+    "subtitleEmphasis": "Elle sert uniquement à l'installation des agents",
+    "subtitle2": "— pas pour les collecteurs, les intégrations ou l'API. Elle est gérée par l'agent-manager.",
+    "status": {
+        "label": "Statut",
+        "loading": "Chargement…",
+        "unavailable": "Agent-manager indisponible",
+        "active": "Active",
+        "unavailableHint": "Impossible de contacter l'agent-manager pour lire la clé.",
+        "activeHint": "Les agents peuvent s'enregistrer avec cette clé."
+    },
+    "token": {
+        "title": "Clé de connexion",
+        "subtitle": "Traitez cette valeur comme un identifiant. La faire tourner émet une nouvelle clé pour les futures installations d'agents — les agents déjà enregistrés continuent de fonctionner.",
+        "loadFailedTitle": "Impossible de charger la clé de connexion",
+        "unavailableTitle": "Clé de connexion indisponible",
+        "loadFailedHint": "La clé est gérée par l'agent-manager, qui n'a pas répondu. Réessayez dans un instant.",
+        "retry": "Réessayer",
+        "show": "Afficher la clé",
+        "hide": "Masquer la clé",
+        "copy": "Copier",
+        "copied": "Copié",
+        "regenerate": "Régénérer la clé de connexion",
+        "confirmTitle": "Régénérer la clé ?",
+        "confirmBody": "Les nouvelles installations d'agents auront besoin de la nouvelle clé. Les agents déjà enregistrés continuent de fonctionner. Action irréversible.",
+        "regenerating": "Régénération…",
+        "confirmYes": "Oui, régénérer",
+        "cancel": "Annuler"
+    },
+    "security": {
+        "title": "Recommandations de sécurité",
+        "subtitle": "Bonnes pratiques pour protéger cet identifiant.",
+        "rotateTitle": "Renouveler tous les 90 jours",
+        "rotateBody": "Planifiez une rotation récurrente. UTMStack peut vous envoyer un rappel par e-mail lorsque la clé a plus de 90 jours.",
+        "rotateAction": "Configurer un rappel",
+        "secretTitle": "Stockez-la comme un secret",
+        "secretBody": "Ne la committez pas dans le contrôle de version. Utilisez votre gestionnaire de secrets (Vault, AWS SM, etc.) et injectez-la au moment de l'installation.",
+        "auditTitle": "Auditez qui l'a récupérée",
+        "auditBody": "Chaque récupération et rotation est enregistrée dans le journal d'audit de l'application.",
+        "auditAction": "Voir le journal d'audit"
+    },
+    "toast": {
+        "loadFailed": "Impossible de charger la clé de connexion",
+        "rotated": "Clé de connexion renouvelée",
+        "rotateFailed": "Impossible de renouveler la clé de connexion",
+        "copyFailed": "Impossible de copier"
+    }
+}

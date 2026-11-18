@@ -1,0 +1,50 @@
+{
+    "title": "Configuration e-mail",
+    "subtitle": "Serveur SMTP utilisé pour envoyer les notifications d’alertes, les rapports et les e-mails de compte.",
+    "server": {
+        "title": "Serveur SMTP",
+        "host": "Hôte",
+        "hostHint": "Nom d’hôte de votre serveur SMTP.",
+        "port": "Port",
+        "encryption": "Chiffrement",
+        "username": "Nom d’utilisateur",
+        "password": "Mot de passe",
+        "passwordSetHint": "Un mot de passe est enregistré. Laissez vide pour le conserver, ou saisissez-en un nouveau pour le modifier."
+    },
+    "encryptionOpt": {
+        "TLS": "TLS",
+        "SSL": "SSL",
+        "NONE": "Aucun"
+    },
+    "sender": {
+        "title": "Expéditeur",
+        "from": "Adresse d’expéditeur",
+        "fromHint": "Adresse depuis laquelle les e-mails sont envoyés.",
+        "organization": "Nom de l’organisation",
+        "organizationHint": "Affiché dans les e-mails de notification d’alertes et d’incidents.",
+        "baseUrl": "URL de base",
+        "baseUrlHint": "URL publique de cette instance, utilisée pour les liens dans les e-mails."
+    },
+    "test": {
+        "button": "Envoyer un test",
+        "sending": "Envoi…",
+        "sentTo": "Un e-mail de test sera envoyé à {{email}}.",
+        "success": "E-mail de test envoyé à {{email}}",
+        "fail": "Impossible d’envoyer l’e-mail de test",
+        "fromRequired": "Définissez une adresse d’expéditeur avant de tester"
+    },
+    "save": "Enregistrer les modifications",
+    "saving": "Enregistrement…",
+    "saved": "Configuration e-mail enregistrée",
+    "saveError": "Impossible d’enregistrer la configuration",
+    "loadError": "Impossible de charger la configuration",
+    "recipients": {
+        "alertsTitle": "Destinataires des alertes",
+        "incidentsTitle": "Destinataires des incidents",
+        "to": "À",
+        "cc": "Cc",
+        "alertsHelper": "Adresses prévenues lors de nouvelles alertes. Laissez vide et les alertes ne sont pas envoyées par e-mail.",
+        "incidentsHelper": "Adresses prévenues à la création d'un incident. Laissez vide et les incidents ne sont pas envoyés par e-mail.",
+        "add": "Ajouter"
+    }
+}

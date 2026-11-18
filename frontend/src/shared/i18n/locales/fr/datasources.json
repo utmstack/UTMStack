@@ -1,0 +1,192 @@
+{
+    "limitBanner": {
+        "title": "Limite de sources de données dépassée.",
+        "message": "Vous avez {{count}} sources de données mais votre licence en couvre {{limit}}. Les journaux des sources au-delà de la limite sont rejetés.",
+        "cta": "Gérer la licence",
+        "dismiss": "Ignorer"
+    },
+    "title": "Sources de données",
+    "total": "{{count}} au total",
+    "exportPdf": "Exporter en PDF",
+    "subtitle": "Agents, intégrations et sources directes qui envoient des événements. Le statut est dérivé de la dernière fois que chaque source a été vue.",
+    "connectSource": "Connecter une source",
+    "loading": "Chargement des sources de données…",
+    "loadFailed": "Impossible de charger les sources de données.",
+    "retry": "Réessayer",
+    "none": "Aucune source ne correspond à cette vue.",
+    "ingestion": {
+        "title": "Ingestion",
+        "received": "événements reçus",
+        "none": "Aucune ingestion ces dernières 24 heures.",
+        "ago24h": "il y a 24h",
+        "now": "maintenant"
+    },
+    "usage": {
+        "title": "Sources de données",
+        "ofUnlimited": "sur illimité",
+        "ofLimit": "sur {{limit}}",
+        "overLimit": "Au-delà de la limite sous licence — les données au-delà du plafond sont à risque.",
+        "configured": "configurées"
+    },
+    "tabs": {
+        "all": "Toutes",
+        "agent": "Agents",
+        "puller": "Intégrations",
+        "direct": "Directes",
+        "offline": "Hors ligne"
+    },
+    "toolbar": {
+        "searchPlaceholder": "Rechercher par nom…",
+        "list": "Liste",
+        "cards": "Cartes",
+        "refresh": "Actualiser"
+    },
+    "labels": {
+        "filteredBy": "Filtré par label",
+        "add": "Ajouter un label…",
+        "addFirst": "Ajouter un label…",
+        "hint": "Saisissez un label et appuyez sur Entrée pour l'ajouter. Les modifications sont enregistrées automatiquement."
+    },
+    "status": {
+        "live": "Actif",
+        "idle": "Inactif",
+        "offline": "Hors ligne"
+    },
+    "kind": {
+        "agent": "Agent",
+        "puller": "Intégration",
+        "direct": "Directe"
+    },
+    "cols": {
+        "source": "Source",
+        "type": "Type",
+        "status": "Statut",
+        "events24h": "Événements 24h",
+        "lastSeen": "Vu pour la dernière fois"
+    },
+    "time": {
+        "justNow": "à l'instant",
+        "minutesAgo": "il y a {{count}}m",
+        "hoursAgo": "il y a {{count}}h",
+        "daysAgo": "il y a {{count}}j"
+    },
+    "drawer": {
+        "loading": "Chargement…",
+        "loadFailed": "Impossible de charger la source de données.",
+        "statsIdentity": "Stats et identité",
+        "metadata": "Métadonnées",
+        "labelsSection": "Labels",
+        "dangerZone": "Zone de danger",
+        "rows": {
+            "events24h": "Événements 24h",
+            "lastSeen": "Vu pour la dernière fois",
+            "discovered": "Découverte",
+            "kind": "Type d'origine",
+            "dataType": "Type de donnée",
+            "ip": "IP",
+            "id": "ID"
+        },
+        "dangerText": "La suppression retire cette source du registre. Les événements historiques restent consultables dans le Log Explorer ; si la source continue d'envoyer des données, elle sera redécouverte.",
+        "delete": "Supprimer la source",
+        "confirmDelete": "Confirmer la suppression",
+        "cancel": "Annuler",
+        "viewLogs": "Voir les journaux",
+        "trend": "Tendance d'ingestion",
+        "noTrend": "Aucun événement reçu sur cette période",
+        "logGap": "Dernier événement {{since}} — interruption possible des journaux"
+    },
+    "toast": {
+        "labelsUpdated": "Labels mis à jour",
+        "labelsFailed": "Échec de la mise à jour des labels",
+        "deleted": "Source supprimée",
+        "deleteFailed": "Échec de la suppression",
+        "exportFailed": "Échec de l'export du rapport"
+    },
+    "sensitivity": {
+        "section": "Sensibilité de l'actif",
+        "hint": "Criticité métier (CIA, 0–3) de cet actif. Les alertes ciblant son hôte/IP sont pondérées par ces valeurs.",
+        "saved": "Sensibilité mise à jour",
+        "failed": "Échec de la mise à jour de la sensibilité",
+        "save": "Enregistrer",
+        "confidentiality": "Confidentialité",
+        "integrity": "Intégrité",
+        "availability": "Disponibilité",
+        "levels": {
+            "0": "Aucune",
+            "1": "Faible",
+            "2": "Moyenne",
+            "3": "Élevée"
+        }
+    },
+    "console": {
+        "section": "Console",
+        "sectionHint": "Exécuter des commandes sur cet hôte via son agent (réponse en direct).",
+        "open": "Ouvrir la console",
+        "close": "Fermer",
+        "hint": "Saisissez une commande et appuyez sur Entrée pour l'exécuter sur l'agent.",
+        "running": "Exécution…",
+        "placeholder": "Saisissez une commande…",
+        "offline": "Cet agent semble hors ligne — il pourrait ne pas répondre aux commandes.",
+        "vars": {
+            "button": "Variables",
+            "title": "Variables de commande",
+            "subtitle": "Référencez-les dans les commandes sous la forme",
+            "add": "Nouvelle variable",
+            "name": "Nom",
+            "value": "Valeur",
+            "description": "Description",
+            "isSecret": "Secret (chiffré, masqué dans la sortie)",
+            "secret": "secret",
+            "secretHint": "Laissez vide pour conserver la valeur enregistrée.",
+            "save": "Enregistrer",
+            "cancel": "Annuler",
+            "edit": "Modifier",
+            "delete": "Supprimer",
+            "loading": "Chargement…",
+            "empty": "Aucune variable pour l'instant.",
+            "saved": "Variable enregistrée",
+            "deleted": "Variable supprimée",
+            "nameRequired": "Le nom est requis",
+            "loadError": "Échec du chargement des variables",
+            "saveError": "Échec de l'enregistrement de la variable",
+            "deleteError": "Échec de la suppression de la variable",
+            "insert": "Insérer",
+            "valueRequired": "Une valeur est requise"
+        },
+        "disabled": "Agent hors ligne — commandes désactivées",
+        "connError": "Erreur de connexion",
+        "cmdError": "Erreur de commande",
+        "shellSelect": "Type de shell",
+        "noRemoteControl": "Cet agent a été installé avec le contrôle à distance désactivé. Il refuse les commandes, et cela ne peut être modifié que sur la machine elle-même.",
+        "noRemoteControlShort": "Contrôle à distance désactivé sur cet agent",
+        "password": {
+            "title": "Authentification",
+            "hint": "S'authentifier pour exécuter des commandes sur cet agent.",
+            "tfaPrompt": "Code: ",
+            "confirm": "OK",
+            "cancel": "Annuler",
+            "authError": "Échec de l'authentification",
+            "authHint": "S'authentifier pour exécuter des commandes sur cet agent.",
+            "authOk": "Authentifié."
+        }
+    },
+    "health": {
+        "online": "en ligne",
+        "offline": "hors ligne",
+        "total": "total"
+    },
+    "report": {
+        "title": "UTMStack — Rapport des sources de données",
+        "generatedBy": "Généré par UTMStack",
+        "eventsReceived": "Événements reçus",
+        "agents": "Agents",
+        "integrations": "Intégrations",
+        "direct": "Direct",
+        "volume": "Volume reçu",
+        "list": "Toutes les sources de données",
+        "rowsNote": "lignes",
+        "preparing": "Préparation…",
+        "print": "Imprimer / Enregistrer en PDF",
+        "close": "Fermer"
+    }
+}

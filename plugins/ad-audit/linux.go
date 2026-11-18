@@ -215,7 +215,7 @@ func evictOldestN(m map[string]time.Time, n int) {
 }
 
 func logStrPath(event *plugins.Event, path ...string) string {
-	log := event.GetLog()
+	log := event.GetEvent()
 	if log == nil || len(path) == 0 {
 		return ""
 	}

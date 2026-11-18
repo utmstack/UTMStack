@@ -1,0 +1,33 @@
+{
+    "title": "Accès support",
+    "intro": "Celui qui exploite cette instance ne peut pas regarder dans vos données sans votre accord. Rien n'est accordé par défaut, et vous pouvez le retirer à tout moment.",
+    "loading": "Chargement…",
+    "loadFailed": "Impossible de lire le réglage actuel.",
+    "retry": "Réessayer",
+    "currentBadge": "actuel",
+    "save": "Enregistrer",
+    "saving": "Enregistrement…",
+    "levels": {
+        "NONE": {
+            "name": "Aucun accès",
+            "desc": "L'exploitant voit que votre locataire existe, rien de plus. Toute requête vers vos données est refusée."
+        },
+        "READ": {
+            "name": "Lecture seule",
+            "desc": "L'exploitant peut consulter vos alertes, vos logs et votre configuration pour vous aider. Il ne peut rien modifier : toute écriture est refusée, quel que soit son propre rôle."
+        },
+        "FULL": {
+            "name": "Accès complet",
+            "desc": "L'exploitant peut agir dans votre locataire en tant qu'administrateur : configuration, utilisateurs et flux de réponse."
+        }
+    },
+    "fullWarning": "L'accès complet lui permet de modifier des choses en votre nom. Accordez-le le temps d'une intervention, puis revenez en arrière.",
+    "revokeNote": "Tout ce que l'exploitant fait ici est consigné dans votre journal d'audit.",
+    "toast": {
+        "granted": "Accès support mis à jour",
+        "revoked": "Accès support retiré",
+        "forbidden": "Seul un administrateur de ce locataire peut changer cela",
+        "invalid": "Requête invalide",
+        "failed": "Impossible d'enregistrer la modification"
+    }
+}

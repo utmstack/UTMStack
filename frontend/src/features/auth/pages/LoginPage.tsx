@@ -83,10 +83,13 @@ export function LoginPage() {
   }, [ssoError])
 
 
-  // An invitation / reset link lands here with ?key=… → show the set-password form.
   useEffect(() => {
+    if (resetKey && location.pathname === '/auth/login') {
+      navigate({ pathname: '/reset/finish', search: location.search }, { replace: true })
+      return
+    }
     if (resetKey) setMode('reset')
-  }, [resetKey])
+  }, [resetKey, location.pathname, navigate])
 
   const goAuthenticated = () => navigate(from, { replace: true })
 

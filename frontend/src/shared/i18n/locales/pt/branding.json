@@ -1,0 +1,50 @@
+{
+    "title": "Marca",
+    "subtitle": "Personalize o UTMStack com a identidade da sua organização — aplicado em tudo: tela de login, menu lateral, e-mails e relatórios.",
+    "enterpriseRequired": "O white-label é um recurso Enterprise.",
+    "manageLicense": "Gerenciar licença",
+    "enable": {
+        "title": "White-label",
+        "description": "Substitua a marca UTMStack pela sua em toda a plataforma.",
+        "label": "Ativar white-label"
+    },
+    "identity": {
+        "title": "Identidade",
+        "productName": "Nome do produto",
+        "productNameHint": "Exibido na barra de título, menu lateral e e-mails.",
+        "accent": "Cor de destaque",
+        "accentHint": "Cor primária de botões, links e estados ativos.",
+        "custom": "Cor personalizada"
+    },
+    "logos": {
+        "title": "Logos",
+        "hint": "PNG, SVG, WEBP, JPG ou ICO. Até 5 MB.",
+        "logo": "Logo (claro)",
+        "logoDark": "Logo (escuro)",
+        "favicon": "Favicon"
+    },
+    "reports": {
+        "title": "Recursos de relatório",
+        "hint": "Incorporados nos relatórios PDF gerados.",
+        "reportLogo": "Logo do relatório",
+        "reportCover": "Capa do relatório"
+    },
+    "asset": {
+        "upload": "Enviar",
+        "replace": "Substituir"
+    },
+    "save": "Salvar alterações",
+    "saving": "Salvando…",
+    "saved": "Marca atualizada",
+    "saveError": "Não foi possível salvar a marca",
+    "uploaded": "Imagem enviada",
+    "uploadError": "Não foi possível enviar a imagem",
+    "loadError": "Não foi possível carregar a marca",
+    "enterprise": {
+        "title": "A marca branca é um recurso Enterprise",
+        "body": "Substitua o nome do produto, o logotipo e a capa dos relatórios pelos seus, para que o painel e tudo o que ele gera levem a sua marca e não a da UTMStack.",
+        "upgrade": "Atualizar para Enterprise"
+    },
+    "restore": "Restaurar os padrões da UTMStack",
+    "restored": "Marca restaurada aos padrões da UTMStack"
+}

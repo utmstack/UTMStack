@@ -1,0 +1,115 @@
+{
+    "title": "Procesamiento de datos",
+    "subtitle": "Estadísticas de ingesta y procesamiento: eventos recibidos, descartados por etapa, y las principales fuentes y tipos.",
+    "ingestion": {
+        "title": "Ingesta",
+        "last24h": "últimas 24 horas",
+        "noData": "Sin datos en esta ventana.",
+        "loadError": "No se pudieron cargar las stats de ingesta.",
+        "groupBy": {
+            "dataSource": "Por fuente de datos",
+            "dataType": "Por tipo de dato"
+        },
+        "status": {
+            "received": "Recibidos",
+            "parsing_dropped": "Descartados (parseo)",
+            "analysis_dropped": "Descartados (análisis)",
+            "correlation_dropped": "Descartados (correlación)",
+            "all": "Todos los eventos"
+        }
+    },
+    "filters": {
+        "title": "Filtros",
+        "new": "Nuevo filtro",
+        "search": "Buscar por ruta…",
+        "refresh": "Actualizar",
+        "retry": "Reintentar",
+        "empty": "Ningún filtro coincide.",
+        "loadError": "No se pudieron cargar los filtros.",
+        "toggleError": "No se pudo cambiar el estado del filtro",
+        "system": "Sistema",
+        "custom": "Personalizado",
+        "systemReadonly": "Los filtros del sistema son de solo lectura",
+        "view": "Ver",
+        "edit": "Editar",
+        "ownership": {
+            "all": "Todos",
+            "system": "Sistema",
+            "custom": "Personalizados"
+        },
+        "state": {
+            "all": "Todos",
+            "active": "Activos",
+            "inactive": "Inactivos"
+        },
+        "col": {
+            "filter": "Filtro",
+            "type": "Tipo",
+            "active": "Activo",
+            "actions": "Acciones"
+        },
+        "pageInfo": "{{from}}–{{to}} de {{count}}"
+    },
+    "editor": {
+        "createTitle": "Nuevo filtro",
+        "editTitle": "Editar filtro",
+        "viewTitle": "Ver filtro",
+        "relPath": "Ruta",
+        "relPathHint": "Carpeta + archivo, p.ej. syslog/mi-filtro.yaml",
+        "content": "Pipeline (YAML)",
+        "contentHint": "Los pasos corren en orden: grok, rename, delete, plugins dynamic, …",
+        "save": "Guardar",
+        "saving": "Guardando…",
+        "saved": "Filtro guardado",
+        "saveError": "No se pudo guardar el filtro",
+        "cancel": "Cancelar",
+        "delete": "Eliminar",
+        "deleteConfirm": "¿Eliminar este filtro?",
+        "deleted": "Filtro eliminado",
+        "deleteError": "No se pudo eliminar el filtro"
+    },
+    "kpi": {
+        "received": "Recibidos",
+        "dropped": "Descartados",
+        "dropRate": "{{rate}}% de descarte",
+        "stored": "Almacenados",
+        "throughput": "Rendimiento",
+        "perMin": "{{value}}/min",
+        "survival": "{{rate}}% conservados"
+    },
+    "section": {
+        "overTime": "Eventos en el tiempo",
+        "top": "Top",
+        "dropReasons": "Razones de descarte"
+    },
+    "live": {
+        "auto": "Auto"
+    },
+    "pipeline": {
+        "title": "Pipeline de ingesta",
+        "stages": {
+            "received": "Recibidos",
+            "parsed": "Parseados",
+            "analyzed": "Analizados",
+            "stored": "Almacenados"
+        }
+    },
+    "chart": {
+        "title": "Rendimiento en el tiempo",
+        "received": "Recibidos",
+        "dropped": "Descartados"
+    },
+    "donut": {
+        "title": "Composición de descartes",
+        "dropped": "descartados"
+    },
+    "breakdown": {
+        "title": "Top fuentes y tipos",
+        "bars": "Barras",
+        "treemap": "Treemap",
+        "showAll": "Ver los {{count}}",
+        "showLess": "Ver menos",
+        "lastSeen": "Visto por última vez",
+        "ago": "hace {{time}}"
+    }
+}

@@ -2,7 +2,7 @@ import { SEVERITY_RANK } from '@/features/alerts/types/alert.types'
 import type { AdversaryResponse, Side } from '../types/adversary.types'
 
 function sideLabel(s?: Side | null): string {
-  return s?.ip || s?.host || s?.user || s?.domain || ''
+  return s?.ip || s?.host || s?.user || s?.domain || s?.user || 'adversaries.field.no_target'
 }
 
 // Merge two Side records field-wise; existing values win, new values fill gaps.
@@ -78,12 +78,14 @@ export function buildSankey(responses: AdversaryResponse[]): SankeyGraph {
     if (!advLabel || !r.alerts?.length) continue
     const advKey = ADV + advLabel
 
+
     for (const wrap of r.alerts) {
       const chain = [wrap.alert, ...(wrap.children ?? [])]
       for (const a of chain) {
         const name = (a.name ?? '').trim()
-        const victimLabel = sideLabel(a.target)
-        if (!name || !victimLabel) continue
+        const victimLabel = sideLabel(a.target) ?? 'no target'
+
+
         const altKey = ALT + name
         const vicKey = VIC + victimLabel
         const sev = SEVERITY_RANK[a.severity ?? ''] ?? 0
@@ -95,6 +97,7 @@ export function buildSankey(responses: AdversaryResponse[]): SankeyGraph {
       }
     }
   }
+
 
   return {
     nodes: [...nodes.values()],

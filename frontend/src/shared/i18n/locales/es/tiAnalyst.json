@@ -1,0 +1,92 @@
+{
+    "console": {
+        "subtitle": "Espacio del analista",
+        "model": "Modelo",
+        "resizeResults": "Redimensionar el panel de resultados",
+        "resizeHint": "Arrastrar para redimensionar · doble clic para restablecer"
+    },
+    "conv": {
+        "title": "Conversaciones",
+        "allConversations": "Todas las conversaciones",
+        "empty": "Aún no hay conversaciones.",
+        "new": "Nueva conversación",
+        "newTitle": "Título de la conversación",
+        "selectPrompt": "Seleccione una conversación o comience una.",
+        "running": "en curso",
+        "delete": "Eliminar {{title}}",
+        "unread_one": "{{count}} mensaje no leído",
+        "unread_other": "{{count}} mensajes no leídos",
+        "transcript": "Transcripción de la conversación"
+    },
+    "agent": {
+        "placeholder": "Investigar un indicador…",
+        "ask": "Preguntar al agente analista",
+        "intro": "Pregunte sobre cualquier indicador. El agente consulta ThreatWinds directamente y muestra su trabajo.",
+        "send": "Enviar",
+        "stop": "Detener",
+        "thinking": "reflexionando…",
+        "suggestionInvestigate": "Investiga 8.8.8.8 y dime si es malicioso",
+        "suggestionInfrastructure": "¿Qué infraestructura está relacionada con google.com?",
+        "suggestionCounts": "Muéstrame cuántas entidades existen por tipo"
+    },
+    "canvas": {
+        "title": "Resultados",
+        "empty": "Los resultados de esta conversación aparecen aquí.",
+        "tile": "Ordenar",
+        "closeAll": "Cerrar todo",
+        "pinOut": "Abrir {{title}} como panel",
+        "loading": "cargando…",
+        "failed": "no se pudo cargar",
+        "noRelations": "sin entidades relacionadas",
+        "noGeo": "sin geolocalización registrada",
+        "noResults": "sin coincidencias",
+        "matches": "{{total}} coincidencias",
+        "panelName": "{{title}} — {{kind}}",
+        "movePanel": "Mover {{title}}",
+        "resizePanel": "Redimensionar {{title}}",
+        "closePanel": "Cerrar {{title}}",
+        "collapse": "Reducir {{title}}",
+        "expand": "Expandir {{title}}",
+        "kind": {
+            "entity": "expediente",
+            "graph": "relaciones",
+            "geo": "geolocalización",
+            "search": "búsqueda"
+        }
+    },
+    "graph": {
+        "nodes_one": "{{count}} nodo",
+        "nodes_other": "{{count}} nodos",
+        "edges_one": "{{count}} arista",
+        "edges_other": "{{count}} aristas",
+        "clickToPivot": "clic para pivotar",
+        "malicious": "malicioso",
+        "unknown": "desconocido",
+        "benign": "inofensivo"
+    },
+    "entity": {
+        "reputation": "Reputación",
+        "accuracy": "Precisión",
+        "worst": "Peor",
+        "best": "Mejor",
+        "relations": "Grafo de relaciones",
+        "history": "Historial",
+        "geolocations": "Geolocalizaciones",
+        "associations": "Asociaciones",
+        "radius": "r={{radius}}m",
+        "askAgentBtn": "Preguntar al agente",
+        "askAgent": "Evalúa {{type}} {{value}} (entidad id {{id}}). ¿Es una amenaza?"
+    },
+    "tool": {
+        "querying": "consultando…",
+        "notRetained": "Resultado no conservado.",
+        "expand": "Mostrar solicitud y resultado",
+        "collapse": "Ocultar solicitud y resultado",
+        "noIntel": "«{{value}}» no tiene información de amenazas registrada.",
+        "noMatches": "Sin coincidencias.",
+        "matches": "{{items}} coincidencias para «{{query}}»",
+        "more": "+{{count}} más",
+        "reported": "Reportado al corpus compartido de ThreatWinds. La ingesta es asincrona, no es inmediatamente consultable.",
+        "skippedAssociations": "No registrado (tipo no inferible): {{values}}"
+    }
+}

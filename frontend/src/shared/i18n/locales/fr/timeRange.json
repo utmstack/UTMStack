@@ -1,0 +1,26 @@
+{
+    "quick": "Plages rapides",
+    "relative": "Relatif",
+    "absolute": "Absolu",
+    "last": "Derniers",
+    "apply": "Appliquer",
+    "allTime": "Toute la période",
+    "from": "De",
+    "to": "À",
+    "now": "maintenant",
+    "units": {
+        "minutes": "minutes",
+        "hours": "heures",
+        "days": "jours",
+        "weeks": "semaines",
+        "months": "mois"
+    },
+    "presets": {
+        "15m": "15 dernières minutes",
+        "1h": "Dernière heure",
+        "6h": "6 dernières heures",
+        "24h": "24 dernières heures",
+        "7d": "7 derniers jours",
+        "30d": "30 derniers jours"
+    }
+}

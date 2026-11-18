@@ -1,0 +1,85 @@
+{
+    "title": "Clés API",
+    "subtitle": "Jetons d’accès programmatique pour l’API UTMStack.",
+    "new": "Nouvelle clé API",
+    "searchPlaceholder": "Rechercher par nom ou IP autorisée…",
+    "refresh": "Actualiser",
+    "loading": "Chargement des clés API…",
+    "loadFailed": "Impossible de charger les clés API.",
+    "retry": "Réessayer",
+    "noSearchMatch": "Aucune clé API ne correspond à votre recherche.",
+    "empty": "Aucune clé API pour l’instant. Créez-en une pour commencer.",
+    "anyIp": "Toute IP",
+    "never": "Jamais",
+    "count_one": "{{count}} clé · page {{page}} sur {{pages}}",
+    "count_other": "{{count}} clés · page {{page}} sur {{pages}}",
+    "enterprise": {
+        "title": "Les clés API sont une fonctionnalité Enterprise",
+        "body": "Émettez, restreignez et faites tourner des clés API pour l’accès programmatique à l’API UTMStack. Cette fonctionnalité est disponible dans l’édition Enterprise.",
+        "upgrade": "Passer à Enterprise",
+        "manageLicense": "Gérer votre licence"
+    },
+    "col": {
+        "name": "Nom",
+        "allowedIps": "IP autorisées",
+        "created": "Créée",
+        "lastRotated": "Dernière rotation",
+        "expires": "Expire",
+        "status": "Statut",
+        "actions": "Actions"
+    },
+    "status": {
+        "active": "Active",
+        "expiring": "Bientôt expirée",
+        "expired": "Expirée"
+    },
+    "action": {
+        "rotate": "Faire tourner",
+        "edit": "Modifier",
+        "delete": "Supprimer"
+    },
+    "dialog": {
+        "editTitle": "Modifier la clé API",
+        "newTitle": "Nouvelle clé API",
+        "name": "Nom",
+        "namePlaceholder": "ci-pipeline",
+        "allowedIps": "IP autorisées",
+        "allowedIpsHint": "Séparées par des virgules. Laissez vide pour autoriser toute IP.",
+        "expires": "Expire",
+        "expiresHint": "Laissez vide pour une clé qui n’expire jamais.",
+        "secretNote": "Le jeton secret est affiché une seule fois, juste après la création. Copiez-le alors — il ne peut pas être récupéré ensuite (seulement renouvelé).",
+        "cancel": "Annuler",
+        "saving": "Enregistrement…",
+        "saveChanges": "Enregistrer les modifications",
+        "createKey": "Créer la clé"
+    },
+    "confirm": {
+        "deleteTitle": "Supprimer la clé API",
+        "rotateTitle": "Faire tourner la clé API",
+        "deleteBody": "Supprimer {{name}} ? Tout client qui l’utilise perdra immédiatement l’accès. Cette action est irréversible.",
+        "rotateBody": "Faire tourner {{name}} ? Un nouveau secret est émis et l’actuel cesse de fonctionner immédiatement. Le nouveau jeton est affiché une seule fois.",
+        "cancel": "Annuler",
+        "working": "En cours…",
+        "delete": "Supprimer",
+        "rotate": "Faire tourner"
+    },
+    "reveal": {
+        "title": "Clé API créée",
+        "note": "Copiez ce secret maintenant — pour {{name}}. Il ne sera plus affiché. Si vous le perdez, faites tourner la clé.",
+        "copied": "Copié",
+        "copy": "Copier",
+        "done": "Terminé"
+    },
+    "toast": {
+        "updated": "Clé API mise à jour",
+        "secretIssueFailed": "Clé créée, mais le secret n’a pas pu être émis. Utilisez Faire tourner pour en obtenir un.",
+        "deleted": "Clé API supprimée"
+    },
+    "error": {
+        "nameTaken": "Une clé API portant ce nom existe déjà",
+        "enterpriseRequired": "Les clés API nécessitent l’édition Enterprise",
+        "notFound": "Clé API introuvable",
+        "invalidRequest": "Requête invalide",
+        "failed": "Échec de l’opération"
+    }
+}

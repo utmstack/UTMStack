@@ -12,13 +12,15 @@ import (
 	incidentsdomain "github.com/utmstack/utmstack/backend/modules/incidents/domain"
 	incidentsdto "github.com/utmstack/utmstack/backend/modules/incidents/dto"
 	soardomain "github.com/utmstack/utmstack/backend/modules/soar/domain"
+	alert_domain "github.com/utmstack/utmstack/backend/modules/incidents/domain"
 )
 
 // IncidentOpener is the narrow slice of the incidents usecase that the SOAR
 // incident executor consumes. Keeps this package free of the broader incidents
 // import and lets tests swap in a fake.
 type IncidentOpener interface {
-	Create(ctx context.Context, userEmail string, req incidentsdto.CreateIncidentRequest) (*incidentsdomain.Incident, error)
+
+	CreateOrAdd(ctx context.Context,req incidentsdto.CreateIncidentRequest) (*incidentsdomain.Incident, error)
 }
 
 // Incident opens an incident and links the alert that fired the flow. Params
@@ -63,7 +65,8 @@ func (i *Incident) Execute(ctx context.Context, exec *soardomain.SoarExecution) 
 		alertName = exec.AlertID
 	}
 	severity := strings.ToLower(gjson.Get(src, "alert.severity").String())
-	if severity == "" {
+
+	if severity == "" || !alert_domain.IncidentSeverity(severity).Valid() {
 		severity = "low"
 	}
 
@@ -79,7 +82,8 @@ func (i *Incident) Execute(ctx context.Context, exec *soardomain.SoarExecution) 
 		req.IncidentDescription = &desc
 	}
 
-	inc, err := i.client.Create(ctx, "", req)
+
+	inc, err := i.client.CreateOrAdd(ctx, req)
 	if err != nil {
 		return nil, fmt.Errorf("soar incident: create: %w", err)
 	}

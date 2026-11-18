@@ -1,0 +1,20 @@
+{
+    "title": "Configurações",
+    "license": "Licença",
+    "notifications": "Notificações",
+    "connectionKey": "Chave de conexão",
+    "dataRetention": "Retenção de dados",
+    "indices": "Índices",
+    "theme": "Tema",
+    "branding": "Marca",
+    "apiKeys": "Chaves de API",
+    "identityProviders": "Provedores de identidade",
+    "email": "Configuração de e-mail",
+    "dateFormat": "Formato de data",
+    "language": "Idioma",
+    "auditLogs": "Logs de auditoria",
+    "about": "Sobre",
+    "socAi": "SOC-AI",
+    "supportAccess": "Acesso de suporte",
+    "threatwinds": "Integração ThreatWinds"
+}

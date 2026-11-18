@@ -1,0 +1,242 @@
+name: "gcp-activity"
+description: "Google Cloud activity: API calls, service accounts and alerts."
+widgets:
+  - layout: { x: 0, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: google }
+    config:
+      __builder:
+        chartType: metric
+        title: "Total logs"
+
+  - layout: { x: 3, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: google }
+        - { field: actionResult, op: eq, value: failed }
+        - { field: log.protoPayloadMethodName, op: exists }
+    config:
+      __builder:
+        chartType: metric
+        title: "Failed API calls"
+
+  - layout: { x: 6, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: google }
+        - { field: log.protoPayloadMethodName, op: contains, value: setIam }
+    config:
+      __builder:
+        chartType: metric
+        title: "Access policy changes"
+
+  - layout: { x: 9, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: alerts
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: google }
+    config:
+      __builder:
+        chartType: metric
+        title: "Alerts"
+
+  - layout: { x: 0, y: 3, w: 7, h: 6 }
+    spec:
+      dataset: logs
+      chart: time
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: google }
+    config:
+      __builder:
+        chartType: area
+        title: "Log volume over time"
+
+  - layout: { x: 7, y: 3, w: 5, h: 6 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: dataSource
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: google }
+    config:
+      __builder:
+        chartType: bar
+        title: "Logs by config group"
+
+  - layout: { x: 0, y: 9, w: 3, h: 7 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: log.protoPayloadMethodName
+      metric:
+        agg: count
+      limit: 25
+      filters:
+        - { field: dataType, op: eq, value: google }
+        - { field: log.protoPayloadMethodName, op: exists }
+    config:
+      __builder:
+        chartType: table
+        title: "Top API calls"
+
+  - layout: { x: 3, y: 9, w: 3, h: 7 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: log.protoPayloadMethodName
+      metric:
+        agg: count
+      limit: 5
+      filters:
+        - { field: dataType, op: eq, value: google }
+        - { field: log.protoPayloadMethodName, op: exists }
+    config:
+      __builder:
+        chartType: line
+        title: "API calls over time (top 5)"
+
+  - layout: { x: 6, y: 9, w: 3, h: 7 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: origin.user
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: google }
+        - { field: origin.user, op: exists }
+    config:
+      __builder:
+        chartType: table
+        title: "Top users and service accounts"
+
+  - layout: { x: 9, y: 9, w: 3, h: 7 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: log.protoPayloadServiceName
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: google }
+        - { field: log.protoPayloadServiceName, op: exists }
+    config:
+      __builder:
+        chartType: bar
+        title: "Top Google Cloud services"
+
+  - layout: { x: 0, y: 16, w: 4, h: 6 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: origin.geolocation.country
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: google }
+        - { field: origin.geolocation.country, op: exists }
+    config:
+      __builder:
+        chartType: bar
+        title: "Top countries"
+
+  - layout: { x: 4, y: 16, w: 4, h: 6 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: origin.ip
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: google }
+        - { field: origin.ip, op: exists }
+    config:
+      __builder:
+        chartType: table
+        title: "Top source IP addresses"
+
+  - layout: { x: 8, y: 16, w: 4, h: 6 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: log.resourceType
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: google }
+        - { field: log.resourceType, op: exists }
+    config:
+      __builder:
+        chartType: bar
+        title: "Logs by resource type"
+
+  - layout: { x: 0, y: 22, w: 6, h: 6 }
+    spec:
+      dataset: alerts
+      chart: category
+      dimension: name
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: google }
+    config:
+      __builder:
+        chartType: bar
+        title: "Alerts by rule"
+
+  - layout: { x: 6, y: 22, w: 6, h: 6 }
+    spec:
+      dataset: alerts
+      chart: category
+      dimension: severity
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: google }
+    config:
+      __builder:
+        chartType: bar
+        title: "Alerts by severity"
+
+  - layout: { x: 0, y: 28, w: 12, h: 9 }
+    spec:
+      dataset: logs
+      chart: table
+      metric:
+        agg: count
+      limit: 20
+      columns: ["@timestamp", "dataSource", "log.protoPayloadMethodName", "origin.user", "origin.ip", "log.protoPayloadServiceName", "log.resourceType", "actionResult"]
+      filters:
+        - { field: dataType, op: eq, value: google }
+    config:
+      __builder:
+        chartType: table
+        title: "Latest logs"

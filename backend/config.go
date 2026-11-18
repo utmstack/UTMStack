@@ -23,6 +23,15 @@ type config struct {
 	dbUser     string
 	dbPass     string
 	dbLogLevel string
+	dbAgent    string // second database on the same Postgres (agentmanager)
+
+	// v11 -> v12 upgrade
+	integrationsDir string
+	tenantDomain    string
+	rulesDir        string
+	engineDir       string
+	filtersDir      string
+	versionOldFile  string
 
 	// Secrets
 	internalKey   string
@@ -63,6 +72,7 @@ type config struct {
 
 	// Data Retention Enabled
 	dataRetentionEnabled bool
+	coldStorageRetention bool
 }
 
 func loadConfig() *config {
@@ -80,6 +90,14 @@ func loadConfig() *config {
 		dbUser:     env.String("DB_USER", "postgres", false),
 		dbPass:     env.String("DB_PASS", "", false),
 		dbLogLevel: env.String("DB_LOG_LEVEL", "silent", false),
+		dbAgent:    env.String("DB_NAME_AGENT", "agentmanager", false),
+
+		integrationsDir: env.String("INTEGRATIONS_CONFIG_DIR", "/workdir/pipeline", false),
+		tenantDomain:    env.String("UTMSTACK_DEFAULT_DOMAIN", "", false),
+		rulesDir:        env.String("EVENT_PROCESSING_RULES_DIR", "/workdir/rules", false),
+		engineDir:       env.String("EVENT_PROCESSING_PIPELINE_DIR", "/workdir/pipeline", false),
+		filtersDir:      env.String("EVENT_PROCESSING_PIPELINES_DIR", "/workdir/pipeline/filters", false),
+		versionOldFile:  env.String("VERSION_OLD_FILE", "/updates/version-old.json", false),
 
 		internalKey:   env.String("INTERNAL_KEY", "", false),
 		internalCIDRs: env.String("INTERNAL_KEY_ALLOWED_CIDRS", "", false),
@@ -108,5 +126,6 @@ func loadConfig() *config {
 		mcpVersion: env.String("MCP_SERVER_VERSION", "v1", false),
 
 		dataRetentionEnabled: env.Bool("DATA_RETENTION_ENABLED", true),
+		coldStorageRetention: env.Bool("CLICKHOUSE_LOCAL_COLDSTORAGE", false),
 	}
 }

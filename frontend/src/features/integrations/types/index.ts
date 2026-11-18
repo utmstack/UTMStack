@@ -35,7 +35,7 @@ export type DeployKind = 'agents & syslog' | 'device' | 'antivirus' | 'other' | 
 export type Status = 'configured' | 'available'
 export type Tab = 'all' | 'agents' | 'collectors' | 'cloud' |'custom'
 
-export type IntegrationGuideChannel = 'syslog' | 'netflow' | 'windows-agent' | 'linux-agent'
+export type IntegrationGuideChannel = 'syslog' | 'netflow' | 'windows-agent' | 'linux-agent' | 'file-classification'
 
 export interface IntegrationLogFilter {
   field: string

@@ -1,0 +1,50 @@
+{
+    "title": "Configurazione email",
+    "subtitle": "Server SMTP usato per inviare notifiche di avvisi, report ed email dell’account.",
+    "server": {
+        "title": "Server SMTP",
+        "host": "Host",
+        "hostHint": "Nome host del tuo server SMTP.",
+        "port": "Porta",
+        "encryption": "Crittografia",
+        "username": "Nome utente",
+        "password": "Password",
+        "passwordSetHint": "È salvata una password. Lascia vuoto per mantenerla o digitane una nuova per cambiarla."
+    },
+    "encryptionOpt": {
+        "TLS": "TLS",
+        "SSL": "SSL",
+        "NONE": "Nessuna"
+    },
+    "sender": {
+        "title": "Mittente",
+        "from": "Indirizzo mittente",
+        "fromHint": "Indirizzo da cui vengono inviate le email.",
+        "organization": "Nome organizzazione",
+        "organizationHint": "Mostrato nelle email di notifica di avvisi e incidenti.",
+        "baseUrl": "URL base",
+        "baseUrlHint": "URL pubblico di questa istanza, usato per i link nelle email."
+    },
+    "test": {
+        "button": "Invia test",
+        "sending": "Invio…",
+        "sentTo": "Verrà inviata un’email di prova a {{email}}.",
+        "success": "Email di prova inviata a {{email}}",
+        "fail": "Impossibile inviare l’email di prova",
+        "fromRequired": "Imposta un indirizzo mittente prima di testare"
+    },
+    "save": "Salva modifiche",
+    "saving": "Salvataggio…",
+    "saved": "Configurazione email salvata",
+    "saveError": "Impossibile salvare la configurazione",
+    "loadError": "Impossibile caricare la configurazione",
+    "recipients": {
+        "alertsTitle": "Destinatari degli avvisi",
+        "incidentsTitle": "Destinatari degli incidenti",
+        "to": "A",
+        "cc": "CC",
+        "alertsHelper": "Indirizzi avvisati quando vengono generati nuovi avvisi. Se lasci il campo vuoto, gli avvisi non vengono inviati per email.",
+        "incidentsHelper": "Indirizzi avvisati alla creazione di un incidente. Se lasci il campo vuoto, gli incidenti non vengono inviati per email.",
+        "add": "Aggiungi"
+    }
+}

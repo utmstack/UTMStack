@@ -1,0 +1,297 @@
+{
+    "title": "Alerts",
+    "matching": "{{count}} matching",
+    "subtitle": "Triage what matters.",
+    "openNow": "open right now.",
+    "view": {
+        "alerts": "Alerts",
+        "overview": "Overview"
+    },
+    "toolbar": {
+        "searchPlaceholder": "Search by alert name…",
+        "allSeverities": "All severities",
+        "export": "Export CSV",
+        "refresh": "Refresh"
+    },
+    "severity": {
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low"
+    },
+    "status": {
+        "open": "Open",
+        "in_review": "In review",
+        "completed": "Completed",
+        "auto": "Automatic review"
+    },
+    "statusTabs": {
+        "all": "All"
+    },
+    "overview": {
+        "overTime": "Alerts over time",
+        "matchingAlerts": "matching alerts",
+        "noData": "No data.",
+        "bySeverity": "By severity",
+        "byStatus": "By status"
+    },
+    "filters": {
+        "add": "Add filter",
+        "clearAll": "Clear all",
+        "filterValues": "Filter values…",
+        "loadingValues": "Loading values…",
+        "noValues": "No values found.",
+        "pickValue": "Pick a value to add the filter.",
+        "empty": "(empty)",
+        "cancel": "Cancel",
+        "addBtn": "Add"
+    },
+    "ops": {
+        "CONTAIN": "contains",
+        "IS": "is",
+        "IS_NOT": "is not",
+        "EXIST": "exists",
+        "DOES_NOT_EXIST": "does not exist"
+    },
+    "fields": {
+        "adversary_domain": "Adversary domain",
+        "adversary_geolocation_asn": "Adversary ASN",
+        "adversary_geolocation_aso": "Adversary ASO",
+        "adversary_geolocation_country": "Adversary country",
+        "adversary_host": "Adversary host",
+        "adversary_ip": "Adversary IP",
+        "adversary_url": "Adversary URL",
+        "adversary_user": "Adversary user",
+        "assignee": "Assignee",
+        "category": "Category",
+        "dataSource": "Sensor",
+        "dataType": "Data type",
+        "description": "Description",
+        "id": "ID",
+        "impactScore": "Risk",
+        "impact_availability": "Availability",
+        "impact_confidentiality": "Confidentiality",
+        "impact_integrity": "Integrity",
+        "incidentDetail_incidentName": "Incident name",
+        "incidentDetail_incidentId": "Incident id",
+        "isIncident": "Is incident",
+        "name": "Alert name",
+        "notes": "Notes",
+        "severity": "Severity",
+        "status": "Status",
+        "tags": "Tags",
+        "target_domain": "Target domain",
+        "target_geolocation_asn": "Target ASN",
+        "target_geolocation_aso": "Target ASO",
+        "target_geolocation_country": "Target country",
+        "target_host": "Target host",
+        "target_ip": "Target IP",
+        "target_url": "Target URL",
+        "target_user": "Target user",
+        "technique": "Technique"
+    },
+    "tagFilter": {
+        "tags": "Tags",
+        "tag_one": "{{count}} tag",
+        "tag_other": "{{count}} tags",
+        "clearSelection": "Clear selection",
+        "noTags": "No tags"
+    },
+    "bulk": {
+        "selected": "{{count}} selected",
+        "setStatus": "Set status",
+        "addTag": "Add tag",
+        "noTags": "No tags",
+        "addToIncident": "Add to incident",
+        "clear": "Clear"
+    },
+    "tagEditor": {
+        "tag": "Tag",
+        "noTagsYet": "No tags yet",
+        "createTag": "Create tag",
+        "newTagName": "New tag name…",
+        "createApply": "Create and apply tag",
+        "save": "Save",
+        "cancel": "Cancel",
+        "edit": "Edit tag",
+        "delete": "Delete tag",
+        "createRule": "Create tagging rule with this tag",
+        "systemLocked": "System tag (locked)",
+        "alreadyExists": "That tag already exists.",
+        "color": "Color {{color}}"
+    },
+    "table": {
+        "actions": "Actions",
+        "alert": "Alert",
+        "status": "Status",
+        "technique": "Technique",
+        "severity": "Severity",
+        "risk": "Risk",
+        "echoes": "Echoes",
+        "time": "Time",
+        "riskHint": "Risk score (0–100), colored by severity",
+        "source": "Source",
+        "adversary": "Adversary"
+    },
+    "row": {
+        "createRuleFromAlert": "Create a tag from this alert",
+        "createIncident": "Create incident from this alert",
+        "viewIncident": "View incident details",
+        "assignedTo": "Assigned to {{user}}",
+        "echoesTooltip": "{{count}} echoes — click to expand",
+        "echoesEmpty": "No echoes recorded"
+    },
+    "echoes": {
+        "title": "{{count}} echoes",
+        "close": "Close",
+        "empty": "No echoes recorded for this alert.",
+        "loadError": "Could not load echoes."
+    },
+    "list": {
+        "loading": "Loading alerts…",
+        "loadError": "Could not load alerts.",
+        "retry": "Retry",
+        "empty": "No alerts match this view."
+    },
+    "badge": {
+        "incident": "Incident",
+        "aiAssessed": "AI assessed"
+    },
+    "drawer": {
+        "setStatus": "Set status",
+        "completeFalsePositive": "Complete + false positive",
+        "addToIncident": "Add to incident",
+        "partOfIncident": "Part of an incident",
+        "tabs": {
+            "summary": "Summary",
+            "parties": "Parties",
+            "events": "Events",
+            "history": "History"
+        },
+        "section": {
+            "description": "Description",
+            "solution": "Solution",
+            "references": "References",
+            "details": "Details",
+            "yourNotes": "Your notes",
+            "notes": "Notes"
+        },
+        "details": {
+            "severity": "Severity",
+            "risk": "Risk",
+            "category": "Category",
+            "technique": "Technique",
+            "sensor": "Sensor",
+            "dataType": "Data type",
+            "alertId": "Alert ID",
+            "statusNote": "Status note",
+            "assignee": "Assignee"
+        },
+        "incidentDetail": {
+            "incident": "Incident",
+            "id": "ID",
+            "createdBy": "Created by",
+            "created": "Created"
+        },
+        "notesPlaceholder": "Add investigation notes…",
+        "saveNotes": "Save notes",
+        "assignee": "Assign",
+        "assign": "Assign",
+        "unassign": "Unassign",
+        "unassigned": "Unassigned",
+        "loadingUsers": "Loading users…",
+        "observationLabel": "Observation",
+        "observationPlaceholder": "Add an observation…",
+        "cancel": "Cancel",
+        "continue": "Continue"
+    },
+    "related": {
+        "sample": "A sample of up to ~11 events the engine stored on this alert. Use “View all related logs” for the full, uncapped set.",
+        "loadingEchoes": "Loading the events of its echoes…",
+        "sampleWithEchoes": "The events stored on this alert and on its {{count}} echoes ({{read}} read). Use “View all related logs” for the full, uncapped set.",
+        "empty": "No sampled events stored on this alert. Load the full correlated set in the Log Explorer.",
+        "viewAll": "View all related logs"
+    },
+    "party": {
+        "source": "Source / target",
+        "adversary": "Adversary",
+        "noData": "No data.",
+        "ip": "IP",
+        "host": "Host",
+        "user": "User",
+        "domain": "Domain",
+        "country": "Country"
+    },
+    "history": {
+        "empty": "No history recorded.",
+        "by": "by {{user}}",
+        "actions": {
+            "UPDATE_STATUS": "Status updated",
+            "UPDATE_TAGS": "Tags updated",
+            "UPDATE_NOTES": "Notes updated",
+            "UPDATE_SOLUTION": "Solution updated",
+            "MARK_AS_INCIDENT": "Marked as incident"
+        },
+        "detail": {
+            "statusTo": "Status → {{status}}",
+            "tags": "Tags: {{tags}}",
+            "aiAdded": "AI assessment added",
+            "observationAdded": "Observation added",
+            "notesUpdated": "Notes updated"
+        }
+    },
+    "ai": {
+        "title": "SOC AI assessment",
+        "risk": "{{risk}} risk",
+        "score": "{{score}}/100",
+        "generate": "Generate AI summary",
+        "hint": "SOC-AI investigates this alert and adds an assessment.",
+        "generating": "Analyzing the alert… this can take a minute.",
+        "ready": "AI summary ready",
+        "failed": "Could not generate the AI summary",
+        "slow": "The AI summary is taking longer than expected. It will show up on the alert when it is ready."
+    },
+    "incident": {
+        "titleAdd_one": "Add {{count}} alert to an incident",
+        "titleAdd_other": "Add {{count}} alerts to an incident",
+        "new": "New incident",
+        "existing": "Existing incident",
+        "nameLabel": "Incident name",
+        "namePlaceholder": "e.g. Suspected Scattered Spider intrusion",
+        "descriptionLabel": "Description",
+        "descriptionPlaceholder": "Optional summary…",
+        "pickLabel": "Pick an incident",
+        "loading": "Loading…",
+        "selectPlaceholder": "Select an incident…",
+        "willLink_one": "{{count}} alert will be linked.",
+        "willLink_other": "{{count}} alerts will be linked.",
+        "cancel": "Cancel",
+        "create": "Create incident",
+        "add": "Add to incident"
+    },
+    "toast": {
+        "statusUpdated": "Status updated",
+        "statusFailed": "Failed to update status",
+        "tagsUpdated": "Tags updated",
+        "tagsFailed": "Failed to update tags",
+        "tagCreateFailed": "Failed to create tag",
+        "tagUpdated": "Tag updated",
+        "tagUpdateFailed": "Failed to update tag",
+        "tagDeleted": "Tag deleted",
+        "tagDeleteFailed": "Failed to delete tag",
+        "notesSaved": "Notes saved",
+        "notesFailed": "Failed to save notes",
+        "exportFailed": "Failed to export CSV",
+        "noRelatedLogs": "No related logs found for this alert",
+        "relatedLogsFailed": "Failed to load related logs",
+        "incidentCreated": "Incident created",
+        "alertsAdded": "Alerts added to incident",
+        "incidentFailed": "Failed to save incident",
+        "assigned": "Alert assigned",
+        "unassigned": "Alert unassigned",
+        "assignFailed": "Could not update assignee",
+        "newAlertsToast_title": "New alerts",
+        "newAlertsToast_count_one": "{{count}} new alert",
+        "newAlertsToast_count_other": "{{count}} new alerts",
+        "newAlertsToast_view": "View"
+    }
+}

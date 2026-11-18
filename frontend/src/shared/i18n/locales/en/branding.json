@@ -1,0 +1,50 @@
+{
+    "title": "Branding",
+    "subtitle": "White-label UTMStack with your organization’s identity — applied everywhere: the login screen, sidebar, emails and reports.",
+    "enterpriseRequired": "White-labeling is an Enterprise feature.",
+    "manageLicense": "Manage license",
+    "enable": {
+        "title": "White-label",
+        "description": "Replace the UTMStack brand with your own across the platform.",
+        "label": "Enable white-labeling"
+    },
+    "identity": {
+        "title": "Identity",
+        "productName": "Product name",
+        "productNameHint": "Shown in the title bar, sidebar and emails.",
+        "accent": "Accent color",
+        "accentHint": "Primary color for buttons, links and active states.",
+        "custom": "Custom color"
+    },
+    "logos": {
+        "title": "Logos",
+        "hint": "PNG, SVG, WEBP, JPG or ICO. Up to 5 MB.",
+        "logo": "Logo (light)",
+        "logoDark": "Logo (dark)",
+        "favicon": "Favicon"
+    },
+    "reports": {
+        "title": "Report assets",
+        "hint": "Embedded in generated PDF reports.",
+        "reportLogo": "Report logo",
+        "reportCover": "Report cover"
+    },
+    "asset": {
+        "upload": "Upload",
+        "replace": "Replace"
+    },
+    "save": "Save changes",
+    "saving": "Saving…",
+    "saved": "Branding updated",
+    "saveError": "Could not save branding",
+    "uploaded": "Image uploaded",
+    "uploadError": "Could not upload image",
+    "loadError": "Could not load branding",
+    "enterprise": {
+        "title": "White-labelling is an Enterprise feature",
+        "body": "Replace the product name, logo and report cover with your own, so the panel and everything it generates carry your brand instead of UTMStack's.",
+        "upgrade": "Upgrade to Enterprise"
+    },
+    "restore": "Restore UTMStack defaults",
+    "restored": "Branding restored to the UTMStack defaults"
+}

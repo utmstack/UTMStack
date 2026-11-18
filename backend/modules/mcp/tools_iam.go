@@ -87,7 +87,7 @@ func registerIAMUsers(m *Module) {
 	}, Gate{Permission: "users.write"},
 		func(ctx context.Context, actor *authz.Actor, in iamUserUpdateInput) (any, error) {
 			return uc.Update(ctx, in.ID, dto.UpdateUserRequest{
-				Email: in.Email, LangKey: in.LangKey, Status: in.Status,
+				Email: in.Email, LangKey: in.LangKey,
 			})
 		})
 

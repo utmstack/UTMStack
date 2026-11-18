@@ -43,9 +43,15 @@ func GetVersion() (VersionFile, error) {
 }
 
 func SaveVersion(vers, edition, changelog string) error {
-	if _, err := GetVersion(); err != nil {
+	old_ver, err := GetVersion();
+	if  err != nil {
 		return fmt.Errorf("error loading current version before saving: %v", err)
 	}
+
+	if err :=utils.WriteJSON(config.OldVersionFilePath, &old_ver);err!=nil{
+		return fmt.Errorf("error saving old version saving: %v", err)
+	}
+
 
 	if vers != "" {
 		version.Version = vers
@@ -58,7 +64,6 @@ func SaveVersion(vers, edition, changelog string) error {
 	if changelog != "" {
 		version.Changelog = changelog
 	}
-
 	return utils.WriteJSON(config.VersionFilePath, &version)
 }
 

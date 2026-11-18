@@ -21,9 +21,10 @@ type fakeStore struct {
 
 func newFakeStore() *fakeStore {
 	return &fakeStore{retentions: map[domain.Dataset]domain.Retention{
-		domain.DatasetLogs:   {Dataset: domain.DatasetLogs, KeepDays: 730},
-		domain.DatasetAlerts: {Dataset: domain.DatasetAlerts, KeepDays: 730},
-		domain.DatasetStats:  {Dataset: domain.DatasetStats, KeepDays: 1095},
+		domain.DatasetLogs:        {Dataset: domain.DatasetLogs, KeepDays: 730},
+		domain.DatasetAlerts:      {Dataset: domain.DatasetAlerts, KeepDays: 730},
+		domain.DatasetStats:       {Dataset: domain.DatasetStats, KeepDays: 1095},
+		domain.DatasetUserProfile: {Dataset: domain.DatasetUserProfile, KeepDays: 1095},
 	}}
 }
 
@@ -92,6 +93,25 @@ func TestMovingToColdStorageNeedsColdStorage(t *testing.T) {
 	})
 	if !errors.Is(err, domain.ErrTieringRequired) {
 		t.Fatalf("err = %v, want cold storage required", err)
+	}
+}
+
+func TestRetentionsCoversEveryDataset(t *testing.T) {
+	s, _, _ := newService()
+
+	got, err := s.Retentions(context.Background())
+	if err != nil {
+		t.Fatalf("Retentions: %v", err)
+	}
+	seen := map[domain.Dataset]bool{}
+	for _, r := range got {
+		seen[r.Dataset] = true
+	}
+	want := []domain.Dataset{domain.DatasetLogs, domain.DatasetAlerts, domain.DatasetStats, domain.DatasetUserProfile}
+	for _, d := range want {
+		if !seen[d] {
+			t.Errorf("Retentions missing dataset %s; got %v", d, got)
+		}
 	}
 }
 
@@ -252,6 +272,26 @@ func TestALocalTargetNeedsNothingFromTheCaller(t *testing.T) {
 	}
 	if len(cfg.written) != 1 {
 		t.Fatalf("wrote %d files", len(cfg.written))
+	}
+}
+
+// The local mount exists for the data to live there: enabling it also gives
+// every dataset a TTL so records leave the hot disk after a day and die at
+// 720, not sit on it forever.
+func TestEnsuringLocalColdAlsoAdoptsTieredRetentions(t *testing.T) {
+	s, st, _ := newService()
+	st.disk = domain.ColdDiskInfo{Present: true, FreeBytes: 1 << 40}
+
+	if err := s.EnsureLocalCold(context.Background()); err != nil {
+		t.Fatalf("EnsureLocalCold: %v", err)
+	}
+	if len(st.adopted) != len(domain.Datasets()) {
+		t.Fatalf("adopted %d datasets, want all %d", len(st.adopted), len(domain.Datasets()))
+	}
+	for _, d := range domain.Datasets() {
+		if got := st.retentions[d]; got.KeepDays != 720 || got.ColdDays != 1 {
+			t.Errorf("%s = %+v, want keep 720 / cold at 1", d, got)
+		}
 	}
 }
 

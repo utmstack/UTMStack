@@ -1,0 +1,12 @@
+{
+    "theme": {
+        "light": "Heller Modus",
+        "dark": "Dunkler Modus"
+    },
+    "manageLicense": "Lizenz verwalten",
+    "profile": {
+        "profile": "Profil",
+        "license": "Lizenz",
+        "logout": "Abmelden"
+    }
+}

@@ -4,7 +4,7 @@ go 1.26.0
 
 require (
 	// github.com/threatwinds/go-sdk v1.1.28
-	golang.org/x/sync v0.24.0
+	golang.org/x/sync v0.25.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
@@ -46,10 +46,10 @@ require (
 	github.com/quic-go/quic-go v0.59.1 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
-	github.com/threatwinds/go-sdk v1.1.37-0.20261028123630-c472007022ff
-	github.com/tidwall/gjson v1.19.0 // indirect
+	github.com/threatwinds/go-sdk v1.1.40-0.20261113141239-c6b6629b28d5
+	github.com/tidwall/gjson v1.20.4
 	github.com/tidwall/match v1.2.0 // indirect
-	github.com/tidwall/pretty v1.2.1 // indirect
+	github.com/tidwall/pretty v1.3.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.3.1 // indirect
 	go.mongodb.org/mongo-driver/v2 v2.6.0 // indirect
@@ -72,3 +72,5 @@ require (
 )
 
 require github.com/fsnotify/fsnotify v1.10.1
+
+require github.com/opensearch-project/opensearch-go/v4 v4.6.0 // indirect

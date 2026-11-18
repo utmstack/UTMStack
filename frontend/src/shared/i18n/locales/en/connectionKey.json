@@ -1,0 +1,50 @@
+{
+    "title": "Connection key",
+    "subtitle1": "The key agents present when they register with this instance.",
+    "subtitleEmphasis": "It is only used for agent installation",
+    "subtitle2": "— not for collectors, integrations, or the API. It is managed by the agent-manager.",
+    "status": {
+        "label": "Status",
+        "loading": "Loading…",
+        "unavailable": "Agent-manager unavailable",
+        "active": "Active",
+        "unavailableHint": "Could not reach the agent-manager to read the key.",
+        "activeHint": "Agents can register using this key."
+    },
+    "token": {
+        "title": "Connection key",
+        "subtitle": "Treat this value as a credential. Rotating it issues a new key for future agent installations — agents already registered keep working.",
+        "loadFailedTitle": "Couldn’t load the connection key",
+        "unavailableTitle": "Connection key unavailable",
+        "loadFailedHint": "The key is managed by the agent-manager, which didn’t respond. Try again in a moment.",
+        "retry": "Retry",
+        "show": "Show key",
+        "hide": "Hide key",
+        "copy": "Copy",
+        "copied": "Copied",
+        "regenerate": "Regenerate connection key",
+        "confirmTitle": "Regenerate the key?",
+        "confirmBody": "New agent installations will need the new key. Agents already registered keep working. There's no undo.",
+        "regenerating": "Regenerating…",
+        "confirmYes": "Yes, regenerate",
+        "cancel": "Cancel"
+    },
+    "security": {
+        "title": "Security recommendations",
+        "subtitle": "Best practices for protecting this credential.",
+        "rotateTitle": "Rotate every 90 days",
+        "rotateBody": "Schedule a recurring rotation. UTMStack can email you a reminder when the key is older than 90 days.",
+        "rotateAction": "Set up reminder",
+        "secretTitle": "Store as a secret",
+        "secretBody": "Don't commit the key to source control. Use your secret manager (Vault, AWS SM, etc.) and inject it at install time.",
+        "auditTitle": "Audit who fetched it",
+        "auditBody": "Every fetch and rotation is recorded in the application audit log.",
+        "auditAction": "View audit log"
+    },
+    "toast": {
+        "loadFailed": "Could not load connection key",
+        "rotated": "Connection key rotated",
+        "rotateFailed": "Could not rotate connection key",
+        "copyFailed": "Could not copy"
+    }
+}

@@ -156,6 +156,19 @@ func Apply(version string, updating bool) (string, error) {
 
 	time.Sleep(10 * time.Second)
 
+	osPresent := false
+	if updating {
+		fmt.Print("Detecting legacy OpenSearch for secondary storage\n")
+		var err error
+		osPresent, err = docker.DetectOpenSearch()
+		if err != nil {
+			fmt.Printf("warning: opensearch detection failed: %v\n", err)
+		}
+	}
+	if err := docker.EnsureStorageConfig(cnf, osPresent); err != nil {
+		return "", fmt.Errorf("error generating storage config: %v", err)
+	}
+
 	err = docker.StackUP(version)
 	if err != nil {
 		return "", err

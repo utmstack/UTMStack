@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"path/filepath"
 	"sync"
 	"time"
 
@@ -101,8 +102,14 @@ func GetConfig() *Config {
 
 		err = config.Set()
 		if err != nil {
-			fmt.Printf("error setting config: %v", err)
-			os.Exit(1)
+			// Non-root runs (tests, dev) cannot write /root; retry in the temp dir.
+			alt := filepath.Join(os.TempDir(), "utmstack.yml")
+			if err2 := utils.WriteYAML(alt, config); err2 == nil {
+				ConfigPath = alt
+			} else {
+				fmt.Printf("error setting config: %v", err)
+				os.Exit(1)
+			}
 		}
 	})
 

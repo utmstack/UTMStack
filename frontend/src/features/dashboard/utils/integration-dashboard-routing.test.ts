@@ -10,6 +10,14 @@ describe('integration dashboard routing', () => {
     })).toBe('Windows')
   })
 
+  it('filters File Classification to its specific dashboard instead of all Windows dashboards', () => {
+    expect(getIntegrationDashboardSearch({
+      moduleName: 'FILE_CLASSIFICATION',
+      dataType: 'wineventlog',
+      name: 'File Classification',
+    })).toBe('File Classification')
+  })
+
   it('uses a broad Linux filter so multiple related dashboards remain visible', () => {
     expect(getIntegrationDashboardSearch({
       moduleName: 'LINUX_AGENT',

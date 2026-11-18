@@ -1,0 +1,50 @@
+{
+    "title": "Configuración de correo",
+    "subtitle": "Servidor SMTP usado para enviar notificaciones de alertas, informes y correos de cuenta.",
+    "server": {
+        "title": "Servidor SMTP",
+        "host": "Host",
+        "hostHint": "Nombre del servidor SMTP.",
+        "port": "Puerto",
+        "encryption": "Cifrado",
+        "username": "Usuario",
+        "password": "Contraseña",
+        "passwordSetHint": "Hay una contraseña guardada. Déjalo vacío para conservarla, o escribe una nueva para cambiarla."
+    },
+    "encryptionOpt": {
+        "TLS": "TLS",
+        "SSL": "SSL",
+        "NONE": "Ninguno"
+    },
+    "sender": {
+        "title": "Remitente",
+        "from": "Dirección de origen",
+        "fromHint": "Dirección desde la que se envían los correos.",
+        "organization": "Nombre de la organización",
+        "organizationHint": "Se muestra en los correos de notificación de alertas e incidentes.",
+        "baseUrl": "URL base",
+        "baseUrlHint": "URL pública de esta instancia, usada en los enlaces de los correos."
+    },
+    "test": {
+        "button": "Enviar prueba",
+        "sending": "Enviando…",
+        "sentTo": "Se enviará un correo de prueba a {{email}}.",
+        "success": "Correo de prueba enviado a {{email}}",
+        "fail": "No se pudo enviar el correo de prueba",
+        "fromRequired": "Define una dirección de origen antes de probar"
+    },
+    "save": "Guardar cambios",
+    "saving": "Guardando…",
+    "saved": "Configuración de correo guardada",
+    "saveError": "No se pudo guardar la configuración",
+    "loadError": "No se pudo cargar la configuración",
+    "recipients": {
+        "alertsTitle": "Destinatarios de alertas",
+        "incidentsTitle": "Destinatarios de incidentes",
+        "to": "Para",
+        "cc": "CC",
+        "alertsHelper": "Direcciones avisadas cuando se generan nuevas alertas. Si lo dejas vacío, las alertas no se envían por correo.",
+        "incidentsHelper": "Direcciones avisadas cuando se crea un incidente. Si lo dejas vacío, los incidentes no se envían por correo.",
+        "add": "Añadir"
+    }
+}

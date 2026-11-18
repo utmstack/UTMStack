@@ -1,0 +1,9 @@
+{
+    "title": "Lingua della piattaforma",
+    "subtitle": "Lingua predefinita per le schermate pre-login, le email di sistema e i nuovi utenti. Ogni utente può comunque scegliere la propria nel profilo.",
+    "save": "Salva",
+    "saving": "Salvataggio…",
+    "saved": "Lingua della piattaforma aggiornata",
+    "loadError": "Impossibile caricare l'impostazione della lingua",
+    "saveError": "Impossibile salvare l'impostazione della lingua"
+}

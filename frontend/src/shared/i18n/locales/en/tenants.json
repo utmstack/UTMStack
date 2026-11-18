@@ -1,0 +1,101 @@
+{
+    "title": "Tenants",
+    "new": "New tenant",
+    "subtitle": "Every customer running on this instance, what they hold and what they let you see.",
+    "searchPlaceholder": "Search by name or domain…",
+    "loading": "Loading tenants…",
+    "loadFailed": "Could not load tenants.",
+    "retry": "Retry",
+    "none": "No tenants yet.",
+    "noSearchMatch": "No tenants match your search.",
+    "cancel": "Cancel",
+    "saving": "Saving…",
+    "chips": {
+        "total": "tenants",
+        "active": "active",
+        "readable": "readable"
+    },
+    "status": {
+        "ACTIVE": "Active",
+        "SUSPENDED": "Suspended",
+        "TERMINATED": "Terminated"
+    },
+    "support": {
+        "NONE": "No access",
+        "READ": "Read access",
+        "FULL": "Full access",
+        "hint": "Granted by the tenant, not by you. Only their administrator can change it."
+    },
+    "card": {
+        "edit": "Edit",
+        "activate": "Activate",
+        "deactivate": "Deactivate",
+        "deletePermanent": "Delete permanently",
+        "noAccess": "This tenant has not granted you access.",
+        "loadingStats": "Reading…",
+        "enter": "Enter"
+    },
+    "stats": {
+        "users": "Users",
+        "datasources": "Sources",
+        "openAlerts": "Open alerts",
+        "ai": "AI today",
+        "noLimit": "no cap"
+    },
+    "fields": {
+        "name": "Name",
+        "domain": "Domain",
+        "domainHint": "How this tenant is reached. Every request on this host lands in their data.",
+        "adminEmail": "Administrator email",
+        "adminEmailHint": "They get an invitation to set their own password.",
+        "status": "Status",
+        "suspendedWarning": "Suspended tenants cannot sign in. Their data is kept.",
+        "aiLimit": "AI request cap",
+        "aiLimitHint": "An operational cap, per day. Uncapped, they spend against the instance licence.",
+        "aiLimitToggle": "Cap this tenant"
+    },
+    "create": {
+        "title": "New tenant",
+        "subtitle": "Creates the tenant and invites its first administrator.",
+        "submit": "Create tenant"
+    },
+    "edit": {
+        "title": "Edit tenant",
+        "subtitle": "Support access is not here: only the tenant can grant it.",
+        "submit": "Save changes"
+    },
+    "terminate": {
+        "title": "Deactivate this tenant?",
+        "body": "Nobody in {{name}} will be able to sign in. Their data is kept, so this is reversible, but it takes the customer offline now.",
+        "confirmLabel": "Type {{name}} to confirm",
+        "submit": "Deactivate"
+    },
+    "reactivate": {
+        "title": "Activate this tenant?",
+        "body": "{{name}} will be able to sign in again. Their preserved data is restored as-is.",
+        "submit": "Activate"
+    },
+    "deletePermanent": {
+        "title": "Delete this tenant forever?",
+        "body": "Every trace of {{name}} — users, data sources, dashboards, alerts, integrations — will be erased. This cannot be undone.",
+        "confirmLabel": "Type {{name}} to confirm",
+        "submit": "Delete forever"
+    },
+    "toast": {
+        "created": "Tenant created",
+        "updated": "Tenant updated",
+        "terminated": "Tenant terminated",
+        "reactivated": "Tenant reactivated",
+        "permanentlyDeleted": "Tenant permanently deleted",
+        "domainInUse": "That domain is already taken",
+        "noPermission": "You do not have permission to do that",
+        "notFound": "Tenant not found",
+        "invalidRequest": "Invalid request",
+        "operationFailed": "Operation failed"
+    },
+    "switcher": {
+        "aria": "Switch tenant",
+        "self": "Default tenant",
+        "create": "Create tenant"
+    }
+}

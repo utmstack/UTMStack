@@ -1,0 +1,65 @@
+{
+    "title": "Audit log",
+    "subtitle": "Record of every security-relevant action.",
+    "totalEntries": "{{total}} total entries.",
+    "loadError": "Could not load audit log",
+    "stats": {
+        "totalEntries": "Total entries",
+        "acrossAllTime": "Across all time",
+        "successRate": "Success rate",
+        "failuresOnPage_one": "{{count}} failure on this page",
+        "failuresOnPage_other": "{{count}} failures on this page",
+        "topAction": "Top action",
+        "onPage": "{{count}} on this page",
+        "uniqueActors": "Unique actors",
+        "includingSystem": "Including system"
+    },
+    "filters": {
+        "title": "Filters",
+        "clear": "Clear",
+        "last24h": "Last 24h",
+        "failuresOnly": "Failures only",
+        "authEvents": "Auth events",
+        "actionPrefix": "Action prefix",
+        "actionPlaceholder": "e.g. auth., user.update",
+        "status": "Status",
+        "any": "Any",
+        "resourceType": "Resource type",
+        "resourceTypePlaceholder": "user, alert…",
+        "resourceId": "Resource id",
+        "user": "User",
+        "userPlaceholder": "login…"
+    },
+    "statusValue": {
+        "success": "Success",
+        "failure": "Failure"
+    },
+    "table": {
+        "timestamp": "Timestamp",
+        "actor": "Actor",
+        "action": "Action",
+        "resource": "Resource",
+        "status": "Status",
+        "ip": "IP",
+        "loading": "Loading…",
+        "emptyTitle": "No audit entries match these filters.",
+        "emptyHint": "Try clearing filters or widening the date range.",
+        "system": "system",
+        "view": "View"
+    },
+    "drawer": {
+        "entry": "entry #{{id}}",
+        "overview": "Overview",
+        "raw": "Raw JSON",
+        "error": "Error",
+        "actor": "Actor",
+        "resource": "Resource",
+        "ip": "IP",
+        "userAgent": "User agent",
+        "session": "Session",
+        "metadata": "Metadata",
+        "copy": "Copy",
+        "copied": "Copied",
+        "copyJson": "Copy JSON"
+    }
+}

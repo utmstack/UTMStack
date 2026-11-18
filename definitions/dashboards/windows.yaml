@@ -1,0 +1,228 @@
+name: "windows"
+description: "Windows event log activity: logons, lockouts, event IDs, processes and alerts."
+widgets:
+
+  - layout: { x: 0, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: wineventlog }
+    config:
+      __builder:
+        chartType: metric
+        title: "Total logs"
+  - layout: { x: 3, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: wineventlog }
+        - { field: log.eventCode, op: in, value: [4625] }
+    config:
+      __builder:
+        chartType: metric
+        title: "Failed logons"
+  - layout: { x: 6, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: wineventlog }
+        - { field: log.eventCode, op: in, value: [4740] }
+    config:
+      __builder:
+        chartType: metric
+        title: "Account lockouts"
+  - layout: { x: 9, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: alerts
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: wineventlog }
+    config:
+      __builder:
+        chartType: metric
+        title: "Alerts"
+
+  - layout: { x: 0, y: 3, w: 7, h: 8 }
+    spec:
+      dataset: logs
+      chart: time
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: wineventlog }
+    config:
+      __builder:
+        chartType: area
+        title: "Log volume over time"
+  - layout: { x: 7, y: 3, w: 5, h: 8 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: dataSource
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: wineventlog }
+    config:
+      __builder:
+        chartType: bar
+        title: "Logs by computer"
+
+  - layout: { x: 0, y: 11, w: 3, h: 7 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: log.eventCode
+      metric:
+        agg: count
+      limit: 25
+      filters:
+        - { field: dataType, op: eq, value: wineventlog }
+    config:
+      __builder:
+        chartType: table
+        title: "Top event IDs"
+  - layout: { x: 3, y: 11, w: 3, h: 7 }
+    spec:
+      dataset: logs
+      chart: time
+      dimension: log.eventCode
+      metric:
+        agg: count
+      limit: 5
+      filters:
+        - { field: dataType, op: eq, value: wineventlog }
+    config:
+      __builder:
+        chartType: line
+        title: "Event IDs over time (top 5)"
+  - layout: { x: 6, y: 11, w: 3, h: 7 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: target.user
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: wineventlog }
+        - { field: log.eventCode, op: in, value: [4625] }
+    config:
+      __builder:
+        chartType: bar
+        title: "Failed logons by account"
+  - layout: { x: 9, y: 11, w: 3, h: 7 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: origin.ip
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: wineventlog }
+        - { field: log.eventCode, op: in, value: [4625] }
+    config:
+      __builder:
+        chartType: bar
+        title: "Failed logons by source IP"
+
+  - layout: { x: 0, y: 18, w: 4, h: 7 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: log.channel
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: wineventlog }
+    config:
+      __builder:
+        chartType: table
+        title: "Logs by channel"
+  - layout: { x: 4, y: 18, w: 4, h: 7 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: log.eventDataServiceName
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: wineventlog }
+        - { field: log.eventCode, op: in, value: [7045, 4697] }
+    config:
+      __builder:
+        chartType: bar
+        title: "Services installed"
+  - layout: { x: 8, y: 18, w: 4, h: 7 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: log.eventDataProcessName
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: wineventlog }
+        - { field: log.eventCode, op: in, value: [4688] }
+    config:
+      __builder:
+        chartType: table
+        title: "Programs started"
+
+  - layout: { x: 0, y: 25, w: 6, h: 7 }
+    spec:
+      dataset: alerts
+      chart: category
+      dimension: name
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: wineventlog }
+    config:
+      __builder:
+        chartType: bar
+        title: "Alerts by rule"
+  - layout: { x: 6, y: 25, w: 6, h: 7 }
+    spec:
+      dataset: alerts
+      chart: category
+      dimension: severity
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: wineventlog }
+    config:
+      __builder:
+        chartType: bar
+        title: "Alerts by severity"
+
+  - layout: { x: 0, y: 32, w: 12, h: 8 }
+    spec:
+      dataset: logs
+      chart: table
+      metric:
+        agg: count
+      limit: 20
+      columns: ["@timestamp", "dataSource", "log.eventCode", "log.eventName", "log.channel", "target.user", "origin.ip"]
+      filters:
+        - { field: dataType, op: eq, value: wineventlog }
+    config:
+      __builder:
+        chartType: table
+        title: "Latest logs"

@@ -1,0 +1,73 @@
+{
+    "title": "À propos de cette instance",
+    "subtitle": "Version, licence et état du système de ce déploiement UTMStack.",
+    "loading": "Chargement des informations de l'instance…",
+    "edition": {
+        "enterprise": "Enterprise",
+        "community": "Community"
+    },
+    "fields": {
+        "hostname": "Serveur",
+        "instanceId": "ID d'instance",
+        "noInstanceMeta": "Aucune métadonnée d'instance disponible."
+    },
+    "license": {
+        "title": "Licence",
+        "enterpriseMssp": "Enterprise · MSSP",
+        "datasources": "Datasources",
+        "communityLimited": "Limite Community",
+        "unlimited": "Illimité",
+        "expires": "Expire",
+        "managedNote": "L'édition, les limites de datasources et l'upload de licence sont gérés sur la page Licence.",
+        "view": "Voir la licence",
+        "ingest": "Volume d'ingestion",
+        "notMetered": "Non mesuré",
+        "gbPerMonth": "{{gb}} Go/mois"
+    },
+    "services": {
+        "backend": {
+            "name": "Backend API",
+            "desc": "Passerelle REST, authentification et orchestration des modules."
+        },
+        "opensearch": {
+            "name": "OpenSearch",
+            "desc": "Stockage des logs et événements.",
+            "detail": "{{nodes}} nœuds · {{shards}} shards"
+        },
+        "unreachable": "Inaccessible"
+    },
+    "status": {
+        "up": "Sain",
+        "degraded": "Dégradé",
+        "down": "Hors service",
+        "unknown": "Inconnu"
+    },
+    "health": {
+        "title": "État du système",
+        "allHealthy": "Tous les services sont sains. Actualisez pour revérifier.",
+        "issues_one": "{{count}} service nécessite une attention.",
+        "issues_other": "{{count}} services nécessitent une attention.",
+        "refresh": "Actualiser"
+    },
+    "usage": {
+        "title": "Sources de données",
+        "subtitle": "Sources de données configurées dans ce déploiement.",
+        "ofUnlimited": "sur illimité",
+        "ofLimit": "sur {{limit}}",
+        "overLimit": "Au-delà de la limite sous licence — les données au-delà du plafond sont à risque.",
+        "configured": "configurées"
+    },
+    "support": {
+        "title": "Support",
+        "docs": "Documentation",
+        "repo": "Dépôt GitHub",
+        "issues": "Signaler un problème",
+        "website": "utmstack.com"
+    },
+    "legal": {
+        "title": "Mentions légales",
+        "license": "Licence",
+        "security": "Divulgation de sécurité",
+        "copyright": "© {{year}} UTMStack. Tous droits réservés."
+    }
+}

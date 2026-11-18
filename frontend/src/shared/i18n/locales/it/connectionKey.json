@@ -1,0 +1,50 @@
+{
+    "title": "Chiave di connessione",
+    "subtitle1": "La chiave che gli agenti presentano quando si registrano su questa istanza.",
+    "subtitleEmphasis": "Viene usata solo per l'installazione degli agenti",
+    "subtitle2": "— non per i collector, le integrazioni o l'API. È gestita dall'agent-manager.",
+    "status": {
+        "label": "Stato",
+        "loading": "Caricamento…",
+        "unavailable": "Agent-manager non disponibile",
+        "active": "Attiva",
+        "unavailableHint": "Impossibile contattare l'agent-manager per leggere la chiave.",
+        "activeHint": "Gli agenti possono registrarsi con questa chiave."
+    },
+    "token": {
+        "title": "Chiave di connessione",
+        "subtitle": "Tratta questo valore come una credenziale. Ruotarla emette una nuova chiave per le future installazioni degli agenti — gli agenti già registrati continuano a funzionare.",
+        "loadFailedTitle": "Impossibile caricare la chiave di connessione",
+        "unavailableTitle": "Chiave di connessione non disponibile",
+        "loadFailedHint": "La chiave è gestita dall'agent-manager, che non ha risposto. Riprova tra un momento.",
+        "retry": "Riprova",
+        "show": "Mostra chiave",
+        "hide": "Nascondi chiave",
+        "copy": "Copia",
+        "copied": "Copiato",
+        "regenerate": "Rigenera chiave di connessione",
+        "confirmTitle": "Rigenerare la chiave?",
+        "confirmBody": "Le nuove installazioni degli agenti avranno bisogno della nuova chiave. Gli agenti già registrati continuano a funzionare. Operazione irreversibile.",
+        "regenerating": "Rigenerazione…",
+        "confirmYes": "Sì, rigenera",
+        "cancel": "Annulla"
+    },
+    "security": {
+        "title": "Raccomandazioni di sicurezza",
+        "subtitle": "Buone pratiche per proteggere questa credenziale.",
+        "rotateTitle": "Ruota ogni 90 giorni",
+        "rotateBody": "Pianifica una rotazione ricorrente. UTMStack può inviarti un promemoria via email quando la chiave ha più di 90 giorni.",
+        "rotateAction": "Configura promemoria",
+        "secretTitle": "Conservala come segreto",
+        "secretBody": "Non inserirla nel controllo di versione. Usa il tuo gestore di segreti (Vault, AWS SM, ecc.) e iniettala al momento dell'installazione.",
+        "auditTitle": "Verifica chi l'ha recuperata",
+        "auditBody": "Ogni recupero e rotazione è registrato nel log di audit dell'applicazione.",
+        "auditAction": "Vedi log di audit"
+    },
+    "toast": {
+        "loadFailed": "Impossibile caricare la chiave di connessione",
+        "rotated": "Chiave di connessione ruotata",
+        "rotateFailed": "Impossibile ruotare la chiave di connessione",
+        "copyFailed": "Impossibile copiare"
+    }
+}

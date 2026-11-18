@@ -44,8 +44,12 @@ export function langLabel(code: string): string {
 
 // An account can exist before anyone has typed a display name into it — every
 // federated one starts that way — so the address is what is always there.
+export function isRemovable(u: UserBase): boolean {
+  return u.status === "pending" || u.status === "inactive";
+}
+
 export function fullName(u: UserBase): string {
-  return u.name?.trim() || u.email;
+  return u.name?.trim() || u.email || "";
 }
 
 export function initials(u: UserBase): string {

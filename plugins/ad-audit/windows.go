@@ -50,7 +50,7 @@ func handleWindows(event *plugins.Event) error {
 }
 
 func logEventCode(event *plugins.Event) string {
-	log := event.GetLog()
+	log := event.GetEvent()
 	if log == nil || log[fEventCode] == nil {
 		return ""
 	}

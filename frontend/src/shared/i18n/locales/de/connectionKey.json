@@ -1,0 +1,50 @@
+{
+    "title": "Verbindungsschlüssel",
+    "subtitle1": "Der Schlüssel, den Agenten bei der Registrierung an dieser Instanz vorlegen.",
+    "subtitleEmphasis": "Er wird nur für die Agenten-Installation verwendet",
+    "subtitle2": "— nicht für Kollektoren, Integrationen oder die API. Er wird vom Agent-Manager verwaltet.",
+    "status": {
+        "label": "Status",
+        "loading": "Wird geladen…",
+        "unavailable": "Agent-Manager nicht verfügbar",
+        "active": "Aktiv",
+        "unavailableHint": "Der Agent-Manager konnte nicht erreicht werden, um den Schlüssel zu lesen.",
+        "activeHint": "Agenten können sich mit diesem Schlüssel registrieren."
+    },
+    "token": {
+        "title": "Verbindungsschlüssel",
+        "subtitle": "Behandeln Sie diesen Wert als Anmeldedaten. Beim Rotieren wird ein neuer Schlüssel für künftige Agenten-Installationen ausgestellt — bereits registrierte Agenten funktionieren weiter.",
+        "loadFailedTitle": "Verbindungsschlüssel konnte nicht geladen werden",
+        "unavailableTitle": "Verbindungsschlüssel nicht verfügbar",
+        "loadFailedHint": "Der Schlüssel wird vom Agent-Manager verwaltet, der nicht geantwortet hat. Versuchen Sie es gleich erneut.",
+        "retry": "Erneut versuchen",
+        "show": "Schlüssel anzeigen",
+        "hide": "Schlüssel ausblenden",
+        "copy": "Kopieren",
+        "copied": "Kopiert",
+        "regenerate": "Verbindungsschlüssel neu erzeugen",
+        "confirmTitle": "Schlüssel neu erzeugen?",
+        "confirmBody": "Neue Agenten-Installationen benötigen den neuen Schlüssel. Bereits registrierte Agenten funktionieren weiter. Dies kann nicht rückgängig gemacht werden.",
+        "regenerating": "Wird neu erzeugt…",
+        "confirmYes": "Ja, neu erzeugen",
+        "cancel": "Abbrechen"
+    },
+    "security": {
+        "title": "Sicherheitsempfehlungen",
+        "subtitle": "Best Practices zum Schutz dieser Anmeldedaten.",
+        "rotateTitle": "Alle 90 Tage rotieren",
+        "rotateBody": "Planen Sie eine wiederkehrende Rotation. UTMStack kann Ihnen eine Erinnerung per E-Mail senden, wenn der Schlüssel älter als 90 Tage ist.",
+        "rotateAction": "Erinnerung einrichten",
+        "secretTitle": "Als Geheimnis speichern",
+        "secretBody": "Committen Sie ihn nicht in die Versionsverwaltung. Verwenden Sie Ihren Secret-Manager (Vault, AWS SM usw.) und injizieren Sie ihn zur Installationszeit.",
+        "auditTitle": "Prüfen, wer ihn abgerufen hat",
+        "auditBody": "Jeder Abruf und jede Rotation wird im Anwendungs-Audit-Log erfasst.",
+        "auditAction": "Audit-Log ansehen"
+    },
+    "toast": {
+        "loadFailed": "Verbindungsschlüssel konnte nicht geladen werden",
+        "rotated": "Verbindungsschlüssel rotiert",
+        "rotateFailed": "Verbindungsschlüssel konnte nicht rotiert werden",
+        "copyFailed": "Kopieren nicht möglich"
+    }
+}

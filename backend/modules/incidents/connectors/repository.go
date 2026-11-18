@@ -15,6 +15,7 @@ type IncidentRepository interface {
 	// insert is not a smaller incident, it is a wrong one — and the unique index
 	// makes the obvious retry fail on the half that did land.
 	Create(ctx context.Context, incident *domain.Incident, alerts []domain.IncidentAlert) error
+	CreateOrInsert(ctx context.Context, incident *domain.Incident, alerts []domain.IncidentAlert) (bool,error)
 	// LinkAlerts appends alerts to an existing incident and stores the severity
 	// it ends up with, in the same transaction and for the same reason.
 	LinkAlerts(ctx context.Context, incident *domain.Incident, alerts []domain.IncidentAlert) error

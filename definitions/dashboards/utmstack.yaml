@@ -1,0 +1,223 @@
+name: "utmstack"
+description: "UTMStack service activity: log volume, API errors, messages and alerts."
+widgets:
+  # Row 1 (y 0-3): single numbers.
+  - layout: { x: 0, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: utmstack }
+    config:
+      __builder:
+        chartType: metric
+        title: "Total logs"
+
+  - layout: { x: 3, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: utmstack }
+        - { field: raw, op: contains, value: "\"severity\":\"ERROR\"" }
+    config:
+      __builder:
+        chartType: metric
+        title: "Errors"
+
+  - layout: { x: 6, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: logs
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: utmstack }
+        - { field: log.message, op: in, value: [http] }
+    config:
+      __builder:
+        chartType: metric
+        title: "Failed API requests"
+
+  - layout: { x: 9, y: 0, w: 3, h: 3 }
+    spec:
+      dataset: alerts
+      chart: metric
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: utmstack }
+    config:
+      __builder:
+        chartType: metric
+        title: "Alerts"
+
+  # Row 2 (y 3-10): volume over time plus host breakdown.
+  - layout: { x: 0, y: 3, w: 7, h: 7 }
+    spec:
+      dataset: logs
+      chart: time
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: utmstack }
+    config:
+      __builder:
+        chartType: area
+        title: "Log volume over time"
+
+  - layout: { x: 7, y: 3, w: 5, h: 7 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: dataSource
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: utmstack }
+    config:
+      __builder:
+        chartType: bar
+        title: "Logs by UTMStack host"
+
+  # Row 3 (y 10-15): message breakdowns and API paths.
+  - layout: { x: 0, y: 10, w: 3, h: 5 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: log.message
+      metric:
+        agg: count
+      limit: 25
+      filters:
+        - { field: dataType, op: eq, value: utmstack }
+        - { field: log.message, op: exists }
+    config:
+      __builder:
+        chartType: table
+        title: "Top messages"
+
+  - layout: { x: 3, y: 10, w: 3, h: 5 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: log.message
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: utmstack }
+        - { field: log.message, op: exists }
+    config:
+      __builder:
+        chartType: line
+        title: "Messages over time (top 5)"
+
+  - layout: { x: 6, y: 10, w: 3, h: 5 }
+    spec:
+      dataset: logs
+      chart: category
+      dimension: log.message
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: utmstack }
+        - { field: log.severity, op: in, value: [ERROR, CRITICAL, ALERT] }
+        - { field: log.message, op: exists }
+    config:
+      __builder:
+        chartType: table
+        title: "Top error messages"
+
+  - layout: { x: 9, y: 10, w: 3, h: 5 }
+    spec:
+      dataset: logs
+      chart: table
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: utmstack }
+    config:
+      __builder:
+        chartType: table
+        title: "Failed API requests by path"
+
+  # Row 4 (y 15-21): failed request trends and alert breakdowns.
+  - layout: { x: 0, y: 15, w: 3, h: 6 }
+    spec:
+      dataset: logs
+      chart: time
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: utmstack }
+    config:
+      __builder:
+        chartType: bar
+        title: "Failed API requests by status code"
+
+  - layout: { x: 3, y: 15, w: 3, h: 6 }
+    spec:
+      dataset: logs
+      chart: time
+      metric:
+        agg: count
+      filters:
+        - { field: dataType, op: eq, value: utmstack }
+    config:
+      __builder:
+        chartType: bar
+        title: "Failed API requests by client IP"
+
+  - layout: { x: 6, y: 15, w: 3, h: 6 }
+    spec:
+      dataset: alerts
+      chart: category
+      dimension: name
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: utmstack }
+    config:
+      __builder:
+        chartType: bar
+        title: "Alerts by rule"
+
+  - layout: { x: 9, y: 15, w: 3, h: 6 }
+    spec:
+      dataset: alerts
+      chart: category
+      dimension: severity
+      metric:
+        agg: count
+      limit: 10
+      filters:
+        - { field: dataType, op: eq, value: utmstack }
+    config:
+      __builder:
+        chartType: bar
+        title: "Alerts by severity"
+
+  # Row 5 (y 21-32): the latest logs, as a table.
+  - layout: { x: 0, y: 21, w: 12, h: 11 }
+    spec:
+      dataset: logs
+      chart: table
+      metric:
+        agg: count
+      columns: ["@timestamp", "dataSource", "log.message", "log.severity", "raw"]
+      limit: 20
+      filters:
+        - { field: dataType, op: eq, value: utmstack }
+    config:
+      __builder:
+        chartType: table
+        title: "Latest logs"

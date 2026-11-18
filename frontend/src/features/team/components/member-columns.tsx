@@ -1,7 +1,7 @@
 import type { TFunction } from "i18next";
 import type { ColumnDef } from "@tanstack/react-table";
-import { KeyRound, Pencil, ShieldCheck, ShieldOff } from "lucide-react";
-import { fullName } from "../lib/team-utils";
+import { KeyRound, Pencil, ShieldCheck, ShieldOff, Trash2 } from "lucide-react";
+import { fullName, isRemovable } from "../lib/team-utils";
 import type { UserListItem } from "../types/team.types";
 import { Avatar, StatusBadge } from "./avatar";
 import { RoleBadge } from "./role-badge";
@@ -9,7 +9,7 @@ import { RoleBadge } from "./role-badge";
 const TH = "whitespace-nowrap px-3 py-2 text-left align-middle font-medium";
 const TD = "whitespace-nowrap px-3 py-3 align-middle";
 
-export function buildMemberColumns(t: TFunction): ColumnDef<UserListItem>[] {
+export function buildMemberColumns(t: TFunction, onRemove: (u: UserListItem) => void): ColumnDef<UserListItem>[] {
   return [
     {
       id: "user",
@@ -93,13 +93,25 @@ export function buildMemberColumns(t: TFunction): ColumnDef<UserListItem>[] {
     {
       id: "edit",
       header: () => null,
-      size: 52,
-      minSize: 52,
+      size: 84,
+      minSize: 84,
       enableResizing: false,
       meta: { headerClassName: TH, cellClassName: `${TD} text-muted-foreground` },
-      cell: () => (
-        <div className="flex justify-end">
+      cell: ({ row }) => (
+        <div className="flex justify-end items-center gap-1">
           <Pencil size={13} />
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onRemove(row.original);
+            }}
+            disabled={!isRemovable(row.original)}
+            title={t("team.drawer.remove")}
+            className="flex h-7 w-7 items-center justify-center rounded-md hover:bg-red-500/10 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <Trash2 size={13} />
+          </button>
         </div>
       ),
     },

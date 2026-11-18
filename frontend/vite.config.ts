@@ -23,13 +23,12 @@ const API_TARGET = FEDERATION ? FS_URL : BACKEND_URL
 // request looks same-origin. Dev-only convenience for admins of the target
 // instance; do not rely on this to bypass origin checks you don't control.
 type ConfigureProxy = NonNullable<import('vite').ProxyOptions['configure']>
-  console.log(BACKEND_URL)
 
 const spoofOriginHeaders: ConfigureProxy = (proxy) => {
   proxy.on('proxyReq', (proxyReq, req) => {
-    proxyReq.setHeader('Host', '10.11.11.19')
-    proxyReq.setHeader('Origin', 'https://10.11.11.19')
-    proxyReq.setHeader('Referer', 'https://10.11.11.19' + '/')
+    proxyReq.setHeader('Referer', API_TARGET + '/')
+    if (!req.headers.origin || req.headers.origin?.startsWith('http://localhost')) return
+    proxyReq.setHeader('Origin', API_TARGET)
   })
 }
 

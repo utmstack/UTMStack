@@ -1,0 +1,11 @@
+{
+    "title": "Plattformsprache",
+    "subtitle": "Standard-UI-Sprache für Pre-Login-Bildschirme, System-E-Mails und neue Benutzer. Jeder Benutzer kann seine eigene im Profil wählen.",
+    "label": "Standardsprache",
+    "hint": "Wird verwendet, wenn ein Benutzer keine eigene Sprache gewählt hat.",
+    "save": "Speichern",
+    "saving": "Wird gespeichert…",
+    "saved": "Plattformsprache aktualisiert",
+    "loadError": "Spracheinstellung konnte nicht geladen werden",
+    "saveError": "Spracheinstellung konnte nicht gespeichert werden"
+}

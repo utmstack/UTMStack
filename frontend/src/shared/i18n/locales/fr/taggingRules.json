@@ -1,0 +1,69 @@
+{
+    "title": "Règles d'étiquetage",
+    "subtitle": "Étiqueter automatiquement les alertes qui correspondent aux conditions.",
+    "new": "Nouvelle règle",
+    "refresh": "Actualiser",
+    "empty": "Aucune règle d'étiquetage pour l'instant.",
+    "loadError": "Impossible de charger les règles d'étiquetage.",
+    "retry": "Réessayer",
+    "deleteConfirm": "Supprimer la règle « {{name}} » ? Les futures alertes correspondant à ses conditions ne seront plus étiquetées.",
+    "toolbar": {
+        "search": "Rechercher par nom de règle…",
+        "allTags": "Toutes les étiquettes"
+    },
+    "table": {
+        "rule": "Règle",
+        "tags": "Étiquettes",
+        "conditions": "Conditions",
+        "modifiedBy": "Modifiée par",
+        "modifiedDate": "Modifiée"
+    },
+    "drawer": {
+        "createTitle": "Nouvelle règle d'étiquetage",
+        "edit": "Modifier",
+        "delete": "Supprimer",
+        "save": "Enregistrer",
+        "create": "Créer",
+        "cancel": "Annuler"
+    },
+    "form": {
+        "basics": "Informations de base",
+        "name": "Nom de la règle",
+        "namePlaceholder": "par ex. Force brute SSH interne",
+        "description": "Description",
+        "descriptionPlaceholder": "Pourquoi cette règle existe et ce qu'elle étiquette.",
+        "tags": "Étiquettes à appliquer",
+        "noTags": "Aucune étiquette sélectionnée.",
+        "addTag": "Ajouter une étiquette",
+        "removeTag": "Retirer",
+        "noCatalog": "Aucune étiquette dans le catalogue pour l'instant.",
+        "createTag": "Créer une étiquette",
+        "newTagName": "Nom de la nouvelle étiquette",
+        "conditions": "Conditions (TOUTES doivent correspondre)",
+        "noConditions": "Au moins une condition est requise.",
+        "addCondition": "Ajouter une condition",
+        "removeCondition": "Retirer la condition",
+        "valuePlaceholder": "Valeur",
+        "valueListPlaceholder": "Valeurs séparées par des virgules",
+        "incomplete": "Renseignez le nom de la règle, la description, au moins une étiquette et complétez chaque condition."
+    },
+    "view": {
+        "description": "Description",
+        "tags": "Étiquettes",
+        "conditions": "Conditions",
+        "audit": "Audit",
+        "createdBy": "Créée par",
+        "createdDate": "Créée",
+        "modifiedBy": "Modifiée par",
+        "modifiedDate": "Modifiée"
+    },
+    "toast": {
+        "created": "Règle « {{name}} » créée.",
+        "updated": "Règle « {{name}} » mise à jour.",
+        "deleted": "Règle « {{name}} » supprimée.",
+        "createError": "Échec de la création de la règle.",
+        "updateError": "Échec de la mise à jour de la règle.",
+        "deleteError": "Échec de la suppression de la règle."
+    },
+    "deleteTitle": "Supprimer la règle d'étiquetage"
+}

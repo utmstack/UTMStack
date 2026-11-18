@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+
+import { FileClassificationGuide } from '@/features/integrations/components/setup/FileClassificationGuide'
 import { useNavigate } from 'react-router-dom'
 import { ExternalLink, Filter, LayoutDashboard, ListChecks, X } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
@@ -62,10 +64,11 @@ const isCustom = (i: Integration) => i.systemOwner === false
 
 interface IntegrationDrawerProps {
   integration: Integration
+  dataTypes:string[]
   onClose: () => void
 }
 
-export function IntegrationDrawer({ integration: i, onClose }: IntegrationDrawerProps) {
+export function IntegrationDrawer({ integration: i, onClose,dataTypes }: IntegrationDrawerProps) {
   const { t } = useTranslation()
   const { theme } = useThemeContext()
   const navigate = useNavigate()
@@ -147,6 +150,7 @@ export function IntegrationDrawer({ integration: i, onClose }: IntegrationDrawer
             </button>
           </div>
 
+          { dataTypes.includes(i.dataType ?? '') && (
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <Button size="sm" variant="outline" onClick={openDashboard}>
               <LayoutDashboard size={13} className="mr-1.5" />
@@ -188,6 +192,8 @@ export function IntegrationDrawer({ integration: i, onClose }: IntegrationDrawer
               {t('integrations.drawer.manageFilters')}
             </Button>
           </div>
+          )
+          }
         </header>
 
         {/* The setup guide is how an integration gets configured, so it cannot be
@@ -197,7 +203,12 @@ export function IntegrationDrawer({ integration: i, onClose }: IntegrationDrawer
           <>
               {isCustom(i) && <CustomSetup integration={i} />}
               {!isCustom(i) && isAgent(i) && i.guideChannel && <CollectorSetup integration={i} />}
-              {!isCustom(i) && isAgent(i) && !i.guideChannel && (
+              {!isCustom(i) && isAgent(i) && !i.guideChannel && i.moduleName=='FILE_CLASSIFICATION' && (
+                <FileClassificationGuide />
+              )}
+              {!isCustom(i) && isAgent(i) && !i.guideChannel &&
+                 i.moduleName!='FILE_CLASSIFICATION' &&
+                (
                 <>
                   <AgentSetup integration={i} />
                   {i.guideSetting && (

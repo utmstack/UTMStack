@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+
 	"github.com/google/uuid"
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/modules/iam/connectors"
@@ -176,9 +177,6 @@ func (u *userUsecase) Update(ctx context.Context, id uuid.UUID, input dto.Update
 	if input.LangKey != "" {
 		user.LangKey = input.LangKey
 	}
-	if input.Status != nil {
-		user.Status = *input.Status
-	}
 
 	if err := u.userRepo.Update(ctx, user); err != nil {
 		return nil, err
@@ -267,6 +265,10 @@ func roleDigests(roles []domain.Role) []dto.RoleDigest {
 		out = append(out, dto.RoleDigest{Name: r.Name, DisplayName: r.DisplayName})
 	}
 	return out
+}
+
+func (u *userUsecase) RemoveUser(ctx context.Context, userID uuid.UUID) error{
+	return u.userRepo.RemoveUser(ctx,userID)
 }
 
 func (u *userUsecase) toDetail(ctx context.Context, user *domain.User) (*dto.UserDetailResponse, error) {
