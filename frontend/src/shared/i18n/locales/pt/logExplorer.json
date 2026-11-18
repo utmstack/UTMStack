@@ -142,5 +142,34 @@
         "saveFailed": "Não foi possível salvar a busca",
         "deleteFailed": "Não foi possível excluir a busca",
         "unreadable": "Não foi possível ler essa busca salva"
+    },
+    "edr": {
+        "subtitle": "Evidências analisadas do endpoint",
+        "sources": {
+            "file": "Detecção de arquivo",
+            "network": "Bloqueio de rede",
+            "ransomware": "Evento de ransomware",
+            "script": "Bloqueio de script",
+            "process": "Atividade do processo",
+            "endpoint": "Detecção do endpoint"
+        },
+        "fields": {
+            "host": "Host",
+            "action": "Ação",
+            "severity": "Severidade",
+            "filePath": "Caminho do arquivo",
+            "verdict": "Veredito",
+            "detectionName": "Nome da detecção",
+            "fileHash": "Hash do arquivo",
+            "process": "Processo",
+            "parentProcess": "Processo pai",
+            "remoteAddress": "Endereço remoto",
+            "domain": "Domínio",
+            "matchedIndicator": "Indicador correspondente",
+            "scoreSignal": "Sinal da pontuação",
+            "contained": "Contido",
+            "script": "Script",
+            "commandLine": "Linha de comando"
+        }
     }
 }

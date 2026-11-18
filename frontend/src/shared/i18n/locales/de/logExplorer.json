@@ -142,5 +142,34 @@
         "saveFailed": "Die Suche konnte nicht gespeichert werden",
         "deleteFailed": "Die Suche konnte nicht gelöscht werden",
         "unreadable": "Diese gespeicherte Suche konnte nicht gelesen werden"
+    },
+    "edr": {
+        "subtitle": "Aufbereitete Endpoint-Daten",
+        "sources": {
+            "file": "Dateierkennung",
+            "network": "Netzwerksperre",
+            "ransomware": "Ransomware-Ereignis",
+            "script": "Skriptsperre",
+            "process": "Prozessaktivität",
+            "endpoint": "Endpoint-Erkennung"
+        },
+        "fields": {
+            "host": "Host",
+            "action": "Aktion",
+            "severity": "Schweregrad",
+            "filePath": "Dateipfad",
+            "verdict": "Bewertung",
+            "detectionName": "Erkennungsname",
+            "fileHash": "Datei-Hash",
+            "process": "Prozess",
+            "parentProcess": "Übergeordneter Prozess",
+            "remoteAddress": "Remoteadresse",
+            "domain": "Domäne",
+            "matchedIndicator": "Passender Indikator",
+            "scoreSignal": "Punktesignal",
+            "contained": "Eingedämmt",
+            "script": "Skript",
+            "commandLine": "Befehlszeile"
+        }
     }
 }

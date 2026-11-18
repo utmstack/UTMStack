@@ -49,6 +49,7 @@ import dataProcessing from './dataProcessing.json'
 import dataRetention from './dataRetention.json'
 import datasources from './datasources.json'
 import dateFormat from './dateFormat.json'
+import edr from './edr.json'
 import emailConfig from './emailConfig.json'
 import home from './home.json'
 import idp from './idp.json'
@@ -108,4 +109,4 @@ import titleUe from './titleUe.json'
 import topbar from './topbar.json'
 import userAuditor from './userAuditor.json'
 
-export default { about, adversaries, alertingRules, alerts, apiKeys, audit, auth, branding, capCd0, capCd1, capCd2, capCd3, capCt0, capCt1, capCt2, capCt3, capDd0, capDd1, capDd2, capDd3, capPh0, capPh1, capPh2, capPh3, capPi0, capPi1, capPi2, capPi3, capSd0, capSd1, capSd2, capSd3, capTd0, capTd1, capTd2, capTd3, capUe0, capUe1, capUe2, capUe3, capUeUser, common, compliance, connectionKey, dashboards, dataProcessing, dataRetention, datasources, dateFormat, emailConfig, home, idp, incidents, integrations, languageSettings, license, liveOps, logExplorer, nav, notifications, onboarding, pagination, parsingFilters, platformBroadcast, playground, profile, regexPatterns, scAttachment, scCred, scData, scDataItem, scDeploy, scDownload, scExec, scExecuted, scGone, scInject, scInside, scNoRecovery, scPayload, scSecret, scSecrets, scStolen, scTunnel, scTunneled, settings, soar, socAi, supportAccess, supportSession, taggingRules, team, tenants, threatIntel, threatwinds, tiAnalyst, timeRange, titleCd, titleCt, titleDd, titlePh, titlePi, titleSd, titleTd, titleUe, topbar, userAuditor, }
+export default { about, adversaries, alertingRules, alerts, apiKeys, audit, auth, branding, capCd0, capCd1, capCd2, capCd3, capCt0, capCt1, capCt2, capCt3, capDd0, capDd1, capDd2, capDd3, capPh0, capPh1, capPh2, capPh3, capPi0, capPi1, capPi2, capPi3, capSd0, capSd1, capSd2, capSd3, capTd0, capTd1, capTd2, capTd3, capUe0, capUe1, capUe2, capUe3, capUeUser, common, compliance, connectionKey, dashboards, dataProcessing, dataRetention, datasources, dateFormat, edr, emailConfig, home, idp, incidents, integrations, languageSettings, license, liveOps, logExplorer, nav, notifications, onboarding, pagination, parsingFilters, platformBroadcast, playground, profile, regexPatterns, scAttachment, scCred, scData, scDataItem, scDeploy, scDownload, scExec, scExecuted, scGone, scInject, scInside, scNoRecovery, scPayload, scSecret, scSecrets, scStolen, scTunnel, scTunneled, settings, soar, socAi, supportAccess, supportSession, taggingRules, team, tenants, threatIntel, threatwinds, tiAnalyst, timeRange, titleCd, titleCt, titleDd, titlePh, titlePi, titleSd, titleTd, titleUe, topbar, userAuditor, }

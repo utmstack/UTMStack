@@ -38,5 +38,6 @@
     "regexPatterns": "Regex Patterns",
     "overview": "Overview",
     "tenants": "Tenants",
-    "liveOps": "Live Operations"
+    "liveOps": "Live Operations",
+    "edr": "EDR"
 }

@@ -38,5 +38,6 @@
     "tenants": "Mandanten",
     "openMenu": "Menü öffnen",
     "closeMenu": "Menü schließen",
-    "liveOps": "Live-Betrieb"
+    "liveOps": "Live-Betrieb",
+    "edr": "EDR"
 }

@@ -142,5 +142,34 @@
         "saveFailed": "Impossible d'enregistrer la recherche",
         "deleteFailed": "Impossible de supprimer la recherche",
         "unreadable": "Cette recherche enregistrée est illisible"
+    },
+    "edr": {
+        "subtitle": "Éléments endpoint analysés",
+        "sources": {
+            "file": "Détection de fichier",
+            "network": "Blocage réseau",
+            "ransomware": "Événement ransomware",
+            "script": "Blocage de script",
+            "process": "Activité de processus",
+            "endpoint": "Détection endpoint"
+        },
+        "fields": {
+            "host": "Hôte",
+            "action": "Action",
+            "severity": "Gravité",
+            "filePath": "Chemin du fichier",
+            "verdict": "Verdict",
+            "detectionName": "Nom de la détection",
+            "fileHash": "Hash du fichier",
+            "process": "Processus",
+            "parentProcess": "Processus parent",
+            "remoteAddress": "Adresse distante",
+            "domain": "Domaine",
+            "matchedIndicator": "Indicateur correspondant",
+            "scoreSignal": "Signal du score",
+            "contained": "Contenu",
+            "script": "Script",
+            "commandLine": "Ligne de commande"
+        }
     }
 }

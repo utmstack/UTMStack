@@ -38,5 +38,6 @@
     "tenants": "Tenant",
     "openMenu": "Apri menu",
     "closeMenu": "Chiudi menu",
-    "liveOps": "Operazioni live"
+    "liveOps": "Operazioni live",
+    "edr": "EDR"
 }

@@ -64,6 +64,7 @@ type LeafItem = {
    * run: a customer's own administrator holds ROLE_ADMIN too, and without MSSP
    * the single tenant's administrator *is* the platform identity. */
   platformOnly?: boolean
+  permission?: string
 }
 
 type GroupItem = {
@@ -135,6 +136,7 @@ const sections: Section[] = [
           { to: '/threat-intelligence/report', label: 'nav.threat-intel.report', icon: Flag },
         ],
       },
+      { to: '/edr', label: 'nav.edr', icon: ShieldCheck },
       { to: '/compliance', label: 'nav.compliance', icon: BadgeCheck },
     ],
   },
@@ -249,7 +251,7 @@ function CollapseToggle({ collapsed, onToggle }: { collapsed: boolean; onToggle:
 
 export function Sidebar() {
   const { t } = useTranslation()
-  const { isAdmin, isPlatformAdmin } = useAuth()
+  const { isAdmin, isPlatformAdmin, hasPermission } = useAuth()
   const { license } = useBilling()
   const isMSSP = license?.mssp === true
   const supportTenant = useSupportTenant()
@@ -353,6 +355,7 @@ export function Sidebar() {
                     .filter(
                       (item) =>
                         (isGroup(item) || !item.platformOnly || (actingAsPlatform && isMSSP)) &&
+                        (isGroup(item) || !item.permission || hasPermission(item.permission)) &&
                         !(renderOverviewWithToggle && !isGroup(item) && item.to === '/home')
                     )
                     .map((item) =>

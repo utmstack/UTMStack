@@ -16,6 +16,7 @@ import dataProcessing from './dataProcessing.json'
 import dataRetention from './dataRetention.json'
 import datasources from './datasources.json'
 import dateFormat from './dateFormat.json'
+import edr from './edr.json'
 import emailConfig from './emailConfig.json'
 import home from './home.json'
 import idp from './idp.json'
@@ -49,4 +50,4 @@ import timeRange from './timeRange.json'
 import topbar from './topbar.json'
 import userAuditor from './userAuditor.json'
 
-export default { about, adversaries, alertingRules, alerts, apiKeys, audit, auth, branding, common, compliance, connectionKey, dashboards, dataProcessing, dataRetention, datasources, dateFormat, emailConfig, home, idp, incidents, integrations, languageSettings, license, liveOps, logExplorer, nav, notifications, onboarding, pagination, parsingFilters, platformBroadcast, playground, profile, regexPatterns, settings, soar, socAi, supportAccess, supportSession, taggingRules, team, tenants, threatIntel, threatwinds, tiAnalyst, timeRange, topbar, userAuditor, }
+export default { about, adversaries, alertingRules, alerts, apiKeys, audit, auth, branding, common, compliance, connectionKey, dashboards, dataProcessing, dataRetention, datasources, dateFormat, edr, emailConfig, home, idp, incidents, integrations, languageSettings, license, liveOps, logExplorer, nav, notifications, onboarding, pagination, parsingFilters, platformBroadcast, playground, profile, regexPatterns, settings, soar, socAi, supportAccess, supportSession, taggingRules, team, tenants, threatIntel, threatwinds, tiAnalyst, timeRange, topbar, userAuditor, }

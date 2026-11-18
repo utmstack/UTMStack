@@ -38,5 +38,6 @@
     "tenants": "Locataires",
     "openMenu": "Ouvrir le menu",
     "closeMenu": "Fermer le menu",
-    "liveOps": "Opérations en direct"
+    "liveOps": "Opérations en direct",
+    "edr": "EDR"
 }

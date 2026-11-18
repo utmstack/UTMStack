@@ -28,6 +28,8 @@ import { ThreatIntelPage } from '@/features/threat-intel/pages/ThreatIntelPage'
 import { ThreatIntelAnalystPage } from '@/features/threat-intel/pages/ThreatIntelAnalystPage'
 import { ThreatIntelReportPage } from '@/features/threat-intel/pages/ThreatIntelReportPage'
 import { TriagePage } from '@/features/threat-intel/pages/TriagePage'
+import { EdrDashboardPage } from '@/features/edr/pages/EdrDashboardPage'
+
 import { CompliancePage } from '@/features/compliance/pages/CompliancePage'
 import { FrameworkReportPage } from '@/features/compliance/pages/FrameworkReportPage'
 import { DataSourcesPage } from '@/features/datasources/pages/DataSourcesPage'
@@ -159,6 +161,8 @@ export function AppRoutes() {
         <Route path="threat-intelligence/analyst" element={<ThreatIntelAnalystPage />} />
         <Route path="threat-intelligence/report" element={<ThreatIntelReportPage />} />
         <Route path="threat-intelligence/triage" element={<TriagePage />} />
+        <Route path="edr" element={<EdrDashboardPage />} />
+
 
         {/* Compliance */}
         <Route path="compliance" element={<CompliancePage />} />

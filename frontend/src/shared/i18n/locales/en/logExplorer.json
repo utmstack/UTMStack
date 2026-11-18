@@ -142,5 +142,34 @@
         "saveFailed": "Could not save the search",
         "deleteFailed": "Could not delete the search",
         "unreadable": "That saved search could not be read"
+    },
+    "edr": {
+        "subtitle": "Parsed endpoint evidence",
+        "sources": {
+            "file": "File detection",
+            "network": "Network block",
+            "ransomware": "Ransomware event",
+            "script": "Script block",
+            "process": "Process activity",
+            "endpoint": "Endpoint detection"
+        },
+        "fields": {
+            "host": "Host",
+            "action": "Action",
+            "severity": "Severity",
+            "filePath": "File path",
+            "verdict": "Verdict",
+            "detectionName": "Detection name",
+            "fileHash": "File hash",
+            "process": "Process",
+            "parentProcess": "Parent process",
+            "remoteAddress": "Remote address",
+            "domain": "Domain",
+            "matchedIndicator": "Matched indicator",
+            "scoreSignal": "Score signal",
+            "contained": "Contained",
+            "script": "Script",
+            "commandLine": "Command line"
+        }
     }
 }

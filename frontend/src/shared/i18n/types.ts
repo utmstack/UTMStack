@@ -14,6 +14,7 @@ import type dataProcessing from './locales/en/dataProcessing.json'
 import type dataRetention from './locales/en/dataRetention.json'
 import type datasources from './locales/en/datasources.json'
 import type dateFormat from './locales/en/dateFormat.json'
+import type edr from './locales/en/edr.json'
 import type emailConfig from './locales/en/emailConfig.json'
 import type home from './locales/en/home.json'
 import type idp from './locales/en/idp.json'
@@ -65,6 +66,7 @@ export type EnTranslation = {
   dataRetention: typeof dataRetention;
   datasources: typeof datasources;
   dateFormat: typeof dateFormat;
+  edr: typeof edr;
   emailConfig: typeof emailConfig;
   home: typeof home;
   idp: typeof idp;
