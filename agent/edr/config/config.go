@@ -264,6 +264,9 @@ type EDRConfig struct {
 	SuspendTimeoutMs int    `json:"suspend_timeout_ms"` // Plan 3
 	QuarantineDir    string `json:"quarantine_dir"`
 	QuarantineDays   int    `json:"quarantine_retention_days"` // 0 = keep forever
+	// PolicyVersion is the version of the last centrally-assigned policy
+	// pushed by the backend; the agent reports it back in its status.
+	PolicyVersion string `json:"policy_version,omitempty"`
 	// The legacy daemon transport keys of older edr.json files are deliberately
 	// not fields: Load ignores them and the next Save drops them. The native
 	// engine neither launches a helper nor opens a scanning socket.
