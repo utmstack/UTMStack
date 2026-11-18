@@ -81,10 +81,16 @@ public class UtmDashboardResource {
                 SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new UtmEntityCreationException("Missing user login")));
             utmDashboard.setCreatedDate(LocalDateTime.now().toInstant(ZoneOffset.UTC));
 
-            // Set the next system sequence value only if the environment is dev
-            if (Arrays.asList(env.getActiveProfiles()).contains(JHipsterConstants.SPRING_PROFILE_DEVELOPMENT)) {
+            // systemOwner is an internal flag the REST API must never let a caller
+            // set from the body (#3040): it drives system-sync deletion and the
+            // system id sequence, so a spoofed true lets a user dashboard escape
+            // system cleanup / pollute the sequence. Derive it server-side only.
+            boolean inDev = Arrays.asList(env.getActiveProfiles()).contains(JHipsterConstants.SPRING_PROFILE_DEVELOPMENT);
+            if (inDev) {
                 utmDashboard.setId(utmDashboardService.getSystemSequenceNextValue());
                 utmDashboard.setSystemOwner(true);
+            } else {
+                utmDashboard.setSystemOwner(false);
             }
 
             result = utmDashboardService.save(utmDashboard);
@@ -125,7 +131,11 @@ public class UtmDashboardResource {
             utmDashboard.setUserModified(
                 SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new UtmEntityCreationException("Missing user login")));
             utmDashboard.setModifiedDate(Instant.now());
-            utmDashboard.setSystemOwner(utmDashboard.getSystemOwner() == null ? utmDashboard.getId() < 1000000 : utmDashboard.getSystemOwner());
+            // Preserve the existing systemOwner value server-side (#3040): the body's
+            // systemOwner is ignored so a caller cannot flag an existing user
+            // dashboard as system-owned (or clear it).
+            Optional<UtmDashboard> existing = utmDashboardService.findOne(utmDashboard.getId());
+            utmDashboard.setSystemOwner(existing.isPresent() ? existing.get().getSystemOwner() : utmDashboard.getId() < 1000000);
 
             result = utmDashboardService.save(utmDashboard);
             return ResponseEntity.ok().headers(

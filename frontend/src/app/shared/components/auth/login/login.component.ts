@@ -11,6 +11,7 @@ import {ApiServiceCheckerService} from '../../../../core/auth/api-checker-servic
 import {StateStorageService} from '../../../../core/auth/state-storage.service';
 import {LoginService} from '../../../../core/login/login.service';
 import {UtmToastService} from '../../../alert/utm-toast.service';
+import {TfaMethod} from '../../../services/tfa/tfa.service';
 import {MenuBehavior} from '../../../behaviors/menu.behavior';
 import {ThemeChangeBehavior} from '../../../behaviors/theme-change.behavior';
 import {ADMIN_DEFAULT_EMAIL, ADMIN_ROLE, DEMO_URL, USER_ROLE} from '../../../constants/global.constant';
@@ -73,11 +74,24 @@ export class LoginComponent implements OnInit, OnDestroy {
         if (params) {
           this.activatedRoute.queryParams.subscribe(params => {
             if (params.token) {
+              // SAML (and any ?token=) login: the backend issues only a
+              // pre-verification token when TFA is configured, appending tfa +
+              // tfaExpiry so we land on the verification screen instead of
+              // straight into the app (#3042 SAML TFA bypass).
+              if (params.tfa) {
+                this.authServerProvider.tfaMethod = params.tfa as TfaMethod;
+                this.authServerProvider.tfaExpireTimeInSec = Number(params.tfaExpiry || 0);
                 this.loginService.loginWithToken(params.token, true).then(() => {
-                this.loadingLogin = false;
-                this.isInternalNavigation = true;
-                this.startInternalNavigation(params);
-              });
+                  this.loadingLogin = false;
+                  this.router.navigate(['/totp']);
+                });
+              } else {
+                this.loginService.loginWithToken(params.token, true).then(() => {
+                  this.loadingLogin = false;
+                  this.isInternalNavigation = true;
+                  this.startInternalNavigation(params);
+                });
+              }
             } else if (params.key) {
               this.loadingLogin = false;
               this.isInternalNavigation = true;
