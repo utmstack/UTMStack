@@ -31,7 +31,7 @@ var groupColumns = map[string]string{
 	"dataType":   "`dataType`",
 }
 
-const tsFormat = "'%Y-%m-%dT%H:%M:%SZ'"
+const tsFormat = "'%Y-%m-%dT%H:%i:%SZ'"
 
 func (r *chIngestionStatsRepository) TotalsByField(ctx context.Context, field string, q connectors.IngestionStatsQuery, top int) ([]dto.IngestionStatsBucket, dto.IngestionTotals, error) {
 	col, ok := groupColumns[field]
