@@ -133,9 +133,12 @@ public class UtmDashboardResource {
             utmDashboard.setModifiedDate(Instant.now());
             // Preserve the existing systemOwner value server-side (#3040): the body's
             // systemOwner is ignored so a caller cannot flag an existing user
-            // dashboard as system-owned (or clear it).
+            // dashboard as system-owned (or clear it). Default a null persisted
+            // value to the id-based heuristic so downstream code always sees a
+            // real boolean.
             Optional<UtmDashboard> existing = utmDashboardService.findOne(utmDashboard.getId());
-            utmDashboard.setSystemOwner(existing.isPresent() ? existing.get().getSystemOwner() : utmDashboard.getId() < 1000000);
+            Boolean preservedSystemOwner = existing.map(UtmDashboard::getSystemOwner).orElse(null);
+            utmDashboard.setSystemOwner(preservedSystemOwner != null ? preservedSystemOwner : utmDashboard.getId() < 1000000);
 
             result = utmDashboardService.save(utmDashboard);
             return ResponseEntity.ok().headers(

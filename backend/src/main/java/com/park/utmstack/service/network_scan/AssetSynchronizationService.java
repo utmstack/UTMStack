@@ -72,6 +72,10 @@ public class AssetSynchronizationService {
                     StatisticDocument stat = statsMap.get(sourceName);
                     UtmDataInputStatus status = processDataInputStatus(stat, statusMap);
                     statusToSave.add(status);
+                    // #2986: reindex the freshly-updated status so the alive
+                    // check (processNetworkAsset) AND the sweep below see the
+                    // new timestamp, not the stale/absent map entry.
+                    statusMap.put(status.getId(), status);
 
                     UtmNetworkScan asset = processNetworkAsset(stat.getDataSource(), agentsMap, assetsNameMap, assetsNameIpMap, statusMap);
                     assetsToSave.add(asset);
@@ -79,6 +83,10 @@ public class AssetSynchronizationService {
 
                 if (!statusToSave.isEmpty()) {
                     dataInputStatusRepository.saveAll(statusToSave);
+                    // #2986: rebuild from the persisted rows so the sweep sees
+                    // committed timestamps for every data type, not just the
+                    // sources with activity this cycle.
+                    statusMap = buildDataInputStatusMap();
                 }
 
                 if (!assetsToSave.isEmpty()) {
@@ -142,7 +150,7 @@ public class AssetSynchronizationService {
                     .toList();
             if (!rows.isEmpty() && rows.stream().allMatch(UtmDataInputStatus::isDown)) {
                 asset.assetAlive(false);
-                asset.setModifiedAt(LocalDateTime.now().toInstant(ZoneOffset.UTC));
+                asset.setModifiedAt(Instant.now());
                 networkScanRepository.save(asset);
                 flipped++;
                 log.info("[{}] Marked data-source asset '{}' disconnected (no data type up)", correlationId, asset.getAssetName());

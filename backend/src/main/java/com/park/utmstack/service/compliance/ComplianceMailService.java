@@ -1,5 +1,6 @@
 package com.park.utmstack.service.compliance;
 
+import com.park.utmstack.domain.Authority;
 import com.park.utmstack.domain.User;
 import com.park.utmstack.repository.UserRepository;
 import com.park.utmstack.security.jwt.TokenProvider;
@@ -16,6 +17,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,7 +47,9 @@ public class ComplianceMailService {
         User admin = userRepository.findAdminUsers().stream()
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException(ctx + ": no active admin user to render the compliance report"));
-        List<GrantedAuthority> authorities = admin.getAuthorities().stream()
+        Collection<Authority> userAuthorities =
+                admin.getAuthorities() == null ? Collections.emptySet() : admin.getAuthorities();
+        List<GrantedAuthority> authorities = userAuthorities.stream()
                 .map(a -> (GrantedAuthority) new SimpleGrantedAuthority(a.getName()))
                 .collect(Collectors.toList());
         UsernamePasswordAuthenticationToken auth =

@@ -285,8 +285,29 @@ public class UtmAlertResponseRuleService implements ApplicationRunner {
      * allow-list interpolated values to characters that cannot change command
      * semantics in any of the supported shells, and fail closed otherwise.
      */
+    /**
+     * #2836 follow-up: in addition to the charset below, the value must be a
+     * single shell token — no whitespace and no leading '-'. A value such as
+     * "a -v" or "--help" would otherwise pass the charset and, interpolated
+     * unquoted into "tool {field}", become extra arguments/options the agent
+     * shell executes. Single-token values (IPs, hostnames, usernames, hashes,
+     * CVE ids, single URLs) are unaffected.
+     */
     private static final Pattern SAFE_INTERPOLATED_VALUE =
             Pattern.compile("^[A-Za-z0-9 ./:@+=_-]*$");
+
+    private static boolean isSafeInterpolatedValue(String v) {
+        if (v == null || v.isEmpty()) {
+            return true; // interpolates as nothing
+        }
+        if (v.chars().anyMatch(Character::isWhitespace)) {
+            return false;
+        }
+        if (v.startsWith("-")) {
+            return false;
+        }
+        return SAFE_INTERPOLATED_VALUE.matcher(v).matches();
+    }
 
     private String buildCommand(String rawCommand, String alertJson) {
         final String ctx = CLASSNAME + ".buildCommand";
@@ -302,7 +323,7 @@ public class UtmAlertResponseRuleService implements ApplicationRunner {
                 String fieldName = matcher.group(1);
                 Object value = UtilJson.read(String.format("$.%s", fieldName), alertJson);
                 String valueStr = value == null ? "" : value.toString();
-                if (!SAFE_INTERPOLATED_VALUE.matcher(valueStr).matches()) {
+                if (!isSafeInterpolatedValue(valueStr)) {
                     throw new UnsafeCommandValueException(ctx + ": refusing to interpolate alert field '"
                             + fieldName + "' into the response command: value contains characters that are not shell-safe (#2836)");
                 }
