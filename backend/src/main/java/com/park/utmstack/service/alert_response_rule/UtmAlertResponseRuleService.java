@@ -232,7 +232,7 @@ public class UtmAlertResponseRuleService implements ApplicationRunner {
                     } catch (UnsafeCommandValueException e) {
                         // A single alert with an unsafe field value must not abort the
                         // whole batch; skip just this alert (#2836).
-                        log.warn(ctx + ": skipping alert {}; unsafe interpolated value", UtilJson.read("$.id", matchAsJson));
+                        log.warn(ctx + ": skipping alert " + UtilJson.read("$.id", matchAsJson) + "; unsafe interpolated value (" + e.getMessage() + ")");
                         continue;
                     }
                     exe.setExecutionStatus(RuleExecutionStatus.PENDING);
