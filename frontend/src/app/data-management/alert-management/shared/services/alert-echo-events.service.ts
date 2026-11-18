@@ -20,14 +20,21 @@ export class AlertEchoEventsService {
    * (de-duplicated on event id). Mutates `parent.events` in place and returns
    * the merged array. Resolves the callback with the merged array even when the
    * lookup fails, so the caller still renders the parent's own events.
+   *
+   * Fetches up to MAX_ECHO_CHILDREN in one page; the backend `top` caps the
+   * result set. Realistic echo counts are well under this (echo rules cap at a
+   * few hundred); a single oversized alert truncates to the cap rather than
+   * undercounting silently.
    */
+  private readonly MAX_ECHO_CHILDREN = 500;
+
   mergeEchoEvents(parent: any, done: (merged: any[]) => void): void {
     const existing: any[] = (parent && Array.isArray(parent.events)) ? parent.events : [];
     if (!parent || !parent.id) {
       done(existing);
       return;
     }
-    this.elasticDataService.search(1, 100, 100, DataNatureTypeEnum.ALERT, [{
+    this.elasticDataService.search(1, this.MAX_ECHO_CHILDREN, this.MAX_ECHO_CHILDREN, DataNatureTypeEnum.ALERT, [{
       field: 'parentId',
       operator: ElasticOperatorsEnum.IS,
       value: parent.id

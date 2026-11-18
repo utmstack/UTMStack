@@ -38,8 +38,8 @@ export class ComplianceStatusComponent implements OnInit {
   @Input() set report(value: ComplianceReportType) {
     if (value) {
       this._report = value;
-      const visualizationType: UtmDashboardVisualizationType = value.dashboard.find(vis =>
-        vis.visualization.chartType === ChartTypeEnum.TABLE_CHART || vis.visualization.chartType === ChartTypeEnum.LIST_CHART);
+      const visualizationType: UtmDashboardVisualizationType = (value.dashboard || []).find(vis =>
+        vis && vis.visualization && (vis.visualization.chartType === ChartTypeEnum.TABLE_CHART || vis.visualization.chartType === ChartTypeEnum.LIST_CHART));
 
       if (visualizationType) {
         this.visualization.emit(visualizationType);

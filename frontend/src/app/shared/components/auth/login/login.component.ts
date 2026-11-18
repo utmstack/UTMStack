@@ -99,14 +99,14 @@ export class LoginComponent implements OnInit, OnDestroy {
                     this.router.navigate(['/totp']);
                   });
                 } else {
-                  // Unknown method: don't store it in auth state. Proceed with a
-                  // straight token login; if TFA is genuinely required the server
-                  // will reject the un-verified session, so no bypass is possible.
-                  this.loginService.loginWithToken(params.token, true).then(() => {
-                    this.loadingLogin = false;
-                    this.isInternalNavigation = true;
-                    this.startInternalNavigation(params);
-                  });
+                  // #3042: unknown method — fail CLOSED. Do NOT store the
+                  // pre-verification token and do NOT enter the app; the user
+                  // must re-authenticate. The server is authoritative for
+                  // whether TFA is required, so this cannot be a bypass, and it
+                  // prevents a tampered/buggy link from landing an un-verified
+                  // session in the UI.
+                  this.loadingLogin = false;
+                  this.utmToast.showError('Login fail', 'Second-factor authentication required. Please sign in again.');
                 }
               } else {
                 this.loginService.loginWithToken(params.token, true).then(() => {
