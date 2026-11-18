@@ -286,21 +286,24 @@ public class UtmAlertResponseRuleService implements ApplicationRunner {
      * semantics in any of the supported shells, and fail closed otherwise.
      */
     /**
-     * #2836 follow-up: in addition to the charset below, the value must be a
-     * single shell token — no whitespace and no leading '-'. A value such as
-     * "a -v" or "--help" would otherwise pass the charset and, interpolated
-     * unquoted into "tool {field}", become extra arguments/options the agent
-     * shell executes. Single-token values (IPs, hostnames, usernames, hashes,
-     * CVE ids, single URLs) are unaffected.
+     * #2836 follow-up (round 2): the value must be a single, lean shell token.
+     *  - Charset: alphanumerics plus the small set of symbols that appear in
+     *    real alert values (CVE ids, hashes, version strings, usernames) and
+     *    that cannot alter shell parsing. '/' (paths), ':' (URL scheme, path),
+     *    '=' (VAR= assignment), and space are all excluded.
+     *  - No whitespace anywhere and no leading '-' (option injection).
+     *  A value like "/etc/passwd", "../../secret", "a b", "a -v" or
+     *    "PATH=/tmp" therefore fails and the alert is skipped (fail-closed)
+     *    rather than interpolated into the agent command.
      */
     private static final Pattern SAFE_INTERPOLATED_VALUE =
-            Pattern.compile("^[A-Za-z0-9 ./:@+=_-]*$");
+            Pattern.compile("^[A-Za-z0-9._+@-]*$");
 
     private static boolean isSafeInterpolatedValue(String v) {
         if (v == null || v.isEmpty()) {
             return true; // interpolates as nothing
         }
-        if (v.chars().anyMatch(Character::isWhitespace)) {
+        if (v.chars().anyMatch(c -> Character.isWhitespace(c) || c == '/' || c == ':' || c == '=')) {
             return false;
         }
         if (v.startsWith("-")) {

@@ -131,14 +131,21 @@ public class UtmDashboardResource {
             utmDashboard.setUserModified(
                 SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new UtmEntityCreationException("Missing user login")));
             utmDashboard.setModifiedDate(Instant.now());
-            // Preserve the existing systemOwner value server-side (#3040): the body's
-            // systemOwner is ignored so a caller cannot flag an existing user
-            // dashboard as system-owned (or clear it). Default a null persisted
-            // value to the id-based heuristic so downstream code always sees a
-            // real boolean.
+            // Preserve the existing systemOwner value server-side (#3040): the
+            // body's systemOwner is ignored so a caller cannot flag an existing
+            // user dashboard as system-owned (or clear it). If the dashboard
+            // does not exist return 404 rather than falling back to the low-id
+            // "system" heuristic (which would let a caller attach system
+            // ownership to an arbitrary id). A null persisted value (legacy)
+            // is treated as false.
             Optional<UtmDashboard> existing = utmDashboardService.findOne(utmDashboard.getId());
-            Boolean preservedSystemOwner = existing.map(UtmDashboard::getSystemOwner).orElse(null);
-            utmDashboard.setSystemOwner(preservedSystemOwner != null ? preservedSystemOwner : utmDashboard.getId() < 1000000);
+            if (existing.isEmpty()) {
+                String msg = ctx + ": dashboard " + utmDashboard.getId() + " not found";
+                log.error(msg);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).headers(
+                    HeaderUtil.createFailureAlert(ENTITY_NAME, null, msg)).body(null);
+            }
+            utmDashboard.setSystemOwner(Boolean.TRUE.equals(existing.get().getSystemOwner()));
 
             result = utmDashboardService.save(utmDashboard);
             return ResponseEntity.ok().headers(
